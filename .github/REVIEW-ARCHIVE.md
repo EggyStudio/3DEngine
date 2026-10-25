@@ -3773,6 +3773,26 @@ batch.
     mended there and in the reading, the game's glass frame and red wall as with no far cascade, the
     far cave's distant light the game's fog.
 
+121. **A mesh over shader buffers carries a color stream beside the program's own and can lie in a
+    range of a shared buffer.** From the voxel game's reading for its item 29 at 07:48 on
+    2026-10-25, its ASKS.md entry in the engine's tree; a gap the port finds comes to the engine
+    first, Decision 68. MeshStore.Counted holds positions and one stream, and the scene field reads
+    a counted mesh's colors from a UNorm8x4 stream alone, so a section meshed in compute with the
+    terrain shader's UInt2 stream would give the field no colors and every block would bounce the
+    material's white, where the game's uploaded sections carry a color a corner the field reads as
+    the block's; and a counted mesh holds whole buffers, so a program meshing thousands of sections
+    would size each for its fullest case or count its faces on the CPU first, half the meshing. The
+    counted mesh gains a second stream for the colors, read by the field as an uploaded mesh's
+    colors are, and a form over a range of a shader buffer, an offset and a capacity, so a program
+    keeps thousands of sections in a few large buffers with the draw and the field reading the
+    range; tests of a counted mesh with a color stream bouncing the stream's color in the field and
+    of two meshes in one buffer's ranges drawn and counted apart; the compute guide's page. The
+    game's reading beside it, cpu.scene_field at 6.8 to 9.3 ms a frame on sprint flights over
+    unloaded land at render distance 12, is the field's main-thread cost and goes with item 96's
+    reading of where the field spends. One commit, after item 102 and before item 103. Done at
+    `9a013b59` on 2026-10-25, the field reading a counted mesh's colors beside the program's own
+    stream, the red wall's floor 222, 192, 192 where it read gray, the departure in the head.
+
 ## Verdicts settled
 
 Verdicts 1 to 55 are settled, the last two, the drawing leak test's resident bound and the Windows

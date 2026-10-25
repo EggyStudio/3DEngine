@@ -19,6 +19,11 @@ The bounce rooms' floor at a grazing angle at Low with a far cascade at the far 
 the last counted cascade merging the far cascade's probes, 0.108 of its light from its reference,
 and below with it tracing to the field's edge itself, 0.069.
 
+![](.github/assets/readings/2026-10-25-item-121-colors.webp)
+The red wall's room with the wall a compute shader writes in a stream of two uints a vertex, lit by
+a shader of its own, above with no colors given, the floor before it 233,233,233, and below with its
+colors given beside the stream, the wall red and the floor 222,192,192 with the red it bounces.
+
 Done that day
 
 - Item 102 at `f05ea96f`. The far cascade's coarse cells near the ground hold no slab, so the game
@@ -36,6 +41,8 @@ Done that day
 - Item 119 at `6a20d165`. The dummy driver drains a one-shot voice as a device does.
 - Item 120 at `ac1c6bad`. A voice takes a low-pass by cutoff and a room's reverb by wet share, size
   and decay.
+- Item 121 at `9a013b59`. A mesh over shader buffers carries a color stream beside the program's own
+  and can lie in a range of a shared buffer.
 
 ## 2026-10-24
 

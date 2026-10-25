@@ -36,8 +36,9 @@ void computeMain(uint3 id : SV_DispatchThreadID)
 {
     if (id.x >= push.vertices)
         return;
-    uint vertex = push.source + id.x;
-    uint at = vertex * 3;
-    uint color = push.colored != 0 ? stream[vertex] & 0xffffffu : 0xffffffu;
+    // Not named vertex, a word Metal keeps, which the translation to Metal on macOS leaves as it is.
+    uint index = push.source + id.x;
+    uint at = index * 3;
+    uint color = push.colored != 0 ? stream[index] & 0xffffffu : 0xffffffu;
     corners[push.first + id.x] = uint4(asuint(positions[at]), asuint(positions[at + 1]), asuint(positions[at + 2]), color);
 }

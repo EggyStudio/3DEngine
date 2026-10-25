@@ -10,9 +10,22 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `c2fd2a40`, Verdict 89's mend, Tempo's autopilot on the song's clock, read at 08:36
-on 2026-10-25, carrying the review's files, SHARED.md, DEVLOG.md and the game's ASKS.md, held until
-the build run of `f05ea96f` ends, then pushed and the pack run started. Each note whose time this
+Reviewed up to `9a013b59`, item 121, the counted mesh's color stream and its range of a shared
+buffer, read at 09:02 on 2026-10-25, carrying the review's files and a captioned picture. Checked on
+top of item 102 and Verdict 89's mend, since 121 and 102 share SceneField.cs, the strict build
+clean, 2,108 plain and shuffled on the GPU in 8 minutes, 83 on lavapipe with validation over the
+counted meshes, the scene field, the reference frames and motion, the docs page's 10 blocks building
+on a fresh pack. One departure, the picture's wall lit by a model shader of its own with a normal
+from ddx and ddy in its vertex colors, since the model pass's own shader draws a positions-only
+counted mesh black, as the docs say. In the red wall's room the floor before the wall reads 233,
+233, 233 with no colors and 222, 192, 192 with the colors beside the UInt2 stream, the block's near
+face 191, 191, 191 and 186, 175, 175. After `c2fd2a40`, Verdict 89's mend, Tempo's autopilot on the
+song's clock, read at 08:36 on 2026-10-25, carrying the review's files, SHARED.md, DEVLOG.md and the
+game's ASKS.md, pushed with `9a013b59` at 09:40 on 2026-10-25 once the build run of `f05ea96f` went
+green whole, the pack run started with publish on at 09:40 for the game's items 95 and 29, both runs
+watched; the pack run's macOS suite and macOS captures red within minutes at 09:45 and 10:36 on the
+counted corners' shader failing to compile under MoltenVK, Verdict 90, so it packs nothing and a
+pack run follows the mend, the push run's macOS job to go the same way. Each note whose time this
 frame's step of the song passed is played at its own time, clamped into the clock before the step
 and the clock after, as a player on the beat is judged however long the frame, several in one lane
 in one long step each played, a note less than half a step ahead played on this frame as before,
@@ -26,46 +39,47 @@ with a 320 ms stall every 23rd frame through the whole song the old game missed 
 both miss 0, so it was the stall, as on the runner under its capacity notice. Item 121 was set aside
 in a stash and goes back in, its checks passed before, 2,108 plain and shuffled and 41 on lavapipe.
 After `f05ea96f`, item 102, the far cascade's slab, pushed at 07:50 on 2026-10-25 once the build run
-of `a8f127ad` went green whole, the run watched, carrying NORM.md, SHARED.md, DEVLOG.md, the
-review's files, the game's ASKS.md entry and two captioned pictures. The slab came from the field's
-resolve, not the reading, and both are mended. A cell in front of one face and straight behind an
-opposite one within a cell is held as a sheet half a cell either side of its middle, as a
-double-sided sheet is, and the flat world's ground is four blocks between grass tops and bedrock
-bottoms, so at the far cascade's 73.75 every cell above it qualified and the ground stood about 37
-blocks thick with the eye inside it; the far cascade's build holds such sheets half the last counted
-cascade's cell thick, ResolvePush's lent.y and a sheet argument on RecordSceneFieldBuild. In the
-reading, as planned, the last counted cascade traces to the far edge with Last set and the merge
-takes nothing above it, and fadesOn in cascades.slang stops it fading into the far probes in
-gi.slang and lights.slang; the reading's changes alone did not move the game's numbers, the sheet
-mend restored them. Bisected in the game by gi.probe at the wall's cascade 3, up-rays meeting a
-surface within their interval and ground hits shaded four times too dark from a sun march blocked
-overhead. On a scratch copy of the Debug build, the flat world, the play check's glass at exposure 1
-and far at the far plane, the frame read 168, 157, 106 and the middle 139, 12, 0 before against 185,
-167, 126 and 154, 13, 0 with no far cascade, and after the same as no far cascade; the 27 bounce
-rooms with far at infinity within 0.007 of before except view 7 at Low, 0.108 to 0.069, its bound
-without far 0.09. The far cave at 90 blocks, read either way, moves not at all, the tops 9, 13, 18
-at High under every cascade alone and with the merge off and 0, 0, 0 with the game's fog off, so
-that distant light is the game's fog and no cascade's light reaches those tops. The far cascade
-costs the scene pass 0.2 to 0.3 ms at the grove at 1920 by 1080, 8.0 to 8.3 against 7.8 to 8.0, and
-GI 0.25 ms, before and after alike, the game's 5 ms having been on 5.2.281 before item 96's cuts, so
-nothing is left to cut. Two tests, a double-sided plane of 288 triangles, since a mesh under 16 is a
-stamped box, waiting MobileSettleFrames after its move, whose cell a quarter of a far cell over the
-floor reads 1.59 where it read -1.84, and the grazing floor at Low keeping its difference with a far
-cascade set, failing before at 0.108, the rooms' body moved into a Differs helper; a narrower far
-hit tolerance tried and dropped, changing nothing once the sheet was mended. RENDERING.md's far
-cascade passage rewritten with the readings. The strict build clean, 2,104 plain and shuffled on the
-GPU, 73 field, reference frame and cascade edge tests on lavapipe with validation. Item 96 begins
-with a reading on the game's 5.2.215 build at the cherry grove at 1920 by 1080, each part of the
-per-pixel read cut out in turn to tell what runs per fragment from the variant's registers, the
-window's depth at half size and the scene pass shading with overdraw pointing at a half-size pass
-over the window's depth with a two by two depth and normal read, as the glow pass has. Next 121, the
-counted mesh's color stream and range, then 103, the screen probes' one switch, then 96, the scene
-pass's read of the cascades and the shadow fill, then 100, the field's foliage share, then 111, the
-shadow's penumbra, then 112, the planar reflection, then 93, the colons out of the documents, then
-91, DESIGN.md's words on the loop and the ECS, then the glow light's non-number and the history's
-guard, then 95, the e3d help, then item 89, the plant walls' acne, then 97, the light at the
-camera's point on lavapipe. The branch `modeling` was deleted at 07:23 with its items all on main, N
-7.5; the cloud sessions stand by.
+of `a8f127ad` went green whole, its run green whole at 09:38, Windows in 108 minutes, Linux in 59
+and macOS in 32, carrying NORM.md, SHARED.md, DEVLOG.md, the review's files, the game's ASKS.md
+entry and two captioned pictures. The slab came from the field's resolve, not the reading, and both
+are mended. A cell in front of one face and straight behind an opposite one within a cell is held as
+a sheet half a cell either side of its middle, as a double-sided sheet is, and the flat world's
+ground is four blocks between grass tops and bedrock bottoms, so at the far cascade's 73.75 every
+cell above it qualified and the ground stood about 37 blocks thick with the eye inside it; the far
+cascade's build holds such sheets half the last counted cascade's cell thick, ResolvePush's lent.y
+and a sheet argument on RecordSceneFieldBuild. In the reading, as planned, the last counted cascade
+traces to the far edge with Last set and the merge takes nothing above it, and fadesOn in
+cascades.slang stops it fading into the far probes in gi.slang and lights.slang; the reading's
+changes alone did not move the game's numbers, the sheet mend restored them. Bisected in the game by
+gi.probe at the wall's cascade 3, up-rays meeting a surface within their interval and ground hits
+shaded four times too dark from a sun march blocked overhead. On a scratch copy of the Debug build,
+the flat world, the play check's glass at exposure 1 and far at the far plane, the frame read 168,
+157, 106 and the middle 139, 12, 0 before against 185, 167, 126 and 154, 13, 0 with no far cascade,
+and after the same as no far cascade; the 27 bounce rooms with far at infinity within 0.007 of
+before except view 7 at Low, 0.108 to 0.069, its bound without far 0.09. The far cave at 90 blocks,
+read either way, moves not at all, the tops 9, 13, 18 at High under every cascade alone and with the
+merge off and 0, 0, 0 with the game's fog off, so that distant light is the game's fog and no
+cascade's light reaches those tops. The far cascade costs the scene pass 0.2 to 0.3 ms at the grove
+at 1920 by 1080, 8.0 to 8.3 against 7.8 to 8.0, and GI 0.25 ms, before and after alike, the game's 5
+ms having been on 5.2.281 before item 96's cuts, so nothing is left to cut. Two tests, a
+double-sided plane of 288 triangles, since a mesh under 16 is a stamped box, waiting
+MobileSettleFrames after its move, whose cell a quarter of a far cell over the floor reads 1.59
+where it read -1.84, and the grazing floor at Low keeping its difference with a far cascade set,
+failing before at 0.108, the rooms' body moved into a Differs helper; a narrower far hit tolerance
+tried and dropped, changing nothing once the sheet was mended. RENDERING.md's far cascade passage
+rewritten with the readings. The strict build clean, 2,104 plain and shuffled on the GPU, 73 field,
+reference frame and cascade edge tests on lavapipe with validation. Item 96 begins with a reading on
+the game's 5.2.215 build at the cherry grove at 1920 by 1080, each part of the per-pixel read cut
+out in turn to tell what runs per fragment from the variant's registers, the window's depth at half
+size and the scene pass shading with overdraw pointing at a half-size pass over the window's depth
+with a two by two depth and normal read, as the glow pass has. Next 103, the screen probes by
+quality, then 122, the probes at 4K, then 123, Low's edge leaks, the screen probes' one switch, then
+96, the scene pass's read of the cascades and the shadow fill, then 100, the field's foliage share,
+then 111, the shadow's penumbra, then 112, the planar reflection, then 93, the colons out of the
+documents, then 91, DESIGN.md's words on the loop and the ECS, then the glow light's non-number and
+the history's guard, then 95, the e3d help, then item 89, the plant walls' acne, then 97, the light
+at the camera's point on lavapipe. The branch `modeling` was deleted at 07:23 with its items all on
+main, N 7.5; the cloud sessions stand by.
 
 Before it, `a8f127ad` came, item 108's third phase, with `ac1c6bad`, item 120, pushed at 06:43 on
 2026-10-25 once the build run of `6a20d165` went green whole, its build run green whole at 07:41,
@@ -1070,7 +1084,49 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     window's toggle is named for what it does, the probes traced but unread, under the window's
     debug toggles with a line saying it is for reading the trace's cost; the game's F3 checkbox then
     does what it says. A test turning the probes off with a glow light in view reads no screen tile
-    written. One commit, small, after item 102 and before item 96's remaining cuts.
+    written. One commit, small, after item 102 and before item 96's remaining cuts. Held on its cost
+    at 09:06 on 2026-10-25 and chosen. The game leaves the probes out by default, so it runs on the
+    glow-only pass the item as written removes, item 71's sixth term made for the game; read in the
+    entry's room of forty glowstones at hour 23 on a game copy at `f05ea96f` at 1280 by 720 and
+    High, the probes left out cost gpu.hdr_scene 1.19 to 1.29 ms and the frame 4.8 to 5.2, the
+    probes traced but unread, each pixel marching as off would do, 13.3 ms and the frame 21.3, and
+    the probes read 2.24 ms, the frames alike by eye, so the item as written would cost the game's
+    default about 12 ms in a room of light blocks. Chosen, the glow-only pass stays as the call's
+    off, the global illumination window's toggle renamed and moved under the debug toggles as the
+    item says, and the guide saying that off leaves a pass for the glow lights alone while any is
+    lit, with the room's three numbers; a per-tile list of glow lights with no probes placed is not
+    taken. One small commit before item 96's remaining cuts, as before. The owner wrote to the
+    engine's session before 09:19 on 2026-10-25 that the screen probes stay on, as recommended, and
+    that off is for debugging alone and not for a player, so the form chosen is built and tested and
+    held while the owner says whether the public call SetGlobalIlluminationScreenProbes goes; if it
+    goes, off is gi.toggle and the window alone, the glow-only pass goes with it and the game drops
+    its option and its two calls, the game's item 131 taking its side either way. Decided at 09:20
+    under Decision 72, the call goes. The probes are on while global illumination is on, the only
+    off gi.toggle screen and the window's debug box, which leave them out whole, neither traced nor
+    read, so their cost and their look can both be read; the glow-only pass goes with the call, item
+    71's sixth term, reached by debugging alone; the docs, the cheat sheet, upgrading.md,
+    PublicApi.txt and the screen probe tests follow, about fifteen files. One commit, the form built
+    and tested set aside. The game drops its option and its two calls, its item 131, the calls in
+    the commit that takes the package carrying this. Changed at 09:39 on the owner's word, Decision
+    72 amended. The glow-only pass stays, keyed by the quality and not by a call; at Low the screen
+    probes are left out and the glow lights come through the glow-only pass, the cascades alone
+    lighting the rest, and at Medium and High the screen probes come as they do; the public call
+    goes, gi.toggle screen and the window's debug box leave the probes out whole at any quality for
+    reading, and the guide's quality table says which tier carries the probes with the room's
+    numbers, 1.2 ms at Low and 2.2 with the probes. One commit from the call-gone patch with the
+    pass restored under the quality. What Low gives up, read at 10:16 before the commit in the
+    Cornell box at 800 by 450 unpaced. Global illumination at Low costs 1.80 ms with the probes and
+    0.60 without, the glow-only pass for its four emitters, the scene pass 0.31 and 0.48, Medium
+    1.92 and High 2.00 where the guide's table said 1.00, so its three rows are replaced; Low's
+    memory is 6.16 MB with glow lights lit, 1.53 of the world and 4.63 of the glow probes, and 1.53
+    without. The rooms at Low against their references with and then without the probes, 1 at 0.115
+    and 0.099, 2 at 0.078 and 0.117, 3 at 0.226 and 0.270, 4 at 0.308 and 0.227, 5 at 0.020 and
+    0.019, 6 at 0.207 and 0.202, 7 at 0.069 and 0.051, 8 at 0.113 and 0.062, 9 at 0.058 and 0.058,
+    Low's bounds for views 2 and 3 moved to 0.13 and 0.29. Seen, the thin walls room at Low shows
+    bright saw-toothed leaks of the outside lamp along every wall-floor and wall-ceiling edge and
+    the Cornell box steps faintly at its ceiling edges and the tall block's foot, item 71's
+    edge-leak and stepped-edge terms the screen probes covered, item 123 from here; the tests of the
+    screen probes moved to Medium. Two pictures in the devlog.
 
 111. **The sun's shadow softens with the distance from its caster.** From the voxel game's item 43
     at 22:29 on 2026-10-24, its ASKS.md entry of 2026-10-24; the look the owner aims at has a warm
@@ -1097,27 +1153,55 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     image mirrored, and the guide's page on reflections saying when the plane, the probes and the
     trace each fit. One or two commits, after item 111 and before 93.
 
-121. **A mesh over shader buffers carries a color stream beside the program's own and can lie in a
-    range of a shared buffer.** From the voxel game's reading for its item 29 at 07:48 on
-    2026-10-25, its ASKS.md entry in the engine's tree; a gap the port finds comes to the engine
-    first, Decision 68. MeshStore.Counted holds positions and one stream, and the scene field reads
-    a counted mesh's colors from a UNorm8x4 stream alone, so a section meshed in compute with the
-    terrain shader's UInt2 stream would give the field no colors and every block would bounce the
-    material's white, where the game's uploaded sections carry a color a corner the field reads as
-    the block's; and a counted mesh holds whole buffers, so a program meshing thousands of sections
-    would size each for its fullest case or count its faces on the CPU first, half the meshing. The
-    counted mesh gains a second stream for the colors, read by the field as an uploaded mesh's
-    colors are, and a form over a range of a shader buffer, an offset and a capacity, so a program
-    keeps thousands of sections in a few large buffers with the draw and the field reading the
-    range; tests of a counted mesh with a color stream bouncing the stream's color in the field and
-    of two meshes in one buffer's ranges drawn and counted apart; the compute guide's page. The
-    game's reading beside it, cpu.scene_field at 6.8 to 9.3 ms a frame on sprint flights over
-    unloaded land at render distance 12, is the field's main-thread cost and goes with item 96's
-    reading of where the field spends. One commit, after item 102 and before item 103.
+122. **The screen probes read at 1440p and 4K, and their spacing grows with the resolution where the
+    reading says so.** From the owner's question of 2026-10-25 at about 09:39 whether the screen
+    probes tell at 4K. The probes stand every 8 pixels at High whatever the screen, so 3840 by 2160
+    places nine times the probes of 1280 by 720 for the same scene, and the 1 ms the game's room of
+    forty glowstones costs at 1280 by 720 projects to about 9 at 4K, the per-pixel glow march to
+    near a hundred, numbers nobody has measured. The engine reads the scene pass with the probes,
+    with the glow-only pass of Low and with the march at 1280 by 720, 1920 by 1080, 2560 by 1440 and
+    3840 by 2160 in that room and in the bounce rooms, offscreen, and writes the four rows into the
+    guide; where the probes' cost grows with the pixels, the spacing grows with the resolution,
+    every 8 pixels at 1080p and every 16 at 4K, so a probe covers the same patch of the world and
+    the pass costs about the same at any screen while reading finer per pixel than 1080p does, the
+    rooms against their references at 4K within their bounds at 1080p. After item 103 and before
+    item 96's remaining cuts. One commit.
+
+123. **The world's probes alone do not leak a lamp along a thin wall's edges, so Low stands on its
+    own.** From item 103's reading of 10:16 on 2026-10-25. With the screen probes left out, the thin
+    walls room shows bright saw-toothed leaks of the outside lamp along every wall-floor and
+    wall-ceiling edge and the Cornell box steps faintly at its ceiling edges and the tall block's
+    foot, item 71's edge-leak and stepped-edge terms, which the screen probes covered rather than
+    the cascades mending; the owner means Low as a usable look for a weak machine or a 4K screen, so
+    the leaks go. The coder reads where the leak enters, a probe's rays starting inside a wall
+    thinner than the field's cell, the field's resolve at a thin wall as item 102 read the far
+    cascade's, or the pixel's read of a probe across a wall, and proposes the mend before coding it;
+    the thin walls room and the Cornell box at Low against their references before and after, the
+    leak's line read along one edge, and a pair of pictures. After item 122 and before item 96's
+    remaining cuts. One commit.
 
 ## Verdicts
 
-Verdicts 56 to 89 are settled, said under each in REVIEW-ARCHIVE.md; none is open.
+Verdict 90 is open. Verdicts 56 to 89 are settled, said under each in REVIEW-ARCHIVE.md.
+
+90. **`9a013b59` breaks every program on macOS at the renderer's start, the counted corners' shader
+    failing to compile under MoltenVK.** Read at 10:38 on 2026-10-25 from the pack run 40177554052's
+    macOS suite and macOS captures, red in 5 and 7 minutes. The suite read 1,694 passed and 334
+    failed in under three minutes, every failure an AggregateException from
+    GraphicsDevice.InitializeCountedCorners at GraphicsDevice.MeshCounts.cs:274 through
+    Renderer.Initialize and RenderPlugin.Build, Vulkan's ErrorInitializationFailed, and the captures
+    0 of 264 drawn, each example ending in SIGABRT with RenderPlugin failing in Build; the Metal
+    shader compiler logged 1,992 times program_source:50:58, expected expression, at the line color
+    = (*spvDescriptorSet0.stream)._member0[vertex] & 16777215u;, and 996 times program_source:45:21,
+    expected unqualified-id. So item 121's read of the color stream in the counted corners' shader,
+    a pointer to the stream buffer dereferenced and indexed in one expression, cross-compiles to
+    Metal source the compiler refuses, where Linux and Windows take the SPIR-V as it is. The mend
+    writes that read as MoltenVK's cross-compiler carries, a typed load of the element before the
+    mask or the stream as a typed array, checked by the suite's shader cross-compile test if one
+    exists and otherwise by a test cross-compiling the engine's SPIR-V to Metal source on every
+    system, so a shader that macOS refuses fails on Linux first; ahead of item 103's commit. No
+    package came of the run, and a pack run is started once the mend's push run has begun. The push
+    run of `9a013b59` is to go red the same way on macOS.
 
 ## Decisions
 
@@ -1745,6 +1829,21 @@ Verdicts 56 to 89 are settled, said under each in REVIEW-ARCHIVE.md; none is ope
     it as it carries the review's files; the three devlogs were regenerated at 05:16 with the day's
     pictures and items. The same in BevyCSharp (Decision 64) and Voxel-Sandbox (Decision 47).
 
+72. **The screen probes have no public switch.** The owner wrote to the engine's session on
+    2026-10-25 that the screen probes stay on and that off is for debugging alone and not for a
+    player, meaning the voxel game's option in its settings, and asked the review to decide whether
+    the engine's public call SetGlobalIlluminationScreenProbes goes with it. It goes. A switch a
+    program can set is a surface for a quality ladder, and the engine's global illumination quality
+    is that ladder; a pass kept alive for a debugging toggle alone, the glow-only screen pass, is
+    weight the engine need not carry before a release; and the owner asked why three switches stood
+    for one thing. Where a game later needs the probes' cost cut, it is a quality level and not a
+    switch. Amended at 09:39 on the owner's word, asked whether the probes are heavy and what a weak
+    machine or a 4K screen gets. The glow-only screen pass stays as the Low quality's path, the
+    cascades alone with the glow lights through the tiles at 1.2 ms in the room against 2.2 with the
+    probes, and the probes come at Medium and High, so the quality ladder is the one knob and no
+    switch stands anywhere; item 122 reads the probes at 1440p and 4K and scales their spacing with
+    the resolution. Item 103 is the commit, the game's item 131 its side.
+
 ## Replies
 
 Shared: a mesh that replaced a still one in place is not stamped as boxes while a cascade the
@@ -1767,3 +1866,19 @@ under `"$version"` once past 1, a versioned type with no migration warned of (E3
 that adds one, and a component of a later version read as it is and saved back at that version
 with the values this build did not read and the fields it knows set from the entity (item 45, the
 versions). SHARED.md's row 120 can say both have it.
+
+Item 103 is held on its cost. The voxel game leaves the screen's probes out by default
+(`LightSettings.ScreenProbes`), so it runs on the glow-only pass the item takes away, the pass item
+71's sixth term made for the game's entry. In the entry's room of forty glowstones at hour 23, all
+in view, on a scratch copy of the game at `f05ea96f` at 1280 by 720 at `High` with the frames
+unlimited and gnome-shell taking 62% of the GPU, `gpu.hdr_scene` read 1.29 and 1.19 ms with the
+probes left out, 13.31 and 13.28 ms with them traced and unread, which marches each pixel to the
+glow lights as the item has the probes left out do, and 2.24 ms with them read; the frame took 5.2
+and 4.8 ms left out and 21.3 ms marched. The two frames show no difference that the eye finds.
+Done as written, the game's default frame in a room of light blocks would take twelve milliseconds
+more, or go back to the probes the game left out for their moving light. Two forms keep the cost,
+for the review to choose between. One keeps the glow-only pass as the call's off, the global
+illumination window's toggle renamed and moved as the item says, and the guide saying the call's
+off leaves a pass for the glow lights alone while any is lit. The other gives the glow lights a
+list of those each screen tile sees, a pass of its own with no probe placed, which is more than one
+small commit.
