@@ -442,6 +442,31 @@ public float3 bouncedAndSky(float3 p, float3 n, float3 r, out float sky)
         p, n, r, lighting.indirect.z, lighting.indirect.y, lighting.indirect.w, sky) / 3.14159265;
 }
 
+// Whether a surface at p facing n lies by a wall thinner than a cell, whose probes beyond it the
+// reach takes for seen (probeSees), so the world's probes are read through the field there
+// (bouncedSeen) where no screen probe stands. The reach is judged from 0.3 of the probes' spacing
+// off the surface, and by a wall's foot that point lies within the wall's cells, as far from a probe
+// beyond the wall as the probe's rays reached, so at Low the lamp outside a room of walls a tenth of
+// a unit thick lit the floor and the walls along each foot in triangles. Where another surface lies
+// nearer that point than the pixel's own, the field a cell through that surface tells a thin wall,
+// outside it again, from a solid one, inside, so a voxel world's blocks leave their corners to the
+// reach. In the voxel game's room of forty glowstones at 1920 by 1080 at Low 0.5% of the pixels
+// march and the scene pass takes 0.25 to 0.57 ms more, where marching from every pixel another
+// surface stood by took 2.5 ms more.
+public bool byThinWall(float3 p, float3 n)
+{
+    float cell = fieldCell(bouncedField, p);
+    if (cell <= 0.0)
+        return false;
+    float judged = 0.3 * cell * lighting.indirect.y;
+    float3 at = p + n * judged;
+    float nearest = fieldDistance(SplitVolume(reflectField, lightLinear), bouncedField, at);
+    if (nearest >= judged - 0.75 * cell)
+        return false;
+    float3 out = fieldNormal(SplitVolume(reflectField, lightLinear), bouncedField, at);
+    return fieldDistance(SplitVolume(reflectField, lightLinear), bouncedField, at - out * (nearest + cell)) >= 0.0;
+}
+
 // The indirect light reaching a surface at p facing n, irradiance over pi, from those of the world's
 // probes around it it sees with nothing the field holds between (bouncedSeenAt), or from them all as
 // bounced reads them where it sees none, or -1 where no cascade of probes holds p. A pixel no screen

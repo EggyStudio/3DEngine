@@ -1896,6 +1896,23 @@ references at 3840 by 2160 as at 1920 by 1080, 0.040, 0.087, 0.162, 0.221, 0.007
 pixels at 3840 by 2160 0.040, 0.087, 0.160, 0.221, 0.007, 0.084, 0.047, 0.039 and 0.018. Another
 session's tests shared the GPU through the readings, which may have raised the times alike.
 
+**The thin walls at Low, read on 2026-10-25.** With no screen probe standing, every pixel read the
+world's probes by their reach (`probeSees`), judged from 0.3 of the probes' spacing off its surface,
+and by the foot of a wall a tenth of a unit thick, under the field's cell of 0.15, that point lay
+within the wall's cells, as far from a probe beyond the wall as the probe's rays reached, so the
+probe read as seen and the bright lamp outside the bounce rooms' thin room lit the floor and the
+walls inside along each foot in triangles, the floor there 0.303 of linear light with the lamp
+outside and 0.196 without. Marching each pixel to its probes through the field (`bouncedSeen`)
+took the triangles away and cost the scene pass 0.46 ms more at 1920 by 1080, and marching where
+another surface lies nearer the judged point than the pixel's own took 2.5 ms more in the voxel
+game's room of forty glowstones, its blocks' corners everywhere. A pixel marches where that other
+surface is thinner than a cell, the field a cell through it outside again (`byThinWall`), 0.5% of
+the room's pixels and 0.75% of seed 1's spawn, the scene pass 0.25 to 0.57 ms more there, and the
+thin room's floor reads 0.207 with the lamp outside and without it alike. The rooms at Low read
+0.103 and 0.107 where 0.099 and 0.117 for the Cornell box and the thin walls, the rest as before. A
+speck where the thin room's right and back walls meet its floor stays, as it does with every pixel
+marching, Low's remainder.
+
 **What the light looks like, read on 2026-10-18.** The examples that draw global illumination,
 `shaders_cornell_box`, `shaders_bounce_rooms` in the room its capture shows, the lamp carried, and
 in the thin walls' room and the emissive block's, `shaders_reflections`, and `games/Ore` where its

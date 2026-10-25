@@ -22,7 +22,7 @@ namespace Engine.Tests.Rendering;
 /// </remarks>
 [Collection("E3D")]
 [Trait("Category", "Render")]
-public sealed class BounceRoomsTests : IDisposable
+public sealed partial class BounceRoomsTests : IDisposable
 {
     public void Dispose()
     {
@@ -86,12 +86,14 @@ public sealed class BounceRoomsTests : IDisposable
     // 0.202, 0.051, 0.062 and 0.058 where with the probes 0.115, 0.078, 0.226, 0.308, 0.020, 0.207,
     // 0.069, 0.113 and 0.058, the thin walls' and the corridor's further from their references
     // with nothing under the probes' spacing, and the Cornell box's, the window's, the grazing
-    // floor's and the carried lamp's nearer.
+    // floor's and the carried lamp's nearer. With a pixel by a wall thinner than a cell reading the
+    // probes through the field (byThinWall), the Cornell box's reads 0.103 at Low and the thin walls'
+    // 0.107, their floor along each foot no longer lit by the lamp outside.
     [NeedsRayQueryTheory]
     [InlineData(1, GlobalIllumination.Low, 0.17)]
     [InlineData(1, GlobalIllumination.Medium, 0.16)]
     [InlineData(1, GlobalIllumination.High, 0.15)]
-    [InlineData(2, GlobalIllumination.Low, 0.13)]
+    [InlineData(2, GlobalIllumination.Low, 0.12)]
     [InlineData(2, GlobalIllumination.Medium, 0.10)]
     [InlineData(2, GlobalIllumination.High, 0.10)]
     [InlineData(3, GlobalIllumination.Low, 0.29)]

@@ -152,7 +152,9 @@ the indirect light from the world's probes alone.
 The screen's probes come with global illumination at `Medium` and `High`, and `Low` leaves them
 out, every surface reading the cascades' light alone, smoother and coarser, with nothing of the
 light under a table that is smaller than the probes' spacing, so a slow GPU has the cheaper path
-with no switch of its own. In the Cornell box of `shaders_bounce_rooms` at 800 by 450 on an RTX 4070
+with no switch of its own. A surface by a wall thinner than the field's cell reads the probes it
+sees through the field there, so a lamp outside a room of thin walls lights none of the floor along
+their foot inside. In the Cornell box of `shaders_bounce_rooms` at 800 by 450 on an RTX 4070
 Laptop GPU, the screen's probes take 0.92 ms of the GPU at `High` where no emissive surface is
 carried as a light. At `Low` the small emissive surfaces carried as lights are marched to once a
 tile by probes standing for them alone, which trace nothing else, so a pixel reads their light at

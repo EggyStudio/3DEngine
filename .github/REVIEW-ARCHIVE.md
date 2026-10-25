@@ -3853,6 +3853,22 @@ batch.
     the ladder form, the call gone, the probes at Medium and High and Low's glow lights through the
     glow-only pass, the leaks Low shows item 123.
 
+122. **The screen probes read at 1440p and 4K, and their spacing grows with the resolution where the
+    reading says so.** From the owner's question of 2026-10-25 at about 09:39 whether the screen
+    probes tell at 4K. The probes stand every 8 pixels at High whatever the screen, so 3840 by 2160
+    places nine times the probes of 1280 by 720 for the same scene, and the 1 ms the game's room of
+    forty glowstones costs at 1280 by 720 projects to about 9 at 4K, the per-pixel glow march to
+    near a hundred, numbers nobody has measured. The engine reads the scene pass with the probes,
+    with the glow-only pass of Low and with the march at 1280 by 720, 1920 by 1080, 2560 by 1440 and
+    3840 by 2160 in that room and in the bounce rooms, offscreen, and writes the four rows into the
+    guide; where the probes' cost grows with the pixels, the spacing grows with the resolution,
+    every 8 pixels at 1080p and every 16 at 4K, so a probe covers the same patch of the world and
+    the pass costs about the same at any screen while reading finer per pixel than 1080p does, the
+    rooms against their references at 4K within their bounds at 1080p. After item 103 and before
+    item 96's remaining cuts. One commit. Done at `ac46c010` on 2026-10-25, the tile scaled with the
+    window's height, the glowstone room's global illumination at 4K 13.3 ms where it read 35.9, the
+    rooms at 4K within 0.002 of 1080p.
+
 ## Verdicts settled
 
 Verdicts 1 to 55 are settled, the last two, the drawing leak test's resident bound and the Windows

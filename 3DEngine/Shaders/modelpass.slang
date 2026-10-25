@@ -535,8 +535,11 @@ public LitLight litLight(float3 albedo, ModelVertexOutput input, float shadow = 
         {
             // A pixel the screen's probes stand around on no surface like its own, as at a corner,
             // reads the world's probes it sees through the field (bouncedSeen).
+            // Where no screen probe stands, as at Low, a pixel by a wall thinner than a cell reads them
+            // so too (byThinWall).
             bool edge = screen && bouncedHere.x < 0.0 && probes.near[0] + probes.near[1] + probes.near[2] + probes.near[3] > 0.0;
-            float3 world = edge ? bouncedSeen(input.world, n) : bouncedAndSky(input.world, n, reflect(-v, n), skyHere);
+            float3 world = edge || (!screen && byThinWall(input.world, n)) ? bouncedSeen(input.world, n)
+                : bouncedAndSky(input.world, n, reflect(-v, n), skyHere);
             if (world.x >= 0.0)
                 bouncedHere = bouncedHere.x >= 0.0 ? lerp(world, bouncedHere, near) : world;
         }

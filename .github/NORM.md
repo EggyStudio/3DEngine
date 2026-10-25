@@ -213,8 +213,11 @@ a bar then one sentence, or the commit's sentence where the file has none; a pic
 takes the day and a name. An item that changes what is seen ends with at least one such picture, a
 pair before and after where it mends, and an item built in phases one a phase, so the devlog shows
 the work as it goes and not at a day's end alone; DEVLOG.md is regenerated as each item ends, and
-the commit after carries it as it carries the review's files. By review, the reviewer reading each
-commit for the pictures its report names and regenerating DEVLOG.md as it archives an item.
+the commit after carries it as it carries the review's files. A reading worth the devlog's reader
+with no picture to carry it, a table of numbers or a few sentences, is saved beside the pictures as
+a Markdown file named the same way, as `2026-10-25-item-122-resolution.md`, and DEVLOG.md carries it
+on its day under the pictures. By review, the reviewer reading each commit for the pictures its
+report names and regenerating DEVLOG.md as it archives an item.
 
 ## 5 Examples and games
 
