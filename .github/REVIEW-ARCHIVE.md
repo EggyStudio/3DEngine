@@ -3639,6 +3639,14 @@ batch.
     114. Done at `6e29cfa0` on 2026-10-25, the facing and the normal in the header's spare value,
     the ripples block in the guide.
 
+116. **A program's profile value can be a mean over a window.** From the voxel game's ambient
+    particles at its `7443bdc` on 2026-10-25, read at 01:31, its ASKS.md entry in the engine's tree.
+    The profile shows a program's value as last set, so a count that leaps a frame reads as noise
+    and the game eases its particle counts itself. A profile value takes a window in seconds and
+    shows the mean over it, the game's eased counts then its own; a test of a value set to 0 and 100
+    by turns reading its mean. One commit, small, after item 115 and before 102. Done at `55a33ce9`
+    on 2026-10-25, the overload with a window in seconds and the test reading 50.
+
 ## Verdicts settled
 
 Verdicts 1 to 55 are settled, the last two, the drawing leak test's resident bound and the Windows

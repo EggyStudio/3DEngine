@@ -452,6 +452,19 @@ var fires = ctx.Ecs.Index<Fire, (int, int, int)>();
 if (!fires.Contains(cell)) ctx.Cmd.Spawn((entity, world) => world.Add(entity, new Fire { Cell = cell }));
 ```
 
+A key that names many entities, as the mobs standing in a column, is kept by `ecs.Groups`, whose
+`Members` are the entities under a key as a span, walked without allocating:
+
+<!-- compiled with:
+public struct Mob : IKeyed<(int, int)> { public (int, int) Column; public readonly (int, int) Key => Column; }
+(int, int) column = default;
+BehaviorContext ctx = default!;
+void Push(BehaviorContext context, int mob) { }
+-->
+```csharp
+foreach (var mob in ctx.Ecs.Groups<Mob, (int, int)>().Members(column)) Push(ctx, mob);
+```
+
 A behavior reaches the rest of the engine through its context, `ctx.Input` for input,
 `ctx.Physics` for the physics world, `ctx.Res<T>()` for any resource of the world, and the flat
 functions themselves, which work inside behaviors of the app `InitWindow` built.

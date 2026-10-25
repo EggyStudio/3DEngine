@@ -1667,6 +1667,7 @@ sealed class Engine.EcsWorld : IDisposable
   EcsWorld.ReadOnlyEnumerable<T1, T2> QueryReadOnly<T1, T2>()
   EcsWorld.ReadOnlyEnumerable<T> QueryReadOnly<T>()
   Entity Handle(int entity)
+  GroupIndex<T, TKey> Groups<T, TKey>() where T : IKeyed<TKey>
   IDisposable Observe<TEvent>(Action<On<TEvent?>> observer)
   IDisposable Observe<TEvent>(Entity entity, Action<On<TEvent?>> observer)
   IEnumerable<int> AllEntities()
@@ -2157,6 +2158,10 @@ readonly struct Engine.Glyph : IEquatable<Glyph>
 enum Engine.GraphicsBackend : int
   Sdl = 0
   Vulkan = 1
+sealed class Engine.GroupIndex<T, TKey> : IKeyIndexOf<T> where T : IKeyed<TKey>
+  ReadOnlySpan<int> Members(TKey key)
+  int Count { get; }
+  int CountOf(TKey key)
 readonly struct Engine.Handle<T> : IEquatable<Handle<T>>
   AssetId Id { get; }
   AssetPath Path { get; }

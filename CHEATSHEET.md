@@ -956,7 +956,8 @@ rule answers true for.
 A component that names its key through `IKeyed<TKey>` has its entities found by it,
 `ecs.Index<Fire, (int, int, int)>()` giving the index the world keeps as each is added, replaced,
 removed or despawned, and its `TryGet(key, out entity)` and `Contains(key)` a lookup that allocates
-nothing.
+nothing. `ecs.Groups<Mob, (int, int)>()` keeps many entities to a key the same way, its
+`Members(key)` a span of them and `CountOf(key)` how many.
 
 `ecs.Observe<Add<Health>>(on => ...)` runs the moment an entity gets a `Health`, `Remove<Health>`
 once one leaves it, and `ecs.Trigger(new Hit(entity, 10))` sends an event of the game's own to its

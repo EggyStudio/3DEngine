@@ -45,8 +45,9 @@ public sealed partial class EcsWorld
         public void Reserve(int componentCapacity, int maxEntityIdHint)
             => _set.Reserve(componentCapacity, maxEntityIdHint);
 
-        // The entities by the key their component names, where the program asked for one
-        // (EcsWorld.Index), kept here since every add, replacement and removal passes through.
+        // The entities by the key their component names, one to a key or many, where the program
+        // asked for an index (EcsWorld.Index or EcsWorld.Groups), kept here since every add,
+        // replacement and removal passes through.
         internal IKeyIndexOf<T>? Index;
 
         /// <summary>Adds a component to <paramref name="entity"/>, marking it added, or overwrites the one it has, marking it changed.</summary>

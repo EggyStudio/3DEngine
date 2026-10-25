@@ -10,48 +10,32 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `6e29cfa0`, item 115, a particle's facing, read at 02:33 on 2026-10-25, carrying the
-review's files. ParticleEmitter.Facing takes Camera, Normal or Velocity and ParticleEmitter.Normal,
-up where left zero; the header's eighth value, written with the placing rows and read by nothing,
-carries the normal and the facing for the born and the placed buffers, the shader turning the normal
-or the velocity by the placing rows and building the square's right and up from that way as it did
-from the camera's so textures and sheet frames play as before, a particle standing still falling
-back to the camera, the lit normal turning toward the eye so a flat square is lit from either side;
-the test reads a large dot facing the camera from above and edge-on, facing up as bright from above
-and covering nothing edge-on, and facing a slow upward velocity the same; the 3D guide's particles
-section gains a paragraph and a ripples block, the cheat sheet and RENDERING.md the facing. The
-strict build clean, 2,096 plain and shuffled on the GPU, 50 tests on lavapipe with validation, the
-guide's 15 blocks building on the package. Held until the build run of `e746f98e` ends, then pushed.
-After `e746f98e`, item 114, an empty emitter costing nothing, read at 02:01 on 2026-10-25, carrying
-ASKS.md and REVIEW.md. The particle step, sort and draw take only the slots that may hold a live
-particle, counted back from the newest, and an emitter whose particles have all died records
-nothing; the CPU keeps each emitter's birth runs with the time by which the longest life of each is
-over, dropping a run once the step's clock passes it, the step's threads walking back from the
-newest slot so a dispatch of the span meets every particle alive with no push value needed, random
-numbers still seeded by slot, the step writing the newest slot into the header for the unsorted draw
-and the sort keying the span alone padded to a power of two, empty emitters leaving the drawn set
-unless they hold placed points. The test steps and draws 0 slots for 20 empty emitters of 10,000,
-400 for a burst and 0 after its longest life; a scratch program with the game's twenty emitters laid
-over by alpha and none emitting reads 0.027 ms of CPU and 0.000 of GPU where the package read 0.19
-and 0.26, RENDERING.md carrying the numbers. The strict build clean, 2,095 plain and shuffled on the
-GPU, 57 tests on lavapipe with validation, the particles' reference frame unchanged. The three
-pushed at 02:07 on 2026-10-25 after the build run of `31d1fcb6` went green whole, the run watched.
-Item 96 begins with a reading on the game's 5.2.215 build at the cherry grove at 1920 by 1080, each
-part of the per-pixel read cut out in turn to tell what runs per fragment from the variant's
-registers, the window's depth at half size and the scene pass shading with overdraw pointing at a
-half-size pass over the window's depth with a two by two depth and normal read, as the glow pass
-has. Next 108, the mesh entity as a game's section, then 116, the profile value's mean, then 117,
-the grouping index, then 118 and 119, the audio's voices, then 120, the low-pass and the reverb, the
-ECS gaps the game's drops found, then 102, the far cascade's slab, then 103, the screen probes' one
-switch, then 96, the scene pass's read of the cascades and the shadow fill, then 100, the field's
-foliage share, then 111, the shadow's penumbra, then 112, the planar reflection, then 93, the colons
-out of the documents, then 91, DESIGN.md's words on the loop and the ECS, then the glow light's
-non-number and the history's guard, then 95, the e3d help, then item 89, the plant walls' acne, then
-97, the light at the camera's point on lavapipe. The branch `modeling` was deleted at 07:23 with its
-items all on main, N 7.5; the cloud sessions stand by.
+Reviewed up to `55a33ce9`, item 116, a profile value's mean, read at 03:00 on 2026-10-25, carrying
+ASKS.md and the review's files. SetProfileValue(name, value, seconds) beside the present call shows
+the mean of the values set over the last seconds by GetTime's clock, 0 showing the value as set and
+the plain call dropping a window, FrameProfile.Set keeping the samples with their times, dropping
+those at or before the window's start and summing afresh each set; the test sets 0 and 100 by turns
+each sixty-fourth of a second for two seconds and reads 50, a value set three seconds on reading
+alone and a plain set as set; the cheat sheet's line and the frame guide's paragraph and block. The
+strict build clean, 2,097 plain and shuffled on the GPU, the frame guide's 10 blocks building on the
+package. Both pushed at 03:05 on 2026-10-25 after the build run of `e746f98e` went green whole, the
+run watched. Item 96 begins with a reading on the game's 5.2.215 build at the cherry grove at 1920
+by 1080, each part of the per-pixel read cut out in turn to tell what runs per fragment from the
+variant's registers, the window's depth at half size and the scene pass shading with overdraw
+pointing at a half-size pass over the window's depth with a two by two depth and normal read, as the
+glow pass has. Next 108, the mesh entity as a game's section, then 117, the grouping index, then 118
+and 119, the audio's voices, then 120, the low-pass and the reverb, the ECS gaps the game's drops
+found, then 102, the far cascade's slab, then 103, the screen probes' one switch, then 96, the scene
+pass's read of the cascades and the shadow fill, then 100, the field's foliage share, then 111, the
+shadow's penumbra, then 112, the planar reflection, then 93, the colons out of the documents, then
+91, DESIGN.md's words on the loop and the ECS, then the glow light's non-number and the history's
+guard, then 95, the e3d help, then item 89, the plant walls' acne, then 97, the light at the
+camera's point on lavapipe. The branch `modeling` was deleted at 07:23 with its items all on main, N
+7.5; the cloud sessions stand by.
 
-Before it, `31d1fcb6` came, item 110, pushed at 01:34 on 2026-10-25, its build run green whole at
-02:02 after the clocks went back, Windows in 88 minutes, Linux in 57 and macOS in 33.
+Before it, `e746f98e` came, item 114 with `c71cdbea`, item 108's second phase, and `0cfc2843`, item
+113, pushed at 02:07 on 2026-10-25, its build run green whole at 03:03, Windows in 56 minutes, Linux
+in 37 and macOS in 32.
 
 Before it, `1b497b3b` came, item 96's third mend, the glow lights' box, pushed at 19:11 on
 2026-10-24, its build run green whole at 20:44, Windows in 93 minutes, Linux in 58 and macOS in 30.
@@ -1089,13 +1073,6 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     river at the grove and on Summit's water, a test of a plane under a lit cube reading the cube's
     image mirrored, and the guide's page on reflections saying when the plane, the probes and the
     trace each fit. One or two commits, after item 111 and before 93.
-
-116. **A program's profile value can be a mean over a window.** From the voxel game's ambient
-    particles at its `7443bdc` on 2026-10-25, read at 01:31, its ASKS.md entry in the engine's tree.
-    The profile shows a program's value as last set, so a count that leaps a frame reads as noise
-    and the game eases its particle counts itself. A profile value takes a window in seconds and
-    shows the mean over it, the game's eased counts then its own; a test of a value set to 0 and 100
-    by turns reading its mean. One commit, small, after item 115 and before 102.
 
 117. **An index whose key names many entities.** From the voxel game's lookups at 02:33 on
     2026-10-25, its ASKS.md entry in the engine's tree; a gap the port finds comes to the engine
