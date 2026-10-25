@@ -8,8 +8,21 @@ closed it.
 
 ## 2026-10-25
 
+![](.github/assets/readings/2026-10-25-item-102-glass.webp)
+The voxel game's play check, two panes of glass with a gray frame before a red concrete wall on its
+flat world at noon, the far cascade at the far plane, above before the mend, the frame olive with
+the low sky's blue taken by the far cascade's slab, and below after it, as gray as with no far
+cascade.
+
+![](.github/assets/readings/2026-10-25-item-102-rooms.webp)
+The bounce rooms' floor at a grazing angle at Low with a far cascade at the far plane, above with
+the last counted cascade merging the far cascade's probes, 0.108 of its light from its reference,
+and below with it tracing to the field's edge itself, 0.069.
+
 Done that day
 
+- Item 102 at `f05ea96f`. The far cascade's coarse cells near the ground hold no slab, so the game
+  can set it.
 - Item 108 at `a8f127ad`. A mesh entity can be a voxel game's section, with its own shader, streams,
   visibility and shadow.
 - Item 110 at `31d1fcb6`. A behavior's system says what it runs after or before, and in more than

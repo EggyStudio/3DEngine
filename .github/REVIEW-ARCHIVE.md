@@ -3748,6 +3748,31 @@ batch.
     against DrawMesh, a thousand meshes as entities drawing in 0.15 to 0.19 ms against 0.21 to 0.25
     through DrawMesh each frame.
 
+102. **The far cascade's coarse cells near the ground hold no slab, so the game can set it.** From
+    the same reading and its own ASKS.md entry of 2026-10-24, read at 17:48. With SetSceneField's
+    far cascade at infinity the game's cascade 4 stands at 73.75 blocks a cell, and the play check's
+    gray glass frame reads 197, 192, 144 where 197, 195, 194 without it, a red wall's blue 57
+    against 98, since the coarse cells hold the ground as a slab and the probes near it take the
+    sky's light from walls near them; it costs about 5 ms of the scene pass at the grove and changes
+    none of the cave's readings at any reach, the far tops at 90 blocks still 25, 36, 53 with global
+    illumination off and 9, 13, 18 at High, the sky's share unoccluded beyond the counted cascades'
+    reach, so the game leaves it off. The mend keeps the far cascade to what item 72 meant, read
+    only by a ray that leaves the counted cascades, the near probes and the pixels' reads taking
+    nothing from its cells within the counted reach, and its cost at the grove read and cut; the
+    bounce rooms with the far cascade set against their references and the game's glass frame and
+    red wall read again; then the far cave's sky at 90 blocks read on the game with the far cascade
+    set. One commit, after item 101 and before item 96's remaining cuts. The coder's plan at 05:10,
+    taken as laid out, reads the cause as the last counted cascade given a middle cascade's interval
+    with a far one set, every ray meeting nothing within four spacings merging the far probes eight
+    cells apart that hold the ground as a slab, and the pixels' reads blending into them across the
+    outer band; the last counted cascade traces to the far field's edge as the last does without a
+    far one, meeting the far cells only once it has left the counted ones, the far probes read for
+    what lies beyond the counted reach alone with no band fading into them inside it, the cost read
+    and cut, the rooms and the game's readings on a scratch copy built on a fresh pack. Done at
+    `f05ea96f` on 2026-10-25, the slab a sheet held half a far cell thick in the field's resolve,
+    mended there and in the reading, the game's glass frame and red wall as with no far cascade, the
+    far cave's distant light the game's fog.
+
 ## Verdicts settled
 
 Verdicts 1 to 55 are settled, the last two, the drawing leak test's resident bound and the Windows

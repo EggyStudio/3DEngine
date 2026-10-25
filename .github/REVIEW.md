@@ -10,102 +10,57 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `a8f127ad`, item 108's third phase, the mesh entity as a game's section in the guide,
-read at 05:10 on 2026-10-25, carrying NORM.md and the review's files, documents alone. The behaviors
-guide gains Mesh entities after Spawning entities, the Mesh's three forms, positions, indexed and
-the program's upload, Material.Shader with its values as SetShaderValue left them, Visible and
-ShadowOnly as bools written in place, and entities.drawn, with a voxel section uploaded from
-positions and a UInt2 MeshStream drawn through its terrain shader and set ShadowOnly where the flood
-does not reach, a second block writing ShadowOnly where the answer changed alone since a write has
-the chunk gathered again, both building on the package with the guide's other 19 blocks. The cost,
-read in a scratch flat-API program on the package with a thousand meshes of their own on a 32 by 32
-grid under a shadowed sun, uncapped, 600 frames in two alternating rounds, the engine's shader and
-toon.slang alike, written into RENDERING.md's mesh entity paragraph, is 0.21 to 0.25 ms of
-program.drawing and 0.53 to 0.61 of cpu.model_batches through DrawMesh each frame against 0.15 to
-0.19 ms of MeshEntityDraws and 0.35 to 0.47 of model_batches as entities standing still, the frames
-3.1 to 4.1 ms either way. The 29 norm and document tests pass, the guide's 21 blocks build on the
-package. After `ac1c6bad`, item 120, the low-pass and the reverb, read at 05:06 on 2026-10-25,
-carrying the review's files, pushed with `a8f127ad` at 06:43 on 2026-10-25 once the build run of
-`6a20d165` went green whole, the pack run started with publish on at 06:43 for the game's item 95
-and watched, the build run green whole at 07:41, Windows in 57 minutes, Linux in 35 and macOS in 32.
-A sound's voice in the SDL backend is one stereo stream at the sound's rate fed on demand through
-SDL_SetAudioStreamGetCallback, a LibraryImport with a function pointer as the postmix is; the feed
-wraps for a loop, runs each frame through VoiceEffects and applies the pan, so the pan moves as it
-plays, and after the samples come the room's tail frames, the decay plus the longest comb, then the
-stream is flushed and the voice reaped once drained, item 119's end kept. VoiceEffects holds an RBJ
-biquad low-pass at Q 0.707, bypassed at 0 or past 0.45 of the rate, and a Freeverb-shaped reverb of
-eight damped combs and four allpasses, the size scaling the delays from Freeverb's at 10 units
-between 0.2 and 4 times, the decay setting each comb's feedback to 10 to the power of minus three
-times its delay over the decay, the share mixing in mono to both sides, the shared ReverbRoom read
-live and the buffers made for a voice with a share alone; the sample pins, the loop refills and the
-queue at creation go, the music's two channel-mapped streams stay. LowPass and Reverb on
-AudioVoiceParams, SetLowPass and SetReverb on AudioSource, ReverbSize at 10 and ReverbDecay at 1.5 s
-on AudioServer pushed to a backend on SetBackend, default SetVoiceLowPass, SetVoiceReverb and
-SetReverb on IAudioBackend, the flat SetSoundLowPass, SetSoundReverb and SetAudioReverb with cheat
-sheet lines. VoiceEffectsTests in the Sdl audio collection under the dummy driver reads through a
-mixed processor, a 1 kHz cutoff taking 6 kHz down by over 20 dB and leaving 300 Hz within 1.5 dB, a
-1 ms click with no share under 1e-8 of its energy a quarter second on, a share of 1 at a 1.2 s decay
-ringing over 1e-4 there and more than 30 dB above a 0.3 s decay, the voice playing past 1.2 s until
-its tail dies and a dry one ending within a second. Three departures. The two tests wait on the
-dummy driver's clock and join SdlAudioBackendTests on build/norm/3.3.txt, N 3.3's row moving to 9
-left out; an extra BindAudioStream of the first draft logged already-bound warnings in one suite run
-and was removed before the commit; the audio guide gains A wall and a room with the game's readings,
-0.54 at 4.8 blocks on the plains, 0.88 at 2.2 under the canopy and 0.92 at 7.8 in the deep cave,
-each block crossed halving the cutoff, and a block building on the package. SDL's audio thread read
-from /proc with forty 44.1 kHz sounds playing in a hidden flat-API program, 4.6 to 5.2% of a core on
-the package before, 4.0 to 5.0 fed with no effects, 15.4 to 18.3 with every voice at a share and a 2
-kHz low-pass, about 0.3% a voice. The strict build clean, 2,102 plain and shuffled on the GPU, the
-audio guide's 11 blocks building on the package. After `6a20d165`, item 119, a one-shot voice's
-stream flushed, read at 04:15 on 2026-10-25, carrying the review's files. CreateVoice flushes a
-one-shot voice's streams once its samples are queued and SetVoiceLooping flushes them again when
-looping is turned off, so a stream that resamples gives up the frames it held back and drains, a
-real device meeting the same where the rates differ; SdlAudioBackendTests under the dummy driver
-reads a 0.3 s sound at 44,100 Hz on the 48 kHz device ending in 0.25 to 1.5 s as two streams and as
-one, and a loop held past its length playing then ending within 1.5 s once let go; the backend's
-mixed processors moved to SdlAudioBackend.Postmix.cs for N 1.3. The strict build clean, 2,100 plain
-and shuffled on the GPU. Pushed with `07d3bf28` and `c897565c` at 04:54 on 2026-10-25 once the build
-run of `55a33ce9` went green whole, their run green whole at 06:41, Windows in 108 minutes under the
-limit of 150, Linux in 59 and macOS in 26. After `07d3bf28`, item 118, a played-out voice let go,
-read at 03:50 on 2026-10-25, carrying the review's files. AudioServer.Tick lets go of a voice played
-once whose backend reports it played out, the backend voice freed and the ticket dropped so the
-AudioSource reads as stopped, Stop on it doing nothing and the ticks after walking the voices still
-playing, looping, paused and streamed voices kept until stopped with a Stream flag on the record,
-and audio.voices in the profile set to LiveSourceCount; AudioServerTests plays a hundred steps, a
-loop and a paused voice through the recording backend at 102 voices and reads two kept once all have
-played out, a hundred Stop calls doing nothing and the next tick setting two volumes; the audio
-guide's stop paragraph and the docs say it. The strict build clean, 2,099 plain and shuffled on the
-GPU, the API listing unchanged. After `c897565c`, item 117, the grouping index, read at 03:25 on
-2026-10-25, carrying the review's files. GroupIndex from ecs.Groups holds many entities to the key a
-keyed component names, Members a span over the index's own list allocating nothing beside CountOf
-and Count, a list of entities a key with each entity's key and place so a removal moves the list's
-last member into the gap, a key left with none dropped, the store's index slot taken so add,
-replace, remove and despawn reach it as they reach KeyIndex and an index made late picking up the
-entities already holding the component. Departures, Index and Groups moved together into
-EcsWorld.Indexes.cs for N 1.3, a component type holding one index of either kind with its exception
-reworded for STYLE.md. The test spawns a thousand mobs in twenty columns, half before the index is
-asked for, each column's members every twentieth, a walk allocating nothing, the members following a
-despawn, a removal and a move, an emptied column no key, and a KeyIndex asked for the same type
-throwing; the behaviors guide gains a line and a block and the cheat sheet names Groups. The strict
-build clean, 2,098 plain and shuffled on the GPU, the guide's 19 blocks building on the package.
-Item 96 begins with a reading on the game's 5.2.215 build at the cherry grove at 1920 by 1080, each
-part of the per-pixel read cut out in turn to tell what runs per fragment from the variant's
-registers, the window's depth at half size and the scene pass shading with overdraw pointing at a
-half-size pass over the window's depth with a two by two depth and normal read, as the glow pass
-has. Next the pack run, the game's item 95 waiting on its package, then 102, the far cascade's slab,
-then 103, the screen probes' one switch, then 96, the scene pass's read of the cascades and the
-shadow fill, then 100, the field's foliage share, then 111, the shadow's penumbra, then 112, the
-planar reflection, then 93, the colons out of the documents, then 91, DESIGN.md's words on the loop
-and the ECS, then the glow light's non-number and the history's guard, then 95, the e3d help, then
-item 89, the plant walls' acne, then 97, the light at the camera's point on lavapipe. The branch
-`modeling` was deleted at 07:23 with its items all on main, N 7.5; the cloud sessions stand by.
+Reviewed up to `f05ea96f`, item 102, the far cascade's slab, pushed at 07:50 on 2026-10-25 once the
+build run of `a8f127ad` went green whole, the run watched, carrying NORM.md, SHARED.md, DEVLOG.md,
+the review's files, the game's ASKS.md entry and two captioned pictures. The slab came from the
+field's resolve, not the reading, and both are mended. A cell in front of one face and straight
+behind an opposite one within a cell is held as a sheet half a cell either side of its middle, as a
+double-sided sheet is, and the flat world's ground is four blocks between grass tops and bedrock
+bottoms, so at the far cascade's 73.75 every cell above it qualified and the ground stood about 37
+blocks thick with the eye inside it; the far cascade's build holds such sheets half the last counted
+cascade's cell thick, ResolvePush's lent.y and a sheet argument on RecordSceneFieldBuild. In the
+reading, as planned, the last counted cascade traces to the far edge with Last set and the merge
+takes nothing above it, and fadesOn in cascades.slang stops it fading into the far probes in
+gi.slang and lights.slang; the reading's changes alone did not move the game's numbers, the sheet
+mend restored them. Bisected in the game by gi.probe at the wall's cascade 3, up-rays meeting a
+surface within their interval and ground hits shaded four times too dark from a sun march blocked
+overhead. On a scratch copy of the Debug build, the flat world, the play check's glass at exposure 1
+and far at the far plane, the frame read 168, 157, 106 and the middle 139, 12, 0 before against 185,
+167, 126 and 154, 13, 0 with no far cascade, and after the same as no far cascade; the 27 bounce
+rooms with far at infinity within 0.007 of before except view 7 at Low, 0.108 to 0.069, its bound
+without far 0.09. The far cave at 90 blocks, read either way, moves not at all, the tops 9, 13, 18
+at High under every cascade alone and with the merge off and 0, 0, 0 with the game's fog off, so
+that distant light is the game's fog and no cascade's light reaches those tops. The far cascade
+costs the scene pass 0.2 to 0.3 ms at the grove at 1920 by 1080, 8.0 to 8.3 against 7.8 to 8.0, and
+GI 0.25 ms, before and after alike, the game's 5 ms having been on 5.2.281 before item 96's cuts, so
+nothing is left to cut. Two tests, a double-sided plane of 288 triangles, since a mesh under 16 is a
+stamped box, waiting MobileSettleFrames after its move, whose cell a quarter of a far cell over the
+floor reads 1.59 where it read -1.84, and the grazing floor at Low keeping its difference with a far
+cascade set, failing before at 0.108, the rooms' body moved into a Differs helper; a narrower far
+hit tolerance tried and dropped, changing nothing once the sheet was mended. RENDERING.md's far
+cascade passage rewritten with the readings. The strict build clean, 2,104 plain and shuffled on the
+GPU, 73 field, reference frame and cascade edge tests on lavapipe with validation. Item 96 begins
+with a reading on the game's 5.2.215 build at the cherry grove at 1920 by 1080, each part of the
+per-pixel read cut out in turn to tell what runs per fragment from the variant's registers, the
+window's depth at half size and the scene pass shading with overdraw pointing at a half-size pass
+over the window's depth with a two by two depth and normal read, as the glow pass has. Next 121, the
+counted mesh's color stream and range, then 103, the screen probes' one switch, then 96, the scene
+pass's read of the cascades and the shadow fill, then 100, the field's foliage share, then 111, the
+shadow's penumbra, then 112, the planar reflection, then 93, the colons out of the documents, then
+91, DESIGN.md's words on the loop and the ECS, then the glow light's non-number and the history's
+guard, then 95, the e3d help, then item 89, the plant walls' acne, then 97, the light at the
+camera's point on lavapipe. The branch `modeling` was deleted at 07:23 with its items all on main, N
+7.5; the cloud sessions stand by.
+
+Before it, `a8f127ad` came, item 108's third phase, with `ac1c6bad`, item 120, pushed at 06:43 on
+2026-10-25 once the build run of `6a20d165` went green whole, its build run green whole at 07:41,
+Windows in 57 minutes, Linux in 35 and macOS in 32, the pack run started with publish on at 06:43
+for the game's item 95, its macOS job red at 07:33 on Tempo's autopilot, Verdict 89, so it packs
+nothing and a pack run follows the mend.
 
 Before it, `55a33ce9` came, item 116, a profile value's mean, with `6e29cfa0`, item 115, pushed at
 03:05 on 2026-10-25 after the build run of `e746f98e` went green whole, its run green whole at
 04:51, Windows in 106 minutes under the limit of 150, Linux in 45 and macOS in 31.
-
-Before it, `e746f98e` came, item 114 with `c71cdbea`, item 108's second phase, and `0cfc2843`, item
-113, pushed at 02:07 on 2026-10-25, its build run green whole at 03:03, Windows in 56 minutes, Linux
-in 37 and macOS in 32.
 
 Items done and verdicts settled before 2026-10-23 stand in REVIEW-ARCHIVE.md beside this file, their
 numbers kept, moved there at 19:30 on 2026-10-23 so this file holds the current work alone and is
@@ -1085,28 +1040,6 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     the open plane's sky light, and the guide's page saying how a program marks foliage. One or two
     commits, after item 96 and before 93.
 
-102. **The far cascade's coarse cells near the ground hold no slab, so the game can set it.** From
-    the same reading and its own ASKS.md entry of 2026-10-24, read at 17:48. With SetSceneField's
-    far cascade at infinity the game's cascade 4 stands at 73.75 blocks a cell, and the play check's
-    gray glass frame reads 197, 192, 144 where 197, 195, 194 without it, a red wall's blue 57
-    against 98, since the coarse cells hold the ground as a slab and the probes near it take the
-    sky's light from walls near them; it costs about 5 ms of the scene pass at the grove and changes
-    none of the cave's readings at any reach, the far tops at 90 blocks still 25, 36, 53 with global
-    illumination off and 9, 13, 18 at High, the sky's share unoccluded beyond the counted cascades'
-    reach, so the game leaves it off. The mend keeps the far cascade to what item 72 meant, read
-    only by a ray that leaves the counted cascades, the near probes and the pixels' reads taking
-    nothing from its cells within the counted reach, and its cost at the grove read and cut; the
-    bounce rooms with the far cascade set against their references and the game's glass frame and
-    red wall read again; then the far cave's sky at 90 blocks read on the game with the far cascade
-    set. One commit, after item 101 and before item 96's remaining cuts. The coder's plan at 05:10,
-    taken as laid out, reads the cause as the last counted cascade given a middle cascade's interval
-    with a far one set, every ray meeting nothing within four spacings merging the far probes eight
-    cells apart that hold the ground as a slab, and the pixels' reads blending into them across the
-    outer band; the last counted cascade traces to the far field's edge as the last does without a
-    far one, meeting the far cells only once it has left the counted ones, the far probes read for
-    what lies beyond the counted reach alone with no band fading into them inside it, the cost read
-    and cut, the rooms and the game's readings on a scratch copy built on a fresh pack.
-
 103. **The screen probes have one switch, and off means no screen pass at all.** The owner asked the
     game's session at about 18:4x on 2026-10-24, read at 18:44, why two checkboxes stand for the
     screen probes, one in the game's F3 window under the quality and one in the global illumination
@@ -1148,9 +1081,41 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     image mirrored, and the guide's page on reflections saying when the plane, the probes and the
     trace each fit. One or two commits, after item 111 and before 93.
 
+121. **A mesh over shader buffers carries a color stream beside the program's own and can lie in a
+    range of a shared buffer.** From the voxel game's reading for its item 29 at 07:48 on
+    2026-10-25, its ASKS.md entry in the engine's tree; a gap the port finds comes to the engine
+    first, Decision 68. MeshStore.Counted holds positions and one stream, and the scene field reads
+    a counted mesh's colors from a UNorm8x4 stream alone, so a section meshed in compute with the
+    terrain shader's UInt2 stream would give the field no colors and every block would bounce the
+    material's white, where the game's uploaded sections carry a color a corner the field reads as
+    the block's; and a counted mesh holds whole buffers, so a program meshing thousands of sections
+    would size each for its fullest case or count its faces on the CPU first, half the meshing. The
+    counted mesh gains a second stream for the colors, read by the field as an uploaded mesh's
+    colors are, and a form over a range of a shader buffer, an offset and a capacity, so a program
+    keeps thousands of sections in a few large buffers with the draw and the field reading the
+    range; tests of a counted mesh with a color stream bouncing the stream's color in the field and
+    of two meshes in one buffer's ranges drawn and counted apart; the compute guide's page. The
+    game's reading beside it, cpu.scene_field at 6.8 to 9.3 ms a frame on sprint flights over
+    unloaded land at render distance 12, is the field's main-thread cost and goes with item 96's
+    reading of where the field spends. One commit, after item 102 and before item 103.
+
 ## Verdicts
 
-Verdicts 56 to 88 are settled, said under each in REVIEW-ARCHIVE.md; none is open.
+Verdict 89 is open. Verdicts 56 to 88 are settled, said under each in REVIEW-ARCHIVE.md.
+
+89. **The pack run of `a8f127ad` is red on macOS, Tempo's autopilot missing one note of the song's
+    381.** Read at 08:01 on 2026-10-25 from the run's jobs and the job's annotations, run
+    40166548123. The macOS suite passed, 2,023 tests in 20 minutes, and the twelve-game loop the
+    pack run alone plays failed on Tempo, whose drive asks tempo.status until the results and
+    requires miss 0; the results read time 61.45, perfect 367, good 13, bad 0, miss 1, combo 379,
+    judged 381 of 381, error 21 ms, on a macOS arm64 runner under the capacity notice. One note's
+    window passed between two frames on a shared runner, as the drive's comment on a slow device
+    foresees for the song's length and not for a hitch; Linux and Windows played the song whole. The
+    mend makes the autopilot's hits a matter of the song's clock and not of the runner's frames, a
+    hit judged for a note whose window a frame's step spans, or the autopilot stepping the song by
+    the frame as N 3.3 asks of a test of motion, the coder saying which in the commit; the pack job
+    did not run, so no package came of the run, and a pack run is started once the mend's push run
+    has begun.
 
 ## Decisions
 

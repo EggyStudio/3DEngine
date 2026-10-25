@@ -127,21 +127,25 @@ while (!WindowShouldClose())
         run.Moved(before);
 
         // A lane played this frame takes the next note in it, if that is near enough the line.
+        bool Played(int lane, double at)
+        {
+            run.Flash[lane] = 0.12f;
+            if (run.Play(lane, at) is not { } grade) return false;
+            EmitParticles(sparks[lane], grade == Grade.Perfect ? 40 : grade == Grade.Good ? 20 : 6);
+            (run.Shown, run.ShownFor) = (grade, 0.5f);
+            return true;
+        }
         for (int lane = 0; lane < 4; lane++)
         {
-            var played = IsKeyPressed(keys[lane]) || IsGamepadButtonPressed(0, buttons[lane]);
-            // The autopilot plays a note on the frame nearest its time, which is this one when the
-            // note is less than half the song's step in a frame away. The step is the larger of the
+            if (IsKeyPressed(keys[lane]) || IsGamepadButtonPressed(0, buttons[lane])) Played(lane, run.Clock);
+            // The autopilot plays each note at its own time where this frame's step of the song
+            // passed it, as a player on the beat is judged however long the frame, and on this frame
+            // a note less than half the song's step in a frame ahead. The step is the larger of the
             // last frame's and the frames' mean, so a frame slower than those before it is not
-            // waited for past the note.
-            if (TempoCommands.Autopilot && run.Due(lane) is { } due && due - run.Clock <= Math.Max(run.Last, run.Step) / 2) played = true;
-            if (!played) continue;
-            run.Flash[lane] = 0.12f;
-            if (run.Play(lane) is { } grade)
-            {
-                EmitParticles(sparks[lane], grade == Grade.Perfect ? 40 : grade == Grade.Good ? 20 : 6);
-                (run.Shown, run.ShownFor) = (grade, 0.5f);
-            }
+            // waited for past the note. Played at the frame's time alone, a step longer than the Bad
+            // window, as an arm64 runner under load took, left the note it passed missed.
+            while (TempoCommands.Autopilot && run.Due(lane) is { } due && due - run.Clock <= Math.Max(run.Last, run.Step) / 2)
+                if (!Played(lane, Math.Clamp(due, before, run.Clock))) break;
         }
         if (run.MissPassed()) (run.Shown, run.ShownFor) = (Grade.Miss, 0.5f);
 
@@ -381,11 +385,14 @@ public sealed class Run(Chart chart)
     /// <summary>The time of the next note in a lane not yet played or missed, or null when none is left.</summary>
     public double? Due(int lane) => _next[lane] < chart.Lanes[lane].Length ? chart.Lanes[lane][_next[lane]] : null;
 
-    /// <summary>Grades a lane's next note when the lane is played within the Bad window of it, and gives the grade, or null where no note is that near.</summary>
-    public Grade? Play(int lane)
+    /// <summary>
+    /// Grades a lane's next note when the lane is played at the song's time <paramref name="at"/>
+    /// within the Bad window of it, and gives the grade, or null where no note is that near.
+    /// </summary>
+    public Grade? Play(int lane, double at)
     {
-        if (Due(lane) is not { } time || Math.Abs(time - Clock) > BadWindow) return null;
-        var off = Math.Abs(time - Clock);
+        if (Due(lane) is not { } time || Math.Abs(time - at) > BadWindow) return null;
+        var off = Math.Abs(time - at);
         var grade = off <= PerfectWindow ? Grade.Perfect : off <= GoodWindow ? Grade.Good : Grade.Bad;
         _grades[lane][_next[lane]++] = grade;
         (_error, _played) = (_error + off, _played + 1);

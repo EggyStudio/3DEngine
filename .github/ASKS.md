@@ -1152,3 +1152,6 @@ own, which the field reads as it reads an uploaded mesh's colors, and one over a
 buffer, an offset and a capacity, so a program meshing thousands of sections in compute keeps them
 in a few large buffers. The game meshes on the CPU meanwhile and holds the meshing part of its item
 29 until a package carries these.
+
+Review: item 121 of REVIEW.md, 2026-10-25; a color stream beside the program's own on a mesh over
+shader buffers and the mesh over a range of a shared buffer, the field reading both; after item 102.
