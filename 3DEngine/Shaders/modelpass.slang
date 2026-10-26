@@ -522,7 +522,12 @@ public LitLight litLight(float3 albedo, ModelVertexOutput input, float shadow = 
     // the world probes' gather where the pixel reads them, or -1 where it does not.
     float skyHere = -1.0;
     bool screen = Bouncing && lighting.indirect.x > 0.0 && lighting.screen.y > 0.0;
-    ScreenProbesHere probes = screenProbesHere(input, normalize(input.normal));
+    // Looked up along the normal turned to the eye as the shading's is, so the back of a two-sided
+    // face takes the screen's probes standing on it, where along its front's normal it took none.
+    float3 facingEye = normalize(input.normal);
+    if (drawsBacks && dot(facingEye, input.toEye) < 0.0)
+        facingEye = -facingEye;
+    ScreenProbesHere probes = screenProbesHere(input, facingEye);
     if (Bouncing && lighting.indirect.x > 0.0)
     {
         if (screen)

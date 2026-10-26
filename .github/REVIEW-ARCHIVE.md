@@ -4172,6 +4172,19 @@ batch.
     maps, the wheat walls' spread 0.149 to 0.054 against the reference's 0.053, the screen probes'
     excess on thin walls to item 129.
 
+130. **The prototyping look takes Unreal's tones and a level editor's grid steps, as BevyCSharp's.**
+    From BevyCSharp's item 65's second phase at `ce142f8a` on 2026-10-26, SHARED.md keeping the look
+    alike. The prototype colors become floor 0.31, 0.31, 0.32, wall 0.71, 0.71, 0.70, ceiling 0.82,
+    0.82, 0.83 and stairs 0.96, 0.46, 0.13 in sRGB, door, window and hazard as they are; the grid's
+    cell, a meter on a face of sRGB 0.9, keeps its edge line of 0.35 a 128th of the cell wide and
+    half on each edge, gains a line of the same 0.35 a 256th wide across its middle and fine lines
+    of 0.68 a 512th wide at its quarters in place of the tenths, each a pixel at least, and 1m
+    lettered in the line's color in its top left corner, letters of five by seven squares each a
+    128th of the cell two squares in from the edge line, where the cell has 128 pixels or more; the
+    grid's tests and the modeling guide's words follow, the prototyping room captured again. One
+    commit, small, after item 129 and before 97. Done at `7ff7bbdd` on 2026-10-26, the colors and
+    the grid as BevyCSharp's rule for rule with the same tests, four captures retaken.
+
 ## Verdicts settled
 
 Verdicts 1 to 55 are settled, the last two, the drawing leak test's resident bound and the Windows

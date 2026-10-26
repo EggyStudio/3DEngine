@@ -210,4 +210,45 @@ public sealed partial class GlobalIlluminationTests
         UnloadModel(slab);
         UnloadModel(lamp);
     }
+
+    [NeedsVulkanFact]
+    [Trait("Category", "Render")]
+    public void The_Back_Of_A_Two_Sided_Wall_Takes_The_Screens_Probes_As_Its_Front_Does()
+    {
+        // Two thin two-sided walls side by side facing the eye over a red emissive slab, the first's
+        // normal toward the eye and the second's away from it, read at Medium with the screen's
+        // probes and with them left out. Looked up along the normal as given, the second wall took
+        // no screen probe, its red 1.000 of what it was with them left out where the first's was
+        // 1.560; along the normal turned to the eye, 1.515.
+        Open();
+        SetGlobalIllumination(GlobalIllumination.Medium);
+        SetAmbientLight(new Color(150, 180, 230), 0.3f);
+        var slab = LoadModelFromMesh(GenMeshCube(1, 1, 1));
+        var glow = LoadModelFromMesh(GenMeshCube(1, 1, 1));
+        glow.Materials[0] = new ModelMaterial(Color.Black) { Emissive = new Color(255, 40, 30), EmissiveIntensity = 3 };
+        var wall = LoadModelFromMesh(GenMeshPlane(1, 1, 1, 1));
+        wall.Materials[0] = new ModelMaterial(new Color(200, 200, 200)) { Roughness = 1, DoubleSided = true, AlphaMode = MaterialAlphaMode.Opaque };
+        var camera = new Camera3D(new Vector3(0, 1, 4), new Vector3(0, 0.8f, 0), Vector3.UnitY, 50);
+        void Draw()
+        {
+            DrawModelEx(slab, new Vector3(0, -0.5f, 0), Vector3.UnitY, 0, new Vector3(12, 1, 12), new Color(120, 120, 120));
+            DrawModelEx(glow, new Vector3(0, 0.05f, 0.6f), Vector3.UnitY, 0, new Vector3(3, 0.1f, 0.4f), Color.White);
+            DrawModelEx(wall, new Vector3(-0.8f, 1, 0), Vector3.UnitX, 90, new Vector3(1.4f, 1, 2), Color.White);
+            DrawModelEx(wall, new Vector3(0.8f, 1, 0), Vector3.UnitX, -90, new Vector3(1.4f, 1, 2), Color.White);
+        }
+        var gi = GetApp().World.Resource<GlobalIlluminationSettings>();
+        var with = Capture(Draw, camera);
+        gi.ScreenOff = true;
+        var without = Capture(Draw, camera);
+        gi.ScreenOff = false;
+        // How much the screen's probes change each wall's red low on its face, near the slab.
+        float Change(float x)
+        {
+            var at = GetWorldToScreenEx(new Vector3(x, 0.4f, 0.01f), camera, with.Width, with.Height);
+            return Mean(with, (int)at.X - 3, (int)at.Y - 2, 6, 4).X / Mean(without, (int)at.X - 3, (int)at.Y - 2, 6, 4).X;
+        }
+        var (front, back) = (Change(-0.8f), Change(0.8f));
+        (back - 1).Should().BeApproximately(front - 1, 0.25f * MathF.Abs(front - 1) + 0.01f, $"the back of a wall takes the screen's probes as the front does, {back:0.000} against {front:0.000}");
+        foreach (var model in new[] { slab, glow, wall }) UnloadModel(model);
+    }
 }

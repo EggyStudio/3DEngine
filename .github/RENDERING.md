@@ -2087,6 +2087,25 @@ differing between the two no more than between two runs of either. The path-trac
 every surface solid, so no reference reads the light through the leaves, and the references the
 tests hold read as before.
 
+**The screen's probes on thin two-sided walls, read on 2026-10-26.** In a room built as the voxel
+game's wheat field, thin two-sided walls a block tall four to a block, half a unit apart, under the
+game's sun at ten in the morning, the walls facing the eye and the sun read 44% over a path-traced
+reference at High at 800 by 450 and those seen from their backs 18%, the second taking no screen
+probe, since the model pass looked them up along the normal as given. Looked up along the normal
+turned to the eye as the shading's is, the back of a two-sided face takes the screen's probes
+standing on it, and the two kinds read 44% and 45% over close and 14% and 8% from further off. The
+excess is the field's. It holds a two-sided face below zero within half a cell either side, so
+between walls half a unit apart, two cells of a quarter, every cell reads a surface, and a screen
+probe's rays, starting half a cell off their wall, are met within 0.11 of their start and take the
+wall's own light, the probe under one pixel 255% over the reference along its ways
+(`gi.screenprobe`). Three mends were read and none is kept. Leaving such a probe out for the world's
+probes read the walls 15% over and drew the probes still traced among them as bright patches a tile
+wide; having its rays read the world's probes along their ways read them within 1% of the reference
+but let a closed room's thin walls take the light outside them; having its march pass a surface the
+ray is leaving kept the rooms closed and read the walls 30% over. A narrower band for two-sided
+faces, or a finer cascade where thin walls stand, is item 131's. The voxel game keeps its plants out
+of the field, so its wheat does not show it.
+
 **What the light looks like, read on 2026-10-18.** The examples that draw global illumination,
 `shaders_cornell_box`, `shaders_bounce_rooms` in the room its capture shows, the lamp carried, and
 in the thin walls' room and the emissive block's, `shaders_reflections`, and `games/Ore` where its

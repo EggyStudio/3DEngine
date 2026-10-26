@@ -37,6 +37,12 @@ sun at ten in the morning, at High at 1280 by 720, above with the shadow's point
 wall's normal as given, the walls lit from their backs shadowing themselves in speckles, and below
 with it turned to the sun's side, every lit wall even.
 
+![](.github/assets/readings/2026-10-26-item-130-room.webp)
+The models_edit_mesh_room example at 800 by 450, above in the prototype colors and grid before, the
+walls a pale warm gray and lines every tenth of a meter, and below in Unreal's prototyping grays and
+orange with lines at the half and the quarters and 1m lettered in each cell's corner, as
+BevyCSharp's.
+
 The sun given a width across (`SetShadowSoftness`), read on the engine's tree against `a16227a7`.
 The edge of a pole's shadow, 5 units tall under a sun 45 degrees up, between a quarter and three
 quarters of the light, in units across:
@@ -178,6 +184,8 @@ Done that day
   sets.
 - Item 127 at `2f5237f2`. A ray crosses a voxel canopy's many leaf surfaces for less.
 - Item 128 at `0754b975`. The interface has a text field to type into.
+- Item 130 at `7ff7bbdd`. The prototyping look takes Unreal's tones and a level editor's grid steps,
+  as BevyCSharp's.
 
 ## 2026-10-25
 
