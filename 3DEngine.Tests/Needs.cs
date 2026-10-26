@@ -17,6 +17,15 @@ public sealed class NeedsSlangFactAttribute : FactAttribute
     }
 }
 
+/// <summary>Skipped where the <c>e3d</c> client was not built beside the tests (<see cref="Probes.Client"/>).</summary>
+public sealed class NeedsClientFactAttribute : FactAttribute
+{
+    public NeedsClientFactAttribute()
+    {
+        if (Probes.Client.Value is null) Skip = "The e3d client was not built beside the tests. Build 3DEngine.slnx in the same configuration.";
+    }
+}
+
 /// <summary>Skipped where <c>slangc</c> is not found or no Vulkan device starts offscreen.</summary>
 public sealed class NeedsVulkanFactAttribute : FactAttribute
 {

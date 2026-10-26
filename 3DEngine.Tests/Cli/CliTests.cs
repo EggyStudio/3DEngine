@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Text.Json;
 using FluentAssertions;
 using StbImageSharp;
@@ -276,5 +277,40 @@ public sealed class CliTests : IDisposable
         SdlImGuiInput.ImGuiButton(MouseButton.Right).Should().Be((int)ImGuiNET.ImGuiMouseButton.Right);
         SdlImGuiInput.ImGuiButton(MouseButton.Middle).Should().Be((int)ImGuiNET.ImGuiMouseButton.Middle);
         SdlImGuiInput.ImGuiButton(MouseButton.X2).Should().Be(4);
+    }
+
+    [NeedsClientFact]
+    public void A_Verb_Followed_By_Help_Prints_Its_Usage_And_Starts_Nothing()
+    {
+        // A program that writes a file once it is started, which open would start, as it once
+        // started an example in a shown window, were --help passed on to it.
+        var started = _folder.File("started");
+        var program = _folder.File(OperatingSystem.IsWindows() ? "program.cmd" : "program.sh");
+        File.WriteAllText(program, OperatingSystem.IsWindows() ? $"@echo started> \"{started}\"\r\n" : $"#!/bin/sh\necho started > '{started}'\n");
+        if (!OperatingSystem.IsWindows()) File.SetUnixFileMode(program, UnixFileMode.UserRead | UnixFileMode.UserWrite | UnixFileMode.UserExecute);
+
+        var (exit, said) = Client("open", program, "--help");
+        exit.Should().Be(0, said);
+        said.Should().Contain("e3d open <example>").And.Contain("e3d open <program>").And.NotContain("e3d status", "only the verb's own lines are printed");
+        File.Exists(started).Should().BeFalse("open with --help starts no program");
+
+        Client("cmd", "-h").Said.Should().Contain("e3d command <name>", "an alias is answered with its verb's usage");
+        Client("nothing", "--help").Exit.Should().Be(2, "a word that is no verb is refused, help or not");
+    }
+
+    // Runs the client the suite built with arguments, and what it wrote to its output and its errors.
+    private static (int Exit, string Said) Client(params string[] arguments)
+    {
+        var start = new ProcessStartInfo(Probes.Client.Value!) { RedirectStandardOutput = true, RedirectStandardError = true };
+        foreach (var argument in arguments) start.ArgumentList.Add(argument);
+        using var client = Process.Start(start)!;
+        var output = client.StandardOutput.ReadToEndAsync();
+        var errors = client.StandardError.ReadToEndAsync();
+        if (!client.WaitForExit(60_000))
+        {
+            client.Kill(entireProcessTree: true);
+            throw new TimeoutException($"e3d {string.Join(' ', arguments)} did not end within a minute.");
+        }
+        return (client.ExitCode, output.Result + errors.Result);
     }
 }

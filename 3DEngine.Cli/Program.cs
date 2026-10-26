@@ -9,6 +9,9 @@ Console.OutputEncoding = new System.Text.UTF8Encoding(encoderShouldEmitUTF8Ident
 
 var (options, rest) = Options.Parse(args);
 if (rest.Length == 0) return Help.Print();
+// --help after a verb answers with the verb's usage and does nothing else, so `e3d open --help`
+// starts no program, where it once passed the flag on and opened an example in a shown window.
+if (rest.Length > 1 && rest[1..].Any(word => word is "--help" or "-h")) return Help.Print(options, rest[0]);
 
 return rest[0] switch
 {

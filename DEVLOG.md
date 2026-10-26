@@ -128,6 +128,8 @@ under it, 0.17 at Low, and 0.23 at High five and a half under it.
 
 Done that day
 
+- Item 91 at `d207627e`. DESIGN.md says the loop and the ECS are both the engine's way, each where
+  it fits, with the voxel game as the model (Decision 68).
 - Item 93 at `bb542fa4`. No running sentence holds a colon, across the documents, the comments and
   the scripts.
 - Item 100 at `a16227a7`. The field lets a share of light through a cell marked as foliage.

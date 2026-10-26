@@ -70,15 +70,44 @@ internal static class Help
 {
     public static int Print()
     {
-        Console.WriteLine("""
+        Console.WriteLine(Text);
+        return Exit.Ok;
+    }
+
+    /// <summary>
+    /// The usage of <paramref name="verb"/> alone, its lines of the list and the flags every verb
+    /// shares, or a refusal where it is no verb.
+    /// </summary>
+    public static int Print(Options options, string verb)
+    {
+        var name = verb switch { "cmd" => "command", "screenshot" => "shot", _ => verb };
+        var lines = Text.Split('\n');
+        var usage = new List<string>();
+        for (var i = 0; i < lines.Length; i++)
+        {
+            if (!lines[i].TrimStart().StartsWith($"e3d {name} ", StringComparison.Ordinal) && lines[i].Trim() != $"e3d {name}") continue;
+            usage.Add(lines[i]);
+            // The lines under it that carry on its flags, indented past where a verb starts.
+            while (i + 1 < lines.Length && lines[i + 1].StartsWith("      ", StringComparison.Ordinal) && !lines[i + 1].TrimStart().StartsWith("e3d ", StringComparison.Ordinal))
+                usage.Add(lines[++i]);
+        }
+        if (usage.Count == 0)
+            return Output.Refuse(options, verb, "BAD_ARGUMENT", $"'{verb}' is not a verb. Run 'e3d help' for the list.");
+        Console.WriteLine(string.Join('\n', usage));
+        Console.WriteLine();
+        Console.WriteLine(lines.First(line => line.StartsWith("Every verb takes", StringComparison.Ordinal)));
+        return Exit.Ok;
+    }
+
+    private const string Text = """
             e3d controls a running 3DEngine app from the terminal.
 
               e3d status                     what is serving
               e3d open <example> [flags]     start an example serving, and wait until it answers
               e3d open <program> [flags]     the same for a program of your own, by its path
-                                             flags: --headless, --offscreen, --hidden, --frames <n>
+                                             with --headless, --offscreen, --hidden or --frames <n>
               e3d list                       the commands the app answers
-              e3d command <name> [args]      run one (alias: cmd)
+              e3d command <name> [args]      run one, or e3d cmd
               e3d eval <code>                compile C# against the running app and run it
               e3d eval -f <file.cs>          the same for a file
               e3d shot <path.png>            capture the window
@@ -91,9 +120,9 @@ internal static class Help
               e3d doctor                     remove session files of apps that are gone
               e3d shaders <shaders> <cache>  compile a folder of shaders into a cache a program ships
 
-            Flags for every verb: --json, --quiet, --name <entry>, --session <pid>, --timeout <seconds>.
-            Exit codes: 0 ok, 2 bad arguments, 4 nothing to talk to, 6 the command failed.
-            """);
-        return Exit.Ok;
-    }
+            Every verb takes --json, --quiet, --name <entry>, --session <pid> and --timeout <seconds>.
+            The exit code is 0 for success, 2 for bad arguments, 4 for nothing to talk to and 6 where
+            the command failed. A verb followed by --help prints its own lines of this and does nothing
+            else.
+            """;
 }

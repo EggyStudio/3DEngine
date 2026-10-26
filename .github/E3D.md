@@ -128,6 +128,10 @@ carries a code in `errors[0].code` (`NO_SESSION`, `AMBIGUOUS_SESSION`, `UNKNOWN_
 `NO_RENDERER`, `TIMEOUT`). Without `--json` an error is a line `error [CODE] message` on standard
 error, so `status=$(./e3d command ...)` takes no error into the variable and the error still shows.
 
+`./e3d` alone prints every verb's usage, and a verb followed by `--help`, as `./e3d open --help`,
+prints that verb's own lines of it and does nothing else, so no program is started and no session
+is asked.
+
 ## More than one app
 
 When several are serving, a verb refuses with `AMBIGUOUS_SESSION` and lists them. Choose with

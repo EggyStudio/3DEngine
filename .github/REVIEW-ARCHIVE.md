@@ -4126,6 +4126,26 @@ batch.
     documents recast, the 200 hits left labels, named arguments, a URL and raylib's own text,
     ASKS.md's hits the Review labels.
 
+91. **DESIGN.md says the loop and the ECS are both the engine's way, each where it fits, with the
+    voxel game as the model (Decision 68).** DESIGN.md's opening and its fifth section say the ECS
+    is underneath for a program that grows into it; the owner's word of 2026-10-24 is that both are
+    the engine's way and a program chooses by what fits, the loop of flat calls for the frame, the
+    drawing and the interfaces, where raylib's way reads best, and the ECS for the things that move
+    and the data that lives across frames, where behaviors, queries, states and the scheduler read
+    best, the ECS being this engine's own feature over raylib. So DESIGN.md's opening says both, its
+    fifth section is written again as the choice with the voxel game, Voxel-Sandbox, named as the
+    model of the split, the mobs, drops and sections of its items 94 to 96 as entities and its
+    frame, drawing and interface in the loop; a guide page of its own, docs/the-loop-and-the-ecs.md
+    or a name the coder finds better, says when each fits with a short example of each, a behavior
+    that moves a thing and a loop that draws it, built on the ecs_behaviors example so its blocks
+    compile under the guides' check, the guide table gaining its row after the first game's; the
+    README's sentence on the ECS says the same in a line. The engine's own small games stay as they
+    are. One commit, docs only, after item 90; the gaps the game's port finds come to this engine
+    through ASKS.md as items ahead of its other work, by the Decision. Done at `d207627e` on
+    2026-10-26, DESIGN.md's opening and fifth section saying both are the engine's way with the
+    voxel game as the model, the guide page docs/the-loop-and-the-ecs.md and the README's row and
+    paragraph; AGENTS.md's opening line left for the owner's word.
+
 ## Verdicts settled
 
 Verdicts 1 to 55 are settled, the last two, the drawing leak test's resident bound and the Windows
