@@ -10,54 +10,72 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `7ff7bbdd`, item 130, the prototyping look as BevyCSharp's, read at 13:48 on
-2026-10-26, carrying the review's files with a Shared line, SHARED.md and DEVLOG.md, pushed at 13:49
-once the build run of `b05b32da` went green whole at 13:47, Windows in 88 minutes, Linux in 68 and
-macOS in 35, its run watched. GetPrototypeColor's floor, wall, ceiling and stairs are 79, 79, 82,
-181, 181, 178, 209, 209, 212 and 245, 117, 33, the sRGB values times 255 rounded as float, door,
-window and hazard as they were, the remark naming Unreal's palette; GenImageGrid ports BevyCSharp's
-GridPixels rule for rule, a meter's edge line a 128th and two pixels at least half on each edge, the
-half's line a 256th in the line color, the quarters' lines a 512th in the fine color each a pixel at
-least starting half its width before its place, and the 1m mark in five by seven squares each a
-128th of the cell two squares in from the edge line where the cell has 128 pixels or more, the same
-glyph bits. PrototypeTests' two grid tests become BevyCSharp's, at 100 pixels the lines at the
-edges, the half and the quarters and no mark, at 1024 the half's line at 510 to 513, a quarter's at
-255 to 256 and the mark's squares at the pixels BevyCSharp's test reads; modeling.md's grid and
-palette words, the room block's comment and the cheat sheet's GenImageGrid line follow, the guide's
-23 blocks built on the package; models_edit_mesh_room, models_edit_mesh, _cuts and _modifiers
-recaptured, _looks unchanged, the room pictured before and after. The strict build clean, 2,132 on
-the GPU in order and shuffled, lavapipe not run with a CPU image alone changed. After `b05b32da`,
-item 89, the plant walls' shadow acne, read at 11:38 on 2026-10-26, carrying the review's files with
-item 129 and a Shared line, a reading in RENDERING.md, a note and a captioned picture, pushed with
-`5528c55c` and `0a4ad922` in one push at 12:19 on 2026-10-26 once the build run of `d207627e` went
-green whole, the run of `b05b32da` green whole, the times in the head of `7ff7bbdd`. In lights.slang
-litSide(n, toward) turns a normal to the light's side, cascadeReached moving the point a texel and a
-half along it toward the sun for the soft and the hard path alike and spotLightReaching and
-pointLightReaching toward their lamp, so every caller is covered, the model pass, groundReached and
-the game's terrain shader reading lightReaching with its unflipped geometric normal, the comments
-saying why with the wheat readings. ModelShadowTests reads two thin walls side by side under the
-game's ten o'clock sun, one normal toward the sun and one away, both seen from the sun's side, the
-back-lit wall spreading under 0.05 of its mean and within 5% of the front-lit wall's, 0.1909 against
-0.4403 with a spread of 0.298 without the mend and both 0.4403 at 0.000 with it. In the wheat room
-at High the walls' spread close and far reads 0.149 and 0.338 before against the reference's 0.053
-and 0.074 and 0.054 and 0.227 after, the speckle metric at Off 14.85 and 6.76 before and 4.52 and
-1.61 after, the grazing step changing nothing more, the far view's leftover the soft darkening on
-the outer walls' lower halves under item 129; RENDERING.md's shadow lookup paragraph gives the turn,
-the reading and the test and says the game's plants gain first. The strict build clean, 2,132 on the
-GPU in order and shuffled, 89 on lavapipe with validation. After `0a4ad922`, the README's quick
-links, read at 10:46 on 2026-10-26, README.md with the review's files and DEVLOG.md and nothing of
-item 89, pushed with `5528c55c` and `b05b32da` at 12:19; NormTests, the docs tests, the example
-tests and PackageContentsTests passed, 29, and the examples table's check, none reading the first
-line in a way the new line upsets. On item 89, in a scratch room built as the game's wheat field, 8
-by 8 blocks of four two-sided walls on farmland under the game's sun at 10, turning the shadow
-lookup's normal offset to the sun's side of the face cuts the walls' speckle metric by 70 to 76%,
-the field 14.85 to 4.52 and the close view 6.76 to 1.61, which covers the model pass and the game's
-terrain shader, both handing lightReaching the unflipped geometric normal; a grazing-angle step
-toward the sun alone helps little, 12.5 and 5.6, and with the flip reads as the flip does; both are
-being read against the path-traced reference by region at High, and a separate finding, the frame's
-clean walls at High 35 to 68% over the reference's mean in every copy, is to be read, not the acne.
-After `5528c55c`, item 95, a verb of ./e3d with --help printing its help and opening nothing, read
-at 10:36 on 2026-10-26, carrying the review's files and DEVLOG.md, pushed with `0a4ad922` and
+Reviewed up to `969a1b08`, item 129, the screen probes' lookup along the shading's normal, read at
+14:45 on 2026-10-26, carrying the review's files with a Shared line, SHARED.md, DEVLOG.md, a reading
+in RENDERING.md, a note and a captioned picture, held until the build run of `7ff7bbdd` ends.
+modelpass.slang hands screenProbesHere the geometric normal turned to the eye when the material
+draws its backs, as the shading's is, the blind-probe mends not in it; GlobalIlluminationTests reads
+two thin two-sided walls side by side over a red emissive slab at Medium so lavapipe runs it, one
+seen from its front and one from its back, each wall's red with the screen probes over without, the
+front 1.560 and the back 1.000 before the flip and 1.560 and 1.515 after, the bound the back's
+change within a quarter of the front's plus 0.01. RENDERING.md gains the reading of the screen's
+probes on thin two-sided walls, the flip, the band as the cause, the three mends read and not kept
+with their numbers and item 131, the note holding the whole table with the leak tests' values, and
+the wheat room pictured at High with the back walls darker above and both kinds alike below, the
+room reading front 44.1% and back 44.8% over the reference where it read 44.0 and 18.3. The strict
+build clean, 2,133 on the GPU in order and shuffled, 82 on lavapipe with validation and 2 skipped.
+On item 97 the lead is the Fresnel term's pow of one less the dot of the view and half vectors,
+which with the light at the eye rounds a hair over 1 to a negative base, a NaN under Mesa's exp2 of
+log2, the only pow in the lighting that can go negative, read on lavapipe with a test first. After
+`7ff7bbdd`, item 130, the prototyping look as BevyCSharp's, read at 13:48 on 2026-10-26, carrying
+the review's files with a Shared line, SHARED.md and DEVLOG.md, pushed at 13:49 once the build run
+of `b05b32da` went green whole at 13:47, Windows in 88 minutes, Linux in 68 and macOS in 35, its own
+run red at 15:05 on the examples job alone, the three suites green, Verdict 94. GetPrototypeColor's
+floor, wall, ceiling and stairs are 79, 79, 82, 181, 181, 178, 209, 209, 212 and 245, 117, 33, the
+sRGB values times 255 rounded as float, door, window and hazard as they were, the remark naming
+Unreal's palette; GenImageGrid ports BevyCSharp's GridPixels rule for rule, a meter's edge line a
+128th and two pixels at least half on each edge, the half's line a 256th in the line color, the
+quarters' lines a 512th in the fine color each a pixel at least starting half its width before its
+place, and the 1m mark in five by seven squares each a 128th of the cell two squares in from the
+edge line where the cell has 128 pixels or more, the same glyph bits. PrototypeTests' two grid tests
+become BevyCSharp's, at 100 pixels the lines at the edges, the half and the quarters and no mark, at
+1024 the half's line at 510 to 513, a quarter's at 255 to 256 and the mark's squares at the pixels
+BevyCSharp's test reads; modeling.md's grid and palette words, the room block's comment and the
+cheat sheet's GenImageGrid line follow, the guide's 23 blocks built on the package;
+models_edit_mesh_room, models_edit_mesh, _cuts and _modifiers recaptured, _looks unchanged, the room
+pictured before and after. The strict build clean, 2,132 on the GPU in order and shuffled, lavapipe
+not run with a CPU image alone changed. After `b05b32da`, item 89, the plant walls' shadow acne,
+read at 11:38 on 2026-10-26, carrying the review's files with item 129 and a Shared line, a reading
+in RENDERING.md, a note and a captioned picture, pushed with `5528c55c` and `0a4ad922` in one push
+at 12:19 on 2026-10-26 once the build run of `d207627e` went green whole, the run of `b05b32da`
+green whole, the times in the head of `7ff7bbdd`. In lights.slang litSide(n, toward) turns a normal
+to the light's side, cascadeReached moving the point a texel and a half along it toward the sun for
+the soft and the hard path alike and spotLightReaching and pointLightReaching toward their lamp, so
+every caller is covered, the model pass, groundReached and the game's terrain shader reading
+lightReaching with its unflipped geometric normal, the comments saying why with the wheat readings.
+ModelShadowTests reads two thin walls side by side under the game's ten o'clock sun, one normal
+toward the sun and one away, both seen from the sun's side, the back-lit wall spreading under 0.05
+of its mean and within 5% of the front-lit wall's, 0.1909 against 0.4403 with a spread of 0.298
+without the mend and both 0.4403 at 0.000 with it. In the wheat room at High the walls' spread close
+and far reads 0.149 and 0.338 before against the reference's 0.053 and 0.074 and 0.054 and 0.227
+after, the speckle metric at Off 14.85 and 6.76 before and 4.52 and 1.61 after, the grazing step
+changing nothing more, the far view's leftover the soft darkening on the outer walls' lower halves
+under item 129; RENDERING.md's shadow lookup paragraph gives the turn, the reading and the test and
+says the game's plants gain first. The strict build clean, 2,132 on the GPU in order and shuffled,
+89 on lavapipe with validation. After `0a4ad922`, the README's quick links, read at 10:46 on
+2026-10-26, README.md with the review's files and DEVLOG.md and nothing of item 89, pushed with
+`5528c55c` and `b05b32da` at 12:19; NormTests, the docs tests, the example tests and
+PackageContentsTests passed, 29, and the examples table's check, none reading the first line in a
+way the new line upsets. On item 89, in a scratch room built as the game's wheat field, 8 by 8
+blocks of four two-sided walls on farmland under the game's sun at 10, turning the shadow lookup's
+normal offset to the sun's side of the face cuts the walls' speckle metric by 70 to 76%, the field
+14.85 to 4.52 and the close view 6.76 to 1.61, which covers the model pass and the game's terrain
+shader, both handing lightReaching the unflipped geometric normal; a grazing-angle step toward the
+sun alone helps little, 12.5 and 5.6, and with the flip reads as the flip does; both are being read
+against the path-traced reference by region at High, and a separate finding, the frame's clean walls
+at High 35 to 68% over the reference's mean in every copy, is to be read, not the acne. After
+`5528c55c`, item 95, a verb of ./e3d with --help printing its help and opening nothing, read at
+10:36 on 2026-10-26, carrying the review's files and DEVLOG.md, pushed with `0a4ad922` and
 `b05b32da` at 12:19. Program.cs answers --help or -h anywhere after a verb with Help.Print(options,
 verb) before dispatching, so open, eval and the rest are never reached; Help.Print(verb) prints the
 verb's own lines of the usage text with their continuations and the line on the flags every verb
@@ -512,12 +530,12 @@ reference frame and cascade edge tests on lavapipe with validation. Item 96 begi
 the game's 5.2.215 build at the cherry grove at 1920 by 1080, each part of the per-pixel read cut
 out in turn to tell what runs per fragment from the variant's registers, the window's depth at half
 size and the scene pass shading with overdraw pointing at a half-size pass over the window's depth
-with a two by two depth and normal read, as the glow pass has. Next 129's flipped lookup, then 97,
-the light at the camera's point on lavapipe, then 131, the field's band at a thin face. The branch
-`modeling` was deleted at 07:23 with its items all on main, N 7.5; the cloud sessions stand by. The
-owner asked at 10:45 on 2026-10-26 for quick links to the devlog and the cheat sheet at the very top
-of the README, plain links to the files; the reviewer wrote the line as the README's first line with
-full addresses as N 4.3 has them, the coder committing README.md alone.
+with a two by two depth and normal read, as the glow pass has. Next 97, the light at the camera's
+point on lavapipe, then 131, the field's band at a thin face. The branch `modeling` was deleted at
+07:23 with its items all on main, N 7.5; the cloud sessions stand by. The owner asked at 10:45 on
+2026-10-26 for quick links to the devlog and the cheat sheet at the very top of the README, plain
+links to the files; the reviewer wrote the line as the README's first line with full addresses as N
+4.3 has them, the coder committing README.md alone.
 
 Before it, `a8f127ad` came, item 108's third phase, with `ac1c6bad`, item 120, pushed at 06:43 on
 2026-10-25 once the build run of `6a20d165` went green whole, its build run green whole at 07:41,
@@ -1396,40 +1414,6 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     The macOS test's fix in `14338c8f`, picked as `34e9a8a5`. The device numbers in the guide at
     `3a2ccc0b`; item 74 done, held for the push.
 
-129. **The screen probes do not over-light thin two-sided walls.** From item 89's reading of
-    2026-10-26 in a scratch room built as the voxel game's wheat field, thin two-sided walls half a
-    unit apart under the sun, read against 256-path references at High. With the shadow offset
-    turned to the light's side (89's mend) a wall facing the eye and the sun reads 44% over the
-    reference close and 14% far, 13.5% with the screen probes off and 39% with the merge's again
-    off, so the screen probes add about 30% to thin front walls where the world probes give the 13
-    to 18% both kinds share; a wall seen from behind takes no screen probe at all, since the model
-    pass hands screenProbesHere the unflipped geometric normal (modelpass.slang line 525), a plain
-    mismatch beside 89's, and with the flipped normal it reads 45% over close and 8% far where 89's
-    mend alone gives 18% and none. The excess read for its cause, the probes' reach or spacing
-    taking light from both sides of a thin wall, a probe's placement between the walls, or the
-    merge's parallax across a wall, and mended so a thin wall reads within the world probes' spread
-    of the reference; then the lookup's normal flipped with the shading's, so a back wall takes its
-    screen probes, the two read together against the references in the room and on the bounce rooms,
-    the game's wheat field pictured before and after. The far view's soft darkening on the outer
-    walls' lower halves, blue blotches in the difference picture, is a lead to read with it. One or
-    two commits, after item 89 and before 97. Read on 2026-10-26 at 13:1x. The cause is the field's
-    band, a two-sided face held below zero within half a cell either side at a cell of 0.25, so a
-    gap of two cells between walls half a unit apart reads solid, a screen probe's rays starting
-    half a cell off the wall meeting a surface within 0.03 to 0.11 and each taking 1.265, the wall's
-    own light, where the reference reads 0.1 to 0.6 along the same ways, a probe 255% over, and a
-    start a cell off 300% since the whole gap reads solid. Three mends tried in the room close and
-    far against the reference, leaving out a probe whose start reads a surface at 14.9 and 19.3%
-    close with bright blobs a tile wide; a blind probe keeping itself and reading the world probes
-    along its ways at -0.8 and -0.6% close, smooth, failing three leak tests, the closed room at
-    0.0062 against under 0.002, the lamp room 12.7 against under 8 and the slab's tint 1.20 against
-    1.24, a ray past its reach taking the world outside a closed thin-walled room; and a blind
-    probe's march passing where the field normal points along the ray and stopping at a face turned
-    toward it at 29.5% close and 9.6 and 3.8% far with the leak tests passing. The game's wheat is
-    untouched by any, its plants out of the field, and the real mend is the field's band or
-    resolution at thin faces, item 131. So the item closes with the lookup's normal flipped with the
-    shading's, a plain mismatch each test passes, a back wall then reading as a front does, over in
-    a thin-wall pocket alike, which 131 takes down; the blind-probe mends are not kept.
-
 97. **A point light at the camera's own point shades without black specks on lavapipe.** From the
     voxel game's reading of 2026-10-24, read at 12:21, its ASKS.md entry of 2026-10-24. The game
     moved its held light to the eye's point and the play job on lavapipe read the lit roof black at
@@ -1457,7 +1441,17 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
 
 ## Verdicts
 
-Verdicts 56 to 93 are settled, said under each in REVIEW-ARCHIVE.md; none is open.
+Verdicts 56 to 93 are settled, said under each in REVIEW-ARCHIVE.md; 94 is open.
+
+94. **The run of `7ff7bbdd` is red on the examples job, the gallery's pictures out of date after
+    item 130's captures.** Read at 15:08 on 2026-10-26. The three suites went green, Windows in 73
+    minutes, and the examples job failed at the check of raylib's examples table,
+    build/examples-table.py --check saying the gallery's pictures are out of date for
+    models_edit_mesh, models_edit_mesh_cuts, models_edit_mesh_modifiers and the room, since item 130
+    recaptured those four examples and the gallery's pictures made from the captures were not made
+    again. The mend runs build/examples-table.py and commits the gallery's four pictures with it,
+    the check passing on the tree before the commit. Small, first, the commit going with `969a1b08`
+    in one push.
 
 ## Decisions
 

@@ -43,6 +43,13 @@ walls a pale warm gray and lines every tenth of a meter, and below in Unreal's p
 orange with lines at the half and the quarters and 1m lettered in each cell's corner, as
 BevyCSharp's.
 
+![](.github/assets/readings/2026-10-26-item-129-walls.webp)
+The wheat room's thin two-sided walls half a unit apart at High at 1280 by 720, above with the
+screen's probes looked up along each wall's normal as given, the walls seen from their backs taking
+none and reading darker than those seen from their fronts, and below along the normal turned to the
+eye, both kinds alike, 44% and 45% over a path-traced reference by the field's thin-wall band, item
+131's to mend.
+
 The sun given a width across (`SetShadowSoftness`), read on the engine's tree against `a16227a7`.
 The edge of a pole's shadow, 5 units tall under a sun 45 degrees up, between a quarter and three
 quarters of the light, in units across:
@@ -138,6 +145,37 @@ trees. A floor under a canopy of leaf blocks twenty a side and two deep, lit by 
 the same share of the sky's light to four places either way, 0.30 at High two and a half units
 under it, 0.17 at Low, and 0.23 at High five and a half under it.
 
+The screen's probes on thin two-sided walls, read on the engine's tree against `7ff7bbdd` on an RTX
+4070 under tuned's `powersave-bazzite`, in item 89's room built as the voxel game's wheat field,
+eight by eight blocks of four walls a block tall half a unit apart under the game's sun at ten in
+the morning, at High against path-traced references of 256 paths a pixel.
+
+The walls against the reference by kind, those facing the eye and the sun and those seen from their
+backs, weighted by pixels, close and from further off:
+
+| Screen's probes | Close, front | Close, back | Far, front | Far, back |
+|---|---|---|---|---|
+| looked up along the normal as given | +44.0% | +18.3% | +13.7% | -0.1% |
+| left out (`gi.toggle screen off`) | +13.5% | +18.1% | | |
+| looked up along the normal turned to the eye, kept | +44.1% | +44.8% | +13.9% | +7.9% |
+| a blind probe left out whole, not kept | +14.9% | +19.3% | +1.7% | -0.5% |
+| a blind probe's rays reading the world's probes, not kept | -0.8% | -0.6% | -3.7% | -6.0% |
+| a blind probe's march passing surfaces it leaves, not kept | +29.5% | +29.5% | +9.6% | +3.8% |
+
+A probe is blind where the field reads a surface a cell off its surface, as everywhere between two
+walls half a unit apart, two cells of a quarter, whose bands of half a cell meet. The probe under
+one front wall's pixel read 255% over the reference along its sixteen ways, its rays met within 0.11
+of their start, each taking the wall's own light, 1.265 in red where the reference along the same
+ways read 0.1 to 0.6; started a cell off its wall it read 300% over. Left out whole, the probes
+still traced among the blind ones drew bright patches a tile wide. Reading the world's probes, a
+closed room's thin walls let in the light outside them, a closed room at High 0.0062 of the open
+floor's light where under 0.002 is held, a lamp's room 12.7 where under 8, and a slab's red on a
+wall 1.20 where the reference's 1.24. Passing surfaces a ray leaves kept those rooms closed.
+
+The test's two walls over a red emissive slab, one seen from its front and one from its back, take
+1.560 and 1.000 of their red with the screen's probes against without them, looked up along the
+normal as given, and 1.560 and 1.515 along the normal turned to the eye.
+
 A thin two-sided wall's shadow read along its normal turned to the light's side (`litSide` in
 `lights.slang`), read on the engine's tree against `0a4ad922` on an RTX 4070 under tuned's
 `powersave-bazzite`, in a room built as the voxel game's wheat field, eight by eight blocks of four
@@ -184,6 +222,7 @@ Done that day
   sets.
 - Item 127 at `2f5237f2`. A ray crosses a voxel canopy's many leaf surfaces for less.
 - Item 128 at `0754b975`. The interface has a text field to type into.
+- Item 129 at `969a1b08`. The screen probes do not over-light thin two-sided walls.
 - Item 130 at `7ff7bbdd`. The prototyping look takes Unreal's tones and a level editor's grid steps,
   as BevyCSharp's.
 

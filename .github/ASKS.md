@@ -1222,3 +1222,33 @@ method's window placed beside the caret, and a call saying a field holds the key
 a program's drawing of the box, the text and the caret. The game keeps its own field meanwhile.
 
 Review: taken as 3DEngine item 128 on 2026-10-26, a text field of the interface's own with a caret, a selection and the clipboard, after item 127.
+
+### 2026-10-26, the voxel game in `Voxel-Sandbox`, each section draw costs the main thread 3 to 5 µs a pass, so 2,000 sections drawn four times bound the frame
+
+Read on the 3DEngine 5.2.326 package for the game's item 139, its sections drawn as mesh entities,
+one `Mesh` and `Material` each, about 1,100 of them seen at 12 columns. Flying at a height of 90
+over seed 1's spawn at noon, looking east over the forest to the sea, at 1280 by 720 offscreen on
+the RTX 4070 Laptop GPU, Debug, the power-saving profile, every reading with no other program on
+the GPU and the engine's shadow fill off, a profile over ten seconds, three readings each:
+
+| Columns | Frame | The main thread's `stage.Last`, the render graph's | GPU's passes | Draws | Depth | Camera with the mirror | Cascades |
+|---|---|---|---|---|---|---|---|
+| 8 | 16.67 to 16.78 ms | 8.4 to 8.8 ms | 8.7 to 9.6 ms | 1,173 to 1,215 | 1.2 to 1.5 ms | 2.1 to 2.7 ms | 1.3 to 1.6 ms |
+| 12 | 16.71 to 17.08 ms | 12.9 to 13.2 ms | 12.3 to 13.3 ms | 2,226 to 2,322 | 2.3 to 2.4 ms | 4.9 to 5.1 ms | 2.1 ms |
+| 16 | 25.33 to 25.99 ms | 20.9 to 21.9 ms | 16.4 to 18.1 ms | 3,837 to 3,901 | 3.8 to 4.0 ms | 8.9 to 9.1 ms | 3.0 to 3.1 ms |
+
+The last three columns are the CPU's `cpu.window_depth`, `cpu.hdr_scene` with `cpu.mirror`, and
+`cpu.shadows`. By `models.draws` at 12 columns the depth pass draws about 670 sections, the camera
+about 780, the planar mirror about 420 (the camera's count reads 762 with the mirror off and 1,185
+with it on) and the three cascades about 400, so each draw costs 3 to 5 µs of the main thread to
+record in each pass, 9.4 ms of its 13 at 12 columns. At 16 the main thread bounds the frame at 21 ms
+while the GPU takes 16.5. With the shadow fill on, its 2,085 draws added 2 to 3 ms more, and the
+game leaves it off. The engine's note under its item 112 named this recording as the mirror's CPU
+share.
+
+The engine lacks a cheaper recording of many static mesh entities, such as the draws of one
+pipeline and material recorded as one indirect multi-draw over the instances' buffer, or a pass's
+commands kept while its set of draws and their meshes are unchanged, so a frame's four passes over
+2,000 unmoving sections cost the main thread well under a millisecond each. The game's render
+distance stays 12, where the frame stands at the edge of 16.7 ms, and 16 columns pay the recording
+meanwhile.

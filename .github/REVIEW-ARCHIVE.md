@@ -4185,6 +4185,42 @@ batch.
     commit, small, after item 129 and before 97. Done at `7ff7bbdd` on 2026-10-26, the colors and
     the grid as BevyCSharp's rule for rule with the same tests, four captures retaken.
 
+129. **The screen probes do not over-light thin two-sided walls.** From item 89's reading of
+    2026-10-26 in a scratch room built as the voxel game's wheat field, thin two-sided walls half a
+    unit apart under the sun, read against 256-path references at High. With the shadow offset
+    turned to the light's side (89's mend) a wall facing the eye and the sun reads 44% over the
+    reference close and 14% far, 13.5% with the screen probes off and 39% with the merge's again
+    off, so the screen probes add about 30% to thin front walls where the world probes give the 13
+    to 18% both kinds share; a wall seen from behind takes no screen probe at all, since the model
+    pass hands screenProbesHere the unflipped geometric normal (modelpass.slang line 525), a plain
+    mismatch beside 89's, and with the flipped normal it reads 45% over close and 8% far where 89's
+    mend alone gives 18% and none. The excess read for its cause, the probes' reach or spacing
+    taking light from both sides of a thin wall, a probe's placement between the walls, or the
+    merge's parallax across a wall, and mended so a thin wall reads within the world probes' spread
+    of the reference; then the lookup's normal flipped with the shading's, so a back wall takes its
+    screen probes, the two read together against the references in the room and on the bounce rooms,
+    the game's wheat field pictured before and after. The far view's soft darkening on the outer
+    walls' lower halves, blue blotches in the difference picture, is a lead to read with it. One or
+    two commits, after item 89 and before 97. Read on 2026-10-26 at 13:1x. The cause is the field's
+    band, a two-sided face held below zero within half a cell either side at a cell of 0.25, so a
+    gap of two cells between walls half a unit apart reads solid, a screen probe's rays starting
+    half a cell off the wall meeting a surface within 0.03 to 0.11 and each taking 1.265, the wall's
+    own light, where the reference reads 0.1 to 0.6 along the same ways, a probe 255% over, and a
+    start a cell off 300% since the whole gap reads solid. Three mends tried in the room close and
+    far against the reference, leaving out a probe whose start reads a surface at 14.9 and 19.3%
+    close with bright blobs a tile wide; a blind probe keeping itself and reading the world probes
+    along its ways at -0.8 and -0.6% close, smooth, failing three leak tests, the closed room at
+    0.0062 against under 0.002, the lamp room 12.7 against under 8 and the slab's tint 1.20 against
+    1.24, a ray past its reach taking the world outside a closed thin-walled room; and a blind
+    probe's march passing where the field normal points along the ray and stopping at a face turned
+    toward it at 29.5% close and 9.6 and 3.8% far with the leak tests passing. The game's wheat is
+    untouched by any, its plants out of the field, and the real mend is the field's band or
+    resolution at thin faces, item 131. So the item closes with the lookup's normal flipped with the
+    shading's, a plain mismatch each test passes, a back wall then reading as a front does, over in
+    a thin-wall pocket alike, which 131 takes down; the blind-probe mends are not kept. Done at
+    `969a1b08` on 2026-10-26 with the lookup's normal flipped with the shading's alone, a back wall
+    taking its probes as a front does, the thin-wall excess of the field's band to item 131.
+
 ## Verdicts settled
 
 Verdicts 1 to 55 are settled, the last two, the drawing leak test's resident bound and the Windows
