@@ -581,12 +581,22 @@ a shadow as dark as the surface is opaque. The map is bound at binding 1 of the 
 the cascades' matrices and texel widths in the lighting buffer, and the white texture takes its
 place in a frame with no shadow. The shader takes the nearest cascade whose tile holds the point, a
 little inside its edge, moves the point off its surface by a texel and a half of that cascade along
-its normal, and averages nine comparisons around it. Across the outer fifth of a tile the next
-cascade is read as well and blended in, so the shadow's softness changes over a band where one
-cascade gives way to the next, and past the last cascade's band the shadow fades out rather than
-ending at a line. A spot light's texels widen with distance from it, so its offset grows with that
-distance. A model shader with a vertex stage of its own casts the shadow of its mesh as it was
-before that stage moved it.
+its normal turned to the sun's side (`litSide` in `lights.slang`), and averages nine comparisons
+around it. A two-sided face lit from its back, as a plant's thin wall is, has its normal facing away
+from the light, and moved along it as given the point went behind the face as the light sees it, so
+the face shadowed itself in speckles and stripes. In a field of wheat's walls a block tall under the
+voxel game's sun at ten in the morning, 56 degrees up, the walls' light spread 0.149 of its mean
+within each wall against 0.053 in a path-traced reference, read as each wall's standard deviation
+over its mean at High at 800 by 450 and weighted by its pixels, and turned to the light's side
+0.054; a step toward the light for a face the sun grazes, tried beside it, changed nothing more. A
+test's wall lit from its back reads 0.4403 as its twin lit from its front does, where it read
+0.1909, spread 0.298 of its mean. The voxel game's plants, whose shader reads the shadow through the
+same lookup, are the first to gain. A spot or point light's lookup turns the normal to its lamp's
+side the same way. Across the outer fifth of a tile the next cascade is read as well and blended in,
+so the shadow's softness changes over a band where one cascade gives way to the next, and past the
+last cascade's band the shadow fades out rather than ending at a line. A spot light's texels widen
+with distance from it, so its offset grows with that distance. A model shader with a vertex stage of
+its own casts the shadow of its mesh as it was before that stage moved it.
 
 Past the last cascade a fill cascade reaches on to the camera's far plane (`ShadowFit.TryFitFill`),
 which `SetShadowFill` turns off and the cascades' count leaves out. It is fitted as the others are,

@@ -67,9 +67,10 @@ public float3 arriving(Light light, float3 world, float3 n)
 // cascade's tile does not hold it, or the point lies before its near plane, where its casters are
 // clamped onto that plane, so the next cascade, reaching farther toward the light, reads it. Each
 // counted cascade is a quarter of the map, two tiles on a side, and the fill after them, c being
-// the count, a map of its own. The point is moved off its surface along the normal by a texel and a
-// half of that cascade before it is compared, so a surface does not shadow itself where the map's
-// texels slant across it, and nine depths around it are compared and averaged, which softens the
+// the count, a map of its own. The point is moved off its surface by a texel and a half of that
+// cascade along the normal turned to the sun's side of the face (litSide) before it is compared, so a
+// surface does not shadow itself where the map's texels slant across it, and nine depths around it
+// are compared and averaged, which softens the
 // stair steps of the texels into a gradient one texel wide. A point a little inside a tile's edge
 // counts as outside, so the nine never reach into a neighboring tile. edge says how far toward the
 // tile's edge the point is, from 0 in its middle to 1 at that border. Where the sun is given a
@@ -78,7 +79,8 @@ public float3 arriving(Light light, float3 world, float3 n)
 public float cascadeReached(int c, float3 world, float3 n, float2 texel, out float edge)
 {
     edge = 1.0;
-    float4 clip = mul(lighting.shadowCascades[c], float4(world + n * lighting.shadowTexels[c] * 1.5, 1.0));
+    float3 off = litSide(n, -lighting.lights[max(lighting.shadowLight, 0)].directionAndRange.xyz);
+    float4 clip = mul(lighting.shadowCascades[c], float4(world + off * lighting.shadowTexels[c] * 1.5, 1.0));
     float3 p = clip.xyz / clip.w;
     if (any(abs(p.xy) > 0.995) || p.z > 1.0 || p.z < 0.0)
         return -1.0;
@@ -107,6 +109,18 @@ public float cascadeReached(int c, float3 world, float3 n, float2 texel, out flo
             reached += p.z - 0.0005 <= depth ? 1.0 : 0.0;
         }
     return reached / 9.0;
+}
+
+// The normal n of a face turned to the side toward a light, toward being the way to it, which a
+// shadow's point is moved along before it is compared. A two-sided face lit from its back, as a
+// plant's thin wall is, has its normal facing away from the light, and moved along it the point went
+// behind the face as the light sees it, so the face shadowed itself; in a field of wheat's walls a
+// block tall under a sun at 56 degrees, the walls lit from their backs read in speckles and stripes,
+// their light within each wall spread 0.149 of its mean against 0.053 in a path-traced reference
+// where every wall reads even, and turned to the light's side 0.054.
+public float3 litSide(float3 n, float3 toward)
+{
+    return dot(n, toward) < 0.0 ? -n : n;
 }
 
 // How many cascades the shadowed light's shadow is read through, the counted ones and the fill
@@ -263,11 +277,12 @@ public int pointFace(float3 away, int slot, out int layer, out float2 origin, ou
 
 // How much of the shadowed spot light in slot (counted from 0) at lightPosition reaches this
 // point, from 0 to 1, from its square of the map's last tile, compared as the cascades are. Its
-// texels widen with distance from the light, so the offset along the normal does too.
+// texels widen with distance from the light, so the offset along the normal, turned to the light's
+// side (litSide), does too.
 public float spotLightReaching(float3 world, float3 n, float3 lightPosition, int slot)
 {
     float offset = lighting.spotShadowTexels[slot / 4][slot % 4] * distance(world, lightPosition) * 1.5;
-    float4 clip = mul(lighting.spotShadows[slot], float4(world + n * offset, 1.0));
+    float4 clip = mul(lighting.spotShadows[slot], float4(world + litSide(n, lightPosition - world) * offset, 1.0));
     if (clip.w <= 0.0)
         return 1.0;
     float3 p = clip.xyz / clip.w;
@@ -300,7 +315,7 @@ public float pointLightReaching(float3 world, float3 n, float3 lightPosition, in
     float scale;
     int face = pointFace(away, slot, layer, origin, scale);
     float offset = lighting.pointShadow.x / scale * length(away) * 1.5;
-    float4 clip = mul(lighting.pointShadowFaces[slot * 6 + face], float4(world + n * offset, 1.0));
+    float4 clip = mul(lighting.pointShadowFaces[slot * 6 + face], float4(world + litSide(n, -away) * offset, 1.0));
     if (clip.w <= 0.0)
         return 1.0;
     float3 p = clip.xyz / clip.w;

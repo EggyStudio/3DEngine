@@ -441,4 +441,53 @@ public sealed class ModelShadowTests : IDisposable
         UnloadMesh(cube);
         UnloadShader(shader);
     }
+
+    [NeedsVulkanFact]
+    public void A_Two_Sided_Wall_Lit_From_Its_Back_Takes_The_Sun_As_Evenly_As_One_Lit_From_Its_Front()
+    {
+        // Two thin two-sided walls a unit high and two across, side by side under the voxel game's
+        // sun at ten in the morning, 56 degrees up, the first's normal toward the sun and the second's
+        // away from it, both seen from the sun's side. With the shadow's point moved along the normal
+        // as given, behind the second wall as the sun sees it, that wall shadowed itself, its light
+        // 0.1909 where the first's was 0.4403 and spread 0.298 of its mean; moved to the sun's side of
+        // each, both read 0.4403, even.
+        var config = Config.Default.WithWindow("two-sided wall test", 320, 180) with { Headless = true, Offscreen = true, Samples = 1 };
+        UseApp(new App(config).AddPlugin(new DefaultPlugins()));
+        var toSun = Vector3.Normalize(new Vector3(0.479f, 0.830f, 0.287f));
+        CreateDirectionalLight(-toSun, Color.White, 2, castsShadows: true);
+        var floor = LoadModelFromMesh(GenMeshPlane(30, 30, 1, 1));
+        var wall = LoadModelFromMesh(GenMeshPlane(1, 1, 1, 1));
+        wall.Materials[0] = new ModelMaterial(new Color(200, 180, 80)) { Roughness = 1, DoubleSided = true, AlphaMode = MaterialAlphaMode.Opaque };
+        var camera = new Camera3D(new Vector3(4, 1.5f, 0), new Vector3(0, 0.5f, 0), Vector3.UnitY, 50);
+        var image = Capture(() =>
+        {
+            ClearBackground(Color.Black);
+            BeginMode3D(camera);
+            DrawModel(floor, Vector3.Zero, 1, new Color(110, 72, 44));
+            DrawModelEx(wall, new Vector3(0, 0.5f, -1.2f), Vector3.UnitZ, -90, new Vector3(1, 1, 2), Color.White);
+            DrawModelEx(wall, new Vector3(0, 0.5f, 1.2f), Vector3.UnitZ, 90, new Vector3(1, 1, 2), Color.White);
+            EndMode3D();
+        }, "walls");
+        // A wall's light over a grid of points on its lit face, its mean and its spread, the
+        // standard deviation over the mean.
+        (float Mean, float Spread) Face(float z)
+        {
+            var lights = new List<float>();
+            for (float y = 0.15f; y <= 0.85f; y += 0.1f)
+                for (float along = -0.8f; along <= 0.8f; along += 0.1f)
+                {
+                    var at = GetWorldToScreenEx(new Vector3(0.01f, y, z + along), camera, image.Width, image.Height);
+                    var c = GetImageColor(image, (int)at.X, (int)at.Y);
+                    lights.Add(0.2126f * MathF.Pow(c.R / 255f, 2.2f) + 0.7152f * MathF.Pow(c.G / 255f, 2.2f) + 0.0722f * MathF.Pow(c.B / 255f, 2.2f));
+                }
+            var mean = lights.Average();
+            return (mean, MathF.Sqrt(lights.Average(l => (l - mean) * (l - mean))) / mean);
+        }
+        var front = Face(-1.2f);
+        var back = Face(1.2f);
+        back.Spread.Should().BeLessThan(0.05f, $"the wall lit from its back takes the sun as evenly as the one lit from its front, spread {back.Spread:0.000} against {front.Spread:0.000}");
+        (back.Mean / front.Mean).Should().BeInRange(0.95f, 1.05f, $"the wall lit from its back takes as much of the sun, {back.Mean:0.0000} against {front.Mean:0.0000}");
+        UnloadModel(floor);
+        UnloadModel(wall);
+    }
 }

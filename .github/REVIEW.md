@@ -10,180 +10,192 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `5528c55c`, item 95, a verb of ./e3d with --help printing its help and opening
-nothing, read at 10:36 on 2026-10-26, carrying the review's files and DEVLOG.md, held until the
-build run of `d207627e` ends. Program.cs answers --help or -h anywhere after a verb with
-Help.Print(options, verb) before dispatching, so open, eval and the rest are never reached;
-Help.Print(verb) prints the verb's own lines of the usage text with their continuations and the line
-on the flags every verb shares, an alias answered with its verb's lines and a word that is no verb
-refused with BAD_ARGUMENT and exit 2 as dispatch refuses it; the usage text lost its colons and
-gained a line saying a verb followed by --help prints its own lines and does nothing else, E3D.md's
-Reading the answer section saying the same. CliTests gains a case under a new NeedsClientFact,
-skipped where the client is not built beside the tests, running the built client with open on a
-program that writes a marker when started and expecting exit 0, open's lines and not status's and no
-marker, then cmd -h answering with command's usage and a non-verb exiting 2, the case failing on
-HEAD's client by the exit code and passing with the mend. The strict build clean, 2,131 on the GPU
-in order and shuffled. On item 89 the coder reads two candidates, the model pass flipping a
-two-sided face's normal toward the eye for shading while passing the unflipped vertex normal to
-lightReaching, so a cut-out face lit from its back is offset away from the sun before the lookup,
-and the grazing angle a normal offset cannot help, the wheat room to be built and both read against
-the reference. After `d207627e`, item 91, DESIGN.md's words on the loop and the ECS, read at 10:05
-on 2026-10-26, documents alone, carrying the review's files with a Reply and DEVLOG.md, pushed with
-`0754b975` and `bb542fa4` in one push at 10:10 on 2026-10-26 once the build run of `2f5237f2` went
-green whole, the eighth pack run started with publish on at 10:10 for the game, the two runs of
-`d207627e` watched. DESIGN.md's opening says the ECS and its behaviors are the engine's own over
-raylib and that the loop and the ECS are both the engine's way, run in the same frames, a program
-choosing by what fits, the loop for the frame, the drawing and the interface and the ECS for things
-that move and data living across frames; its fifth section, renamed The loop and the ECS, opens with
-the choice and names Voxel-Sandbox as the model, the player, mobs, dropped stacks and section parts
-as entities, loading, mode and menus as states, its loop running the frame, drawing the world and
-putting the interface on top, the rest kept with its last paragraph recast as moving a part into
-behaviors when it grows into many things or lives across screens. A new docs/the-loop-and-the-ecs.md
-holds the opening, a behavior moving while the loop draws with the Ball behavior from ecs_behaviors,
-which fits where, the voxel game read against its README and VoxelGame.Draw, and the see-also links,
-window-and-frame.md gaining its Previous link, its two blocks and the behaviors guide's built on the
-package, 24 blocks; the README's guide table gains the row after the first game's, its ECS paragraph
-says both are the engine's way and links the page, the status line says run in the same frames as
-the loop, the tagline unchanged as STYLE.md quotes it; behaviors-and-the-ecs.md opens beside the
-flat API and links the page. AGENTS.md's opening still says the ECS runs underneath for programs
-that grow into it, left for the owner's word as the Reply says. NormTests and the docs tests,
-DocumentLinkTests among them, 25 passed, no code changed. After `bb542fa4`, item 93, the colons out
-of the comments and documents, read at 10:01 on 2026-10-26, 125 files of comments and documents
-alone, carrying the review's files with a Reply, SHARED.md and DEVLOG.md, pushed with `0754b975` and
-`d207627e` at 10:10. STYLE.md's code check went from 393 hits to 200, the 200 left labels, a
-vector's components, named arguments in code examples, a URL, raylib's header title and the
-raymarching shader's license text, a quoted header in coverage.py and field_splat's z and w pair;
-the check reading whole-comment lines alone, about fifteen trailing comments after code in the
-examples, their shaders, AudioServerTests and SdlAudioBackend were recast too, the one left the
-Event text inside the automation exporter's string, raylib's file format. RENDERING.md's glow lights
-paragraph, docs/scenes.md, FeatureTest's README and item 96's note of 2026-10-25 recast, the note's
-hit the one DEVLOG.md showed, cleared at this regeneration; what the awk still finds in the docs are
-the Examples, Previous and Next labels and named arguments in code spans, E3D.md and the cheat sheet
-clean. ASKS.md's 45 hits are the Review labels at their lines' starts, the reviewer's and an allowed
-label, no join behind them. The strict build clean, 2,130 on the GPU in order and shuffled. After
-`0754b975`, item 128, a line of text edited, read at 09:29 on 2026-10-26, carrying the review's
-files with a Shared line, SHARED.md, DEVLOG.md, TODO.md and a captioned picture, pushed with
-`bb542fa4` and `d207627e` at 10:10. TextEdit holds the text, the caret, the anchor, the scroll and
-focus, the caret and anchor counting chars and editing moving them by text elements so no surrogate
-pair or mark is split, with SelectedText; EditText(ref edit, box, most) and an overload with a font
-and size for a program drawing its own look, since clicks and scroll are measured in the font the
-field is drawn in, the short forms taking the default font at 0.6 of the box height and 10 at least;
-DrawTextEdit(edit, box) in dark gray on RayWhite and DrawTextEdit(edit, box, font, size, text,
-background) with the border, caret and selection in the text color at 0.3 opacity, the border 2 px
-while focused, the caret blinking half of each second from its last move, the text clipped inside
-the border within any scissor the program set, which it gets back; IsTextInputActive true from the
-frame an edit takes the keyboard to the frame after its last update and while a Tab pass is pending.
-Characters go in up to most text elements, 0 or less no limit, Ctrl or Cmd blocking typed
-characters; the arrows, Home and End move the caret and Ctrl or Cmd with an arrow by words, Shift or
-a drag selects, Backspace and Delete remove the selection or a character, a word with Ctrl,
-repeating while held, Ctrl or Cmd with A, C, X and V select all, copy, cut and paste with a paste's
-newlines and tabs made spaces and other control characters dropped, a click in the box focuses and
-places the caret and one outside unfocuses, Tab goes to the next edit updated that frame or past the
-last to the first next frame, Shift and Tab to the previous resolved next frame, the edit given
-focus selecting all and taking no keys in the Tab's frame, SetTextInputArea placed at the caret
-every focused frame, Enter or KpEnter answering true. E3DTextEditTests drives Input in a headless
-app through three cases, typing to the limit with Enter and focus, the caret, selection, clipboard
-and deletions with repeat, and a drag with Tab and Shift Tab across two edits, a scratch program on
-the RTX showing the selection, clipping, focus border and blink; docs/input.md gains Editing a line
-of text with two blocks built on the package, text-and-fonts.md links to it and TODO.md's input
-entry names it, the cheat sheet under Input after SetTextInputArea and PublicApi.txt with 13 lines.
-The strict build clean, 2,130 on the GPU in order and shuffled before a last doc-comment rewrap,
-after which the edit, cheat sheet and norm tests passed, lavapipe not run with nothing of the
-renderer changed. After `2f5237f2`, item 127, a ray crossing a canopy's leaves shaded twice at most,
-read at 08:50 on 2026-10-26, carrying ASKS.md, the review's files with a Shared line, SHARED.md,
-DEVLOG.md, a reading in RENDERING.md, a note and a captioned grove picture, pushed at 08:52 once the
-build run of `78946b22` went green whole, its run green whole at 10:08, Windows in 68 minutes, Linux
-in 66 and macOS in 34. In gi_trace.slang's crossing build and gi_screen.slang the loop only marches
-and adds up shares, the first light-through surface a ray crosses standing for every one it crosses
-and shaded once after the march for the share they take together, the surface the ray stops at
-shaded once for the share that reaches it, so a ray is shaded twice at most and never inside the
-march with the transmittance unchanged; gi.toggle through off stops both stages' rays at such
-surfaces as at solid ones, the merge still seeing past them, the settings' doc saying so. At seed
-1's cherry grove at item 125's view at 1920 by 1080 on powersave the crossing costs 1.95 to 2.06 ms
-at High where 2.55 to 2.70, global illumination 5.25 to 5.42 where 5.93 to 6.23 and 3.30 to 3.53
-with the crossing off, and at Low 1.06 to 1.08 where 1.48 to 1.65, 2.49 to 2.51 where 3.12; the
-split at High the cascades' rays 1.6 to 1.4, the screen probes 1.1 to 0.46 and the merge 0.2 to
-0.13. Read before the choice, a build crossing one leaf at most still cost 1.7 ms, shading the
-surface past the leaf 0.8 of it and the march the rest; after it, bounding the crossings at one
-saves 0.2 ms more and at two 0.05 to 0.1, and cutting the march once the ray keeps under a 32nd of
-its light saves nothing, so neither is kept, what is left being the march past the leaves. Item
-100's canopy over the eye at 800 by 450 reads 0.39 ms at Low and 0.70 at High against 0.48 and 0.95.
-The grove picture differs by 0.2 of 255 overall and 0.1 to 0.6 on the floor under the trees; a new
-test grows the slab to 20 by 20 by 2 unit leaf cubes with faces between neighbors under the sky
-alone and reads the same to four places with the old shaders and the new, 0.30 at High 2.5 under,
-0.17 at Low and 0.23 at High 5.5 under; the bounce rooms read 0.75 ms at Low and 2.08 to 2.16 at
-High at 1080p against 0.81 and 2.19 to 2.31 with their frames within two runs of one, and the
-references pass unchanged, the path-traced reference holding every surface solid. The game's 0.74 of
-the open shade was not read, needing its flat world and floor knob. 2,127 on the GPU in order and
-shuffled, 81 on lavapipe with validation and 2 skipped, the strict build clean, no public change,
-the guide's foliage paragraph giving the cost and the toggle. After `78946b22`, item 112, the planar
-reflection, read at 05:55 on 2026-10-26, carrying ASKS.md, the review's files with a Shared line,
-SHARED.md, a reading in RENDERING.md, a note and a captioned river picture, pushed at 06:19 on
-2026-10-26 once the build run of `7af16fcd` went green whole, the seventh pack run started with
-publish on at 06:19 for the game's item 42 and the mirror and width together, both runs watched; the
-build run went green whole at 08:01, Windows in 102 minutes, Linux in 65 and macOS in 35, and the
-pack run green whole at 09:14, Windows in 171 minutes, the games in 73, the captures in 58 and 60
-and macOS in 58 with the twelve games played through, the package 5.2.322 pushed to nuget.org with
-items 111 and 112, the game told; Verdict 93 settled by it. SetReflectionPlane(height, normal) sets
-a ReflectionPlane resource, on the cheat sheet and in PublicApi.txt; MirrorNode, between the probes
-and hdr_scene, draws the window's batches again through the window's view-projection mirrored in the
-plane and flipped in y, which keeps the winding, with Lengyel's oblique near plane along it, the
-batches wholly under the plane culled through a depth ModelRenderer.Draw gains, lit as the probes'
-faces are by the window's lights and shadow maps in linear into a half-size R16G16B16A16 target with
-the particles, the picture blitted into a mipped image at set 1 binding 38; mirrored(position,
-world, n, roughness) in lights.slang reads it by screen place with the mip set by roughness, faded
-0.1 unit off the plane and from 14 to 26 degrees off its normal, the model pass laying it over the
-traced or probe reflection faded from roughness 0.25 to 0.5, blended surfaces taking it too.
-MirrorPlaneTests reads R less G at 57 with the plane against -3 without and 0 against -3 beside the
-cube, on the RTX 4070 and on lavapipe with validation. The mirror node costs 0.046 ms of the GPU at
-800 by 450 at Off to 0.27 at 1080p at High and 0.11 to 0.16 ms of the CPU; a sea added to Summit by
-eval, a blended plane at roughness 0.05, 0.10 ms at 960 by 540 and 0.16 at 1080p with the frame 1.23
-to 1.25 ms going to 1.35 to 1.38; the voxel grove at item 125's view with 2,241 draws 1.3 to 1.7 ms
-at 800 by 450 and 1.5 to 2.1 at 1080p on the GPU and 4.0 to 4.1 on the CPU, 4.5 before the culling
-under the plane, and along the river at 1080p 2.2 ms at Low and 2.5 to 2.8 at High with 3.7 to 3.8
-on the CPU, the CPU share the per-draw recording the window's depth pass pays as well, 4.1 ms for
-the same draws, so the game's CPU-bound frame takes 3 to 5 ms more. The game's river top lies at
-48.875, an eighth under the block's top, the plane holding within 0.1 of it, and the game's water
-shader shows nothing until it reads mirrored, two lines in terrain.slang's water branch in a scratch
-copy making the river mirror the far bank, the picture. 2,124 on the GPU in order and shuffled,
-SlangCompilerTests taking binding 38, 164 on lavapipe with validation, the strict build clean, the
-guide's blocks built on the package. After `7af16fcd`, Verdict 93's mend, read at 02:19 on
-2026-10-26, carrying the review's files, SHARED.md and DEVLOG.md, pushed at 04:10 on 2026-10-26 once
-the build run of `45edfbf6` went green whole, its run green whole at 06:14, Windows in 123 minutes,
-Linux in 42 and macOS in 29. pinball.status carries lane yes or no right after the drains, yes while
-the ball sits in its lane, the game's unlaunched state, the command's description saying so; the
-drive's Pinball case replaces its last wait with a loop that, while the status reads drains 0 and
-lane yes, presses Space for 30 frames and begins the 60-wait over, three relaunches at most, and
-then fails with the count in its message. Pinball restored from the local pack and run offscreen
-with validation passed, draining without a relaunch; the three patterns were checked by hand against
-the macOS status line with the lane field, a ball on the table and a drained one, and the norm tests
-pass. After `45edfbf6`, item 111, the sun's shadow softening with the distance from its caster, read
-at 02:14 on 2026-10-26, carrying the review's files with a Shared line, DEVLOG.md, a reading in
-RENDERING.md, a note and a captioned pole picture, pushed at 02:17 on 2026-10-26 once the build run
-of `a16227a7` went green whole, its run green whole at 04:07, Windows in 110 minutes, Linux in 65
-and macOS in 35. SetShadowSoftness(size) takes the sun's width across in degrees, 0 by default
-keeping the present look and path, held to 0 to 20, on the cheat sheet, PublicApi.txt and the
-guide's shadows section with a block built on the package; the lighting buffer gains ShadowSoftness
-after EnvironmentLight, twice the tangent of half the width, the edge's spread per unit of a
-caster's height, the layout test reading its offset. penumbra.slang runs from cascadeReached when
-the width is set, 16 depths on a golden-angle disc searching for blockers over the width a caster at
-the cascade's near plane would spread to, held to 24 texels either side, a point with none found lit
-and one with all 16 found in the shadow's core at 0, which saves 0.2 to 0.3 ms in the grove,
-otherwise 16 bilinear Gather comparisons over the radius the blockers' mean depth gives, a texel at
-least, the disc turned by a hash of the point, each tap compared with the receiver's depth along its
-own plane with the slope solved from the normal and the cascade's rows and capped at 80 degrees, the
-taps 1.5 texels inside the tile, the spot, point and contact shadows unchanged. ShadowSoftnessTests
-reads a pole 5 tall under a 45-degree sun, its edge between a quarter and three quarters of the
-light 0.04 units at the foot and the tip with no width and 0.08 at the foot and 0.24 at the tip at 3
-degrees, the test having caught a first version reading the full spread as the disc's radius with
-every edge twice as wide. The grove at 1920 by 1080 reads Low 6.53 to 6.72 ms with no width, 7.44 to
-7.88 at 0.53 degrees and 7.55 to 7.76 at 3, High 7.26 to 7.31, 7.96 to 8.39 and 7.94 to 8.41, so 0.7
-to 1.2 ms when on, most of it the search at every point the sun reaches; the bounce rooms at 0.53
-degrees 0.04 to 0.06 ms more at 800 by 450 and 0.25 to 0.41 at 1080p, and at the default the rooms
-and the grove read as before with the reference frames holding. 2,123 on the GPU in both orders, the
-first run catching the layout test, 42 on lavapipe with validation, the strict build clean, pack and
-docs on the package passing. After `a16227a7`, item 100's second part with two mends, read at 00:22
-on 2026-10-26, carrying the review's files, DEVLOG.md, a reading in RENDERING.md and a note, and a
+Reviewed up to `0a4ad922`, the README's quick links, read at 10:46 on 2026-10-26, README.md with the
+review's files and DEVLOG.md and nothing of item 89, held with `5528c55c` until the build run of
+`d207627e` ends; NormTests, the docs tests, the example tests and PackageContentsTests passed, 29,
+and the examples table's check, none reading the first line in a way the new line upsets. On item
+89, in a scratch room built as the game's wheat field, 8 by 8 blocks of four two-sided walls on
+farmland under the game's sun at 10, turning the shadow lookup's normal offset to the sun's side of
+the face cuts the walls' speckle metric by 70 to 76%, the field 14.85 to 4.52 and the close view
+6.76 to 1.61, which covers the model pass and the game's terrain shader, both handing lightReaching
+the unflipped geometric normal; a grazing-angle step toward the sun alone helps little, 12.5 and
+5.6, and with the flip reads as the flip does; both are being read against the path-traced reference
+by region at High, and a separate finding, the frame's clean walls at High 35 to 68% over the
+reference's mean in every copy, is to be read, not the acne. After `5528c55c`, item 95, a verb of
+./e3d with --help printing its help and opening nothing, read at 10:36 on 2026-10-26, carrying the
+review's files and DEVLOG.md, held until the build run of `d207627e` ends. Program.cs answers --help
+or -h anywhere after a verb with Help.Print(options, verb) before dispatching, so open, eval and the
+rest are never reached; Help.Print(verb) prints the verb's own lines of the usage text with their
+continuations and the line on the flags every verb shares, an alias answered with its verb's lines
+and a word that is no verb refused with BAD_ARGUMENT and exit 2 as dispatch refuses it; the usage
+text lost its colons and gained a line saying a verb followed by --help prints its own lines and
+does nothing else, E3D.md's Reading the answer section saying the same. CliTests gains a case under
+a new NeedsClientFact, skipped where the client is not built beside the tests, running the built
+client with open on a program that writes a marker when started and expecting exit 0, open's lines
+and not status's and no marker, then cmd -h answering with command's usage and a non-verb exiting 2,
+the case failing on HEAD's client by the exit code and passing with the mend. The strict build
+clean, 2,131 on the GPU in order and shuffled. On item 89 the coder reads two candidates, the model
+pass flipping a two-sided face's normal toward the eye for shading while passing the unflipped
+vertex normal to lightReaching, so a cut-out face lit from its back is offset away from the sun
+before the lookup, and the grazing angle a normal offset cannot help, the wheat room to be built and
+both read against the reference. After `d207627e`, item 91, DESIGN.md's words on the loop and the
+ECS, read at 10:05 on 2026-10-26, documents alone, carrying the review's files with a Reply and
+DEVLOG.md, pushed with `0754b975` and `bb542fa4` in one push at 10:10 on 2026-10-26 once the build
+run of `2f5237f2` went green whole, the eighth pack run started with publish on at 10:10 for the
+game, the two runs of `d207627e` watched. DESIGN.md's opening says the ECS and its behaviors are the
+engine's own over raylib and that the loop and the ECS are both the engine's way, run in the same
+frames, a program choosing by what fits, the loop for the frame, the drawing and the interface and
+the ECS for things that move and data living across frames; its fifth section, renamed The loop and
+the ECS, opens with the choice and names Voxel-Sandbox as the model, the player, mobs, dropped
+stacks and section parts as entities, loading, mode and menus as states, its loop running the frame,
+drawing the world and putting the interface on top, the rest kept with its last paragraph recast as
+moving a part into behaviors when it grows into many things or lives across screens. A new
+docs/the-loop-and-the-ecs.md holds the opening, a behavior moving while the loop draws with the Ball
+behavior from ecs_behaviors, which fits where, the voxel game read against its README and
+VoxelGame.Draw, and the see-also links, window-and-frame.md gaining its Previous link, its two
+blocks and the behaviors guide's built on the package, 24 blocks; the README's guide table gains the
+row after the first game's, its ECS paragraph says both are the engine's way and links the page, the
+status line says run in the same frames as the loop, the tagline unchanged as STYLE.md quotes it;
+behaviors-and-the-ecs.md opens beside the flat API and links the page. AGENTS.md's opening still
+says the ECS runs underneath for programs that grow into it, left for the owner's word as the Reply
+says. NormTests and the docs tests, DocumentLinkTests among them, 25 passed, no code changed. After
+`bb542fa4`, item 93, the colons out of the comments and documents, read at 10:01 on 2026-10-26, 125
+files of comments and documents alone, carrying the review's files with a Reply, SHARED.md and
+DEVLOG.md, pushed with `0754b975` and `d207627e` at 10:10. STYLE.md's code check went from 393 hits
+to 200, the 200 left labels, a vector's components, named arguments in code examples, a URL,
+raylib's header title and the raymarching shader's license text, a quoted header in coverage.py and
+field_splat's z and w pair; the check reading whole-comment lines alone, about fifteen trailing
+comments after code in the examples, their shaders, AudioServerTests and SdlAudioBackend were recast
+too, the one left the Event text inside the automation exporter's string, raylib's file format.
+RENDERING.md's glow lights paragraph, docs/scenes.md, FeatureTest's README and item 96's note of
+2026-10-25 recast, the note's hit the one DEVLOG.md showed, cleared at this regeneration; what the
+awk still finds in the docs are the Examples, Previous and Next labels and named arguments in code
+spans, E3D.md and the cheat sheet clean. ASKS.md's 45 hits are the Review labels at their lines'
+starts, the reviewer's and an allowed label, no join behind them. The strict build clean, 2,130 on
+the GPU in order and shuffled. After `0754b975`, item 128, a line of text edited, read at 09:29 on
+2026-10-26, carrying the review's files with a Shared line, SHARED.md, DEVLOG.md, TODO.md and a
+captioned picture, pushed with `bb542fa4` and `d207627e` at 10:10. TextEdit holds the text, the
+caret, the anchor, the scroll and focus, the caret and anchor counting chars and editing moving them
+by text elements so no surrogate pair or mark is split, with SelectedText; EditText(ref edit, box,
+most) and an overload with a font and size for a program drawing its own look, since clicks and
+scroll are measured in the font the field is drawn in, the short forms taking the default font at
+0.6 of the box height and 10 at least; DrawTextEdit(edit, box) in dark gray on RayWhite and
+DrawTextEdit(edit, box, font, size, text, background) with the border, caret and selection in the
+text color at 0.3 opacity, the border 2 px while focused, the caret blinking half of each second
+from its last move, the text clipped inside the border within any scissor the program set, which it
+gets back; IsTextInputActive true from the frame an edit takes the keyboard to the frame after its
+last update and while a Tab pass is pending. Characters go in up to most text elements, 0 or less no
+limit, Ctrl or Cmd blocking typed characters; the arrows, Home and End move the caret and Ctrl or
+Cmd with an arrow by words, Shift or a drag selects, Backspace and Delete remove the selection or a
+character, a word with Ctrl, repeating while held, Ctrl or Cmd with A, C, X and V select all, copy,
+cut and paste with a paste's newlines and tabs made spaces and other control characters dropped, a
+click in the box focuses and places the caret and one outside unfocuses, Tab goes to the next edit
+updated that frame or past the last to the first next frame, Shift and Tab to the previous resolved
+next frame, the edit given focus selecting all and taking no keys in the Tab's frame,
+SetTextInputArea placed at the caret every focused frame, Enter or KpEnter answering true.
+E3DTextEditTests drives Input in a headless app through three cases, typing to the limit with Enter
+and focus, the caret, selection, clipboard and deletions with repeat, and a drag with Tab and Shift
+Tab across two edits, a scratch program on the RTX showing the selection, clipping, focus border and
+blink; docs/input.md gains Editing a line of text with two blocks built on the package,
+text-and-fonts.md links to it and TODO.md's input entry names it, the cheat sheet under Input after
+SetTextInputArea and PublicApi.txt with 13 lines. The strict build clean, 2,130 on the GPU in order
+and shuffled before a last doc-comment rewrap, after which the edit, cheat sheet and norm tests
+passed, lavapipe not run with nothing of the renderer changed. After `2f5237f2`, item 127, a ray
+crossing a canopy's leaves shaded twice at most, read at 08:50 on 2026-10-26, carrying ASKS.md, the
+review's files with a Shared line, SHARED.md, DEVLOG.md, a reading in RENDERING.md, a note and a
+captioned grove picture, pushed at 08:52 once the build run of `78946b22` went green whole, its run
+green whole at 10:08, Windows in 68 minutes, Linux in 66 and macOS in 34. In gi_trace.slang's
+crossing build and gi_screen.slang the loop only marches and adds up shares, the first light-through
+surface a ray crosses standing for every one it crosses and shaded once after the march for the
+share they take together, the surface the ray stops at shaded once for the share that reaches it, so
+a ray is shaded twice at most and never inside the march with the transmittance unchanged; gi.toggle
+through off stops both stages' rays at such surfaces as at solid ones, the merge still seeing past
+them, the settings' doc saying so. At seed 1's cherry grove at item 125's view at 1920 by 1080 on
+powersave the crossing costs 1.95 to 2.06 ms at High where 2.55 to 2.70, global illumination 5.25 to
+5.42 where 5.93 to 6.23 and 3.30 to 3.53 with the crossing off, and at Low 1.06 to 1.08 where 1.48
+to 1.65, 2.49 to 2.51 where 3.12; the split at High the cascades' rays 1.6 to 1.4, the screen probes
+1.1 to 0.46 and the merge 0.2 to 0.13. Read before the choice, a build crossing one leaf at most
+still cost 1.7 ms, shading the surface past the leaf 0.8 of it and the march the rest; after it,
+bounding the crossings at one saves 0.2 ms more and at two 0.05 to 0.1, and cutting the march once
+the ray keeps under a 32nd of its light saves nothing, so neither is kept, what is left being the
+march past the leaves. Item 100's canopy over the eye at 800 by 450 reads 0.39 ms at Low and 0.70 at
+High against 0.48 and 0.95. The grove picture differs by 0.2 of 255 overall and 0.1 to 0.6 on the
+floor under the trees; a new test grows the slab to 20 by 20 by 2 unit leaf cubes with faces between
+neighbors under the sky alone and reads the same to four places with the old shaders and the new,
+0.30 at High 2.5 under, 0.17 at Low and 0.23 at High 5.5 under; the bounce rooms read 0.75 ms at Low
+and 2.08 to 2.16 at High at 1080p against 0.81 and 2.19 to 2.31 with their frames within two runs of
+one, and the references pass unchanged, the path-traced reference holding every surface solid. The
+game's 0.74 of the open shade was not read, needing its flat world and floor knob. 2,127 on the GPU
+in order and shuffled, 81 on lavapipe with validation and 2 skipped, the strict build clean, no
+public change, the guide's foliage paragraph giving the cost and the toggle. After `78946b22`, item
+112, the planar reflection, read at 05:55 on 2026-10-26, carrying ASKS.md, the review's files with a
+Shared line, SHARED.md, a reading in RENDERING.md, a note and a captioned river picture, pushed at
+06:19 on 2026-10-26 once the build run of `7af16fcd` went green whole, the seventh pack run started
+with publish on at 06:19 for the game's item 42 and the mirror and width together, both runs
+watched; the build run went green whole at 08:01, Windows in 102 minutes, Linux in 65 and macOS in
+35, and the pack run green whole at 09:14, Windows in 171 minutes, the games in 73, the captures in
+58 and 60 and macOS in 58 with the twelve games played through, the package 5.2.322 pushed to
+nuget.org with items 111 and 112, the game told; Verdict 93 settled by it.
+SetReflectionPlane(height, normal) sets a ReflectionPlane resource, on the cheat sheet and in
+PublicApi.txt; MirrorNode, between the probes and hdr_scene, draws the window's batches again
+through the window's view-projection mirrored in the plane and flipped in y, which keeps the
+winding, with Lengyel's oblique near plane along it, the batches wholly under the plane culled
+through a depth ModelRenderer.Draw gains, lit as the probes' faces are by the window's lights and
+shadow maps in linear into a half-size R16G16B16A16 target with the particles, the picture blitted
+into a mipped image at set 1 binding 38; mirrored(position, world, n, roughness) in lights.slang
+reads it by screen place with the mip set by roughness, faded 0.1 unit off the plane and from 14 to
+26 degrees off its normal, the model pass laying it over the traced or probe reflection faded from
+roughness 0.25 to 0.5, blended surfaces taking it too. MirrorPlaneTests reads R less G at 57 with
+the plane against -3 without and 0 against -3 beside the cube, on the RTX 4070 and on lavapipe with
+validation. The mirror node costs 0.046 ms of the GPU at 800 by 450 at Off to 0.27 at 1080p at High
+and 0.11 to 0.16 ms of the CPU; a sea added to Summit by eval, a blended plane at roughness 0.05,
+0.10 ms at 960 by 540 and 0.16 at 1080p with the frame 1.23 to 1.25 ms going to 1.35 to 1.38; the
+voxel grove at item 125's view with 2,241 draws 1.3 to 1.7 ms at 800 by 450 and 1.5 to 2.1 at 1080p
+on the GPU and 4.0 to 4.1 on the CPU, 4.5 before the culling under the plane, and along the river at
+1080p 2.2 ms at Low and 2.5 to 2.8 at High with 3.7 to 3.8 on the CPU, the CPU share the per-draw
+recording the window's depth pass pays as well, 4.1 ms for the same draws, so the game's CPU-bound
+frame takes 3 to 5 ms more. The game's river top lies at 48.875, an eighth under the block's top,
+the plane holding within 0.1 of it, and the game's water shader shows nothing until it reads
+mirrored, two lines in terrain.slang's water branch in a scratch copy making the river mirror the
+far bank, the picture. 2,124 on the GPU in order and shuffled, SlangCompilerTests taking binding 38,
+164 on lavapipe with validation, the strict build clean, the guide's blocks built on the package.
+After `7af16fcd`, Verdict 93's mend, read at 02:19 on 2026-10-26, carrying the review's files,
+SHARED.md and DEVLOG.md, pushed at 04:10 on 2026-10-26 once the build run of `45edfbf6` went green
+whole, its run green whole at 06:14, Windows in 123 minutes, Linux in 42 and macOS in 29.
+pinball.status carries lane yes or no right after the drains, yes while the ball sits in its lane,
+the game's unlaunched state, the command's description saying so; the drive's Pinball case replaces
+its last wait with a loop that, while the status reads drains 0 and lane yes, presses Space for 30
+frames and begins the 60-wait over, three relaunches at most, and then fails with the count in its
+message. Pinball restored from the local pack and run offscreen with validation passed, draining
+without a relaunch; the three patterns were checked by hand against the macOS status line with the
+lane field, a ball on the table and a drained one, and the norm tests pass. After `45edfbf6`, item
+111, the sun's shadow softening with the distance from its caster, read at 02:14 on 2026-10-26,
+carrying the review's files with a Shared line, DEVLOG.md, a reading in RENDERING.md, a note and a
+captioned pole picture, pushed at 02:17 on 2026-10-26 once the build run of `a16227a7` went green
+whole, its run green whole at 04:07, Windows in 110 minutes, Linux in 65 and macOS in 35.
+SetShadowSoftness(size) takes the sun's width across in degrees, 0 by default keeping the present
+look and path, held to 0 to 20, on the cheat sheet, PublicApi.txt and the guide's shadows section
+with a block built on the package; the lighting buffer gains ShadowSoftness after EnvironmentLight,
+twice the tangent of half the width, the edge's spread per unit of a caster's height, the layout
+test reading its offset. penumbra.slang runs from cascadeReached when the width is set, 16 depths on
+a golden-angle disc searching for blockers over the width a caster at the cascade's near plane would
+spread to, held to 24 texels either side, a point with none found lit and one with all 16 found in
+the shadow's core at 0, which saves 0.2 to 0.3 ms in the grove, otherwise 16 bilinear Gather
+comparisons over the radius the blockers' mean depth gives, a texel at least, the disc turned by a
+hash of the point, each tap compared with the receiver's depth along its own plane with the slope
+solved from the normal and the cascade's rows and capped at 80 degrees, the taps 1.5 texels inside
+the tile, the spot, point and contact shadows unchanged. ShadowSoftnessTests reads a pole 5 tall
+under a 45-degree sun, its edge between a quarter and three quarters of the light 0.04 units at the
+foot and the tip with no width and 0.08 at the foot and 0.24 at the tip at 3 degrees, the test
+having caught a first version reading the full spread as the disc's radius with every edge twice as
+wide. The grove at 1920 by 1080 reads Low 6.53 to 6.72 ms with no width, 7.44 to 7.88 at 0.53
+degrees and 7.55 to 7.76 at 3, High 7.26 to 7.31, 7.96 to 8.39 and 7.94 to 8.41, so 0.7 to 1.2 ms
+when on, most of it the search at every point the sun reaches; the bounce rooms at 0.53 degrees 0.04
+to 0.06 ms more at 800 by 450 and 0.25 to 0.41 at 1080p, and at the default the rooms and the grove
+read as before with the reference frames holding. 2,123 on the GPU in both orders, the first run
+catching the layout test, 42 on lavapipe with validation, the strict build clean, pack and docs on
+the package passing. After `a16227a7`, item 100's second part with two mends, read at 00:22 on
+2026-10-26, carrying the review's files, DEVLOG.md, a reading in RENDERING.md and a note, and a
 captioned before-and-after canopy picture, pushed at 00:53 on 2026-10-26 once the build run of
 `42f4f505` went green whole, the sixth pack run started with publish on at 00:53 for the game's item
 133, both runs watched. The build run went green whole at 02:14, Windows in 81 minutes, Linux in 62
@@ -464,11 +476,11 @@ the game's 5.2.215 build at the cherry grove at 1920 by 1080, each part of the p
 out in turn to tell what runs per fragment from the variant's registers, the window's depth at half
 size and the scene pass shading with overdraw pointing at a half-size pass over the window's depth
 with a two by two depth and normal read, as the glow pass has. Next item 89, the plant walls' acne,
-then 97, the light at the camera's point on lavapipe. The branch `modeling` was deleted at 07:23
-with its items all on main, N 7.5; the cloud sessions stand by. The owner asked at 10:45 on
-2026-10-26 for quick links to the devlog and the cheat sheet at the very top of the README, plain
-links to the files; the reviewer wrote the line as the README's first line with full addresses as N
-4.3 has them, the coder committing README.md alone.
+then 129, the screen probes on thin walls, then 97, the light at the camera's point on lavapipe. The
+branch `modeling` was deleted at 07:23 with its items all on main, N 7.5; the cloud sessions stand
+by. The owner asked at 10:45 on 2026-10-26 for quick links to the devlog and the cheat sheet at the
+very top of the README, plain links to the files; the reviewer wrote the line as the README's first
+line with full addresses as N 4.3 has them, the coder committing README.md alone.
 
 Before it, `a8f127ad` came, item 108's third phase, with `ac1c6bad`, item 120, pushed at 06:43 on
 2026-10-25 once the build run of `6a20d165` went green whole, its build run green whole at 07:41,
@@ -1361,6 +1373,24 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     RENDERING.md's line under the shadows, the voxel game's plants' shadows the first to gain. One
     commit, after items 74 and 72's cherry-picks.
 
+129. **The screen probes do not over-light thin two-sided walls.** From item 89's reading of
+    2026-10-26 in a scratch room built as the voxel game's wheat field, thin two-sided walls half a
+    unit apart under the sun, read against 256-path references at High. With the shadow offset
+    turned to the light's side (89's mend) a wall facing the eye and the sun reads 44% over the
+    reference close and 14% far, 13.5% with the screen probes off and 39% with the merge's again
+    off, so the screen probes add about 30% to thin front walls where the world probes give the 13
+    to 18% both kinds share; a wall seen from behind takes no screen probe at all, since the model
+    pass hands screenProbesHere the unflipped geometric normal (modelpass.slang line 525), a plain
+    mismatch beside 89's, and with the flipped normal it reads 45% over close and 8% far where 89's
+    mend alone gives 18% and none. The excess read for its cause, the probes' reach or spacing
+    taking light from both sides of a thin wall, a probe's placement between the walls, or the
+    merge's parallax across a wall, and mended so a thin wall reads within the world probes' spread
+    of the reference; then the lookup's normal flipped with the shading's, so a back wall takes its
+    screen probes, the two read together against the references in the room and on the bounce rooms,
+    the game's wheat field pictured before and after. The far view's soft darkening on the outer
+    walls' lower halves, blue blotches in the difference picture, is a lead to read with it. One or
+    two commits, after item 89 and before 97.
+
 97. **A point light at the camera's own point shades without black specks on lavapipe.** From the
     voxel game's reading of 2026-10-24, read at 12:21, its ASKS.md entry of 2026-10-24. The game
     moved its held light to the eye's point and the play job on lavapipe read the lit roof black at
@@ -2133,3 +2163,10 @@ header. DEVLOG.md's one hit comes from item 96's note, recast for its next regen
 91: AGENTS.md's opening still says the ECS runs underneath for programs that grow into it, which
 DESIGN.md, the README and the guide no longer say; AGENTS.md changes only by the owner's word, so
 its line is left for the owner.
+
+Shared: a shadow's point is moved off its surface along the normal turned to the light's side
+(`litSide`), for the sun's cascades and the spot and point maps alike, where it went along the
+normal as given and a two-sided face lit from its back, as a plant's thin wall, went behind itself
+and shadowed itself in speckles (item 89). In a field of wheat's walls under a sun 56 degrees up
+the walls' light spread 0.149 of its mean within each against 0.053 in a path-traced reference,
+and 0.054 turned; a step toward the light for a grazed face changed nothing more.
