@@ -312,15 +312,22 @@ void computeMain(uint3 id : SV_DispatchThreadID, uint lane : SV_GroupIndex)
         // light from the interval on whole where it met nothing, so it takes nothing of the light
         // and keeps its share for the probe's own faces alone. Taken off the light, the floor under
         // a slab letting half the light through read the sky's light twice halved, once below and
-        // once above, and dark where the merge read such a ray as one that met a surface early. A
-        // solid surface is shaded in the same place as a crossed one, keeping none, so the build
-        // holds one copy of the shading.
+        // once above, and dark where the merge read such a ray as one that met a surface early. The
+        // first surface letting light through that the ray meets stands for every one it crosses,
+        // as a canopy's leaves a block apart take much the same light, shaded once after the march
+        // for the share of the ray's light they take together, and the surface it stops at for the
+        // share that reaches it, so the build holds one copy of the shading and none in the march.
+        // Shaded where the ray crossed each, the leaves of the voxel game's cherry grove at seed 1
+        // cost global illumination 2.6 to 2.7 ms at High at 1920 by 1080 and 1.5 to 1.7 at Low,
+        // where shaded once they cost 2.0 to 2.1 and 1.1 (./e3d command gi.toggle through off).
         float firstAt = -1.0;
+        float leafAt = -1.0, leafShare = 0.0, stopAt = -1.0, stopShare = 0.0;
         [loop]
         for (int layer = 0; layer < 5 && t >= 0.0; layer++)
         {
             float3 at = origin + way * t;
-            float passing = layer < 4 ? lightThroughAt(fieldAlbedo, fieldInfo, at) : 0.0;
+            float leaf = lightThroughAt(fieldAlbedo, fieldInfo, at);
+            float passing = layer < 4 ? leaf : 0.0;
             bool inside = false;
             float depth = passing > 0.0 ? lightThroughDepth(sceneField, fieldInfo, origin, way, t, push.interval.y - t, inside) : -1.0;
             float passes = depth >= 0.0 ? lightThroughKept(passing, depth, fieldCell(fieldInfo, at), inside) : 0.0;
@@ -328,12 +335,17 @@ void computeMain(uint3 id : SV_DispatchThreadID, uint lane : SV_GroupIndex)
                 keptBefore *= passes;
             else
             {
-                // As the build without the crossing shades the hit.
-                float3 itsOwn;
-                float3 itsLight = shadeProbeHit(sceneField, fieldInfo, gatheredAt(), fieldAlbedo, fieldFaces, fieldGlow, lights, bounced, bounced, at, way,
-                    float(probes), push.interval.z, push.interval.w, true, share, itsOwn);
-                crossed += itsLight * (through * (1.0 - passes));
-                crossedOwn += itsOwn * (through * (1.0 - passes));
+                float taken = through * (1.0 - passes);
+                if (leaf > 0.0)
+                {
+                    leafAt = leafAt < 0.0 ? t : leafAt;
+                    leafShare += taken;
+                }
+                else
+                {
+                    stopAt = t;
+                    stopShare = taken;
+                }
                 through *= passes;
                 firstAt = firstAt < 0.0 ? t : firstAt;
             }
@@ -341,6 +353,20 @@ void computeMain(uint3 id : SV_DispatchThreadID, uint lane : SV_GroupIndex)
                 break;
             // A ray still within at its interval's end met nothing past it, its share handed on.
             t = inside ? -1.0 : traceField(sceneField, fieldInfo, origin, way, t + depth, push.interval.y);
+        }
+        [loop]
+        for (int shaded = 0; shaded < 2; shaded++)
+        {
+            float shadedAt = shaded == 0 ? leafAt : stopAt;
+            if (shadedAt < 0.0)
+                continue;
+            // As the build without the crossing shades the hit.
+            float3 itsOwn;
+            float3 itsLight = shadeProbeHit(sceneField, fieldInfo, gatheredAt(), fieldAlbedo, fieldFaces, fieldGlow, lights, bounced, bounced, origin + way * shadedAt, way,
+                float(probes), push.interval.z, push.interval.w, true, share, itsOwn);
+            float weight = shaded == 0 ? leafShare : stopShare;
+            crossed += itsLight * weight;
+            crossedOwn += itsOwn * weight;
         }
         // How far it went is where it stopped, past what it crossed, which the screen's probes read
         // the cascades' light beyond their reach by (probeReaches in gi_screen.slang).

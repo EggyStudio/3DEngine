@@ -81,6 +81,13 @@ internal sealed class GlobalIlluminationSettings
     /// <summary>The one cascade whose rays' light alone reaches the pixels, or -1 for every cascade, as <c>gi.toggle cascade</c> sets it.</summary>
     public int Alone { get; set; } = -1;
 
+    /// <summary>
+    /// Whether the rays of the world's probes and the screen's stop at a surface that lets light
+    /// through as at a solid one, the merge of the cascades still seeing past it, as
+    /// <c>gi.toggle through off</c> sets it, so what crossing a canopy's leaves costs can be read.
+    /// </summary>
+    public bool ThroughOff { get; set; }
+
     /// <summary>What <see cref="BounceViewRenderer"/> draws over the window, as <c>gi.show</c> sets it.</summary>
     public BounceView Shown { get; set; }
 
@@ -450,7 +457,7 @@ internal sealed class GlobalIlluminationRenderer : IDisposable
         _origins = origins;
         _lightThrough = false;
         foreach (var (instance, _) in renderWorld.TryGet<SceneFieldRenderer>()?.Drawn ?? [])
-            _lightThrough |= instance.LightThrough > 0;
+            _lightThrough |= instance.LightThrough > 0 && !switches.ThroughOff;
         _retired.Add((_frame, device.RecordGlobalIllumination(renderContext.CommandBuffer, _gi, field.Field, view, sampler, lights, intervals, ProbeSpacing,
             switches.MergeOff, switches.Alone, switches.Shown is BounceView.Rays or BounceView.Merged, _frame, switches.FollowOff ? null : lying,
             far ? cascades - 2 : -1, _lightThrough)));

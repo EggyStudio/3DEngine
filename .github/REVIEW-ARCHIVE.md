@@ -4057,6 +4057,22 @@ batch.
     with a 16-tap search and a 16-tap filter, the pole's edge 0.08 at the foot and 0.24 at the tip
     at 3 degrees, 0.7 to 1.2 ms of the grove's scene pass when on.
 
+112. **A flat surface mirrors the scene through a planar reflection a program sets.** From the voxel
+    game's item 42 at 22:46 on 2026-10-24, its ASKS.md entry of 2026-10-24; the look the owner aims
+    at has calm water mirroring the sky and the shore, and the engine's traced reflection makes no
+    mirror of a flat surface, the game's pool reading a blur of a red wall where its image would
+    lie, while the box probes suit a room. The engine takes a mirror plane from a program,
+    SetReflectionPlane(height, normal) or one on a material, draws the scene into it from the
+    mirrored camera at a lower resolution with the shadows and the light reused and clipped at the
+    plane, and gives the material the texture to sample by the screen's place, with a fade by
+    distance and a roughness blur, usable from the transparent pass; the cost read on the game's
+    river at the grove and on Summit's water, a test of a plane under a lit cube reading the cube's
+    image mirrored, and the guide's page on reflections saying when the plane, the probes and the
+    trace each fit. One or two commits, after item 111 and before 93. Done at `78946b22` on
+    2026-10-26, SetReflectionPlane and a mirror pass between the probes and the scene read by
+    mirrored in lights.slang and the model pass, 0.05 to 0.27 ms of the GPU alone and 2.2 to 2.8 ms
+    with the voxel river's 2,241 draws at 1080p, the game's water to read it with the package.
+
 ## Verdicts settled
 
 Verdicts 1 to 55 are settled, the last two, the drawing leak test's resident bound and the Windows

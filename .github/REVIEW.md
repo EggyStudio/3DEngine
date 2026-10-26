@@ -10,42 +10,72 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `7af16fcd`, Verdict 93's mend, read at 02:19 on 2026-10-26, carrying the review's
-files, SHARED.md and DEVLOG.md, pushed at 04:10 on 2026-10-26 once the build run of `45edfbf6` went
-green whole, its run watched. pinball.status carries lane yes or no right after the drains, yes
-while the ball sits in its lane, the game's unlaunched state, the command's description saying so;
-the drive's Pinball case replaces its last wait with a loop that, while the status reads drains 0
-and lane yes, presses Space for 30 frames and begins the 60-wait over, three relaunches at most, and
-then fails with the count in its message. Pinball restored from the local pack and run offscreen
-with validation passed, draining without a relaunch; the three patterns were checked by hand against
-the macOS status line with the lane field, a ball on the table and a drained one, and the norm tests
-pass. After `45edfbf6`, item 111, the sun's shadow softening with the distance from its caster, read
-at 02:14 on 2026-10-26, carrying the review's files with a Shared line, DEVLOG.md, a reading in
-RENDERING.md, a note and a captioned pole picture, pushed at 02:17 on 2026-10-26 once the build run
-of `a16227a7` went green whole, its run green whole at 04:07, Windows in 110 minutes, Linux in 65
-and macOS in 35. SetShadowSoftness(size) takes the sun's width across in degrees, 0 by default
-keeping the present look and path, held to 0 to 20, on the cheat sheet, PublicApi.txt and the
-guide's shadows section with a block built on the package; the lighting buffer gains ShadowSoftness
-after EnvironmentLight, twice the tangent of half the width, the edge's spread per unit of a
-caster's height, the layout test reading its offset. penumbra.slang runs from cascadeReached when
-the width is set, 16 depths on a golden-angle disc searching for blockers over the width a caster at
-the cascade's near plane would spread to, held to 24 texels either side, a point with none found lit
-and one with all 16 found in the shadow's core at 0, which saves 0.2 to 0.3 ms in the grove,
-otherwise 16 bilinear Gather comparisons over the radius the blockers' mean depth gives, a texel at
-least, the disc turned by a hash of the point, each tap compared with the receiver's depth along its
-own plane with the slope solved from the normal and the cascade's rows and capped at 80 degrees, the
-taps 1.5 texels inside the tile, the spot, point and contact shadows unchanged. ShadowSoftnessTests
-reads a pole 5 tall under a 45-degree sun, its edge between a quarter and three quarters of the
-light 0.04 units at the foot and the tip with no width and 0.08 at the foot and 0.24 at the tip at 3
-degrees, the test having caught a first version reading the full spread as the disc's radius with
-every edge twice as wide. The grove at 1920 by 1080 reads Low 6.53 to 6.72 ms with no width, 7.44 to
-7.88 at 0.53 degrees and 7.55 to 7.76 at 3, High 7.26 to 7.31, 7.96 to 8.39 and 7.94 to 8.41, so 0.7
-to 1.2 ms when on, most of it the search at every point the sun reaches; the bounce rooms at 0.53
-degrees 0.04 to 0.06 ms more at 800 by 450 and 0.25 to 0.41 at 1080p, and at the default the rooms
-and the grove read as before with the reference frames holding. 2,123 on the GPU in both orders, the
-first run catching the layout test, 42 on lavapipe with validation, the strict build clean, pack and
-docs on the package passing. After `a16227a7`, item 100's second part with two mends, read at 00:22
-on 2026-10-26, carrying the review's files, DEVLOG.md, a reading in RENDERING.md and a note, and a
+Reviewed up to `78946b22`, item 112, the planar reflection, read at 05:55 on 2026-10-26, carrying
+ASKS.md, the review's files with a Shared line, SHARED.md, a reading in RENDERING.md, a note and a
+captioned river picture, pushed at 06:19 on 2026-10-26 once the build run of `7af16fcd` went green
+whole, the seventh pack run started with publish on at 06:19 for the game's item 42 and the mirror
+and width together, both runs watched; the build run went green whole at 08:01, Windows in 102
+minutes, Linux in 65 and macOS in 35, the pack run's Windows, games and captures in flight.
+SetReflectionPlane(height, normal) sets a ReflectionPlane resource, on the cheat sheet and in
+PublicApi.txt; MirrorNode, between the probes and hdr_scene, draws the window's batches again
+through the window's view-projection mirrored in the plane and flipped in y, which keeps the
+winding, with Lengyel's oblique near plane along it, the batches wholly under the plane culled
+through a depth ModelRenderer.Draw gains, lit as the probes' faces are by the window's lights and
+shadow maps in linear into a half-size R16G16B16A16 target with the particles, the picture blitted
+into a mipped image at set 1 binding 38; mirrored(position, world, n, roughness) in lights.slang
+reads it by screen place with the mip set by roughness, faded 0.1 unit off the plane and from 14 to
+26 degrees off its normal, the model pass laying it over the traced or probe reflection faded from
+roughness 0.25 to 0.5, blended surfaces taking it too. MirrorPlaneTests reads R less G at 57 with
+the plane against -3 without and 0 against -3 beside the cube, on the RTX 4070 and on lavapipe with
+validation. The mirror node costs 0.046 ms of the GPU at 800 by 450 at Off to 0.27 at 1080p at High
+and 0.11 to 0.16 ms of the CPU; a sea added to Summit by eval, a blended plane at roughness 0.05,
+0.10 ms at 960 by 540 and 0.16 at 1080p with the frame 1.23 to 1.25 ms going to 1.35 to 1.38; the
+voxel grove at item 125's view with 2,241 draws 1.3 to 1.7 ms at 800 by 450 and 1.5 to 2.1 at 1080p
+on the GPU and 4.0 to 4.1 on the CPU, 4.5 before the culling under the plane, and along the river at
+1080p 2.2 ms at Low and 2.5 to 2.8 at High with 3.7 to 3.8 on the CPU, the CPU share the per-draw
+recording the window's depth pass pays as well, 4.1 ms for the same draws, so the game's CPU-bound
+frame takes 3 to 5 ms more. The game's river top lies at 48.875, an eighth under the block's top,
+the plane holding within 0.1 of it, and the game's water shader shows nothing until it reads
+mirrored, two lines in terrain.slang's water branch in a scratch copy making the river mirror the
+far bank, the picture. 2,124 on the GPU in order and shuffled, SlangCompilerTests taking binding 38,
+164 on lavapipe with validation, the strict build clean, the guide's blocks built on the package.
+After `7af16fcd`, Verdict 93's mend, read at 02:19 on 2026-10-26, carrying the review's files,
+SHARED.md and DEVLOG.md, pushed at 04:10 on 2026-10-26 once the build run of `45edfbf6` went green
+whole, its run green whole at 06:14, Windows in 123 minutes, Linux in 42 and macOS in 29.
+pinball.status carries lane yes or no right after the drains, yes while the ball sits in its lane,
+the game's unlaunched state, the command's description saying so; the drive's Pinball case replaces
+its last wait with a loop that, while the status reads drains 0 and lane yes, presses Space for 30
+frames and begins the 60-wait over, three relaunches at most, and then fails with the count in its
+message. Pinball restored from the local pack and run offscreen with validation passed, draining
+without a relaunch; the three patterns were checked by hand against the macOS status line with the
+lane field, a ball on the table and a drained one, and the norm tests pass. After `45edfbf6`, item
+111, the sun's shadow softening with the distance from its caster, read at 02:14 on 2026-10-26,
+carrying the review's files with a Shared line, DEVLOG.md, a reading in RENDERING.md, a note and a
+captioned pole picture, pushed at 02:17 on 2026-10-26 once the build run of `a16227a7` went green
+whole, its run green whole at 04:07, Windows in 110 minutes, Linux in 65 and macOS in 35.
+SetShadowSoftness(size) takes the sun's width across in degrees, 0 by default keeping the present
+look and path, held to 0 to 20, on the cheat sheet, PublicApi.txt and the guide's shadows section
+with a block built on the package; the lighting buffer gains ShadowSoftness after EnvironmentLight,
+twice the tangent of half the width, the edge's spread per unit of a caster's height, the layout
+test reading its offset. penumbra.slang runs from cascadeReached when the width is set, 16 depths on
+a golden-angle disc searching for blockers over the width a caster at the cascade's near plane would
+spread to, held to 24 texels either side, a point with none found lit and one with all 16 found in
+the shadow's core at 0, which saves 0.2 to 0.3 ms in the grove, otherwise 16 bilinear Gather
+comparisons over the radius the blockers' mean depth gives, a texel at least, the disc turned by a
+hash of the point, each tap compared with the receiver's depth along its own plane with the slope
+solved from the normal and the cascade's rows and capped at 80 degrees, the taps 1.5 texels inside
+the tile, the spot, point and contact shadows unchanged. ShadowSoftnessTests reads a pole 5 tall
+under a 45-degree sun, its edge between a quarter and three quarters of the light 0.04 units at the
+foot and the tip with no width and 0.08 at the foot and 0.24 at the tip at 3 degrees, the test
+having caught a first version reading the full spread as the disc's radius with every edge twice as
+wide. The grove at 1920 by 1080 reads Low 6.53 to 6.72 ms with no width, 7.44 to 7.88 at 0.53
+degrees and 7.55 to 7.76 at 3, High 7.26 to 7.31, 7.96 to 8.39 and 7.94 to 8.41, so 0.7 to 1.2 ms
+when on, most of it the search at every point the sun reaches; the bounce rooms at 0.53 degrees 0.04
+to 0.06 ms more at 800 by 450 and 0.25 to 0.41 at 1080p, and at the default the rooms and the grove
+read as before with the reference frames holding. 2,123 on the GPU in both orders, the first run
+catching the layout test, 42 on lavapipe with validation, the strict build clean, pack and docs on
+the package passing. After `a16227a7`, item 100's second part with two mends, read at 00:22 on
+2026-10-26, carrying the review's files, DEVLOG.md, a reading in RENDERING.md and a note, and a
 captioned before-and-after canopy picture, pushed at 00:53 on 2026-10-26 once the build run of
 `42f4f505` went green whole, the sixth pack run started with publish on at 00:53 for the game's item
 133, both runs watched. The build run went green whole at 02:14, Windows in 81 minutes, Linux in 62
@@ -325,8 +355,8 @@ reference frame and cascade edge tests on lavapipe with validation. Item 96 begi
 the game's 5.2.215 build at the cherry grove at 1920 by 1080, each part of the per-pixel read cut
 out in turn to tell what runs per fragment from the variant's registers, the window's depth at half
 size and the scene pass shading with overdraw pointing at a half-size pass over the window's depth
-with a two by two depth and normal read, as the glow pass has. Next 112, the planar reflection, then
-127, the canopy's crossings, then 93, the colons out of the documents, then 91, DESIGN.md's words on
+with a two by two depth and normal read, as the glow pass has. Next 127, the canopy's crossings,
+then 128, the text field, then 93, the colons out of the documents, then 91, DESIGN.md's words on
 the loop and the ECS, then the glow light's non-number and the history's guard, then 95, the e3d
 help, then item 89, the plant walls' acne, then 97, the light at the camera's point on lavapipe. The
 branch `modeling` was deleted at 07:23 with its items all on main, N 7.5; the cloud sessions stand
@@ -1270,19 +1300,6 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     camera's own point and reading the frame for black pixels, red before the mend. One commit,
     after item 95.
 
-112. **A flat surface mirrors the scene through a planar reflection a program sets.** From the voxel
-    game's item 42 at 22:46 on 2026-10-24, its ASKS.md entry of 2026-10-24; the look the owner aims
-    at has calm water mirroring the sky and the shore, and the engine's traced reflection makes no
-    mirror of a flat surface, the game's pool reading a blur of a red wall where its image would
-    lie, while the box probes suit a room. The engine takes a mirror plane from a program,
-    SetReflectionPlane(height, normal) or one on a material, draws the scene into it from the
-    mirrored camera at a lower resolution with the shadows and the light reused and clipped at the
-    plane, and gives the material the texture to sample by the screen's place, with a fade by
-    distance and a roughness blur, usable from the transparent pass; the cost read on the game's
-    river at the grove and on Summit's water, a test of a plane under a lit cube reading the cube's
-    image mirrored, and the guide's page on reflections saying when the plane, the probes and the
-    trace each fit. One or two commits, after item 111 and before 93.
-
 127. **A ray crosses a voxel canopy's many leaf surfaces for less.** From the voxel game's item 133,
     read at 05:03 on 2026-10-26, its ASKS.md entry of 2026-10-26. On 5.2.319 at seed 1's cherry
     grove at 1920 by 1080 at High, the leaf blocks' faces letting half the light through a unit of
@@ -1297,6 +1314,28 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     5.2.319's 0.74 of the open shade, the bounce rooms unchanged, the readings against the
     references under the covered-fault rule, and the guide's foliage paragraph saying the cost. One
     or two commits, after item 112 and before 93.
+
+128. **The interface has a text field to type into.** From the voxel game's item 134, read at 06:15
+    on 2026-10-26, its ASKS.md entry of 2026-10-26. The game typed a world's seed into a field of
+    its own drawn over GetCharPressed, IsKeyPressedRepeat and SetTextInputArea, the printable
+    characters to a length, Backspace with its repeat, a blinking caret and the input method's
+    window beside the box, with no caret moved by the arrows, Home or End, no selection, no copy,
+    paste or Delete, no click placing the caret and no Tab between fields, the program holding its
+    own keys while typing. The flat API has no widget set of its own, the only widgets being ImGui's
+    and BeginUi scoping what F1 hides, so no set is begun; the text input gains an editing state and
+    two calls, TextEdit holding the text, the caret, the selection's anchor and the scroll,
+    EditText(ref edit, box, most) taking the frame's input for an edit with focus, the characters to
+    a length, the caret moved by the arrows, Home, End and a click, a selection by Shift and the
+    mouse, copy, cut and paste through the clipboard, Delete and Backspace with repeat, focus by a
+    click in the box and Tab between the edits updated that frame in call order, the input method's
+    window at the caret, and answering whether Enter was pressed, and DrawTextEdit(edit, box, font,
+    size, colors) drawing the box, the text, the selection and the caret with the engine's shapes
+    and font in plain colors it documents, so a program draws its own look with EditText alone or
+    takes the default; IsTextInputActive() true while an edit has focus so a program's keys stand
+    aside. On the cheat sheet under Input beside GetCharPressed, in PublicApi.txt and in
+    docs/input.md's text input section with a block built on the package, with a test typing,
+    moving, selecting and pasting through the null device's input; the game takes it with the
+    package, drawing its own box. One commit, after item 127 and before 93.
 
 ## Verdicts
 
@@ -2045,3 +2084,12 @@ roughness, for the model pass and a program's own shader (item 112). It costs th
 more, 0.05 to 0.27 ms of the GPU in `shaders_reflections`, and 2.2 to 2.8 ms of the GPU and 3.7 to
 4.1 ms of the CPU looking along the voxel game's river at 1920 by 1080, about the window's depth
 pass for the same 2,241 draws.
+
+Shared: a ray of global illumination crossing surfaces that let light through, as a canopy's
+leaves, is shaded twice at most, the first such surface it crosses for the share of its light all
+it crosses take together and the surface it stops at for the share that reaches it, after the march
+and never in it, the cascades' rays and the screen's probes' alike (item 127). Crossing the voxel
+game's cherry grove's leaves at 1920 by 1080 takes global illumination 2.0 ms at High and 1.1 at Low
+where shading each leaf crossed took 2.6 and 1.6, the floors under leaves alike to four places, and
+what is left is the march past the leaves. `gi.toggle through off` stops the rays at such surfaces
+as at solid ones, so the crossing's cost reads in one session.

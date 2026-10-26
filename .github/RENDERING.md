@@ -2048,6 +2048,35 @@ to 1.48 at 1920 by 1080 where 1.47 to 1.49, and at High 2.85 to 3.21 where 3.28 
 leaves fill much of the view, the canopy over the eye at 800 by 450, crossing them takes global
 illumination from 0.60 ms to 1.10 at Low and from 1.53 to 2.49 at High.
 
+**A canopy's many faces crossed for less, read on 2026-10-26.** A voxel game's cut-out leaves keep a
+face against each neighbor, so a ray through a canopy crosses a face a block, up to four, and each
+was shaded where the ray crossed it, with a march to the probes it sees, the sun's shadow and the
+glow lights each time. In the voxel game's cherry grove at seed 1 at 1920 by 1080, crossing its
+leaves took global illumination 2.55 to 2.70 ms at High and 1.48 to 1.65 at Low against the rays
+stopping at them as at solid ones (`gi.toggle through off`), at High about 1.6 ms in the cascades'
+rays, 1.1 in the screen's probes' and 0.2 in the merge, the crossing left in one stage at a time. A
+build crossing one leaf at most took 1.7 ms of it at High, shading the surface the ray stopped at
+past the leaf 0.8 of that, the march past it the rest, and the march through the leaf's depth too
+little to read. The first surface letting light through that a ray crosses stands for every one it
+crosses, shaded once after the march for the share of the ray's light they take together, and the
+surface the ray stops at is shaded once for the share that reaches it, in `gi_trace.slang` and
+`gi_screen.slang` alike, so a ray is shaded twice at most and never in the march. Crossing the
+grove's leaves takes 1.95 to 2.06 ms at High and 1.06 to 1.08 at Low, at High 1.4 in the cascades'
+rays, 0.46 in the screen's probes' and 0.13 in the merge, and the canopy over the eye above 0.39 ms
+at Low and 0.70 at High where 0.48 and 0.95. What is left is the march past the leaves, which a ray
+that meets nothing pays as well; a bound of one crossing took 0.2 ms more off at High and at Low and
+one of two 0.05 to 0.1, and cutting the march through a canopy once the ray kept under a
+thirty-second of its light took nothing, so neither is kept. The grove's picture at High differs by
+0.2 of 255 on the whole and by 0.1 to 0.6 on its floor under the trees, the floor under a canopy of
+leaf blocks two deep
+(`A_Floor_Under_A_Canopy_Of_Leaf_Blocks_Takes_The_Sky_Light_Their_Faces_Let_Through`) takes the same
+share of the sky's light to four places, 0.30 at High two and a half units under it, 0.17 at Low and
+0.23 at High five and a half under it, and the bounce rooms, where nothing lets light through, take
+0.75 ms at Low and 2.08 to 2.16 at High at 1920 by 1080 where 0.81 and 2.19 to 2.31, their frames
+differing between the two no more than between two runs of either. The path-traced reference holds
+every surface solid, so no reference reads the light through the leaves, and the references the
+tests hold read as before.
+
 **What the light looks like, read on 2026-10-18.** The examples that draw global illumination,
 `shaders_cornell_box`, `shaders_bounce_rooms` in the room its capture shows, the lamp carried, and
 in the thin walls' room and the emissive block's, `shaders_reflections`, and `games/Ore` where its

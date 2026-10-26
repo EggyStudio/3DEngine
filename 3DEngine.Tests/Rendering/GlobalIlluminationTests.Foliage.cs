@@ -109,4 +109,57 @@ public sealed partial class GlobalIlluminationTests
             $"the leaves let the sky's light through to the floor past the screen's probes' reach, {half:0.0000} between {solid:0.0000} and {open:0.0000}");
         foreach (var model in new[] { ground, solidRoof, halfway }) UnloadModel(model);
     }
+
+    [NeedsVulkanTheory]
+    [Trait("Category", "Render")]
+    [InlineData(GlobalIllumination.Low, 2.5f, 0.13f, 0.2f)]
+    [InlineData(GlobalIllumination.High, 2.5f, 0.25f, 0.35f)]
+    [InlineData(GlobalIllumination.High, 5.5f, 0.19f, 0.28f)]
+    public void A_Floor_Under_A_Canopy_Of_Leaf_Blocks_Takes_The_Sky_Light_Their_Faces_Let_Through(GlobalIllumination quality, float height, float least, float most)
+    {
+        // A gray floor lit by the sky alone under a canopy of leaf blocks twenty a side and two
+        // deep, each a cube of its own, so two faces stand between neighbors as a voxel game's
+        // cut-out leaves have them, read with no canopy, a solid one and one letting half the light
+        // through a unit. A ray crosses a face a block, up to four, the first face it crosses
+        // shaded for all of them. The floor took 0.30 of the sky's light the solid canopy holds
+        // back at High two and a half units under it, 0.17 at Low, and 0.23 at High five and a half
+        // under it, the same to four places as with each face shaded where the ray crossed it.
+        Open();
+        SetSceneField(4, 0.25f);
+        SetGlobalIllumination(quality);
+        SetAmbientLight(new Color(160, 190, 240), 1);
+        var ground = LoadModelFromMesh(GenMeshCube(1, 1, 1));
+        ground.Materials[0].Roughness = 1;
+        var camera = new Camera3D(new Vector3(0, 1.6f, 6), new Vector3(0, 1.2f, -2), Vector3.UnitY, 70);
+        float Floor(Model? roof)
+        {
+            var image = Capture(() =>
+            {
+                DrawModelEx(ground, new Vector3(0, -0.5f, 0), Vector3.UnitY, 0, new Vector3(80, 1, 80), new Color(128, 128, 128));
+                if (roof is { } model)
+                    for (int x = -10; x < 10; x++)
+                        for (int z = -16; z < 4; z++)
+                            for (int y = 0; y < 2; y++)
+                                DrawModel(model, new Vector3(x + 0.5f, height + y, z + 0.5f), 1, new Color(60, 110, 45));
+            }, camera);
+            var at = GetWorldToScreenEx(new Vector3(0, 0, -1), camera, image.Width, image.Height);
+            var c = Mean(image, (int)at.X - 8, (int)at.Y - 4, 16, 8) / 255;
+            return 0.2126f * MathF.Pow(c.X, 2.2f) + 0.7152f * MathF.Pow(c.Y, 2.2f) + 0.0722f * MathF.Pow(c.Z, 2.2f);
+        }
+        Model Leaves(float through)
+        {
+            var model = LoadModelFromMesh(GenMeshCube(1, 1, 1));
+            model.Materials[0].Roughness = 1;
+            model.Materials[0].LightThrough = through;
+            return model;
+        }
+
+        var (solidRoof, halfway) = (Leaves(0), Leaves(0.5f));
+        var open = Floor(null);
+        var solid = Floor(solidRoof);
+        var half = Floor(halfway);
+        ((half - solid) / (open - solid)).Should().BeInRange(least, most,
+            $"the leaves let the sky's light through to the floor, {half:0.0000} between {solid:0.0000} and {open:0.0000}");
+        foreach (var model in new[] { ground, solidRoof, halfway }) UnloadModel(model);
+    }
 }

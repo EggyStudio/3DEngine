@@ -960,9 +960,9 @@ behaviors for the game's item 96. The schedule orders a stage's systems by `Syst
 and `Before` and otherwise by the order they were added, and shuffles that order by a seed so a
 system that leans on an order nothing asked for meets another (`Core/Schedule/Schedule.Order.cs`,
 `Schedule.Shuffle.cs`), but no behavior attribute reaches `After` or `Before`, and `InState` is one to a
-method (`AllowMultiple = false`). The game's update holds ifs whose order is its rule: the block aimed
-at is found before the hand works on it, the player moves before either, and the vitals are taken in
-survival before the mobs answer. Each of those split into a system of its own would run in an order
+method (`AllowMultiple = false`). The game's update holds ifs whose order is its rule, so the block
+aimed at is found before the hand works on it, the player moves before either, and the vitals are
+taken in survival before the mobs answer. Each of those split into a system of its own would run in an order
 no one asked for, and the controller cannot move into the update stage after the states' transition
 while it must come before the aim. The engine lacks an attribute naming the systems a behavior's
 system runs after or before, as `[After(nameof(Steer))]` on a static system, and more than one state a
@@ -1198,3 +1198,27 @@ the canopy's floor takes 0.74 of the open ground's shade from the engine alone w
 with none, and pays the 2.7 ms meanwhile.
 
 Review: taken as 3DEngine item 127 on 2026-10-26, the crossing's cost read on a voxel canopy and brought down, after item 112.
+
+### 2026-10-26, the voxel game in `Voxel-Sandbox`, a program's interface has no text field to type into
+
+Read on the 3DEngine 5.2.319 package for the game's item 134, its pause menu's New World screen,
+where a player types a world's seed. The flat API gives the characters typed (`GetCharPressed`),
+a key's repeat while held (`IsKeyPressedRepeat`) and the place of the input method's window
+(`SetTextInputArea`), and no field to type into, so the game draws its own in its interface's look
+(`VoxelSandbox/Ui/Gui.cs`, `TextField`), a box with its text and a blinking caret at the text's end,
+taking the printable characters typed each frame to a length, Backspace with its repeat, and the
+input method's window beside the box. It holds nothing more, no caret moved by the arrows, Home or
+End, no selection by the pointer or by Shift, no paste or copy, no Delete, no click placing the
+caret and no second field to move to by Tab, and the program keeps its own keys off while the field
+is open, since the engine does not say a field holds the keyboard, so typing a seed's letter would
+otherwise step a setting of the game's bound to that key.
+
+The engine lacks a text field of its own in the flat API, its text and caret in the program's hands
+each frame, as `bool TextField(ref string text, Rectangle box, int most)` answering whether Enter
+was pressed, with the caret moved and the text selected, pasted and copied by the keys and the
+pointer as a desktop's fields are, a focus that a click or Tab moves between fields, the input
+method's window placed beside the caret, and a call saying a field holds the keyboard
+(`IsTextInputActive()`) so a program's own keys stand aside, drawn in the engine's look or through
+a program's drawing of the box, the text and the caret. The game keeps its own field meanwhile.
+
+Review: taken as 3DEngine item 128 on 2026-10-26, a text field of the interface's own with a caret, a selection and the clipboard, after item 127.

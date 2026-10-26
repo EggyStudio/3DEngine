@@ -13,6 +13,12 @@ A pole, a block and two slabs on a floor under a sun 45 degrees up, seen from ab
 sun given no width, every edge as sharp, and below with it 3 degrees across, the shadows sharp where
 each caster meets the floor and soft where they fall far from it.
 
+![](.github/assets/readings/2026-10-26-item-112-river.webp)
+The voxel game's river in its cherry grove at seed 1 at Low at 1280 by 720, seen along it from four
+blocks over the water, above with no plane set, the water showing the sky its fresnel term gives,
+and below with the plane at the water's top, the water's shader in a copy of the game laying
+`mirrored` over that sky, the far bank's trees, trunks and sand mirrored in it.
+
 The sun given a width across (`SetShadowSoftness`), read on the engine's tree against `a16227a7`.
 The edge of a pole's shadow, 5 units tall under a sun 45 degrees up, between a quarter and three
 quarters of the light, in units across:
@@ -36,10 +42,46 @@ the GPU through some readings, those of a global illumination time off its own k
 The grove's 0.53-degree readings with no way out in the shadow's core were 7.70 to 7.88 ms at Low
 and 8.17 to 8.26 at High, and the rooms' were taken before it.
 
+The plane a program sets for its glossy surfaces to mirror the scene in (`SetReflectionPlane`),
+read on the engine's tree against `7af16fcd`, on an RTX 4070 under tuned's `powersave-bazzite`.
+The picture's water mirrors the bank through a copy of the voxel game whose water shader lays
+`mirrored` over the sky its fresnel term shows, which the game's own shader does not yet do; the
+game's river at seed 1 has its top at 48.875, a source block's eighth under the block's top.
+
+The `mirror` node in `./e3d command profile`, the frames unlimited, other programs holding part of
+the GPU through some readings, those of a global illumination time off its own kept out, in ms:
+
+| Scene | Size | GPU | CPU |
+|---|---|---|---|
+| `shaders_reflections`, off | 800 by 450 | 0.046 | 0.11 to 0.13 |
+| `shaders_reflections`, High | 800 by 450 | 0.12 | 0.13 to 0.14 |
+| `shaders_reflections`, off | 1920 by 1080 | 0.088 to 0.089 | 0.11 |
+| `shaders_reflections`, High | 1920 by 1080 | 0.26 to 0.27 | 0.16 |
+| Summit, a sea added at -0.5 | 960 by 540 | 0.10 | 0.15 |
+| Summit, a sea added at -0.5 | 1920 by 1080 | 0.16 | 0.15 to 0.17 |
+| voxel grove, Low | 800 by 450 | 1.27 to 1.63 | 4.0 |
+| voxel grove, High | 800 by 450 | 1.52 to 1.70 | 4.1 |
+| voxel grove, Low | 1920 by 1080 | 1.53 to 1.54 | 4.0 |
+| voxel grove, High | 1920 by 1080 | 2.00 to 2.06 | 4.0 to 4.1 |
+| voxel river, Low | 1920 by 1080 | 2.17 | 3.7 |
+| voxel river, High | 1920 by 1080 | 2.48 to 2.79 | 3.8 |
+
+The grove is the view item 125 read, at -736, 79, -960 facing 345, with the plane at 49, little of
+the river in sight; the river is the picture's view, at -715, 53, -1040 facing 20, with the plane at
+48.875. The game's frame, bound by the CPU, took 23.6 to 25.4 ms without the plane and 28.0 to 30.6
+ms with it in the grove, and 23.8 to 25.3 and 26.3 to 28.3 ms at the river. The window's depth pass
+took 4.1 ms of the CPU for the same 2,241 draws. Before the batches wholly under the plane were
+culled, the grove's mirror took 4.5 to 4.6 ms of the CPU and 1.45 to 1.93 ms of the GPU.
+
+The test's floor under a red cube, its red less its green where the cube's front mirrored in the
+floor falls, reads 57 with the plane and -3 without it, and 0 and -3 to the cube's side.
+
 Done that day
 
 - Item 100 at `a16227a7`. The field lets a share of light through a cell marked as foliage.
 - Item 111 at `45edfbf6`. The sun's shadow softens with the distance from its caster.
+- Item 112 at `78946b22`. A flat surface mirrors the scene through a planar reflection a program
+  sets.
 
 ## 2026-10-25
 
@@ -195,7 +237,7 @@ Where the scene pass's time goes at High in the voxel game's cherry grove, seed 
 offscreen on a scratch copy of the game at the engine's HEAD (item 96). A pixel that no screen probe
 on a surface like its own stands near, 9.1% of the grove's, its leaves, grass and far blocks, read
 the world's probes by marching the field toward each of eight, as the thin room's corner needs; a
-world of blocks has no wall thinner than a cell, so the march now runs only by such a wall.
+world of blocks has no wall thinner than a cell, so the march runs only by such a wall.
 
 | Form | scene pass, rounds of two readings |
 |---|---|
@@ -1072,7 +1114,7 @@ core_input_gestures_testbed and core_input_virtual_controls are raylib's example
 ![](.github/assets/examples/shapes_logo_raylib_anim.webp)
 ![](.github/assets/examples/shapes_rectangle_scaling.webp)
 Nine of raylib's shapes examples are written again, shapes_basic_2d among them under raylib's name
-shapes_basic_shapes, and DrawCircleGradient takes its center as raylib's does now. (`d17fb83d`)
+shapes_basic_shapes, and DrawCircleGradient takes its center as raylib's does. (`d17fb83d`)
 
 ![](.github/assets/examples/shapes_bullet_hell.webp)
 ![](.github/assets/examples/shapes_dashed_line.webp)

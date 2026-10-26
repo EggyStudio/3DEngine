@@ -217,15 +217,19 @@ leaves.Materials[0].LightThrough = 0.5f;
 
 A ray that meets such a surface crosses the cells it fills and keeps that share of its light for
 each unit it runs through, the rest taking the surface's color as a solid's would, the cascades'
-rays and the screen's probes' alike. A ray at a slant crosses more of the surface, so under a slab a
-unit thick letting half through a unit a floor takes about a third of the sky's light a solid slab
-holds back, 0.36 of it at `Low` and 0.40 at `High` where the slab's depth along each way gives 0.36,
-and under one letting all of it through 0.99. A mesh entity's `Material` takes `LightThrough` as
-well. The sun's shadow, through the shadow map, falls as before. A frame in which no surface drawn
-lets light through traces the probes' rays with a build of their shader that leaves the crossing
-out, so it pays nothing for it. Where leaves fill much of the view, as a canopy thirty units across
-over the eye at 800 by 450 on the development machine's GPU, crossing them takes global
-illumination from 0.60 ms to 1.10 at `Low` and from 1.53 to 2.49 at `High`.
+rays and the screen's probes' alike, and the first such surface a ray crosses stands for every one
+it crosses, as a canopy's leaves take much the same light, so a ray is shaded twice at most. A ray
+at a slant crosses more of the surface, so under a slab a unit thick letting half through a unit a
+floor takes about a third of the sky's light a solid slab holds back, 0.36 of it at `Low` and 0.40
+at `High` where the slab's depth along each way gives 0.36, and under one letting all of it through
+0.99. A mesh entity's `Material` takes `LightThrough` as well. The sun's shadow, through the shadow
+map, falls as before. A frame in which no surface drawn lets light through traces the probes' rays
+with a build of their shader that leaves the crossing out, so it pays nothing for it. Where leaves
+fill much of the view, as a canopy thirty units across over the eye at 800 by 450, crossing them
+takes global illumination from 0.62 ms to 1.01 at `Low` and from 1.60 to 2.30 at `High`, and in a
+voxel world's grove at 1920 by 1080, its canopies thousands of leaf blocks' faces, from 1.4 to 2.5
+at `Low` and from 3.3 to 5.3 at `High`, most of it the rays' march past the leaves, which `./e3d
+command gi.toggle through off` reads by stopping the rays at them.
 
 ## The qualities and what they cost
 

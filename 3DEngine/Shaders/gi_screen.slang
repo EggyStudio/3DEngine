@@ -460,22 +460,36 @@ void computeMain(uint3 id : SV_DispatchThreadID)
             // A surface that lets a share of light through, as a canopy's leaves, is crossed through
             // the field, which holds what lies behind it where the window's depth does not, the ray
             // keeping that share for each unit of its depth and the rest taking the surface's light,
-            // as the cascades' rays cross it (gi_trace.slang), and a solid one is shaded in the
-            // same place, keeping none, so the shader holds one copy of the shading for both.
+            // as the cascades' rays cross it (gi_trace.slang), the first such surface shaded once
+            // after the march for every one crossed and the surface the ray stops at for the share
+            // that reaches it, so the shader holds one copy of the shading and none in the march.
             float3 crossed = float3(0.0);
             float through = 1.0;
+            float3 leafAt = float3(0.0), stopAt = float3(0.0);
+            float leafShare = 0.0, stopShare = 0.0;
+            bool leafMet = false, stopMet = false;
             [loop]
             for (int layer = 0; layer < 5 && t >= 0.0; layer++)
             {
                 float3 at = onScreen ? hit : start + way * t;
-                float passing = layer < 4 && (push.texels.w & 4u) != 0u ? lightThroughAt(fieldAlbedo, fieldInfo, at) : 0.0;
+                float leaf = (push.texels.w & 4u) != 0u ? lightThroughAt(fieldAlbedo, fieldInfo, at) : 0.0;
+                float passing = layer < 4 ? leaf : 0.0;
                 bool inside = false;
                 float deep = passing > 0.0 ? lightThroughDepth(sceneField, fieldInfo, start, way, t, length - t, inside) : -1.0;
                 float passes = deep >= 0.0 ? lightThroughKept(passing, deep, fieldCell(fieldInfo, at), inside) : 0.0;
-                float3 itsOwn;
-                crossed += shadeProbeHit(sceneField, fieldInfo, fieldInfo, fieldAlbedo, fieldFaces, fieldGlow, lights, bounced, reach, at, way, view.trace.y, view.trace.z,
-                    view.trace.w, false, float3(1.0), itsOwn) * (through * (1.0 - passes));
-                own += itsOwn * (through * (1.0 - passes));
+                float taken = through * (1.0 - passes);
+                if (leaf > 0.0)
+                {
+                    leafAt = leafMet ? leafAt : at;
+                    leafMet = true;
+                    leafShare += taken;
+                }
+                else
+                {
+                    stopAt = at;
+                    stopMet = true;
+                    stopShare = taken;
+                }
                 through *= passes;
                 met = onScreen ? 0.0 : 1.0;
                 reached = at;
@@ -483,6 +497,17 @@ void computeMain(uint3 id : SV_DispatchThreadID)
                     break;
                 onScreen = false;
                 t = inside ? -1.0 : traceField(sceneField, fieldInfo, start, way, t + deep, length);
+            }
+            [loop]
+            for (int shaded = 0; shaded < 2; shaded++)
+            {
+                if (shaded == 0 ? !leafMet : !stopMet)
+                    continue;
+                float3 itsOwn;
+                float weight = shaded == 0 ? leafShare : stopShare;
+                crossed += shadeProbeHit(sceneField, fieldInfo, fieldInfo, fieldAlbedo, fieldFaces, fieldGlow, lights, bounced, reach, shaded == 0 ? leafAt : stopAt, way,
+                    view.trace.y, view.trace.z, view.trace.w, false, float3(1.0), itsOwn) * weight;
+                own += itsOwn * weight;
             }
             light = crossed;
             if (t < 0.0)
