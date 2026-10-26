@@ -550,12 +550,27 @@ case "$game" in
     echo "$status"
     case "$status" in *" flips 0 "*) fail "no flipper met the ball, $status" ;; esac
     cmd pinball.autopilot false
-    for i in $(seq 1 60); do
+    # A ball that rolled back down its lane to the plunger is ready again and drains from nowhere
+    # there, as a macOS runner's pack run of a16227a7 found it after one flip, so it is launched
+    # again and the wait begun over, three times at most.
+    waited=0
+    relaunched=0
+    while [ "$waited" -lt 60 ]; do
       status=$(ask pinball.status)
-      case "$status" in *" drains 0 "*) cmd frames.wait 60 ;; *) break ;; esac
+      case "$status" in
+        *" drains 0 lane yes "*)
+          [ "$relaunched" -ge 3 ] && break
+          relaunched=$((relaunched + 1))
+          cmd input.key Space 30
+          waited=0
+          cmd frames.wait 60
+          ;;
+        *" drains 0 "*) waited=$((waited + 1)); cmd frames.wait 60 ;;
+        *) break ;;
+      esac
     done
     echo "$status"
-    case "$status" in *" drains 0 "*) fail "the ball did not drain once the flippers stopped, $status" ;; esac
+    case "$status" in *" drains 0 "*) fail "the ball did not drain once the flippers stopped, launched again $relaunched times, $status" ;; esac
     ;;
   Span)
     # The truss the game knows built and the load sent across it, which it carries to the far

@@ -4042,6 +4042,21 @@ batch.
     taking 0.31 of the held-back sky where it took none, High at 1080p in the grove 3.4 ms where 4.2
     to 4.6, the remainder at five units up in the test's comment.
 
+111. **The sun's shadow softens with the distance from its caster.** From the voxel game's item 43
+    at 22:29 on 2026-10-24, its ASKS.md entry of 2026-10-24; the look the owner aims at has a warm
+    low sun with long soft shadows, and the package has no soft-shadow call beside
+    SetShadowDistance, SetShadowFill and SetShadowMapSize. The shadow map gains a penumbra widening
+    with the distance between the receiver and its caster, read from the map's depths about the
+    sample as percentage-closer soft shadows do, with the sun's angular size as its scale through
+    SetShadowSoftness(size) and a default that keeps the present look, the contact shadows
+    unchanged; the cost read on the voxel game's grove and the bounce rooms against their references
+    with the softness at the default and at the sun's size, and a test reading a pole's shadow
+    sharper at its foot than at its tip; the guide's shadows paragraph and the cheat sheet's line.
+    One commit, after item 100 and before 93. Done at `45edfbf6` on 2026-10-26, SetShadowSoftness as
+    the sun's width across in degrees, 0 by default, percentage-closer soft shadows on the cascades
+    with a 16-tap search and a 16-tap filter, the pole's edge 0.08 at the foot and 0.24 at the tip
+    at 3 degrees, 0.7 to 1.2 ms of the grove's scene pass when on.
+
 ## Verdicts settled
 
 Verdicts 1 to 55 are settled, the last two, the drawing leak test's resident bound and the Windows

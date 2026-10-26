@@ -204,7 +204,7 @@ while (!WindowShouldClose())
     }
 
     PinballCommands.Status = $"{screen} ball {ballNumber}/{BallsAGame} score {score} best {best} at {at.X:0.00},{at.Y:0.00},{at.Z:0.00} speed {velocity.Length():0.0} " +
-                             $"launches {launches} flips {flips} hits {hits} drains {drains} tilt {(tilted ? "yes" : "no")} " +
+                             $"launches {launches} flips {flips} hits {hits} drains {drains} lane {(launched ? "no" : "yes")} tilt {(tilted ? "yes" : "no")} " +
                              $"plunger {GetPhysicsSliderPosition(slider):0.00} flippers {flippers[0].Raised():0},{flippers[1].Raised():0}";
 
     // -- The frame.
@@ -352,7 +352,7 @@ public static class PinballCommands
     internal static bool Autopilot;
     internal static string Status = "";
 
-    [Command("pinball.status", "The screen, the ball, the score and the best, where the ball is and how fast, the launches, the flips that met it, the hits, the drains, the tilt, the plunger's pull and each flipper's angle")]
+    [Command("pinball.status", "The screen, the ball, the score and the best, where the ball is and how fast, the launches, the flips that met it, the hits, the drains, whether the ball is in its lane at the plunger, the tilt, the plunger's pull and each flipper's angle")]
     internal static string Report() => Status;
 
     [Command("pinball.autopilot", "Launches each ball and flips as it comes down to a flipper, for a game that plays itself: pinball.autopilot <on>")]
