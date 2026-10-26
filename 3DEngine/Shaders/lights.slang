@@ -345,7 +345,11 @@ static const float PI = 3.14159265;
 // How much of a light reflects toward the eye off microfacets of this roughness, as GGX's
 // distribution and Smith's height-correlated shadowing have it, with Schlick's Fresnel. Times pi,
 // since a light here is given as the light a white diffuse surface facing it returns, so the
-// diffuse term is the albedo itself rather than the albedo over pi.
+// diffuse term is the albedo itself rather than the albedo over pi. Fresnel's base is held to 0 to
+// 1, since with the light at the eye, as a game's held light is, the half vector is the view's and
+// their dot rounds a hair over 1, and the fifth power of a base a hair under 0 is no number on a
+// device that takes a power as exp2 of a logarithm, as lavapipe does; a room lit by a light at its
+// camera read 12,617 of 57,600 pixels black there where the RTX 4070 read none.
 public float3 specularReflected(float3 n, float3 v, float3 l, float3 f0, float alpha, out float3 fresnel)
 {
     float3 h = normalize(v + l);
@@ -356,7 +360,7 @@ public float3 specularReflected(float3 n, float3 v, float3 l, float3 f0, float a
     float d = nh * nh * (a2 - 1.0) + 1.0;
     float distribution = a2 / (PI * d * d);
     float visibility = 0.5 / (nl * sqrt(nv * nv * (1.0 - a2) + a2) + nv * sqrt(nl * nl * (1.0 - a2) + a2));
-    fresnel = f0 + (1.0 - f0) * pow(1.0 - max(dot(v, h), 0.0), 5.0);
+    fresnel = f0 + (1.0 - f0) * pow(saturate(1.0 - dot(v, h)), 5.0);
     return distribution * visibility * fresnel * PI;
 }
 

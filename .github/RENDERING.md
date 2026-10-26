@@ -408,15 +408,19 @@ color, an intensity, a range and a spot's inner and outer angles, and each is on
 `lights.slang`, which `modelpass.slang` imports beside the set it reads (`lightset.slang`), adds
 each light by Lambert's cosine, a directional light by its direction, an ambient light everywhere
 alike, and a point or spot by the square of the distance, brought smoothly to nothing at its range
-and cut by a spot's cone. The light that arrives is reflected by the
-material's metallic-roughness model. Each light but an ambient one reflects by GGX's
-distribution, Smith's height-correlated shadowing and Schlick's Fresnel, toward a camera the
-shader finds from the transform alone, since the push constants have no room for its position,
-and scatters diffusely what Fresnel leaves, none of it off a metal. An ambient light scatters its
-diffuse share and reflects the share Karis's fit of the environment term gives with no
-environment to reflect. A light's color times its intensity is the light a white diffuse surface
-facing it returns, so the diffuse term is the albedo itself and the specular term is multiplied
-by pi to match.
+and cut by a spot's cone. The light that arrives is reflected by the material's metallic-roughness
+model. Each light but an ambient one reflects by GGX's distribution, Smith's height-correlated
+shadowing and Schlick's Fresnel, toward a camera the shader finds from the transform alone, since
+the push constants have no room for its position, and scatters diffusely what Fresnel leaves, none
+of it off a metal. An ambient light scatters its diffuse share and reflects the share Karis's fit of
+the environment term gives with no environment to reflect. A light's color times its intensity is
+the light a white diffuse surface facing it returns, so the diffuse term is the albedo itself and
+the specular term is multiplied by pi to match. Fresnel's base, one less the dot of the view and the
+half vector, is held to 0 to 1, since with a point light at the camera's own point, as a game's held
+light is, the half vector is the view's and their dot rounds a hair over 1, and lavapipe takes a
+power as exp2 of a logarithm, so the fifth power of a base a hair under 0 was no number and a room
+lit so read 12,617 of 57,600 pixels black in specks where the RTX 4070 read none
+(`PointLightAtEyeTests`).
 
 The pass lights in linear space. Frames and render targets stay UNORM and hold sRGB-encoded bytes,
 so the immediate pass, text and every 2D color stay byte for byte as raylib draws them. A texture

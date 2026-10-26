@@ -1252,3 +1252,5 @@ commands kept while its set of draws and their meshes are unchanged, so a frame'
 2,000 unmoving sections cost the main thread well under a millisecond each. The game's render
 distance stays 12, where the frame stands at the edge of 16.7 ms, and 16 columns pay the recording
 meanwhile.
+
+Review: taken as 3DEngine item 132 on 2026-10-26, the passes' recording of unmoving draws brought well under a millisecond, after item 97.
