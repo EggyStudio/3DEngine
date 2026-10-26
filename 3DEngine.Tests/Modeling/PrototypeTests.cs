@@ -31,35 +31,47 @@ public sealed class PrototypeTests : IDisposable
     }
 
     [Fact]
-    public void A_Grid_Of_A_Hundred_Pixels_A_Meter_Has_Its_Lines_At_The_Meter_And_Every_Tenth()
+    public void A_Grid_Of_A_Hundred_Pixels_A_Meter_Has_Its_Lines_At_The_Meter_The_Half_And_The_Quarters()
     {
         var grid = GenImageGrid(100, Face, Line, Fine);
         (grid.Width, grid.Height).Should().Be((100, 100));
 
-        // A meter's line a pixel on each edge, a tenth's line a pixel at each tenth, and the face between.
-        GetImageColor(grid, 0, 50).Should().Be(Line);
-        GetImageColor(grid, 99, 50).Should().Be(Line);
-        GetImageColor(grid, 50, 0).Should().Be(Line);
-        foreach (var tenth in Enumerable.Range(1, 9)) GetImageColor(grid, tenth * 10, 55).Should().Be(Fine);
-        GetImageColor(grid, 5, 55).Should().Be(Face);
-        GetImageColor(grid, 15, 55).Should().Be(Face);
-
-        // Where a meter's line crosses a tenth's, the meter's is drawn.
+        // A meter's line a pixel on each edge, the half's line of the line's color and a quarter's
+        // of the fine one a pixel wide each, the face between, and no mark on a cell too small to
+        // letter.
+        GetImageColor(grid, 0, 10).Should().Be(Line);
+        GetImageColor(grid, 99, 10).Should().Be(Line);
         GetImageColor(grid, 10, 0).Should().Be(Line);
+        GetImageColor(grid, 50, 10).Should().Be(Line);
+        GetImageColor(grid, 10, 50).Should().Be(Line);
+        foreach (var quarter in new[] { 25, 75 })
+        {
+            GetImageColor(grid, quarter, 10).Should().Be(Fine);
+            GetImageColor(grid, 10, quarter).Should().Be(Fine);
+            // Where a meter's line crosses a quarter's, the meter's is drawn.
+            GetImageColor(grid, quarter, 0).Should().Be(Line);
+        }
+        GetImageColor(grid, 10, 10).Should().Be(Face);
+        GetImageColor(grid, 3, 3).Should().Be(Face);
     }
 
     [Fact]
-    public void The_Default_Grid_Widens_Its_Lines_With_It()
+    public void The_Default_Grid_Widens_Its_Lines_With_It_And_Marks_Its_Size()
     {
         var grid = GenImageGrid(PrototypePixelsPerMeter);
 
-        // Four pixels of a meter's line on each edge, eight across where cells meet, and two of each
-        // tenth's, from 101.4 rounded.
-        foreach (var x in new[] { 0, 3, 1020, 1023 }) GetImageColor(grid, x, 500).Should().Be(Line);
-        GetImageColor(grid, 4, 500).Should().Be(Face);
-        GetImageColor(grid, 101, 500).Should().Be(Fine);
-        GetImageColor(grid, 102, 500).Should().Be(Fine);
-        GetImageColor(grid, 103, 500).Should().Be(Face);
+        // Four pixels of a meter's line on each edge, eight across where cells meet, the half's line
+        // four pixels wide from 510 and a quarter's two from 255.
+        foreach (var x in new[] { 0, 3, 1020, 1023 }) GetImageColor(grid, x, 300).Should().Be(Line);
+        GetImageColor(grid, 4, 300).Should().Be(Face);
+        new[] { 509, 510, 513, 514 }.Select(x => GetImageColor(grid, x, 300)).Should().Equal(Face, Line, Line, Face);
+        new[] { 254, 255, 256, 257 }.Select(x => GetImageColor(grid, x, 300)).Should().Equal(Face, Fine, Fine, Face);
+
+        // The mark's squares eight pixels a side from 20 in, the 1's top square the third of its row
+        // and the m's third row three squares of five.
+        new[] { (20, 20), (36, 20), (43, 27), (44, 20) }.Select(p => GetImageColor(grid, p.Item1, p.Item2)).Should().Equal(Face, Line, Line, Face);
+        new[] { (68, 36), (76, 36), (84, 36), (92, 36) }.Select(p => GetImageColor(grid, p.Item1, p.Item2)).Should().Equal(Line, Line, Face, Line);
+        GetImageColor(grid, 68, 20).Should().Be(Face);
 
         var small = () => GenImageGrid(15);
         small.Should().Throw<ArgumentOutOfRangeException>();

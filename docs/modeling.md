@@ -210,16 +210,19 @@ flat.
 ## Grid prototyping
 
 A level is blocked out in textures that show a meter and say by their color what each surface is
-for, as the dev textures of the engines of the 2000s did. `GenImageGrid(pixelsPerMeter, face,
-line, fine)` makes the image of one meter's cell, its edges a line and a finer line every tenth of
-a meter, beside `GenImageChecked`, and `GenImageGrid(1024)` the same in its default grays.
+for, as the dev textures of the engines of the 2000s did. `GenImageGrid(pixelsPerMeter, face, line,
+fine)` makes the image of one meter's cell, its edges a line, a thinner line across its middle and a
+fine line at each quarter, a level editor's steps, with `1m` lettered in its corner where the cell
+has 128 pixels or more, beside `GenImageChecked`, and `GenImageGrid(1024)` the same in its default
+grays.
 
 `LoadMaterialPrototype(name)` is the grid tinted by the color of a part of a level, the names
 `floor`, `wall`, `ceiling`, `stairs`, `door`, `window` and `hazard` each a color of its own
-(`GetPrototypeColor`) and any other name the grid's gray, and `LoadMaterialPrototype(color)` the
-grid tinted by any color. The materials share one texture of 1024 pixels a meter with its mip
-levels, repeating and filtered along a slanted surface so its lines stay sharp down a corridor,
-which `CloseWindow` frees, so a prototype material is not unloaded by the program.
+(`GetPrototypeColor`), Unreal's prototyping grays and orange for the first four, and any other name
+the grid's gray, and `LoadMaterialPrototype(color)` the grid tinted by any color. The materials
+share one texture of 1024 pixels a meter with its mip levels, repeating and filtered along a slanted
+surface so its lines stay sharp down a corridor, which `CloseWindow` frees, so a prototype material
+is not unloaded by the program.
 
 A model built from an edit mesh draws each slot with the prototype material of the slot's name,
 until [Slot looks](#slot-looks) give it another, so faces put in the slots `floor` and `wall` read
@@ -233,7 +236,7 @@ EditMeshBox(cell, new Vector3(6, 3, 6));
 EditMeshMaterial(cell, "wall");
 EditMeshSelectFacing(cell, -Vector3.UnitY);
 EditMeshMaterial(cell, "floor");
-var model = LoadModelFromEditMesh(cell);    // the walls a pale warm gray, the floor a gray
+var model = LoadModelFromEditMesh(cell);    // the walls a light gray, the floor a dark gray
 ```
 
 ## Slot looks

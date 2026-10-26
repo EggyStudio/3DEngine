@@ -437,7 +437,7 @@ Image GenImageText(int width, int height, string text);  // Makes a grayscale im
 Image GenImageColor(int width, int height, Color color);  // Makes an image of one color
 Image GenImageChecked(int width, int height, int checksX, int checksY, Color first, Color second);  // Makes a checkerboard of squares checksX by checksY pixels
 Image GenImageGrid(int pixelsPerMeter);                  // Makes the image of one meter's cell of a grid, in its default colors, a light gray face with darker lines
-Image GenImageGrid(int pixelsPerMeter, Color face, Color line, Color fine);  // Makes the image of one meter's cell of a grid, its edges a line and a finer line every tenth of a meter, to tile faces whose texture coordinates are in meters
+Image GenImageGrid(int pixelsPerMeter, Color face, Color line, Color fine);  // Makes the image of one meter's cell of a grid, its edges a line, a thinner line across its middle and a fine line at each quarter, with a mark of its size in its corner, to tile faces whose texture coordinates are in meters
 Color GetImageColor(Image image, int x, int y);          // The color of one pixel
 Color[] LoadImageColors(Image image);                    // Every pixel of an image as a color, row by row from the top left
 void UnloadImage(Image image);                           // Does nothing, because an image is managed memory

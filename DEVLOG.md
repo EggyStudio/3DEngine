@@ -31,6 +31,12 @@ with "world" selected and its text kept inside the border, and the seed in a fon
 program's own, above before a click and below after one gives the seed the keyboard, its border two
 pixels wide and its caret after the last digit.
 
+![](.github/assets/readings/2026-10-26-item-89-wheat.webp)
+A field of wheat's cut-out two-sided walls a block tall as the voxel game draws its crops, under its
+sun at ten in the morning, at High at 1280 by 720, above with the shadow's point moved along each
+wall's normal as given, the walls lit from their backs shadowing themselves in speckles, and below
+with it turned to the sun's side, every lit wall even.
+
 The sun given a width across (`SetShadowSoftness`), read on the engine's tree against `a16227a7`.
 The edge of a pole's shadow, 5 units tall under a sun 45 degrees up, between a quarter and three
 quarters of the light, in units across:
@@ -126,8 +132,41 @@ trees. A floor under a canopy of leaf blocks twenty a side and two deep, lit by 
 the same share of the sky's light to four places either way, 0.30 at High two and a half units
 under it, 0.17 at Low, and 0.23 at High five and a half under it.
 
+A thin two-sided wall's shadow read along its normal turned to the light's side (`litSide` in
+`lights.slang`), read on the engine's tree against `0a4ad922` on an RTX 4070 under tuned's
+`powersave-bazzite`, in a room built as the voxel game's wheat field, eight by eight blocks of four
+walls a block tall on farmland, one wall of each pair facing away from the sun, under the game's sun
+at ten in the morning, toward 0.479, 0.830, 0.287, at High at 800 by 450 against a path-traced
+reference of 256 paths a pixel.
+
+Each wall's standard deviation over its mean, weighted by its pixels, and the walls' mean error
+against the reference:
+
+| Shadow's point moved along | Close view, spread | Far view, spread | Close view, error | Far view, error |
+|---|---|---|---|---|
+| the reference | 0.053 | 0.074 | | |
+| the normal as given | 0.149 | 0.338 | 29.4% | 28.9% |
+| the normal turned to the light's side | 0.054 | 0.227 | 31.6% | 12.5% |
+| that and a step toward the light as the sun grazes | 0.054 | 0.227 | 31.6% | 12.4% |
+
+The mean step between neighboring wall pixels at Off, which speckles raise, read 14.85 in the far
+view and 6.76 in the close one with the normal as given, 4.52 and 1.61 turned to the light's side,
+12.50 and 5.65 with the step toward the light alone, and 4.48 and 1.60 with both.
+
+What is left of the far view's spread is a soft darkening of the outer walls' lower halves, the
+indirect light's and no speckle. The walls' level against the reference is the screen's probes',
+read by kind with the shadow turned, the walls seen from the front 44.0% over and those seen from
+their backs 18.3% over, and with the screen's probes left out (`gi.toggle screen off`) 13.5% and
+18.1%; a wall seen from its back takes no screen probe, since the model pass looks them up along the
+normal as given, and looked up along the turned one both kinds read 44.1% and 44.8% over. Item 129
+reads that excess before the lookup is turned.
+
+The test's two walls under the same sun, one lit from its front and one from its back, read 0.4403
+each and even with the normal turned, where the second read 0.1909, spread 0.298 of its mean.
+
 Done that day
 
+- Item 89 at `b05b32da`. Thin two-sided masked faces carry no shadow acne.
 - Item 91 at `d207627e`. DESIGN.md says the loop and the ECS are both the engine's way, each where
   it fits, with the voxel game as the model (Decision 68).
 - Item 93 at `bb542fa4`. No running sentence holds a colon, across the documents, the comments and

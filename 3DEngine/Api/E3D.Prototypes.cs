@@ -13,18 +13,19 @@ public static partial class E3D
 
     /// <summary>The color of the prototype material for a part of a level, by the name of the material slot its faces are in.</summary>
     /// <remarks>
-    /// A floor gray, a wall a pale warm gray, a ceiling a pale blue, stairs orange, a door green, a
-    /// window blue and a hazard red, as the prototype textures of the engines of the 2000s told a
-    /// reader of a level what each surface was for, and the same in BevyCSharp. The names are
+    /// Unreal's level prototyping palette, a floor a dark gray, a wall a light gray, a ceiling a
+    /// lighter one and stairs, ramps and the parts that move the prototyping orange, with a door
+    /// green, a window blue and a hazard red, as the prototype textures of the engines of the 2000s
+    /// told a reader of a level what each surface was for, and the same in BevyCSharp. The names are
     /// <c>floor</c>, <c>wall</c>, <c>ceiling</c>, <c>stairs</c>, <c>door</c>, <c>window</c> and
     /// <c>hazard</c>, and any other name is white, which shows the grid's own gray.
     /// </remarks>
     public static Color GetPrototypeColor(string name) => name switch
     {
-        "floor" => new Color(133, 135, 140, 255),
-        "wall" => new Color(209, 201, 184, 255),
-        "ceiling" => new Color(179, 196, 219, 255),
-        "stairs" => new Color(235, 143, 56, 255),
+        "floor" => new Color(79, 79, 82, 255),
+        "wall" => new Color(181, 181, 178, 255),
+        "ceiling" => new Color(209, 209, 212, 255),
+        "stairs" => new Color(245, 117, 33, 255),
         "door" => new Color(97, 184, 97, 255),
         "window" => new Color(92, 158, 235, 255),
         "hazard" => new Color(230, 56, 41, 255),

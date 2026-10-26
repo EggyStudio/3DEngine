@@ -86,22 +86,29 @@ public static partial class E3D
     public static Image GenImageGrid(int pixelsPerMeter) => GenImageGrid(pixelsPerMeter, GridFace, GridLine, GridFine);
 
     /// <summary>
-    /// Makes the image of one meter's cell of a grid, its edges a line and a finer line every tenth
-    /// of a meter, to tile faces whose texture coordinates are in meters.
+    /// Makes the image of one meter's cell of a grid, its edges a line, a thinner line across its
+    /// middle and a fine line at each quarter, with a mark of its size in its corner, to tile faces
+    /// whose texture coordinates are in meters.
     /// </summary>
     /// <remarks>
     /// <para>
     /// The grid of the prototype textures of the engines of the 2000s, which tells a reader of a
     /// level blocked out in it how big each thing is, as an edit mesh's faces carry their texture
     /// coordinates in meters. A meter's line is a 128th of the cell wide, two pixels at least, half
-    /// on each edge of the cell, so cells tiled side by side make it whole, and a tenth's line a
-    /// quarter of that, a pixel at least, centered on its tenth.
+    /// on each edge of the cell, so cells tiled side by side make it whole, the half's line a 256th
+    /// and a quarter's a 512th, a pixel at least, each centered on its place. The steps are a level
+    /// editor's, as Source's measuring textures step 16, 64 and 128 units, so at TrenchBroom's 32
+    /// units a meter a brush snapped to its 8, 16 or 32 unit grid ends on a line, and the corner of
+    /// each cell reads <c>1m</c>, as those textures print their sizes, where the cell has 128 pixels
+    /// or more, in letters of five by seven squares each a 128th of the cell, two squares in from
+    /// the cell's top left inside its line. The same grid as BevyCSharp's.
     /// </para>
     /// <para>
-    /// A pixel on a meter's line is <paramref name="line"/>, else one on a tenth's line is
-    /// <paramref name="fine"/>, else the cell's <paramref name="face"/>. As a texture it is given
-    /// mip levels and a repeating, anisotropic sampler, as <see cref="LoadMaterialPrototype(Color)"/>
-    /// gives it, so a floor running into the distance fades into its face's tone.
+    /// A pixel on a meter's or the half's line or on the mark is <paramref name="line"/>, else one
+    /// on a quarter's line is <paramref name="fine"/>, else the cell's <paramref name="face"/>. As a
+    /// texture it is given mip levels and a repeating, anisotropic sampler, as
+    /// <see cref="LoadMaterialPrototype(Color)"/> gives it, so a floor running into the distance
+    /// fades into its face's tone.
     /// </para>
     /// </remarks>
     /// <exception cref="ArgumentOutOfRangeException">The size is under 16 or over 4096 pixels.</exception>
@@ -111,19 +118,21 @@ public static partial class E3D
         ArgumentOutOfRangeException.ThrowIfGreaterThan(pixelsPerMeter, 4096);
 
         var size = pixelsPerMeter;
-        var half = Math.Max(2, size / 128) / 2;
-        var fineWidth = Math.Max(1, size / 512);
+        var edge = Math.Max(2, size / 128) / 2;
 
-        // What each column, and so each row, is, 2 a meter's line, 1 a tenth's and 0 the face.
+        // What each column, and so each row, is, 2 a meter's or the half's line, 1 a quarter's and
+        // 0 the face, each line starting half its width before its place, a half rounded up.
         var kind = new byte[size];
         for (int at = 0; at < size; at++)
-            if (at < half || at >= size - half) kind[at] = 2;
-        for (int tenth = 1; tenth < 10; tenth++)
+            if (at < edge || at >= size - edge) kind[at] = 2;
+        void Line(double place, int width, byte which)
         {
-            var start = (int)Math.Round(tenth * size / 10.0 - fineWidth / 2.0, MidpointRounding.AwayFromZero);
-            for (int at = start; at < start + fineWidth; at++)
-                if (kind[at] == 0) kind[at] = 1;
+            var start = (int)Math.Round(place - width / 2.0, MidpointRounding.AwayFromZero);
+            for (int at = start; at < start + width; at++) kind[at] = Math.Max(kind[at], which);
         }
+        Line(size / 2.0, Math.Max(1, size / 256), 2);
+        Line(size / 4.0, Math.Max(1, size / 512), 1);
+        Line(size * 3 / 4.0, Math.Max(1, size / 512), 1);
 
         var data = new byte[size * size * 4];
         for (int y = 0; y < size; y++)
@@ -134,11 +143,34 @@ public static partial class E3D
                 var i = (y * size + x) * 4;
                 (data[i], data[i + 1], data[i + 2], data[i + 3]) = (c.R, c.G, c.B, c.A);
             }
+
+        // The mark of the cell's size, where a square of its letters is a pixel or more.
+        var square = size / 128;
+        if (square >= 1)
+        {
+            var (left, top) = (edge + 2 * square, edge + 2 * square);
+            foreach (var (glyph, column) in new[] { (GridOne, 0), (GridEm, 6) })
+                for (int row = 0; row < 7; row++)
+                    for (int bit = 0; bit < 5; bit++)
+                    {
+                        if ((glyph[row] >> (4 - bit) & 1) == 0) continue;
+                        for (int dy = 0; dy < square; dy++)
+                            for (int dx = 0; dx < square; dx++)
+                            {
+                                var i = ((top + row * square + dy) * size + left + (column + bit) * square + dx) * 4;
+                                (data[i], data[i + 1], data[i + 2], data[i + 3]) = (line.R, line.G, line.B, line.A);
+                            }
+                    }
+        }
         return new Image(data, size, size);
     }
 
+    // The mark's letters, a 1 and an m, five squares a row, the leftmost square the row's highest bit.
+    private static readonly byte[] GridOne = [0b00100, 0b01100, 0b00100, 0b00100, 0b00100, 0b00100, 0b01110];
+    private static readonly byte[] GridEm = [0b00000, 0b00000, 0b11010, 0b10101, 0b10101, 0b10101, 0b10101];
+
     // The grid's colors where none are given, a light gray face, so a tint shows as itself, dark
-    // gray lines a meter apart and lighter ones a tenth apart.
+    // gray lines a meter and a half meter apart and for the mark, and lighter ones a quarter apart.
     private static readonly Color GridFace = new(230, 230, 230, 255);
     private static readonly Color GridLine = new(89, 89, 89, 255);
     private static readonly Color GridFine = new(173, 173, 173, 255);

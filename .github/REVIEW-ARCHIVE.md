@@ -4155,6 +4155,23 @@ batch.
     a verb answered before dispatch with the verb's own lines, a non-verb refused with exit 2, the
     case under NeedsClientFact.
 
+89. **Thin two-sided masked faces carry no shadow acne.** Read under item 71 on 2026-10-24 in the
+    voxel game: a wheat field's thin cutout walls shadow themselves in speckled dark and light
+    stripes that shift as the eye turns, the map's bias of three texels along the normal being
+    nothing for a face the sun grazes edge-on and seen from either side, while solid blocks, leaves
+    and the water's top are clean. The mend chosen by reading in an engine room built as the game's
+    field, the wheat's walls on farmland under the sun at 10 o'clock, against the path-traced
+    reference by region: a receiver bias by the face's slope to the sun for two-sided masked faces,
+    or the casters' side read from the sun's side, whichever leaves the wall's lit face even within
+    a level and the shadow it casts on the ground where the reference has it, the covered-fault rule
+    across the bounce rooms and the game's room at both sizes; a test reading a thin cutout wall's
+    lit face for stripes, the variance along it under a bound, failing without the mend;
+    RENDERING.md's line under the shadows, the voxel game's plants' shadows the first to gain. One
+    commit, after items 74 and 72's cherry-picks. Done at `b05b32da` on 2026-10-26, the shadow
+    lookup's point moved along the normal turned to the light's side for the sun, spot and point
+    maps, the wheat walls' spread 0.149 to 0.054 against the reference's 0.053, the screen probes'
+    excess on thin walls to item 129.
+
 ## Verdicts settled
 
 Verdicts 1 to 55 are settled, the last two, the drawing leak test's resident bound and the Windows
