@@ -1526,6 +1526,7 @@ static class Engine.E3D
   static void SetShadowDistance(float distance)
   static void SetShadowFill(bool enabled)
   static void SetShadowMapSize(int size)
+  static void SetShadowSoftness(float size)
   static void SetSkyDay(SkyDay day)
   static void SetSkyHorizon(Color color, float blendDegrees)
   static void SetSkyTime(float hours)

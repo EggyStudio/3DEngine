@@ -4022,6 +4022,26 @@ batch.
     100's second part. One commit, small. Done at `42f4f505` on 2026-10-25, DoubleSided and the
     roughness taking ModelMaterial's values and a test over every shared field.
 
+100. **The field lets a share of light through a cell marked as foliage.** From the voxel game's
+    reading of 2026-10-24, read at 14:02, its ASKS.md entry of 2026-10-24 carrying the table of its
+    readings. The game's rain forest floor at noon is near black where the source lights it at 13 of
+    15, since the canopy shadows the sun and the field holds the leaves solid, so no sky light
+    reaches the floor through the probes; the game lifts the floor by its sky level meanwhile. A
+    cell written into the field can carry a transmittance, a share of the light passing it, set by
+    the program for leaves and the like through the field's write, the cascades' march taking that
+    share off a ray that crosses the cell rather than stopping and the cell's color bouncing the
+    rest, the sun's shadow through the shadow map unchanged; the cost read on the bounce rooms and
+    the voxel game's grove at both sizes, the readings against the references under the
+    covered-fault rule, a test of a plane under a slab of foliage cells at a half reading about half
+    the open plane's sky light, and the guide's page saying how a program marks foliage. One or two
+    commits, after item 96 and before 93. The first part at `4c9cf7e4` on 2026-10-25, LightThrough
+    on both materials with the rays crossing up to four surfaces and gi_screen shading in two
+    places, the departure in the head; the second part, the grove's readings, the canopy's picture
+    and the crossing's cost with leaves, after item 124. Done at `a16227a7` on 2026-10-26 with the
+    second part, the reach set where a ray stops and the merge seeing past leaves, a canopy's floor
+    taking 0.31 of the held-back sky where it took none, High at 1080p in the grove 3.4 ms where 4.2
+    to 4.6, the remainder at five units up in the test's comment.
+
 ## Verdicts settled
 
 Verdicts 1 to 55 are settled, the last two, the drawing leak test's resident bound and the Windows

@@ -94,6 +94,9 @@ public struct Lighting
     // rgb: what the environment map's light on the scene is multiplied by, the share and the tint
     // the program set, linear, apart from the sky the map draws, which reads environment.x alone.
     public float4 environmentLight;
+    // x: how wide the sun's shadow's edge spreads per unit of a caster's height over the point it
+    // shades, 0 for an edge as sharp everywhere (cascadeSoftly).
+    public float4 shadowSoftness;
 };
 
 [[vk::binding(0, 1)]]

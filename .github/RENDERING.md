@@ -576,6 +576,27 @@ the cascades alone, falling to 0 across the last one's edge whether the fill rea
 not, so those contact shadows go on over the fill's coarse texels. A test holds a square's shadow
 on a wall at twice the shadow distance with the fill and none without it.
 
+**The sun's width, read on 2026-10-26.** `SetShadowSoftness` gives the sun a width across in
+degrees, carried in the lighting buffer as twice the tangent of half of it, the edge's spread per
+unit of a caster's height over a point, after the environment's light. Where it is set, each cascade
+is read as percentage-closer soft shadows read a map (`penumbra.slang`). Sixteen depths on a
+golden-angle disc search for what lies in front of the point over the width a caster at the
+cascade's near plane would spread the sun to, held to 24 texels either side; where they find none
+the point is lit, where all sixteen find one it lies in the shadow's core, and between, sixteen
+bilinear comparisons are taken over the width the found casters' mean depth spreads the sun to, a
+texel at least, the disc turned by a hash of the point. Each tap is compared with the surface's own
+depth there, its slope across the map solved from its normal and the cascade's rows and held to that
+of a surface 80 degrees from the sun, so a wide edge on a slope does not shadow the slope, and the
+taps stay a texel and a half inside the tile. A pole 5 units tall under a sun 45 degrees up has its
+edge between a quarter and three quarters of the light 0.04 units across at its foot and at its tip
+with no width, and 0.08 and 0.24 at 3 degrees (`ShadowSoftnessTests`); read over twice the sun's
+spread, as first written, the foot's was 0.14. With no width the cascades are read as before and the
+bounce rooms and the voxel game's grove draw as they did. At the sun's 0.53 degrees the bounce
+rooms' scene pass took 0.04 to 0.06 ms more at 800 by 450 and 0.25 to 0.41 at 1920 by 1080, and the
+grove at 1920 by 1080 takes 7.4 to 7.9 ms at Low where 6.5 to 6.7 and 8.0 to 8.4 at High where 7.3,
+the same at 3 degrees, most of it the search at every point the sun reaches; the way out in the
+shadow's core took 0.2 to 0.3 ms off it.
+
 What looks like faces fighting in a sunlit scene of the voxel game is the sun's map read where it
 is coarse or where a face shadows itself, and global illumination has no part in it. In a flat
 world at ten in the morning at 1280 by 720 at `High`, a field of wheat, whose thin walls are

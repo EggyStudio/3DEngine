@@ -54,6 +54,13 @@ internal sealed class ShadowSettings
     /// a fill cascade, which the cascades' count leaves out, on unless set.
     /// </summary>
     public bool Fill { get; set; } = true;
+
+    /// <summary>
+    /// How wide the sun looks across, in degrees, which spreads its shadow's edge the further it
+    /// falls from what casts it, or 0, the default, for an edge as sharp at a caster's tip as at
+    /// its foot.
+    /// </summary>
+    public float Softness { get; set; }
 }
 
 /// <summary>Fits a directional light's shadow cascades to what a camera sees.</summary>

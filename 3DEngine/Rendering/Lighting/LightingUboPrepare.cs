@@ -28,6 +28,9 @@ internal sealed class LightingUboPrepare : IPrepareSystem
         // window's composite bends them.
         var effects = renderWorld.TryGet<FrameEffects>() ?? new FrameEffects();
         ubo.Output = new System.Numerics.Vector4(0, 0, effects.HighlightKnee, effects.HighlightStrength);
+        // How wide the sun's shadow's edge spreads per unit of a caster's height over a point.
+        var softness = renderWorld.TryGet<ShadowSettings>()?.Softness ?? 0;
+        ubo.ShadowSoftness = new System.Numerics.Vector4(2 * MathF.Tan(float.DegreesToRadians(softness) / 2), 0, 0, 0);
         var environment = renderWorld.TryGet<EnvironmentMap>();
         if (environment is not null)
         {

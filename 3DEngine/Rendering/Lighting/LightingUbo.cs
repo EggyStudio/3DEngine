@@ -122,10 +122,16 @@ internal struct LightingUbo
 
     /// <summary>
     /// rgb: what the environment map's light on the scene is multiplied by, the share and the tint
-    /// <see cref="E3D.SetEnvironmentLight"/> set, linear, apart from the sky the map draws. Last, so
-    /// the fields before keep their offsets.
+    /// <see cref="E3D.SetEnvironmentLight"/> set, linear, apart from the sky the map draws.
     /// </summary>
     public Vector4 EnvironmentLight;
+
+    /// <summary>
+    /// x: how wide the sun's shadow's edge spreads per unit of a caster's height over the point it
+    /// shades, twice the tangent of half the sun's width across (<see cref="E3D.SetShadowSoftness"/>),
+    /// 0 for an edge as sharp everywhere. Last, so the fields before keep their offsets.
+    /// </summary>
+    public Vector4 ShadowSoftness;
 }
 
 /// <summary>One reflection probe as the model pass reads it.</summary>

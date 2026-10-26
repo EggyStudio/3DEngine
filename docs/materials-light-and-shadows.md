@@ -366,6 +366,22 @@ differing from itself drawn alone at a quarter of a percent of its pixels, along
 is the shadow quality a game's settings offer. A size of 4096 sharpens every shadow at four times
 the memory, and 1024 softens them for a slower machine.
 
+`SetShadowSoftness` gives the sun a width across, in degrees, 0 unless set, so its shadow's edge
+softens with the distance from what casts it, sharp where a pole meets the ground and soft where the
+shadow of its tip falls, as a low sun's long shadows look:
+
+```csharp
+SetShadowSoftness(2);
+```
+
+The sun seen from the earth is 0.53 degrees across, and a hazy evening sun looks wider. Each point
+the sun's shadow map holds looks for what shades it and takes the light over the width the sun
+spreads to at that height, held to 24 of a cascade's texels either side, so past that a cascade's
+shadow is as soft as it gets. The spot and point lights' shadows and the contact shadows keep their
+edges. On the development machine's GPU the voxel game's cherry grove at 1920 by 1080 takes 0.7 to
+1.2 ms more of the scene pass with the sun given a width, the same at 0.53 degrees and at 3, and
+with none it costs nothing.
+
 A masked material casts the shadow of what it keeps, the light passing through its holes, and a
 blended one a shadow as dark as it is opaque. A surface drawn with a shader of the program's own is
 cut the same way, at the texture coordinate its vertex stage gives, or by its own `shadowMain`, as

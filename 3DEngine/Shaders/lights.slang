@@ -6,6 +6,7 @@ module lights;
 
 __exported import lightset;
 import scenefield;
+import penumbra;
 import gi;
 import color;
 
@@ -71,7 +72,9 @@ public float3 arriving(Light light, float3 world, float3 n)
 // texels slant across it, and nine depths around it are compared and averaged, which softens the
 // stair steps of the texels into a gradient one texel wide. A point a little inside a tile's edge
 // counts as outside, so the nine never reach into a neighboring tile. edge says how far toward the
-// tile's edge the point is, from 0 in its middle to 1 at that border.
+// tile's edge the point is, from 0 in its middle to 1 at that border. Where the sun is given a
+// width (SetShadowSoftness) the edge softens with the caster's height over the point instead
+// (cascadeSoftly), its taps held a texel and a half inside the tile.
 public float cascadeReached(int c, float3 world, float3 n, float2 texel, out float edge)
 {
     edge = 1.0;
@@ -89,6 +92,12 @@ public float cascadeReached(int c, float3 world, float3 n, float2 texel, out flo
         texel = 1.0 / float2(width, height);
     }
     float2 uv = fill ? p.xy * 0.5 + 0.5 : (p.xy * 0.5 + 0.5 + float2(c % 2, c / 2)) * 0.5;
+    if (lighting.shadowSoftness.x > 0.0)
+    {
+        float2 corner = fill ? float2(0.0) : float2(c % 2, c / 2) * 0.5;
+        float2 across = fill ? float2(1.0) : float2(0.5);
+        return cascadeSoftly(c, p, uv, texel, corner + texel * 1.5, corner + across - texel * 1.5, fill, n, world);
+    }
     float reached = 0.0;
     for (int y = -1; y <= 1; y++)
         for (int x = -1; x <= 1; x++)

@@ -10,51 +10,82 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `42f4f505`, item 126, the materials' defaults agreeing, read at 22:37 on 2026-10-25,
-carrying the review's files and DEVLOG.md. Two shared fields differed, DoubleSided true on the ECS
-Material against false and the roughness 1 against 0.5, and both take ModelMaterial's value, every
-other shared field agreeing already; Material.Default follows through its constructor and the scene
-reader with it, SceneSpawner setting both from the file's payload so loaded scenes are unchanged,
-the glTF description's own defaults left as glTF's. A test compares every shared field for a
-material made from one color, Material.Default's DoubleSided among them, MaterialTests' roughness
-reads 0.5, and one MeshEntityDrawsTests test that leaned on the old default makes its odd entity
-double-sided itself; the behaviors guide says a Material made from a color takes every default a
-ModelMaterial takes, with no upgrading entry. The four examples making ECS materials were captured
-again, ecs_mesh_entities matching within 0.002 and the other three differing run to run alone, so
-the committed captures stay. 2,119 on the GPU in both orders, 134 on lavapipe with validation, the
+Reviewed up to `a16227a7`, item 100's second part with two mends, read at 00:22 on 2026-10-26,
+carrying the review's files, DEVLOG.md, a reading in RENDERING.md and a note, and a captioned
+before-and-after canopy picture, pushed at 00:53 on 2026-10-26 once the build run of `42f4f505` went
+green whole, the sixth pack run started with publish on at 00:53 for the game's item 133, both runs
+watched. The canopy picture found that under leaves 5 units up letting half through, at High the
+floor took no more sky than under solid ones, 0.0089 against 0.0077 linear, while Low took 0.035
+against 0.015, the test's slab at 2.5 up within the screen probes' reach of 4 missing it. Two
+faults. A ray crossing leaves had its reach set at the first leaf it met, so the merge's parallax
+read and the screen probes' reach took the leaves as a wall; the crossing build sets the reach where
+the ray stopped, which alone moves the slab test from 0.23 and 0.29 to 0.36 and 0.40 against the
+geometry's 0.36, so the old numbers were this fault and not the slants, the guide and the first
+reading saying 0.36 and 0.40. And the merge skipped every probe of the cascade above that the field
+hid, a canopy hiding them all from the probes under it, so the cascades under a canopy took nothing
+from above and the screen probes reading cascade light past their reach read black; seesPastLeaves
+in lightthrough.slang passes surfaces that let light through, the merge gaining the field's colors
+at binding 9, a gi.probe read showing cascade 2 under the slab at 0 on its up face while cascade 3
+above read the full sky. The slab test has four cases, Low and High at 2.5 and 5.5 up, reading 0.36
+and 0.40 and 0.37 and 0.32 against the geometry's 0.36 and 0.41; a canopy test 30 across and 5 up
+with four cascades of 0.25 at High reads 0.31 where the geometry gives 0.38 and 0.004 with the old
+merge, each mend checked by reverting it; five up at High still reads 22% under the geometry, likely
+the cascades' intervals splitting a crossing that straddles an interval's end, recorded in the
+test's comment and not mended. On a quiet GPU the bounce rooms are unchanged at 0.553 to 0.556 ms at
+Low in the Cornell box, the merge's extra read happening where the field stops a march alone; the
+voxel grove on the entity build with nothing marked as leaves reads Low 1.21 to 1.51 ms at 800 by
+450 and 1.46 to 1.48 at 1080p against 1.22 to 1.44 and 1.47 to 1.49 before, and High 2.85 to 3.21
+and 3.35 to 3.38 against 3.28 to 3.33 and 4.24 to 4.60, the scene pass the same; leaves filling the
+view cost GI 0.60 to 1.10 ms at Low and 1.53 to 2.49 at High at 800 by 450, the guide saying so. The
+rooms' frames stay within 2 of 255 with nothing marked and the bounds hold; the path-traced
+reference knows nothing of LightThrough, so leaves cannot be read against it. 2,122 on the GPU in
+both orders, 50 on lavapipe with validation, the strict build clean. After `42f4f505`, item 126, the
+materials' defaults agreeing, read at 22:37 on 2026-10-25, carrying the review's files and
+DEVLOG.md. Two shared fields differed, DoubleSided true on the ECS Material against false and the
+roughness 1 against 0.5, and both take ModelMaterial's value, every other shared field agreeing
+already; Material.Default follows through its constructor and the scene reader with it, SceneSpawner
+setting both from the file's payload so loaded scenes are unchanged, the glTF description's own
+defaults left as glTF's. A test compares every shared field for a material made from one color,
+Material.Default's DoubleSided among them, MaterialTests' roughness reads 0.5, and one
+MeshEntityDrawsTests test that leaned on the old default makes its odd entity double-sided itself;
+the behaviors guide says a Material made from a color takes every default a ModelMaterial takes,
+with no upgrading entry. The four examples making ECS materials were captured again,
+ecs_mesh_entities matching within 0.002 and the other three differing run to run alone, so the
+committed captures stay. 2,119 on the GPU in both orders, 134 on lavapipe with validation, the
 strict build clean. After `98a0e49e`, item 125, the scene pass's half found in the draws' order,
 read at 22:05 on 2026-10-25, carrying the review's files with a Shared line, a reading in
 RENDERING.md and a note, and a captioned pair of the grove, pushed with `42f4f505` at 23:09 on
-2026-10-25 once the build run of `23b4793b` went green whole, the run watched. The cause is the
-order of the draws and not their work, both paths making the same draws through the same pipelines
-with the same culling, depth state and coverage; DrawMesh brought each section's solid, cut-out and
-lava parts by turns, each a batch alone through the terrain shader's solid or cut-out pipeline, so
-the pass bound a pipeline 315 times a frame against 7 for the entities. On scratch game copies at
-the grove at 1080p High the GPU's scene pass read 13.1 to 14.1 ms for DrawMesh in its own order, 9.3
-to 10.8 for the entities, 11.8 to 13.0 for DrawMesh nearest first, 9.2 to 10.6 by pipeline and 8.4
-to 9.0 by pipeline and nearest first within it. ModelRenderer.Order.cs plans each seen batch with
-its pipeline and orders the opaque ones by pipeline in order of first appearance and nearest first
-within it, each run between two batches that write no depth ordered apart so a sky drawn first keeps
-its place, the translucent batches untouched; with it under another program's load DrawMesh reads
-8.9 to 12.9 ms where 14.4 to 21.2 and the entities 12.4 to 14.6 where 10.5 to 15.0, the frames
-matching within the run-to-run spread, and models.draws prints the pipelines the views' passes
-bound. Item 108's thousand meshes rebuilt in Release, all of one pipeline, cost 0.03 to 0.15 ms more
-of the pass's recording, and with toon.slang solid and cut out by turns read 2.45 to 2.60 ms where
-3.19 to 3.30 with the frame 6.96 to 7.26 where 7.56 to 7.99, DrawMesh and the entities alike.
-ModelOrderTests reads sixteen alternating program-shader cubes binding two pipelines where sixteen
-bound without the order, and a sky drawn with depth writes off between two cubes of one pipeline
-covering what came before it alone, each failing without its part. 2,118 on the GPU in both orders,
-141 on lavapipe with validation, the strict build clean, the models guide's many-copies section
-saying how opaque draws are ordered. The coder cleared about 10 GB of its finished items' scratch
-after a disk-quota failure on /tmp. After `23b4793b`, item 124, the mesh entity's shadow and bounce
-flags, read at 18:54 on 2026-10-25, carrying ASKS.md, REVIEW.md with a Shared line and SHARED.md,
-pushed at 20:15 on 2026-10-25 once the build run of `4c9cf7e4` went green whole, the fifth pack run
-started with publish on at 20:15 for the game's remaining parts; both runs red within three minutes
-at 20:17 on the runners' dotnet install, Verdict 92, green on the fourth attempt of 21:26 once the
-feed settled, the push run whole at 23:06 with Windows in 102 minutes, Linux in 63 and macOS in 32,
-the pack run green whole at 23:42 with Windows in 100 minutes, the games in 72 and the captures in
-54 and 56, the package 5.2.316 pushed to nuget.org with items 124 and 100's first part. CastsShadows
-and BouncesLight stand on the ECS Material set true by its constructors as DoubleSided is, a scene
+2026-10-25 once the build run of `23b4793b` went green whole, their run green whole at 00:50,
+Windows in 101 minutes, Linux in 39 and macOS in 35. The cause is the order of the draws and not
+their work, both paths making the same draws through the same pipelines with the same culling, depth
+state and coverage; DrawMesh brought each section's solid, cut-out and lava parts by turns, each a
+batch alone through the terrain shader's solid or cut-out pipeline, so the pass bound a pipeline 315
+times a frame against 7 for the entities. On scratch game copies at the grove at 1080p High the
+GPU's scene pass read 13.1 to 14.1 ms for DrawMesh in its own order, 9.3 to 10.8 for the entities,
+11.8 to 13.0 for DrawMesh nearest first, 9.2 to 10.6 by pipeline and 8.4 to 9.0 by pipeline and
+nearest first within it. ModelRenderer.Order.cs plans each seen batch with its pipeline and orders
+the opaque ones by pipeline in order of first appearance and nearest first within it, each run
+between two batches that write no depth ordered apart so a sky drawn first keeps its place, the
+translucent batches untouched; with it under another program's load DrawMesh reads 8.9 to 12.9 ms
+where 14.4 to 21.2 and the entities 12.4 to 14.6 where 10.5 to 15.0, the frames matching within the
+run-to-run spread, and models.draws prints the pipelines the views' passes bound. Item 108's
+thousand meshes rebuilt in Release, all of one pipeline, cost 0.03 to 0.15 ms more of the pass's
+recording, and with toon.slang solid and cut out by turns read 2.45 to 2.60 ms where 3.19 to 3.30
+with the frame 6.96 to 7.26 where 7.56 to 7.99, DrawMesh and the entities alike. ModelOrderTests
+reads sixteen alternating program-shader cubes binding two pipelines where sixteen bound without the
+order, and a sky drawn with depth writes off between two cubes of one pipeline covering what came
+before it alone, each failing without its part. 2,118 on the GPU in both orders, 141 on lavapipe
+with validation, the strict build clean, the models guide's many-copies section saying how opaque
+draws are ordered. The coder cleared about 10 GB of its finished items' scratch after a disk-quota
+failure on /tmp. After `23b4793b`, item 124, the mesh entity's shadow and bounce flags, read at
+18:54 on 2026-10-25, carrying ASKS.md, REVIEW.md with a Shared line and SHARED.md, pushed at 20:15
+on 2026-10-25 once the build run of `4c9cf7e4` went green whole, the fifth pack run started with
+publish on at 20:15 for the game's remaining parts; both runs red within three minutes at 20:17 on
+the runners' dotnet install, Verdict 92, green on the fourth attempt of 21:26 once the feed settled,
+the push run whole at 23:06 with Windows in 102 minutes, Linux in 63 and macOS in 32, the pack run
+green whole at 23:42 with Windows in 100 minutes, the games in 72 and the captures in 54 and 56, the
+package 5.2.316 pushed to nuget.org with items 124 and 100's first part. CastsShadows and
+BouncesLight stand on the ECS Material set true by its constructors as DoubleSided is, a scene
 file's older entries reading them true since the reader starts from Material.Default,
 MeshEntityDraws passing them to the draw and the group key gaining both so entities that differ
 never share a batch; the guide's Mesh entities section shows a water entity casting no shadow, its
@@ -253,12 +284,12 @@ reference frame and cascade edge tests on lavapipe with validation. Item 96 begi
 the game's 5.2.215 build at the cherry grove at 1920 by 1080, each part of the per-pixel read cut
 out in turn to tell what runs per fragment from the variant's registers, the window's depth at half
 size and the scene pass shading with overdraw pointing at a half-size pass over the window's depth
-with a two by two depth and normal read, as the glow pass has. Next 100's second part, then 111, the
-shadow's penumbra, then 112, the planar reflection, then 93, the colons out of the documents, then
-91, DESIGN.md's words on the loop and the ECS, then the glow light's non-number and the history's
-guard, then 95, the e3d help, then item 89, the plant walls' acne, then 97, the light at the
-camera's point on lavapipe. The branch `modeling` was deleted at 07:23 with its items all on main, N
-7.5; the cloud sessions stand by.
+with a two by two depth and normal read, as the glow pass has. Next 111, the shadow's penumbra, then
+112, the planar reflection, then 93, the colons out of the documents, then 91, DESIGN.md's words on
+the loop and the ECS, then the glow light's non-number and the history's guard, then 95, the e3d
+help, then item 89, the plant walls' acne, then 97, the light at the camera's point on lavapipe. The
+branch `modeling` was deleted at 07:23 with its items all on main, N 7.5; the cloud sessions stand
+by.
 
 Before it, `a8f127ad` came, item 108's third phase, with `ac1c6bad`, item 120, pushed at 06:43 on
 2026-10-25 once the build run of `6a20d165` went green whole, its build run green whole at 07:41,
@@ -1198,23 +1229,6 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     camera's own point and reading the frame for black pixels, red before the mend. One commit,
     after item 95.
 
-100. **The field lets a share of light through a cell marked as foliage.** From the voxel game's
-    reading of 2026-10-24, read at 14:02, its ASKS.md entry of 2026-10-24 carrying the table of its
-    readings. The game's rain forest floor at noon is near black where the source lights it at 13 of
-    15, since the canopy shadows the sun and the field holds the leaves solid, so no sky light
-    reaches the floor through the probes; the game lifts the floor by its sky level meanwhile. A
-    cell written into the field can carry a transmittance, a share of the light passing it, set by
-    the program for leaves and the like through the field's write, the cascades' march taking that
-    share off a ray that crosses the cell rather than stopping and the cell's color bouncing the
-    rest, the sun's shadow through the shadow map unchanged; the cost read on the bounce rooms and
-    the voxel game's grove at both sizes, the readings against the references under the
-    covered-fault rule, a test of a plane under a slab of foliage cells at a half reading about half
-    the open plane's sky light, and the guide's page saying how a program marks foliage. One or two
-    commits, after item 96 and before 93. The first part at `4c9cf7e4` on 2026-10-25, LightThrough
-    on both materials with the rays crossing up to four surfaces and gi_screen shading in two
-    places, the departure in the head; the second part, the grove's readings, the canopy's picture
-    and the crossing's cost with leaves, after item 124.
-
 111. **The sun's shadow softens with the distance from its caster.** From the voxel game's item 43
     at 22:29 on 2026-10-24, its ASKS.md entry of 2026-10-24; the look the owner aims at has a warm
     low sun with long soft shadows, and the package has no soft-shadow call beside
@@ -1953,3 +1967,9 @@ depth apart (item 125). Small draws alternating between two pipelines, a voxel g
 cut-out section faces through `DrawMesh`, bound a pipeline 315 times a frame and took the scene pass
 13.1 to 14.1 ms on the GPU, where by pipeline 9.2 to 10.6 and nearest first within it 8.4 to 9.0;
 the order costs 0.03 to 0.15 ms of recording for a thousand draws of one pipeline in Release.
+
+Shared: the sun can be given a width across (`SetShadowSoftness`, degrees, 0 by default), its
+cascades then read as percentage-closer soft shadows, a 16-tap blocker search and a 16-tap bilinear
+filter on a golden-angle disc, each tap compared with the receiver's depth along its own plane,
+solved from the normal and the cascade's rows (item 111). It costs the voxel game's grove 0.7 to
+1.2 ms of the scene pass at 1920 by 1080, most of it the search, and nothing at the default.

@@ -85,6 +85,22 @@ public static partial class E3D
         World.GetOrInsertResource(() => new ShadowSettings()).Fill = enabled;
 
     /// <summary>
+    /// Sets how wide the sun looks across, in degrees, which softens its shadow's edge the further
+    /// the shadow falls from what casts it, 0 by default, an edge as sharp at a pole's tip as at its
+    /// foot. The sun seen from the earth is 0.53 degrees across.
+    /// </summary>
+    /// <remarks>
+    /// Each point the sun's shadow map holds looks for what shades it over a width its depth in the
+    /// map sets, and takes the light the map lets through over the width that what shades it, as
+    /// far off as it is, spreads the sun's disc to, so a shadow is sharp where a caster meets the
+    /// ground and soft where it falls far from it. The width is held to 24 of a cascade's texels, so
+    /// past that a cascade's shadow is as soft as it gets. The spot and point lights' shadows keep
+    /// their edges, and so do the contact shadows through the scene's distance field.
+    /// </remarks>
+    public static void SetShadowSoftness(float size) =>
+        World.GetOrInsertResource(() => new ShadowSettings()).Softness = Math.Clamp(size, 0, 20);
+
+    /// <summary>
     /// Sets where the sun's contact shadows through the scene's distance field darken its light,
     /// everywhere the field reaches (<see cref="ContactShadows.On"/>, the default), past the shadow
     /// map's reach alone, or nowhere.
