@@ -64,10 +64,12 @@ public struct Ball
 
 A program opens a window, draws each frame with static calls and closes the window, and every
 call it can make is on one [cheatsheet](https://github.com/EggyStudio/3DEngine/blob/main/CHEATSHEET.md). Dear ImGui works between
-`BeginDrawing` and `EndDrawing` with no setup. Under the flat API is an ECS whose behaviors are
-`[Behavior]` structs like `Ball`, whose fields are each entity's state and whose methods a source
-generator turns into systems. It runs inside the same frames, so a program uses as much of it as it
-needs. [DESIGN.md](https://github.com/EggyStudio/3DEngine/blob/main/.github/DESIGN.md#5-the-ecs-underneath) shows the rest of it, and
+`BeginDrawing` and `EndDrawing` with no setup. Beside the flat API is an ECS, this engine's own,
+whose behaviors are `[Behavior]` structs like `Ball`, whose fields are each entity's state and
+whose methods a source generator turns into systems. It runs inside the same frames, and both are
+the engine's way, the loop for the frame, the drawing and the interface and the ECS for the things
+that move and the data that lives across frames, as [The loop and the ECS](https://github.com/EggyStudio/3DEngine/blob/main/docs/the-loop-and-the-ecs.md)
+says. [DESIGN.md](https://github.com/EggyStudio/3DEngine/blob/main/.github/DESIGN.md#5-the-loop-and-the-ecs) shows the rest of it, and
 [ARCHITECTURE.md](https://github.com/EggyStudio/3DEngine/blob/main/.github/ARCHITECTURE.md) how it is built.
 
 ## Contents
@@ -218,6 +220,7 @@ using the engine, a page an area, each built on an example that runs, read in or
 |---|---|
 | [CHEATSHEET.md](https://github.com/EggyStudio/3DEngine/blob/main/CHEATSHEET.md) | Every public function of the library on one line, grouped as the pages are |
 | [A first game](https://github.com/EggyStudio/3DEngine/blob/main/docs/first-game.md) | From `dotnet new 3dengine` to a small finished game in twelve steps, each a few lines and a picture |
+| [The loop and the ECS](https://github.com/EggyStudio/3DEngine/blob/main/docs/the-loop-and-the-ecs.md) | The engine's two ways, which fits where, a behavior that moves things and a loop that draws them, and the voxel game's split |
 | [The window and the frame](https://github.com/EggyStudio/3DEngine/blob/main/docs/window-and-frame.md) | Opening a window, the loop, time, the window's state and ImGui in the frame |
 | [Drawing in 2D](https://github.com/EggyStudio/3DEngine/blob/main/docs/drawing-2d.md) | Shapes, colors, text, splines, a 2D camera and collision |
 | [Drawing in 3D and cameras](https://github.com/EggyStudio/3DEngine/blob/main/docs/drawing-3d-and-cameras.md) | 3D shapes, moving a camera, projections, picking and drawing into a texture |
@@ -277,8 +280,8 @@ Early, and used for small games. The flat API carries most of raylib's API, the 
 audio streams, text in fonts, render targets, Slang shaders for shapes and models, compute shaders,
 lights with shadows, an environment map and reflection probes, global illumination and glossy
 reflections, physics, states and scenes, with ImGui in the same frame. The ECS, the
-scheduler and behaviors run underneath, and a game ships as one native executable through native
-AOT. What is missing:
+scheduler and behaviors run in the same frames as the loop, and a game ships as one native
+executable through native AOT. What is missing:
 
 - **Some of raylib is not carried**, as the shapes texture and the file callbacks, and
   [the comparison with raylib](https://github.com/EggyStudio/3DEngine/blob/main/docs/compared-with-raylib.md)

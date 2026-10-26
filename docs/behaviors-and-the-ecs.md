@@ -1,9 +1,10 @@
 # Behaviors and the ECS
 
-Under the flat API is an entity component system. An entity is a number, a component is a struct
-of data an entity has, and a behavior is a struct whose methods run every frame over the entities
-that have it. A program can start with the loop alone and move its game into behaviors one piece
-at a time, since both run in the same frames.
+Beside the flat API is an entity component system, the engine's own. An entity is a number, a
+component is a struct of data an entity has, and a behavior is a struct whose methods run every
+frame over the entities that have it. A program can start with the loop alone and move its game into
+behaviors one piece at a time, since both run in the same frames, and [The loop and the
+ECS](the-loop-and-the-ecs.md) says which fits where.
 
 ## A behavior
 
@@ -578,6 +579,7 @@ before the next builds one.
   [`ecs_physics`](../3DEngine.Examples/Ecs/EcsPhysics.cs),
   [`ecs_animated_models`](../3DEngine.Examples/Ecs/EcsAnimatedModels.cs), and the game
   [`games/Swarm`](../games/Swarm/Program.cs), written in behaviors with a script tuned as it runs
-- [DESIGN.md](../.github/DESIGN.md#5-the-ecs-underneath), on why the ECS sits under the flat API
+- [The loop and the ECS](the-loop-and-the-ecs.md), on which fits where
+- [DESIGN.md](../.github/DESIGN.md#5-the-loop-and-the-ecs), on the loop and the ECS as the engine's two ways
 - Previous: [Physics](physics.md)
 - Next: [States](states.md)

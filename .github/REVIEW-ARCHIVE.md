@@ -4114,6 +4114,18 @@ batch.
     2026-10-26, TextEdit, EditText, DrawTextEdit and IsTextInputActive under Input, the game to draw
     its own box on EditText with the package.
 
+93. **No running sentence holds a colon, across the documents, the comments and the scripts.** The
+    owner wrote at about 10:34 on 2026-10-24 that some documents join sentences with a colon and
+    that STYLE.md forbids it, the devlog among them. STYLE.md's own check, the awk over the Markdown
+    files outside their code and the grep over the comments and scripts, lists the hits, and each is
+    read and recast as STYLE.md says, a sentence of its own or the same sentence recast, a label at
+    a line's end or in a table left as it is, over the guides under docs, RENDERING.md, E3D.md,
+    CHEATSHEET.md's comment lines, ASKS.md's entries, and the comments of the code and the scripts;
+    the review's files are the reviewing session's own and are not touched. One commit, docs and
+    comments only, after item 92. Done at `bb542fa4` on 2026-10-26, 125 files of comments and
+    documents recast, the 200 hits left labels, named arguments, a URL and raylib's own text,
+    ASKS.md's hits the Review labels.
+
 ## Verdicts settled
 
 Verdicts 1 to 55 are settled, the last two, the drawing leak test's resident bound and the Windows

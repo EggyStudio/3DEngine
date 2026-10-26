@@ -325,4 +325,5 @@ it over, for the ECS, plugins and resources, which run inside the same frames as
   and saves a screenshot
 - The cheatsheet's [Window and timing](../CHEATSHEET.md#window-and-timing) and
   [Frame and cameras](../CHEATSHEET.md#frame-and-cameras)
+- Previous: [The loop and the ECS](the-loop-and-the-ecs.md)
 - Next: [Drawing in 2D](drawing-2d.md)

@@ -10,44 +10,58 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `0754b975`, item 128, a line of text edited, read at 09:29 on 2026-10-26, carrying
-the review's files with a Shared line, SHARED.md, DEVLOG.md, TODO.md and a captioned picture, held
-until the build run of `2f5237f2` ends, the eighth pack run to start with it. TextEdit holds the
-text, the caret, the anchor, the scroll and focus, the caret and anchor counting chars and editing
-moving them by text elements so no surrogate pair or mark is split, with SelectedText; EditText(ref
-edit, box, most) and an overload with a font and size for a program drawing its own look, since
-clicks and scroll are measured in the font the field is drawn in, the short forms taking the default
-font at 0.6 of the box height and 10 at least; DrawTextEdit(edit, box) in dark gray on RayWhite and
-DrawTextEdit(edit, box, font, size, text, background) with the border, caret and selection in the
-text color at 0.3 opacity, the border 2 px while focused, the caret blinking half of each second
-from its last move, the text clipped inside the border within any scissor the program set, which it
-gets back; IsTextInputActive true from the frame an edit takes the keyboard to the frame after its
-last update and while a Tab pass is pending. Characters go in up to most text elements, 0 or less no
-limit, Ctrl or Cmd blocking typed characters; the arrows, Home and End move the caret and Ctrl or
-Cmd with an arrow by words, Shift or a drag selects, Backspace and Delete remove the selection or a
-character, a word with Ctrl, repeating while held, Ctrl or Cmd with A, C, X and V select all, copy,
-cut and paste with a paste's newlines and tabs made spaces and other control characters dropped, a
-click in the box focuses and places the caret and one outside unfocuses, Tab goes to the next edit
-updated that frame or past the last to the first next frame, Shift and Tab to the previous resolved
-next frame, the edit given focus selecting all and taking no keys in the Tab's frame,
-SetTextInputArea placed at the caret every focused frame, Enter or KpEnter answering true.
-E3DTextEditTests drives Input in a headless app through three cases, typing to the limit with Enter
-and focus, the caret, selection, clipboard and deletions with repeat, and a drag with Tab and Shift
-Tab across two edits, a scratch program on the RTX showing the selection, clipping, focus border and
-blink; docs/input.md gains Editing a line of text with two blocks built on the package,
-text-and-fonts.md links to it and TODO.md's input entry names it, the cheat sheet under Input after
-SetTextInputArea and PublicApi.txt with 13 lines. The strict build clean, 2,130 on the GPU in order
-and shuffled before a last doc-comment rewrap, after which the edit, cheat sheet and norm tests
-passed, lavapipe not run with nothing of the renderer changed. After `2f5237f2`, item 127, a ray
-crossing a canopy's leaves shaded twice at most, read at 08:50 on 2026-10-26, carrying ASKS.md, the
-review's files with a Shared line, SHARED.md, DEVLOG.md, a reading in RENDERING.md, a note and a
-captioned grove picture, pushed at 08:52 once the build run of `78946b22` went green whole, its run
-watched, the eighth pack run to start with item 128. In gi_trace.slang's crossing build and
-gi_screen.slang the loop only marches and adds up shares, the first light-through surface a ray
-crosses standing for every one it crosses and shaded once after the march for the share they take
-together, the surface the ray stops at shaded once for the share that reaches it, so a ray is shaded
-twice at most and never inside the march with the transmittance unchanged; gi.toggle through off
-stops both stages' rays at such surfaces as at solid ones, the merge still seeing past them, the
+Reviewed up to `bb542fa4`, item 93, the colons out of the comments and documents, read at 10:01 on
+2026-10-26, 125 files of comments and documents alone, carrying the review's files with a Reply,
+SHARED.md and DEVLOG.md, held with `0754b975` until the build run of `2f5237f2` ends, the two pushed
+together then and the eighth pack run started with them. STYLE.md's code check went from 393 hits to
+200, the 200 left labels, a vector's components, named arguments in code examples, a URL, raylib's
+header title and the raymarching shader's license text, a quoted header in coverage.py and
+field_splat's z and w pair; the check reading whole-comment lines alone, about fifteen trailing
+comments after code in the examples, their shaders, AudioServerTests and SdlAudioBackend were recast
+too, the one left the Event text inside the automation exporter's string, raylib's file format.
+RENDERING.md's glow lights paragraph, docs/scenes.md, FeatureTest's README and item 96's note of
+2026-10-25 recast, the note's hit the one DEVLOG.md showed, cleared at this regeneration; what the
+awk still finds in the docs are the Examples, Previous and Next labels and named arguments in code
+spans, E3D.md and the cheat sheet clean. ASKS.md's 45 hits are the Review labels at their lines'
+starts, the reviewer's and an allowed label, no join behind them. The strict build clean, 2,130 on
+the GPU in order and shuffled. After `0754b975`, item 128, a line of text edited, read at 09:29 on
+2026-10-26, carrying the review's files with a Shared line, SHARED.md, DEVLOG.md, TODO.md and a
+captioned picture, held until the build run of `2f5237f2` ends, the eighth pack run to start with
+it. TextEdit holds the text, the caret, the anchor, the scroll and focus, the caret and anchor
+counting chars and editing moving them by text elements so no surrogate pair or mark is split, with
+SelectedText; EditText(ref edit, box, most) and an overload with a font and size for a program
+drawing its own look, since clicks and scroll are measured in the font the field is drawn in, the
+short forms taking the default font at 0.6 of the box height and 10 at least; DrawTextEdit(edit,
+box) in dark gray on RayWhite and DrawTextEdit(edit, box, font, size, text, background) with the
+border, caret and selection in the text color at 0.3 opacity, the border 2 px while focused, the
+caret blinking half of each second from its last move, the text clipped inside the border within any
+scissor the program set, which it gets back; IsTextInputActive true from the frame an edit takes the
+keyboard to the frame after its last update and while a Tab pass is pending. Characters go in up to
+most text elements, 0 or less no limit, Ctrl or Cmd blocking typed characters; the arrows, Home and
+End move the caret and Ctrl or Cmd with an arrow by words, Shift or a drag selects, Backspace and
+Delete remove the selection or a character, a word with Ctrl, repeating while held, Ctrl or Cmd with
+A, C, X and V select all, copy, cut and paste with a paste's newlines and tabs made spaces and other
+control characters dropped, a click in the box focuses and places the caret and one outside
+unfocuses, Tab goes to the next edit updated that frame or past the last to the first next frame,
+Shift and Tab to the previous resolved next frame, the edit given focus selecting all and taking no
+keys in the Tab's frame, SetTextInputArea placed at the caret every focused frame, Enter or KpEnter
+answering true. E3DTextEditTests drives Input in a headless app through three cases, typing to the
+limit with Enter and focus, the caret, selection, clipboard and deletions with repeat, and a drag
+with Tab and Shift Tab across two edits, a scratch program on the RTX showing the selection,
+clipping, focus border and blink; docs/input.md gains Editing a line of text with two blocks built
+on the package, text-and-fonts.md links to it and TODO.md's input entry names it, the cheat sheet
+under Input after SetTextInputArea and PublicApi.txt with 13 lines. The strict build clean, 2,130 on
+the GPU in order and shuffled before a last doc-comment rewrap, after which the edit, cheat sheet
+and norm tests passed, lavapipe not run with nothing of the renderer changed. After `2f5237f2`, item
+127, a ray crossing a canopy's leaves shaded twice at most, read at 08:50 on 2026-10-26, carrying
+ASKS.md, the review's files with a Shared line, SHARED.md, DEVLOG.md, a reading in RENDERING.md, a
+note and a captioned grove picture, pushed at 08:52 once the build run of `78946b22` went green
+whole, its run watched, the eighth pack run to start with item 128. In gi_trace.slang's crossing
+build and gi_screen.slang the loop only marches and adds up shares, the first light-through surface
+a ray crosses standing for every one it crosses and shaded once after the march for the share they
+take together, the surface the ray stops at shaded once for the share that reaches it, so a ray is
+shaded twice at most and never inside the march with the transmittance unchanged; gi.toggle through
+off stops both stages' rays at such surfaces as at solid ones, the merge still seeing past them, the
 settings' doc saying so. At seed 1's cherry grove at item 125's view at 1920 by 1080 on powersave
 the crossing costs 1.95 to 2.06 ms at High where 2.55 to 2.70, global illumination 5.25 to 5.42
 where 5.93 to 6.23 and 3.30 to 3.53 with the crossing off, and at Low 1.06 to 1.08 where 1.48 to
@@ -413,11 +427,11 @@ reference frame and cascade edge tests on lavapipe with validation. Item 96 begi
 the game's 5.2.215 build at the cherry grove at 1920 by 1080, each part of the per-pixel read cut
 out in turn to tell what runs per fragment from the variant's registers, the window's depth at half
 size and the scene pass shading with overdraw pointing at a half-size pass over the window's depth
-with a two by two depth and normal read, as the glow pass has. Next 93, the colons out of the
-documents, then 91, DESIGN.md's words on the loop and the ECS, then the glow light's non-number and
-the history's guard, then 95, the e3d help, then item 89, the plant walls' acne, then 97, the light
-at the camera's point on lavapipe. The branch `modeling` was deleted at 07:23 with its items all on
-main, N 7.5; the cloud sessions stand by.
+with a two by two depth and normal read, as the glow pass has. Next 91, DESIGN.md's words on the
+loop and the ECS, then the glow light's non-number and the history's guard, then 95, the e3d help,
+then item 89, the plant walls' acne, then 97, the light at the camera's point on lavapipe. The
+branch `modeling` was deleted at 07:23 with its items all on main, N 7.5; the cloud sessions stand
+by.
 
 Before it, `a8f127ad` came, item 108's third phase, with `ac1c6bad`, item 120, pushed at 06:43 on
 2026-10-25 once the build run of `6a20d165` went green whole, its build run green whole at 07:41,
@@ -1327,16 +1341,6 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     are. One commit, docs only, after item 90; the gaps the game's port finds come to this engine
     through ASKS.md as items ahead of its other work, by the Decision.
 
-93. **No running sentence holds a colon, across the documents, the comments and the scripts.** The
-    owner wrote at about 10:34 on 2026-10-24 that some documents join sentences with a colon and
-    that STYLE.md forbids it, the devlog among them. STYLE.md's own check, the awk over the Markdown
-    files outside their code and the grep over the comments and scripts, lists the hits, and each is
-    read and recast as STYLE.md says, a sentence of its own or the same sentence recast, a label at
-    a line's end or in a table left as it is, over the guides under docs, RENDERING.md, E3D.md,
-    CHEATSHEET.md's comment lines, ASKS.md's entries, and the comments of the code and the scripts;
-    the review's files are the reviewing session's own and are not touched. One commit, docs and
-    comments only, after item 92.
-
 95. **A verb of ./e3d with --help prints its help and opens nothing.** At about 11:11 on 2026-10-24,
     and once before at 10:0x, `./e3d open --help` passed --help and --serve through to the default
     example and opened core_3d_camera_free in a shown window on the owner's desktop, which they
@@ -2112,3 +2116,7 @@ examples, the shaders, the games and the scripts are recast, trailing comments a
 them, which the check does not read. What the check still finds is a label, a vector's components,
 named arguments in a code example, a URL, raylib's own header and license text, and a quoted
 header. DEVLOG.md's one hit comes from item 96's note, recast for its next regeneration.
+
+91: AGENTS.md's opening still says the ECS runs underneath for programs that grow into it, which
+DESIGN.md, the README and the guide no longer say; AGENTS.md changes only by the owner's word, so
+its line is left for the owner.

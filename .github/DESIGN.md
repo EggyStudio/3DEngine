@@ -1,10 +1,12 @@
 # Design
 
 How 3DEngine is meant to be used, and the rules its public surface follows. The model is raylib,
-where a program opens a window, loops over frames, draws in each one with plain function calls and closes
-the window, and every function it can call fits on one cheatsheet. Dear ImGui is used the same way,
-inside the same frame. The ECS and the behaviors underneath are available to a program that grows
-into them, and a program that does not use them never sees them.
+where a program opens a window, loops over frames, draws in each one with plain function calls and
+closes the window, and every function it can call fits on one cheatsheet. Dear ImGui is used the
+same way, inside the same frame. The ECS and its behaviors are the engine's own over raylib, and the
+loop and the ECS are both the engine's way, run in the same frames, a program choosing by what fits,
+the loop for the frame, the drawing and the interface and the ECS for the things that move and the
+data that lives across frames (§5). A program that uses the loop alone never sees the ECS.
 
 The engine is C# on .NET 10, with SDL3 for the window, input and audio, Vulkan for drawing, Dear
 ImGui for interfaces and Slang for shaders. It runs on Linux, Windows and macOS (through MoltenVK).
@@ -139,7 +141,18 @@ EndDrawing();
 ImGui is drawn last, over everything else. `E3D` never wraps ImGui's own API, because ImGui
 is already immediate and flat, and a second name for each widget would be a second cheatsheet.
 
-## 5. The ECS underneath
+## 5. The loop and the ECS
+
+The loop and the ECS are both the engine's way, and a program chooses by what fits. The loop of
+flat calls fits the frame, the drawing and the interface, where raylib's way reads best, a call
+saying what it does where it is made. The ECS fits the things that move and the data that lives
+across frames, where behaviors, queries, states and the schedule read best, the code beside the
+data it runs over and the work spread over threads. A game takes each where it fits, and the voxel
+game [Voxel-Sandbox](https://github.com/EggyStudio/Voxel-Sandbox) is the model of the split, its
+player, mobs, dropped stacks and the parts of its world's sections entities, and its loading, mode
+and menus states, while its loop runs the frame, draws the world and puts the interface on top.
+[The loop and the ECS](../docs/the-loop-and-the-ecs.md) says when each fits with an example of
+each.
 
 `GetApp()` returns the app `InitWindow` built. A program reaches the ECS through it, and anything
 registered there runs inside the frames the loop drives:
@@ -179,9 +192,10 @@ stamp made before it, as Bevy's does, so the two engines agree, and removals are
 frames, which bounds the memory they hold.
 
 The flat functions work inside systems too, when the app is the one `InitWindow` built, so an
-`[OnRender]` method can call `DrawCube`. A game that outgrows the loop moves its logic into
-behaviors one piece at a time, and nothing in the flat API has to be unlearned. The `ecs_behaviors`
-example moves balls in a behavior and draws them from the loop.
+`[OnRender]` method can call `DrawCube`. A game begun in the loop moves a part into behaviors when
+the part grows into many things or lives across screens, one piece at a time, and nothing in the
+flat API has to be unlearned. The `ecs_behaviors` example moves balls in a behavior and draws them
+from the loop.
 
 ## 6. Resources the program owns
 
