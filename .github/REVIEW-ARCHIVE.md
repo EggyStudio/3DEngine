@@ -4146,6 +4146,15 @@ batch.
     voxel game as the model, the guide page docs/the-loop-and-the-ecs.md and the README's row and
     paragraph; AGENTS.md's opening line left for the owner's word.
 
+95. **A verb of ./e3d with --help prints its help and opens nothing.** At about 11:11 on 2026-10-24,
+    and once before at 10:0x, `./e3d open --help` passed --help and --serve through to the default
+    example and opened core_3d_camera_free in a shown window on the owner's desktop, which they
+    noticed. The client answers --help on any verb with that verb's usage from E3D.md's words and
+    exits, before any process is started; a test of the client's open with --help starting no
+    process. One commit, small, with the next batch. Done at `5528c55c` on 2026-10-26, --help after
+    a verb answered before dispatch with the verb's own lines, a non-verb refused with exit 2, the
+    case under NeedsClientFact.
+
 ## Verdicts settled
 
 Verdicts 1 to 55 are settled, the last two, the drawing leak test's resident bound and the Windows

@@ -10,8 +10,25 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `d207627e`, item 91, DESIGN.md's words on the loop and the ECS, read at 10:05 on
-2026-10-26, documents alone, carrying the review's files with a Reply and DEVLOG.md, pushed with
+Reviewed up to `5528c55c`, item 95, a verb of ./e3d with --help printing its help and opening
+nothing, read at 10:36 on 2026-10-26, carrying the review's files and DEVLOG.md, held until the
+build run of `d207627e` ends. Program.cs answers --help or -h anywhere after a verb with
+Help.Print(options, verb) before dispatching, so open, eval and the rest are never reached;
+Help.Print(verb) prints the verb's own lines of the usage text with their continuations and the line
+on the flags every verb shares, an alias answered with its verb's lines and a word that is no verb
+refused with BAD_ARGUMENT and exit 2 as dispatch refuses it; the usage text lost its colons and
+gained a line saying a verb followed by --help prints its own lines and does nothing else, E3D.md's
+Reading the answer section saying the same. CliTests gains a case under a new NeedsClientFact,
+skipped where the client is not built beside the tests, running the built client with open on a
+program that writes a marker when started and expecting exit 0, open's lines and not status's and no
+marker, then cmd -h answering with command's usage and a non-verb exiting 2, the case failing on
+HEAD's client by the exit code and passing with the mend. The strict build clean, 2,131 on the GPU
+in order and shuffled. On item 89 the coder reads two candidates, the model pass flipping a
+two-sided face's normal toward the eye for shading while passing the unflipped vertex normal to
+lightReaching, so a cut-out face lit from its back is offset away from the sun before the lookup,
+and the grazing angle a normal offset cannot help, the wheat room to be built and both read against
+the reference. After `d207627e`, item 91, DESIGN.md's words on the loop and the ECS, read at 10:05
+on 2026-10-26, documents alone, carrying the review's files with a Reply and DEVLOG.md, pushed with
 `0754b975` and `bb542fa4` in one push at 10:10 on 2026-10-26 once the build run of `2f5237f2` went
 green whole, the eighth pack run started with publish on at 10:10 for the game, the two runs of
 `d207627e` watched. DESIGN.md's opening says the ECS and its behaviors are the engine's own over
@@ -446,9 +463,12 @@ reference frame and cascade edge tests on lavapipe with validation. Item 96 begi
 the game's 5.2.215 build at the cherry grove at 1920 by 1080, each part of the per-pixel read cut
 out in turn to tell what runs per fragment from the variant's registers, the window's depth at half
 size and the scene pass shading with overdraw pointing at a half-size pass over the window's depth
-with a two by two depth and normal read, as the glow pass has. Next 95, the e3d help, then item 89,
-the plant walls' acne, then 97, the light at the camera's point on lavapipe. The branch `modeling`
-was deleted at 07:23 with its items all on main, N 7.5; the cloud sessions stand by.
+with a two by two depth and normal read, as the glow pass has. Next item 89, the plant walls' acne,
+then 97, the light at the camera's point on lavapipe. The branch `modeling` was deleted at 07:23
+with its items all on main, N 7.5; the cloud sessions stand by. The owner asked at 10:45 on
+2026-10-26 for quick links to the devlog and the cheat sheet at the very top of the README, plain
+links to the files; the reviewer wrote the line as the README's first line with full addresses as N
+4.3 has them, the coder committing README.md alone.
 
 Before it, `a8f127ad` came, item 108's third phase, with `ac1c6bad`, item 120, pushed at 06:43 on
 2026-10-25 once the build run of `6a20d165` went green whole, its build run green whole at 07:41,
@@ -1340,13 +1360,6 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     lit face for stripes, the variance along it under a bound, failing without the mend;
     RENDERING.md's line under the shadows, the voxel game's plants' shadows the first to gain. One
     commit, after items 74 and 72's cherry-picks.
-
-95. **A verb of ./e3d with --help prints its help and opens nothing.** At about 11:11 on 2026-10-24,
-    and once before at 10:0x, `./e3d open --help` passed --help and --serve through to the default
-    example and opened core_3d_camera_free in a shown window on the owner's desktop, which they
-    noticed. The client answers --help on any verb with that verb's usage from E3D.md's words and
-    exits, before any process is started; a test of the client's open with --help starting no
-    process. One commit, small, with the next batch.
 
 97. **A point light at the camera's own point shades without black specks on lavapipe.** From the
     voxel game's reading of 2026-10-24, read at 12:21, its ASKS.md entry of 2026-10-24. The game

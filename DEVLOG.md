@@ -132,6 +132,7 @@ Done that day
   it fits, with the voxel game as the model (Decision 68).
 - Item 93 at `bb542fa4`. No running sentence holds a colon, across the documents, the comments and
   the scripts.
+- Item 95 at `5528c55c`. A verb of ./e3d with --help prints its help and opens nothing.
 - Item 100 at `a16227a7`. The field lets a share of light through a cell marked as foliage.
 - Item 111 at `45edfbf6`. The sun's shadow softens with the distance from its caster.
 - Item 112 at `78946b22`. A flat surface mirrors the scene through a planar reflection a program
