@@ -10,7 +10,7 @@ public static class ShadersRoundedRectangle
 {
     private struct RoundedRectangle
     {
-        public Vector4 cornerRadius;    // Each corner's: top left, top right, bottom left, bottom right
+        public Vector4 cornerRadius;    // Top left, top right, bottom left, bottom right
 
         public float shadowRadius;
         public Vector2 shadowOffset;

@@ -29,7 +29,7 @@ public sealed class Sound
     /// <summary>Sample rate in Hz (e.g. 44100, 48000).</summary>
     public required int SampleRate { get; init; }
 
-    /// <summary>Channel count: 1 = mono, 2 = stereo, 6 = 5.1, etc.</summary>
+    /// <summary>The channel count, 1 for mono, 2 for stereo, 6 for 5.1 and so on.</summary>
     public required int Channels { get; init; }
 
     /// <summary>Source asset path the loader resolved this from. Diagnostic only.</summary>

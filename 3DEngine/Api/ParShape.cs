@@ -19,7 +19,7 @@ internal sealed class ParShape
     public const double Pi = 3.14159265359;
 
     /// <summary>
-    /// par_shapes_create_parametric: <paramref name="surface"/> over a grid of
+    /// par_shapes_create_parametric, <paramref name="surface"/> over a grid of
     /// <paramref name="slices"/> by <paramref name="stacks"/>, given the stack's share and the
     /// slice's, each from 0 to 1, which are the texture coordinate too.
     /// </summary>
@@ -50,7 +50,7 @@ internal sealed class ParShape
         return shape;
     }
 
-    /// <summary>par_shapes_create_disk: a fan of <paramref name="slices"/> about the origin, turned to face <paramref name="normal"/>.</summary>
+    /// <summary>par_shapes_create_disk, a fan of <paramref name="slices"/> about the origin, turned to face <paramref name="normal"/>.</summary>
     /// <remarks>
     /// par_shapes turns the disk about the axis across its own normal and the normal asked for,
     /// which for a normal straight along z is of no length, so it is left as it is facing +z and
@@ -80,7 +80,7 @@ internal sealed class ParShape
         for (int i = 0; i < Points.Count; i++) Uvs.Add(new Vector2(value));
     }
 
-    /// <summary>par_shapes_scale: points scaled, and normals by the inverse where the scale differs along the axes.</summary>
+    /// <summary>par_shapes_scale, points scaled, and normals by the inverse where the scale differs along the axes.</summary>
     public void Scale(float x, float y, float z)
     {
         for (int i = 0; i < Points.Count; i++) Points[i] *= new Vector3(x, y, z);
@@ -91,7 +91,7 @@ internal sealed class ParShape
         for (int i = 0; i < Normals.Count; i++) Normals[i] = Normalize(Normals[i] * inverse);
     }
 
-    /// <summary>par_shapes_rotate: points and normals turned <paramref name="radians"/> about <paramref name="axis"/>.</summary>
+    /// <summary>par_shapes_rotate, points and normals turned <paramref name="radians"/> about <paramref name="axis"/>.</summary>
     public void Rotate(float radians, Vector3 axis)
     {
         float s = MathF.Sin(radians), c = MathF.Cos(radians);
@@ -110,7 +110,7 @@ internal sealed class ParShape
         for (int i = 0; i < Points.Count; i++) Points[i] += new Vector3(x, y, z);
     }
 
-    /// <summary>par_shapes_merge: another shape's points and triangles added after this one's.</summary>
+    /// <summary>par_shapes_merge, another shape's points and triangles added after this one's.</summary>
     public void Merge(ParShape other)
     {
         var offset = Points.Count;

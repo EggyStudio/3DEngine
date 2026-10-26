@@ -4090,6 +4090,30 @@ batch.
     twice at most and never in the march, the grove's crossing 2.6 to 2.0 ms at High and 1.6 to 1.1
     at Low, the floors alike to four places.
 
+128. **The interface has a text field to type into.** From the voxel game's item 134, read at 06:15
+    on 2026-10-26, its ASKS.md entry of 2026-10-26. The game typed a world's seed into a field of
+    its own drawn over GetCharPressed, IsKeyPressedRepeat and SetTextInputArea, the printable
+    characters to a length, Backspace with its repeat, a blinking caret and the input method's
+    window beside the box, with no caret moved by the arrows, Home or End, no selection, no copy,
+    paste or Delete, no click placing the caret and no Tab between fields, the program holding its
+    own keys while typing. The flat API has no widget set of its own, the only widgets being ImGui's
+    and BeginUi scoping what F1 hides, so no set is begun; the text input gains an editing state and
+    two calls, TextEdit holding the text, the caret, the selection's anchor and the scroll,
+    EditText(ref edit, box, most) taking the frame's input for an edit with focus, the characters to
+    a length, the caret moved by the arrows, Home, End and a click, a selection by Shift and the
+    mouse, copy, cut and paste through the clipboard, Delete and Backspace with repeat, focus by a
+    click in the box and Tab between the edits updated that frame in call order, the input method's
+    window at the caret, and answering whether Enter was pressed, and DrawTextEdit(edit, box, font,
+    size, colors) drawing the box, the text, the selection and the caret with the engine's shapes
+    and font in plain colors it documents, so a program draws its own look with EditText alone or
+    takes the default; IsTextInputActive() true while an edit has focus so a program's keys stand
+    aside. On the cheat sheet under Input beside GetCharPressed, in PublicApi.txt and in
+    docs/input.md's text input section with a block built on the package, with a test typing,
+    moving, selecting and pasting through the null device's input; the game takes it with the
+    package, drawing its own box. One commit, after item 127 and before 93. Done at `0754b975` on
+    2026-10-26, TextEdit, EditText, DrawTextEdit and IsTextInputActive under Input, the game to draw
+    its own box on EditText with the package.
+
 ## Verdicts settled
 
 Verdicts 1 to 55 are settled, the last two, the drawing leak test's resident bound and the Windows

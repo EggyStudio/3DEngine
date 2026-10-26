@@ -31,7 +31,7 @@ internal static class SceneHotReloadSystem
 {
     private static readonly ILogger Logger = Log.Category("Engine.Scenes");
 
-    /// <summary>One pass: handle every queued <see cref="AssetEvent{T}"/> for <see cref="SceneAsset"/>.</summary>
+    /// <summary>One pass, handling every queued <see cref="AssetEvent{T}"/> for <see cref="SceneAsset"/>.</summary>
     public static void Run(World world)
     {
         ArgumentNullException.ThrowIfNull(world);

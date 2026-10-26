@@ -1919,7 +1919,7 @@ cost a frame of an app of a cube 0.09 s on lavapipe at 320 by 180.
 
 **The glow lights with the screen's probes left out, read on 2026-10-21.** A program that leaves the
 screen's probes out (`SetGlobalIlluminationScreenProbes`) left each pixel to march to every glow
-light in view itself, a cost that grows with the lights: the Cornell box's model pass took 1.01 ms at
+light in view itself, a cost that grows with the lights; the Cornell box's model pass took 1.01 ms at
 800 by 450 where 0.30 with the probes, and 2.24 at 1280 by 720, the strip's room 1.13 where 0.29,
 `games/Ore` at night, sixty-four lit, 5.65 where 0.61, and the voxel game 12.9 with forty glowstones
 in view where 1.8. While a glow light is lit, the screen's probes now stand for the glow lights

@@ -4,7 +4,7 @@ using BepuPhysics.Collidables;
 
 namespace Engine;
 
-/// <summary>Character controllers: capsules walked toward a wanted velocity before every step.</summary>
+/// <summary>Character controllers, capsules walked toward a wanted velocity before every step.</summary>
 public sealed partial class PhysicsWorld
 {
     // Each character by its body's handle.

@@ -300,11 +300,11 @@ public static class TextStringsManagement
         particleCount--;
     }
 
-    // raylib's TextToPascal: the first letter and each after a run of underscores upper case, the
+    // raylib's TextToPascal, the first letter and each after a run of underscores upper case, the
     // underscores dropped.
     private static string TextToPascal(string text) => JoinWords(text, upperFirst: true);
 
-    // raylib's TextToCamel: as Pascal case with the first letter lower case.
+    // raylib's TextToCamel, as Pascal case with the first letter lower case.
     private static string TextToCamel(string text) => JoinWords(text, upperFirst: false);
 
     private static string JoinWords(string text, bool upperFirst)
@@ -330,8 +330,8 @@ public static class TextStringsManagement
         return buffer.ToString();
     }
 
-    // raylib's TextToSnake: a space or a word's capital starts a new word after an underscore, a
-    // run of capitals staying one word, and capitals go lower case.
+    // raylib's TextToSnake, where a space or a word's capital starts a new word after an
+    // underscore, a run of capitals staying one word, and capitals go lower case.
     private static string TextToSnake(string text)
     {
         var buffer = new StringBuilder();

@@ -30,7 +30,7 @@ public static class ModelsAnimationBlendCustom
         ModelAnimation[] anims = LoadModelAnimations("resources/models/gltf/greenman.glb");
         int animCount = anims.Length;
 
-        // Use specific animation indices: 2-walk/move, 3-attack
+        // The animations by index, 2 the walk and 3 the attack
         int animIndex0 = 2; // Walk/Move animation (index 2)
         int animIndex1 = 3; // Attack animation (index 3)
         int animCurrentFrame0 = 0;
@@ -40,7 +40,7 @@ public static class ModelsAnimationBlendCustom
         if (animIndex0 >= animCount) animIndex0 = 0;
         if (animIndex1 >= animCount) animIndex1 = (animCount > 1) ? 1 : 0;
 
-        bool upperBodyBlend = true;     // Toggle: true = upper/lower body blending, false = uniform blending (50/50)
+        bool upperBodyBlend = true;     // Blends the upper and lower body apart, or alike
 
         SetTargetFPS(60);
 
@@ -163,10 +163,10 @@ public static class ModelsAnimationBlendCustom
                     string boneName = model.Skeleton.Bones[boneIndex].Name;
                     bool isUpperBody = IsUpperBodyBone(boneName);
 
-                    // Upper body: use anim1 (attack), Lower body: use anim0 (walk)
+                    // The upper body takes anim1 (attack) and the lower body anim0 (walk).
                     // blend = 0.0 means full anim0 (walk), 1.0 means full anim1 (attack)
-                    if (isUpperBody) boneBlendFactor = blend; // Upper body: blend towards anim1 (attack)
-                    else boneBlendFactor = 1.0f - blend; // Lower body: blend towards anim0 (walk), the blend inverted
+                    if (isUpperBody) boneBlendFactor = blend; // Toward anim1 (attack)
+                    else boneBlendFactor = 1.0f - blend; // Toward anim0 (walk)
                 }
 
                 // Get transforms from both animations

@@ -1,7 +1,7 @@
 namespace Engine;
 
 /// <summary>
-/// Intent component: "spawn the scene behind <see cref="Handle"/> into the world as soon
+/// A component of intent, "spawn the scene behind <see cref="Handle"/> into the world as soon
 /// as the asset finishes loading, then remove me." Add this to a freshly spawned entity
 /// (typically alongside the request itself) and let <see cref="SceneSpawnSystem"/> do
 /// the rest.
@@ -11,7 +11,7 @@ namespace Engine;
 /// This is the request side of the standard "load, then spawn" workflow. The shortest
 /// way to author it from a behavior is the <see cref="SceneSpawnExtensions"/> helpers:
 /// <code>
-/// // one-call: load + queue a SpawnSceneRequest
+/// // in one call, load and queue a SpawnSceneRequest
 /// ctx.SpawnScene("scenes/teapot.usdz");
 ///
 /// // with placement

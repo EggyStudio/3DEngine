@@ -175,7 +175,8 @@ public class QueryFilterTests
     public void A_Query_Of_Five_Or_Six_Components_Finds_The_Entities_With_Them_All_And_Filters_As_The_Smaller_Do()
     {
         // A hundred entities with a velocity alone, so a walk of the velocities would visit them
-        // all, and three with more: the whole five, four of them, and the five on the ground.
+        // all, and three with more, one with the whole five, one with four of them, and one with
+        // the five on the ground.
         var ecs = new EcsWorld();
         for (int i = 0; i < 100; i++) ecs.Add(ecs.Spawn(), new Velocity());
         int Make(bool sized, bool grounded)

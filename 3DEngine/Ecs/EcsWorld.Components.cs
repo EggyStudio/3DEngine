@@ -87,7 +87,7 @@ public sealed partial class EcsWorld : IDisposable
         return GetOrCreateStoreSlow<T>();
     }
 
-    /// <summary>Slow path: creates and caches a new component store when the fast cache misses.</summary>
+    /// <summary>The slow path, which creates and caches a new component store when the fast cache misses.</summary>
     [MethodImpl(MethodImplOptions.NoInlining)]
     private ComponentStore<T> GetOrCreateStoreSlow<T>()
     {

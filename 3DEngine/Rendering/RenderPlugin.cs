@@ -158,7 +158,7 @@ internal sealed class RenderPlugin : IPlugin
 
         if (window is null)
         {
-            // Offscreen: initialized above, with a fixed size and no resizes to follow.
+            // Offscreen, it is initialized above, with a fixed size and no resizes to follow.
         }
         else if (cfg.Graphics == GraphicsBackend.Vulkan)
         {

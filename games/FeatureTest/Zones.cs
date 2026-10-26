@@ -137,7 +137,7 @@ static class Zones
 }
 
 /// <summary>
-/// The middle of the map, where the program starts: a plaza with a cube turning on a pedestal, a
+/// The middle of the map, where the program starts, a plaza with a cube turning on a pedestal, a
 /// signpost at its edge for each zone with the zone's name over it, and a road out to each.
 /// </summary>
 sealed class Hub : Zone

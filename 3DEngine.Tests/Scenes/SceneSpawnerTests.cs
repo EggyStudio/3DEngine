@@ -101,7 +101,7 @@ public class SceneSpawnerTests
         var t = ecs.GetRef<Transform>(e);
         t.Position.X.Should().BeApproximately(2f, 1e-5f);
 
-        // De-indexed: 3 triangle indices -> 3 flat positions in the runtime Mesh.
+        // De-indexed, 3 triangle indices become 3 flat positions in the runtime Mesh.
         var mesh = ecs.GetRef<Mesh>(e);
         mesh.Positions.Should().HaveCount(3);
 

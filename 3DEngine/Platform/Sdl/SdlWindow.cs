@@ -128,7 +128,7 @@ internal sealed class SdlWindow
         }
 
         // -- HiDPI handling
-        // SDL3 spec: CreateWindow / GetWindowSize / SetWindowSize use *logical*
+        // By the SDL3 spec, CreateWindow / GetWindowSize / SetWindowSize use *logical*
         // coordinates on native Wayland, macOS, and iOS.  Windows, X11 (including
         // XWayland) and Android are the exceptions, working in physical pixels.
         //

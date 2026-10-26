@@ -22,7 +22,7 @@ namespace Engine;
 /// // Add -9.81*dt to every Y (odd indices) with ScaleAndOffset on a strided view,
 /// // or iterate in bulk with the span APIs.
 ///
-/// // Simpler: scale all floats in a component by a factor
+/// // Or scale all floats in a component by a factor
 /// SimdMath.Scale(floats, 0.99f); // damping
 /// </code>
 /// </example>
@@ -72,7 +72,7 @@ internal static class SimdMath
         }
     }
 
-    /// <summary>Fused multiply-add: <c>data[i] = data[i] * scale + offset</c>.</summary>
+    /// <summary>A fused multiply-add, as <c>data[i] = data[i] * scale + offset</c>.</summary>
     /// <param name="data">The float span to modify in-place.</param>
     /// <param name="scale">The scalar multiplier applied first.</param>
     /// <param name="offset">The scalar addend applied after multiplication.</param>
@@ -120,7 +120,7 @@ internal static class SimdMath
         }
     }
 
-    /// <summary>Element-wise addition: <c>dst[i] += src[i]</c>.</summary>
+    /// <summary>An element-wise addition, as <c>dst[i] += src[i]</c>.</summary>
     /// <param name="dst">The destination span to modify in-place.</param>
     /// <param name="src">The source span to add from. Must be at least as long as <paramref name="dst"/>.</param>
     /// <exception cref="ArgumentException">Thrown when <paramref name="src"/> is shorter than <paramref name="dst"/>.</exception>
@@ -146,7 +146,7 @@ internal static class SimdMath
         }
     }
 
-    /// <summary>Linear interpolation: <c>a[i] = a[i] + (b[i] - a[i]) * t</c>.</summary>
+    /// <summary>A linear interpolation, as <c>a[i] = a[i] + (b[i] - a[i]) * t</c>.</summary>
     /// <param name="a">The span to interpolate in-place (also serves as the "from" values).</param>
     /// <param name="b">The "to" values. Must be at least as long as <paramref name="a"/>.</param>
     /// <param name="t">Interpolation factor, typically in <c>[0, 1]</c>.</param>

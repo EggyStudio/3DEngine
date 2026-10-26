@@ -89,10 +89,10 @@ float3 blenderFilmic(float3 c)
     return lookUp(saturate(normalizedLog2(c, -11.0, 12.0)), 64.0);
 }
 
-// The curve set by its numbers, as BSL's shader draws it: the light times its exposure, then
-// c / (c^w + 1)^(1/w) with w its white curve, then c to the power of its lower curve in the darks
-// and its upper in the lights, mixed by c's square root, then its gamma of 1/2.2, the value it
-// shows, decoded here so the encoding after gives that value back exactly.
+// The curve set by its numbers, as BSL's shader draws it, which takes the light times its exposure,
+// then c / (c^w + 1)^(1/w) with w its white curve, then c to the power of its lower curve in the
+// darks and its upper in the lights, mixed by c's square root, then its gamma of 1/2.2, the value
+// it shows, decoded here so the encoding after gives that value back exactly.
 float3 numbered(float3 c, float4 numbers)
 {
     c *= numbers.x;

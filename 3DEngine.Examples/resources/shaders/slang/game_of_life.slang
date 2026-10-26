@@ -32,7 +32,7 @@ float4 fragmentMain(VertexOutput input) : SV_Target
     // Current cell remains alive when 2 or 3 neighbors are alive, dies otherwise
     // Current cell goes from dead to alive when exactly 3 neighbors are alive
     if (((origValue == 1) && (sumValue == 2)) || sumValue == 3)
-        return float4(0.0, 0.0, 0.0, 1.0);     // Alive: draw the pixel black
+        return float4(0.0, 0.0, 0.0, 1.0);     // A live cell's pixel is drawn black
     else
-        return input.color;                     // Dead: draw the pixel with the background color, RAYWHITE
+        return input.color;                     // A dead cell takes the background, RAYWHITE
 }

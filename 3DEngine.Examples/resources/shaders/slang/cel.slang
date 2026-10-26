@@ -43,12 +43,12 @@ float4 fragmentMain(ModelVertexOutput input) : SV_Target
         float3 lightDir;
         if (lights[i].type == 0)
         {
-            // Directional: direction is from position toward target.
+            // A directional light's direction runs from its position toward its target.
             lightDir = normalize(lights[i].position - lights[i].target);
         }
         else
         {
-            // Point: direction from surface to light.
+            // A point light's direction runs from the surface to the light.
             lightDir = normalize(lights[i].position - input.world);
         }
 

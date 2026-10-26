@@ -67,7 +67,7 @@ public class EcsWorldTests
         ecs.Changed<TestComp>(e).Should().BeTrue();
         ecs.Query<TestComp>().Single().Component.A.Should().Be(1);
 
-        // Next frame: changed must reset
+        // The next frame resets what changed.
         ecs.BeginFrame();
         ecs.Changed<TestComp>(e).Should().BeFalse();
     }

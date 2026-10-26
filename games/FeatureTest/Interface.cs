@@ -15,7 +15,7 @@ public enum Screen
 }
 
 /// <summary>
-/// The interface: a state machine of screens stepped by keys, text typed onto a sign, an ImGui
+/// The interface, a state machine of screens stepped by keys, text typed onto a sign, an ImGui
 /// window with a button, a slider, a box, a list and a colour, a gamepad's button, and a health bar
 /// and a gauge drawn in 2D from the slider, each shown while the player is in the zone.
 /// </summary>

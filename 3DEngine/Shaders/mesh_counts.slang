@@ -7,9 +7,9 @@
 [[vk::binding(0, 0)]]
 StructuredBuffer<uint> counts;
 
-// The draws' records, eight uints each: the vertex count this fills, the instance count, the first
-// vertex and the first instance, which the draw reads as Vulkan's VkDrawIndirectCommand, then the
-// mesh's entry in counts and its capacity, which the CPU wrote.
+// The draws' records, eight uints each, holding the vertex count this fills, the instance count,
+// the first vertex and the first instance, which the draw reads as Vulkan's VkDrawIndirectCommand,
+// then the mesh's entry in counts and its capacity, which the CPU wrote.
 [[vk::binding(1, 0)]]
 RWStructuredBuffer<uint> records;
 

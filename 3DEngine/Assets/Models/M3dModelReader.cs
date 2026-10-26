@@ -175,9 +175,9 @@ internal static class M3dModelReader
     private static Vector4 Value(File3D file, int vertex) =>
         (uint)vertex < (uint)file.Vertices.Count ? file.Vertices[vertex].Value : throw new InvalidOperationException($"it names vertex {vertex} of {file.Vertices.Count}");
 
-    // m3d's m3d_pose: each bone at its rest, moved by every frame up to the time, then a part of the
-    // way to the next frame, the position in a line and the orientation by m3d's approximation of a
-    // turn, a normalized blend.
+    // Each bone at its rest, as m3d's m3d_pose poses it, moved by every frame up to the time, then
+    // a part of the way to the next frame, the position in a line and the orientation by m3d's
+    // approximation of a turn, a normalized blend.
     private static Transform[] Pose(File3D file, Action action, uint milliseconds)
     {
         var count = file.Bones.Length;
@@ -610,8 +610,8 @@ internal static class M3dModelReader
         _ => 0,
     };
 
-    // m3d's _m3d_getidx: an index of one, two or four bytes, the top two values of one or two bytes
-    // standing for -2 and -1, which mean none.
+    // An index of one, two or four bytes, as m3d's _m3d_getidx reads it, the top two values of one
+    // or two bytes standing for -2 and -1, which mean none.
     private static int Index(byte[] raw, ref int at, int size)
     {
         if (at + size > raw.Length) throw new InvalidOperationException("an index reaches past the file's end");

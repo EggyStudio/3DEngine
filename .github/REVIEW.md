@@ -10,44 +10,73 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `2f5237f2`, item 127, a ray crossing a canopy's leaves shaded twice at most, read at
-08:50 on 2026-10-26, carrying ASKS.md, the review's files with a Shared line, SHARED.md, DEVLOG.md,
-a reading in RENDERING.md, a note and a captioned grove picture, pushed at 08:52 once the build run
-of `78946b22` went green whole, its run watched, the eighth pack run to start with item 128. In
-gi_trace.slang's crossing build and gi_screen.slang the loop only marches and adds up shares, the
-first light-through surface a ray crosses standing for every one it crosses and shaded once after
-the march for the share they take together, the surface the ray stops at shaded once for the share
-that reaches it, so a ray is shaded twice at most and never inside the march with the transmittance
-unchanged; gi.toggle through off stops both stages' rays at such surfaces as at solid ones, the
-merge still seeing past them, the settings' doc saying so. At seed 1's cherry grove at item 125's
-view at 1920 by 1080 on powersave the crossing costs 1.95 to 2.06 ms at High where 2.55 to 2.70,
-global illumination 5.25 to 5.42 where 5.93 to 6.23 and 3.30 to 3.53 with the crossing off, and at
-Low 1.06 to 1.08 where 1.48 to 1.65, 2.49 to 2.51 where 3.12; the split at High the cascades' rays
-1.6 to 1.4, the screen probes 1.1 to 0.46 and the merge 0.2 to 0.13. Read before the choice, a build
-crossing one leaf at most still cost 1.7 ms, shading the surface past the leaf 0.8 of it and the
-march the rest; after it, bounding the crossings at one saves 0.2 ms more and at two 0.05 to 0.1,
-and cutting the march once the ray keeps under a 32nd of its light saves nothing, so neither is
-kept, what is left being the march past the leaves. Item 100's canopy over the eye at 800 by 450
-reads 0.39 ms at Low and 0.70 at High against 0.48 and 0.95. The grove picture differs by 0.2 of 255
-overall and 0.1 to 0.6 on the floor under the trees; a new test grows the slab to 20 by 20 by 2 unit
-leaf cubes with faces between neighbors under the sky alone and reads the same to four places with
-the old shaders and the new, 0.30 at High 2.5 under, 0.17 at Low and 0.23 at High 5.5 under; the
-bounce rooms read 0.75 ms at Low and 2.08 to 2.16 at High at 1080p against 0.81 and 2.19 to 2.31
-with their frames within two runs of one, and the references pass unchanged, the path-traced
-reference holding every surface solid. The game's 0.74 of the open shade was not read, needing its
-flat world and floor knob. 2,127 on the GPU in order and shuffled, 81 on lavapipe with validation
-and 2 skipped, the strict build clean, no public change, the guide's foliage paragraph giving the
-cost and the toggle. After `78946b22`, item 112, the planar reflection, read at 05:55 on 2026-10-26,
-carrying ASKS.md, the review's files with a Shared line, SHARED.md, a reading in RENDERING.md, a
-note and a captioned river picture, pushed at 06:19 on 2026-10-26 once the build run of `7af16fcd`
-went green whole, the seventh pack run started with publish on at 06:19 for the game's item 42 and
-the mirror and width together, both runs watched; the build run went green whole at 08:01, Windows
-in 102 minutes, Linux in 65 and macOS in 35, and the pack run green whole at 09:14, Windows in 171
-minutes, the games in 73, the captures in 58 and 60 and macOS in 58 with the twelve games played
-through, the package 5.2.322 pushed to nuget.org with items 111 and 112, the game told; Verdict 93
-settled by it. SetReflectionPlane(height, normal) sets a ReflectionPlane resource, on the cheat
-sheet and in PublicApi.txt; MirrorNode, between the probes and hdr_scene, draws the window's batches
-again through the window's view-projection mirrored in the plane and flipped in y, which keeps the
+Reviewed up to `0754b975`, item 128, a line of text edited, read at 09:29 on 2026-10-26, carrying
+the review's files with a Shared line, SHARED.md, DEVLOG.md, TODO.md and a captioned picture, held
+until the build run of `2f5237f2` ends, the eighth pack run to start with it. TextEdit holds the
+text, the caret, the anchor, the scroll and focus, the caret and anchor counting chars and editing
+moving them by text elements so no surrogate pair or mark is split, with SelectedText; EditText(ref
+edit, box, most) and an overload with a font and size for a program drawing its own look, since
+clicks and scroll are measured in the font the field is drawn in, the short forms taking the default
+font at 0.6 of the box height and 10 at least; DrawTextEdit(edit, box) in dark gray on RayWhite and
+DrawTextEdit(edit, box, font, size, text, background) with the border, caret and selection in the
+text color at 0.3 opacity, the border 2 px while focused, the caret blinking half of each second
+from its last move, the text clipped inside the border within any scissor the program set, which it
+gets back; IsTextInputActive true from the frame an edit takes the keyboard to the frame after its
+last update and while a Tab pass is pending. Characters go in up to most text elements, 0 or less no
+limit, Ctrl or Cmd blocking typed characters; the arrows, Home and End move the caret and Ctrl or
+Cmd with an arrow by words, Shift or a drag selects, Backspace and Delete remove the selection or a
+character, a word with Ctrl, repeating while held, Ctrl or Cmd with A, C, X and V select all, copy,
+cut and paste with a paste's newlines and tabs made spaces and other control characters dropped, a
+click in the box focuses and places the caret and one outside unfocuses, Tab goes to the next edit
+updated that frame or past the last to the first next frame, Shift and Tab to the previous resolved
+next frame, the edit given focus selecting all and taking no keys in the Tab's frame,
+SetTextInputArea placed at the caret every focused frame, Enter or KpEnter answering true.
+E3DTextEditTests drives Input in a headless app through three cases, typing to the limit with Enter
+and focus, the caret, selection, clipboard and deletions with repeat, and a drag with Tab and Shift
+Tab across two edits, a scratch program on the RTX showing the selection, clipping, focus border and
+blink; docs/input.md gains Editing a line of text with two blocks built on the package,
+text-and-fonts.md links to it and TODO.md's input entry names it, the cheat sheet under Input after
+SetTextInputArea and PublicApi.txt with 13 lines. The strict build clean, 2,130 on the GPU in order
+and shuffled before a last doc-comment rewrap, after which the edit, cheat sheet and norm tests
+passed, lavapipe not run with nothing of the renderer changed. After `2f5237f2`, item 127, a ray
+crossing a canopy's leaves shaded twice at most, read at 08:50 on 2026-10-26, carrying ASKS.md, the
+review's files with a Shared line, SHARED.md, DEVLOG.md, a reading in RENDERING.md, a note and a
+captioned grove picture, pushed at 08:52 once the build run of `78946b22` went green whole, its run
+watched, the eighth pack run to start with item 128. In gi_trace.slang's crossing build and
+gi_screen.slang the loop only marches and adds up shares, the first light-through surface a ray
+crosses standing for every one it crosses and shaded once after the march for the share they take
+together, the surface the ray stops at shaded once for the share that reaches it, so a ray is shaded
+twice at most and never inside the march with the transmittance unchanged; gi.toggle through off
+stops both stages' rays at such surfaces as at solid ones, the merge still seeing past them, the
+settings' doc saying so. At seed 1's cherry grove at item 125's view at 1920 by 1080 on powersave
+the crossing costs 1.95 to 2.06 ms at High where 2.55 to 2.70, global illumination 5.25 to 5.42
+where 5.93 to 6.23 and 3.30 to 3.53 with the crossing off, and at Low 1.06 to 1.08 where 1.48 to
+1.65, 2.49 to 2.51 where 3.12; the split at High the cascades' rays 1.6 to 1.4, the screen probes
+1.1 to 0.46 and the merge 0.2 to 0.13. Read before the choice, a build crossing one leaf at most
+still cost 1.7 ms, shading the surface past the leaf 0.8 of it and the march the rest; after it,
+bounding the crossings at one saves 0.2 ms more and at two 0.05 to 0.1, and cutting the march once
+the ray keeps under a 32nd of its light saves nothing, so neither is kept, what is left being the
+march past the leaves. Item 100's canopy over the eye at 800 by 450 reads 0.39 ms at Low and 0.70 at
+High against 0.48 and 0.95. The grove picture differs by 0.2 of 255 overall and 0.1 to 0.6 on the
+floor under the trees; a new test grows the slab to 20 by 20 by 2 unit leaf cubes with faces between
+neighbors under the sky alone and reads the same to four places with the old shaders and the new,
+0.30 at High 2.5 under, 0.17 at Low and 0.23 at High 5.5 under; the bounce rooms read 0.75 ms at Low
+and 2.08 to 2.16 at High at 1080p against 0.81 and 2.19 to 2.31 with their frames within two runs of
+one, and the references pass unchanged, the path-traced reference holding every surface solid. The
+game's 0.74 of the open shade was not read, needing its flat world and floor knob. 2,127 on the GPU
+in order and shuffled, 81 on lavapipe with validation and 2 skipped, the strict build clean, no
+public change, the guide's foliage paragraph giving the cost and the toggle. After `78946b22`, item
+112, the planar reflection, read at 05:55 on 2026-10-26, carrying ASKS.md, the review's files with a
+Shared line, SHARED.md, a reading in RENDERING.md, a note and a captioned river picture, pushed at
+06:19 on 2026-10-26 once the build run of `7af16fcd` went green whole, the seventh pack run started
+with publish on at 06:19 for the game's item 42 and the mirror and width together, both runs
+watched; the build run went green whole at 08:01, Windows in 102 minutes, Linux in 65 and macOS in
+35, and the pack run green whole at 09:14, Windows in 171 minutes, the games in 73, the captures in
+58 and 60 and macOS in 58 with the twelve games played through, the package 5.2.322 pushed to
+nuget.org with items 111 and 112, the game told; Verdict 93 settled by it.
+SetReflectionPlane(height, normal) sets a ReflectionPlane resource, on the cheat sheet and in
+PublicApi.txt; MirrorNode, between the probes and hdr_scene, draws the window's batches again
+through the window's view-projection mirrored in the plane and flipped in y, which keeps the
 winding, with Lengyel's oblique near plane along it, the batches wholly under the plane culled
 through a depth ModelRenderer.Draw gains, lit as the probes' faces are by the window's lights and
 shadow maps in linear into a half-size R16G16B16A16 target with the particles, the picture blitted
@@ -384,11 +413,11 @@ reference frame and cascade edge tests on lavapipe with validation. Item 96 begi
 the game's 5.2.215 build at the cherry grove at 1920 by 1080, each part of the per-pixel read cut
 out in turn to tell what runs per fragment from the variant's registers, the window's depth at half
 size and the scene pass shading with overdraw pointing at a half-size pass over the window's depth
-with a two by two depth and normal read, as the glow pass has. Next 128, the text field, then 93,
-the colons out of the documents, then 91, DESIGN.md's words on the loop and the ECS, then the glow
-light's non-number and the history's guard, then 95, the e3d help, then item 89, the plant walls'
-acne, then 97, the light at the camera's point on lavapipe. The branch `modeling` was deleted at
-07:23 with its items all on main, N 7.5; the cloud sessions stand by.
+with a two by two depth and normal read, as the glow pass has. Next 93, the colons out of the
+documents, then 91, DESIGN.md's words on the loop and the ECS, then the glow light's non-number and
+the history's guard, then 95, the e3d help, then item 89, the plant walls' acne, then 97, the light
+at the camera's point on lavapipe. The branch `modeling` was deleted at 07:23 with its items all on
+main, N 7.5; the cloud sessions stand by.
 
 Before it, `a8f127ad` came, item 108's third phase, with `ac1c6bad`, item 120, pushed at 06:43 on
 2026-10-25 once the build run of `6a20d165` went green whole, its build run green whole at 07:41,
@@ -1328,28 +1357,6 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     camera's own point and reading the frame for black pixels, red before the mend. One commit,
     after item 95.
 
-128. **The interface has a text field to type into.** From the voxel game's item 134, read at 06:15
-    on 2026-10-26, its ASKS.md entry of 2026-10-26. The game typed a world's seed into a field of
-    its own drawn over GetCharPressed, IsKeyPressedRepeat and SetTextInputArea, the printable
-    characters to a length, Backspace with its repeat, a blinking caret and the input method's
-    window beside the box, with no caret moved by the arrows, Home or End, no selection, no copy,
-    paste or Delete, no click placing the caret and no Tab between fields, the program holding its
-    own keys while typing. The flat API has no widget set of its own, the only widgets being ImGui's
-    and BeginUi scoping what F1 hides, so no set is begun; the text input gains an editing state and
-    two calls, TextEdit holding the text, the caret, the selection's anchor and the scroll,
-    EditText(ref edit, box, most) taking the frame's input for an edit with focus, the characters to
-    a length, the caret moved by the arrows, Home, End and a click, a selection by Shift and the
-    mouse, copy, cut and paste through the clipboard, Delete and Backspace with repeat, focus by a
-    click in the box and Tab between the edits updated that frame in call order, the input method's
-    window at the caret, and answering whether Enter was pressed, and DrawTextEdit(edit, box, font,
-    size, colors) drawing the box, the text, the selection and the caret with the engine's shapes
-    and font in plain colors it documents, so a program draws its own look with EditText alone or
-    takes the default; IsTextInputActive() true while an edit has focus so a program's keys stand
-    aside. On the cheat sheet under Input beside GetCharPressed, in PublicApi.txt and in
-    docs/input.md's text input section with a block built on the package, with a test typing,
-    moving, selecting and pasting through the null device's input; the game takes it with the
-    package, drawing its own box. One commit, after item 127 and before 93.
-
 ## Verdicts
 
 Verdicts 56 to 93 are settled, said under each in REVIEW-ARCHIVE.md; none is open.
@@ -2097,3 +2104,11 @@ focus by a click and Tab between the edits updated in a frame in call order, the
 window at the caret, answering Enter, and `DrawTextEdit` draws in a default look or a font and
 colors given, `IsTextInputActive` saying while one holds the keyboard (item 128); no widget set is
 begun, the game drawing its own box over `EditText`.
+
+93: ASKS.md's entries keep their colons, 46 lines by STYLE.md's check, since AGENTS.md has this
+session write nothing in ASKS.md; they are left to the sessions that write it. The guides,
+RENDERING.md, the readings, FeatureTest's README and the comments of the engine, the tests, the
+examples, the shaders, the games and the scripts are recast, trailing comments after code among
+them, which the check does not read. What the check still finds is a label, a vector's components,
+named arguments in a code example, a URL, raylib's own header and license text, and a quoted
+header. DEVLOG.md's one hit comes from item 96's note, recast for its next regeneration.

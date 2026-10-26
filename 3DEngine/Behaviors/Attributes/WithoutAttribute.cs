@@ -1,6 +1,6 @@
 namespace Engine;
 
-/// <summary>Filter: skip entities that have any of the listed component types.</summary>
+/// <summary>A filter that skips the entities having any of the listed component types.</summary>
 [AttributeUsage(AttributeTargets.Method, Inherited = false, AllowMultiple = false)]
 public sealed class WithoutAttribute : Attribute
 {

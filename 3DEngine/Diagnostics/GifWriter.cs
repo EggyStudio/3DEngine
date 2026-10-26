@@ -4,7 +4,7 @@ namespace Engine;
 /// <remarks>
 /// <para>
 /// A GIF holds 256 colors, so one palette is chosen for every frame, by median cut over all of
-/// their pixels: the colors are counted in 32 steps a channel, and the box of colors holding the
+/// their pixels. The colors are counted in 32 steps a channel, and the box of colors holding the
 /// most pixels across the widest range is cut at its median along that range until there are 255,
 /// the last kept clear. Each color is the mean of the pixels its box holds rather than the box's
 /// middle, so a flat color the picture holds comes back as it was.

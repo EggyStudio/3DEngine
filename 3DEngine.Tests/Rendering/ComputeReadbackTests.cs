@@ -4,7 +4,7 @@ using static Engine.E3D;
 namespace Engine.Tests.Rendering;
 
 /// <summary>
-/// A storage buffer read back without a wait: asked for after a dispatch, not made in the frame it
+/// A storage buffer read back without a wait, asked for after a dispatch, not made in the frame it
 /// was asked in, read right a few frames on, and asked every frame without its buffers growing.
 /// </summary>
 [Collection("E3D")]

@@ -56,7 +56,8 @@ public sealed class Gestures
 
         if (count == 1 && _lastCount == 0)
         {
-            // Down: a tap, or a double tap when close in time and place to the one before.
+            // A finger going down makes a tap, or a double tap when close in time and place to the
+            // one before.
             _downAt = _lastAt = points[0];
             _downTime = _holdSince = time;
             DragVector = Vector2.Zero;
@@ -74,7 +75,7 @@ public sealed class Gestures
         }
         else if (count == 1 && _lastCount == 1)
         {
-            // Held: a drag once it has gone far enough, and a hold until then.
+            // A finger held makes a drag once it has gone far enough, and a hold until then.
             _lastAt = points[0];
             DragVector = points[0] - _downAt;
             if (DragVector.Length() >= DragStart || Current == Gesture.Drag)
@@ -90,7 +91,8 @@ public sealed class Gestures
         }
         else if (count == 0 && _lastCount == 1)
         {
-            // Up: a swipe when the drag was fast enough, which way by its angle.
+            // A finger coming up makes a swipe when the drag was fast enough, which way by its
+            // angle.
             var moved = _lastAt - _downAt;
             var seconds = Math.Max(time - _downTime, 1e-3);
             if (moved.Length() >= DragStart && moved.Length() / seconds > SwipeSpeed)
@@ -105,7 +107,7 @@ public sealed class Gestures
         }
         else if (count == 2)
         {
-            // Two fingers: a pinch by how their distance changed since the last frame.
+            // Two fingers make a pinch by how their distance changed since the last frame.
             var between = points[1] - points[0];
             var distance = between.Length();
             PinchVector = between;

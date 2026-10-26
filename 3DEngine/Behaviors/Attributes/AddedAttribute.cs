@@ -1,6 +1,6 @@
 namespace Engine;
 
-/// <summary>Filter: an entity is visited only when it got each listed component since the method's system last ran.</summary>
+/// <summary>A filter by which an entity is visited only when it got each listed component since the method's system last ran.</summary>
 [AttributeUsage(AttributeTargets.Method, Inherited = false, AllowMultiple = false)]
 public sealed class AddedAttribute : Attribute
 {

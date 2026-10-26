@@ -50,10 +50,11 @@ internal sealed class SceneCameraPayload
     public float? FStop { get; init; }
 
     /// <summary>
-    /// Convenience: vertical field-of-view in radians, derived from <see cref="VerticalAperture"/>
-    /// and <see cref="FocalLength"/> using the standard perspective formula
-    /// <c>2 * atan(verticalAperture / (2 * focalLength))</c>. Returns <c>0</c> for orthographic
-    /// projections (caller should use <see cref="VerticalAperture"/> as the half-extent instead).
+    /// A convenience giving the vertical field-of-view in radians, derived from
+    /// <see cref="VerticalAperture"/> and <see cref="FocalLength"/> using the standard perspective
+    /// formula <c>2 * atan(verticalAperture / (2 * focalLength))</c>. Returns <c>0</c> for
+    /// orthographic projections (caller should use <see cref="VerticalAperture"/> as the
+    /// half-extent instead).
     /// </summary>
     public float VerticalFovRadians
     {

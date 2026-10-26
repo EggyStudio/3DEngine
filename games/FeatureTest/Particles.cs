@@ -5,9 +5,9 @@ using static Engine.E3D;
 namespace FeatureTest;
 
 /// <summary>
-/// The particles: the default fountain, a fire that adds its light, smoke laid over by alpha, sparks
-/// that bounce off a slab, particles the sun lights, and a burst of a hundred and fifty given off at
-/// once every two seconds, each emitter in a row across the zone.
+/// The particles, the default fountain, a fire that adds its light, smoke laid over by alpha,
+/// sparks that bounce off a slab, particles the sun lights, and a burst of a hundred and fifty
+/// given off at once every two seconds, each emitter in a row across the zone.
 /// </summary>
 /// <remarks>
 /// Every half second the particles alone are drawn into a texture from a camera in front of the

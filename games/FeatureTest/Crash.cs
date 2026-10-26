@@ -4,9 +4,10 @@ using System.Text;
 namespace FeatureTest;
 
 /// <summary>
-/// The crash log: on an exception nothing caught, a file beside the program, <c>crash-</c> and the
-/// time, saying what was thrown, where the player stood, each zone's last status, the frame's
-/// costs, the system and the last lines of the engine's log, for a tester to send with a report.
+/// The crash log, written on an exception nothing caught to a file beside the program named
+/// <c>crash-</c> and the time, saying what was thrown, where the player stood, each zone's last
+/// status, the frame's costs, the system and the last lines of the engine's log, for a tester to
+/// send with a report.
 /// </summary>
 /// <remarks>
 /// It is written from what the last frame published rather than by asking the engine, which may be

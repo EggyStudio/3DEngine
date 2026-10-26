@@ -56,7 +56,7 @@ internal sealed class WavSoundDecoder : ISoundDecoder
         if (bytes.Length < 44)
             throw new InvalidDataException($"WavSoundDecoder: '{sourcePath}' too small to be WAV ({bytes.Length} bytes).");
 
-        // RIFF header: "RIFF" <size32> "WAVE"
+        // The RIFF header, "RIFF" <size32> "WAVE"
         if (bytes[0] != 'R' || bytes[1] != 'I' || bytes[2] != 'F' || bytes[3] != 'F'
             || bytes[8] != 'W' || bytes[9] != 'A' || bytes[10] != 'V' || bytes[11] != 'E')
         {
@@ -136,7 +136,7 @@ internal sealed class WavSoundDecoder : ISoundDecoder
     /// <summary>Converts whole samples of <paramref name="data"/> into <paramref name="dst"/>, as many as fit.</summary>
     internal static void Convert(ReadOnlySpan<byte> data, int format, int bps, Span<float> dst)
     {
-        // Format codes: 0x0001 = PCM (integer), 0x0003 = IEEE float.
+        // Format code 0x0001 is PCM (integer) and 0x0003 IEEE float.
         switch (format, bps)
         {
             case (1, 8):

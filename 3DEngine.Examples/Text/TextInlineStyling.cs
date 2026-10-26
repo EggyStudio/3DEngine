@@ -35,13 +35,13 @@ public static class TextInlineStyling
 
                 ClearBackground(Color.RayWhite);
 
-                // Text inline styling strategy used: [ ] delimiters for format
-                // - Define foreground color:      [cRRGGBBAA]
-                // - Define background color:      [bRRGGBBAA]
-                // - Reset formating:              [r]
+                // Text is styled inline between [ ] delimiters
+                // - [cRRGGBBAA] sets the foreground color
+                // - [bRRGGBBAA] sets the background color
+                // - [r] resets the formatting
                 // Colors defined with [cRRGGBBAA] or [bRRGGBBAA] are multiplied by the base color alpha
                 // This allows global transparency control while keeping per-section styling (ex. text fade effects)
-                // Example: [bAA00AAFF][cFF0000FF]red text on gray background[r] normal text
+                // For example, [bAA00AAFF][cFF0000FF]red text on gray background[r] normal text
 
                 DrawTextStyled(GetFontDefault(), "This changes the [cFF0000FF]foreground color[r] of provided text!!!",
                     new Vector2(100, 80), 20.0f, 2.0f, Color.Black);
@@ -88,11 +88,11 @@ public static class TextInlineStyling
     // NOTE: Using input color as the base alpha multiplied to inline styles
     private static void DrawTextStyled(Font font, string str, Vector2 position, float fontSize, float spacing, Color color)
     {
-        // Text inline styling strategy used: [ ] delimiters for format
-        // - Define foreground color:      [cRRGGBBAA]
-        // - Define background color:      [bRRGGBBAA]
-        // - Reset formating:              [r]
-        // Example: [bAA00AAFF][cFF0000FF]red text on gray background[r] normal text
+        // Text is styled inline between [ ] delimiters
+        // - [cRRGGBBAA] sets the foreground color
+        // - [bRRGGBBAA] sets the background color
+        // - [r] resets the formatting
+        // For example, [bAA00AAFF][cFF0000FF]red text on gray background[r] normal text
 
         if (!font.Texture.IsValid) font = GetFontDefault();
 

@@ -1,5 +1,5 @@
 // How soft the sun's shadow is where it falls far from what casts it, read from a cascade of its
-// map as percentage-closer soft shadows read one: the depths over a width the point's own depth in
+// map as percentage-closer soft shadows read one. The depths over a width the point's own depth in
 // the map sets are searched for what shades it, and the light the map lets through is taken over
 // the width that the sun's disc, as far off as what shades it, spreads to (SetShadowSoftness).
 module penumbra;

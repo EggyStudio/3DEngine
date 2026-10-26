@@ -5,7 +5,7 @@ using static Engine.E3D;
 namespace FeatureTest;
 
 /// <summary>
-/// The global illumination: a white room open toward the hub with a red wall and a green one, lit
+/// The global illumination, a white room open toward the hub with a red wall and a green one, lit
 /// by a lamp and an emissive panel under its ceiling, where global illumination is turned on while
 /// the player is in the zone and off again as the player leaves, since it costs every frame.
 /// </summary>

@@ -95,7 +95,8 @@ internal abstract partial class RuntimeAssemblyCompiler<TResult>
                 .WithOptimizationLevel(OptimizationLevel.Debug)
                 .WithAllowUnsafe(true));
 
-        // Domain hook: attach source generators (e.g. BehaviorGenerator) and replace the compilation.
+        // The domain hook attaches source generators (e.g. BehaviorGenerator) and replaces the
+        // compilation.
         compilation = RunGenerators(compilation, result);
 
         if (result.Errors.Count > 0)

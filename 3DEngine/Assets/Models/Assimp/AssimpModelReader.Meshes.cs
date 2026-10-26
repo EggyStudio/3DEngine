@@ -29,7 +29,7 @@ internal sealed partial class AssimpModelReader
             // List<System.Numerics.Vector3>, so no element needs converting.
             var positions = vc == 0 ? Array.Empty<Vector3>() : am.Vertices.ToArray();
 
-            // Indices: 3 per triangle face after Triangulate.
+            // Three indices per triangle face after Triangulate.
             var faces = am.Faces;
             var indices = new int[faces.Count * 3];
             int w = 0;
@@ -54,7 +54,7 @@ internal sealed partial class AssimpModelReader
                     var tv = am.Tangents[v];
                     var bv = am.BiTangents[v];
                     var nv = am.HasNormals ? am.Normals[v] : Vector3.UnitZ;
-                    // MikkTSpace bitangent sign: w = sign(dot(cross(n, t), b)).
+                    // The MikkTSpace bitangent sign is w = sign(dot(cross(n, t), b)).
                     float sign = Vector3.Dot(Vector3.Cross(nv, tv), bv) < 0f ? -1f : 1f;
                     tangents[v] = new Vector4(tv, sign);
                 }

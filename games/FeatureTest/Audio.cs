@@ -5,7 +5,7 @@ using static Engine.E3D;
 namespace FeatureTest;
 
 /// <summary>
-/// The audio: a drone played at a speaker to the left of the zone's start and heard from where the
+/// The audio, a drone played at a speaker to the left of the zone's start and heard from where the
 /// camera is, a coin played every two seconds panned by where the player stands, music streamed
 /// from a file, a stream whose samples a callback of the program's own makes, and a wave written to
 /// a file and read back.

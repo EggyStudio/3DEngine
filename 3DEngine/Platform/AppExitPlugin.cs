@@ -44,7 +44,8 @@ internal sealed class AppExitPlugin : IPlugin
                 .Write<AppExit>());
         }
 
-        // Early frame: if an exit was requested previously, ask window to close (will break main loop).
+        // Early in the frame, if an exit was requested previously, ask window to close (will break
+        // main loop).
         app.AddSystem(Stage.First, new SystemDescriptor(world =>
             {
                 if (world.Resource<AppExit>().Requested && world.TryGetResource<AppWindow>(out var appWindow))

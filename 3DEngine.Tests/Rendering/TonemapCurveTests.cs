@@ -32,9 +32,9 @@ public sealed class TonemapCurveTests : IDisposable
     private static readonly float[] Lights = [0.05f, 0.1f, 0.25f, 0.5f, 1, 2, 4];
     private static readonly double[] Modpacks = [0.230, 0.317, 0.475, 0.620, 0.763, 0.874, 0.941];
 
-    // BSL's curve as its shader works it out, the value it shows: the light times the exposure, then
-    // the white curve, then the power mixed from the lower curve to the upper by the square root,
-    // then the gamma of 1/2.2.
+    // BSL's curve as its shader works it out, the light times the exposure, then the white curve,
+    // then the power mixed from the lower curve to the upper by the square root, then the gamma of
+    // 1/2.2, which gives the value it shows.
     private static double Bsl(double light, double exposure, double white, double lower, double upper)
     {
         var c = light * exposure;

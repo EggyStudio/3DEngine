@@ -50,7 +50,7 @@ float4 fragmentMain(ModelVertexOutput input) : SV_Target
             lightDot += lights[i].color.rgb*NdotL;
 
             float specCo = 0.0;
-            if (NdotL > 0.0) specCo = pow(max(0.0, dot(viewD, reflect(-(light), normal))), 16.0); // Shine: 16.0
+            if (NdotL > 0.0) specCo = pow(max(0.0, dot(viewD, reflect(-(light), normal))), 16.0); // A shine of 16
             specular += specCo;
         }
     }

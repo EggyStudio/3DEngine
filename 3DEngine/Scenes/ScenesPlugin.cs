@@ -42,19 +42,19 @@ internal sealed class ScenesPlugin : IPlugin
         // despawn when a SceneAsset reloads.
         app.World.InsertResource(new SpawnedScenes());
 
-        // Auto-spawn driver: turns SpawnSceneRequest components into ECS entities once
-        // the underlying SceneAsset finishes loading. Runs in PreUpdate so spawned
-        // entities are visible to gameplay systems in the same frame.
-        // Model references first, so a scene file's models are asked for in the frame it loads.
-        // Scene files a level places first, so the models they name are asked for in the same frame.
+        // The auto-spawn driver turns SpawnSceneRequest components into ECS entities once the
+        // underlying SceneAsset finishes loading. Runs in PreUpdate so spawned entities are visible
+        // to gameplay systems in the same frame. Model references first, so a scene file's models
+        // are asked for in the frame it loads. Scene files a level places first, so the models they
+        // name are asked for in the same frame.
         app.AddSystem(Stage.PreUpdate, new SystemDescriptor(SceneRefSystem.Run, "SceneRefSystem").MainThreadOnly());
         app.AddSystem(Stage.PreUpdate, new SystemDescriptor(ModelRefSystem.Run, "ModelRefSystem").MainThreadOnly());
         // Both spawn and despawn entities, which the main thread does.
         app.AddSystem(Stage.PreUpdate, new SystemDescriptor(SceneSpawnSystem.Run, "SceneSpawnSystem").MainThreadOnly());
 
-        // Hot-reload driver: watches AssetEvent<SceneAsset>.Modified and re-spawns the
-        // tracked entity set in place. It runs in the spawn driver's stage, and asset events
-        // last until Stage.Last, so the order between them does not matter.
+        // The hot-reload driver watches AssetEvent<SceneAsset>.Modified and re-spawns the tracked
+        // entity set in place. It runs in the spawn driver's stage, and asset events last until
+        // Stage.Last, so the order between them does not matter.
         app.AddSystem(Stage.PreUpdate, new SystemDescriptor(SceneHotReloadSystem.Run, "SceneHotReloadSystem").MainThreadOnly());
 
         // What a level loaded through its references is let go some time after no entity uses it.

@@ -5,9 +5,9 @@ using static Engine.E3D;
 namespace FeatureTest;
 
 /// <summary>
-/// The physics: lanes running east side by side, each a station the character controller is tried
-/// on, a ramp of 25 degrees, stairs of 0.25, a gap to jump, a platform moved by the program that
-/// carries it, crates it pushes and a tunnel it crouches through, each ending in a trigger.
+/// The physics, in lanes running east side by side, each a station the character controller is
+/// tried on, a ramp of 25 degrees, stairs of 0.25, a gap to jump, a platform moved by the program
+/// that carries it, crates it pushes and a tunnel it crouches through, each ending in a trigger.
 /// </summary>
 /// <remarks>
 /// A station is reached when the player's body touches the trigger at its end, which the frame's

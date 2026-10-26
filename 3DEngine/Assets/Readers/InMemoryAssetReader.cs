@@ -64,7 +64,7 @@ internal sealed class InMemoryAssetReader : IAssetReader
         Logger.Debug($"InMemoryAssetReader: stored {bytes.Length} byte(s) at '{path}'.");
     }
 
-    /// <summary>Convenience: <see cref="Set(AssetPath, byte[])"/> on the process-wide store.</summary>
+    /// <summary>Calls <see cref="Set(AssetPath, byte[])"/> on the process-wide store.</summary>
     public static void Publish(AssetPath path, byte[] bytes)
     {
         ArgumentNullException.ThrowIfNull(bytes);

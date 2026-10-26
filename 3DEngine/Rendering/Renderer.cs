@@ -305,7 +305,7 @@ internal sealed class Renderer : IDisposable
 
             var inputs = Graph.GatherInputs(label, outputStore);
 
-            // Auto-barrier: transition TextureView inputs to ShaderReadOnlyOptimal before sampling.
+            // TextureView inputs move to ShaderReadOnlyOptimal before they are sampled.
             foreach (var input in inputs)
             {
                 if (input.Type != SlotType.TextureView) continue;

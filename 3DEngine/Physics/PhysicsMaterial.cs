@@ -23,7 +23,7 @@ public struct PhysicsMaterial
     /// <summary>Angular-velocity damping per second (drag).</summary>
     public float AngularDamping;
 
-    /// <summary>Default material: friction 1, restitution 0, no damping.</summary>
+    /// <summary>The default material, with friction 1, restitution 0 and no damping.</summary>
     public static PhysicsMaterial Default => new()
     {
         Friction = 1f, 

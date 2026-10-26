@@ -66,7 +66,7 @@ public static class ShadersRlglCompute
         GolUpdateSSBO transfertBuffer = default;
 
         // Create a white texture of the size of the window to update
-        // each pixel of the window using the fragment shader: golRenderShader
+        // each pixel of the window using the fragment shader golRenderShader
         Image whiteImage = GenImageColor(GOL_WIDTH, GOL_WIDTH, Color.White);
         Texture2D whiteTex = LoadTextureFromImage(whiteImage);
         UnloadImage(whiteImage);

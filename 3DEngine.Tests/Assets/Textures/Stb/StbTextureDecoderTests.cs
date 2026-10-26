@@ -51,14 +51,14 @@ public class StbTextureDecoderTests
         bw.Write(2835);         // y ppm
         bw.Write(0); bw.Write(0);
 
-        // Pixel data (bottom-up). Row 1 (top in image): red, green. Row 0 (bottom): blue, white.
-        // Bottom-up: write bottom row first.
+        // The pixels run bottom up, the top row (1) red and green and the bottom row (0) blue and
+        // white, so the bottom row is written first.
         // BGR order.
-        // Bottom row: blue, white.
+        // The bottom row, blue then white.
         bw.Write((byte)255); bw.Write((byte)0);   bw.Write((byte)0);    // B (blue)
         bw.Write((byte)255); bw.Write((byte)255); bw.Write((byte)255);  // white
         bw.Write((byte)0);   bw.Write((byte)0);                          // padding to 8-byte stride
-        // Top row: red, green.
+        // The top row, red then green.
         bw.Write((byte)0);   bw.Write((byte)0);   bw.Write((byte)255);  // red (BGR -> 0,0,255)
         bw.Write((byte)0);   bw.Write((byte)255); bw.Write((byte)0);    // green
         bw.Write((byte)0);   bw.Write((byte)0);                          // padding

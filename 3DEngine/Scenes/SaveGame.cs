@@ -41,7 +41,7 @@ public static class SaveGame
 
     private static readonly ILogger Logger = Log.Category("Engine.Scenes");
 
-    // The game in progress: the scenes it started from, each of their entities by its scene and id,
+    // The game in progress, the scenes it started from, each of their entities by its scene and id,
     // and the components each held as loaded, written as a save writes them.
     private sealed class Game
     {

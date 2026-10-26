@@ -5,7 +5,7 @@ using static Engine.E3D;
 namespace FeatureTest;
 
 /// <summary>
-/// The models and animation: a skinned arm posed by its clip's time, the robot played by an
+/// The models and animation, a skinned arm posed by its clip's time, the robot played by an
 /// animation state machine from a file it names by id, a strip of morph targets played by its clip
 /// and another moved by a weight set by name, four hundred cubes in one instanced draw, every mesh
 /// the engine generates on a plinth of its own, a heightmap and a maze from images, and an OBJ with

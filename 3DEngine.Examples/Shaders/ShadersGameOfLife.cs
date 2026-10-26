@@ -34,7 +34,7 @@ public static class ShadersGameOfLife
         const int worldWidth = 2048;
         const int worldHeight = 2048;
 
-        const int randomTiles = 8;      // Random preset: divide the world to compute random points in each tile
+        const int randomTiles = 8;      // Random points go in each of these tiles
 
         // The whole world, upright with a positive height, as a target here keeps its rows from the
         // top, where raylib's negative height turns OpenGL's from the bottom
@@ -59,8 +59,8 @@ public static class ShadersGameOfLife
         int frame = 0;
 
         int preset = -1;            // No button pressed for preset
-        int mode = MODE_RUN;        // Starting mode: running
-        bool buttonZoomIn = false;  // Button states: false not pressed
+        int mode = MODE_RUN;        // The mode it starts in, running
+        bool buttonZoomIn = false;  // The buttons' states, false where not pressed
         bool buttonZomOut = false;
         bool buttonFaster = false;
         bool buttonSlower = false;
@@ -72,7 +72,7 @@ public static class ShadersGameOfLife
         int resolutionLoc = GetShaderLocation(shdrGameOfLife, "resolution");
         SetShaderValue(shdrGameOfLife, resolutionLoc, new Vector2((float)worldWidth, (float)worldHeight));
 
-        // Define two textures: the current world and the previous world
+        // Two textures, the current world and the previous one
         RenderTexture2D world1 = LoadRenderTexture(worldWidth, worldHeight);
         RenderTexture2D world2 = LoadRenderTexture(worldWidth, worldHeight);
 
@@ -104,11 +104,11 @@ public static class ShadersGameOfLife
         {
             frame++;
 
-            // Change zoom: both by buttons or by mouse wheel
+            // The zoom changes by the buttons or by the mouse wheel
             float mouseWheelMove = GetMouseWheelMove();
             if (buttonZoomIn || (buttonZomOut && (zoom > 1)) || (mouseWheelMove != 0.0f))
             {
-                FreeImageToDraw(ref imageToDraw);  // Zoom change: free the image to draw to be recreated again
+                FreeImageToDraw(ref imageToDraw);  // Made again at the new zoom
 
                 float centerX = offsetX + (windowWidth/2.0f)/zoom;
                 float centerY = offsetY + (windowHeight/2.0f)/zoom;
@@ -118,14 +118,14 @@ public static class ShadersGameOfLife
                 offsetY = centerY - (windowHeight/2.0f)/zoom;
             }
 
-            // Change speed: number of frames per step
+            // The speed changes the number of frames per step
             if (buttonFaster && framesPerStep > 1) framesPerStep--;
             if (buttonSlower) framesPerStep++;
 
             // Mouse management
             if ((mode == MODE_RUN) || (mode == MODE_PAUSE))
             {
-                FreeImageToDraw(ref imageToDraw);  // Free the image to draw: no longer needed in these modes
+                FreeImageToDraw(ref imageToDraw);  // Freed, since these modes draw no image
 
                 // Pan with mouse left button
                 Vector2 mousePosition = GetMousePosition();

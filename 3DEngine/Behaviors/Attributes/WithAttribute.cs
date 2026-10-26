@@ -1,6 +1,6 @@
 namespace Engine;
 
-/// <summary>Filter: schedule only for entities that also have all listed component types.</summary>
+/// <summary>A filter, scheduling only for entities that also have all listed component types.</summary>
 [AttributeUsage(AttributeTargets.Method, Inherited = false, AllowMultiple = false)]
 public sealed class WithAttribute : Attribute
 {

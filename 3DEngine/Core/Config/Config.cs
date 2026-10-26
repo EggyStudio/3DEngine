@@ -24,8 +24,8 @@ namespace Engine;
 public sealed record Config
 {
     /// <summary>
-    /// Canonical defaults: "3D Engine" 600×400 window, <see cref="GraphicsBackend.Vulkan"/> backend,
-    /// <see cref="WindowCommand.Show"/> on startup.
+    /// The canonical defaults, a 600×400 window titled "3D Engine" shown on startup
+    /// (<see cref="WindowCommand.Show"/>) and the <see cref="GraphicsBackend.Vulkan"/> backend.
     /// </summary>
     public static Config Default { get; } = new();
 

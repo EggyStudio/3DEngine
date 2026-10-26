@@ -25,6 +25,12 @@ letting half the light through a unit, above with each leaf a ray crosses shaded
 it, global illumination 5.93 to 6.23 ms, and below with the first leaf shaded for all of them, 5.25
 to 5.42, the two alike to the eye.
 
+![](.github/assets/readings/2026-10-26-item-128-edits.webp)
+Two edits of a form drawn with DrawTextEdit at 640 by 240, doubled, the name in the default look
+with "world" selected and its text kept inside the border, and the seed in a font and colors of the
+program's own, above before a click and below after one gives the seed the keyboard, its border two
+pixels wide and its caret after the last digit.
+
 The sun given a width across (`SetShadowSoftness`), read on the engine's tree against `a16227a7`.
 The edge of a pole's shadow, 5 units tall under a sun 45 degrees up, between a quarter and three
 quarters of the light, in units across:
@@ -127,6 +133,7 @@ Done that day
 - Item 112 at `78946b22`. A flat surface mirrors the scene through a planar reflection a program
   sets.
 - Item 127 at `2f5237f2`. A ray crosses a voxel canopy's many leaf surfaces for less.
+- Item 128 at `0754b975`. The interface has a text field to type into.
 
 ## 2026-10-25
 

@@ -75,7 +75,7 @@ public float3 frameLight(float2 uv)
     return max(light * exposure, 0.0);
 }
 
-// A linear color under 1 as the window shows it at uv: saturation and tint in linear light,
+// A linear color under 1 as the window shows it at uv, with saturation and tint in linear light,
 // contrast once encoded, about the middle of what is shown, and the corners darkened from where
 // the vignette begins, measured to a corner as 1.
 public float4 frameShown(float3 color, float2 uv)

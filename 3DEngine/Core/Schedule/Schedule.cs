@@ -6,7 +6,7 @@ namespace Engine;
 /// </summary>
 /// <remarks>
 /// <para>
-/// Features: named system descriptors, optional <c>run_if</c>-style conditions,
+/// It offers named system descriptors, optional <c>run_if</c>-style conditions,
 /// per-system exception isolation, removal/introspection APIs, and frame-level
 /// <see cref="ScheduleDiagnostics"/>.
 /// </para>

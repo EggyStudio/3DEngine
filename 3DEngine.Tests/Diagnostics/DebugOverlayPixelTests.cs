@@ -6,7 +6,7 @@ using static Engine.E3D;
 namespace Engine.Tests.Diagnostics;
 
 /// <summary>
-/// What F1 and F3 leave in a frame drawn on the device: the interface's 2D shapes and its ImGui
+/// What F1 and F3 leave in a frame drawn on the device, the interface's 2D shapes and its ImGui
 /// window gone under F1 with the world drawn on, and the debug overlay over the world with its
 /// lines' light text on their dark backing and the strip's bars.
 /// </summary>
@@ -32,7 +32,7 @@ public sealed class DebugOverlayPixelTests : IDisposable
 
     private static Input Input => GetApp().World.Resource<Input>();
 
-    // The frame: a blue cube in the middle of the world, and inside the interface's scope a red
+    // The frame, a blue cube in the middle of the world, and inside the interface's scope a red
     // square at the lower right and an ImGui window at the lower left.
     private static void Draw()
     {

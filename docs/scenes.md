@@ -109,8 +109,8 @@ game spawns on its own each run, its camera or its interface, is not spawned twi
 read. Entities a `SceneRef` or a `ModelRef` placed are left out, as a scene file leaves them.
 
 `Load` despawns the game in progress first, then loads the scenes and lays the save over them, so
-what the save does not touch is as the files hold it now: a level edited after the save shows each
-edit on a component play never changed. It tells the save's `Loaded<T>` events and one
+what the save does not touch is as the files hold it when it loads, so a level edited after the save
+shows each edit on a component play never changed. It tells the save's `Loaded<T>` events and one
 `SceneLoaded` naming it once over the whole, after the save is laid. A file that is not a save is
 refused before anything is despawned. Each component is compared as a whole, so a component play
 changed comes back as play left it, every field of it. A save of one change in a level of 2,000

@@ -8,7 +8,7 @@ public sealed class PhysicsSettings
     /// <summary>Whether the simulation is held still, running no step, so bodies keep their poses and velocities until it resumes.</summary>
     public bool Paused { get; set; }
 
-    /// <summary>Gravity vector (m/s²). Default: (0, -9.81, 0).</summary>
+    /// <summary>Gravity vector (m/s²), (0, -9.81, 0) by default.</summary>
     public Vector3 Gravity { get; set; } = new(0f, -9.81f, 0f);
 
     /// <summary>Fixed simulation timestep when <see cref="UseFixedTimestep"/> is <c>true</c>. Default 1/60 s.</summary>

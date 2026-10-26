@@ -5,11 +5,11 @@ using static Engine.E3D;
 namespace FeatureTest;
 
 /// <summary>
-/// The effects over the frame and the shaders of the program's own: a board with a red patch and a
-/// glowing bar that bloom, a vignette, colour grading, exposure, depth of field, motion blur and a
-/// tonemapping curve are shown on in turn while the player is in the zone, a knot drawn through a
-/// toon shader, a compute shader stepping the Game of Life in a buffer, another painting a texture,
-/// and a 2D shader drawing into a texture through a greying shader.
+/// The effects over the frame and the shaders of the program's own, shown as a board with a red
+/// patch and a glowing bar that bloom, a vignette, colour grading, exposure, depth of field, motion
+/// blur and a tonemapping curve turned on in turn while the player is in the zone, a knot drawn
+/// through a toon shader, a compute shader stepping the Game of Life in a buffer, another painting
+/// a texture, and a 2D shader drawing into a texture through a greying shader.
 /// </summary>
 /// <remarks>
 /// <para>
@@ -21,7 +21,7 @@ namespace FeatureTest;
 /// the last, and as the player leaves.
 /// </para>
 /// <para>
-/// The shaders are read back wherever the player is: the Game of Life's buffer read after each step
+/// The shaders are read back wherever the player is, the Game of Life's buffer read after each step
 /// for a blinker of three cells that turns from row to column and back, the painted texture for the
 /// colours in it, and the greyed texture for a red drawn grey.
 /// </para>

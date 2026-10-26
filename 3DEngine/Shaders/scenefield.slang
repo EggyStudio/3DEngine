@@ -196,7 +196,7 @@ public float3 fieldNormal<V : IVolume>(V field, SceneFieldInfo info, float3 p)
 }
 
 // The alpha a cell of the field's colors is painted with by a surface that lets `through` of the
-// light pass a unit of its depth (ModelMaterial.LightThrough), its color painted times it: 1 for a
+// light pass a unit of its depth (ModelMaterial.LightThrough), its color painted times it, 1 for a
 // solid surface, down to a half for one that lets all of it through, so a reader that divides a
 // blend of the colors by their alphas takes the colors back and weighs such a cell less, and one
 // that reads a cell as it is takes the share back (lightThroughOf).

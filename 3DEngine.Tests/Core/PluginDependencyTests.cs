@@ -65,7 +65,7 @@ public class PluginDependencyTests : IDisposable
     [ExpectsError("Engine.Application", "requires 'Marker'")]
     public void AddPlugin_Reordered_Reports_Wrong_Plugin_Not_NullReference()
     {
-        // The user-facing scenario: someone reorders plugins and the build breaks.
+        // The user-facing scenario is someone reordering plugins and the build breaking.
         // The error must point at the actual culprit, not surface as a NullReferenceException.
         var act = () => _app.AddPlugin(new ConsumerWithoutDeclaredDep());
 

@@ -1,6 +1,6 @@
 namespace Engine;
 
-/// <summary>Filter: an entity is visited only when each listed component changed since the method's system last ran.</summary>
+/// <summary>A filter visiting an entity only when each listed component changed since the method's system last ran.</summary>
 [AttributeUsage(AttributeTargets.Method, Inherited = false, AllowMultiple = false)]
 public sealed class ChangedAttribute : Attribute
 {

@@ -5,13 +5,13 @@ using static Engine.E3D;
 namespace FeatureTest;
 
 /// <summary>
-/// The lights and shadows: a red lamp casting shadows round a pillar, a blue spot turning slowly
+/// The lights and shadows, a red lamp casting shadows round a pillar, a blue spot turning slowly
 /// over the floor, a block the sun throws a shadow from, an emissive sphere, spheres from rough to
 /// polished and from dielectric to metal, and a room a reflection probe lights with itself.
 /// </summary>
 /// <remarks>
 /// Each second while the player is in the zone, the zone is drawn into a texture from a camera
-/// high over it and read back, and the floor's colour read where each light falls: under the lamp
+/// high over it and read back, and the floor's colour read where each light falls, under the lamp
 /// beside the open floor, under the spot, in the block's shadow beside the floor next to it, and on
 /// the emissive sphere. The sun's shadows are drawn round the camera the player looks through, so
 /// the read waits for the player to be here. The lights are ok when each of those reads as its

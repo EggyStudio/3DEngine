@@ -219,7 +219,7 @@ public class BehaviorConditionsTests
 
         var condition = BehaviorConditions.KeyToggle("sys.X", Key.F3, defaultEnabled: true);
 
-        // First call: F3 is pressed → flips true→false
+        // On the first call F3 is pressed, which flips true→false
         condition(world).Should().BeFalse();
     }
 }

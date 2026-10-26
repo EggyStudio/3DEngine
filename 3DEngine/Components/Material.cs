@@ -19,7 +19,7 @@ namespace Engine;
 /// component itself is GPU-agnostic.
 /// </para>
 /// <para>
-/// <b>Color-space convention</b> (matches glTF / USD): <see cref="BaseColorTexture"/>
+/// <b>Color-space convention</b> (matches glTF / USD). <see cref="BaseColorTexture"/>
 /// and <see cref="EmissiveTexture"/> store sRGB-encoded values; the other three are
 /// linear. <see cref="SceneSpawner"/> requests the right encoding from the asset server
 /// at load time via the <c>"srgb"</c> / <c>"linear"</c> sub-asset label honored by
@@ -57,7 +57,7 @@ public struct Material : IEquatable<Material>
     /// <summary>sRGB base-color texture; <see cref="Handle{T}.Invalid"/> when unbound.</summary>
     public Handle<TextureAsset> BaseColorTexture;
 
-    /// <summary>Linear metallic-roughness texture (glTF packing: B = metallic, G = roughness).</summary>
+    /// <summary>Linear metallic-roughness texture, packed as glTF packs it, B = metallic and G = roughness.</summary>
     public Handle<TextureAsset> MetallicRoughnessTexture;
 
     /// <summary>Linear tangent-space normal map.</summary>

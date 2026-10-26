@@ -156,13 +156,13 @@ internal static class SceneSpawner
     /// </summary>
     public static Matrix4x4 ComputeRootMatrix(Scene scene, SceneSpawnSettings settings)
     {
-        // Unit conversion: source mpu = N means "1 source unit is N meters". Scaling by
+        // A source mpu of N means "1 source unit is N meters", so scaling by
         // (sourceMpu / targetMpu) converts the vertex data to target units.
         var unitScale = (float)(scene.SourceMetersPerUnit / Math.Max(settings.TargetMetersPerUnit, 1e-9));
         var scale = Matrix4x4.CreateScale(unitScale);
 
-        // Basis change: if the source is Z-up and the target is Y-up, rotate -90deg around
-        // the X axis so the source +Z aligns with target +Y. Same-basis is identity.
+        // Where the source is Z-up and the target is Y-up, the basis changes by a rotation of
+        // -90deg around the X axis so the source +Z aligns with target +Y. Same-basis is identity.
         var basis = Matrix4x4.Identity;
         if (scene.SourceCoordinateSystem == SceneCoordinateSystem.ZUp &&
             settings.TargetCoordinateSystem == SceneCoordinateSystem.YUp)
@@ -170,7 +170,7 @@ internal static class SceneSpawner
             basis = Matrix4x4.CreateRotationX(-MathF.PI / 2f);
         }
 
-        // Composition: child = local * scale * basis * placement
+        // A child composes as local * scale * basis * placement
         // (rightmost gets applied last in System.Numerics' row-vector convention).
         return scale * basis * settings.Placement;
     }
@@ -328,7 +328,7 @@ internal static class SceneSpawner
         var runtimeMaterial = BuildRuntimeMaterial(material, settings, ctx);
         ecs.Add(entity, runtimeMaterial);
 
-        // Per-mesh diagnostic: vertex/tri count, source-space AABB and the final
+        // A diagnostic for each mesh, its vertex/tri count, source-space AABB and the final
         // world-space transform position the spawner produced. One pass over
         // the positions built above, which shows a wrong scale, a mesh off screen or
         // degenerate bounds without a debugger.
@@ -390,8 +390,8 @@ internal static class SceneSpawner
 
         if (ctx.Server is null) return runtime;
 
-        // sRGB textures: BaseColor + Emissive (per glTF / USD convention).
-        // Linear textures: MetallicRoughness, Normal, Occlusion.
+        // BaseColor and Emissive are sRGB textures (per glTF / USD convention), and
+        // MetallicRoughness, Normal and Occlusion linear ones.
         runtime.BaseColorTexture           = LoadTexture(ctx, material.BaseColorTexture, srgb: true);
         runtime.EmissiveTexture            = LoadTexture(ctx, material.EmissiveTexture, srgb: true);
         runtime.MetallicRoughnessTexture   = LoadTexture(ctx, material.MetallicRoughnessTexture, srgb: false);
@@ -501,8 +501,8 @@ internal static class SceneSpawner
         if (Matrix4x4.Decompose(m, out var scale, out var rotation, out var translation))
             return new Transform { Position = translation, Rotation = rotation, Scale = scale };
 
-        // Degenerate (zero-scale axis or shear): fall back to translation-only so the
-        // entity still ends up roughly in place rather than dropping silently.
+        // A degenerate matrix (a zero-scale axis or shear) falls back to translation-only so
+        // the entity still ends up roughly in place rather than dropping silently.
         return new Transform
         {
             Position = new Vector3(m.M41, m.M42, m.M43),
@@ -570,14 +570,14 @@ internal static class SceneSpawner
     }
 
     /// <summary>
-    /// Test hook: resets the once-per-process "textures ignored" warning latch so unit
-    /// tests can assert the dedupe behavior deterministically. Production code never
+    /// A test hook that resets the once-per-process "textures ignored" warning latch so
+    /// unit tests can assert the dedupe behavior deterministically. Production code never
     /// calls this.
     /// </summary>
     internal static void ResetTextureWarningForTest()
         => System.Threading.Interlocked.Exchange(ref s_textureWarningEmitted, 0);
 
-    /// <summary>Test hook: <c>true</c> once the dedupe latch has fired.</summary>
+    /// <summary>A test hook, <c>true</c> once the dedupe latch has fired.</summary>
     internal static bool TextureWarningEmittedForTest
         => System.Threading.Volatile.Read(ref s_textureWarningEmitted) != 0;
 }

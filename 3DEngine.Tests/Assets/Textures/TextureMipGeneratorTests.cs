@@ -24,7 +24,7 @@ public class TextureMipGeneratorTests
     [Fact]
     public void TotalBytes_Matches_Sum_Of_Mip_Levels()
     {
-        // 4x4 Rgba8 -> levels: 4x4=64, 2x2=16, 1x1=4 -> 84 bytes total.
+        // A 4x4 Rgba8 image's levels hold 4x4=64, 2x2=16 and 1x1=4 bytes, 84 in all.
         TextureMipGenerator.TotalBytes(4, 4, bytesPerPixel: 4, mipCount: 3).Should().Be(84);
     }
 

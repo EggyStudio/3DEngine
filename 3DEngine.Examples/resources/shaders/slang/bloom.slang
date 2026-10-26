@@ -9,7 +9,7 @@ float4 texture0(float2 coord) { return boundTexture.Sample(float2(coord.x, 1.0 -
 
 static const float2 size = float2(800, 450);   // Framebuffer size
 static const float samples = 5.0;          // Pixels per axis; higher = bigger glow, worse performance
-static const float quality = 2.5;          // Defines size factor: Lower = smaller glow, better quality
+static const float quality = 2.5;          // Lower for a smaller glow of better quality
 
 [shader("fragment")]
 float4 fragmentMain(VertexOutput input) : SV_Target

@@ -174,8 +174,8 @@ public class AudioServerTests
     [Fact]
     public void Pending_Handle_Picks_Up_Mutations_Made_While_Loading()
     {
-        // Regression: setters invoked on the AudioSource handle BEFORE the asset finishes
-        // loading must be reflected in the AudioVoiceParams the backend ultimately sees.
+        // A regression test. Setters invoked on the AudioSource handle BEFORE the asset
+        // finishes loading must be reflected in the AudioVoiceParams the backend ultimately sees.
         using var server = new AudioServer();
         var backend = new RecordingBackend();
         server.SetBackend(backend);
@@ -376,7 +376,7 @@ public class AudioServerTests
         var backend = new RecordingBackend();
         server.SetBackend(backend);
 
-        var src = server.Play(MakeSound("ns.wav")); // non-spatial: parameters.Position == null
+        var src = server.Play(MakeSound("ns.wav")); // not spatial, so parameters.Position is null
 
         backend.Calls.Clear();
         src.SetPosition(new Vector3(99, 99, 99));

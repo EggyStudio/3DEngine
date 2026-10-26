@@ -30,12 +30,12 @@ public static class ShadersCelShading
         Shader defaultShader = model.Materials[0].Shader;
         model.Materials[0].Shader = celShader;
 
-        // numBands: controls toon quantization steps (2 = hard binary, 20 = near-smooth)
+        // numBands controls toon quantization steps (2 = hard binary, 20 = near-smooth)
         float numBands = 10.0f;
         int numBandsLoc = GetShaderLocation(celShader, "numBands");
         SetShaderValue(celShader, numBandsLoc, numBands);
 
-        // Inverted-hull outline shader: draws back faces extruded along normals
+        // The inverted-hull outline shader draws back faces extruded along normals
         Shader outlineShader = LoadShader("resources/shaders/slang/outline_hull.slang");
         int outlineThicknessLoc = GetShaderLocation(outlineShader, "outlineThickness");
 
@@ -85,10 +85,10 @@ public static class ShadersCelShading
 
                     if (outlineEnabled)
                     {
-                        // Outline pass: cull front faces, draw extruded back faces as silhouette
-                        // raylib's normals of this file are as long as one over its scale of
-                        // 0.0254, inches to meters, where a normal here is a unit long, so the hull
-                        // is pushed by as much more for the outline raylib's picture has.
+                        // The outline pass culls front faces and draws extruded back faces as a
+                        // silhouette. raylib's normals of this file are as long as one over its
+                        // scale of 0.0254, inches to meters, where a normal here is a unit long, so
+                        // the hull is pushed by as much more for the outline raylib's picture has.
                         float thickness = 0.005f / 0.0254f;
                         SetShaderValue(outlineShader, outlineThicknessLoc, thickness);
 

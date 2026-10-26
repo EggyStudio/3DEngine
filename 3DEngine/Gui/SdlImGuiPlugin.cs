@@ -161,7 +161,7 @@ internal sealed class SdlImGuiPlugin : IPlugin
 
         app.AddSystem(Stage.Render, new SystemDescriptor(world =>
             {
-                // Vulkan mode: ImGuiRenderNode (Stage.Last) closes the frame; doing it
+                // In Vulkan mode ImGuiRenderNode (Stage.Last) closes the frame; doing it
                 // here would race Stage.Render systems still calling ImGui.Begin/End.
                 if (isVulkan)
                     return;

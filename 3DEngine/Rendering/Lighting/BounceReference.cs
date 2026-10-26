@@ -284,11 +284,12 @@ internal static class BounceReference
 
     // The point of an octahedron a point of its square stands for, as gi.slang's octahedronPoint gives it.
     /// <summary>
-    /// What <c>gi.screenprobe</c> reports: each of the sixteen rays of the window's screen probe under
-    /// a pixel, as the screen's pass wrote them for the frame, where each was met, on the screen, in
-    /// the field or beyond its reach, against the light a path-traced reference sends along the same
-    /// way from where the rays start and over the ways it stands for, and the light the probe sums
-    /// against the reference's along its ways, over their cells and over the whole hemisphere.
+    /// What <c>gi.screenprobe</c> reports, each of the sixteen rays of the window's screen probe
+    /// under a pixel, as the screen's pass wrote them for the frame, where each was met, on the
+    /// screen, in the field or beyond its reach, against the light a path-traced reference sends
+    /// along the same way from where the rays start and over the ways it stands for, and the light
+    /// the probe sums against the reference's along its ways, over their cells and over the whole
+    /// hemisphere.
     /// </summary>
     internal static string ScreenProbe(World world, GpuScreenProbes screen, int x, int y, int samples, int bounces) =>
         MeasureScreenProbe(world, screen, samples, bounces, out var why) is { } probe ? ScreenProbeReport(probe, screen.Tile, x, y, samples) : why;

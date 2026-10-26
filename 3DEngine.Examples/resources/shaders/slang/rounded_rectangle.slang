@@ -8,7 +8,7 @@
 import engine;
 
 uniform float4 rectangle;   // x, y, width and height, in pixels from the bottom as GLSL counts them
-uniform float4 radius;      // Each corner's: top left, top right, bottom left, bottom right
+uniform float4 radius;      // Top left, top right, bottom left, bottom right
 uniform float4 color;
 
 uniform float shadowRadius;

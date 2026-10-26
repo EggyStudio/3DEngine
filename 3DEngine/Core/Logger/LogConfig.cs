@@ -46,6 +46,6 @@ internal static class LogConfig
         }
     }
 
-    /// <summary>Convenience: returns <see cref="LogsDirectory"/>/<paramref name="fileName"/>, ensuring the directory exists.</summary>
+    /// <summary>A convenience that returns <see cref="LogsDirectory"/>/<paramref name="fileName"/>, ensuring the directory exists.</summary>
     public static string GetLogFilePath(string fileName) => Path.Combine(LogsDirectory, fileName);
 }

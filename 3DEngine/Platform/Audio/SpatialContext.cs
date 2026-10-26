@@ -48,7 +48,7 @@ public readonly record struct SpatialContext
     /// <summary>The distance at which the voice falls silent, the voice's or the server's.</summary>
     public float FarDistance { get; init; }
 
-    /// <summary>Empty context: identity orientations, omni directivity.</summary>
+    /// <summary>An empty context, with identity orientations and omni directivity.</summary>
     public static SpatialContext Empty => new()
     {
         SourceForward = -Vector3.UnitZ, SourceUp = Vector3.UnitY,

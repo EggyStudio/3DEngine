@@ -5,15 +5,16 @@ using static Engine.E3D;
 namespace FeatureTest;
 
 /// <summary>
-/// The text: a page drawn into a texture and shown on a billboard, with a line of Lato baked with
+/// The text, a page drawn into a texture and shown on a billboard, with a line of Lato baked with
 /// the characters past Latin-1 it needs, Hebrew read right to left, a colour glyph, the default
-/// font, a distance field font turned, and a ligature measured with the font's ligatures on and off.
+/// font, a distance field font turned, and a ligature measured with the font's ligatures on and
+/// off.
 /// </summary>
 /// <remarks>
 /// The Hebrew and the colour glyph are drawn in two small fonts the tests carry, made by
 /// <c>build/make-color-test-fonts.py</c>, whose alef, bet and gimel are bars 800, 400 and 200 units
 /// high and whose U+1F600 is red at its left and blue at its right, so what is drawn is known in
-/// advance. Every second the page is read back: the Lato line's width as drawn against
+/// advance. Every second the page is read back for the Lato line's width as drawn against
 /// <see cref="MeasureTextEx"/>, the Hebrew's bars rising from left to right, as the first letter is
 /// drawn at the right, the glyph's red left of its blue, and the default font's line. The text is
 /// ok when all of those read as said.

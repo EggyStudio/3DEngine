@@ -39,7 +39,7 @@ public struct Visits
 }
 
 /// <summary>
-/// The scenes and saves: a level written as a scene file and started as a saved game, with a prefab
+/// The scenes and saves, a level written as a scene file and started as a saved game, with a prefab
 /// a scene reference places, a stack whose crate is a data file named by its id, a block play moves
 /// and one play spawns, saved and read back, the level written again and read back apart, and the
 /// zone's visits kept in a persistent value between runs.

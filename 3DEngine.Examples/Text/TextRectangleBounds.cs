@@ -172,7 +172,7 @@ public static class TextRectangleBounds
             if (state == MEASURE_STATE)
             {
                 // There are multiple types of spaces in UNICODE, which this leaves out
-                // Ref: http://jkorpela.fi/chars/spaces.html
+                // (http://jkorpela.fi/chars/spaces.html lists them)
                 if ((codepoint == ' ') || (codepoint == '\t') || (codepoint == '\n')) endLine = i;
 
                 if ((textOffsetX + glyphWidth) > rec.Width)

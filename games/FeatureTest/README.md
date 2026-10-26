@@ -10,29 +10,29 @@ You start on the hub, a plaza with a cube turning on a pedestal and a signpost a
 zone, its road running out to it. West is the drawing zone, every 3D shape on a plinth of its own
 along the road, a grid laid through rlgl's matrix, and an easel showing a texture that 2D shapes and
 text are drawn into each frame. East is the course, six lanes running east side by side, each a
-station the character is tried on: a ramp of 25 degrees, stairs of 0.25, a gap to jump, a platform
-that carries you, crates to push and a tunnel to crouch through. A trigger at each lane's end turns
-green once you reach it. North-west is the models zone, every mesh the engine generates on a plinth,
-a heightmap and a maze from images, an OBJ, a skinned arm, a robot run by an animation state machine
-it names by its file's id, strips of morph targets and four hundred cubes in one instanced draw.
-North is the lights zone, a red lamp and a blue spot that cast shadows, a block the sun throws a
-shadow from, a glowing sphere, balls from rough to polished and from dielectric to metal, and a room
-a reflection probe lights with itself. North-east is a white room with a red wall and a green one,
-where global illumination is on while you are there, and off again as you leave, since it costs
-every frame. South-east is the particles zone, a fountain, a fire, smoke, sparks that bounce, lit
-particles and a burst every two seconds. South is the effects zone, a board with a red patch and a
-glowing bar that bloom, a vignette, colour grading, exposure, depth of field, motion blur and a
-tonemapping curve are shown on in turn as you arrive, a knot drawn through a toon shader, a texture
-a compute shader paints, and the Game of Life and a greying shader read back unseen. South-west is
-the audio zone, a speaker whose drone is panned toward it as you move, music, a tone a stream makes
-and a coin every two seconds, and past it on the outer ring the text zone, a page of Lato past
-Latin-1, Hebrew read right to left, a colour glyph, the default font, a distance field font turned
-and a ligature measured with and without. Beyond the drawing zone on the outer ring is the scenes
-zone, a level written as a scene file and started as a saved game, a prefab a scene places, a stack
-of crates whose numbers are a data file found by its id after a rename, a block moved and one
-spawned that the save brings back, and how often you came, kept between runs. Beyond the effects
-zone is the interface zone, screens stepped by Enter and P, a sign you type on, an ImGui window and
-a health bar and a gauge in 2D.
+station the character is tried on, which are a ramp of 25 degrees, stairs of 0.25, a gap to jump, a
+platform that carries you, crates to push and a tunnel to crouch through. A trigger at each lane's
+end turns green once you reach it. North-west is the models zone, every mesh the engine generates on
+a plinth, a heightmap and a maze from images, an OBJ, a skinned arm, a robot run by an animation
+state machine it names by its file's id, strips of morph targets and four hundred cubes in one
+instanced draw. North is the lights zone, a red lamp and a blue spot that cast shadows, a block the
+sun throws a shadow from, a glowing sphere, balls from rough to polished and from dielectric to
+metal, and a room a reflection probe lights with itself. North-east is a white room with a red wall
+and a green one, where global illumination is on while you are there, and off again as you leave,
+since it costs every frame. South-east is the particles zone, a fountain, a fire, smoke, sparks that
+bounce, lit particles and a burst every two seconds. South is the effects zone, a board with a red
+patch and a glowing bar that bloom, a vignette, colour grading, exposure, depth of field, motion
+blur and a tonemapping curve are shown on in turn as you arrive, a knot drawn through a toon shader,
+a texture a compute shader paints, and the Game of Life and a greying shader read back unseen.
+South-west is the audio zone, a speaker whose drone is panned toward it as you move, music, a tone a
+stream makes and a coin every two seconds, and past it on the outer ring the text zone, a page of
+Lato past Latin-1, Hebrew read right to left, a colour glyph, the default font, a distance field
+font turned and a ligature measured with and without. Beyond the drawing zone on the outer ring is
+the scenes zone, a level written as a scene file and started as a saved game, a prefab a scene
+places, a stack of crates whose numbers are a data file found by its id after a rename, a block
+moved and one spawned that the save brings back, and how often you came, kept between runs. Beyond
+the effects zone is the interface zone, screens stepped by Enter and P, a sign you type on, an ImGui
+window and a health bar and a gauge in 2D.
 
 ## Keys
 

@@ -86,7 +86,7 @@ public sealed class Time
 
         FrameCount++;
 
-        // Exponential moving average: smoothFps = lerp(smoothFps, instantFps, 0.1)
+        // An exponential moving average, smoothFps = lerp(smoothFps, instantFps, 0.1)
         double instantFps = DeltaSeconds > 0.0 ? 1.0 / DeltaSeconds : SmoothedFps;
         SmoothedFps = FrameCount == 1
             ? instantFps

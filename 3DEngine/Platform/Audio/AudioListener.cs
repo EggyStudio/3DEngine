@@ -10,13 +10,13 @@ namespace Engine;
 /// </summary>
 /// <remarks>
 /// Only one listener entity is honored per frame; if multiple are present the first
-/// query result wins. Convention: attach to the camera entity.
+/// query result wins. By convention it is added to the camera's entity.
 /// </remarks>
 public struct AudioListener
 {
     /// <summary>Master volume multiplier applied to every voice. <c>1.0</c> = unity.</summary>
     public float MasterVolume;
 
-    /// <summary>Convenience factory: a listener at unity master volume.</summary>
+    /// <summary>A listener at unity master volume.</summary>
     public static AudioListener Default => new() { MasterVolume = 1f };
 }

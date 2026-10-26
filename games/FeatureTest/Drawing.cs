@@ -5,7 +5,7 @@ using static Engine.E3D;
 namespace FeatureTest;
 
 /// <summary>
-/// The drawing calls: every 3D shape on a plinth of its own along the road, a grid laid through
+/// The drawing calls, every 3D shape on a plinth of its own along the road, a grid laid through
 /// rlgl's matrix, and an easel facing the player that shows a texture 2D shapes and text are drawn
 /// into each frame.
 /// </summary>

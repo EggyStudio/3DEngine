@@ -7,7 +7,7 @@ using BepuPhysics.Trees;
 
 namespace Engine;
 
-/// <summary>Spatial queries: rays, spheres swept along a ray, and the bodies a sphere overlaps.</summary>
+/// <summary>Spatial queries, rays, spheres swept along a ray, and the bodies a sphere overlaps.</summary>
 public sealed partial class PhysicsWorld
 {
     /// <inheritdoc />

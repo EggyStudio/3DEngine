@@ -11,7 +11,7 @@ world of blocks has no wall thinner than a cell, so the march now runs only by s
 | no march at all | 8.6 to 9.3 ms, the thin room's corner then 2.17 times its wall |
 | no read of the world's probes | 7.7 to 7.9 ms |
 
-Other programs held part of the GPU through every round, so the rounds run apart by as much as 3
-ms; within each the gated form read 1.0 to 5.4 ms less. A half-size pass gathering the world's
-probes once a two by two of pixels, read first, gave nothing: 11.9 to 12.1 ms at High and 8.75 to
+Other programs held part of the GPU through every round, so the rounds run apart by as much as 3 ms;
+within each the gated form read 1.0 to 5.4 ms less. A half-size pass gathering the world's probes
+once a two by two of pixels, read first, gave nothing, reading 11.9 to 12.1 ms at High and 8.75 to
 9.16 at Low with it and without, since the cost was the march and not the gather it stood in for.

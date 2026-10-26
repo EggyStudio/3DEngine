@@ -144,7 +144,7 @@ public class ScenePayloadTests
 
         var expected = 2f * MathF.Atan(24f / (2f * 50f));
         cam.VerticalFovRadians.Should().BeApproximately(expected, 1e-6f);
-        // Sanity: ~0.4731 rad ~= 27.1 deg.
+        // As a check, ~0.4731 rad ~= 27.1 deg.
         (cam.VerticalFovRadians * (180f / MathF.PI)).Should().BeApproximately(27.0f, 0.5f);
     }
 

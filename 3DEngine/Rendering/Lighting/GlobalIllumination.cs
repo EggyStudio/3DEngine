@@ -391,13 +391,13 @@ internal sealed class GlobalIlluminationRenderer : IDisposable
         // takes as dark, and the sun's patch on a room's floor lit the room 62% under a path-traced
         // reference at Low, where it reads 50% under.
         //
-        // The last cascade's interval ends at the field's edge, the diagonal of its coarsest cascade,
-        // since past it no cascade takes over: ending at four times its spacing, a ray across a room
-        // wider than that ended in mid-air and brought nothing, and at Low, whose last cascade
-        // reached 9.6 units, the probe at the far wall of a room 12 wide read its face toward the
-        // room 35% under a path-traced reference where High's, with a third cascade past it, read
-        // 21%. Its rays go on until they meet a surface or leave the field, and read the sky there
-        // as a ray leaving the field does.
+        // The last cascade's interval ends at the field's edge, the diagonal of its coarsest
+        // cascade, since past it no cascade takes over. Ending at four times its spacing, a ray
+        // across a room wider than that ended in mid-air and brought nothing, and at Low, whose
+        // last cascade reached 9.6 units, the probe at the far wall of a room 12 wide read its face
+        // toward the room 35% under a path-traced reference where High's, with a third cascade past
+        // it, read 21%. Its rays go on until they meet a surface or leave the field, and read the
+        // sky there as a ray leaving the field does.
         //
         // The far cascade's probes stand in the field's far cascade, their spacing that of its cells,
         // and its interval begins half way along the one before's, as each cascade's does. The

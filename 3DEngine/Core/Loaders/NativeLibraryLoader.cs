@@ -37,14 +37,14 @@ internal sealed class NativeLibraryLoader
 
     // -- Platform detection
 
-    /// <summary>OS identifier: <c>"win"</c>, <c>"linux"</c>, or <c>"osx"</c>.</summary>
+    /// <summary>The operating system's name, <c>"win"</c>, <c>"linux"</c> or <c>"osx"</c>.</summary>
     public static string PlatformName { get; } =
         OperatingSystem.IsWindows() ? "win" :
         OperatingSystem.IsLinux() ? "linux" :
         OperatingSystem.IsMacOS() ? "osx" :
         "unknown";
 
-    /// <summary>CPU architecture: <c>"x64"</c>, <c>"arm64"</c>, <c>"x86"</c>, or <c>"arm"</c>.</summary>
+    /// <summary>The processor's architecture, <c>"x64"</c>, <c>"arm64"</c>, <c>"x86"</c> or <c>"arm"</c>.</summary>
     public static string ArchitectureName { get; } =
         RuntimeInformation.ProcessArchitecture switch
         {
@@ -322,7 +322,7 @@ internal sealed class NativeLibraryLoader
         if (handle != nint.Zero)
             return handle;
 
-        // 4. Fallback: try the raw DllImport name as-is in the search paths
+        // 4. Failing that, try the raw DllImport name as it is in the search paths
         //    (handles cases like "libfoo.so.2" used directly in [DllImport]).
         if (fileName != libraryName)
         {
@@ -436,7 +436,7 @@ internal sealed class NativeLibraryLoader
             catch { return nint.Zero; }
         }
 
-        // Linux: try glibc soname first, fall back to musl.
+        // On Linux, try the glibc soname first, then musl's.
         try
         {
             nint h = dlopen_glibc(absolutePath, RTLD_LAZY | RTLD_GLOBAL);

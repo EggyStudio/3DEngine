@@ -80,7 +80,7 @@ public class MaterialTests
             EmissiveTexture = a,
         };
 
-        // Sanity: assigning Invalid slots leaves IsValid false but the field is settable.
+        // Assigning Invalid slots leaves IsValid false, though the field is settable.
         m.BaseColorTexture.IsValid.Should().BeFalse();
         m.EmissiveTexture.IsValid.Should().BeFalse();
     }

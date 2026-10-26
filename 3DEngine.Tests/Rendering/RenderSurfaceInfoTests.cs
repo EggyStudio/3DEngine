@@ -47,7 +47,7 @@ public class RenderSurfaceInfoTests
         surface.Apply(1920, 1080);
         surface.Revision.Should().Be(2UL);
 
-        // Same size: no revision bump
+        // The same size bumps no revision
         surface.Apply(1920, 1080);
         surface.Revision.Should().Be(2UL);
     }

@@ -58,7 +58,7 @@ public sealed class SceneNode
     /// <summary>Child nodes (owned). Parent is implicit via traversal order.</summary>
     public List<SceneNode> Children { get; } = new();
 
-    /// <summary>Convenience: get the first attached component of type <typeparamref name="T"/>, or <c>default</c>.</summary>
+    /// <summary>The first attached component of type <typeparamref name="T"/>, or <c>default</c>.</summary>
     public T? GetComponent<T>() where T : class
     {
         foreach (var c in Components)

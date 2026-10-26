@@ -7,7 +7,7 @@ float4 fragmentMain(VertexOutput input) : SV_Target
 {
     float4 color = boundTexture.Sample(input.uv);
 
-    // High-pass threshold blur: only pixels brighter than 0.75 in any channel contribute
+    // A high-pass threshold blur, to which only pixels brighter than 0.75 in any channel contribute
     float4 bloom = float4(0.0);
     float2 texel = float2(1.0/1280.0, 1.0/720.0)*2.5;
 

@@ -6,8 +6,8 @@ namespace Engine.Tests.Rendering;
 
 /// <summary>
 /// A mesh whose vertices and count a compute shader writes, drawn by an indirect draw with nothing
-/// read back: its triangles drawn as many as the count says, none for a count of 0, no more than its
-/// capacity for a larger one, and its shadow cast as any mesh's.
+/// read back, its triangles drawn as many as the count says, none for a count of 0, no more than
+/// its capacity for a larger one, and its shadow cast as any mesh's.
 /// </summary>
 [Collection("E3D")]
 [Trait("Category", "Render")]

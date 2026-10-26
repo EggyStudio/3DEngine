@@ -57,7 +57,7 @@ public static class AudioStreamEffects
                 else ResumeMusicStream(music);
             }
 
-            // Add/Remove effect: lowpass filter
+            // Adds or removes the lowpass filter
             if (IsKeyPressed(Key.F))
             {
                 enableEffectLPF = !enableEffectLPF;
@@ -65,7 +65,7 @@ public static class AudioStreamEffects
                 else DetachAudioStreamProcessor(music.Stream, AudioProcessEffectLPF);
             }
 
-            // Add/Remove effect: delay
+            // Adds or removes the delay
             if (IsKeyPressed(Key.D))
             {
                 enableEffectDelay = !enableEffectDelay;
@@ -104,7 +104,7 @@ public static class AudioStreamEffects
         CloseWindow();
     }
 
-    // Audio effect: lowpass filter, over the music's samples, two channels interleaved
+    // The lowpass filter, over the music's samples, two channels interleaved
     private static readonly float[] low = [0.0f, 0.0f];
     private static void AudioProcessEffectLPF(Span<float> buffer)
     {
@@ -123,7 +123,7 @@ public static class AudioStreamEffects
         }
     }
 
-    // Audio effect: delay
+    // The delay
     private static void AudioProcessEffectDelay(Span<float> buffer)
     {
         for (int i = 0; i + 1 < buffer.Length; i += 2)

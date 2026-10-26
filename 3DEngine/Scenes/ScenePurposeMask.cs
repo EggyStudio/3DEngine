@@ -22,7 +22,7 @@ public enum ScenePurposeMask
     /// <summary>Include construction / debug geometry.</summary>
     Guide = 1 << 3,
 
-    /// <summary>Runtime default: <see cref="Default"/> + <see cref="Render"/>.</summary>
+    /// <summary>The runtime default, <see cref="Default"/> with <see cref="Render"/>.</summary>
     Runtime = Default | Render,
 
     /// <summary>What a tool that shows proxies includes, <see cref="Default"/>, <see cref="Render"/> and <see cref="Proxy"/>.</summary>

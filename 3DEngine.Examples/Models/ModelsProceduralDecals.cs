@@ -32,7 +32,7 @@ public static class ModelsProceduralDecals
 
         Camera3D camera = new(new Vector3(0.0f, 2.5f, 5.0f), new Vector3(0.0f, 0.0f, 0.0f), Vector3.UnitY, 45.0f, CameraProjection.Perspective);
 
-        // Target model: a procedurally generated knot with a checkerboard skin
+        // The target model, a procedurally generated knot with a checkerboard skin
         Model model = LoadModelFromMesh(GenMeshTorus(0.8f, 1.8f, 32, 64));
 
         Image checkerImage = GenImageChecked(512, 512, 32, 32, Color.LightGray, Color.Gray);
@@ -54,7 +54,7 @@ public static class ModelsProceduralDecals
         Model placementCube = LoadModelFromMesh(GenMeshCube(decalSize, decalSize, decalSize));
         placementCube.Materials[0].Color = Color.Lime;
 
-        // Decal texture: a procedurally drawn target/bullseye, no image file needed
+        // The decal's texture, a bullseye drawn procedurally, so no image file is needed
         Image decalImage = GenImageColor(128, 128, Color.Blank);
         ImageDrawCircle(ref decalImage, 64, 64, 60, Color.Red);
         ImageDrawCircle(ref decalImage, 64, 64, 45, Color.White);
@@ -133,7 +133,7 @@ public static class ModelsProceduralDecals
 
                 EndMode3D();
 
-                // Vertex/triangle counts: base model vs total once decal geometry is added
+                // The base model's vertices and triangles against the total with the decals added
                 int baseVertices = 0, baseTriangles = 0;
                 for (int i = 0; i < model.Meshes.Length; i++)
                 {

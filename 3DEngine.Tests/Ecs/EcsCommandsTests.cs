@@ -106,7 +106,7 @@ public class EcsCommandsTests
 
         int capturedId = -1;
 
-        // First: spawn, then add component to that entity
+        // A spawn first, then a component added to that entity
         cmd.Spawn((id, world) =>
         {
             capturedId = id;
@@ -159,7 +159,7 @@ public class EcsCommandsTests
         count.Should().Be(1);
     }
 
-    // -- Complex scenario: spawn + add multiple components
+    // -- A spawn with several components added
 
     [Fact]
     public void Spawn_With_Multiple_Components()

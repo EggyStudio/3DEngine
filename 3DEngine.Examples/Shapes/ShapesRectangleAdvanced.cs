@@ -119,7 +119,8 @@ public static class ShapesRectangleAdvanced
         // But this time instead of Quad, we think in triangles
 
         rlBegin(RlDrawMode.Triangles);
-            // Draw all of the 4 corners: [1] Upper Left Corner, [3] Upper Right Corner, [5] Lower Right Corner, [7] Lower Left Corner
+            // Draw all of the 4 corners, [1] Upper Left Corner, [3] Upper Right Corner, [5] Lower
+            // Right Corner and [7] Lower Left Corner
             for (int k = 0; k < 4; ++k)
             {
                 Color color = default;

@@ -46,7 +46,7 @@ internal static class ConsoleHost
     /// <summary>Holds the command's answer until <paramref name="frame"/> has started, so "act, then look" is one call.</summary>
     public static void Hold(ulong frame) => Held = frame;
 
-    /// <summary>Answers later: <paramref name="poll"/> is asked once a frame until it returns an answer.</summary>
+    /// <summary>Answers later, <paramref name="poll"/> asked once a frame until it returns an answer.</summary>
     public static void Later(Func<string?> poll) => Pending = poll ?? throw new ArgumentNullException(nameof(poll));
 
     /// <summary>

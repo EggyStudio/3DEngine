@@ -28,7 +28,7 @@ public sealed partial class AssetServer
     {
         string key = path.ToString();
 
-        // Deduplication: return existing handle if already requested
+        // A path asked for before gets its existing handle.
         if (_pathToId.TryGetValue(key, out var existing))
         {
             var handle = new Handle<T>(existing.Id, path, strong: true);

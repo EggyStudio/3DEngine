@@ -74,7 +74,7 @@ internal sealed unsafe partial class GraphicsDevice
     private void CreateDescriptorResources()
     {
         Logger.Debug("Creating descriptor set layout (binding 0=UBO vertex, binding 1=CombinedImageSampler fragment)...");
-        // Simple layout: binding 0 = uniform buffer, binding 1 = combined image sampler.
+        // A simple layout, binding 0 a uniform buffer and binding 1 a combined image sampler.
         VkDescriptorSetLayoutBinding* bindings = stackalloc VkDescriptorSetLayoutBinding[2];
         bindings[0] = new VkDescriptorSetLayoutBinding
         {

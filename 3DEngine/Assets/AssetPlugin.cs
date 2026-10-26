@@ -22,10 +22,10 @@ namespace Engine;
 /// </remarks>
 /// <example>
 /// <code>
-/// // Default: source/ directory, no file watching
+/// // The default, the source/ directory with no file watching
 /// app.AddPlugin(new AssetPlugin());
 ///
-/// // Custom: different directory, hot-reload enabled
+/// // Another directory, with hot reload on
 /// app.AddPlugin(new AssetPlugin
 /// {
 ///     AssetDirectory = "/path/to/source",
@@ -85,7 +85,7 @@ internal sealed class AssetPlugin : IPlugin
         // Create the AssetServer
         var server = new AssetServer(WorkerThreads);
 
-        // In-memory source: registered first so synthetic paths (embedded glTF textures,
+        // The in-memory source is registered first, so synthetic paths (embedded glTF textures,
         // future extracted-from-archive entries) shadow any same-named file on disk.
         // The reader is a singleton over InMemoryAssetReader.ProcessWideStore so importers
         // running on background worker threads can publish bytes without needing a World
@@ -126,21 +126,21 @@ internal sealed class AssetPlugin : IPlugin
 
         // -- Systems
 
-        // PreUpdate: drain completed loads → Assets<T> + fire AssetEvent<T>
+        // In PreUpdate, completed loads drain into Assets<T> and fire AssetEvent<T>.
         app.AddSystem(Stage.PreUpdate, new SystemDescriptor(world =>
             {
                 world.Resource<AssetServer>().ProcessCompleted(world);
             }, "AssetPlugin.ProcessCompleted")
             .Write<AssetServer>());
 
-        // Last: clear asset events
+        // In Last, the frame's asset events are cleared.
         app.AddSystem(Stage.Last, new SystemDescriptor(world =>
             {
                 world.Resource<AssetServer>().ClearEvents(world);
             }, "AssetPlugin.ClearEvents")
             .Write<AssetServer>());
 
-        // Cleanup: dispose the server (stop workers, watchers)
+        // In Cleanup, the server is disposed, which stops its workers and watchers.
         app.AddSystem(Stage.Cleanup, new SystemDescriptor(world =>
             {
                 if (world.TryGetResource<AssetServer>(out var s))

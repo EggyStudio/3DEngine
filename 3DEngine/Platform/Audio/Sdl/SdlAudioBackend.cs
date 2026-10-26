@@ -448,7 +448,7 @@ internal sealed partial class SdlAudioBackend : IAudioBackend
                 _voices[voiceId] = rec with { Pan = pan };
                 return;
             }
-            if (rec.StreamR == IntPtr.Zero) return; // non-spatial voice: no pan support.
+            if (rec.StreamR == IntPtr.Zero) return; // A voice that is not spatial has no pan.
             rec = rec with { Pan = pan };
             _voices[voiceId] = rec;
             ApplyGainAndPan(rec.StreamL, rec.StreamR, rec.Volume, pan);

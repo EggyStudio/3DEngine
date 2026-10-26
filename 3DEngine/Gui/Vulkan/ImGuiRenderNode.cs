@@ -256,7 +256,8 @@ internal sealed class ImGuiRenderNode : INode, IDisposable
         _vertexShader ??= gfx.CreateShader(new ShaderDesc(ShaderStage.Vertex, _vertexSpv, "main"));
         _fragmentShader ??= gfx.CreateShader(new ShaderDesc(ShaderStage.Fragment, _fragmentSpv, "main"));
 
-        // ImDrawVert layout: pos (vec2, 8 bytes), uv (vec2, 8 bytes), col (uint32, 4 bytes) = 20 bytes
+        // An ImDrawVert holds pos (vec2, 8 bytes), uv (vec2, 8 bytes) and col (uint32, 4 bytes),
+        // 20 bytes in all.
         var vertexBindings = new[]
         {
             new VertexInputBindingDesc(0, (uint)sizeof(ImDrawVert))

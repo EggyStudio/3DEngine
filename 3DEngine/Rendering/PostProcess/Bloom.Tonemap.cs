@@ -6,9 +6,9 @@ internal sealed partial class BloomRenderer
 {
     private static readonly ILogger TonemapLogger = Log.Category("Engine.PostProcess");
 
-    // A program's shader drawn in the curve's place: its fragment stage, the layout of its set 0, a
-    // ring of those sets a frame slot, and its pipeline for each pass it draws into. Made the first
-    // frame it is drawn, and again when a program is loaded anew under its id.
+    // A program's shader drawn in the curve's place, with its fragment stage, the layout of its set
+    // 0, a ring of those sets a frame slot, and its pipeline for each pass it draws into. Made the
+    // first frame it is drawn, and again when a program is loaded anew under its id.
     private sealed class TonemapProgram(ShaderProgram program, IShader fragment, IDescriptorSetLayout layout) : IDisposable
     {
         public ShaderProgram Program { get; } = program;

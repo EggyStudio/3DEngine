@@ -277,7 +277,7 @@ public sealed class ModelShadowTests : IDisposable
         // up, whose shadows run along the ground to x = -34 and from x = -30 to -50, seen from the
         // far end of the shadow looking back at the tree. At so low a sun the near cascade's tile
         // reaches far along the ground toward the sun, past its own near plane, before which the
-        // tree was left out and clipped, so ground in the shadow read lit: from 55 units out the
+        // tree was left out and clipped, so ground in the shadow read lit. From 55 units out the
         // trunk's shadow stopped partway, and from 65 the crown's was gone near the camera.
         var config = Config.Default.WithWindow("low sun test", 480, 270) with { Headless = true, Offscreen = true, Samples = 1 };
         UseApp(new App(config).AddPlugin(new DefaultPlugins()));

@@ -166,7 +166,7 @@ internal sealed partial class AssimpModelReader : ISceneReader
             SourceMetersPerUnit = mpu,
         };
 
-        // Pre-pass: convert materials so each mesh-binding looks up the same shared payload.
+        // The materials are converted first, so each mesh binding looks up the same shared payload.
         // An OBJ's dissolve (d) is left unread, as raylib's loader leaves it, so a file whose
         // material says d 0, as raylib's character.obj does, draws as it does in raylib.
         var readsOpacity = !string.Equals(System.IO.Path.GetExtension(context.Path.Path), ".obj", StringComparison.OrdinalIgnoreCase);
@@ -179,8 +179,8 @@ internal sealed partial class AssimpModelReader : ISceneReader
             ? BuildMeshes(aScene, materials, ct)
             : Array.Empty<SceneMeshPayload>();
 
-        // Pre-pass: skeletons keyed by source-path of the bone-root node, so a SceneSkinPayload
-        // can reference its skeleton by SourcePath without a second pass.
+        // The skeletons are built first too, keyed by the source path of the bone-root node, so a
+        // SceneSkinPayload can reference its skeleton by SourcePath without a second pass.
         var skeletons = settings.LoadPayloads.HasFlag(LoadPayloads.Meshes) // skinning is mesh-adjacent
             ? BuildSkeletons(aScene)
             : new Dictionary<string, SceneSkeletonPayload>(StringComparer.Ordinal);
@@ -242,7 +242,7 @@ internal sealed partial class AssimpModelReader : ISceneReader
 
         if (meta.TryGetValue("UpAxis", out var upEntry) && upEntry.Data is int upInt)
         {
-            // FBX convention: 0 = X, 1 = Y, 2 = Z.
+            // FBX numbers the axes 0 for X, 1 for Y and 2 for Z.
             if (upInt == 2) upAxis = SceneCoordinateSystem.ZUp;
         }
         if (meta.TryGetValue("UnitScaleFactor", out var unitEntry) && unitEntry.Data is double unitDouble)
@@ -299,7 +299,7 @@ internal sealed partial class AssimpModelReader : ISceneReader
                         node.Components.Add(materials[am.MaterialIndex]);
                 }
 
-                // Skinning: attach the SceneSkinPayload alongside the mesh.
+                // A skinned mesh takes its SceneSkinPayload alongside it.
                 var am2 = aScene.Meshes[meshIndex];
                 var skin = BuildSkin(am2, meshIndex, skeletons);
                 if (skin is not null)
@@ -311,7 +311,7 @@ internal sealed partial class AssimpModelReader : ISceneReader
             }
         }
 
-        // Camera / light: aiCamera/aiLight reference an aiNode by name.
+        // A camera or a light (aiCamera, aiLight) references its aiNode by name.
         if (settings.LoadPayloads.HasFlag(LoadPayloads.Cameras))
         {
             for (int i = 0; i < aScene.CameraCount; i++)
@@ -351,7 +351,7 @@ internal sealed partial class AssimpModelReader : ISceneReader
 
     private static SceneCameraPayload ConvertCamera(A.Camera c)
     {
-        // Assimp camera units: HorizontalFOV in radians; aspect; clip planes.
+        // Assimp gives a camera's HorizontalFOV in radians, its aspect and its clip planes.
         // Convert to a synthesised aperture / focal length so the payload round-trips
         // through the existing UsdPreviewSurface-shaped fields.
         const float ReferenceVertAperture = 15.2908f; // 35mm Academy

@@ -6,8 +6,9 @@ using static Engine.E3D;
 namespace FeatureTest;
 
 /// <summary>
-/// The admin panel, an ImGui window F1 opens: the frame's costs as the profile measures them, the
-/// engine's switches, and each zone's status, its toggles and buttons that go to it and its spots.
+/// The admin panel, an ImGui window F1 opens, which shows the frame's costs as the profile measures
+/// them, the engine's switches, and each zone's status, its toggles and buttons that go to it and
+/// its spots.
 /// </summary>
 /// <remarks>
 /// The keyboard moves through its widgets, and the first gamepad too while it is open, which leaves

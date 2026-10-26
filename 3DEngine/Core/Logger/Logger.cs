@@ -58,14 +58,14 @@ public sealed class Logger : ILogger
     {
         Heard?.Invoke(level, _category, message);
 
-        // Console: respects ConsoleMinimumLevel (Info by default, so no startup traces reach it).
+        // To the console at ConsoleMinimumLevel (Info by default, so no startup traces reach it).
         if (level >= LogConfig.ConsoleMinimumLevel)
         {
             ConsoleLoggerProvider.Instance.Log(level, _category, message, exception);
             LogConfig.Callback?.Invoke(level, $"[{_category}] {message}");
         }
 
-        // File: respects MinimumLevel (Trace by default, so every startup diagnostic reaches it).
+        // To the file at MinimumLevel (Trace by default, so every startup diagnostic reaches it).
         // Late-bound lookup so loggers created before Initialize() still write to the file.
         if (level >= LogConfig.MinimumLevel && FileLoggerProvider.Instance is { } file)
             file.Log(level, _category, message, exception);

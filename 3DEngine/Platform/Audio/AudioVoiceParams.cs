@@ -42,8 +42,8 @@ public readonly record struct AudioVoiceParams
     public float DipolePower { get; init; }
 
     /// <summary>
-    /// Sample-rate ratio: <c>1.0</c> = native pitch, <c>2.0</c> = one octave up
-    /// (twice as fast), <c>0.5</c> = one octave down. Backends typically clamp to a
+    /// The sample-rate ratio, <c>1.0</c> = native pitch, <c>2.0</c> = one octave up
+    /// (twice as fast) and <c>0.5</c> = one octave down. Backends typically clamp to a
     /// safe range (SDL3 enforces <c>[0.01, 100]</c>). Used both for pitch effects and
     /// for Doppler when the gameplay layer sets it.
     /// </summary>
@@ -82,6 +82,6 @@ public readonly record struct AudioVoiceParams
     /// </summary>
     public float Reverb { get; init; }
 
-    /// <summary>Reusable defaults: non-spatial, unity volume, no loop, playing, omni.</summary>
+    /// <summary>The reusable defaults, non-spatial, unity volume, no loop, playing and omni.</summary>
     public static AudioVoiceParams Default => new() { Volume = 1f, DipolePower = 1f, PlaybackRate = 1f };
 }

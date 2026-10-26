@@ -125,7 +125,7 @@ public readonly struct AudioSource : IEquatable<AudioSource>
     /// <summary>
     /// Sets the source's world-space orientation. When non-default, the spatial
     /// processor uses it to compute directivity attenuation (e.g. cardioid sources
-    /// like a bullhorn). Engine convention: rotated <c>-Z</c> = "front" of the source.
+    /// like a bullhorn). By the engine's convention the rotated <c>-Z</c> is the source's front.
     /// </summary>
     public void SetOrientation(Quaternion orientation)
     {

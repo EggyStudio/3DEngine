@@ -45,7 +45,7 @@ public sealed class AssimpModelReaderTests : IDisposable
     public void Reader_Advertises_Common_Mesh_Extensions()
     {
         var exts = new AssimpModelReader().Extensions;
-        // Sanity floor: Assimp's import-format list almost certainly includes these.
+        // As a sanity floor, Assimp's import-format list almost certainly includes these.
         exts.Should().Contain(".obj");
         exts.Should().Contain(".gltf");
         exts.Should().Contain(".glb");

@@ -75,11 +75,11 @@ public class TimeTests
     {
         var time = new Time();
 
-        // First frame: 100 FPS
+        // A first frame at 100 FPS
         time.Update(0.01, 0.01);
         double firstSmoothed = time.SmoothedFps;
 
-        // Second frame: 50 FPS
+        // A second at 50 FPS
         time.Update(0.03, 0.02);
 
         // EMA should be between 50 and firstSmoothed (weighted toward firstSmoothed)

@@ -781,7 +781,7 @@ case "$game" in
     for part in ramp stairs gap platform crates tunnel; do
       case "$course" in *"$part reached"*) ;; *) fail "the course's $part was not reached, $course" ;; esac
     done
-    # The panel's switches, each read back in what it acts on: the easel off and read afresh once on
+    # The panel's switches, each read back in what it acts on, the easel off and read afresh once on
     # again, the cube held still, the shadows of the sun and the lamps off until their pass costs the
     # GPU nothing, and the panel open and drawn.
     cmd feature.toggle drawing easel off
