@@ -967,6 +967,8 @@ static class Engine.E3D
   static bool EditMeshUndo(EditMesh mesh)
   static bool EditMeshUnion(EditMesh mesh, string fileOrPrimitive, Vector3 at = default)
   static bool EditMeshUvDensity(EditMesh mesh, float pixelsPerMeter)
+  static bool EditText(ref TextEdit edit, Rectangle box, int most)
+  static bool EditText(ref TextEdit edit, Rectangle box, int most, Font font, float fontSize)
   static bool ExportAutomationEventList(AutomationEventList list, string fileName)
   static bool ExportEditMesh(EditMesh mesh, string fileName, bool embedBuffer = false)
   static bool ExportImage(Image image, string fileName)
@@ -1022,6 +1024,7 @@ static class Engine.E3D
   static bool IsSoundPlaying(Sound sound)
   static bool IsSoundValid(Sound sound)
   static bool IsState<TState>(TState value) where TState : struct, Enum
+  static bool IsTextInputActive()
   static bool IsTextureValid(Texture2D texture)
   static bool IsUiHidden()
   static bool IsWaveValid(Wave wave)
@@ -1246,6 +1249,8 @@ static class Engine.E3D
   static void DrawText(string text, int x, int y, int fontSize, Color color)
   static void DrawTextCodepoint(Font font, int codepoint, Vector2 position, float fontSize, Color tint)
   static void DrawTextCodepoints(Font font, int[] codepoints, Vector2 position, float fontSize, float spacing, Color tint)
+  static void DrawTextEdit(TextEdit edit, Rectangle box)
+  static void DrawTextEdit(TextEdit edit, Rectangle box, Font font, float fontSize, Color text, Color background)
   static void DrawTextEx(Font font, string text, Vector2 position, float fontSize, float spacing, Color tint)
   static void DrawTextPro(Font font, string text, Vector2 position, Vector2 origin, float rotation, float fontSize, float spacing, Color tint)
   static void DrawTexture(Texture2D texture, int x, int y, Color tint)
@@ -3588,6 +3593,14 @@ sealed class Engine.SystemDescriptor
   string Name { get; }
   string? Source { get; set; }
 delegate void Engine.SystemFn(World world)
+struct Engine.TextEdit
+  TextEdit(string text)
+  bool Focused
+  float Scroll
+  int Anchor
+  int Caret
+  string SelectedText { get; }
+  string Text
 readonly struct Engine.Texture2D : IEquatable<Texture2D>
   Texture2D(int Id, int Width, int Height)
   bool Equals(Texture2D other)

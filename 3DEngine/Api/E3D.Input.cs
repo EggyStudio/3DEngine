@@ -63,6 +63,81 @@ public static partial class E3D
     // The area the program last set, or null after it cleared it, for a test with no window.
     internal static (Rectangle Area, int Cursor)? TextInputArea { get; private set; }
 
+    /// <summary>
+    /// Takes this frame's typing into <paramref name="edit"/> where it holds the keyboard, up to
+    /// <paramref name="most"/> characters, and answers whether Enter was pressed in it, its text
+    /// measured as <see cref="DrawTextEdit(TextEdit, Rectangle)"/> draws it in
+    /// <paramref name="box"/>.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// A click in the box gives the edit the keyboard and puts the caret under the pointer, and a
+    /// click outside takes it away. With the keyboard, characters typed replace the selection or go
+    /// in at the caret; the arrows, Home and End move the caret, Control (Command on a Mac) and an
+    /// arrow by words, and Shift with any of them or a drag of the pointer selects; Backspace and
+    /// Delete remove the selection or a character, a word with Control; Control and A selects the
+    /// whole text, C copies the selection, X cuts it and V pastes, through the clipboard. Held keys
+    /// repeat as the system repeats them. Tab gives the keyboard to the edit updated after this one
+    /// in the frame, past the last to the first, and Shift and Tab to the one before it, so a
+    /// form's fields are taken in the order the program updates them. The input method's window is
+    /// placed at the caret.
+    /// </para>
+    /// <para>
+    /// A <paramref name="most"/> of 0 or less holds no limit. The edit takes the characters typed
+    /// this frame from <see cref="GetCharPressed"/>, so a program reading it after finds none, and
+    /// <see cref="IsTextInputActive"/> says when to leave its own keys alone.
+    /// </para>
+    /// </remarks>
+    public static bool EditText(ref TextEdit edit, Rectangle box, int most)
+    {
+        var size = TextEditSize(box);
+        return UpdateTextEdit(ref edit, box, most, GetFontDefault(size), size);
+    }
+
+    /// <summary>
+    /// Takes this frame's typing into <paramref name="edit"/> as
+    /// <see cref="EditText(ref TextEdit, Rectangle, int)"/> does, its text measured in
+    /// <paramref name="font"/> at <paramref name="fontSize"/> pixels, for an edit a program draws
+    /// in its own look or with
+    /// <see cref="DrawTextEdit(TextEdit, Rectangle, Font, float, Color, Color)"/>.
+    /// </summary>
+    public static bool EditText(ref TextEdit edit, Rectangle box, int most, Font font, float fontSize) =>
+        UpdateTextEdit(ref edit, box, most, font, fontSize);
+
+    /// <summary>
+    /// Draws <paramref name="edit"/> in <paramref name="box"/>, dark gray text and border on ray
+    /// white in the default font at six tenths of the box's height, as
+    /// <see cref="EditText(ref TextEdit, Rectangle, int)"/> measures it.
+    /// </summary>
+    public static void DrawTextEdit(TextEdit edit, Rectangle box)
+    {
+        var size = TextEditSize(box);
+        DrawEdit(edit, box, GetFontDefault(size), size, Color.DarkGray, Color.RayWhite);
+    }
+
+    /// <summary>
+    /// Draws <paramref name="edit"/> in <paramref name="box"/> filled with
+    /// <paramref name="background"/>, its text in <paramref name="font"/> at
+    /// <paramref name="fontSize"/> pixels and in <paramref name="text"/>, the color its border, its
+    /// caret and, at three tenths of its opacity, its selection take too.
+    /// </summary>
+    /// <remarks>
+    /// The border is a pixel wide, two while the edit holds the keyboard, and the caret shows for
+    /// half of each second from when it last moved. The text is kept inside the border and inside a
+    /// scissor the program set. It is drawn in screen space, between <c>EndMode3D</c> and the end
+    /// of the frame.
+    /// </remarks>
+    public static void DrawTextEdit(TextEdit edit, Rectangle box, Font font, float fontSize, Color text, Color background) =>
+        DrawEdit(edit, box, font, fontSize, text, background);
+
+    /// <summary>Whether an edit holds the keyboard, so a program's own keys stand aside while a person types.</summary>
+    /// <remarks>
+    /// It holds from the frame an edit was given the keyboard until the frame after the last one
+    /// that updated it with the keyboard, so a program that asks before updating its edits sees the
+    /// frame before's answer.
+    /// </remarks>
+    public static bool IsTextInputActive() => TextInputHeld();
+
     // -- Mouse
 
     /// <summary>Whether <paramref name="button"/> went down this frame.</summary>

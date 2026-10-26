@@ -19,6 +19,12 @@ blocks over the water, above with no plane set, the water showing the sky its fr
 and below with the plane at the water's top, the water's shader in a copy of the game laying
 `mirrored` over that sky, the far bank's trees, trunks and sand mirrored in it.
 
+![](.github/assets/readings/2026-10-26-item-127-grove.webp)
+The voxel game's cherry grove at seed 1 at High at 1920 by 1080, scaled to 1280 by 720, its leaves
+letting half the light through a unit, above with each leaf a ray crosses shaded where it crossed
+it, global illumination 5.93 to 6.23 ms, and below with the first leaf shaded for all of them, 5.25
+to 5.42, the two alike to the eye.
+
 The sun given a width across (`SetShadowSoftness`), read on the engine's tree against `a16227a7`.
 The edge of a pole's shadow, 5 units tall under a sun 45 degrees up, between a quarter and three
 quarters of the light, in units across:
@@ -76,12 +82,51 @@ culled, the grove's mirror took 4.5 to 4.6 ms of the CPU and 1.45 to 1.93 ms of 
 The test's floor under a red cube, its red less its green where the cube's front mirrored in the
 floor falls, reads 57 with the plane and -3 without it, and 0 and -3 to the cube's side.
 
+A ray crossing a canopy's leaves shaded twice at most, the first leaf it crosses for every one and
+the surface it stops at once, read on the engine's tree against `78946b22` in a copy of the voxel
+game at its commit `48e5bea`, the leaves letting 0.5 through a unit and the plants 0.71, on an
+RTX 4070 under tuned's `powersave-bazzite`, the frames unlimited, other programs holding part of
+the GPU through some readings, those of a scene pass off its own kept out.
+
+Global illumination at seed 1's cherry grove, item 125's view, at 1920 by 1080, in ms, against the
+rays stopping at the leaves as at solid ones (`./e3d command gi.toggle through off`):
+
+| Quality | Stopping at the leaves | Each leaf shaded where crossed | Shaded twice at most |
+|---|---|---|---|
+| High | 3.30 to 3.53 | 5.93 to 6.23 | 5.25 to 5.42 |
+| Low | 1.43 to 1.64 | 3.12 | 2.49 to 2.51 |
+
+What crossing the leaves took at High, the crossing left in one stage at a time, in ms:
+
+| Stage | Each leaf shaded where crossed | Shaded twice at most |
+|---|---|---|
+| The cascades' rays | 1.6 | 1.4 |
+| The screen's probes' rays | 1.1 | 0.46 |
+| The merge | 0.2 | 0.13 |
+
+Read before the change, with each leaf shaded where crossed, a build crossing one leaf at most took
+5.45 to 5.47 ms at High, one that shaded nothing past that leaf 4.69, one that left the march
+through the leaf's depth out 5.53, and one keeping the crossing's loop with nothing crossed 3.81
+against 3.41 to 3.45 with the solid build. After it, a bound of one crossing read 5.05 to 5.07 and
+one of two 5.19 to 5.25 at High, 2.28 and 2.42 at Low.
+
+Item 100's canopy of clumps over the eye at 800 by 450, the leaves letting 0.6 through, took 0.62
+and 1.01 ms at Low with the crossing off and on and 1.60 and 2.30 at High, where before 0.61 and
+1.09 to 1.12 and 1.55 and 2.50 to 2.57. The bounce rooms at 1920 by 1080, where nothing lets light
+through, took 0.75 ms at Low and 2.08 to 2.16 at High, where before 0.81 and 2.19 to 2.31.
+
+The picture's two frames differ by 0.2 of 255 on the whole and by 0.1 to 0.6 on the floor under the
+trees. A floor under a canopy of leaf blocks twenty a side and two deep, lit by the sky alone, takes
+the same share of the sky's light to four places either way, 0.30 at High two and a half units
+under it, 0.17 at Low, and 0.23 at High five and a half under it.
+
 Done that day
 
 - Item 100 at `a16227a7`. The field lets a share of light through a cell marked as foliage.
 - Item 111 at `45edfbf6`. The sun's shadow softens with the distance from its caster.
 - Item 112 at `78946b22`. A flat surface mirrors the scene through a planar reflection a program
   sets.
+- Item 127 at `2f5237f2`. A ray crosses a voxel canopy's many leaf surfaces for less.
 
 ## 2026-10-25
 

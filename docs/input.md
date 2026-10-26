@@ -38,6 +38,48 @@ keyboard. The player above moves 240 pixels a second, scaled by `GetFrameTime()`
 the same speed at any frame rate. A program typing text reads `GetCharPressed` instead, which the
 [Text and fonts](text-and-fonts.md#typed-text) page shows.
 
+## Editing a line of text
+
+A `TextEdit` holds a line of text a person edits, with its caret and its selection, and the program
+keeps it as it keeps a camera. `EditText` takes each frame's typing into it while it holds the
+keyboard and answers whether Enter was pressed, and `DrawTextEdit` draws it, dark gray on ray white
+in the default font, or in the font and colors given:
+
+<!-- compiled with:
+var name = new TextEdit("");
+var seed = new TextEdit("");
+var nameBox = new Rectangle(20, 20, 300, 40);
+var seedBox = new Rectangle(20, 80, 300, 40);
+Action<string, string> startWorld = (_, _) => { };
+-->
+```csharp
+// A form's two fields, updated in order, so Tab goes from the name to the seed.
+if (EditText(ref name, nameBox, 16)) startWorld(name.Text, seed.Text);
+EditText(ref seed, seedBox, 20);
+DrawTextEdit(name, nameBox);
+DrawTextEdit(seed, seedBox);
+```
+
+A click in the box gives an edit the keyboard and puts the caret under the pointer, and a click
+outside takes it away. The arrows, Home and End move the caret, by words with Control (Command on a
+Mac), and Shift or a drag of the pointer selects; Backspace and Delete remove the selection or a
+character, repeating while held; Control with A, C, X and V selects the whole text, copies, cuts
+and pastes through the clipboard; and Tab passes the keyboard to the edit updated after this one,
+Shift and Tab to the one before, so a form's fields are taken in the order the program updates
+them. The edit places the input method's window at its caret. `IsTextInputActive` answers whether
+an edit holds the keyboard, so a program leaves its own keys alone while a person types:
+
+<!-- compiled with:
+Action openInventory = () => { };
+-->
+```csharp
+if (!IsTextInputActive() && IsKeyPressed(Key.E)) openInventory();
+```
+
+A program drawing an edit in its own look updates it with `EditText(ref edit, box, most, font,
+fontSize)`, which measures the text in the font it is drawn in, so a click lands between the right
+characters, and draws the edit's `Text`, `Caret`, `Anchor` and `Scroll` itself.
+
 ## The mouse
 
 `GetMousePosition` gives the pointer's place in the window's pixels, and the mouse buttons are

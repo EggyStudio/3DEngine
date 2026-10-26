@@ -10,15 +10,44 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `78946b22`, item 112, the planar reflection, read at 05:55 on 2026-10-26, carrying
-ASKS.md, the review's files with a Shared line, SHARED.md, a reading in RENDERING.md, a note and a
-captioned river picture, pushed at 06:19 on 2026-10-26 once the build run of `7af16fcd` went green
-whole, the seventh pack run started with publish on at 06:19 for the game's item 42 and the mirror
-and width together, both runs watched; the build run went green whole at 08:01, Windows in 102
-minutes, Linux in 65 and macOS in 35, the pack run's Windows, games and captures in flight.
-SetReflectionPlane(height, normal) sets a ReflectionPlane resource, on the cheat sheet and in
-PublicApi.txt; MirrorNode, between the probes and hdr_scene, draws the window's batches again
-through the window's view-projection mirrored in the plane and flipped in y, which keeps the
+Reviewed up to `2f5237f2`, item 127, a ray crossing a canopy's leaves shaded twice at most, read at
+08:50 on 2026-10-26, carrying ASKS.md, the review's files with a Shared line, SHARED.md, DEVLOG.md,
+a reading in RENDERING.md, a note and a captioned grove picture, pushed at 08:52 once the build run
+of `78946b22` went green whole, its run watched, the eighth pack run to start with item 128. In
+gi_trace.slang's crossing build and gi_screen.slang the loop only marches and adds up shares, the
+first light-through surface a ray crosses standing for every one it crosses and shaded once after
+the march for the share they take together, the surface the ray stops at shaded once for the share
+that reaches it, so a ray is shaded twice at most and never inside the march with the transmittance
+unchanged; gi.toggle through off stops both stages' rays at such surfaces as at solid ones, the
+merge still seeing past them, the settings' doc saying so. At seed 1's cherry grove at item 125's
+view at 1920 by 1080 on powersave the crossing costs 1.95 to 2.06 ms at High where 2.55 to 2.70,
+global illumination 5.25 to 5.42 where 5.93 to 6.23 and 3.30 to 3.53 with the crossing off, and at
+Low 1.06 to 1.08 where 1.48 to 1.65, 2.49 to 2.51 where 3.12; the split at High the cascades' rays
+1.6 to 1.4, the screen probes 1.1 to 0.46 and the merge 0.2 to 0.13. Read before the choice, a build
+crossing one leaf at most still cost 1.7 ms, shading the surface past the leaf 0.8 of it and the
+march the rest; after it, bounding the crossings at one saves 0.2 ms more and at two 0.05 to 0.1,
+and cutting the march once the ray keeps under a 32nd of its light saves nothing, so neither is
+kept, what is left being the march past the leaves. Item 100's canopy over the eye at 800 by 450
+reads 0.39 ms at Low and 0.70 at High against 0.48 and 0.95. The grove picture differs by 0.2 of 255
+overall and 0.1 to 0.6 on the floor under the trees; a new test grows the slab to 20 by 20 by 2 unit
+leaf cubes with faces between neighbors under the sky alone and reads the same to four places with
+the old shaders and the new, 0.30 at High 2.5 under, 0.17 at Low and 0.23 at High 5.5 under; the
+bounce rooms read 0.75 ms at Low and 2.08 to 2.16 at High at 1080p against 0.81 and 2.19 to 2.31
+with their frames within two runs of one, and the references pass unchanged, the path-traced
+reference holding every surface solid. The game's 0.74 of the open shade was not read, needing its
+flat world and floor knob. 2,127 on the GPU in order and shuffled, 81 on lavapipe with validation
+and 2 skipped, the strict build clean, no public change, the guide's foliage paragraph giving the
+cost and the toggle. After `78946b22`, item 112, the planar reflection, read at 05:55 on 2026-10-26,
+carrying ASKS.md, the review's files with a Shared line, SHARED.md, a reading in RENDERING.md, a
+note and a captioned river picture, pushed at 06:19 on 2026-10-26 once the build run of `7af16fcd`
+went green whole, the seventh pack run started with publish on at 06:19 for the game's item 42 and
+the mirror and width together, both runs watched; the build run went green whole at 08:01, Windows
+in 102 minutes, Linux in 65 and macOS in 35, and the pack run green whole at 09:14, Windows in 171
+minutes, the games in 73, the captures in 58 and 60 and macOS in 58 with the twelve games played
+through, the package 5.2.322 pushed to nuget.org with items 111 and 112, the game told; Verdict 93
+settled by it. SetReflectionPlane(height, normal) sets a ReflectionPlane resource, on the cheat
+sheet and in PublicApi.txt; MirrorNode, between the probes and hdr_scene, draws the window's batches
+again through the window's view-projection mirrored in the plane and flipped in y, which keeps the
 winding, with Lengyel's oblique near plane along it, the batches wholly under the plane culled
 through a depth ModelRenderer.Draw gains, lit as the probes' faces are by the window's lights and
 shadow maps in linear into a half-size R16G16B16A16 target with the particles, the picture blitted
@@ -355,12 +384,11 @@ reference frame and cascade edge tests on lavapipe with validation. Item 96 begi
 the game's 5.2.215 build at the cherry grove at 1920 by 1080, each part of the per-pixel read cut
 out in turn to tell what runs per fragment from the variant's registers, the window's depth at half
 size and the scene pass shading with overdraw pointing at a half-size pass over the window's depth
-with a two by two depth and normal read, as the glow pass has. Next 127, the canopy's crossings,
-then 128, the text field, then 93, the colons out of the documents, then 91, DESIGN.md's words on
-the loop and the ECS, then the glow light's non-number and the history's guard, then 95, the e3d
-help, then item 89, the plant walls' acne, then 97, the light at the camera's point on lavapipe. The
-branch `modeling` was deleted at 07:23 with its items all on main, N 7.5; the cloud sessions stand
-by.
+with a two by two depth and normal read, as the glow pass has. Next 128, the text field, then 93,
+the colons out of the documents, then 91, DESIGN.md's words on the loop and the ECS, then the glow
+light's non-number and the history's guard, then 95, the e3d help, then item 89, the plant walls'
+acne, then 97, the light at the camera's point on lavapipe. The branch `modeling` was deleted at
+07:23 with its items all on main, N 7.5; the cloud sessions stand by.
 
 Before it, `a8f127ad` came, item 108's third phase, with `ac1c6bad`, item 120, pushed at 06:43 on
 2026-10-25 once the build run of `6a20d165` went green whole, its build run green whole at 07:41,
@@ -1300,21 +1328,6 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     camera's own point and reading the frame for black pixels, red before the mend. One commit,
     after item 95.
 
-127. **A ray crosses a voxel canopy's many leaf surfaces for less.** From the voxel game's item 133,
-    read at 05:03 on 2026-10-26, its ASKS.md entry of 2026-10-26. On 5.2.319 at seed 1's cherry
-    grove at 1920 by 1080 at High, the leaf blocks' faces letting half the light through a unit of
-    depth and the plants' 0.71, global illumination reads 6.14 and 6.09 ms against 3.44 and 3.42
-    with the shares off and the frame 19.58 and 19.51 against 16.70 and 16.64, the scene pass and
-    the shadows unmoved, where item 100's leaves filling the view cost 1.5 to 2.5 ms at 800 by 450;
-    a grove's canopy is thousands of leaf faces, and a ray crosses each where it stopped before, up
-    to four. The crossing's cost read on such a canopy, the game's scratch copy or the slab test
-    grown to many cells, and brought down, by a share taken per cell of the field as the march
-    passes it rather than surface by surface, by a bound on the crossings a ray's budget allows at
-    each quality, or by what the reading shows; the canopy's floor held within a few percent of
-    5.2.319's 0.74 of the open shade, the bounce rooms unchanged, the readings against the
-    references under the covered-fault rule, and the guide's foliage paragraph saying the cost. One
-    or two commits, after item 112 and before 93.
-
 128. **The interface has a text field to type into.** From the voxel game's item 134, read at 06:15
     on 2026-10-26, its ASKS.md entry of 2026-10-26. The game typed a world's seed into a field of
     its own drawn over GetCharPressed, IsKeyPressedRepeat and SetTextInputArea, the printable
@@ -1339,25 +1352,7 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
 
 ## Verdicts
 
-Verdicts 56 to 92 are settled, said under each in REVIEW-ARCHIVE.md; 93 is open, mended at `7af16fcd`.
-
-93. **The sixth pack run of `a16227a7` is red on macOS, Pinball's ball back in its lane and not
-    draining.** Read at 02:14 on 2026-10-26. The macOS job's twelve-game loop failed at Pinball
-    after 56 minutes with the tests green, 2,042 passed; the drive launched the ball, the autopilot
-    flipped once with two hits, and then the ball came to rest at 3.09, 0.16, 5.31 at speed 0, which
-    is its start in the plunger lane at x 3.025, where the drain under the flippers reaches x 2.7
-    either side, so the ball had rolled back down the lane to its plunger, ready to launch again as
-    the game's own comment says of it, and sat there through the drive's 60 waits of 60 frames,
-    nothing of the engine's light or shadows in it; the build run's macOS job, which plays Slide
-    alone, went green, and the fifth pack run's macOS job played Pinball through. The drive takes
-    the lane as a state of play, a ball back at its plunger with no drain launched again with Space
-    and the wait begun over, a few launches at most before failing, and pinball.status saying when
-    the ball is in the lane; the run's failed jobs rerun once the run ends for the game's package.
-    Small, before item 112. Mended at `7af16fcd` on 2026-10-26, the lane in pinball.status and the
-    drive's relaunches, three at most; settled when a pack run plays Pinball through on macOS
-    carrying the mend. The rerun of 03:21, on the drive as it stood, played Pinball through on macOS
-    and the run went green whole at 04:21, so the ball's return to its lane is a state of play and
-    not every play's end.
+Verdicts 56 to 93 are settled, said under each in REVIEW-ARCHIVE.md; none is open.
 
 ## Decisions
 
@@ -2093,3 +2088,12 @@ game's cherry grove's leaves at 1920 by 1080 takes global illumination 2.0 ms at
 where shading each leaf crossed took 2.6 and 1.6, the floors under leaves alike to four places, and
 what is left is the march past the leaves. `gi.toggle through off` stops the rays at such surfaces
 as at solid ones, so the crossing's cost reads in one session.
+
+Shared: a line of text a person edits is a `TextEdit` value the program keeps, holding the text,
+the caret, the selection's anchor, the scroll and focus, which `EditText` updates from the frame's
+input, characters to a length, the arrows, Home and End by characters a reader sees and by words,
+Shift and a drag selecting, the clipboard's copy, cut and paste, Backspace and Delete with repeat,
+focus by a click and Tab between the edits updated in a frame in call order, the input method's
+window at the caret, answering Enter, and `DrawTextEdit` draws in a default look or a font and
+colors given, `IsTextInputActive` saying while one holds the keyboard (item 128); no widget set is
+begun, the game drawing its own box over `EditText`.

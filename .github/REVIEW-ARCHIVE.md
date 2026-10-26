@@ -4073,6 +4073,23 @@ batch.
     mirrored in lights.slang and the model pass, 0.05 to 0.27 ms of the GPU alone and 2.2 to 2.8 ms
     with the voxel river's 2,241 draws at 1080p, the game's water to read it with the package.
 
+127. **A ray crosses a voxel canopy's many leaf surfaces for less.** From the voxel game's item 133,
+    read at 05:03 on 2026-10-26, its ASKS.md entry of 2026-10-26. On 5.2.319 at seed 1's cherry
+    grove at 1920 by 1080 at High, the leaf blocks' faces letting half the light through a unit of
+    depth and the plants' 0.71, global illumination reads 6.14 and 6.09 ms against 3.44 and 3.42
+    with the shares off and the frame 19.58 and 19.51 against 16.70 and 16.64, the scene pass and
+    the shadows unmoved, where item 100's leaves filling the view cost 1.5 to 2.5 ms at 800 by 450;
+    a grove's canopy is thousands of leaf faces, and a ray crosses each where it stopped before, up
+    to four. The crossing's cost read on such a canopy, the game's scratch copy or the slab test
+    grown to many cells, and brought down, by a share taken per cell of the field as the march
+    passes it rather than surface by surface, by a bound on the crossings a ray's budget allows at
+    each quality, or by what the reading shows; the canopy's floor held within a few percent of
+    5.2.319's 0.74 of the open shade, the bounce rooms unchanged, the readings against the
+    references under the covered-fault rule, and the guide's foliage paragraph saying the cost. One
+    or two commits, after item 112 and before 93. Done at `2f5237f2` on 2026-10-26, a ray shaded
+    twice at most and never in the march, the grove's crossing 2.6 to 2.0 ms at High and 1.6 to 1.1
+    at Low, the floors alike to four places.
+
 ## Verdicts settled
 
 Verdicts 1 to 55 are settled, the last two, the drawing leak test's resident bound and the Windows
@@ -5432,3 +5449,22 @@ at `36cae0c2`.
     fourth attempt of 21:26, the push run green whole and the pack run's suites with it once
     Microsoft's feed served the release; the second and third attempts at 20:20 and 20:38 had failed
     the same way.
+
+93. **The sixth pack run of `a16227a7` is red on macOS, Pinball's ball back in its lane and not
+    draining.** Read at 02:14 on 2026-10-26. The macOS job's twelve-game loop failed at Pinball
+    after 56 minutes with the tests green, 2,042 passed; the drive launched the ball, the autopilot
+    flipped once with two hits, and then the ball came to rest at 3.09, 0.16, 5.31 at speed 0, which
+    is its start in the plunger lane at x 3.025, where the drain under the flippers reaches x 2.7
+    either side, so the ball had rolled back down the lane to its plunger, ready to launch again as
+    the game's own comment says of it, and sat there through the drive's 60 waits of 60 frames,
+    nothing of the engine's light or shadows in it; the build run's macOS job, which plays Slide
+    alone, went green, and the fifth pack run's macOS job played Pinball through. The drive takes
+    the lane as a state of play, a ball back at its plunger with no drain launched again with Space
+    and the wait begun over, a few launches at most before failing, and pinball.status saying when
+    the ball is in the lane; the run's failed jobs rerun once the run ends for the game's package.
+    Small, before item 112. Mended at `7af16fcd` on 2026-10-26, the lane in pinball.status and the
+    drive's relaunches, three at most; settled when a pack run plays Pinball through on macOS
+    carrying the mend. The rerun of 03:21, on the drive as it stood, played Pinball through on macOS
+    and the run went green whole at 04:21, so the ball's return to its lane is a state of play and
+    not every play's end. Settled on 2026-10-26 by the seventh pack run, `78946b22` carrying the
+    mend, whose macOS job played the twelve games through in 58 minutes.

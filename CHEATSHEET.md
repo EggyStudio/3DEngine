@@ -179,6 +179,11 @@ bool IsKeyUp(Key key);                                   // Whether key is not h
 Key GetKeyPressed();                                     // The next key pressed this frame, in the order pressed, or Key.Null when none is left
 int GetCharPressed();                                    // The next character typed this frame as a Unicode code point, or 0 when none is left
 void SetTextInputArea(Rectangle area, int cursor = 0);   // Places the input method's window, where a language composes a character from several keys, beside area of the window, the text box a program reads GetCharPressed into, its caret cursor pixels from the box's left
+bool EditText(ref TextEdit edit, Rectangle box, int most);  // Takes this frame's typing into edit where it holds the keyboard, up to most characters, and answers whether Enter was pressed in it, its text measured as DrawTextEdit draws it in box
+bool EditText(ref TextEdit edit, Rectangle box, int most, Font font, float fontSize);  // Takes this frame's typing into edit as EditText does, its text measured in font at fontSize pixels, for an edit a program draws in its own look or with DrawTextEdit
+void DrawTextEdit(TextEdit edit, Rectangle box);         // Draws edit in box, dark gray text and border on ray white in the default font at six tenths of the box's height, as EditText measures it
+void DrawTextEdit(TextEdit edit, Rectangle box, Font font, float fontSize, Color text, Color background);  // Draws edit in box filled with background, its text in font at fontSize pixels and in text, the color its border, its caret and, at three tenths of its opacity, its selection take too
+bool IsTextInputActive();                                // Whether an edit holds the keyboard, so a program's own keys stand aside while a person types
 
 bool IsMouseButtonPressed(MouseButton button);           // Whether button went down this frame
 bool IsMouseButtonDown(MouseButton button);              // Whether button is held

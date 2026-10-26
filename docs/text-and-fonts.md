@@ -252,7 +252,8 @@ if (((framesCounter/20)%2) == 0) DrawText("_", (int)textBox.X + 8 + MeasureText(
 A language composed from several keys, as Japanese or Chinese, is typed in the input method's
 window, which `SetTextInputArea(textBox)` places beside the box the text lands in, the caret's
 distance from its left as the second argument, so the candidates show where the player is looking.
-An ImGui text field places it by itself.
+An ImGui text field places it by itself, and so does a `TextEdit`, the line of text with a caret,
+a selection and the clipboard that the [Input](input.md#editing-a-line-of-text) page shows.
 
 A character is an `int` code point rather than a `char`, since one past U+FFFF takes two of C#'s
 `char`s, which `char.ConvertFromUtf32` makes. `GetKeyPressed` reads keys the same way, one call
