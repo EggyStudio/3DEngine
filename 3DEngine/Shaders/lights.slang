@@ -159,6 +159,27 @@ public float lightReaching(float3 world, float3 n, out float held)
     return 1.0;
 }
 
+// The light the plane a program set (SetReflectionPlane) mirrors onto a surface at `world` facing
+// n, whose pixel is at `position` in the window (SV_Position), read at that pixel's place in the
+// mirrored picture, blurred down its mips as roughness rises to a half, in a, how much of it holds:
+// all of it on the plane, none as far off it as lighting.mirror.z or as n turns more than 25
+// degrees from the plane's normal, and none in a view with no plane, a render target's or a
+// probe's faces or the mirrored view's own. Each pixel of a surface lying in the plane looks at
+// the plane's mirror image of what it would see through the plane, which the camera mirrored in
+// the plane sees at the same place in its picture, turned upside down to keep the faces' order.
+public float4 mirrored(float4 position, float3 world, float3 n, float roughness)
+{
+    if (lighting.mirror.x <= 0.0)
+        return float4(0.0);
+    float off = abs(dot(lighting.mirrorPlane.xyz, world) - lighting.mirrorPlane.w);
+    float hold = saturate(1.0 - off / lighting.mirror.z) * smoothstep(0.9, 0.97, dot(n, lighting.mirrorPlane.xyz));
+    if (hold <= 0.0)
+        return float4(0.0);
+    float2 uv = position.xy * lighting.mirrorScreen.xy;
+    uv.y = 1.0 - uv.y;
+    return float4(mirrorMap.SampleLevel(lightLinear, uv, saturate(roughness * 2.0) * min(lighting.mirror.y, 6.0)).rgb, hold);
+}
+
 // The light from all around a surface facing n that global illumination's probes leave to what
 // lies past them, past the field's cascades, as a sky over a ground, the sky's light from above,
 // `sky`, on the share of the sphere above the surface's horizon, (1 + n.y) / 2 of it, and below its

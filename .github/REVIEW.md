@@ -10,78 +10,92 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `45edfbf6`, item 111, the sun's shadow softening with the distance from its caster,
-read at 02:14 on 2026-10-26, carrying the review's files with a Shared line, DEVLOG.md, a reading in
+Reviewed up to `7af16fcd`, Verdict 93's mend, read at 02:19 on 2026-10-26, carrying the review's
+files, SHARED.md and DEVLOG.md, pushed at 04:10 on 2026-10-26 once the build run of `45edfbf6` went
+green whole, its run watched. pinball.status carries lane yes or no right after the drains, yes
+while the ball sits in its lane, the game's unlaunched state, the command's description saying so;
+the drive's Pinball case replaces its last wait with a loop that, while the status reads drains 0
+and lane yes, presses Space for 30 frames and begins the 60-wait over, three relaunches at most, and
+then fails with the count in its message. Pinball restored from the local pack and run offscreen
+with validation passed, draining without a relaunch; the three patterns were checked by hand against
+the macOS status line with the lane field, a ball on the table and a drained one, and the norm tests
+pass. After `45edfbf6`, item 111, the sun's shadow softening with the distance from its caster, read
+at 02:14 on 2026-10-26, carrying the review's files with a Shared line, DEVLOG.md, a reading in
 RENDERING.md, a note and a captioned pole picture, pushed at 02:17 on 2026-10-26 once the build run
-of `a16227a7` went green whole, its run watched. SetShadowSoftness(size) takes the sun's width
-across in degrees, 0 by default keeping the present look and path, held to 0 to 20, on the cheat
-sheet, PublicApi.txt and the guide's shadows section with a block built on the package; the lighting
-buffer gains ShadowSoftness after EnvironmentLight, twice the tangent of half the width, the edge's
-spread per unit of a caster's height, the layout test reading its offset. penumbra.slang runs from
-cascadeReached when the width is set, 16 depths on a golden-angle disc searching for blockers over
-the width a caster at the cascade's near plane would spread to, held to 24 texels either side, a
-point with none found lit and one with all 16 found in the shadow's core at 0, which saves 0.2 to
-0.3 ms in the grove, otherwise 16 bilinear Gather comparisons over the radius the blockers' mean
-depth gives, a texel at least, the disc turned by a hash of the point, each tap compared with the
-receiver's depth along its own plane with the slope solved from the normal and the cascade's rows
-and capped at 80 degrees, the taps 1.5 texels inside the tile, the spot, point and contact shadows
-unchanged. ShadowSoftnessTests reads a pole 5 tall under a 45-degree sun, its edge between a quarter
-and three quarters of the light 0.04 units at the foot and the tip with no width and 0.08 at the
-foot and 0.24 at the tip at 3 degrees, the test having caught a first version reading the full
-spread as the disc's radius with every edge twice as wide. The grove at 1920 by 1080 reads Low 6.53
-to 6.72 ms with no width, 7.44 to 7.88 at 0.53 degrees and 7.55 to 7.76 at 3, High 7.26 to 7.31,
-7.96 to 8.39 and 7.94 to 8.41, so 0.7 to 1.2 ms when on, most of it the search at every point the
-sun reaches; the bounce rooms at 0.53 degrees 0.04 to 0.06 ms more at 800 by 450 and 0.25 to 0.41 at
-1080p, and at the default the rooms and the grove read as before with the reference frames holding.
-2,123 on the GPU in both orders, the first run catching the layout test, 42 on lavapipe with
-validation, the strict build clean, pack and docs on the package passing. After `a16227a7`, item
-100's second part with two mends, read at 00:22 on 2026-10-26, carrying the review's files,
-DEVLOG.md, a reading in RENDERING.md and a note, and a captioned before-and-after canopy picture,
-pushed at 00:53 on 2026-10-26 once the build run of `42f4f505` went green whole, the sixth pack run
-started with publish on at 00:53 for the game's item 133, both runs watched. The build run went
-green whole at 02:14, Windows in 81 minutes, Linux in 62 and macOS in 34; the sixth pack run's macOS
-job went red at 01:49 after 56 minutes on Pinball, the ball back in its lane and not draining,
-Verdict 93, its tests green and its other jobs in flight. The canopy picture found that under leaves
-5 units up letting half through, at High the floor took no more sky than under solid ones, 0.0089
-against 0.0077 linear, while Low took 0.035 against 0.015, the test's slab at 2.5 up within the
-screen probes' reach of 4 missing it. Two faults. A ray crossing leaves had its reach set at the
-first leaf it met, so the merge's parallax read and the screen probes' reach took the leaves as a
-wall; the crossing build sets the reach where the ray stopped, which alone moves the slab test from
-0.23 and 0.29 to 0.36 and 0.40 against the geometry's 0.36, so the old numbers were this fault and
-not the slants, the guide and the first reading saying 0.36 and 0.40. And the merge skipped every
-probe of the cascade above that the field hid, a canopy hiding them all from the probes under it, so
-the cascades under a canopy took nothing from above and the screen probes reading cascade light past
-their reach read black; seesPastLeaves in lightthrough.slang passes surfaces that let light through,
-the merge gaining the field's colors at binding 9, a gi.probe read showing cascade 2 under the slab
-at 0 on its up face while cascade 3 above read the full sky. The slab test has four cases, Low and
-High at 2.5 and 5.5 up, reading 0.36 and 0.40 and 0.37 and 0.32 against the geometry's 0.36 and
-0.41; a canopy test 30 across and 5 up with four cascades of 0.25 at High reads 0.31 where the
-geometry gives 0.38 and 0.004 with the old merge, each mend checked by reverting it; five up at High
-still reads 22% under the geometry, likely the cascades' intervals splitting a crossing that
-straddles an interval's end, recorded in the test's comment and not mended. On a quiet GPU the
-bounce rooms are unchanged at 0.553 to 0.556 ms at Low in the Cornell box, the merge's extra read
-happening where the field stops a march alone; the voxel grove on the entity build with nothing
-marked as leaves reads Low 1.21 to 1.51 ms at 800 by 450 and 1.46 to 1.48 at 1080p against 1.22 to
-1.44 and 1.47 to 1.49 before, and High 2.85 to 3.21 and 3.35 to 3.38 against 3.28 to 3.33 and 4.24
-to 4.60, the scene pass the same; leaves filling the view cost GI 0.60 to 1.10 ms at Low and 1.53 to
-2.49 at High at 800 by 450, the guide saying so. The rooms' frames stay within 2 of 255 with nothing
-marked and the bounds hold; the path-traced reference knows nothing of LightThrough, so leaves
-cannot be read against it. 2,122 on the GPU in both orders, 50 on lavapipe with validation, the
-strict build clean. After `42f4f505`, item 126, the materials' defaults agreeing, read at 22:37 on
-2026-10-25, carrying the review's files and DEVLOG.md. Two shared fields differed, DoubleSided true
-on the ECS Material against false and the roughness 1 against 0.5, and both take ModelMaterial's
-value, every other shared field agreeing already; Material.Default follows through its constructor
-and the scene reader with it, SceneSpawner setting both from the file's payload so loaded scenes are
-unchanged, the glTF description's own defaults left as glTF's. A test compares every shared field
-for a material made from one color, Material.Default's DoubleSided among them, MaterialTests'
-roughness reads 0.5, and one MeshEntityDrawsTests test that leaned on the old default makes its odd
-entity double-sided itself; the behaviors guide says a Material made from a color takes every
-default a ModelMaterial takes, with no upgrading entry. The four examples making ECS materials were
-captured again, ecs_mesh_entities matching within 0.002 and the other three differing run to run
-alone, so the committed captures stay. 2,119 on the GPU in both orders, 134 on lavapipe with
-validation, the strict build clean. After `98a0e49e`, item 125, the scene pass's half found in the
-draws' order, read at 22:05 on 2026-10-25, carrying the review's files with a Shared line, a reading
-in RENDERING.md and a note, and a captioned pair of the grove, pushed with `42f4f505` at 23:09 on
+of `a16227a7` went green whole, its run green whole at 04:07, Windows in 110 minutes, Linux in 65
+and macOS in 35. SetShadowSoftness(size) takes the sun's width across in degrees, 0 by default
+keeping the present look and path, held to 0 to 20, on the cheat sheet, PublicApi.txt and the
+guide's shadows section with a block built on the package; the lighting buffer gains ShadowSoftness
+after EnvironmentLight, twice the tangent of half the width, the edge's spread per unit of a
+caster's height, the layout test reading its offset. penumbra.slang runs from cascadeReached when
+the width is set, 16 depths on a golden-angle disc searching for blockers over the width a caster at
+the cascade's near plane would spread to, held to 24 texels either side, a point with none found lit
+and one with all 16 found in the shadow's core at 0, which saves 0.2 to 0.3 ms in the grove,
+otherwise 16 bilinear Gather comparisons over the radius the blockers' mean depth gives, a texel at
+least, the disc turned by a hash of the point, each tap compared with the receiver's depth along its
+own plane with the slope solved from the normal and the cascade's rows and capped at 80 degrees, the
+taps 1.5 texels inside the tile, the spot, point and contact shadows unchanged. ShadowSoftnessTests
+reads a pole 5 tall under a 45-degree sun, its edge between a quarter and three quarters of the
+light 0.04 units at the foot and the tip with no width and 0.08 at the foot and 0.24 at the tip at 3
+degrees, the test having caught a first version reading the full spread as the disc's radius with
+every edge twice as wide. The grove at 1920 by 1080 reads Low 6.53 to 6.72 ms with no width, 7.44 to
+7.88 at 0.53 degrees and 7.55 to 7.76 at 3, High 7.26 to 7.31, 7.96 to 8.39 and 7.94 to 8.41, so 0.7
+to 1.2 ms when on, most of it the search at every point the sun reaches; the bounce rooms at 0.53
+degrees 0.04 to 0.06 ms more at 800 by 450 and 0.25 to 0.41 at 1080p, and at the default the rooms
+and the grove read as before with the reference frames holding. 2,123 on the GPU in both orders, the
+first run catching the layout test, 42 on lavapipe with validation, the strict build clean, pack and
+docs on the package passing. After `a16227a7`, item 100's second part with two mends, read at 00:22
+on 2026-10-26, carrying the review's files, DEVLOG.md, a reading in RENDERING.md and a note, and a
+captioned before-and-after canopy picture, pushed at 00:53 on 2026-10-26 once the build run of
+`42f4f505` went green whole, the sixth pack run started with publish on at 00:53 for the game's item
+133, both runs watched. The build run went green whole at 02:14, Windows in 81 minutes, Linux in 62
+and macOS in 34; the sixth pack run's macOS job went red at 01:49 after 56 minutes on Pinball, the
+ball back in its lane and not draining, Verdict 93, its tests green; the run ended red at 03:20 with
+Windows in 147 minutes, the games in 53 and the captures in 56 and 58, the pack job skipped, and its
+macOS job was rerun at 03:21 for the game's package, the drive of `a16227a7` playing Pinball again
+as it stood. The rerun played the twelve games through in 56 minutes and the run went green whole at
+04:21, the package 5.2.319 pushed to nuget.org with item 100's second part, the game told. The
+canopy picture found that under leaves 5 units up letting half through, at High the floor took no
+more sky than under solid ones, 0.0089 against 0.0077 linear, while Low took 0.035 against 0.015,
+the test's slab at 2.5 up within the screen probes' reach of 4 missing it. Two faults. A ray
+crossing leaves had its reach set at the first leaf it met, so the merge's parallax read and the
+screen probes' reach took the leaves as a wall; the crossing build sets the reach where the ray
+stopped, which alone moves the slab test from 0.23 and 0.29 to 0.36 and 0.40 against the geometry's
+0.36, so the old numbers were this fault and not the slants, the guide and the first reading saying
+0.36 and 0.40. And the merge skipped every probe of the cascade above that the field hid, a canopy
+hiding them all from the probes under it, so the cascades under a canopy took nothing from above and
+the screen probes reading cascade light past their reach read black; seesPastLeaves in
+lightthrough.slang passes surfaces that let light through, the merge gaining the field's colors at
+binding 9, a gi.probe read showing cascade 2 under the slab at 0 on its up face while cascade 3
+above read the full sky. The slab test has four cases, Low and High at 2.5 and 5.5 up, reading 0.36
+and 0.40 and 0.37 and 0.32 against the geometry's 0.36 and 0.41; a canopy test 30 across and 5 up
+with four cascades of 0.25 at High reads 0.31 where the geometry gives 0.38 and 0.004 with the old
+merge, each mend checked by reverting it; five up at High still reads 22% under the geometry, likely
+the cascades' intervals splitting a crossing that straddles an interval's end, recorded in the
+test's comment and not mended. On a quiet GPU the bounce rooms are unchanged at 0.553 to 0.556 ms at
+Low in the Cornell box, the merge's extra read happening where the field stops a march alone; the
+voxel grove on the entity build with nothing marked as leaves reads Low 1.21 to 1.51 ms at 800 by
+450 and 1.46 to 1.48 at 1080p against 1.22 to 1.44 and 1.47 to 1.49 before, and High 2.85 to 3.21
+and 3.35 to 3.38 against 3.28 to 3.33 and 4.24 to 4.60, the scene pass the same; leaves filling the
+view cost GI 0.60 to 1.10 ms at Low and 1.53 to 2.49 at High at 800 by 450, the guide saying so. The
+rooms' frames stay within 2 of 255 with nothing marked and the bounds hold; the path-traced
+reference knows nothing of LightThrough, so leaves cannot be read against it. 2,122 on the GPU in
+both orders, 50 on lavapipe with validation, the strict build clean. After `42f4f505`, item 126, the
+materials' defaults agreeing, read at 22:37 on 2026-10-25, carrying the review's files and
+DEVLOG.md. Two shared fields differed, DoubleSided true on the ECS Material against false and the
+roughness 1 against 0.5, and both take ModelMaterial's value, every other shared field agreeing
+already; Material.Default follows through its constructor and the scene reader with it, SceneSpawner
+setting both from the file's payload so loaded scenes are unchanged, the glTF description's own
+defaults left as glTF's. A test compares every shared field for a material made from one color,
+Material.Default's DoubleSided among them, MaterialTests' roughness reads 0.5, and one
+MeshEntityDrawsTests test that leaned on the old default makes its odd entity double-sided itself;
+the behaviors guide says a Material made from a color takes every default a ModelMaterial takes,
+with no upgrading entry. The four examples making ECS materials were captured again,
+ecs_mesh_entities matching within 0.002 and the other three differing run to run alone, so the
+committed captures stay. 2,119 on the GPU in both orders, 134 on lavapipe with validation, the
+strict build clean. After `98a0e49e`, item 125, the scene pass's half found in the draws' order,
+read at 22:05 on 2026-10-25, carrying the review's files with a Shared line, a reading in
+RENDERING.md and a note, and a captioned pair of the grove, pushed with `42f4f505` at 23:09 on
 2026-10-25 once the build run of `23b4793b` went green whole, their run green whole at 00:50,
 Windows in 101 minutes, Linux in 39 and macOS in 35. The cause is the order of the draws and not
 their work, both paths making the same draws through the same pipelines with the same culling, depth
@@ -312,10 +326,11 @@ the game's 5.2.215 build at the cherry grove at 1920 by 1080, each part of the p
 out in turn to tell what runs per fragment from the variant's registers, the window's depth at half
 size and the scene pass shading with overdraw pointing at a half-size pass over the window's depth
 with a two by two depth and normal read, as the glow pass has. Next 112, the planar reflection, then
-93, the colons out of the documents, then 91, DESIGN.md's words on the loop and the ECS, then the
-glow light's non-number and the history's guard, then 95, the e3d help, then item 89, the plant
-walls' acne, then 97, the light at the camera's point on lavapipe. The branch `modeling` was deleted
-at 07:23 with its items all on main, N 7.5; the cloud sessions stand by.
+127, the canopy's crossings, then 93, the colons out of the documents, then 91, DESIGN.md's words on
+the loop and the ECS, then the glow light's non-number and the history's guard, then 95, the e3d
+help, then item 89, the plant walls' acne, then 97, the light at the camera's point on lavapipe. The
+branch `modeling` was deleted at 07:23 with its items all on main, N 7.5; the cloud sessions stand
+by.
 
 Before it, `a8f127ad` came, item 108's third phase, with `ac1c6bad`, item 120, pushed at 06:43 on
 2026-10-25 once the build run of `6a20d165` went green whole, its build run green whole at 07:41,
@@ -1268,9 +1283,24 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     image mirrored, and the guide's page on reflections saying when the plane, the probes and the
     trace each fit. One or two commits, after item 111 and before 93.
 
+127. **A ray crosses a voxel canopy's many leaf surfaces for less.** From the voxel game's item 133,
+    read at 05:03 on 2026-10-26, its ASKS.md entry of 2026-10-26. On 5.2.319 at seed 1's cherry
+    grove at 1920 by 1080 at High, the leaf blocks' faces letting half the light through a unit of
+    depth and the plants' 0.71, global illumination reads 6.14 and 6.09 ms against 3.44 and 3.42
+    with the shares off and the frame 19.58 and 19.51 against 16.70 and 16.64, the scene pass and
+    the shadows unmoved, where item 100's leaves filling the view cost 1.5 to 2.5 ms at 800 by 450;
+    a grove's canopy is thousands of leaf faces, and a ray crosses each where it stopped before, up
+    to four. The crossing's cost read on such a canopy, the game's scratch copy or the slab test
+    grown to many cells, and brought down, by a share taken per cell of the field as the march
+    passes it rather than surface by surface, by a bound on the crossings a ray's budget allows at
+    each quality, or by what the reading shows; the canopy's floor held within a few percent of
+    5.2.319's 0.74 of the open shade, the bounce rooms unchanged, the readings against the
+    references under the covered-fault rule, and the guide's foliage paragraph saying the cost. One
+    or two commits, after item 112 and before 93.
+
 ## Verdicts
 
-Verdicts 56 to 92 are settled, said under each in REVIEW-ARCHIVE.md; 93 is open.
+Verdicts 56 to 92 are settled, said under each in REVIEW-ARCHIVE.md; 93 is open, mended at `7af16fcd`.
 
 93. **The sixth pack run of `a16227a7` is red on macOS, Pinball's ball back in its lane and not
     draining.** Read at 02:14 on 2026-10-26. The macOS job's twelve-game loop failed at Pinball
@@ -1284,7 +1314,11 @@ Verdicts 56 to 92 are settled, said under each in REVIEW-ARCHIVE.md; 93 is open.
     the lane as a state of play, a ball back at its plunger with no drain launched again with Space
     and the wait begun over, a few launches at most before failing, and pinball.status saying when
     the ball is in the lane; the run's failed jobs rerun once the run ends for the game's package.
-    Small, before item 112.
+    Small, before item 112. Mended at `7af16fcd` on 2026-10-26, the lane in pinball.status and the
+    drive's relaunches, three at most; settled when a pack run plays Pinball through on macOS
+    carrying the mend. The rerun of 03:21, on the drive as it stood, played Pinball through on macOS
+    and the run went green whole at 04:21, so the ball's return to its lane is a state of play and
+    not every play's end.
 
 ## Decisions
 
@@ -2001,3 +2035,13 @@ cascades then read as percentage-closer soft shadows, a 16-tap blocker search an
 filter on a golden-angle disc, each tap compared with the receiver's depth along its own plane,
 solved from the normal and the cascade's rows (item 111). It costs the voxel game's grove 0.7 to
 1.2 ms of the scene pass at 1920 by 1080, most of it the search, and nothing at the default.
+
+Shared: a program sets a plane its glossy surfaces mirror the scene in (`SetReflectionPlane`), the
+window's batches drawn again through its view-projection mirrored in the plane, its near plane laid
+along the plane by Lengyel's oblique projection and the batches wholly under it culled by that
+plane, lit as a probe's faces are by the window's lights and shadow maps into a picture at half the
+window's size with its mips, which `mirrored` in lights.slang reads at the pixel's place blurred by
+roughness, for the model pass and a program's own shader (item 112). It costs the scene's draws once
+more, 0.05 to 0.27 ms of the GPU in `shaders_reflections`, and 2.2 to 2.8 ms of the GPU and 3.7 to
+4.1 ms of the CPU looking along the voxel game's river at 1920 by 1080, about the window's depth
+pass for the same 2,241 draws.

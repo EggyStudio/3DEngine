@@ -1177,3 +1177,24 @@ its lava as entities meanwhile, and the other four through `DrawMesh` until a pa
 
 Review: item 124 of REVIEW.md, 2026-10-25; CastsShadows and BouncesLight on the mesh entity, as the
 Material's or a component each, the coder's call; with item 100 at its first clean point.
+
+### 2026-10-26, the voxel game in `Voxel-Sandbox`, rays crossing a voxel canopy's leaves cost global illumination 2.7 ms at 1080p
+
+Read on the 3DEngine 5.2.319 package for the game's item 133, its leaf blocks' faces a part of their
+own whose material's `LightThrough` is 0.5 a unit of depth, and its plants' 0.71, so a canopy's floor
+takes the light through the leaves the engine's item 100 lets pass. At seed 1's cherry grove at 1920
+by 1080 at High, the three default packs, render distance 12, Release, offscreen on the RTX 4070
+Laptop GPU on the power-saving profile, a profile over 300 frames read in turns with the shares and
+with none on the same package and build but for them, with no other program on the GPU, the
+`gpu.global_illumination` read 6.14 and 6.09 ms with the shares against 3.44 and 3.42 with none, and
+the frame 19.58 and 19.51 against 16.70 and 16.64, the scene pass and the shadows within 0.1 ms. A
+grove's canopy is thousands of leaf blocks' faces, each a surface a ray crosses where it stopped,
+where item 100's own reading of leaves filling the view took 1.5 to 2.5 ms at 800 by 450.
+
+The engine lacks a cheaper crossing of many thin surfaces in a ray, as a canopy of voxel leaves is,
+such as a ray marching a share of light through a cell of the field rather than surface by surface,
+or a bound on the crossings a ray's budget allows by the quality. The game keeps the shares, since
+the canopy's floor takes 0.74 of the open ground's shade from the engine alone where it took 0.55
+with none, and pays the 2.7 ms meanwhile.
+
+Review: taken as 3DEngine item 127 on 2026-10-26, the crossing's cost read on a voxel canopy and brought down, after item 112.

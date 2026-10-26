@@ -547,6 +547,40 @@ reflect at once. In the ECS a probe is a `ReflectionProbe` component placed by i
 captures again once those models have spawned, so it holds the room and not the sky it saw in the
 frame it appeared.
 
+## A mirror plane
+
+Calm water, a polished floor or a mirror on a wall shows what stands before it as a sharp image,
+which a probe's box blurs and the traced reflection of global illumination draws from what the
+window's picture and the scene's field hold. `SetReflectionPlane` sets a plane, the points lying a
+height along its normal, and a glossy surface lying in it reflects the scene drawn from the camera
+mirrored in the plane:
+
+```csharp
+SetReflectionPlane(0, Vector3.UnitY);
+```
+
+The mirrored view is drawn each frame at half the window's size, cut at the plane so nothing under
+it shows, and lit by the window's lights and shadows. A surface of the model pass's own shader
+within a tenth of a unit of the plane, facing along its normal and with a roughness under a half
+takes it at its pixel's place, blurred as it grows rough, over the probe's, the environment's and
+the traced reflection. A blended surface takes it as an opaque one does, so water drawn translucent
+mirrors its shore. A shader of the program's own reads it through `mirrored(input.position,
+input.world, n, roughness)` from the `lights` module, the light in its first three components and
+how much of it holds there in the fourth, so a water shader lays it over its own color by its
+fresnel term. A zero normal takes the plane away, and nothing is drawn while the camera stands under
+it.
+
+One plane is mirrored at a time, so it suits the one water level or floor a scene has; a probe suits
+a room whose walls and metal reflect what is around them wherever in it they stand; and the traced
+reflection suits glossy surfaces at any slant, where global illumination is on.
+
+The mirrored view draws the scene's meshes a second time, so its cost follows how many draws the
+scene makes, as `./e3d command profile` shows under `mirror`. In `shaders_reflections` it takes 0.05
+to 0.27 ms of the GPU and 0.11 to 0.16 ms of the CPU. In a voxel world of 2,241 draws looking along
+a river at 1920 by 1080 it takes 2.2 to 2.8 ms of the GPU and 3.7 to 4.1 ms of the CPU, about what
+the window's depth pass takes for the same draws, so a program sets the plane while its water is in
+view and takes it away elsewhere.
+
 ## Lights in the ECS
 
 A light made by these calls is a `Light` entity of the ECS, so lights a program makes as entities

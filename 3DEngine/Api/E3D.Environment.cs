@@ -192,6 +192,36 @@ public static partial class E3D
     public static (Color Color, float BlendDegrees) GetSkyHorizon() =>
         TryRes<SkyHorizon>(out var horizon) ? (horizon.Color, horizon.BlendDegrees) : (Color.Blank, 0);
 
+    /// <summary>
+    /// Sets a plane a glossy surface lying in it mirrors the scene in, the points whose distance
+    /// along <paramref name="normal"/> from the origin is <paramref name="height"/>, as a calm
+    /// water's or a polished floor's, or none where the normal is zero.
+    /// </summary>
+    /// <remarks>
+    /// The window's scene is drawn a second time each frame, from its camera mirrored in the plane
+    /// and at half the window's size, cut off at the plane so nothing under it shows, and a surface
+    /// of the model pass's own shader within a tenth of a unit of the plane and facing along the
+    /// normal, its roughness under a half, reflects that picture at its pixel's place, blurred as
+    /// it grows rough, in place of the reflection probe's, the environment's and global
+    /// illumination's traced reflection. A shader of the program's own reads it through
+    /// <c>mirrored</c> in lights.slang. Nothing is drawn while the camera stands on the plane's
+    /// other side. The mirrored view is lit by the window's lights and shadows, with no global
+    /// illumination of the screen's, ambient occlusion or traced reflection, and the shapes drawn
+    /// by calls such as <see cref="DrawCube(System.Numerics.Vector3, float, float, float, Color)"/>
+    /// are not in it.
+    /// </remarks>
+    public static void SetReflectionPlane(float height, System.Numerics.Vector3 normal)
+    {
+        if (normal.LengthSquared() < 1e-12f || !float.IsFinite(height) || !float.IsFinite(normal.X + normal.Y + normal.Z))
+        {
+            World.RemoveResource<ReflectionPlane>();
+            return;
+        }
+        var plane = World.GetOrInsertResource(static () => new ReflectionPlane());
+        plane.Normal = System.Numerics.Vector3.Normalize(normal);
+        plane.Height = height;
+    }
+
     // The sky's model shader, compiled once per window from the staged sky.slang.
     private static Shader SkyShader()
     {

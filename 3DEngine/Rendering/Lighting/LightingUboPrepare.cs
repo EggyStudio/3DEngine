@@ -103,6 +103,15 @@ internal sealed class LightingUboPrepare : IPrepareSystem
                 windowUbo.ReflectionReach = new System.Numerics.Vector4(reach, gi.Rays is null ? 0 : 1, 0, 0);
             }
         }
+        // And the scene mirrored in the program's plane, which a glossy surface lying in it reads.
+        if (MirrorRenderer.Draws(renderWorld) && renderWorld.TryGet<MirrorRenderer>() is not null
+            && renderWorld.TryGet<ReflectionPlane>() is { } mirrorPlane && renderWorld.TryGet<SwapchainTarget>() is { } swapchain)
+        {
+            var half = (Width: Math.Max(1u, swapchain.Extent.Width / 2), Height: Math.Max(1u, swapchain.Extent.Height / 2));
+            windowUbo.MirrorPlane = new System.Numerics.Vector4(mirrorPlane.Normal, mirrorPlane.Height);
+            windowUbo.Mirror = new System.Numerics.Vector4(1, ImageDesc.FullMipChain(half.Width, half.Height) - 1, MirrorRenderer.Reach, 0);
+            windowUbo.MirrorScreen = new System.Numerics.Vector4(1f / swapchain.Extent.Width, 1f / swapchain.Extent.Height, 0, 0);
+        }
         var binding = Upload(allocator, in windowUbo);
         renderWorld.Set(new FrameLightingBinding(binding, ubo.LightCount, environment is not null));
 

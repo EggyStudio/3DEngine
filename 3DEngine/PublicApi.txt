@@ -1510,6 +1510,7 @@ static class Engine.E3D
   static void SetProfileValue(string name, double value)
   static void SetProfileValue(string name, double value, double seconds)
   static void SetRandomSeed(uint seed)
+  static void SetReflectionPlane(float height, Vector3 normal)
   static void SetReflectionProbeRefresh(ReflectionProbeHandle probe, float seconds)
   static void SetSceneField(int cascades, float cellSize = 0.25f, int updateBudget = 1, int triangleBudget = 32768, float farCascade = 0f)
   static void SetScreenshotKey(Key key)

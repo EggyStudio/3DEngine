@@ -119,6 +119,7 @@ internal sealed class Renderer : IDisposable
         RenderWorld.Set(new AmbientOcclusionRenderer(server.LoadSync<ShaderProgram>("shaders/ao.slang")));
         RenderWorld.Set(new SceneFieldRenderer());
         RenderWorld.Set(new GlobalIlluminationRenderer());
+        RenderWorld.Set(new MirrorRenderer());
         RenderWorld.Set(new SceneFieldViewRenderer(server.LoadSync<ShaderProgram>("shaders/field_view.slang")));
         RenderWorld.Set(new BounceViewRenderer(server.LoadSync<ShaderProgram>("shaders/gi_view.slang"),
             server.LoadSync<ShaderProgram>("shaders/gi_probes.slang")));
@@ -161,10 +162,13 @@ internal sealed class Renderer : IDisposable
         Graph.AddNodeEdge("targets", "shadows");
         Graph.AddNode("probes", new ProbeNode());
         Graph.AddNodeEdge("shadows", "probes");
+        // The window's view mirrored in a program's plane, which the window's scene reads.
+        Graph.AddNode("mirror", new MirrorNode());
+        Graph.AddNodeEdge("probes", "mirror");
         // The window's scene is drawn into the HDR target, and spread where bloom is on, before the
         // window's pass tonemaps it into the window.
         Graph.AddNode("hdr_scene", new HdrSceneNode());
-        Graph.AddNodeEdge("probes", "hdr_scene");
+        Graph.AddNodeEdge("mirror", "hdr_scene");
         Graph.AddNode("bloom", new BloomNode());
         Graph.AddNodeEdge("hdr_scene", "bloom");
         Graph.AddNodeEdge("bloom", "main_pass");
@@ -412,6 +416,7 @@ internal sealed class Renderer : IDisposable
         RenderWorld.TryGet<SubsurfaceRenderer>()?.Dispose();
         RenderWorld.TryGet<SceneFieldRenderer>()?.Dispose();
         RenderWorld.TryGet<GlobalIlluminationRenderer>()?.Dispose();
+        RenderWorld.TryGet<MirrorRenderer>()?.Dispose();
         RenderWorld.TryGet<SceneFieldViewRenderer>()?.Dispose();
         RenderWorld.TryGet<BounceViewRenderer>()?.Dispose();
         Logger.Debug("Render graph nodes disposed.");

@@ -32,6 +32,7 @@ internal sealed partial class ModelRenderer
                     Lit(white, whiteSampler, 1));
                 gfx.UpdateDescriptorSet(_noLights, null, Lit(white, whiteSampler, AmbientOcclusionBinding));
                 gfx.UpdateDescriptorSet(_noLights, null, Lit(white, whiteSampler, ShadowFillBinding));
+                gfx.UpdateDescriptorSet(_noLights, null, Lit(white, whiteSampler, MirrorBinding));
                 if (BlackCube(gfx) is { } black)
                     for (uint b = 2; b < 5 + LightingUboPacker.MaxProbes; b++)
                         if (b != 4) gfx.UpdateDescriptorSet(_noLights, null, Lit(black.View, black.Sampler, b));
@@ -83,6 +84,11 @@ internal sealed partial class ModelRenderer
                 : renderWorld.TryGet<TargetOcclusion>()?.Images.GetValueOrDefault(target)) is { } occlusion
             ? Lit(occlusion.View, occlusion.Sampler, AmbientOcclusionBinding)
             : Lit(white, whiteSampler, AmbientOcclusionBinding));
+        // The scene mirrored in the program's plane for the window's view where it was drawn this
+        // frame, and white for every other, which its buffer says not to read.
+        gfx.UpdateDescriptorSet(set, null, target == 0 && MirrorRenderer.Draws(renderWorld) && renderWorld.TryGet<MirrorRenderer>()?.Picture is { } mirror
+            ? Lit(mirror.View, mirror.Sampler, MirrorBinding)
+            : Lit(white, whiteSampler, MirrorBinding));
         // And the indirect light, the window's with its screen's probes and what its glossy
         // surfaces trace through, a render target's with screen probes of its own where it draws
         // meshes through a camera, and a probe capture's from the world's probes alone, which no
@@ -167,6 +173,9 @@ internal sealed partial class ModelRenderer
 
     // Where lightset.slang binds the sun's fill cascade past the shadow distance.
     private const uint ShadowFillBinding = 37;
+
+    // Where lightset.slang binds the scene mirrored in the program's plane.
+    private const uint MirrorBinding = 38;
 
     // Where modelpass.slang binds the probes' indirect light and the field they lie in, the
     // screen's probes' light and surfaces, the probes' reach and sky, and the glow lights' light
@@ -327,8 +336,9 @@ internal sealed partial class ModelRenderer
     // The six faces a probe is drawn into, made for the first capture and kept for the next.
     private RenderTarget[]? _probeFaces;
 
-    // The key a probe's faces take their lights by, apart from every render target's id.
-    private const int ProbeCaptureLights = int.MinValue;
+    // The key a probe's faces take their lights by, apart from every render target's id, which the
+    // view mirrored in a program's plane takes them by too (MirrorRenderer).
+    internal const int ProbeCaptureLights = int.MinValue;
 
     /// <summary>The width in texels of each face a probe is captured into.</summary>
     internal const int ProbeFaceSize = 64;

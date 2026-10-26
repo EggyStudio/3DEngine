@@ -573,7 +573,13 @@ public LitLight litLight(float3 albedo, ModelVertexOutput input, float shadow = 
     float4 traced = tracedReflection(input.world, n, reflect(-v, n), roughness, input.world + input.toEye);
     float gloss = traced.a * (1.0 - smoothstep(lighting.reflection.y * 0.5, lighting.reflection.y, roughness));
     float3 specularShare = ambientReflected(f0, roughness, nv);
-    light.specular += occlusion * traced.rgb * gloss * specularShare;
+    // A surface lying in the plane a program set mirrors the scene drawn from the camera mirrored in
+    // it (mirrored), over the trace and the probe's and the environment's as far as it holds and
+    // the surface is glossy, with or without global illumination.
+    float4 plane = mirrored(input.position, input.world, n, roughness);
+    float planeShare = plane.a * (1.0 - smoothstep(0.25, 0.5, roughness));
+    light.specular += occlusion * (traced.rgb * gloss * (1.0 - planeShare) + plane.rgb * planeShare) * specularShare;
+    gloss += planeShare * (1.0 - gloss);
 
     // The environment, as an ambient light that differs by direction. The mirror direction is
     // looked up at the mip prefiltered for this roughness and weighted as Karis's fit weights an

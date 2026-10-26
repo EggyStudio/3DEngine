@@ -222,13 +222,13 @@ public partial class SlangCompilerTests : IDisposable
         var program = new SlangLoader(_folder.Path, shaders).Compile(File.ReadAllText(Path.Combine(shaders, "model.slang")), "model.slang");
 
         var lights = program.LayoutOf(1);
-        lights.Select(b => b.Binding).Should().Equal([.. Enumerable.Range(0, 20 + 2 * LightingUboPacker.MaxProbes).Select(b => (uint)b), 31u, 32u, 33u, 34u, 35u, 36u, 37u],
+        lights.Select(b => b.Binding).Should().Equal([.. Enumerable.Range(0, 20 + 2 * LightingUboPacker.MaxProbes).Select(b => (uint)b), 31u, 32u, 33u, 34u, 35u, 36u, 37u, 38u],
             "the lighting buffer, the shadow maps, the environment and sky, the probes' cubes, the occlusion, the probes' and the environment's irradiance, "
             + "the indirect light in the world's probes, the field they lie in, and the screen's probes and their surfaces, "
             + "what a reflection is traced through, the field, its colors and light, the lights, the window's depth, and its frame before and that frame's depth, "
             + "the two samplers the set's images are read through, and past the device's rays the probes' reach, their share of the sky "
             + "and the glow lights' light on the window's surfaces and their normals, the way each cell of the field's nearest face looks, "
-            + "which a reflection's hit takes its color by, and the sun's fill cascade past its counted ones");
+            + "which a reflection's hit takes its color by, the sun's fill cascade past its counted ones, and the scene mirrored in the program's plane");
         lights[0].Type.Should().Be(DescriptorType.UniformBuffer);
         // Images alone, read through the set's two samplers, since Metal allows a stage sixteen.
         lights.Skip(1).Take(5 + LightingUboPacker.MaxProbes).Should().OnlyContain(b => b.Type == DescriptorType.SampledImage);
@@ -239,7 +239,8 @@ public partial class SlangCompilerTests : IDisposable
             DescriptorType.SampledImage, DescriptorType.SampledImage, DescriptorType.SampledImage,
             DescriptorType.UniformBuffer, DescriptorType.SampledImage, DescriptorType.SampledImage, DescriptorType.SampledImage,
             DescriptorType.Sampler, DescriptorType.Sampler, DescriptorType.SampledImage, DescriptorType.SampledImage, DescriptorType.SampledImage,
-            DescriptorType.SampledImage, DescriptorType.SampledImage, DescriptorType.SampledImage, DescriptorType.SampledImage);
+            DescriptorType.SampledImage, DescriptorType.SampledImage, DescriptorType.SampledImage, DescriptorType.SampledImage,
+            DescriptorType.SampledImage);
         lights.Should().OnlyContain(b => b.Stages.HasFlag(ShaderStageFlags.Fragment));
         program.LayoutOf(0).Select(b => b.Binding).Should().Equal([1u, 2u, 3u, 4u, 5u], "the material's five maps");
 

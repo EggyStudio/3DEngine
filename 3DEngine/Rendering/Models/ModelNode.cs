@@ -399,10 +399,12 @@ internal sealed partial class ModelRenderer : IDisposable
     /// the cameras they were recorded through, or all through <paramref name="viewProjection"/>,
     /// as a reflection probe's face draws the window's, with a shader of the program's own's color
     /// held to what an eight-bit frame keeps of it where <paramref name="held"/>, as the HDR frame
-    /// asks (<see cref="ShaderProgram.HeldToEightBits"/>).
+    /// asks (<see cref="ShaderProgram.HeldToEightBits"/>), leaving out what lies before the near
+    /// plane or past the far one where <paramref name="depth"/>, as the view mirrored in a plane
+    /// does what lies under it.
     /// </summary>
     public void Draw(TrackedRenderPass pass, IRenderPass renderPass, RenderContext renderContext, RenderWorld renderWorld, int target,
-        Matrix4x4? viewProjection = null, int? lights = null, bool held = false)
+        Matrix4x4? viewProjection = null, int? lights = null, bool held = false, bool depth = false)
     {
         var draws = renderWorld.TryGet<ModelDrawList>();
         var meshes = renderWorld.TryGet<GpuMeshes>();
@@ -434,7 +436,7 @@ internal sealed partial class ModelRenderer : IDisposable
             ref readonly var batch = ref span[b];
             if (IsAlone(batch.Shadow)) continue;
             var through = viewProjection ?? batch.ViewProjection;
-            if (culledThrough != through) (frustum, culledThrough) = (new Frustum(through, depth: false), through);
+            if (culledThrough != through) (frustum, culledThrough) = (new Frustum(through, depth), through);
             if (!frustum.SeesAny(batch, blocks)) continue;
             var draw = batch.Custom >= 0 ? draws.Draws[batch.Custom] : default;
             // A shader unloaded after the draw was recorded draws with the model pass's own.
@@ -467,7 +469,7 @@ internal sealed partial class ModelRenderer : IDisposable
         {
             ref readonly var batch = ref span[planned.Batch];
             var through = viewProjection ?? batch.ViewProjection;
-            if (culledThrough != through) (frustum, culledThrough) = (new Frustum(through, depth: false), through);
+            if (culledThrough != through) (frustum, culledThrough) = (new Frustum(through, depth), through);
             var keptTo = viewProjection is null ? batch.Scissor : null;
             if (keptTo != scissored)
             {

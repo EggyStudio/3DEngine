@@ -501,6 +501,36 @@ environment's. A surface in a box takes its reflection and diffuse light from th
 holding it, the reflection looked up where the reflected ray leaves the box (box projection), and a
 surface in none keeps the environment map.
 
+A `ReflectionPlane`, a world resource `SetReflectionPlane` sets, is a plane whose glossy surfaces
+mirror the scene as the camera mirrored in it sees it. `MirrorNode`, after the probes and before the
+window's scene, draws the window's batches again through the window's view-projection mirrored in
+the plane and turned upside down, which keeps each face's order of corners, with its depth row
+replaced by the plane scaled to put the frustum's far corner at depth 1 (Lengyel's oblique near
+plane), so what lies under the plane is clipped rather than mirrored up through it, and a batch
+wholly under it is culled by that near plane before it is drawn (`ModelRenderer.Draw` with
+`depth`). They are lit as a probe's faces are (`ModelRenderer.ProbeCaptureLights`), by the window's
+lights and shadow maps with no screen's probes, ambient occlusion or traced reflection, into a
+half-float target at half the window's size with a depth of its own, cleared to the window's clear
+color in linear light, the particles drawn over them, and the picture is copied into an image with
+its mips (`GraphicsDevice.RecordPlanarReflection`) at set 1's binding 38, white where no plane is
+drawn. The lighting buffer carries the plane, the image's last mip, how far off the plane a surface
+still takes it, and one over the window's size. `mirrored` in `lights.slang` reads it at the
+pixel's place turned upside down, at the mip `min(lastMip, 6)` times twice the roughness, all of it
+on the plane and none a tenth of a unit off it or with the normal more than 26 degrees from the
+plane's, and the model pass lays it over the traced or the probe's reflection by that share, faded
+out from a roughness of 0.25 to 0.5 as the trace is. Nothing is drawn while the eye stands under the
+plane, nor for a render target or a probe's faces. In `shaders_reflections` the `mirror` node takes
+0.046 ms of the GPU at 800 by 450 with global illumination off and 0.27 ms at 1920 by 1080 at
+`High`, and 0.11 to 0.16 ms of the CPU. Summit has no water, and with a sea of roughness 0.05 added
+at a height of -0.5 for the reading it takes 0.10 ms of the GPU at 960 by 540 and 0.16 ms at 1920
+by 1080 and 0.15 to 0.17 ms of the CPU, the frame 1.23 to 1.25 ms without the plane and 1.35 to 1.38
+ms with it. In the voxel game's cherry grove at seed 1, 2,241 draws, it takes 1.3 to 1.7 ms of the
+GPU at 800 by 450 and 1.5 to 2.1 ms at 1920 by 1080 over the grove, 2.2 to 2.8 ms looking along its
+river from four blocks over the water, and 3.7 to 4.1 ms of the CPU, which the window's depth pass
+takes for the same draws (4.1 ms), so the frame, bound by the CPU, takes 3 to 5 ms longer. Before
+the batches under the plane were culled the CPU took 4.5 ms, the sections under the river being
+few beside the land over it.
+
 The first directional light with `CastsShadows` set casts the frame's one shadow, in three cascades.
 `ShadowFit` cuts each view's camera out to 150 units into slices ending at 12, 45 and 150 units, or
 out to the distance `SetShadowDistance` puts in `ShadowSettings` in the same proportions, and fits a

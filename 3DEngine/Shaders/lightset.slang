@@ -97,6 +97,15 @@ public struct Lighting
     // x: how wide the sun's shadow's edge spreads per unit of a caster's height over the point it
     // shades, 0 for an edge as sharp everywhere (cascadeSoftly).
     public float4 shadowSoftness;
+    // The plane a program set for the window's glossy surfaces lying in it to mirror the scene in
+    // (SetReflectionPlane), its normal toward the side the camera stands on in xyz and how far
+    // along it the plane lies in w.
+    public float4 mirrorPlane;
+    // x: 1 in the window's view where mirrorMap holds the scene mirrored in the plane this frame.
+    // y: its last mip. z: how far off the plane a surface still takes it, none that far off. w: unused.
+    public float4 mirror;
+    // xy: one over the window's width and height, which a pixel's place in mirrorMap is read by.
+    public float4 mirrorScreen;
 };
 
 [[vk::binding(0, 1)]]
@@ -119,6 +128,11 @@ public TextureCube skyMap;
 // cascade, or a white texture where there is none.
 [[vk::binding(37, 1)]]
 public Texture2D shadowFillMap;
+
+// The scene as the window's camera mirrored in the program's plane sees it, at half the window's
+// size in linear light with its mips, upside down, or a white texture where the view has none.
+[[vk::binding(38, 1)]]
+public Texture2D mirrorMap;
 
 // The depths each shadowed point light sees, a layer for each of its six faces.
 [[vk::binding(4, 1)]]

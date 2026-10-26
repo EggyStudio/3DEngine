@@ -129,9 +129,24 @@ internal struct LightingUbo
     /// <summary>
     /// x: how wide the sun's shadow's edge spreads per unit of a caster's height over the point it
     /// shades, twice the tangent of half the sun's width across (<see cref="E3D.SetShadowSoftness"/>),
-    /// 0 for an edge as sharp everywhere. Last, so the fields before keep their offsets.
+    /// 0 for an edge as sharp everywhere.
     /// </summary>
     public Vector4 ShadowSoftness;
+
+    /// <summary>
+    /// The plane the window's glossy surfaces lying in it mirror the scene in
+    /// (<see cref="E3D.SetReflectionPlane"/>), its normal in xyz and how far along it the plane lies in w.
+    /// </summary>
+    public Vector4 MirrorPlane;
+
+    /// <summary>
+    /// x: 1 in the window's view where the scene mirrored in the plane was drawn this frame. y: the
+    /// mirrored picture's last mip. z: how far off the plane a surface still takes its image.
+    /// </summary>
+    public Vector4 Mirror;
+
+    /// <summary>xy: one over the window's width and height, which a pixel's place in the mirrored picture is read by. Last, so the fields before keep their offsets.</summary>
+    public Vector4 MirrorScreen;
 }
 
 /// <summary>One reflection probe as the model pass reads it.</summary>

@@ -266,12 +266,14 @@ mirror shows what stands behind the camera. At `High`, on a GPU that traces rays
 reflection the field misses, past its cascades or too thin for its cells, is traced against the
 meshes' own triangles, which `./e3d command gi.rays off` turns off and `gi.rays on` back on. The
 traced reflection fades into the reflection probe's or the environment map's as a surface grows
-rough, from a roughness of 0.25 to 0.5. The environment map's reflection is weighed by the share of
-the sky the probes around a surface see along its mirror direction, so a rough wall in a cave sealed
-from the sky reflects none of it. In `shaders_reflections` at `Medium` the scene's pass takes 0.30
-ms of the GPU with its floor polished and 0.23 ms with it rough, as `./e3d command profile` names it
-`hdr_scene`, and at `High` the GPU's rays see its 8 copies of 6 meshes in 1.23 MB, built again each
-frame in some 0.02 ms.
+rough, from a roughness of 0.25 to 0.5. A surface lying in a plane the program sets mirrors the
+scene drawn from the camera mirrored in it instead, as [A mirror
+plane](materials-light-and-shadows.md#a-mirror-plane) says. The environment map's reflection is
+weighed by the share of the sky the probes around a surface see along its mirror direction, so a
+rough wall in a cave sealed from the sky reflects none of it. In `shaders_reflections` at `Medium`
+the scene's pass takes 0.30 ms of the GPU with its floor polished and 0.23 ms with it rough, as
+`./e3d command profile` names it `hdr_scene`, and at `High` the GPU's rays see its 8 copies of 6
+meshes in 1.23 MB, built again each frame in some 0.02 ms.
 
 ## Where it falls short
 

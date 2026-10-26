@@ -733,6 +733,7 @@ void DrawSkybox(Color tint);                             // Draws the environmen
 void DrawSkybox();                                       // Draws the environment map as the sky behind everything, untinted
 void SetSkyHorizon(Color color, float blendDegrees);     // Draws the sky below the horizon in color, blended into the environment map's image over blendDegrees above it, so land a program fades into fog of that color meets the same color past the last thing drawn
 (Color Color, float BlendDegrees) GetSkyHorizon();       // The color the sky is drawn in below the horizon and the degrees it blends over, as SetSkyHorizon or the day sky left them, or a clear color and 0 where none is set
+void SetReflectionPlane(float height, Vector3 normal);   // Sets a plane a glossy surface lying in it mirrors the scene in, the points whose distance along normal from the origin is height, as a calm water's or a polished floor's, or none where the normal is zero
 
 void SetSkyTime(float hours);                            // Sets the day sky's time in hours from its first midnight, starting the day sky where it was not running, so the environment map, the light and the horizon follow the hour, 30 being six in the morning of the second day
 float GetSkyTime();                                      // The day sky's time in hours from its first midnight, or 0 where none runs

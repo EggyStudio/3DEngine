@@ -116,33 +116,12 @@ internal sealed unsafe partial class GraphicsDevice
     {
         if (commandBuffer is not VulkanCommandBuffer vkCmd) throw new ArgumentException("Command buffer was not created by this device.", nameof(commandBuffer));
         var cmd = vkCmd.Handle;
-        var source = (VulkanImage)scene.Image;
         var target = (VulkanImage)history.Image;
-        var sourceExtent = source.Description.Extent;
         var targetExtent = target.Description.Extent;
         var readers = VkPipelineStageFlags2.FragmentShader | VkPipelineStageFlags2.ComputeShader;
-
-        // The scene from the layout its pass left it in to be copied from, and every level of the
-        // picture, read by the model pass a moment ago, to be written.
-        PipelineBarrier(cmd,
-        [
-            ImageBarrier(source.Image, ColorLevels(0, 1), VkImageLayout.ShaderReadOnlyOptimal, VkImageLayout.TransferSrcOptimal,
-                VkPipelineStageFlags2.ColorAttachmentOutput | readers, VkAccessFlags2.ColorAttachmentWrite | VkAccessFlags2.ShaderRead,
-                VkPipelineStageFlags2.Transfer, VkAccessFlags2.TransferRead),
-            ImageBarrier(target.Image, ColorLevels(0, LevelsOf(target)), VkImageLayout.ShaderReadOnlyOptimal, VkImageLayout.TransferDstOptimal,
-                readers, VkAccessFlags2.ShaderRead, VkPipelineStageFlags2.Transfer, VkAccessFlags2.TransferWrite),
-        ]);
-        VkImageBlit blit = new()
-        {
-            srcSubresource = new VkImageSubresourceLayers(VkImageAspectFlags.Color, 0, 0, 1),
-            dstSubresource = new VkImageSubresourceLayers(VkImageAspectFlags.Color, 0, 0, 1),
-        };
-        blit.srcOffsets[1] = new VkOffset3D((int)sourceExtent.Width, (int)sourceExtent.Height, 1);
-        blit.dstOffsets[1] = new VkOffset3D((int)targetExtent.Width, (int)targetExtent.Height, 1);
-        _deviceApi.vkCmdBlitImage(cmd, source.Image, VkImageLayout.TransferSrcOptimal, target.Image, VkImageLayout.TransferDstOptimal, 1, &blit, VkFilter.Linear);
-        PipelineBarrier(cmd, ImageBarrier(source.Image, ColorLevels(0, 1), VkImageLayout.TransferSrcOptimal, VkImageLayout.ShaderReadOnlyOptimal,
-            VkPipelineStageFlags2.Transfer, VkAccessFlags2.TransferRead, readers, VkAccessFlags2.ShaderRead));
-        RecordMipChain(cmd, target);
+        // The scene from the layout its pass left it in, into every level of the picture, read by
+        // the model pass a moment ago.
+        RecordCopyDown(cmd, (VulkanImage)scene.Image, target);
 
         // The depth, from the layout it is sampled in to be copied from, into the one beside the
         // picture, which the model pass read a moment ago.

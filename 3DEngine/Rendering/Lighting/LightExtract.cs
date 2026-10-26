@@ -24,6 +24,8 @@ internal sealed class LightExtract : IExtractSystem
         else renderWorld.Remove<EnvironmentLight>();
         if (world.TryGetResource<ShadowSettings>(out var shadows)) renderWorld.Set(shadows);
         else renderWorld.Remove<ShadowSettings>();
+        if (world.TryGetResource<ReflectionPlane>(out var plane)) renderWorld.Set(plane);
+        else renderWorld.Remove<ReflectionPlane>();
         if (world.TryGetResource<BloomSettings>(out var bloom)) renderWorld.Set(bloom);
         else renderWorld.Remove<BloomSettings>();
         if (world.TryGetResource<AmbientOcclusionSettings>(out var occlusion)) renderWorld.Set(occlusion);
