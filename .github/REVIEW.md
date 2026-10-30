@@ -1,22 +1,32 @@
 # Review
 
-Reviewed up to `1703c54e`, item 97, pushed by the owner's hand at 16:54 on 2026-10-26 while the
-sessions were paused until 2026-10-30, its run green whole at 19:33 with Windows in 99 minutes. The
-ninth pack run started with publish on at 18:41 on 2026-10-30, since the owner sees item 97's specks
-in the voxel game and its package lacks the mend; the run watched. Before it on 2026-10-26, each
-green but where said: `987f07ae` (Verdict 94's mend) with `969a1b08` (item 129); `7ff7bbdd` (130),
-red on the examples job alone, Verdict 94; `b05b32da` (89); `0a4ad922` (the README's quick links);
-`5528c55c` (95); `d207627e` (91), `bb542fa4` (93) and `0754b975` (128), the eighth pack run
-publishing 5.2.326 at 13:13; `2f5237f2` (127); `78946b22` (112), the seventh pack run publishing
-5.2.322 at 09:14; `7af16fcd` (Verdict 93's mend); `45edfbf6` (111); `a16227a7` (100), the sixth pack
-run publishing 5.2.319 at 04:21 on its second attempt. Each commit's detail stands in its item in
-REVIEW-ARCHIVE.md, its devlog note and its own words. On 2026-10-30 at 18:0x the owner wrote the
-README's new words (item 133) and the focus on radiance cascades (Decision 74), questions asked
-back, and asked that the sessions spend fewer tokens at the same quality, N 7.7.
+Reviewed up to `e96a6bb8`, pushed with `c3214cbe` at 19:52 on 2026-10-30, its run green whole at
+21:51, Windows in 119 minutes, Linux in 44 and macOS in 33. `c3214cbe` is item 134, a resize asked
+before the first frame carried out at once past the debounce a load held back, with a test and the
+window guide's line, and AGENTS.md's REVIEW.md line as the owner asked. `e96a6bb8` is item 132's
+reading with no mend, the note 2026-10-30-item-132-recording.md; at 12 columns 5.6 to 6.5 ms of the
+four passes' 9.6 to 11.5 is a descriptor set made and written for every draw in every pass, about
+2,045 a frame at 2.8 to 3.2 microseconds each with every section's set holding the same values, and
+one set a frame in a scratch copy takes the passes to 5.1 ms at 12 and from 18.4 to 19.7 to 7.6 at
+16, the frame at 16 from 26.6 to 17.9 ms, the land's pixels within 0.08 of 255. 2,135 on the GPU in
+both orders, the resize tests on lavapipe with validation. Before it `1703c54e`, item 97, pushed by
+the owner's hand at 16:54 on 2026-10-26 while the sessions were paused until 2026-10-30, its run
+green whole at 19:33 with Windows in 99 minutes. The ninth pack run started with publish on at 18:41
+on 2026-10-30, since the owner sees item 97's specks in the voxel game and its package lacked the
+mend; the run went green whole at 21:05, Windows in 101 minutes and the games in 71, the package
+5.2.333 pushed to nuget.org with items 97, 129, 130, 89, 95, 91 and 93, the game told. Before it on
+2026-10-26, each green but where said: `987f07ae` (Verdict 94's mend) with `969a1b08` (item 129);
+`7ff7bbdd` (130), red on the examples job alone, Verdict 94; `b05b32da` (89); `0a4ad922` (the
+README's quick links); `5528c55c` (95); `d207627e` (91), `bb542fa4` (93) and `0754b975` (128), the
+eighth pack run publishing 5.2.326 at 13:13; `2f5237f2` (127); `78946b22` (112), the seventh pack
+run publishing 5.2.322 at 09:14; `7af16fcd` (Verdict 93's mend); `45edfbf6` (111); `a16227a7` (100),
+the sixth pack run publishing 5.2.319 at 04:21 on its second attempt. Each commit's detail stands in
+its item in REVIEW-ARCHIVE.md, its devlog note and its own words. On 2026-10-30 at 18:0x the owner
+wrote the README's new words (item 133) and the focus on radiance cascades (Decision 74), questions
+asked back, and asked that the sessions spend fewer tokens at the same quality, N 7.7.
 
-Next 134, the swapchain on a resize, and 133 when the owner answers on its mark, then the cascades
-in order, 135, 131, 136, 137, 138, 139, 140, 141 and 142 (Decision 75); 132, 143 and 144 wait behind
-them.
+Next the cascades in order, and 133 when the owner answers on its mark, 135, 131, 136, 137, 138,
+139, 140, 141 and 142 (Decision 75); 132, 143, 144 and 145 wait behind them.
 
 Items done and verdicts settled before 2026-10-23 stand in REVIEW-ARCHIVE.md beside this file, their
 numbers kept, moved there at 19:30 on 2026-10-23 so this file holds the current work alone and is
@@ -894,7 +904,10 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     workers, as the reading shows, so a frame's four passes over two thousand unmoving sections cost
     the main thread well under a millisecond each; the frames the same in picture, the references
     holding, the game's view read again with the package. One or two commits, after item 97 and
-    before 131.
+    before 131. Read at `e96a6bb8` on 2026-10-30, the cost a descriptor set a draw a pass, about
+    2,045 a frame, one set a frame taking the frame at 16 columns from 26.6 to 17.9 ms in a scratch
+    copy with the pixels the same; the mend waits behind the cascades by Decision 75 unless the
+    owner lets it land first, asked.
 
 143. **Shadow casters are culled to each cascade's slice swept toward the sun.** From the voxel
     game's reading of a voxel engine in Rust on 2026-10-30, its ASKS.md entry of 2026-10-30, behind
@@ -910,6 +923,15 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     is positions as 16-bit normalized within the mesh's bounds with 16-bit indices, a vertex from 24
     bytes to 18 and the indices halved, packed on workers; read by the game's mesh memory and the
     upload ms a frame while streaming. One or two commits.
+
+145. **A mesh written in place gives back its ring of mapped buffers once the writes stop.** From
+    the voxel game's item 143, its ASKS.md entry of 2026-10-30, behind the cascades of Decision 75
+    with items 132, 143 and 144. A mesh whose stream is written in place keeps a ring of
+    RetireFrames plus one mapped buffers for good, and the game's grouped sections hold 255 MB of
+    the driver's mapped memory in such rings at 12 columns; the ring is given back after the frames
+    that retire its last write and made again on the next write, so a mesh pays the ring while it
+    changes alone. Read by the game's memory at 12 columns after the land settles, before and after.
+    One commit, small.
 
 131. **A thin two-sided face holds a narrower band in the scene field.** From item 129's reading of
     2026-10-26. The field holds a two-sided face below zero within half a cell either side, so at a
@@ -934,15 +956,6 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     follows, and every test or check that reads the README's first paragraph; the bracketed e3d.cs
     is a question put to the owner, a link to the e3d script or a plain mark, and stands as written
     until answered. One commit, small, documents alone.
-
-134. **The swapchain is made again on a resize before the first frame.** From the voxel game's item
-    142, read on 2026-10-30, its ASKS.md entry. A window opened at 1280 by 720 and sized to 2560 by
-    1440 by the program before its first frame keeps a 1280 by 720 swapchain from the first frame at
-    2.35 s until a present reports it out of date at 10.86 s, the game's loading screen drawn into
-    the smaller swapchain for eight seconds; the renderer takes the resize event and makes the
-    swapchain again before the first frame it presents, a test resizing before the first frame and
-    reading the swapchain's extent, the window guide's line. One commit, small, after item 133 and
-    before 132's mend.
 
 135. **The screen probes stand in the world and keep their light from frame to frame.** Decision
     75's first item, from the owner's complaint of 2026-10-24 and RENDERING.md's sixth term. Sixteen
@@ -1152,3 +1165,9 @@ so the back of a two-sided face takes the probes standing on it, where along its
 took none (item 129). In a field of thin two-sided walls half a unit apart, two cells of a quarter,
 the half-cell bands of the field's two-sided faces meet and a screen probe's rays take their own
 wall's light, 44% over a path-traced reference, which item 131 reads.
+
+Shared: each screen probe's rays leave from the next of sixteen places in their texels each frame
+and the probe keeps up to sixteen frames of its light before the window's filter, fewer where its
+kept light lies past three times the error of its like neighbors' blend, which took the bounce
+rooms' still spots from 4 to 24 a view to 4 to 17, a still view's change at its 99th part 2.6% at
+most (item 135).

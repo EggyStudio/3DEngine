@@ -137,10 +137,13 @@ At `Medium` and `High`, beside the world's probes stands a probe for every few p
 every 12 at `Medium` and 8 at `High` up to 1080 pixels high, on the surface the window shows there. Each traces the near
 light through the window's depth first, as far as the first cascade's probes stand apart, and takes
 the world's probes' light past that, so the light under a table, in a corner or where a wall meets
-the floor is seen at the size the window draws it and not at the probes' spacing of two units. The
-probes' light is blended with the frame before's where the surface is the same one, held within the
-spread of this frame's light around each point, so it holds still as the camera moves and follows a
-light that changed at once. A render texture that draws models through a camera of its own, as each
+the floor is seen at the size the window draws it and not at the probes' spacing of two units. A
+probe's sixteen rays leave from other places each frame, and the probe keeps up to sixteen frames
+of its light where the surface is the same one, held within the spread of this frame's light around
+each point, so a bright patch narrower than a ray's share of the sky, a torch's glow on a wall or
+the sun through a small window, lights a share of every probe near it rather than one probe frame
+after frame, which the blend between the probes drew as a round spot. The light holds still as the
+camera moves and follows a light that changed at once. A render texture that draws models through a camera of its own, as each
 half of a split screen, has screen probes of its own. With the camera sliding global illumination
 adds nothing that can be read to the picture's change, after a walk or a turn the light has settled
 by the fifth frame, and a block's side lit only by a red wall's indirect light comes within a tenth
@@ -321,7 +324,7 @@ boxes leave parts of global illumination out. The same is in a running program t
 | Command | What it does |
 |---|---|
 | `gi.state` | The quality, the cascades of probes and their rays, the screen's probes, the reflections and the GPU memory each takes, and how many small emitters are carried as lights |
-| `gi.show <view> [cascade or png]` | Draws over the window the screen's probes as tiles, their light, filtered or the frame before's share of it, a cascade's rays' light, its merge or its probes as cubes, or the frame against a reference |
+| `gi.show <view> [cascade or png]` | Draws over the window the screen's probes as tiles, their light, filtered or the share of it the frames before gave, a cascade's rays' light, its merge or its probes as cubes, or the frame against a reference |
 | `gi.toggle <part> <on\|off>` | Leaves out the frame before's light, the screen's filter, the screen's probes, neither made nor traced, the merge, the light past the first bounce, the indirect light following a light out, the emissive surfaces carried as lights, or every cascade but one |
 | `gi.probe <x> <y> <z> [samples] [bounces] [cascade]` | The light arriving at the probe nearest a point against a path-traced reference of it, each face by where its ways were met, and the ways that carry most of the face furthest from it |
 | `gi.screenprobe <x> <y> [samples] [bounces]` | Each of the sixteen rays of the screen's probe under a pixel, where it was met and its light, against a path-traced reference along the same way |

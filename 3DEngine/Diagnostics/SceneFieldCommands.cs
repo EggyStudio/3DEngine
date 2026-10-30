@@ -167,7 +167,7 @@ internal static class SceneFieldCommands
         BounceView.Tiles => "showing the screen's probes as tiles, each a dot of its light",
         BounceView.Light => "showing the light each screen probe's rays brought",
         BounceView.Filtered => "showing each screen probe's light filtered, as the model pass reads it",
-        BounceView.History => "showing how much of each screen probe's light the frame before's gave, red for none and green for four fifths",
+        BounceView.History => "showing how much of each screen probe's light the frames before gave, red for none and green for fifteen sixteenths",
         BounceView.Rays => $"showing cascade {settings.ShownCascade}'s rays' light",
         BounceView.Merged => $"showing cascade {settings.ShownCascade} merged with those above",
         BounceView.Probes => $"showing cascade {settings.ShownCascade}'s probes as cubes",

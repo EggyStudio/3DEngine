@@ -995,13 +995,17 @@ half of the sphere each shares, by its reach, moved the wall 0.01 to 0.04. A ray
 in its reach takes the world's first cascade, or past it the second, blended between the eight
 probes around the surface that a trace from a cell in front of it reaches, each probe's light along
 the ray blended between the four texels of its octahedron around the ray's way, across the square's
-edges as the octahedron folds (`folded` in `gi_screen.slang`). A 5 by 5 filter blends each probe
-with those around it on a surface alike in normal, each point read from the depth and weighed by how
-near it lies to the plane of the probe's surface (`gi_screen_filter.slang`), then with the frame
-before's, a fifth of this frame's light to four fifths of theirs. The probe's point is read from the
-depth, found in the frame before through that frame's camera, which the view carries, and the four
-probes then around it blended where each stood on a like surface, kept in two images the frame's
-blended light and surfaces are copied into after the filter. Each of the four is weighed by where it
+edges as the octahedron folds (`folded` in `gi_screen.slang`). A probe's rays leave from one of
+sixteen places in their texels, every four tiles by four holding each place once and every probe
+moving on to the next place each frame, and the first of two passes (`gi_screen_filter.slang`)
+keeps each probe's light over up to sixteen frames where its surface was, this frame's rays one
+frame more in the mean, so a probe that keeps them has sent every ray of a texel's sixteen. The
+second blends each probe's kept light with the 5 by 5 around it on a surface alike in normal, each
+point read from the depth and weighed by how near it lies to the plane of the probe's surface. The
+probe's point is read from the depth, found in the frame before through that frame's camera, which
+the view carries, and the four probes then around it blended where each stood on a like surface,
+their kept light and how many frames it holds, kept in two images the frame's kept light and
+surfaces are copied into after the filter. Each of the four is weighed by where it
 stands, the middle of the half-sized depth's texel under its tile's middle, a pixel past that
 middle; weighed by the tiles' middles, a still view's blend took a pixel's share of the probes to
 its right and below every frame, a sixteenth of a tile at `Low` and an eighth at `High`, which held
@@ -1010,9 +1014,9 @@ references and the window's room and the carried lamp 0.3 to 0.6 further (`Bounc
 filter's weights spread wider took the thin room further from its reference still, and narrower
 nearer, so the drift had brought it there rather than the filter's width. A probe whose surface the
 frame before did not show, at the edge of the picture or behind what moved, takes this frame's light
-alone. The frame before's light is held first within twice the spread of this frame's light among
-the like probes around, each channel's standard deviation by the filter's own weights, so where a
-light changed the history is pulled to it, and where it holds still the history lies inside and
+alone. The kept light is held first within twice the spread of this frame's light among the like
+probes around, each channel's standard deviation by the filter's own weights, so where a light
+changed the history is pulled to it, and where it holds still the history lies inside and
 keeps its calm. A block's side lit only by a wall's indirect light comes within a tenth of its new
 light in the frame a lamp is brought in, where it took seven frames without the hold. With the
 camera sliding a hundredth of a unit a frame through a Cornell box, global illumination adds −0.03
@@ -2789,10 +2793,10 @@ the box instead, the hit moved straight away from it, the strip's view read 0.25
 at 160 by 90, the strip's light on its own wall lost, which the reference has.
 
 **Where the method stops, read to 2026-10-24.** Six terms of the radiance cascades as the engine
-draws them stand unmended, each named by its cause in the readings above. Every form read against
-one was out by the rule that no view's distance to its reference widens at 800 by 450 or at 160 by
-90 (`gi.compare` against references of 2048 paths a pixel, BounceRoomsTests with its bounds at
-zero), or cost more than it gave, or left the term as it was.
+draws them stood unmended, the last mended on 2026-10-30, each named by its cause in the readings
+above. Every form read against one was out by the rule that no view's distance to its reference
+widens at 800 by 450 or at 160 by 90 (`gi.compare` against references of 2048 paths a pixel,
+BounceRoomsTests with its bounds at zero), or cost more than it gave, or left the term as it was.
 
 - **The gain past the first bounce.** A hit reads the probes around it where 11 to 64% more light
   arrives for its normal than at the hit itself, the light rising away from the surface the hit lies
@@ -2875,7 +2879,22 @@ zero), or cost more than it gave, or left the term as it was.
   sRGB levels on the mean with the screen's probes and by 0.31 to 0.35 with them left unread, one
   frame with them by 0.73, and either way the light holds still the frame the eye stops
   (`voxel.flicker`). Before the step and after it, the ceiling's spots stand at other places on it
-  while the lantern and the torches move by their parallax alone.
+  while the lantern and the torches move by their parallax alone. Mended on 2026-10-30, each
+  probe's rays moving on to the next of the sixteen places each frame and the probe keeping sixteen
+  frames of its light where its surface was before the window's filter blends it, fewer where the
+  kept light lies further from this frame's blend of its like neighbors than three times the
+  blend's own error, so a roof of leaves made to let light through is followed within thirty
+  frames. At `High` at 800 by 450 the bounce rooms' spots by the same measure went from 11, 6, 9,
+  10, 4, 17, 24, 6 and 4 to 5, 4 to 5, 8, 5, 4, 4 to 5, 16 to 17, 5 and 4, and the plank room's at
+  960 by 540 from 5 to 2, the lantern and its glow. A still view's pixels change from frame to frame
+  by 0.07 to 2.6% of its mean light at their 99th part where by 0.17% at most, the strip's room the
+  most, and the plank room by 0.021 sRGB levels on the mean where 0.002. As the eye steps or turns
+  the probes add what they added before or less, the step 0.014 levels a frame over the probes left
+  unread where 0.016, so the probes stay on the window's tiles, their kept light following the
+  surface through the frame before's camera, with no grid of their own in the world. The rooms'
+  views at 160 by 90 moved by 0.020 of their light at most, 8 of 18 nearer their references and 6
+  further by 0.012 at most, the thin walls at `Medium` the most (`BounceRoomsTests`), and global
+  illumination took the plank room at 1920 by 1080 2.70 to 2.75 ms where 2.61 to 2.69.
 
 ## 5. Render targets and post processing
 

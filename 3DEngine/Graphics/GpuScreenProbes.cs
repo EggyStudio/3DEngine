@@ -10,12 +10,14 @@ internal sealed class GpuScreenProbes : IDisposable
     private readonly Action _dispose;
 
     internal GpuScreenProbes(int across, int down, int tile, IImage irradiance, IImageView irradianceView, IImage geometry, IImageView geometryView,
-        ISampler sampler, IBuffer view, Action dispose, IImage blended, IImageView blendedView, IImage history, IImageView historyView,
+        ISampler sampler, IBuffer view, Action dispose, IImage kept, IImageView keptView, IImage blended, IImageView blendedView, IImage history, IImageView historyView,
         IImage lastGeometry, IImageView lastGeometryView, IBuffer glowSeen, ScreenGlow glow, IBuffer rayLog)
     {
         RayLog = rayLog;
         GlowSeen = glowSeen;
         Glow = glow;
+        Kept = kept;
+        KeptView = keptView;
         History = history;
         HistoryView = historyView;
         LastGeometry = lastGeometry;
@@ -53,14 +55,19 @@ internal sealed class GpuScreenProbes : IDisposable
     /// <summary>Each probe's surface's normal, and in w its distance from the eye, or -1 for a probe on no surface.</summary>
     public IImageView GeometryView { get; }
 
+    internal IImage Kept { get; }
+
+    /// <summary>The light arriving at each probe's surface kept over the frames where it stood, its alpha how many frames it holds, at most sixteen.</summary>
+    public IImageView KeptView { get; }
+
     internal IImage Blended { get; }
 
-    /// <summary>The light arriving at each probe's surface blended with its neighbors' on like surfaces, which the model pass reads, its alpha one more than the share of it the frame before's light gave.</summary>
+    /// <summary>The kept light blended with its neighbors' on like surfaces, which the model pass reads, its alpha one more than the share of it the frames before gave.</summary>
     public IImageView BlendedView { get; }
 
     internal IImage History { get; }
 
-    /// <summary>The blended light of the frame before, copied from <see cref="BlendedView"/>, which the next frame's blend takes in.</summary>
+    /// <summary>The kept light of the frame before, copied from <see cref="KeptView"/>, which the next frame keeps on from.</summary>
     public IImageView HistoryView { get; }
 
     internal IImage LastGeometry { get; }

@@ -96,6 +96,10 @@ ConstantBuffer<ScreenPush> push;
 // The hemisphere's texels along each side, sixteen rays a probe.
 static const uint Rays = 4;
 
+// The sixteen places in a texel a ray leaves from, in the order the frames take them, each four in a
+// row spread over the texel, as the glow lights' points are (GlobalIlluminationRenderer.JitterAt).
+static const uint Places[16] = { 0, 10, 2, 8, 5, 15, 7, 13, 1, 11, 3, 9, 4, 14, 6, 12 };
+
 ScreenCamera camera()
 {
     ScreenCamera c;
@@ -428,19 +432,24 @@ void computeMain(uint3 id : SV_DispatchThreadID)
         rayLog[0] = float4(p, cell);
         rayLog[1] = float4(n, float(around));
     }
+    // A tile's rays leave from one of sixteen places in their texels of the hemisphere's square,
+    // every four tiles by four holding each place once, so the window's filter blends the ways of
+    // every place across the tiles around a pixel, and the place moves on each frame, so a probe
+    // that keeps its light over sixteen frames has sent its rays from every place (the view's
+    // jitter's z). Sent from their texels' middles alone, every probe on a surface sent the same
+    // sixteen ways, which read the hemisphere 15% under in the window's room and 41% under on the
+    // voxel game's birch trunk, there in patches many tiles wide that stood still; placed so, they
+    // read it 2 and 5% under (gi.screenprobe). The rays' own reads, 26 to 35% over the reference
+    // along their ways either way, are what the ways' reading under had covered, the merge's
+    // parallax and the walls thinner than a cell. Held at one place a tile, a patch narrower than
+    // a texel that one probe's ray met lit that probe alone, frame after frame, and the window's
+    // filter spread it into a round spot that stood still.
+    uint place = Places[((id.x & 3u) + 4u * (id.y & 3u) + uint(view.jitter.z + 0.5)) & 15u];
+    float2 within = (float2(place & 3u, place >> 2u) + 0.5) / 4.0;
     for (uint v = 0u; v < Rays; v++)
         for (uint u = 0u; u < Rays; u++)
         {
-            // A tile's rays leave from one of sixteen places in their texels of the hemisphere's
-            // square, every four tiles by four holding each place once, so the window's filter
-            // blends the ways of every place across the tiles around a pixel. Sent from their
-            // texels' middles alone, every probe on a surface sent the same sixteen ways, which
-            // read the hemisphere 15% under in the window's room and 41% under on the voxel game's
-            // birch trunk, there in patches many tiles wide that stood still; placed so, they read
-            // it 2 and 5% under (gi.screenprobe). The rays' own reads, 26 to 35% over the reference
-            // along their ways either way, are what the ways' reading under had covered, the
-            // merge's parallax and the walls thinner than a cell.
-            float4 local = hemisphere((float2(u, v) + (float2(id.xy & 3u) + 0.5) / 4.0) / float(Rays));
+            float4 local = hemisphere((float2(u, v) + within) / float(Rays));
             float3 way = normalize(side * local.x + along * local.y + n * local.z);
             // How squarely the ray falls on the surface times the share of the hemisphere its
             // texel spans, one over the cube of its octahedron point's distance, as the gather of

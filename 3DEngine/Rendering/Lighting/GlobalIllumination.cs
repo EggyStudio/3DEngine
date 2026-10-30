@@ -586,7 +586,7 @@ internal sealed class GlobalIlluminationRenderer : IDisposable
         floats[39] = _switches is { } off ? (off.HistoryOff ? 1 : 0) + (off.FilterOff ? 2 : 0) : 0;
         (floats[40], floats[41], floats[42], floats[43]) = (_screenReach, _gi!.Probes, ProbeSpacing, _made.Cascades);
         (floats[44], floats[45], floats[46], floats[47]) = (depth.Width, depth.Height, size.Width, size.Height);
-        (floats[68], floats[69]) = (jitter.X, jitter.Y);
+        (floats[68], floats[69], floats[70]) = (jitter.X, jitter.Y, _frame % 16);
         if (last is { } then)
         {
             MemoryMarshal.Write(bytes.AsSpan(192), then.ViewProjection);

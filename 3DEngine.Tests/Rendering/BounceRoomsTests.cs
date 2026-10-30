@@ -362,14 +362,19 @@ public sealed partial class BounceRoomsTests : IDisposable
     // cascade's probe over the tall block, which holds the block's lamp-lit top and the ceiling
     // under the lamp as met before its interval began, so the probe read 86% over the path-traced
     // reference across its hemisphere on the development machine's GPU. Going 2.4 units, they meet
-    // the ceiling and the block themselves, and it reads 5% over.
+    // the ceiling and the block themselves, and it reads 5% over, and 15% over as the mean of the
+    // sixteen frames it keeps, its rays leaving from another place in their texels each.
     [NeedsRayQueryFact]
     public void The_Screen_Probe_In_The_Cornell_Boxs_Back_Corner_Reads_Its_Light_Near_The_Reference()
     {
-        var probe = ReadScreenProbe(0, 276, 140, out var report);
+        // Its rays leave from another place in their texels each frame, so it is read over the
+        // sixteen frames it keeps, its light their mean.
+        var frames = new List<BounceReference.ScreenProbeLight>();
+        var probe = ReadScreenProbe(0, 276, 140, out var report, more: frames);
         static float Luminance(Vector3 light) => 0.2126f * light.X + 0.7152f * light.Y + 0.0722f * light.Z;
-        (Luminance(probe.Light) / Luminance(probe.Hemisphere) - 1).Should().BeInRange(-0.25f, 0.25f,
-            $"the corner's rays reach past the second cascade's near surfaces before they read the light beyond\n{report}");
+        var light = frames.Average(frame => Luminance(frame.Light));
+        (light / Luminance(probe.Hemisphere) - 1).Should().BeInRange(-0.25f, 0.25f,
+            $"the corner's rays reach past the second cascade's near surfaces before they read the light beyond, over sixteen frames\n{report}");
     }
 
     // The screen probe on the corridor's wall facing +z, 13 units from its open end, in
@@ -410,13 +415,17 @@ public sealed partial class BounceRoomsTests : IDisposable
     // 0.439 to 0.471 of red on the development machine's GPU, where the wall's own color holds 0.012
     // to 0.58; taken from the cells whose face looks the hit's way, it holds 0.007 to 0.008 of green
     // to 0.429 to 0.448 of red, and the hits read 12 to 31% over the reference across the ways they
-    // stand for where they read 24 to 139% over.
+    // stand for where they read 24 to 139% over. Over the sixteen frames it keeps, 78 of its rays
+    // meet the red wall on the screen.
     [NeedsRayQueryFact]
     public void A_Red_Walls_Rays_Beside_The_White_Wall_It_Meets_Take_The_Red_Walls_Color()
     {
-        var probe = ReadScreenProbe(0, 276, 140, out var report);
-        var onRed = probe.Rays.Where(ray => ray.Met == 0 && ray.Way.X < -0.3f).ToArray();
-        onRed.Should().HaveCountGreaterThanOrEqualTo(4, $"the probe's rays toward the red wall meet it on the screen\n{report}");
+        // Its rays leave from another place in their texels each frame, so they are read over the
+        // sixteen frames it keeps.
+        var frames = new List<BounceReference.ScreenProbeLight>();
+        ReadScreenProbe(0, 276, 140, out var report, more: frames);
+        var onRed = frames.SelectMany(frame => frame.Rays).Where(ray => ray.Met == 0 && ray.Way.X < -0.3f).ToArray();
+        onRed.Should().HaveCountGreaterThanOrEqualTo(4 * 16, $"the probe's rays toward the red wall meet it on the screen\n{report}");
         onRed.Should().OnlyContain(ray => ray.Own.Y < 0.05f * ray.Own.X, $"the red wall's hits beside the white wall take the red wall's color\n{report}");
     }
 
@@ -560,8 +569,10 @@ public sealed partial class BounceRoomsTests : IDisposable
 
     // The window's screen probe under the pixel x, y of a view of shaders_bounce_rooms at 800 by 450
     // at High, its rays written over the last frames once the screen's probes have settled, as
-    // gi.screenprobe reads it, with the lines it writes of it.
-    private static BounceReference.ScreenProbeLight ReadScreenProbe(int view, int x, int y, out string report, Vector3? lamp = null, bool moved = false)
+    // gi.screenprobe reads it, with the lines it writes of it, and where more is given the probe read
+    // again in each of the frames after, its rays leaving from the next place in their texels each.
+    private static BounceReference.ScreenProbeLight ReadScreenProbe(int view, int x, int y, out string report, Vector3? lamp = null, bool moved = false,
+        List<BounceReference.ScreenProbeLight>? more = null, int frames = 16)
     {
         var config = Config.Default.WithWindow("bounce rooms", 800, 450) with { Headless = true, Offscreen = true, Samples = 1 };
         UseApp(new App(config).AddPlugin(new DefaultPlugins()));
@@ -570,13 +581,8 @@ public sealed partial class BounceRoomsTests : IDisposable
         using var rooms = new Rooms(lamp, moved);
         var world = GetApp().World;
         GpuScreenProbes? screen = null;
-        for (int frame = 0; frame < SceneFieldPlan.SettleFrames + 90; frame++)
+        void Frame()
         {
-            if (frame == SceneFieldPlan.SettleFrames + 80)
-            {
-                screen = world.Resource<Engine.Renderer>().RenderWorld.TryGet<GlobalIlluminationRenderer>()!.Screen!;
-                world.Resource<GlobalIlluminationSettings>().LoggedScreenProbe = y / screen.Tile * screen.Across + x / screen.Tile;
-            }
             BeginDrawing();
             ClearBackground(Color.Black);
             BeginMode3D(Rooms.Views[view]);
@@ -584,9 +590,29 @@ public sealed partial class BounceRoomsTests : IDisposable
             EndMode3D();
             EndDrawing();
         }
+        for (int frame = 0; frame < SceneFieldPlan.SettleFrames + 90; frame++)
+        {
+            if (frame == SceneFieldPlan.SettleFrames + 80)
+            {
+                screen = world.Resource<Engine.Renderer>().RenderWorld.TryGet<GlobalIlluminationRenderer>()!.Screen!;
+                world.Resource<GlobalIlluminationSettings>().LoggedScreenProbe = y / screen.Tile * screen.Across + x / screen.Tile;
+            }
+            Frame();
+        }
         var probe = BounceReference.MeasureScreenProbe(world, screen!, 256, -1, out var why);
         probe.Should().NotBeNull(why);
         report = BounceReference.ScreenProbeReport(probe!, screen!.Tile, x, y, 256);
+        if (more is not null)
+        {
+            more.Add(probe!);
+            for (int frame = 1; frame < frames; frame++)
+            {
+                Frame();
+                var again = BounceReference.MeasureScreenProbe(world, screen!, 256, -1, out why);
+                again.Should().NotBeNull(why);
+                more.Add(again!);
+            }
+        }
         return probe!;
     }
 

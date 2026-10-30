@@ -321,8 +321,9 @@ public sealed partial class GlobalIlluminationTests
         // probe stood, a sixteenth of a tile at Low and an eighth at High, so each blend took that
         // share of the probes to its right and below, and a probe at the wall's right or bottom
         // edge, whose neighbor there stands on the sky, took more of its light from this frame than
-        // the fifth it takes, which its alpha reads, one more than the share the frame before's
-        // light gave, 1.75 at Low, 1.73 at Medium and 1.70 at High, where 1.8.
+        // the fifth it took, which its alpha reads, one more than the share the frames before gave,
+        // 1.75 at Low, 1.73 at Medium and 1.70 at High, where 1.8. Each probe keeps sixteen frames
+        // of its light, so its alpha is 2 less a sixteenth.
         Open();
         SetGlobalIllumination(quality);
         CreatePointLight(new Vector3(0, 0, 2), new Color(255, 236, 210), 6, range: 8);
@@ -346,8 +347,8 @@ public sealed partial class GlobalIlluminationTests
             .Select(probe => (Across: probe % screen.Across, Down: probe / screen.Across, Share: blended[probe * 4 + 3]))
             .ToList();
         held.Should().HaveCountGreaterThan(8, "the wall holds probes that blend with the frame before");
-        held.Should().OnlyContain(probe => Math.Abs(probe.Share - 1.8f) < 0.01f,
-            $"each takes four fifths of its light from the frame before where it stood, the wall's edges too; {string.Join(", ", held.Where(probe => Math.Abs(probe.Share - 1.8f) >= 0.01f).Select(probe => $"{probe.Across},{probe.Down} {probe.Share:0.000}"))}");
+        held.Should().OnlyContain(probe => Math.Abs(probe.Share - 1.9375f) < 0.01f,
+            $"each keeps sixteen frames of its light where it stood, the wall's edges too; {string.Join(", ", held.Where(probe => Math.Abs(probe.Share - 1.9375f) >= 0.01f).Select(probe => $"{probe.Across},{probe.Down} {probe.Share:0.000}"))}");
     }
 
     [NeedsVulkanTheory]

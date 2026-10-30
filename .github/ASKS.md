@@ -1305,3 +1305,20 @@ where they fit, so a program of many small static meshes uploads and reads a qua
 vertices and half the bytes of indices.
 
 Review: taken as 3DEngine item 144 on 2026-10-30, positions and indices packed to 16 bits for a mesh over shader buffers, behind the cascades of Decision 75.
+
+### 2026-10-30, the voxel game in `Voxel-Sandbox`, a mesh whose stream is written in place keeps a ring of mapped buffers for good
+
+Read for the game's item 143, its sections' opaque parts drawn in groups of four sections, each
+group's packed stream and colors written in place with `UpdateMeshBuffer` where only the light of a
+section changed, so the scene's field keeps the mesh settled. `GpuMeshes` moves such a mesh's stream
+into a ring of `RetireFrames` and one buffers kept mapped and keeps the ring for the mesh's life,
+though a section's light changes a few times as the land around it arrives and seldom after. At 8
+columns over seed 1's spawn, Debug, the RTX 4070 Laptop GPU, the process maps 499 MB of the driver's
+memory with the groups against 244 with a mesh to each section's part, whose rings were a quarter
+the size, and 371 MB where a relit group is uploaded again instead.
+
+The engine lacks a ring that gives its memory back once its writes stop, the stream copied into one
+buffer of the GPU's own after a few frames without a write, so a mesh written in place now and then
+holds one copy of its stream rather than four mapped.
+
+Review: taken as 3DEngine item 145 on 2026-10-30, the ring of mapped buffers given back once a mesh's writes stop, behind the cascades of Decision 75.

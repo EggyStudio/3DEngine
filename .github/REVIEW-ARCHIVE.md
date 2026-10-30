@@ -4235,6 +4235,15 @@ batch.
     after item 95. Done at `1703c54e` on 2026-10-26, the Fresnel term's base saturated, lavapipe's
     12,617 black pixels of 57,600 gone with the RTX unchanged.
 
+134. **The swapchain is made again on a resize before the first frame.** From the voxel game's item
+    142, read on 2026-10-30, its ASKS.md entry. A window opened at 1280 by 720 and sized to 2560 by
+    1440 by the program before its first frame keeps a 1280 by 720 swapchain from the first frame at
+    2.35 s until a present reports it out of date at 10.86 s, the game's loading screen drawn into
+    the smaller swapchain for eight seconds; the renderer takes the resize event and makes the
+    swapchain again before the first frame it presents, a test resizing before the first frame and
+    reading the swapchain's extent, the window guide's line. One commit, small, after item 133 and
+    before 132's mend. Done at `c3214cbe` on 2026-10-30.
+
 ## Verdicts settled
 
 Verdicts 1 to 55 are settled, the last two, the drawing leak test's resident bound and the Windows

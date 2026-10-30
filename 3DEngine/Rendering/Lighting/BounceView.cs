@@ -18,7 +18,7 @@ internal enum BounceView
     /// <summary>Each screen probe's light blended with its neighbors' and the frame before's, as the model pass reads it.</summary>
     Filtered,
 
-    /// <summary>How much of each screen probe's light the frame before's gave, red for none to green for the most.</summary>
+    /// <summary>How much of each screen probe's light the frames before gave, red for none to green for the most.</summary>
     History,
 
     /// <summary>The light a cascade's rays brought, each layer of its probes a square of their octahedrons.</summary>

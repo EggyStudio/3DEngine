@@ -82,8 +82,8 @@ float4 fragmentMain(FullscreenOutput input) : SV_Target
         return light.a > 0.5 ? float4(shown(light.rgb), 1.0) : float4(0.0, 0.0, 0.0, 1.0);
     if (mode == 4u)
     {
-        // The frame before's share, four fifths at most, over a little of the probe's light.
-        float taken = saturate((light.a - 1.0) / 0.8);
+        // The frames before's share, fifteen sixteenths at most, over a little of the probe's light.
+        float taken = saturate((light.a - 1.0) / 0.9375);
         float3 share = lerp(float3(0.85, 0.1, 0.1), float3(0.1, 0.85, 0.1), taken);
         return light.a > 0.5 ? float4(share * 0.75 + shown(light.rgb) * 0.25, 1.0) : float4(0.0, 0.0, 0.0, 1.0);
     }
