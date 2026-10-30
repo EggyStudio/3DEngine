@@ -224,6 +224,11 @@ internal sealed class RenderPlugin : IPlugin
             if (resize.Empty) return;
 
             // -- Resolve debounced resize
+            // One asked for before the first frame is drawn, by a program sizing its window before it
+            // draws, is carried out at once, since no drag follows it. Debounced, a load that held
+            // the frames after the first kept the first size until a present failed, the voxel
+            // game's loading screen drawn at a quarter of its window for eight seconds.
+            if (resize.Pending && !resize.Drawn) resize.Waited = double.PositiveInfinity;
             if (resize.Pending && world.TryGetResource<Time>(out var time)) resize.Waited += time.DeltaSeconds;
             if (resize.Pending && resize.Waited >= ResizeDebounceSeconds)
             {
@@ -236,8 +241,9 @@ internal sealed class RenderPlugin : IPlugin
                 Logger.Info("Debounce elapsed, resizing the renderer (swapchain, allocator and camera)...");
                 r.Context.OnResize();
             }
-        
+
             r.RenderFrame(world);
+            resize.Drawn = true;
         }
 
         // Ensure disposal at app exit (Cleanup stage)
@@ -281,7 +287,7 @@ internal sealed class RenderPlugin : IPlugin
 /// <summary>
 /// A resize of what the renderer draws into, asked for by the window or by an offscreen run, and
 /// carried out by the render system once none has come for a moment, so a window dragged larger
-/// rebuilds its swapchain once rather than every frame.
+/// rebuilds its swapchain once rather than every frame, and at once before the first frame.
 /// </summary>
 internal sealed class SurfaceResize
 {
@@ -304,6 +310,9 @@ internal sealed class SurfaceResize
 
     /// <summary>The seconds of frames since the last resize was asked for.</summary>
     internal double Waited { get; set; }
+
+    /// <summary>Whether a frame has been drawn, before which a resize is carried out at once.</summary>
+    internal bool Drawn { get; set; }
 
     /// <summary>Whether the surface is zero across or zero high, so nothing is drawn.</summary>
     public bool Empty => _renderer.RenderWorld.TryGet<RenderSurfaceInfo>() is { } info && (info.Width <= 0 || info.Height <= 0);

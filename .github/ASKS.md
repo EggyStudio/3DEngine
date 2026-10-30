@@ -1254,3 +1254,54 @@ distance stays 12, where the frame stands at the edge of 16.7 ms, and 16 columns
 meanwhile.
 
 Review: taken as 3DEngine item 132 on 2026-10-26, the passes' recording of unmoving draws brought well under a millisecond, after item 97.
+
+### 2026-10-30, the voxel game in `Voxel-Sandbox`, a window resized before its first frame keeps a swapchain of its first size until a present fails
+
+Read on the 3DEngine 5.2.326 package for the game's item 140, which puts the window into the
+resolution its options file keeps right after `InitWindow` and before the world loads. A plain
+`dotnet run` on the development machine, Debug, SDL's x11 driver, the RTX 4070 Laptop GPU, with an
+options file keeping a window of 2560 by 1440: the engine made its swapchain at 1280 by 720 at 0.87
+s, the window took 2560 by 1440 within the next second, the Startup stage and the loading screen's
+first frame came at 2.35 s, and the swapchain stayed 1280 by 720 until the first present after the
+world's load reported it out of date at 10.86 s, when it was made again at 2560 by 1440. For eight
+seconds the loading screen was drawn into a swapchain a quarter of its window's area.
+
+The engine lacks a swapchain that follows the window's size from the window's resize event, or from
+the window's size read at the first frame, rather than waiting for a present to fail, so a program
+that sizes its window before drawing draws its first frames at that size.
+
+Review: taken as 3DEngine item 134 on 2026-10-30, the swapchain made again on a resize before the first frame, after item 133.
+
+### 2026-10-30, the voxel game in `Voxel-Sandbox`, the sun's cascades draw every section in their boxes, where a slice swept toward the sun holds half
+
+Read on the 3DEngine 5.2.326 package for the game's item 141, the sun's shadows at 128 blocks.
+Flying at a height of 90 over seed 1's spawn at noon at 1280 by 720, Debug, the RTX 4070 Laptop
+GPU, at 12 columns, the three cascades draw 1,276 to 1,311 sections, 3.0 ms of the CPU and 2.6 of the
+GPU, where at 64 blocks they drew 389 for 2.0 and 0.8. The voxel engine ochre (github.com/rornic/ochre,
+`crates/ochre-world/src/shadow.rs`) keeps for each cascade only the casters within its view's slice
+swept toward the sun, with a margin of a few texels and the depth bias, and read its shadow lists at
+1.08 million triangles against Bevy's 2.37 million over fifteen suns, 54 percent fewer.
+
+The engine lacks a cull of each cascade's casters to the part of its box that can shade what the
+camera sees, the camera's slice of the cascade extruded toward the sun, so a cascade reaching 128
+blocks draws the sections that cast into the view and none behind it.
+
+Review: taken as 3DEngine item 143 on 2026-10-30, the casters culled to each cascade's slice swept toward the sun, behind the cascades of Decision 75.
+
+### 2026-10-30, the voxel game in `Voxel-Sandbox`, a mesh over shader buffers takes its positions as three floats, where packed ones take a third
+
+Read for the game's item 143. A section's mesh is the engine's mesh over shader buffers, its
+positions three floats, 12 bytes, with a stream of eight packed bytes the game's shader reads and
+the four bytes of color the scene's field reads, 24 bytes a vertex, so half of it is position. The
+voxel engine ochre (`crates/ochre-terrain/src/pack.rs`) packs its chunks' vertices from 56 bytes to
+32 or less, positions as signed 16-bit fractions of the mesh's bounds among them, normals in four
+bytes as an octahedral pair, colors as halves and indices as 16-bit where they fit, packed on
+worker tasks, which took its flowing water's 99th percentile frame from 4.38 to about 1.6 ms. A
+section's positions so packed take 6 bytes, the vertex 18, and its indices 16-bit, since a section
+holds fewer than 65,536 vertices.
+
+The engine lacks a mesh's positions as small integers within its bounds and its indices as 16-bit
+where they fit, so a program of many small static meshes uploads and reads a quarter fewer bytes of
+vertices and half the bytes of indices.
+
+Review: taken as 3DEngine item 144 on 2026-10-30, positions and indices packed to 16 bits for a mesh over shader buffers, behind the cascades of Decision 75.

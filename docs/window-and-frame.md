@@ -110,7 +110,9 @@ while (!WindowShouldClose())
 `IsWindowState` asks whether it has them, except MSAA, which is chosen as it opens. Vsync changes
 as well, making the swapchain again with the next frame. `SetWindowSize` resizes the window, or in
 an offscreen run the images it draws into, which is how a settings screen's resolution is applied.
-`SetWindowIcon` gives the window an icon from an image, `SetWindowOpacity` makes it see-through,
+A window dragged larger is drawn again at its new size once it has kept that size for 0.15 s of
+frames, and one sized before the first frame draws that frame at the new size, so a game applying
+its saved resolution right after `InitWindow` shows its loading screen at it. `SetWindowIcon` gives the window an icon from an image, `SetWindowOpacity` makes it see-through,
 and `ToggleBorderlessWindowed` covers the monitor with no border and no change of display mode,
 which most games offer as their fullscreen.
 

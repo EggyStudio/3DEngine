@@ -1,566 +1,27 @@
 # Review
 
-Direction for the session working on this repository, written by a second session that reads the
-code and the history and writes none of the engine. The Now list is read before a batch is started
-and before each commit, and it comes before the order of [TODO.md](TODO.md).
+Reviewed up to `1703c54e`, item 97, pushed by the owner's hand at 16:54 on 2026-10-26 while the
+sessions were paused until 2026-10-30, its run green whole at 19:33 with Windows in 99 minutes. The
+ninth pack run started with publish on at 18:41 on 2026-10-30, since the owner sees item 97's specks
+in the voxel game and its package lacks the mend; the run watched. Before it on 2026-10-26, each
+green but where said: `987f07ae` (Verdict 94's mend) with `969a1b08` (item 129); `7ff7bbdd` (130),
+red on the examples job alone, Verdict 94; `b05b32da` (89); `0a4ad922` (the README's quick links);
+`5528c55c` (95); `d207627e` (91), `bb542fa4` (93) and `0754b975` (128), the eighth pack run
+publishing 5.2.326 at 13:13; `2f5237f2` (127); `78946b22` (112), the seventh pack run publishing
+5.2.322 at 09:14; `7af16fcd` (Verdict 93's mend); `45edfbf6` (111); `a16227a7` (100), the sixth pack
+run publishing 5.2.319 at 04:21 on its second attempt. Each commit's detail stands in its item in
+REVIEW-ARCHIVE.md, its devlog note and its own words. On 2026-10-30 at 18:0x the owner wrote the
+README's new words (item 133) and the focus on radiance cascades (Decision 74), questions asked
+back, and asked that the sessions spend fewer tokens at the same quality, N 7.7.
 
-This file has one writer. The session doing the work edits the Replies section only, and records
-what it carries out in the documents it keeps (TODO.md, DESIGN.md, RENDERING.md). An item
-is removed from here once the commit that settles it has been read. A stash of every changed
-file takes what was written here since the last commit out of the tree until it is popped, so a
-stash names its own paths.
-
-Reviewed up to `987f07ae`, Verdict 94's mend, pushed with `969a1b08` in one push at 15:10 on
-2026-10-26 after the red run of `7ff7bbdd` ended, the run of `987f07ae` watched, the four gallery
-pictures and captures.tsv written by build/examples-table.py with README.md and EXAMPLES.md
-unchanged, the check exiting 0 on the tree, the review's files carried, nothing of item 97 in it.
-Item 97 is built with its checks running, the lavapipe test reading 12,617 of 57,600 pixels black
-before the Fresnel clamp and none after, the RTX none both ways, the lavapipe picture at 800 by 450
-going from 71,254 black pixels to none. After `969a1b08`, item 129, the screen probes' lookup along
-the shading's normal, read at 14:45 on 2026-10-26, carrying the review's files with a Shared line,
-SHARED.md, DEVLOG.md, a reading in RENDERING.md, a note and a captioned picture, pushed with
-`987f07ae` at 15:10. modelpass.slang hands screenProbesHere the geometric normal turned to the eye
-when the material draws its backs, as the shading's is, the blind-probe mends not in it;
-GlobalIlluminationTests reads two thin two-sided walls side by side over a red emissive slab at
-Medium so lavapipe runs it, one seen from its front and one from its back, each wall's red with the
-screen probes over without, the front 1.560 and the back 1.000 before the flip and 1.560 and 1.515
-after, the bound the back's change within a quarter of the front's plus 0.01. RENDERING.md gains the
-reading of the screen's probes on thin two-sided walls, the flip, the band as the cause, the three
-mends read and not kept with their numbers and item 131, the note holding the whole table with the
-leak tests' values, and the wheat room pictured at High with the back walls darker above and both
-kinds alike below, the room reading front 44.1% and back 44.8% over the reference where it read 44.0
-and 18.3. The strict build clean, 2,133 on the GPU in order and shuffled, 82 on lavapipe with
-validation and 2 skipped. On item 97 the lead is the Fresnel term's pow of one less the dot of the
-view and half vectors, which with the light at the eye rounds a hair over 1 to a negative base, a
-NaN under Mesa's exp2 of log2, the only pow in the lighting that can go negative, read on lavapipe
-with a test first. After `7ff7bbdd`, item 130, the prototyping look as BevyCSharp's, read at 13:48
-on 2026-10-26, carrying the review's files with a Shared line, SHARED.md and DEVLOG.md, pushed at
-13:49 once the build run of `b05b32da` went green whole at 13:47, Windows in 88 minutes, Linux in 68
-and macOS in 35, its own run red at 15:05 on the examples job alone, the three suites green, Verdict
-94. GetPrototypeColor's floor, wall, ceiling and stairs are 79, 79, 82, 181, 181, 178, 209, 209, 212
-and 245, 117, 33, the sRGB values times 255 rounded as float, door, window and hazard as they were,
-the remark naming Unreal's palette; GenImageGrid ports BevyCSharp's GridPixels rule for rule, a
-meter's edge line a 128th and two pixels at least half on each edge, the half's line a 256th in the
-line color, the quarters' lines a 512th in the fine color each a pixel at least starting half its
-width before its place, and the 1m mark in five by seven squares each a 128th of the cell two
-squares in from the edge line where the cell has 128 pixels or more, the same glyph bits.
-PrototypeTests' two grid tests become BevyCSharp's, at 100 pixels the lines at the edges, the half
-and the quarters and no mark, at 1024 the half's line at 510 to 513, a quarter's at 255 to 256 and
-the mark's squares at the pixels BevyCSharp's test reads; modeling.md's grid and palette words, the
-room block's comment and the cheat sheet's GenImageGrid line follow, the guide's 23 blocks built on
-the package; models_edit_mesh_room, models_edit_mesh, _cuts and _modifiers recaptured, _looks
-unchanged, the room pictured before and after. The strict build clean, 2,132 on the GPU in order and
-shuffled, lavapipe not run with a CPU image alone changed. After `b05b32da`, item 89, the plant
-walls' shadow acne, read at 11:38 on 2026-10-26, carrying the review's files with item 129 and a
-Shared line, a reading in RENDERING.md, a note and a captioned picture, pushed with `5528c55c` and
-`0a4ad922` in one push at 12:19 on 2026-10-26 once the build run of `d207627e` went green whole, the
-run of `b05b32da` green whole, the times in the head of `7ff7bbdd`. In lights.slang litSide(n,
-toward) turns a normal to the light's side, cascadeReached moving the point a texel and a half along
-it toward the sun for the soft and the hard path alike and spotLightReaching and pointLightReaching
-toward their lamp, so every caller is covered, the model pass, groundReached and the game's terrain
-shader reading lightReaching with its unflipped geometric normal, the comments saying why with the
-wheat readings. ModelShadowTests reads two thin walls side by side under the game's ten o'clock sun,
-one normal toward the sun and one away, both seen from the sun's side, the back-lit wall spreading
-under 0.05 of its mean and within 5% of the front-lit wall's, 0.1909 against 0.4403 with a spread of
-0.298 without the mend and both 0.4403 at 0.000 with it. In the wheat room at High the walls' spread
-close and far reads 0.149 and 0.338 before against the reference's 0.053 and 0.074 and 0.054 and
-0.227 after, the speckle metric at Off 14.85 and 6.76 before and 4.52 and 1.61 after, the grazing
-step changing nothing more, the far view's leftover the soft darkening on the outer walls' lower
-halves under item 129; RENDERING.md's shadow lookup paragraph gives the turn, the reading and the
-test and says the game's plants gain first. The strict build clean, 2,132 on the GPU in order and
-shuffled, 89 on lavapipe with validation. After `0a4ad922`, the README's quick links, read at 10:46
-on 2026-10-26, README.md with the review's files and DEVLOG.md and nothing of item 89, pushed with
-`5528c55c` and `b05b32da` at 12:19; NormTests, the docs tests, the example tests and
-PackageContentsTests passed, 29, and the examples table's check, none reading the first line in a
-way the new line upsets. On item 89, in a scratch room built as the game's wheat field, 8 by 8
-blocks of four two-sided walls on farmland under the game's sun at 10, turning the shadow lookup's
-normal offset to the sun's side of the face cuts the walls' speckle metric by 70 to 76%, the field
-14.85 to 4.52 and the close view 6.76 to 1.61, which covers the model pass and the game's terrain
-shader, both handing lightReaching the unflipped geometric normal; a grazing-angle step toward the
-sun alone helps little, 12.5 and 5.6, and with the flip reads as the flip does; both are being read
-against the path-traced reference by region at High, and a separate finding, the frame's clean walls
-at High 35 to 68% over the reference's mean in every copy, is to be read, not the acne. After
-`5528c55c`, item 95, a verb of ./e3d with --help printing its help and opening nothing, read at
-10:36 on 2026-10-26, carrying the review's files and DEVLOG.md, pushed with `0a4ad922` and
-`b05b32da` at 12:19. Program.cs answers --help or -h anywhere after a verb with Help.Print(options,
-verb) before dispatching, so open, eval and the rest are never reached; Help.Print(verb) prints the
-verb's own lines of the usage text with their continuations and the line on the flags every verb
-shares, an alias answered with its verb's lines and a word that is no verb refused with BAD_ARGUMENT
-and exit 2 as dispatch refuses it; the usage text lost its colons and gained a line saying a verb
-followed by --help prints its own lines and does nothing else, E3D.md's Reading the answer section
-saying the same. CliTests gains a case under a new NeedsClientFact, skipped where the client is not
-built beside the tests, running the built client with open on a program that writes a marker when
-started and expecting exit 0, open's lines and not status's and no marker, then cmd -h answering
-with command's usage and a non-verb exiting 2, the case failing on HEAD's client by the exit code
-and passing with the mend. The strict build clean, 2,131 on the GPU in order and shuffled. On item
-89 the coder reads two candidates, the model pass flipping a two-sided face's normal toward the eye
-for shading while passing the unflipped vertex normal to lightReaching, so a cut-out face lit from
-its back is offset away from the sun before the lookup, and the grazing angle a normal offset cannot
-help, the wheat room to be built and both read against the reference. After `d207627e`, item 91,
-DESIGN.md's words on the loop and the ECS, read at 10:05 on 2026-10-26, documents alone, carrying
-the review's files with a Reply and DEVLOG.md, pushed with `0754b975` and `bb542fa4` in one push at
-10:10 on 2026-10-26 once the build run of `2f5237f2` went green whole, the eighth pack run started
-with publish on at 10:10 for the game, the build run green whole at 12:18, Windows in 127 minutes,
-Linux in 55 and macOS in 37, and the pack run green whole at 13:13, Windows in 179 minutes against
-the seventh's 171 under a limit of 240, the games in 73, the captures in 61 and 63 and macOS in 63,
-the package 5.2.326 pushed to nuget.org with items 127, 128, 93 and 91, the game told. DESIGN.md's
-opening says the ECS and its behaviors are the engine's own over raylib and that the loop and the
-ECS are both the engine's way, run in the same frames, a program choosing by what fits, the loop for
-the frame, the drawing and the interface and the ECS for things that move and data living across
-frames; its fifth section, renamed The loop and the ECS, opens with the choice and names
-Voxel-Sandbox as the model, the player, mobs, dropped stacks and section parts as entities, loading,
-mode and menus as states, its loop running the frame, drawing the world and putting the interface on
-top, the rest kept with its last paragraph recast as moving a part into behaviors when it grows into
-many things or lives across screens. A new docs/the-loop-and-the-ecs.md holds the opening, a
-behavior moving while the loop draws with the Ball behavior from ecs_behaviors, which fits where,
-the voxel game read against its README and VoxelGame.Draw, and the see-also links,
-window-and-frame.md gaining its Previous link, its two blocks and the behaviors guide's built on the
-package, 24 blocks; the README's guide table gains the row after the first game's, its ECS paragraph
-says both are the engine's way and links the page, the status line says run in the same frames as
-the loop, the tagline unchanged as STYLE.md quotes it; behaviors-and-the-ecs.md opens beside the
-flat API and links the page. AGENTS.md's opening still says the ECS runs underneath for programs
-that grow into it, left for the owner's word as the Reply says. NormTests and the docs tests,
-DocumentLinkTests among them, 25 passed, no code changed. After `bb542fa4`, item 93, the colons out
-of the comments and documents, read at 10:01 on 2026-10-26, 125 files of comments and documents
-alone, carrying the review's files with a Reply, SHARED.md and DEVLOG.md, pushed with `0754b975` and
-`d207627e` at 10:10. STYLE.md's code check went from 393 hits to 200, the 200 left labels, a
-vector's components, named arguments in code examples, a URL, raylib's header title and the
-raymarching shader's license text, a quoted header in coverage.py and field_splat's z and w pair;
-the check reading whole-comment lines alone, about fifteen trailing comments after code in the
-examples, their shaders, AudioServerTests and SdlAudioBackend were recast too, the one left the
-Event text inside the automation exporter's string, raylib's file format. RENDERING.md's glow lights
-paragraph, docs/scenes.md, FeatureTest's README and item 96's note of 2026-10-25 recast, the note's
-hit the one DEVLOG.md showed, cleared at this regeneration; what the awk still finds in the docs are
-the Examples, Previous and Next labels and named arguments in code spans, E3D.md and the cheat sheet
-clean. ASKS.md's 45 hits are the Review labels at their lines' starts, the reviewer's and an allowed
-label, no join behind them. The strict build clean, 2,130 on the GPU in order and shuffled. After
-`0754b975`, item 128, a line of text edited, read at 09:29 on 2026-10-26, carrying the review's
-files with a Shared line, SHARED.md, DEVLOG.md, TODO.md and a captioned picture, pushed with
-`bb542fa4` and `d207627e` at 10:10. TextEdit holds the text, the caret, the anchor, the scroll and
-focus, the caret and anchor counting chars and editing moving them by text elements so no surrogate
-pair or mark is split, with SelectedText; EditText(ref edit, box, most) and an overload with a font
-and size for a program drawing its own look, since clicks and scroll are measured in the font the
-field is drawn in, the short forms taking the default font at 0.6 of the box height and 10 at least;
-DrawTextEdit(edit, box) in dark gray on RayWhite and DrawTextEdit(edit, box, font, size, text,
-background) with the border, caret and selection in the text color at 0.3 opacity, the border 2 px
-while focused, the caret blinking half of each second from its last move, the text clipped inside
-the border within any scissor the program set, which it gets back; IsTextInputActive true from the
-frame an edit takes the keyboard to the frame after its last update and while a Tab pass is pending.
-Characters go in up to most text elements, 0 or less no limit, Ctrl or Cmd blocking typed
-characters; the arrows, Home and End move the caret and Ctrl or Cmd with an arrow by words, Shift or
-a drag selects, Backspace and Delete remove the selection or a character, a word with Ctrl,
-repeating while held, Ctrl or Cmd with A, C, X and V select all, copy, cut and paste with a paste's
-newlines and tabs made spaces and other control characters dropped, a click in the box focuses and
-places the caret and one outside unfocuses, Tab goes to the next edit updated that frame or past the
-last to the first next frame, Shift and Tab to the previous resolved next frame, the edit given
-focus selecting all and taking no keys in the Tab's frame, SetTextInputArea placed at the caret
-every focused frame, Enter or KpEnter answering true. E3DTextEditTests drives Input in a headless
-app through three cases, typing to the limit with Enter and focus, the caret, selection, clipboard
-and deletions with repeat, and a drag with Tab and Shift Tab across two edits, a scratch program on
-the RTX showing the selection, clipping, focus border and blink; docs/input.md gains Editing a line
-of text with two blocks built on the package, text-and-fonts.md links to it and TODO.md's input
-entry names it, the cheat sheet under Input after SetTextInputArea and PublicApi.txt with 13 lines.
-The strict build clean, 2,130 on the GPU in order and shuffled before a last doc-comment rewrap,
-after which the edit, cheat sheet and norm tests passed, lavapipe not run with nothing of the
-renderer changed. After `2f5237f2`, item 127, a ray crossing a canopy's leaves shaded twice at most,
-read at 08:50 on 2026-10-26, carrying ASKS.md, the review's files with a Shared line, SHARED.md,
-DEVLOG.md, a reading in RENDERING.md, a note and a captioned grove picture, pushed at 08:52 once the
-build run of `78946b22` went green whole, its run green whole at 10:08, Windows in 68 minutes, Linux
-in 66 and macOS in 34. In gi_trace.slang's crossing build and gi_screen.slang the loop only marches
-and adds up shares, the first light-through surface a ray crosses standing for every one it crosses
-and shaded once after the march for the share they take together, the surface the ray stops at
-shaded once for the share that reaches it, so a ray is shaded twice at most and never inside the
-march with the transmittance unchanged; gi.toggle through off stops both stages' rays at such
-surfaces as at solid ones, the merge still seeing past them, the settings' doc saying so. At seed
-1's cherry grove at item 125's view at 1920 by 1080 on powersave the crossing costs 1.95 to 2.06 ms
-at High where 2.55 to 2.70, global illumination 5.25 to 5.42 where 5.93 to 6.23 and 3.30 to 3.53
-with the crossing off, and at Low 1.06 to 1.08 where 1.48 to 1.65, 2.49 to 2.51 where 3.12; the
-split at High the cascades' rays 1.6 to 1.4, the screen probes 1.1 to 0.46 and the merge 0.2 to
-0.13. Read before the choice, a build crossing one leaf at most still cost 1.7 ms, shading the
-surface past the leaf 0.8 of it and the march the rest; after it, bounding the crossings at one
-saves 0.2 ms more and at two 0.05 to 0.1, and cutting the march once the ray keeps under a 32nd of
-its light saves nothing, so neither is kept, what is left being the march past the leaves. Item
-100's canopy over the eye at 800 by 450 reads 0.39 ms at Low and 0.70 at High against 0.48 and 0.95.
-The grove picture differs by 0.2 of 255 overall and 0.1 to 0.6 on the floor under the trees; a new
-test grows the slab to 20 by 20 by 2 unit leaf cubes with faces between neighbors under the sky
-alone and reads the same to four places with the old shaders and the new, 0.30 at High 2.5 under,
-0.17 at Low and 0.23 at High 5.5 under; the bounce rooms read 0.75 ms at Low and 2.08 to 2.16 at
-High at 1080p against 0.81 and 2.19 to 2.31 with their frames within two runs of one, and the
-references pass unchanged, the path-traced reference holding every surface solid. The game's 0.74 of
-the open shade was not read, needing its flat world and floor knob. 2,127 on the GPU in order and
-shuffled, 81 on lavapipe with validation and 2 skipped, the strict build clean, no public change,
-the guide's foliage paragraph giving the cost and the toggle. After `78946b22`, item 112, the planar
-reflection, read at 05:55 on 2026-10-26, carrying ASKS.md, the review's files with a Shared line,
-SHARED.md, a reading in RENDERING.md, a note and a captioned river picture, pushed at 06:19 on
-2026-10-26 once the build run of `7af16fcd` went green whole, the seventh pack run started with
-publish on at 06:19 for the game's item 42 and the mirror and width together, both runs watched; the
-build run went green whole at 08:01, Windows in 102 minutes, Linux in 65 and macOS in 35, and the
-pack run green whole at 09:14, Windows in 171 minutes, the games in 73, the captures in 58 and 60
-and macOS in 58 with the twelve games played through, the package 5.2.322 pushed to nuget.org with
-items 111 and 112, the game told; Verdict 93 settled by it. SetReflectionPlane(height, normal) sets
-a ReflectionPlane resource, on the cheat sheet and in PublicApi.txt; MirrorNode, between the probes
-and hdr_scene, draws the window's batches again through the window's view-projection mirrored in the
-plane and flipped in y, which keeps the winding, with Lengyel's oblique near plane along it, the
-batches wholly under the plane culled through a depth ModelRenderer.Draw gains, lit as the probes'
-faces are by the window's lights and shadow maps in linear into a half-size R16G16B16A16 target with
-the particles, the picture blitted into a mipped image at set 1 binding 38; mirrored(position,
-world, n, roughness) in lights.slang reads it by screen place with the mip set by roughness, faded
-0.1 unit off the plane and from 14 to 26 degrees off its normal, the model pass laying it over the
-traced or probe reflection faded from roughness 0.25 to 0.5, blended surfaces taking it too.
-MirrorPlaneTests reads R less G at 57 with the plane against -3 without and 0 against -3 beside the
-cube, on the RTX 4070 and on lavapipe with validation. The mirror node costs 0.046 ms of the GPU at
-800 by 450 at Off to 0.27 at 1080p at High and 0.11 to 0.16 ms of the CPU; a sea added to Summit by
-eval, a blended plane at roughness 0.05, 0.10 ms at 960 by 540 and 0.16 at 1080p with the frame 1.23
-to 1.25 ms going to 1.35 to 1.38; the voxel grove at item 125's view with 2,241 draws 1.3 to 1.7 ms
-at 800 by 450 and 1.5 to 2.1 at 1080p on the GPU and 4.0 to 4.1 on the CPU, 4.5 before the culling
-under the plane, and along the river at 1080p 2.2 ms at Low and 2.5 to 2.8 at High with 3.7 to 3.8
-on the CPU, the CPU share the per-draw recording the window's depth pass pays as well, 4.1 ms for
-the same draws, so the game's CPU-bound frame takes 3 to 5 ms more. The game's river top lies at
-48.875, an eighth under the block's top, the plane holding within 0.1 of it, and the game's water
-shader shows nothing until it reads mirrored, two lines in terrain.slang's water branch in a scratch
-copy making the river mirror the far bank, the picture. 2,124 on the GPU in order and shuffled,
-SlangCompilerTests taking binding 38, 164 on lavapipe with validation, the strict build clean, the
-guide's blocks built on the package. After `7af16fcd`, Verdict 93's mend, read at 02:19 on
-2026-10-26, carrying the review's files, SHARED.md and DEVLOG.md, pushed at 04:10 on 2026-10-26 once
-the build run of `45edfbf6` went green whole, its run green whole at 06:14, Windows in 123 minutes,
-Linux in 42 and macOS in 29. pinball.status carries lane yes or no right after the drains, yes while
-the ball sits in its lane, the game's unlaunched state, the command's description saying so; the
-drive's Pinball case replaces its last wait with a loop that, while the status reads drains 0 and
-lane yes, presses Space for 30 frames and begins the 60-wait over, three relaunches at most, and
-then fails with the count in its message. Pinball restored from the local pack and run offscreen
-with validation passed, draining without a relaunch; the three patterns were checked by hand against
-the macOS status line with the lane field, a ball on the table and a drained one, and the norm tests
-pass. After `45edfbf6`, item 111, the sun's shadow softening with the distance from its caster, read
-at 02:14 on 2026-10-26, carrying the review's files with a Shared line, DEVLOG.md, a reading in
-RENDERING.md, a note and a captioned pole picture, pushed at 02:17 on 2026-10-26 once the build run
-of `a16227a7` went green whole, its run green whole at 04:07, Windows in 110 minutes, Linux in 65
-and macOS in 35. SetShadowSoftness(size) takes the sun's width across in degrees, 0 by default
-keeping the present look and path, held to 0 to 20, on the cheat sheet, PublicApi.txt and the
-guide's shadows section with a block built on the package; the lighting buffer gains ShadowSoftness
-after EnvironmentLight, twice the tangent of half the width, the edge's spread per unit of a
-caster's height, the layout test reading its offset. penumbra.slang runs from cascadeReached when
-the width is set, 16 depths on a golden-angle disc searching for blockers over the width a caster at
-the cascade's near plane would spread to, held to 24 texels either side, a point with none found lit
-and one with all 16 found in the shadow's core at 0, which saves 0.2 to 0.3 ms in the grove,
-otherwise 16 bilinear Gather comparisons over the radius the blockers' mean depth gives, a texel at
-least, the disc turned by a hash of the point, each tap compared with the receiver's depth along its
-own plane with the slope solved from the normal and the cascade's rows and capped at 80 degrees, the
-taps 1.5 texels inside the tile, the spot, point and contact shadows unchanged. ShadowSoftnessTests
-reads a pole 5 tall under a 45-degree sun, its edge between a quarter and three quarters of the
-light 0.04 units at the foot and the tip with no width and 0.08 at the foot and 0.24 at the tip at 3
-degrees, the test having caught a first version reading the full spread as the disc's radius with
-every edge twice as wide. The grove at 1920 by 1080 reads Low 6.53 to 6.72 ms with no width, 7.44 to
-7.88 at 0.53 degrees and 7.55 to 7.76 at 3, High 7.26 to 7.31, 7.96 to 8.39 and 7.94 to 8.41, so 0.7
-to 1.2 ms when on, most of it the search at every point the sun reaches; the bounce rooms at 0.53
-degrees 0.04 to 0.06 ms more at 800 by 450 and 0.25 to 0.41 at 1080p, and at the default the rooms
-and the grove read as before with the reference frames holding. 2,123 on the GPU in both orders, the
-first run catching the layout test, 42 on lavapipe with validation, the strict build clean, pack and
-docs on the package passing. After `a16227a7`, item 100's second part with two mends, read at 00:22
-on 2026-10-26, carrying the review's files, DEVLOG.md, a reading in RENDERING.md and a note, and a
-captioned before-and-after canopy picture, pushed at 00:53 on 2026-10-26 once the build run of
-`42f4f505` went green whole, the sixth pack run started with publish on at 00:53 for the game's item
-133, both runs watched. The build run went green whole at 02:14, Windows in 81 minutes, Linux in 62
-and macOS in 34; the sixth pack run's macOS job went red at 01:49 after 56 minutes on Pinball, the
-ball back in its lane and not draining, Verdict 93, its tests green; the run ended red at 03:20 with
-Windows in 147 minutes, the games in 53 and the captures in 56 and 58, the pack job skipped, and its
-macOS job was rerun at 03:21 for the game's package, the drive of `a16227a7` playing Pinball again
-as it stood. The rerun played the twelve games through in 56 minutes and the run went green whole at
-04:21, the package 5.2.319 pushed to nuget.org with item 100's second part, the game told. The
-canopy picture found that under leaves 5 units up letting half through, at High the floor took no
-more sky than under solid ones, 0.0089 against 0.0077 linear, while Low took 0.035 against 0.015,
-the test's slab at 2.5 up within the screen probes' reach of 4 missing it. Two faults. A ray
-crossing leaves had its reach set at the first leaf it met, so the merge's parallax read and the
-screen probes' reach took the leaves as a wall; the crossing build sets the reach where the ray
-stopped, which alone moves the slab test from 0.23 and 0.29 to 0.36 and 0.40 against the geometry's
-0.36, so the old numbers were this fault and not the slants, the guide and the first reading saying
-0.36 and 0.40. And the merge skipped every probe of the cascade above that the field hid, a canopy
-hiding them all from the probes under it, so the cascades under a canopy took nothing from above and
-the screen probes reading cascade light past their reach read black; seesPastLeaves in
-lightthrough.slang passes surfaces that let light through, the merge gaining the field's colors at
-binding 9, a gi.probe read showing cascade 2 under the slab at 0 on its up face while cascade 3
-above read the full sky. The slab test has four cases, Low and High at 2.5 and 5.5 up, reading 0.36
-and 0.40 and 0.37 and 0.32 against the geometry's 0.36 and 0.41; a canopy test 30 across and 5 up
-with four cascades of 0.25 at High reads 0.31 where the geometry gives 0.38 and 0.004 with the old
-merge, each mend checked by reverting it; five up at High still reads 22% under the geometry, likely
-the cascades' intervals splitting a crossing that straddles an interval's end, recorded in the
-test's comment and not mended. On a quiet GPU the bounce rooms are unchanged at 0.553 to 0.556 ms at
-Low in the Cornell box, the merge's extra read happening where the field stops a march alone; the
-voxel grove on the entity build with nothing marked as leaves reads Low 1.21 to 1.51 ms at 800 by
-450 and 1.46 to 1.48 at 1080p against 1.22 to 1.44 and 1.47 to 1.49 before, and High 2.85 to 3.21
-and 3.35 to 3.38 against 3.28 to 3.33 and 4.24 to 4.60, the scene pass the same; leaves filling the
-view cost GI 0.60 to 1.10 ms at Low and 1.53 to 2.49 at High at 800 by 450, the guide saying so. The
-rooms' frames stay within 2 of 255 with nothing marked and the bounds hold; the path-traced
-reference knows nothing of LightThrough, so leaves cannot be read against it. 2,122 on the GPU in
-both orders, 50 on lavapipe with validation, the strict build clean. After `42f4f505`, item 126, the
-materials' defaults agreeing, read at 22:37 on 2026-10-25, carrying the review's files and
-DEVLOG.md. Two shared fields differed, DoubleSided true on the ECS Material against false and the
-roughness 1 against 0.5, and both take ModelMaterial's value, every other shared field agreeing
-already; Material.Default follows through its constructor and the scene reader with it, SceneSpawner
-setting both from the file's payload so loaded scenes are unchanged, the glTF description's own
-defaults left as glTF's. A test compares every shared field for a material made from one color,
-Material.Default's DoubleSided among them, MaterialTests' roughness reads 0.5, and one
-MeshEntityDrawsTests test that leaned on the old default makes its odd entity double-sided itself;
-the behaviors guide says a Material made from a color takes every default a ModelMaterial takes,
-with no upgrading entry. The four examples making ECS materials were captured again,
-ecs_mesh_entities matching within 0.002 and the other three differing run to run alone, so the
-committed captures stay. 2,119 on the GPU in both orders, 134 on lavapipe with validation, the
-strict build clean. After `98a0e49e`, item 125, the scene pass's half found in the draws' order,
-read at 22:05 on 2026-10-25, carrying the review's files with a Shared line, a reading in
-RENDERING.md and a note, and a captioned pair of the grove, pushed with `42f4f505` at 23:09 on
-2026-10-25 once the build run of `23b4793b` went green whole, their run green whole at 00:50,
-Windows in 101 minutes, Linux in 39 and macOS in 35. The cause is the order of the draws and not
-their work, both paths making the same draws through the same pipelines with the same culling, depth
-state and coverage; DrawMesh brought each section's solid, cut-out and lava parts by turns, each a
-batch alone through the terrain shader's solid or cut-out pipeline, so the pass bound a pipeline 315
-times a frame against 7 for the entities. On scratch game copies at the grove at 1080p High the
-GPU's scene pass read 13.1 to 14.1 ms for DrawMesh in its own order, 9.3 to 10.8 for the entities,
-11.8 to 13.0 for DrawMesh nearest first, 9.2 to 10.6 by pipeline and 8.4 to 9.0 by pipeline and
-nearest first within it. ModelRenderer.Order.cs plans each seen batch with its pipeline and orders
-the opaque ones by pipeline in order of first appearance and nearest first within it, each run
-between two batches that write no depth ordered apart so a sky drawn first keeps its place, the
-translucent batches untouched; with it under another program's load DrawMesh reads 8.9 to 12.9 ms
-where 14.4 to 21.2 and the entities 12.4 to 14.6 where 10.5 to 15.0, the frames matching within the
-run-to-run spread, and models.draws prints the pipelines the views' passes bound. Item 108's
-thousand meshes rebuilt in Release, all of one pipeline, cost 0.03 to 0.15 ms more of the pass's
-recording, and with toon.slang solid and cut out by turns read 2.45 to 2.60 ms where 3.19 to 3.30
-with the frame 6.96 to 7.26 where 7.56 to 7.99, DrawMesh and the entities alike. ModelOrderTests
-reads sixteen alternating program-shader cubes binding two pipelines where sixteen bound without the
-order, and a sky drawn with depth writes off between two cubes of one pipeline covering what came
-before it alone, each failing without its part. 2,118 on the GPU in both orders, 141 on lavapipe
-with validation, the strict build clean, the models guide's many-copies section saying how opaque
-draws are ordered. The coder cleared about 10 GB of its finished items' scratch after a disk-quota
-failure on /tmp. After `23b4793b`, item 124, the mesh entity's shadow and bounce flags, read at
-18:54 on 2026-10-25, carrying ASKS.md, REVIEW.md with a Shared line and SHARED.md, pushed at 20:15
-on 2026-10-25 once the build run of `4c9cf7e4` went green whole, the fifth pack run started with
-publish on at 20:15 for the game's remaining parts; both runs red within three minutes at 20:17 on
-the runners' dotnet install, Verdict 92, green on the fourth attempt of 21:26 once the feed settled,
-the push run whole at 23:06 with Windows in 102 minutes, Linux in 63 and macOS in 32, the pack run
-green whole at 23:42 with Windows in 100 minutes, the games in 72 and the captures in 54 and 56, the
-package 5.2.316 pushed to nuget.org with items 124 and 100's first part. CastsShadows and
-BouncesLight stand on the ECS Material set true by its constructors as DoubleSided is, a scene
-file's older entries reading them true since the reader starts from Material.Default,
-MeshEntityDraws passing them to the draw and the group key gaining both so entities that differ
-never share a batch; the guide's Mesh entities section shows a water entity casting no shadow, its
-block building on the package. The test sets three cube entities over a floor under the sun, the
-twin and the no-bounce cube shadowing the floor while the no-shadow cube leaves it lit above three
-quarters of the clear floor, the field holding the twin alone, and fails with the flags off the
-draw. 2,116 on the GPU in both orders, 33 on lavapipe with validation, the strict build clean,
-PublicApi.txt updated. A trap noted, the ECS Material's constructors making DoubleSided true where
-ModelMaterial defaults to single-sided, so a default entity draws both faces where a default
-DrawMesh draws the front alone, the game copying the flag across and unaffected, item 126. After
-`4c9cf7e4`, item 100's first part, the share of light a surface lets through, pushed at 18:27 on
-2026-10-25 once the build run of `21a3fbc7` went green whole, its run green whole at 20:12, Windows
-in 104 minutes, Linux in 38 and macOS in 33, carrying the review's files and DEVLOG.md with a Shared
-line. LightThrough on ModelMaterial and the ECS Material sets the share of light that passes a unit
-of a surface's depth, the field's colors carrying it in their alpha, the cascades' rays and the
-screen probes' rays crossing up to four such surfaces, keeping the share for each unit of depth and
-taking the rest of the surface's light, a crossing before a cascade's interval kept for the probe's
-own faces alone in a second channel of the distances. One departure, a floor under a slab a unit
-thick letting half through a unit taking 0.23 of the sky light the solid slab holds back at Low and
-0.29 at High and an all-through slab 0.95 and 0.98, where the item said about half, since slanting
-rays cross more of the slab a unit of depth and an infinite slab works out to a third by the
-cosine-weighted mean, the test bounding it between 0.15 and 0.40 and the guide saying about a
-quarter. A frame where nothing lets light through traces with gi_trace.slang built with
-NO_LIGHT_THROUGH, a new loader variant tested; the bisect found shading into temporaries summed
-after the ray cost 7% at Low even with the crossing compiled out, so the light is written at the hit
-as before, 0.554 ms against 0.552; gi_screen shades in two places instead of three, taking 0.16 to
-0.60 ms off High in the bounce rooms, the Cornell box 1.60 where 1.92 at 800 by 450 and 2.07 where
-2.64 at 1080p, Medium 1.50 where 1.82, the frames within 2 of 255; the guide's table reads Low 0.55,
-Medium 1.50 and High 1.60 ms at 6.28, 9.29 and 11.72 MB, the second channel 0.12, 0.37 and 0.56 of
-them. 2,114 on the GPU in both orders, 71 on lavapipe with validation, the strict build clean, the
-pack and the docs on the package passing, PublicApi.txt updated. Left for the second part, the grove
-at both sizes, unreadable here with BevyCSharp's suite holding 40 to 90% of the GPU, the canopy
-picture and note and the crossing's cost where leaves exist. After `21a3fbc7`, item 96's cut, the
-edge march gated by the thin-wall test, read at 15:23 on 2026-10-25, carrying REVIEW.md, the grove
-pair and a note, pushed at 15:37 on 2026-10-25 once the build run of `073f34c8` went green whole,
-its own run green whole at 16:48, Windows in 71 minutes, Linux in 35 and macOS in 41. The model
-pass's edge test gains byThinWall with its comment. At the grove at High at 1920 by 1080 over three
-alternating rounds of two readings with other processes holding 14 to 38% of the GPU, as is 13.07
-and 13.08, 12.11 and 12.11, 15.41 and 15.35 ms against gated 10.53 and 10.57, 11.13 and 10.84, 10.00
-and 9.66, a saving of 1.0 to 5.4 ms within a round and about 3 on the mean, the earlier round 12.29
-and 12.61 to 10.25 and 10.33 beside them; the frames alike, 70 of two million pixels differing by
-over 3%. The rooms at Medium and High unchanged, the thin room's corner and foot tests holding, the
-strict build clean, 2,112 plain and shuffled, 37 on lavapipe with validation and one skipped for ray
-queries. The half-size gather stays in the scratchpad alone. After `073f34c8`, the soak's logs kept,
-read at 14:16 on 2026-10-25, carrying REVIEW.md. Where any build/soak failed file exists, the soak
-step copies build/sessions logs into the captures' sessions folder before soak-check runs, so the
-game-captures artifact, uploaded always, keeps them; the workflow parses, the glob was tried both
-ways, the rule and script tests pass, 63. After `12a15e44`, Verdict 91's diagnosis mend, read at
-14:14 on 2026-10-25, carrying the review's files and DEVLOG.md. The soak's log in the job's artifact
-reads Tumble serving after 8 s and then NO_SESSION, the window's size and the first inputs through
-by the failed file, the game gone with exit code 0 of its own by the next frames.wait; Tumble's loop
-ends by WindowShouldClose alone and sets no quality, nothing recent touched the CLI, the soak
-scripts or Tumble, no game's name sits inside another's title and the session files are written on
-the main thread, and the twenty-game soak three times locally as CI runs it played every game
-through, Tumble with two turns and twelve readings each time. The evidence was lost since every way
-a loop ends writes a line naming what asked, and CI kept neither build/sessions/Tumble.log nor those
-lines, soak-check quoting warnings alone; soak-check.py quotes the closing lines among a log's last
-three, a SoakCheckTests case covers an ended game, and a local soak reads app.quit asked by e3d with
-its process and its parent's command line, so a recurrence names its asker. The strict build clean,
-2,112 plain and shuffled. After `17da0eaa`, item 123, Low's thin-wall leak, read at 13:04 on
-2026-10-25, carrying NORM.md, SHARED.md, the review's files, DEVLOG.md, the two devlog notes and a
-captioned pair, pushed with `12a15e44` and `073f34c8` at 14:24 on 2026-10-25 once the build run of
-`ac46c010` went green whole, the fourth pack run started with publish on at 14:24 for the game's
-items 95 and 29, green whole at 16:55 with Windows in 147 minutes under the limit of 240, the twelve
-games played through in 50 minutes and the captures in 58 and 61, the package 5.2.313 pushed to
-nuget.org, the first since 5.2.291 after three red pack runs, the push run green whole at 15:33,
-Windows in 69 minutes, Linux in 47 and macOS in 35. lights.slang's byThinWall reads, at a point 0.3
-of the probes' spacing off the surface where another surface lies nearer than the pixel's own by
-over 0.75 cell, the field one cell through that surface against its gradient, and where it reads 0
-or more the wall is thin and the pixel marches to the probes, the model pass using it where no
-screen probe stands alone, so Medium and High are untouched. In the game at 1080p at Low 0.5% of the
-room's pixels march and 0.75% of the spawn's, slivers at a few block corners, the room's scene pass
-2.6 to 2.8 ms before and 3.1 to 3.2 after, the spawn within its noise. BounceRoomsTests.ThinWalls
-reads the thin room's floor along the back and right walls' foot at 480 by 270 at Low with the lamp
-outside and without it, a ratio of 1.54 before and 1.00 after under a bound of 1.1, the file partial
-at 768 lines; the rooms at Low view 1 0.103 and view 2 0.107 with its bound 0.12, the rest
-unchanged. The remainder is a speck where the thin room's right and back walls meet its floor, which
-marching every pixel leaves too, RENDERING.md and the note saying speck. The strict build clean,
-2,111 plain and shuffled after a first run lost 80 tests to the device running out of memory 61 s in
-with nothing of the coder's holding the GPU, 41 on lavapipe with validation. After `ac46c010`, item
-122, the screen probes' spacing by the resolution, read at 11:41 on 2026-10-25, carrying NORM.md,
-the review's files, DEVLOG.md and a captioned picture, the glowstone room at 4K at every 8 pixels
-and every 16, alike by eye, pushed at 12:42 on 2026-10-25 once the build run of `c721746b` went
-green whole, its run green whole at 14:21, Windows in 99 minutes, Linux in 59 and macOS in 33.
-TileAt(quality, height) is the larger of the 1080p tile and that tile scaled by the height over 1080
-and rounded, High 8 at 720p and 1080p, 11 at 1440p and 16 at 4K, Medium 24 at 4K, the window and its
-render textures taking the window's height so their tiles agree and the UBO's tile reading the same.
-Read offscreen before and after with another session's tests on the GPU, so the times run high
-alike. The glowstone room's global illumination at High, 720p 8.3 to 8.3 ms, 1080p 13.7 to 13.1,
-1440p 17.8 to 12.4 and 4K 35.9 to 13.3, the scene pass with the probes 2.6, 4.9, 7.6 and 16.2 ms
-before; Low's glow-only pass, global illumination and the scene pass, 2.5 and 1.3, 2.9 and 2.7, 3.4
-and 4.8, 4.5 and 10.5; the march's scene pass 13.8, 29.2, 49.5 and 107.7; the Cornell box's global
-illumination 3.3, 3.8, 4.5 and 7.2 before and 2.4, 3.7, 3.1 and 3.7 after, the strip room at 4K 8.4
-to 4.4. The rooms against their references, each traced at 1080p with 256 paths and read in 96 by 54
-blocks, at 4K with the new spacing within 0.002 of their 1080p distances in every view, 0.040,
-0.087, 0.162, 0.221, 0.007, 0.086, 0.049, 0.039 and 0.018 against 0.040, 0.087, 0.163, 0.223, 0.007,
-0.085, 0.051, 0.040 and 0.019, a fixed 8 pixels at 4K reading 0.160, 0.084 and 0.047 at views 3, 6
-and 7, the reading's test not kept. The guide carries the four rows and the rule, RENDERING.md the
-reading, a unit check of TileAt at the five heights. The strict build clean, 2,110 plain and
-shuffled, 7 on lavapipe with validation. After `c721746b`, item 103, the screen probes by quality,
-read at 10:53 on 2026-10-25, carrying the review's files and two captioned pairs, the thin walls
-room and the Cornell box at Low with and without the probes. SetGlobalIlluminationScreenProbes is
-gone, ScreenProbesAt(quality) true at Medium and High; at Low GlowOnly gives the glow lights' probes
-while one is lit; ScreenOff, gi.toggle screen and the window's box, leaves them out whole at any
-quality, the glow-only probes with them; gi.state says no screen probes at Low with the glow probes'
-MB and says when the toggle left them out. The guide's tier table carries the Cornell box's
-readings, Low 0.60 ms and 6.16 MB, 1.53 without glow lights, Medium 1.92 ms and 8.92 MB, High 2.00
-ms and 11.16 MB, the paragraph the room's 2.2, 1.2 and 13.3 ms; the upgrading entry for the call is
-dropped, the call never having shipped in a release; RENDERING.md has the reading and the feature
-test's comment no longer says Low has screen probes. The tests of the probes moved to Medium,
-BounceView, the history theory, the slide crawl, the probes past the first cascade and the
-render-texture theory, Low's room bounds for views 2 and 3 at 0.13 and 0.29 with the readings in the
-comment, a unit check of ScreenProbesAt and a window draw test new. The strict build clean, 2,108
-plain and shuffled before the Metal rename, 54 on lavapipe with validation, the docs' 2 blocks
-building on a fresh pack. After `f36b49b3`, Verdict 90's mend, read at 10:49 on 2026-10-25, carrying
-the review's files and DEVLOG.md, pushed with `c721746b` at 11:29 on 2026-10-25 once the build run
-of `9a013b59` ended, the third pack run started with publish on at 11:29 for the game's items 95 and
-29 and watched, its games job red at 13:08 on Tumble's soak, Verdict 91, every other job green when
-it ended at 14:11, the three suites with macOS in 56 minutes, Windows in 109 and the captures in 71
-and 77, the pack job skipped, the push run green whole at 12:36 with macOS in 33 minutes, Linux in
-58 and Windows in 67, so the Metal mend holds. The cause differs from the verdict's reading. Item
-121 named a local vertex in field_counted.slang, uint vertex = push.source + id.x, and vertex is a
-Metal keyword the translation kept, so 45:21 is the declaration and 50:58 its use in the index; the
-pointer and the mask were sound, and the shader indexed id.x with no such local before 121. The
-local is index, with a comment saying why. MetalNamesTests compiles every built-in shader with
-slangc and reads each stage's OpName and OpMemberName strings, refusing Metal's own words, vertex,
-fragment, kernel, visible, stitchable, intersection, device, constant, thread, threadgroup,
-threadgroup_imageblock, ray_data and object_data, a second test checking the SPIR-V reading itself;
-a full cross-compile to Metal source on Linux would not have caught it, the translation writing the
-source and Apple's compiler alone refusing it, where the names check fails on Linux first and named
-field_counted.slang's compute stage on the old shader, 55 s, skipped where slangc is missing. The
-strict build clean, 35 on the GPU and 19 on lavapipe with validation, no full suite on this commit
-alone, the tree's full suite having passed at 2,108 with item 103 beside it and this commit sharing
-no file with 103, so the run is its suite. After `9a013b59`, item 121, the counted mesh's color
-stream and its range of a shared buffer, read at 09:02 on 2026-10-25, carrying the review's files
-and a captioned picture. Checked on top of item 102 and Verdict 89's mend, since 121 and 102 share
-SceneField.cs, the strict build clean, 2,108 plain and shuffled on the GPU in 8 minutes, 83 on
-lavapipe with validation over the counted meshes, the scene field, the reference frames and motion,
-the docs page's 10 blocks building on a fresh pack. One departure, the picture's wall lit by a model
-shader of its own with a normal from ddx and ddy in its vertex colors, since the model pass's own
-shader draws a positions-only counted mesh black, as the docs say. In the red wall's room the floor
-before the wall reads 233, 233, 233 with no colors and 222, 192, 192 with the colors beside the
-UInt2 stream, the block's near face 191, 191, 191 and 186, 175, 175. After `c2fd2a40`, Verdict 89's
-mend, Tempo's autopilot on the song's clock, read at 08:36 on 2026-10-25, carrying the review's
-files, SHARED.md, DEVLOG.md and the game's ASKS.md, pushed with `9a013b59` at 09:40 on 2026-10-25
-once the build run of `f05ea96f` went green whole, the pack run started with publish on at 09:40 for
-the game's items 95 and 29, both runs watched; the pack run's macOS suite and macOS captures red
-within minutes at 09:45 and 10:36 on the counted corners' shader failing to compile under MoltenVK,
-Verdict 90, every other job green when it ended at 11:45, Windows in 125 minutes under the limit of
-240, the captures in 60 and the games in 73, the pack job skipped, so it packed nothing and the
-third pack run followed the mend at 11:29, the push run red the same way on macOS at 09:45 when it
-ended at 11:27, Linux green in 46 minutes, Windows in 107 and the examples in 10. Each note whose
-time this frame's step of the song passed is played at its own time, clamped into the clock before
-the step and the clock after, as a player on the beat is judged however long the frame, several in
-one lane in one long step each played, a note less than half a step ahead played on this frame as
-before, Run.Play taking the song time a lane is played at while keys and pads play at the clock; the
-game stays on the music's clock with no fixed stepping. The miss came from a stall frame far longer
-than the frames before running the music's clock past a note not yet due by more than the 0.15 s Bad
-window, so the autopilot's press on the frame after was refused. On a fresh pack offscreen, the
-drive reads perfect 381, miss 0, error 3 ms with no validation error, and 300 frames draw clean;
-with a 320 ms stall every 23rd frame through the whole song the old game missed 88 of 381 at perfect
-186 and error 44 ms and the mended one 0 at perfect 323 and 19 ms, and at a steady 4 frames a second
-both miss 0, so it was the stall, as on the runner under its capacity notice. Item 121 was set aside
-in a stash and goes back in, its checks passed before, 2,108 plain and shuffled and 41 on lavapipe.
-After `f05ea96f`, item 102, the far cascade's slab, pushed at 07:50 on 2026-10-25 once the build run
-of `a8f127ad` went green whole, its run green whole at 09:38, Windows in 108 minutes, Linux in 59
-and macOS in 32, carrying NORM.md, SHARED.md, DEVLOG.md, the review's files, the game's ASKS.md
-entry and two captioned pictures. The slab came from the field's resolve, not the reading, and both
-are mended. A cell in front of one face and straight behind an opposite one within a cell is held as
-a sheet half a cell either side of its middle, as a double-sided sheet is, and the flat world's
-ground is four blocks between grass tops and bedrock bottoms, so at the far cascade's 73.75 every
-cell above it qualified and the ground stood about 37 blocks thick with the eye inside it; the far
-cascade's build holds such sheets half the last counted cascade's cell thick, ResolvePush's lent.y
-and a sheet argument on RecordSceneFieldBuild. In the reading, as planned, the last counted cascade
-traces to the far edge with Last set and the merge takes nothing above it, and fadesOn in
-cascades.slang stops it fading into the far probes in gi.slang and lights.slang; the reading's
-changes alone did not move the game's numbers, the sheet mend restored them. Bisected in the game by
-gi.probe at the wall's cascade 3, up-rays meeting a surface within their interval and ground hits
-shaded four times too dark from a sun march blocked overhead. On a scratch copy of the Debug build,
-the flat world, the play check's glass at exposure 1 and far at the far plane, the frame read 168,
-157, 106 and the middle 139, 12, 0 before against 185, 167, 126 and 154, 13, 0 with no far cascade,
-and after the same as no far cascade; the 27 bounce rooms with far at infinity within 0.007 of
-before except view 7 at Low, 0.108 to 0.069, its bound without far 0.09. The far cave at 90 blocks,
-read either way, moves not at all, the tops 9, 13, 18 at High under every cascade alone and with the
-merge off and 0, 0, 0 with the game's fog off, so that distant light is the game's fog and no
-cascade's light reaches those tops. The far cascade costs the scene pass 0.2 to 0.3 ms at the grove
-at 1920 by 1080, 8.0 to 8.3 against 7.8 to 8.0, and GI 0.25 ms, before and after alike, the game's 5
-ms having been on 5.2.281 before item 96's cuts, so nothing is left to cut. Two tests, a
-double-sided plane of 288 triangles, since a mesh under 16 is a stamped box, waiting
-MobileSettleFrames after its move, whose cell a quarter of a far cell over the floor reads 1.59
-where it read -1.84, and the grazing floor at Low keeping its difference with a far cascade set,
-failing before at 0.108, the rooms' body moved into a Differs helper; a narrower far hit tolerance
-tried and dropped, changing nothing once the sheet was mended. RENDERING.md's far cascade passage
-rewritten with the readings. The strict build clean, 2,104 plain and shuffled on the GPU, 73 field,
-reference frame and cascade edge tests on lavapipe with validation. Item 96 begins with a reading on
-the game's 5.2.215 build at the cherry grove at 1920 by 1080, each part of the per-pixel read cut
-out in turn to tell what runs per fragment from the variant's registers, the window's depth at half
-size and the scene pass shading with overdraw pointing at a half-size pass over the window's depth
-with a two by two depth and normal read, as the glow pass has. Next 97, the light at the camera's
-point on lavapipe, then 132, the passes' recording, then 131, the field's band at a thin face. The
-branch `modeling` was deleted at 07:23 with its items all on main, N 7.5; the cloud sessions stand
-by. The owner asked at 10:45 on 2026-10-26 for quick links to the devlog and the cheat sheet at the
-very top of the README, plain links to the files; the reviewer wrote the line as the README's first
-line with full addresses as N 4.3 has them, the coder committing README.md alone.
-
-Before it, `a8f127ad` came, item 108's third phase, with `ac1c6bad`, item 120, pushed at 06:43 on
-2026-10-25 once the build run of `6a20d165` went green whole, its build run green whole at 07:41,
-Windows in 57 minutes, Linux in 35 and macOS in 32, the pack run started with publish on at 06:43
-for the game's item 95, its macOS job red at 07:33 on Tempo's autopilot, Verdict 89, every other job
-green when it ended at 08:40, Windows in 82 minutes, the captures in 59, the games in 73 and macOS's
-captures in 57, the pack job skipped, so it packed nothing and a pack run follows the mend.
-
-Before it, `55a33ce9` came, item 116, a profile value's mean, with `6e29cfa0`, item 115, pushed at
-03:05 on 2026-10-25 after the build run of `e746f98e` went green whole, its run green whole at
-04:51, Windows in 106 minutes under the limit of 150, Linux in 45 and macOS in 31.
+Next 134, the swapchain on a resize, and 133 when the owner answers on its mark, then the cascades
+in order, 135, 131, 136, 137, 138, 139, 140, 141 and 142 (Decision 75); 132, 143 and 144 wait behind
+them.
 
 Items done and verdicts settled before 2026-10-23 stand in REVIEW-ARCHIVE.md beside this file, their
 numbers kept, moved there at 19:30 on 2026-10-23 so this file holds the current work alone and is
 read whole before a batch; the archive is read when an item or a verdict named here is wanted in
 full.
-
-The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
-and 9 by review.
 
 ## Now
 
@@ -1420,19 +881,6 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     The macOS test's fix in `14338c8f`, picked as `34e9a8a5`. The device numbers in the guide at
     `3a2ccc0b`; item 74 done, held for the push.
 
-97. **A point light at the camera's own point shades without black specks on lavapipe.** From the
-    voxel game's reading of 2026-10-24, read at 12:21, its ASKS.md entry of 2026-10-24. The game
-    moved its held light to the eye's point and the play job on lavapipe read the lit roof black at
-    its probe, the frame shot through with black specks, where the GPU shaded it 109, 68, 29; the
-    shadow cube, the contact shadows and the global illumination each off left the specks, and the
-    light a third of a block under the eye made the frame clean, so the fault is in the engine's
-    shading of a point light whose point is the camera's, a value undefined where the light's vector
-    and the view's coincide or the light's point in view space is the origin, as item 90's normal
-    was. The cause read on lavapipe with the validation layer, the mend a guard at the degenerate
-    value as item 90's, and a test in the Linux suite lighting a bounce room by a point light at the
-    camera's own point and reading the frame for black pixels, red before the mend. One commit,
-    after item 95.
-
 132. **A pass records two thousand unmoving draws for well under a millisecond.** From the voxel
     game's item 139, read at 15:14 on 2026-10-26, its ASKS.md entry of 2026-10-26. At the game's
     open view at 12 columns each section draw costs 3 to 5 microseconds of the main thread a pass,
@@ -1448,6 +896,21 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     holding, the game's view read again with the package. One or two commits, after item 97 and
     before 131.
 
+143. **Shadow casters are culled to each cascade's slice swept toward the sun.** From the voxel
+    game's reading of a voxel engine in Rust on 2026-10-30, its ASKS.md entry of 2026-10-30, behind
+    the cascades of Decision 75 with item 132. At 128 blocks the game's cascades draw about 1,300
+    sections at 12 columns, 3 ms of the CPU and 2.6 of the GPU, where a hull of each cascade's slice
+    swept toward the sun cut the reference's shadow triangles by half. Read by the cascade draws and
+    the shadow pass at the village and the spawn before and after. One commit.
+
+144. **A mesh over shader buffers packs its positions to 16 bits within its bounds and its indices
+    to 16 bits.** From the voxel game's reading of a voxel engine in Rust on 2026-10-30, its ASKS.md
+    entry, behind the cascades of Decision 75 with item 132. The game's sections are meshes over
+    shader buffers at 24 bytes a vertex, 12 of float positions, 8 packed and 4 of color, so the ask
+    is positions as 16-bit normalized within the mesh's bounds with 16-bit indices, a vertex from 24
+    bytes to 18 and the indices halved, packed on workers; read by the game's mesh memory and the
+    upload ms a frame while streaming. One or two commits.
+
 131. **A thin two-sided face holds a narrower band in the scene field.** From item 129's reading of
     2026-10-26. The field holds a two-sided face below zero within half a cell either side, so at a
     cell of 0.25 two walls half a unit apart leave no gap and a probe between them reads a surface
@@ -1458,623 +921,147 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     such walls stand, the cost on the bounce rooms and the voxel grove at both sizes and the leak
     tests holding, the closed room, the lamp room and the slab's tint; then the wheat room's walls
     within the world probes' spread of the reference, the Cornell panel's thin emissive edge read
-    with it, the room pictured before and after. One or two commits, after item 97.
+    with it, the room pictured before and after. One or two commits, after item 97. Decision 75's
+    second item, after 135; the march's step held to the narrower band near a sheet, or a finer
+    first cascade where such faces stand, the choice by the reading; a debug view of a cascade's
+    probes and the field's slice comes with it, and each reading's figure is kept as a test bound,
+    for every item of the plan.
+
+133. **The README's words under the header are the owner's.** The owner wrote on 2026-10-30 that
+    below the README's header stands "A C# engine on SDL3, Vulkan, ImGui and Slang. Raylib's design
+    over a Bevy-style ECS and scheduler, scripted with its own Unity-style behaviors. Implementing
+    Radiance Cascades. [e3d.cs]", in place of the tagline there; STYLE.md quotes the tagline and
+    follows, and every test or check that reads the README's first paragraph; the bracketed e3d.cs
+    is a question put to the owner, a link to the e3d script or a plain mark, and stands as written
+    until answered. One commit, small, documents alone.
+
+134. **The swapchain is made again on a resize before the first frame.** From the voxel game's item
+    142, read on 2026-10-30, its ASKS.md entry. A window opened at 1280 by 720 and sized to 2560 by
+    1440 by the program before its first frame keeps a 1280 by 720 swapchain from the first frame at
+    2.35 s until a present reports it out of date at 10.86 s, the game's loading screen drawn into
+    the smaller swapchain for eight seconds; the renderer takes the resize event and makes the
+    swapchain again before the first frame it presents, a test resizing before the first frame and
+    reading the swapchain's extent, the window guide's line. One commit, small, after item 133 and
+    before 132's mend.
+
+135. **The screen probes stand in the world and keep their light from frame to frame.** Decision
+    75's first item, from the owner's complaint of 2026-10-24 and RENDERING.md's sixth term. Sixteen
+    fixed rays a probe, one a texel, so a patch narrower than a texel lights one probe and not its
+    neighbors, and the probes stand on the screen's tiles, so the spots ride the view as it moves.
+    The probes are anchored in the world, placed from depth on a world grid at their spacing and
+    kept from frame to frame, several rays a texel over frames through a history that follows the
+    anchors, the filter weighted by the probes' planes. Read by the plank room's spots, 8 today by
+    the game's measure, a pixel's change frame to frame at its 99th part on a still and a panning
+    view, the bounce rooms' distances to their references held, and the cost at High at 1080p. One
+    or two commits, after item 134.
+
+136. **The path-traced reference knows light through.** Decision 75's third item, worked before the
+    pocket and the light-through items whose readings need it. gi_reference.slang has no light
+    through, so leaves cannot be read against truth. A path passes a leaf by its share as the
+    material's LightThrough gives it, in the reference and in gi.compare. Read by the canopy and the
+    grove's floor against it. One commit, after item 131.
+
+137. **A vertical face in a narrow canopy pocket takes the light that reaches it.** Decision 75's
+    fourth item, from the voxel game's item 135. The cause is read first, likely RENDERING.md's
+    third term, the coarse cascades' probes moved out of a space narrower than their spacing and the
+    first cascade's rays meeting leaves before their interval. Each cascade's probes are placed into
+    open space within their cell by the field, and the first cascade's rays carried past their
+    interval where no coarser probe holds the space. Read by the pocket's face and the corridor's
+    walls, 67 to 69% under today, against the reference of the item before. One or two commits.
+
+138. **A crossing of leaves takes its transmission from the leaves' depth along the ray.** Decision
+    75's fifth item. Item 100's slab, 20 across and 5 up, takes 0.32 of the sky's light at High
+    against the geometry's 0.41, and the canopy costs 2.49 ms at High against 1.53 solid; the shares
+    a march takes in half-cell steps against the depth a way crosses are read first. Each crossing's
+    transmission comes from the leaves' depth along the ray, found from the field's sign changes and
+    applied once a sheet, the march run only on rays that meet a leaf. Read by item 100's slab table
+    within 5% of the geometry at Low and High and against the reference, and the canopy's cost. One
+    or two commits.
+
+139. **The field follows a changed world cell by cell, and a moving emitter lights what it passes.**
+    Decision 75's sixth item. A changed mesh, a section after a block breaks, marks its whole
+    cascade dirty, built again over frames within the triangle budget with its still meshes stamped
+    as boxes meanwhile, and a moving emissive mesh lights nothing past itself unless small enough to
+    be a glow light. Only the cells of the changed mesh's box are splatted again from the meshes
+    over them, and moving emitters are splatted into an emission layer each frame. Read by the
+    frames from a break to a settled field and one break's cost at 12 columns in the voxel game, and
+    a moving lava block lighting a wall against the reference. One or two commits.
+
+140. **Each quality is a GPU budget at a size, read at 1080p, 1440p and 4K.** Decision 75's seventh
+    item. No quality has been read above 1080p and the screen probes' count grows with the window.
+    Each quality is set by a GPU budget at a size, the screen probes held near 1080p's count with an
+    upsample above it. Read by gpu.global_illumination at three sizes and three qualities in the
+    grove and the bounce rooms, with their distances to the references. One commit.
+
+141. **The far cascade costs a slice a frame.** Decision 75's eighth item, from the voxel game's
+    items 27 and 141. The far cascade costs 1.6 to 2 ms with six-block cells at the render distance,
+    the cause read first. The far probes are refreshed a slice a frame, and rays go only from probes
+    whose counted rays left the field. Read by the cave's far light as at `f05ea96f` and its cost
+    before and after. One commit.
+
+142. **The merge's gain past the first bounce holds at one.** Decision 75's ninth item, outside the
+    eight. RENDERING.md's first term reads the merge's gain at 1.08 to 1.27 a bounce. The cause read
+    and the merge held at one, the bounce rooms' distances to the references and the Cornell box's
+    bounces read before and after. One commit, after the eight.
 
 ## Verdicts
 
-Verdicts 56 to 93 are settled, said under each in REVIEW-ARCHIVE.md; 94 is open, mended at `987f07ae`.
-
-94. **The run of `7ff7bbdd` is red on the examples job, the gallery's pictures out of date after
-    item 130's captures.** Read at 15:08 on 2026-10-26. The three suites went green, Windows in 73
-    minutes, and the examples job failed at the check of raylib's examples table,
-    build/examples-table.py --check saying the gallery's pictures are out of date for
-    models_edit_mesh, models_edit_mesh_cuts, models_edit_mesh_modifiers and the room, since item 130
-    recaptured those four examples and the gallery's pictures made from the captures were not made
-    again. The mend runs build/examples-table.py and commits the gallery's four pictures with it,
-    the check passing on the tree before the commit. Small, first, the commit going with `969a1b08`
-    in one push. Mended at `987f07ae` on 2026-10-26, the four pictures and captures.tsv made again;
-    settled when its run goes green.
+Verdicts 56 to 94 are settled, said under each in REVIEW-ARCHIVE.md; none is open.
 
 ## Decisions
 
-1. **Commits stay local.** The owner pushes `main` from their own tools, and the working session
-   commits and does not push, as AGENTS.md and COMMITS.md say.
-
-2. **The package is `3DEngine` on nuget.org, the owner's own, numbered from 5.0.** The owner
-   sets the major and minor in `build/version.txt`, the patch counts the commits since, and the
-   `pack` workflow run by hand makes the package to download or push.
-
-3. **AGENTS.md's bullet and table row on SHARED.md are the owner's.** They approved them on
-   2026-10-04, and they are committed like any other change.
-
-4. **TODO.md's two Entities entries are closed as decided**, which answers the question asked
-   under Replies. Ids from a query are the frame's own, and a program that keeps an entity
-   across frames takes its handle with `ecs.Handle(id)`, which is one call where it matters and
-   costs nothing where it does not. Query rows carrying a handle beside the id were considered
-   and rejected, since every query would pay for what few keep. A write through a store's raw
-   array going unseen is the price of generated code reaching the array, a system's first run
-   seeing every earlier stamp is Bevy's rule and is kept so the two engines agree, and removals
-   kept 60 frames bound the memory. DESIGN.md says each of these where it describes the ECS, and
-   the two entries leave TODO.md.
-
-5. **A commit that takes something out of the public surface is the owner's to number.** The
-   patch counts commits and says nothing of what broke. When `PublicApi.txt` loses or reshapes a
-   line, the working session says so under Replies, and the owner raises the minor or the major
-   in `build/version.txt` before the next package. On 2026-10-05 the owner chose 5.1 for what
-   has changed since 5.0.12 and set it in `aae58f45`. A minor may break what a game calls until
-   the table of raylib's examples is mostly written, and 6.0 is the surface promised after
-   that, which BUILDING.md says where it says how a package is numbered, in the next batch that
-   touches it.
-
-6. **AGENTS.md's bullet and table row on NORM.md are the owner's, with the exception N 7.4
-   makes.** They approved both on 2026-10-05 in the reviewing session, with the plan for the
-   norm. A working session that commits a change to its instruction file only on the owner's
-   word in its own session is right to, and waits for that word.
-
-7. **A run that fails says what failed in a page, and the reviewing session is given no log.** The
-   owner chose it on 2026-10-05, after a log pasted into the reviewing session ended it. The suite
-   runs whole as it does, and in parts only after a process is lost, which the owner chose over
-   parts on every run. A test in which the engine logs an error fails unless it says it expects that
-   error, with a list of the tests that log one today. The norm has these as N 6.7, N 6.8 and N 3.7,
-   and the reviewing session reads a run's jobs and annotations from GitHub. On 2026-10-20 the
-   Windows suite was set to run in its parts from the start at `14890db6` under Verdict 72, since
-   lavapipe's Windows build keeps no shader cache and a whole run there is lost at its hour on every
-   slow runner, 121 minutes with the parts run again where the parts alone take 62; the coder raised
-   it against this decision's second sentence, and the reviewer put it to the owner, the Windows job
-   standing as committed until the owner's word, Linux and macOS running whole as before.
-
-8. **The page's repeated lines are warnings and errors.** The owner chose it on 2026-10-06, after
-   the page of `98f6d8e5` repeated the engine's banner, so the section counts what is logged at
-   warning or error or with no level and is left out when nothing repeats.
-
-9. **`GetFontDefault` stays ImGui's ProggyClean.** The owner chose it on 2026-10-06 over raylib's
-   own pixel font, which the measure had shown to be the largest part of nearly every share left.
-   The comparison page keeps the font as a kept difference, and it is not raised again.
-
-10. **A render texture takes the window's samples.** The owner chose it on 2026-10-06, of the
-   three defaults the measure made visible, leaving the window's four samples and the bilinear
-   filter as they are, as page lines.
-
-11. **The package ships no ReadyToRun images, the author's own publish being the way.** The owner
-   chose ReadyToRun per platform at 19:45 on 2026-10-06 on a figure of 629 ms of compiling in a
-   game's first frame, which was CPU time across threads and not what a player waits, and reversed
-   it at 20:50 on the measure the commit after `039bd788` made: the package 14.9 MB from 1.3, the
-   worst early frame about 140 ms from about 205, and no difference for a game its author publishes
-   with `PublishReadyToRun` or NativeAOT. The measurement stays in TODO.md's cost entry, and
-   `docs/shipping-a-game.md` says in a line how a shipped game compiles the engine ahead.
-
-12. **Per-object motion blur and ImGui viewports are wanted, after the standing items.** The
-   owner said so on 2026-10-06, and that neither is a priority, so they are the last items of the
-   list and are taken when the rest is through.
-
-13. **Audio falls back to a device of silence where there is none.** The owner chose it on
-   2026-10-06: where no audio device opens, the backend plays through SDL's dummy driver, which
-   takes samples in real time, so sounds, music and streams advance on a machine without one as
-   raylib's do through miniaudio's null device, rather than standing still with the backend
-   disabled.
-
-14. **A document a game's author reads names no one who decided.** The owner asked on 2026-10-06
-   that release notes and the documents under `docs/`, the README and the cheatsheet give reasons
-   and not who wanted what, which is N 4.7, and who chose what stays here under Decisions.
-
-15. **Text is shaped whole.** The owner chose it on 2026-10-07, a feature raylib lacks:
-    right-to-left text in display order, Arabic joining through the font's GSUB and marks and pairs
-    through GPOS, in three batches, with Latin outside shaped runs left one character at a time with
-    raylib's advances and unkerned, so what raylib measures stays measured the same.
-
-16. **Global illumination comes in four phases, a scene distance field first.** The owner chose
-    it on 2026-10-07 over Radiance Cascades in screen space alone, over a world-space volume alone
-    and over a voxel or surface-anchored variant: a cascaded signed distance field of the scene,
-    hybrid Radiance Cascades over it with the first cascade in screen space, then glossy and
-    screen-space reflections with a ray-query path where the GPU has one, each phase measured and
-    tiered, nothing baked and no ray-tracing hardware needed, the kernels in Slang so the bridge
-    runs them in BevyCSharp once proven here, which meanwhile keeps Solari and Bevy's probes. The
-    spectral extensions, subsurface scattering, caustics, iridescence, volumetric multiple
-    scattering and dispersion, wait until those three phases ship with numbers, each then an
-    experiment of its own, and HTrace's WSGI was passed over as closed and as far more code for a
-    hybrid that ghosts when things move.
-
-17. **Every tonemapper BevyCSharp offers is in 3DEngine.** The owner decided on 2026-10-08:
-    Bevy's eight, none, Reinhard, Reinhard by luminance, the ACES fit, AgX, the somewhat boring
-    display transform, Tony McMapface and Blender's filmic, are choices of `SetTonemap` beside the
-    engine's own curve, Narkowicz's fit and the cut, the three Bevy draws through lookup tables from
-    Bevy's own table data with its attributions, the others ported from Bevy's shader, so a picture
-    tonemapped here is the one BevyCSharp draws, proved by one ramp drawn through each in both
-    engines and compared, the ramp defined in SHARED.md and its references made on BevyCSharp's
-    side. Chosen over tables made here for every one, since Bevy's data gives the same picture, and
-    over porting alone, since Tony McMapface and Blender's filmic exist as tables alone.
-
-18. **Subsurface scattering is the next large item, the first of Decision 16's spectral
-    experiments.** The owner chose it on 2026-10-09, the three phases having shipped with their
-    numbers, over the other four extensions and over another game, as an experiment of its own,
-    measured and tiered as the phases were, its kernels in Slang so the bridge runs them in
-    BevyCSharp once proven here.
-
-19. **5.2 is packed when every job is green, before subsurface scattering lands.** The owner chose
-    it on 2026-10-09 over one release after subsurface scattering and over none for now, 107 commits
-    having landed since 5.1 was packed on 2026-10-06; the owner sets `build/version.txt` to 5.2 and
-    runs the pack workflow when the reviewing session says every job is green.
-
-20. **Three packages are bumped after 5.2.** The owner allowed on 2026-10-09 Vortice.Vulkan 3.3.0,
-    AssimpNetter 6.0.5 and StbImageSharp 2.30.16 in one commit after the package, with the word
-    typed into the working session; SDL3-CS stays on its 3.5 preview, whose stable line is 3.4, and
-    NVorbis on 0.10.5, its newer release a prerelease.
-
-21. **The animated model's meshes in the world follow subsurface scattering.** The owner chose it on
-    2026-10-09 over another game and over leaving the list open, TODO.md's "Models are partial"
-    being the one gap a game is likely to meet.
-
-22. **The bounce's quality comes before subsurface scattering goes on.** The owner chose it on
-    2026-10-09, judging global illumination on the Cornell box and on Wick as not yet the best and
-    naming banding, light across edges, a bounce too soft and wide, and one too dim at a distance; a
-    path-traced reference the engine draws itself is the measure, over Bevy's Solari in BevyCSharp
-    and over the eye alone, a level of the hard cases is made since no project checks the bounce,
-    and a debug window with gizmos and texture views shows it; subsurface scattering's first batch
-    is committed as far as it stands alone and goes on after.
-
-23. **No document or comment a reader sees names the owner or a session.** The owner ordered it on
-    2026-10-09 after DESIGN.md's NLayer row said who admitted the crate and when; N 4.7 reaches
-    every Markdown file but REVIEW.md, SHARED.md, NORM.md, AGENTS.md and COMMITS.md and the comments
-    of every source, script, manifest and workflow, in both repositories, and who chose what stays
-    in these Decisions.
-
-24. **Content streamed on the go stays in the ledger, and the browser waits for a game that asks.**
-    The owner chose on 2026-10-09, after reading a browser port of a large game that downloads its
-    world as it is played, that the idea is recorded in SHARED.md as the file layer that port has
-    (packs on a static host, reads by byte range into a block cache, a recorded first-run set,
-    prefetch by the game's own streaming), to consider until a game here ships a world too large to
-    download first, over a streaming file layer and over an HTTP source alone, since Manor's cells
-    from disk are all a game here needs; and that the browser waits for a game that asks, its shape
-    recorded for that day: .NET's browser runtime, SDL3 built with Emscripten and linked into it, a
-    WebGPU `IGraphicsDevice` beside the Vulkan one without ray queries, bindless or 64-bit atomics,
-    Slang to WGSL, threads behind cross-origin isolation, and a one-week feasibility spike before
-    any commitment.
-
-25. **A run that shows no window makes no sound.** The owner ordered it on 2026-10-10, since a
-    hidden or offscreen run, a test or a soak, played through the machine's speakers; its audio goes
-    to SDL's dummy driver, sounds still run their course, and a config field turns real audio on for
-    such a run.
-
-26. **A game's session writes what the engine lacks in `.github/ASKS.md`.** The owner ordered it on
-    2026-10-10, when the session making a voxel game in `3DEngine.Game` found the sun's shadows
-    costing the GPU 14.8 ms and the CPU 13 ms over some 1,800 draws, every chunk drawn once a
-    cascade with no culling, and had no way to tell the engine's session: the game's session writes
-    an entry there with what it measured and how, the reviewing session turns it into an item of the
-    Now list by its weight and writes the item's number under the entry, and the engine's session
-    reads REVIEW.md as before; AGENTS.md names the file beside SHARED.md and NORM.md, with the
-    owner's word, and the engine's session writes nothing in it. ASKS.md and AGENTS.md's bullet and
-    row on it are the reviewing session's and are committed with whichever batch comes next, as
-    REVIEW.md is; a game's own files, `3DEngine.Game` and the solution's line among them, are the
-    game's session's to commit. Since 2026-10-17 (Decision 41) the game lives in its own repository,
-    Voxel-Sandbox, and its session writes its entries here still, headed by that name; the game's
-    files are its repository's.
-
-27. **The owner's eye on 2026-10-10 opens item 2 again, four things seen.** The owner looked at
-    `shaders_subsurface` and the voxel game in the afternoon and said what they saw: a dark ring
-    along the terminator of every scattering sphere with the scattering beginning too late, and a
-    jagged red line where the skin sphere's light through ends; the voxel game's bounce changing and
-    looking bad while moving, flickering for a second after a move and then holding, which turning
-    one part of the bounce off takes away at the cost of a lacking picture; a border between near
-    and far too sharp in the distance; and some eight spokes of light around an emissive block seen
-    from above, where the Cornell box and the bounce rooms look smooth. The owner asked that these
-    be thought about and fixed; each is measured before it is changed and held by a test, as
-    Decision 22's were.
-
-28. **The owner's eye on 2026-10-11: the sky's light leaking into the game's cave by the heading is
-    a glitch to be found and fixed, and the overlay gains a post-processing window.** The owner
-    asked at 10:05 on 2026-10-11, standing in a cave of the voxel game: the leak between headings of
-    258 and 282 degrees and the faint ones between 219 and 322 and between 314 and 46, which is item
-    2's part g, and a tab of the ImGui overlay that opens a window of tonemapping and coloring
-    settings as the performance window is opened, which is item 10. At 10:55 the owner looked at the
-    tree with g's mend: right at every heading and tier but High between 259 and 281 degrees, where
-    the face turned to the right still takes the sky, which g keeps, and the indirect light noisy
-    and spotted where a penumbra is wide, which is item 2's part h. The order is this file's: g
-    first, then h, then item 2's remainders, then item 10 before item 9.
-
-29. **The README's gallery is one scrolling row of pictures a folder, sorted by folder, and the
-    games' text under the table goes.** The owner asked at 15:30 on 2026-10-11, which is item 11:
-    the examples' pictures in one-row tables that scroll sideways rather than the grid, one a folder
-    of the examples with the games in their own, and the long text explaining the games under the
-    table taken out.
-
-30. **The e3d skill leaves `.claude` for `.github/E3D.md`, and the gallery's pictures are one
-    size.** The owner asked at 15:50 and 15:52 on 2026-10-11: the skill document out of the
-    `.claude` folder and its empty subfolders, to the root or elsewhere, which is item 12 with
-    AGENTS.md's line changed on that word; and every picture in the README's rows the same size,
-    which item 11 takes.
-
-31. **`games/Pusher` goes.** The owner asked at 17:18 on 2026-10-11, finding it ugly and of no use,
-    which is item 13: the game, its capture and its cell gone, and its three roles in the test
-    workflow, the game built and played from the package, published native and drawn, and played in
-    a window on the runner's desktop, passed to the lightest 3D game.
-
-32. **The GPU named nowhere a user reads, `Engine3D` renamed `E3D`, and the guide table opening with
-    the cheat sheet.** The owner asked at 17:26 on 2026-10-11, which are items 14, 15 and 16: the
-    development machine's GPU out of the code and comments a user sees, the flat API's class renamed
-    with its files and the test collections, and the README's guide table given the cheat sheet's
-    row as BevyCSharp's has it.
-
-33. **The radiance cascades are said in the README and in a guide page of their own.** The owner
-    asked at 17:40 on 2026-10-11, which is item 17: the README's prose saying the engine lights its
-    scenes by radiance cascades, and a page of the guide going into their detail, built on an
-    example that runs.
-
-34. **The examples' counts stand under the Examples heading and on each folder's heading.** The
-    owner asked at 19:35 on 2026-10-11, as of BevyCSharp, which is item 18: a line of how many of
-    raylib's examples are written and how many the engine adds, and each folder's heading in the
-    gallery carrying its count.
-
-35. **A push plays one game, and the pack run plays them all.** The owner chose at 19:50 on
-    2026-10-11, asked whether every push must play the thirteen games, which is item 19: on a push
-    the games are built from the package and Slide alone is played and soaked, and the captures, the
-    measure, the games, the soak, the resize and the README's walk run on the pack run; a nightly
-    schedule was offered and declined.
-
-36. **A vertex stream of the game's own, in both engines.** The owner put a game built on the 3.1.0
-    package in `.ref` at 20:05 on 2026-10-11, which fed its shader one packed float a vertex and
-    unpacked it there, asked whether such a stream belongs in a game engine and how both would do
-    it, and approved the plan at 20:40, which is item 20 here and item 18 in BevyCSharp: one stream
-    a mesh in five formats, read as `CUSTOM0` here and at `TEXCOORD8` and up there, beside the
-    vertex in both and as the vertex alone here, where BevyCSharp keeps positions since Bevy's
-    pipeline reads them.
-
-37. **A position is every mesh's, and the packed data a stream beside it.** The owner refined
-    Decision 36 at 22:55 on 2026-10-11, approved at 22:58: a position is mandatory, as Bevy has it,
-    since shadows, motion vectors and everything around a mesh read it, and a game's packed four
-    bytes ride in a stream of its own beside it; so item 20's second stage is a vertex of positions
-    alone, 12 bytes, in place of a mesh that was the stream alone with its bounds given and shadow
-    pipelines of its own, and the voxel game's vertex is positions and four or eight packed bytes in
-    both engines.
-
-38. **The macOS captures run in the pack run alone.** On 2026-10-12 at 18:30 the owner chose to move
-    the macOS examples job, every example captured on the macOS runner's GPU, from each push to the
-    pack run, beside the soak, the storm and the measure against raylib, which run only there, so a
-    push answers in the suites' time and a GPU-only regression is still caught before a package is
-    made, at the cost of sitting on main until the next pack run. Item 25 carries it.
-
-39. **No development on either engine until every job is green on every push and pack.** On
-    2026-10-16 the owner, after four pushes and four pack runs in a row failing each on a different
-    job while the code stood still, stopped development on both engines: the working sessions mend
-    what the verdicts name and nothing else, every push must be green on every job, three in a row,
-    and the pack run after them, before an item is taken again, on BevyCSharp as on 3DEngine.
-
-40. **Two workflows an engine, build and pack, the same shape in both.** The owner found on
-    2026-10-17 that the two engines' workflow sets differed, five files in BevyCSharp and four here
-    with graphs that looked unlike each other, and ordered each engine down to two: a build workflow
-    on an ordinary push and a pack workflow by hand, consistent between them, the pack run keeping
-    every check that ran only there. Written as item 26 here and item 23 in BevyCSharp, where the
-    tester zips and the scene packs stop being workflows and become runs on the owner's machine. The
-    norm's "the workflow" names both, and a rule the one it means.
-
-41. **The voxel game moves to its own repository, Voxel-Sandbox, and a tiny sample stays under
-    `games/`.** The owner, having uploaded the engine's package 5.2.43, ordered on 2026-10-17 that
-    `3DEngine.Game` go to the Voxel-Sandbox repository checked out under this one, replacing the old
-    game there in place, committed the same way as the engines with the same `AGENTS.md`, `.github`
-    files and two workflows, on the published package; the owner chose the old game replaced rather
-    than kept beside, and the sample under `games/` rather than the project reborn. The game's
-    session makes the move; the engine's session removes the projects after it (item 27) and writes
-    the sample (item 28); the game's session keeps writing ASKS.md here (Decision 26); the game's
-    repository has a REVIEW.md and a NORM.md of its own.
-
-42. **Decision 39's gate is the new workflows.** The owner chose on 2026-10-17 that the rework of
-    item 26 starts that day as the first work on both engines, and that the green lights Decision 39
-    asks are then asked of the new workflows: a green push and a green pack run under them on each
-    engine before engine and game features resume. Until then the working sessions mend what
-    verdicts name and do item 26, and in BevyCSharp item 23, alone; on 2026-10-17 at 15:19 the owner
-    added the register sweep (item 29, BevyCSharp's 25) to what may be done before the gate, since
-    it touches prose and no behavior. Met for this engine on 2026-10-18 at 14:14, the pack run of
-    `4d5db9df` whole green with its package after the push run of `683e6e9d` whole green the day
-    before, so Decision 39 is lifted for 3DEngine and development resumes with item 27 then 28, the
-    verdicts open, 64 and 67, mended as they come; the Windows leak tests passed on that run by
-    their readings' swing, said under Verdict 64, which stands open.
-
-43. **Prose is technical and generic.** The owner said on 2026-10-17 that phrasings such as "the
-    light that bounces" and "how to drive the game" read as casual and do not fit. A feature is
-    named by its technical term, the engine's own where it has one, and never by a figure of speech
-    or a paraphrase: global illumination, and radiance cascades for the technique, where the light
-    bounced; emissive where a block gave off light; a running program controlled or scripted through
-    the command line where it was driven, and a scripted run or a course where a drive. The owner
-    added at 14:37 that the colon is overused, an elaboration or a list appended to a sentence after
-    one where a sentence would do, in documents, comments and logs alike, which STYLE.md should have
-    covered; its rule tightens so that a running sentence holds no colon. STYLE.md carries both
-    rules with these pairs in each repository, every document, comment and message a reader sees is
-    swept (items 29 here, 25 in BevyCSharp, 4 in Voxel-Sandbox), and an identifier keeps its name
-    unless the rename is cheap and the thing is new, as the game's `build/drive.sh` is; a new name
-    follows the rule. On 2026-10-17 at 20:34 the owner read the game's README's opening, "A voxel
-    game in the manner of Minecraft, and the ground floor of a larger one", and asked that no
-    phrasing of the kind stand either. A likeness is not a description and a figure of speech is not
-    a term, so a thing is said by what it is and does, another product is named only where a rule or
-    a number is taken from it, as the game's sizes, speeds and light levels are, and a plan is not
-    written into a description. The idioms the three repositories hold go with it, in the manner of,
-    the ground floor of, out of the box, under the hood, at a glance, a handful of, in the wild, a
-    great deal of, the knob, the plumbing and a long way among them, items 29 here, 25 in BevyCSharp
-    and 5 in Voxel-Sandbox; a word in its literal sense stays, a box a joint leaves or a road to a
-    signpost.
-
-44. **Development resumes on all three fronts, the radiance cascades first.** On 2026-10-18 at
-    22:25, with every run green and the pack run of `a12206af` whole green at 22:16 with its
-    package, the owner resumed development on both engines and the voxel game. For this engine the
-    week's focus is the radiance cascades, whose light does not yet look as good as it can (item
-    30), and beside it the examples whose pictures are of the engine's making where raylib's
-    resource belongs, the gamepad example's controller first (item 31). The voxel game takes the
-    cascades' mends through the engine's packages, after the engine's commits. Decision 39 stands
-    lifted (Decision 42), and the verdicts open are mended as they come.
-
-45. **The README's centered parts are markdown inside a centering block, since nuget.org draws a
-    README without its HTML.** The owner wrote at 20:47 on 2026-10-19, having uploaded the packages
-    to nuget.org, that the README's centered elements need not be HTML: a centering block, `<div
-    align="center">`, holding plain markdown, the heading, the text and the banners, with a blank
-    line after the opening tag and before the closing one so the markdown inside is rendered,
-    centers on GitHub, and on nuget.org, which draws a package's README without its HTML and shows
-    such blocks as their source, the content stands as markdown; the tables of pictures stay HTML,
-    since a markdown table cannot size its pictures, unless the script that writes them makes
-    thumbnails at the shown width, which is measured on GitHub and nuget.org before it is taken. The
-    README is the package's, so what nuget.org draws is what a reader of the package sees.
-
-46. **The code fixes project stays.** The owner asked at 22:34 on 2026-10-19 what
-    `3DEngine.CodeFixes` is for and whether it could be folded into the engine or removed, and on
-    the answer said to keep it. It is the editor's fixes for the generators' four diagnostics, one
-    file, apart because a code fix needs Roslyn's workspace layer, which the compiler does not load,
-    so Roslyn keeps fixes out of the analyzer's assembly and the engine's library, which targets the
-    runtime, can host neither; it ships in the package beside the generator. BevyCSharp's twin stays
-    with it.
-
-47. **A package's release notes are the commits since the package last published on nuget.org.** The
-    owner wrote at 22:45 on 2026-10-19 that the release notes include everything and the next
-    package appends them to the older ones: the notes a pack run writes are the commits since
-    `build/version.txt` last changed, so every package of a minor carries the whole minor's notes,
-    104 lines at `0.5.105` and 119 at `0.5.120`, 89 at the engine's `5.2.92`. So a package's release
-    notes are the commits since the package last published on nuget.org, whose commit the feed's own
-    record of the latest version names, read by the pack run from the feed, and the whole minor's
-    where the feed answers nothing or lists no version of the minor, a reader of the notes being
-    told what changed since what they could have had.
-
-48. **The pack workflow publishes through nuget.org's trusted publishing.** On 2026-10-19 at 22:51
-    the owner, making nuget.org's trusted publisher policies for the two repositories, quoted the
-    feed's notice that API keys are strongly discouraged for automated publishing and trusted
-    publishing is the way for GitHub Actions, and so the pack workflow publishes through it: the
-    policy on nuget.org names the package owner `EggyStudio`, the repository owner `EggyStudio`, the
-    repository, the workflow file `pack.yml`, no environment, the push scope and the package
-    pattern, and the pack job proves it is that workflow with its identity token, takes a
-    short-lived key from the feed's login action and pushes with it, so no key is stored in the
-    repository. The two policies stood active on nuget.org at 22:53, one a repository, each with the
-    package owner and repository owner `EggyStudio`, the workflow `pack.yml`, the push scope and its
-    pattern, the feed holding the permanent GitHub ids of the owner and the repository for its
-    check.
-
-49. **The reviewer starts the pack runs when a package is due.** The owner wrote at 22:57 on
-    2026-10-19 that the reviewer is to start the pack workflow as well, so no one waits on the owner
-    for a package and a pack can be made and checked as part of the review; the owner's GitHub login
-    on the machine carries the workflow scope, and the pushes were the reviewer's since 22:20. So
-    the reviewer starts a pack run with publish on when a package is due: after a commit the voxel
-    game or the other engine waits on, after the mend of a fault that made a pack run red, at the
-    end of a day's batch, and when the owner asks, and not after every commit, since a pack run is
-    more than an hour of the runners' time; the run is read and recorded as every run is, and its
-    package is what the game and the other engine take.
-
-50. **The review's files are committed by the batch that comes next, and by the reviewer at most
-    once a day.** The owner wrote on 2026-10-20 that the review's commits had become nine of every
-    ten in the history and were to stop, and then that the reviewer is to edit the review's files in
-    the tree and commit nothing, as it did before 2026-10-19, with one commit a day at most where
-    that makes sense. So REVIEW.md, SHARED.md and NORM.md stay edited in the tree and the coder's
-    next batch carries them, as AGENTS.md has it; the reviewer commits them in a commit of their own
-    only at a day's end where no batch carried them, never for a reading, a run or a package. The
-    coder adds one sentence saying so to COMMITS.md in the next batch, in the paragraph on what a
-    commit carries, naming the review's files, the batch that comes next and the one commit a day at
-    most, and no one who decided it (N 4.7).
-
-51. **Modeling in both engines, from the kernel to the modifiers, grid prototyping first.** The
-    owner wrote at about 23:47 on 2026-10-20 that the engines are to support modeling too, beyond
-    the primitives they have, Blender's kind, possible in a game and all of it from the command
-    line, simple to use so it is the more powerful: grid prototyping as the essential tool of world
-    design, with textures of different colors showing a grid of about a meter, stairs, and windows
-    through boolean operations; processing texture coordinates and adding textures to surfaces; and
-    later selecting a face, insetting and pulling it, merging, beveling and Blender-like modifiers;
-    the reviewer to shape the best solution, adding and removing as it sees fit, and to ask what
-    needs asking. The reviewer's shape, the same in both engines by SHARED.md's rows and each
-    engine's own underneath: items 59 to 66, an edit mesh of faces of any count with a selection and
-    a recipe of operations that is its history, its undo and its saved file, built into the engine's
-    meshes and colliders; the grid materials, world-aligned texture coordinates and booleans by
-    binary space partition, written in the engine since the dependency table takes no library for
-    it; the commands, one an operation in the recipe's words, and an ImGui window a program draws
-    with face picking by ray and a drag to extrude, no editor application in 3DEngine and the
-    editor's panel in BevyCSharp; texture coordinate projections and materials by slot; a game
-    blocking out a level from one recipe; the face and edge operations; a modifier stack applied at
-    the build; and glTF written by the engine and read into an edit mesh, so Blender opens what the
-    game made and the game cuts what Blender made. Each engine's coder takes the items after its
-    current work, item 58 and the feature test's sixth part in 3DEngine and item 37 in BevyCSharp,
-    in the items' order, the two in parallel to one text, the words of the recipe and the commands
-    the same in both. The owner is asked the game's name, Blockout failing a word, whether the glTF
-    export comes earlier than last, and whether a dependency for robust booleans is wanted later
-    should the partition's limits show.
-
-52. **The Actions bill is not weighed.** The owner wrote at 00:06 on 2026-10-21 that the bill need
-    not be considered, the runs being free of charge for them. So a push's build run is left to run
-    beside a pack run started at the same time and is never cancelled for its cost, macOS stays in
-    every push, the three systems' suites run on every push as they do, and the reviewer's reading
-    of the month's minutes stands as a reading and not as a reason; a run is still cancelled where
-    it is doomed, so its figures are not waited for, and a push still waits for the run before it to
-    end, so no figure is lost.
-
-53. **Animated captures as tooling for documentation and devlogs.** The owner wrote at about 00:29
-    on 2026-10-21 that it is to be possible to capture, or to make animations from several captures,
-    with timings such as a second or 250 ms between the pictures, to have more tooling to show
-    things in the documentation or in devlogs. So item 70: a recorder in the engine taking frames at
-    a step for a length and writing a GIF or an animated PNG by encoders of the engine's own, a
-    client step for it, and a script assembling an animation from captures on disk, with one
-    animation in the README as its first use; the same in both engines.
-
-54. **The voxel game leaves the screen probes out, and the cascades' faults the owner sees are read
-    and mended.** The owner wrote at about 01:00 on 2026-10-21 that the voxel game is not to enable
-    the screen probes, whose look is pixelated even where that is not meant, that the radiance
-    cascades without them are the better option for the game's art, and that the cascades still have
-    graphical faults, a light block's light leaking through the thin gap at the corner of two
-    columns that hold it off, penumbrae on the ground with zig-zags, the screen probes shifting on
-    movement, z-fighting at points between the global illumination and the opaque textures, and
-    noise, seen in the bounce rooms 3 to 6. So item 71: a call that leaves the screen probes out,
-    which the game takes as its default, and the faults reproduced from the game's repros in the
-    engine's own scenes, read to their causes and mended one by one under the rule the readings
-    keep, or named where the method stops.
-
-55. **A fill cascade to the far plane for the shadows and the field, not counted.** The owner asked
-    shortly before 03:17 on 2026-10-21 why the global illumination ends at a range in the voxel game
-    while the clouds reach the far plane, took the cause to be the scene field's cascades not
-    reaching it, and proposed that the last cascade be followed by one filling up to the far plane
-    that does not count in the cascade count, for the shadow maps, which they had never understood
-    to end short of the far plane, and for the field alike, asking to be corrected if it is not
-    feasible. The reviewer answered that the reading is right, the field reaching 64 from the eye
-    where the game draws 192, that a fill cascade is what engines do for the sun and costs one depth
-    render at low resolution, that the field can take a far cascade sized to the far plane in place
-    of doubling at the cost of one cascade with coarse cells that suit far land, and that the
-    surfaces past the field want a sky and ground ambient faded in at the edge so the border never
-    shows; the owner said yes. So item 72, after the cascade faults.
-
-56. **A screenshot on F2 in every program.** The owner wrote shortly before 03:42 on 2026-10-21
-    that, as in Minecraft, a screenshot is to be taken in the game with F2, the same for BevyCSharp,
-    the captures put in the root or a subfolder. So item 73 in this engine, item 47 in BevyCSharp
-    and item 40 in the voxel game: a built-in key writing the frame into a screenshots folder beside
-    the program, named by the time as the source names its own, movable and off by a call.
-
-57. **What the engine learns from the voxel game.** The owner asked shortly before 06:54 on
-    2026-10-21 what the engine can learn from the voxel game, naming the darker lower hemisphere of
-    the skybox overlaid with the horizon's color as an engine fix since Hopper has the same dark
-    lower sky, and what else there could be, and said to do it as the reviewer sees fit and write it
-    down. So items 75 to 77: the sky below the horizon in the fog's color after item 74, a command
-    reading a rectangle of the last frame for the drives after it, and a day sky driven by the hour
-    with the sun, the moon, the stars and the dusk from the game's numbers after item 60. F2, the
-    recorder, the readback, the GPU mesh, the glow lights' bound, the cascade faults, the field's
-    budget and the fill cascades already came from the game's asks; the resource pack reader, the
-    in-wall overlay and the block lighting stay the game's own; the water's surface is judged when
-    the game's exists.
-
-58. **F1 hides the interface and F3 shows the debug overlay, in both engines.** The owner asked
-    shortly before 07:05 on 2026-10-21 for F1 to hide the interface as Minecraft does, as an engine
-    feature, F2 the screenshot, and F3 a debug overlay like the newest Minecraft's, sorted in parts
-    logically with modules a game adds, world generation among them, showing the system, the camera
-    and the renderer, memory, fps and frametime with a graph like the RivaTuner overlay's, both for
-    BevyCSharp and 3DEngine, F1 hiding the interface and ImGui but not the F3 overlay so everything
-    hides but the overlay over the renderer, and Shift+F3 showing the frame debugger too; and
-    answered the reviewer's questions shortly before 07:06: the interface hidden by a scope, F3 the
-    overlay's on its release alone with any chord left to the program, the look Minecraft's with no
-    header, window styling or border, text on a transparent backing, and the order as the reviewer
-    sees fit. So item 78 here and item 49 in BevyCSharp, the same in both, after item 71's second
-    part here and after Blockout there, and the voxel game taking them when the package comes.
-    Shortly before 07:10 the owner added that Minecraft hides its HUD only while the player's camera
-    shows and not in the pause or any other screen, so hiding every panel at any point, even in
-    menus, would be wrong; the scope gives that, the HUD inside it hidden and a screen drawn outside
-    it never, which the items say.
-
-59. **A denoiser for the ray-traced tier of global illumination, beside the cascades, in both
-    engines.** The owner asked at 08:42 on 2026-10-21 why BevyCSharp has no denoiser, was answered
-    that Bevy's Solari at 0.20 knows only DLSS Ray Reconstruction, which the bridge does not build,
-    ReSTIR halving the noise meanwhile, and said shortly before 08:56 that a denoiser for Solari is
-    necessary as the higher-definition solution for global illumination beside the radiance
-    cascades, and that it is implemented for both engines in the future. So the engines carry two
-    tiers, the cascades everywhere, which need no denoiser since they integrate over directions, and
-    a ray-traced lighting with a denoiser where the GPU has ray queries, in BevyCSharp over Solari's
-    output as its item 54 and here over a ray-traced lighting pass of the engine's own once the
-    cascades settle, items 71, 72 and 74 mended, the path-traced reference the engine draws being
-    the seed of such a pass; no item yet, written when the cascades are settled. The owner holds the
-    source of H-Trace, a Unity asset received from its developer as a patron; it is read for the
-    method's shape and its constants as the modpack's shaders were read by the voxel game, and
-    nothing of its code enters either repository, the license being the owner's to use and not to
-    publish, unless the developer grants it in writing, which the owner may ask.
-
-60. **What the owner saw in the voxel game on 2026-10-23 that is the engine's.** The owner, having
-    played the game, wrote of a visual fault with the height where the land below a line is lighter
-    and above darker, the same fault the game's mobs had, and of the shadow cascades, the band
-    between two cascades empty and a tree's long shadow at 19:30 cut off in the middle; the first is
-    the model pass's normal turn reaching a program's own samples, item 82, and the second the
-    cascades at a low sun, item 83, both after item 81 and before the rest of item 71. The game's
-    own items of that list stand in its REVIEW.md.
-
-61. **The owner's cloud sessions take GPU-free items on branches of their own.** On 2026-10-23 the
-    owner opened a cloud session on each engine with 200 dollars of usage of their own, four cores,
-    no GPU and no display, each able to push to one branch of its own and never to main, this
-    engine's on `claude/eloquent-brahmagupta-ljq2ri`, with github.com refused by its network so
-    slangc cannot be fetched and the shader and device tests skip until the owner allows the domain,
-    and BevyCSharp's code, the model of the modeling items, not in its reach until the owner adds
-    that repository to the session. A cloud session reads REVIEW.md, COMMITS.md, STYLE.md and
-    NORM.md as a coder does, commits in COMMITS.md's form on its branch, edits none of the review's
-    files, and reports to the reviewer in a few lines; the reviewer reads its commits from the
-    branch, and the local coder cherry-picks them onto main as the first part of its next batch,
-    taking the captures and the device tests the cloud cannot, so main keeps one writer and the
-    pushes stay the reviewer's.
-
-62. **Branches are named for their work, never claude/ or a random string, and work stays on main
-    where one session writes.** The owner wrote at 20:16 on 2026-10-23 not to create branches named
-    claude or the like and not to name them with random characters, but to work on main, or, where
-    several sessions on one repository make a branch necessary, on a branch with a descriptive name
-    and no claude/ prefix. So the cloud session's work moves to a branch named modeling, and its
-    claude/ branch is deleted once its commits are on main; a branch exists only while a second
-    writer needs one.
-
-63. **Every commit carries the owner's identity, and the cloud sessions' branches were deleted for
-    not carrying it.** At 20:27 on 2026-10-23 the owner saw that the commits on the cloud sessions'
-    branches named Claude as their sole contributor, said no to it and asked for the branches to be
-    deleted and gone for good; the reviewer deleted `claude/eloquent-brahmagupta-ljq2ri` and
-    `modeling` and their workflow runs. N 7.6 holds the rule: every commit's author and committer
-    are the owner's identity on every branch, a session setting it before its first commit, a commit
-    with another identity pushed nowhere and rewritten first. The cherry-picks on main, `ffb15cb6`
-    and `4c3f01ef` for item 59, carry the owner's identity. The cloud sessions were told to stop
-    pushing, set the identity, rewrite the authors of every local commit not on main and push
-    nothing until that is done, then push `modeling` again, which the owner confirmed in that
-    session.
-
-64. **Until a full release, both engines are used by nobody.** The owner wrote at 21:36 on
-    2026-10-23 that an upgrading entry is not needed since nobody uses the engine, said "Drop" to
-    the rule that every new public name has its line on 3DEngine's upgrading page, and added that
-    until a full release both engines are to be considered used by no one. So a change of the public
-    surface is made outright, with no entry for a name gained or lost, no deprecation and no path
-    kept for an older caller; the package's release notes written from the commit messages are the
-    record of what changed, and the upgrading page keeps its Changed section alone, its tests for
-    names gained and lost going as item 85. The owner's word ends this at the full release.
-
-65. **The two cheat sheets have one form.** The owner wrote at 21:39 on 2026-10-23 that the cheat
-    sheets are to be coherent: 3DEngine's lines one-liners as BevyCSharp's are, and BevyCSharp's
-    section headers as 3DEngine's, plain words without the code styling. So both pages are a `#
-    Cheatsheet` heading, a paragraph saying what the page is and what writes it, then `## Group`
-    headings in plain words, each group a guide link line and one fenced block, and in the block one
-    line a member, the signature and then `//` and the first sentence of its documentation on the
-    same line however long, no continuation lines and no sub-heading a type.
-
-66. **A devlog under `.github/devlog`, with AGENTS.md's row for it.** The owner asked at about 04:35
-    on 2026-10-24 that the pictures the sessions made be saved with a text in a folder under
-    .github; `.github/devlog/README.md` holds what landed by day, newest first, with the
-    repository's captures and the items closed, written by the reviewing session and carried by the
-    coder's commits like REVIEW.md, and the owner gave this repository's session the word for
-    AGENTS.md's Documents row at about 04:55. At about 07:56 the owner asked that the devlog be
-    `DEVLOG.md` at the repository's root, with no `.github/devlog` folder, the engine's pictures
-    being its committed captures; `.github/devlog/README.md` goes and AGENTS.md's row names
-    `DEVLOG.md`.
-
-67. **Holographic Radiance Cascades read and set aside until a three-dimensional form exists.** The
-    owner asked at about 09:16 on 2026-10-24 about Freeman, Sannikov and Margel's paper of May 2025,
-    arXiv 2505.02041. It is a variant of radiance cascades for two dimensions: a probe grid that
-    loses spatial resolution only along the direction a probe gathers from, per quadrant, so a small
-    distant light's penumbra stays resolved where standard cascades blur it, and an acceleration
-    structure that builds long ray intervals by merging short ones, so the cost is constant for a
-    grid's size and volumetrics cost nothing more; single shot, noiseless, no history. On a 3080
-    Laptop it takes 1.85 ms at 512 square and 7.67 at 1024 square, with checkerboard and moire
-    artifacts for lights under eight times the base probe spacing, a four-pixel blur of shadows, and
-    four output directions, so no specular. Its scaling in three dimensions is the paper's own
-    limit, memory of N to the fourth for an N-cubed scene, shown as an experiment at 128 cubed
-    without normals. So nothing of it is taken: the engine's cascades over the field with the screen
-    probes stand, and the paper's one transferable idea, resolution kept across the gathering
-    direction, is the shape of the sixth term's weakness, a bright patch narrower than a probe's
-    texel, and is noted beside it for a later experiment on the glow lights' near field should a
-    three-dimensional form be published.
-
-68. **The loop and the ECS are both the engine's way, each where it fits.** The owner wrote at about
-    10:24 on 2026-10-24 that the voxel game should move to the ECS where it fits, the ECS being this
-    engine's own feature over raylib and a choice BevyCSharp's Bevy does not leave, and that the
-    choice should not be to ignore it; the earlier reading that the design should reflect raylib
-    stands for the frame, the drawing and the interfaces, and the ECS takes the things that move and
-    the data that lives across frames. The owner answered the reviewer's questions: the voxel game
-    moves its moving things, its sections as mesh entities and its player and states, piece by piece
-    after its items 92 and 93; where the ECS falls short the engine grows first, each gap an ASKS.md
-    entry taken ahead of other engine work; DESIGN.md says both with the voxel game as the model,
-    and the engine's own small games stay as they are. Item 91 here, items 94 to 96 in the game.
+Decisions 1 Commits stay local; 2 The package is `3DEngine` on nuget.org, the owner's own, numbered
+from 5.0; 3 AGENTS.md's bullet and table row on SHARED.md are the owner's; 4 TODO.md's two Entities
+entries are closed as decided; 5 A commit that takes something out of the public surface is the
+owner's to number; 6 AGENTS.md's bullet and table row on NORM.md are the owner's, with the exception
+N 7.4 makes; 7 A run that fails says what failed in a page, and the reviewing session is given no
+log; 8 The page's repeated lines are warnings and errors; 9 `GetFontDefault` stays ImGui's
+ProggyClean; 10 A render texture takes the window's samples; 11 The package ships no ReadyToRun
+images, the author's own publish being the way; 12 Per-object motion blur and ImGui viewports are
+wanted, after the standing items; 13 Audio falls back to a device of silence where there is none; 14
+A document a game's author reads names no one who decided; 15 Text is shaped whole; 16 Global
+illumination comes in four phases, a scene distance field first; 17 Every tonemapper BevyCSharp
+offers is in 3DEngine; 18 Subsurface scattering is the next large item, the first of Decision 16's
+spectral experiments; 19 5.2 is packed when every job is green, before subsurface scattering lands;
+20 Three packages are bumped after 5.2; 21 The animated model's meshes in the world follow
+subsurface scattering; 22 The bounce's quality comes before subsurface scattering goes on; 23 No
+document or comment a reader sees names the owner or a session; 24 Content streamed on the go stays
+in the ledger, and the browser waits for a game that asks; 25 A run that shows no window makes no
+sound; 26 A game's session writes what the engine lacks in `.github/ASKS.md`; 27 The owner's eye on
+2026-10-10 opens item 2 again, four things seen; 28 The owner's eye on 2026-10-11: the sky's light
+leaking into the game's cave by the heading is a glitch to be found and fixed, and the overlay gains
+a post-processing window; 29 The README's gallery is one scrolling row of pictures a folder, sorted
+by folder, and the games' text under the table goes; 30 The e3d skill leaves `.claude` for
+`.github/E3D.md`, and the gallery's pictures are one size; 31 `games/Pusher` goes; 32 The GPU named
+nowhere a user reads, `Engine3D` renamed `E3D`, and the guide table opening with the cheat sheet; 33
+The radiance cascades are said in the README and in a guide page of their own; 34 The examples'
+counts stand under the Examples heading and on each folder's heading; 35 A push plays one game, and
+the pack run plays them all; 36 A vertex stream of the game's own, in both engines; 37 A position is
+every mesh's, and the packed data a stream beside it; 38 The macOS captures run in the pack run
+alone; 39 No development on either engine until every job is green on every push and pack; 40 Two
+workflows an engine, build and pack, the same shape in both; 41 The voxel game moves to its own
+repository, Voxel-Sandbox, and a tiny sample stays under `games/`; 42 Decision 39's gate is the new
+workflows; 43 Prose is technical and generic; 44 Development resumes on all three fronts, the
+radiance cascades first; 45 The README's centered parts are markdown inside a centering block, since
+nuget.org draws a README without its HTML; 46 The code fixes project stays; 47 A package's release
+notes are the commits since the package last published on nuget.org; 48 The pack workflow publishes
+through nuget.org's trusted publishing; 49 The reviewer starts the pack runs when a package is due;
+50 The review's files are committed by the batch that comes next, and by the reviewer at most once a
+day; 51 Modeling in both engines, from the kernel to the modifiers, grid prototyping first; 52 The
+Actions bill is not weighed; 53 Animated captures as tooling for documentation and devlogs; 54 The
+voxel game leaves the screen probes out, and the cascades' faults the owner sees are read and
+mended; 55 A fill cascade to the far plane for the shadows and the field, not counted; 56 A
+screenshot on F2 in every program; 57 What the engine learns from the voxel game; 58 F1 hides the
+interface and F3 shows the debug overlay, in both engines; 59 A denoiser for the ray-traced tier of
+global illumination, beside the cascades, in both engines; 60 What the owner saw in the voxel game
+on 2026-10-23 that is the engine's; 61 The owner's cloud sessions take GPU-free items on branches of
+their own; 62 Branches are named for their work, never claude/ or a random string, and work stays on
+main where one session writes; 63 Every commit carries the owner's identity, and the cloud sessions'
+branches were deleted for not carrying it; 64 Until a full release, both engines are used by nobody;
+65 The two cheat sheets have one form; 66 A devlog under `.github/devlog`, with AGENTS.md's row for
+it; 67 Holographic Radiance Cascades read and set aside until a three-dimensional form exists; 68
+The loop and the ECS are both the engine's way, each where it fits, each in full under Decisions in
+REVIEW-ARCHIVE.md.
 
 69. **The window runs under X11 on Linux for the present.** The owner wrote at about 10:29 on
     2026-10-24 that the window looks better with SDL_VIDEO_DRIVER=x11 and asked that the engine
@@ -2125,6 +1112,29 @@ Verdicts 56 to 93 are settled, said under each in REVIEW-ARCHIVE.md; 94 is open,
     2026-10-25-item-122-resolution.md. The same in BevyCSharp (Decision 65) and Voxel-Sandbox
     (Decision 49).
 
+74. **The engine's work focuses fully on global illumination by radiance cascades and the framework
+    that supports it.** The owner wrote on 2026-10-30, with the README's new words naming the engine
+    as implementing radiance cascades, to focus on GI radiance cascades fully for the engine and
+    build the framework up to support that, asking for questions. The reviewer asked which comes
+    first among the look, the cost and the framework, and whether the voxel game's ask of item 132
+    runs beside it; until the answers, item 132's reading finishes as a reading and item 131, the
+    field's band at a thin face, is next, the items of the cascades' look and framework laid out
+    after the answers.
+
+75. **Global illumination comes before every other engine item.** The owner answered on 2026-10-30
+    at 19:3x, "Concentrate on GI for 3dengine". So the radiance cascades and the framework that
+    carries them, the scene field, the cascades, the screen probes, the merge, the references, the
+    readings and the debug views, are the engine's work until the owner says otherwise; the voxel
+    game's item 132, the passes' recording, waits behind it, and the small items 133 and 134 go
+    first since they are hours. The faults and limits recorded so far seed the plan, the screen
+    probes' noise and shift on movement, the field's band over-lighting thin walls (131), a vertical
+    face in a narrow canopy pocket taking about no light, the light-through crossing reading 22%
+    under the geometry at five units up and its cost, the far cascade's cost in the cave, the
+    quality ladder's cost at 1080p, 1440p and 4K, the field's update when the world changes, and a
+    path-traced reference that knows nothing of light through; the coder proposes the order and the
+    steps in a few lines each, the reviewer writes the items. The plan came the same evening and
+    stands as items 135 to 142 with 131, in the order 135, 131, 136, 137, 138, 139, 140, 141, 142.
+
 ## Replies
 
 Shared: a mesh that replaced a still one in place is not stamped as boxes while a cascade the
@@ -2137,122 +1147,8 @@ Shared: a game reads the force a joint held its bodies with over the last step,
 length of a substep, which a box of 3 kilograms hanging on a distance joint reads as its weight
 within a percent at one substep and at four.
 
-Shared: a scene component or one of its fields keeps its saved levels across a rename by
-`[FormerName]`, after BevyCSharp's, a type's former name alone placed in its namespace and one with
-a dot taken as full, the registry answering by each former name after every current one, and the
-generated reader trying a field's former names where its own is missing (item 45, the renames).
-A component's layout is numbered by `[DataVersion]`, after BevyCSharp's, its static `Migrate`
-called once with the version the file holds, written as a run of checks on it, the number written
-under `"$version"` once past 1, a versioned type with no migration warned of (E3D200) with a fix
-that adds one, and a component of a later version read as it is and saved back at that version
-with the values this build did not read and the fields it knows set from the entity (item 45, the
-versions). SHARED.md's row 120 can say both have it.
-
-Item 103 is held on its cost. The voxel game leaves the screen's probes out by default
-(`LightSettings.ScreenProbes`), so it runs on the glow-only pass the item takes away, the pass item
-71's sixth term made for the game's entry. In the entry's room of forty glowstones at hour 23, all
-in view, on a scratch copy of the game at `f05ea96f` at 1280 by 720 at `High` with the frames
-unlimited and gnome-shell taking 62% of the GPU, `gpu.hdr_scene` read 1.29 and 1.19 ms with the
-probes left out, 13.31 and 13.28 ms with them traced and unread, which marches each pixel to the
-glow lights as the item has the probes left out do, and 2.24 ms with them read; the frame took 5.2
-and 4.8 ms left out and 21.3 ms marched. The two frames show no difference that the eye finds.
-Done as written, the game's default frame in a room of light blocks would take twelve milliseconds
-more, or go back to the probes the game left out for their moving light. Two forms keep the cost,
-for the review to choose between. One keeps the glow-only pass as the call's off, the global
-illumination window's toggle renamed and moved as the item says, and the guide saying the call's
-off leaves a pass for the glow lights alone while any is lit. The other gives the glow lights a
-list of those each screen tile sees, a pass of its own with no probe placed, which is more than one
-small commit.
-
-Shared: a material lets a share of global illumination's light pass a unit of its depth
-(`LightThrough`), the field's colors carrying it in their alpha and the probes' rays crossing such
-a surface, keeping the share for each unit and taking the rest of its light (item 100). A frame of
-none traces with a build of the trace that leaves the crossing out (`NO_LIGHT_THROUGH`), since the
-trace's light written as the crossing writes it, summed over what the ray met and set after, cost
-7% at Low with the crossing compiled out, where the light written at the hit cost nothing; the
-screen's probes shading in two places where they shaded in three took 0.16 to 0.60 ms off High.
-
-Shared: a mesh entity's `Material` carries `CastsShadows` and `BouncesLight`, true as its
-constructors make them and a scene file's older entries read them, as `ModelMaterial`'s do for a
-mesh drawn by a call, which leave it out of the shadow maps and the scene's field or of the field
-alone; on the material rather than a component each, since a look is built once for all its
-entities and a frame reads nothing more (item 124).
-
-Shared: the model pass draws a view's opaque batches by the pipeline each draws with, in the order
-each pipeline first comes and nearest first within it, each run between two batches that write no
-depth apart (item 125). Small draws alternating between two pipelines, a voxel game's solid and
-cut-out section faces through `DrawMesh`, bound a pipeline 315 times a frame and took the scene pass
-13.1 to 14.1 ms on the GPU, where by pipeline 9.2 to 10.6 and nearest first within it 8.4 to 9.0;
-the order costs 0.03 to 0.15 ms of recording for a thousand draws of one pipeline in Release.
-
-Shared: the sun can be given a width across (`SetShadowSoftness`, degrees, 0 by default), its
-cascades then read as percentage-closer soft shadows, a 16-tap blocker search and a 16-tap bilinear
-filter on a golden-angle disc, each tap compared with the receiver's depth along its own plane,
-solved from the normal and the cascade's rows (item 111). It costs the voxel game's grove 0.7 to
-1.2 ms of the scene pass at 1920 by 1080, most of it the search, and nothing at the default.
-
-Shared: a program sets a plane its glossy surfaces mirror the scene in (`SetReflectionPlane`), the
-window's batches drawn again through its view-projection mirrored in the plane, its near plane laid
-along the plane by Lengyel's oblique projection and the batches wholly under it culled by that
-plane, lit as a probe's faces are by the window's lights and shadow maps into a picture at half the
-window's size with its mips, which `mirrored` in lights.slang reads at the pixel's place blurred by
-roughness, for the model pass and a program's own shader (item 112). It costs the scene's draws once
-more, 0.05 to 0.27 ms of the GPU in `shaders_reflections`, and 2.2 to 2.8 ms of the GPU and 3.7 to
-4.1 ms of the CPU looking along the voxel game's river at 1920 by 1080, about the window's depth
-pass for the same 2,241 draws.
-
-Shared: a ray of global illumination crossing surfaces that let light through, as a canopy's
-leaves, is shaded twice at most, the first such surface it crosses for the share of its light all
-it crosses take together and the surface it stops at for the share that reaches it, after the march
-and never in it, the cascades' rays and the screen's probes' alike (item 127). Crossing the voxel
-game's cherry grove's leaves at 1920 by 1080 takes global illumination 2.0 ms at High and 1.1 at Low
-where shading each leaf crossed took 2.6 and 1.6, the floors under leaves alike to four places, and
-what is left is the march past the leaves. `gi.toggle through off` stops the rays at such surfaces
-as at solid ones, so the crossing's cost reads in one session.
-
-Shared: a line of text a person edits is a `TextEdit` value the program keeps, holding the text,
-the caret, the selection's anchor, the scroll and focus, which `EditText` updates from the frame's
-input, characters to a length, the arrows, Home and End by characters a reader sees and by words,
-Shift and a drag selecting, the clipboard's copy, cut and paste, Backspace and Delete with repeat,
-focus by a click and Tab between the edits updated in a frame in call order, the input method's
-window at the caret, answering Enter, and `DrawTextEdit` draws in a default look or a font and
-colors given, `IsTextInputActive` saying while one holds the keyboard (item 128); no widget set is
-begun, the game drawing its own box over `EditText`.
-
-93: ASKS.md's entries keep their colons, 46 lines by STYLE.md's check, since AGENTS.md has this
-session write nothing in ASKS.md; they are left to the sessions that write it. The guides,
-RENDERING.md, the readings, FeatureTest's README and the comments of the engine, the tests, the
-examples, the shaders, the games and the scripts are recast, trailing comments after code among
-them, which the check does not read. What the check still finds is a label, a vector's components,
-named arguments in a code example, a URL, raylib's own header and license text, and a quoted
-header. DEVLOG.md's one hit comes from item 96's note, recast for its next regeneration.
-
-91: AGENTS.md's opening still says the ECS runs underneath for programs that grow into it, which
-DESIGN.md, the README and the guide no longer say; AGENTS.md changes only by the owner's word, so
-its line is left for the owner.
-
-Shared: a shadow's point is moved off its surface along the normal turned to the light's side
-(`litSide`), for the sun's cascades and the spot and point maps alike, where it went along the
-normal as given and a two-sided face lit from its back, as a plant's thin wall, went behind itself
-and shadowed itself in speckles (item 89). In a field of wheat's walls under a sun 56 degrees up
-the walls' light spread 0.149 of its mean within each against 0.053 in a path-traced reference,
-and 0.054 turned; a step toward the light for a grazed face changed nothing more.
-
-Shared: the prototype look follows BevyCSharp's `ce142f8a` (item 130), the colors Unreal's
-prototyping floor 0.31, 0.31, 0.32, wall 0.71, 0.71, 0.70, ceiling 0.82, 0.82, 0.83 and stairs
-0.96, 0.46, 0.13 in sRGB, and the grid's cell a meter's line a 128th wide, the half's a 256th of the
-same color, the quarters' a 512th of the fine one, and 1m lettered in its corner in five by seven
-squares a 128th of the cell where it has 128 pixels or more, pixel for pixel as BevyCSharp's
-`GridPixels` writes it.
-
 Shared: the screen's probes are looked up along the normal turned to the eye as the shading's is,
 so the back of a two-sided face takes the probes standing on it, where along its front's normal it
 took none (item 129). In a field of thin two-sided walls half a unit apart, two cells of a quarter,
 the half-cell bands of the field's two-sided faces meet and a screen probe's rays take their own
 wall's light, 44% over a path-traced reference, which item 131 reads.
-
-Shared: Schlick's Fresnel takes its base, one less the dot of the view and the half vector, held to
-0 to 1, since with a point light at the camera's own point the half vector is the view's and the
-dot rounds a hair over 1, and the fifth power of a base under 0 is no number on lavapipe, which
-takes a power as exp2 of a logarithm; a room lit by a light at its camera read 12,617 of 57,600
-pixels black there and none after (item 97, `PointLightAtEyeTests`).

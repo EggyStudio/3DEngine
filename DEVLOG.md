@@ -50,6 +50,11 @@ none and reading darker than those seen from their fronts, and below along the n
 eye, both kinds alike, 44% and 45% over a path-traced reference by the field's thin-wall band, item
 131's to mend.
 
+![](.github/assets/readings/2026-10-26-item-97-eye-light.webp)
+A closed room lit by a point light at the camera's own point on lavapipe at 800 by 450, above with
+Fresnel's base unclamped, 71,254 pixels black in specks where the half vector's dot with the view
+rounded past 1, and below with it held to 0 to 1, none.
+
 The sun given a width across (`SetShadowSoftness`), read on the engine's tree against `a16227a7`.
 The edge of a pole's shadow, 5 units tall under a sun 45 degrees up, between a quarter and three
 quarters of the light, in units across:
@@ -216,6 +221,8 @@ Done that day
 - Item 93 at `bb542fa4`. No running sentence holds a colon, across the documents, the comments and
   the scripts.
 - Item 95 at `5528c55c`. A verb of ./e3d with --help prints its help and opens nothing.
+- Item 97 at `1703c54e`. A point light at the camera's own point shades without black specks on
+  lavapipe.
 - Item 100 at `a16227a7`. The field lets a share of light through a cell marked as foliage.
 - Item 111 at `45edfbf6`. The sun's shadow softens with the distance from its caster.
 - Item 112 at `78946b22`. A flat surface mirrors the scene through a planar reflection a program

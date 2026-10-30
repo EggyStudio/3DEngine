@@ -314,6 +314,24 @@ it on 2026-10-23, having seen the cloud sessions' branches name another author a
 contributor. By review, the reviewing session reading the author of every commit it pushes or has
 cherry-picked.
 
+**N 7.7 A session spends tokens on what changes the work.** The weekly usage ran out in three days
+twice, in October 2026, with four sessions working around the clock. A report to the reviewing
+session is a few lines, the hash, what changed, a departure if any, the numbers that matter and the
+checks, the detail in the commit's words and the devlog note; no log, table or file is pasted into a
+message, a path is given. Before a batch and before a commit a session reads REVIEW.md's head, the
+items it works on and the Replies, not the whole file, and reads a file's part by a search rather
+than the file. A proposal is made once an item in a few lines and answered once; a reading is taken
+once and recorded once. The whole suite runs once a commit, filtered runs while working. The
+reviewing session records a commit in a few lines, the detail in the archive's item, the note and
+the commit, and its watch wakes once an hour, the runs' ends reported by waits. By review, the
+reviewer reading each report's and each record's length.
+
+**N 7.8 A session runs a program offscreen or headless, and opens a window only to read what a
+window alone shows.** The owner's word of 2026-10-30. A test, a reading, a capture and a drive run
+offscreen or headless as they do; a window is opened on the owner's machine for the window's own
+questions, the swapchain and its format, the modes and sizes, a screenshot read against an offscreen
+capture, and closed when read. By review.
+
 ## Conformance
 
 `checked` names what checks the rule. `listed` is checked with that many places to mend on the

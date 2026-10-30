@@ -95,6 +95,24 @@ public sealed class WindowResizeTests : IDisposable
     }
 
     [NeedsVulkanFact]
+    public void A_Size_Set_Before_The_First_Frame_Is_The_Size_That_Frame_Is_Drawn_At()
+    {
+        // A program sizing its window from its settings before it draws, whose first frame, a
+        // loading screen held while a world loads, kept the size the window opened at until a
+        // present failed, where the resize waited out its debounce in frames that did not come.
+        Open();
+        SetWindowSize(240, 135);
+        var path = Path.Combine(_folder.Path, "first.png");
+        Frame(path);
+        for (int i = 0; i < 10 && !File.Exists(path); i++) Frame();
+        File.Exists(path).Should().BeTrue("the capture is written once its frame has finished on the GPU");
+        var first = LoadImage(path);
+        (first.Width, first.Height).Should().Be((240, 135), "the first frame is drawn at the size set before it");
+        GetScreenWidth().Should().Be(240);
+        GraphicsDevice.ValidationErrors.Skip(_validationErrorsBefore).Should().BeEmpty();
+    }
+
+    [NeedsVulkanFact]
     public void A_Settings_Screen_Changes_Vsync_And_The_Size_While_Frames_Are_Drawn()
     {
         Open();

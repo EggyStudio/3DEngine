@@ -122,8 +122,9 @@ pushed.
   `.github/STYLE.md` is read and applied to what is staged, the message included.
   `.github/COMMITS.md` has the exact form, that pass, and how to split a batch that shares a file
   with another.
-- `.github/REVIEW.md` is read before a batch is started and before each commit. A second session
-  writes it after reading the code and the history, and its Now list comes before TODO.md's order.
+- Of `.github/REVIEW.md`, its head, the items of the batch and the Replies are read before a batch
+  is started and before each commit. A second session writes it after reading the code and the
+  history, and its Now list comes before TODO.md's order.
   Only its Replies section is edited here, for an item that is disputed or blocked, and the file is
   committed with whichever batch comes next.
 - `.github/SHARED.md` records what this engine and its sibling (BevyCSharp and 3DEngine) have in
