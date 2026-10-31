@@ -741,10 +741,15 @@ light alone, replaced with a block beside the lamp, read 116 on the wall before 
 after, the walls gone from the field at once and their replacement standing in as a few boxes; kept,
 the wall held 114 to 116 until the replacement settled (`GlobalIlluminationTests`). Its triangles go
 into one buffer in its mesh's own space the first time a build needs them, so a build hands the GPU
-each instance's matrix and where its mesh's triangles start. A build clears a word a cell to the
-band, then a workgroup a triangle puts the triangle in the world and takes, for each cell within
-the band of its bounds, the distance to it in 1024ths of a cell above a bit set where a
-double-sided triangle's nearest point to the cell lies on its rim, a bit set where the triangle is
+each instance's matrix and where its mesh's triangles start. The buffer is made to hold every
+triangle of the build in progress, which goes on over frames under the triangles' budget, and each
+mesh's open edges are found once and kept. Made for one frame's part of the build, the next part's
+meshes overflowed it, and the voxel game's eye stepped a section east and back twenty times at 12
+columns made it 427 times with every mesh's open edges found again, 9.5 ms of the CPU a frame. A
+build clears a uint a cell to the band, then a workgroup a triangle puts the triangle in the world
+and takes, for each cell within the band of its bounds, the distance to it in 1024ths of a cell
+above a bit set where a double-sided triangle's nearest point to the cell lies on its rim, a bit
+set where the triangle is
 double-sided, a bit set where the cell is in front of the face, which for a double-sided one is
 the side of its plane the cell lies on, and the way the face looks in eight bits, keeping the least
 by an atomic minimum (`field_splat.slang`). Of two triangles as near,
@@ -820,9 +825,11 @@ again once the box has left. A mesh's emission is not stamped, which would take 
 the still light as well, 2 MB a cascade. A skinned mesh is a box for each joint around the vertices
 at rest it holds most, posed by the joint's latest matrix, and one that does not bend a box for
 each of up to eight parts its triangles are cut into where each cut takes a third of the volume
-away (`SceneFieldRenderer.Cut`), or the box around all of it. A mesh past what the room left for a
-box each of the meshes beyond it is the box around all of it, so a crowd past 256 boxes is figures
-near the eye and boxes beyond. Three dancing robots in `shaders_cornell_box` are 147 boxes in 540
+away (`SceneFieldRenderer.Cut`), or the box around all of it, the triangles sorted along each
+axis by keys made of their middles' bits, where LINQ's sort took 1.3 ms to cut a section of the
+voxel game. A mesh past what the room left for a box each of the meshes beyond it is the box
+around all of it, so a crowd past 256 boxes is figures near the eye and boxes beyond. Three
+dancing robots in `shaders_cornell_box` are 147 boxes in 540
 bricks, stamped and painted in 0.06 ms of the RTX 4070 (0.05 unpainted) and placed in 0.45 ms of
 the CPU in the Release build, as their meshes' 57 boxes were. A still mesh whose vertices' colors
 are written in place (`UpdateMeshBuffer` at 3, `MeshStore.TakeRecolored`) is pooled again with

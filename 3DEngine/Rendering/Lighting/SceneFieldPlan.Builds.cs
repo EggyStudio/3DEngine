@@ -17,6 +17,8 @@ internal sealed partial class SceneFieldPlan
         public Vector3 Origin;
         public Box Reach;
         public readonly List<(float Distance, Instance Instance)> Left = [];
+        // The triangles of every mesh in Left, which the pool is sized for.
+        public int Triangles;
         // Where the meshes not yet splatted begin in Left.
         public int Next;
         public Box? Changed;
@@ -24,6 +26,9 @@ internal sealed partial class SceneFieldPlan
     }
 
     private Job? _job;
+
+    /// <summary>The triangles of the meshes the build in progress splats over its frames, or none.</summary>
+    public int BuildingTriangles => _job?.Triangles ?? 0;
 
     // Starts or goes on with the dirty cascades' builds, the finest first, as many cascades a frame
     // as the budget says and as many triangles as the triangle budget, a mesh at least, the still
@@ -98,6 +103,8 @@ internal sealed partial class SceneFieldPlan
         foreach (var (instance, (bounds, _)) in _still)
             if (bounds.Overlaps(job.Reach)) job.Left.Add((Distance(bounds, eye), instance));
         job.Left.Sort(static (a, b) => a.Distance.CompareTo(b.Distance));
+        job.Triangles = 0;
+        foreach (var (_, instance) in job.Left) job.Triangles += _triangles(instance.Vertices);
         (job.Next, job.Started, job.Restart) = (0, false, false);
     }
 
