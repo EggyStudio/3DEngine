@@ -50,43 +50,52 @@ BC5 and 4 in BC1, 83.9 MB on the GPU where 402.7 as pixels, the note 2026-10-31-
 limit to 180 and makes test.py's split take PART=N+Class, a class named after the plus running in a
 process of its own, Windows running Rendering=2+GlobalIlluminationTests since Rendering's first half
 read 33.5 to 67.2 minutes against its 70 over the five Windows digests since `2ad96a80`; 2,149 on
-the GPU in both orders. Before it `19658e55`, item 136, pushed with `10295556` at 09:37, its run
-green at 11:16 with Windows in 98 minutes, Linux in 77 and macOS in 36, the path-traced reference
-crossing surfaces that let light through, recorded under the item in REVIEW-ARCHIVE.md. Before it
-`10295556`, item 146's second commit, ShadowOnly draws kept in the field, recorded under the item.
-Before it `da54d289`, item 146's first commit, pushed at 07:23 with `7bdfaa9e`, Verdict 95's mend,
-and `fdde73b2`, item 131's second commit, its run green at 09:37 with Windows in 133 minutes, Linux
-in 77 and macOS in 36, which settled Verdict 95; the plain GPU run of `7bdfaa9e` read ObserverTests'
-no-observer allocation once at 1,768 bytes, 5 of 5 alone, watched. Before it `b16f26b5`, item 131's
-first commit, pushed at 02:53 on 2026-10-31, its run cancelled at 03:51 on Linux alone past
-test.py's 40-minute limit and the job's 100 (Verdict 95), Windows and macOS green, the plane a cell
-recorded under item 131 in REVIEW-ARCHIVE.md. Before it `2ad96a80`, item 135, pushed at 22:13 on
-2026-10-30, its run green whole at 23:28 with Windows in 74 minutes, Linux in 68 and macOS in 35,
-the screen probes' jittered rays and sixteen-frame history recorded under the item in
-REVIEW-ARCHIVE.md. Before it `e96a6bb8`, pushed with `c3214cbe` at 19:52 on 2026-10-30, its run
-green whole at 21:51, Windows in 119 minutes, Linux in 44 and macOS in 33. `c3214cbe` is item 134, a
-resize asked before the first frame carried out at once past the debounce a load held back, with a
-test and the window guide's line, and AGENTS.md's REVIEW.md line as the owner asked. `e96a6bb8` is
-item 132's reading with no mend, the note 2026-10-30-item-132-recording.md; at 12 columns 5.6 to 6.5
-ms of the four passes' 9.6 to 11.5 is a descriptor set made and written for every draw in every
-pass, about 2,045 a frame at 2.8 to 3.2 microseconds each with every section's set holding the same
-values, and one set a frame in a scratch copy takes the passes to 5.1 ms at 12 and from 18.4 to 19.7
-to 7.6 at 16, the frame at 16 from 26.6 to 17.9 ms, the land's pixels within 0.08 of 255. 2,135 on
-the GPU in both orders, the resize tests on lavapipe with validation. Before it `1703c54e`, item 97,
-pushed by the owner's hand at 16:54 on 2026-10-26 while the sessions were paused until 2026-10-30,
-its run green whole at 19:33 with Windows in 99 minutes. The ninth pack run started with publish on
-at 18:41 on 2026-10-30, since the owner sees item 97's specks in the voxel game and its package
-lacked the mend; the run went green whole at 21:05, Windows in 101 minutes and the games in 71, the
-package 5.2.333 pushed to nuget.org with items 97, 129, 130, 89, 95, 91 and 93, the game told.
-Before it on 2026-10-26, each green but where said: `987f07ae` (Verdict 94's mend) with `969a1b08`
-(item 129); `7ff7bbdd` (130), red on the examples job alone, Verdict 94; `b05b32da` (89); `0a4ad922`
-(the README's quick links); `5528c55c` (95); `d207627e` (91), `bb542fa4` (93) and `0754b975` (128),
-the eighth pack run publishing 5.2.326 at 13:13; `2f5237f2` (127); `78946b22` (112), the seventh
-pack run publishing 5.2.322 at 09:14; `7af16fcd` (Verdict 93's mend); `45edfbf6` (111); `a16227a7`
-(100), the sixth pack run publishing 5.2.319 at 04:21 on its second attempt. Each commit's detail
-stands in its item in REVIEW-ARCHIVE.md, its devlog note and its own words. On 2026-10-30 at 18:0x
-the owner wrote the README's new words (item 133) and the focus on radiance cascades (Decision 74),
-questions asked back, and asked that the sessions spend fewer tokens at the same quality, N 7.7.
+the GPU in both orders. After it `82a02b9d`, 148's second commit, held the same, the manifest
+scenes/intel-sponza.json written by the pack script naming the engine's pack at this repository's
+scene-packs release, ScenePacks reading manifests by source-generated JSON, downloading to a part
+file hashed as it comes, unpacking into a folder of its own moved into place whole with a stamp,
+refusing a path that is rooted or climbs out, the folder E3D_SCENES or the system's cache under
+3DEngine/scenes; e3d scenes list and fetch, the fetch answering FAILED with the 404 until the packs
+are published; the pack run's job on the scenes input with contents write and Python, downloading
+BevyCSharp's asset, checking its hash, making the release when missing and uploading; E3D.md,
+BUILDING.md and AGENTS.md following; three tests on small packs; 2,152 on the GPU in both orders.
+Before it `19658e55`, item 136, pushed with `10295556` at 09:37, its run green at 11:16 with Windows
+in 98 minutes, Linux in 77 and macOS in 36, the path-traced reference crossing surfaces that let
+light through, recorded under the item in REVIEW-ARCHIVE.md. Before it `10295556`, item 146's second
+commit, ShadowOnly draws kept in the field, recorded under the item. Before it `da54d289`, item
+146's first commit, pushed at 07:23 with `7bdfaa9e`, Verdict 95's mend, and `fdde73b2`, item 131's
+second commit, its run green at 09:37 with Windows in 133 minutes, Linux in 77 and macOS in 36,
+which settled Verdict 95; the plain GPU run of `7bdfaa9e` read ObserverTests' no-observer allocation
+once at 1,768 bytes, 5 of 5 alone, watched. Before it `b16f26b5`, item 131's first commit, pushed at
+02:53 on 2026-10-31, its run cancelled at 03:51 on Linux alone past test.py's 40-minute limit and
+the job's 100 (Verdict 95), Windows and macOS green, the plane a cell recorded under item 131 in
+REVIEW-ARCHIVE.md. Before it `2ad96a80`, item 135, pushed at 22:13 on 2026-10-30, its run green
+whole at 23:28 with Windows in 74 minutes, Linux in 68 and macOS in 35, the screen probes' jittered
+rays and sixteen-frame history recorded under the item in REVIEW-ARCHIVE.md. Before it `e96a6bb8`,
+pushed with `c3214cbe` at 19:52 on 2026-10-30, its run green whole at 21:51, Windows in 119 minutes,
+Linux in 44 and macOS in 33. `c3214cbe` is item 134, a resize asked before the first frame carried
+out at once past the debounce a load held back, with a test and the window guide's line, and
+AGENTS.md's REVIEW.md line as the owner asked. `e96a6bb8` is item 132's reading with no mend, the
+note 2026-10-30-item-132-recording.md; at 12 columns 5.6 to 6.5 ms of the four passes' 9.6 to 11.5
+is a descriptor set made and written for every draw in every pass, about 2,045 a frame at 2.8 to 3.2
+microseconds each with every section's set holding the same values, and one set a frame in a scratch
+copy takes the passes to 5.1 ms at 12 and from 18.4 to 19.7 to 7.6 at 16, the frame at 16 from 26.6
+to 17.9 ms, the land's pixels within 0.08 of 255. 2,135 on the GPU in both orders, the resize tests
+on lavapipe with validation. Before it `1703c54e`, item 97, pushed by the owner's hand at 16:54 on
+2026-10-26 while the sessions were paused until 2026-10-30, its run green whole at 19:33 with
+Windows in 99 minutes. The ninth pack run started with publish on at 18:41 on 2026-10-30, since the
+owner sees item 97's specks in the voxel game and its package lacked the mend; the run went green
+whole at 21:05, Windows in 101 minutes and the games in 71, the package 5.2.333 pushed to nuget.org
+with items 97, 129, 130, 89, 95, 91 and 93, the game told. Before it on 2026-10-26, each green but
+where said: `987f07ae` (Verdict 94's mend) with `969a1b08` (item 129); `7ff7bbdd` (130), red on the
+examples job alone, Verdict 94; `b05b32da` (89); `0a4ad922` (the README's quick links); `5528c55c`
+(95); `d207627e` (91), `bb542fa4` (93) and `0754b975` (128), the eighth pack run publishing 5.2.326
+at 13:13; `2f5237f2` (127); `78946b22` (112), the seventh pack run publishing 5.2.322 at 09:14;
+`7af16fcd` (Verdict 93's mend); `45edfbf6` (111); `a16227a7` (100), the sixth pack run publishing
+5.2.319 at 04:21 on its second attempt. Each commit's detail stands in its item in
+REVIEW-ARCHIVE.md, its devlog note and its own words. On 2026-10-30 at 18:0x the owner wrote the
+README's new words (item 133) and the focus on radiance cascades (Decision 74), questions asked
+back, and asked that the sessions spend fewer tokens at the same quality, N 7.7.
 
 Next 148's second and third commits, then 138 and the cascades in order, 139, 140, 141 and 142
 (Decision 75); 143, 144 and 145 wait behind them.
@@ -1054,7 +1063,9 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     and never uploaded; the engine's pack made from the local file here is 224,303,688 bytes with
     the sha256 160766bd4adf2535de3083a72a03bea7856171817d1f88f096a986fb987bbff2, the script
     deterministic, so the second commit names that hash and the gated job runs once the packs are
-    published.
+    published. Second commit done at `82a02b9d`, read at 17:24, the pack's manifest, the fetch and
+    the pack run's job as the head records; the third, the example and the captures, under way
+    against Sponza unpacked from a local copy with the matching hash.
 
 ## Verdicts
 

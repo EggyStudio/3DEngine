@@ -1,13 +1,14 @@
 # Global illumination
 
 Global illumination adds the light each surface reflects onto the others, tinted by its color, so a
-red wall tints the floor beside it, a room the sun shines into through a window is lit away
-from the patch on its floor, and a lamp carried through a cave lights it round its corners. The
-engine works it out each frame by radiance cascades, with nothing baked, so every light and every
-mesh may move, and an emissive surface lights its room. This
-page says how it works, what it costs and where it falls short, and how a scene's light is read
-against a path-traced reference. The `shaders_cornell_box` example draws the room it is built on,
-and `shaders_bounce_rooms` the rooms global illumination finds hardest.
+red wall tints the floor beside it, a room the sun shines into through a window is lit away from the
+patch on its floor, and a lamp carried through a cave lights it round its corners. The engine works
+it out each frame by radiance cascades, with nothing baked, so every light and every mesh may move,
+and an emissive surface lights its room. This page says how it works, what it costs and where it
+falls short, and how a scene's light is read against a path-traced reference. The
+`shaders_cornell_box` example draws the room it is built on, and `shaders_bounce_rooms` the rooms
+global illumination finds hardest. `scenes_sponza` draws Intel's Sponza, fetched with `./e3d scenes
+fetch intel-sponza`, from named views at an hour of the day.
 
 ## Turning it on
 
@@ -93,6 +94,13 @@ with no budget, and 2.5 to 6.5 ms at most a frame over 27 frames at the default.
 triangles builds as many cascades a frame as `updateBudget` says. The frame profile
 names the field's cost as `scene_field`, which a game reads with `./e3d command profile` to set the
 budget for its own device.
+
+A mesh held as its box stands in the field as a solid block, so a box much larger than what it holds
+fills the space around it meanwhile, as the box of a building's outer walls fills the whole
+building. Sponza's 3.75 million triangles took 330 frames to build at the default budget, its rooms
+shaded from the sun and dark until then, so `scenes_sponza` sets a budget of four million and an
+update budget of four, which builds every cascade a view moves into in the frame of the jump, 0.23
+to 0.46 s on an RTX 4070.
 
 `farCascade` adds a far cascade past the others, which `cascades` leaves out of its count, 64 cells
 a side as each is, its cells as wide as reaching that many units ahead of the camera takes. It is

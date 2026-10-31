@@ -458,7 +458,13 @@ public float3 surfaceNormal(ModelVertexOutput input)
     if (scale <= 1e-20)
         return n;
 
-    float3 mapped = normalMap.Sample(input.uv).xyz * 2.0 - 1.0;
+    float3 sampled = normalMap.Sample(input.uv).xyz;
+    float3 mapped = sampled * 2.0 - 1.0;
+    // A map of two channels, as BC5 holds a normal map's x and y, samples its blue as 0, which no
+    // map of three has, a normal leaving the surface having its blue past a half, so its z is
+    // worked out from x and y, where read as it is it would turn the normal into the surface.
+    if (sampled.z == 0.0)
+        mapped.z = sqrt(saturate(1.0 - dot(mapped.xy, mapped.xy)));
     mapped.xy *= strength;
     float s = rsqrt(scale);
     return normalize(t * s * mapped.x + b * s * mapped.y + n * mapped.z);

@@ -305,13 +305,16 @@ A mesh carries position, normal, tangent, two texture coordinates and a color, i
 texture paths in one pass, and textures are decoded by StbImageSharp with mipmaps generated on the
 GPU. A KTX2 file of BC1, BC5 or BC7 blocks goes to the GPU as it is, every level the file holds
 copied in from one staging buffer, the image made in the plain format so a view of the sRGB one
-reads a color decoded. The texture store's average color and its translucency come from a level of
-it the GPU unpacks into four bytes a pixel by a blit and reads back the frame it is uploaded in,
-the first level for BC7, whose alpha may be anywhere between, and one of 64 texels a side for BC1,
-whose alpha is clear or solid, and BC5, which has none. The buffer it is read through is in memory
-the CPU caches, as every buffer the CPU only reads is where the device has such memory, since
-reading the write combined memory a device offers first took 34 ms for 4 MB on an RTX 4070, and
-Sponza's 72 textures upload in about 70 ms where the first level of each read that way took 2.4 s.
+reads a color decoded. A BC5 normal map holds x and y alone and samples its blue as 0, which no map
+of three channels has, so the model pass works its z out from x and y there, where read as it was
+the normal pointed into the surface and Sponza's sunlit floor read 15 of 255 where 153. The texture
+store's average color and its translucency come from a level of it the GPU unpacks into four bytes a
+pixel by a blit and reads back the frame it is uploaded in, the first level for BC7, whose alpha may
+be anywhere between, and one of 64 texels a side for BC1, whose alpha is clear or solid, and BC5,
+which has none. The buffer it is read through is in memory the CPU caches, as every buffer the CPU
+only reads is where the device has such memory, since reading the write combined memory a device
+offers first took 34 ms for 4 MB on an RTX 4070, and Sponza's 72 textures upload in about 70 ms
+where the first level of each read that way took 2.4 s.
 
 The material holds glTF's metallic-roughness model, which Assimp maps every format it reads
 onto, and all of it is drawn. Emission is added after the lights, so it shows with none.

@@ -269,6 +269,7 @@ var examples = new Dictionary<string, Action>
     ["ecs_physics"] = EcsPhysics.Run,
     ["ecs_parented_particles"] = EcsParentedParticles.Run,
     ["scenes_level"] = ScenesLevel.Run,
+    ["scenes_sponza"] = ScenesSponza.Run,
 };
 
 var name = args.Length > 0 ? args[0] : "core_3d_camera_free";

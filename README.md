@@ -129,7 +129,7 @@ raylib's own examples, and what is written of it here, is a row of
 folder's row scrolls sideways where it is wider than the page. The games, the last row, are built
 from the package as a game of your own would be, each with a README of what it shows.
 
-**Of raylib's 222 examples 221 are written here and 1 does not apply, and beside them are 43
+**Of raylib's 222 examples 221 are written here and 1 does not apply, and beside them are 44
 examples of the engine's own and 19 games.**
 
 <!-- example-gallery -->
@@ -175,11 +175,11 @@ examples of the engine's own and 19 games.**
 |---|
 | [`physics_boxes                   `](https://github.com/EggyStudio/3DEngine/blob/main/3DEngine.Examples/Physics/PhysicsBoxes.cs) |
 
-### Scenes (1)
+### Scenes (2)
 
-| [![scenes_level](https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/gallery/scenes_level.webp)](https://github.com/EggyStudio/3DEngine/blob/main/3DEngine.Examples/Scenes/ScenesLevel.cs) |
-|---|
-| [`scenes_level                    `](https://github.com/EggyStudio/3DEngine/blob/main/3DEngine.Examples/Scenes/ScenesLevel.cs) |
+| [![scenes_level](https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/gallery/scenes_level.webp)](https://github.com/EggyStudio/3DEngine/blob/main/3DEngine.Examples/Scenes/ScenesLevel.cs) | [![scenes_sponza](https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/gallery/scenes_sponza.webp)](https://github.com/EggyStudio/3DEngine/blob/main/3DEngine.Examples/Scenes/ScenesSponza.cs) |
+|---|---|
+| [`scenes_level                    `](https://github.com/EggyStudio/3DEngine/blob/main/3DEngine.Examples/Scenes/ScenesLevel.cs) | [`scenes_sponza                   `](https://github.com/EggyStudio/3DEngine/blob/main/3DEngine.Examples/Scenes/ScenesSponza.cs) |
 
 ### Shaders (52)
 

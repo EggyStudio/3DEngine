@@ -60,4 +60,32 @@ public sealed partial class OffscreenRenderTests
         UnloadTexture(single);
         UnloadTexture(wide);
     }
+
+    [NeedsVulkanFact]
+    public void A_BC5_Normal_Map_Of_A_Flat_Surface_Lights_It_As_No_Map_Does()
+    {
+        Open(32, 32, samples: 1);
+        var path = Path.Combine(_folder.Path, "flat.ktx2");
+        File.WriteAllBytes(path, Ktx2Files.Solid(141, 8, Ktx2Files.Bc5(128, 128)));
+        var flat = LoadTexture(path);
+        var plain = LoadModelFromMesh(GenMeshPlane(4, 4, 1, 1));
+        var mapped = LoadModelFromMesh(GenMeshPlane(4, 4, 1, 1));
+        mapped.Materials[0].NormalMap = flat;
+        CreateDirectionalLight(-Vector3.UnitY, Color.White, 1);
+        var camera = new Camera3D(new Vector3(0, 3, 0.01f), Vector3.Zero, Vector3.UnitY, 45);
+        Color Floor(Model model) => GetImageColor(Capture(() =>
+        {
+            ClearBackground(Color.Black);
+            BeginMode3D(camera);
+            DrawModel(model, Vector3.Zero, 1, Color.Gray);
+            EndMode3D();
+        }, "floor"), 16, 16);
+
+        var (without, with) = (Floor(plain), Floor(mapped));
+        without.R.Should().BeGreaterThan(60, "the light falls straight on the floor");
+        Math.Abs(with.R - without.R).Should().BeLessThanOrEqualTo(2, "a map of x and y at their middles is the surface's own normal, its z worked out from them");
+        UnloadModel(plain);
+        UnloadModel(mapped);
+        UnloadTexture(flat);
+    }
 }

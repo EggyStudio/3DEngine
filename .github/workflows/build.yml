@@ -782,11 +782,37 @@ jobs:
           CAPTURE_SECONDS: '300'
         run: build/capture-examples.sh captures/examples png
 
+      # Intel's Sponza, kept between runs by its manifest, which names its SHA-256, and fetched
+      # where the cache holds none (./e3d scenes fetch), then driven through its views at noon and
+      # at evening on the runner's GPU, each captured with its frame's time (build/drive-sponza.sh),
+      # as BevyCSharp drives its Sponza by hand and never on a push. Lavapipe drew a frame of it in
+      # 40 seconds, so it is driven here and not on Linux. The fetch fails with the reason until the
+      # release scene-packs holds the pack its manifest names, and the job goes on without the drive
+      # meanwhile, so a pack not yet published holds back no package.
+      - uses: actions/cache@v6
+        with:
+          path: build/scenes
+          key: scenes-${{ hashFiles('scenes/*.json') }}
+
+      - name: Fetch Intel Sponza
+        id: sponza
+        continue-on-error: true
+        run: |
+          echo "E3D_SCENES=$PWD/build/scenes" >> "$GITHUB_ENV"
+          E3D_SCENES=$PWD/build/scenes ./e3d scenes fetch intel-sponza
+
+      - name: Drive Sponza through its views
+        if: ${{ steps.sponza.outcome == 'success' }}
+        timeout-minutes: 30
+        run: build/drive-sponza.sh captures/sponza
+
       - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: examples-macos
-          path: captures/examples/
+          path: |
+            captures/examples/
+            captures/sponza/
           if-no-files-found: ignore
 
   # Every game played from the package, captured, soaked and resized, and the README followed, in
