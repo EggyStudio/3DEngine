@@ -769,7 +769,10 @@ side wherever it lies, as the walls and floors of Manor's rooms, imported from O
 two sheets two cells apart leave the space between them open, as the voxel game's crops stand. The
 normal the probes are moved off a surface by and their hits are shaded with is the plane's way
 toward the side a point lies on there, its own way on the plane, since the distance's gradient
-cancels across a sheet (`fieldNormalSheet`). Every other reader holds a sheet below zero within
+cancels across a sheet (`fieldNormalSheet`). A cell a second double-sided face of another way
+passes within three quarters of a cell of, as where two walls cross on a cell's side, keeps its
+plane too, in an image the probes' rays read beside the field (`SheetVolume`), at no cost the
+voxel game's grove reads. Every other reader holds a sheet below zero within
 half a cell either side as before, by how much of the cells around keep a plane (`fieldDistanceIn`),
 since the plane read in each of the model pass's marches cost its scene pass 1.3 ms more in the
 voxel game's cherry grove at `High` at 1920 by 1080 with no sheet near. A closed wall thinner than

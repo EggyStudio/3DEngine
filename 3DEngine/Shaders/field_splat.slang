@@ -88,6 +88,12 @@ RWTexture3D<float4> stillPaint;
 [[vk::binding(8, 0)]] [format("rgba8")]
 RWTexture3D<float4> albedoField;
 
+// The word of a second double-sided face of another way as near a cell as the one its word kept,
+// within a cell, as where two walls cross on a cell's side, which the painting pass keeps by an
+// atomic minimum and field_resolve.slang turns into the cell's second plane.
+[[vk::binding(9, 0)]]
+RWStructuredBuffer<uint> second;
+
 struct SplatPush
 {
     // xyz: the cascade's corner. w: the width of a cell.
@@ -374,6 +380,16 @@ void computeMain(uint3 group : SV_GroupID, uint lane : SV_GroupIndex)
             // near one, where a cell beside a box's edge lies 45 degrees behind the face round it.
             if (sided && front == 0u && dot(p - q, face) < -0.9 * d * faceLength)
                 InterlockedMin(behind[index], (uint(d / cell * 1024.0) << 8) | way);
+        }
+        else if (push.groups.y == 1u && !sided && rim == 0u && d < cell * 0.75 && cells[index] != code)
+        {
+            // A second double-sided face of another way passing through or beside the cell, as
+            // where two walls cross on a cell's side and the four cells about it lie as near both,
+            // each keeping one, so the other was held there by the cells' blend alone and the
+            // world's probes standing among them read dark round patches at the walls' feet.
+            uint kept = cells[index];
+            if ((kept & 0x600u) == 0x200u && (kept & 255u) != way)
+                InterlockedMin(second[index], code);
         }
         else if (cells[push.groups.y == 3u ? push.groups.z + index : index] == code)
         {

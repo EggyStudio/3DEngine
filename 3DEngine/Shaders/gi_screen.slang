@@ -79,6 +79,11 @@ RWStructuredBuffer<float4> rayLog;
 [[vk::binding(15, 0)]] [format("r8ui")]
 Texture3D<uint> fieldFaces;
 
+// The second plane each cell of the field keeps where two double-sided faces lie as near it, which
+// the rays read with the field (SheetVolume).
+[[vk::binding(16, 0)]]
+Texture3D<float4> fieldSecond;
+
 struct ScreenPush
 {
     // x: the world's first cascade's octahedron's texels along each side. y: its second's, or 0
@@ -465,7 +470,7 @@ void computeMain(uint3 id : SV_DispatchThreadID)
             float3 reached = start + way * length;
             own = float3(0.0);
             bool onScreen = traceScreen(depth, camera(), start, way, length, 12, hit, leftAt);
-            float t = onScreen ? distance(start, hit) : leftAt < length ? traceFieldSheets(sceneField, fieldInfo, start, way, leftAt, length) : -1.0;
+            float t = onScreen ? distance(start, hit) : leftAt < length ? traceFieldSheets(SheetVolume(sceneField, fieldSecond), fieldInfo, start, way, leftAt, length) : -1.0;
             // A surface that lets a share of light through, as a canopy's leaves, is crossed through
             // the field, which holds what lies behind it where the window's depth does not, the ray
             // keeping that share for each unit of its depth and the rest taking the surface's light,
@@ -505,7 +510,7 @@ void computeMain(uint3 id : SV_DispatchThreadID)
                 if (deep < 0.0)
                     break;
                 onScreen = false;
-                t = inside ? -1.0 : traceFieldSheets(sceneField, fieldInfo, start, way, t + deep, length);
+                t = inside ? -1.0 : traceFieldSheets(SheetVolume(sceneField, fieldSecond), fieldInfo, start, way, t + deep, length);
             }
             [loop]
             for (int shaded = 0; shaded < 2; shaded++)
@@ -514,7 +519,7 @@ void computeMain(uint3 id : SV_DispatchThreadID)
                     continue;
                 float3 itsOwn;
                 float weight = shaded == 0 ? leafShare : stopShare;
-                crossed += shadeProbeHit(sceneField, fieldInfo, fieldInfo, fieldAlbedo, fieldFaces, fieldGlow, lights, bounced, reach, shaded == 0 ? leafAt : stopAt, way,
+                crossed += shadeProbeHit(sceneField, SheetVolume(sceneField, fieldSecond), fieldInfo, fieldInfo, fieldAlbedo, fieldFaces, fieldGlow, lights, bounced, reach, shaded == 0 ? leafAt : stopAt, way,
                     view.trace.y, view.trace.z, view.trace.w, false, float3(1.0), itsOwn) * weight;
                 own += itsOwn * weight;
             }
@@ -542,12 +547,12 @@ void computeMain(uint3 id : SV_DispatchThreadID)
                 // unlimited).
                 if (luminance(past) <= 1e-6)
                 {
-                    float far = traceFieldWithinSheets(sceneField, fieldInfo, start, way, length, 4.0 * length, fieldCascade(fieldInfo, start, 1.0) + 1);
+                    float far = traceFieldWithinSheets(SheetVolume(sceneField, fieldSecond), fieldInfo, start, way, length, 4.0 * length, fieldCascade(fieldInfo, start, 1.0) + 1);
                     if (far >= 0.0)
                     {
                         met = 1.0;
                         reached = start + way * far;
-                        past = shadeProbeHit(sceneField, fieldInfo, fieldInfo, fieldAlbedo, fieldFaces, fieldGlow, lights, bounced, reach, reached, way, view.trace.y, view.trace.z, view.trace.w, false, float3(1.0), pastOwn);
+                        past = shadeProbeHit(sceneField, SheetVolume(sceneField, fieldSecond), fieldInfo, fieldInfo, fieldAlbedo, fieldFaces, fieldGlow, lights, bounced, reach, reached, way, view.trace.y, view.trace.z, view.trace.w, false, float3(1.0), pastOwn);
                     }
                 }
                 light += past * through;

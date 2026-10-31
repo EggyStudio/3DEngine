@@ -722,10 +722,10 @@ public float3 glowLightsAt<V : IVolume>(V field, SceneFieldInfo info, GiLights l
 // double-sided face at its plane (fieldDistanceSheetIn), where the held field's gradient cancels
 // across the sheet, so the hit's normal is the plane's (fieldNormalSheet), turned up there, the
 // voxel game's crops lit as floors from the sun took 29% over a path-traced reference.
-public float3 shadeProbeHit<V : IVolume>(V field, SceneFieldInfo info, SceneFieldInfo gathered, V albedo, Texture3D<uint> faces, V glow, GiLights lights,
-    V cubes, V reach, float3 p, float3 way, float probes, float spacing, float cascades, bool seen, float3 kept, out float3 own)
+public float3 shadeProbeHit<V : IVolume, S : ISheetVolume>(V field, S sheets, SceneFieldInfo info, SceneFieldInfo gathered, V albedo, Texture3D<uint> faces,
+    V glow, GiLights lights, V cubes, V reach, float3 p, float3 way, float probes, float spacing, float cascades, bool seen, float3 kept, out float3 own)
 {
-    float3 n = fieldNormalSheet(field, info, p);
+    float3 n = fieldNormalSheet(sheets, info, p);
     float3 color = surfaceAlbedoFacing(faces, albedo, info, p, n);
     float3 bounced = seen ? bouncedSeenAt(field, info, gathered, cubes, p, n, probes, spacing, cascades)
                           : bouncedAt(cubes, reach, gathered, p, n, probes, spacing, cascades);

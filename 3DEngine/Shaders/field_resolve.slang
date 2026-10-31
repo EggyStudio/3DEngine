@@ -51,6 +51,14 @@ RWTexture3D<uint> faceField;
 [[vk::binding(11, 0)]] [format("r8ui")]
 RWTexture3D<uint> stillFaces;
 
+// The word of a second double-sided face as near a cell, as field_splat.slang's painting pass kept
+// it, and the second plane it gives the cell, in xyz as the field's own plane is kept (sheetAt).
+[[vk::binding(12, 0)]]
+StructuredBuffer<uint> second;
+
+[[vk::binding(13, 0)]] [format("rgba16f")]
+RWTexture3D<float4> secondField;
+
 struct ResolvePush
 {
     // x: the cascade. y: the cells along each side. z: the width of a cell. w: the band in cells.
@@ -125,7 +133,12 @@ static const float SheetLength = 2.0;
 // (fieldDistanceIn in scenefield.slang).
 float3 sheetAt(uint3 c, uint size)
 {
-    uint code = cells[(c.z * size + c.y) * size + c.x];
+    return sheetOf(cells[(c.z * size + c.y) * size + c.x]);
+}
+
+// The plane a word gives, as sheetAt keeps it, or nothing.
+float3 sheetOf(uint code)
+{
     float offset = float(code >> 11) / 1024.0;
     if ((code & 0x600u) != 0x200u || offset >= 1.0)
         return float3(0.0);
@@ -176,6 +189,8 @@ void computeMain(uint3 id : SV_DispatchThreadID)
     float4 kept = float4(d, sheetAt(id, size));
     stillField[at] = kept;
     field[at] = kept;
+    uint other = second[(id.z * size + id.y) * size + id.x];
+    secondField[at] = float4(other == 0xFFFFFFFFu ? float3(0.0) : sheetOf(other), 0.0);
     uint color = albedo[(id.z * size + id.y) * size + id.x];
     float4 paint = float4(float(color & 255u), float((color >> 8) & 255u), float((color >> 16) & 255u), float(color >> 24)) / 255.0;
     stillPaint[at] = paint;

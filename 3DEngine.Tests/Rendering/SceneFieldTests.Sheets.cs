@@ -75,6 +75,62 @@ public sealed partial class SceneFieldTests
         UnloadModel(sheet);
     }
 
+    [NeedsVulkanFact]
+    [Trait("Category", "Render")]
+    public void Two_Double_Sided_Sheets_Crossing_Where_Four_Cells_Meet_Are_Both_Met_In_Those_Cells()
+    {
+        // Two upright sheets crossing along a line where four cells meet, as the voxel game's crops
+        // cross, each of those cells lying as near both. Keeping one plane a cell, a point beside
+        // the other sheet in such a cell read the cells' blend alone, half a cell, which a march
+        // passes, and the world's probes standing there read dark round patches at the sheets' feet.
+        var config = Config.Default.WithWindow("scene field crossing", 96, 64) with { Headless = true, Offscreen = true, Samples = 1 };
+        UseApp(new App(config).AddPlugin(new DefaultPlugins()));
+        SetSceneField(1, 0.25f);
+        var sheet = LoadModelFromMesh(GenMeshPlane(2, 2, 1, 1));
+        sheet.Materials[0].DoubleSided = true;
+        var camera = new Camera3D(new Vector3(0, 3, 6), new Vector3(0, 1, 0), Vector3.UnitY, 45);
+        for (int frame = 0; frame < SceneFieldPlan.SettleFrames + 6; frame++)
+        {
+            BeginDrawing();
+            BeginMode3D(camera);
+            DrawModelEx(sheet, new Vector3(0, 1, 0), Vector3.UnitZ, 90, Vector3.One, Color.Gray);
+            DrawModelEx(sheet, new Vector3(0, 1, 0), Vector3.UnitX, 90, Vector3.One, Color.Gray);
+            EndMode3D();
+            EndDrawing();
+        }
+        var renderer = GetApp().World.Resource<Engine.Renderer>();
+        var fields = renderer.RenderWorld.TryGet<SceneFieldRenderer>()!;
+        var device = (GraphicsDevice)renderer.Context.Graphics!;
+        var (first, second) = (device.ReadSceneFieldSheets(fields.Field!), device.ReadSceneFieldSheets(fields.Field!, second: true));
+        const int size = SceneFieldPlan.Resolution;
+        const float cell = 0.25f;
+        var origin = fields.Plan!.BuiltOrigin(0)!.Value;
+
+        // A point's distance from the planes the cell it lies in keeps, as fieldDistanceSheetIn
+        // takes them, the cells' blend left out since it holds no point there nearer than half a cell.
+        float At(float x, float y, float z)
+        {
+            var at = new Vector3((int)MathF.Floor((x - origin.X) / cell), (int)MathF.Floor((y - origin.Y) / cell), (int)MathF.Floor((z - origin.Z) / cell));
+            int index = ((int)at.Z * size + (int)at.Y) * size + (int)at.X;
+            var local = new Vector3(x, y, z) - (origin + (at + new Vector3(0.5f)) * cell);
+            float Plane(float[] planes)
+            {
+                var kept = new Vector3(planes[index * 3], planes[index * 3 + 1], planes[index * 3 + 2]);
+                return kept.Length() < 0.5f ? float.MaxValue
+                    : MathF.Abs(Vector3.Dot(local, Vector3.Normalize(kept)) - (kept.Length() - 2) * cell) - 0.25f * cell;
+            }
+            return MathF.Min(Plane(first), Plane(second));
+        }
+
+        // In each of the four cells about the crossing, beside each sheet.
+        foreach (var (sx, sz) in new[] { (1, 1), (-1, 1), (1, -1), (-1, -1) })
+        {
+            At(sx * cell * 0.02f, 1, sz * cell * 0.6f).Should().BeLessThan(cell * 0.1f, $"the sheet across x is met in the cell at {sx}, {sz}");
+            At(sx * cell * 0.6f, 1, sz * cell * 0.02f).Should().BeLessThan(cell * 0.1f, $"the sheet across z is met in the cell at {sx}, {sz}");
+        }
+        UnloadModel(sheet);
+    }
+
     [NeedsVulkanTheory]
     [Trait("Category", "Render")]
     [InlineData(GlobalIllumination.Low)]
