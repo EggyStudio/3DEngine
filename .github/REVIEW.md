@@ -1,60 +1,50 @@
 # Review
 
-Reviewed up to `da54d289`, item 146's first commit, pushed at 07:23 on 2026-10-31 with `7bdfaa9e`,
-Verdict 95's mend, and `fdde73b2`, item 131's second commit, after the run of `b16f26b5` ended
-cancelled, its run green at 09:37 with Windows in 133 minutes where 74 at `2ad96a80`, Linux in 77
-under its new limits and macOS in 36, which settles Verdict 95; the Windows time is watched at the
-next run. After it `10295556`, 146's second commit, pushed with `19658e55` at 09:37 after that run,
-the field holding the meshes drawn into the shadow maps alone as any other, item 101's meaning
-changed by the reviewer's call and open to the owner's word, a test of a room under a ShadowOnly
-roof, the still frame and the steps' slowest unchanged at 12 columns and the GPU's blocks alike;
-2,139 on the GPU in both orders, 78 on lavapipe with validation. The plain GPU run of `7bdfaa9e` and
-`da54d289` read ObserverTests' no-observer allocation once at 1,768 bytes on its thread, 5 of 5
-alone, an ECS test the batch does not touch, watched. After it `19658e55`, item 136, pushed with
-`10295556`, its run green at 11:16 with Windows in 98 minutes, Linux in 77 and macOS in 36, so the
-133 was the runner's and no item, the pack run started at 09:40 awaited, the path-traced reference
-crossing a surface that lets light through by its share for its depth along each path, the old query
-kept bit-identical where no such surface is, a slab test at 0.3358 against 0.3360, a note with three
-sheets, the canopy letting 65% more through at High than the reference at 2.5 up, the grove's floor
-under a crown -8% against the new reference where +5% against the old; 2,140 on the GPU in both
-orders, the reference tests skipped on lavapipe. It carries N 4.9 and Decision 76, the Shared row
-and the 146 note's line. `da54d289` keeps the field's pool of triangles for the build's meshes, each
-mesh's open edges kept once found and the parts cut with a sort by keys, SceneField.Pool.cs with a
-note; the step test's frames at 12 columns 40 ms at their 99th part to 25 and 42 at the slowest to
-28, at 8 columns 25 to 14 and 30 to 20, the field's content unchanged. `7bdfaa9e` makes test.py read
-a test ended in under a millisecond as ended, run again only the tests a lost run left, hold the
-Linux job to 150 minutes and each of its runs to 90, and names item 131's tests in a note.
-`fdde73b2` keeps a second double-sided face of another way in a cell where two walls cross, recorded
-under item 131 in REVIEW-ARCHIVE.md. Before it `b16f26b5`, item 131's first commit, pushed at 02:53
-on 2026-10-31, its run cancelled at 03:51 on Linux alone past test.py's 40-minute limit and the
-job's 100 (Verdict 95), Windows and macOS green, the plane a cell recorded under item 131 in
-REVIEW-ARCHIVE.md. Before it `2ad96a80`, item 135, pushed at 22:13 on 2026-10-30, its run green
-whole at 23:28 with Windows in 74 minutes, Linux in 68 and macOS in 35, the screen probes' jittered
-rays and sixteen-frame history recorded under the item in REVIEW-ARCHIVE.md. Before it `e96a6bb8`,
-pushed with `c3214cbe` at 19:52 on 2026-10-30, its run green whole at 21:51, Windows in 119 minutes,
-Linux in 44 and macOS in 33. `c3214cbe` is item 134, a resize asked before the first frame carried
-out at once past the debounce a load held back, with a test and the window guide's line, and
-AGENTS.md's REVIEW.md line as the owner asked. `e96a6bb8` is item 132's reading with no mend, the
-note 2026-10-30-item-132-recording.md; at 12 columns 5.6 to 6.5 ms of the four passes' 9.6 to 11.5
-is a descriptor set made and written for every draw in every pass, about 2,045 a frame at 2.8 to 3.2
-microseconds each with every section's set holding the same values, and one set a frame in a scratch
-copy takes the passes to 5.1 ms at 12 and from 18.4 to 19.7 to 7.6 at 16, the frame at 16 from 26.6
-to 17.9 ms, the land's pixels within 0.08 of 255. 2,135 on the GPU in both orders, the resize tests
-on lavapipe with validation. Before it `1703c54e`, item 97, pushed by the owner's hand at 16:54 on
-2026-10-26 while the sessions were paused until 2026-10-30, its run green whole at 19:33 with
-Windows in 99 minutes. The ninth pack run started with publish on at 18:41 on 2026-10-30, since the
-owner sees item 97's specks in the voxel game and its package lacked the mend; the run went green
-whole at 21:05, Windows in 101 minutes and the games in 71, the package 5.2.333 pushed to nuget.org
-with items 97, 129, 130, 89, 95, 91 and 93, the game told. Before it on 2026-10-26, each green but
-where said: `987f07ae` (Verdict 94's mend) with `969a1b08` (item 129); `7ff7bbdd` (130), red on the
-examples job alone, Verdict 94; `b05b32da` (89); `0a4ad922` (the README's quick links); `5528c55c`
-(95); `d207627e` (91), `bb542fa4` (93) and `0754b975` (128), the eighth pack run publishing 5.2.326
-at 13:13; `2f5237f2` (127); `78946b22` (112), the seventh pack run publishing 5.2.322 at 09:14;
-`7af16fcd` (Verdict 93's mend); `45edfbf6` (111); `a16227a7` (100), the sixth pack run publishing
-5.2.319 at 04:21 on its second attempt. Each commit's detail stands in its item in
-REVIEW-ARCHIVE.md, its devlog note and its own words. On 2026-10-30 at 18:0x the owner wrote the
-README's new words (item 133) and the focus on radiance cascades (Decision 74), questions asked
-back, and asked that the sessions spend fewer tokens at the same quality, N 7.7.
+Reviewed up to `2b8e8541`, item 137's first commit, pushed at 11:27 on 2026-10-31 after the run of
+`19658e55` went green at 11:16, its run awaited, the pack run started at 09:40 from `19658e55`
+awaited too. A probe of a cascade above the first whose spot lies in or beside a wall between a
+space narrow along two axes and a wider one steps through the wall's farther face into the narrow
+space, the cause and the numbers recorded under the item with a note; 2,140 on the GPU in both
+orders, 13 on lavapipe with 11 skipped for ray queries. It carries N 4.9 as rewritten, N 4.10,
+Decisions 76 and 77, .gitignore's dump line and a Shared line. After it `edf301e0`, the version to
+6.0 in build/version.txt, the owner's change committed by the reviewer on the owner's word, held
+until the run of `2b8e8541` ends. Before it `19658e55`, item 136, pushed with `10295556` at 09:37,
+its run green at 11:16 with Windows in 98 minutes, Linux in 77 and macOS in 36, the path-traced
+reference crossing surfaces that let light through, recorded under the item in REVIEW-ARCHIVE.md.
+Before it `10295556`, item 146's second commit, ShadowOnly draws kept in the field, recorded under
+the item. Before it `da54d289`, item 146's first commit, pushed at 07:23 with `7bdfaa9e`, Verdict
+95's mend, and `fdde73b2`, item 131's second commit, its run green at 09:37 with Windows in 133
+minutes, Linux in 77 and macOS in 36, which settled Verdict 95; the plain GPU run of `7bdfaa9e` read
+ObserverTests' no-observer allocation once at 1,768 bytes, 5 of 5 alone, watched. Before it
+`b16f26b5`, item 131's first commit, pushed at 02:53 on 2026-10-31, its run cancelled at 03:51 on
+Linux alone past test.py's 40-minute limit and the job's 100 (Verdict 95), Windows and macOS green,
+the plane a cell recorded under item 131 in REVIEW-ARCHIVE.md. Before it `2ad96a80`, item 135,
+pushed at 22:13 on 2026-10-30, its run green whole at 23:28 with Windows in 74 minutes, Linux in 68
+and macOS in 35, the screen probes' jittered rays and sixteen-frame history recorded under the item
+in REVIEW-ARCHIVE.md. Before it `e96a6bb8`, pushed with `c3214cbe` at 19:52 on 2026-10-30, its run
+green whole at 21:51, Windows in 119 minutes, Linux in 44 and macOS in 33. `c3214cbe` is item 134, a
+resize asked before the first frame carried out at once past the debounce a load held back, with a
+test and the window guide's line, and AGENTS.md's REVIEW.md line as the owner asked. `e96a6bb8` is
+item 132's reading with no mend, the note 2026-10-30-item-132-recording.md; at 12 columns 5.6 to 6.5
+ms of the four passes' 9.6 to 11.5 is a descriptor set made and written for every draw in every
+pass, about 2,045 a frame at 2.8 to 3.2 microseconds each with every section's set holding the same
+values, and one set a frame in a scratch copy takes the passes to 5.1 ms at 12 and from 18.4 to 19.7
+to 7.6 at 16, the frame at 16 from 26.6 to 17.9 ms, the land's pixels within 0.08 of 255. 2,135 on
+the GPU in both orders, the resize tests on lavapipe with validation. Before it `1703c54e`, item 97,
+pushed by the owner's hand at 16:54 on 2026-10-26 while the sessions were paused until 2026-10-30,
+its run green whole at 19:33 with Windows in 99 minutes. The ninth pack run started with publish on
+at 18:41 on 2026-10-30, since the owner sees item 97's specks in the voxel game and its package
+lacked the mend; the run went green whole at 21:05, Windows in 101 minutes and the games in 71, the
+package 5.2.333 pushed to nuget.org with items 97, 129, 130, 89, 95, 91 and 93, the game told.
+Before it on 2026-10-26, each green but where said: `987f07ae` (Verdict 94's mend) with `969a1b08`
+(item 129); `7ff7bbdd` (130), red on the examples job alone, Verdict 94; `b05b32da` (89); `0a4ad922`
+(the README's quick links); `5528c55c` (95); `d207627e` (91), `bb542fa4` (93) and `0754b975` (128),
+the eighth pack run publishing 5.2.326 at 13:13; `2f5237f2` (127); `78946b22` (112), the seventh
+pack run publishing 5.2.322 at 09:14; `7af16fcd` (Verdict 93's mend); `45edfbf6` (111); `a16227a7`
+(100), the sixth pack run publishing 5.2.319 at 04:21 on its second attempt. Each commit's detail
+stands in its item in REVIEW-ARCHIVE.md, its devlog note and its own words. On 2026-10-30 at 18:0x
+the owner wrote the README's new words (item 133) and the focus on radiance cascades (Decision 74),
+questions asked back, and asked that the sessions spend fewer tokens at the same quality, N 7.7.
 
 Next 137, then the cascades in order, 138, 139, 140, 141 and 142 (Decision 75), and 133 when the
 owner answers on its mark; 132, 143, 144 and 145 wait behind them.
@@ -980,7 +970,29 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     interval where no coarser probe holds the space. Read by the pocket's face and the corridor's
     walls, 67 to 69% under today, against the reference of the item before. One or two commits. It
     takes item 131's lead too, a world probe standing on both sheets of a crossing on the grid
-    leaving a dark round patch at the crossing's foot, gone when the walls shift off the grid.
+    leaving a dark round patch at the crossing's foot, gone when the walls shift off the grid. First
+    commit `2b8e8541`, read at 11:45. The corridor's walls by its open end lie past the first
+    cascade's reach and read the second, whose spots at z 1.2 either side sat inside the 0.3 walls
+    and were moved out through the nearer face to 1.54, so no second-cascade probe stood inside and
+    those walls got nothing past the first bounce, the corridor's probe reading 0 on every face
+    against 0.015 to 0.125 in the reference. The mend places a spot of a cascade above the first
+    that lies in or beside a wall between a space narrow along two axes and a wider one through the
+    wall's farther face into the narrow space, the second-cascade probes at 0.66 either side reading
+    16, 3 and 30% under their references. Against 1,024-path references the corridor's walls at Low
+    go from 72 and 73% under to 54 and 53, at High stay 67% under, the ceiling and floor at High
+    from 52 and 54 to 42 and 48, the distance 18% nearer at High and 5 at Low; the other eight rooms
+    read the same distance at both qualities but the strip room at High 1.0% further, within the 1%
+    the Cornell box and the strip room move with the shader's text alone. Global illumination at
+    1920 by 1080 at High 1.79 to 1.83 ms in the corridor where 2.23, the Cornell box alike. Left
+    out, moving the first cascade's probes too (the Cornell box at Low +1.4%), spaces narrow along
+    one axis (the strip room at Low +0.3%) and a most-open fallback for probes left on a sheet (the
+    window room +5 and +16%). The pocket's leaf sides read 2 to 4 times the reference that crosses
+    leaves, not dark against truth; item 131's patches stay at 2,475 under first-cascade probes over
+    the half-unit squares' middles, their faces within 13 to 21%. The note
+    2026-10-31-item-137-corridor.md. Second commit next, the carry, a first-cascade probe that sees
+    none of the second's carrying its rays to the field's edge and bringing no sky where they meet
+    nothing, which with the placement takes the corridor's walls at High to 60 and 62% under and the
+    distance 25% nearer, every room within the spread.
 
 138. **A crossing of leaves takes its transmission from the leaves' depth along the ray.** Decision
     75's fifth item. Item 100's slab, 20 across and 5 up, takes 0.32 of the sky's light at High
@@ -1168,6 +1180,31 @@ REVIEW-ARCHIVE.md.
     that every picture a session reads or compares be shown in the session as it is made, none kept
     behind the scenes; N 4.10 says so.
 
+78. **Six ideas for later, thought about and not scheduled.** The owner wrote on 2026-10-31 at about
+    11:50 six things to consider in the future, a landscape tool with non-destructive stamps,
+    procedural generation, erosion, vegetation placement and texture mapping; parallax occlusion
+    mapping and tessellation for vegetation in tiers; the two engines' levels interchangeable
+    through one level-building system; Blender files used live; Unity and UnityEngine namespaces as
+    a bridge for Unity packages; and the big parts, radiance cascades, the editor, the modeling and
+    the level builder, as engine-agnostic libraries like BepuPhysics; and said they are thought
+    about, written down for the future and taken when it suits. Written as rows to consider in
+    SHARED.md, with the Valve 220 levels' own row. At 12:0x the owner added the vegetation of
+    BevyCSharp made engine-agnostic too, bridged to and used by both engines; a row of its own, the
+    species, skeleton, meshes, texture sets and placement as one managed package and each engine
+    binding the leaves' material, the wind, the impostors and the light through. At 12:2x the owner
+    made the repositories `Modeling`, `Vegetation`, `Levels`, `Landscape` and `RadianceCascades`
+    under EggyStudio, cloned beside the engines under `Projects/Modules/`, each with its license
+    alone; they are filled when the GI items are done, the coder owning the code today moving it and
+    the other engine's coder binding the package, the reviewer writing each one's REVIEW.md and
+    NORM.md at its birth. A sixth, `Tools`, made at 12:3x on the reviewer's proposal, for the
+    scripts and the shared documents' sources the repositories duplicate by hand. The reviewer's
+    view there in short, the levels and the Blender path small, the landscape tool large and the
+    best candidate for one managed library, tessellation 3DEngine's alone since Bevy's renderer has
+    no tessellation stage, the Unity bridge feasible as a script subset only, and the cascades
+    sharing their CPU side and Slang shaders while each engine keeps its GPU binding; the order when
+    the time comes Blender, the levels with the modeling library, the landscape tool, parallax and
+    the tiers, the Unity subset last, none before Decision 75's items.
+
 ## Replies
 
 Shared: a mesh that replaced a still one in place is not stamped as boxes while a cascade the
@@ -1191,8 +1228,3 @@ and the probe keeps up to sixteen frames of its light before the window's filter
 kept light lies past three times the error of its like neighbors' blend, which took the bounce
 rooms' still spots from 4 to 24 a view to 4 to 17, a still view's change at its 99th part 2.6% at
 most (item 135).
-
-Shared: a probe of the cascades above the first whose spot lies in or beside a wall between a space
-narrower than its spacing along two axes and a wider one is placed in the narrow one, through the
-wall's farther face, which took a corridor two units wide in walls 0.3 thick from 72 and 73% under a
-path-traced reference to 54 and 53% at Low, its view 18% nearer at High (item 137).

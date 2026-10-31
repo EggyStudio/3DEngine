@@ -6495,3 +6495,8 @@ under rock the view leaves out keeps the sky's light off its floor as the shadow
 and the field's pool of triangles holds the build's meshes with each mesh's open edges kept once
 found, which took the voxel game's frames at their 99th part from 40 ms to 25 as its eye crossed
 sections at 12 columns (item 146).
+
+Shared: a probe of the cascades above the first whose spot lies in or beside a wall between a space
+narrower than its spacing along two axes and a wider one is placed in the narrow one, through the
+wall's farther face, which took a corridor two units wide in walls 0.3 thick from 72 and 73% under a
+path-traced reference to 54 and 53% at Low, its view 18% nearer at High (item 137).

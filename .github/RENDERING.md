@@ -2184,6 +2184,18 @@ reference, and the placement leaves them, 2,475 pixels. The voxel game's rain fo
 crossing the leaves, so they take the light that reaches them, and every region of the view reads
 against it as before with the placement.
 
+**The first cascade's rays carried past their interval, read on 2026-10-31.** A probe of the first
+cascade that sees none of the second's probes around it outside every mesh has no probe to give it
+what lies past its interval, so its rays go on to the field's edge and bring the light of what they
+meet there, and one that meets nothing brings nothing. With the second cascade's probes placed in
+the corridor, this took its walls at `High` from 67% under its reference to 60 and 62%, its ceiling
+from 42 to 38% and its floor from 48 to 45%, its view 25% nearer the reference where 18% with the
+placement alone, `Low` as the placement left it, and every other room as it was, global illumination
+1.83 to 1.87 ms in the corridor at 1920 by 1080 at `High` where 1.80 to 1.81 and the Cornell box
+alike. Alone it changed no room. Bringing the sky where a ray met nothing, as the last cascade's
+rays do, lit the closed room of `CascadeEdgeTests` through the cascades not yet built in its first
+frames at 0.060 in linear light, over twice what its floor settles at.
+
 **The screen's probes on thin two-sided walls, read on 2026-10-26.** In a room built as the voxel
 game's wheat field, thin two-sided walls a block tall four to a block, half a unit apart, under the
 game's sun at ten in the morning, the walls facing the eye and the sun read 44% over a path-traced
@@ -2915,9 +2927,10 @@ BounceRoomsTests with its bounds at zero), or cost more than it gave, or left th
   above lit its probes to 86% under where 100%, the view moving by 0.005 at most, at 0.01 to 0.06
   ms. Since 2026-10-31 a spot of the cascades above the first, in or beside a wall between a space
   narrower than the spacing along two axes and a wider one, goes into the narrow one through the
-  wall's farther face (`placed` in `gi_trace.slang`), which takes the corridor's walls at `Low` to
-  54 and 53% under, its view 5% nearer its reference at `Low` and 18% at `High`, where its walls
-  stand at 67 to 69% under, every other room as it was (the reading below).
+  wall's farther face (`placed` in `gi_trace.slang`), and a probe of the first cascade that sees
+  none of the second's carries its rays on to the field's edge, which takes the corridor's walls to
+  54 and 53% under at `Low` and 60 and 62% at `High`, its view 5% nearer its reference at `Low` and
+  25% at `High`, every other room as it was (the readings below).
 - **The faces' read of light that runs along a surface.** A surface reads the probes' faces along
   its normal alone, so light running along a corridor, which its probes hold in the faces toward its
   ends, reaches its walls and floor only where a surface faces it, the mid-corridor probe's face

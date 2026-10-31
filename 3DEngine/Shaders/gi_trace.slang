@@ -104,7 +104,8 @@ struct TracePush
     // x: where the interval starts. y: where it ends. z: the probes' spacing in cells. w: how many cascades.
     float4 interval;
     // x: 1 where each probe's share holds for the probe, its cascade lying where it lay the frame
-    // before. y: unused. z: the frame's parity.
+    // before. y: the bits of the last cascade's interval's end, the field's edge, which a probe
+    // that sees no probe of the cascade above carries its rays on to. z: the frame's parity.
     uint4 follow;
 };
 
@@ -116,6 +117,10 @@ groupshared float4 place;
 // Whether the gather found the frame before that the probe's rays met more faces from behind than
 // from in front (gi_ambient.slang), so it stands inside a solid.
 groupshared bool walledIn;
+
+// Whether the probe sees any of the eight probes of the cascade above around it, as the merge asks
+// (gi_merge.slang), set by the group's first eight rays for every ray of it.
+groupshared uint seesAbove;
 
 // The field's layout with each cascade at the corner it lay at the frame before, where the faces of
 // the indirect light, which the rays read, were gathered. Read at this frame's corners, a
@@ -300,8 +305,33 @@ void computeMain(uint3 id : SV_DispatchThreadID, uint lane : SV_GroupIndex)
         walledIn = place.w > 0.5 && push.follow.x != 0u && held[int3(2 * int(probes) + int(at.x), int(at.y), z)].w > 0.5;
         held[int3(3 * int(probes) + int(at.x), int(at.y), z)] = walledIn ? float4(place.xyz, 0.0) : place;
     }
+    if (lane == 0u)
+        seesAbove = 0u;
     GroupMemoryBarrierWithGroupSync();
     float3 origin = spot + place.xyz * apart;
+    // A probe below the last cascade that sees none of the probes above it standing outside every
+    // mesh has no probe to give it what lies past its interval, so its rays go on to the field's
+    // edge and bring the light of what they meet there. One that meets nothing brings nothing, its
+    // reach its interval's end, since bringing the sky as the last cascade's rays do lit a closed
+    // room's floor in its first frames through the cascades not yet built, 0.060 in linear light
+    // where it settles under half that (CascadeEdgeTests). With the second cascade's probes placed
+    // inside the corridor of shaders_bounce_rooms, this took its walls at High from 67% under a
+    // path-traced reference to 60 and 62%, its view 25% nearer the reference where 18% without.
+    if (lane < 8u && push.cascade.w == 0u && oc.w > 0.0 && place.w > 0.5)
+    {
+        uint upperCascade = push.cascade.x + 1u;
+        float4 ac = cascadeAt(fieldInfo, upperCascade, int(push.interval.w));
+        float upperApart = ac.w * push.interval.z;
+        int3 base = int3(floor((spot - ac.xyz) / upperApart - 0.5));
+        int3 neighbor = clamp(base + int3(int(lane & 1u), int((lane >> 1) & 1u), int(lane >> 2)), int3(0), int3(int(probes) - 1));
+        float4 upperPlace = held[int3(3 * int(probes) + neighbor.x, neighbor.y, int(upperCascade) * int(probes) + neighbor.z)];
+        float3 upperProbe = ac.xyz + (float3(neighbor) + 0.5 + upperPlace.xyz) * upperApart;
+        if (ac.w > 0.0 && upperPlace.w > 0.5 && seesPastLeaves(sceneField, fieldAlbedo, fieldInfo, origin, upperProbe, oc.w * 0.5))
+            InterlockedOr(seesAbove, 1u);
+    }
+    GroupMemoryBarrierWithGroupSync();
+    bool carried = push.cascade.w == 0u && seesAbove == 0u;
+    float end = carried ? asfloat(push.follow.y) : push.interval.y;
     float4 light = float4(0.0, 0.0, 0.0, 1.0);
     float3 own = float3(0.0);
     float reached = 0.0;
@@ -330,7 +360,7 @@ void computeMain(uint3 id : SV_DispatchThreadID, uint lane : SV_GroupIndex)
         // read it as High's do (gi.screenprobe).
         float2 within = each == 1u ? float2(0.5) : float2(float(quarter & 1u), float(quarter >> 1u)) * 0.5 + 0.25;
         float3 way = fromOctahedron((float2(texel) + within) / float(texels));
-        float t = traceFieldSheets(SheetVolume(sceneField, fieldSecond), fieldInfo, origin, way, 0.0, push.interval.y);
+        float t = traceFieldSheets(SheetVolume(sceneField, fieldSecond), fieldInfo, origin, way, 0.0, end);
         reached = t >= 0.0 ? t : push.interval.y;
         // A ray that came on a face from behind it stops half a cell or more behind the face,
         // having stepped from a cell no face comes within the band of, which the field holds as
@@ -383,7 +413,7 @@ void computeMain(uint3 id : SV_DispatchThreadID, uint lane : SV_GroupIndex)
             float leaf = lightThroughAt(fieldAlbedo, fieldInfo, at);
             float passing = layer < 4 ? leaf : 0.0;
             bool inside = false;
-            float depth = passing > 0.0 ? lightThroughDepth(sceneField, fieldInfo, origin, way, t, push.interval.y - t, inside) : -1.0;
+            float depth = passing > 0.0 ? lightThroughDepth(sceneField, fieldInfo, origin, way, t, end - t, inside) : -1.0;
             float passes = depth >= 0.0 ? lightThroughKept(passing, depth, fieldCell(fieldInfo, at), inside) : 0.0;
             if (depth >= 0.0 && t < push.interval.x)
                 keptBefore *= passes;
@@ -406,7 +436,7 @@ void computeMain(uint3 id : SV_DispatchThreadID, uint lane : SV_GroupIndex)
             if (depth < 0.0)
                 break;
             // A ray still within at its interval's end met nothing past it, its share handed on.
-            t = inside ? -1.0 : traceFieldSheets(SheetVolume(sceneField, fieldSecond), fieldInfo, origin, way, t + depth, push.interval.y);
+            t = inside ? -1.0 : traceFieldSheets(SheetVolume(sceneField, fieldSecond), fieldInfo, origin, way, t + depth, end);
         }
         [loop]
         for (int shaded = 0; shaded < 2; shaded++)

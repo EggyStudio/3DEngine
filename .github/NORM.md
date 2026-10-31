@@ -237,12 +237,16 @@ comparison and sheet a session makes while it works, went to its scratch space a
 session. Each goes as it is made, as captured, into `.github/dump/<date>/` under the repository,
 named by the time, the item and a word, as `09-41-item-83-meadow-before.png`, with a line in that
 day's `captions.md`, the file's name then a bar then one sentence, written as the shot is taken. The
-folder is in `.gitignore` and never committed; the owner reads it and prunes it by day. A session
-takes its shots there directly rather than copying them after, so nothing is lost when a session
-ends or the machine restarts. Every picture a session reads or compares is also shown to the owner
-in the session as it is made, with its sentence, since the owner follows the work by its pictures
-and a capture compared behind the scenes and never shown is work the owner cannot see. By review,
-the reviewer reading a day's folder against the items worked.
+folder is in `.gitignore` and never committed; the owner reads it and prunes it by day. A
+recording's frames and any set of pictures past a few hundred megabytes go there as well, under a
+folder of their own, and never into a session's scratch space, which is RAM-backed and held 8.8 GB
+of one recording's frames on 2026-10-31 until the machine ran short and another session broke; a
+finished experiment's frames are deleted at once. A session takes its shots there directly rather
+than copying them after, so nothing is lost when a session ends or the machine restarts. Every
+picture a session reads or compares is also shown to the owner in the session as it is made, with
+its sentence, since the owner follows the work by its pictures and a capture compared behind the
+scenes and never shown is work the owner cannot see. By review, the reviewer reading a day's folder
+against the items worked.
 
 ## 5 Examples and games
 
