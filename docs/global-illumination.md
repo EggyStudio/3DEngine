@@ -86,21 +86,24 @@ be a light of its own, below.
 A frame's builds splat 32,768 triangles at most unless `triangleBudget` says otherwise, the meshes
 within a cascade nearest the eye first, a mesh at least. A build of more goes on over the frames
 after, its cascade holding what it was last built with until the build ends and the meshes not yet
-built in held as boxes meanwhile, so hundreds of sections of a world streamed in at once, on a
-teleport or a first load, are built over several frames rather than stalling one. On an RTX 4070
-Laptop GPU, 500 sections of 1,024 triangles arriving at once took the field 41.8 ms in one frame
-with no budget, and 2.5 to 6.5 ms at most a frame over 27 frames at the default. `games/Ore` splats
-18,824 triangles a build, within the default, so its builds go as before. A scene of fewer
-triangles builds as many cascades a frame as `updateBudget` says. The frame profile
-names the field's cost as `scene_field`, which a game reads with `./e3d command profile` to set the
-budget for its own device.
+built in left out meanwhile, or held as boxes where they moved before they settled, so hundreds of
+sections of a world streamed in at once, on a teleport or a first load, are built over several
+frames rather than stalling one. On an RTX 4070 Laptop GPU, 500 sections of 1,024 triangles arriving
+at once took the field 41.8 ms in one frame with no budget, and 2.5 to 6.5 ms at most a frame over
+27 frames at the default. `games/Ore` splats 18,824 triangles a build, within the default, so its
+builds go as before. A scene of fewer triangles builds as many cascades a frame as `updateBudget`
+says. The frame profile names the field's cost as `scene_field`, which a game reads with `./e3d
+command profile` to set the budget for its own device.
 
-A mesh held as its box stands in the field as a solid block, so a box much larger than what it holds
-fills the space around it meanwhile, as the box of a building's outer walls fills the whole
-building. Sponza's 3.75 million triangles took 330 frames to build at the default budget, its rooms
-shaded from the sun and dark until then, so `scenes_sponza` sets a budget of four million and an
-update budget of four, which builds every cascade a view moves into in the frame of the jump, 0.23
-to 0.46 s on an RTX 4070.
+A mesh that came and has not moved, as a scene's on its first load or a world's section streamed in,
+stands in for nothing until it is built, since a box much larger than what it holds fills the space
+around it, as the box of a building's outer walls filled the whole of Intel's Sponza and darkened
+every room for the 330 frames its 3.75 million triangles took to build at the default budget, the
+atrium's sunlit floor 29, 39 and 54 of 255 where 160, 143 and 123 once built. Left out, it reads
+its own from the first frames, and the sky's light reaches the floor in shade through what is not
+yet built meanwhile, so `scenes_sponza` sets a budget of four million and an update budget of four,
+which builds every cascade a view moves into in the frame of the jump, 0.23 to 0.46 s on an RTX
+4070.
 
 `farCascade` adds a far cascade past the others, which `cascades` leaves out of its count, 64 cells
 a side as each is, its cells as wide as reaching that many units ahead of the camera takes. It is

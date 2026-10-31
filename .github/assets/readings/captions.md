@@ -39,3 +39,5 @@
 2026-10-31-item-148-sponza-arcades-16.webp | Intel's Sponza in scenes_sponza at its arcades view at 16:00, at 800 by 450 at High.
 2026-10-31-item-148-sponza-door-12.webp | Intel's Sponza in scenes_sponza at its door view at noon, at 800 by 450 at High.
 2026-10-31-item-148-sponza-door-16.webp | Intel's Sponza in scenes_sponza at its door view at 16:00, at 800 by 450 at High.
+2026-10-31-item-150-sponza-before.webp | Sponza's atrium at noon about 70 frames into a fresh start at the field's default budget, its meshes stamped as boxes while they wait for their build.
+2026-10-31-item-150-sponza-after.webp | Sponza's atrium at noon about 70 frames into a fresh start at the field's default budget, its meshes standing in for nothing while they wait for their build.

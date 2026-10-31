@@ -79,9 +79,8 @@ public static class ScenesSponza
         // The building is 36 units long, 20 wide and 18 high, so the field's four cascades of cells
         // an eighth of a unit reach 8, 16, 32 and 64 units across, the last holding all of it. Its
         // 3.75 million triangles are built into every cascade the camera's jump to a view moves in
-        // one frame, 0.23 to 0.46 s on an RTX 4070, since a mesh waiting for its build stands in the
-        // field as its box, and the box of the outer walls fills the building and shades the sun
-        // from all of it, for the 330 frames the default budget took.
+        // one frame, 0.23 to 0.46 s on an RTX 4070, where the default budget took 330 frames, the
+        // sky's light reaching the floor in shade through the meshes not yet built meanwhile.
         SetSceneField(4, 0.125f, updateBudget: 4, triangleBudget: 4_000_000);
         SetGlobalIllumination(GlobalIllumination.High);
         // The sun stands at the hour asked, rising over the main door and setting over the lion along

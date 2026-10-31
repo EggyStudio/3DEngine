@@ -75,6 +75,9 @@ public sealed partial class GlobalIlluminationTests
         var settings = GetApp().World.Resource<GlobalIlluminationSettings>();
         var renderer = GetApp().World.Resource<Engine.Renderer>();
 
+        // The room drawn once first, since its slabs stand in for nothing until the field has
+        // built them, and the light of those frames rides in the probes' history a while.
+        Capture(Room, camera);
         settings.ScreenOff = true;
         var marched = Capture(Room, camera);
         var gi = renderer.RenderWorld.TryGet<GlobalIlluminationRenderer>()!;

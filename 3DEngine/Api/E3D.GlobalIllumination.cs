@@ -24,9 +24,11 @@ public static partial class E3D
     /// its triangles on the GPU, and one that moves is stamped each frame as boxes rather than its
     /// triangles, in its color and with none of its emission. A skinned mesh is a box for each
     /// joint around the vertices it holds, posed, so a character's shadows in global illumination
-    /// are those of its limbs as boxes,
-    /// and one that does not bend a box for each of up to eight parts its triangles are cut into. A
-    /// cascade is built again where the camera has gone past it or a mesh came or went,
+    /// are those of its limbs as boxes, and one that does not bend a box for each of up to eight
+    /// parts its triangles are cut into. A mesh that came and has not moved, as a scene's on its
+    /// first load, stands in for nothing until it is built, since a box larger than what it holds
+    /// fills the space around it. A cascade is built again where the camera has gone past it or a
+    /// mesh came or went,
     /// <paramref name="updateBudget"/> a frame at most, the finest first, so a game sets a larger
     /// budget for a scene that changes and a smaller one for a slow GPU. The frame profile names
     /// its cost as <c>scene_field</c>.
@@ -34,10 +36,11 @@ public static partial class E3D
     /// <para>
     /// A frame's builds splat <paramref name="triangleBudget"/> triangles at most, a mesh at least,
     /// the still meshes within a cascade's band nearest the eye first, and a build of more goes on
-    /// over the frames after, its cascade keeping what it was last built with until the build ends
-    /// and the meshes not yet splatted stamped as boxes meanwhile. So hundreds of meshes arriving in
-    /// one frame, as a world streamed in on a teleport or a first load, are built over several frames
-    /// rather than stalling one, and a scene of fewer triangles builds as many cascades a frame as
+    /// over the frames after, its cascade keeping what it was last built with until the build ends,
+    /// the meshes not yet splatted left out meanwhile where they came and never moved and stamped
+    /// as boxes where they moved before they settled. So hundreds of meshes arriving in one frame,
+    /// as a world streamed in on a teleport or a first load, are built over several frames rather
+    /// than stalling one, and a scene of fewer triangles builds as many cascades a frame as
     /// <paramref name="updateBudget"/> says.
     /// </para>
     /// <para>

@@ -35,23 +35,23 @@ the water 30.2 and 26.5 s to 26.8 on a first run and 0.98 on a second; the mirro
 made on workers, a batch whose pipeline is not ready skipped and the mirror shown only once a frame
 drew with nothing pending, a cold start with both caches empty 4.57 s where 26.8 to 30.2, 3.59 of it
 the window's own pass compiling the water's pipelines at first sight, left synchronous; 2,143 on the
-GPU in both orders. After it `52a1cb3f`, 148's first commit, and `b4d0d03c`, item 149, held until
-the run of `14b258c7` ends. The first brings BC1, BC5 and BC7 in UNorm and sRGB with
-textureCompressionBC where the device has it, a KTX2 reader refusing supercompressed files and other
-formats with the reason, every level copied from one staging buffer with no mips generated, the
-decoder registered for .ktx2 so models' textures and LoadTexture come through it, a block texture
-read back through a blit; three departures, the average and translucency from BC7's whole first
-level and from a 64-texel level for BC1 and BC5 rather than one pixel, since a cutout's edges turn
-partial in a mip and BC1's alpha is 0 or 255, a buffer the CPU alone reads in host-cached memory
-where the device has it (4 MB read back in 5 ms where 34 write-combined, Sponza's 72 textures'
-upload frame 2.4 s to 0.07), and build/make-scene-pack.py in this commit since the decoder's refusal
-names it; the arch wall against Pillow's decoder equal in BC7, within 3 of 255 in BC5 and 4 in BC1,
-83.9 MB on the GPU where 402.7 as pixels, the note 2026-10-31-item-148-blocks.md; 2,148 on the GPU
-in both orders, 167 on lavapipe with validation. The second raises the Windows push limit to 180 and
-makes test.py's split take PART=N+Class, a class named after the plus running in a process of its
-own, Windows running Rendering=2+GlobalIlluminationTests since Rendering's first half read 33.5 to
-67.2 minutes against its 70 over the five Windows digests since `2ad96a80`; 2,149 on the GPU in both
-orders. After it `82a02b9d`, 148's second commit, held the same, the manifest
+GPU in both orders. After it `52a1cb3f`, 148's first commit, and `b4d0d03c`, item 149, pushed at
+18:34 with the three after them once that run ended. The first brings BC1, BC5 and BC7 in UNorm and
+sRGB with textureCompressionBC where the device has it, a KTX2 reader refusing supercompressed files
+and other formats with the reason, every level copied from one staging buffer with no mips
+generated, the decoder registered for .ktx2 so models' textures and LoadTexture come through it, a
+block texture read back through a blit; three departures, the average and translucency from BC7's
+whole first level and from a 64-texel level for BC1 and BC5 rather than one pixel, since a cutout's
+edges turn partial in a mip and BC1's alpha is 0 or 255, a buffer the CPU alone reads in host-cached
+memory where the device has it (4 MB read back in 5 ms where 34 write-combined, Sponza's 72
+textures' upload frame 2.4 s to 0.07), and build/make-scene-pack.py in this commit since the
+decoder's refusal names it; the arch wall against Pillow's decoder equal in BC7, within 3 of 255 in
+BC5 and 4 in BC1, 83.9 MB on the GPU where 402.7 as pixels, the note 2026-10-31-item-148-blocks.md;
+2,148 on the GPU in both orders, 167 on lavapipe with validation. The second raises the Windows push
+limit to 180 and makes test.py's split take PART=N+Class, a class named after the plus running in a
+process of its own, Windows running Rendering=2+GlobalIlluminationTests since Rendering's first half
+read 33.5 to 67.2 minutes against its 70 over the five Windows digests since `2ad96a80`; 2,149 on
+the GPU in both orders. After it `82a02b9d`, 148's second commit, the manifest
 scenes/intel-sponza.json written by the pack script naming the engine's pack at this repository's
 scene-packs release, ScenePacks reading manifests by source-generated JSON, downloading to a part
 file hashed as it comes, unpacking into a folder of its own moved into place whole with a stamp,
@@ -60,34 +60,35 @@ refusing a path that is rooted or climbs out, the folder E3D_SCENES or the syste
 are published; the pack run's job on the scenes input with contents write and Python, downloading
 BevyCSharp's asset, checking its hash, making the release when missing and uploading; E3D.md,
 BUILDING.md and AGENTS.md following; three tests on small packs; 2,152 on the GPU in both orders.
-After it `75b61056`, 148's third commit and its end, held the same, scenes_sponza with five views on
-the keys 1 to 5 and sponza.view, the hour on the bracket keys and sponza.time, the right button
-flying the camera, the day sky still with a lean of 6, the field at 4 and 0.125 with a triangle
-budget of four million, GI High and the attribution on screen; the pack holding no curtains, the
-arcades standing in; build/drive-sponza.sh capturing every view at 12 and 16 after 90 frames in the
-pack run's macOS captures job, the fetch continue-on-error until the asset exists; ten plain
-readings with a note; a BC5 normal map's blue sampled as 0 made every normal its surface, mended
-where the sampled z is exactly 0 with a GPU test; 2,153 on the GPU in both orders, 142 on lavapipe.
-All five held commits go out together once Verdict 96 is mended. Before it `19658e55`, item 136,
-pushed with `10295556` at 09:37, its run green at 11:16 with Windows in 98 minutes, Linux in 77 and
-macOS in 36, the path-traced reference crossing surfaces that let light through, recorded under the
-item in REVIEW-ARCHIVE.md. Before it `10295556`, item 146's second commit, ShadowOnly draws kept in
-the field, recorded under the item. Before it `da54d289`, item 146's first commit, pushed at 07:23
-with `7bdfaa9e`, Verdict 95's mend, and `fdde73b2`, item 131's second commit, its run green at 09:37
-with Windows in 133 minutes, Linux in 77 and macOS in 36, which settled Verdict 95; the plain GPU
-run of `7bdfaa9e` read ObserverTests' no-observer allocation once at 1,768 bytes, 5 of 5 alone,
-watched. Before it `b16f26b5`, item 131's first commit, pushed at 02:53 on 2026-10-31, its run
-cancelled at 03:51 on Linux alone past test.py's 40-minute limit and the job's 100 (Verdict 95),
-Windows and macOS green, the plane a cell recorded under item 131 in REVIEW-ARCHIVE.md. Before it
-`2ad96a80`, item 135, pushed at 22:13 on 2026-10-30, its run green whole at 23:28 with Windows in 74
-minutes, Linux in 68 and macOS in 35, the screen probes' jittered rays and sixteen-frame history
-recorded under the item in REVIEW-ARCHIVE.md. Before it `e96a6bb8`, pushed with `c3214cbe` at 19:52
-on 2026-10-30, its run green whole at 21:51, Windows in 119 minutes, Linux in 44 and macOS in 33.
-`c3214cbe` is item 134, a resize asked before the first frame carried out at once past the debounce
-a load held back, with a test and the window guide's line, and AGENTS.md's REVIEW.md line as the
-owner asked. `e96a6bb8` is item 132's reading with no mend, the note
-2026-10-30-item-132-recording.md; at 12 columns 5.6 to 6.5 ms of the four passes' 9.6 to 11.5 is a
-descriptor set made and written for every draw in every pass, about 2,045 a frame at 2.8 to 3.2
+After it `75b61056`, 148's third commit and its end, scenes_sponza with five views on the keys 1 to
+5 and sponza.view, the hour on the bracket keys and sponza.time, the right button flying the camera,
+the day sky still with a lean of 6, the field at 4 and 0.125 with a triangle budget of four million,
+GI High and the attribution on screen; the pack holding no curtains, the arcades standing in;
+build/drive-sponza.sh capturing every view at 12 and 16 after 90 frames in the pack run's macOS
+captures job, the fetch continue-on-error until the asset exists; ten plain readings with a note; a
+BC5 normal map's blue sampled as 0 made every normal its surface, mended where the sampled z is
+exactly 0 with a GPU test; 2,153 on the GPU in both orders, 142 on lavapipe. After it `4df9309c`,
+Verdict 96's mend, the pipeline cache test reading that the file was written with a 32-byte header
+naming no foreign vendor rather than a size, the test alone changed; the run of `4df9309c` awaited.
+Before it `19658e55`, item 136, pushed with `10295556` at 09:37, its run green at 11:16 with Windows
+in 98 minutes, Linux in 77 and macOS in 36, the path-traced reference crossing surfaces that let
+light through, recorded under the item in REVIEW-ARCHIVE.md. Before it `10295556`, item 146's second
+commit, ShadowOnly draws kept in the field, recorded under the item. Before it `da54d289`, item
+146's first commit, pushed at 07:23 with `7bdfaa9e`, Verdict 95's mend, and `fdde73b2`, item 131's
+second commit, its run green at 09:37 with Windows in 133 minutes, Linux in 77 and macOS in 36,
+which settled Verdict 95; the plain GPU run of `7bdfaa9e` read ObserverTests' no-observer allocation
+once at 1,768 bytes, 5 of 5 alone, watched. Before it `b16f26b5`, item 131's first commit, pushed at
+02:53 on 2026-10-31, its run cancelled at 03:51 on Linux alone past test.py's 40-minute limit and
+the job's 100 (Verdict 95), Windows and macOS green, the plane a cell recorded under item 131 in
+REVIEW-ARCHIVE.md. Before it `2ad96a80`, item 135, pushed at 22:13 on 2026-10-30, its run green
+whole at 23:28 with Windows in 74 minutes, Linux in 68 and macOS in 35, the screen probes' jittered
+rays and sixteen-frame history recorded under the item in REVIEW-ARCHIVE.md. Before it `e96a6bb8`,
+pushed with `c3214cbe` at 19:52 on 2026-10-30, its run green whole at 21:51, Windows in 119 minutes,
+Linux in 44 and macOS in 33. `c3214cbe` is item 134, a resize asked before the first frame carried
+out at once past the debounce a load held back, with a test and the window guide's line, and
+AGENTS.md's REVIEW.md line as the owner asked. `e96a6bb8` is item 132's reading with no mend, the
+note 2026-10-30-item-132-recording.md; at 12 columns 5.6 to 6.5 ms of the four passes' 9.6 to 11.5
+is a descriptor set made and written for every draw in every pass, about 2,045 a frame at 2.8 to 3.2
 microseconds each with every section's set holding the same values, and one set a frame in a scratch
 copy takes the passes to 5.1 ms at 12 and from 18.4 to 19.7 to 7.6 at 16, the frame at 16 from 26.6
 to 17.9 ms, the land's pixels within 0.08 of 255. 2,135 on the GPU in both orders, the resize tests
@@ -1060,7 +1061,8 @@ Verdicts 56 to 95 are settled, said under each in REVIEW-ARCHIVE.md; 96 is open.
     against its 150 and macOS in 34. The mend is the test's, which reads that the file was written
     and names this device rather than a size, or skips with its reason where the device's cache data
     is the header alone, item 147's behavior being right; small, a commit before the five held
-    commits go out, which then go together. Settled when that head's run is green.
+    commits go out, which then go together. Settled when that head's run is green. Mended at
+    `4df9309c`, pushed at 18:34 with the five commits it held; settled when that run is green.
 
 ## Decisions
 

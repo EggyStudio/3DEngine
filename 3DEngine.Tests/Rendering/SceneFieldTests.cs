@@ -49,7 +49,7 @@ public sealed partial class SceneFieldTests : IDisposable
 
     [Fact]
     [Trait("Category", "Unit")]
-    public void A_Mesh_Drawn_The_Same_For_Eight_Frames_Is_Built_And_Stamped_Until_Then()
+    public void A_Mesh_Drawn_The_Same_For_Eight_Frames_Is_Built_And_Stands_In_For_Nothing_Until_Then()
     {
         var plan = new SceneFieldPlan(1, 0.25f, 1);
         var eye = new Vector3(0, 2, 6);
@@ -57,7 +57,7 @@ public sealed partial class SceneFieldTests : IDisposable
         {
             plan.Update(eye, [At(Vector3.Zero)]);
             plan.StillCount.Should().Be(0);
-            plan.Shapes.Should().ContainSingle("a mesh not yet still is stamped as its box");
+            plan.Shapes.Should().BeEmpty("a mesh that came and has not moved is not stamped as its box, which stands in for it badly where it is larger");
         }
         plan.Update(eye, [At(Vector3.Zero)]);
         plan.StillCount.Should().Be(1);
@@ -68,7 +68,39 @@ public sealed partial class SceneFieldTests : IDisposable
         plan.Update(eye, [At(moved)]);
         plan.StillCount.Should().Be(0, "a mesh drawn somewhere else is another, which has not settled");
         plan.Builds.Should().ContainSingle().Which.Instances.Should().BeEmpty("the cascade it left is built again without it");
-        plan.Shapes.Should().ContainSingle().Which.ToOwn.Translation.Should().Be(-moved);
+        plan.Shapes.Should().ContainSingle("a mesh that moved is stamped as its box").Which.ToOwn.Translation.Should().Be(-moved);
+    }
+
+    [Fact]
+    [Trait("Category", "Unit")]
+    public void A_Still_Mesh_Waiting_For_Its_Cascades_Is_Stamped_Only_Where_It_Moved_Before_It_Settled()
+    {
+        // Two cascades and one built a frame, so a mesh that settles waits a frame for the second,
+        // as Sponza's meshes waited 330 frames at the default budget, the box of its outer walls
+        // filling the building meanwhile.
+        var plan = new SceneFieldPlan(2, 0.25f, 1);
+        var eye = new Vector3(0.1f, 0.1f, 0.1f);
+        plan.Update(eye, []);
+        plan.Update(eye, []);
+        for (int frame = 1; frame <= SceneFieldPlan.SettleFrames; frame++) plan.Update(eye, [At(Vector3.Zero)]);
+        (plan.StillCount, plan.Builds.Single().Cascade).Should().Be((1, 0), "it settled and the first cascade is built with it");
+        plan.Shapes.Should().BeEmpty("a mesh that came and never moved stands in for nothing while the second waits");
+
+        // Moved, it is stamped until it settles again and the second cascade is built with it.
+        var frames = 0;
+        do
+        {
+            plan.Update(eye, [At(Vector3.UnitX)]);
+            frames++;
+            if (plan.StillCount == 0 && plan.Shapes.Count != 1) plan.Shapes.Should().ContainSingle($"a mesh that moved is stamped at frame {frames}");
+        }
+        while (plan.StillCount == 0 && frames <= SceneFieldPlan.MobileSettleFrames);
+        frames.Should().Be(SceneFieldPlan.MobileSettleFrames, "a mesh that moved settles after the longer count");
+        plan.Builds.Single().Cascade.Should().Be(0);
+        plan.Shapes.Should().ContainSingle("it moved before it settled, so it is stamped while the second cascade waits");
+        plan.Update(eye, [At(Vector3.UnitX)]);
+        plan.Builds.Single().Cascade.Should().Be(1);
+        plan.Shapes.Should().BeEmpty("both cascades hold it");
     }
 
     [Fact]
@@ -140,6 +172,8 @@ public sealed partial class SceneFieldTests : IDisposable
     {
         var plan = new SceneFieldPlan(1, 0.25f, 1);
         plan.Update(Vector3.Zero, []);
+        // Drawn first far off, so the second frame finds it moved.
+        plan.Update(Vector3.Zero, [At(new Vector3(0.1f, 30, 0))]);
         plan.Update(Vector3.Zero, [At(new Vector3(0.1f, 0, 0))]);
 
         // The cube's 2 units and the band's 1 on each side, over bricks of one unit from the
@@ -163,6 +197,7 @@ public sealed partial class SceneFieldTests : IDisposable
         // the bricks between them, so a brick reads one or two of them and never the three.
         var plan = new SceneFieldPlan(1, 0.25f, 1);
         plan.Update(Vector3.Zero, []);
+        plan.Update(Vector3.Zero, [At(new Vector3(-4, 30, 0)), At(new Vector3(4, 30, 0)), At(new Vector3(0, 30, 0))]);
         plan.Update(Vector3.Zero, [At(new Vector3(-4, 0, 0)), At(new Vector3(4, 0, 0)), At(new Vector3(0, 0, 0))]);
 
         IEnumerable<int> Of(int brick) => plan.BrickShapes.Skip(plan.BrickRanges[brick].First).Take(plan.BrickRanges[brick].Count);
@@ -466,6 +501,7 @@ public sealed partial class SceneFieldTests : IDisposable
     {
         var plan = new SceneFieldPlan(1, 0.25f, 1, tint: _ => new Vector3(0.5f, 0.25f, 1));
         plan.Update(Vector3.Zero, []);
+        plan.Update(Vector3.Zero, [(new SceneFieldPlan.Instance(1, Cube, Matrix4x4.CreateTranslation(0, 30, 0), false, Color: new Vector3(0.8f)), false)]);
         plan.Update(Vector3.Zero, [(new SceneFieldPlan.Instance(1, Cube, Matrix4x4.Identity, false, Color: new Vector3(0.8f)), false)]);
         plan.Shapes.Should().ContainSingle().Which.Color.Should().Be(new Vector3(0.4f, 0.2f, 0.8f));
     }

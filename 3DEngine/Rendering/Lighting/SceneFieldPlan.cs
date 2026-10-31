@@ -33,14 +33,16 @@ namespace Engine;
 /// A mesh drawn the same, by its mesh, its vertices, its world matrix and its sides, for
 /// <see cref="SettleFrames"/> frames running is still and built into the cascades around it, or for
 /// <see cref="MobileSettleFrames"/> where it moved within as many frames, so a figure that stops for
-/// a while is not built into the cascades and out again. One that moved more
-/// recently, a skinned one, and a still one whose cascades have not been built
-/// again since it came, but for one that replaced a still mesh in place, which the cascades not
-/// yet built still hold, are stamped each frame as boxes, the nearest the eye first to
+/// a while is not built into the cascades and out again. One that moved more recently, a skinned
+/// one, and a still one that moved before it settled whose cascades have not been built again since
+/// it came, but for one that replaced a still mesh in place, which the cascades not yet built still
+/// hold, are stamped each frame as boxes, the nearest the eye first to
 /// <see cref="MaxShapes"/> boxes, into the bricks of cells each box comes within the band of, and the
 /// bricks stamped the frame before are stamped again so a box that left one is gone. A skinned
 /// mesh is a box for each joint around the vertices it holds most, posed by the joint, and one that
-/// does not bend a box for each part its triangles were cut into, or the box around all of them.
+/// does not bend a box for each part its triangles were cut into, or the box around all of them. A
+/// mesh that came and has not moved, as a scene's on its first load or a world's section streamed
+/// in, stands in for nothing until it is built.
 /// </para>
 /// </remarks>
 internal sealed partial class SceneFieldPlan
@@ -176,6 +178,9 @@ internal sealed partial class SceneFieldPlan
     // within the longer count, each drawn now, and the vertices of the meshes gone since.
     private readonly Dictionary<Instance, long> _movedBefore = new(Keys.Shared), _movedNow = new(Keys.Shared);
     private readonly HashSet<ModelVertex[]> _departed = new(ReferenceEqualityComparer.Instance);
+    // The world matrices of the meshes gone since, so a mesh drawn through one of them, as a mesh
+    // uploaded again each frame or a section edited in place is, is no mesh that came (_movedIn).
+    private readonly HashSet<Matrix4x4> _departedWorlds = [];
     private readonly Dictionary<Instance, (Box Bounds, long Added)> _still = new(Keys.Shared);
     private readonly HashSet<Instance> _pending = new(Keys.Shared);
     // Still meshes that left, kept in the field for the meshes replacing them, by the frame they left.
@@ -185,6 +190,13 @@ internal sealed partial class SceneFieldPlan
     // section of ground filled the air above it in the cascades a budget of two left for the next
     // frame, and the room's indirect light went for that frame and came back.
     private readonly HashSet<Instance> _replacing = new(Keys.Shared);
+    // Still meshes that waited for their cascades having moved before they settled, which are
+    // stamped meanwhile as they were while they moved. One that never moved, as a scene's meshes on
+    // its first load or a world's sections streamed in, is not, since a box stands in for a mesh
+    // badly where it is larger than what it holds, as while Intel's Sponza built over 330 frames
+    // the box of its outer walls filled the building and the sun's contact shadows darkened every
+    // room.
+    private readonly HashSet<Instance> _movedIn = new(Keys.Shared);
     private readonly Vector3?[] _built;
     private readonly long[] _builtFrame;
     private readonly bool[] _dirty;
@@ -417,13 +429,13 @@ internal sealed partial class SceneFieldPlan
                 if (skinned) moving.Add(instance);
                 else if (frames < Settled)
                 {
-                    moving.Add(instance);
+                    if (_orderMovedAt[i] != Never) moving.Add(instance);
                     unsettled.Add(instance);
                 }
                 else
                 {
                     _seen[instance] = frames;
-                    Settle(instance);
+                    Settle(instance, moved: _orderMovedAt[i] != Never);
                 }
             }
             foreach (var instance in left ?? [])
@@ -450,8 +462,13 @@ internal sealed partial class SceneFieldPlan
             var seen = new Dictionary<Instance, int>(drawn.Count, Keys.Shared);
             foreach (var (instance, _) in drawn) seen.TryAdd(instance, unread);
             _departed.Clear();
+            _departedWorlds.Clear();
             for (int i = 0; i < _orderCount; i++)
-                if (!_orderSkinned[i] && !seen.ContainsKey(_order[i])) _departed.Add(_order[i].Vertices);
+                if (!_orderSkinned[i] && !seen.ContainsKey(_order[i]))
+                {
+                    _departed.Add(_order[i].Vertices);
+                    _departedWorlds.Add(_order[i].World);
+                }
             // Each mesh's frames drawn the same, a skinned one never still.
             foreach (var (instance, skinned) in drawn)
             {
@@ -464,7 +481,8 @@ internal sealed partial class SceneFieldPlan
                 var frames = skinned ? 0 : before >= Settled || before + 1 >= SettleAfter(movedAt) ? Settled : before + 1;
                 counted = frames;
                 if (frames >= Settled) continue;
-                moving.Add(instance);
+                // A mesh that came and has not moved casts nothing until it is built (_movedIn).
+                if (skinned || movedAt != Never || _departedWorlds.Contains(instance.World)) moving.Add(instance);
                 if (!skinned) unsettled.Add(instance);
             }
             _seen = seen;
@@ -474,7 +492,7 @@ internal sealed partial class SceneFieldPlan
             // section of a game's world edited, stays in the field as it was until the one replacing
             // it is still, where the boxes that one would be stamped as stood in for it badly.
             foreach (var (instance, frames) in seen)
-                if (frames >= Settled && !_still.ContainsKey(instance)) Settle(instance);
+                if (frames >= Settled && !_still.ContainsKey(instance)) Settle(instance, moved: _movedNow.ContainsKey(instance));
             foreach (var instance in _kept.Keys.Where(seen.ContainsKey).ToArray()) _kept.Remove(instance);
             foreach (var instance in _still.Keys.Where(instance => !seen.ContainsKey(instance) && !_kept.ContainsKey(instance)).ToArray())
             {
@@ -513,11 +531,15 @@ internal sealed partial class SceneFieldPlan
             var waiting = false;
             for (int c = 0; c < Cascades && !waiting; c++)
                 waiting = _built[c] is { } origin && _builtFrame[c] < added && bounds.Overlaps(CascadeBox(c, origin).Grown(Band * CellOf(c)));
-            if (waiting) moving.Add(instance);
+            if (waiting)
+            {
+                if (_movedIn.Contains(instance)) moving.Add(instance);
+            }
             else
             {
                 _pending.Remove(instance);
                 _replacing.Remove(instance);
+                _movedIn.Remove(instance);
             }
         }
 
@@ -630,6 +652,7 @@ internal sealed partial class SceneFieldPlan
         _still.Remove(instance);
         _pending.Remove(instance);
         _replacing.Remove(instance);
+        _movedIn.Remove(instance);
     }
 
     // Whether a mesh of other vertices drawn through a still mesh's matrix, unsettled, lies where it was.
@@ -658,12 +681,13 @@ internal sealed partial class SceneFieldPlan
         && _bounds(instance.Vertices).Transformed(instance.World).Overlaps(_still[still].Bounds);
 
     // A mesh drawn the same for SettleFrames frames running, which the cascades around it are built
-    // again with and which is stamped until they have been.
-    private void Settle(Instance instance)
+    // again with and which, where it moved before it settled, is stamped until they have been.
+    private void Settle(Instance instance, bool moved)
     {
         var bounds = _bounds(instance.Vertices).Transformed(instance.World);
         _still[instance] = (bounds, _frame);
         _pending.Add(instance);
+        if (moved) _movedIn.Add(instance);
         MarkAround(bounds, Follow(instance, bounds, came: true));
     }
 
