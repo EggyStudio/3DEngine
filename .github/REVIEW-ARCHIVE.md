@@ -4482,6 +4482,19 @@ batch.
     4-sample window reading the first frame with a plane not whole and a later one whole; 2,143 on
     the GPU in both orders, 3 on lavapipe.
 
+149. **The Windows push job's limit fits its runs.** Since item 131 the Windows job of a push has
+    taken 133, 98, 139 and 136 minutes where 74 at `2ad96a80`, against a limit of 150 (N 6.8), so a
+    slow runner cancels a green suite. The limit goes to 180 with its reason in the comment, and the
+    note of Verdict 95 is read again for Windows, which tests grew there and whether the Rendering
+    split carries them, a second split if it does not. Small, with 148's first commit. Done at
+    `b4d0d03c`, read at 16:55 on 2026-10-31. The limit 180 with its reason; the five Windows digests
+    since `2ad96a80` read Rendering's first half at 33.5, 63.9, 44.6, 67.2 and 65.2 minutes against
+    its 70 and the second at 21.4 to 47.6, so the two-way split no longer carries it, and on Linux
+    GlobalIlluminationTests is 12.8 of the part's 34.8 minutes; test.py's split takes PART=N+Class,
+    each class named after the plus in a process of its own and the rest dealt over N, Windows on
+    Rendering=2+GlobalIlluminationTests, which on Linux comes to 12.8, 11.4 and 10.7 minutes, a
+    stand-in test covering it.
+
 ## Verdicts settled
 
 Verdicts 1 to 55 are settled, the last two, the drawing leak test's resident bound and the Windows
@@ -6621,3 +6634,9 @@ Shared: a probe of the cascades above the first whose spot lies in or beside a w
 narrower than its spacing along two axes and a wider one is placed in the narrow one, through the
 wall's farther face, which took a corridor two units wide in walls 0.3 thick from 72 and 73% under a
 path-traced reference to 54 and 53% at Low, its view 18% nearer at High (item 137).
+
+Shared: a buffer the CPU only reads takes memory the CPU caches where the device has it, since the
+first host-visible memory an RTX 4070 offers is write combined and unpacking and reading a texture's
+4 MB through it took 34 ms where 5 through the same memory cached, which took the upload of Sponza's
+72 BC textures, each read back for its average color, from 2.4 s to 0.07 with the level read
+narrowed as well (item 148).

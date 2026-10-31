@@ -34,47 +34,62 @@ through it, the game's turn to the water 30.2 and 26.5 s to 26.8 on a first run 
 second; the mirrored view's pipelines made on workers, a batch whose pipeline is not ready skipped
 and the mirror shown only once a frame drew with nothing pending, a cold start with both caches
 empty 4.57 s where 26.8 to 30.2, 3.59 of it the window's own pass compiling the water's pipelines at
-first sight, left synchronous; 2,143 on the GPU in both orders. Before it `19658e55`, item 136,
-pushed with `10295556` at 09:37, its run green at 11:16 with Windows in 98 minutes, Linux in 77 and
-macOS in 36, the path-traced reference crossing surfaces that let light through, recorded under the
-item in REVIEW-ARCHIVE.md. Before it `10295556`, item 146's second commit, ShadowOnly draws kept in
-the field, recorded under the item. Before it `da54d289`, item 146's first commit, pushed at 07:23
-with `7bdfaa9e`, Verdict 95's mend, and `fdde73b2`, item 131's second commit, its run green at 09:37
-with Windows in 133 minutes, Linux in 77 and macOS in 36, which settled Verdict 95; the plain GPU
-run of `7bdfaa9e` read ObserverTests' no-observer allocation once at 1,768 bytes, 5 of 5 alone,
-watched. Before it `b16f26b5`, item 131's first commit, pushed at 02:53 on 2026-10-31, its run
-cancelled at 03:51 on Linux alone past test.py's 40-minute limit and the job's 100 (Verdict 95),
-Windows and macOS green, the plane a cell recorded under item 131 in REVIEW-ARCHIVE.md. Before it
-`2ad96a80`, item 135, pushed at 22:13 on 2026-10-30, its run green whole at 23:28 with Windows in 74
-minutes, Linux in 68 and macOS in 35, the screen probes' jittered rays and sixteen-frame history
-recorded under the item in REVIEW-ARCHIVE.md. Before it `e96a6bb8`, pushed with `c3214cbe` at 19:52
-on 2026-10-30, its run green whole at 21:51, Windows in 119 minutes, Linux in 44 and macOS in 33.
-`c3214cbe` is item 134, a resize asked before the first frame carried out at once past the debounce
-a load held back, with a test and the window guide's line, and AGENTS.md's REVIEW.md line as the
-owner asked. `e96a6bb8` is item 132's reading with no mend, the note
-2026-10-30-item-132-recording.md; at 12 columns 5.6 to 6.5 ms of the four passes' 9.6 to 11.5 is a
-descriptor set made and written for every draw in every pass, about 2,045 a frame at 2.8 to 3.2
-microseconds each with every section's set holding the same values, and one set a frame in a scratch
-copy takes the passes to 5.1 ms at 12 and from 18.4 to 19.7 to 7.6 at 16, the frame at 16 from 26.6
-to 17.9 ms, the land's pixels within 0.08 of 255. 2,135 on the GPU in both orders, the resize tests
-on lavapipe with validation. Before it `1703c54e`, item 97, pushed by the owner's hand at 16:54 on
-2026-10-26 while the sessions were paused until 2026-10-30, its run green whole at 19:33 with
-Windows in 99 minutes. The ninth pack run started with publish on at 18:41 on 2026-10-30, since the
-owner sees item 97's specks in the voxel game and its package lacked the mend; the run went green
-whole at 21:05, Windows in 101 minutes and the games in 71, the package 5.2.333 pushed to nuget.org
-with items 97, 129, 130, 89, 95, 91 and 93, the game told. Before it on 2026-10-26, each green but
-where said: `987f07ae` (Verdict 94's mend) with `969a1b08` (item 129); `7ff7bbdd` (130), red on the
-examples job alone, Verdict 94; `b05b32da` (89); `0a4ad922` (the README's quick links); `5528c55c`
-(95); `d207627e` (91), `bb542fa4` (93) and `0754b975` (128), the eighth pack run publishing 5.2.326
-at 13:13; `2f5237f2` (127); `78946b22` (112), the seventh pack run publishing 5.2.322 at 09:14;
-`7af16fcd` (Verdict 93's mend); `45edfbf6` (111); `a16227a7` (100), the sixth pack run publishing
-5.2.319 at 04:21 on its second attempt. Each commit's detail stands in its item in
-REVIEW-ARCHIVE.md, its devlog note and its own words. On 2026-10-30 at 18:0x the owner wrote the
-README's new words (item 133) and the focus on radiance cascades (Decision 74), questions asked
-back, and asked that the sessions spend fewer tokens at the same quality, N 7.7.
+first sight, left synchronous; 2,143 on the GPU in both orders. After it `52a1cb3f`, 148's first
+commit, and `b4d0d03c`, item 149, held until the run of `14b258c7` ends. The first brings BC1, BC5
+and BC7 in UNorm and sRGB with textureCompressionBC where the device has it, a KTX2 reader refusing
+supercompressed files and other formats with the reason, every level copied from one staging buffer
+with no mips generated, the decoder registered for .ktx2 so models' textures and LoadTexture come
+through it, a block texture read back through a blit; three departures, the average and translucency
+from BC7's whole first level and from a 64-texel level for BC1 and BC5 rather than one pixel, since
+a cutout's edges turn partial in a mip and BC1's alpha is 0 or 255, a buffer the CPU alone reads in
+host-cached memory where the device has it (4 MB read back in 5 ms where 34 write-combined, Sponza's
+72 textures' upload frame 2.4 s to 0.07), and build/make-scene-pack.py in this commit since the
+decoder's refusal names it; the arch wall against Pillow's decoder equal in BC7, within 3 of 255 in
+BC5 and 4 in BC1, 83.9 MB on the GPU where 402.7 as pixels, the note 2026-10-31-item-148-blocks.md;
+2,148 on the GPU in both orders, 167 on lavapipe with validation. The second raises the Windows push
+limit to 180 and makes test.py's split take PART=N+Class, a class named after the plus running in a
+process of its own, Windows running Rendering=2+GlobalIlluminationTests since Rendering's first half
+read 33.5 to 67.2 minutes against its 70 over the five Windows digests since `2ad96a80`; 2,149 on
+the GPU in both orders. Before it `19658e55`, item 136, pushed with `10295556` at 09:37, its run
+green at 11:16 with Windows in 98 minutes, Linux in 77 and macOS in 36, the path-traced reference
+crossing surfaces that let light through, recorded under the item in REVIEW-ARCHIVE.md. Before it
+`10295556`, item 146's second commit, ShadowOnly draws kept in the field, recorded under the item.
+Before it `da54d289`, item 146's first commit, pushed at 07:23 with `7bdfaa9e`, Verdict 95's mend,
+and `fdde73b2`, item 131's second commit, its run green at 09:37 with Windows in 133 minutes, Linux
+in 77 and macOS in 36, which settled Verdict 95; the plain GPU run of `7bdfaa9e` read ObserverTests'
+no-observer allocation once at 1,768 bytes, 5 of 5 alone, watched. Before it `b16f26b5`, item 131's
+first commit, pushed at 02:53 on 2026-10-31, its run cancelled at 03:51 on Linux alone past
+test.py's 40-minute limit and the job's 100 (Verdict 95), Windows and macOS green, the plane a cell
+recorded under item 131 in REVIEW-ARCHIVE.md. Before it `2ad96a80`, item 135, pushed at 22:13 on
+2026-10-30, its run green whole at 23:28 with Windows in 74 minutes, Linux in 68 and macOS in 35,
+the screen probes' jittered rays and sixteen-frame history recorded under the item in
+REVIEW-ARCHIVE.md. Before it `e96a6bb8`, pushed with `c3214cbe` at 19:52 on 2026-10-30, its run
+green whole at 21:51, Windows in 119 minutes, Linux in 44 and macOS in 33. `c3214cbe` is item 134, a
+resize asked before the first frame carried out at once past the debounce a load held back, with a
+test and the window guide's line, and AGENTS.md's REVIEW.md line as the owner asked. `e96a6bb8` is
+item 132's reading with no mend, the note 2026-10-30-item-132-recording.md; at 12 columns 5.6 to 6.5
+ms of the four passes' 9.6 to 11.5 is a descriptor set made and written for every draw in every
+pass, about 2,045 a frame at 2.8 to 3.2 microseconds each with every section's set holding the same
+values, and one set a frame in a scratch copy takes the passes to 5.1 ms at 12 and from 18.4 to 19.7
+to 7.6 at 16, the frame at 16 from 26.6 to 17.9 ms, the land's pixels within 0.08 of 255. 2,135 on
+the GPU in both orders, the resize tests on lavapipe with validation. Before it `1703c54e`, item 97,
+pushed by the owner's hand at 16:54 on 2026-10-26 while the sessions were paused until 2026-10-30,
+its run green whole at 19:33 with Windows in 99 minutes. The ninth pack run started with publish on
+at 18:41 on 2026-10-30, since the owner sees item 97's specks in the voxel game and its package
+lacked the mend; the run went green whole at 21:05, Windows in 101 minutes and the games in 71, the
+package 5.2.333 pushed to nuget.org with items 97, 129, 130, 89, 95, 91 and 93, the game told.
+Before it on 2026-10-26, each green but where said: `987f07ae` (Verdict 94's mend) with `969a1b08`
+(item 129); `7ff7bbdd` (130), red on the examples job alone, Verdict 94; `b05b32da` (89); `0a4ad922`
+(the README's quick links); `5528c55c` (95); `d207627e` (91), `bb542fa4` (93) and `0754b975` (128),
+the eighth pack run publishing 5.2.326 at 13:13; `2f5237f2` (127); `78946b22` (112), the seventh
+pack run publishing 5.2.322 at 09:14; `7af16fcd` (Verdict 93's mend); `45edfbf6` (111); `a16227a7`
+(100), the sixth pack run publishing 5.2.319 at 04:21 on its second attempt. Each commit's detail
+stands in its item in REVIEW-ARCHIVE.md, its devlog note and its own words. On 2026-10-30 at 18:0x
+the owner wrote the README's new words (item 133) and the focus on radiance cascades (Decision 74),
+questions asked back, and asked that the sessions spend fewer tokens at the same quality, N 7.7.
 
-Next 148 with 149, then 138 and the cascades in order, 139, 140, 141 and 142 (Decision 75); 143, 144
-and 145 wait behind them.
+Next 148's second and third commits, then 138 and the cascades in order, 139, 140, 141 and 142
+(Decision 75); 143, 144 and 145 wait behind them.
 
 Items done and verdicts settled before 2026-10-23 stand in REVIEW-ARCHIVE.md beside this file, their
 numbers kept, moved there at 19:30 on 2026-10-23 so this file holds the current work alone and is
@@ -1033,13 +1048,13 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     it, and the texture store's average color and translucency taken from the smallest level on the
     GPU, the level sampled into a one-pixel RGBA8 image and read back, so no BC decoder lives in C#;
     the second the pack script, the pack run's gated job and e3d scenes fetch; the third the example
-    with its views and hour and the captures job.
-
-149. **The Windows push job's limit fits its runs.** Since item 131 the Windows job of a push has
-    taken 133, 98, 139 and 136 minutes where 74 at `2ad96a80`, against a limit of 150 (N 6.8), so a
-    slow runner cancels a green suite. The limit goes to 180 with its reason in the comment, and the
-    note of Verdict 95 is read again for Windows, which tests grew there and whether the Rendering
-    split carries them, a second split if it does not. Small, with 148's first commit.
+    with its views and hour and the captures job. First commit done at `52a1cb3f`, the formats, the
+    reader and the store as the head records. The second is blocked by BevyCSharp's scene-packs
+    release, which does not exist, its manifest's address answering 404, the pack published by hand
+    and never uploaded; the engine's pack made from the local file here is 224,303,688 bytes with
+    the sha256 160766bd4adf2535de3083a72a03bea7856171817d1f88f096a986fb987bbff2, the script
+    deterministic, so the second commit names that hash and the gated job runs once the packs are
+    published.
 
 ## Verdicts
 
@@ -1279,9 +1294,3 @@ Shared: the driver's compiled pipelines are kept in the program's cache folder b
 `VkPipelineCache` read when the device is made where its header names the GPU and written back at
 exit where it changed, which took the voxel game's first frame with a reflection plane from 26.5 to
 30.2 s of compiling to 0.98 s on a run after the first with the driver's own cache empty (item 147).
-
-Shared: a buffer the CPU only reads takes memory the CPU caches where the device has it, since the
-first host-visible memory an RTX 4070 offers is write combined and unpacking and reading a texture's
-4 MB through it took 34 ms where 5 through the same memory cached, which took the upload of Sponza's
-72 BC textures, each read back for its average color, from 2.4 s to 0.07 with the level read
-narrowed as well (item 148).

@@ -1,0 +1,10 @@
+{
+  "title": "Intel Sponza",
+  "source": "https://www.intel.com/content/www/us/en/developer/topic-technology/graphics-research/samples.html",
+  "license": "CC BY 4.0",
+  "attribution": "Intel Sponza (2022) by Frank Meinl and Anton Kaplanyan, from Intel's Sample Library, under CC BY 4.0. Its textures are resized to 1K and compressed for the GPU here, and its lights and cameras left out.",
+  "url": "https://github.com/EggyStudio/3DEngine/releases/download/scene-packs/intel-sponza.pack",
+  "size": 224303688,
+  "sha256": "160766bd4adf2535de3083a72a03bea7856171817d1f88f096a986fb987bbff2",
+  "model": "sponza.gltf"
+}

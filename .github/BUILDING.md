@@ -239,6 +239,12 @@ version of the minor, or names a commit the checkout does not have, the notes ar
 `.github/` is left out, since the package carries nothing from there, so the review's records and
 the workflows' changes stay off a package's page while the README and the guides it carries do not.
 
+Asked with its `scenes` input, the pack run makes the scene packs `scenes/` names, each by
+`build/make-scene-pack.py` from the pack BevyCSharp publishes, its textures' zstd undone, and
+uploads each to the release `scene-packs` where its size and SHA-256 are its manifest's, the place
+`./e3d scenes fetch <name>` downloads it from ([E3D.md](E3D.md)). BevyCSharp's packs are uploaded
+by hand, so the job fails with the reason until the one it reads is there.
+
 ### The public surface
 
 `3DEngine/PublicApi.txt` lists every public type of the engine and every member a game can reach,

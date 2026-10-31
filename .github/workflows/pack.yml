@@ -9,6 +9,9 @@
 # packed unless every job of the build passes, so no package is made before its games are proven on
 # it.
 #
+# Asked with its scenes input it also makes the scene packs and uploads them to the release
+# scene-packs, as the job below says.
+#
 # The version is build/version.sh's, the major and minor in build/version.txt and, as the patch,
 # the commits since that file last changed. The package and its symbols are kept as the run's
 # artifact either way, so a pack can be checked, or uploaded by hand, before one is pushed.
@@ -19,6 +22,10 @@ on:
     inputs:
       publish:
         description: 'Push the packages to nuget.org through its trusted publishing policy, which needs no secret'
+        type: boolean
+        default: false
+      scenes:
+        description: 'Make the scene packs from the ones BevyCSharp publishes and upload them to the scene-packs release'
         type: boolean
         default: false
 
@@ -36,6 +43,45 @@ jobs:
     uses: ./.github/workflows/build.yml
     with:
       pack: true
+
+  # The scene packs scenes/ names, made by build/make-scene-pack.py from the ones BevyCSharp
+  # publishes, their textures' zstd undone since .NET's library reads none, and uploaded to this
+  # repository's release scene-packs, at the address each manifest names. The script writes the
+  # same pack byte for byte from the same source, so the job uploads a pack only where its size and
+  # SHA-256 are its manifest's, and a manifest changes with the source it names. It runs apart from
+  # the build, since a pack changes only when BevyCSharp's does.
+  scenes:
+    if: ${{ inputs.scenes }}
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+    # A download of 209 MB and an upload of 224 MB, so 30 ends one that stalls.
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v7
+
+      # 3.14, the first Python whose library reads zstd.
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.14'
+
+      - name: Make Intel Sponza's pack from BevyCSharp's
+        run: |
+          curl -fsSL --retry 3 -o bevy.pack https://github.com/EggyStudio/BevyCSharp/releases/download/scene-packs/intel-sponza.pack
+          python build/make-scene-pack.py bevy.pack intel-sponza.pack --sha256 af156ab4e23374a329caab6bb58bdb49f9d892667145b55f210e75dbd04bc420
+          size=$(stat -c %s intel-sponza.pack); hash=$(sha256sum intel-sponza.pack | cut -d' ' -f1)
+          if [ "$size" != "$(jq -r .size scenes/intel-sponza.json)" ] || [ "$hash" != "$(jq -r .sha256 scenes/intel-sponza.json)" ]; then
+            echo "::error title=Scene pack::intel-sponza.pack came out $size bytes with SHA-256 $hash, where scenes/intel-sponza.json names $(jq -r .size scenes/intel-sponza.json) with $(jq -r .sha256 scenes/intel-sponza.json)"
+            exit 1
+          fi
+
+      - name: Upload it to the release scene-packs
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release view scene-packs >/dev/null 2>&1 || gh release create scene-packs --title "Scene packs" \
+            --notes "The scene packs scenes/ names, fetched by ./e3d scenes fetch <name>. Each holds its scene's license and attribution."
+          gh release upload scene-packs intel-sponza.pack --clobber
 
   pack:
     needs: build

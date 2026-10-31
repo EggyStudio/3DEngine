@@ -119,6 +119,8 @@ internal static class Help
               e3d stop                       close the app
               e3d doctor                     remove session files of apps that are gone
               e3d shaders <shaders> <cache>  compile a folder of shaders into a cache a program ships
+              e3d scenes                     the scene packs scenes/ names, and which are fetched
+              e3d scenes fetch <name>        download one into the user's cache, check and unpack it
 
             Every verb takes --json, --quiet, --name <entry>, --session <pid> and --timeout <seconds>.
             The exit code is 0 for success, 2 for bad arguments, 4 for nothing to talk to and 6 where

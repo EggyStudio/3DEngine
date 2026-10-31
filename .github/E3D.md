@@ -150,6 +150,23 @@ When several are serving, a verb refuses with `AMBIGUOUS_SESSION` and lists them
   process that started that one), `CloseWindow` logs that it was called, and the process logs its
   exit code last. A log that stops with none of these ended in a kill or a fault no handler ran for.
 
+## Scene packs
+
+A well-known scene too large for the repository, as Intel's Sponza, is a pack a manifest in
+`scenes/` names, fetched when it is asked for.
+
+```bash
+./e3d scenes                      # the packs, their sizes and whether each is fetched
+./e3d scenes fetch intel-sponza   # download one, check its SHA-256 and unpack it
+```
+
+A pack is unpacked into the user's cache folder under `3DEngine/scenes/<name>`, `~/.cache` on
+Linux, `~/Library/Caches` on macOS and the local application data on Windows, or into the folder
+`E3D_SCENES` names, as a workflow keeping it between runs does. A download cut short or of another
+hash leaves nothing new, and the pack is let go once unpacked. Each is made from the pack
+BevyCSharp publishes by `build/make-scene-pack.py`, which undoes the zstd of its textures, in the
+pack run's job its `scenes` input asks for.
+
 ## Building and testing
 
 ```bash

@@ -27,6 +27,7 @@ return rest[0] switch
     "logs" => Launch.Logs(options, rest[1..]),
     "doctor" => Verbs.Doctor(options),
     "shaders" => Verbs.Shaders(options, rest[1..]),
+    "scenes" => Scenes.Run(options, rest[1..]),
     "help" or "--help" or "-h" => Help.Print(),
     var verb => Output.Refuse(options, verb, "BAD_ARGUMENT", $"'{verb}' is not a verb. Run 'e3d help' for the list."),
 };

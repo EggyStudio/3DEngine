@@ -336,6 +336,39 @@ until a frame draws it whole. With both caches empty the turn and its 30 frames 
 26.8 to 30.2, its slowest frame the window's own pass compiling the water's pipelines at its first
 sight, 3.59 s, which the runs before held as well; a second run took 1.05 s.
 
+The textures of Intel's Sponza as BevyCSharp's pack holds them, 72 KTX2 files of 1,024 texels a
+side and 11 levels, 25 of BC7 in sRGB, 23 of BC5 and 24 of BC1, their zstd undone by
+`build/make-scene-pack.py`, read on the engine's tree against `14b258c7` in Debug on an RTX 4070
+Laptop GPU with driver 615.78.08 under tuned's `powersave-bazzite`, offscreen in
+`shapes_basic_shapes` through `./e3d eval`.
+
+Their levels take 83.9 MB on the GPU, where the same textures' pixels with their levels would take
+402.7 MB. The arch stone wall's three textures, loaded by `LoadTexture` and read back by
+`LoadImageFromTexture`, against Pillow 12.3's decoder of the same blocks, in steps of 255.
+
+| Texture | Largest step | Mean step |
+|---|---|---|
+| BC7 color | 0 | 0 |
+| BC5 normal map, red and green | 3 | 0.46 |
+| BC1 roughness and metalness | 4 | 0.71 in green |
+
+BC1 and BC5 decoders differ by a few steps where they round the colors between a block's two
+ends, which the format leaves to them.
+
+The store's average color and translucency come from a level each texture holds, unpacked by a
+blit and read back the frame it is uploaded in. Loading all 72 in one call, the frame that uploads
+them took, over a frame with none, as below.
+
+| Read back | Unpacking and reading | Upload frame |
+|---|---|---|
+| The first level of each, through the first memory the CPU sees | 2,461 ms | 2.4 s |
+| The same, through memory the CPU caches | 378 ms | not timed |
+| BC7's first level and a level of 64 texels a side of the rest, cached | 238 ms | 0.07 s |
+
+The first memory the device offers the CPU is write combined, through which unpacking and reading a
+first level of 4 MB took about 34 ms, and through the same memory cached about 5 ms. The copies into
+the images took 52 to 63 ms of the frame in each.
+
 The suite's time on Linux between `2ad96a80` and `b16f26b5`, read from the two pushes' runs and from
 the classes of the scene field and global illumination run at each commit on lavapipe with the
 validation layer, on this machine's Intel i9-14900HX under tuned's `powersave-bazzite`.
@@ -408,6 +441,9 @@ Done that day
 - Item 146 at `10295556`. The field follows the eye without a whole cascade's CPU work in one frame.
 - Item 147 at `14b258c7`. A pass's pipelines are made before the frame that first needs them, and
   the pipeline cache is kept between runs.
+- Item 148 at `52a1cb3f`. The Sponza example, its scene pack fetched on demand, with named views and
+  the time of day.
+- Item 149 at `b4d0d03c`. The Windows push job's limit fits its runs.
 
 ## 2026-10-30
 
