@@ -21,11 +21,12 @@ public float lightThroughAt<V : IVolume>(V albedo, SceneFieldInfo info, float3 p
 }
 
 // How far a ray along `way` from `origin` that met such a surface at t runs before it has left it,
-// half a cell a step while the field holds the point within half a cell of a surface or inside one,
-// which the march goes on from, and in inside whether it is still within at t plus `most`, its
-// interval's end, or after 64 steps, as a ray grazing a canopy is, where it ends that far in. A
-// canopy's leaves, closed blocks the field holds inside, are crossed whole, and a leaf drawn as one
-// sheet, which the field holds half a cell either side, is a cell or so deep.
+// half a cell a step while the field holds the point within half a cell of a surface, and as far as
+// the nearest face inside one where that is further, which the march goes on from, and in inside
+// whether it is still within at t plus `most`, as far as a ray crossing it whole goes or the end of
+// the line between two probes, or after 64 steps, as a ray grazing a canopy is, where it ends that
+// far in. A canopy's leaves, closed blocks the field holds inside, are crossed whole, and a leaf
+// drawn as one sheet, which the field holds half a cell either side, is a cell or so deep.
 public float lightThroughDepth<V : IVolume>(V field, SceneFieldInfo info, float3 origin, float3 way, float t, float most, out bool inside)
 {
     float depth = 0.0;
@@ -35,12 +36,13 @@ public float lightThroughDepth<V : IVolume>(V field, SceneFieldInfo info, float3
     {
         float3 p = origin + way * (t + depth);
         float cell = fieldCell(info, p);
-        if (cell <= 0.0 || depth > 0.0 && fieldDistance(field, info, p) > 0.5 * cell)
+        float d = cell > 0.0 ? fieldDistance(field, info, p) : 0.0;
+        if (cell <= 0.0 || depth > 0.0 && d > 0.5 * cell)
         {
             inside = false;
             return depth;
         }
-        depth += 0.5 * cell;
+        depth += max(0.5 * cell, -d);
         if (depth >= most)
             return most;
     }

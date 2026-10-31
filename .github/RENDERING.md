@@ -2224,6 +2224,41 @@ Cornell box alike. Alone it changed no room. Bringing the sky where a ray met no
 cascade's rays do, lit the closed room of `CascadeEdgeTests` through the cascades not yet built in
 its first frames at 0.060 in linear light, over twice what its floor settles at.
 
+**A crossing taken once, read on 2026-10-31.** The cascades' intervals overlap, the first's
+reaching twice as far as the second's begins, and a slab that straddled the first's end was crossed
+twice, the first cascade's ray taking the part of it within its interval and handing on what it
+kept to the second, whose probe crossed the whole slab again. So the floor five and a half units
+under a slab a unit thick and twenty across letting half through a unit (item 100's) took 0.347 of
+the sky's light the solid slab holds back at `High` where a path-traced reference takes 0.418, and
+0.378 at `Low`, while a march over the read-back field along the same ways kept within 3% of the
+share to the power of the depth crossed, so the march was not the fault. Each surface is crossed by the cascade in whose interval
+the ray enters it, the ray marching on past its interval's end to where it leaves the surface or to
+where the cascade above takes it over, measured from where the probes above that the merge blends
+stand on the whole (`hi` in `gi_trace.slang`). The cascade above keeps the part entered before the
+cascade below's interval ends for its probe's own faces alone (`lo`, from the end that
+`IlluminationTrace` carries in its free slot), and a screen probe's ray crosses whole what it
+enters within its reach and takes the light past it from where it leaves it. Of the sky's light the
+solid slab holds back, the floor takes, the reading before in brackets:
+
+| | Reference | High | Low |
+|---|---|---|---|
+| Two and a half units up | 0.368 | 0.389 (0.403) | 0.368 (0.359) |
+| Five and a half units up | 0.418 | 0.418 (0.347) | 0.425 (0.378) |
+
+Three other forms were read on the same table, each further from the reference at one row or more,
+`Low` five and a half up 25% and 13% over in two and `High` 11% under in the third. Under item
+136's canopy of leaf blocks two deep, the floor two and a half units under it takes 0.18 at `High`
+where 0.27 and the reference 0.17, from the screen probes' rays crossing whole what they enter,
+and `Low` 0.17 as before. Five and a half units under it `High` takes 0.32 where 0.24 and `Low` 0.24 where 0.12,
+against the reference's 0.21. `High` read over `Low` there before as after, 0.12 then and 0.08
+now, which is `High`'s own. Measuring the boundary from each probe above, the light kept blended by
+the merge's weights, read the leaf blocks at `High` 0.34 and the slab at `Low` 0.39 five and a half
+up, so the part each probe above took for neither or for both is not that excess, and it is not
+kept. Where leaves fill much of the view, the canopy over the eye at 800 by 450 letting 0.6
+through, global illumination takes 2.88 to 2.95 ms at `High` where 2.77 to 2.79, the least of six
+reads in each of two runs with no other program on the GPU under tuned's `powersave-bazzite`, and
+1.27 at `Low` and 1.89 to 1.93 solid at `High` as before.
+
 **The screen's probes on thin two-sided walls, read on 2026-10-26.** In a room built as the voxel
 game's wheat field, thin two-sided walls a block tall four to a block, half a unit apart, under the
 game's sun at ten in the morning, the walls facing the eye and the sun read 44% over a path-traced

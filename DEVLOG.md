@@ -87,6 +87,18 @@ standing in for nothing while they wait for their build.
 Sponza's atrium at noon about 70 frames into a fresh start at the field's default budget, its meshes
 stamped as boxes while they wait for their build.
 
+![](.github/assets/readings/2026-10-31-item-153-balcony-15.webp)
+Intel's Sponza in scenes_sponza from the first floor's gallery at the lion's end looking down the
+atrium to the door's end at 15:00 at High at 800 by 426, with AgX and an exposure of 3.
+
+![](.github/assets/readings/2026-10-31-item-153-door-15.webp)
+Intel's Sponza in scenes_sponza looking down on the main door under the vault inside it at 15:00 at
+High at 800 by 484, with AgX and an exposure of 3.
+
+![](.github/assets/readings/2026-10-31-item-153-lookup-15.webp)
+Intel's Sponza in scenes_sponza looking up from the atrium's floor at the lion's end at 15:00 at
+High at 600 by 571, with AgX and an exposure of 3.
+
 ![](.github/assets/examples/scenes_sponza.webp)
 The scenes_sponza example draws Intel's Sponza from five named views at an hour of the day, and a
 BC5 normal map takes its z from its x and y. (`75b61056`)
@@ -470,6 +482,27 @@ whole and 98, 99 and 20 on its floor once settled, before and after alike; in th
 teleport 25 to 37 of its meshes were stamped where 203 to 256 were, into 290 to 1,477 bricks where
 9,227 to 11,945, and the frame read its settled light 20 frames after it where 40.
 
+Intel's Sponza in `scenes_sponza` from its sixth, seventh and eighth views, each placed by eye where
+a picture of the scene drawn in Unity's HDRP was taken, at 15:00 at High on an RTX 4070 Laptop GPU
+with driver 615.78.08 under tuned's `powersave-bazzite`, with AgX's curve and an exposure of 3,
+which puts the day sky's noon sun, 1.08 in its units, where a camera at 14.6 EV puts a sun of 97,050
+lux, each drawn at its picture's shape.
+
+| The first floor's gallery | The main door under the vault | Up from the atrium's floor |
+|---|---|---|
+| ![](2026-10-31-item-153-balcony-15.webp) | ![](2026-10-31-item-153-door-15.webp) | ![](2026-10-31-item-153-lookup-15.webp) |
+
+The pictures were drawn with HTrace's world space global illumination over adaptive probe volumes,
+a sun of 97,050 lux, a physically based sky and a camera at about 14.6 EV under AgX, and the dump of
+2026-10-31 holds them beside these and no commit does. The views' frames have means of 19, 17 and
+16 of 255 where the pictures' are 73, 67 and 64, 5, 4 and 2 where 57, 50 and 43, and 15, 18 and 22
+where 82, 75 and 71. The stone the sun lights reads near the pictures', and the stone in shade near
+black where theirs reads the light from the walls and floors around it. The door's corner differs
+in the model, its door barred with iron and its vestibule narrower, and the look up takes a field
+of 84 degrees whose edges a camera of straight lines stretches, where the picture's seem drawn
+with a Panini projection. A black box outside the main door keeps the sky out of the gap around
+it, as the scene the pictures come from holds one.
+
 The suite's time on Linux between `2ad96a80` and `b16f26b5`, read from the two pushes' runs and from
 the classes of the scene field and global illumination run at each commit on lavapipe with the
 validation layer, on this machine's Intel i9-14900HX under tuned's `powersave-bazzite`.
@@ -547,6 +580,7 @@ Done that day
 - Item 149 at `b4d0d03c`. The Windows push job's limit fits its runs.
 - Item 150 at `a6a3b7a0`. A mesh not yet built in the field stands in as nothing that darkens a
   room.
+- Item 153 at `46149d6d`. The Sponza example adapts its exposure and gains the balcony view.
 
 ## 2026-10-30
 

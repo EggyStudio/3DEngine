@@ -477,6 +477,13 @@ void computeMain(uint3 id : SV_DispatchThreadID)
             // as the cascades' rays cross it (gi_trace.slang), the first such surface shaded once
             // after the march for every one crossed and the surface the ray stops at for the share
             // that reaches it, so the shader holds one copy of the shading and none in the march.
+            // One entered within the ray's reach is crossed whole, past the reach, and the light
+            // from beyond taken from where the ray left it, so the world's probes there lend the
+            // light past it rather than lending it again from under it, which took the floor two
+            // and a half units under a canopy of leaf blocks two deep at High from 0.27 of the
+            // sky's light the solid canopy holds back to 0.18, where a path-traced reference takes
+            // 0.17.
+            float handed = length;
             float3 crossed = float3(0.0);
             float through = 1.0;
             float3 leafAt = float3(0.0), stopAt = float3(0.0);
@@ -489,7 +496,7 @@ void computeMain(uint3 id : SV_DispatchThreadID)
                 float leaf = (push.texels.w & 4u) != 0u ? lightThroughAt(fieldAlbedo, fieldInfo, at) : 0.0;
                 float passing = layer < 4 ? leaf : 0.0;
                 bool inside = false;
-                float deep = passing > 0.0 ? lightThroughDepth(sceneField, fieldInfo, start, way, t, length - t, inside) : -1.0;
+                float deep = passing > 0.0 ? lightThroughDepth(sceneField, fieldInfo, start, way, t, 4.0 * length, inside) : -1.0;
                 float passes = deep >= 0.0 ? lightThroughKept(passing, deep, fieldCell(fieldInfo, at), inside) : 0.0;
                 float taken = through * (1.0 - passes);
                 if (leaf > 0.0)
@@ -510,6 +517,7 @@ void computeMain(uint3 id : SV_DispatchThreadID)
                 if (deep < 0.0)
                     break;
                 onScreen = false;
+                handed = max(handed, t + deep);
                 t = inside ? -1.0 : traceFieldSheets(SheetVolume(sceneField, fieldSecond), fieldInfo, start, way, t + deep, length);
             }
             [loop]
@@ -527,8 +535,8 @@ void computeMain(uint3 id : SV_DispatchThreadID)
             if (t < 0.0)
             {
                 met = 2.0;
-                reached = start + way * length;
-                float3 past = beyond(start, n, way, length, around);
+                reached = start + way * handed;
+                float3 past = beyond(start, n, way, handed, around);
                 float3 pastOwn = float3(0.0);
                 // A ray past its reach whose world probes hold nothing along its way goes on
                 // through the field, as far as four times its reach and within the cascade it
@@ -547,7 +555,7 @@ void computeMain(uint3 id : SV_DispatchThreadID)
                 // unlimited).
                 if (luminance(past) <= 1e-6)
                 {
-                    float far = traceFieldWithinSheets(SheetVolume(sceneField, fieldSecond), fieldInfo, start, way, length, 4.0 * length, fieldCascade(fieldInfo, start, 1.0) + 1);
+                    float far = traceFieldWithinSheets(SheetVolume(sceneField, fieldSecond), fieldInfo, start, way, handed, 4.0 * length, fieldCascade(fieldInfo, start, 1.0) + 1);
                     if (far >= 0.0)
                     {
                         met = 1.0;

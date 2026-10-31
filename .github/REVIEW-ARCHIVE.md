@@ -4567,6 +4567,22 @@ batch.
     placed lamp's bound 0.03 to 0.04 with the cause in its comment. 2,154 on the GPU in both orders,
     45 on lavapipe.
 
+153. **The Sponza example adapts its exposure and gains the balcony view.** From the owner's
+    reference of 2026-10-31; scenes_sponza keeps AgX with a fixed exposure of 3.0 in place of auto
+    exposure (chosen at 20:35, since the engine has no lux and no camera EV, and at the reference's
+    EV 14.6 its sun of 97,050 lux exposes to about 3.26 against our noon sun's 1.08, so 3.0 puts our
+    sun where the reference's camera puts its own, while auto exposure would hide the ratios 152
+    reads), gains a sixth view, balcony, from the first floor's gallery across the atrium as the
+    reference stands, and commits sponza.look <eye> <target> [fov] for matching views in drives; the
+    drive captures the sixth view too, a plain pair at 15:00 against the reference. One small commit
+    of its own, before 138's. At 21:21 the owner sent three more references, kept in the day's dump
+    as item 152's, the door corner under the ground floor's vault lit by sky and bounce alone, the
+    atrium looked up at with the sun grazing the upper arcade, and a collage of the add-on content's
+    curtains and ivy; a seventh view, door, joins the balcony, and 152 reads the bounce and the
+    sky's share in it. Done at `46149d6d`, the note 2026-10-31-item-153-balcony.md; the lookup needs
+    a field of 84 degrees whose edges a rectilinear camera stretches, the reference likely on a
+    Panini projection the engine lacks, left beside item 154 as a lead.
+
 ## Verdicts settled
 
 Verdicts 1 to 55 are settled, the last two, the drawing leak test's resident bound and the Windows

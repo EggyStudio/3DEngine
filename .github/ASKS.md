@@ -1255,6 +1255,14 @@ meanwhile.
 
 Review: taken as 3DEngine item 132 on 2026-10-26, the passes' recording of unmoving draws brought well under a millisecond, after item 97.
 
+Read again in the game on 6.0.11 on 2026-10-31, Debug, offscreen at 1280 by 720, on tuned's
+power-saving profile with the processor's energy preference at power, the sections drawn in groups of
+two by two since the game's item 143. Over seed 1's spawn at 16 columns the depth's, the shadows',
+the mirror's and the camera's passes recorded about 1,950 draws in 3.0 and 3.4 ms of the main thread
+where 5.2.342 took 7.6 and 7.8 in the same hour, 1.5 to 1.8 µs a draw where 3.9 to 4.0
+(`./e3d command profile`), and the frame there stays the GPU's, 23.0 and 23.1 ms where 23.8 and
+24.0.
+
 ### 2026-10-30, the voxel game in `Voxel-Sandbox`, a window resized before its first frame keeps a swapchain of its first size until a present fails
 
 Read on the 3DEngine 5.2.326 package for the game's item 140, which puts the window into the
@@ -1379,3 +1387,16 @@ costs its first frame no compile.
 
 Review: taken as 3DEngine item 147 on 2026-10-31, the pipeline cache kept between runs and a pass's
 pipelines made before the frame that first needs them, after the engine's item 132.
+
+Read again in the game on 6.0.11 on 2026-10-31, as above. With `__GL_SHADER_DISK_CACHE_PATH` naming
+an empty folder and no `pipelines.bin` beside the program, the ten frames from the first with the
+plane took 1.3 s of the wall clock, the slowest 107.5 ms with `cpu.mirror` 3.2 ms. The second run,
+both caches warm, took 1.0 s, the slowest 91.1 ms, and a run with the driver's folder empty again
+and the engine's file kept took 1.0 s, the slowest 68.4 ms with `cpu.mirror` 0.3 ms
+(`profile.slowest`). A shot every 30
+frames after the cold run's first matched its last from 2.8 s on but for 22 pixels of the river
+within 11 of 255 until 13 s, so no frame waits for the compile.
+
+Review: read by the game on 6.0.11 at `8efd1d0` on 2026-10-31, the first water's frames 23.7 s to
+1.3 with both caches cold and 1.0 warm; the entry is done, as is the recording entry of 2026-10-26,
+the four passes' main thread at 16 columns 7.6 and 7.8 ms to 3.0 and 3.4.

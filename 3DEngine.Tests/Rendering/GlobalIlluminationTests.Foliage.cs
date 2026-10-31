@@ -9,10 +9,10 @@ public sealed partial class GlobalIlluminationTests
 {
     [NeedsVulkanTheory]
     [Trait("Category", "Render")]
-    [InlineData(GlobalIllumination.Low, 2.5f, 0.31f)]
-    [InlineData(GlobalIllumination.High, 2.5f, 0.31f)]
-    [InlineData(GlobalIllumination.Low, 5.5f, 0.3f)]
-    [InlineData(GlobalIllumination.High, 5.5f, 0.27f)]
+    [InlineData(GlobalIllumination.Low, 2.5f, 0.33f)]
+    [InlineData(GlobalIllumination.High, 2.5f, 0.34f)]
+    [InlineData(GlobalIllumination.Low, 5.5f, 0.38f)]
+    [InlineData(GlobalIllumination.High, 5.5f, 0.35f)]
     public void A_Floor_Under_A_Slab_That_Lets_Light_Through_Takes_The_Sky_Light_Its_Share_Lets_Through(GlobalIllumination quality, float height, float least)
     {
         // A gray floor lit by the sky alone, read in linear light under a dark green slab a unit
@@ -23,9 +23,11 @@ public sealed partial class GlobalIlluminationTests
         // screen's probes' too. A ray keeps half its light a unit of slab, and one at a slant
         // crosses more of it, so the half slab lets the share of the sky's light the solid one
         // holds back reach the floor that the slab's depth along each way the floor's sky comes
-        // from gives, 0.36 two units up and 0.41 five, where this test measured 0.36 at Low and
-        // 0.40 at High two up and 0.37 and 0.32 five up, the cascades' intervals taking a crossing
-        // that straddles one's end apart, and a slab letting all of it through 0.99 at both. Before
+        // from gives, 0.36 two units up and 0.41 five, where this test measures 0.36 at Low and
+        // 0.38 at High two up and 0.42 and 0.39 five up, and a slab letting all of it through 0.99
+        // at both. Before each crossing was taken once, by the cascade whose interval it is
+        // entered in, the cascades' overlapping intervals crossing the slab twice where it
+        // straddled one's end, it measured 0.36 and 0.39 two up and 0.37 and 0.31 five up. Before
         // the merge saw the probes above past the leaves, 0.23 and 0.29 two up and 0.07 five up at
         // High, past the screen's probes' reach.
         Open();
@@ -74,7 +76,7 @@ public sealed partial class GlobalIlluminationTests
         // so the screen's probes read the cascades' light past their reach as black, and the floor
         // took 0.004 of the sky's light the solid canopy holds back where the canopy's depth along
         // each way gives 0.38; with the merge seeing past the leaves (seesPastLeaves) it took 0.31,
-        // on the development machine's GPU.
+        // and with each crossing taken once by one cascade 0.39, on the development machine's GPU.
         Open();
         SetSceneField(4, 0.25f);
         SetGlobalIllumination(GlobalIllumination.High);
@@ -105,7 +107,7 @@ public sealed partial class GlobalIlluminationTests
         var open = Floor(null);
         var solid = Floor(solidRoof);
         var half = Floor(halfway);
-        ((half - solid) / (open - solid)).Should().BeGreaterThan(0.25f,
+        ((half - solid) / (open - solid)).Should().BeGreaterThan(0.33f,
             $"the leaves let the sky's light through to the floor past the screen's probes' reach, {half:0.0000} between {solid:0.0000} and {open:0.0000}");
         foreach (var model in new[] { ground, solidRoof, halfway }) UnloadModel(model);
     }
@@ -113,17 +115,21 @@ public sealed partial class GlobalIlluminationTests
     [NeedsVulkanTheory]
     [Trait("Category", "Render")]
     [InlineData(GlobalIllumination.Low, 2.5f, 0.13f, 0.2f)]
-    [InlineData(GlobalIllumination.High, 2.5f, 0.25f, 0.35f)]
-    [InlineData(GlobalIllumination.High, 5.5f, 0.19f, 0.28f)]
+    [InlineData(GlobalIllumination.High, 2.5f, 0.14f, 0.23f)]
+    [InlineData(GlobalIllumination.High, 5.5f, 0.27f, 0.37f)]
     public void A_Floor_Under_A_Canopy_Of_Leaf_Blocks_Takes_The_Sky_Light_Their_Faces_Let_Through(GlobalIllumination quality, float height, float least, float most)
     {
         // A gray floor lit by the sky alone under a canopy of leaf blocks twenty a side and two
         // deep, each a cube of its own, so two faces stand between neighbors as a voxel game's
         // cut-out leaves have them, read with no canopy, a solid one and one letting half the light
         // through a unit. A ray crosses a face a block, up to four, the first face it crosses
-        // shaded for all of them. The floor took 0.30 of the sky's light the solid canopy holds
-        // back at High two and a half units under it, 0.17 at Low, and 0.23 at High five and a half
-        // under it, the same to four places as with each face shaded where the ray crossed it.
+        // shaded for all of them, which read the same to four places as each face shaded where the
+        // ray crossed it. The floor takes 0.18 of the sky's light the solid canopy holds back at
+        // High two and a half units under it where a path-traced reference takes 0.17, 0.17 at
+        // Low, and 0.32 at High five and a half under it where the reference takes 0.21 and Low
+        // 0.24. Before each crossing was taken once by one cascade, and the screen's probes' rays
+        // crossed whole what they entered within their reach, it took 0.27, 0.17 and 0.24, and Low
+        // 0.12 five and a half under it, High reading over Low there before as after.
         Open();
         SetSceneField(4, 0.25f);
         SetGlobalIllumination(quality);

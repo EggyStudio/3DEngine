@@ -105,7 +105,9 @@ struct TracePush
     float4 interval;
     // x: 1 where each probe's share holds for the probe, its cascade lying where it lay the frame
     // before. y: the bits of the last cascade's interval's end, the field's edge, which a probe
-    // that sees no probe of the cascade above carries its rays on to. z: the frame's parity.
+    // that sees no probe of the cascade above carries its rays on to. z: the frame's parity. w: the
+    // bits of where the cascade below's interval ends, 0 for the first, before which a surface that
+    // lets light through is that cascade's to cross.
     uint4 follow;
 };
 
@@ -121,6 +123,9 @@ groupshared bool walledIn;
 // Whether the probe sees any of the eight probes of the cascade above around it, as the merge asks
 // (gi_merge.slang), set by the group's first eight rays for every ray of it.
 groupshared uint seesAbove;
+// The probes of the cascade above around this one, each its place times the weight the merge
+// blends it by and the weight, for where they stand on the whole.
+groupshared float4 aboveAround[8];
 
 // The field's layout with each cascade at the corner it lay at the frame before, where the faces of
 // the indirect light, which the rays read, were gathered. Read at this frame's corners, a
@@ -307,6 +312,8 @@ void computeMain(uint3 id : SV_DispatchThreadID, uint lane : SV_GroupIndex)
     }
     if (lane == 0u)
         seesAbove = 0u;
+    if (lane < 8u)
+        aboveAround[lane] = float4(0.0);
     GroupMemoryBarrierWithGroupSync();
     float3 origin = spot + place.xyz * apart;
     // A probe below the last cascade that sees none of the probes above it standing outside every
@@ -326,10 +333,17 @@ void computeMain(uint3 id : SV_DispatchThreadID, uint lane : SV_GroupIndex)
         int3 neighbor = clamp(base + int3(int(lane & 1u), int((lane >> 1) & 1u), int(lane >> 2)), int3(0), int3(int(probes) - 1));
         float4 upperPlace = held[int3(3 * int(probes) + neighbor.x, neighbor.y, int(upperCascade) * int(probes) + neighbor.z)];
         float3 upperProbe = ac.xyz + (float3(neighbor) + 0.5 + upperPlace.xyz) * upperApart;
-        if (ac.w > 0.0 && upperPlace.w > 0.5 && seesPastLeaves(sceneField, fieldAlbedo, fieldInfo, origin, upperProbe, oc.w * 0.5))
+        bool seen = ac.w > 0.0 && upperPlace.w > 0.5 && seesPastLeaves(sceneField, fieldAlbedo, fieldInfo, origin, upperProbe, oc.w * 0.5);
+        if (seen)
             InterlockedOr(seesAbove, 1u);
+        float3 f = (spot - ac.xyz) / upperApart - 0.5 - float3(base);
+        float3 lerps = lerp(1.0 - f, f, float3(int3(int(lane & 1u), int((lane >> 1) & 1u), int(lane >> 2))));
+        float weight = seen ? lerps.x * lerps.y * lerps.z : 0.0;
+        aboveAround[lane] = float4(upperProbe * weight, weight);
     }
     GroupMemoryBarrierWithGroupSync();
+    float4 around = aboveAround[0] + aboveAround[1] + aboveAround[2] + aboveAround[3] + aboveAround[4] + aboveAround[5] + aboveAround[6] + aboveAround[7];
+    float3 aboveMean = around.w > 1e-4 ? around.xyz / around.w : origin;
     bool carried = push.cascade.w == 0u && seesAbove == 0u;
     float end = carried ? asfloat(push.follow.y) : push.interval.y;
     float4 light = float4(0.0, 0.0, 0.0, 1.0);
@@ -391,12 +405,18 @@ void computeMain(uint3 id : SV_DispatchThreadID, uint lane : SV_GroupIndex)
         float3 crossed = float3(0.0), crossedOwn = float3(0.0);
         // A surface that lets a share of light through, as a canopy's leaves, is crossed, the ray
         // keeping that share for each unit of its depth and the rest taking the surface's light as
-        // a solid's would, up to four of them before the ray stops at the next as a solid. One
-        // crossed before the interval began is the cascade below's, whose ray takes this one's
-        // light from the interval on whole where it met nothing, so it takes nothing of the light
-        // and keeps its share for the probe's own faces alone. Taken off the light, the floor under
-        // a slab letting half the light through read the sky's light twice halved, once below and
-        // once above, and dark where the merge read such a ray as one that met a surface early. The
+        // a solid's would, up to four of them before the ray stops at the next as a solid. Each is
+        // crossed whole by the cascade whose interval it is entered in, the ray marching on past
+        // its interval's end to where it leaves it, and one entered before the cascade below's
+        // interval ends is that cascade's, whose ray takes this one's light from where it left it,
+        // so it takes nothing of the light and keeps its share for the probe's own faces alone. The
+        // intervals overlap, the first cascade's reaching twice as far as the second's begins, and
+        // the first took the part of a slab within its own and handed on what it kept to the
+        // second, which crossed the slab whole again, so the floor under a slab letting half the
+        // light through a unit took 0.347 of the sky's light the solid one held back where a
+        // path-traced reference takes 0.418. Taken off the light, the floor under such a slab read
+        // the sky's light twice halved, once below and once above, and dark where the merge read
+        // such a ray as one that met a surface early. The
         // first surface letting light through that the ray meets stands for every one it crosses,
         // as a canopy's leaves a block apart take much the same light, shaded once after the march
         // for the share of the ray's light they take together, and the surface it stops at for the
@@ -406,6 +426,13 @@ void computeMain(uint3 id : SV_DispatchThreadID, uint lane : SV_GroupIndex)
         // where shaded once they cost 2.0 to 2.1 and 1.1 (./e3d command gi.toggle through off).
         float firstAt = -1.0;
         float leafAt = -1.0, leafShare = 0.0, stopAt = -1.0, stopShare = 0.0;
+        // Where along the way a surface letting light through stops being this cascade's to cross
+        // and becomes the one above's, which takes the part of it past the end of this one's
+        // interval measured from its own probes, so measured here from where the probes above
+        // that the merge blends stand on the whole, past the field's edge for the last cascade
+        // and for rays carried on to it; and where it starts, where the cascade below's ends.
+        float hi = push.cascade.w != 0u || carried ? asfloat(push.follow.y) : push.interval.y + dot(aboveMean - origin, way);
+        float lo = max(push.interval.x, asfloat(push.follow.w));
         [loop]
         for (int layer = 0; layer < 5 && t >= 0.0; layer++)
         {
@@ -413,11 +440,28 @@ void computeMain(uint3 id : SV_DispatchThreadID, uint lane : SV_GroupIndex)
             float leaf = lightThroughAt(fieldAlbedo, fieldInfo, at);
             float passing = layer < 4 ? leaf : 0.0;
             bool inside = false;
-            float depth = passing > 0.0 ? lightThroughDepth(sceneField, fieldInfo, origin, way, t, end - t, inside) : -1.0;
-            float passes = depth >= 0.0 ? lightThroughKept(passing, depth, fieldCell(fieldInfo, at), inside) : 0.0;
-            if (depth >= 0.0 && t < push.interval.x)
-                keptBefore *= passes;
-            else
+            float depth = -1.0;
+            float passes = 0.0;
+            if (passing > 0.0)
+            {
+                // The part before the cascade below's interval ends is that cascade's, its share
+                // kept for the probe's own faces alone, and the ray goes on past it.
+                if (t < lo)
+                {
+                    depth = lightThroughDepth(sceneField, fieldInfo, origin, way, t, lo - t, inside);
+                    keptBefore *= lightThroughKept(passing, depth, fieldCell(fieldInfo, at), inside);
+                    if (!inside)
+                    {
+                        t = traceFieldSheets(SheetVolume(sceneField, fieldSecond), fieldInfo, origin, way, t + depth, end);
+                        continue;
+                    }
+                    t = lo;
+                    at = origin + way * t;
+                }
+                // This cascade's part, to where the ray leaves it or the cascade above's begins.
+                depth = lightThroughDepth(sceneField, fieldInfo, origin, way, t, max(hi, end) - t, inside);
+                passes = lightThroughKept(passing, depth, fieldCell(fieldInfo, at), inside);
+            }
             {
                 float taken = through * (1.0 - passes);
                 if (leaf > 0.0)

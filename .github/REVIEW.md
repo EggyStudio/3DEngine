@@ -75,24 +75,33 @@ Verdict 96. After it `a6a3b7a0`, item 150, pushed at 19:53 after that run, its r
 with Windows in 98 minutes, Linux in 79 and macOS in 35, the eleventh pack run started from it at
 19:53 green at 22:33, 6.0.11 published, the first at 6.0, with Windows in 145 minutes, the games in
 78, the captures in 62 and 57 on macOS and the pack in 4, carrying 132, 147, 148's textures and 150
-for the game, a mesh that came and has not moved standing in for nothing in the scene field until it
-is built, where its box filled the rooms of a hollow building, with a pair of Sponza before and
-after and a note, the sunlit floor lit from frame 28 where it waited 330, the bounce rooms
-unchanged; 2,154 on the GPU in both orders. Before it `19658e55`, item 136, pushed with `10295556`
-at 09:37, its run green at 11:16 with Windows in 98 minutes, Linux in 77 and macOS in 36, the
-path-traced reference crossing surfaces that let light through, recorded under the item in
-REVIEW-ARCHIVE.md. Before it `10295556`, item 146's second commit, ShadowOnly draws kept in the
-field, recorded under the item. Before it `da54d289`, item 146's first commit, pushed at 07:23 with
-`7bdfaa9e`, Verdict 95's mend, and `fdde73b2`, item 131's second commit, its run green at 09:37 with
-Windows in 133 minutes, Linux in 77 and macOS in 36, which settled Verdict 95; the plain GPU run of
-`7bdfaa9e` read ObserverTests' no-observer allocation once at 1,768 bytes, 5 of 5 alone, watched.
-Before it `b16f26b5`, item 131's first commit, pushed at 02:53 on 2026-10-31, its run cancelled at
-03:51 on Linux alone past test.py's 40-minute limit and the job's 100 (Verdict 95), Windows and
-macOS green, the plane a cell recorded under item 131 in REVIEW-ARCHIVE.md. Before it `2ad96a80`,
-item 135, pushed at 22:13 on 2026-10-30, its run green whole at 23:28 with Windows in 74 minutes,
-Linux in 68 and macOS in 35, the screen probes' jittered rays and sixteen-frame history recorded
-under the item in REVIEW-ARCHIVE.md. Before it `e96a6bb8`, pushed with `c3214cbe` at 19:52 on
-2026-10-30, its run green whole at 21:51, Windows in 119 minutes, Linux in 44 and macOS in 33.
+for the game, After it `46149d6d`, item 153, pushed at 22:50 after that run, its run awaited,
+scenes_sponza on AgX with a fixed exposure of 3 and no auto exposure, sponza.look committed and the
+drive walking every view, the old door view renamed nave and three placed by eye on the owner's
+references, balcony, door and lookup, eight views on the keys 1 to 8, the hour on the arrow keys, a
+black box outside the main door hiding the sky in its gap as the owner's reference scene does; the
+frames' means at 15:00 at High against the references, balcony 19, 17 and 16 against 73, 67 and 64,
+door 5, 4 and 2 against 57, 50 and 43, lookup 15, 18 and 22 against 82, 75 and 71, sunlit stone
+close and shaded stone near black where the reference shows bounce, which is 152's reading; the
+models differ, a grille and a narrower vestibule here and the lion to the door 33 units against
+about 24; 2,154 on the GPU in both orders. a mesh that came and has not moved standing in for
+nothing in the scene field until it is built, where its box filled the rooms of a hollow building,
+with a pair of Sponza before and after and a note, the sunlit floor lit from frame 28 where it
+waited 330, the bounce rooms unchanged; 2,154 on the GPU in both orders. Before it `19658e55`, item
+136, pushed with `10295556` at 09:37, its run green at 11:16 with Windows in 98 minutes, Linux in 77
+and macOS in 36, the path-traced reference crossing surfaces that let light through, recorded under
+the item in REVIEW-ARCHIVE.md. Before it `10295556`, item 146's second commit, ShadowOnly draws kept
+in the field, recorded under the item. Before it `da54d289`, item 146's first commit, pushed at
+07:23 with `7bdfaa9e`, Verdict 95's mend, and `fdde73b2`, item 131's second commit, its run green at
+09:37 with Windows in 133 minutes, Linux in 77 and macOS in 36, which settled Verdict 95; the plain
+GPU run of `7bdfaa9e` read ObserverTests' no-observer allocation once at 1,768 bytes, 5 of 5 alone,
+watched. Before it `b16f26b5`, item 131's first commit, pushed at 02:53 on 2026-10-31, its run
+cancelled at 03:51 on Linux alone past test.py's 40-minute limit and the job's 100 (Verdict 95),
+Windows and macOS green, the plane a cell recorded under item 131 in REVIEW-ARCHIVE.md. Before it
+`2ad96a80`, item 135, pushed at 22:13 on 2026-10-30, its run green whole at 23:28 with Windows in 74
+minutes, Linux in 68 and macOS in 35, the screen probes' jittered rays and sixteen-frame history
+recorded under the item in REVIEW-ARCHIVE.md. Before it `e96a6bb8`, pushed with `c3214cbe` at 19:52
+on 2026-10-30, its run green whole at 21:51, Windows in 119 minutes, Linux in 44 and macOS in 33.
 `c3214cbe` is item 134, a resize asked before the first frame carried out at once past the debounce
 a load held back, with a test and the window guide's line, and AGENTS.md's REVIEW.md line as the
 owner asked. `e96a6bb8` is item 132's reading with no mend, the note
@@ -117,7 +126,7 @@ REVIEW-ARCHIVE.md, its devlog note and its own words. On 2026-10-30 at 18:0x the
 README's new words (item 133) and the focus on radiance cascades (Decision 74), questions asked
 back, and asked that the sessions spend fewer tokens at the same quality, N 7.7.
 
-Next 153 small, then 138, then 152, then 154, then the cascades in order, 139, 140, 141 and 142
+Next 138, then 151 with 155, then 152, then 154, then the cascades in order, 139, 140, 141 and 142
 (Decision 75); 143, 144 and 145 wait behind them.
 
 Items done and verdicts settled before 2026-10-23 stand in REVIEW-ARCHIVE.md beside this file, their
@@ -1067,8 +1076,15 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     at 1280 by 720 uncapped gpu.shadows reads 31.2 ms with 3.75 million triangles drawn into each
     cascade and the fill, hdr_scene 13.0, window_depth 7.5 and global illumination 2.7, a frame of
     40 to 57 ms at 800 by 450. A cascade that holds still is not redrawn, and the far cascades draw
-    only what moved or came into reach; read by the same frame before and after. After the cascades'
-    items.
+    only what moved or came into reach; read by the same frame before and after. The owner read the
+    shadows at 34 ms in a run of the Sponza example on 2026-10-31 at 23:45, the longest pass by far,
+    and called it a bug, so the item moves before 152 and after 138's commit (Decision 83). A
+    reading first, what the shadow pass draws, the draws and triangles a cascade and whether a mesh
+    outside a cascade's frustum is drawn into it, whether a cascade whose view and casters have not
+    moved is drawn again every frame, the maps' sizes and the fill's own time apart from the draws;
+    then the mend by the cause, culling to each cascade's bounds, a still cascade kept until
+    something in it moves, the far cascades drawn in turn, read by gpu.shadows in the same view
+    before and after and the shadows' pictures unchanged. One or two commits.
 
 152. **The light under a solid roof reads twelve times the reference.** Found in item 138's reading
     on 2026-10-31, in item 100's slab scene the frame's floor stands far above the reference, 0.217
@@ -1103,20 +1119,6 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     share against the sun is read before the bounce under the arcades, and a sky too bright beside
     its sun is the first suspect for the light under a solid roof.
 
-153. **The Sponza example adapts its exposure and gains the balcony view.** From the owner's
-    reference of 2026-10-31; scenes_sponza keeps AgX with a fixed exposure of 3.0 in place of auto
-    exposure (chosen at 20:35, since the engine has no lux and no camera EV, and at the reference's
-    EV 14.6 its sun of 97,050 lux exposes to about 3.26 against our noon sun's 1.08, so 3.0 puts our
-    sun where the reference's camera puts its own, while auto exposure would hide the ratios 152
-    reads), gains a sixth view, balcony, from the first floor's gallery across the atrium as the
-    reference stands, and commits sponza.look <eye> <target> [fov] for matching views in drives; the
-    drive captures the sixth view too, a plain pair at 15:00 against the reference. One small commit
-    of its own, before 138's. At 21:21 the owner sent three more references, kept in the day's dump
-    as item 152's, the door corner under the ground floor's vault lit by sky and bounce alone, the
-    atrium looked up at with the sun grazing the upper arcade, and a collage of the add-on content's
-    curtains and ivy; a seventh view, door, joins the balcony, and 152 reads the bounce and the
-    sky's share in it.
-
 154. **Lights in lux and a physical camera's exposure.** From item 153's reading, the engine has AgX
     but no physical units, no lux on a light, no camera EV, nothing from ISO, shutter and aperture,
     so a reference lit in real units is matched by a hand-set exposure and a guessed sun. A
@@ -1127,6 +1129,16 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     sets units. Read by Sponza at the reference's values, a sun of 97,050 lux at 5,633 K and ISO
     200, 1/200 s, f/16, the frame's mean beside the reference's. Foundation work under Decision 79,
     a day, after 152 and before 139.
+
+155. **The schedule's debug overlay goes, its dump staying as a command.** The owner asked on
+    2026-10-31 at 23:48 whether the early parallel batch planner overlay, ScheduleDebugHud in
+    Core/Schedule/Diagnostics, an internal behavior on Alt+F3 and off by default, should go, it
+    having been made for testing. It goes, with its key binding, since a hidden overlay in every
+    program is not the engine's shape for a tool (DESIGN.md's tools are windows a program draws, its
+    diagnostics commands); what it showed, each stage's parallel and sequential batches with the
+    planner's notes on why systems could or could not share a batch, stays reachable as a command,
+    schedule.dump, writing the same text to a file whose path it answers, so e3d reads it when the
+    scheduler misbehaves; ScheduleDiagnostics stays. Small, with 151's commit.
 
 ## Verdicts
 
@@ -1337,6 +1349,12 @@ REVIEW-ARCHIVE.md.
     plugin passes, GPU-driven drawing, volumes, and debug views with a graph dump; five rows to
     consider in SHARED.md, taken in that order after the GI items of 3DEngine's Decision 75,
     ShaderLab as a text format, keyword explosions and the editor's coupling left uncopied.
+
+83. **The shadows' 34 ms in Sponza is a fault to read before the look.** The owner wrote on
+    2026-10-31 at 23:45 that the shadows take 34 ms in a run of the Sponza example, the longest
+    pass, and that this must be a bug; item 151, which held the coder's reading of 31.2 ms with 3.75
+    million triangles into each cascade, moves from after the cascades' items to right after 138's
+    commit, a reading of what the pass draws first.
 
 ## Replies
 

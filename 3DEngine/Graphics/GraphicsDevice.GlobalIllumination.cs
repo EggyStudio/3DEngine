@@ -130,7 +130,8 @@ internal sealed unsafe partial class GraphicsDevice
         public float Start, End, Spacing, Cascades;
         public uint Kept;
         public float Edge;
-        public uint Parity, Unused2;
+        public uint Parity;
+        public float BelowEnd;
     }
 
     /// <summary>Whether the probes' shaders have been given, so light can bounce.</summary>
@@ -387,6 +388,7 @@ internal sealed unsafe partial class GraphicsDevice
                 Start = intervals[c].Start, End = intervals[c].End, Spacing = spacing, Cascades = gi.Cascades,
                 Kept = lying is not null && lying[c] ? 1u : 0u, Parity = (uint)(frame & 1),
                 Edge = intervals[lastCounted >= 0 ? lastCounted : gi.Cascades - 1].End,
+                BelowEnd = c > 0 ? intervals[c - 1].End : 0,
             };
             run.Dispatch(trace, set, MemoryMarshal.AsBytes(new ReadOnlySpan<IlluminationTrace>(in push)),
                 (p * p * p * n * n * (uint)gi.RaysAt(c) + 63) / 64);
