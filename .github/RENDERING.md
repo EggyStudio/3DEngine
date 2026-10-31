@@ -60,6 +60,13 @@ without `slangc` reads the cache, an entry whose sources have changed is never u
 added beside the others leaves their entries valid. `e3d shaders <folder> <cache>` fills a cache
 ahead of time, which is how `build/pack.sh` ships the built-in shaders compiled.
 
+The driver's compiled pipelines are kept beside them in `source/.slang-cache/pipelines.bin`
+(`GraphicsDevice.PipelineCache.cs`), read when the device is made where its header names the GPU and
+the driver's cache, and written back when the device is let go where it changed, through a file of
+its own moved over the old one. With the driver's own cache empty, the voxel game's first turn to
+its water, the first frame with a reflection plane, took 26.5 to 30.2 s of the wall clock compiling
+the mirrored pass's pipelines, and 0.98 s where the file held them.
+
 `slangc` is a tool rather than a library. `build/fetch-slang.sh` downloads a pinned release into
 `build/tools/slang`, and the compiler is looked for in `ENGINE_SLANGC`, then on the `PATH`, then
 there. Linking Slang into the engine would add a native library of tens of megabytes to every

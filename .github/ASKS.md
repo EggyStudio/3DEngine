@@ -1342,3 +1342,40 @@ Review: taken as 3DEngine item 146 on 2026-10-30, the field's move on a crossing
 Review: done in the engine at `da54d289` and `10295556` (item 146), the field's pool holding the
 build's meshes and ShadowOnly draws kept in the field, the step at 12 columns from 40 ms at its 99th
 part to 21 to 25 and the slowest from 42 to 28; in the next package.
+Review: read by the game on 5.2.342 at `7bd8f1c` on 2026-10-31, the six steps' 99th part at 12
+columns 49.3 and 85.1 ms to 37.8 and 43.8, the slowest 62.7 and 95.4 to 49.8 and 58.4; the entry is
+done.
+
+Read again in the game on 5.2.342 on 2026-10-31, Debug, offscreen at 1280 by 720, on tuned's
+power-saving profile with the processor's energy preference at power, other sessions' tests holding
+up to 29 percent of the GPU, two rounds a package in turns. Six steps of 16 blocks over the loaded
+land at 12 columns read `cpu.scene_field` at 0.7 to 19.6 ms a step, most under 4, against 11.7 to
+42.2 on 5.2.333, the 99th part of the frames over the steps at 37.8 and 43.8 ms against 49.3 and
+85.1, and the slowest at 49.8 and 58.4 against 62.7 and 95.4 (`voxel.frames`, `profile.slowest`).
+A jump of three sections reads the field at 25.5 to 40.9 ms against 36.5 to 59.2. The deep cave at
+-59.5, -4, -91.5 at noon at Low with the far cascade on reads a mean luma of 0.245 against 0.398,
+the rock the eye cannot see kept in the field, and the same with the far cascade off.
+
+### 2026-10-31, the voxel game in `Voxel-Sandbox`, the first frame with a reflection plane compiles the mirrored pass's pipelines in 22.5 s
+
+Read on the 3DEngine 5.2.342 package for the game's item 151, Debug, offscreen at 1280 by 720, the
+RTX 4070 Laptop GPU with driver 615.78.08, on tuned's power-saving profile with the processor's
+energy preference at power. The game sets `SetReflectionPlane` at the water in view, and over seed 1
+the first water comes into view 64 blocks east of the spawn. The frame it is first set in took 23.7
+to 24.0 s of the wall clock, `profile.slowest` reading `cpu.mirror` at 22.5 to 23.0 s and the frame
+held at 250 ms, in every run. Later frames with the plane, the eye leaving the water and coming
+back, and Water Reflections turned off and on again read `cpu.mirror` at 0.9 to 4.6 ms. With
+`__GL_SHADER_DISK_CACHE_PATH` naming a folder of its own, a first run read 23.7 s and the second 1.1
+s with `cpu.mirror` too small to read, so the time is the driver compiling the pipelines the engine
+makes for the mirrored view's render pass, keyed apart from the window's. The driver's default cache
+on this machine holds 1.1 GB across six programs and served none of the game's runs. A player's
+first sight of water, at each start where the driver's cache misses, holds the game for over 20
+seconds.
+
+The engine lacks pipelines made before the frame that first needs them, those of a pass a program
+turns on later made at start or over the frames after the call that asks for the pass, or a
+`VkPipelineCache` of its own kept beside the program between runs, so a pass first drawn in play
+costs its first frame no compile.
+
+Review: taken as 3DEngine item 147 on 2026-10-31, the pipeline cache kept between runs and a pass's
+pipelines made before the frame that first needs them, after the engine's item 132.

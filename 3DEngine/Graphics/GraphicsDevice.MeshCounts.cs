@@ -96,7 +96,7 @@ internal sealed unsafe partial class GraphicsDevice
                 stage = new VkPipelineShaderStageCreateInfo { stage = VkShaderStageFlags.Compute, module = module, pName = name },
                 layout = _countLayout,
             };
-            _deviceApi.vkCreateComputePipelines(default, 1, &info, null, &pipeline).CheckResult();
+            _deviceApi.vkCreateComputePipelines(_pipelineCache, 1, &info, null, &pipeline).CheckResult();
             DeviceObjects.Made(DeviceObjects.Kind.Pipeline);
         }
         _countPipeline = pipeline;
@@ -271,7 +271,7 @@ internal sealed unsafe partial class GraphicsDevice
                 stage = new VkPipelineShaderStageCreateInfo { stage = VkShaderStageFlags.Compute, module = module, pName = name },
                 layout = _cornersLayout,
             };
-            _deviceApi.vkCreateComputePipelines(default, 1, &info, null, &pipeline).CheckResult();
+            _deviceApi.vkCreateComputePipelines(_pipelineCache, 1, &info, null, &pipeline).CheckResult();
             DeviceObjects.Made(DeviceObjects.Kind.Pipeline);
         }
         _cornersPipeline = pipeline;

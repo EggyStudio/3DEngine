@@ -4416,6 +4416,38 @@ batch.
     commit of its own. Done at `00c6809a`, the words verbatim and the mark plain, STYLE.md's quote
     with them.
 
+132. **A pass records two thousand unmoving draws for well under a millisecond.** From the voxel
+    game's item 139, read at 15:14 on 2026-10-26, its ASKS.md entry of 2026-10-26. At the game's
+    open view at 12 columns each section draw costs 3 to 5 microseconds of the main thread a pass,
+    the depth pass about 670 draws, the camera 780, the mirror 420 and the cascades 400, 9.4 of the
+    main thread's 13 ms, and at 16 columns the main thread bounds the frame at 21 ms against the
+    GPU's 16.5, the sections unmoving between frames. The recording's cost read a pass and a draw on
+    the game's open view at 8, 12 and 16 columns and on item 108's thousand meshes, then brought
+    down by the batches of a pipeline and material recorded as one indirect multi-draw over an
+    instances' buffer, or by a pass's commands kept while its set of draws and their meshes are
+    unchanged and recorded again when they change, or by secondary command buffers recorded on
+    workers, as the reading shows, so a frame's four passes over two thousand unmoving sections cost
+    the main thread well under a millisecond each; the frames the same in picture, the references
+    holding, the game's view read again with the package. One or two commits, after item 97 and
+    before 131. Read at `e96a6bb8` on 2026-10-30, the cost a descriptor set a draw a pass, about
+    2,045 a frame, one set a frame taking the frame at 16 columns from 26.6 to 17.9 ms in a scratch
+    copy with the pixels the same; the mend waits behind the cascades by Decision 75 unless the
+    owner lets it land first, asked. The owner said on 2026-10-31 at 12:3x to land the mend at once,
+    one descriptor set a frame as read, and that Decision 75 means no drift into other features, not
+    that foundation work the framework needs waits. One commit, after 133 and before 138's next
+    commit, the game's 16 columns read again on the engine's tree. Done at `df856af8` on 2026-10-31.
+    Draws through a program's shader that share a look, the shader, the values array, the
+    own-textures array and the five maps, take one descriptor set a frame for every pass from a
+    per-frame dictionary cleared with the frame's sets, an entity's values one copy a frame a shader
+    and a call's values a clone of their own so the arrays' identity tells values apart; a GPU test
+    of eight squares through one shader reads one set a frame and eight with the cache off. The
+    game's open view at `8a1e308` with the engine in Release, the four passes' main thread in two
+    rounds, at 8 columns 2.76 and 2.68 ms to 1.65 and 1.80, at 12 4.60 and 5.33 to 2.82 and 2.72, at
+    16 7.56 and 8.21 to 3.85 and 4.19, the pictures within 0.004 to 0.010 of 255; the frames
+    GPU-bound and contended by another session's suite, 16 columns 21.0 and 24.5 before and 34.0 and
+    22.8 after, so not read, as the note 2026-10-31-item-132-sets.md says. 2,141 on the GPU in both
+    orders.
+
 ## Verdicts settled
 
 Verdicts 1 to 55 are settled, the last two, the drawing leak test's resident bound and the Windows

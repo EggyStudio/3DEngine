@@ -1,42 +1,50 @@
 # Review
 
 Reviewed up to `2b8e8541`, item 137's first commit, pushed at 11:27 on 2026-10-31 after the run of
-`19658e55` went green at 11:16, its run awaited, the pack run started at 09:40 from `19658e55` green
-at 12:47, the tenth, 5.2.342 published, with Windows in 185 minutes, the games in 78, the captures
-in 54 and 57 on macOS, the pack in 4, carrying items 131, 135, 136 and 146 for the game. A probe of
-a cascade above the first whose spot lies in or beside a wall between a space narrow along two axes
-and a wider one steps through the wall's farther face into the narrow space, the cause and the
-numbers recorded under the item with a note; 2,140 on the GPU in both orders, 13 on lavapipe with 11
-skipped for ray queries. It carries N 4.9 as rewritten, N 4.10, Decisions 76 and 77, .gitignore's
-dump line and a Shared line. After it `edf301e0`, the version to 6.0 in build/version.txt, the
-owner's change committed by the reviewer on the owner's word, held until the run of `2b8e8541` ends.
-After it `95e088b7`, item 137's second commit, held the same, a probe of a cascade below the last
-that sees none of the cascade above's eight probes carrying its rays to the field's edge and taking
-what they meet past their interval, nothing where they meet nothing; with the placement the
-corridor's walls at High 67% under to 60 and 62, the distance 25% nearer, every other room as it
-was; 2,140 on the GPU in both orders, 13 on lavapipe with 11 skipped; a wording correction, any
-cascade below the last and not the first alone, waits for 138's commit. After it `00c6809a`, item
-133, held the same, the README opening with the owner's words verbatim, [e3d.cs] a plain mark,
-STYLE.md keeping them, carrying the review's files and DEVLOG.md. Before it `19658e55`, item 136,
-pushed with `10295556` at 09:37, its run green at 11:16 with Windows in 98 minutes, Linux in 77 and
-macOS in 36, the path-traced reference crossing surfaces that let light through, recorded under the
-item in REVIEW-ARCHIVE.md. Before it `10295556`, item 146's second commit, ShadowOnly draws kept in
-the field, recorded under the item. Before it `da54d289`, item 146's first commit, pushed at 07:23
-with `7bdfaa9e`, Verdict 95's mend, and `fdde73b2`, item 131's second commit, its run green at 09:37
-with Windows in 133 minutes, Linux in 77 and macOS in 36, which settled Verdict 95; the plain GPU
-run of `7bdfaa9e` read ObserverTests' no-observer allocation once at 1,768 bytes, 5 of 5 alone,
-watched. Before it `b16f26b5`, item 131's first commit, pushed at 02:53 on 2026-10-31, its run
-cancelled at 03:51 on Linux alone past test.py's 40-minute limit and the job's 100 (Verdict 95),
-Windows and macOS green, the plane a cell recorded under item 131 in REVIEW-ARCHIVE.md. Before it
-`2ad96a80`, item 135, pushed at 22:13 on 2026-10-30, its run green whole at 23:28 with Windows in 74
-minutes, Linux in 68 and macOS in 35, the screen probes' jittered rays and sixteen-frame history
-recorded under the item in REVIEW-ARCHIVE.md. Before it `e96a6bb8`, pushed with `c3214cbe` at 19:52
-on 2026-10-30, its run green whole at 21:51, Windows in 119 minutes, Linux in 44 and macOS in 33.
-`c3214cbe` is item 134, a resize asked before the first frame carried out at once past the debounce
-a load held back, with a test and the window guide's line, and AGENTS.md's REVIEW.md line as the
-owner asked. `e96a6bb8` is item 132's reading with no mend, the note
-2026-10-30-item-132-recording.md; at 12 columns 5.6 to 6.5 ms of the four passes' 9.6 to 11.5 is a
-descriptor set made and written for every draw in every pass, about 2,045 a frame at 2.8 to 3.2
+`19658e55` went green at 11:16, its run green at 13:46 with Windows in 139 minutes where 98 and 133
+at the two runs before, Linux in 47 and macOS in 36, the Windows push limit of 150 watched and
+raised if a run nears it, the pack run started at 09:40 from `19658e55` green at 12:47, the tenth,
+5.2.342 published, with Windows in 185 minutes, the games in 78, the captures in 54 and 57 on macOS,
+the pack in 4, carrying items 131, 135, 136 and 146 for the game. A probe of a cascade above the
+first whose spot lies in or beside a wall between a space narrow along two axes and a wider one
+steps through the wall's farther face into the narrow space, the cause and the numbers recorded
+under the item with a note; 2,140 on the GPU in both orders, 13 on lavapipe with 11 skipped for ray
+queries. It carries N 4.9 as rewritten, N 4.10, Decisions 76 and 77, .gitignore's dump line and a
+Shared line. After it `edf301e0`, the version to 6.0 in build/version.txt, the owner's change
+committed by the reviewer on the owner's word, pushed at 13:49 with `95e088b7`, `00c6809a` and
+`df856af8` after that run, the run of `df856af8` awaited. After it `95e088b7`, item 137's second
+commit, a probe of a cascade below the last that sees none of the cascade above's eight probes
+carrying its rays to the field's edge and taking what they meet past their interval, nothing where
+they meet nothing; with the placement the corridor's walls at High 67% under to 60 and 62, the
+distance 25% nearer, every other room as it was; 2,140 on the GPU in both orders, 13 on lavapipe
+with 11 skipped; a wording correction, any cascade below the last and not the first alone, waits for
+138's commit. After it `00c6809a`, item 133, the README opening with the owner's words verbatim,
+[e3d.cs] a plain mark, STYLE.md keeping them, carrying the review's files and DEVLOG.md. After it
+`df856af8`, item 132's mend, draws through a program's shader that share a look taking one
+descriptor set a frame for every pass from a per-frame dictionary, the game's four passes' main
+thread at 16 columns 7.56 and 8.21 ms to 3.85 and 4.19, at 12 4.60 and 5.33 to 2.82 and 2.72, at 8
+2.76 and 2.68 to 1.65 and 1.80, the pictures within 0.010 of 255, the frames GPU-bound and contended
+by another session's suite so their times are not read; a GPU test of eight squares through one
+shader taking one set; 137's wording corrected; 2,141 on the GPU in both orders. Before it
+`19658e55`, item 136, pushed with `10295556` at 09:37, its run green at 11:16 with Windows in 98
+minutes, Linux in 77 and macOS in 36, the path-traced reference crossing surfaces that let light
+through, recorded under the item in REVIEW-ARCHIVE.md. Before it `10295556`, item 146's second
+commit, ShadowOnly draws kept in the field, recorded under the item. Before it `da54d289`, item
+146's first commit, pushed at 07:23 with `7bdfaa9e`, Verdict 95's mend, and `fdde73b2`, item 131's
+second commit, its run green at 09:37 with Windows in 133 minutes, Linux in 77 and macOS in 36,
+which settled Verdict 95; the plain GPU run of `7bdfaa9e` read ObserverTests' no-observer allocation
+once at 1,768 bytes, 5 of 5 alone, watched. Before it `b16f26b5`, item 131's first commit, pushed at
+02:53 on 2026-10-31, its run cancelled at 03:51 on Linux alone past test.py's 40-minute limit and
+the job's 100 (Verdict 95), Windows and macOS green, the plane a cell recorded under item 131 in
+REVIEW-ARCHIVE.md. Before it `2ad96a80`, item 135, pushed at 22:13 on 2026-10-30, its run green
+whole at 23:28 with Windows in 74 minutes, Linux in 68 and macOS in 35, the screen probes' jittered
+rays and sixteen-frame history recorded under the item in REVIEW-ARCHIVE.md. Before it `e96a6bb8`,
+pushed with `c3214cbe` at 19:52 on 2026-10-30, its run green whole at 21:51, Windows in 119 minutes,
+Linux in 44 and macOS in 33. `c3214cbe` is item 134, a resize asked before the first frame carried
+out at once past the debounce a load held back, with a test and the window guide's line, and
+AGENTS.md's REVIEW.md line as the owner asked. `e96a6bb8` is item 132's reading with no mend, the
+note 2026-10-30-item-132-recording.md; at 12 columns 5.6 to 6.5 ms of the four passes' 9.6 to 11.5
+is a descriptor set made and written for every draw in every pass, about 2,045 a frame at 2.8 to 3.2
 microseconds each with every section's set holding the same values, and one set a frame in a scratch
 copy takes the passes to 5.1 ms at 12 and from 18.4 to 19.7 to 7.6 at 16, the frame at 16 from 26.6
 to 17.9 ms, the land's pixels within 0.08 of 255. 2,135 on the GPU in both orders, the resize tests
@@ -56,8 +64,8 @@ REVIEW-ARCHIVE.md, its devlog note and its own words. On 2026-10-30 at 18:0x the
 README's new words (item 133) and the focus on radiance cascades (Decision 74), questions asked
 back, and asked that the sessions spend fewer tokens at the same quality, N 7.7.
 
-Next 132's mend, then 147, then 138 and the cascades in order, 139, 140, 141 and 142 (Decision 75);
-143, 144 and 145 wait behind them.
+Next 147, then 148, then 138 and the cascades in order, 139, 140, 141 and 142 (Decision 75); 143,
+144 and 145 wait behind them.
 
 Items done and verdicts settled before 2026-10-23 stand in REVIEW-ARCHIVE.md beside this file, their
 numbers kept, moved there at 19:30 on 2026-10-23 so this file holds the current work alone and is
@@ -922,27 +930,6 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     The macOS test's fix in `14338c8f`, picked as `34e9a8a5`. The device numbers in the guide at
     `3a2ccc0b`; item 74 done, held for the push.
 
-132. **A pass records two thousand unmoving draws for well under a millisecond.** From the voxel
-    game's item 139, read at 15:14 on 2026-10-26, its ASKS.md entry of 2026-10-26. At the game's
-    open view at 12 columns each section draw costs 3 to 5 microseconds of the main thread a pass,
-    the depth pass about 670 draws, the camera 780, the mirror 420 and the cascades 400, 9.4 of the
-    main thread's 13 ms, and at 16 columns the main thread bounds the frame at 21 ms against the
-    GPU's 16.5, the sections unmoving between frames. The recording's cost read a pass and a draw on
-    the game's open view at 8, 12 and 16 columns and on item 108's thousand meshes, then brought
-    down by the batches of a pipeline and material recorded as one indirect multi-draw over an
-    instances' buffer, or by a pass's commands kept while its set of draws and their meshes are
-    unchanged and recorded again when they change, or by secondary command buffers recorded on
-    workers, as the reading shows, so a frame's four passes over two thousand unmoving sections cost
-    the main thread well under a millisecond each; the frames the same in picture, the references
-    holding, the game's view read again with the package. One or two commits, after item 97 and
-    before 131. Read at `e96a6bb8` on 2026-10-30, the cost a descriptor set a draw a pass, about
-    2,045 a frame, one set a frame taking the frame at 16 columns from 26.6 to 17.9 ms in a scratch
-    copy with the pixels the same; the mend waits behind the cascades by Decision 75 unless the
-    owner lets it land first, asked. The owner said on 2026-10-31 at 12:3x to land the mend at once,
-    one descriptor set a frame as read, and that Decision 75 means no drift into other features, not
-    that foundation work the framework needs waits. One commit, after 133 and before 138's next
-    commit, the game's 16 columns read again on the engine's tree.
-
 143. **Shadow casters are culled to each cascade's slice swept toward the sun.** From the voxel
     game's reading of a voxel engine in Rust on 2026-10-30, its ASKS.md entry of 2026-10-30, behind
     the cascades of Decision 75 with item 132. At 128 blocks the game's cascades draw about 1,300
@@ -1016,6 +1003,29 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     compile; read by the game's first mirror frame on a fresh driver cache before and after, and by
     the second run. Foundation work under Decision 79, after 132's mend and before 138's next
     commit; one or two commits.
+
+148. **The Sponza example, its scene pack fetched on demand, with named views and the time of day.**
+    The owner wrote on 2026-10-31 at 13:46 that the engine does as BevyCSharp does with the Sponza
+    scene, the pack installed on demand, the example run, the camera switched between positions to
+    see the areas, and the time of day changed to see the light change. Three parts. First the pack,
+    a manifest `scenes/intel-sponza.json` as BevyCSharp's (the title, source, license, attribution,
+    the asset's address, size, sha256 and the model's file), the same pack file BevyCSharp made with
+    build/make-scene-pack.py, its textures at 1K and compressed for the GPU, and `e3d scenes fetch
+    intel-sponza` downloading it into the user's cache folder, checking the sha256 and unpacking it,
+    a test on a small pack of its own; the engine reads the pack's compressed textures, a KTX2
+    reader of the BC formats Vulkan has on every desktop GPU if that is what the pack holds, which a
+    game needs anyway, or the pack script writes a second pack with PNG textures if the reader is
+    the larger work, the coder reading which. Second the example, `scenes_sponza` in
+    3DEngine.Examples, loading the model through the engine's loader with its materials, global
+    illumination on with the field and the cascades sized to the building, a sun and the sky by the
+    hour, named views, the atrium's floor, the upper gallery, the lion's end and the curtains among
+    them, on the number keys and `sponza.view <name>`, the hour on the bracket keys and `sponza.time
+    <hour>`, each a command so a drive reads them. Third the captures, each view at noon and at
+    evening as plain captures under the readings folder, one for the README's table, and the drive
+    in the pack run's captures job with the pack cached by its sha256 rather than fetched on every
+    push, as BevyCSharp keeps its Sponza drive off the push runs. From then on the cascades' items
+    read Sponza beside the bounce rooms. After 147 and before 138; two or three commits. Decision
+    81.
 
 ## Verdicts
 
@@ -1212,6 +1222,13 @@ REVIEW-ARCHIVE.md.
     the owner's word. The engine stands at 6.0 since `edf301e0`, the owner's own move, and stays
     until the GI plan's items carry it to its next minor.
 
+81. **The Sponza scene comes to the engine as BevyCSharp has it.** The owner wrote on 2026-10-31 at
+    13:46, "just like in bevycsharp with installing the sponza scene do the same in 3dengine where
+    we can run the sponza example and download and load it and then switch camera positions to see
+    the different areas and then also change time of day to see the changes". Item 148, after 147
+    and before the cascades' items, which read Sponza from then on; the pack is the one BevyCSharp
+    made, so the two engines show the same building.
+
 ## Replies
 
 Shared: a mesh that replaced a still one in place is not stamped as boxes while a cascade the
@@ -1235,3 +1252,8 @@ and the probe keeps up to sixteen frames of its light before the window's filter
 kept light lies past three times the error of its like neighbors' blend, which took the bounce
 rooms' still spots from 4 to 24 a view to 4 to 17, a still view's change at its 99th part 2.6% at
 most (item 135).
+
+Shared: the driver's compiled pipelines are kept in the program's cache folder between runs, a
+`VkPipelineCache` read when the device is made where its header names the GPU and written back at
+exit where it changed, which took the voxel game's first frame with a reflection plane from 26.5 to
+30.2 s of compiling to 0.98 s on a run after the first with the driver's own cache empty (item 147).

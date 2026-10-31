@@ -365,7 +365,7 @@ internal sealed unsafe partial class GraphicsDevice
         };
 
         VkPipeline pipeline;
-        _deviceApi.vkCreateGraphicsPipelines(default, 1, &pipelineInfo, null, &pipeline).CheckResult();
+        _deviceApi.vkCreateGraphicsPipelines(_pipelineCache, 1, &pipelineInfo, null, &pipeline).CheckResult();
         DeviceObjects.Made(DeviceObjects.Kind.Pipeline);
         return new VulkanGraphicsPipeline(this, pipeline, layout);
     }

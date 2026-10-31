@@ -93,6 +93,7 @@ internal sealed partial class GraphicsDevice : IGraphicsDevice
         Logger.Info("Step 4/6: Creating logical device, setting up device queues (graphics + present) and enabling required extensions...");
         sw.Restart();
         CreateLogicalDevice();
+        CreatePipelineCache();
         Logger.Info($"Step 4/6: Logical device created in {sw.ElapsedMilliseconds}ms (graphicsQueue={_graphicsQueueFamily}, presentQueue={_presentQueueFamily})");
 
         Logger.Info("Step 5/6: Creating swapchain resources (swapchain, image views, depth buffer and command pool)...");
@@ -202,6 +203,7 @@ internal sealed partial class GraphicsDevice : IGraphicsDevice
         Logger.Debug("Destroying descriptor resources (pool, layouts)...");
         DestroyDescriptorResources();
         DestroyMemoryBlocks();
+        DestroyPipelineCache();
         Logger.Debug("Destroying logical device...");
         DestroyLogicalDevice();
         Logger.Debug("Destroying window surface...");

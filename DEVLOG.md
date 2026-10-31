@@ -116,6 +116,38 @@ room of sheets took 0.048 of the sky's light at Low and 0.0085 at High where 0.0
 the grove's global illumination 5.66 to 5.68 ms where 5.65 to 5.68 with one plane, the second read
 costing nothing the frames show.
 
+One descriptor set a frame for the draws through a program's shader that share a look, read on the
+engine's tree against `00c6809a` built in Release and put into the voxel game at `8a1e308` on
+5.2.333, on an RTX 4070 Laptop GPU under tuned's `powersave-bazzite`, at the game's open view,
+flying at 90 over seed 1's spawn at noon looking east, 1280 by 720 offscreen with the frames
+unlimited, a profile over 600 frames, before and after by turns, two rounds. Another session's test
+suite ran on the GPU through these readings.
+
+A draw through a program's shader took a descriptor set made and written whole in each pass that
+drew it, its uniforms copied and its maps bound one by one, where every section's set holds the
+same values. The draws of one look, the shader, the values and the shader's own textures the draw
+was given and its five maps, take one set a frame for every pass. An entity's values are one copy a
+frame for every entity drawn with the shader and a call's a copy of its own, so the copies
+themselves tell the values apart. Eight squares of their own meshes through one shader took eight
+sets a frame and take one.
+
+The four passes, the shadows', the depth's, the camera's and the mirror's, in milliseconds of the
+main thread a frame:
+
+| Columns | Before | After |
+|---|---|---|
+| 8 | 2.76, 2.68 | 1.65, 1.80 |
+| 12 | 4.60, 5.33 | 2.82, 2.72 |
+| 16 | 7.56, 8.21 | 3.85, 4.19 |
+
+The frames, bound by the GPU at these counts with the other suite on it, read 11.1 and 10.5 ms
+before and 10.7 and 24.1 after at 8 columns, 15.7 and 16.7 and 15.9 and 16.5 at 12, and 21.0 and
+24.5 and 34.0 and 22.8 at 16, too contended to tell the frame's change from; the recording that
+bound the frame at 16 in item 132's reading is the passes' above.
+
+The land's pictures before and after lay 0.004 to 0.010 of 255 apart on the mean, 0.03 to 0.06% of
+their pixels by more than 8 levels, where the mobs and the leaves moved.
+
 The path-traced reference crossing what lets light through, read on the engine's tree against
 `10295556` on an RTX 4070 Laptop GPU under tuned's `powersave-bazzite`, in the canopy of leaf blocks
 `GlobalIlluminationTests` reads and in the voxel game's cherry grove, each against the reference
@@ -346,6 +378,7 @@ GPU's, so it would bear them first, 106 s of the 45 minutes here. No test is cha
 Done that day
 
 - Item 131 at `b16f26b5`. A thin two-sided face holds a narrower band in the scene field.
+- Item 132 at `df856af8`. A pass records two thousand unmoving draws for well under a millisecond.
 - Item 133 at `00c6809a`. The README's words under the header, as given.
 - Item 136 at `19658e55`. The path-traced reference knows light through.
 - Item 137 at `95e088b7`. A vertical face in a narrow canopy pocket takes the light that reaches it.
