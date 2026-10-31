@@ -132,47 +132,6 @@ public struct GiLights
     public GlowLight glows[MostGlowLights];
 };
 
-// Where a ray from origin along way first comes within a tenth of a cell of a surface between
-// tMin and tMax, through the finest cascade that holds each point along it, or -1 where it reaches
-// tMax first or leaves every cascade.
-public float traceField<V : IVolume>(V field, SceneFieldInfo info, float3 origin, float3 way, float tMin, float tMax)
-{
-    float t = tMin;
-    for (int i = 0; i < 64 && t < tMax; i++)
-    {
-        float3 p = origin + way * t;
-        int c = fieldCascade(info, p, 1.0);
-        if (c < 0)
-            return -1.0;
-        float cell = info.cascades[c].originAndCell.w;
-        float d = fieldDistanceIn(field, info, c, p);
-        if (d < cell * 0.1)
-            return t;
-        t += max(d, cell * 0.25);
-    }
-    return -1.0;
-}
-
-// The same, stopping where the ray leaves cascade `most` and every finer one, as -1, since a wall
-// thinner than a coarser cascade's cell may let it through.
-public float traceFieldWithin<V : IVolume>(V field, SceneFieldInfo info, float3 origin, float3 way, float tMin, float tMax, int most)
-{
-    float t = tMin;
-    for (int i = 0; i < 64 && t < tMax; i++)
-    {
-        float3 p = origin + way * t;
-        int c = fieldCascade(info, p, 1.0);
-        if (c < 0 || c > most)
-            return -1.0;
-        float cell = info.cascades[c].originAndCell.w;
-        float d = fieldDistanceIn(field, info, c, p);
-        if (d < cell * 0.1)
-            return t;
-        t += max(d, cell * 0.25);
-    }
-    return -1.0;
-}
-
 // A color of the field at p, the cells' colors blended and divided by how much of them a surface
 // painted, so a cell no surface painted lends nothing, or gray where none around p is painted.
 public float3 surfaceAlbedo<V : IVolume>(V albedo, SceneFieldInfo info, float3 p)
@@ -759,11 +718,14 @@ public float3 glowLightsAt<V : IVolume>(V field, SceneFieldInfo info, GiLights l
 // probe. The indirect light is taken at kept's share of it, from the faces where gathered says the
 // probes stood, and own holds the light the surface sends on of what reaches it straight from the
 // sun, the lights and the two brightest glow lights, with its emission but a glow light's, which a
-// world probe weighs the frame before's light by (gi_ambient.slang).
+// world probe weighs the frame before's light by (gi_ambient.slang). The probes' rays meet a
+// double-sided face at its plane (fieldDistanceSheetIn), where the held field's gradient cancels
+// across the sheet, so the hit's normal is the plane's (fieldNormalSheet), turned up there, the
+// voxel game's crops lit as floors from the sun took 29% over a path-traced reference.
 public float3 shadeProbeHit<V : IVolume>(V field, SceneFieldInfo info, SceneFieldInfo gathered, V albedo, Texture3D<uint> faces, V glow, GiLights lights,
     V cubes, V reach, float3 p, float3 way, float probes, float spacing, float cascades, bool seen, float3 kept, out float3 own)
 {
-    float3 n = fieldNormal(field, info, p);
+    float3 n = fieldNormalSheet(field, info, p);
     float3 color = surfaceAlbedoFacing(faces, albedo, info, p, n);
     float3 bounced = seen ? bouncedSeenAt(field, info, gathered, cubes, p, n, probes, spacing, cascades)
                           : bouncedAt(cubes, reach, gathered, p, n, probes, spacing, cascades);

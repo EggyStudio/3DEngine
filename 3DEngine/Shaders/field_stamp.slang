@@ -34,11 +34,13 @@ StructuredBuffer<uint4> bricks;
 [[vk::binding(1, 0)]]
 StructuredBuffer<FieldShape> shapes;
 
-[[vk::binding(2, 0)]] [format("r16f")]
-RWTexture3D<float> stillField;
+// The distance in x, and in yzw the plane of a double-sided face the still meshes give the cell
+// (sheetAt in field_resolve.slang), which a box nearer than it takes away.
+[[vk::binding(2, 0)]] [format("rgba16f")]
+RWTexture3D<float4> stillField;
 
-[[vk::binding(3, 0)]] [format("r16f")]
-RWTexture3D<float> field;
+[[vk::binding(3, 0)]] [format("rgba16f")]
+RWTexture3D<float4> field;
 
 [[vk::binding(4, 0)]]
 ConstantBuffer<SceneFieldInfo> info;
@@ -85,7 +87,9 @@ void computeMain(uint3 group : SV_GroupID, uint3 local : SV_GroupThreadID)
     float reach = info.counts.z * oc.w;
 
     uint3 at = uint3(cell.xy, cell.z + cascade * size);
-    float d = stillField[at];
+    float4 still = stillField[at];
+    float d = still.x;
+    float3 sheet = still.yzw;
     float nearest = abs(d);
     float4 paint = stillPaint[at];
     uint face = stillFaces[at];
@@ -101,6 +105,7 @@ void computeMain(uint3 group : SV_GroupID, uint3 local : SV_GroupThreadID)
         if (abs(box) < min(nearest, reach))
         {
             nearest = abs(box);
+            sheet = float3(0.0);
             float coverage = lightThroughPaint(shape.color.w);
             paint = float4(shape.color.rgb * coverage, coverage);
             // The box's face nearest the cell, the axis it lies furthest out along, in the world.
@@ -109,7 +114,7 @@ void computeMain(uint3 group : SV_GroupID, uint3 local : SV_GroupThreadID)
             face = faceBits(normalize(shape.row0.xyz * outward.x + shape.row1.xyz * outward.y + shape.row2.xyz * outward.z));
         }
     }
-    field[at] = d;
+    field[at] = float4(d, sheet);
     albedoField[at] = paint;
     faceField[at] = face;
 }

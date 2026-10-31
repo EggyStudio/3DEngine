@@ -208,9 +208,11 @@ internal sealed unsafe partial class GraphicsDevice
     {
         var size = (uint)Math.Max(1, resolution);
         var depth = size * (uint)Math.Max(1, cascades);
-        var (still, stillMemory, stillView) = FieldImage(size, depth);
+        // The distances in the first channel, and in the other three the plane of a double-sided face
+        // whose inside is a cell's nearest point (field_resolve.slang).
+        var (still, stillMemory, stillView) = FieldImage(size, depth, VkFormat.R16G16B16A16Sfloat);
         var (stillPaint, stillPaintMemory, stillPaintView) = FieldImage(size, depth, VkFormat.R8G8B8A8Unorm);
-        var (field, fieldMemory, fieldView) = FieldImage(size, depth);
+        var (field, fieldMemory, fieldView) = FieldImage(size, depth, VkFormat.R16G16B16A16Sfloat);
         var (albedoImage, albedoMemory, albedoView) = FieldImage(size, depth, VkFormat.R8G8B8A8Unorm);
         var (glowImage, glowMemory, glowView) = FieldImage(size, depth, VkFormat.R16G16B16A16Sfloat);
         var (facesImage, facesMemory, facesView) = FieldImage(size, depth, VkFormat.R8Uint);
@@ -234,7 +236,8 @@ internal sealed unsafe partial class GraphicsDevice
             .. read.Select(image => ImageBarrier(image, ColorLevels(0, 1), VkImageLayout.Undefined, VkImageLayout.General, VkPipelineStageFlags2.None, VkAccessFlags2.None,
                 VkPipelineStageFlags2.Transfer, VkAccessFlags2.TransferWrite)),
         ]);
-        var far = new VkClearColorValue(FarFieldDistance, FarFieldDistance, FarFieldDistance, FarFieldDistance);
+        // Far from every surface, and no plane of a double-sided face in the other three channels.
+        var far = new VkClearColorValue(FarFieldDistance, 0f, 0f, 0f);
         var none = new VkClearColorValue(0f, 0f, 0f, 0f);
         _deviceApi.vkCmdClearColorImage(cmd, still, VkImageLayout.General, &far, 1, &whole);
         _deviceApi.vkCmdClearColorImage(cmd, field, VkImageLayout.General, &far, 1, &whole);
@@ -414,8 +417,9 @@ internal sealed unsafe partial class GraphicsDevice
     /// part clears and its last reads, <paramref name="thinGlow"/> for a build in one part.
     /// </param>
     /// <param name="sheet">
-    /// How far either side of its middle a double-sided sheet or a wall thinner than a cell is held,
-    /// or 0 for half a cell, which the far cascade's build keeps to half the last counted cascade's cell.
+    /// How far either side of its middle a wall thinner than a cell is held, or 0 for half a cell,
+    /// which the far cascade's build keeps to half the last counted cascade's cell. A double-sided
+    /// face is held by its plane in the cells it is nearest (<c>sheetAt</c> in <c>field_resolve.slang</c>).
     /// </param>
     /// <returns>What the recording holds, to free once no frame in flight reads it.</returns>
     /// <remarks>
@@ -448,9 +452,10 @@ internal sealed unsafe partial class GraphicsDevice
             MemoryBarrier(cmd, VkPipelineStageFlags2.ComputeShader, VkAccessFlags2.ShaderRead | VkAccessFlags2.ShaderWrite,
                 VkPipelineStageFlags2.Transfer, VkAccessFlags2.TransferWrite);
             // The code of a cell no triangle comes within the band of, the band's distance in front,
-            // in 1024ths of a cell above the bits that say whether its triangle is double-sided and
-            // whether the cell is in front, and eight bits of its face's way.
-            _deviceApi.vkCmdFillBuffer(cmd, cells, 0, Vulkan.VK_WHOLE_SIZE, ((uint)band * 1024 << 10) | 1 << 8);
+            // in 1024ths of a cell above the bits that say whether a double-sided triangle's nearest
+            // point lies on its rim, whether its triangle is double-sided and whether the cell is in
+            // front, and eight bits of its face's way.
+            _deviceApi.vkCmdFillBuffer(cmd, cells, 0, Vulkan.VK_WHOLE_SIZE, ((uint)band * 1024 << 11) | 1 << 8);
             _deviceApi.vkCmdFillBuffer(cmd, ((VulkanBuffer)field.Albedo).Buffer, 0, Vulkan.VK_WHOLE_SIZE, 0);
             _deviceApi.vkCmdFillBuffer(cmd, ((VulkanBuffer)field.Glow).Buffer, 0, Vulkan.VK_WHOLE_SIZE, 0);
             _deviceApi.vkCmdFillBuffer(cmd, ((VulkanBuffer)field.Behind).Buffer, 0, Vulkan.VK_WHOLE_SIZE, uint.MaxValue);
@@ -639,10 +644,24 @@ internal sealed unsafe partial class GraphicsDevice
     /// </summary>
     internal float[] ReadSceneField(GpuSceneField field)
     {
-        var halves = MemoryMarshal.Cast<byte, Half>(ReadFieldImage(field, field.Field, 2));
-        var distances = new float[halves.Length];
-        for (int i = 0; i < halves.Length; i++) distances[i] = (float)halves[i];
+        var halves = MemoryMarshal.Cast<byte, Half>(ReadFieldImage(field, field.Field, 8));
+        var distances = new float[halves.Length / 4];
+        for (int i = 0; i < distances.Length; i++) distances[i] = (float)halves[i * 4];
         return distances;
+    }
+
+    /// <summary>
+    /// The planes of the double-sided faces the field keeps in its cells, laid out as
+    /// <see cref="ReadSceneField"/> lays the distances, three floats a cell, the face's way times
+    /// two cells more than its plane's offset from the cell's middle along it, or none.
+    /// </summary>
+    internal float[] ReadSceneFieldSheets(GpuSceneField field)
+    {
+        var halves = MemoryMarshal.Cast<byte, Half>(ReadFieldImage(field, field.Field, 8));
+        var sheets = new float[halves.Length / 4 * 3];
+        for (int i = 0; i < halves.Length / 4; i++)
+            for (int c = 0; c < 3; c++) sheets[i * 3 + c] = (float)halves[i * 4 + 1 + c];
+        return sheets;
     }
 
     /// <summary>

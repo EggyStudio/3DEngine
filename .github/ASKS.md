@@ -1322,3 +1322,20 @@ buffer of the GPU's own after a few frames without a write, so a mesh written in
 holds one copy of its stream rather than four mapped.
 
 Review: taken as 3DEngine item 145 on 2026-10-30, the ring of mapped buffers given back once a mesh's writes stop, behind the cascades of Decision 75.
+
+### 2026-10-30, the voxel game in `Voxel-Sandbox`, the scene field takes 12 to 42 ms of the CPU in the frame the eye crosses into a new section
+
+Read on the 3DEngine 5.2.333 package for the game's item 145, its field `SetSceneField(4, 0.25f, 2)`
+with the far cascade reaching 192 blocks, its sections drawn as mesh entities, Debug, offscreen at
+1280 by 720, the RTX 4070 Laptop GPU. Stepping the eye 16 blocks over land already loaded and
+meshed, with nothing streaming, `profile.slowest` read the frame at 32 to 82 ms with
+`cpu.scene_field` at 12.5 to 41.6 ms at every step, against a still frame of 17.3 ms. Flights over
+land not yet loaded read their slowest frames at 64 to 79 ms with the field 7.8 to 30.2 ms, and the
+99th part of a flight's frames is 47 to 55 ms at 8 columns and 86 to 110 at 12, three to six
+times its median, where the game's own work as columns join averages 0.2 to 3.5 ms a frame.
+
+The engine lacks a field that follows the eye without the CPU's work of a whole cascade in one
+frame, the cells a crossing brings in stamped within the frame's budget of cascades or spread over
+the frames after, so a player walking or flying sees no hitch at each section's edge.
+
+Review: taken as 3DEngine item 146 on 2026-10-30, the field's move on a crossing spread over frames, a cascades item placed after 131.

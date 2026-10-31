@@ -693,7 +693,7 @@ cascade's diagonal, its rays meeting the far cascade's cells only once they have
 ones and bringing the sky where they meet nothing, and the merge takes nothing above it. The far
 probes give their light to the pixels past the counted cascades alone, the last counted cascade
 fading into them no more across its band (`fadesOn` in `cascades.slang`). The far cascade holds a
-double-sided sheet or a wall thinner than a cell as thin as the last counted cascade holds one,
+wall thinner than a cell as thin as the last counted cascade holds one,
 where half its own cell, 37 blocks at the voxel game's far plane, held the flat world's ground of
 four blocks as a slab rising past the eye. Merged from the far probes, which stood in that slab, the
 cascade before them took their light over its own sky and their share of the sky in place of its
@@ -743,9 +743,11 @@ the wall held 114 to 116 until the replacement settled (`GlobalIlluminationTests
 into one buffer in its mesh's own space the first time a build needs them, so a build hands the GPU
 each instance's matrix and where its mesh's triangles start. A build clears a word a cell to the
 band, then a workgroup a triangle puts the triangle in the world and takes, for each cell within
-the band of its bounds, the distance to it in 1024ths of a cell above a bit set where the triangle
-is double-sided, a bit set where the cell is in front of the face and the way the face looks in
-eight bits, keeping the least by an atomic minimum (`field_splat.slang`). Of two triangles as near,
+the band of its bounds, the distance to it in 1024ths of a cell above a bit set where a
+double-sided triangle's nearest point to the cell lies on its rim, a bit set where the triangle is
+double-sided, a bit set where the cell is in front of the face, which for a double-sided one is
+the side of its plane the cell lies on, and the way the face looks in eight bits, keeping the least
+by an atomic minimum (`field_splat.slang`). Of two triangles as near,
 as a crate on the ground, the one the cell lies behind wins, the cell being inside some mesh, and a
 cell is behind a face only within 60 degrees of straight back from it, so where an edge or a corner
 is nearest, as above a pillar's rim, a face the way runs along does not put the cell inside. A cell
@@ -757,15 +759,25 @@ its pole at corners the rounding of sin(pi) leaves apart, and taken as faces the
 of the 1662 cells within half a unit of a sphere inside, beyond the pole, where none is now
 (`SceneFieldTests`). The face a cell lies within 25 degrees of straight behind is kept apart as
 well, in a word a cell. A second pass turns the words into distances in both the image the meshes
-alone make and the one the passes read (`field_resolve.slang`), half a cell less where the nearest
-triangle is double-sided. A double-sided mesh has no inside, and a sheet of one between two rows of
-cells would leave half a cell in each, which a trace steps over, so held half a cell thick on
-either side it crosses zero wherever it lies, as the walls and floors of Manor's rooms, imported
-from OBJ files, need. A closed wall thinner than a cell may have no cell's middle inside it either,
-and a cell in front of one face and less than a cell before another straight behind it that looks
-the other way takes the middle of the two, less half a cell, so the wall is held as the sheet is.
-The faces of a box's edge, which meet square, are not taken for a wall. It took a cascade's build
-in `shaders_scene_field` from 0.44 ms to 0.46 on the GPU (`field.rebuild 4000`, Release). A cell
+alone make and the one the passes read (`field_resolve.slang`). A double-sided mesh has no inside,
+and a sheet of one between two rows of cells leaves half a cell in each, which a trace steps over.
+The field keeps the plane of the double-sided face a cell's nearest point lies inside of, within a
+cell of its middle, in the image's other three channels, its way times two cells more than its
+offset from the middle. The probes' rays read their distance from that plane, less a quarter of a
+cell, where nearer than the cells' blend (`fieldDistanceSheetIn`), so they meet a sheet from either
+side wherever it lies, as the walls and floors of Manor's rooms, imported from OBJ files, need, and
+two sheets two cells apart leave the space between them open, as the voxel game's crops stand. The
+normal the probes are moved off a surface by and their hits are shaded with is the plane's way
+toward the side a point lies on there, its own way on the plane, since the distance's gradient
+cancels across a sheet (`fieldNormalSheet`). Every other reader holds a sheet below zero within
+half a cell either side as before, by how much of the cells around keep a plane (`fieldDistanceIn`),
+since the plane read in each of the model pass's marches cost its scene pass 1.3 ms more in the
+voxel game's cherry grove at `High` at 1920 by 1080 with no sheet near. A closed wall thinner than
+a cell may have no cell's middle inside it either, and a cell in front of one face and less than a
+cell before another straight behind it that looks the other way takes the middle of the two, less
+half a cell, so the wall is held a cell thick. The faces of a box's edge, which meet square, are
+not taken for a wall. It took a cascade's build in `shaders_scene_field` from 0.44 ms to 0.46 on
+the GPU (`field.rebuild 4000`, Release). A cell
 outside every surface whose neighbors along two axes lie inside one while the cell across the
 diagonal from it lies outside, the pattern the cells about an edge two blocks meet along make and
 no single face makes, is held inside at its distance. Between the four cells about such an edge
@@ -2112,7 +2124,9 @@ wide; having its rays read the world's probes along their ways read them within 
 but let a closed room's thin walls take the light outside them; having its march pass a surface the
 ray is leaving kept the rooms closed and read the walls 30% over. A narrower band for two-sided
 faces, or a finer cascade where thin walls stand, is item 131's. The voxel game keeps its plants out
-of the field, so its wheat does not show it.
+of the field, so its wheat does not show it. Held by its plane in the cells it is nearest (item
+131), the walls read 2 and 5% under close and 8 and 10% under from further off, the probes'
+marches alone reading the plane (`.github/assets/readings/2026-10-31-item-131-walls.md`).
 
 **What the light looks like, read on 2026-10-18.** The examples that draw global illumination,
 `shaders_cornell_box`, `shaders_bounce_rooms` in the room its capture shows, the lamp carried, and

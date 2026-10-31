@@ -1,28 +1,30 @@
-// Writes the distances from each cell of one cascade of the scene's distance field to the
-// triangles of the meshes it is built from, a workgroup a triangle. The triangle is put in the
-// world by its instance's matrix, and every cell within the band of cells around it, a box the
-// triangle's bounds grown by the band, takes its distance to the triangle, the least of those any
-// triangle gives kept by an atomic minimum of a word that holds the distance in 1024ths of a cell
-// above a bit set where the triangle is double-sided, a bit set where the cell lies in front of
-// the triangle's face, and the way the face looks in eight bits. Of two triangles as near to that
-// 1024th, as where a crate stands on the ground, one behind whose face the cell lies wins, the cell
-// being inside some mesh. A double-sided
-// triangle has no inside, and the resolve takes half a cell off its distance, so a sheet thinner
-// than a cell, as a wall or a floor of a mesh imported double-sided, crosses zero between the cells
-// on either side wherever it lies between them and stops a ray traced through the field. A cell is behind a triangle only where the way from the triangle's
-// nearest point to it lies within 60 degrees of straight back from the face, so where an edge or a
-// corner is nearest, as above a pillar's rim or level with a wall's side above the wall, a face
-// the way runs along does not put the cell inside, and a cell whose nearest point lies on an edge
-// no other triangle shares, as a ground plane's rim, is in front, so an open mesh puts no wedge
-// below its rim inside. The nearest face a cell lies straight behind is kept apart, for a wall
-// thinner than a cell, which may have no cell's middle inside it. A cell no triangle comes within the band of
-// keeps the word it was cleared to, the band's distance in front. A second dispatch over the same triangles
-// paints each cell the color and the emission of a triangle whose word is the one the cell
-// kept, its nearest surface, which global illumination is read from, its instance's color times its
-// vertices' colors blended at the cell's nearest point, as the model pass blends them across a face.
-// A fourth paints again the cells a mesh whose colors were written is nearest, its instances alone,
-// against the words its cascade's build kept, into the images the passes read, so colors written
-// in place reach global illumination without the distances found again.
+// Writes the distances from each cell of one cascade of the scene's distance field to the triangles
+// of the meshes it is built from, a workgroup a triangle. The triangle is put in the world by its
+// instance's matrix, and every cell within the band of cells around it, a box the triangle's bounds
+// grown by the band, takes its distance to the triangle, the least of those any triangle gives kept
+// by an atomic minimum of a word that holds the distance in 1024ths of a cell above a bit set where
+// a double-sided triangle's nearest point to the cell is off its plane's inside, on its rim, a bit
+// set where the triangle is double-sided, a bit set where the cell lies in front of the triangle's
+// face, and the way the face looks in eight bits. Of two triangles as near to that 1024th, as where
+// a crate stands on the ground, one behind whose face the cell lies wins, the cell being inside
+// some mesh. A double-sided triangle has no inside, and its front bit says which side of its plane
+// the cell lies on, so the resolve keeps the plane in the cell where the nearest point lies on the
+// face's inside, and a ray traced through the field meets a sheet thinner than a cell, as a wall or
+// a floor of a mesh imported double-sided, at its plane from either side wherever it lies between
+// the cells. A cell is behind a triangle only where the way from the triangle's nearest point to it
+// lies within 60 degrees of straight back from the face, so where an edge or a corner is nearest,
+// as above a pillar's rim or level with a wall's side above the wall, a face the way runs along
+// does not put the cell inside, and a cell whose nearest point lies on an edge no other triangle
+// shares, as a ground plane's rim, is in front, so an open mesh puts no wedge below its rim inside.
+// The nearest face a cell lies straight behind is kept apart, for a wall thinner than a cell, which
+// may have no cell's middle inside it. A cell no triangle comes within the band of keeps the word
+// it was cleared to, the band's distance in front. A second dispatch over the same triangles paints
+// each cell the color and the emission of a triangle whose word is the one the cell kept, its
+// nearest surface, which global illumination is read from, its instance's color times its vertices'
+// colors blended at the cell's nearest point, as the model pass blends them across a face. A fourth
+// paints again the cells a mesh whose colors were written is nearest, its instances alone, against
+// the words its cascade's build kept, into the images the passes read, so colors written in place
+// reach global illumination without the distances found again.
 
 import color;
 import scenefield;
@@ -358,15 +360,19 @@ void computeMain(uint3 group : SV_GroupID, uint lane : SV_GroupIndex)
         float d = length(p - q);
         if (d >= reach)
             continue;
-        uint front = sided && !open && dot(p - q, face) < -0.5 * d * faceLength ? 0u : 1u;
-        uint code = (uint(d / cell * 1024.0) << 10) | (sided ? 0u : 512u) | (front << 8) | way;
+        // A double-sided face's front bit is the side of its plane the cell lies on, and its rim bit
+        // is set where the way from its nearest point to the cell leaves the plane's normal, a rim
+        // or a corner of it nearest, where the plane would stand past the face.
+        uint front = sided ? (!open && dot(p - q, face) < -0.5 * d * faceLength ? 0u : 1u) : (dot(p - a, face) >= 0.0 ? 1u : 0u);
+        uint rim = !sided && abs(dot(p - q, face)) < 0.999 * d * faceLength ? 1u : 0u;
+        uint code = (uint(d / cell * 1024.0) << 11) | (rim << 10) | (sided ? 0u : 512u) | (front << 8) | way;
         uint index = (at.z * size + at.y) * size + at.x;
         if (push.groups.y == 0u)
         {
             InterlockedMin(cells[index], code);
             // Straight behind, within 25 degrees, as a wall's far face lies behind a cell by its
             // near one, where a cell beside a box's edge lies 45 degrees behind the face round it.
-            if (front == 0u && dot(p - q, face) < -0.9 * d * faceLength)
+            if (sided && front == 0u && dot(p - q, face) < -0.9 * d * faceLength)
                 InterlockedMin(behind[index], (uint(d / cell * 1024.0) << 8) | way);
         }
         else if (cells[push.groups.y == 3u ? push.groups.z + index : index] == code)

@@ -159,16 +159,78 @@ public int fieldCascade(SceneFieldInfo info, float3 p, float margin, int probes 
     return -1;
 }
 
+// How far beyond its offset a double-sided face's plane is kept in a cell, in cells, as
+// field_resolve.slang keeps it.
+static const float SheetLength = 2.0;
+
+// How far either side of its plane a double-sided face is held below zero, in cells, which leaves
+// two sheets two cells apart a quarter of a cell between them and a march's start half a cell off
+// one. A march steps a quarter of a cell at least and meets a surface under a tenth, so a plane
+// held at no thickness, come at from a little over a tenth, was stepped over to a little over a
+// tenth past it; held a tenth either side, a closed room of sheets on the grid took 0.037 of the
+// sky's light at High where the half cell held it to 0.016, and a quarter 0.018.
+static const float SheetHalf = 0.25;
+
 // The distance from p to the nearest surface in cascade i, in world units, blended between the
 // eight cells around it, each read no nearer a side than half a cell, so cascades stacked in the
-// texture do not bleed into each other.
+// texture do not bleed into each other. A double-sided face is held below zero within half a cell
+// either side where the cells around keep its plane (sheetAt in field_resolve.slang), as every
+// reader but the probes' rays takes the field (fieldDistanceSheetIn), so a march meets a sheet
+// wherever it lies between the cells' middles.
 public float fieldDistanceIn<V : IVolume>(V field, SceneFieldInfo info, int i, float3 p)
 {
     float4 oc = info.cascades[i].originAndCell;
     float size = info.counts.y;
     float3 cell = clamp((p - oc.xyz) / oc.w, 0.5, size - 0.5);
     float3 uvw = float3(cell.xy / size, (cell.z + float(i) * size) / (size * info.counts.x));
-    return field.sampleAt(uvw, 0).r;
+    float4 read = field.sampleAt(uvw, 0);
+    return read.r - 0.5 * oc.w * saturate(length(read.yzw));
+}
+
+// The distance from p to the nearest surface in cascade i as the probes' rays take it, the cells'
+// blend or p's distance from the plane of a double-sided face the cell it lies in keeps, held a
+// quarter of a cell either side, where nearer. So a ray meets a sheet thinner than a cell at its
+// plane from either side wherever it lies between the cells' middles, where the cells' blend holds
+// it no nearer than half a cell, and two sheets two cells apart, as the voxel game's crops stand,
+// leave the cells between them open, where held within half a cell either side every cell between
+// them read a surface and a screen probe there met its own wall at its rays' start. The probes'
+// rays alone take it, since each sample read the plane cost the model pass's march 1.3 ms more in
+// the voxel game's cherry grove at High at 1920 by 1080 with no sheet near.
+public float fieldDistanceSheetIn<V : IVolume>(V field, SceneFieldInfo info, int i, float3 p)
+{
+    float4 oc = info.cascades[i].originAndCell;
+    float size = info.counts.y;
+    float3 cell = clamp((p - oc.xyz) / oc.w, 0.5, size - 0.5);
+    float3 uvw = float3(cell.xy / size, (cell.z + float(i) * size) / (size * info.counts.x));
+    float4 read = field.sampleAt(uvw, 0);
+    float d = read.r;
+    // The planes blended with the rest read nothing where no cell around keeps one, so the cell's
+    // own is read only near a sheet, in a branch the compiler keeps, since flattened every sample
+    // read it and the grove's global illumination took 1.2 ms more.
+    [branch]
+    if (d < oc.w * 0.75 && dot(read.yzw, read.yzw) >= 1e-6)
+    {
+        float3 at = min(floor(cell), size - 1.0);
+        float3 sheet = field.loadAt(int3(at.xy, at.z + float(i) * size)).yzw;
+        float kept = length(sheet);
+        if (kept >= 0.5)
+            d = min(d, abs(dot(p - oc.xyz - (at + 0.5) * oc.w, sheet) / kept - (kept - SheetLength) * oc.w) - SheetHalf * oc.w);
+    }
+    return d;
+}
+
+// Whether the cell of cascade i that p lies in keeps the plane of a double-sided face (sheetAt in
+// field_resolve.slang), with its way and how far p lies from it along that way.
+public bool sheetIn<V : IVolume>(V field, SceneFieldInfo info, int i, float3 p, out float3 way, out float off)
+{
+    float4 oc = info.cascades[i].originAndCell;
+    float size = info.counts.y;
+    int3 at = int3(min(floor(clamp((p - oc.xyz) / oc.w, 0.5, size - 0.5)), size - 1.0));
+    float3 sheet = field.loadAt(int3(at.xy, at.z + i * int(size))).yzw;
+    float kept = length(sheet);
+    way = kept < 0.5 ? float3(0.0) : sheet / kept;
+    off = dot(p - (oc.xyz + (float3(at) + 0.5) * oc.w), way) - (kept - SheetLength) * oc.w;
+    return kept >= 0.5;
 }
 
 // The distance from p to the nearest surface, from the finest cascade around it, or far where none
@@ -177,6 +239,13 @@ public float fieldDistance<V : IVolume>(V field, SceneFieldInfo info, float3 p)
 {
     int i = fieldCascade(info, p, 1.0);
     return i < 0 ? 1e6 : fieldDistanceIn(field, info, i, p);
+}
+
+// The same as the probes' rays take it (fieldDistanceSheetIn).
+public float fieldDistanceSheet<V : IVolume>(V field, SceneFieldInfo info, float3 p)
+{
+    int i = fieldCascade(info, p, 1.0);
+    return i < 0 ? 1e6 : fieldDistanceSheetIn(field, info, i, p);
 }
 
 // The way out from the nearest surface at p, the field's gradient across half a cell, or up where
@@ -193,6 +262,97 @@ public float3 fieldNormal<V : IVolume>(V field, SceneFieldInfo info, float3 p)
         fieldDistanceIn(field, info, i, p + float3(0, 0, e)) - fieldDistanceIn(field, info, i, p - float3(0, 0, e)));
     float length2 = dot(g, g);
     return length2 > 1e-12 ? g * rsqrt(length2) : float3(0, 1, 0);
+}
+
+// The way out from the nearest surface at p as the probes' rays take the field
+// (fieldDistanceSheetIn). Where the nearest is a double-sided face whose plane p's cell keeps, it is
+// the plane's way toward the side p lies on, its own way on the plane, since across a sheet the
+// gradient of its distance cancels, and a world probe standing on a sheet of the voxel game's
+// grid, as a sheet on a cell's side does, was moved off it no way in particular, its rays seeing
+// both sides, so a closed room of such sheets took a sixth of the sky's light at Low where shifted
+// off the grid a two-hundredth.
+public float3 fieldNormalSheet<V : IVolume>(V field, SceneFieldInfo info, float3 p)
+{
+    int i = fieldCascade(info, p, 1.5);
+    if (i < 0)
+        return float3(0, 1, 0);
+    float4 oc = info.cascades[i].originAndCell;
+    float d = fieldDistanceSheetIn(field, info, i, p);
+    [branch]
+    if (d < oc.w * 0.75)
+    {
+        float3 way;
+        float off;
+        if (sheetIn(field, info, i, p, way, off) && abs(off) - SheetHalf * oc.w <= d + 1e-4 * oc.w)
+            return off >= 0.0 ? way : -way;
+    }
+    float e = oc.w * 0.5;
+    float3 g = float3(
+        fieldDistanceSheetIn(field, info, i, p + float3(e, 0, 0)) - fieldDistanceSheetIn(field, info, i, p - float3(e, 0, 0)),
+        fieldDistanceSheetIn(field, info, i, p + float3(0, e, 0)) - fieldDistanceSheetIn(field, info, i, p - float3(0, e, 0)),
+        fieldDistanceSheetIn(field, info, i, p + float3(0, 0, e)) - fieldDistanceSheetIn(field, info, i, p - float3(0, 0, e)));
+    float length2 = dot(g, g);
+    return length2 > 1e-12 ? g * rsqrt(length2) : float3(0, 1, 0);
+}
+
+// Where a ray from origin along way first comes within a tenth of a cell of a surface between
+// tMin and tMax, through the finest cascade that holds each point along it, or -1 where it reaches
+// tMax first or leaves every cascade.
+public float traceField<V : IVolume>(V field, SceneFieldInfo info, float3 origin, float3 way, float tMin, float tMax)
+{
+    float t = tMin;
+    for (int i = 0; i < 64 && t < tMax; i++)
+    {
+        float3 p = origin + way * t;
+        int c = fieldCascade(info, p, 1.0);
+        if (c < 0)
+            return -1.0;
+        float cell = info.cascades[c].originAndCell.w;
+        float d = fieldDistanceIn(field, info, c, p);
+        if (d < cell * 0.1)
+            return t;
+        t += max(d, cell * 0.25);
+    }
+    return -1.0;
+}
+
+// The same as the probes' rays take the field (fieldDistanceSheetIn).
+public float traceFieldSheets<V : IVolume>(V field, SceneFieldInfo info, float3 origin, float3 way, float tMin, float tMax)
+{
+    float t = tMin;
+    for (int i = 0; i < 64 && t < tMax; i++)
+    {
+        float3 p = origin + way * t;
+        int c = fieldCascade(info, p, 1.0);
+        if (c < 0)
+            return -1.0;
+        float cell = info.cascades[c].originAndCell.w;
+        float d = fieldDistanceSheetIn(field, info, c, p);
+        if (d < cell * 0.1)
+            return t;
+        t += max(d, cell * 0.25);
+    }
+    return -1.0;
+}
+
+// As traceFieldSheets, stopping where the ray leaves cascade `most` and every finer one, as -1,
+// since a wall thinner than a coarser cascade's cell may let it through.
+public float traceFieldWithinSheets<V : IVolume>(V field, SceneFieldInfo info, float3 origin, float3 way, float tMin, float tMax, int most)
+{
+    float t = tMin;
+    for (int i = 0; i < 64 && t < tMax; i++)
+    {
+        float3 p = origin + way * t;
+        int c = fieldCascade(info, p, 1.0);
+        if (c < 0 || c > most)
+            return -1.0;
+        float cell = info.cascades[c].originAndCell.w;
+        float d = fieldDistanceSheetIn(field, info, c, p);
+        if (d < cell * 0.1)
+            return t;
+        t += max(d, cell * 0.25);
+    }
+    return -1.0;
 }
 
 // The alpha a cell of the field's colors is painted with by a surface that lets `through` of the

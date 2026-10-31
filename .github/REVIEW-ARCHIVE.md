@@ -4244,6 +4244,19 @@ batch.
     reading the swapchain's extent, the window guide's line. One commit, small, after item 133 and
     before 132's mend. Done at `c3214cbe` on 2026-10-30.
 
+135. **The screen probes stand in the world and keep their light from frame to frame.** Decision
+    75's first item, from the owner's complaint of 2026-10-24 and RENDERING.md's sixth term. Sixteen
+    fixed rays a probe, one a texel, so a patch narrower than a texel lights one probe and not its
+    neighbors, and the probes stand on the screen's tiles, so the spots ride the view as it moves.
+    The probes are anchored in the world, placed from depth on a world grid at their spacing and
+    kept from frame to frame, several rays a texel over frames through a history that follows the
+    anchors, the filter weighted by the probes' planes. Read by the plank room's spots, 8 today by
+    the game's measure, a pixel's change frame to frame at its 99th part on a still and a panning
+    view, the bounce rooms' distances to their references held, and the cost at High at 1080p. One
+    or two commits, after item 134. Done at `2ad96a80` on 2026-10-30 without the world grid, the
+    rays jittered over sixteen places and the light kept over up to sixteen frames with a bound by
+    the neighbors' error, the spots about halved, the still view's change read for the owner's eye.
+
 ## Verdicts settled
 
 Verdicts 1 to 55 are settled, the last two, the drawing leak test's resident bound and the Windows

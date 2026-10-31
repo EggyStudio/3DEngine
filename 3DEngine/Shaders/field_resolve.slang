@@ -1,17 +1,18 @@
 // Turns the codes field_splat.slang left in one cascade's cells into distances in world units,
-// below zero behind a face and within half a cell of a double-sided one or a wall thinner than a
-// cell, and writes them into the cascade's place in the field the meshes alone
-// make and in the field the passes read, with the color and the emission it painted, a
-// thread a cell.
+// below zero behind a face and within half a cell of a wall thinner than a cell, with the plane of
+// a double-sided face whose inside is a cell's nearest point beside the distance, and writes them
+// into the cascade's place in the field the meshes alone make and in the field the passes read,
+// with the color and the emission it painted, a thread a cell.
 
 [[vk::binding(0, 0)]]
 StructuredBuffer<uint> cells;
 
-[[vk::binding(1, 0)]] [format("r16f")]
-RWTexture3D<float> stillField;
+// The distance in x, and in yzw the plane a cell keeps (sheetAt).
+[[vk::binding(1, 0)]] [format("rgba16f")]
+RWTexture3D<float4> stillField;
 
-[[vk::binding(2, 0)]] [format("r16f")]
-RWTexture3D<float> field;
+[[vk::binding(2, 0)]] [format("rgba16f")]
+RWTexture3D<float4> field;
 
 // The color and emission of each cell's nearest surface, as field_splat.slang painted them,
 // and the images they go into, the color's alpha 1 where a surface painted the cell and 0 where
@@ -55,8 +56,8 @@ struct ResolvePush
     // x: the cascade. y: the cells along each side. z: the width of a cell. w: the band in cells.
     float4 cascade;
     // x: 1 where an emitter thinner than a cell lent the cells its light, so emitted is read. y: how
-    // far either side of its middle a double-sided sheet or a wall thinner than a cell is held, half a
-    // cell but in the far cascade, where half the last counted cascade's cell.
+    // far either side of its middle a wall thinner than a cell is held, half a cell but in the far
+    // cascade, where half the last counted cascade's cell.
     float4 lent;
 };
 
@@ -84,7 +85,7 @@ float3 way(uint bits)
 float resolvedAt(uint3 c, uint size)
 {
     uint code = cells[(c.z * size + c.y) * size + c.x];
-    float d = min(float(code >> 10) / 1024.0, push.cascade.w) * push.cascade.z;
+    float d = min(float(code >> 11) / 1024.0, push.cascade.w) * push.cascade.z;
     // A cell in front of one face and straight behind another that looks the other way, less than
     // a cell beyond it, lies against a wall thinner than a cell, which is held as a double-sided
     // sheet is, half a cell thick on either side of the wall's middle, so a ray between the cells
@@ -96,13 +97,39 @@ float resolvedAt(uint3 c, uint size)
     float beyond = float(hidden >> 8) / 1024.0 * push.cascade.z;
     bool thin = (code & 0x300u) == 0x100u && hidden != 0xFFFFFFFFu && beyond - d < push.cascade.z
         && dot(way(code), way(hidden)) < -0.7;
+    // A double-sided face is held at its distance, its plane kept beside it (sheetAt). Held below
+    // zero within half a cell either side, as it was, a sheet lying midway between two cells'
+    // middles crossed zero between them, but two sheets two cells apart, as the voxel game's crops
+    // stand, held every cell between them below zero, and a screen probe there met its own wall
+    // at its rays' start, the walls 44% over a path-traced reference; held within less, a sheet
+    // midway lay further than the march's tenth of a cell from both middles and a ray passed it.
     if ((code & 0x200u) != 0u)
-        d -= push.lent.y;
-    else if (thin)
+        return d;
+    if (thin)
         d = (d + beyond) * 0.5 - push.lent.y;
     else if ((code & 0x100u) == 0u)
         d = -d;
     return d;
+}
+
+// How far beyond its offset a double-sided face's plane is kept in a cell, in cells, so the vector
+// of its way and its offset is never of no length (sheetAt).
+static const float SheetLength = 2.0;
+
+// The plane of the double-sided face nearest a cell where its nearest point lies on the face's
+// inside, its way times two cells more than the plane's offset from the cell's middle along it, in
+// cells, or nothing where its nearest face is not double-sided, is nearest at its rim, past which
+// the plane would stand where no face does, or lies a cell or more off, where a march within the
+// cell comes no nearer it than half a cell. A march through the field meets the plane where it
+// passes the cell, from either side, wherever the sheet lies between the cells' middles
+// (fieldDistanceIn in scenefield.slang).
+float3 sheetAt(uint3 c, uint size)
+{
+    uint code = cells[(c.z * size + c.y) * size + c.x];
+    float offset = float(code >> 11) / 1024.0;
+    if ((code & 0x600u) != 0x200u || offset >= 1.0)
+        return float3(0.0);
+    return way(code) * (((code & 0x100u) != 0u ? -offset : offset) + SheetLength);
 }
 
 // Whether a cell outside every surface lies between two cells beside it along two axes that lie
@@ -146,8 +173,9 @@ void computeMain(uint3 id : SV_DispatchThreadID)
     if (d > 0.0 && pinched(id, size))
         d = -d;
     uint3 at = uint3(id.xy, id.z + uint(push.cascade.x) * size);
-    stillField[at] = d;
-    field[at] = d;
+    float4 kept = float4(d, sheetAt(id, size));
+    stillField[at] = kept;
+    field[at] = kept;
     uint color = albedo[(id.z * size + id.y) * size + id.x];
     float4 paint = float4(float(color & 255u), float((color >> 8) & 255u), float((color >> 16) & 255u), float(color >> 24)) / 255.0;
     stillPaint[at] = paint;

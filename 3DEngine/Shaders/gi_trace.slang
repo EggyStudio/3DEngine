@@ -137,16 +137,16 @@ float4 placed(float3 at, float apart)
     float3 p = at;
     for (int step = 0; step < 4; step++)
     {
-        float d = fieldDistance(sceneField, fieldInfo, p);
+        float d = fieldDistanceSheet(sceneField, fieldInfo, p);
         if (d >= Clearance * apart)
             break;
-        p += fieldNormal(sceneField, fieldInfo, p) * (Clearance * apart - d);
+        p += fieldNormalSheet(sceneField, fieldInfo, p) * (Clearance * apart - d);
         float3 move = p - at;
         float length = length(move);
         if (length > MostMoved * apart)
             p = at + move * (MostMoved * apart / length);
     }
-    return float4((p - at) / apart, fieldDistance(sceneField, fieldInfo, p) >= 0.0 ? 1.0 : 0.0);
+    return float4((p - at) / apart, fieldDistanceSheet(sceneField, fieldInfo, p) >= 0.0 ? 1.0 : 0.0);
 }
 
 groupshared float3 nearNow[32];
@@ -276,7 +276,7 @@ void computeMain(uint3 id : SV_DispatchThreadID, uint lane : SV_GroupIndex)
         // read it as High's do (gi.screenprobe).
         float2 within = each == 1u ? float2(0.5) : float2(float(quarter & 1u), float(quarter >> 1u)) * 0.5 + 0.25;
         float3 way = fromOctahedron((float2(texel) + within) / float(texels));
-        float t = traceField(sceneField, fieldInfo, origin, way, 0.0, push.interval.y);
+        float t = traceFieldSheets(sceneField, fieldInfo, origin, way, 0.0, push.interval.y);
         reached = t >= 0.0 ? t : push.interval.y;
         // A ray that came on a face from behind it stops half a cell or more behind the face,
         // having stepped from a cell no face comes within the band of, which the field holds as
@@ -352,7 +352,7 @@ void computeMain(uint3 id : SV_DispatchThreadID, uint lane : SV_GroupIndex)
             if (depth < 0.0)
                 break;
             // A ray still within at its interval's end met nothing past it, its share handed on.
-            t = inside ? -1.0 : traceField(sceneField, fieldInfo, origin, way, t + depth, push.interval.y);
+            t = inside ? -1.0 : traceFieldSheets(sceneField, fieldInfo, origin, way, t + depth, push.interval.y);
         }
         [loop]
         for (int shaded = 0; shaded < 2; shaded++)

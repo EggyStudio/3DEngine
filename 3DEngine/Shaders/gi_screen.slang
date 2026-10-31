@@ -465,7 +465,7 @@ void computeMain(uint3 id : SV_DispatchThreadID)
             float3 reached = start + way * length;
             own = float3(0.0);
             bool onScreen = traceScreen(depth, camera(), start, way, length, 12, hit, leftAt);
-            float t = onScreen ? distance(start, hit) : leftAt < length ? traceField(sceneField, fieldInfo, start, way, leftAt, length) : -1.0;
+            float t = onScreen ? distance(start, hit) : leftAt < length ? traceFieldSheets(sceneField, fieldInfo, start, way, leftAt, length) : -1.0;
             // A surface that lets a share of light through, as a canopy's leaves, is crossed through
             // the field, which holds what lies behind it where the window's depth does not, the ray
             // keeping that share for each unit of its depth and the rest taking the surface's light,
@@ -505,7 +505,7 @@ void computeMain(uint3 id : SV_DispatchThreadID)
                 if (deep < 0.0)
                     break;
                 onScreen = false;
-                t = inside ? -1.0 : traceField(sceneField, fieldInfo, start, way, t + deep, length);
+                t = inside ? -1.0 : traceFieldSheets(sceneField, fieldInfo, start, way, t + deep, length);
             }
             [loop]
             for (int shaded = 0; shaded < 2; shaded++)
@@ -542,7 +542,7 @@ void computeMain(uint3 id : SV_DispatchThreadID)
                 // unlimited).
                 if (luminance(past) <= 1e-6)
                 {
-                    float far = traceFieldWithin(sceneField, fieldInfo, start, way, length, 4.0 * length, fieldCascade(fieldInfo, start, 1.0) + 1);
+                    float far = traceFieldWithinSheets(sceneField, fieldInfo, start, way, length, 4.0 * length, fieldCascade(fieldInfo, start, 1.0) + 1);
                     if (far >= 0.0)
                     {
                         met = 1.0;

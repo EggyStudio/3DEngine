@@ -294,8 +294,10 @@ meshes in 1.23 MB, built again each frame in some 0.02 ms.
   the eye (above).
 - **Moving meshes.** A mesh that moves reflects light as the boxes the field holds it as, and its
   emission reaches no other surface unless it is small enough to be a light of its own.
-- **Thin things.** What is thinner than a cell is held about its middle, so a thin wall stops light,
-  but a gap thinner than a cell is closed to it.
+- **Thin things.** A closed mesh thinner than a cell is held about its middle, so a thin wall stops
+  light, but a gap thinner than a cell is closed to it. A double-sided face is held by its plane in
+  the cells it is nearest, so two of them two cells apart, as a field of crops, leave the gap
+  between them open.
 
 The terms of the method that stand unmended, each with its cause, the room and the figure that
 show it and the forms read against it, are under Where the method stops in
