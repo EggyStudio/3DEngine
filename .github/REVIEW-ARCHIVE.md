@@ -4546,6 +4546,27 @@ batch.
     building in each cascade (item 151), and the interior very dark beside its sunlit upper walls at
     15 and 16, the bounce weak there, a lead for 138 and 139.
 
+150. **A mesh not yet built in the field stands in as nothing that darkens a room.** From item 148's
+    reading. While Sponza's 3.75 million triangles build over 330 frames at the default budget, 256
+    meshes stand in the field as their boxes, 10,144 bricks, and the outer walls' box fills the
+    building so the sun's contact shadows darken every room, the floor reading 21, 31 and 46 against
+    156, 137 and 117 once built; a view jump repeats it. A box that encloses the eye is no stand-in,
+    or a mesh unbuilt casts nothing until built; read by the floor's first frames in Sponza's atrium
+    and the grove's and the bounce rooms unchanged. After the Verdict and before 138, small. Done at
+    `a6a3b7a0` on 2026-10-31, a mesh that came and has not moved standing in for nothing until
+    built, SceneFieldPlan and the API's words with it, Sponza before and after pictured, the note
+    2026-10-31-item-150-standins.md. The second way was taken, since the boxes of the ceiling, upper
+    walls and roof cover the atrium's opening too and dropping the boxes enclosing the eye alone
+    left the floor in shadow; an unsettled mesh is stamped only if skinned, moved, or drawn through
+    the world matrix of a mesh that left, and a settled mesh waiting for its cascades only if it
+    moved before it settled. Sponza's sunlit floor at the default budget reads 163, 149 and 141 from
+    frame 28 where 29, 39 and 54 stood until frame 330, settling at 160, 143 and 123 as before; the
+    nine bounce rooms identical after 120 frames at High and Low; the grove settled alike with 25 to
+    37 meshes stamped after a teleport where 203 to 256, the settled frame at +20 where +40. Two GPU
+    tests read their first frames, the glow test drawing its room once before its reads and the
+    placed lamp's bound 0.03 to 0.04 with the cause in its comment. 2,154 on the GPU in both orders,
+    45 on lavapipe.
+
 ## Verdicts settled
 
 Verdicts 1 to 55 are settled, the last two, the drawing leak test's resident bound and the Windows
@@ -5957,6 +5978,19 @@ at `36cae0c2`.
     illumination classes 6 to 8% slower, nine classes 42.0 to 45.3 minutes. Settled when the run of
     `da54d289` goes green. The shut-in block and the rest stay as they are, the 90 minutes holding
     them. Settled at 09:37 on 2026-10-31, the run of `da54d289` green with Linux in 77 minutes.
+
+96. **The run of `14b258c7` is red on Linux, PipelineCacheTests expecting more than a header on
+    lavapipe.** Read at 18:32 on 2026-10-31 with Tools' run reader, run 41213425804. The Linux suite
+    ran 2,083 passed, 1 failed and 32 skipped in 23 m 40 s; the failure is the pipeline cache test
+    that writes a run's pipelines over a cache another device wrote, expecting more than 64 bytes
+    written and finding 32, since the runner's lavapipe keeps nothing but its 32-byte header in a
+    pipeline cache where the coder's Mesa filled 20 bytes more. Windows went green in 138 minutes
+    against its 150 and macOS in 34. The mend is the test's, which reads that the file was written
+    and names this device rather than a size, or skips with its reason where the device's cache data
+    is the header alone, item 147's behavior being right; small, a commit before the five held
+    commits go out, which then go together. Settled when that head's run is green. Mended at
+    `4df9309c`, pushed at 18:34 with the five commits it held; settled when that run is green.
+    Settled at 19:50 on 2026-10-31, the run of `4df9309c` green on the three systems.
 
 ## Decisions
 

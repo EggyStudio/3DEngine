@@ -6,19 +6,34 @@ namespace Engine.Examples;
 public static class ScenesSponza
 {
     // Intel's Sponza, its long axis along x with the main door at +x and the lion's head at -x, its
-    // open atrium in the middle under the sky and a gallery on each floor along either side.
+    // open atrium in the middle under the sky and a gallery on each floor along either side. The
+    // last three stand where pictures of the scene drawn in another engine were taken, as near as
+    // was found by eye, the first floor's gallery at the lion's end looking down the atrium to the
+    // door's end, the main door seen from above under the vault inside it, lit by the sky and the
+    // light off the walls alone, and the atrium's floor at the lion's end looking up.
     private static readonly (string Name, Camera3D Camera)[] Views =
     [
         ("atrium", new Camera3D(new Vector3(9.5f, 1.7f, 0), new Vector3(-8, 5, 0), Vector3.UnitY, 60)),
         ("gallery", new Camera3D(new Vector3(9, 7.6f, -4.5f), new Vector3(-6, 7, -4.5f), Vector3.UnitY, 60)),
         ("lion", new Camera3D(new Vector3(-4, 2, 0), new Vector3(-12, 2.5f, 0), Vector3.UnitY, 60)),
         ("arcades", new Camera3D(new Vector3(0, 1.7f, 2.5f), new Vector3(0, 9, -5), Vector3.UnitY, 60)),
-        ("door", new Camera3D(new Vector3(-9, 1.7f, 0), new Vector3(9, 2, 0), Vector3.UnitY, 60)),
+        ("nave", new Camera3D(new Vector3(-9, 1.7f, 0), new Vector3(9, 2, 0), Vector3.UnitY, 60)),
+        ("balcony", new Camera3D(new Vector3(-9.71f, 7.46f, 2.43f), new Vector3(-1.68f, 5.96f, -3.33f), Vector3.UnitY, 74)),
+        ("door", new Camera3D(new Vector3(12, 3.8f, 0.6f), new Vector3(20.74f, -0.89f, -0.63f), Vector3.UnitY, 72)),
+        ("lookup", new Camera3D(new Vector3(-1, 0.5f, 2.5f), new Vector3(-9.01f, 6.38f, 1.37f), Vector3.UnitY, 84)),
     ];
 
     // What the console or ./e3d asked for, taken by the loop at its next frame.
     private static int? _askedView;
     private static float? _askedHour;
+    private static Camera3D? _askedCamera;
+
+    [Command("sponza.look", "Puts the camera at a point looking at another, with a field of view in degrees, 60 unless given: sponza.look <x> <y> <z> <tx> <ty> <tz> [fov]")]
+    internal static string Look(float x, float y, float z, float tx, float ty, float tz, float fov = 60)
+    {
+        _askedCamera = new Camera3D(new Vector3(x, y, z), new Vector3(tx, ty, tz), Vector3.UnitY, fov);
+        return "looking";
+    }
 
     [Command("sponza.view", "Moves the camera to a named view of Sponza, by its name or number, or answers the names: sponza.view [name]")]
     internal static string View(string name = "")
@@ -91,7 +106,16 @@ public static class ScenesSponza
         SetSkyDay(new SkyDay { Minutes = 0, Tilt = 6 });
         SetSkyTime(hour);
         SetShadowDistance(40);
+        // AgX's curve and an exposure of three, which puts the noon sun's light, 1.08 in the day
+        // sky's units, where a camera at 14.6 EV puts a sun of 97,050 lux, so the sun and the sky
+        // read at the ratio the day sky gives them rather than as the frame's mean would set them.
+        SetTonemap(Tonemap.AgX);
+        SetExposure(3);
         var sponza = LoadModel(file);
+        // A black box outside the main door, which stands a little apart from its frame, so the
+        // sky shows through no gap around it, as the scene the views are matched against holds.
+        var blackout = LoadModelFromMesh(GenMeshCube(1, 1, 1));
+        blackout.Materials[0].Roughness = 1;
 
         var view = 0;
         var camera = Views[view].Camera;
@@ -103,29 +127,35 @@ public static class ScenesSponza
             {
                 (view, camera, _askedView) = (asked, Views[asked].Camera, null);
             }
-            if (IsKeyPressed(Key.Rightbracket)) _askedHour = (hour + 1) % 24;
-            if (IsKeyPressed(Key.Leftbracket)) _askedHour = (hour + 23) % 24;
+            if (_askedCamera is { } looked) (camera, _askedCamera) = (looked, null);
+            // The arrows move the hour, keys every layout has in the same place, and turn the camera
+            // while the right button is held.
+            var flying = IsMouseButtonDown(MouseButton.Right);
+            if (!flying && IsKeyPressed(Key.Right)) _askedHour = (hour + 1) % 24;
+            if (!flying && IsKeyPressed(Key.Left)) _askedHour = (hour + 23) % 24;
             if (_askedHour is { } at)
             {
                 (hour, _askedHour) = (at, null);
                 SetSkyTime(hour);
             }
-            if (IsMouseButtonDown(MouseButton.Right)) UpdateCamera(ref camera, CameraMode.Free);
+            if (flying) UpdateCamera(ref camera, CameraMode.Free);
 
             BeginDrawing();
             ClearBackground(Color.Black);
             BeginMode3D(camera);
             DrawSkybox();
             DrawModel(sponza, Vector3.Zero, 1, Color.White);
+            DrawModelEx(blackout, new Vector3(20.4f, 1.4f, 0.05f), Vector3.UnitY, 0, new Vector3(0.8f, 4.2f, 4), Color.Black);
             EndMode3D();
 
             DrawText($"{view + 1}: {Views[view].Name}, {(int)hour:00}:{(int)(hour % 1 * 60):00}", 10, 10, 20, Color.RayWhite);
-            DrawText("1 to 5 change the view, [ and ] the hour, and the right button held looks around with W, A, S and D.", 10, 36, 10, Color.LightGray);
+            DrawText("1 to 8 change the view, the left and right arrows the hour, and the right button held looks around with W, A, S and D.", 10, 36, 10, Color.LightGray);
             DrawText("Intel Sponza (2022) by Frank Meinl and Anton Kaplanyan, from Intel's Sample Library, under CC BY 4.0.", 10, 432, 10, Color.LightGray);
             EndDrawing();
         }
 
         UnloadModel(sponza);
+        UnloadModel(blackout);
         CloseWindow();
     }
 }

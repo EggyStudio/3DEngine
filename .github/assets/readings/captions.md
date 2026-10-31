@@ -41,3 +41,6 @@
 2026-10-31-item-148-sponza-door-16.webp | Intel's Sponza in scenes_sponza at its door view at 16:00, at 800 by 450 at High.
 2026-10-31-item-150-sponza-before.webp | Sponza's atrium at noon about 70 frames into a fresh start at the field's default budget, its meshes stamped as boxes while they wait for their build.
 2026-10-31-item-150-sponza-after.webp | Sponza's atrium at noon about 70 frames into a fresh start at the field's default budget, its meshes standing in for nothing while they wait for their build.
+2026-10-31-item-153-balcony-15.webp | Intel's Sponza in scenes_sponza from the first floor's gallery at the lion's end looking down the atrium to the door's end at 15:00 at High at 800 by 426, with AgX and an exposure of 3.
+2026-10-31-item-153-door-15.webp | Intel's Sponza in scenes_sponza looking down on the main door under the vault inside it at 15:00 at High at 800 by 484, with AgX and an exposure of 3.
+2026-10-31-item-153-lookup-15.webp | Intel's Sponza in scenes_sponza looking up from the atrium's floor at the lion's end at 15:00 at High at 600 by 571, with AgX and an exposure of 3.
