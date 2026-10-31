@@ -723,8 +723,12 @@ internal sealed class GpuMeshes : IDisposable
         return bytes;
     }
 
+    // A buffer written once, in the device's own memory where the device is Vulkan's, since one in
+    // memory the CPU sees is read across the bus by every pass that draws it
+    // (GraphicsDevice.CreateFilledBuffer).
     private static IBuffer Buffer(IGraphicsDevice gfx, ReadOnlySpan<byte> data, BufferUsage usage)
     {
+        if (gfx is GraphicsDevice device) return device.CreateFilledBuffer(data, usage);
         var buffer = gfx.CreateBuffer(new BufferDesc((ulong)data.Length, usage, CpuAccessMode.Write));
         data.CopyTo(gfx.Map(buffer));
         gfx.Unmap(buffer);

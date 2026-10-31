@@ -57,6 +57,7 @@ Any program built on the engine takes the same flags (`--serve`, `--headless`, `
 | `scene.save <path>`, `scene.load <path>` | writes the level (every entity not spawned from a model) to a JSON scene file, or spawns one's entities |
 | `entity.add <id> <Component>` | adds a component at sensible defaults (a unit `Transform`, a white `Material`), which `entity.set` then changes |
 | `component.list`, `resource.list`, `schedule.list` | what the world holds and what runs each stage |
+| `schedule.dump [path]` | writes how the last frame ran each stage's systems, its batches in parallel or one at a time and the planner's notes on why, to a file, and answers its path |
 | `state.list`, `state.set <State> <Value>` | every state machine and its value, and a move that answers once it has applied (`state.set Screen Playing`) |
 | `input.key <name> <frames>` | holds a key (`W`, `Space`, `Escape`, `F2`, `LeftShift`) for that many frames |
 | `input.move <x> <y>`, `input.click <x> <y>` | moves the pointer, and clicks, in window coordinates |

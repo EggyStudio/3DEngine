@@ -460,6 +460,41 @@ internal static class ConsoleBuiltins
         return text.ToString().TrimEnd();
     }
 
+    [Command("schedule.dump", "Writes how the last frame ran each stage's systems, its batches in parallel or one at a time with the planner's notes on why systems could or could not share one, to a file, schedule.txt in the program's folder unless given, and answers its path: schedule.dump [path]")]
+    internal static string ScheduleDump(string path = "")
+    {
+        if (ConsoleHost.App is not { } app) return "no app";
+        var full = Path.GetFullPath(path.Length > 0 ? path : Path.Combine(AppContext.BaseDirectory, "schedule.txt"));
+        File.WriteAllText(full, ScheduleBatches(app.Schedule.Diagnostics));
+        return full;
+    }
+
+    // Each stage of the frame in the order it runs, its batches numbered, and under a batch the
+    // planner's notes where it left any.
+    internal static string ScheduleBatches(ScheduleDiagnostics diagnostics)
+    {
+        var (batchesByStage, notesByStage) = (diagnostics.StageBatches, diagnostics.StageBatchNotes);
+        var text = new StringBuilder();
+        foreach (var stage in StageOrder.FrameStages())
+        {
+            text.Append('[').Append(stage).Append("]\n");
+            if (!batchesByStage.TryGetValue(stage, out var batches) || batches.Count == 0)
+            {
+                text.Append("  no batches recorded\n\n");
+                continue;
+            }
+            notesByStage.TryGetValue(stage, out var notes);
+            for (int i = 0; i < batches.Count; i++)
+            {
+                text.Append($"  batch {i + 1} ({(batches[i].Count > 1 ? "parallel" : "sequential")}) {string.Join(", ", batches[i])}\n");
+                if (notes is not null && i < notes.Count && notes[i].Count > 0)
+                    text.Append($"    notes {string.Join(", ", notes[i])}\n");
+            }
+            text.Append('\n');
+        }
+        return text.ToString();
+    }
+
     // A component's public fields and properties, one level deep. Reflection is used here and
     // nowhere in the engine's hot paths, because it reads any component without a schema.
     [UnconditionalSuppressMessage("Trimming", "IL2075", Justification = ByReflection)]

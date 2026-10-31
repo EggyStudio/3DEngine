@@ -6,6 +6,13 @@ under `.github/assets/readings` as WebP files named by their day, each on the da
 the notes written beside them as Markdown files named the same way. A line under Done names the item
 of .github/REVIEW.md or .github/REVIEW-ARCHIVE.md and the commit that closed it.
 
+## 2026-11-01
+
+Done that day
+
+- Item 138 at `740066d6`. A crossing of leaves takes its transmission from the leaves' depth along
+  the ray.
+
 ## 2026-10-31
 
 ![](.github/assets/readings/2026-10-31-item-131-walls.webp)
@@ -46,8 +53,9 @@ and floor by the open end lit after.
 
 ![](.github/assets/readings/2026-10-31-item-137-carried.webp)
 The bounce rooms' corridor at High at 800 by 450 against a path-traced reference, with the second
-cascade's probes placed inside it and then with the first cascade's rays carried on to the field's
-edge as well, blue where the frame is darker, its walls by the open end lighter in the second.
+cascade's probes placed inside it and then with the rays of a probe below the last cascade that sees
+none of the cascade above carried on to the field's edge as well, blue where the frame is darker,
+its walls by the open end lighter in the second.
 
 ![](.github/assets/readings/2026-10-31-item-148-sponza-arcades-12.webp)
 Intel's Sponza in scenes_sponza at its arcades view at noon, at 800 by 450 at High.

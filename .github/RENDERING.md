@@ -183,9 +183,11 @@ replaces the sampler and set and keeps the image.
 ## 3. Meshes and materials
 
 Every mesh draws through one pass, `ModelNode`, before the immediate shapes, the flat API's
-models and the ECS's mesh entities alike. A mesh is uploaded once into host-visible vertex and index buffers (32-byte
-vertices of position, normal and texture coordinate, 32-bit indices) through `MeshStore` and
-`GpuMeshesPrepare`, and `DrawModel` records a mesh, a world transform, the camera and a material
+models and the ECS's mesh entities alike. A mesh is uploaded once into vertex and index buffers in
+the device's own memory, copied from staging buffers in the uploads' batch (32-byte vertices of
+position, normal and texture coordinate, 32-bit indices) through `MeshStore` and
+`GpuMeshesPrepare`, while vertices replaced each frame go through a ring of buffers the CPU writes,
+and `DrawModel` records a mesh, a world transform, the camera and a material
 each frame. Draws of the model pass's own shader that share a mesh and its five maps are one
 instanced draw, in the order each such batch first appears. Each draw is an instance of 96 bytes
 in a second vertex buffer stepped per instance (`ModelRenderer.Instance`, `ModelInstance` in the
@@ -3604,6 +3606,20 @@ The largest costs as they were measured, in order, each with what changed:
    2,001, the frame from 42.3 and 42.5 ms to 26.4 and 29.7, the shadows from 18.8 to 2.8 and 2.9 ms
    and the scene from 11.1 to 5.6, two readings each, and no pixel moved by more than one level in
    255.
+
+**Meshes in the device's own memory, read on 2026-11-01.** Intel's Sponza (`scenes_sponza`), 3.75
+million triangles over 2 million vertices in 405 meshes, took 35.3 ms of the GPU for its shadows at
+1280 by 720 at 15:00, the frame 58.9 ms, the scene's pass 13.0 and the window's depth 7.6, the
+cascades drawing 90, 342 and 406 of its meshes and the fill all 406. The fill alone took 10.7 ms,
+and the cascades' tiles at 512 took what they took at 2048, so the passes waited on their vertices,
+about 10 ms for each that drew the whole building, with the GPU at 2,505 MHz. A mesh's buffers were
+made in memory the CPU writes, which on a GPU of its own is the computer's, so each pass read the
+building's 110 MB of vertices and indices across the bus. Copied once into the device's own memory
+(`CreateFilledBuffer`), the shadows took 2.16 ms, the window's depth 0.43, the scene 9.1 and the
+frame 14.3, and from the gallery and looking up 1.88 where 32.9 and 33.6, every pixel of the three
+frames within 36 of 255 of what it was and 0.04% of them more than 8 apart, which the field's
+probes move from frame to frame. The scene's pass is the frame's largest after it, 4.4 ms at 640 by
+360 and 14.7 at 1920 by 1080, its pixels' cost.
 
 ### Beside raylib
 

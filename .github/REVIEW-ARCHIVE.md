@@ -4583,6 +4583,51 @@ batch.
     a field of 84 degrees whose edges a rectilinear camera stretches, the reference likely on a
     Panini projection the engine lacks, left beside item 154 as a lead.
 
+138. **A crossing of leaves takes its transmission from the leaves' depth along the ray.** Decision
+    75's fifth item. Item 100's slab, 20 across and 5 up, takes 0.32 of the sky's light at High
+    against the geometry's 0.41, and the canopy costs 2.49 ms at High against 1.53 solid; the shares
+    a march takes in half-cell steps against the depth a way crosses are read first. Each crossing's
+    transmission comes from the leaves' depth along the ray, found from the field's sign changes and
+    applied once a sheet, the march run only on rays that meet a leaf. Read by item 100's slab table
+    within 5% of the geometry at Low and High and against the reference, and the canopy's cost. One
+    or two commits. Read on 2026-10-31 at 19:47. Item 100's slab reads the reference's share at
+    0.368 at 2.5 and 0.418 at 5.5 where High reads 0.403 and 0.347 and Low 0.359 and 0.378; a CPU
+    replay of the march over the read-back field keeps within 3% of the true share to the power of
+    the depth, and depth from the field's sign changes would read 1 to 5% over, so the march is not
+    the fault. The cause is a crossing applied twice across overlapping intervals, cascade 0's
+    up-way entering the slab at 4.4 of its 4.8 and handing on 0.76 while cascade 1's probe crosses
+    the whole slab inside its own interval and keeps 0.5, 0.38 together where 0.5, gi.probe reading
+    cascade 1's up face within 3% and cascade 0's ways 13 to 25% under, the screen probes at High
+    erring the other way where their reach ends inside the slab. The plan, taken, applies a crossing
+    once a sheet, a ray taking every crossing it enters before its interval's end whole and marching
+    past the end to the exit, a ray of a cascade above leaving to the cascade below any crossing
+    entered before that cascade's end as it does for those before its start, the value in
+    IlluminationTrace's free slot, a screen ray crossing whole what it enters within its reach and
+    taking the light beyond from its exit; then the table at Low and High against the reference, the
+    canopy's cost and the suite. Status at 20:14, uncommitted. Of the variants tried, once, split,
+    combined and a boundary shared between the cascades measured from the merge's mean upper probe,
+    the shared boundary won, with the screen rays taking the light from a crossing's exit; the slab
+    table reads High 0.389 at 2.5 (+5.7%) and 0.418 at 5.5 (0.0%), Low 0.368 (0.0%) and 0.425
+    (+1.7%) where the start was +9.5, -17, -2.4 and -9.6. The canopy's cost on a contended GPU rose
+    about 0.75 ms at High, 3.74 to 3.87 before and 4.53 to 4.61 after, and under 0.15 at Low, the
+    solid canopy unchanged, the rise the whole crossings marched past interval ends and the screen
+    rays' to the exit; bounded before the suite, the bar half a millisecond at High. Done at
+    `740066d6`, read at 00:04 on 2026-11-01. The shared boundary, a crossing taken whole by the
+    cascade that enters it up to its interval's end plus the mean upper probe's offset along the
+    way, the cascade above keeping the part before the cascade below's end, carried in
+    IlluminationTrace's free slot, for its own faces alone, a screen ray crossing whole what it
+    enters within reach and reading beyond at the exit, the depth stepping at least half a cell. The
+    slab table against the reference's 0.368 at 2.5 and 0.418 at 5.5 reads High 0.389 and 0.418 and
+    Low 0.368 and 0.425 where it started at 0.403, 0.347, 0.359 and 0.378; the canopy over the eye
+    at 800 by 450 letting 0.6 through costs at High 2.88 to 2.95 ms where 2.77 to 2.79, within the
+    half-millisecond bar, Low and the solid canopy unchanged, the earlier 0.75 read under another
+    session's load. Item 136's leaf-block canopy against its reference at 2.5 up reads High 0.18
+    where 0.27 (the reference 0.17) and Low 0.17, at 5.5 up High 0.32 where 0.24 (the reference
+    0.21) and Low 0.24 where 0.12, High's excess at 5.5 its own and older than this item, a line
+    under 152. A per-probe boundary was read and not kept, the leaf blocks at High 5.5 reading 0.34
+    and the slab at Low 5.5 0.39, recorded in RENDERING.md. The tests' bounds hold what the batch
+    reads. 2,154 on the GPU in both orders, 82 on lavapipe with 2 skipped.
+
 ## Verdicts settled
 
 Verdicts 1 to 55 are settled, the last two, the drawing leak test's resident bound and the Windows

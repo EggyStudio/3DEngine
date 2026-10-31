@@ -49,6 +49,27 @@ public class BehaviorGeneratorTests
     }
 
     [Fact]
+    public void An_Assembly_With_Behaviors_Adds_Its_Registration_To_The_Engine_s_List_As_It_Loads()
+    {
+        // Read from the generated source, since the engine holds no behavior of its own, and an
+        // assembly compiled and loaded here would stay in the process's list, its behaviors added to
+        // every app built after it.
+        var (result, output) = Generate("""
+            using Engine;
+            [Behavior]
+            public struct Ticks
+            {
+                [OnUpdate] public static void Tick(BehaviorContext ctx) { }
+            }
+            """);
+
+        result.Compile.Should().BeEmpty();
+        var generated = string.Concat(output.SyntaxTrees.Select(t => t.ToString()));
+        generated.Should().Contain("[global::System.Runtime.CompilerServices.ModuleInitializer]")
+            .And.Contain("global::Engine.GeneratedBehaviors.Add(Register)");
+    }
+
+    [Fact]
     public void Changed_And_Added_Filters_Compile_Against_The_Stores()
     {
         var (result, output) = Generate("""

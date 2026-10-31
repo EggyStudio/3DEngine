@@ -84,50 +84,56 @@ frames' means at 15:00 at High against the references, balcony 19, 17 and 16 aga
 door 5, 4 and 2 against 57, 50 and 43, lookup 15, 18 and 22 against 82, 75 and 71, sunlit stone
 close and shaded stone near black where the reference shows bounce, which is 152's reading; the
 models differ, a grille and a narrower vestibule here and the lion to the door 33 units against
-about 24; 2,154 on the GPU in both orders. a mesh that came and has not moved standing in for
-nothing in the scene field until it is built, where its box filled the rooms of a hollow building,
-with a pair of Sponza before and after and a note, the sunlit floor lit from frame 28 where it
-waited 330, the bounce rooms unchanged; 2,154 on the GPU in both orders. Before it `19658e55`, item
-136, pushed with `10295556` at 09:37, its run green at 11:16 with Windows in 98 minutes, Linux in 77
-and macOS in 36, the path-traced reference crossing surfaces that let light through, recorded under
-the item in REVIEW-ARCHIVE.md. Before it `10295556`, item 146's second commit, ShadowOnly draws kept
-in the field, recorded under the item. Before it `da54d289`, item 146's first commit, pushed at
-07:23 with `7bdfaa9e`, Verdict 95's mend, and `fdde73b2`, item 131's second commit, its run green at
-09:37 with Windows in 133 minutes, Linux in 77 and macOS in 36, which settled Verdict 95; the plain
-GPU run of `7bdfaa9e` read ObserverTests' no-observer allocation once at 1,768 bytes, 5 of 5 alone,
-watched. Before it `b16f26b5`, item 131's first commit, pushed at 02:53 on 2026-10-31, its run
-cancelled at 03:51 on Linux alone past test.py's 40-minute limit and the job's 100 (Verdict 95),
-Windows and macOS green, the plane a cell recorded under item 131 in REVIEW-ARCHIVE.md. Before it
-`2ad96a80`, item 135, pushed at 22:13 on 2026-10-30, its run green whole at 23:28 with Windows in 74
-minutes, Linux in 68 and macOS in 35, the screen probes' jittered rays and sixteen-frame history
-recorded under the item in REVIEW-ARCHIVE.md. Before it `e96a6bb8`, pushed with `c3214cbe` at 19:52
-on 2026-10-30, its run green whole at 21:51, Windows in 119 minutes, Linux in 44 and macOS in 33.
-`c3214cbe` is item 134, a resize asked before the first frame carried out at once past the debounce
-a load held back, with a test and the window guide's line, and AGENTS.md's REVIEW.md line as the
-owner asked. `e96a6bb8` is item 132's reading with no mend, the note
-2026-10-30-item-132-recording.md; at 12 columns 5.6 to 6.5 ms of the four passes' 9.6 to 11.5 is a
-descriptor set made and written for every draw in every pass, about 2,045 a frame at 2.8 to 3.2
-microseconds each with every section's set holding the same values, and one set a frame in a scratch
-copy takes the passes to 5.1 ms at 12 and from 18.4 to 19.7 to 7.6 at 16, the frame at 16 from 26.6
-to 17.9 ms, the land's pixels within 0.08 of 255. 2,135 on the GPU in both orders, the resize tests
-on lavapipe with validation. Before it `1703c54e`, item 97, pushed by the owner's hand at 16:54 on
-2026-10-26 while the sessions were paused until 2026-10-30, its run green whole at 19:33 with
-Windows in 99 minutes. The ninth pack run started with publish on at 18:41 on 2026-10-30, since the
-owner sees item 97's specks in the voxel game and its package lacked the mend; the run went green
-whole at 21:05, Windows in 101 minutes and the games in 71, the package 5.2.333 pushed to nuget.org
-with items 97, 129, 130, 89, 95, 91 and 93, the game told. Before it on 2026-10-26, each green but
-where said: `987f07ae` (Verdict 94's mend) with `969a1b08` (item 129); `7ff7bbdd` (130), red on the
-examples job alone, Verdict 94; `b05b32da` (89); `0a4ad922` (the README's quick links); `5528c55c`
-(95); `d207627e` (91), `bb542fa4` (93) and `0754b975` (128), the eighth pack run publishing 5.2.326
-at 13:13; `2f5237f2` (127); `78946b22` (112), the seventh pack run publishing 5.2.322 at 09:14;
-`7af16fcd` (Verdict 93's mend); `45edfbf6` (111); `a16227a7` (100), the sixth pack run publishing
-5.2.319 at 04:21 on its second attempt. Each commit's detail stands in its item in
-REVIEW-ARCHIVE.md, its devlog note and its own words. On 2026-10-30 at 18:0x the owner wrote the
-README's new words (item 133) and the focus on radiance cascades (Decision 74), questions asked
-back, and asked that the sessions spend fewer tokens at the same quality, N 7.7.
+about 24; 2,154 on the GPU in both orders. After it `740066d6`, item 138, held until the run of
+`46149d6d` ends, a crossing taken whole by the cascade in whose interval it is entered up to a
+boundary shared with the cascade above, the cascade above keeping the part before that boundary for
+its own faces, a screen ray crossing whole what it enters within reach; the slab reads High 0.389
+and 0.418 and Low 0.368 and 0.425 against the reference's 0.368 and 0.418 where it started at 0.403,
+0.347, 0.359 and 0.378; the canopy's cost at High 2.77 to 2.79 ms to 2.88 to 2.95 on a GPU with
+nothing else on it, the earlier 0.75 having been contention; 2,154 on the GPU in both orders, 82 on
+lavapipe. a mesh that came and has not moved standing in for nothing in the scene field until it is
+built, where its box filled the rooms of a hollow building, with a pair of Sponza before and after
+and a note, the sunlit floor lit from frame 28 where it waited 330, the bounce rooms unchanged;
+2,154 on the GPU in both orders. Before it `19658e55`, item 136, pushed with `10295556` at 09:37,
+its run green at 11:16 with Windows in 98 minutes, Linux in 77 and macOS in 36, the path-traced
+reference crossing surfaces that let light through, recorded under the item in REVIEW-ARCHIVE.md.
+Before it `10295556`, item 146's second commit, ShadowOnly draws kept in the field, recorded under
+the item. Before it `da54d289`, item 146's first commit, pushed at 07:23 with `7bdfaa9e`, Verdict
+95's mend, and `fdde73b2`, item 131's second commit, its run green at 09:37 with Windows in 133
+minutes, Linux in 77 and macOS in 36, which settled Verdict 95; the plain GPU run of `7bdfaa9e` read
+ObserverTests' no-observer allocation once at 1,768 bytes, 5 of 5 alone, watched. Before it
+`b16f26b5`, item 131's first commit, pushed at 02:53 on 2026-10-31, its run cancelled at 03:51 on
+Linux alone past test.py's 40-minute limit and the job's 100 (Verdict 95), Windows and macOS green,
+the plane a cell recorded under item 131 in REVIEW-ARCHIVE.md. Before it `2ad96a80`, item 135,
+pushed at 22:13 on 2026-10-30, its run green whole at 23:28 with Windows in 74 minutes, Linux in 68
+and macOS in 35, the screen probes' jittered rays and sixteen-frame history recorded under the item
+in REVIEW-ARCHIVE.md. Before it `e96a6bb8`, pushed with `c3214cbe` at 19:52 on 2026-10-30, its run
+green whole at 21:51, Windows in 119 minutes, Linux in 44 and macOS in 33. `c3214cbe` is item 134, a
+resize asked before the first frame carried out at once past the debounce a load held back, with a
+test and the window guide's line, and AGENTS.md's REVIEW.md line as the owner asked. `e96a6bb8` is
+item 132's reading with no mend, the note 2026-10-30-item-132-recording.md; at 12 columns 5.6 to 6.5
+ms of the four passes' 9.6 to 11.5 is a descriptor set made and written for every draw in every
+pass, about 2,045 a frame at 2.8 to 3.2 microseconds each with every section's set holding the same
+values, and one set a frame in a scratch copy takes the passes to 5.1 ms at 12 and from 18.4 to 19.7
+to 7.6 at 16, the frame at 16 from 26.6 to 17.9 ms, the land's pixels within 0.08 of 255. 2,135 on
+the GPU in both orders, the resize tests on lavapipe with validation. Before it `1703c54e`, item 97,
+pushed by the owner's hand at 16:54 on 2026-10-26 while the sessions were paused until 2026-10-30,
+its run green whole at 19:33 with Windows in 99 minutes. The ninth pack run started with publish on
+at 18:41 on 2026-10-30, since the owner sees item 97's specks in the voxel game and its package
+lacked the mend; the run went green whole at 21:05, Windows in 101 minutes and the games in 71, the
+package 5.2.333 pushed to nuget.org with items 97, 129, 130, 89, 95, 91 and 93, the game told.
+Before it on 2026-10-26, each green but where said: `987f07ae` (Verdict 94's mend) with `969a1b08`
+(item 129); `7ff7bbdd` (130), red on the examples job alone, Verdict 94; `b05b32da` (89); `0a4ad922`
+(the README's quick links); `5528c55c` (95); `d207627e` (91), `bb542fa4` (93) and `0754b975` (128),
+the eighth pack run publishing 5.2.326 at 13:13; `2f5237f2` (127); `78946b22` (112), the seventh
+pack run publishing 5.2.322 at 09:14; `7af16fcd` (Verdict 93's mend); `45edfbf6` (111); `a16227a7`
+(100), the sixth pack run publishing 5.2.319 at 04:21 on its second attempt. Each commit's detail
+stands in its item in REVIEW-ARCHIVE.md, its devlog note and its own words. On 2026-10-30 at 18:0x
+the owner wrote the README's new words (item 133) and the focus on radiance cascades (Decision 74),
+questions asked back, and asked that the sessions spend fewer tokens at the same quality, N 7.7.
 
-Next 138, then 151 with 155, then 152, then 154, then the cascades in order, 139, 140, 141 and 142
-(Decision 75); 143, 144 and 145 wait behind them.
+Next 151 with 155, then 152, then 154, then the cascades in order, 139, 140, 141 and 142 (Decision
+75); 143, 144 and 145 wait behind them.
 
 Items done and verdicts settled before 2026-10-23 stand in REVIEW-ARCHIVE.md beside this file, their
 numbers kept, moved there at 19:30 on 2026-10-23 so this file holds the current work alone and is
@@ -1016,36 +1022,6 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     changes alone. Read by the game's memory at 12 columns after the land settles, before and after.
     One commit, small.
 
-138. **A crossing of leaves takes its transmission from the leaves' depth along the ray.** Decision
-    75's fifth item. Item 100's slab, 20 across and 5 up, takes 0.32 of the sky's light at High
-    against the geometry's 0.41, and the canopy costs 2.49 ms at High against 1.53 solid; the shares
-    a march takes in half-cell steps against the depth a way crosses are read first. Each crossing's
-    transmission comes from the leaves' depth along the ray, found from the field's sign changes and
-    applied once a sheet, the march run only on rays that meet a leaf. Read by item 100's slab table
-    within 5% of the geometry at Low and High and against the reference, and the canopy's cost. One
-    or two commits. Read on 2026-10-31 at 19:47. Item 100's slab reads the reference's share at
-    0.368 at 2.5 and 0.418 at 5.5 where High reads 0.403 and 0.347 and Low 0.359 and 0.378; a CPU
-    replay of the march over the read-back field keeps within 3% of the true share to the power of
-    the depth, and depth from the field's sign changes would read 1 to 5% over, so the march is not
-    the fault. The cause is a crossing applied twice across overlapping intervals, cascade 0's
-    up-way entering the slab at 4.4 of its 4.8 and handing on 0.76 while cascade 1's probe crosses
-    the whole slab inside its own interval and keeps 0.5, 0.38 together where 0.5, gi.probe reading
-    cascade 1's up face within 3% and cascade 0's ways 13 to 25% under, the screen probes at High
-    erring the other way where their reach ends inside the slab. The plan, taken, applies a crossing
-    once a sheet, a ray taking every crossing it enters before its interval's end whole and marching
-    past the end to the exit, a ray of a cascade above leaving to the cascade below any crossing
-    entered before that cascade's end as it does for those before its start, the value in
-    IlluminationTrace's free slot, a screen ray crossing whole what it enters within its reach and
-    taking the light beyond from its exit; then the table at Low and High against the reference, the
-    canopy's cost and the suite. Status at 20:14, uncommitted. Of the variants tried, once, split,
-    combined and a boundary shared between the cascades measured from the merge's mean upper probe,
-    the shared boundary won, with the screen rays taking the light from a crossing's exit; the slab
-    table reads High 0.389 at 2.5 (+5.7%) and 0.418 at 5.5 (0.0%), Low 0.368 (0.0%) and 0.425
-    (+1.7%) where the start was +9.5, -17, -2.4 and -9.6. The canopy's cost on a contended GPU rose
-    about 0.75 ms at High, 3.74 to 3.87 before and 4.53 to 4.61 after, and under 0.15 at Low, the
-    solid canopy unchanged, the rise the whole crossings marched past interval ends and the screen
-    rays' to the exit; bounded before the suite, the bar half a millisecond at High.
-
 139. **The field follows a changed world cell by cell, and a moving emitter lights what it passes.**
     Decision 75's sixth item. A changed mesh, a section after a block breaks, marks its whole
     cascade dirty, built again over frames within the triangle budget with its still meshes stamped
@@ -1117,7 +1093,10 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     97,050 lux sun against a clear sky of some 15,000 to 25,000 lux stands 4 to 6 to 1; at the fixed
     exposure of 3.0 our sky reads about 2.4 where the reference's would read about 0.6, so the sky's
     share against the sun is read before the bounce under the arcades, and a sky too bright beside
-    its sun is the first suspect for the light under a solid roof.
+    its sun is the first suspect for the light under a solid roof. Second term, from 138's end: the
+    leaf-block canopy at 5.5 up reads High 0.32 against the reference's 0.21 where Low reads 0.24,
+    High over Low there before 138 by 0.12 and after by 0.08, so High's excess at 5.5 is its own and
+    older, read here with the roof.
 
 154. **Lights in lux and a physical camera's exposure.** From item 153's reading, the engine has AgX
     but no physical units, no lux on a light, no camera EV, nothing from ISO, shutter and aperture,

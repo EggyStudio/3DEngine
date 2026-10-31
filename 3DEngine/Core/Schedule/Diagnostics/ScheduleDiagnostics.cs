@@ -2,7 +2,7 @@ namespace Engine;
 
 /// <summary>
 /// Tracks per-stage and per-system execution timing for the most recent frame.
-/// Populated by <see cref="Schedule"/> during execution and queryable for diagnostics and debugging HUDs.
+/// Populated by <see cref="Schedule"/> during execution, and read by <c>profile</c> and <c>schedule.dump</c>.
 /// </summary>
 /// <remarks>
 /// All public accessors return snapshot copies to avoid data races with the schedule's recording thread.

@@ -126,6 +126,42 @@ internal sealed unsafe partial class GraphicsDevice
         return new VulkanBuffer(this, buffer, memory, desc, desc.CpuAccess != CpuAccessMode.None, new BufferMaker(maker, line, desc.Usage));
     }
 
+    /// <summary>
+    /// Creates a buffer in the device's own memory holding <paramref name="data"/>, copied in from a
+    /// staging buffer by the uploads' next submit, for what the CPU writes once and the GPU reads
+    /// every frame, as a mesh's vertices and indices.
+    /// </summary>
+    /// <remarks>
+    /// A buffer the CPU writes lies in memory the CPU sees, which on a GPU of its own is the
+    /// computer's, so every pass that reads it reads it across the bus. Intel's Sponza, 3.75 million
+    /// triangles over 2 million vertices, took each pass that drew all of it about 10 ms of the GPU
+    /// on an RTX 4070 Laptop GPU, whatever the shadow map's size, its shadows 35 ms in five such
+    /// passes.
+    /// </remarks>
+    /// <param name="data">What the buffer holds.</param>
+    /// <param name="usage">How the GPU reads it, to which the copy's own usage is added.</param>
+    /// <param name="maker">The file that asks for it, which the compiler fills in, for the census.</param>
+    /// <param name="line">The line of <paramref name="maker"/> that asks for it.</param>
+    internal IBuffer CreateFilledBuffer(ReadOnlySpan<byte> data, BufferUsage usage, [CallerFilePath] string maker = "", [CallerLineNumber] int line = 0)
+    {
+        var size = (ulong)Math.Max(16, data.Length);
+        var buffer = (VulkanBuffer)CreateBuffer(new BufferDesc(size, usage | BufferUsage.TransferDst, CpuAccessMode.None), maker, line);
+        if (data.IsEmpty) return buffer;
+        var staging = (VulkanBuffer)CreateBuffer(new BufferDesc(size, BufferUsage.TransferSrc, CpuAccessMode.Write), maker, line);
+        data.CopyTo(Map(staging));
+        Unmap(staging);
+        var cmd = UploadCommands();
+        var region = new VkBufferCopy { size = (ulong)data.Length };
+        _deviceApi.vkCmdCopyBuffer(cmd, staging.Buffer, buffer.Buffer, 1, &region);
+        // Every submit after the uploads' reads what they wrote, the draws' vertices and indices
+        // and a shader's reads of a buffer alike.
+        MemoryBarrier(cmd, VkPipelineStageFlags2.Transfer, VkAccessFlags2.TransferWrite,
+            VkPipelineStageFlags2.VertexAttributeInput | VkPipelineStageFlags2.IndexInput | VkPipelineStageFlags2.AllCommands,
+            VkAccessFlags2.VertexAttributeRead | VkAccessFlags2.IndexRead | VkAccessFlags2.MemoryRead);
+        _batchStaging.Add(staging);
+        return buffer;
+    }
+
     /// <summary>Maps a host-visible buffer's memory for CPU access and returns a writable byte span.</summary>
     /// <param name="buffer">The buffer to map (must have been created with <see cref="CpuAccessMode"/> other than <see cref="CpuAccessMode.None"/>).</param>
     /// <returns>A <see cref="Span{T}"/> of bytes over the mapped memory region.</returns>

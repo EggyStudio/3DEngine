@@ -106,6 +106,22 @@ public class ConsoleBuiltinsTests
     }
 
     [Fact]
+    public void The_Schedule_Dump_Writes_Each_Stage_s_Batches_To_The_File_It_Answers()
+    {
+        var (world, app) = Setup();
+        app.AddSystem(Stage.Update, new SystemDescriptor(_ => { }, "My.System"));
+        app.Schedule.Diagnostics.RecordBatches(Stage.Update, [[new SystemDescriptor(_ => { }, "My.System"), new SystemDescriptor(_ => { }, "Other.System")]]);
+        app.Schedule.Diagnostics.RecordBatchNotes(Stage.Update, [["no conflicts"]]);
+        using var folder = new TestFolder("engine-schedule-");
+        var path = folder.File("schedule.txt");
+
+        Run(world, app, $"schedule.dump {path}").Should().Be(path);
+        var text = File.ReadAllText(path);
+        text.Should().Contain("[Update]\n  batch 1 (parallel) My.System, Other.System\n    notes no conflicts");
+        text.Should().Contain("[PostUpdate]\n  no batches recorded");
+    }
+
+    [Fact]
     public void A_Field_Is_Set_From_Its_Words_And_Marked_Changed()
     {
         var (world, app) = Setup();
