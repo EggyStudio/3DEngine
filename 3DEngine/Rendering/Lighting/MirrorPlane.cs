@@ -46,6 +46,22 @@ internal sealed class MirrorRenderer : IDisposable
     internal GpuPlanarReflection? Picture => _planar;
 
     /// <summary>
+    /// Whether the mirrored view was drawn whole since the plane was set, every pipeline it draws
+    /// with made, which the window reads it from on.
+    /// </summary>
+    /// <remarks>
+    /// Its pipelines are made on worker threads the first time they are asked for, the view drawn
+    /// without the batches still waiting for theirs and the window reading none of it until a frame
+    /// draws it whole, so the frame a plane is first set in waits for no compile. The voxel game's
+    /// first frame with a reflection plane took 23.7 to 24.0 s of the wall clock with them made on
+    /// the frame's own thread.
+    /// </remarks>
+    internal bool Whole { get; private set; }
+
+    /// <summary>Whether the window reads the mirrored view this frame, drawn and drawn whole once.</summary>
+    internal static bool Shows(RenderWorld renderWorld) => Draws(renderWorld) && renderWorld.TryGet<MirrorRenderer>() is { Whole: true };
+
+    /// <summary>
     /// Whether this frame draws the mirrored view, a plane set and the window drawing its scene
     /// through a camera on the side of the plane its normal points to.
     /// </summary>
@@ -78,7 +94,10 @@ internal sealed class MirrorRenderer : IDisposable
     {
         Retire();
         if (!Draws(renderWorld) || renderContext.Device is not GraphicsDevice device || renderWorld.TryGet<ModelRenderer>() is not { } models)
+        {
+            Whole = false;
             return;
+        }
         var plane = renderWorld.TryGet<ReflectionPlane>()!;
         var view = renderWorld.TryGet<WindowView>()!;
         var window = renderWorld.TryGet<SwapchainTarget>()!.Extent;
@@ -99,7 +118,8 @@ internal sealed class MirrorRenderer : IDisposable
             target.RenderPass, target.Framebuffer, target.Extent, LoadOp.Clear, StoreOp.Store, clear));
         pass.SetViewport(0, 0, target.Extent.Width, target.Extent.Height, 0, 1);
         pass.SetScissor(0, 0, target.Extent.Width, target.Extent.Height);
-        models.Draw(pass, target.RenderPass, renderContext, renderWorld, 0, viewProjection, ModelRenderer.ProbeCaptureLights, depth: true);
+        models.Draw(pass, target.RenderPass, renderContext, renderWorld, 0, viewProjection, ModelRenderer.ProbeCaptureLights, depth: true, waitless: true);
+        Whole |= !models.PipelinesPending;
         renderWorld.TryGet<ParticleRenderer>()?.Draw(pass, target.RenderPass, renderContext, renderWorld, ModelRenderer.ProbeCaptureLights, viewProjection, eye);
         pass.EndRenderPass();
         device.RecordPlanarReflection(renderContext.CommandBuffer, _planar);

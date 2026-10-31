@@ -14,3 +14,9 @@ frames after it.
 The first run after wrote 10.5 MB to `source/.slang-cache/pipelines.bin`, and the second run's
 slowest frame read 192 ms, 184 of it the mirrored pass. A run that compiles no pipeline the file
 lacks leaves it as it was, and a file whose header names another GPU or driver is read as empty.
+
+In the second commit the mirrored view's pipelines are made on worker threads the first time it asks
+for them, the batches still waiting for theirs left out and the window reading none of the view
+until a frame draws it whole. With both caches empty the turn and its 30 frames took 4.57 s where
+26.8 to 30.2, its slowest frame the window's own pass compiling the water's pipelines at its first
+sight, 3.59 s, which the runs before held as well; a second run took 1.05 s.

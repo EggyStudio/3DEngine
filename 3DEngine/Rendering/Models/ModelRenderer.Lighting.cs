@@ -86,7 +86,7 @@ internal sealed partial class ModelRenderer
             : Lit(white, whiteSampler, AmbientOcclusionBinding));
         // The scene mirrored in the program's plane for the window's view where it was drawn this
         // frame, and white for every other, which its buffer says not to read.
-        gfx.UpdateDescriptorSet(set, null, target == 0 && MirrorRenderer.Draws(renderWorld) && renderWorld.TryGet<MirrorRenderer>()?.Picture is { } mirror
+        gfx.UpdateDescriptorSet(set, null, target == 0 && MirrorRenderer.Shows(renderWorld) && renderWorld.TryGet<MirrorRenderer>()?.Picture is { } mirror
             ? Lit(mirror.View, mirror.Sampler, MirrorBinding)
             : Lit(white, whiteSampler, MirrorBinding));
         // And the indirect light, the window's with its screen's probes and what its glossy

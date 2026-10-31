@@ -140,7 +140,7 @@ internal sealed partial class ModelRenderer
         var positions = batch.Mesh.PositionsOnly;
         var (device, depthOnly, renderWorld) = _shadowMaking!.Value;
         return _shadowPipelines[(masked ? 4 : 0) + (positions ? 2 : 0) + (clamp ? 1 : 0)] ??= MakePipeline(device, depthOnly, renderWorld,
-            _shadowVertexShader!, masked ? _shadowMaskShader : null, shadow: true, positions: positions, clamp: clamp);
+            _shadowVertexShader!, masked ? _shadowMaskShader : null, shadow: true, positions: positions, clamp: clamp)!;
     }
 
     // A batch's pipeline for a shadow map (clamp) or the depth target, through a program's own
@@ -207,7 +207,7 @@ internal sealed partial class ModelRenderer
         return _ownShadowPipelines[key] = MakePipeline(device, depthOnly, renderWorld, modules.Vertex, fragment,
             material: program.OwnTextures(PassTextures).Count > 0 || program.Buffers.Count > 0 ? SetsFor(device, own.Shader, program).Layout : null,
             streams: own.Streams, inputs: hasVertex ? ShaderProgram.InputLocationSet(vertex!) : null, named: hasVertex ? program.VertexInputs : [],
-            shaderName: program.Name, feed: own.Feed, positions: own.Positions, clamp: clamp);
+            shaderName: program.Name, feed: own.Feed, positions: own.Positions, clamp: clamp)!;
     }
 
     // A batch's mesh and instances for a shadow or a depth, with the streams and CUSTOM0 a program's

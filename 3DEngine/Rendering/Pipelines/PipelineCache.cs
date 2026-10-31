@@ -27,6 +27,9 @@ internal sealed class PipelineCache : IDisposable
     private readonly IGraphicsDevice _device;
     private readonly Dictionary<GraphicsPipelineDesc, IPipeline> _cache = new();
 
+    // The pipelines made on workers for a pass that waits for no compile (GetOrBegin).
+    private readonly Dictionary<GraphicsPipelineDesc, Task<IPipeline>> _making = new();
+
     /// <summary>Number of cached pipelines.</summary>
     public int Count => _cache.Count;
 
@@ -45,11 +48,51 @@ internal sealed class PipelineCache : IDisposable
     {
         if (_cache.TryGetValue(desc, out var existing))
             return existing;
+        if (_making.Remove(desc, out var made))
+            return _cache[desc] = made.Result;
 
         Logger.Debug($"Compiling new pipeline (cache size {_cache.Count} → {_cache.Count + 1})...");
         var pipeline = _device.CreateGraphicsPipeline(desc);
         _cache[desc] = pipeline;
         return pipeline;
+    }
+
+    /// <summary>
+    /// Returns the compiled pipeline matching <paramref name="desc"/>, or none while a worker thread
+    /// makes it, which this sets going where none has.
+    /// </summary>
+    /// <remarks>
+    /// A pass a program turns on in play draws with what is made and leaves out the rest until it
+    /// is, as the window's view mirrored in a plane does. The voxel game's first frame with a
+    /// reflection plane took 23.7 to 24.0 s of the wall clock, the driver compiling the mirrored
+    /// pass's pipelines on the thread that records the frame.
+    /// </remarks>
+    public IPipeline? GetOrBegin(GraphicsPipelineDesc desc)
+    {
+        if (_cache.TryGetValue(desc, out var existing))
+            return existing;
+        if (_making.TryGetValue(desc, out var making))
+        {
+            if (!making.IsCompleted) return null;
+            _making.Remove(desc);
+            return _cache[desc] = making.Result;
+        }
+        _making[desc] = Task.Run(() => _device.CreateGraphicsPipeline(desc));
+        return null;
+    }
+
+    /// <summary>How many pipelines worker threads are making.</summary>
+    public int Making => _making.Count;
+
+    /// <summary>
+    /// Waits for every pipeline worker threads are making and keeps each, so the shaders and
+    /// layouts they are made from may be let go after.
+    /// </summary>
+    public void WaitForMaking()
+    {
+        foreach (var (desc, making) in _making)
+            _cache[desc] = making.Result;
+        _making.Clear();
     }
 
     /// <summary>
@@ -70,6 +113,7 @@ internal sealed class PipelineCache : IDisposable
     /// <summary>Clears all cached pipelines, disposing their GPU resources.</summary>
     public void Clear()
     {
+        WaitForMaking();
         foreach (var pipeline in _cache.Values)
             pipeline.Dispose();
         _cache.Clear();

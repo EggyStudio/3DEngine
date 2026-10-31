@@ -104,7 +104,7 @@ internal sealed class LightingUboPrepare : IPrepareSystem
             }
         }
         // And the scene mirrored in the program's plane, which a glossy surface lying in it reads.
-        if (MirrorRenderer.Draws(renderWorld) && renderWorld.TryGet<MirrorRenderer>() is not null
+        if (MirrorRenderer.Shows(renderWorld)
             && renderWorld.TryGet<ReflectionPlane>() is { } mirrorPlane && renderWorld.TryGet<SwapchainTarget>() is { } swapchain)
         {
             var half = (Width: Math.Max(1u, swapchain.Extent.Width / 2), Height: Math.Max(1u, swapchain.Extent.Height / 2));

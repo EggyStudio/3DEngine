@@ -208,7 +208,9 @@ public static partial class E3D
     /// other side. The mirrored view is lit by the window's lights and shadows, with no global
     /// illumination of the screen's, ambient occlusion or traced reflection, and the shapes drawn
     /// by calls such as <see cref="DrawCube(System.Numerics.Vector3, float, float, float, Color)"/>
-    /// are not in it.
+    /// are not in it. The pipelines the mirrored view draws with are made on worker threads the
+    /// first time it asks for them, the surfaces reflecting as they do without a plane until a
+    /// frame draws the view whole, so the frame a plane is first set in waits for no compile.
     /// </remarks>
     public static void SetReflectionPlane(float height, System.Numerics.Vector3 normal)
     {

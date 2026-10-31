@@ -36,30 +36,32 @@ internal sealed partial class ModelRenderer
     // not, through model_streams.slang for a mesh with streams, with the build given where it was
     // made and the whole where it was not, reading positions alone for a mesh uploaded so, and
     // with its alpha test folded away for a material that cuts nothing out.
-    private IPipeline Pipeline(IGraphicsDevice gfx, IRenderPass renderPass, RenderWorld renderWorld, CullMode cull = CullMode.None, bool points = false,
+    private IPipeline? Pipeline(IGraphicsDevice gfx, IRenderPass renderPass, RenderWorld renderWorld, CullMode cull = CullMode.None, bool points = false,
         bool blend = true, Streams streams = Streams.None, bool depth = true, ModelBuild build = ModelBuild.Whole, bool positions = false, bool solid = false)
     {
         var (spvs, shaders) = streams == Streams.None ? (_fragmentSpvs, _fragmentShaders) : (_streamsFragmentSpvs, _streamsFragmentShaders);
         if (spvs[(int)build] is null) build = ModelBuild.Whole;
-        if (_pipelines.TryGetValue((renderPass, cull, points, blend, streams, depth, build, positions, solid), out var made)) return made;
+        if (_pipelines.TryGetValue((renderPass, cull, points, blend, streams, depth, build, positions, solid), out var kept)) return kept;
 
         _vertexShader ??= gfx.CreateShader(new ShaderDesc(ShaderStage.Vertex, _vertexSpv));
         var vertex = streams == Streams.None
             ? _vertexShader
             : _streamsVertexShader ??= gfx.CreateShader(new ShaderDesc(ShaderStage.Vertex, _streamsVertexSpv));
         var fragment = shaders[(int)build] ??= gfx.CreateShader(new ShaderDesc(ShaderStage.Fragment, spvs[(int)build]!));
-        return _pipelines[(renderPass, cull, points, blend, streams, depth, build, positions, solid)] = MakePipeline(gfx, renderPass, renderWorld, vertex, fragment, cull,
-            points: points, blend: blend, streams: streams, depth: depth, positions: positions, solid: solid);
+        var made = MakePipeline(gfx, renderPass, renderWorld, vertex, fragment, cull, points: points, blend: blend, streams: streams, depth: depth,
+            positions: positions, solid: solid, waitingAs: (renderPass, cull, points, blend, streams, depth, build, positions, solid));
+        if (made is not null) _pipelines[(renderPass, cull, points, blend, streams, depth, build, positions, solid)] = made;
+        return made;
     }
 
     // A material's own shader's pipeline, which leaves faces out as the model pass's own does, its
     // color held to an eight-bit frame's where it draws into the HDR frame, and CUSTOM0 fed as the
     // mesh gives it.
-    private IPipeline CustomPipeline(IGraphicsDevice gfx, IRenderPass renderPass, RenderWorld renderWorld, int id, ShaderProgram program,
+    private IPipeline? CustomPipeline(IGraphicsDevice gfx, IRenderPass renderPass, RenderWorld renderWorld, int id, ShaderProgram program,
         CullMode cull = CullMode.None, bool points = false, bool blend = true, Streams streams = Streams.None, bool depth = true, bool held = false,
         StreamFeed? feed = null, bool positions = false, bool solid = false)
     {
-        if (_customPipelines.TryGetValue((id, renderPass, cull, points, blend, streams, depth, held, feed, positions, solid), out var made)) return made;
+        if (_customPipelines.TryGetValue((id, renderPass, cull, points, blend, streams, depth, held, feed, positions, solid), out var kept)) return kept;
 
         var modules = CustomModules(gfx, id, program);
         var fragment = held
@@ -70,10 +72,13 @@ internal sealed partial class ModelRenderer
         // stage that reads less than the instance's every row would leave unread, each by its
         // semantic where the reflection names them and otherwise at the location it reads.
         var own = program.Stages.TryGetValue(ShaderStage.Vertex, out var vertex);
-        return _customPipelines[(id, renderPass, cull, points, blend, streams, depth, held, feed, positions, solid)] = MakePipeline(gfx, renderPass, renderWorld, modules.Vertex, fragment, cull,
+        var made = MakePipeline(gfx, renderPass, renderWorld, modules.Vertex, fragment, cull,
             material: program.OwnTextures(PassTextures).Count > 0 || program.Buffers.Count > 0 ? SetsFor(gfx, id, program).Layout : null, points: points,
             blend: blend, streams: streams, depth: depth, inputs: own ? ShaderProgram.InputLocationSet(vertex) : null,
-            named: own ? program.VertexInputs : [], shaderName: program.Name, feed: feed, positions: positions, solid: solid);
+            named: own ? program.VertexInputs : [], shaderName: program.Name, feed: feed, positions: positions, solid: solid,
+            waitingAs: (id, renderPass, cull, points, blend, streams, depth, held, feed, positions, solid));
+        if (made is not null) _customPipelines[(id, renderPass, cull, points, blend, streams, depth, held, feed, positions, solid)] = made;
+        return made;
     }
 
     // A material's own shader's stages, whether it reads a mesh's colors and second texture
@@ -99,12 +104,14 @@ internal sealed partial class ModelRenderer
     }
 
     // Frees what was made for shaders the program has unloaded. Their pipelines belong to the
-    // PipelineCache, and a pipeline does not need its modules once it is made.
-    private void RetireUnloadedShaders(ShaderStore? store)
+    // PipelineCache, and a pipeline does not need its modules once it is made, so those the cache's
+    // workers make are waited for first.
+    private void RetireUnloadedShaders(ShaderStore? store, RenderWorld renderWorld)
     {
         if (_custom.Count == 0) return;
         foreach (var id in _custom.Keys.Where(id => store?.Get(id) is null).ToArray())
         {
+            renderWorld.TryGet<PipelineCache>()?.WaitForMaking();
             _custom[id].Vertex.Dispose();
             _custom[id].Fragment.Dispose();
             _custom.Remove(id);
@@ -346,10 +353,23 @@ internal sealed partial class ModelRenderer
     private readonly HashSet<string> _unfed = [];
     private static readonly ILogger Logger = Log.Category("Engine.Models");
 
-    private IPipeline MakePipeline(IGraphicsDevice gfx, IRenderPass renderPass, RenderWorld renderWorld, IShader vertex, IShader? fragment,
+    // Whether the pass being drawn takes its pipelines from worker threads and leaves out what they
+    // have not made yet, and whether it left any out, as the view mirrored in a plane does.
+    private bool _waitless;
+
+    /// <summary>Whether the last pass drawn without waiting left out a batch whose pipeline was still being made.</summary>
+    internal bool PipelinesPending { get; private set; }
+
+    // The description each pipeline a worker makes was first asked for by, by the pass's own key,
+    // asked for again by the same one, since a description holds its vertex inputs as arrays made
+    // for it, which a description made again does not equal.
+    private readonly Dictionary<object, GraphicsPipelineDesc> _waiting = [];
+
+    // A pass's pipeline, or none while a worker makes it for a pass that waits for none.
+    private IPipeline? MakePipeline(IGraphicsDevice gfx, IRenderPass renderPass, RenderWorld renderWorld, IShader vertex, IShader? fragment,
         CullMode cull = CullMode.None, IDescriptorSetLayout? material = null, bool shadow = false, bool points = false,
         Streams streams = Streams.None, bool blend = true, bool depth = true, IReadOnlySet<int>? inputs = null, IReadOnlyList<ShaderInput>? named = null,
-        string? shaderName = null, StreamFeed? feed = null, bool positions = false, bool solid = false, bool clamp = false)
+        string? shaderName = null, StreamFeed? feed = null, bool positions = false, bool solid = false, bool clamp = false, object? waitingAs = null)
     {
         // The shadow pass reads the instance's first five rows, to its emission. Both push the
         // view-projection they draw through.
@@ -391,8 +411,12 @@ internal sealed partial class ModelRenderer
             DepthClamp: clamp,
             DrawsBacks: cull != CullMode.Back);
 
-        return renderWorld.TryGet<PipelineCache>() is { } cache
-            ? cache.GetOrCreate(desc)
-            : gfx.CreateGraphicsPipeline(desc);
+        if (renderWorld.TryGet<PipelineCache>() is not { } cache) return gfx.CreateGraphicsPipeline(desc);
+        if (!_waitless || waitingAs is null) return cache.GetOrCreate(desc);
+        if (_waiting.TryGetValue(waitingAs, out var asked)) desc = asked;
+        var made = cache.GetOrBegin(desc);
+        if (made is null) _waiting[waitingAs] = desc;
+        else _waiting.Remove(waitingAs);
+        return made;
     }
 }

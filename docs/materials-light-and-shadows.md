@@ -581,7 +581,9 @@ scene makes, as `./e3d command profile` shows under `mirror`. In `shaders_reflec
 to 0.27 ms of the GPU and 0.11 to 0.16 ms of the CPU. In a voxel world of 2,241 draws looking along
 a river at 1920 by 1080 it takes 2.2 to 2.8 ms of the GPU and 3.7 to 4.1 ms of the CPU, about what
 the window's depth pass takes for the same draws, so a program sets the plane while its water is in
-view and takes it away elsewhere.
+view and takes it away elsewhere. The pipelines it draws with are made on worker threads the first
+time a plane is set, the water reflecting as it does without one for the frames that takes, so
+setting it holds up no frame.
 
 ## Lights in the ECS
 

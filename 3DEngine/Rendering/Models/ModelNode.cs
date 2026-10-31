@@ -401,11 +401,12 @@ internal sealed partial class ModelRenderer : IDisposable
     /// held to what an eight-bit frame keeps of it where <paramref name="held"/>, as the HDR frame
     /// asks (<see cref="ShaderProgram.HeldToEightBits"/>), leaving out what lies before the near
     /// plane or past the far one where <paramref name="depth"/>, as the view mirrored in a plane
-    /// does what lies under it.
+    /// does what lies under it, and a batch whose pipeline a worker still makes where <paramref name="waitless"/>.
     /// </summary>
     public void Draw(TrackedRenderPass pass, IRenderPass renderPass, RenderContext renderContext, RenderWorld renderWorld, int target,
-        Matrix4x4? viewProjection = null, int? lights = null, bool held = false, bool depth = false)
+        Matrix4x4? viewProjection = null, int? lights = null, bool held = false, bool depth = false, bool waitless = false)
     {
+        PipelinesPending = false;
         var draws = renderWorld.TryGet<ModelDrawList>();
         var meshes = renderWorld.TryGet<GpuMeshes>();
         var textures = renderWorld.TryGet<GpuTextures>();
@@ -414,7 +415,7 @@ internal sealed partial class ModelRenderer : IDisposable
         var gfx = renderContext.Device;
         var store = renderWorld.TryGet<ShaderStore>();
         BeginFrameOfSets(renderContext);
-        RetireUnloadedShaders(store);
+        RetireUnloadedShaders(store, renderWorld);
 
         var view = ViewBatches(target, gfx, draws, meshes, textures, store);
         var (batches, ring, offset, blocks) = (view.Batches, view.Ring, view.Offset, view.Blocks);
@@ -431,6 +432,7 @@ internal sealed partial class ModelRenderer : IDisposable
         var span = CollectionsMarshal.AsSpan(batches);
         var (frustum, culledThrough) = (default(Frustum), default(Matrix4x4?));
         _planned.Clear();
+        _waitless = waitless;
         for (int b = 0; b < span.Length; b++)
         {
             ref readonly var batch = ref span[b];
@@ -456,8 +458,14 @@ internal sealed partial class ModelRenderer : IDisposable
             var wanted = program is null
                 ? Pipeline(gfx, renderPass, renderWorld, batch.Cull, batch.Points, batch.Blend, streams, batch.Depth, build, positions, batch.Solid)
                 : CustomPipeline(gfx, renderPass, renderWorld, draw.Shader, program, batch.Cull, batch.Points, batch.Blend, streams, batch.Depth, held, feed, positions, batch.Solid);
+            if (wanted is null)
+            {
+                PipelinesPending = true;
+                continue;
+            }
             _planned.Add(new Planned(b, wanted, program, streams, feed, positions));
         }
+        _waitless = false;
         OrderOpaque(span, view.Opaque, blocks, viewProjection);
 
         IPipeline? pipeline = null;
