@@ -4339,6 +4339,28 @@ batch.
     changed by the reviewer's call, open to the owner's word. Done at `10295556`, with `da54d289`
     before it.
 
+136. **The path-traced reference knows light through.** Decision 75's third item, worked before the
+    pocket and the light-through items whose readings need it. gi_reference.slang has no light
+    through, so leaves cannot be read against truth. A path passes a leaf by its share as the
+    material's LightThrough gives it, in the reference and in gi.compare. Read by the canopy and the
+    grove's floor against it. One commit, after item 131. Done at `19658e55`, read at 09:00. A path
+    after the camera's first ray crosses a copy that lets light through with the chance of the share
+    to the power of its depth, drawn by a random number, else meets it solid, the depth from the
+    face entered to the nearest face left of that copy or another's nearer face, a sheet counting
+    none; the camera's first ray and the shadow rays stay solid as the model pass and the shadow
+    maps are; a scene with no such copy keeps the old opaque query by a push flag, the held
+    references bit-identical; RaySurface's free w carries the share and RayInstance a LightThrough.
+    A floor under a black slab a unit thick, eighty across, letting half through reads 0.3358
+    against the analytic 0.3360. The note 2026-10-31-item-136-through.md with three sheets reads the
+    canopy's share of the sky let through at 2.5 up, the reference 0.17, High 0.28 and Low 0.18, at
+    5.5 up 0.21 and 0.25, High letting 65% more through than the reference at 2.5 with the test's
+    bounds holding what High reads; under a solid canopy High 0.0096 against 0.0061; the grove at
+    1280 by 720 with the shading off against the new reference and the old, the crowns' tops 0%
+    where -9%, the floor under a crown -8% where +5%, each pixel's red difference 0.058 where 0.140,
+    the grass and petals in the frame alone. 2,140 on the GPU in both orders, the 9 reference tests
+    skipped on lavapipe. The 65% at 2.5 up is item 137's lead, the cascades letting more through the
+    leaves than the reference does.
+
 ## Verdicts settled
 
 Verdicts 1 to 55 are settled, the last two, the drawing leak test's resident bound and the Windows
@@ -5729,6 +5751,27 @@ at `36cae0c2`.
     in one push. Mended at `987f07ae` on 2026-10-26, the four pictures and captures.tsv made again;
     settled when its run goes green. Settled on 2026-10-26 by the run of `987f07ae`, green whole at
     16:39.
+
+95. **The run of `b16f26b5` is cancelled on Linux, the suite past test.py's time limit and the job
+    past its own.** Read at 04:57 on 2026-10-31. The Linux job's test step ran from 01:54 to 03:33
+    and the job was cancelled at its 100 minutes with Windows and macOS green; test.py's whole run
+    ended at its 40-minute limit with 1,551 passed and the rest lost, the last test AppThreadsTests'
+    served app, its slowest GlowLightsTests' shut-in emissive block at 2 m 53 s and two
+    GlobalIlluminationTests at 1 m 49 s and 1 m 18 s, and the parts run after reached 2,066 passed
+    in 80 minutes before the job's end; the Linux job read 62 to 68 minutes whole before item 131,
+    so the field's plane a cell slowed the field tests on lavapipe past the limit the whole run had
+    been near. The mend raises the Linux job to 150 minutes and test.py's whole-run limit on Linux
+    to 90, since the Actions bill is no concern, reads which tests grew between `2ad96a80` and
+    `b16f26b5` and names them in a note, and makes test.py's run after a time kill go on from the
+    last test that ended rather than start the parts over, if that is what it does. Small, first,
+    the commit going with `fdde73b2`. Mended at `7bdfaa9e`, read at 07:24 on 2026-10-31. test.py's
+    line for an ended test did not take `[< 1 ms]`, so 508 fast tests had no result and every part
+    holding one ran again from its start, Rendering's 529 for 35 minutes; it takes them, a part run
+    again runs the tests the lost run left alone, the Linux job holds 150 minutes and each of its
+    runs 90, and the note reads item 131's closed room of sheets at 39 and 26 s new and the global
+    illumination classes 6 to 8% slower, nine classes 42.0 to 45.3 minutes. Settled when the run of
+    `da54d289` goes green. The shut-in block and the rest stay as they are, the 90 minutes holding
+    them. Settled at 09:37 on 2026-10-31, the run of `da54d289` green with Linux in 77 minutes.
 
 ## Decisions
 

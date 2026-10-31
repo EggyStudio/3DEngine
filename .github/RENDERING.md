@@ -2145,6 +2145,45 @@ shading off, the crowns' tops read in the frame as in the reference crossing the
 difference in red 0.058 where 0.140 on the mean; its grass and petals, which the field leaves out,
 are in the frame alone.
 
+**The second cascade inside a corridor, read on 2026-10-31.** The corridor's walls by its open end,
+where the sun's patch lies, are past the first cascade's reach, its field cascade beginning at x
+79.2 with the eye at 87.5, so they read the second cascade, and its spots there at z of 1.2 and -1.2
+lay inside the walls, 1.0 to 1.3 out, and were moved out through the nearer faces to 1.54. Those
+walls took no light past the first bounce, and the corridor's probe of the first cascade read
+nothing on any face where a path-traced reference of 256 paths a way read 0.015 to 0.125. With the
+lamp that lights the thin room's wall 30 units off through the opening switched off, a light past
+the field's edge the reference sees and the field does not, the probe's first bounce read 62% over
+its reference and every bounce 65 to 92% under, the light past the first bounce lost. A spot of a
+cascade above the first that stands in or beside a wall between a space narrower than its spacing
+along two axes and a wider one goes into the narrow one, through the wall's farther face, the second
+cascade's probes there standing at z of 0.66 and -0.66, the two by the opening 16 and 3% under a
+path-traced reference of the light arriving at them from every way and the next one in 30% under.
+The corridor at 800 by 450 against a reference of 1,024 paths a pixel:
+
+| | Walls | Ceiling | Floor | Distance to the reference |
+|---|---|---|---|---|
+| `High`, before | −67%, −69% | −52% | −54% | 0.0039 |
+| `High`, after | −67%, −67% | −42% | −48% | 0.0032 |
+| `Low`, before | −72%, −73% | −62% | −49% | 0.0041 |
+| `Low`, after | −54%, −53% | −44% | −46% | 0.0039 |
+
+Every other view of `shaders_bounce_rooms` read the same distance at both qualities but the strip's
+room at `High`, 1.0% further, where the Cornell box's and the strip's rooms' views at `High` move by
+up to 1% with the trace's text changed alone, a line of comment or a barrier more, the compiled
+code's own spread; global illumination took 1.79 to 1.83 ms in the corridor at 1920 by 1080 at
+`High` where 2.23 to 2.24, the second cascade's rays meeting its walls sooner than the open air
+outside, and 2.39 to 2.42 in the Cornell box where 2.38 to 2.43. Moving the first cascade's probes
+so as well took the Cornell box's view at `Low` 1.4% further from its reference, and moving them
+into a space narrow along one axis alone the strip's room's 0.3%. Moving a probe the field's normal
+leaves within its clearance to the most open point within its reach took the window's room 5 and 16%
+further at `High` and `Low`, the grazing floor 15%, and the wheat room's pixels under 0.6 of its
+reference from 2,475 to 2,895, so it is not kept. That room's dark round patches stand under probes
+of the first cascade over the middles of its half-unit squares, their faces within 13 to 21% of the
+reference, and the placement leaves them, 2,475 pixels. The voxel game's rain forest pocket at seed
+1 at noon with the game's shading off reads its leaves' sides two to four times its reference
+crossing the leaves, so they take the light that reaches them, and every region of the view reads
+against it as before with the placement.
+
 **The screen's probes on thin two-sided walls, read on 2026-10-26.** In a room built as the voxel
 game's wheat field, thin two-sided walls a block tall four to a block, half a unit apart, under the
 game's sun at ten in the morning, the walls facing the eye and the sun read 44% over a path-traced
@@ -2874,7 +2913,11 @@ BounceRoomsTests with its bounds at zero), or cost more than it gave, or left th
   face brought probes inside whose rays meet the walls before their interval begins and widened the
   corridor's view by 0.002 to 0.006, and tracing the first cascade's rays on where they see no probe
   above lit its probes to 86% under where 100%, the view moving by 0.005 at most, at 0.01 to 0.06
-  ms.
+  ms. Since 2026-10-31 a spot of the cascades above the first, in or beside a wall between a space
+  narrower than the spacing along two axes and a wider one, goes into the narrow one through the
+  wall's farther face (`placed` in `gi_trace.slang`), which takes the corridor's walls at `Low` to
+  54 and 53% under, its view 5% nearer its reference at `Low` and 18% at `High`, where its walls
+  stand at 67 to 69% under, every other room as it was (the reading below).
 - **The faces' read of light that runs along a surface.** A surface reads the probes' faces along
   its normal alone, so light running along a corridor, which its probes hold in the faces toward its
   ends, reaches its walls and floor only where a surface faces it, the mid-corridor probe's face

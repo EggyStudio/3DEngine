@@ -134,24 +134,73 @@ SceneFieldInfo gatheredAt()
     return then;
 }
 
+// Whether the open space at p is narrower than `apart` along two axes or three, a surface within it
+// either way, as a corridor's inside is across it and up it.
+bool narrowAt(float3 p, float apart)
+{
+    int narrow = 0;
+    for (int axis = 0; axis < 3; axis++)
+    {
+        float3 way = float3(0.0);
+        way[axis] = 1.0;
+        if (traceFieldSheets(SheetVolume(sceneField, fieldSecond), fieldInfo, p, way, 0.0, apart) >= 0.0
+            && traceFieldSheets(SheetVolume(sceneField, fieldSecond), fieldInfo, p, -way, 0.0, apart) >= 0.0)
+            narrow++;
+    }
+    return narrow >= 2;
+}
+
 // Where the probe whose spot in the grid is at stands, moved off a surface nearer than Clearance of
 // the spacing, or out of a mesh, along the field's normal, by MostMoved of the spacing at most, as
-// its move in its spacing, with w 1 where it then stands outside every mesh.
+// its move in its spacing, with w 1 where it then stands outside every mesh. Above the first
+// cascade, a spot in or beside a wall between a space narrower than the spacing and a wider one
+// goes into the narrow one, through the wall's farther face, since the wider holds the probes
+// beside it and the narrow one would hold none. A corridor two units wide and two and a half high
+// in walls 0.3 thick held no probe of the cascades spaced 2.4 and more, the spots of the second in
+// its walls moved out through their nearer faces, so the walls by its open end, past the first
+// cascade's reach, took no light past the first bounce. Moved in, the corridor's view came 18%
+// nearer its path-traced reference at High and 5% at Low, every other room of shaders_bounce_rooms
+// as it was. Moving the first cascade's probes so as well took the Cornell box's view at Low 1.4%
+// further from its reference, and moving them into a space narrow along one axis alone the strip
+// room's 0.3%.
 float4 placed(float3 at, float apart)
 {
+    SheetVolume sheets = SheetVolume(sceneField, fieldSecond);
     float3 p = at;
-    for (int step = 0; step < 4; step++)
+    float d = fieldDistanceSheet(sheets, fieldInfo, p);
+    float3 normal = fieldNormalSheet(sheets, fieldInfo, p);
+    bool near = d < Clearance * apart;
+    for (int step = 0; step < 4 && d < Clearance * apart; step++)
     {
-        float d = fieldDistanceSheet(SheetVolume(sceneField, fieldSecond), fieldInfo, p);
-        if (d >= Clearance * apart)
-            break;
-        p += fieldNormalSheet(SheetVolume(sceneField, fieldSecond), fieldInfo, p) * (Clearance * apart - d);
+        p += fieldNormalSheet(sheets, fieldInfo, p) * (Clearance * apart - d);
         float3 move = p - at;
         float length = length(move);
         if (length > MostMoved * apart)
             p = at + move * (MostMoved * apart / length);
+        d = fieldDistanceSheet(sheets, fieldInfo, p);
     }
-    return float4((p - at) / apart, fieldDistanceSheet(SheetVolume(sceneField, fieldSecond), fieldInfo, p) >= 0.0 ? 1.0 : 0.0);
+    if (near && push.cascade.x >= 1u)
+    {
+        // Past the farther side of what the spot stands in or beside, the first point clear by
+        // Clearance once the way has crossed a surface.
+        float least = fieldDistanceSheet(sheets, fieldInfo, at);
+        for (int k = 1; k <= 8; k++)
+        {
+            float3 q = at - normal * (MostMoved * apart * float(k) / 8.0);
+            float dq = fieldDistanceSheet(sheets, fieldInfo, q);
+            least = min(least, dq);
+            if (least <= 0.0 && dq >= Clearance * apart)
+            {
+                if (narrowAt(q, apart) && !narrowAt(p, apart))
+                {
+                    p = q;
+                    d = dq;
+                }
+                break;
+            }
+        }
+    }
+    return float4((p - at) / apart, d >= 0.0 ? 1.0 : 0.0);
 }
 
 groupshared float3 nearNow[32];

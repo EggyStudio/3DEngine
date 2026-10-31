@@ -20,6 +20,25 @@ keeping the plane of the wall nearest it, dark round patches where the world's p
 the crossings, and below with a second plane kept where two walls lie as near a cell, the patches
 beside the near crossing softer and the one at it standing.
 
+![](.github/assets/readings/2026-10-31-item-136-canopy.webp)
+The floor under a canopy of leaf blocks two and a half units up at High at 640 by 384, its light
+four times, global illumination's frame beside the path-traced reference and the difference, red
+where the frame is brighter, above against the reference crossing the leaves, in the middle against
+one holding them solid, and below with a solid canopy, the floor under the leaves brighter in the
+frame than either.
+
+![](.github/assets/readings/2026-10-31-item-136-grove-floor.webp)
+The grove's floor under the left cherry crown at twice the size, its light twice as bright, the
+frame beside the reference crossing the leaves and the one holding them solid, with the boxes read,
+A the floor under the crown, B by the trunk, C a tree's sunlit side, D the floor in front and E a
+crown's underside.
+
+![](.github/assets/readings/2026-10-31-item-136-grove.webp)
+The voxel game's cherry grove at seed 1 at High at 1280 by 720 with the game's shading off, the
+frame and the shot beside the path-traced reference crossing the leaves above and the one holding
+them solid below, with their differences, the crowns' tops alike against the first and brighter in
+the second, the grass and petals in the frame alone.
+
 Double-sided faces held by their planes in the scene field, read on the engine's tree against
 `2ad96a80` on an RTX 4070 Laptop GPU under tuned's `powersave-bazzite`, in item 89's wheat room,
 eight by eight blocks of four double-sided walls a block tall half a unit apart under the game's sun
@@ -87,6 +106,54 @@ room of sheets took 0.048 of the sky's light at Low and 0.0085 at High where 0.0
 the grove's global illumination 5.66 to 5.68 ms where 5.65 to 5.68 with one plane, the second read
 costing nothing the frames show.
 
+The path-traced reference crossing what lets light through, read on the engine's tree against
+`10295556` on an RTX 4070 Laptop GPU under tuned's `powersave-bazzite`, in the canopy of leaf blocks
+`GlobalIlluminationTests` reads and in the voxel game's cherry grove, each against the reference
+before this item, which held every surface solid.
+
+A path after the camera's first ray that meets a copy letting light through goes on past it by the
+share to the power of its depth along the ray, drawn by a random number, and meets it as a solid
+face otherwise. The depth runs from the face it enters by to the nearest face the copy turns out
+along the ray, or to another copy's face nearer, as a trunk among leaves, and a sheet with no face
+to leave by has none. A floor under a black slab a unit thick and eighty across letting half through
+a unit, lit by the sky alone, took 0.3358 of the open floor's light, where the slab's depth along
+each way gives 0.3354 and the ways past its edge 0.0006 more.
+
+The canopy at 640 by 384 in linear light, twenty blocks a side and two deep, each letting half
+through a unit, under a sky of the test's blue, 256 paths a pixel, the floor read in the box the
+test reads at the point 0, 0, -1:
+
+| | Open | Solid | Letting half through | Share let through |
+|---|---|---|---|---|
+| Reference, 2.5 up | 0.1092 | 0.0061 | 0.0237 | 0.17 |
+| High, 2.5 up | 0.1158 | 0.0096 | 0.0396 | 0.28 |
+| Low, 2.5 up | 0.1169 | 0.0084 | 0.0276 | 0.18 |
+| Reference, 5.5 up | 0.1092 | 0.0262 | 0.0435 | 0.21 |
+| High, 5.5 up | 0.1158 | 0.0230 | 0.0463 | 0.25 |
+
+The reference that held the leaves solid read 0.0061 and 0.0262 under them, so High read 6.5 and
+1.8 times it there, and against the reference crossing them 67% and 6% over. High lets 65% more
+of the sky through than the reference two and a half up, and the test's bounds there, 0.25 to 0.35,
+hold what High read; Low reads within 4%. Five units further back under the canopy the floor reads
+0.0477 at High where the reference 0.0205.
+
+In the voxel game's cherry grove at seed 1 at 1280 by 720, built from the game at `8a1e308` on
+5.2.333 with the tree's engine in Release, at four in the afternoon at 12 columns with the game's
+shading off, 256 paths a pixel:
+
+| | Against the reference crossing the leaves | Against the one holding them solid |
+|---|---|---|
+| The crowns' tops, the most pixels | 0% | -9% |
+| The floor under the left crown | -8% | +5% |
+| The floor in front | +17% | +28% |
+| A crown's underside | +20% | +37% |
+| Every region | +5% | -3% |
+| Each pixel's difference in red, on the mean | 0.058 | 0.140 |
+
+The grass and petals on the floor are drawn without the field and so are in the frame alone, which
+lights the floor in front over either reference. The reference took 1.9 s where 0.6, its pipeline
+made among it.
+
 The scene field's work as the voxel game's eye crosses a section, read on the engine's tree against
 `fdde73b2` built in Release and put into the game at `8a1e308` on 5.2.333, on an RTX 4070 Laptop GPU
 under tuned's `powersave-bazzite`. The eye flew at 90 over seed 1's spawn at noon looking east, at
@@ -139,11 +206,12 @@ held 304 and 352 MiB in each build's two rounds alike. At the cherry grove read 
 illumination took 6.78 to 6.82 ms without and 6.80 to 6.81 with, the scene pass 9.7 to 10.3 either
 way, and the frames lay 0.07 of 255 apart on the mean.
 
-The field holding what the shadows hold changes item 101's meaning by the reviewer's call, since a surface blocks light whether it is drawn or not. A cave under rock the
-eye cannot see keeps the sky's light off its floor in global illumination as the shadows keep the
-sun off it, and a section the flood hides as the eye crosses stays in the field. A room of walls
-under a roof drawn into the shadow maps alone, the new test's, read 0.0001 inside as under a roof
-drawn, where with the roof left out of the field 0.058, the open ground's whole.
+The field holding what the shadows hold changes item 101's meaning by the reviewer's call, since a
+surface blocks light whether it is drawn or not. A cave under rock the eye cannot see keeps the
+sky's light off its floor in global illumination as the shadows keep the sun off it, and a section
+the flood hides as the eye crosses stays in the field. A room of walls under a roof drawn into the
+shadow maps alone, the new test's, read 0.0001 inside as under a roof drawn, where with the roof
+left out of the field 0.058, the open ground's whole.
 
 The suite's time on Linux between `2ad96a80` and `b16f26b5`, read from the two pushes' runs and from
 the classes of the scene field and global illumination run at each commit on lavapipe with the
@@ -210,6 +278,7 @@ GPU's, so it would bear them first, 106 s of the 45 minutes here. No test is cha
 Done that day
 
 - Item 131 at `b16f26b5`. A thin two-sided face holds a narrower band in the scene field.
+- Item 136 at `19658e55`. The path-traced reference knows light through.
 - Item 146 at `10295556`. The field follows the eye without a whole cascade's CPU work in one frame.
 
 ## 2026-10-30
