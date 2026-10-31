@@ -207,6 +207,21 @@ public sealed class TestScriptTests : IDisposable
     }
 
     [NeedsPythonFact]
+    public void A_Class_Named_In_A_Split_Runs_In_A_Process_Of_Its_Own_And_The_Rest_Are_Dealt_Without_It()
+    {
+        // As the Windows runner's first half of Rendering took 67 of its 70 minutes, 54 of them
+        // global illumination's one class, which no deal of the classes by name keeps apart.
+        var (exit, log) = Script("--parts", "--split", "Rendering=2+Lighting", "--dotnet", $"{Probes.Python.Value} 3DEngine.Tests/Scripts/dotnet_standin.py",
+            "--results", _folder.Path);
+
+        exit.Should().Be(0);
+        File.ReadAllLines(_folder.File("digest.md"))[0].Should().Contain("80 passed, 0 failed, 0 skipped, 0 without a result", "each test runs in one process");
+        Lines(log).Should().Contain(line => line.StartsWith("Rendering Lighting: 5 passed", StringComparison.Ordinal), "the class named runs alone")
+            .And.Contain(line => line.StartsWith("Rendering 1: 30 passed", StringComparison.Ordinal), "the rest are dealt by their names, Drawing first")
+            .And.Contain(line => line.StartsWith("Rendering 2: 5 passed", StringComparison.Ordinal), "and the last takes what the others leave but the class named");
+    }
+
+    [NeedsPythonFact]
     public void A_Whole_Run_Lost_To_Its_Time_Whose_Parts_Give_Every_Test_A_Passing_Result_Passes_With_A_Notice()
     {
         // As the pack run of 448aa3fc's Windows suite ran out its hour 1,302 tests in, its parts

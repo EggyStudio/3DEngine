@@ -3,6 +3,7 @@
 
     build/test.py [PART ...] [--parts] [--no-build]    # the suite whole, or parts of it by name
     build/test.py --parts --split Rendering=2          # a part run in two processes by its classes
+    build/test.py --parts --split Rendering=2+Glow     # and its class Glow in a process of its own
     build/test.py --shuffle-seed N                     # and the suite once more, shuffled by a seed
     build/test.py --read DIR                           # the page of results already in a folder
     build/test.py --digest DIR ...                     # one page from several systems' digests
@@ -20,7 +21,10 @@ short of its end goes on from where it was rather than starting over. A part is 
 `Engine.Tests.` that holds thirty tests or more, as `Rendering`, and everything else is one more,
 whose filter is the negation of the others, so no test falls between two parts. A part named in
 --split runs in as many processes as it says, its test classes sorted by name and dealt to them in
-turn, the last taking every class the others do not name, so a class added later runs there.
+turn, the last taking every class the others do not name, so a class added later runs there. A
+class named after a + runs in a process of its own, as Rendering=2+GlobalIlluminationTests, and is
+dealt to none of the others, so a class that takes as long as the rest of its part together does
+not hold them back past their limit.
 
 The page has the run's counts, the lost processes, the failures by cause, the most frequent first,
 and the lines logged as warnings or errors, or with no level, that the output repeated most, left
@@ -397,24 +401,32 @@ def list_tests(dotnet, args):
 
 def parts_of(names, splits=None):
     """A process for each name after Engine.Tests. that holds PART_SIZE tests or more, as many as
-    splits gives a name, and one for the rest."""
+    splits gives a name, as 2 or 2+SomeTests, with one more for each class named after a +, and one
+    for the rest."""
     counts = Counter(segment(name) for name in names)
     large = sorted(name for name, count in counts.items() if count >= PART_SIZE and name)
     parts = []
     for name in large:
-        pieces = (splits or {}).get(name, 1)
-        if pieces <= 1:
+        pieces, *alone = str((splits or {}).get(name, 1)).split("+")
+        pieces = int(pieces)
+        classes = sorted({class_of(test) for test in names if segment(test) == name})
+        alone = [c for c in alone if c in classes]
+        if pieces <= 1 and not alone:
             part = Process(name, f"FullyQualifiedName~{PREFIX}{name}.")
             part.part = name
             parts.append(part)
             continue
-        classes = sorted({class_of(test) for test in names if segment(test) == name})
-        dealt = [classes[k::pieces] for k in range(pieces)]
+        for c in alone:
+            part = Process(f"{name} {c}", f"FullyQualifiedName~{PREFIX}{name}.{c}.")
+            part.part, part.classes = name, {c}
+            parts.append(part)
+        rest = [c for c in classes if c not in alone]
+        dealt = [rest[k::max(1, pieces)] for k in range(max(1, pieces))]
         for k, held in enumerate(dealt[:-1]):
             part = Process(f"{name} {k + 1}", "|".join(f"FullyQualifiedName~{PREFIX}{name}.{c}." for c in held))
             part.part, part.classes = name, set(held)
             parts.append(part)
-        taken = [c for held in dealt[:-1] for c in held]
+        taken = alone + [c for held in dealt[:-1] for c in held]
         part = Process(f"{name} {pieces}", "&".join([f"FullyQualifiedName~{PREFIX}{name}."] + [f"FullyQualifiedName!~{PREFIX}{name}.{c}." for c in taken]))
         part.part = name
         parts.append(part)
@@ -837,8 +849,8 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     parser.add_argument("parts", nargs="*", help="names after Engine.Tests. to run, each a process, as Rendering")
     parser.add_argument("--parts", dest="all_parts", action="store_true", help="run the suite in its parts, each a process")
-    parser.add_argument("--split", action="append", default=[], metavar="PART=N",
-                        help="run a part in N processes by its test classes, as Rendering=2")
+    parser.add_argument("--split", action="append", default=[], metavar="PART=N[+CLASS...]",
+                        help="run a part in N processes by its test classes, as Rendering=2, each class named after a + in one of its own")
     parser.add_argument("--no-build", action="store_true", help="pass --no-build to dotnet test")
     parser.add_argument("--read", metavar="DIR", help="write the page of the results already in DIR")
     parser.add_argument("--digest", metavar="DIR", nargs="+", help="one page from the digest.json in each DIR")
@@ -883,7 +895,7 @@ def main():
             os.remove(os.path.join(results, name))
     dotnet = shlex.split(args.dotnet, posix=os.name != "nt")
 
-    splits = {name: int(count) for name, count in (given.split("=", 1) for given in args.split)}
+    splits = dict(given.split("=", 1) for given in args.split)
     started = time.monotonic()
     processes, listed = [], []
     if args.parts:

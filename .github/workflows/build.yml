@@ -160,10 +160,12 @@ jobs:
     # step took 50 to 94 minutes on four pushes of the same suite, the slowest on f0574e89 with the
     # Rendering halves at 46 and 38 minutes where 89154675's, run some hours before, took 24 and 18,
     # and it ran out a push's 100 with the game's steps after it cut short. The pack run of that day
-    # took 58 minutes for the suite and 33 for the twelve games. So a push, which plays Slide alone,
-    # has 150, and the pack run 240, the slowest suite seen and the games' step at its own 110 with
-    # the builds between, the suite's parts held to 70 each below.
-    timeout-minutes: ${{ inputs.pack && 240 || 150 }}
+    # took 58 minutes for the suite and 33 for the twelve games. A push took 98 to 139 minutes on
+    # the four of 2026-10-31 after 74 the push before, the suite's two Rendering parts 30 to 67
+    # minutes where 21 and 34. So a push, which plays Slide alone, has 180, and the pack run 240,
+    # the slowest suite seen and the games' step at its own 110 with the builds between, the suite's
+    # parts held to 70 each below.
+    timeout-minutes: ${{ inputs.pack && 240 || 180 }}
     defaults:
       run:
         shell: bash
@@ -249,8 +251,11 @@ jobs:
       # Rendering part runs in two processes by its classes, since whole it ran out its 70 minutes
       # 420 and 374 tests in on two runners of the same code, the same tests half again as slow on
       # the second, where on Linux's lavapipe with Mesa's cache off it takes 44 minutes, its halves
-      # 24 and 20.
-      - run: python build/test.py --no-build --parts --split Rendering=2 --timeout-minutes 70 --hang-minutes 10
+      # 24 and 20. Global illumination's class runs in a third of its own, since the half holding it
+      # took 64 to 67 of its 70 minutes on three pushes of 2026-10-31, and on Linux's lavapipe the
+      # class takes 12.8 of that half's 17.5 minutes, which no deal of the classes by their names
+      # keeps apart. The other two take 11.4 and 10.7 there.
+      - run: python build/test.py --no-build --parts --split Rendering=2+GlobalIlluminationTests --timeout-minutes 70 --hang-minutes 10
         env:
           E3D_REQUIRE_VALIDATION: '1'
           E3D_REQUIRE_VULKAN: '1'

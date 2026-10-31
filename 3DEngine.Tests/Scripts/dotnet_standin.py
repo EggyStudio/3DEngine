@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """Stands for dotnet in the tests of build/test.py, so they need no dotnet and no suite.
 
-Its tests are 40 under Rendering, 35 under Api and 5 of NormTests. Asked for them with
+Its tests are 40 under Rendering, 30 of the class Drawing and 5 each of Lighting and Shadows, 35
+under Api and 5 of NormTests. Asked for them with
 --list-tests it lists them. Asked to run them with no filter, as the suite whole, it does what
 E3D_STANDIN says: hang, grow until it is ended, or die with exit code 134, leaving a minidump where
 the runtime is asked to and saying, as createdump does, the thread it crashed on and its signal, or
@@ -18,7 +19,9 @@ import os
 import sys
 import time
 
-TESTS = ([f"Engine.Tests.Rendering.Drawing.Draws_{i}" for i in range(40)]
+TESTS = ([f"Engine.Tests.Rendering.Drawing.Draws_{i}" for i in range(30)]
+         + [f"Engine.Tests.Rendering.Lighting.Shines_{i}" for i in range(5)]
+         + [f"Engine.Tests.Rendering.Shadows.Falls_{i}" for i in range(5)]
          + [f"Engine.Tests.Api.Calls.Answers_{i}" for i in range(35)]
          + [f"Engine.Tests.NormTests.N_1_{i}" for i in range(5)])
 
