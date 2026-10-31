@@ -74,7 +74,9 @@ surface, and a mesh with it false casts its shadow all the same, as
 [The scene as a distance field](#the-scene-as-a-distance-field) says. A game that draws only what
 its view can see, as the voxel game leaves out the rock over a cave, draws what it leaves out
 between the view and the sun through a material with `ShadowOnly` set, which casts the shadow and
-is drawn nowhere else, so the sun stays off the cave's floor.
+is seen nowhere, so the sun stays off the cave's floor. The scene's field holds it as any other
+surface, since rock blocks light whether it is drawn or not, so the sky's light stays off the floor
+too.
 
 ```csharp
 SetBloom(0.8f);

@@ -1,60 +1,48 @@
 # Review
 
-Reviewed up to `b16f26b5`, item 131's first commit, pushed at 02:53 on 2026-10-31 after the run of
-`2ad96a80` went green whole, its run cancelled at 03:51 on Linux alone, the suite past test.py's
-40-minute limit and the job past its 100, Verdict 95, Windows and macOS green, the plane a cell as
-recorded under the item with a note and picture, traceField moved into scenefield.slang, a test pair
-for a sheet met wherever it lies and a closed room of sheets dark; 2,137 on the GPU in both orders,
-79 on lavapipe with validation. After it `fdde73b2`, 131's second commit, held for Verdict 95's
-mend, the two to go together, the splat keeping a second double-sided face of another way within
-three quarters of a cell and the resolve writing its plane into an image of its own, the probes'
-rays, placement and hit normals reading both through SheetVolume, GpuSceneField in a file of its
-own, a test of a point beside either sheet about a crossing met where the first plane alone read
-0.095; the wheat walls -0.4% with the screen probes and -2.9 and -1.6 without, the sheet room 0.048
-and 0.0085, the second fetch costing nothing measurable, the patch at the near crossing standing as
-a lead for item 137. 2,138 on the GPU in both orders, 80 on lavapipe. Before it `2ad96a80`, item
-135, pushed at 22:13 on 2026-10-30 after the run of `e96a6bb8` went green whole, its run green whole
-at 23:28 with Windows in 74 minutes, Linux in 68 and macOS in 35, carrying a Shared line, a note and
-a captioned picture. Each screen probe's rays leave from the next of sixteen places in their texels
-every frame and a first pass of the filter keeps each probe's light over up to sixteen frames,
-reprojected as before, the blend running on the kept light, the device code in
-GraphicsDevice.ScreenProbes.cs. Two departures, no world grid since panning and the game's
-half-block step read no change added by the probes past the movement's own, and a probe keeping
-fewer frames where its kept light lies past three times its like neighbors' error, since a flat
-sixteen read the canopy's floor at 0.167 where 0.25 to 0.35. The bounce rooms' spots fall from 11,
-6, 9, 10, 4, 17, 24, 6 and 4 to 5, 4, 8, 5, 4, 4, 16, 5 and 4 and the plank room's from 5 to 2; a
-still view's change at the 99th part reads 0.07 to 2.6% where under 0.2, the plank room's 0.021
-levels a frame where 0.002, a thing for the owner's eye; the distances to the references within
-their bounds, 8 of 18 nearer and 6 further by 0.012 at most; the cost in the plank room at 1080p
-2.70 to 2.75 ms where 2.61 to 2.69. 2,135 on the GPU in both orders, 49 on lavapipe with validation.
-Before it `e96a6bb8`, pushed with `c3214cbe` at 19:52 on 2026-10-30, its run green whole at 21:51,
-Windows in 119 minutes, Linux in 44 and macOS in 33. `c3214cbe` is item 134, a resize asked before
-the first frame carried out at once past the debounce a load held back, with a test and the window
-guide's line, and AGENTS.md's REVIEW.md line as the owner asked. `e96a6bb8` is item 132's reading
-with no mend, the note 2026-10-30-item-132-recording.md; at 12 columns 5.6 to 6.5 ms of the four
-passes' 9.6 to 11.5 is a descriptor set made and written for every draw in every pass, about 2,045 a
-frame at 2.8 to 3.2 microseconds each with every section's set holding the same values, and one set
-a frame in a scratch copy takes the passes to 5.1 ms at 12 and from 18.4 to 19.7 to 7.6 at 16, the
-frame at 16 from 26.6 to 17.9 ms, the land's pixels within 0.08 of 255. 2,135 on the GPU in both
-orders, the resize tests on lavapipe with validation. Before it `1703c54e`, item 97, pushed by the
-owner's hand at 16:54 on 2026-10-26 while the sessions were paused until 2026-10-30, its run green
-whole at 19:33 with Windows in 99 minutes. The ninth pack run started with publish on at 18:41 on
-2026-10-30, since the owner sees item 97's specks in the voxel game and its package lacked the mend;
-the run went green whole at 21:05, Windows in 101 minutes and the games in 71, the package 5.2.333
-pushed to nuget.org with items 97, 129, 130, 89, 95, 91 and 93, the game told. Before it on
-2026-10-26, each green but where said: `987f07ae` (Verdict 94's mend) with `969a1b08` (item 129);
-`7ff7bbdd` (130), red on the examples job alone, Verdict 94; `b05b32da` (89); `0a4ad922` (the
-README's quick links); `5528c55c` (95); `d207627e` (91), `bb542fa4` (93) and `0754b975` (128), the
-eighth pack run publishing 5.2.326 at 13:13; `2f5237f2` (127); `78946b22` (112), the seventh pack
-run publishing 5.2.322 at 09:14; `7af16fcd` (Verdict 93's mend); `45edfbf6` (111); `a16227a7` (100),
-the sixth pack run publishing 5.2.319 at 04:21 on its second attempt. Each commit's detail stands in
-its item in REVIEW-ARCHIVE.md, its devlog note and its own words. On 2026-10-30 at 18:0x the owner
-wrote the README's new words (item 133) and the focus on radiance cascades (Decision 74), questions
-asked back, and asked that the sessions spend fewer tokens at the same quality, N 7.7.
+Reviewed up to `da54d289`, item 146's first commit, pushed at 07:23 on 2026-10-31 with `7bdfaa9e`,
+Verdict 95's mend, and `fdde73b2`, item 131's second commit, after the run of `b16f26b5` ended
+cancelled, its run awaited. `da54d289` keeps the field's pool of triangles for the build's meshes,
+each mesh's open edges kept once found and the parts cut with a sort by keys, SceneField.Pool.cs
+with a note; the step test's frames at 12 columns 40 ms at their 99th part to 25 and 42 at the
+slowest to 28, at 8 columns 25 to 14 and 30 to 20, the field's content unchanged. `7bdfaa9e` makes
+test.py read a test ended in under a millisecond as ended, run again only the tests a lost run left,
+hold the Linux job to 150 minutes and each of its runs to 90, and names item 131's tests in a note.
+`fdde73b2` keeps a second double-sided face of another way in a cell where two walls cross, recorded
+under item 131 in REVIEW-ARCHIVE.md. Before it `b16f26b5`, item 131's first commit, pushed at 02:53
+on 2026-10-31, its run cancelled at 03:51 on Linux alone past test.py's 40-minute limit and the
+job's 100 (Verdict 95), Windows and macOS green, the plane a cell recorded under item 131 in
+REVIEW-ARCHIVE.md. Before it `2ad96a80`, item 135, pushed at 22:13 on 2026-10-30, its run green
+whole at 23:28 with Windows in 74 minutes, Linux in 68 and macOS in 35, the screen probes' jittered
+rays and sixteen-frame history recorded under the item in REVIEW-ARCHIVE.md. Before it `e96a6bb8`,
+pushed with `c3214cbe` at 19:52 on 2026-10-30, its run green whole at 21:51, Windows in 119 minutes,
+Linux in 44 and macOS in 33. `c3214cbe` is item 134, a resize asked before the first frame carried
+out at once past the debounce a load held back, with a test and the window guide's line, and
+AGENTS.md's REVIEW.md line as the owner asked. `e96a6bb8` is item 132's reading with no mend, the
+note 2026-10-30-item-132-recording.md; at 12 columns 5.6 to 6.5 ms of the four passes' 9.6 to 11.5
+is a descriptor set made and written for every draw in every pass, about 2,045 a frame at 2.8 to 3.2
+microseconds each with every section's set holding the same values, and one set a frame in a scratch
+copy takes the passes to 5.1 ms at 12 and from 18.4 to 19.7 to 7.6 at 16, the frame at 16 from 26.6
+to 17.9 ms, the land's pixels within 0.08 of 255. 2,135 on the GPU in both orders, the resize tests
+on lavapipe with validation. Before it `1703c54e`, item 97, pushed by the owner's hand at 16:54 on
+2026-10-26 while the sessions were paused until 2026-10-30, its run green whole at 19:33 with
+Windows in 99 minutes. The ninth pack run started with publish on at 18:41 on 2026-10-30, since the
+owner sees item 97's specks in the voxel game and its package lacked the mend; the run went green
+whole at 21:05, Windows in 101 minutes and the games in 71, the package 5.2.333 pushed to nuget.org
+with items 97, 129, 130, 89, 95, 91 and 93, the game told. Before it on 2026-10-26, each green but
+where said: `987f07ae` (Verdict 94's mend) with `969a1b08` (item 129); `7ff7bbdd` (130), red on the
+examples job alone, Verdict 94; `b05b32da` (89); `0a4ad922` (the README's quick links); `5528c55c`
+(95); `d207627e` (91), `bb542fa4` (93) and `0754b975` (128), the eighth pack run publishing 5.2.326
+at 13:13; `2f5237f2` (127); `78946b22` (112), the seventh pack run publishing 5.2.322 at 09:14;
+`7af16fcd` (Verdict 93's mend); `45edfbf6` (111); `a16227a7` (100), the sixth pack run publishing
+5.2.319 at 04:21 on its second attempt. Each commit's detail stands in its item in
+REVIEW-ARCHIVE.md, its devlog note and its own words. On 2026-10-30 at 18:0x the owner wrote the
+README's new words (item 133) and the focus on radiance cascades (Decision 74), questions asked
+back, and asked that the sessions spend fewer tokens at the same quality, N 7.7.
 
-Next 146, the field's move on a crossing, and the cascades in order after, and 133 when the owner
-answers on its mark, 135, 131, 136, 137, 138, 139, 140, 141 and 142 (Decision 75); 132, 143, 144 and
-145 wait behind them.
+Next 146's second commit, ShadowOnly draws kept in the field, and the cascades in order after, and
+133 when the owner answers on its mark, 135, 131, 136, 137, 138, 139, 140, 141 and 142 (Decision
+75); 132, 143, 144 and 145 wait behind them.
 
 Items done and verdicts settled before 2026-10-23 stand in REVIEW-ARCHIVE.md beside this file, their
 numbers kept, moved there at 19:30 on 2026-10-23 so this file holds the current work alone and is
@@ -983,6 +971,15 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     off a cave under hidden rock as the shadows do, and if the field's build and memory bear it on
     the game at 12 columns, a second commit does it, item 101's meaning changed by the reviewer's
     call, open to the owner's word. No slab spreading or scrolling, the move not being the cost.
+    First commit `da54d289`, read at 07:24. The pool holds the build's meshes, open edges kept once
+    found, the parts cut with a sort by keys, SceneField.Pool.cs; the step test over two rounds at
+    12 columns reads the 99th part 40.0 and 39.1 ms to 24.8 and 24.5, the slowest 42.6 and 41.2 to
+    28.7 and 26.4, the median 20.7 to 16.9 and 16.1, at 8 columns the 99th part 25.4 and 25.8 to
+    13.7 and 13.6; the grove's frames 0.05 of 255 apart on the mean, global illumination 6.82 ms
+    either way, the bounce rooms' tests as they were. A section that comes back where it stood is
+    still stamped as its parts, left since the second commit, ShadowOnly draws kept in the field,
+    stops the leaving and coming back; if that commit does not land, the settled return comes back
+    into this item. The second commit's cost reading awaited.
 
 133. **The README's words under the header are the owner's.** The owner wrote on 2026-10-30 that
     below the README's header stands "A C# engine on SDL3, Vulkan, ImGui and Slang. Raylib's design
@@ -1045,7 +1042,7 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
 
 ## Verdicts
 
-Verdicts 56 to 94 are settled, said under each in REVIEW-ARCHIVE.md; 95 is open.
+Verdicts 56 to 94 are settled, said under each in REVIEW-ARCHIVE.md; 95 is open, mended at `7bdfaa9e`.
 
 95. **The run of `b16f26b5` is cancelled on Linux, the suite past test.py's time limit and the job
     past its own.** Read at 04:57 on 2026-10-31. The Linux job's test step ran from 01:54 to 03:33
@@ -1059,7 +1056,13 @@ Verdicts 56 to 94 are settled, said under each in REVIEW-ARCHIVE.md; 95 is open.
     to 90, since the Actions bill is no concern, reads which tests grew between `2ad96a80` and
     `b16f26b5` and names them in a note, and makes test.py's run after a time kill go on from the
     last test that ended rather than start the parts over, if that is what it does. Small, first,
-    the commit going with `fdde73b2`.
+    the commit going with `fdde73b2`. Mended at `7bdfaa9e`, read at 07:24 on 2026-10-31. test.py's
+    line for an ended test did not take `[< 1 ms]`, so 508 fast tests had no result and every part
+    holding one ran again from its start, Rendering's 529 for 35 minutes; it takes them, a part run
+    again runs the tests the lost run left alone, the Linux job holds 150 minutes and each of its
+    runs 90, and the note reads item 131's closed room of sheets at 39 and 26 s new and the global
+    illumination classes 6 to 8% slower, nine classes 42.0 to 45.3 minutes. Settled when the run of
+    `da54d289` goes green.
 
 ## Decisions
 
@@ -1211,3 +1214,9 @@ and the probe keeps up to sixteen frames of its light before the window's filter
 kept light lies past three times the error of its like neighbors' blend, which took the bounce
 rooms' still spots from 4 to 24 a view to 4 to 17, a still view's change at its 99th part 2.6% at
 most (item 135).
+
+Shared: a mesh drawn into the shadow maps alone is held in the scene's field as any other, so a cave
+under rock the view leaves out keeps the sky's light off its floor as the shadows keep the sun off,
+and the field's pool of triangles holds the build's meshes with each mesh's open edges kept once
+found, which took the voxel game's frames at their 99th part from 40 ms to 25 as its eye crossed
+sections at 12 columns (item 146).

@@ -192,8 +192,9 @@ among them, so a mesh looks the same drawn as an entity as through `DrawMesh`. A
 or a stream of its own, is drawn as it is, given as `new Mesh(UploadMesh(...))`. A `Material` names
 the shader it is drawn with as `Shader`, as `DrawMesh` draws with a material's, its uniforms and
 textures as `SetShaderValue` left them before the frame's render stage. `Visible` with false leaves
-an entity out of every pass, and `ShadowOnly` with true draws it into the shadow maps alone, each a
-bool written in place, and the frame profile counts the entities drawn as `entities.drawn`. A
+an entity out of every pass, and `ShadowOnly` with true draws it into the shadow maps alone, the
+scene's field holding it as any other, each a bool written in place, and the frame profile counts
+the entities drawn as `entities.drawn`. A
 `Material` whose `CastsShadows` is false casts no shadow and stands nowhere in the scene's field, as
 glass and water should, and one whose `BouncesLight` is false is left out of the field alone, as
 grass cut out of a texture should, both true as its constructors make it:

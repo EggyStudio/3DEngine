@@ -62,8 +62,10 @@ public record struct ModelMaterial(Color Color, Texture2D Texture = default)
     /// A game that draws only what its eye can see, as the voxel game leaves out the rock over a
     /// cave, leaves it out of the sun's shadow maps too, and the sun reached a cave's floor through
     /// seventy blocks of rock. Drawn through a material with this set, a mesh casts its shadow and
-    /// is drawn into nothing else, not the view, a render texture or a probe's faces, not the
-    /// window's depth that occlusion and global illumination read, and not the scene's field. With
+    /// is drawn into nothing else, not the view, a render texture or a probe's faces, nor the
+    /// window's depth that occlusion and global illumination read. The scene's field holds it as
+    /// any other, since rock blocks light whether it is drawn or not, so global illumination keeps
+    /// the sky's light off the cave as the shadows keep the sun off it. With
     /// <see cref="CastsShadows"/> false as well it draws nothing.
     /// </remarks>
     public bool ShadowOnly { get; set; }

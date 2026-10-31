@@ -6,7 +6,9 @@ namespace Engine;
 /// </summary>
 /// <remarks>
 /// A voxel game's flood leaves out of its view the sections its eye cannot reach, and those over a
-/// cave still keep the sun off its floor, so the game sets this on them where it would hide them. A
+/// cave still keep the sun off its floor, so the game sets this on them where it would hide them.
+/// The scene's field holds the entity as any other, so global illumination keeps the sky's light
+/// off the cave as well, and a section the flood hides as the eye crosses stays in the field. A
 /// bool for the reason <see cref="Visible"/> is one, since the sections it holds change as the eye
 /// moves. An entity with it is not met by the pointer, and one with <see cref="Visible"/> false is
 /// drawn nowhere, shadows included.

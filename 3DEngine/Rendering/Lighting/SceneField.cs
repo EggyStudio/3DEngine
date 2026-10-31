@@ -342,7 +342,7 @@ internal sealed partial class SceneFieldRenderer : IDisposable
         Vector3 Textured(Vector3 color, int texture) => texture != 0 && textures?.AverageColor(texture) is { } average ? color * average : color;
         foreach (ref readonly var draw in draws.Span)
         {
-            if (windowAlone && draw.Target != 0 || !draw.CastsShadow || !draw.BouncesLight || draw.ShadowOnly || draw.Points) continue;
+            if (windowAlone && draw.Target != 0 || !draw.CastsShadow || !draw.BouncesLight || draw.Points) continue;
             if (store.CountedOf(draw.Mesh) is { } counted)
             {
                 if (CountedVertices(device, store, counted) is { } standing)
@@ -366,7 +366,7 @@ internal sealed partial class SceneFieldRenderer : IDisposable
         foreach (var group in draws.Groups)
         {
             var template = group.Template;
-            if (group.Count == 0 || windowAlone && template.Target != 0 || !template.CastsShadow || !template.BouncesLight || template.ShadowOnly || template.Points) continue;
+            if (group.Count == 0 || windowAlone && template.Target != 0 || !template.CastsShadow || !template.BouncesLight || template.Points) continue;
             ModelVertex[] vertices;
             bool skinned;
             if (store.CountedOf(template.Mesh) is { } counted)

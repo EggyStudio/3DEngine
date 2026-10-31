@@ -114,4 +114,63 @@ public sealed partial class SceneFieldTests
         glass.Should().BeGreaterThan((byte)(clear * 3 / 4), "the cube that casts no shadow leaves the floor under the sun lit");
         UnloadModel(slab);
     }
+
+    [NeedsVulkanFact]
+    [Trait("Category", "Render")]
+    public void A_Roof_Drawn_Into_The_Shadow_Maps_Alone_Is_Held_In_The_Field_And_Keeps_The_Sky_Off_The_Room_Under_It()
+    {
+        // A room of walls on a ground under a bright sky, its roof drawn through a material with
+        // ShadowOnly set, as the voxel game draws the rock its eye cannot see. The field holds the
+        // roof as the shadows do, so the sky's light reaches the floor no more than under a roof
+        // drawn as any other, where left out of the field the floor took the sky through it. The
+        // frame's mean light from inside read 0.0001 under either roof on the development machine's
+        // GPU and 0.058 under none, and 0.058 under the roof left out of the field.
+        var config = Config.Default.WithWindow("shadow only roof", 160, 90) with { Headless = true, Offscreen = true, Samples = 1 };
+        UseApp(new App(config).AddPlugin(new DefaultPlugins()));
+        SetSceneField(4, 0.25f, 2);
+        SetGlobalIllumination(GlobalIllumination.Low);
+        var sky = new byte[64 * 32 * 4];
+        for (int i = 0; i < 64 * 32; i++)
+            (sky[i * 4], sky[i * 4 + 1], sky[i * 4 + 2], sky[i * 4 + 3]) = i < 64 * 16 ? ((byte)120, (byte)165, (byte)230, (byte)255) : ((byte)90, (byte)100, (byte)110, (byte)255);
+        SetEnvironmentMap(new Image(sky, 64, 32));
+        var block = LoadModelFromMesh(GenMeshCube(1, 1, 1));
+        var hidden = LoadModelFromMesh(GenMeshCube(1, 1, 1));
+        hidden.Materials[0] = new ModelMaterial(Color.Gray) { ShadowOnly = true };
+        var stone = new Color(150, 150, 150);
+        var renderer = GetApp().World.Resource<Engine.Renderer>();
+        var eye = new Vector3(0.4f, 1.5f, 1.2f);
+        var camera = new Camera3D(eye, eye + new Vector3(-0.3f, -0.8f, -1), Vector3.UnitY, 70);
+        double Seen(Model? roof)
+        {
+            for (int frame = 0; frame < SceneFieldPlan.SettleFrames + 60; frame++)
+            {
+                BeginDrawing();
+                ClearBackground(Color.Black);
+                BeginMode3D(camera);
+                DrawModelEx(block, new Vector3(0, -0.5f, 0), Vector3.UnitY, 0, new Vector3(64, 1, 64), stone);
+                DrawModelEx(block, new Vector3(-3.25f, 1.5f, 0), Vector3.UnitY, 0, new Vector3(0.5f, 3, 7), stone);
+                DrawModelEx(block, new Vector3(3.25f, 1.5f, 0), Vector3.UnitY, 0, new Vector3(0.5f, 3, 7), stone);
+                DrawModelEx(block, new Vector3(0, 1.5f, -3.25f), Vector3.UnitY, 0, new Vector3(6, 3, 0.5f), stone);
+                DrawModelEx(block, new Vector3(0, 1.5f, 3.25f), Vector3.UnitY, 0, new Vector3(6, 3, 0.5f), stone);
+                if (roof is { } shown) DrawModelEx(shown, new Vector3(0, 3.25f, 0), Vector3.UnitY, 0, new Vector3(7, 0.5f, 7), stone);
+                EndMode3D();
+                EndDrawing();
+            }
+            var light = ((GraphicsDevice)renderer.Context.Graphics!).ReadFloats(renderer.RenderWorld.TryGet<BloomRenderer>()!.Decoded!.ColorView.Image);
+            double sum = 0;
+            for (int p = 0; p < 160 * 90 * 4; p += 4)
+                sum += 0.2126 * light[p] + 0.7152 * light[p + 1] + 0.0722 * light[p + 2];
+            return sum / (160 * 90);
+        }
+
+        var open = Seen(null);
+        var drawn = Seen(block);
+        var alone = Seen(hidden);
+        var fields = renderer.RenderWorld.TryGet<SceneFieldRenderer>()!;
+        fields.Drawn.Should().Contain(held => held.Instance.Mesh == hidden.Meshes[0].Id, "the field holds the roof the shadows alone draw");
+        alone.Should().BeLessThan(open * 0.05,
+            $"the roof the shadows alone draw keeps the sky's light off the floor, {alone / open:0.0000} of the open ground's where {drawn / open:0.0000} under one drawn");
+        UnloadModel(block);
+        UnloadModel(hidden);
+    }
 }

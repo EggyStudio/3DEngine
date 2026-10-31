@@ -37,7 +37,7 @@ namespace Engine;
 /// <param name="SubsurfaceThickness">How thick, in world units, the light from behind finds the surface's part at most, or 0 to measure it alone.</param>
 /// <param name="LightThrough">The share of global illumination's light that passes a unit of the surface's depth, 0 for a solid surface.</param>
 /// <param name="BouncesLight">Whether the scene's field, the glow lights and the global illumination reference hold the mesh, which a mesh that moves often is left out of.</param>
-/// <param name="ShadowOnly">Whether the mesh is drawn into the shadow maps and nothing else, as <see cref="ModelMaterial.ShadowOnly"/> says.</param>
+/// <param name="ShadowOnly">Whether the mesh is drawn into the shadow maps and seen nowhere, the scene's field holding it as any other, as <see cref="ModelMaterial.ShadowOnly"/> says.</param>
 internal readonly record struct ModelDraw(int Mesh, Matrix4x4 World, Matrix4x4 ViewProjection, Color Color, int Texture, int Target = 0,
     int Shader = 0, byte[]? Uniforms = null, float Metallic = 0, float Roughness = 0.5f, int NormalMap = 0, float NormalScale = 1,
     int MetallicRoughnessMap = 0, Vector3 Emission = default, int EmissiveMap = 0, int OcclusionMap = 0, float OcclusionStrength = 1,

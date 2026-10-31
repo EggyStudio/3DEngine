@@ -212,10 +212,11 @@ material's base color, normal and metallic-roughness texture assets into `Textur
 triangle without normals is lit by its face's normal, and an indexed vertex by the mean of the
 faces it is a corner of. A material that names a program's shader is drawn as `DrawMesh` draws
 with one, a draw of its own, the shader's values copied once a frame for every entity drawn with
-it. An entity whose `Visible` is false is drawn nowhere, and one whose `ShadowOnly` is true is
-drawn into the shadow maps alone. A thousand meshes of their own, a box each in a grid of 32 by 32
-under a shadowed sun, drawn through `DrawMesh` each frame cost 0.21 to 0.25 ms of the program's calls
-and 0.53 to 0.61 ms of `model_batches`, and as entities standing still 0.15 to 0.19 ms of
+it. An entity whose `Visible` is false is drawn nowhere, and one whose `ShadowOnly` is true is drawn
+into the shadow maps alone and held in the scene's field as any other, since a surface blocks light
+whether it is drawn or not. A thousand meshes of their own, a box each in a grid of 32 by 32 under a
+shadowed sun, drawn through `DrawMesh` each frame cost 0.21 to 0.25 ms of the program's calls and
+0.53 to 0.61 ms of `model_batches`, and as entities standing still 0.15 to 0.19 ms of
 `MeshEntityDraws` and 0.35 to 0.47 ms of `model_batches`, through the engine's shader and through
 `toon.slang` alike, frames of 3.1 to 4.1 ms either way.
 
