@@ -353,7 +353,10 @@ public static partial class E3D
             return default;
         }
         var extent = image.Description.Extent;
-        return new Image(device.ReadPixels(image), (int)extent.Width, (int)extent.Height);
+        if (!GraphicsDevice.HoldsBlocks(image)) return new Image(device.ReadPixels(image), (int)extent.Width, (int)extent.Height);
+        if (device.DecodedPixels(image) is { } decoded) return new Image(decoded, (int)extent.Width, (int)extent.Height);
+        ApiLogger.Warn("LoadImageFromTexture: the GPU unpacks none of the texture's blocks, so nothing is read.");
+        return default;
     }
 
     /// <summary>Whether an image holds pixels, as one loaded or made does.</summary>

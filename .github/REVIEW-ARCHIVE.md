@@ -4448,6 +4448,40 @@ batch.
     22.8 after, so not read, as the note 2026-10-31-item-132-sets.md says. 2,141 on the GPU in both
     orders.
 
+147. **A pass's pipelines are made before the frame that first needs them, and the pipeline cache is
+    kept between runs.** From the voxel game's item 151, its ASKS.md entry of 2026-10-31. The first
+    frame the game sets SetReflectionPlane takes 23.7 to 24.0 s of the wall clock, cpu.mirror 22.5
+    to 23.0 s, the field 2.6 to 6.6 ms, where the frames after read cpu.mirror at 0.9 to 4.6 ms;
+    with the driver's shader cache pointed at a fresh folder a first run read 23.7 s and a second
+    1.1 s, so the time is the driver (615.78.08) compiling the mirrored pass's pipelines, which the
+    engine's PipelineCache holds in memory alone and the driver's own cache served in none of the
+    game's runs. The mend has two parts, a VkPipelineCache written to a file under the program's
+    cache folder at exit and read at start, so a second run compiles nothing it has compiled before,
+    and the pipelines of a pass a program turns on, the mirror's among them, made when it is turned
+    on or at load where the program says so, so the first frame that draws them waits for no
+    compile; read by the game's first mirror frame on a fresh driver cache before and after, and by
+    the second run. Foundation work under Decision 79, after 132's mend and before 138's next
+    commit; one or two commits. Done at `14b258c7`, with `e32f9138` before it, read at 15:16 on
+    2026-10-31. First the cache, a VkPipelineCache made at device start from
+    source/.slang-cache/pipelines.bin, used when its header names this GPU and its cache UUID, every
+    graphics and compute pipeline created through it, written back at exit through a temporary file
+    and a rename when it changed and never shorter than the header it names, since lavapipe reports
+    32 bytes then fills 20; the game at `8a1e308` with a fresh driver cache each run, the turn east
+    to the water plus 30 frames 30.2 and 26.5 s before, 26.8 s on the first run after (10.5 MB
+    written) and 0.98 s on the second; PipelineCacheTests, a cache another device wrote read as
+    empty, a run writing its own, a run compiling nothing new leaving the file alone, on the GPU and
+    on lavapipe with Mesa's cache on and off; 2,142 on the GPU. Second the mirrored view's pipelines
+    on workers, PipelineCache.GetOrBegin starting a missing pipeline with Task.Run and answering
+    null until made, ModelRenderer.Draw skipping a batch whose pipeline is not ready and setting
+    PipelinesPending, the description first asked with kept while a pipeline is made,
+    MirrorRenderer.Whole latched after a frame drawn with nothing pending and the window reading the
+    mirror only when it draws and is whole, shaders being retired waiting for the workers; a cold
+    start with both caches empty 4.57 s where 26.8 to 30.2, 3.59 s of it the window's own hdr_scene
+    pass compiling the water's pipelines at first sight, which HEAD had too and is left synchronous,
+    a second run 1.05 s; MirrorPlaneTests waiting until the mirror is whole and a test with a
+    4-sample window reading the first frame with a plane not whole and a later one whole; 2,143 on
+    the GPU in both orders, 3 on lavapipe.
+
 ## Verdicts settled
 
 Verdicts 1 to 55 are settled, the last two, the drawing leak test's resident bound and the Windows

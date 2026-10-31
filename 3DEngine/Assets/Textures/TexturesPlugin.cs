@@ -61,6 +61,8 @@ internal sealed class TexturesPlugin : IPlugin
         // Adds the default decoder, StbImageSharp's, so an app loads textures with no plugin of its
         // own.
         app.AddPlugin(new StbTexturesPlugin());
+        // And KTX2's, whose blocks the GPU samples as they are.
+        registry.RegisterDecoder(new Ktx2TextureDecoder());
 
         // After backends register their decoders, register one shared loader for all
         // accumulated extensions. Re-syncing after each new backend is supported via

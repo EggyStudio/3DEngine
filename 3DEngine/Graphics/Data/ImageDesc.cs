@@ -26,6 +26,20 @@ internal enum ImageFormat
     R32G32B32A32_Float,
     /// <summary>One 16-bit floating-point channel, for a distance a texel.</summary>
     R16_Float,
+    /// <summary>BC1 blocks of four by four texels in 8 bytes, color with no alpha.</summary>
+    Bc1_UNorm,
+    /// <summary>BC1 blocks decoded from sRGB to linear when sampled, for a view of a <see cref="Bc1_UNorm"/> image.</summary>
+    Bc1_Srgb,
+    /// <summary>BC1 blocks with a bit of alpha, cut out or solid.</summary>
+    Bc1Alpha_UNorm,
+    /// <summary>BC1 blocks with a bit of alpha decoded from sRGB when sampled, for a view of a <see cref="Bc1Alpha_UNorm"/> image.</summary>
+    Bc1Alpha_Srgb,
+    /// <summary>BC5 blocks of 16 bytes, two channels, as a normal map's.</summary>
+    Bc5_UNorm,
+    /// <summary>BC7 blocks of 16 bytes, color and alpha.</summary>
+    Bc7_UNorm,
+    /// <summary>BC7 blocks decoded from sRGB to linear when sampled, for a view of a <see cref="Bc7_UNorm"/> image.</summary>
+    Bc7_Srgb,
 }
 
 /// <summary>Flags describing how a GPU image will be used.</summary>

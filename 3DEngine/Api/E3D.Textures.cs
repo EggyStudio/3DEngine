@@ -196,12 +196,38 @@ public static partial class E3D
 
     // -- Textures
 
-    /// <summary>Loads an image file into a texture.</summary>
+    /// <summary>Loads an image file into a texture, or a KTX2 file's BC1, BC5 or BC7 blocks with its mip levels as they are.</summary>
     /// <returns>The texture, or an invalid one when the file cannot be read, with the reason in the log.</returns>
+    /// <remarks>
+    /// A KTX2 file's blocks go to the GPU as they are, with every mip level the file holds, sampled
+    /// trilinearly, a quarter or an eighth of the memory of the same texture's pixels; its levels
+    /// must not be supercompressed. <see cref="LoadImage"/> reads none, since it gives pixels.
+    /// </remarks>
     public static Texture2D LoadTexture(string fileName)
     {
+        if (Path.GetExtension(fileName).Equals(".ktx2", StringComparison.OrdinalIgnoreCase)) return LoadBlocks(fileName);
         var image = LoadImage(fileName);
         return image.IsValid ? LoadTextureFromImage(image) : default;
+    }
+
+    // A KTX2 file's blocks as a texture, or an invalid one with the reason in the log.
+    private static Texture2D LoadBlocks(string fileName)
+    {
+        if (ResolveFile(fileName) is not { } path)
+        {
+            ApiLogger.Warn($"LoadTexture: '{fileName}' was not found beside the program or in the working directory.");
+            return default;
+        }
+        try
+        {
+            var texture = Ktx2.Read(File.ReadAllBytes(path), fileName);
+            return new Texture2D(Textures.AddCompressed(texture), texture.Width, texture.Height) { Mipmaps = texture.MipCount };
+        }
+        catch (Exception ex) when (ex is IOException or InvalidDataException or UnauthorizedAccessException)
+        {
+            ApiLogger.Warn($"LoadTexture: '{fileName}' could not be read. {ex.Message}");
+            return default;
+        }
     }
 
     /// <summary>Uploads an image into a texture. The image may be changed or dropped afterward.</summary>
@@ -391,7 +417,8 @@ public static partial class E3D
     /// </summary>
     /// <remarks>
     /// The levels are made on the GPU from the texture's pixels. They are kept when the texture is
-    /// updated or its filter changes. A render target cannot have them.
+    /// updated or its filter changes. A render target cannot have them, and a texture of a KTX2
+    /// file's blocks keeps the levels the file holds.
     /// </remarks>
     public static void GenTextureMipmaps(ref Texture2D texture)
     {

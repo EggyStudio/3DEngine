@@ -313,6 +313,29 @@ the flood hides as the eye crosses stays in the field. A room of walls under a r
 shadow maps alone, the new test's, read 0.0001 inside as under a roof drawn, where with the roof
 left out of the field 0.058, the open ground's whole.
 
+The driver's compiled pipelines kept between runs, read on the engine's tree against `df856af8`
+built in Release and put into the voxel game at `8a1e308` on 5.2.333, on an RTX 4070 Laptop GPU
+with driver 615.78.08 under tuned's `powersave-bazzite`, offscreen at 1280 by 720 over seed 1's
+spawn at noon. Each run named a folder of its own made empty as the driver's shader cache
+(`__GL_SHADER_DISK_CACHE_PATH`), loaded the land looking west, then turned east to the water 64
+blocks off, the first frame with a reflection plane, the wall clock read over the turn and the 30
+frames after it.
+
+| | First run | Second run |
+|---|---|---|
+| Before | 30.2 s | 26.5 s |
+| After | 26.8 s | 0.98 s |
+
+The first run after wrote 10.5 MB to `source/.slang-cache/pipelines.bin`, and the second run's
+slowest frame read 192 ms, 184 of it the mirrored pass. A run that compiles no pipeline the file
+lacks leaves it as it was, and a file whose header names another GPU or driver is read as empty.
+
+In the second commit the mirrored view's pipelines are made on worker threads the first time it asks
+for them, the batches still waiting for theirs left out and the window reading none of the view
+until a frame draws it whole. With both caches empty the turn and its 30 frames took 4.57 s where
+26.8 to 30.2, its slowest frame the window's own pass compiling the water's pipelines at its first
+sight, 3.59 s, which the runs before held as well; a second run took 1.05 s.
+
 The suite's time on Linux between `2ad96a80` and `b16f26b5`, read from the two pushes' runs and from
 the classes of the scene field and global illumination run at each commit on lavapipe with the
 validation layer, on this machine's Intel i9-14900HX under tuned's `powersave-bazzite`.
@@ -383,6 +406,8 @@ Done that day
 - Item 136 at `19658e55`. The path-traced reference knows light through.
 - Item 137 at `95e088b7`. A vertical face in a narrow canopy pocket takes the light that reaches it.
 - Item 146 at `10295556`. The field follows the eye without a whole cascade's CPU work in one frame.
+- Item 147 at `14b258c7`. A pass's pipelines are made before the frame that first needs them, and
+  the pipeline cache is kept between runs.
 
 ## 2026-10-30
 

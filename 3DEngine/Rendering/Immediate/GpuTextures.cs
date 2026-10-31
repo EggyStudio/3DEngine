@@ -169,6 +169,14 @@ internal sealed class GpuTextures : IDisposable
                     continue;
                 }
 
+                if (upload.Blocks is { } blocks)
+                {
+                    if (Compressed(gfx, blocks, upload, store) is not { } made) continue;
+                    _entries[upload.Id] = made;
+                    if (existing is not null) Retire(existing.Owned);
+                    continue;
+                }
+
                 if (upload.Cube && upload.Rgba is { } faces)
                 {
                     if (gfx is not GraphicsDevice cubeDevice) continue;
@@ -226,6 +234,41 @@ internal sealed class GpuTextures : IDisposable
             _retired.RemoveAt(i);
         }
     }
+
+    // A texture of blocks made on the GPU with every level its file holds, viewed decoded from sRGB
+    // as well where its format has such a view, and a level of it unpacked into pixels and read
+    // back for the store, which takes its average color and whether it is translucent from them. A
+    // device that samples no such blocks leaves the texture white, said once.
+    private Entry? Compressed(IGraphicsDevice gfx, TextureAsset blocks, TextureStore.Upload upload, TextureStore store)
+    {
+        if (gfx is not GraphicsDevice device || !device.CanSampleBlockCompressed)
+        {
+            if (gfx is GraphicsDevice && !_warnedBlocks)
+                Logger.Warn("The GPU samples no BC1, BC5 or BC7 blocks, so the textures of them are drawn white.");
+            _warnedBlocks = true;
+            return null;
+        }
+        var (format, decoded) = blocks.Format switch
+        {
+            TextureFormat.Bc1 => (ImageFormat.Bc1Alpha_UNorm, ImageFormat.Bc1Alpha_Srgb),
+            TextureFormat.Bc5 => (ImageFormat.Bc5_UNorm, ImageFormat.Bc5_UNorm),
+            _ => (ImageFormat.Bc7_UNorm, ImageFormat.Bc7_Srgb),
+        };
+        var image = device.CreateCompressedTexture(format, (uint)blocks.Width, (uint)blocks.Height, Ktx2.Levels(blocks));
+        device.Name(image, $"Texture {upload.Id}");
+        var view = gfx.CreateImageView(image);
+        var sampler = CreateSampler(gfx, upload.Filter, upload.Wrap);
+        // BC7's alpha may be anywhere from clear to solid, so its first level is read whole, where
+        // BC1's is one or the other and BC5 has none, so their average is read from a level of 64
+        // texels a side or fewer, a few thousand bytes where the first of 1,024 is 4 MB.
+        var level = blocks.Format == TextureFormat.Bc7 ? 0
+            : Math.Clamp(System.Numerics.BitOperations.Log2((uint)Math.Max(blocks.Width, blocks.Height)) - 6, 0, blocks.MipCount - 1);
+        if (device.DecodedPixels(image, (uint)level) is { } pixels) store.Decoded(upload.Id, pixels);
+        return new Entry(image, view, gfx.CreateImageView(image, decoded), sampler, CreateSet(gfx, view, sampler));
+    }
+
+    private bool _warnedBlocks;
+    private static readonly ILogger Logger = Log.Category("Engine.Textures");
 
     private Entry White(IGraphicsDevice gfx)
     {

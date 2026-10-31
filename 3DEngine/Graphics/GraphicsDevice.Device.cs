@@ -104,8 +104,11 @@ internal sealed unsafe partial class GraphicsDevice
         // Depths clamped rather than clipped, which a shadow map's pipelines take, on every desktop
         // driver, lavapipe and MoltenVK.
         CanClampDepth = supported.depthClamp;
+        // Blocks of BC1, BC5 and BC7 sampled as they are, which every desktop driver and lavapipe have.
+        CanSampleBlockCompressed = supported.textureCompressionBC;
         VkPhysicalDeviceFeatures features = new()
         {
+            textureCompressionBC = CanSampleBlockCompressed,
             samplerAnisotropy = true,
             shaderStorageImageReadWithoutFormat = CanWriteImages,
             shaderStorageImageWriteWithoutFormat = CanWriteImages,

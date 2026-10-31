@@ -12,7 +12,8 @@ under the item with a note; 2,140 on the GPU in both orders, 13 on lavapipe with
 queries. It carries N 4.9 as rewritten, N 4.10, Decisions 76 and 77, .gitignore's dump line and a
 Shared line. After it `edf301e0`, the version to 6.0 in build/version.txt, the owner's change
 committed by the reviewer on the owner's word, pushed at 13:49 with `95e088b7`, `00c6809a` and
-`df856af8` after that run, the run of `df856af8` awaited. After it `95e088b7`, item 137's second
+`df856af8` after that run, the run of `df856af8` green at 16:06 with Windows in 136 minutes, Linux
+in 47 and macOS in 35, item 149 for the Windows limit. After it `95e088b7`, item 137's second
 commit, a probe of a cascade below the last that sees none of the cascade above's eight probes
 carrying its rays to the field's edge and taking what they meet past their interval, nothing where
 they meet nothing; with the placement the corridor's walls at High 67% under to 60 and 62, the
@@ -25,26 +26,34 @@ descriptor set a frame for every pass from a per-frame dictionary, the game's fo
 thread at 16 columns 7.56 and 8.21 ms to 3.85 and 4.19, at 12 4.60 and 5.33 to 2.82 and 2.72, at 8
 2.76 and 2.68 to 1.65 and 1.80, the pictures within 0.010 of 255, the frames GPU-bound and contended
 by another session's suite so their times are not read; a GPU test of eight squares through one
-shader taking one set; 137's wording corrected; 2,141 on the GPU in both orders. Before it
-`19658e55`, item 136, pushed with `10295556` at 09:37, its run green at 11:16 with Windows in 98
-minutes, Linux in 77 and macOS in 36, the path-traced reference crossing surfaces that let light
-through, recorded under the item in REVIEW-ARCHIVE.md. Before it `10295556`, item 146's second
-commit, ShadowOnly draws kept in the field, recorded under the item. Before it `da54d289`, item
-146's first commit, pushed at 07:23 with `7bdfaa9e`, Verdict 95's mend, and `fdde73b2`, item 131's
-second commit, its run green at 09:37 with Windows in 133 minutes, Linux in 77 and macOS in 36,
-which settled Verdict 95; the plain GPU run of `7bdfaa9e` read ObserverTests' no-observer allocation
-once at 1,768 bytes, 5 of 5 alone, watched. Before it `b16f26b5`, item 131's first commit, pushed at
-02:53 on 2026-10-31, its run cancelled at 03:51 on Linux alone past test.py's 40-minute limit and
-the job's 100 (Verdict 95), Windows and macOS green, the plane a cell recorded under item 131 in
-REVIEW-ARCHIVE.md. Before it `2ad96a80`, item 135, pushed at 22:13 on 2026-10-30, its run green
-whole at 23:28 with Windows in 74 minutes, Linux in 68 and macOS in 35, the screen probes' jittered
-rays and sixteen-frame history recorded under the item in REVIEW-ARCHIVE.md. Before it `e96a6bb8`,
-pushed with `c3214cbe` at 19:52 on 2026-10-30, its run green whole at 21:51, Windows in 119 minutes,
-Linux in 44 and macOS in 33. `c3214cbe` is item 134, a resize asked before the first frame carried
-out at once past the debounce a load held back, with a test and the window guide's line, and
-AGENTS.md's REVIEW.md line as the owner asked. `e96a6bb8` is item 132's reading with no mend, the
-note 2026-10-30-item-132-recording.md; at 12 columns 5.6 to 6.5 ms of the four passes' 9.6 to 11.5
-is a descriptor set made and written for every draw in every pass, about 2,045 a frame at 2.8 to 3.2
+shader taking one set; 137's wording corrected; 2,141 on the GPU in both orders. After it `e32f9138`
+and `14b258c7`, item 147, pushed at 16:08 after that run, the run of `14b258c7` awaited, a
+VkPipelineCache read at device start from source/.slang-cache/pipelines.bin when its header names
+this GPU and written back at exit through a temporary file when it changed, every pipeline made
+through it, the game's turn to the water 30.2 and 26.5 s to 26.8 on a first run and 0.98 on a
+second; the mirrored view's pipelines made on workers, a batch whose pipeline is not ready skipped
+and the mirror shown only once a frame drew with nothing pending, a cold start with both caches
+empty 4.57 s where 26.8 to 30.2, 3.59 of it the window's own pass compiling the water's pipelines at
+first sight, left synchronous; 2,143 on the GPU in both orders. Before it `19658e55`, item 136,
+pushed with `10295556` at 09:37, its run green at 11:16 with Windows in 98 minutes, Linux in 77 and
+macOS in 36, the path-traced reference crossing surfaces that let light through, recorded under the
+item in REVIEW-ARCHIVE.md. Before it `10295556`, item 146's second commit, ShadowOnly draws kept in
+the field, recorded under the item. Before it `da54d289`, item 146's first commit, pushed at 07:23
+with `7bdfaa9e`, Verdict 95's mend, and `fdde73b2`, item 131's second commit, its run green at 09:37
+with Windows in 133 minutes, Linux in 77 and macOS in 36, which settled Verdict 95; the plain GPU
+run of `7bdfaa9e` read ObserverTests' no-observer allocation once at 1,768 bytes, 5 of 5 alone,
+watched. Before it `b16f26b5`, item 131's first commit, pushed at 02:53 on 2026-10-31, its run
+cancelled at 03:51 on Linux alone past test.py's 40-minute limit and the job's 100 (Verdict 95),
+Windows and macOS green, the plane a cell recorded under item 131 in REVIEW-ARCHIVE.md. Before it
+`2ad96a80`, item 135, pushed at 22:13 on 2026-10-30, its run green whole at 23:28 with Windows in 74
+minutes, Linux in 68 and macOS in 35, the screen probes' jittered rays and sixteen-frame history
+recorded under the item in REVIEW-ARCHIVE.md. Before it `e96a6bb8`, pushed with `c3214cbe` at 19:52
+on 2026-10-30, its run green whole at 21:51, Windows in 119 minutes, Linux in 44 and macOS in 33.
+`c3214cbe` is item 134, a resize asked before the first frame carried out at once past the debounce
+a load held back, with a test and the window guide's line, and AGENTS.md's REVIEW.md line as the
+owner asked. `e96a6bb8` is item 132's reading with no mend, the note
+2026-10-30-item-132-recording.md; at 12 columns 5.6 to 6.5 ms of the four passes' 9.6 to 11.5 is a
+descriptor set made and written for every draw in every pass, about 2,045 a frame at 2.8 to 3.2
 microseconds each with every section's set holding the same values, and one set a frame in a scratch
 copy takes the passes to 5.1 ms at 12 and from 18.4 to 19.7 to 7.6 at 16, the frame at 16 from 26.6
 to 17.9 ms, the land's pixels within 0.08 of 255. 2,135 on the GPU in both orders, the resize tests
@@ -64,8 +73,8 @@ REVIEW-ARCHIVE.md, its devlog note and its own words. On 2026-10-30 at 18:0x the
 README's new words (item 133) and the focus on radiance cascades (Decision 74), questions asked
 back, and asked that the sessions spend fewer tokens at the same quality, N 7.7.
 
-Next 147, then 148, then 138 and the cascades in order, 139, 140, 141 and 142 (Decision 75); 143,
-144 and 145 wait behind them.
+Next 148 with 149, then 138 and the cascades in order, 139, 140, 141 and 142 (Decision 75); 143, 144
+and 145 wait behind them.
 
 Items done and verdicts settled before 2026-10-23 stand in REVIEW-ARCHIVE.md beside this file, their
 numbers kept, moved there at 19:30 on 2026-10-23 so this file holds the current work alone and is
@@ -989,21 +998,6 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     and the merge held at one, the bounce rooms' distances to the references and the Cornell box's
     bounces read before and after. One commit, after the eight.
 
-147. **A pass's pipelines are made before the frame that first needs them, and the pipeline cache is
-    kept between runs.** From the voxel game's item 151, its ASKS.md entry of 2026-10-31. The first
-    frame the game sets SetReflectionPlane takes 23.7 to 24.0 s of the wall clock, cpu.mirror 22.5
-    to 23.0 s, the field 2.6 to 6.6 ms, where the frames after read cpu.mirror at 0.9 to 4.6 ms;
-    with the driver's shader cache pointed at a fresh folder a first run read 23.7 s and a second
-    1.1 s, so the time is the driver (615.78.08) compiling the mirrored pass's pipelines, which the
-    engine's PipelineCache holds in memory alone and the driver's own cache served in none of the
-    game's runs. The mend has two parts, a VkPipelineCache written to a file under the program's
-    cache folder at exit and read at start, so a second run compiles nothing it has compiled before,
-    and the pipelines of a pass a program turns on, the mirror's among them, made when it is turned
-    on or at load where the program says so, so the first frame that draws them waits for no
-    compile; read by the game's first mirror frame on a fresh driver cache before and after, and by
-    the second run. Foundation work under Decision 79, after 132's mend and before 138's next
-    commit; one or two commits.
-
 148. **The Sponza example, its scene pack fetched on demand, with named views and the time of day.**
     The owner wrote on 2026-10-31 at 13:46 that the engine does as BevyCSharp does with the Sponza
     scene, the pack installed on demand, the example run, the camera switched between positions to
@@ -1025,7 +1019,27 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     in the pack run's captures job with the pack cached by its sha256 rather than fetched on every
     push, as BevyCSharp keeps its Sponza drive off the push runs. From then on the cascades' items
     read Sponza beside the bounce rooms. After 147 and before 138; two or three commits. Decision
-    81.
+    81. Read on 2026-10-31 at 15:16, the pack's KTX2 levels are zstd-supercompressed and .NET 10 has
+    no zstd, so the path is the one between the two weighed, a script that undoes the zstd alone and
+    writes the KTX2 files with no supercompression, the BC1, BC5 and BC7 blocks kept, the engine
+    gaining a KTX2 container reader and BC formats in its texture path, which desktop Vulkan samples
+    natively, no zstd in C# and no CPU decode; the pack made and published by the pack run, a job
+    gated by a workflow input that downloads BevyCSharp's asset by its sha256, runs the script and
+    uploads the result to a scene-packs release of this repository, the manifest naming that asset,
+    so the owner has no step. Split on 2026-10-31 at 15:2x into three commits, the first the BC1,
+    BC5 and BC7 formats in UNORM and sRGB with textureCompressionBC enabled and checked, every level
+    uploaded from the file with no mips generated, a KTX2 decoder through ITextureDecoder with no
+    supercompression and the levels from the level index, model textures named .ktx2 found through
+    it, and the texture store's average color and translucency taken from the smallest level on the
+    GPU, the level sampled into a one-pixel RGBA8 image and read back, so no BC decoder lives in C#;
+    the second the pack script, the pack run's gated job and e3d scenes fetch; the third the example
+    with its views and hour and the captures job.
+
+149. **The Windows push job's limit fits its runs.** Since item 131 the Windows job of a push has
+    taken 133, 98, 139 and 136 minutes where 74 at `2ad96a80`, against a limit of 150 (N 6.8), so a
+    slow runner cancels a green suite. The limit goes to 180 with its reason in the comment, and the
+    note of Verdict 95 is read again for Windows, which tests grew there and whether the Rendering
+    split carries them, a second split if it does not. Small, with 148's first commit.
 
 ## Verdicts
 
@@ -1229,6 +1243,14 @@ REVIEW-ARCHIVE.md.
     and before the cascades' items, which read Sponza from then on; the pack is the one BevyCSharp
     made, so the two engines show the same building.
 
+82. **What a scriptable render pipeline has, written down for later.** The owner asked on 2026-10-31
+    at 15:55 what makes Unity's scriptable render pipeline powerful and how ours becomes as
+    powerful, and said yes to the answer being written down. Five things, the frame as code (which
+    the render graph already is), shader passes by tag, declared passes with resource lifetimes and
+    plugin passes, GPU-driven drawing, volumes, and debug views with a graph dump; five rows to
+    consider in SHARED.md, taken in that order after the GI items of 3DEngine's Decision 75,
+    ShaderLab as a text format, keyword explosions and the editor's coupling left uncopied.
+
 ## Replies
 
 Shared: a mesh that replaced a still one in place is not stamped as boxes while a cascade the
@@ -1257,3 +1279,9 @@ Shared: the driver's compiled pipelines are kept in the program's cache folder b
 `VkPipelineCache` read when the device is made where its header names the GPU and written back at
 exit where it changed, which took the voxel game's first frame with a reflection plane from 26.5 to
 30.2 s of compiling to 0.98 s on a run after the first with the driver's own cache empty (item 147).
+
+Shared: a buffer the CPU only reads takes memory the CPU caches where the device has it, since the
+first host-visible memory an RTX 4070 offers is write combined and unpacking and reading a texture's
+4 MB through it took 34 ms where 5 through the same memory cached, which took the upload of Sponza's
+72 BC textures, each read back for its average color, from 2.4 s to 0.07 with the level read
+narrowed as well (item 148).

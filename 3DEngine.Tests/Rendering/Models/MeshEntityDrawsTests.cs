@@ -444,6 +444,25 @@ public class MeshEntityDrawsTests
     }
 
     [Fact]
+    public void A_Loaded_Texture_Of_BC7_Blocks_Is_Queued_As_Its_Blocks_With_Every_Level()
+    {
+        var (world, ecs) = Scene();
+        var assets = new Assets<TextureAsset>();
+        world.InsertResource(assets);
+        var handle = new Handle<TextureAsset>(AssetId.Next(), new AssetPath("stone.ktx2"), strong: false);
+        var texture = Ktx2.Read(Engine.Tests.Assets.Textures.Ktx2Files.Solid(146, 8, Engine.Tests.Assets.Textures.Ktx2Files.Bc7(1, 1, 1, 255)), "stone.ktx2");
+        assets.Set(handle.Id, texture);
+        var entity = SpawnMesh(ecs, Triangle, Vector3.Zero, Vector4.One);
+        ecs.GetRef<Material>(entity).BaseColorTexture = handle;
+
+        MeshEntityDraws.Run(world);
+
+        var upload = world.Resource<TextureStore>().Take().Uploads.Should().ContainSingle().Subject;
+        (upload.Rgba, upload.Blocks, upload.Filter).Should().Be(((byte[]?)null, texture, TextureFilter.Trilinear));
+        Drawn(world).Should().OnlyContain(d => d.Texture == upload.Id);
+    }
+
+    [Fact]
     public void With_No_Window_The_Camera_Takes_The_Shape_Of_The_Configured_Size()
     {
         var (world, ecs) = Scene();

@@ -41,6 +41,16 @@ another color tints it. The four drawing calls go from simple to complete.
 given in the rectangle's own pixels, which is how sprites from a sheet are drawn, turned about
 their middle.
 
+`LoadTexture` reads a KTX2 file of BC1, BC5 or BC7 blocks too, the formats a GPU samples without
+unpacking them, and hands the GPU the blocks and every mip level the file holds as they are, so a
+color in BC7 takes a quarter of the memory of its pixels and a texture in BC1 an eighth. A file of
+an sRGB format is a color's, which a model's light reads decoded to linear, and BC5 holds the red
+and green of a normal map. The levels must not be supercompressed, as a pack written for Bevy has
+them with zstd, which the log says, and `build/make-scene-pack.py` in the engine's repository
+writes such a pack's files again with their levels as they are. `GenTextureMipmaps` leaves such a
+texture with the levels its file holds, and `UpdateTexture` answers false for it, since no pixels
+are written into blocks.
+
 ## Filtering and wrapping
 
 A texture drawn larger or smaller than its size is filtered. `SetTextureFilter` picks how.

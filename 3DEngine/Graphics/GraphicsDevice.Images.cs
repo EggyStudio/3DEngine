@@ -142,7 +142,8 @@ internal sealed unsafe partial class GraphicsDevice
         {
             // A sampled color image can be viewed as sRGB too (CreateImageView with a format), so
             // the model pass decodes a base color texture that the 2D passes read as its bytes.
-            flags = desc.Usage.HasFlag(ImageUsage.Sampled) && desc.Format is ImageFormat.R8G8B8A8_UNorm or ImageFormat.B8G8R8A8_UNorm
+            flags = desc.Usage.HasFlag(ImageUsage.Sampled)
+                && desc.Format is ImageFormat.R8G8B8A8_UNorm or ImageFormat.B8G8R8A8_UNorm or ImageFormat.Bc1_UNorm or ImageFormat.Bc1Alpha_UNorm or ImageFormat.Bc7_UNorm
                 ? VkImageCreateFlags.MutableFormat
                 : 0,
             imageType = VkImageType.Image2D,
@@ -278,6 +279,13 @@ internal sealed unsafe partial class GraphicsDevice
         ImageFormat.R16G16B16A16_Float => VkFormat.R16G16B16A16Sfloat,
         ImageFormat.R32G32B32A32_Float => VkFormat.R32G32B32A32Sfloat,
         ImageFormat.R16_Float => VkFormat.R16Sfloat,
+        ImageFormat.Bc1_UNorm => VkFormat.Bc1RgbUnormBlock,
+        ImageFormat.Bc1_Srgb => VkFormat.Bc1RgbSrgbBlock,
+        ImageFormat.Bc1Alpha_UNorm => VkFormat.Bc1RgbaUnormBlock,
+        ImageFormat.Bc1Alpha_Srgb => VkFormat.Bc1RgbaSrgbBlock,
+        ImageFormat.Bc5_UNorm => VkFormat.Bc5UnormBlock,
+        ImageFormat.Bc7_UNorm => VkFormat.Bc7UnormBlock,
+        ImageFormat.Bc7_Srgb => VkFormat.Bc7SrgbBlock,
         _ => VkFormat.Undefined
     };
 

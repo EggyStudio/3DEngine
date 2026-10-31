@@ -123,6 +123,8 @@ internal sealed partial class MeshEntityDraws
         if (_textures.TryGetValue(handle.Id, out var id)) return id;
         if (assets is null || !assets.TryGet(handle, out var texture)) return 0; // still loading
 
+        if (texture.Format is TextureFormat.Bc1 or TextureFormat.Bc5 or TextureFormat.Bc7)
+            return _textures[handle.Id] = textures.AddCompressed(texture);
         if (texture.Format != TextureFormat.Rgba8)
         {
             _textures[handle.Id] = 0;

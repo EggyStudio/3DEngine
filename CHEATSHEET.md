@@ -442,7 +442,7 @@ Color GetImageColor(Image image, int x, int y);          // The color of one pix
 Color[] LoadImageColors(Image image);                    // Every pixel of an image as a color, row by row from the top left
 void UnloadImage(Image image);                           // Does nothing, because an image is managed memory
 
-Texture2D LoadTexture(string fileName);                  // Loads an image file into a texture
+Texture2D LoadTexture(string fileName);                  // Loads an image file into a texture, or a KTX2 file's BC1, BC5 or BC7 blocks with its mip levels as they are
 Texture2D LoadTextureFromImage(Image image);             // Uploads an image into a texture
 Texture2D LoadTextureCubemap(Image image, CubemapLayout layout);  // A cube texture from an image of its six faces laid out as layout says, or as its shape shows with CubemapLayout.AutoDetect, as raylib's LoadTextureCubemap, for a shader's SamplerCube, set by SetShaderValueTexture
 void UnloadTexture(Texture2D texture);                   // Frees a texture

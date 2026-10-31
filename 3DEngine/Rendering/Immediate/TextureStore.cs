@@ -43,9 +43,10 @@ internal sealed class TextureStore
     /// <paramref name="Rgba"/> holds its six faces one under the next in Vulkan's order.
     /// </param>
     /// <param name="Multisampled">Whether a render target is drawn at the window's samples, or at one.</param>
+    /// <param name="Blocks">A texture of blocks the GPU samples as they are, every mip level of it, in place of <paramref name="Rgba"/>.</param>
     public sealed record Upload(int Id, byte[]? Rgba, int Width, int Height, TextureFilter Filter, bool Target = false, bool Mipmaps = false,
         int DepthOf = 0, TextureWrap Wrap = TextureWrap.Repeat, (int X, int Y)? Offset = null, ImageFormat[]? Formats = null,
-        int ColorOf = 0, int ColorIndex = 0, bool Cube = false, bool Multisampled = true);
+        int ColorOf = 0, int ColorIndex = 0, bool Cube = false, bool Multisampled = true, TextureAsset? Blocks = null);
 
     private readonly object _gate = new();
     private readonly Dictionary<int, (int Width, int Height, TextureFilter Filter, bool Mipmaps, TextureWrap Wrap)> _live = [];
@@ -59,6 +60,8 @@ internal sealed class TextureStore
     private readonly HashSet<int> _targets = [];
     // Cube textures, whose pixels are six faces and which nothing writes after they are made.
     private readonly HashSet<int> _cubes = [];
+    // Textures of blocks the GPU samples as they are, which no pixels are written into either.
+    private readonly HashSet<int> _blocks = [];
     private readonly List<Upload> _uploads = [];
     private readonly List<int> _removals = [];
     private int _next = 1;
@@ -82,6 +85,44 @@ internal sealed class TextureStore
             if (HasPartialAlpha(rgba)) _translucent.Add(id);
             _averages[id] = Average(rgba);
             return id;
+        }
+    }
+
+    /// <summary>
+    /// Queues a texture of blocks the GPU samples as they are, BC1, BC5 or BC7 with every mip level the
+    /// file holds (<see cref="Ktx2"/>), and returns its id.
+    /// </summary>
+    /// <remarks>
+    /// Its average color and whether it is translucent are known once the GPU has unpacked a level of
+    /// it into pixels and they are read back (<see cref="Decoded"/>), the frame it is uploaded in.
+    /// </remarks>
+    /// <exception cref="ArgumentException">The texture holds pixels rather than blocks.</exception>
+    internal int AddCompressed(TextureAsset texture, TextureFilter filter = TextureFilter.Trilinear)
+    {
+        if (!TextureFormatInfo.IsBlockCompressed(texture.Format))
+            throw new ArgumentException($"A texture of {texture.Format} holds pixels, which Add takes.", nameof(texture));
+        lock (_gate)
+        {
+            var id = _next++;
+            _live[id] = (texture.Width, texture.Height, filter, texture.MipCount > 1, TextureWrap.Repeat);
+            _blocks.Add(id);
+            _uploads.Add(new Upload(id, null, texture.Width, texture.Height, filter, Mipmaps: texture.MipCount > 1, Blocks: texture));
+            return id;
+        }
+    }
+
+    /// <summary>
+    /// Takes a level of a texture of blocks unpacked into four bytes a pixel, which gives it its
+    /// average color and whether it is translucent as a texture of pixels has them from the start.
+    /// </summary>
+    internal void Decoded(int id, byte[] rgba)
+    {
+        lock (_gate)
+        {
+            if (!_blocks.Contains(id)) return;
+            if (HasPartialAlpha(rgba)) _translucent.Add(id);
+            else _translucent.Remove(id);
+            _averages[id] = Average(rgba);
         }
     }
 
@@ -111,12 +152,15 @@ internal sealed class TextureStore
     }
 
     /// <summary>Gives a loaded texture mip levels, made on the GPU from its pixels.</summary>
-    /// <returns>Whether the texture is loaded and can have them. A render target cannot.</returns>
+    /// <returns>
+    /// Whether the texture is loaded and can have them. A render target cannot, nor a texture of
+    /// blocks, which has the levels its file holds.
+    /// </returns>
     internal bool GenerateMipmaps(int id)
     {
         lock (_gate)
         {
-            if (!_live.TryGetValue(id, out var texture) || _cubes.Contains(id)) return false;
+            if (!_live.TryGetValue(id, out var texture) || _cubes.Contains(id) || _blocks.Contains(id)) return false;
             if (_uploads.Any(u => u.Id == id && u.Target)) return false;
             if (texture.Mipmaps) return true;
             _live[id] = texture with { Mipmaps = true };
@@ -195,7 +239,7 @@ internal sealed class TextureStore
     {
         lock (_gate)
         {
-            if (!_live.TryGetValue(id, out var texture) || rgba.Length != texture.Width * texture.Height * 4 || _cubes.Contains(id))
+            if (!_live.TryGetValue(id, out var texture) || rgba.Length != texture.Width * texture.Height * 4 || _cubes.Contains(id) || _blocks.Contains(id))
                 return false;
             _uploads.Add(new Upload(id, rgba, texture.Width, texture.Height, texture.Filter, Mipmaps: texture.Mipmaps, Wrap: texture.Wrap));
             if (HasPartialAlpha(rgba)) _translucent.Add(id);
@@ -211,7 +255,7 @@ internal sealed class TextureStore
     {
         lock (_gate)
         {
-            if (!_live.TryGetValue(id, out var texture) || _cubes.Contains(id) || width <= 0 || height <= 0 || x < 0 || y < 0
+            if (!_live.TryGetValue(id, out var texture) || _cubes.Contains(id) || _blocks.Contains(id) || width <= 0 || height <= 0 || x < 0 || y < 0
                 || x + width > texture.Width || y + height > texture.Height || rgba.Length != width * height * 4)
                 return false;
             _uploads.Add(new Upload(id, rgba, width, height, texture.Filter, Mipmaps: texture.Mipmaps, Wrap: texture.Wrap, Offset: (x, y)));
@@ -265,6 +309,7 @@ internal sealed class TextureStore
             _averages.Remove(id);
             _targets.Remove(id);
             _cubes.Remove(id);
+            _blocks.Remove(id);
             _uploads.RemoveAll(u => u.Id == id);
             _removals.Add(id);
             return true;
