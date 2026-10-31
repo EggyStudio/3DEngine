@@ -346,6 +346,7 @@ GPU's, so it would bear them first, 106 s of the 45 minutes here. No test is cha
 Done that day
 
 - Item 131 at `b16f26b5`. A thin two-sided face holds a narrower band in the scene field.
+- Item 133 at `00c6809a`. The README's words under the header, as given.
 - Item 136 at `19658e55`. The path-traced reference knows light through.
 - Item 137 at `95e088b7`. A vertical face in a narrow canopy pocket takes the light that reaches it.
 - Item 146 at `10295556`. The field follows the eye without a whole cascade's CPU work in one frame.

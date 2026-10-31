@@ -1,38 +1,42 @@
 # Review
 
 Reviewed up to `2b8e8541`, item 137's first commit, pushed at 11:27 on 2026-10-31 after the run of
-`19658e55` went green at 11:16, its run awaited, the pack run started at 09:40 from `19658e55`
-awaited too. A probe of a cascade above the first whose spot lies in or beside a wall between a
-space narrow along two axes and a wider one steps through the wall's farther face into the narrow
-space, the cause and the numbers recorded under the item with a note; 2,140 on the GPU in both
-orders, 13 on lavapipe with 11 skipped for ray queries. It carries N 4.9 as rewritten, N 4.10,
-Decisions 76 and 77, .gitignore's dump line and a Shared line. After it `edf301e0`, the version to
-6.0 in build/version.txt, the owner's change committed by the reviewer on the owner's word, held
-until the run of `2b8e8541` ends. After it `95e088b7`, item 137's second commit, held the same, a
-probe of a cascade below the last that sees none of the cascade above's eight probes carrying its
-rays to the field's edge and taking what they meet past their interval, nothing where they meet
-nothing; with the placement the corridor's walls at High 67% under to 60 and 62, the distance 25%
-nearer, every other room as it was; 2,140 on the GPU in both orders, 13 on lavapipe with 11 skipped;
-a wording correction, any cascade below the last and not the first alone, waits for 138's commit.
-Before it `19658e55`, item 136, pushed with `10295556` at 09:37, its run green at 11:16 with Windows
-in 98 minutes, Linux in 77 and macOS in 36, the path-traced reference crossing surfaces that let
-light through, recorded under the item in REVIEW-ARCHIVE.md. Before it `10295556`, item 146's second
-commit, ShadowOnly draws kept in the field, recorded under the item. Before it `da54d289`, item
-146's first commit, pushed at 07:23 with `7bdfaa9e`, Verdict 95's mend, and `fdde73b2`, item 131's
-second commit, its run green at 09:37 with Windows in 133 minutes, Linux in 77 and macOS in 36,
-which settled Verdict 95; the plain GPU run of `7bdfaa9e` read ObserverTests' no-observer allocation
-once at 1,768 bytes, 5 of 5 alone, watched. Before it `b16f26b5`, item 131's first commit, pushed at
-02:53 on 2026-10-31, its run cancelled at 03:51 on Linux alone past test.py's 40-minute limit and
-the job's 100 (Verdict 95), Windows and macOS green, the plane a cell recorded under item 131 in
-REVIEW-ARCHIVE.md. Before it `2ad96a80`, item 135, pushed at 22:13 on 2026-10-30, its run green
-whole at 23:28 with Windows in 74 minutes, Linux in 68 and macOS in 35, the screen probes' jittered
-rays and sixteen-frame history recorded under the item in REVIEW-ARCHIVE.md. Before it `e96a6bb8`,
-pushed with `c3214cbe` at 19:52 on 2026-10-30, its run green whole at 21:51, Windows in 119 minutes,
-Linux in 44 and macOS in 33. `c3214cbe` is item 134, a resize asked before the first frame carried
-out at once past the debounce a load held back, with a test and the window guide's line, and
-AGENTS.md's REVIEW.md line as the owner asked. `e96a6bb8` is item 132's reading with no mend, the
-note 2026-10-30-item-132-recording.md; at 12 columns 5.6 to 6.5 ms of the four passes' 9.6 to 11.5
-is a descriptor set made and written for every draw in every pass, about 2,045 a frame at 2.8 to 3.2
+`19658e55` went green at 11:16, its run awaited, the pack run started at 09:40 from `19658e55` green
+at 12:47, the tenth, 5.2.342 published, with Windows in 185 minutes, the games in 78, the captures
+in 54 and 57 on macOS, the pack in 4, carrying items 131, 135, 136 and 146 for the game. A probe of
+a cascade above the first whose spot lies in or beside a wall between a space narrow along two axes
+and a wider one steps through the wall's farther face into the narrow space, the cause and the
+numbers recorded under the item with a note; 2,140 on the GPU in both orders, 13 on lavapipe with 11
+skipped for ray queries. It carries N 4.9 as rewritten, N 4.10, Decisions 76 and 77, .gitignore's
+dump line and a Shared line. After it `edf301e0`, the version to 6.0 in build/version.txt, the
+owner's change committed by the reviewer on the owner's word, held until the run of `2b8e8541` ends.
+After it `95e088b7`, item 137's second commit, held the same, a probe of a cascade below the last
+that sees none of the cascade above's eight probes carrying its rays to the field's edge and taking
+what they meet past their interval, nothing where they meet nothing; with the placement the
+corridor's walls at High 67% under to 60 and 62, the distance 25% nearer, every other room as it
+was; 2,140 on the GPU in both orders, 13 on lavapipe with 11 skipped; a wording correction, any
+cascade below the last and not the first alone, waits for 138's commit. After it `00c6809a`, item
+133, held the same, the README opening with the owner's words verbatim, [e3d.cs] a plain mark,
+STYLE.md keeping them, carrying the review's files and DEVLOG.md. Before it `19658e55`, item 136,
+pushed with `10295556` at 09:37, its run green at 11:16 with Windows in 98 minutes, Linux in 77 and
+macOS in 36, the path-traced reference crossing surfaces that let light through, recorded under the
+item in REVIEW-ARCHIVE.md. Before it `10295556`, item 146's second commit, ShadowOnly draws kept in
+the field, recorded under the item. Before it `da54d289`, item 146's first commit, pushed at 07:23
+with `7bdfaa9e`, Verdict 95's mend, and `fdde73b2`, item 131's second commit, its run green at 09:37
+with Windows in 133 minutes, Linux in 77 and macOS in 36, which settled Verdict 95; the plain GPU
+run of `7bdfaa9e` read ObserverTests' no-observer allocation once at 1,768 bytes, 5 of 5 alone,
+watched. Before it `b16f26b5`, item 131's first commit, pushed at 02:53 on 2026-10-31, its run
+cancelled at 03:51 on Linux alone past test.py's 40-minute limit and the job's 100 (Verdict 95),
+Windows and macOS green, the plane a cell recorded under item 131 in REVIEW-ARCHIVE.md. Before it
+`2ad96a80`, item 135, pushed at 22:13 on 2026-10-30, its run green whole at 23:28 with Windows in 74
+minutes, Linux in 68 and macOS in 35, the screen probes' jittered rays and sixteen-frame history
+recorded under the item in REVIEW-ARCHIVE.md. Before it `e96a6bb8`, pushed with `c3214cbe` at 19:52
+on 2026-10-30, its run green whole at 21:51, Windows in 119 minutes, Linux in 44 and macOS in 33.
+`c3214cbe` is item 134, a resize asked before the first frame carried out at once past the debounce
+a load held back, with a test and the window guide's line, and AGENTS.md's REVIEW.md line as the
+owner asked. `e96a6bb8` is item 132's reading with no mend, the note
+2026-10-30-item-132-recording.md; at 12 columns 5.6 to 6.5 ms of the four passes' 9.6 to 11.5 is a
+descriptor set made and written for every draw in every pass, about 2,045 a frame at 2.8 to 3.2
 microseconds each with every section's set holding the same values, and one set a frame in a scratch
 copy takes the passes to 5.1 ms at 12 and from 18.4 to 19.7 to 7.6 at 16, the frame at 16 from 26.6
 to 17.9 ms, the land's pixels within 0.08 of 255. 2,135 on the GPU in both orders, the resize tests
@@ -52,8 +56,8 @@ REVIEW-ARCHIVE.md, its devlog note and its own words. On 2026-10-30 at 18:0x the
 README's new words (item 133) and the focus on radiance cascades (Decision 74), questions asked
 back, and asked that the sessions spend fewer tokens at the same quality, N 7.7.
 
-Next 138, then the cascades in order, 139, 140, 141 and 142 (Decision 75), and 133 at once as a
-commit of its own, then 132's mend; 143, 144 and 145 wait behind them.
+Next 132's mend, then 147, then 138 and the cascades in order, 139, 140, 141 and 142 (Decision 75);
+143, 144 and 145 wait behind them.
 
 Items done and verdicts settled before 2026-10-23 stand in REVIEW-ARCHIVE.md beside this file, their
 numbers kept, moved there at 19:30 on 2026-10-23 so this file holds the current work alone and is
@@ -963,17 +967,6 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     changes alone. Read by the game's memory at 12 columns after the land settles, before and after.
     One commit, small.
 
-133. **The README's words under the header are the owner's.** The owner wrote on 2026-10-30 that
-    below the README's header stands "A C# engine on SDL3, Vulkan, ImGui and Slang. Raylib's design
-    over a Bevy-style ECS and scheduler, scripted with its own Unity-style behaviors. Implementing
-    Radiance Cascades. [e3d.cs]", in place of the tagline there; STYLE.md quotes the tagline and
-    follows, and every test or check that reads the README's first paragraph; the bracketed e3d.cs
-    is a question put to the owner, a link to the e3d script or a plain mark, and stands as written
-    until answered. One commit, small, documents alone. Answered on 2026-10-31 at 12:13, the
-    bracketed e3d.cs is 3DEngine's short identifier, named from its command line, since the engine's
-    name alone is general; it stays as written, a plain mark in the text, no link. Goes at once, a
-    commit of its own.
-
 138. **A crossing of leaves takes its transmission from the leaves' depth along the ray.** Decision
     75's fifth item. Item 100's slab, 20 across and 5 up, takes 0.32 of the sky's light at High
     against the geometry's 0.41, and the canopy costs 2.49 ms at High against 1.53 solid; the shares
@@ -1008,6 +1001,21 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     eight. RENDERING.md's first term reads the merge's gain at 1.08 to 1.27 a bounce. The cause read
     and the merge held at one, the bounce rooms' distances to the references and the Cornell box's
     bounces read before and after. One commit, after the eight.
+
+147. **A pass's pipelines are made before the frame that first needs them, and the pipeline cache is
+    kept between runs.** From the voxel game's item 151, its ASKS.md entry of 2026-10-31. The first
+    frame the game sets SetReflectionPlane takes 23.7 to 24.0 s of the wall clock, cpu.mirror 22.5
+    to 23.0 s, the field 2.6 to 6.6 ms, where the frames after read cpu.mirror at 0.9 to 4.6 ms;
+    with the driver's shader cache pointed at a fresh folder a first run read 23.7 s and a second
+    1.1 s, so the time is the driver (615.78.08) compiling the mirrored pass's pipelines, which the
+    engine's PipelineCache holds in memory alone and the driver's own cache served in none of the
+    game's runs. The mend has two parts, a VkPipelineCache written to a file under the program's
+    cache folder at exit and read at start, so a second run compiles nothing it has compiled before,
+    and the pipelines of a pass a program turns on, the mirror's among them, made when it is turned
+    on or at load where the program says so, so the first frame that draws them waits for no
+    compile; read by the game's first mirror frame on a fresh driver cache before and after, and by
+    the second run. Foundation work under Decision 79, after 132's mend and before 138's next
+    commit; one or two commits.
 
 ## Verdicts
 
@@ -1196,6 +1204,13 @@ REVIEW-ARCHIVE.md.
     which builds the foundation, is fine; 132's mend lands at once. The modules of Decision 78 are
     tried at once as well, the documents first in each repository, then the rest as the other
     projects have it, then the engines taking them as submodules.
+
+80. **The version's major and minor move by the reviewer's judgment.** The owner wrote on 2026-10-31
+    at 12:4x that the reviewer moves build/version.txt by its judgment of the project, commits it
+    and pushes it, the owner's hand no longer needed. The judgment is a minor at a step the project
+    has taken, a capability or a changed surface that a package or release carries, and the major on
+    the owner's word. The engine stands at 6.0 since `edf301e0`, the owner's own move, and stays
+    until the GI plan's items carry it to its next minor.
 
 ## Replies
 

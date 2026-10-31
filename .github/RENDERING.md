@@ -208,11 +208,15 @@ A mesh entity is a `Mesh` and a `Material`. The mesh is positions three per tria
 and the indices of their triangles, with optional normals and texture coordinates, or a mesh the
 program uploaded with streams of its own. `MeshEntityDraws` uploads the arrays once, keyed by the
 positions array, frees them the first frame no entity holds them, drawn or not, and copies the
-material's base color, normal and metallic-roughness texture assets into `TextureStore`. A
-triangle without normals is lit by its face's normal, and an indexed vertex by the mean of the
-faces it is a corner of. A material that names a program's shader is drawn as `DrawMesh` draws
-with one, a draw of its own, the shader's values copied once a frame for every entity drawn with
-it. An entity whose `Visible` is false is drawn nowhere, and one whose `ShadowOnly` is true is drawn
+material's base color, normal and metallic-roughness texture assets into `TextureStore`. A triangle
+without normals is lit by its face's normal, and an indexed vertex by the mean of the faces it is a
+corner of. A material that names a program's shader is drawn as `DrawMesh` draws with one, a draw of
+its own, the shader's values copied once a frame for every entity drawn with it. The draws of one
+look, the shader, the values and the shader's own textures it was given and the five maps, take one
+descriptor set a frame for every pass, where each took one made and written whole in each pass that
+drew it, which took the four passes' recording of the voxel game's sections at its open view from
+4.6 to 5.3 ms of the main thread to 2.7 to 2.8 at 12 columns and from 7.6 to 8.2 to 3.8 to 4.2 at
+16. An entity whose `Visible` is false is drawn nowhere, and one whose `ShadowOnly` is true is drawn
 into the shadow maps alone and held in the scene's field as any other, since a surface blocks light
 whether it is drawn or not. A thousand meshes of their own, a box each in a grid of 32 by 32 under a
 shadowed sun, drawn through `DrawMesh` each frame cost 0.21 to 0.25 ms of the program's calls and
@@ -2184,17 +2188,17 @@ reference, and the placement leaves them, 2,475 pixels. The voxel game's rain fo
 crossing the leaves, so they take the light that reaches them, and every region of the view reads
 against it as before with the placement.
 
-**The first cascade's rays carried past their interval, read on 2026-10-31.** A probe of the first
-cascade that sees none of the second's probes around it outside every mesh has no probe to give it
-what lies past its interval, so its rays go on to the field's edge and bring the light of what they
-meet there, and one that meets nothing brings nothing. With the second cascade's probes placed in
-the corridor, this took its walls at `High` from 67% under its reference to 60 and 62%, its ceiling
-from 42 to 38% and its floor from 48 to 45%, its view 25% nearer the reference where 18% with the
-placement alone, `Low` as the placement left it, and every other room as it was, global illumination
-1.83 to 1.87 ms in the corridor at 1920 by 1080 at `High` where 1.80 to 1.81 and the Cornell box
-alike. Alone it changed no room. Bringing the sky where a ray met nothing, as the last cascade's
-rays do, lit the closed room of `CascadeEdgeTests` through the cascades not yet built in its first
-frames at 0.060 in linear light, over twice what its floor settles at.
+**A cascade's rays carried past their interval, read on 2026-10-31.** A probe of a cascade below the
+last that sees none of the probes of the cascade above around it outside every mesh has no probe to
+give it what lies past its interval, so its rays go on to the field's edge and bring the light of
+what they meet there, and one that meets nothing brings nothing. With the second cascade's probes
+placed in the corridor, this took its walls at `High` from 67% under its reference to 60 and 62%,
+its ceiling from 42 to 38% and its floor from 48 to 45%, its view 25% nearer the reference where 18%
+with the placement alone, `Low` as the placement left it, and every other room as it was, global
+illumination 1.83 to 1.87 ms in the corridor at 1920 by 1080 at `High` where 1.80 to 1.81 and the
+Cornell box alike. Alone it changed no room. Bringing the sky where a ray met nothing, as the last
+cascade's rays do, lit the closed room of `CascadeEdgeTests` through the cascades not yet built in
+its first frames at 0.060 in linear light, over twice what its floor settles at.
 
 **The screen's probes on thin two-sided walls, read on 2026-10-26.** In a room built as the voxel
 game's wheat field, thin two-sided walls a block tall four to a block, half a unit apart, under the
@@ -2927,10 +2931,10 @@ BounceRoomsTests with its bounds at zero), or cost more than it gave, or left th
   above lit its probes to 86% under where 100%, the view moving by 0.005 at most, at 0.01 to 0.06
   ms. Since 2026-10-31 a spot of the cascades above the first, in or beside a wall between a space
   narrower than the spacing along two axes and a wider one, goes into the narrow one through the
-  wall's farther face (`placed` in `gi_trace.slang`), and a probe of the first cascade that sees
-  none of the second's carries its rays on to the field's edge, which takes the corridor's walls to
-  54 and 53% under at `Low` and 60 and 62% at `High`, its view 5% nearer its reference at `Low` and
-  25% at `High`, every other room as it was (the readings below).
+  wall's farther face (`placed` in `gi_trace.slang`), and a probe of a cascade below the last that
+  sees none of the cascade above's carries its rays on to the field's edge, which takes the
+  corridor's walls to 54 and 53% under at `Low` and 60 and 62% at `High`, its view 5% nearer its
+  reference at `Low` and 25% at `High`, every other room as it was (the readings below).
 - **The faces' read of light that runs along a surface.** A surface reads the probes' faces along
   its normal alone, so light running along a corridor, which its probes hold in the faces toward its
   ends, reaches its walls and floor only where a surface faces it, the mid-corridor probe's face

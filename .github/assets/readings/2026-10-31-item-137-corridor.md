@@ -44,14 +44,14 @@ pixels with the placement as before. The rain forest's leaves' sides at -640, 55
 game's shading off, read 0.0102 in linear light where their reference reads 0.0040, and every region
 of the view read against it as before.
 
-In the second commit a probe of the first cascade that sees none of the second's probes around it
-outside every mesh carries its rays on to the field's edge, bringing the light of what they meet and
-nothing where they meet nothing. With the placement it took the corridor's walls at High to 60 and
-62% under, its ceiling to 38% and its floor to 45%, its distance to 0.0029, 25% nearer than before
-this item, Low as the placement left it and every other room's distance as it was, the strip's room
-at High 1.0% further and the Cornell box's 0.6%, as the placement alone and the trace before this
-item with its text changed read them. Global illumination took 1.83 to 1.87 ms in the corridor at
-1920 by 1080 at High where 1.80 to 1.81 with the placement alone, and 2.41 and 2.42 in the Cornell
-box where 2.41 and 2.46. Alone it changed no room. Bringing the sky where a ray met nothing lit the
-closed room of the cascade edge tests through the cascades not yet built in its first frames at
-0.060 in linear light, over twice what its floor settles at, so it brings none.
+In the second commit a probe of a cascade below the last that sees none of the probes of the cascade
+above around it outside every mesh carries its rays on to the field's edge, bringing the light of
+what they meet and nothing where they meet nothing. With the placement it took the corridor's walls
+at High to 60 and 62% under, its ceiling to 38% and its floor to 45%, its distance to 0.0029, 25%
+nearer than before this item, Low as the placement left it and every other room's distance as it
+was, the strip's room at High 1.0% further and the Cornell box's 0.6%, as the placement alone and
+the trace before this item with its text changed read them. Global illumination took 1.83 to 1.87 ms
+in the corridor at 1920 by 1080 at High where 1.80 to 1.81 with the placement alone, and 2.41 and
+2.42 in the Cornell box where 2.41 and 2.46. Alone it changed no room. Bringing the sky where a ray
+met nothing lit the closed room of the cascade edge tests through the cascades not yet built in its
+first frames at 0.060 in linear light, over twice what its floor settles at, so it brings none.

@@ -4404,6 +4404,18 @@ batch.
     the code carries any cascade below the last; RENDERING.md and the note corrected in the tree for
     138's commit. Done at `95e088b7`, with `2b8e8541` before it.
 
+133. **The README's words under the header are the owner's.** The owner wrote on 2026-10-30 that
+    below the README's header stands "A C# engine on SDL3, Vulkan, ImGui and Slang. Raylib's design
+    over a Bevy-style ECS and scheduler, scripted with its own Unity-style behaviors. Implementing
+    Radiance Cascades. [e3d.cs]", in place of the tagline there; STYLE.md quotes the tagline and
+    follows, and every test or check that reads the README's first paragraph; the bracketed e3d.cs
+    is a question put to the owner, a link to the e3d script or a plain mark, and stands as written
+    until answered. One commit, small, documents alone. Answered on 2026-10-31 at 12:13, the
+    bracketed e3d.cs is 3DEngine's short identifier, named from its command line, since the engine's
+    name alone is general; it stays as written, a plain mark in the text, no link. Goes at once, a
+    commit of its own. Done at `00c6809a`, the words verbatim and the mark plain, STYLE.md's quote
+    with them.
+
 ## Verdicts settled
 
 Verdicts 1 to 55 are settled, the last two, the drawing leak test's resident bound and the Windows

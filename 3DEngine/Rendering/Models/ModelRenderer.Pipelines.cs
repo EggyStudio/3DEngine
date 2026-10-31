@@ -127,6 +127,8 @@ internal sealed partial class ModelRenderer
         PipelinesBound = 0;
         _callsByPass.Clear();
         _setByIds.Clear();
+        _drawSetsByLook.Clear();
+        DrawSetsWritten = 0;
         _drawSetSlot = (_drawSetSlot + 1) % SetRingFrames;
         _drawSetNext = 0;
         foreach (var sets in _shaderSets.Values) sets.Next = 0;
@@ -227,10 +229,24 @@ internal sealed partial class ModelRenderer
         return new UniformBufferBinding(_noUniforms, 0, 0, 16);
     }
 
-    // A descriptor set for one draw with a shader of its own, its uniform values in this frame's
-    // buffer at binding 0 and its texture at binding 1.
+    // This frame's sets of the draws with a shader of their own, by the shader, the values and the
+    // shader's own textures the draw was given and its five maps, so the draws of one look share a
+    // set across the frame's passes. Made and written whole for each draw in each pass, 2.8 to 3.2
+    // µs a set, the voxel game's sections, every one holding the same values, took 2,041 to 2,047
+    // sets a frame at 12 columns, 5.6 to 6.5 ms of the four passes' recording on the main thread.
+    // An entity's values are one copy a frame for every entity drawn with the shader and a call's a
+    // copy of its own, so the copies themselves tell the values apart.
+    private readonly Dictionary<(int Shader, byte[]? Values, int[]? Own, (int, int, int, int, int) Maps), IDescriptorSet> _drawSetsByLook = [];
+
+    /// <summary>How many sets this frame's draws with a shader of their own were written into, one a look.</summary>
+    internal int DrawSetsWritten { get; private set; }
+
+    // A descriptor set for the draws with a shader of their own of one look, its uniform values in
+    // this frame's buffer at binding 0 and its texture at binding 1.
     private IDescriptorSet DrawSet(IGraphicsDevice gfx, RenderContext renderContext, RenderWorld renderWorld, GpuTextures textures, ModelDraw draw, ShaderProgram program)
     {
+        var look = (draw.Shader, draw.Uniforms, draw.ShaderTextures, (draw.Texture, draw.NormalMap, draw.MetallicRoughnessMap, draw.EmissiveMap, draw.OcclusionMap));
+        if (_drawSetsByLook.TryGetValue(look, out var shared)) return shared;
         var own = program.OwnTextures(PassTextures);
         IDescriptorSet set;
         if (own.Count == 0 && program.Buffers.Count == 0)
@@ -247,7 +263,9 @@ internal sealed partial class ModelRenderer
             set = ring[shaderSets.Next++];
         }
 
+        _drawSetsByLook[look] = set;
         if (renderContext.DynamicAllocator is not { } allocator) return set;
+        DrawSetsWritten++;
 
         // A buffer at binding 0, at least one 16-byte row, unless a texture or storage buffer of the
         // shader's own has the binding, as it does in a shader with no uniforms.
