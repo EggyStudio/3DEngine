@@ -21,7 +21,7 @@ internal sealed unsafe partial class GraphicsDevice
     {
         public Matrix4x4 InverseViewProjection;
         public uint Width, Height, Samples, Bounces;
-        public uint First, FromProbe, Unused0, Unused1;
+        public uint First, FromProbe, Through, Unused;
         public Vector4 Probe;
     }
 
@@ -36,12 +36,13 @@ internal sealed unsafe partial class GraphicsDevice
     /// environment a path that meets nothing reads where they say to.
     /// </summary>
     /// <remarks>
-    /// The frames in flight are waited for first, and the samples are added a few a submission, each
-    /// waited for, so no submission runs long enough for a driver to take the device for lost. With
-    /// <paramref name="probe"/> the paths start at that point instead, a texel of the
+    /// The frames in flight are waited for first, and the samples are added a few a submission,
+    /// each waited for, so no submission runs long enough for a driver to take the device for lost.
+    /// With <paramref name="probe"/> the paths start at that point instead, a texel of the
     /// <paramref name="width"/> by <paramref name="height"/> image a texel of a probe's octahedron,
     /// and every face they meet is lit as global illumination lights one, which gives the light
-    /// arriving at a probe from each way.
+    /// arriving at a probe from each way. A path crosses a copy that lets light through by its
+    /// share where the scene holds one, and a scene that holds none is traced as it was before.
     /// </remarks>
     /// <exception cref="InvalidOperationException">The device traces no rays.</exception>
     public TracedReference TraceReference(ReadOnlySpan<byte> spirv, GpuRayScene scene, Matrix4x4 inverseViewProjection, int width, int height,
@@ -49,6 +50,7 @@ internal sealed unsafe partial class GraphicsDevice
         Vector3? probe = null)
     {
         if (!CanQueryRays) throw new InvalidOperationException("The device traces no rays.");
+        var through = scene.Copies.Any(copy => copy.LightThrough > 0);
         if (_referenceStage.Pipeline.Handle == 0)
             _referenceStage = MakeComputeStage(spirv, [VkDescriptorType.AccelerationStructureKHR, VkDescriptorType.StorageBuffer,
                 VkDescriptorType.StorageBuffer, VkDescriptorType.StorageImage, VkDescriptorType.StorageImage, VkDescriptorType.UniformBuffer,
@@ -106,6 +108,7 @@ internal sealed unsafe partial class GraphicsDevice
                     Bounces = (uint)Math.Max(1, bounces),
                     First = (uint)first,
                     FromProbe = probe is null ? 0u : 1u,
+                    Through = through ? 1u : 0u,
                     Probe = new Vector4(probe ?? Vector3.Zero, 0),
                 };
                 _deviceApi.vkCmdPushConstants(cmd, layout, VkShaderStageFlags.Compute, 0, (uint)sizeof(ReferencePush), &push);

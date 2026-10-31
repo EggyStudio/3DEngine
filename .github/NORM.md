@@ -219,6 +219,22 @@ a Markdown file named the same way, as `2026-10-25-item-122-resolution.md`, and 
 on its day under the pictures. By review, the reviewer reading each commit for the pictures its
 report names and regenerating DEVLOG.md as it archives an item.
 
+**N 4.9 A picture says what it shows, and a reading's picture carries its reading.** A plain
+capture, a pair before and after or a collage of views shows a thing seen at once, a lid on a
+cactus, a flicker between two frames, and stays as it is. Where a picture reads something, a frame
+against a reference, a mend's gain, the light at several places, it is composed as a sheet that
+explains itself without its caption, as 3DEngine's canopy and grove sheets of item 136 on 2026-10-31
+were. Such a sheet carries a title line in the picture naming the scene, its settings and any scale
+applied to the light, as `light x4`; each panel labeled in the picture with what it is, the frame,
+the reference, the shot and the variant of its row; a difference panel beside the frame and the
+reference with its legend in the label, red where the frame is brighter and blue where darker; the
+places read drawn as lettered boxes on every panel alike, their readings given by letter in the
+caption; a crop of the part in question at twice or four times the size beside the whole; the same
+view, exposure and scale in every panel with a gutter between them; and a caption saying what the
+sheet does not compare, a sky the reference lacks or plants the ray scene leaves out. A sheet is a
+few lines of Pillow over the frames a session has. The owner, shown both kinds on 2026-10-31, keeps
+both and asks for the sheet where a picture reads. By review.
+
 ## 5 Examples and games
 
 **N 5.1 An example has the followed engine's name for it where that engine has one, is opened by
@@ -370,6 +386,7 @@ not the code keeps the rule. `by review` is held by the reviewing session.
 | N 4.6 | by review | by review |
 | N 4.7 | checked, `NormTests` and `PackageContentsTests` | checked, `NormTests` |
 | N 4.8 | by review | by review |
+| N 4.9 | by review | by review |
 | N 5.1 | checked, the pack workflow's capture of every example | checked, the pack workflow's capture of every example |
 | N 5.2 | checked, `NormTests.N_5_2` before a commit and `build/examples-table.py --check` in the workflow | checked, `build/examples-table.py --check` in the workflow |
 | N 5.3 | checked, the pack workflow's games | checked, the pack workflow's Courtyard |

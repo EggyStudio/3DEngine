@@ -1339,3 +1339,6 @@ frame, the cells a crossing brings in stamped within the frame's budget of casca
 the frames after, so a player walking or flying sees no hitch at each section's edge.
 
 Review: taken as 3DEngine item 146 on 2026-10-30, the field's move on a crossing spread over frames, a cascades item placed after 131.
+Review: done in the engine at `da54d289` and `10295556` (item 146), the field's pool holding the
+build's meshes and ShadowOnly draws kept in the field, the step at 12 columns from 40 ms at its 99th
+part to 21 to 25 and the slowest from 42 to 28; in the next package.

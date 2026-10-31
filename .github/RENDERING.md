@@ -1089,32 +1089,40 @@ layer traced on a GPU. `gi.rays` turns the path off and on in a running program.
 
 Global illumination is measured against a reference the engine traces itself through the same
 structures (`BounceReference`, `gi_reference.slang`), each copy's surface record holding its
-material's roughness and metallic for it. A hit takes its mesh's vertices' colors as well, blended
-as the model pass blends them, carried in the w of each corner the structures' build leaves unread,
-so a mesh of many colors, as a voxel game's section of white concrete, is traced as drawn, where
-traced in its copy's color alone the game's rooms read a third brighter in the reference than in the
-frame. `gi.reference <png> <samples>` traces that many paths a pixel from the window's view, a few a
-submission, each waited for. It lights the first face as the model pass lights one, specular and the
-share its face reflects included, and every face after as global illumination lights one, with the
-sun and the lamps that cast shadows reaching a face where a ray toward them gets through, the
-emission at every face, the way on drawn by the cosine, Russian roulette from the third bounce, and
-the environment map or the ambient lights where a path meets nothing. It writes a PNG of the light,
-the light itself as a PFM, what each pixel's first ray met, the copy and the axis its face turns
-toward, and the names of those regions, a flat slab's top a floor and its underside a ceiling, a
-standing slab a wall by its color and the way it faces, and the rest blocks by their order.
-`gi.compare <png>` reads the window's decoded light back and gives each region's mean light in each
-channel against the reference's, the difference and its share of the reference, and writes a picture
-of the difference, red where the frame is brighter and blue where it is darker.
+material's roughness, metallic and share of light through for it. A hit takes its mesh's vertices'
+colors as well, blended as the model pass blends them, carried in the w of each corner the
+structures' build leaves unread, so a mesh of many colors, as a voxel game's section of white
+concrete, is traced as drawn, where traced in its copy's color alone the game's rooms read a third
+brighter in the reference than in the frame. `gi.reference <png> <samples>` traces that many paths a
+pixel from the window's view, a few a submission, each waited for. It lights the first face as the
+model pass lights one, specular and the share its face reflects included, and every face after as
+global illumination lights one, with the sun and the lamps that cast shadows reaching a face where a
+ray toward them gets through, the emission at every face, the way on drawn by the cosine, Russian
+roulette from the third bounce, and the environment map or the ambient lights where a path meets
+nothing. A path after the camera's first ray crosses a copy that lets light through by its share to
+the power of its depth along the ray, from the face it enters by to the nearest face the copy turns
+out along the ray, `cross(b - a, c - a)` as the field takes it, or to another copy's face nearer, a
+sheet with no face to leave by having none, while the camera sees the copy and it shadows the sun
+and the lamps as the model pass and the shadow maps hold it. A scene with no such copy is traced as
+before. It writes a PNG of the light, the light itself as a PFM, what each pixel's first ray met,
+the copy and the axis its face turns toward, and the names of those regions, a flat slab's top a
+floor and its underside a ceiling, a standing slab a wall by its color and the way it faces, and the
+rest blocks by their order. `gi.compare <png>` reads the window's decoded light back and gives each
+region's mean light in each channel against the reference's, the difference and its share of the
+reference, and writes a picture of the difference, red where the frame is brighter and blue where it
+is darker.
 `BounceReferenceTests` holds the reference to a closed box whose walls are all equally emissive,
 which it shows as their emission over one less the walls' color, 2.01 within 2%, and to a lone slab
-under a lamp, which the frame and the reference read alike to a hundredth of a percent. The Cornell
-box at 800 by 450 takes 1.0 s on the RTX 4070 for 1,024 paths a pixel. `shaders_bounce_rooms` holds
-the cases global illumination finds hardest, a room each forty units apart with a camera fixed on
-it. They are the Cornell box, a room of walls thinner than the field's cell with a lamp outside it,
-a corridor lit from its open end, the sun through a window, white blocks beside red walls one, three
-and six units off, a small bright strip in a dark room, a floor seen at a grazing angle, and a room
-whose lamp a key carries and whose wall another moves. `build/bounce-rooms.sh` captures each view,
-traces its reference at `High` and compares each quality's frame with it.
+under a lamp, which the frame and the reference read alike to a hundredth of a percent, and to a
+floor under a black slab a unit thick letting half through, which takes 0.3358 of the open floor's
+light where the slab's depth along each way gives 0.3360. The Cornell box at 800 by 450 takes 1.0 s
+on the RTX 4070 for 1,024 paths a pixel. `shaders_bounce_rooms` holds the cases global illumination
+finds hardest, a room each forty units apart with a camera fixed on it. They are the Cornell box, a
+room of walls thinner than the field's cell with a lamp outside it, a corridor lit from its open
+end, the sun through a window, white blocks beside red walls one, three and six units off, a small
+bright strip in a dark room, a floor seen at a grazing angle, and a room whose lamp a key carries
+and whose wall another moves. `build/bounce-rooms.sh` captures each view, traces its reference at
+`High` and compares each quality's frame with it.
 
 What the light holds is drawn to be looked at (`BounceViewRenderer`), as `gi.show` and
 `DrawBounceWindow` choose it. `gi_view.slang` draws over the window after its shapes and before
@@ -2117,6 +2125,25 @@ share of the sky's light to four places, 0.30 at High two and a half units under
 differing between the two no more than between two runs of either. The path-traced reference holds
 every surface solid, so no reference reads the light through the leaves, and the references the
 tests hold read as before.
+
+**Light through against the path-traced reference, read on 2026-10-31.** The reference crossing
+what lets light through as global illumination's rays do (item 136), the floor under the canopy of
+leaf blocks two deep and twenty a side letting half through, read at 640 by 384 at the point its
+test reads, takes this share of the sky's light the solid canopy holds back:
+
+| | Reference | High | Low |
+|---|---|---|---|
+| Two and a half units up | 0.17 | 0.28 | 0.18 |
+| Five and a half units up | 0.21 | 0.25 | |
+
+High lets 65% more through than the reference two and a half up, and the test's bounds hold what
+global illumination read. Under the solid canopy there the floor read 0.0096 in linear light at High
+where the reference 0.0061, and under the leaves 0.0396 where 0.0237, where the reference holding
+them solid read 0.0061 too. In the voxel game's cherry grove at seed 1 at 1280 by 720, the game's
+shading off, the crowns' tops read in the frame as in the reference crossing the leaves, 0% where
+-9% against the one holding them solid, the floor under a crown -8% where +5%, and each pixel's
+difference in red 0.058 where 0.140 on the mean; its grass and petals, which the field leaves out,
+are in the frame alone.
 
 **The screen's probes on thin two-sided walls, read on 2026-10-26.** In a room built as the voxel
 game's wheat field, thin two-sided walls a block tall four to a block, half a unit apart, under the

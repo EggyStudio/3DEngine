@@ -1,25 +1,28 @@
 // A path-traced reference of the window's picture, which global illumination is measured against.
 // From each pixel it traces paths through the window's meshes as the device's ray tracing holds
 // them (GpuRayScene), each hit a copy's color times its mesh's vertices' colors there, and its
-// emission. The first hit is lit as the model pass lights one, each light's diffuse share
-// past what its face reflects and its specular share by the material's roughness and metallic, and
-// every hit after it as global illumination lights one, its color times what arrives. A light
-// that casts shadows reaches a hit only where a ray toward it gets through, as the shadow maps and
-// the field let it. A path goes on in a direction drawn by the cosine about the face's normal, ends
-// at what Russian roulette draws after its third bounce, and brings back the sky, the environment
-// map's or the ambient lights', where it meets nothing. Lights are given as the model pass has
-// them, the light a white diffuse surface facing one returns, so a surface's diffuse light is its
-// color times what arrives, with no pi. Each pass adds its samples to an image of sums, the count
-// in alpha, and its first sample of each pixel, through the pixel's middle, writes what it met into
-// the image of regions, the copy's index times eight and the axis its face turns toward most, plus
-// one, or 0 for nothing. Started at a probe instead, a texel of the image is a texel of the probe's
-// octahedron, its paths leaving the probe's middle through it and every face they meet lit as
-// global illumination lights one, so the image is the light arriving at the probe from each way, as
-// its rays and the merge of the cascades above should bring it. The emission of a glow light global
-// illumination carries is left out where such a path first meets it, as the probe's rays leave it
-// out, since it reaches a surface as a light rather than through the probes; counted, the rays of
-// twelve probes around four emissive blocks read 44 to 70% under it at one bounce, where left out
-// they read within 12% of it, all but the dimmest.
+// emission. The first hit is lit as the model pass lights one, each light's diffuse share past what
+// its face reflects and its specular share by the material's roughness and metallic, and every hit
+// after it as global illumination lights one, its color times what arrives. A light that casts
+// shadows reaches a hit only where a ray toward it gets through, as the shadow maps and the field
+// let it. A path goes on in a direction drawn by the cosine about the face's normal, ends at what
+// Russian roulette draws after its third bounce, and brings back the sky, the environment map's or
+// the ambient lights', where it meets nothing. A path after the camera's first ray crosses a copy
+// that lets light through (ModelMaterial.LightThrough) by its share, as global illumination's rays
+// cross a canopy's leaves, and meets it as a solid face otherwise, while the camera sees it and it
+// shadows the sun and the lamps, as the model pass and the shadow maps hold it. Lights are given as
+// the model pass has them, the light a white diffuse surface facing one returns, so a surface's
+// diffuse light is its color times what arrives, with no pi. Each pass adds its samples to an image
+// of sums, the count in alpha, and its first sample of each pixel, through the pixel's middle,
+// writes what it met into the image of regions, the copy's index times eight and the axis its face
+// turns toward most, plus one, or 0 for nothing. Started at a probe instead, a texel of the image
+// is a texel of the probe's octahedron, its paths leaving the probe's middle through it and every
+// face they meet lit as global illumination lights one, so the image is the light arriving at the
+// probe from each way, as its rays and the merge of the cascades above should bring it. The
+// emission of a glow light global illumination carries is left out where such a path first meets
+// it, as the probe's rays leave it out, since it reaches a surface as a light rather than through
+// the probes; counted, the rays of twelve probes around four emissive blocks read 44 to 70% under
+// it at one bounce, where left out they read within 12% of it, all but the dimmest.
 
 import color;
 
@@ -33,6 +36,7 @@ struct RaySurface
     // rgb: its emission, linear. w: 1 where global illumination carries it as a glow light.
     float4 emission;
     // x: its mesh's first corner in corners. y: its roughness's bits. z: its metallic's bits.
+    // w: the bits of the share of light that passes a unit of its depth.
     uint4 corners;
 };
 
@@ -40,7 +44,7 @@ struct RaySurface
 StructuredBuffer<RaySurface> surfaces;
 
 // Every mesh's corners in its own space, and in w each corner's color, three sRGB bytes under a bit
-// that keeps the word a whole float (GpuRayScene).
+// that keeps the uint a whole float (GpuRayScene).
 [[vk::binding(2, 0)]]
 StructuredBuffer<float4> corners;
 
@@ -96,7 +100,7 @@ struct ReferencePush
     // x, y: the image's size. z: the samples a pixel this pass adds. w: the most bounces a path takes.
     uint4 sizeAndCounts;
     // x: the first sample this pass adds, which seeds its random numbers. y: 1 where the paths
-    // start at a probe. zw: unused.
+    // start at a probe. z: 1 where a copy lets light through. w: unused.
     uint4 first;
     // xyz: the probe's middle, where the paths start at one.
     float4 probe;
@@ -111,8 +115,8 @@ static const float Pi = 3.14159265;
 float random(inout uint state)
 {
     state = state * 747796405u + 2891336453u;
-    uint word = ((state >> ((state >> 28u) + 4u)) ^ state) * 277803737u;
-    return float((word >> 22u) ^ word) / 4294967296.0;
+    uint mixed = ((state >> ((state >> 28u) + 4u)) ^ state) * 277803737u;
+    return float((mixed >> 22u) ^ mixed) / 4294967296.0;
 }
 
 // The light a lamp sends to a point facing n, as the model pass's arriving gives it, with the way toward it.
@@ -232,6 +236,105 @@ float3 fromOctahedron(float2 uv)
     return normalize(d);
 }
 
+// The face a ray met, its copy, its triangle, how far along, where on the triangle, and the copy's
+// world to its mesh's space.
+struct Met
+{
+    bool met;
+    uint instance;
+    uint primitive;
+    float t;
+    float2 between;
+    float3x4 worldToObject;
+};
+
+// The nearest face along a ray from tMin on, every face met as it is.
+Met nearestFace(float3 origin, float3 way, float tMin)
+{
+    RayQuery<RAY_FLAG_FORCE_OPAQUE> query;
+    RayDesc ray;
+    ray.Origin = origin;
+    ray.Direction = way;
+    ray.TMin = tMin;
+    ray.TMax = 1e5;
+    query.TraceRayInline(scene, RAY_FLAG_NONE, 0xFF, ray);
+    query.Proceed();
+    Met hit;
+    hit.met = query.CommittedStatus() == COMMITTED_TRIANGLE_HIT;
+    hit.instance = query.CommittedInstanceID();
+    hit.primitive = query.CommittedPrimitiveIndex();
+    hit.t = query.CommittedRayT();
+    hit.between = query.CommittedTriangleBarycentrics();
+    hit.worldToObject = query.CommittedWorldToObject3x4();
+    return hit;
+}
+
+// The way a copy's triangle faces out of its mesh, cross(b - a, c - a) of its corners in the world,
+// as the scene's field takes a closed mesh's inside to lie behind its faces.
+float3 faceOut(float3x4 toWorld, uint instance, uint primitive)
+{
+    uint corner = surfaces[instance].corners.x + primitive * 3u;
+    float3 a = mul(toWorld, float4(corners[corner].xyz, 1.0));
+    float3 b = mul(toWorld, float4(corners[corner + 1u].xyz, 1.0));
+    float3 c = mul(toWorld, float4(corners[corner + 2u].xyz, 1.0));
+    return cross(b - a, c - a);
+}
+
+// The nearest face along a ray from tMin on but the faces a ray leaves a copy that lets light
+// through by, so a path crossing a canopy meets each block's near face, and its far face, and the
+// near face of the block behind it in the same plane, let it on.
+Met nearestEntered(float3 origin, float3 way, float tMin)
+{
+    RayQuery<RAY_FLAG_FORCE_NON_OPAQUE> query;
+    RayDesc ray;
+    ray.Origin = origin;
+    ray.Direction = way;
+    ray.TMin = tMin;
+    ray.TMax = 1e5;
+    query.TraceRayInline(scene, RAY_FLAG_NONE, 0xFF, ray);
+    while (query.Proceed())
+    {
+        uint instance = query.CandidateInstanceID();
+        if (asfloat(surfaces[instance].corners.w) > 0.0
+            && dot(faceOut(query.CandidateObjectToWorld3x4(), instance, query.CandidatePrimitiveIndex()), way) > 0.0)
+            continue;
+        query.CommitNonOpaqueTriangleHit();
+    }
+    Met hit;
+    hit.met = query.CommittedStatus() == COMMITTED_TRIANGLE_HIT;
+    hit.instance = query.CommittedInstanceID();
+    hit.primitive = query.CommittedPrimitiveIndex();
+    hit.t = query.CommittedRayT();
+    hit.between = query.CommittedTriangleBarycentrics();
+    hit.worldToObject = query.CommittedWorldToObject3x4();
+    return hit;
+}
+
+// How far a ray that entered a copy letting light through at t runs inside it, to the nearest of
+// the faces it leaves the copy by or of another copy's faces within 256 units, or 0 where it leaves
+// the copy by none, as past a sheet, which has no depth.
+float depthInside(float3 origin, float3 way, float t, uint instance)
+{
+    RayQuery<RAY_FLAG_FORCE_NON_OPAQUE> query;
+    RayDesc ray;
+    ray.Origin = origin;
+    ray.Direction = way;
+    ray.TMin = t + 1e-4;
+    ray.TMax = t + 256.0;
+    query.TraceRayInline(scene, RAY_FLAG_NONE, 0xFF, ray);
+    float leaves = 1e30, other = 1e30;
+    while (query.Proceed())
+    {
+        uint met = query.CandidateInstanceID();
+        float at = query.CandidateTriangleRayT();
+        if (met != instance)
+            other = min(other, at);
+        else if (dot(faceOut(query.CandidateObjectToWorld3x4(), met, query.CandidatePrimitiveIndex()), way) > 0.0)
+            leaves = min(leaves, at);
+    }
+    return leaves < 1e30 ? min(leaves, other) - t : 0.0;
+}
+
 // The light one path brings back from origin along way, and what its first ray met. From the
 // camera the first face is lit as the model pass lights one, and from a probe as global
 // illumination does.
@@ -243,28 +346,31 @@ float3 trace(float3 origin, float3 way, bool fromProbe, inout uint state, out ui
 
     for (uint bounce = 0u; bounce < push.sizeAndCounts.w; bounce++)
     {
-        RayQuery<RAY_FLAG_FORCE_OPAQUE> query;
-        RayDesc ray;
-        ray.Origin = origin;
-        ray.Direction = way;
-        ray.TMin = 0.0;
-        ray.TMax = 1e5;
-        query.TraceRayInline(scene, RAY_FLAG_NONE, 0xFF, ray);
-        query.Proceed();
-        if (query.CommittedStatus() != COMMITTED_TRIANGLE_HIT)
+        // A copy that lets light through is crossed by the share its depth along the ray keeps,
+        // which a random number draws, 32 crossings at most before a bounce.
+        bool crosses = push.first.z == 1u && (bounce > 0u || fromProbe);
+        Met hit = crosses ? nearestEntered(origin, way, 0.0) : nearestFace(origin, way, 0.0);
+        for (int crossing = 0; crosses && hit.met && crossing < 32; crossing++)
+        {
+            float through = asfloat(surfaces[hit.instance].corners.w);
+            if (!(through > 0.0) || random(state) >= pow(min(through, 1.0), depthInside(origin, way, hit.t, hit.instance)))
+                break;
+            hit = nearestEntered(origin, way, hit.t + 1e-4);
+        }
+        if (!hit.met)
         {
             light += throughput * sky(way);
             break;
         }
 
-        uint instance = query.CommittedInstanceID();
+        uint instance = hit.instance;
         RaySurface surface = surfaces[instance];
-        uint corner = surface.corners.x + query.CommittedPrimitiveIndex() * 3u;
+        uint corner = surface.corners.x + hit.primitive * 3u;
         float3 a = corners[corner].xyz, b = corners[corner + 1u].xyz, c = corners[corner + 2u].xyz;
-        float3 n = normalize(mul(cross(b - a, c - a), (float3x3)query.CommittedWorldToObject3x4()));
+        float3 n = normalize(mul(cross(b - a, c - a), (float3x3)hit.worldToObject));
         if (dot(n, way) > 0.0)
             n = -n;
-        float3 p = origin + way * query.CommittedRayT();
+        float3 p = origin + way * hit.t;
         if (bounce == 0u)
         {
             float3 m = abs(n);
@@ -277,7 +383,7 @@ float3 trace(float3 origin, float3 way, bool fromProbe, inout uint state, out ui
         float metallic = saturate(asfloat(surface.corners.z));
         // The copy's color times its mesh's vertices' colors at the hit, blended as the model pass
         // blends them, so a mesh of many colors, as a voxel game's section, is traced in them.
-        float2 between = query.CommittedTriangleBarycentrics();
+        float2 between = hit.between;
         float3 color = surface.color.rgb * (cornerColor(corners[corner]) * (1.0 - between.x - between.y)
             + cornerColor(corners[corner + 1u]) * between.x + cornerColor(corners[corner + 2u]) * between.y);
         float3 given = fromProbe && bounce == 0u && surface.emission.w > 0.5 ? float3(0.0) : surface.emission.rgb;

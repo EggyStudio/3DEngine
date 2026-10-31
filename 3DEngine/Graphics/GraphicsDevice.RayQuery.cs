@@ -43,7 +43,9 @@ internal sealed unsafe class AddressedBuffer : IDisposable
 /// <param name="Roughness">Its material's roughness, which a path traced reference lights its face by.</param>
 /// <param name="Metallic">Its material's metallic.</param>
 /// <param name="Carried">Whether global illumination carries it as a glow light, whose light a probe's rays leave out where they meet it, as a probe's reference does.</param>
-internal readonly record struct RayInstance(object Mesh, Matrix4x4 World, Vector3 Color, Vector3 Emission, float Roughness = 1, float Metallic = 0, bool Carried = false);
+/// <param name="LightThrough">The share of light that passes a unit of its depth (<see cref="ModelMaterial.LightThrough"/>), which a path traced reference crosses it by.</param>
+internal readonly record struct RayInstance(object Mesh, Matrix4x4 World, Vector3 Color, Vector3 Emission, float Roughness = 1, float Metallic = 0, bool Carried = false,
+    float LightThrough = 0);
 
 /// <summary>
 /// The window's meshes as the device's ray tracing sees them, a bottom-level acceleration structure
@@ -100,15 +102,14 @@ internal sealed unsafe partial class GraphicsDevice
         public ulong Structure;
     }
 
-    // A copy as rayScene's RaySurface holds it, its roughness and metallic as gi_reference.slang
-    // reads them.
+    // A copy as rayScene's RaySurface holds it, its roughness, metallic and share of light through
+    // as gi_reference.slang reads them.
     [StructLayout(LayoutKind.Sequential)]
     private struct SurfaceRecord
     {
         public Vector4 Color, Emission;
         public uint FirstCorner;
-        public float Roughness, Metallic;
-        public uint Unused;
+        public float Roughness, Metallic, LightThrough;
     }
 
     private const uint CullDisableAndOpaque = 0x1 | 0x4;
@@ -236,7 +237,7 @@ internal sealed unsafe partial class GraphicsDevice
 
     // Writes a mesh's corners after those the buffer holds, made again larger where they do not
     // fit, and gives where the first lies. Each corner's color rides in the w its structure's build
-    // leaves unread, three sRGB bytes under a bit that keeps the word a whole float rather than one
+    // leaves unread, three sRGB bytes under a bit that keeps the uint a whole float rather than one
     // a GPU may read as nothing, so the reference and a ray's reflection take a mesh's vertices'
     // colors as the model pass and the field do.
     private int AddCorners(GpuRayScene scene, Vector3[] corners, uint[]? colors, Retired retired)
@@ -331,6 +332,7 @@ internal sealed unsafe partial class GraphicsDevice
                 FirstCorner = (uint)mesh.FirstCorner,
                 Roughness = instance.Roughness,
                 Metallic = instance.Metallic,
+                LightThrough = instance.LightThrough,
             };
             copies.Add(instance);
             i++;

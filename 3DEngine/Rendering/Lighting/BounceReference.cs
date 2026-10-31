@@ -26,7 +26,9 @@ namespace Engine;
 /// its texture's average and its mesh's vertices' colors at the hit, blended as the model pass
 /// blends them, and its emission, its first face lit as the model pass lights one
 /// and every face after as global illumination does, the sun as the first directional light, and
-/// the sky as the environment map or the ambient lights.
+/// the sky as the environment map or the ambient lights. A path after the camera's first ray
+/// crosses a copy whose material lets light through (<see cref="ModelMaterial.LightThrough"/>) by
+/// its share for the copy's depth along it, as global illumination's rays cross a canopy.
 /// </para>
 /// </remarks>
 internal static class BounceReference

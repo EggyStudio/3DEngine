@@ -309,6 +309,52 @@ public sealed class BounceReferenceTests : IDisposable
         UnloadModel(wall);
     }
 
+    [NeedsRayQueryFact]
+    public void A_Floor_Under_A_Slab_Letting_Half_The_Light_Through_Reads_In_The_Reference_The_Sky_Its_Depth_Keeps()
+    {
+        // A white floor lit by the sky alone under a black slab a unit thick and eighty across that
+        // lets half the light through a unit (ModelMaterial.LightThrough). A path leaving the floor
+        // at a way whose cosine to the floor's normal is mu crosses 1 / mu of the slab and keeps a
+        // half to that power, so the floor takes of the open floor's light twice the integral over
+        // mu from 0 to 1 of mu times a half to the 1 / mu, 0.335, and the ways past the slab's edge
+        // 0.0006 more. It read 0.3358 on the development machine's GPU.
+        var config = Config.Default.WithWindow("bounce reference test", 160, 120) with { Headless = true, Offscreen = true, Samples = 1 };
+        UseApp(new App(config).AddPlugin(new DefaultPlugins()));
+        SetSceneField(2, 0.25f, 1);
+        SetGlobalIllumination(GlobalIllumination.High);
+        SetTonemap(Tonemap.None);
+        SetAmbientLight(Color.White, 1);
+        var block = LoadModelFromMesh(GenMeshCube(1, 1, 1));
+        var leaves = LoadModelFromMesh(GenMeshCube(1, 1, 1));
+        leaves.Materials[0].LightThrough = 0.5f;
+        var camera = new Camera3D(new Vector3(0, 0.5f, 0.6f), Vector3.Zero, Vector3.UnitY, 45);
+        float Floor(Model? slab, string name)
+        {
+            for (int frame = 0; frame < 12; frame++)
+            {
+                BeginDrawing();
+                ClearBackground(Color.Black);
+                BeginMode3D(camera);
+                DrawModelEx(block, new Vector3(0, -0.1f, 0), Vector3.UnitY, 0, new Vector3(80, 0.2f, 80), Color.White);
+                if (slab is { } roof) DrawModelEx(roof, new Vector3(0, 1.5f, 0), Vector3.UnitY, 0, new Vector3(80, 1, 80), Color.Black);
+                EndMode3D();
+                EndDrawing();
+            }
+            var path = Path.Combine(_folder.Path, name + ".png");
+            BounceReference.Trace(GetApp().World, path, 64).Should().StartWith("traced");
+            var regions = BounceReference.Measure(GetApp().World, path, out var why, out _);
+            regions.Should().NotBeNull(why);
+            var floor = regions!.Single(r => r.Name.EndsWith("floor", StringComparison.Ordinal));
+            floor.Pixels.Should().BeGreaterThan(10000, "the floor fills the view");
+            return floor.Reference.Y;
+        }
+        var open = Floor(null, "open");
+        var under = Floor(leaves, "under");
+        (under / open).Should().BeApproximately(0.336f, 0.01f, $"the slab keeps the share of the sky's light its depth along each way gives, {under:0.0000} of {open:0.0000}");
+        UnloadModel(block);
+        UnloadModel(leaves);
+    }
+
     // A PFM file's floats, whatever their order.
     private static float[] ReadPfm(string path)
     {

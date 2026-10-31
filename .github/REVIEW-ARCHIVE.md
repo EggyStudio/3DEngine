@@ -3387,7 +3387,8 @@ batch.
     inside, red before; the game then draws its culled sections toward the sun within the shadow
     distance through it, its item 123. One commit, small, first. Done at `e5ad8d28` on 2026-10-24,
     ModelMaterial.ShadowOnly with its test and its lines; the game's item 123 takes it with the
-    package.
+    package. Changed at `10295556` (item 146), the field holding ShadowOnly draws as any other, the
+    reviewer's call open to the owner's word.
 
 104. **A test runs an app's behaviors through the package.** From the voxel game's first ECS piece,
     the drops as entities at its `5113176` on 2026-10-24, read at 18:53, its ASKS.md entry of
@@ -4298,6 +4299,45 @@ batch.
     and a second where two faces tie, the wheat room's walls within half a percent of the reference
     with the screen probes, the dark patch at a crossing on the grid a lead taken by item 137's
     probe placement.
+
+146. **The field follows the eye without a whole cascade's CPU work in one frame.** From the voxel
+    game's item 145, its ASKS.md entry of 2026-10-30, a cascades item of Decision 75 placed after
+    131 since it is the stutter a player feels. A step of one section over loaded land costs
+    cpu.scene_field 12 to 42 ms in the frame of the crossing, a cascade moved and its cells splatted
+    again at once, the game's flights reading 64 to 79 ms at their slowest frames. The field's move
+    on a crossing is spread over frames, a slab of cells a frame within a budget with the old cells
+    read until replaced, or the cascades scroll by whole cells so only the entering slab is
+    splatted; read by the step test's frame at its slowest and 99th part at 8 and 12 columns before
+    and after, the bounce rooms and the grove's light unchanged. One or two commits. Read on
+    2026-10-31 with the eye stepped a section east and back twenty times, the cascade's move itself
+    about 0.1 ms of the CPU, the slowest frame two other things, the triangle pool sized at twice
+    one frame's part of the build and made again each frame as the next part overflows it with every
+    mesh's open edges found again, 11 to 13 ms, and the stamping's three-way sort finding the parts
+    of the 16 to 27 sections that come back at a crossing, 11 to 18 ms, the churn's source the
+    game's flood toggling sections' ShadowOnly as the eye crosses while the field leaves ShadowOnly
+    draws out since item 101. The mend in one commit, each mesh's open edges kept once found and the
+    pool grown to hold the build's meshes, the parts found once a mesh with a plain sort and a mesh
+    that comes back where it stood returning settled rather than stamped; then the cost read of
+    keeping ShadowOnly draws in the field, which stops the churn at its source and holds sky light
+    off a cave under hidden rock as the shadows do, and if the field's build and memory bear it on
+    the game at 12 columns, a second commit does it, item 101's meaning changed by the reviewer's
+    call, open to the owner's word. No slab spreading or scrolling, the move not being the cost.
+    First commit `da54d289`, read at 07:24. The pool holds the build's meshes, open edges kept once
+    found, the parts cut with a sort by keys, SceneField.Pool.cs; the step test over two rounds at
+    12 columns reads the 99th part 40.0 and 39.1 ms to 24.8 and 24.5, the slowest 42.6 and 41.2 to
+    28.7 and 26.4, the median 20.7 to 16.9 and 16.1, at 8 columns the 99th part 25.4 and 25.8 to
+    13.7 and 13.6; the grove's frames 0.05 of 255 apart on the mean, global illumination 6.82 ms
+    either way, the bounce rooms' tests as they were. A section that comes back where it stood is
+    still stamped as its parts, left since the second commit, ShadowOnly draws kept in the field,
+    stops the leaving and coming back; if that commit does not land, the settled return comes back
+    into this item. Second commit `10295556`, read at 08:00. ShadowOnly draws kept in the field,
+    ModelDrawList and SceneField; at 12 columns the still frame 15.5 ms either way, global
+    illumination 3.55, cpu.scene_field 0.41 to 0.43, the steps' 99th part 22.9 and 19.9 to 20.7 and
+    20.1 and the slowest 26.4 and 28.6 to 27.6 and 28.9, the GPU's blocks 304 and 352 MiB alike, the
+    grove's global illumination 6.8 ms and its frames 0.07 of 255 apart; a room under a ShadowOnly
+    roof reads 0.0001 inside where 0.058 before, the open ground's light whole. Item 101's meaning
+    changed by the reviewer's call, open to the owner's word. Done at `10295556`, with `da54d289`
+    before it.
 
 ## Verdicts settled
 
@@ -6406,3 +6446,9 @@ Shared: Schlick's Fresnel takes its base, one less the dot of the view and the h
 dot rounds a hair over 1, and the fifth power of a base under 0 is no number on lavapipe, which
 takes a power as exp2 of a logarithm; a room lit by a light at its camera read 12,617 of 57,600
 pixels black there and none after (item 97, `PointLightAtEyeTests`).
+
+Shared: a mesh drawn into the shadow maps alone is held in the scene's field as any other, so a cave
+under rock the view leaves out keeps the sky's light off its floor as the shadows keep the sun off,
+and the field's pool of triangles holds the build's meshes with each mesh's open edges kept once
+found, which took the voxel game's frames at their 99th part from 40 ms to 25 as its eye crossed
+sections at 12 columns (item 146).

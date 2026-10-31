@@ -87,9 +87,130 @@ room of sheets took 0.048 of the sky's light at Low and 0.0085 at High where 0.0
 the grove's global illumination 5.66 to 5.68 ms where 5.65 to 5.68 with one plane, the second read
 costing nothing the frames show.
 
+The scene field's work as the voxel game's eye crosses a section, read on the engine's tree against
+`fdde73b2` built in Release and put into the game at `8a1e308` on 5.2.333, on an RTX 4070 Laptop GPU
+under tuned's `powersave-bazzite`. The eye flew at 90 over seed 1's spawn at noon looking east, at
+1280 by 720 offscreen with the frames unlimited, and stepped a section east and back twenty times,
+30 frames apart, over land loaded, two rounds of each build by turns.
+
+A scratch copy timing each part of the field's node at 12 columns read the slowest frame at 47.4
+ms, 34.4 of it 27 sections cut into their parts as they came back into the field and 10.9 the pool
+of triangles made again with 12 meshes' open edges found again, 0.9 ms each. The cascade's move,
+the builds and the splat took 0.1 ms. Over the run the pool was made again 427 times, since it was
+sized for one frame's part of the build and the next part's meshes overflowed it, each time with
+every mesh's corners written and open edges found again, 11,344 meshes in 10.1 s, 9.5 ms of the
+CPU a frame. The sections come back because the game's flood marks the sections the eye cannot see
+`ShadowOnly` and the field leaves those out (item 101), so a crossing takes some out and puts
+others back.
+
+The pool made for the build's meshes, each mesh's open edges kept once found and the parts cut with
+a sort by keys in place of LINQ's, the frames over the steps in milliseconds, the two rounds:
+
+| Columns | | Median | 99th part | Slowest |
+|---|---|---|---|---|
+| 8 | before | 12.5, 13.2 | 25.4, 25.8 | 30.1, 40.0 |
+| 8 | after | 10.8, 10.5 | 13.7, 13.6 | 20.3, 14.3 |
+| 12 | before | 20.7, 20.8 | 40.0, 39.1 | 42.6, 41.2 |
+| 12 | after | 16.9, 16.1 | 24.8, 24.5 | 28.7, 26.4 |
+
+A section that comes back where it stood is still stamped as its parts until it settles, which item
+146 asked be returned settled. Keeping `ShadowOnly` draws in the field, the second commit, stops
+sections leaving and coming back at a crossing, so that path is left as it was.
+
+Neither changes what the field holds. At seed 1's cherry grove at High at 1920 by 1080 the frames
+before and after lay 0.05 of 255 apart on the mean, 0.015% of their pixels by more than 8 levels
+where the leaves and the mobs moved, global illumination 6.82 ms either way, and the bounce rooms'
+tests read as they did.
+
+Keeping the `ShadowOnly` draws in the field, the second commit, read at 12 columns at the spawn by
+turns with each build twice:
+
+| | Without | With |
+|---|---|---|
+| A still view's frame | 15.49, 15.31 ms | 15.46, 15.53 ms |
+| Global illumination, still | 3.55, 3.56 ms | 3.53, 3.56 ms |
+| Every cascade built each frame, `gpu.scene_field` | 0.676, 0.665 ms | 0.677, 0.675 ms |
+| Every cascade built each frame, `cpu.scene_field` | 0.41, 0.41 ms | 0.43, 0.43 ms |
+| The steps' 99th part | 22.9, 19.9 ms | 20.7, 20.1 ms |
+| The steps' slowest | 26.4, 28.6 ms | 27.6, 28.9 ms |
+
+The field's images take what their cascades take whatever is in them, and the program's GPU blocks
+held 304 and 352 MiB in each build's two rounds alike. At the cherry grove read by turns, global
+illumination took 6.78 to 6.82 ms without and 6.80 to 6.81 with, the scene pass 9.7 to 10.3 either
+way, and the frames lay 0.07 of 255 apart on the mean.
+
+The field holding what the shadows hold changes item 101's meaning by the reviewer's call, since a surface blocks light whether it is drawn or not. A cave under rock the
+eye cannot see keeps the sky's light off its floor in global illumination as the shadows keep the
+sun off it, and a section the flood hides as the eye crosses stays in the field. A room of walls
+under a roof drawn into the shadow maps alone, the new test's, read 0.0001 inside as under a roof
+drawn, where with the roof left out of the field 0.058, the open ground's whole.
+
+The suite's time on Linux between `2ad96a80` and `b16f26b5`, read from the two pushes' runs and from
+the classes of the scene field and global illumination run at each commit on lavapipe with the
+validation layer, on this machine's Intel i9-14900HX under tuned's `powersave-bazzite`.
+
+The run of `2ad96a80` ran the suite whole in 34 m 4 s, and shuffled in 32 m 24 s. That of
+`b16f26b5` was at its last tests when its whole run met the limit of 40 minutes, 2,090 ended and 20
+of four classes left, `AppLeakTests`' at app 66 of 100 and three of audio. A test that ends in under
+a millisecond is printed with `[< 1 ms]`, which build/test.py's line for an ended test did not take,
+so it read 1,582 of them, and the 508 of `Api`, `Rendering` and the rest that ended so fast had no
+result. Every part holding one ran again from its start, `Rendering`'s 529 for 34 m 51 s where the
+whole run had ended each, so the page took 80 m 5 s and the shuffled run reached the job's 100
+minutes. Read with the line mended, the three parts holding the 20 run again, and a part run again
+runs those tests alone, a class whose every test is left by its name and the rest by their methods'
+names, so it goes on from where the whole run was and is not begun again.
+
+The tests that changed between the two commits are item 131's in `SceneFieldTests.Sheets.cs`, a
+closed room of double-sided sheets at Low and at High, new, and a sheet met at its plane in place of
+one crossing zero, 3.1 s either. The nine classes ran in 42.0 minutes at `2ad96a80` and 45.3 at
+`b16f26b5`, 1.1 of it the closed room, and those that grew most:
+
+| Test | `2ad96a80` | `b16f26b5` |
+|---|---|---|
+| The closed room of sheets stays dark, High | | 39.3 s |
+| The closed room of sheets stays dark, Low | | 25.9 s |
+| An emissive block shut in a room keeps the device | 97.6 s | 106.5 s |
+| A wall sees four joined lamps past a pillar | 64.7 s | 69.4 s |
+| Global illumination holds still as the camera slides | 54.8 s | 59.4 s |
+| Far from the world's origin no more land is black | 83.3 s | 87.5 s |
+| A lamp's light rises past a pillar's edge | 46.3 s | 49.8 s |
+| An emissive block's pool reads alike from forty blocks | 51.0 s | 54.2 s |
+| The thin wall's foot takes no light from the lamp outside | 52.1 s | 55.2 s |
+
+The rest is spread over every test that draws global illumination, its classes 6 to 8% slower, the
+reference frames 2% and the subsurface spheres, which draw none, 0.6%, the probes' rays reading the
+plane a cell keeps, as global illumination took 5.64 ms where 5.27 in the voxel game's cherry grove
+on the GPU (item 131's note). On the runner the whole run grew by six minutes or more, more than the
+same share would give. Its results at `2ad96a80` were not kept, since they are uploaded on a failure
+or a cancel alone, so the runner's own times test by test are not read.
+
+The shut-in block, the slowest of them, read at `b16f26b5` with one thing changed at a time, a
+frame's time after its first:
+
+| The shut-in block | A frame |
+|---|---|
+| As the test draws it, 640 by 360 at High, four cascades, 120 frames and 240 | 287 ms |
+| 320 by 180 | 277 ms |
+| 160 by 90 | 268 ms |
+| Three cascades | 240 ms |
+| Two cascades | 185 ms |
+| Low | 189 ms |
+| Global illumination off | 40 ms |
+| 30 frames and 60 | 482 ms |
+
+A sixteenth of the pixels takes 7% off, so a smaller window reads no faster on lavapipe, and most of
+the slow tests draw at 320 by 180 or 160 by 90, the closed room of sheets 0.25 to 0.37 s a frame at
+160 by 90. The time is the frame's work over the field and its probes, about 50 ms a cascade, and
+most in the first frames as the field fills, 482 ms a frame over the first ninety and 223 over the
+rest. A smaller room reads faster where it lets the field hold fewer cascades, the shut-in block's
+lying within the reach of three, and fewer frames or Low read faster where a test's meaning bears
+them. The shut-in block checks on lavapipe only that its frame was read back, its fault being the
+GPU's, so it would bear them first, 106 s of the 45 minutes here. No test is changed.
+
 Done that day
 
 - Item 131 at `b16f26b5`. A thin two-sided face holds a narrower band in the scene field.
+- Item 146 at `10295556`. The field follows the eye without a whole cascade's CPU work in one frame.
 
 ## 2026-10-30
 
@@ -630,36 +751,15 @@ Done that day
 ## 2026-10-24
 
 ![](.github/assets/readings/2026-10-24-blockout-spots.webp)
-Blockout's wall under its lamp with the screen probes on and left out; the round spots are the
-probes' own, the ceiling's bright patch narrower than a texel read by a few fixed rays (item 71).
-
 ![](.github/assets/readings/2026-10-24-bounce-rooms-nine.webp)
-The nine views of the bounce rooms as the readings take them, the Cornell box, the strip, the
-corridor and the rooms with a window.
-
 ![](.github/assets/readings/2026-10-24-bounce-rooms-noise.webp)
-The bounce rooms' noise, views with the screen probes on and off beside their path-traced
-references, the still spots the sixth term's and the sunlit floor under a window its third form
-(item 71).
-
 ![](.github/assets/readings/2026-10-24-edge-leak.webp)
-The edge leak at eight times its brightness, a glow light's fan at the foot of the edge two blocks
-meet, before the mend above and after it below, the checkerboard cell held inside the field (item
-71).
-
 ![](.github/assets/readings/2026-10-24-non-number-texels.webp)
-Item 90's reading at the desert village view, the glow texels whose normal is a non-number, marked,
-which the screen probes' history keeps and spreads as black.
-
 ![](.github/assets/readings/2026-10-24-shift.webp)
-A lantern room before and after the eye steps half a block, with the screen probes on and left out;
-the sixth term's spots stand at new places after the step while the lamps move by parallax alone
-(item 71).
-
 ![](.github/assets/readings/2026-10-24-wheat-acne.webp)
-A wheat field's thin walls in the voxel game as it ships and with its lighting turned back part by
-part; the speckled stripes are the shadow map's acne on two-sided masked faces, not faces fighting
-(item 71, item 89).
+The test runner splits a part by its classes into processes of its own, and the Windows job runs
+Rendering in two halves, its runners having read the part from 0.87 to 1.7 times its time on Linux.
+(`98cf2ded`)
 
 ![](.github/assets/readings/2026-10-24-item-101-cave-culling.webp)
 The deep cave's tops 45 blocks in at noon, above with the game drawing only the sections its eye
@@ -728,16 +828,11 @@ Done that day
 ## 2026-10-23
 
 ![](.github/assets/readings/2026-10-23-blotches.webp)
-The blotches read as contour bands of the light around a small emitter at four headings, the round
-spots its near field caught by one fixed probe ray, the sixth term of where the method stops (item
-71).
-
 ![](.github/assets/readings/2026-10-23-cascade-seams.webp)
-The sun's cascades at a low sun with their seams mended, a long shadow held across them (item 83).
-
 ![](.github/assets/readings/2026-10-23-summit-horizon.webp)
-Summit before and after the sky below the horizon took the island's gray blue, so the fogged edge of
-the land meets the color it fades into (item 75).
+The test runner splits a part by its classes into processes of its own, and the Windows job runs
+Rendering in two halves, its runners having read the part from 0.87 to 1.7 times its time on Linux.
+(`98cf2ded`)
 
 ![](.github/assets/examples/models_edit_mesh.webp)
 The models_edit_mesh example shows the seven primitives of an edit mesh, each built into a model and
@@ -788,8 +883,9 @@ Done that day
 ## 2026-10-21
 
 ![](.github/assets/readings/2026-10-21-ore-glow-crops.webp)
-Ore's glowstone light in three crops, read for the glow lights of small emitters (item 71's first
-part).
+The test runner splits a part by its classes into processes of its own, and the Windows job runs
+Rendering in two halves, its runners having read the part from 0.87 to 1.7 times its time on Linux.
+(`98cf2ded`)
 
 ![](.github/assets/cascades/glow-only-ore.webp)
 With the screen's probes left out and a glow light lit, probes stand for the glow lights alone,
@@ -945,12 +1041,11 @@ Done that day
 ## 2026-10-17
 
 ![](.github/assets/readings/2026-10-17-bounce-before-after-1.webp)
-The Cornell box before and after the light that bounces, and the bounce rooms after it, at the
-radiance cascades' first landing.
-
 ![](.github/assets/readings/2026-10-17-bounce-before-after-2.webp)
-
 ![](.github/assets/readings/2026-10-17-bounce-before-after-3.webp)
+The test runner splits a part by its classes into processes of its own, and the Windows job runs
+Rendering in two halves, its runners having read the part from 0.87 to 1.7 times its time on Linux.
+(`98cf2ded`)
 
 Done that day
 
@@ -1030,8 +1125,9 @@ Done that day
 ## 2026-10-10
 
 ![](.github/assets/readings/2026-10-10-subsurface-pair.webp)
-Subsurface scattering's first experiment, the spheres with the light under the surface on and off
-(item 3).
+The test runner splits a part by its classes into processes of its own, and the Windows job runs
+Rendering in two halves, its runners having read the part from 0.87 to 1.7 times its time on Linux.
+(`98cf2ded`)
 
 ![](.github/assets/bounce/cornell-ceiling.webp)
 ![](.github/assets/bounce/cornell-floor-bands.webp)
@@ -1070,8 +1166,9 @@ ended, its exit code and the crash Windows logged of it. (`e50fd247`)
 ## 2026-10-09
 
 ![](.github/assets/readings/2026-10-09-bounce-rooms.webp)
-The bounce rooms, the test scenes the global illumination is read against, each a view with its
-path-traced reference.
+The test runner splits a part by its classes into processes of its own, and the Windows job runs
+Rendering in two halves, its runners having read the part from 0.87 to 1.7 times its time on Linux.
+(`98cf2ded`)
 
 ![](.github/assets/examples/shaders_bounce_rooms.webp)
 A level of the eight rooms the light that bounces finds hardest, each with a fixed view, and a

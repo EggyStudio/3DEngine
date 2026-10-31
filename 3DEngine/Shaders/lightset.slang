@@ -268,8 +268,8 @@ public struct RaySurface
     public float4 color;
     // rgb: its emission, linear.
     public float4 emission;
-    // x: its mesh's first corner in rayCorners. y, z: its roughness's and metallic's bits, which
-    // gi_reference.slang reads. w: unused.
+    // x: its mesh's first corner in rayCorners. y, z, w: its roughness's, metallic's and share of
+    // light through's bits, which gi_reference.slang reads.
     public uint4 corners;
 };
 
@@ -277,7 +277,7 @@ public struct RaySurface
 public StructuredBuffer<RaySurface> raySurfaces;
 
 // Every mesh's corners in its own space, and in w each corner's color, three sRGB bytes under a bit
-// that keeps the word a whole float (GpuRayScene).
+// that keeps the uint a whole float (GpuRayScene).
 [[vk::binding(30, 1)]]
 public StructuredBuffer<float4> rayCorners;
 #endif
