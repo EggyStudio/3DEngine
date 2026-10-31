@@ -4495,6 +4495,57 @@ batch.
     Rendering=2+GlobalIlluminationTests, which on Linux comes to 12.8, 11.4 and 10.7 minutes, a
     stand-in test covering it.
 
+148. **The Sponza example, its scene pack fetched on demand, with named views and the time of day.**
+    The owner wrote on 2026-10-31 at 13:46 that the engine does as BevyCSharp does with the Sponza
+    scene, the pack installed on demand, the example run, the camera switched between positions to
+    see the areas, and the time of day changed to see the light change. Three parts. First the pack,
+    a manifest `scenes/intel-sponza.json` as BevyCSharp's (the title, source, license, attribution,
+    the asset's address, size, sha256 and the model's file), the same pack file BevyCSharp made with
+    build/make-scene-pack.py, its textures at 1K and compressed for the GPU, and `e3d scenes fetch
+    intel-sponza` downloading it into the user's cache folder, checking the sha256 and unpacking it,
+    a test on a small pack of its own; the engine reads the pack's compressed textures, a KTX2
+    reader of the BC formats Vulkan has on every desktop GPU if that is what the pack holds, which a
+    game needs anyway, or the pack script writes a second pack with PNG textures if the reader is
+    the larger work, the coder reading which. Second the example, `scenes_sponza` in
+    3DEngine.Examples, loading the model through the engine's loader with its materials, global
+    illumination on with the field and the cascades sized to the building, a sun and the sky by the
+    hour, named views, the atrium's floor, the upper gallery, the lion's end and the curtains among
+    them, on the number keys and `sponza.view <name>`, the hour on the bracket keys and `sponza.time
+    <hour>`, each a command so a drive reads them. Third the captures, each view at noon and at
+    evening as plain captures under the readings folder, one for the README's table, and the drive
+    in the pack run's captures job with the pack cached by its sha256 rather than fetched on every
+    push, as BevyCSharp keeps its Sponza drive off the push runs. From then on the cascades' items
+    read Sponza beside the bounce rooms. After 147 and before 138; two or three commits. Decision
+    81. Read on 2026-10-31 at 15:16, the pack's KTX2 levels are zstd-supercompressed and .NET 10 has
+    no zstd, so the path is the one between the two weighed, a script that undoes the zstd alone and
+    writes the KTX2 files with no supercompression, the BC1, BC5 and BC7 blocks kept, the engine
+    gaining a KTX2 container reader and BC formats in its texture path, which desktop Vulkan samples
+    natively, no zstd in C# and no CPU decode; the pack made and published by the pack run, a job
+    gated by a workflow input that downloads BevyCSharp's asset by its sha256, runs the script and
+    uploads the result to a scene-packs release of this repository, the manifest naming that asset,
+    so the owner has no step. Split on 2026-10-31 at 15:2x into three commits, the first the BC1,
+    BC5 and BC7 formats in UNORM and sRGB with textureCompressionBC enabled and checked, every level
+    uploaded from the file with no mips generated, a KTX2 decoder through ITextureDecoder with no
+    supercompression and the levels from the level index, model textures named .ktx2 found through
+    it, and the texture store's average color and translucency taken from the smallest level on the
+    GPU, the level sampled into a one-pixel RGBA8 image and read back, so no BC decoder lives in C#;
+    the second the pack script, the pack run's gated job and e3d scenes fetch; the third the example
+    with its views and hour and the captures job. First commit done at `52a1cb3f`, the formats, the
+    reader and the store as the head records. The second is blocked by BevyCSharp's scene-packs
+    release, which does not exist, its manifest's address answering 404, the pack published by hand
+    and never uploaded; the engine's pack made from the local file here is 224,303,688 bytes with
+    the sha256 160766bd4adf2535de3083a72a03bea7856171817d1f88f096a986fb987bbff2, the script
+    deterministic, so the second commit names that hash and the gated job runs once the packs are
+    published. Second commit done at `82a02b9d`, read at 17:24, the pack's manifest, the fetch and
+    the pack run's job as the head records; the third, the example and the captures, under way
+    against Sponza unpacked from a local copy with the matching hash. Third commit done at
+    `75b61056`, the example, the drive and the captures as the head records, with the BC5 normal
+    map's mend. Done at `75b61056`, with `52a1cb3f` and `82a02b9d` before it. Three findings for the
+    cascades' items, the field's stand-in boxes darkening every room while 3.75 million triangles
+    build over 330 frames (item 150), the shadows at 31.2 ms a frame at 1280 by 720 with the whole
+    building in each cascade (item 151), and the interior very dark beside its sunlit upper walls at
+    15 and 16, the bounce weak there, a lead for 138 and 139.
+
 ## Verdicts settled
 
 Verdicts 1 to 55 are settled, the last two, the drawing leak test's resident bound and the Windows

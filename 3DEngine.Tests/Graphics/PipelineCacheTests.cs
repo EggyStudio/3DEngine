@@ -55,7 +55,10 @@ public sealed class PipelineCacheTests : IDisposable
         // A driver that keeps no pipelines in the cache, as lavapipe with Mesa's own shader cache
         // off, writes nothing over it.
         if (written.SequenceEqual(foreign)) return;
-        written.Length.Should().BeGreaterThan(foreign.Length, "the run's pipelines are written over the cache it could not read");
+        // The run's cache is written over the one it could not read, its header naming this device,
+        // and on a lavapipe that keeps no pipelines in it the header is all of it, 32 bytes.
+        written.Length.Should().BeGreaterThanOrEqualTo(32, "the run's cache is written over the one it could not read, its header at least");
+        BinaryPrimitives.ReadUInt32LittleEndian(written).Should().Be(32u, "the header says its own size");
         BinaryPrimitives.ReadUInt32LittleEndian(written.AsSpan(8)).Should().NotBe(0xFFFFu, "the header names the device that wrote it");
 
         // A run that compiles nothing the file lacks leaves it as it was.

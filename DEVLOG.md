@@ -49,6 +49,40 @@ The bounce rooms' corridor at High at 800 by 450 against a path-traced reference
 cascade's probes placed inside it and then with the first cascade's rays carried on to the field's
 edge as well, blue where the frame is darker, its walls by the open end lighter in the second.
 
+![](.github/assets/readings/2026-10-31-item-148-sponza-arcades-12.webp)
+Intel's Sponza in scenes_sponza at its arcades view at noon, at 800 by 450 at High.
+
+![](.github/assets/readings/2026-10-31-item-148-sponza-arcades-16.webp)
+Intel's Sponza in scenes_sponza at its arcades view at 16:00, at 800 by 450 at High.
+
+![](.github/assets/readings/2026-10-31-item-148-sponza-atrium-12.webp)
+Intel's Sponza in scenes_sponza at its atrium view at noon, at 800 by 450 at High.
+
+![](.github/assets/readings/2026-10-31-item-148-sponza-atrium-16.webp)
+Intel's Sponza in scenes_sponza at its atrium view at 16:00, at 800 by 450 at High.
+
+![](.github/assets/readings/2026-10-31-item-148-sponza-door-12.webp)
+Intel's Sponza in scenes_sponza at its door view at noon, at 800 by 450 at High.
+
+![](.github/assets/readings/2026-10-31-item-148-sponza-door-16.webp)
+Intel's Sponza in scenes_sponza at its door view at 16:00, at 800 by 450 at High.
+
+![](.github/assets/readings/2026-10-31-item-148-sponza-gallery-12.webp)
+Intel's Sponza in scenes_sponza at its gallery view at noon, at 800 by 450 at High.
+
+![](.github/assets/readings/2026-10-31-item-148-sponza-gallery-16.webp)
+Intel's Sponza in scenes_sponza at its gallery view at 16:00, at 800 by 450 at High.
+
+![](.github/assets/readings/2026-10-31-item-148-sponza-lion-12.webp)
+Intel's Sponza in scenes_sponza at its lion view at noon, at 800 by 450 at High.
+
+![](.github/assets/readings/2026-10-31-item-148-sponza-lion-16.webp)
+Intel's Sponza in scenes_sponza at its lion view at 16:00, at 800 by 450 at High.
+
+![](.github/assets/examples/scenes_sponza.webp)
+The scenes_sponza example draws Intel's Sponza from five named views at an hour of the day, and a
+BC5 normal map takes its z from its x and y. (`75b61056`)
+
 Double-sided faces held by their planes in the scene field, read on the engine's tree against
 `2ad96a80` on an RTX 4070 Laptop GPU under tuned's `powersave-bazzite`, in item 89's wheat room,
 eight by eight blocks of four double-sided walls a block tall half a unit apart under the game's sun
@@ -369,6 +403,34 @@ The first memory the device offers the CPU is write combined, through which unpa
 first level of 4 MB took about 34 ms, and through the same memory cached about 5 ms. The copies into
 the images took 52 to 63 ms of the frame in each.
 
+Intel's Sponza in `scenes_sponza`, driven by `build/drive-sponza.sh` through its five named views at
+noon and at 16:00, at 800 by 450 at High on an RTX 4070 Laptop GPU with driver 615.78.08 under
+tuned's `powersave-bazzite`, each view held 90 frames before its capture. The pack is the one
+`scenes/intel-sponza.json` names, unpacked from a copy made here by `build/make-scene-pack.py` with
+the manifest's SHA-256, since the release it names holds no asset yet.
+
+| View | Noon | 16:00 |
+|---|---|---|
+| The atrium from the main door's end | ![](2026-10-31-item-148-sponza-atrium-12.webp) | ![](2026-10-31-item-148-sponza-atrium-16.webp) |
+| The upper gallery | ![](2026-10-31-item-148-sponza-gallery-12.webp) | ![](2026-10-31-item-148-sponza-gallery-16.webp) |
+| The lion's end | ![](2026-10-31-item-148-sponza-lion-12.webp) | ![](2026-10-31-item-148-sponza-lion-16.webp) |
+| The arcades from the atrium's floor | ![](2026-10-31-item-148-sponza-arcades-12.webp) | ![](2026-10-31-item-148-sponza-arcades-16.webp) |
+| The main door from the lion's end | ![](2026-10-31-item-148-sponza-door-12.webp) | ![](2026-10-31-item-148-sponza-door-16.webp) |
+
+A frame took 40 to 57 ms, the atrium's first 85 with the frame that builds the field in it, of
+which the shadow map's cascades took 31 on the GPU, drawing the scene's 3.75 million triangles into
+each, the scene's pass 13 and the window's depth 7.5. The pack holds the building alone, with none
+of Intel's curtains, which are a pack of their own, so the arcades take their view.
+
+Two faults showed on the way. A BC5 normal map, which holds x and y alone, sampled its blue as 0,
+so the model pass read every normal turned into its surface, and the atrium's floor took 15 of 255
+from a sun with no shadows where it takes 153 with z worked out from x and y. And at the field's
+default budget its 256 meshes waiting for their build stood in it as their boxes for 330 frames,
+the box of the outer walls filling the building and shading the sun from all of it, so the example
+builds every cascade a view moves into in the frame of the jump.
+
+On lavapipe a frame of it took 40 s, so the pack run drives it on the macOS runner's GPU.
+
 The suite's time on Linux between `2ad96a80` and `b16f26b5`, read from the two pushes' runs and from
 the classes of the scene field and global illumination run at each commit on lavapipe with the
 validation layer, on this machine's Intel i9-14900HX under tuned's `powersave-bazzite`.
@@ -441,7 +503,7 @@ Done that day
 - Item 146 at `10295556`. The field follows the eye without a whole cascade's CPU work in one frame.
 - Item 147 at `14b258c7`. A pass's pipelines are made before the frame that first needs them, and
   the pipeline cache is kept between runs.
-- Item 148 at `52a1cb3f`. The Sponza example, its scene pack fetched on demand, with named views and
+- Item 148 at `75b61056`. The Sponza example, its scene pack fetched on demand, with named views and
   the time of day.
 - Item 149 at `b4d0d03c`. The Windows push job's limit fits its runs.
 

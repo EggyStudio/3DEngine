@@ -27,30 +27,31 @@ thread at 16 columns 7.56 and 8.21 ms to 3.85 and 4.19, at 12 4.60 and 5.33 to 2
 2.76 and 2.68 to 1.65 and 1.80, the pictures within 0.010 of 255, the frames GPU-bound and contended
 by another session's suite so their times are not read; a GPU test of eight squares through one
 shader taking one set; 137's wording corrected; 2,141 on the GPU in both orders. After it `e32f9138`
-and `14b258c7`, item 147, pushed at 16:08 after that run, the run of `14b258c7` awaited, a
-VkPipelineCache read at device start from source/.slang-cache/pipelines.bin when its header names
-this GPU and written back at exit through a temporary file when it changed, every pipeline made
-through it, the game's turn to the water 30.2 and 26.5 s to 26.8 on a first run and 0.98 on a
-second; the mirrored view's pipelines made on workers, a batch whose pipeline is not ready skipped
-and the mirror shown only once a frame drew with nothing pending, a cold start with both caches
-empty 4.57 s where 26.8 to 30.2, 3.59 of it the window's own pass compiling the water's pipelines at
-first sight, left synchronous; 2,143 on the GPU in both orders. After it `52a1cb3f`, 148's first
-commit, and `b4d0d03c`, item 149, held until the run of `14b258c7` ends. The first brings BC1, BC5
-and BC7 in UNorm and sRGB with textureCompressionBC where the device has it, a KTX2 reader refusing
-supercompressed files and other formats with the reason, every level copied from one staging buffer
-with no mips generated, the decoder registered for .ktx2 so models' textures and LoadTexture come
-through it, a block texture read back through a blit; three departures, the average and translucency
-from BC7's whole first level and from a 64-texel level for BC1 and BC5 rather than one pixel, since
-a cutout's edges turn partial in a mip and BC1's alpha is 0 or 255, a buffer the CPU alone reads in
-host-cached memory where the device has it (4 MB read back in 5 ms where 34 write-combined, Sponza's
-72 textures' upload frame 2.4 s to 0.07), and build/make-scene-pack.py in this commit since the
-decoder's refusal names it; the arch wall against Pillow's decoder equal in BC7, within 3 of 255 in
-BC5 and 4 in BC1, 83.9 MB on the GPU where 402.7 as pixels, the note 2026-10-31-item-148-blocks.md;
-2,148 on the GPU in both orders, 167 on lavapipe with validation. The second raises the Windows push
-limit to 180 and makes test.py's split take PART=N+Class, a class named after the plus running in a
-process of its own, Windows running Rendering=2+GlobalIlluminationTests since Rendering's first half
-read 33.5 to 67.2 minutes against its 70 over the five Windows digests since `2ad96a80`; 2,149 on
-the GPU in both orders. After it `82a02b9d`, 148's second commit, held the same, the manifest
+and `14b258c7`, item 147, pushed at 16:08 after that run, the run of `14b258c7` red at 18:26 on
+Linux alone, Verdict 96, Windows green in 138 minutes and macOS in 34, a VkPipelineCache read at
+device start from source/.slang-cache/pipelines.bin when its header names this GPU and written back
+at exit through a temporary file when it changed, every pipeline made through it, the game's turn to
+the water 30.2 and 26.5 s to 26.8 on a first run and 0.98 on a second; the mirrored view's pipelines
+made on workers, a batch whose pipeline is not ready skipped and the mirror shown only once a frame
+drew with nothing pending, a cold start with both caches empty 4.57 s where 26.8 to 30.2, 3.59 of it
+the window's own pass compiling the water's pipelines at first sight, left synchronous; 2,143 on the
+GPU in both orders. After it `52a1cb3f`, 148's first commit, and `b4d0d03c`, item 149, held until
+the run of `14b258c7` ends. The first brings BC1, BC5 and BC7 in UNorm and sRGB with
+textureCompressionBC where the device has it, a KTX2 reader refusing supercompressed files and other
+formats with the reason, every level copied from one staging buffer with no mips generated, the
+decoder registered for .ktx2 so models' textures and LoadTexture come through it, a block texture
+read back through a blit; three departures, the average and translucency from BC7's whole first
+level and from a 64-texel level for BC1 and BC5 rather than one pixel, since a cutout's edges turn
+partial in a mip and BC1's alpha is 0 or 255, a buffer the CPU alone reads in host-cached memory
+where the device has it (4 MB read back in 5 ms where 34 write-combined, Sponza's 72 textures'
+upload frame 2.4 s to 0.07), and build/make-scene-pack.py in this commit since the decoder's refusal
+names it; the arch wall against Pillow's decoder equal in BC7, within 3 of 255 in BC5 and 4 in BC1,
+83.9 MB on the GPU where 402.7 as pixels, the note 2026-10-31-item-148-blocks.md; 2,148 on the GPU
+in both orders, 167 on lavapipe with validation. The second raises the Windows push limit to 180 and
+makes test.py's split take PART=N+Class, a class named after the plus running in a process of its
+own, Windows running Rendering=2+GlobalIlluminationTests since Rendering's first half read 33.5 to
+67.2 minutes against its 70 over the five Windows digests since `2ad96a80`; 2,149 on the GPU in both
+orders. After it `82a02b9d`, 148's second commit, held the same, the manifest
 scenes/intel-sponza.json written by the pack script naming the engine's pack at this repository's
 scene-packs release, ScenePacks reading manifests by source-generated JSON, downloading to a part
 file hashed as it comes, unpacking into a folder of its own moved into place whole with a stamp,
@@ -59,25 +60,34 @@ refusing a path that is rooted or climbs out, the folder E3D_SCENES or the syste
 are published; the pack run's job on the scenes input with contents write and Python, downloading
 BevyCSharp's asset, checking its hash, making the release when missing and uploading; E3D.md,
 BUILDING.md and AGENTS.md following; three tests on small packs; 2,152 on the GPU in both orders.
-Before it `19658e55`, item 136, pushed with `10295556` at 09:37, its run green at 11:16 with Windows
-in 98 minutes, Linux in 77 and macOS in 36, the path-traced reference crossing surfaces that let
-light through, recorded under the item in REVIEW-ARCHIVE.md. Before it `10295556`, item 146's second
-commit, ShadowOnly draws kept in the field, recorded under the item. Before it `da54d289`, item
-146's first commit, pushed at 07:23 with `7bdfaa9e`, Verdict 95's mend, and `fdde73b2`, item 131's
-second commit, its run green at 09:37 with Windows in 133 minutes, Linux in 77 and macOS in 36,
-which settled Verdict 95; the plain GPU run of `7bdfaa9e` read ObserverTests' no-observer allocation
-once at 1,768 bytes, 5 of 5 alone, watched. Before it `b16f26b5`, item 131's first commit, pushed at
-02:53 on 2026-10-31, its run cancelled at 03:51 on Linux alone past test.py's 40-minute limit and
-the job's 100 (Verdict 95), Windows and macOS green, the plane a cell recorded under item 131 in
-REVIEW-ARCHIVE.md. Before it `2ad96a80`, item 135, pushed at 22:13 on 2026-10-30, its run green
-whole at 23:28 with Windows in 74 minutes, Linux in 68 and macOS in 35, the screen probes' jittered
-rays and sixteen-frame history recorded under the item in REVIEW-ARCHIVE.md. Before it `e96a6bb8`,
-pushed with `c3214cbe` at 19:52 on 2026-10-30, its run green whole at 21:51, Windows in 119 minutes,
-Linux in 44 and macOS in 33. `c3214cbe` is item 134, a resize asked before the first frame carried
-out at once past the debounce a load held back, with a test and the window guide's line, and
-AGENTS.md's REVIEW.md line as the owner asked. `e96a6bb8` is item 132's reading with no mend, the
-note 2026-10-30-item-132-recording.md; at 12 columns 5.6 to 6.5 ms of the four passes' 9.6 to 11.5
-is a descriptor set made and written for every draw in every pass, about 2,045 a frame at 2.8 to 3.2
+After it `75b61056`, 148's third commit and its end, held the same, scenes_sponza with five views on
+the keys 1 to 5 and sponza.view, the hour on the bracket keys and sponza.time, the right button
+flying the camera, the day sky still with a lean of 6, the field at 4 and 0.125 with a triangle
+budget of four million, GI High and the attribution on screen; the pack holding no curtains, the
+arcades standing in; build/drive-sponza.sh capturing every view at 12 and 16 after 90 frames in the
+pack run's macOS captures job, the fetch continue-on-error until the asset exists; ten plain
+readings with a note; a BC5 normal map's blue sampled as 0 made every normal its surface, mended
+where the sampled z is exactly 0 with a GPU test; 2,153 on the GPU in both orders, 142 on lavapipe.
+All five held commits go out together once Verdict 96 is mended. Before it `19658e55`, item 136,
+pushed with `10295556` at 09:37, its run green at 11:16 with Windows in 98 minutes, Linux in 77 and
+macOS in 36, the path-traced reference crossing surfaces that let light through, recorded under the
+item in REVIEW-ARCHIVE.md. Before it `10295556`, item 146's second commit, ShadowOnly draws kept in
+the field, recorded under the item. Before it `da54d289`, item 146's first commit, pushed at 07:23
+with `7bdfaa9e`, Verdict 95's mend, and `fdde73b2`, item 131's second commit, its run green at 09:37
+with Windows in 133 minutes, Linux in 77 and macOS in 36, which settled Verdict 95; the plain GPU
+run of `7bdfaa9e` read ObserverTests' no-observer allocation once at 1,768 bytes, 5 of 5 alone,
+watched. Before it `b16f26b5`, item 131's first commit, pushed at 02:53 on 2026-10-31, its run
+cancelled at 03:51 on Linux alone past test.py's 40-minute limit and the job's 100 (Verdict 95),
+Windows and macOS green, the plane a cell recorded under item 131 in REVIEW-ARCHIVE.md. Before it
+`2ad96a80`, item 135, pushed at 22:13 on 2026-10-30, its run green whole at 23:28 with Windows in 74
+minutes, Linux in 68 and macOS in 35, the screen probes' jittered rays and sixteen-frame history
+recorded under the item in REVIEW-ARCHIVE.md. Before it `e96a6bb8`, pushed with `c3214cbe` at 19:52
+on 2026-10-30, its run green whole at 21:51, Windows in 119 minutes, Linux in 44 and macOS in 33.
+`c3214cbe` is item 134, a resize asked before the first frame carried out at once past the debounce
+a load held back, with a test and the window guide's line, and AGENTS.md's REVIEW.md line as the
+owner asked. `e96a6bb8` is item 132's reading with no mend, the note
+2026-10-30-item-132-recording.md; at 12 columns 5.6 to 6.5 ms of the four passes' 9.6 to 11.5 is a
+descriptor set made and written for every draw in every pass, about 2,045 a frame at 2.8 to 3.2
 microseconds each with every section's set holding the same values, and one set a frame in a scratch
 copy takes the passes to 5.1 ms at 12 and from 18.4 to 19.7 to 7.6 at 16, the frame at 16 from 26.6
 to 17.9 ms, the land's pixels within 0.08 of 255. 2,135 on the GPU in both orders, the resize tests
@@ -97,7 +107,7 @@ REVIEW-ARCHIVE.md, its devlog note and its own words. On 2026-10-30 at 18:0x the
 README's new words (item 133) and the focus on radiance cascades (Decision 74), questions asked
 back, and asked that the sessions spend fewer tokens at the same quality, N 7.7.
 
-Next 148's second and third commits, then 138 and the cascades in order, 139, 140, 141 and 142
+Next Verdict 96's mend, then 150, then 138 and the cascades in order, 139, 140, 141 and 142
 (Decision 75); 143, 144 and 145 wait behind them.
 
 Items done and verdicts settled before 2026-10-23 stand in REVIEW-ARCHIVE.md beside this file, their
@@ -1022,54 +1032,35 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     and the merge held at one, the bounce rooms' distances to the references and the Cornell box's
     bounces read before and after. One commit, after the eight.
 
-148. **The Sponza example, its scene pack fetched on demand, with named views and the time of day.**
-    The owner wrote on 2026-10-31 at 13:46 that the engine does as BevyCSharp does with the Sponza
-    scene, the pack installed on demand, the example run, the camera switched between positions to
-    see the areas, and the time of day changed to see the light change. Three parts. First the pack,
-    a manifest `scenes/intel-sponza.json` as BevyCSharp's (the title, source, license, attribution,
-    the asset's address, size, sha256 and the model's file), the same pack file BevyCSharp made with
-    build/make-scene-pack.py, its textures at 1K and compressed for the GPU, and `e3d scenes fetch
-    intel-sponza` downloading it into the user's cache folder, checking the sha256 and unpacking it,
-    a test on a small pack of its own; the engine reads the pack's compressed textures, a KTX2
-    reader of the BC formats Vulkan has on every desktop GPU if that is what the pack holds, which a
-    game needs anyway, or the pack script writes a second pack with PNG textures if the reader is
-    the larger work, the coder reading which. Second the example, `scenes_sponza` in
-    3DEngine.Examples, loading the model through the engine's loader with its materials, global
-    illumination on with the field and the cascades sized to the building, a sun and the sky by the
-    hour, named views, the atrium's floor, the upper gallery, the lion's end and the curtains among
-    them, on the number keys and `sponza.view <name>`, the hour on the bracket keys and `sponza.time
-    <hour>`, each a command so a drive reads them. Third the captures, each view at noon and at
-    evening as plain captures under the readings folder, one for the README's table, and the drive
-    in the pack run's captures job with the pack cached by its sha256 rather than fetched on every
-    push, as BevyCSharp keeps its Sponza drive off the push runs. From then on the cascades' items
-    read Sponza beside the bounce rooms. After 147 and before 138; two or three commits. Decision
-    81. Read on 2026-10-31 at 15:16, the pack's KTX2 levels are zstd-supercompressed and .NET 10 has
-    no zstd, so the path is the one between the two weighed, a script that undoes the zstd alone and
-    writes the KTX2 files with no supercompression, the BC1, BC5 and BC7 blocks kept, the engine
-    gaining a KTX2 container reader and BC formats in its texture path, which desktop Vulkan samples
-    natively, no zstd in C# and no CPU decode; the pack made and published by the pack run, a job
-    gated by a workflow input that downloads BevyCSharp's asset by its sha256, runs the script and
-    uploads the result to a scene-packs release of this repository, the manifest naming that asset,
-    so the owner has no step. Split on 2026-10-31 at 15:2x into three commits, the first the BC1,
-    BC5 and BC7 formats in UNORM and sRGB with textureCompressionBC enabled and checked, every level
-    uploaded from the file with no mips generated, a KTX2 decoder through ITextureDecoder with no
-    supercompression and the levels from the level index, model textures named .ktx2 found through
-    it, and the texture store's average color and translucency taken from the smallest level on the
-    GPU, the level sampled into a one-pixel RGBA8 image and read back, so no BC decoder lives in C#;
-    the second the pack script, the pack run's gated job and e3d scenes fetch; the third the example
-    with its views and hour and the captures job. First commit done at `52a1cb3f`, the formats, the
-    reader and the store as the head records. The second is blocked by BevyCSharp's scene-packs
-    release, which does not exist, its manifest's address answering 404, the pack published by hand
-    and never uploaded; the engine's pack made from the local file here is 224,303,688 bytes with
-    the sha256 160766bd4adf2535de3083a72a03bea7856171817d1f88f096a986fb987bbff2, the script
-    deterministic, so the second commit names that hash and the gated job runs once the packs are
-    published. Second commit done at `82a02b9d`, read at 17:24, the pack's manifest, the fetch and
-    the pack run's job as the head records; the third, the example and the captures, under way
-    against Sponza unpacked from a local copy with the matching hash.
+150. **A mesh not yet built in the field stands in as nothing that darkens a room.** From item 148's
+    reading. While Sponza's 3.75 million triangles build over 330 frames at the default budget, 256
+    meshes stand in the field as their boxes, 10,144 bricks, and the outer walls' box fills the
+    building so the sun's contact shadows darken every room, the floor reading 21, 31 and 46 against
+    156, 137 and 117 once built; a view jump repeats it. A box that encloses the eye is no stand-in,
+    or a mesh unbuilt casts nothing until built; read by the floor's first frames in Sponza's atrium
+    and the grove's and the bounce rooms unchanged. After the Verdict and before 138, small.
+
+151. **Sponza's shadows cost what the field's triangles cost.** From item 148's reading, on the 4070
+    at 1280 by 720 uncapped gpu.shadows reads 31.2 ms with 3.75 million triangles drawn into each
+    cascade and the fill, hdr_scene 13.0, window_depth 7.5 and global illumination 2.7, a frame of
+    40 to 57 ms at 800 by 450. A cascade that holds still is not redrawn, and the far cascades draw
+    only what moved or came into reach; read by the same frame before and after. After the cascades'
+    items.
 
 ## Verdicts
 
-Verdicts 56 to 95 are settled, said under each in REVIEW-ARCHIVE.md; none is open.
+Verdicts 56 to 95 are settled, said under each in REVIEW-ARCHIVE.md; 96 is open.
+
+96. **The run of `14b258c7` is red on Linux, PipelineCacheTests expecting more than a header on
+    lavapipe.** Read at 18:32 on 2026-10-31 with Tools' run reader, run 41213425804. The Linux suite
+    ran 2,083 passed, 1 failed and 32 skipped in 23 m 40 s; the failure is the pipeline cache test
+    that writes a run's pipelines over a cache another device wrote, expecting more than 64 bytes
+    written and finding 32, since the runner's lavapipe keeps nothing but its 32-byte header in a
+    pipeline cache where the coder's Mesa filled 20 bytes more. Windows went green in 138 minutes
+    against its 150 and macOS in 34. The mend is the test's, which reads that the file was written
+    and names this device rather than a size, or skips with its reason where the device's cache data
+    is the header alone, item 147's behavior being right; small, a commit before the five held
+    commits go out, which then go together. Settled when that head's run is green.
 
 ## Decisions
 
