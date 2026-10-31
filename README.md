@@ -4,9 +4,8 @@
 
 # 3D Engine
 
-A C# engine on SDL3, Vulkan, ImGui and Slang. A program draws each frame with static calls named as
-raylib's functions are, over an ECS with a schedule of stages, and is scripted with behaviors
-compiled while it runs.
+A C# engine on SDL3, Vulkan, ImGui and Slang. Raylib's design over a Bevy-style ECS and scheduler,
+scripted with its own Unity-style behaviors. Implementing Radiance Cascades. [e3d.cs]
 
 ![.NET](https://img.shields.io/badge/.NET-10.0-512BD4)
 ![Graphics](https://img.shields.io/badge/Graphics-Vulkan-AC162C)

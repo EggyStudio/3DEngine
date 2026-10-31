@@ -180,13 +180,15 @@ description holds no plan, so no line says what a thing is the start of or grows
 | `drives a running program`, `driving a session` | `controls a running program through the command line`, `scripting a session` |
 | `a drive of the puzzle` | `a scripted run of the puzzle` |
 | `A voxel game in the manner of Minecraft, and the ground floor of a larger one` | `A voxel game set in an endless generated world whose blocks are placed and broken, with its light, its water, its mobs and the items they drop` |
-| `Raylib's design over a Bevy-style ECS and scheduler, scripted with its own Unity-style behaviors` | `A program draws each frame with static calls named as raylib's functions are, over an ECS with a schedule of stages, and is scripted with behaviors compiled while it runs` |
 
 The idioms in the manner of, the ground floor of, out of the box, under the hood, at a glance, a
 handful of, a great deal of, in the wild, on the fly, for free, first-class, a hair apart, the
 plumbing, wiring a part up and a long way are replaced in the same way, each by the term or the
 number it stands for. A word in its literal sense stays, as the wires `DrawCubeWires` draws do and
 curves joined end to end.
+
+The words under the README's header stand as they are written, whatever this section says of their
+terms.
 
 A name in the code keeps its spelling, such as `DrawBounceWindow`, `ModelMaterial.BouncesLight`,
 `GlowLights` and `build/drive-game.sh`, since renaming it reaches the public API, the workflows or

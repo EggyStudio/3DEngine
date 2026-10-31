@@ -4361,6 +4361,49 @@ batch.
     skipped on lavapipe. The 65% at 2.5 up is item 137's lead, the cascades letting more through the
     leaves than the reference does.
 
+137. **A vertical face in a narrow canopy pocket takes the light that reaches it.** Decision 75's
+    fourth item, from the voxel game's item 135. The cause is read first, likely RENDERING.md's
+    third term, the coarse cascades' probes moved out of a space narrower than their spacing and the
+    first cascade's rays meeting leaves before their interval. Each cascade's probes are placed into
+    open space within their cell by the field, and the first cascade's rays carried past their
+    interval where no coarser probe holds the space. Read by the pocket's face and the corridor's
+    walls, 67 to 69% under today, against the reference of the item before. One or two commits. It
+    takes item 131's lead too, a world probe standing on both sheets of a crossing on the grid
+    leaving a dark round patch at the crossing's foot, gone when the walls shift off the grid. First
+    commit `2b8e8541`, read at 11:45. The corridor's walls by its open end lie past the first
+    cascade's reach and read the second, whose spots at z 1.2 either side sat inside the 0.3 walls
+    and were moved out through the nearer face to 1.54, so no second-cascade probe stood inside and
+    those walls got nothing past the first bounce, the corridor's probe reading 0 on every face
+    against 0.015 to 0.125 in the reference. The mend places a spot of a cascade above the first
+    that lies in or beside a wall between a space narrow along two axes and a wider one through the
+    wall's farther face into the narrow space, the second-cascade probes at 0.66 either side reading
+    16, 3 and 30% under their references. Against 1,024-path references the corridor's walls at Low
+    go from 72 and 73% under to 54 and 53, at High stay 67% under, the ceiling and floor at High
+    from 52 and 54 to 42 and 48, the distance 18% nearer at High and 5 at Low; the other eight rooms
+    read the same distance at both qualities but the strip room at High 1.0% further, within the 1%
+    the Cornell box and the strip room move with the shader's text alone. Global illumination at
+    1920 by 1080 at High 1.79 to 1.83 ms in the corridor where 2.23, the Cornell box alike. Left
+    out, moving the first cascade's probes too (the Cornell box at Low +1.4%), spaces narrow along
+    one axis (the strip room at Low +0.3%) and a most-open fallback for probes left on a sheet (the
+    window room +5 and +16%). The pocket's leaf sides read 2 to 4 times the reference that crosses
+    leaves, not dark against truth; item 131's patches stay at 2,475 under first-cascade probes over
+    the half-unit squares' middles, their faces within 13 to 21%. The note
+    2026-10-31-item-137-corridor.md. Second commit next, the carry, a first-cascade probe that sees
+    none of the second's carrying its rays to the field's edge and bringing no sky where they meet
+    nothing, which with the placement takes the corridor's walls at High to 60 and 62% under and the
+    distance 25% nearer, every room within the spread. Second commit `95e088b7`, read at 12:12. A
+    probe of a cascade below the last that sees none of the cascade above's eight probes around it
+    carries its rays to the field's edge and takes the light of what they meet past their interval,
+    a ray meeting nothing bringing nothing and keeping its interval's end as its reach; bringing the
+    sky as the last cascade does lit CascadeEdgeTests' closed room to 0.060 in its first frames
+    through unbuilt cascades, so it is left out. With the placement the corridor's walls at High go
+    from 67% under to 60 and 62, the ceiling 42 to 38 and the floor 48 to 45, the distance 25%
+    nearer than before the item where the placement alone gave 18, Low as the placement left it,
+    every other room's distance as it was within the spread; global illumination in the corridor
+    1.83 to 1.87 ms where 1.80. The commit's sentence and the documents say the first cascade where
+    the code carries any cascade below the last; RENDERING.md and the note corrected in the tree for
+    138's commit. Done at `95e088b7`, with `2b8e8541` before it.
+
 ## Verdicts settled
 
 Verdicts 1 to 55 are settled, the last two, the drawing leak test's resident bound and the Windows
