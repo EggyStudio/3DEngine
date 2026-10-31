@@ -4257,6 +4257,48 @@ batch.
     rays jittered over sixteen places and the light kept over up to sixteen frames with a bound by
     the neighbors' error, the spots about halved, the still view's change read for the owner's eye.
 
+131. **A thin two-sided face holds a narrower band in the scene field.** From item 129's reading of
+    2026-10-26. The field holds a two-sided face below zero within half a cell either side, so at a
+    cell of 0.25 two walls half a unit apart leave no gap and a probe between them reads a surface
+    at its start, taking the walls' own light where the reference reads a tenth to a half; the wheat
+    room's front walls read 44% over the reference close and 14% far at High with the screen probes,
+    13 to 18% with them off. Read for the band's width a thin face needs, a narrower band for
+    two-sided faces with the march still meeting them from either side, or a finer cascade where
+    such walls stand, the cost on the bounce rooms and the voxel grove at both sizes and the leak
+    tests holding, the closed room, the lamp room and the slab's tint; then the wheat room's walls
+    within the world probes' spread of the reference, the Cornell panel's thin emissive edge read
+    with it, the room pictured before and after. One or two commits, after item 97. Decision 75's
+    second item, after 135; the march's step held to the narrower band near a sheet, or a finer
+    first cascade where such faces stand, the choice by the reading; a debug view of a cascade's
+    probes and the field's slice comes with it, and each reading's figure is kept as a test bound,
+    for every item of the plan. Read on 2026-10-30, the band swept at 1.0, 0.8, 0.6 and 0.4 of half
+    a cell reading the close walls 44, 38, 3 and 3% over the reference, but under a half a sheet
+    midway between two cell middles no longer crosses zero and a ray passes it, and a signed sheet
+    gives a phantom wall between two sheets facing one way two cells apart; so the shape taken is a
+    plane a cell, each cell whose nearest face is double-sided keeping that face's plane, its way
+    and its offset from the cell's middle in an eight-bit image, the field keeping the face's
+    distance with no band so the gap stays open, and traceField and the other marches testing the
+    plane of the cell they step through to meet the sheet exactly from either side, over a finer
+    cascade at eight times the cells; two commits, the splat and resolve with the image, then the
+    marches, read by the sheet test kept, the wheat room's walls near 4%, the leak tests and a
+    closed room of double-sided sheets dark, and the cost on the rooms and the grove. Built on
+    2026-10-31, each cell keeping the nearest double-sided face's plane in four half floats, the
+    probes' rays, their placement and their hits reading the plane exactly held a quarter of a cell
+    either side, every other reader holding a sheet half a cell either side as before with no fetch,
+    since reading the plane everywhere cost the scene pass 1.3 ms; the wheat room's walls read -1.9
+    and -5.1% close and -8.3 and -10.4% far against the reference where 44 and 45 and 14 and 8 over,
+    the closed room of sheets 0.054 and 0.013 of the open light where 0.104 and 0.016, the leak
+    tests and the bounce rooms unchanged, the grove's GI 5.64 ms where 5.27 at High. One fault, the
+    crop walls crossing on cell edges where the four cells about a crossing keep one plane and the
+    other wall is missing, the world probes putting dark round patches at the crossings' feet with
+    the screen probes off; the call is two commits, the first as built, the second a second plane
+    where two faces tie in a second image read by the probes' rays, the crossings read with the
+    screen probes on and off before and after. The first commit at `b16f26b5` on 2026-10-31; the
+    second plane at crossings next. Done at `b16f26b5` and `fdde73b2` on 2026-10-31, a plane a cell
+    and a second where two faces tie, the wheat room's walls within half a percent of the reference
+    with the screen probes, the dark patch at a crossing on the grid a lead taken by item 137's
+    probe placement.
+
 ## Verdicts settled
 
 Verdicts 1 to 55 are settled, the last two, the drawing leak test's resident bound and the Windows

@@ -149,7 +149,7 @@ public sealed class TestScriptTests : IDisposable
         var page = File.ReadAllLines(_folder.File("digest.md"));
         page[0].Should().Contain("80 passed, 0 failed, 0 skipped, 0 without a result", "the parts ran every test the suite lists");
         page.First(line => line.StartsWith("### ", StringComparison.Ordinal)).Should().StartWith($"### Lost: the suite, {said}");
-        page.Should().Contain(line => line.StartsWith("- Api: 35 passed", StringComparison.Ordinal))
+        page.Should().Contain(line => line.StartsWith("- Api: 34 passed", StringComparison.Ordinal), "the part runs the tests the whole run gave no result")
             .And.Contain(line => line.StartsWith("- Rendering: 40 passed", StringComparison.Ordinal))
             .And.Contain(line => line.StartsWith("- everything else: 5 passed", StringComparison.Ordinal));
         log.TrimEnd().Should().EndWith("end of the page " + new string('=', 30), "the page ends the log");
@@ -182,19 +182,21 @@ public sealed class TestScriptTests : IDisposable
     [NeedsPythonFact]
     public void A_Whole_Run_Lost_Near_Its_End_Runs_Again_Only_The_Parts_Holding_Tests_It_Gave_No_Result()
     {
-        // A whole run that ends every test of Api and NormTests, one of them failing, and ten of
-        // Rendering's forty, before its time runs out, as a Windows runner of a slow processor ran
-        // out its hour 1,705 tests in, and every part run again from the start took the job past its
-        // limit with no page written.
+        // A whole run that ends every test of Api, each in under a millisecond, and of NormTests,
+        // one of them failing, and ten of Rendering's forty, before its time runs out, as a Windows
+        // runner of a slow processor ran out its hour 1,705 tests in, and every part run again from
+        // the start took the job past its limit with no page written. Rendering runs its thirty
+        // left, where the run of b16f26b5 on Linux ran its part's 529 tests again for 35 minutes.
         var (exit, log) = Script("most", "--dotnet", $"{Probes.Python.Value} 3DEngine.Tests/Scripts/dotnet_standin.py",
             "--results", _folder.Path, "--timeout-minutes", "0.1");
 
         exit.Should().Be(1, "a process was lost and a test failed");
         var page = File.ReadAllLines(_folder.File("digest.md"));
         page[0].Should().Contain("79 passed, 1 failed, 0 skipped, 0 without a result", "the tests that ended in the whole run count as they ended");
-        Lines(log).Should().Contain("Api: every test ended in the whole run, so it is not run again")
-            .And.Contain("everything else: every test ended in the whole run, so it is not run again");
-        page.Should().Contain(line => line.StartsWith("- Rendering: 40 passed", StringComparison.Ordinal), "the part holding tests without a result runs again")
+        Lines(log).Should().Contain("Api: every test ended in the whole run, so it is not run again", "a test that ended in under a millisecond has its result")
+            .And.Contain("everything else: every test ended in the whole run, so it is not run again")
+            .And.Contain("Rendering: 30 of its 40 tests had no result in the whole run, so those alone run again");
+        page.Should().Contain(line => line.StartsWith("- Rendering: 30 passed", StringComparison.Ordinal), "the part holding tests without a result runs those again")
             .And.NotContain(line => line.StartsWith("- Api:", StringComparison.Ordinal));
         page.SkipWhile(line => line != "Its slowest tests that ended:").Skip(1).Take(5).Should().Equal(
             "    `Engine.Tests.Rendering.Drawing.Draws_9` 1 m 3 s", "    `Engine.Tests.Rendering.Drawing.Draws_8` 56 s",

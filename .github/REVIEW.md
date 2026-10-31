@@ -1,52 +1,60 @@
 # Review
 
 Reviewed up to `b16f26b5`, item 131's first commit, pushed at 02:53 on 2026-10-31 after the run of
-`2ad96a80` went green whole, the run watched, the plane a cell as recorded under the item with a
-note and picture, traceField moved into scenefield.slang, a test pair for a sheet met wherever it
-lies and a closed room of sheets dark; 2,137 on the GPU in both orders, 79 on lavapipe with
-validation. The second plane at crossings next. Before it `2ad96a80`, item 135, pushed at 22:13 on
-2026-10-30 after the run of `e96a6bb8` went green whole, its run green whole at 23:28 with Windows
-in 74 minutes, Linux in 68 and macOS in 35, carrying a Shared line, a note and a captioned picture.
-Each screen probe's rays leave from the next of sixteen places in their texels every frame and a
-first pass of the filter keeps each probe's light over up to sixteen frames, reprojected as before,
-the blend running on the kept light, the device code in GraphicsDevice.ScreenProbes.cs. Two
-departures, no world grid since panning and the game's half-block step read no change added by the
-probes past the movement's own, and a probe keeping fewer frames where its kept light lies past
-three times its like neighbors' error, since a flat sixteen read the canopy's floor at 0.167 where
-0.25 to 0.35. The bounce rooms' spots fall from 11, 6, 9, 10, 4, 17, 24, 6 and 4 to 5, 4, 8, 5, 4,
-4, 16, 5 and 4 and the plank room's from 5 to 2; a still view's change at the 99th part reads 0.07
-to 2.6% where under 0.2, the plank room's 0.021 levels a frame where 0.002, a thing for the owner's
-eye; the distances to the references within their bounds, 8 of 18 nearer and 6 further by 0.012 at
-most; the cost in the plank room at 1080p 2.70 to 2.75 ms where 2.61 to 2.69. 2,135 on the GPU in
-both orders, 49 on lavapipe with validation. Before it `e96a6bb8`, pushed with `c3214cbe` at 19:52
-on 2026-10-30, its run green whole at 21:51, Windows in 119 minutes, Linux in 44 and macOS in 33.
-`c3214cbe` is item 134, a resize asked before the first frame carried out at once past the debounce
-a load held back, with a test and the window guide's line, and AGENTS.md's REVIEW.md line as the
-owner asked. `e96a6bb8` is item 132's reading with no mend, the note
-2026-10-30-item-132-recording.md; at 12 columns 5.6 to 6.5 ms of the four passes' 9.6 to 11.5 is a
-descriptor set made and written for every draw in every pass, about 2,045 a frame at 2.8 to 3.2
-microseconds each with every section's set holding the same values, and one set a frame in a scratch
-copy takes the passes to 5.1 ms at 12 and from 18.4 to 19.7 to 7.6 at 16, the frame at 16 from 26.6
-to 17.9 ms, the land's pixels within 0.08 of 255. 2,135 on the GPU in both orders, the resize tests
-on lavapipe with validation. Before it `1703c54e`, item 97, pushed by the owner's hand at 16:54 on
-2026-10-26 while the sessions were paused until 2026-10-30, its run green whole at 19:33 with
-Windows in 99 minutes. The ninth pack run started with publish on at 18:41 on 2026-10-30, since the
-owner sees item 97's specks in the voxel game and its package lacked the mend; the run went green
-whole at 21:05, Windows in 101 minutes and the games in 71, the package 5.2.333 pushed to nuget.org
-with items 97, 129, 130, 89, 95, 91 and 93, the game told. Before it on 2026-10-26, each green but
-where said: `987f07ae` (Verdict 94's mend) with `969a1b08` (item 129); `7ff7bbdd` (130), red on the
-examples job alone, Verdict 94; `b05b32da` (89); `0a4ad922` (the README's quick links); `5528c55c`
-(95); `d207627e` (91), `bb542fa4` (93) and `0754b975` (128), the eighth pack run publishing 5.2.326
-at 13:13; `2f5237f2` (127); `78946b22` (112), the seventh pack run publishing 5.2.322 at 09:14;
-`7af16fcd` (Verdict 93's mend); `45edfbf6` (111); `a16227a7` (100), the sixth pack run publishing
-5.2.319 at 04:21 on its second attempt. Each commit's detail stands in its item in
-REVIEW-ARCHIVE.md, its devlog note and its own words. On 2026-10-30 at 18:0x the owner wrote the
-README's new words (item 133) and the focus on radiance cascades (Decision 74), questions asked
-back, and asked that the sessions spend fewer tokens at the same quality, N 7.7.
+`2ad96a80` went green whole, its run cancelled at 03:51 on Linux alone, the suite past test.py's
+40-minute limit and the job past its 100, Verdict 95, Windows and macOS green, the plane a cell as
+recorded under the item with a note and picture, traceField moved into scenefield.slang, a test pair
+for a sheet met wherever it lies and a closed room of sheets dark; 2,137 on the GPU in both orders,
+79 on lavapipe with validation. After it `fdde73b2`, 131's second commit, held for Verdict 95's
+mend, the two to go together, the splat keeping a second double-sided face of another way within
+three quarters of a cell and the resolve writing its plane into an image of its own, the probes'
+rays, placement and hit normals reading both through SheetVolume, GpuSceneField in a file of its
+own, a test of a point beside either sheet about a crossing met where the first plane alone read
+0.095; the wheat walls -0.4% with the screen probes and -2.9 and -1.6 without, the sheet room 0.048
+and 0.0085, the second fetch costing nothing measurable, the patch at the near crossing standing as
+a lead for item 137. 2,138 on the GPU in both orders, 80 on lavapipe. Before it `2ad96a80`, item
+135, pushed at 22:13 on 2026-10-30 after the run of `e96a6bb8` went green whole, its run green whole
+at 23:28 with Windows in 74 minutes, Linux in 68 and macOS in 35, carrying a Shared line, a note and
+a captioned picture. Each screen probe's rays leave from the next of sixteen places in their texels
+every frame and a first pass of the filter keeps each probe's light over up to sixteen frames,
+reprojected as before, the blend running on the kept light, the device code in
+GraphicsDevice.ScreenProbes.cs. Two departures, no world grid since panning and the game's
+half-block step read no change added by the probes past the movement's own, and a probe keeping
+fewer frames where its kept light lies past three times its like neighbors' error, since a flat
+sixteen read the canopy's floor at 0.167 where 0.25 to 0.35. The bounce rooms' spots fall from 11,
+6, 9, 10, 4, 17, 24, 6 and 4 to 5, 4, 8, 5, 4, 4, 16, 5 and 4 and the plank room's from 5 to 2; a
+still view's change at the 99th part reads 0.07 to 2.6% where under 0.2, the plank room's 0.021
+levels a frame where 0.002, a thing for the owner's eye; the distances to the references within
+their bounds, 8 of 18 nearer and 6 further by 0.012 at most; the cost in the plank room at 1080p
+2.70 to 2.75 ms where 2.61 to 2.69. 2,135 on the GPU in both orders, 49 on lavapipe with validation.
+Before it `e96a6bb8`, pushed with `c3214cbe` at 19:52 on 2026-10-30, its run green whole at 21:51,
+Windows in 119 minutes, Linux in 44 and macOS in 33. `c3214cbe` is item 134, a resize asked before
+the first frame carried out at once past the debounce a load held back, with a test and the window
+guide's line, and AGENTS.md's REVIEW.md line as the owner asked. `e96a6bb8` is item 132's reading
+with no mend, the note 2026-10-30-item-132-recording.md; at 12 columns 5.6 to 6.5 ms of the four
+passes' 9.6 to 11.5 is a descriptor set made and written for every draw in every pass, about 2,045 a
+frame at 2.8 to 3.2 microseconds each with every section's set holding the same values, and one set
+a frame in a scratch copy takes the passes to 5.1 ms at 12 and from 18.4 to 19.7 to 7.6 at 16, the
+frame at 16 from 26.6 to 17.9 ms, the land's pixels within 0.08 of 255. 2,135 on the GPU in both
+orders, the resize tests on lavapipe with validation. Before it `1703c54e`, item 97, pushed by the
+owner's hand at 16:54 on 2026-10-26 while the sessions were paused until 2026-10-30, its run green
+whole at 19:33 with Windows in 99 minutes. The ninth pack run started with publish on at 18:41 on
+2026-10-30, since the owner sees item 97's specks in the voxel game and its package lacked the mend;
+the run went green whole at 21:05, Windows in 101 minutes and the games in 71, the package 5.2.333
+pushed to nuget.org with items 97, 129, 130, 89, 95, 91 and 93, the game told. Before it on
+2026-10-26, each green but where said: `987f07ae` (Verdict 94's mend) with `969a1b08` (item 129);
+`7ff7bbdd` (130), red on the examples job alone, Verdict 94; `b05b32da` (89); `0a4ad922` (the
+README's quick links); `5528c55c` (95); `d207627e` (91), `bb542fa4` (93) and `0754b975` (128), the
+eighth pack run publishing 5.2.326 at 13:13; `2f5237f2` (127); `78946b22` (112), the seventh pack
+run publishing 5.2.322 at 09:14; `7af16fcd` (Verdict 93's mend); `45edfbf6` (111); `a16227a7` (100),
+the sixth pack run publishing 5.2.319 at 04:21 on its second attempt. Each commit's detail stands in
+its item in REVIEW-ARCHIVE.md, its devlog note and its own words. On 2026-10-30 at 18:0x the owner
+wrote the README's new words (item 133) and the focus on radiance cascades (Decision 74), questions
+asked back, and asked that the sessions spend fewer tokens at the same quality, N 7.7.
 
-Next 131, then 146, the field's move on a crossing, and the cascades in order after, and 133 when
-the owner answers on its mark, 135, 131, 136, 137, 138, 139, 140, 141 and 142 (Decision 75); 132,
-143, 144 and 145 wait behind them.
+Next 146, the field's move on a crossing, and the cascades in order after, and 133 when the owner
+answers on its mark, 135, 131, 136, 137, 138, 139, 140, 141 and 142 (Decision 75); 132, 143, 144 and
+145 wait behind them.
 
 Items done and verdicts settled before 2026-10-23 stand in REVIEW-ARCHIVE.md beside this file, their
 numbers kept, moved there at 19:30 on 2026-10-23 so this file holds the current work alone and is
@@ -953,45 +961,6 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     changes alone. Read by the game's memory at 12 columns after the land settles, before and after.
     One commit, small.
 
-131. **A thin two-sided face holds a narrower band in the scene field.** From item 129's reading of
-    2026-10-26. The field holds a two-sided face below zero within half a cell either side, so at a
-    cell of 0.25 two walls half a unit apart leave no gap and a probe between them reads a surface
-    at its start, taking the walls' own light where the reference reads a tenth to a half; the wheat
-    room's front walls read 44% over the reference close and 14% far at High with the screen probes,
-    13 to 18% with them off. Read for the band's width a thin face needs, a narrower band for
-    two-sided faces with the march still meeting them from either side, or a finer cascade where
-    such walls stand, the cost on the bounce rooms and the voxel grove at both sizes and the leak
-    tests holding, the closed room, the lamp room and the slab's tint; then the wheat room's walls
-    within the world probes' spread of the reference, the Cornell panel's thin emissive edge read
-    with it, the room pictured before and after. One or two commits, after item 97. Decision 75's
-    second item, after 135; the march's step held to the narrower band near a sheet, or a finer
-    first cascade where such faces stand, the choice by the reading; a debug view of a cascade's
-    probes and the field's slice comes with it, and each reading's figure is kept as a test bound,
-    for every item of the plan. Read on 2026-10-30, the band swept at 1.0, 0.8, 0.6 and 0.4 of half
-    a cell reading the close walls 44, 38, 3 and 3% over the reference, but under a half a sheet
-    midway between two cell middles no longer crosses zero and a ray passes it, and a signed sheet
-    gives a phantom wall between two sheets facing one way two cells apart; so the shape taken is a
-    plane a cell, each cell whose nearest face is double-sided keeping that face's plane, its way
-    and its offset from the cell's middle in an eight-bit image, the field keeping the face's
-    distance with no band so the gap stays open, and traceField and the other marches testing the
-    plane of the cell they step through to meet the sheet exactly from either side, over a finer
-    cascade at eight times the cells; two commits, the splat and resolve with the image, then the
-    marches, read by the sheet test kept, the wheat room's walls near 4%, the leak tests and a
-    closed room of double-sided sheets dark, and the cost on the rooms and the grove. Built on
-    2026-10-31, each cell keeping the nearest double-sided face's plane in four half floats, the
-    probes' rays, their placement and their hits reading the plane exactly held a quarter of a cell
-    either side, every other reader holding a sheet half a cell either side as before with no fetch,
-    since reading the plane everywhere cost the scene pass 1.3 ms; the wheat room's walls read -1.9
-    and -5.1% close and -8.3 and -10.4% far against the reference where 44 and 45 and 14 and 8 over,
-    the closed room of sheets 0.054 and 0.013 of the open light where 0.104 and 0.016, the leak
-    tests and the bounce rooms unchanged, the grove's GI 5.64 ms where 5.27 at High. One fault, the
-    crop walls crossing on cell edges where the four cells about a crossing keep one plane and the
-    other wall is missing, the world probes putting dark round patches at the crossings' feet with
-    the screen probes off; the call is two commits, the first as built, the second a second plane
-    where two faces tie in a second image read by the probes' rays, the crossings read with the
-    screen probes on and off before and after. The first commit at `b16f26b5` on 2026-10-31; the
-    second plane at crossings next.
-
 146. **The field follows the eye without a whole cascade's CPU work in one frame.** From the voxel
     game's item 145, its ASKS.md entry of 2026-10-30, a cascades item of Decision 75 placed after
     131 since it is the stutter a player feels. A step of one section over loaded land costs
@@ -1000,7 +969,20 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     on a crossing is spread over frames, a slab of cells a frame within a budget with the old cells
     read until replaced, or the cascades scroll by whole cells so only the entering slab is
     splatted; read by the step test's frame at its slowest and 99th part at 8 and 12 columns before
-    and after, the bounce rooms and the grove's light unchanged. One or two commits.
+    and after, the bounce rooms and the grove's light unchanged. One or two commits. Read on
+    2026-10-31 with the eye stepped a section east and back twenty times, the cascade's move itself
+    about 0.1 ms of the CPU, the slowest frame two other things, the triangle pool sized at twice
+    one frame's part of the build and made again each frame as the next part overflows it with every
+    mesh's open edges found again, 11 to 13 ms, and the stamping's three-way sort finding the parts
+    of the 16 to 27 sections that come back at a crossing, 11 to 18 ms, the churn's source the
+    game's flood toggling sections' ShadowOnly as the eye crosses while the field leaves ShadowOnly
+    draws out since item 101. The mend in one commit, each mesh's open edges kept once found and the
+    pool grown to hold the build's meshes, the parts found once a mesh with a plain sort and a mesh
+    that comes back where it stood returning settled rather than stamped; then the cost read of
+    keeping ShadowOnly draws in the field, which stops the churn at its source and holds sky light
+    off a cave under hidden rock as the shadows do, and if the field's build and memory bear it on
+    the game at 12 columns, a second commit does it, item 101's meaning changed by the reviewer's
+    call, open to the owner's word. No slab spreading or scrolling, the move not being the cost.
 
 133. **The README's words under the header are the owner's.** The owner wrote on 2026-10-30 that
     below the README's header stands "A C# engine on SDL3, Vulkan, ImGui and Slang. Raylib's design
@@ -1022,7 +1004,9 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     first cascade's rays meeting leaves before their interval. Each cascade's probes are placed into
     open space within their cell by the field, and the first cascade's rays carried past their
     interval where no coarser probe holds the space. Read by the pocket's face and the corridor's
-    walls, 67 to 69% under today, against the reference of the item before. One or two commits.
+    walls, 67 to 69% under today, against the reference of the item before. One or two commits. It
+    takes item 131's lead too, a world probe standing on both sheets of a crossing on the grid
+    leaving a dark round patch at the crossing's foot, gone when the walls shift off the grid.
 
 138. **A crossing of leaves takes its transmission from the leaves' depth along the ray.** Decision
     75's fifth item. Item 100's slab, 20 across and 5 up, takes 0.32 of the sky's light at High
@@ -1061,7 +1045,21 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
 
 ## Verdicts
 
-Verdicts 56 to 94 are settled, said under each in REVIEW-ARCHIVE.md; none is open.
+Verdicts 56 to 94 are settled, said under each in REVIEW-ARCHIVE.md; 95 is open.
+
+95. **The run of `b16f26b5` is cancelled on Linux, the suite past test.py's time limit and the job
+    past its own.** Read at 04:57 on 2026-10-31. The Linux job's test step ran from 01:54 to 03:33
+    and the job was cancelled at its 100 minutes with Windows and macOS green; test.py's whole run
+    ended at its 40-minute limit with 1,551 passed and the rest lost, the last test AppThreadsTests'
+    served app, its slowest GlowLightsTests' shut-in emissive block at 2 m 53 s and two
+    GlobalIlluminationTests at 1 m 49 s and 1 m 18 s, and the parts run after reached 2,066 passed
+    in 80 minutes before the job's end; the Linux job read 62 to 68 minutes whole before item 131,
+    so the field's plane a cell slowed the field tests on lavapipe past the limit the whole run had
+    been near. The mend raises the Linux job to 150 minutes and test.py's whole-run limit on Linux
+    to 90, since the Actions bill is no concern, reads which tests grew between `2ad96a80` and
+    `b16f26b5` and names them in a note, and makes test.py's run after a time kill go on from the
+    last test that ended rather than start the parts over, if that is what it does. Small, first,
+    the commit going with `fdde73b2`.
 
 ## Decisions
 

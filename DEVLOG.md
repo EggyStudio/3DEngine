@@ -14,6 +14,12 @@ wall held below zero within half a cell either side, the cells between two walls
 and the walls 44% over a path-traced reference, and below with each cell keeping the plane of the
 wall nearest it, the walls 2 to 5% under, dark patches standing at their feet where two cross.
 
+![](.github/assets/readings/2026-10-31-item-131-crossings.webp)
+The wheat room's walls at their feet where they cross at High at 800 by 450, above with each cell
+keeping the plane of the wall nearest it, dark round patches where the world's probes stand among
+the crossings, and below with a second plane kept where two walls lie as near a cell, the patches
+beside the near crossing softer and the one at it standing.
+
 Double-sided faces held by their planes in the scene field, read on the engine's tree against
 `2ad96a80` on an RTX 4070 Laptop GPU under tuned's `powersave-bazzite`, in item 89's wheat room,
 eight by eight blocks of four double-sided walls a block tall half a unit apart under the game's sun
@@ -59,9 +65,31 @@ the planes the cells around keep, global illumination took 5.64 ms and the scene
 where 7.17 to 7.43. The four half floats a cell where one cost 0.2 ms of it.
 
 Where two walls cross on a cell's edge the four cells about it lie as near both and keep one plane,
-so the other wall is held there by the cells' blend alone. With the screen's probes left out the
-world's probes put dark round patches at the walls' feet where they cross, sharper and more of them
-than the one soft spot the band left, which the second commit of item 131 reads.
+so the other wall was held there by the cells' blend alone, and the world's probes put dark round
+patches at the walls' feet where they cross, sharper and more of them than the one soft spot the
+band left. The second commit keeps a second plane where another double-sided face of another way
+passes within three quarters of a cell of a cell's middle, in an image of its own the probes' rays
+read beside the field, and a point beside either sheet in the cells about a crossing is met where
+the first plane alone left one 0.095 off. The walls against the reference, and the pixels of the
+picture's lower half under 0.6 of the reference's light:
+
+| | Walls with the screen's probes, front and back | Without them | Dark pixels, with | Without |
+|---|---|---|---|---|
+| held half a cell either side | +44.0%, +44.6% | +13.5%, +18.1% | 0 | 994 |
+| one plane a cell | -1.9%, -5.1% | -5.7%, -4.9% | 2,219 | 2,919 |
+| a second where two faces lie as near | -0.4%, -0.4% | -2.9%, -1.6% | 2,155 | 2,475 |
+
+The patches beside the crossing nearest the eye went softer and the one at it stands, at Low too,
+where the world's probes read alone, and with global illumination off none does; shifted off the
+cells' grid by 0.37 no round patch showed, though the walls the view takes in moved with it, so a
+world probe standing on both sheets of a crossing on the grid is where it is read next. The closed
+room of sheets took 0.048 of the sky's light at Low and 0.0085 at High where 0.054 and 0.013, and
+the grove's global illumination 5.66 to 5.68 ms where 5.65 to 5.68 with one plane, the second read
+costing nothing the frames show.
+
+Done that day
+
+- Item 131 at `b16f26b5`. A thin two-sided face holds a narrower band in the scene field.
 
 ## 2026-10-30
 

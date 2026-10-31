@@ -14,9 +14,9 @@ or its memory, is said first on the page, with how far a test that prints its pr
 TestResults/dumps, with the stack of the thread it was written for where dotnet-dump, named by
 E3D_DOTNET_DUMP or on the path, reads it, and the times of its slowest tests. The suite then runs
 again in parts, each a process of its own under the same limits, so a part that is lost costs only
-its own tests, and only the parts holding a test the whole run gave no result run again, the rest
-counted from what the whole run printed, so a run lost a test short of its end does not start
-over. A part is a name after
+its own tests, and only the parts holding a test the whole run gave no result run again, each
+running those tests alone, the rest counted from what the whole run printed, so a run lost a test
+short of its end goes on from where it was rather than starting over. A part is a name after
 `Engine.Tests.` that holds thirty tests or more, as `Rendering`, and everything else is one more,
 whose filter is the negation of the others, so no test falls between two parts. A part named in
 --split runs in as many processes as it says, its test classes sorted by name and dealt to them in
@@ -315,8 +315,10 @@ def last_ended(text):
 
 
 # A test's line in dotnet test's console log, its outcome, its name and its time, as `1 m 3 s`,
-# `49 s` or `12 ms`.
-ENDED = re.compile(r"^\s+(Passed|Failed|Skipped) (Engine\.Tests\.\S.*?) \[(?:(\d+) m)? ?(?:(\d+) s)? ?(?:(\d+) ms)?\]\s*$")
+# `49 s`, `12 ms` or `< 1 ms`. Read without the last, the 508 tests of the run of b16f26b5 on Linux
+# that ended in under a millisecond had no result, and every part holding one ran again, Rendering
+# whole for 35 minutes where the whole run had ended each of its tests.
+ENDED = re.compile(r"^\s+(Passed|Failed|Skipped) (Engine\.Tests\.\S.*?) \[(?:< 1 ms|(?:(\d+) m)? ?(?:(\d+) s)? ?(?:(\d+) ms)?)\]\s*$")
 
 
 def ended_in(text):
@@ -350,6 +352,29 @@ def ended_in(text):
         finished[key] = ({"Skipped": "NotExecuted"}.get(outcome, outcome), "\n".join(message), "\n".join(stack))
         times[key] = int(match.group(3) or 0) * 60 + int(match.group(4) or 0) + int(match.group(5) or 0) / 1000
     return finished, times
+
+
+# The longest filter a part run again is given by its tests' names, well inside the 32,767
+# characters of a command line on Windows; past it the part is given their classes.
+FILTER_LENGTH = 8000
+
+
+def left_filter(left, held):
+    """
+    A filter taking the tests of a part that a lost whole run gave no result, each class all of
+    whose tests are left by its name and the others' by their methods' names, a theory's every case
+    with its method, or the classes alone where that comes to more than FILTER_LENGTH characters,
+    or None where they do too, when the part runs whole.
+    """
+    def owner(name):
+        return name.split("(")[0].rsplit(".", 1)[0]
+    left_by, held_by = Counter(owner(name) for name in left), Counter(owner(name) for name in held)
+    whole = [f"FullyQualifiedName~{c}." for c in sorted(left_by) if left_by[c] == held_by[c]]
+    methods = sorted({name.split("(")[0] for name in left if left_by[owner(name)] < held_by[owner(name)]})
+    for clauses in (whole + [f"FullyQualifiedName={m}" for m in methods], [f"FullyQualifiedName~{c}." for c in sorted(left_by)]):
+        if len("|".join(clauses)) <= FILTER_LENGTH:
+            return "|".join(clauses)
+    return None
 
 
 def without_result(names, results):
@@ -875,9 +900,9 @@ def main():
         print(process.summary(), flush=True)
     if not args.parts and not args.all_parts and done[0].lost:
         # Run again in parts, each a process, so a part that is lost costs only its own tests, and
-        # only the parts holding a test the whole run gave no result. On a Windows runner of a slow
-        # processor the whole suite ran out its hour 1,705 tests in, and every part run again from
-        # the start took the job past its limit with no page written.
+        # only the parts holding a test the whole run gave no result, each with those tests alone.
+        # On a Windows runner of a slow processor the whole suite ran out its hour 1,705 tests in,
+        # and every part run again from the start took the job past its limit with no page written.
         listed = list_tests(dotnet, args)
         parts = parts_of(listed, splits)
         for process in parts:
@@ -886,6 +911,9 @@ def main():
             if not left:
                 print(f"{process.label}: every test ended in the whole run, so it is not run again", flush=True)
                 continue
+            if len(left) < len(held) and (narrowed := left_filter(left, held)):
+                process.filter = narrowed
+                print(f"{process.label}: {len(left):,} of its {len(held):,} tests had no result in the whole run, so those alone run again", flush=True)
             done.append(run(dotnet, process, args, results))
             print(process.summary(), flush=True)
 

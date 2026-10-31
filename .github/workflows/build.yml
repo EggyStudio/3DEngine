@@ -52,9 +52,10 @@ jobs:
     # to the next release is a commit of its own.
     runs-on: ubuntu-24.04
     # The job took 17 minutes on the push of fc5fdc97 with the suite run once. The suite runs twice,
-    # the second time shuffled, and build/test.py ends each run at its own 40, so the job's 100 is
-    # reached only where a step around the suite hangs.
-    timeout-minutes: 100
+    # the second time shuffled, each run 32 to 34 minutes on the push of 2ad96a80 and past 40 on
+    # b16f26b5's, where build/test.py ended the first at its limit of 40, ran its parts for 40 more
+    # and the job reached its 100 in the second. Each run is held to 90 here, and the job to 150.
+    timeout-minutes: 150
     steps:
       - uses: actions/checkout@v7
 
@@ -112,7 +113,7 @@ jobs:
       # some hundred MB over the drawing tests. A suite that passed runs whole once more with each
       # stage's systems shuffled by the day's date as a seed, so a system leaning on an order nothing
       # asks for meets a new order each day, and a failure names the seed that runs it again.
-      - run: python3 build/test.py --no-build --shuffle-seed "$(date -u +%Y%m%d)"
+      - run: python3 build/test.py --no-build --timeout-minutes 90 --shuffle-seed "$(date -u +%Y%m%d)"
         env:
           E3D_REQUIRE_VALIDATION: '1'
           E3D_REQUIRE_VULKAN: '1'
