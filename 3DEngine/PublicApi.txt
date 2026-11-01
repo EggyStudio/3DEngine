@@ -712,15 +712,19 @@ static class Engine.E3D
   const int PrototypePixelsPerMeter = 1024
   static (Color, float) GetSkyHorizon()
   static (ExposureMetering, float) GetAutoExposureMetering()
+  static (Vector4, Vector4, Vector4) GetLiftGammaGain()
   static (bool, float, float, float) GetAutoExposure()
   static (float, Color) GetEnvironmentLight()
   static (float, bool) GetMotionBlur()
+  static (float, float) GetAutoExposureHistogram()
+  static (float, float) GetAutoExposureSpeeds()
   static (float, float) GetBloom()
   static (float, float) GetHighlightKnee()
   static (float, float) GetVignette()
   static (float, float, Color) GetColorGrading()
   static (float, float, float) GetDepthOfField()
   static (float, float, float, float) GetTonemapCurve()
+  static (string?, float) GetTonemapLookup()
   static App GetApp()
   static AudioStream LoadAudioStream(int sampleRate, int sampleSize, int channels)
   static AutomationEventList LoadAutomationEventList(string? fileName)
@@ -1056,6 +1060,7 @@ static class Engine.E3D
   static byte[]? LoadFileData(string fileName)
   static double GetProfileAverage(string name)
   static double GetTime()
+  static float GetBloomScatter()
   static float GetCameraEv100()
   static float GetExposure()
   static float GetFrameTime()
@@ -1448,10 +1453,13 @@ static class Engine.E3D
   static void SetAudioStreamPitch(AudioStream stream, float pitch)
   static void SetAudioStreamVolume(AudioStream stream, float volume)
   static void SetAutoExposure(bool enabled, float min = 0.25f, float max = 4f, float speed = 2f)
+  static void SetAutoExposureHistogram(float low, float high)
   static void SetAutoExposureMetering(ExposureMetering metering, float compensation = 0f)
+  static void SetAutoExposureSpeeds(float brightening, float darkening)
   static void SetAutomationEventBaseFrame(int frame)
   static void SetAutomationEventList(AutomationEventList list)
   static void SetBloom(float intensity, float threshold = 1f)
+  static void SetBloomScatter(float scatter)
   static void SetCameraExposure(float iso, float shutterSeconds, float aperture)
   static void SetClipboardText(string text)
   static void SetColorGrading(float contrast, float saturation, Color tint)
@@ -1473,6 +1481,7 @@ static class Engine.E3D
   static void SetGlobalIllumination(GlobalIllumination quality)
   static void SetHighlightKnee(float knee, float strength = 1f)
   static void SetImGuiGamepadNavigation(bool enabled)
+  static void SetLiftGammaGain(Vector4 lift, Vector4 gamma, Vector4 gain)
   static void SetLightCastsShadows(LightHandle light, bool castsShadows)
   static void SetLightColor(LightHandle light, Color color, float intensity = 1f)
   static void SetLightDirection(LightHandle light, Vector3 direction)
@@ -1558,6 +1567,7 @@ static class Engine.E3D
   static void SetTextureWrap(Texture2D texture, TextureWrap wrap)
   static void SetTonemap(Tonemap curve)
   static void SetTonemapCurve(float exposure, float white, float lower, float upper)
+  static void SetTonemapLookup(string fileName, float share = 1f)
   static void SetTonemapShader(Shader shader)
   static void SetTraceLogCallback(Action<LogLevel, string>? callback)
   static void SetTraceLogLevel(LogLevel level)
@@ -3693,6 +3703,7 @@ enum Engine.Tonemap : int
   Clamp = 3
   Curve = 11
   Engine = 0
+  Lookup = 12
   None = 4
   Reinhard = 1
   ReinhardLuminance = 5

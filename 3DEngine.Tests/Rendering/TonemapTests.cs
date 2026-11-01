@@ -21,7 +21,7 @@ namespace Engine.Tests.Rendering;
 /// </remarks>
 [Collection("E3D")]
 [Trait("Category", "Render")]
-public sealed class TonemapTests : IDisposable
+public sealed partial class TonemapTests : IDisposable
 {
     private const int Width = 1024, Height = 8;
     private readonly TestFolder _folder = new("engine-tonemap-");
@@ -51,43 +51,7 @@ public sealed class TonemapTests : IDisposable
     [MemberData(nameof(Bevys))]
     public void The_Ramp_Through_Each_Of_Bevys_Tonemappers_Is_Bevys(Tonemap curve, int levels)
     {
-        var config = Config.Default.WithWindow("tonemap test", Width, Height) with { Headless = true, Offscreen = true, Samples = 1 };
-        UseApp(new App(config).AddPlugin(new DefaultPlugins()));
-        var ramp = LoadShaderFromMemory("""
-            import engine;
-            import color;
-
-            [shader("fragment")]
-            float4 fragmentMain(VertexOutput input) : SV_Target
-            {
-                float v = exp2(20.0 * floor(input.position.x) / 1023.0 - 12.0);
-                float3 rows[8] = { float3(1, 1, 1), float3(1, 0, 0), float3(0, 1, 0), float3(0, 0, 1),
-                    float3(0, 1, 1), float3(1, 0, 1), float3(1, 1, 0), float3(1, 0.5, 0.25) };
-                return float4(linearToSrgbPastWhite(v * rows[int(input.position.y)]), 1.0);
-            }
-            """, "ramp.slang");
-        SetTonemap(curve);
-        // A face far wider than the view, a view 128 times as wide as it is high and so some 6,000
-        // units across at the face, so the shader covers every pixel, drawn inside BeginMode3D so
-        // it is the window's scene and goes through the tonemap.
-        var camera = new Camera3D(new Vector3(0, 0, 5), Vector3.Zero, Vector3.UnitY, 45);
-        var path = Path.Combine(_folder.Path, curve + ".png");
-        for (int frame = 0; frame < 10 && !File.Exists(path); frame++)
-        {
-            BeginDrawing();
-            ClearBackground(Color.Black);
-            BeginMode3D(camera);
-            BeginShaderMode(ramp);
-            DrawCube(new Vector3(0, 0, -50), 20000, 1000, 1, Color.White);
-            EndShaderMode();
-            EndMode3D();
-            if (frame == 0) TakeScreenshot(path);
-            EndDrawing();
-        }
-        File.Exists(path).Should().BeTrue("the capture is written once its frame has finished on the GPU");
-        GraphicsDevice.ValidationErrors.Skip(_validationErrorsBefore).Should().BeEmpty("the validation layer, where it runs, reports nothing wrong with the frames drawn");
-        var frameImage = LoadImage(path);
-
+        var frameImage = DrawRamp(curve.ToString(), () => SetTonemap(curve));
         var model = new BevyModel(curve);
         var worst = (Apart: 0, X: 0, Y: 0, Got: Color.Black, Expected: Color.Black);
         for (int y = 0; y < Height; y++)
@@ -115,7 +79,48 @@ public sealed class TonemapTests : IDisposable
             }
         apartFromBevy.Apart.Should().BeLessThanOrEqualTo(levels,
             $"{curve} draws the ramp as BevyCSharp draws it, at worst at {apartFromBevy.X}, {apartFromBevy.Y}");
+    }
+
+    // The ramp drawn through the window's tonemap as set, and read back.
+    private Image DrawRamp(string name, Action set)
+    {
+        var config = Config.Default.WithWindow("tonemap test", Width, Height) with { Headless = true, Offscreen = true, Samples = 1 };
+        UseApp(new App(config).AddPlugin(new DefaultPlugins()));
+        var ramp = LoadShaderFromMemory("""
+            import engine;
+            import color;
+
+            [shader("fragment")]
+            float4 fragmentMain(VertexOutput input) : SV_Target
+            {
+                float v = exp2(20.0 * floor(input.position.x) / 1023.0 - 12.0);
+                float3 rows[8] = { float3(1, 1, 1), float3(1, 0, 0), float3(0, 1, 0), float3(0, 0, 1),
+                    float3(0, 1, 1), float3(1, 0, 1), float3(1, 1, 0), float3(1, 0.5, 0.25) };
+                return float4(linearToSrgbPastWhite(v * rows[int(input.position.y)]), 1.0);
+            }
+            """, "ramp.slang");
+        set();
+        // A face far wider than the view, a view 128 times as wide as it is high and so some 6,000
+        // units across at the face, so the shader covers every pixel, drawn inside BeginMode3D so
+        // it is the window's scene and goes through the tonemap.
+        var camera = new Camera3D(new Vector3(0, 0, 5), Vector3.Zero, Vector3.UnitY, 45);
+        var path = Path.Combine(_folder.Path, name + ".png");
+        for (int frame = 0; frame < 10 && !File.Exists(path); frame++)
+        {
+            BeginDrawing();
+            ClearBackground(Color.Black);
+            BeginMode3D(camera);
+            BeginShaderMode(ramp);
+            DrawCube(new Vector3(0, 0, -50), 20000, 1000, 1, Color.White);
+            EndShaderMode();
+            EndMode3D();
+            if (frame == 0) TakeScreenshot(path);
+            EndDrawing();
+        }
+        File.Exists(path).Should().BeTrue("the capture is written once its frame has finished on the GPU");
+        GraphicsDevice.ValidationErrors.Skip(_validationErrorsBefore).Should().BeEmpty("the validation layer, where it runs, reports nothing wrong with the frames drawn");
         UnloadShader(ramp);
+        return LoadImage(path);
     }
 
     [Fact]
@@ -135,18 +140,22 @@ public sealed class TonemapTests : IDisposable
         return v * rows[y];
     }
 
-    /// <summary>Bevy's curves as <c>tonemapping_shared.wgsl</c> works them out, on the CPU, with its tables sampled as a linear filter samples them.</summary>
+    /// <summary>
+    /// Bevy's curves as <c>tonemapping_shared.wgsl</c> works them out, and a table loaded from a
+    /// file as HDRP looks light up in it, on the CPU, with the tables sampled as a linear filter
+    /// samples them.
+    /// </summary>
     private sealed class BevyModel
     {
         private readonly Tonemap _curve;
         private readonly int _size;
         private readonly Vector3[] _table = [];
 
-        public BevyModel(Tonemap curve)
+        public BevyModel(Tonemap curve, TonemapTables.Table? loaded = null)
         {
             _curve = curve;
-            if (TonemapTables.FileOf(curve) is null) return;
-            var table = TonemapTables.Load(curve);
+            if (TonemapTables.FileOf(curve) is null && loaded is null) return;
+            var table = loaded ?? TonemapTables.Load(curve);
             _size = (int)table.Size;
             _table = new Vector3[_size * _size * _size];
             for (int i = 0; i < _table.Length; i++)
@@ -175,6 +184,7 @@ public sealed class TonemapTests : IDisposable
                 Vector3.Dot(c, new(0.04237565f, 0.0784336f, 0.87914297f))), -10, 6.5f), Vector3.Zero, Vector3.One)),
             Tonemap.TonyMcMapface => Sample(Vector3.Clamp(c / (c + Vector3.One) * (47f / 48) + new Vector3(0.5f / 48), Vector3.Zero, Vector3.One)),
             Tonemap.BlenderFilmic => LookUp(Vector3.Clamp(Log2(c, -11, 12), Vector3.Zero, Vector3.One)),
+            Tonemap.Lookup => LookUp(Vector3.Clamp(LogC(c), Vector3.Zero, Vector3.One)),
             _ => throw new ArgumentOutOfRangeException(nameof(_curve)),
         };
 
@@ -190,6 +200,11 @@ public sealed class TonemapTests : IDisposable
         }
 
         private static float Boring(float v) => 1 - MathF.Exp(-v);
+
+        // ARRI's LogC for an exposure index of 1000, as HDRP encodes light for a table.
+        private static Vector3 LogC(Vector3 c) =>
+            new Vector3(0.244161f) * new Vector3(MathF.Log10(5.555556f * c.X + 0.047996f), MathF.Log10(5.555556f * c.Y + 0.047996f),
+                MathF.Log10(5.555556f * c.Z + 0.047996f)) + new Vector3(0.386036f);
 
         private static Vector3 SomewhatBoring(Vector3 c)
         {

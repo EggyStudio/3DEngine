@@ -2,16 +2,22 @@
 // frame into a small target, each texel the mean of the log luminance over its part of the frame.
 // The second, one texel, weights those toward the middle of the picture, where a player looks,
 // and moves the last frame's value toward what it measured by the share of the way the push
-// gives, held between the brightest and darkest the exposure is let reach. Both keep the log2 of
-// the luminance, since the eye adapts by ratios and a mean of logs is not pulled up by one lamp.
+// gives, one where the scene brightened and another where it darkened, held between the brightest
+// and darkest the exposure is let reach. Both keep the log2 of the luminance, since the eye adapts
+// by ratios and a mean of logs is not pulled up by one lamp. Where the push leaves out the darkest
+// and the brightest shares of the weighted picture, as HDRP's histogram metering does, the mean is
+// of what lies between, binned by half a stop, so a sky in a corner of the view does not dim it.
 import fullscreen;
 
 struct ExposurePush
 {
     // x: 0 to measure, 1 to adapt weighing the whole picture and 2 its middle. y: the share of the
-    // way the value moves this frame, 1 for all of it. zw: the lowest and highest log2 luminance
-    // it is held between.
+    // way the value moves this frame where the scene brightened, 1 for all of it. zw: the lowest and
+    // highest log2 luminance it is held between.
     float4 mode;
+    // xy: the shares of the weighted picture, from its darkest, it measures between, 0 and 1 for
+    // all of it. z: the share of the way the value moves where the scene darkened. w: unused.
+    float4 kept;
 };
 
 [[vk::push_constant]]
@@ -53,24 +59,69 @@ float measure(float2 uv)
     return sum / 16.0;
 }
 
-float adapt()
+// The log2 luminance the histogram's bins span, from far under a starlit night to past the sun's
+// disc, half a stop a bin.
+static const int Bins = 64;
+static const float BinsFrom = -16.0, BinsTo = 16.0;
+
+float weightAt(int x, int y)
 {
-    float sum = 0.0, weights = 0.0;
+    float2 at = (float2(x, y) + 0.5) / float(Measured) - 0.5;
+    // The middle counts four times as much as the edges, or, center-weighted, most of all,
+    // falling as a bell curve a fifth of the picture wide.
+    return push.mode.x > 1.5 ? exp(-dot(at, at) / (2.0 * 0.2 * 0.2)) : 1.0 - 0.75 * saturate(length(at) * 1.41421356);
+}
+
+// The weighted mean of the log luminance of the part of the picture between the kept shares,
+// each bin standing for its middle.
+float keptMean()
+{
+    float bins[Bins];
+    for (int b = 0; b < Bins; b++)
+        bins[b] = 0.0;
+    float weights = 0.0;
     for (int y = 0; y < Measured; y++)
         for (int x = 0; x < Measured; x++)
         {
-            float2 at = (float2(x, y) + 0.5) / float(Measured) - 0.5;
-            // The middle counts four times as much as the edges, or, center-weighted, most of all,
-            // falling as a bell curve a fifth of the picture wide.
-            float weight = push.mode.x > 1.5 ? exp(-dot(at, at) / (2.0 * 0.2 * 0.2)) : 1.0 - 0.75 * saturate(length(at) * 1.41421356);
-            sum += source.Load(int3(x, y, 0)).r * weight;
+            float weight = weightAt(x, y);
+            float at = (source.Load(int3(x, y, 0)).r - BinsFrom) / (BinsTo - BinsFrom) * float(Bins);
+            bins[clamp(int(at), 0, Bins - 1)] += weight;
             weights += weight;
         }
-    float measured = clamp(sum / weights, push.mode.z, push.mode.w);
+    float from = weights * push.kept.x, to = weights * push.kept.y;
+    float below = 0.0, sum = 0.0, kept = 0.0;
+    for (int b = 0; b < Bins; b++)
+    {
+        float inside = max(min(below + bins[b], to) - max(below, from), 0.0);
+        sum += inside * (BinsFrom + (float(b) + 0.5) * (BinsTo - BinsFrom) / float(Bins));
+        kept += inside;
+        below += bins[b];
+    }
+    return kept > 0.0 ? sum / kept : 0.0;
+}
+
+float adapt()
+{
+    float measured;
+    if (push.kept.x > 0.0 || push.kept.y < 1.0)
+        measured = keptMean();
+    else
+    {
+        float sum = 0.0, weights = 0.0;
+        for (int y = 0; y < Measured; y++)
+            for (int x = 0; x < Measured; x++)
+            {
+                float weight = weightAt(x, y);
+                sum += source.Load(int3(x, y, 0)).r * weight;
+                weights += weight;
+            }
+        measured = sum / weights;
+    }
+    measured = clamp(measured, push.mode.z, push.mode.w);
     if (push.mode.y >= 1.0)
         return measured;
     float last = previous.Load(int3(0, 0, 0)).r;
-    return lerp(last, measured, push.mode.y);
+    return lerp(last, measured, measured >= last ? push.mode.y : push.kept.z);
 }
 
 [shader("fragment")]

@@ -2315,7 +2315,7 @@ at both heights, its screen's probes 0.006 of it five and a half up.
 the HDRP pictures its last three views are matched against, `scenes_sponza`'s frames read means of
 9, 1 and 9 of 255 at the gallery, the door and looking up where the pictures read 73, 57 and 82, the
 door's as bright as the gallery's there, which a camera held at one exposure value gives neither,
-so the pictures were exposed view by view, as the automatic mode their camera allows between EV 4
+so the pictures were exposed view by view, as the automatic mode their camera allows between EV -1
 and 14 does. The path-traced reference read Sponza's stone as metal, its materials giving a
 metallic of 1 and the metal in their maps, so it took no light off the stone past the first face
 and read the shade black. The scene field's copies take their roughness and metallic as the
@@ -3280,6 +3280,18 @@ the window, with Jimenez's thirteen-tap filter, keeping on the first step only t
 threshold, eased in over a tenth of it. It then adds each level back onto the one above through a
 tent, so the first level holds the light spread over every size (`bloom.slang`).
 
+With `SetBloomScatter` the chain spreads the light as Unity's HDRP spreads its bloom. The first step
+keeps the light past the threshold eased in over half of it, the threshold measured after the
+exposure, divided here by the exposure set and the key and multiplied on the GPU by two to the
+adapted luminance, which `exposure.slang` writes before the chain, so the bright pass reads the
+texel the composite reads. The chain halves the window to the log2 of its longer side less 2
+levels, as HDRP's does, eight at 1280 by 720, where the engine's bloom stops at five, the levels
+past five being made for every window and read by the scattered chain alone. On the way up each
+level is laid over the one above by its alpha, the scatter, so it takes that share of the level
+above's place, and the composite mixes the first level into the exposed light as HDRP's uber pass
+does, the light past the threshold giving way to it by the intensity, `lerp(c, c - past(c) + bloom,
+intensity)`, which keeps the frame's light where the engine's bloom adds to it.
+
 `main_pass` draws the composite first, over the whole window, the scene decoded or the decoded image
 read as it is, with the first level added at the intensity over the number of levels, tonemapped and
 encoded (`composite.slang`). The engine's curve gives way to a clamp in a frame where no light past
@@ -3322,7 +3334,12 @@ depth and 374 MiB with the window's lent, the 31 MiB the 16 bytes a pixel of tha
 The composite carries the effects of `FrameEffects` too, `SetExposure`, `SetTonemap` (the engine's
 curve, Narkowicz's fit of ACES, a cut at 1, or one of Bevy's eight), `SetColorGrading` (saturation
 and a tint in linear light after the curve, contrast about the middle once encoded) and
-`SetVignette`, all in the composite's push constants. With `SetFxaa` the composite draws into an
+`SetVignette`, with `SetLiftGammaGain` before the curve (HDRP's lift, gamma and gain on the
+exposed light, the light times the gain plus the lift raised to one over the gamma, each worked out
+from its trackball by `FrameEffects.LiftGammaGain` as HDRP's `PrepareLiftGammaGain` works it out),
+all in the composite's push constants, eight vectors of four floats, the 128 bytes every device
+gives. One of them carries the chosen curve's numbers, the engine's knee and its strength, the
+numbered curve's four, or a table's share and size. With `SetFxaa` the composite draws into an
 eight-bit target the window's size instead, and `main_pass` draws that through FXAA (`fxaa.slang`,
 the console form of Lottes's, over the encoded colors) before the interface. `FrameEffectsTests`
 reads each from a frame.
@@ -3341,7 +3358,16 @@ table on the CPU and to BevyCSharp's picture of it, copied from BevyCSharp's com
 `References/tonemapping`, within two levels of 255 for a curve and four for a table, every one
 within one level of both on the RTX 4070.
 
-`SetAutoExposure` makes the exposure follow the scene, in two passes of `exposure.slang` after the
+`SetTonemapLookup` reads a table from a KTX2 file through the same reader and chooses
+`Tonemap.Lookup`. `build/unity-lut.py` writes such a file from the strip of squares an HDRP table is
+drawn as, read by ImageMagick as half floats and laid out red fastest, then green counted up the
+strip, then blue across its squares. The composite looks the light up as HDRP's external
+tonemapping does, encoded as ARRI's LogC for an exposure index of 1000, and the table's share takes
+the light's place. A table loaded anew is uploaded the first frame it is drawn and the one it
+replaces is retired. `TonemapTests` holds the ramp through the Sponza example's table, after a gamma
+of w 0.225, to a model of HDRP's lookup within four levels, and the table's corners to the strip's.
+
+`SetAutoExposure` makes the exposure follow the scene, in two passes of `exposure.slang` before the
 bloom chain, which keep the log2 of luminance since an eye adapts by ratios and a mean of logs is not
 pulled up by one lamp. The first measures the decoded light into a target of 64 by 64, each texel the
 mean of sixteen taps over its part of the frame. The second, one texel, weights those toward the
@@ -3350,6 +3376,38 @@ luminances the exposure's bounds bring to a mid gray of 0.18, and moves the valu
 toward it by one less e to the minus the speed times the seconds since, or all the way on the first
 frame. Two such texels take turns, each frame writing one from the other, and the composite divides
 0.18 by two to the value it reads and multiplies the exposure by that, so nothing is read back.
+`SetAutoExposureSpeeds` moves the value at one speed where the measured luminance lies above it and
+at another where it lies below. `SetAutoExposureHistogram(low, high)` has the second pass bin the
+measured texels' log luminance by their weights into 64 bins of half a stop from -16 to 16 and take
+the weighted mean of what lies between those shares of the weight, counted from the darkest, each
+bin standing for its middle, as HDRP's histogram metering does.
+
+**Sponza's grading against its references, read on 2026-11-01.** The HDRP project the last three
+views were drawn in grades its frames by a global volume holding the AgX Powerful look from the
+Tonemaps package of Unity Essentials, a gamma of w 0.225, and a bloom of intensity 0.25, threshold
+0.333 and scatter 0.7. It exposes them by HDRP's default profile, the automatic mode,
+center-weighted, between EV -1 and 14, three times as quick toward light as toward dark. A night
+volume holding a histogram metering between EV 4 and 14 and a look of its own,
+`AgX - Low Contrast - Night.exr`, takes a weight of the camera's distance from the origin over
+100,000 in play, and any weight past 0 switches HDRP's modes and textures to the volume's. The night
+look's white is 242 of 255 where the pictures hold 1,762 pixels at 250 or more, so the volume stood
+at the weight of 0 the scene file holds when they were drawn, and the default profile's automatic
+mode exposed them. `scenes_sponza` sets those values, the metering's stops log2 of 12.5 over 120
+over 0.18, -0.79, as HDRP's calibration of 12.5 brings a mean to 12.5 over 120. At 15:00, each view
+settled for 1,500 frames, its three views, the balcony, the door and looking up, read means of
+126.8, 120.3 and 114.4 of 255 where the pictures read 85.8, 59.1 and 104.3, and where the frame read
+104.8, 109.5 and 102.7 under Bevy's AgX before. Of that, the gamma brings 13.9, 16.4 and 14.9, the
+bloom 9.4 at the balcony and 3.7 looking up and takes 3.2 off the door, and the look reads 2.3
+brighter than Bevy's AgX at the balcony and 3.9 and 4.8 darker at the door and looking up. HDRP's
+histogram between 40% and 90% in the automatic mode's place reads 113.2, 118.0 and 100.5. The look
+brings the door's red over blue to 1.58 where the picture reads 1.60 and Bevy's AgX gave 1.26. The
+balcony's and the view up's stay at 0.70 and 0.47 where the pictures read 1.13 and 1.15, the color
+of the sun and the sky on the stone, which is the Sky module's to give (item 170). With the look and
+the gamma inverted along the gray axis, the pictures' light weighted toward the middle reads 1.0 to
+1.35 stops under the frame's at the balcony and looking up and 2.1 to 2.4 under it at the door,
+weighted alike, by a cone or by the bell the frame meters with. A meter settled on HDRP's target
+puts the two alike, so the pictures were exposed that far under what their own meter gives once
+settled, which no setting of the frame's accounts for.
 
 `SetDepthOfField` and `SetMotionBlur` are passes of their own after the bloom chain, into half-float
 targets the window's size that the composite then reads in place of the scene, both reading the

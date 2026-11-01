@@ -2,7 +2,8 @@
 // of the level above in Jimenez's pattern, which keeps a small bright point from flickering as it
 // moves, and the first one keeps only the light past the threshold. An upsample reads the level
 // below through a tent and is added onto the level above it, so the first level ends up holding
-// the light spread over every size.
+// the light spread over every size, or with a scatter, as Unity's HDRP spreads it, takes that
+// share of the level above's place, so each level wider down the chain holds less of the light.
 import fullscreen;
 
 struct BloomPush
@@ -10,6 +11,10 @@ struct BloomPush
     // xy: one texel of the source in uv. z: the threshold. w: 0 for the first downsample, 1 for
     // the others, 2 for an upsample.
     float4 source;
+    // x: the share of the threshold the light eases in over. y: 1 where the threshold is times the
+    // exposure that follows the scene, as the adapted texel holds it. z: an upsample's scatter, the
+    // share of the level above's light it takes the place of, or 0 where it is added.
+    float4 spread;
 };
 
 [[vk::push_constant]]
@@ -17,6 +22,11 @@ ConstantBuffer<BloomPush> push;
 
 [[vk::binding(0, 0)]]
 Sampler2D source;
+
+// The log2 of the scene's mean luminance as the exposure that follows it has adapted to it, in one
+// texel, exposure.slang's.
+[[vk::binding(1, 0)]]
+Sampler2D adapted;
 
 [shader("vertex")]
 FullscreenOutput vertexMain(uint id : SV_VertexID)
@@ -39,14 +49,14 @@ float3 downsample(float2 uv)
     return at(uv, 0, 0) * 0.125 + inner * 0.125 + cross * 0.0625 + corners * 0.03125;
 }
 
-// The light past the threshold, easing in over a tenth of it so the edge of what blooms is soft
+// The light past the threshold, easing in over a share of it so the edge of what blooms is soft
 // rather than a step. The scene's light is held under 256 first, so a half float that overflowed
 // to infinity cannot spread through the chain.
-float3 brightPass(float3 c, float threshold)
+float3 brightPass(float3 c, float threshold, float share)
 {
     c = min(c, 256.0);
     float peak = max(c.r, max(c.g, c.b));
-    float knee = max(threshold * 0.1, 1e-4);
+    float knee = max(threshold * share, 1e-4);
     float soft = clamp(peak - threshold + knee, 0.0, 2.0 * knee);
     soft = soft * soft / (4.0 * knee);
     return c * (max(soft, peak - threshold) / max(peak, 1e-4));
@@ -56,9 +66,15 @@ float3 brightPass(float3 c, float threshold)
 float4 fragmentMain(FullscreenOutput input) : SV_Target
 {
     if (push.source.w > 1.5)
-        return float4(tent(source, input.uv, push.source.xy), 1.0);
+        return float4(tent(source, input.uv, push.source.xy), push.spread.z > 0.0 ? push.spread.z : 1.0);
     float3 color = downsample(input.uv);
     if (push.source.w < 0.5)
-        color = brightPass(color, push.source.z);
+    {
+        // The threshold of light after the exposure, as the light before it.
+        float threshold = push.source.z;
+        if (push.spread.y > 0.0)
+            threshold *= exp2(adapted.Load(int3(0, 0, 0)).r);
+        color = brightPass(color, threshold, push.spread.x);
+    }
     return float4(color, 1.0);
 }

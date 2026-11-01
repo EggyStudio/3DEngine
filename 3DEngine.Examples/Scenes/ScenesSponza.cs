@@ -47,7 +47,7 @@ public static class ScenesSponza
         return $"view {Views[index].Name}";
     }
 
-    [Command("sponza.metered", "Has the camera meter each view as the camera of the scene the views are matched against does, between EV 4 and 14 and center-weighted, or holds it at its ISO 200, 1/200 s and f/16: sponza.metered <on|off>")]
+    [Command("sponza.metered", "Has the camera meter each view as the camera of the scene the views are matched against does, between EV -1 and 14 and center-weighted, or holds it at its ISO 200, 1/200 s and f/16: sponza.metered <on|off>")]
     internal static string Metered(string on)
     {
         _askedMetered = on is "on" or "true" or "1";
@@ -122,7 +122,14 @@ public static class ScenesSponza
         SetSkyTime(hour);
         SetShadowDistance(40);
         SetCameraExposure(200, 1 / 200f, 16);
-        SetTonemap(Tonemap.AgX);
+        // The frame graded as that scene's HDRP profile grades it, by the look of its
+        // AgX - Powerful.exr, a lookup build/unity-lut.py writes from that strip, a gamma of w
+        // 0.225, and a bloom of intensity 0.25, threshold 0.333 and scatter 0.7, worked out as HDRP
+        // works them out.
+        SetTonemapLookup("resources/agx_powerful.ktx2");
+        SetLiftGammaGain(new Vector4(1, 1, 1, 0), new Vector4(1, 1, 1, 0.225f), new Vector4(1, 1, 1, 0));
+        SetBloom(MathF.Pow(2, 0.25f) - 1, MathF.Pow((0.333f + 0.055f) / 1.055f, 2.4f));
+        SetBloomScatter(0.05f + 0.9f * 0.7f);
         var sponza = LoadModel(file);
         // A black box outside the main door, which stands a little apart from its frame, so the
         // sky shows through no gap around it, as the scene the views are matched against holds.
@@ -154,14 +161,15 @@ public static class ScenesSponza
                 SetSkyTime(hour);
             }
             // Metered as the camera of the scene the views are matched against meters, its
-            // automatic mode between EV 4 and 14 about the camera's EV, center-weighted, brought
-            // 0.79 stops under a mid gray as a reflected light meter brings what it reads, which
-            // the pictures were exposed by view by view.
+            // automatic mode between EV -1 and 14 about the camera's EV, center-weighted, its mean
+            // brought to 12.5 / 120 by HDRP's calibration of 12.5, 0.79 stops under a mid gray,
+            // faster to light than to dark, which the pictures were exposed by view by view.
             if (_askedMetered is { } meter)
             {
                 (metered, _askedMetered) = (meter, null);
-                SetAutoExposure(metered, MathF.Pow(2, GetCameraEv100() - 14), MathF.Pow(2, GetCameraEv100() - 4), 8);
-                SetAutoExposureMetering(ExposureMetering.CenterWeighted, -0.79f);
+                SetAutoExposure(metered, MathF.Pow(2, GetCameraEv100() - 14), MathF.Pow(2, GetCameraEv100() + 1));
+                SetAutoExposureSpeeds(3, 1);
+                SetAutoExposureMetering(ExposureMetering.CenterWeighted, MathF.Log2(12.5f / 120 / 0.18f));
             }
             if (flying)
             {

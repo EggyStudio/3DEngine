@@ -10,8 +10,17 @@ internal sealed class BloomSettings
     /// <summary>How much of the spread light is added to the frame, 0 for none.</summary>
     public float Intensity { get; set; }
 
-    /// <summary>The brightness in linear light past which a pixel blooms, 1 unless set, so only what is brighter than white does.</summary>
+    /// <summary>
+    /// The brightness in linear light past which a pixel blooms, 1 unless set, so only what is
+    /// brighter than white does, measured before the exposure, or after it where the bloom is scattered.
+    /// </summary>
     public float Threshold { get; set; } = 1;
+
+    /// <summary>
+    /// The share of each level of the chain the wider level below it takes the place of, as Unity's
+    /// HDRP spreads its bloom, or 0 for the engine's, which adds every level alike.
+    /// </summary>
+    public float Scatter { get; set; }
 
     /// <summary>Whether the bloom chain runs this frame.</summary>
     public bool On => Intensity > 0;
@@ -62,6 +71,7 @@ internal sealed partial class BloomRenderer : IDisposable
     private struct Push
     {
         public float TexelX, TexelY, Threshold, Mode;
+        public float Knee, Adapted, Scatter, Unused;
     }
 
     // As dof.slang and motion_blur.slang read them.
@@ -84,6 +94,7 @@ internal sealed partial class BloomRenderer : IDisposable
     private struct ExposurePush
     {
         public float Mode, Share, Low, High;
+        public float FromShare, ToShare, DarkeningShare, Unused;
     }
 
     // The width and height of the target the frame's luminance is measured into, as exposure.slang has it.
@@ -93,7 +104,7 @@ internal sealed partial class BloomRenderer : IDisposable
     [StructLayout(LayoutKind.Sequential)]
     private struct CompositePush
     {
-        public Vector4 Bloom, Grade, Tint, Exposure, Curve, Highlight;
+        public Vector4 Bloom, Grade, Tint, Exposure, Curve, Lift, Gamma, Gain;
     }
 
     private readonly ReadOnlyMemory<byte> _bloomVertexSpv, _bloomFragmentSpv, _compositeVertexSpv, _compositeFragmentSpv,
@@ -104,7 +115,7 @@ internal sealed partial class BloomRenderer : IDisposable
     private readonly DescriptorSetLayoutBinding[] _bloomBindings, _compositeBindings, _fxaaBindings, _exposureBindings;
     private IDescriptorSetLayout? _oneTexture, _twoTextures, _fxaaLayout, _exposureLayout;
     private ISampler? _sampler, _depthSampler;
-    private IPipeline? _down, _up, _measure, _dof, _blur;
+    private IPipeline? _down, _up, _scatterUp, _measure, _dof, _blur;
     // The depth of field's and the motion blur's passes, which read the scene and its depth.
     private readonly ReadOnlyMemory<byte> _dofVertexSpv, _dofFragmentSpv, _blurVertexSpv, _blurFragmentSpv;
     private readonly DescriptorSetLayoutBinding[] _lensBindings;
@@ -179,8 +190,14 @@ internal sealed partial class BloomRenderer : IDisposable
         public Extent2D Extent { get; } = extent;
         public RenderTarget Scene { get; } = scene;
         public RenderTarget[] Levels { get; } = levels;
-        // The sets each level is drawn down from, the first's reading the decoded scene and made with it.
+        // The sets each level after the first is drawn down from.
         public IDescriptorSet?[] Down { get; } = down;
+        // The sets the first level is drawn down from, reading the decoded scene, made with it, and
+        // one of the two adapted exposures, which a threshold after the exposure is moved by.
+        public IDescriptorSet[]? First { get; set; }
+        // The levels the engine's bloom spreads light over, down to a thirty-second of the window,
+        // the others being a scattered bloom's alone.
+        public int EngineLevels => Math.Min(MaxLevels, Levels.Length);
         public IDescriptorSet[] Up { get; } = up;
         // The set the frame is measured through, reading the decoded scene and made with it.
         public IDescriptorSet? Measure { get; set; }
@@ -188,6 +205,7 @@ internal sealed partial class BloomRenderer : IDisposable
         public void Dispose()
         {
             foreach (var set in Down) set?.Dispose();
+            foreach (var set in First ?? []) set.Dispose();
             foreach (var set in Up) set.Dispose();
             foreach (var sets in CompositeFrom.Values)
                 foreach (var set in sets) set.Dispose();
@@ -346,25 +364,6 @@ internal sealed partial class BloomRenderer : IDisposable
         return linear.ColorView;
     }
 
-    /// <summary>Spreads the HDR target's light down the levels and back up into the first one.</summary>
-    public void DrawChain(RenderContext renderContext, float threshold)
-    {
-        if (_sized is not { Linear: not null } sized || _down is null || _up is null) return;
-        var levels = sized.Levels;
-        for (int i = 0; i < levels.Length; i++)
-        {
-            var source = i == 0 ? sized.Scene.Extent : levels[i - 1].Extent;
-            Pass(renderContext, levels[i], LoadOp.Clear, _down, sized.Down[i]!,
-                new Push { TexelX = 1f / source.Width, TexelY = 1f / source.Height, Threshold = threshold, Mode = i == 0 ? 0 : 1 });
-        }
-        for (int i = levels.Length - 1; i > 0; i--)
-        {
-            var source = levels[i].Extent;
-            Pass(renderContext, levels[i - 1], LoadOp.Load, _up, sized.Up[i],
-                new Push { TexelX = 1f / source.Width, TexelY = 1f / source.Height, Mode = 2 });
-        }
-    }
-
     /// <summary>
     /// Draws the HDR target into the whole of <paramref name="pass"/>, decoded, with the bloom
     /// added, scaled by the exposure, brought under 1 by the curve or through the program's shader
@@ -381,16 +380,34 @@ internal sealed partial class BloomRenderer : IDisposable
             _composites[renderPass] = pipeline = CompositePipeline(device, renderPass, _compositeFragment!, _noOwnSet ??= device.CreateDescriptorSetLayout([]));
         var first = sized.Levels[0].Extent;
         var tint = Linear(effects.Tint);
-        var curve = effects.Tonemap == Tonemap.Engine && !_bends ? Tonemap.Clamp : effects.Tonemap;
+        var curve = effects.Tonemap switch
+        {
+            Tonemap.Engine when !_bends => Tonemap.Clamp,
+            Tonemap.Lookup when effects.Lookup is null => Tonemap.Clamp,
+            var chosen => chosen,
+        };
+        // The engine's bloom is added, its levels' sum divided by their number, and a scattered
+        // one is mixed past its threshold by its intensity.
+        var blooms = bloom is { On: true } && _shownLinear;
+        var scattered = blooms && bloom!.Scatter > 0;
+        var (lift, gamma, gain) = effects.LiftGammaGain();
         var push = new CompositePush
         {
-            Bloom = new Vector4(1f / first.Width, 1f / first.Height, bloom is { On: true } && _shownLinear ? bloom.Intensity / sized.Levels.Length : 0,
+            Bloom = new Vector4(1f / first.Width, 1f / first.Height, scattered ? bloom!.Intensity : blooms ? bloom!.Intensity / sized.EngineLevels : 0,
                 effects.Exposure),
             Grade = new Vector4(effects.Contrast, effects.Saturation, (float)curve, effects.Vignette),
             Tint = new Vector4(tint, Math.Min(effects.VignetteRadius, 0.99f)),
-            Exposure = new Vector4(effects.AutoExposure && _adaptedFrame == _frame ? 1 : 0, effects.AutoExposureKey, _shownLinear ? 0 : 1, 0),
-            Curve = effects.Curve,
-            Highlight = new Vector4(effects.HighlightKnee, effects.HighlightStrength, 0, 0),
+            Exposure = new Vector4(effects.AutoExposure && _adaptedFrame == _frame ? 1 : 0, effects.AutoExposureKey, _shownLinear ? 0 : 1,
+                scattered ? bloom!.Threshold : -1),
+            Curve = curve switch
+            {
+                Tonemap.Curve => effects.Curve,
+                Tonemap.Lookup => new Vector4(effects.LookupShare, effects.Lookup!.Size, 0, 0),
+                _ => new Vector4(effects.HighlightKnee, effects.HighlightStrength, 0, 0),
+            },
+            Lift = new Vector4(lift, effects.Grades ? 1 : 0),
+            Gamma = new Vector4(gamma, 0),
+            Gain = new Vector4(gain, 0),
         };
         if (program is { } own)
         {
@@ -399,7 +416,7 @@ internal sealed partial class BloomRenderer : IDisposable
             pass.SetBindGroup(pipeline, own.Set, 0);
         }
         else pass.SetPipeline(pipeline);
-        pass.SetBindGroup(pipeline, CompositeSets(device, sized, _shown ?? sized.Scene.ColorView, TableFor(device, curve))[_adaptedLast], 1);
+        pass.SetBindGroup(pipeline, CompositeSets(device, sized, _shown ?? sized.Scene.ColorView, TableFor(device, curve, effects))[_adaptedLast], 1);
         pass.PushConstants(pipeline, ShaderStageFlags.Fragment, 0, MemoryMarshal.AsBytes(new ReadOnlySpan<CompositePush>(in push)));
         pass.Draw(3);
     }
@@ -429,7 +446,7 @@ internal sealed partial class BloomRenderer : IDisposable
         _fxaaVertex ??= renderContext.Device.CreateShader(new ShaderDesc(ShaderStage.Vertex, _fxaaVertexSpv));
         _fxaaFragment ??= renderContext.Device.CreateShader(new ShaderDesc(ShaderStage.Fragment, _fxaaFragmentSpv));
         if (!_fxaas.TryGetValue(renderPass, out var pipeline))
-            _fxaas[renderPass] = pipeline = Pipeline(renderContext.Device, renderPass, _fxaaVertex, _fxaaFragment, _fxaaLayout!, additive: false);
+            _fxaas[renderPass] = pipeline = Pipeline(renderContext.Device, renderPass, _fxaaVertex, _fxaaFragment, _fxaaLayout!, blend: null);
         var push = new Push { TexelX = 1f / shown.Extent.Width, TexelY = 1f / shown.Extent.Height };
         pass.SetPipeline(pipeline);
         pass.SetBindGroup(pipeline, set);
@@ -523,8 +540,8 @@ internal sealed partial class BloomRenderer : IDisposable
         _blurFragment ??= device.CreateShader(new ShaderDesc(ShaderStage.Fragment, _blurFragmentSpv));
         sized.Lens ??= [.. Enumerable.Range(0, 2).Select(_ =>
             device.CreateRenderTarget(sized.Extent.Width, sized.Extent.Height, ImageFormat.R16G16B16A16_Float, depth: false, multisampled: false))];
-        _dof ??= Pipeline(device, sized.Lens[0].RenderPass, _dofVertex, _dofFragment, _lensLayout, additive: false, Marshal.SizeOf<DofPush>());
-        _blur ??= Pipeline(device, sized.Lens[0].RenderPass, _blurVertex, _blurFragment, _lensLayout, additive: false, Marshal.SizeOf<BlurPush>());
+        _dof ??= Pipeline(device, sized.Lens[0].RenderPass, _dofVertex, _dofFragment, _lensLayout, blend: null, Marshal.SizeOf<DofPush>());
+        _blur ??= Pipeline(device, sized.Lens[0].RenderPass, _blurVertex, _blurFragment, _lensLayout, blend: null, Marshal.SizeOf<BlurPush>());
     }
 
     // The set a lens pass reads an image through, with the scene's depth beside it. Depth is read
@@ -575,69 +592,6 @@ internal sealed partial class BloomRenderer : IDisposable
         })];
     }
 
-    // The table a curve looks light up in, read and uploaded the first time the curve is chosen,
-    // or a texel standing in for a curve worked out without one.
-    private VolumeTexture TableFor(GraphicsDevice device, Tonemap curve)
-    {
-        if (TonemapTables.FileOf(curve) is null)
-            return _noTable ??= device.CreateVolumeTexture(1, Vortice.Vulkan.VkFormat.R16G16B16A16Sfloat, new byte[8]);
-        if (_tables.TryGetValue(curve, out var made)) return made;
-        var table = TonemapTables.Load(curve);
-        return _tables[curve] = device.CreateVolumeTexture(table.Size, table.Format, table.Texels);
-    }
-
-    /// <summary>
-    /// Measures the HDR frame and moves the exposure that follows it toward what it measured, at
-    /// the pace and within the bounds <paramref name="effects"/> sets.
-    /// </summary>
-    public void Adapt(RenderContext renderContext, FrameEffects effects)
-    {
-        if (_sized is not { Measure: { } measured } sized || !_shownLinear || _measure is null || _measured is null || _adapted is null
-            || _adaptSets is null) return;
-        // All the way on the first frame and after frames without it, so a scene does not fade in
-        // from the last one seen, and otherwise by the share the time since the last frame gives.
-        var seconds = (float)_sinceAdapted.Elapsed.TotalSeconds;
-        _sinceAdapted.Restart();
-        var share = _adaptedFrame == _frame - 1 ? 1 - MathF.Exp(-Math.Min(seconds, 0.25f) * effects.AutoExposureSpeed) : 1;
-        // The luminance each bound of the exposure brings to the key, as log2.
-        var low = MathF.Log2(effects.AutoExposureKey / Math.Max(effects.AutoExposureMax, 1e-3f));
-        var high = MathF.Log2(effects.AutoExposureKey / Math.Max(effects.AutoExposureMin, 1e-3f));
-        var push = new ExposurePush { Mode = 0, Share = share, Low = Math.Min(low, high), High = high };
-        // The adapting pass weighs the picture as the metering says, 1 the whole of it and 2 its middle.
-        var adapting = effects.AutoExposureMetering == ExposureMetering.CenterWeighted ? 2 : 1;
-        Pass(renderContext, _measured, LoadOp.Clear, _measure, measured, push);
-        var next = 1 - _adaptedLast;
-        Pass(renderContext, _adapted[next], LoadOp.Clear, _measure, _adaptSets[next], push with { Mode = adapting });
-        _adaptedLast = next;
-        _adaptedFrame = _frame;
-    }
-
-    // The measured frame and the two adapted texels, made once whatever the window's size, and
-    // cleared, so the composite can bind them in the layout a texture is sampled in before the
-    // exposure first follows the scene.
-    private RenderTarget[] Adapted(GraphicsDevice device, RenderContext renderContext)
-    {
-        if (_adapted is not null) return _adapted;
-        _exposureVertex ??= device.CreateShader(new ShaderDesc(ShaderStage.Vertex, _exposureVertexSpv));
-        _exposureFragment ??= device.CreateShader(new ShaderDesc(ShaderStage.Fragment, _exposureFragmentSpv));
-        _measured = device.CreateRenderTarget(MeasuredSize, MeasuredSize, ImageFormat.R16G16B16A16_Float, depth: false, multisampled: false);
-        _adapted = [.. Enumerable.Range(0, 2).Select(_ => device.CreateRenderTarget(1, 1, ImageFormat.R16G16B16A16_Float, depth: false, multisampled: false))];
-        foreach (var target in (RenderTarget[])[_measured, .. _adapted])
-        {
-            using var pass = renderContext.BeginTrackedRenderPass(new RenderPassDescriptor(
-                target.RenderPass, target.Framebuffer, target.Extent, LoadOp.Clear, StoreOp.Store, ClearColor.Black));
-        }
-        _adaptSets = [.. Enumerable.Range(0, 2).Select(i =>
-        {
-            var set = device.CreateDescriptorSet(_exposureLayout!);
-            device.UpdateDescriptorSet(set, null, new CombinedImageSamplerBinding(_measured.ColorView, _sampler!, 0));
-            device.UpdateDescriptorSet(set, null, new CombinedImageSamplerBinding(_adapted[1 - i].ColorView, _sampler!, 1));
-            return set;
-        })];
-        _measure = Pipeline(device, _measured.RenderPass, _exposureVertex, _exposureFragment, _exposureLayout!, additive: false);
-        return _adapted;
-    }
-
     // The target and levels for the window's size, made again when it changes.
     private Sized Ensure(GraphicsDevice device, RenderContext renderContext, Extent2D extent)
     {
@@ -658,28 +612,27 @@ internal sealed partial class BloomRenderer : IDisposable
         // Drawn into the window's own multisampled depth, which the window's pass after the
         // composite clears and draws nothing into with depth.
         var scene = device.CreateRenderTargetOnWindowDepth(ImageFormat.R16G16B16A16_Float);
-        // Halved each level, down to a thirty-second of the window, or fewer levels for a window
-        // too small to halve that often.
+        // Halved each level, down to a thirty-second of the window for the engine's bloom and as far
+        // as Unity's HDRP halves it for a scattered one, to the log2 of the window's longer side
+        // less 2 levels, or fewer levels for a window too small to halve that often.
         var levels = new List<RenderTarget>();
-        for (int i = 1; i <= MaxLevels && Math.Min(extent.Width, extent.Height) >> i >= 2; i++)
+        var count = Math.Max(MaxLevels, (int)MathF.Log2(Math.Max(extent.Width, extent.Height)) - 2);
+        for (int i = 1; i <= count && Math.Min(extent.Width, extent.Height) >> i >= 2; i++)
             levels.Add(device.CreateRenderTarget(Math.Max(1, extent.Width >> i), Math.Max(1, extent.Height >> i),
                 ImageFormat.R16G16B16A16_Float, depth: false, multisampled: false));
         if (levels.Count == 0)
             levels.Add(device.CreateRenderTarget(1, 1, ImageFormat.R16G16B16A16_Float, depth: false, multisampled: false));
 
-        IDescriptorSet SetOf(IImageView view)
-        {
-            var set = device.CreateDescriptorSet(_oneTexture);
-            device.UpdateDescriptorSet(set, null, new CombinedImageSamplerBinding(view, _sampler, 0));
-            return set;
-        }
-        var down = levels.Select((_, i) => i == 0 ? null : SetOf(levels[i - 1].ColorView)).ToArray();
-        var up = levels.Select(level => SetOf(level.ColorView)).ToArray();
-        Adapted(device, renderContext);
+        // The adapted texel, which only the first level's pass reads, is bound for every level.
+        var adapted = Adapted(device, renderContext);
+        var down = levels.Select((_, i) => i == 0 ? null : BloomSet(device, levels[i - 1].ColorView, adapted[0])).ToArray();
+        var up = levels.Select(level => BloomSet(device, level.ColorView, adapted[0])).ToArray();
 
-        // Every level draws in the same pass, whatever its size, so the two pipelines are made once.
-        _down ??= Pipeline(device, levels[0].RenderPass, _bloomVertex, _bloomFragment, _oneTexture, additive: false);
-        _up ??= Pipeline(device, levels[0].RenderPass, _bloomVertex, _bloomFragment, _oneTexture, additive: true);
+        // Every level draws in the same pass, whatever its size, so the pipelines are made once.
+        var push = Marshal.SizeOf<Push>();
+        _down ??= Pipeline(device, levels[0].RenderPass, _bloomVertex, _bloomFragment, _oneTexture, blend: null, push);
+        _up ??= Pipeline(device, levels[0].RenderPass, _bloomVertex, _bloomFragment, _oneTexture, BlendMode.AddColors, push);
+        _scatterUp ??= Pipeline(device, levels[0].RenderPass, _bloomVertex, _bloomFragment, _oneTexture, BlendMode.Alpha, push);
         return _sized = new Sized(extent, scene, [.. levels], down, up, device.WindowDepthGeneration);
     }
 
@@ -705,21 +658,22 @@ internal sealed partial class BloomRenderer : IDisposable
         sized.Decode = device.CreateDescriptorSet(_decodeLayout);
         device.UpdateDescriptorSet(sized.Decode, null, new CombinedImageSamplerBinding(sized.Scene.ColorView, _depthSampler, 0));
         device.UpdateDescriptorSet(sized.Decode, null, new CombinedImageSamplerBinding(sized.Scene.DepthView!, _depthSampler, 1));
-        sized.Down[0] = SetOf(_oneTexture!, linear.ColorView);
+        sized.First = [.. _adapted!.Select(texel => BloomSet(device, linear.ColorView, texel))];
         sized.Measure = SetOf(_exposureLayout!, linear.ColorView);
         device.UpdateDescriptorSet(sized.Measure, null, new CombinedImageSamplerBinding(_adapted![0].ColorView, _sampler!, 1));
         return linear;
     }
 
+    // A pass over the fullscreen triangle, laid over its target by blend, or written over it with none.
     private static IPipeline Pipeline(IGraphicsDevice gfx, IRenderPass renderPass, IShader vertex, IShader fragment,
-        IDescriptorSetLayout layout, bool additive, int pushSize = 16) =>
+        IDescriptorSetLayout layout, BlendMode? blend, int pushSize = 16) =>
         gfx.CreateGraphicsPipeline(new GraphicsPipelineDesc(
             renderPass, vertex, fragment,
-            BlendEnabled: additive,
+            BlendEnabled: blend is not null,
             Cull: CullMode.None,
             PushConstantRanges: [new PushConstantRange(ShaderStageFlags.Fragment, 0, (uint)pushSize)],
             DescriptorSetLayouts: [layout],
-            Blend: BlendMode.AddColors));
+            Blend: blend ?? BlendMode.AddColors));
 
     // Destroys what was let go once the frames in flight that might read it have finished.
     private void Retire()
@@ -744,6 +698,7 @@ internal sealed partial class BloomRenderer : IDisposable
         _sized?.Dispose();
         _down?.Dispose();
         _up?.Dispose();
+        _scatterUp?.Dispose();
         _measure?.Dispose();
         _dof?.Dispose();
         _blur?.Dispose();
@@ -773,6 +728,7 @@ internal sealed partial class BloomRenderer : IDisposable
         _fxaaLayout?.Dispose();
         foreach (var table in _tables.Values) table.Dispose();
         _noTable?.Dispose();
+        _lookup?.Texture.Dispose();
         _decode?.Dispose();
         _decodeVertex?.Dispose();
         _decodeFragment?.Dispose();

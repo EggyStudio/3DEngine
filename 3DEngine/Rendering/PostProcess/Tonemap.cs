@@ -5,7 +5,8 @@ namespace Engine;
 /// <summary>
 /// A curve that brings the HDR frame's light past 1 under it, for <see cref="FrameEffects.Tonemap"/>:
 /// the engine's own, Narkowicz's fit of ACES and a cut at 1, the eight Bevy offers, named as
-/// BevyCSharp names them and drawn as Bevy draws them, and one set by its numbers.
+/// BevyCSharp names them and drawn as Bevy draws them, one set by its numbers and one loaded from a
+/// file.
 /// </summary>
 /// <remarks>
 /// <see cref="AgX"/>, <see cref="TonyMcMapface"/> and <see cref="BlenderFilmic"/> look the light up
@@ -58,4 +59,11 @@ public enum Tonemap
     /// set.
     /// </summary>
     Curve,
+
+    /// <summary>
+    /// A table loaded from a file, which <see cref="E3D.SetTonemapLookup"/> loads and chooses, the
+    /// light looked up in it as Unity's HDRP's external tonemapping looks it up, and cut at 1 until
+    /// one is loaded.
+    /// </summary>
+    Lookup,
 }

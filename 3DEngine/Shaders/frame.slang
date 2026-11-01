@@ -21,7 +21,8 @@ __exported import fullscreen;
 
 public struct FramePush
 {
-    // xy: one texel of the bloom's first level in uv. z: how much of it is added, 0 for none. w: the exposure.
+    // xy: one texel of the bloom's first level in uv. z: how much of it is added or mixed in, 0 for
+    // none. w: the exposure.
     public float4 bloom;
     // x: contrast. y: saturation. z: the curve, as Tonemap numbers it. w: the vignette's intensity.
     public float4 grade;
@@ -29,12 +30,19 @@ public struct FramePush
     public float4 tint;
     // x: 1 when the exposure follows the scene. y: the luminance it brings the scene's mean to.
     // z: 1 when the scene is read as the scene drew it, encoded on past 1, and 0 when a pass before
-    // decoded it to linear light.
+    // decoded it to linear light. w: the exposed light past which the bloom takes the place of the
+    // light, as Unity's HDRP mixes it, or -1 where it is added.
     public float4 exposure;
-    // The curve set by its numbers, its exposure, white curve, lower curve and upper curve.
+    // The chosen curve's numbers. The engine's, the knee past which each channel bends toward 1 on
+    // its own and how much (tonemapKnee). The one set by its numbers, its exposure, white curve,
+    // lower curve and upper curve. A table loaded from a file, its share and its size.
     public float4 curve;
-    // x: the knee each channel past which the engine's curve bends toward 1 on its own. y: how much (tonemapKnee).
-    public float4 highlight;
+    // rgb: the lift, added to the light after the gain. w: 1 when lift, gamma and gain are set.
+    public float4 lift;
+    // rgb: the power the lifted light is raised to, one over the gamma.
+    public float4 gamma;
+    // rgb: the gain, the light is multiplied by.
+    public float4 gain;
 };
 
 [[vk::push_constant]]
@@ -60,19 +68,39 @@ public float luminance(float3 c)
     return dot(c, float3(0.2126, 0.7152, 0.0722));
 }
 
+// The light past threshold, eased in over half of it, as Unity's HDRP keeps what blooms.
+float3 pastThreshold(float3 c, float threshold)
+{
+    float peak = max(c.r, max(c.g, c.b));
+    float knee = threshold * 0.5 + 1e-5;
+    float soft = clamp(peak - threshold + knee, 0.0, 2.0 * knee);
+    soft = soft * soft * (0.25 / knee);
+    return c * (max(soft, peak - threshold) / max(peak, 1e-4));
+}
+
 // The scene's light at uv, linear, with the bloom chain's added, times the exposure and the one
-// that follows the scene, what the curve brings under 1.
+// that follows the scene, then lifted, raised and gained as Unity's HDRP grades it, what the curve
+// brings under 1. Where the bloom is mixed as HDRP mixes it, the light past its threshold gives way
+// to the spread light by its intensity, so the frame keeps the light it had.
 public float3 frameLight(float2 uv)
 {
     float3 light = frameScene.SampleLevel(uv, 0).rgb;
     if (framePush.exposure.z > 0.0)
         light = srgbToLinear(light);
-    if (framePush.bloom.z > 0.0)
-        light += tent(frameBloom, uv, framePush.bloom.xy) * framePush.bloom.z;
     float exposure = framePush.bloom.w;
     if (framePush.exposure.x > 0.0)
         exposure *= framePush.exposure.y / exp2(frameAdapted.Load(int3(0, 0, 0)).r);
-    return max(light * exposure, 0.0);
+    float3 spread = framePush.bloom.z > 0.0 ? tent(frameBloom, uv, framePush.bloom.xy) : float3(0.0);
+    if (framePush.exposure.w < 0.0)
+        light = max((light + spread * framePush.bloom.z) * exposure, 0.0);
+    else
+    {
+        light = max(light * exposure, 0.0);
+        light = lerp(light, light - pastThreshold(light, framePush.exposure.w) + spread * exposure, framePush.bloom.z);
+    }
+    if (framePush.lift.w > 0.0)
+        light = pow(max(light * framePush.gain.rgb + framePush.lift.rgb, 0.0), framePush.gamma.rgb);
+    return light;
 }
 
 // A linear color under 1 as the window shows it at uv, with saturation and tint in linear light,

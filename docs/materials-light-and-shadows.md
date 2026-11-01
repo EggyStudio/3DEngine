@@ -82,6 +82,20 @@ too.
 SetBloom(0.8f);
 ```
 
+`SetBloomScatter(scatter)` spreads the bloom as Unity's HDRP spreads it instead, each level of its
+chain giving that share of its place to the wider level below, from 0.05 for a tight glow to 0.95
+for a wide haze, over as many levels as halve the window to about 4 pixels. Its threshold is then
+measured on the light after the exposure, the one that follows the scene too, and its intensity is
+the share of the light past the threshold that the spread light takes the place of, so the frame
+keeps the light it had where the engine's bloom adds to it. HDRP's own intensity `i` is 2 to the
+`i` less 1 here, its threshold is decoded from sRGB, and its scatter `s` is 0.05 plus 0.9 times
+`s`, as the Sponza example sets its scene's:
+
+```csharp
+SetBloom(MathF.Pow(2, 0.25f) - 1, MathF.Pow((0.333f + 0.055f) / 1.055f, 2.4f));
+SetBloomScatter(0.05f + 0.9f * 0.7f);
+```
+
 A material's `AlphaMode` says what the alpha of its color and texture does.
 
 | Mode | Draws |
@@ -140,7 +154,7 @@ A mesh entity's `Material` has the same `SubsurfaceRadius`, `SubsurfaceColor` an
 
 ## Effects over the frame
 
-Besides bloom, eight effects change how the scene is shown, each set by one call and each off until
+Besides bloom, nine effects change how the scene is shown, each set by one call and each off until
 set. The scene is drawn into a frame that holds light past white whether or not any is on, and one
 pass brings that frame into the window, bending the light past white under it with the curve, so a
 scene, and a shader of a program's own drawn in it, look the same whichever effects are on, but for
@@ -163,10 +177,14 @@ frame of 2D alone, as `textures_bunnymark` draws, draws none of it.
 | `SetExposure(1.5f)` | Scales the scene's light before its curve, brighter above 1 and dimmer below |
 | `SetAutoExposure(true)` | Makes the exposure follow the scene as an eye adapts, between a quarter and four times unless bounds are given |
 | `SetAutoExposureMetering(ExposureMetering.CenterWeighted, -0.79f)` | Weighs the picture it measures, the whole of it or its middle, and moves it by stops from a mid gray |
+| `SetAutoExposureSpeeds(3, 1)` | Moves the exposure at a speed of its own where the scene brightens and where it darkens |
+| `SetAutoExposureHistogram(0.4f, 0.9f)` | Measures only the light between the darkest 40% and the brightest 10% of the picture |
 | `SetTonemap(Tonemap.AgX)` | The curve that brings light past white under it, the engine's own, which leaves colors under 0.9 as they are, Narkowicz's fit of ACES, `Aces`, a cut at 1, `Clamp`, or one of the eight Bevy offers, below |
 | `SetHighlightKnee(0.8f, 1)` | Has the engine's own curve bend each channel past the knee toward 1 on its own, so a light bright in every channel goes toward white as a camera's film and a path-traced reference take it, on at 0.8 unless set and off at a strength of 0, colors under the knee shown as they are |
 | `SetTonemapCurve(0.9f, 1.3f, 1.05f, 1)` | A curve set by four numbers, as the BSL shader draws it, below |
 | `SetTonemapShader(curve)` | Draws a shader of the program's own in the curve's place, below |
+| `SetTonemapLookup("resources/agx_powerful.ktx2")` | Looks the light up in a table read from a file, as Unity's HDRP does, below |
+| `SetLiftGammaGain(lift, gamma, gain)` | Lifts the shadows, bends the middle and gains the highlights before the curve, as HDRP's trackballs do, below |
 | `SetColorGrading(1.1f, 0.8f, new Color(255, 240, 220))` | Contrast, saturation and a tint, 1, 1 and white leaving it as it is |
 | `SetVignette(0.4f)` | Darkens toward the corners, from half the way out unless a radius is given |
 | `SetFxaa(true)` | Smooths the jagged edges multisampling leaves, inside a surface and of thin lines |
@@ -236,6 +254,24 @@ SetTonemapShader(curve);
 
 `SetTonemapShader(default)` gives the chosen curve back, as unloading the shader does.
 
+A frame graded in Unity's HDRP is matched by three calls. `SetTonemapLookup(fileName, share)` reads
+a table from a KTX2 file and chooses `Tonemap.Lookup`, which looks the light up as HDRP's external
+tonemapping does, encoded as ARRI's LogC for an exposure index of 1000, which takes 0 to about 55
+into the table, the table giving linear light, of which `share` takes the light's place.
+`build/unity-lut.py` writes such a file from the strip of squares an HDRP table is drawn as, an EXR
+of 1024 by 32 for a table 32 a side, through ImageMagick. `SetLiftGammaGain(lift, gamma, gain)`
+grades the light before the curve as HDRP's lift, gamma and gain trackballs do, each a color in x,
+y and z, white for none, and an offset in w, 0 for none. The light is multiplied by the gain, has
+the lift added and is raised to one over the gamma, each worked out as HDRP works it out, so a
+gamma of w 0.225 raises the light to 1 over 1.225. The Sponza example grades as its HDRP scene's
+profile does, by the AgX Powerful look from the Tonemaps package of Unity Essentials, written to
+`resources/agx_powerful.ktx2`:
+
+```csharp
+SetTonemapLookup("resources/agx_powerful.ktx2");
+SetLiftGammaGain(new Vector4(1, 1, 1, 0), new Vector4(1, 1, 1, 0.225f), new Vector4(1, 1, 1, 0));
+```
+
 The `shaders_bloom` example gives each a key:
 
 <!-- compiled with:
@@ -273,12 +309,18 @@ exposure catches up. `SetAutoExposureMetering` says how it reads the picture, th
 its middle counting four times as much as its edges, the default, or center-weighted, falling away
 as a bell curve a fifth of the picture wide, so a bright sky at the edges moves it little, and the
 stops it moves the picture by from a mid gray, -0.79 metering as a camera's reflected light meter
-does.
+does and as HDRP's automatic exposure does with its calibration of 12.5. `SetAutoExposureSpeeds`
+moves the exposure toward a brighter scene and toward a darker one at speeds of their own, as HDRP's
+3 and 1 do, and `SetAutoExposureHistogram(low, high)` measures only the light between those shares
+of the picture's weighted light, counted from the darkest, as HDRP's histogram metering does, so a
+bright sky in the brightest tenth or deep shade in the darkest fifth leaves the exposure alone.
 
 Each effect is read back as its setter left it, by `GetTonemap`, `GetTonemapCurve`,
-`GetTonemapShader`, `GetExposure`, `GetAutoExposure`, `GetAutoExposureMetering`,
-`GetColorGrading`, `GetVignette`, `IsFxaaEnabled`, `GetDepthOfField`, `GetMotionBlur` and
-`GetBloom`, those of several values as a tuple named as the setter's arguments are. `DrawPostProcessWindow()`, called between `BeginDrawing`
+`GetTonemapLookup`, `GetTonemapShader`, `GetExposure`, `GetAutoExposure`,
+`GetAutoExposureMetering`, `GetAutoExposureSpeeds`, `GetAutoExposureHistogram`,
+`GetColorGrading`, `GetLiftGammaGain`, `GetVignette`, `IsFxaaEnabled`, `GetDepthOfField`,
+`GetMotionBlur`, `GetBloom` and `GetBloomScatter`, those of several values as a tuple named as the
+setter's arguments are. `DrawPostProcessWindow()`, called between `BeginDrawing`
 and `EndDrawing` as any ImGui window is, shows every one of them in a window of its own, a choice of
 the curve with a slider for each number of the one set by them, a slider or a check for the rest,
 each calling its setter at once, so the picture is tuned while it is looked at:

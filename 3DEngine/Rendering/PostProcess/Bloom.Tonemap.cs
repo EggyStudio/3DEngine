@@ -30,6 +30,8 @@ internal sealed partial class BloomRenderer
     }
 
     private readonly Dictionary<int, TonemapProgram> _tonemapPrograms = [];
+    // The table SetTonemapLookup loaded last, as uploaded.
+    private (TonemapTables.Table Table, VolumeTexture Texture)? _lookup;
     // Set 0 of the engine's own composite, which binds nothing there, its inputs being in set 1.
     private IDescriptorSetLayout? _noOwnSet;
     // Bound in place of a storage buffer the shader was not given.
@@ -100,6 +102,25 @@ internal sealed partial class BloomRenderer
             }
         ImmediateRenderer.BindBuffers(device, renderWorld, set, program, textures, ref _noBuffer);
         return (pipeline, set);
+    }
+
+    // The table a curve looks light up in, read and uploaded the first time the curve is chosen,
+    // the one SetTonemapLookup loaded, uploaded again when another is loaded, or a texel standing
+    // in for a curve worked out without one.
+    private VolumeTexture TableFor(GraphicsDevice device, Tonemap curve, FrameEffects effects)
+    {
+        if (curve == Tonemap.Lookup && effects.Lookup is { } loaded)
+        {
+            if (_lookup is { } made && ReferenceEquals(made.Table, loaded)) return made.Texture;
+            if (_lookup is { } replaced) _retired.Add((_frame, replaced.Texture));
+            _lookup = (loaded, device.CreateVolumeTexture(loaded.Size, loaded.Format, loaded.Texels));
+            return _lookup.Value.Texture;
+        }
+        if (TonemapTables.FileOf(curve) is null)
+            return _noTable ??= device.CreateVolumeTexture(1, Vortice.Vulkan.VkFormat.R16G16B16A16Sfloat, new byte[8]);
+        if (_tables.TryGetValue(curve, out var table)) return table;
+        var read = TonemapTables.Load(curve);
+        return _tables[curve] = device.CreateVolumeTexture(read.Size, read.Format, read.Texels);
     }
 
     private void DisposeTonemapPrograms()

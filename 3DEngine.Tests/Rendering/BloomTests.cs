@@ -47,12 +47,13 @@ public sealed class BloomTests : IDisposable
         return LoadImage(path);
     }
 
-    // A sphere giving off four times white's light in the middle of a black frame.
-    private Action EmissiveSphere(Model sphere, Action? after = null) => () =>
+    // A sphere giving off four times white's light, unless told otherwise, in the middle of a black
+    // frame.
+    private Action EmissiveSphere(Model sphere, Action? after = null, float intensity = 4) => () =>
     {
         ClearBackground(Color.Black);
         BeginMode3D(_camera);
-        sphere.Materials[0] = new ModelMaterial(Color.Black) { Emissive = new Color(255, 140, 60), EmissiveIntensity = 4 };
+        sphere.Materials[0] = new ModelMaterial(Color.Black) { Emissive = new Color(255, 140, 60), EmissiveIntensity = intensity };
         DrawModel(sphere, Vector3.Zero, 1, Color.White);
         EndMode3D();
         after?.Invoke();
@@ -78,6 +79,31 @@ public sealed class BloomTests : IDisposable
         Brightness(off, 80, 60).Should().BeGreaterThan(200, "the sphere is drawn in the middle");
         Brightness(off, 100, 60).Should().BeLessThan(4, "with bloom off nothing lights the frame past the sphere");
         Brightness(on, 100, 60).Should().BeGreaterThan(20, "with bloom on its light spreads past its edge");
+        UnloadModel(sphere);
+    }
+
+    [NeedsVulkanFact]
+    public void A_Scattered_Bloom_Measures_Its_Threshold_After_The_Exposure_And_Takes_The_Place_Of_The_Light_Past_It()
+    {
+        Open();
+        var sphere = LoadModelFromMesh(GenMeshSphere(0.6f, 24, 24));
+        // Reinhard's curve, which brings the sphere's middle under white, so a change in it shows.
+        SetTonemap(Tonemap.Reinhard);
+        SetBloom(0.5f, 0.1f);
+        SetBloomScatter(0.7f);
+
+        // The same light after the exposure, four times as bright at a quarter of the exposure.
+        SetExposure(0.25f);
+        var bright = Capture(EmissiveSphere(sphere), "bright");
+        SetExposure(1);
+        var dim = Capture(EmissiveSphere(sphere, intensity: 1), "dim");
+        SetBloom(0);
+        var off = Capture(EmissiveSphere(sphere, intensity: 1), "off");
+
+        Brightness(dim, 100, 60).Should().BeGreaterThan(10, "the light past the threshold spreads past the sphere's edge");
+        Brightness(bright, 100, 60).Should().BeCloseTo(Brightness(dim, 100, 60), 2, "the threshold is measured on the light after the exposure, which is the same");
+        Brightness(off, 80, 60).Should().BeGreaterThan(Brightness(dim, 80, 60) + 4,
+            "the sphere's light past the threshold gives way to the spread light, which is fainter at its middle");
         UnloadModel(sphere);
     }
 

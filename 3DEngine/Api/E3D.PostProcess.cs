@@ -1,3 +1,5 @@
+using System.Numerics;
+
 namespace Engine;
 
 public static partial class E3D
@@ -32,6 +34,32 @@ public static partial class E3D
     /// <summary>The bloom's intensity and threshold as <see cref="SetBloom"/> left them, 0 and 1 unless set.</summary>
     public static (float Intensity, float Threshold) GetBloom() =>
         TryRes<BloomSettings>(out var bloom) ? (bloom.Intensity, bloom.Threshold) : (0, 1);
+
+    /// <summary>
+    /// Spreads the bloom as Unity's HDRP spreads it, each level of the chain giving
+    /// <paramref name="scatter"/> of its place to the wider level below it, from 0.05 for a tight
+    /// glow to 0.95 for a wide haze, or the engine's way again with 0, which it is by default.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// With a scatter, the threshold <see cref="SetBloom"/> sets is measured on the light after the
+    /// exposure, the one that follows the scene too, easing in over half of it, and the chain halves
+    /// the window as HDRP does, to the log2 of its longer side less 2 levels. The intensity is the
+    /// share of the light past the threshold that the spread light takes the place of, so the frame
+    /// keeps the light it had where the engine's bloom adds to it.
+    /// </para>
+    /// <para>
+    /// HDRP's own bloom settings give these as its renderer works them out. Its intensity <c>i</c>
+    /// is 2 to the <c>i</c> less 1, its threshold is decoded from sRGB, and its scatter <c>s</c> is
+    /// 0.05 plus 0.9 times <c>s</c>, so an intensity of 0.25, a threshold of 0.333 and a scatter of
+    /// 0.7 are <c>SetBloom(0.189f, 0.0907f)</c> and <c>SetBloomScatter(0.68f)</c>.
+    /// </para>
+    /// </remarks>
+    public static void SetBloomScatter(float scatter) =>
+        World.GetOrInsertResource(() => new BloomSettings()).Scatter = Math.Clamp(scatter, 0, 1);
+
+    /// <summary>The share <see cref="SetBloomScatter"/> left, 0 for the engine's bloom unless set.</summary>
+    public static float GetBloomScatter() => TryRes<BloomSettings>(out var bloom) ? bloom.Scatter : 0;
 
     private static FrameEffects Effects => World.GetOrInsertResource(static () => new FrameEffects());
 
@@ -100,7 +128,63 @@ public static partial class E3D
         effects.AutoExposure = enabled;
         effects.AutoExposureMin = Math.Max(1e-3f, Math.Min(min, max));
         effects.AutoExposureMax = Math.Max(1e-3f, Math.Max(min, max));
-        effects.AutoExposureSpeed = Math.Max(0, speed);
+        effects.AutoExposureSpeed = effects.AutoExposureDarkeningSpeed = Math.Max(0, speed);
+    }
+
+    /// <summary>
+    /// Sets how quickly the exposure that follows the scene moves where the scene brightens and where
+    /// it darkens, apart, as <see cref="SetAutoExposure"/>'s speed counts them, which that sets
+    /// alike.
+    /// </summary>
+    /// <remarks>
+    /// An eye and a camera's metering adapt faster to light than to dark, so a player walking out of
+    /// a cave is dazzled briefly and one walking into it waits longer to see. HDRP's automatic
+    /// exposure takes 3 and 1 by default.
+    /// </remarks>
+    public static void SetAutoExposureSpeeds(float brightening, float darkening)
+    {
+        var effects = Effects;
+        effects.AutoExposureSpeed = Math.Max(0, brightening);
+        effects.AutoExposureDarkeningSpeed = Math.Max(0, darkening);
+    }
+
+    /// <summary>
+    /// How quickly the exposure that follows the scene moves where the scene brightens and where it
+    /// darkens, as <see cref="SetAutoExposureSpeeds"/> or <see cref="SetAutoExposure"/> left them, 2
+    /// and 2 unless set.
+    /// </summary>
+    public static (float Brightening, float Darkening) GetAutoExposureSpeeds()
+    {
+        var effects = Effects;
+        return (effects.AutoExposureSpeed, effects.AutoExposureDarkeningSpeed);
+    }
+
+    /// <summary>
+    /// Sets the part of the picture the exposure that follows the scene measures by its brightness,
+    /// from the share <paramref name="low"/> of its weighted light, counted from the darkest, to the
+    /// share <paramref name="high"/>, the whole picture with 0 and 1, which it measures unless set.
+    /// </summary>
+    /// <remarks>
+    /// The mean of what lies between is taken, so a sky filling a corner of the view, past the share
+    /// left out above, does not dim the walls under it, and a black doorway does not brighten
+    /// them, as HDRP's histogram metering leaves out the darkest 40% and the brightest 10% by
+    /// default. The light is binned by half a stop.
+    /// </remarks>
+    public static void SetAutoExposureHistogram(float low, float high)
+    {
+        var effects = Effects;
+        (low, high) = (float.IsFinite(low) ? Math.Clamp(low, 0, 1) : 0, float.IsFinite(high) ? Math.Clamp(high, 0, 1) : 1);
+        (effects.AutoExposureLow, effects.AutoExposureHigh) = low < high ? (low, high) : (0, 1);
+    }
+
+    /// <summary>
+    /// The part of the picture the exposure that follows the scene measures, as
+    /// <see cref="SetAutoExposureHistogram"/> left it, 0 and 1 for the whole picture unless set.
+    /// </summary>
+    public static (float Low, float High) GetAutoExposureHistogram()
+    {
+        var effects = Effects;
+        return (effects.AutoExposureLow, effects.AutoExposureHigh);
     }
 
     /// <summary>
@@ -195,7 +279,7 @@ public static partial class E3D
     public static void SetTonemapCurve(float exposure, float white, float lower, float upper)
     {
         var effects = Effects;
-        effects.Curve = new System.Numerics.Vector4(Math.Max(0, exposure), Math.Max(0.01f, white), Math.Max(0.01f, lower), Math.Max(0.01f, upper));
+        effects.Curve = new Vector4(Math.Max(0, exposure), Math.Max(0.01f, white), Math.Max(0.01f, lower), Math.Max(0.01f, upper));
         effects.Tonemap = Tonemap.Curve;
     }
 
@@ -208,6 +292,55 @@ public static partial class E3D
         var curve = Effects.Curve;
         return (curve.X, curve.Y, curve.Z, curve.W);
     }
+
+    /// <summary>
+    /// Brings the scene's light under 1 by a table read from <paramref name="fileName"/>, as Unity's
+    /// HDRP looks light up in one for its external tonemapping, the looked-up light taking
+    /// <paramref name="share"/> of the light's place, and chooses that curve,
+    /// <see cref="Tonemap.Lookup"/>.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// The file is a KTX2 file holding one level of a cube of texels in half-float RGBA or RGB9E5,
+    /// as it is or with zlib's supercompression, which <c>build/unity-lut.py</c> writes from the
+    /// strip of squares an HDRP table is drawn as. The light, after the exposure and
+    /// <see cref="SetLiftGammaGain"/>, is looked up as ARRI's LogC encodes it for an exposure index
+    /// of 1000, which takes 0 to about 55 into the table, and the table gives linear light, which
+    /// <see cref="SetColorGrading"/> and the vignette then take as they take every curve's.
+    /// </para>
+    /// <para>
+    /// The file is read when this is called, and a file that cannot be read leaves the curve as it
+    /// was, with a warning.
+    /// </para>
+    /// </remarks>
+    public static void SetTonemapLookup(string fileName, float share = 1)
+    {
+        var path = ResolveFile(fileName);
+        if (path is null)
+        {
+            ApiLogger.Warn($"SetTonemapLookup: '{fileName}' was not found beside the program or in the working directory.");
+            return;
+        }
+        TonemapTables.Table table;
+        try
+        {
+            table = TonemapTables.Read(File.ReadAllBytes(path));
+        }
+        catch (Exception ex) when (ex is IOException or InvalidDataException)
+        {
+            ApiLogger.Warn($"SetTonemapLookup: '{fileName}' could not be read, so the curve is kept. {ex.Message}");
+            return;
+        }
+        var effects = Effects;
+        (effects.Lookup, effects.LookupFile, effects.LookupShare) = (table, fileName, Math.Clamp(share, 0, 1));
+        effects.Tonemap = Tonemap.Lookup;
+    }
+
+    /// <summary>
+    /// The file <see cref="SetTonemapLookup"/> last read its table from and the table's share, null
+    /// and 1 before one is read, whether or not that curve is the one chosen.
+    /// </summary>
+    public static (string? FileName, float Share) GetTonemapLookup() => (Effects.LookupFile, Effects.LookupShare);
 
     /// <summary>
     /// Draws the window's scene through <paramref name="shader"/>'s fragment stage in the curve's
@@ -260,6 +393,33 @@ public static partial class E3D
     {
         var effects = Effects;
         return (effects.Contrast, effects.Saturation, effects.Tint);
+    }
+
+    /// <summary>
+    /// Lifts the scene's shadows, bends its middle and gains its highlights before the curve, as
+    /// Unity's HDRP's lift, gamma and gain trackballs do. Each is a color in x, y and z, white for
+    /// none, whose hue it moves that part of the light toward, and in w how far it moves that part
+    /// brighter, 0 for none and below 0 darker.
+    /// </summary>
+    /// <remarks>
+    /// The light after the exposure and the bloom is multiplied by the gain, has the lift added and
+    /// is raised to one over the gamma, as HDRP prepares the three. Each color is decoded from sRGB,
+    /// scaled by 0.15 for the lift and 0.8 for the others, has its luminance taken away and its w
+    /// added, and 1 more for the gamma and the gain. A white trackball moves every channel by its w
+    /// alone, so a gamma of w 0.225 raises the light to 1 over 1.225, brightening its middle. White
+    /// and 0 for each leave the light as it is, as they are by default.
+    /// </remarks>
+    public static void SetLiftGammaGain(Vector4 lift, Vector4 gamma, Vector4 gain)
+    {
+        var effects = Effects;
+        (effects.Lift, effects.Gamma, effects.Gain) = (lift, gamma, gain);
+    }
+
+    /// <summary>The lift, gamma and gain <see cref="SetLiftGammaGain"/> left, each white and 0 unless set.</summary>
+    public static (Vector4 Lift, Vector4 Gamma, Vector4 Gain) GetLiftGammaGain()
+    {
+        var effects = Effects;
+        return (effects.Lift, effects.Gamma, effects.Gain);
     }
 
     /// <summary>
@@ -393,17 +553,32 @@ public static partial class E3D
             numbered |= ImGuiNET.ImGui.SliderFloat("Upper curve", ref upper, 0.1f, 3, "%.2f");
             if (numbered) SetTonemapCurve(curveExposure, white, lower, upper);
         }
+        if (GetTonemap() == Tonemap.Lookup && GetTonemapLookup() is (string file, var share))
+        {
+            ImGuiNET.ImGui.TextUnformatted(file);
+            if (ImGuiNET.ImGui.SliderFloat("Table's share", ref share, 0, 1)) SetTonemapLookup(file, share);
+        }
         var exposure = GetExposure();
         if (ImGuiNET.ImGui.SliderFloat("Exposure", ref exposure, 0.05f, 8, "%.2f", logarithmic)) SetExposure(exposure);
 
         if (ImGuiNET.ImGui.CollapsingHeader("Exposure that follows the scene"))
         {
-            var (follows, min, max, speed) = GetAutoExposure();
+            var (follows, min, max, _) = GetAutoExposure();
+            var (brightening, darkening) = GetAutoExposureSpeeds();
             var changed = ImGuiNET.ImGui.Checkbox("Follows the scene", ref follows);
             changed |= ImGuiNET.ImGui.SliderFloat("Lowest", ref min, 0.01f, 16, "%.2f", logarithmic);
             changed |= ImGuiNET.ImGui.SliderFloat("Highest", ref max, 0.01f, 16, "%.2f", logarithmic);
-            changed |= ImGuiNET.ImGui.SliderFloat("Speed", ref speed, 0, 10);
-            if (changed) SetAutoExposure(follows, min, max, speed);
+            changed |= ImGuiNET.ImGui.SliderFloat("Speed to light", ref brightening, 0, 10);
+            changed |= ImGuiNET.ImGui.SliderFloat("Speed to dark", ref darkening, 0, 10);
+            if (changed)
+            {
+                SetAutoExposure(follows, min, max);
+                SetAutoExposureSpeeds(brightening, darkening);
+            }
+            var (low, high) = GetAutoExposureHistogram();
+            changed = ImGuiNET.ImGui.SliderFloat("Darkest share left out", ref low, 0, 1);
+            changed |= ImGuiNET.ImGui.SliderFloat("Brightest share kept to", ref high, 0, 1);
+            if (changed) SetAutoExposureHistogram(low, high);
         }
 
         if (ImGuiNET.ImGui.CollapsingHeader("Grading", ImGuiNET.ImGuiTreeNodeFlags.DefaultOpen))
@@ -420,6 +595,25 @@ public static partial class E3D
             if (changed) SetVignette(vignette, radius);
             var fxaa = IsFxaaEnabled();
             if (ImGuiNET.ImGui.Checkbox("FXAA", ref fxaa)) SetFxaa(fxaa);
+        }
+
+        if (ImGuiNET.ImGui.CollapsingHeader("Lift, gamma and gain"))
+        {
+            // Each a color and its offset, as HDRP's trackballs show them.
+            static bool Trackball(string name, ref Vector4 ball)
+            {
+                var color = new Vector3(ball.X, ball.Y, ball.Z);
+                var offset = ball.W;
+                var changed = ImGuiNET.ImGui.ColorEdit3(name, ref color);
+                changed |= ImGuiNET.ImGui.SliderFloat(name + "'s offset", ref offset, -1, 1);
+                ball = new Vector4(color, offset);
+                return changed;
+            }
+            var (lift, gamma, gain) = GetLiftGammaGain();
+            var changed = Trackball("Lift", ref lift);
+            changed |= Trackball("Gamma", ref gamma);
+            changed |= Trackball("Gain", ref gain);
+            if (changed) SetLiftGammaGain(lift, gamma, gain);
         }
 
         if (ImGuiNET.ImGui.CollapsingHeader("Depth of field"))
@@ -445,6 +639,8 @@ public static partial class E3D
             var changed = ImGuiNET.ImGui.SliderFloat("Intensity, 0 for none", ref intensity, 0, 2);
             changed |= ImGuiNET.ImGui.SliderFloat("Threshold", ref threshold, 0, 4);
             if (changed) SetBloom(intensity, threshold);
+            var scatter = GetBloomScatter();
+            if (ImGuiNET.ImGui.SliderFloat("Scatter, 0 for the engine's", ref scatter, 0, 0.95f)) SetBloomScatter(scatter);
         }
         ImGuiNET.ImGui.End();
     }

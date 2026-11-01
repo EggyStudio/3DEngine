@@ -5,7 +5,8 @@ namespace Engine;
 /// <summary>
 /// The effects over the frame besides bloom, a world resource the renderer reads each frame, which
 /// the flat API's <c>SetExposure</c>, <c>SetAutoExposure</c>, <c>SetTonemap</c>,
-/// <c>SetTonemapCurve</c>, <c>SetTonemapShader</c>, <c>SetColorGrading</c>, <c>SetVignette</c>, <c>SetFxaa</c>, <c>SetDepthOfField</c> and
+/// <c>SetTonemapCurve</c>, <c>SetTonemapLookup</c>, <c>SetTonemapShader</c>, <c>SetLiftGammaGain</c>,
+/// <c>SetColorGrading</c>, <c>SetVignette</c>, <c>SetFxaa</c>, <c>SetDepthOfField</c> and
 /// <c>SetMotionBlur</c> set.
 /// </summary>
 /// <remarks>
@@ -27,8 +28,20 @@ internal sealed class FrameEffects
     /// <summary>The highest exposure the one that follows the scene goes to, in the darkest scene.</summary>
     public float AutoExposureMax { get; set; } = 4;
 
-    /// <summary>How quickly the exposure follows the scene, the share of the way it moves in a second being 1 less e to the minus this.</summary>
+    /// <summary>How quickly the exposure follows a scene that brightens, the share of the way it moves in a second being 1 less e to the minus this.</summary>
     public float AutoExposureSpeed { get; set; } = 2;
+
+    /// <summary>How quickly the exposure follows a scene that darkens, as <see cref="AutoExposureSpeed"/> counts it.</summary>
+    public float AutoExposureDarkeningSpeed { get; set; } = 2;
+
+    /// <summary>
+    /// The share of the picture's weighted light, from its darkest, below which the exposure that
+    /// follows the scene leaves it out, 0 for none.
+    /// </summary>
+    public float AutoExposureLow { get; set; }
+
+    /// <summary>The share of the picture's weighted light, from its darkest, above which the exposure leaves it out, 1 for none.</summary>
+    public float AutoExposureHigh { get; set; } = 1;
 
     /// <summary>How the exposure that follows the scene weighs the picture.</summary>
     public ExposureMetering AutoExposureMetering { get; set; }
@@ -56,6 +69,48 @@ internal sealed class FrameEffects
     /// curve, BSL's shader's defaults until set.
     /// </summary>
     public Vector4 Curve { get; set; } = new(1.4f, 2, 1.2f, 1.5f);
+
+    /// <summary>The table <see cref="Tonemap.Lookup"/> looks light up in, as SetTonemapLookup read it, or null before one is.</summary>
+    public TonemapTables.Table? Lookup { get; set; }
+
+    /// <summary>The file <see cref="Lookup"/> was read from, as the program named it.</summary>
+    public string? LookupFile { get; set; }
+
+    /// <summary>The share of the light the looked-up light takes the place of, from 0 for none to 1.</summary>
+    public float LookupShare { get; set; } = 1;
+
+    /// <summary>
+    /// The lift, gamma and gain as Unity's HDRP's trackballs set them, each a color in x, y and z
+    /// and an offset in w, white and 0 for none.
+    /// </summary>
+    public Vector4 Lift { get; set; } = new(1, 1, 1, 0);
+
+    /// <inheritdoc cref="Lift"/>
+    public Vector4 Gamma { get; set; } = new(1, 1, 1, 0);
+
+    /// <inheritdoc cref="Lift"/>
+    public Vector4 Gain { get; set; } = new(1, 1, 1, 0);
+
+    /// <summary>Whether lift, gamma and gain change the light, any of them set to other than white and 0.</summary>
+    public bool Grades => Lift != new Vector4(1, 1, 1, 0) || Gamma != new Vector4(1, 1, 1, 0) || Gain != new Vector4(1, 1, 1, 0);
+
+    /// <summary>
+    /// What the light is lifted by, raised to and gained by, as HDRP's <c>PrepareLiftGammaGain</c>
+    /// works them out from its trackballs, each color decoded from sRGB, scaled, its luminance taken
+    /// away and its offset added, so a white trackball moves every channel by its offset alone.
+    /// </summary>
+    public (Vector3 Lift, Vector3 Gamma, Vector3 Gain) LiftGammaGain()
+    {
+        static Vector3 Hue(Vector4 color, float scale)
+        {
+            var c = new Vector3(BloomRenderer.SrgbToLinear(color.X), BloomRenderer.SrgbToLinear(color.Y), BloomRenderer.SrgbToLinear(color.Z)) * scale;
+            return c - new Vector3(Vector3.Dot(c, new Vector3(0.2126f, 0.7152f, 0.0722f)));
+        }
+        var lift = Hue(Lift, 0.15f) + new Vector3(Lift.W);
+        var gamma = Hue(Gamma, 0.8f) + new Vector3(Gamma.W + 1);
+        var gain = Hue(Gain, 0.8f) + new Vector3(Gain.W + 1);
+        return (lift, Vector3.One / Vector3.Max(gamma, new Vector3(1e-3f)), gain);
+    }
 
     /// <summary>The program's shader drawn in the curve's place, by its id, or 0 for the curve.</summary>
     public int TonemapShader { get; set; }

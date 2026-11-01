@@ -130,6 +130,47 @@ public sealed class FrameEffectsTests : IDisposable
         GetAutoExposureMetering().Should().Be((ExposureMetering.CenterWeighted, 1f));
     }
 
+    [NeedsVulkanFact]
+    public void A_Histogram_Of_The_Darkest_Quarter_Exposes_A_Gray_Cube_On_White_For_The_Cube()
+    {
+        Open();
+        // The white background is most of the picture's weighted light, so measuring the darkest
+        // quarter alone measures the cube.
+        var scene = Cube(new Color(60, 60, 60), Color.White);
+        SetAutoExposure(true, min: 0.05f, max: 20, speed: 10000);
+        var whole = GetImageColor(Capture(scene), 80, 60);
+        SetAutoExposureHistogram(0, 0.25f);
+        var darkest = GetImageColor(Capture(scene), 80, 60);
+
+        ((int)darkest.R).Should().BeGreaterThan(whole.R + 15, $"the darkest quarter's metering exposes the cube for itself ({whole} to {darkest})");
+        GetAutoExposureHistogram().Should().Be((0f, 0.25f));
+        SetAutoExposureHistogram(0.9f, 0.1f);
+        GetAutoExposureHistogram().Should().Be((0f, 1f), "shares out of order measure the whole picture");
+    }
+
+    [NeedsVulkanFact]
+    public void The_Exposure_Follows_A_Brightening_And_A_Darkening_Scene_At_Speeds_Of_Their_Own()
+    {
+        Open();
+        var dark = Cube(new Color(40, 40, 40), new Color(10, 10, 10));
+        var bright = Cube(new Color(200, 200, 200), Color.White);
+        SetAutoExposure(true, speed: 10000);
+        var brightFollowed = GetImageColor(Capture(bright), 80, 60);
+        var darkFollowed = GetImageColor(Capture(dark), 80, 60);
+
+        // Brightening held where it is, darkening followed at once.
+        SetAutoExposureSpeeds(brightening: 0, darkening: 10000);
+        Capture(dark);
+        var brightHeld = GetImageColor(Capture(bright), 80, 60);
+        var darkAgain = GetImageColor(Capture(dark), 80, 60);
+
+        ((int)brightHeld.R).Should().BeGreaterThan(brightFollowed.R + 30, $"the bright scene keeps the dark one's exposure and is washed out ({brightHeld} against {brightFollowed})");
+        ((int)darkAgain.R).Should().BeInRange(darkFollowed.R - 3, darkFollowed.R + 3, "the dark scene is followed at once");
+        GetAutoExposureSpeeds().Should().Be((0f, 10000f));
+        SetAutoExposure(true, speed: 2);
+        GetAutoExposureSpeeds().Should().Be((2f, 2f), "one speed sets both");
+    }
+
     // How many pixels of a row between two x's are neither near black nor near white, the width
     // of the edges there.
     private static int Soft(Image image, int y, int from, int to)

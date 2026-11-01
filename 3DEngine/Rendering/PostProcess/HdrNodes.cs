@@ -58,9 +58,10 @@ internal sealed class BloomNode : INode
     {
         if (renderWorld.TryGet<BloomFrame>() is null || renderWorld.TryGet<BloomRenderer>() is not { } renderer) return;
         var bloom = renderWorld.TryGet<BloomSettings>();
-        if (bloom is { On: true }) renderer.DrawChain(renderContext, bloom.Threshold);
         var effects = renderWorld.TryGet<FrameEffects>();
+        // The exposure first, which a scattered bloom's threshold is measured after.
         if (effects is { AutoExposure: true }) renderer.Adapt(renderContext, effects);
+        if (bloom is { On: true }) renderer.DrawChain(renderContext, bloom, effects);
         // The depth of field and motion blur, run every frame the scene is drawn, so motion blur
         // knows the camera of the frame before once it is turned on.
         renderer.Lens(renderContext, renderWorld, effects ?? new FrameEffects(), renderWorld.TryGet<WindowView>());

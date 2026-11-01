@@ -74,9 +74,9 @@ REVIEW-ARCHIVE.md, its devlog note and its own words. On 2026-10-30 at 18:0x the
 README's new words (item 133) and the focus on radiance cascades (Decision 74), questions asked
 back, and asked that the sessions spend fewer tokens at the same quality, N 7.7.
 
-Next 180, then 179 small, both beside 167 with 171 folded in and before its commits, then 139, then
-the look in order, 170, 172, 173, 176, 178, 177, 174 and 175 (Decision 84), with 140, 141 and 142
-after 177 (Decision 75); 143, 144 and 145 wait behind them.
+Next 167 with 171 folded in, then 181, then 139, then the look in order, 170, 172, 173, 176, 178,
+177, 174 and 175 (Decision 84), with 140, 141 and 142 after 177 (Decision 75); 143, 144 and 145 wait
+behind them.
 
 Items done and verdicts settled before 2026-10-23 stand in REVIEW-ARCHIVE.md beside this file, their
 numbers kept, moved there at 19:30 on 2026-10-23 so this file holds the current work alone and is
@@ -1198,7 +1198,16 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     cascades have had their settle frames after it, with a ceiling in frames and a log line saying
     what it waited for, so no picture shows a field half built; scenes_sponza.webp regenerated and
     shown to the owner beside the old one, every other example's picture checked for the same. One
-    commit, beside 167, before its commits.
+    commit, beside 167, before its commits. Done at `5932c389` on 2026-11-01, read at 18:31, its
+    push waiting on 4b80c5c8's run; field.wait with a ceiling of 1,800 frames answering once
+    SceneFieldPlan.Built, Whole with no build running or waiting, has held for 60 frames, or at the
+    ceiling, logging which, and at once where no field is drawn, field.state saying built and for
+    how many frames, ConsoleHost.Later taking its own frame limit; capture-example.sh in both
+    captures jobs, drive-sponza.sh in place of its fixed 90 frames and bounce-rooms.sh waiting on
+    it, the games job's pictures left out; Sponza's gallery capture waited 230 frames past the old
+    150 and the other five field examples 0, settled before 150, so their pictures stand; the pair
+    in the dump at 18-04 and sent to the owner; FieldWaitTests on the GPU and the plan test
+    extended; 2,175 in both orders.
 
 180. **A still camera turns Sponza's shade blue within five seconds.** The owner wrote on 2026-11-01
     at 16:44 that in scenes_sponza, once the camera rests for about five seconds or less, a blue
@@ -1217,7 +1226,43 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     ambient reflection's hold and the metering's adaptation; then the mend by the cause, read by the
     means at 1, 5 and 10 s after a stop within the bar of each other and of the reference, the
     bounce rooms and the slab unchanged, and a pair for the owner. Before 179 and 167's commits,
-    since 167 reads the metered views at rest.
+    since 167 reads the metered views at rest. Done at `60fd7e23` on 2026-11-01, read at 18:00, its
+    push waiting on 4b80c5c8's run. The cause was item 163's carried sky, SceneFieldPlan.Whole going
+    false whenever a build ran or waited, through the forty or so frames a camera move's rebuild
+    takes in Sponza, while the passes read each cascade as last built, so no sky came through the
+    court and the shade went warm; the still look was the right one and the warm look after a move
+    the fault. Whole is every cascade built, no mesh arriving and none waiting to be built in, a
+    plan test pinning it through a move's rebuild. Gallery view at 11:00, linear blue less red in
+    thousandths, before the mend -0.65 for 40 frames after a stop and +1.00 after, mended +0.99 to
+    +1.01 at 0, 1, 5 and 10 s with each channel within 1.3%, the reference +0.80, so the engine's
+    shade is a fifth bluer than the reference's, for 170 and 178 to read; the screen history, the
+    world probes' blend and the ambient hold settle within the first second, the metering's
+    adaptation moving the metered means 4% from 1 to 10 s at its speed of 1; the closed room, the
+    slab and the bounce rooms pass, 2,184 in both orders; the pair in the dump at 17-32 and sent to
+    the owner.
+
+181. **The scene field keeps what it built when the camera turns or moves.** The owner asked on
+    2026-11-01 at 18:33 why the scene field builds so slowly in Sponza, why turning round shows the
+    view behind bluish with no global illumination until it loads, and why turning back loses what
+    was behind again. The cause is in the plan, each cascade lying around a point ahead of the eye
+    by a share of its width (SceneFieldPlan.Lead) along the view, and marked dirty and rebuilt whole
+    whenever that origin changes (Update, the origin compared to the one built), so a turn moves
+    every cascade's middle to the other side, drops what stood behind and splats the building again
+    at the frame's budget, 84,602 triangles a frame at the default (item 162), forty or so frames
+    for Sponza's 3.75 million, during which the passes read the cascades as last built, around the
+    old lead ahead of the old view, so what is behind lies outside the fine cascades' boxes until
+    the new builds end and the probes bring the sky alone there, as the coder read at 18:33 against
+    the item's first wording. Three parts, each read in Sponza by the frames a turn in place and a
+    ten-unit walk cost and by the pictures while moving, with 180's test, the slab, the canopy and
+    the bounce rooms unchanged. First, a turn builds nothing, the cascades' middles no longer
+    following the view, the far cascade keeping a lead only where it is quantized to whole cells so
+    a turn within a cell moves no origin, the reach ahead held by the cascade's width instead.
+    Second, a move shifts a cascade by whole cells and keeps the cells that overlap, splatting the
+    entering slab alone, as a clipmap does. A build already clears its words in its first part and
+    turns them into the distances the passes read in its last, and Whole holds through a move since
+    60fd7e23, so a second volume adds nothing. Third, the build rate read at the default budget,
+    triangles a frame and frames to a first build at 60 frames a second, the budget raised where the
+    frame has room and said in field.state. Two or three commits, after 167 and before 139.
 
 ## Verdicts
 
@@ -1447,7 +1492,10 @@ REVIEW-ARCHIVE.md.
     inside a building, a history for the world probes, temporal antialiasing and volumetric fog,
     each read beside the reference pictures, with 139 before them and 140 to 142 after. What the
     reference adds into the shade beyond the path-traced value is read last, and where it remains it
-    becomes a knob on the bounce's gain set by the owner's eye, not a mend.
+    becomes a knob on the bounce's gain set by the owner's eye, not a mend. On 2026-11-01 at 18:37,
+    with 180 mended, the owner sent two views, the vestibule at 15:00 and the gallery at 14:00,
+    metered, and said that apart from the items to be fixed the results already look great at some
+    angles; the pictures are in the dump at 18-45.
 
 85. **The sky's model is a module, the drawing stays in each engine.** The owner asked on 2026-11-01
     at 13:4x whether the sky, the atmosphere and the weather belong in a repository of their own so

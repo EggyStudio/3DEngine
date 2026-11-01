@@ -101,6 +101,19 @@ float3 numbered(float3 c, float4 numbers)
     return srgbToLinear(pow(c, 1.0 / 2.2));
 }
 
+// ARRI's LogC for an exposure index of 1000, as Unity's HDRP encodes light to look it up in a table.
+float3 logC(float3 c)
+{
+    return 0.244161 * log10(5.555556 * c + 0.047996) + 0.386036;
+}
+
+// A table loaded from a file, the light looked up as LogC and the table's share of it taking the
+// light's place, as HDRP's external tonemapping looks it up.
+float3 lookedUp(float3 c, float share, float size)
+{
+    return lerp(c, lookUp(saturate(logC(c)), size), share);
+}
+
 // The curve, as Tonemap numbers it.
 float3 curve(float3 c, int which)
 {
@@ -117,7 +130,8 @@ float3 curve(float3 c, int which)
     case 9: return tonyMcMapface(c);
     case 10: return blenderFilmic(c);
     case 11: return numbered(c, framePush.curve);
-    default: return tonemapKnee(c, framePush.highlight.x, framePush.highlight.y);
+    case 12: return lookedUp(c, framePush.curve.x, framePush.curve.y);
+    default: return tonemapKnee(c, framePush.curve.x, framePush.curve.y);
     }
 }
 
