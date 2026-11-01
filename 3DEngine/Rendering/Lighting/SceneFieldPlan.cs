@@ -149,16 +149,19 @@ internal sealed partial class SceneFieldPlan
 
     /// <summary>
     /// A cascade's build, or the part of it this frame splats, which cascade it is, its corner, its
-    /// cells' width, the still meshes within its band it splats, and on its last part the box around
+    /// cells' width, the still meshes within its band it splats, on its last part the box around
     /// the meshes that came or went within it since it was last built, the whole cascade at its first
-    /// build, or null where nothing did, as where the eye moved it.
+    /// build, or null where nothing did, as where the eye moved it, and the cells it builds where it
+    /// builds those alone.
     /// </summary>
     /// <remarks>
     /// A build of more triangles than a frame's budget is splatted over as many frames as it takes,
     /// its <paramref name="First"/> part clearing the cascade's words and its <paramref name="Last"/>
     /// turning them into the distances the passes read, so until then the passes read the cascade as
-    /// it was last built. A shift's build gives the cells it builds alone in <paramref name="Cells"/>,
-    /// and its first part moves its cascade by <paramref name="ShiftCells"/> of its cells along
+    /// it was last built. A build of <paramref name="Cells"/> splats the still meshes within the band
+    /// of those cells and a cell around them alone, and turns those cells alone into distances, the
+    /// cells around what came or went within a built cascade, or the slab a shift brings in, whose
+    /// first part moves its cascade by <paramref name="ShiftCells"/> of its cells along
     /// <paramref name="ShiftAxis"/>, 0 for x, 1 for y and 2 for z, or -1 where it moves none, so the
     /// passes read the cascade at <paramref name="Origin"/> from that frame on, the cells it brought
     /// in empty until the build's last part.
@@ -168,14 +171,17 @@ internal sealed partial class SceneFieldPlan
 
     /// <summary>
     /// A mesh stamped as a box, from the world into its own space, the box's middle and half
-    /// extents there, the least scale from there to the world, and the mesh's color in linear light.
+    /// extents there, the least scale from there to the world, the mesh's color in linear light, and
+    /// its emission, linear, none where global illumination carries it as a glow light.
     /// </summary>
-    internal readonly record struct Shape(Matrix4x4 ToOwn, Vector3 Center, Vector3 Extents, float Scale, Vector3 Color = default, float LightThrough = 0);
+    internal readonly record struct Shape(Matrix4x4 ToOwn, Vector3 Center, Vector3 Extents, float Scale, Vector3 Color = default, float LightThrough = 0,
+        Vector3 Emission = default);
 
     private readonly Func<ModelVertex[], Box> _bounds;
     private readonly Func<ModelVertex[], int> _triangles;
     private readonly Func<ModelVertex[], Part[]?> _parts;
     private readonly Func<Instance, Vector3> _tint;
+    private readonly Func<Instance, bool> _carried;
     private Dictionary<Instance, int> _seen = new(Keys.Shared);
     // In a frame read whole, the frame each mesh drawn the frame before last moved where that was
     // within the longer count, each drawn now, and the vertices of the meshes gone since.
@@ -244,12 +250,14 @@ internal sealed partial class SceneFieldPlan
     /// <param name="triangleBudget">How many triangles the builds splat a frame at most, a mesh at least.</param>
     /// <param name="triangles">How many triangles a mesh has, a third of its vertices unless given.</param>
     /// <param name="farCell">The width of a cell of the far cascade after the others, or 0 for none.</param>
+    /// <param name="carried">Whether global illumination carries an emissive mesh as a glow light, whose box is stamped with none of its emission.</param>
     public SceneFieldPlan(int cascades, float cellSize, int budget, Func<ModelVertex[], Box>? bounds = null, Func<ModelVertex[], Part[]?>? parts = null,
         Func<Instance, Vector3>? tint = null, int triangleBudget = SceneFieldConfig.DefaultTriangleBudget, Func<ModelVertex[], int>? triangles = null,
-        float farCell = 0)
+        float farCell = 0, Func<Instance, bool>? carried = null)
     {
         _parts = parts ?? (_ => null);
         _tint = tint ?? (_ => Vector3.One);
+        _carried = carried ?? (_ => false);
         Counted = Math.Clamp(cascades, 1, 8);
         FarCell = farCell > 0 ? farCell : 0;
         Cascades = Counted + (FarCell > 0 ? 1 : 0);
@@ -262,6 +270,7 @@ internal sealed partial class SceneFieldPlan
         _builtFrame = new long[Cascades];
         _dirty = Enumerable.Repeat(true, Cascades).ToArray();
         _changed = new Box?[Cascades];
+        _regions = new Box?[Cascades];
     }
 
     /// <summary>How many cascades, the far one among them where there is one.</summary>
@@ -579,12 +588,13 @@ internal sealed partial class SceneFieldPlan
         {
             ref readonly var instance = ref _nearest[(int)(_byDistance[n] & 0xFFFFFFFF)];
             var tint = instance.Color * _tint(instance);
+            var emission = instance.Emission == Vector3.Zero || _carried(instance) ? Vector3.Zero : instance.Emission;
             foreach (var (own, pose) in PartsWithin(instance, MaxShapes - Shapes.Count - (count - n - 1)))
             {
                 var w = pose * instance.World;
                 if (!Matrix4x4.Invert(w, out var toOwn)) continue;
                 var scale = MathF.Min(new Vector3(w.M11, w.M12, w.M13).Length(), MathF.Min(new Vector3(w.M21, w.M22, w.M23).Length(), new Vector3(w.M31, w.M32, w.M33).Length()));
-                Shapes.Add(new Shape(toOwn, (own.Min + own.Max) / 2, (own.Max - own.Min) / 2, scale, tint, instance.LightThrough));
+                Shapes.Add(new Shape(toOwn, (own.Min + own.Max) / 2, (own.Max - own.Min) / 2, scale, tint, instance.LightThrough, emission));
                 var (min, max) = own.Transformed(w);
                 for (int c = 0; c < Cascades; c++)
                 {
@@ -633,6 +643,7 @@ internal sealed partial class SceneFieldPlan
         // Each brick's count put back where the fill left the end of its run, which the frame after
         // reads for the bricks stamped now.
         for (int b = 0; b < _bricksAt.Count; b++) _stamped[_bricksAt[b]] = BrickRanges[b].Count;
+        Track();
     }
 
     // Meshes told apart as their records are and hashed by their vertices and where they stand
@@ -773,16 +784,4 @@ internal sealed partial class SceneFieldPlan
 
     // The box around all of each mesh as its one part, kept for its vertices.
     private readonly Dictionary<ModelVertex[], Part[]> _whole = new(ReferenceEqualityComparer.Instance);
-
-    // Marks dirty every cascade whose band a box comes within, where the cascade has been built,
-    // but for one whose build in progress has taken the change in.
-    private void MarkAround(Box bounds, int followed = -1)
-    {
-        for (int c = 0; c < Cascades; c++)
-            if (c != followed && _built[c] is { } origin && bounds.Overlaps(CascadeBox(c, origin).Grown(Band * CellOf(c))))
-            {
-                _dirty[c] = true;
-                _changed[c] = _changed[c] is { } box ? box.With(bounds) : bounds;
-            }
-    }
 }

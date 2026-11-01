@@ -237,7 +237,8 @@ internal sealed partial class SceneFieldRenderer : IDisposable
             _short = false;
             Release();
             _made = wanted;
-            _plan = new SceneFieldPlan(wanted.counted, wanted.CellSize, wanted.Item3, BoundsOf, PartsOf, TintOf, wanted.Item4, TrianglesOf, farCell);
+            _plan = new SceneFieldPlan(wanted.counted, wanted.CellSize, wanted.Item3, BoundsOf, PartsOf, TintOf, wanted.Item4, TrianglesOf, farCell,
+                instance => Carried(instance, wanted.CellSize));
             var making = Stopwatch.GetTimestamp();
             _field = device.CreateSceneField(_plan.Cascades, SceneFieldPlan.Resolution);
             Logger.Info($"The scene's distance field made, {_plan.Cascades} cascades of {SceneFieldPlan.Resolution} cells a side, "
@@ -304,11 +305,13 @@ internal sealed partial class SceneFieldRenderer : IDisposable
                 // flat world's ground four blocks thick as a slab rising past the eye, which the rays
                 // leaving the counted cascades met in place of the sky.
                 var sheet = plan.HasFar && build.Cascade >= plan.Counted ? plan.CellOf(plan.Counted - 1) * 0.5f : 0;
-                // A shift moves the cells its cascade keeps before its build splats the slab it brings in.
+                // A shift moves the cells its cascade keeps before its build splats the slab it brings
+                // in, which reads as nothing near until the build ends. A region built again where a
+                // mesh came or went keeps its cells as they were until then.
                 if (build.ShiftAxis >= 0) device.RecordSceneFieldShift(commands, field, build.Cascade, build.ShiftAxis, build.ShiftCells);
                 Hold(device.RecordSceneFieldBuild(commands, field, corners, instances, count, triangles,
                     build.Cascade, build.Origin, build.Cell, SceneFieldPlan.Band, thinGlow, build.First, build.Last,
-                    lend: build is { First: true, Last: true } ? thinGlow : true, sheet: sheet, cells: build.Cells, empty: build.Cells is not null));
+                    lend: build is { First: true, Last: true } ? thinGlow : true, sheet: sheet, cells: build.Cells, empty: build.ShiftAxis >= 0));
             }
             foreach (var (cascade, origin, cell, painted) in repaints)
             {
@@ -334,11 +337,12 @@ internal sealed partial class SceneFieldRenderer : IDisposable
     internal IReadOnlySet<ModelVertex[]> Recolored => _recolored;
     private readonly HashSet<ModelVertex[]> _recolored = new(ReferenceEqualityComparer.Instance);
 
-    // Each built cascade not built again this frame and the still copies within its reach of the
-    // meshes whose colors were written in place, which are pooled again with their colors as they
-    // now are and paint again the cells they are nearest, as a voxel game's section lit again by its
-    // light levels is, where the field kept the colors of the mesh's last upload and the indirect
-    // light in a relit room took its walls as dark as they had been.
+    // Each built cascade not built whole again this frame and the still copies within its reach of
+    // the meshes whose colors were written in place, which are pooled again with their colors as
+    // they now are and paint again the cells they are nearest, as a voxel game's section lit again
+    // by its light levels is, where the field kept the colors of the mesh's last upload and the
+    // indirect light in a relit room took its walls as dark as they had been. A cascade whose region
+    // alone is built paints them again after the region's build has kept its cells.
     private List<(int Cascade, Vector3 Origin, float Cell, List<SceneFieldPlan.Instance> Instances)> Repaints(SceneFieldPlan plan)
     {
         _recolored.Clear();
@@ -353,7 +357,7 @@ internal sealed partial class SceneFieldRenderer : IDisposable
             }
         for (int c = 0; c < plan.Cascades; c++)
         {
-            if (plan.BuiltOrigin(c) is not { } origin || plan.Builds.Any(build => build.Cascade == c)) continue;
+            if (plan.BuiltOrigin(c) is not { } origin || plan.Builds.Any(build => build.Cascade == c && build.Cells is null)) continue;
             var cell = plan.CellOf(c);
             var reach = new SceneFieldPlan.Box(origin, origin + new Vector3(SceneFieldPlan.Resolution * cell)).Grown(SceneFieldPlan.Band * cell);
             var painted = new List<SceneFieldPlan.Instance>();
@@ -615,14 +619,14 @@ internal sealed partial class SceneFieldRenderer : IDisposable
     // The frame's shapes as field_stamp.slang's FieldShape reads them, one at least.
     private static IBuffer Shapes(GraphicsDevice device, List<SceneFieldPlan.Shape> shapes)
     {
-        var buffer = device.CreateBuffer(new BufferDesc((ulong)Math.Max(1, shapes.Count) * 96, BufferUsage.Storage, CpuAccessMode.Write));
+        var buffer = device.CreateBuffer(new BufferDesc((ulong)Math.Max(1, shapes.Count) * 112, BufferUsage.Storage, CpuAccessMode.Write));
         var mapped = MemoryMarshal.Cast<byte, float>(device.Map(buffer));
         for (int s = 0; s < shapes.Count; s++)
         {
-            var (m, center, extents, scale, color, through) = shapes[s];
+            var (m, center, extents, scale, color, through, emission) = shapes[s];
             ReadOnlySpan<float> values = [m.M11, m.M21, m.M31, m.M41, m.M12, m.M22, m.M32, m.M42, m.M13, m.M23, m.M33, m.M43,
-                center.X, center.Y, center.Z, scale, extents.X, extents.Y, extents.Z, 0, color.X, color.Y, color.Z, through];
-            values.CopyTo(mapped[(s * 24)..]);
+                center.X, center.Y, center.Z, scale, extents.X, extents.Y, extents.Z, 0, color.X, color.Y, color.Z, through, emission.X, emission.Y, emission.Z, 0];
+            values.CopyTo(mapped[(s * 28)..]);
         }
         device.Unmap(buffer);
         return buffer;

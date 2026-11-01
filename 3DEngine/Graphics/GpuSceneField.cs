@@ -73,13 +73,14 @@ internal sealed class GpuSceneField : IDisposable
 
     /// <summary>
     /// The bytes of GPU memory a field of <paramref name="cascades"/> cascades of
-    /// <paramref name="resolution"/> cells a side takes, its images' 22 bytes a cell, the still and
-    /// the read distances in two each, the still and the read colors in four each, the emission in
-    /// eight and the faces in one each, and the four buffers a build splats a cascade into, 20 a cell
-    /// of one cascade.
+    /// <paramref name="resolution"/> cells a side takes, 54 bytes a cell of its cascades, the still
+    /// and the read distances with their planes in eight each, the still and the read colors in four
+    /// each, the still and the read emission in eight each, the faces in one each, the second planes
+    /// in eight and the codes kept in four, and the five buffers a build splats a cascade into, 24 a
+    /// cell of one cascade.
     /// </summary>
     public static long MemoryBytes(int cascades, int resolution) =>
-        (long)resolution * resolution * resolution * (22L * Math.Max(1, cascades) + 20);
+        (long)resolution * resolution * resolution * (54L * Math.Max(1, cascades) + 24);
 
     /// <summary>
     /// The color of each cell's nearest still surface, linear, its alpha 1 where a surface painted
@@ -132,6 +133,11 @@ internal sealed class GpuSceneField : IDisposable
     // cell a moving mesh's box painted takes the still meshes' color again once the box has left.
     internal VkImage StillPaint { get; }
     internal VkImageView StillPaintView { get; }
+
+    // The emission the still meshes give, which a stamp starts each cell of its bricks from, as it
+    // does their colors, so a moving emitter's box gives its light where it stands each frame.
+    internal VkImage StillGlow { get; init; }
+    internal VkImageView StillGlowView { get; init; }
     internal VkImage Field { get; }
     internal VkImageView FieldView { get; }
 

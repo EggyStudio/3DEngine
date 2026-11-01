@@ -33,7 +33,7 @@ internal sealed partial class SceneFieldPlan
     /// </remarks>
     public void Raise(double roomMs, double fieldMs)
     {
-        _splattedSince += Splatted;
+        _splattedSince += Spent;
         if (++_framesSince < RaiseFrames) return;
         var perFrame = _splattedSince / (double)_framesSince;
         (_splattedSince, _framesSince) = (0, 0);

@@ -65,6 +65,10 @@ RWTexture3D<float4> secondField;
 [[vk::binding(14, 0)]]
 RWStructuredBuffer<uint> kept;
 
+// The emission the still meshes give, kept apart for field_stamp.slang to start its bricks from.
+[[vk::binding(15, 0)]] [format("rgba16f")]
+RWTexture3D<float4> stillGlow;
+
 struct ResolvePush
 {
     // x: the cascade. y: the cells along each side. z: the width of a cell. w: the band in cells.
@@ -226,5 +230,7 @@ void computeMain(uint3 thread : SV_DispatchThreadID)
     // it. Alpha is 1 where the light is an emitter's that global illumination carries as a glow
     // light, which a probe's ray leaves out.
     float3 painted = float3(unpackHalves(light.x), unpackHalves(light.y).x);
-    glowField[at] = float4(max(painted, lent) * (paint.a > 0.0 ? paint.a : 1.0), any(lent > painted) ? 0.0 : unpackHalves(light.y).y);
+    float4 given = float4(max(painted, lent) * (paint.a > 0.0 ? paint.a : 1.0), any(lent > painted) ? 0.0 : unpackHalves(light.y).y);
+    stillGlow[at] = given;
+    glowField[at] = given;
 }

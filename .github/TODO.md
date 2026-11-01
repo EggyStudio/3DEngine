@@ -169,9 +169,9 @@ physics, text and fonts, audio, audio streams and waves, and files
   surface before its interval is blocked, and the world's probes take indirect light from the probes
   they see, so a closed room is dark to a lamp outside it, and a reflection is lit by those lamps
   the same way, or through the GPU's rays at `High`. The screen's probes blend every probe around
-  what they meet, a skinned or moving mesh is boxes of its color, of its joints or of its parts,
-  that carry none of its emission, and the screen's probes, blended with the frame before's, hold
-  that within the spread of this frame's light, so they follow a changing light within the frame. A
+  what they meet, a skinned or moving mesh is boxes of its color and its emission, of its joints or
+  of its parts, and the screen's probes, blended with the frame before's, hold that within the
+  spread of this frame's light, so they follow a changing light within the frame. A
   render texture that draws meshes through a camera has screen probes of its own, as the window's,
   in the same frame, probe captures take global illumination from the world's probes alone, and
   where the window draws no mesh the field follows the first render texture's camera. Against

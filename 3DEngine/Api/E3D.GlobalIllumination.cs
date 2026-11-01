@@ -22,21 +22,26 @@ public static partial class E3D
     /// <para>
     /// A mesh drawn in the same place for eight frames is built into the cascades around it from
     /// its triangles on the GPU, and one that moves is stamped each frame as boxes rather than its
-    /// triangles, in its color and with none of its emission. A skinned mesh is a box for each
+    /// triangles, in its color and its emission, the emission left to the glow lights where it is
+    /// small enough to be one (<see cref="SetGlobalIllumination"/>). A skinned mesh is a box for each
     /// joint around the vertices it holds, posed, so a character's shadows in global illumination
     /// are those of its limbs as boxes, and one that does not bend a box for each of up to eight
     /// parts its triangles are cut into. A mesh that came and has not moved, as a scene's on its
     /// first load, stands in for nothing until it is built, since a box larger than what it holds
     /// fills the space around it. The cascades lie around the camera, or around the point
     /// <see cref="SetSceneFieldCenter"/> gives, a turn moving none of them, and a cascade is built
-    /// again where that point has gone past its grid or a mesh came or went,
+    /// again where that point has gone past its grid,
     /// <paramref name="updateBudget"/> a frame at most, the finest first, so a game sets a larger
     /// budget for a scene that changes and a smaller one for a slow GPU. The frame profile names
-    /// its cost as <c>scene_field</c>.
+    /// its cost as <c>scene_field</c>. Where a still mesh came or went, as a world's section meshed
+    /// again when a block breaks, the cells within its band are built again from the still meshes
+    /// near them alone, in every cascade it lies in, and the rest of each cascade stays as it was.
     /// </para>
     /// <para>
     /// A frame's builds splat <paramref name="triangleBudget"/> triangles at most, a mesh at least,
-    /// the still meshes within a cascade's band nearest the eye first, and a build of more goes on
+    /// a mesh counting its triangles by the share of its bounds within the cells built, an eighth of
+    /// them at least, since a triangle that misses those cells costs about that much of one that
+    /// does, the still meshes within a cascade's band nearest the eye first, and a build of more goes on
     /// over the frames after, its cascade keeping what it was last built with until the build ends,
     /// the meshes not yet splatted left out meanwhile where they came and never moved and stamped
     /// as boxes where they moved before they settled. So hundreds of meshes arriving in one frame,

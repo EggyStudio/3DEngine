@@ -252,7 +252,7 @@ internal static class SceneFieldCommands
         return "waiting for the scene's distance field";
     }
 
-    [Command("field.state", "Whether the scene's distance field is built and for how many frames, where each of its cascades lies, the far one named, the GPU memory the field takes, how many meshes are still in it, what this frame stamped, the triangles its builds splatted and those left waiting for later frames, and the most a frame splatted since this was last asked")]
+    [Command("field.state", "Whether the scene's distance field is built and for how many frames, where each of its cascades lies, the far one named, the GPU memory the field takes, how many meshes are still in it, what this frame stamped, the triangles its builds splatted and those left waiting for later frames, and the most a frame splatted since this was last asked, and the frames and the triangles the field took to hold its last change, or what it still waits for")]
     internal static string State()
     {
         if (!ConsoleHost.World!.TryGetResource<Renderer>(out var renderer)
@@ -264,11 +264,15 @@ internal static class SceneFieldCommands
             ? $"cascade {c}: {plan.CellOf(c)} a cell from {origin.X:0.##},{origin.Y:0.##},{origin.Z:0.##}{Far(c)}"
             : $"cascade {c}: not built{Far(c)}");
         var bytes = GpuSceneField.MemoryBytes(plan.Cascades, SceneFieldPlan.Resolution);
+        var (from, to, splatted) = plan.LastChange;
         var built = plan.Built ? $"the field is built, for {plan.FramesBuilt} frames running" : "the field is building";
         return string.Join("\n", cascades.Prepend(built).Append($"{bytes / 1024.0 / 1024.0:0.0} MB of the GPU's memory")
             .Append($"{plan.StillCount} still, {plan.Shapes.Count} stamped into {plan.Bricks.Count} bricks")
             .Append($"{plan.Splatted} triangles splatted of a budget of {plan.TriangleBudget}"
                 + (plan.TriangleBudget > plan.BaseTriangleBudget ? $", raised from {plan.BaseTriangleBudget} where the frame has room" : "") + $", {plan.Waiting} waiting, "
-                + $"at most {plan.TakeMostSplatted()} a frame since this was last asked"));
+                + $"at most {plan.TakeMostSplatted()} a frame since this was last asked")
+            .Append(to < 0 ? $"frame {plan.Frame}, changing since frame {from}, {splatted} triangles splatted, cascades {string.Join(" ", plan.Unsettled.Cascades)} to build, "
+                + $"{plan.Unsettled.Waiting} meshes waiting for their cascades and {plan.Unsettled.Kept} kept for meshes replacing them"
+                : $"frame {plan.Frame}, the last change from frame {from} held whole after frame {to}, {to - from + 1} frames, {splatted} triangles splatted"));
     }
 }

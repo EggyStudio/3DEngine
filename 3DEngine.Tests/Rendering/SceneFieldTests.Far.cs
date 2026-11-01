@@ -59,7 +59,7 @@ public sealed partial class SceneFieldTests
             plan.Update(eye, drawn);
             // From the frame the meshes settle in, the builds before it being of no mesh.
             if (frame >= SceneFieldPlan.SettleFrames) builds.AddRange(plan.Builds);
-            plan.Splatted.Should().BeLessThanOrEqualTo(65_536, "the far cascade's build splats under the budget as the others' do");
+            plan.Spent.Should().BeLessThanOrEqualTo(65_536, "the far cascade's build splats under the budget as the others' do");
             if (frame > SceneFieldPlan.SettleFrames && plan.Builds.Count == 0 && plan.Waiting == 0) break;
         }
 

@@ -775,49 +775,54 @@ place of 445 to 460 for a quarter more rays, and the field's builds 61 ms a fram
 same within the noise.
 
 A cascade's corner lies on a grid of eight of its cells, so it moves only when the eye has gone that
-far, and where it moves, or a still mesh came into it or left, it is built again, as many a frame as
-the budget allows, the finest first (`SceneFieldPlan`). Until then a cascade keeps the place and the
-meshes it was built with, which the uniform buffer says, so a pass never reads one cascade at
-another's place. A mesh is still when it has been drawn the same, mesh, vertices, matrix and sides,
-for eight frames running. A frame that draws the meshes the frame before did, in the same order, is
-read by place, each mesh compared with the one at its place, where working each frame out whole
-hashed every mesh's instance several times. In a Release build of the voxel game at eight columns,
-1,836 meshes, the plan took 92 µs a frame in place of 1,600 and the field's node 0.39 ms of the CPU
-in place of 1.8 to 2.0, by `./e3d command profile`. A still mesh replaced in place, by a mesh of
-other vertices drawn through the same matrix where it was, as a game's section meshed again when a
-block is placed, stays in the field as it was until its replacement is still, and the replacement is
-not stamped meanwhile, so one build takes the one out and puts the other in, nor after it settles
-while a cascade around it the budget leaves for a later frame holds the one it replaced. Stamped
-there as its boxes, a section of the voxel game's ground filled the air above it in the two cascades
-a budget of two left, and a closed stone room lit by one glowstone went dark for the frame eight
-after a block of its floor broke and came back the next, 89 and 87% of the pixels changing by more
-than 8 levels in the two frames, where only the frame of the break changes, 9% of them
-(`SceneFieldTests`, `voxel.flicker`). A mesh that moves keeps its vertices and is stamped as before,
-and one kept for a replacement that never settles leaves after sixteen frames. Three walls around a
-lamp that lights them by indirect light alone, replaced with a block beside the lamp, read 116 on
-the wall before and 69 six frames after, the walls gone from the field at once and their replacement
-standing in as a few boxes; kept, the wall held 114 to 116 until the replacement settled
-(`GlobalIlluminationTests`). Its triangles go into one buffer in its mesh's own space the first time
-a build needs them, so a build hands the GPU each instance's matrix and where its mesh's triangles
-start. The buffer is made to hold every triangle of the build in progress, which goes on over frames
-under the triangles' budget, and each mesh's open edges are found once and kept. Made for one
-frame's part of the build, the next part's meshes overflowed it, and the voxel game's eye stepped a
-section east and back twenty times at 12 columns made it 427 times with every mesh's open edges
-found again, 9.5 ms of the CPU a frame. A build clears a uint a cell to the band, then a workgroup a
-triangle puts the triangle in the world and takes, for each cell within the band of its bounds, the
-distance to it in 1024ths of a cell above a bit set where a double-sided triangle's nearest point to
-the cell lies on its rim, a bit set where the triangle is double-sided, a bit set where the cell is
-in front of the face, which for a double-sided one is the side of its plane the cell lies on, and
-the way the face looks in eight bits, keeping the least by an atomic minimum (`field_splat.slang`).
-Of two triangles as near, as a crate on the ground, the one the cell lies behind wins, the cell
-being inside some mesh, and a cell is behind a face only within 60 degrees of straight back from it,
-so where an edge or a corner is nearest, as above a pillar's rim, a face the way runs along does not
-put the cell inside. A cell whose nearest point is on an edge no other triangle shares by the places
-of its ends (`SceneFieldRenderer.OpenEdges`, the corner's w in the pooled triangles) is in front, so
-a ground plane puts no wedge below its rim inside. A triangle of next to no area beside its longest
-side is passed over, since its face turns whichever way rounding took it. `GenMeshSphere`'s last row
-meets its pole at corners the rounding of sin(pi) leaves apart, and taken as faces they turned 97 to
-143 of the 1662 cells within half a unit of a sphere inside, beyond the pole, where none is now
+far, and where it moves by less than half its width it shifts, the cells it keeps moved on the GPU
+and the slab it brings in built alone (`SceneFieldPlan.Shifts.cs`), and farther it is built again,
+as many a frame as the budget allows, the finest first (`SceneFieldPlan`). Where a still mesh came
+into it or left, the cells within the band of the box around what came or went are built again
+alone, from the still meshes within the band of those cells and of a cell around them, which a
+cell's distance is read beside, and the rest of the cascade stays as it was
+(`SceneFieldPlan.Regions.cs`). Until then a cascade keeps the place and the meshes it was built
+with, which the uniform buffer says, so a pass never reads one cascade at another's place. A mesh is
+still when it has been drawn the same, mesh, vertices, matrix and sides, for eight frames running. A
+frame that draws the meshes the frame before did, in the same order, is read by place, each mesh
+compared with the one at its place, where working each frame out whole hashed every mesh's instance
+several times. In a Release build of the voxel game at eight columns, 1,836 meshes, the plan took 92
+µs a frame in place of 1,600 and the field's node 0.39 ms of the CPU in place of 1.8 to 2.0, by
+`./e3d command profile`. A still mesh replaced in place, by a mesh of other vertices drawn through
+the same matrix where it was, as a game's section meshed again when a block is placed, stays in the
+field as it was until its replacement is still, and the replacement is not stamped meanwhile, so one
+build takes the one out and puts the other in, nor after it settles while a cascade around it the
+budget leaves for a later frame holds the one it replaced. Stamped there as its boxes, a section of
+the voxel game's ground filled the air above it in the two cascades a budget of two left, and a
+closed stone room lit by one glowstone went dark for the frame eight after a block of its floor
+broke and came back the next, 89 and 87% of the pixels changing by more than 8 levels in the two
+frames, where only the frame of the break changes, 9% of them (`SceneFieldTests`, `voxel.flicker`).
+A mesh that moves keeps its vertices and is stamped as before, and one kept for a replacement that
+never settles leaves after sixteen frames. Three walls around a lamp that lights them by indirect
+light alone, replaced with a block beside the lamp, read 116 on the wall before and 69 six frames
+after, the walls gone from the field at once and their replacement standing in as a few boxes. Kept,
+the wall held 114 to 116 until the replacement settled (`GlobalIlluminationTests`). Its triangles go
+into one buffer in its mesh's own space the first time a build needs them, so a build hands the GPU
+each instance's matrix and where its mesh's triangles start. The buffer is made to hold every
+triangle of the build in progress, which goes on over frames under the triangles' budget, and each
+mesh's open edges are found once and kept. Made for one frame's part of the build, the next part's
+meshes overflowed it, and the voxel game's eye stepped a section east and back twenty times at 12
+columns made it 427 times with every mesh's open edges found again, 9.5 ms of the CPU a frame. A
+build clears a uint a cell to the band, then a workgroup a triangle puts the triangle in the world
+and takes, for each cell within the band of its bounds, the distance to it in 1024ths of a cell
+above a bit set where a double-sided triangle's nearest point to the cell lies on its rim, a bit set
+where the triangle is double-sided, a bit set where the cell is in front of the face, which for a
+double-sided one is the side of its plane the cell lies on, and the way the face looks in eight
+bits, keeping the least by an atomic minimum (`field_splat.slang`). Of two triangles as near, as a
+crate on the ground, the one the cell lies behind wins, the cell being inside some mesh, and a cell
+is behind a face only within 60 degrees of straight back from it, so where an edge or a corner is
+nearest, as above a pillar's rim, a face the way runs along does not put the cell inside. A cell
+whose nearest point is on an edge no other triangle shares by the places of its ends
+(`SceneFieldRenderer.OpenEdges`, the corner's w in the pooled triangles) is in front, so a ground
+plane puts no wedge below its rim inside. A triangle of next to no area beside its longest side is
+passed over, since its face turns whichever way rounding took it. `GenMeshSphere`'s last row meets
+its pole at corners the rounding of sin(pi) leaves apart, and taken as faces they turned 97 to 143
+of the 1662 cells within half a unit of a sphere inside, beyond the pole, where none is now
 (`SceneFieldTests`). The face a cell lies within 25 degrees of straight behind is kept apart as
 well, in a word a cell. A second pass turns the words into distances in both the image the meshes
 alone make and the one the passes read (`field_resolve.slang`). A double-sided mesh has no inside,
@@ -881,41 +886,60 @@ frames. A mesh drawn through the matrix of one that left, as a mesh uploaded aga
 counts as moved. A cell is painted the color of the nearer of the still meshes and the boxes, a box
 its mesh's color as the splat reckons it, from a copy of the still meshes' colors the resolve writes
 beside the image the passes read, so a cell a box painted takes the still color again once the box
-has left. A mesh's emission is not stamped, which would take a copy of the still light as well, 2 MB
-a cascade. A skinned mesh is a box for each joint around the vertices at rest it holds most, posed
-by the joint's latest matrix, and one that does not bend a box for each of up to eight parts its
-triangles are cut into where each cut takes a third of the volume away (`SceneFieldRenderer.Cut`),
-or the box around all of it, the triangles sorted along each axis by keys made of their middles'
-bits, where LINQ's sort took 1.3 ms to cut a section of the voxel game. A mesh past what the room
-left for a box each of the meshes beyond it is the box around all of it, so a crowd past 256 boxes
-is figures near the eye and boxes beyond. Three dancing robots in `shaders_cornell_box` are 147
-boxes in 540 bricks, stamped and painted in 0.06 ms of the RTX 4070 (0.05 unpainted) and placed in
-0.45 ms of the CPU in the Release build, as their meshes' 57 boxes were. A still mesh whose
-vertices' colors are written in place (`UpdateMeshBuffer` at 3, `MeshStore.TakeRecolored`) is pooled
-again with them, and in each built cascade not built again that frame the paint pass runs over its
-triangles alone against the words the cascade's last build kept, a megabyte a cascade, writing the
-colors the passes read directly, so a relit section's indirect light takes its new colors in the
-frame after without its distances found again; the ray scene writes the colors into the mesh's
-corners, which its structure does not read. Where the field kept the colors of a mesh's last upload,
-a lamp placed in the voxel game's dark room lit it indirectly from walls as dark as they had been. A
-mesh whose material's `BouncesLight` is false is left out of the field as one that casts no shadow
-is, and so out of the glow lights and the ray scene the global illumination reference traces, while
-it casts its shadows, since the voxel game's walking animals, four to six pieces each, cost the
-field 16 to 28 microseconds of the CPU and 13 to 15 of the GPU a piece a frame, 17 of them taking
-the CPU's share from 0.8 ms to 2.9 and the GPU's from nothing to 1.0. Most of that GPU time was
-cascades built again, since a piece that stood for eight frames between walks settled into the field
-and left it when it walked on, each time marking the cascades around it. A mesh that moved within
-the last 1,024 frames, as a place in the order drawn or as one gone whose vertices a mesh new in the
-frame has, settles only after standing that long, a still copy of the same mesh after eight, and the
-game's animals stand one to eight seconds, up to 960 frames at 120 a second, and 76 figures of five
-pieces walking among a land of 400 meshes and standing 45 frames in every 135 had a cascade built
-again every frame, 6.2 ms of the GPU's, and have none, 0.16 to 0.19 ms, and standing 240 to 960
-frames they had one every fourth frame with 480 frames as the count and one in fifty with 1,024,
-those of the figures that stood from the first frame and settled before they walked. A frame in
-which a mesh drawn in the same place in the order moved is read by place, as one in which nothing
-moved, where it was read whole with every mesh in a dictionary, and the plan's work for those
-figures, 2.7 ms of the CPU's in a build that is not optimized, is 1.2 ms, 4.1 microseconds a box,
-and 0.68 ms in the Release build, 2.4 a box, the stamp on the GPU 0.6 a box.
+has left, and its emission, from a copy of the still meshes' emission beside it, 2 MB a cascade,
+none where a glow light carries it. A skinned mesh is a box for each joint around the vertices at
+rest it holds most, posed by the joint's latest matrix, and one that does not bend a box for each of
+up to eight parts its triangles are cut into where each cut takes a third of the volume away
+(`SceneFieldRenderer.Cut`), or the box around all of it, the triangles sorted along each axis by
+keys made of their middles' bits, where LINQ's sort took 1.3 ms to cut a section of the voxel game.
+A mesh past what the room left for a box each of the meshes beyond it is the box around all of it,
+so a crowd past 256 boxes is figures near the eye and boxes beyond. Three dancing robots in
+`shaders_cornell_box` are 147 boxes in 540 bricks, stamped and painted in 0.06 ms of the RTX 4070
+(0.05 unpainted) and placed in 0.45 ms of the CPU in the Release build, as their meshes' 57 boxes
+were. A still mesh whose vertices' colors are written in place (`UpdateMeshBuffer` at 3,
+`MeshStore.TakeRecolored`) is pooled again with them, and in each built cascade not built again that
+frame the paint pass runs over its triangles alone against the words the cascade's last build kept,
+a megabyte a cascade, writing the colors the passes read directly, so a relit section's indirect
+light takes its new colors in the frame after without its distances found again; the ray scene
+writes the colors into the mesh's corners, which its structure does not read. Where the field kept
+the colors of a mesh's last upload, a lamp placed in the voxel game's dark room lit it indirectly
+from walls as dark as they had been. A mesh whose material's `BouncesLight` is false is left out of
+the field as one that casts no shadow is, and so out of the glow lights and the ray scene the global
+illumination reference traces, while it casts its shadows, since the voxel game's walking animals,
+four to six pieces each, cost the field 16 to 28 microseconds of the CPU and 13 to 15 of the GPU a
+piece a frame, 17 of them taking the CPU's share from 0.8 ms to 2.9 and the GPU's from nothing to
+1.0. Most of that GPU time was cascades built again, since a piece that stood for eight frames
+between walks settled into the field and left it when it walked on, each time marking the cascades
+around it. A mesh that moved within the last 1,024 frames, as a place in the order drawn or as one
+gone whose vertices a mesh new in the frame has, settles only after standing that long, a still copy
+of the same mesh after eight, and the game's animals stand one to eight seconds, up to 960 frames at
+120 a second, and 76 figures of five pieces walking among a land of 400 meshes and standing 45
+frames in every 135 had a cascade built again every frame, 6.2 ms of the GPU's, and have none, 0.16
+to 0.19 ms, and standing 240 to 960 frames they had one every fourth frame with 480 frames as the
+count and one in fifty with 1,024, those of the figures that stood from the first frame and settled
+before they walked. A frame in which a mesh drawn in the same place in the order moved is read by
+place, as one in which nothing moved, where it was read whole with every mesh in a dictionary, and
+the plan's work for those figures, 2.7 ms of the CPU's in a build that is not optimized, is 1.2 ms,
+4.1 microseconds a box, and 0.68 ms in the Release build, 2.4 a box, the stamp on the GPU 0.6 a box.
+
+**A world's change built cell by cell, read on 2026-11-01.** Read with the cascades ahead of the
+eye, before they lay around it. In the voxel game at seed 1 at 12 columns at `High`, 1280 by 720,
+breaking a block five under the eye, the field took 60 frames from the section meshed again being
+drawn to holding it whole and splatted 1.65 million triangles, the cascades around the section built
+again whole, with the cells around it built alone 29 frames and 654,000 triangles, and with a mesh
+counting its triangles by the share of its bounds within the cells built 16, eight of them the
+section settling (`field.state`). A block broken every ten frames for 300 frames took the field
+0.910 ms of the GPU a frame on average and it never held the change, and with the cells built alone
+0.132 ms, each break held within 16 frames. The cells built again where a mesh was replaced in place
+hold the distances, colors and emission a whole build of the scene gives them, to the last bit
+(`SceneFieldTests`). In Sponza, whose walls cross every cascade, a move past the first cascade's
+grid took 21 frames and 772,000 triangles and took 11, and one past the third's 302 frames and 9.9
+million triangles and took 288, its coarser cascades holding most of the building's triangles, which
+a cascade shifted as a clipmap takes in its slab alone (below). An emissive bar of lava five units
+long sliding before a gray wall, past the four a glow light may be at cells of a quarter, lit the
+wall 100% under a path-traced reference at `High`, its box stamped in its color alone, and 34% under
+with its emission stamped, where held still until it settles it reads 37% under. `Low` reads that
+wall 96 and 97% under with the bar moving or settled alike, as before.
 
 Three passes read it. `ao.slang` adds an occlusion read along the normal and four ways leaning from
 it at four distances out to the radius, and traces the sun's light toward the sun from a cell and a
@@ -1784,9 +1808,9 @@ The guide (docs/materials-light-and-shadows.md) has each quality's GPU time and 
 `shaders_cornell_box`, and what the reflections cost in `shaders_reflections`. Two things are left.
 The screen's probes blend every probe around what their rays meet, since a trace to each cost 0.10
 to 0.15 ms there and leaked 3 levels of a lamp's light without it, and a moving mesh takes part in
-global illumination as the boxes of its joints or its parts the field holds it as, in its color but
-with none of its emission unless it is small enough to be a glow light, which any mesh drawn is,
-still or moving. A render target that draws meshes through a camera has screen probes of its own, on
+global illumination as the boxes of its joints or its parts the field holds it as, in its color and
+its emission, which a glow light carries where the mesh is small enough to be one, still or moving.
+A render target that draws meshes through a camera has screen probes of its own, on
 the depth at half its size of the meshes it draws that cast shadows that its occlusion pass draws
 (`AmbientOcclusionRenderer.DrawTarget`, `ModelRenderer.DrawDepth` for its id), probes traced, blended and held as the window's on that depth with a history of their own, let go
 the frame after one the target is not drawn in (`GlobalIlluminationRenderer.DrawTarget`, before the

@@ -88,28 +88,31 @@ open world gives nothing, and a building wider than its third cascade has its fa
 fourth's coarser probes. A cascade that point has gone past the grid of keeps the cells it holds,
 moved on the GPU, and builds the slab of cells the move brings in alone, as a clipmap does, so a
 walk splats a fraction of what building each cascade again did. One the point went half its width
-past or more, or that a mesh came into or went from, is built again whole, as many cascades a frame
-as the budget says, the finest first. A mesh drawn in the same place for eight frames is built in
-from its triangles; one that moves is held as boxes painted its color, so a red figure reflects red
-light, though its emission reaches no other surface unless it is small enough to be a light of its
-own, below.
+past or more is built again whole, as many cascades a frame as the budget says, the finest first,
+and where a mesh came or went only the cells within its band are built again, from the meshes near
+them, so a block broken in a world of large section meshes costs a few frames of the budget rather
+than the cascades around it. A mesh drawn in the same place for eight frames is built in from its
+triangles, and one that moves is held as boxes painted its color and giving its light, so a red
+figure reflects red light and a sliding block of lava lights the wall it passes as one held still
+does.
 
-A frame's builds splat 32,768 triangles at most unless `triangleBudget` says otherwise, the meshes
-within a cascade nearest the eye first, a mesh at least. A build of more goes on over the frames
-after, its cascade holding what it was last built with until the build ends and the meshes not yet
-built in left out meanwhile, or held as boxes where they moved before they settled, so hundreds of
-sections of a world streamed in at once, on a teleport or a first load, are built over several
-frames rather than stalling one. On an RTX 4070 Laptop GPU, 500 sections of 1,024 triangles arriving
-at once took the field 41.8 ms in one frame with no budget, and 2.5 to 6.5 ms at most a frame over
-27 frames at the default. `games/Ore` splats 18,824 triangles a build, within the default, so its
-builds go as before. A scene of fewer triangles builds as many cascades a frame as `updateBudget`
-says. Where the frame waits for its target frame rate, as a program at 60 frames a second does when
-its work takes less, the triangle budget is raised so the builds take half the wait, up to sixteen
-times the budget given, and it falls back to it where the frame waits none, so `scenes_sponza`'s
-field is built again after a jump between its views in 5 to 15 frames where in 20 to 25 at the
-budget given. `./e3d command field.state` says the budget in force. The frame profile names the
-field's cost as `scene_field`, which a game reads with `./e3d command profile` to set the budget for
-its own device.
+A frame's builds splat 32,768 triangles at most unless `triangleBudget` says otherwise, a mesh
+counting its triangles by the share of its bounds within the cells built, an eighth of them at
+least, the meshes within a cascade nearest the eye first, a mesh at least. A build of more goes on
+over the frames after, its cascade holding what it was last built with until the build ends and the
+meshes not yet built in left out meanwhile, or held as boxes where they moved before they settled,
+so hundreds of sections of a world streamed in at once, on a teleport or a first load, are built
+over several frames rather than stalling one. On an RTX 4070 Laptop GPU, 500 sections of 1,024
+triangles arriving at once took the field 41.8 ms in one frame with no budget, and 2.5 to 6.5 ms at
+most a frame over 27 frames at the default. `games/Ore` splats 18,824 triangles a build, within the
+default, so its builds go as before. A scene of fewer triangles builds as many cascades a frame as
+`updateBudget` says. Where the frame waits for its target frame rate, as a program at 60 frames a
+second does when its work takes less, the triangle budget is raised so the builds take half the
+wait, up to sixteen times the budget given, and it falls back to it where the frame waits none, so
+`scenes_sponza`'s field is built again after a jump between its views in 5 to 15 frames where in 20
+to 25 at the budget given. `./e3d command field.state` says the budget in force. The frame profile
+names the field's cost as `scene_field`, which a game reads with `./e3d command profile` to set the
+budget for its own device.
 
 A mesh that came and has not moved, as a scene's on its first load or a world's section streamed in,
 stands in for nothing until it is built, since a box much larger than what it holds fills the space
@@ -323,8 +326,8 @@ meshes in 1.23 MB, built again each frame in some 0.02 ms.
   surface or leaves the field, and one that leaves takes the sky, so a cave lets the sky in only
   where it reaches past the field, 128 units across at the default cell, or past its side behind
   the eye (above).
-- **Moving meshes.** A mesh that moves reflects light as the boxes the field holds it as, and its
-  emission reaches no other surface unless it is small enough to be a light of its own.
+- **Moving meshes.** A mesh that moves reflects and gives light as the boxes the field holds it
+  as.
 - **Thin things.** A closed mesh thinner than a cell is held about its middle, so a thin wall stops
   light, but a gap thinner than a cell is closed to it. A double-sided face is held by its plane in
   the cells it is nearest, so two of them two cells apart, as a field of crops, leave the gap

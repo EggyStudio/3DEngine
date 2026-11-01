@@ -1,12 +1,13 @@
-// Stamps the shapes of the meshes that moved into the field the passes read, a workgroup a brick
-// of 4 by 4 by 4 cells. Each cell takes the least of its distance in the field the still meshes
-// make and its distance to each shape that comes within its brick, a box around a mesh or a part
-// of one in its own space, so a brick stamped last frame and not this one goes back to what the
-// still meshes make. A brick reads the shapes of its own run alone, so a frame's cost grows with
-// the shapes of each brick and not with every shape the frame stamps. Each cell is painted the color
-// of the nearer surface, the still meshes' or a box's, as the build paints a cell its nearest
-// triangle's, so indirect light from a moving mesh takes its color, and a cell a box painted
-// takes the still meshes' color again once the box has left.
+// Stamps the shapes of the meshes that moved into the field the passes read, a workgroup a brick of
+// 4 by 4 by 4 cells. Each cell takes the least of its distance in the field the still meshes make
+// and its distance to each shape that comes within its brick, a box around a mesh or a part of one
+// in its own space, so a brick stamped last frame and not this one goes back to what the still
+// meshes make. A brick reads the shapes of its own run alone, so a frame's cost grows with the
+// shapes of each brick and not with every shape the frame stamps. Each cell is painted the color
+// and the emission of the nearer surface, the still meshes' or a box's, as the build paints a cell
+// its nearest triangle's, so indirect light from a moving mesh takes its color and a moving emitter
+// lights what it passes, and a cell a box painted takes the still meshes' again once the box has
+// left.
 import scenefield;
 
 struct FieldShape
@@ -23,6 +24,9 @@ struct FieldShape
     // rgb: the mesh's color, linear, its material's times its texture's average. w: the share of
     // light that passes a unit of its depth (lightThroughPaint).
     float4 color;
+    // rgb: the mesh's emission, linear, none where global illumination carries it as a glow light,
+    // whose light a probe's ray leaves out of the field. w: unused.
+    float4 emission;
 };
 
 // x: the cascade. y: the brick's place in it, in bricks, a byte an axis. z: where its run of shapes
@@ -59,6 +63,14 @@ RWTexture3D<uint> stillFaces;
 [[vk::binding(8, 0)]] [format("r8ui")]
 RWTexture3D<uint> faceField;
 
+// The emission the still meshes give each cell and the one the passes read, as field_resolve.slang
+// wrote them, a box's where the box is nearer.
+[[vk::binding(9, 0)]] [format("rgba16f")]
+RWTexture3D<float4> stillGlow;
+
+[[vk::binding(10, 0)]] [format("rgba16f")]
+RWTexture3D<float4> glowField;
+
 struct StampPush
 {
     // x: how many bricks. y: how many shapes. zw: unused.
@@ -92,6 +104,7 @@ void computeMain(uint3 group : SV_GroupID, uint3 local : SV_GroupThreadID)
     float3 sheet = still.yzw;
     float nearest = abs(d);
     float4 paint = stillPaint[at];
+    float4 glow = stillGlow[at];
     uint face = stillFaces[at];
     for (uint i = 0; i < brick.w; i++)
     {
@@ -108,6 +121,9 @@ void computeMain(uint3 group : SV_GroupID, uint3 local : SV_GroupThreadID)
             sheet = float3(0.0);
             float coverage = lightThroughPaint(shape.color.w);
             paint = float4(shape.color.rgb * coverage, coverage);
+            // Times the paint's alpha, as the build gives a cell's emission, since a reader divides
+            // both by it.
+            glow = float4(shape.emission.rgb * coverage, 0.0);
             // The box's face nearest the cell, the axis it lies furthest out along, in the world.
             int axis = q.x >= q.y && q.x >= q.z ? 0 : q.y >= q.z ? 1 : 2;
             float3 outward = float3(axis == 0 ? sign(own.x) : 0.0, axis == 1 ? sign(own.y) : 0.0, axis == 2 ? sign(own.z) : 0.0);
@@ -116,5 +132,6 @@ void computeMain(uint3 group : SV_GroupID, uint3 local : SV_GroupThreadID)
     }
     field[at] = float4(d, sheet);
     albedoField[at] = paint;
+    glowField[at] = glow;
     faceField[at] = face;
 }

@@ -4,29 +4,31 @@ Reviewed up to `4b80c5c8`, item 169, pushed at 17:51 on 2026-11-01, its run gree
 Windows in 149 minutes under 149's limit of 180, Linux in 84 and macOS in 41. After it `60fd7e23`
 (180), `5932c389` (179), `5ea3e98f` (167 with 171 folded in) and `3b5264d7` (181's first part),
 pushed at 20:24, the run of `3b5264d7` red at 22:07 on the three systems, Verdict 98, Linux in 26
-minutes, macOS in 27 and Windows in 101, the two commits after it held until the mend; each keeps
-the form. Each commit's detail stands in its item in REVIEW-ARCHIVE.md, its devlog note and its own
-words. Before it `6cc2a0a0`, item 166's mend, pushed at 15:18 with `001e93f0`, item 168, its run
-green at 17:50 with Windows in 149 minutes, Linux in 53 and macOS in 37. Before it `e159992e`, items
-164 and 165, pushed at 13:03 with `ea4fccb3`, item 163, its run green at 15:17 with Windows in 131
-minutes, Linux in 82 and macOS in 35. Before it `d9f3f108`, 158's first part, pushed at 10:39, its
-run green at 13:00 with Windows in 141 minutes, Linux in 76 and macOS in 34. Before it `af7df72a`
-(162), `beefec87` (159) and `1fe6e61a` (161), pushed at 08:11, the run of `af7df72a` green at 10:38
-with Windows in 147 minutes, Linux in 141, the runner's as the next run showed, and macOS in 36.
-Before it `1848701a` (160's end), `ed41cd5d` (160's first part), `a4e70370` (154) and `6f6ba558`
-(157), pushed at 06:23, the run of `1848701a` green at 08:07 with Windows in 104 minutes, Linux in
-60 and macOS in 33. Before it `e3d37e1e` (Verdict 97's mend), `6a6e2dad` (152) and `07085cd2` (156),
-pushed at 04:00, the run of `e3d37e1e` green at 06:20 with Windows in 140 minutes, Linux in 73 and
-macOS in 32, which settled Verdict 97. Before it `3dda52c2` (151 and 155) and `740066d6` (138),
-pushed at 01:13, the run of `3dda52c2` red at 03:16 on Windows alone, Verdict 97, Linux green in 60
-minutes and macOS in 35; the twelfth pack run started from it at 01:13 green at 04:20, 6.0.14
-published, with Windows in 184 minutes, the games in 79, the captures in 64 and 57 on macOS and the
-pack in 3, its Windows suite passing the leak test the push run failed. Before it `46149d6d` (153),
-pushed at 22:50 on 2026-10-31, its run green at 01:10 with Windows in 139 minutes, Linux in 77 and
-macOS in 33. Before it `a6a3b7a0` (150), pushed at 19:53, its run green at 21:31 with Windows in 98
-minutes, Linux in 79 and macOS in 35; the eleventh pack run started from it at 19:53 green at 22:33,
-6.0.11 published, the first at 6.0, with Windows in 145 minutes, the games in 78, the captures in 62
-and 57 on macOS and the pack in 4, carrying 132, 147, 148's textures and 150 for the game. Before it
+minutes, macOS in 27 and Windows in 101, the two commits after it held until the mend. After it
+`2d051ada` and `6fd05fd4` (181's second and third parts) and `d9c50b3b` (Verdict 98's mend), pushed
+at 22:42, the run of `d9c50b3b` awaited; each keeps the form; each keeps the form. Each commit's
+detail stands in its item in REVIEW-ARCHIVE.md, its devlog note and its own words. Before it
+`6cc2a0a0`, item 166's mend, pushed at 15:18 with `001e93f0`, item 168, its run green at 17:50 with
+Windows in 149 minutes, Linux in 53 and macOS in 37. Before it `e159992e`, items 164 and 165, pushed
+at 13:03 with `ea4fccb3`, item 163, its run green at 15:17 with Windows in 131 minutes, Linux in 82
+and macOS in 35. Before it `d9f3f108`, 158's first part, pushed at 10:39, its run green at 13:00
+with Windows in 141 minutes, Linux in 76 and macOS in 34. Before it `af7df72a` (162), `beefec87`
+(159) and `1fe6e61a` (161), pushed at 08:11, the run of `af7df72a` green at 10:38 with Windows in
+147 minutes, Linux in 141, the runner's as the next run showed, and macOS in 36. Before it
+`1848701a` (160's end), `ed41cd5d` (160's first part), `a4e70370` (154) and `6f6ba558` (157), pushed
+at 06:23, the run of `1848701a` green at 08:07 with Windows in 104 minutes, Linux in 60 and macOS in
+33. Before it `e3d37e1e` (Verdict 97's mend), `6a6e2dad` (152) and `07085cd2` (156), pushed at
+04:00, the run of `e3d37e1e` green at 06:20 with Windows in 140 minutes, Linux in 73 and macOS in
+32, which settled Verdict 97. Before it `3dda52c2` (151 and 155) and `740066d6` (138), pushed at
+01:13, the run of `3dda52c2` red at 03:16 on Windows alone, Verdict 97, Linux green in 60 minutes
+and macOS in 35; the twelfth pack run started from it at 01:13 green at 04:20, 6.0.14 published,
+with Windows in 184 minutes, the games in 79, the captures in 64 and 57 on macOS and the pack in 3,
+its Windows suite passing the leak test the push run failed. Before it `46149d6d` (153), pushed at
+22:50 on 2026-10-31, its run green at 01:10 with Windows in 139 minutes, Linux in 77 and macOS in
+33. Before it `a6a3b7a0` (150), pushed at 19:53, its run green at 21:31 with Windows in 98 minutes,
+Linux in 79 and macOS in 35; the eleventh pack run started from it at 19:53 green at 22:33, 6.0.11
+published, the first at 6.0, with Windows in 145 minutes, the games in 78, the captures in 62 and 57
+on macOS and the pack in 4, carrying 132, 147, 148's textures and 150 for the game. Before it
 `4df9309c` (Verdict 96's mend), its run green at 19:50 with Windows in 76 minutes, Linux in 61 and
 macOS in 35, which settled Verdict 96. Before it `75b61056` (148's end), `82a02b9d` (148's second
 commit), `b4d0d03c` (149, the Windows limit to 180 and PART=N+Class) and `52a1cb3f` (148's first
@@ -1374,7 +1376,13 @@ Verdicts 56 to 97 are settled, said under each in REVIEW-ARCHIVE.md; Verdict 98 
     effects pass, read by the two tests under the validation layer on lavapipe locally before the
     commit, as the runner runs them, with a line in the test's remarks saying the effects tests run
     under the layer where the device has it. The two commits after it, `2d051ada` and `6fd05fd4`,
-    are held and go up with the mend. Settled by that run green.
+    are held and go up with the mend. The mend is at `d9c50b3b`, pushed at 22:42 with the two, 167
+    having given the bloom block 32 bytes and FXAA pushing that block against its 16-byte range
+    where fxaa.slang reads one float4, FXAA pushing a block of its own and the pipeline helper
+    taking every pass's range from the block it pushes, no default size; every effects pass's block
+    checked against its shader, FXAA alone disagreeing; read on lavapipe with the layer, HEAD
+    failing the same two tests with the same error and the mend passing 64 of 64, the remarks saying
+    how the tests run as the runner does; 2,185 in both orders. Settled by that run green.
 
 ## Decisions
 

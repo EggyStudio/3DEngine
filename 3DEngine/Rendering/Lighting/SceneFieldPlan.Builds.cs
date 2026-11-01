@@ -4,20 +4,24 @@ namespace Engine;
 
 // The cascades' builds under the budgets, a build of more triangles than a frame's budget splatted
 // over as many frames as it takes, nearest the eye first, and the still meshes that come and go
-// while it runs taken in.
+// while it runs taken in. A build is of a whole cascade, or of the cells around what came or went
+// within a built one (SceneFieldPlan.Regions.cs).
 internal sealed partial class SceneFieldPlan
 {
     // A cascade's build that runs over frames, its corner and reach, the still meshes left to splat
     // into it, nearest the eye first by the distance each was put in at, the box around what came or
     // went within it, and whether it splatted anything yet or has to start again, a mesh it splatted
-    // having left. A shift's build holds the cells it builds alone, and the axis and the cells its
-    // cascade moves by, which its first part moves it by and no later part again.
+    // having left. A build of a region or a shift's holds the cells it builds alone, and the frame
+    // its meshes were gathered in, which every mesh that settled by then is among. A shift's holds
+    // the axis and the cells its cascade moves by, which its first part moves it by and no later
+    // part again.
     private sealed class Job
     {
         public int Cascade;
         public Vector3 Origin;
         public Box Reach;
         public CellBox? Cells;
+        public bool Shifting;
         public int ShiftAxis = -1, ShiftCells;
         public readonly List<(float Distance, Instance Instance)> Left = [];
         // The triangles of every mesh in Left, which the pool is sized for.
@@ -26,6 +30,7 @@ internal sealed partial class SceneFieldPlan
         public int Next;
         public Box? Changed;
         public bool Started, Restart;
+        public long Gathered;
     }
 
     private Job? _job;
@@ -81,44 +86,39 @@ internal sealed partial class SceneFieldPlan
     /// progress and none waiting, every cascade built where the eye has it, so only what moves is
     /// stamped as boxes, which a picture of the scene waits for (<c>field.wait</c>).
     /// </summary>
-    public bool Built => Whole && _job is null && Array.IndexOf(_dirty, true) < 0;
+    public bool Built => Whole && _job is null && Array.IndexOf(_dirty, true) < 0 && Array.TrueForAll(_regions, region => region is null);
 
     /// <summary>How many frames running the field has been <see cref="Built"/>, 0 while it is not.</summary>
     public int FramesBuilt { get; private set; }
 
-    // Starts or goes on with the dirty cascades' builds, the finest first, as many cascades a frame
-    // as the budget says and as many triangles as the triangle budget, a mesh at least, the still
-    // meshes within a cascade's band splatted nearest the eye first, and says which cascades were
-    // built whole this frame. A build the triangles leave unfinished goes on the frame after, its
-    // cascade keeping the place and the meshes it was last built with until the build ends, and the
-    // still meshes it has not splatted are stamped as boxes meanwhile, as any mesh that settled into
-    // a cascade not built since is.
+    // Starts or goes on with the builds of the dirty cascades and the changed regions of the built
+    // ones, the finest cascade first, as many whole cascades a frame as the budget says and as many
+    // triangles as the triangle budget, a mesh at least, the still meshes within a build's band
+    // splatted nearest the eye first, and says which cascades were built whole this frame. A build
+    // the triangles leave unfinished goes on the frame after, its cascade keeping the place and the
+    // meshes it was last built with until the build ends, and the still meshes it has not splatted
+    // are stamped as boxes meanwhile, as any mesh that settled into a cascade not built since is.
     private bool[] Splat(Vector3 eye)
     {
-        Splatted = 0;
+        (Splatted, Spent) = (0, 0);
         var rebuilt = new bool[Cascades];
         var (cascades, triangles) = (Budget, TriangleBudget);
         while (cascades > 0 && triangles > 0)
         {
-            // A finer cascade gone dirty comes first, as the cascades always come, and the coarser
-            // build in progress starts again after it, what changed within it kept for that build,
-            // but for a shift's, whose cascade has moved and holds the slab it brings in empty.
-            if (_job is { Cells: null } running && Array.IndexOf(_dirty, true) is >= 0 and var finer && finer < running.Cascade)
+            // A finer cascade gone dirty or changed comes first, as the cascades always come, and the
+            // coarser build in progress starts again after it, what changed within it kept for that
+            // build, as a region's build does where the eye has moved its cascade, but for a shift's,
+            // whose cascade has moved and holds the slab it brings in empty.
+            if (_job is { Shifting: false } running && (NextCascade() is >= 0 and var finer && finer < running.Cascade || running.Cells is not null && _dirty[running.Cascade]))
             {
-                var rc = running.Cascade;
-                _dirty[rc] = true;
-                _changed[rc] = _changed[rc] is { } kept && running.Changed is { } more ? kept.With(more) : _changed[rc] ?? running.Changed;
+                Shelve(running);
                 _job = null;
             }
             if (_job is null)
             {
-                var next = Array.IndexOf(_dirty, true);
+                var next = NextCascade();
                 if (next < 0) break;
-                var origin = OriginAround(next, eye);
-                var reach = CascadeBox(next, origin).Grown(Band * CellOf(next));
-                _job = ShiftOf(next, origin) ?? new Job { Cascade = next, Origin = origin, Reach = reach, Changed = _built[next] is null ? reach : _changed[next] };
-                _changed[next] = null;
-                Gather(_job, eye);
+                _job = Start(next, eye);
             }
             var job = _job;
             var c = job.Cascade;
@@ -135,16 +135,19 @@ internal sealed partial class SceneFieldPlan
                 job.Reach = CascadeBox(c, job.Origin).Grown(Band * CellOf(c));
                 Gather(job, eye);
             }
-            _dirty[c] = false;
+            if (job.Cells is null) _dirty[c] = false;
 
             var batch = new List<Instance>();
             while (job.Next < job.Left.Count)
             {
-                var cost = Cost(job.Left[job.Next].Instance, job);
+                var instance = job.Left[job.Next].Instance;
+                var cost = Cost(instance, job);
                 if (cost > triangles && (batch.Count > 0 || Splatted > 0)) break;
-                batch.Add(job.Left[job.Next++].Instance);
+                batch.Add(instance);
+                job.Next++;
                 triangles -= cost;
-                Splatted += cost;
+                Spent += cost;
+                Splatted += _triangles(instance.Vertices);
             }
             var last = job.Next == job.Left.Count;
             if (batch.Count == 0 && !last) break;
@@ -154,9 +157,10 @@ internal sealed partial class SceneFieldPlan
             // from this frame on and the field they read made the still field again.
             if (job.ShiftAxis >= 0) (_built[c], rebuilt[c], job.ShiftAxis) = (job.Origin, true, -1);
             job.Started = true;
-            cascades--;
+            if (job.Cells is null) cascades--;
             if (!last) break;
             if (job.Cells is null) (_built[c], _builtFrame[c], rebuilt[c]) = (job.Origin, _frame, true);
+            else if (!job.Shifting) _builtFrame[c] = Math.Max(_builtFrame[c], job.Gathered);
             _job = null;
         }
         return rebuilt;
@@ -171,7 +175,7 @@ internal sealed partial class SceneFieldPlan
         job.Left.Sort(static (a, b) => a.Distance.CompareTo(b.Distance));
         job.Triangles = 0;
         foreach (var (_, instance) in job.Left) job.Triangles += _triangles(instance.Vertices);
-        (job.Next, job.Started, job.Restart) = (0, false, false);
+        (job.Next, job.Started, job.Restart, job.Gathered) = (0, false, false, _frame);
     }
 
     // How far a mesh's bounds' middle is from the eye, squared, which orders the meshes a build splats.
@@ -179,12 +183,20 @@ internal sealed partial class SceneFieldPlan
 
     // A still mesh that came or went within the reach of the build in progress, which takes it in.
     // One that came is splatted with the rest, in its place among those left by its distance, one
-    // that went before it was splatted is dropped, and one that went after starts the build again.
-    // Says the cascade of the build that took it in, or -1 where none did.
+    // that went before it was splatted is dropped, and one that went after starts the build again,
+    // as one does whose cells, a region's, do not hold the cells the mesh's band comes within, its
+    // cells grown to hold them. Says the cascade of the build that took it in, or -1 where none did.
     private int Follow(Instance instance, Box bounds, bool came)
     {
         if (_job is not { } job || !bounds.Overlaps(job.Reach)) return -1;
         job.Changed = job.Changed is { } box ? box.With(bounds) : bounds;
+        if (job.Cells is { } cells && CellsAround(job.Cascade, job.Origin, bounds) is var around && !cells.Holds(around))
+        {
+            job.Cells = cells.With(around);
+            job.Reach = ReachOf(job.Cascade, job.Origin, job.Cells.Value);
+            job.Restart = true;
+            return job.Cascade;
+        }
         var at = job.Left.FindIndex(entry => Keys.Shared.Equals(entry.Instance, instance));
         if (came)
         {

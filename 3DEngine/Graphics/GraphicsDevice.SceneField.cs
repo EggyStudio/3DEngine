@@ -49,10 +49,11 @@ internal sealed unsafe partial class GraphicsDevice
                 VkDescriptorType.StorageImage, VkDescriptorType.StorageBuffer, VkDescriptorType.StorageBuffer, VkDescriptorType.StorageImage,
                 VkDescriptorType.StorageImage, VkDescriptorType.StorageBuffer, VkDescriptorType.StorageImage, VkDescriptorType.StorageBuffer,
                 VkDescriptorType.StorageImage, VkDescriptorType.StorageImage, VkDescriptorType.StorageBuffer, VkDescriptorType.StorageImage,
-                VkDescriptorType.StorageBuffer], 64);
+                VkDescriptorType.StorageBuffer, VkDescriptorType.StorageImage], 64);
             _fieldStages[StampStage] = MakeComputeStage(spirv[2], [VkDescriptorType.StorageBuffer, VkDescriptorType.StorageBuffer,
                 VkDescriptorType.StorageImage, VkDescriptorType.StorageImage, VkDescriptorType.UniformBuffer, VkDescriptorType.StorageImage,
-                VkDescriptorType.StorageImage, VkDescriptorType.StorageImage, VkDescriptorType.StorageImage], 16);
+                VkDescriptorType.StorageImage, VkDescriptorType.StorageImage, VkDescriptorType.StorageImage, VkDescriptorType.StorageImage,
+                VkDescriptorType.StorageImage], 16);
             return _fieldStages;
         }
     }
@@ -86,6 +87,7 @@ internal sealed unsafe partial class GraphicsDevice
         var (field, fieldMemory, fieldView) = FieldImage(size, depth, VkFormat.R16G16B16A16Sfloat);
         var (albedoImage, albedoMemory, albedoView) = FieldImage(size, depth, VkFormat.R8G8B8A8Unorm);
         var (glowImage, glowMemory, glowView) = FieldImage(size, depth, VkFormat.R16G16B16A16Sfloat);
+        var (stillGlow, stillGlowMemory, stillGlowView) = FieldImage(size, depth, VkFormat.R16G16B16A16Sfloat);
         var (facesImage, facesMemory, facesView) = FieldImage(size, depth, VkFormat.R8Uint);
         var (stillFaces, stillFacesMemory, stillFacesView) = FieldImage(size, depth, VkFormat.R8Uint);
         // A second plane where two double-sided faces lie as near a cell, as where two walls cross.
@@ -103,7 +105,7 @@ internal sealed unsafe partial class GraphicsDevice
         var cmd = BeginSingleTimeCommands();
         var whole = ColorLevels(0, 1);
         VkImage[] read = [field, albedoImage, glowImage, facesImage, secondImage];
-        VkImage[] kept = [still, stillPaint, stillFaces];
+        VkImage[] kept = [still, stillPaint, stillFaces, stillGlow];
         PipelineBarrier(cmd, [
             .. kept.Select(image => ImageBarrier(image, ColorLevels(0, 1), VkImageLayout.Undefined, VkImageLayout.General, VkPipelineStageFlags2.None,
                 VkAccessFlags2.None, VkPipelineStageFlags2.Transfer, VkAccessFlags2.TransferWrite)),
@@ -118,6 +120,7 @@ internal sealed unsafe partial class GraphicsDevice
         _deviceApi.vkCmdClearColorImage(cmd, albedoImage, VkImageLayout.General, &none, 1, &whole);
         _deviceApi.vkCmdClearColorImage(cmd, stillPaint, VkImageLayout.General, &none, 1, &whole);
         _deviceApi.vkCmdClearColorImage(cmd, glowImage, VkImageLayout.General, &none, 1, &whole);
+        _deviceApi.vkCmdClearColorImage(cmd, stillGlow, VkImageLayout.General, &none, 1, &whole);
         _deviceApi.vkCmdClearColorImage(cmd, secondImage, VkImageLayout.General, &none, 1, &whole);
         var noFace = new VkClearColorValue(0u, 0u, 0u, 0u);
         _deviceApi.vkCmdClearColorImage(cmd, facesImage, VkImageLayout.General, &noFace, 1, &whole);
@@ -189,12 +192,19 @@ internal sealed unsafe partial class GraphicsDevice
                 _deviceApi.vkDestroyImage(stillPaint);
                 DeviceObjects.Gone(DeviceObjects.Kind.Memory);
                 _deviceApi.vkFreeMemory(stillPaintMemory);
+                _deviceApi.vkDestroyImageView(stillGlowView);
+                DeviceObjects.Gone(DeviceObjects.Kind.Image);
+                _deviceApi.vkDestroyImage(stillGlow);
+                DeviceObjects.Gone(DeviceObjects.Kind.Memory);
+                _deviceApi.vkFreeMemory(stillGlowMemory);
             }, albedo, glow, albedoImage, new VulkanImageView(this, albedoOwner, albedoView), glowImage, new VulkanImageView(this, glowOwner, glowView), behind,
             stillPaint, stillPaintView, facesImage, new VulkanImageView(this, facesOwner, facesView), stillFaces, stillFacesView)
         {
             Second = second,
             SecondImage = secondImage,
             SecondView = new VulkanImageView(this, secondOwner, secondView),
+            StillGlow = stillGlow,
+            StillGlowView = stillGlowView,
         };
     }
 
@@ -447,6 +457,7 @@ internal sealed unsafe partial class GraphicsDevice
         run.Buffer(resolve, 12, VkDescriptorType.StorageBuffer, field.Second);
         run.Image(resolve, 13, ((VulkanImageView)field.SecondView).View);
         run.Buffer(resolve, 14, VkDescriptorType.StorageBuffer, field.KeptCells!);
+        run.Image(resolve, 15, field.StillGlowView);
         var (from, to) = cells is { } c
             ? (new Vector4(c.X0, c.Y0, c.Z0, 0), new Vector4(c.X1, c.Y1, c.Z1, 0))
             : (Vector4.Zero, new Vector4(size - 1, size - 1, size - 1, 0));
@@ -518,7 +529,7 @@ internal sealed unsafe partial class GraphicsDevice
     /// Records, between <see cref="RecordSceneFieldOpen"/> and <see cref="RecordSceneFieldClose"/>
     /// and after the frame's info is written, the stamping of <paramref name="shapeCount"/> shapes
     /// into <paramref name="brickCount"/> bricks of the field the passes read, each brick's cells
-    /// the least of the still field's and the shapes' and painted the color of the nearer.
+    /// the least of the still field's and the shapes' and painted the color and the emission of the nearer.
     /// </summary>
     /// <param name="commandBuffer">The frame's commands.</param>
     /// <param name="field">The field.</param>
@@ -540,6 +551,8 @@ internal sealed unsafe partial class GraphicsDevice
         run.Image(set, 6, ((VulkanImageView)field.AlbedoView).View);
         run.Image(set, 7, field.StillFacesView);
         run.Image(set, 8, ((VulkanImageView)field.FacesView).View);
+        run.Image(set, 9, field.StillGlowView);
+        run.Image(set, 10, ((VulkanImageView)field.GlowView).View);
         ReadOnlySpan<uint> counts = [(uint)brickCount, (uint)shapeCount, 0, 0];
         run.Dispatch(StampStage, set, MemoryMarshal.AsBytes(counts), (uint)brickCount, 1, 1);
         MemoryBarrier(run.Commands, VkPipelineStageFlags2.ComputeShader, VkAccessFlags2.ShaderWrite,

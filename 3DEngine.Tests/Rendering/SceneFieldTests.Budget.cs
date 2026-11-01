@@ -23,7 +23,7 @@ public sealed partial class SceneFieldTests
         [.. Enumerable.Range(0, Sections).Select(i => (new SceneFieldPlan.Instance(1, Section, Matrix4x4.CreateTranslation(SectionAt(i)), false), false))];
 
     // Runs a plan until it has settled the sections and built every cascade with them, and answers
-    // each frame's triangles splatted from the frame they settled in, and the parts of each
+    // the triangle budget each frame spent from the frame they settled in, and the parts of each
     // cascade's build in order.
     private static (List<int> Frames, Dictionary<int, List<SceneFieldPlan.Build>> Parts) BuildSections(int triangleBudget)
     {
@@ -35,7 +35,7 @@ public sealed partial class SceneFieldTests
         {
             plan.Update(eye, drawn);
             if (frame < SceneFieldPlan.SettleFrames) continue;
-            frames.Add(plan.Splatted);
+            frames.Add(plan.Spent);
             foreach (var build in plan.Builds) (parts.TryGetValue(build.Cascade, out var list) ? list : parts[build.Cascade] = []).Add(build);
             if (plan.Builds.Count == 0 && plan.Waiting == 0) break;
         }
@@ -121,13 +121,15 @@ public sealed partial class SceneFieldTests
         plan.Update(eye, [.. row, newcomer]);
         plan.Builds.Should().BeEmpty("the build that took the newcomer in leaves nothing for after");
 
-        // The farthest leaves, and the cascade is built again; its build's first part splats the
-        // nearest, which then leaves too, and the build starts again without it.
+        // The farthest leaves, and the cells around where it stood are built again from the meshes
+        // near them alone, the nearest the eye first. The first of them the build splats then leaves
+        // too, outside those cells, and the build grows to hold its cells and starts again without it.
         var left = row.Take(9).Append(newcomer).ToList();
         plan.Update(eye, left);
-        plan.Builds.Should().ContainSingle().Which.Should().Match<SceneFieldPlan.Build>(b => b.First && !b.Last);
-        plan.Builds[0].Instances[0].World.Translation.Should().Be(new Vector3(0, 0, 4));
-        left.RemoveAt(0);
+        plan.Builds.Should().ContainSingle().Which.Should().Match<SceneFieldPlan.Build>(b => b.First && !b.Last && b.Cells != null);
+        var splatted = plan.Builds[0].Instances[0].World.Translation;
+        splatted.Z.Should().BeLessThan(0, "the meshes near the one that left alone, the nearest the eye of them first");
+        left.RemoveAll(entry => entry.Item1.World.Translation == splatted);
         plan.Update(eye, left);
         plan.Builds.Should().ContainSingle().Which.First.Should().BeTrue("a mesh the build splatted left, so it starts again");
         var again = plan.Builds.SelectMany(b => b.Instances).Select(i => i.World.Translation).ToList();
@@ -136,7 +138,7 @@ public sealed partial class SceneFieldTests
             plan.Update(eye, left);
             again.AddRange(plan.Builds.SelectMany(b => b.Instances).Select(i => i.World.Translation));
         }
-        again.Should().BeEquivalentTo(left.Select(entry => entry.Item1.World.Translation), "the build holds the meshes still there and none that left");
+        again.Should().NotContain(splatted, "the build holds none that left").And.OnlyContain(at => left.Any(entry => entry.Item1.World.Translation == at));
     }
 
     [Fact]

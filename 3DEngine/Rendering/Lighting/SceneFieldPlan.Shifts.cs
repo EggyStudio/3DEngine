@@ -15,6 +15,10 @@ internal sealed partial class SceneFieldPlan
 
         /// <summary>How many cells.</summary>
         public int Count => (X1 - X0 + 1) * (Y1 - Y0 + 1) * (Z1 - Z0 + 1);
+
+        /// <summary>The cells around these and <paramref name="other"/>.</summary>
+        public CellBox With(CellBox other) => new(Math.Min(X0, other.X0), Math.Min(Y0, other.Y0), Math.Min(Z0, other.Z0),
+            Math.Max(X1, other.X1), Math.Max(Y1, other.Y1), Math.Max(Z1, other.Z1));
     }
 
     // Whether Rebuild marked every cascade to be built whole this frame.
@@ -45,7 +49,7 @@ internal sealed partial class SceneFieldPlan
             1 => new CellBox(0, from, 0, top, to, top),
             _ => new CellBox(0, 0, from, top, top, to),
         };
-        return new Job { Cascade = cascade, Origin = origin, Reach = ReachOf(cascade, origin, slab), Cells = slab, ShiftAxis = axis, ShiftCells = by };
+        return new Job { Cascade = cascade, Origin = origin, Reach = ReachOf(cascade, origin, slab), Cells = slab, Shifting = true, ShiftAxis = axis, ShiftCells = by };
     }
 
     // Where the still meshes a build of cells splats lie, within the band of its cells and of the

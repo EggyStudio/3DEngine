@@ -12,7 +12,7 @@ internal sealed unsafe partial class GraphicsDevice
     /// Records, between <see cref="RecordSceneFieldOpen"/> and <see cref="RecordSceneFieldClose"/>,
     /// cascade <paramref name="cascade"/> moved <paramref name="cells"/> of its cells along
     /// <paramref name="axis"/>, 0 for x, 1 for y and 2 for z, as a cascade whose corner went that
-    /// far keeps the cells it held. Its still distances, colors and faces, its emission, its second
+    /// far keeps the cells it held. Its still distances, colors, faces and emission, its second
     /// planes and its kept words move, and the field the passes read is made the still field again,
     /// the shapes stamped in it gone until the frame stamps them again.
     /// </summary>
@@ -46,7 +46,7 @@ internal sealed unsafe partial class GraphicsDevice
             VkAccessFlags2.ShaderWrite | VkAccessFlags2.TransferWrite | VkAccessFlags2.TransferRead,
             VkPipelineStageFlags2.Transfer, VkAccessFlags2.TransferRead | VkAccessFlags2.TransferWrite);
         Settle();
-        foreach (var image in new[] { field.Still, field.StillPaint, field.StillFaces, field.GlowImage, field.SecondImage })
+        foreach (var image in new[] { field.Still, field.StillPaint, field.StillFaces, field.StillGlow, field.SecondImage })
         {
             var outward = new VkBufferImageCopy { bufferOffset = 0, imageSubresource = layers, imageOffset = from, imageExtent = extent };
             _deviceApi.vkCmdCopyImageToBuffer(cmd, image, VkImageLayout.General, staging, 1, &outward);
@@ -78,7 +78,7 @@ internal sealed unsafe partial class GraphicsDevice
             Settle();
         }
 
-        // The field the passes read, its colors and faces, made the still ones again over the cascade.
+        // The field the passes read, its colors, faces and emission, made the still ones again over the cascade.
         var cascadeBox = new VkImageCopy
         {
             srcSubresource = layers,
@@ -90,6 +90,7 @@ internal sealed unsafe partial class GraphicsDevice
         _deviceApi.vkCmdCopyImage(cmd, field.Still, VkImageLayout.General, field.Field, VkImageLayout.General, 1, &cascadeBox);
         _deviceApi.vkCmdCopyImage(cmd, field.StillPaint, VkImageLayout.General, field.AlbedoImage, VkImageLayout.General, 1, &cascadeBox);
         _deviceApi.vkCmdCopyImage(cmd, field.StillFaces, VkImageLayout.General, field.FacesImage, VkImageLayout.General, 1, &cascadeBox);
+        _deviceApi.vkCmdCopyImage(cmd, field.StillGlow, VkImageLayout.General, field.GlowImage, VkImageLayout.General, 1, &cascadeBox);
         MemoryBarrier(cmd, VkPipelineStageFlags2.Transfer, VkAccessFlags2.TransferWrite | VkAccessFlags2.TransferRead,
             VkPipelineStageFlags2.ComputeShader | VkPipelineStageFlags2.Transfer, VkAccessFlags2.ShaderRead | VkAccessFlags2.ShaderWrite | VkAccessFlags2.TransferWrite);
     }
