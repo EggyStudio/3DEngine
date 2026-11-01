@@ -6,6 +6,15 @@ namespace Engine;
 /// </summary>
 internal static class SceneFieldCommands
 {
+    private static readonly ILogger Logger = Log.Category("Engine.SceneField");
+
+    /// <summary>
+    /// The frames the light is given once the field is built, before <c>field.wait</c> answers. The
+    /// screen's probes keep up to sixteen frames of their light, and the world's probes add a
+    /// bounce a frame from the light of the frame before.
+    /// </summary>
+    internal const int LightFrames = 60;
+
     [Command("field.show", "Draws a cascade of the scene's distance field over the window as the field holds the scene, or nothing with -1: field.show <cascade>")]
     internal static string Show(int cascade)
     {
@@ -216,7 +225,34 @@ internal static class SceneFieldCommands
         return off.Count == 0 ? "every part of global illumination is on" : $"{string.Join(", ", off)} left out";
     }
 
-    [Command("field.state", "Where each cascade of the scene's distance field lies, the far one named, the GPU memory the field takes, how many meshes are still in it, what this frame stamped, the triangles its builds splatted and those left waiting for later frames, and the most a frame splatted since this was last asked")]
+    [Command("field.wait", "Answers once the scene's distance field holds the scene as it stands, every cascade built where the eye has it and every mesh built in, and its light has run 60 frames on it, or once this many frames have run without it, 1,800 unless given, saying which, as a picture of the scene waits before it is taken: field.wait [frames]")]
+    internal static string Wait(int frames = 1800)
+    {
+        var world = ConsoleHost.World!;
+        var from = ConsoleHost.Time.FrameCount;
+        // A field is drawn from the frame global illumination or the field is turned on, so one not
+        // there two frames on is none.
+        ConsoleHost.Later(() =>
+        {
+            var waited = ConsoleHost.Time.FrameCount - from;
+            string Said(string what, bool warn = false)
+            {
+                if (warn) Logger.Warn(what);
+                else Logger.Info(what);
+                return what;
+            }
+            if (!world.TryGetResource<Renderer>(out var renderer) || renderer.RenderWorld.TryGet<SceneFieldRenderer>()?.Plan is not { } plan)
+                return waited >= 2 ? Said("no scene field is drawn, so nothing was waited for") : null;
+            if (plan.FramesBuilt >= LightFrames)
+                return Said($"waited {waited} frames for the scene field to be built and its light to run {LightFrames} frames on it");
+            if (waited >= (ulong)Math.Max(frames, 1))
+                return Said($"the scene field was still building after {waited} frames, {plan.Waiting} triangles waiting and {plan.Arriving} meshes arriving", warn: true);
+            return null;
+        }, (ulong)Math.Max(frames, 1) + 2);
+        return "waiting for the scene's distance field";
+    }
+
+    [Command("field.state", "Whether the scene's distance field is built and for how many frames, where each of its cascades lies, the far one named, the GPU memory the field takes, how many meshes are still in it, what this frame stamped, the triangles its builds splatted and those left waiting for later frames, and the most a frame splatted since this was last asked")]
     internal static string State()
     {
         if (!ConsoleHost.World!.TryGetResource<Renderer>(out var renderer)
@@ -228,7 +264,8 @@ internal static class SceneFieldCommands
             ? $"cascade {c}: {plan.CellOf(c)} a cell from {origin.X:0.##},{origin.Y:0.##},{origin.Z:0.##}{Far(c)}"
             : $"cascade {c}: not built{Far(c)}");
         var bytes = GpuSceneField.MemoryBytes(plan.Cascades, SceneFieldPlan.Resolution);
-        return string.Join("\n", cascades.Append($"{bytes / 1024.0 / 1024.0:0.0} MB of the GPU's memory")
+        var built = plan.Built ? $"the field is built, for {plan.FramesBuilt} frames running" : "the field is building";
+        return string.Join("\n", cascades.Prepend(built).Append($"{bytes / 1024.0 / 1024.0:0.0} MB of the GPU's memory")
             .Append($"{plan.StillCount} still, {plan.Shapes.Count} stamped into {plan.Bricks.Count} bricks")
             .Append($"{plan.Splatted} triangles splatted of a budget of {plan.TriangleBudget}, {plan.Waiting} waiting, "
                 + $"at most {plan.TakeMostSplatted()} a frame since this was last asked"));

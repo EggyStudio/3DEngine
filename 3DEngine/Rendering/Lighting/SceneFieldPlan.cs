@@ -540,6 +540,7 @@ internal sealed partial class SceneFieldPlan
                 _movedIn.Remove(instance);
             }
         }
+        FramesBuilt = Built ? FramesBuilt + 1 : 0;
 
         // The nearest meshes' shapes, a box for each part of each, posed, to as many as a frame
         // stamps, and the bricks they come within the band of in each built cascade.

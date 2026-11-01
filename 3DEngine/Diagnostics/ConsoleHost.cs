@@ -29,6 +29,8 @@ internal static class ConsoleHost
 
     internal static Func<string?>? Pending { get; private set; }
 
+    internal static ulong PendingFrames { get; private set; } = LaterFrames;
+
     /// <summary>The lent world's entities.</summary>
     /// <exception cref="InvalidOperationException">No command is running.</exception>
     public static EcsWorld Ecs => Lent.Resource<EcsWorld>();
@@ -46,8 +48,15 @@ internal static class ConsoleHost
     /// <summary>Holds the command's answer until <paramref name="frame"/> has started, so "act, then look" is one call.</summary>
     public static void Hold(ulong frame) => Held = frame;
 
-    /// <summary>Answers later, <paramref name="poll"/> asked once a frame until it returns an answer.</summary>
-    public static void Later(Func<string?> poll) => Pending = poll ?? throw new ArgumentNullException(nameof(poll));
+    /// <summary>
+    /// Answers later, <paramref name="poll"/> asked once a frame until it returns an answer, or
+    /// until <paramref name="frames"/> have run, past which the command times out.
+    /// </summary>
+    public static void Later(Func<string?> poll, ulong frames = LaterFrames)
+    {
+        Pending = poll ?? throw new ArgumentNullException(nameof(poll));
+        PendingFrames = frames;
+    }
 
     /// <summary>
     /// Lends <paramref name="world"/>, and the app it belongs to, to the commands run until the scope
@@ -74,6 +83,7 @@ internal static class ConsoleHost
             Failure = null;
             Held = null;
             Pending = null;
+            PendingFrames = LaterFrames;
         }
 
         /// <inheritdoc />

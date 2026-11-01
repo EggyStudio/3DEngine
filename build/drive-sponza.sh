@@ -11,8 +11,9 @@
 # readings of its light take, and <folder>/sponza-<view>-<hour>-metered.png, metered view by view as
 # the camera of the scene its views are matched against meters and as the example starts, for the
 # look beside that scene's pictures, and <folder>/times.tsv holds each fixed one's frame in
-# milliseconds. A view is held 90 frames before it is captured, so the screen's probes and their
-# history settle on it after the frame that builds the field around it, and 60 more metered.
+# milliseconds. A view is held until the field is built around it and its light has run 60 frames
+# on it (field.wait), so the screen's probes and their history settle on it too, and 60 more
+# metered.
 set -euo pipefail
 
 mkdir -p "$1"
@@ -32,7 +33,7 @@ for hour in 12 16; do
   for view in $views; do
     ./e3d command sponza.view "$view" --session "$pid" --quiet
     ./e3d command sponza.metered off --session "$pid" --quiet
-    ./e3d command frames.wait 90 --session "$pid" --quiet --timeout 600
+    ./e3d command field.wait 1800 --session "$pid" --timeout 1200
     ./e3d shot "$out/sponza-$view-$hour.png" --session "$pid" --quiet
     frame=$(./e3d command profile --session "$pid" | awk '$1 == "frame" {print $2}')
     printf '%s\t%s\t%s\n' "$view" "$hour" "$frame" >> "$out/times.tsv"

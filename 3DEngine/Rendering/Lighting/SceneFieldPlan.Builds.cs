@@ -70,6 +70,16 @@ internal sealed partial class SceneFieldPlan
     /// </remarks>
     public bool Whole => Arriving == 0 && _pending.Count == 0 && Array.TrueForAll(_built, origin => origin is not null);
 
+    /// <summary>
+    /// Whether the field holds the scene as it stands, <see cref="Whole"/> with no build in
+    /// progress and none waiting, every cascade built where the eye has it, so only what moves is
+    /// stamped as boxes, which a picture of the scene waits for (<c>field.wait</c>).
+    /// </summary>
+    public bool Built => Whole && _job is null && Array.IndexOf(_dirty, true) < 0;
+
+    /// <summary>How many frames running the field has been <see cref="Built"/>, 0 while it is not.</summary>
+    public int FramesBuilt { get; private set; }
+
     // Starts or goes on with the dirty cascades' builds, the finest first, as many cascades a frame
     // as the budget says and as many triangles as the triangle budget, a mesh at least, the still
     // meshes within a cascade's band splatted nearest the eye first, and says which cascades were

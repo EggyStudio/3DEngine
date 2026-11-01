@@ -27,6 +27,9 @@ internal sealed class CliRequest(string operation, string? line, string? id, str
     /// <summary>Asked each frame for a request answering later, until it returns an answer.</summary>
     public Func<string?>? Poll { get; set; }
 
+    /// <summary>The frames a request answering later is given before it times out.</summary>
+    public ulong Allowed { get; set; } = ConsoleHost.LaterFrames;
+
     public void Complete(string envelope) => _answer.TrySetResult(envelope);
 }
 
@@ -79,7 +82,7 @@ internal sealed class CliQueue
                 else if (frame >= request.Release)
                 {
                     request.Complete(CliJson.Fail(request.Operation, "TIMEOUT",
-                        $"'{request.Holding}' had no answer after {ConsoleHost.LaterFrames} frames.", request.Id));
+                        $"'{request.Holding}' had no answer after {request.Allowed} frames.", request.Id));
                     _held.RemoveAt(index);
                 }
                 continue;

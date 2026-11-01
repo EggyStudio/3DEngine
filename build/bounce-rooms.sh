@@ -33,8 +33,10 @@ probes=("0 2.5 0" "40 1.5 0" "80 1.25 0" "120 1.5 0" "162 1 -5" "200 1.5 0" "240
 for view in 1 2 3 4 5 6 7 8; do
   ./e3d command input.key "${keys[$((view - 1))]}" 2 --quiet
   ./e3d eval "SetGlobalIllumination(GlobalIllumination.High)" > /dev/null
-  # Long enough for the field to settle and the screen's probes' history to fill.
+  # Long enough for the field to be built around the view and its light to settle, and the
+  # screen's probes' history to fill.
   ./e3d command frames.wait 120 --quiet
+  ./e3d command field.wait 1800 --timeout 1200
   ./e3d shot "$folder/view-$view.png" > /dev/null
   for b in $bounces; do
     if [ "$b" = all ]; then ./e3d command gi.reference "$folder/view-$view-reference-$b.png" "$samples"
@@ -43,6 +45,7 @@ for view in 1 2 3 4 5 6 7 8; do
   for quality in $qualities; do
     ./e3d eval "SetGlobalIllumination(GlobalIllumination.$quality)" > /dev/null
     ./e3d command frames.wait 120 --quiet
+    ./e3d command field.wait 1800 --timeout 1200
     for b in $bounces; do
       ./e3d command gi.compare "$folder/view-$view-reference-$b.png" > "$folder/view-$view-$quality-$b.txt"
     done

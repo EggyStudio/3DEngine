@@ -74,12 +74,14 @@ internal static class CliDispatch
         CliError? failure;
         ulong? held;
         Func<string?>? pending;
+        ulong pendingFrames;
         using (ConsoleHost.Lend(world, app, request.Caller))
         {
             answer = ConsoleCommands.Run(line);
             failure = ConsoleHost.Failure;
             held = ConsoleHost.Held;
             pending = ConsoleHost.Pending;
+            pendingFrames = ConsoleHost.PendingFrames;
         }
 
         var frame = Frame(world);
@@ -91,7 +93,8 @@ internal static class CliDispatch
             request.Holding = name;
             request.Held = answer;
             request.Poll = pending;
-            request.Release = frame + ConsoleHost.LaterFrames;
+            request.Allowed = pendingFrames;
+            request.Release = frame + pendingFrames;
             return null;
         }
 

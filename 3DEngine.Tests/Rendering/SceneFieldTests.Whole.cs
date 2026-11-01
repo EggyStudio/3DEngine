@@ -5,7 +5,8 @@ namespace Engine.Tests.Rendering;
 
 // Whether the field holds every mesh in reach, which the probes' carried rays bring the sky by, not
 // while meshes arrive or wait to be built in, and still while a move of the eye builds the cascades
-// again over frames, since the passes read each as it was last built.
+// again over frames, since the passes read each as it was last built, and whether it holds the
+// scene as it stands, which a picture of the scene waits for.
 public sealed partial class SceneFieldTests
 {
     [Fact]
@@ -38,10 +39,18 @@ public sealed partial class SceneFieldTests
         for (int moved = 0; moved < 400 && (moved == 0 || plan.Waiting > 0 || plan.Builds.Count > 0); moved++)
         {
             plan.Update(eye, drawn);
-            if (plan.Waiting > 0) again++;
+            if (plan.Waiting > 0)
+            {
+                again++;
+                plan.Built.Should().BeFalse("a build runs, so the field does not hold the scene where the eye has it");
+                plan.FramesBuilt.Should().Be(0);
+            }
             plan.Whole.Should().BeTrue($"the cascades built again around the eye hold their sections as last built, {moved} frames after it moved");
         }
         again.Should().BeGreaterThan(1, "the move's builds went on over frames");
+        plan.Update(eye, drawn);
+        plan.Built.Should().BeTrue("the cascades are built around the eye with none waiting");
+        plan.FramesBuilt.Should().BeGreaterThanOrEqualTo(1);
 
         // A section that comes is not held until it is built in.
         drawn.Add((new SceneFieldPlan.Instance(1, Section, Matrix4x4.CreateTranslation(34, 0, 6), false), false));

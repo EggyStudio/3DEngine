@@ -146,6 +146,10 @@ case "$example" in
 esac
 # A device drawing on the CPU, as CI's does, can take minutes over the slowest examples' frames.
 ./e3d command frames.wait "$frames" --quiet --timeout 600
+# An example drawing a scene field builds it over frames, as Sponza's does, and shows its light only
+# once it is built, so the picture waits for it and for its light to settle, at most 1,800 frames,
+# and says which it waited for. An example with no field answers at once.
+./e3d command field.wait 1800 --timeout 1200
 
 case "$out" in
   *.webp) shot="${out%.webp}.png" ;;
