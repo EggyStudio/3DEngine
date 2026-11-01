@@ -335,6 +335,37 @@ if (IsKeyPressed(Key.Space)) SetLightCastsShadows(lamp, shadows = !shadows);
 A light's color times its intensity is how bright a white surface facing it looks, so a sun of
 intensity 1 lights white as white, and a lamp is brighter near it and dimmer away.
 
+### Lights in physical units
+
+A light may be given in the units a photographer or a lighting plan uses instead, a sun in lux, a
+lamp in lumens or candelas, and the day sky's sun and sky in lux, all seen through a camera set as
+one is, by its ISO, its shutter's time and its aperture:
+
+```csharp
+var sun = CreateDirectionalLight(new Vector3(-0.4f, -1, -0.3f), ColorFromTemperature(5600), castsShadows: true);
+SetLightIlluminance(sun, 100_000);
+var bulb = CreatePointLight(new Vector3(0, 2, 0), ColorFromTemperature(2700));
+SetLightLuminousFlux(bulb, 800);
+SetCameraExposure(100, 1 / 125f, 16);
+```
+
+| Call | Takes |
+|---|---|
+| `SetLightIlluminance(light, lux)` | A sun's lux on a surface facing it, about 100,000 at noon |
+| `SetLightLuminousFlux(light, lumens)` | A lamp's lumens in all, over its sphere or its spot's cone, about 800 for a 60 watt bulb |
+| `SetLightLuminousIntensity(light, candela)` | A lamp's candelas along its axis |
+| `SetSkyDay(new SkyDay { SunIlluminance, SkyIlluminance })` | The day sky's sun's lux and its sky's on a level floor at noon, a clear sky giving 15,000 to 25,000 |
+| `SetCameraExposure(iso, shutterSeconds, aperture)` | The camera they are seen through, EV 15, a sunny day's, until set |
+| `ColorFromTemperature(kelvin)` | A light's color from its temperature, 2,700 a lamp's warm white and 5,600 the sun's at midday |
+
+The camera's exposure value at ISO 100 is log2 of the f-number squared over the shutter's time,
+less log2 of the ISO over 100, and a white surface reads 1 at 1.2 times 2 to that many candelas a
+square meter, so a sun of 97,050 lux seen at ISO 200, 1/200 s and f/16, EV 14.64, lights white as
+white. The color gives the light its hue alone. A light given a plain intensity, by its creation or
+by `SetLightColor`, is not seen through the camera, so plain lights and `SetExposure` keep their
+meaning, and `SetExposure` and `SetAutoExposure` multiply what the camera gives, auto exposure
+between 1/8 and 8 keeping it within three stops. `scenes_sponza` lights Intel's Sponza so.
+
 ## Shadows
 
 A light made with `castsShadows: true`, or turned on later with `SetLightCastsShadows`, darkens what

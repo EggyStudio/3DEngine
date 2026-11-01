@@ -731,6 +731,7 @@ static class Engine.E3D
   static Color ColorContrast(Color color, float contrast)
   static Color ColorFromHSV(float hue, float saturation, float value)
   static Color ColorFromNormalized(Vector4 normalized)
+  static Color ColorFromTemperature(float kelvin)
   static Color ColorLerp(Color color1, Color color2, float factor)
   static Color ColorTint(Color color, Color tint)
   static Color Fade(Color color, float alpha)
@@ -1054,6 +1055,7 @@ static class Engine.E3D
   static byte[]? LoadFileData(string fileName)
   static double GetProfileAverage(string name)
   static double GetTime()
+  static float GetCameraEv100()
   static float GetExposure()
   static float GetFrameTime()
   static float GetGamepadAxisMovement(int gamepad, GamepadAxis axis)
@@ -1448,6 +1450,7 @@ static class Engine.E3D
   static void SetAutomationEventBaseFrame(int frame)
   static void SetAutomationEventList(AutomationEventList list)
   static void SetBloom(float intensity, float threshold = 1f)
+  static void SetCameraExposure(float iso, float shutterSeconds, float aperture)
   static void SetClipboardText(string text)
   static void SetColorGrading(float contrast, float saturation, Color tint)
   static void SetConfigFlags(ConfigFlags flags)
@@ -1471,6 +1474,9 @@ static class Engine.E3D
   static void SetLightCastsShadows(LightHandle light, bool castsShadows)
   static void SetLightColor(LightHandle light, Color color, float intensity = 1f)
   static void SetLightDirection(LightHandle light, Vector3 direction)
+  static void SetLightIlluminance(LightHandle light, float lux)
+  static void SetLightLuminousFlux(LightHandle light, float lumens)
+  static void SetLightLuminousIntensity(LightHandle light, float candela)
   static void SetLightPosition(LightHandle light, Vector3 position)
   static void SetMasterVolume(float volume)
   static void SetMaterialTexture(ref ModelMaterial material, MaterialMapIndex mapType, Texture2D texture)
@@ -3490,10 +3496,13 @@ struct Engine.ShadowOnly
   ShadowOnly(bool value)
   bool Value
 readonly struct Engine.SkyDay : IEquatable<SkyDay>
+  Color SunColor { get; init; }
   LightHandle Light { get; init; }
   SkyDay()
   bool Equals(SkyDay other)
   float Minutes { get; init; }
+  float SkyIlluminance { get; init; }
+  float SunIlluminance { get; init; }
   float Tilt { get; init; }
   override bool Equals(object obj)
   override int GetHashCode()

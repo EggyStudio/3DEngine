@@ -44,3 +44,6 @@
 2026-10-31-item-153-balcony-15.webp | Intel's Sponza in scenes_sponza from the first floor's gallery at the lion's end looking down the atrium to the door's end at 15:00 at High at 800 by 426, with AgX and an exposure of 3.
 2026-10-31-item-153-door-15.webp | Intel's Sponza in scenes_sponza looking down on the main door under the vault inside it at 15:00 at High at 800 by 484, with AgX and an exposure of 3.
 2026-10-31-item-153-lookup-15.webp | Intel's Sponza in scenes_sponza looking up from the atrium's floor at the lion's end at 15:00 at High at 600 by 571, with AgX and an exposure of 3.
+2026-11-01-item-154-balcony.webp | Intel's Sponza in scenes_sponza from the first floor's gallery at 15:00 at High at 800 by 426, a sun of 97,050 lux at 5,633 K, a sky of 20,000 lux and a camera at ISO 200, 1/200 s and f/16 under AgX.
+2026-11-01-item-154-door.webp | Intel's Sponza in scenes_sponza down on the main door under the vault at 15:00 at High at 800 by 484, in the same physical units.
+2026-11-01-item-154-lookup.webp | Intel's Sponza in scenes_sponza up from the atrium's floor at the lion's end at 15:00 at High at 600 by 571, in the same physical units.

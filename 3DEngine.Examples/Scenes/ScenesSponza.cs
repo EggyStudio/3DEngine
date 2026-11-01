@@ -103,14 +103,16 @@ public static class ScenesSponza
         // atrium's floor, 5.6 units wide, past the shadow of its walls and eaves 17.6 high, where 10
         // leaves the floor in it.
         var hour = 12f;
-        SetSkyDay(new SkyDay { Minutes = 0, Tilt = 6 });
+        // The sun, the sky and the camera in physical units at the values of the scene the views
+        // are matched against, a sun of 97,050 lux at 5,633 K, a clear sky's 20,000 lux on a level
+        // floor, and a camera at ISO 200, 1/200 s and f/16, EV 14.64, under AgX's curve, so the
+        // stone the sun lights reads as there and the light in the shade shows how far the bounce
+        // falls short of it.
+        SetSkyDay(new SkyDay { Minutes = 0, Tilt = 6, SunIlluminance = 97050, SkyIlluminance = 20000, SunColor = ColorFromTemperature(5633) });
         SetSkyTime(hour);
         SetShadowDistance(40);
-        // AgX's curve and an exposure of three, which puts the noon sun's light, 1.08 in the day
-        // sky's units, where a camera at 14.6 EV puts a sun of 97,050 lux, so the sun and the sky
-        // read at the ratio the day sky gives them rather than as the frame's mean would set them.
+        SetCameraExposure(200, 1 / 200f, 16);
         SetTonemap(Tonemap.AgX);
-        SetExposure(3);
         var sponza = LoadModel(file);
         // A black box outside the main door, which stands a little apart from its frame, so the
         // sky shows through no gap around it, as the scene the views are matched against holds.

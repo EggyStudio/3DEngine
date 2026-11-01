@@ -1296,6 +1296,14 @@ blocks draws the sections that cast into the view and none behind it.
 
 Review: taken as 3DEngine item 143 on 2026-10-30, the casters culled to each cascade's slice swept toward the sun, behind the cascades of Decision 75.
 
+Read again in the game on 6.0.14 on 2026-11-01, Debug, offscreen at 1280 by 720, on tuned's
+power-saving profile with the processor's energy preference at power, the sections drawn in groups
+of two by two since the game's item 143 and the shadows reaching 128 blocks. Over seed 1's spawn at
+12 columns the three cascades drew 542 and 539 groups in 0.90 and 0.85 ms of the CPU and 0.45 of the
+GPU, where 6.0.11 drew 551 in 0.94 and 2.61 in the same hour, and at 16 columns they took 0.45 and
+0.47 ms of the GPU where 2.60 (`./e3d command profile`), the meshes' buffers in the GPU's own memory.
+The cascades' casters cost the GPU under half a millisecond at either distance.
+
 ### 2026-10-30, the voxel game in `Voxel-Sandbox`, a mesh over shader buffers takes its positions as three floats, where packed ones take a third
 
 Read for the game's item 143. A section's mesh is the engine's mesh over shader buffers, its
@@ -1400,3 +1408,7 @@ within 11 of 255 until 13 s, so no frame waits for the compile.
 Review: read by the game on 6.0.11 at `8efd1d0` on 2026-10-31, the first water's frames 23.7 s to
 1.3 with both caches cold and 1.0 warm; the entry is done, as is the recording entry of 2026-10-26,
 the four passes' main thread at 16 columns 7.6 and 7.8 ms to 3.0 and 3.4.
+
+Review: read by the game on 6.0.14 at `23ba89e` on 2026-11-01, the GPU's passes at 16 columns 22.8
+ms to 13.6 with the shadows 2.6 to 0.45 and the depth pass 3.1 to 0.19, the engine's item 151; the
+cascades' entry of 2026-10-30 is answered by it.

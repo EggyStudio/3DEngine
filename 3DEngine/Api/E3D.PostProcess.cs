@@ -45,6 +45,43 @@ public static partial class E3D
     public static float GetExposure() => Effects.Exposure;
 
     /// <summary>
+    /// Sets the camera the lights and the sky given in physical units are seen through, by its
+    /// sensor's <paramref name="iso"/>, its shutter's time in seconds and its aperture's f-number,
+    /// as a photographer's camera is set, ISO 100 at 1/125 s and f/16 for a sunny day.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// The camera's exposure value at ISO 100 is log2 of the f-number squared over the shutter's
+    /// time, less log2 of the ISO over 100, and its sensor holds up to 1.2 times 2 to that many
+    /// candelas a square meter, which reach the frame as 1, so at ISO 200, 1/200 s and f/16, EV
+    /// 14.64, a white surface in a sun of 97,050 lux reads 1.006. A sunny day's EV 15 stands until
+    /// it is set.
+    /// </para>
+    /// <para>
+    /// It is applied to the lights as they are given (<see cref="SetLightIlluminance"/>,
+    /// <see cref="SetLightLuminousIntensity"/>, <see cref="SetLightLuminousFlux"/>) and to the day
+    /// sky's (<see cref="SkyDay.SunIlluminance"/>), so the frame holds light near 1 rather than tens
+    /// of thousands, and a light given a plain intensity is not seen through it.
+    /// <see cref="SetExposure"/> and <see cref="SetAutoExposure"/> multiply what it gives, so auto
+    /// exposure between 1/8 and 8 keeps the camera within three stops of what it was set to.
+    /// </para>
+    /// </remarks>
+    public static void SetCameraExposure(float iso, float shutterSeconds, float aperture)
+    {
+        if (!(iso > 0) || !(shutterSeconds > 0) || !(aperture > 0) || !float.IsFinite(iso * shutterSeconds * aperture)) return;
+        var units = World.GetOrInsertResource(static () => new PhysicalUnits());
+        units.Ev100 = PhysicalUnits.Ev100Of(iso, shutterSeconds, aperture);
+        ApplyPhysicalLights(units);
+        if (TryRes<DaySky>(out var sky)) sky.Changed();
+    }
+
+    /// <summary>
+    /// The exposure value at ISO 100 of the camera <see cref="SetCameraExposure"/> set, 15, a sunny
+    /// day's, unless set.
+    /// </summary>
+    public static float GetCameraEv100() => TryRes<PhysicalUnits>(out var units) ? units.Ev100 : 15;
+
+    /// <summary>
     /// Makes the exposure follow the scene, as an eye adapts, brightening a dark room and dimming a
     /// sunlit field, between <paramref name="min"/> and <paramref name="max"/>, or turns it off. At
     /// a <paramref name="speed"/> of 1 it moves about two thirds of the way to a new scene's exposure

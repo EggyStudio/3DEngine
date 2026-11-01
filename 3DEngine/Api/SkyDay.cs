@@ -31,4 +31,30 @@ public readonly record struct SkyDay
     /// own keeps it and gets no second.
     /// </summary>
     public LightHandle Light { get; init; }
+
+    /// <summary>
+    /// The lux the sun gives a surface facing it when it stands high, seen through the camera
+    /// <see cref="E3D.SetCameraExposure"/> sets, or 0 for the sky's own plain strength, a white of
+    /// 2.2 at noon. A clear noon's sun gives about 100,000.
+    /// </summary>
+    /// <remarks>
+    /// The sun keeps the sky's own curve through the day, its light falling and reddening as it
+    /// sinks, and the moon its share of the sun's.
+    /// </remarks>
+    public float SunIlluminance { get; init; }
+
+    /// <summary>
+    /// The lux the sky gives a level floor at noon apart from the sun, seen through the camera as
+    /// <see cref="SunIlluminance"/> is, which scales the light of the sky the environment map holds
+    /// and the sky <see cref="E3D.DrawSkybox()"/> draws, or 0 for the sky's own plain strength. A
+    /// clear sky gives 15,000 to 25,000, an overcast one 1,000 to 10,000.
+    /// </summary>
+    public float SkyIlluminance { get; init; }
+
+    /// <summary>
+    /// The sun's color at every hour in place of the sky's own, a warm white high and an orange
+    /// low, or none, its alpha 0, for the sky's own, as <see cref="E3D.ColorFromTemperature"/> gives
+    /// one from a temperature.
+    /// </summary>
+    public Color SunColor { get; init; }
 }

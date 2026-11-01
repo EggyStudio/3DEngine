@@ -53,6 +53,67 @@ public static partial class E3D
         ref var l = ref Ecs.GetRef<Light>(entity);
         l.Color = Linear(color);
         l.Intensity = intensity;
+        if (TryRes<PhysicalUnits>(out var units)) units.Lights.Remove(light);
+    }
+
+    /// <summary>
+    /// Sets a directional light's strength as the lux it gives a surface facing it, keeping its
+    /// color, a noon sun's being about 100,000 and a sun through thin cloud's some 30,000.
+    /// </summary>
+    /// <remarks>
+    /// A light given in physical units is seen through the camera <see cref="SetCameraExposure"/>
+    /// sets, or a sunny day's of EV 15 where none is set, so a white surface in a noon sun reads
+    /// about white, and its color is taken for its hue alone, the lux carrying its luminance. The
+    /// intensity <see cref="SetLightColor"/> gives a light afterwards is a plain one again, which
+    /// the camera does not see, so a scene of plain lights and <see cref="SetExposure"/> looks as it
+    /// did.
+    /// </remarks>
+    public static void SetLightIlluminance(LightHandle light, float lux) => SetPhysical(light, lux, PhysicalQuantity.Illuminance);
+
+    /// <summary>
+    /// Sets a point or spot light's strength as its luminous intensity in candelas along its axis,
+    /// keeping its color, a candle's being 1 and a 60 watt bulb's about 70.
+    /// </summary>
+    /// <remarks>Seen through the camera as <see cref="SetLightIlluminance"/> says.</remarks>
+    public static void SetLightLuminousIntensity(LightHandle light, float candela) => SetPhysical(light, candela, PhysicalQuantity.LuminousIntensity);
+
+    /// <summary>
+    /// Sets a point or spot light's strength as the lumens it sends out in all, over the whole
+    /// sphere for a point light and over its outer cone for a spot, keeping its color, a 60 watt
+    /// bulb's being about 800.
+    /// </summary>
+    /// <remarks>
+    /// Seen through the camera as <see cref="SetLightIlluminance"/> says. A spot keeps its lumens
+    /// as its cone narrows, which takes its light along the axis up, as a torch's does when its
+    /// beam is focused.
+    /// </remarks>
+    public static void SetLightLuminousFlux(LightHandle light, float lumens) => SetPhysical(light, lumens, PhysicalQuantity.LuminousFlux);
+
+    private static void SetPhysical(LightHandle light, float value, PhysicalQuantity quantity)
+    {
+        if (Resolve(light) is null || !float.IsFinite(value)) return;
+        var units = World.GetOrInsertResource(static () => new PhysicalUnits());
+        units.Lights[light] = (Math.Max(0, value), quantity);
+        ApplyPhysical(units, light);
+    }
+
+    // A light given in physical units given its intensity through the camera, as its value and
+    // color say.
+    private static void ApplyPhysical(PhysicalUnits units, LightHandle light)
+    {
+        if (Resolve(light) is not { } entity || !units.Lights.TryGetValue(light, out var given)) return;
+        ref var l = ref Ecs.GetRef<Light>(entity);
+        var luminance = 0.2126f * l.Color.X + 0.7152f * l.Color.Y + 0.0722f * l.Color.Z;
+        l.Intensity = units.IntensityOf(l.Kind, given.Value, given.Quantity, l.OuterAngle, luminance);
+    }
+
+    // Every light given in physical units given its intensity again, after the camera changed,
+    // those since unloaded let go.
+    internal static void ApplyPhysicalLights(PhysicalUnits units)
+    {
+        foreach (var light in units.Lights.Keys.ToArray())
+            if (Resolve(light) is null) units.Lights.Remove(light);
+            else ApplyPhysical(units, light);
     }
 
     /// <summary>Sets whether a light casts shadows, which the first directional light that does casts, and of spot and point lights the ten and the twelve that matter most to the camera's view.</summary>
@@ -131,6 +192,7 @@ public static partial class E3D
     public static void UnloadLight(LightHandle light)
     {
         if (Resolve(light) is { } entity) Ecs.Despawn(entity);
+        if (TryRes<PhysicalUnits>(out var units)) units.Lights.Remove(light);
     }
 
     /// <summary>

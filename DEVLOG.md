@@ -16,6 +16,8 @@ Done that day
 - Item 152 at `6a6e2dad`. The light under a solid roof reads twelve times the reference.
 - Item 155 at `3dda52c2`. The schedule's debug overlay goes, its dump staying as a command.
 - Item 156 at `07085cd2`. Every buffer the GPU reads each frame lives in device memory.
+- Item 157 at `6f6ba558`. A buffer the CPU writes each frame takes the device's host-visible local
+  memory where it has one.
 
 ## 2026-10-31
 

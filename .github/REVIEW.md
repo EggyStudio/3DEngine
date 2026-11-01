@@ -94,52 +94,59 @@ for its own faces, a screen ray crossing whole what it enters within reach; the 
 with nothing else on it, the earlier 0.75 having been contention; 2,154 on the GPU in both orders,
 82 on lavapipe. After it `3dda52c2`, items 151 and 155, its run red at 03:16 on 2026-11-01 on
 Windows alone, Verdict 97, Linux green in 60 minutes and macOS in 35, the twelfth pack run started
-from it at 01:13 awaited and likely red the same way; the two commits after it held until the mend.
-After it `07085cd2`, item 156, pushed at 04:00 with `6a6e2dad` and `e3d37e1e` after that run,
-FillBuffer as the batched staging copy with its barrier, the skinning's rest, joints, weights,
-morphs and posed output and the field's corner pool in device memory, the per-frame joint rows and
-the counted meshes' corners as they were, the device's memory types logged at start; the stress
-skinning 0.223 to 0.179 ms and the animation example's 0.011 to 0.008, hdr_scene and the shadows
-unchanged, Sponza's field build 141 to 149 ms a frame unchanged, the still frame within 0.08 of 255;
-2,155 on the GPU in both orders, 86 on lavapipe. After it `6a6e2dad`, item 152, the light under a
-solid roof the model pass's own, an ambient light's specular added whole whatever the probes saw
-while its diffuse faded by what they held, 0.15 of the light at roughness 0.5, mended by scaling it
-with the bounced light's share of the open diffuse; the slab's floor at 2.5 up 0.074 to 0.011 at
-High and 0.007 at Low against the reference's 0.006, at 5.5 up 0.110 to 0.062 and 0.045 against
-0.032, the open floor as before, the bounce rooms unchanged; 2,155 on the GPU in both orders, 39 on
-lavapipe. After it `e3d37e1e`, Verdict 97's mend, its run awaited. On a device whose first
-device-local memory is also host-visible, lavapipe and integrated GPUs, every mesh had held a
-device-local buffer and its staging copy until the upload's fence retired it, so a hundred apps grew
-the process by about 112 MB in one step on the runner's lavapipe; such a device,
-GraphicsDevice.SharesMemory, logged, makes a mesh a host-written buffer in place with no staging and
-the field's corner pool the same, NVIDIA unchanged; the local resident reading over a hundred apps
-back at the level before 151; 2,155 on the GPU in both orders, 94 on lavapipe. The shadows' 35 ms in
-Sponza were every mesh's vertex and index buffers in host-visible memory, system RAM on a discrete
-GPU, about 110 MB read over PCIe in each of five whole-scene passes; static mesh buffers go into
-device-local memory through CreateFilledBuffer, copied from staging inside the upload batch with one
-barrier, the rings for vertices replaced each frame still mapped; the atrium's shadows 35.3 ms to
-2.16, window_depth 7.6 to 0.43, hdr_scene 13.0 to 9.1, the frame 58.9 to 14.3, the balcony's and
-lookup's shadows 33 to 1.9, the three views within 0.11 of 255 on the mean. The schedule's overlay
-and Alt+F3 are gone, schedule.dump writing each stage's batches with the planner's notes to a file
-and answering its path, the engine's generator emitting no registration since the HUD was its only
-behavior, a generator test in place of the assembly check; 2,155 on the GPU in both orders, 85 on
-lavapipe. a mesh that came and has not moved standing in for nothing in the scene field until it is
-built, where its box filled the rooms of a hollow building, with a pair of Sponza before and after
-and a note, the sunlit floor lit from frame 28 where it waited 330, the bounce rooms unchanged;
-2,154 on the GPU in both orders. Before it `19658e55`, item 136, pushed with `10295556` at 09:37,
-its run green at 11:16 with Windows in 98 minutes, Linux in 77 and macOS in 36, the path-traced
-reference crossing surfaces that let light through, recorded under the item in REVIEW-ARCHIVE.md.
-Before it `10295556`, item 146's second commit, ShadowOnly draws kept in the field, recorded under
-the item. Before it `da54d289`, item 146's first commit, pushed at 07:23 with `7bdfaa9e`, Verdict
-95's mend, and `fdde73b2`, item 131's second commit, its run green at 09:37 with Windows in 133
-minutes, Linux in 77 and macOS in 36, which settled Verdict 95; the plain GPU run of `7bdfaa9e` read
-ObserverTests' no-observer allocation once at 1,768 bytes, 5 of 5 alone, watched. Before it
-`b16f26b5`, item 131's first commit, pushed at 02:53 on 2026-10-31, its run cancelled at 03:51 on
-Linux alone past test.py's 40-minute limit and the job's 100 (Verdict 95), Windows and macOS green,
-the plane a cell recorded under item 131 in REVIEW-ARCHIVE.md. Before it `2ad96a80`, item 135,
-pushed at 22:13 on 2026-10-30, its run green whole at 23:28 with Windows in 74 minutes, Linux in 68
-and macOS in 35, the screen probes' jittered rays and sixteen-frame history recorded under the item
-in REVIEW-ARCHIVE.md. Before it `e96a6bb8`, pushed with `c3214cbe` at 19:52 on 2026-10-30, its run
+from it at 01:13 green at 04:20, 6.0.14 published, with Windows in 184 minutes, the games in 79, the
+captures in 64 and 57 on macOS and the pack in 3, its Windows suite passing the leak test the push
+run failed, so that failure is not of every run; the two commits after it held until the mend. After
+it `07085cd2`, item 156, pushed at 04:00 with `6a6e2dad` and `e3d37e1e` after that run, FillBuffer
+as the batched staging copy with its barrier, the skinning's rest, joints, weights, morphs and posed
+output and the field's corner pool in device memory, the per-frame joint rows and the counted
+meshes' corners as they were, the device's memory types logged at start; the stress skinning 0.223
+to 0.179 ms and the animation example's 0.011 to 0.008, hdr_scene and the shadows unchanged,
+Sponza's field build 141 to 149 ms a frame unchanged, the still frame within 0.08 of 255; 2,155 on
+the GPU in both orders, 86 on lavapipe. After it `6a6e2dad`, item 152, the light under a solid roof
+the model pass's own, an ambient light's specular added whole whatever the probes saw while its
+diffuse faded by what they held, 0.15 of the light at roughness 0.5, mended by scaling it with the
+bounced light's share of the open diffuse; the slab's floor at 2.5 up 0.074 to 0.011 at High and
+0.007 at Low against the reference's 0.006, at 5.5 up 0.110 to 0.062 and 0.045 against 0.032, the
+open floor as before, the bounce rooms unchanged; 2,155 on the GPU in both orders, 39 on lavapipe.
+After it `e3d37e1e`, Verdict 97's mend, its run awaited. On a device whose first device-local memory
+is also host-visible, lavapipe and integrated GPUs, every mesh had held a device-local buffer and
+its staging copy until the upload's fence retired it, so a hundred apps grew the process by about
+112 MB in one step on the runner's lavapipe; such a device, GraphicsDevice.SharesMemory, logged,
+makes a mesh a host-written buffer in place with no staging and the field's corner pool the same,
+NVIDIA unchanged; the local resident reading over a hundred apps back at the level before 151; 2,155
+on the GPU in both orders, 94 on lavapipe. After it `6f6ba558`, item 157, held until that run ends,
+the per-frame buffers left in system memory since the device-local host-visible type read slower in
+every round of the stress example at twenty thousand, and the ray scene's corners on that type where
+the CPU sees the device's memory whole and copied on the GPU when grown, Sponza's frame that
+rebuilds the ray structures 1.4 to 1.6 s to 0.47 to 0.51; the device's log line saying both memory
+facts; 2,155 on the GPU in both orders. The shadows' 35 ms in Sponza were every mesh's vertex and
+index buffers in host-visible memory, system RAM on a discrete GPU, about 110 MB read over PCIe in
+each of five whole-scene passes; static mesh buffers go into device-local memory through
+CreateFilledBuffer, copied from staging inside the upload batch with one barrier, the rings for
+vertices replaced each frame still mapped; the atrium's shadows 35.3 ms to 2.16, window_depth 7.6 to
+0.43, hdr_scene 13.0 to 9.1, the frame 58.9 to 14.3, the balcony's and lookup's shadows 33 to 1.9,
+the three views within 0.11 of 255 on the mean. The schedule's overlay and Alt+F3 are gone,
+schedule.dump writing each stage's batches with the planner's notes to a file and answering its
+path, the engine's generator emitting no registration since the HUD was its only behavior, a
+generator test in place of the assembly check; 2,155 on the GPU in both orders, 85 on lavapipe. a
+mesh that came and has not moved standing in for nothing in the scene field until it is built, where
+its box filled the rooms of a hollow building, with a pair of Sponza before and after and a note,
+the sunlit floor lit from frame 28 where it waited 330, the bounce rooms unchanged; 2,154 on the GPU
+in both orders. Before it `19658e55`, item 136, pushed with `10295556` at 09:37, its run green at
+11:16 with Windows in 98 minutes, Linux in 77 and macOS in 36, the path-traced reference crossing
+surfaces that let light through, recorded under the item in REVIEW-ARCHIVE.md. Before it `10295556`,
+item 146's second commit, ShadowOnly draws kept in the field, recorded under the item. Before it
+`da54d289`, item 146's first commit, pushed at 07:23 with `7bdfaa9e`, Verdict 95's mend, and
+`fdde73b2`, item 131's second commit, its run green at 09:37 with Windows in 133 minutes, Linux in
+77 and macOS in 36, which settled Verdict 95; the plain GPU run of `7bdfaa9e` read ObserverTests'
+no-observer allocation once at 1,768 bytes, 5 of 5 alone, watched. Before it `b16f26b5`, item 131's
+first commit, pushed at 02:53 on 2026-10-31, its run cancelled at 03:51 on Linux alone past
+test.py's 40-minute limit and the job's 100 (Verdict 95), Windows and macOS green, the plane a cell
+recorded under item 131 in REVIEW-ARCHIVE.md. Before it `2ad96a80`, item 135, pushed at 22:13 on
+2026-10-30, its run green whole at 23:28 with Windows in 74 minutes, Linux in 68 and macOS in 35,
+the screen probes' jittered rays and sixteen-frame history recorded under the item in
+REVIEW-ARCHIVE.md. Before it `e96a6bb8`, pushed with `c3214cbe` at 19:52 on 2026-10-30, its run
 green whole at 21:51, Windows in 119 minutes, Linux in 44 and macOS in 33. `c3214cbe` is item 134, a
 resize asked before the first frame carried out at once past the debounce a load held back, with a
 test and the window guide's line, and AGENTS.md's REVIEW.md line as the owner asked. `e96a6bb8` is
@@ -164,8 +171,8 @@ stands in its item in REVIEW-ARCHIVE.md, its devlog note and its own words. On 2
 the owner wrote the README's new words (item 133) and the focus on radiance cascades (Decision 74),
 questions asked back, and asked that the sessions spend fewer tokens at the same quality, N 7.7.
 
-Next 157 small, then 154, then 158 and 159, then the cascades in order, 139, 140, 141 and 142
-(Decision 75); 143, 144 and 145 wait behind them.
+Next 154, then 158 and 159, then the cascades in order, 139, 140, 141 and 142 (Decision 75); 143,
+144 and 145 wait behind them.
 
 Items done and verdicts settled before 2026-10-23 stand in REVIEW-ARCHIVE.md beside this file, their
 numbers kept, moved there at 19:30 on 2026-10-23 so this file holds the current work alone and is
@@ -1091,15 +1098,6 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     200, 1/200 s, f/16, the frame's mean beside the reference's. Foundation work under Decision 79,
     a day, after 152 and before 139.
 
-157. **A buffer the CPU writes each frame takes the device's host-visible local memory where it has
-    one.** From item 156's leads, CpuAccessMode.Write buffers take plain system memory while the
-    4070 offers a device-local host-visible coherent type of 8 GB, which the per-frame instance
-    ring, the uniforms, the joint rows and the field's instance and shape buffers could take, and
-    the ray scene's corners mapped in host memory are read by the BLAS builds; each goes to that
-    type where the device has it and stays as it is where not, read by the game's four passes at 16
-    columns, the stress example and a BLAS build before and after, pictures unchanged. Small, after
-    152.
-
 158. **High's cascades read 44% over Low's and the reference under a roof.** From items 138 and 152,
     under item 100's solid slab at roughness 1 High reads 0.0085 at 2.5 up and 0.046 at 5.5 against
     Low's 0.0048 and 0.033 and the reference's 0.0059 and 0.032, and item 136's leaf-block canopy at
@@ -1140,7 +1138,8 @@ Verdicts 56 to 96 are settled, said under each in REVIEW-ARCHIVE.md; 97 is open.
     151 held each mesh twice, the device-local buffer and its staging copy until the fence retired
     it; such a device makes a mesh a host-written buffer in place, the reading over a hundred apps
     back at the level before 151, unprovable on Windows from here and read on the run. Settled when
-    that run is green.
+    that run is green. The pack run of the same commit passed the test on Windows at 04:20, so the
+    growth is not of every run; the mend stands for the devices it names.
 
 ## Decisions
 

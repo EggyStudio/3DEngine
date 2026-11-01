@@ -1014,6 +1014,9 @@ LightHandle CreateSpotLight(Vector3 position, Vector3 direction, Color color, fl
 void SetLightPosition(LightHandle light, Vector3 position);  // Moves a point or spot light
 void SetLightDirection(LightHandle light, Vector3 direction);  // Turns a directional or spot light to shine along direction
 void SetLightColor(LightHandle light, Color color, float intensity = 1);  // Sets a light's color and how bright it is
+void SetLightIlluminance(LightHandle light, float lux);  // Sets a directional light's strength as the lux it gives a surface facing it, keeping its color, a noon sun's being about 100,000 and a sun through thin cloud's some 30,000
+void SetLightLuminousIntensity(LightHandle light, float candela);  // Sets a point or spot light's strength as its luminous intensity in candelas along its axis, keeping its color, a candle's being 1 and a 60 watt bulb's about 70
+void SetLightLuminousFlux(LightHandle light, float lumens);  // Sets a point or spot light's strength as the lumens it sends out in all, over the whole sphere for a point light and over its outer cone for a spot, keeping its color, a 60 watt bulb's being about 800
 void SetLightCastsShadows(LightHandle light, bool castsShadows);  // Sets whether a light casts shadows, which the first directional light that does casts, and of spot and point lights the ten and the twelve that matter most to the camera's view
 void SetShadowDistance(float distance);                  // Sets how far past the camera, in world units, the sun's shadows reach (150 by default), and how far a spot or point light with no range casts them
 void SetShadowFill(bool enabled);                        // Sets whether the sun's shadows go on past the shadow distance to the camera's far plane through a fill cascade, which the cascades' count leaves out, on by default
@@ -1028,6 +1031,8 @@ void SetBloom(float intensity, float threshold = 1);     // Spreads light bright
 (float Intensity, float Threshold) GetBloom();           // The bloom's intensity and threshold as SetBloom left them, 0 and 1 unless set
 void SetExposure(float exposure);                        // Multiplies the scene's light by exposure before it is brought under 1, so 2 brightens a dark scene and 0.5 dims a bright one, 1 being as it is and the default
 float GetExposure();                                     // What the scene's light is multiplied by before its curve, as SetExposure left it, 1 unless set
+void SetCameraExposure(float iso, float shutterSeconds, float aperture);  // Sets the camera the lights and the sky given in physical units are seen through, by its sensor's iso, its shutter's time in seconds and its aperture's f-number, as a photographer's camera is set, ISO 100 at 1/125 s and f/16 for a sunny day
+float GetCameraEv100();                                  // The exposure value at ISO 100 of the camera SetCameraExposure set, 15, a sunny day's, unless set
 void SetAutoExposure(bool enabled, float min = 0.25f, float max = 4, float speed = 2);  // Makes the exposure follow the scene, as an eye adapts, brightening a dark room and dimming a sunlit field, between min and max, or turns it off
 (bool Enabled, float Min, float Max, float Speed) GetAutoExposure();  // Whether the exposure follows the scene, and its bounds and speed, as SetAutoExposure left them, off between 0.25 and 4 at a speed of 2 unless set
 void SetTonemap(Tonemap curve);                          // Chooses the curve that brings the scene's light past 1 under it, the engine's own, which leaves colors under 0.9 as they are, Narkowicz's fit of ACES, a cut at 1, or one of the eight Bevy offers, drawn as Bevy draws them
@@ -1345,6 +1350,7 @@ Vector4 ColorNormalize(Color color);                     // The color as four fl
 Color ColorFromNormalized(Vector4 normalized);           // The color of four floats from 0 to 1
 Vector3 ColorToHSV(Color color);                         // The color's hue in degrees from 0 to 360, and its saturation and value from 0 to 1
 Color ColorFromHSV(float hue, float saturation, float value);  // The opaque color of a hue in degrees, and a saturation and value from 0 to 1
+Color ColorFromTemperature(float kelvin);                // The opaque color of the light a black body gives at kelvin, from 1,000 to 15,000, the brightest of its channels at 255, so 2,700 is a lamp's warm white, 5,600 the sun's at midday and 9,000 a blue sky's
 Color ColorTint(Color color, Color tint);                // The color multiplied by tint, channel by channel
 Color ColorBrightness(Color color, float factor);        // The color darkened toward black for a factor below 0 or lightened toward white above it, from -1 to 1, its alpha kept
 Color ColorContrast(Color color, float contrast);        // The color with its contrast lowered toward gray for a contrast below 0 or raised above it, from -1 to 1, its alpha kept

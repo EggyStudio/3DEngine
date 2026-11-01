@@ -55,6 +55,10 @@ internal sealed partial class DaySky
     // How strong the sun is for each unit of its light, so its noon is a white of 2.2 in luminance.
     private const float SunStrength = 2.2f * 0.915f / 1.085f;
 
+    // The sun's strength high in the sky, its noon light's largest part times the above, which a
+    // sun given in lux gives its lux at (SkyDay.SunIlluminance).
+    private static readonly float NoonStrength = SunStrength * MathF.Max(NoonLight.X, MathF.Max(NoonLight.Y, NoonLight.Z));
+
     // The moonlight's hue in linear light, a cool blue, and its strength, a quarter of the sun's
     // luminance at noon.
     private static readonly Vector3 Moonlight = new Vector3(0.15f, 0.14f, 0.20f) / 0.20f;
@@ -144,18 +148,10 @@ internal sealed partial class DaySky
     public byte[] Paint(float hour, float tilt)
     {
         var (zenith, horizon) = ColorsAt(hour, tilt);
-        var ground = horizon * 0.5f;
         Horizon = ColorOf(horizon);
         for (int row = 0; row < Height; row++)
         {
-            // Down from the top of the image, as the engine reads an equirectangular map, so a row's
-            // height on the sky is the cosine of its angle from the zenith.
-            var up = MathF.Cos((row + 0.5f) / Height * MathF.PI);
-            var color = up >= 0
-                ? Vector3.Lerp(zenith, horizon, MathF.Pow(1 - up, 4))
-                // The horizon's color holds a while before darkening, so the drawn sky's horizon
-                // meets an image of its own color.
-                : Vector3.Lerp(horizon, ground, SmoothStep(0.1f, 0.6f, -up));
+            var color = RowColor(zenith, horizon, row);
             var (r, g, b) = (Level(color.X), Level(color.Y), Level(color.Z));
             for (int column = 0; column < Width; column++)
             {
@@ -194,19 +190,63 @@ internal sealed partial class DaySky
     private void Apply(World world, double now)
     {
         var (hour, tilt) = (Hour, Day.Tilt);
+        var units = Day.SunIlluminance > 0 || Day.SkyIlluminance > 0 ? world.GetOrInsertResource(static () => new PhysicalUnits()) : null;
         if (hour != _litHour || tilt != _litTilt || Light != _litLight)
         {
             (_litHour, _litTilt, _litLight) = (hour, tilt, Light);
             var (direction, color, intensity) = LightAt(hour, tilt);
+            if (Day.SunColor.A > 0) color = Day.SunColor with { A = 255 };
+            // Its lux when high on the curve the sky's own strength follows, the color its hue.
+            if (units is not null && Day.SunIlluminance > 0)
+            {
+                var linear = E3D.Linear(color);
+                var luminance = 0.2126f * linear.X + 0.7152f * linear.Y + 0.0722f * linear.Z;
+                intensity = intensity / NoonStrength * units.IntensityOf(LightKind.Directional, Day.SunIlluminance, PhysicalQuantity.Illuminance, 0, luminance);
+            }
             E3D.SetLightDirection(Light, direction);
             E3D.SetLightColor(Light, color, intensity);
         }
 
         if (!double.IsNaN(_paintedHours) && (Math.Abs(Hours - _paintedHours) < RepaintHours || now - _paintedAt < RepaintSeconds)) return;
         (_paintedHours, _paintedAt) = (Hours, now);
-        world.InsertResource(EnvironmentMap.FromEquirectangular(new Image(Paint(hour, tilt), Width, Height)));
+        // The sky's own light where it has no lux, and otherwise as much as gives a level floor
+        // its lux at noon apart from the sun, through the camera.
+        var strength = units is not null && Day.SkyIlluminance > 0 ? Day.SkyIlluminance / MathF.PI * units.PreExposure / FloorLight(12, tilt) : 1;
+        world.InsertResource(EnvironmentMap.FromEquirectangular(new Image(Paint(hour, tilt), Width, Height), strength));
         var horizon = world.GetOrInsertResource(static () => new SkyHorizon());
         (horizon.Color, horizon.BlendDegrees) = (Horizon, HorizonBlendDegrees);
+    }
+
+    // A row's color in sRGB levels, down from the top of the image, as the engine reads an
+    // equirectangular map, so a row's height on the sky is the cosine of its angle from the zenith.
+    private static Vector3 RowColor(Vector3 zenith, Vector3 horizon, int row)
+    {
+        var up = MathF.Cos((row + 0.5f) / Height * MathF.PI);
+        return up >= 0
+            ? Vector3.Lerp(zenith, horizon, MathF.Pow(1 - up, 4))
+            // The horizon's color holds a while before darkening, so the drawn sky's horizon meets
+            // an image of its own color.
+            : Vector3.Lerp(horizon, horizon * 0.5f, SmoothStep(0.1f, 0.6f, -up));
+    }
+
+    /// <summary>
+    /// The light the painted sky at an hour gives a white level floor in its own units, the
+    /// luminance of its upper half weighted by the cosine from the zenith, which a white diffuse
+    /// floor returns as the engine's lights are given, with no pi.
+    /// </summary>
+    internal static float FloorLight(float hour, float tilt)
+    {
+        var (zenith, horizon) = ColorsAt(hour, tilt);
+        static float Decode(float level) => level / 255 <= 0.04045f ? level / 255 / 12.92f : MathF.Pow((level / 255 + 0.055f) / 1.055f, 2.4f);
+        float sum = 0;
+        for (int row = 0; row < Height / 2; row++)
+        {
+            var theta = (row + 0.5f) / Height * MathF.PI;
+            var color = RowColor(zenith, horizon, row);
+            var luminance = 0.2126f * Decode(Level(color.X)) + 0.7152f * Decode(Level(color.Y)) + 0.0722f * Decode(Level(color.Z));
+            sum += 2 * luminance * MathF.Cos(theta) * MathF.Sin(theta) * MathF.PI / Height;
+        }
+        return MathF.Max(sum, 1e-4f);
     }
 
     // How much of the day's light the sky has, 0 at night and 1 once the sun is well up.

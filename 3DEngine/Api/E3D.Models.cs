@@ -619,7 +619,7 @@ public static partial class E3D
         DrawCubeWiresV((box.Min + box.Max) / 2, box.Max - box.Min, color);
 
     // An sRGB color's light, which a draw's emission is given in.
-    private static Vector3 Linear(Color color)
+    internal static Vector3 Linear(Color color)
     {
         static float Decode(byte value)
         {

@@ -4750,6 +4750,30 @@ batch.
     environment's specular still uses that factor and carries both faults, item 159. The pictures in
     the dump.
 
+157. **A buffer the CPU writes each frame takes the device's host-visible local memory where it has
+    one.** From item 156's leads, CpuAccessMode.Write buffers take plain system memory while the
+    4070 offers a device-local host-visible coherent type of 8 GB, which the per-frame instance
+    ring, the uniforms, the joint rows and the field's instance and shape buffers could take, and
+    the ray scene's corners mapped in host memory are read by the BLAS builds; each goes to that
+    type where the device has it and stays as it is where not, read by the game's four passes at 16
+    columns, the stress example and a BLAS build before and after, pictures unchanged. Small, after
+    152. Done at `6f6ba558`, read at 04:26 on 2026-11-01, each placement read before it was kept at
+    1280 by 720 uncapped on the 4070 with nothing else on the GPU. Not kept, the buffers the CPU
+    writes each frame on the device-local host-visible type, which models_stress at twenty thousand
+    read slower in every one of three alternating rounds, hdr_scene 1.195 to 1.220 ms against 1.209
+    to 1.296, the shadows 0.701 to 0.735 against 0.735 to 0.778 and the graph's CPU 2.25 to 2.30
+    against 2.32 to 2.37, Sponza's passes unchanged by either, so the instance ring, the uniforms,
+    the joint rows and the field's instance and shape buffers stay in system memory with the reason
+    in CreateBuffer's comment. Kept, the ray scene's corners on that type through
+    CreateAddressedBuffer where the CPU sees the device's memory whole, a type in a heap at least
+    half the largest device-local heap and not a 256 MB BAR, copied on the GPU by a one-time command
+    waited for when grown where the CPU had copied through uncached memory; Sponza's frame that
+    builds the ray structures after gi.rays off and on reads 472 to 513 ms where 1,387 to 1,644, the
+    GPU copy alone 618 to 678, the frame unchanged within 0.08 of 255; the per-frame records and
+    surfaces of the ray scene stay host-visible as the per-frame buffers do. The game at 16 columns
+    was not read, the stress example and Sponza standing in. The device's log line says whether the
+    CPU sees the device's memory whole and whether the device's memory is the CPU's.
+
 ## Verdicts settled
 
 Verdicts 1 to 55 are settled, the last two, the drawing leak test's resident bound and the Windows

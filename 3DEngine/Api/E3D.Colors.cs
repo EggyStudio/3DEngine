@@ -62,6 +62,32 @@ public static partial class E3D
         return new Color(Channel(5), Channel(3), Channel(1));
     }
 
+    /// <summary>
+    /// The opaque color of the light a black body gives at <paramref name="kelvin"/>, from 1,000 to
+    /// 15,000, the brightest of its channels at 255, so 2,700 is a lamp's warm white, 5,600 the
+    /// sun's at midday and 9,000 a blue sky's.
+    /// </summary>
+    /// <remarks>
+    /// The color is read off the Planckian locus by Krystek's fit in CIE 1960 coordinates, taken to
+    /// sRGB's primaries in linear light and encoded, so a light given it and its strength in lux
+    /// (<see cref="SetLightIlluminance"/>) takes the hue alone.
+    /// </remarks>
+    public static Color ColorFromTemperature(float kelvin)
+    {
+        var t = Math.Clamp(float.IsFinite(kelvin) ? kelvin : 6500, 1000, 15000);
+        var u = (0.860117757f + 1.54118254e-4f * t + 1.28641212e-7f * t * t) / (1 + 8.42420235e-4f * t + 7.08145163e-7f * t * t);
+        var v = (0.317398726f + 4.22806245e-5f * t + 4.20481691e-8f * t * t) / (1 - 2.89741816e-5f * t + 1.61456053e-7f * t * t);
+        var (x, y) = (3 * u / (2 * u - 8 * v + 4), 2 * v / (2 * u - 8 * v + 4));
+        var (cx, cz) = (x / y, (1 - x - y) / y);
+        var linear = Vector3.Max(Vector3.Zero, new Vector3(
+            3.2406f * cx - 1.5372f - 0.4986f * cz,
+            -0.9689f * cx + 1.8758f + 0.0415f * cz,
+            0.0557f * cx - 0.2040f + 1.0570f * cz));
+        linear /= MathF.Max(linear.X, MathF.Max(linear.Y, linear.Z));
+        static byte Encode(float c) => (byte)Math.Clamp(MathF.Round((c <= 0.0031308f ? 12.92f * c : 1.055f * MathF.Pow(c, 1 / 2.4f) - 0.055f) * 255), 0, 255);
+        return new Color(Encode(linear.X), Encode(linear.Y), Encode(linear.Z));
+    }
+
     /// <summary>The color multiplied by <paramref name="tint"/>, channel by channel.</summary>
     public static Color ColorTint(Color color, Color tint) => new(
         (byte)(color.R * tint.R / 255), (byte)(color.G * tint.G / 255),
