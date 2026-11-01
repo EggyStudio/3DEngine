@@ -5027,6 +5027,58 @@ batch.
     reading 0.0008 and 0.0037 at High and 0.0014 and 0.0033 at Low, HEAD failing on the floor at
     High and the underside at Low. RENDERING.md's roof section rewritten; the sheet in the dump.
 
+164. **The renderer starts in a second, its compiles cached outside the program's folder.** The
+    owner read on 2026-11-01 at {hm} that the step after the log's line "Initializing the renderer,
+    its diagnostics and its render graph" at 0.9 s takes 29 seconds. A reading first, the start
+    logged step by step with each step's time, the shaders compiled by slangc with their count and
+    time, the pipelines made, the field and the probes allocated, the device chosen, so the line
+    that follows says where the seconds went; the likely cause is a cold shader cache, the engine
+    compiling every built-in shader through slangc when source/.slang-cache under the program's
+    folder is empty, which it is after the owner deletes bin and runs again, and the pipeline cache
+    of item 147 lives in the same folder and is lost with it. The mend by the reading, the shader
+    cache and the pipeline cache kept under the user's cache folder as the scene packs are, keyed by
+    the shader's content and the engine's version so a program built again compiles nothing it
+    compiled before, the program's folder read first where it holds them, and the compile's count
+    and time in the log; read by a cold and a warm start of the Sponza example and the game with the
+    program's folder deleted between. Small, a reading at once and the mend before 139's commit.
+    Read at 12:2x on 2026-11-01, a cold start of Sponza from a fresh bin took 51 s to answer, 44.4 s
+    of it the renderer's start, which is 72 slangc compiles run one after another, 45.5 s summed
+    with the slowest 1.6 s; warm, the renderer starts in 0.3 s and Sponza answers in 6.3 s. The mend
+    under way. Done at `e159992e`, read at 13:02. Cold from a fresh folder Sponza answered after 51
+    s, the renderer's start 44.9 s being 68 slangc stages compiled one after another in 44.1 s, the
+    first frame 26.7 s more with 25 pipelines made by the driver in 25.1 s, the field and the probes
+    allocated in 28 and 18 ms; warm, the folder deleted and built again, it answers after 7.0 s, the
+    renderer in 0.35 s and the first frame in 1.8; the game cold answered after 54 s then waited 45
+    s on 24 pipelines at frame 20, warm 2.3 s with those in 0.5. The shaders are cached under the
+    user's cache folder as 3DEngine/shaders by the engine's version before its commit mark, keyed by
+    their sources, the program's source/.slang-cache read first and never written so a shipped cache
+    serves; the pipelines under 3DEngine/pipelines by version and program with the program's
+    pipelines.bin merged in where its header matches this GPU; the scene packs through the same
+    UserCache. The log says the stages read from the caches against compiled with slangc's time,
+    where the driver's pipelines came from, the first frame's time and its pipelines, any later
+    frame waiting 100 ms or more on the driver, and the field's and probes' allocation. Left for
+    item 168, the compiles running one after another on 32 cores.
+
+165. **The Sponza example meters its exposure when played.** The owner wrote on 2026-11-01 at 12:00
+    that the Sponza example looks very dark with little global illumination to see. Item 160
+    concluded the shade is lit within 13% of the path-traced reference and the gap to the reference
+    pictures is their per-view exposure, and item 153 kept the fixed camera as the example's default
+    to hold the readings' ratios visible; played, that fixed camera at the reference's values
+    exposes the sunlit stone right and the shade at a hundredth, which reads as no indirect light.
+    The example starts metered, item 161's centre-weighted automatic exposure between EV 4 and 14 at
+    -0.79 stops, with M switching to the fixed camera and back and the help line saying so; the
+    drive keeps capturing each view both ways, the fixed captures the readings' and the metered the
+    look's. Small, with 164's commit. The proof pairs at `ea4fccb3`, the atrium at 13:00 and the
+    balcony at 12:00 each fixed and then 400 frames after sponza.metered on, in the dump as
+    12-13-item-165-proof-atrium-pair.png and -balcony-pair.png and sent to the owner, differ in
+    exposure alone, the command calling SetAutoExposure and SetAutoExposureMetering and nothing
+    else; the metered atrium shows the far end's blue glow behind the door, item 166. Done at
+    `e159992e`. Sponza starts metered, M toggles the fixed camera with the title saying which is on,
+    the help in two lines, the drive setting the fixed camera before each fixed shot, the gallery
+    retaken; the balcony at 12:00 reads the left gallery and the right wall at 64 and 48 levels
+    metered where fixed read 4 and 1 and the reference at 15:00 reads 60 and 39, the sheet in the
+    dump and sent to the owner.
+
 ## Verdicts settled
 
 Verdicts 1 to 55 are settled, the last two, the drawing leak test's resident bound and the Windows

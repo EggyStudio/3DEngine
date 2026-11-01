@@ -77,7 +77,11 @@ again into an empty folder it answers after 7.0 s, its renderer starting in 0.35
 frame taking 1.8 s, 0.3 of them the pipelines. The voxel game, its program's folder holding neither,
 answered after 54 s with an empty cache and waited 45 s more on 24 pipelines at its twentieth frame,
 and answers after 2.3 s with them cached, those pipelines made in 0.5 s, the driver's own cache
-empty in both, since `XDG_CACHE_HOME` moved it with them.
+empty in both, since `XDG_CACHE_HOME` moved it with them. Compiled ahead before the renderer loads
+them, as many slangc processes at once as the machine has cores (`SlangLoader.CompileAhead`), every
+built-in shader's plain build and the builds the renderer loads, 74 stages on 32 threads, the
+renderer starts with no cache in 7.1 s in Sponza and 7.4 s in the game, 6.5 and 6.8 s of them the
+compiles, which took 101 and 134 s of slangc in all, and they answer after 14.8 and 16.9 s.
 
 `slangc` is a tool rather than a library. `build/fetch-slang.sh` downloads a pinned release into
 `build/tools/slang`, and the compiler is looked for in `ENGINE_SLANGC`, then on the `PATH`, then

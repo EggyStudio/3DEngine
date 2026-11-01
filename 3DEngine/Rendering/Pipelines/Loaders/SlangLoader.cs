@@ -175,6 +175,44 @@ internal sealed partial class SlangLoader : IAssetLoader<ShaderProgram>
         return compiled;
     }
 
+    /// <summary>
+    /// Compiles every entry point of every shader in <see cref="ImportDirectory"/>, and of each of
+    /// its builds <paramref name="wanted"/> keeps, that the caches lack, as many slangc processes at
+    /// once as the machine has cores, each written to the cache as it ends, so the loads that follow
+    /// read them. A stage that fails to compile is left for its load to say why.
+    /// </summary>
+    /// <remarks>
+    /// Compiled one after another as each was loaded, Sponza's first start with no cache spent
+    /// 44 s on 68 stages of 0.3 to 1.6 s each, on a machine of 32 cores.
+    /// </remarks>
+    /// <param name="wanted">Whether the build of a shader of the file's name with the names given is loaded, the plain build's none.</param>
+    internal void CompileAhead(Func<string, string[], bool> wanted)
+    {
+        if (SlangCompiler.CompilerPath is not { } compiler || !Directory.Exists(ImportDirectory)) return;
+        var stages = new List<(string Source, string File, string EntryPoint, ShaderStage Stage, string[] Defines)>();
+        foreach (var file in Directory.GetFiles(ImportDirectory, "*.slang").Order(StringComparer.Ordinal))
+        {
+            var source = File.ReadAllText(file);
+            var entryPoints = EntryPoints(source).ToArray();
+            if (entryPoints.Length == 0) continue;
+            var name = Path.GetFileName(file);
+            foreach (var defines in BuildsOf(source, ImportDirectory).Prepend([]).Where(defines => wanted(name, defines)))
+                foreach (var (entryPoint, stage) in entryPoints)
+                    stages.Add((source, name, entryPoint, stage, defines));
+        }
+        Parallel.ForEach(stages, new ParallelOptions { MaxDegreeOfParallelism = Environment.ProcessorCount }, at =>
+        {
+            try
+            {
+                SlangCompiler.CompileStage(at.Source, at.File, at.EntryPoint, at.Stage, CacheDirectory, ImportDirectory, compiler, at.Defines, ShippedDirectory);
+            }
+            catch (InvalidOperationException)
+            {
+                // Its load compiles it again and says why it failed.
+            }
+        });
+    }
+
     /// <summary>The names of <see cref="Variants"/> that <paramref name="source"/> or a module it imports from <paramref name="importDirectory"/> mentions.</summary>
     internal static IEnumerable<string> VariantsOf(string source, string importDirectory) =>
         Variants.Where(name => source.Contains(name, StringComparison.Ordinal)

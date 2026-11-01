@@ -53,6 +53,15 @@ internal sealed class Renderer : IDisposable
         Logger.Info("Initializing the renderer, its diagnostics and its render graph...");
         var sw = Stopwatch.StartNew();
         var shaders = SlangCompiler.Counts;
+        // Every shader beside the program, and each build of one this device loads below, compiled
+        // at once where the caches lack it, once in a process, so the loads below read them.
+        string[] traces = Context.Graphics is GraphicsDevice { CanQueryRays: true } ? ["RAY_QUERY"] : [];
+        (string File, string[] Defines)[] builds = [("model.slang", traces), ("model.slang", [.. traces, "NO_GLOW_LIGHTS"]),
+            ("model_streams.slang", ["NO_GLOW_LIGHTS"]), ("model.slang", ["NO_BOUNCE"]), ("model_streams.slang", ["NO_BOUNCE"]),
+            ("gi_trace.slang", ["NO_LIGHT_THROUGH"])];
+        if (Interlocked.Exchange(ref _compiledAhead, 1) == 0)
+            new SlangLoader().CompileAhead((file, defines) => defines.Length == 0 || builds.Any(build => build.File == file && build.Defines.SequenceEqual(defines)));
+        var ahead = sw.Elapsed;
 
         Diagnostics.Initialize(Context.AdapterInfo);
         Logger.Debug("Renderer diagnostics initialized.");
@@ -195,8 +204,12 @@ internal sealed class Renderer : IDisposable
         // the whole start of a program with no cache is.
         var (read, compiled, compiling) = SlangCompiler.Counts;
         Logger.Info($"Renderer initialized in {sw.ElapsedMilliseconds}ms, {read - shaders.Read} shader stages read from the caches and "
-            + $"{compiled - shaders.Compiled} compiled by slangc in {(compiling - shaders.Compiling).TotalSeconds:0.0} s into {new SlangLoader().CacheDirectory}.");
+            + $"{compiled - shaders.Compiled} compiled by slangc, {Environment.ProcessorCount} at once, in {ahead.TotalSeconds:0.0} s "
+            + $"({(compiling - shaders.Compiling).TotalSeconds:0.0} s of slangc in all) into {new SlangLoader().CacheDirectory}.");
     }
+
+    // Whether this process compiled its shaders ahead, which the first renderer made does.
+    private static int _compiledAhead;
 
     // The frames rendered, and the pipelines the device had made when the frame began, which the
     // first frame's line and that of a frame waiting long on the driver are read against.

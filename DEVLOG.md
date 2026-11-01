@@ -85,6 +85,9 @@ Done that day
 - Item 161 at `1fe6e61a`. The automatic exposure meters as the reference's camera does.
 - Item 162 at `af7df72a`. The Sponza example's field builds within the frame's budget again.
 - Item 163 at `ea4fccb3`. A floor under a slab at High is not black with four cascades.
+- Item 164 at `e159992e`. The renderer starts in a second, its compiles cached outside the program's
+  folder.
+- Item 165 at `e159992e`. The Sponza example meters its exposure when played.
 
 ## 2026-10-31
 

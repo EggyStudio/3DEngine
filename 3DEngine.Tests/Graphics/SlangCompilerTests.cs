@@ -108,6 +108,28 @@ public partial class SlangCompilerTests : IDisposable
         Directory.Exists(users).Should().BeFalse("a stage the program's own folder holds is not copied into the user's");
     }
 
+    [NeedsSlangFact]
+    public void Compiling_Ahead_Writes_Every_Stage_Of_Each_Wanted_Build_And_No_Other_And_A_Load_Reads_Them()
+    {
+        // Two shaders of two stages each, one mentioning the bounce, so it has a build without it,
+        // and a module with no entry point.
+        var (shaders, cache) = (Path.Combine(_folder.Path, "shaders"), Path.Combine(_folder.Path, "cache"));
+        Directory.CreateDirectory(shaders);
+        File.WriteAllText(Path.Combine(shaders, "plain.slang"), Source);
+        File.WriteAllText(Path.Combine(shaders, "lit.slang"), "#ifdef NO_BOUNCE\n#endif\n" + Source);
+        File.WriteAllText(Path.Combine(shaders, "module.slang"), "float twice(float x) { return 2.0 * x; }");
+        var loader = new SlangLoader(cache, shaders);
+
+        loader.CompileAhead((_, defines) => defines.Length == 0);
+        Directory.GetFiles(cache, "*.spv").Should().HaveCount(4, "the plain builds' two stages each, and no build not wanted");
+        loader.CompileAhead((file, defines) => defines.Length == 0 || file == "lit.slang");
+        Directory.GetFiles(cache, "*.spv").Should().HaveCount(6, "and the build without the bounce of the shader that mentions it");
+
+        var read = SlangCompiler.CompileStage("#ifdef NO_BOUNCE\n#endif\n" + Source, "lit.slang", "fragmentMain", ShaderStage.Fragment, cache, shaders,
+            compiler: null, ["NO_BOUNCE"]);
+        read.Spirv.Take(4).Should().Equal(SpirvMagic, "a load reads what was compiled ahead with no compiler");
+    }
+
     [Fact]
     public void A_Loader_Keeps_Its_Stages_In_The_Users_Cache_Under_The_Engines_Version_And_Reads_The_Programs_Own_First()
     {

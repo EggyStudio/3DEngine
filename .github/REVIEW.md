@@ -168,55 +168,62 @@ slowest frame of a walk along the atrium at 1280 by 720 from 151 to 186 ms with 
 the building's 3.75 million triangles in one frame where 84,602 splat at most in a frame after, the
 lion ornament as one mesh; field.state saying the most splatted in a frame since last asked; the
 flying camera on its own keys with E rising and Q sinking, no roll; 2,171 on the GPU in both orders.
-After it `d9f3f108`, 158's first part, pushed at 10:39 after that run, its run awaited, the second
-option tried and over the bar, four rays a direction at 16 by 16 raising global illumination at High
-at 1080p by 0.34 ms in the bounce rooms, 0.9 in Sponza and 1.02 to 1.06 in the canopy, so the first
-went in, High's second cascade at 8 by 8 with 4 rays each as Low's, the cost unchanged or a little
-under and the world probes 1.65 MB where 3.71; the slab at High with the screen probes off 0.0062
-and 0.0333 where 0.0079 and 0.0394, Low's values, the screen probes adding 0.0024 and 0.0118 on top
-for the second part; a fault found on the way, gi_ambient's follow summing only the first group of
-partials for an 8-direction cascade so a probe's own light read a quarter of the whole, Low's slab
-floor 0.0051 to 0.0062; 2,171 on the GPU in both orders. After it `ea4fccb3`, item 163, held until
-the run of `d9f3f108` ends, a carried ray that meets nothing bringing the sky once the plan holds
+After it `d9f3f108`, 158's first part, pushed at 10:39 after that run, its run green at 13:00 with Windows in 141 minutes, Linux in 76 and macOS in 34, so Linux's 141 before was the runner's, the second option tried and over the bar, four rays a
+direction at 16 by 16 raising global illumination at High at 1080p by 0.34 ms in the bounce rooms,
+0.9 in Sponza and 1.02 to 1.06 in the canopy, so the first went in, High's second cascade at 8 by 8
+with 4 rays each as Low's, the cost unchanged or a little under and the world probes 1.65 MB where
+3.71; the slab at High with the screen probes off 0.0062 and 0.0333 where 0.0079 and 0.0394, Low's
+values, the screen probes adding 0.0024 and 0.0118 on top for the second part; a fault found on the
+way, gi_ambient's follow summing only the first group of partials for an 8-direction cascade so a
+probe's own light read a quarter of the whole, Low's slab floor 0.0051 to 0.0062; 2,171 on the GPU
+in both orders. After it `ea4fccb3`, item 163, pushed at 13:03 with `e159992e` after that run, the
+run of `e159992e` awaited, a carried ray that meets nothing bringing the sky once the plan holds
 every cascade built, and the ambient light's reflection held against the light itself rather than
 the open share, since a face turned down read the floor's light over its own dark share and
 reflected the ambient whole; the slab's floor at 2.5 in four cascades 0.0001 to 0.0046 at High
 against the reference's 0.0069 and its underside 0.0019 to 0.0061, Low's underside 0.063 to 0.0081,
 the canopy's leaf undersides from 16 to 38% over to 7 to 22% under at High, the bounce rooms and
 Sponza unchanged; the placement of the coarse probes not kept, the last cascade's probes standing in
-the open already; a test at both qualities HEAD fails; 2,173 on the GPU in both orders. The shadows'
-35 ms in Sponza were every mesh's vertex and index buffers in host-visible memory, system RAM on a
-discrete GPU, about 110 MB read over PCIe in each of five whole-scene passes; static mesh buffers go
-into device-local memory through CreateFilledBuffer, copied from staging inside the upload batch
-with one barrier, the rings for vertices replaced each frame still mapped; the atrium's shadows 35.3
-ms to 2.16, window_depth 7.6 to 0.43, hdr_scene 13.0 to 9.1, the frame 58.9 to 14.3, the balcony's
-and lookup's shadows 33 to 1.9, the three views within 0.11 of 255 on the mean. The schedule's
-overlay and Alt+F3 are gone, schedule.dump writing each stage's batches with the planner's notes to
-a file and answering its path, the engine's generator emitting no registration since the HUD was its
-only behavior, a generator test in place of the assembly check; 2,155 on the GPU in both orders, 85
-on lavapipe. a mesh that came and has not moved standing in for nothing in the scene field until it
-is built, where its box filled the rooms of a hollow building, with a pair of Sponza before and
-after and a note, the sunlit floor lit from frame 28 where it waited 330, the bounce rooms
-unchanged; 2,154 on the GPU in both orders. Before it `19658e55`, item 136, pushed with `10295556`
-at 09:37, its run green at 11:16 with Windows in 98 minutes, Linux in 77 and macOS in 36, the
-path-traced reference crossing surfaces that let light through, recorded under the item in
-REVIEW-ARCHIVE.md. Before it `10295556`, item 146's second commit, ShadowOnly draws kept in the
-field, recorded under the item. Before it `da54d289`, item 146's first commit, pushed at 07:23 with
-`7bdfaa9e`, Verdict 95's mend, and `fdde73b2`, item 131's second commit, its run green at 09:37 with
-Windows in 133 minutes, Linux in 77 and macOS in 36, which settled Verdict 95; the plain GPU run of
-`7bdfaa9e` read ObserverTests' no-observer allocation once at 1,768 bytes, 5 of 5 alone, watched.
-Before it `b16f26b5`, item 131's first commit, pushed at 02:53 on 2026-10-31, its run cancelled at
-03:51 on Linux alone past test.py's 40-minute limit and the job's 100 (Verdict 95), Windows and
-macOS green, the plane a cell recorded under item 131 in REVIEW-ARCHIVE.md. Before it `2ad96a80`,
-item 135, pushed at 22:13 on 2026-10-30, its run green whole at 23:28 with Windows in 74 minutes,
-Linux in 68 and macOS in 35, the screen probes' jittered rays and sixteen-frame history recorded
-under the item in REVIEW-ARCHIVE.md. Before it `e96a6bb8`, pushed with `c3214cbe` at 19:52 on
-2026-10-30, its run green whole at 21:51, Windows in 119 minutes, Linux in 44 and macOS in 33.
-`c3214cbe` is item 134, a resize asked before the first frame carried out at once past the debounce
-a load held back, with a test and the window guide's line, and AGENTS.md's REVIEW.md line as the
-owner asked. `e96a6bb8` is item 132's reading with no mend, the note
-2026-10-30-item-132-recording.md; at 12 columns 5.6 to 6.5 ms of the four passes' 9.6 to 11.5 is a
-descriptor set made and written for every draw in every pass, about 2,045 a frame at 2.8 to 3.2
+the open already; a test at both qualities HEAD fails; 2,173 on the GPU in both orders. After it
+`e159992e`, items 164 and 165, the renderer's start logged step by step, a cold Sponza having
+answered after 51 s with 68 slangc stages compiled one after another in 44.1 s and 25 pipelines made
+by the driver in 25.1 s more, the shaders cached under the user's cache folder by the engine's
+version and keyed by their sources with the program's own cache read first, the pipelines there too
+with the program's merged in, so a warm Sponza answers in 7.0 s with the renderer starting in 0.35
+and the game in 2.3; and the example starting metered with M to the fixed camera, the balcony's
+shade at noon 64 and 48 levels where fixed read 4 and 1 and the reference at 15:00 60 and 39; 2,175
+on the GPU in both orders. The shadows' 35 ms in Sponza were every mesh's vertex and index buffers
+in host-visible memory, system RAM on a discrete GPU, about 110 MB read over PCIe in each of five
+whole-scene passes; static mesh buffers go into device-local memory through CreateFilledBuffer,
+copied from staging inside the upload batch with one barrier, the rings for vertices replaced each
+frame still mapped; the atrium's shadows 35.3 ms to 2.16, window_depth 7.6 to 0.43, hdr_scene 13.0
+to 9.1, the frame 58.9 to 14.3, the balcony's and lookup's shadows 33 to 1.9, the three views within
+0.11 of 255 on the mean. The schedule's overlay and Alt+F3 are gone, schedule.dump writing each
+stage's batches with the planner's notes to a file and answering its path, the engine's generator
+emitting no registration since the HUD was its only behavior, a generator test in place of the
+assembly check; 2,155 on the GPU in both orders, 85 on lavapipe. a mesh that came and has not moved
+standing in for nothing in the scene field until it is built, where its box filled the rooms of a
+hollow building, with a pair of Sponza before and after and a note, the sunlit floor lit from frame
+28 where it waited 330, the bounce rooms unchanged; 2,154 on the GPU in both orders. Before it
+`19658e55`, item 136, pushed with `10295556` at 09:37, its run green at 11:16 with Windows in 98
+minutes, Linux in 77 and macOS in 36, the path-traced reference crossing surfaces that let light
+through, recorded under the item in REVIEW-ARCHIVE.md. Before it `10295556`, item 146's second
+commit, ShadowOnly draws kept in the field, recorded under the item. Before it `da54d289`, item
+146's first commit, pushed at 07:23 with `7bdfaa9e`, Verdict 95's mend, and `fdde73b2`, item 131's
+second commit, its run green at 09:37 with Windows in 133 minutes, Linux in 77 and macOS in 36,
+which settled Verdict 95; the plain GPU run of `7bdfaa9e` read ObserverTests' no-observer allocation
+once at 1,768 bytes, 5 of 5 alone, watched. Before it `b16f26b5`, item 131's first commit, pushed at
+02:53 on 2026-10-31, its run cancelled at 03:51 on Linux alone past test.py's 40-minute limit and
+the job's 100 (Verdict 95), Windows and macOS green, the plane a cell recorded under item 131 in
+REVIEW-ARCHIVE.md. Before it `2ad96a80`, item 135, pushed at 22:13 on 2026-10-30, its run green
+whole at 23:28 with Windows in 74 minutes, Linux in 68 and macOS in 35, the screen probes' jittered
+rays and sixteen-frame history recorded under the item in REVIEW-ARCHIVE.md. Before it `e96a6bb8`,
+pushed with `c3214cbe` at 19:52 on 2026-10-30, its run green whole at 21:51, Windows in 119 minutes,
+Linux in 44 and macOS in 33. `c3214cbe` is item 134, a resize asked before the first frame carried
+out at once past the debounce a load held back, with a test and the window guide's line, and
+AGENTS.md's REVIEW.md line as the owner asked. `e96a6bb8` is item 132's reading with no mend, the
+note 2026-10-30-item-132-recording.md; at 12 columns 5.6 to 6.5 ms of the four passes' 9.6 to 11.5
+is a descriptor set made and written for every draw in every pass, about 2,045 a frame at 2.8 to 3.2
 microseconds each with every section's set holding the same values, and one set a frame in a scratch
 copy takes the passes to 5.1 ms at 12 and from 18.4 to 19.7 to 7.6 at 16, the frame at 16 from 26.6
 to 17.9 ms, the land's pixels within 0.08 of 255. 2,135 on the GPU in both orders, the resize tests
@@ -236,8 +243,9 @@ REVIEW-ARCHIVE.md, its devlog note and its own words. On 2026-10-30 at 18:0x the
 README's new words (item 133) and the focus on radiance cascades (Decision 74), questions asked
 back, and asked that the sessions spend fewer tokens at the same quality, N 7.7.
 
-Next 164 with 165, small, then 166, then 167, then the cascades in order, 139, 140, 141 and 142
-(Decision 75); 143, 144 and 145 wait behind them.
+Next 168, then 166, then 169 small, then 167, then 139, then the look in order, 170, 171, 172, 173,
+176, 177, 174 and 175 (Decision 84), with 140, 141 and 142 after 177 (Decision 75); 143, 144 and 145
+wait behind them.
 
 Items done and verdicts settled before 2026-10-23 stand in REVIEW-ARCHIVE.md beside this file, their
 numbers kept, moved there at 19:30 on 2026-10-23 so this file holds the current work alone and is
@@ -1161,40 +1169,6 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     and the merge held at one, the bounce rooms' distances to the references and the Cornell box's
     bounces read before and after. One commit, after the eight.
 
-164. **The renderer starts in a second, its compiles cached outside the program's folder.** The
-    owner read on 2026-11-01 at {hm} that the step after the log's line "Initializing the renderer,
-    its diagnostics and its render graph" at 0.9 s takes 29 seconds. A reading first, the start
-    logged step by step with each step's time, the shaders compiled by slangc with their count and
-    time, the pipelines made, the field and the probes allocated, the device chosen, so the line
-    that follows says where the seconds went; the likely cause is a cold shader cache, the engine
-    compiling every built-in shader through slangc when source/.slang-cache under the program's
-    folder is empty, which it is after the owner deletes bin and runs again, and the pipeline cache
-    of item 147 lives in the same folder and is lost with it. The mend by the reading, the shader
-    cache and the pipeline cache kept under the user's cache folder as the scene packs are, keyed by
-    the shader's content and the engine's version so a program built again compiles nothing it
-    compiled before, the program's folder read first where it holds them, and the compile's count
-    and time in the log; read by a cold and a warm start of the Sponza example and the game with the
-    program's folder deleted between. Small, a reading at once and the mend before 139's commit.
-    Read at 12:2x on 2026-11-01, a cold start of Sponza from a fresh bin took 51 s to answer, 44.4 s
-    of it the renderer's start, which is 72 slangc compiles run one after another, 45.5 s summed
-    with the slowest 1.6 s; warm, the renderer starts in 0.3 s and Sponza answers in 6.3 s. The mend
-    under way.
-
-165. **The Sponza example meters its exposure when played.** The owner wrote on 2026-11-01 at 12:00
-    that the Sponza example looks very dark with little global illumination to see. Item 160
-    concluded the shade is lit within 13% of the path-traced reference and the gap to the reference
-    pictures is their per-view exposure, and item 153 kept the fixed camera as the example's default
-    to hold the readings' ratios visible; played, that fixed camera at the reference's values
-    exposes the sunlit stone right and the shade at a hundredth, which reads as no indirect light.
-    The example starts metered, item 161's centre-weighted automatic exposure between EV 4 and 14 at
-    -0.79 stops, with M switching to the fixed camera and back and the help line saying so; the
-    drive keeps capturing each view both ways, the fixed captures the readings' and the metered the
-    look's. Small, with 164's commit. The proof pairs at `ea4fccb3`, the atrium at 13:00 and the
-    balcony at 12:00 each fixed and then 400 frames after sponza.metered on, in the dump as
-    12-13-item-165-proof-atrium-pair.png and -balcony-pair.png and sent to the owner, differ in
-    exposure alone, the command calling SetAutoExposure and SetAutoExposureMetering and nothing
-    else; the metered atrium shows the far end's blue glow behind the door, item 166.
-
 166. **The atrium's far end does not glow blue.** The owner's shot of scenes_sponza at 12:05 on
     2026-11-01, the atrium view at 13:00 on the fixed camera, kept in the day's dump, shows the
     frame near black but for sunlit stone and the far end of the atrium glowing blue, sky light
@@ -1207,7 +1181,39 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     cause, a carried ray bringing the sky only where it left through open sky rather than through a
     cell the field holds a surface in, or the box grown, read by the atrium view against the
     reference and the slab, the canopy and the bounce rooms unchanged. Before 139, with 164 and 165
-    or after them, since it is the view the owner plays.
+    or after them, since it is the view the owner plays. Partial reading at 13:08 on 2026-11-01 from
+    the nave view at 13:00, which looks down the atrium to the main door, on the fixed camera
+    against the reference at 512 paths. The doorway's glow is not 163's carried rays, a scratch
+    build without them giving the same doorway, 98, 101 and 109 against 101, 104 and 112; its pixels
+    are the door end's walls facing the lion, a gray block reading 0.003, 0.004 and 0.005 against
+    the reference's 0.001, and dark materials whose excess is blue, a black wall reading 0.003,
+    0.005 and 0.009 against 0, which a near-black albedo cannot give diffusely, so at least part of
+    the excess is the environment's reflection scaled by the probes' sky share along the mirror,
+    which the reference does not trace; 163's carried rays add a small blue tint in places, a gray
+    block's blue 0.005 with them and 0.001 without against 0.002, the far upper gallery wall bluish
+    with them and gray without. The readings left need the GPU, diffuse against reflected at the
+    doorway and gi.probe in the vestibule for cascades 0 and 1, and the GPU is held by the owner's
+    Unity at 3.5 of 8 GB, the example dying out of device memory while building its field pool; item
+    168 meanwhile. Cause found at 13:26, none of the three suspects. From the nave the main door's
+    vestibule at x 14 to 20 lies in cascade 3 alone, whose probes stand 8 units apart, cascade 2
+    ending at x 14.3; of the eight probes about the vestibule's wall the two inside read 0.001 to
+    0.004 as the reference has it, while the ones under the floor and under the ground outside, open
+    to the sky, read 0.13 to 0.37, each within 3% of its own reference, so the probes are right and
+    the gather is not; the wall sees none of the eight, each keeps the same floor of a twentieth and
+    the blend goes by distance alone, the under-floor probes in front of a wall facing the lion
+    taking a quarter of the weight with their sky outweighing the dark probes inside. Ablations at
+    the gray block reading 489% over, the screen probes off no change, the merge off still lit,
+    163's carried sky removed no change, the reflection removed 0.003 and 0.004 so the glow is
+    mostly diffuse; the dark materials' excess mostly the reflection, a black wall at 0.003, 0.005
+    and 0.009 against 0 and 0.001 without it. A partial mend in scratch, a probe the surface cannot
+    see lending its face light times one less its face's sky share and no sky share to the
+    reflection, in the model pass's gather alone, takes the gray block from 489% over to 330, the
+    red from 2,263 to 1,188 and the black wall from 4,988 to 3,499; the rest comes through the
+    gather without the sky share, which shades the traced reflection's hits and the probes' and
+    screen probes' own hits and does not bind the skies. The choice, made here, is the model pass's
+    gathers first, both of them with the skies bound, read by the doorway and the slab, the canopy
+    and the bounce rooms unchanged; the probes' own hit shading only if that leaves the doorway well
+    over, since it changes the bounce itself.
 
 167. **The Sponza example's look matches the reference's warmth and post-processing.** The owner,
     shown the metered captures beside the reference pictures on 2026-11-01 at {hm}, found the global
@@ -1221,6 +1227,81 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     bloom and a lift-gamma-gain pass as the reference's profile sets them where the engine has them
     and offered where not, read by the three metered views' means and a side-by-side sheet beside
     the reference. After 166, before 139.
+
+168. **A cold start compiles its shaders in parallel.** From item 164, a cold start's 68 slangc
+    stages run one after another on a machine of 32 cores, 44 s where a few would do in parallel;
+    the compiler's processes run as many at once as the machine has cores, the cache written as each
+    ends, read by a cold start of Sponza and the game with the user's cache emptied. Small, after
+    166. Finished in the tree at 13:26, a cold renderer start of 7.1 s in Sponza and 7.4 in the game
+    where 44 to 45; committed on its own before 166's mend.
+
+169. **An example that cannot get its memory says so and runs smaller.** Found on 2026-11-01 when
+    another program held 3.5 of the GPU's 8 GB and scenes_sponza died with ErrorOutOfDeviceMemory
+    while building its field pool, twice. The field's pool and the other large allocations ask the
+    device what is free, take a smaller budget where it is short with a log line saying what was
+    asked, what was free and what was taken, and the program fails with that line and no crash where
+    even the smallest will not fit; read by Sponza with a scratch allocation holding 4 GB of the
+    device. Small, after 168.
+
+170. **A physically based sky.** Decision 84's first item. The day sky is a painted map scaled to a
+    lux figure (item 154), where the reference's sky is an atmosphere whose sun warms and whose
+    light changes with the sun's height. A sky computed from the sun's elevation, Rayleigh and Mie
+    scattering with the sun's disc, its luminance in the scene's units so the sun's color, the sky's
+    light and the drawn sky come from one model, feeding the field's sky, the environment light and
+    the window alike, the painted sky kept for programs that set one; read by the sun's color and
+    the level floor's lux against the reference scene's values at 8:00, 12:00 and 15:00 and by
+    Sponza's lookup view beside the reference. The sun's and the sky's light by elevation and the
+    atmosphere's parameters are written in the Sky module (Decision 85, the module's item 3) from
+    this item's first commit, the engine taking the module as a submodule under `modules/` (the
+    module's item 4) and the pass reading the module's numbers. Three commits.
+
+171. **The post-processing as the reference's profile has it.** Decision 84's second item, the mends
+    of item 167's reading, a bloom pass with its threshold and scatter, a lift, gamma and gain pass,
+    and a lookup table loaded from a file so the owner's own AgX variant replaces the built-in
+    curve, each a call of the flat API and off by default, the example setting the reference's
+    values; read by the three metered views' means beside the reference pictures. One or two
+    commits.
+
+172. **Rough reflections from the probes and the screen.** Decision 84's third item. The
+    environment's reflection today is the sky's share along the mirror way and a planar mirror where
+    a program sets one, so stone and wood read flat where the reference reflects the world; a
+    reflection gathered from the cascades along the mirror way, cone-weighted by the surface's
+    roughness, with a screen-space pass in front of it where the screen holds the hit, and the
+    probes' sky share only beyond both; read by the mirror example, Sponza's floor and columns
+    against the path-traced reference with indirect specular traced, and the cost at High at 1080p.
+    Two commits.
+
+173. **Horizon occlusion at the pixel's scale.** Decision 84's fourth item. The field's occlusion is
+    coarse by its cell; the reference adds a horizon-based pass at pixel scale that darkens corners,
+    cracks and the feet of columns. A screen-space horizon occlusion over the depth with a few
+    directions and a temporal blend, applied to the indirect light alone, the field keeping the far
+    occlusion; read by Sponza's door view against the reference and the cost at 1080p. One commit.
+
+174. **Temporal antialiasing.** Decision 84's fifth item, the frame resolved against its history
+    with a jittered projection, motion rejected by depth and color bounds, which also steadies the
+    probes' noise on screen; read by the still frame's change at its 99th part and the edges of
+    Sponza's arcades against the reference. One commit, after 172 and 173, whose passes it steadies.
+
+175. **Volumetric fog.** Decision 84's sixth item, last of the look, a froxel volume of a few slices
+    lit by the sun with its shadows and by the probes, its density and height a program sets, giving
+    the lookup's depth; read by Sponza's lookup beside the reference and the cost at 1080p. One or
+    two commits, after 174.
+
+176. **Finer cascades inside a building.** Decision 84's seventh item, of the cascades. The coarse
+    cascades hold the whole building and their probes eight units apart stand under floors and
+    outside walls (item 166), where the reference's probe volumes sit a meter apart with sky
+    occlusion; a set of finer cascades bound to a volume a program places, as a probe volume is
+    placed, so arcades, vaults and rooms get probes of their own, the outer cascades reading them as
+    the inner ones; read by Sponza's door and balcony views against the reference and the slab, the
+    canopy and the bounce rooms unchanged, and the cost at High. Two or three commits, after 139 and
+    before 140.
+
+177. **A history for the world probes.** Decision 84's eighth item, of the cascades. The screen
+    probes keep sixteen frames (item 135); the world probes write their radiance fresh each frame
+    with no history, so a still view breathes and a moving one flickers where the cascades are read
+    directly; a per-direction history blended with a reprojection on the cascade's move, read by the
+    bounce rooms' still spots and the change at the 99th part, the settle after a block breaks in
+    the game and the cost. Two commits, after 176.
 
 ## Verdicts
 
@@ -1438,6 +1519,33 @@ REVIEW-ARCHIVE.md.
     million triangles into each cascade, moves from after the cascades' items to right after 138's
     commit, a reading of what the pass draws first. The owner was right; the cause was every mesh's
     buffers in host memory read over PCIe each pass, mended at `3dda52c2`, the shadows 35 ms to 2.
+
+84. **The cascades' look is to match the owner's Unity scene.** The owner asked on 2026-11-01 at
+    13:38 for the plan to make the radiance cascades as photoreal as the Unity scene they built,
+    HTrace's world-space global illumination over probe volumes baked offline under a physical sky,
+    a physical camera, AgX, bloom, lift and gain, horizon occlusion and volumetric fog, and said to
+    write down the items that make sense. The engine's indirect light sits within 13% of its own
+    path-traced reference in Sponza, so the distance is mostly the pipeline around the light and
+    three gaps in the cascades; items 170 to 177, in the order a physically based sky, the
+    post-processing as the reference's profile, rough reflections, horizon occlusion, finer cascades
+    inside a building, a history for the world probes, temporal antialiasing and volumetric fog,
+    each read beside the reference pictures, with 139 before them and 140 to 142 after. What the
+    reference adds into the shade beyond the path-traced value is read last, and where it remains it
+    becomes a knob on the bounce's gain set by the owner's eye, not a mend.
+
+85. **The sky's model is a module, the drawing stays in each engine.** The owner asked on 2026-11-01
+    at 13:4x whether the sky, the atmosphere and the weather belong in a repository of their own so
+    both engines use them, BevyCSharp's targets being set already, or whether BevyCSharp keeps
+    Bevy's sky and a sky is built for this engine alone. The answer is that the model is shared and
+    the drawing is not. BevyCSharp's SkyClock, WeatherState and LookCycle reference no engine and
+    move to the module as they are after its items 90 and 68; what item 170 needs, the sun's
+    illuminance and color temperature by elevation and turbidity, the sky's luminance on the same
+    scale and the atmosphere's parameters as data, is written in the module from 170's first commit
+    by this engine's session, so both engines light from one sun and one sky and the reference's
+    figures come out of the same astronomy in both. The drawing is each engine's, Bevy's atmosphere
+    in WGSL there and item 170's pass in Slang here, since neither can be moved and nothing is
+    gained by it. The owner made `Sky` under `Modules/` at 13:47 (its Decisions 1 to 6); item 170 is
+    amended and a SHARED.md row added.
 
 ## Replies
 
