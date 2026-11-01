@@ -16,6 +16,18 @@ internal sealed unsafe partial class GraphicsDevice
         public Vector4 OriginAndCell;
         public uint Size, Instances, Triangles, Band;
         public uint GroupsX, Paint, KeptFrom, Cascade;
+        // The first and the last cell along each axis a triangle may write, w unused.
+        public uint FirstX, FirstY, FirstZ, FirstW, LastX, LastY, LastZ, LastW;
+
+        // Every cell of a cascade of `size` cells a side, or those of `cells` and a cell around them.
+        public void Clip(uint size, SceneFieldPlan.CellBox? cells)
+        {
+            var top = (int)size - 1;
+            (FirstX, FirstY, FirstZ, LastX, LastY, LastZ) = cells is { } c
+                ? ((uint)Math.Max(c.X0 - 1, 0), (uint)Math.Max(c.Y0 - 1, 0), (uint)Math.Max(c.Z0 - 1, 0),
+                    (uint)Math.Min(c.X1 + 1, top), (uint)Math.Min(c.Y1 + 1, top), (uint)Math.Min(c.Z1 + 1, top))
+                : (0u, 0u, 0u, (uint)top, (uint)top, (uint)top);
+        }
     }
 
     /// <summary>Whether the field's shaders have been given, so a field can be built.</summary>
@@ -36,7 +48,8 @@ internal sealed unsafe partial class GraphicsDevice
             _fieldStages[ResolveStage] = MakeComputeStage(spirv[1], [VkDescriptorType.StorageBuffer, VkDescriptorType.StorageImage,
                 VkDescriptorType.StorageImage, VkDescriptorType.StorageBuffer, VkDescriptorType.StorageBuffer, VkDescriptorType.StorageImage,
                 VkDescriptorType.StorageImage, VkDescriptorType.StorageBuffer, VkDescriptorType.StorageImage, VkDescriptorType.StorageBuffer,
-                VkDescriptorType.StorageImage, VkDescriptorType.StorageImage, VkDescriptorType.StorageBuffer, VkDescriptorType.StorageImage], 32);
+                VkDescriptorType.StorageImage, VkDescriptorType.StorageImage, VkDescriptorType.StorageBuffer, VkDescriptorType.StorageImage,
+                VkDescriptorType.StorageBuffer], 64);
             _fieldStages[StampStage] = MakeComputeStage(spirv[2], [VkDescriptorType.StorageBuffer, VkDescriptorType.StorageBuffer,
                 VkDescriptorType.StorageImage, VkDescriptorType.StorageImage, VkDescriptorType.UniformBuffer, VkDescriptorType.StorageImage,
                 VkDescriptorType.StorageImage, VkDescriptorType.StorageImage, VkDescriptorType.StorageImage], 16);
@@ -294,6 +307,17 @@ internal sealed unsafe partial class GraphicsDevice
     /// which the far cascade's build keeps to half the last counted cascade's cell. A double-sided
     /// face is held by its plane in the cells it is nearest (<c>sheetAt</c> in <c>field_resolve.slang</c>).
     /// </param>
+    /// <param name="cells">
+    /// The cells the build turns into distances, or null for the whole cascade. Its triangles write
+    /// those cells and a cell around them alone, which the distance of a cell is read beside, so the
+    /// instances given are every still mesh within the band of those, and the rest of the cascade
+    /// stays as it was built.
+    /// </param>
+    /// <param name="empty">
+    /// Whether the first part of a build of <paramref name="cells"/> turns them into distances
+    /// from nothing before it splats, as a cascade shifted by <see cref="RecordSceneFieldShift"/>
+    /// holds the cells it brings in empty until the build's last part.
+    /// </param>
     /// <returns>What the recording holds, to free once no frame in flight reads it.</returns>
     /// <remarks>
     /// A build of more triangles than a frame splats is recorded in parts over frames, the cascade's
@@ -303,11 +327,12 @@ internal sealed unsafe partial class GraphicsDevice
     /// </remarks>
     public IDisposable RecordSceneFieldBuild(ICommandBuffer commandBuffer, GpuSceneField field, IBuffer corners, IBuffer instances,
         int instanceCount, int triangleCount, int cascade, Vector3 origin, float cell, int band, bool thinGlow = false,
-        bool first = true, bool last = true, bool? lend = null, float sheet = 0)
+        bool first = true, bool last = true, bool? lend = null, float sheet = 0, SceneFieldPlan.CellBox? cells = null, bool empty = false)
     {
         var lent = lend ?? thinGlow;
         var splats = instanceCount > 0 && triangleCount > 0;
-        var run = new FieldRun(this, commandBuffer, (splats, last) switch
+        var emptied = first && empty && cells is not null && !last;
+        var run = new FieldRun(this, commandBuffer, (splats, last || emptied) switch
         {
             (true, true) => [SplatStage, ResolveStage],
             (true, false) => [SplatStage],
@@ -315,8 +340,10 @@ internal sealed unsafe partial class GraphicsDevice
             _ => [],
         });
         var cmd = run.Commands;
-        var cells = ((VulkanBuffer)field.Cells).Buffer;
+        var words = ((VulkanBuffer)field.Cells).Buffer;
         var size = (uint)field.Resolution;
+        var kept = (ulong)size * size * size * 4;
+        field.KeptCells ??= CreateBuffer(new BufferDesc(kept * (ulong)field.Cascades, BufferUsage.Storage | BufferUsage.TransferDst | BufferUsage.TransferSrc));
 
         if (first)
         {
@@ -328,7 +355,7 @@ internal sealed unsafe partial class GraphicsDevice
             // in 1024ths of a cell above the bits that say whether a double-sided triangle's nearest
             // point lies on its rim, whether its triangle is double-sided and whether the cell is in
             // front, and eight bits of its face's way.
-            _deviceApi.vkCmdFillBuffer(cmd, cells, 0, Vulkan.VK_WHOLE_SIZE, ((uint)band * 1024 << 11) | 1 << 8);
+            _deviceApi.vkCmdFillBuffer(cmd, words, 0, Vulkan.VK_WHOLE_SIZE, ((uint)band * 1024 << 11) | 1 << 8);
             // No second face as near as the nearest, until the painting pass finds one.
             _deviceApi.vkCmdFillBuffer(cmd, ((VulkanBuffer)field.Second).Buffer, 0, Vulkan.VK_WHOLE_SIZE, uint.MaxValue);
             _deviceApi.vkCmdFillBuffer(cmd, ((VulkanBuffer)field.Albedo).Buffer, 0, Vulkan.VK_WHOLE_SIZE, 0);
@@ -343,6 +370,8 @@ internal sealed unsafe partial class GraphicsDevice
             }
             MemoryBarrier(cmd, VkPipelineStageFlags2.Transfer, VkAccessFlags2.TransferWrite,
                 VkPipelineStageFlags2.ComputeShader, VkAccessFlags2.ShaderRead | VkAccessFlags2.ShaderWrite);
+            // The cells a shift brought in held as nothing near until the build's last part.
+            if (emptied) Resolve(run, field, cascade, cell, band, lent: false, sheet, cells);
         }
         else
             // The part before's splat and paint are seen by this one's, a frame or more later.
@@ -373,6 +402,7 @@ internal sealed unsafe partial class GraphicsDevice
                 Band = (uint)band,
                 GroupsX = groupsX,
             };
+            push.Clip(size, cells);
             var groupsY = ((uint)triangleCount + groupsX - 1) / groupsX;
             run.Dispatch(SplatStage, splat, MemoryMarshal.AsBytes(new ReadOnlySpan<SplatPush>(in push)), groupsX, groupsY, 1);
             MemoryBarrier(cmd, VkPipelineStageFlags2.ComputeShader, VkAccessFlags2.ShaderWrite,
@@ -390,42 +420,41 @@ internal sealed unsafe partial class GraphicsDevice
                 VkPipelineStageFlags2.ComputeShader, VkAccessFlags2.ShaderRead);
         }
 
-        // The last part turns the words into the cascade's distances and keeps them.
-        if (last)
-        {
-            var resolve = run.Set(ResolveStage);
-            run.Buffer(resolve, 0, VkDescriptorType.StorageBuffer, field.Cells);
-            run.Image(resolve, 1, field.StillView);
-            run.Image(resolve, 2, field.FieldView);
-            run.Buffer(resolve, 3, VkDescriptorType.StorageBuffer, field.Albedo);
-            run.Buffer(resolve, 4, VkDescriptorType.StorageBuffer, field.Glow);
-            run.Image(resolve, 5, ((VulkanImageView)field.AlbedoView).View);
-            run.Image(resolve, 6, ((VulkanImageView)field.GlowView).View);
-            run.Buffer(resolve, 7, VkDescriptorType.StorageBuffer, field.Behind);
-            run.Image(resolve, 8, field.StillPaintView);
-            run.Buffer(resolve, 9, VkDescriptorType.StorageBuffer, field.Emitted ?? field.Behind);
-            run.Image(resolve, 10, ((VulkanImageView)field.FacesView).View);
-            run.Image(resolve, 11, field.StillFacesView);
-            run.Buffer(resolve, 12, VkDescriptorType.StorageBuffer, field.Second);
-            run.Image(resolve, 13, ((VulkanImageView)field.SecondView).View);
-            ReadOnlySpan<Vector4> cascadePush = [new Vector4(cascade, size, cell, band), new Vector4(lent ? 1 : 0, sheet > 0 ? sheet : cell * 0.5f, 0, 0)];
-            var groups = (size + 3) / 4;
-            run.Dispatch(ResolveStage, resolve, MemoryMarshal.AsBytes(cascadePush), groups, groups, groups);
-            MemoryBarrier(cmd, VkPipelineStageFlags2.ComputeShader, VkAccessFlags2.ShaderWrite,
-                VkPipelineStageFlags2.ComputeShader, VkAccessFlags2.ShaderRead | VkAccessFlags2.ShaderWrite);
-
-            // The cascade's words kept for a mesh painted again in a later frame, since the next build
-            // fills these with its own.
-            var words = (ulong)size * size * size * 4;
-            field.KeptCells ??= CreateBuffer(new BufferDesc(words * (ulong)field.Cascades, BufferUsage.Storage | BufferUsage.TransferDst));
-            MemoryBarrier(cmd, VkPipelineStageFlags2.ComputeShader, VkAccessFlags2.ShaderRead | VkAccessFlags2.ShaderWrite,
-                VkPipelineStageFlags2.Transfer, VkAccessFlags2.TransferRead | VkAccessFlags2.TransferWrite);
-            var copy = new VkBufferCopy { srcOffset = 0, dstOffset = words * (ulong)cascade, size = words };
-            _deviceApi.vkCmdCopyBuffer(cmd, cells, ((VulkanBuffer)field.KeptCells).Buffer, 1, &copy);
-            MemoryBarrier(cmd, VkPipelineStageFlags2.Transfer, VkAccessFlags2.TransferRead | VkAccessFlags2.TransferWrite,
-                VkPipelineStageFlags2.ComputeShader | VkPipelineStageFlags2.Transfer, VkAccessFlags2.ShaderRead | VkAccessFlags2.ShaderWrite | VkAccessFlags2.TransferWrite);
-        }
+        // The last part turns the words into the cascade's distances, and keeps them for a mesh
+        // painted again in a later frame, since the next build fills these with its own.
+        if (last) Resolve(run, field, cascade, cell, band, lent, sheet, cells);
         return run;
+    }
+
+    // Turns the words of a build of cascade `cascade` into its distances over `cells`, or the whole
+    // cascade, keeping each cell's word, and makes them seen by what reads them after.
+    private void Resolve(FieldRun run, GpuSceneField field, int cascade, float cell, int band, bool lent, float sheet, SceneFieldPlan.CellBox? cells)
+    {
+        var size = (uint)field.Resolution;
+        var resolve = run.Set(ResolveStage);
+        run.Buffer(resolve, 0, VkDescriptorType.StorageBuffer, field.Cells);
+        run.Image(resolve, 1, field.StillView);
+        run.Image(resolve, 2, field.FieldView);
+        run.Buffer(resolve, 3, VkDescriptorType.StorageBuffer, field.Albedo);
+        run.Buffer(resolve, 4, VkDescriptorType.StorageBuffer, field.Glow);
+        run.Image(resolve, 5, ((VulkanImageView)field.AlbedoView).View);
+        run.Image(resolve, 6, ((VulkanImageView)field.GlowView).View);
+        run.Buffer(resolve, 7, VkDescriptorType.StorageBuffer, field.Behind);
+        run.Image(resolve, 8, field.StillPaintView);
+        run.Buffer(resolve, 9, VkDescriptorType.StorageBuffer, field.Emitted ?? field.Behind);
+        run.Image(resolve, 10, ((VulkanImageView)field.FacesView).View);
+        run.Image(resolve, 11, field.StillFacesView);
+        run.Buffer(resolve, 12, VkDescriptorType.StorageBuffer, field.Second);
+        run.Image(resolve, 13, ((VulkanImageView)field.SecondView).View);
+        run.Buffer(resolve, 14, VkDescriptorType.StorageBuffer, field.KeptCells!);
+        var (from, to) = cells is { } c
+            ? (new Vector4(c.X0, c.Y0, c.Z0, 0), new Vector4(c.X1, c.Y1, c.Z1, 0))
+            : (Vector4.Zero, new Vector4(size - 1, size - 1, size - 1, 0));
+        ReadOnlySpan<Vector4> push = [new Vector4(cascade, size, cell, band), new Vector4(lent ? 1 : 0, sheet > 0 ? sheet : cell * 0.5f, 0, 0), from, to];
+        var extent = to - from + Vector4.One;
+        run.Dispatch(ResolveStage, resolve, MemoryMarshal.AsBytes(push), ((uint)extent.X + 3) / 4, ((uint)extent.Y + 3) / 4, ((uint)extent.Z + 3) / 4);
+        MemoryBarrier(run.Commands, VkPipelineStageFlags2.ComputeShader, VkAccessFlags2.ShaderWrite,
+            VkPipelineStageFlags2.ComputeShader | VkPipelineStageFlags2.Transfer, VkAccessFlags2.ShaderRead | VkAccessFlags2.ShaderWrite | VkAccessFlags2.TransferRead);
     }
 
     /// <summary>
@@ -476,6 +505,7 @@ internal sealed unsafe partial class GraphicsDevice
             KeptFrom = size * size * size * (uint)cascade,
             Cascade = (uint)cascade,
         };
+        push.Clip(size, null);
         MemoryBarrier(run.Commands, VkPipelineStageFlags2.ComputeShader, VkAccessFlags2.ShaderWrite,
             VkPipelineStageFlags2.ComputeShader, VkAccessFlags2.ShaderRead | VkAccessFlags2.ShaderWrite);
         run.Dispatch(SplatStage, splat, MemoryMarshal.AsBytes(new ReadOnlySpan<SplatPush>(in push)), groupsX, ((uint)triangleCount + groupsX - 1) / groupsX, 1);
@@ -657,5 +687,7 @@ internal sealed unsafe partial class GraphicsDevice
         }
         Array.Clear(_fieldStages);
         _fieldSpirv = null;
+        DisposeFieldShift();
+        _fieldShift = null;
     }
 }

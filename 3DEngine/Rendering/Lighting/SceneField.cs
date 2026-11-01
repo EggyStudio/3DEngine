@@ -297,9 +297,11 @@ internal sealed partial class SceneFieldRenderer : IDisposable
                 // flat world's ground four blocks thick as a slab rising past the eye, which the rays
                 // leaving the counted cascades met in place of the sky.
                 var sheet = plan.HasFar && build.Cascade >= plan.Counted ? plan.CellOf(plan.Counted - 1) * 0.5f : 0;
+                // A shift moves the cells its cascade keeps before its build splats the slab it brings in.
+                if (build.ShiftAxis >= 0) device.RecordSceneFieldShift(commands, field, build.Cascade, build.ShiftAxis, build.ShiftCells);
                 Hold(device.RecordSceneFieldBuild(commands, field, corners, instances, count, triangles,
                     build.Cascade, build.Origin, build.Cell, SceneFieldPlan.Band, thinGlow, build.First, build.Last,
-                    lend: build is { First: true, Last: true } ? thinGlow : true, sheet: sheet));
+                    lend: build is { First: true, Last: true } ? thinGlow : true, sheet: sheet, cells: build.Cells, empty: build.Cells is not null));
             }
             foreach (var (cascade, origin, cell, painted) in repaints)
             {

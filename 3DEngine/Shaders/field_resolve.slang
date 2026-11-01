@@ -2,7 +2,8 @@
 // below zero behind a face and within half a cell of a wall thinner than a cell, with the plane of
 // a double-sided face whose inside is a cell's nearest point beside the distance, and writes them
 // into the cascade's place in the field the meshes alone make and in the field the passes read,
-// with the color and the emission it painted, a thread a cell.
+// with the color and the emission it painted, a thread a cell, every cell of the cascade or, for a
+// build of a region, the region's cells alone, and keeps each cell's code for a mesh painted again.
 
 [[vk::binding(0, 0)]]
 StructuredBuffer<uint> cells;
@@ -59,6 +60,11 @@ StructuredBuffer<uint> second;
 [[vk::binding(13, 0)]] [format("rgba16f")]
 RWTexture3D<float4> secondField;
 
+// Each cascade's codes as its builds left them, cascade after cascade, which field_splat.slang's
+// pass that paints again reads.
+[[vk::binding(14, 0)]]
+RWStructuredBuffer<uint> kept;
+
 struct ResolvePush
 {
     // x: the cascade. y: the cells along each side. z: the width of a cell. w: the band in cells.
@@ -67,6 +73,9 @@ struct ResolvePush
     // far either side of its middle a wall thinner than a cell is held, half a cell but in the far
     // cascade, where half the last counted cascade's cell.
     float4 lent;
+    // xyz: the first and the last cell along each axis the build turns into distances.
+    float4 from;
+    float4 to;
 };
 
 [[vk::push_constant]]
@@ -171,12 +180,14 @@ bool pinched(uint3 c, uint size)
 
 [shader("compute")]
 [numthreads(4, 4, 4)]
-void computeMain(uint3 id : SV_DispatchThreadID)
+void computeMain(uint3 thread : SV_DispatchThreadID)
 {
     uint size = uint(push.cascade.y);
-    if (any(id >= size))
+    uint3 id = thread + uint3(push.from.xyz);
+    if (any(id > uint3(push.to.xyz)) || any(id >= size))
         return;
     uint code = cells[(id.z * size + id.y) * size + id.x];
+    kept[uint(push.cascade.x) * size * size * size + (id.z * size + id.y) * size + id.x] = code;
     // Such a cell is held inside at its distance, so a march through the edge between the two
     // blocks meets the field there, where between the four cells about the edge the distance never
     // fell below zero, and a march from the floor east of a wall whose halves met along one edge

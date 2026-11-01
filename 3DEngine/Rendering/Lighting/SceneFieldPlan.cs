@@ -15,9 +15,11 @@ namespace Engine;
 /// A cascade is <see cref="Resolution"/> cells a side, each cascade's cells twice as wide as the
 /// one before's, and lies around the eye, with its corner on a grid of <see cref="SnapCells"/> of
 /// its cells, so it moves only when the eye has gone that far, a turn moving none, and the cells it
-/// keeps stay where they were. A cascade that moves, or that a still mesh came into or left, is
-/// built again, the finest first, as many a frame as the budget says, and until then keeps the
-/// place and the meshes it was built with, which the info the passes read says.
+/// keeps stay where they were. A cascade the eye moved by less than half its width shifts as a
+/// clipmap does, the cells it keeps moved on the GPU and the slab it brings in built alone, one axis
+/// at a time (SceneFieldPlan.Shifts.cs). One moved farther, or that a still mesh came into or left,
+/// is built again whole, the finest first, as many a frame as the budget says, and until then keeps
+/// the place and the meshes it was built with, which the info the passes read says.
 /// </para>
 /// <para>
 /// The eye so stands 28 to 36 cells from each side of each cascade, past the outer bands the passes
@@ -155,9 +157,14 @@ internal sealed partial class SceneFieldPlan
     /// A build of more triangles than a frame's budget is splatted over as many frames as it takes,
     /// its <paramref name="First"/> part clearing the cascade's words and its <paramref name="Last"/>
     /// turning them into the distances the passes read, so until then the passes read the cascade as
-    /// it was last built.
+    /// it was last built. A shift's build gives the cells it builds alone in <paramref name="Cells"/>,
+    /// and its first part moves its cascade by <paramref name="ShiftCells"/> of its cells along
+    /// <paramref name="ShiftAxis"/>, 0 for x, 1 for y and 2 for z, or -1 where it moves none, so the
+    /// passes read the cascade at <paramref name="Origin"/> from that frame on, the cells it brought
+    /// in empty until the build's last part.
     /// </remarks>
-    internal sealed record Build(int Cascade, Vector3 Origin, float Cell, Instance[] Instances, Box? Changed = null, bool First = true, bool Last = true);
+    internal sealed record Build(int Cascade, Vector3 Origin, float Cell, Instance[] Instances, Box? Changed = null, bool First = true, bool Last = true,
+        CellBox? Cells = null, int ShiftAxis = -1, int ShiftCells = 0);
 
     /// <summary>
     /// A mesh stamped as a box, from the world into its own space, the box's middle and half
@@ -508,7 +515,8 @@ internal sealed partial class SceneFieldPlan
             }
 
         // Cascades the eye has moved past, then as many dirty ones as the budget allows, finest first.
-        if (_rebuildFrames > 0)
+        _forced = _rebuildFrames > 0;
+        if (_forced)
         {
             _rebuildFrames--;
             Array.Fill(_dirty, true);

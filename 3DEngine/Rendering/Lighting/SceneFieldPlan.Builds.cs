@@ -10,12 +10,15 @@ internal sealed partial class SceneFieldPlan
     // A cascade's build that runs over frames, its corner and reach, the still meshes left to splat
     // into it, nearest the eye first by the distance each was put in at, the box around what came or
     // went within it, and whether it splatted anything yet or has to start again, a mesh it splatted
-    // having left.
+    // having left. A shift's build holds the cells it builds alone, and the axis and the cells its
+    // cascade moves by, which its first part moves it by and no later part again.
     private sealed class Job
     {
         public int Cascade;
         public Vector3 Origin;
         public Box Reach;
+        public CellBox? Cells;
+        public int ShiftAxis = -1, ShiftCells;
         public readonly List<(float Distance, Instance Instance)> Left = [];
         // The triangles of every mesh in Left, which the pool is sized for.
         public int Triangles;
@@ -62,13 +65,16 @@ internal sealed partial class SceneFieldPlan
     /// </summary>
     /// <remarks>
     /// A build in progress, as the eye's move starts one, leaves the passes reading its cascade as
-    /// it was last built, which holds the meshes it held. Taken as a field not whole, as it was
+    /// it was last built, which holds the meshes it held. A shift of the last cascade holds the slab
+    /// it brings in empty until its build ends, and the field is not whole until then, the slab
+    /// lying at the field's edge. Taken as a field not whole, as it was
     /// while every cascade was built and none waited, the probes' carried rays brought no sky
     /// through Sponza's court for the 40 frames its cascades took to build again after the eye
     /// moved, and the gallery's view read its blue less red at -0.65 in a thousandth of linear
     /// light against +1.00 at rest and a path-traced reference's +0.80.
     /// </remarks>
-    public bool Whole => Arriving == 0 && _pending.Count == 0 && Array.TrueForAll(_built, origin => origin is not null);
+    public bool Whole => Arriving == 0 && _pending.Count == 0 && Array.TrueForAll(_built, origin => origin is not null)
+        && !(_job is { Cells: not null } shifting && shifting.Cascade == Cascades - 1);
 
     /// <summary>
     /// Whether the field holds the scene as it stands, <see cref="Whole"/> with no build in
@@ -95,8 +101,9 @@ internal sealed partial class SceneFieldPlan
         while (cascades > 0 && triangles > 0)
         {
             // A finer cascade gone dirty comes first, as the cascades always come, and the coarser
-            // build in progress starts again after it, what changed within it kept for that build.
-            if (_job is { } running && Array.IndexOf(_dirty, true) is >= 0 and var finer && finer < running.Cascade)
+            // build in progress starts again after it, what changed within it kept for that build,
+            // but for a shift's, whose cascade has moved and holds the slab it brings in empty.
+            if (_job is { Cells: null } running && Array.IndexOf(_dirty, true) is >= 0 and var finer && finer < running.Cascade)
             {
                 var rc = running.Cascade;
                 _dirty[rc] = true;
@@ -109,15 +116,20 @@ internal sealed partial class SceneFieldPlan
                 if (next < 0) break;
                 var origin = OriginAround(next, eye);
                 var reach = CascadeBox(next, origin).Grown(Band * CellOf(next));
-                _job = new Job { Cascade = next, Origin = origin, Reach = reach, Changed = _built[next] is null ? reach : _changed[next] };
+                _job = ShiftOf(next, origin) ?? new Job { Cascade = next, Origin = origin, Reach = reach, Changed = _built[next] is null ? reach : _changed[next] };
                 _changed[next] = null;
                 Gather(_job, eye);
             }
             var job = _job;
             var c = job.Cascade;
             // A build whose cascade the eye has carried on, or one of whose splatted meshes left,
-            // starts again where the cascade lies this frame.
-            if (job.Restart || job.Origin != OriginAround(c, eye))
+            // starts again where the cascade lies this frame. A shift's goes on to its own place, the
+            // next shift following it, and starts again where a mesh it splatted left.
+            if (job.Cells is not null)
+            {
+                if (job.Restart) Gather(job, eye);
+            }
+            else if (job.Restart || job.Origin != OriginAround(c, eye))
             {
                 job.Origin = OriginAround(c, eye);
                 job.Reach = CascadeBox(c, job.Origin).Grown(Band * CellOf(c));
@@ -128,7 +140,7 @@ internal sealed partial class SceneFieldPlan
             var batch = new List<Instance>();
             while (job.Next < job.Left.Count)
             {
-                var cost = _triangles(job.Left[job.Next].Instance.Vertices);
+                var cost = Cost(job.Left[job.Next].Instance, job);
                 if (cost > triangles && (batch.Count > 0 || Splatted > 0)) break;
                 batch.Add(job.Left[job.Next++].Instance);
                 triangles -= cost;
@@ -136,11 +148,15 @@ internal sealed partial class SceneFieldPlan
             }
             var last = job.Next == job.Left.Count;
             if (batch.Count == 0 && !last) break;
-            Builds.Add(new Build(c, job.Origin, CellOf(c), [.. batch], last ? job.Changed : null, !job.Started, last));
+            Builds.Add(new Build(c, job.Origin, CellOf(c), [.. batch], last ? job.Changed : null, !job.Started, last, job.Cells,
+                job.ShiftAxis, job.ShiftCells));
+            // A shift moves its cascade with its first part, the passes reading it at its new corner
+            // from this frame on and the field they read made the still field again.
+            if (job.ShiftAxis >= 0) (_built[c], rebuilt[c], job.ShiftAxis) = (job.Origin, true, -1);
             job.Started = true;
             cascades--;
             if (!last) break;
-            (_built[c], _builtFrame[c], rebuilt[c]) = (job.Origin, _frame, true);
+            if (job.Cells is null) (_built[c], _builtFrame[c], rebuilt[c]) = (job.Origin, _frame, true);
             _job = null;
         }
         return rebuilt;

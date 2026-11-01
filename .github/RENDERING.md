@@ -2428,6 +2428,24 @@ of the eye past where the cascades around it reach stand the eye nearer it, the 
 three units off at 0.142, 0.175 and 0.232 of the sky the solid canopy holds back against the
 reference's 0.17, 0.17 and 0.21, where it read 0.17, 0.18 and 0.32 from six units off.
 
+**A cascade shifted as a clipmap, read on 2026-11-01.** A cascade the eye moved past its grid was
+built again whole, every still mesh within its band splatted. One moved by less than half its
+width keeps the cells it holds, its still distances, colors, faces, emission, second planes and
+kept words moved on the GPU through a buffer of a cascade's cells, one axis at a time
+(`GraphicsDevice.RecordSceneFieldShift`), and the passes read it at its new corner from that frame,
+the field they read made the still one again and stamped again. The slab of cells the move brings
+in is built alone, its triangles clipped to the slab's cells and a cell around them and its resolve
+over the slab's cells alone, which keeps each cell's word itself (139's region builds), each mesh
+costing the budget its triangles by the share of its bounds within the slab's band, an eighth of
+them at least. The slab reads as nothing near from the shift until its build ends, which lies in
+the cascade's outer band, and where the cascade is the last the field is not whole meanwhile, so a
+carried ray brings no sky through it. A shifted cascade holds the field a build of the whole of it
+at its new corner holds, to a hundredth of a unit at the default budget and at one of 64 triangles
+over frames (`SceneFieldTests.Shifts`). In Sponza a walk of ten units along the atrium from its
+end, a tenth of a unit a frame, splatted some 693,000 triangles over 16 of its 100 frames, where
+building each cascade again whole splatted 2.57 million over 34, the frames alike to a tenth of a
+level on the mean in the walk's middle and settled at its end.
+
 **The far end of Sponza's atrium, read on 2026-11-01.** From the nave view at 13:00 the main door's
 vestibule lies in the last cascade alone, whose probes stand eight units apart, and of the eight
 around a wall by the door two stand inside, as dark as a path-traced reference has them, and the

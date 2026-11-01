@@ -85,11 +85,14 @@ at, so its third cascade holds the part of the building the view shows and a tur
 game seen from above gives its player's place each frame, as `games/Wick` does, so the finest
 cascades hold the rooms about the player rather than the air under the camera. A free camera in an
 open world gives nothing, and a building wider than its third cascade has its far rooms held by the
-fourth's coarser probes. A cascade is built again where that point has gone past its grid or a mesh
-came or went, as many cascades a frame as the budget says, the finest first. A mesh drawn in the
-same place for eight frames is built in from its triangles; one that moves is held as boxes painted
-its color, so a red figure reflects red light, though its emission reaches no other surface unless
-it is small enough to be a light of its own, below.
+fourth's coarser probes. A cascade that point has gone past the grid of keeps the cells it holds,
+moved on the GPU, and builds the slab of cells the move brings in alone, as a clipmap does, so a
+walk splats a fraction of what building each cascade again did. One the point went half its width
+past or more, or that a mesh came into or went from, is built again whole, as many cascades a frame
+as the budget says, the finest first. A mesh drawn in the same place for eight frames is built in
+from its triangles; one that moves is held as boxes painted its color, so a red figure reflects red
+light, though its emission reaches no other surface unless it is small enough to be a light of its
+own, below.
 
 A frame's builds splat 32,768 triangles at most unless `triangleBudget` says otherwise, the meshes
 within a cascade nearest the eye first, a mesh at least. A build of more goes on over the frames

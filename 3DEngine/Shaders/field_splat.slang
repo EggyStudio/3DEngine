@@ -105,6 +105,11 @@ struct SplatPush
     // that lends an emitter thinner than a cell's light to the cells near it, 3 for the one that
     // paints again. z: where the cascade's words begin in cells, and w: the cascade, for that one.
     uint4 groups;
+    // xyz: the first and the last cell along each axis a triangle writes, the whole cascade's or,
+    // for a build of a region, its cells and a cell around them, past which the build keeps the
+    // cascade as it was. w: unused.
+    uint4 firstCell;
+    uint4 lastCell;
 };
 
 [[vk::push_constant]]
@@ -298,8 +303,8 @@ void computeMain(uint3 group : SV_GroupID, uint lane : SV_GroupIndex)
     int size = int(push.counts.x);
     float3 low = (min(a, min(b, c)) - push.originAndCell.xyz) / cell - band;
     float3 high = (max(a, max(b, c)) - push.originAndCell.xyz) / cell + band;
-    int3 first = max(int3(floor(low)), int3(0));
-    int3 last = min(int3(ceil(high)), int3(size - 1));
+    int3 first = max(int3(floor(low)), int3(push.firstCell.xyz));
+    int3 last = min(int3(ceil(high)), int3(push.lastCell.xyz));
     if (any(last < first))
         return;
     int3 span = last - first + 1;
@@ -311,8 +316,8 @@ void computeMain(uint3 group : SV_GroupID, uint lane : SV_GroupIndex)
             return;
         // The cells within a cell of the triangle, which lie within its bounds grown by one, every
         // cell a point on it is blended from where the field is read there.
-        first = max(int3(floor((min(a, min(b, c)) - push.originAndCell.xyz) / cell - 1.0)), int3(0));
-        last = min(int3(ceil((max(a, max(b, c)) - push.originAndCell.xyz) / cell + 1.0)), int3(size - 1));
+        first = max(int3(floor((min(a, min(b, c)) - push.originAndCell.xyz) / cell - 1.0)), int3(push.firstCell.xyz));
+        last = min(int3(ceil((max(a, max(b, c)) - push.originAndCell.xyz) / cell + 1.0)), int3(push.lastCell.xyz));
         if (any(last < first))
             return;
         span = last - first + 1;
