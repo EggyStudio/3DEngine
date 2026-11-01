@@ -627,8 +627,15 @@ public LitLight litLight(float3 albedo, ModelVertexOutput input, float shadow = 
         float3 arrived = arriving(lamp, input.world, n);
         if (int(lamp.positionAndKind.w) == Ambient)
         {
-            light.diffuse += (distant ? distantAround(arrived, n, diffuseColor) : arrived) * occlusion * diffuseColor * (1.0 - held);
-            light.specular += arrived * occlusion * specularShare * (1.0 - gloss);
+            // Its reflection as far as the indirect light reaching the surface holds the light
+            // this one sends it in the open, which is the probes' where they hold the surface, so a
+            // floor under a roof reflects as little of it as the roof lets reach it, where taken
+            // whole a floor two and a half units under a solid slab took 0.067 in linear light from
+            // the reflection alone at roughness 0.5 and a path-traced reference 0.006 in all.
+            float3 inOpen = distant ? distantAround(arrived, n, diffuseColor) : arrived;
+            float reaches = bounces ? lerp(1.0, saturate(luminance(bouncedHere) / max(luminance(inOpen), 1e-5)), held) : 1.0;
+            light.diffuse += inOpen * occlusion * diffuseColor * (1.0 - held);
+            light.specular += arrived * occlusion * specularShare * (1.0 - gloss) * reaches;
             continue;
         }
 

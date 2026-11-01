@@ -4673,6 +4673,28 @@ batch.
     asserts the emitted module initializer registers, since a compiled assembly would leave its
     behavior in every later app; a ConsoleBuiltins test on TestFolder.
 
+156. **Every buffer the GPU reads each frame lives in device memory.** From item 151's cause, two
+    storage buffers still sit in host memory on a discrete GPU, the skinning's posed output, written
+    by compute and read by every pass, and the field's corner pool; each goes device-local as the
+    mesh buffers did, with the copy or the compute writing there, read by the skinned examples'
+    passes and gpu.scene_field in the grove before and after, pictures unchanged; and the device's
+    memory types are listed once at start in the log so a host-visible buffer on a hot path is seen.
+    Small, before 152. Done at `07085cd2`, read at 01:42 on 2026-11-01. GraphicsDevice.FillBuffer is
+    the batched staging copy with the sync2 barrier and CreateFilledBuffer uses it; the skinning's
+    rest, joints, weights, morphs and posed output come from it, the per-frame joint rows staying
+    host memory since the CPU writes them each frame; the field's corner pool is storage in device
+    memory, the corners added written into a CPU array and copied in, the counted meshes' corners
+    still written on the GPU after; LogMemoryTypes at start, the 4070 laptop listing plain system
+    memory, device local, host visible coherent, host visible coherent cached, and device local host
+    visible coherent of 8 GB. models_stress at a thousand with 64 arms reads gpu.skinning 0.223 to
+    0.229 ms to 0.179, the animation example 0.011 to 0.008 with hdr_scene 0.09 to 0.07, Sponza's
+    field build 141 to 148 ms to 144 to 149, unchanged, the pool's reads not being what a build
+    costs, the grove standing in for by Sponza; the still frame within 0.08 of 255 on the mean, the
+    skinned examples held by ReferenceFrameTests' skinned arm. Left for item 157, the buffers the
+    CPU writes each frame on the plain system type where the device offers a device-local
+    host-visible type, and the ray scene's corners mapped in host memory for BLAS builds; the 145 ms
+    field build a lead.
+
 ## Verdicts settled
 
 Verdicts 1 to 55 are settled, the last two, the drawing leak test's resident bound and the Windows

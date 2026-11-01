@@ -2261,6 +2261,28 @@ through, global illumination takes 2.88 to 2.95 ms at `High` where 2.77 to 2.79,
 reads in each of two runs with no other program on the GPU under tuned's `powersave-bazzite`, and
 1.27 at `Low` and 1.89 to 1.93 solid at `High` as before.
 
+**An ambient light's reflection under a roof, read on 2026-11-01.** In item 100's slab scene, a gray
+floor lit by an ambient light alone, the floor two and a half units under a solid slab twenty
+across read 0.074 in linear light at `High` and 0.071 at `Low` where a path-traced reference takes
+0.006, and 0.110 and 0.098 five and a half under it where 0.032. With the merge of the cascades
+left out it still read 0.067, and in the open 0.070, so the light was no cascade's. It was the
+ambient light's reflection, which the model pass took whole whatever the probes saw, while its
+diffuse share gives way to theirs, and which at the floor's roughness of 0.5 seen at 19 degrees
+reflects 0.15 of the light. The reference brings the sky to a surface by its diffuse share alone,
+so the open floor reads 0.217 in the frame where 0.153 in the reference, the reflection the frame's
+alone, and at a roughness of 1, the reflection 0.011, the floor reads 0.162 in the open and under the slab 0.0085
+at `High` and 0.0048 at `Low` two and a half up and 0.046 and 0.033 five and a half up, the probes'
+own. The reflection is now taken as far as the indirect light reaching the surface holds the light
+the ambient light sends it in the open, so under the slab at a roughness of 0.5 the floor reads
+0.0109 at `High` and 0.0068 at `Low` two and a half up and 0.062 and 0.045 five and a half up, and
+the open floor as it was. Taken by the share of the sky the probes see along the mirror direction,
+as the environment's reflection is, it stepped by 4.7% to 8% at the field's edge, the faces of an
+open plain's probes reading half the sky toward the horizon, and read a slab letting all the light
+through as a roof, the last cascade's rays counting no sky past the leaves. The bounce rooms, lit
+by the sun alone, read as before, `Low` alike to the pixel and `High` within 0.2 of 255 on the
+mean. What remains under a solid roof is `High`'s own, 44% over the reference at a roughness of 1
+at both heights, its screen's probes 0.006 of it five and a half up.
+
 **The screen's probes on thin two-sided walls, read on 2026-10-26.** In a room built as the voxel
 game's wheat field, thin two-sided walls a block tall four to a block, half a unit apart, under the
 game's sun at ten in the morning, the walls facing the eye and the sun read 44% over a path-traced

@@ -93,13 +93,19 @@ for its own faces, a screen ray crossing whole what it enters within reach; the 
 0.403, 0.347, 0.359 and 0.378; the canopy's cost at High 2.77 to 2.79 ms to 2.88 to 2.95 on a GPU
 with nothing else on it, the earlier 0.75 having been contention; 2,154 on the GPU in both orders,
 82 on lavapipe. After it `3dda52c2`, items 151 and 155, its run awaited and the twelfth pack run
-started from it at 01:13 for the game's frame. The shadows' 35 ms in Sponza were every mesh's vertex
-and index buffers in host-visible memory, system RAM on a discrete GPU, about 110 MB read over PCIe
-in each of five whole-scene passes; static mesh buffers go into device-local memory through
-CreateFilledBuffer, copied from staging inside the upload batch with one barrier, the rings for
-vertices replaced each frame still mapped; the atrium's shadows 35.3 ms to 2.16, window_depth 7.6 to
-0.43, hdr_scene 13.0 to 9.1, the frame 58.9 to 14.3, the balcony's and lookup's shadows 33 to 1.9,
-the three views within 0.11 of 255 on the mean. The schedule's overlay and Alt+F3 are gone,
+started from it at 01:13 for the game's frame. After it `07085cd2`, item 156, held until that run
+ends, FillBuffer as the batched staging copy with its barrier, the skinning's rest, joints, weights,
+morphs and posed output and the field's corner pool in device memory, the per-frame joint rows and
+the counted meshes' corners as they were, the device's memory types logged at start; the stress
+skinning 0.223 to 0.179 ms and the animation example's 0.011 to 0.008, hdr_scene and the shadows
+unchanged, Sponza's field build 141 to 149 ms a frame unchanged, the still frame within 0.08 of 255;
+2,155 on the GPU in both orders, 86 on lavapipe. The shadows' 35 ms in Sponza were every mesh's
+vertex and index buffers in host-visible memory, system RAM on a discrete GPU, about 110 MB read
+over PCIe in each of five whole-scene passes; static mesh buffers go into device-local memory
+through CreateFilledBuffer, copied from staging inside the upload batch with one barrier, the rings
+for vertices replaced each frame still mapped; the atrium's shadows 35.3 ms to 2.16, window_depth
+7.6 to 0.43, hdr_scene 13.0 to 9.1, the frame 58.9 to 14.3, the balcony's and lookup's shadows 33 to
+1.9, the three views within 0.11 of 255 on the mean. The schedule's overlay and Alt+F3 are gone,
 schedule.dump writing each stage's batches with the planner's notes to a file and answering its
 path, the engine's generator emitting no registration since the HUD was its only behavior, a
 generator test in place of the assembly check; 2,155 on the GPU in both orders, 85 on lavapipe. a
@@ -144,7 +150,7 @@ stands in its item in REVIEW-ARCHIVE.md, its devlog note and its own words. On 2
 the owner wrote the README's new words (item 133) and the focus on radiance cascades (Decision 74),
 questions asked back, and asked that the sessions spend fewer tokens at the same quality, N 7.7.
 
-Next 156 small, then 152, then 154, then the cascades in order, 139, 140, 141 and 142 (Decision 75);
+Next 152, then 157 small, then 154, then the cascades in order, 139, 140, 141 and 142 (Decision 75);
 143, 144 and 145 wait behind them.
 
 Items done and verdicts settled before 2026-10-23 stand in REVIEW-ARCHIVE.md beside this file, their
@@ -1107,13 +1113,14 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     200, 1/200 s, f/16, the frame's mean beside the reference's. Foundation work under Decision 79,
     a day, after 152 and before 139.
 
-156. **Every buffer the GPU reads each frame lives in device memory.** From item 151's cause, two
-    storage buffers still sit in host memory on a discrete GPU, the skinning's posed output, written
-    by compute and read by every pass, and the field's corner pool; each goes device-local as the
-    mesh buffers did, with the copy or the compute writing there, read by the skinned examples'
-    passes and gpu.scene_field in the grove before and after, pictures unchanged; and the device's
-    memory types are listed once at start in the log so a host-visible buffer on a hot path is seen.
-    Small, before 152.
+157. **A buffer the CPU writes each frame takes the device's host-visible local memory where it has
+    one.** From item 156's leads, CpuAccessMode.Write buffers take plain system memory while the
+    4070 offers a device-local host-visible coherent type of 8 GB, which the per-frame instance
+    ring, the uniforms, the joint rows and the field's instance and shape buffers could take, and
+    the ray scene's corners mapped in host memory are read by the BLAS builds; each goes to that
+    type where the device has it and stays as it is where not, read by the game's four passes at 16
+    columns, the stress example and a BLAS build before and after, pictures unchanged. Small, after
+    152.
 
 ## Verdicts
 

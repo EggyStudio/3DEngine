@@ -14,6 +14,7 @@ Done that day
   the ray.
 - Item 151 at `3dda52c2`. Sponza's shadows cost what the field's triangles cost.
 - Item 155 at `3dda52c2`. The schedule's debug overlay goes, its dump staying as a command.
+- Item 156 at `07085cd2`. Every buffer the GPU reads each frame lives in device memory.
 
 ## 2026-10-31
 
