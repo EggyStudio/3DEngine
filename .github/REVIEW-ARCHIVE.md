@@ -4774,6 +4774,43 @@ batch.
     was not read, the stress example and Sponza standing in. The device's log line says whether the
     CPU sees the device's memory whole and whether the device's memory is the CPU's.
 
+154. **Lights in lux and a physical camera's exposure.** From item 153's reading, the engine has AgX
+    but no physical units, no lux on a light, no camera EV, nothing from ISO, shutter and aperture,
+    so a reference lit in real units is matched by a hand-set exposure and a guessed sun. A
+    directional light takes its illuminance in lux and a point or spot light its luminous flux or
+    intensity, the sky its scale beside them, and a camera takes ISO, shutter and aperture
+    (SetCameraExposure) with the exposure computed as a camera's, EV100 and the 1.2 constant, fixed
+    or automatic within limits; the existing calls keep their meaning as unitless until a program
+    sets units. Read by Sponza at the reference's values, a sun of 97,050 lux at 5,633 K and ISO
+    200, 1/200 s, f/16, the frame's mean beside the reference's. Foundation work under Decision 79,
+    a day, after 152 and before 139. Done at `a4e70370`, read at 05:05 on 2026-11-01.
+    SetLightIlluminance(light, lux) for a directional light, SetLightLuminousIntensity(light, cd)
+    and SetLightLuminousFlux(light, lm) for point and spot, a point's lm over 4π and a spot's over
+    2π(1 minus the cosine of its outer half-angle); SetCameraExposure(iso, shutterSeconds, aperture)
+    with EV100 as log2 of N² over t less log2 of S over 100, GetCameraEv100 reading 15 until set;
+    ColorFromTemperature(kelvin) by Krystek's Planckian fit from 1,000 to 15,000 K;
+    SkyDay.SunIlluminance, SkyIlluminance as lux on a level floor at noon apart from the sun, and
+    SunColor. The engine's convention being a white diffuse surface returning the light's intensity,
+    the internal value is lux over π times the pre-exposure 1 over 1.2 times 2 to the EV100, the
+    color giving the hue alone; the camera is a pre-exposure on the physical lights and the day sky
+    so frames hold about 1 and not 30,000, which fp16 caps at 65,504; SetLightColor makes a light
+    plain again, plain lights, SetExposure and SetAutoExposure keep their meaning and multiply on
+    top, auto between an eighth and 8 keeping within three stops; the day sky's sun keeps its curve
+    scaled so its high sun gives SunIlluminance and the sky map's intensity, which scales the
+    field's sky, the environment and the drawn sky, is set so the noon map gives a level floor
+    SkyIlluminance over π by DaySky.FloorLight, the moon keeping its share. The earlier 3.26 for the
+    reference's sun left out the π; a white surface in 97,050 lux at EV 14.64 reads 1.006, so the
+    fixed exposure of 3 was three times too bright. Sponza at the reference's values at 15:00 at
+    High reads means of 9, 9 and 9 on the balcony against 73, 67 and 64, 1 on the door against 57,
+    50 and 43, and 7, 9 and 11 on the lookup against 82, 75 and 71, the 99th percentiles 145 and 132
+    against 228 and 234, sunlit stone near the reference and a little darker, the shade near black
+    where the reference's is mid-gray; at EV 14 the means 11, 1 and 9 to 14, with auto exposure
+    between EV 4 and 14 89, 120 and 110 to 127, the shade showing and the sunlit court white; so
+    with the units right the gap is the indirect light into covered areas, item 160, and the fixed
+    camera keeps it visible as 153 chose. E3DPhysicalUnitsTests in ten cases,
+    materials-light-and-shadows.md's section, the gallery recaptured, the note
+    2026-11-01-item-154-physical.md and the sheets in the dump.
+
 ## Verdicts settled
 
 Verdicts 1 to 55 are settled, the last two, the drawing leak test's resident bound and the Windows

@@ -57,6 +57,8 @@ internal sealed class TextureStore
     // Each texture's color averaged over its pixels, linear, weighed by their alpha, which the
     // scene's distance field gives a surface drawn with it.
     private readonly Dictionary<int, System.Numerics.Vector3> _averages = [];
+    // Each texture's channels averaged as the levels they hold, for a map of data rather than color.
+    private readonly Dictionary<int, System.Numerics.Vector3> _levels = [];
     private readonly HashSet<int> _targets = [];
     // Cube textures, whose pixels are six faces and which nothing writes after they are made.
     private readonly HashSet<int> _cubes = [];
@@ -83,7 +85,7 @@ internal sealed class TextureStore
             _live[id] = (width, height, filter, mipmaps, TextureWrap.Repeat);
             _uploads.Add(new Upload(id, rgba, width, height, filter, Mipmaps: mipmaps));
             if (HasPartialAlpha(rgba)) _translucent.Add(id);
-            _averages[id] = Average(rgba);
+            (_averages[id], _levels[id]) = (Average(rgba), Levels(rgba));
             return id;
         }
     }
@@ -122,7 +124,7 @@ internal sealed class TextureStore
             if (!_blocks.Contains(id)) return;
             if (HasPartialAlpha(rgba)) _translucent.Add(id);
             else _translucent.Remove(id);
-            _averages[id] = Average(rgba);
+            (_averages[id], _levels[id]) = (Average(rgba), Levels(rgba));
         }
     }
 
@@ -244,7 +246,7 @@ internal sealed class TextureStore
             _uploads.Add(new Upload(id, rgba, texture.Width, texture.Height, texture.Filter, Mipmaps: texture.Mipmaps, Wrap: texture.Wrap));
             if (HasPartialAlpha(rgba)) _translucent.Add(id);
             else _translucent.Remove(id);
-            _averages[id] = Average(rgba);
+            (_averages[id], _levels[id]) = (Average(rgba), Levels(rgba));
             return true;
         }
     }
@@ -307,6 +309,7 @@ internal sealed class TextureStore
             if (!_live.Remove(id)) return false;
             _translucent.Remove(id);
             _averages.Remove(id);
+            _levels.Remove(id);
             _targets.Remove(id);
             _cubes.Remove(id);
             _blocks.Remove(id);
@@ -372,6 +375,27 @@ internal sealed class TextureStore
     internal System.Numerics.Vector3? AverageColor(int id)
     {
         lock (_gate) return _averages.TryGetValue(id, out var color) ? color : null;
+    }
+
+    /// <summary>
+    /// A texture's channels averaged over its pixels as the levels they hold, from 0 to 1 and not
+    /// decoded from sRGB, for a map of data as a metallic and roughness map, or null as
+    /// <see cref="AverageColor"/> is.
+    /// </summary>
+    internal System.Numerics.Vector3? AverageLevels(int id)
+    {
+        lock (_gate) return _levels.TryGetValue(id, out var levels) ? levels : null;
+    }
+
+    // The mean of the same pixels' levels as they are.
+    private static System.Numerics.Vector3 Levels(byte[] rgba)
+    {
+        var pixels = rgba.Length / 4;
+        var step = Math.Max(1, pixels / 4096);
+        var (sum, count) = (System.Numerics.Vector3.Zero, 0);
+        for (int p = 0; p < pixels; p += step, count++)
+            sum += new System.Numerics.Vector3(rgba[p * 4], rgba[p * 4 + 1], rgba[p * 4 + 2]) / 255f;
+        return count > 0 ? sum / count : System.Numerics.Vector3.One;
     }
 
     // The mean of at most about four thousand pixels spread over the image, each decoded from sRGB

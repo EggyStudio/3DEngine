@@ -120,58 +120,68 @@ the per-frame buffers left in system memory since the device-local host-visible 
 every round of the stress example at twenty thousand, and the ray scene's corners on that type where
 the CPU sees the device's memory whole and copied on the GPU when grown, Sponza's frame that
 rebuilds the ray structures 1.4 to 1.6 s to 0.47 to 0.51; the device's log line saying both memory
-facts; 2,155 on the GPU in both orders. The shadows' 35 ms in Sponza were every mesh's vertex and
-index buffers in host-visible memory, system RAM on a discrete GPU, about 110 MB read over PCIe in
-each of five whole-scene passes; static mesh buffers go into device-local memory through
-CreateFilledBuffer, copied from staging inside the upload batch with one barrier, the rings for
-vertices replaced each frame still mapped; the atrium's shadows 35.3 ms to 2.16, window_depth 7.6 to
-0.43, hdr_scene 13.0 to 9.1, the frame 58.9 to 14.3, the balcony's and lookup's shadows 33 to 1.9,
-the three views within 0.11 of 255 on the mean. The schedule's overlay and Alt+F3 are gone,
-schedule.dump writing each stage's batches with the planner's notes to a file and answering its
-path, the engine's generator emitting no registration since the HUD was its only behavior, a
-generator test in place of the assembly check; 2,155 on the GPU in both orders, 85 on lavapipe. a
-mesh that came and has not moved standing in for nothing in the scene field until it is built, where
-its box filled the rooms of a hollow building, with a pair of Sponza before and after and a note,
-the sunlit floor lit from frame 28 where it waited 330, the bounce rooms unchanged; 2,154 on the GPU
-in both orders. Before it `19658e55`, item 136, pushed with `10295556` at 09:37, its run green at
-11:16 with Windows in 98 minutes, Linux in 77 and macOS in 36, the path-traced reference crossing
-surfaces that let light through, recorded under the item in REVIEW-ARCHIVE.md. Before it `10295556`,
-item 146's second commit, ShadowOnly draws kept in the field, recorded under the item. Before it
-`da54d289`, item 146's first commit, pushed at 07:23 with `7bdfaa9e`, Verdict 95's mend, and
-`fdde73b2`, item 131's second commit, its run green at 09:37 with Windows in 133 minutes, Linux in
-77 and macOS in 36, which settled Verdict 95; the plain GPU run of `7bdfaa9e` read ObserverTests'
-no-observer allocation once at 1,768 bytes, 5 of 5 alone, watched. Before it `b16f26b5`, item 131's
-first commit, pushed at 02:53 on 2026-10-31, its run cancelled at 03:51 on Linux alone past
-test.py's 40-minute limit and the job's 100 (Verdict 95), Windows and macOS green, the plane a cell
-recorded under item 131 in REVIEW-ARCHIVE.md. Before it `2ad96a80`, item 135, pushed at 22:13 on
-2026-10-30, its run green whole at 23:28 with Windows in 74 minutes, Linux in 68 and macOS in 35,
-the screen probes' jittered rays and sixteen-frame history recorded under the item in
-REVIEW-ARCHIVE.md. Before it `e96a6bb8`, pushed with `c3214cbe` at 19:52 on 2026-10-30, its run
-green whole at 21:51, Windows in 119 minutes, Linux in 44 and macOS in 33. `c3214cbe` is item 134, a
-resize asked before the first frame carried out at once past the debounce a load held back, with a
-test and the window guide's line, and AGENTS.md's REVIEW.md line as the owner asked. `e96a6bb8` is
-item 132's reading with no mend, the note 2026-10-30-item-132-recording.md; at 12 columns 5.6 to 6.5
-ms of the four passes' 9.6 to 11.5 is a descriptor set made and written for every draw in every
-pass, about 2,045 a frame at 2.8 to 3.2 microseconds each with every section's set holding the same
-values, and one set a frame in a scratch copy takes the passes to 5.1 ms at 12 and from 18.4 to 19.7
-to 7.6 at 16, the frame at 16 from 26.6 to 17.9 ms, the land's pixels within 0.08 of 255. 2,135 on
-the GPU in both orders, the resize tests on lavapipe with validation. Before it `1703c54e`, item 97,
-pushed by the owner's hand at 16:54 on 2026-10-26 while the sessions were paused until 2026-10-30,
-its run green whole at 19:33 with Windows in 99 minutes. The ninth pack run started with publish on
-at 18:41 on 2026-10-30, since the owner sees item 97's specks in the voxel game and its package
-lacked the mend; the run went green whole at 21:05, Windows in 101 minutes and the games in 71, the
-package 5.2.333 pushed to nuget.org with items 97, 129, 130, 89, 95, 91 and 93, the game told.
-Before it on 2026-10-26, each green but where said: `987f07ae` (Verdict 94's mend) with `969a1b08`
-(item 129); `7ff7bbdd` (130), red on the examples job alone, Verdict 94; `b05b32da` (89); `0a4ad922`
-(the README's quick links); `5528c55c` (95); `d207627e` (91), `bb542fa4` (93) and `0754b975` (128),
-the eighth pack run publishing 5.2.326 at 13:13; `2f5237f2` (127); `78946b22` (112), the seventh
-pack run publishing 5.2.322 at 09:14; `7af16fcd` (Verdict 93's mend); `45edfbf6` (111); `a16227a7`
-(100), the sixth pack run publishing 5.2.319 at 04:21 on its second attempt. Each commit's detail
-stands in its item in REVIEW-ARCHIVE.md, its devlog note and its own words. On 2026-10-30 at 18:0x
-the owner wrote the README's new words (item 133) and the focus on radiance cascades (Decision 74),
-questions asked back, and asked that the sessions spend fewer tokens at the same quality, N 7.7.
+facts; 2,155 on the GPU in both orders. After it `a4e70370`, item 154, held the same, lights in
+physical units and a camera's exposure, SetLightIlluminance in lux for a directional light,
+SetLightLuminousIntensity and SetLightLuminousFlux for point and spot, SetCameraExposure from ISO,
+shutter and aperture with EV100 as a camera's and 15 until set, ColorFromTemperature by Krystek's
+fit, the day sky's sun and sky in lux, the camera applied as a pre-exposure so frames hold about 1;
+Sponza at the reference's values, the sun 97,050 lux at 5,633 K, the sky 20,000 lux assumed clear,
+ISO 200, 1/200 s, f/16 and AgX, reading means of 9, 1 and 7 to 11 on the balcony, door and lookup
+views against the reference's 73, 57 and 82, sunlit stone near the reference and shade near black
+where the reference's is mid-gray, the gap the indirect light into covered areas, item 160;
+E3DPhysicalUnitsTests in ten cases, the guide's section; 2,165 on the GPU in both orders. The
+shadows' 35 ms in Sponza were every mesh's vertex and index buffers in host-visible memory, system
+RAM on a discrete GPU, about 110 MB read over PCIe in each of five whole-scene passes; static mesh
+buffers go into device-local memory through CreateFilledBuffer, copied from staging inside the
+upload batch with one barrier, the rings for vertices replaced each frame still mapped; the atrium's
+shadows 35.3 ms to 2.16, window_depth 7.6 to 0.43, hdr_scene 13.0 to 9.1, the frame 58.9 to 14.3,
+the balcony's and lookup's shadows 33 to 1.9, the three views within 0.11 of 255 on the mean. The
+schedule's overlay and Alt+F3 are gone, schedule.dump writing each stage's batches with the
+planner's notes to a file and answering its path, the engine's generator emitting no registration
+since the HUD was its only behavior, a generator test in place of the assembly check; 2,155 on the
+GPU in both orders, 85 on lavapipe. a mesh that came and has not moved standing in for nothing in
+the scene field until it is built, where its box filled the rooms of a hollow building, with a pair
+of Sponza before and after and a note, the sunlit floor lit from frame 28 where it waited 330, the
+bounce rooms unchanged; 2,154 on the GPU in both orders. Before it `19658e55`, item 136, pushed with
+`10295556` at 09:37, its run green at 11:16 with Windows in 98 minutes, Linux in 77 and macOS in 36,
+the path-traced reference crossing surfaces that let light through, recorded under the item in
+REVIEW-ARCHIVE.md. Before it `10295556`, item 146's second commit, ShadowOnly draws kept in the
+field, recorded under the item. Before it `da54d289`, item 146's first commit, pushed at 07:23 with
+`7bdfaa9e`, Verdict 95's mend, and `fdde73b2`, item 131's second commit, its run green at 09:37 with
+Windows in 133 minutes, Linux in 77 and macOS in 36, which settled Verdict 95; the plain GPU run of
+`7bdfaa9e` read ObserverTests' no-observer allocation once at 1,768 bytes, 5 of 5 alone, watched.
+Before it `b16f26b5`, item 131's first commit, pushed at 02:53 on 2026-10-31, its run cancelled at
+03:51 on Linux alone past test.py's 40-minute limit and the job's 100 (Verdict 95), Windows and
+macOS green, the plane a cell recorded under item 131 in REVIEW-ARCHIVE.md. Before it `2ad96a80`,
+item 135, pushed at 22:13 on 2026-10-30, its run green whole at 23:28 with Windows in 74 minutes,
+Linux in 68 and macOS in 35, the screen probes' jittered rays and sixteen-frame history recorded
+under the item in REVIEW-ARCHIVE.md. Before it `e96a6bb8`, pushed with `c3214cbe` at 19:52 on
+2026-10-30, its run green whole at 21:51, Windows in 119 minutes, Linux in 44 and macOS in 33.
+`c3214cbe` is item 134, a resize asked before the first frame carried out at once past the debounce
+a load held back, with a test and the window guide's line, and AGENTS.md's REVIEW.md line as the
+owner asked. `e96a6bb8` is item 132's reading with no mend, the note
+2026-10-30-item-132-recording.md; at 12 columns 5.6 to 6.5 ms of the four passes' 9.6 to 11.5 is a
+descriptor set made and written for every draw in every pass, about 2,045 a frame at 2.8 to 3.2
+microseconds each with every section's set holding the same values, and one set a frame in a scratch
+copy takes the passes to 5.1 ms at 12 and from 18.4 to 19.7 to 7.6 at 16, the frame at 16 from 26.6
+to 17.9 ms, the land's pixels within 0.08 of 255. 2,135 on the GPU in both orders, the resize tests
+on lavapipe with validation. Before it `1703c54e`, item 97, pushed by the owner's hand at 16:54 on
+2026-10-26 while the sessions were paused until 2026-10-30, its run green whole at 19:33 with
+Windows in 99 minutes. The ninth pack run started with publish on at 18:41 on 2026-10-30, since the
+owner sees item 97's specks in the voxel game and its package lacked the mend; the run went green
+whole at 21:05, Windows in 101 minutes and the games in 71, the package 5.2.333 pushed to nuget.org
+with items 97, 129, 130, 89, 95, 91 and 93, the game told. Before it on 2026-10-26, each green but
+where said: `987f07ae` (Verdict 94's mend) with `969a1b08` (item 129); `7ff7bbdd` (130), red on the
+examples job alone, Verdict 94; `b05b32da` (89); `0a4ad922` (the README's quick links); `5528c55c`
+(95); `d207627e` (91), `bb542fa4` (93) and `0754b975` (128), the eighth pack run publishing 5.2.326
+at 13:13; `2f5237f2` (127); `78946b22` (112), the seventh pack run publishing 5.2.322 at 09:14;
+`7af16fcd` (Verdict 93's mend); `45edfbf6` (111); `a16227a7` (100), the sixth pack run publishing
+5.2.319 at 04:21 on its second attempt. Each commit's detail stands in its item in
+REVIEW-ARCHIVE.md, its devlog note and its own words. On 2026-10-30 at 18:0x the owner wrote the
+README's new words (item 133) and the focus on radiance cascades (Decision 74), questions asked
+back, and asked that the sessions spend fewer tokens at the same quality, N 7.7.
 
-Next 154, then 158 and 159, then the cascades in order, 139, 140, 141 and 142 (Decision 75); 143,
+Next 160, then 158 and 159, then the cascades in order, 139, 140, 141 and 142 (Decision 75); 143,
 144 and 145 wait behind them.
 
 Items done and verdicts settled before 2026-10-23 stand in REVIEW-ARCHIVE.md beside this file, their
@@ -1087,17 +1097,6 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     and the merge held at one, the bounce rooms' distances to the references and the Cornell box's
     bounces read before and after. One commit, after the eight.
 
-154. **Lights in lux and a physical camera's exposure.** From item 153's reading, the engine has AgX
-    but no physical units, no lux on a light, no camera EV, nothing from ISO, shutter and aperture,
-    so a reference lit in real units is matched by a hand-set exposure and a guessed sun. A
-    directional light takes its illuminance in lux and a point or spot light its luminous flux or
-    intensity, the sky its scale beside them, and a camera takes ISO, shutter and aperture
-    (SetCameraExposure) with the exposure computed as a camera's, EV100 and the 1.2 constant, fixed
-    or automatic within limits; the existing calls keep their meaning as unitless until a program
-    sets units. Read by Sponza at the reference's values, a sun of 97,050 lux at 5,633 K and ISO
-    200, 1/200 s, f/16, the frame's mean beside the reference's. Foundation work under Decision 79,
-    a day, after 152 and before 139.
-
 158. **High's cascades read 44% over Low's and the reference under a roof.** From items 138 and 152,
     under item 100's solid slab at roughness 1 High reads 0.0085 at 2.5 up and 0.046 at 5.5 against
     Low's 0.0048 and 0.033 and the reference's 0.0059 and 0.032, and item 136's leaf-block canopy at
@@ -1115,6 +1114,18 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     surface's. The share is carried past the edge as the diffuse is and a crossing of leaves marks
     no surface for it; read by the three edge tests and an all-through slab at 0.9 or above, the
     mirror example's reflections unchanged. Small, after 158.
+
+160. **Sponza's shade reads a hundredth of its sun where the reference reads a quarter.** From item
+    154, at the reference's units and camera the sunlit stone reads near the reference and the shade
+    near black, the balcony's mean 9 against 73 and the door's 1 against 57, sun to shade about 100
+    to 1 here against about 4 to 1 in the reference, so the indirect light into covered areas is
+    what is missing, the sky through the arcades and the bounce off the sunlit stone. A reading
+    first, at the door and balcony views at 15:00, of each term's share, the sky light the probes
+    carry under the arcades against a path-traced reference of the view, the first bounce off the
+    sunlit court and the bounces after, by gi.probe and gi.compare, and which of 158 and 159 or a
+    term of its own carries the gap; then the mend by the cause through those items, read by the
+    three views' means against the reference and the bounce rooms unchanged. Before 158, since it is
+    the reference the owner set.
 
 ## Verdicts
 

@@ -2283,6 +2283,19 @@ by the sun alone, read as before, `Low` alike to the pixel and `High` within 0.2
 mean. What remains under a solid roof is `High`'s own, 44% over the reference at a roughness of 1
 at both heights, its screen's probes 0.006 of it five and a half up.
 
+**Sponza's shade against its references, read on 2026-11-01.** In physical units at the values of
+the HDRP pictures its last three views are matched against, `scenes_sponza`'s frames read means of
+9, 1 and 9 of 255 at the gallery, the door and looking up where the pictures read 73, 57 and 82, the
+door's as bright as the gallery's there, which a camera held at one exposure value gives neither,
+so the pictures were exposed view by view, as the automatic mode their camera allows between EV 4
+and 14 does. The path-traced reference read Sponza's stone as metal, its materials giving a
+metallic of 1 and the metal in their maps, so it took no light off the stone past the first face
+and read the shade black. The scene field's copies take their roughness and metallic as the
+material's times the map's average, green and blue, as they take their color times the texture's,
+and the reference then reads the door's frame at 0.00051 in linear light where the frame reads
+0.00049, the sky alone 0.00001 where 0.00004, and the gallery's 0.0042 where 0.0112, its sun on the
+court's walls shadowed in blocks where the frame's is not, which is read next.
+
 **The screen's probes on thin two-sided walls, read on 2026-10-26.** In a room built as the voxel
 game's wheat field, thin two-sided walls a block tall four to a block, half a unit apart, under the
 game's sun at ten in the morning, the walls facing the eye and the sun read 44% over a path-traced

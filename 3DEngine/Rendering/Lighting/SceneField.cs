@@ -340,6 +340,13 @@ internal sealed partial class SceneFieldRenderer : IDisposable
         if (_joints.Count > 4096) _joints.Clear();
         // A surface's color, its material's times its texture's average where it has one.
         Vector3 Textured(Vector3 color, int texture) => texture != 0 && textures?.AverageColor(texture) is { } average ? color * average : color;
+        // Its roughness and metallic, its material's times its map's average where it has one,
+        // green the roughness and blue the metal as the model pass reads the map. Taken from the
+        // material alone, Intel's Sponza, whose materials say 1 and leave the metal to the map, was
+        // metal to the path-traced reference, which took no light off its stone past the first
+        // face, the shade under its arcades black where the frame's was not.
+        (float Roughness, float Metallic) Surfaced(float roughness, float metallic, int map) =>
+            map != 0 && textures?.AverageLevels(map) is { } levels ? (roughness * levels.Y, metallic * levels.Z) : (roughness, metallic);
         foreach (ref readonly var draw in draws.Span)
         {
             if (windowAlone && draw.Target != 0 || !draw.CastsShadow || !draw.BouncesLight || draw.Points) continue;
@@ -348,9 +355,10 @@ internal sealed partial class SceneFieldRenderer : IDisposable
                 if (CountedVertices(device, store, counted) is { } standing)
                 {
                     var tint = ModelRenderer.Instance.Linear;
+                    var (rough, metal) = Surfaced(draw.Roughness, draw.Metallic, draw.MetallicRoughnessMap);
                     _drawn.Add((new SceneFieldPlan.Instance(draw.Mesh, standing, draw.World, draw.DoubleSided,
                         Textured(new Vector3(tint[draw.Color.R], tint[draw.Color.G], tint[draw.Color.B]), draw.Texture), draw.Emission,
-                        null, draw.Roughness, draw.Metallic, draw.LightThrough), false));
+                        null, rough, metal, draw.LightThrough), false));
                 }
                 continue;
             }
@@ -359,9 +367,10 @@ internal sealed partial class SceneFieldRenderer : IDisposable
             _meshOf[vertices] = draw.Mesh;
             var linear = ModelRenderer.Instance.Linear;
             var skinned = store.IsSkinned(draw.Mesh);
+            var (roughness, metallic) = Surfaced(draw.Roughness, draw.Metallic, draw.MetallicRoughnessMap);
             _drawn.Add((new SceneFieldPlan.Instance(draw.Mesh, vertices, draw.World, draw.DoubleSided,
                 Textured(new Vector3(linear[draw.Color.R], linear[draw.Color.G], linear[draw.Color.B]), draw.Texture), draw.Emission,
-                skinned ? Limbs(store, draw.Mesh, vertices) : null, draw.Roughness, draw.Metallic, draw.LightThrough), skinned));
+                skinned ? Limbs(store, draw.Mesh, vertices) : null, roughness, metallic, draw.LightThrough), skinned));
         }
         foreach (var group in draws.Groups)
         {
@@ -389,9 +398,10 @@ internal sealed partial class SceneFieldRenderer : IDisposable
                 ref readonly var instance = ref _groupInstances[i];
                 var (x, y, z) = (instance.WorldX, instance.WorldY, instance.WorldZ);
                 var world = new Matrix4x4(x.X, y.X, z.X, 0, x.Y, y.Y, z.Y, 0, x.Z, y.Z, z.Z, 0, x.W, y.W, z.W, 1);
+                var (roughness, metallic) = Surfaced(instance.Factors.Y, instance.Factors.X, template.MetallicRoughnessMap);
                 _drawn.Add((new SceneFieldPlan.Instance(template.Mesh, vertices, world, template.DoubleSided,
                     Textured(new Vector3(instance.Color.X, instance.Color.Y, instance.Color.Z), template.Texture),
-                    new Vector3(instance.Emission.X, instance.Emission.Y, instance.Emission.Z), limbs, instance.Factors.Y, instance.Factors.X, template.LightThrough), skinned));
+                    new Vector3(instance.Emission.X, instance.Emission.Y, instance.Emission.Z), limbs, roughness, metallic, template.LightThrough), skinned));
             }
         }
     }
