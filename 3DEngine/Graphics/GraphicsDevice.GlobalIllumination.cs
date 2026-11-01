@@ -345,7 +345,7 @@ internal sealed unsafe partial class GraphicsDevice
     /// <param name="lying">Whether each cascade lies where it lay the frame before, so a probe's own light and its share of the indirect light of the frame before are its own, or none where the indirect light is taken whole however a probe's own light falls.</param>
     /// <param name="lastCounted">The cascade before the far cascade's probes, whose rays bring the light from all around where they meet nothing, as the last cascade's do, or -1 where the field has no far cascade.</param>
     /// <param name="lightThrough">Whether some surface lets light through this frame, which the rays cross, where a frame of none traces with the build that leaves the crossing out.</param>
-    /// <param name="fieldWhole">Whether every cascade of the field is built with none waiting, so a ray carried to the field's edge that meets nothing brings the sky.</param>
+    /// <param name="fieldWhole">Whether the field holds every mesh in reach (<see cref="SceneFieldPlan.Whole"/>), so a ray carried to the field's edge that meets nothing brings the sky.</param>
     /// <returns>What the recording holds, to free once no frame in flight reads it.</returns>
     public IDisposable RecordGlobalIllumination(ICommandBuffer commandBuffer, GpuIllumination gi, GpuSceneField field, IImageView environment,
         ISampler environmentSampler, ReadOnlySpan<byte> lights, IReadOnlyList<(float Start, float End)> intervals, float spacing,

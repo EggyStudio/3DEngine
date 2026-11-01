@@ -285,26 +285,6 @@ internal sealed partial class SceneFieldPlan
     /// <summary>The cascades built this frame, or the parts of their builds splatted this frame.</summary>
     public List<Build> Builds { get; } = [];
 
-    /// <summary>How many triangles this frame's builds splat.</summary>
-    public int Splatted { get; private set; }
-
-    /// <summary>
-    /// The most triangles a frame's builds splatted since <see cref="TakeMostSplatted"/> was last
-    /// asked, which a frame's count alone loses by the time a command reads it.
-    /// </summary>
-    private int _mostSplatted;
-
-    /// <summary>The most triangles a frame's builds splatted since this was last asked, started afresh.</summary>
-    public int TakeMostSplatted()
-    {
-        var most = _mostSplatted;
-        _mostSplatted = 0;
-        return most;
-    }
-
-    /// <summary>How many triangles of a build left for later frames wait to be splatted.</summary>
-    public int Waiting => _job is null ? 0 : _job.Left.Skip(_job.Next).Sum(entry => _triangles(entry.Instance.Vertices));
-
     /// <summary>The shapes stamped this frame.</summary>
     public List<Shape> Shapes { get; } = [];
 
@@ -407,6 +387,7 @@ internal sealed partial class SceneFieldPlan
         // The meshes drawn this frame that have not settled and are not skinned, which a still
         // mesh that left may be replaced by.
         var unsettled = new List<Instance>();
+        Arriving = 0;
         ReadByPlace = SameOrder(drawn);
         if (ReadByPlace)
         {
@@ -444,6 +425,7 @@ internal sealed partial class SceneFieldPlan
                 else if (frames < Settled)
                 {
                     if (_orderMovedAt[i] != Never) moving.Add(instance);
+                    else Arriving++;
                     unsettled.Add(instance);
                 }
                 else
@@ -497,6 +479,7 @@ internal sealed partial class SceneFieldPlan
                 if (frames >= Settled) continue;
                 // A mesh that came and has not moved casts nothing until it is built (_movedIn).
                 if (skinned || movedAt != Never || _departedWorlds.Contains(instance.World)) moving.Add(instance);
+                else Arriving++;
                 if (!skinned) unsettled.Add(instance);
             }
             _seen = seen;

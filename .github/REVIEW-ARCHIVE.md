@@ -4715,40 +4715,41 @@ batch.
     213; the sky is HDRP's physically based sky at exposure 0 and multiplier 1 with a cloud layer
     and volumetric clouds at a quarter cover; the camera is physical, ISO 200, 1/200 s, f/16, 50 mm
     on a 36 by 24 sensor, so the exposure is the camera's own, about EV 14.6, with the automatic
-    mode's limits 4 to 14 EV and center-weighted metering; the tonemapping is an external AgX lookup
-    at full contribution, no ACES; the indirect light is adaptive probe volumes baked every two
-    hours with sky occlusion, probes a meter apart, blended by the hour, with HTrace's world-space
-    global illumination over them, a voxel field of 352 cubed over 35 m with two bounces and rays of
-    50 m. So the match is physical units first, a sun in lux with a sky in the same scale, a
-    physical camera's exposure, and AgX, before any reading of the bounce; items 152 and 153 read
-    against that. First term, read at 20:35, our sun to sky stands about 1.4 to 1, the noon sun's
-    luminance about 1.08 against a level floor's sky light of about 0.8, where the reference's
-    97,050 lux sun against a clear sky of some 15,000 to 25,000 lux stands 4 to 6 to 1; at the fixed
-    exposure of 3.0 our sky reads about 2.4 where the reference's would read about 0.6, so the sky's
-    share against the sun is read before the bounce under the arcades, and a sky too bright beside
-    its sun is the first suspect for the light under a solid roof. Second term, from 138's end, the
-    leaf-block canopy at 5.5 up reads High 0.32 against the reference's 0.21 where Low reads 0.24,
-    High over Low there before 138 by 0.12 and after by 0.08, so High's excess at 5.5 is its own and
-    older, read here with the roof. Done at `6a6e2dad`, read at 02:45 on 2026-11-01. In item 100's
-    slab scene with a gray floor and ambient light alone the floor under the solid slab read 0.074
-    at High and 0.071 at Low at 2.5 up against the reference's 0.006 and 0.110 and 0.098 at 5.5
-    against 0.032, the open floor 0.217 against 0.153; with the merge off 0.067 under the slab and
-    the screen probes, their history and the filter off within 0.01, so no cascade leaked. The cause
-    was the model pass adding an ambient light's specular whole whatever the probes saw while its
-    diffuse faded by what they held, Karis' fit giving 0.15 of the light at roughness 0.5; the
-    reference sends sky light by diffuse paths alone, so the open floor's excess is the frame's
-    reflection the reference does not model. At roughness 1 the diffuse alone read open 0.16 at
-    both, under the slab 0.0085 and 0.0048 at 2.5 against 0.0059 and 0.046 and 0.033 at 5.5 against
-    0.032, so what remains is High's own, about 44% over at both heights, the screen probes 0.006 of
-    it and the rest High's cascades over Low's, the same as the leaf blocks' term, item 158. The
-    mend multiplies the ambient specular by the bounced light's luminance over the surface's own
-    open diffuse, saturated and lerped in by held; at roughness 0.5 the floor reads 0.0109 and
-    0.0068 at 2.5 and 0.062 and 0.045 at 5.5, open as before, the bounce rooms under the sun alone
-    identical at Low and within 0.2 of 255 at High. Not kept, the environment's form, the probes'
-    sky share along the mirror direction, which stepped 4.7 to 8% at the field's edge and read an
-    all-through slab as a roof since the merge's own sky is 0 for a ray that crossed leaves; the
-    environment's specular still uses that factor and carries both faults, item 159. The pictures in
-    the dump.
+    mode's limits 4 to 14 EV and center-weighted metering, the night volume's, which stands at
+    weight 0 in play, the pictures exposed by the default profile's automatic mode between EV -1 and
+    14 (read under item 167); the tonemapping is an external AgX lookup at full contribution, no
+    ACES; the indirect light is adaptive probe volumes baked every two hours with sky occlusion,
+    probes a meter apart, blended by the hour, with HTrace's world-space global illumination over
+    them, a voxel field of 352 cubed over 35 m with two bounces and rays of 50 m. So the match is
+    physical units first, a sun in lux with a sky in the same scale, a physical camera's exposure,
+    and AgX, before any reading of the bounce; items 152 and 153 read against that. First term, read
+    at 20:35, our sun to sky stands about 1.4 to 1, the noon sun's luminance about 1.08 against a
+    level floor's sky light of about 0.8, where the reference's 97,050 lux sun against a clear sky
+    of some 15,000 to 25,000 lux stands 4 to 6 to 1; at the fixed exposure of 3.0 our sky reads
+    about 2.4 where the reference's would read about 0.6, so the sky's share against the sun is read
+    before the bounce under the arcades, and a sky too bright beside its sun is the first suspect
+    for the light under a solid roof. Second term, from 138's end, the leaf-block canopy at 5.5 up
+    reads High 0.32 against the reference's 0.21 where Low reads 0.24, High over Low there before
+    138 by 0.12 and after by 0.08, so High's excess at 5.5 is its own and older, read here with the
+    roof. Done at `6a6e2dad`, read at 02:45 on 2026-11-01. In item 100's slab scene with a gray
+    floor and ambient light alone the floor under the solid slab read 0.074 at High and 0.071 at Low
+    at 2.5 up against the reference's 0.006 and 0.110 and 0.098 at 5.5 against 0.032, the open floor
+    0.217 against 0.153; with the merge off 0.067 under the slab and the screen probes, their
+    history and the filter off within 0.01, so no cascade leaked. The cause was the model pass
+    adding an ambient light's specular whole whatever the probes saw while its diffuse faded by what
+    they held, Karis' fit giving 0.15 of the light at roughness 0.5; the reference sends sky light
+    by diffuse paths alone, so the open floor's excess is the frame's reflection the reference does
+    not model. At roughness 1 the diffuse alone read open 0.16 at both, under the slab 0.0085 and
+    0.0048 at 2.5 against 0.0059 and 0.046 and 0.033 at 5.5 against 0.032, so what remains is High's
+    own, about 44% over at both heights, the screen probes 0.006 of it and the rest High's cascades
+    over Low's, the same as the leaf blocks' term, item 158. The mend multiplies the ambient
+    specular by the bounced light's luminance over the surface's own open diffuse, saturated and
+    lerped in by held; at roughness 0.5 the floor reads 0.0109 and 0.0068 at 2.5 and 0.062 and 0.045
+    at 5.5, open as before, the bounce rooms under the sun alone identical at Low and within 0.2 of
+    255 at High. Not kept, the environment's form, the probes' sky share along the mirror direction,
+    which stepped 4.7 to 8% at the field's edge and read an all-through slab as a roof since the
+    merge's own sky is 0 for a ray that crossed leaves; the environment's specular still uses that
+    factor and carries both faults, item 159. The pictures in the dump.
 
 157. **A buffer the CPU writes each frame takes the device's host-visible local memory where it has
     one.** From item 156's leads, CpuAccessMode.Write buffers take plain system memory while the
@@ -4871,7 +4872,7 @@ batch.
     fifth of the picture, SetAutoExposure untouched; the compensation in stops moves the key, 0.18
     times 2 to the compensation, in the composite and the adapt pass's bounds; the mode rides on
     ExposurePush.Mode; the docs say -0.79 stops meters as a reflected-light meter at K 12.5 does.
-    ScenesSponza gains sponza.metered on and off, the reference camera's automatic range of EV 4 to
+    ScenesSponza gains sponza.metered on and off, the reference camera's automatic range, read later under item 167 as HDRP's default automatic mode between EV -1 and 14, the night volume's 4 to 14 standing at weight 0 of EV 4 to
     14 about the fixed camera, centre-weighted at -0.79, and drive-sponza.sh captures each view at
     the fixed camera and metered after 60 frames. Metered at 15:00 at High the balcony reads 74, 66
     and 65 against the reference's 73, 67 and 64, meeting its picture; the door 107, 98 and 91

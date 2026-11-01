@@ -30,11 +30,45 @@ internal sealed partial class SceneFieldPlan
     /// <summary>The triangles of the meshes the build in progress splats over its frames, or none.</summary>
     public int BuildingTriangles => _job?.Triangles ?? 0;
 
+    /// <summary>How many triangles this frame's builds splat.</summary>
+    public int Splatted { get; private set; }
+
     /// <summary>
-    /// Whether every cascade is built with no build in progress and none waiting, so the field
-    /// holds every mesh in reach and a ray that leaves it meeting nothing met no mesh there.
+    /// The most triangles a frame's builds splatted since <see cref="TakeMostSplatted"/> was last
+    /// asked, which a frame's count alone loses by the time a command reads it.
     /// </summary>
-    public bool Whole => _job is null && Array.IndexOf(_dirty, true) < 0 && Enumerable.Range(0, Cascades).All(c => _built[c] is not null);
+    private int _mostSplatted;
+
+    /// <summary>The most triangles a frame's builds splatted since this was last asked, started afresh.</summary>
+    public int TakeMostSplatted()
+    {
+        var most = _mostSplatted;
+        _mostSplatted = 0;
+        return most;
+    }
+
+    /// <summary>How many triangles of a build left for later frames wait to be splatted.</summary>
+    public int Waiting => _job is null ? 0 : _job.Left.Skip(_job.Next).Sum(entry => _triangles(entry.Instance.Vertices));
+
+    /// <summary>
+    /// How many meshes drawn this frame came and have not moved and are not yet still, which the
+    /// field holds nothing of until they settle and are built in, as a scene's on its first load.
+    /// </summary>
+    public int Arriving { get; private set; }
+
+    /// <summary>
+    /// Whether the field holds every mesh in reach, every cascade built and every mesh that came
+    /// built in, so a ray that leaves it meeting nothing met no mesh there.
+    /// </summary>
+    /// <remarks>
+    /// A build in progress, as the eye's move starts one, leaves the passes reading its cascade as
+    /// it was last built, which holds the meshes it held. Taken as a field not whole, as it was
+    /// while every cascade was built and none waited, the probes' carried rays brought no sky
+    /// through Sponza's court for the 40 frames its cascades took to build again after the eye
+    /// moved, and the gallery's view read its blue less red at -0.65 in a thousandth of linear
+    /// light against +1.00 at rest and a path-traced reference's +0.80.
+    /// </remarks>
+    public bool Whole => Arriving == 0 && _pending.Count == 0 && Array.TrueForAll(_built, origin => origin is not null);
 
     // Starts or goes on with the dirty cascades' builds, the finest first, as many cascades a frame
     // as the budget says and as many triangles as the triangle budget, a mesh at least, the still

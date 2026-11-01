@@ -2385,6 +2385,21 @@ nearer and the floor as it was. Moving the coarse cascades' probes standing off 
 space narrow along one axis past it, as the gap under the slab is, moved `Low` alone by 5% and is
 not kept.
 
+**The sky while the field builds again, read on 2026-11-01.** From Sponza's gallery view at 11:00,
+`gi.compare` against a path-traced reference at the camera read the frame's linear light, in
+thousandths, at 1.83, 1.12 and 1.17 and its blue less red at -0.65 for the 40 frames after a flight
+stopped, then 1.93, 2.03 and 2.93 and +1.00 at rest, where the reference reads 2.16, 1.97 and 2.96
+and +0.80, the shade turning blue within two seconds of the camera stopping and warm again with
+each move. The probes' carried rays brought no sky while any build ran, a field with a build in
+progress taken as not whole, though the passes read a cascade as it was last built until its build
+ends. The field is whole once every cascade is built and no mesh arrives or waits to be built in
+(`SceneFieldPlan.Whole`), so the carried rays bring the sky through a build the eye's move started,
+and the gallery's frame reads +0.99 to +1.01 at 0, 1, 5 and 10 seconds after the flight stops,
+each channel within 1.3% across them. Metered, its means move 4% from 1 to 10 seconds
+as the exposure adapts at its speed of 1 toward the darker view, as the reference's camera does. The
+atrium's view read the same before and after, the closed room stays dark in its first frames, and
+the slab and the bounce rooms read as before.
+
 **The far end of Sponza's atrium, read on 2026-11-01.** From the nave view at 13:00 the main door's
 vestibule lies in the last cascade alone, whose probes stand eight units apart, and of the eight
 around a wall by the door two stand inside, as dark as a path-traced reference has them, and the

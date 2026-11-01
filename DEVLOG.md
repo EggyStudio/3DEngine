@@ -88,6 +88,8 @@ Done that day
 - Item 164 at `e159992e`. The renderer starts in a second, its compiles cached outside the program's
   folder.
 - Item 165 at `e159992e`. The Sponza example meters its exposure when played.
+- Item 166 at `6cc2a0a0`. The atrium's far end does not glow blue.
+- Item 169 at `4b80c5c8`. An example that cannot get its memory says so and runs smaller.
 
 ## 2026-10-31
 

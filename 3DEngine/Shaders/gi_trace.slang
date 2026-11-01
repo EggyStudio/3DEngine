@@ -346,7 +346,8 @@ void computeMain(uint3 id : SV_DispatchThreadID, uint lane : SV_GroupIndex)
     float3 aboveMean = around.w > 1e-4 ? around.xyz / around.w : origin;
     bool carried = push.cascade.w == 0u && seesAbove == 0u;
     // A ray carried on that meets nothing to the field's edge brings the sky as the last cascade's
-    // do, once the field holds every mesh in reach, and nothing before. Under a slab two and a half
+    // do, once the field holds every mesh in reach, and nothing before, a build the eye's move
+    // started leaving its cascade as last built, every mesh in it. Under a slab two and a half
     // units up in a field of four cascades, whose last's probes stood 9.6 apart above the slab and
     // under the ground, the cascades' rays out through the slab's open sides were carried and
     // brought nothing, and the floor under it read 0.0001 in linear light where a path-traced
