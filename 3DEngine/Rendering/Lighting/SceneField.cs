@@ -217,8 +217,15 @@ internal sealed partial class SceneFieldRenderer : IDisposable
             : view is null ? _made.FarCell
             : SceneFieldPlan.FarCellFor(MathF.Min(settings.FarCascade, FarPlane(view)), counted, settings.CellSize);
         var wanted = (counted, settings.CellSize, Math.Max(1, settings.UpdateBudget), Math.Max(1, settings.TriangleBudget), farCell);
+        // Left off, where its pool did not fit, until the settings change.
+        if (_short && _made == wanted)
+        {
+            renderWorld.Set(new SceneFieldBinding(_off ??= device.CreateSceneField(1, 1), false));
+            return;
+        }
         if (_field is null || _made != wanted)
         {
+            _short = false;
             Release();
             _made = wanted;
             _plan = new SceneFieldPlan(wanted.counted, wanted.CellSize, wanted.Item3, BoundsOf, PartsOf, TintOf, wanted.Item4, TrianglesOf, farCell);
@@ -234,13 +241,37 @@ internal sealed partial class SceneFieldRenderer : IDisposable
         Gather(renderWorld, windowDraws, device);
         var plan = _plan!;
         plan.Update(view.Eye, _drawn, Ahead(view));
+        try
+        {
+            Record(renderContext, device, plan);
+        }
+        catch (DeviceMemoryException e)
+        {
+            // A pool of no more than this frame's meshes did not fit, so the field is left off, and
+            // global illumination with it, rather than the program stopping.
+            Logger.Error($"The scene's distance field is left off, global illumination with it. {e.Message}");
+            var made = _made;
+            Release();
+            (_short, _made) = (true, made);
+            renderWorld.Set(new SceneFieldBinding(_off ??= device.CreateSceneField(1, 1), false));
+        }
+    }
+
+    // Whether the device had no memory for the field's pool even at its smallest, which leaves the
+    // field off until the settings change.
+    private bool _short;
+
+    // The frame's builds, repaints and stamps.
+    private void Record(RenderContext renderContext, GraphicsDevice device, SceneFieldPlan plan)
+    {
+        var field = _field!;
         var repaints = Repaints(plan);
 
         var commands = renderContext.CommandBuffer;
-        device.RecordSceneFieldInfo(commands, _field, Info(plan));
+        device.RecordSceneFieldInfo(commands, field, Info(plan));
         if (plan.Builds.Count == 0 && plan.Bricks.Count == 0 && repaints.Count == 0) return;
 
-        device.RecordSceneFieldOpen(commands, _field);
+        device.RecordSceneFieldOpen(commands, field);
         if (plan.Builds.Count > 0 || repaints.Count > 0)
         {
             var corners = Pool(device, plan.Builds.SelectMany(build => build.Instances).Concat(repaints.SelectMany(repaint => repaint.Instances)), plan.BuildingTriangles);
@@ -263,7 +294,7 @@ internal sealed partial class SceneFieldRenderer : IDisposable
                 // flat world's ground four blocks thick as a slab rising past the eye, which the rays
                 // leaving the counted cascades met in place of the sky.
                 var sheet = plan.HasFar && build.Cascade >= plan.Counted ? plan.CellOf(plan.Counted - 1) * 0.5f : 0;
-                Hold(device.RecordSceneFieldBuild(commands, _field, corners, instances, count, triangles,
+                Hold(device.RecordSceneFieldBuild(commands, field, corners, instances, count, triangles,
                     build.Cascade, build.Origin, build.Cell, SceneFieldPlan.Band, thinGlow, build.First, build.Last,
                     lend: build is { First: true, Last: true } ? thinGlow : true, sheet: sheet));
             }
@@ -271,7 +302,7 @@ internal sealed partial class SceneFieldRenderer : IDisposable
             {
                 var (instances, count, triangles, _) = Instances(device, [.. painted], cell);
                 Hold(instances);
-                Hold(device.RecordSceneFieldRepaint(commands, _field, corners, instances, count, triangles, cascade, origin, cell, SceneFieldPlan.Band));
+                Hold(device.RecordSceneFieldRepaint(commands, field, corners, instances, count, triangles, cascade, origin, cell, SceneFieldPlan.Band));
             }
         }
         if (plan.Bricks.Count > 0)
@@ -279,9 +310,9 @@ internal sealed partial class SceneFieldRenderer : IDisposable
             var (shapes, bricks) = (Shapes(device, plan.Shapes), Bricks(device, plan));
             Hold(shapes);
             Hold(bricks);
-            Hold(device.RecordSceneFieldStamp(commands, _field, bricks, plan.Bricks.Count, shapes, plan.Shapes.Count));
+            Hold(device.RecordSceneFieldStamp(commands, field, bricks, plan.Bricks.Count, shapes, plan.Shapes.Count));
         }
-        device.RecordSceneFieldClose(commands, _field);
+        device.RecordSceneFieldClose(commands, field);
     }
 
     /// <summary>
@@ -620,7 +651,7 @@ internal sealed partial class SceneFieldRenderer : IDisposable
         if (_field is not null) Hold(_field);
         if (_corners is not null) Hold(_corners);
         (_field, _corners, _plan) = (null, null, null);
-        (_cornerCapacity, _cornerCount) = (0, 0);
+        (_cornerCapacity, _cornerCount, _poolCeiling, _poolTaken) = (0, 0, int.MaxValue, 0);
         _pooled.Clear();
         _indices.Clear();
         _bounds.Clear();

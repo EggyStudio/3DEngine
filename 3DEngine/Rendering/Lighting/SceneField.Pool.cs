@@ -22,12 +22,33 @@ internal sealed partial class SceneFieldRenderer
         {
             // Made again with the meshes this frame needs, which drops the ones no longer built from.
             if (_corners is not null) Hold(_corners);
+            (_corners, _cornerCount) = (null, 0);
             _pooled.Clear();
-            _cornerCount = 0;
-            var wanted = Math.Max(meshes.Sum(m => TrianglesOf(m.Vertices)), building);
-            _cornerCapacity = Math.Max(1024, (int)BitOperations.RoundUpToPowerOf2((uint)Math.Max(1, wanted * 2)));
-            _corners = device.CreateBuffer(new BufferDesc((ulong)_cornerCapacity * 48, BufferUsage.Storage | BufferUsage.TransferDst,
-                device.SharesMemory ? CpuAccessMode.Write : CpuAccessMode.None));
+            var frame = Math.Max(1024, meshes.Sum(m => TrianglesOf(m.Vertices)));
+            var wanted = Math.Max(frame, building);
+            var free = device.FreeDeviceMemory();
+            var asked = PoolCapacity(wanted, frame, null);
+            var capacity = Math.Max(frame, Math.Min(PoolCapacity(wanted, frame, free), _poolCeiling));
+            // Halved until it fits where the driver's budget said more was free than could be had,
+            // as it did beside a program holding half the GPU, and kept under that until the field
+            // is made again, so a remake does not try the size that failed each frame.
+            while (true)
+            {
+                try
+                {
+                    _corners = MakePool(device, capacity);
+                    break;
+                }
+                catch (DeviceMemoryException e) when (capacity > frame)
+                {
+                    Logger.Warn($"The scene's distance field's pool could not take {capacity * 48.0 / 1048576:0} MB. {e.Message}");
+                    capacity = _poolCeiling = Math.Max(frame, capacity / 2);
+                }
+            }
+            if (capacity < asked && capacity != _poolTaken)
+                Logger.Warn($"The scene's distance field's pool asked {asked * 48.0 / 1048576:0} MB with {free / 1048576.0:0} MB of the GPU's memory free "
+                    + $"and took {capacity * 48.0 / 1048576:0} MB, its builds taking their meshes in again more often.");
+            (_cornerCapacity, _poolTaken) = (capacity, capacity);
             adding = meshes;
         }
         // The corners added, written here and copied into the pool in the device's own memory, which
@@ -69,6 +90,27 @@ internal sealed partial class SceneFieldRenderer
         }
         device.FillBuffer(_corners, (ulong)start * 48, MemoryMarshal.AsBytes(mapped.AsSpan(0, (_cornerCount - start) * 12)));
         return _corners;
+    }
+
+    // The most triangles a pool is made for since the field was made, lowered where one did not fit,
+    // and the last taken, so the pool says what it took once.
+    private int _poolCeiling = int.MaxValue, _poolTaken;
+
+    private static IBuffer MakePool(GraphicsDevice device, int triangles) =>
+        device.CreateBuffer(new BufferDesc((ulong)triangles * 48, BufferUsage.Storage | BufferUsage.TransferDst,
+            device.SharesMemory ? CpuAccessMode.Write : CpuAccessMode.None));
+
+    /// <summary>
+    /// How many triangles the pool is made for, twice <paramref name="wanted"/>, those of the build
+    /// in progress, rounded up to a power of two, so its later parts fit, or where the device has
+    /// less than twice that free, as many as half what it has free holds and those of this frame's
+    /// meshes, <paramref name="needed"/>, at least.
+    /// </summary>
+    internal static int PoolCapacity(int wanted, int needed, ulong? free)
+    {
+        var whole = Math.Max(1024, (int)BitOperations.RoundUpToPowerOf2((uint)Math.Max(1, wanted * 2)));
+        if (free is not { } bytes || (ulong)whole * 48 * 2 <= bytes) return whole;
+        return Math.Max(Math.Max(1024, needed), (int)Math.Min(wanted, (long)(bytes / 2 / 48)));
     }
 
     // Each mesh's open edges as OpenEdges finds them, a bit a corner, kept for its vertices, since

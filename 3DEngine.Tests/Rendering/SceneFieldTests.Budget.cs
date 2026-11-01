@@ -78,6 +78,19 @@ public sealed partial class SceneFieldTests
 
     [Fact]
     [Trait("Category", "Unit")]
+    public void The_Pool_Takes_Twice_Its_Build_Where_The_Device_Has_Room_And_Less_Where_It_Is_Short()
+    {
+        // Sponza's build in progress, 3.75 million triangles, 48 bytes each, and the frame's part of it.
+        const int building = 3_750_000, frame = 600_000;
+        SceneFieldRenderer.PoolCapacity(building, frame, null).Should().Be(8_388_608, "where the driver does not say, twice the build rounded up to a power of two");
+        SceneFieldRenderer.PoolCapacity(building, frame, 2UL << 30).Should().Be(8_388_608, "2 GB free holds twice the pool's 403 MB");
+        SceneFieldRenderer.PoolCapacity(building, frame, 400UL << 20).Should().Be(building, "400 MB free holds the build's triangles once, not twice");
+        SceneFieldRenderer.PoolCapacity(building, frame, 200UL << 20).Should().Be(2_184_533, "200 MB free holds as many as half of it does");
+        SceneFieldRenderer.PoolCapacity(building, frame, 40UL << 20).Should().Be(frame, "40 MB free takes the frame's meshes at least, which the device may yet not hold");
+    }
+
+    [Fact]
+    [Trait("Category", "Unit")]
     public void A_Build_In_Progress_Takes_In_A_Mesh_That_Settles_And_Starts_Again_For_A_Splatted_One_That_Leaves()
     {
         // A budget of one mesh's triangles, so a build of ten meshes takes ten frames, the meshes in

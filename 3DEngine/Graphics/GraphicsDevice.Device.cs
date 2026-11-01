@@ -87,6 +87,11 @@ internal sealed unsafe partial class GraphicsDevice
         var maintenance5 = Utf8(VK_KHR_MAINTENANCE_5_EXTENSION_NAME);
         var hasMaintenance5 = HasDeviceExtension(maintenance5);
         if (hasMaintenance5) extensionNames.Add(maintenance5);
+        // How much of its own memory the device has free, which the large allocations ask before
+        // they take it (FreeDeviceMemory), where the driver says.
+        var budget = Utf8(VK_EXT_MEMORY_BUDGET_EXTENSION_NAME);
+        _knowsMemoryBudget = HasDeviceExtension(budget);
+        if (_knowsMemoryBudget) extensionNames.Add(budget);
         // A line takes the pixels OpenGL's would, raylib's being drawn by the rule its diamonds
         // give, where the driver has the extension, which every desktop driver in use and lavapipe
         // do. Without it a line is the driver's own.

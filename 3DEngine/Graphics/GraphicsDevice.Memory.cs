@@ -10,8 +10,58 @@ namespace Engine;
 /// <param name="Block">The block the range belongs to, which takes it back.</param>
 internal sealed record MemorySlice(VkDeviceMemory Memory, ulong Offset, ulong Size, nint Mapped, object Block);
 
+/// <summary>
+/// The device had no memory for an allocation, which says how many bytes were asked and how many
+/// the device had free where its driver says.
+/// </summary>
+internal sealed class DeviceMemoryException(ulong asked, ulong? free)
+    : InvalidOperationException($"The GPU had no memory for {asked / 1048576.0:0} MB, with {(free is { } f ? $"{f / 1048576.0:0} MB" : "an amount its driver does not say")} of it free.")
+{
+    /// <summary>How many bytes were asked.</summary>
+    public ulong Asked { get; } = asked;
+
+    /// <summary>How many bytes of the device's own memory were free, or null where its driver does not say.</summary>
+    public ulong? Free { get; } = free;
+}
+
 internal sealed unsafe partial class GraphicsDevice
 {
+    // Whether the driver says how much of each memory heap the program may use and uses.
+    private bool _knowsMemoryBudget;
+
+    /// <summary>
+    /// How many bytes of the device's own memory this program may still take, the budget the driver
+    /// gives each of its heaps less what the program uses of it, summed over the heaps local to the
+    /// device, or null where the driver does not say.
+    /// </summary>
+    /// <remarks>
+    /// The budget counts what other programs hold, so an example started beside an editor holding
+    /// 3.5 of a GPU's 8 GB reads what is left to it.
+    /// </remarks>
+    // Memory as the info asks, or where the device has none a DeviceMemoryException saying how much
+    // was asked and how much is free, which a caller that can take less or go without catches.
+    private VkDeviceMemory AllocateSaying(VkMemoryAllocateInfo* info)
+    {
+        var made = _deviceApi.vkAllocateMemory(info, null, out VkDeviceMemory memory);
+        if (made is VkResult.ErrorOutOfDeviceMemory or VkResult.ErrorOutOfHostMemory)
+            throw new DeviceMemoryException(info->allocationSize, FreeDeviceMemory());
+        made.CheckResult();
+        return memory;
+    }
+
+    internal ulong? FreeDeviceMemory()
+    {
+        if (!_knowsMemoryBudget) return null;
+        var budget = new VkPhysicalDeviceMemoryBudgetPropertiesEXT();
+        var properties = new VkPhysicalDeviceMemoryProperties2 { pNext = &budget };
+        _instanceApi.vkGetPhysicalDeviceMemoryProperties2(_physicalDevice, &properties);
+        ulong free = 0;
+        for (int h = 0; h < (int)properties.memoryProperties.memoryHeapCount; h++)
+            if ((properties.memoryProperties.memoryHeaps[h].flags & VkMemoryHeapFlags.DeviceLocal) != 0 && budget.heapBudget[h] > budget.heapUsage[h])
+                free += budget.heapBudget[h] - budget.heapUsage[h];
+        return free;
+    }
+
     // Buffers and images are carved out of blocks of device memory rather than given an allocation
     // each, since drivers limit how many allocations a device holds (4,096 on many Windows
     // drivers), which a game of a few thousand meshes and textures would pass. Buffers and images
@@ -98,7 +148,7 @@ internal sealed unsafe partial class GraphicsDevice
     private MemoryBlock NewBlock(uint type, ulong size, bool hostVisible)
     {
         VkMemoryAllocateInfo info = new() { allocationSize = size, memoryTypeIndex = type };
-        _deviceApi.vkAllocateMemory(&info, null, out VkDeviceMemory memory).CheckResult();
+        var memory = AllocateSaying(&info);
         DeviceObjects.Made(DeviceObjects.Kind.Memory);
         var block = new MemoryBlock { Memory = memory, Size = size };
         block.Free.Add((0, size));

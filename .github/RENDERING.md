@@ -83,6 +83,18 @@ built-in shader's plain build and the builds the renderer loads, 74 stages on 32
 renderer starts with no cache in 7.1 s in Sponza and 7.4 s in the game, 6.5 and 6.8 s of them the
 compiles, which took 101 and 134 s of slangc in all, and they answer after 14.8 and 16.9 s.
 
+**A program short of the GPU's memory, read on 2026-11-01.** Beside another program holding 3.5 of
+the GPU's 8 GB, `scenes_sponza` stopped with `ErrorOutOfDeviceMemory` making its field's pool, 384
+MB for twice its build's 3.75 million triangles. The device reads what is free where the driver says
+(`VK_EXT_memory_budget`, `FreeDeviceMemory`), an allocation it has no memory for says how much was
+asked and how much was free (`DeviceMemoryException`), and the large ones that can do with less or
+without take less or go without, each said in the log. The field's pool takes half of what is free
+at most and is halved until it fits, down to the frame's meshes, the field and global illumination
+left off where even those do not fit, and the GPU's own rays at `High` are left off where their
+structures do not fit. Beside a program holding 3.7 GB the driver's budget said 1,389 MB was free
+where the pool could not take 96 MB, and Sponza draws with its rays off and a pool of 48 MB where it
+stopped.
+
 `slangc` is a tool rather than a library. `build/fetch-slang.sh` downloads a pinned release into
 `build/tools/slang`, and the compiler is looked for in `ENGINE_SLANGC`, then on the `PATH`, then
 there. Linking Slang into the engine would add a native library of tens of megabytes to every

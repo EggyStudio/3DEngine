@@ -144,7 +144,7 @@ internal sealed unsafe partial class GraphicsDevice
             allocationSize = requirements.size,
             memoryTypeIndex = FindMemoryType(requirements.memoryTypeBits, VkMemoryPropertyFlags.DeviceLocal),
         };
-        _deviceApi.vkAllocateMemory(&allocation, null, out memory).CheckResult();
+        memory = AllocateSaying(&allocation);
         DeviceObjects.Made(DeviceObjects.Kind.Memory);
         _deviceApi.vkBindImageMemory(image, memory, 0).CheckResult();
 

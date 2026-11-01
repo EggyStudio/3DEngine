@@ -519,8 +519,20 @@ internal sealed class GlobalIlluminationRenderer : IDisposable
             foreach (var (instance, skinned) in fields.Drawn)
                 if (!skinned && fields.HoldsTriangles(instance.Vertices)) copies.Add(new RayInstance(instance.Vertices, instance.World, instance.Color, instance.Emission, instance.Roughness, instance.Metallic,
                     plan is not null && fields.Carried(instance, plan.CellSize), instance.LightThrough));
-            _retired.Add((_frame, device.RecordRayScene(renderContext.CommandBuffer, _rays, copies, mesh => fields.CornersOf((ModelVertex[])mesh),
-                mesh => fields.CornerColorsOf((ModelVertex[])mesh), fields.Recolored)));
+            try
+            {
+                _retired.Add((_frame, device.RecordRayScene(renderContext.CommandBuffer, _rays, copies, mesh => fields.CornersOf((ModelVertex[])mesh),
+                    mesh => fields.CornerColorsOf((ModelVertex[])mesh), fields.Recolored)));
+            }
+            catch (DeviceMemoryException e)
+            {
+                // The GPU's own rays are a part of the top quality the field stands in for, so where
+                // their structures do not fit they are left off rather than the program stopping.
+                Logger.Warn($"The GPU's own rays are left off, the scene's distance field tracing what they would. {e.Message}");
+                renderWorld.TryGet<GlobalIlluminationSettings>()!.RaysOff = true;
+                _retired.Add((_frame, _rays));
+                _rays = null;
+            }
         }
         else if (_rays is not null)
         {

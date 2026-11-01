@@ -140,7 +140,17 @@ internal sealed unsafe partial class GraphicsDevice
                 ? VkMemoryPropertyFlags.HostVisible | VkMemoryPropertyFlags.HostCoherent | (lasting && _seesDeviceWhole ? VkMemoryPropertyFlags.DeviceLocal : 0)
                 : VkMemoryPropertyFlags.DeviceLocal),
         };
-        _deviceApi.vkAllocateMemory(&allocation, null, out VkDeviceMemory memory).CheckResult();
+        VkDeviceMemory memory;
+        try
+        {
+            memory = AllocateSaying(&allocation);
+        }
+        catch (DeviceMemoryException)
+        {
+            _deviceApi.vkDestroyBuffer(buffer, null);
+            DeviceObjects.Gone(DeviceObjects.Kind.Buffer);
+            throw;
+        }
         DeviceObjects.Made(DeviceObjects.Kind.Memory);
         _deviceApi.vkBindBufferMemory(buffer, memory, 0).CheckResult();
         void* mapped = null;
