@@ -1213,7 +1213,17 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     screen probes' own hits and does not bind the skies. The choice, made here, is the model pass's
     gathers first, both of them with the skies bound, read by the doorway and the slab, the canopy
     and the bounce rooms unchanged; the probes' own hit shading only if that leaves the doorway well
-    over, since it changes the bounce itself.
+    over, since it changes the bounce itself. Read on 2026-11-01 at 14:22, (a) halves the excess,
+    the nave's dark walls from +5,500 and +5,000% to +2,800 and +3,300% and the atrium's from
+    +7,100% to +600%, the bar unchanged, a corridor test (a closed corridor 4 wide under a sky map,
+    its end in the third cascade with every probe outside) from 0.92 to 0.22 against open; what
+    remains is the gather's fallback, a surface seeing none of its eight probes still taking them by
+    distance at a twentieth each and normalized. The choice is (a) committed first with the corridor
+    test at under 0.5, then the fallback mended as this item's second commit, the blend scaled by
+    the share of the probes' weight the surface sees, kept at least a twentieth, read against the
+    Cornell box's notch, the bounce rooms, the slab, the canopy, the corridor and Sponza's walls;
+    within the bar it lands and the test's bar tightens, else it is recorded as an item behind 176
+    and (a) stands alone.
 
 167. **The Sponza example's look matches the reference's warmth and post-processing.** The owner,
     shown the metered captures beside the reference pictures on 2026-11-01 at {hm}, found the global

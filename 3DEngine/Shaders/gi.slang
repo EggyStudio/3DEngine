@@ -374,7 +374,30 @@ public float probeSees<V : IVolume>(V reach, float3 p, float3 n, float3 probe, i
 // probes that holds it, fading to the next cascade's across its outer band (cascadeHold) where that
 // one is built and is not the far cascade's (fadesOn), or none where no cascade of probes holds p.
 // The two cascades are read in a loop kept from unrolling, so a shader holds one read of a
-// cascade. The probes are found where the field's cascades they stand in lie (cascadeAt).
+// cascade. The probes are found where the field's cascades they stand in lie (cascadeAt). With the
+// share of the sky each probe's faces saw (skies), a probe the surface does not see lends none of
+// the sky its rays reached (bouncedIn), as the model pass reads them.
+public float3 bouncedAt<V : IVolume>(V cubes, V skies, V reach, SceneFieldInfo info, float3 p, float3 n, float probes, float spacing, float cascades)
+{
+    int c = fieldCascade(info, p, 1.0, int(cascades));
+    if (c < 0 || c >= int(cascades))
+        return float3(0.0);
+    float own = fadesOn(info, c, int(cascades)) ? cascadeHold(info, c, p, int(cascades)) : 1.0;
+    float3 light = float3(0.0);
+    [loop]
+    for (int k = 0; k < 2; k++)
+    {
+        float share = k == 0 ? own : 1.0 - own;
+        if (share > 0.0)
+        {
+            float sky;
+            light += bouncedIn<V, true>(cubes, skies, reach, info, p, n, n, probes, spacing, c + k, int(cascades), sky) * share;
+        }
+    }
+    return light;
+}
+
+// The same without the shares of the sky, as the probes' own hits read them (shadeProbeHit).
 public float3 bouncedAt<V : IVolume>(V cubes, V reach, SceneFieldInfo info, float3 p, float3 n, float probes, float spacing, float cascades)
 {
     int c = fieldCascade(info, p, 1.0, int(cascades));
@@ -435,7 +458,11 @@ public float3 bouncedAndSkyAt<V : IVolume>(V cubes, V skies, V reach, SceneField
 // box showed a notch beside its tall block, and a surface that sees none of them, as one wedged
 // between two meshes may, blends them by that twentieth, so it is not left dark. With Sky, the share
 // of the sky the probes' faces r looks toward saw, blended alike, as skyAt blends it, or the whole
-// sky where the weights are none.
+// sky where the weights are none, and a probe the surface does not see lends it its light less the
+// share of its faces' light the sky gave and none of its share of the sky. Blended by distance
+// alone, the probes around the far end of Sponza's atrium, eight units apart in its last cascade,
+// lent a wall by the main door the sky that those under the floor and outside the door saw, and it
+// read 5.9 times a path-traced reference and blue, its dark door's reflection the sky.
 float3 bouncedIn<V : IVolume, let Sky : bool>(V cubes, V skies, V reach, SceneFieldInfo info, float3 p, float3 n, float3 r, float probes, float spacing, int c,
     int cascades, out float sky)
 {
@@ -457,6 +484,7 @@ float3 bouncedIn<V : IVolume, let Sky : bool>(V cubes, V skies, V reach, SceneFi
         float seen = 0.0;
         float valid = 1.0;
         float3 moved = float3(0.0);
+        float skyward = 0.0;
         for (int axis = 0; axis < 3; axis++)
         {
             int face = axis * 2 + (n[axis] < 0.0 ? 1 : 0);
@@ -465,11 +493,20 @@ float3 bouncedIn<V : IVolume, let Sky : bool>(V cubes, V skies, V reach, SceneFi
             valid = min(valid, faceHolds(texel.a));
             moved[axis] = faceMove(texel.a);
             if (Sky)
+            {
                 seen += skies.loadAt(int3((axis * 2 + (r[axis] < 0.0 ? 1 : 0)) * int(probes) + at.x, at.y, c * int(probes) + at.z)).x * r2[axis];
+                skyward += skies.loadAt(int3(face * int(probes) + at.x, at.y, c * int(probes) + at.z)).x * n2[axis];
+            }
         }
         float3 probe = oc.xyz + (float3(at) + 0.5 + moved) * (oc.w * spacing);
         float weight = lerps.x * lerps.y * lerps.z * valid * probeFacing(p, n, probe);
-        weight *= lerp(0.05, 1.0, probeSees(reach, p, n, probe, at, c, probes, oc.w * spacing));
+        float sees = probeSees(reach, p, n, probe, at, c, probes, oc.w * spacing);
+        weight *= lerp(0.05, 1.0, sees);
+        if (Sky)
+        {
+            light *= lerp(1.0 - saturate(skyward), 1.0, sees);
+            seen *= sees;
+        }
         sum += light * weight;
         skySum += seen * weight;
         weights += weight;
@@ -747,12 +784,12 @@ public float3 shadeProbeHit<V : IVolume, S : ISheetVolume>(V field, S sheets, Sc
 // lights' marches out, the model pass's build for a frame with none passing it so (Glowing in
 // lights); a parameter of the build, since a constant argument left them in the SPIR-V.
 public float3 shadeHit<V : IVolume, let Glowing : bool>(V field, SceneFieldInfo info, V albedo, Texture3D<uint> faces, V glow, GiLights lights, V cubes,
-    V reach, float3 p, float probes, float spacing, float cascades)
+    V skies, V reach, float3 p, float probes, float spacing, float cascades)
 {
     float3 n = fieldNormal(field, info, p);
     float3 color = surfaceAlbedoFacing(faces, albedo, info, p, n);
     float3 arrived = (directLight(field, info, lights, p, n) - hiddenLampLight(field, info, lights, p, n)) * Pi
-        + bouncedAt(cubes, reach, info, p, n, probes, spacing, cascades) * lights.counts.z;
+        + bouncedAt(cubes, skies, reach, info, p, n, probes, spacing, cascades) * lights.counts.z;
     if (Glowing)
         arrived += glowLightsAt(field, info, lights, p, n, 2, false);
     return color / Pi * arrived + surfaceGlow(glow, albedo, info, p);

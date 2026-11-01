@@ -475,7 +475,7 @@ public float3 bounced(float3 p, float3 n)
     int c = fieldCascade(bouncedField, p, 1.0, int(lighting.indirect.w));
     if (c < 0 || c >= int(lighting.indirect.w))
         return float3(-1.0);
-    return bouncedAt(SplitVolume(bouncedLight, lightNearest), SplitVolume(bouncedReach, lightNearest), bouncedField, p, n, lighting.indirect.z, lighting.indirect.y, lighting.indirect.w) / 3.14159265;
+    return bouncedAt(SplitVolume(bouncedLight, lightNearest), SplitVolume(bouncedSky, lightNearest), SplitVolume(bouncedReach, lightNearest), bouncedField, p, n, lighting.indirect.z, lighting.indirect.y, lighting.indirect.w) / 3.14159265;
 }
 
 // The light bounced gives with the share of the sky the surface sees along r as skySeen gives it,
@@ -607,7 +607,7 @@ public float4 tracedReflection(float3 p, float3 n, float3 r, float roughness, fl
         }
         hit = start + r * t;
     }
-    float3 shaded = shadeHit<SplitVolume, Glowing>(SplitVolume(reflectField, lightLinear), bouncedField, SplitVolume(reflectAlbedo, lightLinear), reflectFaces, SplitVolume(reflectGlow, lightLinear), reflectLights, SplitVolume(bouncedLight, lightLinear), SplitVolume(bouncedReach, lightNearest), hit, probes, spacing, cascades);
+    float3 shaded = shadeHit<SplitVolume, Glowing>(SplitVolume(reflectField, lightLinear), bouncedField, SplitVolume(reflectAlbedo, lightLinear), reflectFaces, SplitVolume(reflectGlow, lightLinear), reflectLights, SplitVolume(bouncedLight, lightLinear), SplitVolume(bouncedSky, lightNearest), SplitVolume(bouncedReach, lightNearest), hit, probes, spacing, cascades);
     if (!onScreen)
         return float4(shaded, 1.0);
     float4 last = mul(lighting.reflectLastViewProjection, float4(hit, 1.0));
@@ -713,7 +713,7 @@ float4 rayReflection(float3 p, float3 way)
     // model pass takes it (bouncedHold).
     float held = bouncedHold(bouncedField, hit, n, lighting.indirect.y, lighting.indirect.w);
     if (held > 0.0)
-        arrived += bouncedAt(SplitVolume(bouncedLight, lightNearest), SplitVolume(bouncedReach, lightNearest), bouncedField, hit, n, lighting.indirect.z, lighting.indirect.y, lighting.indirect.w) * held;
+        arrived += bouncedAt(SplitVolume(bouncedLight, lightNearest), SplitVolume(bouncedSky, lightNearest), SplitVolume(bouncedReach, lightNearest), bouncedField, hit, n, lighting.indirect.z, lighting.indirect.y, lighting.indirect.w) * held;
     arrived += (lighting.environment.z > 0.0 ? environmentIrradiance(n) * lighting.environment.x * lighting.environmentLight.rgb * Pi : reflectLights.sky.rgb * Pi) * (1.0 - held);
     // The copy's color times its mesh's vertices' colors at the hit, as the model pass blends them.
     float2 between = query.CommittedTriangleBarycentrics();

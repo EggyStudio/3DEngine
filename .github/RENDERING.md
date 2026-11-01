@@ -2373,6 +2373,20 @@ nearer and the floor as it was. Moving the coarse cascades' probes standing off 
 space narrow along one axis past it, as the gap under the slab is, moved `Low` alone by 5% and is
 not kept.
 
+**The far end of Sponza's atrium, read on 2026-11-01.** From the nave view at 13:00 the main door's
+vestibule lies in the last cascade alone, whose probes stand eight units apart, and of the eight
+around a wall by the door two stand inside, as dark as a path-traced reference has them, and the
+rest under the floor and outside the door, where they see the sky, 0.10 to 0.37 in linear light. The
+wall sees none of them and blended them by distance alone, reading 5.9 times the reference and blue,
+and the dark doors there reflected the sky the same probes saw. A probe a surface does not see lends
+it its light less the share the sky gave and none of its share of the sky, in the model pass's
+gathers, and the wall reads 4.2 times the reference, a dark door in the atrium's view 7.0 times
+where 72, the slab, the canopy and the bounce rooms as they were, the model pass taking 0.5 ms more
+of its 15 at 1920 by 1080 in Sponza, within its noise of a few tenths. A closed corridor four units
+wide whose far end the third cascade holds took 0.92 of the light of the same end open, and takes
+0.22, the rest the light its probes see on its outer walls and the ground, which a surface that sees
+none of them blends (`CascadeEdgeTests`).
+
 **The screen's probes on thin two-sided walls, read on 2026-10-26.** In a room built as the voxel
 game's wheat field, thin two-sided walls a block tall four to a block, half a unit apart, under the
 game's sun at ten in the morning, the walls facing the eye and the sun read 44% over a path-traced
