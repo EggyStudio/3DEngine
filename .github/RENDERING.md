@@ -2330,6 +2330,33 @@ light and all its rays brought were added up from the first of the four sums its
 cascade of 8 texels a side, a band of sixteen texels of its sphere, which takes `Low`'s floor two
 and a half units under the slab from 0.0051 to 0.0062.
 
+**A roof in a field of four cascades, read on 2026-11-01.** The slab scene above holds two cascades,
+whose last's short interval brings the sky from under the slab where its rays meet nothing, which is
+most of `High`'s excess there. In a field of four, cell 0.15, the floor two and a half units under
+the solid slab at a roughness of 1 read 0.0001 in linear light at `High` where a path-traced
+reference takes 0.0069, and 0.0045 at `Low` (`gi.compare` at 640 by 384, the middle of the floor).
+The last cascade's probes stand 9.6 apart, above the slab and under the ground, so the third's,
+moved out of the slab to under it, see no probe above them and carry their rays to the field's edge,
+where those out through the slab's open sides met nothing and brought nothing, as item 137 had a
+carried ray do, since bringing the sky lit a closed room through the cascades not yet built in its
+first frames. A carried ray that meets nothing brings the sky once every cascade is built with none
+waiting (`SceneFieldPlan.Whole`), and the floor reads 0.0046 at `High` and 0.0045 at `Low`, five and
+a half under as it was, the closed room dark in its first frames, the bounce rooms within 0.33 of
+255 on the mean and Sponza's door view as it was. The slab's underside then read 0.048 at `High`
+where the reference takes 0.0019, and `Low` read 0.063 before the change, both from the ambient
+light's reflection, the underside's diffuse light 0.0022. The reflection was taken as far as the
+probes' light on the face held the light the face takes in the open, the sky above it and below it a
+ground of its own color, which a dark face turned down takes little of, so the floor's light under
+the slab held it whole. Taken as far as the probes' light holds the ambient light itself, a floor's
+reflection is as it was and the underside reads 0.0061 at `High` and 0.0081 at `Low`, its diffuse
+light 0.0022 and 0.0029, the reference reflecting no indirect light. Under item 100's canopy, its
+leaves letting 0.6 through, the leaves' undersides went from 16 to 38% over the reference to 7 to
+22% under at `High` and from 28 to 52% over to within 10% at `Low`, and the trunks from within 2% to
+12 and 13% under at `High` and from 7 and 20% over to within 6% at `Low`, the blue of each pixel
+nearer and the floor as it was. Moving the coarse cascades' probes standing off a surface into a
+space narrow along one axis past it, as the gap under the slab is, moved `Low` alone by 5% and is
+not kept.
+
 **The screen's probes on thin two-sided walls, read on 2026-10-26.** In a room built as the voxel
 game's wheat field, thin two-sided walls a block tall four to a block, half a unit apart, under the
 game's sun at ten in the morning, the walls facing the eye and the sun read 44% over a path-traced

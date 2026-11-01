@@ -465,7 +465,7 @@ internal sealed class GlobalIlluminationRenderer : IDisposable
             _lightThrough |= instance.LightThrough > 0 && !switches.ThroughOff;
         _retired.Add((_frame, device.RecordGlobalIllumination(renderContext.CommandBuffer, _gi, field.Field, view, sampler, lights, intervals, ProbeSpacing,
             switches.MergeOff, switches.Alone, switches.Shown is BounceView.Rays or BounceView.Merged, _frame, switches.FollowOff ? null : lying,
-            far ? cascades - 2 : -1, _lightThrough)));
+            far ? cascades - 2 : -1, _lightThrough, plan is { Whole: true })));
 
         // The screen's probes, where the window has a depth to stand them on, the first interval
         // theirs. At Low, which leaves them out, they stand for the glow lights alone while some

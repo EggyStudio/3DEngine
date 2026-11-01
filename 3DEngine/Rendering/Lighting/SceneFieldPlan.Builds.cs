@@ -30,6 +30,12 @@ internal sealed partial class SceneFieldPlan
     /// <summary>The triangles of the meshes the build in progress splats over its frames, or none.</summary>
     public int BuildingTriangles => _job?.Triangles ?? 0;
 
+    /// <summary>
+    /// Whether every cascade is built with no build in progress and none waiting, so the field
+    /// holds every mesh in reach and a ray that leaves it meeting nothing met no mesh there.
+    /// </summary>
+    public bool Whole => _job is null && Array.IndexOf(_dirty, true) < 0 && Enumerable.Range(0, Cascades).All(c => _built[c] is not null);
+
     // Starts or goes on with the dirty cascades' builds, the finest first, as many cascades a frame
     // as the budget says and as many triangles as the triangle budget, a mesh at least, the still
     // meshes within a cascade's band splatted nearest the eye first, and says which cascades were

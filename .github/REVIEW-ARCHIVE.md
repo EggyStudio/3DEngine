@@ -4934,6 +4934,60 @@ batch.
     right button held, the sheet in the dump; the help line and docs/global-illumination.md follow,
     the gallery and EXAMPLES.md recaptured.
 
+158. **High's cascades read 44% over Low's and the reference under a roof.** From items 138 and 152,
+    under item 100's solid slab at roughness 1 High reads 0.0085 at 2.5 up and 0.046 at 5.5 against
+    Low's 0.0048 and 0.033 and the reference's 0.0059 and 0.032, and item 136's leaf-block canopy at
+    5.5 up reads High 0.32 against Low's 0.24 and the reference's 0.21, the screen probes 0.006 of
+    it, the rest High's cascades over Low's. A reading first of which cascade carries the excess, by
+    gi.probe under the slab at each quality and with the far cascade off, then the mend by the
+    cause, read by the slab table and the canopy at both qualities against the reference and the
+    bounce rooms unchanged. A cascades item, after 154 and before 139. Read on 2026-11-01 at 06:52,
+    nothing committed. In item 100's slab scene at roughness 1 with two cascades of 512 probes and
+    256 rays a probe at both qualities, the floor under the slab reads at 2.5 and 5.5 up the
+    reference 0.0059 and 0.0316, Low 0.0051 and 0.0332, High 0.0088 and 0.0461, High with the screen
+    probes off 0.0079 and 0.0394, the ray queries changing nothing. The world probes differ only in
+    their texels, Low's second cascade 8 by 8 directions with 4 rays each from the quarters' middles
+    and High's 16 by 16 with one ray each through the middle; with High's second cascade at 8 in a
+    scratch build it reads 0.0062 and 0.0333, Low's values and within 5% of the reference. gi.probe
+    under the slab shows the nearly level ways taking the cascade above's light at 0.312 against the
+    reference's 0.167, the texels that met the floor merging to 0.165 against their own 0.014, a
+    single middle ray near the slab's edge seeing sky where much of its direction's solid angle
+    meets the slab. The screen probes add 0.0009 and 0.0067 with 16 directions and 0.0024 and 0.0118
+    with 8, riding on their reads past their reach, their own reading. The choice, made here, is the
+    second option, 16 by 16 directions with 4 rays each at High, keeping the resolution the screen
+    probes were given 16 directions for, about 655 thousand rays a frame against 262 thousand, with
+    a bar, read in the bounce rooms, Sponza and the grove-like canopy at 1080p; if the cascade's
+    cost at High rises by more than a millisecond there, the first option, 8 by 8 with 4 rays as Low
+    and Medium, with the screen probes' share read on its own. A jittered ray with a per-direction
+    history is not taken, the cascades being read directly and a history a buffer and a blend of
+    their own. The screen probes' share past their reach is 158's second part, read by
+    gi.screenprobe under the slab. First part done at `d9f3f108`, read at 09:20. The second option,
+    read against the bar at High at 1920 by 1080 over three alternating rounds on a quiet GPU,
+    raised gpu.global_illumination from 2.40 to 2.42 ms to 2.74 to 2.77 in the bounce rooms, from
+    3.19 to 3.20 to 4.03 to 4.11 in Sponza at 15:00 and from 3.14 to 3.23 to 4.19 to 4.22 in item
+    100's canopy letting 0.6 through, the canopy over the millisecond, so the first went in,
+    TexelsAt at High 8, 8, 16 and 16, the second cascade at 8 by 8 with 4 rays each as Low's and
+    Medium's, 256 rays a probe as before and the world probes 1.65 MB where 3.71, the three scenes
+    unchanged or a little under. The slab at roughness 1 reads at 2.5 and 5.5 up the reference
+    0.0059 and 0.0316, Low 0.0062 and 0.0333, High with the screen probes off 0.0062 and 0.0333
+    where 0.0079 and 0.0394, and with them on 0.0086 and 0.0451 where 0.0088 and 0.0461, so the
+    screen probes add 0.0024 and 0.0118 on top, the second part. Found on the way, gi_ambient's
+    follow summed the partials for texels squared over 64 groups, which for an 8-direction cascade
+    with 4 rays a texel and 4 groups a probe read the first group alone, 16 texels, and took that
+    sum over all 64 texels' shares, so a probe's own light and its total came out a quarter of the
+    whole; it sums texels squared times the rays over 64 groups, which moved Low's slab floor at 2.5
+    from 0.0051 to 0.0062. The tests expect the new texels, the gi_trace comment says every
+    quality's second cascade has 8 a side, RENDERING.md holds the reading with both forms' costs;
+    the sheet in the dump, shown to the owner. Second part read at 09:24, nothing changed, and the
+    item closed by it. The screen probe at the floor pixel under the 5.5 slab in the two-cascade
+    scratch field reads 0.447 against the reference's 0.364 over the hemisphere, its rays rising 30
+    to 60 degrees reading 0.03 to 0.31 where the reference reads the slab's underside at 0.005,
+    since the world probe they end in takes the cascade above's light at 0.200 against 0.006 and
+    that cascade is the scratch field's last, whose rays bring the sky when they meet nothing, from
+    beneath a solid roof; so the screen probes' 0.0024 and 0.0118 and the 44% belonged largely to
+    the two-cascade field, and with `d9f3f108` the excess is resolved. Done at `d9f3f108`. The same
+    scene with four cascades showed a larger fault, item 163.
+
 ## Verdicts settled
 
 Verdicts 1 to 55 are settled, the last two, the drawing leak test's resident bound and the Windows

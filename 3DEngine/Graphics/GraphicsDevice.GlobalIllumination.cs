@@ -345,10 +345,12 @@ internal sealed unsafe partial class GraphicsDevice
     /// <param name="lying">Whether each cascade lies where it lay the frame before, so a probe's own light and its share of the indirect light of the frame before are its own, or none where the indirect light is taken whole however a probe's own light falls.</param>
     /// <param name="lastCounted">The cascade before the far cascade's probes, whose rays bring the light from all around where they meet nothing, as the last cascade's do, or -1 where the field has no far cascade.</param>
     /// <param name="lightThrough">Whether some surface lets light through this frame, which the rays cross, where a frame of none traces with the build that leaves the crossing out.</param>
+    /// <param name="fieldWhole">Whether every cascade of the field is built with none waiting, so a ray carried to the field's edge that meets nothing brings the sky.</param>
     /// <returns>What the recording holds, to free once no frame in flight reads it.</returns>
     public IDisposable RecordGlobalIllumination(ICommandBuffer commandBuffer, GpuIllumination gi, GpuSceneField field, IImageView environment,
         ISampler environmentSampler, ReadOnlySpan<byte> lights, IReadOnlyList<(float Start, float End)> intervals, float spacing,
-        bool mergeOff = false, int alone = -1, bool viewed = false, long frame = 0, IReadOnlyList<bool>? lying = null, int lastCounted = -1, bool lightThrough = false)
+        bool mergeOff = false, int alone = -1, bool viewed = false, long frame = 0, IReadOnlyList<bool>? lying = null, int lastCounted = -1, bool lightThrough = false,
+        bool fieldWhole = false)
     {
         var trace = lightThrough ? TraceStage : SolidTraceStage;
         var run = new ProbeRun(this, commandBuffer, [(trace, gi.Cascades), (MergeStage, gi.Cascades), (AmbientStage, gi.Cascades)]);
@@ -386,7 +388,8 @@ internal sealed unsafe partial class GraphicsDevice
             {
                 Cascade = (uint)c, Probes = p, Texels = n, Last = c == gi.Cascades - 1 || c == lastCounted ? 1u : 0u,
                 Start = intervals[c].Start, End = intervals[c].End, Spacing = spacing, Cascades = gi.Cascades,
-                Kept = lying is not null && lying[c] ? 1u : 0u, Parity = (uint)(frame & 1),
+                // The frame's parity, and 2 where the field holds every mesh in reach.
+                Kept = lying is not null && lying[c] ? 1u : 0u, Parity = (uint)(frame & 1) | (fieldWhole ? 2u : 0u),
                 Edge = intervals[lastCounted >= 0 ? lastCounted : gi.Cascades - 1].End,
                 BelowEnd = c > 0 ? intervals[c - 1].End : 0,
             };

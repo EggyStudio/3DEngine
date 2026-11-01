@@ -77,6 +77,7 @@ Done that day
 - Item 156 at `07085cd2`. Every buffer the GPU reads each frame lives in device memory.
 - Item 157 at `6f6ba558`. A buffer the CPU writes each frame takes the device's host-visible local
   memory where it has one.
+- Item 158 at `d9f3f108`. High's cascades read 44% over Low's and the reference under a roof.
 - Item 159 at `beefec87`. The probes' sky share along the mirror direction holds at the field's edge
   and through leaves.
 - Item 160 at `1848701a`. Sponza's shade reads a hundredth of its sun where the reference reads a

@@ -634,13 +634,17 @@ public LitLight litLight(float3 albedo, ModelVertexOutput input, float shadow = 
         float3 arrived = arriving(lamp, input.world, n);
         if (int(lamp.positionAndKind.w) == Ambient)
         {
-            // Its reflection as far as the indirect light reaching the surface holds the light
-            // this one sends it in the open, which is the probes' where they hold the surface, so a
-            // floor under a roof reflects as little of it as the roof lets reach it, where taken
-            // whole a floor two and a half units under a solid slab took 0.067 in linear light from
-            // the reflection alone at roughness 0.5 and a path-traced reference 0.006 in all.
+            // Its reflection as far as the indirect light reaching the surface, the probes' where
+            // they hold it, holds this light's own, so a floor under a roof reflects as little of it
+            // as the roof lets reach it, where taken whole a floor two and a half units under a
+            // solid slab took 0.067 in linear light from the reflection alone at roughness 0.5 and a
+            // path-traced reference 0.006 in all. Held against the light the face takes in the open
+            // instead, the sky above it and below it a ground of its own color, a dark face turned
+            // down took more than that from the floor under the slab and reflected this light
+            // whole, the slab's underside 0.048 at High where the reference, which reflects no
+            // indirect light, reads 0.0019 and its diffuse light alone 0.0022.
             float3 inOpen = distant ? distantAround(arrived, n, diffuseColor) : arrived;
-            float reaches = bounces ? lerp(1.0, saturate(luminance(bouncedHere) / max(luminance(inOpen), 1e-5)), held) : 1.0;
+            float reaches = bounces ? lerp(1.0, saturate(luminance(bouncedHere) / max(luminance(arrived), 1e-5)), held) : 1.0;
             light.diffuse += inOpen * occlusion * diffuseColor * (1.0 - held);
             light.specular += arrived * occlusion * specularShare * (1.0 - gloss) * reaches;
             continue;

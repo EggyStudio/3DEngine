@@ -345,6 +345,15 @@ void computeMain(uint3 id : SV_DispatchThreadID, uint lane : SV_GroupIndex)
     float4 around = aboveAround[0] + aboveAround[1] + aboveAround[2] + aboveAround[3] + aboveAround[4] + aboveAround[5] + aboveAround[6] + aboveAround[7];
     float3 aboveMean = around.w > 1e-4 ? around.xyz / around.w : origin;
     bool carried = push.cascade.w == 0u && seesAbove == 0u;
+    // A ray carried on that meets nothing to the field's edge brings the sky as the last cascade's
+    // do, once the field holds every mesh in reach, and nothing before. Under a slab two and a half
+    // units up in a field of four cascades, whose last's probes stood 9.6 apart above the slab and
+    // under the ground, the cascades' rays out through the slab's open sides were carried and
+    // brought nothing, and the floor under it read 0.0001 in linear light where a path-traced
+    // reference takes 0.0069. Bringing it before then lit the closed room of CascadeEdgeTests
+    // through the cascades not yet built in its first frames at 0.060, over twice what its floor
+    // settles at.
+    bool skyPast = push.cascade.w != 0u || carried && (push.follow.z & 2u) != 0u;
     float end = carried ? asfloat(push.follow.y) : push.interval.y;
     float4 light = float4(0.0, 0.0, 0.0, 1.0);
     float3 own = float3(0.0);
@@ -394,7 +403,7 @@ void computeMain(uint3 id : SV_DispatchThreadID, uint lane : SV_GroupIndex)
                 float(probes), push.interval.z, push.interval.w, true, share, own), t < push.interval.x ? 0.5 : 0.0);
             through = 0.0;
         }
-        else if (push.cascade.w != 0u)
+        else if (skyPast)
         {
             float3 sky = lights.sky.w > 0.5 ? environment.SampleLevel(way, 0).rgb * lights.sky.rgb : lights.sky.rgb;
             light = float4(sky, 0.25);
@@ -502,7 +511,7 @@ void computeMain(uint3 id : SV_DispatchThreadID, uint lane : SV_GroupIndex)
         // Marked by what the ray met first that counts, a surface crossed in its interval or one it
         // stopped at, before its interval began or in it.
         float mark = firstAt >= 0.0 ? (firstAt < push.interval.x ? 0.5 : 0.0) : 1.0;
-        if (t < 0.0 && push.cascade.w != 0u)
+        if (t < 0.0 && skyPast)
         {
             float3 sky = lights.sky.w > 0.5 ? environment.SampleLevel(way, 0).rgb * lights.sky.rgb : lights.sky.rgb;
             // Marked as the sky where the ray kept half its light or more across what it crossed,
