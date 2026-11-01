@@ -216,4 +216,35 @@ public sealed partial class SceneFieldTests
         if (whole.Slowest > 0)
             budgeted.Slowest.Should().BeLessThan(whole.Slowest / 2, $"no frame's field time is near the frame that built them all at once, {budgeted.Slowest:0.0} ms against {whole.Slowest:0.0} ms");
     }
+
+    [Fact]
+    [Trait("Category", "Unit")]
+    public void The_Triangle_Budget_Is_Raised_Where_The_Frame_Has_Room_And_Falls_Back_Where_It_Has_None()
+    {
+        // A budget of four sections a frame, every cascade built again each frame, the frame waiting
+        // eight milliseconds and the field costing two of them.
+        const int budget = 4096;
+        var plan = new SceneFieldPlan(2, 0.25f, 2, triangleBudget: budget, triangles: _ => SectionTriangles);
+        var drawn = AllSections();
+        var eye = new Vector3(0, 2, 0);
+        plan.Rebuild(2000);
+        var budgets = new List<int>();
+        for (int frame = 0; frame < 300; frame++)
+        {
+            plan.Raise(8, 2);
+            plan.Update(eye, drawn);
+            budgets.Add(plan.TriangleBudget);
+        }
+        budgets.Max().Should().BeGreaterThan(budget, "the frame has room");
+        budgets.Should().OnlyContain(raised => raised >= budget && raised <= budget * SceneFieldPlan.MostRaise);
+        budgets.Zip(budgets.Skip(1)).Should().OnlyContain(pair => pair.Second <= pair.First * 2, "the budget at most doubles a step");
+
+        // The frame waits none, and the budget halves back to the base.
+        for (int frame = 0; frame < SceneFieldPlan.RaiseFrames * 8; frame++)
+        {
+            plan.Raise(0, 2);
+            plan.Update(eye, drawn);
+        }
+        plan.TriangleBudget.Should().Be(budget);
+    }
 }

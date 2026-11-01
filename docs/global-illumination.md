@@ -103,8 +103,13 @@ frames rather than stalling one. On an RTX 4070 Laptop GPU, 500 sections of 1,02
 at once took the field 41.8 ms in one frame with no budget, and 2.5 to 6.5 ms at most a frame over
 27 frames at the default. `games/Ore` splats 18,824 triangles a build, within the default, so its
 builds go as before. A scene of fewer triangles builds as many cascades a frame as `updateBudget`
-says. The frame profile names the field's cost as `scene_field`, which a game reads with `./e3d
-command profile` to set the budget for its own device.
+says. Where the frame waits for its target frame rate, as a program at 60 frames a second does when
+its work takes less, the triangle budget is raised so the builds take half the wait, up to sixteen
+times the budget given, and it falls back to it where the frame waits none, so `scenes_sponza`'s
+field is built again after a jump between its views in 5 to 15 frames where in 20 to 25 at the
+budget given. `./e3d command field.state` says the budget in force. The frame profile names the
+field's cost as `scene_field`, which a game reads with `./e3d command profile` to set the budget for
+its own device.
 
 A mesh that came and has not moved, as a scene's on its first load or a world's section streamed in,
 stands in for nothing until it is built, since a box much larger than what it holds fills the space

@@ -26,6 +26,12 @@ internal sealed class SceneFieldSettings
     /// <summary>The point the cascades lie around, as the program gives it, or null for the window's eye.</summary>
     public Vector3? Center { get; set; }
 
+    /// <summary>The milliseconds a frame waited for the target frame rate, averaged, which the triangle budget is raised by.</summary>
+    internal double RoomMs { get; set; }
+
+    /// <summary>What the field cost a frame on the CPU and the GPU, averaged, which the triangle budget is raised by.</summary>
+    internal double FieldMs { get; set; }
+
     /// <summary>The cascade drawn over the window as the field holds the scene, or -1 for none.</summary>
     public int Shown { get; set; } = -1;
 
@@ -243,7 +249,8 @@ internal sealed partial class SceneFieldRenderer : IDisposable
 
         Gather(renderWorld, windowDraws, device);
         var plan = _plan!;
-        plan.Update(renderWorld.TryGet<SceneFieldSettings>()?.Center ?? view.Eye, _drawn);
+        plan.Raise(settings?.RoomMs ?? 0, settings?.FieldMs ?? 0);
+        plan.Update(settings?.Center ?? view.Eye, _drawn);
         try
         {
             Record(renderContext, device, plan);

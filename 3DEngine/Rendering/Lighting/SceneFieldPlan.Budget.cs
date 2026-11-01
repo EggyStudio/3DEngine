@@ -1,0 +1,49 @@
+namespace Engine;
+
+// The triangle budget raised where the frame has room, the time it waits for the target frame rate,
+// so the field builds faster in a frame that waits and as the budget says in one that does not.
+internal sealed partial class SceneFieldPlan
+{
+    /// <summary>The most the triangle budget is raised to, as a multiple of <see cref="BaseTriangleBudget"/>.</summary>
+    public const int MostRaise = 16;
+
+    /// <summary>The frames over which the budget is set again from the room the frame has.</summary>
+    public const int RaiseFrames = 30;
+
+    /// <summary>The triangle budget the field was made with, which <see cref="TriangleBudget"/> is raised from.</summary>
+    public int BaseTriangleBudget { get; }
+
+    // The triangles the builds splatted since the budget was last set, and over how many frames.
+    private long _splattedSince;
+    private int _framesSince;
+
+    /// <summary>
+    /// Sets the triangle budget each <see cref="RaiseFrames"/> frames from <paramref name="roomMs"/>,
+    /// the milliseconds a frame waits for the target frame rate, and <paramref name="fieldMs"/>,
+    /// what the field costs a frame on the CPU and the GPU, both averaged over the frames before,
+    /// called before each <see cref="Update"/>.
+    /// </summary>
+    /// <remarks>
+    /// A frame that waits a millisecond or more has room, and the budget is set so the field's
+    /// triangles, at what they cost of the field's time over the frames since, take half of it more
+    /// than the base budget's, up to <see cref="MostRaise"/> times the base and at most twice the
+    /// budget before, so a build that adds to the frame's time takes back the room it is given. A
+    /// frame with no room halves the budget toward the base. A program with no target frame rate
+    /// waits none, and its budget is the base.
+    /// </remarks>
+    public void Raise(double roomMs, double fieldMs)
+    {
+        _splattedSince += Splatted;
+        if (++_framesSince < RaiseFrames) return;
+        var perFrame = _splattedSince / (double)_framesSince;
+        (_splattedSince, _framesSince) = (0, 0);
+        if (roomMs < 1)
+            TriangleBudget = Math.Max(BaseTriangleBudget, TriangleBudget / 2);
+        else if (perFrame >= 1 && fieldMs > 0)
+        {
+            var triangleMs = fieldMs / perFrame;
+            var wanted = BaseTriangleBudget + 0.5 * roomMs / triangleMs;
+            TriangleBudget = (int)Math.Clamp(wanted, BaseTriangleBudget, Math.Min((double)BaseTriangleBudget * MostRaise, TriangleBudget * 2.0));
+        }
+    }
+}

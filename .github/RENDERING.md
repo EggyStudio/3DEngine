@@ -2446,6 +2446,20 @@ end, a tenth of a unit a frame, splatted some 693,000 triangles over 16 of its 1
 building each cascade again whole splatted 2.57 million over 34, the frames alike to a tenth of a
 level on the mean in the walk's middle and settled at its end.
 
+**The field's build rate, read on 2026-11-01.** At the default budget of 32,768 triangles a frame,
+a mesh at least, Sponza's first build of its four cascades, 3.75 million triangles, ended some 340
+frames after the example opened at its 60 frames a second, 84,602 triangles in the frames that
+splat its largest mesh, the frame then at 19.3 ms, 4.4 of them the field's on the CPU as each mesh's
+triangles go to the GPU the first time and 0.9 on the GPU. Built again with the triangles there, a
+frame of builds cost the field 0.7 ms on the CPU and 0.8 on the GPU. Where the frame waits for its
+target frame rate, the budget is raised every 30 frames so the builds take half the wait, at what
+the field's triangles cost of its time over the frames before, up to sixteen times the budget given
+and at most twice the budget before, and halved back where the frame waits none
+(`SceneFieldPlan.Raise`), which `field.state` says. Sponza's first build then ends some 310 frames
+in, its frames having little room, and a jump between its views, the lion's and the atrium's,
+builds the field again in 5 to 15 frames where in 20 to 25, the budget raised to 298,756 at most. A
+walk's shifts finish within their frames at the budget given, and the walk splats as before.
+
 **The far end of Sponza's atrium, read on 2026-11-01.** From the nave view at 13:00 the main door's
 vestibule lies in the last cascade alone, whose probes stand eight units apart, and of the eight
 around a wall by the door two stand inside, as dark as a path-traced reference has them, and the

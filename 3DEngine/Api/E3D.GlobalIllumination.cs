@@ -42,7 +42,9 @@ public static partial class E3D
     /// as boxes where they moved before they settled. So hundreds of meshes arriving in one frame,
     /// as a world streamed in on a teleport or a first load, are built over several frames rather
     /// than stalling one, and a scene of fewer triangles builds as many cascades a frame as
-    /// <paramref name="updateBudget"/> says.
+    /// <paramref name="updateBudget"/> says. Where the frame waits for its target frame rate, the
+    /// triangle budget is raised so the builds take half the wait, up to sixteen times what is
+    /// given, and it falls back where the frame waits none, which <c>field.state</c> says.
     /// </para>
     /// <para>
     /// A <paramref name="farCascade"/> distance past the others' reach adds a far cascade, which

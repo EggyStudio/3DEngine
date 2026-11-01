@@ -32,7 +32,13 @@ internal sealed class LightExtract : IExtractSystem
         else renderWorld.Remove<AmbientOcclusionSettings>();
         if (world.TryGetResource<FrameEffects>(out var effects)) renderWorld.Set(effects);
         else renderWorld.Remove<FrameEffects>();
-        if (world.TryGetResource<SceneFieldSettings>(out var field)) renderWorld.Set(field);
+        if (world.TryGetResource<SceneFieldSettings>(out var field))
+        {
+            // The room the frame has and what the field costs of it, which raise its triangle budget.
+            if (world.TryGetResource<FrameProfile>(out var profile))
+                (field.RoomMs, field.FieldMs) = (profile.Average("wait"), profile.Average("cpu.scene_field") + profile.Average("gpu.scene_field"));
+            renderWorld.Set(field);
+        }
         else renderWorld.Remove<SceneFieldSettings>();
         if (world.TryGetResource<GlobalIlluminationSettings>(out var bounce)) renderWorld.Set(bounce);
         else renderWorld.Remove<GlobalIlluminationSettings>();

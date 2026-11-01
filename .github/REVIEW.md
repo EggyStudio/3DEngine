@@ -1329,7 +1329,21 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     view first looked and the vestibule behind takes a faint blue. Wick gives its player, the bounce
     rooms the middle of the room each view looks into, the subsurface scene its slabs' place; two
     references drawn again; the gallery and the rooms retaken through the wait; 2,186 in both
-    orders.
+    orders. The second part is done at `2d051ada`, read at 20:57, its push waiting on 3b5264d7's
+    run; a cascade the eye moved by less than half its width shifts as a clipmap, one axis a job,
+    RecordSceneFieldShift moving its still distances, colors, faces, emission, second planes and
+    kept words through a staging buffer and copying the still images over the read ones, the
+    entering slab built alone with 139's region pieces, the splat clipped to the slab's cells and
+    one around them and the resolve over the slab's range, each mesh costing the budget by its share
+    within the slab's band, an eighth at least, the slab reading empty until its last part and Whole
+    false while the last cascade's slab is empty, shift jobs not preempted by finer cascades and
+    restarted in place where a splatted mesh leaves, a mesh change, a forced rebuild, a first build
+    or a move of half the cascade still building whole; a shifted cascade matching a whole build at
+    its new corner on the GPU to 0.01 where 1.28 apart with the shift off, plan tests of the slab
+    and of Whole; Sponza's 10-unit walk along the atrium at 0.1 a frame 693,000 triangles over 16 of
+    100 frames against 2.57 million over 34 building whole, mid-walk and settled frames within 0.1
+    of a level, the pair in the dump at 20-5x; 2,190 in both orders; 139's stash keeps its
+    change-region builds and moving emitters.
 
 ## Verdicts
 

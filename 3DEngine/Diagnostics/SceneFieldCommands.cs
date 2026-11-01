@@ -267,7 +267,8 @@ internal static class SceneFieldCommands
         var built = plan.Built ? $"the field is built, for {plan.FramesBuilt} frames running" : "the field is building";
         return string.Join("\n", cascades.Prepend(built).Append($"{bytes / 1024.0 / 1024.0:0.0} MB of the GPU's memory")
             .Append($"{plan.StillCount} still, {plan.Shapes.Count} stamped into {plan.Bricks.Count} bricks")
-            .Append($"{plan.Splatted} triangles splatted of a budget of {plan.TriangleBudget}, {plan.Waiting} waiting, "
+            .Append($"{plan.Splatted} triangles splatted of a budget of {plan.TriangleBudget}"
+                + (plan.TriangleBudget > plan.BaseTriangleBudget ? $", raised from {plan.BaseTriangleBudget} where the frame has room" : "") + $", {plan.Waiting} waiting, "
                 + $"at most {plan.TakeMostSplatted()} a frame since this was last asked"));
     }
 }

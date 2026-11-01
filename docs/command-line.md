@@ -88,7 +88,8 @@ blocked out from the terminal ([Modeling](modeling.md#blocking-out-from-the-term
 Where a program builds the scene's distance field, `field.show 0` draws its first cascade over the
 window as the field holds the scene, `-1` none, `field.state` says whether it is built and for how
 many frames, where each cascade lies, the far one named, the GPU memory the field takes, how many
-meshes are in it and how many triangles the frame's builds splatted and left waiting,
+meshes are in it and how many triangles the frame's builds splatted and left waiting, of a budget
+raised where the frame has room,
 `field.wait` answers once it is built and its light has run 60 frames on it, as a picture of the
 scene waits before it is taken, and
 `field.rebuild 400` builds a cascade every frame for four hundred frames,

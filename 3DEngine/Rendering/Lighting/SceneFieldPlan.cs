@@ -255,7 +255,7 @@ internal sealed partial class SceneFieldPlan
         Cascades = Counted + (FarCell > 0 ? 1 : 0);
         CellSize = cellSize;
         Budget = Math.Max(1, budget);
-        TriangleBudget = Math.Max(1, triangleBudget);
+        TriangleBudget = BaseTriangleBudget = Math.Max(1, triangleBudget);
         _triangles = triangles ?? (vertices => vertices.Length / 3);
         _bounds = bounds ?? Box.Of;
         _built = new Vector3?[Cascades];
@@ -282,8 +282,8 @@ internal sealed partial class SceneFieldPlan
     /// <summary>How many cascades are built a frame at most.</summary>
     public int Budget { get; }
 
-    /// <summary>How many triangles the builds splat a frame at most, a mesh at least.</summary>
-    public int TriangleBudget { get; }
+    /// <summary>How many triangles the builds splat a frame at most, a mesh at least, raised where the frame has room (<see cref="Raise"/>).</summary>
+    public int TriangleBudget { get; private set; }
 
     /// <summary>The cascades built this frame, or the parts of their builds splatted this frame.</summary>
     public List<Build> Builds { get; } = [];
