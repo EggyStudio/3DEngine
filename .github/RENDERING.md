@@ -3619,7 +3619,16 @@ building's 110 MB of vertices and indices across the bus. Copied once into the d
 frame 14.3, and from the gallery and looking up 1.88 where 32.9 and 33.6, every pixel of the three
 frames within 36 of 255 of what it was and 0.04% of them more than 8 apart, which the field's
 probes move from frame to frame. The scene's pass is the frame's largest after it, 4.4 ms at 640 by
-360 and 14.7 at 1920 by 1080, its pixels' cost.
+360 and 14.7 at 1920 by 1080, its pixels' cost. A skin's buffers went the same way, its rest, joints,
+weights and morphs, which the pose's dispatch reads every frame, and its posed vertices, which every
+pass draws, and the pose took 0.180 ms of the GPU where 0.226 in `models_stress` with 64 skinned arms
+at 1280 by 720, and 0.008 where 0.011 in `models_animation_gpu_skinning`, the frames' other passes as
+they were. So did the field's pool of the corners it builds from, written on the CPU and copied in
+from the first corner added, and a build of Sponza's field took what it took, 144 to 149 ms a frame
+where 141 to 148 under `field.rebuild`, so its reads of the pool are not what a build of it costs.
+The device's memory types are written to the log as it starts, each with its heap, and on the RTX
+4070 Laptop GPU a buffer the CPU writes takes type 2, in the computer's memory, where type 4 lies on
+the device and is seen by the CPU too.
 
 ### Beside raylib
 

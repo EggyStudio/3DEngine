@@ -12,6 +12,8 @@ Done that day
 
 - Item 138 at `740066d6`. A crossing of leaves takes its transmission from the leaves' depth along
   the ray.
+- Item 151 at `3dda52c2`. Sponza's shadows cost what the field's triangles cost.
+- Item 155 at `3dda52c2`. The schedule's debug overlay goes, its dump staying as a command.
 
 ## 2026-10-31
 

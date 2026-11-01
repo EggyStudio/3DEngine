@@ -144,22 +144,57 @@ internal sealed unsafe partial class GraphicsDevice
     /// <param name="line">The line of <paramref name="maker"/> that asks for it.</param>
     internal IBuffer CreateFilledBuffer(ReadOnlySpan<byte> data, BufferUsage usage, [CallerFilePath] string maker = "", [CallerLineNumber] int line = 0)
     {
-        var size = (ulong)Math.Max(16, data.Length);
-        var buffer = (VulkanBuffer)CreateBuffer(new BufferDesc(size, usage | BufferUsage.TransferDst, CpuAccessMode.None), maker, line);
-        if (data.IsEmpty) return buffer;
-        var staging = (VulkanBuffer)CreateBuffer(new BufferDesc(size, BufferUsage.TransferSrc, CpuAccessMode.Write), maker, line);
+        var buffer = CreateBuffer(new BufferDesc((ulong)Math.Max(16, data.Length), usage | BufferUsage.TransferDst, CpuAccessMode.None), maker, line);
+        FillBuffer(buffer, 0, data, maker, line);
+        return buffer;
+    }
+
+    /// <summary>
+    /// Writes <paramref name="data"/> into a buffer in the device's own memory at
+    /// <paramref name="offset"/>, made with <see cref="BufferUsage.TransferDst"/>, through a staging
+    /// buffer copied from by the uploads' next submit, which every later submit reads after.
+    /// </summary>
+    /// <param name="destination">The buffer written into.</param>
+    /// <param name="offset">Where in it, in bytes.</param>
+    /// <param name="data">What is written.</param>
+    /// <param name="maker">The file that asks for it, which the compiler fills in, for the census.</param>
+    /// <param name="line">The line of <paramref name="maker"/> that asks for it.</param>
+    internal void FillBuffer(IBuffer destination, ulong offset, ReadOnlySpan<byte> data, [CallerFilePath] string maker = "", [CallerLineNumber] int line = 0)
+    {
+        if (data.IsEmpty) return;
+        var staging = (VulkanBuffer)CreateBuffer(new BufferDesc((ulong)Math.Max(16, data.Length), BufferUsage.TransferSrc, CpuAccessMode.Write), maker, line);
         data.CopyTo(Map(staging));
         Unmap(staging);
         var cmd = UploadCommands();
-        var region = new VkBufferCopy { size = (ulong)data.Length };
-        _deviceApi.vkCmdCopyBuffer(cmd, staging.Buffer, buffer.Buffer, 1, &region);
+        var region = new VkBufferCopy { dstOffset = offset, size = (ulong)data.Length };
+        _deviceApi.vkCmdCopyBuffer(cmd, staging.Buffer, ((VulkanBuffer)destination).Buffer, 1, &region);
         // Every submit after the uploads' reads what they wrote, the draws' vertices and indices
         // and a shader's reads of a buffer alike.
         MemoryBarrier(cmd, VkPipelineStageFlags2.Transfer, VkAccessFlags2.TransferWrite,
             VkPipelineStageFlags2.VertexAttributeInput | VkPipelineStageFlags2.IndexInput | VkPipelineStageFlags2.AllCommands,
             VkAccessFlags2.VertexAttributeRead | VkAccessFlags2.IndexRead | VkAccessFlags2.MemoryRead);
         _batchStaging.Add(staging);
-        return buffer;
+    }
+
+    // The device's memory types, each with what it is and the heap it lies in, written to the log
+    // once the device is chosen, so a buffer the GPU reads every frame from the computer's memory
+    // is seen for where it lies (CreateFilledBuffer).
+    private void LogMemoryTypes()
+    {
+        _instanceApi.vkGetPhysicalDeviceMemoryProperties(_physicalDevice, out var memory);
+        var types = new List<string>();
+        for (int i = 0; i < memory.memoryTypeCount; i++)
+        {
+            var type = memory.memoryTypes[i];
+            var heap = memory.memoryHeaps[(int)type.heapIndex];
+            var flags = type.propertyFlags;
+            var kinds = new[] { (VkMemoryPropertyFlags.DeviceLocal, "device local"), (VkMemoryPropertyFlags.HostVisible, "host visible"),
+                    (VkMemoryPropertyFlags.HostCoherent, "coherent"), (VkMemoryPropertyFlags.HostCached, "cached") }
+                .Where(kind => (flags & kind.Item1) != 0).Select(kind => kind.Item2);
+            var where = (heap.flags & VkMemoryHeapFlags.DeviceLocal) != 0 ? "on the device" : "in the computer's memory";
+            types.Add($"{i} {(flags == 0 ? "plain" : string.Join(" ", kinds))}, heap {type.heapIndex} of {heap.size / (1024.0 * 1024 * 1024):0.0} GB {where}");
+        }
+        Logger.Info($"Memory types: {string.Join("; ", types)}");
     }
 
     /// <summary>Maps a host-visible buffer's memory for CPU access and returns a writable byte span.</summary>

@@ -4628,6 +4628,51 @@ batch.
     and the slab at Low 5.5 0.39, recorded in RENDERING.md. The tests' bounds hold what the batch
     reads. 2,154 on the GPU in both orders, 82 on lavapipe with 2 skipped.
 
+151. **Sponza's shadows cost what the field's triangles cost.** From item 148's reading, on the 4070
+    at 1280 by 720 uncapped gpu.shadows reads 31.2 ms with 3.75 million triangles drawn into each
+    cascade and the fill, hdr_scene 13.0, window_depth 7.5 and global illumination 2.7, a frame of
+    40 to 57 ms at 800 by 450. A cascade that holds still is not redrawn, and the far cascades draw
+    only what moved or came into reach; read by the same frame before and after. The owner read the
+    shadows at 34 ms in a run of the Sponza example on 2026-10-31 at 23:45, the longest pass by far,
+    and called it a bug, so the item moves before 152 and after 138's commit (Decision 83). A
+    reading first, what the shadow pass draws, the draws and triangles a cascade and whether a mesh
+    outside a cascade's frustum is drawn into it, whether a cascade whose view and casters have not
+    moved is drawn again every frame, the maps' sizes and the fill's own time apart from the draws;
+    then the mend by the cause, culling to each cascade's bounds, a still cascade kept until
+    something in it moves, the far cascades drawn in turn, read by gpu.shadows in the same view
+    before and after and the shadows' pictures unchanged. One or two commits. Done at `3dda52c2`,
+    read at 00:59 on 2026-11-01. The reading at 1280 by 720 at 15:00 uncapped, gpu.shadows 35.3 ms,
+    hdr_scene 13.0, window_depth 7.6, the frame 58.9; the draws 260 for the camera, 90, 342 and 406
+    for three cascades and 406 for the fill, culling working a mesh; the fill off 24.6, tiles at 512
+    in place of 2,048 unchanged, so the cost was a vertex's and not a pixel's, about 10 ms a
+    whole-scene pass at 2,505 MHz. The cause was MeshStore.Buffer making every mesh's vertex and
+    index buffers host-visible and coherent, system RAM on a discrete GPU, about 110 MB over PCIe a
+    pass. The mend, GraphicsDevice.CreateFilledBuffer placing static mesh buffers in device-local
+    memory copied from staging inside the upload batch with one memory barrier and the staging
+    retired with the batch's fence, the rings for vertices replaced each frame still mapped,
+    NullGraphicsDevice on the old path. After, the atrium's shadows 2.16 ms, window_depth 0.43,
+    hdr_scene 9.1, the frame 14.3, the balcony's shadows 1.88 where 32.9 and the lookup's 1.88 where
+    33.6, the three views before and after within 0.11 of 255 on the mean and 0.04% of pixels more
+    than 8 apart, the pairs in the dump; no cascade cache was needed, the five passes at about 0.4
+    ms each, a still-cascade cache a later gain. Left for item 156, the skinning's posed output and
+    the field's corner pool, storage buffers still in host memory; hdr_scene the largest pass and
+    bound by fragments, 4.4, 9.1 and 14.7 ms at 360p, 720p and 1080p, a lead.
+
+155. **The schedule's debug overlay goes, its dump staying as a command.** The owner asked on
+    2026-10-31 at 23:48 whether the early parallel batch planner overlay, ScheduleDebugHud in
+    Core/Schedule/Diagnostics, an internal behavior on Alt+F3 and off by default, should go, it
+    having been made for testing. It goes, with its key binding, since a hidden overlay in every
+    program is not the engine's shape for a tool (DESIGN.md's tools are windows a program draws, its
+    diagnostics commands); what it showed, each stage's parallel and sequential batches with the
+    planner's notes on why systems could or could not share a batch, stays reachable as a command,
+    schedule.dump, writing the same text to a file whose path it answers, so e3d reads it when the
+    scheduler misbehaves; ScheduleDiagnostics stays. Small, with 151's commit. Done at `3dda52c2`,
+    schedule.dump in ConsoleBuiltins beside schedule.list writing to the path given or schedule.txt
+    in the program's folder, E3D.md and command-line.md following; the HUD having been the engine's
+    only behavior, the generator emits no registration for the engine and BehaviorGeneratorTests
+    asserts the emitted module initializer registers, since a compiled assembly would leave its
+    behavior in every later app; a ConsoleBuiltins test on TestFolder.
+
 ## Verdicts settled
 
 Verdicts 1 to 55 are settled, the last two, the drawing leak test's resident bound and the Windows

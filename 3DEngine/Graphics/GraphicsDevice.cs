@@ -88,6 +88,7 @@ internal sealed partial class GraphicsDevice : IGraphicsDevice
         Logger.Info("Step 3/6: Selecting physical device, enumerating GPUs, scoring capabilities, and choosing the best adapter...");
         sw.Restart();
         SelectPhysicalDevice();
+        LogMemoryTypes();
         Logger.Info($"Step 3/6: Physical device selected in {sw.ElapsedMilliseconds}ms, {_adapterInfo.Name} (Vendor=0x{_adapterInfo.VendorId:X4}, Device=0x{_adapterInfo.DeviceId:X4}, Type={_adapterInfo.DeviceType})");
 
         Logger.Info("Step 4/6: Creating logical device, setting up device queues (graphics + present) and enabling required extensions...");

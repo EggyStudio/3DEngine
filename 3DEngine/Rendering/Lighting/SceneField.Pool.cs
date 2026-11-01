@@ -26,10 +26,14 @@ internal sealed partial class SceneFieldRenderer
             _cornerCount = 0;
             var wanted = Math.Max(meshes.Sum(m => TrianglesOf(m.Vertices)), building);
             _cornerCapacity = Math.Max(1024, (int)BitOperations.RoundUpToPowerOf2((uint)Math.Max(1, wanted * 2)));
-            _corners = device.CreateBuffer(new BufferDesc((ulong)_cornerCapacity * 48, BufferUsage.Storage, CpuAccessMode.Write));
+            _corners = device.CreateBuffer(new BufferDesc((ulong)_cornerCapacity * 48, BufferUsage.Storage | BufferUsage.TransferDst, CpuAccessMode.None));
             adding = meshes;
         }
-        var mapped = MemoryMarshal.Cast<byte, uint>(device.Map(_corners));
+        // The corners added, written here and copied into the pool in the device's own memory, which
+        // every build reads, from the first added on; a counted mesh's part of them is written over
+        // on the GPU after the copy.
+        var start = _cornerCount;
+        var mapped = new uint[adding.Sum(mesh => TrianglesOf(mesh.Vertices)) * 12];
         foreach (var (vertices, mesh) in adding)
         {
             // A counted mesh's corners are written on the GPU from its positions before the builds.
@@ -52,7 +56,7 @@ internal sealed partial class SceneFieldRenderer
             var colors = _store?.StreamsOf(mesh)?.Colors is { } given && given.Length == vertices.Length ? given : null;
             for (int i = 0; i < count * 3; i++)
             {
-                var at = (_cornerCount * 3 + i) * 4;
+                var at = ((_cornerCount - start) * 3 + i) * 4;
                 var position = vertices[indices[i]].Position;
                 (mapped[at], mapped[at + 1], mapped[at + 2]) =
                     (BitConverter.SingleToUInt32Bits(position.X), BitConverter.SingleToUInt32Bits(position.Y), BitConverter.SingleToUInt32Bits(position.Z));
@@ -62,7 +66,7 @@ internal sealed partial class SceneFieldRenderer
             _pooled[vertices] = (_cornerCount, count);
             _cornerCount += count;
         }
-        device.Unmap(_corners);
+        device.FillBuffer(_corners, (ulong)start * 48, MemoryMarshal.AsBytes(mapped.AsSpan(0, (_cornerCount - start) * 12)));
         return _corners;
     }
 

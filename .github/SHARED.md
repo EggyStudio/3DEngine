@@ -148,6 +148,7 @@ table also answers whether the two agree.
 | Volumes, the lighting and post-processing settings as a stack blended by the camera's position and saved as data | to consider | to consider, the voxel game's light settings window the first user |
 | Debug views and a graph dump, a `render.debug <view>` command for every intermediate buffer and GI term and `graph.dump` printing the frame's passes, resources and barriers | to consider through `bcs` | to consider through `e3d`, beside gi.compare and the bounce window |
 | A buffer the CPU alone reads takes memory the CPU caches where the device has it, since the first host-visible memory an RTX 4070 offers is write combined and reading a texture's 4 MB through it took 34 ms where 5 cached, Sponza's 72 block textures' upload frame 2.4 s to 0.07 | has, by wgpu's design, readback buffers in mappable memory | has at `52a1cb3f` on 2026-10-31 (item 148), with BC1, BC5 and BC7 textures read from KTX2 files and uploaded as blocks, 83.9 MB on the GPU where 402.7 as pixels |
+| Static mesh buffers in device-local memory, copied from staging inside the upload batch, never host-visible memory a discrete GPU reads over PCIe each pass | has, by wgpu's design | has at `3dda52c2` on 2026-11-01 (item 151), Sponza's shadows 35 ms to 2.2 and its frame 59 ms to 14, where every mesh's buffers had been host-visible |
 
 ### Modeling
 

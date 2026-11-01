@@ -111,12 +111,10 @@ internal sealed unsafe partial class GraphicsDevice
     {
         if (!CanSkin) throw new InvalidOperationException("The skinning shader has not been given.");
         var count = rest.Length;
-        IBuffer Filled(ReadOnlySpan<byte> data, BufferUsage usage)
-        {
-            var buffer = CreateBuffer(new BufferDesc((ulong)Math.Max(16, data.Length), usage, CpuAccessMode.Write));
-            data.CopyTo(Map(buffer));
-            return buffer;
-        }
+        // In the device's own memory, since the pose's dispatch reads the rest, joints and weights
+        // every frame and every pass draws the posed vertices, which from the computer's memory each
+        // read across the bus (CreateFilledBuffer).
+        IBuffer Filled(ReadOnlySpan<byte> data, BufferUsage usage) => CreateFilledBuffer(data, usage);
 
         // Four joints and four weights a vertex, padded with nothing held where the arrays fall short.
         var paddedJoints = new ushort[count * 4];
