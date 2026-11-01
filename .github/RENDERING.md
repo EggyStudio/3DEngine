@@ -2293,8 +2293,12 @@ metallic of 1 and the metal in their maps, so it took no light off the stone pas
 and read the shade black. The scene field's copies take their roughness and metallic as the
 material's times the map's average, green and blue, as they take their color times the texture's,
 and the reference then reads the door's frame at 0.00051 in linear light where the frame reads
-0.00049, the sky alone 0.00001 where 0.00004, and the gallery's 0.0042 where 0.0112, its sun on the
-court's walls shadowed in blocks where the frame's is not, which is read next.
+0.00049, the sky alone 0.00001 where 0.00004, and the gallery's 0.0042 where 0.0112, the court's
+walls in the sun there a sixth as bright as the frame's in patches the shape of meshes. Those were
+a dirt decal Sponza lays over its walls, blended at 0.35, which the field and the reference held as
+a solid of its color. A draw blended at less than half of it is left out of the field as a decal or
+a pane of tinted glass is seen through, and the reference then reads the three views' frames at
+0.0128, 0.00058 and 0.0092 where the frame reads 0.0114, 0.00050 and 0.0097, within 13% of it.
 
 **The screen's probes on thin two-sided walls, read on 2026-10-26.** In a room built as the voxel
 game's wheat field, thin two-sided walls a block tall four to a block, half a unit apart, under the

@@ -349,7 +349,7 @@ internal sealed partial class SceneFieldRenderer : IDisposable
             map != 0 && textures?.AverageLevels(map) is { } levels ? (roughness * levels.Y, metallic * levels.Z) : (roughness, metallic);
         foreach (ref readonly var draw in draws.Span)
         {
-            if (windowAlone && draw.Target != 0 || !draw.CastsShadow || !draw.BouncesLight || draw.Points) continue;
+            if (windowAlone && draw.Target != 0 || !draw.CastsShadow || !draw.BouncesLight || draw.Points || SeeThrough(draw.AlphaMode, draw.Color.A / 255f)) continue;
             if (store.CountedOf(draw.Mesh) is { } counted)
             {
                 if (CountedVertices(device, store, counted) is { } standing)
@@ -396,6 +396,7 @@ internal sealed partial class SceneFieldRenderer : IDisposable
             for (int i = 0; i < group.Count; i++)
             {
                 ref readonly var instance = ref _groupInstances[i];
+                if (SeeThrough(template.AlphaMode, instance.Color.W)) continue;
                 var (x, y, z) = (instance.WorldX, instance.WorldY, instance.WorldZ);
                 var world = new Matrix4x4(x.X, y.X, z.X, 0, x.Y, y.Y, z.Y, 0, x.Z, y.Z, z.Z, 0, x.W, y.W, z.W, 1);
                 var (roughness, metallic) = Surfaced(instance.Factors.Y, instance.Factors.X, template.MetallicRoughnessMap);
@@ -405,6 +406,13 @@ internal sealed partial class SceneFieldRenderer : IDisposable
             }
         }
     }
+
+    // Whether the model pass blends a draw at less than half of it, as a decal or a pane of tinted
+    // glass, which stands in the field as nothing rather than as a solid of its color, since the
+    // surface it lies on shows through it. Intel's Sponza lays a dirt decal blended at 0.35 over its
+    // court's walls, which the field and the path-traced reference held solid, the reference
+    // reading those walls a sixth as bright in the sun as the frame.
+    private static bool SeeThrough(MaterialAlphaMode mode, float alpha) => mode == MaterialAlphaMode.Blend && alpha < 0.5f;
 
     // How far the window's camera's far plane lies from its eye, at its middle, or no finite
     // distance where the camera has none or it cannot be told.
