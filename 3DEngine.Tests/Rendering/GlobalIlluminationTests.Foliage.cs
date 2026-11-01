@@ -153,7 +153,7 @@ public sealed partial class GlobalIlluminationTests
     [Trait("Category", "Render")]
     [InlineData(GlobalIllumination.Low, 2.5f, 0.13f, 0.2f)]
     [InlineData(GlobalIllumination.High, 2.5f, 0.14f, 0.23f)]
-    [InlineData(GlobalIllumination.High, 5.5f, 0.27f, 0.37f)]
+    [InlineData(GlobalIllumination.High, 5.5f, 0.18f, 0.28f)]
     public void A_Floor_Under_A_Canopy_Of_Leaf_Blocks_Takes_The_Sky_Light_Their_Faces_Let_Through(GlobalIllumination quality, float height, float least, float most)
     {
         // A gray floor lit by the sky alone under a canopy of leaf blocks twenty a side and two
@@ -162,18 +162,18 @@ public sealed partial class GlobalIlluminationTests
         // through a unit. A ray crosses a face a block, up to four, the first face it crosses
         // shaded for all of them, which read the same to four places as each face shaded where the
         // ray crossed it. The floor takes 0.18 of the sky's light the solid canopy holds back at
-        // High two and a half units under it where a path-traced reference takes 0.17, 0.17 at
-        // Low, and 0.32 at High five and a half under it where the reference takes 0.21 and Low
-        // 0.24. Before each crossing was taken once by one cascade, and the screen's probes' rays
-        // crossed whole what they entered within their reach, it took 0.27, 0.17 and 0.24, and Low
-        // 0.12 five and a half under it, High reading over Low there before as after.
+        // High two and a half units under it where a path-traced reference takes 0.17, 0.14 at
+        // Low, and 0.23 at High five and a half under it where the reference takes 0.21, the point
+        // read three units before the eye in the finest cascade's middle.
         Open();
         SetSceneField(4, 0.25f);
         SetGlobalIllumination(quality);
         SetAmbientLight(new Color(160, 190, 240), 1);
         var ground = LoadModelFromMesh(GenMeshCube(1, 1, 1));
         ground.Materials[0].Roughness = 1;
-        var camera = new Camera3D(new Vector3(0, 1.6f, 6), new Vector3(0, 1.2f, -2), Vector3.UnitY, 70);
+        // The eye stands three units from the floor's point read, which so lies in the finest
+        // cascade's middle around the eye.
+        var camera = new Camera3D(new Vector3(0, 1.6f, 2), new Vector3(0, 1.2f, -6), Vector3.UnitY, 70);
         float Floor(Model? roof)
         {
             var image = Capture(() =>

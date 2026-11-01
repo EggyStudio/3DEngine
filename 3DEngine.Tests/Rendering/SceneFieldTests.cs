@@ -36,14 +36,14 @@ public sealed partial class SceneFieldTests : IDisposable
         var plan = new SceneFieldPlan(2, 0.25f, 2);
         plan.Update(new Vector3(0.1f, 2, 6), []);
 
-        plan.BuiltOrigin(0).Should().Be(new Vector3(-8, -6, -2), "the corner is 32 cells of 0.25 short of the eye's 2-unit grid point");
-        plan.BuiltOrigin(1).Should().Be(new Vector3(-16, -16, -12), "the second cascade's cells and grid are twice as wide");
+        plan.BuiltOrigin(0).Should().Be(new Vector3(-8, -6, -2), "the corner is 32 cells of 0.25 short of the 2-unit grid point nearest the eye");
+        plan.BuiltOrigin(1).Should().Be(new Vector3(-16, -12, -8), "the second cascade's cells and grid are twice as wide");
         plan.Builds.Select(build => build.Cascade).Should().Equal(0, 1);
 
-        plan.Update(new Vector3(1.9f, 2, 6), []);
-        plan.Builds.Should().BeEmpty("the eye has not left the 2-unit cell of the grid");
-        plan.Update(new Vector3(2.1f, 2, 6), []);
-        plan.Builds.Select(build => build.Cascade).Should().Equal([0], "the first cascade's grid is passed, the second's 4-unit one not");
+        plan.Update(new Vector3(0.9f, 2, 6), []);
+        plan.Builds.Should().BeEmpty("the grid point nearest the eye is the same");
+        plan.Update(new Vector3(1.1f, 2, 6), []);
+        plan.Builds.Select(build => build.Cascade).Should().Equal([0], "the first cascade's next grid point is nearer, the second's 4-unit one not");
         plan.BuiltOrigin(0).Should().Be(new Vector3(-6, -6, -2));
     }
 
@@ -320,14 +320,15 @@ public sealed partial class SceneFieldTests : IDisposable
     public void A_Skinned_Mesh_Is_Held_As_The_Boxes_Of_Its_Joints_Where_Its_Pose_Puts_Them()
     {
         // The arm of arm.gltf bent at its elbow, its forearm along -X at the elbow's height, which
-        // the field held as the box around the arm standing upright at rest.
+        // the field held as the box around the arm standing upright at rest. The field's one cascade
+        // of 0.1 reaches 3.2 units around the eye, which stands 2 units off.
         var config = Config.Default.WithWindow("scene field test", 96, 64) with { Headless = true, Offscreen = true, Samples = 1 };
         UseApp(new App(config).AddPlugin(new DefaultPlugins()));
         SetSceneField(1, 0.1f);
         var arm = Path.Combine(AppContext.BaseDirectory, "resources", "arm.gltf");
         var model = LoadModel(arm);
         var clip = LoadModelAnimations(arm)[0];
-        var camera = new Camera3D(new Vector3(0, 1, 4), new Vector3(0, 1, 0), Vector3.UnitY, 45, CameraProjection.Perspective);
+        var camera = new Camera3D(new Vector3(0, 1, 2), new Vector3(0, 1, 0), Vector3.UnitY, 60, CameraProjection.Perspective);
         for (int frame = 0; frame < SceneFieldPlan.SettleFrames + 6; frame++)
         {
             UpdateModelAnimation(model, clip, clip.KeyframeCount - 1);

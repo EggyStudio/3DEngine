@@ -100,6 +100,10 @@ public static class ShadersBounceRooms
             }
             if (IsKeyPressed(Key.M)) moved = !moved;
             if (IsKeyPressed(Key.Tab)) window = !window;
+            // The field around the middle of the room the view looks into, the rooms standing 40
+            // units apart, so each room lies whole in its cascades whatever the camera's place.
+            var looking = views[view].Camera.Target;
+            SetSceneFieldCenter(new Vector3(MathF.Round(looking.X / 40) * 40, 1.5f, 0));
 
             BeginDrawing();
             ClearBackground(Color.Black);

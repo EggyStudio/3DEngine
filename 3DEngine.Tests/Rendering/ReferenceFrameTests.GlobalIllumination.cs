@@ -52,7 +52,9 @@ public sealed partial class ReferenceFrameTests
         // the game's sky and a sun lower than the game's, through whose windows the sun falls on the
         // floor and bounces with the lamps' light to the ceiling and the walls.
         Open(256, 160);
-        SetSceneField(2, 0.25f, 2);
+        // Three cascades around the eye at the library's end, so the third, 64 across, holds the
+        // whole room.
+        SetSceneField(3, 0.25f, 2);
         SetGlobalIllumination(GlobalIllumination.Medium);
         CreateDirectionalLight(Vector3.Normalize(new Vector3(-0.25f, -0.45f, -0.85f)), new Color(255, 244, 226), 2.4f, castsShadows: true);
         SetShadowDistance(24);
@@ -144,6 +146,8 @@ public sealed partial class ReferenceFrameTests
         var lit = new bool[house.Wicks.Count];
         lit[0] = true;
         var camera = new Camera3D(doorway + new Vector3(0, 9, 6.5f), doorway, Vector3.UnitY, 50);
+        // Around the place the camera looks down on, as the game has its field lie around its player.
+        SetSceneFieldCenter(doorway);
 
         var frame = Capture(() =>
         {

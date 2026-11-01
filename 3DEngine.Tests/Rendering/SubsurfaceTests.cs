@@ -118,7 +118,9 @@ public sealed class SubsurfaceTests : IDisposable
         switch (light)
         {
             case "lamp through the field":
+                // One cascade around the slabs, 9.6 across, the camera standing 5 units off.
                 SetSceneField(1, 0.15f);
+                SetSceneFieldCenter(Vector3.Zero);
                 CreatePointLight(new Vector3(0, 0, -2.5f), Color.White, 3, range: 10);
                 break;
             case "sun through its map":

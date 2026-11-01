@@ -1084,6 +1084,8 @@ light the same models.
 <!-- written by build/cheatsheet.sh from E3D.GlobalIllumination.cs -->
 ```csharp
 void SetSceneField(int cascades, float cellSize = 0.25f, int updateBudget = 1, int triangleBudget = 32768, float farCascade = 0);  // Builds a distance field of the scene around the camera, in cascades cascades from 1 to 8, the finest's cells cellSize world units wide, or turns it off with 0 cascades, which it is by default
+void SetSceneFieldCenter(Vector3? center);               // Has the scene's distance field lie around center in place of the camera, or around the camera again with null, which it does by default
+Vector3? GetSceneFieldCenter();                          // The point SetSceneFieldCenter left the field lying around, or null for the camera
 void SetGlobalIllumination(GlobalIllumination quality);  // Works out global illumination in the window's scene at quality, or none with GlobalIllumination.Off, which it is by default, the light a surface sends on lighting the surfaces around it, so a red wall tints the floor beside it and a room lit by the sun through a window is lit inside
 void DrawBounceWindow();                                 // Draws what global illumination holds in an ImGui window of its own, which a program shows while its light is worked on, with how much it traces and the memory that takes, a view of its probes drawn over the window, its parts each to be left out, and a path-traced reference of the view with the frame's error over each region against it
 ```

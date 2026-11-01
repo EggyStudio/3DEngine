@@ -155,6 +155,9 @@ while (!WindowShouldClose())
     SetLightPosition(lamp, lampAt);
     camera.Position = position + new Vector3(0, 9, 6.5f);
     camera.Target = position;
+    // The scene's field around the player, whom the camera looks down on from 9 meters up, so its
+    // finest cascade holds the rooms about the lamp rather than the air over them.
+    SetSceneFieldCenter(position);
     WickCommands.Status = $"{screen} at {position.X:0.00} {position.Z:0.00} lit {lit.Count(l => l)} of {lit.Length} falls {falls} open {(open ? "yes" : "no")} light {quality}";
 
     BeginDrawing();

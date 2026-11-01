@@ -138,6 +138,13 @@ public static class ScenesSponza
 
         var view = 0;
         var camera = Views[view].Camera;
+        // The field lies around a point half the way from the camera to what the view looks at, as
+        // each view is chosen, and moves with the camera as it flies but not as it turns, so a turn
+        // builds nothing and the third cascade, 32 across, holds the part of the building the view
+        // shows, from the main door's vestibule to the lion's end, where around the court's middle
+        // the vestibule lay in the fourth's coarse probes and took the sky's light.
+        static Vector3 Ahead(Camera3D looking) => (looking.Target - looking.Position) / 2;
+        var fieldAhead = Ahead(camera);
         var metered = true;
         _askedMetered = true;
         while (!WindowShouldClose())
@@ -147,8 +154,9 @@ public static class ScenesSponza
             if (_askedView is { } asked)
             {
                 (view, camera, _askedView) = (asked, Views[asked].Camera, null);
+                fieldAhead = Ahead(camera);
             }
-            if (_askedCamera is { } looked) (camera, _askedCamera) = (looked, null);
+            if (_askedCamera is { } looked) (camera, fieldAhead, _askedCamera) = (looked, Ahead(looked), null);
             // The arrows move the hour, keys every layout has in the same place, and turn the
             // camera while the right button is held.
             var flying = IsMouseButtonDown(MouseButton.Right);
@@ -182,6 +190,7 @@ public static class ScenesSponza
                 UpdateCameraPro(ref camera, new Vector3(Held(Key.W, Key.S), Held(Key.D, Key.A), Held(Key.E, Key.Q)) * step,
                     new Vector3(turn.X, turn.Y, 0), 0);
             }
+            SetSceneFieldCenter(camera.Position + fieldAhead);
 
             BeginDrawing();
             ClearBackground(Color.Black);

@@ -150,7 +150,7 @@ public sealed partial class BounceRoomsTests : IDisposable
                 BeginDrawing();
                 ClearBackground(Color.Black);
                 BeginMode3D(camera);
-                rooms.Draw();
+                rooms.Draw(camera);
                 EndMode3D();
                 EndDrawing();
             }
@@ -205,7 +205,7 @@ public sealed partial class BounceRoomsTests : IDisposable
             BeginDrawing();
             ClearBackground(Color.Black);
             BeginMode3D(Rooms.Views[1]);
-            rooms.Draw();
+            rooms.Draw(Rooms.Views[1]);
             EndMode3D();
             EndDrawing();
         }
@@ -245,7 +245,7 @@ public sealed partial class BounceRoomsTests : IDisposable
                 BeginDrawing();
                 ClearBackground(Color.Black);
                 BeginMode3D(Rooms.Views[1]);
-                rooms.Draw();
+                rooms.Draw(Rooms.Views[1]);
                 EndMode3D();
                 EndDrawing();
             }
@@ -313,7 +313,7 @@ public sealed partial class BounceRoomsTests : IDisposable
             BeginDrawing();
             ClearBackground(Color.Black);
             BeginMode3D(Rooms.Views[0]);
-            rooms.Draw();
+            rooms.Draw(Rooms.Views[0]);
             EndMode3D();
             EndDrawing();
         }
@@ -344,7 +344,7 @@ public sealed partial class BounceRoomsTests : IDisposable
             BeginDrawing();
             ClearBackground(Color.Black);
             BeginMode3D(Rooms.Views[0]);
-            rooms.Draw();
+            rooms.Draw(Rooms.Views[0]);
             EndMode3D();
             EndDrawing();
         }
@@ -468,7 +468,7 @@ public sealed partial class BounceRoomsTests : IDisposable
             BeginDrawing();
             ClearBackground(Color.Black);
             BeginMode3D(camera);
-            rooms.Draw();
+            rooms.Draw(camera);
             EndMode3D();
             EndDrawing();
         }
@@ -586,7 +586,7 @@ public sealed partial class BounceRoomsTests : IDisposable
             BeginDrawing();
             ClearBackground(Color.Black);
             BeginMode3D(Rooms.Views[view]);
-            rooms.Draw();
+            rooms.Draw(Rooms.Views[view]);
             EndMode3D();
             EndDrawing();
         }
@@ -701,8 +701,14 @@ public sealed partial class BounceRoomsTests : IDisposable
             _lamp.Materials[0].EmissiveIntensity = 4;
         }
 
-        public void Draw()
+        // The middle of the room a view looks into, the rooms standing 40 units apart along x, which
+        // the field lies around, as the example has it.
+        public static Vector3 Middle(Camera3D view) => new(MathF.Round(view.Target.X / 40) * 40, 1.5f, 0);
+
+        // The rooms, the field around the middle of the one the view looks into.
+        public void Draw(Camera3D view)
         {
+            SetSceneFieldCenter(Middle(view));
             var white = new Color(220, 220, 215);
             var red = new Color(200, 30, 30);
             var green = new Color(30, 170, 40);

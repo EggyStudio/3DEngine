@@ -30,7 +30,7 @@ public sealed partial class BounceRoomsTests
                 BeginDrawing();
                 ClearBackground(Color.Black);
                 BeginMode3D(camera);
-                rooms.Draw();
+                rooms.Draw(camera);
                 EndMode3D();
                 EndDrawing();
             }

@@ -186,10 +186,13 @@ public sealed partial class GlobalIlluminationTests : IDisposable
         var screen = renderer.RenderWorld.TryGet<GlobalIlluminationRenderer>()!.Screen!;
         var device = (GraphicsDevice)renderer.Context.Graphics;
         var (light, surfaces) = (device.ReadFloats(screen.Irradiance), device.ReadFloats(screen.Geometry));
-        var standing = Enumerable.Range(0, screen.Across * screen.Down).Where(i => surfaces[i * 4 + 3] >= 0).ToArray();
-        var held = standing.Count(i => light[i * 4 + 3] > 0.5);
-        standing.Should().NotBeEmpty("the floor fills the lower half of the view");
-        ((double)held / standing.Length).Should().BeGreaterThan(0.8, $"the probes on the floor within the field's second cascade hold light, {held} of {standing.Length}");
+        // The probes on the floor within the 28 cells of 0.3 the second cascade reaches around the
+        // eye at the least, and of them those past the 36 of 0.15 the first reaches at the most.
+        var within = Enumerable.Range(0, screen.Across * screen.Down).Where(i => surfaces[i * 4 + 3] >= 0 && surfaces[i * 4 + 3] <= 28 * 0.3f).ToArray();
+        var past = within.Where(i => surfaces[i * 4 + 3] > 36 * 0.15f).ToArray();
+        past.Should().NotBeEmpty("the floor runs past the first cascade within the second");
+        var held = past.Count(i => light[i * 4 + 3] > 0.5);
+        ((double)held / past.Length).Should().BeGreaterThan(0.8, $"the probes on the floor past the first cascade within the second hold light, {held} of {past.Length}");
         UnloadModel(slab);
     }
 

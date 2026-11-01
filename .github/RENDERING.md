@@ -2400,6 +2400,34 @@ as the exposure adapts at its speed of 1 toward the darker view, as the referenc
 atrium's view read the same before and after, the closed room stays dark in its first frames, and
 the slab and the bounce rooms read as before.
 
+**Cascades around the eye, read on 2026-11-01.** Each cascade lay around a point ahead of the eye,
+0.35 of its width the way the camera looked, so a turn moved every cascade's middle to the other
+side and built it again whole. In Sponza's atrium view a turn round, the right button held and the
+mouse dragged 1,047 pixels over 30 frames, left 3.5 million triangles waiting and built for some 60
+frames after at about 80,000 a frame, the view behind lit sky blue until its builds ended, the
+cascades of the old view not holding it. The cascades lie around the eye with their corners on the
+grid point of eight cells nearest it, so the eye stands 28 to 36 cells from each side, and a turn
+builds nothing. A cascade so reaches half as far ahead. The far cascade keeps the cells it had,
+sized at 0.85 of its width for its distance, and reaches about half that distance each way. Where a
+camera looks on what it shows from afar, a program gives the point the field lies around
+(`SetSceneFieldCenter`). `games/Wick` gives its player, the camera 9 meters over the floor and the
+finest cascade, 16 across, otherwise holding the air, and its reference reads as before.
+`scenes_sponza` gives the point half the way to what each view looks at, which a turn of the free
+camera keeps, since around the court's middle the main door's vestibule lay in the fourth cascade
+alone and took the sky's light where a path-traced reference reads it black. Against a reference at
+each view at 11:00, linear light in thousandths, the eight views read as with the cascades ahead or
+nearer the reference, the lion's end at 12.9, 10.2 and 9.0 where 16.3, 15.9 and 16.9 and the
+reference 11.0, 9.0 and 8.1, the view up 9.2, 8.0 and 7.9 where 10.8, 9.8 and 10.0 and the reference
+8.8, 7.1 and 7.1, the door's vestibule black. After a turn round the example's field lies as the
+view first looked, so the vestibule behind takes a faint blue that the cascades ahead of the turned
+view took none of once built. A free camera in a building wider than its third cascade has its far
+rooms held by the fourth's probes, eight cells apart. `shaders_bounce_rooms` gives the middle of the
+room each view looks into, as its tests do, which read within their bars, and the subsurface scene
+the slabs' place, the camera five units off a cascade 9.6 across. The tests whose subject lay ahead
+of the eye past where the cascades around it reach stand the eye nearer it, the canopy's floor read
+three units off at 0.142, 0.175 and 0.232 of the sky the solid canopy holds back against the
+reference's 0.17, 0.17 and 0.21, where it read 0.17, 0.18 and 0.32 from six units off.
+
 **The far end of Sponza's atrium, read on 2026-11-01.** From the nave view at 13:00 the main door's
 vestibule lies in the last cascade alone, whose probes stand eight units apart, and of the eight
 around a wall by the door two stand inside, as dark as a path-traced reference has them, and the

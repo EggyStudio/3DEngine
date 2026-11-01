@@ -23,11 +23,14 @@ public sealed partial class SceneFieldTests
         plan.CellOf(4).Should().Be(cell);
         cell.Should().BeGreaterThan(plan.CellOf(3) * 2 - 1e-4f, "a far cascade is at least twice as coarse as the last");
 
-        // Its side ahead of an eye looking along -z lies at the reach or past it, by a snap at most.
+        // Each of its sides lies 28 to 36 of its cells from the eye whichever way the eye looks, its
+        // cells as fine as when its side ahead reached the 384 asked.
         var eye = new Vector3(3, 70, -5);
-        var origin = plan.OriginAround(4, eye, -Vector3.UnitZ);
-        var ahead = eye.Z - origin.Z;
-        ahead.Should().BeInRange(384 - SceneFieldPlan.SnapCells * cell, 384 + SceneFieldPlan.SnapCells * cell);
+        var origin = plan.OriginAround(4, eye);
+        var width = SceneFieldPlan.Resolution * cell;
+        foreach (var side in new[] { eye.X - origin.X, eye.Z - origin.Z, origin.X + width - eye.X, origin.Z + width - eye.Z })
+            (side / cell).Should().BeInRange(28, 36);
+        (0.85f * width).Should().BeGreaterThanOrEqualTo(384, "the cells are sized for the reach at 0.85 of the width at the least");
 
         // A reach no further than twice the last's cells reach takes twice its cells, and a reach
         // read from a far plane a little off gives the same cells.
@@ -42,18 +45,18 @@ public sealed partial class SceneFieldTests
     [Trait("Category", "Unit")]
     public void The_Far_Cascade_Is_Built_After_The_Counted_Ones_Under_The_Budget_With_The_Meshes_Past_Them()
     {
-        // Two cascades of a quarter reaching 32 across, and a far one to 200 units, with the 500
-        // sections and a row of them out to 180 units ahead, under a budget of one cascade a frame
-        // and 65,536 triangles.
+        // Two cascades of a quarter reaching 32 across, and a far one for 200 units, which reaches
+        // 103 to 133 around the eye, with the 500 sections and a row of them out to 90 units ahead,
+        // under a budget of one cascade a frame and 65,536 triangles.
         var plan = new SceneFieldPlan(2, 0.25f, 1, triangleBudget: 65_536, triangles: _ => SectionTriangles, farCell: SceneFieldPlan.FarCellFor(200, 2, 0.25f));
         var eye = new Vector3(0, 2, 0);
         var drawn = AllSections();
         drawn.AddRange(Enumerable.Range(1, 9).Select(i =>
-            (new SceneFieldPlan.Instance(2, Section, Matrix4x4.CreateTranslation(0, 0, -20 * i), false), false)));
+            (new SceneFieldPlan.Instance(2, Section, Matrix4x4.CreateTranslation(0, 0, -10 * i), false), false)));
         var builds = new List<SceneFieldPlan.Build>();
         for (int frame = 1; frame < 200; frame++)
         {
-            plan.Update(eye, drawn, -Vector3.UnitZ);
+            plan.Update(eye, drawn);
             // From the frame the meshes settle in, the builds before it being of no mesh.
             if (frame >= SceneFieldPlan.SettleFrames) builds.AddRange(plan.Builds);
             plan.Splatted.Should().BeLessThanOrEqualTo(65_536, "the far cascade's build splats under the budget as the others' do");
@@ -66,7 +69,7 @@ public sealed partial class SceneFieldTests
         builds.FindIndex(build => build.Cascade == 2).Should().BeGreaterThan(builds.FindLastIndex(build => build.Cascade == 1 && build.First),
             "the cascades are built finest first");
         far.Count.Should().BeGreaterThan(1, "the far cascade's 509 meshes are splatted over several frames");
-        far.SelectMany(build => build.Instances).Should().Contain(instance => instance.World.Translation.Z <= -160,
+        far.SelectMany(build => build.Instances).Should().Contain(instance => instance.World.Translation.Z <= -80,
             "the far cascade holds the meshes past the counted ones' reach");
         plan.BuiltOrigin(2).Should().NotBeNull();
     }

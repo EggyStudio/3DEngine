@@ -167,11 +167,11 @@ public sealed partial class CascadeEdgeTests : IDisposable
     public void A_Face_Before_The_Eye_Stays_Dark_Where_The_Eye_Stands_Nearest_The_Last_Cascades_Side()
     {
         // A surface facing the eye is leaned four cells toward the side behind the eye as the
-        // probes are read for it, and the eye may stand 1.6 cells from that side, so a pillar's
-        // face a block and a half before the eye, held at its leaned point, lay past the side,
-        // held nothing and took the sky's light whole, the picture 0.157 of the open floor's light;
-        // held at the face itself where that holds more, 0.0006. The voxel game's cave showed it
-        // at three headings of a turn.
+        // probes are read for it, so a pillar's face a block and a half before an eye standing
+        // near that side, held at its leaned point, could lie past the side, hold nothing and take
+        // the sky's light whole, 0.157 of the open floor's light where the eye stood 1.6 cells
+        // from it; held at the face itself where that holds more, 0.0006. The cascades lie around
+        // the eye, which stands 28 cells from a side at the nearest, where the face stays dark.
         var config = Config.Default.WithWindow("near the side", Width, Height) with { Headless = true, Offscreen = true, Samples = 1 };
         UseApp(new App(config).AddPlugin(new DefaultPlugins()));
         SetSceneField(4, 0.25f, 2);
@@ -185,8 +185,7 @@ public sealed partial class CascadeEdgeTests : IDisposable
         var renderer = GetApp().World.Resource<Engine.Renderer>();
 
         // The eye looks west from the room's middle, the room moved along x to where the last
-        // cascade's side behind the eye, to the east, lies two and a half to three and a half of its
-        // cells off, nearer than the lean.
+        // cascade's side behind the eye, to the east, lies nearest it.
         var west = Vector3.Normalize(new Vector3(-1, -0.25f, 0));
         double Seen(Vector3 eye, bool closed, int frames)
         {
@@ -219,8 +218,9 @@ public sealed partial class CascadeEdgeTests : IDisposable
         var open = Seen(new Vector3(0, 1.6f, 0), closed: false, 8);
         var plan = renderer.RenderWorld.TryGet<SceneFieldRenderer>()!.Plan!;
         var last = plan.Cascades - 1;
-        float Behind(Vector3 eye) => (plan.OriginAround(last, eye, west).X + SceneFieldPlan.Resolution * plan.CellOf(last) - eye.X) / plan.CellOf(last);
-        var place = Enumerable.Range(0, 64).Select(i => new Vector3(i * 0.25f, 1.6f, 0)).First(eye => Behind(eye) is > 2.5f and < 3.5f);
+        float Behind(Vector3 eye) => (plan.OriginAround(last, eye).X + SceneFieldPlan.Resolution * plan.CellOf(last) - eye.X) / plan.CellOf(last);
+        var place = Enumerable.Range(0, 64).Select(i => new Vector3(i * 0.25f, 1.6f, 0)).MinBy(Behind);
+        Behind(place).Should().BeGreaterThanOrEqualTo(28, "the cascades lie around the eye");
         var seen = Seen(place, closed: true, 24) / open;
         UnloadModel(block);
         seen.Should().BeLessThan(0.002, $"the pillar's face before the eye, {Behind(place):0.0} cells from the last cascade's side behind it, holds the probes' light and hides the sky");
@@ -280,10 +280,10 @@ public sealed partial class CascadeEdgeTests : IDisposable
     [Trait("Category", "Render")]
     public void The_Last_Cascades_Rays_Meet_The_Walls_Of_A_Closed_Room_Wider_Than_Four_Times_Its_Spacing()
     {
-        // A closed room sixteen units long at Low, inside the field's last cascade ahead of the eye,
-        // whose probes stand 2.4 apart. Their rays ended at four times that, 9.6, and those along the
-        // room ended in mid-air and took the sky; ending at the field's edge, every ray of every
-        // probe in the room meets a wall.
+        // A closed room sixteen units long at Low, inside the field's last cascade around the eye in
+        // its middle, whose probes stand 2.4 apart. Their rays ended at four times that, 9.6, and
+        // those along the room ended in mid-air and took the sky; ending at the field's edge, every
+        // ray of every probe in the room meets a wall.
         var config = Config.Default.WithWindow("long room", Width, Height) with { Headless = true, Offscreen = true, Samples = 1 };
         UseApp(new App(config).AddPlugin(new DefaultPlugins()));
         SetSceneField(2, 0.15f, 2);
@@ -292,7 +292,7 @@ public sealed partial class CascadeEdgeTests : IDisposable
         var panel = LoadModelFromMesh(GenMeshCube(1, 1, 1));
         panel.Materials[0].Emissive = Color.White;
         panel.Materials[0].EmissiveIntensity = 1;
-        var camera = new Camera3D(new Vector3(0, 2.4f, 0), new Vector3(4, 2, 0), Vector3.UnitY, 70);
+        var camera = new Camera3D(new Vector3(4.5f, 2.4f, 0), new Vector3(8.5f, 2, 0), Vector3.UnitY, 70);
         for (int frame = 0; frame < 40; frame++)
         {
             BeginDrawing();

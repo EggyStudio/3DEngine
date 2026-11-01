@@ -120,14 +120,14 @@ public static const float FieldBand = 8.0;
 public static const float EyeClear = 6.0;
 
 // How far into cascade c's outer band a point `cell` lies, in its cells, as a share of the band, 1
-// at the band's inner edge and beyond and 0 at the side, `margin` cells off each side. A cascade
-// lies 0.35 of its width ahead of the eye, so the eye stands 1.6 to 9.6 cells from the side behind
-// it, inside a band of eight; on a side the eye is that near the band ends EyeClear cells short of
-// it, or is none and the light steps at the side, behind the eye where no surface it sees lies.
-// With the last cascade's band across that side, a closed room's walls took the sky's light whole
-// wherever the band reached them, by the heading as the cascades turned with the eye, up to 0.14 of
-// the open floor's light at half the headings, and with the band kept clear of the eye under 0.0004
-// at every one (CascadeEdgeTests).
+// at the band's inner edge and beyond and 0 at the side, `margin` cells off each side. On a side the
+// eye stands near, the band ends EyeClear cells short of it, or is none and the light steps at the
+// side, behind the eye where no surface it sees lies. A cascade lies around the eye, which stands 28
+// to 36 cells from each side, past a band of eight and EyeClear, so this holds the band whole but
+// for a cascade the eye stands nearer a side of. With the last cascade's band across the side
+// behind an eye standing near it, a closed room's walls took the sky's light whole wherever the band
+// reached them, up to 0.14 of the open floor's light, and with the band kept clear of the eye under
+// 0.0004 (CascadeEdgeTests).
 public float bandHold(SceneFieldInfo info, int c, float3 cell, float band, float margin, int probes = 0)
 {
     float4 oc = cascadeAt(info, c, probes);

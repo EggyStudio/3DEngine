@@ -87,7 +87,7 @@ internal sealed partial class SceneFieldPlan
     // cascade keeping the place and the meshes it was last built with until the build ends, and the
     // still meshes it has not splatted are stamped as boxes meanwhile, as any mesh that settled into
     // a cascade not built since is.
-    private bool[] Splat(Vector3 eye, Vector3 ahead)
+    private bool[] Splat(Vector3 eye)
     {
         Splatted = 0;
         var rebuilt = new bool[Cascades];
@@ -107,7 +107,7 @@ internal sealed partial class SceneFieldPlan
             {
                 var next = Array.IndexOf(_dirty, true);
                 if (next < 0) break;
-                var origin = OriginAround(next, eye, ahead);
+                var origin = OriginAround(next, eye);
                 var reach = CascadeBox(next, origin).Grown(Band * CellOf(next));
                 _job = new Job { Cascade = next, Origin = origin, Reach = reach, Changed = _built[next] is null ? reach : _changed[next] };
                 _changed[next] = null;
@@ -117,9 +117,9 @@ internal sealed partial class SceneFieldPlan
             var c = job.Cascade;
             // A build whose cascade the eye has carried on, or one of whose splatted meshes left,
             // starts again where the cascade lies this frame.
-            if (job.Restart || job.Origin != OriginAround(c, eye, ahead))
+            if (job.Restart || job.Origin != OriginAround(c, eye))
             {
-                job.Origin = OriginAround(c, eye, ahead);
+                job.Origin = OriginAround(c, eye);
                 job.Reach = CascadeBox(c, job.Origin).Grown(Band * CellOf(c));
                 Gather(job, eye);
             }

@@ -72,16 +72,24 @@ illumination shares it with the occlusion, the sun's contact shadows and the par
 as [The scene as a distance field](materials-light-and-shadows.md#the-scene-as-a-distance-field) in
 the materials guide says.
 
-`SetSceneField(cascades, cellSize, updateBudget, triangleBudget, farCascade)` sets its shape. The field is cascades of 64 cells
-a side, each twice as coarse and as wide as the one before, so four cascades of a quarter reach 16
-units across in the first and 128 in the last, and the probes stand in the same cascades. The cell
-is the finest detail global illumination sees. A wall thinner than a cell is held about its middle
-so it still stops light, and an emissive strip thinner than a cell lends its light to the cells near
-it. A cascade is built again where the camera has gone past it or a mesh came or went, as many
-cascades a frame as the budget says, the finest first. A mesh drawn in the same place for eight
-frames is built in from its triangles; one that moves is held as boxes painted its color, so a red
-figure reflects red light, though its emission reaches no other surface unless it is small enough to
-be a light of its own, below.
+`SetSceneField(cascades, cellSize, updateBudget, triangleBudget, farCascade)` sets its shape. The
+field is cascades of 64 cells a side, each twice as coarse and as wide as the one before, so four
+cascades of a quarter reach 16 units across in the first and 128 in the last, and the probes stand
+in the same cascades. The cell is the finest detail global illumination sees. A wall thinner than a
+cell is held about its middle so it still stops light, and an emissive strip thinner than a cell
+lends its light to the cells near it. The cascades lie around the camera, so a turn builds none of
+them, or around the point `SetSceneFieldCenter(point)` gives. A bounded level gives its middle once,
+so a cascade as wide as the level holds all of it from every view. One a little wider gives a point
+a fixed way from the camera, as `scenes_sponza` gives the point half the way to what each view looks
+at, so its third cascade holds the part of the building the view shows and a turn moves nothing. A
+game seen from above gives its player's place each frame, as `games/Wick` does, so the finest
+cascades hold the rooms about the player rather than the air under the camera. A free camera in an
+open world gives nothing, and a building wider than its third cascade has its far rooms held by the
+fourth's coarser probes. A cascade is built again where that point has gone past its grid or a mesh
+came or went, as many cascades a frame as the budget says, the finest first. A mesh drawn in the
+same place for eight frames is built in from its triangles; one that moves is held as boxes painted
+its color, so a red figure reflects red light, though its emission reaches no other surface unless
+it is small enough to be a light of its own, below.
 
 A frame's builds splat 32,768 triangles at most unless `triangleBudget` says otherwise, the meshes
 within a cascade nearest the eye first, a mesh at least. A build of more goes on over the frames

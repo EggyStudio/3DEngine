@@ -20,8 +20,11 @@ internal sealed class SceneFieldSettings
     /// <summary>How many triangles the builds splat a frame at most, a mesh at least.</summary>
     public int TriangleBudget { get; set; } = SceneFieldConfig.DefaultTriangleBudget;
 
-    /// <summary>How far ahead of the eye the far cascade reaches, held to the camera's far plane, or 0 for none.</summary>
+    /// <summary>The distance the far cascade's cells are sized for, held to the camera's far plane, or 0 for none.</summary>
     public float FarCascade { get; set; }
+
+    /// <summary>The point the cascades lie around, as the program gives it, or null for the window's eye.</summary>
+    public Vector3? Center { get; set; }
 
     /// <summary>The cascade drawn over the window as the field holds the scene, or -1 for none.</summary>
     public int Shown { get; set; } = -1;
@@ -240,7 +243,7 @@ internal sealed partial class SceneFieldRenderer : IDisposable
 
         Gather(renderWorld, windowDraws, device);
         var plan = _plan!;
-        plan.Update(view.Eye, _drawn, Ahead(view));
+        plan.Update(renderWorld.TryGet<SceneFieldSettings>()?.Center ?? view.Eye, _drawn);
         try
         {
             Record(renderContext, device, plan);
@@ -458,16 +461,6 @@ internal sealed partial class SceneFieldRenderer : IDisposable
         if (!Matrix4x4.Invert(view.ViewProjection, out var inverse)) return float.PositiveInfinity;
         var far = Vector4.Transform(new Vector4(0, 0, 1, 1), inverse);
         return MathF.Abs(far.W) < 1e-12f ? float.PositiveInfinity : Vector3.Distance(new Vector3(far.X, far.Y, far.Z) / far.W, view.Eye);
-    }
-
-    // The way the window's camera looks, from its far plane's middle, or zero where it cannot be told.
-    private static Vector3 Ahead(WindowView view)
-    {
-        if (!Matrix4x4.Invert(view.ViewProjection, out var inverse)) return Vector3.Zero;
-        var far = Vector4.Transform(new Vector4(0, 0, 1, 1), inverse);
-        if (MathF.Abs(far.W) < 1e-12f) return Vector3.Zero;
-        var way = new Vector3(far.X, far.Y, far.Z) / far.W - view.Eye;
-        return way.LengthSquared() > 1e-12f ? Vector3.Normalize(way) : Vector3.Zero;
     }
 
     /// <summary>The box around a mesh's vertices in its own space, kept while the mesh is drawn.</summary>

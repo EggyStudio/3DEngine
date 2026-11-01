@@ -27,8 +27,9 @@ public static partial class E3D
     /// are those of its limbs as boxes, and one that does not bend a box for each of up to eight
     /// parts its triangles are cut into. A mesh that came and has not moved, as a scene's on its
     /// first load, stands in for nothing until it is built, since a box larger than what it holds
-    /// fills the space around it. A cascade is built again where the camera has gone past it or a
-    /// mesh came or went,
+    /// fills the space around it. The cascades lie around the camera, or around the point
+    /// <see cref="SetSceneFieldCenter"/> gives, a turn moving none of them, and a cascade is built
+    /// again where that point has gone past its grid or a mesh came or went,
     /// <paramref name="updateBudget"/> a frame at most, the finest first, so a game sets a larger
     /// budget for a scene that changes and a smaller one for a slow GPU. The frame profile names
     /// its cost as <c>scene_field</c>.
@@ -46,8 +47,9 @@ public static partial class E3D
     /// <para>
     /// A <paramref name="farCascade"/> distance past the others' reach adds a far cascade, which
     /// <paramref name="cascades"/> leaves out of its count, 64 cells a side as each is, its cells as
-    /// wide as reaching that far ahead of the camera takes in place of twice the last's, and held to
-    /// the camera's far plane, so <see cref="float.PositiveInfinity"/> reaches that plane. Global
+    /// wide as 0.85 of its width reaching that distance takes in place of twice the last's, so it
+    /// reaches about half that distance each way around the camera, and the distance is held to the
+    /// camera's far plane, so <see cref="float.PositiveInfinity"/> takes that plane. Global
     /// illumination's probes stand in it as in the others, so a ray that leaves the counted cascades
     /// meets the hills and buildings it holds before the sky, and the passes that read the field to
     /// its edge read on through it. It is built under the budgets as the others are, and its coarse
@@ -64,6 +66,27 @@ public static partial class E3D
         field.TriangleBudget = Math.Max(1, triangleBudget);
         field.FarCascade = float.IsNaN(farCascade) ? 0 : Math.Max(0, farCascade);
     }
+
+    /// <summary>
+    /// Has the scene's distance field lie around <paramref name="center"/> in place of the camera,
+    /// or around the camera again with <see langword="null"/>, which it does by default.
+    /// </summary>
+    /// <remarks>
+    /// A camera that looks down on the scene from above it, as a game seen from over its player's
+    /// shoulder or from high up is, stands far from what it shows, and the field's finest cascades
+    /// around it hold the air. A program gives the point its view is about, as its player's place,
+    /// each frame it moves, and the field is built around that point, a cascade moving where the
+    /// point goes past its grid, whichever way the camera turns. A bounded level gives its middle
+    /// once, so a cascade as wide as the level holds all of it from every view, a game seen from
+    /// above gives its player, and a free camera in an open world gives nothing, its field lying
+    /// around it, where a building wider than the third cascade has its far rooms held by the
+    /// fourth's coarser probes.
+    /// </remarks>
+    public static void SetSceneFieldCenter(Vector3? center) =>
+        World.GetOrInsertResource(static () => new SceneFieldSettings()).Center = center;
+
+    /// <summary>The point <see cref="SetSceneFieldCenter"/> left the field lying around, or null for the camera.</summary>
+    public static Vector3? GetSceneFieldCenter() => TryRes<SceneFieldSettings>(out var field) ? field.Center : null;
 
     /// <summary>
     /// Works out global illumination in the window's scene at <paramref name="quality"/>, or none

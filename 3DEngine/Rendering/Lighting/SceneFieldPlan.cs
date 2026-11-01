@@ -13,21 +13,20 @@ namespace Engine;
 /// <remarks>
 /// <para>
 /// A cascade is <see cref="Resolution"/> cells a side, each cascade's cells twice as wide as the
-/// one before's, and lies around a point ahead of the eye, by <see cref="Lead"/> of its width the
-/// way the eye looks, so more of it holds what the camera sees, with its corner on a grid of
-/// <see cref="SnapCells"/> of its cells, so it moves only when that point has gone that far and
-/// the cells it keeps stay where they were. A cascade that moves, or that a still mesh came into or left, is built again, the
-/// finest first, as many a frame as the budget says, and until then keeps the place and the meshes
-/// it was built with, which the info the passes read says.
+/// one before's, and lies around the eye, with its corner on a grid of <see cref="SnapCells"/> of
+/// its cells, so it moves only when the eye has gone that far, a turn moving none, and the cells it
+/// keeps stay where they were. A cascade that moves, or that a still mesh came into or left, is
+/// built again, the finest first, as many a frame as the budget says, and until then keeps the
+/// place and the meshes it was built with, which the info the passes read says.
 /// </para>
 /// <para>
-/// The eye so stands 1.6 to 9.6 cells from each cascade's side behind it, and the outer bands the
-/// passes fade across, from a cascade to the next and from the last to what lies past the field,
-/// end short of the eye on such a side or are none, the info carrying the eye
-/// (<c>scenefield.slang</c>'s <c>bandHold</c>). A reflection's hit lies where the eye does not look,
-/// so a glossy floor can mirror a wall past the last cascade's side behind the eye, which takes the
-/// sky's light unhidden, and a probe's ray that leaves the field through that side takes the sky as
-/// well, so a cave reaching past it lets a little in.
+/// The eye so stands 28 to 36 cells from each side of each cascade, past the outer bands the passes
+/// fade across, from a cascade to the next and from the last to what lies past the field
+/// (<c>scenefield.slang</c>'s <c>bandHold</c>). A cascade lying a share of its width ahead of the
+/// eye the way it looks crosses to the other side with a turn and is built again whole, Sponza's
+/// 3.75 million triangles over some sixty frames at the default budget, what stood behind lying
+/// outside the fine cascades meanwhile. A program whose camera looks on the scene from afar gives
+/// the point the field lies around in the eye's place (<c>SetSceneFieldCenter</c>).
 /// </para>
 /// <para>
 /// A mesh drawn the same, by its mesh, its vertices, its world matrix and its sides, for
@@ -85,9 +84,6 @@ internal sealed partial class SceneFieldPlan
 
     /// <summary>How many of its cells a cascade's corner moves by at least.</summary>
     public const int SnapCells = 8;
-
-    /// <summary>The share of its width a cascade's middle lies ahead of the eye.</summary>
-    public const float Lead = 0.35f;
 
     /// <summary>
     /// A mesh drawn this frame, its id, the vertices it has, where it is drawn, whether it has an
@@ -320,11 +316,16 @@ internal sealed partial class SceneFieldPlan
     public float CellOf(int cascade) => cascade >= Counted && HasFar ? FarCell : CellSize * (1 << cascade);
 
     /// <summary>
-    /// The width of a cell of a far cascade reaching <paramref name="reach"/> ahead of the eye from
-    /// its middle's lead, so its side ahead lies there, and at least twice as wide as the last
-    /// counted cascade's of <paramref name="cascades"/> from <paramref name="cellSize"/>, or 0 for a
-    /// reach of none or past every finite distance.
+    /// The width of a cell of a far cascade for <paramref name="reach"/>, 0.85 of its width, at least
+    /// twice as wide as the last counted cascade's of <paramref name="cascades"/> from
+    /// <paramref name="cellSize"/>, or 0 for a reach of none or past every finite distance.
     /// </summary>
+    /// <remarks>
+    /// The cascade's cells keep the width they took while its middle lay 0.35 of its width ahead of
+    /// the eye and its side reached that far, so the scene is held as finely as then. Lying around the
+    /// eye, its sides lie 28 to 36 of its cells off, about half the reach, past which the passes take
+    /// the light from beyond the field.
+    /// </remarks>
     /// <remarks>
     /// It is rounded up to a sixteenth of twice the last's cell, so a reach read from a camera's far
     /// plane, which rounding moves a little from frame to frame, gives the same cell and the field is
@@ -335,7 +336,7 @@ internal sealed partial class SceneFieldPlan
         if (!(reach > 0) || !float.IsFinite(reach)) return 0;
         var doubled = cellSize * (1 << Math.Clamp(cascades, 1, 8));
         var step = doubled / 16;
-        return Math.Max(doubled, MathF.Ceiling(reach / ((0.5f + Lead) * Resolution) / step) * step);
+        return Math.Max(doubled, MathF.Ceiling(reach / (0.85f * Resolution) / step) * step);
     }
 
     /// <summary>The eye the cascades lie around this frame, as <see cref="Update"/> was last given it.</summary>
@@ -344,16 +345,12 @@ internal sealed partial class SceneFieldPlan
     /// <summary>Where a cascade lies as it was last built, its corner, or null for one not yet built.</summary>
     public Vector3? BuiltOrigin(int cascade) => _built[cascade];
 
-    /// <summary>
-    /// Where a cascade's corner would lie around <paramref name="eye"/> looking along
-    /// <paramref name="ahead"/>, a unit direction, or zero for a cascade around the eye itself.
-    /// </summary>
-    public Vector3 OriginAround(int cascade, Vector3 eye, Vector3 ahead = default)
+    /// <summary>Where a cascade's corner would lie around <paramref name="eye"/>, its middle on the snap's grid nearest the eye.</summary>
+    public Vector3 OriginAround(int cascade, Vector3 eye)
     {
         var cell = CellOf(cascade);
         var step = cell * SnapCells;
-        var middle = eye + ahead * (Lead * Resolution * cell);
-        var snapped = new Vector3(MathF.Floor(middle.X / step), MathF.Floor(middle.Y / step), MathF.Floor(middle.Z / step)) * step;
+        var snapped = new Vector3(MathF.Floor(eye.X / step + 0.5f), MathF.Floor(eye.Y / step + 0.5f), MathF.Floor(eye.Z / step + 0.5f)) * step;
         return snapped - new Vector3(Resolution / 2 * cell);
     }
 
@@ -370,9 +367,9 @@ internal sealed partial class SceneFieldPlan
 
     /// <summary>
     /// Works out the frame's builds, shapes and bricks from the meshes drawn this frame and the
-    /// eye the cascades lie around, looking along <paramref name="ahead"/> where it is given.
+    /// eye the cascades lie around.
     /// </summary>
-    public void Update(Vector3 eye, IReadOnlyList<(Instance Instance, bool Skinned)> drawn, Vector3 ahead = default)
+    public void Update(Vector3 eye, IReadOnlyList<(Instance Instance, bool Skinned)> drawn)
     {
         _frame++;
         Eye = eye;
@@ -517,8 +514,8 @@ internal sealed partial class SceneFieldPlan
             Array.Fill(_dirty, true);
         }
         for (int c = 0; c < Cascades; c++)
-            if (_built[c] != OriginAround(c, eye, ahead)) _dirty[c] = true;
-        var rebuilt = Splat(eye, ahead);
+            if (_built[c] != OriginAround(c, eye)) _dirty[c] = true;
+        var rebuilt = Splat(eye);
         _mostSplatted = Math.Max(_mostSplatted, Splatted);
 
         // A still mesh is stamped until every built cascade it comes within the band of has been

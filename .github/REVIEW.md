@@ -74,9 +74,8 @@ REVIEW-ARCHIVE.md, its devlog note and its own words. On 2026-10-30 at 18:0x the
 README's new words (item 133) and the focus on radiance cascades (Decision 74), questions asked
 back, and asked that the sessions spend fewer tokens at the same quality, N 7.7.
 
-Next 167 with 171 folded in, then 181, then 139, then the look in order, 170, 172, 173, 176, 178,
-177, 174 and 175 (Decision 84), with 140, 141 and 142 after 177 (Decision 75); 143, 144 and 145 wait
-behind them.
+Next 181, then 139, then the look in order, 170, 172, 173, 176, 178, 177, 174 and 175 (Decision 84),
+with 140, 141 and 142 after 177 (Decision 75); 143, 144 and 145 wait behind them.
 
 Items done and verdicts settled before 2026-10-23 stand in REVIEW-ARCHIVE.md beside this file, their
 numbers kept, moved there at 19:30 on 2026-10-23 so this file holds the current work alone and is
@@ -1089,7 +1088,24 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     HDRP's default profile's automatic mode, centre-weighted between EV -1 and 14 at adaptation 3
     and 1, the night volume with its histogram and its own look standing at weight 0 in play, as the
     pictures' 1,762 pixels at 250 or more show against that look's white of 242; so the example
-    meters as the reference did and the histogram call stays off by default.
+    meters as the reference did and the histogram call stays off by default. Done at `5ea3e98f` on
+    2026-11-01, read at 18:59, its push waiting on 4b80c5c8's run, amended from `1b86eea8` to name
+    the look's origin plainly, the AgX Powerful look from the Tonemaps package of Unity Essentials,
+    no account and no address (N 4.7). SetAutoExposureSpeeds and SetAutoExposureHistogram (the 40th
+    to 90th percentiles over 64 half-stop bins), SetLiftGammaGain as HDRP prepares its trackballs on
+    exposed light before the curve, SetTonemapLookup reading a KTX2 cube as LogC at an exposure
+    index of 1000 with a share, SetBloomScatter in HDRP's form, each off by default with a getter
+    and in the post-process window, build/unity-lut.py converting HDRP's strip,
+    resources/agx_powerful.ktx2; the example at the reference's values, the automatic mode at -0.79
+    stops between EV -1 and 14 at speeds 3 and 1, the look, gamma's offset 0.225, the bloom. Means
+    at 15:00 settled on the balcony, the door and the view up 126.8, 120.3 and 114.4 against the
+    reference's 85.8, 59.1 and 104.3, from 104.8, 109.5 and 102.7, the gamma bringing +14 to +16,
+    the bloom +9.4, -3.2 and +3.7, the look against the built-in AgX +2.3, -3.9 and -4.8, the door's
+    red over blue 1.58 against 1.60; what remains is the balcony's and the view up's hue, 0.70 and
+    0.47 against 1.13 and 1.15, the tint's, item 170's, and the brightness, the reference having
+    been exposed 1.0 to 1.35 stops under its own settled meter, 2.1 to 2.4 at the door, which no
+    setting of the frame's accounts for; the sheet in the dump at 16-31, the gallery capture retaken
+    through 179's wait; 2,186 in both orders.
 
 168. **A cold start compiles its shaders in parallel.** From item 164, a cold start's 68 slangc
     stages run one after another on a machine of 32 cores, 44 s where a few would do in parallel;
@@ -1262,7 +1278,41 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     turns them into the distances the passes read in its last, and Whole holds through a move since
     60fd7e23, so a second volume adds nothing. Third, the build rate read at the default budget,
     triangles a frame and frames to a first build at 60 frames a second, the budget raised where the
-    frame has room and said in field.state. Two or three commits, after 167 and before 139.
+    frame has room and said in field.state. Two or three commits, after 167 and before 139. Read at
+    19:07 on the first part written, the corner snapped to the grid point nearest the eye so it
+    stands 28 to 36 cells from every side, a turn building nothing, 10 of 154 field and GI tests
+    failing where a subject fell outside the halved reach ahead or where the far cascade's cell,
+    sized 1.9 times coarser to reach the far plane, lost resolution. The call is no lead anywhere,
+    since a lead quantized by heading still rebuilds on a turn round, with the cells' sizes kept as
+    they were, the reach ahead halving at the same cost and resolution; a test whose subject fell
+    outside by the lead's loss alone has its eye or field moved and its reference drawn again after
+    reading, a bar that fell from a coarser cell keeps its cell and its value; Sponza's far end from
+    the atrium's end and the game's horizon read where the far cascade no longer reaches and the
+    edge's share (159) takes over, shown to the owner, a wider or fifth far cascade a costed step of
+    its own if that hurts. The second part brings 139's region builds, the splat clipped to a cell
+    box and the resolve over a cell range, under this item, the moving emitters staying with 139. At
+    19:17, with the old cells the far cascade is sized 0.85 of its width for its reach as before;
+    the skinned figure, the closed room, the far-cascade plan test and the canopy have their eyes
+    moved inside, the canopy reading 0.142, 0.175 and 0.232 against the reference's 0.17, 0.17 and
+    0.21 and High 5.5's bar becoming 0.18 to 0.28; the wall holds on the old cells, the screen
+    probes are counted as the test says, the lit room passes its old reference, the cascade view and
+    the glossy frame are drawn again with their subjects inside. The game's top-down camera 9 meters
+    over the floor held none of the house in its finest cascade with the field around the eye, so
+    SetSceneFieldCenter(Vector3?) is added in the first part, a point the program gives for the
+    field to lie around, null for the eye, off by default, Wick giving its player's place and
+    keeping its reference; the second part's shifts carry it as the player walks. At 19:19, Sponza's
+    far end from the atrium's end hurt around the eye, its four cascades of 0.125 reaching 8, 16, 32
+    and 64 across, the third's middle having stood 11 units ahead with the lead and held the whole
+    atrium where around the eye it ends at -6.5 and the far half lies in the fourth alone, probes 8
+    apart, the arcades and the far door glowing sky-blue again as in 166, the atrium camera at 11:00
+    at 12.93, 11.73 and 11.87 thousandths against 12.81, 10.92 and 10.82 with the lead and the
+    reference's 10.03, 8.82 and 8.85. Not 96 cells a side (3.4 times the memory), not a cell of 0.25
+    everywhere, not a lead carried by shifts (a turn round a 45-cell shift), and 178's fallback
+    stays after 176; the example gives SetSceneFieldCenter a fixed point, the atrium's middle, since
+    the building is static and its cameras stay inside, so the third cascade holds the atrium from
+    every view at no cost, read at the eight views against the lead's numbers and the reference; the
+    guide saying a bounded level gives its middle, a top-down game its player and a free camera
+    nothing, the cost named for a free camera in a building larger than its third cascade.
 
 ## Verdicts
 
