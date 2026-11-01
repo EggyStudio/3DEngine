@@ -40,6 +40,17 @@ internal static partial class SlangCompiler
 
     private static readonly Lazy<string?> Located = new(Locate);
 
+    // The stages this process read from a cache and those slangc compiled, with the time it took,
+    // which the renderer's start logs, so a start that compiles every built-in shader says so.
+    private static long _read, _compiled, _compileTicks;
+
+    /// <summary>
+    /// How many stages this process read from a cache, how many slangc compiled and how long it
+    /// took, one after another, from the start.
+    /// </summary>
+    internal static (long Read, long Compiled, TimeSpan Compiling) Counts =>
+        (Interlocked.Read(ref _read), Interlocked.Read(ref _compiled), System.Diagnostics.Stopwatch.GetElapsedTime(0, Interlocked.Read(ref _compileTicks)));
+
     /// <summary>The <c>slangc</c> this process compiles with, or <c>null</c> when none was found.</summary>
     public static string? CompilerPath => Located.Value;
 
@@ -87,30 +98,37 @@ internal static partial class SlangCompiler
 
     /// <summary>
     /// The same, with <paramref name="defines"/> defined for the source and every module it
-    /// imports, as a second build of a shader for a capability some devices lack is compiled.
+    /// imports, as a second build of a shader for a capability some devices lack is compiled, and
+    /// an entry read first from <paramref name="readFirst"/> where it holds one, as a game's
+    /// shipped cache does.
     /// </summary>
     internal static SlangStage CompileStage(string source, string fileName, string entryPoint, ShaderStage stage,
-        string? cacheDirectory, string? importDirectory, string? compiler, IReadOnlyList<string> defines)
+        string? cacheDirectory, string? importDirectory, string? compiler, IReadOnlyList<string> defines, string? readFirst = null)
     {
         var key = CacheKey(source, entryPoint, stage, importDirectory, defines);
-        var cached = cacheDirectory is null
-            ? null
-            : Path.Combine(cacheDirectory, $"{Path.GetFileNameWithoutExtension(fileName)}.{entryPoint}.{key}.spv");
+        var name = $"{Path.GetFileNameWithoutExtension(fileName)}.{entryPoint}.{key}.spv";
+        var cached = cacheDirectory is null ? null : Path.Combine(cacheDirectory, name);
         var uniformsFile = cached is null ? null : Path.ChangeExtension(cached, ".uniforms");
 
-        if (cached is not null && File.Exists(cached))
-        {
-            var described = File.Exists(uniformsFile) ? File.ReadAllText(uniformsFile) : "";
-            return new SlangStage(File.ReadAllBytes(cached), ReadUniforms(described), ReadTextures(described), ReadBuffers(described), ReadImages(described),
-                ReadBindings(described), ReadInputs(described));
-        }
+        foreach (var found in (string?[])[readFirst is null ? null : Path.Combine(readFirst, name), cached])
+            if (found is not null && File.Exists(found))
+            {
+                var describedFile = Path.ChangeExtension(found, ".uniforms");
+                var described = File.Exists(describedFile) ? File.ReadAllText(describedFile) : "";
+                Interlocked.Increment(ref _read);
+                return new SlangStage(File.ReadAllBytes(found), ReadUniforms(described), ReadTextures(described), ReadBuffers(described), ReadImages(described),
+                    ReadBindings(described), ReadInputs(described));
+            }
 
         if (compiler is null)
             throw new InvalidOperationException(
                 $"'{fileName}' ({entryPoint}) is not in the shader cache and slangc was not found. " +
                 "Put slangc on PATH or name it in ENGINE_SLANGC, which build/fetch-slang.sh does in a checkout.");
 
+        var started = System.Diagnostics.Stopwatch.GetTimestamp();
         var (bytecode, reflection) = Run(compiler, source, fileName, entryPoint, stage, importDirectory, defines);
+        Interlocked.Add(ref _compileTicks, System.Diagnostics.Stopwatch.GetTimestamp() - started);
+        Interlocked.Increment(ref _compiled);
         var uniforms = UniformsOf(reflection);
         var textures = TexturesOf(reflection);
         var buffers = BuffersOf(reflection);

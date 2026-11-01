@@ -6,8 +6,9 @@ works through data on the GPU, as a simulation of many cells or particles does.
 
 Shaders are written in [Slang](https://shader-slang.org), which reads as HLSL does. The engine's own
 shaders come compiled with the package, and a program's own are compiled by `slangc` when they are
-loaded, found through `ENGINE_SLANGC` or the `PATH`, and kept compiled in `source/.slang-cache`
-beside the program. `e3d shaders` compiles them ahead, so a game ships with no `slangc`, as
+loaded, found through `ENGINE_SLANGC` or the `PATH`, and kept compiled in the user's cache folder,
+`~/.cache/3DEngine` on Linux, so a program built again compiles nothing it compiled before. `e3d
+shaders` compiles them ahead, so a game ships with no `slangc`, as
 [Building](https://github.com/EggyStudio/3DEngine/blob/main/.github/BUILDING.md) says. A shader that
 does not compile leaves an invalid `Shader`, which `IsShaderValid` tells, with the compiler's
 message in the log.

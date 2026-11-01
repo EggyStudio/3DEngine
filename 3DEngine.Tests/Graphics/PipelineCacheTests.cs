@@ -6,7 +6,7 @@ using static Engine.E3D;
 namespace Engine.Tests.Graphics;
 
 /// <summary>
-/// The driver's compiled pipelines kept in the program's cache folder between runs
+/// The driver's compiled pipelines kept in the user's cache folder between runs
 /// (<see cref="GraphicsDevice.PipelineCachePath"/>).
 /// </summary>
 [Collection("E3D")]

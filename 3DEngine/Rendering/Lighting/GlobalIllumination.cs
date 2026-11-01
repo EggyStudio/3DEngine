@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Numerics;
 using System.Runtime.InteropServices;
 
@@ -150,6 +151,8 @@ internal sealed class TargetIllumination
 /// </remarks>
 internal sealed class GlobalIlluminationRenderer : IDisposable
 {
+    private static readonly ILogger Logger = Log.Category("Engine.GlobalIllumination");
+
     /// <summary>How many cells of their field cascade the probes lie apart.</summary>
     public const int ProbeSpacing = 8;
 
@@ -385,8 +388,11 @@ internal sealed class GlobalIlluminationRenderer : IDisposable
         if (_gi is null || !ReferenceEquals(_made.Field, field.Field) || _made.Quality != wanted || _made.Cascades != cascades)
         {
             Release();
+            var making = Stopwatch.GetTimestamp();
             _gi = device.CreateGlobalIllumination(field.Field.Resolution / ProbeSpacing, TexelsFor(wanted, cascades, far));
             _made = (field.Field, wanted, cascades);
+            Logger.Info($"Global illumination's probes made at {wanted}, {cascades} cascades of {_gi.Probes} a side, "
+                + $"in {Stopwatch.GetElapsedTime(making).TotalMilliseconds:0} ms.");
         }
 
         // Each cascade's interval, from its probes' spacing to four times that, the first's from the

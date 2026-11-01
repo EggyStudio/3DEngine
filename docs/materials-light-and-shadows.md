@@ -369,7 +369,9 @@ square meter, so a sun of 97,050 lux seen at ISO 200, 1/200 s and f/16, EV 14.64
 white. The color gives the light its hue alone. A light given a plain intensity, by its creation or
 by `SetLightColor`, is not seen through the camera, so plain lights and `SetExposure` keep their
 meaning, and `SetExposure` and `SetAutoExposure` multiply what the camera gives, auto exposure
-between 1/8 and 8 keeping it within three stops. `scenes_sponza` lights Intel's Sponza so.
+between 1/8 and 8 keeping it within three stops. `scenes_sponza` lights Intel's Sponza so, metering
+each view between EV 4 and 14 as it is played and holding the camera at ISO 200, 1/200 s and f/16
+where M is pressed.
 
 ## Shadows
 

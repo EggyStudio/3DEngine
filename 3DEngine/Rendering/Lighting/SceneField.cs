@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Numerics;
 using System.Runtime.InteropServices;
 
@@ -51,6 +52,8 @@ internal sealed record SceneFieldBinding(GpuSceneField Field, bool On);
 /// </remarks>
 internal sealed partial class SceneFieldRenderer : IDisposable
 {
+    private static readonly ILogger Logger = Log.Category("Engine.SceneField");
+
     private GpuSceneField? _field, _off;
     private SceneFieldPlan? _plan;
     private (int Cascades, float CellSize, int Budget, int Triangles, float FarCell) _made;
@@ -219,7 +222,10 @@ internal sealed partial class SceneFieldRenderer : IDisposable
             Release();
             _made = wanted;
             _plan = new SceneFieldPlan(wanted.counted, wanted.CellSize, wanted.Item3, BoundsOf, PartsOf, TintOf, wanted.Item4, TrianglesOf, farCell);
+            var making = Stopwatch.GetTimestamp();
             _field = device.CreateSceneField(_plan.Cascades, SceneFieldPlan.Resolution);
+            Logger.Info($"The scene's distance field made, {_plan.Cascades} cascades of {SceneFieldPlan.Resolution} cells a side, "
+                + $"{GpuSceneField.MemoryBytes(_plan.Cascades, SceneFieldPlan.Resolution) / 1024.0 / 1024.0:0.0} MB, in {Stopwatch.GetElapsedTime(making).TotalMilliseconds:0} ms.");
         }
         renderWorld.Set(new SceneFieldBinding(_field, true));
         if (view is null) return;

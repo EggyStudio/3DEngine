@@ -80,24 +80,15 @@ internal static class ScenePacks
     /// </summary>
     /// <remarks>
     /// The cache folder is <c>XDG_CACHE_HOME</c> or <c>~/.cache</c> on Linux, <c>~/Library/Caches</c>
-    /// on macOS and the local application data on Windows. Set to <see langword="null"/> to go back to
-    /// the default.
+    /// on macOS and the local application data on Windows (<see cref="UserCache"/>). Set to
+    /// <see langword="null"/> to go back to the default.
     /// </remarks>
     public static string Folder
     {
         get => _folder
             ?? (Environment.GetEnvironmentVariable("E3D_SCENES") is { Length: > 0 } named ? named : null)
-            ?? Path.Combine(CacheFolder(), "3DEngine", "scenes");
+            ?? Path.Combine(UserCache.Folder, "scenes");
         set => _folder = value;
-    }
-
-    private static string CacheFolder()
-    {
-        if (OperatingSystem.IsWindows())
-            return Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData, Environment.SpecialFolderOption.DoNotVerify);
-        var home = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile, Environment.SpecialFolderOption.DoNotVerify);
-        if (OperatingSystem.IsMacOS()) return Path.Combine(home, "Library", "Caches");
-        return Environment.GetEnvironmentVariable("XDG_CACHE_HOME") is { Length: > 0 } cache ? cache : Path.Combine(home, ".cache");
     }
 
     /// <summary>Reads every manifest in a folder, in the order of their names.</summary>

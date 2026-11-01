@@ -395,7 +395,10 @@ same way a project is.
 
 Built-in shaders live in `3DEngine/Shaders` and are copied to `source/shaders` beside every program
 that references the engine, where `AssetServer` reads them. They are Slang, compiled to SPIR-V by
-`slangc` when they are loaded and cached in `source/.slang-cache`.
+`slangc` when they are loaded and cached in `shaders` under the engine's version in the user's cache
+folder, `~/.cache/3DEngine` on Linux, read first from `source/.slang-cache` beside the program where
+a game ships them compiled, so a program built again into an empty folder compiles none of them
+again.
 
 `build/fetch-slang.sh` (or `build/fetch-slang.ps1` on Windows) downloads a pinned release into
 `build/tools/slang`. The engine looks for the compiler in `ENGINE_SLANGC`, then on the `PATH`, then

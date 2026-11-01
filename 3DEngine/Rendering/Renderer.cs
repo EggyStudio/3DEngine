@@ -52,6 +52,7 @@ internal sealed class Renderer : IDisposable
         if (_initialized) return;
         Logger.Info("Initializing the renderer, its diagnostics and its render graph...");
         var sw = Stopwatch.StartNew();
+        var shaders = SlangCompiler.Counts;
 
         Diagnostics.Initialize(Context.AdapterInfo);
         Logger.Debug("Renderer diagnostics initialized.");
@@ -190,7 +191,34 @@ internal sealed class Renderer : IDisposable
         Logger.Debug("PipelineCache created and registered in RenderWorld.");
 
         _initialized = true;
-        Logger.Info($"Renderer initialized in {sw.ElapsedMilliseconds}ms.");
+        // What its shaders took, read from a cache or compiled by slangc one after another, which
+        // the whole start of a program with no cache is.
+        var (read, compiled, compiling) = SlangCompiler.Counts;
+        Logger.Info($"Renderer initialized in {sw.ElapsedMilliseconds}ms, {read - shaders.Read} shader stages read from the caches and "
+            + $"{compiled - shaders.Compiled} compiled by slangc in {(compiling - shaders.Compiling).TotalSeconds:0.0} s into {new SlangLoader().CacheDirectory}.");
+    }
+
+    // The frames rendered, and the pipelines the device had made when the frame began, which the
+    // first frame's line and that of a frame waiting long on the driver are read against.
+    private long _frames;
+    private (long Made, TimeSpan Making) _pipelinesBefore;
+
+    // A frame that waited on the driver making pipelines this long or longer says so in the log.
+    private static readonly TimeSpan SlowPipelines = TimeSpan.FromMilliseconds(100);
+
+    // Says in the log the first frame's time and the pipelines it made, and any later frame's
+    // pipelines where the driver took long over them, as the voxel game's first frame with a
+    // reflection plane waited 24 s on them.
+    private void LogPipelines(long started)
+    {
+        if (Context.Graphics is not GraphicsDevice device) return;
+        var (made, making) = device.PipelinesMade;
+        var (count, time) = (made - _pipelinesBefore.Made, making - _pipelinesBefore.Making);
+        _pipelinesBefore = (made, making);
+        if (_frames++ == 0)
+            Logger.Info($"The first frame took {Stopwatch.GetElapsedTime(started).TotalMilliseconds:0} ms, {count} pipelines made by the driver in {time.TotalMilliseconds:0} ms.");
+        else if (time >= SlowPipelines)
+            Logger.Info($"Frame {_frames} made {count} pipelines in {time.TotalMilliseconds:0} ms.");
     }
 
     // A built-in shader compiled with defines, or none, said in the log with otherwise, where the
@@ -224,6 +252,8 @@ internal sealed class Renderer : IDisposable
         if (!_initialized) Initialize(world);
 
         var mark = Stopwatch.GetTimestamp();
+        var started = mark;
+        if (_frames == 0 && Context.Graphics is GraphicsDevice device) _pipelinesBefore = device.PipelinesMade;
         Logger.FrameTrace("RenderFrame: Running extract systems...");
         RenderWorld.ClearEntities();
         foreach (var sys in _extractSystems)
@@ -267,6 +297,7 @@ internal sealed class Renderer : IDisposable
         Logger.FrameTrace("RenderFrame: Ending frame...");
         Context.EndFrame(frameCtx, imageIndex);
         Timings.EndFrameMs = Lap(ref mark);
+        LogPipelines(started);
     }
 
     /// <summary>How long the last frame's rendering took, by phase and by node.</summary>

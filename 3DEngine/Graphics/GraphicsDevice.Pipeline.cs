@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Text;
 using Vortice.Vulkan;
 
@@ -365,7 +366,9 @@ internal sealed unsafe partial class GraphicsDevice
         };
 
         VkPipeline pipeline;
+        var making = Stopwatch.GetTimestamp();
         _deviceApi.vkCreateGraphicsPipelines(_pipelineCache, 1, &pipelineInfo, null, &pipeline).CheckResult();
+        Made(making);
         DeviceObjects.Made(DeviceObjects.Kind.Pipeline);
         return new VulkanGraphicsPipeline(this, pipeline, layout);
     }

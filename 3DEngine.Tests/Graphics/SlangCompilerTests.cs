@@ -92,6 +92,33 @@ public partial class SlangCompilerTests : IDisposable
     }
 
     [NeedsSlangFact]
+    public void A_Stage_Is_Read_From_The_Programs_Own_Cache_First_And_Compiled_Into_The_Users()
+    {
+        // The program's own folder, where a game ships its shaders compiled, and the user's cache
+        // folder, where a stage compiled is kept, so a program built again into an empty folder
+        // compiles nothing it compiled before.
+        var (own, users) = (Path.Combine(_folder.Path, "own"), Path.Combine(_folder.Path, "users"));
+        var compiled = SlangCompiler.CompileStage(Source, "test.slang", "vertexMain", ShaderStage.Vertex, users, null, SlangCompiler.CompilerPath, [], own).Spirv;
+        Directory.GetFiles(users, "*.spv").Should().ContainSingle("a stage compiled is kept in the user's cache");
+        Directory.Exists(own).Should().BeFalse("the program's own folder is read and never written");
+
+        Directory.Move(users, own);
+        var read = SlangCompiler.CompileStage(Source, "test.slang", "vertexMain", ShaderStage.Vertex, users, null, compiler: null, [], own).Spirv;
+        read.Should().Equal(compiled, "the program's own entry is read with no compiler");
+        Directory.Exists(users).Should().BeFalse("a stage the program's own folder holds is not copied into the user's");
+    }
+
+    [Fact]
+    public void A_Loader_Keeps_Its_Stages_In_The_Users_Cache_Under_The_Engines_Version_And_Reads_The_Programs_Own_First()
+    {
+        var loader = new SlangLoader();
+        loader.CacheDirectory.Should().Be(Path.Combine(UserCache.Folder, "shaders", UserCache.Version));
+        loader.ShippedDirectory.Should().Be(Path.Combine(AppContext.BaseDirectory, "source", ".slang-cache"));
+        UserCache.Version.Should().NotContain("+", "a build of the engine at another commit keeps its stages in the same folder, keyed by their sources");
+        new SlangLoader(_folder.Path).ShippedDirectory.Should().BeNull("a cache given is read and written alone, as a game's shipped one is made");
+    }
+
+    [NeedsSlangFact]
     public void A_Changed_Source_Misses_The_Cache()
     {
         

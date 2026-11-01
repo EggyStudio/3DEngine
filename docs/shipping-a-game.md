@@ -50,9 +50,10 @@ runs the behaviors compiled into it.
 A shader of the game's own is compiled ahead into the same `source/.slang-cache` with
 `e3d shaders <folder> <cache>`, so a player needs no `slangc`.
 
-The driver's compiled pipelines go into the same folder as `pipelines.bin` when the game exits, so a
-player's second run compiles none of them, which took the voxel game's first sight of its water from
-26 seconds to one. Where the folder cannot be written, each run compiles them again.
+The driver's compiled pipelines go into the user's cache folder under the game's name when the game
+exits, `~/.cache/3DEngine` on Linux, so a player's second run compiles none of them, which took the
+voxel game's first sight of its water from 26 seconds to one. Where that folder cannot be written,
+each run compiles them again.
 
 ## Before shipping
 

@@ -113,9 +113,11 @@ public static class ScenesSponza
         var hour = 12f;
         // The sun, the sky and the camera in physical units at the values of the scene the views
         // are matched against, a sun of 97,050 lux at 5,633 K, a clear sky's 20,000 lux on a level
-        // floor, and a camera at ISO 200, 1/200 s and f/16, EV 14.64, under AgX's curve, so the
-        // stone the sun lights reads as there and the light in the shade shows how far the bounce
-        // falls short of it.
+        // floor, and a camera at ISO 200, 1/200 s and f/16, EV 14.64, under AgX's curve. Held
+        // there, the stone the sun lights reads as there and the light in the shade shows how far
+        // the bounce falls short of it, as the readings take it, and the shade reads a hundredth of
+        // the sunlit stone, which played looks as though it had no indirect light, so the example
+        // starts metered and M holds the camera at those values.
         SetSkyDay(new SkyDay { Minutes = 0, Tilt = 6, SunIlluminance = 97050, SkyIlluminance = 20000, SunColor = ColorFromTemperature(5633) });
         SetSkyTime(hour);
         SetShadowDistance(40);
@@ -129,6 +131,8 @@ public static class ScenesSponza
 
         var view = 0;
         var camera = Views[view].Camera;
+        var metered = true;
+        _askedMetered = true;
         while (!WindowShouldClose())
         {
             for (int i = 0; i < Views.Length; i++)
@@ -138,11 +142,12 @@ public static class ScenesSponza
                 (view, camera, _askedView) = (asked, Views[asked].Camera, null);
             }
             if (_askedCamera is { } looked) (camera, _askedCamera) = (looked, null);
-            // The arrows move the hour, keys every layout has in the same place, and turn the camera
-            // while the right button is held.
+            // The arrows move the hour, keys every layout has in the same place, and turn the
+            // camera while the right button is held.
             var flying = IsMouseButtonDown(MouseButton.Right);
             if (!flying && IsKeyPressed(Key.Right)) _askedHour = (hour + 1) % 24;
             if (!flying && IsKeyPressed(Key.Left)) _askedHour = (hour + 23) % 24;
+            if (!flying && IsKeyPressed(Key.M)) _askedMetered = !metered;
             if (_askedHour is { } at)
             {
                 (hour, _askedHour) = (at, null);
@@ -152,16 +157,17 @@ public static class ScenesSponza
             // automatic mode between EV 4 and 14 about the camera's EV, center-weighted, brought
             // 0.79 stops under a mid gray as a reflected light meter brings what it reads, which
             // the pictures were exposed by view by view.
-            if (_askedMetered is { } metered)
+            if (_askedMetered is { } meter)
             {
-                _askedMetered = null;
+                (metered, _askedMetered) = (meter, null);
                 SetAutoExposure(metered, MathF.Pow(2, GetCameraEv100() - 14), MathF.Pow(2, GetCameraEv100() - 4), 8);
                 SetAutoExposureMetering(ExposureMetering.CenterWeighted, -0.79f);
             }
             if (flying)
             {
-                // The free camera's flight with its own keys, rising on E and sinking on Q, which the
-                // free camera rolls by, and turning with the mouse as it does, 0.003 radians a pixel.
+                // The free camera's flight with its own keys, rising on E and sinking on Q, which
+                // the free camera rolls by, and turning with the mouse as it does, 0.003 radians a
+                // pixel.
                 float Held(Key more, Key less) => (IsKeyDown(more) ? 1 : 0) - (IsKeyDown(less) ? 1 : 0);
                 var step = 5.4f * GetFrameTime();
                 var turn = GetMouseDelta() * float.RadiansToDegrees(0.003f);
@@ -177,8 +183,9 @@ public static class ScenesSponza
             DrawModelEx(blackout, new Vector3(20.4f, 1.4f, 0.05f), Vector3.UnitY, 0, new Vector3(0.8f, 4.2f, 4), Color.Black);
             EndMode3D();
 
-            DrawText($"{view + 1}: {Views[view].Name}, {(int)hour:00}:{(int)(hour % 1 * 60):00}", 10, 10, 20, Color.RayWhite);
-            DrawText("1 to 8 change the view, the left and right arrows the hour, and the right button held looks around with W, A, S and D, E rising and Q sinking.", 10, 36, 10, Color.LightGray);
+            DrawText($"{view + 1}: {Views[view].Name}, {(int)hour:00}:{(int)(hour % 1 * 60):00}, {(metered ? "metered" : "fixed camera")}", 10, 10, 20, Color.RayWhite);
+            DrawText("1 to 8 change the view, the left and right arrows the hour, and M meters the exposure or holds the camera at ISO 200, 1/200 s and f/16.", 10, 36, 10, Color.LightGray);
+            DrawText("The right button held looks around with W, A, S and D, E rising and Q sinking.", 10, 50, 10, Color.LightGray);
             DrawText("Intel Sponza (2022) by Frank Meinl and Anton Kaplanyan, from Intel's Sample Library, under CC BY 4.0.", 10, 432, 10, Color.LightGray);
             EndDrawing();
         }

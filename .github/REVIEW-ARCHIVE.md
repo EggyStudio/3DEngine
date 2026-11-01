@@ -4988,6 +4988,45 @@ batch.
     the two-cascade field, and with `d9f3f108` the excess is resolved. Done at `d9f3f108`. The same
     scene with four cascades showed a larger fault, item 163.
 
+163. **A floor under a slab at High is not black with four cascades.** From 158's second part on
+    2026-11-01, item 100's slab scene at SetSceneField(4, 0.15, 2) reads the floor at 2.5 up 0.0001
+    at High against the reference's 0.0059 and Low's 0.0043, black after 900 frames with all four
+    cascades built, and at 5.5 up 0.0272 against 0.0316, 0.0240 with the far cascade at 64; gi.probe
+    under the slab reads cascade 0's probe at 0.002 on every way against 0.078, its rays that meet a
+    surface bringing 0.000 against 0.038, so no sky enters under the slab. The chain, the third
+    cascade's probes see none of the last's, which stand in the floor or the slab 2.4 apart, their
+    rays are carried to the field's edge (item 137) and a carried ray that meets nothing brings
+    nothing, 137 having chosen nothing because the sky lit CascadeEdgeTests' closed room through
+    cascades not yet built; Low traces two probe cascades whose last brings the sky and reads
+    0.0043. The mend in two parts, first the coarse cascades' probes placed out of the floor and the
+    slab so the merge has an upper probe to read (the root), then a carried ray that leaves the
+    field's edge meeting nothing bringing the sky once every cascade it crossed is built and nothing
+    before; read by this slab at four cascades at both qualities against the reference, the leaf
+    canopy, CascadeEdgeTests' closed room in its first frames, and Sponza's door view, the bounce
+    rooms unchanged. Before 139, the cascades' first fault. Done at `ea4fccb3`, read at 11:00, with
+    two departures. The second part as set out, a carried ray that meets nothing bringing the sky
+    once SceneFieldPlan.Whole holds, every cascade built and none waiting, bit 2 of follow.z in
+    gi_trace. The first part, the coarse probes' placement, not kept, since the one-axis placement
+    moved Low alone by 5% and High not at all; gi.probe shows the third cascade's spot inside the
+    slab already moved to 1.52 under it and the last cascade's probes standing at 4.8 either side in
+    the open, the slab above and the ground below hiding them from the third cascade, which
+    placement cannot change. Item 152's rule changed, since with the sky brought the slab's
+    underside read 0.048 at High against the reference's 0.0019 and its diffuse alone 0.0022, the
+    excess the ambient light's reflection whole, reaches having held the probes' light against the
+    open share, which for a face turned down is its own albedo times the sky, so a dark underside's
+    floor light beat it; reaches is held against arrived, the ambient light itself, floors facing up
+    unchanged, HEAD having read 0.063 there at Low. The slab at 2.5 in four cascades at roughness 1
+    reads at High the floor 0.0046 where 0.0001 against the reference's 0.0069 and the underside
+    0.0061 where 0.0019 with its diffuse 0.0022, at Low the floor 0.0045 and the underside 0.0081
+    where 0.063; the canopy's leaf undersides against their reference from 16 to 38% over to 7 to
+    22% under at High and from 28 to 52% over to within 10% at Low, the trunks from within 2% to 12%
+    under at High and from 7 to 20% over to within 6% at Low, the floor unchanged; bounce rooms 1 to
+    8 within 0.33 of 255 on the mean, Sponza's door and balcony unchanged, neither having an ambient
+    light; CascadeEdgeTests' closed room passing. GlobalIlluminationTests.Carried at both qualities
+    asserts the floor over 0.0003 and the underside under 0.012 through the display at 160 by 96,
+    reading 0.0008 and 0.0037 at High and 0.0014 and 0.0033 at Low, HEAD failing on the floor at
+    High and the underside at Low. RENDERING.md's roof section rewritten; the sheet in the dump.
+
 ## Verdicts settled
 
 Verdicts 1 to 55 are settled, the last two, the drawing leak test's resident bound and the Windows
@@ -7168,3 +7207,10 @@ first host-visible memory an RTX 4070 offers is write combined and unpacking and
 4 MB through it took 34 ms where 5 through the same memory cached, which took the upload of Sponza's
 72 BC textures, each read back for its average color, from 2.4 s to 0.07 with the level read
 narrowed as well (item 148).
+
+Shared: a ray a probe carries on to the field's edge, its probe seeing none of the cascade above's,
+brings the sky where it meets nothing once every cascade is built with none waiting, and an ambient
+light's reflection is taken as far as the probes' light on the face holds that light itself, where
+held against the light the face takes in the open a dark face turned down reflected it whole, which
+took a floor under a slab in four cascades from 0.0001 to 0.0046 in linear light at High and the
+slab's underside at Low from 0.063 to 0.0081 (item 163).

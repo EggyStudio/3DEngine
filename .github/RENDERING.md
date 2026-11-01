@@ -52,20 +52,32 @@ Every shader is a `.slang` file holding all of its entry points, and `SlangLoade
 vector)` the meaning `matrix * vector` has in GLSL over the same bytes, so the engine uploads
 `System.Numerics` matrices unchanged.
 
-Each result is cached in `source/.slang-cache` beside the running program, keyed by a hash of the
-source, the entry point, the arguments, and every file it imports or includes, looked for beside
+Each result is cached in `shaders` under the engine's version in the user's cache folder
+(`UserCache`), read first from `source/.slang-cache` beside the running program, keyed by a hash of
+the source, the entry point, the arguments, and every file it imports or includes, looked for beside
 the file that names it and then in the import directory as slangc looks, followed through their
 imports, with paths written with forward slashes. A machine
 without `slangc` reads the cache, an entry whose sources have changed is never used, and a shader
 added beside the others leaves their entries valid. `e3d shaders <folder> <cache>` fills a cache
 ahead of time, which is how `build/pack.sh` ships the built-in shaders compiled.
 
-The driver's compiled pipelines are kept beside them in `source/.slang-cache/pipelines.bin`
-(`GraphicsDevice.PipelineCache.cs`), read when the device is made where its header names the GPU and
-the driver's cache, and written back when the device is let go where it changed, through a file of
-its own moved over the old one. With the driver's own cache empty, the voxel game's first turn to
-its water, the first frame with a reflection plane, took 26.5 to 30.2 s of the wall clock compiling
-the mirrored pass's pipelines, and 0.98 s where the file held them.
+The driver's compiled pipelines are kept in `pipelines` under the engine's version in the user's
+cache folder, a file named for the program (`GraphicsDevice.PipelineCache.cs`), read when the device
+is made where its header names the GPU and the driver's cache, with one in `source/.slang-cache`
+beside the program merged into it, and written back when the device is let go where it changed,
+through a file of its own moved over the old one. With the driver's own cache empty, the voxel
+game's first turn to its water, the first frame with a reflection plane, took 26.5 to 30.2 s of the
+wall clock compiling the mirrored pass's pipelines, and 0.98 s where the file held them.
+
+**A program's start after its folder is deleted, read on 2026-11-01.** Sponza's example built into
+an empty folder took 51 s to answer, its renderer's start spending 44.9 s on 68 stages slangc
+compiled one after another and its first frame 25.1 s on the driver making 25 pipelines, the start
+saying each in its log. With the compiled shaders and pipelines in the user's cache folder, built
+again into an empty folder it answers after 7.0 s, its renderer starting in 0.35 s and its first
+frame taking 1.8 s, 0.3 of them the pipelines. The voxel game, its program's folder holding neither,
+answered after 54 s with an empty cache and waited 45 s more on 24 pipelines at its twentieth frame,
+and answers after 2.3 s with them cached, those pipelines made in 0.5 s, the driver's own cache
+empty in both, since `XDG_CACHE_HOME` moved it with them.
 
 `slangc` is a tool rather than a library. `build/fetch-slang.sh` downloads a pinned release into
 `build/tools/slang`, and the compiler is looked for in `ENGINE_SLANGC`, then on the `PATH`, then
