@@ -92,66 +92,74 @@ for its own faces, a screen ray crossing whole what it enters within reach; the 
 0.389 and 0.418 and Low 0.368 and 0.425 against the reference's 0.368 and 0.418 where it started at
 0.403, 0.347, 0.359 and 0.378; the canopy's cost at High 2.77 to 2.79 ms to 2.88 to 2.95 on a GPU
 with nothing else on it, the earlier 0.75 having been contention; 2,154 on the GPU in both orders,
-82 on lavapipe. After it `3dda52c2`, items 151 and 155, its run awaited and the twelfth pack run
-started from it at 01:13 for the game's frame. After it `07085cd2`, item 156, held until that run
-ends, FillBuffer as the batched staging copy with its barrier, the skinning's rest, joints, weights,
-morphs and posed output and the field's corner pool in device memory, the per-frame joint rows and
-the counted meshes' corners as they were, the device's memory types logged at start; the stress
-skinning 0.223 to 0.179 ms and the animation example's 0.011 to 0.008, hdr_scene and the shadows
-unchanged, Sponza's field build 141 to 149 ms a frame unchanged, the still frame within 0.08 of 255;
-2,155 on the GPU in both orders, 86 on lavapipe. The shadows' 35 ms in Sponza were every mesh's
-vertex and index buffers in host-visible memory, system RAM on a discrete GPU, about 110 MB read
-over PCIe in each of five whole-scene passes; static mesh buffers go into device-local memory
-through CreateFilledBuffer, copied from staging inside the upload batch with one barrier, the rings
-for vertices replaced each frame still mapped; the atrium's shadows 35.3 ms to 2.16, window_depth
-7.6 to 0.43, hdr_scene 13.0 to 9.1, the frame 58.9 to 14.3, the balcony's and lookup's shadows 33 to
-1.9, the three views within 0.11 of 255 on the mean. The schedule's overlay and Alt+F3 are gone,
-schedule.dump writing each stage's batches with the planner's notes to a file and answering its
-path, the engine's generator emitting no registration since the HUD was its only behavior, a
-generator test in place of the assembly check; 2,155 on the GPU in both orders, 85 on lavapipe. a
-mesh that came and has not moved standing in for nothing in the scene field until it is built, where
-its box filled the rooms of a hollow building, with a pair of Sponza before and after and a note,
-the sunlit floor lit from frame 28 where it waited 330, the bounce rooms unchanged; 2,154 on the GPU
-in both orders. Before it `19658e55`, item 136, pushed with `10295556` at 09:37, its run green at
-11:16 with Windows in 98 minutes, Linux in 77 and macOS in 36, the path-traced reference crossing
-surfaces that let light through, recorded under the item in REVIEW-ARCHIVE.md. Before it `10295556`,
-item 146's second commit, ShadowOnly draws kept in the field, recorded under the item. Before it
-`da54d289`, item 146's first commit, pushed at 07:23 with `7bdfaa9e`, Verdict 95's mend, and
-`fdde73b2`, item 131's second commit, its run green at 09:37 with Windows in 133 minutes, Linux in
-77 and macOS in 36, which settled Verdict 95; the plain GPU run of `7bdfaa9e` read ObserverTests'
-no-observer allocation once at 1,768 bytes, 5 of 5 alone, watched. Before it `b16f26b5`, item 131's
-first commit, pushed at 02:53 on 2026-10-31, its run cancelled at 03:51 on Linux alone past
-test.py's 40-minute limit and the job's 100 (Verdict 95), Windows and macOS green, the plane a cell
-recorded under item 131 in REVIEW-ARCHIVE.md. Before it `2ad96a80`, item 135, pushed at 22:13 on
-2026-10-30, its run green whole at 23:28 with Windows in 74 minutes, Linux in 68 and macOS in 35,
-the screen probes' jittered rays and sixteen-frame history recorded under the item in
-REVIEW-ARCHIVE.md. Before it `e96a6bb8`, pushed with `c3214cbe` at 19:52 on 2026-10-30, its run
-green whole at 21:51, Windows in 119 minutes, Linux in 44 and macOS in 33. `c3214cbe` is item 134, a
-resize asked before the first frame carried out at once past the debounce a load held back, with a
-test and the window guide's line, and AGENTS.md's REVIEW.md line as the owner asked. `e96a6bb8` is
-item 132's reading with no mend, the note 2026-10-30-item-132-recording.md; at 12 columns 5.6 to 6.5
-ms of the four passes' 9.6 to 11.5 is a descriptor set made and written for every draw in every
-pass, about 2,045 a frame at 2.8 to 3.2 microseconds each with every section's set holding the same
-values, and one set a frame in a scratch copy takes the passes to 5.1 ms at 12 and from 18.4 to 19.7
-to 7.6 at 16, the frame at 16 from 26.6 to 17.9 ms, the land's pixels within 0.08 of 255. 2,135 on
-the GPU in both orders, the resize tests on lavapipe with validation. Before it `1703c54e`, item 97,
-pushed by the owner's hand at 16:54 on 2026-10-26 while the sessions were paused until 2026-10-30,
-its run green whole at 19:33 with Windows in 99 minutes. The ninth pack run started with publish on
-at 18:41 on 2026-10-30, since the owner sees item 97's specks in the voxel game and its package
-lacked the mend; the run went green whole at 21:05, Windows in 101 minutes and the games in 71, the
-package 5.2.333 pushed to nuget.org with items 97, 129, 130, 89, 95, 91 and 93, the game told.
-Before it on 2026-10-26, each green but where said: `987f07ae` (Verdict 94's mend) with `969a1b08`
-(item 129); `7ff7bbdd` (130), red on the examples job alone, Verdict 94; `b05b32da` (89); `0a4ad922`
-(the README's quick links); `5528c55c` (95); `d207627e` (91), `bb542fa4` (93) and `0754b975` (128),
-the eighth pack run publishing 5.2.326 at 13:13; `2f5237f2` (127); `78946b22` (112), the seventh
-pack run publishing 5.2.322 at 09:14; `7af16fcd` (Verdict 93's mend); `45edfbf6` (111); `a16227a7`
-(100), the sixth pack run publishing 5.2.319 at 04:21 on its second attempt. Each commit's detail
-stands in its item in REVIEW-ARCHIVE.md, its devlog note and its own words. On 2026-10-30 at 18:0x
-the owner wrote the README's new words (item 133) and the focus on radiance cascades (Decision 74),
-questions asked back, and asked that the sessions spend fewer tokens at the same quality, N 7.7.
+82 on lavapipe. After it `3dda52c2`, items 151 and 155, its run red at 03:16 on 2026-11-01 on
+Windows alone, Verdict 97, Linux green in 60 minutes and macOS in 35, the twelfth pack run started
+from it at 01:13 awaited and likely red the same way; the two commits after it are held until the
+mend. After it `07085cd2`, item 156, held until that run ends, FillBuffer as the batched staging
+copy with its barrier, the skinning's rest, joints, weights, morphs and posed output and the field's
+corner pool in device memory, the per-frame joint rows and the counted meshes' corners as they were,
+the device's memory types logged at start; the stress skinning 0.223 to 0.179 ms and the animation
+example's 0.011 to 0.008, hdr_scene and the shadows unchanged, Sponza's field build 141 to 149 ms a
+frame unchanged, the still frame within 0.08 of 255; 2,155 on the GPU in both orders, 86 on
+lavapipe. After it `6a6e2dad`, item 152, held the same, the light under a solid roof the model
+pass's own, an ambient light's specular added whole whatever the probes saw while its diffuse faded
+by what they held, 0.15 of the light at roughness 0.5, mended by scaling it with the bounced light's
+share of the open diffuse; the slab's floor at 2.5 up 0.074 to 0.011 at High and 0.007 at Low
+against the reference's 0.006, at 5.5 up 0.110 to 0.062 and 0.045 against 0.032, the open floor as
+before, the bounce rooms unchanged; 2,155 on the GPU in both orders, 39 on lavapipe. The shadows' 35
+ms in Sponza were every mesh's vertex and index buffers in host-visible memory, system RAM on a
+discrete GPU, about 110 MB read over PCIe in each of five whole-scene passes; static mesh buffers go
+into device-local memory through CreateFilledBuffer, copied from staging inside the upload batch
+with one barrier, the rings for vertices replaced each frame still mapped; the atrium's shadows 35.3
+ms to 2.16, window_depth 7.6 to 0.43, hdr_scene 13.0 to 9.1, the frame 58.9 to 14.3, the balcony's
+and lookup's shadows 33 to 1.9, the three views within 0.11 of 255 on the mean. The schedule's
+overlay and Alt+F3 are gone, schedule.dump writing each stage's batches with the planner's notes to
+a file and answering its path, the engine's generator emitting no registration since the HUD was its
+only behavior, a generator test in place of the assembly check; 2,155 on the GPU in both orders, 85
+on lavapipe. a mesh that came and has not moved standing in for nothing in the scene field until it
+is built, where its box filled the rooms of a hollow building, with a pair of Sponza before and
+after and a note, the sunlit floor lit from frame 28 where it waited 330, the bounce rooms
+unchanged; 2,154 on the GPU in both orders. Before it `19658e55`, item 136, pushed with `10295556`
+at 09:37, its run green at 11:16 with Windows in 98 minutes, Linux in 77 and macOS in 36, the
+path-traced reference crossing surfaces that let light through, recorded under the item in
+REVIEW-ARCHIVE.md. Before it `10295556`, item 146's second commit, ShadowOnly draws kept in the
+field, recorded under the item. Before it `da54d289`, item 146's first commit, pushed at 07:23 with
+`7bdfaa9e`, Verdict 95's mend, and `fdde73b2`, item 131's second commit, its run green at 09:37 with
+Windows in 133 minutes, Linux in 77 and macOS in 36, which settled Verdict 95; the plain GPU run of
+`7bdfaa9e` read ObserverTests' no-observer allocation once at 1,768 bytes, 5 of 5 alone, watched.
+Before it `b16f26b5`, item 131's first commit, pushed at 02:53 on 2026-10-31, its run cancelled at
+03:51 on Linux alone past test.py's 40-minute limit and the job's 100 (Verdict 95), Windows and
+macOS green, the plane a cell recorded under item 131 in REVIEW-ARCHIVE.md. Before it `2ad96a80`,
+item 135, pushed at 22:13 on 2026-10-30, its run green whole at 23:28 with Windows in 74 minutes,
+Linux in 68 and macOS in 35, the screen probes' jittered rays and sixteen-frame history recorded
+under the item in REVIEW-ARCHIVE.md. Before it `e96a6bb8`, pushed with `c3214cbe` at 19:52 on
+2026-10-30, its run green whole at 21:51, Windows in 119 minutes, Linux in 44 and macOS in 33.
+`c3214cbe` is item 134, a resize asked before the first frame carried out at once past the debounce
+a load held back, with a test and the window guide's line, and AGENTS.md's REVIEW.md line as the
+owner asked. `e96a6bb8` is item 132's reading with no mend, the note
+2026-10-30-item-132-recording.md; at 12 columns 5.6 to 6.5 ms of the four passes' 9.6 to 11.5 is a
+descriptor set made and written for every draw in every pass, about 2,045 a frame at 2.8 to 3.2
+microseconds each with every section's set holding the same values, and one set a frame in a scratch
+copy takes the passes to 5.1 ms at 12 and from 18.4 to 19.7 to 7.6 at 16, the frame at 16 from 26.6
+to 17.9 ms, the land's pixels within 0.08 of 255. 2,135 on the GPU in both orders, the resize tests
+on lavapipe with validation. Before it `1703c54e`, item 97, pushed by the owner's hand at 16:54 on
+2026-10-26 while the sessions were paused until 2026-10-30, its run green whole at 19:33 with
+Windows in 99 minutes. The ninth pack run started with publish on at 18:41 on 2026-10-30, since the
+owner sees item 97's specks in the voxel game and its package lacked the mend; the run went green
+whole at 21:05, Windows in 101 minutes and the games in 71, the package 5.2.333 pushed to nuget.org
+with items 97, 129, 130, 89, 95, 91 and 93, the game told. Before it on 2026-10-26, each green but
+where said: `987f07ae` (Verdict 94's mend) with `969a1b08` (item 129); `7ff7bbdd` (130), red on the
+examples job alone, Verdict 94; `b05b32da` (89); `0a4ad922` (the README's quick links); `5528c55c`
+(95); `d207627e` (91), `bb542fa4` (93) and `0754b975` (128), the eighth pack run publishing 5.2.326
+at 13:13; `2f5237f2` (127); `78946b22` (112), the seventh pack run publishing 5.2.322 at 09:14;
+`7af16fcd` (Verdict 93's mend); `45edfbf6` (111); `a16227a7` (100), the sixth pack run publishing
+5.2.319 at 04:21 on its second attempt. Each commit's detail stands in its item in
+REVIEW-ARCHIVE.md, its devlog note and its own words. On 2026-10-30 at 18:0x the owner wrote the
+README's new words (item 133) and the focus on radiance cascades (Decision 74), questions asked
+back, and asked that the sessions spend fewer tokens at the same quality, N 7.7.
 
-Next 152, then 157 small, then 154, then the cascades in order, 139, 140, 141 and 142 (Decision 75);
-143, 144 and 145 wait behind them.
+Next 157 small, then 154, then 158 and 159, then the cascades in order, 139, 140, 141 and 142
+(Decision 75); 143, 144 and 145 wait behind them.
 
 Items done and verdicts settled before 2026-10-23 stand in REVIEW-ARCHIVE.md beside this file, their
 numbers kept, moved there at 19:30 on 2026-10-23 so this file holds the current work alone and is
@@ -1066,42 +1074,6 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     and the merge held at one, the bounce rooms' distances to the references and the Cornell box's
     bounces read before and after. One commit, after the eight.
 
-152. **The light under a solid roof reads twelve times the reference.** Found in item 138's reading
-    on 2026-10-31, in item 100's slab scene the frame's floor stands far above the reference, 0.217
-    against 0.153 in the open and 0.074 against 0.006 under the solid slab, so light reaches under a
-    solid roof that the reference says it does not, which may bear on Sponza's interiors reading
-    dark beside their sunlit walls (item 148's third finding) by hiding where the bounce is weak. A
-    reading first, which term carries it, the screen probes' reach past the slab, the merge's
-    fallback where a ray meets nothing, or the field's band at the slab's faces, then the mend; read
-    by the slab scene's floor against the reference and the bounce rooms unchanged. After 138. The
-    owner sent a reference on 2026-10-31 at 20:09, Intel Sponza in Unity's HDRP with HTrace and
-    adaptive probe volumes from the first floor's gallery across the atrium, kept in the day's dump;
-    against our nearest view at 15:00 the frame's means read 9, 7 and 5 against 73, 67 and 64 with a
-    fixed exposure and 51, 41 and 34 with auto exposure on, so most of the gap is exposure, and what
-    remains, the stone browner and darker and the bounce under the arcades and vaults weaker, is
-    read here against a sixth view, balcony, matching the reference. The reference's recipe, read
-    from the owner's Unity scene on 2026-10-31 at 20:3x. The sun is a directional light of 97,050
-    lux at 5,633 K with an angular diameter of 0.5 degrees, placed by a time-of-day system from the
-    date, 15:05 on 2026-03-27 at latitude 50.94 and longitude 6.96, elevation 54 degrees and azimuth
-    213; the sky is HDRP's physically based sky at exposure 0 and multiplier 1 with a cloud layer
-    and volumetric clouds at a quarter cover; the camera is physical, ISO 200, 1/200 s, f/16, 50 mm
-    on a 36 by 24 sensor, so the exposure is the camera's own, about EV 14.6, with the automatic
-    mode's limits 4 to 14 EV and center-weighted metering; the tonemapping is an external AgX lookup
-    at full contribution, no ACES; the indirect light is adaptive probe volumes baked every two
-    hours with sky occlusion, probes a meter apart, blended by the hour, with HTrace's world-space
-    global illumination over them, a voxel field of 352 cubed over 35 m with two bounces and rays of
-    50 m. So the match is physical units first, a sun in lux with a sky in the same scale, a
-    physical camera's exposure, and AgX, before any reading of the bounce; items 152 and 153 read
-    against that. First term, read at 20:35: our sun to sky stands about 1.4 to 1, the noon sun's
-    luminance about 1.08 against a level floor's sky light of about 0.8, where the reference's
-    97,050 lux sun against a clear sky of some 15,000 to 25,000 lux stands 4 to 6 to 1; at the fixed
-    exposure of 3.0 our sky reads about 2.4 where the reference's would read about 0.6, so the sky's
-    share against the sun is read before the bounce under the arcades, and a sky too bright beside
-    its sun is the first suspect for the light under a solid roof. Second term, from 138's end: the
-    leaf-block canopy at 5.5 up reads High 0.32 against the reference's 0.21 where Low reads 0.24,
-    High over Low there before 138 by 0.12 and after by 0.08, so High's excess at 5.5 is its own and
-    older, read here with the roof.
-
 154. **Lights in lux and a physical camera's exposure.** From item 153's reading, the engine has AgX
     but no physical units, no lux on a light, no camera EV, nothing from ISO, shutter and aperture,
     so a reference lit in real units is matched by a hand-set exposure and a guessed sun. A
@@ -1122,9 +1094,40 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     columns, the stress example and a BLAS build before and after, pictures unchanged. Small, after
     152.
 
+158. **High's cascades read 44% over Low's and the reference under a roof.** From items 138 and 152,
+    under item 100's solid slab at roughness 1 High reads 0.0085 at 2.5 up and 0.046 at 5.5 against
+    Low's 0.0048 and 0.033 and the reference's 0.0059 and 0.032, and item 136's leaf-block canopy at
+    5.5 up reads High 0.32 against Low's 0.24 and the reference's 0.21, the screen probes 0.006 of
+    it, the rest High's cascades over Low's. A reading first of which cascade carries the excess, by
+    gi.probe under the slab at each quality and with the far cascade off, then the mend by the
+    cause, read by the slab table and the canopy at both qualities against the reference and the
+    bounce rooms unchanged. A cascades item, after 154 and before 139.
+
+159. **The probes' sky share along the mirror direction holds at the field's edge and through
+    leaves.** From item 152, the environment's specular uses the probes' sky share along the mirror
+    direction, which steps 4.7 to 8% at the field's edge, three CascadeEdgeTests reading it, and
+    reads an all-through slab as a roof at 0.80 to 0.82 where above 0.9 is required, since the
+    merge's own sky for the last cascade is 0 for a ray that crossed leaves, its mark being a
+    surface's. The share is carried past the edge as the diffuse is and a crossing of leaves marks
+    no surface for it; read by the three edge tests and an all-through slab at 0.9 or above, the
+    mirror example's reflections unchanged. Small, after 158.
+
 ## Verdicts
 
-Verdicts 56 to 96 are settled, said under each in REVIEW-ARCHIVE.md; none is open.
+Verdicts 56 to 96 are settled, said under each in REVIEW-ARCHIVE.md; 97 is open.
+
+97. **The run of `3dda52c2` is red on Windows, the offscreen app's leak test reading resident
+    growth.** Read at 03:17 on 2026-11-01 with Tools' run reader, run 41255829930. The Windows suite
+    ran 2,089 passed, 1 failed and 38 skipped in 119 minutes under 149's split; the failure is
+    AppLeakTests' offscreen app that draws, made and closed a hundred times, whose resident growth
+    is expected under 50 MB from 91.9 MB and read over it. The Windows run of `46149d6d` was green, so
+    the growth came with `740066d6` or `3dda52c2`, the first suspect 151's staging buffers retired
+    with the batch's fence, if the retire leaves them mapped or the device-local copies are not
+    freed at the device's end on Windows, the second the pipeline cache's write at exit. Linux green
+    in 60 minutes and macOS in 35. The mend by the cause, read on Linux with the resident reading
+    and on the run, a commit of its own before `07085cd2` and `6a6e2dad` go out with it; the pack
+    run of the same commit is awaited and likely red the same way. Settled when that head's run is
+    green.
 
 ## Decisions
 

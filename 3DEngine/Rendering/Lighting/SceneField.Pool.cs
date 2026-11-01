@@ -26,7 +26,8 @@ internal sealed partial class SceneFieldRenderer
             _cornerCount = 0;
             var wanted = Math.Max(meshes.Sum(m => TrianglesOf(m.Vertices)), building);
             _cornerCapacity = Math.Max(1024, (int)BitOperations.RoundUpToPowerOf2((uint)Math.Max(1, wanted * 2)));
-            _corners = device.CreateBuffer(new BufferDesc((ulong)_cornerCapacity * 48, BufferUsage.Storage | BufferUsage.TransferDst, CpuAccessMode.None));
+            _corners = device.CreateBuffer(new BufferDesc((ulong)_cornerCapacity * 48, BufferUsage.Storage | BufferUsage.TransferDst,
+                device.SharesMemory ? CpuAccessMode.Write : CpuAccessMode.None));
             adding = meshes;
         }
         // The corners added, written here and copied into the pool in the device's own memory, which

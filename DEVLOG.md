@@ -13,6 +13,7 @@ Done that day
 - Item 138 at `740066d6`. A crossing of leaves takes its transmission from the leaves' depth along
   the ray.
 - Item 151 at `3dda52c2`. Sponza's shadows cost what the field's triangles cost.
+- Item 152 at `6a6e2dad`. The light under a solid roof reads twelve times the reference.
 - Item 155 at `3dda52c2`. The schedule's debug overlay goes, its dump staying as a command.
 - Item 156 at `07085cd2`. Every buffer the GPU reads each frame lives in device memory.
 

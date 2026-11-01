@@ -144,6 +144,18 @@ internal sealed unsafe partial class GraphicsDevice
     /// <param name="line">The line of <paramref name="maker"/> that asks for it.</param>
     internal IBuffer CreateFilledBuffer(ReadOnlySpan<byte> data, BufferUsage usage, [CallerFilePath] string maker = "", [CallerLineNumber] int line = 0)
     {
+        // A device whose own memory is the memory the CPU sees, as lavapipe's and a GPU sharing the
+        // computer's memory are, is written in place, since a staging buffer there holds a second
+        // copy of every mesh until its upload is done. Staged on lavapipe, the leak test's resident
+        // memory read 500 MB at its thirtieth app where 438 written in place, and on Windows its
+        // private bytes rose 112 MB between its fiftieth app and its sixtieth (Verdict 97).
+        if (_sharesMemory)
+        {
+            var shared = CreateBuffer(new BufferDesc((ulong)Math.Max(16, data.Length), usage, CpuAccessMode.Write), maker, line);
+            data.CopyTo(Map(shared));
+            Unmap(shared);
+            return shared;
+        }
         var buffer = CreateBuffer(new BufferDesc((ulong)Math.Max(16, data.Length), usage | BufferUsage.TransferDst, CpuAccessMode.None), maker, line);
         FillBuffer(buffer, 0, data, maker, line);
         return buffer;
@@ -162,6 +174,14 @@ internal sealed unsafe partial class GraphicsDevice
     internal void FillBuffer(IBuffer destination, ulong offset, ReadOnlySpan<byte> data, [CallerFilePath] string maker = "", [CallerLineNumber] int line = 0)
     {
         if (data.IsEmpty) return;
+        // One the CPU sees, made so where the device's memory is the CPU's (SharesMemory), is
+        // written in place.
+        if (destination is VulkanBuffer { IsHostVisible: true } seen)
+        {
+            data.CopyTo(Map(seen)[(int)offset..]);
+            Unmap(seen);
+            return;
+        }
         var staging = (VulkanBuffer)CreateBuffer(new BufferDesc((ulong)Math.Max(16, data.Length), BufferUsage.TransferSrc, CpuAccessMode.Write), maker, line);
         data.CopyTo(Map(staging));
         Unmap(staging);
@@ -176,12 +196,30 @@ internal sealed unsafe partial class GraphicsDevice
         _batchStaging.Add(staging);
     }
 
+    // Whether the first type of the device's own memory is one the CPU sees too, as it is on a
+    // device with no memory apart from the computer's (CreateFilledBuffer).
+    private bool _sharesMemory;
+
+    /// <summary>
+    /// Whether the device's own memory is the memory the CPU sees, as lavapipe's and a GPU's that
+    /// shares the computer's are, where a buffer written once is made one the CPU writes in place.
+    /// </summary>
+    internal bool SharesMemory => _sharesMemory;
+
     // The device's memory types, each with what it is and the heap it lies in, written to the log
     // once the device is chosen, so a buffer the GPU reads every frame from the computer's memory
     // is seen for where it lies (CreateFilledBuffer).
     private void LogMemoryTypes()
     {
         _instanceApi.vkGetPhysicalDeviceMemoryProperties(_physicalDevice, out var memory);
+        const VkMemoryPropertyFlags seen = VkMemoryPropertyFlags.HostVisible | VkMemoryPropertyFlags.HostCoherent;
+        _sharesMemory = false;
+        for (int i = 0; i < memory.memoryTypeCount; i++)
+            if ((memory.memoryTypes[i].propertyFlags & VkMemoryPropertyFlags.DeviceLocal) != 0)
+            {
+                _sharesMemory = (memory.memoryTypes[i].propertyFlags & seen) == seen;
+                break;
+            }
         var types = new List<string>();
         for (int i = 0; i < memory.memoryTypeCount; i++)
         {
@@ -194,7 +232,7 @@ internal sealed unsafe partial class GraphicsDevice
             var where = (heap.flags & VkMemoryHeapFlags.DeviceLocal) != 0 ? "on the device" : "in the computer's memory";
             types.Add($"{i} {(flags == 0 ? "plain" : string.Join(" ", kinds))}, heap {type.heapIndex} of {heap.size / (1024.0 * 1024 * 1024):0.0} GB {where}");
         }
-        Logger.Info($"Memory types: {string.Join("; ", types)}");
+        Logger.Info($"Memory types: {string.Join("; ", types)}{(_sharesMemory ? ", the device's own memory the CPU's too" : "")}");
     }
 
     /// <summary>Maps a host-visible buffer's memory for CPU access and returns a writable byte span.</summary>
