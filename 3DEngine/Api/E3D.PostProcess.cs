@@ -104,6 +104,33 @@ public static partial class E3D
     }
 
     /// <summary>
+    /// Sets how the exposure that follows the scene weighs the picture it measures, and the stops it
+    /// is moved by from bringing it to a mid gray, brighter above 0, the whole picture and none
+    /// unless set.
+    /// </summary>
+    /// <remarks>
+    /// A camera's reflected light meter brings what it reads to 12.5 over 100 times the ISO's
+    /// candelas a square meter, which through its exposure (<see cref="SetCameraExposure"/>) is
+    /// 0.79 stops under a mid gray, so a compensation of -0.79 meters as one does.
+    /// </remarks>
+    public static void SetAutoExposureMetering(ExposureMetering metering, float compensation = 0)
+    {
+        var effects = Effects;
+        effects.AutoExposureMetering = metering;
+        effects.AutoExposureCompensation = float.IsFinite(compensation) ? Math.Clamp(compensation, -10, 10) : 0;
+    }
+
+    /// <summary>
+    /// How the exposure that follows the scene weighs the picture and its compensation in stops, as
+    /// <see cref="SetAutoExposureMetering"/> left them, the whole picture and 0 unless set.
+    /// </summary>
+    public static (ExposureMetering Metering, float Compensation) GetAutoExposureMetering()
+    {
+        var effects = Effects;
+        return (effects.AutoExposureMetering, effects.AutoExposureCompensation);
+    }
+
+    /// <summary>
     /// Whether the exposure follows the scene, and its bounds and speed, as
     /// <see cref="SetAutoExposure"/> left them, off between 0.25 and 4 at a speed of 2 unless set.
     /// </summary>

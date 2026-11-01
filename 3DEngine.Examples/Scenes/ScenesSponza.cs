@@ -27,6 +27,7 @@ public static class ScenesSponza
     private static int? _askedView;
     private static float? _askedHour;
     private static Camera3D? _askedCamera;
+    private static bool? _askedMetered;
 
     [Command("sponza.look", "Puts the camera at a point looking at another, with a field of view in degrees, 60 unless given: sponza.look <x> <y> <z> <tx> <ty> <tz> [fov]")]
     internal static string Look(float x, float y, float z, float tx, float ty, float tz, float fov = 60)
@@ -44,6 +45,13 @@ public static class ScenesSponza
         if (index < 0 || index >= Views.Length) return $"There is no view {name}. The views are {names}.";
         _askedView = index;
         return $"view {Views[index].Name}";
+    }
+
+    [Command("sponza.metered", "Has the camera meter each view as the camera of the scene the views are matched against does, between EV 4 and 14 and center-weighted, or holds it at its ISO 200, 1/200 s and f/16: sponza.metered <on|off>")]
+    internal static string Metered(string on)
+    {
+        _askedMetered = on is "on" or "true" or "1";
+        return _askedMetered.Value ? "metered" : "held";
     }
 
     [Command("sponza.time", "Sets the hour the sun and the sky stand at, from 0 to 24: sponza.time <hour>")]
@@ -139,6 +147,16 @@ public static class ScenesSponza
             {
                 (hour, _askedHour) = (at, null);
                 SetSkyTime(hour);
+            }
+            // Metered as the camera of the scene the views are matched against meters, its
+            // automatic mode between EV 4 and 14 about the camera's EV, center-weighted, brought
+            // 0.79 stops under a mid gray as a reflected light meter brings what it reads, which
+            // the pictures were exposed by view by view.
+            if (_askedMetered is { } metered)
+            {
+                _askedMetered = null;
+                SetAutoExposure(metered, MathF.Pow(2, GetCameraEv100() - 14), MathF.Pow(2, GetCameraEv100() - 4), 8);
+                SetAutoExposureMetering(ExposureMetering.CenterWeighted, -0.79f);
             }
             if (flying) UpdateCamera(ref camera, CameraMode.Free);
 

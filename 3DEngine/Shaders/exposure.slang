@@ -8,8 +8,9 @@ import fullscreen;
 
 struct ExposurePush
 {
-    // x: 0 to measure, 1 to adapt. y: the share of the way the value moves this frame, 1 for all
-    // of it. zw: the lowest and highest log2 luminance it is held between.
+    // x: 0 to measure, 1 to adapt weighing the whole picture and 2 its middle. y: the share of the
+    // way the value moves this frame, 1 for all of it. zw: the lowest and highest log2 luminance
+    // it is held between.
     float4 mode;
 };
 
@@ -59,8 +60,9 @@ float adapt()
         for (int x = 0; x < Measured; x++)
         {
             float2 at = (float2(x, y) + 0.5) / float(Measured) - 0.5;
-            // The middle counts four times as much as the edges.
-            float weight = 1.0 - 0.75 * saturate(length(at) * 1.41421356);
+            // The middle counts four times as much as the edges, or, center-weighted, most of all,
+            // falling as a bell curve a fifth of the picture wide.
+            float weight = push.mode.x > 1.5 ? exp(-dot(at, at) / (2.0 * 0.2 * 0.2)) : 1.0 - 0.75 * saturate(length(at) * 1.41421356);
             sum += source.Load(int3(x, y, 0)).r * weight;
             weights += weight;
         }

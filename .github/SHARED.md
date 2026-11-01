@@ -180,6 +180,7 @@ table also answers whether the two agree.
 | Parallax occlusion mapping and tessellation for vegetation and ground in tiers, none, parallax, and parallax with the steep and grazing parts tessellated by a per-edge factor from the view angle | has parallax (Relief and Occlusion, ParallaxLayers); tessellation to consider through meshlets alone, since wgpu has no tessellation stage | to consider, parallax first, then the tessellated tier through Slang's hull and domain stages on Vulkan |
 | Levels in the Valve 220 map format, brushes to meshes and collision, with the TrenchBroom config and fgd | has (item 65, Levels, Decision 67) | to consider, the reader and builder read for a model, the repository `Levels` under `Modules/` their home when extracted |
 | One level-building system for both engines, the map format the interchange and the reader and builder one library both consume | to consider, after 3DEngine reads the format | to consider, in the repository `Levels` under `Modules/`, after the GI items |
+| A draw blended at a base alpha under 0.5 is left out of the global illumination's field and ray scene, since a decal taken as a solid surface stood as an opaque skin on Sponza's walls and shadowed the reference in patches | to consider, where Bevy's field takes blended materials | has at `1848701a` on 2026-11-01 (item 160), the frame within 13% of the path-traced reference at Sponza's three views after it |
 
 ### Input and the command line
 

@@ -711,6 +711,7 @@ static class Engine.E3D
   const int MeshStreamBuffer = 9
   const int PrototypePixelsPerMeter = 1024
   static (Color, float) GetSkyHorizon()
+  static (ExposureMetering, float) GetAutoExposureMetering()
   static (bool, float, float, float) GetAutoExposure()
   static (float, Color) GetEnvironmentLight()
   static (float, bool) GetMotionBlur()
@@ -1447,6 +1448,7 @@ static class Engine.E3D
   static void SetAudioStreamPitch(AudioStream stream, float pitch)
   static void SetAudioStreamVolume(AudioStream stream, float volume)
   static void SetAutoExposure(bool enabled, float min = 0.25f, float max = 4f, float speed = 2f)
+  static void SetAutoExposureMetering(ExposureMetering metering, float compensation = 0f)
   static void SetAutomationEventBaseFrame(int frame)
   static void SetAutomationEventList(AutomationEventList list)
   static void SetBloom(float intensity, float threshold = 1f)
@@ -2080,6 +2082,9 @@ sealed class Engine.Events<T>
   IReadOnlyList<T?> Read()
   int Count { get; }
   void Clear()
+enum Engine.ExposureMetering : int
+  Average = 0
+  CenterWeighted = 1
 sealed class Engine.FixedTime
   FixedTime()
   double Alpha { get; }

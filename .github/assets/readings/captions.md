@@ -47,3 +47,6 @@
 2026-11-01-item-154-balcony.webp | Intel's Sponza in scenes_sponza from the first floor's gallery at 15:00 at High at 800 by 426, a sun of 97,050 lux at 5,633 K, a sky of 20,000 lux and a camera at ISO 200, 1/200 s and f/16 under AgX.
 2026-11-01-item-154-door.webp | Intel's Sponza in scenes_sponza down on the main door under the vault at 15:00 at High at 800 by 484, in the same physical units.
 2026-11-01-item-154-lookup.webp | Intel's Sponza in scenes_sponza up from the atrium's floor at the lion's end at 15:00 at High at 600 by 571, in the same physical units.
+2026-11-01-item-161-balcony-metered.webp | Intel's Sponza in scenes_sponza from the first floor's gallery at 15:00 at High at 800 by 426 in physical units, metered center-weighted between EV 4 and 14 at -0.79 stops.
+2026-11-01-item-161-door-metered.webp | Intel's Sponza in scenes_sponza down on the main door at 15:00 at High at 800 by 484, metered the same.
+2026-11-01-item-161-lookup-metered.webp | Intel's Sponza in scenes_sponza up from the atrium's floor at 15:00 at High at 600 by 571, metered the same.

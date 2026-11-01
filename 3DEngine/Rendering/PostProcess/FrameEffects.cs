@@ -30,6 +30,18 @@ internal sealed class FrameEffects
     /// <summary>How quickly the exposure follows the scene, the share of the way it moves in a second being 1 less e to the minus this.</summary>
     public float AutoExposureSpeed { get; set; } = 2;
 
+    /// <summary>How the exposure that follows the scene weighs the picture.</summary>
+    public ExposureMetering AutoExposureMetering { get; set; }
+
+    /// <summary>The stops the exposure that follows the scene is moved by from a mid gray, brighter above 0.</summary>
+    public float AutoExposureCompensation { get; set; }
+
+    /// <summary>
+    /// The level the measured luminance is brought to, a mid gray, about what the engine's lit
+    /// scenes show at an exposure of 1, moved by the compensation.
+    /// </summary>
+    public float AutoExposureKey => 0.18f * MathF.Pow(2, AutoExposureCompensation);
+
     /// <summary>The curve the light is brought under 1 by.</summary>
     public Tonemap Tonemap { get; set; } = Tonemap.Engine;
 

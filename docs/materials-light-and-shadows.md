@@ -162,6 +162,7 @@ frame of 2D alone, as `textures_bunnymark` draws, draws none of it.
 |---|---|
 | `SetExposure(1.5f)` | Scales the scene's light before its curve, brighter above 1 and dimmer below |
 | `SetAutoExposure(true)` | Makes the exposure follow the scene as an eye adapts, between a quarter and four times unless bounds are given |
+| `SetAutoExposureMetering(ExposureMetering.CenterWeighted, -0.79f)` | Weighs the picture it measures, the whole of it or its middle, and moves it by stops from a mid gray |
 | `SetTonemap(Tonemap.AgX)` | The curve that brings light past white under it, the engine's own, which leaves colors under 0.9 as they are, Narkowicz's fit of ACES, `Aces`, a cut at 1, `Clamp`, or one of the eight Bevy offers, below |
 | `SetHighlightKnee(0.8f, 1)` | Has the engine's own curve bend each channel past the knee toward 1 on its own, so a light bright in every channel goes toward white as a camera's film and a path-traced reference take it, on at 0.8 unless set and off at a strength of 0, colors under the knee shown as they are |
 | `SetTonemapCurve(0.9f, 1.3f, 1.05f, 1)` | A curve set by four numbers, as the BSL shader draws it, below |
@@ -268,12 +269,16 @@ SetAutoExposure(true, min: 0.3f, max: 6, speed: 1.5f);
 ```
 
 The field is dazzling for a moment on the way out, and the tunnel dark on the way back in, until the
-exposure catches up.
+exposure catches up. `SetAutoExposureMetering` says how it reads the picture, the whole of it with
+its middle counting four times as much as its edges, the default, or center-weighted, falling away
+as a bell curve a fifth of the picture wide, so a bright sky at the edges moves it little, and the
+stops it moves the picture by from a mid gray, -0.79 metering as a camera's reflected light meter
+does.
 
 Each effect is read back as its setter left it, by `GetTonemap`, `GetTonemapCurve`,
-`GetTonemapShader`, `GetExposure`, `GetAutoExposure`, `GetColorGrading`, `GetVignette`,
-`IsFxaaEnabled`, `GetDepthOfField`, `GetMotionBlur` and `GetBloom`, those of several values as a
-tuple named as the setter's arguments are. `DrawPostProcessWindow()`, called between `BeginDrawing`
+`GetTonemapShader`, `GetExposure`, `GetAutoExposure`, `GetAutoExposureMetering`,
+`GetColorGrading`, `GetVignette`, `IsFxaaEnabled`, `GetDepthOfField`, `GetMotionBlur` and
+`GetBloom`, those of several values as a tuple named as the setter's arguments are. `DrawPostProcessWindow()`, called between `BeginDrawing`
 and `EndDrawing` as any ImGui window is, shows every one of them in a window of its own, a choice of
 the curve with a slider for each number of the one set by them, a slider or a check for the rest,
 each calling its setter at once, so the picture is tuned while it is looked at:

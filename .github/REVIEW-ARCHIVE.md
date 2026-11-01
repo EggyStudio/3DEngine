@@ -4811,6 +4811,53 @@ batch.
     materials-light-and-shadows.md's section, the gallery recaptured, the note
     2026-11-01-item-154-physical.md and the sheets in the dump.
 
+160. **Sponza's shade reads a hundredth of its sun where the reference reads a quarter.** From item
+    154, at the reference's units and camera the sunlit stone reads near the reference and the shade
+    near black, the balcony's mean 9 against 73 and the door's 1 against 57, sun to shade about 100
+    to 1 here against about 4 to 1 in the reference, so the indirect light into covered areas is
+    what is missing, the sky through the arcades and the bounce off the sunlit stone. A reading
+    first, at the door and balcony views at 15:00, of each term's share, the sky light the probes
+    carry under the arcades against a path-traced reference of the view, the first bounce off the
+    sunlit court and the bounces after, by gi.probe and gi.compare, and which of 158 and 159 or a
+    term of its own carries the gap; then the mend by the cause through those items, read by the
+    three views' means against the reference and the bounce rooms unchanged. Before 158, since it is
+    the reference the owner set. First part done at `ed41cd5d`, read at 05:45 on 2026-11-01. The
+    reference pictures were exposed view by view, their means 73, 57 and 82 near flat where one
+    fixed camera reads our door twenty times darker than our balcony in the frame and in the
+    path-traced reference alike, and our auto exposure between EV 4 and 14 reads 89, 120 and 110 to
+    127, opening more than HDRP's centre-weighted metering, the door most. The engine's reference
+    was wrong in Sponza in two ways. The stone read as metal, 24 materials carrying a metallic
+    factor of 1 with the metal in the map's blue at about 0.014, SceneFieldPlan.Instance taking the
+    factor alone so the reference's throughput went to 0 after the first face and every bounce read
+    0.00176 at the balcony; mended here, the field's copies taking roughness and metallic as the
+    material's times the map's raw average through TextureStore.AverageLevels, the frame unchanged
+    by a pixel since the diffuse bounce never used the metal. And its direct sun is shadowed in
+    blocks on the court's walls where the frame's shadow maps have them sunlit, the balcony reading
+    0.0112 against 0.0042 and a block's sunlit face 0.208 against 0.019, the second part. With the
+    metal mended the door reads 0.00049 against the reference's 0.00051 with every bounce and
+    0.00034 with one, its sky light alone 0.00004 against 0.00001, the balcony's sky light 0.00086
+    against 0.00062, so by our reference the shade is lit about right and neither 158 nor 159
+    carries the gap to HDRP, which is exposure and whatever HTrace adds beyond the physics at those
+    values, unreadable without it. A double sRGB decode of the BC7 averages was ruled out. The
+    second part reads the reference's sun visibility in Sponza, the suspects copies in the ray scene
+    the raster does not draw, copies misplaced, or stand-in boxes, since every later reading there
+    leans on the reference. Done at `1848701a`, read at 06:19. The reference's blocky patches were
+    no shadows, the court's end wall reading gray in the direct light alone where a shadow is black,
+    the faces getting the sun at about a sixth of the frame's brightness in patches the shape of
+    whole meshes, 0.09 to 0.21 against 0.89 to 1.08 elsewhere, the shadow distance and a
+    self-shadowing offset ruled out; they were Sponza's dirt decal material, blended at a base alpha
+    of 0.35 in four primitives of 8,140 triangles over the walls, which the field took as solid
+    surfaces from every shadow-casting draw and the ray scene built from it as an opaque
+    dirt-colored skin. SceneField.SeeThrough leaves out a draw the model pass blends at a base alpha
+    under 0.5, single draws and groups alike by Instance.Color.W, opaque, masked and alpha-1 draws
+    untouched, Sponza's black glass among them; a blended surface at 0.5 or more stays, which the
+    voxel game's water is asked about. After the mend the frame against the reference reads 0.0114
+    against 0.0128 at the balcony, 0.00050 against 0.00058 at the door and 0.0097 against 0.0092 at
+    the lookup, within 13%, the shot means moving a little since the field holds no decal color; the
+    sheet in the dump. So the engine's GI in Sponza sits within 13% of its own reference at these
+    views, the gap to the HDRP pictures is their per-view exposure, item 161, and whatever differs
+    between the scenes, which needs HDRP to read, and 158 and 159 do not carry it.
+
 ## Verdicts settled
 
 Verdicts 1 to 55 are settled, the last two, the drawing leak test's resident bound and the Windows
@@ -6235,6 +6282,28 @@ at `36cae0c2`.
     commits go out, which then go together. Settled when that head's run is green. Mended at
     `4df9309c`, pushed at 18:34 with the five commits it held; settled when that run is green.
     Settled at 19:50 on 2026-10-31, the run of `4df9309c` green on the three systems.
+
+97. **The run of `3dda52c2` is red on Windows, the offscreen app's leak test reading resident
+    growth.** Read at 03:17 on 2026-11-01 with Tools' run reader, run 41255829930. The Windows suite
+    ran 2,089 passed, 1 failed and 38 skipped in 119 minutes under 149's split; the failure is
+    AppLeakTests' offscreen app that draws, made and closed a hundred times, whose resident growth
+    is expected under 50 MB from 91.9 MB and read over it. The Windows run of `46149d6d` was green,
+    so the growth came with `740066d6` or `3dda52c2`, the first suspect 151's staging buffers
+    retired with the batch's fence, if the retire leaves them mapped or the device-local copies are
+    not freed at the device's end on Windows, the second the pipeline cache's write at exit. Linux
+    green in 60 minutes and macOS in 35. The mend by the cause, read on Linux with the resident
+    reading and on the run, a commit of its own before `07085cd2` and `6a6e2dad` go out with it; the
+    pack run of the same commit is awaited and likely red the same way. Settled when that head's run
+    is green. Mended at `e3d37e1e`, pushed at 04:00 with the two commits it held. The runner's
+    Windows lavapipe read private bytes of 88.8 to 96.9 MB over the 10th to 50th apps, then 209.0 at
+    the 60th and 212.7 at the 70th, one step of about 112 MB and flat after, no Vulkan object
+    outliving an app; on lavapipe, which exposes one memory type both device-local and host-visible,
+    151 held each mesh twice, the device-local buffer and its staging copy until the fence retired
+    it; such a device makes a mesh a host-written buffer in place, the reading over a hundred apps
+    back at the level before 151, unprovable on Windows from here and read on the run. Settled when
+    that run is green. The pack run of the same commit passed the test on Windows at 04:20, so the
+    growth is not of every run; the mend stands for the devices it names. Settled at 06:20 on
+    2026-11-01, the run of `e3d37e1e` green on the three systems, Windows in 140 minutes.
 
 ## Decisions
 

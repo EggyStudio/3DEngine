@@ -111,6 +111,25 @@ public sealed class FrameEffectsTests : IDisposable
         GetImageColor(Capture(bright), 80, 60).R.Should().BeInRange(198, 202, "with it off the cube keeps its color");
     }
 
+    [NeedsVulkanFact]
+    public void Center_Weighted_Metering_Reads_The_Middle_And_Its_Compensation_Moves_It_By_Stops()
+    {
+        Open();
+        // A gray cube in the middle of a white background, which the whole picture's mean is pulled
+        // up by and the middle's is not.
+        var scene = Cube(new Color(60, 60, 60), Color.White);
+        SetAutoExposure(true, min: 0.05f, max: 20, speed: 10000);
+        var average = GetImageColor(Capture(scene), 80, 60);
+        SetAutoExposureMetering(ExposureMetering.CenterWeighted);
+        var center = GetImageColor(Capture(scene), 80, 60);
+        SetAutoExposureMetering(ExposureMetering.CenterWeighted, 1);
+        var brighter = GetImageColor(Capture(scene), 80, 60);
+
+        ((int)center.R).Should().BeGreaterThan(average.R + 15, $"the middle's metering exposes the cube for itself ({average} to {center})");
+        ((int)brighter.R).Should().BeGreaterThan(center.R + 15, $"a stop of compensation brightens it ({center} to {brighter})");
+        GetAutoExposureMetering().Should().Be((ExposureMetering.CenterWeighted, 1f));
+    }
+
     // How many pixels of a row between two x's are neither near black nor near white, the width
     // of the edges there.
     private static int Soft(Image image, int y, int from, int to)

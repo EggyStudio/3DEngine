@@ -96,10 +96,6 @@ internal sealed partial class BloomRenderer : IDisposable
         public Vector4 Bloom, Grade, Tint, Exposure, Curve, Highlight;
     }
 
-    // The luminance a scene's mean is brought to by the exposure that follows it, about what the
-    // engine's lit scenes show at an exposure of 1.
-    internal const float AutoExposureKey = 0.18f;
-
     private readonly ReadOnlyMemory<byte> _bloomVertexSpv, _bloomFragmentSpv, _compositeVertexSpv, _compositeFragmentSpv,
         _fxaaVertexSpv, _fxaaFragmentSpv, _exposureVertexSpv, _exposureFragmentSpv;
     private IShader? _bloomVertex, _bloomFragment, _compositeVertex, _compositeFragment, _fxaaVertex, _fxaaFragment,
@@ -392,7 +388,7 @@ internal sealed partial class BloomRenderer : IDisposable
                 effects.Exposure),
             Grade = new Vector4(effects.Contrast, effects.Saturation, (float)curve, effects.Vignette),
             Tint = new Vector4(tint, Math.Min(effects.VignetteRadius, 0.99f)),
-            Exposure = new Vector4(effects.AutoExposure && _adaptedFrame == _frame ? 1 : 0, AutoExposureKey, _shownLinear ? 0 : 1, 0),
+            Exposure = new Vector4(effects.AutoExposure && _adaptedFrame == _frame ? 1 : 0, effects.AutoExposureKey, _shownLinear ? 0 : 1, 0),
             Curve = effects.Curve,
             Highlight = new Vector4(effects.HighlightKnee, effects.HighlightStrength, 0, 0),
         };
@@ -604,12 +600,14 @@ internal sealed partial class BloomRenderer : IDisposable
         _sinceAdapted.Restart();
         var share = _adaptedFrame == _frame - 1 ? 1 - MathF.Exp(-Math.Min(seconds, 0.25f) * effects.AutoExposureSpeed) : 1;
         // The luminance each bound of the exposure brings to the key, as log2.
-        var low = MathF.Log2(AutoExposureKey / Math.Max(effects.AutoExposureMax, 1e-3f));
-        var high = MathF.Log2(AutoExposureKey / Math.Max(effects.AutoExposureMin, 1e-3f));
+        var low = MathF.Log2(effects.AutoExposureKey / Math.Max(effects.AutoExposureMax, 1e-3f));
+        var high = MathF.Log2(effects.AutoExposureKey / Math.Max(effects.AutoExposureMin, 1e-3f));
         var push = new ExposurePush { Mode = 0, Share = share, Low = Math.Min(low, high), High = high };
+        // The adapting pass weighs the picture as the metering says, 1 the whole of it and 2 its middle.
+        var adapting = effects.AutoExposureMetering == ExposureMetering.CenterWeighted ? 2 : 1;
         Pass(renderContext, _measured, LoadOp.Clear, _measure, measured, push);
         var next = 1 - _adaptedLast;
-        Pass(renderContext, _adapted[next], LoadOp.Clear, _measure, _adaptSets[next], push with { Mode = 1 });
+        Pass(renderContext, _adapted[next], LoadOp.Clear, _measure, _adaptSets[next], push with { Mode = adapting });
         _adaptedLast = next;
         _adaptedFrame = _frame;
     }
