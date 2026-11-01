@@ -101,9 +101,9 @@ around it, as the box of a building's outer walls filled the whole of Intel's Sp
 every room for the 330 frames its 3.75 million triangles took to build at the default budget, the
 atrium's sunlit floor 29, 39 and 54 of 255 where 160, 143 and 123 once built. Left out, it reads
 its own from the first frames, and the sky's light reaches the floor in shade through what is not
-yet built meanwhile, so `scenes_sponza` sets a budget of four million and an update budget of four,
-which builds every cascade a view moves into in the frame of the jump, 0.23 to 0.46 s on an RTX
-4070.
+yet built meanwhile. `scenes_sponza` keeps the default budgets, which build its triangles over
+frames, where a budget of four million had each cascade a walk along its atrium carried on splat up
+to 4 million triangles in one frame, 0.14 to 0.17 s of the GPU on an RTX 4070.
 
 `farCascade` adds a far cascade past the others, which `cascades` leaves out of its count, 64 cells
 a side as each is, its cells as wide as reaching that many units ahead of the camera takes. It is

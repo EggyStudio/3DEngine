@@ -216,7 +216,7 @@ internal static class SceneFieldCommands
         return off.Count == 0 ? "every part of global illumination is on" : $"{string.Join(", ", off)} left out";
     }
 
-    [Command("field.state", "Where each cascade of the scene's distance field lies, the far one named, the GPU memory the field takes, how many meshes are still in it, what this frame stamped, and the triangles its builds splatted and those left waiting for later frames")]
+    [Command("field.state", "Where each cascade of the scene's distance field lies, the far one named, the GPU memory the field takes, how many meshes are still in it, what this frame stamped, the triangles its builds splatted and those left waiting for later frames, and the most a frame splatted since this was last asked")]
     internal static string State()
     {
         if (!ConsoleHost.World!.TryGetResource<Renderer>(out var renderer)
@@ -230,6 +230,7 @@ internal static class SceneFieldCommands
         var bytes = GpuSceneField.MemoryBytes(plan.Cascades, SceneFieldPlan.Resolution);
         return string.Join("\n", cascades.Append($"{bytes / 1024.0 / 1024.0:0.0} MB of the GPU's memory")
             .Append($"{plan.StillCount} still, {plan.Shapes.Count} stamped into {plan.Bricks.Count} bricks")
-            .Append($"{plan.Splatted} triangles splatted of a budget of {plan.TriangleBudget}, {plan.Waiting} waiting"));
+            .Append($"{plan.Splatted} triangles splatted of a budget of {plan.TriangleBudget}, {plan.Waiting} waiting, "
+                + $"at most {plan.TakeMostSplatted()} a frame since this was last asked"));
     }
 }

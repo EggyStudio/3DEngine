@@ -100,11 +100,11 @@ public static class ScenesSponza
         }
 
         // The building is 36 units long, 20 wide and 18 high, so the field's four cascades of cells
-        // an eighth of a unit reach 8, 16, 32 and 64 units across, the last holding all of it. Its
-        // 3.75 million triangles are built into every cascade the camera's jump to a view moves in
-        // one frame, 0.23 to 0.46 s on an RTX 4070, where the default budget took 330 frames, the
-        // sky's light reaching the floor in shade through the meshes not yet built meanwhile.
-        SetSceneField(4, 0.125f, updateBudget: 4, triangleBudget: 4_000_000);
+        // an eighth of a unit reach 8, 16, 32 and 64 units across, the last holding all of it. The
+        // default budgets build its 3.75 million triangles over frames, the meshes waiting standing
+        // in as nothing where they never moved, where a budget of all of them had every cascade a
+        // walk carried on splat up to 4 million in one frame, 0.14 to 0.17 s of the GPU.
+        SetSceneField(4, 0.125f);
         SetGlobalIllumination(GlobalIllumination.High);
         // The sun stands at the hour asked, rising over the main door and setting over the lion along
         // the atrium's length, its path leaning 6 degrees, so at noon it lights two thirds of the
@@ -158,7 +158,16 @@ public static class ScenesSponza
                 SetAutoExposure(metered, MathF.Pow(2, GetCameraEv100() - 14), MathF.Pow(2, GetCameraEv100() - 4), 8);
                 SetAutoExposureMetering(ExposureMetering.CenterWeighted, -0.79f);
             }
-            if (flying) UpdateCamera(ref camera, CameraMode.Free);
+            if (flying)
+            {
+                // The free camera's flight with its own keys, rising on E and sinking on Q, which the
+                // free camera rolls by, and turning with the mouse as it does, 0.003 radians a pixel.
+                float Held(Key more, Key less) => (IsKeyDown(more) ? 1 : 0) - (IsKeyDown(less) ? 1 : 0);
+                var step = 5.4f * GetFrameTime();
+                var turn = GetMouseDelta() * float.RadiansToDegrees(0.003f);
+                UpdateCameraPro(ref camera, new Vector3(Held(Key.W, Key.S), Held(Key.D, Key.A), Held(Key.E, Key.Q)) * step,
+                    new Vector3(turn.X, turn.Y, 0), 0);
+            }
 
             BeginDrawing();
             ClearBackground(Color.Black);
@@ -169,7 +178,7 @@ public static class ScenesSponza
             EndMode3D();
 
             DrawText($"{view + 1}: {Views[view].Name}, {(int)hour:00}:{(int)(hour % 1 * 60):00}", 10, 10, 20, Color.RayWhite);
-            DrawText("1 to 8 change the view, the left and right arrows the hour, and the right button held looks around with W, A, S and D.", 10, 36, 10, Color.LightGray);
+            DrawText("1 to 8 change the view, the left and right arrows the hour, and the right button held looks around with W, A, S and D, E rising and Q sinking.", 10, 36, 10, Color.LightGray);
             DrawText("Intel Sponza (2022) by Frank Meinl and Anton Kaplanyan, from Intel's Sample Library, under CC BY 4.0.", 10, 432, 10, Color.LightGray);
             EndDrawing();
         }

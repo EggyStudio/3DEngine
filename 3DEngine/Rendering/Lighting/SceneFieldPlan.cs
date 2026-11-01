@@ -288,6 +288,20 @@ internal sealed partial class SceneFieldPlan
     /// <summary>How many triangles this frame's builds splat.</summary>
     public int Splatted { get; private set; }
 
+    /// <summary>
+    /// The most triangles a frame's builds splatted since <see cref="TakeMostSplatted"/> was last
+    /// asked, which a frame's count alone loses by the time a command reads it.
+    /// </summary>
+    private int _mostSplatted;
+
+    /// <summary>The most triangles a frame's builds splatted since this was last asked, started afresh.</summary>
+    public int TakeMostSplatted()
+    {
+        var most = _mostSplatted;
+        _mostSplatted = 0;
+        return most;
+    }
+
     /// <summary>How many triangles of a build left for later frames wait to be splatted.</summary>
     public int Waiting => _job is null ? 0 : _job.Left.Skip(_job.Next).Sum(entry => _triangles(entry.Instance.Vertices));
 
@@ -522,6 +536,7 @@ internal sealed partial class SceneFieldPlan
         for (int c = 0; c < Cascades; c++)
             if (_built[c] != OriginAround(c, eye, ahead)) _dirty[c] = true;
         var rebuilt = Splat(eye, ahead);
+        _mostSplatted = Math.Max(_mostSplatted, Splatted);
 
         // A still mesh is stamped until every built cascade it comes within the band of has been
         // built since it came, but for one that replaced a mesh in place (_replacing).

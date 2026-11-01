@@ -4883,6 +4883,27 @@ batch.
     the average by more than 15 levels and a stop brighter again. The note
     2026-11-01-item-161-metered.md and the sheet in the dump.
 
+159. **The probes' sky share along the mirror direction holds at the field's edge and through
+    leaves.** From item 152, the environment's specular uses the probes' sky share along the mirror
+    direction, which steps 4.7 to 8% at the field's edge, three CascadeEdgeTests reading it, and
+    reads an all-through slab as a roof at 0.80 to 0.82 where above 0.9 is required, since the
+    merge's own sky for the last cascade is 0 for a ray that crossed leaves, its mark being a
+    surface's. The share is carried past the edge as the diffuse is and a crossing of leaves marks
+    no surface for it; read by the three edge tests and an all-through slab at 0.9 or above, the
+    mirror example's reflections unchanged. Small, after 158. Done at `beefec87`, read at 07:24 on
+    2026-11-01. The environment's specular in the model pass takes saturate(seen over open) inside
+    the field, open being an open plain's face share along the mirror way, r.y squared when r.y is
+    above 0 plus half of r.x squared and r.z squared, floored at 0.05, blended by held as before;
+    CascadeEdgeTests' new case lights the canyon by a sky map through a shared FloorStep helper and
+    read an 8.2% step at 99 blocks at High before the mend and under 0.06 after, all eleven edge
+    tests passing. In gi_trace's last cascade a ray that crossed what lets light through, kept half
+    or more and met nothing is marked as sky where it was marked as a surface, so the merge's own
+    sky counts it; a new GlobalIlluminationTests case under a sky map reads a floor under an
+    all-through slab at 0.86, 0.88 and 0.72 before and above 0.9 after at Low 2.5, High 2.5 and High
+    5.5, the ambient-lit foliage tests unchanged. shaders_reflections at High moves about 2 of 255
+    on the mean with 7.9% of pixels over 8, the back wall and floor a little brighter, the pair in
+    the dump.
+
 ## Verdicts settled
 
 Verdicts 1 to 55 are settled, the last two, the drawing leak test's resident bound and the Windows

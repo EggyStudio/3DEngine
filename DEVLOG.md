@@ -77,6 +77,8 @@ Done that day
 - Item 156 at `07085cd2`. Every buffer the GPU reads each frame lives in device memory.
 - Item 157 at `6f6ba558`. A buffer the CPU writes each frame takes the device's host-visible local
   memory where it has one.
+- Item 159 at `beefec87`. The probes' sky share along the mirror direction holds at the field's edge
+  and through leaves.
 - Item 160 at `1848701a`. Sponza's shade reads a hundredth of its sun where the reference reads a
   quarter.
 - Item 161 at `1fe6e61a`. The automatic exposure meters as the reference's camera does.
