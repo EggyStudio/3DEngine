@@ -189,6 +189,11 @@ internal sealed partial class DaySky
 
     private void Apply(World world, double now)
     {
+        if (Day.Atmosphere is { } air)
+        {
+            ApplyAir(world, air, now);
+            return;
+        }
         var (hour, tilt) = (Hour, Day.Tilt);
         var units = Day.SunIlluminance > 0 || Day.SkyIlluminance > 0 ? world.GetOrInsertResource(static () => new PhysicalUnits()) : null;
         if (hour != _litHour || tilt != _litTilt || Light != _litLight)

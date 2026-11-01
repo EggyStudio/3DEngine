@@ -402,6 +402,7 @@ SetCameraExposure(100, 1 / 125f, 16);
 | `SetLightLuminousFlux(light, lumens)` | A lamp's lumens in all, over its sphere or its spot's cone, about 800 for a 60 watt bulb |
 | `SetLightLuminousIntensity(light, candela)` | A lamp's candelas along its axis |
 | `SetSkyDay(new SkyDay { SunIlluminance, SkyIlluminance })` | The day sky's sun's lux and its sky's on a level floor at noon, a clear sky giving 15,000 to 25,000 |
+| `SetSkyDay(new SkyDay { Atmosphere = Sky.Atmosphere.Earth })` | The air the day sky's sun and moon come through, as the Sky module models it, their lux and color at the ground by their height and the sky's lux the air's |
 | `SetCameraExposure(iso, shutterSeconds, aperture)` | The camera they are seen through, EV 15, a sunny day's, until set |
 | `ColorFromTemperature(kelvin)` | A light's color from its temperature, 2,700 a lamp's warm white and 5,600 the sun's at midday |
 

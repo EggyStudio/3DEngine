@@ -17,6 +17,8 @@
 
     <ItemGroup>
         <ProjectReference Include="..\3DEngine\3DEngine.csproj" />
+        <!-- The Sky module, whose types the engine's API takes, as a package carries it beside the engine. -->
+        <ProjectReference Include="..\modules\Sky\Sky\Sky.csproj" />
         <ProjectReference Include="..\3DEngine.Generator\3DEngine.Generator.csproj"
                           OutputItemType="Analyzer"
                           ReferenceOutputAssembly="false" />

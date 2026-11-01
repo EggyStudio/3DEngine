@@ -20,6 +20,9 @@ public sealed class PackageContentsTests
         using var package = Open();
         Entries(package).Should().Contain(["lib/net10.0/3DEngine.dll", "lib/net10.0/3DEngine.xml",
             "analyzers/dotnet/cs/3DEngine.Generator.dll", "analyzers/dotnet/cs/3DEngine.CodeFixes.dll"]);
+        // The modules under modules/, no packages of their own, carried beside the engine with
+        // their documentation, so a game compiles against the Sky module's types the API takes.
+        Entries(package).Should().Contain(["lib/net10.0/Sky.dll", "lib/net10.0/Sky.xml"]);
 
         // The documentation of the flat API, which a game's editor shows on hovering a call.
         var documentation = Read(package, "lib/net10.0/3DEngine.xml");

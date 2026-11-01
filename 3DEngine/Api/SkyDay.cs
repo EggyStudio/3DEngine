@@ -57,4 +57,25 @@ public readonly record struct SkyDay
     /// one from a temperature.
     /// </summary>
     public Color SunColor { get; init; }
+
+    /// <summary>
+    /// The air the sun's and the moon's light reach the world through, as the Sky module models
+    /// it, such as <see cref="Sky.Atmosphere.Earth"/>, or none for the sky's own curve.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// With air, the light is physical. <see cref="SunIlluminance"/> and <see cref="SunColor"/> are
+    /// the sun's outside the air, the module's 128,000 lux at 5,772 K where they are unset, and the
+    /// light that reaches the world is that one through the air at the sun's height, dimming and
+    /// warming as it sinks and gone as its disc sets. By night the moon gives its light by the
+    /// same air, a full moon's third of a lux outside it. The sky's light on a level floor is the
+    /// air's at the hour, the sun's light scattered toward it, and <see cref="SkyIlluminance"/> is
+    /// not read.
+    /// </para>
+    /// <para>
+    /// The lux are seen through the camera <see cref="E3D.SetCameraExposure"/> sets, so a program
+    /// with air sets its camera or its automatic exposure for daylight.
+    /// </para>
+    /// </remarks>
+    public Sky.Atmosphere? Atmosphere { get; init; }
 }

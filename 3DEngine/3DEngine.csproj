@@ -91,4 +91,25 @@
         <ProjectReference Include="..\3DEngine.Generator\3DEngine.Generator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" PrivateAssets="all" />
     </ItemGroup>
 
+    <!--
+      The modules this engine and BevyCSharp share, each its own repository checked out as a git
+      submodule under modules/, whose assemblies the engine references and the package carries in
+      its lib folder beside the engine's, with their documentation, since a package cannot name a
+      project as a dependency and the modules are not packages of their own.
+    -->
+    <ItemGroup>
+        <ProjectReference Include="..\modules\Sky\Sky\Sky.csproj" PrivateAssets="all" />
+    </ItemGroup>
+    <PropertyGroup>
+        <TargetsForTfmSpecificBuildOutput>$(TargetsForTfmSpecificBuildOutput);E3DPackModules</TargetsForTfmSpecificBuildOutput>
+    </PropertyGroup>
+    <!-- From the engine's own output, where the build copies each module beside the engine, since
+         the package is packed with no build and resolving the references again would build the
+         generator. -->
+    <Target Name="E3DPackModules">
+        <ItemGroup>
+            <BuildOutputInPackage Include="$(OutDir)Sky.dll;$(OutDir)Sky.xml" />
+        </ItemGroup>
+    </Target>
+
 </Project>

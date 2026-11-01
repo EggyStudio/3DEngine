@@ -98,6 +98,7 @@ pushed.
 | `games` | Games built on the engine's package as an outside project would be, and `FirstGame`, which `docs/first-game.md` builds in steps |
 | `templates` | The `dotnet new` templates, a game of plain calls and one of behaviors |
 | `scenes` | The manifests of the scene packs, as Intel's Sponza, which `./e3d scenes fetch` downloads into the user's cache |
+| `modules` | The repositories this engine and BevyCSharp share, each a git submodule the engine references and its package carries, as `Sky`, the sky's model |
 | `.github/assets/examples` | A capture of each example, which the README shows |
 
 ## Conventions

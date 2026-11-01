@@ -8,12 +8,19 @@ Assimp and Dear ImGui native libraries arrive with their NuGet packages, so noth
 installed by hand. macOS draws through MoltenVK, which the Vulkan SDK provides.
 
 ```bash
+git submodule update --init                # the modules under modules/, where the clone was made without them
 build/fetch-slang.sh                       # slangc, into build/tools/slang (once)
 dotnet build 3DEngine.slnx                 # the engine, the generator, the tests and the examples
 dotnet test 3DEngine.Tests                 # the suite
 python3 build/test.py                      # the suite as the workflow runs it, ending in a page of what failed
 dotnet run --project 3DEngine.Examples     # a window
 ```
+
+The modules this engine and BevyCSharp share, the Sky module's model of the sun and the air
+among them, are repositories of their own checked out under `modules/` as git submodules, so a
+clone made with `git clone --recurse-submodules` has them and one made without fetches them with
+`git submodule update --init`. The engine references each module's project, and the package
+carries each module's assembly beside the engine's.
 
 The suite needs no GPU or display, because the tests that touch rendering use
 `NullGraphicsDevice`. The examples need both. Without `slangc` the shader tests report as skipped,

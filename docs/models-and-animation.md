@@ -373,6 +373,14 @@ zenith, toward +Z, at noon, and sets in the west at 18. A program with a sun of 
 `SkyDay.Light`, and the sky turns and colors that light in place of making one of its own, so the
 world holds one sun.
 
+Given air, `SkyDay.Atmosphere`, such as the Sky module's `Sky.Atmosphere.Earth`, the sky's light is
+physical. The sun's light outside the air, `SkyDay.SunIlluminance` and `SkyDay.SunColor` or the
+module's 128,000 lux at 5,772 K where they are unset, reaches the world through the air at the
+sun's height, 110,000 lux at 5,026 K with the sun 54 degrees high and 84,000 at 4,128 K at 16.5,
+fading as its disc sets, and by night the moon's by the same air. The painted map is as strong as
+the air's sky lights a level floor at the hour, the sun's light the air scatters, so a camera or an
+automatic exposure set for daylight sees them as the eye would (`DaySkyAirTests`).
+
 The sky sets the horizon `SetSkyHorizon` sets to the hour's color, which `GetSkyHorizon` reads for
 a program's own fog, and paints the map again once the hour has moved three minutes of its day, at
 most four times a second. `SetEnvironmentMap` or `UnloadEnvironmentMap` ends it, with the light it

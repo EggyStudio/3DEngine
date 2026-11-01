@@ -3513,6 +3513,7 @@ struct Engine.ShadowOnly
   ShadowOnly(bool value)
   bool Value
 readonly struct Engine.SkyDay : IEquatable<SkyDay>
+  Atmosphere? Atmosphere { get; init; }
   Color SunColor { get; init; }
   LightHandle Light { get; init; }
   SkyDay()

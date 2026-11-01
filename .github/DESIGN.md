@@ -248,6 +248,14 @@ THIRD-PARTY-NOTICES.md names, so a picture tonemapped through them is the one Be
 read with what .NET has, their supercompression swapped from Zstandard to zlib, so no decoder is
 taken for them.
 
+The modules this engine and BevyCSharp share are repositories of their own, checked out under
+`modules/` as git submodules, and each is taken where both engines are to compute one thing from
+one model, so a reading of the one is a reading of the other. The Sky module holds the sun's, the
+moon's and the sky's light in lux and kelvin and the air's parameters as data, which the day sky
+lights the world through, while each engine draws its own sky. A module references no engine, and
+the package carries its assembly and its documentation beside the engine's, since a module is no
+package of its own and a package cannot name a project.
+
 Scene description formats, material graph languages, embedded browsers, web servers, spatial
 audio middleware and an editor are left out. Each brings more surface than the engine has users
 for, and each was tried in an earlier revision of this repository and kept on the `legacy-modules`
@@ -258,8 +266,9 @@ branch.
 The engine is one project, `3DEngine/`, with a folder per area (`Core`, `Ecs`, `Behaviors`,
 `Components`, `Platform`, `Graphics`, `Rendering`, `Gui`, `Assets`, `Scenes`, `Physics`, and `Api`
 for the flat functions). Beside it are the generator, the tests and the examples. A folder is a
-namespace's worth of code, and there are no module repositories, so a change that touches the ECS
-and the renderer is one commit.
+namespace's worth of code, and the engine's own code lies in no module repository, so a change
+that touches the ECS and the renderer is one commit. The modules of §8 hold only what this engine
+and BevyCSharp share, and a change one of them takes is committed in its repository first.
 
 ## 10. The cheatsheet
 

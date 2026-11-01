@@ -15,6 +15,12 @@
         <ProjectReference Include="..\3DEngine\3DEngine.csproj" />
     </ItemGroup>
 
+    <!-- The Sky module, whose types the engine's API takes, referenced again since the engine's
+         reference to it stays the engine's own. -->
+    <ItemGroup>
+        <ProjectReference Include="..\modules\Sky\Sky\Sky.csproj" />
+    </ItemGroup>
+
     <!-- The generators' code fixes, compiled in as the engine compiles the generators, with the
          workspace layer they apply edits through at the engine's compiler version. -->
     <ItemGroup>

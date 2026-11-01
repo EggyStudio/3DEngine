@@ -1,0 +1,3 @@
+[submodule "modules/Sky"]
+	path = modules/Sky
+	url = https://github.com/EggyStudio/Sky.git

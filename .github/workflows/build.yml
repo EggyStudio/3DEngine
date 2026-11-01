@@ -58,6 +58,8 @@ jobs:
     timeout-minutes: 150
     steps:
       - uses: actions/checkout@v7
+        with:
+          submodules: true
 
       - uses: actions/setup-dotnet@v6
         with:
@@ -171,6 +173,8 @@ jobs:
         shell: bash
     steps:
       - uses: actions/checkout@v7
+        with:
+          submodules: true
 
       - uses: actions/setup-dotnet@v6
         with:
@@ -348,6 +352,8 @@ jobs:
     timeout-minutes: ${{ inputs.pack && 120 || 75 }}
     steps:
       - uses: actions/checkout@v7
+        with:
+          submodules: true
 
       - uses: actions/setup-dotnet@v6
         with:
@@ -507,6 +513,8 @@ jobs:
         shell: python3 build/step.py {0} --workflow .github/workflows/build.yml
     steps:
       - uses: actions/checkout@v7
+        with:
+          submodules: true
 
       - uses: actions/setup-dotnet@v6
         with:
@@ -642,6 +650,8 @@ jobs:
         shell: python3 build/step.py {0} --workflow .github/workflows/build.yml
     steps:
       - uses: actions/checkout@v7
+        with:
+          submodules: true
 
       - uses: actions/setup-dotnet@v6
         with:
@@ -742,6 +752,8 @@ jobs:
     timeout-minutes: 160
     steps:
       - uses: actions/checkout@v7
+        with:
+          submodules: true
 
       - uses: actions/setup-dotnet@v6
         with:
@@ -830,6 +842,8 @@ jobs:
         shell: python3 build/step.py {0} --workflow .github/workflows/build.yml
     steps:
       - uses: actions/checkout@v7
+        with:
+          submodules: true
 
       - uses: actions/setup-dotnet@v6
         with:
