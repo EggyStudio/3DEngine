@@ -4858,6 +4858,31 @@ batch.
     views, the gap to the HDRP pictures is their per-view exposure, item 161, and whatever differs
     between the scenes, which needs HDRP to read, and 158 and 159 do not carry it.
 
+161. **The automatic exposure meters as the reference's camera does.** From item 160, the
+    reference's pictures were exposed view by view by an automatic mode between EV 4 and 14,
+    centre-weighted, and ours between the same limits opens more, the door at 120 against 57. A
+    metering mode weighted to the centre with a compensation in stops, as SetAutoExposure's options,
+    and the example's drive capturing each view twice, at the fixed camera for the GI readings and
+    metered for the look beside the reference; read by the three views' means against the
+    reference's with the metered camera. Small, after 160's second part and before 158. Done at
+    `1fe6e61a`, read at 06:49 on 2026-11-01. SetAutoExposureMetering(metering, compensation) and
+    GetAutoExposureMetering with the enum ExposureMetering, Average being today's weighting with the
+    middle at four times the edges and CenterWeighted a Gaussian about the middle with a sigma of a
+    fifth of the picture, SetAutoExposure untouched; the compensation in stops moves the key, 0.18
+    times 2 to the compensation, in the composite and the adapt pass's bounds; the mode rides on
+    ExposurePush.Mode; the docs say -0.79 stops meters as a reflected-light meter at K 12.5 does.
+    ScenesSponza gains sponza.metered on and off, the reference camera's automatic range of EV 4 to
+    14 about the fixed camera, centre-weighted at -0.79, and drive-sponza.sh captures each view at
+    the fixed camera and metered after 60 frames. Metered at 15:00 at High the balcony reads 74, 66
+    and 65 against the reference's 73, 67 and 64, meeting its picture; the door 107, 98 and 91
+    against 57, 50 and 43, about a stop brighter, HDRP's meter bringing that view less far toward
+    the key, a histogram ignoring dark pixels or its brighter shade from HTrace, unreadable without
+    it; the lookup 94, 102 and 112 against 82, 75 and 71, bluer from our painted sky against its
+    physically based one. The average weighting at -0.79 read 80, 99 and 92 and the centre at 0
+    stops 91, 130 and 115. A test with a gray cube on white reads the centre weighting brighter than
+    the average by more than 15 levels and a stop brighter again. The note
+    2026-11-01-item-161-metered.md and the sheet in the dump.
+
 ## Verdicts settled
 
 Verdicts 1 to 55 are settled, the last two, the drawing leak test's resident bound and the Windows

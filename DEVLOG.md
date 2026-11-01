@@ -20,6 +20,18 @@ Intel's Sponza in scenes_sponza down on the main door under the vault at 15:00 a
 Intel's Sponza in scenes_sponza up from the atrium's floor at the lion's end at 15:00 at High at 600
 by 571, in the same physical units.
 
+![](.github/assets/readings/2026-11-01-item-161-balcony-metered.webp)
+Intel's Sponza in scenes_sponza from the first floor's gallery at 15:00 at High at 800 by 426 in
+physical units, metered center-weighted between EV 4 and 14 at -0.79 stops.
+
+![](.github/assets/readings/2026-11-01-item-161-door-metered.webp)
+Intel's Sponza in scenes_sponza down on the main door at 15:00 at High at 800 by 484, metered the
+same.
+
+![](.github/assets/readings/2026-11-01-item-161-lookup-metered.webp)
+Intel's Sponza in scenes_sponza up from the atrium's floor at 15:00 at High at 600 by 571, metered
+the same.
+
 Intel's Sponza in `scenes_sponza` in physical units at the values of the scene its last three
 views are matched against, a sun of 97,050 lux at 5,633 K, a clear sky of 20,000 lux on a level
 floor and a camera at ISO 200, 1/200 s and f/16, EV 14.64, under AgX's curve, at 15:00 at High on
@@ -39,6 +51,21 @@ global illumination is read against next. With auto exposure held between EV 4 a
 camera of the pictures' scene allows, the means read 89, 120 and 110 to 127, the shade showing and
 the sunlit atrium white.
 
+Intel's Sponza in `scenes_sponza` at its three matched views at 15:00 at High, in the physical units
+of item 154, metered view by view as the camera of the scene they are matched against meters, its
+automatic mode between EV 4 and 14, center-weighted (`SetAutoExposureMetering`), brought 0.79 stops
+under a mid gray as a reflected light meter brings what it reads, which `sponza.metered on` sets.
+
+| The first floor's gallery | The main door under the vault | Up from the atrium's floor |
+|---|---|---|
+| ![](2026-11-01-item-161-balcony-metered.webp) | ![](2026-11-01-item-161-door-metered.webp) | ![](2026-11-01-item-161-lookup-metered.webp) |
+
+The frames' means read 74, 66 and 65 of 255 where the pictures' read 73, 67 and 64, 107, 98 and 91
+where 57, 50 and 43, and 94, 102 and 112 where 82, 75 and 71. Metered over the whole picture they
+read 80, 99 and 92 in red, and with no compensation 91, 130 and 115. The gallery's view meets its
+picture, and the door's stays a stop or so brighter than its picture's, whose camera brings it less
+far toward a mid gray than the meter's mean does. The fixed camera's frames are item 154's.
+
 Done that day
 
 - Item 138 at `740066d6`. A crossing of leaves takes its transmission from the leaves' depth along
@@ -52,6 +79,7 @@ Done that day
   memory where it has one.
 - Item 160 at `1848701a`. Sponza's shade reads a hundredth of its sun where the reference reads a
   quarter.
+- Item 161 at `1fe6e61a`. The automatic exposure meters as the reference's camera does.
 
 ## 2026-10-31
 

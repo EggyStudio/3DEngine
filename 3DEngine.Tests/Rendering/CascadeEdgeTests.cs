@@ -34,11 +34,31 @@ public sealed partial class CascadeEdgeTests : IDisposable
         // past which the sky's light lit it unhidden, and by 25% at Low, whose screen probes end with
         // its last cascade, as the voxel game's hills at sunset stepped from 0.6 to 1.0 of the
         // sky's light where the last ended; faded across each one's outer band, by 3.7% and 1.9%.
+        var (step, at) = FloorStep(quality, () => SetAmbientLight(new Color(140, 170, 220), 1));
+        step.Should().BeLessThan(0.06, $"the floor's light at {quality} changes from one row to the next by no step, as it did {at:0} blocks out");
+    }
+
+    [NeedsVulkanTheory]
+    [InlineData(GlobalIllumination.Low)]
+    [InlineData(GlobalIllumination.High)]
+    public void The_Floors_Reflection_Of_The_Sky_Fades_Across_The_Fields_End_Rather_Than_Stepping(GlobalIllumination quality)
+    {
+        // Lit by a sky map, whose reflection the probes' share of the sky along the mirror way
+        // scales inside the field and nothing outside it, so the floor, reflecting a sky toward the
+        // horizon that an open plain's probes see half of, stepped where the field ends.
+        var (step, at) = FloorStep(quality, () => SetEnvironmentMap(GenImageColor(64, 32, new Color(140, 170, 220))));
+        step.Should().BeLessThan(0.06, $"the floor's light at {quality} changes from one row to the next by no step, as it did {at:0} blocks out");
+    }
+
+    // The largest change in the floor's light from one row to the next of a canyon lit as light
+    // says, and how far along it lay.
+    private static (double Step, float At) FloorStep(GlobalIllumination quality, Action lightUp)
+    {
         var config = Config.Default.WithWindow("cascade edge", Width, Height) with { Headless = true, Offscreen = true, Samples = 1 };
         UseApp(new App(config).AddPlugin(new DefaultPlugins()));
         SetSceneField(4, 0.25f, 2);
         SetGlobalIllumination(quality);
-        SetAmbientLight(new Color(140, 170, 220), 1);
+        lightUp();
         var block = LoadModelFromMesh(GenMeshCube(1, 1, 1));
         var eye = new Vector3(0, 20, 10);
         var down = 12 * MathF.PI / 180;
@@ -76,8 +96,7 @@ public sealed partial class CascadeEdgeTests : IDisposable
             rows.Add((along, sum / 16));
         }
         rows.Should().HaveCountGreaterThan(40, "the floor is seen out past the last cascade");
-        var (step, at) = rows.Zip(rows.Skip(1), (a, b) => (Math.Abs(b.Light / a.Light - 1), a.Along)).MaxBy(s => s.Item1);
-        step.Should().BeLessThan(0.06, $"the floor's light at {quality} changes from one row to the next by no step, as it did {at:0} blocks out");
+        return rows.Zip(rows.Skip(1), (a, b) => (Math.Abs(b.Light / a.Light - 1), a.Along)).MaxBy(s => s.Item1);
     }
 
     [NeedsVulkanTheory]

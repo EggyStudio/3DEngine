@@ -615,8 +615,15 @@ public LitLight litLight(float3 albedo, ModelVertexOutput input, float shadow = 
         float3 strength = lighting.environment.x * lighting.environmentLight.rgb * occlusion;
         // Where global illumination is on, by the share of the sky the probes around the surface
         // see along its mirror direction, so a room sealed from the sky reflects none of it, where
-        // the occlusion alone left a rough wall in a sealed cave a blue sheen.
-        float sky = bounces ? lerp(1.0, skyHere >= 0.0 ? skyHere : skySeen(input.world, n, reflect(-v, n)), held) : 1.0;
+        // the occlusion alone left a rough wall in a sealed cave a blue sheen. The share is read
+        // against an open plain's, whose probes' faces see the whole sky up, half of it level and
+        // none down, so a floor in the open reflects the sky toward its horizon whole inside the
+        // field as past it, where read as it was a canyon's floor stepped by 8% where the field
+        // ended.
+        float3 mirror = reflect(-v, n);
+        float open = (mirror.y > 0.0 ? mirror.y * mirror.y : 0.0) + 0.5 * (mirror.x * mirror.x + mirror.z * mirror.z);
+        float seen = skyHere >= 0.0 ? skyHere : skySeen(input.world, n, mirror);
+        float sky = bounces ? lerp(1.0, saturate(seen / max(open, 0.05)), held) : 1.0;
         light.diffuse += strength * diffuseColor * around;
         light.specular += strength * reflected * specularShare * (1.0 - gloss) * sky;
     }

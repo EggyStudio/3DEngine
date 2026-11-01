@@ -505,7 +505,12 @@ void computeMain(uint3 id : SV_DispatchThreadID, uint lane : SV_GroupIndex)
         if (t < 0.0 && push.cascade.w != 0u)
         {
             float3 sky = lights.sky.w > 0.5 ? environment.SampleLevel(way, 0).rgb * lights.sky.rgb : lights.sky.rgb;
-            light = float4(crossed + through * sky, firstAt >= 0.0 ? mark : 0.25);
+            // Marked as the sky where the ray kept half its light or more across what it crossed,
+            // so the merge counts the sky its probe sees past a canopy letting light through in
+            // the share of the sky the model pass reflects it by, where marked as a surface a
+            // floor under a slab letting all the light through reflected 0.72 to 0.88 of what the
+            // solid slab held back.
+            light = float4(crossed + through * sky, firstAt >= 0.0 && through < 0.5 ? mark : 0.25);
             own = crossedOwn + through * sky;
             through = 0.0;
         }

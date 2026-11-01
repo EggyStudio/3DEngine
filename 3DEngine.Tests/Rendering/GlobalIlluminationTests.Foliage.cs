@@ -65,6 +65,43 @@ public sealed partial class GlobalIlluminationTests
         foreach (var model in new[] { slab, halfway, allway }) UnloadModel(model);
     }
 
+    [NeedsVulkanTheory]
+    [Trait("Category", "Render")]
+    [InlineData(GlobalIllumination.Low, 2.5f)]
+    [InlineData(GlobalIllumination.High, 2.5f)]
+    [InlineData(GlobalIllumination.High, 5.5f)]
+    public void A_Floor_Under_A_Slab_Letting_All_Light_Through_Reflects_The_Sky_As_In_The_Open(GlobalIllumination quality, float height)
+    {
+        // The same floor under a sky map, whose reflection the probes' share of the sky along the
+        // mirror way scales, which the last cascade's rays counted none of past the slab, having
+        // marked the leaves they crossed as a surface, so the floor under a slab letting all the
+        // light through took 0.80 to 0.82 of what the solid slab held back.
+        Open();
+        SetGlobalIllumination(quality);
+        SetEnvironmentMap(GenImageColor(64, 32, new Color(200, 220, 255)));
+        var slab = LoadModelFromMesh(GenMeshCube(1, 1, 1));
+        var camera = new Camera3D(new Vector3(0, 1.2f, 7), new Vector3(0, 0.2f, 0), Vector3.UnitY, 50);
+        float Floor(Model? roof)
+        {
+            var image = Capture(() =>
+            {
+                DrawModelEx(slab, new Vector3(0, -0.5f, 0), Vector3.UnitY, 0, new Vector3(30, 1, 30), new Color(128, 128, 128));
+                if (roof is { } model) DrawModelEx(model, new Vector3(0, height, 0), Vector3.UnitY, 0, new Vector3(20, 1, 20), new Color(60, 90, 50));
+            }, camera);
+            var at = GetWorldToScreenEx(new Vector3(0, 0, 3.5f), camera, image.Width, image.Height);
+            var c = Mean(image, (int)at.X - 4, (int)at.Y - 2, 8, 4) / 255;
+            return 0.2126f * MathF.Pow(c.X, 2.2f) + 0.7152f * MathF.Pow(c.Y, 2.2f) + 0.0722f * MathF.Pow(c.Z, 2.2f);
+        }
+        var allway = LoadModelFromMesh(GenMeshCube(1, 1, 1));
+        allway.Materials[0].LightThrough = 1;
+
+        var open = Floor(null);
+        var solid = Floor(slab);
+        var all = Floor(allway);
+        ((all - solid) / (open - solid)).Should().BeGreaterThan(0.9f, $"a slab letting all of it through holds back next to none, {all:0.000} between {solid:0.000} and {open:0.000}");
+        foreach (var model in new[] { slab, allway }) UnloadModel(model);
+    }
+
     [NeedsVulkanFact]
     [Trait("Category", "Render")]
     public void A_Floor_Under_Leaves_Past_The_Screen_Probes_Reach_Takes_The_Sky_Light_They_Let_Through()

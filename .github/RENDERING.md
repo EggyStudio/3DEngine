@@ -2300,6 +2300,18 @@ a solid of its color. A draw blended at less than half of it is left out of the 
 a pane of tinted glass is seen through, and the reference then reads the three views' frames at
 0.0128, 0.00058 and 0.0092 where the frame reads 0.0114, 0.00050 and 0.0097, within 13% of it.
 
+**The sky's share along the mirror way, read on 2026-11-01.** The environment's reflection is
+scaled by the share of the sky the probes around a surface see along its mirror way, which an open
+plain's probes, their faces seeing the whole sky up, half of it level and none down, read as half
+toward the horizon, so a canyon's floor under a sky map, its reflection taken at that share inside
+the field and whole past it, stepped by 8.2% at High where the field ended. Read against an open
+plain's share along the same way, the floor holds within 6% from row to row, the closed rooms stay
+dark, and `shaders_reflections` reads 2 levels in 255 brighter on the mean. The last cascade's rays
+that crossed a canopy marked it a surface, so the merge counted no sky past it, and a floor under a
+slab letting all the light through reflected 0.72 to 0.88 of the sky the solid slab held back. A
+ray that kept half its light or more across what it crossed and met nothing is marked as the sky,
+and that floor reflects over 0.9 of it at `Low` and `High`.
+
 **The screen's probes on thin two-sided walls, read on 2026-10-26.** In a room built as the voxel
 game's wheat field, thin two-sided walls a block tall four to a block, half a unit apart, under the
 game's sun at ten in the morning, the walls facing the eye and the sun read 44% over a path-traced
