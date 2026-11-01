@@ -3654,7 +3654,14 @@ from the first corner added, and a build of Sponza's field took what it took, 14
 where 141 to 148 under `field.rebuild`, so its reads of the pool are not what a build of it costs.
 The device's memory types are written to the log as it starts, each with its heap, and on the RTX
 4070 Laptop GPU a buffer the CPU writes takes type 2, in the computer's memory, where type 4 lies on
-the device and is seen by the CPU too.
+the device and is seen by the CPU too. The buffers the CPU writes each frame stay in type 2, since
+`models_stress` at 20,000 entities at 1280 by 720 drew its scene 1 to 8% slower and its shadows 1
+to 11% slower with them in type 4, and the CPU wrote them 2 to 5% slower, in three rounds taken in
+turn. The ray scene's corners, which the CPU writes once for each mesh and the builds of its ray
+structures read, take type 4 where the device offers its own memory whole, and grown they are
+copied on the GPU where the CPU copied them, reading memory it writes through uncached, so the
+frame that builds Sponza's structures once `High`'s rays are turned on took 0.47 to 0.51 s of the
+CPU where 1.4 to 1.6 s, 0.62 to 0.68 s with the copy alone, its passes as they were.
 
 ### Beside raylib
 

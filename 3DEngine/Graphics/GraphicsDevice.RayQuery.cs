@@ -114,8 +114,13 @@ internal sealed unsafe partial class GraphicsDevice
 
     private const uint CullDisableAndOpaque = 0x1 | 0x4;
 
-    /// <summary>Makes a buffer of <paramref name="size"/> bytes in memory of its own with its address, the CPU's to write where <paramref name="host"/>.</summary>
-    internal AddressedBuffer CreateAddressedBuffer(ulong size, VkBufferUsageFlags usage, bool host)
+    /// <summary>
+    /// Makes a buffer of <paramref name="size"/> bytes in memory of its own with its address, the
+    /// CPU's to write where <paramref name="host"/>, on the device where <paramref name="lasting"/>
+    /// says the CPU writes it once and the GPU reads it many times, and the CPU sees the device's
+    /// own memory whole.
+    /// </summary>
+    internal AddressedBuffer CreateAddressedBuffer(ulong size, VkBufferUsageFlags usage, bool host, bool lasting = false)
     {
         VkBufferCreateInfo info = new()
         {
@@ -132,7 +137,7 @@ internal sealed unsafe partial class GraphicsDevice
             pNext = &flags,
             allocationSize = requirements.size,
             memoryTypeIndex = FindMemoryType(requirements.memoryTypeBits, host
-                ? VkMemoryPropertyFlags.HostVisible | VkMemoryPropertyFlags.HostCoherent
+                ? VkMemoryPropertyFlags.HostVisible | VkMemoryPropertyFlags.HostCoherent | (lasting && _seesDeviceWhole ? VkMemoryPropertyFlags.DeviceLocal : 0)
                 : VkMemoryPropertyFlags.DeviceLocal),
         };
         _deviceApi.vkAllocateMemory(&allocation, null, out VkDeviceMemory memory).CheckResult();
@@ -246,10 +251,19 @@ internal sealed unsafe partial class GraphicsDevice
         if (scene.Corners is null || (ulong)needed * 16 > scene.Corners.Size)
         {
             var bigger = CreateAddressedBuffer((ulong)Math.Max(4096, (int)System.Numerics.BitOperations.RoundUpToPowerOf2((uint)needed) * 2) * 16,
-                VkBufferUsageFlags.StorageBuffer | VkBufferUsageFlags.AccelerationStructureBuildInputReadOnlyKHR, host: true);
+                VkBufferUsageFlags.StorageBuffer | VkBufferUsageFlags.AccelerationStructureBuildInputReadOnlyKHR
+                | VkBufferUsageFlags.TransferSrc | VkBufferUsageFlags.TransferDst, host: true, lasting: true);
             if (scene.Corners is not null)
             {
-                Buffer.MemoryCopy(scene.Corners.Mapped, bigger.Mapped, (long)bigger.Size, scene.CornerCount * 16L);
+                // Copied on the GPU and waited for, since the CPU reads memory it writes through
+                // uncached, and the corners it writes into the new buffer after, a mesh's colors
+                // among them, come after the copy. Copied by the CPU, the frame that built
+                // Sponza's ray structures at High took 1.4 to 1.6 s of the CPU, and copied so 0.62
+                // to 0.68 s, with the corners on the device 0.47 to 0.51.
+                var cmd = BeginSingleTimeCommands();
+                var region = new VkBufferCopy { size = (ulong)scene.CornerCount * 16 };
+                _deviceApi.vkCmdCopyBuffer(cmd, scene.Corners.Buffer, bigger.Buffer, 1, &region);
+                EndSingleTimeCommands(cmd);
                 retired.Add(scene.Corners);
             }
             scene.Corners = bigger;

@@ -117,6 +117,10 @@ internal sealed unsafe partial class GraphicsDevice
         {
             CpuAccessMode.None => VkMemoryPropertyFlags.DeviceLocal,
             CpuAccessMode.Read when HasMemoryType(requirements.memoryTypeBits, shared | VkMemoryPropertyFlags.HostCached) => shared | VkMemoryPropertyFlags.HostCached,
+            // A buffer the CPU writes each frame stays in the computer's memory where the device
+            // offers its own to the CPU as well, since models_stress at 20,000 entities at 1280 by
+            // 720 drew 1 to 8% slower on an RTX 4070 Laptop GPU with them there, the CPU's
+            // writes 2 to 5% slower, three rounds each.
             _ => shared,
         };
 
@@ -206,9 +210,14 @@ internal sealed unsafe partial class GraphicsDevice
     /// </summary>
     internal bool SharesMemory => _sharesMemory;
 
+    // Whether the CPU sees the device's own memory whole, a type both local and host visible lying
+    // in the device's largest heap, as a resizable BAR gives, rather than the 256 MB window a
+    // device without it gives, which a scene's ray corners would fill.
+    private bool _seesDeviceWhole;
+
     // The device's memory types, each with what it is and the heap it lies in, written to the log
     // once the device is chosen, so a buffer the GPU reads every frame from the computer's memory
-    // is seen for where it lies (CreateFilledBuffer).
+    // is seen for where it lies (CreateFilledBuffer), and whether the CPU sees the device's own.
     private void LogMemoryTypes()
     {
         _instanceApi.vkGetPhysicalDeviceMemoryProperties(_physicalDevice, out var memory);
@@ -220,6 +229,14 @@ internal sealed unsafe partial class GraphicsDevice
                 _sharesMemory = (memory.memoryTypes[i].propertyFlags & seen) == seen;
                 break;
             }
+        const VkMemoryPropertyFlags written = VkMemoryPropertyFlags.DeviceLocal | VkMemoryPropertyFlags.HostVisible | VkMemoryPropertyFlags.HostCoherent;
+        ulong largest = 0;
+        for (int i = 0; i < memory.memoryHeapCount; i++)
+            if ((memory.memoryHeaps[i].flags & VkMemoryHeapFlags.DeviceLocal) != 0) largest = Math.Max(largest, memory.memoryHeaps[i].size);
+        _seesDeviceWhole = false;
+        for (int i = 0; i < memory.memoryTypeCount; i++)
+            if ((memory.memoryTypes[i].propertyFlags & written) == written && memory.memoryHeaps[(int)memory.memoryTypes[i].heapIndex].size >= largest / 2)
+                _seesDeviceWhole = true;
         var types = new List<string>();
         for (int i = 0; i < memory.memoryTypeCount; i++)
         {
@@ -232,7 +249,7 @@ internal sealed unsafe partial class GraphicsDevice
             var where = (heap.flags & VkMemoryHeapFlags.DeviceLocal) != 0 ? "on the device" : "in the computer's memory";
             types.Add($"{i} {(flags == 0 ? "plain" : string.Join(" ", kinds))}, heap {type.heapIndex} of {heap.size / (1024.0 * 1024 * 1024):0.0} GB {where}");
         }
-        Logger.Info($"Memory types: {string.Join("; ", types)}{(_sharesMemory ? ", the device's own memory the CPU's too" : "")}");
+        Logger.Info($"Memory types: {string.Join("; ", types)}{(_sharesMemory ? ", the device's own memory the CPU's too" : "")}. The CPU {(_seesDeviceWhole ? "sees" : "does not see")} the device's own memory whole.");
     }
 
     /// <summary>Maps a host-visible buffer's memory for CPU access and returns a writable byte span.</summary>
