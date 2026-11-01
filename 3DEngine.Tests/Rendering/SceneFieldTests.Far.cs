@@ -142,7 +142,7 @@ public sealed partial class SceneFieldTests
         new SceneFieldPlan(4, 0.5f, 1).CascadeOfProbes(1, 2).Should().Be(1, "with no far cascade each stands in its own");
 
         GlobalIlluminationRenderer.TexelsFor(GlobalIllumination.Low, 3, far: true).Should().Equal(8, 8, 8);
-        GlobalIlluminationRenderer.TexelsFor(GlobalIllumination.High, 5, far: true).Should().Equal(8, 16, 16, 16, 16);
+        GlobalIlluminationRenderer.TexelsFor(GlobalIllumination.High, 5, far: true).Should().Equal(8, 8, 16, 16, 16);
         GlobalIlluminationRenderer.TexelsFor(GlobalIllumination.Medium, 2, far: false).Should().Equal(8, 8);
     }
 }

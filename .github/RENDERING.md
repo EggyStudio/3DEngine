@@ -2312,6 +2312,24 @@ slab letting all the light through reflected 0.72 to 0.88 of the sky the solid s
 ray that kept half its light or more across what it crossed and met nothing is marked as the sky,
 and that floor reflects over 0.9 of it at `Low` and `High`.
 
+**`High`'s second cascade under a roof, read on 2026-11-01.** Under item 100's solid slab, the
+floor's roughness 1, `High` read 0.0088 in linear light two and a half units under it and 0.046
+five and a half under it where `Low` read 0.0051 and 0.033 and a path-traced reference 0.0059 and
+0.032, and 0.0079 and 0.039 with its screen's probes left out, though both qualities had the same
+two cascades of 512 probes and 256 rays each. `High`'s second cascade had 16 texels a side with a
+ray through each texel's middle, where `Low`'s has 8 with a ray from each quarter's, and a probe of
+the first under the slab took 0.31 along its level ways where the reference takes 0.17, the one ray
+near the slab's edge seeing the sky past it where most of its texel meets the slab. Four rays a
+texel of 16 a side read the floor at 0.0058 and 0.038 with the screen's probes left out, at 0.34 ms
+more of global illumination in the bounce rooms at 1920 by 1080 at `High`, 0.9 in Sponza and 1.0
+under the canopy over the eye, past the millisecond the change was given. 8 a side, as `Low`'s and
+`Medium`'s, reads it at 0.0062 and 0.033, `Low`'s, at the cost it had, 2.36 to 2.45 ms in the
+bounce rooms, 3.13 to 3.19 in Sponza and 3.12 to 3.18 under the canopy where 2.41 to 2.45, 3.14 to
+3.23 and 3.16 to 3.28. The screen's probes add 0.0024 and 0.0118 to it, read next. A probe's own
+light and all its rays brought were added up from the first of the four sums its rays leave in a
+cascade of 8 texels a side, a band of sixteen texels of its sphere, which takes `Low`'s floor two
+and a half units under the slab from 0.0051 to 0.0062.
+
 **The screen's probes on thin two-sided walls, read on 2026-10-26.** In a room built as the voxel
 game's wheat field, thin two-sided walls a block tall four to a block, half a unit apart, under the
 game's sun at ten in the morning, the walls facing the eye and the sun read 44% over a path-traced

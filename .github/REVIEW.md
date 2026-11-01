@@ -118,80 +118,87 @@ GraphicsDevice.SharesMemory, logged, makes a mesh a host-written buffer in place
 the field's corner pool the same, NVIDIA unchanged; the local resident reading over a hundred apps
 back at the level before 151; 2,155 on the GPU in both orders, 94 on lavapipe. After it `6f6ba558`,
 item 157, pushed at 06:23 with `a4e70370`, `ed41cd5d` and `1848701a` after that run, the run of
-`1848701a` awaited, the per-frame buffers left in system memory since the device-local host-visible
-type read slower in every round of the stress example at twenty thousand, and the ray scene's
-corners on that type where the CPU sees the device's memory whole and copied on the GPU when grown,
-Sponza's frame that rebuilds the ray structures 1.4 to 1.6 s to 0.47 to 0.51; the device's log line
-saying both memory facts; 2,155 on the GPU in both orders. After it `a4e70370`, item 154, lights in
-physical units and a camera's exposure, SetLightIlluminance in lux for a directional light,
-SetLightLuminousIntensity and SetLightLuminousFlux for point and spot, SetCameraExposure from ISO,
-shutter and aperture with EV100 as a camera's and 15 until set, ColorFromTemperature by Krystek's
-fit, the day sky's sun and sky in lux, the camera applied as a pre-exposure so frames hold about 1;
-Sponza at the reference's values, the sun 97,050 lux at 5,633 K, the sky 20,000 lux assumed clear,
-ISO 200, 1/200 s, f/16 and AgX, reading means of 9, 1 and 7 to 11 on the balcony, door and lookup
-views against the reference's 73, 57 and 82, sunlit stone near the reference and shade near black
-where the reference's is mid-gray, the gap the indirect light into covered areas, item 160;
-E3DPhysicalUnitsTests in ten cases, the guide's section; 2,165 on the GPU in both orders. After it
-`ed41cd5d`, item 160's first part, the reading. The reference pictures' means of 73, 57 and 82 are
-near flat across views where one fixed camera reads our door twenty times darker than our balcony in
-frame and path-traced reference alike, so the reference's pictures were exposed view by view by its
-automatic mode; the engine's own reference was wrong in Sponza, 24 materials with a metallic factor
-of 1 and the metal in the map's blue read as metal so every bounce read 0.00176, mended by taking
-roughness and metallic as the material's times the map's average, the frame unchanged by a pixel,
-and its direct sun shadowed in blocks on the court's walls the shadow maps have sunlit, not yet
-read; with the metal mended the shade reads about right by our reference, the door 0.00049 against
-0.00051 and the balcony's sky light 0.00086 against 0.00062, so neither 158 nor 159 carries the gap
-to HDRP; 2,165 on the GPU in both orders. After it `1848701a`, 160's second part and its end, the
-reference's blocky patches no shadows but Sponza's dirt decals, blended at an alpha of 0.35 over the
-walls, which the field had taken as solid surfaces and the ray scene as an opaque skin; a draw the
-model pass blends at a base alpha under 0.5 is left out of the field, opaque, masked and alpha-1
-draws untouched; the frame against the reference 0.89 at the balcony, 0.87 at the door and 1.06 at
-the lookup, the engine's GI in Sponza within 13% of its own reference; 2,165 on the GPU in both
-orders. After it `1fe6e61a`, item 161, held until the run of `1848701a` ends,
-SetAutoExposureMetering with Average and CenterWeighted and a compensation in stops moving the key,
-the mode riding on the exposure push's existing field, -0.79 stops metering as a reflected-light
-meter does, sponza.metered on and off at the reference camera's automatic range, the drive capturing
-each view fixed and metered; metered and centre-weighted at -0.79 the balcony reads 74, 66 and 65
-against the reference's 73, 67 and 64, the door 107, 98 and 91 against 57, 50 and 43, a stop
-brighter, and the lookup 94, 102 and 112 against 82, 75 and 71, bluer from the painted sky; a
-FrameEffectsTests case; 2,166 on the GPU in both orders. After it `beefec87`, item 159, held the
-same, the environment's specular inside the field taking the seen share over an open plain's share
-along the mirror way, floored at 0.05, so the floor's reflection of the sky fades across the field's
-end where it stepped 8.2% at High, and a last-cascade ray that crossed leaves keeping half or more
-and meeting nothing marked as sky so an all-through slab reflects the sky as in the open, above 0.9
-where 0.72 to 0.88; the reflections example's back wall and floor a little brighter; 2,171 on the
-GPU in both orders. The shadows' 35 ms in Sponza were every mesh's vertex and index buffers in
-host-visible memory, system RAM on a discrete GPU, about 110 MB read over PCIe in each of five
-whole-scene passes; static mesh buffers go into device-local memory through CreateFilledBuffer,
-copied from staging inside the upload batch with one barrier, the rings for vertices replaced each
-frame still mapped; the atrium's shadows 35.3 ms to 2.16, window_depth 7.6 to 0.43, hdr_scene 13.0
-to 9.1, the frame 58.9 to 14.3, the balcony's and lookup's shadows 33 to 1.9, the three views within
-0.11 of 255 on the mean. The schedule's overlay and Alt+F3 are gone, schedule.dump writing each
-stage's batches with the planner's notes to a file and answering its path, the engine's generator
-emitting no registration since the HUD was its only behavior, a generator test in place of the
-assembly check; 2,155 on the GPU in both orders, 85 on lavapipe. a mesh that came and has not moved
-standing in for nothing in the scene field until it is built, where its box filled the rooms of a
-hollow building, with a pair of Sponza before and after and a note, the sunlit floor lit from frame
-28 where it waited 330, the bounce rooms unchanged; 2,154 on the GPU in both orders. Before it
-`19658e55`, item 136, pushed with `10295556` at 09:37, its run green at 11:16 with Windows in 98
-minutes, Linux in 77 and macOS in 36, the path-traced reference crossing surfaces that let light
-through, recorded under the item in REVIEW-ARCHIVE.md. Before it `10295556`, item 146's second
-commit, ShadowOnly draws kept in the field, recorded under the item. Before it `da54d289`, item
-146's first commit, pushed at 07:23 with `7bdfaa9e`, Verdict 95's mend, and `fdde73b2`, item 131's
-second commit, its run green at 09:37 with Windows in 133 minutes, Linux in 77 and macOS in 36,
-which settled Verdict 95; the plain GPU run of `7bdfaa9e` read ObserverTests' no-observer allocation
-once at 1,768 bytes, 5 of 5 alone, watched. Before it `b16f26b5`, item 131's first commit, pushed at
-02:53 on 2026-10-31, its run cancelled at 03:51 on Linux alone past test.py's 40-minute limit and
-the job's 100 (Verdict 95), Windows and macOS green, the plane a cell recorded under item 131 in
-REVIEW-ARCHIVE.md. Before it `2ad96a80`, item 135, pushed at 22:13 on 2026-10-30, its run green
-whole at 23:28 with Windows in 74 minutes, Linux in 68 and macOS in 35, the screen probes' jittered
-rays and sixteen-frame history recorded under the item in REVIEW-ARCHIVE.md. Before it `e96a6bb8`,
-pushed with `c3214cbe` at 19:52 on 2026-10-30, its run green whole at 21:51, Windows in 119 minutes,
-Linux in 44 and macOS in 33. `c3214cbe` is item 134, a resize asked before the first frame carried
-out at once past the debounce a load held back, with a test and the window guide's line, and
-AGENTS.md's REVIEW.md line as the owner asked. `e96a6bb8` is item 132's reading with no mend, the
-note 2026-10-30-item-132-recording.md; at 12 columns 5.6 to 6.5 ms of the four passes' 9.6 to 11.5
-is a descriptor set made and written for every draw in every pass, about 2,045 a frame at 2.8 to 3.2
+`1848701a` green at 08:07 with Windows in 104 minutes, Linux in 60 and macOS in 33, the per-frame
+buffers left in system memory since the device-local host-visible type read slower in every round of
+the stress example at twenty thousand, and the ray scene's corners on that type where the CPU sees
+the device's memory whole and copied on the GPU when grown, Sponza's frame that rebuilds the ray
+structures 1.4 to 1.6 s to 0.47 to 0.51; the device's log line saying both memory facts; 2,155 on
+the GPU in both orders. After it `a4e70370`, item 154, lights in physical units and a camera's
+exposure, SetLightIlluminance in lux for a directional light, SetLightLuminousIntensity and
+SetLightLuminousFlux for point and spot, SetCameraExposure from ISO, shutter and aperture with EV100
+as a camera's and 15 until set, ColorFromTemperature by Krystek's fit, the day sky's sun and sky in
+lux, the camera applied as a pre-exposure so frames hold about 1; Sponza at the reference's values,
+the sun 97,050 lux at 5,633 K, the sky 20,000 lux assumed clear, ISO 200, 1/200 s, f/16 and AgX,
+reading means of 9, 1 and 7 to 11 on the balcony, door and lookup views against the reference's 73,
+57 and 82, sunlit stone near the reference and shade near black where the reference's is mid-gray,
+the gap the indirect light into covered areas, item 160; E3DPhysicalUnitsTests in ten cases, the
+guide's section; 2,165 on the GPU in both orders. After it `ed41cd5d`, item 160's first part, the
+reading. The reference pictures' means of 73, 57 and 82 are near flat across views where one fixed
+camera reads our door twenty times darker than our balcony in frame and path-traced reference alike,
+so the reference's pictures were exposed view by view by its automatic mode; the engine's own
+reference was wrong in Sponza, 24 materials with a metallic factor of 1 and the metal in the map's
+blue read as metal so every bounce read 0.00176, mended by taking roughness and metallic as the
+material's times the map's average, the frame unchanged by a pixel, and its direct sun shadowed in
+blocks on the court's walls the shadow maps have sunlit, not yet read; with the metal mended the
+shade reads about right by our reference, the door 0.00049 against 0.00051 and the balcony's sky
+light 0.00086 against 0.00062, so neither 158 nor 159 carries the gap to HDRP; 2,165 on the GPU in
+both orders. After it `1848701a`, 160's second part and its end, the reference's blocky patches no
+shadows but Sponza's dirt decals, blended at an alpha of 0.35 over the walls, which the field had
+taken as solid surfaces and the ray scene as an opaque skin; a draw the model pass blends at a base
+alpha under 0.5 is left out of the field, opaque, masked and alpha-1 draws untouched; the frame
+against the reference 0.89 at the balcony, 0.87 at the door and 1.06 at the lookup, the engine's GI
+in Sponza within 13% of its own reference; 2,165 on the GPU in both orders. After it `1fe6e61a`,
+item 161, pushed at 08:11 with `beefec87` and `af7df72a` after that run, the run of `af7df72a`
+awaited, SetAutoExposureMetering with Average and CenterWeighted and a compensation in stops moving
+the key, the mode riding on the exposure push's existing field, -0.79 stops metering as a
+reflected-light meter does, sponza.metered on and off at the reference camera's automatic range, the
+drive capturing each view fixed and metered; metered and centre-weighted at -0.79 the balcony reads
+74, 66 and 65 against the reference's 73, 67 and 64, the door 107, 98 and 91 against 57, 50 and 43,
+a stop brighter, and the lookup 94, 102 and 112 against 82, 75 and 71, bluer from the painted sky; a
+FrameEffectsTests case; 2,166 on the GPU in both orders. After it `beefec87`, item 159, the
+environment's specular inside the field taking the seen share over an open plain's share along the
+mirror way, floored at 0.05, so the floor's reflection of the sky fades across the field's end where
+it stepped 8.2% at High, and a last-cascade ray that crossed leaves keeping half or more and meeting
+nothing marked as sky so an all-through slab reflects the sky as in the open, above 0.9 where 0.72
+to 0.88; the reflections example's back wall and floor a little brighter; 2,171 on the GPU in both
+orders. After it `af7df72a`, item 162, the Sponza example on the field's default budgets, the
+slowest frame of a walk along the atrium at 1280 by 720 from 151 to 186 ms with the field at 138 to
+172 to 18.4 ms with the field at 1.14, a cascade the walk carried having re-splatted nearly all of
+the building's 3.75 million triangles in one frame where 84,602 splat at most in a frame after, the
+lion ornament as one mesh; field.state saying the most splatted in a frame since last asked; the
+flying camera on its own keys with E rising and Q sinking, no roll; 2,171 on the GPU in both orders.
+The shadows' 35 ms in Sponza were every mesh's vertex and index buffers in host-visible memory,
+system RAM on a discrete GPU, about 110 MB read over PCIe in each of five whole-scene passes; static
+mesh buffers go into device-local memory through CreateFilledBuffer, copied from staging inside the
+upload batch with one barrier, the rings for vertices replaced each frame still mapped; the atrium's
+shadows 35.3 ms to 2.16, window_depth 7.6 to 0.43, hdr_scene 13.0 to 9.1, the frame 58.9 to 14.3,
+the balcony's and lookup's shadows 33 to 1.9, the three views within 0.11 of 255 on the mean. The
+schedule's overlay and Alt+F3 are gone, schedule.dump writing each stage's batches with the
+planner's notes to a file and answering its path, the engine's generator emitting no registration
+since the HUD was its only behavior, a generator test in place of the assembly check; 2,155 on the
+GPU in both orders, 85 on lavapipe. a mesh that came and has not moved standing in for nothing in
+the scene field until it is built, where its box filled the rooms of a hollow building, with a pair
+of Sponza before and after and a note, the sunlit floor lit from frame 28 where it waited 330, the
+bounce rooms unchanged; 2,154 on the GPU in both orders. Before it `19658e55`, item 136, pushed with
+`10295556` at 09:37, its run green at 11:16 with Windows in 98 minutes, Linux in 77 and macOS in 36,
+the path-traced reference crossing surfaces that let light through, recorded under the item in
+REVIEW-ARCHIVE.md. Before it `10295556`, item 146's second commit, ShadowOnly draws kept in the
+field, recorded under the item. Before it `da54d289`, item 146's first commit, pushed at 07:23 with
+`7bdfaa9e`, Verdict 95's mend, and `fdde73b2`, item 131's second commit, its run green at 09:37 with
+Windows in 133 minutes, Linux in 77 and macOS in 36, which settled Verdict 95; the plain GPU run of
+`7bdfaa9e` read ObserverTests' no-observer allocation once at 1,768 bytes, 5 of 5 alone, watched.
+Before it `b16f26b5`, item 131's first commit, pushed at 02:53 on 2026-10-31, its run cancelled at
+03:51 on Linux alone past test.py's 40-minute limit and the job's 100 (Verdict 95), Windows and
+macOS green, the plane a cell recorded under item 131 in REVIEW-ARCHIVE.md. Before it `2ad96a80`,
+item 135, pushed at 22:13 on 2026-10-30, its run green whole at 23:28 with Windows in 74 minutes,
+Linux in 68 and macOS in 35, the screen probes' jittered rays and sixteen-frame history recorded
+under the item in REVIEW-ARCHIVE.md. Before it `e96a6bb8`, pushed with `c3214cbe` at 19:52 on
+2026-10-30, its run green whole at 21:51, Windows in 119 minutes, Linux in 44 and macOS in 33.
+`c3214cbe` is item 134, a resize asked before the first frame carried out at once past the debounce
+a load held back, with a test and the window guide's line, and AGENTS.md's REVIEW.md line as the
+owner asked. `e96a6bb8` is item 132's reading with no mend, the note
+2026-10-30-item-132-recording.md; at 12 columns 5.6 to 6.5 ms of the four passes' 9.6 to 11.5 is a
+descriptor set made and written for every draw in every pass, about 2,045 a frame at 2.8 to 3.2
 microseconds each with every section's set holding the same values, and one set a frame in a scratch
 copy takes the passes to 5.1 ms at 12 and from 18.4 to 19.7 to 7.6 at 16, the frame at 16 from 26.6
 to 17.9 ms, the land's pixels within 0.08 of 255. 2,135 on the GPU in both orders, the resize tests
@@ -211,8 +218,8 @@ REVIEW-ARCHIVE.md, its devlog note and its own words. On 2026-10-30 at 18:0x the
 README's new words (item 133) and the focus on radiance cascades (Decision 74), questions asked
 back, and asked that the sessions spend fewer tokens at the same quality, N 7.7.
 
-Next 162 small, then 158, then the cascades in order, 139, 140, 141 and 142 (Decision 75); 143, 144
-and 145 wait behind them.
+Next 158, then the cascades in order, 139, 140, 141 and 142 (Decision 75); 143, 144 and 145 wait
+behind them.
 
 Items done and verdicts settled before 2026-10-23 stand in REVIEW-ARCHIVE.md beside this file, their
 numbers kept, moved there at 19:30 on 2026-10-23 so this file holds the current work alone and is
@@ -1158,20 +1165,6 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     history is not taken, the cascades being read directly and a history a buffer and a blend of
     their own. The screen probes' share past their reach is 158's second part, read by
     gi.screenprobe under the slab.
-
-162. **The Sponza example's field builds within the frame's budget again.** The owner read on
-    2026-11-01 at 07:20 that while moving in the Sponza example the scene field's pass is the
-    slowest and jumps past 50 ms. The cause is the example's own call, SetSceneField with a triangle
-    budget of four million and an update budget of 4, set in item 148 so the building's 3.75 million
-    triangles built in one frame rather than over 330 frames of darkening stand-in boxes; item 150
-    since made an unbuilt mesh stand in for nothing, so the reason is gone, and with the budget
-    whole every cascade move splats whatever enters it in one frame, the pool's build reading 141 to
-    149 ms a frame in item 156. The example returns to the default budgets, the move's frame read by
-    profile.slowest over a walk of the atrium before and after at 1280 by 720, and the reading of
-    what a cascade move splats in Sponza, whole meshes whose boxes cross the cascade's edge, goes to
-    item 139, which takes Sponza as its scene beside the game. The owner also asked at 07:2x that
-    the flying camera rise on E and sink on Q in place of Space and Control, in the example and its
-    README line. Small, with 159's commit or one of its own, before 158's commit.
 
 ## Verdicts
 

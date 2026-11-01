@@ -82,8 +82,11 @@ void follow(uint3 at, uint probes, uint texels, float shares, bool walledIn)
     uint parity = push.cascade.w & 1u;
     int p = int(probes);
     int z = int(push.cascade.x) * p + int(at.z);
+    // Each workgroup of the trace's 64 rays left its sum, as many as the probe's rays fill, where
+    // counted as its texels alone a cascade of 8 a side, whose texels send four rays each, took
+    // the first sixteen texels' sum, a band of the sphere, for the whole probe's.
     float4 sum = float4(0.0);
-    uint rays = texels * texels;
+    uint rays = texels * texels * RaysAt(texels);
     for (uint g = 0u; g < max(rays / 64u, 1u); g++)
         sum += partial.Load(int4(int(at.x) * 4 + int(g), int(at.y), z, 0));
     float3 own = sum.rgb / max(shares, 1e-6);

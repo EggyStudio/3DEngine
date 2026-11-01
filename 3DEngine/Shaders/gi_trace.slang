@@ -367,11 +367,11 @@ void computeMain(uint3 id : SV_DispatchThreadID, uint lane : SV_GroupIndex)
         // lamp's bright spot under a ceiling for the whole texel, which in a Cornell box's pocket
         // between the floor and a block held a sixty-fourth of the sphere, and the first cascade's
         // probe there read 93% over a path-traced reference in its upward face and the block's
-        // front 65% over its own; four rays read 18% and 39% over (gi.probe, gi.compare). Low's and
-        // Medium's second cascade has 8 a side as well, and with one ray a texel the screen's
+        // front 65% over its own; four rays read 18% and 39% over (gi.probe, gi.compare). Every
+        // quality's second cascade has 8 a side as well, and with one ray a texel the screen's
         // probes in a room twelve units wide read the light beyond their reach from it from 44%
         // under the reference to 9% over along their ways at one bounce, where with 16 a side they
-        // read it as High's do (gi.screenprobe).
+        // read it as High's did (gi.screenprobe).
         float2 within = each == 1u ? float2(0.5) : float2(float(quarter & 1u), float(quarter >> 1u)) * 0.5 + 0.25;
         float3 way = fromOctahedron((float2(texel) + within) / float(texels));
         float t = traceFieldSheets(SheetVolume(sceneField, fieldSecond), fieldInfo, origin, way, 0.0, end);

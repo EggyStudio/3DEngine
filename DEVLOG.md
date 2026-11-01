@@ -82,6 +82,7 @@ Done that day
 - Item 160 at `1848701a`. Sponza's shade reads a hundredth of its sun where the reference reads a
   quarter.
 - Item 161 at `1fe6e61a`. The automatic exposure meters as the reference's camera does.
+- Item 162 at `af7df72a`. The Sponza example's field builds within the frame's budget again.
 
 ## 2026-10-31
 

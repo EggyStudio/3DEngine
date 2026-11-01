@@ -30,7 +30,7 @@ public sealed partial class GlobalIlluminationTests : IDisposable
         GlobalIlluminationRenderer.TexelsAt(GlobalIllumination.Off).Should().BeEmpty();
         GlobalIlluminationRenderer.TexelsAt(GlobalIllumination.Low).Should().Equal(8, 8);
         GlobalIlluminationRenderer.TexelsAt(GlobalIllumination.Medium).Should().Equal(8, 8, 16);
-        GlobalIlluminationRenderer.TexelsAt(GlobalIllumination.High).Should().Equal(8, 16, 16, 16);
+        GlobalIlluminationRenderer.TexelsAt(GlobalIllumination.High).Should().Equal(8, 8, 16, 16);
         GlobalIlluminationRenderer.TileAt(GlobalIllumination.Low).Should().BeGreaterThan(GlobalIlluminationRenderer.TileAt(GlobalIllumination.High));
         // The screen's probes' spacing holds up to 1080 pixels high and grows with the height past it.
         new[] { 450u, 720u, 1080u, 1440u, 2160u }.Select(h => GlobalIlluminationRenderer.TileAt(GlobalIllumination.High, h)).Should().Equal(8, 8, 8, 11, 16);

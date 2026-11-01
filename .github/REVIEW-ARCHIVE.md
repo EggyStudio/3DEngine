@@ -4904,6 +4904,36 @@ batch.
     on the mean with 7.9% of pixels over 8, the back wall and floor a little brighter, the pair in
     the dump.
 
+162. **The Sponza example's field builds within the frame's budget again.** The owner read on
+    2026-11-01 at 07:20 that while moving in the Sponza example the scene field's pass is the
+    slowest and jumps past 50 ms. The cause is the example's own call, SetSceneField with a triangle
+    budget of four million and an update budget of 4, set in item 148 so the building's 3.75 million
+    triangles built in one frame rather than over 330 frames of darkening stand-in boxes; item 150
+    since made an unbuilt mesh stand in for nothing, so the reason is gone, and with the budget
+    whole every cascade move splats whatever enters it in one frame, the pool's build reading 141 to
+    149 ms a frame in item 156. The example returns to the default budgets, the move's frame read by
+    profile.slowest over a walk of the atrium before and after at 1280 by 720, and the reading of
+    what a cascade move splats in Sponza, whole meshes whose boxes cross the cascade's edge, goes to
+    item 139, which takes Sponza as its scene beside the game. The owner also asked at 07:2x that
+    the flying camera rise on E and sink on Q in place of Space and Control, in the example and its
+    README line. Small, with 159's commit or one of its own, before 158's commit. Done at
+    `af7df72a`, read at 08:02. The walk, settled at the atrium's east end for 600 frames then a
+    third of a unit a frame west over 58 frames and back, profile.slowest read after each way, at
+    1280 by 720 uncapped at 15:00. Before, the slowest frames 150.7 and 155.4 ms west and 183.3 and
+    185.5 east with gpu.scene_field 137.9 to 172.2, a cascade the walk carried on re-splatting
+    3,557,089 and 3,979,795 triangles in one frame, the coarse cascades of 32 and 64 units holding
+    the whole building; after, on the defaults of one cascade and 32,768 triangles a frame, the
+    slowest 18.4 ms west with the field at 1.14 and 65.6 east as a hitch outside the field, 84,602
+    splatted at most in a frame, the lion ornament as one mesh past the budget going as a mesh at
+    least; the mean frame about the same at 6.2 and 9.4 ms against 6.2 and 8.8, the mean field 0.085
+    and 0.78 against 0.07 and 0.20, the splatting spread over frames. field.state ends with the most
+    splatted in a frame since last asked, SceneFieldPlan.TakeMostSplatted, since the per-frame count
+    was always 0 by the time a command read it, for 139. The camera flies through UpdateCameraPro
+    with its own keys, W, S, A and D moving, E rising, Q sinking and the mouse turning at the free
+    camera's rate, since UpdateCamera's free mode rolls on Q and E; checked through e3d with the
+    right button held, the sheet in the dump; the help line and docs/global-illumination.md follow,
+    the gallery and EXAMPLES.md recaptured.
+
 ## Verdicts settled
 
 Verdicts 1 to 55 are settled, the last two, the drawing leak test's resident bound and the Windows
