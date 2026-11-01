@@ -3,36 +3,37 @@
 Reviewed up to `4b80c5c8`, item 169, pushed at 17:51 on 2026-11-01, its run green at 20:24 with
 Windows in 149 minutes under 149's limit of 180, Linux in 84 and macOS in 41. After it `60fd7e23`
 (180), `5932c389` (179), `5ea3e98f` (167 with 171 folded in) and `3b5264d7` (181's first part),
-pushed at 20:24, the run of `3b5264d7` awaited; each keeps the form. Each commit's detail stands in
-its item in REVIEW-ARCHIVE.md, its devlog note and its own words. Before it `6cc2a0a0`, item 166's
-mend, pushed at 15:18 with `001e93f0`, item 168, its run green at 17:50 with Windows in 149 minutes,
-Linux in 53 and macOS in 37. Before it `e159992e`, items 164 and 165, pushed at 13:03 with
-`ea4fccb3`, item 163, its run green at 15:17 with Windows in 131 minutes, Linux in 82 and macOS in
-35. Before it `d9f3f108`, 158's first part, pushed at 10:39, its run green at 13:00 with Windows in
-141 minutes, Linux in 76 and macOS in 34. Before it `af7df72a` (162), `beefec87` (159) and
-`1fe6e61a` (161), pushed at 08:11, the run of `af7df72a` green at 10:38 with Windows in 147 minutes,
-Linux in 141, the runner's as the next run showed, and macOS in 36. Before it `1848701a` (160's
-end), `ed41cd5d` (160's first part), `a4e70370` (154) and `6f6ba558` (157), pushed at 06:23, the run
-of `1848701a` green at 08:07 with Windows in 104 minutes, Linux in 60 and macOS in 33. Before it
-`e3d37e1e` (Verdict 97's mend), `6a6e2dad` (152) and `07085cd2` (156), pushed at 04:00, the run of
-`e3d37e1e` green at 06:20 with Windows in 140 minutes, Linux in 73 and macOS in 32, which settled
-Verdict 97. Before it `3dda52c2` (151 and 155) and `740066d6` (138), pushed at 01:13, the run of
-`3dda52c2` red at 03:16 on Windows alone, Verdict 97, Linux green in 60 minutes and macOS in 35; the
-twelfth pack run started from it at 01:13 green at 04:20, 6.0.14 published, with Windows in 184
-minutes, the games in 79, the captures in 64 and 57 on macOS and the pack in 3, its Windows suite
-passing the leak test the push run failed. Before it `46149d6d` (153), pushed at 22:50 on
-2026-10-31, its run green at 01:10 with Windows in 139 minutes, Linux in 77 and macOS in 33. Before
-it `a6a3b7a0` (150), pushed at 19:53, its run green at 21:31 with Windows in 98 minutes, Linux in 79
-and macOS in 35; the eleventh pack run started from it at 19:53 green at 22:33, 6.0.11 published,
-the first at 6.0, with Windows in 145 minutes, the games in 78, the captures in 62 and 57 on macOS
-and the pack in 4, carrying 132, 147, 148's textures and 150 for the game. Before it `4df9309c`
-(Verdict 96's mend), its run green at 19:50 with Windows in 76 minutes, Linux in 61 and macOS in 35,
-which settled Verdict 96. Before it `75b61056` (148's end), `82a02b9d` (148's second commit),
-`b4d0d03c` (149, the Windows limit to 180 and PART=N+Class) and `52a1cb3f` (148's first commit),
-pushed at 18:34. Before it `14b258c7` and `e32f9138` (147), pushed at 16:08, the run of `14b258c7`
-red at 18:26 on Linux alone, Verdict 96, Windows green in 138 minutes and macOS in 34. Before it
-`df856af8` (132's mend), `00c6809a` (133), `95e088b7` (137's second commit) and `edf301e0` (the
-version to 6.0, the owner's change committed on the owner's word), pushed at 13:49, the run of
+pushed at 20:24, the run of `3b5264d7` red at 22:07 on the three systems, Verdict 98, Linux in 26
+minutes, macOS in 27 and Windows in 101, the two commits after it held until the mend; each keeps
+the form. Each commit's detail stands in its item in REVIEW-ARCHIVE.md, its devlog note and its own
+words. Before it `6cc2a0a0`, item 166's mend, pushed at 15:18 with `001e93f0`, item 168, its run
+green at 17:50 with Windows in 149 minutes, Linux in 53 and macOS in 37. Before it `e159992e`, items
+164 and 165, pushed at 13:03 with `ea4fccb3`, item 163, its run green at 15:17 with Windows in 131
+minutes, Linux in 82 and macOS in 35. Before it `d9f3f108`, 158's first part, pushed at 10:39, its
+run green at 13:00 with Windows in 141 minutes, Linux in 76 and macOS in 34. Before it `af7df72a`
+(162), `beefec87` (159) and `1fe6e61a` (161), pushed at 08:11, the run of `af7df72a` green at 10:38
+with Windows in 147 minutes, Linux in 141, the runner's as the next run showed, and macOS in 36.
+Before it `1848701a` (160's end), `ed41cd5d` (160's first part), `a4e70370` (154) and `6f6ba558`
+(157), pushed at 06:23, the run of `1848701a` green at 08:07 with Windows in 104 minutes, Linux in
+60 and macOS in 33. Before it `e3d37e1e` (Verdict 97's mend), `6a6e2dad` (152) and `07085cd2` (156),
+pushed at 04:00, the run of `e3d37e1e` green at 06:20 with Windows in 140 minutes, Linux in 73 and
+macOS in 32, which settled Verdict 97. Before it `3dda52c2` (151 and 155) and `740066d6` (138),
+pushed at 01:13, the run of `3dda52c2` red at 03:16 on Windows alone, Verdict 97, Linux green in 60
+minutes and macOS in 35; the twelfth pack run started from it at 01:13 green at 04:20, 6.0.14
+published, with Windows in 184 minutes, the games in 79, the captures in 64 and 57 on macOS and the
+pack in 3, its Windows suite passing the leak test the push run failed. Before it `46149d6d` (153),
+pushed at 22:50 on 2026-10-31, its run green at 01:10 with Windows in 139 minutes, Linux in 77 and
+macOS in 33. Before it `a6a3b7a0` (150), pushed at 19:53, its run green at 21:31 with Windows in 98
+minutes, Linux in 79 and macOS in 35; the eleventh pack run started from it at 19:53 green at 22:33,
+6.0.11 published, the first at 6.0, with Windows in 145 minutes, the games in 78, the captures in 62
+and 57 on macOS and the pack in 4, carrying 132, 147, 148's textures and 150 for the game. Before it
+`4df9309c` (Verdict 96's mend), its run green at 19:50 with Windows in 76 minutes, Linux in 61 and
+macOS in 35, which settled Verdict 96. Before it `75b61056` (148's end), `82a02b9d` (148's second
+commit), `b4d0d03c` (149, the Windows limit to 180 and PART=N+Class) and `52a1cb3f` (148's first
+commit), pushed at 18:34. Before it `14b258c7` and `e32f9138` (147), pushed at 16:08, the run of
+`14b258c7` red at 18:26 on Linux alone, Verdict 96, Windows green in 138 minutes and macOS in 34.
+Before it `df856af8` (132's mend), `00c6809a` (133), `95e088b7` (137's second commit) and `edf301e0`
+(the version to 6.0, the owner's change committed on the owner's word), pushed at 13:49, the run of
 `df856af8` green at 16:06 with Windows in 136 minutes, Linux in 47 and macOS in 35, item 149 for the
 Windows limit. Before it `2b8e8541` (137's first commit), pushed at 11:27 on 2026-10-31, its run
 green at 13:46 with Windows in 139 minutes, Linux in 47 and macOS in 36; the tenth pack run started
@@ -76,8 +77,8 @@ REVIEW-ARCHIVE.md, its devlog note and its own words. On 2026-10-30 at 18:0x the
 README's new words (item 133) and the focus on radiance cascades (Decision 74), questions asked
 back, and asked that the sessions spend fewer tokens at the same quality, N 7.7.
 
-Next 181, then 139, then the look in order, 170, 172, 173, 176, 178, 177, 174 and 175 (Decision 84),
-with 140, 141 and 142 after 177 (Decision 75); 143, 144 and 145 wait behind them.
+Next 139, then the look in order, 170, 172, 173, 176, 178, 177, 174 and 175 (Decision 84), with 140,
+141 and 142 after 177 (Decision 75); 143, 144 and 145 wait behind them.
 
 Items done and verdicts settled before 2026-10-23 stand in REVIEW-ARCHIVE.md beside this file, their
 numbers kept, moved there at 19:30 on 2026-10-23 so this file holds the current work alone and is
@@ -1343,11 +1344,37 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     and of Whole; Sponza's 10-unit walk along the atrium at 0.1 a frame 693,000 triangles over 16 of
     100 frames against 2.57 million over 34 building whole, mid-walk and settled frames within 0.1
     of a level, the pair in the dump at 20-5x; 2,190 in both orders; 139's stash keeps its
-    change-region builds and moving emitters.
+    change-region builds and moving emitters. The third part is done at `6fd05fd4`, read at 21:33,
+    which closes the item, its push waiting on 3b5264d7's run. At the default budget of 32,768
+    triangles a frame, a mesh at least, Sponza's first build of 3.75 million ends about 340 frames
+    after opening at 60 a second, a frame splatting its largest mesh taking 84,602 triangles at 19.3
+    ms with the field's CPU 4.4 of it, the triangles going to the GPU the first time, and 0.7 once
+    there, the GPU 0.8 to 0.9. SceneFieldPlan.Raise every 30 frames sets the budget so the builds
+    take half the frame's wait at their measured cost a triangle, up to 16 times the base and at
+    most double a step, halved back where the frame waits none, field.state saying the budget and
+    the base; the first build ends about 310 frames in with little room, a jump between the lion and
+    the atrium views rebuilds in 5 to 15 frames against 20 to 25 with the budget up to 298,756, a
+    walk's shifts finishing within their frames as before; a plan test of the raise; 2,191 in both
+    orders. Done, its three commits read; 139 next with its stash.
 
 ## Verdicts
 
-Verdicts 56 to 97 are settled, said under each in REVIEW-ARCHIVE.md; none is open.
+Verdicts 56 to 97 are settled, said under each in REVIEW-ARCHIVE.md; Verdict 98 is open.
+
+98. **The run of `3b5264d7` is red on the three systems, a push of 32 bytes where the layout holds
+    16.** Read at 22:1x on 2026-11-01, Linux red in 26 minutes, macOS in 27 and Windows in 101, two
+    tests of one cause on each, FrameEffectsTests.Fxaa_Smooths_An_Edge_Multisampling_Does_Not and
+    ReferenceFrameTests.The_Effects_Over_The_Frame_Match_Their_Reference, the validation layer
+    reporting vkCmdPushConstants called for the fragment stage with offset 0 and size 32 against a
+    pipeline layout whose one range is 16 bytes, in the frame's effects. The four commits pushed at
+    20:24 are 180, 179, 167 and 181's first part; the frame's effects changed in 167, the
+    post-processing, so its push block grew past its layout's range or a pass took another's layout.
+    The coder's suite passed on the GPU without the layer, so the fault is one the layer alone sees.
+    The mend is the layout's range made to match the block pushed, or the push the range, in every
+    effects pass, read by the two tests under the validation layer on lavapipe locally before the
+    commit, as the runner runs them, with a line in the test's remarks saying the effects tests run
+    under the layer where the device has it. The two commits after it, `2d051ada` and `6fd05fd4`,
+    are held and go up with the mend. Settled by that run green.
 
 ## Decisions
 

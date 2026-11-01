@@ -89,6 +89,13 @@ internal sealed partial class BloomRenderer : IDisposable
         public Vector4 Amount;
     }
 
+    // As fxaa.slang reads it, one texel of the frame in xy.
+    [StructLayout(LayoutKind.Sequential)]
+    private struct FxaaPush
+    {
+        public Vector4 Texel;
+    }
+
     // As exposure.slang reads it.
     [StructLayout(LayoutKind.Sequential)]
     private struct ExposurePush
@@ -446,11 +453,12 @@ internal sealed partial class BloomRenderer : IDisposable
         _fxaaVertex ??= renderContext.Device.CreateShader(new ShaderDesc(ShaderStage.Vertex, _fxaaVertexSpv));
         _fxaaFragment ??= renderContext.Device.CreateShader(new ShaderDesc(ShaderStage.Fragment, _fxaaFragmentSpv));
         if (!_fxaas.TryGetValue(renderPass, out var pipeline))
-            _fxaas[renderPass] = pipeline = Pipeline(renderContext.Device, renderPass, _fxaaVertex, _fxaaFragment, _fxaaLayout!, blend: null);
-        var push = new Push { TexelX = 1f / shown.Extent.Width, TexelY = 1f / shown.Extent.Height };
+            _fxaas[renderPass] = pipeline = Pipeline(renderContext.Device, renderPass, _fxaaVertex, _fxaaFragment, _fxaaLayout!, blend: null,
+                Marshal.SizeOf<FxaaPush>());
+        var push = new FxaaPush { Texel = new Vector4(1f / shown.Extent.Width, 1f / shown.Extent.Height, 0, 0) };
         pass.SetPipeline(pipeline);
         pass.SetBindGroup(pipeline, set);
-        pass.PushConstants(pipeline, ShaderStageFlags.Fragment, 0, MemoryMarshal.AsBytes(new ReadOnlySpan<Push>(in push)));
+        pass.PushConstants(pipeline, ShaderStageFlags.Fragment, 0, MemoryMarshal.AsBytes(new ReadOnlySpan<FxaaPush>(in push)));
         pass.Draw(3);
     }
 
@@ -665,8 +673,10 @@ internal sealed partial class BloomRenderer : IDisposable
     }
 
     // A pass over the fullscreen triangle, laid over its target by blend, or written over it with none.
+    // Its range is the size of the block the pass pushes, named by each caller, since a push past the
+    // range is an error the validation layer reports and a driver may let pass without a word.
     private static IPipeline Pipeline(IGraphicsDevice gfx, IRenderPass renderPass, IShader vertex, IShader fragment,
-        IDescriptorSetLayout layout, BlendMode? blend, int pushSize = 16) =>
+        IDescriptorSetLayout layout, BlendMode? blend, int pushSize) =>
         gfx.CreateGraphicsPipeline(new GraphicsPipelineDesc(
             renderPass, vertex, fragment,
             BlendEnabled: blend is not null,

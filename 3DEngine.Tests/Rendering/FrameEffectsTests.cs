@@ -8,6 +8,14 @@ namespace Engine.Tests.Rendering;
 /// The effects over the frame, each set alone and read from chosen pixels of a frame drawn
 /// offscreen, exposure, the curves, grading, the vignette and FXAA.
 /// </summary>
+/// <remarks>
+/// The effects are drawn under the validation layer where the machine has it, as CI draws them on
+/// lavapipe, and an error it reports fails the test that drew the frame. A driver may let such an
+/// error pass and draw the frame right, so a run on the GPU without the layer does not see it. To
+/// run them as CI does, name <c>build/tools/vulkan-layer/share/vulkan/explicit_layer.d</c>, which
+/// <c>build/fetch-validation-layer.sh</c> fills, in <c>VK_LAYER_PATH</c>, and lavapipe's manifest in
+/// <c>VK_DRIVER_FILES</c>.
+/// </remarks>
 [Collection("E3D")]
 [Trait("Category", "Render")]
 public sealed class FrameEffectsTests : IDisposable

@@ -17,6 +17,11 @@ namespace Engine.Tests.Rendering;
 /// on a desktop GPU and hold on lavapipe, which CI draws with.
 /// </para>
 /// <para>
+/// The frames are drawn under the validation layer where the machine has it, as CI draws them, and
+/// an error it reports fails the test that drew the frame, which a run on the GPU without the layer
+/// does not see (<see cref="FrameEffectsTests"/> says how to run them so).
+/// </para>
+/// <para>
 /// A missing reference is written from the frame and the test fails, asking for it to be looked
 /// at and committed. Setting <c>E3D_WRITE_REFERENCES=1</c> writes every reference again after a
 /// change meant to alter frames. A frame that does not match is written with its difference into
