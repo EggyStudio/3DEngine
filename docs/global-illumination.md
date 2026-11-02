@@ -365,7 +365,7 @@ boxes leave parts of global illumination out. The same is in a running program t
 | `gi.probe <x> <y> <z> [samples] [bounces] [cascade]` | The light arriving at the probe nearest a point against a path-traced reference of it, each face by where its ways were met, and the ways that carry most of the face furthest from it |
 | `gi.screenprobe <x> <y> [samples] [bounces]` | Each of the sixteen rays of the screen's probe under a pixel, where it was met and its light, against a path-traced reference along the same way |
 | `gi.rays <on\|off>` | Whether `High` traces what the field misses through the GPU's own rays |
-| `gi.reference <png> <samples> [bounces]` | Path traces the window's picture through the GPU's rays, as the reference global illumination is measured by |
+| `gi.reference <png> <samples> [bounces] [specular]` | Path traces the window's picture through the GPU's rays, as the reference global illumination is measured by, `-1` bounces for as many as a path takes and `specular` for the first face's reflection of the indirect light |
 | `gi.compare <png>` | The window's light against that reference, region by region, with a picture of the difference |
 
 A scene is read against its reference by drawing it, tracing `gi.reference` once with a thousand

@@ -21,7 +21,7 @@ internal sealed unsafe partial class GraphicsDevice
     {
         public Matrix4x4 InverseViewProjection;
         public uint Width, Height, Samples, Bounces;
-        public uint First, FromProbe, Through, Unused;
+        public uint First, FromProbe, Through, Specular;
         public Vector4 Probe;
     }
 
@@ -43,11 +43,13 @@ internal sealed unsafe partial class GraphicsDevice
     /// and every face they meet is lit as global illumination lights one, which gives the light
     /// arriving at a probe from each way. A path crosses a copy that lets light through by its
     /// share where the scene holds one, and a scene that holds none is traced as it was before.
+    /// With <paramref name="specular"/>, the first face the camera sees reflects the indirect light
+    /// by its specular share too, a way drawn about its mirror way by GGX's visible normals.
     /// </remarks>
     /// <exception cref="InvalidOperationException">The device traces no rays.</exception>
     public TracedReference TraceReference(ReadOnlySpan<byte> spirv, GpuRayScene scene, Matrix4x4 inverseViewProjection, int width, int height,
         int samples, ReadOnlySpan<byte> lights, IImageView environment, ISampler environmentSampler, int bounces = 32, int perSubmission = 4,
-        Vector3? probe = null)
+        Vector3? probe = null, bool specular = false)
     {
         if (!CanQueryRays) throw new InvalidOperationException("The device traces no rays.");
         var through = scene.Copies.Any(copy => copy.LightThrough > 0);
@@ -109,6 +111,7 @@ internal sealed unsafe partial class GraphicsDevice
                     First = (uint)first,
                     FromProbe = probe is null ? 0u : 1u,
                     Through = through ? 1u : 0u,
+                    Specular = specular && probe is null ? 1u : 0u,
                     Probe = new Vector4(probe ?? Vector3.Zero, 0),
                 };
                 _deviceApi.vkCmdPushConstants(cmd, layout, VkShaderStageFlags.Compute, 0, (uint)sizeof(ReferencePush), &push);

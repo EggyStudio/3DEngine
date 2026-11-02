@@ -1200,7 +1200,12 @@ model pass lights one, specular and the share its face reflects included, and ev
 global illumination lights one, with the sun and the lamps that cast shadows reaching a face where a
 ray toward them gets through, the emission at every face, the way on drawn by the cosine, Russian
 roulette from the third bounce, and the environment map or the ambient lights where a path meets
-nothing. A path after the camera's first ray crosses a copy that lets light through by its share to
+nothing. `gi.reference <png> <samples> -1 specular` traces the first face's specular share too,
+a way drawn about its mirror way by GGX's distribution of the normals the eye sees (Heitz, 2018)
+against its diffuse way by their shares by Karis's fit, so the reference reflects the indirect light
+the model pass reflects from the probes and the environment, where it reflected none of it, and a
+closed box of emissive metal reads 1.815 with it where 1.00 without (`RoughReflectionTests`).
+A path after the camera's first ray crosses a copy that lets light through by its share to
 the power of its depth along the ray, from the face it enters by to the nearest face the copy turns
 out along the ray, `cross(b - a, c - a)` as the field takes it, or to another copy's face nearer, a
 sheet with no face to leave by having none, while the camera sees the copy and it shadows the sun
