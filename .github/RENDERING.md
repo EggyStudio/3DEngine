@@ -2480,6 +2480,56 @@ a solid of its color. A draw blended at less than half of it is left out of the 
 a pane of tinted glass is seen through, and the reference then reads the three views' frames at
 0.0128, 0.00058 and 0.0092 where the frame reads 0.0114, 0.00050 and 0.0097, within 13% of it.
 
+**Sponza's views without the fog, read on 2026-11-02.** The path-traced reference holds no fog, and
+`scenes_sponza` laid its matched scene's fog over every view until this item took it out, the sun
+it scatters toward the eye laid over the dark walls behind it, so a reading against the reference
+takes the fog off. Metered
+at `High` at 800 by 450, each of its eight views at 8:00, 12:00 and 15:00, its linear light over
+the reference's of every bounce with the first face's specular share, in the brightest fifth of the
+reference's pixels and in the rest, reads the shade 0.92 to 3.56 with the fog and 0.86 to 3.45
+without it, the atrium's at 15:00 2.40 and 1.33. Without it twenty views of the twenty-four read
+the shade 0.86 to 1.81, the gallery at 8:00 and 12:00 3.45 and 2.27 and the door and the lookup at
+8:00 2.22 and 2.17, and the brightest fifth 0.17 to 1.45. The shade's excess is the first bounce's,
+since with the sky's light, the fog and the light past the first bounce left out the six views
+read at 15:00 against a reference of one bounce read the shade 1.24 to 2.19. Its warm tint against
+the reference, red 1.22 to 1.35 times its share and blue 0.58 to 0.66 at 8:00 in the atrium, the
+lion, the nave and the lookup, and 1.22 and 0.66 in the nave at 15:00, is the sky's light reading
+short in the shade beside the sun's bounce, since with the sky's light and the light past the first
+bounce left out the nave and the balcony at 15:00 read it within 6%. `SetBounceGain(2)` lifts the
+shade of the balcony, the door and the lookup at 15:00, read with the fog, 1.40, 1.66 and 1.43
+times, and their metered means of 255 from 101, 103 and 89 to 103, 110 and 96, and at 1 the views
+read to the digit as before it (`gi.reference` at 1024 paths a pixel, `gi.compare`, its PFMs read
+by pixel).
+
+**The feet of Sponza's walls, read and mended on 2026-11-02.** The feet of the walls and columns
+read brighter than the walls above them, in a glow rising toward the floor, as at the dark doors of
+the atrium and the lookup, and at their brightest in the pixels where they meet the floor. Low by
+the atrium's right wall at 15:00 with the fog off, the wall's lowest 35 pixels read 1.66 times the
+path-traced reference where the wall above them reads 0.54. Left out in turn, the screen's probes,
+the ambient occlusion and the fog leave them as they read, the probes' diffuse light takes them to
+1.07 and the reflection to 0.58, and of the reflection the probes' along the mirror way alone, the
+traced reflection and the environment's leaving them as they read. The mirror way at a wall's foot
+runs down to the floor, and the probes under the floor, which the foot does not see, lent it their
+light along that way at the twentieth of their weight a probe the surface does not see keeps,
+where below Sponza's floor that way meets the ground the example's sky holds under the scene, white
+and in the sun. Taken less the share of the sky the probes' faces saw, as the diffuse read takes
+it, the foot read 1.14, a face spreading a hemisphere the floor above closes half of. The
+reflection takes the probes the surface sees alone where they hold a twentieth of the weight or
+more, and below that the light reaching the surface in their place, as at a wall's lowest pixels,
+whose point off the wall lies in the floor's cells and sees none of them, which read 0.014 to
+0.017 in linear light where the reference reads 0.00014 to 0.00027 with the old blend kept there.
+The foot then reads 0.64, as it reads with no reflection from the probes at all. Each wall's and
+column's foot, its lowest 20 pixels in each column of the picture where it stands on a floor, over
+the rest of its surface, against the reference, reads at 15:00 1.24 where 1.34 in the atrium, 1.18
+where 1.34 in the gallery, 1.35 where 1.85 by the lion, 1.41 where 1.66 in the nave, 1.33 where
+1.46 in the door's vestibule and 1.13 where 1.26 looking up, the arcades and the balcony within
+0.01, and the shade of the views 1.01 where 1.21 in the nave and 1.39 where 1.81 looking up, their
+brightest fifth within 0.01. The Cornell box's feet read 1.12 before and after, its regions as
+before within 0.01. What stays is the diffuse read's light at a wall's lowest pixels, where the
+probes it sees are none either, 0.003 to 0.015 where the reference reads 0.0002 to 0.0004
+(`gi.reference` at 1024 paths a pixel, `gi.compare`, its PFMs read by pixel,
+`.github/assets/readings/2026-11-02-item-186-feet.webp`).
+
 **The sky's share along the mirror way, read on 2026-11-01.** The environment's reflection is
 scaled by the share of the sky the probes around a surface see along its mirror way, which an open
 plain's probes, their faces seeing the whole sky up, half of it level and none down, read as half
@@ -3646,9 +3696,11 @@ its fog scatters. The decode pass lays the sum over each pixel by its distance (
 fog's set its second), the cells read between their middles, a pixel nearer than the first slice's
 far edge taking that slice in proportion and the sky the whole volume, so every pass after it,
 bloom, the exposure, temporal antialiasing and the reflections, reads the scene in fog. Particles
-are drawn over it unfogged. `scenes_sponza` sets the fog of its matched scene's volume profile, a
+are drawn over it unfogged. `scenes_sponza` set the fog of its matched scene's volume profile, a
 mean free path of 400 units at the ground thinning by e every 7.24 up, the scale height HDRP gives a
-maximum height of 50, and a phase of 0.5. In its lookup at 15:00 the fog takes 0.26 to 0.27 ms of
+maximum height of 50, and a phase of 0.5, until item 186 took it out, the fog lighting the air of
+the dark rooms that the light reaching them leaves dark and showing the sun as an even haze rather
+than shafts. In its lookup at 15:00 the fog takes 0.26 to 0.27 ms of
 the RTX 4070 at 1920 by 1080 under the powersave profile, `gpu.fog` of `./e3d command profile`, and
 `gpu.hdr_scene`, whose decode reads it, holds within its noise. `VolumetricFogTests` reads that a
 block 80 units off loses 38 levels of its gray to 0.02 of fog where one 4 off loses 3, and that fog

@@ -45,6 +45,13 @@ vertex colors are the color the light leaves a surface with. Vertex colors writt
 built on the engine, lights a section again by its light levels, reach global illumination in the
 frame after, the field painting again the cells the mesh is nearest without building it again.
 
+`SetBounceGain` takes the light past the first bounce times a gain, 1 by default, at which a
+surface sends on its color times the light reaching it, as a path-traced reference has it. A gain
+above 1 lifts the shade of the rooms the light reaches only by bouncing, the sun's first bounce off
+a sunlit court left as it is, and in a closed room of light surfaces whose colors times the gain
+come to 1 the light grows over the frames without end, so a gain past 1 suits darker surfaces or a
+scene open to the sky.
+
 ## Radiance cascades
 
 Each frame, probes trace rays from points around the camera and gather the light the rays meet,

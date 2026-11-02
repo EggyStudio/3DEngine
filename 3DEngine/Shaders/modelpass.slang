@@ -616,9 +616,11 @@ public LitLight litLight(float3 albedo, ModelVertexOutput input, float shadow = 
     float waysShare = bounces && probe < 0 ? held * smoothstep(0.25, 0.5, roughness) : 0.0;
     if (waysShare > 0.0)
     {
-        float3 along = probesReflected(input.world, n, mirror, roughness);
+        // Where the surface sees few of the probes around it, as at a wall's foot whose point off
+        // the wall lies in the floor's cells, the light reaching the surface stands in for theirs.
+        float4 along = probesReflected(input.world, n, mirror, roughness);
         if (along.x >= 0.0)
-            light.specular += occlusion * along * specularShare * (1.0 - gloss) * waysShare;
+            light.specular += occlusion * lerp(bouncedHere, along.rgb, along.a) * specularShare * (1.0 - gloss) * waysShare;
         else
             waysShare = 0.0;
     }

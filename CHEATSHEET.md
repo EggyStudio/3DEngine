@@ -1091,6 +1091,8 @@ void SetSceneField(int cascades, float cellSize = 0.25f, int updateBudget = 1, i
 void SetSceneFieldCenter(Vector3? center);               // Has the scene's distance field lie around center in place of the camera, or around the camera again with null, which it does by default
 Vector3? GetSceneFieldCenter();                          // The point SetSceneFieldCenter left the field lying around, or null for the camera
 void SetGlobalIllumination(GlobalIllumination quality);  // Works out global illumination in the window's scene at quality, or none with GlobalIllumination.Off, which it is by default, the light a surface sends on lighting the surfaces around it, so a red wall tints the floor beside it and a room lit by the sun through a window is lit inside
+void SetBounceGain(float gain);                          // Takes the light reaching the surfaces global illumination's rays meet from all around times gain, 1 by default, so each bounce past the first sends on more or less of the light it was given than the surfaces' colors do, for a scene whose shade is to read brighter or darker than its light makes it
+float GetBounceGain();                                   // The gain SetBounceGain left on the light past the first bounce, 1 unless set
 void DrawBounceWindow();                                 // Draws what global illumination holds in an ImGui window of its own, which a program shows while its light is worked on, with how much it traces and the memory that takes, a view of its probes drawn over the window, its parts each to be left out, and a path-traced reference of the view with the frame's error over each region against it
 ```
 

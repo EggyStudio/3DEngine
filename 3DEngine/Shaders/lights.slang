@@ -570,8 +570,9 @@ public float skySeen(float3 p, float3 n, float3 r)
 }
 
 // The light a rough surface at p facing n reflects along r, radiance, from the world's probes around
-// it as reflectedAt in gi.slang blends them by its roughness, or -1 where no cascade of probes holds p.
-public float3 probesReflected(float3 p, float3 n, float3 r, float roughness)
+// it that it sees as reflectedAt in roughreflect.slang blends them by its roughness, with the share
+// of it those probes hold, or -1 where no cascade of probes holds p.
+public float4 probesReflected(float3 p, float3 n, float3 r, float roughness)
 {
     return reflectedAt(SplitVolume(bouncedLight, lightNearest), SplitVolume(bouncedWays, lightLinear), SplitVolume(bouncedReach, lightLinear),
         bouncedField, p, n, r, roughness, lighting.indirect.z, lighting.indirect.y, lighting.indirect.w);

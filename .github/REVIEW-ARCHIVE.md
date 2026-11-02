@@ -6549,6 +6549,26 @@ at `36cae0c2`.
     how the tests run as the runner does; 2,185 in both orders. Settled by the run of `d9c50b3b`
     green at 00:30 on 2026-11-02 on the three systems.
 
+99. **The run of `dfbf7614` is red on the first Windows half alone, the leak test's reading catching
+    an app not yet torn down.** Read at 17:50 on 2026-11-02, the first run with the Windows suite in
+    two jobs, half 1 red in 69 minutes on one test of Core, AppLeakTests' hundred offscreen apps,
+    half 2 green in 90, Linux in 97 and macOS in 40, so the halves read under their limits of 120
+    and item 183 holds. The test expects the process's growth under 50 MB from the most of its
+    readings at the tenth, twentieth and thirtieth app, 92.4 MB, and read 208.0 at the fortieth and
+    213.2 at the seventieth where the fiftieth and sixtieth read 96.1 and 100.1 and the heap's live
+    objects held at 18.5 to 18.9 MB throughout; an app's life commits about 188 MB between its
+    device made and destroyed, and the threads of six apps were still running half a second after
+    their apps ended, so a reading taken while an app's device is not yet torn down sees that app's
+    memory, not a leak. The same test failed the push run of `3dda52c2` and passed its pack run
+    (Verdict 97's note), so it is the reading's moment. The mend is in the test, each reading taken
+    once the apps' threads have ended and the device is destroyed, or the growth read from the
+    medians of the readings rather than their most, with the reason in its remarks; one commit, test
+    only, before 186's commit. `f8872d03` and `11b6a593` are held and go up with it. The mend is at
+    `abde3935`, pushed at 18:26 with the two, test only, every tenth app's reading waiting up to 5 s
+    until the threads that app started have ended, any wait of 40 ms or more logged, the waits
+    reading 0 on Linux; 2,214 in both orders. Settled by the run of `abde3935` green at 20:09 on
+    2026-11-02, half 1 in 70 minutes.
+
 ## Decisions
 
 1. **Commits stay local.** The owner pushes `main` from their own tools, and the working session

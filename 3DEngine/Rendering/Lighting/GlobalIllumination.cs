@@ -65,6 +65,9 @@ internal sealed class GlobalIlluminationSettings
     /// <summary>Whether the surfaces the rays meet take none of the indirect light that reached them the frame before, so light makes one bounce, as <c>gi.toggle again off</c> sets it.</summary>
     public bool AgainOff { get; set; }
 
+    /// <summary>What the indirect light reaching the surfaces the rays meet is taken times, 1 unless <see cref="E3D.SetBounceGain"/> set it.</summary>
+    public float BounceGain { get; set; } = 1;
+
     /// <summary>
     /// Whether the world's probes take the whole of the indirect light of the frame before however
     /// their own light falls, so the indirect light from a light that went out fades over
@@ -710,7 +713,8 @@ internal sealed class GlobalIlluminationRenderer : IDisposable
                 Cone = new Vector4(light.CosInner, light.CosOuter, 0, 0),
             };
         }
-        (floats[12], floats[13], floats[14]) = (count, _frame, renderWorld.TryGet<GlobalIlluminationSettings>() is { AgainOff: true } ? 0 : 1);
+        var settings = renderWorld.TryGet<GlobalIlluminationSettings>();
+        (floats[12], floats[13], floats[14]) = (count, _frame, settings is null ? 1 : settings.AgainOff ? 0 : settings.BounceGain);
         // The sun's map is read for its own light alone, so a shadow drawn for another light is not.
         if (sunShadow is { } drawn && drawn.Light == sun)
         {

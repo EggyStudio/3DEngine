@@ -134,6 +134,34 @@ public static partial class E3D
     }
 
     /// <summary>
+    /// Takes the light reaching the surfaces global illumination's rays meet from all around times
+    /// <paramref name="gain"/>, 1 by default, so each bounce past the first sends on more or less
+    /// of the light it was given than the surfaces' colors do, for a scene whose shade is to read
+    /// brighter or darker than its light makes it.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// At 1 a surface sends on its color times the light reaching it, as a path-traced reference
+    /// has it, and at 0 the light makes one bounce, the sun's and the lights' sent on once by the
+    /// surfaces they light and the sky's reaching a surface only where the surface sees it. The
+    /// light a surface sends on from the sun and the lights straight is not taken times the gain,
+    /// so a sunlit court keeps its first bounce as it is, and the bounces after it take the gain,
+    /// the second once and the third twice over. A gain below 0 is taken as 0.
+    /// </para>
+    /// <para>
+    /// Above 1, a closed room whose surfaces send on most of the light reaching them, as a white
+    /// one does, gives back more of each bounce than the bounce before held where its colors times
+    /// the gain come to 1, and its light grows over the frames without end, so a gain past 1 suits
+    /// a scene of darker surfaces or one open to the sky.
+    /// </para>
+    /// </remarks>
+    public static void SetBounceGain(float gain) =>
+        World.GetOrInsertResource(static () => new GlobalIlluminationSettings()).BounceGain = float.IsNaN(gain) ? 1 : Math.Max(0, gain);
+
+    /// <summary>The gain <see cref="SetBounceGain"/> left on the light past the first bounce, 1 unless set.</summary>
+    public static float GetBounceGain() => TryRes<GlobalIlluminationSettings>(out var settings) ? settings.BounceGain : 1;
+
+    /// <summary>
     /// Draws what global illumination holds in an ImGui window of its own, which a program shows
     /// while its light is worked on, with how much it traces and the memory that takes, a view of
     /// its probes drawn over the window, its parts each to be left out, and a path-traced reference

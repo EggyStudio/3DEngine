@@ -543,13 +543,12 @@ The density is the share of the light the fog takes out per unit of distance at 
 height, one over the distance at which it hides 63% of what lies behind it, and the fog thins above
 the height by e every one over the falloff units, or stays as thick at any height with a falloff of
 0. A fourth number, 0.5 unless given, is how much of the sun's light it scatters on along its way,
-toward an eye that looks toward the sun. `scenes_sponza` sets the fog of the scene its views are
-matched against, a mean free path of 400 units thinning above the ground as HDRP thins a layer 50
-high. The fog is worked out in a volume of cells, one for each tile of sixteen pixels of the window
-by 64 slices of the distance to the camera's far plane or 128 units, 0.27 ms of a desktop GPU at
-1920 by 1080 in Sponza, and lit by global illumination's probes where it is on and by the ambient
-lights where it is off. Particles and what is drawn after `EndMode3D` are drawn over it, and render
-textures are drawn without it. `GetVolumetricFog` reads it back.
+toward an eye that looks toward the sun. The fog is worked out in a volume of cells, one for each
+tile of sixteen pixels of the window by 64 slices of the distance to the camera's far plane or 128
+units, 0.27 ms of a desktop GPU at 1920 by 1080 in Sponza, and lit by global illumination's probes
+where it is on and by the ambient lights where it is off. Particles and what is drawn after
+`EndMode3D` are drawn over it, and render textures are drawn without it. `GetVolumetricFog` reads it
+back.
 
 ## The scene as a distance field
 
