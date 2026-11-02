@@ -103,8 +103,13 @@ public static class ScenesSponza
         // an eighth of a unit reach 8, 16, 32 and 64 units across, the last holding all of it. The
         // default budgets build its 3.75 million triangles over frames, the meshes waiting standing
         // in as nothing where they never moved, where a budget of all of them had every cascade a
-        // walk carried on splat up to 4 million in one frame, 0.14 to 0.17 s of the GPU.
-        SetSceneField(4, 0.125f);
+        // walk carried on splat up to 4 million in one frame, 0.14 to 0.17 s of the GPU. The last
+        // holds all of it only around the building's middle, and the field lies ahead of the camera,
+        // so from by the lion's end the main door lay past its side, where a ray takes the sky, and
+        // the morning sun's sky came down the nave from it. A far cascade of 100 holds the whole
+        // building from anywhere in it, which took the lion's end wall from 34.6 times its
+        // path-traced reference at 8:00 to 15.1, at 0.6 ms of the GPU (RENDERING.md).
+        SetSceneField(4, 0.125f, farCascade: 100);
         SetGlobalIllumination(GlobalIllumination.High);
         // The corners, the cracks and the feet of the columns darken by the horizons the window's
         // depth gives within half a unit, four of the field's cells, finer than the cascades hold,

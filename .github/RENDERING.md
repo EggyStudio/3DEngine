@@ -2560,6 +2560,47 @@ the reference's is 0.000004, and the floor's reflects a ninth of the reference's
 without the first face's specular share, `gi.compare`, its PFMs read by pixel, the global
 illumination tests, `.github/assets/readings/2026-11-02-item-188-column.webp`).
 
+**The field's side inside the building, read and mended on 2026-11-02.** From beside a column of
+the nave at 8:00 looking at the lion's end, the camera held at its own exposure and the fog off,
+the end wall read 34.6 times the path-traced reference, and as much with the sun's light left out,
+so the light was indirect. The probe before the wall took its light from the east along the nave
+in the cascades above, 0.030 where the reference reads 0.001, since the field lay around a point
+half the way to what the view looks at, west of the camera, and its last cascade ended at x 17.25,
+the main door and the building's east end past its side, where a ray that leaves the field takes
+the sky, the morning sun's there. A far cascade of 100 units holds the whole building from anywhere
+in it, and the wall reads 15.1, the view 1.90 where 3.65, the rest the merge of the coarse
+cascades, whose probes stand 8 units apart in the court and the nave alike (Where the method
+stops). Holding the last cascade fixed on the building's middle in its place reads the same to the
+hundredth. From x -4 and -5.5 along the atrium at noon the niche at the lion's end reads dark, as
+from -1 and -2.5, where it read white. The eight views at 8:00 and noon move by 0.03 at most, and
+the far cascade costs 0.37 ms of global illumination and 0.23 ms of the scene pass at 800 by 450
+in the nave under the powersave profile, its probes 12.27 MB where 8.99 (`gi.reference` at 1024
+paths a pixel, `gi.compare`, `gi.probe` at 256 paths a way, `./e3d command profile`).
+
+**A jump between views, read on 2026-11-02.** From the door view to the lion's at noon, metered,
+the frame reads 43.1 levels of 255 from the frame settled after it at the first frame, 24.9 at the
+fifth, 10.9 at the tenth and 2.6 at the twentieth. With the camera held at its own exposure it
+reads 10.7, 1.8 and 0.2 at the first, third and fifth, so most of it is the metering following
+from the door's dark vestibule at its pace, and the rest the screen's probes keeping their frames
+of rays, which a view of another place starts over, no light of the door's passing their checks.
+Taken all the way on the jump's frame, which the field and the probes had not settled into, the
+exposure reads 29.7 at the fifth and 3.9 at the eightieth, rising from too little at its pace;
+taken all the way across the six frames after, 34.9 and 4.9; followed eight times faster for half
+a second, 17.8 at the fifth and 8.9 at the tenth; and the screen's probes taking nothing of the
+frame before at the jump read 50.4 at the first, where 43.1, so none is kept (`./e3d shot` at each
+frame after `sponza.view`, the mean difference from the frame settled 400 frames after).
+
+**The probes' rough reflection, read on 2026-11-02.** From low by the nave's end at 8:00 with the
+fog off, the frame's reflection, the frame less the frame drawn with the indirect light's specular
+share at none, against the reference's, traced with the first face's specular share less traced
+without it, reads 0.14 on the floor, whose light is two fifths reflection in the reference, and up
+to 34 times on a column's faces turned back toward the camera, the probes' reflection along the
+mirror way giving all of it and the traced reflection and the environment's none. Taken at each
+material's map's average roughness, as the reference takes it, they read 0.15 and 33, so it is not
+the maps', and the far cascade leaves them as they read. It stays to be read by its own cause
+(`gi.reference` with and without the specular share, `gi.compare`, its PFMs read region by
+region).
+
 **The sky's share along the mirror way, read on 2026-11-01.** The environment's reflection is
 scaled by the share of the sky the probes around a surface see along its mirror way, which an open
 plain's probes, their faces seeing the whole sky up, half of it level and none down, read as half

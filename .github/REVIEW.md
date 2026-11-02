@@ -98,8 +98,8 @@ REVIEW-ARCHIVE.md, its devlog note and its own words. On 2026-10-30 at 18:0x the
 README's new words (item 133) and the focus on radiance cascades (Decision 74), questions asked
 back, and asked that the sessions spend fewer tokens at the same quality, N 7.7.
 
-Next 188, then 187, then 140 and 141 (Decision 75), then 182 (Decision 86), then 142's mend; 143,
-144 and 145 wait behind them.
+Next 188, then 189, then 187, then 140 and 141 (Decision 75), then 182 (Decision 86), then 142's
+mend; 143, 144 and 145 wait behind them.
 
 Items done and verdicts settled before 2026-10-23 stand in REVIEW-ARCHIVE.md beside this file, their
 numbers kept, moved there at 19:30 on 2026-10-23 so this file holds the current work alone and is
@@ -1971,7 +1971,34 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     and the anchor prototype is reverted. Still open, the probes' rough reflection on a glossy
     edge-on column patch at 87 times the reference's reflection with the floor's at a ninth and the
     door's metal glinting, the far end's leak through the coarse cascade, and the grey transient
-    after a jump.
+    after a jump. The second commit is `3e651d9d`, read at 23:43, its push waiting on 71c7c194's
+    run, the bilinear shadow compare, 2,219 in both orders. The third, in its suite, has
+    scenes_sponza set a far cascade of 100, since from beside a nave column at 8:00 the lion's end
+    wall read 34.6 times the reference with the direct sun on or off, its east rays taking the
+    cascades above, the field lying ahead of the camera to the west with its last cascade ending at
+    x 17.25 and the main door outside it, rays leaving the field taking the morning sky; with the
+    far cascade the wall 15.1 times and the view 1.90 where 3.65, the rest the coarse cascades'
+    merge, 185's class, recorded; anchoring the last cascade on the building reading the same to the
+    hundredth, so the far cascade is kept and the anchor stays reverted; the niche at noon dark
+    where it read white, the eight views moving 0.03 at most, +0.37 ms of GI and +0.23 of the scene
+    pass at 800 by 450, the probes 12.27 MB where 8.99. The jump's transient read by its cause and
+    kept as a reading, mostly the metering following from the door's dark vestibule, 43.1 to 2.6
+    over 20 frames and 10.7, 1.8 and 0.2 at frames 1, 3 and 5 with the exposure held, the rest the
+    screen probes refilling, every mend tried worse or no better. The probes' rough reflection is
+    read and not mended, the floor at 0.14 of the reference's reflection and columns' faces turned
+    back toward the camera up to 34 times, all of it the probes' reflection along the mirror way,
+    not the roughness maps nor the far cascade; item 189.
+
+189. **The probes' rough reflection along the mirror way, a seventh on the floor and thirty-fold on
+    a face turned back.** From item 188's reading on 2026-11-02 in Sponza at 8:00 against the
+    reference's reflection with the fog off, the floor reading 0.14 of it and columns' faces turned
+    back toward the camera up to 34 times, all of it in the probes' reflection along the mirror way
+    (item 172's gather) and none in the traced or the environment's parts, the roughness maps and
+    the far cascade not the cause. The cause read by the mirror way's probes and the lobe at those
+    surfaces, a face turned back reading probes behind the camera or the sky, and the floor reading
+    too few; then the mend by the cause, read by the floor and the faces against the reference's
+    reflection, the reflections example and the metal box within their bars and the cost. One or two
+    commits, after 188 and before 187.
 
 ## Verdicts
 
