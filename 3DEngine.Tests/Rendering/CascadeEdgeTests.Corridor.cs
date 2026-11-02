@@ -12,13 +12,17 @@ public sealed partial class CascadeEdgeTests
     [NeedsVulkanFact]
     public void A_Closed_Corridors_Far_End_Takes_None_Of_The_Sky_Its_Probes_Outside_It_Saw()
     {
-        // Four units wide and three high, its end 34 units from the eye in the third cascade, whose
-        // probes stand eight units apart. The far end sees none of them, and blended by distance
-        // alone it took the sky the probes outside saw, as the far end of Sponza's atrium did, 0.92
-        // of the light of the same end with the corridor open. With none of their sky it takes
-        // 0.22, the light they see on the corridor's outer walls and the ground, which a surface
-        // that sees none of its probes still blends. At Low the end lies past both cascades of
-        // probes, where the light from beyond them takes their place, closed or open alike.
+        // Four units wide and three high, its end 34 units from the eye, which the field lies
+        // around, past the third cascade's half width of 32 in the fourth, whose probes stand
+        // sixteen units apart. The far end sees none of them, and blended by distance alone it took
+        // the sky the probes outside saw, as the far end of Sponza's atrium did, 0.92 of the light
+        // of the same end with the corridor open. With none of their sky it takes 0.499, the light
+        // they see on the corridor's outer walls and the ground, which a surface that sees none of
+        // its probes still blends, where with the field ahead of the eye, the end in the third
+        // cascade eight apart, it took 0.220. Their reach's slack held to two of the finest cells,
+        // a quarter of the sixteen's eighth, it takes 0.491, so the slack does not light it. At Low
+        // the end lies past both cascades of probes, where the light from beyond them takes their
+        // place, closed or open alike.
         const GlobalIllumination quality = GlobalIllumination.High;
         var config = Config.Default.WithWindow("corridor", Width, Height) with { Headless = true, Offscreen = true, Samples = 1 };
         UseApp(new App(config).AddPlugin(new DefaultPlugins()));
@@ -69,6 +73,6 @@ public sealed partial class CascadeEdgeTests
         var open = FarEnd(closed: false);
         var closed = FarEnd(closed: true);
         UnloadModel(block);
-        (closed / open).Should().BeLessThan(0.5, $"the closed corridor hides the sky from its far end at {quality}, {closed:0.00000} against {open:0.00000} open");
+        (closed / open).Should().BeLessThan(0.55, $"the closed corridor hides the sky from its far end at {quality}, {closed:0.00000} against {open:0.00000} open");
     }
 }

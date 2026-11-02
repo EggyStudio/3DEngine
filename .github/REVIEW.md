@@ -87,8 +87,8 @@ REVIEW-ARCHIVE.md, its devlog note and its own words. On 2026-10-30 at 18:0x the
 README's new words (item 133) and the focus on radiance cascades (Decision 74), questions asked
 back, and asked that the sessions spend fewer tokens at the same quality, N 7.7.
 
-Next 178 widened, then 176 read again on what is left, then 177, 174 and 175 (Decision 84), then
-182, with 140, 141 and 142 after 177 (Decision 75); 143, 144 and 145 wait behind them.
+Next 184 small, then 177, 185, 174 and 175 (Decision 84), then 182, with 140, 141 and 142 after 177
+(Decision 75); 143, 144 and 145 wait behind them.
 
 Items done and verdicts settled before 2026-10-23 stand in REVIEW-ARCHIVE.md beside this file, their
 numbers kept, moved there at 19:30 on 2026-10-23 so this file holds the current work alone and is
@@ -1370,7 +1370,11 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     there lifting the surfaces to 0.36 to 1.24. So 178 comes first, widened to the hits' shading,
     and this item is read again on what deficit is left, recorded as not needed rather than built if
     the door view then holds; the balcony's ten largest surfaces at 0.77 to 1.42 of the reference,
-    the floor over, read with it.
+    the floor over, read with it. Read again at 09:12 after 178's second commit, the door view's ten
+    largest surfaces at 0.94 to 1.58 of the reference, five within 10%, the mean log distance 0.158
+    where 0.659, the rest over by 142's gain, and finer probes having moved nothing before; not
+    needed, the deficit having been the probes' sun and not their spacing. The number stands and
+    takes no work unless a reading after 142 says otherwise.
 
 177. **A history for the world probes.** Decision 84's eighth item, of the cascades. The screen
     probes keep sixteen frames (item 135); the world probes write their radiance fresh each frame
@@ -1443,7 +1447,22 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     room the same to 0.001, all within bounds, the slab and the canopy unchanged having no sun. The
     call is two commits, the shadow map's half as the mend of the cause with its cost and the door
     sheet, then the ray query at High read on the same views and on hits past the shadow cascades,
-    kept only where such hits show in a view.
+    kept only where such hits show in a view. The second step is `22c523ae`, read at 09:08, its push
+    waiting on 2b6791f9's run; the door view's whole mean 1.06 of the reference where 0.49; global
+    illumination 0.02 to 0.14 ms cheaper at 1080p since a map read is cheaper than the field's march
+    toward the sun; lit_room and reflections rewritten by 5 and 2 levels at most; the door settled,
+    200 frames looking away and back within 1% at the first frame, no pop; 2,208 in both orders; the
+    door sheet sent to the owner and under assets/readings. The ray query is not built, a scratch
+    giving a hit outside the counted cascades no sun at all moving the four views' surfaces within
+    1% but one nave surface from 0.75 to 0.66, so hits past the shadow cascades barely show. The
+    third step, the model pass's side alone, follows. The third step is out at 09:12, read and not
+    committed; the seen probes normalized among themselves with the unseen at a quarter below a seen
+    share of 0.15 brings the door view's over surfaces down 2 to 5% and moves the under ones not at
+    all, but the closed corridor reads 0.630 of open where the head reads 0.499, since probeSees'
+    slack of an eighth of the spacing, a unit at 8, counts cascade-2 probes outside the corridor's
+    walls as seen and their sky lights its end, which the head's mix dilutes with the unseen probes'
+    light; the coarser fill never acts there. Done at `22c523ae`, the item's two commits; the
+    corridor's drift is item 184.
 
 179. **A capture waits for the scene field.** The owner wrote on 2026-11-01 at 16:39 that
     scenes_sponza builds its scene field asynchronously at start and the real global illumination
@@ -1614,6 +1633,36 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     PART=3 with the classes named as 149 set them, so each part stays under its own 70 minutes and
     the job under its limit with room; the limit itself unchanged. One commit, beside 178, when its
     second step is in.
+
+184. **The corridor test's drift from 0.22 to 0.50.** Found on 2026-11-02 at 09:3x in 178's third
+    step. CascadeEdgeTests.Corridor, closed against open at High, reads 0.499 at `22c523ae` against
+    its bar of 0.5 where the test's comment holds 0.22 from 166's mend, and 0.498 at `adf7bb79`, so
+    the drift came after `6cc2a0a0` and before `adf7bb79`, among 169, 180, 179, 167, 181's three
+    parts, 139 and 170; the test passes by 0.001. A bisection over those commits by the test alone,
+    the cause named, and the mend by the cause, or where the change is right the bar and the comment
+    set to the new reading with the reason; probeSees' slack of an eighth of the spacing bounded by
+    a few of the finest cells tried as the mend where the cause is the slack, read by the corridor,
+    the Cornell box, the bounce rooms and Sponza's door view. One commit, before 177. Bisected at
+    09:19, the drift comes in at `3b5264d7`, the cascades centred on the eye, 6cc2a0a0, 5932c389 and
+    5ea3e98f reading 0.2205 and 3b5264d7 0.4976, since the corridor's far end 34 units off lies past
+    cascade 2's half width of 32 and in cascade 3 with probes 16 apart where before, with the field
+    ahead of the eye, it lay in cascade 2 with probes 8 apart; every probe around the end unseen,
+    the fallback lending their light less its sky, the outside probes' light off the outer walls and
+    the ground, half the open end's at 16 apart where a fifth at 8. The slack is not the cause, held
+    to the lesser of an eighth of the spacing and two or four finest cells it reads 0.491. The
+    centring is right, so the bar goes to 0.55 with the three readings in the test's comment, one
+    commit, test only; what lights a closed space in the coarsest cascade is item 185.
+
+185. **A closed space in the coarsest cascade takes half the open light.** From item 184's bisection
+    on 2026-11-02. A closed corridor whose far end lies in a cascade with probes 16 apart reads 0.50
+    of its open self, a fifth where the probes stand 8 apart, since every probe around the end
+    stands outside the walls, unseen, and the fallback lends their light less its sky, which is the
+    sunlit outer walls' and the ground's bounce; probeSees' slack is not the cause. A mend that
+    takes from an unseen probe only what its own rays saw on the surface's side, the reach map read
+    by direction, or the screen probes first where the end is on screen, before the unseen probes'
+    whole light; read by the corridor toward 0.1 at both qualities, the Cornell box within the bar
+    at both, the bounce rooms within 1 level, the slab and the canopy unchanged and Sponza's door
+    view. One or two commits, after 177 and before 174.
 
 ## Verdicts
 
