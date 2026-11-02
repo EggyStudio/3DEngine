@@ -158,16 +158,21 @@ jobs:
 
   windows:
     runs-on: windows-latest
-    # The suite's parts run one after another, and their sum follows the runner. On 2026-10-24 the
-    # step took 50 to 94 minutes on four pushes of the same suite, the slowest on f0574e89 with the
-    # Rendering halves at 46 and 38 minutes where 89154675's, run some hours before, took 24 and 18,
-    # and it ran out a push's 100 with the game's steps after it cut short. The pack run of that day
-    # took 58 minutes for the suite and 33 for the twelve games. A push took 98 to 139 minutes on
-    # the four of 2026-10-31 after 74 the push before, the suite's two Rendering parts 30 to 67
-    # minutes where 21 and 34. So a push, which plays Slide alone, has 180, and the pack run 240,
-    # the slowest suite seen and the games' step at its own 110 with the builds between, the suite's
-    # parts held to 70 each below.
-    timeout-minutes: ${{ inputs.pack && 240 || 180 }}
+    # The suite's parts run one after another, and their sum follows the runner, so the suite is
+    # dealt to two runners, each half a job of its own with its own limit and its own lines on the
+    # page. On the four pushes of 2026-11-02 from adf7bb79 to fdf4dedb the job took 149 to 159
+    # minutes, the suite 147 of them, its global illumination class 35 to 54, the two halves of the
+    # rest of Rendering 31 to 50 and 25 to 34, Core 9, Graphics 2 and the other parts 3 together,
+    # with 3 minutes before the suite and 9 after it. The first half takes the class, Core and
+    # Graphics, 46 to 65 minutes, and plays the games after, 58 to 77 in all. The second takes every
+    # other part, 59 to 87 minutes, 62 to 90 in all. So each has 120 on a push, the slowest half
+    # read with a third again for a slower runner, and the first 240 in the pack run, which plays
+    # every game at the step's own 110 after its suite. The suite's parts are held to 70 each below.
+    strategy:
+      fail-fast: false
+      matrix:
+        half: [1, 2]
+    timeout-minutes: ${{ inputs.pack && matrix.half == 1 && 240 || 120 }}
     defaults:
       run:
         shell: bash
@@ -258,20 +263,31 @@ jobs:
       # 24 and 20. Global illumination's class runs in a third of its own, since the half holding it
       # took 64 to 67 of its 70 minutes on three pushes of 2026-10-31, and on Linux's lavapipe the
       # class takes 12.8 of that half's 17.5 minutes, which no deal of the classes by their names
-      # keeps apart. The other two take 11.4 and 10.7 there.
-      - run: python build/test.py --no-build --parts --split Rendering=2+GlobalIlluminationTests --timeout-minutes 70 --hang-minutes 10
+      # keeps apart. The other two take 11.4 and 10.7 there. The first half runs the class, Core and
+      # Graphics alone, and the second every part but those, so a part added later runs there.
+      - run: |
+          first=(--only "Rendering GlobalIlluminationTests" --only Core --only Graphics)
+          second=(--except "Rendering GlobalIlluminationTests" --except Core --except Graphics)
+          share=("${second[@]}")
+          if [ "${{ matrix.half }}" = 1 ]; then share=("${first[@]}"); fi
+          python build/test.py --no-build --parts --split Rendering=2+GlobalIlluminationTests "${share[@]}" \
+            --system "Windows, half ${{ matrix.half }}" --timeout-minutes 70 --hang-minutes 10
         env:
           E3D_REQUIRE_VALIDATION: '1'
           E3D_REQUIRE_VULKAN: '1'
 
 
+      # The games, the README and the first game in the first half alone, whose suite is the
+      # shorter.
       - name: Build a game from the package and draw it under the validation layer
+        if: ${{ matrix.half == 1 }}
         run: build/play-game.sh Slide
 
       # The same game published as native code from the package, as a player's copy is, linked by
       # the Visual Studio the runner has, and drawn under the validation layer (NORM.md, N 2.5), as
       # the build workflow's Linux job publishes it, a failure named in an error of its own.
       - name: Publish the game native from the package and draw it
+        if: ${{ matrix.half == 1 }}
         timeout-minutes: 15
         run: build/play-native.sh Slide
 
@@ -280,7 +296,7 @@ jobs:
       # twelve minutes stop it with its error saying how far it got, and the step's 15 end a wait
       # that budget does not catch.
       - name: Play the puzzle of gestures from the package through e3d
-        if: ${{ !inputs.pack }}
+        if: ${{ !inputs.pack && matrix.half == 1 }}
         timeout-minutes: 15
         env:
           DRIVE_MINUTES: '12'
@@ -296,7 +312,7 @@ jobs:
       # wait no budget catches ends the step, with the errors said so far on the page and the page's
       # artifacts uploaded, and not the job.
       - name: Play every game from the package through e3d
-        if: ${{ inputs.pack }}
+        if: ${{ inputs.pack && matrix.half == 1 }}
         timeout-minutes: 110
         env:
           DRIVE_MINUTES: '12'
@@ -311,6 +327,7 @@ jobs:
       # window and the swapchain are tried on this system and not the offscreen path alone. Its
       # play takes about a minute on lavapipe, and the step stops it at four.
       - name: Play a game in a window through e3d
+        if: ${{ matrix.half == 1 }}
         timeout-minutes: 6
         env:
           DRIVE_MINUTES: '4'
@@ -319,16 +336,18 @@ jobs:
       # The README's commands in a new project and every step of the game docs/first-game.md makes,
       # from the same package, as a newcomer on this system follows them.
       - name: Follow the README in a new project
+        if: ${{ matrix.half == 1 }}
         run: build/readme-walk.sh build/package
 
       - name: Build and run every step of the first game
+        if: ${{ matrix.half == 1 }}
         run: build/first-game.sh
 
       # The page, from every run, for the digest job below.
       - uses: actions/upload-artifact@v7
         if: always()
         with:
-          name: test-digest-windows
+          name: test-digest-windows-${{ matrix.half }}
           path: |
             3DEngine.Tests/TestResults/digest.md
             3DEngine.Tests/TestResults/digest.json
@@ -338,7 +357,7 @@ jobs:
         # Kept for a job canceled as well as one that failed, since a cut-short run is the one to read.
         if: failure() || cancelled()
         with:
-          name: test-results-windows
+          name: test-results-windows-${{ matrix.half }}
           path: |
             3DEngine.Tests/TestResults/
             captures/

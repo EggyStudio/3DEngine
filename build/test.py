@@ -4,6 +4,7 @@
     build/test.py [PART ...] [--parts] [--no-build]    # the suite whole, or parts of it by name
     build/test.py --parts --split Rendering=2          # a part run in two processes by its classes
     build/test.py --parts --split Rendering=2+Glow     # and its class Glow in a process of its own
+    build/test.py --parts --only Core --only Graphics  # of those parts, these alone, or --except them
     build/test.py --shuffle-seed N                     # and the suite once more, shuffled by a seed
     build/test.py --read DIR                           # the page of results already in a folder
     build/test.py --digest DIR ...                     # one page from several systems' digests
@@ -24,7 +25,9 @@ whose filter is the negation of the others, so no test falls between two parts. 
 turn, the last taking every class the others do not name, so a class added later runs there. A
 class named after a + runs in a process of its own, as Rendering=2+GlobalIlluminationTests, and is
 dealt to none of the others, so a class that takes as long as the rest of its part together does
-not hold them back past their limit.
+not hold them back past their limit. --only runs the parts of those labels alone and --except every
+part but those, so two jobs given the same labels, one with each, run the whole suite between them,
+a part added later in the second, and --system names the job on its page.
 
 The page has the run's counts, the lost processes, the failures by cause, the most frequent first,
 and the lines logged as warnings or errors, or with no level, that the output repeated most, left
@@ -72,6 +75,8 @@ SLOWEST_SHOWN = 5
 REPEATED_SHOWN = 3
 PART_SIZE = 30
 SHUFFLE_SEED = "E3D_SCHEDULE_SHUFFLE_SEED"
+# The system the page names, the platform's unless --system gives another.
+SYSTEM = {"Darwin": "macOS"}.get(platform.system(), platform.system())
 BEGIN = "=" * 30 + " the page " + "=" * 30
 END = "=" * 30 + " end of the page " + "=" * 30
 
@@ -686,7 +691,7 @@ def digest(results_dir, processes, listed, seconds):
     no_result = len(without_result(set(listed), results))
 
     return {
-        "system": {"Darwin": "macOS"}.get(platform.system(), platform.system()),
+        "system": SYSTEM,
         "commit": commit(),
         "passed": outcomes["Passed"], "failed": outcomes["Failed"], "skipped": outcomes["NotExecuted"], "no_result": no_result,
         "seconds": round(seconds), "peak_mb": max((p.peak_mb for p in processes), default=0),
@@ -851,6 +856,11 @@ def main():
     parser.add_argument("--parts", dest="all_parts", action="store_true", help="run the suite in its parts, each a process")
     parser.add_argument("--split", action="append", default=[], metavar="PART=N[+CLASS...]",
                         help="run a part in N processes by its test classes, as Rendering=2, each class named after a + in one of its own")
+    parser.add_argument("--only", action="append", default=[], metavar="LABEL",
+                        help="with --parts, run the parts of these labels alone, as Core or 'Rendering GlobalIlluminationTests'")
+    parser.add_argument("--except", dest="leave", action="append", default=[], metavar="LABEL",
+                        help="with --parts, run every part but those of these labels")
+    parser.add_argument("--system", help="the name the page gives the system, as 'Windows, first half'")
     parser.add_argument("--no-build", action="store_true", help="pass --no-build to dotnet test")
     parser.add_argument("--read", metavar="DIR", help="write the page of the results already in DIR")
     parser.add_argument("--digest", metavar="DIR", nargs="+", help="one page from the digest.json in each DIR")
@@ -895,6 +905,9 @@ def main():
             os.remove(os.path.join(results, name))
     dotnet = shlex.split(args.dotnet, posix=os.name != "nt")
 
+    if args.system:
+        global SYSTEM
+        SYSTEM = args.system
     splits = dict(given.split("=", 1) for given in args.split)
     started = time.monotonic()
     processes, listed = [], []
@@ -903,6 +916,16 @@ def main():
     elif args.all_parts:
         listed = list_tests(dotnet, args)
         processes = parts_of(listed, splits)
+        if args.only or args.leave:
+            labels = {p.label for p in processes}
+            if unknown := [label for label in args.only + args.leave if label not in labels]:
+                print(f"No part is labeled {', '.join(unknown)}. The parts are {', '.join(sorted(labels))}.", flush=True)
+                return 2
+            every = processes
+            processes = [p for p in every if (not args.only or p.label in args.only) and p.label not in args.leave]
+            # The tests of the parts left out are no part of this run, so none counts as without a result.
+            kept = {p.label for p in processes}
+            listed = [name for name in listed if label_of(name, every) in kept]
     else:
         processes = [Process("the suite", None)]
 

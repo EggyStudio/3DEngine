@@ -90,8 +90,8 @@ REVIEW-ARCHIVE.md, its devlog note and its own words. On 2026-10-30 at 18:0x the
 README's new words (item 133) and the focus on radiance cascades (Decision 74), questions asked
 back, and asked that the sessions spend fewer tokens at the same quality, N 7.7.
 
-Next 174 and 175 (Decision 84), then 182, with 140, 141 and 142 after 177 (Decision 75); 143, 144
-and 145 wait behind them.
+Next 183 small, then 175 (Decision 84), then 182, with 140, 141 and 142 after 177 (Decision 75);
+143, 144 and 145 wait behind them.
 
 Items done and verdicts settled before 2026-10-23 stand in REVIEW-ARCHIVE.md beside this file, their
 numbers kept, moved there at 19:30 on 2026-10-23 so this file holds the current work alone and is
@@ -1372,7 +1372,17 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     bright faces, a bell of 0.35 px for the reconstruction, the toned space at the frame's shown
     exposure, a disocclusion caught by the depth written beside each history; no jitter on render
     textures or stereo, frames without it unchanged. The strip's room gets one more reading before
-    the item closes.
+    the item closes. Done at `0dff5d04`, the second commit, read at 15:18, its push waiting on
+    4a01d5ef's run; the strip room's ceiling steps between levels about 4% apart and holds each for
+    several frames as its probes are traced, with or without the antialiasing, and the step moved
+    the 3 by 3 box with it, so a pixel holding still takes a box of at least 5% of its luma where
+    the frame before saw the same surface all around, the nine history depths within a twentieth of
+    the pixel's; the still rooms at the 99th part against off, the strip 0.07 to 0.30% against 1.53,
+    the Cornell box 0 to 0.06 against 1.26, the window's room 0 against 1.65 to 2.42, the corridor
+    2.73 to 4.79 against 3.15 to 3.30 with its bad runs on the doorframe's thin lit reveal following
+    the jitter; the arcades unchanged at 19.0% and 62; the trail test drawn over gray with the 3 by
+    3 depth test reading 0 where the pixel's depth alone left 0.010 against a bar of 0.005; 2,212 in
+    both orders.
 
 175. **Volumetric fog.** Decision 84's sixth item, last of the look, a froxel volume of a few slices
     lit by the sun with its shadows and by the probes, its density and height a program sets, giving
@@ -1691,7 +1701,13 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     54. So the item is not a third part but the Windows suite in two jobs on two runners, the parts
     dealt between them by their times, the GI class with the lighter half, each job with its own
     limit and its own digest lines, the job's wall time near half; read by the next run's two
-    Windows jobs. One commit, after 174's second reading.
+    Windows jobs. One commit, after 174's second reading. The plan at 15:18, test.py gains --only
+    and --except over the parts and --system for the page's lines; the Windows job becomes a matrix
+    of two halves with fail-fast off, the first taking the GI class, Core and Graphics (35 to 54, 9
+    and 2 minutes) with the games, the README walk and the first game, the second the rest,
+    Rendering's two halves and the small parts (31 to 50, 25 to 34 and about 3); the digests and
+    results uploaded as test-digest-windows-1 and -2; each half's limit set from its times with the
+    reason, 120 where the longer half reads under 90.
 
 184. **The corridor test's drift from 0.22 to 0.50.** Found on 2026-11-02 at 09:3x in 178's third
     step. CascadeEdgeTests.Corridor, closed against open at High, reads 0.499 at `22c523ae` against
