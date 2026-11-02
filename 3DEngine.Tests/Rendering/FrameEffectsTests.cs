@@ -386,11 +386,11 @@ public sealed class FrameEffectsTests : IDisposable
     }
 
     // A white triangle turned so its edges cross the pixels at a slant, as the FXAA test draws it,
-    // at a place across.
-    private static Action Slanted(float across = 0) => () =>
+    // at a place across, over black or the background given.
+    private static Action Slanted(float across = 0, Color? background = null) => () =>
     {
         var turned = Matrix4x4.CreateRotationZ(0.3f) * Matrix4x4.CreateTranslation(across, 0, 0);
-        ClearBackground(Color.Black);
+        ClearBackground(background ?? Color.Black);
         BeginMode3D(new Camera3D(new Vector3(0, 0, 6), Vector3.Zero, Vector3.UnitY, 45));
         DrawTriangle3D(Vector3.Transform(new Vector3(-2, -1.5f, 0), turned), Vector3.Transform(new Vector3(2, -1.5f, 0), turned),
             Vector3.Transform(new Vector3(0, 1.5f, 0), turned), Color.White);
@@ -457,18 +457,22 @@ public sealed class FrameEffectsTests : IDisposable
     [NeedsVulkanFact]
     public void Temporal_Antialiasing_Leaves_No_Trail_Behind_What_Moved()
     {
+        // Over gray, where a still pixel's box is a twentieth of its light wide at least, which the
+        // edge the triangle left would keep where its depth alone were read.
+        var gray = new Color(120, 120, 120);
         Open(samples: 1);
         SetTemporalAntialiasing(true);
-        CaptureAfter(24, Slanted(-1.5f));
-        var moved = Capture(Slanted(1.5f));
-        var settled = CaptureAfter(24, Slanted(1.5f));
+        CaptureAfter(24, Slanted(-1.5f, gray));
+        var moved = Capture(Slanted(1.5f, gray));
+        var settled = CaptureAfter(24, Slanted(1.5f, gray));
 
-        // The left of the frame, where the triangle was and is no longer, held to the black around
-        // it this frame though the history saw the triangle there.
+        // The left of the frame, where the triangle was and is no longer, held to the gray around
+        // it this frame though the history saw the triangle there. It reads 0, and 0.010 where
+        // the box was widened by the pixel's own depth alone, the edge's history held in it.
         var most = 0f;
         for (int y = 0; y < moved.Height; y++)
             for (int x = 0; x < 40; x++)
                 most = Math.Max(most, Math.Abs(Linear(GetImageColor(moved, x, y).G) - Linear(GetImageColor(settled, x, y).G)));
-        most.Should().BeLessThan(0.05f, "the history is held to the colors around each pixel this frame, so what moved away leaves nothing behind");
+        most.Should().BeLessThan(0.005f, "the history is held to the colors around each pixel this frame, so what moved away leaves nothing behind");
     }
 }

@@ -3569,7 +3569,11 @@ particles, `TemporalRenderer` resolves it against two half-float histories the w
 wide around where its middle lay before the move, and the history is found through the frame
 before's camera without its move, held to the box of those neighbors' colors in YCoCg, widened by a
 quarter of its size where the pixel held still, and started again where the frame before saw
-something a twentieth nearer, by the depth the resolve writes beside each history. The blend takes
+something a twentieth nearer, by the depth the resolve writes beside each history. Where the pixel
+held still and the frame before saw the same surface all around it, each depth within a twentieth,
+the box is a twentieth of the pixel's luma wide either side at least, so a room's light that steps
+by a few hundredths as its probes are traced is blended over the frames, while an edge or what
+moved away, whose depths around differ, is held to the box alone. The blend takes
 one over the frames the pixel has held its history for, kept in the history's alpha, down to a
 thirty-second where it holds still and an eighth or more where it moves, the more the faster. Both
 are done on light brought under 1 as it will be shown, its luma times the exposure the composite
@@ -3580,18 +3584,19 @@ without their moves.
 
 In `shaders_bounce_rooms` at High, forty frames of each still view shot one after another through
 `./e3d shot`, the change of a pixel's luminance from one frame to the next over its mean reads at
-its 99th part 1.26 to 1.29% in the Cornell box without it and 0.23 to 0.45% with it, 3.15 to 3.30
-and 2.44 to 2.82 in the corridor, 1.65 to 2.42 and 0.75 to 1.52 in the window's room, and 1.53 to
-1.54 and 1.53 to 2.67 in the strip's room, whose ceiling breathes slower than the history lets go of
-it, five runs without and three with. In Sponza's arcades at 15:00, against `gi.reference` at 4,096
-paths a pixel through `gi.compare`, a pixel's difference from the reference less its mean over the
-5 by 5 around it averages 22.5% of the edge's step along the reference's edges without it and 19.0%
-with it, and the picture keeps 62% of the fine detail one drawn without it shows, as a box filter
-over the pixel does. A jump of the camera by 2 m in the nave reads 10.5% brighter on the walls in
-its first frame against 4.8% without it and settles in five frames against three, the history
-holding what was lit as seen from 2 m off until the blend lets it go. It costs 0.24 ms at 1920 by
-1080 on the RTX 4070 under the powersave profile, `gpu.hdr_scene` of `./e3d command profile` in the
-Cornell box reading 1.89 against 1.65.
+its 99th part 1.26 to 1.29% in the Cornell box without it and 0 to 0.06% with it, 1.65 to 2.42 and 0
+in the window's room, and 1.53 to 1.54 and 0.07 to 0.30 in the strip's room, whose ceiling's light
+steps by some 4% as its probes are traced, five runs without and three with. In the corridor it
+reads 3.15 to 3.30 without and 2.73 to 4.79 with, the lit side of the far door's frame, a few pixels
+wide, taking each move of the camera into its light in some runs. In Sponza's arcades at 15:00,
+against `gi.reference` at 4,096 paths a pixel through `gi.compare`, a pixel's difference from the
+reference less its mean over the 5 by 5 around it averages 22.5% of the edge's step along the
+reference's edges without it and 19.0% with it, and the picture keeps 62% of the fine detail one
+drawn without it shows, as a box filter over the pixel does. A jump of the camera by 2 m in the nave
+reads 10.5% brighter on the walls in its first frame against 4.8% without it and settles in five
+frames against three, the history holding what was lit as seen from 2 m off until the blend lets it
+go. It costs 0.24 ms at 1920 by 1080 on the RTX 4070 under the powersave profile, `gpu.hdr_scene` of
+`./e3d command profile` in the Cornell box reading 1.89 against 1.65.
 
 Bevy's eight curves are worked out as `bevy_core_pipeline` 0.19.1's `tonemapping_shared.wgsl` works
 them out, its matrices written as dot products, so a picture tonemapped here is the one Bevy draws.

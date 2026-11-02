@@ -105,17 +105,20 @@ float3 untoned(float3 c, float exposure)
     return c / max(1.0 - exposure * luma(c), 1e-4);
 }
 
-// Whether the frame before saw something more than a twentieth nearer than the point at before
-// that it would have seen at depth expected, even at the farthest of the texels around, so the
-// point stood behind it. One less depth goes as one over the distance where the far plane is far.
-bool hidden(float2 before, float expected)
+// The nearest and the farthest the frame before saw in the texels around before, each as one
+// less its depth, which goes as one over the distance where the far plane is far.
+float2 seenAround(float2 before)
 {
     float2 texel = push.texelAndBlend.xy;
-    float farthest = 1.0;
+    float nearest = 0.0, farthest = 1.0;
     for (int y = -1; y <= 1; y++)
         for (int x = -1; x <= 1; x++)
-            farthest = min(farthest, 1.0 - historyDepth.SampleLevel(before + float2(x, y) * texel, 0).r);
-    return farthest > (1.0 - expected) * 1.05 + 1e-6;
+        {
+            float seen = 1.0 - historyDepth.SampleLevel(before + float2(x, y) * texel, 0).r;
+            nearest = max(nearest, seen);
+            farthest = min(farthest, seen);
+        }
+    return float2(nearest, farthest);
 }
 
 float4 resolve(float2 uv)
@@ -145,17 +148,29 @@ float4 resolve(float2 uv)
         return float4(untoned(fromYCoCg(now), exposure), 1.0);
     float4 clip = mul(push.reprojection, float4(uv * 2.0 - 1.0, depth.SampleLevel(uv, 0).r, 1.0));
     float2 before = clip.xy / clip.w * 0.5 + 0.5;
-    if (clip.w <= 0.0 || any(before < 0.0) || any(before > 1.0) || hidden(before, clip.z / clip.w))
+    if (clip.w <= 0.0 || any(before < 0.0) || any(before > 1.0))
+        return float4(untoned(fromYCoCg(now), exposure), 1.0);
+    // Where even the farthest the frame before saw around the point stood a twentieth nearer, the
+    // point was behind it, and its history starts again.
+    float is = 1.0 - clip.z / clip.w;
+    float2 around = seenAround(before);
+    if (around.y > is * 1.05 + 1e-6)
         return float4(untoned(fromYCoCg(now), exposure), 1.0);
     // Where the pixel held still, the box widened by a quarter of its size, so a thin face
     // brighter than all around it, whose light each move of the camera changes, is not held to
-    // this frame's light and drawn so each frame. A box over even light stays as tight, and one
-    // where the pixel moved is not widened, so what the camera saw from elsewhere is let go.
+    // this frame's light and drawn so each frame. Where the frame before saw the same surface all
+    // around, every depth within a twentieth, the box is a twentieth of the pixel's luma either
+    // side at least, so a room's light that steps by a few hundredths as its probes are traced is
+    // blended over the frames rather than followed. One where the pixel moved is not widened, so
+    // what the camera saw from elsewhere is let go, and neither is one by an edge or where
+    // something moved away, as an edge's history holds the colors on both sides of it.
     float speed = length((before - uv) / texel);
     bool moved = speed > 0.1;
     if (!moved)
     {
         float3 margin = (most - least) * 0.25;
+        if (around.x <= is * 1.05 + 1e-6 && around.y >= is * 0.95 - 1e-6)
+            margin = max(margin, float3(0.05 * max(now.x, 0.0)));
         least -= margin;
         most += margin;
     }

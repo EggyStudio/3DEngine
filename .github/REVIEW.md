@@ -1356,7 +1356,23 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     A reading before, from 177's premise at 09:53: in a still view of the bounce rooms at High the
     screen probes breathe 1.33% at the 99th part in the Cornell box, 3.83 in the corridor, 2.56 in
     the window's room and 3.12 in the strip's, the world probes 0.00; the antialiasing's history is
-    what steadies them, read by the same measure after.
+    what steadies them, read by the same measure after. Committed at `2977a4a2`, read at 14:32, its
+    push waiting on 4a01d5ef's run; SetTemporalAntialiasing, 2,212 in both orders. The still rooms
+    at High at the 99th part, the Cornell box from 1.26 to 1.29% to 0.23 to 0.45, the corridor 3.15
+    to 3.30 to 2.44 to 2.82, the window's room 1.65 to 2.42 to 0.75 to 1.52, the strip's room 1.53
+    to 1.54 to 1.53 to 2.67, its ceiling breathing slower than the history lets go of it and the
+    clamp following, the probes' breathing over the surfaces gone and the edges' last change
+    remaining; Sponza's arcades against the reference at 4,096 paths, the edge error from 22.5 to
+    19.0%, the detail kept 62% of the frame without, the linear mean 1.4% under it from the clamp
+    shaving highlights smaller than a pixel; a 2 m jump's first frame 10.5% against 4.8% without,
+    settling in 5 frames against 3; 0.24 ms at 1080p. What the readings forced, the depth that
+    occlusion, the screen probes and the reflections read drawn through the unjittered camera and
+    the sun's cascades fitted to it, a blend of one over the age with a floor of a thirty-second
+    when still and a cap by the speed when moving, the box widened a quarter when still for thin
+    bright faces, a bell of 0.35 px for the reconstruction, the toned space at the frame's shown
+    exposure, a disocclusion caught by the depth written beside each history; no jitter on render
+    textures or stereo, frames without it unchanged. The strip's room gets one more reading before
+    the item closes.
 
 175. **Volumetric fog.** Decision 84's sixth item, last of the look, a froxel volume of a few slices
     lit by the sun with its shadows and by the probes, its density and height a program sets, giving
@@ -1668,7 +1684,14 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     it is. Read by the digests' part times which part grew, and then the split gains a third part,
     PART=3 with the classes named as 149 set them, so each part stays under its own 70 minutes and
     the job under its limit with room; the limit itself unchanged. One commit, beside 178, when its
-    second step is in.
+    second step is in. Read at 14:32, the Windows parts over the last four runs, the GI class 35 to
+    54 minutes, Rendering's first half 31 to 50, its second 25 to 34, Core 9, the rest under 2, the
+    suite 147 of the job's 159 at fdf4dedb; test.py runs the parts one after another, so a third
+    part deals the classes without changing the job's total and the GI class stays alone at up to
+    54. So the item is not a third part but the Windows suite in two jobs on two runners, the parts
+    dealt between them by their times, the GI class with the lighter half, each job with its own
+    limit and its own digest lines, the job's wall time near half; read by the next run's two
+    Windows jobs. One commit, after 174's second reading.
 
 184. **The corridor test's drift from 0.22 to 0.50.** Found on 2026-11-02 at 09:3x in 178's third
     step. CascadeEdgeTests.Corridor, closed against open at High, reads 0.499 at `22c523ae` against
