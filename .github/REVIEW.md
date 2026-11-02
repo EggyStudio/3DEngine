@@ -92,8 +92,8 @@ REVIEW-ARCHIVE.md, its devlog note and its own words. On 2026-10-30 at 18:0x the
 README's new words (item 133) and the focus on radiance cascades (Decision 74), questions asked
 back, and asked that the sessions spend fewer tokens at the same quality, N 7.7.
 
-Next 175 (Decision 84), then 182, with 140, 141 and 142 after 177 (Decision 75); 143, 144 and 145
-wait behind them.
+Next 142, then 186, then 140 and 141 (Decision 75), then 182 (Decision 86); 143, 144 and 145 wait
+behind them.
 
 Items done and verdicts settled before 2026-10-23 stand in REVIEW-ARCHIVE.md beside this file, their
 numbers kept, moved there at 19:30 on 2026-10-23 so this file holds the current work alone and is
@@ -1041,7 +1041,36 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     1.132 of the reference, this item's gain growing as fewer probes are judged unseen. From 185 at
     11:57 on 2026-11-02, 139's lava scene in the game's scratch copy reads its wall 39% and its
     floor 37% under the reference, the same before and after the reach map's change, the game's far
-    walls' reading for this item.
+    walls' reading for this item. Read at 16:53 on 2026-11-02 at High, every region's light past the
+    first bounce as the frame's over the reference's with the specular share traced, the Cornell box
+    0.93, the thin room 1.14, the corridor 0.29, the window's room 1.14, the strip's 0.68, view 7
+    0.98, the carried lamp 0.97, the emissive blocks 0.04, so the gain stands in the thin and window
+    rooms alone and the rooms with colored walls and the large one read at or under, the world
+    probes reading the same through gi.probe, whose bounces count from the probe's first hit (again
+    off matching bounces 0). The cause, read with the reference's irradiance at arbitrary points in
+    a copy of the thin room, is that a hit on a surface reads the first probe layer whole, 0.6 above
+    the floor where the light arriving faces up reads 8 to 12% more than at the floor, the layer
+    below lying behind the plane, each bounce taking that on, the excess the same in every distance
+    band. Mends tried in the hit's gather, a linear extrapolation to the plane unstable (view 7 to
+    1.53), the light carried back only where it rises away from the surface by at most a quarter
+    taking the scratch rooms to 1.01 and 0.93 to 0.99 and the thin and window rooms to 1.06 and 1.07
+    past the first bounce, but the Cornell box to 0.84, view 7 to 0.89, the carried lamp to 0.89 and
+    the strip to 0.63; so those rooms carried the same gain offset by a second error that reads them
+    under. The call is to find the second error first, the colored walls in the scratch room and the
+    Cornell probe's ways by band, bounded to a few hours, and failing that to commit the carry with
+    the under rooms recorded and the under-reading as an item of its own. Two hours in, at 17:05,
+    the second error is narrowed and not named. Colored walls are not it, the scratch room with red
+    and green walls reading 0.99 to 1.02 with the carry; in a copy of the Cornell box the glow
+    panel's own first bounce reads 0 to 18% under against the reference's bounces 1, the right
+    pairing for a glow light; in a white room of 12 lit by one lamp the light past the first bounce
+    by band reads 0.89 to 0.97 under 2.4 units, 0.83 to 0.94 to 4.8 and 0.56 to 0.80 past, the
+    probes near the far walls right on every face and the fallback never firing, the far ways ending
+    at the wall-ceiling corner with their first bounce 0.012 against 0.020, so the shortfall points
+    at hits in concave corners; with the carry four of the rooms' 41 readings fail, view 7 at 0.068,
+    0.062 and 0.081 against bars of 0.06, 0.06 and 0.05 and the grazing floor with a far cascade
+    0.081 against 0.05, so the carry cannot go in with the bars as they are. One bounded pass on
+    corner hits, an L of two walls with and without the corner; then, if corners are not it, the
+    item recorded with the cause and the numbers and 186 next.
 
 166. **The atrium's far end does not glow blue.** The owner's shot of scenes_sponza at 12:05 on
     2026-11-01, the atrium view at 13:00 on the fixed camera, kept in the day's dump, shows the
@@ -1389,7 +1418,23 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
 175. **Volumetric fog.** Decision 84's sixth item, last of the look, a froxel volume of a few slices
     lit by the sun with its shadows and by the probes, its density and height a program sets, giving
     the lookup's depth; read by Sponza's lookup beside the reference and the cost at 1080p. One or
-    two commits, after 174.
+    two commits, after 174. Done at `f8872d03` on 2026-11-02, read at 16:25, its push waiting on
+    dfbf7614's run; a volume of one cell a 16 px tile by 64 slices from the eye to the lesser of the
+    far plane and 128, growing exponentially, a fog node after the shadows and before hdr_scene in
+    two compute passes, fog_scatter lighting each cell's middle by the sun through the frame's
+    shadow map with a Henyey-Greenstein phase and by the world probes' irradiance averaged up and
+    down, or the ambient lights where GI is off, times the extinction, fog_integrate summing each
+    column from the eye, decode laying the sum over each pixel by its distance so bloom, exposure,
+    the antialiasing and the kept reflections read the scene in fog, particles drawn over it
+    unfogged; SetVolumetricFog(density, height, falloff, anisotropy) and its getter; scenes_sponza
+    taking its matched scene's fog profile, a mean free path of 400, a maximum height of 50 as
+    HDRP's scale height, anisotropy 0.5, the gallery capture retaken; the lookup at 15:00 metered
+    beside the reference, the haze faint as in the reference, the far walls softened and a shaft by
+    the statue; 0.26 ms at 1080p, hdr_scene within noise; tests of a block 80 units off losing 38
+    levels to a fog of 0.02 and one 4 units off losing 3, and of a wall's foot against its top under
+    a height falloff, the same on lavapipe under validation and on the GPU; the cells lit at fixed
+    slice middles so the fog holds still with no history, slices jittered with a reprojected history
+    only if banding shows in shafts at strong densities, none seen; 2,214 in both orders.
 
 176. **Finer cascades inside a building.** Decision 84's seventh item, of the cascades. The coarse
     cascades hold the whole building and their probes eight units apart stand under floors and
@@ -1816,6 +1861,15 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     by 3 and wick by 1; 139's lava scene identical in both builds, its wall -39% and floor -37%
     against the reference before this item as after, a reading for 142 and the game; 2,208 in both
     orders.
+
+186. **The look read whole against the reference, and the knob.** Decision 84's last sentence. With
+    170 to 175, 178 and 185 landed and 176 and 177 read as not needed, the eight Sponza views at
+    8:00, 12:00 and 15:00 are read metered beside the reference pictures and against the engine's
+    own path-traced reference, the remaining gap named region by region as the tint's, the
+    exposure's, the bounce's gain (142) or the reference's extra beyond physics; where the last
+    remains after 142, a knob on the bounce's gain, SetBounceGain or the name the API has, off at
+    one, the example setting the value the owner's eye chooses from a sheet of three settings beside
+    the reference. One commit of readings and the knob, after 142.
 
 ## Verdicts
 

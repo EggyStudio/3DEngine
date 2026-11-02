@@ -133,9 +133,22 @@ internal static class BounceReference
     /// along.
     /// </summary>
     /// <remarks>
+    /// <para>
     /// The reference leaves out the emission of a glow light global illumination carries where a path
     /// first meets it, as the probe's rays do, since that light reaches a surface as a light of its own
     /// (<see cref="GlowLights"/>) rather than through the probes.
+    /// </para>
+    /// <para>
+    /// <paramref name="bounces"/> counts what a path does after the probe's own ray meets its first
+    /// surface, so 0 lights that surface alone, as the probes' hits are lit with the light past the
+    /// first bounce left out (<c>gi.toggle again off</c>), where a reference of the window's picture
+    /// (<see cref="Trace"/>) counts from the face the eye sees, and its 1 is the one that frame is
+    /// read against. Read against 1, a probe took the walls' light reflected once more and read 35 to
+    /// 59% under at one bounce in the bounce rooms, where against 0 it reads within 3%. A glow
+    /// light's own light reaches a hit only along a path's next segment in the reference, whose
+    /// lights are the sun and the lamps, so a probe lit by a glow light with the light past the first
+    /// bounce left out is read against 1.
+    /// </para>
     /// </remarks>
     public static string Probe(World world, Vector3 point, int samples, int bounces = -1, int cascade = 0)
     {

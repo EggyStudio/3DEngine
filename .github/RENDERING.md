@@ -3146,6 +3146,38 @@ its floor 17% where 10%, while at `High` it reads 2% under where 8% over. So at 
 covered that room's own shortfall, and taking it out leaves the shortfall standing (`gi.probe` and
 `gi.screenprobe` with 256 paths a way, `gi.compare`, BounceRoomsTests).
 
+**The gain past the first bounce, read again on 2026-11-02.** At `High` at 800 by 450, each room's
+light past the first bounce, the frame's with every bounce less the frame's with
+`gi.toggle again off`, over the reference's with every bounce less one, each with the first face's
+specular share, reads 0.93 in the Cornell box, 1.14 in the thin room, 0.29 in the corridor, 1.14 in
+the window's room, 0.68 in the strip's, 0.98 on the grazing floor, 0.97 in the carried lamp's and
+0.04 around the emissive blocks, and the world's probes read alike through `gi.probe` with every
+bounce against `bounces 0`, 1.15 in the thin room, 1.09 in the window's, 0.82 in the Cornell box and
+1.00 on the grazing floor, their first bounce within 3% where no glow light lights them. The gain is
+the gradient read before. A probe's hit reads the probes standing in front of its surface, the layer
+behind its plane left out, and the reference's light arriving at the floor of a white room 4 units
+across under a lamp, facing up, reads 0.784 at the floor, 0.846 at the first layer 0.6 above it and
+0.990 at 1.8, and in a room 8 across 0.363, 0.407 and 0.608, so each bounce takes on 8 to 12%, the
+rooms' light past the first bounce reading 1.08 to 1.10 and 1.14 to 1.18 alike in every band of how
+far a probe's ray went. A hit's read, the light past the first bounce its ray brought times pi over
+its color, against the reference's light arriving at the hit, reads 1.07 to 1.11 in the room 4
+across and 1.15 to 1.23 in the room 8 across, and 0.81 to 0.92 on an open L of a floor and a wall
+under the lamp, its corner no worse than the rest, so the gradient changes its sign with the room,
+the probes off a surface holding more light than at it in a closed room and less where the surfaces
+open out, and a room that reads its reference holds both. Taking the light back to the surface's
+plane by its change to the next probe along the normal fed on itself on the grazing floor, past the
+first bounce 0.98 to 1.53. Taken back only where it rises away from the surface, by a quarter at
+most, the white rooms read 1.01 to 1.02 and 0.93 to 0.99, the thin room 1.06, the window's 1.07, but
+the Cornell box 0.84, the grazing floor 0.89, the carried lamp's 0.89 and the strip's 0.63, the
+rooms that read their references losing their excess and keeping their shortfall, and
+BounceRoomsTests reads the grazing floor 0.068, 0.062 and 0.081 at `High`, `Medium` and `Low`
+against its bounds of 0.06, 0.06 and 0.05, and 0.081 with its far cascade against 0.05. Taken both
+ways within a quarter, the L reads 1.01 to 1.17 and the grazing floor 0.062 to 0.075. None is kept
+(`gi.probe` with 256 paths a way, `gi.compare`, BounceRoomsTests, the reference traced from a point
+of a scratch test's choosing). The glow panel of the Cornell box lights the probes' hits 0 to 18%
+under the reference at its first bounce, and their light with every bounce 7 to 15% under with the
+lamp off.
+
 **`Low`'s first bounce in the grazing floor's room, read and mended on 2026-10-19.** The grazing
 floor's room reads 9% under its reference at `Low` and 8% over at `High`, where the Cornell box, the
 thin room and the carried lamp's room read alike at both, within a point. It lies within reach of

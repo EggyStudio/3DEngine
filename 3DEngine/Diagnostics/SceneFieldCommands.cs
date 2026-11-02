@@ -108,7 +108,7 @@ internal static class SceneFieldCommands
     internal static string Reference(string path, int samples, int bounces = -1, string ways = "") =>
         ways is "" or "specular" ? BounceReference.Trace(ConsoleHost.World!, path, samples, bounces, ways == "specular") : "The last word is specular or nothing.";
 
-    [Command("gi.probe", "The light arriving at the probe of a cascade nearest a point against a path-traced reference of it, where its own rays met a surface, over every way merged with the cascades above, and each face's light as the model pass reads it, with the ways that carry most of the face furthest from the reference's: gi.probe <x> <y> <z> [samples] [bounces] [cascade]")]
+    [Command("gi.probe", "The light arriving at the probe of a cascade nearest a point against a path-traced reference of it, where its own rays met a surface, over every way merged with the cascades above, and each face's light as the model pass reads it, with the ways that carry most of the face furthest from the reference's, its paths' bounces counted after the probe's first hit, 0 as the probes' hits are lit with gi.toggle again off: gi.probe <x> <y> <z> [samples] [bounces] [cascade]")]
     internal static string Probe(float x, float y, float z, int samples = 256, int bounces = -1, int cascade = 0) =>
         BounceReference.Probe(ConsoleHost.World!, new System.Numerics.Vector3(x, y, z), samples, bounces, cascade);
 
