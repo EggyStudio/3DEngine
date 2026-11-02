@@ -3,18 +3,29 @@ using System.Numerics;
 namespace Engine;
 
 // The day sky lit through the air the program names (SkyDay.Atmosphere), the sun's and the moon's
-// light as the Sky module's model gives them at their height, and the painted map as strong as the
-// air's sky lights a level floor at the hour.
+// light as the Sky module's model gives them at their height, and the map the air's sky, which the
+// GPU draws from the same model (AirSky, atmosphere_sky.slang).
 internal sealed partial class DaySky
 {
-    // The sun's disc, half a degree across, sets over the half degree around its middle's
-    // crossing of the horizon, so its light fades out as the disc goes rather than at once.
-    private const float DiscRadiusDegrees = 0.27f;
+    /// <summary>
+    /// The sun's disc's angular radius in degrees, half of its half a degree across, over which its
+    /// light fades out around its middle's crossing of the horizon rather than at once.
+    /// </summary>
+    internal const float DiscRadiusDegrees = 0.27f;
 
-    // The sky of the air last lit through, made again when the program names other air.
-    private Sky.SkyLight? _skyLight;
+    /// <summary>
+    /// The width and height of the air's map, a third of a degree a texel, so the drawn sky's cube
+    /// takes faces of 256.
+    /// </summary>
+    internal const int AirWidth = 1024, AirHeight = 512;
 
-    // Turns and colors the light through the air, and paints the map as strong as the air's sky.
+    /// <summary>
+    /// The sun's disc as the drawn sky adds it over the air's, the way toward it and its luminance
+    /// through the air in the frame's light, or none where the sky has no air or the sun is down.
+    /// </summary>
+    public (Vector3 Toward, Vector3 Light)? SunDisc { get; private set; }
+
+    // Turns and colors the light through the air, and has the GPU draw the map from the air's sky.
     private void ApplyAir(World world, Sky.Atmosphere air, double now)
     {
         var (hour, tilt) = (Hour, Day.Tilt);
@@ -30,17 +41,28 @@ internal sealed partial class DaySky
             var intensity = lux > 0 ? units.IntensityOf(LightKind.Directional, lux, PhysicalQuantity.Illuminance, 0, Sky.Colorimetry.Luminance(hue)) : 0;
             E3D.SetLightDirection(Light, direction);
             E3D.SetLightColor(Light, color, intensity);
+            SunDisc = DiscAt(air, Outside(), hour, tilt, units.PreExposure);
         }
 
         if (!double.IsNaN(_paintedHours) && (Math.Abs(Hours - _paintedHours) < RepaintHours || now - _paintedAt < RepaintSeconds)) return;
         (_paintedHours, _paintedAt) = (Hours, now);
-        if (_skyLight?.Air != air) _skyLight = new Sky.SkyLight(air);
-        // The air's sky for the module's sun, scaled to the program's sun outside the air.
-        var level = Sky.Colorimetry.Luminance(_skyLight.Illuminance(SunToward(hour, tilt))) * Sky.Colorimetry.Luminance(Outside()) / Sky.Sun.OutsideIlluminance;
-        var strength = level / MathF.PI * units.PreExposure / FloorLight(hour, tilt);
-        world.InsertResource(EnvironmentMap.FromEquirectangular(new Image(Paint(hour, tilt), Width, Height), strength));
-        var horizon = world.GetOrInsertResource(static () => new SkyHorizon());
-        (horizon.Color, horizon.BlendDegrees) = (Horizon, HorizonBlendDegrees);
+        // The air's sky is its own below the horizon, the ground lit through the air, so no horizon
+        // color is drawn over it.
+        world.InsertResource(EnvironmentMap.FromAir(new AirSky(air, SunToward(hour, tilt), Outside() * units.PreExposure), AirWidth, AirHeight));
+        world.RemoveResource<SkyHorizon>();
+    }
+
+    /// <summary>
+    /// The sun's disc through <paramref name="air"/> at an hour, its luminance the sun's light at
+    /// the ground spread over the disc's solid angle, times <paramref name="preExposure"/>, or none
+    /// once its middle is below the horizon.
+    /// </summary>
+    internal static (Vector3 Toward, Vector3 Light)? DiscAt(Sky.Atmosphere air, Vector3 outside, float hour, float tilt, float preExposure)
+    {
+        var toSun = SunToward(hour, tilt);
+        if (toSun.Y <= 0) return null;
+        var solidAngle = 2 * MathF.PI * (1 - MathF.Cos(float.DegreesToRadians(DiscRadiusDegrees)));
+        return (toSun, outside * air.Transmittance(0, toSun.Y) / solidAngle * preExposure);
     }
 
     // The sun's light outside the air in linear light, its luminance in lux, the program's where it

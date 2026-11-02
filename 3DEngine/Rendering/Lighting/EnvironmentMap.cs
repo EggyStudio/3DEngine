@@ -65,6 +65,24 @@ internal sealed class EnvironmentMap
     /// <summary>What the map's light is multiplied by.</summary>
     public float Intensity { get; set; }
 
+    /// <summary>
+    /// The air whose sky the GPU draws into the map's image in place of <see cref="Pixels"/>,
+    /// or none for a map of pixels (<see cref="FromAir"/>).
+    /// </summary>
+    public AirSky? Air { get; private init; }
+
+    /// <summary>
+    /// Makes a map whose image of <paramref name="width"/> by <paramref name="height"/> texels the
+    /// GPU draws from <paramref name="air"/>'s sky in the frame that first sees it, before the
+    /// filter reads it, so the map holds no pixels on the CPU.
+    /// </summary>
+    /// <remarks>
+    /// The sky's luminance is already the frame's light, the air's numbers times what a luminance
+    /// is multiplied by for the frame, so the map is taken at an intensity of 1.
+    /// </remarks>
+    public static EnvironmentMap FromAir(AirSky air, int width = 1024, int height = 512, int faceSize = 64) =>
+        new([], Math.Clamp(width, 4, MaxWidth), Math.Max(2, height), 1, FaceSize(faceSize)) { Air = air };
+
     /// <summary>Makes a map from an equirectangular image of sRGB color, filtered into faces <paramref name="faceSize"/> texels wide.</summary>
     /// <remarks>Eight bits a channel cap the light at white, so a sun is no brighter than a cloud. <see cref="FromHdrFile"/> keeps it.</remarks>
     /// <exception cref="ArgumentException">The image is empty.</exception>

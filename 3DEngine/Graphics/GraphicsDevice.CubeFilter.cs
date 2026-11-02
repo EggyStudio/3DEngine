@@ -92,7 +92,9 @@ internal sealed unsafe partial class GraphicsDevice
     internal const int IrradianceSize = 16;
 
     private const int GatherStage = 0, MipStage = 1, PrefilterStage = 2, IrradianceStage = 3, EnvironmentStage = 4;
-    private readonly ComputeStage[] _filterStages = new ComputeStage[5];
+    // The filter's stages and the air's after them (GraphicsDevice.Atmosphere), which record into
+    // one run of the filter's.
+    private readonly ComputeStage[] _filterStages = new ComputeStage[8];
     private readonly Dictionary<uint, (VkImage Image, VkDeviceMemory Memory, VkImageView Cube, VkImageView[] Levels)> _filterSources = [];
     private ISampler? _filterSampler;
     private ISampler? _equirectangularSampler;
@@ -287,16 +289,19 @@ internal sealed unsafe partial class GraphicsDevice
     /// </summary>
     /// <returns>What the recording holds, its descriptor sets, to free once no frame in flight reads them.</returns>
     /// <exception cref="InvalidOperationException">The filter's shaders have not been given.</exception>
-    public IDisposable RecordEnvironmentFilter(ICommandBuffer commandBuffer, IImageView image, uint imageHeight, FilteredCube target, FilteredCube sky)
+    public IDisposable RecordEnvironmentFilter(ICommandBuffer commandBuffer, IImageView image, uint imageHeight, FilteredCube target, FilteredCube sky,
+        AirSky? air = null)
     {
         // A source twice the target's width, so its mirror mip reads four texels of the image's own.
         var sourceSize = Math.Max(IrradianceSize, 2 * target.Size);
         var source = Source(sourceSize);
-        var run = new FilterRun(this, commandBuffer, [(EnvironmentStage, 2), .. FilterRun.Sets(source, target)]);
+        var run = new FilterRun(this, commandBuffer, [(EnvironmentStage, 2), .. air is null ? [] : AirSets(air), .. FilterRun.Sets(source, target)]);
         _equirectangularSampler ??= CreateSampler(new SamplerDesc(SamplerFilter.Linear, SamplerFilter.Linear,
             SamplerAddressMode.Repeat, SamplerAddressMode.ClampToEdge, SamplerAddressMode.ClampToEdge));
 
-        // After the upload that filled the image and its mips, submitted ahead of the frame.
+        // The air's sky drawn into the image and its mips, where the image is the air's, or the
+        // upload that filled them, submitted ahead of the frame.
+        if (air is not null) RecordAirSky(run, ((VulkanCommandBuffer)commandBuffer).Handle, image.Image, air);
         run.Begin(source, [target, sky], VkPipelineStageFlags2.Transfer, VkAccessFlags2.TransferWrite);
         foreach (var (cube, size) in new[] { (source.Levels[0], sourceSize), (sky.Levels[0], sky.Size) })
         {
@@ -379,15 +384,19 @@ internal sealed unsafe partial class GraphicsDevice
         }
 
         // A dispatch over layers of size texels square, in groups of 8 by 8.
-        public void Dispatch(int stage, VkDescriptorSet set, ReadOnlySpan<byte> push, uint size, uint layers)
+        public void Dispatch(int stage, VkDescriptorSet set, ReadOnlySpan<byte> push, uint size, uint layers) => Dispatch(stage, set, push, size, size, layers);
+
+        // A dispatch over one layer of width by height texels, in groups of 8 by 8.
+        public void DispatchArea(int stage, VkDescriptorSet set, ReadOnlySpan<byte> push, uint width, uint height) => Dispatch(stage, set, push, width, height, 1);
+
+        private void Dispatch(int stage, VkDescriptorSet set, ReadOnlySpan<byte> push, uint width, uint height, uint layers)
         {
             var (pipeline, layout, _) = _device._filterStages[stage];
             _device._deviceApi.vkCmdBindPipeline(_cmd, VkPipelineBindPoint.Compute, pipeline);
             _device._deviceApi.vkCmdBindDescriptorSets(_cmd, VkPipelineBindPoint.Compute, layout, 0, 1, &set, 0, null);
             fixed (byte* p = push)
                 _device._deviceApi.vkCmdPushConstants(_cmd, layout, VkShaderStageFlags.Compute, 0, (uint)push.Length, p);
-            var groups = Math.Max(1, (size + 7) / 8);
-            _device._deviceApi.vkCmdDispatch(_cmd, groups, groups, layers);
+            _device._deviceApi.vkCmdDispatch(_cmd, Math.Max(1, (width + 7) / 8), Math.Max(1, (height + 7) / 8), layers);
         }
 
         private void Between() => _device.MemoryBarrier(_cmd, VkPipelineStageFlags2.ComputeShader, VkAccessFlags2.ShaderWrite,
@@ -558,5 +567,6 @@ internal sealed unsafe partial class GraphicsDevice
         _equirectangularSampler?.Dispose();
         _filterSampler = _equirectangularSampler = null;
         Array.Clear(_filterStages);
+        DisposeAtmosphere();
     }
 }

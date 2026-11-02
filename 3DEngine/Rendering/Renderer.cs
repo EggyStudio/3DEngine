@@ -113,6 +113,9 @@ internal sealed class Renderer : IDisposable
                 server.LoadSync<ShaderProgram>("shaders/probe_prefilter.slang").Compute,
                 server.LoadSync<ShaderProgram>("shaders/probe_irradiance.slang").Compute,
                 server.LoadSync<ShaderProgram>("shaders/env_gather.slang").Compute);
+            device.InitializeAtmosphere(server.LoadSync<ShaderProgram>("shaders/atmosphere_transmittance.slang").Compute,
+                server.LoadSync<ShaderProgram>("shaders/atmosphere_scatter.slang").Compute,
+                server.LoadSync<ShaderProgram>("shaders/atmosphere_sky.slang").Compute);
         }
         RenderWorld.Set(new ParticleRenderer(server.LoadSync<ShaderProgram>("shaders/particles.slang")));
         RenderWorld.Set(new ModelRenderer(model, shadow, server.LoadSync<ShaderProgram>("shaders/model_streams.slang"),

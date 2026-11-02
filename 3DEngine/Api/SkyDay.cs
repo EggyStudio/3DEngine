@@ -68,9 +68,11 @@ public readonly record struct SkyDay
     /// the sun's outside the air, the module's 128,000 lux at 5,772 K where they are unset, and the
     /// light that reaches the world is that one through the air at the sun's height, dimming and
     /// warming as it sinks and gone as its disc sets. By night the moon gives its light by the
-    /// same air, a full moon's third of a lux outside it. The sky's light on a level floor is the
-    /// air's at the hour, the sun's light scattered toward it, and <see cref="SkyIlluminance"/> is
-    /// not read.
+    /// same air, a full moon's third of a lux outside it. The sky is the air's, the sun's light it
+    /// scatters toward the eye, drawn on the GPU by the module's model, which lights the world from
+    /// all around and which <see cref="E3D.DrawSkybox()"/> draws with the sun's disc on it, the
+    /// ground below the horizon lit through the air in place of a horizon's color, and
+    /// <see cref="SkyIlluminance"/> is not read.
     /// </para>
     /// <para>
     /// The lux are seen through the camera <see cref="E3D.SetCameraExposure"/> sets, so a program

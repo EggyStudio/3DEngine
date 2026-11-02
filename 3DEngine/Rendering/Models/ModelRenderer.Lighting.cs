@@ -302,6 +302,9 @@ internal sealed partial class ModelRenderer
     /// <summary>The environment map's filtered cube, once a frame has filtered it, for a test to read back.</summary>
     internal FilteredCube? Environment => _environment;
 
+    /// <summary>The sky's cube the environment map was resampled into, which the drawn sky reads, for a test to read back.</summary>
+    internal FilteredCube? SkyCube => _sky;
+
     /// <summary>
     /// Filters the environment map on the GPU in the frame that first sees it, before any pass
     /// samples it, its image uploaded with its mips, resampled into a cube prefiltered by
@@ -317,15 +320,18 @@ internal sealed partial class ModelRenderer
         if (_environment is not null) _retiredCubes.Add((_frames, _environment));
         if (_sky is not null) _retiredCubes.Add((_frames, _sky));
         var (width, height) = ((uint)environment.Width, (uint)environment.Height);
+        // An air's map is drawn into its image by the GPU in this frame, and a map of pixels uploaded.
+        var air = environment.Air is not null && device.CanDrawAir ? environment.Air : null;
         var image = device.CreateImage(new ImageDesc(new Extent2D(width, height), ImageFormat.R16G16B16A16_Float,
-            ImageUsage.Sampled | ImageUsage.TransferDst | ImageUsage.TransferSrc, (uint)Math.Log2(Math.Max(width, height)) + 1));
-        device.UploadTexture2D(image, System.Runtime.InteropServices.MemoryMarshal.AsBytes(environment.Pixels.AsSpan()), width, height, 8);
+            ImageUsage.Sampled | ImageUsage.TransferDst | ImageUsage.TransferSrc | (air is null ? 0 : ImageUsage.Storage), (uint)Math.Log2(Math.Max(width, height)) + 1));
+        if (air is null)
+            device.UploadTexture2D(image, System.Runtime.InteropServices.MemoryMarshal.AsBytes(environment.Pixels.AsSpan()), width, height, 8);
         var view = device.CreateImageView(image);
         _environment = device.CreateFilteredCube((uint)environment.Size, (uint)environment.MipLevels);
         _sky = device.CreateFilteredCube((uint)environment.SkySize, 1, irradiance: false);
         device.Name(_environment.Image, "Environment map");
         device.Name(_sky.Image, "Sky");
-        var filter = device.RecordEnvironmentFilter(renderContext.CommandBuffer, view, height, _environment, _sky);
+        var filter = device.RecordEnvironmentFilter(renderContext.CommandBuffer, view, height, _environment, _sky, air);
         // The image is read by this frame's filter alone.
         _retiredCubes.Add((_frames, filter));
         _retiredCubes.Add((_frames, view));

@@ -70,7 +70,8 @@ internal sealed partial class DaySky
 
     /// <summary>
     /// Records the stars about the eye in the sky's space as it stands at 6, for a transform that
-    /// turns it by the hour, fading in as the day fades and near the horizon, hidden beside the sun
+    /// turns it by the hour, fading in as the day fades, or through air between the sun's six and
+    /// twelve degrees below the horizon, and near the horizon, hidden beside the sun
     /// and the moon and taking the share of the horizon band left clear at their height, and answers
     /// how many quads.
     /// </summary>
@@ -79,7 +80,9 @@ internal sealed partial class DaySky
     internal int DrawStars(SkyQuad quad, float blendDegrees)
     {
         var toSun = SunToward(Hour, Day.Tilt);
-        var night = 1 - DayShare(toSun);
+        // Through air the sky stays light until the sun is six degrees down, the end of civil
+        // twilight, and the stars come out by twelve.
+        var night = Day.Atmosphere is null ? 1 - DayShare(toSun) : SmoothStep(-0.1f, -0.2f, toSun.Y);
         if (night <= 0.01f) return 0;
         var turn = Turn(Hour);
         var quads = 0;
@@ -102,7 +105,8 @@ internal sealed partial class DaySky
     /// <summary>
     /// Records the moon and the sun about the eye in the sky's space as it stands at 6, for a
     /// transform that turns it by the hour, each fading as it sets and taking the share of the
-    /// horizon band left clear at its height, the moon in the day's phase, and answers how many quads.
+    /// horizon band left clear at its height, the moon in the day's phase and the sun only where
+    /// the sky has no air, and answers how many quads.
     /// </summary>
     /// <param name="quad">Where each quad goes, the draw list's in a frame.</param>
     /// <param name="blendDegrees">The horizon band's degrees, as the drawn sky blends it.</param>
@@ -122,7 +126,9 @@ internal sealed partial class DaySky
         var moonPart = new Vector4((phase % 4 * SkyArt.Cell + 1) / sheet.X, (phase / 4 * SkyArt.Cell + 1) / sheet.Y,
             (phase % 4 * SkyArt.Cell + 1 + SkyArt.Texels) / sheet.X, (phase / 4 * SkyArt.Cell + 1 + SkyArt.Texels) / sheet.Y);
         quads += Body(quad, corners, moon, moonPart, -sunWay, Distance * MoonAcross / SkyArt.Size, Setting(-toSun), turn, blendDegrees);
-        quads += Body(quad, corners, sun, new Vector4(0, 0, 1, 1), sunWay, Distance * SunAcross / SkyArt.Size, Setting(toSun), turn, blendDegrees);
+        // Through air the sky draws the sun's disc by its luminance in its place (SunDisc).
+        if (Day.Atmosphere is null)
+            quads += Body(quad, corners, sun, new Vector4(0, 0, 1, 1), sunWay, Distance * SunAcross / SkyArt.Size, Setting(toSun), turn, blendDegrees);
         return quads;
     }
 

@@ -1,13 +1,15 @@
 # Review
 
-Reviewed up to `4b80c5c8`, item 169, pushed at 17:51 on 2026-11-01, its run green at 20:24 with
-Windows in 149 minutes under 149's limit of 180, Linux in 84 and macOS in 41. After it `60fd7e23`
-(180), `5932c389` (179), `5ea3e98f` (167 with 171 folded in) and `3b5264d7` (181's first part),
-pushed at 20:24, the run of `3b5264d7` red at 22:07 on the three systems, Verdict 98, Linux in 26
-minutes, macOS in 27 and Windows in 101, the two commits after it held until the mend. After it
-`2d051ada` and `6fd05fd4` (181's second and third parts) and `d9c50b3b` (Verdict 98's mend), pushed
-at 22:42, the run of `d9c50b3b` awaited; each keeps the form. Each commit's detail stands in its
-item in REVIEW-ARCHIVE.md, its devlog note and its own words. Before it `6cc2a0a0`, item 166's mend,
+Reviewed up to `d9c50b3b`, Verdict 98's mend, pushed at 22:42 on 2026-11-01 with `2d051ada` and
+`6fd05fd4`, 181's second and third parts, its run green at 00:30 on 2026-11-02 with Windows in 103
+minutes, Linux in 47 and macOS in 39, which settles Verdict 98. After it `2cb39bcb` (139) and
+`bd081fa6` (170's first engine commit, Sky as a submodule at its `a5e474b`), pushed at 00:31, the
+run of `bd081fa6` awaited; each keeps the form. Each commit's detail stands in its item in
+REVIEW-ARCHIVE.md, its devlog note and its own words. Before it `4b80c5c8`, item 169, pushed at
+17:51, its run green at 20:24 with Windows in 149 minutes, Linux in 84 and macOS in 41. Before it
+`3b5264d7` (181's first part), `5ea3e98f` (167 with 171 folded in), `5932c389` (179) and `60fd7e23`
+(180), pushed at 20:24, the run of `3b5264d7` red at 22:07 on the three systems, Verdict 98, a push
+of 32 bytes where the layout held 16, mended at `d9c50b3b`. Before it `6cc2a0a0`, item 166's mend,
 pushed at 15:18 with `001e93f0`, item 168, its run green at 17:50 with Windows in 149 minutes, Linux
 in 53 and macOS in 37. Before it `e159992e`, items 164 and 165, pushed at 13:03 with `ea4fccb3`,
 item 163, its run green at 15:17 with Windows in 131 minutes, Linux in 82 and macOS in 35. Before it
@@ -1161,7 +1163,22 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     Sponza's lookup view beside the reference. The sun's and the sky's light by elevation and the
     atmosphere's parameters are written in the Sky module (Decision 85, the module's item 3) from
     this item's first commit, the engine taking the module as a submodule under `modules/` (the
-    module's item 4) and the pass reading the module's numbers. Three commits.
+    module's item 4) and the pass reading the module's numbers. Three commits. The first engine
+    commit is `bd081fa6`, read at 00:14 on 2026-11-02, its push waiting on d9c50b3b's run, after the
+    module's `a5e474b` pushed and green: Sky a submodule under modules/ at a5e474b, referenced with
+    PrivateAssets all so the package carries Sky.dll and Sky.xml with no dependency in the nuspec,
+    every job that builds checking submodules out, the pack target taking the module's files from
+    the output folder (a target depending on ResolveReferences made pack --no-build build the
+    generator again, NETSDK1085, mended, a Shared line), pack.sh and Hopper from the local package
+    checked; SkyDay.Atmosphere as the new public call, the sun lit through the air at its height
+    from the program's illuminance and color outside the air or the module's 128,000 lux at 5,772 K,
+    the disc fading over its last half degree, the full moon through the same air, the painted map
+    scaled to the module's sky illuminance at the hour until the pass lands; DESIGN.md's section 8
+    saying why the modules are taken, BUILDING.md cloning with submodules, AGENTS.md's modules row;
+    4 tests, 2,199 in both orders. The pass follows, the transmittance, the scattering and the sky
+    in Slang as a port of the module's SkyLight writing the environment's image on the GPU for the
+    filter, the drawn sky and the field's sky, a physical sun disc, a GPU test reading the sky cube
+    against SkyLight.Luminance.
 
 171. **The post-processing as the reference's profile has it.** Folded into item 167 on 2026-11-01
     at 15:42, the bloom, the lift, gamma and gain and the lookup table loaded from a file, since
@@ -1377,28 +1394,7 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
 
 ## Verdicts
 
-Verdicts 56 to 97 are settled, said under each in REVIEW-ARCHIVE.md; Verdict 98 is open.
-
-98. **The run of `3b5264d7` is red on the three systems, a push of 32 bytes where the layout holds
-    16.** Read at 22:1x on 2026-11-01, Linux red in 26 minutes, macOS in 27 and Windows in 101, two
-    tests of one cause on each, FrameEffectsTests.Fxaa_Smooths_An_Edge_Multisampling_Does_Not and
-    ReferenceFrameTests.The_Effects_Over_The_Frame_Match_Their_Reference, the validation layer
-    reporting vkCmdPushConstants called for the fragment stage with offset 0 and size 32 against a
-    pipeline layout whose one range is 16 bytes, in the frame's effects. The four commits pushed at
-    20:24 are 180, 179, 167 and 181's first part; the frame's effects changed in 167, the
-    post-processing, so its push block grew past its layout's range or a pass took another's layout.
-    The coder's suite passed on the GPU without the layer, so the fault is one the layer alone sees.
-    The mend is the layout's range made to match the block pushed, or the push the range, in every
-    effects pass, read by the two tests under the validation layer on lavapipe locally before the
-    commit, as the runner runs them, with a line in the test's remarks saying the effects tests run
-    under the layer where the device has it. The two commits after it, `2d051ada` and `6fd05fd4`,
-    are held and go up with the mend. The mend is at `d9c50b3b`, pushed at 22:42 with the two, 167
-    having given the bloom block 32 bytes and FXAA pushing that block against its 16-byte range
-    where fxaa.slang reads one float4, FXAA pushing a block of its own and the pipeline helper
-    taking every pass's range from the block it pushes, no default size; every effects pass's block
-    checked against its shader, FXAA alone disagreeing; read on lavapipe with the layer, HEAD
-    failing the same two tests with the same error and the mend passing 64 of 64, the remarks saying
-    how the tests run as the runner does; 2,185 in both orders. Settled by that run green.
+Verdicts 56 to 98 are settled, said under each in REVIEW-ARCHIVE.md; none is open.
 
 ## Decisions
 
@@ -1697,3 +1693,13 @@ submodules out. The pack target lists the module's files from the engine's own o
 and stops (NETSDK1085). `SkyDay.Atmosphere` lights the day sky's sun and moon through the module's
 air, the sun outside the air the program's or the module's, fading over the half degree its disc
 sets over (item 170's first part).
+
+Shared: the day sky's air is drawn on the GPU from the Sky module's model (item 170's second part),
+`SkyLight` ported to Slang step for step. Two tables are made where the air differs from the one
+they hold, and an image of 1,024 by 512 is marched 48 steps a texel ahead of the environment's
+filter, so the drawn sky, the light from all around and the field's sky are one image. The sky
+cube reads within 0.21% of the module's luminance along 5,850 texels' ways and the irradiance
+within 0.2% of the module's sky projected onto the nine harmonics, on an RTX 4070, and the air's
+tests pass on lavapipe under the validation layer (`AirSkyTests`). The sun's disc is added by the
+sky's shader alone, so the light from all around holds no second sun, and the stars wait for the
+sun six degrees down.

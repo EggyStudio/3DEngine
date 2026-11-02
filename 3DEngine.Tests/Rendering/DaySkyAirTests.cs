@@ -54,6 +54,20 @@ public sealed class DaySkyAirTests : IDisposable
 
     [Fact]
     [Trait("Category", "Unit")]
+    public void Through_The_Air_The_Stars_Wait_Until_The_Sun_Is_Six_Degrees_Down_And_The_Sun_Is_The_Skys_Disc()
+    {
+        static void Quad(ReadOnlySpan<ImmediateVertex> corners, int texture) { }
+        var sky = new DaySky { Day = new SkyDay { Minutes = 0, Tilt = 0, Atmosphere = Earth } };
+        sky.Hours = HourAt(-3);
+        sky.DrawStars(Quad, 0).Should().Be(0, "the sky is light in civil twilight");
+        sky.Hours = HourAt(-15);
+        sky.DrawStars(Quad, 0).Should().BeGreaterThan(1_000, "the stars are out past nautical twilight");
+        sky.Hours = HourAt(30);
+        sky.DrawSunAndMoon(Quad, 0, 1, 2).Should().Be(0, "the sky draws the sun's disc and the moon is down");
+    }
+
+    [Fact]
+    [Trait("Category", "Unit")]
     public void A_Sun_Set_Outside_The_Air_Warms_Through_It_As_It_Sinks()
     {
         // The scene drawn in Unity's HDRP that the engine's sky is read against sets its sun outside
@@ -70,7 +84,7 @@ public sealed class DaySkyAirTests : IDisposable
 
     [Fact]
     [Trait("Category", "Unit")]
-    public void The_Skys_Light_Takes_The_Airs_Lux_Through_The_Camera()
+    public void The_Suns_Light_Takes_The_Airs_Lux_Through_The_Camera_And_The_Map_Is_The_Airs()
     {
         UseApp(new App(Config.Default with { Headless = true, HeadlessFps = 1000, FrameSeconds = 1.0 / 60 }).AddPlugin(new DefaultPlugins()));
         var hour = HourAt(53.97f);
@@ -89,11 +103,15 @@ public sealed class DaySkyAirTests : IDisposable
         (light.Intensity * luminance * MathF.PI / units.PreExposure).Should().BeApproximately(sun.Illuminance, sun.Illuminance * 0.01f,
             "the light returns the sun's lux from a white surface facing it, through the camera");
 
-        // The map lights a level floor with the air's sky at the hour.
-        var sky = new Sky.SkyLight(Earth).Illuminance(DaySky.SunToward(hour, 0));
+        // The map is the air's sky, which the GPU draws from the module's model, and no horizon
+        // color is drawn over its ground.
         var map = world.Resource<EnvironmentMap>();
-        (map.Intensity * DaySky.FloorLight(hour, 0) * MathF.PI / units.PreExposure).Should().BeApproximately(Sky.Colorimetry.Luminance(sky),
-            Sky.Colorimetry.Luminance(sky) * 0.01f, "the painted map is as strong as the air's sky");
+        map.Air.Should().NotBeNull("the map is drawn from the air");
+        map.Air!.Air.Should().Be(Earth);
+        Sky.Colorimetry.Luminance(map.Air.Light).Should().BeApproximately(Sky.Sun.OutsideIlluminance * units.PreExposure, 1e-4f,
+            "the sun outside the air seen through the camera");
+        world.TryGetResource<SkyHorizon>(out _).Should().BeFalse();
+        GetApp().World.Resource<DaySky>().SunDisc.Should().NotBeNull("the sun is up");
     }
 
     private static LightHandle GetSkyLightHandle() => GetApp().World.Resource<DaySky>().Light;

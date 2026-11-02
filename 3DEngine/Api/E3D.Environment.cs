@@ -110,6 +110,11 @@ public static partial class E3D
         SetShaderValue(shader, GetShaderLocation(shader, "horizonColor"),
             horizon is null ? Vector4.Zero : new Vector4(horizon.Color.R / 255f, horizon.Color.G / 255f, horizon.Color.B / 255f, 1));
         SetShaderValue(shader, GetShaderLocation(shader, "horizonBlend"), horizon?.BlendDegrees ?? 0);
+        // The sun's disc of a day sky with air, by its luminance through the air.
+        var disc = TryRes<DaySky>(out var daySky) ? daySky.SunDisc : null;
+        SetShaderValue(shader, GetShaderLocation(shader, "sunDisc"),
+            disc is { } sun ? new Vector4(sun.Toward, MathF.Cos(float.DegreesToRadians(DaySky.DiscRadiusDegrees))) : Vector4.Zero);
+        SetShaderValue(shader, GetShaderLocation(shader, "sunLight"), disc is { } lit ? new Vector4(lit.Light, 0) : Vector4.Zero);
         Res<ModelDrawList>().Add(new ModelDraw(_skyMesh.Id, world, DrawList.Transform, tint, 0, DrawList.Target, shader.Id,
             UniformSnapshot(shader), AlphaMode: MaterialAlphaMode.Opaque, CastsShadow: false));
         if (TryRes<DaySky>(out var day)) DrawSkyBodies(day, camera.Position, horizon?.BlendDegrees ?? 0);

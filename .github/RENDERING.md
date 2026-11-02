@@ -525,6 +525,25 @@ eye through each pixel and sets its depth a millionth inside the far plane, so w
 draws is in front. The draw goes through `toDisplay` and the curve like a reflection does, and is
 left out of the shadow map (`ModelDraw.CastsShadow`).
 
+A day sky given air (`SkyDay.Atmosphere`) has no image on the CPU. Its map
+(`EnvironmentMap.FromAir`) names the Sky module's air, the way toward the sun and the sun's light
+outside the air times the camera's pre-exposure, and the filter draws its image on the GPU ahead of
+the gather (`GraphicsDevice.RecordAirSky`), its mips blitted after. Two tables are made where the
+air differs from the one they hold, the transmittance by height and zenith in 256 by 32 texels
+(`atmosphere_transmittance.slang`) and the light scattered more than once by height and the sun's
+zenith in 32 by 32 (`atmosphere_scatter.slang`, Hillaire's of 2020), and each texel of the image
+of 1,024 by 512 is a march of 48 steps along its way from the ground (`atmosphere_sky.slang`), the
+sun's light scattered toward the eye once by the molecules' and Cornette and Shanks's phase
+functions and more than once from the second table, and the ground's where the way meets it.
+Each step and number is the module's `SkyLight`, so the sky cube's texels read within 0.21% of
+the module's luminance along their ways and the irradiance within 0.2% of the module's sky
+projected onto the nine harmonics (`AirSkyTests`), the same nine putting a level floor 1.5 to 5%
+over the module's own integral of the sky, since they take in a little of the ground below the
+horizon. The drawn sky, the light from all around and the sky the field's rays meet are that one
+image, and the sun's disc is added by `sky.slang` alone, at the disc's luminance through the air,
+its light at the ground over the half degree it spans, so the light from all around holds no sun
+the directional light also gives.
+
 A `ReflectionProbe` entity, which `CreateReflectionProbe` makes, is a box whose surfaces reflect
 what is around its middle rather than the environment map. `ProbeNode`, after the window's shadow
 and before its passes, captures the first probe out of date, one face a frame. The window's batches,
