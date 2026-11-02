@@ -1178,7 +1178,29 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     4 tests, 2,199 in both orders. The pass follows, the transmittance, the scattering and the sky
     in Slang as a port of the module's SkyLight writing the environment's image on the GPU for the
     filter, the drawn sky and the field's sky, a physical sun disc, a GPU test reading the sky cube
-    against SkyLight.Luminance.
+    against SkyLight.Luminance. The pass is the second engine commit, `dd39d533`, read at 01:05, its
+    push waiting on bd081fa6's run; three compute stages over atmosphere.slang port the module's
+    SkyLight step for step, a transmittance table of 256 by 32 and Hillaire's multiple-scattering
+    table of 32 by 32 remade only when the air changes, and a 1,024 by 512 equirectangular sky of 48
+    steps a texel recorded ahead of the environment filter so the drawn sky, the irradiance and the
+    field's sky are one image; sky.slang alone adds the sun's disc at its luminance through the air
+    so the irradiance holds no second sun, the stars wait for the sun 6 degrees down, no horizon
+    color over the air's ground. AirSkyTests on the GPU, the sky cube within 0.21% of
+    SkyLight.Luminance over 5,850 texels held to 1%, the irradiance within 0.2% of the module's sky
+    on the same nine harmonics, the disc's middle white and 148 four degrees beside it, 21 of 21 on
+    lavapipe under the validation layer; 2,203 in both orders; pictures of core_day_sky through
+    Earth's air at 8:00, 12:00, 17:30 and 18:18 in the dump at 00-20 to 00-22, two sent to the
+    owner. Readings for the third commit at the reference's elevations through the scene's air with
+    its sun outside the air at the larger of 5,000 and 120,000 times the sine of the height at 5,633
+    K, the sun at the ground 22,580, 80,190 and 83,410 lux at 4,062, 4,903 and 4,924 K at 8:00,
+    12:00 and 15:05, the reference's kelvin the same within 10 and its lux 13% lower since Unity's
+    temperature color has its brightest channel at 1 where ours has a luminance of 1 (assumed from
+    Unity's 6,500 K reading white, an assumption until read on the reference scene), the sky
+    lighting the floor with 2,057, 10,770 and 11,410 lux, the white ground near doubling Earth's.
+    The third commit gives the Sponza example the scene's air and its sun's law and captures the
+    eight views metered at 15:00 before and after beside the references; the example's sun path puts
+    15:00 at 44.7 degrees where Cologne's 15:05 is 54, the path's match waiting for the module's
+    SkyClock, its item 3's first part.
 
 171. **The post-processing as the reference's profile has it.** Folded into item 167 on 2026-11-01
     at 15:42, the bloom, the lift, gamma and gain and the lookup table loaded from a file, since

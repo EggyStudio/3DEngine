@@ -6527,6 +6527,28 @@ at `36cae0c2`.
     growth is not of every run; the mend stands for the devices it names. Settled at 06:20 on
     2026-11-01, the run of `e3d37e1e` green on the three systems, Windows in 140 minutes.
 
+98. **The run of `3b5264d7` is red on the three systems, a push of 32 bytes where the layout holds
+    16.** Read at 22:1x on 2026-11-01, Linux red in 26 minutes, macOS in 27 and Windows in 101, two
+    tests of one cause on each, FrameEffectsTests.Fxaa_Smooths_An_Edge_Multisampling_Does_Not and
+    ReferenceFrameTests.The_Effects_Over_The_Frame_Match_Their_Reference, the validation layer
+    reporting vkCmdPushConstants called for the fragment stage with offset 0 and size 32 against a
+    pipeline layout whose one range is 16 bytes, in the frame's effects. The four commits pushed at
+    20:24 are 180, 179, 167 and 181's first part; the frame's effects changed in 167, the
+    post-processing, so its push block grew past its layout's range or a pass took another's layout.
+    The coder's suite passed on the GPU without the layer, so the fault is one the layer alone sees.
+    The mend is the layout's range made to match the block pushed, or the push the range, in every
+    effects pass, read by the two tests under the validation layer on lavapipe locally before the
+    commit, as the runner runs them, with a line in the test's remarks saying the effects tests run
+    under the layer where the device has it. The two commits after it, `2d051ada` and `6fd05fd4`,
+    are held and go up with the mend. The mend is at `d9c50b3b`, pushed at 22:42 with the two, 167
+    having given the bloom block 32 bytes and FXAA pushing that block against its 16-byte range
+    where fxaa.slang reads one float4, FXAA pushing a block of its own and the pipeline helper
+    taking every pass's range from the block it pushes, no default size; every effects pass's block
+    checked against its shader, FXAA alone disagreeing; read on lavapipe with the layer, HEAD
+    failing the same two tests with the same error and the mend passing 64 of 64, the remarks saying
+    how the tests run as the runner does; 2,185 in both orders. Settled by the run of `d9c50b3b`
+    green at 00:30 on 2026-11-02 on the three systems.
+
 ## Decisions
 
 1. **Commits stay local.** The owner pushes `main` from their own tools, and the working session

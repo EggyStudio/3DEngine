@@ -112,14 +112,28 @@ public static class ScenesSponza
         // leaves the floor in it.
         var hour = 12f;
         // The sun, the sky and the camera in physical units at the values of the scene the views
-        // are matched against, a sun of 97,050 lux at 5,633 K, a clear sky's 20,000 lux on a level
-        // floor, and a camera at ISO 200, 1/200 s and f/16, EV 14.64, under AgX's curve. Held
-        // there, the stone the sun lights reads as there and the light in the shade shows how far
-        // the bounce falls short of it, as the readings take it, and the shade reads a hundredth of
-        // the sunlit stone, which played looks as though it had no indirect light, so the example
+        // are matched against. Its sun is set outside the air to 120,000 lux times the sine of its
+        // height, 5,000 at least, at 5,633 K, and lit through the air of its sky, HDRP's Earth with
+        // the aerosols spread over 12 km and a white ground, which the Sky module models, so the
+        // light dims and warms through the air as the hour moves and the sky is the air's, 97,050
+        // lux outside reaching the ground at 4,924 K with the sun 54 degrees high as in that scene.
+        // The camera is at ISO 200, 1/200 s and f/16, EV 14.64, under AgX's curve. Held there, the
+        // stone the sun lights reads as there and the light in the shade shows how far the bounce
+        // falls short of it, as the readings take it, and the shade reads a hundredth of the
+        // sunlit stone, which played looks as though it had no indirect light, so the example
         // starts metered and M holds the camera at those values.
-        SetSkyDay(new SkyDay { Minutes = 0, Tilt = 6, SunIlluminance = 97050, SkyIlluminance = 20000, SunColor = ColorFromTemperature(5633) });
-        SetSkyTime(hour);
+        var air = Sky.Atmosphere.Earth with { AerosolExtinction = 1e-6f, AerosolScaleHeight = 12_000, GroundAlbedo = Vector3.One };
+        void SetHour(float at)
+        {
+            // The sun's height on the path the day sky gives it, leaning 6 degrees.
+            var height = MathF.Cos(float.DegreesToRadians(6)) * MathF.Sin(float.DegreesToRadians((at - 6) * 15));
+            SetSkyDay(new SkyDay
+            {
+                Minutes = 0, Tilt = 6, Atmosphere = air, SunIlluminance = MathF.Max(5_000, 120_000 * height), SunColor = ColorFromTemperature(5633),
+            });
+            SetSkyTime(at);
+        }
+        SetHour(hour);
         SetShadowDistance(40);
         SetCameraExposure(200, 1 / 200f, 16);
         // The frame graded as that scene's HDRP profile grades it, by the look of its
@@ -166,7 +180,7 @@ public static class ScenesSponza
             if (_askedHour is { } at)
             {
                 (hour, _askedHour) = (at, null);
-                SetSkyTime(hour);
+                SetHour(hour);
             }
             // Metered as the camera of the scene the views are matched against meters, its
             // automatic mode between EV -1 and 14 about the camera's EV, center-weighted, its mean

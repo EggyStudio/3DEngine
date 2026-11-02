@@ -50,3 +50,11 @@
 2026-11-01-item-161-balcony-metered.webp | Intel's Sponza in scenes_sponza from the first floor's gallery at 15:00 at High at 800 by 426 in physical units, metered center-weighted between EV 4 and 14 at -0.79 stops.
 2026-11-01-item-161-door-metered.webp | Intel's Sponza in scenes_sponza down on the main door at 15:00 at High at 800 by 484, metered the same.
 2026-11-01-item-161-lookup-metered.webp | Intel's Sponza in scenes_sponza up from the atrium's floor at 15:00 at High at 600 by 571, metered the same.
+2026-11-02-item-170-day-sky-8.webp | core_day_sky's ring of stones at 8:00 with the day sky given the Sky module's Earth, its sun and sky through the air drawn on the GPU, the camera at EV 15.
+2026-11-02-item-170-day-sky-17-30.webp | core_day_sky at 17:30 through the same air, the sun six degrees up and reddening, the stars held back until it is six degrees down.
+2026-11-02-item-170-balcony-before.webp | Intel's Sponza in scenes_sponza from the first floor's gallery at 15:00, metered, before the air, its sky painted and its sun unchanged by the air.
+2026-11-02-item-170-balcony-after.webp | The same view through the scene's air, HDRP's Earth with its aerosols over 12 km and a white ground, its sun outside the air at 120,000 lux times the sine of its height at 5,633 K.
+2026-11-02-item-170-door-before.webp | Intel's Sponza in scenes_sponza down on the main door at 15:00, metered, before the air.
+2026-11-02-item-170-door-after.webp | The same view through the scene's air, the vestibule lit by the light off the walls alone.
+2026-11-02-item-170-lookup-before.webp | Intel's Sponza in scenes_sponza up from the atrium's floor at 15:00, metered, before the air.
+2026-11-02-item-170-lookup-after.webp | The same view through the scene's air.

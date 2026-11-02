@@ -3512,6 +3512,22 @@ weighted alike, by a cone or by the bell the frame meters with. A meter settled 
 puts the two alike, so the pictures were exposed that far under what their own meter gives once
 settled, which no setting of the frame's accounts for.
 
+Through the scene's air (item 170), HDRP's Earth with its aerosols spread over 12 km and a white
+ground as its profile holds, and with the example's sun set outside the air to 120,000 lux times
+the sine of its height at 5,633 K as the scene's own script sets it, the sun reaches the ground at
+4,062, 4,903 and 4,924 K at the scene's heights for 8:00, 12:00 and 15:05, 16.55, 51.40 and 53.97
+degrees, where HDRP's own transmittance gives 4,055, 4,903 and 4,924. Its lux there, 22,580, 80,190
+and 83,410, lies 13% over HDRP's on an assumption no reading of the scene itself has settled, that
+Unity's color of a temperature has its brightest channel at 1 where the engine's has a luminance of
+1, and the sky lights a level floor with 2,060, 10,770 and 11,410 lux (the Sky module's `Sun` and
+`SkyLight` through that air). The example's sun path leans 6 degrees and stands 44.7 degrees high at
+15:00 where the scene's stands 54, which waits for the module's clock. Metered at 15:00 and settled
+(`field.wait`, then 900 frames), the balcony's, the door's and the view up's red over blue read
+1.24, 2.84 and 1.31 where they read 0.67, 1.81 and 0.62 before the air and the pictures read 1.13,
+1.60 and 1.15, and their means 113.4, 84.5 and 103.0 where the pictures read 85.8, 59.1 and 104.3.
+The shade's blue is gone, and the door's vestibule, lit by the light off the walls alone, warms past
+the picture's with each bounce off the warm stone.
+
 `SetDepthOfField` and `SetMotionBlur` are passes of their own after the bloom chain, into half-float
 targets the window's size that the composite then reads in place of the scene, both reading the
 decoded light and the HDR target's resolved depth unfiltered and working back to the world through the inverse of the window's
