@@ -66,7 +66,8 @@ public struct Lighting
     // 1 in x when the view's ambient light is darkened by ambientOcclusionMap, the window's or a
     // render texture's drawn through a camera, never a probe's faces, and 1 in y when the shadowed
     // directional light is darkened by its green channel, the sun's contact shadows through the
-    // scene's distance field.
+    // scene's distance field. zw: the pixels temporal antialiasing moved the window's frame by,
+    // which a pixel's place in the screen's images is taken back by (screenPlace).
     public float4 ambientOcclusion;
     // 1 in x when the view's light from all around is indirect light, read from bouncedLight,
     // in every view where global illumination is on. y: the probes' spacing in cells of the

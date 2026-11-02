@@ -19,24 +19,38 @@ internal sealed class HdrSceneNode : INode
         renderWorld.Remove<BloomFrame>();
         var bloom = renderWorld.TryGet<BloomRenderer>();
         if (bloom is null) return;
+        var temporal = renderWorld.TryGet<TemporalRenderer>();
         if (!BloomRenderer.ShowsScene(renderWorld) || renderWorld.TryGet<SwapchainTarget>() is not { } swapchain)
         {
             bloom.Release();
+            temporal?.Resolve(renderContext, renderWorld, null, null);
             renderWorld.TryGet<SubsurfaceRenderer>()?.Skip();
             return;
         }
 
         var split = Split(renderWorld.TryGet<DrawList>());
-        if (!bloom.DrawScene(renderContext, renderWorld, swapchain.Extent, split)) return;
+        if (!bloom.DrawScene(renderContext, renderWorld, swapchain.Extent, split))
+        {
+            temporal?.Resolve(renderContext, renderWorld, null, null);
+            return;
+        }
         renderWorld.Set(new BloomFrame(split));
         // The window's particles laid over by alpha sorted from its camera again where a render
         // texture's sort came after the window's, ahead of the pass they are drawn in.
         renderWorld.TryGet<ParticleRenderer>()?.SortFor(renderContext, renderWorld, 0);
-        // The scene's light, kept for the reflections of the frame after where global illumination
-        // is on.
+        // The scene's light, resolved against the frames before where temporal antialiasing is on,
+        // and kept for the reflections of the frame after where global illumination is on.
         if (BloomRenderer.ReadsLight(renderWorld) && bloom.Decode(renderContext, renderWorld) is { } light)
+        {
+            temporal?.Resolve(renderContext, renderWorld, bloom.Decoded, renderWorld.TryGet<WindowView>(),
+                bloom.AdaptedBefore(renderWorld.TryGet<FrameEffects>()));
             renderWorld.TryGet<GlobalIlluminationRenderer>()?.KeepFrame(renderContext, renderWorld, light, swapchain.Extent);
-        else renderWorld.TryGet<SubsurfaceRenderer>()?.Skip();
+        }
+        else
+        {
+            temporal?.Resolve(renderContext, renderWorld, null, null);
+            renderWorld.TryGet<SubsurfaceRenderer>()?.Skip();
+        }
     }
 
     // The batch after the window's last one drawn with depth, or the first when it has none.

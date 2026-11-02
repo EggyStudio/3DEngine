@@ -288,8 +288,8 @@ executable through native AOT. What is missing:
   [the comparison with raylib](https://github.com/EggyStudio/3DEngine/blob/main/docs/compared-with-raylib.md)
   answers each function left out with what C# has in its place or why it is left out.
 - **The effects over the frame are bloom, exposure, a choice of curve, color grading, a vignette,
-  FXAA, depth of field and motion blur**, with ambient occlusion beside them, past what a program
-  draws through a render texture and a shader of its own.
+  FXAA, temporal antialiasing, depth of field and motion blur**, with ambient occlusion beside them,
+  past what a program draws through a render texture and a shader of its own.
 - **CI draws on Linux and Windows through lavapipe and on macOS through MoltenVK**, under the
   validation layer, on every push, and the pack run plays every game on all three and captures every
   example on Linux and macOS.

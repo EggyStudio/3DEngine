@@ -6,8 +6,8 @@ namespace Engine;
 /// The effects over the frame besides bloom, a world resource the renderer reads each frame, which
 /// the flat API's <c>SetExposure</c>, <c>SetAutoExposure</c>, <c>SetTonemap</c>,
 /// <c>SetTonemapCurve</c>, <c>SetTonemapLookup</c>, <c>SetTonemapShader</c>, <c>SetLiftGammaGain</c>,
-/// <c>SetColorGrading</c>, <c>SetVignette</c>, <c>SetFxaa</c>, <c>SetDepthOfField</c> and
-/// <c>SetMotionBlur</c> set.
+/// <c>SetColorGrading</c>, <c>SetVignette</c>, <c>SetFxaa</c>, <c>SetTemporalAntialiasing</c>,
+/// <c>SetDepthOfField</c> and <c>SetMotionBlur</c> set.
 /// </summary>
 /// <remarks>
 /// Each is applied in the pass that brings the HDR frame into the window, which the window's scene
@@ -138,6 +138,12 @@ internal sealed class FrameEffects
 
     /// <summary>Whether FXAA smooths the edges multisampling leaves, those inside a surface and of thin lines.</summary>
     public bool Fxaa { get; set; }
+
+    /// <summary>
+    /// Whether the window's camera is moved by a part of a pixel each frame and each frame's light
+    /// resolved against those before (<see cref="TemporalRenderer"/>).
+    /// </summary>
+    public bool Temporal { get; set; }
 
     /// <summary>The distance from the camera that is sharp, for the depth of field.</summary>
     public float FocusDistance { get; set; } = 10;

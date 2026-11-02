@@ -232,13 +232,14 @@ internal sealed partial class ModelRenderer
     /// Draws the depth of the meshes that cast a shadow into <paramref name="target"/>, the window's
     /// unless another is named, into <paramref name="depth"/>, through the cameras they were
     /// recorded with, ahead of that view's pass, for the ambient occlusion worked out from it and
-    /// the screen's probes stood on it.
+    /// the screen's probes stood on it. Each camera is followed by <paramref name="back"/> where it is
+    /// given, which takes temporal antialiasing's move out of the window's.
     /// </summary>
     /// <remarks>
     /// It draws with the shadow pass's pipelines, whose depth-only pass is the same at any size, so a
     /// mesh that casts no shadow is left out, and a blended one keeps texels as often as it is opaque.
     /// </remarks>
-    internal void DrawDepth(RenderContext renderContext, RenderWorld renderWorld, ShadowMap depth, int target = 0)
+    internal void DrawDepth(RenderContext renderContext, RenderWorld renderWorld, ShadowMap depth, int target = 0, Matrix4x4? back = null)
     {
         var draws = renderWorld.TryGet<ModelDrawList>();
         var meshes = renderWorld.TryGet<GpuMeshes>();
@@ -272,9 +273,10 @@ internal sealed partial class ModelRenderer
             }
             if (pushed != batch.ViewProjection)
             {
-                var viewProjection = batch.ViewProjection;
+                // Without temporal antialiasing's move where back takes it out.
+                var viewProjection = back is { } taken ? batch.ViewProjection * taken : batch.ViewProjection;
                 pass.PushConstants(pipeline, ShaderStageFlags.Vertex, 0, MemoryMarshal.AsBytes(new ReadOnlySpan<Matrix4x4>(in viewProjection)));
-                pushed = viewProjection;
+                pushed = batch.ViewProjection;
             }
             if (IsMasked(batch.Shadow)) pass.SetBindGroup(pipeline, batch.Set!);
             BindShadowVertices(pass, device, batch, own, ring, offset);

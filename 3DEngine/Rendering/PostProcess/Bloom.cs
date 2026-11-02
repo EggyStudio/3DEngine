@@ -273,14 +273,14 @@ internal sealed partial class BloomRenderer : IDisposable
 
     /// <summary>
     /// Whether a pass besides the composite reads the scene's light this frame, bloom, an exposure
-    /// that follows the scene, the depth of field or motion blur, or global illumination, whose
-    /// reflections read the scene of the frame before, or the window draws particles, which are
-    /// drawn over it, or a mesh that scatters light under its surface, which is spread in it, so
-    /// the scene is decoded for them once.
+    /// that follows the scene, the depth of field, motion blur, temporal antialiasing, or global
+    /// illumination, whose reflections read the scene of the frame before, or the window draws
+    /// particles, which are drawn over it, or a mesh that scatters light under its surface, which
+    /// is spread in it, so the scene is decoded for them once.
     /// </summary>
     public static bool ReadsLight(RenderWorld renderWorld) =>
         renderWorld.TryGet<BloomSettings>() is { On: true } || renderWorld.TryGet<ParticleRenderer>()?.DrawsInWindow(renderWorld) == true
-        || renderWorld.TryGet<FrameEffects>() is { AutoExposure: true } or { FocusBlur: > 0 } or { MotionBlur: > 0 }
+        || renderWorld.TryGet<FrameEffects>() is { AutoExposure: true } or { FocusBlur: > 0 } or { MotionBlur: > 0 } or { Temporal: true }
         || GlobalIlluminationRenderer.CascadesIn(renderWorld) > 0 || ModelRenderer.ScattersInWindow(renderWorld);
 
     /// <summary>
@@ -494,16 +494,17 @@ internal sealed partial class BloomRenderer : IDisposable
     public void Lens(RenderContext renderContext, RenderWorld renderWorld, FrameEffects effects, WindowView? view)
     {
         // The camera of the frame before, kept only from the frame before this one, so a frame after
-        // others drawn without the HDR frame does not blur by a movement long past.
+        // others drawn without the HDR frame does not blur by a movement long past. Both without
+        // temporal antialiasing's move, so a still camera does not blur by it.
         Matrix4x4? last = _lastViewFrame == _frame - 1 ? _lastViewProjection : null;
-        (_lastViewProjection, _lastViewFrame) = (view?.ViewProjection, _frame);
+        (_lastViewProjection, _lastViewFrame) = (view?.Unjittered, _frame);
         if (_sized is not { Linear: { } linear } sized || !_shownLinear || view is null || renderContext.Device is not GraphicsDevice device) return;
         var focus = effects.FocusBlur > 0;
         var blur = effects.MotionBlur > 0 && last is not null;
         if (!focus && !blur) return;
 
         EnsureLens(device, sized);
-        Matrix4x4.Invert(view.ViewProjection, out var inverse);
+        Matrix4x4.Invert(view.Unjittered, out var inverse);
         var lens = sized.Lens!;
         var source = linear.ColorView;
         if (focus)

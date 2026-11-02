@@ -188,6 +188,7 @@ frame of 2D alone, as `textures_bunnymark` draws, draws none of it.
 | `SetColorGrading(1.1f, 0.8f, new Color(255, 240, 220))` | Contrast, saturation and a tint, 1, 1 and white leaving it as it is |
 | `SetVignette(0.4f)` | Darkens toward the corners, from half the way out unless a radius is given |
 | `SetFxaa(true)` | Smooths the jagged edges multisampling leaves, inside a surface and of thin lines |
+| `SetTemporalAntialiasing(true)` | Moves the camera by a part of a pixel each frame and blends the frames, which smooths edges, highlights and the noise of global illumination, a little softer where the picture moves |
 | `SetDepthOfField(8, 2, 0.02f)` | Keeps what is 8 units from the camera sharp and blurs what is nearer or farther, to its widest 2 units either side |
 | `SetMotionBlur(0.5f)` | Smears the picture along the way the camera moved since the frame before, as a film camera's shutter does |
 
@@ -318,8 +319,9 @@ bright sky in the brightest tenth or deep shade in the darkest fifth leaves the 
 Each effect is read back as its setter left it, by `GetTonemap`, `GetTonemapCurve`,
 `GetTonemapLookup`, `GetTonemapShader`, `GetExposure`, `GetAutoExposure`,
 `GetAutoExposureMetering`, `GetAutoExposureSpeeds`, `GetAutoExposureHistogram`,
-`GetColorGrading`, `GetLiftGammaGain`, `GetVignette`, `IsFxaaEnabled`, `GetDepthOfField`,
-`GetMotionBlur`, `GetBloom` and `GetBloomScatter`, those of several values as a tuple named as the
+`GetColorGrading`, `GetLiftGammaGain`, `GetVignette`, `IsFxaaEnabled`,
+`IsTemporalAntialiasingEnabled`, `GetDepthOfField`, `GetMotionBlur`, `GetBloom` and
+`GetBloomScatter`, those of several values as a tuple named as the
 setter's arguments are. `DrawPostProcessWindow()`, called between `BeginDrawing`
 and `EndDrawing` as any ImGui window is, shows every one of them in a window of its own, a choice of
 the curve with a slider for each number of the one set by them, a slider or a check for the rest,

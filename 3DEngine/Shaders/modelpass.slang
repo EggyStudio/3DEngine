@@ -114,6 +114,14 @@ public float materialNormalScale(ModelVertexOutput input) { return input.factors
 public float materialOcclusionStrength(ModelVertexOutput input) { return input.factors.w; }
 public float3 materialEmission(ModelVertexOutput input) { return input.emission.xyz; }
 
+// Where a fragment's pixel lies in the screen's images, its occlusion, its probes and their glow,
+// which are worked out through the camera without temporal antialiasing's move, so the move is
+// taken back out of the pixel's place, and each reads the point the pixel shows.
+public float2 screenPlace(ModelVertexOutput input)
+{
+    return input.position.xy - lighting.ambientOcclusion.zw;
+}
+
 // The four screen probes around the pixel a fragment is at, as screenProbesHere finds them, where
 // each is, how much each counts for indirect light, 0 for one that holds no light or stands
 // on no surface like the pixel's; how much for the glow lights, the same but for the light, since
@@ -147,7 +155,8 @@ public ScreenProbesHere screenProbesHere(ModelVertexOutput input, float3 n)
         return probes;
     uint across, down;
     screenLight.GetDimensions(across, down);
-    float2 g = input.position.xy / lighting.screen.x - 0.5;
+    float2 place = screenPlace(input);
+    float2 g = place / lighting.screen.x - 0.5;
     int2 base = int2(floor(g));
     float2 f = g - float2(base);
     float distance = length(input.toEye);
@@ -162,7 +171,7 @@ public ScreenProbesHere screenProbesHere(ModelVertexOutput input, float3 n)
             continue;
         float2 lerps = lerp(1.0 - f, f, float2(offset));
         probes.near[corner] = lerps.x * lerps.y;
-        float2 toProbe = (float2(probes.at[corner]) + 0.5) * lighting.screen.x - input.position.xy;
+        float2 toProbe = (float2(probes.at[corner]) + 0.5) * lighting.screen.x - place;
         float expected = length(input.toEye - acrossOne * toProbe.x - downOne * toProbe.y);
         probes.glow[corner] = probes.near[corner] * pow(saturate(dot(n, surface.xyz)), 8.0)
                             * exp(-abs(surface.w - expected) / (0.02 * distance + 0.05));
@@ -211,7 +220,8 @@ public float3 glowLightsHere(ModelVertexOutput input, float3 n, bool screen)
     {
         uint width, height;
         screenGlow.GetDimensions(width, height);
-        float2 g = input.position.xy * 0.5 - 0.5;
+        float2 place = screenPlace(input);
+        float2 g = place * 0.5 - 0.5;
         int2 base = int2(floor(g));
         float2 f = g - float2(base);
         float distance = length(input.toEye);
@@ -237,7 +247,7 @@ public float3 glowLightsHere(ModelVertexOutput input, float3 n, bool screen)
                 continue;
             float2 lerps = lerp(1.0 - f, f, float2(offset));
             float near = lerps.x * lerps.y;
-            float2 toTexel = (float2(base + offset) + 0.5) * 2.0 - input.position.xy;
+            float2 toTexel = (float2(base + offset) + 0.5) * 2.0 - place;
             float expected = length(input.toEye - acrossOne * toTexel.x - downOne * toTexel.y);
             float weight = near * pow(saturate(dot(facing, normal.xyz * 2.0 - 1.0)), 8.0) * exp(-abs(held.a - expected) / (0.02 * distance + 0.05));
             onLight = onLight || kind == GlowOnLight;
@@ -285,7 +295,7 @@ public float screenOcclusion(ModelVertexOutput input)
         return 1.0;
     uint width, height;
     ambientOcclusionMap.GetDimensions(width, height);
-    return ambientOcclusionMap.SampleLevel(lightLinear, input.position.xy * 0.5 / float2(width, height), 0).r;
+    return ambientOcclusionMap.SampleLevel(lightLinear, screenPlace(input) * 0.5 / float2(width, height), 0).r;
 }
 
 // The share of the sun's light its contact shadows through the scene's distance field let reach
@@ -297,7 +307,7 @@ public float sunContact(ModelVertexOutput input, float held = 0.0)
         return 1.0;
     uint width, height;
     ambientOcclusionMap.GetDimensions(width, height);
-    float contact = ambientOcclusionMap.SampleLevel(lightLinear, input.position.xy * 0.5 / float2(width, height), 0).g;
+    float contact = ambientOcclusionMap.SampleLevel(lightLinear, screenPlace(input) * 0.5 / float2(width, height), 0).g;
     return lighting.ambientOcclusion.y > 1.5 ? lerp(contact, 1.0, held) : contact;
 }
 

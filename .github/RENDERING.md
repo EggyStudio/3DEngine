@@ -3556,6 +3556,43 @@ eight-bit target the window's size instead, and `main_pass` draws that through F
 the console form of Lottes's, over the encoded colors) before the interface. `FrameEffectsTests`
 reads each from a frame.
 
+`SetTemporalAntialiasing` moves the window's camera by a part of a pixel each frame, eight places of
+Halton's sequence in bases 2 and 3 in turn (`TemporalJitter`), after the projection where
+`BeginMode3D` and the window's camera entity make it, never a render texture's or a stereo view's.
+`CameraExtract` keeps the move in `WindowView.Jitter`. The window's depth for the occlusion, the
+screen's probes and the reflections is drawn through the camera without it, and the sun's cascades
+are fitted to that camera, so the light those passes work out holds still under the move, and the
+model pass takes the move back out of a pixel's place where it reads them (`screenPlace`, from the
+lighting block's `ambientOcclusion.zw`). Once the scene is decoded to linear light with its
+particles, `TemporalRenderer` resolves it against two half-float histories the window's size
+(`taa.slang`). A pixel's light is its 3 by 3 neighbors' weighed by a bell about a third of a pixel
+wide around where its middle lay before the move, and the history is found through the frame
+before's camera without its move, held to the box of those neighbors' colors in YCoCg, widened by a
+quarter of its size where the pixel held still, and started again where the frame before saw
+something a twentieth nearer, by the depth the resolve writes beside each history. The blend takes
+one over the frames the pixel has held its history for, kept in the history's alpha, down to a
+thirty-second where it holds still and an eighth or more where it moves, the more the faster. Both
+are done on light brought under 1 as it will be shown, its luma times the exposure the composite
+works out from the frame before's adapted one, so the edge of a bright light is the mean of what is
+seen and not of the light. A second pass copies the result back into the decoded frame, which the
+reflections keep and bloom, the exposure and the lens read, and motion blur reads the cameras
+without their moves.
+
+In `shaders_bounce_rooms` at High, forty frames of each still view shot one after another through
+`./e3d shot`, the change of a pixel's luminance from one frame to the next over its mean reads at
+its 99th part 1.26 to 1.29% in the Cornell box without it and 0.23 to 0.45% with it, 3.15 to 3.30
+and 2.44 to 2.82 in the corridor, 1.65 to 2.42 and 0.75 to 1.52 in the window's room, and 1.53 to
+1.54 and 1.53 to 2.67 in the strip's room, whose ceiling breathes slower than the history lets go of
+it, five runs without and three with. In Sponza's arcades at 15:00, against `gi.reference` at 4,096
+paths a pixel through `gi.compare`, a pixel's difference from the reference less its mean over the
+5 by 5 around it averages 22.5% of the edge's step along the reference's edges without it and 19.0%
+with it, and the picture keeps 62% of the fine detail one drawn without it shows, as a box filter
+over the pixel does. A jump of the camera by 2 m in the nave reads 10.5% brighter on the walls in
+its first frame against 4.8% without it and settles in five frames against three, the history
+holding what was lit as seen from 2 m off until the blend lets it go. It costs 0.24 ms at 1920 by
+1080 on the RTX 4070 under the powersave profile, `gpu.hdr_scene` of `./e3d command profile` in the
+Cornell box reading 1.89 against 1.65.
+
 Bevy's eight curves are worked out as `bevy_core_pipeline` 0.19.1's `tonemapping_shared.wgsl` works
 them out, its matrices written as dot products, so a picture tonemapped here is the one Bevy draws.
 AgX, Tony McMapface and Blender's filmic look the light up in Bevy's own tables, KTX2 cubes of 32,

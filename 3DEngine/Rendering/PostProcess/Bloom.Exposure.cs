@@ -5,6 +5,14 @@ namespace Engine;
 internal sealed partial class BloomRenderer
 {
     /// <summary>
+    /// The texel of the exposure that follows the scene as it adapted the frame before, which
+    /// temporal antialiasing weighs light by as it will be shown, or null where it does not follow
+    /// the scene or did not adapt then.
+    /// </summary>
+    internal IImageView? AdaptedBefore(FrameEffects? effects) =>
+        effects is { AutoExposure: true } && _adapted is { } adapted && _adaptedFrame == _frame - 1 ? adapted[_adaptedLast].ColorView : null;
+
+    /// <summary>
     /// Measures the HDR frame and moves the exposure that follows it toward what it measured, at
     /// the pace and within the bounds <paramref name="effects"/> sets.
     /// </summary>

@@ -192,7 +192,7 @@ internal sealed class AmbientOcclusionRenderer : IDisposable
         if (!wanted || renderWorld.TryGet<WindowView>() is not { } view
             || renderWorld.TryGet<SwapchainTarget>() is not { } swapchain || renderContext.Device is not GraphicsDevice device
             || renderWorld.TryGet<ModelRenderer>() is not { } models || renderWorld.TryGet<SceneFieldBinding>() is not { } field
-            || !Matrix4x4.Invert(view.ViewProjection, out var inverse))
+            || !Matrix4x4.Invert(view.Unjittered, out var inverse))
         {
             ReleaseWindow();
             renderWorld.Remove<AmbientOcclusionImage>();
@@ -202,7 +202,9 @@ internal sealed class AmbientOcclusionRenderer : IDisposable
 
         var extent = new Extent2D(Math.Max(1, swapchain.Extent.Width / 2), Math.Max(1, swapchain.Extent.Height / 2));
         var sized = _sized = Ensure(device, extent, field.Field, _sized, "the window");
-        models.DrawDepth(renderContext, renderWorld, sized.Depth);
+        // Through the camera without temporal antialiasing's move, so the occlusion, the screen's
+        // probes and the reflections that read this depth hold still under it.
+        models.DrawDepth(renderContext, renderWorld, sized.Depth, back: view.Back);
         renderWorld.Set(new WindowDepth(sized.Depth.DepthView, sized.Depth.Sampler, extent));
         _window = (sized, inverse, view.Eye, swapchain.Extent, settings, sun);
     }

@@ -492,7 +492,7 @@ internal sealed class GlobalIlluminationRenderer : IDisposable
         var glowOnly = GlowOnly(renderWorld);
         if ((ScreenProbesOn(renderWorld) || glowOnly) && renderWorld.TryGet<WindowDepth>() is { } depth
             && renderWorld.TryGet<WindowView>() is { } window && renderWorld.TryGet<SwapchainTarget>() is { } swapchain
-            && Matrix4x4.Invert(window.ViewProjection, out var inverse))
+            && Matrix4x4.Invert(window.Unjittered, out var inverse))
         {
             var (width, height, tile) = (swapchain.Extent.Width, swapchain.Extent.Height, TileAt(quality, swapchain.Extent.Height));
             if (_screen is null || _screen.Tile != tile || _screen.Across != (width + tile - 1) / tile || _screen.Down != (height + tile - 1) / tile
@@ -504,11 +504,11 @@ internal sealed class GlobalIlluminationRenderer : IDisposable
                 _lastScreen = null;
             }
             var jitter = JitterAt(_frame, tile);
-            var bytes = ViewBytes(window.ViewProjection, inverse, window.Eye, _screen, depth.Extent, swapchain.Extent, jitter, _lastScreen);
+            var bytes = ViewBytes(window.Unjittered, inverse, window.Eye, _screen, depth.Extent, swapchain.Extent, jitter, _lastScreen);
             _retired.Add((_frame, device.RecordScreenProbes(renderContext.CommandBuffer, _gi, _screen, field.Field, depth.View, depth.Sampler, bytes, _glowCount > 0,
                 renderWorld.TryGet<GlobalIlluminationSettings>()?.LoggedScreenProbe ?? -1, glowOnly,
                 renderWorld.TryGet<GlobalIlluminationSettings>()?.LoggedScreenProbeNotANumber ?? false, _lightThrough)));
-            _lastScreen = (window.ViewProjection, window.Eye);
+            _lastScreen = (window.Unjittered, window.Eye);
         }
         else if (_screen is not null)
         {
@@ -651,7 +651,7 @@ internal sealed class GlobalIlluminationRenderer : IDisposable
             _history = device.CreateReflectionHistory(extent.Width, extent.Height);
         }
         device.RecordKeepFrame(renderContext.CommandBuffer, scene, depth.View, _history);
-        HistoryViewProjection = window.ViewProjection;
+        HistoryViewProjection = window.Unjittered;
     }
 
     // The window's shadow map as the frame before's shadow pass drew it and the shadow it drew it

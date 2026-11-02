@@ -47,6 +47,13 @@ internal sealed partial class MeshEntityDraws
             : world.TryGetResource<Config>(out var config) ? (config.WindowData.Width, config.WindowData.Height) : (1, 1);
         var aspect = height > 0 ? (float)width / height : 1f;
         var (view, projection) = CameraExtract.Matrices(ecs, entity, camera, aspect);
+        // The window's, moved by its part of a pixel this frame where temporal antialiasing is on.
+        if (!camera.Target.IsValid)
+        {
+            var shift = TemporalJitter.Shift(world, width, height);
+            if (!shift.IsIdentity) TemporalJitter.Moved(world, shift);
+            projection *= shift;
+        }
         return (view * projection, TransformPropagation.WorldMatrix(ecs, entity).Translation);
     }
 

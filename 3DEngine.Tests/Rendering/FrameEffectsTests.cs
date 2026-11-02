@@ -6,7 +6,7 @@ namespace Engine.Tests.Rendering;
 
 /// <summary>
 /// The effects over the frame, each set alone and read from chosen pixels of a frame drawn
-/// offscreen, exposure, the curves, grading, the vignette and FXAA.
+/// offscreen, exposure, the curves, grading, the vignette, FXAA and temporal antialiasing.
 /// </summary>
 /// <remarks>
 /// The effects are drawn under the validation layer where the machine has it, as CI draws them on
@@ -371,5 +371,104 @@ public sealed class FrameEffectsTests : IDisposable
 
         hard.Should().BeLessThan(10, "with one sample and no FXAA a pixel is the triangle or the background");
         smoothed.Should().BeGreaterThan(hard + 40, "FXAA blends the pixels along the edges");
+    }
+
+    [Fact]
+    public void Temporal_Jitter_Covers_The_Pixel_And_Averages_To_Its_Middle()
+    {
+        var moves = Enumerable.Range(0, TemporalJitter.Count).Select(i => TemporalJitter.Pixels((ulong)i)).ToList();
+
+        moves.Should().OnlyContain(m => m.X > -0.5f && m.X < 0.5f && m.Y > -0.5f && m.Y < 0.5f, "each move stays inside the pixel");
+        moves.Distinct().Should().HaveCount(TemporalJitter.Count, "the eight frames sample eight places");
+        var mean = moves.Aggregate(Vector2.Zero, (sum, m) => sum + m) / moves.Count;
+        mean.Length().Should().BeLessThan(0.1f, "the places lie about the pixel's middle, so a still edge does not move");
+        TemporalJitter.Pixels(3).Should().Be(TemporalJitter.Pixels(3 + TemporalJitter.Count), "the moves come round again");
+    }
+
+    // A white triangle turned so its edges cross the pixels at a slant, as the FXAA test draws it,
+    // at a place across.
+    private static Action Slanted(float across = 0) => () =>
+    {
+        var turned = Matrix4x4.CreateRotationZ(0.3f) * Matrix4x4.CreateTranslation(across, 0, 0);
+        ClearBackground(Color.Black);
+        BeginMode3D(new Camera3D(new Vector3(0, 0, 6), Vector3.Zero, Vector3.UnitY, 45));
+        DrawTriangle3D(Vector3.Transform(new Vector3(-2, -1.5f, 0), turned), Vector3.Transform(new Vector3(2, -1.5f, 0), turned),
+            Vector3.Transform(new Vector3(0, 1.5f, 0), turned), Color.White);
+        EndMode3D();
+    };
+
+    // Draws frames of draw before the one captured, so the history holds them.
+    private Image CaptureAfter(int frames, Action draw)
+    {
+        for (int frame = 0; frame < frames; frame++)
+        {
+            BeginDrawing();
+            draw();
+            EndDrawing();
+        }
+        return Capture(draw);
+    }
+
+    private static float Linear(byte c) => BloomRenderer.SrgbToLinear(c / 255f);
+
+    [NeedsVulkanFact]
+    public void Temporal_Antialiasing_Smooths_An_Edge_Over_Frames()
+    {
+        // One sample, so a pixel is the triangle or the background in any one frame, and only the
+        // frames together cover it in part.
+        Open(samples: 1);
+        int Between(Image image)
+        {
+            var count = 0;
+            for (int y = 0; y < image.Height; y++)
+                for (int x = 0; x < image.Width; x++)
+                    if (GetImageColor(image, x, y).G is > 20 and < 235) count++;
+            return count;
+        }
+
+        var hard = Between(CaptureAfter(16, Slanted()));
+        SetTemporalAntialiasing(true);
+        var smoothed = Between(CaptureAfter(16, Slanted()));
+
+        hard.Should().BeLessThan(10, "with one sample and no temporal antialiasing a pixel is the triangle or the background");
+        smoothed.Should().BeGreaterThan(hard + 40, "the frames, each moved by a part of a pixel, cover the pixels along the edges in part");
+    }
+
+    [NeedsVulkanFact]
+    public void Temporal_Antialiasing_Holds_A_Still_View()
+    {
+        Open(samples: 1);
+        SetTemporalAntialiasing(true);
+        var before = CaptureAfter(24, Slanted());
+        var after = Capture(Slanted());
+
+        // A pixel on the edge sees the triangle in some of the eight places and not in the others.
+        // Without the history it would go from one side of the step to the other, and with an
+        // eighth of each frame blended in it would move by up to an eighth of the step, 0.125.
+        // A pixel that holds still takes less of each frame the longer it does, down to a
+        // thirty-second, which reads 0.026 on lavapipe and on an RTX 4070.
+        var most = 0f;
+        for (int y = 0; y < before.Height; y++)
+            for (int x = 0; x < before.Width; x++)
+                most = Math.Max(most, Math.Abs(Linear(GetImageColor(after, x, y).G) - Linear(GetImageColor(before, x, y).G)));
+        most.Should().BeLessThan(0.08f, "a still view's edges settle, each frame taking less of the blend the longer they hold");
+    }
+
+    [NeedsVulkanFact]
+    public void Temporal_Antialiasing_Leaves_No_Trail_Behind_What_Moved()
+    {
+        Open(samples: 1);
+        SetTemporalAntialiasing(true);
+        CaptureAfter(24, Slanted(-1.5f));
+        var moved = Capture(Slanted(1.5f));
+        var settled = CaptureAfter(24, Slanted(1.5f));
+
+        // The left of the frame, where the triangle was and is no longer, held to the black around
+        // it this frame though the history saw the triangle there.
+        var most = 0f;
+        for (int y = 0; y < moved.Height; y++)
+            for (int x = 0; x < 40; x++)
+                most = Math.Max(most, Math.Abs(Linear(GetImageColor(moved, x, y).G) - Linear(GetImageColor(settled, x, y).G)));
+        most.Should().BeLessThan(0.05f, "the history is held to the colors around each pixel this frame, so what moved away leaves nothing behind");
     }
 }

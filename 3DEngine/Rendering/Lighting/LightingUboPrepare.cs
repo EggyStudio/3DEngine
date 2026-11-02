@@ -39,7 +39,10 @@ internal sealed class LightingUboPrepare : IPrepareSystem
         }
 
         var draws = renderWorld.TryGet<ModelDrawList>();
-        var first = draws?.WindowViewProjection ?? (draws?.Targets() is [var t, ..] ? draws.ViewProjectionOf(t) : null);
+        // The window's camera without temporal antialiasing's move, which its shadow's cascades are
+        // fitted to, so they hold still under it.
+        var windowCamera = draws?.WindowViewProjection * (renderWorld.TryGet<WindowView>()?.Back ?? System.Numerics.Matrix4x4.Identity);
+        var first = windowCamera ?? (draws?.Targets() is [var t, ..] ? draws!.ViewProjectionOf(t) : null);
         var eye = first is { } camera0 ? EyeOf(camera0) : null;
         BindProbes(renderWorld, ref ubo, eye);
 
@@ -48,13 +51,13 @@ internal sealed class LightingUboPrepare : IPrepareSystem
         // the window's and each render target's, since their maps serve all of them.
         var unshadowed = ubo;
         var views = new List<(System.Numerics.Vector3? Eye, System.Numerics.Matrix4x4? Camera)>();
-        if (draws?.WindowViewProjection is { } windowCamera) views.Add((EyeOf(windowCamera), windowCamera));
+        if (windowCamera is { } seen) views.Add((EyeOf(seen), seen));
         foreach (var target in draws?.Targets() ?? [])
             if (draws!.ViewProjectionOf(target) is { } targetCamera) views.Add((EyeOf(targetCamera), targetCamera));
         var casters = Casters(renderWorld, lights, ubo.LightCount, views);
         // Each view's shadow, shared by views near enough to read one set of cascades alike.
         var cameras = new List<(int View, System.Numerics.Matrix4x4 Camera)>();
-        if (draws?.WindowViewProjection is { } window) cameras.Add((0, window));
+        if (windowCamera is { } window) cameras.Add((0, window));
         foreach (var target in draws?.Targets() ?? [])
             if (draws!.ViewProjectionOf(target) is { } targetCamera) cameras.Add((target, targetCamera));
         var shared = casters is null ? [] : SharedShadows(casters, cameras);
@@ -76,6 +79,13 @@ internal sealed class LightingUboPrepare : IPrepareSystem
         // 2 where they are kept past the shadow map's reach alone.
         if (AmbientOcclusionRenderer.ContactShadows(renderWorld) is not null)
             windowUbo.AmbientOcclusion.Y = renderWorld.TryGet<ShadowSettings>()?.Contact == ContactShadows.PastShadowMap ? 2 : 1;
+        // And the pixels temporal antialiasing moved the frame by, as the occlusion, the screen's
+        // probes and their glow are worked out through the camera without the move.
+        if (renderWorld.TryGet<WindowView>() is { } moved && renderWorld.TryGet<SwapchainTarget>() is { } shown)
+        {
+            windowUbo.AmbientOcclusion.Z = moved.Jitter.M41 * shown.Extent.Width / 2;
+            windowUbo.AmbientOcclusion.W = moved.Jitter.M42 * shown.Extent.Height / 2;
+        }
         // And its light from all around the indirect light the probes hold.
         if (GlobalIlluminationRenderer.CascadesIn(renderWorld) is > 0 and var cascades)
         {
@@ -90,13 +100,15 @@ internal sealed class LightingUboPrepare : IPrepareSystem
                 GlobalIlluminationRenderer.ScreenProbesOn(renderWorld) ? 1 : 0, glowOnly ? 1 : 0, settings.AlbedoOff ? 1 : 0);
             // And a glossy surface's reflection traced through its depth and the field, looked up
             // in the frame before's picture where the renderer kept it.
-            if (renderWorld.TryGet<WindowView>() is { } view && System.Numerics.Matrix4x4.Invert(view.ViewProjection, out var inverse)
+            // Both through the camera without temporal antialiasing's move, as the window's depth
+            // and the frame kept are.
+            if (renderWorld.TryGet<WindowView>() is { } view && System.Numerics.Matrix4x4.Invert(view.Unjittered, out var inverse)
                 && renderWorld.TryGet<GlobalIlluminationRenderer>() is { } gi)
             {
                 var (steps, reach) = GlobalIlluminationRenderer.ReflectionStepsAt(quality);
-                windowUbo.ReflectViewProjection = view.ViewProjection;
+                windowUbo.ReflectViewProjection = view.Unjittered;
                 windowUbo.ReflectInverseViewProjection = inverse;
-                windowUbo.ReflectLastViewProjection = gi.HistoryViewProjection ?? view.ViewProjection;
+                windowUbo.ReflectLastViewProjection = gi.HistoryViewProjection ?? view.Unjittered;
                 windowUbo.ReflectLastInverseViewProjection = System.Numerics.Matrix4x4.Invert(windowUbo.ReflectLastViewProjection, out var lastInverse)
                     ? lastInverse : inverse;
                 windowUbo.Reflection = new System.Numerics.Vector4(1, GlobalIlluminationRenderer.GlossyRoughness, steps, gi.HistoryViewProjection is null ? 0 : 1);
@@ -149,7 +161,8 @@ internal sealed class LightingUboPrepare : IPrepareSystem
                 if (windowUbo.Indirect.X > 0 && draws.ViewProjectionOf(target) is not null)
                     targetUbo.Screen = windowUbo.Screen;
                 // And its occlusion and the sun's contact shadows, worked out from its own depth.
-                if (draws.ViewProjectionOf(target) is not null) targetUbo.AmbientOcclusion = windowUbo.AmbientOcclusion;
+                if (draws.ViewProjectionOf(target) is not null)
+                    targetUbo.AmbientOcclusion = windowUbo.AmbientOcclusion with { Z = 0, W = 0 };
                 targets.ByTarget[target] = (own, Upload(allocator, in targetUbo));
             }
 

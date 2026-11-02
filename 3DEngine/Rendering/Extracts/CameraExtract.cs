@@ -14,7 +14,12 @@ internal sealed class CameraExtract : IExtractSystem
     public void Run(World world, RenderWorld renderWorld)
     {
         world.TryGetResource<EcsWorld>(out var ecs);
-        if (MeshEntityDraws.WindowCamera(world, ecs) is { } window) renderWorld.Set(new WindowView(window.ViewProjection, window.Eye));
+        if (MeshEntityDraws.WindowCamera(world, ecs) is { } window)
+            renderWorld.Set(new WindowView(window.ViewProjection, window.Eye)
+            {
+                Jitter = world.TryGetResource<WindowJitter>(out var jitter) && world.TryGetResource<Time>(out var time)
+                    ? jitter.In(time.FrameCount) : System.Numerics.Matrix4x4.Identity,
+            });
         else renderWorld.Remove<WindowView>();
         if (ecs is null) return;
 
@@ -65,4 +70,21 @@ internal sealed class CameraExtract : IExtractSystem
 /// </summary>
 /// <param name="ViewProjection">Its view and projection, as the model pass takes them.</param>
 /// <param name="Eye">Where it is.</param>
-internal sealed record WindowView(System.Numerics.Matrix4x4 ViewProjection, System.Numerics.Vector3 Eye);
+internal sealed record WindowView(System.Numerics.Matrix4x4 ViewProjection, System.Numerics.Vector3 Eye)
+{
+    /// <summary>
+    /// The part of a pixel temporal antialiasing moved the camera by this frame, a move of clip
+    /// space after the projection, or none.
+    /// </summary>
+    public System.Numerics.Matrix4x4 Jitter { get; init; } = System.Numerics.Matrix4x4.Identity;
+
+    /// <summary>The move that takes <see cref="Jitter"/> back out, after the projection.</summary>
+    public System.Numerics.Matrix4x4 Back => System.Numerics.Matrix4x4.CreateTranslation(-Jitter.Translation);
+
+    /// <summary>
+    /// Its view and projection without <see cref="Jitter"/>, which the window's depth for the
+    /// effects that read it is drawn through and the history and motion blur are reprojected
+    /// through, so they hold still where the camera does.
+    /// </summary>
+    public System.Numerics.Matrix4x4 Unjittered => ViewProjection * Back;
+}

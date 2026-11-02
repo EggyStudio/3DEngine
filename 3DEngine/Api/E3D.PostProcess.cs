@@ -450,6 +450,23 @@ public static partial class E3D
     public static bool IsFxaaEnabled() => Effects.Fxaa;
 
     /// <summary>
+    /// Turns temporal antialiasing on or off, which moves the window's camera by a part of a pixel
+    /// each frame, eight places in turn, and blends each frame's light into what the frames before
+    /// left where the same point lay, so an edge, a highlight and the noise of global illumination's
+    /// probes are each read over eight frames.
+    /// </summary>
+    /// <remarks>
+    /// What the frames before saw is held to the colors around each pixel this frame, so a surface
+    /// that moves or comes out from behind another leaves no trail, though fine detail in motion
+    /// is a little softer than in a still frame. Render textures and a stereo view are drawn
+    /// without it, and the window's 2D drawn after <c>EndMode3D</c> is never moved.
+    /// </remarks>
+    public static void SetTemporalAntialiasing(bool enabled) => Effects.Temporal = enabled;
+
+    /// <summary>Whether temporal antialiasing resolves the window's frames, as <see cref="SetTemporalAntialiasing"/> left it, off unless set.</summary>
+    public static bool IsTemporalAntialiasingEnabled() => Effects.Temporal;
+
+    /// <summary>
     /// Blurs what is nearer or farther than <paramref name="focusDistance"/> from the camera, as a
     /// camera's lens does, growing over <paramref name="focusRange"/> either side of it to
     /// <paramref name="blur"/> of the picture's height across, or turns it off with a blur of 0.
@@ -595,6 +612,8 @@ public static partial class E3D
             if (changed) SetVignette(vignette, radius);
             var fxaa = IsFxaaEnabled();
             if (ImGuiNET.ImGui.Checkbox("FXAA", ref fxaa)) SetFxaa(fxaa);
+            var temporal = IsTemporalAntialiasingEnabled();
+            if (ImGuiNET.ImGui.Checkbox("Temporal antialiasing", ref temporal)) SetTemporalAntialiasing(temporal);
         }
 
         if (ImGuiNET.ImGui.CollapsingHeader("Lift, gamma and gain"))

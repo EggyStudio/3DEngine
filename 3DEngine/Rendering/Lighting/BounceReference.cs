@@ -46,7 +46,7 @@ internal static class BounceReference
     {
         if (Prepare(world, out var why) is not { } tracer) return why;
         var render = tracer.Render;
-        if (render.TryGet<WindowView>() is not { } view || !Matrix4x4.Invert(view.ViewProjection, out var inverse)
+        if (render.TryGet<WindowView>() is not { } view || !Matrix4x4.Invert(view.Unjittered, out var inverse)
             || render.TryGet<SwapchainTarget>() is not { } window)
             return "the window draws no meshes through a camera";
 

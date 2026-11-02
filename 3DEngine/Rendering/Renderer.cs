@@ -130,6 +130,7 @@ internal sealed class Renderer : IDisposable
             server.LoadSync<ShaderProgram>("shaders/dof.slang"), server.LoadSync<ShaderProgram>("shaders/motion_blur.slang"),
             server.LoadSync<ShaderProgram>("shaders/velocity.slang"), server.LoadSync<ShaderProgram>("shaders/decode.slang")));
         RenderWorld.Set(new AmbientOcclusionRenderer(server.LoadSync<ShaderProgram>("shaders/ao.slang")));
+        RenderWorld.Set(new TemporalRenderer(server.LoadSync<ShaderProgram>("shaders/taa.slang")));
         RenderWorld.Set(new SceneFieldRenderer());
         RenderWorld.Set(new GlobalIlluminationRenderer());
         RenderWorld.Set(new MirrorRenderer());
@@ -460,6 +461,7 @@ internal sealed class Renderer : IDisposable
         RenderWorld.TryGet<ModelRenderer>()?.Dispose();
         RenderWorld.TryGet<BloomRenderer>()?.Dispose();
         RenderWorld.TryGet<AmbientOcclusionRenderer>()?.Dispose();
+        RenderWorld.TryGet<TemporalRenderer>()?.Dispose();
         RenderWorld.TryGet<SubsurfaceRenderer>()?.Dispose();
         RenderWorld.TryGet<SceneFieldRenderer>()?.Dispose();
         RenderWorld.TryGet<GlobalIlluminationRenderer>()?.Dispose();

@@ -257,6 +257,14 @@ public static partial class E3D
         var (width, height) = DrawingSize();
         var aspect = (float)width / Math.Max(1, height);
         var projection = camera.ProjectionMatrix(aspect);
+        // The window's camera, outside a stereo view, moved by its part of a pixel this frame
+        // where temporal antialiasing is on.
+        if (!_target.IsValid && _stereo is null)
+        {
+            var shift = TemporalJitter.Shift(World, width, height);
+            if (!shift.IsIdentity) TemporalJitter.Moved(World, shift);
+            projection *= shift;
+        }
         var viewProjection = camera.View * projection;
         SetRlCamera(camera.View, projection, depthTest: true);
         if (_stereo is { } stereo) BeginStereo(camera, stereo);

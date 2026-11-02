@@ -1031,6 +1031,7 @@ static class Engine.E3D
   static bool IsSoundPlaying(Sound sound)
   static bool IsSoundValid(Sound sound)
   static bool IsState<TState>(TState value) where TState : struct, Enum
+  static bool IsTemporalAntialiasingEnabled()
   static bool IsTextInputActive()
   static bool IsTextureValid(Texture2D texture)
   static bool IsUiHidden()
@@ -1563,6 +1564,7 @@ static class Engine.E3D
   static void SetState<TState>(TState value) where TState : struct, Enum
   static void SetSubsurfaceQuality(SubsurfaceQuality quality)
   static void SetTargetFPS(int fps)
+  static void SetTemporalAntialiasing(bool enabled)
   static void SetTextInputArea(Rectangle area, int cursor = 0)
   static void SetTextLineSpacing(int spacing)
   static void SetTextureFilter(Texture2D texture, TextureFilter filter)
