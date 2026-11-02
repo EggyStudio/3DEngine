@@ -1532,9 +1532,9 @@ the floor by itself at ±8% with the screen's probes off, the history changing i
 error over every region moves a point at most in any room, and the cost is within the noise,
 global illumination 0.37, 0.45 and 0.54 ms by quality and the scene's pass 0.16 ms.
 
-The fifth takes on the leaks. Each probe keeps how far its rays went along eight by eight directions
-before a surface stopped them, the trace writing each ray's distance and the gather laying them out
-as the probes' reach, and `bouncedAt` weighs a probe by whether a surface, taken three tenths of the
+The fifth takes on the leaks. Each probe keeps how far its rays went along sixteen by sixteen before
+a surface stopped them, the trace writing each ray's distance and the gather laying them out as the
+probes' reach, and `bouncedAt` weighs a probe by whether a surface, taken three tenths of the
 probes' spacing off along its normal, lies within that reach, its weight falling to a twentieth over
 an eighth of the spacing past it, a cell of the probes' cascade (`probeSees` in `gi.slang`), as DDGI
 weighs its probes by the distances they traced. Cut to nothing over a quarter of the spacing, the
@@ -1548,7 +1548,16 @@ outside the wall, so a march toward the lamp outside stepped over them and the l
 inside, which the room's probe read on its face toward the floor at 255% over a reference of hits
 lit directly. The field holds a wall thinner than a cell, where it held one thinner than half a
 cell, as a sheet half a cell thick about its middle, and that probe's hits read 6% over where they
-read 63%. Before and after, over every region against every bounce.
+read 63%. Before and after, over every region against every bounce. Kept at eight by eight, a
+direction of the cascades of sixteen a side took the mean of the four rays in it, some 25 degrees
+across, and the far end of the closed corridor of `CascadeEdgeTests`, in the fourth cascade with
+probes sixteen units apart, took the sky-lit outside from probes whose rays passing beside the
+corridor and meeting its walls were blended so, 0.499 of the light of the same end open where 0.183
+kept at sixteen, each ray its own direction. The window's room of `shaders_bounce_rooms` reads 0.247
+of its light from its reference at `High` where 0.232, brighter on each surface than a reference it
+reads over, and every other room within 0.001 (`BounceRoomsTests`). The reach takes 1.05 MB at
+`High` where 0.26, and global illumination in Sponza's door and nave views at 1920 by 1080 as long
+as before within the runs' spread (`./e3d command profile`).
 
 | Room | `Low` | `Medium` | `High` | `High` against one bounce |
 |---|---|---|---|---|

@@ -5,7 +5,7 @@
 // weights are scaled to sum to pi, the light reaching a face under a sky of 1, so a uniform sky
 // reads alike on every face at any number of texels, where an equal share for every texel read a
 // face along z at 0.82 of it with 4 texels a side and 0.93 with 8. Each probe's reach is laid out
-// beside, how far its rays went along each of eight by eight directions before a surface stopped
+// beside, how far its rays went along each of sixteen by sixteen directions before a surface stopped
 // them, from this cascade's rays, each face's thread a sixth of the directions, which bouncedAt
 // weighs a probe by, and the light arriving about each of those directions, blurred as a surface
 // of roughness 0.5 reflects it, which a rough surface reflects (reflectedAt).
@@ -34,7 +34,7 @@ RWTexture3D<float4> cubes;
 [[vk::binding(2, 0)]]
 Texture3D<float2> distances;
 
-// Every cascade's probes' reach, eight by eight directions a probe, the cascades one after another along z.
+// Every cascade's probes' reach, sixteen by sixteen directions a probe, the cascades one after another along z.
 [[vk::binding(3, 0)]] [format("r16f")]
 RWTexture3D<float> reach;
 
@@ -188,8 +188,13 @@ void computeMain(uint3 id : SV_DispatchThreadID)
     if (face == 0u)
         follow(at, probes, texels, shares, walledIn(at, texels));
 
-    // This probe's reach, the nearest ray's distance along each direction where the cascade has as
-    // many directions or fewer, and the mean of the rays inside it where it has more.
+    // This probe's reach, the distance of its ray along each direction, the nearest ray's where the
+    // cascade has fewer directions. Kept at sixteen by sixteen directions, the cascades of sixteen a
+    // side keep each ray's own, where kept at eight by eight a direction took the mean of the four
+    // rays in it, some 25 degrees across, which at the far end of the closed corridor of
+    // CascadeEdgeTests, in the fourth cascade with probes sixteen units apart, blended the rays
+    // that passed beside the corridor with those that met its walls, so the probes outside counted
+    // as seeing its end and lent it the sky-lit outside, 0.499 of the light of the same end open.
     uint step = max(texels / uint(ReachTexels), 1u);
     for (uint k = face; k < uint(ReachTexels * ReachTexels); k += 6u)
     {
@@ -200,21 +205,28 @@ void computeMain(uint3 id : SV_DispatchThreadID)
             for (uint u = 0u; u < step; u++)
                 reached += abs(distances.Load(int4(int2(at.xy * texels + first + uint2(u, v)), int(at.z), 0)).x);
         reach[uint3(at.xy * uint(ReachTexels) + texel, push.cascade.x * probes + at.z)] = reached / float(step * step);
+    }
 
+    // The probe's light by way, eight by eight directions in a block with a texel's border.
+    uint along = uint(WaysTexels) - 2u;
+    uint stride = max(texels / along, 1u);
+    for (uint k = face; k < along * along; k += 6u)
+    {
+        uint2 texel = uint2(k % along, k / along);
         // Its light along the direction, every merged direction weighed by its share of the sphere
         // and by its cosine to the direction to the power of 8, the lobe a surface of
         // roughness 0.5 spreads its reflection over, so the eight by eight directions hold the light
         // blurred as that surface reflects it, smooth between them. Their mean alone left the
         // octahedron's facets in a wall's reflection where the light changed sharply between two
         // directions, as at a wall's foot between the floor and the wall across. A cascade of more
-        // directions is read at one in each step by step of them, the lobe spanning some 30 degrees
+        // directions is read at one in each stride by stride of them, the lobe spanning some 30 degrees
         // where its directions are 11 apart, which reading them all took a quarter of a millisecond
         // of the GPU more in Sponza at 1920 by 1080.
-        float3 toward = fromOctahedron((float2(texel) + 0.5) / float(ReachTexels));
+        float3 toward = fromOctahedron((float2(texel) + 0.5) / float(along));
         float3 light = float3(0.0);
         float weights = 0.0;
-        for (uint v = step / 2u; v < texels; v += step)
-            for (uint u = step / 2u; u < texels; u += step)
+        for (uint v = stride / 2u; v < texels; v += stride)
+            for (uint u = stride / 2u; u < texels; u += stride)
             {
                 float2 uv = (float2(u, v) + 0.5) / float(texels);
                 float lobe = saturate(dot(fromOctahedron(uv), toward));
@@ -232,7 +244,7 @@ void computeMain(uint3 id : SV_DispatchThreadID)
         ways[block + uint3(texel + 1u, 0u)] = way;
         // The border texels across the octahedron's edges that stand for this direction, an edge's
         // texels mirrored along it and each corner's the opposite corner's.
-        uint last = uint(ReachTexels) - 1u;
+        uint last = along - 1u;
         if (texel.y == 0u) ways[block + uint3(last + 1u - texel.x, 0u, 0u)] = way;
         if (texel.y == last) ways[block + uint3(last + 1u - texel.x, last + 2u, 0u)] = way;
         if (texel.x == 0u) ways[block + uint3(0u, last + 1u - texel.y, 0u)] = way;

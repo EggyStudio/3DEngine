@@ -8,7 +8,7 @@ import scenefield;
 // a texel's border about them, each border texel the one across the octahedron's edge from it, as
 // DDGI borders its probes, so a filtered read across a fold of the octahedron blends the directions
 // on either side of it.
-public static const int WaysTexels = ReachTexels + 2;
+public static const int WaysTexels = 10;
 
 // How much of a probe at probe a surface at p facing n sees, as probeSees gives it, its reach read
 // filtered between the four directions about the way to p within the probe's block, so the share
@@ -61,7 +61,7 @@ float3 reflectedIn<V : IVolume>(V cubes, V ways, V reach, SceneFieldInfo info, f
     float3 f = q - float3(base);
     float3 r2 = r * r;
     float wide = saturate((roughness - 0.5) * 2.0);
-    float2 along = octahedron(r) * float(ReachTexels) + 1.0;
+    float2 along = octahedron(r) * float(WaysTexels - 2) + 1.0;
     float2 across = float2(probes * float(WaysTexels));
     float deep = probes * float(cascades);
     float3 sum = float3(0.0);

@@ -82,7 +82,9 @@ public sealed partial class BounceRoomsTests
     // thin room's 0.109, 0.094 and 0.092 and the grazing floor's 0.043, 0.042 and 0.043. With the
     // probes' hits taking the sun through the window's shadow map (SunShadowMap), the thin room
     // reads 0.102, 0.088 and 0.086, the corridor 0.281, 0.271 and 0.257, and the window's 0.214,
-    // 0.241 and 0.232, the other rooms as before.
+    // 0.241 and 0.232, the other rooms as before. With each probe's reach kept at sixteen by sixteen
+    // directions, the window's reads 0.247 at High and 0.255 at Medium, its surfaces brighter, the
+    // other rooms within 0.001.
     [NeedsRayQueryTheory]
     [InlineData(1, GlobalIllumination.Low, 0.11)]
     [InlineData(1, GlobalIllumination.Medium, 0.12)]

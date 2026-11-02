@@ -116,6 +116,9 @@ internal sealed class GpuIllumination : IDisposable
     /// <summary>The texels along each side of a probe's block in <see cref="WaysView"/>, eight with a border.</summary>
     public const int WaysTexels = 10;
 
+    /// <summary>The directions along each side of the octahedron each probe's reach is kept along, as <c>gi.slang</c>'s <c>ReachTexels</c>.</summary>
+    public const uint ReachTexels = 16;
+
     /// <summary>The bytes <see cref="WaysView"/> takes.</summary>
     public long WaysBytes => (long)(WaysTexels * Probes) * (WaysTexels * Probes) * Probes * Cascades * 8;
 
@@ -241,7 +244,7 @@ internal sealed unsafe partial class GraphicsDevice
         var (held, heldMemory, heldView) = ProbeImage(4 * p, p, p * (uint)texels.Length);
         var (partial, partialMemory, partialView) = ProbeImage(4 * p, p, p * (uint)texels.Length, VkFormat.R32G32B32A32Sfloat);
         var (cubes, cubesMemory, cubesView) = ProbeImage(6 * p, p, p * (uint)texels.Length);
-        var (reach, reachMemory, reachView) = ProbeImage(8 * p, 8 * p, p * (uint)texels.Length, VkFormat.R16Sfloat);
+        var (reach, reachMemory, reachView) = ProbeImage(GpuIllumination.ReachTexels * p, GpuIllumination.ReachTexels * p, p * (uint)texels.Length, VkFormat.R16Sfloat);
         var (skies, skiesMemory, skiesView) = ProbeImage(6 * p, p, p * (uint)texels.Length, VkFormat.R16Sfloat);
         var (ways, waysMemory, waysView) = ProbeImage(GpuIllumination.WaysTexels * p, GpuIllumination.WaysTexels * p, p * (uint)texels.Length);
         var lights = CreateBuffer(new BufferDesc(GpuIllumination.LightsBytes, BufferUsage.Uniform | BufferUsage.TransferDst));
@@ -283,7 +286,7 @@ internal sealed unsafe partial class GraphicsDevice
             new ImageDesc(new Extent2D(6 * p, p), ImageFormat.R16G16B16A16_Float, ImageUsage.Sampled | ImageUsage.Storage));
         Name(owner, "Light probes' faces");
         var reachOwner = new VulkanImage(this, reach, reachMemory,
-            new ImageDesc(new Extent2D(8 * p, 8 * p), ImageFormat.R16_Float, ImageUsage.Sampled | ImageUsage.Storage));
+            new ImageDesc(new Extent2D(GpuIllumination.ReachTexels * p, GpuIllumination.ReachTexels * p), ImageFormat.R16_Float, ImageUsage.Sampled | ImageUsage.Storage));
         Name(reachOwner, "Light probes' reach");
         var skiesOwner = new VulkanImage(this, skies, skiesMemory,
             new ImageDesc(new Extent2D(6 * p, p), ImageFormat.R16_Float, ImageUsage.Sampled | ImageUsage.Storage));

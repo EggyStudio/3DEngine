@@ -356,9 +356,9 @@ public bool seesThrough<V : IVolume>(V field, SceneFieldInfo info, float3 a, flo
     return length <= clearance * 2.0 || traceField(field, info, a, toward / length, clearance, length - clearance) < 0.0;
 }
 
-// The directions each probe's reach is kept along, eight by eight of its octahedron, as
+// The directions each probe's reach is kept along, sixteen by sixteen of its octahedron, as
 // gi_ambient.slang lays them out.
-public static const int ReachTexels = 8;
+public static const int ReachTexels = 16;
 
 // How near a surface a probe may stand, and the most it is moved from its spot in the grid to stand
 // so far off one or out of a mesh, in its spacing, so a probe in the plane of a wall or a ceiling

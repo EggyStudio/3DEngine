@@ -88,8 +88,8 @@ REVIEW-ARCHIVE.md, its devlog note and its own words. On 2026-10-30 at 18:0x the
 README's new words (item 133) and the focus on radiance cascades (Decision 74), questions asked
 back, and asked that the sessions spend fewer tokens at the same quality, N 7.7.
 
-Next 177, then 185, 174 and 175 (Decision 84), then 182, with 140, 141 and 142 after 177 (Decision
-75); 143, 144 and 145 wait behind them.
+Next 185, then 174 and 175 (Decision 84), then 182, with 140, 141 and 142 after 177 (Decision 75);
+143, 144 and 145 wait behind them.
 
 Items done and verdicts settled before 2026-10-23 stand in REVIEW-ARCHIVE.md beside this file, their
 numbers kept, moved there at 19:30 on 2026-10-23 so this file holds the current work alone and is
@@ -1032,6 +1032,9 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     the reference go further over, the door view's red block at 1.58 of the reference, block 1's
     underside 1.47 and the floor 1.24, the balcony to 1.49, the atrium to 1.66 and the nave to 1.66,
     the merge's gain past the first bounce showing where the missing first bounce had hidden it.
+    From 185 at 11:14: with the reach map at 16 by 16 the window's room brightens 2 to 6% further
+    over its reference, 4 to 10% over before, the floor 1.111, the wall +z 1.167 and the ceiling
+    1.132 of the reference, this item's gain growing as fewer probes are judged unseen.
 
 166. **The atrium's far end does not glow blue.** The owner's shot of scenes_sponza at 12:05 on
     2026-11-01, the atrium view at 13:00 on the fixed camera, kept in the day's dump, shows the
@@ -1399,6 +1402,17 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     commit of its own, then the dolly read on lighting alone, the change at the shifts against the
     change between them, this item built only where the shifts show, as a shift-aware copy of the
     cubes or a warm start for the probes a shift brings in, and recorded as not needed otherwise.
+    The lighting-only view is `43547883`, read at 10:23, its push waiting on fdf4dedb's run,
+    gi.toggle albedo off taking the model pass's albedo white through the lighting buffer's spare
+    lane, render targets copying it, a test of the red wall drawn white, 2,208 in both orders. Read
+    on lighting alone, the shifts do not show, so this item is not needed and takes no work; a dolly
+    along the nave at 15:00 of 60 steps of 5 cm against a control run settled 60 frames at each
+    position reads the floor at 1.000 and the sides at 0.999 of settled per position, the moving
+    run's own steps being the scene's columns entering the regions; a 2 m jump shifting the 1 and 2
+    m cascades at once reads within 0.6% of settled at the first frame with the screen probes off
+    and within 0.1% from the third, the sides 3.8% over at the first frame with them on, their
+    history reprojected across the jump, which is 174's, and 23 to 32% over with the follow off, so
+    the follow's share is what keeps a shift's probes steady. The number stands.
 
 178. **The gather's fallback for a surface that sees none of its probes.** After item 166's mend, a
     surface seeing none of its eight probes still takes them by distance at a twentieth each and
@@ -1682,7 +1696,68 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     by direction, or the screen probes first where the end is on screen, before the unseen probes'
     whole light; read by the corridor toward 0.1 at both qualities, the Cornell box within the bar
     at both, the bounce rooms within 1 level, the slab and the canopy unchanged and Sponza's door
-    view. One or two commits, after 177 and before 174.
+    view. One or two commits, after 177 and before 174. Read at 10:32 on 2026-11-02 in scratch
+    builds, the cause is the field and not the gather's fallback. The leak is the probes' diffuse
+    light, about 0.034 of the open end's 0.073, and bright probes count as seen from inside the
+    corridor, keeping only the probes the end sees brightening it to 0.94 and dropping the probes'
+    light taking it to 0.127; no probe stands inside, cascade 3's keeping 1.6 units clear where the
+    corridor gives 1.5. At 34 units from the eye the finest field cascade is the fourth, its cells 2
+    units wide, and the closures are thinner, the walls and roof 1, the floor 0.5, the ends 1, so
+    the probes' rays toward the end pass through them; with the walls and roof 2 thick it still
+    reads 0.491 through the floor, with every closure 2 thick 0.201, the 0.220 the end read in
+    cascade 2, the remaining fifth being 166's fallback; the fallback mend tried, an unseen probe
+    lending its twentieth only within four finest cells past its slack, reads 0.510 thin and 0.589
+    thick, worse, since a probe that partly counts as seen dominates once the unseen's dark is cut,
+    so it is out. The item is the field's, a coarse cascade holding a closure thinner than its cell
+    by conservative occupancy where a closed surface's triangle crosses a cell, the light-through
+    surfaces keeping their share; the test keeps its thin closures since the game's walls are a
+    block thick and its far cascades coarse, its bar toward 0.25 once the field holds them; read by
+    the corridor at High, the Cornell box and the rooms within their bars, the slab and the canopy
+    unchanged, Sponza's views, the game's lava scene for its far walls, and the field's build and
+    memory cost at the coarse cascades. Before 174. Read again at 10:44, the field's occupancy is
+    not the cause either; built conservative, cascade 3 holds the corridor solid and the end still
+    reads 0.483, since the bright outside probes count as seen through the reach map, which keeps a
+    texel of 8 by 8 a probe as the mean of the 2 by 2 rays inside it where the cascade has 16
+    directions a side, a texel at 12 units from a probe 16 apart spanning about 5 units, wider than
+    the 4-unit corridor, so rays passing beside the corridor average with the ones meeting its wall
+    and the judged point counts as reached. The nearest of those rays in place of the mean reads
+    0.186 with the field crossed or not. So the item is the reach texel keeping its nearest ray
+    where the cascade has more directions than the map, the 8-a-side cascades unchanged, the field
+    untouched and the occupancy change out; read by the corridor toward 0.25, the Cornell box at
+    both qualities, the rooms within 1 level, the slab and the canopy, Sponza's four views and the
+    game's lava scene, the mean of the two nearest or DDGI's mean and spread the next reading if a
+    corner or a foot darkens past the bar. One commit. At 10:49 the nearest ray reads the corridor
+    at 0.186 and the two nearest at 0.184, every room within 0.001 of before but the window's, which
+    moves from 0.232 to 0.256 at High and 0.241 to 0.264 at Medium, inside its bounds of 0.29 and
+    0.30 but past 1 level, brightening further over a reference it already reads over with no corner
+    or foot darkening, a probe of a 16-direction cascade near the window judged unseen more often
+    and the fallback's outside light weighing more. The form that lands is DDGI's bound on the mean
+    and the spread, the reach image in two channels with the mean of squares, read at the four
+    places the reach is read, since the mean alone is the fault and a rule by cascade index would
+    leave the leak wherever a narrow space lies in cascade 2; the window's room read against its
+    fresh reference with it, the rest as before. At 10:52 the bound on mean and spread is set aside
+    before building, by the coder's reading. At the corridor's end the judged point lies between a
+    texel's nearest ray and its mean, and DDGI's bound takes a point nearer than the mean as seen
+    whatever the spread, so it would read as the mean does; the texels are mixed, rays passing
+    beside the corridor running to the interval's end and those meeting its walls stopping at 5 or 6
+    units, and the window's room has the same mix, an opening beside a wall within one 25-degree
+    texel, which no moment or rule tells apart at that size. What tells them apart is resolution, so
+    the form is the reach map at 16 by 16 directions a probe, one ray a texel in the 16-direction
+    cascades and no reduction, the 8-direction cascades as before, the ways staying 8 by 8, the
+    image 128 by 128 by 8 at r16f, about 1 MB more at High, a texel then spanning about 12 degrees,
+    2.5 units at 12 off; the readings as before with the memory and the gather's cost, the nearest
+    ray with its numbers the fallback if it fails. Built and read at 11:14, the reach image at 16 by
+    16 a probe in r16f, gi_ambient's reach loop split from the ways', the ways at 8 by 8 with their
+    own stride, and a mend found on the way, roughreflect finding a way's place by ReachTexels where
+    at 16 it read past the 8 by 8 block; the corridor at High 0.183 where 0.499, every room and
+    quality within 0.001 of before but the window's, 0.232 to 0.247 at High and 0.241 to 0.255 at
+    Medium, within its bounds, brightening 2 to 6% further over a reference it read 4 to 10% over
+    with the spreads narrowing and no corner or foot darkening, 142's gain growing; Sponza's door
+    0.158 to 0.165, the balcony 0.159 to 0.149, the atrium 0.219 to 0.204, the nave 0.230 to 0.235;
+    the slab and the canopy unchanged by construction; the reach image 0.26 to 1.05 MB at High;
+    global illumination within noise at 1080p. The call is to land it, the corridor's bar to 0.25
+    with the reading and the cause in the comment, the lava scene left out where 139's scratch
+    example is gone.
 
 ## Verdicts
 
@@ -2053,3 +2128,13 @@ largest surfaces at 0.94 to 1.58 of the reference where 0.32 to 0.73, the views 
 further over by the gain past the first bounce (142), and global illumination takes 0.02 to 0.14
 ms less at 1920 by 1080. The screen's probes keep the field, since a render target draws its own
 shadow into the same map before its screen's probes trace.
+
+Shared: each world probe's reach is kept at sixteen by sixteen directions of its octahedron where it
+was eight by eight (item 185), so a cascade of sixteen directions a side keeps each ray's own
+distance where a direction took the mean of four rays some 25 degrees across. The closed corridor's
+far end, in the fourth cascade with probes sixteen units apart, read 0.499 of its open light, the
+outside probes' rays that passed beside it and those that met its walls blended into a reach that
+counted them as seeing the end, and reads 0.183. The window's room of the bounce rooms reads 0.247
+from its reference at High where 0.232, brighter, the rest within 0.001; the reach takes 1.05 MB at
+High where 0.26. The rough reflection's read of a probe's light by way took its place in the 8 by 8
+block from the reach's directions, and takes it from the ways' own.
