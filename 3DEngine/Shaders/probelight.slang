@@ -98,7 +98,13 @@ public float3 bouncedAndSkyAt<V : IVolume>(V cubes, V skies, V reach, SceneField
 // share of its faces' light the sky gave and none of its share of the sky. Blended by distance
 // alone, the probes around the far end of Sponza's atrium, eight units apart in its last cascade,
 // lent a wall by the main door the sky that those under the floor and outside the door saw, and it
-// read 5.9 times a path-traced reference and blue, its dark door's reflection the sky.
+// read 5.9 times a path-traced reference and blue, its dark door's reflection the sky. With Sky the
+// probes it does not see lend it nothing where those it sees hold a twentieth of the weight, the
+// blend of them all taken below that, since what a hidden probe's faces gather past the sky's
+// share is the light beyond the wall that hides it, a sunlit court's or the floor's underside lit by
+// the ground under the scene. A column of Sponza's nave at 8:00 read 11.8 times its reference with
+// that light lent and 1.35 without it, and the line between its dark foot and the rest, which
+// speckled pixel by pixel, went with it.
 float3 bouncedIn<V : IVolume, let Sky : bool>(V cubes, V skies, V reach, SceneFieldInfo info, float3 p, float3 n, float3 r, float probes, float spacing, int c,
     int cascades, out float sky)
 {
@@ -108,9 +114,9 @@ float3 bouncedIn<V : IVolume, let Sky : bool>(V cubes, V skies, V reach, SceneFi
     float3 f = q - float3(base);
     float3 n2 = n * n;
     float3 r2 = r * r;
-    float3 sum = float3(0.0);
+    float3 sum = float3(0.0), seenSum = float3(0.0);
     float skySum = 0.0;
-    float weights = 0.0;
+    float weights = 0.0, seenWeights = 0.0, allWeights = 0.0;
     for (int corner = 0; corner < 8; corner++)
     {
         int3 offset = int3(corner & 1, (corner >> 1) & 1, corner >> 2);
@@ -137,6 +143,9 @@ float3 bouncedIn<V : IVolume, let Sky : bool>(V cubes, V skies, V reach, SceneFi
         float3 probe = oc.xyz + (float3(at) + 0.5 + moved) * (oc.w * spacing);
         float weight = lerps.x * lerps.y * lerps.z * valid * probeFacing(p, n, probe);
         float sees = probeSees(reach, p, n, probe, at, c, probes, oc.w * spacing);
+        seenSum += light * weight * sees;
+        seenWeights += weight * sees;
+        allWeights += weight;
         weight *= lerp(0.05, 1.0, sees);
         if (Sky)
         {
@@ -148,7 +157,10 @@ float3 bouncedIn<V : IVolume, let Sky : bool>(V cubes, V skies, V reach, SceneFi
         weights += weight;
     }
     sky = weights > 1e-5 ? skySum / weights : 1.0;
-    return weights > 1e-5 ? sum / weights : float3(0.0);
+    float3 blended = weights > 1e-5 ? sum / weights : float3(0.0);
+    if (Sky && seenWeights > 1e-5)
+        return lerp(blended, seenSum / seenWeights, saturate(seenWeights / max(0.05 * allWeights, 1e-5)));
+    return blended;
 }
 
 // The share of the sky a surface at p facing n sees along r, the share its probes' rays reached

@@ -2530,6 +2530,26 @@ probes it sees are none either, 0.003 to 0.015 where the reference reads 0.0002 
 (`gi.reference` at 1024 paths a pixel, `gi.compare`, its PFMs read by pixel,
 `.github/assets/readings/2026-11-02-item-186-feet.webp`).
 
+**The probes a surface does not see, read and mended on 2026-11-02.** Flown through at 8:00, a
+column of Sponza's nave read a dark band at its foot under a lit part, the line between them
+speckled pixel by pixel. From low by the nave's end with the fog off, against the path-traced
+reference, the lit part read 11.8 times the reference and the band 2.6. Left out in turn, the
+sun's light and the reflection leave the band and its line as they read, and the probes' diffuse
+light takes both, whose blend of the eight probes around a pixel kept a probe the pixel does not
+see at a twentieth of its weight, less its faces' share of the sky. What such a probe's faces
+gather past the sky's share is the light beyond what hides it, a sunlit court's, or the floor's
+underside lit by the ground the sky holds under the scene. Taking the probes the pixel sees alone
+where they hold a twentieth of the weight, and the blend of them all below that, the lit part
+reads 1.35 and the band 1.87, the line gone, and at Low, where every surface reads the world's
+probes, the foot of a closed room's wall whose floor the probes under it see lit from below reads
+55.6 of 255 where 139.3, the wall above it 67.3. The views at 8:00 move by 0.05 at most but the
+lookup's shade, 1.59 to 1.38, and at noon by 0.03 at most, their brightest fifth within 0.01. The
+reflection on the column's foot where its texture is glossy stays, 0.000346 in linear light where
+the reference's is 0.000004, and the floor's reflects a ninth of the reference's, 0.000013 where
+0.000119, which are the probes' reflection's own (`gi.reference` at 1024 paths a pixel with and
+without the first face's specular share, `gi.compare`, its PFMs read by pixel, the global
+illumination tests, `.github/assets/readings/2026-11-02-item-188-column.webp`).
+
 **The sky's share along the mirror way, read on 2026-11-01.** The environment's reflection is
 scaled by the share of the sky the probes around a surface see along its mirror way, which an open
 plain's probes, their faces seeing the whole sky up, half of it level and none down, read as half
