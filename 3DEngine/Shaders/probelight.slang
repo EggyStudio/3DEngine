@@ -268,15 +268,18 @@ public float4 bouncedSeenSum<V : IVolume>(V field, SceneFieldInfo info, SceneFie
 // world probe weighs the frame before's light by (gi_ambient.slang). The probes' rays meet a
 // double-sided face at its plane (fieldDistanceSheetIn), where the held field's gradient cancels
 // across the sheet, so the hit's normal is the plane's (fieldNormalSheet), turned up there, the
-// voxel game's crops lit as floors from the sun took 29% over a path-traced reference.
-public float3 shadeProbeHit<V : IVolume, S : ISheetVolume>(V field, S sheets, SceneFieldInfo info, SceneFieldInfo gathered, V albedo, Texture3D<uint> faces,
-    V glow, GiLights lights, V cubes, V reach, float3 p, float3 way, float probes, float spacing, float cascades, bool seen, float3 kept, out float3 own)
+// voxel game's crops lit as floors from the sun took 29% over a path-traced reference. The sun is
+// found through sun where it holds the hit, the window's shadow map for the world's probes, and
+// through the field elsewhere.
+public float3 shadeProbeHit<V : IVolume, S : ISheetVolume, Sun : ISunShadow>(V field, S sheets, SceneFieldInfo info, SceneFieldInfo gathered, V albedo,
+    Texture3D<uint> faces, V glow, GiLights lights, V cubes, V reach, float3 p, float3 way, float probes, float spacing, float cascades, bool seen, float3 kept,
+    Sun sun, out float3 own)
 {
     float3 n = fieldNormalSheet(sheets, info, p);
     float3 color = surfaceAlbedoFacing(faces, albedo, info, p, n);
     float3 bounced = seen ? bouncedSeenAt(field, info, gathered, cubes, p, n, probes, spacing, cascades)
                           : bouncedAt(cubes, reach, gathered, p, n, probes, spacing, cascades);
-    own = color * (directLight(field, info, lights, p, n) - hiddenLampLight(field, info, lights, p, n) + glowLightsAt(field, info, lights, p, n, 2, false, way) / Pi)
+    own = color * (directLight(field, info, lights, p, n, sun) - hiddenLampLight(field, info, lights, p, n) + glowLightsAt(field, info, lights, p, n, 2, false, way) / Pi)
         + surfaceGlowUncarried(glow, albedo, info, p);
     return own + color / Pi * bounced * (lights.counts.z * kept);
 }

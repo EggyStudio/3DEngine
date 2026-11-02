@@ -989,13 +989,28 @@ to four times the spacing and each after's from its spacing to four times that, 
 interval begins half way along the one below's (`gi_trace.slang`). `Low` traces 8 by 8 directions in
 each of two cascades, `Medium` adds 16 by 16 in a third, and `High` traces 8 by 8 then 16 by 16 in
 four, no more cascades than the field has. A ray that meets a surface brings back its painted color
-times the sun's light where a trace toward the sun through the field gets through and the point and
-spot lights', each that casts shadows only where a trace toward it gets through too
-(`hiddenLampLight`), given as the model pass has a light, what a white surface facing it returns,
-and its color over pi times the indirect light that reached it the frame before, which the probes
-hold as the light reaching a face, blended from the probes around it that it sees, a trace through
-the field to each in front of it (`bouncedSeenAt`), with its emission (`shadeProbeHit` in
-`probelight.slang`). The faces are read where each cascade lay the frame before, its corner then carried in
+times the sun's light where the window's shadow map lets it through, as the frame before's shadow
+pass drew it, where one of its counted cascades holds the hit, and elsewhere where a trace toward
+the sun through the field gets through, and the point and spot lights', each that casts shadows only
+where a trace toward it gets through too (`hiddenLampLight`), given as the model pass has a light,
+what a white surface facing it returns, and its color over pi times the indirect light that reached
+it the frame before, which the probes hold as the light reaching a face, blended from the probes
+around it that it sees, a trace through the field to each in front of it (`bouncedSeenAt`), with its
+emission (`shadeProbeHit` in `probelight.slang`). The map is drawn from the meshes themselves, where
+the field holds them at its cells. Through the field alone the hits of the probes in the vestibule
+of Sponza's main door saw none of the sun a path-traced reference sees there, a probe of the first
+cascade reading 77% under the reference's sun alone at its rays' hits, and `scenes_sponza`'s door
+view at 15:00 at `High` read its ten largest surfaces at 0.32 to 0.73 of the reference, where with
+the map they read 0.94 to 1.58 (`gi.probe`, `gi.compare` and `build/region-pattern.py`). The
+balcony's, the atrium's and the nave's views gain 1 to 12%, their surfaces over the reference
+further over. In the door's and the nave's views at 1920 by 1080 at `High` global illumination takes
+0.02 to 0.14 ms less of 3.0 to 3.2, a read of the map in place of a march toward the sun at the hits
+it holds (`./e3d command profile`), and the bounce rooms' thin room and window's room read nearer
+their references at `High`, 0.086 and 0.232 of their light apart where 0.092 and 0.248, the corridor
+0.257 where 0.253 (`BounceRoomsTests`). The screen's probes' hits take the sun through the field
+still, since a render target draws its own shadow into the same map before its screen's probes
+trace.
+The faces are read where each cascade lay the frame before, its corner then carried in
 the lights' buffer, since they were gathered there (`gatheredAt` in `gi_trace.slang`). That indirect
 light is taken at a share each probe keeps, its whole but the frame after the probe's own light,
 what its rays brought straight from the sun, the lights and emissive surfaces, fell by a fifth

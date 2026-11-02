@@ -327,6 +327,12 @@ internal sealed partial class ModelRenderer
         return _pointShadowMap;
     }
 
+    /// <summary>
+    /// The map of the cascades and spot lights as the last shadow pass drew it, which global
+    /// illumination's probes read the sun through at their hits the frame after, or none before one.
+    /// </summary>
+    internal ShadowMap? DrawnShadowMap => _shadowMap;
+
     // The map of the cascades and spot lights, two tiles on a side, made again when the tile size changes.
     private ShadowMap ShadowMapFor(GraphicsDevice device, int tileSize)
     {

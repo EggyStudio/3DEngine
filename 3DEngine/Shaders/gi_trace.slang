@@ -97,6 +97,11 @@ Texture3D<uint> fieldFaces;
 [[vk::binding(12, 0)]]
 Texture3D<float4> fieldSecond;
 
+// The window's shadow map as its shadow pass drew it the frame before, which a hit reads the sun
+// through where the lights' cascades of it hold the hit, or a white texture where they hold none.
+[[vk::binding(13, 0)]]
+Sampler2D sunShadow;
+
 struct TracePush
 {
     // x: the cascade. y: the probes along each side. z: the octahedron's texels along each side.
@@ -402,7 +407,7 @@ void computeMain(uint3 id : SV_DispatchThreadID, uint lane : SV_GroupIndex)
             // The indirect light reaching the hit from the probes a march reaches, so the probes'
             // reach goes unread and the faces stand in its place.
             light = float4(shadeProbeHit(sceneField, SheetVolume(sceneField, fieldSecond), fieldInfo, gatheredAt(), fieldAlbedo, fieldFaces, fieldGlow, lights, bounced, bounced, origin + way * t, way,
-                float(probes), push.interval.z, push.interval.w, true, share, own), t < push.interval.x ? 0.5 : 0.0);
+                float(probes), push.interval.z, push.interval.w, true, share, SunShadowMap(sunShadow), own), t < push.interval.x ? 0.5 : 0.0);
             through = 0.0;
         }
         else if (skyPast)
@@ -502,7 +507,7 @@ void computeMain(uint3 id : SV_DispatchThreadID, uint lane : SV_GroupIndex)
             // As the build without the crossing shades the hit.
             float3 itsOwn;
             float3 itsLight = shadeProbeHit(sceneField, SheetVolume(sceneField, fieldSecond), fieldInfo, gatheredAt(), fieldAlbedo, fieldFaces, fieldGlow, lights, bounced, bounced, origin + way * shadedAt, way,
-                float(probes), push.interval.z, push.interval.w, true, share, itsOwn);
+                float(probes), push.interval.z, push.interval.w, true, share, SunShadowMap(sunShadow), itsOwn);
             float weight = shaded == 0 ? leafShare : stopShare;
             crossed += itsLight * weight;
             crossedOwn += itsOwn * weight;

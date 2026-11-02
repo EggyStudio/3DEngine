@@ -69,9 +69,19 @@ internal sealed class GpuIllumination : IDisposable
 
     /// <summary>
     /// The bytes of <see cref="Lights"/>: the sun, the sky and the counts, sixteen lights, four
-    /// cascades' corners of the frame before, and the glow lights (<see cref="GlowLights"/>).
+    /// cascades' corners of the frame before, the glow lights (<see cref="GlowLights"/>), and the
+    /// sun's shadow map's cascades the frame before (<see cref="SunMapOffset"/>).
     /// </summary>
-    public const int LightsBytes = GlowLights.Offset + GlowLights.Size;
+    public const int LightsBytes = SunMapOffset + SunMapBytes;
+
+    /// <summary>
+    /// Where in <see cref="Lights"/> the sun's shadow map's cascades lie, four view-projections, each
+    /// cascade's texel in world units, and how many cascades with the map's texel in uv.
+    /// </summary>
+    public const int SunMapOffset = GlowLights.Offset + GlowLights.Size;
+
+    /// <summary>The bytes of the sun's shadow map's cascades in <see cref="Lights"/>.</summary>
+    public const int SunMapBytes = 4 * 64 + 2 * 16;
 
     /// <summary>
     /// How far each probe's rays reached along eight by eight directions, every cascade, before a
@@ -180,7 +190,7 @@ internal sealed unsafe partial class GraphicsDevice
                 VkDescriptorType.CombinedImageSampler, VkDescriptorType.CombinedImageSampler, VkDescriptorType.UniformBuffer,
                 VkDescriptorType.StorageImage, VkDescriptorType.CombinedImageSampler, VkDescriptorType.CombinedImageSampler,
                 VkDescriptorType.StorageImage, VkDescriptorType.StorageImage, VkDescriptorType.StorageImage, VkDescriptorType.SampledImage,
-                VkDescriptorType.SampledImage];
+                VkDescriptorType.SampledImage, VkDescriptorType.CombinedImageSampler];
             _giStages[TraceStage] = MakeComputeStage(trace, traced, (uint)sizeof(IlluminationTrace));
             _giStages[SolidTraceStage] = MakeComputeStage(spirv[6], traced, (uint)sizeof(IlluminationTrace));
             _giStages[MergeStage] = MakeComputeStage(merge, [VkDescriptorType.SampledImage, VkDescriptorType.SampledImage, VkDescriptorType.StorageImage,
@@ -360,6 +370,8 @@ internal sealed unsafe partial class GraphicsDevice
     /// <param name="field">The scene's distance field, built this frame.</param>
     /// <param name="environment">The light from all around a ray of the last cascade meets where it meets nothing, or a black cube.</param>
     /// <param name="environmentSampler">Its sampler.</param>
+    /// <param name="sunMap">The window's shadow map as the frame before drew it, or a white texture where <paramref name="lights"/> holds none of its cascades.</param>
+    /// <param name="sunSampler">Its sampler.</param>
     /// <param name="lights">The lights, <see cref="GpuIllumination.LightsBytes"/> of them.</param>
     /// <param name="intervals">Where each cascade's rays start and end.</param>
     /// <param name="spacing">The probes' spacing in cells of their field cascade.</param>
@@ -373,7 +385,7 @@ internal sealed unsafe partial class GraphicsDevice
     /// <param name="fieldWhole">Whether the field holds every mesh in reach (<see cref="SceneFieldPlan.Whole"/>), so a ray carried to the field's edge that meets nothing brings the sky.</param>
     /// <returns>What the recording holds, to free once no frame in flight reads it.</returns>
     public IDisposable RecordGlobalIllumination(ICommandBuffer commandBuffer, GpuIllumination gi, GpuSceneField field, IImageView environment,
-        ISampler environmentSampler, ReadOnlySpan<byte> lights, IReadOnlyList<(float Start, float End)> intervals, float spacing,
+        ISampler environmentSampler, IImageView sunMap, ISampler sunSampler, ReadOnlySpan<byte> lights, IReadOnlyList<(float Start, float End)> intervals, float spacing,
         bool mergeOff = false, int alone = -1, bool viewed = false, long frame = 0, IReadOnlyList<bool>? lying = null, int lastCounted = -1, bool lightThrough = false,
         bool fieldWhole = false)
     {
@@ -390,6 +402,9 @@ internal sealed unsafe partial class GraphicsDevice
         var before = VkPipelineStageFlags2.Transfer | VkPipelineStageFlags2.ComputeShader | (viewed ? VkPipelineStageFlags2.FragmentShader : 0);
         MemoryBarrier(cmd, before, VkAccessFlags2.TransferWrite | VkAccessFlags2.ShaderRead,
             VkPipelineStageFlags2.ComputeShader, VkAccessFlags2.UniformRead | VkAccessFlags2.ShaderWrite);
+        // The shadow map the frame before's shadow pass wrote, before the rays read the sun through it.
+        MemoryBarrier(cmd, VkPipelineStageFlags2.EarlyFragmentTests | VkPipelineStageFlags2.LateFragmentTests, VkAccessFlags2.DepthStencilAttachmentWrite,
+            VkPipelineStageFlags2.ComputeShader, VkAccessFlags2.ShaderRead);
 
         var p = (uint)gi.Probes;
         for (int c = 0; c < gi.Cascades; c++)
@@ -409,6 +424,7 @@ internal sealed unsafe partial class GraphicsDevice
             run.Image(set, 10, VkDescriptorType.StorageImage, gi.Partial, null, VkImageLayout.General);
             run.Image(set, 11, VkDescriptorType.SampledImage, ((VulkanImageView)field.FacesView).View, null, VkImageLayout.ShaderReadOnlyOptimal);
             run.Image(set, 12, VkDescriptorType.SampledImage, ((VulkanImageView)field.SecondView).View, null, VkImageLayout.ShaderReadOnlyOptimal);
+            run.Image(set, 13, VkDescriptorType.CombinedImageSampler, ((VulkanImageView)sunMap).View, sunSampler, VkImageLayout.ShaderReadOnlyOptimal);
             var push = new IlluminationTrace
             {
                 Cascade = (uint)c, Probes = p, Texels = n, Last = c == gi.Cascades - 1 || c == lastCounted ? 1u : 0u,

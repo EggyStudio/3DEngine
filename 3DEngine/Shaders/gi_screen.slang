@@ -529,7 +529,7 @@ void computeMain(uint3 id : SV_DispatchThreadID)
                 float3 itsOwn;
                 float weight = shaded == 0 ? leafShare : stopShare;
                 crossed += shadeProbeHit(sceneField, SheetVolume(sceneField, fieldSecond), fieldInfo, fieldInfo, fieldAlbedo, fieldFaces, fieldGlow, lights, bounced, reach, shaded == 0 ? leafAt : stopAt, way,
-                    view.trace.y, view.trace.z, view.trace.w, false, float3(1.0), itsOwn) * weight;
+                    view.trace.y, view.trace.z, view.trace.w, false, float3(1.0), FieldSun(), itsOwn) * weight;
                 own += itsOwn * weight;
             }
             light = crossed;
@@ -561,7 +561,7 @@ void computeMain(uint3 id : SV_DispatchThreadID)
                     {
                         met = 1.0;
                         reached = start + way * far;
-                        past = shadeProbeHit(sceneField, SheetVolume(sceneField, fieldSecond), fieldInfo, fieldInfo, fieldAlbedo, fieldFaces, fieldGlow, lights, bounced, reach, reached, way, view.trace.y, view.trace.z, view.trace.w, false, float3(1.0), pastOwn);
+                        past = shadeProbeHit(sceneField, SheetVolume(sceneField, fieldSecond), fieldInfo, fieldInfo, fieldAlbedo, fieldFaces, fieldGlow, lights, bounced, reach, reached, way, view.trace.y, view.trace.z, view.trace.w, false, float3(1.0), FieldSun(), pastOwn);
                     }
                 }
                 light += past * through;

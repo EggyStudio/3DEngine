@@ -179,6 +179,9 @@ internal sealed class GlobalIlluminationRenderer : IDisposable
     // Whether some surface drawn this frame lets light through (ModelMaterial.LightThrough), where a
     // frame of none traces the probes' rays with the build that leaves the crossing out.
     private bool _lightThrough;
+    // The window's shadow as this frame's shadow pass draws it after the probes' rays, which the
+    // frame after's rays read the sun through.
+    private FrameShadow? _sunBefore;
 
     /// <summary>How many emitters are carried as glow lights this frame, and how many of them, the nearest the eye, are lit.</summary>
     internal (int Carried, int Lit) Glow => (_glowFound, _glowCount);
@@ -441,7 +444,9 @@ internal sealed class GlobalIlluminationRenderer : IDisposable
         var environment = renderWorld.TryGet<EnvironmentMap>() is not null ? renderWorld.TryGet<ModelRenderer>()?.Environment : null;
         _black ??= device.CreateCubeMap(1, 1, new Half[6 * 4]);
         var (view, sampler) = environment is not null ? (environment.View, environment.Sampler) : (_black.View, _black.Sampler);
-        var lights = Lights(renderWorld, environment is not null);
+        var (sunMap, sunSampler, sunShadow) = SunMap(renderWorld, device);
+        var lights = Lights(renderWorld, environment is not null, sunShadow);
+        _sunBefore = renderWorld.TryGet<FrameShadow>();
         var switches = renderWorld.TryGet<GlobalIlluminationSettings>()!;
 
         // Each cascade lying where it lay the frame before, its probes the same, so a probe's own
@@ -469,7 +474,7 @@ internal sealed class GlobalIlluminationRenderer : IDisposable
         _lightThrough = false;
         foreach (var (instance, _) in renderWorld.TryGet<SceneFieldRenderer>()?.Drawn ?? [])
             _lightThrough |= instance.LightThrough > 0 && !switches.ThroughOff;
-        _retired.Add((_frame, device.RecordGlobalIllumination(renderContext.CommandBuffer, _gi, field.Field, view, sampler, lights, intervals, ProbeSpacing,
+        _retired.Add((_frame, device.RecordGlobalIllumination(renderContext.CommandBuffer, _gi, field.Field, view, sampler, sunMap, sunSampler, lights, intervals, ProbeSpacing,
             switches.MergeOff, switches.Alone, switches.Shown is BounceView.Rays or BounceView.Merged, _frame, switches.FollowOff ? null : lying,
             far ? cascades - 2 : -1, _lightThrough, plan is { Whole: true })));
 
@@ -642,10 +647,24 @@ internal sealed class GlobalIlluminationRenderer : IDisposable
         HistoryViewProjection = window.ViewProjection;
     }
 
+    // The window's shadow map as the frame before's shadow pass drew it and the shadow it drew it
+    // for, where that shadow was the sun's, a directional light's, and the map is of its size, or a
+    // white texture and none.
+    private (IImageView Map, ISampler Sampler, FrameShadow? Shadow) SunMap(RenderWorld renderWorld, GraphicsDevice device)
+    {
+        var lights = renderWorld.TryGet<RenderLights>()?.All ?? [];
+        if (_sunBefore is { } before && before.Light >= 0 && before.Light < lights.Count && lights[before.Light].Kind == LightKind.Directional
+            && renderWorld.TryGet<ModelRenderer>()?.DrawnShadowMap is { } map && map.Extent.Width == 2 * before.TileSize)
+            return (map.DepthView, map.Sampler, before);
+        var (white, whiteSampler) = renderWorld.TryGet<GpuTextures>()!.ViewFor(device, 0);
+        return (white, whiteSampler, null);
+    }
+
     // The lights as gi.slang's GiLights, the sun, the first directional light, the shadowed one
-    // where it is one; the light from all around a ray meets where it meets nothing; and the point
-    // and spot lights, sixteen at most.
-    private byte[] Lights(RenderWorld renderWorld, bool environment)
+    // where it is one; the light from all around a ray meets where it meets nothing; the point
+    // and spot lights, sixteen at most; and the counted cascades of the sun's shadow the frame
+    // before drew its map for, where there is one.
+    private byte[] Lights(RenderWorld renderWorld, bool environment, FrameShadow? sunShadow)
     {
         var bytes = new byte[GpuIllumination.LightsBytes];
         var floats = MemoryMarshal.Cast<byte, float>(bytes.AsSpan());
@@ -685,6 +704,18 @@ internal sealed class GlobalIlluminationRenderer : IDisposable
             };
         }
         (floats[12], floats[13], floats[14]) = (count, _frame, renderWorld.TryGet<GlobalIlluminationSettings>() is { AgainOff: true } ? 0 : 1);
+        // The sun's map is read for its own light alone, so a shadow drawn for another light is not.
+        if (sunShadow is { } drawn && drawn.Light == sun)
+        {
+            var mapped = MemoryMarshal.Cast<byte, float>(bytes.AsSpan(GpuIllumination.SunMapOffset, GpuIllumination.SunMapBytes));
+            var counted = Math.Min(drawn.Cascades.Count, 4);
+            for (int c = 0; c < counted; c++)
+            {
+                MemoryMarshal.Write(bytes.AsSpan(GpuIllumination.SunMapOffset + c * 64), drawn.Cascades[c].ViewProjection);
+                mapped[64 + c] = drawn.Cascades[c].Texel;
+            }
+            (mapped[68], mapped[69]) = (counted, 1f / (2 * drawn.TileSize));
+        }
         // The small emitters carried as lights, the nearest the eye the field lies around, which
         // where the window draws no mesh is the first render target's camera's.
         if (renderWorld.TryGet<GlobalIlluminationSettings>() is not { GlowOff: true }

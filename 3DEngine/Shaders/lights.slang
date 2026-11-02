@@ -479,8 +479,8 @@ public float3 bounced(float3 p, float3 n)
 }
 
 // The light bounced gives with the share of the sky the surface sees along r as skySeen gives it,
-// from one gather of the probes (bouncedAndSkyAt in probelight.slang), or -1 and the whole sky where no
-// cascade of probes holds p.
+// from one gather of the probes (bouncedAndSkyAt in probelight.slang), or -1 and the whole sky
+// where no cascade of probes holds p.
 public float3 bouncedAndSky(float3 p, float3 n, float3 r, out float sky)
 {
     sky = 1.0;

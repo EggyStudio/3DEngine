@@ -1,11 +1,13 @@
 # Review
 
-Reviewed up to `adf7bb79`, item 170's third commit and its end, pushed at 03:04 on 2026-11-02 with
-`dd39d533`, its pass, its run green at 05:37 with Windows in 151 minutes, the longest yet under
-149's limit of 180 and watched, Linux in 82 and macOS in 36. After it `55ec4e2c`, `4105ee5e` and
-`a35d7ce9`, item 172's three commits, pushed at 05:37, the run of `a35d7ce9` awaited; each keeps the
-form. Each commit's detail stands in its item in REVIEW-ARCHIVE.md, its devlog note and its own
-words. Before it `bd081fa6`, 170's first engine commit, Sky as a submodule, pushed at 00:31 with
+Reviewed up to `a35d7ce9`, item 172's third commit and its end, pushed at 05:37 on 2026-11-02 with
+`55ec4e2c` and `4105ee5e`, its run green at 08:20 with Windows in 159 minutes, up from 149 and 151
+at the two runs before and 21 under 149's limit of 180, item 183, Linux in 97 and macOS in 36. After
+it `4bca4e47` (173) and `2b6791f9` (178's first step), pushed at 08:21, the run of `2b6791f9`
+awaited; each keeps the form. Each commit's detail stands in its item in REVIEW-ARCHIVE.md, its
+devlog note and its own words. Before it `adf7bb79`, 170's third commit and its end, pushed at 03:04
+with `dd39d533`, its pass, its run green at 05:37 with Windows in 151 minutes, Linux in 82 and macOS
+in 36. Before it `bd081fa6`, 170's first engine commit, Sky as a submodule, pushed at 00:31 with
 `2cb39bcb`, item 139, its run green at 03:03 with Windows in 149 minutes, Linux in 65 and macOS in
 38. Before it `d9c50b3b`, Verdict 98's mend, pushed at 22:42 on 2026-11-01 with `2d051ada` and
 `6fd05fd4`, 181's second and third parts, its run green at 00:30 with Windows in 103 minutes, Linux
@@ -1024,7 +1026,11 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
 142. **The merge's gain past the first bounce holds at one.** Decision 75's ninth item, outside the
     eight. RENDERING.md's first term reads the merge's gain at 1.08 to 1.27 a bounce. The cause read
     and the merge held at one, the bounce rooms' distances to the references and the Cornell box's
-    bounces read before and after. One commit, after the eight.
+    bounces read before and after. One commit, after the eight. A reading for this item from 178's
+    second step at 08:23: with the sun reaching the probes' hits, Sponza's surfaces that read over
+    the reference go further over, the door view's red block at 1.58 of the reference, block 1's
+    underside 1.47 and the floor 1.24, the balcony to 1.49, the atrium to 1.66 and the nave to 1.66,
+    the merge's gain past the first bounce showing where the missing first bounce had hidden it.
 
 166. **The atrium's far end does not glow blue.** The owner's shot of scenes_sponza at 12:05 on
     2026-11-01, the atrium view at 13:00 on the fixed camera, kept in the day's dump, shows the
@@ -1419,7 +1425,25 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     (the seen probes' light filled from the unseen at a kept share, no coarser fill) kept only where
     it still moves the door toward the reference without moving the corridor, the Cornell box or the
     rooms; a slack bounded by a few of the finest cells rather than a share of the spacing noted as
-    a step of its own.
+    a step of its own. The first step is `2b6791f9`, read at 07:58, its push waiting on a35d7ce9's
+    run; the gather and the hits' shading moved from gi.slang into probelight.slang, 497 and 306
+    lines, gi_trace, gi_screen and lights importing it, RENDERING.md's names following, every
+    reference frame byte for byte as committed, the package repacked, 2,208 in both orders; one
+    comment line in lights.slang past 100 characters, rewrapped in the next commit. The second
+    step's shadow-map half read at 08:23 before its commit; a hit's shading takes a sun source, the
+    world probes' trace binding the window's shadow map as the frame before's shadow pass drew it,
+    the lights' set carrying that frame's cascades, a hit inside a cascade's tile reading the sun as
+    the frame does with nine taps and the field marched past the tiles, the screen probes keeping
+    the field. Sponza at 15:00 at High, the ten largest surfaces as frame over reference, the door
+    view from 0.32 to 0.73 up to 0.94 to 1.58 and its mean log distance from 0.659 to 0.158 with
+    five surfaces within 10%, the red block 1.58, block 1's underside 1.47 and the floor 1.24 over;
+    the balcony 0.80 to 1.49, the atrium 0.93 to 1.66, the nave 0.72 to 1.66, the surfaces already
+    over going further over, which is the merge's gain past the first bounce, item 142's; the thin
+    room and the window's room nearer their references, the corridor 0.253 to 0.257, every other
+    room the same to 0.001, all within bounds, the slab and the canopy unchanged having no sun. The
+    call is two commits, the shadow map's half as the mend of the cause with its cost and the door
+    sheet, then the ray query at High read on the same views and on hits past the shadow cascades,
+    kept only where such hits show in a view.
 
 179. **A capture waits for the scene field.** The owner wrote on 2026-11-01 at 16:39 that
     scenes_sponza builds its scene field asynchronously at start and the real global illumination
@@ -1582,6 +1606,14 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     shared-memory devices of Verdict 97's mend, and push descriptors for the per-look set of item
     132, read by the four passes' CPU at 16 columns; each a commit, the suite on lavapipe under the
     validation layer. Three commits, after 175.
+
+183. **The Windows job's time, up to 159 minutes.** The push runs' Windows job took 149, 151 and 159
+    minutes at the last three runs (`4b80c5c8`, `adf7bb79`, `a35d7ce9`), up from 98 to 140 in
+    October, against item 149's limit of 180; the suite grows with every item and the runner is what
+    it is. Read by the digests' part times which part grew, and then the split gains a third part,
+    PART=3 with the classes named as 149 set them, so each part stays under its own 70 minutes and
+    the job under its limit with room; the limit itself unchanged. One commit, beside 178, when its
+    second step is in.
 
 ## Verdicts
 
@@ -1942,3 +1974,13 @@ box at a radius of 0.5 each wall's light at its edges over its inside reads the 
 view the pattern of nine surfaces of ten moves toward the reference's, each surface's level 4 to 15%
 lower (`build/region-pattern.py`). The pass takes 0.07 ms at 1920 by 1080 past the sun's contact
 shadows, where Alchemy's with the field's took 0.12 to 0.14.
+
+Shared: a world probe's ray takes the sun at its hit through the window's shadow map as the frame
+before's shadow pass drew it, where one of the map's counted cascades holds the hit, and through
+the field past them (item 178's second part, `SunShadowMap` in `gi.slang`), where it took the sun
+through the field alone and the probes in the vestibule of Sponza's main door saw none of the sun
+the path-traced reference sees at their rays' hits. The door view at 15:00 at High reads its ten
+largest surfaces at 0.94 to 1.58 of the reference where 0.32 to 0.73, the views already over it
+further over by the gain past the first bounce (142), and global illumination takes 0.02 to 0.14
+ms less at 1920 by 1080. The screen's probes keep the field, since a render target draws its own
+shadow into the same map before its screen's probes trace.

@@ -130,7 +130,66 @@ public struct GiLights
     // xyz: the most corner of that box. w: unused.
     public float4 glowHigh;
     public GlowLight glows[MostGlowLights];
+    // The sun's shadow map as the window's shadow pass drew it the frame before, which a probe's
+    // hit reads the sun through where one of its counted cascades holds the hit (SunShadowMap),
+    // each cascade's view-projection, a quarter of the map each.
+    public float4x4 sunCascades[4];
+    // Each of those cascades' texel, in world units.
+    public float4 sunTexels;
+    // x: how many of sunCascades hold a cascade, 0 where the map holds none. y: a texel of the map,
+    // in uv. zw: unused.
+    public float4 sunMap;
 };
+
+// How much of the sun reaches a surface, from 0 to 1, or -1 where it is to be found through the
+// scene's distance field.
+public interface ISunShadow
+{
+    float reached(GiLights lights, float3 p, float3 n, float cell);
+}
+
+// The sun found through the field alone.
+public struct FieldSun : ISunShadow
+{
+    public float reached(GiLights lights, float3 p, float3 n, float cell)
+    {
+        return -1.0;
+    }
+}
+
+// The sun found through the window's shadow map the frame before where one of its counted cascades
+// holds p, as the model pass finds it (cascadeReached in lights.slang): the point moved off its
+// surface along n by a texel and a half of that cascade, or a cell and a half of the field where
+// that is more, since the field's surface lies within half a cell of the mesh's, and nine depths
+// around it compared and averaged. The map is drawn from the meshes themselves, where the field
+// holds them at its cells. Through the field alone the probes' hits in the vestibule of Sponza's
+// main door saw none of the sun the path-traced reference sees there, and the vestibule read 21 to
+// 69% under that reference.
+public struct SunShadowMap : ISunShadow
+{
+    public Sampler2D map;
+
+    public float reached(GiLights lights, float3 p, float3 n, float cell)
+    {
+        int count = int(lights.sunMap.x);
+        float texel = lights.sunMap.y;
+        for (int c = 0; c < count; c++)
+        {
+            float lift = max(lights.sunTexels[c] * 1.5, cell * 1.5);
+            float4 clip = mul(lights.sunCascades[c], float4(p + n * lift, 1.0));
+            float3 q = clip.xyz / clip.w;
+            if (any(abs(q.xy) > 0.995) || q.z > 1.0 || q.z < 0.0)
+                continue;
+            float2 uv = (q.xy * 0.5 + 0.5 + float2(c % 2, c / 2)) * 0.5;
+            float shown = 0.0;
+            for (int y = -1; y <= 1; y++)
+                for (int x = -1; x <= 1; x++)
+                    shown += q.z - 0.0005 <= map.SampleLevel(uv + float2(x, y) * texel, 0.0).r ? 1.0 : 0.0;
+            return shown / 9.0;
+        }
+        return -1.0;
+    }
+}
 
 // A color of the field at p, the cells' colors blended and divided by how much of them a surface
 // painted, so a cell no surface painted lends nothing, or gray where none around p is painted.
@@ -231,6 +290,12 @@ public float3 surfaceGlowUncarried<V : IVolume>(V glow, V albedo, SceneFieldInfo
 // and from each point and spot light, unshadowed, falling off as the model pass has it.
 public float3 directLight<V : IVolume>(V field, SceneFieldInfo info, GiLights lights, float3 p, float3 n)
 {
+    return directLight(field, info, lights, p, n, FieldSun());
+}
+
+// The same with the sun found through sun where it holds p, and through the field elsewhere.
+public float3 directLight<V : IVolume, Sun : ISunShadow>(V field, SceneFieldInfo info, GiLights lights, float3 p, float3 n, Sun sun)
+{
     float3 arrived = float3(0.0);
     if (lights.sunDirection.w > 0.5)
     {
@@ -239,7 +304,10 @@ public float3 directLight<V : IVolume>(V field, SceneFieldInfo info, GiLights li
         if (facing > 0.0)
         {
             float cell = fieldCell(info, p);
-            if (traceField(field, info, p + n * (cell * 1.5), l, cell, 1e5) < 0.0)
+            float mapped = sun.reached(lights, p, n, cell);
+            if (mapped >= 0.0)
+                arrived += lights.sunColor.rgb * (facing * mapped);
+            else if (traceField(field, info, p + n * (cell * 1.5), l, cell, 1e5) < 0.0)
                 arrived += lights.sunColor.rgb * facing;
         }
     }

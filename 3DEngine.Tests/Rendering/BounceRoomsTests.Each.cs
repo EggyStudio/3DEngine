@@ -79,7 +79,10 @@ public sealed partial class BounceRoomsTests
     // to 10% over its reference on every surface alike, the gain past the first bounce its probes
     // hold, which its rough surfaces' reflection of no indirect light hid. With the split sum's
     // table in place of Karis's fit (SpecularShares), each view reads within 0.004 of these, the
-    // thin room's 0.109, 0.094 and 0.092 and the grazing floor's 0.043, 0.042 and 0.043.
+    // thin room's 0.109, 0.094 and 0.092 and the grazing floor's 0.043, 0.042 and 0.043. With the
+    // probes' hits taking the sun through the window's shadow map (SunShadowMap), the thin room
+    // reads 0.102, 0.088 and 0.086, the corridor 0.281, 0.271 and 0.257, and the window's 0.214,
+    // 0.241 and 0.232, the other rooms as before.
     [NeedsRayQueryTheory]
     [InlineData(1, GlobalIllumination.Low, 0.11)]
     [InlineData(1, GlobalIllumination.Medium, 0.12)]
