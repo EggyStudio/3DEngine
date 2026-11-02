@@ -186,7 +186,7 @@ internal static class SceneFieldCommands
             : "showing nothing until a reference is given",
     };
 
-    [Command("gi.toggle", "Leaves a part of global illumination out, to see what it gives, among the frame before's light in the screen's probes, their filter, the screen's probes, neither traced nor read, the merge of the cascades, the light past the first bounce from the frame before's probes, indirect light following a light that goes out, the small emissive surfaces carried as lights, the crossing of surfaces that let light through, or every cascade but one: gi.toggle <history|filter|screen|merge|again|follow|glow|through|cascade> <on|off|cascade>")]
+    [Command("gi.toggle", "Leaves a part of global illumination out, to see what it gives, among the frame before's light in the screen's probes, their filter, the screen's probes, neither traced nor read, the merge of the cascades, the light past the first bounce from the frame before's probes, indirect light following a light that goes out, the small emissive surfaces carried as lights, the crossing of surfaces that let light through, the surfaces' colors, every surface drawn white, or every cascade but one: gi.toggle <history|filter|screen|merge|again|follow|glow|through|albedo|cascade> <on|off|cascade>")]
     internal static string ToggleBounce(string part, string state)
     {
         if (!ConsoleHost.World!.TryGetResource<GlobalIlluminationSettings>(out var settings))
@@ -202,10 +202,11 @@ internal static class SceneFieldCommands
             case "follow": settings.FollowOff = !on; break;
             case "glow": settings.GlowOff = !on; break;
             case "through": settings.ThroughOff = !on; break;
+            case "albedo": settings.AlbedoOff = !on; break;
             case "cascade":
                 settings.Alone = int.TryParse(state, System.Globalization.CultureInfo.InvariantCulture, out var alone) ? Math.Max(alone, -1) : -1;
                 break;
-            default: return $"no part {part}, which is one of history, filter, screen, merge, again, follow, glow, through and cascade";
+            default: return $"no part {part}, which is one of history, filter, screen, merge, again, follow, glow, through, albedo and cascade";
         }
         return Switches(settings);
     }
@@ -222,6 +223,7 @@ internal static class SceneFieldCommands
         if (settings.FollowOff) off.Add("indirect light following a light out");
         if (settings.GlowOff) off.Add("the glow lights");
         if (settings.ThroughOff) off.Add("the crossing of surfaces that let light through");
+        if (settings.AlbedoOff) off.Add("the surfaces' colors");
         if (settings.Alone >= 0) off.Add($"every cascade but {settings.Alone}");
         return off.Count == 0 ? "every part of global illumination is on" : $"{string.Join(", ", off)} left out";
     }

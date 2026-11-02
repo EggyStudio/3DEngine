@@ -503,6 +503,8 @@ public LitLight litLight(float3 albedo, ModelVertexOutput input, float shadow = 
     LitLight light;
     light.diffuse = float3(0.0);
     light.specular = float3(0.0);
+    if (lighting.screen.w > 0.5)
+        albedo = float3(1.0);
     float3 n = surfaceNormal(input);
     int probe = probeAt(input.world);
     bool environment = lighting.environment.z > 0.0 || probe >= 0;

@@ -1337,7 +1337,8 @@ a probe, in the HDR scene's pass after its meshes, so the scene hides them as it
 Through the immediate pass they would be a batch with depth after the program's own, which would
 move the line between the scene and the interface drawn over it. `gi.toggle` leaves out the frame
 before's light or the neighbors' in the screen's filter (flags in `ScreenView.grid.w`), the screen's
-probes (the lighting buffer's `Screen.y`), the merge, or every cascade but one, the cascades above
+probes (the lighting buffer's `Screen.y`), the merge, the surfaces' colors, every surface drawn
+white so the frame shows the light alone (`Screen.w`), or every cascade but one, the cascades above
 it giving nothing and those below passing its light on where their rays meet nothing (the push of
 `gi_merge.slang`). `BounceViewTests` draws each view at `Low` and leaves each part out.
 

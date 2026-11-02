@@ -79,6 +79,16 @@ public sealed class BounceViewTests : IDisposable
         LeftOut("the screen's probes", () => settings.ScreenOff = true, () => settings.ScreenOff = false, 0.2f);
         LeftOut("the screen's filter", () => settings.FilterOff = true, () => settings.FilterOff = false, 0.03f);
         LeftOut("the light past the first bounce", () => settings.AgainOff = true, () => settings.AgainOff = false, 0.5f);
+
+        // The surfaces' colors left out, the red wall is drawn white, lit as before, so the frame
+        // shows the light alone.
+        settings.AlbedoOff = true;
+        var white = Capture(Draw, 3);
+        settings.AlbedoOff = false;
+        var at = GetWorldToScreenEx(new Vector3(-1.44f, 1.5f, 0.6f), new Camera3D(new Vector3(0, 1.5f, 4.5f), new Vector3(0, 1.2f, 0), Vector3.UnitY, 50), 160, 96);
+        var (red, lit) = (Mean(plain, (int)at.X - 2, (int)at.Y - 2, 4, 4), Mean(white, (int)at.X - 2, (int)at.Y - 2, 4, 4));
+        red.X.Should().BeGreaterThan(red.Y + 60, $"the wall is red with its color, {red}");
+        lit.X.Should().BeLessThan(lit.Y + 30, $"and drawn white without it, {lit}");
         UnloadModel(slab);
     }
 

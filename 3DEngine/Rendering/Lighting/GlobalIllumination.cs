@@ -79,6 +79,13 @@ internal sealed class GlobalIlluminationSettings
     /// </summary>
     public bool GlowOff { get; set; }
 
+    /// <summary>
+    /// Whether the window draws every surface white, so the frame shows the light that reaches each
+    /// surface alone and not its color, as <c>gi.toggle albedo off</c> sets it, which a reading of how
+    /// the light changes as the camera moves takes apart from the textures the camera moves over.
+    /// </summary>
+    public bool AlbedoOff { get; set; }
+
     /// <summary>The one cascade whose rays' light alone reaches the pixels, or -1 for every cascade, as <c>gi.toggle cascade</c> sets it.</summary>
     public int Alone { get; set; } = -1;
 
