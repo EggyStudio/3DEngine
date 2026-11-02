@@ -8,6 +8,7 @@ __exported import lightset;
 import scenefield;
 import penumbra;
 import gi;
+import roughreflect;
 import color;
 
 // Whether this build of the model pass reads global illumination and a glossy surface's traced
@@ -567,6 +568,14 @@ public float skySeen(float3 p, float3 n, float3 r)
 {
     return skyAt(SplitVolume(bouncedLight, lightNearest), SplitVolume(bouncedSky, lightNearest), SplitVolume(bouncedReach, lightNearest), bouncedField,
         p, n, r, lighting.indirect.z, lighting.indirect.y, lighting.indirect.w);
+}
+
+// The light a rough surface at p facing n reflects along r, radiance, from the world's probes around
+// it as reflectedAt in gi.slang blends them by its roughness, or -1 where no cascade of probes holds p.
+public float3 probesReflected(float3 p, float3 n, float3 r, float roughness)
+{
+    return reflectedAt(SplitVolume(bouncedLight, lightNearest), SplitVolume(bouncedWays, lightLinear), SplitVolume(bouncedReach, lightLinear),
+        bouncedField, p, n, r, roughness, lighting.indirect.z, lighting.indirect.y, lighting.indirect.w);
 }
 
 // The light a glossy surface at p facing n reflects along r, traced through the window's depth and

@@ -40,9 +40,10 @@ public sealed partial class BounceRoomsTests : IDisposable
         // and took their share of the sky in its place, and the grazing floor at Low read 0.108 of
         // its light from its reference, over its own bound of 0.09, where it reads 0.069 with the
         // last counted cascade tracing to the field's edge as the last does and merging nothing,
-        // and 0.116 against its reference traced with the first face's specular share.
+        // and 0.041 against its reference traced with the first face's specular share, where 0.116
+        // before the floor reflected the light its probes hold.
         var share = Differs(7, GlobalIllumination.Low, far: true);
-        share.Should().BeLessThan(0.14, $"the grazing floor with a far cascade differs from its reference by {share:0.000} of its light");
+        share.Should().BeLessThan(0.05, $"the grazing floor with a far cascade differs from its reference by {share:0.000} of its light");
     }
 
     // How far a view's frame at a quality differs from its reference, its pixels' differences summed

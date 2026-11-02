@@ -70,35 +70,42 @@ public sealed partial class BounceRoomsTests
     // in the corridor, 0.206, 0.236 and 0.229 in the window's, 0.021, 0.022 and 0.021 among the red
     // walls, 0.219, 0.227 and 0.220 in the strip's, 0.116, 0.093 and 0.101 on the grazing floor,
     // 0.114, 0.122 and 0.125 in the carried lamp's and 0.090, 0.087 and 0.082 around the emissive
-    // blocks, each bound 15% over.
+    // blocks. A rough surface reflecting the light its probes hold along its mirror way
+    // (reflectedAt), the views read 0.087, 0.096 and 0.083 in the Cornell box, 0.107, 0.092 and
+    // 0.090 in the thin room, 0.277, 0.267 and 0.254 in the corridor, 0.228, 0.253 and 0.245 in the
+    // window's, 0.021, 0.024 and 0.023 among the red walls, 0.206, 0.208 and 0.201 in the strip's,
+    // 0.041, 0.044 and 0.047 on the grazing floor, 0.071, 0.091 and 0.081 in the carried lamp's and
+    // 0.086, 0.083 and 0.078 around the emissive blocks, each bound 15% over. The thin room reads 8
+    // to 10% over its reference on every surface alike, the gain past the first bounce its probes
+    // hold, which its rough surfaces' reflection of no indirect light hid.
     [NeedsRayQueryTheory]
-    [InlineData(1, GlobalIllumination.Low, 0.13)]
-    [InlineData(1, GlobalIllumination.Medium, 0.16)]
-    [InlineData(1, GlobalIllumination.High, 0.14)]
-    [InlineData(2, GlobalIllumination.Low, 0.07)]
-    [InlineData(2, GlobalIllumination.Medium, 0.06)]
-    [InlineData(2, GlobalIllumination.High, 0.06)]
-    [InlineData(3, GlobalIllumination.Low, 0.35)]
-    [InlineData(3, GlobalIllumination.Medium, 0.34)]
-    [InlineData(3, GlobalIllumination.High, 0.32)]
-    [InlineData(4, GlobalIllumination.Low, 0.24)]
-    [InlineData(4, GlobalIllumination.Medium, 0.28)]
-    [InlineData(4, GlobalIllumination.High, 0.27)]
+    [InlineData(1, GlobalIllumination.Low, 0.11)]
+    [InlineData(1, GlobalIllumination.Medium, 0.12)]
+    [InlineData(1, GlobalIllumination.High, 0.10)]
+    [InlineData(2, GlobalIllumination.Low, 0.13)]
+    [InlineData(2, GlobalIllumination.Medium, 0.11)]
+    [InlineData(2, GlobalIllumination.High, 0.11)]
+    [InlineData(3, GlobalIllumination.Low, 0.32)]
+    [InlineData(3, GlobalIllumination.Medium, 0.31)]
+    [InlineData(3, GlobalIllumination.High, 0.30)]
+    [InlineData(4, GlobalIllumination.Low, 0.27)]
+    [InlineData(4, GlobalIllumination.Medium, 0.30)]
+    [InlineData(4, GlobalIllumination.High, 0.29)]
     [InlineData(5, GlobalIllumination.Low, 0.03)]
     [InlineData(5, GlobalIllumination.Medium, 0.03)]
     [InlineData(5, GlobalIllumination.High, 0.03)]
-    [InlineData(6, GlobalIllumination.Low, 0.26)]
-    [InlineData(6, GlobalIllumination.Medium, 0.27)]
-    [InlineData(6, GlobalIllumination.High, 0.26)]
-    [InlineData(7, GlobalIllumination.Low, 0.14)]
-    [InlineData(7, GlobalIllumination.Medium, 0.11)]
-    [InlineData(7, GlobalIllumination.High, 0.12)]
-    [InlineData(8, GlobalIllumination.Low, 0.14)]
-    [InlineData(8, GlobalIllumination.Medium, 0.15)]
-    [InlineData(8, GlobalIllumination.High, 0.15)]
-    [InlineData(9, GlobalIllumination.Low, 0.11)]
-    [InlineData(9, GlobalIllumination.Medium, 0.11)]
-    [InlineData(9, GlobalIllumination.High, 0.10)]
+    [InlineData(6, GlobalIllumination.Low, 0.24)]
+    [InlineData(6, GlobalIllumination.Medium, 0.24)]
+    [InlineData(6, GlobalIllumination.High, 0.24)]
+    [InlineData(7, GlobalIllumination.Low, 0.05)]
+    [InlineData(7, GlobalIllumination.Medium, 0.06)]
+    [InlineData(7, GlobalIllumination.High, 0.06)]
+    [InlineData(8, GlobalIllumination.Low, 0.09)]
+    [InlineData(8, GlobalIllumination.Medium, 0.11)]
+    [InlineData(8, GlobalIllumination.High, 0.10)]
+    [InlineData(9, GlobalIllumination.Low, 0.10)]
+    [InlineData(9, GlobalIllumination.Medium, 0.10)]
+    [InlineData(9, GlobalIllumination.High, 0.09)]
     public void Each_Room_Reads_Within_Its_Measured_Difference_From_Its_Reference(int view, GlobalIllumination quality, double bound)
     {
         var share = Differs(view, quality);

@@ -592,6 +592,25 @@ public LitLight litLight(float3 albedo, ModelVertexOutput input, float shadow = 
     light.specular += occlusion * (traced.rgb * gloss * (1.0 - planeShare) + plane.rgb * planeShare) * specularShare;
     gloss += planeShare * (1.0 - gloss);
 
+    // A rough surface's reflection where global illumination is on and the probes hold the point,
+    // the light they hold along its mirror way blended by its roughness (probesReflected), which
+    // takes the place of the environment's and the ambient lights' reflection as the surface grows
+    // rough past what the trace keeps, from a roughness of 0.25 to 0.5, so stone and wood reflect
+    // the room around them, where they reflected the sky the probes around them saw along the
+    // mirror way. A glossier surface keeps the environment's reflection, which holds the sky's
+    // detail that the probes' eight by eight directions blur, and a reflection probe's box keeps
+    // its capture.
+    float3 mirror = reflect(-v, n);
+    float waysShare = bounces && probe < 0 ? held * smoothstep(0.25, 0.5, roughness) : 0.0;
+    if (waysShare > 0.0)
+    {
+        float3 along = probesReflected(input.world, n, mirror, roughness);
+        if (along.x >= 0.0)
+            light.specular += occlusion * along * specularShare * (1.0 - gloss) * waysShare;
+        else
+            waysShare = 0.0;
+    }
+
     // The environment, as an ambient light that differs by direction. The mirror direction is
     // looked up at the mip prefiltered for this roughness and weighted as Karis's fit weights an
     // ambient light's reflection, and the diffuse share scatters the irradiance the harmonics hold.
@@ -607,25 +626,30 @@ public LitLight litLight(float3 albedo, ModelVertexOutput input, float shadow = 
     }
     else if (environment)
     {
-        float lastMip = lighting.environment.y;
-        float3 reflected = environmentMap.SampleLevel(lightLinear, reflect(-v, n), roughness * lastMip).rgb;
         float3 around = (distant ? distantAround(environmentIrradiance(float3(0.0, 1.0, 0.0)), n, diffuseColor) : environmentIrradiance(n)) * (1.0 - held);
         // The map's light times the share and tint the program set for the scene, which the sky
         // drawn from the same map does not take.
         float3 strength = lighting.environment.x * lighting.environmentLight.rgb * occlusion;
-        // Where global illumination is on, by the share of the sky the probes around the surface
-        // see along its mirror direction, so a room sealed from the sky reflects none of it, where
-        // the occlusion alone left a rough wall in a sealed cave a blue sheen. The share is read
-        // against an open plain's, whose probes' faces see the whole sky up, half of it level and
-        // none down, so a floor in the open reflects the sky toward its horizon whole inside the
-        // field as past it, where read as it was a canyon's floor stepped by 8% where the field
-        // ended.
-        float3 mirror = reflect(-v, n);
-        float open = (mirror.y > 0.0 ? mirror.y * mirror.y : 0.0) + 0.5 * (mirror.x * mirror.x + mirror.z * mirror.z);
-        float seen = skyHere >= 0.0 ? skyHere : skySeen(input.world, n, mirror);
-        float sky = bounces ? lerp(1.0, saturate(seen / max(open, 0.05)), held) : 1.0;
         light.diffuse += strength * diffuseColor * around;
-        light.specular += strength * reflected * specularShare * (1.0 - gloss) * sky;
+        // Its reflection where the probes' takes less than all of it, so a rough surface the probes
+        // hold makes no second gather of them for the sky's share (skySeen), which with it took the
+        // scene pass in Sponza's nave at 1920 by 1080 a millisecond more.
+        if (waysShare < 1.0)
+        {
+            float lastMip = lighting.environment.y;
+            float3 reflected = environmentMap.SampleLevel(lightLinear, mirror, roughness * lastMip).rgb;
+            // Where global illumination is on, by the share of the sky the probes around the
+            // surface see along its mirror direction, so a room sealed from the sky reflects none
+            // of it, where the occlusion alone left a rough wall in a sealed cave a blue sheen. The
+            // share is read against an open plain's, whose probes' faces see the whole sky up, half
+            // of it level and none down, so a floor in the open reflects the sky toward its horizon
+            // whole inside the field as past it, where read as it was a canyon's floor stepped by
+            // 8% where the field ended.
+            float open = (mirror.y > 0.0 ? mirror.y * mirror.y : 0.0) + 0.5 * (mirror.x * mirror.x + mirror.z * mirror.z);
+            float seen = skyHere >= 0.0 ? skyHere : skySeen(input.world, n, mirror);
+            float sky = bounces ? lerp(1.0, saturate(seen / max(open, 0.05)), held) : 1.0;
+            light.specular += strength * reflected * specularShare * (1.0 - gloss) * sky * (1.0 - waysShare);
+        }
     }
 
     for (int i = 0; i < min(lighting.count, 16); i++)
@@ -646,7 +670,7 @@ public LitLight litLight(float3 albedo, ModelVertexOutput input, float shadow = 
             float3 inOpen = distant ? distantAround(arrived, n, diffuseColor) : arrived;
             float reaches = bounces ? lerp(1.0, saturate(luminance(bouncedHere) / max(luminance(arrived), 1e-5)), held) : 1.0;
             light.diffuse += inOpen * occlusion * diffuseColor * (1.0 - held);
-            light.specular += arrived * occlusion * specularShare * (1.0 - gloss) * reaches;
+            light.specular += arrived * occlusion * specularShare * (1.0 - gloss) * reaches * (1.0 - waysShare);
             continue;
         }
 

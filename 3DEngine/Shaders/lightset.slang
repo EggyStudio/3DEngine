@@ -188,6 +188,11 @@ public Texture3D bouncedReach;
 [[vk::binding(32, 1)]]
 public Texture3D bouncedSky;
 
+// The light each probe receives along eight by eight directions, laid out as the reach is, which a
+// rough surface reflects (reflectedAt), or the field's image where light does not bounce.
+[[vk::binding(39, 1)]]
+public Texture3D bouncedWays;
+
 // The light arriving at each of the screen's probes, irradiance, its alpha 1 where the probe holds
 // it, and each probe's surface's normal and distance from the eye, a texel a probe of the tiles
 // the window is cut into, as gi_screen.slang leaves them, or zeros where light does not bounce.

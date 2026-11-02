@@ -25,7 +25,10 @@ public sealed partial class GlobalIlluminationTests
         // the frame's display, the floor takes 0.0008 at High and 0.0014 at Low where it took
         // 0.0000 at High, and the underside 0.0037 and 0.0033 where 0.051 with the sky brought and
         // the reflection held whole, and at Low 0.048 before either, on the development machine's
-        // GPU.
+        // GPU. Reflecting the light its probes hold along its mirror way, the underside reads 0.0125
+        // at High, where the reference traced with the first face's specular share reads the
+        // underside's region at 0.0170 in luminance, nearly all of it reflected, and the frame's
+        // region 44% over it.
         Open();
         SetSceneField(4, 0.15f, 2);
         SetGlobalIllumination(quality);
@@ -59,7 +62,7 @@ public sealed partial class GlobalIlluminationTests
         var floor = Read(new Vector3(0, 0, 3.5f));
         var underside = Read(new Vector3(0, 2, 3));
         floor.Should().BeGreaterThan(0.0003f, $"the floor takes the sky past the slab's sides, {floor:0.0000} at {quality}");
-        underside.Should().BeLessThan(0.012f, $"the underside reflects little of the ambient light, {underside:0.0000} over a floor of {floor:0.0000} at {quality}");
+        underside.Should().BeLessThan(0.015f, $"the underside reflects little of the ambient light, {underside:0.0000} over a floor of {floor:0.0000} at {quality}");
         foreach (var model in new[] { ground, slab }) UnloadModel(model);
     }
 }

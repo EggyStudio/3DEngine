@@ -7,7 +7,8 @@
 // face along z at 0.82 of it with 4 texels a side and 0.93 with 8. Each probe's reach is laid out
 // beside, how far its rays went along each of eight by eight directions before a surface stopped
 // them, from this cascade's rays, each face's thread a sixth of the directions, which bouncedAt
-// weighs a probe by.
+// weighs a probe by, and the light arriving about each of those directions, blurred as a surface
+// of roughness 0.5 reflects it, which a rough surface reflects (reflectedAt).
 //
 // The first face's thread also adds up the light the probe's rays brought straight from the sun,
 // the lights and emissive surfaces, its own light, and all they brought, as the trace summed them a
@@ -18,6 +19,7 @@
 // bounce takes; where its own light is less, it is a mark that the probe is judged by the probes
 // around it (gi_trace.slang).
 import gi;
+import roughreflect;
 
 [[vk::binding(0, 0)]]
 Texture3D<float4> merged;
@@ -58,6 +60,13 @@ Texture3D<float> mergedSky;
 
 [[vk::binding(7, 0)]] [format("r16f")]
 RWTexture3D<float> skies;
+
+// Every cascade's probes' light along eight by eight directions, each the mean of the merged
+// directions inside it, with the share their rays kept before their interval as the faces take it,
+// a block of ten by ten texels a probe, its border each texel across the octahedron's edge
+// (WaysTexels in gi.slang), the cascades one after another along z.
+[[vk::binding(8, 0)]] [format("rgba16f")]
+RWTexture3D<float4> ways;
 
 struct AmbientPush
 {
@@ -191,5 +200,46 @@ void computeMain(uint3 id : SV_DispatchThreadID)
             for (uint u = 0u; u < step; u++)
                 reached += abs(distances.Load(int4(int2(at.xy * texels + first + uint2(u, v)), int(at.z), 0)).x);
         reach[uint3(at.xy * uint(ReachTexels) + texel, push.cascade.x * probes + at.z)] = reached / float(step * step);
+
+        // Its light along the direction, every merged direction weighed by its share of the sphere
+        // and by its cosine to the direction to the power of 8, the lobe a surface of
+        // roughness 0.5 spreads its reflection over, so the eight by eight directions hold the light
+        // blurred as that surface reflects it, smooth between them. Their mean alone left the
+        // octahedron's facets in a wall's reflection where the light changed sharply between two
+        // directions, as at a wall's foot between the floor and the wall across. A cascade of more
+        // directions is read at one in each step by step of them, the lobe spanning some 30 degrees
+        // where its directions are 11 apart, which reading them all took a quarter of a millisecond
+        // of the GPU more in Sponza at 1920 by 1080.
+        float3 toward = fromOctahedron((float2(texel) + 0.5) / float(ReachTexels));
+        float3 light = float3(0.0);
+        float weights = 0.0;
+        for (uint v = step / 2u; v < texels; v += step)
+            for (uint u = step / 2u; u < texels; u += step)
+            {
+                float2 uv = (float2(u, v) + 0.5) / float(texels);
+                float lobe = saturate(dot(fromOctahedron(uv), toward));
+                lobe *= lobe;
+                lobe *= lobe;
+                float weight = lobe * lobe * octahedronShare(uv);
+                if (weight <= 0.0)
+                    continue;
+                int4 from = int4(int2(at.xy * texels + uint2(u, v)), int(at.z), 0);
+                light += merged.Load(from).rgb * distances.Load(from).y * weight;
+                weights += weight;
+            }
+        float4 way = float4(light / max(weights, 1e-6), 1.0);
+        uint3 block = uint3(at.xy * uint(WaysTexels), push.cascade.x * probes + at.z);
+        ways[block + uint3(texel + 1u, 0u)] = way;
+        // The border texels across the octahedron's edges that stand for this direction, an edge's
+        // texels mirrored along it and each corner's the opposite corner's.
+        uint last = uint(ReachTexels) - 1u;
+        if (texel.y == 0u) ways[block + uint3(last + 1u - texel.x, 0u, 0u)] = way;
+        if (texel.y == last) ways[block + uint3(last + 1u - texel.x, last + 2u, 0u)] = way;
+        if (texel.x == 0u) ways[block + uint3(0u, last + 1u - texel.y, 0u)] = way;
+        if (texel.x == last) ways[block + uint3(last + 2u, last + 1u - texel.y, 0u)] = way;
+        if (all(texel == uint2(last, last))) ways[block] = way;
+        if (all(texel == uint2(0u, last))) ways[block + uint3(last + 2u, 0u, 0u)] = way;
+        if (all(texel == uint2(last, 0u))) ways[block + uint3(0u, last + 2u, 0u)] = way;
+        if (all(texel == uint2(0u, 0u))) ways[block + uint3(last + 2u, last + 2u, 0u)] = way;
     }
 }

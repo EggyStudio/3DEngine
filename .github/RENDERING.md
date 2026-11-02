@@ -1169,6 +1169,49 @@ While global illumination is on, the window's scene decoded to linear light (§5
 model pass at half size into an image with its mips, and the window's half-size depth beside it
 (`GraphicsDevice.RecordKeepFrame`), which the next frame's reflections read.
 
+A rough surface reflects the light the world's probes hold along its mirror way (`probesReflected`
+in `lights.slang`, `reflectedAt` in `gi.slang`), which takes the place of the environment's and the
+ambient lights' reflection from a roughness of 0.25 to 0.5 as the trace fades, so stone and wood
+reflect the room around them, where they reflected the sky the probes around them saw along the
+mirror way, and a glossier surface keeps the environment's reflection and the sky's detail in it.
+The gather writes each probe's light about eight by eight directions of its octahedron (`ways` in
+`gi_ambient.slang`), every merged direction weighed by its share of the sphere and its cosine to the
+direction to the power of 8, the lobe a surface of roughness 0.5 reflects over, one in each two by
+two of a cascade's sixteen by sixteen. Each probe's block has a texel's border, each texel the one
+across the octahedron's edge from it, as DDGI borders its probes (8 bytes a texel, 1.6 MB at High's
+four cascades of 512 probes). The pixel weighs the eight probes of the finest cascade around it as
+the light from all around weighs them, how much of each it sees read filtered between the four
+directions of the probe's reach about the way to it (`probeSeesBlended`), and reads each probe's
+light along the mirror way in one filtered read within its block, mixed toward the light reaching a
+surface facing the mirror way, its three faces, as the roughness goes from 0.5 to 1. In the Cornell
+box, the blocks clamped at their edges where they had no border left a seam on the walls at the
+eye's height, where the mirror way crosses level in the octahedron's folded half, the directions'
+plain means left the octahedron's facets in the walls' reflection, and the reach read at its nearest
+direction left shards along them. The finest cascade is read alone, as the sky's share is, since
+faded across its outer band the reads doubled there took the scene pass in Sponza's nave at 1920 by
+1080 1.5 to 2.0 ms more, and a surface the probes hold whole makes no gather for the sky's share. In
+a closed box of emissive metal walls of roughness 0.6, whose probes hold the box's light along every
+way, 2.004, a wall seen square on reads 1.675 where its emission and the probes' light times its
+specular share give 1.676, and none of it reflected before (`RoughReflectionTests`). The specular
+share is Karis's fit for mobile, which lies under GGX's albedo at middle roughness and over it at
+the roughest, so the reference with the first face's specular share traced reads that wall at
+1.832, and the box's walls at 1.907 at a roughness of 0.5 and 1.354 at 1 where the frame reads 1.724
+and 1.444. Against that reference, `shaders_cornell_box` at `High` reads its red and green walls 3%
+over and 1% under where 28% and 22% under, its ceiling 6% under where 12%, and its floor 2% over
+where 6% under, the walls paler as the reference's are with the ceiling's light on them.
+`shaders_reflections`' floor of roughness 0.58 reads 1% over where 14% under, and at 0.88 3% under
+where 7% under, the pillars' colors in it, and `scenes_sponza` at 15:00 reads its floor 8% under in
+the atrium's view where 12%, and 20% under in the nave's where 36% (`gi.compare`). The rooms of
+`shaders_bounce_rooms` against references traced the same way read nearer in the Cornell box, the
+corridor, the strip's, the grazing floor's, the carried lamp's and the emissive blocks', the grazing
+floor's from 0.093 to 0.116 of its light to 0.041 to 0.047, and further in the thin room's and the
+window's, the thin room's from 0.044 to 0.058 to 0.090 to 0.107, every surface of it 8 to 10% over
+alike, the gain past the first bounce its probes hold, which its rough surfaces' reflection of no
+indirect light hid (`BounceRoomsTests`). In Sponza's nave at 1920 by 1080 at `High`, four runs
+alternating with the engine before it while another program held a third of the RTX 4070, the scene
+pass took 0.28 to 0.97 ms more, 0.75 in the middle, of 15.6 to 15.9, and global illumination 0.36
+to 0.44 more of 4.5 to 4.6, the gather's lobe (`./e3d command profile`).
+
 Where the device traces rays (`VK_KHR_ray_query` with its acceleration structures, turned on at
 start where the driver has them, `GraphicsDevice.CanQueryRays`), the model pass is built a second
 time with `RAY_QUERY` defined (`SlangLoader`'s variants, which `e3d shaders` compiles into a

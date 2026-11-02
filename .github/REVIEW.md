@@ -1246,7 +1246,21 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     probes' reflection with its cost read when the GPU is quiet, the screen-space pass, then a
     split-sum table of roughness by the view's cosine computed once at device start in place of the
     fit in every indirect specular term, read by the metal box toward 1.832 and by Sponza's floor
-    and the Cornell walls.
+    and the Cornell walls. The first commit is `55ec4e2c`, read at 03:52, its push waiting on
+    adf7bb79's run; gi.reference with the specular option tracing the first face's specular way,
+    RoughReflectionTests reading a box of emissive metal at 1.00 without it and 1.815 with it; the
+    nine bounce rooms retraced at 4,096 paths, the theory moved to BounceRoomsTests.Each.cs under N
+    1.3, the bounds 15% over the model pass against the new references with the readings in the
+    comment (the Cornell box 0.108, 0.132 and 0.121 at Low, Medium and High, the thin room 0.058,
+    0.049 and 0.044, the corridor 0.298, 0.289 and 0.273, the window 0.206, 0.236 and 0.229, the red
+    walls 0.021, 0.022 and 0.021, the strip 0.219, 0.227 and 0.220, the grazing floor 0.116, 0.093
+    and 0.101 and 0.116 far, the lamp 0.114, 0.122 and 0.125, the blocks 0.090, 0.087 and 0.082);
+    the slab with written colors 14.3% under its reflecting reference, its bound 0.17; the
+    underside's bound, the Cornell image and the thin room's 8 to 10% belonging to the second
+    commit; 2,198 in both orders with the package tests skipped in the worktree. The second commit's
+    cost in Sponza's nave at 1080p High, read with another session holding about a third of the GPU,
+    the scene pass +0.28 to +0.97 ms with a median near 0.75 of 15.6 to 15.9, GI +0.36 to +0.44 for
+    the gather's lobe, to be read again when the GPU is quiet.
 
 173. **Horizon occlusion at the pixel's scale.** Decision 84's fourth item. The field's occlusion is
     coarse by its cell; the reference adds a horizon-based pass at pixel scale that darkens corners,
@@ -1767,3 +1781,13 @@ is read against a reference that does. A closed box of emissive metal reads 1.81
 1.00 without, the bounce rooms' references are traced with it, and against them the frames as they
 reflected the environment's light alone read the grazing floor 0.093 to 0.116 of its light apart and
 the thin room 0.044 to 0.058.
+
+Shared: a rough surface reflects the light the world's probes hold along its mirror way (item 172's
+second part, `reflectedAt` in `roughreflect.slang`), each probe's light gathered about eight by eight
+directions through a lobe of cosine to the 8, in blocks with DDGI's border across the octahedron's
+edges, its reach read filtered, mixed toward its faces as the roughness goes from 0.5 to 1, and the
+environment's reflection by the probes' share of the sky kept under 0.25. Against references with
+the first face's specular share, the Cornell box's red and green walls read 3% over and 1% under
+where 28% and 22% under, and Sponza's floor 8 and 20% under where 12 and 36%. The specular share
+itself, Karis's fit for mobile, reads 10 to 15% under GGX's albedo at roughness 0.5 and 25% over at
+1, which a split-sum table is to replace (172's fourth part).

@@ -178,10 +178,11 @@ internal sealed partial class ModelRenderer
     private const uint MirrorBinding = 38;
 
     // Where modelpass.slang binds the probes' indirect light and the field they lie in, the
-    // screen's probes' light and surfaces, the probes' reach and sky, and the glow lights' light
-    // on the window's surfaces, their normals and the far lights' light.
+    // screen's probes' light and surfaces, the probes' reach and sky, the glow lights' light on the
+    // window's surfaces, their normals and the far lights' light, and the probes' light by way.
     private const uint BouncedLightBinding = 15, BouncedFieldBinding = 16, ScreenLightBinding = 17, ScreenSurfacesBinding = 18,
-        BouncedReachBinding = 31, BouncedSkyBinding = 32, ScreenGlowBinding = 33, ScreenGlowNormalBinding = 34, ScreenGlowFarBinding = 35;
+        BouncedReachBinding = 31, BouncedSkyBinding = 32, ScreenGlowBinding = 33, ScreenGlowNormalBinding = 34, ScreenGlowFarBinding = 35,
+        BouncedWaysBinding = 39;
 
     // Where it binds what a glossy surface's reflection is traced through and shaded from, the
     // field, its colors, light and faces, the lights, the window's depth, and its scene and depth
@@ -220,6 +221,7 @@ internal sealed partial class ModelRenderer
             device.UpdateDescriptorSet(set, null, Lit(bounced.Probes.CubesView, bounced.Probes.Sampler, BouncedLightBinding));
             device.UpdateDescriptorSet(set, null, Lit(bounced.Probes.ReachView, bounced.Probes.Sampler, BouncedReachBinding));
             device.UpdateDescriptorSet(set, null, Lit(bounced.Probes.SkiesView, bounced.Probes.Sampler, BouncedSkyBinding));
+            device.UpdateDescriptorSet(set, null, Lit(bounced.Probes.WaysView, bounced.Probes.Sampler, BouncedWaysBinding));
             device.UpdateDescriptorSet(set, new UniformBufferBinding(bounced.Probes.Lights, ReflectLightsBinding, 0, GpuIllumination.LightsBytes), null);
         }
         else
@@ -237,6 +239,7 @@ internal sealed partial class ModelRenderer
             device.UpdateDescriptorSet(set, null, Lit(none.View, none.Sampler, BouncedLightBinding));
             device.UpdateDescriptorSet(set, null, Lit(none.View, none.Sampler, BouncedReachBinding));
             device.UpdateDescriptorSet(set, null, Lit(none.View, none.Sampler, BouncedSkyBinding));
+            device.UpdateDescriptorSet(set, null, Lit(none.View, none.Sampler, BouncedWaysBinding));
             device.UpdateDescriptorSet(set, new UniformBufferBinding(_noGiLights, ReflectLightsBinding, 0, GpuIllumination.LightsBytes), null);
         }
         device.UpdateDescriptorSet(set, new UniformBufferBinding(field.Info, BouncedFieldBinding, 0, GpuSceneField.InfoBytes), null);
