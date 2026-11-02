@@ -995,7 +995,7 @@ spot lights', each that casts shadows only where a trace toward it gets through 
 and its color over pi times the indirect light that reached it the frame before, which the probes
 hold as the light reaching a face, blended from the probes around it that it sees, a trace through
 the field to each in front of it (`bouncedSeenAt`), with its emission (`shadeProbeHit` in
-`gi.slang`). The faces are read where each cascade lay the frame before, its corner then carried in
+`probelight.slang`). The faces are read where each cascade lay the frame before, its corner then carried in
 the lights' buffer, since they were gathered there (`gatheredAt` in `gi_trace.slang`). That indirect
 light is taken at a share each probe keeps, its whole but the frame after the probe's own light,
 what its rays brought straight from the sun, the lights and emissive surfaces, fell by a fifth
@@ -1064,7 +1064,7 @@ texel carries the share of it that reached the sky in an image of its own, 1 for
 cascade that met nothing and the cascade above's blended where a ray met nothing, which the gather
 weighs as it weighs the light into a sixth image of faces, each face's share of the sky. The model
 pass weighs the environment map's reflection by it where global illumination is on, read along the
-mirror direction from the eight probes around the surface as the light is (`skyAt` in `gi.slang`),
+mirror direction from the eight probes around the surface as the light is (`skyAt` in `probelight.slang`),
 since the occlusion alone weighed it before and nothing said the sky was not there. A box sealed on
 every side under a blue sky read 37.5 in blue on its rough inside walls and 0.13 after, an open
 floor 62.7 and 61.8 (`GlobalIlluminationTests`). It took the voxel game's scene pass at eight
@@ -1170,7 +1170,7 @@ model pass at half size into an image with its mips, and the window's half-size 
 (`GraphicsDevice.RecordKeepFrame`), which the next frame's reflections read.
 
 A rough surface reflects the light the world's probes hold along its mirror way (`probesReflected`
-in `lights.slang`, `reflectedAt` in `gi.slang`), which takes the place of the environment's and the
+in `lights.slang`, `reflectedAt` in `roughreflect.slang`), which takes the place of the environment's and the
 ambient lights' reflection from a roughness of 0.25 to 0.5 as the trace fades, so stone and wood
 reflect the room around them, where they reflected the sky the probes around them saw along the
 mirror way, and a glossier surface keeps the environment's reflection and the sky's detail in it.
@@ -1362,14 +1362,14 @@ light at a hit times pi.
 | A floor at a grazing angle | −72% | −11% | −81% | −40% |
 | A lamp carried, a wall moved | −75% | −22% | −88% | −61% |
 
-So the loss lay in the trace first. `shadeHit` and `shadeProbeHit` in `gi.slang` lit a hit as
-`color / Pi * arrived`, where `directLight` gives the lamps' and the sun's light as the model pass
-has a light, the light a white surface facing it returns, so a lit surface sent on a pi-th of its
-light and only the indirect light reaching it, which the probes hold as irradiance, was right over
-pi. The reflections' hits through the GPU's rays in `lights.slang` lit the same way. With the lamps'
-light times pi the probes' hits come within 2 to 22% of the reference, the thin room's apart, where
-they were 48 to 75% under, and each room's frame at High against every bounce gains from 4 to 31
-points, to −22% in the Cornell box, −27% with thin walls, −17% in the corridor, −57% through the
+So the loss lay in the trace first. `shadeHit` and `shadeProbeHit` in `probelight.slang` lit a hit
+as `color / Pi * arrived`, where `directLight` gives the lamps' and the sun's light as the model
+pass has a light, the light a white surface facing it returns, so a lit surface sent on a pi-th of
+its light and only the indirect light reaching it, which the probes hold as irradiance, was right
+over pi. The reflections' hits through the GPU's rays in `lights.slang` lit the same way. With the
+lamps' light times pi the probes' hits come within 2 to 22% of the reference, the thin room's apart,
+where they were 48 to 75% under, and each room's frame at High against every bounce gains from 4 to
+31 points, to −22% in the Cornell box, −27% with thin walls, −17% in the corridor, −57% through the
 window, −57% at the grazing floor and −51% with the lamp carried, the strip and the outdoor blocks
 unchanged. The merge and the gather lose little beside it. Each face the model pass reads equals the
 one gathered from the merge to the third digit, and the merge trails the rays' own hits by 1 to 7

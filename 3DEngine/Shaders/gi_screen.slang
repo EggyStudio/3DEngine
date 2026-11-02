@@ -10,6 +10,7 @@
 // the pixel's. A probe on no surface, or outside the world's first cascade, holds nothing, and the
 // model pass reads the world's probes there.
 import gi;
+import probelight;
 import scenefield;
 import lightthrough;
 

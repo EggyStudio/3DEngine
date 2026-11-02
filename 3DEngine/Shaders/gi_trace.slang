@@ -29,6 +29,7 @@
 // lights and emissive surfaces fell by a fifth or rose by a quarter, so the indirect light from
 // light that went out goes with it rather than over the frames each bounce takes to fade.
 import gi;
+import probelight;
 import scenefield;
 import lightthrough;
 

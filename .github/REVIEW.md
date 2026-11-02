@@ -85,8 +85,8 @@ REVIEW-ARCHIVE.md, its devlog note and its own words. On 2026-10-30 at 18:0x the
 README's new words (item 133) and the focus on radiance cascades (Decision 74), questions asked
 back, and asked that the sessions spend fewer tokens at the same quality, N 7.7.
 
-Next the look in order, 173, 176, 178, 177, 174 and 175 (Decision 84), then 182, with 140, 141 and
-142 after 177 (Decision 75); 143, 144 and 145 wait behind them.
+Next 178 widened, then 176 read again on what is left, then 177, 174 and 175 (Decision 84), then
+182, with 140, 141 and 142 after 177 (Decision 75); 143, 144 and 145 wait behind them.
 
 Items done and verdicts settled before 2026-10-23 stand in REVIEW-ARCHIVE.md beside this file, their
 numbers kept, moved there at 19:30 on 2026-10-23 so this file holds the current work alone and is
@@ -1313,7 +1313,26 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     depth rejection blended at 0.1 before the blurs, under SetAmbientOcclusion with the visibility
     raised to the intensity and the sun's contact shadows unblended; it lands where it moves each
     region's pattern toward the reference without moving the level, and the field's own occlusion
-    term goes wherever it covers what that term did when global illumination is on.
+    term goes wherever it covers what that term did when global illumination is on. Done at
+    `4bca4e47` on 2026-11-02, read at 06:52, its push waiting on a35d7ce9's run; GTAO in world space
+    in ao.slang with the history pass as set, the field's occlusion term left out where global
+    illumination is on, Sponza at radius 0.5. The Cornell box at High, each wall's light within 6 px
+    of its edge over its light 24 px in (build/region-pattern.py), red 0.930 against the reference's
+    0.930 where 0.967 without, green 0.819 against 0.816, the back wall 1.079 against 1.084, the
+    floor 0.866 against 0.866, the ceiling 1.073 against 1.090, each wall's level falling 1 to 5%,
+    radius 1 overshooting; Sponza's door view, the spread of the frame over the reference within the
+    ten largest surfaces with the level divided out narrowing on nine of ten by 0.4 to 11% and
+    holding on the tenth, each surface's level falling 4 to 15% where it sits 21 to 69% under
+    already, the field term forced on taking levels a further 11 to 41% down and widening the
+    spread, so it stays off; the pass 0.220 and 0.235 ms at 1080p against the contact shadows' 0.154
+    and 0.170 alone and Alchemy's 0.275 and 0.314; a still view moving 0.096 of 765 levels a pixel
+    between frames where 0.645 without the history; the occlusion tests' margin from 30 to 12
+    levels; two references rewritten, two gallery captures retaken; 2,208 in both orders; the
+    Cornell and door sheets under assets/readings. The rule is met as far as this item can meet it,
+    the pattern at every corner the reference's and the Cornell walls' level within the rooms' bars,
+    the cascades holding too little contact occlusion; the door view's level fall is read again
+    after 176 and 178 lift its level, the intensity or the radius the knob if it then overshoots
+    under the reference.
 
 174. **Temporal antialiasing.** Decision 84's fifth item, the frame resolved against its history
     with a jittered projection, motion rejected by depth and color bounds, which also steadies the
@@ -1332,7 +1351,20 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     placed, so arcades, vaults and rooms get probes of their own, the outer cascades reading them as
     the inner ones; read by Sponza's door and balcony views against the reference and the slab, the
     canopy and the bounce rooms unchanged, and the cost at High. Two or three commits, after 139 and
-    before 140.
+    before 140. Premise read at 07:04 on 2026-11-02 before any building, at `4bca4e47` in Sponza at
+    15:00 at High against references of 1,024 paths with the specular share. The door view's
+    surfaces lie in cascade 0 already with probes a meter apart, and probes half a meter apart (a
+    cell of 0.0625) read the ten largest surfaces at 0.31 to 0.84 of the reference where 0.32 to
+    0.73 before, so finer probes do not lift it; a probe in the vestibule reads under its own
+    reference by 66% in cascade 0, 39 in cascade 1 and 64 in cascade 3, its own rays' hits within 4
+    m bringing 0.000 where the reference brings 0.001, 85% under even with the reference held to one
+    bounce, so the missing light is the sun and sky reaching the vestibule's walls at the hits'
+    first bounce; the cause found in the hits' shading, a hit taking its indirect light from the
+    eight probes it sees and nothing where it sees none, a scratch taking all eight by distance
+    there lifting the surfaces to 0.36 to 1.24. So 178 comes first, widened to the hits' shading,
+    and this item is read again on what deficit is left, recorded as not needed rather than built if
+    the door view then holds; the balcony's ten largest surfaces at 0.77 to 1.42 of the reference,
+    the floor over, read with it.
 
 177. **A history for the world probes.** Decision 84's eighth item, of the cascades. The screen
     probes keep sixteen frames (item 135); the world probes write their radiance fresh each frame
@@ -1358,7 +1390,36 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     commits. A reading for this item from 173's baseline at 05:35: Sponza's door view at 15:00 at
     High with occlusion off lies 21 to 69% under the reference by region, block 8's sides -39, -53
     and -26%, the floor -21, the wall -69, the white block's side -58 and block 1's underside -59, a
-    level deficit of the coarse cascades and the fallback that no occlusion mends.
+    level deficit of the coarse cascades and the fallback that no occlusion mends. Widened at 07:04
+    on 176's premise reading to the probes' own side, since a probe ray's hit takes its indirect
+    light from the eight probes it sees and nothing where it sees none (bouncedSeenAt), which is
+    most of the vestibule's deficit, a scratch taking all eight by distance there lifting the door
+    view's surfaces from 0.32 to 0.73 of the reference to 0.36 to 1.24 with the red block over; a
+    hit that sees none takes the finer cascade's seen probes, or the next coarser cascade's, before
+    dark, and the model pass's fallback the same way, the weight falling smoothly as probes pass out
+    of sight; read on the door view against the reference, the corridor toward 0.05, the Cornell box
+    at both qualities within the bar, the bounce rooms within 1 level, the slab and the canopy
+    unchanged and the balcony's floor read with it. First among the items left, before 176's
+    reading. Read at 07:28 with the widened form built and uncommitted. Filling a hit's lost share
+    from the coarser cascade's seen probes lifts the door view to 0.33 to 0.78 of the reference at a
+    quarter kept and 0.36 to 1.01 at the whole, but takes the corridor from 0.22 to 0.63 and 0.65,
+    since at 16 units apart the slack probeSees allows, an eighth of the spacing, passes probes
+    outside the corridor through its roof thinner than two units and they lend the sky as seen; so
+    the coarser fill is out. The door view's cause lies elsewhere, its surfaces seeing their eight
+    probes on 0.65 to 0.97 of their weight so the model pass's fallback hardly acts, and a cascade-0
+    probe in the vestibule with the reference held to no bounces bringing 0.000 from its own hits
+    where the sun alone brings 0.001, its downward face 0.000 against 0.004, so the shortfall is the
+    sun reaching the surfaces the probes' rays meet, which the probes take through the distance
+    field where thin geometry, the door's grilles among it, closes to a solid panel at 0.125 cells,
+    and the frame through its shadow map. The call is three steps, the gather moved into
+    probelight.slang as a commit of its own with frames identical (gi.slang at 797 lines, N 1.3),
+    then the mend, a probe ray's hit taking the sun through the sun's shadow map where its cascades
+    hold the hit, the field's march past them and a ray query at High where the device traces, read
+    on the door view, the slab, the canopy, the rooms and the cost, then the model pass's side alone
+    (the seen probes' light filled from the unseen at a kept share, no coarser fill) kept only where
+    it still moves the door toward the reference without moving the corridor, the Cornell box or the
+    rooms; a slack bounded by a few of the finest cells rather than a share of the spacing noted as
+    a step of its own.
 
 179. **A capture waits for the scene field.** The owner wrote on 2026-11-01 at 16:39 that
     scenes_sponza builds its scene field asynchronously at start and the real global illumination
