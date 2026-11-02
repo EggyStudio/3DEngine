@@ -71,10 +71,15 @@ public float3 arriving(Light light, float3 world, float3 n)
 // counted cascade is a quarter of the map, two tiles on a side, and the fill after them, c being
 // the count, a map of its own. The point is moved off its surface by a texel and a half of that
 // cascade along the normal turned to the sun's side of the face (litSide) before it is compared, so a
-// surface does not shadow itself where the map's texels slant across it, and nine depths around it
-// are compared and averaged, which softens the
-// stair steps of the texels into a gradient one texel wide. A point a little inside a tile's edge
-// counts as outside, so the nine never reach into a neighboring tile. edge says how far toward the
+// surface does not shadow itself where the map's texels slant across it, and the sixteen depths of
+// the four by four texels around it are compared and weighed bilinearly by where the point lies
+// among them, three texels' worth, so the comparison ramps across each texel rather than standing
+// still across it and stepping at its side. Taken at the nine nearest depths, on a face the sun
+// grazes, as the arches of Sponza's atrium at noon, where a texel spans some seven pixels, the
+// edge stood in stairs that changed their pattern as the face passed from one cascade to the next
+// in flight, and a shadow's edge on a floor under texels of eight pixels stepped by as much as
+// ShadowEdgeTests reads. A point a little inside a tile's edge counts as outside, so the sixteen
+// never reach into a neighboring tile. edge says how far toward the
 // tile's edge the point is, from 0 in its middle to 1 at that border. Where the sun is given a
 // width (SetShadowSoftness) the edge softens with the caster's height over the point instead
 // (cascadeSoftly), its taps held a texel and a half inside the tile.
@@ -102,14 +107,21 @@ public float cascadeReached(int c, float3 world, float3 n, float2 texel, out flo
         float2 across = fill ? float2(1.0) : float2(0.5);
         return cascadeSoftly(c, p, uv, texel, corner + texel * 1.5, corner + across - texel * 1.5, fill, n, world);
     }
+    float2 st = uv / texel - 0.5;
+    float2 base = floor(st);
+    float2 f = st - base;
     float reached = 0.0;
-    for (int y = -1; y <= 1; y++)
-        for (int x = -1; x <= 1; x++)
+    for (int y = -1; y <= 2; y++)
+    {
+        float wy = y == -1 ? 1.0 - f.y : (y == 2 ? f.y : 1.0);
+        for (int x = -1; x <= 2; x++)
         {
-            float2 at = uv + float2(x, y) * texel;
+            float wx = x == -1 ? 1.0 - f.x : (x == 2 ? f.x : 1.0);
+            float2 at = (base + float2(x, y) + 0.5) * texel;
             float depth = fill ? shadowFillMap.SampleLevel(lightNearest, at, 0.0).r : shadowMap.SampleLevel(lightNearest, at, 0.0).r;
-            reached += p.z - 0.0005 <= depth ? 1.0 : 0.0;
+            reached += wx * wy * (p.z - 0.0005 <= depth ? 1.0 : 0.0);
         }
+    }
     return reached / 9.0;
 }
 

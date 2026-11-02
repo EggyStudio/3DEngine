@@ -657,13 +657,14 @@ A batch is gathered by the kind of shadow its draws cast as well, none, solid or
 masked one is drawn with `shadow.slang`'s fragment stage and its maps, which cuts it out below its
 cutoff as the model pass does, so its shadow has its holes. A blended draw that is clear anywhere is
 drawn the masked way too, its fragment stage keeping a texel where its alpha passes a threshold that
-interleaved gradient noise spreads over the texels, so the nine samples the model pass averages give
-a shadow as dark as the surface is opaque. The map is bound at binding 1 of the lights' set, beside
+interleaved gradient noise spreads over the texels, so the sixteen samples the model pass weighs
+give a shadow as dark as the surface is opaque. The map is bound at binding 1 of the lights' set, beside
 the cascades' matrices and texel widths in the lighting buffer, and the white texture takes its
 place in a frame with no shadow. The shader takes the nearest cascade whose tile holds the point, a
 little inside its edge, moves the point off its surface by a texel and a half of that cascade along
-its normal turned to the sun's side (`litSide` in `lights.slang`), and averages nine comparisons
-around it. A two-sided face lit from its back, as a plant's thin wall is, has its normal facing away
+its normal turned to the sun's side (`litSide` in `lights.slang`), and weighs the sixteen
+comparisons of the four by four texels around it bilinearly by where the point lies among them,
+three texels' worth, so the comparison ramps across each texel. A two-sided face lit from its back, as a plant's thin wall is, has its normal facing away
 from the light, and moved along it as given the point went behind the face as the light sees it, so
 the face shadowed itself in speckles and stripes. In a field of wheat's walls a block tall under the
 voxel game's sun at ten in the morning, 56 degrees up, the walls' light spread 0.149 of its mean
@@ -678,6 +679,15 @@ so the shadow's softness changes over a band where one cascade gives way to the 
 last cascade's band the shadow fades out rather than ending at a line. A spot light's texels widen
 with distance from it, so its offset grows with that distance. A model shader with a vertex stage of
 its own casts the shadow of its mesh as it was before that stage moved it.
+
+**The comparisons weighed bilinearly, read on 2026-11-02.** Compared at the nine nearest texels the
+shadow stood still across each texel and stepped at its side. On a face the sun grazes, as the
+arches of Sponza's atrium at noon, whose light runs nearly along the face, a texel spans some seven
+pixels, and the edge stood in stairs that changed their pattern in flight as the face passed from
+one cascade to the next. Weighed bilinearly at sixteen, the stairs ramp, and a wall's shadow on a
+floor under texels of some eight pixels, a map of 256 texels a tile, steps by 8 levels between
+neighbouring pixels at most where it stepped by 72, of a drop of 146 across the edge
+(ShadowEdgeTests, `.github/assets/readings/2026-11-02-item-188-shadow.webp`).
 
 Past the last cascade a fill cascade reaches on to the camera's far plane (`ShadowFit.TryFitFill`),
 which `SetShadowFill` turns off and the cascades' count leaves out. It is fitted as the others are,

@@ -41,7 +41,7 @@ ModelVertexOutput vertexMain(float3 position : POSITION, float3 normal : NORMAL,
 
 // A threshold from 0 to 1 for each texel, spread evenly over a small neighborhood (Jorge
 // Jimenez's interleaved gradient noise), so the texels a blended surface keeps are scattered
-// rather than banded, and the nine samples the model pass averages see its alpha.
+// rather than banded, and the sixteen depths the model pass weighs see its alpha.
 float threshold(float2 texel)
 {
     return frac(52.9829189 * frac(dot(texel, float2(0.06711056, 0.00583715))));

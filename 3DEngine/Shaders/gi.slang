@@ -158,13 +158,13 @@ public struct FieldSun : ISunShadow
 }
 
 // The sun found through the window's shadow map the frame before where one of its counted cascades
-// holds p, as the model pass finds it (cascadeReached in lights.slang): the point moved off its
-// surface along n by a texel and a half of that cascade, or a cell and a half of the field where
-// that is more, since the field's surface lies within half a cell of the mesh's, and nine depths
-// around it compared and averaged. The map is drawn from the meshes themselves, where the field
-// holds them at its cells. Through the field alone the probes' hits in the vestibule of Sponza's
-// main door saw none of the sun the path-traced reference sees there, and the vestibule read 21 to
-// 69% under that reference.
+// holds p, its cascade found as the model pass finds it (cascadeReached in lights.slang): the point
+// moved off its surface along n by a texel and a half of that cascade, or a cell and a half of the
+// field where that is more, since the field's surface lies within half a cell of the mesh's, and
+// nine depths around it compared and averaged. The map is drawn from the meshes themselves, where
+// the field holds them at its cells. Through the field alone the probes' hits in the vestibule of
+// Sponza's main door saw none of the sun the path-traced reference sees there, and the vestibule
+// read 21 to 69% under that reference.
 public struct SunShadowMap : ISunShadow
 {
     public Sampler2D map;

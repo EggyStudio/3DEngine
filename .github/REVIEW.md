@@ -2,8 +2,9 @@
 
 Reviewed up to `aca80ca2`, item 186 with the knob and the fog's removal (Decision 88), pushed at
 20:25 on 2026-11-02, its run green at 22:12 with the Windows halves in 78 and 85 minutes, Linux in
-97 and macOS in 42; it keeps the form. Each commit's detail stands in its item in REVIEW-ARCHIVE.md,
-its devlog note and its own words. Before it `abde3935`, Verdict 99's mend, pushed at 18:26 with
+97 and macOS in 42; it keeps the form. After it `71c7c194`, 188's first commit, pushed at 22:34, its
+run awaited; it keeps the form. Each commit's detail stands in its item in REVIEW-ARCHIVE.md, its
+devlog note and its own words. Before it `abde3935`, Verdict 99's mend, pushed at 18:26 with
 `f8872d03` (175) and `11b6a593` (142's record), its run green at 20:09 with the halves in 70 and 89
 minutes, Linux in 91 and macOS in 40, which settled Verdict 99. Before it `dfbf7614` (183, the
 Windows suite in two jobs) with `2977a4a2` and `0dff5d04` (174), pushed at 15:56, its run red at
@@ -1953,7 +1954,24 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     the still views unchanged. Third, a grey transient for a few frames after a long jump, its cause
     read and mended. Read by a recorded flight through the atrium and the nave at noon, every
     frame's change at the 99th part and the pair of the worst frames before and after, sent to the
-    owner. Two or three commits, before 187 by the owner's word.
+    owner. Two or three commits, before 187 by the owner's word. The first commit is `71c7c194`,
+    read at 22:34, pushed after aca80ca2's green run; the diffuse read that takes the sky's share
+    leaving out the probes a surface cannot see wherever the seen ones hold a twentieth of the
+    weight, which was the leak behind the owner's speckled column bands at 8:00, the column against
+    the reference with the fog off from 11.8 to 1.35 and the band from 2.6 to 1.87 with the speckled
+    line between them gone, a room test at Low reading a wall's foot at 55.6 where 139.3 with the
+    wall above at 67.3, the views at 8:00 moving 0.05 at most but the lookup's shade from 1.59 to
+    1.38, noon 0.03 at most, the sunlit fifth within 0.01; 2,218 in both orders. The second commit,
+    in its suite, weighs the sun's shadow at 16 texels bilinearly in place of 9 nearest, the
+    stair-steps on grazed faces that changed pattern between cascades in flight, ShadowEdgeTests
+    reading the steepest step between neighbouring pixels at 8 where 72 of a 146-level drop. The
+    field tried three ways at noon against the reference, fixed on the building at 0.19 cells the
+    door view 25 times over, the coarse cascades anchored at 0.15 the shade 1.25 to 2.04 and the
+    niche blotchy, following the camera as it stands the shade 1.02 to 1.95, so it stays as it is
+    and the anchor prototype is reverted. Still open, the probes' rough reflection on a glossy
+    edge-on column patch at 87 times the reference's reflection with the floor's at a ninth and the
+    door's metal glinting, the far end's leak through the coarse cascade, and the grey transient
+    after a jump.
 
 ## Verdicts
 
