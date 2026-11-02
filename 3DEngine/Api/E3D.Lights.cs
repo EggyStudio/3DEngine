@@ -230,6 +230,42 @@ public static partial class E3D
     }
 
     /// <summary>
+    /// Fills the air in front of the window's camera with fog that takes <paramref name="density"/>
+    /// of the light out per unit of distance at and under <paramref name="height"/>, thinning above
+    /// it by e every one over <paramref name="falloff"/> units, lit by the sun through its shadows and
+    /// by the light from all around, or takes it away with a density of 0, the default.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// A pixel is seen through the fog between it and the eye, so the far reaches of a scene fade
+    /// into the fog's light, and the sun's light shows in shafts where shadows cross the fog. With a
+    /// falloff of 0 the fog is as thick at any height. <paramref name="anisotropy"/> is how much of
+    /// the sun's light the fog scatters on along its way, toward an eye that looks toward the sun,
+    /// from 0, alike every way, toward 1.
+    /// </para>
+    /// <para>
+    /// The fog is worked out in a volume of cells in front of the camera, one for each tile of
+    /// sixteen pixels of the window by 64 slices of the distance to the camera's far plane or 128
+    /// units, whichever is nearer, so beyond that the fog thickens no further. It is lit by the
+    /// world's probes where global illumination is on and by the ambient lights where it is off.
+    /// Particles and what is drawn after <c>EndMode3D</c> are drawn over it, and render textures and
+    /// reflection probes are drawn without it.
+    /// </para>
+    /// </remarks>
+    public static void SetVolumetricFog(float density, float height = 0, float falloff = 0, float anisotropy = 0.5f)
+    {
+        var fog = World.GetOrInsertResource(static () => new VolumetricFogSettings());
+        fog.Density = Math.Max(0, density);
+        fog.Height = height;
+        fog.Falloff = Math.Max(0, falloff);
+        fog.Anisotropy = Math.Clamp(anisotropy, -0.95f, 0.95f);
+    }
+
+    /// <summary>The fog as <see cref="SetVolumetricFog"/> left it, a density of 0 for none unless set.</summary>
+    public static (float Density, float Height, float Falloff, float Anisotropy) GetVolumetricFog() =>
+        TryRes<VolumetricFogSettings>(out var fog) ? (fog.Density, fog.Height, fog.Falloff, fog.Anisotropy) : (0, 0, 0, 0.5f);
+
+    /// <summary>
     /// Sets the light from all around that keeps the side of a model away from every other light
     /// from going black, replacing the one set before, or removes it with an intensity of 0.
     /// </summary>

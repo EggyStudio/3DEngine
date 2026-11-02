@@ -273,28 +273,29 @@ internal sealed partial class BloomRenderer : IDisposable
 
     /// <summary>
     /// Whether a pass besides the composite reads the scene's light this frame, bloom, an exposure
-    /// that follows the scene, the depth of field, motion blur, temporal antialiasing, or global
-    /// illumination, whose reflections read the scene of the frame before, or the window draws
-    /// particles, which are drawn over it, or a mesh that scatters light under its surface, which
-    /// is spread in it, so the scene is decoded for them once.
+    /// that follows the scene, the depth of field, motion blur, temporal antialiasing, fog, which the
+    /// decoding lays over it, or global illumination, whose reflections read the scene of the frame
+    /// before, or the window draws particles, which are drawn over it, or a mesh that scatters light
+    /// under its surface, which is spread in it, so the scene is decoded for them once.
     /// </summary>
     public static bool ReadsLight(RenderWorld renderWorld) =>
         renderWorld.TryGet<BloomSettings>() is { On: true } || renderWorld.TryGet<ParticleRenderer>()?.DrawsInWindow(renderWorld) == true
         || renderWorld.TryGet<FrameEffects>() is { AutoExposure: true } or { FocusBlur: > 0 } or { MotionBlur: > 0 } or { Temporal: true }
-        || GlobalIlluminationRenderer.CascadesIn(renderWorld) > 0 || ModelRenderer.ScattersInWindow(renderWorld);
+        || renderWorld.TryGet<VolumetricFogSettings>() is { On: true } || GlobalIlluminationRenderer.CascadesIn(renderWorld) > 0
+        || ModelRenderer.ScattersInWindow(renderWorld);
 
     /// <summary>
     /// Whether the engine's curve bends the scene's light past its knee this frame, as it does
     /// wherever light past white may come about, with a light, a sky, a reflection probe, global
-    /// illumination, particles, bloom or an exposure. A scene with none of these is drawn as raylib draws
-    /// one, its colors as they are, and the curve gives way to a clamp, which leaves every color at
-    /// or under white as it is.
+    /// illumination, particles, bloom, fog or an exposure. A scene with none of these is drawn as
+    /// raylib draws one, its colors as they are, and the curve gives way to a clamp, which leaves
+    /// every color at or under white as it is.
     /// </summary>
     public static bool Bends(RenderWorld renderWorld) =>
         renderWorld.TryGet<RenderLights>() is { All.Count: > 0 } || renderWorld.TryGet<EnvironmentMap>() is not null
         || renderWorld.TryGet<BoundProbes>() is { Slots.Count: > 0 } || GlobalIlluminationRenderer.CascadesIn(renderWorld) > 0
         || renderWorld.TryGet<ParticleRenderer>()?.DrawsInWindow(renderWorld) == true
-        || renderWorld.TryGet<BloomSettings>() is { On: true }
+        || renderWorld.TryGet<BloomSettings>() is { On: true } || renderWorld.TryGet<VolumetricFogSettings>() is { On: true }
         || renderWorld.TryGet<FrameEffects>() is { AutoExposure: true } or { Exposure: not 1 };
 
     /// <summary>
@@ -338,10 +339,13 @@ internal sealed partial class BloomRenderer : IDisposable
     {
         if (_sized is not { } sized || renderContext.Device is not GraphicsDevice device) return null;
         var linear = EnsureLinear(device, sized);
+        // The fog laid over the scene as it is decoded, its set and numbers the fog's renderer's.
+        var fog = renderWorld.TryGet<VolumetricFogRenderer>()!;
         _decode ??= device.CreateGraphicsPipeline(new GraphicsPipelineDesc(
             linear.RenderPass, _decodeVertex!, _decodeFragment!,
             Cull: CullMode.None,
-            DescriptorSetLayouts: [_decodeLayout!],
+            PushConstantRanges: [new PushConstantRange(ShaderStageFlags.Fragment, 0, VolumetricFogRenderer.DecodeSize)],
+            DescriptorSetLayouts: [_decodeLayout!, fog.DecodeLayout(device)],
             DepthTestEnabled: true,
             DepthWriteEnabled: true,
             DepthCompareOp: CompareOp.Always));
@@ -353,6 +357,8 @@ internal sealed partial class BloomRenderer : IDisposable
         pass.SetScissor(0, 0, linear.Extent.Width, linear.Extent.Height);
         pass.SetPipeline(_decode);
         pass.SetBindGroup(_decode, sized.Decode!);
+        pass.SetBindGroup(_decode, fog.DecodeSet(device), 1);
+        pass.PushConstants(_decode, ShaderStageFlags.Fragment, 0, fog.DecodeBytes);
         pass.Draw(3);
         // The light scattered under a surface is spread in passes of their own, the particles then
         // drawn over the frame in one that keeps what it holds, its depth too.

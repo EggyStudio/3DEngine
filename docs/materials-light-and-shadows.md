@@ -529,6 +529,28 @@ that draws models through a camera, as each half of a split screen, works out it
 before it is drawn, and the two halves of `games/Sumo` at 640 by 720 take about 0.1 ms more of the
 GPU with it on, as `./e3d command profile` gives `targets`. `games/Manor` turns it on for its rooms.
 
+## Fog
+
+`SetVolumetricFog` fills the air in front of the camera with fog lit by the sun through its shadows
+and by the light from all around, so the far reaches of a scene fade into the fog's light and the
+sun shows in shafts where shadows cross it:
+
+```csharp
+SetVolumetricFog(0.0025f, height: 0, falloff: 0.14f);   // thinning by e every 7 units up
+```
+
+The density is the share of the light the fog takes out per unit of distance at and under the
+height, one over the distance at which it hides 63% of what lies behind it, and the fog thins above
+the height by e every one over the falloff units, or stays as thick at any height with a falloff of
+0. A fourth number, 0.5 unless given, is how much of the sun's light it scatters on along its way,
+toward an eye that looks toward the sun. `scenes_sponza` sets the fog of the scene its views are
+matched against, a mean free path of 400 units thinning above the ground as HDRP thins a layer 50
+high. The fog is worked out in a volume of cells, one for each tile of sixteen pixels of the window
+by 64 slices of the distance to the camera's far plane or 128 units, 0.27 ms of a desktop GPU at
+1920 by 1080 in Sponza, and lit by global illumination's probes where it is on and by the ambient
+lights where it is off. Particles and what is drawn after `EndMode3D` are drawn over it, and render
+textures are drawn without it. `GetVolumetricFog` reads it back.
+
 ## The scene as a distance field
 
 What the window's depth does not hold, a pass that reads it knows nothing of. A wall behind the

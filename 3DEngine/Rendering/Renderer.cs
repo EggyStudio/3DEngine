@@ -116,6 +116,8 @@ internal sealed class Renderer : IDisposable
             device.InitializeAtmosphere(server.LoadSync<ShaderProgram>("shaders/atmosphere_transmittance.slang").Compute,
                 server.LoadSync<ShaderProgram>("shaders/atmosphere_scatter.slang").Compute,
                 server.LoadSync<ShaderProgram>("shaders/atmosphere_sky.slang").Compute);
+            device.InitializeFog(server.LoadSync<ShaderProgram>("shaders/fog_scatter.slang").Compute,
+                server.LoadSync<ShaderProgram>("shaders/fog_integrate.slang").Compute);
         }
         RenderWorld.Set(new ParticleRenderer(server.LoadSync<ShaderProgram>("shaders/particles.slang")));
         RenderWorld.Set(new ModelRenderer(model, shadow, server.LoadSync<ShaderProgram>("shaders/model_streams.slang"),
@@ -131,6 +133,7 @@ internal sealed class Renderer : IDisposable
             server.LoadSync<ShaderProgram>("shaders/velocity.slang"), server.LoadSync<ShaderProgram>("shaders/decode.slang")));
         RenderWorld.Set(new AmbientOcclusionRenderer(server.LoadSync<ShaderProgram>("shaders/ao.slang")));
         RenderWorld.Set(new TemporalRenderer(server.LoadSync<ShaderProgram>("shaders/taa.slang")));
+        RenderWorld.Set(new VolumetricFogRenderer(server.LoadSync<ShaderProgram>("shaders/decode.slang")));
         RenderWorld.Set(new SceneFieldRenderer());
         RenderWorld.Set(new GlobalIlluminationRenderer());
         RenderWorld.Set(new MirrorRenderer());
@@ -179,10 +182,14 @@ internal sealed class Renderer : IDisposable
         // The window's view mirrored in a program's plane, which the window's scene reads.
         Graph.AddNode("mirror", new MirrorNode());
         Graph.AddNodeEdge("probes", "mirror");
+        // The fog in front of the window's camera, lit through the window's shadow and laid over its
+        // scene as the scene is decoded.
+        Graph.AddNode("fog", new VolumetricFogNode());
+        Graph.AddNodeEdge("mirror", "fog");
         // The window's scene is drawn into the HDR target, and spread where bloom is on, before the
         // window's pass tonemaps it into the window.
         Graph.AddNode("hdr_scene", new HdrSceneNode());
-        Graph.AddNodeEdge("mirror", "hdr_scene");
+        Graph.AddNodeEdge("fog", "hdr_scene");
         Graph.AddNode("bloom", new BloomNode());
         Graph.AddNodeEdge("hdr_scene", "bloom");
         Graph.AddNodeEdge("bloom", "main_pass");
@@ -462,6 +469,7 @@ internal sealed class Renderer : IDisposable
         RenderWorld.TryGet<BloomRenderer>()?.Dispose();
         RenderWorld.TryGet<AmbientOcclusionRenderer>()?.Dispose();
         RenderWorld.TryGet<TemporalRenderer>()?.Dispose();
+        RenderWorld.TryGet<VolumetricFogRenderer>()?.Dispose();
         RenderWorld.TryGet<SubsurfaceRenderer>()?.Dispose();
         RenderWorld.TryGet<SceneFieldRenderer>()?.Dispose();
         RenderWorld.TryGet<GlobalIlluminationRenderer>()?.Dispose();

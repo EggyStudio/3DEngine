@@ -111,6 +111,10 @@ public static class ScenesSponza
         // which in the door view brought the pattern of nine surfaces of ten nearer the path-traced
         // reference's (RENDERING.md).
         SetAmbientOcclusion(1, 0.5f);
+        // The air holds the fog of that scene's volume profile, a mean free path of 400 units at the
+        // ground, thinning by e every 7.24 units up, the scale height HDRP gives a maximum height of
+        // 50, and scattering the sun's light on along its way by 0.5.
+        SetVolumetricFog(1 / 400f, 0, 1 / (50 * 0.144765f), 0.5f);
         // The sun stands at the hour asked, rising over the main door and setting over the lion along
         // the atrium's length, its path leaning 6 degrees, so at noon it lights two thirds of the
         // atrium's floor, 5.6 units wide, past the shadow of its walls and eaves 17.6 high, where 10

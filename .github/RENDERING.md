@@ -3598,6 +3598,30 @@ frames against three, the history holding what was lit as seen from 2 m off unti
 go. It costs 0.24 ms at 1920 by 1080 on the RTX 4070 under the powersave profile, `gpu.hdr_scene` of
 `./e3d command profile` in the Cornell box reading 1.89 against 1.65.
 
+`SetVolumetricFog` fills the air in front of the window's camera with fog (`VolumetricFogRenderer`),
+a volume of half-float cells, one for each tile of sixteen pixels of the window by 64 slices of the
+distance from the eye to the camera's far plane or 128 units where that is nearer, each slice a
+share of the way that grows with its distance from a thousandth of it, so a slice is about as deep
+as a tile is wide. The `fog` node, after the window's shadow pass and ahead of `hdr_scene`, lights
+each cell's middle (`fog_scatter.slang`), by the sun through the shadow map drawn this frame, its
+nine depths compared as the probes' hits compare them (`SunShadowMap` in `gi.slang`), turned toward
+the eye by Henyey and Greenstein's phase, and by the light from all around, the world's probes'
+irradiance up and down averaged where light bounces and the ambient lights where it does not, times
+the fog's extinction there, its density thinning above its height by e every one over its falloff
+units. It then sums each column of cells from the eye (`fog_integrate.slang`), each slice's light as
+it fades through the slice, as Hillaire sums Frostbite's, so a thick slice gives no more light than
+its fog scatters. The decode pass lays the sum over each pixel by its distance (`decode.slang`, the
+fog's set its second), the cells read between their middles, a pixel nearer than the first slice's
+far edge taking that slice in proportion and the sky the whole volume, so every pass after it,
+bloom, the exposure, temporal antialiasing and the reflections, reads the scene in fog. Particles
+are drawn over it unfogged. `scenes_sponza` sets the fog of its matched scene's volume profile, a
+mean free path of 400 units at the ground thinning by e every 7.24 up, the scale height HDRP gives a
+maximum height of 50, and a phase of 0.5. In its lookup at 15:00 the fog takes 0.26 to 0.27 ms of
+the RTX 4070 at 1920 by 1080 under the powersave profile, `gpu.fog` of `./e3d command profile`, and
+`gpu.hdr_scene`, whose decode reads it, holds within its noise. `VolumetricFogTests` reads that a
+block 80 units off loses 38 levels of its gray to 0.02 of fog where one 4 off loses 3, and that fog
+thinning above its height leaves the top of a wall clearer than its foot.
+
 Bevy's eight curves are worked out as `bevy_core_pipeline` 0.19.1's `tonemapping_shared.wgsl` works
 them out, its matrices written as dot products, so a picture tonemapped here is the one Bevy draws.
 AgX, Tony McMapface and Blender's filmic look the light up in Bevy's own tables, KTX2 cubes of 32,
