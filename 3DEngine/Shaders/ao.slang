@@ -1,11 +1,13 @@
 // Ambient occlusion from the window's depth, drawn at half the window's size. Each pixel is put
 // back in the world through the inverse of the camera's view-projection, its surface's normal
-// found from the pixels beside it, and twelve pixels on a spiral within a radius of it in the
-// world are taken as the surfaces around it. Each closes off the light from all around by how far
-// it rises over the surface and how near it is, as McGuire, Mara and Luebke's Alchemy occlusion
-// has it, so a floor darkens where a wall meets it and a corner more than either wall. A pass
-// across and a pass down then blur the result, each tap weighed by how near its distance from the
-// eye is to the pixel's, so the darkening keeps to the surface it is on and does not cross an edge.
+// found from the pixels beside it, and the share of the light from all around that reaches it,
+// weighed by the cosine, is integrated over the horizons the depth gives along two slices through
+// the eye's way, as Jimenez, Wu, Pesce and Jarabo's ground-truth ambient occlusion has it, so a
+// floor darkens where a wall meets it and a corner more than either wall. The slices turn each frame
+// and a history pass blends each pixel with what it held the frame before, found through the frame
+// before's view-projection, so the frames together read many slices. A pass across and a pass down
+// then blur the result, each tap weighed by how near its distance from the eye is to the pixel's,
+// so the darkening keeps to the surface it is on and does not cross an edge.
 // Where the scene's distance field is built, the occlusion is also read from it, along the normal
 // and four ways leaning from it, which finds what closes a point off beyond what the window shows,
 // and the sun's light is traced toward the sun through it for soft contact shadows, which the green
@@ -22,13 +24,19 @@ struct AoPush
     // xy: one texel of the depth and of the occlusion, in uv. z: how strongly it darkens. w: the
     // share of the picture's height a unit spans at a unit's distance from the eye.
     float4 texelAndStrength;
-    // x: 0 to work the occlusion out, 1 to blur it across, 2 to blur it down. y: the picture's
-    // width over its height. z: 1 where the occlusion is on, 0 where only the sun's contact shadow
-    // is worked out. w: unused.
+    // x: 0 to work the occlusion out, 1 to blur it across, 2 to blur it down, 3 to blend it with
+    // the history. y: the picture's width over its height. z: 1 where the occlusion is on with the
+    // field's, 2 where it is on without it, 0 where only the sun's contact shadow is worked out, and
+    // in the history pass 1 where the history holds the frame before. w: the frame's number, which
+    // turns the slices.
     float4 mode;
     // xyz: the way toward the sun. w: how far its contact shadows are traced, 0 for none.
     float4 sunAndReach;
 };
+
+// The history pass reads inverseViewProjection as the way from this frame's clip space to the frame
+// before's, and sunAndReach as the last column of this frame's inverse view-projection, which gives
+// a point's depth along the view, since the push has room for no third matrix.
 
 [[vk::push_constant]]
 ConstantBuffer<AoPush> push;
@@ -47,7 +55,19 @@ Sampler3D sceneField;
 [[vk::binding(3, 0)]]
 ConstantBuffer<SceneFieldInfo> fieldInfo;
 
-static const int Taps = 12;
+// The occlusion the history pass wrote the frame before, its depth along the view in blue, which
+// the other passes do not read.
+[[vk::binding(4, 0)]]
+Sampler2D history;
+
+// The slices through the eye's way each pixel reads a frame, and the steps along each side of one.
+static const int Slices = 2;
+static const int Steps = 4;
+
+// The share of the history a pixel keeps a frame where the frame before saw its point.
+static const float Kept = 0.9;
+
+static const float Pi = 3.14159265359;
 
 [shader("vertex")]
 FullscreenOutput vertexMain(uint id : SV_VertexID)
@@ -164,34 +184,96 @@ float2 occlude(float2 uv, float2 pixel)
 
     float radius = push.eyeAndRadius.w;
     float distance = length(toEye);
+    float3 v = toEye / max(distance, 1e-6);
     // The radius on the picture, held to three tenths of its height, so a surface near the eye does
-    // not read the whole screen.
+    // not read the whole screen, and a step never under a texel.
     float reach = min(radius * push.texelAndStrength.w / max(distance, 1e-3), 0.3);
+    float least = texel.y / reach;
     float2 aspect = float2(1.0 / push.mode.y, 1.0);
-    float turn = noise(pixel) * 6.28318530718;
+    float frame = push.mode.w;
+    float turn = frac(noise(pixel) + frame * 0.618034);
+    float offset = frac(noise(pixel.yx + 11.0) + frame * 0.754878);
+    // A surface fades out of a horizon from 0.385 of the radius to the radius (XeGTAO's falloff).
+    float fade = 0.615 * radius;
 
-    float sum = 0.0;
-    for (int i = 0; i < Taps; i++)
+    float seen = 0.0;
+    for (int slice = 0; slice < Slices; slice++)
     {
-        float share = (float(i) + 0.5) / float(Taps);
-        float angle = float(i) * 2.39996323 + turn;
-        float2 at = uv + float2(cos(angle), sin(angle)) * aspect * reach * share;
-        float tapDepth = depthAt(at);
-        if (tapDepth >= 1.0)
-            continue;
-        float3 v = worldAt(at, tapDepth) - p;
-        float vv = dot(v, v);
-        // A surface past the radius, as a wall far behind an edge, closes off nothing.
-        float near = saturate(1.0 - vv / (radius * radius));
-        sum += max(0.0, dot(v, n) - 0.01 * distance) / (vv + 1e-4) * near;
+        float angle = (float(slice) + turn) / float(Slices) * Pi;
+        float2 way = float2(cos(angle), sin(angle)) * aspect * reach;
+        // The slice's way across in the world, square to the eye's way, and the normal laid into
+        // the slice, its angle from the eye's way toward that side.
+        float3 side = worldAt(uv + way * 0.01, d) - p;
+        side = normalize(side - dot(side, v) * v + 1e-9);
+        float3 axis = normalize(cross(side, v));
+        float3 laid = n - axis * dot(n, axis);
+        float laidLength = length(laid);
+        float cosNormal = saturate(dot(laid, v) / max(laidLength, 1e-6));
+        float normalAngle = (dot(side, laid) < 0.0 ? -1.0 : 1.0) * acos(cosNormal);
+        // Each side's horizon starts at the surface's own plane.
+        float highest = cos(normalAngle + 0.5 * Pi);
+        float lowest = cos(normalAngle - 0.5 * Pi);
+        for (int step = 0; step < Steps; step++)
+        {
+            float share = (float(step) + offset) / float(Steps);
+            float2 at = way * max(share * share, least);
+            float aheadDepth = depthAt(uv + at);
+            if (aheadDepth < 1.0)
+            {
+                float3 toward = worldAt(uv + at, aheadDepth) - p;
+                float far = length(toward);
+                float rise = dot(toward, v) / max(far, 1e-6);
+                highest = max(highest, lerp(cos(normalAngle + 0.5 * Pi), rise, saturate((radius - far) / fade)));
+            }
+            float behindDepth = depthAt(uv - at);
+            if (behindDepth < 1.0)
+            {
+                float3 toward = worldAt(uv - at, behindDepth) - p;
+                float far = length(toward);
+                float rise = dot(toward, v) / max(far, 1e-6);
+                lowest = max(lowest, lerp(cos(normalAngle - 0.5 * Pi), rise, saturate((radius - far) / fade)));
+            }
+        }
+        // The horizons' angles from the eye's way, held within the surface's half, and the light
+        // between them weighed by the cosine to the normal, integrated over the slice.
+        float ahead = normalAngle + min(acos(highest) - normalAngle, 0.5 * Pi);
+        float behind = normalAngle + max(-acos(lowest) - normalAngle, -0.5 * Pi);
+        float sinNormal = sin(normalAngle);
+        seen += laidLength * 0.25 * (2.0 * cosNormal + 2.0 * (ahead + behind) * sinNormal
+            - cos(2.0 * ahead - normalAngle) - cos(2.0 * behind - normalAngle));
     }
-    // Alchemy's sum over the taps, times the radius so the strength does not change with it, at
-    // twice the paper's scale, which an intensity of 1 shows plainly in a lit room, and the share
-    // the field closes off, which a corner of two walls closes half of at an intensity of 1.
-    float shown = saturate(1.0 - 4.0 * push.texelAndStrength.z * radius * sum / float(Taps));
-    if (fieldOn(fieldInfo))
-        shown *= saturate(1.0 - push.texelAndStrength.z * fieldOcclusion(p, n, radius));
+    // The share seen, raised to the strength, so 1 darkens as the horizons do and 0 not at all,
+    // and where the field's occlusion is read, the share the field closes off past the horizons'
+    // reach, which a corner of two walls closes half of at an intensity of 1.
+    float strength = push.texelAndStrength.z;
+    float shown = pow(saturate(seen / float(Slices)), strength);
+    if (push.mode.z < 1.5 && fieldOn(fieldInfo))
+        shown *= saturate(1.0 - strength * fieldOcclusion(p, n, radius));
     return float2(shown, sun);
+}
+
+// The occlusion just worked out, blended with what the pixel's point held the frame before where
+// the frame before saw it at its depth along the view, within 5%, with the sun's share as worked
+// out and the depth along the view in blue for the next frame.
+float4 remember(float2 uv)
+{
+    float4 now = occlusion.SampleLevel(uv, 0);
+    float d = depthAt(uv);
+    if (d >= 1.0)
+        return float4(1.0, now.g, 0.0, 1.0);
+    float4 clip = float4(uv * 2.0 - 1.0, d, 1.0);
+    float scale = dot(push.sunAndReach, clip);
+    float4 before = mul(push.inverseViewProjection, clip);
+    float2 uvBefore = before.xy / before.w * 0.5 + 0.5;
+    float depthBefore = before.w / scale;
+    float shown = now.r;
+    if (push.mode.z > 0.5 && all(uvBefore >= 0.0) && all(uvBefore <= 1.0))
+    {
+        float4 kept = history.SampleLevel(uvBefore, 0);
+        if (abs(kept.b - depthBefore) < 0.05 * depthBefore)
+            shown = lerp(now.r, kept.r, Kept);
+    }
+    return float4(shown, now.g, 1.0 / scale, 1.0);
 }
 
 // Nine taps along one axis, a Gaussian's weights times how near each tap's distance from the eye is
@@ -221,6 +303,8 @@ float4 fragmentMain(FullscreenOutput input) : SV_Target
 {
     float2 texel = push.texelAndStrength.xy;
     float2 shown;
+    if (push.mode.x > 2.5)
+        return remember(input.uv);
     if (push.mode.x < 0.5)
         shown = occlude(input.uv, input.position.xy);
     else if (push.mode.x < 1.5)

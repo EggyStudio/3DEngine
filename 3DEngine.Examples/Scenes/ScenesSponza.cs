@@ -106,6 +106,11 @@ public static class ScenesSponza
         // walk carried on splat up to 4 million in one frame, 0.14 to 0.17 s of the GPU.
         SetSceneField(4, 0.125f);
         SetGlobalIllumination(GlobalIllumination.High);
+        // The corners, the cracks and the feet of the columns darken by the horizons the window's
+        // depth gives within half a unit, four of the field's cells, finer than the cascades hold,
+        // which in the door view brought the pattern of nine surfaces of ten nearer the path-traced
+        // reference's (RENDERING.md).
+        SetAmbientOcclusion(1, 0.5f);
         // The sun stands at the hour asked, rising over the main door and setting over the lion along
         // the atrium's length, its path leaning 6 degrees, so at noon it lights two thirds of the
         // atrium's floor, 5.6 units wide, past the shadow of its walls and eaves 17.6 high, where 10

@@ -506,23 +506,26 @@ it is. `GetEnvironmentLight` reads them back.
 
 ## Darker corners
 
-Light from all around, the ambient light, a sky's and a probe's, reaches a room's corner as well
-as its open wall, and the floor under a crate as well as the floor around it, so nothing seems to
-sit on anything. `SetAmbientOcclusion` darkens that light where the surfaces near a point close it
-off, and leaves the light of lights alone:
+Light from all around, the ambient light, a sky's, a probe's and the light global illumination
+gathers, reaches a room's corner as well as its open wall, and the floor under a crate as well as
+the floor around it, so nothing seems to sit on anything. `SetAmbientOcclusion` darkens that light
+where the surfaces near a point close it off, and leaves the light of lights alone:
 
 ```csharp
 SetAmbientOcclusion(1);           // or SetAmbientOcclusion(1, radius: 3) for a street of houses
 ```
 
-The radius is how far, in world units, the surfaces that close a point off are looked for, about
-the size of what stands close together, and the intensity how dark it goes, 1 suiting most
-scenes. It is worked out for the window from a depth of its models drawn at half size each frame,
-about a tenth of a millisecond on a desktop GPU, so a model that casts no shadow darkens nothing
-around it. A render texture that draws models through a camera, as each half of a split screen,
-works out its own the same way before it is drawn, and the two halves of `games/Sumo` at 640 by 720
-take about 0.1 ms more of the GPU with it on, as `./e3d command profile` gives `targets`.
-`games/Manor` turns it on for its rooms.
+The radius is how far, in world units, the surfaces that close a point off are looked for, about the
+size of what stands close together, and with global illumination on a few of the field's cells,
+since the cascades darken what lies farther, 0.5 in a room of cells 0.15 across. An intensity of 1
+darkens by the share of the light from all around those surfaces close off, and more darkens
+further. It is worked out for the window from a depth of its models drawn at half size each frame,
+by the horizons along two slices a pixel turned each frame, each pixel keeping most of what it held
+the frame before, 0.07 ms of a desktop GPU at 1920 by 1080 in Sponza past the sun's contact shadows
+the same pass traces, so a model that casts no shadow darkens nothing around it. A render texture
+that draws models through a camera, as each half of a split screen, works out its own the same way
+before it is drawn, and the two halves of `games/Sumo` at 640 by 720 take about 0.1 ms more of the
+GPU with it on, as `./e3d command profile` gives `targets`. `games/Manor` turns it on for its rooms.
 
 ## The scene as a distance field
 
@@ -535,19 +538,19 @@ the nearest surface of the meshes that cast shadows, which the GPU keeps from fr
 SetSceneField(4);                 // four cascades, the finest's cells 0.25 units wide
 ```
 
-Three things read it while it is on. Ambient occlusion, where `SetAmbientOcclusion` turns it on,
-also reads the field along each surface's normal and four ways leaning from it, so a wall out of
-the picture still darkens the floor beside it. The sun, the first directional light that casts
-shadows, casts soft contact shadows traced toward it through the field across 32 cells of the
-finest cascade, sharp where a caster meets what it falls on and softer farther off. Traced at half
-the window's size through the field's cells and blurred, they also darken the ground past the hard
-edge of a shadow the map draws, by about a cell, an edge a game of blocks draws hard, a pillar a
-unit across under a low sun darkening the floor a fifth of a unit past its shadow's side to 0.71 of
-its light. `SetContactShadows(ContactShadows.PastShadowMap)` keeps them
+Three things read it while it is on. Ambient occlusion, where `SetAmbientOcclusion` turns it on and
+global illumination is off, also reads the field along each surface's normal and four ways leaning
+from it, so a wall out of the picture still darkens the floor beside it. The sun, the first
+directional light that casts shadows, casts soft contact shadows traced toward it through the field
+across 32 cells of the finest cascade, sharp where a caster meets what it falls on and softer
+farther off. Traced at half the window's size through the field's cells and blurred, they also
+darken the ground past the hard edge of a shadow the map draws, by about a cell, an edge a game of
+blocks draws hard, a pillar a unit across under a low sun darkening the floor a fifth of a unit past
+its shadow's side to 0.71 of its light. `SetContactShadows(ContactShadows.PastShadowMap)` keeps them
 only past the shadow map's reach, where the map holds nothing and they still shadow the ground, and
-`ContactShadows.Off` leaves them out, the field on for the rest. And a particle
-emitter that collides meets the field wherever it holds the particle, behind things and off the
-screen, and the window's depth elsewhere.
+`ContactShadows.Off` leaves them out, the field on for the rest. And a particle emitter that
+collides meets the field wherever it holds the particle, behind things and off the screen, and the
+window's depth elsewhere.
 
 The field is cascades of 64 cells a side, each twice as coarse and as wide as the one before, so
 four cascades of 0.25 reach 16 units across in the first and 128 in the last. A double-sided mesh,

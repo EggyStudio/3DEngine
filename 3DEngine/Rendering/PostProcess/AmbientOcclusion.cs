@@ -45,19 +45,30 @@ internal sealed class TargetOcclusion
 
 /// <summary>
 /// The window's ambient occlusion, made of the depth of its meshes drawn at half the window's size
-/// ahead of its pass, the occlusion worked out from it, and two passes that blur it along each axis
-/// without crossing an edge (<c>ao.slang</c>). The model pass multiplies its ambient, environment
-/// and probe light by it, and not the light of lights, which reaches a corner as well as a wall.
-/// Where the scene's distance field is built, the occlusion pass also reads the occlusion from it
-/// and traces the sun's light through it, the share that arrives in the image's green channel,
-/// which the model pass multiplies the shadowed directional light by, so the pass runs for the
-/// sun's contact shadows alone where the occlusion is off.
+/// ahead of its pass, the occlusion worked out from it by the horizons along two slices a pixel,
+/// turned each frame, a pass that blends it with the history the frame before left, and two passes
+/// that blur it along each axis without crossing an edge (<c>ao.slang</c>). The model pass
+/// multiplies its ambient, environment, probe and bounced light by it, and not the light of lights,
+/// which reaches a corner as well as a wall. Where the scene's distance field is built, the
+/// occlusion pass also traces the sun's light through it, the share that arrives in the image's
+/// green channel, which the model pass multiplies the shadowed directional light by, so the pass
+/// runs for the sun's contact shadows alone where the occlusion is off, and where light does not
+/// bounce it reads the occlusion from the field too, past what the window shows.
 /// </summary>
 /// <remarks>
 /// <para>
 /// The images are made at half the window's size the first frame it is on and again when the
 /// window's size changes, and those they replace are destroyed <see cref="GpuTextures.RetireFrames"/>
 /// frames later, as are all of them the first frame it is off.
+/// </para>
+/// <para>
+/// The history keeps 0.9 of what a pixel's point held the frame before, found through the frame
+/// before's view-projection, where the depth along the view there is within 5% of the point's, and
+/// starts again from the frame's own occlusion where it is not, as where a surface comes out from
+/// behind another. Where light bounces the field's occlusion is left out, since the cascades hold
+/// what it would close off, and in Sponza's door view it took each surface's light 11 to 41% under
+/// what the horizons alone leave and its pattern further from the reference's on nine surfaces of
+/// ten.
 /// </para>
 /// <para>
 /// A render target that draws meshes through a camera of its own has images of its own, worked out
@@ -85,32 +96,48 @@ internal sealed class AmbientOcclusionRenderer : IDisposable
     private IShader? _vertex, _fragment;
     private IDescriptorSetLayout? _layout;
     private ISampler? _sampler;
-    private IPipeline? _pipeline;
+    private IPipeline? _pipeline, _rememberPipeline;
     private Sized? _sized;
     // Each render target's images and the frame it was last drawn in.
     private readonly Dictionary<int, (Sized Sized, long Drawn)> _targets = [];
     private readonly List<(long Frame, IDisposable Disposable)> _retired = [];
     private long _frame;
 
-    // What is made for one size of the window, the depth, the occlusion and the image between the
-    // blurs, and the set each of the three passes reads through.
+    // What is made for one size of the window, the depth, the occlusion, the image between the
+    // blurs and the two histories the frames write in turn, the set each pass reads through, and
+    // what the history pass needs of the frame before.
     private sealed class Sized(Extent2D extent, GpuSceneField field, ShadowMap depth, RenderTarget occlusion, RenderTarget across,
-        IDescriptorSet occlude, IDescriptorSet blurAcross, IDescriptorSet blurDown) : IDisposable
+        RenderTarget[] histories, IDescriptorSet occlude, IDescriptorSet blurAcross, IDescriptorSet blurDown,
+        IDescriptorSet[] remember, IDescriptorSet rememberFirst, IDescriptorSet[] blurRemembered) : IDisposable
     {
         public Extent2D Extent { get; } = extent;
         public GpuSceneField Field { get; } = field;
         public ShadowMap Depth { get; } = depth;
         public RenderTarget Occlusion { get; } = occlusion;
         public RenderTarget Across { get; } = across;
+        public RenderTarget[] Histories { get; } = histories;
         public IDescriptorSet Occlude { get; } = occlude;
         public IDescriptorSet BlurAcross { get; } = blurAcross;
         public IDescriptorSet BlurDown { get; } = blurDown;
+        // The history pass writing each history and reading the other, or reading the occlusion
+        // alone where no history holds the frame before, and the blur across reading each.
+        public IDescriptorSet[] Remember { get; } = remember;
+        public IDescriptorSet RememberFirst { get; } = rememberFirst;
+        public IDescriptorSet[] BlurRemembered { get; } = blurRemembered;
+        // The history written last, the frame it was written in, and the view-projection then.
+        public int Written { get; set; }
+        public long WrittenIn { get; set; } = long.MinValue;
+        public Matrix4x4 ViewProjection { get; set; }
 
         public void Dispose()
         {
             Occlude.Dispose();
             BlurAcross.Dispose();
             BlurDown.Dispose();
+            foreach (var set in Remember) set.Dispose();
+            RememberFirst.Dispose();
+            foreach (var set in BlurRemembered) set.Dispose();
+            foreach (var history in Histories) history.Dispose();
             Across.Dispose();
             Occlusion.Dispose();
             Depth.Dispose();
@@ -193,7 +220,8 @@ internal sealed class AmbientOcclusionRenderer : IDisposable
             renderWorld.Remove<AmbientOcclusionImage>();
             return;
         }
-        Occlude(renderContext, window.Sized, window.Inverse, window.Eye, window.Window, window.Settings, window.Sun);
+        Occlude(renderContext, window.Sized, window.Inverse, window.Eye, window.Window, window.Settings, window.Sun,
+            GlobalIlluminationRenderer.CascadesIn(renderWorld) > 0);
         renderWorld.Set(new AmbientOcclusionImage(window.Sized.Occlusion.ColorView, _sampler!));
     }
 
@@ -221,14 +249,15 @@ internal sealed class AmbientOcclusionRenderer : IDisposable
         if (targets is null) renderWorld.Set(targets = new TargetOcclusion());
         targets.Depths[id] = new WindowDepth(sized.Depth.DepthView, sized.Depth.Sampler, extent);
         if (settings is not { On: true } && sun is null) return;
-        Occlude(renderContext, sized, inverse, eye, size, settings, sun);
+        Occlude(renderContext, sized, inverse, eye, size, settings, sun, bounces);
         targets.Images[id] = new AmbientOcclusionImage(sized.Occlusion.ColorView, _sampler!);
     }
 
     // The occlusion of a view of size, through the inverse of its camera from its eye, worked out
-    // into its images from the depth drawn into them, and blurred across and down.
+    // into its images from the depth drawn into them, blended with its history, and blurred across
+    // and down. Where light bounces, the cascades hold what the field's occlusion would close off.
     private void Occlude(RenderContext renderContext, Sized sized, Matrix4x4 inverse, Vector3 eye, Extent2D size,
-        AmbientOcclusionSettings? settings, (Vector3 TowardSun, float Reach)? sun)
+        AmbientOcclusionSettings? settings, (Vector3 TowardSun, float Reach)? sun, bool bounces)
     {
         var on = settings is { On: true };
         var push = new Push
@@ -236,14 +265,31 @@ internal sealed class AmbientOcclusionRenderer : IDisposable
             InverseViewProjection = inverse,
             EyeAndRadius = new Vector4(eye, on ? settings!.Radius : 1),
             TexelAndStrength = new Vector4(1f / sized.Extent.Width, 1f / sized.Extent.Height, on ? settings!.Intensity : 0, HeightPerUnit(inverse)),
-            Mode = new Vector4(0, (float)size.Width / Math.Max(1, size.Height), on ? 1 : 0, 0),
+            Mode = new Vector4(0, (float)size.Width / Math.Max(1, size.Height), on ? bounces ? 2 : 1 : 0, _frame % 4096),
             SunAndReach = sun is var (toward, reach) ? new Vector4(toward, reach) : Vector4.Zero,
         };
-        Pass(renderContext, sized.Occlusion, sized.Occlude, push);
+        Pass(renderContext, _pipeline!, sized.Occlusion, sized.Occlude, push);
+        var blurAcross = sized.BlurAcross;
+        if (on && Matrix4x4.Invert(inverse, out var viewProjection))
+        {
+            // The frame before's history is read where it was written the frame before, through
+            // the way from this frame's clip space to that frame's.
+            var held = sized.WrittenIn == _frame - 1;
+            var next = 1 - sized.Written;
+            var remember = push with
+            {
+                InverseViewProjection = held ? inverse * sized.ViewProjection : Matrix4x4.Identity,
+                SunAndReach = new Vector4(inverse.M14, inverse.M24, inverse.M34, inverse.M44),
+                Mode = push.Mode with { X = 3, Z = held ? 1 : 0 },
+            };
+            Pass(renderContext, _rememberPipeline!, sized.Histories[next], held ? sized.Remember[next] : sized.RememberFirst, remember);
+            (sized.Written, sized.WrittenIn, sized.ViewProjection) = (next, _frame, viewProjection);
+            blurAcross = sized.BlurRemembered[next];
+        }
         push.Mode.X = 1;
-        Pass(renderContext, sized.Across, sized.BlurAcross, push);
+        Pass(renderContext, _pipeline!, sized.Across, blurAcross, push);
         push.Mode.X = 2;
-        Pass(renderContext, sized.Occlusion, sized.BlurDown, push);
+        Pass(renderContext, _pipeline!, sized.Occlusion, sized.BlurDown, push);
     }
 
     /// <summary>
@@ -265,15 +311,15 @@ internal sealed class AmbientOcclusionRenderer : IDisposable
         return halfHeight > 1e-6f ? Vector3.Distance(middle, eye) / (2 * halfHeight) : 1;
     }
 
-    private void Pass(RenderContext renderContext, RenderTarget target, IDescriptorSet set, Push push)
+    private static void Pass(RenderContext renderContext, IPipeline pipeline, RenderTarget target, IDescriptorSet set, Push push)
     {
         using var pass = renderContext.BeginTrackedRenderPass(new RenderPassDescriptor(
             target.RenderPass, target.Framebuffer, target.Extent, LoadOp.Clear, StoreOp.Store, new ClearColor(1, 1, 1, 1)));
         pass.SetViewport(0, 0, target.Extent.Width, target.Extent.Height, 0, 1);
         pass.SetScissor(0, 0, target.Extent.Width, target.Extent.Height);
-        pass.SetPipeline(_pipeline!);
-        pass.SetBindGroup(_pipeline!, set);
-        pass.PushConstants(_pipeline!, ShaderStageFlags.Fragment, 0, MemoryMarshal.AsBytes(new ReadOnlySpan<Push>(in push)));
+        pass.SetPipeline(pipeline);
+        pass.SetBindGroup(pipeline, set);
+        pass.PushConstants(pipeline, ShaderStageFlags.Fragment, 0, MemoryMarshal.AsBytes(new ReadOnlySpan<Push>(in push)));
         pass.Draw(3);
     }
 
@@ -298,23 +344,40 @@ internal sealed class AmbientOcclusionRenderer : IDisposable
         var occlusion = device.CreateRenderTarget(extent.Width, extent.Height, ImageFormat.R8G8B8A8_UNorm, depth: false, multisampled: false);
         var across = device.CreateRenderTarget(extent.Width, extent.Height, ImageFormat.R8G8B8A8_UNorm, depth: false, multisampled: false);
         device.Name(occlusion.ColorView.Image, $"Ambient occlusion of {view}");
+        // Half floats, since the history holds each texel's depth along the view beside it.
+        RenderTarget[] histories = [.. Enumerable.Range(0, 2).Select(i =>
+        {
+            var history = device.CreateRenderTarget(extent.Width, extent.Height, ImageFormat.R16G16B16A16_Float, depth: false, multisampled: false);
+            device.Name(history.ColorView.Image, $"Ambient occlusion history {i} of {view}");
+            return history;
+        })];
         _pipeline ??= device.CreateGraphicsPipeline(new GraphicsPipelineDesc(
             occlusion.RenderPass, _vertex, _fragment,
             BlendEnabled: false,
             Cull: CullMode.None,
             PushConstantRanges: [new PushConstantRange(ShaderStageFlags.Fragment, 0, (uint)Marshal.SizeOf<Push>())],
             DescriptorSetLayouts: [_layout]));
+        _rememberPipeline ??= device.CreateGraphicsPipeline(new GraphicsPipelineDesc(
+            histories[0].RenderPass, _vertex, _fragment,
+            BlendEnabled: false,
+            Cull: CullMode.None,
+            PushConstantRanges: [new PushConstantRange(ShaderStageFlags.Fragment, 0, (uint)Marshal.SizeOf<Push>())],
+            DescriptorSetLayouts: [_layout]));
 
-        IDescriptorSet Set(IImageView read)
+        IDescriptorSet Set(IImageView read, IImageView? history = null)
         {
             var set = device.CreateDescriptorSet(_layout);
             device.UpdateDescriptorSet(set, null, new CombinedImageSamplerBinding(depth.DepthView, depth.Sampler, 0));
             device.UpdateDescriptorSet(set, null, new CombinedImageSamplerBinding(read, depth.Sampler, 1));
             device.UpdateDescriptorSet(set, null, new CombinedImageSamplerBinding(field.View, field.Sampler, 2));
             device.UpdateDescriptorSet(set, new UniformBufferBinding(field.Info, 3, 0, GpuSceneField.InfoBytes), null);
+            device.UpdateDescriptorSet(set, null, new CombinedImageSamplerBinding(history ?? read, depth.Sampler, 4));
             return set;
         }
-        return new Sized(extent, field, depth, occlusion, across, Set(across.ColorView), Set(occlusion.ColorView), Set(across.ColorView));
+        return new Sized(extent, field, depth, occlusion, across, histories,
+            Set(across.ColorView), Set(occlusion.ColorView), Set(across.ColorView),
+            [Set(occlusion.ColorView, histories[1].ColorView), Set(occlusion.ColorView, histories[0].ColorView)], Set(occlusion.ColorView),
+            [Set(histories[0].ColorView), Set(histories[1].ColorView)]);
     }
 
     // Lets every view's images go, once no frame in flight reads them, on a frame it is off.
@@ -353,6 +416,7 @@ internal sealed class AmbientOcclusionRenderer : IDisposable
         foreach (var (sized, _) in _targets.Values) sized.Dispose();
         _targets.Clear();
         _pipeline?.Dispose();
+        _rememberPipeline?.Dispose();
         _layout?.Dispose();
         _sampler?.Dispose();
         _vertex?.Dispose();

@@ -960,21 +960,21 @@ wall 100% under a path-traced reference at `High`, its box stamped in its color 
 with its emission stamped, where held still until it settles it reads 37% under. `Low` reads that
 wall 96 and 97% under with the bar moving or settled alike, as before.
 
-Three passes read it. `ao.slang` adds an occlusion read along the normal and four ways leaning from
-it at four distances out to the radius, and traces the sun's light toward the sun from a cell and a
-half out, darkened by how near a surface the ray passes as a share of how far along it is, its
-share in the occlusion image's green channel, which the model pass multiplies the shadowed
-directional light by, so the pass runs for the contact shadows alone where the occlusion is off.
-`SetContactShadows` leaves the trace out (`ContactShadows.Off`), or has the model pass take the
-contact shadow as little as the shadow map holds the point (`ContactShadows.PastShadowMap`, the
-lighting buffer's `ambientOcclusion.y` 2), the map's share from `lightReaching`, 1 within its
-counted cascades and falling to 0 across the last one's edge, so a shadow the map draws keeps its
-hard edge, and the fill past them holds none.
-`particle_step.slang` steps a colliding particle's move through the field where the field holds the
-place it moves to, and meets the window's depth elsewhere. `field_view.slang` draws one cascade over
-the window as the field holds the scene, where `field.show` asks. A render texture drawn through a
-camera of its own reads the field as the window does, for its occlusion, the sun's contact shadows
-and global illumination, and a probe's faces read only the indirect light through it.
+Three passes read it. `ao.slang` adds, where light does not bounce, an occlusion read along the
+normal and four ways leaning from it at four distances out to the radius, and traces the sun's light
+toward the sun from a cell and a half out, darkened by how near a surface the ray passes as a share
+of how far along it is, its share in the occlusion image's green channel, which the model pass
+multiplies the shadowed directional light by, so the pass runs for the contact shadows alone where
+the occlusion is off. `SetContactShadows` leaves the trace out (`ContactShadows.Off`), or has the
+model pass take the contact shadow as little as the shadow map holds the point
+(`ContactShadows.PastShadowMap`, the lighting buffer's `ambientOcclusion.y` 2), the map's share from
+`lightReaching`, 1 within its counted cascades and falling to 0 across the last one's edge, so a
+shadow the map draws keeps its hard edge, and the fill past them holds none. `particle_step.slang`
+steps a colliding particle's move through the field where the field holds the place it moves to, and
+meets the window's depth elsewhere. `field_view.slang` draws one cascade over the window as the
+field holds the scene, where `field.show` asks. A render texture drawn through a camera of its own
+reads the field as the window does, for its occlusion, the sun's contact shadows and global
+illumination, and a probe's faces read only the indirect light through it.
 
 ### Global illumination
 
@@ -3636,24 +3636,34 @@ blurs nothing. In `models_stress`, where every entity turns each frame, the fram
 entities at sixty frames a second with it on and about 700,000 with the camera's alone.
 
 `SetAmbientOcclusion` turns on the `ambient_occlusion` node, after `window_depth` and before every
-pass that lights the window's meshes (`AmbientOcclusionRenderer`). `window_depth` draws the depth
-of the window's batches that cast a shadow into a depth target half the window's size, wherever the
+pass that lights the window's meshes (`AmbientOcclusionRenderer`). `window_depth` draws the depth of
+the window's batches that cast a shadow into a depth target half the window's size, wherever the
 occlusion, the sun's contact shadows or the screen's probes read it, through the shadow pass's
 pipelines, whose depth-only pass is the same at any size, pushing each batch's own camera; the
 batches are gathered and their instances written in `model_batches` before it, once a frame for
-every pass that draws them, so the profile gives the gather, the depth and the occlusion each
-apart. On the voxel game's hills at eight columns in a Release build the gather took 1.3 to 1.5 ms
-of the CPU, the depth 1.16 ms of the GPU, and the occlusion with the sun's contact shadows 0.08 ms
-of it, by `./e3d command profile`. `ao.slang` then puts each texel back in the world through the
-inverse view-projection, takes its normal from the nearer neighbor along each axis, and sums
-Alchemy's term over twelve taps on a spiral turned by interleaved gradient noise, within the radius
-held to three tenths of the picture, each fading out toward the radius. Two passes blur it across
-and down, nine taps each, weighed by how near each tap's distance from the eye is to the pixel's.
+every pass that draws them, so the profile gives the gather, the depth and the occlusion each apart.
+On the voxel game's hills at eight columns in a Release build the gather took 1.3 to 1.5 ms of the
+CPU, the depth 1.16 ms of the GPU, and the occlusion with the sun's contact shadows 0.08 ms of it,
+by `./e3d command profile`. `ao.slang` then puts each texel back in the world through the inverse
+view-projection, takes its normal from the nearer neighbor along each axis, and integrates the light
+from all around that reaches it, weighed by the cosine, over the horizons along two slices through
+the eye's way, as Jimenez, Wu, Pesce and Jarabo's ground-truth ambient occlusion has it, each slice
+stepped four times a side out to the radius held to three tenths of the picture, the steps closer
+together nearer the texel, and a surface fading out of a horizon from 0.385 of the radius to the
+radius, as XeGTAO has it. The slices turn by interleaved gradient noise and the frame's number, and
+a pass into one of two half-float histories keeps 0.9 of what each texel's point held the frame
+before, found through the frame before's view-projection where the depth along the view there is
+within 5% of the point's. Two passes then blur it across and down, nine taps each, weighed by how
+near each tap's distance from the eye is to the pixel's. Where light does not bounce the field's
+occlusion is read too, and where it does it is left out, since the cascades hold what it closes off,
+and in Sponza's door view it took each surface's light 11 to 41% under what the horizons alone leave
+and the pattern of nine surfaces of ten further from the reference's (`build/region-pattern.py`).
 The lights' set binds the result at binding 9 for the window's view, and the window's lighting
 buffer says to read it, so `lit` multiplies its material occlusion, which scales the ambient,
-environment and probe light alone, by the occlusion at half the fragment's position. In Manor's
-rooms it takes 0.08 ms of the GPU and 0.16 ms of the CPU. A render target that draws meshes through
-a camera of its own has the same worked out at half its size in the `targets` node before its pass
+environment and probe light and the light global illumination gathers alone, by the occlusion at
+half the fragment's position. In Manor's rooms Alchemy's term, which the horizons replaced, took
+0.08 ms of the GPU and 0.16 ms of the CPU. A render target that draws meshes through a camera of its
+own has the same worked out at half its size in the `targets` node before its pass
 (`AmbientOcclusionRenderer.DrawTarget`), the sun's contact shadows with it, bound at binding 9 for
 its view, whose buffer says to read it as the window's does, and let go the frame after one the
 target is not drawn in. The two views of `games/Sumo` at 640 by 720 take 0.775 ms of the GPU in
@@ -3661,6 +3671,21 @@ target is not drawn in. The two views of `games/Sumo` at 640 by 720 take 0.775 m
 command profile` with the frame rate unlimited, and 1.15 where they take 1.05 with global
 illumination at `Low`, whose screen probes stand on the same depth. A probe's faces are drawn
 without it.
+
+Against the path-traced reference with the first face's specular share, `shaders_cornell_box` at
+`High` with `SetAmbientOcclusion(1, 0.5)` reads its red wall's light within six pixels of its edges
+at 0.930 of its light 24 pixels in or more, as the reference does, where 0.967 without it, its green
+wall's at 0.819 where 0.843 and the reference's 0.816, and its back wall's at 1.079 where 1.117 and
+the reference's 1.084, its floor's at 0.866 as before and as the reference's, each wall's light 1 to
+5% lower, and with a radius of 1 the red wall's reads 0.892, past the reference's. In
+`scenes_sponza`'s door view at 15:00, whose surfaces read 21 to 69% under the reference without it,
+the spread of the frame's light over the reference's, each smoothed within its surface and its level
+divided out, narrows on nine of its ten largest surfaces by 0.4 to 11%, block 1's underside from
+0.498 to 0.444, and each surface's level falls 4 to 15% (`build/region-pattern.py` on what
+`gi.compare` writes). `scenes_sponza` turns it on at that radius, four of its field's cells. At 1920
+by 1080 at `High` it takes `ambient_occlusion` 0.220 ms of the GPU in the door view and 0.235 in the
+nave's, where the sun's contact shadows alone take 0.154 and 0.170 and Alchemy's term with the
+field's occlusion took 0.275 and 0.314, three runs of each within 0.002 (`./e3d command profile`).
 
 A material's `SubsurfaceRadius` scatters its diffuse light under its surface over the window's
 frame, as Jimenez's separable screen-space scattering does (`SubsurfaceRenderer`). The material's

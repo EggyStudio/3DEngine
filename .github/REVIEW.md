@@ -1,90 +1,92 @@
 # Review
 
-Reviewed up to `bd081fa6`, item 170's first engine commit, Sky as a submodule at its `a5e474b`,
-pushed at 00:31 on 2026-11-02 with `2cb39bcb`, item 139, its run green at 03:03 with Windows in 149
-minutes, Linux in 65 and macOS in 38, the first run checking the submodule out. After it `dd39d533`
-(170's pass) and `adf7bb79` (170's third commit and its end), pushed at 03:04, the run of `adf7bb79`
-awaited; each keeps the form. Each commit's detail stands in its item in REVIEW-ARCHIVE.md, its
-devlog note and its own words. Before it `d9c50b3b`, Verdict 98's mend, pushed at 22:42 on
-2026-11-01 with `2d051ada` and `6fd05fd4`, 181's second and third parts, its run green at 00:30 with
-Windows in 103 minutes, Linux in 47 and macOS in 39, which settled Verdict 98. Before it `4b80c5c8`,
-item 169, pushed at 17:51, its run green at 20:24 with Windows in 149 minutes, Linux in 84 and macOS
-in 41. Before it `3b5264d7` (181's first part), `5ea3e98f` (167 with 171 folded in), `5932c389`
-(179) and `60fd7e23` (180), pushed at 20:24, the run of `3b5264d7` red at 22:07 on the three
-systems, Verdict 98, a push of 32 bytes where the layout held 16, mended at `d9c50b3b`. Before it
-`6cc2a0a0`, item 166's mend, pushed at 15:18 with `001e93f0`, item 168, its run green at 17:50 with
-Windows in 149 minutes, Linux in 53 and macOS in 37. Before it `e159992e`, items 164 and 165, pushed
-at 13:03 with `ea4fccb3`, item 163, its run green at 15:17 with Windows in 131 minutes, Linux in 82
-and macOS in 35. Before it `d9f3f108`, 158's first part, pushed at 10:39, its run green at 13:00
-with Windows in 141 minutes, Linux in 76 and macOS in 34. Before it `af7df72a` (162), `beefec87`
-(159) and `1fe6e61a` (161), pushed at 08:11, the run of `af7df72a` green at 10:38 with Windows in
-147 minutes, Linux in 141, the runner's as the next run showed, and macOS in 36. Before it
-`1848701a` (160's end), `ed41cd5d` (160's first part), `a4e70370` (154) and `6f6ba558` (157), pushed
-at 06:23, the run of `1848701a` green at 08:07 with Windows in 104 minutes, Linux in 60 and macOS in
-33. Before it `e3d37e1e` (Verdict 97's mend), `6a6e2dad` (152) and `07085cd2` (156), pushed at
-04:00, the run of `e3d37e1e` green at 06:20 with Windows in 140 minutes, Linux in 73 and macOS in
-32, which settled Verdict 97. Before it `3dda52c2` (151 and 155) and `740066d6` (138), pushed at
-01:13, the run of `3dda52c2` red at 03:16 on Windows alone, Verdict 97, Linux green in 60 minutes
-and macOS in 35; the twelfth pack run started from it at 01:13 green at 04:20, 6.0.14 published,
-with Windows in 184 minutes, the games in 79, the captures in 64 and 57 on macOS and the pack in 3,
-its Windows suite passing the leak test the push run failed. Before it `46149d6d` (153), pushed at
-22:50 on 2026-10-31, its run green at 01:10 with Windows in 139 minutes, Linux in 77 and macOS in
-33. Before it `a6a3b7a0` (150), pushed at 19:53, its run green at 21:31 with Windows in 98 minutes,
-Linux in 79 and macOS in 35; the eleventh pack run started from it at 19:53 green at 22:33, 6.0.11
-published, the first at 6.0, with Windows in 145 minutes, the games in 78, the captures in 62 and 57
-on macOS and the pack in 4, carrying 132, 147, 148's textures and 150 for the game. Before it
-`4df9309c` (Verdict 96's mend), its run green at 19:50 with Windows in 76 minutes, Linux in 61 and
-macOS in 35, which settled Verdict 96. Before it `75b61056` (148's end), `82a02b9d` (148's second
-commit), `b4d0d03c` (149, the Windows limit to 180 and PART=N+Class) and `52a1cb3f` (148's first
-commit), pushed at 18:34. Before it `14b258c7` and `e32f9138` (147), pushed at 16:08, the run of
-`14b258c7` red at 18:26 on Linux alone, Verdict 96, Windows green in 138 minutes and macOS in 34.
-Before it `df856af8` (132's mend), `00c6809a` (133), `95e088b7` (137's second commit) and `edf301e0`
-(the version to 6.0, the owner's change committed on the owner's word), pushed at 13:49, the run of
-`df856af8` green at 16:06 with Windows in 136 minutes, Linux in 47 and macOS in 35, item 149 for the
-Windows limit. Before it `2b8e8541` (137's first commit), pushed at 11:27 on 2026-10-31, its run
-green at 13:46 with Windows in 139 minutes, Linux in 47 and macOS in 36; the tenth pack run started
-at 09:40 from `19658e55` green at 12:47, 5.2.342 published, with Windows in 185 minutes, the games
-in 78, the captures in 54 and 57 on macOS and the pack in 4, carrying 131, 135, 136 and 146 for the
-game. Before it `19658e55`, item 136, pushed with `10295556` at 09:37, its run green at 11:16 with
-Windows in 98 minutes, Linux in 77 and macOS in 36, the path-traced reference crossing surfaces that
-let light through, recorded under the item in REVIEW-ARCHIVE.md. Before it `10295556`, item 146's
-second commit, ShadowOnly draws kept in the field, recorded under the item. Before it `da54d289`,
-item 146's first commit, pushed at 07:23 with `7bdfaa9e`, Verdict 95's mend, and `fdde73b2`, item
-131's second commit, its run green at 09:37 with Windows in 133 minutes, Linux in 77 and macOS in
-36, which settled Verdict 95; the plain GPU run of `7bdfaa9e` read ObserverTests' no-observer
-allocation once at 1,768 bytes, 5 of 5 alone, watched. Before it `b16f26b5`, item 131's first
-commit, pushed at 02:53 on 2026-10-31, its run cancelled at 03:51 on Linux alone past test.py's
-40-minute limit and the job's 100 (Verdict 95), Windows and macOS green, the plane a cell recorded
-under item 131 in REVIEW-ARCHIVE.md. Before it `2ad96a80`, item 135, pushed at 22:13 on 2026-10-30,
-its run green whole at 23:28 with Windows in 74 minutes, Linux in 68 and macOS in 35, the screen
-probes' jittered rays and sixteen-frame history recorded under the item in REVIEW-ARCHIVE.md. Before
-it `e96a6bb8`, pushed with `c3214cbe` at 19:52 on 2026-10-30, its run green whole at 21:51, Windows
-in 119 minutes, Linux in 44 and macOS in 33. `c3214cbe` is item 134, a resize asked before the first
-frame carried out at once past the debounce a load held back, with a test and the window guide's
-line, and AGENTS.md's REVIEW.md line as the owner asked. `e96a6bb8` is item 132's reading with no
-mend, the note 2026-10-30-item-132-recording.md; at 12 columns 5.6 to 6.5 ms of the four passes' 9.6
-to 11.5 is a descriptor set made and written for every draw in every pass, about 2,045 a frame at
-2.8 to 3.2 microseconds each with every section's set holding the same values, and one set a frame
-in a scratch copy takes the passes to 5.1 ms at 12 and from 18.4 to 19.7 to 7.6 at 16, the frame at
-16 from 26.6 to 17.9 ms, the land's pixels within 0.08 of 255. 2,135 on the GPU in both orders, the
-resize tests on lavapipe with validation. Before it `1703c54e`, item 97, pushed by the owner's hand
-at 16:54 on 2026-10-26 while the sessions were paused until 2026-10-30, its run green whole at 19:33
-with Windows in 99 minutes. The ninth pack run started with publish on at 18:41 on 2026-10-30, since
-the owner sees item 97's specks in the voxel game and its package lacked the mend; the run went
-green whole at 21:05, Windows in 101 minutes and the games in 71, the package 5.2.333 pushed to
-nuget.org with items 97, 129, 130, 89, 95, 91 and 93, the game told. Before it on 2026-10-26, each
-green but where said: `987f07ae` (Verdict 94's mend) with `969a1b08` (item 129); `7ff7bbdd` (130),
-red on the examples job alone, Verdict 94; `b05b32da` (89); `0a4ad922` (the README's quick links);
-`5528c55c` (95); `d207627e` (91), `bb542fa4` (93) and `0754b975` (128), the eighth pack run
-publishing 5.2.326 at 13:13; `2f5237f2` (127); `78946b22` (112), the seventh pack run publishing
-5.2.322 at 09:14; `7af16fcd` (Verdict 93's mend); `45edfbf6` (111); `a16227a7` (100), the sixth pack
-run publishing 5.2.319 at 04:21 on its second attempt. Each commit's detail stands in its item in
+Reviewed up to `adf7bb79`, item 170's third commit and its end, pushed at 03:04 on 2026-11-02 with
+`dd39d533`, its pass, its run green at 05:37 with Windows in 151 minutes, the longest yet under
+149's limit of 180 and watched, Linux in 82 and macOS in 36. After it `55ec4e2c`, `4105ee5e` and
+`a35d7ce9`, item 172's three commits, pushed at 05:37, the run of `a35d7ce9` awaited; each keeps the
+form. Each commit's detail stands in its item in REVIEW-ARCHIVE.md, its devlog note and its own
+words. Before it `bd081fa6`, 170's first engine commit, Sky as a submodule, pushed at 00:31 with
+`2cb39bcb`, item 139, its run green at 03:03 with Windows in 149 minutes, Linux in 65 and macOS in
+38. Before it `d9c50b3b`, Verdict 98's mend, pushed at 22:42 on 2026-11-01 with `2d051ada` and
+`6fd05fd4`, 181's second and third parts, its run green at 00:30 with Windows in 103 minutes, Linux
+in 47 and macOS in 39, which settled Verdict 98. Before it `4b80c5c8`, item 169, pushed at 17:51,
+its run green at 20:24 with Windows in 149 minutes, Linux in 84 and macOS in 41. Before it
+`3b5264d7` (181's first part), `5ea3e98f` (167 with 171 folded in), `5932c389` (179) and `60fd7e23`
+(180), pushed at 20:24, the run of `3b5264d7` red at 22:07 on the three systems, Verdict 98, a push
+of 32 bytes where the layout held 16, mended at `d9c50b3b`. Before it `6cc2a0a0`, item 166's mend,
+pushed at 15:18 with `001e93f0`, item 168, its run green at 17:50 with Windows in 149 minutes, Linux
+in 53 and macOS in 37. Before it `e159992e`, items 164 and 165, pushed at 13:03 with `ea4fccb3`,
+item 163, its run green at 15:17 with Windows in 131 minutes, Linux in 82 and macOS in 35. Before it
+`d9f3f108`, 158's first part, pushed at 10:39, its run green at 13:00 with Windows in 141 minutes,
+Linux in 76 and macOS in 34. Before it `af7df72a` (162), `beefec87` (159) and `1fe6e61a` (161),
+pushed at 08:11, the run of `af7df72a` green at 10:38 with Windows in 147 minutes, Linux in 141, the
+runner's as the next run showed, and macOS in 36. Before it `1848701a` (160's end), `ed41cd5d`
+(160's first part), `a4e70370` (154) and `6f6ba558` (157), pushed at 06:23, the run of `1848701a`
+green at 08:07 with Windows in 104 minutes, Linux in 60 and macOS in 33. Before it `e3d37e1e`
+(Verdict 97's mend), `6a6e2dad` (152) and `07085cd2` (156), pushed at 04:00, the run of `e3d37e1e`
+green at 06:20 with Windows in 140 minutes, Linux in 73 and macOS in 32, which settled Verdict 97.
+Before it `3dda52c2` (151 and 155) and `740066d6` (138), pushed at 01:13, the run of `3dda52c2` red
+at 03:16 on Windows alone, Verdict 97, Linux green in 60 minutes and macOS in 35; the twelfth pack
+run started from it at 01:13 green at 04:20, 6.0.14 published, with Windows in 184 minutes, the
+games in 79, the captures in 64 and 57 on macOS and the pack in 3, its Windows suite passing the
+leak test the push run failed. Before it `46149d6d` (153), pushed at 22:50 on 2026-10-31, its run
+green at 01:10 with Windows in 139 minutes, Linux in 77 and macOS in 33. Before it `a6a3b7a0` (150),
+pushed at 19:53, its run green at 21:31 with Windows in 98 minutes, Linux in 79 and macOS in 35; the
+eleventh pack run started from it at 19:53 green at 22:33, 6.0.11 published, the first at 6.0, with
+Windows in 145 minutes, the games in 78, the captures in 62 and 57 on macOS and the pack in 4,
+carrying 132, 147, 148's textures and 150 for the game. Before it `4df9309c` (Verdict 96's mend),
+its run green at 19:50 with Windows in 76 minutes, Linux in 61 and macOS in 35, which settled
+Verdict 96. Before it `75b61056` (148's end), `82a02b9d` (148's second commit), `b4d0d03c` (149, the
+Windows limit to 180 and PART=N+Class) and `52a1cb3f` (148's first commit), pushed at 18:34. Before
+it `14b258c7` and `e32f9138` (147), pushed at 16:08, the run of `14b258c7` red at 18:26 on Linux
+alone, Verdict 96, Windows green in 138 minutes and macOS in 34. Before it `df856af8` (132's mend),
+`00c6809a` (133), `95e088b7` (137's second commit) and `edf301e0` (the version to 6.0, the owner's
+change committed on the owner's word), pushed at 13:49, the run of `df856af8` green at 16:06 with
+Windows in 136 minutes, Linux in 47 and macOS in 35, item 149 for the Windows limit. Before it
+`2b8e8541` (137's first commit), pushed at 11:27 on 2026-10-31, its run green at 13:46 with Windows
+in 139 minutes, Linux in 47 and macOS in 36; the tenth pack run started at 09:40 from `19658e55`
+green at 12:47, 5.2.342 published, with Windows in 185 minutes, the games in 78, the captures in 54
+and 57 on macOS and the pack in 4, carrying 131, 135, 136 and 146 for the game. Before it
+`19658e55`, item 136, pushed with `10295556` at 09:37, its run green at 11:16 with Windows in 98
+minutes, Linux in 77 and macOS in 36, the path-traced reference crossing surfaces that let light
+through, recorded under the item in REVIEW-ARCHIVE.md. Before it `10295556`, item 146's second
+commit, ShadowOnly draws kept in the field, recorded under the item. Before it `da54d289`, item
+146's first commit, pushed at 07:23 with `7bdfaa9e`, Verdict 95's mend, and `fdde73b2`, item 131's
+second commit, its run green at 09:37 with Windows in 133 minutes, Linux in 77 and macOS in 36,
+which settled Verdict 95; the plain GPU run of `7bdfaa9e` read ObserverTests' no-observer allocation
+once at 1,768 bytes, 5 of 5 alone, watched. Before it `b16f26b5`, item 131's first commit, pushed at
+02:53 on 2026-10-31, its run cancelled at 03:51 on Linux alone past test.py's 40-minute limit and
+the job's 100 (Verdict 95), Windows and macOS green, the plane a cell recorded under item 131 in
+REVIEW-ARCHIVE.md. Before it `2ad96a80`, item 135, pushed at 22:13 on 2026-10-30, its run green
+whole at 23:28 with Windows in 74 minutes, Linux in 68 and macOS in 35, the screen probes' jittered
+rays and sixteen-frame history recorded under the item in REVIEW-ARCHIVE.md. Before it `e96a6bb8`,
+pushed with `c3214cbe` at 19:52 on 2026-10-30, its run green whole at 21:51, Windows in 119 minutes,
+Linux in 44 and macOS in 33. `c3214cbe` is item 134, a resize asked before the first frame carried
+out at once past the debounce a load held back, with a test and the window guide's line, and
+AGENTS.md's REVIEW.md line as the owner asked. `e96a6bb8` is item 132's reading with no mend, the
+note 2026-10-30-item-132-recording.md; at 12 columns 5.6 to 6.5 ms of the four passes' 9.6 to 11.5
+is a descriptor set made and written for every draw in every pass, about 2,045 a frame at 2.8 to 3.2
+microseconds each with every section's set holding the same values, and one set a frame in a scratch
+copy takes the passes to 5.1 ms at 12 and from 18.4 to 19.7 to 7.6 at 16, the frame at 16 from 26.6
+to 17.9 ms, the land's pixels within 0.08 of 255. 2,135 on the GPU in both orders, the resize tests
+on lavapipe with validation. Before it `1703c54e`, item 97, pushed by the owner's hand at 16:54 on
+2026-10-26 while the sessions were paused until 2026-10-30, its run green whole at 19:33 with
+Windows in 99 minutes. The ninth pack run started with publish on at 18:41 on 2026-10-30, since the
+owner sees item 97's specks in the voxel game and its package lacked the mend; the run went green
+whole at 21:05, Windows in 101 minutes and the games in 71, the package 5.2.333 pushed to nuget.org
+with items 97, 129, 130, 89, 95, 91 and 93, the game told. Before it on 2026-10-26, each green but
+where said: `987f07ae` (Verdict 94's mend) with `969a1b08` (item 129); `7ff7bbdd` (130), red on the
+examples job alone, Verdict 94; `b05b32da` (89); `0a4ad922` (the README's quick links); `5528c55c`
+(95); `d207627e` (91), `bb542fa4` (93) and `0754b975` (128), the eighth pack run publishing 5.2.326
+at 13:13; `2f5237f2` (127); `78946b22` (112), the seventh pack run publishing 5.2.322 at 09:14;
+`7af16fcd` (Verdict 93's mend); `45edfbf6` (111); `a16227a7` (100), the sixth pack run publishing
+5.2.319 at 04:21 on its second attempt. Each commit's detail stands in its item in
 REVIEW-ARCHIVE.md, its devlog note and its own words. On 2026-10-30 at 18:0x the owner wrote the
 README's new words (item 133) and the focus on radiance cascades (Decision 74), questions asked
 back, and asked that the sessions spend fewer tokens at the same quality, N 7.7.
 
-Next the look in order, 172, 173, 176, 178, 177, 174 and 175 (Decision 84), then 182, with 140, 141
-and 142 after 177 (Decision 75); 143, 144 and 145 wait behind them.
+Next the look in order, 173, 176, 178, 177, 174 and 175 (Decision 84), then 182, with 140, 141 and
+142 after 177 (Decision 75); 143, 144 and 145 wait behind them.
 
 Items done and verdicts settled before 2026-10-23 stand in REVIEW-ARCHIVE.md beside this file, their
 numbers kept, moved there at 19:30 on 2026-10-23 so this file holds the current work alone and is
@@ -1281,13 +1283,37 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     rough screen pass done properly is several rays a pixel with accumulation and a denoiser, an
     item of its own if ever. The reading goes into RENDERING.md with the next commit, nothing of the
     pass into the repository; 172 is three commits, the references, the probes' reflection and the
-    split-sum table.
+    split-sum table. Done at `a35d7ce9`, the third commit, read at 05:29, its push waiting on
+    adf7bb79's run; the split sum's table SpecularShares, 32 by 32 at binding 40, GGX with
+    height-correlated Smith over 1,024 Hammersley samples a texel, made the first time the lights'
+    set binds it, every indirect specular term reading it, the reference keeping Karis's fit only to
+    choose between its two ways with each way divided by its chance; the metal box's wall 1.918,
+    1.827 and 1.327 at roughness 0.5, 0.6 and 1 against the reference's 1.925, 1.832 and 1.313 where
+    the fit gave 1.675 at 0.6, the wall test within 0.2% of the table; the reflections floor 0% at
+    0.58 and +2% at 0.88, Sponza's floor -7% in the atrium and -17% in the nave, the Cornell walls
+    +3 and -2, the rooms within 0.004 of before; the quiet cost on the GPU with nothing else on it,
+    the probes' reflection +0.46 to +0.72 ms on a scene pass of 11.7 to 11.9 and +0.06 to +0.13 on
+    GI's 3.0 at 1080p High in the nave, the table within the spread; 14 reference pictures rewritten
+    where the frame changed and seven left that differ by older drift alone; the six pictures under
+    assets/readings with their captions; the screen pass's reading in RENDERING.md; 2,207 in both
+    orders.
 
 173. **Horizon occlusion at the pixel's scale.** Decision 84's fourth item. The field's occlusion is
     coarse by its cell; the reference adds a horizon-based pass at pixel scale that darkens corners,
     cracks and the feet of columns. A screen-space horizon occlusion over the depth with a few
     directions and a temporal blend, applied to the indirect light alone, the field keeping the far
     occlusion; read by Sponza's door view against the reference and the cost at 1080p. One commit.
+    Read at 05:35 on 2026-11-02 before the work: Sponza's door view at 15:00 at High is 21 to 69%
+    under its reference of 1,024 paths with the specular share with occlusion off, and the present
+    Alchemy pass with its field term takes every region further under, so the pass is read by the
+    pattern within each region with the level divided out, by the Cornell box's corners and feet
+    against its reference, and by the cost; the form GTAO in world space in ao.slang in place of
+    Alchemy's spiral, two slices a pixel a frame with four steps a side turned by interleaved
+    gradient noise and the frame, a history reprojected through the frame before's view with a 5%
+    depth rejection blended at 0.1 before the blurs, under SetAmbientOcclusion with the visibility
+    raised to the intensity and the sun's contact shadows unblended; it lands where it moves each
+    region's pattern toward the reference without moving the level, and the field's own occlusion
+    term goes wherever it covers what that term did when global illumination is on.
 
 174. **Temporal antialiasing.** Decision 84's fifth item, the frame resolved against its history
     with a jittered projection, motion rejected by depth and color bounds, which also steadies the
@@ -1329,7 +1355,10 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     bounce rooms within 1 level, the slab and the canopy unchanged, and Sponza's far regions. After
     176, whose finer cascades put probes inside buildings and change what the fallback sees; until
     then items 170 to 173 read Sponza's near walls and leave out regions under 1,000 px. One or two
-    commits.
+    commits. A reading for this item from 173's baseline at 05:35: Sponza's door view at 15:00 at
+    High with occlusion off lies 21 to 69% under the reference by region, block 8's sides -39, -53
+    and -26%, the floor -21, the wall -69, the white block's side -58 and block 1's underside -59, a
+    level deficit of the coarse cascades and the fallback that no occlusion mends.
 
 179. **A capture waits for the scene field.** The owner wrote on 2026-11-01 at 16:39 that
     scenes_sponza builds its scene field asynchronously at start and the real global illumination
@@ -1840,3 +1869,15 @@ the fit read 1.675, the reflections example's floor 0% and 2% from its reference
 and 0.88 where 1% over and 3% under, and Sponza's floor 7 and 17% under where 8 and 20%. The
 screen-space pass for rough surfaces was tried in two forms and left out, its reading in
 RENDERING.md.
+
+Shared: the ambient occlusion is ground-truth ambient occlusion over the window's half-size depth in
+place of Alchemy's spiral (item 173, `ao.slang`), two slices a pixel turned each frame by
+interleaved gradient noise and the frame's number, four steps a side with XeGTAO's falloff, a
+history of half floats keeping 0.9 of what each texel's point held the frame before through the
+frame before's view-projection where the depth along the view agrees within 5%, then the two blurs.
+Where light bounces the field's occlusion is left out, since the cascades hold it. In the Cornell
+box at a radius of 0.5 each wall's light at its edges over its inside reads the reference's within
+0.005 where it read 0.027 to 0.037 over, the ceiling's 0.017 under where 0.027, and in Sponza's door
+view the pattern of nine surfaces of ten moves toward the reference's, each surface's level 4 to 15%
+lower (`build/region-pattern.py`). The pass takes 0.07 ms at 1920 by 1080 past the sun's contact
+shadows, where Alchemy's with the field's took 0.12 to 0.14.

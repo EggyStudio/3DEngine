@@ -203,17 +203,23 @@ public static partial class E3D
     /// </summary>
     /// <remarks>
     /// <para>
-    /// It darkens the ambient light, the environment map and a reflection probe's light, and not a
-    /// light's own, which reaches a corner as well as a wall. 1 suits most scenes, and a radius
-    /// about the size of the things that stand close together, a unit for a room's furniture and a
-    /// few for buildings.
+    /// It darkens the ambient light, the environment map, a reflection probe's light and the light
+    /// that global illumination gathers, and not a light's own, which reaches a corner as well as a
+    /// wall. An intensity of 1 darkens by the share of the light from all around the surfaces the
+    /// window shows close off, weighed by the cosine, and more raises that share to its power. A
+    /// radius about the size of the things that stand close together suits a scene without global
+    /// illumination, a unit for a room's furniture and a few for buildings, and with it a few of
+    /// the field's cells, since the cascades hold what lies farther, 0.5 in a room of cells 0.15
+    /// across.
     /// </para>
     /// <para>
     /// It is worked out for the window's view each frame, from the depth of its models drawn at
     /// half the window's size ahead of its pass, so a frame costs one more pass over the models
-    /// that cast a shadow, and a model that casts none darkens nothing around it. A render texture
-    /// that draws models through a camera works out its own the same way ahead of its pass, and
-    /// probe captures are drawn without it.
+    /// that cast a shadow, and a model that casts none darkens nothing around it. Each pixel reads
+    /// the horizons along two slices, turned each frame, and keeps most of what it held the frame
+    /// before, so a pixel settles over about ten frames. A render texture that draws models
+    /// through a camera works out its own the same way ahead of its pass, and probe captures are
+    /// drawn without it.
     /// </para>
     /// </remarks>
     public static void SetAmbientOcclusion(float intensity, float radius = 1)
