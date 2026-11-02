@@ -447,16 +447,14 @@ public float3 environmentIrradiance(float3 n)
     return harmonics(c, n);
 }
 
-// The share of light from all around that a surface reflects, with no environment to reflect,
-// as Brian Karis fitted it for mobile, so a smooth or metal surface under an ambient light is not
-// black.
+// The share of light from all around that a surface reflects, with no environment to reflect, as
+// the split sum takes it apart from the light, GGX's lobe integrated for each cosine to the eye and
+// roughness (SpecularShares), so a smooth or metal surface under an ambient light is not black.
+// Karis's fit for mobile, which it replaced, gave a metal wall of roughness 0.6 seen square on 0.34
+// of the light around it where the lobe gives 0.41, and the path-traced reference 0.41.
 public float3 ambientReflected(float3 f0, float roughness, float nv)
 {
-    float4 c0 = float4(-1.0, -0.0275, -0.572, 0.022);
-    float4 c1 = float4(1.0, 0.0425, 1.04, -0.04);
-    float4 r = roughness * c0 + c1;
-    float a004 = min(r.x * r.x, exp2(-9.28 * nv)) * r.x + r.y;
-    float2 ab = float2(-1.04, 1.04) * a004 + r.zw;
+    float2 ab = specularShares.SampleLevel(lightLinear, float2(saturate(nv), saturate(roughness)), 0).rg;
     return f0 * ab.x + ab.y;
 }
 

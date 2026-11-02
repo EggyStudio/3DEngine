@@ -212,9 +212,10 @@ float3 direct(float3 p, float3 n, float3 color, float3 v, bool first, float roug
     return sum;
 }
 
-// The share of light from all around that a face reflects, as the model pass's ambientReflected
-// gives it by Brian Karis's fit, which the first face's specular way is drawn against its diffuse
-// way by.
+// The share of light from all around that a face reflects by Brian Karis's fit, which the first
+// face's specular way is drawn against its diffuse way by. Each way's light is divided by its
+// chance, so the fit sets how often each is drawn and not what the path brings back, and the model
+// pass's table (SpecularShares) is not needed here.
 float3 ambientReflected(float3 f0, float roughness, float nv)
 {
     float4 c0 = float4(-1.0, -0.0275, -0.572, 0.022);

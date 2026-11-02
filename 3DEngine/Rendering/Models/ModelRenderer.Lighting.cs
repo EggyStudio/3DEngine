@@ -153,6 +153,24 @@ internal sealed partial class ModelRenderer
             SamplerAddressMode.ClampToEdge, SamplerAddressMode.ClampToEdge, SamplerAddressMode.ClampToEdge));
         gfx.UpdateDescriptorSet(set, null, Lit(any, _lightLinear, LinearSamplerBinding));
         gfx.UpdateDescriptorSet(set, null, Lit(any, _lightNearest, NearestSamplerBinding));
+        gfx.UpdateDescriptorSet(set, null, Lit(SpecularSharesView(gfx), _lightLinear, SpecularSharesBinding));
+    }
+
+    // Where lightset.slang binds the specular lobe's shares of the light from all around.
+    private const uint SpecularSharesBinding = 40;
+
+    // The table of the specular lobe's shares, integrated on the CPU the first time a set binds it
+    // and kept.
+    private IImage? _specularShares;
+    private IImageView? _specularSharesView;
+
+    private IImageView SpecularSharesView(IGraphicsDevice gfx)
+    {
+        if (_specularSharesView is not null) return _specularSharesView;
+        const uint size = SpecularShares.Size;
+        _specularShares = gfx.CreateImage(new ImageDesc(new Extent2D(size, size), ImageFormat.R16G16B16A16_Float, ImageUsage.Sampled | ImageUsage.TransferDst));
+        gfx.UploadTexture2D(_specularShares, System.Runtime.InteropServices.MemoryMarshal.AsBytes(SpecularShares.Table().AsSpan()), size, size, 8);
+        return _specularSharesView = gfx.CreateImageView(_specularShares);
     }
 
     // The bindings of the lights' set by number, as the model pass declares each.

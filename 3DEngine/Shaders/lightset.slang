@@ -193,6 +193,12 @@ public Texture3D bouncedSky;
 [[vk::binding(39, 1)]]
 public Texture3D bouncedWays;
 
+// The share of the light from all around a surface reflects by its specular lobe, the split sum's
+// scale on F0 in r and bias in g, by the cosine between the normal and the eye across and the
+// roughness down (SpecularShares), read through lightLinear.
+[[vk::binding(40, 1)]]
+public Texture2D specularShares;
+
 // The light arriving at each of the screen's probes, irradiance, its alpha 1 where the probe holds
 // it, and each probe's surface's normal and distance from the eye, a texel a probe of the tiles
 // the window is cut into, as gi_screen.slang leaves them, or zeros where light does not bounce.

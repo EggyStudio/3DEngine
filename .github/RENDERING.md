@@ -465,8 +465,8 @@ and cut by a spot's cone. The light that arrives is reflected by the material's 
 model. Each light but an ambient one reflects by GGX's distribution, Smith's height-correlated
 shadowing and Schlick's Fresnel, toward a camera the shader finds from the transform alone, since
 the push constants have no room for its position, and scatters diffusely what Fresnel leaves, none
-of it off a metal. An ambient light scatters its diffuse share and reflects the share Karis's fit of
-the environment term gives with no environment to reflect. A light's color times its intensity is
+of it off a metal. An ambient light scatters its diffuse share and reflects the share the split
+sum's table gives (below) with no environment to reflect. A light's color times its intensity is
 the light a white diffuse surface facing it returns, so the diffuse term is the albedo itself and
 the specular term is multiplied by pi to match. Fresnel's base, one less the dot of the view and the
 half vector, is held to 0 to 1, since with a point light at the camera's own point, as a game's held
@@ -510,13 +510,13 @@ the zenith is spread as one on the horizon is. The target is a half-float cube w
 wide, mip 0 for a mirror and each mip after for a roughness of `mip / (mips - 1)`, by GGX
 importance sampling with the eye along the normal (Karis's split sum), each sample reading the
 source at the level its solid angle covers. The model pass looks the mirror direction up at the mip
-for the surface's roughness, weighted by Karis's fit, and lights the diffuse share by the image's
-irradiance, both darkened by occlusion. The irradiance is the source projected onto the nine
-spherical harmonics of bands 0 to 2, each band scaled by its share of a cosine lobe (Ramamoorthi
-and Hanrahan), so a surface takes the light of the whole half of the sky it faces. The cube is set
-1's binding 2, a black cube when there is none, the irradiance a storage buffer at binding 14,
-zeros when there is none, and the lighting buffer carries the map's intensity and its last mip.
-With a map set models are lit by it, whether or not there are light entities.
+for the surface's roughness, weighted by the split sum's table, and lights the diffuse share by the
+image's irradiance, both darkened by occlusion. The irradiance is the source projected onto the nine
+spherical harmonics of bands 0 to 2, each band scaled by its share of a cosine lobe (Ramamoorthi and
+Hanrahan), so a surface takes the light of the whole half of the sky it faces. The cube is set 1's
+binding 2, a black cube when there is none, the irradiance a storage buffer at binding 14, zeros
+when there is none, and the lighting buffer carries the map's intensity and its last mip. With a map
+set models are lit by it, whether or not there are light entities.
 
 The filter writes a second cube for the sky, at a quarter of the image's width a face up to 512
 texels, resampled with no prefiltering, at set 1's binding 3. `DrawSkybox` records a model draw
@@ -1191,26 +1191,62 @@ direction left shards along them. The finest cascade is read alone, as the sky's
 faded across its outer band the reads doubled there took the scene pass in Sponza's nave at 1920 by
 1080 1.5 to 2.0 ms more, and a surface the probes hold whole makes no gather for the sky's share. In
 a closed box of emissive metal walls of roughness 0.6, whose probes hold the box's light along every
-way, 2.004, a wall seen square on reads 1.675 where its emission and the probes' light times its
-specular share give 1.676, and none of it reflected before (`RoughReflectionTests`). The specular
-share is Karis's fit for mobile, which lies under GGX's albedo at middle roughness and over it at
-the roughest, so the reference with the first face's specular share traced reads that wall at
-1.832, and the box's walls at 1.907 at a roughness of 0.5 and 1.354 at 1 where the frame reads 1.724
-and 1.444. Against that reference, `shaders_cornell_box` at `High` reads its red and green walls 3%
-over and 1% under where 28% and 22% under, its ceiling 6% under where 12%, and its floor 2% over
-where 6% under, the walls paler as the reference's are with the ceiling's light on them.
-`shaders_reflections`' floor of roughness 0.58 reads 1% over where 14% under, and at 0.88 3% under
-where 7% under, the pillars' colors in it, and `scenes_sponza` at 15:00 reads its floor 8% under in
-the atrium's view where 12%, and 20% under in the nave's where 36% (`gi.compare`). The rooms of
-`shaders_bounce_rooms` against references traced the same way read nearer in the Cornell box, the
-corridor, the strip's, the grazing floor's, the carried lamp's and the emissive blocks', the grazing
-floor's from 0.093 to 0.116 of its light to 0.041 to 0.047, and further in the thin room's and the
-window's, the thin room's from 0.044 to 0.058 to 0.090 to 0.107, every surface of it 8 to 10% over
-alike, the gain past the first bounce its probes hold, which its rough surfaces' reflection of no
-indirect light hid (`BounceRoomsTests`). In Sponza's nave at 1920 by 1080 at `High`, four runs
-alternating with the engine before it while another program held a third of the RTX 4070, the scene
-pass took 0.28 to 0.97 ms more, 0.75 in the middle, of 15.6 to 15.9, and global illumination 0.36
-to 0.44 more of 4.5 to 4.6, the gather's lobe (`./e3d command profile`).
+way, 2.004, a wall seen square on read 1.675 where its emission and the probes' light times its
+specular share gave 1.676, and none of it reflected before (`RoughReflectionTests`). The specular
+share was then Karis's fit for mobile, which lies under GGX's albedo at middle roughness and over it
+at the roughest, so the reference with the first face's specular share traced reads that wall at
+1.832, and the box's walls at 1.907 at a roughness of 0.5 and 1.354 at 1 where the frame read 1.724
+and 1.444. Against that reference, with the fit, `shaders_cornell_box` at `High` reads its red and
+green walls 3% over and 1% under where 28% and 22% under, its ceiling 6% under where 12%, and its
+floor 2% over where 6% under, the walls paler as the reference's are with the ceiling's light on
+them. `shaders_reflections`' floor of roughness 0.58 reads 1% over where 14% under, and at 0.88 3%
+under where 7% under, the pillars' colors in it, and `scenes_sponza` at 15:00 reads its floor 8%
+under in the atrium's view where 12%, and 20% under in the nave's where 36% (`gi.compare`). The
+rooms of `shaders_bounce_rooms` against references traced the same way read nearer in the Cornell
+box, the corridor, the strip's, the grazing floor's, the carried lamp's and the emissive blocks',
+the grazing floor's from 0.093 to 0.116 of its light to 0.041 to 0.047, and further in the thin
+room's and the window's, the thin room's from 0.044 to 0.058 to 0.090 to 0.107, every surface of it
+8 to 10% over alike, the gain past the first bounce its probes hold, which its rough surfaces'
+reflection of no indirect light hid (`BounceRoomsTests`). In Sponza's nave at 1920 by 1080 at
+`High`, four runs alternating with the engine before it on a quiet RTX 4070 with the powersave
+profile, the scene pass took 0.46 to 0.72 ms more of 11.7 to 11.9, and global illumination 0.06 to
+0.13 more of 3.0, the gather's lobe, where with another program holding a third of the GPU they read
+0.28 to 0.97 and 0.36 to 0.44 more (`./e3d command profile`).
+
+The share of the light from all around that a surface reflects by its specular lobe, by which the
+probes' light along the mirror way, the environment, the probes' share of the sky and an ambient
+light are each reflected, is read from a table of 32 by 32 texels the renderer makes once when it
+first draws (`SpecularShares`), set 1's binding 40, 8 KB of half floats. Each texel integrates GGX's
+lobe at its cosine to the eye and its roughness by 1,024 half ways drawn by its distribution, each
+weighed by Smith's height-correlated shadowing as the direct light has it, the scale on F0 and the
+bias apart (Karis's split sum). It replaced Karis's fit for mobile, which gave a metal of F0 0.502
+seen square on 0.336 of the light around it at a roughness of 0.6 where the lobe gives 0.414, and
+0.225 at 1 where 0.154. In the box of emissive metal, a wall seen square on reads 1.918, 1.827 and
+1.327 at a roughness of 0.5, 0.6 and 1, where the reference traced for that view reads 1.925, 1.832
+and 1.313 and the fit read 1.675 at 0.6 (`RoughReflectionTests`). `shaders_reflections`' floor reads
+0% from its reference at a roughness of 0.58 where 1% over with the fit, and 2% over at 0.88 where
+3% under, and `scenes_sponza`'s floor 7% under in the atrium's view where 8%, and 17% under in the
+nave's where 20%. `shaders_cornell_box`'s walls, which reflect as a white of F0 0.04 where the fit
+and the lobe differ little, read within a point of the fit, the green wall 2% under where 1%
+(`gi.compare`), and the rooms of `shaders_bounce_rooms` within 0.004 of their light of what they
+read with the fit (`BounceRoomsTests`). In the same runs the table took the scene pass between 0.11
+ms less and 0.28 more than the probes' reflection with the fit, within the runs' spread, and global
+illumination the same (`./e3d command profile`).
+
+A pass in screen space in front of the probes for rough surfaces, marching the depth along the
+mirror way and reading the frame's light where it meets it, was tried and is not kept, both forms
+read against the references with the fit. With a cone the roughness's alpha times the distance
+across, `shaders_reflections`' floor of roughness 0.58 read 6% over its reference where the probes
+alone read 1% over, each pixel 0.010 of its light from the reference's in the mean where 0.005, the
+balls and the pillars in it nearly as a mirror shows them. With a cone 2.6 times as wide and its
+share faded out as the roughness goes from 0.5 to 0.75 and over the last quarter of its reach, it
+read that floor 1% under, each pixel as near the reference's as with the probes alone, the Cornell
+box's red wall 1% under where 3% over, its green wall 3% under where 1% under and its floor 1% under
+where 2% over, and Sponza's floor as before, and it left a step across the floor where the screen's
+hits end, since the probes and the reference blend the back wall with the sky over the lobe where
+one ray's cone blurs only what the screen shows about its hit (`gi.compare`). The glossy trace
+stands in front of the probes to a roughness of 0.5, and a rough pass in screen space done well is
+several rays a pixel kept across frames and denoised.
 
 Where the device traces rays (`VK_KHR_ray_query` with its acceleration structures, turned on at
 start where the driver has them, `GraphicsDevice.CanQueryRays`), the model pass is built a second

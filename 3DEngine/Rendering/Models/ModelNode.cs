@@ -745,6 +745,8 @@ internal sealed partial class ModelRenderer : IDisposable
         _noRays?.Dispose();
         _lightLinear?.Dispose();
         _lightNearest?.Dispose();
+        _specularSharesView?.Dispose();
+        _specularShares?.Dispose();
         foreach (var (_, cube) in _retiredCubes) cube.Dispose();
         foreach (var map in _probeMaps) map.Dispose();
         _noIrradiance?.Dispose();

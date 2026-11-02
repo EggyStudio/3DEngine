@@ -83,8 +83,8 @@ REVIEW-ARCHIVE.md, its devlog note and its own words. On 2026-10-30 at 18:0x the
 README's new words (item 133) and the focus on radiance cascades (Decision 74), questions asked
 back, and asked that the sessions spend fewer tokens at the same quality, N 7.7.
 
-Next the look in order, 172, 173, 176, 178, 177, 174 and 175 (Decision 84), with 140, 141 and 142
-after 177 (Decision 75); 143, 144 and 145 wait behind them.
+Next the look in order, 172, 173, 176, 178, 177, 174 and 175 (Decision 84), then 182, with 140, 141
+and 142 after 177 (Decision 75); 143, 144 and 145 wait behind them.
 
 Items done and verdicts settled before 2026-10-23 stand in REVIEW-ARCHIVE.md beside this file, their
 numbers kept, moved there at 19:30 on 2026-10-23 so this file holds the current work alone and is
@@ -1260,7 +1260,28 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     commit; 2,198 in both orders with the package tests skipped in the worktree. The second commit's
     cost in Sponza's nave at 1080p High, read with another session holding about a third of the GPU,
     the scene pass +0.28 to +0.97 ms with a median near 0.75 of 15.6 to 15.9, GI +0.36 to +0.44 for
-    the gather's lobe, to be read again when the GPU is quiet.
+    the gather's lobe, to be read again when the GPU is quiet. The second commit is `4105ee5e`, read
+    at 04:20, its push waiting on adf7bb79's run; the probes' rough reflection as read,
+    roughreflect.slang holding the gather's blended visibility and the reflection's read, binding
+    39, the rooms re-based on it (the thin room 0.090 to 0.107 with every surface 8 to 10% over as
+    142's gain, the grazing floor 0.041 to 0.047, the Cornell box 0.083 to 0.096), the underside's
+    bound 0.015 at 0.0125 read, the slab's 0.06 at 5.1%, the Cornell image written again; 2,205 in
+    both orders. The commit's pictures were left out of it against N 4.8 and go into the third
+    commit as this phase's with captions saying so, in the dump at 04-20, the Cornell sheet sent to
+    the owner; the cost read again when the GPU is quiet and reported with the third commit. The
+    screen-space pass for rough surfaces is dropped at 04:26 on the coder's measurement, a
+    screen-only trace along the mirror way past the glossy trace's 0.5 reading the frame before down
+    its mips by the lobe's cone over the hit's distance, in its first form the reflections example's
+    floor +6% against the reference where the probes alone read +1% with the balls and pillars near
+    a mirror, in its second with the cone at GGX's half height and the share fading over roughness
+    0.5 to 0.75 the floor -1%, the Cornell walls -1 and -3% where +3 and -1, Sponza unchanged, and a
+    visible step on the floor where the screen's hits end, since the probes and the reference blend
+    the back wall with the sky over the wide lobe where one ray's cone blurs what the screen shows
+    around its hit; the glossy trace already stands in front of the probes from 0.25 to 0.5 and a
+    rough screen pass done properly is several rays a pixel with accumulation and a denoiser, an
+    item of its own if ever. The reading goes into RENDERING.md with the next commit, nothing of the
+    pass into the repository; 172 is three commits, the references, the probes' reflection and the
+    split-sum table.
 
 173. **Horizon occlusion at the pixel's scale.** Decision 84's fourth item. The field's occlusion is
     coarse by its cell; the reference adds a horizon-based pass at pixel scale that darkens corners,
@@ -1460,6 +1481,17 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     the atrium views rebuilds in 5 to 15 frames against 20 to 25 with the budget up to 298,756, a
     walk's shifts finishing within their frames as before; a plan test of the raise; 2,191 in both
     orders. Done, its three commits read; 139 next with its stash.
+
+182. **Vulkan 1.4.** Decision 86. The instance asks for 1.3 today and takes what it needs beyond it
+    by extension, maintenance 5 and line rasterization among them. The engine asks for 1.4 outright,
+    since every target has it, lavapipe from Mesa 25, NVIDIA's driver since 550 and MoltenVK since
+    its 1.4 of August 2025, the macOS and Windows jobs' MoltenVK and Mesa versions read first and
+    raised in the workflow where they predate it, the extensions 1.4 made core asked for no longer,
+    the device's log line saying the version; then host image copy for texture uploads, a texture
+    written from the CPU with no staging buffer, read by Sponza's 72 textures' upload and by the
+    shared-memory devices of Verdict 97's mend, and push descriptors for the per-look set of item
+    132, read by the four passes' CPU at 16 columns; each a commit, the suite on lavapipe under the
+    validation layer. Three commits, after 175.
 
 ## Verdicts
 
@@ -1708,6 +1740,13 @@ REVIEW-ARCHIVE.md.
     gained by it. The owner made `Sky` under `Modules/` at 13:47 (its Decisions 1 to 6); item 170 is
     amended and a SHARED.md row added.
 
+86. **Vulkan 1.4.** The owner asked on 2026-11-02 at 05:2x whether the engine should move to Vulkan
+    1.4 from 1.3, and when the reviewer named MoltenVK as the one doubt, gave that MoltenVK 1.4 of
+    August 2025 translates Vulkan 1.4 whole on Metal, dynamic rendering local read and maintenance 8
+    among its extensions, with point releases since. So the engine asks for 1.4 outright as item
+    182, behind the look items since the switch gains nothing by itself, the gain being host image
+    copy for uploads and push descriptors for the per-look sets, which the item takes with it.
+
 ## Replies
 
 Shared: a mesh that replaced a still one in place is not stamped as boxes while a cascade the
@@ -1790,4 +1829,14 @@ environment's reflection by the probes' share of the sky kept under 0.25. Agains
 the first face's specular share, the Cornell box's red and green walls read 3% over and 1% under
 where 28% and 22% under, and Sponza's floor 8 and 20% under where 12 and 36%. The specular share
 itself, Karis's fit for mobile, reads 10 to 15% under GGX's albedo at roughness 0.5 and 25% over at
-1, which a split-sum table is to replace (172's fourth part).
+1, which a split-sum table is to replace (172's third part).
+
+Shared: the share of the light from all around that a surface reflects by its specular lobe is read
+from the split sum's table, 32 by 32 texels made once when the renderer first draws
+(`SpecularShares`, item 172's third part), GGX's lobe integrated by 1,024 half ways a texel with
+Smith's height-correlated shadowing, in every indirect specular term where Karis's fit for mobile
+stood. The emissive metal box's wall seen square on reads 1.827 where the reference reads 1.832 and
+the fit read 1.675, the reflections example's floor 0% and 2% from its reference at roughness 0.58
+and 0.88 where 1% over and 3% under, and Sponza's floor 7 and 17% under where 8 and 20%. The
+screen-space pass for rough surfaces was tried in two forms and left out, its reading in
+RENDERING.md.

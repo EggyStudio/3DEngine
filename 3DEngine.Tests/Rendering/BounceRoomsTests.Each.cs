@@ -77,7 +77,9 @@ public sealed partial class BounceRoomsTests
     // 0.041, 0.044 and 0.047 on the grazing floor, 0.071, 0.091 and 0.081 in the carried lamp's and
     // 0.086, 0.083 and 0.078 around the emissive blocks, each bound 15% over. The thin room reads 8
     // to 10% over its reference on every surface alike, the gain past the first bounce its probes
-    // hold, which its rough surfaces' reflection of no indirect light hid.
+    // hold, which its rough surfaces' reflection of no indirect light hid. With the split sum's
+    // table in place of Karis's fit (SpecularShares), each view reads within 0.004 of these, the
+    // thin room's 0.109, 0.094 and 0.092 and the grazing floor's 0.043, 0.042 and 0.043.
     [NeedsRayQueryTheory]
     [InlineData(1, GlobalIllumination.Low, 0.11)]
     [InlineData(1, GlobalIllumination.Medium, 0.12)]

@@ -612,8 +612,9 @@ public LitLight litLight(float3 albedo, ModelVertexOutput input, float shadow = 
     }
 
     // The environment, as an ambient light that differs by direction. The mirror direction is
-    // looked up at the mip prefiltered for this roughness and weighted as Karis's fit weights an
-    // ambient light's reflection, and the diffuse share scatters the irradiance the harmonics hold.
+    // looked up at the mip prefiltered for this roughness and weighted as the split sum's table
+    // weights an ambient light's reflection, and the diffuse share scatters the irradiance the
+    // harmonics hold.
     // Inside a probe's box the probe's capture stands in for the environment.
     if (probe >= 0)
     {

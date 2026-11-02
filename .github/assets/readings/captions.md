@@ -58,3 +58,9 @@
 2026-11-02-item-170-door-after.webp | The same view through the scene's air, the vestibule lit by the light off the walls alone.
 2026-11-02-item-170-lookup-before.webp | Intel's Sponza in scenes_sponza up from the atrium's floor at 15:00, metered, before the air.
 2026-11-02-item-170-lookup-after.webp | The same view through the scene's air.
+2026-11-02-item-172-cornell-before.webp | shaders_cornell_box at High before its rough walls reflected the probes' light, the walls reflecting the share of the sky the probes saw, none of the room's.
+2026-11-02-item-172-cornell-probes.webp | The same with each rough wall reflecting the light the world's probes hold along its mirror way, gathered by a lobe of the cosine to the 8 in bordered blocks, by Karis's fit.
+2026-11-02-item-172-cornell-reference.webp | shaders_cornell_box's reference path-traced with the first face's specular share, 1,024 paths a pixel.
+2026-11-02-item-172-cornell-seam.webp | shaders_cornell_box with the probes' blocks clamped at their edges before their border, the seam at the eye's height where the mirror way crosses level in the octahedron's folded half, and the facets the plain means left.
+2026-11-02-item-172-floor-probes.webp | shaders_reflections' floor at roughness 0.58 (top) and 0.88 (bottom) before the probes' reflection (left), with it by Karis's fit (middle), and the reference with the first face's specular share (right), on white.
+2026-11-02-item-172-floor-table.webp | The same floor reflecting the probes' light by Karis's fit (left), by the split sum's table (middle), and the reference (right), 0% and 2% over it with the table where 1% over and 3% under with the fit.
