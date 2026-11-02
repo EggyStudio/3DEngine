@@ -3,35 +3,37 @@
 Reviewed up to `4a01d5ef`, item 185, pushed at 13:02 on 2026-11-02 with `43547883`, the
 lighting-only view, its run green at 15:55 with Windows in 171 minutes, 9 under 149's limit of 180,
 Linux in 95 and macOS in 44. After it `2977a4a2` and `0dff5d04` (174) and `dfbf7614` (183, the
-Windows suite in two jobs), pushed at 15:56, the run of `dfbf7614` awaited, the first with two
-Windows halves; each keeps the form. Each commit's detail stands in its item in REVIEW-ARCHIVE.md,
-its devlog note and its own words. Before it `fdf4dedb`, item 184, pushed at 10:19 with `22c523ae`,
-178's second step and its end, its run green at 13:02 with Windows in 159 minutes, Linux in 96 and
-macOS in 37. Before it `2b6791f9`, 178's first step, pushed at 08:21 with `4bca4e47`, item 173, its
-run green at 10:18 with Windows in 115 minutes, Linux in 93 and macOS in 39. Before it `a35d7ce9`,
-172's third commit and its end, pushed at 05:37 with `55ec4e2c` and `4105ee5e`, its run green at
-08:20 with Windows in 159 minutes (item 183), Linux in 97 and macOS in 36. Before it `adf7bb79`,
-170's third commit and its end, pushed at 03:04 with `dd39d533`, its pass, its run green at 05:37
-with Windows in 151 minutes, Linux in 82 and macOS in 36. Before it `bd081fa6`, 170's first engine
-commit, Sky as a submodule, pushed at 00:31 with `2cb39bcb`, item 139, its run green at 03:03 with
-Windows in 149 minutes, Linux in 65 and macOS in 38. Before it `d9c50b3b`, Verdict 98's mend, pushed
-at 22:42 on 2026-11-01 with `2d051ada` and `6fd05fd4`, 181's second and third parts, its run green
-at 00:30 with Windows in 103 minutes, Linux in 47 and macOS in 39, which settled Verdict 98. Before
-it `4b80c5c8`, item 169, pushed at 17:51, its run green at 20:24 with Windows in 149 minutes, Linux
-in 84 and macOS in 41. Before it `3b5264d7` (181's first part), `5ea3e98f` (167 with 171 folded in),
-`5932c389` (179) and `60fd7e23` (180), pushed at 20:24, the run of `3b5264d7` red at 22:07 on the
-three systems, Verdict 98, a push of 32 bytes where the layout held 16, mended at `d9c50b3b`. Before
-it `6cc2a0a0`, item 166's mend, pushed at 15:18 with `001e93f0`, item 168, its run green at 17:50
-with Windows in 149 minutes, Linux in 53 and macOS in 37. Before it `e159992e`, items 164 and 165,
-pushed at 13:03 with `ea4fccb3`, item 163, its run green at 15:17 with Windows in 131 minutes, Linux
-in 82 and macOS in 35. Before it `d9f3f108`, 158's first part, pushed at 10:39, its run green at
-13:00 with Windows in 141 minutes, Linux in 76 and macOS in 34. Before it `af7df72a` (162),
-`beefec87` (159) and `1fe6e61a` (161), pushed at 08:11, the run of `af7df72a` green at 10:38 with
-Windows in 147 minutes, Linux in 141, the runner's as the next run showed, and macOS in 36. Before
-it `1848701a` (160's end), `ed41cd5d` (160's first part), `a4e70370` (154) and `6f6ba558` (157),
-pushed at 06:23, the run of `1848701a` green at 08:07 with Windows in 104 minutes, Linux in 60 and
-macOS in 33. Before it `e3d37e1e` (Verdict 97's mend), `6a6e2dad` (152) and `07085cd2` (156), pushed
-at 04:00, the run of `e3d37e1e` green at 06:20 with Windows in 140 minutes, Linux in 73 and macOS in
+Windows suite in two jobs), pushed at 15:56, the run of `dfbf7614` red at 17:48 on the first Windows
+half alone, Verdict 99, the leak test's reading, half 1 in 69 minutes and half 2 green in 90 under
+their limits of 120, Linux in 97 and macOS in 40; each keeps the form; the two commits after it held
+until the mend. Each commit's detail stands in its item in REVIEW-ARCHIVE.md, its devlog note and
+its own words. Before it `fdf4dedb`, item 184, pushed at 10:19 with `22c523ae`, 178's second step
+and its end, its run green at 13:02 with Windows in 159 minutes, Linux in 96 and macOS in 37. Before
+it `2b6791f9`, 178's first step, pushed at 08:21 with `4bca4e47`, item 173, its run green at 10:18
+with Windows in 115 minutes, Linux in 93 and macOS in 39. Before it `a35d7ce9`, 172's third commit
+and its end, pushed at 05:37 with `55ec4e2c` and `4105ee5e`, its run green at 08:20 with Windows in
+159 minutes (item 183), Linux in 97 and macOS in 36. Before it `adf7bb79`, 170's third commit and
+its end, pushed at 03:04 with `dd39d533`, its pass, its run green at 05:37 with Windows in 151
+minutes, Linux in 82 and macOS in 36. Before it `bd081fa6`, 170's first engine commit, Sky as a
+submodule, pushed at 00:31 with `2cb39bcb`, item 139, its run green at 03:03 with Windows in 149
+minutes, Linux in 65 and macOS in 38. Before it `d9c50b3b`, Verdict 98's mend, pushed at 22:42 on
+2026-11-01 with `2d051ada` and `6fd05fd4`, 181's second and third parts, its run green at 00:30 with
+Windows in 103 minutes, Linux in 47 and macOS in 39, which settled Verdict 98. Before it `4b80c5c8`,
+item 169, pushed at 17:51, its run green at 20:24 with Windows in 149 minutes, Linux in 84 and macOS
+in 41. Before it `3b5264d7` (181's first part), `5ea3e98f` (167 with 171 folded in), `5932c389`
+(179) and `60fd7e23` (180), pushed at 20:24, the run of `3b5264d7` red at 22:07 on the three
+systems, Verdict 98, a push of 32 bytes where the layout held 16, mended at `d9c50b3b`. Before it
+`6cc2a0a0`, item 166's mend, pushed at 15:18 with `001e93f0`, item 168, its run green at 17:50 with
+Windows in 149 minutes, Linux in 53 and macOS in 37. Before it `e159992e`, items 164 and 165, pushed
+at 13:03 with `ea4fccb3`, item 163, its run green at 15:17 with Windows in 131 minutes, Linux in 82
+and macOS in 35. Before it `d9f3f108`, 158's first part, pushed at 10:39, its run green at 13:00
+with Windows in 141 minutes, Linux in 76 and macOS in 34. Before it `af7df72a` (162), `beefec87`
+(159) and `1fe6e61a` (161), pushed at 08:11, the run of `af7df72a` green at 10:38 with Windows in
+147 minutes, Linux in 141, the runner's as the next run showed, and macOS in 36. Before it
+`1848701a` (160's end), `ed41cd5d` (160's first part), `a4e70370` (154) and `6f6ba558` (157), pushed
+at 06:23, the run of `1848701a` green at 08:07 with Windows in 104 minutes, Linux in 60 and macOS in
+33. Before it `e3d37e1e` (Verdict 97's mend), `6a6e2dad` (152) and `07085cd2` (156), pushed at
+04:00, the run of `e3d37e1e` green at 06:20 with Windows in 140 minutes, Linux in 73 and macOS in
 32, which settled Verdict 97. Before it `3dda52c2` (151 and 155) and `740066d6` (138), pushed at
 01:13, the run of `3dda52c2` red at 03:16 on Windows alone, Verdict 97, Linux green in 60 minutes
 and macOS in 35; the twelfth pack run started from it at 01:13 green at 04:20, 6.0.14 published,
@@ -92,8 +94,8 @@ REVIEW-ARCHIVE.md, its devlog note and its own words. On 2026-10-30 at 18:0x the
 README's new words (item 133) and the focus on radiance cascades (Decision 74), questions asked
 back, and asked that the sessions spend fewer tokens at the same quality, N 7.7.
 
-Next 142, then 186, then 140 and 141 (Decision 75), then 182 (Decision 86); 143, 144 and 145 wait
-behind them.
+Next 186, then 140 and 141 (Decision 75), then 182 (Decision 86), then 142's mend; 143, 144 and 145
+wait behind them.
 
 Items done and verdicts settled before 2026-10-23 stand in REVIEW-ARCHIVE.md beside this file, their
 numbers kept, moved there at 19:30 on 2026-10-23 so this file holds the current work alone and is
@@ -1070,7 +1072,19 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     0.062 and 0.081 against bars of 0.06, 0.06 and 0.05 and the grazing floor with a far cascade
     0.081 against 0.05, so the carry cannot go in with the bars as they are. One bounded pass on
     corner hits, an L of two walls with and without the corner; then, if corners are not it, the
-    item recorded with the cause and the numbers and 186 next.
+    item recorded with the cause and the numbers and 186 next. Read and held at `11b6a593` on
+    2026-11-02, recorded at 17:40, its push waiting on dfbf7614's run, no bar moved and no shader
+    changed. The L pass, an open L of a floor and a wall under a lamp, reads 0.81 to 0.92 past the
+    first bounce with the corner at 0.92, no worse than the rest, so corners are not the second
+    error; it is the same gradient with the other sign, probes off a surface holding more light than
+    at it in a closed room (1.07 to 1.11 in a room of 4, 1.15 to 1.23 in a room of 8) and less where
+    surfaces open out, a room that reads its reference holding both; the carry made two-way within a
+    quarter takes the L to 1.01 to 1.17 and view 7 still fails. RENDERING.md carries the reading
+    with the rooms' numbers, the reference's gradient, the carries' effects and the glow panel's
+    shortfall; the counting trap in BounceReference.Probe's remarks and gi.probe's description; the
+    carries and the helper in the coder's scratchpad. The mend, a hit reading the irradiance at its
+    surface rather than at the probe layer in a form that holds every room's bar, is a step of its
+    own after 182; the number stands.
 
 166. **The atrium's far end does not glow blue.** The owner's shot of scenes_sponza at 12:05 on
     2026-11-01, the atrium view at 13:00 on the fixed camera, kept in the day's dump, shows the
@@ -1761,7 +1775,10 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     120 and 240 in the pack run, the second the rest at 62 to 90 with a limit of 120, the artifacts
     test-digest-windows-1 and -2, the checks named windows (1) and (2), BUILDING.md saying it; both
     halves run on Linux with the workflow's arguments, 188 and 2,024 passed, 2,212 together with
-    none without a result. Done when the first run with two halves reads under their limits.
+    none without a result. Done when the first run with two halves reads under their limits. Done,
+    read at 17:50 on the run of `dfbf7614`, half 1 in 69 minutes and half 2 in 90 against their
+    limits of 120, where the one job took 171 the run before; half 1's one failure is Verdict 99's,
+    the leak test's reading, not the split's.
 
 184. **The corridor test's drift from 0.22 to 0.50.** Found on 2026-11-02 at 09:3x in 178's third
     step. CascadeEdgeTests.Corridor, closed against open at High, reads 0.499 at `22c523ae` against
@@ -1873,7 +1890,24 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
 
 ## Verdicts
 
-Verdicts 56 to 98 are settled, said under each in REVIEW-ARCHIVE.md; none is open.
+Verdicts 56 to 98 are settled, said under each in REVIEW-ARCHIVE.md; Verdict 99 is open.
+
+99. **The run of `dfbf7614` is red on the first Windows half alone, the leak test's reading catching
+    an app not yet torn down.** Read at 17:50 on 2026-11-02, the first run with the Windows suite in
+    two jobs, half 1 red in 69 minutes on one test of Core, AppLeakTests' hundred offscreen apps,
+    half 2 green in 90, Linux in 97 and macOS in 40, so the halves read under their limits of 120
+    and item 183 holds. The test expects the process's growth under 50 MB from the most of its
+    readings at the tenth, twentieth and thirtieth app, 92.4 MB, and read 208.0 at the fortieth and
+    213.2 at the seventieth where the fiftieth and sixtieth read 96.1 and 100.1 and the heap's live
+    objects held at 18.5 to 18.9 MB throughout; an app's life commits about 188 MB between its
+    device made and destroyed, and the threads of six apps were still running half a second after
+    their apps ended, so a reading taken while an app's device is not yet torn down sees that app's
+    memory, not a leak. The same test failed the push run of `3dda52c2` and passed its pack run
+    (Verdict 97's note), so it is the reading's moment. The mend is in the test, each reading taken
+    once the apps' threads have ended and the device is destroyed, or the growth read from the
+    medians of the readings rather than their most, with the reason in its remarks; one commit, test
+    only, before 186's commit. `f8872d03` and `11b6a593` are held and go up with it. Settled by that
+    run's half 1 green.
 
 ## Decisions
 

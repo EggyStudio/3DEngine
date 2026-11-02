@@ -174,6 +174,7 @@ public sealed partial class AppLeakTests(ITestOutputHelper output)
             var clock = Stopwatch.StartNew();
             var followed = i is 21 or 31 or 41 or 51 ? steps[i] = new Steps(i, stages) : i > 20 ? new Steps(i, stages, handles: false) : null;
             followed?.Follow();
+            var threadsBefore = i % 10 == 0 ? ProcessMemory.Threads() : 0;
             var app = new App(config);
             (plugins ?? (a => a.AddPlugin(new DefaultPlugins())))(app);
             var made = clock.Elapsed;
@@ -208,7 +209,16 @@ public sealed partial class AppLeakTests(ITestOutputHelper output)
                     HandlesFailure(i, handles, handlesAt20, driverThreads, handlesEveryTen, steps, threads));
             if (i % 10 != 0) continue;
             var last = i == 100 || i >= 50 && spent.Elapsed >= Budget;
-            using (var process = System.Diagnostics.Process.GetCurrentProcess()) threads.Add($"{i}: {process.Threads.Count}");
+            // Each reading is taken once the app's threads have ended, ReadingWait at most, since on
+            // Windows lavapipe's threads may run on past the half second an app's end waits for
+            // them, and a reading taken while they ran held what the app's life committed, some
+            // 188 MB. On dfbf7614's run the fortieth and seventieth apps read 208.0 and 213.2 MB
+            // where the readings around them read 92.4 to 100.1, the heap flat, and the test failed
+            // its bound of 50 with nothing kept (REVIEW.md, Verdict 99).
+            var waited = Stopwatch.StartNew();
+            while (ProcessMemory.Threads() > threadsBefore && waited.Elapsed < ReadingWait) Thread.Sleep(20);
+            using (var process = System.Diagnostics.Process.GetCurrentProcess())
+                threads.Add($"{i}: {process.Threads.Count}" + (waited.ElapsedMilliseconds >= 40 ? $" after {waited.ElapsedMilliseconds} ms" : ""));
             // Resident memory is read before any collection, since memory a closed app gives back
             // only to a finalizer is held until a full collection comes, which a program that
             // allocates little on the GC's heap may not see for hundreds of apps.
@@ -593,6 +603,10 @@ public sealed partial class AppLeakTests(ITestOutputHelper output)
     // and on Windows, where an app takes four seconds, a wait of two for each would hold fifty apps
     // past the five minutes build/test.py allows a test.
     private static readonly TimeSpan ThreadWait = TimeSpan.FromSeconds(0.5);
+
+    // How long the reading after every tenth app waits for that app's threads to end, past which it
+    // reads what stands, the threads after every ten apps saying how long each waited.
+    private static readonly TimeSpan ReadingWait = TimeSpan.FromSeconds(5);
 
     private static int Handles()
     {
