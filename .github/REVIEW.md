@@ -7,7 +7,9 @@ After it `57dae5a6`, 182's second commit, the host image copy, pushed at 17:25 w
 182's first, Vulkan 1.4 asked, and `3b85dbcd`, 141's third and its end, its run red at 18:43 on
 macOS alone, Verdict 100, the suite crashing at the first texture's bind under MoltenVK with the
 host copy chosen, the Windows halves green in 74 and 70 minutes, Linux in 65 and macOS's device
-lines answering the two runner points; the three keep the form. Each commit's detail stands in its
+lines answering the two runner points; the three keep the form. After it `6965e4df`, item 192, the
+glow lights past the four brightest, pushed at 19:32 with `f0de9b82`, Verdict 100's mend, the
+staging path under MoltenVK, its run awaited; both keep the form. Each commit's detail stands in its
 item in REVIEW-ARCHIVE.md, its devlog note and its own words. Before it `1567179e`, 140's last
 commit and its end, pushed at 13:44, its run green at 15:27 with the halves in 79 and 102 minutes,
 Linux in 83 and macOS in 38. Before it `5d0c44e4`, Low's third cascade, pushed at 11:45, its run
@@ -85,7 +87,7 @@ note and its own words. On 2026-10-30 at 18:0x the owner wrote the README's new 
 the focus on radiance cascades (Decision 74), questions asked back, and asked that the sessions
 spend fewer tokens at the same quality, N 7.7.
 
-Next 192; 143, 144 and 145 wait behind it.
+Next 144, then 145.
 
 Items done and verdicts settled before 2026-10-23 stand in REVIEW-ARCHIVE.md beside this file, their
 numbers kept, moved there at 19:30 on 2026-10-23 so this file holds the current work alone and is
@@ -955,7 +957,21 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     the cascades of Decision 75 with item 132. At 128 blocks the game's cascades draw about 1,300
     sections at 12 columns, 3 ms of the CPU and 2.6 of the GPU, where a hull of each cascade's slice
     swept toward the sun cut the reference's shadow triangles by half. Read by the cascade draws and
-    the shadow pass at the village and the spawn before and after. One commit.
+    the shadow pass at the village and the spawn before and after. One commit. Read at 19:42 on
+    2026-11-03 with a scratch cull and recorded as not needed. Each cascade's casters culled to the
+    view's light-space box from the near plane to the cascade's far split, swept toward the sun, the
+    footprint plus 26 texels and 2 units cut at the view's deepest point, took the far cascade's
+    draws by 42 to 44% at 1080p High at hour 16 and distance 12 on the game's source (the spawn's
+    cascade 2 from 486 to 274, the village's 460 to 267), the pictures within two runs' difference;
+    but the cascades cost 1.4 to 1.6 ms of CPU and 0.6 to 0.8 of GPU since 132's mend, not the ask's
+    3.0 and 2.6 read in Debug before it, so the saving is 0.2 to 0.3 ms of CPU and 0.1 to 0.15 of
+    GPU. And the maps are not the view's alone since 178, the probes' hits taking their sun from
+    whichever cascade box holds them all around the eye, so a hit outside the swept slice would read
+    sunlit where a culled roof or cliff shades it, a cave's floor with its roof behind the camera;
+    landing it would need each cascade's held box carried to the lights with the field march as the
+    fallback outside it, which is the sun that missed Sponza's vestibule before the map. Not worth
+    the sun of every hit beside and behind the camera for a quarter of a millisecond; the sheets in
+    the dump, 19-42-item-143.
 
 144. **A mesh over shader buffers packs its positions to 16 bits within its bounds and its indices
     to 16 bits.** From the voxel game's reading of a voxel engine in Rust on 2026-10-30, its ASKS.md
@@ -963,7 +979,22 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     shader buffers at 24 bytes a vertex, 12 of float positions, 8 packed and 4 of color, so the ask
     is positions as 16-bit normalized within the mesh's bounds with 16-bit indices, a vertex from 24
     bytes to 18 and the indices halved, packed on workers; read by the game's mesh memory and the
-    upload ms a frame while streaming. One or two commits.
+    upload ms a frame while streaming. One or two commits. The shape set at 19:44 on 2026-11-03. The
+    game's sections go up by UploadMesh from positions, a stream and colors, 24 bytes a vertex, so
+    the item applies to that path, in two commits. First, 16-bit indices for any uploaded mesh of
+    65,536 vertices or fewer, the index type bound per batch, the CPU's indices as they are for
+    picking, bodies and the field, read by the game's index bytes at 12 columns and the upload's
+    time a frame while streaming. Second, positions packed as 16-bit SNORM within the mesh's bounds
+    for meshes uploaded from positions alone, the quantum a power of two at least the half extent
+    over 32,767 with the middle snapped to it so a 1/16 grid comes back exact and shared corners
+    meet, dequantized in the vertex stages by a per-draw push of middle and quantum, three-component
+    SNORM where the device's vertex format support says so (18 bytes a vertex) and four-component
+    otherwise (20), chosen at device creation and named in the device line; a test of the exact
+    round trip and of two sections' shared corners; the float positions kept for the field, the
+    BLAS, picking and bodies; read by the vertex bytes, the upload's time and the spawn's and
+    village's pictures against the float build's. The game's terrain shader is confirmed first; if
+    it reads the attribute itself, the engine ships the dequantize call and the game takes it as its
+    own item with the next package.
 
 145. **A mesh written in place gives back its ring of mapped buffers once the writes stop.** From
     the voxel game's item 143, its ASKS.md entry of 2026-10-30, behind the cascades of Decision 75
@@ -2484,6 +2515,20 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     bridge's trial read the cost of its room of forty emitters rising from 2.41 to 4.50 ms, the
     marches capped but the closed form worked out for every light in a reach six times longer, so
     the closed form past a few box sizes is a point's, which this engine takes with the grouping.
+    Done at 6965e4df, read at 19:33. The lights past the marched ones grouped by their quadrant of
+    the surface's plane, as many groups as marches, each group's closed-form light summed and
+    shadowed by one march to its brightest member in one loop of eight places with one march call
+    site; the reach sqrt(surface over 4 Faint) with Faint a 300th of the light's own emission, the
+    bounce rooms' box lamp of 6 keeping its reach; the fade and the point form past four
+    half-diagonals already stood. GlowLightsTests, a closed room lit by six 0.3 blocks of brightness
+    1 against the runtime path-traced reference, 0.393 of it before, 0.399 with the grouping alone,
+    0.821 with the reach alone, 0.918 with both, one block of 6 at 0.958, the bound within 10%; the
+    voxel game's room of forty glowstones at High at 1280 by 720 against 512 paths from 12 to 23%
+    under to within 2%. GI at 1080p from 3.60 to 3.67 ms to 3.99 to 4.14 at Low, 6.11 to 6.16 to
+    6.84 to 7.03 at Medium, 9.59 to 9.70 to 10.76 to 10.79 at High in that room, the scene pass the
+    same; on lavapipe at 640 by 360 280 to 320, 316 to 378 and 380 to 400 ms; the model pass
+    compiling as long as before; the glow tests 19 under the validation layer, the suite 2,230 in
+    both orders; the sheet item-192-room. Pushed at 19:32 with f0de9b82.
 
 ## Verdicts
 
@@ -2506,7 +2551,14 @@ Verdicts 56 to 99 are settled, said under each in REVIEW-ARCHIVE.md; 100 is open
      here, so the run is the reading; if the crash is MoltenVK's, the host copy stays off under
      MoltenVK with the device line saying why and the staging path there as before, HostCopyTests
      reading the staged path alone on macOS. The digest and the crash's frames are in the reviewing
-     session's run folder.
+     session's run folder. The mend is at f0de9b82, pushed at 19:32 with 6965e4df; ChooseHostCopy
+     reads the driver's id and under MoltenVK the host copy stays off, the device line saying
+     textures go through a staging buffer since MoltenVK crashes as it binds an image made for the
+     CPU to copy into, HostCopyTests comparing two staged paths on macOS; MoltenVK's own fault is
+     unread, its device not runnable here, the crash at the first texture, the 1 by 1 RGBA8 white
+     made Storage plus HostTransfer, at its bind. The suite 2,227 in the worktree with two
+     PackageContentsTests failing from the worktree's own stale package, both passing in the tree
+     with the mend beside the device tests, 8 of 8. Settled by its run when green on macOS.
 
 ## Decisions
 
@@ -2975,3 +3027,7 @@ light whatever its brightness, the bounce rooms' box lamp of 6 keeping its reach
 closed room lit by six emitters a sixth as bright as one from 0.39 to 0.92 of its path-traced
 reference and the voxel game's room of forty glowstones from 12 to 23% under to within 2%, for 0.4,
 0.7 and 1.1 ms more at Low, Medium and High at 1920 by 1080 (item 192).
+
+Shared: a mesh of 65,536 vertices or fewer takes indices of two bytes on the GPU, bound by the type
+its entry keeps, the CPU keeping its four-byte ones for picking, bodies and the field, which took
+the voxel game's sections' indices at 12 columns from 16.47 MB to 8.23 MB (item 144's first commit).

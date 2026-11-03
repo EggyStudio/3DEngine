@@ -110,7 +110,7 @@ internal sealed class MotionVelocity : IDisposable
                 pass.DrawCounted(counted.Count, counted.Capacity, (uint)count, (uint)first, counted.First, counted.CountOffset);
             else
             {
-                pass.SetIndexBuffer(mesh.Indices, 0, IndexType.UInt32);
+                pass.SetIndexBuffer(mesh.Indices, 0, mesh.IndexType);
                 pass.DrawIndexed(mesh.IndexCount, (uint)count, firstInstance: (uint)first);
             }
         }

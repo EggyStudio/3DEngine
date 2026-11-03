@@ -331,20 +331,24 @@ the map is toward the top of the image, as glTF has it.
 What follows is where meshes go from there.
 
 A mesh carries position, normal, tangent, two texture coordinates and a color, interleaved, with
-32-bit indices. Models come from Assimp, which supplies the mesh data, the material factors and the
-texture paths in one pass, and textures are decoded by StbImageSharp with mipmaps generated on the
-GPU. A KTX2 file of BC1, BC5 or BC7 blocks goes to the GPU as it is, every level the file holds
-copied in by the CPU or from one staging buffer, the image made in the plain format so a view of the sRGB one
-reads a color decoded. A BC5 normal map holds x and y alone and samples its blue as 0, which no map
-of three channels has, so the model pass works its z out from x and y there, where read as it was
-the normal pointed into the surface and Sponza's sunlit floor read 15 of 255 where 153. The texture
-store's average color and its translucency come from a level of it the GPU unpacks into four bytes a
-pixel by a blit and reads back the frame it is uploaded in, the first level for BC7, whose alpha may
-be anywhere between, and one of 64 texels a side for BC1, whose alpha is clear or solid, and BC5,
-which has none. The buffer it is read through is in memory the CPU caches, as every buffer the CPU
-only reads is where the device has such memory, since reading the write combined memory a device
-offers first took 34 ms for 4 MB on an RTX 4070, and Sponza's 72 textures upload in about 70 ms
-where the first level of each read that way took 2.4 s.
+indices of two bytes on the GPU where it has 65,536 vertices or fewer, four past that, the CPU
+keeping four-byte ones for picking, bodies and the scene's field. The voxel game's sections at 12
+columns took 8.23 MB of indices where 16.47 and the frame's mesh uploads 0.028 to 0.035 ms while it
+streamed where 0.026 to 0.032 (`./e3d command memory.buffers`, `./e3d command profile`). Models come
+from Assimp, which supplies the mesh data, the material factors and the texture paths in one pass,
+and textures are decoded by StbImageSharp with mipmaps generated on the GPU. A KTX2 file of BC1, BC5
+or BC7 blocks goes to the GPU as it is, every level the file holds copied in by the CPU or from one
+staging buffer, the image made in the plain format so a view of the sRGB one reads a color decoded.
+A BC5 normal map holds x and y alone and samples its blue as 0, which no map of three channels has,
+so the model pass works its z out from x and y there, where read as it was the normal pointed into
+the surface and Sponza's sunlit floor read 15 of 255 where 153. The texture store's average color
+and its translucency come from a level of it the GPU unpacks into four bytes a pixel by a blit and
+reads back the frame it is uploaded in, the first level for BC7, whose alpha may be anywhere
+between, and one of 64 texels a side for BC1, whose alpha is clear or solid, and BC5, which has
+none. The buffer it is read through is in memory the CPU caches, as every buffer the CPU only reads
+is where the device has such memory, since reading the write combined memory a device offers first
+took 34 ms for 4 MB on an RTX 4070, and Sponza's 72 textures upload in about 70 ms where the first
+level of each read that way took 2.4 s.
 
 Where the device has Vulkan 1.4's host image copy, which 1.4 leaves optional, a texture the CPU
 writes is copied into its image by the CPU, with no staging buffer and, for a KTX2 file's levels, no
