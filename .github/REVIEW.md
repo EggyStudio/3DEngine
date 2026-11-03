@@ -87,7 +87,7 @@ note and its own words. On 2026-10-30 at 18:0x the owner wrote the README's new 
 the focus on radiance cascades (Decision 74), questions asked back, and asked that the sessions
 spend fewer tokens at the same quality, N 7.7.
 
-Next 144, then 145, then 193.
+Next 145, then 193.
 
 Items done and verdicts settled before 2026-10-23 stand in REVIEW-ARCHIVE.md beside this file, their
 numbers kept, moved there at 19:30 on 2026-10-23 so this file holds the current work alone and is
@@ -1012,7 +1012,19 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     build's bit for bit, the normals through the same scaled 3 by 3 and normalized by every reader,
     the game's terrain shader handing POSITION to transformModelVertex and needing no change; tests
     of identical pixels packed and unpacked, no seam pixel between two sections, a mesh off the grid
-    staying float; UpdateMeshBuffer on a packed mesh re-packing or warning and unpacking.
+    staying float; UpdateMeshBuffer on a packed mesh re-packing or warning and unpacking. Done at
+    a170718d, the second commit, read at 21:32. A positions-only mesh whose every position is an
+    exact multiple of a power of two within 32,767 of it goes up as three-component 16-bit SSCALED
+    (the RTX 4070), else four, else floats, named in the device line, the quantum folded into the
+    instance rows' 3 by 3 and the motion pass's previous rows, no shader change; the vertex buffers
+    at 12 columns from 55.03 to 40.0 MB, the meshes' prepare while streaming from 0.043 to 0.065 to
+    0.081 ms for the grid check and the pack, the spawn's and village's pictures packed against
+    floats differing as two float runs do on the clouds' edges alone; tests of identical pixels with
+    no seam, off-grid and NaN meshes staying floats, UpdateMeshBuffer unpacking off the grid and
+    packing back, on the GPU and lavapipe under validation, and a remark that a shader reading the
+    instance rows for more than position and a normalized normal sees them times the quantum; the
+    suite 2,235 in both orders. With e3452da2 the sections' buffers at 12 columns from 71.5 to 48.2
+    MB.
 
 145. **A mesh written in place gives back its ring of mapped buffers once the writes stop.** From
     the voxel game's item 143, its ASKS.md entry of 2026-10-30, behind the cascades of Decision 75
@@ -1021,7 +1033,16 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     the driver's mapped memory in such rings at 12 columns; the ring is given back after the frames
     that retire its last write and made again on the next write, so a mesh pays the ring while it
     changes alone. Read by the game's memory at 12 columns after the land settles, before and after.
-    One commit, small.
+    One commit, small. Read at 21:49 on 2026-11-03, the game holds no rings today, none at 12
+    columns settled, at seed 1's spawn at 8 columns while it loads, or under a stone roof relighting
+    the layer below, because ChunkRenderer writes the stream and then the colors and
+    MeshStore.SetStreams drops the queued in-place stream write and queues a whole upload, so each
+    relight uploads the group's positions, indices and stream again though the GPU holds no colors
+    for a positions-only mesh. One commit with both halves. A colors write on a positions-only mesh
+    updates the CPU's colors and the recolored set alone and queues nothing for the GPU, the relight
+    being the stream's in-place write; and the ring is given back for one device-local buffer after
+    RetireFrames quiet frames; a test for each half failing without it. Read by the roofed relight's
+    buffers and resident memory before and after, and the relight frame's upload time.
 
 139. **The field follows a changed world cell by cell, and a moving emitter lights what it passes.**
     Decision 75's sixth item. A changed mesh, a section after a block breaks, marks its whole
@@ -3047,3 +3068,12 @@ instance's rows that turn a position, the motion pass's rows of the frame before
 changes and every position comes out as the floats', bit for bit, which took the voxel game's
 sections' vertices at 12 columns from 55.0 MB to 40.0 MB for 0.02 to 0.04 ms more of the frame's
 mesh uploads while they streamed (item 144's second commit).
+
+Shared: colors written to a mesh uploaded from its positions alone, which the GPU holds none of, are
+kept on the CPU for the field and upload nothing, so a relight that writes the stream and then the
+colors stays the stream's write in place where it uploaded the mesh whole again, and a ring of
+buffers written in place is given back for one buffer in the device's own memory once four frames
+pass with no write. Under a stone roof that relights the voxel game's layer of sections below it at
+12 columns, 116 and 156 meshes held rings of 14.7 and 20.4 MB two frames after, every one given back
+once the land settled, the roof's frame spending 54.1 and 54.9 ms in the meshes' prepare where 57.0
+and 57.4 (item 145).

@@ -233,7 +233,15 @@ pipeline that binds a mesh's vertex, the model pass's own and a shader's of the 
 solid and masked shadow pipelines and the velocity pass's, has a form for it, picked by the mesh as
 it draws; the pass that scatters light under a surface leaves such a mesh out. The CPU keeps its
 positions with zero normals, which the field, the glow lights, picking and bodies read as any
-mesh's. `model.slang` shades by the frame's lights, or when the
+mesh's, and its colors alone, so a write of them uploads nothing, and a relight that writes its
+stream and then its colors, as the voxel game relights a section, stays the stream's write in place,
+where it took the mesh's positions, indices and stream up again whole. A ring of buffers written in
+place is given back for one buffer in the device's own memory once four frames pass with no write.
+Under a stone roof of 129 by 129 blocks at 12 columns, which relights the layer of sections under
+it, 116 and 156 meshes held rings two frames after, 14.7 and 20.4 MB of buffers the CPU writes,
+every one given back once the land settled, and the roof's frame spent 54.1 and 54.9 ms in the
+meshes' prepare where 57.0 and 57.4 uploading them whole (`./e3d command memory.buffers`,
+`./e3d command profile.slowest`). `model.slang` shades by the frame's lights, or when the
 world has none and no environment draws the color unlit, texture times color with the material's
 emissive light, as raylib's default shader draws a model.
 `model.slang` is built on the `modelpass` module, which a model shader of the program's own imports

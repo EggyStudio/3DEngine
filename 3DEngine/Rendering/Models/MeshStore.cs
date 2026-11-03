@@ -407,7 +407,11 @@ internal sealed class MeshStore
         }
     }
 
-    /// <summary>Gives a loaded mesh its colors and second texture coordinates, which uploads it again with them.</summary>
+    /// <summary>
+    /// Gives a loaded mesh its colors and second texture coordinates, which uploads it again with
+    /// them, or for a mesh of positions alone, whose colors the GPU holds none of, keeps them here
+    /// for the light field and the glow lights and leaves its buffers as they are.
+    /// </summary>
     /// <returns>Whether <paramref name="id"/> names a loaded mesh.</returns>
     /// <exception cref="ArgumentException">A stream's count differs from the vertices'.</exception>
     internal bool SetStreams(int id, Streams streams)
@@ -424,6 +428,10 @@ internal sealed class MeshStore
             // where it is off.
             if (_recolored.Count > 65536) _recolored.Clear();
             _recolored.Add(id);
+            // A write of the stream queued this frame stays a write in place, as a voxel game's
+            // section relit by its stream and its colors is, where uploading it again whole took
+            // its positions, indices and stream to the GPU each time.
+            if (_positionsOnly.Contains(id)) return true;
             _uploads.RemoveAll(u => u.Id == id);
             _uploads.Add(new Upload(id, data.Vertices, data.Indices, Skin: _skins.GetValueOrDefault(id), Streams: streams, Custom: _custom.GetValueOrDefault(id)));
             return true;

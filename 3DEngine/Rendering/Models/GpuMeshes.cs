@@ -8,7 +8,12 @@ namespace Engine;
 /// A mesh whose vertices are replaced, as an animated one is each frame, moves into a ring of
 /// <see cref="GpuTextures.RetireFrames"/> and one vertex buffers kept mapped, more than there are
 /// frames in flight, and each update is written into the next. Creating a buffer for each update instead
-/// cost about 2 ms a mesh in allocation on an NVIDIA driver (RENDERING.md §6).
+/// cost about 2 ms a mesh in allocation on an NVIDIA driver (RENDERING.md §6). A stream written in
+/// place moves into a ring of its own the same way. Once RetireFrames frames pass with no write, a
+/// ring is given back for one buffer in the device's own memory holding its last write, so a mesh
+/// written now and then, as a voxel game's section relit while the land around it arrives, holds one
+/// copy rather than a ring's in the memory the CPU sees, which every pass that draws it reads across
+/// the bus.
 /// </remarks>
 internal sealed class GpuMeshes : IDisposable
 {
@@ -46,6 +51,12 @@ internal sealed class GpuMeshes : IDisposable
         internal IBuffer[]? CustomRing { get; init; }
         internal int CustomSlot { get; init; }
 
+        // The frame of the last write into either ring, and what each ring holds last, from which
+        // the one buffer given back for it is made.
+        internal long Written { get; init; }
+        internal ModelVertex[]? RingVertices { get; init; }
+        internal MeshStream? RingStream { get; init; }
+
         /// <summary>The GPU side of a skinned mesh, whose posed vertices are <see cref="Vertices"/>, or null.</summary>
         internal GpuSkin? Skin { get; init; }
 
@@ -64,6 +75,8 @@ internal sealed class GpuMeshes : IDisposable
     }
 
     private readonly Dictionary<int, Entry> _entries = [];
+    // The meshes holding a ring, each given back once its writes stop.
+    private readonly HashSet<int> _ringed = [];
     private readonly List<(long Frame, IDisposable Owned)> _retired = [];
     private long _frame;
 
@@ -104,19 +117,7 @@ internal sealed class GpuMeshes : IDisposable
 
             foreach (var upload in uploads)
             {
-                // A mesh uploaded from its positions is given them alone, packed where they lie on a
-                // grid 16-bit integers hold and the device reads such (PositionPacking).
-                var (positionFormat, quantum) = (VertexFormat.Float3, 1f);
-                ReadOnlySpan<byte> bytes;
-                if (!upload.PositionsOnly)
-                    bytes = MemoryMarshal.AsBytes(upload.Vertices.AsSpan());
-                else if (gfx is GraphicsDevice { PackedPositions: { } packed } && PositionPacking.Quantum(upload.Vertices) is > 0 and var grid)
-                {
-                    (positionFormat, quantum) = (packed, grid);
-                    bytes = PositionPacking.Pack(upload.Vertices, grid, packed == VertexFormat.SScaled16x3 ? 3 : 4);
-                }
-                else
-                    bytes = MemoryMarshal.AsBytes(PositionsOf(upload.Vertices).AsSpan());
+                var bytes = VertexBytes(gfx, upload.Vertices, upload.PositionsOnly, out var positionFormat, out var quantum);
                 if ((upload.VerticesOnly || upload.CustomOnly) && _entries.TryGetValue(upload.Id, out var old))
                 {
                     var entry = old;
@@ -126,16 +127,17 @@ internal sealed class GpuMeshes : IDisposable
                         entry = entry with
                         {
                             Vertices = ring[slot], Ring = ring, Slot = slot, Box = entry.Skin is null ? BoxOf(upload.Vertices) : null,
-                            PositionFormat = positionFormat, Quantum = quantum,
+                            PositionFormat = positionFormat, Quantum = quantum, Written = _frame, RingVertices = upload.Vertices,
                         };
                     }
                     if (upload.CustomOnly && upload.Custom is { } custom)
                     {
                         var (ring, slot) = Advance(gfx, entry.CustomRing, entry.CustomSlot, custom.Data,
                             () => { if (entry.Custom is { } held) _retired.Add((_frame, held.Buffer)); });
-                        entry = entry with { Custom = (ring[slot], custom.Format), CustomRing = ring, CustomSlot = slot };
+                        entry = entry with { Custom = (ring[slot], custom.Format), CustomRing = ring, CustomSlot = slot, Written = _frame, RingStream = custom };
                     }
                     _entries[upload.Id] = entry;
+                    _ringed.Add(upload.Id);
                     continue;
                 }
 
@@ -172,12 +174,51 @@ internal sealed class GpuMeshes : IDisposable
             }
         }
 
+        _ringed.RemoveWhere(id => !_entries.TryGetValue(id, out var entry) || GaveBack(gfx, id, entry));
+
         for (int i = _retired.Count - 1; i >= 0; i--)
         {
             if (_frame - _retired[i].Frame < GpuTextures.RetireFrames) continue;
             _retired[i].Owned.Dispose();
             _retired.RemoveAt(i);
         }
+    }
+
+    // The bytes the GPU is given for a mesh's vertices. A mesh uploaded from its positions is given
+    // them alone, packed where they lie on a grid 16-bit integers hold and the device reads such
+    // (PositionPacking).
+    private static ReadOnlySpan<byte> VertexBytes(IGraphicsDevice gfx, ModelVertex[] vertices, bool positionsOnly, out VertexFormat format, out float quantum)
+    {
+        (format, quantum) = (VertexFormat.Float3, 1f);
+        if (!positionsOnly) return MemoryMarshal.AsBytes(vertices.AsSpan());
+        if (gfx is GraphicsDevice { PackedPositions: { } packed } && PositionPacking.Quantum(vertices) is > 0 and var grid)
+        {
+            (format, quantum) = (packed, grid);
+            return PositionPacking.Pack(vertices, grid, packed == VertexFormat.SScaled16x3 ? 3 : 4);
+        }
+        return MemoryMarshal.AsBytes(PositionsOf(vertices).AsSpan());
+    }
+
+    // Gives a mesh's rings back for one buffer each holding their last write, once RetireFrames
+    // frames pass with no write, the ring's buffers retired as an unloaded mesh's are, since a
+    // frame in flight may still read the last. A write after makes the ring again, which takes its
+    // buffers from the memory blocks the device already holds.
+    private bool GaveBack(IGraphicsDevice gfx, int id, Entry entry)
+    {
+        if (_frame - entry.Written <= GpuTextures.RetireFrames) return false;
+        // A skinned mesh keeps its ring, since it is retired by its skin's buffers.
+        if (entry is { Ring: { } ring, RingVertices: { } vertices, Skin: null })
+        {
+            foreach (var buffer in ring) _retired.Add((_frame, buffer));
+            entry = entry with { Vertices = Buffer(gfx, VertexBytes(gfx, vertices, entry.PositionsOnly, out _, out _), BufferUsage.Vertex), Ring = null, Slot = 0, RingVertices = null };
+        }
+        if (entry is { CustomRing: { } customRing, RingStream: { } stream })
+        {
+            foreach (var buffer in customRing) _retired.Add((_frame, buffer));
+            entry = entry with { Custom = (Buffer(gfx, stream.Data, BufferUsage.Vertex), stream.Format), CustomRing = null, CustomSlot = 0, RingStream = null };
+        }
+        _entries[id] = entry;
+        return true;
     }
 
     // A mesh's indices as two bytes each, every one under 65,536.

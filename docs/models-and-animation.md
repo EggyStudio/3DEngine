@@ -104,8 +104,10 @@ where they lie on a grid, and drawn with such a shader.
 needs, and `UpdateMeshBuffer` writes into one of its arrays by raylib's index for it, positions,
 texture coordinates, normals, colors or second texture coordinates, as `shaders_lightmap_rendering`
 gives a plane its second coordinates after `GenMeshPlane` has made it, and at `MeshStreamBuffer`
-the stream of the program's own, in place, uploading nothing else of the mesh again. `ExportMesh` writes a mesh as a Wavefront OBJ file, its shape without its material, which
-`LoadModel` reads back and any modeling program opens.
+the stream of the program's own, in place, uploading nothing else of the mesh again. Colors written
+to a mesh uploaded from its positions alone are kept for the light field and upload nothing, the GPU
+holding none of them. `ExportMesh` writes a mesh as a Wavefront OBJ file, its shape without its
+material, which `LoadModel` reads back and any modeling program opens.
 
 ## Terrain and mazes from images
 

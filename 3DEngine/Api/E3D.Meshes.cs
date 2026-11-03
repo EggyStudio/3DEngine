@@ -113,7 +113,10 @@ public static partial class E3D
     /// to either is left out with a warning, and bytes past the array's end are left out. The
     /// stream of the program's own is written into the next of a ring of buffers and nothing else
     /// of the mesh is uploaded again; a mesh made without one is left as it is with a warning,
-    /// since the write does not say the stream's format.
+    /// since the write does not say the stream's format. A ring is given back for one buffer once
+    /// a few frames pass with no write. Colors written to a mesh uploaded from its positions alone
+    /// are kept for the light field and the glow lights, the GPU holding none of them, so its
+    /// buffers stay as they are and a relight of its stream and colors writes the stream alone.
     /// </remarks>
     public static void UpdateMeshBuffer<T>(ModelMesh mesh, int index, ReadOnlySpan<T> data, int offset) where T : unmanaged
     {
