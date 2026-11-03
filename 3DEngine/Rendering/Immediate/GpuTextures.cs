@@ -263,7 +263,7 @@ internal sealed class GpuTextures : IDisposable
         // texels a side or fewer, a few thousand bytes where the first of 1,024 is 4 MB.
         var level = blocks.Format == TextureFormat.Bc7 ? 0
             : Math.Clamp(System.Numerics.BitOperations.Log2((uint)Math.Max(blocks.Width, blocks.Height)) - 6, 0, blocks.MipCount - 1);
-        if (device.DecodedPixels(image, (uint)level) is { } pixels) store.Decoded(upload.Id, pixels);
+        if (device.DecodedPixels(image, (uint)level) is { } pixels) store.Decoded(upload.Id, pixels, Math.Max(1, blocks.Width >> level));
         return new Entry(image, view, gfx.CreateImageView(image, decoded), sampler, CreateSet(gfx, view, sampler));
     }
 

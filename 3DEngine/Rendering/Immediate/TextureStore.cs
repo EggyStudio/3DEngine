@@ -85,7 +85,7 @@ internal sealed class TextureStore
             _live[id] = (width, height, filter, mipmaps, TextureWrap.Repeat);
             _uploads.Add(new Upload(id, rgba, width, height, filter, Mipmaps: mipmaps));
             if (HasPartialAlpha(rgba)) _translucent.Add(id);
-            (_averages[id], _levels[id]) = (Average(rgba), Levels(rgba));
+            (_averages[id], _levels[id]) = (Average(rgba, width), Levels(rgba, width));
             return id;
         }
     }
@@ -117,14 +117,14 @@ internal sealed class TextureStore
     /// Takes a level of a texture of blocks unpacked into four bytes a pixel, which gives it its
     /// average color and whether it is translucent as a texture of pixels has them from the start.
     /// </summary>
-    internal void Decoded(int id, byte[] rgba)
+    internal void Decoded(int id, byte[] rgba, int width)
     {
         lock (_gate)
         {
             if (!_blocks.Contains(id)) return;
             if (HasPartialAlpha(rgba)) _translucent.Add(id);
             else _translucent.Remove(id);
-            (_averages[id], _levels[id]) = (Average(rgba), Levels(rgba));
+            (_averages[id], _levels[id]) = (Average(rgba, width), Levels(rgba, width));
         }
     }
 
@@ -246,7 +246,7 @@ internal sealed class TextureStore
             _uploads.Add(new Upload(id, rgba, texture.Width, texture.Height, texture.Filter, Mipmaps: texture.Mipmaps, Wrap: texture.Wrap));
             if (HasPartialAlpha(rgba)) _translucent.Add(id);
             else _translucent.Remove(id);
-            (_averages[id], _levels[id]) = (Average(rgba), Levels(rgba));
+            (_averages[id], _levels[id]) = (Average(rgba, texture.Width), Levels(rgba, texture.Width));
             return true;
         }
     }
@@ -388,24 +388,38 @@ internal sealed class TextureStore
     }
 
     // The mean of the same pixels' levels as they are.
-    private static System.Numerics.Vector3 Levels(byte[] rgba)
+    private static System.Numerics.Vector3 Levels(byte[] rgba, int width)
     {
-        var pixels = rgba.Length / 4;
-        var step = Math.Max(1, pixels / 4096);
         var (sum, count) = (System.Numerics.Vector3.Zero, 0);
-        for (int p = 0; p < pixels; p += step, count++)
+        foreach (var p in Spread(rgba.Length / 4, width))
+        {
             sum += new System.Numerics.Vector3(rgba[p * 4], rgba[p * 4 + 1], rgba[p * 4 + 2]) / 255f;
+            count++;
+        }
         return count > 0 ? sum / count : System.Numerics.Vector3.One;
     }
 
-    // The mean of at most about four thousand pixels spread over the image, each decoded from sRGB
-    // and weighed by its alpha, so a large texture costs no more than a small one.
-    private static System.Numerics.Vector3 Average(byte[] rgba)
+    // At most 64 pixels along each of the image's rows and columns, each in the middle of its
+    // share, so a large texture costs no more than a small one. Stepped through the pixels as they
+    // lie row after row, a step that divides the width read the same few columns in every row,
+    // and the tiles of Sponza's floor, 1,024 wide, were read down their grout at 0.069 in linear
+    // light where their mean is 0.106, so global illumination and its path-traced reference took
+    // the floor two thirds as bright as the window drew it.
+    private static IEnumerable<int> Spread(int pixels, int width)
     {
-        var pixels = rgba.Length / 4;
-        var step = Math.Max(1, pixels / 4096);
+        width = Math.Max(1, width);
+        var rows = Math.Max(1, pixels / width);
+        var (across, down) = (Math.Max(1, width / 64), Math.Max(1, rows / 64));
+        for (int y = down / 2; y < rows; y += down)
+            for (int x = across / 2; x < width; x += across)
+                yield return y * width + x;
+    }
+
+    // The mean of the same pixels, each decoded from sRGB and weighed by its alpha.
+    private static System.Numerics.Vector3 Average(byte[] rgba, int width)
+    {
         var (sum, weight) = (System.Numerics.Vector3.Zero, 0f);
-        for (int p = 0; p < pixels; p += step)
+        foreach (var p in Spread(rgba.Length / 4, width))
         {
             var alpha = rgba[p * 4 + 3] / 255f;
             sum += new System.Numerics.Vector3(Linear(rgba[p * 4]), Linear(rgba[p * 4 + 1]), Linear(rgba[p * 4 + 2])) * alpha;

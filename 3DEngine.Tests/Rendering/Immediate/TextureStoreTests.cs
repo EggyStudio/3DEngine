@@ -174,6 +174,28 @@ public class TextureStoreTests
     }
 
     [Fact]
+    public void A_Tiled_Textures_Average_Color_Is_Its_Mean_Where_Its_Grout_Lines_Up_With_The_Columns_A_Stride_Would_Read()
+    {
+        // A texture 1,024 texels square of white tiles 256 wide between black grout one texel wide,
+        // at every 256th column and row. Read every 256th texel as the pixels lie, the average took
+        // the grout's columns alone and came out black, where a grid over the rows and columns
+        // takes the tiles' share, 0.996 of white. Its levels are read from the same texels.
+        const int size = 1024;
+        var rgba = new byte[size * size * 4];
+        for (int y = 0; y < size; y++)
+            for (int x = 0; x < size; x++)
+            {
+                var level = x % 256 == 0 || y % 256 == 0 ? (byte)0 : (byte)255;
+                (rgba[(y * size + x) * 4], rgba[(y * size + x) * 4 + 1], rgba[(y * size + x) * 4 + 2], rgba[(y * size + x) * 4 + 3]) = (level, level, level, 255);
+            }
+        var store = new TextureStore();
+        var id = store.Add(rgba, size, size);
+
+        store.AverageColor(id)!.Value.X.Should().BeApproximately(1, 0.02f, "the tiles cover all but a 128th of the texture");
+        store.AverageLevels(id)!.Value.X.Should().BeApproximately(1, 0.02f, "and the levels are read from the same texels");
+    }
+
+    [Fact]
     public void An_Anisotropic_Filter_Asks_The_Sampler_For_Its_Samples()
     {
         GpuTextures.SamplerFor(TextureFilter.Point).Should().Match<SamplerDesc>(d => d.MinFilter == SamplerFilter.Nearest && d.MaxAnisotropy == 1);

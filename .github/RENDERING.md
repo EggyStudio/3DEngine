@@ -2691,6 +2691,24 @@ atrium where 3.58 and 3.65, and 3.85 and 3.83 in the nave where 3.41 and 3.45, u
 profile (`gi.screenprobe`, `gi.reference` at 1024 paths a pixel, `gi.compare`, `./e3d command
 profile`, `.github/assets/readings/2026-11-03-item-142-far-views.webp`).
 
+**The floor's color, read and mended on 2026-11-03.** At noon the pixels of Sponza's views lit by
+the sun read 1.41, 0.96, 1.46 and 1.17 times a path-traced reference of one bounce in the atrium,
+the lion, the nave and the lookup, and at 8:00 0.88 to 0.90, all of it the floor, which read 1.52
+and 1.50 in the atrium's and the nave's sunlit fifth where every other surface lit by the sun read
+0.91 to 1.11. The frame and the reference take the same sun. The reference takes a mesh's color as
+its texture's average, as the field does, and the store took that average from about 4,096 pixels at
+a fixed stride as they lie row after row, which in a texture 1,024 wide is the same four columns in
+every row, and in the floor's tiles those lie on the grout, so the floor's color read 0.069 in
+linear light where its texels' mean is 0.106. Read on a grid of 64 along the rows and the columns,
+the floor reads 1.07 and 1.05 at noon against references drawn again, the sunlit fifth 1.05, 0.93,
+1.04 and 1.03, and the reference's floor under the sun alone reads 0.160, 0.126 and 0.095 where the
+sun's light on it times the floor's color is 0.138, 0.107 and 0.080, the rest its first face's
+specular share. With the floor's color in the field too the shade reads 1.63, 2.09, 1.12 and 2.37 at
+8:00, 1.02 to 1.12 at noon and 1.02 to 1.54 at 15:00 against the new references. Every reading of
+Sponza in this file since item 148 took the floor at two thirds of its color in the reference and
+the field, and is read with that (`gi.reference` at 1024 paths a pixel, `gi.compare`, the store's
+averages through `./e3d eval`, `.github/assets/readings/2026-11-03-item-190-floor.webp`).
+
 **The sky's share along the mirror way, read on 2026-11-01.** The environment's reflection is
 scaled by the share of the sky the probes around a surface see along its mirror way, which an open
 plain's probes, their faces seeing the whole sky up, half of it level and none down, read as half
