@@ -2709,6 +2709,25 @@ Sponza in this file since item 148 took the floor at two thirds of its color in 
 the field, and is read with that (`gi.reference` at 1024 paths a pixel, `gi.compare`, the store's
 averages through `./e3d eval`, `.github/assets/readings/2026-11-03-item-190-floor.webp`).
 
+**The fog in dark rooms, read and mended on 2026-11-03.** With the fog `scenes_sponza` had set
+switched on, it added 62% to the darkest quarter of the vestibule's pixels at 15:00, 151% to the
+lookup's at 8:00, 106% to the atrium's at noon and 65% to the nave's at 15:00, and its light in the
+vestibule came from its cells' read of the world's probes alone, the sun's adding nothing there. The
+cells read the probes as a surface reads them, the point taken three tenths of the probes' spacing
+up and down before the probes were judged to see it, 2.4 units where they stand 8 apart, past a low
+roof or floor, so a sealed room in the third cascade had its fog scatter 0.436 of light where the
+same room open to the sky scattered 0.428. Read for the air, from the probes around a cell that see
+its own point by their reach, and nothing where none does, the sealed room's fog scatters 0.0012 and
+the open room's 0.035, which with probes 2 apart seeing it from inside scatters 0.17 to 0.19 either
+way, so a small room among probes 8 apart takes too little of its own light, the cost of the read.
+Walls thinner than the field's cells there let the probes' own rays through, and the sealed room's
+fog scattered 0.269 where the open room's 0.296 with walls 0.3 thick in cells of a unit, which is
+the field's limit. The darkest quarters take 34%, 74%, 64% and 30%, the next 12%, 31%, 26% and 17%
+where 17%, 56%, 30% and 87%, and the lit quarter as it was. `scenes_sponza` still sets no fog, since
+the sun shows in it as an even haze rather than shafts, and takes its fog again when that is mended
+too (`gi.compare`'s frames with the fog and without,
+`.github/assets/readings/2026-11-03-item-187-fog.webp`).
+
 **The sky's share along the mirror way, read on 2026-11-01.** The environment's reflection is
 scaled by the share of the sky the probes around a surface see along its mirror way, which an open
 plain's probes, their faces seeing the whole sky up, half of it level and none down, read as half
@@ -3867,7 +3886,8 @@ as a tile is wide. The `fog` node, after the window's shadow pass and ahead of `
 each cell's middle (`fog_scatter.slang`), by the sun through the shadow map drawn this frame, its
 nine depths compared as the probes' hits compare them (`SunShadowMap` in `gi.slang`), turned toward
 the eye by Henyey and Greenstein's phase, and by the light from all around, the world's probes'
-irradiance up and down averaged where light bounces and the ambient lights where it does not, times
+irradiance up and down of the probes around it that see its middle, averaged, where light bounces
+and the ambient lights where it does not, times
 the fog's extinction there, its density thinning above its height by e every one over its falloff
 units. It then sums each column of cells from the eye (`fog_integrate.slang`), each slice's light as
 it fades through the slice, as Hillaire sums Frostbite's, so a thick slice gives no more light than

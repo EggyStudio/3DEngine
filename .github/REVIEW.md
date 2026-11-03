@@ -106,7 +106,7 @@ REVIEW-ARCHIVE.md, its devlog note and its own words. On 2026-10-30 at 18:0x the
 README's new words (item 133) and the focus on radiance cascades (Decision 74), questions asked
 back, and asked that the sessions spend fewer tokens at the same quality, N 7.7.
 
-Next 190, then 187, then 140 and 141 (Decision 75), then 182 (Decision 86); 143, 144 and 145 wait
+Next 187, then 191, then 140 and 141 (Decision 75), then 182 (Decision 86); 143, 144 and 145 wait
 behind them.
 
 Items done and verdicts settled before 2026-10-23 stand in REVIEW-ARCHIVE.md beside this file, their
@@ -2093,6 +2093,26 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     then the mend by the cause, the cells taking the probes they see as the surfaces do, read by the
     dark room's cells against the reference's irradiance at those points, the lookup's shaft kept,
     and the example setting its scene's fog again. One or two commits, after 186 and before 140.
+    Read at 07:06 on 2026-11-03, the cause is the fog cells' probe term, not the sun's taps. In the
+    vestibule at 15:00 the fog adds 62% to the darkest quarter of pixels and the same without its
+    sun term and nothing without its probe term, since the cells read the surfaces' gather, which
+    leans the point 0.3 of the probes' spacing along the vertical before judging what sees it, 2.4
+    units for probes 8 apart, through a low roof or floor. The mend is an air read, the up and down
+    faces of the eight probes around the cell weighed by whether they see the cell's own point with
+    no lean and nothing where none sees it, shader only, with a test of a room 2 units across in
+    walls 1 thick under a bright sky in the third cascade, the sealed room adding 0.0012 where 0.436
+    and the open room 0.035, a bound of the sealed under 5% of the open; the cost, a small open room
+    in coarse probes 5 times too dark where probes 2 apart give 0.17 to 0.19 for both reads, and
+    walls thinner than the field's cells leaking even so, the field's limit; Sponza's darkest
+    quarters with the fog from +62, +151, +106 and +65% as committed to +34, +74, +64 and +30 with
+    the air read, the lit quarter holding. A march from each cell to its probes and a fallback with
+    a trace stay out at their cost. The call is the air read with its test and the example's fog
+    restored (Decision 88), read by the views and shown to the owner. Amended at 07:07, the owner's
+    word had two grounds, the dark areas lit and the fog not volumetric, the sun showing as an even
+    haze rather than shafts, and the air read mends the first alone; so the example stays without
+    fog, the owner shown the vestibule and the lookup before and after with the fog switched on by
+    eval, and the example takes its fog back when both grounds are mended or on the owner's word;
+    the haze is item 191.
 
 188. **Flying Sponza is stable.** The owner wrote in the coder's session on 2026-11-02 at about
     20:1x (Decision 89) that when they move nothing is stable, with colored spots, black areas and
@@ -2241,7 +2261,28 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     within 0.02; the one-bounce references drawn again since the old ones carry the old floor, the
     sunlit fifth at 8:00, noon and 15:00 read against them, then the reference's floor against the
     sun's lux through the air. Every Sponza reading since item 148 carries the old floor in the
-    reference and in the field.
+    reference and in the field. Done at `52e75184` on 2026-11-03, read at 06:51, its push waiting on
+    b83b1a85's run; a texture's average and levels read on a grid of 64 along its rows and columns,
+    119 texture tests, 2,223 in both orders. Against references drawn again, noon's sunlit fifth
+    reads 1.05, 0.93, 1.04 and 1.03 where 1.41, 0.96, 1.46 and 1.17 with the floor's own 1.07 and
+    1.05 where 1.52 and 1.50, 8:00's 0.71 to 0.88 and 15:00's 0.75 to 0.95; the reference's floor
+    under direct light alone at noon 16 to 18% over the sun's product with the floor's true mean,
+    its first face's specular included, so the reference's sun agrees with the sun's lux through the
+    air; with the floor's color in the field the shade reads 1.63, 2.09, 1.12 and 2.37 at 8:00, 1.02
+    to 1.12 at noon and 1.02 to 1.54 at 15:00; RENDERING.md saying every Sponza reading since 148
+    took the floor at two thirds, the stride dating from `3e00ac64` of 2026-10-07; the gallery's
+    scenes_sponza recaptured, covering b83b1a85's look too; the reading's picture under
+    assets/readings. A scratch session left serving made the capture script fail twice, stopped
+    since.
+
+191. **The sun shows in the fog as shafts, not as an even haze.** The second ground of the owner's
+    word of 2026-11-02 (Decision 88), recorded in the example's comment as the sun showing in the
+    fog as an even haze rather than shafts. The cause read first, the sun's taps at the cells'
+    middles through the shadow map, the cascades' cover of the volume's depth, the slices' spacing
+    against the shadows' scale or the density the example sets, each read in the lookup at 15:00
+    with the fog on by eval; then the mend by the cause, read by the lookup's shaft beside the
+    reference and by the vestibule's door at 15:00, and the example taking its fog back when the
+    owner's eye agrees. One or two commits, after 187 and before 140.
 
 ## Verdicts
 
@@ -2510,7 +2551,9 @@ REVIEW-ARCHIVE.md.
     engine coder's session on 2026-11-02 during item 186 to remove the fog from the example for the
     time being, since it is not volumetric as it stands, dark areas being lit by it where they
     should be dark. So scenes_sponza sets no fog, the fault is item 187, read by its cause and
-    mended before 140, and the example takes its scene's fog again when 187 lands.
+    mended before 140, and the example takes its scene's fog again when 187 lands. Amended on
+    2026-11-03, the word had two grounds, and 187 mends the dark areas alone; the example takes its
+    fog back when the haze is mended as well (item 191) or on the owner's word.
 
 89. **Stability in flight before the fog.** The owner wrote in the engine coder's session on
     2026-11-02 at about 20:1x, after 186, that when they move nothing is stable, with colored spots,

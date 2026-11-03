@@ -1,7 +1,8 @@
 // The light each cell of the fog's volume scatters toward the eye, a thread a cell. The cell's
 // middle is lit by the sun where its shadow map, as the window's shadow pass drew it this frame,
 // shows the sun there, scattered toward the eye by Henyey and Greenstein's phase, and by the light
-// from all around, the world's probes' irradiance up and down averaged, scattered alike every way.
+// from all around, the irradiance up and down of the world's probes around it that see it,
+// averaged, scattered alike every way.
 // Written as the light times the fog's extinction there, beside that extinction, for
 // fog_integrate.slang to sum from the eye.
 import fog;
@@ -55,6 +56,47 @@ float sunReaches(float3 p)
     return 1.0;
 }
 
+// The light from all around a point in the air, the mean over the sphere of the irradiance up and
+// down of the probes of cascade c around it that see it, by their reach toward the point itself,
+// and none where no probe does. Read as a surface's light up and down is read (bouncedAt), the
+// point was taken three tenths of the probes' spacing up and down before the probes were judged,
+// 2.4 units where they stand 8 apart, past a room's roof or floor, and weighed by how squarely
+// they stood above or below it, so a sealed room's fog in the third cascade scattered 0.436 of
+// light where an open one's scattered 0.428, the probes outside seeing the sky, and Sponza's
+// vestibule at 15:00 had the fog add 62% to its darkest quarter of pixels, where now 0.0012 and
+// 34% (VolumetricFogTests). Probes 8 apart see little of a small room, and the open room's fog
+// scatters 0.035 where with probes 2 apart, seeing it from inside, it scatters 0.17 to 0.19.
+float3 airAt(float3 p, int c)
+{
+    float probes = fog.grid.w, spacing = fog.probes.x;
+    int cascades = int(fog.probes.y);
+    float4 oc = cascadeAt(field, c, cascades);
+    float3 q = clamp((p - oc.xyz) / (oc.w * spacing) - 0.5, 0.0, probes - 1.0);
+    int3 base = int3(floor(q));
+    float3 f = q - float3(base);
+    float3 seenSum = float3(0.0);
+    float seenWeights = 0.0, weights = 0.0;
+    for (int corner = 0; corner < 8; corner++)
+    {
+        int3 offset = int3(corner & 1, (corner >> 1) & 1, corner >> 2);
+        int3 at = min(base + offset, int3(int(probes) - 1));
+        float3 lerps = lerp(1.0 - f, f, float3(offset));
+        float4 up = probeLight.loadAt(int3(2 * int(probes) + at.x, at.y, c * int(probes) + at.z));
+        float4 down = probeLight.loadAt(int3(3 * int(probes) + at.x, at.y, c * int(probes) + at.z));
+        float3 moved;
+        for (int axis = 0; axis < 3; axis++)
+            moved[axis] = faceMove(probeLight.loadAt(int3(axis * 2 * int(probes) + at.x, at.y, c * int(probes) + at.z)).a);
+        float valid = min(faceHolds(up.a), faceHolds(down.a));
+        float3 probe = oc.xyz + (float3(at) + 0.5 + moved) * (oc.w * spacing);
+        float weight = lerps.x * lerps.y * lerps.z * valid;
+        float sees = probeSees(probeReach, p, float3(0.0), probe, at, c, probes, oc.w * spacing);
+        seenSum += (up.rgb + down.rgb) * weight * sees;
+        seenWeights += weight * sees;
+        weights += weight;
+    }
+    return seenWeights > 1e-4 ? seenSum / seenWeights / (2.0 * 3.14159265) : float3(0.0);
+}
+
 // Henyey and Greenstein's phase for light turned by an angle of cosine cosAngle, forward where g
 // is above 0.
 float phase(float g, float cosAngle)
@@ -92,9 +134,7 @@ void computeMain(uint3 id : SV_DispatchThreadID)
     {
         int c = fieldCascade(field, p, 1.0, int(fog.probes.y));
         if (c >= 0 && c < int(fog.probes.y))
-            around = (bouncedAt(probeLight, probeSky, probeReach, field, p, float3(0.0, 1.0, 0.0), fog.grid.w, fog.probes.x, fog.probes.y)
-                + bouncedAt(probeLight, probeSky, probeReach, field, p, float3(0.0, -1.0, 0.0), fog.grid.w, fog.probes.x, fog.probes.y))
-                / (2.0 * 3.14159265);
+            around = airAt(p, c);
     }
     scattered[id] = float4((light + around) * extinction, extinction);
 }
