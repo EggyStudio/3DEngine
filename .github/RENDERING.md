@@ -935,9 +935,19 @@ plane puts no wedge below its rim inside. A triangle of next to no area beside i
 passed over, since its face turns whichever way rounding took it. `GenMeshSphere`'s last row meets
 its pole at corners the rounding of sin(pi) leaves apart, and taken as faces they turned 97 to 143
 of the 1662 cells within half a unit of a sphere inside, beyond the pole, where none is now
-(`SceneFieldTests`). The face a cell lies within 25 degrees of straight behind is kept apart as
-well, in a word a cell. A second pass turns the words into distances in both the image the meshes
-alone make and the one the passes read (`field_resolve.slang`). A double-sided mesh has no inside,
+(`SceneFieldTests`). The face a cell lies straight behind, its nearest point inside the face and not
+on an edge, is kept apart as well, in a uint a cell. Taken within 25 degrees of straight back, a
+wall thinner than a cell standing on a floor had its bottom face, buried against the floor's top and
+22 degrees off straight back from the cells along its foot, kept as the face behind them, which held
+none of them, and a lamp outside a closed room of walls 0.3 thick in cells of 0.5 lit the floor
+along a wall's foot inside 48% past the room's own dim lamp, where 1% now
+(`GlobalIlluminationTests`). Sponza's views at 12:00 but the door's, whose reference is traced
+through another camera than the window draws, moved by 0.009 at most in the share of their light off
+their references, the gallery from 0.416 to 0.407 and the lion and the look-up from 0.285 and 0.306
+to 0.289 and 0.310, and the bounce rooms by 0.003 at most, the field's build as long
+(`./e3d command gi.compare`, `./e3d command profile`). A second pass turns the uints into distances
+in both the image the meshes alone make and the one the passes read (`field_resolve.slang`). A
+double-sided mesh has no inside,
 and a sheet of one between two rows of cells leaves half a cell in each, which a trace steps over.
 The field keeps the plane of the double-sided face a cell's nearest point lies inside of, within a
 cell of its middle, in the image's other three channels, its way times two cells more than its

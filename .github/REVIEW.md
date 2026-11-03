@@ -1,24 +1,26 @@
 # Review
 
-Reviewed up to `6965e4df`, item 192, the glow lights past the four brightest, pushed at 19:32 on
-2026-11-03 with `f0de9b82`, Verdict 100's mend, the staging path under MoltenVK, its run green at
-21:06 with the Windows halves in 87 and 45 minutes, Linux in 81 and macOS in 47, which settled
-Verdict 100. After it `e3452da2`, 144's first commit, two-byte indices, pushed at 21:06, its run
-awaited; it keeps the form. Each commit's detail stands in its item in REVIEW-ARCHIVE.md, its devlog
-note and its own words. Before it `57dae5a6`, 182's second commit, the host image copy, pushed at
-17:25 with `ee367526`, 182's first, Vulkan 1.4 asked, and `3b85dbcd`, 141's third and its end, its
-run red at 18:43 on macOS alone, Verdict 100, the suite crashing at the first texture's bind under
-MoltenVK with the host copy chosen, the Windows halves green in 74 and 70 minutes, Linux in 65.
-Before it `01dd3ced`, 141's second commit, pushed at 15:27 with `26e1fbc8`, 141's first, its run
-green at 17:25 with the halves in 89 and 97 minutes, Linux in 105 and macOS in 43. Before it
-`1567179e`, 140's last commit and its end, pushed at 13:44, its run green at 15:27 with the halves
-in 79 and 102 minutes, Linux in 83 and macOS in 38. Before it `5d0c44e4`, Low's third cascade,
-pushed at 11:45, its run green at 13:43 with the halves in 86 and 98 minutes, Linux in 103 and macOS
-in 41. Before it `8cd556e1`, 140's first commit, pushed at 09:52, its run green at 11:45 with the
-halves in 84 and 96 minutes, Linux in 102 and macOS in 42. Before it `9a20767c`, item 191, pushed at
-08:13 with `52e75184` and `893758ea`, its run green at 09:51 with the halves in 82 and 96 minutes,
-Linux in 76 and macOS in 41. Before it `b83b1a85`, 142's second mend and its close, pushed at 06:45,
-its run green at 08:13 with the halves in 85 and 82 minutes, Linux in 58 and macOS in 40. Before it
+Reviewed up to `e3452da2`, 144's first commit, two-byte indices, pushed at 21:06 on 2026-11-03, its
+run green at 23:04 with Linux in 106 minutes, the Windows halves in 47 and 69 and macOS in 42. After
+it `88943e50`, item 145, the relight's upload and the rings' give-back, pushed at 23:04 with
+`a170718d`, 144's second commit and its end, packed positions, its run awaited; both keep the form.
+Each commit's detail stands in its item in REVIEW-ARCHIVE.md, its devlog note and its own words.
+Before it `6965e4df`, item 192, pushed at 19:32 with `f0de9b82`, Verdict 100's mend, its run green
+at 21:06 with the halves in 87 and 45 minutes, Linux in 81 and macOS in 47, which settled Verdict
+100. Before it `57dae5a6`, 182's second commit, the host image copy, pushed at 17:25 with
+`ee367526`, 182's first, Vulkan 1.4 asked, and `3b85dbcd`, 141's third and its end, its run red at
+18:43 on macOS alone, Verdict 100, the suite crashing at the first texture's bind under MoltenVK
+with the host copy chosen, the Windows halves green in 74 and 70 minutes, Linux in 65. Before it
+`01dd3ced`, 141's second commit, pushed at 15:27 with `26e1fbc8`, 141's first, its run green at
+17:25 with the halves in 89 and 97 minutes, Linux in 105 and macOS in 43. Before it `1567179e`,
+140's last commit and its end, pushed at 13:44, its run green at 15:27 with the halves in 79 and 102
+minutes, Linux in 83 and macOS in 38. Before it `5d0c44e4`, Low's third cascade, pushed at 11:45,
+its run green at 13:43 with the halves in 86 and 98 minutes, Linux in 103 and macOS in 41. Before it
+`8cd556e1`, 140's first commit, pushed at 09:52, its run green at 11:45 with the halves in 84 and 96
+minutes, Linux in 102 and macOS in 42. Before it `9a20767c`, item 191, pushed at 08:13 with
+`52e75184` and `893758ea`, its run green at 09:51 with the halves in 82 and 96 minutes, Linux in 76
+and macOS in 41. Before it `b83b1a85`, 142's second mend and its close, pushed at 06:45, its run
+green at 08:13 with the halves in 85 and 82 minutes, Linux in 58 and macOS in 40. Before it
 `aab4b622`, the history toggle's mend, pushed at 05:17 with `c117b252`, 142's first mend, its run
 green at 06:45 with the halves in 84 and 49 minutes, Linux in 57 and macOS in 36. Before it
 `40462df0`, 142's readout, pushed at 03:29, its run green at 05:16 with the halves in 70 and 83
@@ -87,7 +89,7 @@ note and its own words. On 2026-10-30 at 18:0x the owner wrote the README's new 
 the focus on radiance cascades (Decision 74), questions asked back, and asked that the sessions
 spend fewer tokens at the same quality, N 7.7.
 
-Next 145, then 193.
+Next 193.
 
 Items done and verdicts settled before 2026-10-23 stand in REVIEW-ARCHIVE.md beside this file, their
 numbers kept, moved there at 19:30 on 2026-10-23 so this file holds the current work alone and is
@@ -1042,7 +1044,20 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     updates the CPU's colors and the recolored set alone and queues nothing for the GPU, the relight
     being the stream's in-place write; and the ring is given back for one device-local buffer after
     RetireFrames quiet frames; a test for each half failing without it. Read by the roofed relight's
-    buffers and resident memory before and after, and the relight frame's upload time.
+    buffers and resident memory before and after, and the relight frame's upload time. Done at
+    88943e50, read at 22:27. SetStreams on a positions-only mesh keeps the colors on the CPU and in
+    the recolored set and queues nothing, and GpuMeshes gives a ring back for one device-local
+    buffer rebuilt from the last write's arrays once RetireFrames frames pass with no write, the
+    ring's buffers retired as an unloaded mesh's, a skinned mesh keeping its ring; two tests apart,
+    each failing without its half, on the GPU and lavapipe under validation. The game at 12 columns
+    with a stone roof of 129 by 129 relighting the layer below, two rounds, read no rings and whole
+    uploads before, and after 580 and 780 ring buffers (116 and 156 meshes, 14.7 and 20.4 MB mapped)
+    two frames after the roof and none once settled or 300 frames on; the roof frame's meshes'
+    prepare 57.0 and 57.4 ms before, 54.1 and 54.9 after, that frame re-uploading the roofed
+    sections whole in both builds; resident after the settle within the runs' 90 MB spread. A
+    relight still makes five mapped buffers a mesh before giving them back, a first write after a
+    quiet spell into one fresh device-local buffer a possible later step. The suite 2,237 in both
+    orders.
 
 139. **The field follows a changed world cell by cell, and a moving emitter lights what it passes.**
     Decision 75's sixth item. A changed mesh, a section after a block breaks, marks its whole
@@ -3077,3 +3092,10 @@ pass with no write. Under a stone roof that relights the voxel game's layer of s
 12 columns, 116 and 156 meshes held rings of 14.7 and 20.4 MB two frames after, every one given back
 once the land settled, the roof's frame spending 54.1 and 54.9 ms in the meshes' prepare where 57.0
 and 57.4 (item 145).
+
+Shared: a face counts as behind a field cell only where the cell lies straight behind it, its
+nearest point inside the face, as the bridge's splat has it, so a wall thinner than a cell standing
+on a floor keeps its far face behind the cells along its foot, which took a lamp outside a closed
+room of walls 0.3 thick in cells of 0.5 from lighting the floor along a wall's foot 48% past the
+room's own dim lamp to 1%, Sponza's seven views at 12:00 moving by 0.009 at most against their
+references and the bounce rooms by 0.003 (item 193).
