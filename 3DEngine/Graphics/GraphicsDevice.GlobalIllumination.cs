@@ -163,8 +163,11 @@ internal sealed unsafe partial class GraphicsDevice
         public float Edge;
         public uint Parity;
         public float BelowEnd;
-        public uint TexelsAbove, UnusedY, UnusedZ, UnusedW;
+        public uint TexelsAbove, First, UnusedZ, UnusedW;
     }
+
+    /// <summary>The parts the far cascade's probes are traced in, one a frame (<see cref="RecordGlobalIllumination"/>).</summary>
+    internal const int FarParts = 4;
 
     /// <summary>Whether the probes' shaders have been given, so light can bounce.</summary>
     public bool CanBounceLight => _giSpirv is not null;
@@ -388,11 +391,12 @@ internal sealed unsafe partial class GraphicsDevice
     /// <param name="lastCounted">The cascade before the far cascade's probes, whose rays bring the light from all around where they meet nothing, as the last cascade's do, or -1 where the field has no far cascade.</param>
     /// <param name="lightThrough">Whether some surface lets light through this frame, which the rays cross, where a frame of none traces with the build that leaves the crossing out.</param>
     /// <param name="fieldWhole">Whether the field holds every mesh in reach (<see cref="SceneFieldPlan.Whole"/>), so a ray carried to the field's edge that meets nothing brings the sky.</param>
+    /// <param name="farPart">Which of the <see cref="FarParts"/> parts of the far cascade's probes trace their rays this frame, or -1 for all of them.</param>
     /// <returns>What the recording holds, to free once no frame in flight reads it.</returns>
     public IDisposable RecordGlobalIllumination(ICommandBuffer commandBuffer, GpuIllumination gi, GpuSceneField field, IImageView environment,
         ISampler environmentSampler, IImageView sunMap, ISampler sunSampler, ReadOnlySpan<byte> lights, IReadOnlyList<(float Start, float End)> intervals, float spacing,
         bool mergeOff = false, int alone = -1, bool viewed = false, long frame = 0, IReadOnlyList<bool>? lying = null, int lastCounted = -1, bool lightThrough = false,
-        bool fieldWhole = false)
+        bool fieldWhole = false, int farPart = -1)
     {
         var trace = lightThrough ? TraceStage : SolidTraceStage;
         var run = new ProbeRun(this, commandBuffer, [(trace, gi.Cascades), (MergeStage, gi.Cascades), (AmbientStage, gi.Cascades)]);
@@ -443,8 +447,23 @@ internal sealed unsafe partial class GraphicsDevice
                 BelowEnd = c > 0 ? intervals[c - 1].End : 0,
                 TexelsAbove = c + 1 < gi.Cascades && c != lastCounted ? (uint)gi.Texels[c + 1] : 0,
             };
+            // The far cascade's probes trace one part of them a frame, layers of probes in turn, each
+            // part's rays' light kept until its turn comes again, and the merge and the gather take
+            // them whole each frame as they lie. Traced whole, the far probes' rays took 0.55 to 0.75
+            // ms of the 1 to 2 ms the voxel game's far cascade cost at 1920 by 1080, at seed 1's
+            // cherry grove and its deep cave at Low and High (a GPU mark after each dispatch). A
+            // quarter a frame, global illumination there takes 0.4 to 0.47 ms less, the far light at
+            // most three frames behind, and the cave's far walls read as dark (./e3d command profile).
+            var (first, count) = (0u, p * p * p);
+            if (c == gi.Cascades - 1 && lastCounted >= 0 && farPart >= 0)
+            {
+                var part = (count + FarParts - 1) / FarParts;
+                first = Math.Min(count, (uint)farPart * part);
+                count = Math.Min(part, count - first);
+            }
+            push.First = first;
             run.Dispatch(trace, set, MemoryMarshal.AsBytes(new ReadOnlySpan<IlluminationTrace>(in push)),
-                (p * p * p * n * n * (uint)gi.RaysAt(c) + 63) / 64);
+                (count * n * n * (uint)gi.RaysAt(c) + 63) / 64);
         }
         MemoryBarrier(cmd, VkPipelineStageFlags2.ComputeShader, VkAccessFlags2.ShaderWrite, VkPipelineStageFlags2.ComputeShader, VkAccessFlags2.ShaderRead);
 

@@ -43,4 +43,70 @@ public sealed partial class GlobalIlluminationTests
         sky.Should().BeGreaterThan(MathF.PI * 0.8f, "past the counted cascades a ray takes the sky");
         far.Should().BeLessThan(sky * 0.5f, "the far cascade holds the wall, which the rays meet before the sky");
     }
+
+    [NeedsVulkanFact]
+    [Trait("Category", "Render")]
+    public void The_Far_Cascades_Probes_Trace_A_Part_Of_Them_A_Frame_And_All_On_A_Frame_It_Moved()
+    {
+        // The sky's light changes every frame, so the far cascade's probes whose rays' light changed
+        // from the frame before are those that traced, a part of them in layers of probes, and all
+        // of them on the frame the far cascade moved with the eye.
+        Open();
+        SetSceneField(2, 0.15f, 2, farCascade: 100);
+        SetGlobalIllumination(GlobalIllumination.Low);
+        var wall = LoadModelFromMesh(GenMeshCube(200, 200, 1));
+        var renderer = GetApp().World.Resource<Engine.Renderer>();
+        var device = (GraphicsDevice)renderer.Context.Graphics!;
+        var lit = 1f;
+        void Frame(float x)
+        {
+            SetAmbientLight(Color.White, lit -= 0.01f);
+            BeginDrawing();
+            ClearBackground(Color.Black);
+            BeginMode3D(new Camera3D(new Vector3(x, 1.5f, 4.5f), new Vector3(x, 1.2f, 0), Vector3.UnitY, 50));
+            DrawModel(wall, new Vector3(0, 1.2f, -40), 1, Color.Black);
+            EndMode3D();
+            EndDrawing();
+        }
+        for (int frame = 0; frame < SceneFieldPlan.SettleFrames + 10; frame++)
+            Frame(0);
+        var probes = renderer.RenderWorld.TryGet<GlobalIlluminationRenderer>()!.Probes!;
+        var (far, p, side) = (probes.Cascades - 1, probes.Probes, probes.Probes * probes.Texels[probes.Cascades - 1]);
+        // The layers of probes along z whose rays' light changed since the reading before.
+        var before = device.ReadProbeVolume(probes, far, merged: false);
+        List<int> Changed()
+        {
+            var now = device.ReadProbeVolume(probes, far, merged: false);
+            var layers = Enumerable.Range(0, p).Where(z => Enumerable.Range(0, side * side).Any(t => now[(z * side * side + t) * 4] != before[(z * side * side + t) * 4])).ToList();
+            before = now;
+            return layers;
+        }
+        var each = p / GraphicsDevice.FarParts;
+        var seen = new HashSet<int>();
+        for (int frame = 0; frame < GraphicsDevice.FarParts; frame++)
+        {
+            Frame(0);
+            var layers = Changed();
+            layers.Should().HaveCount(each, "a part of the far cascade's probes traces a frame");
+            (layers[^1] - layers[0]).Should().Be(each - 1, "a part is layers of probes side by side");
+            seen.UnionWith(layers);
+        }
+        seen.Should().HaveCount(p, "every part of the far cascade's probes traces in turn");
+
+        var plan = renderer.RenderWorld.TryGet<SceneFieldRenderer>()!.Plan!;
+        var from = plan.BuiltOrigin(plan.Cascades - 1);
+        var moved = false;
+        for (int frame = 0; frame < 40 && !moved; frame++)
+        {
+            Frame(40);
+            var layers = Changed();
+            moved = plan.BuiltOrigin(plan.Cascades - 1) != from;
+            if (moved)
+                layers.Should().HaveCount(p, "every probe of the far cascade traces on the frame it moved");
+            else
+                layers.Should().HaveCount(each, "a part traces while the far cascade waits to be built where the eye went");
+        }
+        moved.Should().BeTrue("the far cascade follows the eye 40 units along");
+        UnloadModel(wall);
+    }
 }

@@ -138,8 +138,10 @@ probes stand in it as in the others. A ray that leaves the counted cascades meet
 buildings it holds before the sky, so a valley past the near field is not lit as open ground, and
 the occlusion, the contact shadows and the glow lights' marches read on through it. Its cells are
 coarse, so it holds land and buildings and loses what is thinner than they are, and it is built
-under the budgets as the others are. It takes 5.5 MB of the GPU's memory beside the 27 of four
-cascades, and its probes 2.6 MB at High, as `field.state` and `gi.state` say.
+under the budgets as the others are. Its probes trace a quarter of them a frame, so the far land's
+light is up to three frames behind, and all of them on a frame it moves. It takes 5.5 MB of the
+GPU's memory beside the 27 of four cascades, and its probes 2.6 MB at High, as `field.state` and
+`gi.state` say.
 
 Each cascade lies mostly ahead of the eye, its middle 0.35 of its width in front, so its side behind
 the eye is between 1.6 and 9.6 of its cells back. What stands behind the camera farther than that is

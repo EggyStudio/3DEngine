@@ -485,12 +485,15 @@ internal sealed class GlobalIlluminationRenderer : IDisposable
                 corners[c] = new Vector4(then, 0);
         }
         _origins = origins;
+        // The far cascade's probes trace a part of them a frame, and all on a frame it moved, whose
+        // probes' light of the frames before lay elsewhere (RecordGlobalIllumination).
+        var farPart = far && lying[cascades - 1] ? (int)(_frame % GraphicsDevice.FarParts) : -1;
         _lightThrough = false;
         foreach (var (instance, _) in renderWorld.TryGet<SceneFieldRenderer>()?.Drawn ?? [])
             _lightThrough |= instance.LightThrough > 0 && !switches.ThroughOff;
         _retired.Add((_frame, device.RecordGlobalIllumination(renderContext.CommandBuffer, _gi, field.Field, view, sampler, sunMap, sunSampler, lights, intervals, ProbeSpacing,
             switches.MergeOff, switches.Alone, switches.Shown is BounceView.Rays or BounceView.Merged, _frame, switches.FollowOff ? null : lying,
-            far ? cascades - 2 : -1, _lightThrough, plan is { Whole: true })));
+            far ? cascades - 2 : -1, _lightThrough, plan is { Whole: true }, farPart)));
 
         // The screen's probes, where the window has a depth to stand them on, the first interval
         // theirs. At Low, which leaves them out, they stand for the glow lights alone while some

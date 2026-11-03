@@ -803,6 +803,21 @@ place of 17.1. Ore's at its four cascades of half a block and a far one to 384, 
 place of 445 to 460 for a quarter more rays, and the field's builds 61 ms a frame in place of 66, the
 same within the noise.
 
+The far cascade's probes trace a quarter of them a frame, two of their eight layers along z in turn,
+each part's rays' light kept until its turn comes again and the merge and the gather taking them
+whole each frame, and all of them on a frame the far cascade moved, whose probes' light of the
+frames before lay elsewhere (`FarParts` in `GraphicsDevice.GlobalIllumination.cs`). Read by a GPU
+mark after each dispatch in a scratch build, the voxel game's far cascade cost the frame at 1920 by
+1080 2.1 ms at seed 1's cherry grove at Low and at High, and 1.0 and 2.1 ms in its deep cave. Its
+probes' rays took 0.55 to 0.75 ms of it and their gather 0.11 to 0.15, the cascade before them
+carrying its rays on to the far edge 0.14 to 0.38, the screen's probes on the surfaces past the
+counted cascades 1.0 in the cave at High, and the scene pass's judgment of thin walls in the far
+cascade's cells 0.45 to 0.74 in the grove. A quarter a frame, global illumination takes 0.4 to 0.47
+ms less there, 3.96 ms against 4.43 at the grove at Low and 7.44 to 7.51 against 7.85 to 7.89 at
+High, and the cave's picture with the far cascade on reads a mean of 0.0010 and 0.0001 of 255 at Low
+and High as before, where 2.18 and 0.42 without it (`./e3d command profile` over 300 frames on a
+quiet RTX 4070 on the power-saving profile, `GlobalIlluminationTests`).
+
 A cascade's corner lies on a grid of eight of its cells, so it moves only when the eye has gone that
 far, and where it moves by less than half its width it shifts, the cells it keeps moved on the GPU
 and the slab it brings in built alone (`SceneFieldPlan.Shifts.cs`), and farther it is built again,

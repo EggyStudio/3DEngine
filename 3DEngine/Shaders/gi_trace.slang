@@ -120,7 +120,9 @@ struct TracePush
     // bits of where the cascade below's interval ends, 0 for the first, before which a surface that
     // lets light through is that cascade's to cross.
     uint4 follow;
-    // x: the cascade above's octahedron's texels along each side, 0 for the last. yzw: unused.
+    // x: the cascade above's octahedron's texels along each side, 0 for the last. y: the first
+    // probe the dispatch traces, past 0 where it traces a part of the cascade's probes (the far
+    // cascade's, a part a frame). zw: unused.
     uint4 above;
 };
 
@@ -324,7 +326,7 @@ void computeMain(uint3 id : SV_DispatchThreadID, uint lane : SV_GroupIndex)
     // A thread a ray, a texel's rays (RaysAt) side by side in a workgroup.
     uint each = RaysAt(texels);
     uint rays = texels * texels * each;
-    uint probe = id.x / rays;
+    uint probe = id.x / rays + push.above.y;
     // A probe's rays are 256, so every workgroup is one probe's, and one past the last probes
     // leaves whole, before the sum below every ray of a group reaches.
     if (probe >= probes * probes * probes)
