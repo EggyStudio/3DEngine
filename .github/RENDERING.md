@@ -997,7 +997,7 @@ side, so each cascade's probes are twice as far apart as the one before's. Each 
 octahedron of directions, a texel each, across an interval. The first cascade's runs from the probe
 to four times the spacing and each after's from its spacing to four times that, so a cascade's
 interval begins half way along the one below's (`gi_trace.slang`). `Low` traces 8 by 8 directions in
-each of two cascades, `Medium` adds 16 by 16 in a third, and `High` traces 8 by 8 then 16 by 16 in
+each of three cascades, `Medium` 16 by 16 in its third, and `High` traces 8 by 8 then 16 by 16 in
 four, no more cascades than the field has. A ray that meets a surface brings back its painted color
 times the sun's light where the window's shadow map lets it through, as the frame before's shadow
 pass drew it, where one of its counted cascades holds the hit, and elsewhere where a trace toward
@@ -2702,6 +2702,18 @@ surface is a wall thinner than a cell, the point a cell behind it in the open, a
 hit, and Sponza's views and their cost as they were. With the game's source as of 2026-10-25 the
 grove took 2.3 ms at that day's commit and at this one alike, so the rest is the game's choosing,
 its screen's probes and its far cascade (`./e3d command profile`, `gi.toggle screen off`).
+
+**`Low`'s third cascade, read and mended on 2026-11-03.** At `Low` Sponza's atrium at noon at 1920
+by 1080 read 1.67 times a path-traced reference of every bounce over the whole view, a mean
+difference of 0.86 of its light, where `Medium` and `High` read 1.10 and 0.29. `Low` traced two
+cascades, 16 units across in the example's field, and past them a surface took the light from beyond
+the probes, a sky over a ground, so the atrium's far half took the sky's light as though it stood
+outdoors, the far blocks' sides 8 to 350 times the reference. With a third cascade of 8 by 8
+directions it reads 1.18 and 0.37, for 1.89 ms of global illumination where 1.65, and with a fourth
+1.13 and 0.32 for 2.18 ms, past the 2 ms `Low` keeps at that size. The bounce rooms' Cornell box and
+room four take 0.05 to 0.26 ms more at their three sizes, the voxel game's grove about 0.5 at 1920
+by 1080, and the slab's underside at `Low` reads 0.0156 where the reference reads 0.0170
+(`gi.reference` at 256 paths a pixel, `gi.compare`, `./e3d command profile`).
 
 **The floor's color, read and mended on 2026-11-03.** At noon the pixels of Sponza's views lit by
 the sun read 1.41, 0.96, 1.46 and 1.17 times a path-traced reference of one bounce in the atrium,

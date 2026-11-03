@@ -250,7 +250,11 @@ internal sealed class GlobalIlluminationRenderer : IDisposable
     /// <summary>Each cascade's octahedron's texels along each side at a quality, before the field's cascades cut them short.</summary>
     internal static int[] TexelsAt(GlobalIllumination quality) => quality switch
     {
-        GlobalIllumination.Low => [8, 8],
+        // Low's third cascade of 8 a side, so a surface past its second, 16 units across in Sponza's
+        // field of 0.125, takes probes rather than the sky over a ground from beyond them, which lit
+        // the atrium's far half at noon as though it stood outdoors, the whole view 1.67 times a
+        // path-traced reference where with a third it reads 1.18, for 0.34 ms at 1920 by 1080.
+        GlobalIllumination.Low => [8, 8, 8],
         GlobalIllumination.Medium => [8, 8, 16],
         // High's second cascade of 8 a side as Low's and Medium's, four rays a texel, where of 16
         // a side, one ray from each texel's middle, its probes under a slab read the sky past its

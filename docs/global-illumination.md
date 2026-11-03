@@ -278,17 +278,17 @@ command gi.toggle through off` reads by stopping the rays at them.
 ## The qualities and what they cost
 
 On the development machine's laptop GPU at 800 by 450 with the frame rate unlimited, the Cornell box
-of `shaders_bounce_rooms` costs this on the GPU, read on 2026-10-25, as `./e3d command profile`
+of `shaders_bounce_rooms` costs this on the GPU, read on 2026-11-03, as `./e3d command profile`
 names it `global_illumination`, with `./e3d command gi.state` giving the rest. At `Low` the
 probes standing for the room's four small emitters alone are in the time.
 
 | Quality | Probe cascades | Directions each | Screen probes | Memory | GPU time |
 |---|---|---|---|---|---|
-| `Low` | 2 | 64, 64 | none, those standing for the glow lights alone | 6.28 MB, 1.65 with no glow light | 0.55 ms |
-| `Medium` | 3 | 64, 64, 256 | every 12 pixels | 9.29 MB | 1.50 ms |
-| `High` | 4 | 64, 256, 256, 256 | every 8 pixels | 11.72 MB | 1.60 ms |
+| `Low` | 3 | 64, 64, 64 | none, those standing for the glow lights alone | 8.28 MB, 3.65 with no glow light | 0.91 ms |
+| `Medium` | 3 | 64, 64, 256 | every 12 pixels | 10.46 MB | 1.90 ms |
+| `High` | 3 | 64, 64, 256 | every 8 pixels | 10.83 MB | 1.98 ms |
 
-A cascade of 64 directions, the first at every quality and the second at `Low` and `Medium`, sends
+A cascade of 64 directions, the first two at every quality and the third at `Low`, sends
 four rays along each, one from the middle of each quarter of the direction's texel, and takes their
 light together, so a lamp's bright spot under a ceiling stands for a quarter of the texel it falls in
 rather than the whole of it, and every probe sends 256 rays. That costs 0.10 to 0.19 ms of global

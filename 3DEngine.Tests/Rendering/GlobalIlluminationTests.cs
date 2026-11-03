@@ -25,10 +25,10 @@ public sealed partial class GlobalIlluminationTests : IDisposable
 
     [Fact]
     [Trait("Category", "Unit")]
-    public void Each_Quality_Traces_More_Cascades_And_Directions_Than_The_One_Below_As_The_Field_Allows()
+    public void Each_Quality_Traces_More_Directions_Than_The_One_Below_In_The_Cascades_The_Field_Allows()
     {
         GlobalIlluminationRenderer.TexelsAt(GlobalIllumination.Off).Should().BeEmpty();
-        GlobalIlluminationRenderer.TexelsAt(GlobalIllumination.Low).Should().Equal(8, 8);
+        GlobalIlluminationRenderer.TexelsAt(GlobalIllumination.Low).Should().Equal(8, 8, 8);
         GlobalIlluminationRenderer.TexelsAt(GlobalIllumination.Medium).Should().Equal(8, 8, 16);
         GlobalIlluminationRenderer.TexelsAt(GlobalIllumination.High).Should().Equal(8, 8, 16, 16);
         GlobalIlluminationRenderer.TileAt(GlobalIllumination.Low).Should().BeGreaterThan(GlobalIlluminationRenderer.TileAt(GlobalIllumination.High));
@@ -47,7 +47,7 @@ public sealed partial class GlobalIlluminationTests : IDisposable
         world.Set(new SceneFieldSettings { Cascades = 3 });
         GlobalIlluminationRenderer.CascadesIn(world).Should().Be(3, "the field's three cascades cut the four High has short");
         world.Set(new GlobalIlluminationSettings { Quality = GlobalIllumination.Low });
-        GlobalIlluminationRenderer.CascadesIn(world).Should().Be(2);
+        GlobalIlluminationRenderer.CascadesIn(world).Should().Be(3, "Low's three cascades as the field holds three");
     }
 
     [Fact]
