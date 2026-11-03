@@ -234,7 +234,7 @@ physics, text and fonts, audio, audio streams and waves, and files
 
 ### The device
 
-Passes are drawn by dynamic rendering and barriers are synchronization2's, on Vulkan 1.3. Buffers and
+Passes are drawn by dynamic rendering and barriers are synchronization2's, on Vulkan 1.4. Buffers and
 textures are carved out of blocks of 64 MiB a memory type, ten thousand buffers and three thousand
 textures in as many allocations as the blocks they fill, and render targets, cube maps and the
 frame's images keep an allocation each.

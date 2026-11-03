@@ -41,6 +41,9 @@ internal sealed partial class GraphicsDevice : IGraphicsDevice
     /// <summary>Maximum byte length for Vulkan physical device name strings.</summary>
     private const int MaxPhysicalDeviceNameSize = 256;
 
+    /// <summary>Maximum byte length of a driver's name and of its information, as <c>VkPhysicalDeviceDriverProperties</c> holds them.</summary>
+    private const int MaxDriverNameSize = 256;
+
     private static readonly ILogger Logger = Log.Category("Engine.Graphics");
 
     /// <inheritdoc />

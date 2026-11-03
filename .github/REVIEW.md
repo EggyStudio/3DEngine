@@ -80,7 +80,7 @@ note and its own words. On 2026-10-30 at 18:0x the owner wrote the README's new 
 the focus on radiance cascades (Decision 74), questions asked back, and asked that the sessions
 spend fewer tokens at the same quality, N 7.7.
 
-Next 141 (Decision 75), then 182 (Decision 86); 143, 144 and 145 wait behind them.
+Next 182 (Decision 86); 143, 144 and 145 wait behind it.
 
 Items done and verdicts settled before 2026-10-23 stand in REVIEW-ARCHIVE.md beside this file, their
 numbers kept, moved there at 19:30 on 2026-10-23 so this file holds the current work alone and is
@@ -1138,7 +1138,14 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     cave at High GI 5.55 to 4.35 to 4.45 ms and the frame 10.59 to 9.25 to 9.37, its luma 0.0010 and
     0.0001 of 255, Sponza's views moving 0.011 at most against 01dd3ced, the grove at Low unchanged,
     the corridor 0.062 at High under its 0.12 bar with cascade 1's probes inside it; the commit
-    after a last re-read and the suite.
+    after a last re-read and the suite. The third commit is 3b85dbcd at 15:49, read clean in three
+    alternating rounds, the cave at High GI 5.61 to 5.76 to 4.50 to 4.66 ms and the frame 10.59 to
+    10.72 to 9.48 to 9.80, its far walls as dark, Sponza's eight views at 8:00 and noon moving 0.014
+    at most, the corridor 0.062 under 0.12, the suite 2,227 in both orders, no new test since a
+    scene where no probe around a ray's end holds light proved hard to make and the corridor's bar
+    keeps the march as its fallback; its Shared line a row. Over the three commits against 1567179e
+    at 1080p the grove's frame at Low 16.94 to about 16.0 and at High 20.0 to 19.24, the cave's at
+    High 10.8 to about 9.5. Done at 3b85dbcd, pushed after 01dd3ced's run.
 
 142. **The merge's gain past the first bounce holds at one.** Decision 75's ninth item, outside the
     eight. RENDERING.md's first term reads the merge's gain at 1.08 to 1.27 a bounce. The cause read
@@ -2007,7 +2014,19 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     written from the CPU with no staging buffer, read by Sponza's 72 textures' upload and by the
     shared-memory devices of Verdict 97's mend, and push descriptors for the per-look set of item
     132, read by the four passes' CPU at 16 columns; each a commit, the suite on lavapipe under the
-    validation layer. Three commits, after 175.
+    validation layer. Three commits, after 175. The runners' versions read at 15:52 from 1567179e's
+    run and the workflow, every driver at 1.4. Linux (ubuntu-24.04) lavapipe from Mesa 25.2.8,
+    Vulkan 1.4, under Ubuntu's loader 1.3.275 with LunarG's validation layer 1.4.363.0 pinned in
+    build/fetch-validation-layer.sh; Windows lavapipe from mesa-dist-win's latest release, unpinned,
+    26.2.6 at that run, with LunarG's loader and layer 1.4.363.0 pinned; macOS (macos-15, the
+    paravirtual device) MoltenVK 1.4.2 with loader and layer 1.4.363.0 from Homebrew; locally the
+    RTX 4070 on NVIDIA 615.78.08 at 1.4.351 and Fedora's lavapipe at 1.4.354. Two points to read on
+    the runners once pushed, whether Linux's 1.3 loader passes an instance asked for 1.4 and the
+    driver's 1.4 device functions (if not, LunarG's loader on Linux as Windows has it), and the
+    paravirtual device's own apiVersion under MoltenVK, which nothing logs today. The first commit,
+    the instance asks for 1.4, the device's log line gives its apiVersion and driver, a device under
+    1.4 fails initialization naming its version, the extensions 1.4 made core are asked for no
+    longer, the suite on lavapipe under the validation layer.
 
 183. **The Windows job's time, up to 159 minutes.** The push runs' Windows job took 149, 151 and 159
     minutes at the last three runs (`4b80c5c8`, `adf7bb79`, `a35d7ce9`), up from 98 to 140 in
@@ -2850,3 +2869,9 @@ around its end holds light, and takes the dark of probes that hold it, since a p
 above already carries its rays to the field's edge, which took 1.1 ms of global illumination off the
 voxel game's deep cave at High at 1920 by 1080, 4.50 to 4.66 where 5.61 to 5.76, its far walls as
 dark (item 141's third commit).
+
+Shared: the engine asks for Vulkan 1.4 outright, takes maintenance5 and Bresenham's lines from
+VkPhysicalDeviceVulkan14Features where it asked for their extensions, passes over a device whose
+driver offers less and names it, its version and the version asked where no device has it, and its
+device line gives the version and the driver's own name and information, 1.4.351 and NVIDIA
+615.78.08 on the RTX 4070, 1.4.354 and Mesa 26.2.4 on Fedora's lavapipe (item 182's first commit).

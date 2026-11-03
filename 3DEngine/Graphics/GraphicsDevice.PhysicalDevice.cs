@@ -30,6 +30,9 @@ internal sealed unsafe partial class GraphicsDevice
 
         VkPhysicalDevice? best = null;
         var bestScore = int.MinValue;
+        // The first device passed over for a Vulkan older than the instance asks, named in the
+        // error where no device has it.
+        (string Name, VkVersion Version)? older = null;
 
         foreach (var device in devices)
         {
@@ -41,6 +44,12 @@ internal sealed unsafe partial class GraphicsDevice
 
             var deviceName = Utf8(new ReadOnlySpan<byte>(props.deviceName, MaxPhysicalDeviceNameSize));
             Logger.Debug($"  Evaluating GPU: {deviceName} (type={props.deviceType}, vendorId=0x{props.vendorID:X4}, deviceId=0x{props.deviceID:X4})");
+            if (props.apiVersion.Major == 1 && props.apiVersion.Minor < 4)
+            {
+                Logger.Debug($"    Passed over, its driver offering Vulkan {VersionOf(props.apiVersion)}");
+                older ??= (deviceName, props.apiVersion);
+                continue;
+            }
 
             var score = props.deviceType switch
             {
@@ -64,10 +73,13 @@ internal sealed unsafe partial class GraphicsDevice
                     props.deviceID,
                     ToDeviceType(props.deviceType),
                     GraphicsAdapterInfo.DriverOf(props.vendorID, (uint)props.driverVersion),
-                    $"{props.apiVersion.Major}.{props.apiVersion.Minor}.{props.apiVersion.Patch}");
+                    VersionOf(props.apiVersion));
             }
         }
 
+        if (best is null && older is { } passed)
+            throw new InvalidOperationException($"{passed.Name}'s driver offers Vulkan {VersionOf(passed.Version)}, and the engine asks for 1.4, "
+                + "which lavapipe has from Mesa 25, NVIDIA's driver from 550 and MoltenVK from 1.4.");
         if (best is null)
         {
             Logger.Error("No Vulkan GPU meets every requirement.");
@@ -75,8 +87,18 @@ internal sealed unsafe partial class GraphicsDevice
         }
 
         _physicalDevice = best.Value;
-        Logger.Info($"Selected GPU: {_adapterInfo.Name} (score={bestScore})");
+        // The driver's own name and version, as it gives them, since each vendor packs the number
+        // in the properties its own way.
+        var driver = new VkPhysicalDeviceDriverProperties();
+        var properties = new VkPhysicalDeviceProperties2 { pNext = &driver };
+        _instanceApi.vkGetPhysicalDeviceProperties2(_physicalDevice, &properties);
+        var driverName = Utf8(new ReadOnlySpan<byte>(driver.driverName, MaxDriverNameSize));
+        var driverInfo = Utf8(new ReadOnlySpan<byte>(driver.driverInfo, MaxDriverNameSize));
+        Logger.Info($"Selected GPU: {_adapterInfo.Name}, Vulkan {_adapterInfo.Api}, {driverName} {driverInfo} (score={bestScore})");
     }
+
+    // A Vulkan version as its numbers, 1.4.354.
+    private static string VersionOf(VkVersion version) => $"{version.Major}.{version.Minor}.{version.Patch}";
 
     /// <summary>Finds the graphics and present queue family indices for the given physical device.</summary>
     /// <param name="device">The physical device to query.</param>

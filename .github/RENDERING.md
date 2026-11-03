@@ -7,7 +7,7 @@ needs an offline toolchain beyond `slangc`.
 
 ## What exists
 
-- **A Vulkan device** (`GraphicsDevice`, over Vortice.Vulkan) targeting Vulkan 1.3 with
+- **A Vulkan device** (`GraphicsDevice`, over Vortice.Vulkan) targeting Vulkan 1.4 with
   `VK_KHR_swapchain`, three frames in flight, mailbox presentation where the surface offers it, a
   depth image of its own, and optional validation layers. Buffers and textures are carved out of
   blocks (`GraphicsDevice.Memory`). `IGraphicsDevice` is the interface the rest of the engine draws

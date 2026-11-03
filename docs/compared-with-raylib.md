@@ -61,8 +61,9 @@ machine, with the command that measures it again.
   Pi. This engine runs on Linux, Windows and macOS (through MoltenVK), and CI draws on all three.
 - **A runtime or a larger binary.** A program needs the .NET runtime, or is published native at
   about 11 MB, where raylib's bunnymark links statically into under 1 MB beside SDL.
-- **Vulkan.** A GPU and driver with Vulkan 1.3 are needed, where raylib draws through OpenGL 3.3,
-  or OpenGL 1.1 and 2.1 on old machines.
+- **Vulkan.** A GPU and driver with Vulkan 1.4 are needed, lavapipe from Mesa 25, NVIDIA's from
+  550 and MoltenVK from 1.4, where raylib draws through OpenGL 3.3, or OpenGL 1.1 and 2.1 on old
+  machines.
 - **Younger and less proven.** raylib has more than a decade of users and ports behind it, and this engine
   is early, used for small games, with its own list of what is missing in
   [TODO.md](../.github/TODO.md).
