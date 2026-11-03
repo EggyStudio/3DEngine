@@ -107,6 +107,9 @@ public struct Lighting
     public float4 mirror;
     // xy: one over the window's width and height, which a pixel's place in mirrorMap is read by.
     public float4 mirrorScreen;
+    // x: the window's pixels along each side of a texel of screenGlow, two up to 1,080 rows and more
+    // past them (GpuScreenProbes.GlowTexelAt).
+    public float4 screenGlow;
 };
 
 [[vk::binding(0, 1)]]

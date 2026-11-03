@@ -221,7 +221,8 @@ public float3 glowLightsHere(ModelVertexOutput input, float3 n, bool screen)
         uint width, height;
         screenGlow.GetDimensions(width, height);
         float2 place = screenPlace(input);
-        float2 g = place * 0.5 - 0.5;
+        float texelPixels = lighting.screenGlow.x > 0.0 ? lighting.screenGlow.x : 2.0;
+        float2 g = place / texelPixels - 0.5;
         int2 base = int2(floor(g));
         float2 f = g - float2(base);
         float distance = length(input.toEye);
@@ -247,7 +248,7 @@ public float3 glowLightsHere(ModelVertexOutput input, float3 n, bool screen)
                 continue;
             float2 lerps = lerp(1.0 - f, f, float2(offset));
             float near = lerps.x * lerps.y;
-            float2 toTexel = (float2(base + offset) + 0.5) * 2.0 - place;
+            float2 toTexel = (float2(base + offset) + 0.5) * texelPixels - place;
             float expected = length(input.toEye - acrossOne * toTexel.x - downOne * toTexel.y);
             float weight = near * pow(saturate(dot(facing, normal.xyz * 2.0 - 1.0)), 8.0) * exp(-abs(held.a - expected) / (0.02 * distance + 0.05));
             onLight = onLight || kind == GlowOnLight;

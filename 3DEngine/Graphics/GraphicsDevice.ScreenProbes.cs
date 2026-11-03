@@ -5,7 +5,7 @@ namespace Engine;
 internal sealed unsafe partial class GraphicsDevice
 {
     /// <summary>Makes the screen probes of a window <paramref name="width"/> by <paramref name="height"/> pixels, a probe every <paramref name="tile"/> pixels a side.</summary>
-    public GpuScreenProbes CreateScreenProbes(uint width, uint height, int tile)
+    public GpuScreenProbes CreateScreenProbes(uint width, uint height, int tile, float glowTexel = 2)
     {
         var across = (int)((width + tile - 1) / tile);
         var down = (int)((height + tile - 1) / tile);
@@ -33,9 +33,9 @@ internal sealed unsafe partial class GraphicsDevice
         var glowSeen = CreateBuffer(new BufferDesc((ulong)(across * down) * GpuScreenProbes.GlowSeenBytes, BufferUsage.Storage | BufferUsage.TransferDst));
         var rayLog = CreateBuffer(new BufferDesc(GpuScreenProbes.RayLogBytes, BufferUsage.Storage, CpuAccessMode.Read));
         Name(rayLog, "Screen probe's rays, as gi.screenprobe asks for them");
-        // The glow lights' light a texel of the view's depth each, half the view's size as
-        // AmbientOcclusionRenderer draws it.
-        var glowDesc = desc with { Extent = new Extent2D(Math.Max(1, width / 2), Math.Max(1, height / 2)) };
+        // The glow lights' light a texel each of glowTexel pixels a side, half the view's size as
+        // AmbientOcclusionRenderer draws its depth up to 1,080 rows (GpuScreenProbes.GlowTexelAt).
+        var glowDesc = desc with { Extent = new Extent2D(Math.Max(1, (uint)MathF.Ceiling(width / glowTexel)), Math.Max(1, (uint)MathF.Ceiling(height / glowTexel))) };
         IImage[] glowImages = [.. Enumerable.Range(0, 4).Select(_ => CreateImage(glowDesc)), CreateImage(glowDesc with { Format = ImageFormat.R8G8B8A8_UNorm }),
             CreateImage(glowDesc), CreateImage(glowDesc)];
         var glowViews = glowImages.Select(CreateImageView).ToArray();
@@ -79,7 +79,7 @@ internal sealed unsafe partial class GraphicsDevice
             IDisposable[] all = [irradianceView, geometryView, keptView, blendedView, historyView, lastGeometryView, .. glow.Views,
                 irradiance, geometry, kept, blended, history, lastGeometry, .. glow.Images];
             foreach (var one in all) one.Dispose();
-        }, kept, keptView, blended, blendedView, history, historyView, lastGeometry, lastGeometryView, glowSeen, glow, rayLog);
+        }, kept, keptView, blended, blendedView, history, historyView, lastGeometry, lastGeometryView, glowSeen, glow, rayLog) { GlowTexel = glowTexel };
     }
 
     /// <summary>

@@ -1,71 +1,72 @@
 # Review
 
-Reviewed up to `9a20767c`, item 191, pushed at 08:13 on 2026-11-03 with `52e75184` (190) and
-`893758ea` (187), its run green at 09:51 with the Windows halves in 82 and 96 minutes, Linux in 76
-and macOS in 41. After it `8cd556e1`, 140's first commit, pushed at 09:52, its run awaited; it keeps
-the form. Each commit's detail stands in its item in REVIEW-ARCHIVE.md, its devlog note and its own
-words. Before it `b83b1a85`, 142's second mend and its close, pushed at 06:45, its run green at
-08:13 with the halves in 85 and 82 minutes, Linux in 58 and macOS in 40. Before it `aab4b622`, the
-history toggle's mend, pushed at 05:17 with `c117b252`, 142's first mend, its run green at 06:45
-with the halves in 84 and 49 minutes, Linux in 57 and macOS in 36. Before it `40462df0`, 142's
-readout, pushed at 03:29, its run green at 05:16 with the halves in 70 and 83 minutes, Linux in 94
-and macOS in 38. Before it `369d9b5a`, item 189, pushed at 01:56, its run green at 03:28 with the
-halves in 80 and 92 minutes, Linux in 58 and macOS in 38. Before it `5ab01df8`, 188's third commit
-and its end, pushed at 00:22 with `3e651d9d`, its run green at 01:55 with the halves in 79 and 91
-minutes, Linux in 58 and macOS in 39. Before it `71c7c194`, 188's first commit, pushed at 22:34 on
-2026-11-02, its run green at 00:22 with the halves in 79 and 89 minutes, Linux in 98 and macOS in
-37. Before it `aca80ca2`, item 186 with the knob and the fog's removal, pushed at 20:25, its run
-green at 22:12 with the halves in 78 and 85 minutes, Linux in 97 and macOS in 42. Before it
-`abde3935`, Verdict 99's mend, pushed at 18:26 with `f8872d03` (175) and `11b6a593` (142's record),
-its run green at 20:09 with the halves in 70 and 89 minutes, Linux in 91 and macOS in 40, which
-settled Verdict 99. Before it `dfbf7614` (183, the Windows suite in two jobs) with `2977a4a2` and
-`0dff5d04` (174), pushed at 15:56, its run red at 17:48 on the first Windows half alone, Verdict 99,
-the leak test's reading, the halves in 69 and 90 minutes. Before it `4a01d5ef`, item 185, pushed at
-13:02 with `43547883`, its run green at 15:55 with Windows in 171 minutes, Linux in 95 and macOS in
-44. Before it `fdf4dedb`, item 184, pushed at 10:19 with `22c523ae`, 178's second step and its end,
-its run green at 13:02 with Windows in 159 minutes, Linux in 96 and macOS in 37. Before it
-`2b6791f9`, 178's first step, pushed at 08:21 with `4bca4e47`, item 173, its run green at 10:18 with
-Windows in 115 minutes, Linux in 93 and macOS in 39. Before it `a35d7ce9`, 172's third commit and
-its end, pushed at 05:37 with `55ec4e2c` and `4105ee5e`, its run green at 08:20 with Windows in 159
-minutes (item 183), Linux in 97 and macOS in 36. Before it `adf7bb79`, 170's third commit and its
-end, pushed at 03:04 with `dd39d533`, its pass, its run green at 05:37 with Windows in 151 minutes,
-Linux in 82 and macOS in 36. Before it `bd081fa6`, 170's first engine commit, Sky as a submodule,
-pushed at 00:31 with `2cb39bcb`, item 139, its run green at 03:03 with Windows in 149 minutes, Linux
-in 65 and macOS in 38. Before it `d9c50b3b`, Verdict 98's mend, pushed at 22:42 on 2026-11-01 with
-`2d051ada` and `6fd05fd4`, 181's second and third parts, its run green at 00:30 with Windows in 103
-minutes, Linux in 47 and macOS in 39, which settled Verdict 98. Before it `4b80c5c8`, item 169,
-pushed at 17:51, its run green at 20:24 with Windows in 149 minutes, Linux in 84 and macOS in 41.
-Before it `3b5264d7` (181's first part), `5ea3e98f` (167 with 171 folded in), `5932c389` (179) and
-`60fd7e23` (180), pushed at 20:24, the run of `3b5264d7` red at 22:07 on the three systems, Verdict
-98, a push of 32 bytes where the layout held 16, mended at `d9c50b3b`. Before it `6cc2a0a0`, item
-166's mend, pushed at 15:18 with `001e93f0`, item 168, its run green at 17:50 with Windows in 149
-minutes, Linux in 53 and macOS in 37. Before it `e159992e`, items 164 and 165, pushed at 13:03 with
-`ea4fccb3`, item 163, its run green at 15:17 with Windows in 131 minutes, Linux in 82 and macOS in
-35. Before it `d9f3f108`, 158's first part, pushed at 10:39, its run green at 13:00 with Windows in
-141 minutes, Linux in 76 and macOS in 34. Before it `af7df72a` (162), `beefec87` (159) and
-`1fe6e61a` (161), pushed at 08:11, the run of `af7df72a` green at 10:38 with Windows in 147 minutes,
-Linux in 141, the runner's as the next run showed, and macOS in 36. Before it `1848701a` (160's
-end), `ed41cd5d` (160's first part), `a4e70370` (154) and `6f6ba558` (157), pushed at 06:23, the run
-of `1848701a` green at 08:07 with Windows in 104 minutes, Linux in 60 and macOS in 33. Before it
-`e3d37e1e` (Verdict 97's mend), `6a6e2dad` (152) and `07085cd2` (156), pushed at 04:00, the run of
-`e3d37e1e` green at 06:20 with Windows in 140 minutes, Linux in 73 and macOS in 32, which settled
-Verdict 97. Before it `3dda52c2` (151 and 155) and `740066d6` (138), pushed at 01:13, the run of
-`3dda52c2` red at 03:16 on Windows alone, Verdict 97, Linux green in 60 minutes and macOS in 35; the
-twelfth pack run started from it at 01:13 green at 04:20, 6.0.14 published, with Windows in 184
-minutes, the games in 79, the captures in 64 and 57 on macOS and the pack in 3, its Windows suite
-passing the leak test the push run failed. Before it `46149d6d` (153), pushed at 22:50 on
-2026-10-31, its run green at 01:10 with Windows in 139 minutes, Linux in 77 and macOS in 33. Before
-it `a6a3b7a0` (150), pushed at 19:53, its run green at 21:31 with Windows in 98 minutes, Linux in 79
-and macOS in 35; the eleventh pack run started from it at 19:53 green at 22:33, 6.0.11 published,
-the first at 6.0, with Windows in 145 minutes, the games in 78, the captures in 62 and 57 on macOS
-and the pack in 4, carrying 132, 147, 148's textures and 150 for the game. Before it `4df9309c`
-(Verdict 96's mend), its run green at 19:50 with Windows in 76 minutes, Linux in 61 and macOS in 35,
-which settled Verdict 96. Before it `75b61056` (148's end), `82a02b9d` (148's second commit),
-`b4d0d03c` (149, the Windows limit to 180 and PART=N+Class) and `52a1cb3f` (148's first commit),
-pushed at 18:34. Before it `14b258c7` and `e32f9138` (147), pushed at 16:08, the run of `14b258c7`
-red at 18:26 on Linux alone, Verdict 96, Windows green in 138 minutes and macOS in 34. Before it
-`df856af8` (132's mend), `00c6809a` (133), `95e088b7` (137's second commit) and `edf301e0` (the
-version to 6.0, the owner's change committed on the owner's word), pushed at 13:49, the run of
+Reviewed up to `8cd556e1`, 140's first commit, pushed at 09:52 on 2026-11-03, its run green at 11:45
+with the Windows halves in 84 and 96 minutes, Linux in 102 and macOS in 42. After it `5d0c44e4`,
+Low's third cascade, pushed at 11:45, its run awaited; it keeps the form. Each commit's detail
+stands in its item in REVIEW-ARCHIVE.md, its devlog note and its own words. Before it `9a20767c`,
+item 191, pushed at 08:13 with `52e75184` and `893758ea`, its run green at 09:51 with the halves in
+82 and 96 minutes, Linux in 76 and macOS in 41. Before it `b83b1a85`, 142's second mend and its
+close, pushed at 06:45, its run green at 08:13 with the halves in 85 and 82 minutes, Linux in 58 and
+macOS in 40. Before it `aab4b622`, the history toggle's mend, pushed at 05:17 with `c117b252`, 142's
+first mend, its run green at 06:45 with the halves in 84 and 49 minutes, Linux in 57 and macOS in
+36. Before it `40462df0`, 142's readout, pushed at 03:29, its run green at 05:16 with the halves in
+70 and 83 minutes, Linux in 94 and macOS in 38. Before it `369d9b5a`, item 189, pushed at 01:56, its
+run green at 03:28 with the halves in 80 and 92 minutes, Linux in 58 and macOS in 38. Before it
+`5ab01df8`, 188's third commit and its end, pushed at 00:22 with `3e651d9d`, its run green at 01:55
+with the halves in 79 and 91 minutes, Linux in 58 and macOS in 39. Before it `71c7c194`, 188's first
+commit, pushed at 22:34 on 2026-11-02, its run green at 00:22 with the halves in 79 and 89 minutes,
+Linux in 98 and macOS in 37. Before it `aca80ca2`, item 186 with the knob and the fog's removal,
+pushed at 20:25, its run green at 22:12 with the halves in 78 and 85 minutes, Linux in 97 and macOS
+in 42. Before it `abde3935`, Verdict 99's mend, pushed at 18:26 with `f8872d03` (175) and `11b6a593`
+(142's record), its run green at 20:09 with the halves in 70 and 89 minutes, Linux in 91 and macOS
+in 40, which settled Verdict 99. Before it `dfbf7614` (183, the Windows suite in two jobs) with
+`2977a4a2` and `0dff5d04` (174), pushed at 15:56, its run red at 17:48 on the first Windows half
+alone, Verdict 99, the leak test's reading, the halves in 69 and 90 minutes. Before it `4a01d5ef`,
+item 185, pushed at 13:02 with `43547883`, its run green at 15:55 with Windows in 171 minutes, Linux
+in 95 and macOS in 44. Before it `fdf4dedb`, item 184, pushed at 10:19 with `22c523ae`, 178's second
+step and its end, its run green at 13:02 with Windows in 159 minutes, Linux in 96 and macOS in 37.
+Before it `2b6791f9`, 178's first step, pushed at 08:21 with `4bca4e47`, item 173, its run green at
+10:18 with Windows in 115 minutes, Linux in 93 and macOS in 39. Before it `a35d7ce9`, 172's third
+commit and its end, pushed at 05:37 with `55ec4e2c` and `4105ee5e`, its run green at 08:20 with
+Windows in 159 minutes (item 183), Linux in 97 and macOS in 36. Before it `adf7bb79`, 170's third
+commit and its end, pushed at 03:04 with `dd39d533`, its pass, its run green at 05:37 with Windows
+in 151 minutes, Linux in 82 and macOS in 36. Before it `bd081fa6`, 170's first engine commit, Sky as
+a submodule, pushed at 00:31 with `2cb39bcb`, item 139, its run green at 03:03 with Windows in 149
+minutes, Linux in 65 and macOS in 38. Before it `d9c50b3b`, Verdict 98's mend, pushed at 22:42 on
+2026-11-01 with `2d051ada` and `6fd05fd4`, 181's second and third parts, its run green at 00:30 with
+Windows in 103 minutes, Linux in 47 and macOS in 39, which settled Verdict 98. Before it `4b80c5c8`,
+item 169, pushed at 17:51, its run green at 20:24 with Windows in 149 minutes, Linux in 84 and macOS
+in 41. Before it `3b5264d7` (181's first part), `5ea3e98f` (167 with 171 folded in), `5932c389`
+(179) and `60fd7e23` (180), pushed at 20:24, the run of `3b5264d7` red at 22:07 on the three
+systems, Verdict 98, a push of 32 bytes where the layout held 16, mended at `d9c50b3b`. Before it
+`6cc2a0a0`, item 166's mend, pushed at 15:18 with `001e93f0`, item 168, its run green at 17:50 with
+Windows in 149 minutes, Linux in 53 and macOS in 37. Before it `e159992e`, items 164 and 165, pushed
+at 13:03 with `ea4fccb3`, item 163, its run green at 15:17 with Windows in 131 minutes, Linux in 82
+and macOS in 35. Before it `d9f3f108`, 158's first part, pushed at 10:39, its run green at 13:00
+with Windows in 141 minutes, Linux in 76 and macOS in 34. Before it `af7df72a` (162), `beefec87`
+(159) and `1fe6e61a` (161), pushed at 08:11, the run of `af7df72a` green at 10:38 with Windows in
+147 minutes, Linux in 141, the runner's as the next run showed, and macOS in 36. Before it
+`1848701a` (160's end), `ed41cd5d` (160's first part), `a4e70370` (154) and `6f6ba558` (157), pushed
+at 06:23, the run of `1848701a` green at 08:07 with Windows in 104 minutes, Linux in 60 and macOS in
+33. Before it `e3d37e1e` (Verdict 97's mend), `6a6e2dad` (152) and `07085cd2` (156), pushed at
+04:00, the run of `e3d37e1e` green at 06:20 with Windows in 140 minutes, Linux in 73 and macOS in
+32, which settled Verdict 97. Before it `3dda52c2` (151 and 155) and `740066d6` (138), pushed at
+01:13, the run of `3dda52c2` red at 03:16 on Windows alone, Verdict 97, Linux green in 60 minutes
+and macOS in 35; the twelfth pack run started from it at 01:13 green at 04:20, 6.0.14 published,
+with Windows in 184 minutes, the games in 79, the captures in 64 and 57 on macOS and the pack in 3,
+its Windows suite passing the leak test the push run failed. Before it `46149d6d` (153), pushed at
+22:50 on 2026-10-31, its run green at 01:10 with Windows in 139 minutes, Linux in 77 and macOS in
+33. Before it `a6a3b7a0` (150), pushed at 19:53, its run green at 21:31 with Windows in 98 minutes,
+Linux in 79 and macOS in 35; the eleventh pack run started from it at 19:53 green at 22:33, 6.0.11
+published, the first at 6.0, with Windows in 145 minutes, the games in 78, the captures in 62 and 57
+on macOS and the pack in 4, carrying 132, 147, 148's textures and 150 for the game. Before it
+`4df9309c` (Verdict 96's mend), its run green at 19:50 with Windows in 76 minutes, Linux in 61 and
+macOS in 35, which settled Verdict 96. Before it `75b61056` (148's end), `82a02b9d` (148's second
+commit), `b4d0d03c` (149, the Windows limit to 180 and PART=N+Class) and `52a1cb3f` (148's first
+commit), pushed at 18:34. Before it `14b258c7` and `e32f9138` (147), pushed at 16:08, the run of
+`14b258c7` red at 18:26 on Linux alone, Verdict 96, Windows green in 138 minutes and macOS in 34.
+Before it `df856af8` (132's mend), `00c6809a` (133), `95e088b7` (137's second commit) and `edf301e0`
+(the version to 6.0, the owner's change committed on the owner's word), pushed at 13:49, the run of
 `df856af8` green at 16:06 with Windows in 136 minutes, Linux in 47 and macOS in 35, item 149 for the
 Windows limit. Before it `2b8e8541` (137's first commit), pushed at 11:27 on 2026-10-31, its run
 green at 13:46 with Windows in 139 minutes, Linux in 47 and macOS in 36; the tenth pack run started
@@ -1083,6 +1084,29 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     where 1.67 and 0.856, at 1.99 ms where 1.65, four cascades 1.13 and 0.321 at 2.18, High 1.10 and
     0.285 at 4.16. The call is Low as three cascades of eight, under the 2 ms budget, the quality
     test's arrays following, the rooms and the grove at Low read for the cost, four cascades out.
+    Low's third cascade is `5d0c44e4`, read at 11:07, its push waiting on 8cd556e1's run; Sponza's
+    atrium at Low 1.89, 2.10 and 2.92 ms at the three sizes where 1.65, 1.89 and 2.66, the whole
+    1.18 of the reference where 1.67 and the distance 0.38 where 0.86, room one 1.15 to 1.84 and
+    room four 0.99 to 1.74, the grove at Low at 1080p 4.37 where 3.85 with its other readings
+    waiting on a quiet GPU; one bar moved, the slab's underside at Low 0.0156 against 0.015 with the
+    reference's 0.0170, its bound 0.02 still catching the whole reflection's 0.048; the quality
+    test's arrays and name following, RENDERING.md's sentence, and the guide's table read again in
+    the Cornell box, Low 8.28 MB and 0.91 ms, Medium 10.46 and 1.90, High 10.83 and 1.98, the old
+    row stale since 10-25; 2,225 in both orders. Next the budgets in the four scenes, the grove on a
+    quiet GPU. The budgets read at 11:15 against 5d0c44e4 at 1080p and 4K, room one Low 1.15 and
+    1.84 ms, Medium 2.12 and 2.89, High 2.60 and 3.40; room four Low 0.99 and 1.74, Medium 1.61 and
+    2.41, High 2.10 and 2.91; the atrium Low 1.89 and 2.92, Medium 3.09 and 3.92, High 4.07 and
+    5.10; the 1080p budgets holding but the atrium's Medium and High over by 0.1 to 0.2, and Low's
+    growth to 4K past 1.5 everywhere. The growth is the glow lights' pass, which works on the
+    window's depth at half size and grows with the pixels while the screen probes and the cascades
+    hold, room one at Low 1.16 against 0.78 with the glow off at 1080p and 1.90 against 0.82 at 4K,
+    every quality holding within 0.2 ms from 1080p to 4K without it. The call is the glow pass's
+    texels held near 1080p's count, at most 960 by 540, each covering more pixels past that as the
+    screen probes' tile does, read by the glow rooms' bars and the frame's change at 4K; the budgets
+    written as the engine's promise for the cascades, the screen probes and the gather without the
+    glow lights, at 1080p Low under 2 ms, Medium 3 and High 4, growing by at most 1.5 to 4K, and the
+    glow pass with a line of its own by the lights' count, Sponza's 23 the example; no coarser glow
+    at 1080p.
 
 141. **The far cascade costs a slice a frame.** Decision 75's eighth item, from the voxel game's
     items 27 and 141. The far cascade costs 1.6 to 2 ms with six-block cells at the render distance,

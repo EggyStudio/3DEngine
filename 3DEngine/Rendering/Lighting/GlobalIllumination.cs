@@ -502,11 +502,12 @@ internal sealed class GlobalIlluminationRenderer : IDisposable
             && Matrix4x4.Invert(window.Unjittered, out var inverse))
         {
             var (width, height, tile) = (swapchain.Extent.Width, swapchain.Extent.Height, TileAt(quality, swapchain.Extent.Height));
+            var glowTexel = GpuScreenProbes.GlowTexelAt(height);
             if (_screen is null || _screen.Tile != tile || _screen.Across != (width + tile - 1) / tile || _screen.Down != (height + tile - 1) / tile
-                || _screenGlowOnly != glowOnly)
+                || _screenGlowOnly != glowOnly || _screen.GlowTexel != glowTexel)
             {
                 if (_screen is not null) _retired.Add((_frame, _screen));
-                _screen = device.CreateScreenProbes(width, height, tile);
+                _screen = device.CreateScreenProbes(width, height, tile, glowTexel);
                 _screenGlowOnly = glowOnly;
                 _lastScreen = null;
             }
@@ -590,11 +591,13 @@ internal sealed class GlobalIlluminationRenderer : IDisposable
             return;
         }
         var tile = TileAt(settings.Quality, renderWorld.TryGet<SwapchainTarget>()?.Extent.Height ?? size.Height);
-        if (!_targets.TryGetValue(id, out var state) || state.Screen.Tile != tile || state.GlowOnly != glowOnly
+        // A target's glow texels the window's, as its tile is, since the model pass reads one ratio.
+        var glowTexel = GpuScreenProbes.GlowTexelAt(renderWorld.TryGet<SwapchainTarget>()?.Extent.Height ?? size.Height);
+        if (!_targets.TryGetValue(id, out var state) || state.Screen.Tile != tile || state.GlowOnly != glowOnly || state.Screen.GlowTexel != glowTexel
             || state.Screen.Across != (size.Width + tile - 1) / tile || state.Screen.Down != (size.Height + tile - 1) / tile)
         {
             if (state is not null) _retired.Add((_frame, state));
-            state = _targets[id] = new TargetScreen(device.CreateScreenProbes(size.Width, size.Height, tile)) { GlowOnly = glowOnly };
+            state = _targets[id] = new TargetScreen(device.CreateScreenProbes(size.Width, size.Height, tile, glowTexel)) { GlowOnly = glowOnly };
         }
         state.Drawn = _frame;
         var eye = Vector4.Transform(new Vector4(0, 0, 0, 1), inverse);

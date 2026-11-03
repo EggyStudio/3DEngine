@@ -2715,6 +2715,23 @@ room four take 0.05 to 0.26 ms more at their three sizes, the voxel game's grove
 by 1080, and the slab's underside at `Low` reads 0.0156 where the reference reads 0.0170
 (`gi.reference` at 256 paths a pixel, `gi.compare`, `./e3d command profile`).
 
+**Each quality's budget, read and set on 2026-11-03.** On the RTX 4070 with the frame rate unlimited
+under the powersave profile, the cascades, the screen's probes and their gather take under 2 ms at
+`Low`, 3 at `Medium` and 4 at `High` at 1920 by 1080, and at 3840 by 2160 at most half again as
+much, the screen's probes held near 1080p's count past it. Without the glow lights Sponza's atrium
+at noon takes 1.56, 2.85 and 3.83 ms at 1920 by 1080 and 1.57, 2.94 and 4.04 at 3840 by 2160, and
+the bounce rooms' Cornell box and room four 0.78 to 2.22 and at most 1.07 times that at 3840 by
+2160. The glow lights' pass has a line of its own, 0.3 to 0.4 ms at 1920 by 1080 whatever their
+count, Sponza's 23 lights 0.29 to 0.42 and the Cornell box's emitters 0.38. It worked out each texel
+of the window's depth at half its size and took 1.07 to 1.37 ms at 3840 by 2160, global illumination
+growing 1.54 to 1.76 times from one size to the other, and its texels are held at 540 rows past 1080
+(`GpuScreenProbes.GlowTexelAt`), so with the glow lights the rooms grow 1.03 to 1.07 times and the
+atrium 1.0 to 1.05, and a glow room's frame at 3840 by 2160, averaged two by two, differs from its
+frame at 1920 by 1080 by 0.12 to 1.30% of its light where 0.08 to 1.18%. The voxel game's cherry
+grove, as the game sets it with the screen's probes and a far cascade, takes 4.49, 6.79 and 8.05 ms
+at 1920 by 1080 and 5.61, 8.01 and 9.33 at 3840 by 2160, the game's to weigh (`./e3d command
+profile`, `gi.toggle glow off`).
+
 **The floor's color, read and mended on 2026-11-03.** At noon the pixels of Sponza's views lit by
 the sun read 1.41, 0.96, 1.46 and 1.17 times a path-traced reference of one bounce in the atrium,
 the lion, the nave and the lookup, and at 8:00 0.88 to 0.90, all of it the floor, which read 1.52

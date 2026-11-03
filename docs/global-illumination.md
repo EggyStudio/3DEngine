@@ -295,6 +295,13 @@ rather than the whole of it, and every probe sends 256 rays. That costs 0.10 to 
 illumination at `High` and 0.03 to 0.09 ms at `Low` and `Medium` at 800 by 450 on the development
 machine's GPU.
 
+Each quality keeps to a budget on the development machine's RTX 4070, read in Sponza's atrium and
+the bounce rooms with `./e3d command profile`, without the glow lights global illumination takes
+under 2 ms at `Low`, 3 at `Medium` and 4 at `High` at 1920 by 1080, Sponza's atrium 1.56, 2.85 and
+3.83, and at 3840 by 2160 at most half again as much, the atrium 1.57, 2.94 and 4.04, since the
+screen's probes and the glow lights' texels stand near 1080p's count past it. The glow lights add
+0.3 to 0.4 ms at any size, whatever their count, Sponza's 23 of them 0.29 to 0.42.
+
 `Low` suits a slow GPU or a scene whose light comes from near, `Medium` most games, and `High` a
 scene whose light comes from far off, a cave lit from its mouth or a valley under a sunset. A
 quality traces no more cascades than the field has, and the field adds 5.5 MB a cascade. Against

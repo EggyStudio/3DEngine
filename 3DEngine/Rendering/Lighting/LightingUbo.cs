@@ -145,8 +145,11 @@ internal struct LightingUbo
     /// </summary>
     public Vector4 Mirror;
 
-    /// <summary>xy: one over the window's width and height, which a pixel's place in the mirrored picture is read by. Last, so the fields before keep their offsets.</summary>
+    /// <summary>xy: one over the window's width and height, which a pixel's place in the mirrored picture is read by.</summary>
     public Vector4 MirrorScreen;
+
+    /// <summary>x: the window's pixels along each side of a texel of the glow lights' images (<see cref="GpuScreenProbes.GlowTexelAt"/>). Last, so the fields before keep their offsets.</summary>
+    public Vector4 ScreenGlow;
 }
 
 /// <summary>One reflection probe as the model pass reads it.</summary>

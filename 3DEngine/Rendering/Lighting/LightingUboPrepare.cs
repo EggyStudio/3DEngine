@@ -98,6 +98,7 @@ internal sealed class LightingUboPrepare : IPrepareSystem
             var tall = renderWorld.TryGet<SwapchainTarget>()?.Extent.Height ?? 1080;
             windowUbo.Screen = new System.Numerics.Vector4(GlobalIlluminationRenderer.TileAt(quality, tall),
                 GlobalIlluminationRenderer.ScreenProbesOn(renderWorld) ? 1 : 0, glowOnly ? 1 : 0, settings.AlbedoOff ? 1 : 0);
+            windowUbo.ScreenGlow = new System.Numerics.Vector4(GpuScreenProbes.GlowTexelAt(tall), 0, 0, 0);
             // And a glossy surface's reflection traced through its depth and the field, looked up
             // in the frame before's picture where the renderer kept it.
             // Both through the camera without temporal antialiasing's move, as the window's depth
@@ -159,7 +160,10 @@ internal sealed class LightingUboPrepare : IPrepareSystem
                 // through the window's depth.
                 targetUbo.Indirect = windowUbo.Indirect;
                 if (windowUbo.Indirect.X > 0 && draws.ViewProjectionOf(target) is not null)
+                {
                     targetUbo.Screen = windowUbo.Screen;
+                    targetUbo.ScreenGlow = windowUbo.ScreenGlow;
+                }
                 // And its occlusion and the sun's contact shadows, worked out from its own depth.
                 if (draws.ViewProjectionOf(target) is not null)
                     targetUbo.AmbientOcclusion = windowUbo.AmbientOcclusion with { Z = 0, W = 0 };
