@@ -103,10 +103,11 @@ struct ScreenPush
     // w: 1 at Low, which leaves the screen's probes out, where they stand for the glow lights alone,
     // their surfaces and what they see of each light written and no ray traced, 2 where the probe z
     // names writes a value that is not a number as its light, as a test feeds it, and 4 where some
-    // surface lets light through this frame (lightThroughAt), whose check a frame of none skips.
+    // surface lets light through this frame (lightThroughAt), whose check a frame of none skips,
+    // with the cascades the screen's probes stand in, those before the far cascade's, from bit 8.
     uint4 texels;
     // x, y, z: the third, fourth and fifth cascades' octahedrons' texels along each side, 0 where it
-    // has none. w: how many cascades the screen's probes stand in.
+    // has none. w: how many cascades the light beyond the probes' rays is read from.
     uint4 farther;
 };
 
@@ -445,16 +446,21 @@ void computeMain(uint3 id : SV_DispatchThreadID)
         return;
     }
     // The finest of the world's cascades that holds the probe gives the light from beyond its rays,
-    // so the screen's probes reach as far as the world's do. Ending at the first, a surface past it
-    // took the world's probes alone, and a step showed along that edge, as a slanted ceiling drew it
-    // in stairs. Ending at the second, a far surface in a recess took the probes standing in the
-    // open before it, 4 to 8 units apart, which see what the recess does not, and the lion's niche at
-    // the end of Sponza's atrium at 8:00 held 29% of the shade's light over a path-traced reference
-    // of one bounce, black in the reference, where it holds 8%.
+    // so the screen's probes reach as far as the world's counted cascades do. Ending at the first,
+    // a surface past it took the world's probes alone, and a step showed along that edge, as a
+    // slanted ceiling drew it in stairs. Ending at the second, a far surface in a recess took the
+    // probes standing in the open before it, 4 to 8 units apart, which see what the recess does
+    // not, and the lion's niche at the end of Sponza's atrium at 8:00 held 29% of the shade's light
+    // over a path-traced reference of one bounce, black in the reference, where it holds 8%.
+    //
+    // A surface past the counted cascades takes the far cascade's world probes alone in the model
+    // pass, as every surface does at Low. Standing there too, each probe tracing eight times as far
+    // as the first cascade's, global illumination took 7.82 to 7.84 ms of the voxel game's cherry
+    // grove at High at 1920 by 1080 where 7.53 (./e3d command profile).
     int3 base;
     float3 f;
     uint around;
-    if (!finestAround(p, around, base, f))
+    if (!finestAround(p, around, base, f) || around >= (push.texels.w >> 8u))
     {
         irradiance[id.xy] = float4(0.0);
         return;

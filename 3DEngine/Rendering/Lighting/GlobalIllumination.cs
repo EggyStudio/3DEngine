@@ -406,7 +406,7 @@ internal sealed class GlobalIlluminationRenderer : IDisposable
         {
             Release();
             var making = Stopwatch.GetTimestamp();
-            _gi = device.CreateGlobalIllumination(field.Field.Resolution / ProbeSpacing, TexelsFor(wanted, cascades, far));
+            _gi = device.CreateGlobalIllumination(field.Field.Resolution / ProbeSpacing, TexelsFor(wanted, cascades, far), far);
             _made = (field.Field, wanted, cascades);
             Logger.Info($"Global illumination's probes made at {wanted}, {cascades} cascades of {_gi.Probes} a side, "
                 + $"in {Stopwatch.GetElapsedTime(making).TotalMilliseconds:0} ms.");

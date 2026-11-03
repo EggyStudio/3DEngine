@@ -109,4 +109,35 @@ public sealed partial class GlobalIlluminationTests
         moved.Should().BeTrue("the far cascade follows the eye 40 units along");
         UnloadModel(wall);
     }
+
+    [NeedsVulkanFact]
+    [Trait("Category", "Render")]
+    public void The_Screen_Probes_Stand_In_The_Counted_Cascades_And_A_Floor_Past_Them_Takes_The_Far_Probes()
+    {
+        // A floor under a sky reaching far ahead of an eye four units over it, two counted cascades
+        // of 0.15 reaching about 16 units ahead and a far cascade of 100 past them, at Medium. The
+        // floor 24 to 100 units off lies in the rows 31 to 44 of the window's 96.
+        Open();
+        SetSceneField(2, 0.15f, 2, farCascade: 100);
+        SetAmbientLight(Color.White, 1);
+        SetGlobalIllumination(GlobalIllumination.Medium);
+        var floor = LoadModelFromMesh(GenMeshCube(400, 1, 400));
+        var image = Capture(() => DrawModel(floor, new Vector3(0, -0.5f, -180), 1, Color.Gray),
+            new Camera3D(new Vector3(0, 4, 0), new Vector3(0, 0, -20), Vector3.UnitY, 50));
+        var renderer = GetApp().World.Resource<Engine.Renderer>();
+        var screen = renderer.RenderWorld.TryGet<GlobalIlluminationRenderer>()!.Screen!;
+        var device = (GraphicsDevice)renderer.Context.Graphics!;
+        var (irradiance, geometry) = (device.ReadFloats(screen.Irradiance), device.ReadFloats(screen.Geometry));
+        var probes = Enumerable.Range(0, screen.Across * screen.Down).Where(probe => geometry[probe * 4 + 3] >= 0).ToList();
+        bool Lit(int probe) => irradiance[probe * 4] + irradiance[probe * 4 + 1] + irradiance[probe * 4 + 2] > 0;
+        var near = probes.Where(probe => geometry[probe * 4 + 3] < 10).ToList();
+        var far = probes.Where(probe => geometry[probe * 4 + 3] > 24).ToList();
+        near.Should().HaveCountGreaterThan(10, "the floor near the eye holds screen probes");
+        far.Should().HaveCountGreaterThan(10, "the floor past the counted cascades holds screen probes");
+        near.Count(Lit).Should().BeGreaterThan(near.Count * 9 / 10, "a probe in the counted cascades traces its rays");
+        far.Count(Lit).Should().Be(0, "a probe past the counted cascades traces none, the far cascade's world probes lighting its surface");
+        var distant = Mean(image, 0, 33, image.Width, 8);
+        distant.X.Should().BeGreaterThan(20, "the floor far ahead takes the far cascade's probes' light");
+        UnloadModel(floor);
+    }
 }

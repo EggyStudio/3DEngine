@@ -810,13 +810,32 @@ frames before lay elsewhere (`FarParts` in `GraphicsDevice.GlobalIllumination.cs
 mark after each dispatch in a scratch build, the voxel game's far cascade cost the frame at 1920 by
 1080 2.1 ms at seed 1's cherry grove at Low and at High, and 1.0 and 2.1 ms in its deep cave. Its
 probes' rays took 0.55 to 0.75 ms of it and their gather 0.11 to 0.15, the cascade before them
-carrying its rays on to the far edge 0.14 to 0.38, the screen's probes on the surfaces past the
-counted cascades 1.0 in the cave at High, and the scene pass's judgment of thin walls in the far
-cascade's cells 0.45 to 0.74 in the grove. A quarter a frame, global illumination takes 0.4 to 0.47
-ms less there, 3.96 ms against 4.43 at the grove at Low and 7.44 to 7.51 against 7.85 to 7.89 at
-High, and the cave's picture with the far cascade on reads a mean of 0.0010 and 0.0001 of 255 at Low
-and High as before, where 2.18 and 0.42 without it (`./e3d command profile` over 300 frames on a
-quiet RTX 4070 on the power-saving profile, `GlobalIlluminationTests`).
+carrying its rays on to the far edge 0.14 to 0.38, the screen's probes' trace 1.0 in the cave at
+High and 0.09 at the grove, and the scene pass's judgment of thin walls in the far cascade's cells
+0.45 to 0.74 in the grove. A quarter a frame, global illumination takes 0.4 to 0.47 ms less there,
+3.96 ms against 4.43 at the grove at Low and 7.44 to 7.51 against 7.85 to 7.89 at High, and the
+cave's picture with the far cascade on reads a mean of 0.0010 and 0.0001 of 255 at Low and High as
+before, where 2.18 and 0.42 without it (`./e3d command profile` over 300 frames on a quiet RTX 4070
+on the power-saving profile, `GlobalIlluminationTests`).
+
+The screen's probes stand in the counted cascades alone, the light beyond a ray that ends past them
+still read from the far cascade's probes, and a surface past the counted cascades takes the far
+cascade's world probes in the model pass as every surface does at Low, the screen's probes' hold
+fading across the last counted cascade's band (`screenHold` in `lights.slang`). A pixel in the far
+cascade is not judged by a wall thinner than a cell (`byThinWall`), its cells as wide as its reach
+makes them and wider than every wall of a world of blocks, where the judgment read the field about
+eight times a far pixel and marched to the probes at most of them. At the cherry grove the frame
+takes 15.94 to 16.23 ms at Low where 16.72 to 16.94, and 19.24 at High where 20.06 to 20.10, the
+scene pass 10.65 to 10.80 ms where 11.23 to 11.39 and 10.39 to 10.45 where 10.95 to 10.98, and its
+far trees' shade changes a little, 0.6% of its pixels at High apart by more than 8 levels. In the
+deep cave at High the frame takes 0.2 ms less, its far walls lying inside the counted cascades, and
+the far cascade still costs the screen's probes there 1.1 ms, a ray whose world probes beyond its
+reach hold no light marching on through the field, as the cave's dark sends every ray. With that
+march left out the trace takes 1.28 to 1.31 ms where 2.42 to 2.46, and 1.27 to 1.31 without the far
+cascade. `scenes_sponza`'s eight views at 8:00 and noon read within 0.02 of before against their
+references, the door's shade at 8:00 2.345 where 2.330, each the mean of three runs that spread by
+0.023 (`./e3d command profile` over 300 frames, a GPU mark after each dispatch, `gi.compare`,
+`GlobalIlluminationTests`).
 
 A cascade's corner lies on a grid of eight of its cells, so it moves only when the eye has gone that
 far, and where it moves by less than half its width it shifts, the cells it keeps moved on the GPU

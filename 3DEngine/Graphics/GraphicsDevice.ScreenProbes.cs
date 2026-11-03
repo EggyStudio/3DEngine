@@ -137,8 +137,10 @@ internal sealed unsafe partial class GraphicsDevice
         for (int c = 2; c < 5; c++)
             run.Image(set, (uint)(15 + c), VkDescriptorType.SampledImage, gi.Merged[Math.Min(c, gi.Cascades - 1)].View, null, VkImageLayout.General);
         uint TexelsOf(int c) => c < gi.Cascades ? (uint)gi.Texels[c] : 0;
-        ReadOnlySpan<uint> push = [TexelsOf(0), TexelsOf(1), (uint)(loggedProbe + 1), (glowOnly ? 1u : 0) | (loggedNotANumber ? 2u : 0) | (lightThrough ? 4u : 0),
-            TexelsOf(2), TexelsOf(3), TexelsOf(4), (uint)Math.Min(gi.Cascades, 5)];
+        // The probes stand in the cascades before the far cascade's alone (gi_screen.slang).
+        var standing = (uint)Math.Min(gi.Cascades - (gi.Far ? 1 : 0), 5);
+        ReadOnlySpan<uint> push = [TexelsOf(0), TexelsOf(1), (uint)(loggedProbe + 1),
+            (glowOnly ? 1u : 0) | (loggedNotANumber ? 2u : 0) | (lightThrough ? 4u : 0) | standing << 8, TexelsOf(2), TexelsOf(3), TexelsOf(4), (uint)Math.Min(gi.Cascades, 5)];
         var (pipeline, layout, _) = GiStages[ScreenStage];
         _deviceApi.vkCmdBindPipeline(cmd, VkPipelineBindPoint.Compute, pipeline);
         _deviceApi.vkCmdBindDescriptorSets(cmd, VkPipelineBindPoint.Compute, layout, 0, 1, &set, 0, null);

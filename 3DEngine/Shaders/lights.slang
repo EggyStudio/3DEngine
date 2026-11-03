@@ -473,10 +473,12 @@ public float3 ambientReflected(float3 f0, float roughness, float nv)
 
 // How much of the indirect light reaching a surface at p facing n the screen's probes give rather
 // than the world's, which they take the light from beyond their rays from, all of it inside the
-// world's last cascade, falling to none across its outer band (CascadeBand in gi.slang).
+// world's last counted cascade, falling to none across its outer band (CascadeBand in gi.slang),
+// since the screen's probes do not stand in the far cascade (gi_screen.slang).
 public float screenHold(float3 p, float3 n)
 {
-    return probesHold(bouncedField, p, n, lighting.indirect.y, int(lighting.indirect.w) - 1, int(lighting.indirect.w));
+    int cascades = int(lighting.indirect.w);
+    return probesHold(bouncedField, p, n, lighting.indirect.y, cascades - (bouncedField.counts.w > 0.5 ? 2 : 1), cascades);
 }
 
 // The indirect light reaching a surface at p facing n, irradiance over pi, from the world's probes
@@ -517,6 +519,12 @@ public bool byThinWall(float3 p, float3 n)
 {
     float cell = fieldCell(bouncedField, p);
     if (cell <= 0.0)
+        return false;
+    // Not in the far cascade, whose cells, as wide as its reach makes them, are wider than every wall
+    // of a world of blocks, where the judgment read the field at each far pixel and marched to the
+    // probes at most of them, 0.45 to 0.74 ms of the voxel game's cherry grove at 1920 by 1080
+    // (./e3d command profile).
+    if (bouncedField.counts.w > 0.5 && fieldCascade(bouncedField, p, 1.0) == int(bouncedField.counts.w))
         return false;
     float judged = 0.3 * cell * lighting.indirect.y;
     float3 at = p + n * judged;

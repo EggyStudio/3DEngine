@@ -1142,7 +1142,25 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     counted cascades alone with the hold fading across the last counted band and the thin-wall
     judgment left out of the far cascade's cells, read by the cave, the grove, Sponza's eight views
     within 0.02 since its example sets a far cascade, the corridor and the rooms; about 1.2 to 1.6
-    ms of the 2 expected back.
+    ms of the 2 expected back. The first commit is `26e1fbc8`, read at 13:46, its push waiting on
+    1567179e's run; the far probes' rays traced a quarter a frame, two of their eight layers in
+    turn, and all on a frame the far cascade moved, the merge and the gather whole; the grove at
+    1080p from 4.43 to 3.96 ms at Low and 7.87 to 7.48 at High, the cave at High 5.9 to 5.47, the
+    cave's far walls unchanged at a mean of 0.0010 and 0.0001 of 255; a test reading which layers
+    change a frame, two, all eight within four and all on a move; 2,226 in both orders. The second
+    commit built in a worktree, its readings in the cave, the grove and Sponza's views under way.
+    The second commit read at 14:10 before its suite; the grove's frame at 1080p from 16.8 to 16.1
+    ms at Low and 20.1 to 19.2 at High with the scene pass 0.55 lighter and GI at High 7.82 to 7.53,
+    0.6% of the pixels moving by more than 8 levels in the far trees' shade and the cloud edges,
+    Sponza's eight views within 0.01 but the door's shade at 8:00 by 0.015 inside the runs' own
+    spread, the cave's far walls as dark, a test that the screen probes past the counted cascades
+    hold no light while the far floor stays lit; with 26e1fbc8 the grove's frame 1.2 to 1.3 ms under
+    1567179e. A correction, the cave at High gains 0.2 ms alone since its far walls lie inside the
+    counted cascades, and its screen trace's +1.1 ms is the march past a ray's reach where the ray's
+    beyond light is zero, which in a dark cave is every ray once the far cascade keeps the sky out,
+    the trace 2.44 ms with it against 1.29 without; so a third commit, the march only where no probe
+    around the ray's end holds light at all, the corridor's case, and not where held probes read
+    dark, read by the corridor's bar, the cave's trace, the cave dark, the rooms and Sponza's views.
 
 142. **The merge's gain past the first bounce holds at one.** Decision 75's ninth item, outside the
     eight. RENDERING.md's first term reads the merge's gain at 1.08 to 1.27 a bounce. The cause read
@@ -2841,3 +2859,10 @@ in turn, each part's rays' light kept until its turn comes again and the merge a
 them whole each frame, and all of them on a frame the far cascade moved, which took 0.4 to 0.47 ms
 of global illumination off the voxel game's cherry grove and deep cave at 1920 by 1080 at Low and
 High, of the 0.55 to 0.75 its rays took, the cave's far walls as dark (item 141's first commit).
+
+Shared: the far cascade is no counted cascade for the screen's probes or the thin walls, the
+screen's probes standing in the counted cascades alone with their hold fading across the last
+counted cascade's band, a surface past them taking the far cascade's world probes, and a pixel in
+the far cascade's cells not judged by a wall thinner than a cell, which took 0.75 to 0.85 ms off the
+voxel game's cherry grove's frame at 1920 by 1080, 0.55 of it the scene pass's (item 141's second
+commit).

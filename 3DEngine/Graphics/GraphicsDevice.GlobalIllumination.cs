@@ -55,6 +55,9 @@ internal sealed class GpuIllumination : IDisposable
     /// <summary>How many cascades.</summary>
     public int Cascades => Texels.Count;
 
+    /// <summary>Whether the last cascade is the far cascade's probes, which the screen's probes do not stand in.</summary>
+    public bool Far { get; init; }
+
     /// <summary>The rays each texel of cascade <paramref name="c"/>'s octahedron sends, as <c>gi.slang</c>'s <c>RaysAt</c> has them.</summary>
     public int RaysAt(int c) => Texels[c] <= 8 ? 4 : 1;
 
@@ -229,9 +232,9 @@ internal sealed unsafe partial class GraphicsDevice
     /// <summary>
     /// Makes the probes of <paramref name="texels"/>'s count of cascades, <paramref name="probes"/>
     /// along each side of each, each cascade's octahedron <paramref name="texels"/> texels a side,
-    /// their faces cleared to no light.
+    /// their faces cleared to no light, the last the far cascade's where <paramref name="farCascade"/>.
     /// </summary>
-    public GpuIllumination CreateGlobalIllumination(int probes, int[] texels)
+    public GpuIllumination CreateGlobalIllumination(int probes, int[] texels, bool farCascade = false)
     {
         var p = (uint)probes;
         var radiance = new (VkImage, VkDeviceMemory, VkImageView)[texels.Length];
@@ -325,7 +328,7 @@ internal sealed unsafe partial class GraphicsDevice
                 }
             }, [.. distances.Select(i => (i.Item1, i.Item3))], reach, new VulkanImageView(this, reachOwner, reachView),
             partialView, heldView, [.. mergedSky.Select(i => (i.Item1, i.Item3))], skies, new VulkanImageView(this, skiesOwner, skiesView),
-            ways, new VulkanImageView(this, waysOwner, waysView));
+            ways, new VulkanImageView(this, waysOwner, waysView)) { Far = farCascade };
     }
 
     // A 3D image of half-float colors the probes' work writes and reads, with its view.
