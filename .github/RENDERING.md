@@ -870,10 +870,10 @@ deep cave at High the frame takes 0.2 ms less, its far walls lying inside the co
 the far cascade still costs the screen's probes there 1.1 ms, a ray whose world probes beyond its
 reach hold no light marching on through the field, as the cave's dark sends every ray. With that
 march left out the trace takes 1.28 to 1.31 ms where 2.42 to 2.46, and 1.27 to 1.31 without the far
-cascade. `scenes_sponza`'s eight views at 8:00 and noon read within 0.02 of before against their
-references, the door's shade at 8:00 2.345 where 2.330, each the mean of three runs that spread by
-0.023 (`./e3d command profile` over 300 frames, a GPU mark after each dispatch, `gi.compare`,
-`GlobalIlluminationTests`).
+cascade. `scenes_sponza`'s eight views at 8:00 and noon read within 0.007 of before against
+references traced after item 190 gave the floor its color, the door's shade at 8:00 1.762 where
+1.765, each the mean of three runs that spread by 0.014 (`./e3d command profile` over 300 frames, a
+GPU mark after each dispatch, `gi.compare`, `GlobalIlluminationTests`).
 
 A screen probe's ray past its reach marches on through the field only where no world probe around
 its end holds light, and where they hold light and it is dark it takes their dark. A probe that sees
@@ -883,8 +883,9 @@ cascade's probes all stand outside it, as those of `CascadeEdgeTests`' corridor 
 placed them inside, its far end reading 0.062 of the open one's light at High under its bar of 0.12
 as before. In the deep cave at High global illumination takes 4.50 to 4.66 ms where 5.61 to 5.76,
 and the frame 9.48 to 9.80 where 10.59 to 10.72, its far walls as dark, and `scenes_sponza`'s eight
-views at 8:00 and noon move 0.014 at most against their references, the door's shade at 8:00 within
-the runs' own spread (`./e3d command profile` over 300 frames, `gi.compare`, `CascadeEdgeTests`).
+views at 8:00 and noon move 0.009 at most against those references, the door's shade at 8:00 1.759
+where 1.762, within the runs' spread of 0.018 (`./e3d command profile` over 300 frames,
+`gi.compare`, `CascadeEdgeTests`).
 
 A cascade's corner lies on a grid of eight of its cells, so it moves only when the eye has gone that
 far, and where it moves by less than half its width it shifts, the cells it keeps moved on the GPU
@@ -941,10 +942,10 @@ wall thinner than a cell standing on a floor had its bottom face, buried against
 22 degrees off straight back from the cells along its foot, kept as the face behind them, which held
 none of them, and a lamp outside a closed room of walls 0.3 thick in cells of 0.5 lit the floor
 along a wall's foot inside 48% past the room's own dim lamp, where 1% now
-(`GlobalIlluminationTests`). Sponza's views at 12:00 but the door's, whose reference is traced
-through another camera than the window draws, moved by 0.009 at most in the share of their light off
-their references, the gallery from 0.416 to 0.407 and the lion and the look-up from 0.285 and 0.306
-to 0.289 and 0.310, and the bounce rooms by 0.003 at most, the field's build as long
+(`GlobalIlluminationTests`). Sponza's views at 12:00 moved by 0.009 at most in the share of their
+light off their references but the door's, which went from 0.432 to 0.405 as its light rose from
+0.37 to 0.41 of its reference's, the gallery from 0.416 to 0.407 and the lion and the look-up from
+0.285 and 0.306 to 0.289 and 0.310, and the bounce rooms by 0.003 at most, the field's build as long
 (`./e3d command gi.compare`, `./e3d command profile`). A second pass turns the uints into distances
 in both the image the meshes alone make and the one the passes read (`field_resolve.slang`). A
 double-sided mesh has no inside,

@@ -89,7 +89,7 @@ note and its own words. On 2026-10-30 at 18:0x the owner wrote the README's new 
 the focus on radiance cascades (Decision 74), questions asked back, and asked that the sessions
 spend fewer tokens at the same quality, N 7.7.
 
-Next 193.
+Next 194, then 142's three open parts in their order.
 
 Items done and verdicts settled before 2026-10-23 stand in REVIEW-ARCHIVE.md beside this file, their
 numbers kept, moved there at 19:30 on 2026-10-23 so this file holds the current work alone and is
@@ -2597,7 +2597,37 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     floor. Test, a closed room of 0.3 m walls on a floor with a lamp outside, the floor inside
     reading near nothing, failing without the mend; read by Sponza's eight views and the bounce
     rooms against their references, since a shut room reads darker once the leak stops, and by the
-    field's build time. After 145.
+    field's build time. After 145. Done at cb87dd98, read at 23:19. field_splat takes a face as
+    behind only at -0.999 where -0.9, the comment carrying why. WallFoot, a closed room of 0.3 m
+    walls in 0.5 m cells on a floor running on past them with a bright lamp outside low by the east
+    wall and a dim lamp inside, the floor's luminance along the east wall's inside foot 1.48 of its
+    reading without the outside lamp before and 1.01 after, under the test's 1.1; the bounce rooms'
+    tests pass. Sponza at noon against references traced fresh at 1024 paths within 0.01 of before
+    on every view (the gallery 0.416 to 0.407), the bounce rooms' nine views within 0.003, the
+    field's build in the atrium unchanged; the suite 2,238 in both orders, its Shared line in the
+    row.
+
+194. **Sponza's vestibule at a third of its path-traced light, and the stale references.** Found
+    under 193 on 2026-11-03 and corrected at 23:22. The door view's reference is traced through the
+    window's camera, its edges coinciding with a live shot's; its 0.43 correlation with the frame is
+    the light, the vestibule reading 0.37 to 0.41 of the reference's light at noon with its floor
+    and walls dark where the reference's are bright, where the other seven views read 0.68 to 1.07
+    of theirs, and 193 moved it from 0.371 to 0.405. Item 186's kept references used today's cameras
+    but were traced at 17:42 on 2026-11-02 before 52e75184 (item 190, 06:50 on 2026-11-03) fixed the
+    textures' average colors the reference reads, Sponza's floor from 0.069 to 0.106, so they are
+    dimmer than the scene by 6 to 60%, most in the views the floor's bounce lights (the door 1.60,
+    the lion 1.51, the nave 1.42, the atrium 1.37, the balcony 1.19, the lookup 1.17, the gallery
+    1.08, the arcades 1.06) and every reading against them since reads a dimmer reference. Two
+    parts. First, fresh references for every view at the views as they stand, the readings that
+    cited the stale ones corrected under their items, and cb87dd98's RENDERING.md sentence on the
+    door's camera corrected. Second, the vestibule's shortfall read by source against its reference,
+    the sun through the door and the windows first, since the hits' missing sun is 142's first open
+    part and the vestibule is where the sun missed before the map was used (178), then the bounce
+    from the lit floor; each cause mended where found, read by the door view within the seven's band
+    and the seven unchanged. Next, 142's other open parts after it. The cause corrected at 23:28,
+    the fog is not it since the reference holds none; the only readings against the stale references
+    after 06:50 are 141's, whose kept builds are rendered again at 8:00 and 12:00 against fresh
+    references, each corrected figure listed under Replies for the review to apply under its item.
 
 ## Verdicts
 
@@ -3099,3 +3129,13 @@ on a floor keeps its far face behind the cells along its foot, which took a lamp
 room of walls 0.3 thick in cells of 0.5 from lighting the floor along a wall's foot 48% past the
 room's own dim lamp to 1%, Sponza's seven views at 12:00 moving by 0.009 at most against their
 references and the bounce rooms by 0.003 (item 193).
+
+194, its first part. Item 141's Sponza figures were read against item 186's references, traced at
+17:42 on 2026-11-02 before 52e75184 gave the floor its color, and are read again from 141's kept
+builds against references traced fresh at 8:00, 12:00 and 15:00 with the views as they stand. Under
+01dd3ced the eight views read within 0.007 of before where 0.02, and the door's shade at 8:00 1.762
+where 1.765, three runs spreading by 0.014, where the old references gave 2.345 where 2.330. Under
+3b85dbcd the views move 0.009 at most where 0.014, and the door's shade at 8:00 reads 1.759 where
+1.762, within the runs' spread of 0.018. The door's reference is traced through the window's camera,
+its edges on the frame's, and cb87dd98's sentence saying otherwise is corrected, the door reading
+0.37 to 0.41 of its reference's light at noon. RENDERING.md carries the corrected figures.
