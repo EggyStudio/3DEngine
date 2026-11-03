@@ -1,12 +1,13 @@
 # Review
 
-Reviewed up to `71c7c194`, 188's first commit, pushed at 22:34 on 2026-11-02, its run green at 00:22
-on 2026-11-03 with the Windows halves in 79 and 89 minutes, Linux in 98 and macOS in 37. After it
-`3e651d9d` and `5ab01df8`, 188's second and third commits and its end, pushed at 00:22, the run of
-`5ab01df8` awaited; each keeps the form. Each commit's detail stands in its item in
-REVIEW-ARCHIVE.md, its devlog note and its own words. Before it `aca80ca2`, item 186 with the knob
-and the fog's removal, pushed at 20:25, its run green at 22:12 with the halves in 78 and 85 minutes,
-Linux in 97 and macOS in 42. Before it `abde3935`, Verdict 99's mend, pushed at 18:26 with
+Reviewed up to `5ab01df8`, 188's third commit and its end, pushed at 00:22 on 2026-11-03 with
+`3e651d9d`, its run green at 01:55 with the Windows halves in 79 and 91 minutes, Linux in 58 and
+macOS in 39. After it `369d9b5a`, item 189, pushed at 01:56, its run awaited; it keeps the form.
+Each commit's detail stands in its item in REVIEW-ARCHIVE.md, its devlog note and its own words.
+Before it `71c7c194`, 188's first commit, pushed at 22:34 on 2026-11-02, its run green at 00:22 with
+the halves in 79 and 89 minutes, Linux in 98 and macOS in 37. Before it `aca80ca2`, item 186 with
+the knob and the fog's removal, pushed at 20:25, its run green at 22:12 with the halves in 78 and 85
+minutes, Linux in 97 and macOS in 42. Before it `abde3935`, Verdict 99's mend, pushed at 18:26 with
 `f8872d03` (175) and `11b6a593` (142's record), its run green at 20:09 with the halves in 70 and 89
 minutes, Linux in 91 and macOS in 40, which settled Verdict 99. Before it `dfbf7614` (183, the
 Windows suite in two jobs) with `2977a4a2` and `0dff5d04` (174), pushed at 15:56, its run red at
@@ -100,8 +101,8 @@ REVIEW-ARCHIVE.md, its devlog note and its own words. On 2026-10-30 at 18:0x the
 README's new words (item 133) and the focus on radiance cascades (Decision 74), questions asked
 back, and asked that the sessions spend fewer tokens at the same quality, N 7.7.
 
-Next 189, then 142's mend, then 187, then 140 and 141 (Decision 75), then 182 (Decision 86); 143,
-144 and 145 wait behind them.
+Next 142's mend, then 187, then 140 and 141 (Decision 75), then 182 (Decision 86); 143, 144 and 145
+wait behind them.
 
 Items done and verdicts settled before 2026-10-23 stand in REVIEW-ARCHIVE.md beside this file, their
 numbers kept, moved there at 19:30 on 2026-10-23 so this file holds the current work alone and is
@@ -1090,7 +1091,49 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     shortfall; the counting trap in BounceReference.Probe's remarks and gi.probe's description; the
     carries and the helper in the coder's scratchpad. The mend, a hit reading the irradiance at its
     surface rather than at the probe layer in a form that holds every room's bar, is a step of its
-    own after 182; the number stands.
+    own after 182; the number stands. After 189, read at 01:39 on 2026-11-03 at 8:00 with the light
+    past the first bounce left out against references of one bounce, metered with the fog off, the
+    shade reads the atrium 2.66, the lion 2.51, the nave 1.62 and the lookup 3.52 with the screen
+    probes on and 2.76, 4.17, 1.60 and 4.24 with them off, and every bounce against every bounce
+    1.51 to 1.98; so the excess is in the first bounce, in the model pass's read of the world probes
+    at the surfaces, while the probes where they stand match the reference, the atrium column within
+    a few percent and the arcades within -27 to +53%. The gap is between a surface's own irradiance
+    and the probe layer in front of it, which for a surface in a recess or under an arcade stands in
+    the open and takes more. So the mend targets the read at the surface, the model pass's and the
+    screen probes' hits', read by the same one-bounce views, the rooms' bars, the slab, the canopy
+    and the corridor, the hits' own read following only if the gain past the first bounce still
+    shows; the earlier forms, the light taken back to the plane by its gradient along the normal,
+    stand as the warning. At 01:47, the diffuse alone in both, the frame's indirect reflection left
+    out and the reference without its first face's specular, reads 3.12, 2.56, 1.85 and 3.33, so it
+    is the first bounce's diffuse at shaded surfaces; ruled out, the occlusion's radius (2.56 to
+    3.32 at 2 against 2.66 to 3.52 at 0.5), the probes' hits finding the sun through the shadow map
+    (1.45 to 3.41 through the field alone) and the glow lights. The regions furthest over are those
+    the reference leaves near black at one bounce, the vault at 183 times and an arcade face at 16,
+    and the large regions read 3 to 4 times, block 16's face toward -z in the lookup over 51,000 px
+    at 3.03 and block 4's face toward +x in the atrium at 4.02. Next the probe in front of block
+    16's face read against the reference at that point and at points toward the face, to find
+    whether the probe layer or the read from it holds the factor of three. At 01:48, the probe in
+    front of block 16's face in the lookup, the face's screen probe at one bounce 126% over the
+    reference's irradiance there, and the world probes in front of it at one bounce +193% and +150%
+    against the reference at their own points, the first probe with every bounce +7%, so at one
+    bounce the probe itself holds the factor of three, the merge or the trace and not the read, the
+    engine's later bounces reading under and offsetting it; the face takes 58% of its weight from
+    its own hits and 42% from the cascades above, the parts unreadable at Sponza's light in deep
+    shade since the command prints three decimals. So gi.probe and gi.screenprobe print three
+    significant figures first, a small commit of its own, then the hits' own first bounce at that
+    probe. With the readout at three figures, read at 01:51, the probe's -z face at one bounce reads
+    0.00111 against the reference's 0.000390, its ways met within their interval 0.000557 against
+    0.000288 and the ways that took the cascade above 0.000286 against 0, its own rays' hits 0 where
+    the reference's bring 0.0000430; so the factor is mostly the merge's parallax, the probes above
+    standing elsewhere and seeing past a shaded surface to sunlit faces along ways where this
+    probe's continuation would meet the shade, and a smaller fault in the hits bringing nothing
+    where the reference's bring some sun. The call is a ray that met nothing within its interval
+    traced on to the end of the cascade above's interval, that surface's light taken in place of the
+    merge where it meets one, 189's mechanism without the sky condition, read by the probe's table,
+    the one-bounce views, the rooms, the slab, the canopy, the corridor and the cost at High, with
+    the probes above weighed by whether their ray reaches past the continuation's hit as the next
+    reading if the cost passes a millisecond; the hits' missing sun read after as the shadow's taps
+    at the hit.
 
 166. **The atrium's far end does not glow blue.** The owner's shot of scenes_sponza at 12:05 on
     2026-11-01, the atrium view at 13:00 on the fixed camera, kept in the day's dump, shows the
@@ -2053,7 +2096,15 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     shade rises over the reference with it, the atrium at 8:00 from 1.48 to 1.96, the lion 0.90 to
     1.97, the nave 1.00 to 1.51 and the lookup 1.38 to 1.98, the same with the screen probes off,
     faces turned back 34 to 41, which is 142's gradient that the missing sky had hidden; 142's mend
-    follows this item, before 187.
+    follows this item, before 187. Done at `369d9b5a` on 2026-11-03, read at 01:35, its push waiting
+    on 5ab01df8's run; the per-ray sky past the probes above through the frame before's merged sky
+    of the cascade above at a new binding, a court test reading its floor at 0.297 of the open
+    floor's light where 0.223 with a long slot's view factor of 0.38, the canopy's Low least at 0.11
+    from 0.13 with the solid floor's reading and the integral in the comment and the description,
+    the reading in RENDERING.md and the 8:00 views' picture; 2,220 in both orders, 112 on lavapipe;
+    the atrium, nave and lookup pairs at 8:00 sent to the owner. On to 142's mend, the probes under
+    the arcades at 8:00 within -27 to +53% of the reference where the shade's surfaces read about
+    twice over, the excess the surface's read of the probe layer.
 
 ## Verdicts
 

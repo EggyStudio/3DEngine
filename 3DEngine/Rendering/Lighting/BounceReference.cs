@@ -153,7 +153,7 @@ internal static class BounceReference
     public static string Probe(World world, Vector3 point, int samples, int bounces = -1, int cascade = 0)
     {
         if (MeasureProbe(world, point, samples, bounces, cascade, out var why) is not { } probe) return why;
-        static string Rgb(Vector3 v) => string.Create(CultureInfo.InvariantCulture, $"{v.X:0.000} {v.Y:0.000} {v.Z:0.000}");
+        static string Rgb(Vector3 v) => $"{Figures(v.X)} {Figures(v.Y)} {Figures(v.Z)}";
         var m = probe.Middle;
         var lines = new List<string>
         {
@@ -182,7 +182,7 @@ internal static class BounceReference
                 var ways = probe.Each.Where(way => way.Met == met).ToArray();
                 float Sum(Func<ProbeWay, float> light) => ways.Sum(way => light(way) * Math.Max(Vector3.Dot(way.Way, axis), 0) * way.Share) * MathF.PI / all;
                 return string.Create(CultureInfo.InvariantCulture,
-                    $"{Sum(way => Luminance(way.Merged)):0.000} {Sum(way => Luminance(way.Reference)):0.000} {Sum(_ => 1 / MathF.PI):0.00}");
+                    $"{Figures(Sum(way => Luminance(way.Merged)))} {Figures(Sum(way => Luminance(way.Reference)))} {Sum(_ => 1 / MathF.PI):0.00}");
             })));
         }
 
@@ -196,7 +196,7 @@ internal static class BounceReference
         lines.Add($"the ways that carry most of the {names[furthest]} face's difference, where its ray went, the merged light, its own ray's, the reference's, and its part of the face against the reference's:");
         foreach (var way in probe.Each.OrderByDescending(way => MathF.Abs(Part(way, way.Merged) - Part(way, way.Reference))).Take(8))
             lines.Add(string.Create(CultureInfo.InvariantCulture,
-                $"{way.Way.X:0.00},{way.Way.Y:0.00},{way.Way.Z:0.00}, {where[way.Met]}: {Rgb(way.Merged)}, {Rgb(way.Ray)}, {Rgb(way.Reference)}, {Part(way, way.Merged):0.000} against {Part(way, way.Reference):0.000}"));
+                $"{way.Way.X:0.00},{way.Way.Y:0.00},{way.Way.Z:0.00}, {where[way.Met]}: {Rgb(way.Merged)}, {Rgb(way.Ray)}, {Rgb(way.Reference)}, {Figures(Part(way, way.Merged))} against {Figures(Part(way, way.Reference))}"));
         return string.Join("\n", lines);
     }
 
@@ -313,7 +313,7 @@ internal static class BounceReference
     /// <summary>The lines <see cref="ScreenProbe"/> writes of a probe measured, under the pixel x, y of tiles of the side given.</summary>
     internal static string ScreenProbeReport(ScreenProbeLight probe, int tile, int x, int y, int samples)
     {
-        static string Rgb(Vector3 v) => string.Create(CultureInfo.InvariantCulture, $"{v.X:0.000} {v.Y:0.000} {v.Z:0.000}");
+        static string Rgb(Vector3 v) => $"{Figures(v.X)} {Figures(v.Y)} {Figures(v.Z)}";
         string[] where = ["on the screen", "in the field", "beyond its reach"];
         var (p, n, start) = (probe.Point, probe.Normal, probe.Start);
         var lines = new List<string>
@@ -555,6 +555,15 @@ internal static class BounceReference
     }
 
     private static float Luminance(Vector3 c) => 0.2126f * c.X + 0.7152f * c.Y + 0.0722f * c.Z;
+
+    // A light to three significant figures, so the light of a scene in physical units, a
+    // ten-thousandth or less in Sponza's shade, reads where three decimals printed it as nothing.
+    private static string Figures(float v)
+    {
+        if (v == 0 || !float.IsFinite(v)) return v.ToString(CultureInfo.InvariantCulture);
+        var decimals = Math.Clamp(2 - (int)MathF.Floor(MathF.Log10(MathF.Abs(v))), 0, 12);
+        return v.ToString("F" + decimals, CultureInfo.InvariantCulture);
+    }
 
     // The lights as gi_reference.slang's ReferenceLights, the sun, the first directional light, and
     // whether it casts shadows; the sky, the environment map's intensity where there is one and the

@@ -108,7 +108,9 @@ above, and on each of its six faces, each face also by where its ways were met, 
 interval, before it began or in the cascade above, with the ways that carry most of the face
 furthest from the reference's, and `gi.screenprobe 400 300 256` reads the screen's probe under a
 pixel, each of its sixteen rays where it was met, on the screen, in the field or past its reach,
-against the reference's light along the same way. `gi.show` draws what the light holds over the
+against the reference's light along the same way, both printing light to three significant
+figures, so a scene lit in physical units, whose shade holds a ten-thousandth of a unit of light
+or less, reads. `gi.show` draws what the light holds over the
 window, `tiles`, `light`, `filtered` and `history` the screen's probes, `rays 1`, `merged 1` and
 `probes 1` the second cascade's, `difference ref.png` the frame against a reference, and `none` the
 window again. `gi.toggle merge off` leaves the merge of the cascades out, as `history` and `filter`
