@@ -23,6 +23,9 @@ internal sealed unsafe partial class GraphicsDevice
         /// <summary>The current image layout, updated after each layout transition.</summary>
         internal VkImageLayout Layout;
 
+        // Whether the CPU copies into it, as made for (HostCopies).
+        internal bool HostCopy;
+
         /// <inheritdoc />
         public ImageDesc Description { get; }
 
@@ -153,7 +156,8 @@ internal sealed unsafe partial class GraphicsDevice
             arrayLayers = 1,
             samples = VkSampleCountFlags.Count1,
             tiling = VkImageTiling.Optimal,
-            usage = ToVkImageUsage(desc.Usage),
+            // A texture the CPU writes is made for the CPU to copy into, where the device copies so.
+            usage = ToVkImageUsage(desc.Usage) | (HostCopies(desc) ? VkImageUsageFlags.HostTransfer : 0),
             sharingMode = VkSharingMode.Exclusive,
             initialLayout = VkImageLayout.Undefined
         };
@@ -165,7 +169,7 @@ internal sealed unsafe partial class GraphicsDevice
         var slice = AllocateMemory(req, VkMemoryPropertyFlags.DeviceLocal, image: true);
         _deviceApi.vkBindImageMemory(image, slice.Memory, slice.Offset).CheckResult();
 
-        return new VulkanImage(this, image, default, desc) { Slice = slice };
+        return new VulkanImage(this, image, default, desc) { Slice = slice, HostCopy = HostCopies(desc) };
     }
 
     /// <summary>Creates a typed <c>VkImageView</c> for the given image, selecting aspect flags based on the image format.</summary>
@@ -319,7 +323,7 @@ internal sealed unsafe partial class GraphicsDevice
         vkImage.Layout = newLayout;
     }
 
-    /// <summary>Uploads raw pixel data to a 2D image via a staging buffer, transitioning layouts automatically.</summary>
+    /// <summary>Uploads raw pixel data to a 2D image, by the CPU into one no command has touched where the device copies so, or via a staging buffer, transitioning layouts automatically.</summary>
     /// <param name="image">The destination image (must originate from this device).</param>
     /// <param name="data">Raw pixel data to upload.</param>
     /// <param name="width">Texture width in pixels.</param>
@@ -344,6 +348,21 @@ internal sealed unsafe partial class GraphicsDevice
         ulong expectedSize = (ulong)width * height * (ulong)bytesPerPixel;
         if ((ulong)data.Length < expectedSize)
             throw new ArgumentException("Provided data is smaller than the expected image size.", nameof(data));
+
+        // A texture no command has touched yet, written whole, is copied in by the CPU, its smaller
+        // levels blitted from the first on the GPU after it, with no staging buffer holding a second
+        // copy of its pixels until the upload is done. One the frames may be sampling is written
+        // through the queue, after them.
+        var extent = vkImage.Description.Extent;
+        if (vkImage.HostCopy && vkImage.Layout == VkImageLayout.Undefined && x == 0 && y == 0 && width == extent.Width && height == extent.Height)
+        {
+            var levels = LevelsOf(vkImage);
+            TransitionOnHost(vkImage, levels, levels == 1 ? VkImageLayout.ShaderReadOnlyOptimal : VkImageLayout.TransferDstOptimal);
+            fixed (byte* pixels = data)
+                CopyOnHost(vkImage, vkImage.Layout, [(nint)pixels], width, height);
+            if (levels > 1) RecordMipChain(UploadCommands(), vkImage);
+            return;
+        }
 
         // Create staging buffer
         var stagingDesc = new BufferDesc(expectedSize, BufferUsage.TransferSrc, CpuAccessMode.Write);

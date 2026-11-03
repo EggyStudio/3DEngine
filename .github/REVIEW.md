@@ -80,7 +80,7 @@ note and its own words. On 2026-10-30 at 18:0x the owner wrote the README's new 
 the focus on radiance cascades (Decision 74), questions asked back, and asked that the sessions
 spend fewer tokens at the same quality, N 7.7.
 
-Next 182 (Decision 86); 143, 144 and 145 wait behind it.
+Next 182 (Decision 86), then 192; 143, 144 and 145 wait behind them.
 
 Items done and verdicts settled before 2026-10-23 stand in REVIEW-ARCHIVE.md beside this file, their
 numbers kept, moved there at 19:30 on 2026-10-23 so this file holds the current work alone and is
@@ -2026,7 +2026,19 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     paravirtual device's own apiVersion under MoltenVK, which nothing logs today. The first commit,
     the instance asks for 1.4, the device's log line gives its apiVersion and driver, a device under
     1.4 fails initialization naming its version, the extensions 1.4 made core are asked for no
-    longer, the suite on lavapipe under the validation layer.
+    longer, the suite on lavapipe under the validation layer. The first commit is ee367526 at 16:33.
+    The instance asks for 1.4; maintenance5 and Bresenham's lines come from
+    VkPhysicalDeviceVulkan14Features and their extensions are asked for no longer; a device under
+    1.4 is passed over, and where none qualifies the error names the device, its version and the
+    version asked with the drivers that have it (lavapipe from Mesa 25, NVIDIA from 550, MoltenVK
+    from 1.4); the device line gives the version and the driver's own name and information from
+    VkPhysicalDeviceDriverProperties, 1.4.351 and NVIDIA 615.78.08 on the RTX 4070, 1.4.354 and Mesa
+    26.2.4 on Fedora's lavapipe; DeviceVersionTests reads the chosen device's 1.4 in that plain
+    form; the docs that named 1.3 say 1.4. On lavapipe under the validation layer 145 tests, the
+    suite 2,228 in both orders; its Shared line a row. Its run answers the two points. Next the host
+    image copy for the uploads, read by Sponza's 72 textures and the shared-memory devices, the
+    staging path kept where a device offers no host image copy, since 1.4 leaves it optional, with a
+    test that both paths give the same texels.
 
 183. **The Windows job's time, up to 159 minutes.** The push runs' Windows job took 149, 151 and 159
     minutes at the last three runs (`4b80c5c8`, `adf7bb79`, `a35d7ce9`), up from 98 to 140 in
@@ -2423,6 +2435,27 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     scatters the sun as the single-scattering integral gives, 0.0734 within 0.1% with a bound of 2%,
     the reading in RENDERING.md, the fog tests on lavapipe under validation too; the example's fog
     returns on the owner's word; 2,225 in both orders.
+
+192. **The glow lights past the four brightest count.** From BevyCSharp's item 95 on 2026-11-03,
+    where the hall's aisle read 14 to 29% under its path-traced reference at every quality with five
+    carried lights, since its glowLightsAt keeps the marched brightest lights and leaves the others
+    out while the probes' rays leave a carried emitter's light to the glow lights; a closed room lit
+    by one emissive block read within 6% and by the same light over six blocks 20 to 30% under. This
+    engine's glowLights in lights.slang marches the four brightest at p the same way, the rest left
+    out, and shares the gap. The mend is the same in both engines. The lights past the marched ones
+    are grouped by their direction from p into at most as many groups as are marched, each group's
+    light summed in closed form and faded by its reach, shadowed by one march to its brightest
+    member, so at most twice the marches and only where more lights reach p than are marched. Tests,
+    the bounce rooms' box lit by six small emitters within 10% of its path-traced reference, failing
+    without the mend; the cost read on the voxel game's closed room of forty glowstones at the three
+    qualities, on the GPU and on lavapipe. After 182, before 143. Also the reach, which the bridge
+    found as a second cut under the cap, an absolute threshold so six emitters a sixth as bright
+    reach 2.45 times less far than one and the room read 9 to 17% under with every light counted; if
+    this engine's reach is absolute too, it goes relative to the light's own brightness and size,
+    the constant set so one emitter keeps today's reach, the fade over the outer half kept. The
+    bridge's trial read the cost of its room of forty emitters rising from 2.41 to 4.50 ms, the
+    marches capped but the closed form worked out for every light in a reach six times longer, so
+    the closed form past a few box sizes is a point's, which this engine takes with the grouping.
 
 ## Verdicts
 
@@ -2875,3 +2908,10 @@ VkPhysicalDeviceVulkan14Features where it asked for their extensions, passes ove
 driver offers less and names it, its version and the version asked where no device has it, and its
 device line gives the version and the driver's own name and information, 1.4.351 and NVIDIA
 615.78.08 on the RTX 4070, 1.4.354 and Mesa 26.2.4 on Fedora's lavapipe (item 182's first commit).
+
+Shared: a texture the CPU writes is copied into its image by the CPU where the device has Vulkan
+1.4's host image copy, with no staging buffer and for a KTX2 file's levels no command, chosen when
+the device is made per format whose image samples as fast with the copy's usage
+(VkHostImageCopyDevicePerformanceQuery) and named in the device's line, the staging path kept
+elsewhere, which readied Sponza's 72 textures in 39 to 71 ms where 88 to 154 on the RTX 4070 and 43
+where 86 on lavapipe, with none of the staging buffers' 128 MB (item 182's second commit).

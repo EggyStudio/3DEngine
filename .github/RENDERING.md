@@ -334,7 +334,7 @@ A mesh carries position, normal, tangent, two texture coordinates and a color, i
 32-bit indices. Models come from Assimp, which supplies the mesh data, the material factors and the
 texture paths in one pass, and textures are decoded by StbImageSharp with mipmaps generated on the
 GPU. A KTX2 file of BC1, BC5 or BC7 blocks goes to the GPU as it is, every level the file holds
-copied in from one staging buffer, the image made in the plain format so a view of the sRGB one
+copied in by the CPU or from one staging buffer, the image made in the plain format so a view of the sRGB one
 reads a color decoded. A BC5 normal map holds x and y alone and samples its blue as 0, which no map
 of three channels has, so the model pass works its z out from x and y there, where read as it was
 the normal pointed into the surface and Sponza's sunlit floor read 15 of 255 where 153. The texture
@@ -345,6 +345,19 @@ which has none. The buffer it is read through is in memory the CPU caches, as ev
 only reads is where the device has such memory, since reading the write combined memory a device
 offers first took 34 ms for 4 MB on an RTX 4070, and Sponza's 72 textures upload in about 70 ms
 where the first level of each read that way took 2.4 s.
+
+Where the device has Vulkan 1.4's host image copy, which 1.4 leaves optional, a texture the CPU
+writes is copied into its image by the CPU, with no staging buffer and, for a KTX2 file's levels, no
+command. The choice is made when the device is made, for each format whose image the device samples
+as fast with the usage the copy takes (`VkHostImageCopyDevicePerformanceQuery`), and the device's
+line names the formats. A texture of four bytes a pixel has its first level copied so and its
+smaller levels blitted on the GPU after it, and a rectangle written into one the frames may be
+sampling goes through the queue as before. Sponza's 72 textures were ready on the RTX 4070 in 39 to
+71 ms where through staging buffers 88 to 154, and on lavapipe in 43 to 44 where 86 to 87, the
+staging buffers' 128 MB of host-visible blocks at most, 64 MB of them kept after, taken by none, and
+on lavapipe, whose device memory is the CPU's, the texels went into the image's own memory with no
+second copy. The atrium at 1920 by 1080 at High draws its scene pass in 15.78 ms where 16.03 to
+16.09 before (a scratch test over the textures' files, `./e3d command profile`, `HostCopyTests`).
 
 The material holds glTF's metallic-roughness model, which Assimp maps every format it reads
 onto, and all of it is drawn. Emission is added after the lights, so it shows with none.

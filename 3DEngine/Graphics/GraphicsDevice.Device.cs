@@ -140,6 +140,9 @@ internal sealed unsafe partial class GraphicsDevice
         if (!vulkan13.dynamicRendering || !vulkan13.synchronization2)
             throw new InvalidOperationException("The GPU's driver lacks Vulkan 1.3's dynamic rendering or synchronization2, which the engine draws with.");
         CanDrawBresenhamLines = vulkan14.bresenhamLines;
+        // Textures the CPU writes copied into their images by the CPU, where the device has
+        // Vulkan 1.4's host image copy, which 1.4 leaves optional (ChooseHostCopy).
+        ChooseHostCopy(vulkan14.hostImageCopy);
         // Left off on a device that draws on its CPU: lavapipe of Mesa 25.2 crashes in the model
         // pass's fragment stage at its first ray query, any-hit alone included, where the same
         // structures, which it builds without a word from the validation layer, trace on a GPU.
@@ -154,6 +157,7 @@ internal sealed unsafe partial class GraphicsDevice
             pNext = CanQueryRays ? &enabledStructures : null,
             maintenance5 = vulkan14.maintenance5,
             bresenhamLines = CanDrawBresenhamLines,
+            hostImageCopy = CopiesOnHost,
         };
         var enabled13 = new VkPhysicalDeviceVulkan13Features
         {

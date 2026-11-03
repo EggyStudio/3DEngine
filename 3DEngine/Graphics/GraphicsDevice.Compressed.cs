@@ -9,7 +9,8 @@ internal sealed unsafe partial class GraphicsDevice
 
     /// <summary>
     /// An image of blocks the GPU samples as they are, <paramref name="levels"/> its mip levels from
-    /// the first, each copied in as it is, ready to sample once the uploads recorded with it run.
+    /// the first, each copied in as it is, by the CPU where the device copies so (<see cref="CopiesOnHost"/>)
+    /// or by the uploads recorded with it, ready to sample from the next submission on.
     /// </summary>
     /// <remarks>
     /// The image is made in a format a view of another of its class reads as well, so a color's
@@ -20,6 +21,23 @@ internal sealed unsafe partial class GraphicsDevice
     {
         var image = (VulkanImage)CreateImage(new ImageDesc(new Extent2D(width, height), format,
             ImageUsage.Sampled | ImageUsage.TransferDst | ImageUsage.TransferSrc, (uint)levels.Count));
+        // Every level copied in by the CPU where the device copies so, with no staging buffer and
+        // no command, ready to sample from the next submission on.
+        if (image.HostCopy)
+        {
+            var pins = levels.Select(level => level.Pin()).ToArray();
+            try
+            {
+                var pointers = pins.Select(pin => (nint)pin.Pointer).ToArray();
+                TransitionOnHost(image, (uint)levels.Count, VkImageLayout.ShaderReadOnlyOptimal);
+                CopyOnHost(image, VkImageLayout.ShaderReadOnlyOptimal, pointers, width, height);
+            }
+            finally
+            {
+                foreach (var pin in pins) pin.Dispose();
+            }
+            return image;
+        }
         // Each level from a multiple of 16 bytes, which a copy's offset into the buffer takes for a
         // block of 8 bytes or 16.
         var offsets = new ulong[levels.Count];
