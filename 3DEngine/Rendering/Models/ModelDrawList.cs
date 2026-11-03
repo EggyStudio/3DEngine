@@ -344,4 +344,14 @@ internal struct MovingInstance
         (NowX, NowY, NowZ) = (new(now.M11, now.M21, now.M31, now.M41), new(now.M12, now.M22, now.M32, now.M42), new(now.M13, now.M23, now.M33, now.M43));
         (ThenX, ThenY, ThenZ) = (new(then.M11, then.M21, then.M31, then.M41), new(then.M12, then.M22, then.M32, then.M42), new(then.M13, then.M23, then.M33, then.M43));
     }
+
+    /// <summary>The same with the rows that turn a position, now and the frame before, scaled by a packed mesh's quantum (<see cref="PositionPacking"/>).</summary>
+    public readonly MovingInstance Folded(float quantum)
+    {
+        static Vector4 Scaled(Vector4 row, float quantum) => new(row.X * quantum, row.Y * quantum, row.Z * quantum, row.W);
+        var folded = this;
+        (folded.NowX, folded.NowY, folded.NowZ) = (Scaled(NowX, quantum), Scaled(NowY, quantum), Scaled(NowZ, quantum));
+        (folded.ThenX, folded.ThenY, folded.ThenZ) = (Scaled(ThenX, quantum), Scaled(ThenY, quantum), Scaled(ThenZ, quantum));
+        return folded;
+    }
 }

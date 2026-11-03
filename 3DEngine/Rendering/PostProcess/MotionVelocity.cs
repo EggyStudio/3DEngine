@@ -33,8 +33,9 @@ internal sealed class MotionVelocity : IDisposable
     private IShader? _vertex, _fragment;
     private IDescriptorSetLayout? _layout;
     private IPipeline? _pipeline;
-    // The pipeline for a mesh of positions alone, twelve bytes a vertex, made the first time one moves.
-    private IPipeline? _positionsPipeline;
+    // The pipelines for a mesh of positions alone, by its positions' format, three floats or packed,
+    // each made the first time one moves.
+    private readonly Dictionary<VertexFormat, IPipeline> _positionsPipelines = [];
 
     /// <summary>Creates the pass from <c>velocity.slang</c>, compiled.</summary>
     public MotionVelocity(ShaderProgram velocity) =>
@@ -53,8 +54,8 @@ internal sealed class MotionVelocity : IDisposable
         _vertex ??= device.CreateShader(new ShaderDesc(ShaderStage.Vertex, _vertexSpv));
         _fragment ??= device.CreateShader(new ShaderDesc(ShaderStage.Fragment, _fragmentSpv));
         // The position alone is read, at the start of the mesh's vertex, whose stride is its
-        // ModelVertex's or twelve bytes for a mesh of positions alone.
-        IPipeline Made(uint stride) => device.CreateGraphicsPipeline(new GraphicsPipelineDesc(
+        // ModelVertex's or its positions' for a mesh of positions alone, three floats or packed.
+        IPipeline Made(uint stride, VertexFormat format = VertexFormat.Float3) => device.CreateGraphicsPipeline(new GraphicsPipelineDesc(
             target.RenderPass, _vertex, _fragment,
             Cull: CullMode.None,
             VertexBindings:
@@ -64,7 +65,7 @@ internal sealed class MotionVelocity : IDisposable
             ],
             VertexAttributes:
             [
-                new VertexInputAttributeDesc(0, 0, VertexFormat.Float3, 0),
+                new VertexInputAttributeDesc(0, 0, format, 0),
                 .. Enumerable.Range(0, 6).Select(row => new VertexInputAttributeDesc((uint)(1 + row), 1, VertexFormat.Float4, (uint)(row * 16))),
             ],
             PushConstantRanges: [new PushConstantRange(ShaderStageFlags.Vertex, 0, (uint)Marshal.SizeOf<Push>())],
@@ -85,6 +86,11 @@ internal sealed class MotionVelocity : IDisposable
                 next += list.Count;
             }
             runs.Add((mesh, first, next - first));
+            // A packed mesh's rows now and the frame before scaled by the same quantum, the mesh's
+            // as its vertices hold them this frame, so a re-packed mesh shows no motion it did not make.
+            if (meshes.Get(mesh) is { Quantum: not 1 and var quantum })
+                foreach (ref var instance in written.Slice(first, next - first))
+                    instance = instance.Folded(quantum);
         }
         device.Unmap(buffer);
 
@@ -97,7 +103,9 @@ internal sealed class MotionVelocity : IDisposable
         foreach (var (id, first, count) in runs)
         {
             if (meshes.Get(id) is not { } mesh) continue;
-            var pipeline = mesh.PositionsOnly ? _positionsPipeline ??= Made(12) : _pipeline;
+            var pipeline = mesh.Positions is { } format
+                ? _positionsPipelines.TryGetValue(format, out var made) ? made : _positionsPipelines[format] = Made(PositionPacking.Stride(format), format)
+                : _pipeline;
             if (!ReferenceEquals(pipeline, bound))
             {
                 pass.SetPipeline(pipeline);
@@ -132,7 +140,7 @@ internal sealed class MotionVelocity : IDisposable
     {
         foreach (var buffer in _instances) buffer?.Dispose();
         _pipeline?.Dispose();
-        _positionsPipeline?.Dispose();
+        foreach (var made in _positionsPipelines.Values) made.Dispose();
         _layout?.Dispose();
         _vertex?.Dispose();
         _fragment?.Dispose();

@@ -318,10 +318,13 @@ atlas's table every chunk shares, a chunk's own constants, or what a compute pas
 
 A mesh whose normal and texture coordinate its stream packs, as a voxel world's chunk does, is
 uploaded from its positions alone, `UploadMesh(positions, indices, stream, colors)`, twelve bytes a
-vertex where a whole one is thirty-two, so its vertex with four packed bytes is sixteen. Its vertex
-stage reads the normal and texture coordinate as zero and unpacks them, as the `packed.slang` of
-the `shaders_packed_vertices` example does for a hill of voxels, the face a vertex lies on in the
-low three bits, its corner of the face in the next two and its tile in the eight above:
+vertex where a whole one is thirty-two, so its vertex with four packed bytes is sixteen. Where each
+of its positions is a whole multiple of one power of two within 32,767 of it, as a chunk's
+sixteenths of a block are, they take six bytes, three 16-bit integers the vertex stage reads as the
+floats they were, bit for bit, so that vertex is ten. Its vertex stage reads the normal and texture
+coordinate as zero and unpacks them, as the `packed.slang` of the `shaders_packed_vertices` example
+does for a hill of voxels, the face a vertex lies on in the low three bits, its corner of the face
+in the next two and its tile in the eight above:
 
 ```slang
 [shader("vertex")]

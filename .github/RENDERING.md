@@ -334,7 +334,17 @@ A mesh carries position, normal, tangent, two texture coordinates and a color, i
 indices of two bytes on the GPU where it has 65,536 vertices or fewer, four past that, the CPU
 keeping four-byte ones for picking, bodies and the scene's field. The voxel game's sections at 12
 columns took 8.23 MB of indices where 16.47 and the frame's mesh uploads 0.028 to 0.035 ms while it
-streamed where 0.026 to 0.032 (`./e3d command memory.buffers`, `./e3d command profile`). Models come
+streamed where 0.026 to 0.032 (`./e3d command memory.buffers`, `./e3d command profile`). A mesh
+uploaded from its positions alone whose every position is a whole multiple of one power of two
+within 32,767 of it, as the sections' sixteenths of a block are, gives the GPU three 16-bit integers
+of that power a vertex where three floats, R16G16B16_SSCALED on the RTX 4070, or four where a device
+reads no three as a vertex's. The power is folded into the three columns of each instance's matrix
+that turn a position, and into those of the frame before that the motion pass reads, so the vertex
+stage works out the floats it did, bit for bit, and no shader changes. The sections at 12 columns
+took 40.0 MB of vertices where 55.0 and the frame's mesh uploads 0.065 to 0.081 ms while they
+streamed where 0.043 to 0.044, for the passes that find the grid and pack it, and the pictures at
+the spawn and in the village differed from the floats' as two runs of the floats differ from each
+other (`./e3d command memory.buffers`, `./e3d command profile`, `./e3d shot`). Models come
 from Assimp, which supplies the mesh data, the material factors and the texture paths in one pass,
 and textures are decoded by StbImageSharp with mipmaps generated on the GPU. A KTX2 file of BC1, BC5
 or BC7 blocks goes to the GPU as it is, every level the file holds copied in by the CPU or from one

@@ -230,8 +230,8 @@ guide that shows it, as far as the surface had come before it began to change wi
   colors and second texture coordinates, its values one a vertex in one of the five
   `MeshStreamFormat`s, which a vertex stage of the program's own reads as `CUSTOM0`, and
   `UpdateMeshBuffer` writes it in place at `MeshStreamBuffer`. `UploadMesh` takes a mesh's
-  positions alone with its stream, twelve bytes a vertex, for a stream that packs the normal and
-  texture coordinate, as
+  positions alone with its stream, twelve bytes a vertex or six on a grid, for a stream that packs
+  the normal and texture coordinate, as
   [A vertex stream of the program's own](shaders-and-compute.md#a-vertex-stream-of-the-programs-own)
   shows.
 - **A shader that keeps its positions.** `SetShaderKeepsPositions` says a model shader's vertex

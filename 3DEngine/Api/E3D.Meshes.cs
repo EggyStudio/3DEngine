@@ -46,9 +46,9 @@ public static partial class E3D
     }
 
     /// <summary>
-    /// Uploads a mesh of positions alone, twelve bytes a vertex, with a stream of the program's own
-    /// and a color at each vertex where given, for a mesh whose normal and texture coordinates its
-    /// stream packs, as a voxel world's chunks are.
+    /// Uploads a mesh of positions alone, twelve bytes a vertex or six where they lie on a grid,
+    /// with a stream of the program's own and a color at each vertex where given, for a mesh whose
+    /// normal and texture coordinates its stream packs, as a voxel world's chunks are.
     /// </summary>
     /// <remarks>
     /// The GPU is given the positions alone, and a vertex stage reads the normal and texture
@@ -60,7 +60,12 @@ public static partial class E3D
     /// reference, and the GPU is given none, so a shader that reads <c>COLOR0</c> or
     /// <c>TEXCOORD1</c> on such a mesh reads white and zero. Its positions are written in place by
     /// <see cref="UpdateMeshBuffer{T}"/> at 0, it takes no skin, and the pass that scatters light
-    /// under a surface leaves it out.
+    /// under a surface leaves it out. Positions that are each a whole multiple of one power of two
+    /// within 32,767 of it, as a voxel world's sixteenths of a block are, go to the GPU as three
+    /// 16-bit integers of it, or four on a device that reads no three as a vertex's, which the
+    /// vertex stage turns into the positions the floats give, bit for bit. The power is folded into
+    /// the three columns of <c>ModelInstance</c>'s rows that turn a position, so a vertex stage that
+    /// reads those rows for more than a position and a normal it normalizes reads them times it.
     /// </remarks>
     /// <exception cref="ArgumentException">The indices are not whole triangles, one is out of range, or the stream or colors are not one a vertex.</exception>
     public static ModelMesh UploadMesh(Vector3[] positions, uint[] indices, MeshStream? stream, Color[]? colors)

@@ -6569,6 +6569,34 @@ at `36cae0c2`.
     reading 0 on Linux; 2,214 in both orders. Settled by the run of `abde3935` green at 20:09 on
     2026-11-02, half 1 in 70 minutes.
 
+100. **The run of `57dae5a6` is red on macOS alone, the suite crashing at the first texture's bind
+     under MoltenVK with the host image copy chosen.** Read at 18:45 on 2026-11-03. Every part of
+     the suite on macOS ended after 5 to 9 seconds in SIGSEGV in vkBindImageMemory from
+     GraphicsDevice.CreateImage (GraphicsDevice.Images.cs:170) at the first texture,
+     GpuTextures.Create from White or Update, 59 passed in everything else before it and 1,182 in
+     the suite's whole; the Windows halves green in 74 and 70 minutes, Linux in 65 and the examples
+     in 9. The two runner points of 182 are answered by the device lines. Linux reads llvmpipe (LLVM
+     20.1.2, 256 bits), Vulkan 1.4.318, Mesa 25.2.8-0ubuntu0.24.04.4, the five formats copied in
+     from the CPU, under Ubuntu's 1.3 loader, and is green. macOS reads Apple Paravirtual device,
+     Vulkan 1.4.357, MoltenVK 1.4.2, and its logical device line also says the five formats are
+     copied in from the CPU, so MoltenVK offered hostImageCopy with both copy layouts and the
+     performance query's optimal access, and the first image made for the host copy crashes at its
+     bind; the suspects are the image's host-transfer usage or the memory type a host-copied image
+     takes under MoltenVK. The mend is the next commit, before 192's. MoltenVK's device cannot run
+     here, so the run is the reading; if the crash is MoltenVK's, the host copy stays off under
+     MoltenVK with the device line saying why and the staging path there as before, HostCopyTests
+     reading the staged path alone on macOS. The digest and the crash's frames are in the reviewing
+     session's run folder. The mend is at f0de9b82, pushed at 19:32 with 6965e4df; ChooseHostCopy
+     reads the driver's id and under MoltenVK the host copy stays off, the device line saying
+     textures go through a staging buffer since MoltenVK crashes as it binds an image made for the
+     CPU to copy into, HostCopyTests comparing two staged paths on macOS; MoltenVK's own fault is
+     unread, its device not runnable here, the crash at the first texture, the 1 by 1 RGBA8 white
+     made Storage plus HostTransfer, at its bind. The suite 2,227 in the worktree with two
+     PackageContentsTests failing from the worktree's own stale package, both passing in the tree
+     with the mend beside the device tests, 8 of 8. Settled by the run of `6965e4df` green at 21:06
+     on 2026-11-03, macOS in 47 minutes with the staged path, the Windows halves in 87 and 45, Linux
+     in 81.
+
 ## Decisions
 
 1. **Commits stay local.** The owner pushes `main` from their own tools, and the working session

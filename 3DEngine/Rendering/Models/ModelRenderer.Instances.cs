@@ -133,7 +133,7 @@ internal sealed partial class ModelRenderer
             var b = _drawBatch[i];
             if (b < 0) continue;
             var slot = _filled[b]++;
-            instances[(int)slot] = instanceOf(in draws[i]);
+            instances[(int)slot] = Folded(instanceOf(in draws[i]), _batches[b].Mesh.Quantum);
             var (block, from, min, max) = _drawBlocks[b];
             if (block >= 0) Enclose(ref _blocks[block + (int)((slot - from) / BlockSize)], draws[i].World, min, max);
         }
@@ -158,7 +158,25 @@ internal sealed partial class ModelRenderer
         }
         if (_blocks.Length < _blockCount) Array.Resize(ref _blocks, Math.Max(_blockCount, _blocks.Length * 2));
         CopySegments(instances, copied);
+        // A group's instances of a packed mesh are scaled once in the ring, after their blocks'
+        // boxes were found from them as they were.
+        foreach (var batch in _batches)
+            if (batch.Group >= 0 && batch.Mesh.Quantum != 1)
+                foreach (ref var instance in instances.Slice((int)batch.First, groups[batch.Group].Count))
+                    instance = Folded(instance, batch.Mesh.Quantum);
         return (_instanceRing!, offset);
+    }
+
+    // An instance of a mesh whose positions are packed integers (PositionPacking), the rows that
+    // turn its position scaled by the integers' quantum, a power of two, and its translation as it
+    // is, so the vertex stage's position is the float the mesh's own positions give, bit for bit.
+    internal static Instance Folded(Instance instance, float quantum)
+    {
+        if (quantum == 1) return instance;
+        instance.WorldX = new Vector4(instance.WorldX.X * quantum, instance.WorldX.Y * quantum, instance.WorldX.Z * quantum, instance.WorldX.W);
+        instance.WorldY = new Vector4(instance.WorldY.X * quantum, instance.WorldY.Y * quantum, instance.WorldY.Z * quantum, instance.WorldY.W);
+        instance.WorldZ = new Vector4(instance.WorldZ.X * quantum, instance.WorldZ.Y * quantum, instance.WorldZ.Z * quantum, instance.WorldZ.W);
+        return instance;
     }
 
     // Copies the frame's group segments into the ring, each into its own range, and finds the

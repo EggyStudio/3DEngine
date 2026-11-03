@@ -37,7 +37,7 @@ internal sealed partial class ModelRenderer
     // made and the whole where it was not, reading positions alone for a mesh uploaded so, and
     // with its alpha test folded away for a material that cuts nothing out.
     private IPipeline? Pipeline(IGraphicsDevice gfx, IRenderPass renderPass, RenderWorld renderWorld, CullMode cull = CullMode.None, bool points = false,
-        bool blend = true, Streams streams = Streams.None, bool depth = true, ModelBuild build = ModelBuild.Whole, bool positions = false, bool solid = false)
+        bool blend = true, Streams streams = Streams.None, bool depth = true, ModelBuild build = ModelBuild.Whole, VertexFormat? positions = null, bool solid = false)
     {
         var (spvs, shaders) = streams == Streams.None ? (_fragmentSpvs, _fragmentShaders) : (_streamsFragmentSpvs, _streamsFragmentShaders);
         if (spvs[(int)build] is null) build = ModelBuild.Whole;
@@ -59,7 +59,7 @@ internal sealed partial class ModelRenderer
     // mesh gives it.
     private IPipeline? CustomPipeline(IGraphicsDevice gfx, IRenderPass renderPass, RenderWorld renderWorld, int id, ShaderProgram program,
         CullMode cull = CullMode.None, bool points = false, bool blend = true, Streams streams = Streams.None, bool depth = true, bool held = false,
-        StreamFeed? feed = null, bool positions = false, bool solid = false)
+        StreamFeed? feed = null, VertexFormat? positions = null, bool solid = false)
     {
         if (_customPipelines.TryGetValue((id, renderPass, cull, points, blend, streams, depth, held, feed, positions, solid), out var kept)) return kept;
 
@@ -323,15 +323,17 @@ internal sealed partial class ModelRenderer
     // The attributes a pipeline of the pass is fed, the stage's inputs placed by their semantics
     // where it names them, with a warning once for a stage that reads one no stream gives.
     private VertexInputAttributeDesc[] Placed(int rows, Streams streams, IReadOnlyList<ShaderInput> named, IReadOnlySet<int>? inputs, string? shaderName,
-        StreamFeed? feed = null, bool positions = false, bool solid = false)
+        StreamFeed? feed = null, VertexFormat? positions = null, bool solid = false)
     {
         VertexStream[] given =
         [
-            new("POSITION0", new VertexInputAttributeDesc(0, 0, VertexFormat.Float3, 0)),
+            // A mesh of positions alone's position is three floats or packed integers, which the
+            // instance's rows scale (PositionPacking).
+            new("POSITION0", new VertexInputAttributeDesc(0, 0, positions ?? VertexFormat.Float3, 0)),
             // A mesh of positions alone has its normal and texture coordinate read as zero from
             // binding 6, at a stride of 0.
-            new("NORMAL0", positions ? new VertexInputAttributeDesc(1, 6, VertexFormat.Float3, 0) : new VertexInputAttributeDesc(1, 0, VertexFormat.Float3, 12)),
-            new("TEXCOORD0", positions ? new VertexInputAttributeDesc(2, 6, VertexFormat.Float2, 12) : new VertexInputAttributeDesc(2, 0, VertexFormat.Float2, 24)),
+            new("NORMAL0", positions is not null ? new VertexInputAttributeDesc(1, 6, VertexFormat.Float3, 0) : new VertexInputAttributeDesc(1, 0, VertexFormat.Float3, 12)),
+            new("TEXCOORD0", positions is not null ? new VertexInputAttributeDesc(2, 6, VertexFormat.Float2, 12) : new VertexInputAttributeDesc(2, 0, VertexFormat.Float2, 24)),
             .. Enumerable.Range(0, rows).Select(row => new VertexStream(InstanceRows[row], new VertexInputAttributeDesc((uint)(3 + row), 1, VertexFormat.Float4, (uint)(row * 16)))),
             .. streams == Streams.None ? Array.Empty<VertexStream>() :
             [
@@ -369,7 +371,7 @@ internal sealed partial class ModelRenderer
     private IPipeline? MakePipeline(IGraphicsDevice gfx, IRenderPass renderPass, RenderWorld renderWorld, IShader vertex, IShader? fragment,
         CullMode cull = CullMode.None, IDescriptorSetLayout? material = null, bool shadow = false, bool points = false,
         Streams streams = Streams.None, bool blend = true, bool depth = true, IReadOnlySet<int>? inputs = null, IReadOnlyList<ShaderInput>? named = null,
-        string? shaderName = null, StreamFeed? feed = null, bool positions = false, bool solid = false, bool clamp = false, object? waitingAs = null)
+        string? shaderName = null, StreamFeed? feed = null, VertexFormat? positions = null, bool solid = false, bool clamp = false, object? waitingAs = null)
     {
         // The shadow pass reads the instance's first five rows, to its emission. Both push the
         // view-projection they draw through.
@@ -387,10 +389,11 @@ internal sealed partial class ModelRenderer
             // location 9 and its second texture coordinates at binding 3 and location 10, each a
             // vertex at a time from the mesh or the one default for every vertex, and its stream of
             // the program's own at binding 5 the same way. A mesh of positions alone gives twelve
-            // bytes a vertex at binding 0, its normal and texture coordinate zeros at binding 6.
+            // bytes a vertex at binding 0, or six or eight packed, its normal and texture coordinate
+            // zeros at binding 6.
             VertexBindings:
             [
-                new VertexInputBindingDesc(0, positions ? 12u : (uint)Marshal.SizeOf<ModelVertex>()),
+                new VertexInputBindingDesc(0, positions is { } format ? PositionPacking.Stride(format) : (uint)Marshal.SizeOf<ModelVertex>()),
                 new VertexInputBindingDesc(1, Instance.Size, PerInstance: true),
                 .. streams == Streams.None ? Array.Empty<VertexInputBindingDesc>() :
                 [
@@ -398,7 +401,7 @@ internal sealed partial class ModelRenderer
                     new VertexInputBindingDesc(3, streams == Streams.PerVertex ? 8u : 0u),
                 ],
                 .. feed is { } fed ? [new VertexInputBindingDesc(5, fed.Stride)] : Array.Empty<VertexInputBindingDesc>(),
-                .. positions ? [new VertexInputBindingDesc(6, 0)] : Array.Empty<VertexInputBindingDesc>(),
+                .. positions is not null ? [new VertexInputBindingDesc(6, 0)] : Array.Empty<VertexInputBindingDesc>(),
             ],
             VertexAttributes: Placed(rows, streams, named ?? [], inputs, shaderName, feed, positions),
             PushConstantRanges: [new PushConstantRange(ShaderStageFlags.Vertex, 0, 64)],

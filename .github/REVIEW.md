@@ -1,24 +1,24 @@
 # Review
 
-Reviewed up to `01dd3ced`, 141's second commit, the screen probes in the counted cascades alone,
-pushed at 15:27 on 2026-11-03 with `26e1fbc8`, 141's first commit, the far probes a quarter a frame,
-its run green at 17:25 with the Windows halves in 89 and 97 minutes, Linux in 105 and macOS in 43.
-After it `57dae5a6`, 182's second commit, the host image copy, pushed at 17:25 with `ee367526`,
-182's first, Vulkan 1.4 asked, and `3b85dbcd`, 141's third and its end, its run red at 18:43 on
-macOS alone, Verdict 100, the suite crashing at the first texture's bind under MoltenVK with the
-host copy chosen, the Windows halves green in 74 and 70 minutes, Linux in 65 and macOS's device
-lines answering the two runner points; the three keep the form. After it `6965e4df`, item 192, the
-glow lights past the four brightest, pushed at 19:32 with `f0de9b82`, Verdict 100's mend, the
-staging path under MoltenVK, its run awaited; both keep the form. Each commit's detail stands in its
-item in REVIEW-ARCHIVE.md, its devlog note and its own words. Before it `1567179e`, 140's last
-commit and its end, pushed at 13:44, its run green at 15:27 with the halves in 79 and 102 minutes,
-Linux in 83 and macOS in 38. Before it `5d0c44e4`, Low's third cascade, pushed at 11:45, its run
-green at 13:43 with the halves in 86 and 98 minutes, Linux in 103 and macOS in 41. Before it
-`8cd556e1`, 140's first commit, pushed at 09:52, its run green at 11:45 with the halves in 84 and 96
-minutes, Linux in 102 and macOS in 42. Before it `9a20767c`, item 191, pushed at 08:13 with
-`52e75184` and `893758ea`, its run green at 09:51 with the halves in 82 and 96 minutes, Linux in 76
-and macOS in 41. Before it `b83b1a85`, 142's second mend and its close, pushed at 06:45, its run
-green at 08:13 with the halves in 85 and 82 minutes, Linux in 58 and macOS in 40. Before it
+Reviewed up to `6965e4df`, item 192, the glow lights past the four brightest, pushed at 19:32 on
+2026-11-03 with `f0de9b82`, Verdict 100's mend, the staging path under MoltenVK, its run green at
+21:06 with the Windows halves in 87 and 45 minutes, Linux in 81 and macOS in 47, which settled
+Verdict 100. After it `e3452da2`, 144's first commit, two-byte indices, pushed at 21:06, its run
+awaited; it keeps the form. Each commit's detail stands in its item in REVIEW-ARCHIVE.md, its devlog
+note and its own words. Before it `57dae5a6`, 182's second commit, the host image copy, pushed at
+17:25 with `ee367526`, 182's first, Vulkan 1.4 asked, and `3b85dbcd`, 141's third and its end, its
+run red at 18:43 on macOS alone, Verdict 100, the suite crashing at the first texture's bind under
+MoltenVK with the host copy chosen, the Windows halves green in 74 and 70 minutes, Linux in 65.
+Before it `01dd3ced`, 141's second commit, pushed at 15:27 with `26e1fbc8`, 141's first, its run
+green at 17:25 with the halves in 89 and 97 minutes, Linux in 105 and macOS in 43. Before it
+`1567179e`, 140's last commit and its end, pushed at 13:44, its run green at 15:27 with the halves
+in 79 and 102 minutes, Linux in 83 and macOS in 38. Before it `5d0c44e4`, Low's third cascade,
+pushed at 11:45, its run green at 13:43 with the halves in 86 and 98 minutes, Linux in 103 and macOS
+in 41. Before it `8cd556e1`, 140's first commit, pushed at 09:52, its run green at 11:45 with the
+halves in 84 and 96 minutes, Linux in 102 and macOS in 42. Before it `9a20767c`, item 191, pushed at
+08:13 with `52e75184` and `893758ea`, its run green at 09:51 with the halves in 82 and 96 minutes,
+Linux in 76 and macOS in 41. Before it `b83b1a85`, 142's second mend and its close, pushed at 06:45,
+its run green at 08:13 with the halves in 85 and 82 minutes, Linux in 58 and macOS in 40. Before it
 `aab4b622`, the history toggle's mend, pushed at 05:17 with `c117b252`, 142's first mend, its run
 green at 06:45 with the halves in 84 and 49 minutes, Linux in 57 and macOS in 36. Before it
 `40462df0`, 142's readout, pushed at 03:29, its run green at 05:16 with the halves in 70 and 83
@@ -87,7 +87,7 @@ note and its own words. On 2026-10-30 at 18:0x the owner wrote the README's new 
 the focus on radiance cascades (Decision 74), questions asked back, and asked that the sessions
 spend fewer tokens at the same quality, N 7.7.
 
-Next 144, then 145.
+Next 144, then 145, then 193.
 
 Items done and verdicts settled before 2026-10-23 stand in REVIEW-ARCHIVE.md beside this file, their
 numbers kept, moved there at 19:30 on 2026-10-23 so this file holds the current work alone and is
@@ -994,7 +994,25 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     BLAS, picking and bodies; read by the vertex bytes, the upload's time and the spawn's and
     village's pictures against the float build's. The game's terrain shader is confirmed first; if
     it reads the attribute itself, the engine ships the dequantize call and the game takes it as its
-    own item with the next package.
+    own item with the next package. The first commit is e3452da2 at 20:35, two-byte indices for a
+    mesh of 65,536 vertices or fewer, the index type bound at the model, shadow, subsurface and
+    motion-velocity binds, the CPU's arrays unchanged; the game's index buffers at the spawn at 12
+    columns from 16.47 to 8.23 MB with the vertex buffers 55.0 MB as before, the meshes' prepare
+    while flying within its spread; a test of a quad at UInt16 and a 70,000-vertex mesh keeping
+    UInt32, both drawn on the GPU and lavapipe under validation; GpuMeshes, its prepare system and
+    SkinningNode moved unchanged into GpuMeshes.cs since MeshStore.cs passed N 1.3's 800 lines; the
+    suite 2,231 in both orders. The second commit's shape refined so the pictures stay bit-identical
+    rather than within two runs. Sixteen-bit SSCALED rather than SNORM, the three-component form
+    where the vertex-buffer support says so, else four, else floats, chosen at device creation and
+    named in the device line; a positions-only mesh packs only where every position is an exact
+    multiple of a power-of-two quantum holding its range around zero, the game's sections on a 1/16
+    grid within 0 to 16 at 2^-10, any other mesh keeping floats; no shader change, the quantum
+    folded into the instance rows' 3 by 3 where they are written (ModelNode's instance,
+    MeshEntityDraws, the motion velocity's buffer) so every world position comes out as the float
+    build's bit for bit, the normals through the same scaled 3 by 3 and normalized by every reader,
+    the game's terrain shader handing POSITION to transformModelVertex and needing no change; tests
+    of identical pixels packed and unpacked, no seam pixel between two sections, a mesh off the grid
+    staying float; UpdateMeshBuffer on a packed mesh re-packing or warning and unpacking.
 
 145. **A mesh written in place gives back its ring of mapped buffers once the writes stop.** From
     the voxel game's item 143, its ASKS.md entry of 2026-10-30, behind the cascades of Decision 75
@@ -2530,35 +2548,24 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     compiling as long as before; the glow tests 19 under the validation layer, the suite 2,230 in
     both orders; the sheet item-192-room. Pushed at 19:32 with f0de9b82.
 
+193. **The field's thin-wall test at a wall's foot and head.** From BevyCSharp's item 95 on
+    2026-11-03. At a thin wall's foot and head its field_splat records the wall's buried bottom or
+    top face as the nearest face behind a cell, 0.27 away and 22 degrees off straight back inside
+    the 25-degree rule, ahead of the wall's far face at 0.4, so the resolve's thin-wall test, the
+    face behind looking against the one in front, fails and the cell keeps its plain distance; every
+    column along a 0.3 m wall at floor and ceiling level stood open in cascade 1 and rays passed
+    under and over the wall, the same where two boxes abut end to end. This engine's field_splat has
+    the same rule at line 386. The mend is the bridge's. A face counts as behind a cell only where
+    the cell lies straight behind it, its nearest point within the face (0.999 where 0.9), which
+    closed every column and took the bridge's reproduction's bay walls from 7.9 to 1.6% under on the
+    floor. Test, a closed room of 0.3 m walls on a floor with a lamp outside, the floor inside
+    reading near nothing, failing without the mend; read by Sponza's eight views and the bounce
+    rooms against their references, since a shut room reads darker once the leak stops, and by the
+    field's build time. After 145.
+
 ## Verdicts
 
-Verdicts 56 to 99 are settled, said under each in REVIEW-ARCHIVE.md; 100 is open.
-
-100. **The run of `57dae5a6` is red on macOS alone, the suite crashing at the first texture's bind
-     under MoltenVK with the host image copy chosen.** Read at 18:45 on 2026-11-03. Every part of
-     the suite on macOS ended after 5 to 9 seconds in SIGSEGV in vkBindImageMemory from
-     GraphicsDevice.CreateImage (GraphicsDevice.Images.cs:170) at the first texture,
-     GpuTextures.Create from White or Update, 59 passed in everything else before it and 1,182 in
-     the suite's whole; the Windows halves green in 74 and 70 minutes, Linux in 65 and the examples
-     in 9. The two runner points of 182 are answered by the device lines. Linux reads llvmpipe (LLVM
-     20.1.2, 256 bits), Vulkan 1.4.318, Mesa 25.2.8-0ubuntu0.24.04.4, the five formats copied in
-     from the CPU, under Ubuntu's 1.3 loader, and is green. macOS reads Apple Paravirtual device,
-     Vulkan 1.4.357, MoltenVK 1.4.2, and its logical device line also says the five formats are
-     copied in from the CPU, so MoltenVK offered hostImageCopy with both copy layouts and the
-     performance query's optimal access, and the first image made for the host copy crashes at its
-     bind; the suspects are the image's host-transfer usage or the memory type a host-copied image
-     takes under MoltenVK. The mend is the next commit, before 192's. MoltenVK's device cannot run
-     here, so the run is the reading; if the crash is MoltenVK's, the host copy stays off under
-     MoltenVK with the device line saying why and the staging path there as before, HostCopyTests
-     reading the staged path alone on macOS. The digest and the crash's frames are in the reviewing
-     session's run folder. The mend is at f0de9b82, pushed at 19:32 with 6965e4df; ChooseHostCopy
-     reads the driver's id and under MoltenVK the host copy stays off, the device line saying
-     textures go through a staging buffer since MoltenVK crashes as it binds an image made for the
-     CPU to copy into, HostCopyTests comparing two staged paths on macOS; MoltenVK's own fault is
-     unread, its device not runnable here, the crash at the first texture, the 1 by 1 RGBA8 white
-     made Storage plus HostTransfer, at its bind. The suite 2,227 in the worktree with two
-     PackageContentsTests failing from the worktree's own stale package, both passing in the tree
-     with the mend beside the device tests, 8 of 8. Settled by its run when green on macOS.
+Verdicts 56 to 100 are settled, said under each in REVIEW-ARCHIVE.md; none is open.
 
 ## Decisions
 
@@ -3031,3 +3038,12 @@ reference and the voxel game's room of forty glowstones from 12 to 23% under to 
 Shared: a mesh of 65,536 vertices or fewer takes indices of two bytes on the GPU, bound by the type
 its entry keeps, the CPU keeping its four-byte ones for picking, bodies and the field, which took
 the voxel game's sections' indices at 12 columns from 16.47 MB to 8.23 MB (item 144's first commit).
+
+Shared: a mesh uploaded from its positions alone whose every position is a whole multiple of one
+power of two within 32,767 of it gives the GPU three 16-bit integers a vertex where three floats,
+R16G16B16_SSCALED where the device reads it as a vertex's, else four, else floats, chosen when the
+device is made and named in its line, and the power is folded into the three columns of the
+instance's rows that turn a position, the motion pass's rows of the frame before too, so no shader
+changes and every position comes out as the floats', bit for bit, which took the voxel game's
+sections' vertices at 12 columns from 55.0 MB to 40.0 MB for 0.02 to 0.04 ms more of the frame's
+mesh uploads while they streamed (item 144's second commit).

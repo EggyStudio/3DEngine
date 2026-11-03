@@ -27,8 +27,17 @@ internal sealed class GpuMeshes : IDisposable
         /// <summary>The width of each index in <see cref="Indices"/>, two bytes for a mesh of 65,536 vertices or fewer and four for a larger one.</summary>
         internal IndexType IndexType { get; init; } = IndexType.UInt32;
 
-        /// <summary>Whether <see cref="Vertices"/> holds positions alone, twelve bytes a vertex, the normal and texture coordinate read as zero.</summary>
+        /// <summary>Whether <see cref="Vertices"/> holds positions alone, twelve bytes a vertex or packed, the normal and texture coordinate read as zero.</summary>
         internal bool PositionsOnly { get; init; }
+
+        /// <summary>The format of a mesh of positions alone's positions, three floats or the device's packed one (<see cref="PositionPacking"/>).</summary>
+        internal VertexFormat PositionFormat { get; init; } = VertexFormat.Float3;
+
+        /// <summary>The power of two a packed position's integers are multiples of, which its instances' rows are scaled by, or 1.</summary>
+        internal float Quantum { get; init; } = 1;
+
+        /// <summary>The positions' format of a mesh of positions alone, or null for a mesh of whole vertices.</summary>
+        internal VertexFormat? Positions => PositionsOnly ? PositionFormat : null;
 
         /// <summary>Its stream of the program's own and the stream's format, or null for a mesh without one.</summary>
         internal (IBuffer Buffer, MeshStreamFormat Format)? Custom { get; init; }
@@ -95,15 +104,30 @@ internal sealed class GpuMeshes : IDisposable
 
             foreach (var upload in uploads)
             {
-                // A mesh uploaded from its positions is given them alone.
-                var bytes = upload.PositionsOnly ? MemoryMarshal.AsBytes(PositionsOf(upload.Vertices).AsSpan()) : MemoryMarshal.AsBytes(upload.Vertices.AsSpan());
+                // A mesh uploaded from its positions is given them alone, packed where they lie on a
+                // grid 16-bit integers hold and the device reads such (PositionPacking).
+                var (positionFormat, quantum) = (VertexFormat.Float3, 1f);
+                ReadOnlySpan<byte> bytes;
+                if (!upload.PositionsOnly)
+                    bytes = MemoryMarshal.AsBytes(upload.Vertices.AsSpan());
+                else if (gfx is GraphicsDevice { PackedPositions: { } packed } && PositionPacking.Quantum(upload.Vertices) is > 0 and var grid)
+                {
+                    (positionFormat, quantum) = (packed, grid);
+                    bytes = PositionPacking.Pack(upload.Vertices, grid, packed == VertexFormat.SScaled16x3 ? 3 : 4);
+                }
+                else
+                    bytes = MemoryMarshal.AsBytes(PositionsOf(upload.Vertices).AsSpan());
                 if ((upload.VerticesOnly || upload.CustomOnly) && _entries.TryGetValue(upload.Id, out var old))
                 {
                     var entry = old;
                     if (upload.VerticesOnly)
                     {
                         var (ring, slot) = Advance(gfx, entry.Ring, entry.Slot, bytes, () => Retire(entry, vertices: true, indices: false));
-                        entry = entry with { Vertices = ring[slot], Ring = ring, Slot = slot, Box = entry.Skin is null ? BoxOf(upload.Vertices) : null };
+                        entry = entry with
+                        {
+                            Vertices = ring[slot], Ring = ring, Slot = slot, Box = entry.Skin is null ? BoxOf(upload.Vertices) : null,
+                            PositionFormat = positionFormat, Quantum = quantum,
+                        };
                     }
                     if (upload.CustomOnly && upload.Custom is { } custom)
                     {
@@ -141,7 +165,10 @@ internal sealed class GpuMeshes : IDisposable
                     continue;
                 }
                 _entries[upload.Id] = new Entry(Buffer(gfx, bytes, BufferUsage.Vertex), indices, (uint)upload.Indices.Length)
-                    { Colors = colors, Texcoords2 = texcoords2, Custom = own, Box = BoxOf(upload.Vertices), PositionsOnly = upload.PositionsOnly, IndexType = indexType };
+                    {
+                        Colors = colors, Texcoords2 = texcoords2, Custom = own, Box = BoxOf(upload.Vertices), PositionsOnly = upload.PositionsOnly, IndexType = indexType,
+                        PositionFormat = positionFormat, Quantum = quantum,
+                    };
             }
         }
 

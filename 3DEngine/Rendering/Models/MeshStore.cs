@@ -28,7 +28,7 @@ internal sealed class MeshStore
     /// <param name="Streams">A color and a second texture coordinate at each vertex, which a mesh may have beside its vertices.</param>
     /// <param name="Custom">The stream of the program's own a vertex stage reads as <c>CUSTOM0</c>, or null for a mesh without one.</param>
     /// <param name="CustomOnly">Whether only that stream changed, so the mesh's other buffers are kept.</param>
-    /// <param name="PositionsOnly">Whether the GPU is given the vertices' positions alone, twelve bytes a vertex, for a mesh uploaded from its positions.</param>
+    /// <param name="PositionsOnly">Whether the GPU is given the vertices' positions alone, twelve bytes a vertex or six where they lie on a grid (<see cref="PositionPacking"/>), for a mesh uploaded from its positions.</param>
     public sealed record Upload(int Id, ModelVertex[] Vertices, uint[] Indices, bool VerticesOnly = false, Skin? Skin = null, Streams? Streams = null,
         MeshStream? Custom = null, bool CustomOnly = false, bool PositionsOnly = false);
 
@@ -188,9 +188,10 @@ internal sealed class MeshStore
 
     /// <summary>
     /// Queues a mesh of triangles from its positions alone, with its stream of the program's own and
-    /// its colors where given, and returns its id. The GPU is given twelve bytes a vertex, and the
-    /// vertices kept here have zero normals and texture coordinates, which the light field, the
-    /// glow lights, picking and bodies read as they read any mesh's.
+    /// its colors where given, and returns its id. The GPU is given twelve bytes a vertex, or six
+    /// where the positions lie on a grid (<see cref="PositionPacking"/>), and the vertices kept
+    /// here have zero normals and texture coordinates, which the light field, the glow lights,
+    /// picking and bodies read as they read any mesh's.
     /// </summary>
     /// <exception cref="ArgumentException">The indices are not whole triangles, one is out of range, or a stream's count differs from the positions'.</exception>
     public int AddPositions(System.Numerics.Vector3[] positions, uint[] indices, MeshStream? custom = null, Color[]? colors = null)

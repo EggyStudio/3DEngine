@@ -152,7 +152,7 @@ internal sealed partial class ModelRenderer : IDisposable
     private readonly IShader?[] _fragmentShaders = new IShader?[3], _streamsFragmentShaders = new IShader?[3];
     // The model pass's own pipelines, by the pass they draw in, since the window's and a target's
     // can differ in format.
-    private readonly Dictionary<(IRenderPass Pass, CullMode Cull, bool Points, bool Blend, Streams Streams, bool Depth, ModelBuild Build, bool Positions, bool Solid), IPipeline> _pipelines = [];
+    private readonly Dictionary<(IRenderPass Pass, CullMode Cull, bool Points, bool Blend, Streams Streams, bool Depth, ModelBuild Build, VertexFormat? Positions, bool Solid), IPipeline> _pipelines = [];
 
     // How a pipeline reads a mesh's colors and second texture coordinates beside its vertices, not
     // at all, a vertex at a time from the mesh, which has both where it has either, or once from a
@@ -342,7 +342,7 @@ internal sealed partial class ModelRenderer : IDisposable
     private readonly Dictionary<int, (IShader Vertex, IShader Fragment, bool ReadsStreams, ShaderInput? Custom0)> _custom = [];
     // A program's shader's fragment stage with its color held to an eight-bit frame's, for the HDR frame.
     private readonly Dictionary<int, IShader> _heldFragments = [];
-    private readonly Dictionary<(int Shader, IRenderPass Pass, CullMode Cull, bool Points, bool Blend, Streams Streams, bool Depth, bool Held, StreamFeed? Feed, bool Positions, bool Solid), IPipeline> _customPipelines = [];
+    private readonly Dictionary<(int Shader, IRenderPass Pass, CullMode Cull, bool Points, bool Blend, Streams Streams, bool Depth, bool Held, StreamFeed? Feed, VertexFormat? Positions, bool Solid), IPipeline> _customPipelines = [];
 
     // Descriptor sets for draws with a shader of their own, a list per frame slot handed out in
     // order each frame and kept for the next time the slot comes round.
@@ -451,8 +451,8 @@ internal sealed partial class ModelRenderer : IDisposable
             // A shader of the program's own that reads CUSTOM0 is fed the mesh's stream of the
             // program's own, or zeros where the mesh has none.
             StreamFeed? feed = modules.Custom0 is { } custom0 ? StreamFeed.For(custom0, batch.Mesh.Custom?.Format) : null;
-            var positions = batch.Mesh.PositionsOnly;
-            if (positions && program is null && _unlit.Add(batch.Mesh.Indices))
+            var positions = batch.Mesh.Positions;
+            if (positions is not null && program is null && _unlit.Add(batch.Mesh.Indices))
                 Logger.Warn("A mesh uploaded from its positions alone is drawn with the model pass's own shader, which lights it by a zero normal. " +
                             "A shader of the program's own gives it the normal its stream packs.");
             var wanted = program is null
@@ -463,7 +463,7 @@ internal sealed partial class ModelRenderer : IDisposable
                 PipelinesPending = true;
                 continue;
             }
-            _planned.Add(new Planned(b, wanted, program, streams, feed, positions));
+            _planned.Add(new Planned(b, wanted, program, streams, feed, positions is not null));
         }
         _waitless = false;
         OrderOpaque(span, view.Opaque, blocks, viewProjection);

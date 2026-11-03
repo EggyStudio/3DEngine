@@ -143,6 +143,7 @@ internal sealed unsafe partial class GraphicsDevice
         // Textures the CPU writes copied into their images by the CPU, where the device has
         // Vulkan 1.4's host image copy, which 1.4 leaves optional (ChooseHostCopy).
         ChooseHostCopy(vulkan14.hostImageCopy);
+        ChoosePackedPositions();
         // Left off on a device that draws on its CPU: lavapipe of Mesa 25.2 crashes in the model
         // pass's fragment stage at its first ray query, any-hit alone included, where the same
         // structures, which it builds without a word from the validation layer, trace on a GPU.

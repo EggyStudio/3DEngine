@@ -16,7 +16,11 @@ internal enum VertexFormat
     /// <summary>Two 32-bit unsigned integers (VK_FORMAT_R32G32_UINT).</summary>
     UInt2,
     /// <summary>One 32-bit float (VK_FORMAT_R32_SFLOAT).</summary>
-    Float
+    Float,
+    /// <summary>Three 16-bit signed integers read as the floats they are (VK_FORMAT_R16G16B16_SSCALED).</summary>
+    SScaled16x3,
+    /// <summary>Four 16-bit signed integers read as the floats they are (VK_FORMAT_R16G16B16A16_SSCALED).</summary>
+    SScaled16x4
 }
 
 /// <summary>Index buffer element type.</summary>

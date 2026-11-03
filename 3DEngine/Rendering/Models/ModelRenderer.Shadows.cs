@@ -117,16 +117,16 @@ internal sealed partial class ModelRenderer
     // caster nearer the light than its box still shadows what the box holds, and the depth the
     // ambient occlusion and the screen's probes read is not, so what the camera's near plane clips
     // stays out of it.
-    private readonly IPipeline?[] _shadowPipelines = new IPipeline?[8];
+    private readonly Dictionary<(bool Masked, VertexFormat? Positions, bool Clamp), IPipeline> _shadowPipelines = [];
 
     // How the shadow pass draws a masked surface through a program's shader, the shader, how its
     // vertex stage reads the mesh's streams and CUSTOM0, and whether the mesh is of positions alone.
-    private readonly record struct OwnShadow(int Shader, ShaderProgram Program, Streams Streams, StreamFeed? Feed, bool Positions);
+    private readonly record struct OwnShadow(int Shader, ShaderProgram Program, Streams Streams, StreamFeed? Feed, VertexFormat? Positions);
 
     // The program's shadowMain stages by ShaderStore id, and the pipelines its masked surfaces cast
     // their shadows through, by the shader, how they read the mesh, and whether depth is clamped.
     private readonly Dictionary<int, IShader> _shadowFragments = [];
-    private readonly Dictionary<(int Shader, Streams Streams, StreamFeed? Feed, bool Positions, bool Clamp), IPipeline> _ownShadowPipelines = [];
+    private readonly Dictionary<(int Shader, Streams Streams, StreamFeed? Feed, VertexFormat? Positions, bool Clamp), IPipeline> _ownShadowPipelines = [];
 
     // Beside each of _shadowBatches, the program's way of drawing it, or null for the pass's own.
     private readonly List<OwnShadow?> _ownShadows = [];
@@ -137,9 +137,11 @@ internal sealed partial class ModelRenderer
     private IPipeline ShadowPipeline(in Batch batch, bool clamp)
     {
         var masked = IsMasked(batch.Shadow);
-        var positions = batch.Mesh.PositionsOnly;
+        var positions = batch.Mesh.Positions;
         var (device, depthOnly, renderWorld) = _shadowMaking!.Value;
-        return _shadowPipelines[(masked ? 4 : 0) + (positions ? 2 : 0) + (clamp ? 1 : 0)] ??= MakePipeline(device, depthOnly, renderWorld,
+        var key = (masked, positions, clamp);
+        if (_shadowPipelines.TryGetValue(key, out var made)) return made;
+        return _shadowPipelines[key] = MakePipeline(device, depthOnly, renderWorld,
             _shadowVertexShader!, masked ? _shadowMaskShader : null, shadow: true, positions: positions, clamp: clamp)!;
     }
 
@@ -187,7 +189,7 @@ internal sealed partial class ModelRenderer
         var modules = CustomModules(device, draw.Shader, program);
         var streams = !modules.ReadsStreams ? Streams.None : mesh.Colors is null ? Streams.Default : Streams.PerVertex;
         StreamFeed? feed = modules.Custom0 is { } custom0 ? StreamFeed.For(custom0, mesh.Custom?.Format) : null;
-        return new OwnShadow(draw.Shader, program, streams, feed, mesh.PositionsOnly);
+        return new OwnShadow(draw.Shader, program, streams, feed, mesh.Positions);
     }
 
     // The pipeline of a program's stages for a shadow map (clamp) or the depth target, made the
