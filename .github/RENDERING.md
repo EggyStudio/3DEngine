@@ -358,6 +358,9 @@ staging buffers' 128 MB of host-visible blocks at most, 64 MB of them kept after
 on lavapipe, whose device memory is the CPU's, the texels went into the image's own memory with no
 second copy. The atrium at 1920 by 1080 at High draws its scene pass in 15.78 ms where 16.03 to
 16.09 before (a scratch test over the textures' files, `./e3d command profile`, `HostCopyTests`).
+MoltenVK 1.4.2 offers the copy, its layouts and fast access on the macOS runner's paravirtual
+device, and then crashes in `vkBindImageMemory` at the first image made for it, so under MoltenVK
+textures go through the staging buffer as before and the device's line says why (Verdict 100).
 
 The material holds glTF's metallic-roughness model, which Assimp maps every format it reads
 onto, and all of it is drawn. Emission is added after the lights, so it shows with none.

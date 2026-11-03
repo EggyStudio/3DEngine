@@ -22,6 +22,10 @@ internal sealed unsafe partial class GraphicsDevice
     // The formats the CPU copies into, as the device's line names them.
     private string HostCopiedFormats => string.Join(", ", HostCopied.Where(format => _hostCopyFormats.ContainsKey(ToVkFormat(format))));
 
+    // Why textures go through a staging buffer on a device that offers to copy them from the CPU,
+    // or null where none keeps it from it, as the device's line says.
+    private string? _hostCopyKept;
+
     /// <summary>Whether textures go through a staging buffer however the device could copy them, which a test compares the two ways by.</summary>
     internal bool StagesUploads { get; init; }
 
@@ -33,7 +37,19 @@ internal sealed unsafe partial class GraphicsDevice
     {
         _hostCopyFormats.Clear();
         CopiesOnHost = false;
+        _hostCopyKept = null;
         if (!offered || StagesUploads) return;
+        // Not through MoltenVK, whose 1.4.2 offers the copy, its layouts and its fast access on the
+        // macOS runner's paravirtual device and then crashes in vkBindImageMemory at the first image
+        // made for it, a texture of a pixel, in every part of the suite (Verdict 100).
+        var driver = new VkPhysicalDeviceDriverProperties();
+        var driverProperties = new VkPhysicalDeviceProperties2 { pNext = &driver };
+        _instanceApi.vkGetPhysicalDeviceProperties2(_physicalDevice, &driverProperties);
+        if (driver.driverID == VkDriverId.Moltenvk)
+        {
+            _hostCopyKept = "MoltenVK crashing as it binds an image made for the CPU to copy into";
+            return;
+        }
         var properties = new VkPhysicalDeviceHostImageCopyProperties();
         var whole = new VkPhysicalDeviceProperties2 { pNext = &properties };
         _instanceApi.vkGetPhysicalDeviceProperties2(_physicalDevice, &whole);

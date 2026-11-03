@@ -1,17 +1,22 @@
 # Review
 
-Reviewed up to `1567179e`, 140's last commit and its end, the glow texels held and the budgets
-written, pushed at 13:44 on 2026-11-03, its run green at 15:27 with the Windows halves in 79 and 102
-minutes, Linux in 83 and macOS in 38. After it `01dd3ced`, 141's second commit, the screen probes in
-the counted cascades alone, pushed at 15:27 with `26e1fbc8`, 141's first commit, the far probes a
-quarter a frame, its run awaited; both keep the form. Each commit's detail stands in its item in
-REVIEW-ARCHIVE.md, its devlog note and its own words. Before it `5d0c44e4`, Low's third cascade,
-pushed at 11:45, its run green at 13:43 with the halves in 86 and 98 minutes, Linux in 103 and macOS
-in 41. Before it `8cd556e1`, 140's first commit, pushed at 09:52, its run green at 11:45 with the
-halves in 84 and 96 minutes, Linux in 102 and macOS in 42. Before it `9a20767c`, item 191, pushed at
-08:13 with `52e75184` and `893758ea`, its run green at 09:51 with the halves in 82 and 96 minutes,
-Linux in 76 and macOS in 41. Before it `b83b1a85`, 142's second mend and its close, pushed at 06:45,
-its run green at 08:13 with the halves in 85 and 82 minutes, Linux in 58 and macOS in 40. Before it
+Reviewed up to `01dd3ced`, 141's second commit, the screen probes in the counted cascades alone,
+pushed at 15:27 on 2026-11-03 with `26e1fbc8`, 141's first commit, the far probes a quarter a frame,
+its run green at 17:25 with the Windows halves in 89 and 97 minutes, Linux in 105 and macOS in 43.
+After it `57dae5a6`, 182's second commit, the host image copy, pushed at 17:25 with `ee367526`,
+182's first, Vulkan 1.4 asked, and `3b85dbcd`, 141's third and its end, its run red at 18:43 on
+macOS alone, Verdict 100, the suite crashing at the first texture's bind under MoltenVK with the
+host copy chosen, the Windows halves green in 74 and 70 minutes, Linux in 65 and macOS's device
+lines answering the two runner points; the three keep the form. Each commit's detail stands in its
+item in REVIEW-ARCHIVE.md, its devlog note and its own words. Before it `1567179e`, 140's last
+commit and its end, pushed at 13:44, its run green at 15:27 with the halves in 79 and 102 minutes,
+Linux in 83 and macOS in 38. Before it `5d0c44e4`, Low's third cascade, pushed at 11:45, its run
+green at 13:43 with the halves in 86 and 98 minutes, Linux in 103 and macOS in 41. Before it
+`8cd556e1`, 140's first commit, pushed at 09:52, its run green at 11:45 with the halves in 84 and 96
+minutes, Linux in 102 and macOS in 42. Before it `9a20767c`, item 191, pushed at 08:13 with
+`52e75184` and `893758ea`, its run green at 09:51 with the halves in 82 and 96 minutes, Linux in 76
+and macOS in 41. Before it `b83b1a85`, 142's second mend and its close, pushed at 06:45, its run
+green at 08:13 with the halves in 85 and 82 minutes, Linux in 58 and macOS in 40. Before it
 `aab4b622`, the history toggle's mend, pushed at 05:17 with `c117b252`, 142's first mend, its run
 green at 06:45 with the halves in 84 and 49 minutes, Linux in 57 and macOS in 36. Before it
 `40462df0`, 142's readout, pushed at 03:29, its run green at 05:16 with the halves in 70 and 83
@@ -80,7 +85,7 @@ note and its own words. On 2026-10-30 at 18:0x the owner wrote the README's new 
 the focus on radiance cascades (Decision 74), questions asked back, and asked that the sessions
 spend fewer tokens at the same quality, N 7.7.
 
-Next 182 (Decision 86), then 192; 143, 144 and 145 wait behind them.
+Next 192; 143, 144 and 145 wait behind it.
 
 Items done and verdicts settled before 2026-10-23 stand in REVIEW-ARCHIVE.md beside this file, their
 numbers kept, moved there at 19:30 on 2026-10-23 so this file holds the current work alone and is
@@ -2038,7 +2043,30 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     suite 2,228 in both orders; its Shared line a row. Its run answers the two points. Next the host
     image copy for the uploads, read by Sponza's 72 textures and the shared-memory devices, the
     staging path kept where a device offers no host image copy, since 1.4 leaves it optional, with a
-    test that both paths give the same texels.
+    test that both paths give the same texels. The second commit is 57dae5a6 at 17:16, the host
+    image copy. Chosen once in CreateLogicalDevice where Vulkan14Features offers hostImageCopy and
+    copyDstLayouts holds both SHADER_READ_ONLY_OPTIMAL and TRANSFER_DST_OPTIMAL, for RGBA8, BC1, BC5
+    and BC7 where VkFormatProperties3 has HOST_IMAGE_TRANSFER and the device's performance query
+    reports optimal access for the format's widest usage, the device line naming the formats copied
+    in from the CPU or the staging buffer elsewhere; a KTX2 file's levels go by a host layout
+    transition and vkCopyMemoryToImage of every level with no staging buffer and no command, a fresh
+    RGBA8's level 0 on the host with its mips blitted as before, a region written into a live image
+    and every other format by the staging path. HostCopyTests puts a 7-level BC7 and a 7-level RGBA8
+    through a device forced to stage and the default, every level's texels equal on the RTX 4070 and
+    lavapipe. Sponza's 72 textures ready in 39 to 71 ms on the RTX 4070 where staged 88 to 154, on
+    lavapipe 43 to 44 where 86 to 87, the staging's host-visible blocks of 128 MB at peak and 64
+    kept gone, the atrium's scene pass at 1080p High 15.78 ms against 16.03 to 16.09; 266 texture,
+    model and reference tests on lavapipe under the validation layer, the suite 2,229 in both
+    orders; its Shared line a row. Next the push descriptors for the per-look set, then 192. The
+    third step read at 17:18 and not taken. The per-look set writes about one set a frame in a live
+    scenes_sponza at the atrium (DrawSetsWritten 1, the 26 material sets kept across frames) and in
+    the voxel game since 132's mend, so push descriptors there would replace one
+    vkUpdateDescriptorSets a frame and nothing could show it. The sets still allocated and written
+    every frame are the compute passes', about 20 sets and 230 descriptor writes a frame at High (GI
+    15, the screen probes 4, fog, the field's builds and particles) inside cpu.global_illumination's
+    1.1 ms at the grove; push descriptors for those stand as a later step, taken when that line is
+    read against a budget. Done at two commits, ee367526 and 57dae5a6; the item closes with 1.4
+    asked and the host image copy, the two runner points read from the first commit's run.
 
 183. **The Windows job's time, up to 159 minutes.** The push runs' Windows job took 149, 151 and 159
     minutes at the last three runs (`4b80c5c8`, `adf7bb79`, `a35d7ce9`), up from 98 to 140 in
@@ -2459,7 +2487,26 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
 
 ## Verdicts
 
-Verdicts 56 to 99 are settled, said under each in REVIEW-ARCHIVE.md; none is open.
+Verdicts 56 to 99 are settled, said under each in REVIEW-ARCHIVE.md; 100 is open.
+
+100. **The run of `57dae5a6` is red on macOS alone, the suite crashing at the first texture's bind
+     under MoltenVK with the host image copy chosen.** Read at 18:45 on 2026-11-03. Every part of
+     the suite on macOS ended after 5 to 9 seconds in SIGSEGV in vkBindImageMemory from
+     GraphicsDevice.CreateImage (GraphicsDevice.Images.cs:170) at the first texture,
+     GpuTextures.Create from White or Update, 59 passed in everything else before it and 1,182 in
+     the suite's whole; the Windows halves green in 74 and 70 minutes, Linux in 65 and the examples
+     in 9. The two runner points of 182 are answered by the device lines. Linux reads llvmpipe (LLVM
+     20.1.2, 256 bits), Vulkan 1.4.318, Mesa 25.2.8-0ubuntu0.24.04.4, the five formats copied in
+     from the CPU, under Ubuntu's 1.3 loader, and is green. macOS reads Apple Paravirtual device,
+     Vulkan 1.4.357, MoltenVK 1.4.2, and its logical device line also says the five formats are
+     copied in from the CPU, so MoltenVK offered hostImageCopy with both copy layouts and the
+     performance query's optimal access, and the first image made for the host copy crashes at its
+     bind; the suspects are the image's host-transfer usage or the memory type a host-copied image
+     takes under MoltenVK. The mend is the next commit, before 192's. MoltenVK's device cannot run
+     here, so the run is the reading; if the crash is MoltenVK's, the host copy stays off under
+     MoltenVK with the device line saying why and the staging path there as before, HostCopyTests
+     reading the staged path alone on macOS. The digest and the crash's frames are in the reviewing
+     session's run folder.
 
 ## Decisions
 
@@ -2915,3 +2962,8 @@ the device is made per format whose image samples as fast with the copy's usage
 (VkHostImageCopyDevicePerformanceQuery) and named in the device's line, the staging path kept
 elsewhere, which readied Sponza's 72 textures in 39 to 71 ms where 88 to 154 on the RTX 4070 and 43
 where 86 on lavapipe, with none of the staging buffers' 128 MB (item 182's second commit).
+
+Shared: textures go through a staging buffer under MoltenVK however it offers host image copy, since
+MoltenVK 1.4.2 offers the copy, its layouts and fast access on the macOS runner's paravirtual device
+and then crashes in vkBindImageMemory at the first image made for it, the device's line saying so
+(Verdict 100's mend).

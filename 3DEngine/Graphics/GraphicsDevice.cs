@@ -99,7 +99,8 @@ internal sealed partial class GraphicsDevice : IGraphicsDevice
         CreateLogicalDevice();
         CreatePipelineCache();
         Logger.Info($"Step 4/6: Logical device created in {sw.ElapsedMilliseconds}ms (graphicsQueue={_graphicsQueueFamily}, presentQueue={_presentQueueFamily}), "
-            + (CopiesOnHost ? $"textures of {HostCopiedFormats} copied in from the CPU" : "textures copied in through a staging buffer"));
+            + (CopiesOnHost ? $"textures of {HostCopiedFormats} copied in from the CPU"
+                : $"textures copied in through a staging buffer{(_hostCopyKept is { } kept ? $", {kept}" : "")}"));
 
         Logger.Info("Step 5/6: Creating swapchain resources (swapchain, image views, depth buffer and command pool)...");
         sw.Restart();
