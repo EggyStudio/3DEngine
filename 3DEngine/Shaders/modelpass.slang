@@ -550,7 +550,7 @@ public LitLight litLight(float3 albedo, ModelVertexOutput input, float shadow = 
     {
         if (screen)
             bouncedHere = screenBounced(probes);
-        // The screen's probes reach as far as the world's second cascade, across whose outer band
+        // The screen's probes reach as far as the world's last cascade, across whose outer band
         // their light fades to the world's probes', which read alone past it. Switched there, a
         // canyon's floor stepped by 14% at High.
         float near = bouncedHere.x >= 0.0 ? screenHold(input.world, n) : 0.0;

@@ -189,7 +189,8 @@ internal sealed unsafe partial class GraphicsDevice
                 VkDescriptorType.UniformBuffer, VkDescriptorType.CombinedImageSampler, VkDescriptorType.CombinedImageSampler, VkDescriptorType.UniformBuffer,
                 VkDescriptorType.CombinedImageSampler, VkDescriptorType.SampledImage, VkDescriptorType.StorageImage, VkDescriptorType.StorageImage,
                 VkDescriptorType.UniformBuffer, VkDescriptorType.CombinedImageSampler, VkDescriptorType.SampledImage, VkDescriptorType.StorageBuffer,
-                VkDescriptorType.StorageBuffer, VkDescriptorType.SampledImage, VkDescriptorType.SampledImage], 16);
+                VkDescriptorType.StorageBuffer, VkDescriptorType.SampledImage, VkDescriptorType.SampledImage, VkDescriptorType.SampledImage,
+                VkDescriptorType.SampledImage, VkDescriptorType.SampledImage], 32);
             VkDescriptorType[] traced = [VkDescriptorType.CombinedImageSampler, VkDescriptorType.UniformBuffer,
                 VkDescriptorType.CombinedImageSampler, VkDescriptorType.CombinedImageSampler, VkDescriptorType.UniformBuffer,
                 VkDescriptorType.StorageImage, VkDescriptorType.CombinedImageSampler, VkDescriptorType.CombinedImageSampler,

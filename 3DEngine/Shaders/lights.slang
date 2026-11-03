@@ -473,11 +473,10 @@ public float3 ambientReflected(float3 f0, float roughness, float nv)
 
 // How much of the indirect light reaching a surface at p facing n the screen's probes give rather
 // than the world's, which they take the light from beyond their rays from, all of it inside the
-// world's second cascade, or its first where global illumination has one, falling to none across
-// its outer band (CascadeBand in gi.slang).
+// world's last cascade, falling to none across its outer band (CascadeBand in gi.slang).
 public float screenHold(float3 p, float3 n)
 {
-    return probesHold(bouncedField, p, n, lighting.indirect.y, min(1, int(lighting.indirect.w) - 1), int(lighting.indirect.w));
+    return probesHold(bouncedField, p, n, lighting.indirect.y, int(lighting.indirect.w) - 1, int(lighting.indirect.w));
 }
 
 // The indirect light reaching a surface at p facing n, irradiance over pi, from the world's probes

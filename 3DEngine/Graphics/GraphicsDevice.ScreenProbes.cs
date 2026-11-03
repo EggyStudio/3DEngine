@@ -133,12 +133,17 @@ internal sealed unsafe partial class GraphicsDevice
         run.Buffer(set, 14, VkDescriptorType.StorageBuffer, screen.RayLog);
         run.Image(set, 15, VkDescriptorType.SampledImage, ((VulkanImageView)field.FacesView).View, null, VkImageLayout.ShaderReadOnlyOptimal);
         run.Image(set, 16, VkDescriptorType.SampledImage, ((VulkanImageView)field.SecondView).View, null, VkImageLayout.ShaderReadOnlyOptimal);
-        ReadOnlySpan<uint> push = [(uint)gi.Texels[0], gi.Cascades > 1 ? (uint)gi.Texels[1] : 0, (uint)(loggedProbe + 1), (glowOnly ? 1u : 0) | (loggedNotANumber ? 2u : 0) | (lightThrough ? 4u : 0)];
+        // The third to fifth cascades', merged, the last the probes have again where they have fewer.
+        for (int c = 2; c < 5; c++)
+            run.Image(set, (uint)(15 + c), VkDescriptorType.SampledImage, gi.Merged[Math.Min(c, gi.Cascades - 1)].View, null, VkImageLayout.General);
+        uint TexelsOf(int c) => c < gi.Cascades ? (uint)gi.Texels[c] : 0;
+        ReadOnlySpan<uint> push = [TexelsOf(0), TexelsOf(1), (uint)(loggedProbe + 1), (glowOnly ? 1u : 0) | (loggedNotANumber ? 2u : 0) | (lightThrough ? 4u : 0),
+            TexelsOf(2), TexelsOf(3), TexelsOf(4), (uint)Math.Min(gi.Cascades, 5)];
         var (pipeline, layout, _) = GiStages[ScreenStage];
         _deviceApi.vkCmdBindPipeline(cmd, VkPipelineBindPoint.Compute, pipeline);
         _deviceApi.vkCmdBindDescriptorSets(cmd, VkPipelineBindPoint.Compute, layout, 0, 1, &set, 0, null);
         fixed (uint* p = push)
-            _deviceApi.vkCmdPushConstants(cmd, layout, VkShaderStageFlags.Compute, 0, 16, p);
+            _deviceApi.vkCmdPushConstants(cmd, layout, VkShaderStageFlags.Compute, 0, 32, p);
         _deviceApi.vkCmdDispatch(cmd, (uint)(screen.Across + 7) / 8, (uint)(screen.Down + 7) / 8, 1);
 
         // Each probe's light kept over the frames, then blended with its neighbors' on like

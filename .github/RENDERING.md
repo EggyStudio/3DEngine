@@ -1673,7 +1673,7 @@ look, global illumination adds 1.00 levels a frame to the sliding picture's chan
 levels 18 frames on and 0.9 at 30.
 
 Each cascade's light fades into the next across its outer band, eight of its cells, a probes'
-spacing (`CascadeBand`), the screen's probes' into the world's across the second cascade's, and the
+spacing (`CascadeBand`), the screen's probes' into the world's across the last cascade's, and the
 last cascade's into the light from beyond the probes, a sky over a ground (below), which takes the
 place of global illumination past it (`bouncedHold`); a surface's depth in
 a cascade is that of its point leaned off it as the probes are read for it, so a floor on a
@@ -2664,6 +2664,32 @@ the surfaces read probes that match the reference where they stand (`gi.probe`, 
 1024 paths a pixel, `gi.compare`, `BounceReference.MeasureProbe` over the cascade's probes through
 `./e3d eval`, `./e3d command profile`,
 `.github/assets/readings/2026-11-03-item-142-lift-views.webp`).
+
+**The screen's probes in every cascade, read and mended on 2026-11-03.** With the probes' far hits
+moved toward the sun, the shade at 8:00 still read 2.53, 2.48, 1.58 and 3.24 in the atrium, the
+lion, the nave and the lookup against references of one bounce, while the first cascade's probes
+matched the reference where they stand and traced to the field's edge with nothing merged the views
+read as over. The excess lay in a few surfaces black in the reference, the lion's niche at the
+atrium's end holding 29% of the atrium's shade's light over the reference and a doorway's wall in
+the lookup 34% of its. They had no screen probe, since the screen's probes stood in the world's
+first two cascades alone, so the model pass lit them from the third and fourth cascades' probes, 4
+to 8 units apart, which stand in the open before the recess and see the sunlit walls it does not.
+The screen's probes now stand in every cascade, each taking the light from beyond its rays from the
+finest cascade holding where a ray ends, and past the second their rays reach as far as the probes
+of the cascade holding them are apart, since reaching 2 units the niche's rays read the probes 4
+apart along their way from where those stand, past the floor the rays would meet, and its probe read
+0.0409 where the reference reads none. A hit of a probe past the second cascade takes its indirect
+light from the probes it sees through the field, since weighed by their reach, whose slack the
+coarse probes outside passed, the far end of a closed corridor took 0.309 of the open one's light,
+where now 0.052 and 0.183 before. The shade at 8:00 reads 1.89, 2.41, 1.40 and 2.49, the niche 8% of
+the atrium's excess and the doorway's wall 14% of the lookup's, at noon 1.11 to 1.24 where 1.13 to
+1.33, and at 15:00 1.23 to 1.66 where 1.40 to 1.99, the brightest fifth as it was. The bounce rooms
+hold within 0.2% of their light. The Cornell box's back wall, which lies in the second cascade's
+outer band, where the screen's probes faded to the world's, reads 3% over the reference of every
+bounce where 12% under. Global illumination at `High` at 1920 by 1080 takes 4.24 and 4.25 ms in the
+atrium where 3.58 and 3.65, and 3.85 and 3.83 in the nave where 3.41 and 3.45, under the powersave
+profile (`gi.screenprobe`, `gi.reference` at 1024 paths a pixel, `gi.compare`, `./e3d command
+profile`, `.github/assets/readings/2026-11-03-item-142-far-views.webp`).
 
 **The sky's share along the mirror way, read on 2026-11-01.** The environment's reflection is
 scaled by the share of the sky the probes around a surface see along its mirror way, which an open

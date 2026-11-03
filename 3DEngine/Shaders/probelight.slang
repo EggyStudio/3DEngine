@@ -267,10 +267,13 @@ public float4 bouncedSeenSum<V : IVolume>(V field, SceneFieldInfo info, SceneFie
 // gives it, with the lamps that cast shadows hidden where the field stands between, so a lamp's
 // light is not reflected off the far side of a wall, and where seen is set the indirect light
 // reaching it from the probes it sees alone (bouncedSeenAt). The world's probes set it, since every
-// surface's light comes to them. The screen's probes, whose rays are many and short, do not,
-// because marching to the probes at each of their hits cost 0.10 to 0.15 ms of global
-// illumination's 0.3 to 0.4 on the development machine's GPU in shaders_cornell_box, and a closed
-// room under a lamp held 3 levels of its light without it, where it held 247 before either. Weighed
+// surface's light comes to them. The screen's probes, whose rays are many and short, do not where
+// they stand in the first two cascades, because marching to the probes at each of their hits cost
+// 0.10 to 0.15 ms of global illumination's 0.3 to 0.4 on the development machine's GPU in
+// shaders_cornell_box, and a closed room under a lamp held 3 levels of its light without it, where
+// it held 247 before either. Past them they do, since a hit weighs probes 4 to 16 units apart by
+// a reach whose slack is wider than a wall, and the far end of a closed corridor took 0.309 of the
+// open one's light where with the marches it takes 0.052. Weighed
 // by the probes' reach instead, as bouncedAt does, the world's probes saved 0.03 to 0.05 ms and let
 // 42.9 levels of a lamp under a closed room's floor into it where the marches hold it to 2.5. The
 // model pass's reflections call shadeHit, which hides the lamps as this does and marches to no
