@@ -271,9 +271,11 @@ public float4 bouncedSeenSum<V : IVolume>(V field, SceneFieldInfo info, SceneFie
 // they stand in the first two cascades, because marching to the probes at each of their hits cost
 // 0.10 to 0.15 ms of global illumination's 0.3 to 0.4 on the development machine's GPU in
 // shaders_cornell_box, and a closed room under a lamp held 3 levels of its light without it, where
-// it held 247 before either. Past them they do, since a hit weighs probes 4 to 16 units apart by
-// a reach whose slack is wider than a wall, and the far end of a closed corridor took 0.309 of the
-// open one's light where with the marches it takes 0.052. Weighed
+// it held 247 before either. Past them they do where the surface is a wall thinner than a cell of
+// the field there (thinOnly), since a hit weighs probes 4 to 16 units apart by a reach whose slack
+// is a cell, and the far end of a closed corridor took 0.309 of the open one's light where it takes
+// 0.062. Marched at every such hit, it took 0.052, and the voxel game's cherry grove, whose walls
+// are blocks, took global illumination 8.8 ms at High at 1920 by 1080 where it takes 7.95. Weighed
 // by the probes' reach instead, as bouncedAt does, the world's probes saved 0.03 to 0.05 ms and let
 // 42.9 levels of a lamp under a closed room's floor into it where the marches hold it to 2.5. The
 // model pass's reflections call shadeHit, which hides the lamps as this does and marches to no
@@ -288,12 +290,16 @@ public float4 bouncedSeenSum<V : IVolume>(V field, SceneFieldInfo info, SceneFie
 // through the field elsewhere.
 public float3 shadeProbeHit<V : IVolume, S : ISheetVolume, Sun : ISunShadow>(V field, S sheets, SceneFieldInfo info, SceneFieldInfo gathered, V albedo,
     Texture3D<uint> faces, V glow, GiLights lights, V cubes, V reach, float3 p, float3 way, float probes, float spacing, float cascades, bool seen, float3 kept,
-    Sun sun, out float3 own)
+    Sun sun, out float3 own, bool thinOnly = false)
 {
     float3 n = fieldNormalSheet(sheets, info, p);
     float3 color = surfaceAlbedoFacing(faces, albedo, info, p, n);
-    float3 bounced = seen ? bouncedSeenAt(field, info, gathered, cubes, p, n, probes, spacing, cascades)
-                          : bouncedAt(cubes, reach, gathered, p, n, probes, spacing, cascades);
+    // Where thinOnly is set the march is made only where the surface is a wall thinner than a cell
+    // of the field there, the point a cell behind it in the open, past which the probes' reach,
+    // whose slack is a cell, takes a probe beyond the wall for one that sees the surface.
+    bool marched = seen && (!thinOnly || fieldDistance(field, info, p - n * fieldCell(info, p)) > 0.0);
+    float3 bounced = marched ? bouncedSeenAt(field, info, gathered, cubes, p, n, probes, spacing, cascades)
+                             : bouncedAt(cubes, reach, gathered, p, n, probes, spacing, cascades);
     own = color * (directLight(field, info, lights, p, n, sun) - hiddenLampLight(field, info, lights, p, n) + glowLightsAt(field, info, lights, p, n, 2, false, way) / Pi)
         + surfaceGlowUncarried(glow, albedo, info, p);
     return own + color / Pi * bounced * (lights.counts.z * kept);

@@ -2691,6 +2691,18 @@ atrium where 3.58 and 3.65, and 3.85 and 3.83 in the nave where 3.41 and 3.45, u
 profile (`gi.screenprobe`, `gi.reference` at 1024 paths a pixel, `gi.compare`, `./e3d command
 profile`, `.github/assets/readings/2026-11-03-item-142-far-views.webp`).
 
+**The far screen probes' cost, read and mended on 2026-11-03.** In the voxel game's cherry grove at
+seed 1 at 1920 by 1080 at `High`, as the game sets it, with the screen's probes and a far cascade to
+the land drawn, global illumination took 8.9 ms where the screen's probes standing in the first two
+cascades alone took 7.15, 1.05 of the difference the far probes' hits marching to the probes they
+see and 0.65 their longer reach, and without the screen's probes it takes 4.8. The grove's walls are
+blocks, which the probes' reach holds, its slack a cell, so a far probe's hit marches only where the
+surface is a wall thinner than a cell, the point a cell behind it in the open, and the grove takes
+7.95 ms, the closed corridor's far end 0.062 of the open one's light where 0.052 marched at every
+hit, and Sponza's views and their cost as they were. With the game's source as of 2026-10-25 the
+grove took 2.3 ms at that day's commit and at this one alike, so the rest is the game's choosing,
+its screen's probes and its far cascade (`./e3d command profile`, `gi.toggle screen off`).
+
 **The floor's color, read and mended on 2026-11-03.** At noon the pixels of Sponza's views lit by
 the sun read 1.41, 0.96, 1.46 and 1.17 times a path-traced reference of one bounce in the atrium,
 the lion, the nave and the lookup, and at 8:00 0.88 to 0.90, all of it the floor, which read 1.52
