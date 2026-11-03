@@ -2728,6 +2728,17 @@ the sun shows in it as an even haze rather than shafts, and takes its fog again 
 too (`gi.compare`'s frames with the fog and without,
 `.github/assets/readings/2026-11-03-item-187-fog.webp`).
 
+**The sun in the fog, read on 2026-11-03.** The fog showed the sun as an even haze rather than
+shafts, and read alone its sun adds 0.00001 to the lookup at 8:00 and 0.00002 to the vestibule at
+15:00 at the 99th part of their pixels, specks at edges, while its light from the probes made the
+haze, which the air's read of them above takes out of the dark rooms. The sun is scattered as it
+should be. A white sun of 1 seen through fog of 0.02 a unit scattering alike every way, the eye
+looking level into nothing, reads 0.0734 where a single scattering integrated over the volume's 128
+units gives (1 − e^(−2.56)) / 4 pi, 0.0734 (`VolumetricFogTests`). At the density of the scene
+`scenes_sponza` matches, 1/400 a unit at the ground thinning upward, its views cross little air the
+sun lights, between walls 17 units high, so no shaft stands in them, and the matched scene's lookup
+at 15:00 shows none either.
+
 **The sky's share along the mirror way, read on 2026-11-01.** The environment's reflection is
 scaled by the share of the sky the probes around a surface see along its mirror way, which an open
 plain's probes, their faces seeing the whole sky up, half of it level and none down, read as half

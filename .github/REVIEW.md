@@ -106,8 +106,7 @@ REVIEW-ARCHIVE.md, its devlog note and its own words. On 2026-10-30 at 18:0x the
 README's new words (item 133) and the focus on radiance cascades (Decision 74), questions asked
 back, and asked that the sessions spend fewer tokens at the same quality, N 7.7.
 
-Next 187, then 191, then 140 and 141 (Decision 75), then 182 (Decision 86); 143, 144 and 145 wait
-behind them.
+Next 191, then 140 and 141 (Decision 75), then 182 (Decision 86); 143, 144 and 145 wait behind them.
 
 Items done and verdicts settled before 2026-10-23 stand in REVIEW-ARCHIVE.md beside this file, their
 numbers kept, moved there at 19:30 on 2026-10-23 so this file holds the current work alone and is
@@ -2112,7 +2111,11 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     haze rather than shafts, and the air read mends the first alone; so the example stays without
     fog, the owner shown the vestibule and the lookup before and after with the fog switched on by
     eval, and the example takes its fog back when both grounds are mended or on the owner's word;
-    the haze is item 191.
+    the haze is item 191. Done at `893758ea` on 2026-11-03, read at 07:38, its push waiting on
+    b83b1a85's run; the air read in fog_scatter, the sealed-room test with its bound and the cost
+    and the field's limit in its comment, the shader comment and RENDERING.md carrying the reading
+    and why the example stays fogless; the blotchy lit patches in the vestibule's and the lookup's
+    air gone; the sheet with the fog on by eval sent to the owner; 2,224 in both orders.
 
 188. **Flying Sponza is stable.** The owner wrote in the coder's session on 2026-11-02 at about
     20:1x (Decision 89) that when they move nothing is stable, with colored spots, black areas and
@@ -2282,7 +2285,22 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     against the shadows' scale or the density the example sets, each read in the lookup at 15:00
     with the fog on by eval; then the mend by the cause, read by the lookup's shaft beside the
     reference and by the vestibule's door at 15:00, and the example taking its fog back when the
-    owner's eye agrees. One or two commits, after 187 and before 140.
+    owner's eye agrees. One or two commits, after 187 and before 140. The reference for the shaft is
+    two things, since gi.reference traces no fog, the owner's Unity picture of the lookup in the
+    dump, read beside and never committed (N 4.8), and a measure of the shaft's own contrast, the
+    lit cells against their unlit neighbours along the sun, which is the number the record and the
+    test keep. Read at 07:42 on 2026-11-03, there is no shaft to mend at this scene's density. The
+    fog's sun term is right in size, a scratch of a white sun over a void at a fog of 0.02 reading
+    0.0734 against the single-scattering integral's 0.0734; in Sponza with the scene's fog, a mean
+    free path of 400 thinning by e every 7.24 units up, the sun term alone adds 0.00001 in the
+    lookup at 8:00 and 0.00002 in the vestibule at 15:00 at its 99th part, specks at edges and no
+    shaft, since with walls 17 high the views cross little sunlit air; the owner's HDRP lookup at
+    15:00 shows no shaft either, only a faint haze, and ours with the scene's fog looks the same,
+    the sheet in the dump at 09-00. So the even haze the owner saw was the probe term lighting the
+    air everywhere alike, which 187 mended. The call is no change to the fog's sun, a test that the
+    fog over a void scatters the sun as the integral gives within 2% with the reading in
+    RENDERING.md, and the lookup with the scene's fog shown to the owner beside their reference with
+    the question whether the example takes its fog back, their word deciding.
 
 ## Verdicts
 
@@ -2561,6 +2579,14 @@ REVIEW-ARCHIVE.md.
     sometimes, though very good when it works. So item 188 comes before 187 and before 140, the
     field centred on the building for the example, the sun's shadow steps on grazing faces and the
     transient after a jump, each read in flight and shown to the owner before and after.
+
+90. **No one is named in a picture.** The owner wrote in the 3DEngine coder's session on 2026-11-03
+    before 08:05, seeing a reading sheet whose label called a reference picture theirs, that
+    pictures and comparisons must not mention the owner, as the rule for documents has it. So N 4.10
+    says a picture's labels, its file name and its captions line name no person and no session, a
+    picture the owner sent being a screenshot and their reference picture the reference; the engine
+    session relabelled the sheet, renamed the dump's files and reworded its captions back to
+    2026-10-31, and read the 59 comparison sheets' labels clean.
 
 ## Replies
 
