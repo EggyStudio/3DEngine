@@ -1171,8 +1171,13 @@ light in the frame a lamp is brought in, where it took seven frames without the 
 camera sliding a hundredth of a unit a frame through a Cornell box, global illumination adds −0.03
 levels a frame to the picture's change and 0.03 without the history, at `Low` on the RTX 4070, where
 the slide alone changes 0.48, and on lavapipe −0.03 and 0.02 (`GlobalIlluminationTests`), the hold
-costing nothing that can be read in Wick's first doorway. The model pass blends the four probes
-around a pixel the same way, falls back to the world's probes where none is like it, those it sees
+costing nothing that can be read in Wick's first doorway. From the count of frames kept on
+2026-10-30 (`2ad96a80`) until 2026-11-03, `gi.toggle history off` left that count unset, so the
+probes took whatever the GPU held there and a room's screen probes gave 0.150 where 0.187 with the
+frames kept, and Sponza's lookup at 8:00 read 27% darker than the mean of its own frames. The
+readings with the history left out in this file were taken before then and hold, and the one item
+142 took on 2026-11-03 read the fault. The model pass blends the four probes around a pixel the
+same way, falls back to the world's probes where none is like it, those it sees
 through the field (`bouncedSeen`, as the thin room's corner reads them), and puts the result in
 place of the diffuse light from all around, the environment map's, the ambient lights' and the
 reflection probes', which reaches a surface only through the rays that meet nothing.

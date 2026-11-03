@@ -199,8 +199,9 @@ void computeMain(uint3 id : SV_DispatchThreadID)
         return;
     }
     // Where the frame before's probes cover the place in part, as at the edge of what it showed,
-    // the frames they kept count for that part.
-    float frames;
+    // the frames they kept count for that part, none where the frame before is left out, which left
+    // unset took whatever the GPU held there and read Sponza's lookup at 8:00 27% darker.
+    float frames = 0.0;
     float4 before = (off & 1u) != 0u ? float4(0.0) : earlier(id.xy, across, down, surface, frames);
     float3 held = clamp(before.rgb, now.rgb - Spread * spread, now.rgb + Spread * spread);
     // Where the kept light lies further from this frame's blend of the like probes than three times

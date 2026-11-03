@@ -1179,7 +1179,37 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     meshes' where +19 and +27, the shade at 8:00 2.53, 2.48, 1.58 and 3.24, at noon 1.33, 1.22, 1.29
     and 1.13, at 15:00 1.49, 1.56, 1.43, 1.68, 1.40 and 1.99 with the door's fifth 0.76, the survey
     27.1, 1.34, 1.02 and 0.98 to 1.09, 130 of 130 GI tests; a smaller gain, sound at every hour, the
-    larger lever at the hits the ray-traced step and the rest the surfaces' read.
+    larger lever at the hits the ray-traced step and the rest the surfaces' read. The first mend is
+    `c117b252`, read at 03:59, its push waiting on 40462df0's run, the hit moved a cell toward the
+    sun with the wall-shadow test, the reading in RENDERING.md and the 8:00 views' picture, 2,221 in
+    both orders. After it, the 77 probes the reference finds dark all round are not inside closed
+    meshes but at the arcade's west end where nothing near them is sunlit at one bounce, their light
+    coming along ways where most rays met nothing and the merge took the cascade above's, 0.01 where
+    the reference brings 0; traced to the field's edge with nothing merged the survey's faces read
+    1.54, 0.97, 1.04 and 1.04 to 1.06 in the reference's quarters, so the dark faces' floor is the
+    merge's parallax, yet the views at 8:00 read 2.70, 1.76, 1.88 and 3.22 against the move alone's
+    2.53, 2.48, 1.58 and 3.24 and 15:00 1.36 to 2.05, not following the probes' faces. The screen
+    probes on block 16's face read their irradiance at -42 and +119% against the reference's and lit
+    where it is dark, another shaded face's probe +418% from one ray past its reach taking the world
+    probes' light along its way, 0.00234 where the reference over that ray's cell reads 0.000437; so
+    the excess lies after the probes' own light, in the screen probes' handover past their reach,
+    their filter or the world probes read at the surface. Next a per-pixel read of a shaded face,
+    the frame's irradiance against the reference's, then with the screen probes off and with the
+    filter off. At 04:09 two findings. The history toggle has never shown a frame without the
+    history, since gi_screen_filter's first pass declares the frame count without a value and sets
+    it only in the path the toggle skips, so the toggle darkened the probes' light (the lookup's
+    shade 2.35 with it where sixteen single frames read 2.34 and the mended toggle 3.26), every
+    earlier reading with the history off carrying the fault; the mend one initializer with a test, a
+    small commit first. The shade's excess at 8:00 is mostly a few far, recessed surfaces, the
+    lion's niche holding 29% of the atrium's and a wall edge and face of copy 56 34% of the
+    lookup's, black in the reference and lit in the frame, which have no screen probe since the
+    screen probes stand within the first two cascades alone, so the model pass lights them from
+    cascade 2 and 3's probes 4 to 8 units apart standing in the open before them and seeing the
+    sunlit walls, which pass probeSees since their rays reach the face; the probe layer before a
+    recessed surface at the far cascades. The call is screen probes at any distance, their reach and
+    their beyond-light from the cascade holding their point, so a far recess traces its own rays out
+    of itself, read by the niche and the doorways, the near views unchanged, the rooms, the slab,
+    the canopy, the corridor and the cost at High; the reach's spread as a weight stays out.
 
 166. **The atrium's far end does not glow blue.** The owner's shot of scenes_sponza at 12:05 on
     2026-11-01, the atrium view at 13:00 on the fixed camera, kept in the day's dump, shows the
