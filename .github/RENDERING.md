@@ -2632,6 +2632,34 @@ the gradient (The gain past the first bounce, above), which the missing sky had 
 (`gi.probe` at 256 paths a way, `gi.reference` at 1024 paths a pixel, `gi.compare`, `./e3d
 command profile`, `.github/assets/readings/2026-11-03-item-189-views.webp`).
 
+**The sun at the probes' far hits, read and mended on 2026-11-03.** At 8:00 at one bounce, against
+references of one bounce, the views' shade read 1.62 to 3.52 times the reference's, while the 457
+probes of the first cascade in the lookup matched it over all their faces at 1.07, the brightest
+three quarters of their faces within 9%, the next quarter 1.50 and the darkest 34 times over a
+reference near black. Traced on to the field's edge with nothing merged, the shade read 1.77 to
+3.29, so the merge's parallax was not the cause. The field's first hits meet the meshes' along
+nearly every way, 1.8% of them reaching past 4 units where the mesh's stop within and 2.5% the other
+way, but the sun reached the hits 4 to 8 units out 19% more than the meshes' along the same ways and
+those 8 to 16 out 27% more, in cells of a quarter and half a unit. A hit was taken a cell and a half
+off its surface along its normal before the shadow map was read, since the field's surface lies
+within half a cell of the mesh's, so a floor's hit in cells of half a unit stood 0.75 over it, and
+under a sun 20 degrees up every shadow a low wall cast on it shortened by 2.1 units. A probe over
+such a shadow read its face toward the floor 56% over a reference of one bounce. Taken a texel and a
+half of the map's cascade off along the normal and a cell toward the sun, which reads the map at the
+same place and only nearer the sun, the probe reads within 1%, the sun at the far hits 15 and 21%
+over the meshes', the darkest quarter of the faces 27 times and the next 1.34, the shade at 8:00
+2.53, 2.48, 1.58 and 3.24 in the atrium, the lion, the nave and the lookup where 2.66, 2.51, 1.62
+and 3.52, at noon 1.13 to 1.33 where 1.24 to 1.50, and at 15:00 1.40 to 1.99 where 1.47 to 2.03.
+Taken by the texel alone the shade fell further, but the hits a little behind their surface shadowed
+themselves, and the door's vestibule at 15:00 read its brightest fifth at 0.63 of the reference
+where 0.87. Traced through the device's rays at `High`, which meet the meshes themselves, the shade
+at 8:00 reads 2.39, 1.86, 1.41 and 2.58 for under 0.1 ms more, a step that waits on a form of the
+crossing of what lets light through traced the same way. The rest of the shade's excess lies in how
+the surfaces read probes that match the reference where they stand (`gi.probe`, `gi.reference` at
+1024 paths a pixel, `gi.compare`, `BounceReference.MeasureProbe` over the cascade's probes through
+`./e3d eval`, `./e3d command profile`,
+`.github/assets/readings/2026-11-03-item-142-lift-views.webp`).
+
 **The sky's share along the mirror way, read on 2026-11-01.** The environment's reflection is
 scaled by the share of the sky the probes around a surface see along its mirror way, which an open
 plain's probes, their faces seeing the whole sky up, half of it level and none down, read as half

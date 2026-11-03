@@ -158,13 +158,19 @@ public struct FieldSun : ISunShadow
 }
 
 // The sun found through the window's shadow map the frame before where one of its counted cascades
-// holds p, its cascade found as the model pass finds it (cascadeReached in lights.slang): the point
-// moved off its surface along n by a texel and a half of that cascade, or a cell and a half of the
-// field where that is more, since the field's surface lies within half a cell of the mesh's, and
-// nine depths around it compared and averaged. The map is drawn from the meshes themselves, where
-// the field holds them at its cells. Through the field alone the probes' hits in the vestibule of
-// Sponza's main door saw none of the sun the path-traced reference sees there, and the vestibule
-// read 21 to 69% under that reference.
+// holds p, its cascade found as the model pass finds it (cascadeReached in lights.slang), the point
+// moved off its surface along n by a texel and a half of that cascade and toward the sun by a cell
+// of the field, since the field's surface lies within half a cell of the mesh's, and nine depths
+// around it compared and averaged. The map is drawn from the meshes themselves, where the field
+// holds them at its cells. Through the field alone the probes' hits in the vestibule of Sponza's
+// main door saw none of the sun the path-traced reference sees there, and the vestibule read 21 to
+// 69% under that reference. Moved toward the sun, the point is read at the same place in the map
+// and only nearer the sun, where moved a cell and a half along n a floor's hit in cells of half a
+// unit stood 0.75 over the floor, which under a sun 20 degrees up shortened every shadow a low wall
+// cast on it by 2.1 units, and a probe over such a shadow read its floor 56% over a reference where
+// it reads within 1%. Moved by the texel alone, the hits a little behind their surface shadowed
+// themselves, and the door's vestibule at 15:00 read its brightest fifth at 0.63 of the reference
+// where 0.87.
 public struct SunShadowMap : ISunShadow
 {
     public Sampler2D map;
@@ -175,8 +181,7 @@ public struct SunShadowMap : ISunShadow
         float texel = lights.sunMap.y;
         for (int c = 0; c < count; c++)
         {
-            float lift = max(lights.sunTexels[c] * 1.5, cell * 1.5);
-            float4 clip = mul(lights.sunCascades[c], float4(p + n * lift, 1.0));
+            float4 clip = mul(lights.sunCascades[c], float4(p + n * (lights.sunTexels[c] * 1.5) + lights.sunDirection.xyz * cell, 1.0));
             float3 q = clip.xyz / clip.w;
             if (any(abs(q.xy) > 0.995) || q.z > 1.0 || q.z < 0.0)
                 continue;
