@@ -102,6 +102,11 @@ Texture3D<float4> fieldSecond;
 [[vk::binding(13, 0)]]
 Sampler2D sunShadow;
 
+// The share of each direction of the cascade above that reaches the sky, as its merge wrote it the
+// frame before, which says along a ray's way whether the probes above it see the sky there.
+[[vk::binding(14, 0)]]
+Texture3D<float> skyAbove;
+
 struct TracePush
 {
     // x: the cascade. y: the probes along each side. z: the octahedron's texels along each side.
@@ -115,6 +120,8 @@ struct TracePush
     // bits of where the cascade below's interval ends, 0 for the first, before which a surface that
     // lets light through is that cascade's to cross.
     uint4 follow;
+    // x: the cascade above's octahedron's texels along each side, 0 for the last. yzw: unused.
+    uint4 above;
 };
 
 [[vk::push_constant]]
@@ -278,6 +285,36 @@ groupshared float4 rayOwn[64];
 groupshared float rayNothing[64];
 groupshared float rayEarly[64];
 
+// Whether a ray that met nothing within its interval reaches the sky past the probes of the cascade
+// above, which see none of it along its way, as probes under the roofs of a court narrower than
+// their spacing do where the ray goes up through the court's opening: traced on from its
+// interval's end to the field's edge, it meets nothing there, once the field holds every mesh in
+// reach. Where it meets any surface past its interval, as a closed room's wall or a canopy's
+// leaves, the merge gives what lies past it as before. The probes above are those this probe sees,
+// weighed as the merge weighs them (aboveAround). Read from those probes alone, the floor of
+// Sponza's atrium at 8:00 took the light from above 51% under a path-traced reference, warm where
+// the reference's is the sky's blue, the coarsest cascade's probes eight units apart standing under
+// the galleries on either side of an opening 5.6 units wide.
+bool skyPastAbove(float3 way, float3 origin, int3 baseAbove, uint probes)
+{
+    if (push.cascade.w != 0u || push.above.x == 0u || (push.follow.z & 2u) == 0u)
+        return false;
+    int2 tt = min(int2(octahedron(way) * float(push.above.x)), int2(int(push.above.x) - 1));
+    float skySum = 0.0, skyWeight = 0.0;
+    for (int corner = 0; corner < 8; corner++)
+    {
+        float w = aboveAround[corner].w;
+        if (w <= 0.0)
+            continue;
+        int3 nb = clamp(baseAbove + int3(corner & 1, (corner >> 1) & 1, corner >> 2), int3(0), int3(int(probes) - 1));
+        skySum += skyAbove.Load(int4(nb.xy * int(push.above.x) + tt, nb.z, 0)) * w;
+        skyWeight += w;
+    }
+    if (skyWeight <= 1e-4 || skySum >= 0.05 * skyWeight)
+        return false;
+    return traceFieldSheets(SheetVolume(sceneField, fieldSecond), fieldInfo, origin, way, push.interval.y, asfloat(push.follow.y)) < 0.0;
+}
+
 [shader("compute")]
 [numthreads(64, 1, 1)]
 void computeMain(uint3 id : SV_DispatchThreadID, uint lane : SV_GroupIndex)
@@ -362,6 +399,8 @@ void computeMain(uint3 id : SV_DispatchThreadID, uint lane : SV_GroupIndex)
     // settles at.
     bool skyPast = push.cascade.w != 0u || carried && (push.follow.z & 2u) != 0u;
     float end = carried ? asfloat(push.follow.y) : push.interval.y;
+    float4 acAbove = cascadeAt(fieldInfo, push.cascade.x + 1u, int(push.interval.w));
+    int3 baseAbove = int3(floor((spot - acAbove.xyz) / (acAbove.w * push.interval.z) - 0.5));
     float4 light = float4(0.0, 0.0, 0.0, 1.0);
     float3 own = float3(0.0);
     float reached = 0.0;
@@ -411,6 +450,13 @@ void computeMain(uint3 id : SV_DispatchThreadID, uint lane : SV_GroupIndex)
             through = 0.0;
         }
         else if (skyPast)
+        {
+            float3 sky = lights.sky.w > 0.5 ? environment.SampleLevel(way, 0).rgb * lights.sky.rgb : lights.sky.rgb;
+            light = float4(sky, 0.25);
+            own = sky;
+            through = 0.0;
+        }
+        else if (skyPastAbove(way, origin, baseAbove, probes))
         {
             float3 sky = lights.sky.w > 0.5 ? environment.SampleLevel(way, 0).rgb * lights.sky.rgb : lights.sky.rgb;
             light = float4(sky, 0.25);
@@ -518,7 +564,7 @@ void computeMain(uint3 id : SV_DispatchThreadID, uint lane : SV_GroupIndex)
         // Marked by what the ray met first that counts, a surface crossed in its interval or one it
         // stopped at, before its interval began or in it.
         float mark = firstAt >= 0.0 ? (firstAt < push.interval.x ? 0.5 : 0.0) : 1.0;
-        if (t < 0.0 && skyPast)
+        if (t < 0.0 && (skyPast || firstAt < 0.0 && skyPastAbove(way, origin, baseAbove, probes)))
         {
             float3 sky = lights.sky.w > 0.5 ? environment.SampleLevel(way, 0).rgb * lights.sky.rgb : lights.sky.rgb;
             // Marked as the sky where the ray kept half its light or more across what it crossed,

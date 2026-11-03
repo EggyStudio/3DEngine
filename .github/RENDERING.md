@@ -2601,6 +2601,37 @@ the maps', and the far cascade leaves them as they read. It stays to be read by 
 (`gi.reference` with and without the specular share, `gi.compare`, its PFMs read region by
 region).
 
+**The sky past the probes above, read and mended on 2026-11-03.** At 8:00 a probe above the floor
+of Sponza's atrium took the light from above 51% under the path-traced reference and the light
+from the east 75% under, warm where the reference's is the sky's blue, and the second and third
+cascades' probes by the floor took their light from above 70 and 78% under, though the coarsest
+cascade's probe above the roof takes the sky's within 2%. That cascade's probes stand eight units
+apart, at z -4 and 4 under the galleries on either side of the atrium's opening, which is 5.6
+units wide, and none in it, so the finer cascades' rays up the atrium that met nothing within their
+intervals took the dark undersides of the galleries those probes see. A ray that met nothing whose
+probes above see no sky along its way, their merged share of it under a twentieth of their weight,
+is traced on from its interval's end to the field's edge, and where it meets nothing there it
+brings the sky, the merge giving what lies past it as before where it meets any surface, a closed
+room's wall or a canopy's leaves. The probe above the floor then reads its light from above as the
+reference does, every way 3% under where 57%, the probes up the atrium within 12%, the shade's
+blue at 8:00 0.81 to 0.91 of the reference's share where 0.59 to 0.67 and at noon within 3%, and
+the floor's reflection 1.21 of the reference's where 0.14. Carried on outright, a ray that met
+the canopy's leaves past its interval crossed them itself, and the floor under them read 0.119 of
+the light the solid canopy holds back where 0.141; weighing the probes above by their reach toward
+the ray's way past its interval, a twentieth for one that met a surface short of it, read the
+floor's probe's light from above 68% under. Global illumination at High at 1920 by 1080 takes 3.87
+ms in the atrium where 4.22 and 3.58 in the nave where 3.45 under the powersave profile, within
+the GPU's noise. A court 5 units wide between galleries roofed 6 up, whose last cascade's probes
+stand 16 apart, takes 0.297 of the open floor's light where 0.223, a long slot's view factor
+0.38, and the floor under a solid canopy whose near edge is 5 units off takes the sky below its
+edges, 0.0020 where 0.0000 at Low. The views' shade at 8:00 rises against the reference, the
+atrium's 1.48 to 1.96, the lion's 0.90 to 1.97, the nave's 1.00 to 1.51 and the lookup's 1.38 to
+1.98, and at noon by 0.04 to 0.17, and the atrium's reads 2.01 with the screen's probes left out,
+so the world's probes, which match the reference where they stand, are read over at the surfaces,
+the gradient (The gain past the first bounce, above), which the missing sky had hidden
+(`gi.probe` at 256 paths a way, `gi.reference` at 1024 paths a pixel, `gi.compare`, `./e3d
+command profile`, `.github/assets/readings/2026-11-03-item-189-views.webp`).
+
 **The sky's share along the mirror way, read on 2026-11-01.** The environment's reflection is
 scaled by the share of the sky the probes around a surface see along its mirror way, which an open
 plain's probes, their faces seeing the whole sky up, half of it level and none down, read as half

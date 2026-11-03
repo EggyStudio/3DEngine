@@ -163,6 +163,7 @@ internal sealed unsafe partial class GraphicsDevice
         public float Edge;
         public uint Parity;
         public float BelowEnd;
+        public uint TexelsAbove, UnusedY, UnusedZ, UnusedW;
     }
 
     /// <summary>Whether the probes' shaders have been given, so light can bounce.</summary>
@@ -193,7 +194,7 @@ internal sealed unsafe partial class GraphicsDevice
                 VkDescriptorType.CombinedImageSampler, VkDescriptorType.CombinedImageSampler, VkDescriptorType.UniformBuffer,
                 VkDescriptorType.StorageImage, VkDescriptorType.CombinedImageSampler, VkDescriptorType.CombinedImageSampler,
                 VkDescriptorType.StorageImage, VkDescriptorType.StorageImage, VkDescriptorType.StorageImage, VkDescriptorType.SampledImage,
-                VkDescriptorType.SampledImage, VkDescriptorType.CombinedImageSampler];
+                VkDescriptorType.SampledImage, VkDescriptorType.CombinedImageSampler, VkDescriptorType.SampledImage];
             _giStages[TraceStage] = MakeComputeStage(trace, traced, (uint)sizeof(IlluminationTrace));
             _giStages[SolidTraceStage] = MakeComputeStage(spirv[6], traced, (uint)sizeof(IlluminationTrace));
             _giStages[MergeStage] = MakeComputeStage(merge, [VkDescriptorType.SampledImage, VkDescriptorType.SampledImage, VkDescriptorType.StorageImage,
@@ -428,6 +429,9 @@ internal sealed unsafe partial class GraphicsDevice
             run.Image(set, 11, VkDescriptorType.SampledImage, ((VulkanImageView)field.FacesView).View, null, VkImageLayout.ShaderReadOnlyOptimal);
             run.Image(set, 12, VkDescriptorType.SampledImage, ((VulkanImageView)field.SecondView).View, null, VkImageLayout.ShaderReadOnlyOptimal);
             run.Image(set, 13, VkDescriptorType.CombinedImageSampler, ((VulkanImageView)sunMap).View, sunSampler, VkImageLayout.ShaderReadOnlyOptimal);
+            // The cascade above's share of the sky by direction, as its merge wrote it the frame
+            // before, the last cascade's own standing in for the binding.
+            run.Image(set, 14, VkDescriptorType.SampledImage, gi.MergedSky[Math.Min(c + 1, gi.Cascades - 1)].View, null, VkImageLayout.General);
             var push = new IlluminationTrace
             {
                 Cascade = (uint)c, Probes = p, Texels = n, Last = c == gi.Cascades - 1 || c == lastCounted ? 1u : 0u,
@@ -436,6 +440,7 @@ internal sealed unsafe partial class GraphicsDevice
                 Kept = lying is not null && lying[c] ? 1u : 0u, Parity = (uint)(frame & 1) | (fieldWhole ? 2u : 0u),
                 Edge = intervals[lastCounted >= 0 ? lastCounted : gi.Cascades - 1].End,
                 BelowEnd = c > 0 ? intervals[c - 1].End : 0,
+                TexelsAbove = c + 1 < gi.Cascades && c != lastCounted ? (uint)gi.Texels[c + 1] : 0,
             };
             run.Dispatch(trace, set, MemoryMarshal.AsBytes(new ReadOnlySpan<IlluminationTrace>(in push)),
                 (p * p * p * n * n * (uint)gi.RaysAt(c) + 63) / 64);

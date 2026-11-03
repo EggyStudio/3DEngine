@@ -1,10 +1,12 @@
 # Review
 
-Reviewed up to `aca80ca2`, item 186 with the knob and the fog's removal (Decision 88), pushed at
-20:25 on 2026-11-02, its run green at 22:12 with the Windows halves in 78 and 85 minutes, Linux in
-97 and macOS in 42; it keeps the form. After it `71c7c194`, 188's first commit, pushed at 22:34, its
-run awaited; it keeps the form. Each commit's detail stands in its item in REVIEW-ARCHIVE.md, its
-devlog note and its own words. Before it `abde3935`, Verdict 99's mend, pushed at 18:26 with
+Reviewed up to `71c7c194`, 188's first commit, pushed at 22:34 on 2026-11-02, its run green at 00:22
+on 2026-11-03 with the Windows halves in 79 and 89 minutes, Linux in 98 and macOS in 37. After it
+`3e651d9d` and `5ab01df8`, 188's second and third commits and its end, pushed at 00:22, the run of
+`5ab01df8` awaited; each keeps the form. Each commit's detail stands in its item in
+REVIEW-ARCHIVE.md, its devlog note and its own words. Before it `aca80ca2`, item 186 with the knob
+and the fog's removal, pushed at 20:25, its run green at 22:12 with the halves in 78 and 85 minutes,
+Linux in 97 and macOS in 42. Before it `abde3935`, Verdict 99's mend, pushed at 18:26 with
 `f8872d03` (175) and `11b6a593` (142's record), its run green at 20:09 with the halves in 70 and 89
 minutes, Linux in 91 and macOS in 40, which settled Verdict 99. Before it `dfbf7614` (183, the
 Windows suite in two jobs) with `2977a4a2` and `0dff5d04` (174), pushed at 15:56, its run red at
@@ -98,8 +100,8 @@ REVIEW-ARCHIVE.md, its devlog note and its own words. On 2026-10-30 at 18:0x the
 README's new words (item 133) and the focus on radiance cascades (Decision 74), questions asked
 back, and asked that the sessions spend fewer tokens at the same quality, N 7.7.
 
-Next 188, then 189, then 187, then 140 and 141 (Decision 75), then 182 (Decision 86), then 142's
-mend; 143, 144 and 145 wait behind them.
+Next 189, then 142's mend, then 187, then 140 and 141 (Decision 75), then 182 (Decision 86); 143,
+144 and 145 wait behind them.
 
 Items done and verdicts settled before 2026-10-23 stand in REVIEW-ARCHIVE.md beside this file, their
 numbers kept, moved there at 19:30 on 2026-10-23 so this file holds the current work alone and is
@@ -1987,7 +1989,11 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     screen probes refilling, every mend tried worse or no better. The probes' rough reflection is
     read and not mended, the floor at 0.14 of the reference's reflection and columns' faces turned
     back toward the camera up to 34 times, all of it the probes' reflection along the mirror way,
-    not the roughness maps nor the far cascade; item 189.
+    not the roughness maps nor the far cascade; item 189. Done at `5ab01df8`, the third commit, read
+    at 00:11 on 2026-11-03, its push waiting on 71c7c194's run; the example's far cascade of 100,
+    the readings of the lion's end, the jump and the rough reflection in RENDERING.md, the gallery
+    recaptured, the niche's four-stop sheet before and after sent to the owner; 2,219 in both
+    orders. The item's three commits stand; the reflection is 189.
 
 189. **The probes' rough reflection along the mirror way, a seventh on the floor and thirty-fold on
     a face turned back.** From item 188's reading on 2026-11-02 in Sponza at 8:00 against the
@@ -1998,7 +2004,56 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     surfaces, a face turned back reading probes behind the camera or the sky, and the floor reading
     too few; then the mend by the cause, read by the floor and the faces against the reference's
     reflection, the reflections example and the metal box within their bars and the cost. One or two
-    commits, after 188 and before 187.
+    commits, after 188 and before 187. First reading at 00:11 on 2026-11-03, at 8:00 in the atrium
+    with the fog off, the probe above the floor at (-4.5, 0.5, 0.5) reading its +x face 75% and its
+    +y face 51% under the reference, the reference's light there the atrium's blue sky and the
+    probe's warm, 94% of the up face coming from the cascades above, and at (-4.5, 0.5, 2.5) the
+    upward ways taking the cascades above at 0.001 to 0.004 against 0.013 to 0.032; so the floor's
+    reflection at a seventh is the probes missing the sky along the mirror way, and so is the
+    shade's warm tint at 8:00. The likely cause is the merge's trilinear weights, probes above
+    standing under the gallery roof not hidden from a probe in the atrium, the same open space,
+    while their up light is the ceiling; gi_merge records the bilinear mend reading the Cornell
+    pocket 116% over. Next the merge's weights read by each probe above's reach against the ray's
+    end, then the mend by it within the Cornell box's, the reflections example's and the metal box's
+    bars. At 00:14, the merge's weight by reach, probes above whose reach toward the ray's
+    continuation falls short weighed down to a twentieth, makes the floor probe worse, its +y face
+    from -51 to -68% and -x from +2 to -44, and is not kept. The sky itself read with no bounces at
+    8:00, a probe above the roof in cascade 3 matching the reference's sky within 2% on its up face,
+    so the environment's sampling for escaped rays is right, a cascade-0 probe in the atrium at 5.5
+    units matching in luminance but 24% over in red and 30% under in blue, and the floor with every
+    bounce 51 to 90% under and warm; so the atrium's probes see less sky and more sunlit wall than
+    the reference, the coarse cascades' cells suspected of thickening the roofs' edges and narrowing
+    the opening, compounding downward through the merge. Next the sky share and the up face read
+    cascade by cascade along one column from the floor to the roof against the reference. The cause,
+    read at 00:17 down the atrium's middle at x -4.5 with every bounce, the +y face of cascade 0
+    against the reference -51% at y 0.5, -35 at 2.5, -16 at 4.5 and -14 at 5.5, 82 to 94% of the
+    face from the cascades above and warm where the reference is blue; cascade 1's nearest probe
+    -70%, cascade 2's -78, and cascade 3's probes 8 apart at z plus and minus 4 with none in the
+    atrium, 5.6 wide, its nearest moved under the gallery outside the opening where the reference is
+    dark too; so the finer cascades' upward rays that pass their reach take the galleries' dark
+    undersides from cascade 3 and the sky is lost from there down, the coarsest grid's spacing
+    against the opening and not the cells narrowing it. The call is the carried path first, a ray
+    that met nothing and whose probes above see no sky along its way carrying on to the field's edge
+    as the cascades with no probe above already do, read by the column, the floor's reflection, the
+    faces turned back, the Cornell box, the rooms, the slab, the canopy, the corridor and the cost
+    at High; the probe above weighed by its own sky share the next reading if the cost passes a
+    millisecond or a bar moves; finer cells for the coarsest cascade out. The carried path read at
+    00:48 on 2026-11-03 and kept. Where the probes above see none of the sky along a ray's way,
+    their merged sky share under 0.05 of their weight, and the ray met nothing in its interval, it
+    is traced on to the field's edge, bringing the sky where it meets nothing and the merge as
+    before where it meets a surface. The column at x -4.5 at 8:00 within 12% up to 5.5 with the
+    floor probe's +y face from -51% to 0 and every way from -57 to -3, cascade 1 near the floor -70
+    to -28 and cascade 2 -78 to -32; the shade's blue at 8:00 from 0.59 to 0.67 of the reference to
+    0.81 to 0.91, noon within 3%; the floor's reflection 0.14 to 1.21; GI at High at 1080p 4.22 to
+    3.87 ms in the atrium and 3.45 to 3.58 in the nave; 180 of 181 GI tests, the Cornell box, the
+    rooms, the slab and the corridor holding, the canopy at Low 2.5 reading 0.126 against a least of
+    0.13 since the solid canopy's floor takes 0.0020 where it took 0.0000, a rough integral of the
+    sky below the edges giving about a twelfth of the open floor's light, so the old 0.0000 was too
+    dark and the bar is set from the reading with that argument in its description. The frames'
+    shade rises over the reference with it, the atrium at 8:00 from 1.48 to 1.96, the lion 0.90 to
+    1.97, the nave 1.00 to 1.51 and the lookup 1.38 to 1.98, the same with the screen probes off,
+    faces turned back 34 to 41, which is 142's gradient that the missing sky had hidden; 142's mend
+    follows this item, before 187.
 
 ## Verdicts
 
