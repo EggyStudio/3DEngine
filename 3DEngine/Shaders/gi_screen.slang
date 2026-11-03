@@ -274,7 +274,7 @@ float probeReaches(float3 q, float3 probe, int3 at, uint c, float apart)
 // probe's light changed as the camera moved, which the frame before's light averaged while it moved
 // and drifted from for a dozen frames after it stopped, 0.19 levels on the fifth frame after a walk
 // where it reads 0.07 (GlobalIlluminationTests).
-float3 beyond(float3 start, float3 normal, float3 way, float reached, uint around)
+float3 beyond(float3 start, float3 normal, float3 way, float reached, uint around, out bool holds)
 {
     float3 end = start + way * reached;
     uint c;
@@ -327,6 +327,7 @@ float3 beyond(float3 start, float3 normal, float3 way, float reached, uint aroun
             seenWeights += held * sees;
         }
     }
+    holds = weights > 1e-4;
     if (seenWeights > 1e-3 * weights)
         return seenSum / seenWeights;
     return weights > 1e-4 ? sum / weights : float3(0.0);
@@ -593,9 +594,10 @@ void computeMain(uint3 id : SV_DispatchThreadID)
             {
                 met = 2.0;
                 reached = start + way * handed;
-                float3 past = beyond(start, n, way, handed, around);
+                bool holds;
+                float3 past = beyond(start, n, way, handed, around, holds);
                 float3 pastOwn = float3(0.0);
-                // A ray past its reach whose world probes hold nothing along its way goes on
+                // A ray past its reach where no world probe around its end holds light goes on
                 // through the field, as far as four times its reach and within the cascade it
                 // starts in and the next coarser one, and takes the light of what it meets. A
                 // corridor 2 wide in walls 0.3 thick holds no probe of the second cascade or above,
@@ -609,8 +611,11 @@ void computeMain(uint3 id : SV_DispatchThreadID)
                 // walls 1 thick in cells of 2, and a closed room at the field's side took the sky's
                 // light, its pillar's face 0.029 of an open floor's light where it holds under
                 // 0.002 (gi.compare, CascadeEdgeTests, ./e3d command profile, the frames
-                // unlimited).
-                if (luminance(past) <= 1e-6)
+                // unlimited). Where the probes hold light along its way and it is dark, as in a cave
+                // the far cascade keeps the sky out of, the ray takes their dark, where marching
+                // every such ray took the voxel game's deep cave's screen probes at High at 1920 by
+                // 1080 2.42 to 2.46 ms where 1.28 to 1.31 without the march (./e3d command profile).
+                if (luminance(past) <= 1e-6 && !holds)
                 {
                     float far = traceFieldWithinSheets(SheetVolume(sceneField, fieldSecond), fieldInfo, start, way, handed, 4.0 * length, fieldCascade(fieldInfo, start, 1.0) + 1);
                     if (far >= 0.0)

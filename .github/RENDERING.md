@@ -837,6 +837,17 @@ references, the door's shade at 8:00 2.345 where 2.330, each the mean of three r
 0.023 (`./e3d command profile` over 300 frames, a GPU mark after each dispatch, `gi.compare`,
 `GlobalIlluminationTests`).
 
+A screen probe's ray past its reach marches on through the field only where no world probe around
+its end holds light, and where they hold light and it is dark it takes their dark. A probe that sees
+none of the probes above it carries its own rays on to the field's edge, so the probes around a
+ray's end hold light wherever any stand, and the march stays for a closed corridor whose second
+cascade's probes all stand outside it, as those of `CascadeEdgeTests`' corridor did before item 137
+placed them inside, its far end reading 0.062 of the open one's light at High under its bar of 0.12
+as before. In the deep cave at High global illumination takes 4.50 to 4.66 ms where 5.61 to 5.76,
+and the frame 9.48 to 9.80 where 10.59 to 10.72, its far walls as dark, and `scenes_sponza`'s eight
+views at 8:00 and noon move 0.014 at most against their references, the door's shade at 8:00 within
+the runs' own spread (`./e3d command profile` over 300 frames, `gi.compare`, `CascadeEdgeTests`).
+
 A cascade's corner lies on a grid of eight of its cells, so it moves only when the eye has gone that
 far, and where it moves by less than half its width it shifts, the cells it keeps moved on the GPU
 and the slab it brings in built alone (`SceneFieldPlan.Shifts.cs`), and farther it is built again,
