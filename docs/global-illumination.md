@@ -230,19 +230,20 @@ at 3840 by 2160, and the Cornell box's 4.5 and 7.2 ms where 3.1 and 3.7. The nin
 
 ## Emissive surfaces
 
-A small emissive surface, one whose box is no longer than twice the spacing of the first
-cascade's probes, 4 units at the field's cell of a quarter, lights what is around it as a lamp
-would, with no light made for it. Its light reaches each surface from the faces of its box, and what
-stands between throws a soft shadow, so an emissive block lights the floor it lies on as a
-path-traced reference does, within 5% from a block out to four, at every quality. Emissive blocks
-that touch, as a stack of them, are one light. A mesh of many such surfaces, as a voxel game draws
-its blocks of a kind in one mesh, is cut into them, its triangles joined where they share a corner,
-each lighting from the faces of its box it shows, as a block sunk in the ground shows its top
-alone. The 64 such lights nearest the eye light so, each as far as it lights a surface by a
-fiftieth, 17 units for an emissive block of Voxel-Sandbox's, and a mesh of more parts than that
-lights the ground around none of the rest, which `gi.state` counts. A larger surface, as a panel
-across a ceiling, is left to the probes' rays, which meet it often enough. A frame with none of
-them pays nothing for them.
+A small emissive surface, one whose box is no longer than twice the spacing of the first cascade's
+probes, 4 units at the field's cell of a quarter, lights what is around it as a lamp would, with no
+light made for it. Its light reaches each surface from the faces of its box, and what stands between
+throws a soft shadow, so an emissive block lights the floor it lies on as a path-traced reference
+does, within 5% from a block out to four, at every quality. Emissive blocks that touch, as a stack
+of them, are one light. A mesh of many such surfaces, as a voxel game draws its blocks of a kind in
+one mesh, is cut into them, its triangles joined where they share a corner, each lighting from the
+faces of its box it shows, as a block sunk in the ground shows its top alone. The 64 such lights
+nearest the eye light so, each as far as it lights a surface by a 300th of its own light, 21 units
+for a block however bright, and a mesh of more parts than that lights the ground around none of the
+rest, which `gi.state` counts. Past the four brightest at a point, the rest are gathered by their
+way from it, each group shadowed as its brightest is, so a room lit by many small lamps takes the
+light of every one. A larger surface, as a panel across a ceiling, is left to the probes' rays,
+which meet it often enough. A frame with none of them pays nothing for them.
 
 ## Leaves and other surfaces that let light through
 

@@ -481,9 +481,13 @@ public float3 hiddenLampLight<V : IVolume>(V field, SceneFieldInfo info, GiLight
 // a pixel no screen probe holds read them, since the one march, from a cell and a half off the
 // surface, sees over a wall half as high as a lamp and lit the floor behind it whole. The marches
 // are the cost, so the brightest at p, as many as `marches`, four at most, are kept with their
-// light as the lights are read and only they are marched, a fainter light giving nothing. One way
-// through for every count, the lights read and the kept ones marched in loops kept from unrolling,
-// so a shader holds one march and one closed form of it. A second way for few lights, and both in
+// light as the lights are read and only they are marched each. The fainter ones are gathered by
+// their way from p into as many groups, a quarter of the surface's plane each, every group's light
+// summed and shadowed by one march to its brightest, so a point lit by more lights than are marched
+// takes them all for twice the marches at most. Left out, a closed room lit by six small emitters
+// took 0.82 of a path-traced reference's light where it takes 0.92, and 0.96 lit by one emitter of
+// their six (GlowLightsTests). One way through for every count, the lights read and the kept ones marched in loops kept from
+// unrolling, so a shader holds one march and one closed form of it. A second way for few lights, and both in
 // each of the model pass's two shadings of a reflection's hit, made its compile on lavapipe 0.68 s
 // longer for each app. A light gives nothing to its own surface, which a hit finds within half a
 // cell of its box (glowLightOn). Where the field does not hold p, every light unhidden.
@@ -514,10 +518,14 @@ public float3 glowLightsAt<V : IVolume>(V field, SceneFieldInfo info, GiLights l
     float cell = fieldCell(info, p);
     float margin = max(cell, 0.0) * 0.5;
     float3 unhidden = float3(0.0);
-    float3 kept[4] = { float3(0.0), float3(0.0), float3(0.0), float3(0.0) };
-    float bright[4] = { 0.0, 0.0, 0.0, 0.0 };
-    int which[4] = { -1, -1, -1, -1 };
+    // The lights marched each in the first four places and the groups of the rest in the last
+    // four, each with its light and its brightest light's.
+    float3 kept[8] = { float3(0.0), float3(0.0), float3(0.0), float3(0.0), float3(0.0), float3(0.0), float3(0.0), float3(0.0) };
+    float bright[8] = { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
+    int which[8] = { -1, -1, -1, -1, -1, -1, -1, -1 };
     int most = min(marches, 4);
+    float3 tangent = normalize(abs(n.y) < 0.9 ? cross(n, float3(0.0, 1.0, 0.0)) : cross(n, float3(1.0, 0.0, 0.0)));
+    float3 bitangent = cross(n, tangent);
     [loop]
     for (int i = 0; i < count; i++)
     {
@@ -555,13 +563,27 @@ public float3 glowLightsAt<V : IVolume>(V field, SceneFieldInfo info, GiLights l
                 b = movedBright;
                 one = movedOne;
             }
+        // The light no place keeps, into the group of its way from p across the surface's plane,
+        // as many groups as places, which its brightest light stands for in the march.
+        if (one >= 0 && b > 0.0)
+        {
+            float3 toward = lights.glows[clamp(one, 0, MostGlowLights - 1)].middleAndReach.xyz - p;
+            int g = most >= 4 ? (dot(toward, tangent) > 0.0 ? 1 : 0) + (dot(toward, bitangent) > 0.0 ? 2 : 0)
+                : most >= 2 ? (dot(toward, tangent) > 0.0 ? 1 : 0) : 0;
+            kept[4 + g] += arrived;
+            if (b > bright[4 + g])
+            {
+                bright[4 + g] = b;
+                which[4 + g] = one;
+            }
+        }
     }
     if (cell <= 0.0)
         return unhidden;
     float3 sum = float3(0.0);
     [loop]
-    for (int k = 0; k < most; k++)
-        if (which[k] >= 0)
+    for (int k = 0; k < 8; k++)
+        if ((k & 3) < most && which[k] >= 0)
         {
             GlowLight light = lights.glows[clamp(which[k], 0, MostGlowLights - 1)];
             sum += kept[k] * (halves ? glowLightShown(field, info, light, p, n, cell) : glowLightSeen(field, info, light, p, n, cell));

@@ -2080,7 +2080,7 @@ cascade at 256 directions changed nothing.
 
 An emitter whose box is no longer than twice the first cascade's spacing is carried as a light, its
 box in the world, its emission and its mesh's surface over its box's, the 64 nearest the eye, each
-reaching as far as it lights a surface by a fiftieth; emitters square to the axes that touch and
+reaching as far as it lights a surface by a 300th of its own light; emitters square to the axes that touch and
 emit the same light are one light of the box around them, the faces they press together left out of
 its surface. A mesh of many emitters, as Ore draws its ore, is cut into its parts, its triangles
 joined where they share a corner (`GlowLights.PartsOf`), and carried where each part is, a light
@@ -2203,6 +2203,24 @@ Mesa's cache off an app that draws a lit cube without global illumination took 1
 after the first in one process, where it took 2.1 to 2.5 with the build without the glow lights and
 3.9 to 4.1 whole, its last wait 0.8 to 0.9 seconds where 1.6 to 1.8 and 2.9 to 3.1. A program's own
 model shader that imports `modelpass` is built whole.
+
+Past the lights a place marches, the rest at a point are gathered by their way from it across the
+surface's plane into as many groups, a quarter of the plane each where four are marched, each
+group's light summed as each light's is and shadowed by one march to its brightest (`glowLightsAt`
+in `gi.slang`), so a point lit by more lights than are marched takes them all for twice the marches
+at most. A light reaches as far as it lights a surface by a 300th of its own light, a share kept
+whatever its brightness, so the bounce rooms' box lamp of 6 reaches as far as it did at a fiftieth
+of a unit and a dimmer light no less far than a bright one of its size (`GlowLights.Faint`). A
+closed room lit by six emissive blocks, each a sixth as bright as the one that lights it in its
+other reading, took 0.39 of its path-traced reference's light where the one's took 0.96, 0.82 with
+the reach a share alone, and takes 0.92 (`GlowLightsTests`). In the voxel game's room of forty
+glowstones at hour 23 at High at 1280 by 720 the stone read 12 to 23% under a path-traced reference
+and reads within 2%, for global illumination at 1920 by 1080 of 3.99 to 4.14 ms at Low where 3.60 to
+3.67, 6.84 to 7.03 at Medium where 6.11 to 6.16 and 10.76 to 10.79 at High where 9.59 to 9.70, the
+scene pass the same, and on lavapipe at 640 by 360 of 318 to 322 ms where 280, 373 to 384 where 314
+to 319 and 398 to 403 where 380 (`gi.reference` at 512 paths a pixel, `gi.compare`, `./e3d command
+profile`). The model pass compiles on lavapipe as long as before, three glow tests with Mesa's cache
+off taking 88 to 97 s where 85 to 92.
 
 Read in linear light from straight above, the game's glowstone on a floor lights the floor 0.257,
 0.100, 0.045, 0.023, 0.013 and 0.0055 at one to four blocks in a path-traced reference, where the

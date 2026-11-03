@@ -2967,3 +2967,11 @@ Shared: textures go through a staging buffer under MoltenVK however it offers ho
 MoltenVK 1.4.2 offers the copy, its layouts and fast access on the macOS runner's paravirtual device
 and then crashes in vkBindImageMemory at the first image made for it, the device's line saying so
 (Verdict 100's mend).
+
+Shared: the glow lights past the four brightest at a point are gathered by their way from it across
+the surface's plane into as many groups, each group's light summed in closed form and shadowed by
+one march to its brightest, and a light reaches as far as it lights a surface by a 300th of its own
+light whatever its brightness, the bounce rooms' box lamp of 6 keeping its reach, which took a
+closed room lit by six emitters a sixth as bright as one from 0.39 to 0.92 of its path-traced
+reference and the voxel game's room of forty glowstones from 12 to 23% under to within 2%, for 0.4,
+0.7 and 1.1 ms more at Low, Medium and High at 1920 by 1080 (item 192).

@@ -55,7 +55,7 @@ public sealed class GlowLightsTests : IDisposable
         middles.Should().Equal(Enumerable.Range(0, GlowLights.Most).Select(n => (float)(69 - n) * 2), "the nearest the eye first");
         var first = floats[(GlowLights.Head / 4)..(GlowLights.Head / 4 + GlowLights.Bytes / 4)];
         first[1].Should().BeApproximately(0.5f, 1e-6f);
-        first[3].Should().BeApproximately(MathF.Sqrt(4 * 6 / (4 * 0.02f)), 1e-3f, "a block of six faces giving off four at its brightest reaches where it lights a surface by a fiftieth");
+        first[3].Should().BeApproximately(MathF.Sqrt(6 / (4 / 300f)), 1e-3f, "a block of six faces reaches where it lights a surface by a 300th of its own light, however bright it is");
         first[4..8].Should().Equal(0.5f, 0, 0, 0.5f);
         first[16..20].Should().Equal(4, 2, 1, 1);
         var reach = first[3];
@@ -420,6 +420,69 @@ public sealed class GlowLightsTests : IDisposable
     // place, seen straight down from `height` blocks above, the mean of 72 points on each ring of
     // `radii`, the reference's rings by default, and the eighth harmonic of them as a share of the mean.
     // With farBlock, the lamp is one mesh of the block and another block that far from it.
+    [NeedsRayQueryFact]
+    [Trait("Category", "Render")]
+    public void A_Room_Lit_By_Six_Small_Emitters_Reads_As_A_Path_Traced_Reference_Does()
+    {
+        // A closed room six units across and three high lit by six emissive blocks of a third of a
+        // unit, each a sixth as bright as the one block that lights it in the room's other reading,
+        // the walls, the floor and the ceiling read together against the path-traced reference of
+        // each. Past the four brightest at a point, the lights were left out, and each reached
+        // where it lit a surface by a fiftieth of a unit, so a sixth as bright reached two and a
+        // half times less far, and the room took 0.39 of its reference's light where one block's
+        // takes 0.96; with every light reaching by a share of its own light it takes 0.82, and
+        // with the lights past the four grouped 0.92.
+        float Room(bool six)
+        {
+            var config = Config.Default.WithWindow("emitters", 320, 180) with { Headless = true, Offscreen = true, Samples = 1 };
+            UseApp(new App(config).AddPlugin(new DefaultPlugins()));
+            SetSceneField(3, 0.1f, 2);
+            SetGlobalIllumination(GlobalIllumination.High);
+            var slab = LoadModelFromMesh(GenMeshCube(1, 1, 1));
+            var glow = LoadModelFromMesh(GenMeshCube(1, 1, 1));
+            glow.Materials[0].Emissive = Color.White;
+            glow.Materials[0].EmissiveIntensity = six ? 1 : 6;
+            var gray = new Color(170, 170, 170);
+            Vector3[] places = six
+                ? [new(-1.2f, 2.2f, -1.2f), new(1.2f, 2.2f, -1.2f), new(-1.2f, 2.2f, 1.2f), new(1.2f, 2.2f, 1.2f), new(0, 2.6f, -1.6f), new(0, 2.6f, 1.6f)]
+                : [new(0, 2.4f, 0)];
+            var camera = new Camera3D(new Vector3(0, 1.4f, 2.6f), new Vector3(0, 1.0f, -2), Vector3.UnitY, 70);
+            for (int frame = 0; frame < SceneFieldPlan.SettleFrames + 60; frame++)
+            {
+                BeginDrawing();
+                ClearBackground(Color.Black);
+                BeginMode3D(camera);
+                DrawModelEx(slab, new Vector3(0, -0.15f, 0), Vector3.UnitY, 0, new Vector3(6, 0.3f, 6), gray);
+                DrawModelEx(slab, new Vector3(0, 3.15f, 0), Vector3.UnitY, 0, new Vector3(6, 0.3f, 6), gray);
+                DrawModelEx(slab, new Vector3(0, 1.5f, -2.85f), Vector3.UnitY, 0, new Vector3(6, 3, 0.3f), gray);
+                DrawModelEx(slab, new Vector3(0, 1.5f, 3.15f), Vector3.UnitY, 0, new Vector3(6, 3, 0.3f), gray);
+                DrawModelEx(slab, new Vector3(-2.85f, 1.5f, 0), Vector3.UnitY, 0, new Vector3(0.3f, 3, 6), gray);
+                DrawModelEx(slab, new Vector3(2.85f, 1.5f, 0), Vector3.UnitY, 0, new Vector3(0.3f, 3, 6), gray);
+                foreach (var at in places)
+                    DrawModelEx(glow, at, Vector3.UnitY, 0, new Vector3(0.3f), Color.White);
+                EndMode3D();
+                EndDrawing();
+            }
+            var path = Path.Combine(_folder.Path, $"room-{six}.png");
+            BounceReference.Trace(GetApp().World, path, 512).Should().StartWith("traced");
+            var regions = BounceReference.Measure(GetApp().World, path, out var why, out _);
+            regions.Should().NotBeNull(why);
+            var room = regions!.Where(r => r.Name.Contains("floor") || r.Name.Contains("wall") || r.Name.Contains("ceiling")).ToList();
+            room.Should().NotBeEmpty("the room's surfaces are named among the regions");
+            static float Luma(Vector3 v) => 0.2126f * v.X + 0.7152f * v.Y + 0.0722f * v.Z;
+            var share = Luma(room.Aggregate(Vector3.Zero, (sum, r) => sum + r.Frame * r.Pixels)) / Luma(room.Aggregate(Vector3.Zero, (sum, r) => sum + r.Reference * r.Pixels));
+            UnloadModel(slab);
+            UnloadModel(glow);
+            CloseWindow();
+            UseApp(null);
+            return share;
+        }
+        var one = Room(six: false);
+        var six = Room(six: true);
+        one.Should().BeApproximately(1, 0.1f, "the room lit by one block reads as its reference");
+        six.Should().BeApproximately(1, 0.1f, $"the room lit by six blocks of a sixth its light reads as its reference too, {six:0.000}, where one block's reads {one:0.000}");
+    }
+
     private Dictionary<float, (double Mean, double Lobes)> Rings(GlobalIllumination quality, float height, bool rod = false, float[]? radii = null,
         Vector3? farBlock = null)
     {

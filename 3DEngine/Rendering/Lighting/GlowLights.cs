@@ -61,9 +61,15 @@ internal static class GlowLights
     /// <summary>The bytes the count, the box and the lights take.</summary>
     public const int Size = Head + Most * Bytes;
 
-    // The light a surface at the reach takes from one, a fiftieth of its own, past which the
-    // light is let go, over a quarter of the box's surface as the box's mean face seen from afar.
-    private const float Faint = 0.02f;
+    // The light a surface at the reach takes from one, a 300th of the light it emits, past which
+    // the light is let go, over a quarter of the box's surface as the box's mean face seen from
+    // afar. A share of its own, so every light keeps the same share of its light whatever its
+    // brightness, where let go at a fiftieth of a unit a dim light reached less far than a bright
+    // one of its size, and six emitters of a sixth of one's light each two and a half times less
+    // far, so a closed room lit by six took 0.40 of a path-traced reference's light, 0.82 with the
+    // share alone and 0.96 lit by one (GlowLightsTests). A 300th keeps the reach of the bounce
+    // rooms' box lamp, whose light is 6.
+    private const float Faint = 1f / 300;
 
     /// <summary>
     /// Whether an instance emitting <paramref name="emission"/> is carried as lights, every part of
@@ -232,8 +238,7 @@ internal static class GlowLights
             if (places is null) placeOf[n] = n;
             var (middle, x, y, z, glow, share, faces) = lights[n];
             var surface = 4 * FacesSurface(new Vector3(x.Length(), y.Length(), z.Length()), faces == 0 ? All : faces) * share;
-            var brightest = MathF.Max(glow.X, MathF.Max(glow.Y, glow.Z));
-            var reach = MathF.Sqrt(brightest * surface / (4 * Faint));
+            var reach = MathF.Sqrt(surface / (4 * Faint));
             var light = floats.Slice(Head / 4 + placeOf[n] * Bytes / 4, Bytes / 4);
             (light[0], light[1], light[2], light[3]) = (middle.X, middle.Y, middle.Z, reach);
             (low, high) = (Vector3.Min(low, middle - new Vector3(reach)), Vector3.Max(high, middle + new Vector3(reach)));
