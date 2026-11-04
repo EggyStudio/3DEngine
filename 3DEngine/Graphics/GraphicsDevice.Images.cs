@@ -223,19 +223,24 @@ internal sealed unsafe partial class GraphicsDevice
         return new VulkanImageView(this, image, view);
     }
 
-    private float _maxAnisotropy;
+    // The most samples the device takes along a slanted texture, read when the device is made.
+    private float _maxAnisotropy = 1;
+
+    /// <summary>
+    /// The most samples a sampler made from here on takes along a slanted texture, the device's own
+    /// most unless a test lowers it to compare a texture filtered without them.
+    /// </summary>
+    internal float AnisotropyLimit
+    {
+        get => _maxAnisotropy;
+        set => _maxAnisotropy = Math.Max(1, value);
+    }
 
     /// <summary>Creates a Vulkan texture sampler with the specified filtering and addressing modes.</summary>
     /// <param name="desc">Sampler creation descriptor.</param>
     /// <returns>A new <see cref="ISampler"/> handle.</returns>
     public ISampler CreateSampler(SamplerDesc desc)
     {
-        // The device's own limit, asked once. The feature is enabled when the device is made.
-        if (_maxAnisotropy == 0)
-        {
-            _instanceApi.vkGetPhysicalDeviceProperties(_physicalDevice, out var properties);
-            _maxAnisotropy = Math.Max(1, properties.limits.maxSamplerAnisotropy);
-        }
         var anisotropy = Math.Clamp(desc.MaxAnisotropy, 1, _maxAnisotropy);
 
         VkSamplerCreateInfo info = new()

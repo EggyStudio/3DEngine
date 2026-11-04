@@ -148,6 +148,7 @@ internal sealed unsafe partial class GraphicsDevice
         // pass's fragment stage at its first ray query, any-hit alone included, where the same
         // structures, which it builds without a word from the validation layer, trace on a GPU.
         _instanceApi.vkGetPhysicalDeviceProperties(_physicalDevice, out var device);
+        _maxAnisotropy = Math.Max(1, device.limits.maxSamplerAnisotropy);
         var onCpu = device.deviceType == VkPhysicalDeviceType.Cpu;
         CanQueryRays = hasRayExtensions && structures.accelerationStructure && rayQuery.rayQuery && vulkan12.bufferDeviceAddress && !onCpu;
         if (CanQueryRays) extensionNames.AddRange(rayExtensions);

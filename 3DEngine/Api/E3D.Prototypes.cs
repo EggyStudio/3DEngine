@@ -58,7 +58,7 @@ public static partial class E3D
         var texture = LoadTextureFromImage(GenImageGrid(PrototypePixelsPerMeter));
         GenTextureMipmaps(ref texture);
         SetTextureWrap(texture, TextureWrap.Repeat);
-        SetTextureFilter(texture, TextureFilter.Anisotropic16x);
+        SetTextureFilter(texture, TextureFilter.Trilinear);
         return _prototypeGrid = texture;
     }
 

@@ -60,7 +60,10 @@ A texture drawn larger or smaller than its size is filtered. `SetTextureFilter` 
 | `TextureFilter.Point` | Pixel art, every texel a sharp square |
 | `TextureFilter.Bilinear` | Photographs and smooth art, blended between texels, in the nearest mip level |
 | `TextureFilter.Trilinear` | The same, blended between mip levels too, so a texture drawn ever smaller shows no step |
-| `TextureFilter.Anisotropic4x`, `8x` and `16x` | Textures seen at a slant, as a floor stretching away |
+
+`Bilinear` and `Trilinear` take up to 16 samples along the direction a slanted texture is squashed
+in, or the device's most where it takes fewer, so a floor stretching away stays sharp at a glancing
+angle. The device's line in the log says how many it takes.
 
 A texture drawn much smaller than its size, as a floor stretching away, breaks into noise unless it
 has mip levels, smaller copies of itself the GPU reads instead. `GenTextureMipmaps` makes them,

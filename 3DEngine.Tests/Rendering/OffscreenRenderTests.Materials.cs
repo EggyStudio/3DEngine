@@ -415,9 +415,10 @@ public sealed partial class OffscreenRenderTests
     }
 
     [NeedsVulkanFact]
-    public void Anisotropic_Filtering_Keeps_A_Slanted_Checkerboard_Sharper_Than_Bilinear()
+    public void Trilinear_Filtering_Keeps_A_Slanted_Checkerboard_Sharper_Than_It_Is_Without_Anisotropy()
     {
         Open(64, 64);
+        var device = (GraphicsDevice)GetApp().World.Resource<Engine.Renderer>().Context.Graphics!;
         var checker = LoadTextureFromImage(GenImageChecked(256, 256, 8, 8, Color.Black, Color.White));
         GenTextureMipmaps(ref checker);
         var floor = LoadModelFromMesh(GenMeshPlane(40, 40, 1, 1));
@@ -425,9 +426,13 @@ public sealed partial class OffscreenRenderTests
         // Low over the floor, looking along it, so the far squares are squashed many times over.
         var camera = new Camera3D(new Vector3(0, 0.6f, 10), new Vector3(0, 0, -20), Vector3.UnitY, 45);
 
-        // How much the far rows of the floor still vary, from a gray smear to sharp squares.
-        double Contrast(TextureFilter filter)
+        // How much the far rows of the floor still vary, from a gray smear to sharp squares, its
+        // sampler made again under the limit given.
+        double Contrast(TextureFilter filter, float limit)
         {
+            var most = device.AnisotropyLimit;
+            device.AnisotropyLimit = limit;
+            SetTextureFilter(checker, TextureFilter.Point);
             SetTextureFilter(checker, filter);
             var image = Capture(() =>
             {
@@ -441,12 +446,13 @@ public sealed partial class OffscreenRenderTests
                 for (int x = 8; x < 56; x++)
                     values.Add(GetImageColor(image, x, y).R);
             var mean = values.Average();
+            device.AnisotropyLimit = most;
             return Math.Sqrt(values.Average(v => (v - mean) * (v - mean)));
         }
 
-        var bilinear = Contrast(TextureFilter.Bilinear);
-        var anisotropic = Contrast(TextureFilter.Anisotropic16x);
-        anisotropic.Should().BeGreaterThan(bilinear * 1.2, $"16 samples along the slant keep the squares apart, {anisotropic:0.0} against {bilinear:0.0}");
+        var plain = Contrast(TextureFilter.Trilinear, 1);
+        var anisotropic = Contrast(TextureFilter.Trilinear, 16);
+        anisotropic.Should().BeGreaterThan(plain * 1.2, $"16 samples along the slant keep the squares apart, {anisotropic:0.0} against {plain:0.0}");
         UnloadModel(floor);
         UnloadTexture(checker);
     }

@@ -107,7 +107,7 @@ item in REVIEW-ARCHIVE.md, its devlog note and its own words. On 2026-10-30 at 1
 the README's new words (item 133) and the focus on radiance cascades (Decision 74), questions asked
 back, and asked that the sessions spend fewer tokens at the same quality, N 7.7.
 
-Next 201, then 200's trial; 197 waits for it and the game's 155.
+Next 201, then 199 read again with the turn, then 200's trial; 197 waits for them and the game's 155.
 
 Items done and verdicts settled before 2026-10-23 stand in REVIEW-ARCHIVE.md beside this file, their
 numbers kept, moved there at 19:30 on 2026-10-23 so this file holds the current work alone and is
@@ -2929,7 +2929,15 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     under, as the vault's do at 8:00, their hits bringing 22 to 77% less than the reference along
     the same ways at HEAD and every merged way 52 to 80% under. So the closed rooms' fix is the mend
     that waits on the open sign, 142's gain stays open, and the vault's hits under at HEAD are item
-    200's reading before any mend that lowers. The trial cost +0.1 ms of GI in the atrium.
+    200's reading before any mend that lowers. The trial cost +0.1 ms of GI in the atrium. Reopened
+    at 11:42: the bridge found the reprojection's own fault, which this trial shares, the patch's
+    turn left out, a texel's solid angle scaled by the distances squared alone where a patch seen
+    from the surface point is also turned by the cosine there over the cosine at the probe from the
+    hit's field normal; with the turn one probe's face moved to the floor read 1.157 against a true
+    1.133 where 1.292 without, and the bridge's closed boxes, open box and grazing room all moved
+    toward their references. The patch is read again with the turn in gi_ambient on the same sets
+    after 201 and before 200's trial, its cost a field normal per texel on faces with a surface; if
+    the four bounds and the door view hold, it is the shared mend with the bridge's commit.
 
 200. **The vault's world-probe hits read 22 to 77% under at 8:00.** From 199's reading on
     2026-11-04. At 448e18e7 the four cascade-0 probes in Sponza's vestibule vault bring 22 to 77%
@@ -3020,7 +3028,20 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     exists to keep pixels sharp (raylib's pixel art, the font atlases, the environment's lookup),
     Bilinear and Trilinear filter at 16 with their own mip mode, and Anisotropic4x, 8x and 16x leave
     the enum outright with the two callers that asked for 16x taking Trilinear, the default;
-    TextureFilter says nearest or linear and the mip mode, nothing else.
+    TextureFilter says nearest or linear and the mip mode, nothing else. Written and read at 11:28,
+    its suite running. GpuTextures.SamplerFor gives Bilinear and Trilinear 16 clamped to the
+    device's most and Point 1, the three Anisotropic values gone from TextureFilter and
+    PublicApi.txt, the prototypes and modeling slots on Trilinear, maxSamplerAnisotropy read when
+    the logical device is made and the device line saying textures are filtered along a slant by 16
+    samples of the device's 16 at most, the checkerboard test at 16 against the limit lowered to 1
+    through an internal AnisotropyLimit, the textures guide's table and a paragraph. Sponza's atrium
+    floor seen from 0.35 up along its length, the far band's mean step between neighbour pixels 2.04
+    and 2.02 against 1.58, the far slab joints holding, the pair 2026-11-04-item-201-floor.webp;
+    gpu.hdr_scene in the atrium within its two levels, no change shown. The voxel ground does not
+    move, since the game sets its atlas to Point and reads it with SampleLevel at a level of its own
+    choosing, which takes no anisotropy; that is the game's item 156. Decision 80 supersedes
+    Decision 5 for the surface change, the version staying 6.0. The game's 156 was closed at 11:40
+    on the owner's word, the game being pixel filtering by choice.
 
 ## Verdicts
 
@@ -3716,3 +3737,17 @@ sunlit slivers past the arch's edges inside texels some 26 degrees across, which
 rays a texel, fixed at the middles of its quarters every frame, never take, the world's probes
 keeping no light across frames, and the mend is the trial of moving those rays frame to frame with
 a history (gi.probe at 1 and 1,024 paths, field.march, the frame toward the sun in the dump).
+
+201, read at b0214860 on 2026-11-04. Every texture sampler that blends, Bilinear and Trilinear,
+takes 16 samples along a slant or the device's most, read when the device is made and named in its
+line, 16 of the RTX 4070's 16, and Point keeps the nearest texel with none. Sponza's atrium floor at
+noon seen from 0.35 up along its length holds its far slabs' joints where trilinear smeared them,
+its far band's mean step between neighbor pixels 2.04 and 2.02 where 1.58 in two runs, the pair in
+`.github/assets/readings/2026-11-04-item-201-floor.webp`. The scene pass in the atrium at noon reads
+6.0 to 8.1 ms with them and 6.7 to 8.7 without, its median 7.91 and 7.75 over fifteen readings of
+300 frames each, both builds in turn moving between the same two levels under a GPU another process
+shared, so no change shows (powersave-bazzite). The voxel game's ground does not move, since its
+atlas asks for Point and its terrain shader reads it by SampleLevel at a level of its own choosing,
+which takes no anisotropy, so its ground takes the samples once the game reads its atlas linearly
+through a sample whose level the GPU chooses, a change in its own repository (`./e3d command
+profile`, the shots at 800 by 450).

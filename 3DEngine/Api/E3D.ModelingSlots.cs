@@ -157,7 +157,7 @@ public static partial class E3D
         if (!texture.IsValid) return default;
         GenTextureMipmaps(ref texture);
         SetTextureWrap(texture, TextureWrap.Repeat);
-        SetTextureFilter(texture, TextureFilter.Anisotropic16x);
+        SetTextureFilter(texture, TextureFilter.Trilinear);
         return _slotTextures[key] = texture;
     }
 

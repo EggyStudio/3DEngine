@@ -196,11 +196,11 @@ public class TextureStoreTests
     }
 
     [Fact]
-    public void An_Anisotropic_Filter_Asks_The_Sampler_For_Its_Samples()
+    public void Every_Filter_That_Blends_Asks_The_Sampler_For_Sixteen_Samples_Along_A_Slant_And_Point_For_None()
     {
         GpuTextures.SamplerFor(TextureFilter.Point).Should().Match<SamplerDesc>(d => d.MinFilter == SamplerFilter.Nearest && d.MaxAnisotropy == 1);
-        GpuTextures.SamplerFor(TextureFilter.Bilinear).MaxAnisotropy.Should().Be(1);
-        GpuTextures.SamplerFor(TextureFilter.Anisotropic8x).Should().Match<SamplerDesc>(d => d.MinFilter == SamplerFilter.Linear && d.MaxAnisotropy == 8);
+        GpuTextures.SamplerFor(TextureFilter.Bilinear).Should().Match<SamplerDesc>(d => d.MinFilter == SamplerFilter.Linear && d.MaxAnisotropy == 16);
+        GpuTextures.SamplerFor(TextureFilter.Trilinear).MaxAnisotropy.Should().Be(16);
     }
 
     [Fact]
@@ -209,6 +209,5 @@ public class TextureStoreTests
         GpuTextures.SamplerFor(TextureFilter.Point).MipFilter.Should().Be(SamplerFilter.Nearest);
         GpuTextures.SamplerFor(TextureFilter.Bilinear).Should().Match<SamplerDesc>(d => d.MinFilter == SamplerFilter.Linear && d.MipFilter == SamplerFilter.Nearest);
         GpuTextures.SamplerFor(TextureFilter.Trilinear).Should().Match<SamplerDesc>(d => d.MinFilter == SamplerFilter.Linear && d.MipFilter == SamplerFilter.Linear);
-        GpuTextures.SamplerFor(TextureFilter.Anisotropic4x).MipFilter.Should().Be(SamplerFilter.Linear, "an anisotropic filter is trilinear with more samples");
     }
 }

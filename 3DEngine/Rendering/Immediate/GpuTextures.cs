@@ -327,14 +327,8 @@ internal sealed class GpuTextures : IDisposable
         var f = filter == TextureFilter.Point ? SamplerFilter.Nearest : SamplerFilter.Linear;
         // Point and bilinear read the nearest mip level, and the rest blend two, as raylib's do.
         var mip = filter is TextureFilter.Point or TextureFilter.Bilinear ? SamplerFilter.Nearest : SamplerFilter.Linear;
-        var anisotropy = filter switch
-        {
-            TextureFilter.Anisotropic4x => 4f,
-            TextureFilter.Anisotropic8x => 8f,
-            TextureFilter.Anisotropic16x => 16f,
-            _ => 1f,
-        };
-        return new SamplerDesc(f, f, address, address, address, anisotropy, mip);
+        // Every filter that blends takes 16 samples along a slant, or the device's most.
+        return new SamplerDesc(f, f, address, address, address, filter == TextureFilter.Point ? 1f : 16f, mip);
     }
 
     private static IDescriptorSet CreateSet(IGraphicsDevice gfx, IImageView view, ISampler sampler)
