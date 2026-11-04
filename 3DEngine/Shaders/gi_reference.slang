@@ -16,7 +16,7 @@
 // it. Lights are given as the model pass has them, the light a white diffuse surface facing one
 // returns, so a surface's diffuse light is its color times what arrives, with no pi. Each pass adds
 // its samples to an image of sums, the count in alpha, and its first sample of each pixel, through
-// the pixel's middle, writes what it met into the image of regions, the copy's index times eight
+// the pixel's middle, writes what it met and how far along its way into the image of regions, the copy's index times eight
 // and the axis its face turns toward most, plus one, or 0 for nothing. Started at a probe instead,
 // a texel of the image is a texel of the probe's octahedron, its paths leaving the probe's middle
 // through it and every face they meet lit as global illumination lights one, so the image is the
@@ -60,8 +60,8 @@ float3 cornerColor(float4 corner)
 [[vk::binding(3, 0)]]
 RWTexture2D<float4> sums;
 
-[[vk::binding(4, 0)]] [format("r32ui")]
-RWTexture2D<uint> regions;
+[[vk::binding(4, 0)]] [format("rg32ui")]
+RWTexture2D<uint2> regions;
 
 struct Lamp
 {
@@ -389,11 +389,12 @@ float depthInside(float3 origin, float3 way, float t, uint instance)
 // The light one path brings back from origin along way, and what its first ray met. From the
 // camera the first face is lit as the model pass lights one, and from a probe as global
 // illumination does.
-float3 trace(float3 origin, float3 way, bool fromProbe, inout uint state, out uint region)
+float3 trace(float3 origin, float3 way, bool fromProbe, inout uint state, out uint region, out float met)
 {
     float3 throughput = float3(1.0);
     float3 light = float3(0.0);
     region = 0u;
+    met = -1.0;
 
     for (uint bounce = 0u; bounce < push.sizeAndCounts.w; bounce++)
     {
@@ -427,6 +428,7 @@ float3 trace(float3 origin, float3 way, bool fromProbe, inout uint state, out ui
             float3 m = abs(n);
             uint axis = m.x >= m.y && m.x >= m.z ? (n.x > 0.0 ? 0u : 1u) : m.y >= m.z ? (n.y > 0.0 ? 2u : 3u) : (n.z > 0.0 ? 4u : 5u);
             region = instance * 8u + axis + 1u;
+            met = hit.t;
         }
 
         bool first = bounce == 0u && !fromProbe;
@@ -501,17 +503,20 @@ void computeMain(uint3 id : SV_DispatchThreadID)
         float2 jitter = index == 0u ? float2(0.5) : float2(random(state), random(state));
         float2 uv = (float2(id.xy) + jitter) / float2(size);
         uint region;
+        float met;
         if (push.first.y == 1u)
         {
-            sum += trace(push.probe.xyz, fromOctahedron(uv), true, state, region);
+            sum += trace(push.probe.xyz, fromOctahedron(uv), true, state, region, met);
+            if (index == 0u)
+                regions[id.xy] = uint2(region, asuint(met));
             continue;
         }
         float4 near = mul(push.inverseViewProjection, float4(uv * 2.0 - 1.0, 0.0, 1.0));
         float4 far = mul(push.inverseViewProjection, float4(uv * 2.0 - 1.0, 1.0, 1.0));
         float3 origin = near.xyz / near.w;
-        sum += trace(origin, normalize(far.xyz / far.w - origin), false, state, region);
+        sum += trace(origin, normalize(far.xyz / far.w - origin), false, state, region, met);
         if (index == 0u)
-            regions[id.xy] = region;
+            regions[id.xy] = uint2(region, asuint(met));
     }
     sums[id.xy] = sums[id.xy] + float4(sum, float(push.sizeAndCounts.z));
 }

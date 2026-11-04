@@ -3,9 +3,10 @@
 Reviewed up to `105d9cb3`, Verdict 102's mend, Tumble's hazards off as it serves in the drive script
 and a failed game's log uploaded, pushed at 08:18 on 2026-11-04, its run green at 10:16 with macOS
 in 37 minutes, the Windows halves in 65 and 95 and Linux in 103, which settled Verdict 102; it keeps
-the form and carries the review's files. Nothing is pushed after it; `fe224105`, 200's march
-command, waits to go with Verdict 103's mend in one run, the fourteenth pack run from that run when
-green. The thirteenth pack run ended red at 09:09 on three jobs, macOS (Verdict 102), the first
+the form and carries the review's files. After it `f14a9530`, Verdict 103's mend, the feature test's
+time, the session file's retry and the manor's images bound, pushed at 10:32 with `fe224105`, 200's
+march command, its run awaited, the fourteenth pack run to start from it when green; both keep the
+form. The thirteenth pack run ended red at 09:09 on three jobs, macOS (Verdict 102), the first
 Windows half and the Linux games job (Verdict 103), the rest green. Before it `448e18e7`, 142's
 ray-query build's second commit, pushed at 06:18 with `446c6293`, its first, the setting off by
 default, its run green at 08:10 with macOS in 40 minutes, the halves in 76 and 53 and Linux in 101.
@@ -106,7 +107,7 @@ item in REVIEW-ARCHIVE.md, its devlog note and its own words. On 2026-10-30 at 1
 the README's new words (item 133) and the focus on radiance cascades (Decision 74), questions asked
 back, and asked that the sessions spend fewer tokens at the same quality, N 7.7.
 
-Next 200; 197 waits for it and the game's 155.
+Next 201, then 200's trial; 197 waits for it and the game's 155.
 
 Items done and verdicts settled before 2026-10-23 stand in REVIEW-ARCHIVE.md beside this file, their
 numbers kept, moved there at 19:30 on 2026-10-23 so this file holds the current work alone and is
@@ -2986,7 +2987,40 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     traced, 3.07 to 3.11 with the ray-queried sun. The probes' sun map over the field is written and
     held as a patch, not priced until the next step says what the probe's rays meet, gi.probe
     extended to give each way's distance against the reference's first hit. After Verdict 103's
-    mend.
+    mend. The step read at 10:38, the cause found. The vault's shortfall is sampling within the
+    probes' texels, neither what the rays meet nor the sun's visibility. Cascade 1's probe at 17, 1,
+    1 has 45 of its 64 hits within a tenth of the reference's first-hit distance through the texel's
+    middle, 16 further and 3 nearer; its worst way reaches 6.18 where the reference's middle path
+    meets a gray block's side at 5.32, a face that is shaded, the vault in the way of the sun from
+    it. The proof, the reference at one path a way through the texel's middle brings 0 at the first
+    bounce at all 64 hits as the engine does, and at 1024 jittered paths a way 0.000246, so the
+    reference's light comes from sunlit slivers across the arch's edges inside texels some 26
+    degrees wide, which neither the middle path nor the probe's four fixed rays (the quarters'
+    middles, the same every frame) ever sample, and the world probes keep no light across frames.
+    The step, the reference's first-hit distance beside each way with a count of nearer, further and
+    within a tenth, commits as a diagnostic after its suite. The mend as a trial, the four rays a
+    texel moved within their quarters frame to frame in a sequence as the screen probes' sixteen
+    places, a history image per cascade (about 0.3 MB for cascade 1 at High) blended over the frames
+    and following a light going out as the screen probes' follow and kept do, the history moved with
+    the clipmap's shifts or dropped at one, read by 188's flight with nothing unstable and no lag,
+    the memory against 169's budget, the sequence's places covering the quarter, the door view at
+    8:00 and noon, the seven, the bounce rooms' bars unchanged and GI's time in the atrium; the
+    figures before any commit. More rays per texel (four times the trace) and leaving the vault as a
+    sampling limit are set aside.
+
+201. **Anisotropic filtering at 16 everywhere.** Decision 91 on 2026-11-04.
+    TextureFilter.Anisotropic16x stands and the prototypes and the modeling slots set it, so the
+    rest is the default. Every sampler that reads a texture, a material's colour, normal and
+    surface, the voxel game's atlas, the sky's and the UI's where they are textures, filters
+    anisotropically at 16, the device's most where it offers less (read at device creation and named
+    in the device line), at every quality and with no knob; the shadow, probe and table samplers
+    keep their own. Read by Sponza's atrium floor and the voxel game's ground at a grazing angle
+    against the trilinear picture, and by the scene pass's time in the atrium, which should not
+    move. Next, before 200's trial. The shape, Point stays nearest with no anisotropy since it
+    exists to keep pixels sharp (raylib's pixel art, the font atlases, the environment's lookup),
+    Bilinear and Trilinear filter at 16 with their own mip mode, and Anisotropic4x, 8x and 16x leave
+    the enum outright with the two callers that asked for 16x taking Trilinear, the default;
+    TextureFilter says nearest or linear and the mip mode, nothing else.
 
 ## Verdicts
 
@@ -3025,8 +3059,9 @@ Verdicts 56 to 102 are settled, said under each in REVIEW-ARCHIVE.md; 103 is ope
      histories, the fog's two 1 by 1 images while off, the specular shares' table and the scattered
      bloom's sixth level, none climbing, the textures streaming 16 to 27 and settling; the bound
      goes from 92 to 104 with the reading stated, the run's series then passing at 100 against 111.
-     The commit follows its suite, carrying 200's correction; it pushes with fe224105 after
-     105d9cb3's run, and the fourteenth pack run starts after its green run.
+     The mend is at f14a9530, pushed at 10:32 with fe224105, the suite 2,244 in both orders, the
+     soak-check test's manor case at 120 images past the new bound; settled by its run when green,
+     and the fourteenth pack run starts from it then.
 
 ## Decisions
 
@@ -3309,6 +3344,12 @@ REVIEW-ARCHIVE.md.
     picture the owner sent being a screenshot and their reference picture the reference; the engine
     session relabelled the sheet, renamed the dump's files and reworded its captions back to
     2026-10-31, and read the 59 comparison sheets' labels clean.
+
+91. **Anisotropic filtering at 16 everywhere.** The owner wrote on 2026-11-04 at 11:07, "Anisotropic
+   filtering is at x16 everywhere because it is cheap and on steep angles it is visually better." So
+   every sampler that reads a texture, colour, normal, surface or atlas, filters anisotropically at
+   16, or at the device's most where it offers less, at every quality and with no knob; the shadow,
+   probe and table samplers that are not textures keep their own filters. Item 201.
 
 ## Replies
 
@@ -3660,3 +3701,18 @@ bounce 5% under. So what differs at 17, 1, 1 is what its rays meet or where they
 the reference's paths from the probe's middle, which the next step reads as each way's distance
 against the reference's first hit, the probes' sun map over the field written and held as a patch
 unpriced until then (gi.probe at 1024 paths, gi.toggle meshes, the trial's builds).
+
+200, its second step, read at f14a9530 on 2026-11-04 in Sponza's door view at 8:00, metered, at
+High, with gi.probe saying beside each way how far its rays went against what the reference's path
+through the texel's middle first met and how far along. The second cascade's probe at 17, 1, 1
+reaches within a tenth of the reference's first hit along 45 of its 64 ways, further along 3 and
+nearer along 16. Along -0.86, 0.51, 0 its rays reach 6.18 on the mean where the reference's middle
+path meets the side facing +x of the arch's block at 5.32, which field.march meets at 5.34, and a
+frame from that face toward the sun shows the vestibule's vault in the way, the field meeting it
+1.8 along. With the light past the first bounce left out, the reference at one path a way, the
+texel's middle alone, brings none of the first bounce at all 64 hits, as the probe's rays do, and
+at 1,024 paths a way 0.000246 of red, 0.00820 along that way. So the reference's light comes from
+sunlit slivers past the arch's edges inside texels some 26 degrees across, which the probe's four
+rays a texel, fixed at the middles of its quarters every frame, never take, the world's probes
+keeping no light across frames, and the mend is the trial of moving those rays frame to frame with
+a history (gi.probe at 1 and 1,024 paths, field.march, the frame toward the sun in the dump).

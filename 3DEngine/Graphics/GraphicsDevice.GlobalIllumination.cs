@@ -596,13 +596,25 @@ internal sealed unsafe partial class GraphicsDevice
     /// A cascade's rays' light or its merge, four floats a texel, its probes' octahedrons side by side
     /// and a layer of probes a slice, read back with the frames in flight finished.
     /// </summary>
-    internal float[] ReadProbeVolume(GpuIllumination gi, int cascade, bool merged)
+    internal float[] ReadProbeVolume(GpuIllumination gi, int cascade, bool merged) =>
+        ReadProbeTexels(gi, cascade, (merged ? gi.Merged : gi.Radiance)[cascade].Image, 4);
+
+    /// <summary>
+    /// How far each of a cascade's rays went, two floats a texel laid out as
+    /// <see cref="ReadProbeVolume"/> lays its light, the distance, below zero where the rays met a
+    /// face from behind, and the share kept before the interval, read back with the frames in flight
+    /// finished.
+    /// </summary>
+    internal float[] ReadProbeDistances(GpuIllumination gi, int cascade) => ReadProbeTexels(gi, cascade, gi.Distances[cascade].Image, 2);
+
+    // A cascade's volume of half floats, so many a texel, read back.
+    private float[] ReadProbeTexels(GpuIllumination gi, int cascade, VkImage image, int channels)
     {
         var side = (uint)(gi.Probes * gi.Texels[cascade]);
         var depth = (uint)gi.Probes;
         FlushUploads();
         _deviceApi.vkDeviceWaitIdle().CheckResult();
-        var buffer = (VulkanBuffer)CreateBuffer(new BufferDesc(side * side * depth * 8, BufferUsage.TransferDst, CpuAccessMode.Read));
+        var buffer = (VulkanBuffer)CreateBuffer(new BufferDesc(side * side * depth * (uint)channels * 2, BufferUsage.TransferDst, CpuAccessMode.Read));
         try
         {
             // The volumes stay in the general layout, which a copy reads.
@@ -613,7 +625,7 @@ internal sealed unsafe partial class GraphicsDevice
                 imageSubresource = new VkImageSubresourceLayers(VkImageAspectFlags.Color, 0, 0, 1),
                 imageExtent = new VkExtent3D(side, side, depth),
             };
-            _deviceApi.vkCmdCopyImageToBuffer(cmd, (merged ? gi.Merged : gi.Radiance)[cascade].Image, VkImageLayout.General, buffer.Buffer, 1, &region);
+            _deviceApi.vkCmdCopyImageToBuffer(cmd, image, VkImageLayout.General, buffer.Buffer, 1, &region);
             EndSingleTimeCommands(cmd);
             var halves = MemoryMarshal.Cast<byte, Half>(Map(buffer));
             var values = new float[halves.Length];

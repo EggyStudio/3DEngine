@@ -110,15 +110,19 @@ internal static class BounceReference
     /// that gathered from the merge, and the reference's.
     /// </summary>
     internal sealed record ProbeLight(int Cascade, Vector3 Middle, int Ways, int Hits, int Early, Vector3 HitRays, Vector3 HitReference,
-        Vector3 Merged, Vector3 Reference, Vector3[] Faces, Vector3[] FacesMerged, Vector3[] FacesReference, ProbeWay[] Each);
+        Vector3 Merged, Vector3 Reference, Vector3[] Faces, Vector3[] FacesMerged, Vector3[] FacesReference, ProbeWay[] Each,
+        IReadOnlyDictionary<uint, string>? Names = null);
 
     /// <summary>
     /// One way of a probe's octahedron, where its own ray met a surface, 0 within its interval, 1
     /// before it began and 2 nowhere, the cascade above's light taken, the light its ray brought, the
-    /// light merged with the cascades above, the reference's along it, and its texel's share of the
-    /// sphere.
+    /// light merged with the cascades above, the reference's along it, its texel's share of the
+    /// sphere, how far its rays went on the mean, below zero where they met a face from behind, and
+    /// where the reference's path through the texel's middle first met a surface, how far along and
+    /// in which region, -1 and 0 where it met none.
     /// </summary>
-    internal sealed record ProbeWay(Vector3 Way, int Met, Vector3 Ray, Vector3 Merged, Vector3 Reference, float Share);
+    internal sealed record ProbeWay(Vector3 Way, int Met, Vector3 Ray, Vector3 Merged, Vector3 Reference, float Share,
+        float Reach = 0, float ReferenceMet = -1, uint ReferenceRegion = 0);
 
     /// <summary>
     /// The light arriving at the probe of <paramref name="cascade"/> nearest <paramref name="point"/>
@@ -193,10 +197,20 @@ internal static class BounceReference
         var weights = probe.Each.Sum(way => Math.Max(Vector3.Dot(way.Way, axes[furthest]), 0) * way.Share);
         float Part(ProbeWay way, Vector3 light) => Luminance(light) * Math.Max(Vector3.Dot(way.Way, axes[furthest]), 0) * way.Share * MathF.PI / weights;
         string[] where = ["met a surface within its interval", "met a surface before its interval began", "took the cascade above"];
-        lines.Add($"the ways that carry most of the {names[furthest]} face's difference, where its ray went, the merged light, its own ray's, the reference's, and its part of the face against the reference's:");
+        lines.Add($"the ways that carry most of the {names[furthest]} face's difference, where its ray went, the merged light, its own ray's, the reference's, its part of the face against the reference's, and how far its rays went against where the reference's path through the texel's middle first met a surface:");
+        string Met(ProbeWay way) => way.ReferenceMet < 0 ? "met nothing"
+            : string.Create(CultureInfo.InvariantCulture, $"met {probe.Names?.GetValueOrDefault(way.ReferenceRegion) ?? "a surface"} at {way.ReferenceMet:0.##}");
         foreach (var way in probe.Each.OrderByDescending(way => MathF.Abs(Part(way, way.Merged) - Part(way, way.Reference))).Take(8))
             lines.Add(string.Create(CultureInfo.InvariantCulture,
-                $"{way.Way.X:0.00},{way.Way.Y:0.00},{way.Way.Z:0.00}, {where[way.Met]}: {Rgb(way.Merged)}, {Rgb(way.Ray)}, {Rgb(way.Reference)}, {Figures(Part(way, way.Merged))} against {Figures(Part(way, way.Reference))}"));
+                $"{way.Way.X:0.00},{way.Way.Y:0.00},{way.Way.Z:0.00}, {where[way.Met]}: {Rgb(way.Merged)}, {Rgb(way.Ray)}, {Rgb(way.Reference)}, {Figures(Part(way, way.Merged))} against {Figures(Part(way, way.Reference))}, its rays {Math.Abs(way.Reach):0.##} out{(way.Reach < 0 ? " to a face from behind" : "")} where the reference's {Met(way)}"));
+        // Where the probe's own rays met a surface against the reference's first hit along each way,
+        // which says whether a hit's light is short for what it met or for meeting another surface.
+        var hit = probe.Each.Where(way => way.Met < 2).ToArray();
+        int Count(Func<ProbeWay, bool> which) => hit.Count(which);
+        lines.Add($"of the {hit.Length} ways its own rays met a surface along, the reference's path met one within a tenth of as far in " +
+            $"{Count(way => way.ReferenceMet >= 0 && MathF.Abs(MathF.Abs(way.Reach) - way.ReferenceMet) <= 0.1f * way.ReferenceMet)}, further in " +
+            $"{Count(way => way.ReferenceMet >= 0 && MathF.Abs(way.Reach) < 0.9f * way.ReferenceMet)}, nearer in " +
+            $"{Count(way => way.ReferenceMet >= 0 && MathF.Abs(way.Reach) > 1.1f * way.ReferenceMet)} and none in {Count(way => way.ReferenceMet < 0)}");
         return string.Join("\n", lines);
     }
 
@@ -227,6 +241,7 @@ internal static class BounceReference
         var device = tracer.Device;
         var rays = device.ReadProbeVolume(gi, c, merged: false);
         var merged = device.ReadProbeVolume(gi, c, merged: true);
+        var distances = device.ReadProbeDistances(gi, c);
         var cubes = device.ReadIlluminationCubes(gi);
         var side = p * n;
         Vector4 Texel(float[] volume, int u, int v)
@@ -248,7 +263,8 @@ internal static class BounceReference
             why = string.Create(CultureInfo.InvariantCulture, $"the probe of cascade {c} at {middle.X:0.##},{middle.Y:0.##},{middle.Z:0.##} lies inside a mesh and holds nothing");
             return null;
         }
-        var reference = tracer.Trace(Matrix4x4.Identity, n, n, samples, bounces, middle).Light;
+        var traced = tracer.Trace(Matrix4x4.Identity, n, n, samples, bounces, middle);
+        var reference = traced.Light;
 
         var (hitRays, hitReference, mergedAll, referenceAll, hits, early) = (Vector3.Zero, Vector3.Zero, Vector3.Zero, Vector3.Zero, 0, 0);
         var (faces, facesMerged, facesReference, weights) = (new Vector3[6], new Vector3[6], new Vector3[6], new float[6]);
@@ -278,7 +294,9 @@ internal static class BounceReference
                 var onOctahedron = Octahedron((u + 0.5f) / n, (v + 0.5f) / n);
                 var way = Vector3.Normalize(onOctahedron);
                 var share = 1 / MathF.Pow(onOctahedron.Length(), 3);
-                each[v * n + u] = new ProbeWay(way, ray.W < 0.25f ? 0 : ray.W < 0.75f ? 1 : 2, new Vector3(ray.X, ray.Y, ray.Z), mergedLight, r, share);
+                var reach = distances[((z * side + y * n + v) * side + x * n + u) * 2];
+                each[v * n + u] = new ProbeWay(way, ray.W < 0.25f ? 0 : ray.W < 0.75f ? 1 : 2, new Vector3(ray.X, ray.Y, ray.Z), mergedLight, r, share,
+                    reach, traced.Met?[v * n + u] ?? -1, traced.Regions[v * n + u]);
                 for (int f = 0; f < 6; f++)
                 {
                     var weight = Math.Max(Vector3.Dot(way, axes[f]), 0) * share;
@@ -295,7 +313,7 @@ internal static class BounceReference
             faces[f] = new Vector3(cubes[i], cubes[i + 1], cubes[i + 2]);
         }
         return new ProbeLight(c, middle, n * n, hits, early, hits > 0 ? hitRays / hits : Vector3.Zero, hits > 0 ? hitReference / hits : Vector3.Zero,
-            mergedAll / (n * n), referenceAll / (n * n), faces, facesMerged, facesReference, each);
+            mergedAll / (n * n), referenceAll / (n * n), faces, facesMerged, facesReference, each, Names(tracer.Scene.Copies, traced.Regions));
     }
 
     // The point of an octahedron a point of its square stands for, as gi.slang's octahedronPoint gives it.

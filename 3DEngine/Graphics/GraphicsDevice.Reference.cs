@@ -9,7 +9,7 @@ namespace Engine;
 /// a pixel with rows from the top, and what its first ray met, a copy's index in the ray scene times
 /// eight and the axis its face turns toward most (+x, -x, +y, -y, +z, -z), plus one, or 0 for nothing.
 /// </summary>
-internal sealed record TracedReference(int Width, int Height, float[] Light, uint[] Regions);
+internal sealed record TracedReference(int Width, int Height, float[] Light, uint[] Regions, float[]? Met = null);
 
 internal sealed unsafe partial class GraphicsDevice
 {
@@ -62,12 +62,13 @@ internal sealed unsafe partial class GraphicsDevice
 
         var (w, h) = ((uint)Math.Max(1, width), (uint)Math.Max(1, height));
         var (sums, sumsMemory, sumsView) = StorageImage2D(w, h, VkFormat.R32G32B32A32Sfloat);
-        var (regions, regionsMemory, regionsView) = StorageImage2D(w, h, VkFormat.R32Uint);
+        // Each pixel's region and how far its first sample went before it met it, -1 for nowhere.
+        var (regions, regionsMemory, regionsView) = StorageImage2D(w, h, VkFormat.R32G32Uint);
         var lightBuffer = (VulkanBuffer)CreateBuffer(new BufferDesc(ReferenceLightsBytes, BufferUsage.Uniform, CpuAccessMode.Write));
         lights[..Math.Min(lights.Length, ReferenceLightsBytes)].CopyTo(Map(lightBuffer));
         Unmap(lightBuffer);
         var readSums = (VulkanBuffer)CreateBuffer(new BufferDesc(w * h * 16, BufferUsage.TransferDst, CpuAccessMode.Read));
-        var readRegions = (VulkanBuffer)CreateBuffer(new BufferDesc(w * h * 4, BufferUsage.TransferDst, CpuAccessMode.Read));
+        var readRegions = (VulkanBuffer)CreateBuffer(new BufferDesc(w * h * 8, BufferUsage.TransferDst, CpuAccessMode.Read));
 
         var pool = MakeDescriptorPool([(_referenceStage.Descriptors, 1)]);
         try
@@ -139,8 +140,10 @@ internal sealed unsafe partial class GraphicsDevice
                 var count = Math.Max(s.W, 1);
                 (light[i * 3], light[i * 3 + 1], light[i * 3 + 2]) = (s.X / count, s.Y / count, s.Z / count);
             }
-            var met = MemoryMarshal.Cast<byte, uint>(Map(readRegions)).ToArray();
-            return new TracedReference((int)w, (int)h, light, met);
+            var pairs = MemoryMarshal.Cast<byte, uint>(Map(readRegions));
+            var (regionOf, metAt) = (new uint[w * h], new float[w * h]);
+            for (int i = 0; i < regionOf.Length; i++) (regionOf[i], metAt[i]) = (pairs[i * 2], BitConverter.UInt32BitsToSingle(pairs[i * 2 + 1]));
+            return new TracedReference((int)w, (int)h, light, regionOf, metAt);
         }
         finally
         {

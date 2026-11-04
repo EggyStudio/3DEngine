@@ -112,7 +112,8 @@ own light beside it. `gi.probe 0 2.5 0 256` reads the probe nearest a point agai
 the light arriving at it from each way, where its rays met a surface, merged with the cascades
 above, and on each of its six faces, each face also by where its ways were met, within their
 interval, before it began or in the cascade above, with the ways that carry most of the face
-furthest from the reference's, and `gi.screenprobe 400 300 256` reads the screen's probe under a
+furthest from the reference's, each with how far its rays went against what the reference's path
+through the texel's middle first met and how far along, and `gi.screenprobe 400 300 256` reads the screen's probe under a
 pixel, each of its sixteen rays where it was met, on the screen, in the field or past its reach,
 against the reference's light along the same way, both printing light to three significant
 figures, so a scene lit in physical units, whose shade holds a ten-thousandth of a unit of light
