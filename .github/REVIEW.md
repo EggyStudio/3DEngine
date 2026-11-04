@@ -4,7 +4,10 @@ Reviewed up to `88943e50`, item 145, the relight's upload and the rings' give-ba
 on 2026-11-03 with `a170718d`, 144's second commit and its end, packed positions, its run green at
 00:47 on 2026-11-04 with Linux in 66 minutes, the Windows halves in 87 and 98 and macOS in 41. After
 it `cb92986f`, 194's first commit, fresh references, pushed at 00:48 with `cb87dd98`, item 193, the
-field's thin-wall hold at a wall's foot and head, its run awaited; both keep the form. Each commit's
+field's thin-wall hold at a wall's foot and head, its run red at 02:40 on 2026-11-04 on the first
+Windows half alone, Verdict 101, the leak test's reading, half 2 green in 97 minutes, Linux in 103
+and macOS in 41; both keep the form. After it `febe0b5b`, 194's second commit and its end, the
+carried ray for walled-in probes, pushed at 02:40, its run awaited; it keeps the form. Each commit's
 detail stands in its item in REVIEW-ARCHIVE.md, its devlog note and its own words. Before it
 `e3452da2`, 144's first commit, two-byte indices, pushed at 21:06, its run green at 23:04 with Linux
 in 106 minutes, the halves in 47 and 69 and macOS in 42. Before it `6965e4df`, item 192, pushed at
@@ -92,7 +95,7 @@ words. On 2026-10-30 at 18:0x the owner wrote the README's new words (item 133) 
 radiance cascades (Decision 74), questions asked back, and asked that the sessions spend fewer
 tokens at the same quality, N 7.7.
 
-Next 194, then 195, then 142's three open parts in their order.
+Next 195, then 142's three open parts in their order.
 
 Items done and verdicts settled before 2026-10-23 stand in REVIEW-ARCHIVE.md beside this file, their
 numbers kept, moved there at 19:30 on 2026-10-23 so this file holds the current work alone and is
@@ -2679,7 +2682,14 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     strip room (view 6) from 0.226 to 0.234 to 0.236 to 0.243 at the three qualities over its bound
     of 0.24, views 7 and 8 by 0.005 at most, the rest by 0.002; so the bar is 0.25 and view 6's
     bound goes to 0.25 with the measurements in its description, a carried ray's single traced
-    sample standing where the merge averaged the probes above.
+    sample standing where the merge averaged the probes above. Done at febe0b5b, the second commit,
+    read at 01:47. gi_trace carries a probe whose seen probes above outside every mesh hold under
+    0.25 of the eight's weight, its hits lit by shadeProbeHit as the probes' own; the door at noon
+    from 0.700 to 0.889 of its reference's light with the error 0.527 to 0.467, the seven within
+    0.003, the atrium's GI time at High within spread, the Passage test failing on HEAD and passing
+    inside 25%, the strip room's bound 0.25 with its readings 0.236 to 0.243 and the other rooms
+    within 0.01; RENDERING.md carries the half bar's sentence, the suite 2,239 in both orders.
+    Pushed after cb92986f's run.
 
 195. **The march toward a lamp from a probe's hit looks from its first step.** From BevyCSharp's
     item 95 on 2026-11-04. Its hiddenLampLight marched from a cell and a half along the normal and
@@ -2694,7 +2704,37 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
 
 ## Verdicts
 
-Verdicts 56 to 100 are settled, said under each in REVIEW-ARCHIVE.md; none is open.
+Verdicts 56 to 100 are settled, said under each in REVIEW-ARCHIVE.md; 101 is open.
+
+101. **The run of `cb92986f` is red on the first Windows half alone, the leak test reading a growth
+     of private data.** Read at 02:40 on 2026-11-04. Half 1 red in 78 minutes on one test of Core,
+     AppLeakTests' hundred offscreen apps, half 2 green in 97, Linux in 103, macOS in 41 and the
+     examples in 9. The test expects the process's growth under 50 MB from the most of its readings
+     at the tenth, twentieth and thirtieth app, 91.9 MB, and read the private data committed from
+     77.5 MB in 694 regions at the twentieth app to 208.3 in 222 at the last (+130.8), the mapped
+     data and code unchanged, the heap's live objects flat at 18.7 to 19.2 MB, 60 apps in 248
+     seconds, the renderer's shaders loaded taking +76.6 MB of an app's life. The same test failed
+     the push runs of `3dda52c2` (Verdict 97's note) and `dfbf7614` (Verdict 99, the reading's
+     moment, mended at `abde3935` with each tenth app's reading waiting for its threads); the
+     commits in this run, 193's field constant and 194's references, touch no app's life, so it is
+     either the reading's moment again, the waits of 40 ms or more the mend logs telling, or a
+     growth that stands in private data on this runner alone. The mend is the next commit, before
+     195's. The half's output is read for the waits and the regions' kinds, and the test made to
+     hold on this runner, the growth read from the medians of the readings rather than their most if
+     the moment is the cause, or the leak found if it is one. `febe0b5b` is pushed at 02:40 on its
+     own run since the run had ended. The digest and the step's lines are in the reviewing session's
+     run folder. Read by the coder at 02:44 from the half's results, neither the moment nor a leak
+     but one step of about 115 MB the driver takes once after some 45 to 55 apps and keeps until it
+     goes, the private bytes every ten apps 91.9, 87.3, 91.4, 94.3, then 209.6 and 219.3, the
+     held-instance test before it in the same process stepping +113.1 between its fiftieth and
+     sixtieth and the failing test starting back at 91.9; the step matches an app's drawn +115.7 MB
+     in private data outside the heaps, the heaps, the collector and the live heap flat, the
+     followed apps leaving no allocation and no Vulkan object behind, the readings' waits not run
+     out. The mend, the growth judged from the base with the largest single ten-app step taken out
+     only where that step alone passes the bound, one such step at most, said in the output and the
+     failure, the rest judged as before (12.1 here, 0.7 for the held test's series, a per-app leak
+     of 0.7 MB still failing), with a test on the two Windows sample series and the step's cause in
+     the test's remark.
 
 ## Decisions
 
