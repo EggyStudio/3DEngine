@@ -3264,3 +3264,9 @@ reference's light where 0.700 and its pixels 0.467 off where 0.527, the other se
 0.003, the bounce rooms' strip room a hundredth further from its reference and the rest within
 0.010, global illumination as long in the atrium at High. A bar of a half read the door 0.983 but
 its pixels 0.482 off (item 194).
+
+Shared: the march toward a lamp from a probe's hit looks from its first step, a cell and a half off
+the surface, keeping its two cells of clearance at the lamp's end alone, as the bridge's at
+accbda6d, so a lamp outside a closed room of walls 0.3 thick in cells of 0.5, 0.7 from the wall's
+middle, brings a probe's hits inside 0.042 a channel where 0.110 against a reference's none,
+Sponza's views and the bounce rooms within 0.002 (item 195).

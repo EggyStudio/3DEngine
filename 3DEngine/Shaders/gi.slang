@@ -445,13 +445,17 @@ public float probeSees<V : IVolume>(V reach, float3 p, float3 n, float3 probe, i
 
 // The light the lamps that cast shadows would send a surface at p facing n but for what the field
 // holds between them, each found by a march toward the lamp from a cell and a half off the
-// surface, stopping two cells short of the lamp so its own fitting does not hide it. The falloff
-// is directLight's, written again here, since that loop is kept in the shape lavapipe draws the
-// model pass in.
+// surface, looking from its first step and stopping two cells short of the lamp so its own
+// fitting does not hide it. Kept two cells clear at its start as well, as seesThrough keeps both
+// its ends, the march began a unit past its point in cells of half a unit and passed over a wall
+// that near the surface, so a lamp outside a closed room of walls 0.3 thick lit the floor inside
+// along the wall's foot (GlobalIlluminationTests). The falloff is directLight's, written again
+// here, since that loop is kept in the shape lavapipe draws the model pass in.
 public float3 hiddenLampLight<V : IVolume>(V field, SceneFieldInfo info, GiLights lights, float3 p, float3 n)
 {
     float3 hidden = float3(0.0);
     float cell = fieldCell(info, p);
+    float3 from = p + n * (cell * 1.5);
     for (int i = 0; i < min(int(lights.counts.x), 16); i++)
     {
         GiLight light = lights.lights[i];
@@ -469,7 +473,9 @@ public float3 hiddenLampLight<V : IVolume>(V field, SceneFieldInfo info, GiLight
         }
         if (int(light.positionAndKind.w) == 2)
             result *= smoothstep(light.cone.y, max(light.cone.x, light.cone.y + 1e-4), dot(-l, light.directionAndRange.xyz));
-        if (result > 0.0 && !seesThrough(field, info, p + n * (cell * 1.5), light.positionAndKind.xyz, cell * 2.0))
+        float3 along = light.positionAndKind.xyz - from;
+        float apart = length(along);
+        if (result > 0.0 && apart > cell * 2.0 && traceField(field, info, from, along / apart, 0.0, apart - cell * 2.0) >= 0.0)
             hidden += light.colorAndShadow.rgb * result;
     }
     return hidden;

@@ -1114,6 +1114,16 @@ their references at `High`, 0.086 and 0.232 of their light apart where 0.092 and
 0.257 where 0.253 (`BounceRoomsTests`). The screen's probes' hits take the sun through the field
 still, since a render target draws its own shadow into the same map before its screen's probes
 trace.
+
+The march toward a lamp from a hit (`hiddenLampLight`) starts a cell and a half off the surface and
+looks from its first step, stopping two cells short of the lamp so its own fitting does not hide it.
+Kept two cells clear at its start as well, as `seesThrough` keeps both its ends, it began a unit
+past its point in cells of half a unit and passed over a wall that near, so with a lamp outside a
+closed room of walls 0.3 thick, 0.7 from the wall's middle, the hits of a probe inside brought 0.110
+of the lamp's light a channel where a path-traced reference brings none, and they bring 0.042 now,
+those so near the wall that the clearance at the lamp takes the wall in too still lit, Sponza's
+views and the bounce rooms within 0.002 of before (`GlobalIlluminationTests`, `gi.compare`'s
+frames).
 The faces are read where each cascade lay the frame before, its corner then carried in
 the lights' buffer, since they were gathered there (`gatheredAt` in `gi_trace.slang`). That indirect
 light is taken at a share each probe keeps, its whole but the frame after the probe's own light,
