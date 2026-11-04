@@ -1,3 +1,5 @@
+using System.Numerics;
+
 namespace Engine;
 
 /// <summary>
@@ -22,6 +24,22 @@ internal static class SceneFieldCommands
             return "the scene's distance field is off, which SetSceneField turns on";
         field.Shown = Math.Clamp(cascade, -1, field.Cascades - 1);
         return field.Shown < 0 ? "showing no cascade" : $"showing cascade {field.Shown}";
+    }
+
+    [Command("field.march", "Marches the scene's distance field from a point along a way as global illumination's passes march it, on the field read back from the GPU, and answers where it met a surface, in which cascade and cell, and each step's cascade and distance, along the way toward the sun where none is given, and with sun marches on from the surface it met toward the sun as a probe's hit does where the window's shadow map does not hold it: field.march <x> <y> <z> [dx] [dy] [dz] [sun]")]
+    internal static string March(float x, float y, float z, float dx = 0, float dy = 0, float dz = 0, string then = "")
+    {
+        if (then is not ("" or "sun")) return "The last word is sun or nothing.";
+        var world = ConsoleHost.World!;
+        if (FieldMarch.Read(world, out var why) is not { } march) return why;
+        var renderWorld = world.Resource<Renderer>().RenderWorld;
+        var index = GlobalIlluminationRenderer.SunOf(renderWorld);
+        Vector3? sun = index >= 0 ? -renderWorld.Get<RenderLights>().All[index].Direction : null;
+        var way = new Vector3(dx, dy, dz);
+        if (way == Vector3.Zero) way = sun ?? Vector3.Zero;
+        if (way == Vector3.Zero || then == "sun" && sun is null)
+            return "the window has no directional light for a sun to march toward";
+        return march.Describe(new Vector3(x, y, z), Vector3.Normalize(way), then == "sun" ? sun : null);
     }
 
     [Command("field.rebuild", "Builds the scene's distance field again each frame for this many frames, as many cascades a frame as its budget allows, so profile times a build: field.rebuild <frames>")]

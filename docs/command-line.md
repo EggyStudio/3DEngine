@@ -94,7 +94,10 @@ change, from a block broken to the field holding it, or what it still waits for,
 `field.wait` answers once it is built and its light has run 60 frames on it, as a picture of the
 scene waits before it is taken, and
 `field.rebuild 400` builds a cascade every frame for four hundred frames,
-so `profile` gives what a build costs. Where global illumination is on, `gi.state` says the quality,
+so `profile` gives what a build costs, and `field.march 17 1 1 -0.86 0.51 0 sun` marches the field
+from a point along a way as global illumination's passes march it, answering where it met a surface,
+in which cascade and cell, and each step, then marches on from that surface toward the sun as a
+probe's hit does where the window's shadow map does not hold it. Where global illumination is on, `gi.state` says the quality,
 the cascades of probes and their rays, the screen's probes, the reflections, and the GPU memory each
 takes, `gi.rays off` or `on` turns off or on the GPU's own rays High traces what the field misses
 through ([Materials, light and shadows](materials-light-and-shadows.md)), and on a GPU that traces
