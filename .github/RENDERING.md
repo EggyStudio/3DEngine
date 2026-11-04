@@ -2564,17 +2564,25 @@ pixels 0.482 off, the light landing in the wrong places, and the lion 0.04 brigh
 eighth the vestibule read as before (`gi.compare`'s frames, `./e3d command profile`).
 
 **The probes' rays through the GPU's own rays, read on 2026-11-04.** At `High`, where the device
-traces rays and no surface in the frame lets light through, a build of the trace sends the world's
-probes' rays through the window's meshes as the GPU's ray tracing holds them, each hit lit as a
-probe's hit in the field is from the face's own normal and color, which `gi.toggle meshes on` takes
-and which stays off until what lets light through is crossed through those rays too, since a frame
-with one leaf in it traces the field and its light would jump at the first. Taken, Sponza's lion
-view at 8:00 reads 0.826 of its reference's light where 1.139 and its pixels 0.441 off where 0.636,
-its view at noon 0.261 off where 0.275, the door's at 8:00 0.512 of its light where 0.977 and at
-noon 0.488 off where 0.466, the nave's at 8:00 0.951 of its light where 1.053, the other views'
-pixels within 0.02 of before, the bounce rooms' window's room 0.250 off where 0.228 and the rest
-within 0.004, and global illumination's time in the atrium and the nave at 8:00 within its spread
-(`gi.compare`'s frames, `./e3d command profile`).
+traces rays, a build of the trace sends the world's probes' rays through the window's meshes as the
+GPU's ray tracing holds them, each hit lit as a probe's hit in the field is from the face's own
+normal and color, which `gi.toggle meshes on` takes and which stays off until it reads every view at
+least as near a path-traced reference as the field. A copy that lets light through is crossed as the
+reference crosses it, each next face looked for from just past the one entered, since a block's far
+face and its neighbor's near face lie in one plane, and kept by its share for the depth its ray runs
+inside it, the first such face and the one the ray stops at shaded for their shares as the field's
+crossing shades them. Looked for from past the far face, a canopy two blocks deep read as one and
+let 0.42 of the sky's light it held back through where a path-traced reference takes 0.21. A slab
+letting half the light through a unit lets 0.437 and 0.426 of it through at `High` two and a half
+and five and a half units over the floor where the field lets 0.427 and 0.422, the prototype's 0.52
+against the field's solid slab gone, the canopy 0.135 and 0.212 where the reference takes 0.17 and
+0.21 and the field 0.155 and 0.248, and leaves past the screen's probes' reach 0.424 where 0.382
+(`GlobalIlluminationTests`). Taken, Sponza's lion view at 8:00 reads 0.826 of its reference's light
+where 1.139 and its pixels 0.441 off where 0.636, its view at noon 0.261 off where 0.275, the door's
+at 8:00 0.512 of its light where 0.977 and at noon 0.488 off where 0.466, the nave's at 8:00 0.951
+of its light where 1.053, the other views' pixels within 0.02 of before, the bounce rooms' window's
+room 0.250 off where 0.228 and the rest within 0.004, and global illumination's time in the atrium
+and the nave at 8:00 within its spread (`gi.compare`'s frames, `./e3d command profile`).
 
 **A crossing taken once, read on 2026-10-31.** The cascades' intervals overlap, the first's
 reaching twice as far as the second's begins, and a slab that straddled the first's end was crossed

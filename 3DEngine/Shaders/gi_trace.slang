@@ -30,6 +30,7 @@
 // light that went out goes with it rather than over the frames each bounce takes to fade.
 import color;
 import gi;
+import meshrays;
 import probelight;
 import scenefield;
 import lightthrough;
@@ -108,62 +109,6 @@ Sampler2D sunShadow;
 [[vk::binding(14, 0)]]
 Texture3D<float> skyAbove;
 
-#if defined(RAY_QUERY)
-// Where the device traces rays, the window's meshes as its ray tracing sees them, each copy's color
-// and where its mesh's corners lie, and every mesh's corners in its own space with their colors,
-// which a probe's ray is traced through at the top quality in place of the field (lightset.slang).
-[[vk::binding(15, 0)]]
-RaytracingAccelerationStructure rayScene;
-
-struct RaySurface
-{
-    float4 color;
-    float4 emission;
-    uint4 corners;
-};
-
-[[vk::binding(16, 0)]]
-StructuredBuffer<RaySurface> raySurfaces;
-
-[[vk::binding(17, 0)]]
-StructuredBuffer<float4> rayCorners;
-
-// A corner's color, linear, as the model pass brings a vertex's color in.
-float3 meshCornerColor(float4 corner)
-{
-    uint bits = asuint(corner.w);
-    return srgbToLinear(float3(float(bits & 255u), float((bits >> 8) & 255u), float((bits >> 16) & 255u)) / 255.0);
-}
-
-// How far a ray from origin along way goes before it meets one of the window's meshes, within
-// reach, with that face's normal turned toward the ray and its color as the copy's color times
-// its corners', or below zero where it meets none.
-float meshHit(float3 origin, float3 way, float reach, out float3 n, out float3 color)
-{
-    n = float3(0.0, 1.0, 0.0);
-    color = float3(0.0);
-    RayQuery<RAY_FLAG_FORCE_OPAQUE> query;
-    RayDesc ray;
-    ray.Origin = origin;
-    ray.Direction = way;
-    ray.TMin = 0.0;
-    ray.TMax = reach;
-    query.TraceRayInline(rayScene, RAY_FLAG_NONE, 0xFF, ray);
-    query.Proceed();
-    if (query.CommittedStatus() != COMMITTED_TRIANGLE_HIT)
-        return -1.0;
-    RaySurface surface = raySurfaces[query.CommittedInstanceID()];
-    uint corner = surface.corners.x + query.CommittedPrimitiveIndex() * 3u;
-    float3 a = rayCorners[corner].xyz, b = rayCorners[corner + 1u].xyz, c = rayCorners[corner + 2u].xyz;
-    n = normalize(mul(cross(b - a, c - a), (float3x3)query.CommittedWorldToObject3x4()));
-    if (dot(n, way) > 0.0)
-        n = -n;
-    float2 between = query.CommittedTriangleBarycentrics();
-    color = surface.color.rgb * (meshCornerColor(rayCorners[corner]) * (1.0 - between.x - between.y)
-        + meshCornerColor(rayCorners[corner + 1u]) * between.x + meshCornerColor(rayCorners[corner + 2u]) * between.y);
-    return query.CommittedRayT();
-}
-#endif
 
 struct TracePush
 {
@@ -584,6 +529,62 @@ void computeMain(uint3 id : SV_DispatchThreadID, uint lane : SV_GroupIndex)
         // and for rays carried on to it; and where it starts, where the cascade below's ends.
         float hi = push.cascade.w != 0u || carried ? asfloat(push.follow.y) : push.interval.y + dot(aboveMean - origin, way);
         float lo = max(push.interval.x, asfloat(push.follow.w));
+#if defined(RAY_QUERY)
+        // Crossed through the meshes as the device's rays hold them, each copy that lets light
+        // through by the share its depth along the ray keeps, as the reference crosses it, the
+        // part entered before the cascade below's interval ends that cascade's, and the first such
+        // face and the one the ray stops at shaded by their own normal and color.
+        float3 leafNormal = float3(0.0, 1.0, 0.0), leafColor = float3(0.0), stopNormal = float3(0.0, 1.0, 0.0), stopColor = float3(0.0);
+        float from = 0.0;
+        t = -1.0;
+        [loop]
+        for (int layer = 0; layer < 5; layer++)
+        {
+            uint copy;
+            float3 metNormal, metColor;
+            float at = meshEntered(origin, way, from, end, copy, metNormal, metColor);
+            if (at < 0.0)
+                break;
+            float passing = layer < 4 ? meshPassing(copy) : 0.0;
+            float depth = passing > 0.0 ? meshDepthInside(origin, way, at, copy) : 0.0;
+            // Each next face is looked for from just past this one, as the reference does, since a
+            // block's far face and its neighbor's near face lie in one plane and the near face is
+            // the one entered.
+            if (passing > 0.0 && at < lo)
+            {
+                keptBefore *= pow(passing, depth);
+                from = at + 1e-4;
+                continue;
+            }
+            float passes = passing > 0.0 ? pow(passing, depth) : 0.0;
+            float taken = through * (1.0 - passes);
+            if (passing > 0.0)
+            {
+                if (leafAt < 0.0)
+                {
+                    leafAt = at;
+                    leafNormal = metNormal;
+                    leafColor = metColor;
+                }
+                leafShare += taken;
+            }
+            else
+            {
+                stopAt = at;
+                stopNormal = metNormal;
+                stopColor = metColor;
+                stopShare = taken;
+            }
+            through *= passes;
+            firstAt = firstAt < 0.0 ? at : firstAt;
+            if (passing <= 0.0)
+            {
+                t = at;
+                break;
+            }
+            from = at + 1e-4;
+        }
+#else
         [loop]
         for (int layer = 0; layer < 5 && t >= 0.0; layer++)
         {
@@ -633,6 +634,7 @@ void computeMain(uint3 id : SV_DispatchThreadID, uint lane : SV_GroupIndex)
             // A ray still within at its interval's end met nothing past it, its share handed on.
             t = inside ? -1.0 : traceFieldSheets(SheetVolume(sceneField, fieldSecond), fieldInfo, origin, way, t + depth, end);
         }
+#endif
         [loop]
         for (int shaded = 0; shaded < 2; shaded++)
         {
@@ -641,8 +643,14 @@ void computeMain(uint3 id : SV_DispatchThreadID, uint lane : SV_GroupIndex)
                 continue;
             // As the build without the crossing shades the hit.
             float3 itsOwn;
+#if defined(RAY_QUERY)
+            float3 itsLight = shadeProbeHitAt(sceneField, fieldInfo, gatheredAt(), fieldAlbedo, fieldGlow, lights, bounced, origin + way * shadedAt,
+                shaded == 0 ? leafNormal : stopNormal, shaded == 0 ? leafColor : stopColor, way, float(probes), push.interval.z, push.interval.w, share,
+                SunShadowMap(sunShadow), itsOwn);
+#else
             float3 itsLight = shadeProbeHit(sceneField, SheetVolume(sceneField, fieldSecond), fieldInfo, gatheredAt(), fieldAlbedo, fieldFaces, fieldGlow, lights, bounced, bounced, origin + way * shadedAt, way,
                 float(probes), push.interval.z, push.interval.w, true, share, SunShadowMap(sunShadow), itsOwn);
+#endif
             float weight = shaded == 0 ? leafShare : stopShare;
             crossed += itsLight * weight;
             crossedOwn += itsOwn * weight;

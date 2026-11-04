@@ -32,14 +32,15 @@ internal sealed class GlobalIlluminationSettings
 
     /// <summary>
     /// Whether High traces the world's probes' rays through the device's ray tracing in place of the
-    /// scene's distance field, in a frame where no surface lets light through, as
+    /// scene's distance field, crossing what lets light through as the field does, as
     /// <c>gi.toggle meshes on</c> sets it.
     /// </summary>
     /// <remarks>
-    /// Off until what lets light through is crossed through the device's rays too, since a frame
-    /// with one leaf in it traces the field and its light jumps at the first, and until a corridor's
-    /// probes standing outside it stop reading their reach from the meshes, which read its walls
-    /// 0.353 of their light off a path-traced reference where the field reads them under 0.25.
+    /// Off until it reads every view at least as near a path-traced reference as the field: taken,
+    /// Sponza's door at 8:00 read half its light where the field reads 0.98 of it, the bounce rooms'
+    /// window's room 0.250 of its light off where 0.228, and the floor under a canopy of leaf blocks
+    /// two and a half units down 0.135 of the sky's light the canopy holds back where the reference
+    /// takes 0.17 and the field 0.155.
     /// </remarks>
     public bool MeshesTraced { get; set; }
 

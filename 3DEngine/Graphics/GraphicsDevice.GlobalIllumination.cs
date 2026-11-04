@@ -153,8 +153,9 @@ internal sealed class GpuIllumination : IDisposable
 
 internal sealed unsafe partial class GraphicsDevice
 {
-    private const int TraceStage = 0, MergeStage = 1, AmbientStage = 2, ScreenStage = 3, FilterStage = 4, GlowStage = 5, SolidTraceStage = 6, RayTraceStage = 7;
-    private readonly ComputeStage[] _giStages = new ComputeStage[8];
+    private const int TraceStage = 0, MergeStage = 1, AmbientStage = 2, ScreenStage = 3, FilterStage = 4, GlowStage = 5, SolidTraceStage = 6, RayTraceStage = 7,
+        RayCrossStage = 8;
+    private readonly ComputeStage[] _giStages = new ComputeStage[9];
 
     /// <summary>What <c>gi_trace.slang</c> is pushed.</summary>
     [StructLayout(LayoutKind.Sequential)]
@@ -204,11 +205,13 @@ internal sealed unsafe partial class GraphicsDevice
                 VkDescriptorType.SampledImage, VkDescriptorType.CombinedImageSampler, VkDescriptorType.SampledImage];
             _giStages[TraceStage] = MakeComputeStage(trace, traced, (uint)sizeof(IlluminationTrace));
             _giStages[SolidTraceStage] = MakeComputeStage(spirv[6], traced, (uint)sizeof(IlluminationTrace));
-            // The build that traces the meshes through the device's rays, with the ray scene bound
-            // after the field's images, where the device traces rays and the build was given.
-            if (spirv[7].Length > 0 && CanQueryRays)
-                _giStages[RayTraceStage] = MakeComputeStage(spirv[7], [.. traced, VkDescriptorType.AccelerationStructureKHR,
-                    VkDescriptorType.StorageBuffer, VkDescriptorType.StorageBuffer], (uint)sizeof(IlluminationTrace));
+            // The builds that trace the meshes through the device's rays, without and with the
+            // crossing of what lets light through, the ray scene bound after the field's images,
+            // where the device traces rays and the builds were given.
+            for (int k = 7; k <= 8; k++)
+                if (spirv[k].Length > 0 && CanQueryRays)
+                    _giStages[k == 7 ? RayTraceStage : RayCrossStage] = MakeComputeStage(spirv[k], [.. traced, VkDescriptorType.AccelerationStructureKHR,
+                        VkDescriptorType.StorageBuffer, VkDescriptorType.StorageBuffer], (uint)sizeof(IlluminationTrace));
             _giStages[MergeStage] = MakeComputeStage(merge, [VkDescriptorType.SampledImage, VkDescriptorType.SampledImage, VkDescriptorType.StorageImage,
                 VkDescriptorType.UniformBuffer, VkDescriptorType.CombinedImageSampler, VkDescriptorType.StorageImage, VkDescriptorType.StorageImage,
                 VkDescriptorType.SampledImage, VkDescriptorType.SampledImage, VkDescriptorType.CombinedImageSampler], 48);
@@ -227,11 +230,12 @@ internal sealed unsafe partial class GraphicsDevice
     /// trace itself where there is none.
     /// </summary>
     public void InitializeGlobalIllumination(ReadOnlySpan<byte> trace, ReadOnlySpan<byte> merge, ReadOnlySpan<byte> ambient, ReadOnlySpan<byte> screen,
-        ReadOnlySpan<byte> filter, ReadOnlySpan<byte> glow, ReadOnlySpan<byte> solidTrace = default, ReadOnlySpan<byte> rayTrace = default)
+        ReadOnlySpan<byte> filter, ReadOnlySpan<byte> glow, ReadOnlySpan<byte> solidTrace = default, ReadOnlySpan<byte> rayTrace = default,
+        ReadOnlySpan<byte> rayCross = default)
     {
         if (!IsInitialized || CanBounceLight) return;
         _giSpirv = [trace.ToArray(), merge.ToArray(), ambient.ToArray(), screen.ToArray(), filter.ToArray(), glow.ToArray(),
-            solidTrace.IsEmpty ? trace.ToArray() : solidTrace.ToArray(), rayTrace.ToArray()];
+            solidTrace.IsEmpty ? trace.ToArray() : solidTrace.ToArray(), rayTrace.ToArray(), rayCross.ToArray()];
     }
 
     /// <summary>
@@ -407,8 +411,11 @@ internal sealed unsafe partial class GraphicsDevice
         bool mergeOff = false, int alone = -1, bool viewed = false, long frame = 0, IReadOnlyList<bool>? lying = null, int lastCounted = -1, bool lightThrough = false,
         bool fieldWhole = false, int farPart = -1, GpuRayScene? rays = null)
     {
-        var traced = rays is not null && !lightThrough && GiStages[RayTraceStage].Pipeline.Handle != 0;
-        var trace = lightThrough ? TraceStage : traced ? RayTraceStage : SolidTraceStage;
+        // Traced through the meshes where asked and the build for the frame was made, crossing what
+        // lets light through where the frame holds any.
+        var meshed = lightThrough ? RayCrossStage : RayTraceStage;
+        var traced = rays is not null && GiStages[meshed].Pipeline.Handle != 0;
+        var trace = traced ? meshed : lightThrough ? TraceStage : SolidTraceStage;
         var run = new ProbeRun(this, commandBuffer, [(trace, gi.Cascades), (MergeStage, gi.Cascades), (AmbientStage, gi.Cascades)]);
         var cmd = run.Commands;
         var readers = VkPipelineStageFlags2.VertexShader | VkPipelineStageFlags2.FragmentShader | VkPipelineStageFlags2.ComputeShader;

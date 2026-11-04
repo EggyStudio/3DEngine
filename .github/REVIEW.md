@@ -1488,7 +1488,21 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     and cascades 3's and 4's stand dark in the masonry. So the screen probes read the world's probes
     faithfully and the excess is the merge's parallax along the atrium's level way the item records,
     which no read of the screen probes removes. The ray-query build begins, the readings going with
-    its first commit.
+    its first commit. The ray-query build's first commit is 446c6293 at 04:50, the rebase of
+    rq.patch, gated by GlobalIlluminationSettings.MeshesTraced and gi.toggle meshes, off by default
+    so nothing changes, the trace's third build compiled where the device queries rays, the ray
+    scene's recording moved into GlobalIllumination.Rays.cs past N 1.3's 800 lines. With meshes on
+    at High, per pixel against fresh references, the lion at 8:00 from 1.139 to 0.826 of its light
+    with the error 0.636 to 0.441, the lion at noon 0.275 to 0.261, the door at 8:00 0.977 to 0.512
+    of its light and at noon 0.466 to 0.488, the nave at 8:00 1.053 to 0.951, the rest within 0.02;
+    the bounce rooms within 0.004 but the window's room 0.228 to 0.250, the corridor 0.248 against
+    0.250 and not the 0.353 recorded; GI time in the atrium and nave within spread. The suite 2,241
+    in both orders on a rerun, the first run's flake ObserverTests' no-observer allocation at 7,960
+    bytes on the thread, 5 of 5 alone. The second commit next, the light-through crossing in the
+    ray-query build, walking the entered faces with a non-opaque query as the reference does, each
+    copy's share per unit of depth inside, the first leaf shaded for the share taken and the solid
+    hit for the rest; then frames with leaves take the build. It pushes after the pack run starts
+    from 8836ce27.
 
 166. **The atrium's far end does not glow blue.** The owner's shot of scenes_sponza at 12:05 on
     2026-11-01, the atrium view at 13:00 on the fixed camera, kept in the day's dump, shows the
@@ -3348,3 +3362,12 @@ gi.toggle meshes on and off until what lets light through is crossed through tho
 Sponza's lion view at 8:00 reads its pixels 0.441 off its reference where 0.636, the door's at 8:00
 half its light where 0.977, the bounce rooms' window's room 0.250 off where 0.228, global
 illumination's time within its spread (142's ray-traced hits, the first of their three commits).
+
+Shared: the probes' rays traced through the GPU's own rays cross a copy that lets light through
+as the path-traced reference does, each next face looked for from just past the one entered, since
+a block's far face and its neighbor's near face lie in one plane, kept by the copy's share for the
+depth its ray runs inside it, and the first such face and the one the ray stops at shaded for their
+shares. A slab letting half the light through a unit lets 0.437 and 0.426 of the sky's light it
+holds back through at High where the field lets 0.427 and 0.422 and the reference 0.418, a canopy
+of leaf blocks 0.135 and 0.212 where the reference takes 0.17 and 0.21 and the field 0.155 and
+0.248, the build still taken by gi.toggle meshes alone (142's ray-traced hits, the second commit).

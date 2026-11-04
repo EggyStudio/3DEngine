@@ -121,8 +121,9 @@ kept, so the indirect light of a light switched off fades over the frames each b
 the small emissive surfaces carried as lights, whose light the rays leave out all the same, so what
 they give can be seen and timed, `gi.toggle cascade 2` keeps the third cascade's light alone, and
 `on` or `-1` puts each back. `gi.toggle meshes on` traces the world's probes' rays through the GPU's
-own rays at `High` in place of the field, a step that stays off until what lets light through is
-crossed through those rays too, and `off` puts the field back.
+own rays at `High` in place of the field, crossing what lets light through as the field does, a step
+that stays off until it reads every view at least as near a path-traced reference as the field, and
+`off` puts the field back.
 
 `entity.set` writes vectors, quaternions and colors as numbers joined by commas, enums by name,
 and an array as its items split by semicolons, so
