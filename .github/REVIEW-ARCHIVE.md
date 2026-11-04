@@ -6597,6 +6597,43 @@ at `36cae0c2`.
      on 2026-11-03, macOS in 47 minutes with the staged path, the Windows halves in 87 and 45, Linux
      in 81.
 
+101. **The run of `cb92986f` is red on the first Windows half alone, the leak test reading a growth
+     of private data.** Read at 02:40 on 2026-11-04. Half 1 red in 78 minutes on one test of Core,
+     AppLeakTests' hundred offscreen apps, half 2 green in 97, Linux in 103, macOS in 41 and the
+     examples in 9. The test expects the process's growth under 50 MB from the most of its readings
+     at the tenth, twentieth and thirtieth app, 91.9 MB, and read the private data committed from
+     77.5 MB in 694 regions at the twentieth app to 208.3 in 222 at the last (+130.8), the mapped
+     data and code unchanged, the heap's live objects flat at 18.7 to 19.2 MB, 60 apps in 248
+     seconds, the renderer's shaders loaded taking +76.6 MB of an app's life. The same test failed
+     the push runs of `3dda52c2` (Verdict 97's note) and `dfbf7614` (Verdict 99, the reading's
+     moment, mended at `abde3935` with each tenth app's reading waiting for its threads); the
+     commits in this run, 193's field constant and 194's references, touch no app's life, so it is
+     either the reading's moment again, the waits of 40 ms or more the mend logs telling, or a
+     growth that stands in private data on this runner alone. The mend is the next commit, before
+     195's. The half's output is read for the waits and the regions' kinds, and the test made to
+     hold on this runner, the growth read from the medians of the readings rather than their most if
+     the moment is the cause, or the leak found if it is one. `febe0b5b` is pushed at 02:40 on its
+     own run since the run had ended. The digest and the step's lines are in the reviewing session's
+     run folder. Read by the coder at 02:44 from the half's results, neither the moment nor a leak
+     but one step of about 115 MB the driver takes once after some 45 to 55 apps and keeps until it
+     goes, the private bytes every ten apps 91.9, 87.3, 91.4, 94.3, then 209.6 and 219.3, the
+     held-instance test before it in the same process stepping +113.1 between its fiftieth and
+     sixtieth and the failing test starting back at 91.9; the step matches an app's drawn +115.7 MB
+     in private data outside the heaps, the heaps, the collector and the live heap flat, the
+     followed apps leaving no allocation and no Vulkan object behind, the readings' waits not run
+     out. The mend, the growth judged from the base with the largest single ten-app step taken out
+     only where that step alone passes the bound, one such step at most, said in the output and the
+     failure, the rest judged as before (12.1 here, 0.7 for the held test's series, a per-app leak
+     of 0.7 MB still failing), with a test on the two Windows sample series and the step's cause in
+     the test's remark. The mend is at 02635dda, Cycled.GrowthOf taking out the one rise between
+     ten-app readings past the thirtieth that alone passes the bound, none when two do, the step
+     said in the output and the failure's base, the remark naming the driver's one allocation, a
+     test in AppLeakTests.Series.cs on the two Windows series (12.1 and 0.7), Verdict 75's trough
+     (10.4), a climb of 0.8 MB an app failing at 56 and two steps failing, the series tests moved
+     there past N 1.3's 800 lines; pushed with 8836ce27 after febe0b5b's run. Settled by the run of
+     `8836ce27` green at 06:16 on 2026-11-04, the first Windows half in 90 minutes, the second in
+     80, Linux in 109 and macOS in 41.
+
 ## Decisions
 
 1. **Commits stay local.** The owner pushes `main` from their own tools, and the working session

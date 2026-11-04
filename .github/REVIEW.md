@@ -1,11 +1,15 @@
 # Review
 
-Reviewed up to `febe0b5b`, 194's second commit and its end, the carried ray for walled-in probes,
-pushed at 02:40 on 2026-11-04, its run green at 04:13 with Linux in 80 minutes, the Windows halves
-in 88 and 69 and macOS in 50. After it `8836ce27`, item 195, the lamp march from its first step,
-pushed at 04:13 with `02635dda`, Verdict 101's mend, the leak test forgiving the driver's one step,
-its run awaited, which settles the verdict if its first Windows half is green; both keep the form.
-Each commit's detail stands in its item in REVIEW-ARCHIVE.md, its devlog note and its own words.
+Reviewed up to `448e18e7`, 142's ray-query build's second commit, the light-through crossing, pushed
+at 06:18 on 2026-11-04 with `446c6293`, its first, the rebase, the setting off by default, its run
+green at 08:10 with macOS in 40 minutes, the Windows halves in 76 and 53 and Linux in 101. Nothing
+is pushed after it. Each commit's detail stands in its item in REVIEW-ARCHIVE.md, its devlog note
+and its own words. Before it `8836ce27`, item 195, the lamp march from its first step, pushed at
+04:13 with `02635dda`, Verdict 101's mend, its run green at 06:16 with the halves in 90 and 80
+minutes, Linux in 109 and macOS in 41, which settled Verdict 101; the thirteenth pack run started
+from it with publish on at 06:17 and went red on macOS alone at 07:37 on the games step, Tumble's
+robot not walking, Verdict 102. Before it `febe0b5b`, 194's second commit and its end, pushed at
+02:40, its run green at 04:13 with Linux in 80 minutes, the halves in 88 and 69 and macOS in 50.
 Before it `cb92986f`, 194's first commit, fresh references, pushed at 00:48 with `cb87dd98`, item
 193, the field's thin-wall hold at a wall's foot and head, its run red at 02:40 on the first Windows
 half alone, Verdict 101, the leak test's reading, half 2 green in 97 minutes, Linux in 103 and macOS
@@ -97,7 +101,7 @@ words. On 2026-10-30 at 18:0x the owner wrote the README's new words (item 133) 
 radiance cascades (Decision 74), questions asked back, and asked that the sessions spend fewer
 tokens at the same quality, N 7.7.
 
-Next 142's second open part, the ray-query build of the trace, in its commits.
+Next 200; 197 waits for it and the game's 155.
 
 Items done and verdicts settled before 2026-10-23 stand in REVIEW-ARCHIVE.md beside this file, their
 numbers kept, moved there at 19:30 on 2026-10-23 so this file holds the current work alone and is
@@ -1502,7 +1506,38 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     ray-query build, walking the entered faces with a non-opaque query as the reference does, each
     copy's share per unit of depth inside, the first leaf shaded for the share taken and the solid
     hit for the rest; then frames with leaves take the build. It pushes after the pack run starts
-    from 8836ce27.
+    from 8836ce27. The second commit is 448e18e7 at 05:42, the light-through crossing in the
+    ray-query build, walking the entered faces with a non-opaque query as the reference does, each
+    copy's share kept for the depth inside it, the part entered before the cascade below's interval
+    end given to keptBefore, the first leaf and the stopping face shaded for their shares from each
+    face's own normal and color, a fourth stage taking frames with leaves when meshes are traced,
+    the mesh helpers in meshrays.slang past N 1.3's 800 lines; one bug mended on the way, the next
+    face looked for from past the far face skipping a neighbour's coincident near face. Traced at
+    High the half slab reads 0.437 and 0.426 (the field 0.427 and 0.422, the reference 0.418), the
+    canopy of leaf blocks 0.135 and 0.212 (the field 0.155 and 0.248, the reference 0.17 and 0.21),
+    leaves past the screen probes' reach 0.424 (0.382), the prototype's slab jump gone; 125 of 126
+    GI, bounce-room and cascade-edge tests pass traced, the canopy at 2.5 under its field-set 0.14
+    on the reference's other side; the corridor passes traced, so its 0.353 does not reproduce.
+    Sponza's door is untouched by the crossing, its 0.512 traced at 8:00 the traced hits' own. The
+    setting stays off by default, its remark and the docs saying it waits on every view reading at
+    least as near the reference as the field, the door, the window's room and the canopy at 2.5
+    named. The suite 2,240 with the package tests on a fresh pack. The corridor holds with meshes
+    on, read at 05:58, the bounce rooms' corridor 0.249 against the field's 0.253 and the closed
+    corridor 0.069 against 0.062 under its 0.12, so the third commit is that reading under Replies.
+    The door's traced shortfall at 8:00, read at the vestibule's vault probe, is neither the hits'
+    sun or emission (the reference brings them nothing at 8:00 one bounce past the hits, the traced
+    hits nearer that than the field's), nor the hit's colour (the ray scene's copies take the
+    field's texture average), nor a hit behind the field's surface (a lift of half or a whole cell
+    takes the door to 0.523 or 0.526 and the whole cell spoils the window's room and the grazing
+    floor); it is the later bounces, the traced hits bringing 0.0000045 along every way against the
+    reference's 0.0000183 and the field's 0.0000231, the face toward the atrium -68% traced against
+    +217% in the field, whose excess is one level way taking the cascade above's light at 0.0044
+    where the reference holds 0.000151. Traced, the vestibule's probes meet its own walls, whose
+    bounced light comes from probes themselves dim, so the space settles dark, and the field reaches
+    near the reference's level only through that leak from above. Recorded, no mend, the setting
+    off, the door, the window's room and the canopy at 2.5 the three views that keep it off; the
+    next reading when taken is the vault probe's opening ways traced against the reference along
+    each. The ray-query build closes at its two commits with the setting off.
 
 166. **The atrium's far end does not glow blue.** The owner's shot of scenes_sponza at 12:05 on
     2026-11-01, the atrium view at 13:00 on the fixed camera, kept in the day's dump, shows the
@@ -2758,45 +2793,184 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     noon and the bounce rooms within 0.002 per pixel; the GI and bounce-room tests on lavapipe under
     validation; the suite 2,241 in both orders with Verdict 101's mend.
 
+196. **A cascade's side on the wall behind the camera.** From BevyCSharp's item 95 on 2026-11-04.
+    Its cascades' middles snapped with floor left the side behind the eye 1.6 to 9.6 cells back when
+    the view looked down an axis's negative way, so from its hall's scripted eye three cascades
+    ended on the front wall behind the eye, which read black to the probes, cascade 0's last layer
+    before it reading its face toward the wall at 0.01 against 0.32 with a layer past the wall, the
+    whole hall losing light through the bounces, the aisle 17% under its reference where 6 with a
+    layer behind the eye; two eyes 0.1 m apart read 12 points apart. Its mend keeps each cascade a
+    step of eight cells or more from the eye on every side (086ac6e7). This engine centres its field
+    and probes on the camera or the program's point with clipmap shifts (181); read whether a
+    cascade's side can land on a wall behind the camera, in Sponza's door view with the eye near the
+    vestibule's back wall and in the voxel game's cave with the eye against a wall, each against its
+    reference and against the same view moved 0.1 m, and by the bridge's box, a bay and an aisle
+    with the eye where cascade 1's far side meets the wall behind it; where it can, the same
+    clearance, with the box's two eyes within 4 points as the test. After 142's close. Read at 06:08
+    at 448e18e7 and recorded as needing no mend. OriginAround rounds each cascade's middle to its
+    8-cell grid around the point the field centres on, so the sides stay 28 to 36 cells from that
+    point; with the camera as the point, the default and the voxel game's, no side comes within 28
+    cells of the eye, and with a program's point ahead, as Sponza sets camera plus half the view, a
+    side can land at the eye, cascade 0's back side on the camera's own x in the door view. Sponza's
+    door view at noon with the eye stepped back 0, 0.5 and 1.0 m, each with a twin 0.1 m further,
+    reads 0.889 against 0.868, 0.751 against 0.775 and 0.684 against 0.707 of each one's reference,
+    each pair within 2.4 points; the voxel game's cave with the eye 0.3 and 0.4 from a deepslate
+    face reads alike; the bridge's bay and aisle at eyes 7 and 7.3 with cascade 1's back side on the
+    front wall behind both reads every face within 0.7 points of its twin and near its reference. A
+    side behind the eye costs nothing here because a march leaving a cascade goes on in the coarser
+    one, which holds the wall, where the bridge's wall past the side read black. Two findings beside
+    it. One pier's +x face reads 15 to 18 points apart between eyes 0.3 apart in either placement,
+    item 197. Centred on the eye the bridge's aisle reads 17 to 29% over its reference against
+    within 5% centred ahead, the fine cascade spending half its width behind the eye, which is the
+    voxel game's placement, the game's item 155.
+
+197. **A pier face reads 15 to 18 points apart between eyes 0.3 m apart.** From 196's reading on
+    2026-11-04. In the bridge's bay and aisle at High with cells of 0.125, one pier's +x side reads
+    -0.007 against -0.159 of its reference between eyes at z 7 and 7.3 with the field ahead, and
+    +0.217 against +0.035 with the field around the eye, so the step is not a cascade's side; every
+    other face reads within 0.7 points of its twin. Read what moves with the eye on that face, the
+    screen probes' read along the pier's edge (142's grazing parallax), a world probe inside the
+    pier taken by one eye and not the other, or the cascades' snap moving a layer across the pier,
+    by the face's light by source at the two eyes; a proposal with its cost before any mend, the
+    test the two eyes within 4 points on that face. Next. Read at 06:14, nothing moves with the eye.
+    The face's mean against its reference is deterministic and falls with the eye, +0.217 at z 7,
+    +0.202, +0.130 and +0.035 at 7.3, while the floor holds +0.17; leaving the screen probes, the
+    history, the filter, the merge or the rough reflection out moves both eyes alike, and no
+    cascade's middle moves between them in either placement. Per pixel the face is a strip about 10
+    pixels wide whose half by the aisle wall reads 1.25 to 1.32 of the reference from both eyes and
+    whose edge by the arch reads 0.79 to 0.83 from both, the arch's edge taking 108 of the face's
+    pixels from z 7 and 412 from 7.3; so the mean moves with how much of each part the eye sees. The
+    fault is the gradient, a pier 0.3 thick, thinner than cascade 2's 0.5 cell where it lies,
+    reading +30% where it joins the wall and -20% at its free edge. Its source read next in one
+    pass, the probes either side of the pier in cascade 2, the thin-wall hold at its free edge, the
+    arch side's probes, by the face's light by source at its two halves, a proposal with its cost
+    before any mend; if it is 102's closed-room gain at the join and the thin-wall hold at the edge,
+    the mend waits for the bridge's 102 trial. The two-eyes test goes with the mend. The gradient's
+    source read at 06:18 in one pass. The half by the wall is 102's closed-room gain, the aisle's
+    probes 51 to 74% over on their x faces at every cascade (cascade 0 at -3.5, 2.5, 3.5 reading its
+    +x face 1.81 against 1.08, cascade 2 at -2, 2, -2 2.87 against 1.66) while the bay's read within
+    3%, the face reading the aisle's; the thin-wall hold plays no part, forced off it reads the
+    same. The edge is the first bounce, 0.148 of the one-bounce reference's light, since the pier
+    lies outside cascades 0 and 1 around the eye and only cascade 2 with its probes 4 apart holds
+    the lamp-lit patch the bay's red lamp throws through the arch beside the pier, the screen probes
+    adding 4.5 points. So the join waits for the bridge's 102 trial and the edge is the coarse
+    cascade at that distance, which the field centred ahead (the game's 155) covers with a finer
+    cascade, and otherwise finer probes or a longer screen reach near the eye at their own cost;
+    recorded beside 155. 197 waits with both, the two-eyes test with its mend.
+
+198. **Push descriptors for the compute passes' sets.** 182's later step, taken on 2026-11-04 once
+    197 is read. About 20 sets and 230 descriptor writes a frame at High, GI's 15 (5 trace, 5 merge,
+    5 gather at 9 to 15 bindings each), the screen probes' 4, fog, the field's builds and particles,
+    allocated and written every frame inside cpu.global_illumination's 1.1 ms at the voxel game's
+    grove. Push descriptors for ProbeRun's compute sets, read by cpu.global_illumination at the
+    grove and the atrium and by the sets allocated a frame, the pictures unchanged; the per-look set
+    stays as 182 found it, one write a frame. After 197. Built and read at 06:50, not taken. With
+    pushDescriptor from Vulkan14Features the probes' seven compute stages made with push-descriptor
+    layouts and ProbeRun pushing each set's writes at bind, the strict build clean and 114 GI and
+    screen-probe tests passing on the GPU, cpu.global_illumination read 1.67 to 1.99 ms at the grove
+    against 1.60 to 2.00 before and 0.87 to 0.94 in the atrium against 0.76 to 0.88, so the
+    allocation and writes were not what the line holds; gpu.global_illumination in the atrium rose
+    from 3.08 to 3.15 ms to 3.72 to 4.95, the push costing the NVIDIA driver GPU time; and the
+    pictures moved between after runs by 270 pixels in the atrium and 619 in the grove where before
+    runs differ by 0 and 69, something in the pushed path unsteady and not chased. The patch is kept
+    in scratch, the tree as it was.
+
+199. **The bounce at a hit from the surface's own irradiance, the probe's faces reprojected.** From
+    BevyCSharp's item 102 on 2026-11-04, the mend for the merge's gain past the first bounce that
+    142 holds open. The bridge's trial builds a second face image at the probes' update, each face
+    holding the irradiance at the surface its own ray along the face's axis meets, every merged
+    texel reprojected to that point with its solid angle rescaled by the distances squared and the
+    cosine to the axis, a ray that met nothing kept at infinity, the distance in alpha and the layer
+    kept where the ray met nothing or a back face; a hit's read moves each axis's face toward it by
+    the hit's distance from the probe over that distance, for the world probes' and the screen
+    probes' hits alone, the pass unchanged. It took the bridge's closed rooms of 4, 8 and 16 from
+    1.16 to 1.27 of their references' light past the direct to 1.00 to 1.08, its aisle box's faces
+    nearer by 7 to 20 points, cost inside 0.2 ms, and uncovered a shortfall tied to a finer field
+    that it chases before committing. Build the same here as a trial, read by the bounce rooms' box
+    and strip room, the closed rooms by bounce against the runtime reference, Sponza's eight views
+    at 8:00 and noon per pixel against the fresh references, and GI's GPU time at High in the atrium
+    within its spread; a proposal with the figures before any commit, no bound widened. After 198. A
+    warning from the bridge's reading of it. In the bounce rooms' grazing room, 3 high with its lamp
+    0.4 under the ceiling, the trial uncovered a placement spread the gain had hidden, the room
+    reading 0.84 to 0.99 of its reference as the probe layers' heights fall against the lamp's spot
+    (lifted by 0, 0.3, 0.6 and 0.9 against the grid), with no cell from 0.125 to 0.5 the answer; the
+    bridge measured that room's bounds again with the cause stated. Read this engine's grazing floor
+    the same way before judging its bounds. The trial read at 07:22 at 448e18e7, held uncommitted as
+    a patch. Built as the bridge's, a second face image in gi_ambient, the hits reading it through
+    shadeProbeHit and bouncedSeenAt with a bouncedHitAt for the screen probes' unmarched hits, the
+    model pass unchanged. The closed white rooms of 4, 8 and 16 at High against the runtime
+    reference from 1.112, 1.257 and 1.233 of their light past the first bounce to 0.921, 1.051 and
+    1.078, the first bounce unchanged, per pixel from 0.084 to 0.172 to 0.054 to 0.070. But four
+    bounds fail, the strip room 0.258 to 0.266 against 0.25 at the three qualities, the grazing
+    floor at Low 0.060 against 0.05 and its far-cascade case the same, the Cornell box within its
+    bounds at 0.087 to 0.107; Sponza's views within 0.01 in 14 of 16 but the door's light 0.976 to
+    0.890 at 8:00 and 0.889 to 0.799 at noon and the gallery's 0.699 to 0.680; GI at High in the
+    atrium +0.1 ms past its spread. It takes out the excess where probes off a surface hold more
+    than at it and deepens the shortfall where a room already read under, the strip's room 0.868 to
+    0.838 of its light, the room of 4 8% under past the first bounce, the sign change 142 records.
+    One bounded reading next, where the reprojected faces lose light the layer held and the
+    reference keeps, in the door view and the strip room by source (the probe's rays missing
+    surfaces the point sees, the met-nothing rays kept at infinity across an opening, the back-face
+    rule), then a proposal with its cost or the close with the bridge's result as the shared record
+    and 142's gain left open. Read by source at 07:34 and closed on the figures, the trial a patch
+    and the tree back at 448e18e7. None of the three rules carries the loss, each variant of the
+    gather (every ray at its recorded reach, the back-face texels at infinity, the gaps filled with
+    the layer, all three) giving back 5 to 6% of the door view's 8.5 points, about the run-to-run
+    noise; by the way surfaces face the loss is in the walls and the undersides. The reprojection
+    weighs the near surfaces more than the layer did and lowers every hit, 25 to 30% at the vault's
+    four cascade-0 probes, 6 to 11% in the strip room, 10 to 20% in the closed rooms, which mends
+    the hits that held the closed rooms' excess and deepens the shortfall where hits already read
+    under, as the vault's do at 8:00, their hits bringing 22 to 77% less than the reference along
+    the same ways at HEAD and every merged way 52 to 80% under. So the closed rooms' fix is the mend
+    that waits on the open sign, 142's gain stays open, and the vault's hits under at HEAD are item
+    200's reading before any mend that lowers. The trial cost +0.1 ms of GI in the atrium.
+
+200. **The vault's world-probe hits read 22 to 77% under at 8:00.** From 199's reading on
+    2026-11-04. At 448e18e7 the four cascade-0 probes in Sponza's vestibule vault bring 22 to 77%
+    less along their hits' ways than the reference at 256 paths with every bounce, and every merged
+    way reads 52 to 80% under, with no sun inside at that hour; it is the open sign of the gain 142
+    records, the bridge's alley at night the same (its GI holding four bounces' worth and losing the
+    tail, +1% against four bounces and -47 against all). One bounded pass by source at one vault
+    probe against the reference by bounce, as the bridge read its alley, the hits' own light by
+    bounce (the first bounce from the probe layer at the hit, the later ones), the ways through the
+    opening to the court and what the merge and the carried rays (194) hand them, the share each
+    takes of the shortfall; then one proposal for both engines with the bridge's Cornell and hall
+    readings, before any mend. Next. Read by source at 07:39 at 448e18e7, cascade 0's probe at 16.5,
+    1.5, 0.5 in the door view at 8:00 at High against 1024 paths. The shortfall is the sun missing
+    at the hits of the cascade above, not a lost tail. The 17 of 64 ways that take the cascade above
+    through the opening carry 92% of the probe's shortfall, the merge handing them 25% of the
+    reference's light at every bounce and 21% at the first; the probe's own hits carry 8%, the
+    reference's tail past four bounces nil there. Cascade 1's probe at 17, 1, 1 has all 64 rays
+    meeting a surface and reads -91% at every bounce, its -x ways toward the court bringing 0 with
+    again off where the reference's first segment brings 0.00820, the same traced through the meshes
+    (-94%, the first bounce 0), so the hit's place is right and the sun's visibility at the hit
+    fails; with the camera turned toward the court, where the window's shadow map holds those hits,
+    the nearest cascade-1 probe reads its first bounce 11% under. So at a hit the shadow map does
+    not hold, the field's march toward the low 8:00 sun finds the court's sunlit wall shadowed, the
+    coarse cascade's roof edge the guess; cascade 2's probe stands inside stone and cascade 1 takes
+    nothing from it, and 194's carry hands nothing here. The next bounded step reads which cascade
+    and cell the march stops in at those court hits, then a mend and its cost, the engine's own and
+    not the closed rooms' pair. Picture 07-38-item-200-court in the dump. After Verdict 102's mend.
+
 ## Verdicts
 
-Verdicts 56 to 100 are settled, said under each in REVIEW-ARCHIVE.md; 101 is open.
+Verdicts 56 to 101 are settled, said under each in REVIEW-ARCHIVE.md; 102 is open.
 
-101. **The run of `cb92986f` is red on the first Windows half alone, the leak test reading a growth
-     of private data.** Read at 02:40 on 2026-11-04. Half 1 red in 78 minutes on one test of Core,
-     AppLeakTests' hundred offscreen apps, half 2 green in 97, Linux in 103, macOS in 41 and the
-     examples in 9. The test expects the process's growth under 50 MB from the most of its readings
-     at the tenth, twentieth and thirtieth app, 91.9 MB, and read the private data committed from
-     77.5 MB in 694 regions at the twentieth app to 208.3 in 222 at the last (+130.8), the mapped
-     data and code unchanged, the heap's live objects flat at 18.7 to 19.2 MB, 60 apps in 248
-     seconds, the renderer's shaders loaded taking +76.6 MB of an app's life. The same test failed
-     the push runs of `3dda52c2` (Verdict 97's note) and `dfbf7614` (Verdict 99, the reading's
-     moment, mended at `abde3935` with each tenth app's reading waiting for its threads); the
-     commits in this run, 193's field constant and 194's references, touch no app's life, so it is
-     either the reading's moment again, the waits of 40 ms or more the mend logs telling, or a
-     growth that stands in private data on this runner alone. The mend is the next commit, before
-     195's. The half's output is read for the waits and the regions' kinds, and the test made to
-     hold on this runner, the growth read from the medians of the readings rather than their most if
-     the moment is the cause, or the leak found if it is one. `febe0b5b` is pushed at 02:40 on its
-     own run since the run had ended. The digest and the step's lines are in the reviewing session's
-     run folder. Read by the coder at 02:44 from the half's results, neither the moment nor a leak
-     but one step of about 115 MB the driver takes once after some 45 to 55 apps and keeps until it
-     goes, the private bytes every ten apps 91.9, 87.3, 91.4, 94.3, then 209.6 and 219.3, the
-     held-instance test before it in the same process stepping +113.1 between its fiftieth and
-     sixtieth and the failing test starting back at 91.9; the step matches an app's drawn +115.7 MB
-     in private data outside the heaps, the heaps, the collector and the live heap flat, the
-     followed apps leaving no allocation and no Vulkan object behind, the readings' waits not run
-     out. The mend, the growth judged from the base with the largest single ten-app step taken out
-     only where that step alone passes the bound, one such step at most, said in the output and the
-     failure, the rest judged as before (12.1 here, 0.7 for the held test's series, a per-app leak
-     of 0.7 MB still failing), with a test on the two Windows sample series and the step's cause in
-     the test's remark. The mend is at 02635dda, Cycled.GrowthOf taking out the one rise between
-     ten-app readings past the thirtieth that alone passes the bound, none when two do, the step
-     said in the output and the failure's base, the remark naming the driver's one allocation, a
-     test in AppLeakTests.Series.cs on the two Windows series (12.1 and 0.7), Verdict 75's trough
-     (10.4), a climb of 0.8 MB an app failing at 56 and two steps failing, the series tests moved
-     there past N 1.3's 800 lines; pushed with 8836ce27 after febe0b5b's run. Settled by its run
-     when green on the first Windows half.
+102. **The thirteenth pack run, from `8836ce27`, is red on macOS alone, Tumble's robot not walking
+     when the games are played from the package.** Read at 07:38 on 2026-11-04 while the run's other
+     jobs went on. The macOS job's suite passed, 2,154 in 29 minutes, and every other game played
+     through e3d offscreen with its play asserted and no validation error (Pinball, Span, Siege,
+     Tones, Blockout, Effects, Scenes, Audio, the feature test), but Tumble's robot did not walk,
+     Down falls 1 rises 0 walked 0.7 at 0.00, 7.27, crouched false, its log ending at the offscreen
+     swapchain's resize at 2.08 s. The push run of `8836ce27` was green, the games job running only
+     in pack runs, and the last green pack run was the twelfth from `3dda52c2` on 2026-11-01, 72
+     commits before, so the fault came in between, or the paravirtual device's pace did; no commit
+     since touches the physics, the nearest to the robot's path being 145's mesh store and 144's
+     packed positions, which a skinned mesh does not take. The mend is the next commit, before
+     200's: Tumble's log from the job's artifact read first, the game played offscreen on lavapipe
+     at the macOS runner's pace, and if it walks there, the fault bisected among the 72 by the
+     robot's walk in the games step's own check; the games step's words say what the robot did. The
+     package waits on it; the game's 154 and 155 with it.
 
 ## Decisions
 
@@ -3371,3 +3545,31 @@ shares. A slab letting half the light through a unit lets 0.437 and 0.426 of the
 holds back through at High where the field lets 0.427 and 0.422 and the reference 0.418, a canopy
 of leaf blocks 0.135 and 0.212 where the reference takes 0.17 and 0.21 and the field 0.155 and
 0.248, the build still taken by gi.toggle meshes alone (142's ray-traced hits, the second commit).
+
+142's ray-traced hits, their third step, read at 448e18e7 on 2026-11-04 with gi.toggle meshes on. The
+corridor's reach, which 142's prototype read 0.353 off its reference, holds: the bounce rooms'
+corridor reads 0.249 of its light off its reference at High where the field reads 0.253, Low and
+Medium as the field since they trace none, and CascadeEdgeTests' closed corridor's far end 0.069 of
+the open one's light where the field takes 0.062, under its bar of 0.12, so the step needs no mend.
+
+199, read as a trial at 448e18e7 on 2026-11-04 and held as a patch. A second face image at the
+probes' update holds each face's light at the surface its own ray along the face's opposite way
+meets, every merged texel reprojected there as the bridge's trial has it, and the world's and the
+screen's probes' hits read it. Closed white rooms 4, 8 and 16 across under a lamp at High take
+their light past the first bounce from 1.112, 1.257 and 1.233 of the reference's to 0.921, 1.051
+and 1.078, the first bounce as it was, and the thin room of BounceRoomsTests reads 0.033 off its
+reference at High where 0.092. The strip's room reads 0.263, 0.266 and 0.258 at Low, Medium and
+High against its bound of 0.25, the grazing floor 0.060 at Low against 0.05 with and without its
+far cascade, Sponza's door view 9 points darker at 8:00 and at noon, and global illumination
+3.16 to 3.18 ms in the atrium at High where 3.03 to 3.09 on the RTX 4070 under powersave-bazzite.
+Each of the gather's three rules changed back, a ray that met nothing kept at infinity, a face met
+from behind taken for a surface, and the share of the surface's hemisphere no ray covers taken at
+the covered mean, gives back 5 to 11% of the light the door view at 8:00 and the strip's room
+lose, the three together 6 to 11%, about the noise between two runs. The loss is the reprojection
+lowering every hit, by 25 to 30% at four of the door's vault probes and by 6 to 11% at three of the
+strip room's, where at 448e18e7 three of the vault's hits already read 22 to 77% under the
+reference and the strip room's lowest 21%, so it takes the closed rooms' excess out and deepens a
+shortfall the frame had hidden. The item closes on these figures, the closed rooms' fix the mend
+that waits on that shortfall's sign, item 200, and 142's gain open (the scratch tests' references
+at 512 paths, BounceRoomsTests' measure, gi.compare per pixel against the fresh references,
+gi.probe at 256 paths, `./e3d command profile` with the frames unlimited).

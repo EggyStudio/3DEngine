@@ -160,6 +160,10 @@ whereabouts() {
 escaped() { printf '%s\n' "$1" | sed 's/%/%25/g' | awk 'NR > 1 { printf "%%0A" } { printf "%s", $0 }'; }
 
 fail() {
+  # The game's log goes with the captures a failed job keeps, as a game played through has it, since
+  # the error's tail of it stops at its last lines and Tumble's on macOS stopped at the offscreen
+  # swapchain's resize, two seconds in.
+  [ -f "$log" ] && cp "$log" "captures/$name-driven.log" 2> /dev/null || true
   # The budget's error has been said, and the command its stop ended says nothing more.
   [ -e "$expired" ] && exit 1
   # The log's last lines whatever their level, since a game that died in native code logged no
@@ -252,6 +256,11 @@ if ! start; then
   log=""
   fail "did not open, e3d said $(printf '%s\n' "$said" | head -n 1)${ending:+, and the log ends with $ending}"
 fi
+# Tumble's cannons fire from its third second and its bar sweeps the arena, and the frames before
+# its play take that long on a device as slow as the macOS runner's or lavapipe's, where a ball
+# knocked the robot down in the thirty frames after the resize and its walk read 0.7 and 0.8. So they
+# are stopped as it serves.
+if [ "$game" = Tumble ]; then cmd tumble.hazards off; fi
 cmd window.size 480 270
 cmd frames.wait 30
 
