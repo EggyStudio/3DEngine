@@ -1,45 +1,47 @@
 # Review
 
-Reviewed up to `88943e50`, item 145, the relight's upload and the rings' give-back, pushed at 23:04
-on 2026-11-03 with `a170718d`, 144's second commit and its end, packed positions, its run green at
-00:47 on 2026-11-04 with Linux in 66 minutes, the Windows halves in 87 and 98 and macOS in 41. After
-it `cb92986f`, 194's first commit, fresh references, pushed at 00:48 with `cb87dd98`, item 193, the
-field's thin-wall hold at a wall's foot and head, its run red at 02:40 on 2026-11-04 on the first
-Windows half alone, Verdict 101, the leak test's reading, half 2 green in 97 minutes, Linux in 103
-and macOS in 41; both keep the form. After it `febe0b5b`, 194's second commit and its end, the
-carried ray for walled-in probes, pushed at 02:40, its run awaited; it keeps the form. Each commit's
-detail stands in its item in REVIEW-ARCHIVE.md, its devlog note and its own words. Before it
-`e3452da2`, 144's first commit, two-byte indices, pushed at 21:06, its run green at 23:04 with Linux
-in 106 minutes, the halves in 47 and 69 and macOS in 42. Before it `6965e4df`, item 192, pushed at
-19:32 with `f0de9b82`, Verdict 100's mend, its run green at 21:06 with the halves in 87 and 45
-minutes, Linux in 81 and macOS in 47, which settled Verdict 100. Before it `57dae5a6`, 182's second
-commit, the host image copy, pushed at 17:25 with `ee367526`, 182's first, Vulkan 1.4 asked, and
-`3b85dbcd`, 141's third and its end, its run red at 18:43 on macOS alone, Verdict 100, the suite
-crashing at the first texture's bind under MoltenVK with the host copy chosen, the Windows halves
-green in 74 and 70 minutes, Linux in 65. Before it `01dd3ced`, 141's second commit, pushed at 15:27
-with `26e1fbc8`, 141's first, its run green at 17:25 with the halves in 89 and 97 minutes, Linux in
-105 and macOS in 43. Before it `1567179e`, 140's last commit and its end, pushed at 13:44, its run
-green at 15:27 with the halves in 79 and 102 minutes, Linux in 83 and macOS in 38. Before it
-`5d0c44e4`, Low's third cascade, pushed at 11:45, its run green at 13:43 with the halves in 86 and
-98 minutes, Linux in 103 and macOS in 41. Before it `8cd556e1`, 140's first commit, pushed at 09:52,
-its run green at 11:45 with the halves in 84 and 96 minutes, Linux in 102 and macOS in 42. Before it
-`9a20767c`, item 191, pushed at 08:13 with `52e75184` and `893758ea`, its run green at 09:51 with
-the halves in 82 and 96 minutes, Linux in 76 and macOS in 41. Before it `b83b1a85`, 142's second
-mend and its close, pushed at 06:45, its run green at 08:13 with the halves in 85 and 82 minutes,
-Linux in 58 and macOS in 40. Before it `aab4b622`, the history toggle's mend, pushed at 05:17 with
-`c117b252`, 142's first mend, its run green at 06:45 with the halves in 84 and 49 minutes, Linux in
-57 and macOS in 36. Before it `40462df0`, 142's readout, pushed at 03:29, its run green at 05:16
-with the halves in 70 and 83 minutes, Linux in 94 and macOS in 38. Before it `369d9b5a`, item 189,
-pushed at 01:56, its run green at 03:28 with the halves in 80 and 92 minutes, Linux in 58 and macOS
-in 38. Before it `5ab01df8`, 188's third commit and its end, pushed at 00:22 with `3e651d9d`, its
-run green at 01:55 with the halves in 79 and 91 minutes, Linux in 58 and macOS in 39. Before it
-`71c7c194`, 188's first commit, pushed at 22:34 on 2026-11-02, its run green at 00:22 with the
-halves in 79 and 89 minutes, Linux in 98 and macOS in 37. Before it `aca80ca2`, item 186 with the
-knob and the fog's removal, pushed at 20:25, its run green at 22:12 with the halves in 78 and 85
-minutes, Linux in 97 and macOS in 42. Before it `abde3935`, Verdict 99's mend, pushed at 18:26 with
-`f8872d03` (175) and `11b6a593` (142's record), its run green at 20:09 with the halves in 70 and 89
-minutes, Linux in 91 and macOS in 40, which settled Verdict 99. Before it `dfbf7614` (183, the
-Windows suite in two jobs) with `2977a4a2` and `0dff5d04` (174), pushed at 15:56, its run red at
+Reviewed up to `febe0b5b`, 194's second commit and its end, the carried ray for walled-in probes,
+pushed at 02:40 on 2026-11-04, its run green at 04:13 with Linux in 80 minutes, the Windows halves
+in 88 and 69 and macOS in 50. After it `8836ce27`, item 195, the lamp march from its first step,
+pushed at 04:13 with `02635dda`, Verdict 101's mend, the leak test forgiving the driver's one step,
+its run awaited, which settles the verdict if its first Windows half is green; both keep the form.
+Each commit's detail stands in its item in REVIEW-ARCHIVE.md, its devlog note and its own words.
+Before it `cb92986f`, 194's first commit, fresh references, pushed at 00:48 with `cb87dd98`, item
+193, the field's thin-wall hold at a wall's foot and head, its run red at 02:40 on the first Windows
+half alone, Verdict 101, the leak test's reading, half 2 green in 97 minutes, Linux in 103 and macOS
+in 41. Before it `88943e50`, item 145, pushed at 23:04 on 2026-11-03 with `a170718d`, 144's second
+commit and its end, its run green at 00:47 with Linux in 66 minutes, the halves in 87 and 98 and
+macOS in 41. Before it `e3452da2`, 144's first commit, two-byte indices, pushed at 21:06, its run
+green at 23:04 with Linux in 106 minutes, the halves in 47 and 69 and macOS in 42. Before it
+`6965e4df`, item 192, pushed at 19:32 with `f0de9b82`, Verdict 100's mend, its run green at 21:06
+with the halves in 87 and 45 minutes, Linux in 81 and macOS in 47, which settled Verdict 100. Before
+it `57dae5a6`, 182's second commit, the host image copy, pushed at 17:25 with `ee367526`, 182's
+first, Vulkan 1.4 asked, and `3b85dbcd`, 141's third and its end, its run red at 18:43 on macOS
+alone, Verdict 100, the suite crashing at the first texture's bind under MoltenVK with the host copy
+chosen, the Windows halves green in 74 and 70 minutes, Linux in 65. Before it `01dd3ced`, 141's
+second commit, pushed at 15:27 with `26e1fbc8`, 141's first, its run green at 17:25 with the halves
+in 89 and 97 minutes, Linux in 105 and macOS in 43. Before it `1567179e`, 140's last commit and its
+end, pushed at 13:44, its run green at 15:27 with the halves in 79 and 102 minutes, Linux in 83 and
+macOS in 38. Before it `5d0c44e4`, Low's third cascade, pushed at 11:45, its run green at 13:43 with
+the halves in 86 and 98 minutes, Linux in 103 and macOS in 41. Before it `8cd556e1`, 140's first
+commit, pushed at 09:52, its run green at 11:45 with the halves in 84 and 96 minutes, Linux in 102
+and macOS in 42. Before it `9a20767c`, item 191, pushed at 08:13 with `52e75184` and `893758ea`, its
+run green at 09:51 with the halves in 82 and 96 minutes, Linux in 76 and macOS in 41. Before it
+`b83b1a85`, 142's second mend and its close, pushed at 06:45, its run green at 08:13 with the halves
+in 85 and 82 minutes, Linux in 58 and macOS in 40. Before it `aab4b622`, the history toggle's mend,
+pushed at 05:17 with `c117b252`, 142's first mend, its run green at 06:45 with the halves in 84 and
+49 minutes, Linux in 57 and macOS in 36. Before it `40462df0`, 142's readout, pushed at 03:29, its
+run green at 05:16 with the halves in 70 and 83 minutes, Linux in 94 and macOS in 38. Before it
+`369d9b5a`, item 189, pushed at 01:56, its run green at 03:28 with the halves in 80 and 92 minutes,
+Linux in 58 and macOS in 38. Before it `5ab01df8`, 188's third commit and its end, pushed at 00:22
+with `3e651d9d`, its run green at 01:55 with the halves in 79 and 91 minutes, Linux in 58 and macOS
+in 39. Before it `71c7c194`, 188's first commit, pushed at 22:34 on 2026-11-02, its run green at
+00:22 with the halves in 79 and 89 minutes, Linux in 98 and macOS in 37. Before it `aca80ca2`, item
+186 with the knob and the fog's removal, pushed at 20:25, its run green at 22:12 with the halves in
+78 and 85 minutes, Linux in 97 and macOS in 42. Before it `abde3935`, Verdict 99's mend, pushed at
+18:26 with `f8872d03` (175) and `11b6a593` (142's record), its run green at 20:09 with the halves in
+70 and 89 minutes, Linux in 91 and macOS in 40, which settled Verdict 99. Before it `dfbf7614` (183,
+the Windows suite in two jobs) with `2977a4a2` and `0dff5d04` (174), pushed at 15:56, its run red at
 17:48 on the first Windows half alone, Verdict 99, the leak test's reading, the halves in 69 and 90
 minutes. Before it `4a01d5ef`, item 185, pushed at 13:02 with `43547883`, its run green at 15:55
 with Windows in 171 minutes, Linux in 95 and macOS in 44. Before it `fdf4dedb`, item 184, pushed at
@@ -95,7 +97,7 @@ words. On 2026-10-30 at 18:0x the owner wrote the README's new words (item 133) 
 radiance cascades (Decision 74), questions asked back, and asked that the sessions spend fewer
 tokens at the same quality, N 7.7.
 
-Next 195, then 142's three open parts in their order.
+Next 142's second open part, the ray-query build of the trace, in its commits.
 
 Items done and verdicts settled before 2026-10-23 stand in REVIEW-ARCHIVE.md beside this file, their
 numbers kept, moved there at 19:30 on 2026-10-23 so this file holds the current work alone and is
@@ -1452,7 +1454,41 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     worse everywhere. Open sub-items, each its own step when its turn comes, the probes' hits
     bringing nothing where the reference's bring some sun, the ray-traced hits at High waiting on a
     ray-traced form of the light-through crossing with the patch in the coder's scratchpad, and the
-    grazing parallax of the screen probes' beyond-read at near recesses.
+    grazing parallax of the screen probes' beyond-read at near recesses. The first open part, the
+    hits' missing sun, closed at 03:20 on 2026-11-04 as no longer standing. The cascade-0 probe at
+    -4.5, 2.5, 5.5 in the look-up view at 8:00 at High, read at 1024 paths and no bounce at
+    8836ce27, meets a surface along 48 of 64 ways and brings 0.0000747, 0.0000667 and 0.0000654
+    against the reference's 0.0000296, 0.0000208 and 0.0000131, over rather than nothing where 142
+    read 0 against 0.0000430, the reference moved by 190's floor and the hit moved a cell toward the
+    sun since c117b252; what remains at that probe is the faces' excess from the merge, -z and +y
+    about +190%, the cascade above's ways at 0.000206 against 0, which the item records. The order
+    of the rest, the third part first, the screen probes' grazing parallax at near recesses, then
+    the second, the ray-query build of the trace as its own commits (the rebase of rq.patch, the
+    light-through crossing through the ray scene's any-hit or a translucency per copy, the
+    corridor's reach). The third part read at 03:30 against the fresh references, per pixel. The
+    lion view at 8:00 reads 1.139 of its light with an excess of 0.341, 21% of it on the niche's
+    back wall at 16.2 times the reference, block 12's +x face 2.6 times, the ceiling 2.7, block 20's
+    underside 10; the wall's screen probe reads +831% along its ways, its near-level ray out toward
+    the atrium past its 2-unit reach taking cascade 1 at 0.00535 against 0.000484 and three
+    on-screen rays at 85 degrees lit where the reference is dark; the filter and the history move
+    the wall under 4%, the screen probes off make it 19.8 times, so the excess sits in the probes'
+    reads. A prototype marching on where the seen probes' own hits lie far from the ray's line (bar
+    0.25, 8 times the reach) takes the wall's probe to +65% along its ways but the wall's pixels
+    stay 11.7 times, the lion to 1.009, the other views within 0.01, for 0.6 to 0.7 ms of GI at High
+    in the lion view, a fifth; not the mend. The wall's remaining sources are read first, the rough
+    reflection's read of the probes along the mirror way and the wall's other probes, toward a mend
+    under a tenth of a millisecond, a proposal before any commit; failing one, the part is recorded
+    as read and the ray-query build begins. The third part recorded as read at 03:35, no mend under
+    0.1 ms. The rough reflection is a fifth of the wall's light (16.2 to 13.1 times without it, the
+    lion view 1.139 to 0.995); nine screen probes across the wall read +690 to +1712%, 78 to 93% of
+    each one's light from rays past their reach along one near-level way reading the world's probes
+    at 0.0073 to 0.0080 against 0.0004 to 0.0007; and the world probes there are over the same way,
+    cascade 0's +x face +724% and cascade 1's +505%, their level ways taking the cascade above's
+    merged light at 0.020 and 0.0145 against 0.0007 and 0.0004 while cascade 2's nearest reads -8%
+    and cascades 3's and 4's stand dark in the masonry. So the screen probes read the world's probes
+    faithfully and the excess is the merge's parallax along the atrium's level way the item records,
+    which no read of the screen probes removes. The ray-query build begins, the readings going with
+    its first commit.
 
 166. **The atrium's far end does not glow blue.** The owner's shot of scenes_sponza at 12:05 on
     2026-11-01, the atrium view at 13:00 on the fixed camera, kept in the day's dump, shows the
@@ -2700,7 +2736,13 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     alone. Test, a closed room of 0.3 m walls in 0.5 m cells with a lamp outside beside a wall, the
     hits beside the walls inside reading the lamp hidden, under a bar a channel set from the
     reading, failing without the mend; read by the bounce rooms and Sponza's views unchanged. After
-    194.
+    194. Done at 8836ce27, read at 03:16. hiddenLampLight marches from a cell and a half along the
+    normal, from its first step to two cells short of the lamp; LampMarch, a closed room of 0.3 m
+    walls in 0.5 m cells with a lamp 0.7 past the east wall's middle, the probe's own hits bringing
+    0.110 a channel before and 0.042 mended under a bar of 0.07 against a reference of none, hits so
+    near the wall that the lamp-end clearance takes the wall in staying lit; Sponza's eight views at
+    noon and the bounce rooms within 0.002 per pixel; the GI and bounce-room tests on lavapipe under
+    validation; the suite 2,241 in both orders with Verdict 101's mend.
 
 ## Verdicts
 
@@ -2734,7 +2776,13 @@ Verdicts 56 to 100 are settled, said under each in REVIEW-ARCHIVE.md; 101 is ope
      only where that step alone passes the bound, one such step at most, said in the output and the
      failure, the rest judged as before (12.1 here, 0.7 for the held test's series, a per-app leak
      of 0.7 MB still failing), with a test on the two Windows sample series and the step's cause in
-     the test's remark.
+     the test's remark. The mend is at 02635dda, Cycled.GrowthOf taking out the one rise between
+     ten-app readings past the thirtieth that alone passes the bound, none when two do, the step
+     said in the output and the failure's base, the remark naming the driver's one allocation, a
+     test in AppLeakTests.Series.cs on the two Windows series (12.1 and 0.7), Verdict 75's trough
+     (10.4), a climb of 0.8 MB an app failing at 56 and two steps failing, the series tests moved
+     there past N 1.3's 800 lines; pushed with 8836ce27 after febe0b5b's run. Settled by its run
+     when green on the first Windows half.
 
 ## Decisions
 
@@ -3270,3 +3318,33 @@ the surface, keeping its two cells of clearance at the lamp's end alone, as the 
 accbda6d, so a lamp outside a closed room of walls 0.3 thick in cells of 0.5, 0.7 from the wall's
 middle, brings a probe's hits inside 0.042 a channel where 0.110 against a reference's none,
 Sponza's views and the bounce rooms within 0.002 (item 195).
+
+142, its first open part, read where it was found at 8836ce27 on 2026-11-04. The first cascade's
+probe at -4.5, 2.5, 5.5 in the lookup view at 8:00, metered, at High, read by gi.probe -4.08 2.55
+5.6 at 1024 paths and no bounce past its hits, met a surface along 48 of its 64 ways, and those hits
+bring 0.0000747, 0.0000667 and 0.0000654 against the reference's 0.0000296, 0.0000208 and 0.0000131,
+over where 142 read them bringing nothing against 0.0000430, the hit moved a cell toward the sun
+since and the reference taking 190's floor. The part no longer stands. What stays there is the
+faces' excess through the merge, the -z face 0.000644 against 0.000269, which 142 records as left.
+
+142, its third open part, read at 8836ce27 on 2026-11-04 against references traced fresh, pixel by
+pixel. The lion view at 8:00 reads 1.139 of its reference's light, 21% of its excess on the niche's
+back wall, 16.2 times the reference. The wall's screen probes take 78 to 93% of their light from
+rays past their reach, one level way along +x down the atrium reading the world's probes at 0.0073
+to 0.0080 where the reference along it reads 0.0004 to 0.0007, the filter and the history moving
+the wall under 4% and the rough reflection a fifth of it. The world's probes there read the same:
+the first cascade's +x face 724% over at -11.5, 2.5, 0.5 and the second's 505% at -13, 3, 1, their
+level ways taking the merged light of the third cascade's probes around them at 0.020 and 0.0145
+against 0.0007 and 0.0004, where the third's nearest reads its +x face 8% under. The screen probes
+read the world's probes as they stand, and the excess is the merge's parallax 142 records. A march
+past the reach where the probes' hits lie off a ray's line took one wall probe within 10% over its
+hemisphere and the view to 1.009, but left the wall 11.7 times and cost global illumination 0.6 to
+0.7 ms of 2.8 at High. No mend under a tenth of a millisecond was found, and the part is read.
+
+Shared: at High, where the device traces rays and no surface in the frame lets light through, a
+build of the probes' trace sends their rays through the window's meshes as the GPU's ray tracing
+holds them, each hit lit from the face's own normal and color as a hit in the field is, taken by
+gi.toggle meshes on and off until what lets light through is crossed through those rays too.
+Sponza's lion view at 8:00 reads its pixels 0.441 off its reference where 0.636, the door's at 8:00
+half its light where 0.977, the bounce rooms' window's room 0.250 off where 0.228, global
+illumination's time within its spread (142's ray-traced hits, the first of their three commits).

@@ -305,6 +305,17 @@ public float3 shadeProbeHit<V : IVolume, S : ISheetVolume, Sun : ISunShadow>(V f
     return own + color / Pi * bounced * (lights.counts.z * kept);
 }
 
+// The same at a face whose normal and color are given, as the device's rays find one, the indirect
+// light from the probes it sees alone.
+public float3 shadeProbeHitAt<V : IVolume, Sun : ISunShadow>(V field, SceneFieldInfo info, SceneFieldInfo gathered, V albedo, V glow, GiLights lights, V cubes,
+    float3 p, float3 n, float3 color, float3 way, float probes, float spacing, float cascades, float3 kept, Sun sun, out float3 own)
+{
+    float3 bounced = bouncedSeenAt(field, info, gathered, cubes, p, n, probes, spacing, cascades);
+    own = color * (directLight(field, info, lights, p, n, sun) - hiddenLampLight(field, info, lights, p, n) + glowLightsAt(field, info, lights, p, n, 2, false, way) / Pi)
+        + surfaceGlowUncarried(glow, albedo, info, p);
+    return own + color / Pi * bounced * (lights.counts.z * kept);
+}
+
 // The light a surface the field holds at p sends back along a ray that met it, its color over
 // pi times the light that reaches it, the sun's and the lights', the lamps that cast shadows hidden
 // where the field stands between as the probes have them, and, at the share given, the indirect

@@ -30,6 +30,19 @@ internal sealed class GlobalIlluminationSettings
     /// <summary>Whether High leaves the device's ray tracing alone, as <c>gi.rays off</c> sets it, so what it costs can be measured.</summary>
     public bool RaysOff { get; set; }
 
+    /// <summary>
+    /// Whether High traces the world's probes' rays through the device's ray tracing in place of the
+    /// scene's distance field, in a frame where no surface lets light through, as
+    /// <c>gi.toggle meshes on</c> sets it.
+    /// </summary>
+    /// <remarks>
+    /// Off until what lets light through is crossed through the device's rays too, since a frame
+    /// with one leaf in it traces the field and its light jumps at the first, and until a corridor's
+    /// probes standing outside it stop reading their reach from the meshes, which read its walls
+    /// 0.353 of their light off a path-traced reference where the field reads them under 0.25.
+    /// </remarks>
+    public bool MeshesTraced { get; set; }
+
     /// <summary>Whether the screen's probes take nothing of the frame before's, as <c>gi.toggle history off</c> sets it.</summary>
     public bool HistoryOff { get; set; }
 
@@ -159,7 +172,7 @@ internal sealed class TargetIllumination
 /// lights' where there is none.
 /// </para>
 /// </remarks>
-internal sealed class GlobalIlluminationRenderer : IDisposable
+internal sealed partial class GlobalIlluminationRenderer : IDisposable
 {
     private static readonly ILogger Logger = Log.Category("Engine.GlobalIllumination");
 
@@ -491,9 +504,10 @@ internal sealed class GlobalIlluminationRenderer : IDisposable
         _lightThrough = false;
         foreach (var (instance, _) in renderWorld.TryGet<SceneFieldRenderer>()?.Drawn ?? [])
             _lightThrough |= instance.LightThrough > 0 && !switches.ThroughOff;
+        RecordRays(renderContext, renderWorld, device, plan);
         _retired.Add((_frame, device.RecordGlobalIllumination(renderContext.CommandBuffer, _gi, field.Field, view, sampler, sunMap, sunSampler, lights, intervals, ProbeSpacing,
             switches.MergeOff, switches.Alone, switches.Shown is BounceView.Rays or BounceView.Merged, _frame, switches.FollowOff ? null : lying,
-            far ? cascades - 2 : -1, _lightThrough, plan is { Whole: true }, farPart)));
+            far ? cascades - 2 : -1, _lightThrough, plan is { Whole: true }, farPart, switches.MeshesTraced ? _rays : null)));
 
         // The screen's probes, where the window has a depth to stand them on, the first interval
         // theirs. At Low, which leaves them out, they stand for the glow lights alone while some
@@ -528,40 +542,6 @@ internal sealed class GlobalIlluminationRenderer : IDisposable
             _lastScreen = null;
         }
 
-        // The window's meshes for the device's ray tracing, which a reflection the field misses is
-        // traced through, at the top quality where the device and the model pass trace rays, a
-        // skinned mesh, whose posed shape no vertices on the CPU hold, left out, and each marked
-        // where global illumination carries it as a glow light, for a probe's reference.
-        if (quality == GlobalIllumination.High && device.CanQueryRays && renderWorld.TryGet<ModelRenderer>() is { TracesRays: true }
-            && !renderWorld.TryGet<GlobalIlluminationSettings>()!.RaysOff
-            && renderWorld.TryGet<SceneFieldRenderer>() is { } fields)
-        {
-            _rays ??= device.CreateRayScene();
-            var copies = new List<RayInstance>(fields.Drawn.Count);
-            // A mesh over shader buffers, whose triangles the CPU does not hold, is passed over.
-            foreach (var (instance, skinned) in fields.Drawn)
-                if (!skinned && fields.HoldsTriangles(instance.Vertices)) copies.Add(new RayInstance(instance.Vertices, instance.World, instance.Color, instance.Emission, instance.Roughness, instance.Metallic,
-                    plan is not null && fields.Carried(instance, plan.CellSize), instance.LightThrough));
-            try
-            {
-                _retired.Add((_frame, device.RecordRayScene(renderContext.CommandBuffer, _rays, copies, mesh => fields.CornersOf((ModelVertex[])mesh),
-                    mesh => fields.CornerColorsOf((ModelVertex[])mesh), fields.Recolored)));
-            }
-            catch (DeviceMemoryException e)
-            {
-                // The GPU's own rays are a part of the top quality the field stands in for, so where
-                // their structures do not fit they are left off rather than the program stopping.
-                Logger.Warn($"The GPU's own rays are left off, the scene's distance field tracing what they would. {e.Message}");
-                renderWorld.TryGet<GlobalIlluminationSettings>()!.RaysOff = true;
-                _retired.Add((_frame, _rays));
-                _rays = null;
-            }
-        }
-        else if (_rays is not null)
-        {
-            _retired.Add((_frame, _rays));
-            _rays = null;
-        }
         renderWorld.Set(new IlluminationBinding(_gi, field.Field, _screen, renderWorld.TryGet<WindowDepth>(), _history, _rays, _glowCount));
     }
 

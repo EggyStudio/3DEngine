@@ -120,7 +120,9 @@ so light bounces once, `follow` the probes taking the indirect light at the shar
 kept, so the indirect light of a light switched off fades over the frames each bounce takes, `glow`
 the small emissive surfaces carried as lights, whose light the rays leave out all the same, so what
 they give can be seen and timed, `gi.toggle cascade 2` keeps the third cascade's light alone, and
-`on` or `-1` puts each back.
+`on` or `-1` puts each back. `gi.toggle meshes on` traces the world's probes' rays through the GPU's
+own rays at `High` in place of the field, a step that stays off until what lets light through is
+crossed through those rays too, and `off` puts the field back.
 
 `entity.set` writes vectors, quaternions and colors as numbers joined by commas, enums by name,
 and an array as its items split by semicolons, so

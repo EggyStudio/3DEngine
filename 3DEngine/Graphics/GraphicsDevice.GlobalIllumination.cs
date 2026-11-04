@@ -153,8 +153,8 @@ internal sealed class GpuIllumination : IDisposable
 
 internal sealed unsafe partial class GraphicsDevice
 {
-    private const int TraceStage = 0, MergeStage = 1, AmbientStage = 2, ScreenStage = 3, FilterStage = 4, GlowStage = 5, SolidTraceStage = 6;
-    private readonly ComputeStage[] _giStages = new ComputeStage[7];
+    private const int TraceStage = 0, MergeStage = 1, AmbientStage = 2, ScreenStage = 3, FilterStage = 4, GlowStage = 5, SolidTraceStage = 6, RayTraceStage = 7;
+    private readonly ComputeStage[] _giStages = new ComputeStage[8];
 
     /// <summary>What <c>gi_trace.slang</c> is pushed.</summary>
     [StructLayout(LayoutKind.Sequential)]
@@ -204,6 +204,11 @@ internal sealed unsafe partial class GraphicsDevice
                 VkDescriptorType.SampledImage, VkDescriptorType.CombinedImageSampler, VkDescriptorType.SampledImage];
             _giStages[TraceStage] = MakeComputeStage(trace, traced, (uint)sizeof(IlluminationTrace));
             _giStages[SolidTraceStage] = MakeComputeStage(spirv[6], traced, (uint)sizeof(IlluminationTrace));
+            // The build that traces the meshes through the device's rays, with the ray scene bound
+            // after the field's images, where the device traces rays and the build was given.
+            if (spirv[7].Length > 0 && CanQueryRays)
+                _giStages[RayTraceStage] = MakeComputeStage(spirv[7], [.. traced, VkDescriptorType.AccelerationStructureKHR,
+                    VkDescriptorType.StorageBuffer, VkDescriptorType.StorageBuffer], (uint)sizeof(IlluminationTrace));
             _giStages[MergeStage] = MakeComputeStage(merge, [VkDescriptorType.SampledImage, VkDescriptorType.SampledImage, VkDescriptorType.StorageImage,
                 VkDescriptorType.UniformBuffer, VkDescriptorType.CombinedImageSampler, VkDescriptorType.StorageImage, VkDescriptorType.StorageImage,
                 VkDescriptorType.SampledImage, VkDescriptorType.SampledImage, VkDescriptorType.CombinedImageSampler], 48);
@@ -222,11 +227,11 @@ internal sealed unsafe partial class GraphicsDevice
     /// trace itself where there is none.
     /// </summary>
     public void InitializeGlobalIllumination(ReadOnlySpan<byte> trace, ReadOnlySpan<byte> merge, ReadOnlySpan<byte> ambient, ReadOnlySpan<byte> screen,
-        ReadOnlySpan<byte> filter, ReadOnlySpan<byte> glow, ReadOnlySpan<byte> solidTrace = default)
+        ReadOnlySpan<byte> filter, ReadOnlySpan<byte> glow, ReadOnlySpan<byte> solidTrace = default, ReadOnlySpan<byte> rayTrace = default)
     {
         if (!IsInitialized || CanBounceLight) return;
         _giSpirv = [trace.ToArray(), merge.ToArray(), ambient.ToArray(), screen.ToArray(), filter.ToArray(), glow.ToArray(),
-            solidTrace.IsEmpty ? trace.ToArray() : solidTrace.ToArray()];
+            solidTrace.IsEmpty ? trace.ToArray() : solidTrace.ToArray(), rayTrace.ToArray()];
     }
 
     /// <summary>
@@ -395,13 +400,15 @@ internal sealed unsafe partial class GraphicsDevice
     /// <param name="lightThrough">Whether some surface lets light through this frame, which the rays cross, where a frame of none traces with the build that leaves the crossing out.</param>
     /// <param name="fieldWhole">Whether the field holds every mesh in reach (<see cref="SceneFieldPlan.Whole"/>), so a ray carried to the field's edge that meets nothing brings the sky.</param>
     /// <param name="farPart">Which of the <see cref="FarParts"/> parts of the far cascade's probes trace their rays this frame, or -1 for all of them.</param>
+    /// <param name="rays">The window's meshes for the device's rays, which the probes' rays are traced through at the top quality in a frame where no surface lets light through, or null for the field alone.</param>
     /// <returns>What the recording holds, to free once no frame in flight reads it.</returns>
     public IDisposable RecordGlobalIllumination(ICommandBuffer commandBuffer, GpuIllumination gi, GpuSceneField field, IImageView environment,
         ISampler environmentSampler, IImageView sunMap, ISampler sunSampler, ReadOnlySpan<byte> lights, IReadOnlyList<(float Start, float End)> intervals, float spacing,
         bool mergeOff = false, int alone = -1, bool viewed = false, long frame = 0, IReadOnlyList<bool>? lying = null, int lastCounted = -1, bool lightThrough = false,
-        bool fieldWhole = false, int farPart = -1)
+        bool fieldWhole = false, int farPart = -1, GpuRayScene? rays = null)
     {
-        var trace = lightThrough ? TraceStage : SolidTraceStage;
+        var traced = rays is not null && !lightThrough && GiStages[RayTraceStage].Pipeline.Handle != 0;
+        var trace = lightThrough ? TraceStage : traced ? RayTraceStage : SolidTraceStage;
         var run = new ProbeRun(this, commandBuffer, [(trace, gi.Cascades), (MergeStage, gi.Cascades), (AmbientStage, gi.Cascades)]);
         var cmd = run.Commands;
         var readers = VkPipelineStageFlags2.VertexShader | VkPipelineStageFlags2.FragmentShader | VkPipelineStageFlags2.ComputeShader;
@@ -440,6 +447,8 @@ internal sealed unsafe partial class GraphicsDevice
             // The cascade above's share of the sky by direction, as its merge wrote it the frame
             // before, the last cascade's own standing in for the binding.
             run.Image(set, 14, VkDescriptorType.SampledImage, gi.MergedSky[Math.Min(c + 1, gi.Cascades - 1)].View, null, VkImageLayout.General);
+            if (traced)
+                WriteRayScene(set, 15, rays!);
             var push = new IlluminationTrace
             {
                 Cascade = (uint)c, Probes = p, Texels = n, Last = c == gi.Cascades - 1 || c == lastCounted ? 1u : 0u,

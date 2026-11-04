@@ -28,6 +28,7 @@
 // it, other than the whole the frame after the light its rays bring straight from the sun, the
 // lights and emissive surfaces fell by a fifth or rose by a quarter, so the indirect light from
 // light that went out goes with it rather than over the frames each bounce takes to fade.
+import color;
 import gi;
 import probelight;
 import scenefield;
@@ -106,6 +107,63 @@ Sampler2D sunShadow;
 // frame before, which says along a ray's way whether the probes above it see the sky there.
 [[vk::binding(14, 0)]]
 Texture3D<float> skyAbove;
+
+#if defined(RAY_QUERY)
+// Where the device traces rays, the window's meshes as its ray tracing sees them, each copy's color
+// and where its mesh's corners lie, and every mesh's corners in its own space with their colors,
+// which a probe's ray is traced through at the top quality in place of the field (lightset.slang).
+[[vk::binding(15, 0)]]
+RaytracingAccelerationStructure rayScene;
+
+struct RaySurface
+{
+    float4 color;
+    float4 emission;
+    uint4 corners;
+};
+
+[[vk::binding(16, 0)]]
+StructuredBuffer<RaySurface> raySurfaces;
+
+[[vk::binding(17, 0)]]
+StructuredBuffer<float4> rayCorners;
+
+// A corner's color, linear, as the model pass brings a vertex's color in.
+float3 meshCornerColor(float4 corner)
+{
+    uint bits = asuint(corner.w);
+    return srgbToLinear(float3(float(bits & 255u), float((bits >> 8) & 255u), float((bits >> 16) & 255u)) / 255.0);
+}
+
+// How far a ray from origin along way goes before it meets one of the window's meshes, within
+// reach, with that face's normal turned toward the ray and its color as the copy's color times
+// its corners', or below zero where it meets none.
+float meshHit(float3 origin, float3 way, float reach, out float3 n, out float3 color)
+{
+    n = float3(0.0, 1.0, 0.0);
+    color = float3(0.0);
+    RayQuery<RAY_FLAG_FORCE_OPAQUE> query;
+    RayDesc ray;
+    ray.Origin = origin;
+    ray.Direction = way;
+    ray.TMin = 0.0;
+    ray.TMax = reach;
+    query.TraceRayInline(rayScene, RAY_FLAG_NONE, 0xFF, ray);
+    query.Proceed();
+    if (query.CommittedStatus() != COMMITTED_TRIANGLE_HIT)
+        return -1.0;
+    RaySurface surface = raySurfaces[query.CommittedInstanceID()];
+    uint corner = surface.corners.x + query.CommittedPrimitiveIndex() * 3u;
+    float3 a = rayCorners[corner].xyz, b = rayCorners[corner + 1u].xyz, c = rayCorners[corner + 2u].xyz;
+    n = normalize(mul(cross(b - a, c - a), (float3x3)query.CommittedWorldToObject3x4()));
+    if (dot(n, way) > 0.0)
+        n = -n;
+    float2 between = query.CommittedTriangleBarycentrics();
+    color = surface.color.rgb * (meshCornerColor(rayCorners[corner]) * (1.0 - between.x - between.y)
+        + meshCornerColor(rayCorners[corner + 1u]) * between.x + meshCornerColor(rayCorners[corner + 2u]) * between.y);
+    return query.CommittedRayT();
+}
+#endif
 
 struct TracePush
 {
@@ -454,7 +512,25 @@ void computeMain(uint3 id : SV_DispatchThreadID, uint lane : SV_GroupIndex)
         // the first surface it meets and takes its light. With the light taken as the crossing
         // takes it, summed over what the ray met and set after, global illumination took 7% more
         // at Low in the bounce rooms, though the ray met one surface as here.
-        if (t >= 0.0)
+#if defined(RAY_QUERY)
+        float3 meshNormal, meshColor;
+        float meshAt = meshHit(origin, way, end, meshNormal, meshColor);
+        if (meshAt >= 0.0)
+        {
+            reached = meshAt;
+            light = float4(shadeProbeHitAt(sceneField, fieldInfo, gatheredAt(), fieldAlbedo, fieldGlow, lights, bounced, origin + way * meshAt, meshNormal, meshColor, way,
+                float(probes), push.interval.z, push.interval.w, share, SunShadowMap(sunShadow), own), meshAt < push.interval.x ? 0.5 : 0.0);
+            through = 0.0;
+        }
+        else if (false)
+        {
+        }
+#else
+        if (false)
+        {
+        }
+#endif
+        else if (t >= 0.0)
         {
             // The indirect light reaching the hit from the probes a march reaches, so the probes'
             // reach goes unread and the faces stand in its place.

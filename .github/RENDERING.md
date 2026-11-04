@@ -2563,6 +2563,19 @@ its whole light. Carried under half the weight, the door read 0.983 of its refer
 pixels 0.482 off, the light landing in the wrong places, and the lion 0.04 brighter, and under an
 eighth the vestibule read as before (`gi.compare`'s frames, `./e3d command profile`).
 
+**The probes' rays through the GPU's own rays, read on 2026-11-04.** At `High`, where the device
+traces rays and no surface in the frame lets light through, a build of the trace sends the world's
+probes' rays through the window's meshes as the GPU's ray tracing holds them, each hit lit as a
+probe's hit in the field is from the face's own normal and color, which `gi.toggle meshes on` takes
+and which stays off until what lets light through is crossed through those rays too, since a frame
+with one leaf in it traces the field and its light would jump at the first. Taken, Sponza's lion
+view at 8:00 reads 0.826 of its reference's light where 1.139 and its pixels 0.441 off where 0.636,
+its view at noon 0.261 off where 0.275, the door's at 8:00 0.512 of its light where 0.977 and at
+noon 0.488 off where 0.466, the nave's at 8:00 0.951 of its light where 1.053, the other views'
+pixels within 0.02 of before, the bounce rooms' window's room 0.250 off where 0.228 and the rest
+within 0.004, and global illumination's time in the atrium and the nave at 8:00 within its spread
+(`gi.compare`'s frames, `./e3d command profile`).
+
 **A crossing taken once, read on 2026-10-31.** The cascades' intervals overlap, the first's
 reaching twice as far as the second's begins, and a slab that straddled the first's end was crossed
 twice, the first cascade's ray taking the part of it within its interval and handing on what it

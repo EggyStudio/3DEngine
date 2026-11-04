@@ -58,7 +58,7 @@ internal sealed class Renderer : IDisposable
         string[] traces = Context.Graphics is GraphicsDevice { CanQueryRays: true } ? ["RAY_QUERY"] : [];
         (string File, string[] Defines)[] builds = [("model.slang", traces), ("model.slang", [.. traces, "NO_GLOW_LIGHTS"]),
             ("model_streams.slang", ["NO_GLOW_LIGHTS"]), ("model.slang", ["NO_BOUNCE"]), ("model_streams.slang", ["NO_BOUNCE"]),
-            ("gi_trace.slang", ["NO_LIGHT_THROUGH"])];
+            ("gi_trace.slang", ["NO_LIGHT_THROUGH"]), ("gi_trace.slang", [.. traces, "NO_LIGHT_THROUGH"])];
         if (Interlocked.Exchange(ref _compiledAhead, 1) == 0)
             new SlangLoader().CompileAhead((file, defines) => defines.Length == 0 || builds.Any(build => build.File == file && build.Defines.SequenceEqual(defines)));
         var ahead = sw.Elapsed;
@@ -107,7 +107,8 @@ internal sealed class Renderer : IDisposable
                 server.LoadSync<ShaderProgram>("shaders/gi_screen.slang").Compute,
                 server.LoadSync<ShaderProgram>("shaders/gi_screen_filter.slang").Compute,
                 server.LoadSync<ShaderProgram>("shaders/gi_screen_glow.slang").Compute,
-                Build("gi_trace.slang", ["NO_LIGHT_THROUGH"], "The probes' rays cross what lets light through in every frame")?.Compute);
+                Build("gi_trace.slang", ["NO_LIGHT_THROUGH"], "The probes' rays cross what lets light through in every frame")?.Compute,
+                device.CanQueryRays ? Build("gi_trace.slang", ["RAY_QUERY", "NO_LIGHT_THROUGH"], "The probes' rays are traced through the field alone")?.Compute : default);
             device.InitializeProbeFilter(server.LoadSync<ShaderProgram>("shaders/probe_gather.slang").Compute,
                 server.LoadSync<ShaderProgram>("shaders/probe_mips.slang").Compute,
                 server.LoadSync<ShaderProgram>("shaders/probe_prefilter.slang").Compute,

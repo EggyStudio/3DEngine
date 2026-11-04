@@ -473,9 +473,10 @@ internal sealed unsafe partial class GraphicsDevice
     /// Binds the scene's top-level structure, this frame's copies and the meshes' corners at the
     /// three bindings from <paramref name="first"/> of <paramref name="set"/>.
     /// </summary>
-    public void BindRayScene(IDescriptorSet set, uint first, GpuRayScene scene)
+    public void BindRayScene(IDescriptorSet set, uint first, GpuRayScene scene) => WriteRayScene(((VulkanDescriptorSet)set).Handle, first, scene);
+
+    private void WriteRayScene(VkDescriptorSet handle, uint first, GpuRayScene scene)
     {
-        var handle = ((VulkanDescriptorSet)set).Handle;
         var top = scene.Top;
         var structure = new VkWriteDescriptorSetAccelerationStructureKHR { accelerationStructureCount = 1, pAccelerationStructures = &top };
         var surfaces = scene.Surfaces[scene.Slot]!;
