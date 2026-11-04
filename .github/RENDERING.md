@@ -2621,6 +2621,24 @@ about 0.07 ms of the difference and the second gather and the trace's normals ab
 left out alone (`./e3d command profile` with the frames unlimited), and the world's probes 15.89 MB
 where 12.27 (`gi.state`).
 
+**A hit on another surface than the faces', read and mended on 2026-11-04.** A probe's face holds
+its light at the surface its own ray along the face's opposite way met, which may lie far beyond the
+surface a hit reading the probe lies on. In the bridge's bay and aisle at `High`, cells of 0.125
+with the field around the eye, the probes 4 apart of the third cascade sent that ray through an arch
+to the bay's back wall 9.8 and 13.8 units off, their +x faces reading 3.4 to 4.9 times their own
+light there and 1.14 to 1.51 of the reference traced by that wall, and a hit on the pier beside the
+arch 1.85 ahead of such a probe moved a fifth of the way toward that light. A hit a spacing or more
+in front of the faces' surface keeps their own light, the move scaled by how far within a
+spacing of that surface it lies (`towardSurface` in `probelight.slang`). The pier's face by the wall
+it continues reads 37.6% and 36.6% over its reference from eyes at z 7 and 7.3 where 39.2% and
+38.2%, the aisle's probes' +x faces 1.31 to 1.37 of their references where 1.34 to 1.39, and 3.0%
+and 2.3% with the field centred ahead where 3.3% and 2.5%. The closed rooms, the bounce rooms and
+Sponza's sixteen views move by 0.005 of their light at most (a scratch test against the runtime
+reference, `BounceReference.MeasureProbe` at 256 paths, `BounceRoomsTests`, `gi.compare` against
+references of 1024 paths a pixel). The rest of the aisle's excess around the eye is the third
+cascade's faces within a spacing of their surface reading 11 to 14% over their own light there,
+through light that lies past the first bounce for 99% of it.
+
 **A crossing taken once, read on 2026-10-31.** The cascades' intervals overlap, the first's
 reaching twice as far as the second's begins, and a slab that straddled the first's end was crossed
 twice, the first cascade's ray taking the part of it within its interval and handing on what it

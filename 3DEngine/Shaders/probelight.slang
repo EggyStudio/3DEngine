@@ -143,7 +143,7 @@ float3 bouncedIn<V : IVolume, let Sky : bool, let At : bool>(V cubes, V cubesAt,
         }
         float3 probe = oc.xyz + (float3(at) + 0.5 + moved) * (oc.w * spacing);
         if (At)
-            light = towardSurface(cubesAt, light, n, n2, at, c, probes, dot(probe - p, n));
+            light = towardSurface(cubesAt, light, n, n2, at, c, probes, dot(probe - p, n), oc.w * spacing);
         float weight = lerps.x * lerps.y * lerps.z * valid * probeFacing(p, n, probe);
         float sees = probeSees(reach, p, n, probe, at, c, probes, oc.w * spacing);
         seenSum += light * weight * sees;
@@ -229,8 +229,12 @@ public float3 bouncedSeenAt<V : IVolume>(V field, SceneFieldInfo info, SceneFiel
 // A probe's faces at a hit moved toward their light at the surfaces they are read for
 // (gi_ambient.slang), by how far the probe lies ahead of the hit along its normal against how far
 // the faces' rays went to theirs, a face whose ray met none keeping its own light. A probe behind
-// the hit's plane keeps its faces' light, so its faces at the surface go unread.
-float3 towardSurface<V : IVolume>(V cubesAt, float3 light, float3 n, float3 n2, int3 at, int c, float probes, float ahead)
+// the hit's plane keeps its faces' light, so its faces at the surface go unread. A hit a spacing or
+// more in front of the faces' surface lies on another surface than theirs and keeps their own light
+// too. Beside an arch, where the probes' rays along the faces' opposite way went through it to a
+// wall 10 to 14 units beyond, whose light there read 3.4 to 4.9 times the faces' own, a hit on the
+// arch's pier 1.85 ahead of a probe took a fifth of that light.
+float3 towardSurface<V : IVolume>(V cubesAt, float3 light, float3 n, float3 n2, int3 at, int c, float probes, float ahead, float apart)
 {
     if (ahead <= 0.0)
         return light;
@@ -243,7 +247,7 @@ float3 towardSurface<V : IVolume>(V cubesAt, float3 light, float3 n, float3 n2, 
         lightAt += texelAt.rgb * n2[axis];
         h += texelAt.a * n2[axis];
     }
-    return lerp(light, lightAt, h > 1e-3 ? saturate(ahead / h) : 0.0);
+    return lerp(light, lightAt, h > 1e-3 ? saturate(ahead / h) * saturate(1.0 - (h - ahead) / apart) : 0.0);
 }
 
 // The sum bouncedSeenAt divides for cascade c, the light of the probes seen times their weights,
@@ -286,7 +290,7 @@ float4 seenSumIn<V : IVolume, let At : bool>(V field, SceneFieldInfo info, Scene
         if (valid < 0.5 || dot(probe - p, n) <= 0.0 || !seesThrough(field, info, from, probe, oc.w * 0.5))
             continue;
         if (At)
-            light = towardSurface(cubesAt, light, n, n2, at, c, probes, dot(probe - p, n));
+            light = towardSurface(cubesAt, light, n, n2, at, c, probes, dot(probe - p, n), oc.w * spacing);
         float weight = lerps.x * lerps.y * lerps.z * probeFacing(p, n, probe);
         sum += light * weight;
         weights += weight;
