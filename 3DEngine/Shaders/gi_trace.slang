@@ -389,7 +389,18 @@ void computeMain(uint3 id : SV_DispatchThreadID, uint lane : SV_GroupIndex)
     GroupMemoryBarrierWithGroupSync();
     float4 around = aboveAround[0] + aboveAround[1] + aboveAround[2] + aboveAround[3] + aboveAround[4] + aboveAround[5] + aboveAround[6] + aboveAround[7];
     float3 aboveMean = around.w > 1e-4 ? around.xyz / around.w : origin;
-    bool carried = push.cascade.w == 0u && seesAbove == 0u;
+    // A probe that sees the probes above it standing outside every mesh for under a quarter of
+    // their weight is carried as well, as one under the vault of Sponza's vestibule is, a passage
+    // narrower than the spacing of the cascades above, whose probes stand in its stone, so its rays
+    // toward the atrium took the light past their interval from the few probes above it sees.
+    // Carried, the door view at noon read 0.889 of a path-traced reference's light where 0.700, its
+    // first bounce 0.790 where 0.663, its pixels' difference from it 0.467 of its light where
+    // 0.527, the other seven views' within 0.003 of before and global illumination's time as long,
+    // the bounce rooms' strip room 0.01 further off its reference, a carried ray's one traced
+    // sample standing where the merge averaged the probes above. Carried under half the weight,
+    // the door read 0.983 but its pixels 0.482 off, the light landing in the wrong places
+    // (gi.compare's frames, ./e3d command profile, BounceRoomsTests).
+    bool carried = push.cascade.w == 0u && (seesAbove == 0u || around.w < 0.25);
     // A ray carried on that meets nothing to the field's edge brings the sky as the last cascade's
     // do, once the field holds every mesh in reach, and nothing before, a build the eye's move
     // started leaving its cascade as last built, every mesh in it. Under a slab two and a half

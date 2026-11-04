@@ -84,7 +84,11 @@ public sealed partial class BounceRoomsTests
     // reads 0.102, 0.088 and 0.086, the corridor 0.281, 0.271 and 0.257, and the window's 0.214,
     // 0.241 and 0.232, the other rooms as before. With each probe's reach kept at sixteen by sixteen
     // directions, the window's reads 0.247 at High and 0.255 at Medium, its surfaces brighter, the
-    // other rooms within 0.001.
+    // other rooms within 0.001. With a probe that sees the probes above it for under a quarter of
+    // their weight carried on past its interval, the strip's reads 0.241, 0.243 and 0.236 at Low,
+    // Medium and High where 0.230, 0.234 and 0.226, a carried ray's one traced sample standing where
+    // the merge averaged the probes above, which moves a closed room by a hundredth and a walled
+    // passage by its whole light, and its bound is 0.25.
     [NeedsRayQueryTheory]
     [InlineData(1, GlobalIllumination.Low, 0.11)]
     [InlineData(1, GlobalIllumination.Medium, 0.12)]
@@ -101,9 +105,9 @@ public sealed partial class BounceRoomsTests
     [InlineData(5, GlobalIllumination.Low, 0.03)]
     [InlineData(5, GlobalIllumination.Medium, 0.03)]
     [InlineData(5, GlobalIllumination.High, 0.03)]
-    [InlineData(6, GlobalIllumination.Low, 0.24)]
-    [InlineData(6, GlobalIllumination.Medium, 0.24)]
-    [InlineData(6, GlobalIllumination.High, 0.24)]
+    [InlineData(6, GlobalIllumination.Low, 0.25)]
+    [InlineData(6, GlobalIllumination.Medium, 0.25)]
+    [InlineData(6, GlobalIllumination.High, 0.25)]
     [InlineData(7, GlobalIllumination.Low, 0.05)]
     [InlineData(7, GlobalIllumination.Medium, 0.06)]
     [InlineData(7, GlobalIllumination.High, 0.06)]

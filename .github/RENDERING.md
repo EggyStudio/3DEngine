@@ -942,13 +942,13 @@ wall thinner than a cell standing on a floor had its bottom face, buried against
 22 degrees off straight back from the cells along its foot, kept as the face behind them, which held
 none of them, and a lamp outside a closed room of walls 0.3 thick in cells of 0.5 lit the floor
 along a wall's foot inside 48% past the room's own dim lamp, where 1% now
-(`GlobalIlluminationTests`). Sponza's views at 12:00 moved by 0.009 at most in the share of their
-light off their references but the door's, which went from 0.432 to 0.405 as its light rose from
-0.37 to 0.41 of its reference's, the gallery from 0.416 to 0.407 and the lion and the look-up from
-0.285 and 0.306 to 0.289 and 0.310, and the bounce rooms by 0.003 at most, the field's build as long
-(`./e3d command gi.compare`, `./e3d command profile`). A second pass turns the uints into distances
-in both the image the meshes alone make and the one the passes read (`field_resolve.slang`). A
-double-sided mesh has no inside,
+(`GlobalIlluminationTests`). Sponza's views at 12:00 moved by 0.004 at most in the share of their
+light off their references, read pixel by pixel, but the door's, which went from 0.569 to 0.529 as
+its light rose from 0.640 to 0.700 of its reference's, and the gallery's, from 0.485 to 0.465, the
+lion's light 0.979 where 1.003, and the bounce rooms moved by 0.004 at most, the field's build as
+long (`./e3d command gi.compare`'s PFMs, `./e3d command profile`). A second pass turns the uints
+into distances in both the image the meshes alone make and the one the passes read
+(`field_resolve.slang`). A double-sided mesh has no inside,
 and a sheet of one between two rows of cells leaves half a cell in each, which a trace steps over.
 The field keeps the plane of the double-sided face a cell's nearest point lies inside of, within a
 cell of its middle, in the image's other three channels, its way times two cells more than its
@@ -2532,6 +2532,26 @@ illumination 1.83 to 1.87 ms in the corridor at 1920 by 1080 at `High` where 1.8
 Cornell box alike. Alone it changed no room. Bringing the sky where a ray met nothing, as the last
 cascade's rays do, lit the closed room of `CascadeEdgeTests` through the cascades not yet built in
 its first frames at 0.060 in linear light, over twice what its floor settles at.
+
+**Probes that see little of the cascade above, carried too, read on 2026-11-04.** A probe that sees
+the probes above it standing outside every mesh for under a quarter of their weight is carried as
+well. Under the vault of Sponza's vestibule, a passage narrower than the spacing of the cascades
+above, whose probes stand in its stone, the first cascade's probe by the vault read its face toward
+the atrium 85% under a path-traced reference of one bounce, its rays that way taking the light past
+their interval from the few probes above it sees. Carried, the door view at noon reads 0.889 of its
+reference's light where 0.700, its first bounce 0.790 where 0.663, and its pixels' difference 0.467
+of its light where 0.527, the other seven views' within 0.003 of before, and global illumination
+takes 3.12 to 3.21 ms of the GPU in the atrium at High where 3.10 to 3.16, under the powersave
+profile. A probe five units into a passage a unit wide off a sunlit court, in Sponza's cells, read
+its face toward the court as nothing where the reference reads 0.025, and reads it within a quarter
+of it now (`GlobalIlluminationTests`). The bounce rooms' strip room reads 0.241, 0.243 and 0.236 of
+its light off its reference at Low, Medium and High where 0.230, 0.234 and 0.226, the grazing
+floor's up to 0.005 further, the carried lamp's 0.010 nearer at Low and 0.005 further at Medium, and
+the rest within 0.002 (`BounceRoomsTests`), a carried ray's one traced sample standing where the
+merge averaged the probes above, which moves a closed room by a hundredth and a walled passage by
+its whole light. Carried under half the weight, the door read 0.983 of its reference's light but its
+pixels 0.482 off, the light landing in the wrong places, and the lion 0.04 brighter, and under an
+eighth the vestibule read as before (`gi.compare`'s frames, `./e3d command profile`).
 
 **A crossing taken once, read on 2026-10-31.** The cascades' intervals overlap, the first's
 reaching twice as far as the second's begins, and a slab that straddled the first's end was crossed
