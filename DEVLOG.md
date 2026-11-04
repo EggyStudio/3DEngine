@@ -6,6 +6,252 @@ under `.github/assets/readings` as WebP files named by their day, each on the da
 the notes written beside them as Markdown files named the same way. A line under Done names the item
 of .github/REVIEW.md or .github/REVIEW-ARCHIVE.md and the commit that closed it.
 
+## 2026-11-04
+
+![](.github/assets/readings/2026-11-04-item-194-door.webp)
+Sponza's door view at 12:00, metered, against its path-traced reference, before and with the probes
+that see under a quarter of the probes above them carried on past their interval
+
+![](.github/assets/readings/2026-11-04-item-201-floor.webp)
+Sponza's atrium floor at noon seen low along its length, trilinear beside sixteen samples along the
+slant, and the far floor at twice its size below
+
+![](.github/assets/readings/2026-11-04-item-199-faces.webp)
+Sponza's door view at 8:00 and noon, metered, and the bounce rooms' thin room and strip room, at
+HEAD, with each hit reading its probes' faces at its surface, and against their path-traced
+references, each row at one exposure
+
+## 2026-11-03
+
+![](.github/assets/readings/2026-11-03-item-189-views.webp)
+scenes_sponza's atrium, nave and lookup at 8:00 at High as the example draws them, metered, before
+item 189 (left) and with the rays the probes above see no sky along traced on to the sky past them
+(right), the shade taking the sky's blue.
+
+![](.github/assets/readings/2026-11-03-item-142-lift-views.webp)
+scenes_sponza's atrium, lion and lookup at 8:00 at High as the example draws them, metered, before
+item 142's first mend (left) and with the probes' hits moved a cell toward the sun rather than a
+cell and a half along their normal before the shadow map is read (right), the shade a few percent
+darker.
+
+![](.github/assets/readings/2026-11-03-item-142-far-views.webp)
+scenes_sponza's atrium, lookup and lion at 8:00 at High as the example draws them, metered, with the
+screen's probes standing in the world's first two cascades (left) and in every cascade, their rays
+reaching as far as the probes of the cascade holding them are apart (right), the lion's niche at the
+atrium's end and the lookup's doorways dimmed as a path-traced reference has them.
+
+![](.github/assets/readings/2026-11-03-item-190-floor.webp)
+scenes_sponza's atrium at noon at High as the example's gallery draws it, metered, before item 190
+(left) and with the textures' averages read on a grid over their rows and columns (right), the
+floor's light bounced brighter into the shade.
+
+![](.github/assets/readings/2026-11-03-item-187-fog.webp)
+scenes_sponza's vestibule at 15:00 and lookup at 8:00 at High with the fog of its matched scene
+switched on, as it was (left) and with the fog's cells reading the world's probes that see them for
+the air (right), the blotches of light in the dark air gone.
+
+![](.github/assets/readings/2026-11-03-item-141-cave.webp)
+The voxel game's deep cave at seed 1 at noon at 1920 by 1080, brightened six times, at Low above and
+High below, with the far cascade off, on before, and on with its probes traced a quarter a frame,
+the far walls as dark with it on, global illumination 0.4 to 0.47 ms less there and at the cherry
+grove.
+
+![](.github/assets/readings/2026-11-03-item-141-grove.webp)
+The voxel game's cherry grove at seed 1 at High at 1920 by 1080, on the left before and in the
+middle with the screen's probes in the counted cascades and the thin-wall judgment left out of the
+far cascade's cells, the frame 19.24 ms where 20.06 to 20.10, and on the right the pixels apart by
+more than 8 levels, 0.6% of them, in the far trees' shade and the clouds' edges.
+
+![](.github/assets/readings/2026-11-03-item-192-room.webp)
+The voxel game's room of forty glowstones at hour 23 at High at 1920 by 1080, on the left with the
+lights past the four brightest at a point left out, the stone 12 to 23% under a path-traced
+reference, and on the right with them grouped by their way and every light reaching by a share of
+its own light, within 2%.
+
+![](.github/assets/readings/2026-11-03-item-144-packed.webp)
+The voxel game's spawn and village at High at 1920 by 1080 with the sections' positions as three
+floats a vertex and packed in six bytes, and the pixels apart by more than 8 levels, on the drifting
+clouds' edges as between two runs of the floats
+
+![](.github/assets/readings/2026-11-03-item-193-gallery.webp)
+Sponza's gallery at 12:00, metered, against its path-traced reference, with a face counted behind a
+field cell within 25 degrees of straight back and with it counted only straight behind, its nearest
+point inside the face
+
+Done that day
+
+- Item 140 at `1567179e`. Each quality is a GPU budget at a size, read at 1080p, 1440p and 4K.
+- Item 187 at `893758ea`. The fog lights dark rooms.
+- Item 188 at `5ab01df8`. Flying Sponza is stable.
+- Item 189 at `369d9b5a`. The probes' rough reflection along the mirror way, a seventh on the floor
+  and thirty-fold on a face turned back.
+- Item 190 at `52e75184`. The sunlit pixels at noon read 1.28 to 1.65 times the reference.
+- Item 191 at `9a20767c`. The sun shows in the fog as shafts, not as an even haze.
+
+## 2026-11-02
+
+![](.github/assets/readings/2026-11-02-item-170-balcony-after.webp)
+The same view through the scene's air, HDRP's Earth with its aerosols over 12 km and a white ground,
+its sun outside the air at 120,000 lux times the sine of its height at 5,633 K.
+
+![](.github/assets/readings/2026-11-02-item-170-balcony-before.webp)
+Intel's Sponza in scenes_sponza from the first floor's gallery at 15:00, metered, before the air,
+its sky painted and its sun unchanged by the air.
+
+![](.github/assets/readings/2026-11-02-item-170-day-sky-17-30.webp)
+core_day_sky at 17:30 through the same air, the sun six degrees up and reddening, the stars held
+back until it is six degrees down.
+
+![](.github/assets/readings/2026-11-02-item-170-day-sky-8.webp)
+core_day_sky's ring of stones at 8:00 with the day sky given the Sky module's Earth, its sun and sky
+through the air drawn on the GPU, the camera at EV 15.
+
+![](.github/assets/readings/2026-11-02-item-170-door-after.webp)
+The same view through the scene's air, the vestibule lit by the light off the walls alone.
+
+![](.github/assets/readings/2026-11-02-item-170-door-before.webp)
+Intel's Sponza in scenes_sponza down on the main door at 15:00, metered, before the air.
+
+![](.github/assets/readings/2026-11-02-item-170-lookup-after.webp)
+The same view through the scene's air.
+
+![](.github/assets/readings/2026-11-02-item-170-lookup-before.webp)
+Intel's Sponza in scenes_sponza up from the atrium's floor at 15:00, metered, before the air.
+
+![](.github/assets/readings/2026-11-02-item-172-cornell-before.webp)
+shaders_cornell_box at High before its rough walls reflected the probes' light, the walls reflecting
+the share of the sky the probes saw, none of the room's.
+
+![](.github/assets/readings/2026-11-02-item-172-cornell-probes.webp)
+The same with each rough wall reflecting the light the world's probes hold along its mirror way,
+gathered by a lobe of the cosine to the 8 in bordered blocks, by Karis's fit.
+
+![](.github/assets/readings/2026-11-02-item-172-cornell-reference.webp)
+shaders_cornell_box's reference path-traced with the first face's specular share, 1,024 paths a
+pixel.
+
+![](.github/assets/readings/2026-11-02-item-172-cornell-seam.webp)
+shaders_cornell_box with the probes' blocks clamped at their edges before their border, the seam at
+the eye's height where the mirror way crosses level in the octahedron's folded half, and the facets
+the plain means left.
+
+![](.github/assets/readings/2026-11-02-item-172-floor-probes.webp)
+shaders_reflections' floor at roughness 0.58 (top) and 0.88 (bottom) before the probes' reflection
+(left), with it by Karis's fit (middle), and the reference with the first face's specular share
+(right), on white.
+
+![](.github/assets/readings/2026-11-02-item-172-floor-table.webp)
+The same floor reflecting the probes' light by Karis's fit (left), by the split sum's table
+(middle), and the reference (right), 0% and 2% over it with the table where 1% over and 3% under
+with the fit.
+
+![](.github/assets/readings/2026-11-02-item-173-cornell.webp)
+shaders_cornell_box at High without ambient occlusion (left), with the horizons' occlusion within
+0.5 (middle) and the path-traced reference with the first face's specular share (right), each one's
+linear light through the same curve at the same exposure, on white.
+
+![](.github/assets/readings/2026-11-02-item-173-door.webp)
+scenes_sponza's door view at 15:00 at High without ambient occlusion (left), with the horizons'
+occlusion within 0.5 (middle) and the reference (right), each one's linear light through the same
+curve scaled to its own mean, since the frame reads 21 to 69% under the reference, on white.
+
+![](.github/assets/readings/2026-11-02-item-178-door.webp)
+scenes_sponza's door view at 15:00 at High with the probes' hits taking the sun through the field
+(left), through the window's shadow map of the frame before (middle), and the path-traced reference
+with the first face's specular share (right), each one's linear light through the same curve at the
+reference's exposure, on white.
+
+![](.github/assets/readings/2026-11-02-item-174-arcades.webp)
+scenes_sponza's arcades at 15:00 at High, unmetered, without temporal antialiasing at four samples
+(left), with it (middle) and the path-traced reference at 4,096 paths a pixel, which draws no
+textures (right), each one's linear light through the same curve at the reference's exposure, three
+times their size, on white. Along the reference's edges the frame's difference less its local mean
+averages 22.5% of the edge's step without it and 19.0% with it.
+
+![](.github/assets/readings/2026-11-02-item-174-still.webp)
+shaders_bounce_rooms at High held still, the Cornell box and the window's room (left), and each
+pixel's mean change in luminance from one frame to the next over forty frames shot one after
+another, over its mean, white at 3%, without temporal antialiasing (middle) and with it (right), the
+probes' breathing over the surfaces gone and the edges' last change left.
+
+![](.github/assets/readings/2026-11-02-item-174-strip.webp)
+shaders_bounce_rooms' strip room at High held still (top left), and each pixel's mean change in
+luminance from one frame to the next over forty frames shot one after another, over its mean, white
+at 3%, without temporal antialiasing (top right), with it held to the box of its neighbors alone
+(bottom left), and with the box a twentieth of the pixel's light wide at least where the frame
+before saw the same surface all around (bottom right), the ceiling's steps of some 4% blended over
+the frames.
+
+![](.github/assets/readings/2026-11-02-item-175-lookup.webp)
+scenes_sponza's lookup at 15:00 at High, metered, at 600 by 571, without fog (left), with the fog of
+the matched scene's volume profile, a mean free path of 400 units at the ground thinning by e every
+7.24 up and a phase of 0.5 (middle), and the scene the views are matched against (right), on white.
+
+![](.github/assets/readings/2026-11-02-item-186-feet.webp)
+scenes_sponza's atrium at 15:00 at High, metered, without fog, its left wall's door and columns
+where they meet the floor, the path-traced reference at 1024 paths a pixel, which draws no textures
+(left), the frame before item 186's mend, the door's lower half lit by the probes under the floor
+along the reflection's mirror way (middle), and after it (right), each one's linear light through
+the same curve at the reference's exposure, three times their size, on white.
+
+![](.github/assets/readings/2026-11-02-item-186-pairs.webp)
+scenes_sponza's atrium and lookup at 15:00 at High as the example draws them, metered with its fog,
+the lower half of each at twice its size, before item 186's mend (left) and after it (right), the
+glow rising toward the floor on the dark doors and the walls' feet gone.
+
+![](.github/assets/readings/2026-11-02-item-188-column.webp)
+scenes_sponza's nave at 8:00 at High without fog, a column's foot seen from low by the nave's end,
+the path-traced reference at 1024 paths a pixel, which draws no textures (left), the frame with the
+probes a surface does not see lent at a twentieth of their weight (middle) and with them left out
+(right), each one's linear light through the same curve at the reference's exposure, three times
+their size, on white. The speckled line under the lit part goes, and the bright patch at the foot's
+right is the probes' reflection, which stays.
+
+![](.github/assets/readings/2026-11-02-item-188-shadow.webp)
+scenes_sponza's atrium at noon at High, metered, without fog, the arches' faces the sun grazes from
+three places along the atrium, the sun's shadow compared at the nine nearest texels (top) and
+weighed bilinearly at sixteen (bottom), the stairs on the arches' edges ramping.
+
+![](.github/assets/readings/2026-11-02-item-188-far.webp)
+scenes_sponza's atrium at noon at High, metered, without fog, the lion's end from four places along
+the atrium, settled, as committed in 3e651d9d (left) and with a far cascade of 100 units (right),
+the niche reading dark from every place where it read white from x -4 and -5.5.
+
+The sun and the sky through the air of the scene the Sponza views are matched against, HDRP's
+Earth with its aerosols spread over 12 km and a white ground, its sun set outside the air to
+120,000 lux times the sine of its height at 5,633 K, at that scene's heights for three hours (the
+Sky module's `Sun` and `SkyLight`, and for HDRP its own transmittance worked out by its formula).
+
+| Hour | Height | Sun at the ground here | HDRP's | Sky on a level floor here |
+|---|---|---|---|---|
+| 8:00 | 16.55° | 22,580 lux at 4,062 K | 19,910 lux at 4,055 K | 2,060 lux |
+| 12:00 | 51.40° | 80,190 lux at 4,903 K | 71,030 lux at 4,903 K | 10,770 lux |
+| 15:05 | 53.97° | 83,410 lux at 4,924 K | 73,890 lux at 4,924 K | 11,410 lux |
+
+HDRP's lux are on the assumption, which no reading of the scene itself has settled, that Unity's
+color of a temperature has its brightest channel at 1, where the engine's has a luminance of 1. The
+example's own sun path leans 6 degrees and stands 44.7 degrees high at 15:00 where the scene's
+stands 54. Metered at 15:00, the balcony's, the door's and the view up's red over blue read 0.67,
+1.81 and 0.62 before the air and 1.24, 2.84 and 1.31 through it, where the scene's pictures read
+1.13, 1.60 and 1.15.
+
+| The first floor's gallery | The main door under the vault | Up from the atrium's floor |
+|---|---|---|
+| ![](2026-11-02-item-170-balcony-before.webp) | ![](2026-11-02-item-170-door-before.webp) | ![](2026-11-02-item-170-lookup-before.webp) |
+| ![](2026-11-02-item-170-balcony-after.webp) | ![](2026-11-02-item-170-door-after.webp) | ![](2026-11-02-item-170-lookup-after.webp) |
+
+Done that day
+
+- Item 170 at `adf7bb79`. A physically based sky.
+- Item 172 at `a35d7ce9`. Rough reflections from the probes and the screen.
+- Item 173 at `4bca4e47`. Horizon occlusion at the pixel's scale.
+- Item 174 at `0dff5d04`. Temporal antialiasing.
+- Item 175 at `f8872d03`. Volumetric fog.
+- Item 178 at `22c523ae`. The gather's fallback for a surface that sees none of its probes.
+- Item 184 at `fdf4dedb`. The corridor test's drift from 0.22 to 0.50.
+- Item 185 at `4a01d5ef`. A closed space in the coarsest cascade takes half the open light.
+- Item 186 at `aca80ca2`. The look read whole against the reference, and the knob.
+
 ## 2026-11-01
 
 ![](.github/assets/readings/2026-11-01-item-154-balcony.webp)
@@ -70,6 +316,8 @@ Done that day
 
 - Item 138 at `740066d6`. A crossing of leaves takes its transmission from the leaves' depth along
   the ray.
+- Item 139 at `2cb39bcb`. The field follows a changed world cell by cell, and a moving emitter
+  lights what it passes.
 - Item 151 at `3dda52c2`. Sponza's shadows cost what the field's triangles cost.
 - Item 152 at `6a6e2dad`. The light under a solid roof reads twelve times the reference.
 - Item 154 at `a4e70370`. Lights in lux and a physical camera's exposure.
@@ -89,7 +337,12 @@ Done that day
   folder.
 - Item 165 at `e159992e`. The Sponza example meters its exposure when played.
 - Item 166 at `6cc2a0a0`. The atrium's far end does not glow blue.
+- Item 167 at `5ea3e98f`. The Sponza example's look matches the reference's warmth and post-
+  processing.
 - Item 169 at `4b80c5c8`. An example that cannot get its memory says so and runs smaller.
+- Item 179 at `5932c389`. A capture waits for the scene field.
+- Item 180 at `60fd7e23`. A still camera turns Sponza's shade blue within five seconds.
+- Item 181 at `6fd05fd4`. The scene field keeps what it built when the camera turns or moves.
 
 ## 2026-10-31
 

@@ -1153,8 +1153,10 @@ field into shared memory before the probe's texels read them, so a probe under a
 nothing from one above it, which sees the sky. Each probe of every cascade then sums its merged
 light into six faces of a cube, irradiance from each axis's two ways (`gi_ambient.slang`), which a
 ray's hit reads the frame after for the indirect light that reaches it, and the model pass reads
-where no screen probe holds a pixel. Between the eight probes around a point, a probe is weighed by
-how near it is and, as DDGI weighs them, how squarely it stands in front of the surface, and one
+where no screen probe holds a pixel. A hit reads each face moved toward its light at the surface the
+face is read for, gathered beside it (Each hit's probes read at its surface, below). Between the
+eight probes around a point, a probe is weighed by how near it is and, as DDGI weighs them, how
+squarely it stands in front of the surface, and one
 behind the surface's plane next to nothing, how near taken from a point half the probes' spacing off
 the surface along its normal (`Lean` in `gi.slang`), so a wall lying in a plane of probes takes the
 light of the row in front of it as well as theirs. A probe nearer a surface than a tenth of its
@@ -2584,6 +2586,41 @@ of its light where 1.053, the other views' pixels within 0.02 of before, the bou
 room 0.250 off where 0.228 and the rest within 0.004, and global illumination's time in the atrium
 and the nave at 8:00 within its spread (`gi.compare`'s frames, `./e3d command profile`).
 
+**Each hit's probes read at its surface, read and mended on 2026-11-04.** A probe's hit reads the
+faces of the probes around it, and a probe off a surface sees the surfaces beside it more squarely
+than the surface does, so in a closed room the probes hold more light than arrives at the surface a
+hit lies on and each bounce through the hits takes the excess on (The gain past the first bounce,
+below). The gather sums each face a second time as the surface it is read for sees the light, the
+surface the probe's own ray along the face's opposite way met within its interval, each merged
+direction carried to the point its ray met and seen from the surface's, its texel's share of the
+sphere scaled by the distances squared and turned by the cosine its patch shows the surface over the
+one it shows the probe, a patch the probe met from behind or along its face giving none (`cubesAt`
+in `gi_ambient.slang`). The patch's normal is its rays' normals' mean, which the trace keeps for
+each texel as it shades the hits (`hitNormals` in `gi_trace.slang`), where the field's normal taken
+six times a texel by the gather took global illumination 0.3 ms more in all. A hit moves each face
+toward its light at the surface by how far the probe stands ahead of the hit along its normal
+against how far the face's ray went, and a probe behind the hit's plane is read as before
+(`towardSurface` in `probelight.slang`), for the world's probes' hits and the screen's probes'
+alone, the model pass unchanged. At `High` at 320 by 180 the closed white rooms of 4, 8 and 16 under
+a lamp read 0.99, 1.11 and 1.11 of their references' light past the first bounce where 1.11, 1.26
+and 1.23, their first bounce as before and their pixels 0.043 to 0.084 of their light off where
+0.084 to 0.172, and without the turn the room of 4 read 0.92 (a scratch test against the runtime
+reference, `BounceReference`). The bounce rooms' thin room reads 0.060, 0.045 and 0.042 of its light
+off its reference at `Low`, `Medium` and `High` where 0.108, 0.093 and 0.092, the corridor up to
+0.011 nearer, and the strip's room 0.264, 0.268 and 0.260 where 0.241, 0.243 and 0.236, its first
+two bounces 9 to 12% under its reference as before and the light past them, 44% of the reference's,
+24 to 25% under where 17 to 19%, the shortfall each bounce through the probes takes on, which the
+gain had made up for, the rest within 0.005 of before (`BounceRoomsTests`, a scratch test against
+references of two bounces). Sponza's other views' light moves by 0.012 of their references' at most,
+the door's 0.908 of it at 8:00 where 0.973 and 0.852 at noon where 0.887, its pixels nearer, 1.054
+and 0.465 of its light off where 1.082 and 0.468, where a patch met from behind or along its face
+kept its share read 0.960 and 0.865 with its pixels 1.077 and 0.466 off (`gi.compare` against
+references of 1024 paths a pixel). Global illumination takes 3.20 to 3.28 ms of the GPU in the
+atrium at `High` at 8:00 and noon where 3.00 to 3.16 under the powersave profile, the hits' reads
+about 0.07 ms of the difference and the second gather and the trace's normals about 0.05 each, each
+left out alone (`./e3d command profile` with the frames unlimited), and the world's probes 15.89 MB
+where 12.27 (`gi.state`).
+
 **A crossing taken once, read on 2026-10-31.** The cascades' intervals overlap, the first's
 reaching twice as far as the second's begins, and a slab that straddled the first's end was crossed
 twice, the first cascade's ray taking the part of it within its interval and handing on what it
@@ -3833,7 +3870,8 @@ BounceRoomsTests with its bounds at zero), or cost more than it gave, or left th
   behind a surface through it widened the grazing floor's view by 0.017 to 0.034, reading them with
   no lean widened it at `Low` by 0.074 and 0.082, its room's own shortfall uncovered, and scaling
   the light past the first bounce by the hit's openness against the probes' moved the open middle
-  and cost 0.45 to 0.50 ms.
+  and cost 0.45 to 0.50 ms. Mended in the closed rooms on 2026-11-04 by each hit reading its
+  probes' faces at its surface (Each hit's probes read at its surface, above).
 - **The probes' spacing against near occlusion.** A hit beside a block reads probes standing 0.6
   above it, where the block hides little, so the floor before the Cornell box's small block takes
   3.4 to 3.6 times the reference's light past the first bounce and the block's front reads 1.20 of

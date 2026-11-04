@@ -35,6 +35,11 @@ ConstantBuffer<GiLights> lights;
 [[vk::binding(6, 0)]]
 Sampler3D bounced;
 
+// The world probes' faces' light at the surfaces they are read for, which a hit's probes read
+// (gi_ambient.slang).
+[[vk::binding(20, 0)]]
+Sampler3D bouncedAtSurface;
+
 // The world's first cascade, merged, a tile of octahedron texels a probe.
 [[vk::binding(7, 0)]]
 Texture3D<float4> merged;
@@ -585,7 +590,7 @@ void computeMain(uint3 id : SV_DispatchThreadID)
                     continue;
                 float3 itsOwn;
                 float weight = shaded == 0 ? leafShare : stopShare;
-                crossed += shadeProbeHit(sceneField, SheetVolume(sceneField, fieldSecond), fieldInfo, fieldInfo, fieldAlbedo, fieldFaces, fieldGlow, lights, bounced, reach, shaded == 0 ? leafAt : stopAt, way,
+                crossed += shadeProbeHit(sceneField, SheetVolume(sceneField, fieldSecond), fieldInfo, fieldInfo, fieldAlbedo, fieldFaces, fieldGlow, lights, bounced, bouncedAtSurface, reach, shaded == 0 ? leafAt : stopAt, way,
                     view.trace.y, view.trace.z, view.trace.w, around >= 2u, float3(1.0), FieldSun(), itsOwn, true) * weight;
                 own += itsOwn * weight;
             }
@@ -622,7 +627,7 @@ void computeMain(uint3 id : SV_DispatchThreadID)
                     {
                         met = 1.0;
                         reached = start + way * far;
-                        past = shadeProbeHit(sceneField, SheetVolume(sceneField, fieldSecond), fieldInfo, fieldInfo, fieldAlbedo, fieldFaces, fieldGlow, lights, bounced, reach, reached, way, view.trace.y, view.trace.z, view.trace.w, around >= 2u, float3(1.0), FieldSun(), pastOwn, true);
+                        past = shadeProbeHit(sceneField, SheetVolume(sceneField, fieldSecond), fieldInfo, fieldInfo, fieldAlbedo, fieldFaces, fieldGlow, lights, bounced, bouncedAtSurface, reach, reached, way, view.trace.y, view.trace.z, view.trace.w, around >= 2u, float3(1.0), FieldSun(), pastOwn, true);
                     }
                 }
                 light += past * through;

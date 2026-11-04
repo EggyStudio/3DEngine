@@ -6661,6 +6661,44 @@ at `36cae0c2`.
      halves in 65 and 95, Linux in 103; the fourteenth pack run waits for Verdict 103's mend as
      well.
 
+103. **The thirteenth pack run is red on its first Windows half and its Linux games job as well, the
+     feature test not played through in 720 seconds on Windows, and on Linux wick's memory read past
+     600 seconds and manor's images climbing.** Read at 09:11 on 2026-11-04 when the run ended at
+     09:09, beside Verdict 102's macOS. On the first Windows half the suite passed, 200 in 70
+     minutes, and nine games played through with their play asserted, but the feature test was not
+     played through in 720 seconds, as far as Particles (the fountain 39, the fire 50, the smoke
+     160, the sparks 39, the lit 37, the burst 90 pixels in 148 reads, particles ok), the sections
+     after it unreached. On the Linux games job, which plays each game a while and checks nothing it
+     holds grows, wick could not be played through, its memory.collect command ending with 1 at its
+     600-second limit, and manor's images climbed from 87 at its least to 100, past its bound of 98,
+     the other games' readings within their bounds (tumble's images 42 of 46, tones' 7 of 9). The
+     run's second Windows half, Linux, the examples and both captures jobs were green. The last
+     green pack run was the twelfth from `3dda52c2` on 2026-11-01, 72 commits back, so the pace and
+     the images changed in between; the two timeouts may be the pace of the lavapipe runners under
+     this week's GI work, and the manor's thirteen images are a count to read by kind. The mend is
+     the next commit, before 200's trial, read as the games step reads. The feature test's play on
+     lavapipe at the Windows runner's pace against its 720 seconds, wick's memory read at its 600,
+     and the manor's images by kind over its play, each either a limit raised with its reading
+     stated or a growth found; the fourteenth pack run waits for it with Verdict 102's mend. Read by
+     the coder at 09:48, none of the three a regression in the engine. The feature test plays
+     through in 742 seconds from 105d9cb3's package and 735 from 3dda52c2's on lavapipe held to four
+     cores under validation, Course taking 156 and Illumination with GI at Low 191, the Windows
+     runner about 13% slower than this machine; the drive script gives the feature test alone half
+     as long again, 18 minutes under the step's 12. Wick's one reading at 210 seconds got NO_SESSION
+     while the readings around it answered and the game served to the soak's stop, the exit 1 being
+     the trap's own code rather than the command's 4, the cause unreproduced here in 900 commands
+     from three loops; a missing named app is looked for again up to five times 200 ms apart before
+     it is refused, with a test, and the trap records the real code. Manor's images are fixed ones,
+     read by a new census command memory.images with its test, a whole autopilot walk peaking at 103
+     to 104 images from this package against 97 from 3dda52c2's, the six more AO's two half-size
+     histories, the fog's two 1 by 1 images while off, the specular shares' table and the scattered
+     bloom's sixth level, none climbing, the textures streaming 16 to 27 and settling; the bound
+     goes from 92 to 104 with the reading stated, the run's series then passing at 100 against 111.
+     The mend is at f14a9530, pushed at 10:32 with fe224105, the suite 2,244 in both orders, the
+     soak-check test's manor case at 120 images past the new bound; settled by the run of `f14a9530`
+     green at 12:31 on 2026-11-04, the Windows halves in 87 and 94 minutes, Linux in 105 and macOS
+     in 42; the fourteenth pack run started from it at 12:32.
+
 ## Decisions
 
 1. **Commits stay local.** The owner pushes `main` from their own tools, and the working session

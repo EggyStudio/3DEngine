@@ -88,3 +88,4 @@
 2026-11-03-item-193-gallery.webp | Sponza's gallery at 12:00, metered, against its path-traced reference, with a face counted behind a field cell within 25 degrees of straight back and with it counted only straight behind, its nearest point inside the face
 2026-11-04-item-194-door.webp | Sponza's door view at 12:00, metered, against its path-traced reference, before and with the probes that see under a quarter of the probes above them carried on past their interval
 2026-11-04-item-201-floor.webp | Sponza's atrium floor at noon seen low along its length, trilinear beside sixteen samples along the slant, and the far floor at twice its size below
+2026-11-04-item-199-faces.webp | Sponza's door view at 8:00 and noon, metered, and the bounce rooms' thin room and strip room, at HEAD, with each hit reading its probes' faces at its surface, and against their path-traced references, each row at one exposure

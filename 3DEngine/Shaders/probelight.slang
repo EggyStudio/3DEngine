@@ -27,14 +27,15 @@ public float3 bouncedAt<V : IVolume>(V cubes, V skies, V reach, SceneFieldInfo i
         if (share > 0.0)
         {
             float sky;
-            light += bouncedIn<V, true>(cubes, skies, reach, info, p, n, n, probes, spacing, c + k, int(cascades), sky) * share;
+            light += bouncedIn<V, true, false>(cubes, cubes, skies, reach, info, p, n, n, probes, spacing, c + k, int(cascades), sky) * share;
         }
     }
     return light;
 }
 
-// The same without the shares of the sky, as the probes' own hits read them (shadeProbeHit).
-public float3 bouncedAt<V : IVolume>(V cubes, V reach, SceneFieldInfo info, float3 p, float3 n, float probes, float spacing, float cascades)
+// The same without the shares of the sky, as the probes' own hits read them (shadeProbeHit), each
+// probe's faces moved toward their light at the surfaces they are read for (towardSurface).
+public float3 bouncedHitAt<V : IVolume>(V cubes, V cubesAt, V reach, SceneFieldInfo info, float3 p, float3 n, float probes, float spacing, float cascades)
 {
     int c = fieldCascade(info, p, 1.0, int(cascades));
     if (c < 0 || c >= int(cascades))
@@ -48,7 +49,7 @@ public float3 bouncedAt<V : IVolume>(V cubes, V reach, SceneFieldInfo info, floa
         if (share > 0.0)
         {
             float sky;
-            light += bouncedIn<V, false>(cubes, cubes, reach, info, p, n, n, probes, spacing, c + k, int(cascades), sky) * share;
+            light += bouncedIn<V, false, true>(cubes, cubesAt, cubes, reach, info, p, n, n, probes, spacing, c + k, int(cascades), sky) * share;
         }
     }
     return light;
@@ -77,7 +78,7 @@ public float3 bouncedAndSkyAt<V : IVolume>(V cubes, V skies, V reach, SceneField
         if (k == 0 || share > 0.0)
         {
             float seen;
-            light += bouncedIn<V, true>(cubes, skies, reach, info, p, n, r, probes, spacing, c + k, int(cascades), seen) * share;
+            light += bouncedIn<V, true, false>(cubes, cubes, skies, reach, info, p, n, r, probes, spacing, c + k, int(cascades), seen) * share;
             if (k == 0)
                 sky = seen;
         }
@@ -105,7 +106,7 @@ public float3 bouncedAndSkyAt<V : IVolume>(V cubes, V skies, V reach, SceneField
 // the ground under the scene. A column of Sponza's nave at 8:00 read 11.8 times its reference with
 // that light lent and 1.35 without it, and the line between its dark foot and the rest, which
 // speckled pixel by pixel, went with it.
-float3 bouncedIn<V : IVolume, let Sky : bool>(V cubes, V skies, V reach, SceneFieldInfo info, float3 p, float3 n, float3 r, float probes, float spacing, int c,
+float3 bouncedIn<V : IVolume, let Sky : bool, let At : bool>(V cubes, V cubesAt, V skies, V reach, SceneFieldInfo info, float3 p, float3 n, float3 r, float probes, float spacing, int c,
     int cascades, out float sky)
 {
     float4 oc = cascadeAt(info, c, cascades);
@@ -141,6 +142,8 @@ float3 bouncedIn<V : IVolume, let Sky : bool>(V cubes, V skies, V reach, SceneFi
             }
         }
         float3 probe = oc.xyz + (float3(at) + 0.5 + moved) * (oc.w * spacing);
+        if (At)
+            light = towardSurface(cubesAt, light, n, n2, at, c, probes, dot(probe - p, n));
         float weight = lerps.x * lerps.y * lerps.z * valid * probeFacing(p, n, probe);
         float sees = probeSees(reach, p, n, probe, at, c, probes, oc.w * spacing);
         seenSum += light * weight * sees;
@@ -213,14 +216,34 @@ public float skyAt<V : IVolume>(V cubes, V skies, V reach, SceneFieldInfo info, 
 // probe in front was hidden. The probes' passes take it, where the model pass's reflections keep
 // bouncedAt. The faces are read where the probes stood as gathered says, the frame before's corners
 // for the world's probes' rays, and the field marched as info has it.
-public float3 bouncedSeenAt<V : IVolume>(V field, SceneFieldInfo info, SceneFieldInfo gathered, V cubes, float3 p, float3 n, float probes, float spacing,
-    float cascades)
+public float3 bouncedSeenAt<V : IVolume>(V field, SceneFieldInfo info, SceneFieldInfo gathered, V cubes, V cubesAt, float3 p, float3 n, float probes,
+    float spacing, float cascades)
 {
     int c = fieldCascade(gathered, p, 1.0, int(cascades));
     if (c < 0 || c >= int(cascades))
         return float3(0.0);
-    float4 seen = bouncedSeenSum(field, info, gathered, cubes, p, n, probes, spacing, c, int(cascades));
+    float4 seen = seenSumIn<V, true>(field, info, gathered, cubes, cubesAt, p, n, probes, spacing, c, int(cascades));
     return seen.w > 1e-5 ? seen.rgb / seen.w : float3(0.0);
+}
+
+// A probe's faces at a hit moved toward their light at the surfaces they are read for
+// (gi_ambient.slang), by how far the probe lies ahead of the hit along its normal against how far
+// the faces' rays went to theirs, a face whose ray met none keeping its own light. A probe behind
+// the hit's plane keeps its faces' light, so its faces at the surface go unread.
+float3 towardSurface<V : IVolume>(V cubesAt, float3 light, float3 n, float3 n2, int3 at, int c, float probes, float ahead)
+{
+    if (ahead <= 0.0)
+        return light;
+    float3 lightAt = float3(0.0);
+    float h = 0.0;
+    for (int axis = 0; axis < 3; axis++)
+    {
+        int face = axis * 2 + (n[axis] < 0.0 ? 1 : 0);
+        float4 texelAt = cubesAt.loadAt(int3(face * int(probes) + at.x, at.y, c * int(probes) + at.z));
+        lightAt += texelAt.rgb * n2[axis];
+        h += texelAt.a * n2[axis];
+    }
+    return lerp(light, lightAt, h > 1e-3 ? saturate(ahead / h) : 0.0);
 }
 
 // The sum bouncedSeenAt divides for cascade c, the light of the probes seen times their weights,
@@ -228,6 +251,12 @@ public float3 bouncedSeenAt<V : IVolume>(V field, SceneFieldInfo info, SceneFiel
 // cascades, tells apart from dark. gathered places the `cascades` cascades of probes (cascadeAt).
 public float4 bouncedSeenSum<V : IVolume>(V field, SceneFieldInfo info, SceneFieldInfo gathered, V cubes, float3 p, float3 n, float probes, float spacing,
     int c, int cascades)
+{
+    return seenSumIn<V, false>(field, info, gathered, cubes, cubes, p, n, probes, spacing, c, cascades);
+}
+
+float4 seenSumIn<V : IVolume, let At : bool>(V field, SceneFieldInfo info, SceneFieldInfo gathered, V cubes, V cubesAt, float3 p, float3 n, float probes,
+    float spacing, int c, int cascades)
 {
     float4 oc = cascadeAt(gathered, c, cascades);
     float3 q = clamp((p - oc.xyz) / (oc.w * spacing) - 0.5, 0.0, probes - 1.0);
@@ -256,6 +285,8 @@ public float4 bouncedSeenSum<V : IVolume>(V field, SceneFieldInfo info, SceneFie
         float3 probe = oc.xyz + (float3(at) + 0.5 + moved) * (oc.w * spacing);
         if (valid < 0.5 || dot(probe - p, n) <= 0.0 || !seesThrough(field, info, from, probe, oc.w * 0.5))
             continue;
+        if (At)
+            light = towardSurface(cubesAt, light, n, n2, at, c, probes, dot(probe - p, n));
         float weight = lerps.x * lerps.y * lerps.z * probeFacing(p, n, probe);
         sum += light * weight;
         weights += weight;
@@ -289,17 +320,27 @@ public float4 bouncedSeenSum<V : IVolume>(V field, SceneFieldInfo info, SceneFie
 // found through sun where it holds the hit, the window's shadow map for the world's probes, and
 // through the field elsewhere.
 public float3 shadeProbeHit<V : IVolume, S : ISheetVolume, Sun : ISunShadow>(V field, S sheets, SceneFieldInfo info, SceneFieldInfo gathered, V albedo,
-    Texture3D<uint> faces, V glow, GiLights lights, V cubes, V reach, float3 p, float3 way, float probes, float spacing, float cascades, bool seen, float3 kept,
+    Texture3D<uint> faces, V glow, GiLights lights, V cubes, V cubesAt, V reach, float3 p, float3 way, float probes, float spacing, float cascades, bool seen, float3 kept,
     Sun sun, out float3 own, bool thinOnly = false)
 {
-    float3 n = fieldNormalSheet(sheets, info, p);
+    float3 n;
+    return shadeProbeHitN(field, sheets, info, gathered, albedo, faces, glow, lights, cubes, cubesAt, reach, p, way, probes, spacing, cascades, seen, kept, sun, own, n, thinOnly);
+}
+
+// The same, handing out the normal it lit the hit by, which the world's probes' trace keeps for
+// each texel (gi_trace.slang).
+public float3 shadeProbeHitN<V : IVolume, S : ISheetVolume, Sun : ISunShadow>(V field, S sheets, SceneFieldInfo info, SceneFieldInfo gathered, V albedo,
+    Texture3D<uint> faces, V glow, GiLights lights, V cubes, V cubesAt, V reach, float3 p, float3 way, float probes, float spacing, float cascades, bool seen, float3 kept,
+    Sun sun, out float3 own, out float3 n, bool thinOnly = false)
+{
+    n = fieldNormalSheet(sheets, info, p);
     float3 color = surfaceAlbedoFacing(faces, albedo, info, p, n);
     // Where thinOnly is set the march is made only where the surface is a wall thinner than a cell
     // of the field there, the point a cell behind it in the open, past which the probes' reach,
     // whose slack is a cell, takes a probe beyond the wall for one that sees the surface.
     bool marched = seen && (!thinOnly || fieldDistance(field, info, p - n * fieldCell(info, p)) > 0.0);
-    float3 bounced = marched ? bouncedSeenAt(field, info, gathered, cubes, p, n, probes, spacing, cascades)
-                             : bouncedAt(cubes, reach, gathered, p, n, probes, spacing, cascades);
+    float3 bounced = marched ? bouncedSeenAt(field, info, gathered, cubes, cubesAt, p, n, probes, spacing, cascades)
+                             : bouncedHitAt(cubes, cubesAt, reach, gathered, p, n, probes, spacing, cascades);
     own = color * (directLight(field, info, lights, p, n, sun) - hiddenLampLight(field, info, lights, p, n) + glowLightsAt(field, info, lights, p, n, 2, false, way) / Pi)
         + surfaceGlowUncarried(glow, albedo, info, p);
     return own + color / Pi * bounced * (lights.counts.z * kept);
@@ -308,9 +349,9 @@ public float3 shadeProbeHit<V : IVolume, S : ISheetVolume, Sun : ISunShadow>(V f
 // The same at a face whose normal and color are given, as the device's rays find one, the indirect
 // light from the probes it sees alone.
 public float3 shadeProbeHitAt<V : IVolume, Sun : ISunShadow>(V field, SceneFieldInfo info, SceneFieldInfo gathered, V albedo, V glow, GiLights lights, V cubes,
-    float3 p, float3 n, float3 color, float3 way, float probes, float spacing, float cascades, float3 kept, Sun sun, out float3 own)
+    V cubesAt, float3 p, float3 n, float3 color, float3 way, float probes, float spacing, float cascades, float3 kept, Sun sun, out float3 own)
 {
-    float3 bounced = bouncedSeenAt(field, info, gathered, cubes, p, n, probes, spacing, cascades);
+    float3 bounced = bouncedSeenAt(field, info, gathered, cubes, cubesAt, p, n, probes, spacing, cascades);
     own = color * (directLight(field, info, lights, p, n, sun) - hiddenLampLight(field, info, lights, p, n) + glowLightsAt(field, info, lights, p, n, 2, false, way) / Pi)
         + surfaceGlowUncarried(glow, albedo, info, p);
     return own + color / Pi * bounced * (lights.counts.z * kept);

@@ -8,7 +8,7 @@ import color;
 // Where the device traces rays, the window's meshes as its ray tracing sees them, each copy's color
 // and where its mesh's corners lie, and every mesh's corners in its own space with their colors,
 // which a probe's ray is traced through at the top quality in place of the field (lightset.slang).
-[[vk::binding(15, 0)]]
+[[vk::binding(17, 0)]]
 RaytracingAccelerationStructure rayScene;
 
 public struct RaySurface
@@ -18,10 +18,10 @@ public struct RaySurface
     uint4 corners;
 };
 
-[[vk::binding(16, 0)]]
+[[vk::binding(18, 0)]]
 StructuredBuffer<RaySurface> raySurfaces;
 
-[[vk::binding(17, 0)]]
+[[vk::binding(19, 0)]]
 StructuredBuffer<float4> rayCorners;
 
 // A corner's color, linear, as the model pass brings a vertex's color in.

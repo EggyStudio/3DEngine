@@ -64,6 +64,15 @@ RWTexture3D<float4> radiance;
 [[vk::binding(6, 0)]]
 Sampler3D bounced;
 
+// The faces' light at the surfaces they are read for, which a hit's probes read (gi_ambient.slang).
+[[vk::binding(15, 0)]]
+Sampler3D bouncedAtSurface;
+
+// The way out from the surfaces each texel's rays met, their normals' mean, or none where they met
+// none, which the gather turns each texel's patch by (gi_ambient.slang).
+[[vk::binding(16, 0)]] [format("rgba16f")]
+RWTexture3D<float4> hitNormals;
+
 // The light from all around, for a ray of the last cascade that meets nothing, or a black cube.
 [[vk::binding(7, 0)]]
 SamplerCube environment;
@@ -284,9 +293,11 @@ float3 kept(uint3 at, int c, int probes, uint lane)
 groupshared float4 brought[64];
 
 // Each ray's light and mark, its own light with how far it went, below zero where it met a face
-// from behind, and the share of it that met nothing, for the first ray of its texel to take together.
+// from behind, the normal of the surface it met or none, and the share of it that met nothing, for
+// the first ray of its texel to take together.
 groupshared float4 rayLight[64];
 groupshared float4 rayOwn[64];
+groupshared float3 rayNormal[64];
 groupshared float rayNothing[64];
 groupshared float rayEarly[64];
 
@@ -420,6 +431,7 @@ void computeMain(uint3 id : SV_DispatchThreadID, uint lane : SV_GroupIndex)
     float4 light = float4(0.0, 0.0, 0.0, 1.0);
     float3 own = float3(0.0);
     float reached = 0.0;
+    float3 hitNormal = float3(0.0);
     bool behind = false;
     // The share of the ray's light still to come past the surfaces that let light through it
     // crossed, which a ray that met nothing hands on to the cascade above, and the share it kept
@@ -463,7 +475,8 @@ void computeMain(uint3 id : SV_DispatchThreadID, uint lane : SV_GroupIndex)
         if (meshAt >= 0.0)
         {
             reached = meshAt;
-            light = float4(shadeProbeHitAt(sceneField, fieldInfo, gatheredAt(), fieldAlbedo, fieldGlow, lights, bounced, origin + way * meshAt, meshNormal, meshColor, way,
+            hitNormal = meshNormal;
+            light = float4(shadeProbeHitAt(sceneField, fieldInfo, gatheredAt(), fieldAlbedo, fieldGlow, lights, bounced, bouncedAtSurface, origin + way * meshAt, meshNormal, meshColor, way,
                 float(probes), push.interval.z, push.interval.w, share, SunShadowMap(sunShadow), own), meshAt < push.interval.x ? 0.5 : 0.0);
             through = 0.0;
         }
@@ -479,8 +492,8 @@ void computeMain(uint3 id : SV_DispatchThreadID, uint lane : SV_GroupIndex)
         {
             // The indirect light reaching the hit from the probes a march reaches, so the probes'
             // reach goes unread and the faces stand in its place.
-            light = float4(shadeProbeHit(sceneField, SheetVolume(sceneField, fieldSecond), fieldInfo, gatheredAt(), fieldAlbedo, fieldFaces, fieldGlow, lights, bounced, bounced, origin + way * t, way,
-                float(probes), push.interval.z, push.interval.w, true, share, SunShadowMap(sunShadow), own), t < push.interval.x ? 0.5 : 0.0);
+            light = float4(shadeProbeHitN(sceneField, SheetVolume(sceneField, fieldSecond), fieldInfo, gatheredAt(), fieldAlbedo, fieldFaces, fieldGlow, lights, bounced, bouncedAtSurface, bounced, origin + way * t, way,
+                float(probes), push.interval.z, push.interval.w, true, share, SunShadowMap(sunShadow), own, hitNormal), t < push.interval.x ? 0.5 : 0.0);
             through = 0.0;
         }
         else if (skyPast)
@@ -644,12 +657,15 @@ void computeMain(uint3 id : SV_DispatchThreadID, uint lane : SV_GroupIndex)
             // As the build without the crossing shades the hit.
             float3 itsOwn;
 #if defined(RAY_QUERY)
-            float3 itsLight = shadeProbeHitAt(sceneField, fieldInfo, gatheredAt(), fieldAlbedo, fieldGlow, lights, bounced, origin + way * shadedAt,
+            float3 itsLight = shadeProbeHitAt(sceneField, fieldInfo, gatheredAt(), fieldAlbedo, fieldGlow, lights, bounced, bouncedAtSurface, origin + way * shadedAt,
                 shaded == 0 ? leafNormal : stopNormal, shaded == 0 ? leafColor : stopColor, way, float(probes), push.interval.z, push.interval.w, share,
                 SunShadowMap(sunShadow), itsOwn);
+            hitNormal = shaded == 0 ? leafNormal : stopNormal;
 #else
-            float3 itsLight = shadeProbeHit(sceneField, SheetVolume(sceneField, fieldSecond), fieldInfo, gatheredAt(), fieldAlbedo, fieldFaces, fieldGlow, lights, bounced, bounced, origin + way * shadedAt, way,
-                float(probes), push.interval.z, push.interval.w, true, share, SunShadowMap(sunShadow), itsOwn);
+            float3 itsNormal;
+            float3 itsLight = shadeProbeHitN(sceneField, SheetVolume(sceneField, fieldSecond), fieldInfo, gatheredAt(), fieldAlbedo, fieldFaces, fieldGlow, lights, bounced, bouncedAtSurface, bounced, origin + way * shadedAt, way,
+                float(probes), push.interval.z, push.interval.w, true, share, SunShadowMap(sunShadow), itsOwn, itsNormal);
+            hitNormal = itsNormal;
 #endif
             float weight = shaded == 0 ? leafShare : stopShare;
             crossed += itsLight * weight;
@@ -696,6 +712,7 @@ void computeMain(uint3 id : SV_DispatchThreadID, uint lane : SV_GroupIndex)
     // their own light and their reach their means, and a face met from behind where most met one so.
     rayLight[lane] = light;
     rayOwn[lane] = float4(own, behind ? -reached : reached);
+    rayNormal[lane] = hitNormal;
     rayNothing[lane] = nothingShare;
     rayEarly[lane] = keptBefore;
     GroupMemoryBarrierWithGroupSync();
@@ -729,6 +746,10 @@ void computeMain(uint3 id : SV_DispatchThreadID, uint lane : SV_GroupIndex)
         texelOwn /= float(each);
         reach /= float(each);
         radiance[written] = texelLight;
+        float3 normals = float3(0.0);
+        for (uint q = 0u; q < each; q++)
+            normals += rayNormal[lane + q];
+        hitNormals[written] = float4(dot(normals, normals) > 1e-6 ? normalize(normals) : float3(0.0), 0.0);
         // Below zero where the rays met a face from behind, which the gather counts.
         distances[written] = float2(behinds * 2u > each ? -reach : reach, before / float(each));
     }

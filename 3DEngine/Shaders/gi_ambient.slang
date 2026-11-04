@@ -18,6 +18,18 @@
 // indirect light from light that went out goes with it rather than fading over the frames each
 // bounce takes; where its own light is less, it is a mark that the probe is judged by the probes
 // around it (gi_trace.slang).
+//
+// Each face is gathered a second time as the surface it is read for sees the light, the surface
+// the probe's own ray along the face's opposite way met, which a hit reads in place of the face
+// as far as it lies ahead of the probe (towardSurface in probelight.slang). A probe off a surface
+// sees the surfaces beside it more squarely than the surface does, and the closed white rooms of
+// 4, 8 and 16 under a lamp read 1.11, 1.26 and 1.23 of their references' light past the first
+// bounce on the development machine's GPU, where 0.99, 1.11 and 1.11 with each hit reading the
+// faces moved to its surface. Each merged direction is carried to the point its ray met and seen
+// from the surface's, its texel's share of the sphere scaled by the distances squared and turned by
+// the cosine its patch shows the surface over the one it shows the probe, from the normal the
+// trace kept, without which the room of 4 read 0.92 past the first bounce and the grazing floor of
+// the bounce rooms at Low 0.060 of its light from its reference where 0.037.
 import gi;
 import roughreflect;
 
@@ -67,6 +79,18 @@ RWTexture3D<float> skies;
 // (WaysTexels in gi.slang), the cascades one after another along z.
 [[vk::binding(8, 0)]] [format("rgba16f")]
 RWTexture3D<float4> ways;
+
+// Every cascade's probes' faces as the surface each is read for gathers the light, laid out as the
+// faces are, with the distance the probe's ray along the face's opposite way went to that surface in
+// alpha, 0 where it met none within its interval and the face's light stands (towardSurface in
+// probelight.slang).
+[[vk::binding(9, 0)]] [format("rgba16f")]
+RWTexture3D<float4> cubesAt;
+
+// The way out from the surfaces each of this cascade's texels' rays met, their normals' mean as
+// gi_trace.slang kept it, or none where they met none.
+[[vk::binding(10, 0)]]
+Texture3D<float4> hitNormals;
 
 struct AmbientPush
 {
@@ -158,9 +182,16 @@ void computeMain(uint3 id : SV_DispatchThreadID)
         return;
     uint3 at = uint3(probe % probes, (probe / probes) % probes, probe / (probes * probes));
     float3 axis = Axes[face];
-    float3 sum = float3(0.0);
+    // The surface the face is read for at a hit, where the probe's own ray along the face's
+    // opposite way met one within its interval, h along that way, or none, the face's light at it
+    // the layer's, where that ray met nothing or a face from behind (cubesAt).
+    int2 below = min(int2(octahedron(-axis) * float(texels)), int2(int(texels) - 1));
+    float h = distances.Load(int4(int2(at.xy * texels) + below, int(at.z), 0)).x;
+    h = h > 0.0 && h < push.interval.x * 0.999 ? h : 0.0;
+    float3 surface = -axis * h;
+    float3 sum = float3(0.0), sumAt = float3(0.0);
     float sky = 0.0;
-    float weights = 0.0;
+    float weights = 0.0, weightsAt = 0.0;
     float shares = 0.0;
     float valid = 0.0;
     for (uint v = 0u; v < texels; v++)
@@ -170,20 +201,51 @@ void computeMain(uint3 id : SV_DispatchThreadID)
             float4 light = merged.Load(from);
             float2 uv = (float2(u, v) + 0.5) / float(texels);
             float share = octahedronShare(uv);
-            float weight = max(dot(fromOctahedron(uv), axis), 0.0) * share;
-            float before = distances.Load(from).y;
+            float3 d = fromOctahedron(uv);
+            float weight = max(dot(d, axis), 0.0) * share;
+            float2 went = distances.Load(from);
+            float before = went.y;
             shares += share;
             sum += light.rgb * before * weight;
             sky += mergedSky.Load(from) * before * weight;
             weights += weight;
             // A probe inside a mesh holds alpha 0 in every texel, where every other's are a half or 1.
             valid = max(valid, light.a > 0.25 ? 1.0 : 0.0);
+            if (h <= 0.0)
+                continue;
+            // The same direction's light as the surface sees it, the point its ray met seen from
+            // the surface's point, its texel's share of the sphere scaled by the distances squared,
+            // a ray that met nothing kept at its way, as far off from either.
+            float t = abs(went.x);
+            bool far = t >= push.interval.x * 0.999;
+            float3 toward = far ? d : d * t - surface;
+            float span = far ? 1.0 : max(sqrt(dot(toward, toward)), 1e-4);
+            float3 w = toward / span;
+            float cosine = dot(w, axis);
+            if (cosine <= 0.05)
+                continue;
+            float solid = far ? share : share * t * t / (span * span);
+            // How squarely the patch faces the surface against how squarely it faced the probe, and
+            // none of one the probe met from behind or along its face, a texel whose rays kept no
+            // normal left as it is.
+            if (!far)
+            {
+                float3 normal = hitNormals.Load(from).xyz;
+                float seenHere = -dot(d, normal);
+                if (dot(normal, normal) > 0.25)
+                    solid *= seenHere > 0.05 ? min(max(-dot(w, normal), 0.0) / seenHere, 8.0) : 0.0;
+            }
+            sumAt += light.rgb * before * cosine * solid;
+            weightsAt += cosine * solid;
         }
     // Its alpha 0 where the probe holds no light, and two more than its move along the face's axis
     // where it does (faceHolds and faceMove in gi.slang).
     float4 place = held[int3(3 * int(probes) + int(at.x), int(at.y), int(push.cascade.x * probes + at.z))];
     float holds = valid > 0.5 && place.w > 0.5 ? 1.0 : 0.0;
-    cubes[uint3(face * probes + at.x, at.y, push.cascade.x * probes + at.z)] = float4(sum * (Pi / max(weights, 1e-6)), holds * (2.0 + place[face / 2u]));
+    float3 layer = sum * (Pi / max(weights, 1e-6));
+    cubes[uint3(face * probes + at.x, at.y, push.cascade.x * probes + at.z)] = float4(layer, holds * (2.0 + place[face / 2u]));
+    float3 atSurface = h > 0.0 && weightsAt > 1e-6 ? sumAt * (Pi / weightsAt) : layer;
+    cubesAt[uint3(face * probes + at.x, at.y, push.cascade.x * probes + at.z)] = float4(atSurface, h);
     skies[uint3(face * probes + at.x, at.y, push.cascade.x * probes + at.z)] = sky / max(weights, 1e-6);
     if (face == 0u)
         follow(at, probes, texels, shares, walledIn(at, texels));

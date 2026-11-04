@@ -88,7 +88,13 @@ public sealed partial class BounceRoomsTests
     // their weight carried on past its interval, the strip's reads 0.241, 0.243 and 0.236 at Low,
     // Medium and High where 0.230, 0.234 and 0.226, a carried ray's one traced sample standing where
     // the merge averaged the probes above, which moves a closed room by a hundredth and a walled
-    // passage by its whole light, and its bound is 0.25.
+    // passage by its whole light, and its bound is 0.25. With each hit reading its probes' faces
+    // gathered at its surface (gi_ambient.slang), which takes the closed white rooms' light past the
+    // first bounce from 1.11 to 1.26 of their references' to 0.99 to 1.11, the strip's reads 0.264,
+    // 0.268 and 0.260 where 0.241, 0.243 and 0.236. Its room reads its first two bounces 9 to 12%
+    // under its reference as before, and the light past them, 44% of the reference's, 24 to 25%
+    // under where 17 to 19%, the shortfall each bounce through the probes takes on, which the gain
+    // past the first bounce had made up for, and its bounds are 15% over these.
     [NeedsRayQueryTheory]
     [InlineData(1, GlobalIllumination.Low, 0.11)]
     [InlineData(1, GlobalIllumination.Medium, 0.12)]
@@ -105,9 +111,9 @@ public sealed partial class BounceRoomsTests
     [InlineData(5, GlobalIllumination.Low, 0.03)]
     [InlineData(5, GlobalIllumination.Medium, 0.03)]
     [InlineData(5, GlobalIllumination.High, 0.03)]
-    [InlineData(6, GlobalIllumination.Low, 0.25)]
-    [InlineData(6, GlobalIllumination.Medium, 0.25)]
-    [InlineData(6, GlobalIllumination.High, 0.25)]
+    [InlineData(6, GlobalIllumination.Low, 0.30)]
+    [InlineData(6, GlobalIllumination.Medium, 0.31)]
+    [InlineData(6, GlobalIllumination.High, 0.30)]
     [InlineData(7, GlobalIllumination.Low, 0.05)]
     [InlineData(7, GlobalIllumination.Medium, 0.06)]
     [InlineData(7, GlobalIllumination.High, 0.06)]
