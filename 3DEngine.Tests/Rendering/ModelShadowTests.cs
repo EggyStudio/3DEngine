@@ -86,6 +86,7 @@ public sealed class ModelShadowTests : IDisposable
         }
         float Beside(Image image) => Red(image, new Vector3(-3, 0, 0.7f)) / (float)Red(image, new Vector3(-3, 0, 2.5f));
 
+        SetContactShadows(ContactShadows.On);
         var on = Settled(Scene, "on");
         SetContactShadows(ContactShadows.Off);
         var off = Settled(Scene, "off");

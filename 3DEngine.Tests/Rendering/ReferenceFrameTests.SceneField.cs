@@ -8,9 +8,11 @@ namespace Engine.Tests.Rendering;
 public sealed partial class ReferenceFrameTests
 {
     // A wall, a pillar and two crates, one on the other, on the ground under a low sun, the camera
-    // looking into the corner they make, settled into the field and built before the capture.
+    // looking into the corner they make, settled into the field and built before the capture, the
+    // sun's contact shadows traced within the shadow map's reach too, as the references hold them.
     private void DrawFieldScene(Action<Model, Model, Model, Model> draw)
     {
+        SetContactShadows(ContactShadows.On);
         CreateDirectionalLight(Vector3.Normalize(new Vector3(-0.6f, -0.55f, -0.45f)), new Color(255, 240, 220), 2, castsShadows: true);
         SetAmbientLight(new Color(150, 170, 205), 0.7f);
         SetSceneField(2, 0.25f, 2);

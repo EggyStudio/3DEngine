@@ -46,8 +46,8 @@ internal sealed class ShadowSettings
     /// </summary>
     public int TileSize { get; set; } = ShadowFit.TileSize;
 
-    /// <summary>Where the sun's contact shadows through the scene's distance field darken its light, everywhere the field reaches unless set.</summary>
-    public ContactShadows Contact { get; set; }
+    /// <summary>Where the sun's contact shadows through the scene's distance field darken its light, past the shadow map's reach unless set.</summary>
+    public ContactShadows Contact { get; set; } = ContactShadows.PastShadowMap;
 
     /// <summary>
     /// Whether the sun's shadows go on past <see cref="Distance"/> to the camera's far plane through

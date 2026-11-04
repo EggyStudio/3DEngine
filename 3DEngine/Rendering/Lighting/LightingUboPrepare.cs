@@ -76,9 +76,9 @@ internal sealed class LightingUboPrepare : IPrepareSystem
         // a camera is by its own.
         if (renderWorld.TryGet<AmbientOcclusionSettings>() is { On: true }) windowUbo.AmbientOcclusion.X = 1;
         // And the sun's contact shadows through the scene's distance field, which that pass traces,
-        // 2 where they are kept past the shadow map's reach alone.
+        // 2 where they are kept past the shadow map's reach alone, as they are where nothing set them.
         if (AmbientOcclusionRenderer.ContactShadows(renderWorld) is not null)
-            windowUbo.AmbientOcclusion.Y = renderWorld.TryGet<ShadowSettings>()?.Contact == ContactShadows.PastShadowMap ? 2 : 1;
+            windowUbo.AmbientOcclusion.Y = (renderWorld.TryGet<ShadowSettings>()?.Contact ?? ContactShadows.PastShadowMap) == ContactShadows.PastShadowMap ? 2 : 1;
         // And the pixels temporal antialiasing moved the frame by, as the occlusion, the screen's
         // probes and their glow are worked out through the camera without the move.
         if (renderWorld.TryGet<WindowView>() is { } moved && renderWorld.TryGet<SwapchainTarget>() is { } shown)

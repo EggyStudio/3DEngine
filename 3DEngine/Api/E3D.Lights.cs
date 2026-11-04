@@ -163,13 +163,14 @@ public static partial class E3D
 
     /// <summary>
     /// Sets where the sun's contact shadows through the scene's distance field darken its light,
-    /// everywhere the field reaches (<see cref="ContactShadows.On"/>, the default), past the shadow
-    /// map's reach alone, or nowhere.
+    /// past the shadow map's reach alone (<see cref="ContactShadows.PastShadowMap"/>, the default),
+    /// everywhere the field reaches, or nowhere.
     /// </summary>
     /// <remarks>
-    /// They are traced at half the window's size through the field's cells and blurred, so they
-    /// soften the edge of a shadow the map draws hard, past it by about the field's cell, which a
-    /// game of blocks with hard shadows leaves out where the map holds a point.
+    /// They are traced at half the window's size through the field's cells and blurred. Everywhere,
+    /// they soften the edge of a shadow the map draws hard, past it by about the field's cell, and
+    /// darken a sunlit surface that a ray toward the sun passes near another, as a column's base
+    /// beside it, where the map holds the sun's light whole.
     /// </remarks>
     public static void SetContactShadows(ContactShadows contactShadows) =>
         World.GetOrInsertResource(() => new ShadowSettings()).Contact = contactShadows;

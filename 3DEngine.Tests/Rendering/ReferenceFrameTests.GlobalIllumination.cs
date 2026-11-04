@@ -90,8 +90,10 @@ public sealed partial class ReferenceFrameTests
     public void Glossy_Surfaces_Reflecting_Through_The_Field_Match_Their_Reference()
     {
         // The hall of shaders_reflections at High, a polished floor, a chrome ball and a gold one,
-        // three pillars and an emissive strip, under a low sun and a sky.
+        // three pillars and an emissive strip, under a low sun and a sky, the sun's contact shadows
+        // traced within the shadow map's reach too, as the reference holds them.
         Open(256, 160);
+        SetContactShadows(ContactShadows.On);
         SetSceneField(3, 0.2f, 2);
         SetGlobalIllumination(GlobalIllumination.High);
         CreateDirectionalLight(Vector3.Normalize(new Vector3(-0.5f, -0.6f, -0.4f)), new Color(255, 240, 220), 2.5f, castsShadows: true);

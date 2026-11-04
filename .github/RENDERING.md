@@ -1071,9 +1071,10 @@ of how far along it is, its share in the occlusion image's green channel, which 
 multiplies the shadowed directional light by, so the pass runs for the contact shadows alone where
 the occlusion is off. `SetContactShadows` leaves the trace out (`ContactShadows.Off`), or has the
 model pass take the contact shadow as little as the shadow map holds the point
-(`ContactShadows.PastShadowMap`, the lighting buffer's `ambientOcclusion.y` 2), the map's share from
-`lightReaching`, 1 within its counted cascades and falling to 0 across the last one's edge, so a
-shadow the map draws keeps its hard edge, and the fill past them holds none. `particle_step.slang`
+(`ContactShadows.PastShadowMap`, the default, the lighting buffer's `ambientOcclusion.y` 2), the
+map's share from `lightReaching`, 1 within its counted cascades and falling to 0 across the last
+one's edge, so a shadow the map draws keeps its hard edge, and the fill past them holds none.
+`particle_step.slang`
 steps a colliding particle's move through the field where the field holds the place it moves to, and
 meets the window's depth elsewhere. `field_view.slang` draws one cascade over the window as the
 field holds the scene, where `field.show` asks. A render texture drawn through a camera of its own
@@ -2638,6 +2639,25 @@ reference, `BounceReference.MeasureProbe` at 256 paths, `BounceRoomsTests`, `gi.
 references of 1024 paths a pixel). The rest of the aisle's excess around the eye is the third
 cascade's faces within a spacing of their surface reading 11 to 14% over their own light there,
 through light that lies past the first bounce for 99% of it.
+
+**The sun's contact shadows within the shadow map's reach, read and mended on 2026-11-04.** Sponza's
+gallery at noon read 0.471 of its light off a path-traced reference per pixel, 62% of that in three
+sunlit regions, the parapet's top and the foreground column's base and capital, which read 0.38 to
+0.43 of the reference's light at every bounce and at one alike, their brightest pixels 0.35 to 0.48,
+the screen's probes changing nothing there. The sun's contact shadows darkened them, a ray toward
+the sun dark by how near a surface it passes as a share of how far along it is (`sunReaching` in
+`ao.slang`), which a ray grazing the column and the arches, whose field surfaces stand up to a cell
+outside the meshes, took for a shadow the base never falls in, where the shadow map holds the sun's
+light whole. With the contact shadows past the map's reach alone, the default since, the gallery at
+noon reads 0.290 and the three regions 0.83 to 0.93, a map of 4096 texels changing nothing. Of
+Sponza's sixteen views nine read nearer their references, the gallery at noon by 0.181, the atrium,
+the arcades, the lookup and the gallery at 8:00 and the arcades and the balcony at noon by 0.012 to
+0.022, and the nave and the lookup at noon by 0.002 and 0.003. Six read further by 0.002 to 0.009,
+the lion at noon by 0.009, the balcony at 8:00 by 0.006, the door at 8:00 by 0.004, and the nave at
+8:00 and the atrium and the door at noon by 0.002, and the lion at 8:00 reads as it did. The bounce
+rooms' window's room reads 0.121 where 0.225, the rest within 0.007, and the ambient occlusion's
+pass, which traces the contact shadows, takes 0.067 to 0.070 ms either way (`gi.compare` against
+references of 1,024 paths a pixel, `./e3d command profile`).
 
 **A crossing taken once, read on 2026-10-31.** The cascades' intervals overlap, the first's
 reaching twice as far as the second's begins, and a slab that straddled the first's end was crossed
