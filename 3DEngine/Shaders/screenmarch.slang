@@ -69,7 +69,9 @@ public struct ScreenView
     // xy: how far from its tile's middle each probe marches to the glow lights from this frame, in
     // pixels, the same for every probe and moved from frame to frame so a probe's points cover its
     // tile. z: how far along the sixteen places in their texels the probes' rays leave from this
-    // frame, moved on by one each frame. w: none.
+    // frame, moved on by one each frame. w: 1 through the sixteen frames after the window's lights
+    // changed or the field was built again, which begins every probe's cycle of places again
+    // (gi_screen_filter.slang).
     public float4 jitter;
     // x: how many places of glow lights there are. y, z: the places whose light is the one the
     // frame before had there, a bit a place, the first 32 in y, as uint bits. w: the field's

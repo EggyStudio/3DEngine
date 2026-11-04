@@ -1,10 +1,12 @@
 # Review
 
-Reviewed up to `cd6cae8f`, 197's gated read, a hit far in front of a face's surface taking the
-layer, pushed at 17:23 on 2026-11-04, its run green at 19:21 with macOS in 39 minutes, the Windows
-halves in 68 and 100 and Linux in 106; it keeps the form and carries the review's files. After it
-`c6d771d4`, item 203, the sun's contact shadows past the shadow map by default, pushed at 20:10, its
-run awaited; it keeps the form and carries the review's files. Before it `c3f31f93`, item 199, the
+Reviewed up to `dc40a069`, item 204, F2 held recording and the examples' dump, pushed at 21:54 on
+2026-11-04, its run green at 23:32 with macOS in 36 minutes, the Windows halves in 78 and 70 and
+Linux in 84; it keeps the form and carries the review's files and the devlog. Nothing is pushed
+after it. Before it `c6d771d4`, item 203, the sun's contact shadows past the shadow map by default,
+pushed at 20:10, its run green at 21:53 with macOS in 41 minutes, Linux in 66 and the halves in 88
+and 100. Before it `cd6cae8f`, 197's gated read, pushed at 17:23, its run green at 19:21 with macOS
+in 39 minutes, the halves in 68 and 100 and Linux in 106. Before it `c3f31f93`, item 199, the
 probes' faces read at their surfaces with the patch's turn, pushed at 15:35, its run green at 17:23
 with macOS in 40 minutes, Linux in 66 and the halves in 82 and 86. Before it `b2be1e28`, item 201,
 every linear texture sampler at 16, pushed at 12:32 with `b0214860`, 200's diagnostic step, its run
@@ -118,7 +120,7 @@ item in REVIEW-ARCHIVE.md, its devlog note and its own words. On 2026-10-30 at 1
 the README's new words (item 133) and the focus on radiance cascades (Decision 74), questions asked
 back, and asked that the sessions spend fewer tokens at the same quality, N 7.7.
 
-Next 204, 205, 206 and 207 in that order (Decision 92); 200 stays open as a reading of the carry and the sampling together, the bridge's 104 read beside it.
+Next 205's commit, then 206, 207 and 208 in that order; 200 stays open as a reading of the carry and the sampling together, the bridge's 104 read beside it.
 
 Items done and verdicts settled before 2026-10-23 stand in REVIEW-ARCHIVE.md beside this file, their
 numbers kept, moved there at 19:30 on 2026-10-23 so this file holds the current work alone and is
@@ -3296,7 +3298,21 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     of the same, so the reviewer reads the frames one by one and the owner plays the animation; the
     recording tool of item 132 is the start. Read by a recording of scenes_sponza's atrium turned
     and held still, its frames in the dump. First after 203, since the owner's reports of 205 to 207
-    come through it.
+    come through it. Done at dc40a069, read at 20:55, to push after c6d771d4's run. F2 pressed
+    writes a screenshot as before and held past half a second records fifteen pictures a second of
+    the app's clock as numbered PNGs in a folder named by the time, each written by a worker,
+    stopping on release or at 150 (ten seconds, about 250 MB at 720p), the next waiting for a press;
+    a flat function SetScreenshotFolder(folder, written) is called with each screenshot's path and
+    each recording's folder once whole, held before InitWindow, with the cheatsheet, PublicApi.txt
+    and the window guide's F2 paragraph; the examples point it into .github/dump/<date>/ when run
+    from the repository, the names <HH-MM-SS>-<example>-screenshot.png and -recording/ with captions
+    lines giving a recording's count, rate and length, and build/dump-webp.sh makes a recording one
+    animated WebP with ImageMagick. A test holds F2 two seconds at a fixed clock for 22 to 24
+    pictures and caps at 5. Read on the atrium at noon offscreen, F2 held while the view turned 300
+    pixels over 90 frames and rested, 88 pictures in 5.9 s and 70 MB with the WebP in the dump; the
+    frame change 0.2 levels on the mean before the turn, 16 to 19 turning, then 1.0 falling to 0.3
+    to 0.4 held still, above the 0.2 before, which is 205's idle flicker. The suite 2,246 in both
+    orders.
 
 205. **The screen probes flicker at steep angles.** Decision 92 on 2026-11-04, the most visible
     noise the owner sees in scenes_sponza, surfaces seen at a grazing angle flickering, updating
@@ -3309,7 +3325,45 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     the probes' jitter, the history's weight at the grazing pixels, the filter, and the beyond-read
     of 142's third part; then a mend with its cost, the recording still and turning as its test (a
     bound on the frame-to-frame change at grazing pixels), Sponza's views and the bounce rooms
-    unchanged. After 204.
+    unchanged. After 204. Read by source at 22:41 on dc40a069, each pixel's spread over 60 frames
+    held still after a turn in the atrium at noon at 800 by 450. The flicker sits at the arches'
+    undersides, the columns' edges and the window reveals, where surfaces are seen at a slant and
+    depth changes fast, 4,924 pixels spreading past 2 levels and up to 17, none with the screen
+    probes off, the same at 1080 lines and in a hidden window; the history and the filter both hold
+    it down (137,510 pixels without the history, 8,973 without the filter). The rays sent from one
+    place a tile every frame leave 10 pixels, so the source is the sixteen places seeing very
+    different light at those surfaces and the history's running mean, each frame weighted a
+    sixteenth, leaving a ripple of about a sixth of that at the sixteen-frame cycle; longer
+    histories, the change rule on the spread and no clamp leave 1,785 to 5,193, and a fixed place
+    brings back the still spots the shader's comment records. The trial, each probe's last full
+    cycle of sixteen places kept beside the running mean, the cycle's mean shown while the light
+    holds since the cycle cancels exactly when still, the running mean where the change rule says
+    the light moved, one more image reprojected as the kept light is; read by the still recording's
+    pixels past 2 levels, the turning recording, a lamp carried through a room for the hand-over,
+    Sponza's views and the bounce rooms, and the cost and memory against 169's budget. The cycle
+    trial read at 22:56: the cycle's mean standing in under the change rule as it is leaves 1,893
+    pixels since the rule falls back at the noisy edges, the rule four times looser or none leaves
+    11; but a lamp carried through the bounce rooms' room hands over within a twentieth 6 frames
+    after at HEAD and with the rule as it is, while the looser rule or none holds the old lamp's
+    light about 40 frames and then jumps, so a probe's own rule cannot tell a lamp's move from the
+    edges' noise. The next trial, a cue from the renderer on a frame where the window's lights'
+    buffer differs from the frame before's by more than a hundredth, the field is built again within
+    the view, or a mesh's instance rows changed within the view (the motion pass's previous rows),
+    every probe beginning its cycle again and showing the running mean until a cycle gathered wholly
+    after it, the looser rule beside it for per-probe change; read against the same bar and a box
+    moved under a lamp in a lit room for the hand-over of a change that is neither a light nor the
+    field. The cued cycle read at 23:22 and taken as the mend. The cues, the lights' buffer
+    differing from the frame before's by more than 1% or the field rebuilt as meshes came or went
+    within twice the probes' reach of the probe's point (the field's box standing for a moved mesh,
+    since the motion pass knows a mesh's rows only with per-object blur on), the looser rule beside
+    them; held still 10 pixels past 2 levels where 4,924 and the floor's mean step 0.03 to 0.04
+    where 0.12, turning as at HEAD; the lamp moved and a wall moved under a lamp hand over within a
+    twentieth in 6 and 5 frames as at HEAD; GI at High in the atrium at noon 4.36 to 4.42 ms where
+    4.33 to 4.40, the screen probes 7.25 MB; the bounce rooms as 203 left them, fourteen of Sponza's
+    views within 0.005 and the door view 1.090 per pixel where 1.060 at 8:00, the vestibule's walls
+    already over, since the history's clamp pulled the running mean below the rays' mean where rare
+    bright rays come and the cycle shows the rays' own mean, 200's over-read exposed; stated as
+    200's. Lands with the still and turning recordings as the test.
 
 206. **Light flashes from loading cells when the camera moves.** Decision 92 on 2026-11-04. As the
     scene field updates on movement, cells loading in flash with light before they settle. Read
@@ -3324,6 +3378,16 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     the field's surfaces standing a cell outside the meshes (203's finding, the contact shadows past
     the shadow map), the screen probes' edge read, TAA's history at edges (174), or the bloom; then
     a mend with the screenshot as its test. After 206.
+
+208. **Global illumination at High in the atrium stands past its 4 ms.** From 205's figures on
+    2026-11-04. GI at High at 1080p in Sponza's atrium at noon reads 4.33 to 4.40 ms at dc40a069 and
+    4.36 to 4.42 with 205, past 169's budget of 4 ms, where 140 held it under 4 at 1567179e; the
+    week's commits added their shares, 199's 0.2 for the faces at their surfaces, 194's 0.1 for the
+    carried ray, 192's glow groups where lights are many, 141's far probes and the screen probes in
+    every cascade (202). Read each pass's span at that view across the commits from 1567179e, then
+    either a cheaper part that holds the budget without a view moving past 0.01 or the budget moved
+    to what the look costs with the reason stated under 169, the owner's word asked if it moves.
+    After 207, before 200.
 
 ## Verdicts
 
@@ -4281,3 +4345,58 @@ pictures in 5.9 seconds, 70 MB, the frames changing by 0.2 levels of 255 on the 
 turn, 16 to 19 as it turns, and 1.0 falling to 0.3 and 0.4 held still after, the settled view's own
 change still above the 0.2 before, which is 205's to read (the frames' mean step at a fifth of their
 size, the recording and its WebP in the day's dump).
+
+205, read on 2026-11-04 at dc40a069, the trial held uncommitted in the tree. Sponza's atrium at
+noon, metered, held still 300 frames after a turn, each pixel's spread over 60 frames, flickers at
+the arches' undersides, the columns' edges and the window reveals, 4,924 pixels past 2 levels of 255
+and up to 17, none with the screen's probes off, at 800 by 450 offscreen, at 1920 by 1080 and in a
+hidden window alike. The history left out takes 137,510 past 2 levels and the filter left out 8,973,
+and the rays sent from one place a tile every frame 10, so the source is the place cycle, the
+sixteen places a probe's rays leave from in turn seeing light far apart at those surfaces and the
+running mean leaving a ripple of about a sixth of it, sixteen frames always kept reading 3,458, the
+change rule on the spread 3,548, 64 frames 2,923, no clamp 5,193 and both 1,785, the history's share
+near whole everywhere. The trial keeps each probe's last whole cycle beside the running mean, two
+images more a frame before and now, and shows the cycle's mean while the change rule says the light
+holds, 1,893 past 2 levels, the rule falling back at the noisy edges, 11 with the rule four times
+looser and 11 with none. A lamp moved in the bounce rooms' carried lamp's room, read on the screen's
+probes' blended light against the room settled after, comes within a twentieth of its light 6 frames
+after at HEAD, and with the trial 6 frames after and back off at the next cycle's turn to 0.043
+twelve frames on, the cycle gathered across the move standing in, and with the looser rule and with
+none the old lamp's light held about 40 frames, so a probe's own rule cannot tell this lamp's move
+from the edges' noise. Proposed, the cycle begun again at every probe and the running mean shown
+until a cycle gathered wholly after it, on a frame where the window's lights' buffer differs from
+the frame before's by more than a hundredth or the field is built again within the view, and the
+looser rule beside it, read against the same bar (the recordings' frames, the spread, gi.show
+filtered).
+
+205's trial with the cues, read on 2026-11-04 at dc40a069 and landed as 205's commit. Every probe
+begins its cycle again through the sixteen frames after the window's sun, sky or a light differs
+from the frame before's by more than a hundredth or the field was built again as meshes came or
+went, the looser rule beside it, the motion pass knowing a mesh's rows the frame before only while
+per-object blur is on, so the field's build stands for a moved mesh. Begun only where the field's
+box of what changed lay within twice the probes' reach, as the trial was, the suite failed three
+tests. The floor five and a half units under a slab swapped for one letting all the light through
+read 0.122 where the solid slab read 0.161 and the open floor 0.214, the last cascade's rays
+carrying the change from past that reach, and begun at the change alone, the closed room built about
+an eye under the open sky read 0.0033 of the open floor's light in its walls at High, the first
+whole cycle gathering the bounced light as it fell, where held sixteen frames 0.00007, the foliage
+tests passing again. Read again so, the atrium held still after a turn has 10 pixels past 2 levels
+where 4,924, as rays from a fixed place read, the floor's mean step held still 0.03 where 0.12 and
+0.02 to 0.05 with the screen's probes off, and turning 82 at the 99th part as at HEAD, the pixels'
+median spread moving with the metered exposure's drift over the frames, 1.06 levels of the picture's
+mean where 0.49 in the trial's. The lamp moved in the carried lamp's room comes within a twentieth
+of the screen's probes' light 6 frames after as at HEAD, its sum 0.24 as at HEAD, and the wall moved
+beside it, a mesh moved under a lamp in a lit room, 5 frames after as at HEAD, 0.19 as at HEAD.
+Global illumination at High at 1920 by 1080 in the atrium at noon takes 4.36 to 4.42 ms where 4.33
+to 4.40, both past 169's 4, and the screen's probes 7.25 MB with the four images. The bounce rooms
+read as 203 left them, and fourteen of Sponza's views within 0.005 of their light per pixel, but the
+door at 8:00 reads 1.090 where 1.060, its light 0.955 of its reference where 0.916, and at noon
+0.474 where 0.467, most of it in the vestibule's walls already over, block 8's face 1.79 times its
+reference where 1.61. The history's clamp to each frame's blend pulls the running mean toward the
+frame's typical light, under the rays' mean where rare bright rays come, as the vault's do, and the
+cycle's mean is the rays' own, so the trial shows 200's over-read the clamp had held down, the cycle
+gathered from rays clamped as the history is reading the same, 1.087. Landed with the door's 0.030
+stated as 200's over-read the clamp had held down, BounceRoomsTests holding the strip room's light
+still, 0 pixels of 57,600 at 320 by 180 spreading past a fiftieth of their light over 48 frames
+where the running mean alone left 1,651, its bound 80 (the recordings, the spread, gi.show filtered,
+gi.compare against the fresh references, `./e3d command profile` with the frames unlimited).

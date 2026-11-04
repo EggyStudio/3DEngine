@@ -101,6 +101,9 @@ internal sealed class GpuScreenProbes : IDisposable
     /// <summary>The glow lights' light on the view's surfaces, a texel of the view's depth each, and what it is blended from.</summary>
     public ScreenGlow Glow { get; }
 
+    /// <summary>Each probe's light over the cycle of its rays' sixteen places, the one being gathered and the last whole one.</summary>
+    public ScreenCycle Cycle { get; init; } = null!;
+
     /// <summary>A sampler that reads a texel as it is.</summary>
     public ISampler Sampler { get; }
 
@@ -147,4 +150,19 @@ internal sealed record ScreenGlow(IImage Light, IImageView LightView, IImage Las
 
     /// <summary>The views, in the order of <see cref="Images"/>.</summary>
     public IImageView[] Views => [LightView, LastLightView, StateView, LastStateView, NormalView, FarView, LastFarView];
+}
+
+/// <summary>
+/// Each screen probe's light over the cycle of the sixteen places its rays leave from, the
+/// mean of the cycle being gathered with how many frames it holds, and the mean of the last whole
+/// one with whether it stands in for the probe's light, this frame's and the frame before's.
+/// </summary>
+internal sealed record ScreenCycle(IImage Partial, IImageView PartialView, IImage LastPartial, IImageView LastPartialView,
+    IImage Full, IImageView FullView, IImage LastFull, IImageView LastFullView)
+{
+    /// <summary>The images, in the order the views are made of them.</summary>
+    public IImage[] Images => [Partial, LastPartial, Full, LastFull];
+
+    /// <summary>The views, in the order of <see cref="Images"/>.</summary>
+    public IImageView[] Views => [PartialView, LastPartialView, FullView, LastFullView];
 }

@@ -2659,6 +2659,36 @@ rooms' window's room reads 0.121 where 0.225, the rest within 0.007, and the amb
 pass, which traces the contact shadows, takes 0.067 to 0.070 ms either way (`gi.compare` against
 references of 1,024 paths a pixel, `./e3d command profile`).
 
+**The screen's probes' flicker at a slant, read and mended on 2026-11-04.** Held still, Sponza's
+atrium at noon flickered at the arches' undersides, the columns' sides and the window reveals,
+surfaces seen at a slant, 4,924 pixels at 800 by 450 spreading past 2 levels of 255 over 60 frames
+and up to 17, none with the screen's probes left out, at 1920 by 1080 and in a window alike. The
+places a probe's rays leave from in turn, sixteen across its texels, see light far apart at such
+surfaces, and the running mean held over sixteen frames leaves a ripple of about a sixth of that at
+the places' cycle, the rays sent from one place a tile every frame reading 10 pixels, sixty-four
+frames kept 2,923 and the history left out 137,510. The filter keeps each probe's last whole cycle
+of places beside the running mean, gathered from the cycle's first frame (`gi_screen_filter.slang`),
+and its mean stands in for the probe's light while the kept light lies within four times what the
+change rule allows, the cycle cancelling there, 10 pixels past 2 levels. Every probe's cycle begins
+again through the sixteen frames after the window's lights differ from the frame before's by more
+than a hundredth or the field is built again as meshes came or went, the running mean showing until
+a cycle gathered wholly after them, so a lamp moved in the bounce rooms' carried lamp's room comes
+within a twentieth of the screen's probes' light 6 frames after and a wall moved beside it 5, as
+before. Begun only where the field changed within twice the probes' reach, the floor five and a half
+units under a roof made to let all the sky's light through kept the solid roof's light, which the
+last cascade's rays carry from past that reach, and begun at the change alone, a closed room built
+about an eye under the open sky read 0.0033 of the open floor's light in its walls where 0.00007,
+the light bounced off them the frame before still falling as the first cycle gathered. Held to the
+change rule alone, the cycle fell back on the frame's noisy blend at the edges, 1,893 pixels, and
+held loose it kept the moved lamp's old light some forty frames. The bounce rooms' strip room read 7,705 pixels past 2 levels and reads 1, and the
+turn reads as it did, 82 at the frames' change's 99th part. The whole cycle is the rays' own mean,
+which the running mean's clamp to each frame's blend pulls toward the typical frame, so Sponza's
+door at 8:00 reads 0.030 of its light further from its reference per pixel, its vault's probes
+reading over already, and the other fifteen views within 0.007. Global illumination at High at 1920
+by 1080 in the atrium takes 4.36 to 4.42 ms where 4.33 to 4.40, and the screen's probes 7.25 MB with
+the cycle's four images (`./e3d command record` every frame, `gi.show filtered`, `gi.compare`,
+`./e3d command profile`, `gi.state`).
+
 **A crossing taken once, read on 2026-10-31.** The cascades' intervals overlap, the first's
 reaching twice as far as the second's begins, and a slab that straddled the first's end was crossed
 twice, the first cascade's ray taking the part of it within its interval and handing on what it

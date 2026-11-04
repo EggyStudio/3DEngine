@@ -474,6 +474,10 @@ internal sealed partial class GlobalIlluminationRenderer : IDisposable
         var (view, sampler) = environment is not null ? (environment.View, environment.Sampler) : (_black.View, _black.Sampler);
         var (sunMap, sunSampler, sunShadow) = SunMap(renderWorld, device);
         var lights = Lights(renderWorld, environment is not null, sunShadow);
+        // Whether the sun, the sky or a light differs from the frame before's by more than a
+        // hundredth, which with a build of the field begins every screen probe's cycle of places
+        // again (gi_screen_filter.slang).
+        NoteLights(lights);
         _sunBefore = renderWorld.TryGet<FrameShadow>();
         var switches = renderWorld.TryGet<GlobalIlluminationSettings>()!;
 
@@ -486,6 +490,7 @@ internal sealed partial class GlobalIlluminationRenderer : IDisposable
                 _fieldChanged = _fieldRebuilt == 0 ? changed : _fieldChanged.With(changed);
                 _fieldRebuilt |= 1u << build.Cascade;
             }
+        NoteChanged();
         var origins = new Vector3?[cascades];
         var lying = new bool[cascades];
         // And where each lay the frame before, which the rays read the faces of the light that
@@ -615,7 +620,7 @@ internal sealed partial class GlobalIlluminationRenderer : IDisposable
         floats[39] = _switches is { } off ? (off.HistoryOff ? 1 : 0) + (off.FilterOff ? 2 : 0) : 0;
         (floats[40], floats[41], floats[42], floats[43]) = (_screenReach, _gi!.Probes, ProbeSpacing, _made.Cascades);
         (floats[44], floats[45], floats[46], floats[47]) = (depth.Width, depth.Height, size.Width, size.Height);
-        (floats[68], floats[69], floats[70]) = (jitter.X, jitter.Y, _frame % 16);
+        (floats[68], floats[69], floats[70], floats[71]) = (jitter.X, jitter.Y, _frame % 16, Settling ? 1 : 0);
         if (last is { } then)
         {
             MemoryMarshal.Write(bytes.AsSpan(192), then.ViewProjection);

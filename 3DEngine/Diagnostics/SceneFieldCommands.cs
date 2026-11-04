@@ -76,12 +76,13 @@ internal static class SceneFieldCommands
             $"{quality}: {probes.Cascades} cascades of {p * p * p} probes, {string.Join(", ", probes.Texels.Select((n, c) => n * n * probes.RaysAt(c)))} rays each, {rays} rays a frame",
             $"world probes {world / 1024.0 / 1024.0:0.00} MB",
         };
-        // A screen probe's five texels of eight bytes, its light, surface, blend and the frame
-        // before's two, and its words of the glow lights; and for each texel of the depth the glow
+        // A screen probe's nine texels of eight bytes, its light, surface, blend and the frame
+        // before's two, and its places' cycle's four, and its words of the glow lights; and for
+        // each texel of the depth the glow
         // lights' light on it, six texels of eight bytes, this frame's and the frame before's, and
         // its normal in four.
         static double Megabytes(GpuScreenProbes screen) =>
-            ((5.0 * 8 + GpuScreenProbes.GlowSeenBytes) * screen.Across * screen.Down
+            ((9.0 * 8 + GpuScreenProbes.GlowSeenBytes) * screen.Across * screen.Down
              + (6.0 * 8 + 4) * screen.Glow.Light.Description.Extent.Width * screen.Glow.Light.Description.Extent.Height) / 1024 / 1024;
         // At Low, which leaves them out, probes stand for the glow lights alone while some are lit
         // (GlowOnly), placed and marching to them once a tile with no ray traced.

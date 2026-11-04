@@ -42,6 +42,22 @@ ConstantBuffer<ScreenView> view;
 [[vk::binding(6, 0)]]
 Sampler2D depth;
 
+// Each probe's light over the cycle of the sixteen places its rays leave from in turn, the frame
+// before's cycle being gathered, its mean with how many frames it holds, and the frame before's
+// last whole cycle, its mean with in a 0 for none, 1 for one and 2 for one that stands in for the
+// probe's light, then this frame's of both, which the first pass writes and the second reads.
+[[vk::binding(7, 0)]]
+Texture2D<float4> lastPartial;
+
+[[vk::binding(8, 0)]]
+Texture2D<float4> lastFull;
+
+[[vk::binding(9, 0)]] [format("rgba16f")]
+RWTexture2D<float4> partialNow;
+
+[[vk::binding(10, 0)]] [format("rgba16f")]
+RWTexture2D<float4> fullNow;
+
 // x: 0 for the first pass, which keeps each probe's light over the frames, and 1 for the second,
 // which blends it with the probes' around.
 struct FilterPush
@@ -108,6 +124,9 @@ float4 spatial(uint2 id, uint across, uint down, float4 own, float4 surface, out
         {
             int2 at = clamp(int2(id) + int2(x, y), int2(0), int2(int(across) - 1, int(down) - 1));
             float4 light = irradiance.Load(int3(at, 0));
+            // In the second pass a neighbor's whole cycle stands in for its light where it holds.
+            if (push.pass.x == 1u && fullNow[at].a >= 1.5)
+                light.rgb = fullNow[at].rgb;
             float4 other = geometry.Load(int3(at, 0));
             if (light.a < 0.5 || other.w < 0.0 || !lightHeld(light.rgb))
                 continue;
@@ -128,6 +147,12 @@ float4 spatial(uint2 id, uint across, uint down, float4 own, float4 surface, out
 // around its place then stood on a surface like it, or 0 where the frame before showed none of it,
 // and in frames how many frames that light held, blended alike.
 float4 earlier(uint2 id, uint across, uint down, float4 surface, out float frames)
+{
+    return earlierIn(history, id, across, down, surface, frames);
+}
+
+// The same of any image laid out as the probes are, in frames its alpha blended alike.
+float4 earlierIn(Texture2D<float4> source, uint2 id, uint across, uint down, float4 surface, out float frames)
 {
     frames = 0.0;
     if (view.last.w < 0.5)
@@ -157,7 +182,7 @@ float4 earlier(uint2 id, uint across, uint down, float4 surface, out float frame
         float4 before = lastGeometry.Load(int3(at, 0));
         if (before.w < 0.0 || dot(before.xyz, surface.xyz) < 0.9 || abs(before.w - expected) > 0.03 * expected + 0.05)
             continue;
-        float4 was = history.Load(int3(at, 0));
+        float4 was = source.Load(int3(at, 0));
         if (!lightHeld(was.rgb) || was.a < 0.5)
             continue;
         float2 lerps = lerp(1.0 - f, f, float2(corner & 1, corner >> 1));
@@ -185,8 +210,16 @@ void computeMain(uint3 id : SV_DispatchThreadID)
     if (own.a < 0.5 || surface.w < 0.0)
     {
         blended[id.xy] = float4(own.rgb, 0.0);
+        if (push.pass.x == 0u)
+        {
+            partialNow[id.xy] = float4(0.0);
+            fullNow[id.xy] = float4(0.0);
+        }
         return;
     }
+    // In the second pass a probe whose last whole cycle stands in for its light lends that.
+    if (push.pass.x == 1u && fullNow[id.xy].a >= 1.5)
+        own.rgb = fullNow[id.xy].rgb;
     float3 spread, error;
     uint off = uint(view.grid.w + 0.5);
     float4 now = spatial(id.xy, across, down, own, surface, spread, error);
@@ -218,4 +251,36 @@ void computeMain(uint3 id : SV_DispatchThreadID)
     float kept = min(frames * saturate(before.a), max(allowed, 1.0) - 1.0) + 1.0;
     float3 result = lerp(held, own.rgb, 1.0 / kept);
     blended[id.xy] = float4(lightHeld(result) ? result : float3(0.0), kept);
+
+    // The probe's light over the cycle of its rays' sixteen places, gathered from the cycle's first
+    // frame on, and the last whole cycle's mean, which stands in for the probe's light while the
+    // kept light holds within four times what the change rule allows, the places' cycle cancelling
+    // there where the running mean leaves a ripple of about a sixth of how far the places' light
+    // differs. At the edges of Sponza's atrium seen at a slant, the arches' undersides, the
+    // columns' sides and the window reveals, the places' light lay far apart and 4,924 pixels at
+    // 800 by 450 spread past 2 levels of 255 over 60 frames held still, 10 with the whole cycle
+    // standing in. The rule as the running mean takes it fell back there on this frame's noisy
+    // blend, 1,893, and held loose it kept a moved lamp's old light some forty frames, so cycles
+    // begin again through the sixteen frames after the window's lights differ from the frame
+    // before's or the field is built again as meshes come or go, and the running mean shows until
+    // a cycle gathered wholly after them. The whole cycle is the rays' own mean, which the running
+    // mean's clamp to each frame's blend pulls toward the typical frame, so where rare bright rays
+    // come it reads above the running mean, Sponza's door at 8:00 0.030 of its light further from
+    // its reference per pixel, the vault's probes reading over already.
+    uint phase = uint(view.jitter.z + 0.5) & 15u;
+    float gathered = 0.0, whole = 0.0;
+    float4 partial = (off & 1u) != 0u ? float4(0.0) : earlierIn(lastPartial, id.xy, across, down, surface, gathered);
+    float4 full = (off & 1u) != 0u ? float4(0.0) : earlierIn(lastFull, id.xy, across, down, surface, whole);
+    // Begun again for a cycle after the lights changed or the field was built again (the view's
+    // jitter's w), so the first whole cycle gathers the light once it settled.
+    bool begun = view.jitter.w > 0.5;
+    bool going = partial.a > 0.5 && lightHeld(partial.rgb) && !begun;
+    float count = going ? gathered : 0.0;
+    float3 cycleMean = phase == 0u || !going ? own.rgb : lerp(partial.rgb, own.rgb, 1.0 / (count + 1.0));
+    float cycleCount = phase == 0u || !going ? 1.0 : count + 1.0;
+    bool wholeNow = !begun && (phase == 0u ? going && count >= 15.5 : full.a > 0.5 && whole >= 0.5 && lightHeld(full.rgb));
+    float3 wholeMean = phase == 0u ? partial.rgb : full.rgb;
+    bool stands = wholeNow && most <= 4.0;
+    partialNow[id.xy] = float4(lightHeld(cycleMean) ? cycleMean : float3(0.0), cycleCount);
+    fullNow[id.xy] = float4(wholeNow ? wholeMean : float3(0.0), wholeNow ? (stands ? 2.0 : 1.0) : 0.0);
 }

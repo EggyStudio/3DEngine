@@ -200,7 +200,8 @@ internal sealed unsafe partial class GraphicsDevice
                 VkDescriptorType.StorageImage, VkDescriptorType.SampledImage, VkDescriptorType.StorageImage, VkDescriptorType.SampledImage,
                 VkDescriptorType.StorageImage, VkDescriptorType.StorageImage, VkDescriptorType.SampledImage], 16);
             _giStages[FilterStage] = MakeComputeStage(filter, [VkDescriptorType.SampledImage, VkDescriptorType.SampledImage, VkDescriptorType.StorageImage,
-                VkDescriptorType.SampledImage, VkDescriptorType.SampledImage, VkDescriptorType.UniformBuffer, VkDescriptorType.CombinedImageSampler], 16);
+                VkDescriptorType.SampledImage, VkDescriptorType.SampledImage, VkDescriptorType.UniformBuffer, VkDescriptorType.CombinedImageSampler,
+                VkDescriptorType.SampledImage, VkDescriptorType.SampledImage, VkDescriptorType.StorageImage, VkDescriptorType.StorageImage], 16);
             _giStages[ScreenStage] = MakeComputeStage(screen, [VkDescriptorType.CombinedImageSampler, VkDescriptorType.CombinedImageSampler,
                 VkDescriptorType.UniformBuffer, VkDescriptorType.CombinedImageSampler, VkDescriptorType.CombinedImageSampler, VkDescriptorType.UniformBuffer,
                 VkDescriptorType.CombinedImageSampler, VkDescriptorType.SampledImage, VkDescriptorType.StorageImage, VkDescriptorType.StorageImage,

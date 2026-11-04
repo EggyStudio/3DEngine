@@ -30,6 +30,11 @@ at one exposure
 Sponza's atrium at noon recorded on F2 held through the engine's input, before the right button
 drags the view, as it turns and held still after
 
+![](.github/assets/readings/2026-11-04-item-205-flicker.webp)
+Sponza's atrium at noon held still after a turn, each pixel red by its spread over 60 frames, at
+HEAD, with the screen probes' rays sent from one place a tile, and with sixty-four frames kept and
+no clamp
+
 ## 2026-11-03
 
 ![](.github/assets/readings/2026-11-03-item-189-views.webp)

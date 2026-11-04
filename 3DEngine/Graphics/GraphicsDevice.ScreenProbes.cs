@@ -48,13 +48,20 @@ internal sealed unsafe partial class GraphicsDevice
         Name(glow.Normal, "Screen's glow light's normals");
         Name(glow.Far, "Screen's far glow light");
         Name(glow.LastFar, "Screen's far glow light, the frame before");
+        IImage[] cycleImages = [.. Enumerable.Range(0, 4).Select(_ => CreateImage(desc))];
+        var cycleViews = cycleImages.Select(CreateImageView).ToArray();
+        var cycle = new ScreenCycle(cycleImages[0], cycleViews[0], cycleImages[1], cycleViews[1], cycleImages[2], cycleViews[2], cycleImages[3], cycleViews[3]);
+        Name(cycle.Partial, "Screen probes' light over the places' cycle being gathered");
+        Name(cycle.LastPartial, "Screen probes' light over the places' cycle being gathered, the frame before");
+        Name(cycle.Full, "Screen probes' light over the last whole cycle of places");
+        Name(cycle.LastFull, "Screen probes' light over the last whole cycle of places, the frame before");
         var sampler = CreateSampler(new SamplerDesc(SamplerFilter.Nearest, SamplerFilter.Nearest,
             SamplerAddressMode.ClampToEdge, SamplerAddressMode.ClampToEdge, SamplerAddressMode.ClampToEdge));
 
         // Every image holds nothing, ready to be sampled, until the first frame places the probes.
         var cmd = BeginSingleTimeCommands();
         var whole = ColorLevels(0, 1);
-        IImage[] made = [irradiance, geometry, kept, blended, history, lastGeometry, .. glow.Images];
+        IImage[] made = [irradiance, geometry, kept, blended, history, lastGeometry, .. glow.Images, .. cycle.Images];
         VkImage[] images = [.. made.Select(image => ((VulkanImage)image).Image)];
         PipelineBarrier(cmd, [.. images.Select(image => ImageBarrier(image, ColorLevels(0, 1), VkImageLayout.Undefined, VkImageLayout.General,
             VkPipelineStageFlags2.None, VkAccessFlags2.None, VkPipelineStageFlags2.Transfer, VkAccessFlags2.TransferWrite))]);
@@ -76,10 +83,10 @@ internal sealed unsafe partial class GraphicsDevice
             view.Dispose();
             glowSeen.Dispose();
             rayLog.Dispose();
-            IDisposable[] all = [irradianceView, geometryView, keptView, blendedView, historyView, lastGeometryView, .. glow.Views,
-                irradiance, geometry, kept, blended, history, lastGeometry, .. glow.Images];
+            IDisposable[] all = [irradianceView, geometryView, keptView, blendedView, historyView, lastGeometryView, .. glow.Views, .. cycle.Views,
+                irradiance, geometry, kept, blended, history, lastGeometry, .. glow.Images, .. cycle.Images];
             foreach (var one in all) one.Dispose();
-        }, kept, keptView, blended, blendedView, history, historyView, lastGeometry, lastGeometryView, glowSeen, glow, rayLog) { GlowTexel = glowTexel };
+        }, kept, keptView, blended, blendedView, history, historyView, lastGeometry, lastGeometryView, glowSeen, glow, rayLog) { GlowTexel = glowTexel, Cycle = cycle };
     }
 
     /// <summary>
@@ -109,7 +116,7 @@ internal sealed unsafe partial class GraphicsDevice
         // The glow lights' buffer written again only once the frame before's passes have read it.
         MemoryBarrier(cmd, readers, VkAccessFlags2.ShaderRead, VkPipelineStageFlags2.ComputeShader, VkAccessFlags2.ShaderWrite);
         var glow = screen.Glow;
-        VkImage[] images = [.. new[] { screen.Irradiance, screen.Geometry, screen.Kept, screen.Blended, screen.History, screen.LastGeometry }.Concat(glow.Images)
+        VkImage[] images = [.. new[] { screen.Irradiance, screen.Geometry, screen.Kept, screen.Blended, screen.History, screen.LastGeometry }.Concat(glow.Images).Concat(screen.Cycle.Images)
             .Select(image => ((VulkanImage)image).Image)];
         PipelineBarrier(cmd, [.. images.Select(image => ImageBarrier(image, ColorLevels(0, 1), VkImageLayout.ShaderReadOnlyOptimal, VkImageLayout.General,
             readers | VkPipelineStageFlags2.Transfer, VkAccessFlags2.ShaderRead | VkAccessFlags2.TransferWrite, VkPipelineStageFlags2.ComputeShader,
@@ -166,6 +173,10 @@ internal sealed unsafe partial class GraphicsDevice
                 run.Image(blend, 4, VkDescriptorType.SampledImage, ((VulkanImageView)screen.LastGeometryView).View, null, VkImageLayout.General);
                 run.Buffer(blend, 5, VkDescriptorType.UniformBuffer, screen.View);
                 run.Image(blend, 6, VkDescriptorType.CombinedImageSampler, ((VulkanImageView)depth).View, depthSampler, VkImageLayout.ShaderReadOnlyOptimal);
+                run.Image(blend, 7, VkDescriptorType.SampledImage, ((VulkanImageView)screen.Cycle.LastPartialView).View, null, VkImageLayout.General);
+                run.Image(blend, 8, VkDescriptorType.SampledImage, ((VulkanImageView)screen.Cycle.LastFullView).View, null, VkImageLayout.General);
+                run.Image(blend, 9, VkDescriptorType.StorageImage, ((VulkanImageView)screen.Cycle.PartialView).View, null, VkImageLayout.General);
+                run.Image(blend, 10, VkDescriptorType.StorageImage, ((VulkanImageView)screen.Cycle.FullView).View, null, VkImageLayout.General);
                 _deviceApi.vkCmdBindDescriptorSets(cmd, VkPipelineBindPoint.Compute, filterLayout, 0, 1, &blend, 0, null);
                 ReadOnlySpan<uint> which = [pass, 0, 0, 0];
                 fixed (uint* p = which)
@@ -216,6 +227,8 @@ internal sealed unsafe partial class GraphicsDevice
         {
             _deviceApi.vkCmdCopyImage(cmd, ((VulkanImage)screen.Kept).Image, VkImageLayout.General, ((VulkanImage)screen.History).Image, VkImageLayout.General, 1, &region);
             _deviceApi.vkCmdCopyImage(cmd, ((VulkanImage)screen.Geometry).Image, VkImageLayout.General, ((VulkanImage)screen.LastGeometry).Image, VkImageLayout.General, 1, &region);
+            _deviceApi.vkCmdCopyImage(cmd, ((VulkanImage)screen.Cycle.Partial).Image, VkImageLayout.General, ((VulkanImage)screen.Cycle.LastPartial).Image, VkImageLayout.General, 1, &region);
+            _deviceApi.vkCmdCopyImage(cmd, ((VulkanImage)screen.Cycle.Full).Image, VkImageLayout.General, ((VulkanImage)screen.Cycle.LastFull).Image, VkImageLayout.General, 1, &region);
         }
         region.extent = new VkExtent3D(glowExtent.Width, glowExtent.Height, 1);
         _deviceApi.vkCmdCopyImage(cmd, ((VulkanImage)glow.Light).Image, VkImageLayout.General, ((VulkanImage)glow.LastLight).Image, VkImageLayout.General, 1, &region);
