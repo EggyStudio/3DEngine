@@ -149,7 +149,7 @@ public sealed class SoakCheckTests : IDisposable
         }
 
         Check(Walked("manor", (81, 82, 399, 81), (90, 95, 478, 95))).Exit.Should().Be(0, "the rooms the second half reached are the level's");
-        Check(Walked("manor", (81, 82, 399, 81), (110, 82, 399, 81))).Exit.Should().Be(1, "images past what a whole walk holds");
+        Check(Walked("manor", (81, 82, 399, 81), (120, 82, 399, 81))).Exit.Should().Be(1, "images past what a whole walk holds");
         Check(Walked("manor", (81, 82, 399, 81), (81, 115, 399, 81))).Exit.Should().Be(1, "descriptor sets past what a whole walk holds");
         Check(Walked("manor", (81, 82, 399, 81), (81, 82, 620, 81))).Exit.Should().Be(1, "entity ids past what a whole walk holds");
         Check(Walked("manor", (81, 82, 399, 81), (81, 82, 399, 115))).Exit.Should().Be(1, "assets past what a whole walk holds");

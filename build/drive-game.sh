@@ -46,6 +46,11 @@ exec 3>&1
 # names how far it got by its last status, so a slow device says which game it is slow at and the
 # games after it are still played. The game's last status is kept in a file for that error.
 minutes="${DRIVE_MINUTES:-8}"
+# The feature test plays every zone twice, the second time with global illumination on at Low, and
+# took 742 seconds on lavapipe held to four cores of the development machine at 105d9cb3 and 735 at
+# 3dda52c2, where the Windows runner reached its particles' zone at 720 in the pack run of 8836ce27,
+# so it is given half as long again.
+if [ "$game" = FeatureTest ]; then minutes=$(( minutes * 3 / 2 )); fi
 last="captures/$name-last-status.txt"
 expired="captures/$name-expired"
 finished="captures/$name-finished"

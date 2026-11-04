@@ -195,6 +195,18 @@ internal static class ConsoleBuiltins
         return text.ToString();
     }
 
+    [Command("memory.images", "The GPU's images alive by their size, format, use and levels, the most first, a line each with how many: memory.images [lines]")]
+    internal static string MemoryImages(int lines = 40)
+    {
+        if (ConsoleHost.World?.TryGetResource<Renderer>(out var renderer) != true || renderer.Context.Graphics is not GraphicsDevice device)
+            return "no device";
+        var census = device.ImageCensus();
+        var text = new StringBuilder($"{census.Sum(entry => entry.Count)} images of {census.Count} kinds");
+        foreach (var (description, count) in census.Take(lines))
+            text.Append($"\n{count} {description.Extent.Width}x{description.Extent.Height} {description.Format} {description.Usage} levels {description.MipLevels}");
+        return text.ToString();
+    }
+
     [Command("memory.collect", "The same as memory, read after a full garbage collection, so what is held shows apart from what is waiting to be collected")]
     internal static string MemoryCollected()
     {

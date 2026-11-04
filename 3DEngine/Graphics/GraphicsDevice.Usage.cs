@@ -26,6 +26,11 @@ internal readonly record struct BufferMaker(string File, int Line, BufferUsage U
 /// <param name="Bytes">Their bytes together.</param>
 internal readonly record struct BufferCount(BufferMaker Maker, int Count, long Bytes);
 
+/// <summary>How many images alive share one description, a line of the device's image census.</summary>
+/// <param name="Description">Their size, format, use and levels.</param>
+/// <param name="Count">How many are alive.</param>
+internal readonly record struct ImageCount(ImageDesc Description, int Count);
+
 internal sealed partial class GraphicsDevice
 {
     private int _liveBuffers, _liveImages, _liveDescriptorSets, _livePipelines;
@@ -45,6 +50,30 @@ internal sealed partial class GraphicsDevice
             else
                 _bufferCensus[made] = (held + count, size + bytes);
         }
+    }
+
+    // The images alive by their description, which a soak reads beside the count to name what
+    // climbs (`memory.images`).
+    private readonly Dictionary<ImageDesc, int> _imageCensus = [];
+
+    private void CountImage(ImageDesc description, int count)
+    {
+        lock (_imageCensus)
+        {
+            var held = _imageCensus.GetValueOrDefault(description) + count;
+            if (held == 0)
+                _imageCensus.Remove(description);
+            else
+                _imageCensus[description] = held;
+        }
+    }
+
+    /// <summary>The images alive by their size, format, use and levels, the most first.</summary>
+    public IReadOnlyList<ImageCount> ImageCensus()
+    {
+        lock (_imageCensus)
+            return [.. _imageCensus.Select(entry => new ImageCount(entry.Key, entry.Value))
+                .OrderByDescending(entry => entry.Count).ThenByDescending(entry => entry.Description.Extent.Width * entry.Description.Extent.Height)];
     }
 
     /// <summary>The buffers alive by where each was made and what it is for, the most first.</summary>

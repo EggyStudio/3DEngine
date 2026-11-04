@@ -14,10 +14,10 @@ internal static class Sessions
     public static CliSession? Pick(Options options, string command, out string refusal)
     {
         refusal = string.Empty;
-        var candidates = Live();
-        if (options.Pid is { } pid) candidates = [.. candidates.Where(s => s.Pid == pid)];
-        if (options.Name is { Length: > 0 } name)
-            candidates = [.. candidates.Where(s => s.Name.Contains(name, StringComparison.OrdinalIgnoreCase) || s.Title.Contains(name, StringComparison.OrdinalIgnoreCase))];
+        var name = options.Name is { Length: > 0 } named ? named : null;
+        var candidates = options.Pid is null && name is null ? Live()
+            : CliSessionFile.Matching(s => (options.Pid is not { } pid || s.Pid == pid)
+                && (name is null || s.Name.Contains(name, StringComparison.OrdinalIgnoreCase) || s.Title.Contains(name, StringComparison.OrdinalIgnoreCase)));
 
         // A stale one is only chosen when it is the only one, so a session that is busy loading is
         // still reachable while a livelier one is preferred.

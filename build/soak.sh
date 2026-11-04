@@ -20,9 +20,10 @@ out="build/soak/$name.csv"
 : > "$out"
 # The first command that ends the soak early, with its exit code and the program's name, which
 # build/soak-check.py names with the program's last warnings. -E keeps the trap in functions and
-# the reader's subshell.
+# the reader's subshell. The code is taken before the test of the file, whose own 1 it said in its
+# place for Wick's reading that found no session, which ended with 4.
 rm -f "build/soak/$name.failed"
-trap '[ -e "build/soak/$name.failed" ] || echo "$? $(basename "$program") $BASH_COMMAND" > "build/soak/$name.failed"' ERR
+trap 'code=$?; [ -e "build/soak/$name.failed" ] || echo "$code $(basename "$program") $BASH_COMMAND" > "build/soak/$name.failed"' ERR
 
 # Every call names the session, so several games are played at once.
 session=(--name "$(basename "$program")")

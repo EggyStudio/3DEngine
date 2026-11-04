@@ -41,7 +41,9 @@ internal sealed unsafe partial class GraphicsDevice
             Memory = memory;
             Description = desc;
             Layout = VkImageLayout.Undefined;
-            if (image.Handle != 0) Interlocked.Increment(ref device._liveImages);
+            if (image.Handle == 0) return;
+            Interlocked.Increment(ref device._liveImages);
+            device.CountImage(desc, 1);
         }
 
         /// <inheritdoc />
@@ -53,6 +55,7 @@ internal sealed unsafe partial class GraphicsDevice
                 _device._deviceApi.vkDestroyImage(Image);
                 Image = default;
                 Interlocked.Decrement(ref _device._liveImages);
+                _device.CountImage(Description, -1);
             }
             if (Memory.Handle != 0)
             {

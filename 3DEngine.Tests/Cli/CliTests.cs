@@ -90,6 +90,38 @@ public sealed class CliTests : IDisposable
     }
 
     [Fact]
+    public void A_Named_Session_Missing_At_The_First_Look_Is_Found_At_A_Later_One_And_None_Is_Waited_For_A_Few()
+    {
+        // Wick answered the soak's readings ten seconds before and after the one that found no
+        // session for it under the games job's load. The file appears here in the wait after the
+        // first look, and a name that never appears is looked for five times.
+        var (previous, again) = (CliSessionFile.Directory, CliSessionFile.LookAgain);
+        CliSessionFile.Directory = _folder.Path;
+        try
+        {
+            var session = new CliSession(Environment.ProcessId, 4242, "token", "/project", "Game", "Title", "hidden",
+                Stamp, true, "ready", 12, Stamp);
+            var looks = 0;
+            CliSessionFile.LookAgain = () =>
+            {
+                if (looks++ == 0) CliSessionFile.Write(session);
+            };
+            CliSessionFile.Matching(s => s.Name == "Game").Should().ContainSingle("the file written after the first look is found at the second")
+                .Which.Port.Should().Be(4242);
+            looks.Should().Be(1);
+
+            looks = 0;
+            CliSessionFile.Matching(s => s.Name == "Other").Should().BeEmpty();
+            looks.Should().Be(4, "five looks have four waits between them");
+            CliSessionFile.Remove(session.Pid);
+        }
+        finally
+        {
+            (CliSessionFile.Directory, CliSessionFile.LookAgain) = (previous, again);
+        }
+    }
+
+    [Fact]
     public void A_Served_Program_That_Closes_Before_It_Is_Ready_Says_So_At_Warning()
     {
         // A program that ends of its own in its startup, as one whose loop ends at once does, which

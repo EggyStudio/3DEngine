@@ -50,6 +50,7 @@ engine's own, which read and change the ECS:
 ./e3d command scene.save level.json                 # the world, as a scene file
 ./e3d command memory.collect                        # what it holds, after a full collection
 ./e3d command memory.buffers 20                     # the GPU's buffers by where each was made
+./e3d command memory.images 20                      # the GPU's images by size, format and use
 ```
 
 `memory` answers with what the program holds, as name and number pairs for the managed heap,
@@ -60,6 +61,8 @@ in climbs by until what it leaves behind is let go. Read at intervals while a ga
 buffers are, by the file and line of the engine that made each and what it is for, the most first,
 as Manor's were named as one vertex and one index buffer for each mesh of each of its cells, 176
 meshes at sixteen cells, until a model's meshes were shared by every entity that shows it.
+`memory.images` names the GPU's images by their size, format, use and levels, the most first, as
+Manor's walk held 27 textures of 128 by 128 at its most and 16 as it began.
 
 `window.size 1280 720`, `window.minimize`, `window.restore`, `window.position` and `window.monitor`
 resize and move the window while it draws, and in an offscreen run resize the images it draws

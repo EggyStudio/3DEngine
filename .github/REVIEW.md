@@ -1,107 +1,110 @@
 # Review
 
-Reviewed up to `448e18e7`, 142's ray-query build's second commit, the light-through crossing, pushed
-at 06:18 on 2026-11-04 with `446c6293`, its first, the rebase, the setting off by default, its run
-green at 08:10 with macOS in 40 minutes, the Windows halves in 76 and 53 and Linux in 101. After it
-`105d9cb3`, Verdict 102's mend, Tumble's hazards off as it serves in the drive script and a failed
-game's log uploaded, pushed at 08:18, its run awaited, the fourteenth pack run to start from it when
-green; it keeps the form and carries the review's files. Each commit's detail stands in its item in
-REVIEW-ARCHIVE.md, its devlog note and its own words. Before it `8836ce27`, item 195, the lamp march
-from its first step, pushed at 04:13 with `02635dda`, Verdict 101's mend, its run green at 06:16
-with the halves in 90 and 80 minutes, Linux in 109 and macOS in 41, which settled Verdict 101; the
-thirteenth pack run started from it with publish on at 06:17 and went red on macOS alone at 07:37 on
-the games step, Tumble's robot not walking, Verdict 102. Before it `febe0b5b`, 194's second commit
-and its end, pushed at 02:40, its run green at 04:13 with Linux in 80 minutes, the halves in 88 and
-69 and macOS in 50. Before it `cb92986f`, 194's first commit, fresh references, pushed at 00:48 with
-`cb87dd98`, item 193, the field's thin-wall hold at a wall's foot and head, its run red at 02:40 on
-the first Windows half alone, Verdict 101, the leak test's reading, half 2 green in 97 minutes,
-Linux in 103 and macOS in 41. Before it `88943e50`, item 145, pushed at 23:04 on 2026-11-03 with
-`a170718d`, 144's second commit and its end, its run green at 00:47 with Linux in 66 minutes, the
-halves in 87 and 98 and macOS in 41. Before it `e3452da2`, 144's first commit, two-byte indices,
-pushed at 21:06, its run green at 23:04 with Linux in 106 minutes, the halves in 47 and 69 and macOS
-in 42. Before it `6965e4df`, item 192, pushed at 19:32 with `f0de9b82`, Verdict 100's mend, its run
-green at 21:06 with the halves in 87 and 45 minutes, Linux in 81 and macOS in 47, which settled
-Verdict 100. Before it `57dae5a6`, 182's second commit, the host image copy, pushed at 17:25 with
-`ee367526`, 182's first, Vulkan 1.4 asked, and `3b85dbcd`, 141's third and its end, its run red at
-18:43 on macOS alone, Verdict 100, the suite crashing at the first texture's bind under MoltenVK
-with the host copy chosen, the Windows halves green in 74 and 70 minutes, Linux in 65. Before it
-`01dd3ced`, 141's second commit, pushed at 15:27 with `26e1fbc8`, 141's first, its run green at
-17:25 with the halves in 89 and 97 minutes, Linux in 105 and macOS in 43. Before it `1567179e`,
-140's last commit and its end, pushed at 13:44, its run green at 15:27 with the halves in 79 and 102
-minutes, Linux in 83 and macOS in 38. Before it `5d0c44e4`, Low's third cascade, pushed at 11:45,
-its run green at 13:43 with the halves in 86 and 98 minutes, Linux in 103 and macOS in 41. Before it
-`8cd556e1`, 140's first commit, pushed at 09:52, its run green at 11:45 with the halves in 84 and 96
-minutes, Linux in 102 and macOS in 42. Before it `9a20767c`, item 191, pushed at 08:13 with
-`52e75184` and `893758ea`, its run green at 09:51 with the halves in 82 and 96 minutes, Linux in 76
-and macOS in 41. Before it `b83b1a85`, 142's second mend and its close, pushed at 06:45, its run
-green at 08:13 with the halves in 85 and 82 minutes, Linux in 58 and macOS in 40. Before it
-`aab4b622`, the history toggle's mend, pushed at 05:17 with `c117b252`, 142's first mend, its run
-green at 06:45 with the halves in 84 and 49 minutes, Linux in 57 and macOS in 36. Before it
-`40462df0`, 142's readout, pushed at 03:29, its run green at 05:16 with the halves in 70 and 83
-minutes, Linux in 94 and macOS in 38. Before it `369d9b5a`, item 189, pushed at 01:56, its run green
-at 03:28 with the halves in 80 and 92 minutes, Linux in 58 and macOS in 38. Before it `5ab01df8`,
-188's third commit and its end, pushed at 00:22 with `3e651d9d`, its run green at 01:55 with the
-halves in 79 and 91 minutes, Linux in 58 and macOS in 39. Before it `71c7c194`, 188's first commit,
-pushed at 22:34 on 2026-11-02, its run green at 00:22 with the halves in 79 and 89 minutes, Linux in
-98 and macOS in 37. Before it `aca80ca2`, item 186 with the knob and the fog's removal, pushed at
-20:25, its run green at 22:12 with the halves in 78 and 85 minutes, Linux in 97 and macOS in 42.
-Before it `abde3935`, Verdict 99's mend, pushed at 18:26 with `f8872d03` (175) and `11b6a593` (142's
-record), its run green at 20:09 with the halves in 70 and 89 minutes, Linux in 91 and macOS in 40,
-which settled Verdict 99. Before it `dfbf7614` (183, the Windows suite in two jobs) with `2977a4a2`
-and `0dff5d04` (174), pushed at 15:56, its run red at 17:48 on the first Windows half alone, Verdict
-99, the leak test's reading, the halves in 69 and 90 minutes. Before it `4a01d5ef`, item 185, pushed
-at 13:02 with `43547883`, its run green at 15:55 with Windows in 171 minutes, Linux in 95 and macOS
-in 44. Before it `fdf4dedb`, item 184, pushed at 10:19 with `22c523ae`, 178's second step and its
-end, its run green at 13:02 with Windows in 159 minutes, Linux in 96 and macOS in 37. Before it
-`2b6791f9`, 178's first step, pushed at 08:21 with `4bca4e47`, item 173, its run green at 10:18 with
-Windows in 115 minutes, Linux in 93 and macOS in 39. Before it `a35d7ce9`, 172's third commit and
-its end, pushed at 05:37 with `55ec4e2c` and `4105ee5e`, its run green at 08:20 with Windows in 159
-minutes (item 183), Linux in 97 and macOS in 36. Before it `adf7bb79`, 170's third commit and its
-end, pushed at 03:04 with `dd39d533`, its pass, its run green at 05:37 with Windows in 151 minutes,
-Linux in 82 and macOS in 36. Before it `bd081fa6`, 170's first engine commit, Sky as a submodule,
-pushed at 00:31 with `2cb39bcb`, item 139, its run green at 03:03 with Windows in 149 minutes, Linux
-in 65 and macOS in 38. Before it `d9c50b3b`, Verdict 98's mend, pushed at 22:42 on 2026-11-01 with
-`2d051ada` and `6fd05fd4`, 181's second and third parts, its run green at 00:30 with Windows in 103
-minutes, Linux in 47 and macOS in 39, which settled Verdict 98. Before it `4b80c5c8`, item 169,
-pushed at 17:51, its run green at 20:24 with Windows in 149 minutes, Linux in 84 and macOS in 41.
-Before it `3b5264d7` (181's first part), `5ea3e98f` (167 with 171 folded in), `5932c389` (179) and
-`60fd7e23` (180), pushed at 20:24, the run of `3b5264d7` red at 22:07 on the three systems, Verdict
-98, a push of 32 bytes where the layout held 16, mended at `d9c50b3b`. Before it `6cc2a0a0`, item
-166's mend, pushed at 15:18 with `001e93f0`, item 168, its run green at 17:50 with Windows in 149
-minutes, Linux in 53 and macOS in 37. Before it `e159992e`, items 164 and 165, pushed at 13:03 with
-`ea4fccb3`, item 163, its run green at 15:17 with Windows in 131 minutes, Linux in 82 and macOS in
-35. Before it `d9f3f108`, 158's first part, pushed at 10:39, its run green at 13:00 with Windows in
-141 minutes, Linux in 76 and macOS in 34. Before it `af7df72a` (162), `beefec87` (159) and
-`1fe6e61a` (161), pushed at 08:11, the run of `af7df72a` green at 10:38 with Windows in 147 minutes,
-Linux in 141, the runner's as the next run showed, and macOS in 36. Before it `1848701a` (160's
-end), `ed41cd5d` (160's first part), `a4e70370` (154) and `6f6ba558` (157), pushed at 06:23, the run
-of `1848701a` green at 08:07 with Windows in 104 minutes, Linux in 60 and macOS in 33. Before it
-`e3d37e1e` (Verdict 97's mend), `6a6e2dad` (152) and `07085cd2` (156), pushed at 04:00, the run of
-`e3d37e1e` green at 06:20 with Windows in 140 minutes, Linux in 73 and macOS in 32, which settled
-Verdict 97. Before it `3dda52c2` (151 and 155) and `740066d6` (138), pushed at 01:13, the run of
-`3dda52c2` red at 03:16 on Windows alone, Verdict 97, Linux green in 60 minutes and macOS in 35; the
-twelfth pack run started from it at 01:13 green at 04:20, 6.0.14 published, with Windows in 184
-minutes, the games in 79, the captures in 64 and 57 on macOS and the pack in 3, its Windows suite
-passing the leak test the push run failed. Before it, on 2026-10-31 and 2026-10-30, each green but
-where said: `46149d6d` (153); `a6a3b7a0` (150), the eleventh pack run from it publishing 6.0.11 at
-22:33, the first at 6.0; `4df9309c` (Verdict 96's mend); `75b61056`, `82a02b9d` and `52a1cb3f` (148)
-with `b4d0d03c` (149, the Windows limit to 180); `14b258c7` and `e32f9138` (147), red on Linux
-alone, Verdict 96; `df856af8` (132's mend), `00c6809a` (133), `95e088b7` (137) and `edf301e0` (the
-version to 6.0 on the owner's word); `2b8e8541` (137), the tenth pack run from `19658e55` publishing
-5.2.342 at 12:47; `19658e55` (136) and `10295556` (146); `da54d289` (146), `7bdfaa9e` (Verdict 95's
-mend) and `fdde73b2` (131); `b16f26b5` (131), cancelled on Linux alone past the limits, Verdict 95;
-`2ad96a80` (135); `e96a6bb8` (132's reading, the note 2026-10-30-item-132-recording.md) and
-`c3214cbe` (134); `1703c54e` (97), pushed by the owner's hand on 2026-10-26 while the sessions were
-paused until 2026-10-30, the ninth pack run publishing 5.2.333 at 21:05 on 2026-10-30 for the game's
-specks. Before it on 2026-10-26, each green but where said: `987f07ae` (Verdict 94's mend) with
-`969a1b08` (129); `7ff7bbdd` (130), red on the examples job alone, Verdict 94; `b05b32da` (89);
-`0a4ad922` (the README's quick links); `5528c55c` (95); `d207627e` (91), `bb542fa4` (93) and
-`0754b975` (128), the eighth pack run publishing 5.2.326; `2f5237f2` (127); `78946b22` (112), the
-seventh publishing 5.2.322; `7af16fcd` (Verdict 93's mend); `45edfbf6` (111); `a16227a7` (100), the
-sixth publishing 5.2.319. Each commit's detail stands in its item in REVIEW-ARCHIVE.md, its devlog
-note and its own words. On 2026-10-30 at 18:0x the owner wrote the README's new words (item 133) and
-the focus on radiance cascades (Decision 74), questions asked back, and asked that the sessions
-spend fewer tokens at the same quality, N 7.7.
+Reviewed up to `105d9cb3`, Verdict 102's mend, Tumble's hazards off as it serves in the drive script
+and a failed game's log uploaded, pushed at 08:18 on 2026-11-04, its run green at 10:16 with macOS
+in 37 minutes, the Windows halves in 65 and 95 and Linux in 103, which settled Verdict 102; it keeps
+the form and carries the review's files. Nothing is pushed after it; `fe224105`, 200's march
+command, waits to go with Verdict 103's mend in one run, the fourteenth pack run from that run when
+green. The thirteenth pack run ended red at 09:09 on three jobs, macOS (Verdict 102), the first
+Windows half and the Linux games job (Verdict 103), the rest green. Before it `448e18e7`, 142's
+ray-query build's second commit, pushed at 06:18 with `446c6293`, its first, the setting off by
+default, its run green at 08:10 with macOS in 40 minutes, the halves in 76 and 53 and Linux in 101.
+Each commit's detail stands in its item in REVIEW-ARCHIVE.md, its devlog note and its own words.
+Before it `8836ce27`, item 195, the lamp march from its first step, pushed at 04:13 with `02635dda`,
+Verdict 101's mend, its run green at 06:16 with the halves in 90 and 80 minutes, Linux in 109 and
+macOS in 41, which settled Verdict 101; the thirteenth pack run started from it with publish on at
+06:17 and went red on macOS alone at 07:37 on the games step, Tumble's robot not walking, Verdict
+102. Before it `febe0b5b`, 194's second commit and its end, pushed at 02:40, its run green at 04:13
+with Linux in 80 minutes, the halves in 88 and 69 and macOS in 50. Before it `cb92986f`, 194's first
+commit, fresh references, pushed at 00:48 with `cb87dd98`, item 193, the field's thin-wall hold at a
+wall's foot and head, its run red at 02:40 on the first Windows half alone, Verdict 101, the leak
+test's reading, half 2 green in 97 minutes, Linux in 103 and macOS in 41. Before it `88943e50`, item
+145, pushed at 23:04 on 2026-11-03 with `a170718d`, 144's second commit and its end, its run green
+at 00:47 with Linux in 66 minutes, the halves in 87 and 98 and macOS in 41. Before it `e3452da2`,
+144's first commit, two-byte indices, pushed at 21:06, its run green at 23:04 with Linux in 106
+minutes, the halves in 47 and 69 and macOS in 42. Before it `6965e4df`, item 192, pushed at 19:32
+with `f0de9b82`, Verdict 100's mend, its run green at 21:06 with the halves in 87 and 45 minutes,
+Linux in 81 and macOS in 47, which settled Verdict 100. Before it `57dae5a6`, 182's second commit,
+the host image copy, pushed at 17:25 with `ee367526`, 182's first, Vulkan 1.4 asked, and `3b85dbcd`,
+141's third and its end, its run red at 18:43 on macOS alone, Verdict 100, the suite crashing at the
+first texture's bind under MoltenVK with the host copy chosen, the Windows halves green in 74 and 70
+minutes, Linux in 65. Before it `01dd3ced`, 141's second commit, pushed at 15:27 with `26e1fbc8`,
+141's first, its run green at 17:25 with the halves in 89 and 97 minutes, Linux in 105 and macOS in
+43. Before it `1567179e`, 140's last commit and its end, pushed at 13:44, its run green at 15:27
+with the halves in 79 and 102 minutes, Linux in 83 and macOS in 38. Before it `5d0c44e4`, Low's
+third cascade, pushed at 11:45, its run green at 13:43 with the halves in 86 and 98 minutes, Linux
+in 103 and macOS in 41. Before it `8cd556e1`, 140's first commit, pushed at 09:52, its run green at
+11:45 with the halves in 84 and 96 minutes, Linux in 102 and macOS in 42. Before it `9a20767c`, item
+191, pushed at 08:13 with `52e75184` and `893758ea`, its run green at 09:51 with the halves in 82
+and 96 minutes, Linux in 76 and macOS in 41. Before it `b83b1a85`, 142's second mend and its close,
+pushed at 06:45, its run green at 08:13 with the halves in 85 and 82 minutes, Linux in 58 and macOS
+in 40. Before it `aab4b622`, the history toggle's mend, pushed at 05:17 with `c117b252`, 142's first
+mend, its run green at 06:45 with the halves in 84 and 49 minutes, Linux in 57 and macOS in 36.
+Before it `40462df0`, 142's readout, pushed at 03:29, its run green at 05:16 with the halves in 70
+and 83 minutes, Linux in 94 and macOS in 38. Before it `369d9b5a`, item 189, pushed at 01:56, its
+run green at 03:28 with the halves in 80 and 92 minutes, Linux in 58 and macOS in 38. Before it
+`5ab01df8`, 188's third commit and its end, pushed at 00:22 with `3e651d9d`, its run green at 01:55
+with the halves in 79 and 91 minutes, Linux in 58 and macOS in 39. Before it `71c7c194`, 188's first
+commit, pushed at 22:34 on 2026-11-02, its run green at 00:22 with the halves in 79 and 89 minutes,
+Linux in 98 and macOS in 37. Before it `aca80ca2`, item 186 with the knob and the fog's removal,
+pushed at 20:25, its run green at 22:12 with the halves in 78 and 85 minutes, Linux in 97 and macOS
+in 42. Before it `abde3935`, Verdict 99's mend, pushed at 18:26 with `f8872d03` (175) and `11b6a593`
+(142's record), its run green at 20:09 with the halves in 70 and 89 minutes, Linux in 91 and macOS
+in 40, which settled Verdict 99. Before it `dfbf7614` (183, the Windows suite in two jobs) with
+`2977a4a2` and `0dff5d04` (174), pushed at 15:56, its run red at 17:48 on the first Windows half
+alone, Verdict 99, the leak test's reading, the halves in 69 and 90 minutes. Before it `4a01d5ef`,
+item 185, pushed at 13:02 with `43547883`, its run green at 15:55 with Windows in 171 minutes, Linux
+in 95 and macOS in 44. Before it `fdf4dedb`, item 184, pushed at 10:19 with `22c523ae`, 178's second
+step and its end, its run green at 13:02 with Windows in 159 minutes, Linux in 96 and macOS in 37.
+Before it `2b6791f9`, 178's first step, pushed at 08:21 with `4bca4e47`, item 173, its run green at
+10:18 with Windows in 115 minutes, Linux in 93 and macOS in 39. Before it `a35d7ce9`, 172's third
+commit and its end, pushed at 05:37 with `55ec4e2c` and `4105ee5e`, its run green at 08:20 with
+Windows in 159 minutes (item 183), Linux in 97 and macOS in 36. Before it `adf7bb79`, 170's third
+commit and its end, pushed at 03:04 with `dd39d533`, its pass, its run green at 05:37 with Windows
+in 151 minutes, Linux in 82 and macOS in 36. Before it `bd081fa6`, 170's first engine commit, Sky as
+a submodule, pushed at 00:31 with `2cb39bcb`, item 139, its run green at 03:03 with Windows in 149
+minutes, Linux in 65 and macOS in 38. Before it `d9c50b3b`, Verdict 98's mend, pushed at 22:42 on
+2026-11-01 with `2d051ada` and `6fd05fd4`, 181's second and third parts, its run green at 00:30 with
+Windows in 103 minutes, Linux in 47 and macOS in 39, which settled Verdict 98. Before it `4b80c5c8`,
+item 169, pushed at 17:51, its run green at 20:24 with Windows in 149 minutes, Linux in 84 and macOS
+in 41. Before it `3b5264d7` (181's first part), `5ea3e98f` (167 with 171 folded in), `5932c389`
+(179) and `60fd7e23` (180), pushed at 20:24, the run of `3b5264d7` red at 22:07 on the three
+systems, Verdict 98, a push of 32 bytes where the layout held 16, mended at `d9c50b3b`. Before it
+`6cc2a0a0`, item 166's mend, pushed at 15:18 with `001e93f0`, item 168, its run green at 17:50 with
+Windows in 149 minutes, Linux in 53 and macOS in 37. Before it `e159992e`, items 164 and 165, pushed
+at 13:03 with `ea4fccb3`, item 163, its run green at 15:17 with Windows in 131 minutes, Linux in 82
+and macOS in 35. Before it `d9f3f108`, 158's first part, pushed at 10:39, its run green at 13:00
+with Windows in 141 minutes, Linux in 76 and macOS in 34. Before it `af7df72a` (162), `beefec87`
+(159) and `1fe6e61a` (161), pushed at 08:11, the run of `af7df72a` green at 10:38 with Windows in
+147 minutes, Linux in 141, the runner's as the next run showed, and macOS in 36. Before it
+`1848701a` (160's end), `ed41cd5d` (160's first part), `a4e70370` (154) and `6f6ba558` (157), pushed
+at 06:23, the run of `1848701a` green at 08:07 with Windows in 104 minutes, Linux in 60 and macOS in
+33. Before it `e3d37e1e` (Verdict 97's mend), `6a6e2dad` (152) and `07085cd2` (156), pushed at
+04:00, the run of `e3d37e1e` green at 06:20 with Windows in 140 minutes, Linux in 73 and macOS in
+32, which settled Verdict 97. Before it `3dda52c2` (151 and 155) and `740066d6` (138), pushed at
+01:13, the run of `3dda52c2` red at 03:16 on Windows alone, Verdict 97, Linux green in 60 minutes
+and macOS in 35; the twelfth pack run started from it at 01:13 green at 04:20, 6.0.14 published,
+with Windows in 184 minutes, the games in 79, the captures in 64 and 57 on macOS and the pack in 3,
+its Windows suite passing the leak test the push run failed. Before it, on 2026-10-31 and
+2026-10-30, each green but where said: `46149d6d` (153); `a6a3b7a0` (150), the eleventh pack run
+from it publishing 6.0.11 at 22:33, the first at 6.0; `4df9309c` (Verdict 96's mend); `75b61056`,
+`82a02b9d` and `52a1cb3f` (148) with `b4d0d03c` (149, the Windows limit to 180); `14b258c7` and
+`e32f9138` (147), red on Linux alone, Verdict 96; `df856af8` (132's mend), `00c6809a` (133),
+`95e088b7` (137) and `edf301e0` (the version to 6.0 on the owner's word); `2b8e8541` (137), the
+tenth pack run from `19658e55` publishing 5.2.342 at 12:47; `19658e55` (136) and `10295556` (146);
+`da54d289` (146), `7bdfaa9e` (Verdict 95's mend) and `fdde73b2` (131); `b16f26b5` (131), cancelled
+on Linux alone past the limits, Verdict 95; `2ad96a80` (135); `e96a6bb8` (132's reading, the note
+2026-10-30-item-132-recording.md) and `c3214cbe` (134); `1703c54e` (97), pushed by the owner's hand
+on 2026-10-26 while the sessions were paused until 2026-10-30, the ninth pack run publishing 5.2.333
+at 21:05 on 2026-10-30 for the game's specks. Before it on 2026-10-26, each green but where said:
+`987f07ae` (Verdict 94's mend) with `969a1b08` (129); `7ff7bbdd` (130), red on the examples job
+alone, Verdict 94; `b05b32da` (89); `0a4ad922` (the README's quick links); `5528c55c` (95);
+`d207627e` (91), `bb542fa4` (93) and `0754b975` (128), the eighth pack run publishing 5.2.326;
+`2f5237f2` (127); `78946b22` (112), the seventh publishing 5.2.322; `7af16fcd` (Verdict 93's mend);
+`45edfbf6` (111); `a16227a7` (100), the sixth publishing 5.2.319. Each commit's detail stands in its
+item in REVIEW-ARCHIVE.md, its devlog note and its own words. On 2026-10-30 at 18:0x the owner wrote
+the README's new words (item 133) and the focus on radiance cascades (Decision 74), questions asked
+back, and asked that the sessions spend fewer tokens at the same quality, N 7.7.
 
 Next 200; 197 waits for it and the game's 155.
 
@@ -2968,36 +2971,62 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     the ceiling of what the door view reaches; the mend that lands for every tier and device, the
     probes' sun shadow map over the field's extent drawn when the sun or the scene moves, priced in
     the same proposal at the three qualities, the ray query High's refinement only where it reads
-    past the map.
+    past the map. Corrected at 09:12 at fe224105, the march command's commit (field.march, its test
+    and docs, unpushed). The sun's visibility at those hits is not the source. Four builds read per
+    pixel against the fresh references, the field as committed, the meshes traced, the ray-queried
+    sun where the window's map holds no hit, and the ray-queried sun at every hit, agree to the last
+    digit, the door at 8:00 0.511 of its light traced against 0.980 with the field; cascade 1's
+    probe at 17, 1, 1 brings 0 at the first bounce in all four against the reference's 0.000246, so
+    with the sun exact at every hit by a ray query against the meshes the reference traces, those
+    hits still get no sun; over the atrium cascade 2's probe reads its first bounce 5% under, and
+    with the camera turned the nearest cascade-1 probe moves and gets 0.000225 against 0.000411. So
+    what differs at that probe is what its rays meet or from where, against the reference's paths
+    from the probe's middle (a moved probe, or the arch's soffit grazed), and the field.march legs
+    say nothing of the meshes. GI at High in the atrium 3.04 to 3.08 ms with the field, 3.16 to 3.19
+    traced, 3.07 to 3.11 with the ray-queried sun. The probes' sun map over the field is written and
+    held as a patch, not priced until the next step says what the probe's rays meet, gi.probe
+    extended to give each way's distance against the reference's first hit. After Verdict 103's
+    mend.
 
 ## Verdicts
 
-Verdicts 56 to 101 are settled, said under each in REVIEW-ARCHIVE.md; 102 is open.
+Verdicts 56 to 102 are settled, said under each in REVIEW-ARCHIVE.md; 103 is open.
 
-102. **The thirteenth pack run, from `8836ce27`, is red on macOS alone, Tumble's robot not walking
-     when the games are played from the package.** Read at 07:38 on 2026-11-04 while the run's other
-     jobs went on. The macOS job's suite passed, 2,154 in 29 minutes, and every other game played
-     through e3d offscreen with its play asserted and no validation error (Pinball, Span, Siege,
-     Tones, Blockout, Effects, Scenes, Audio, the feature test), but Tumble's robot did not walk,
-     Down falls 1 rises 0 walked 0.7 at 0.00, 7.27, crouched false, its log ending at the offscreen
-     swapchain's resize at 2.08 s. The push run of `8836ce27` was green, the games job running only
-     in pack runs, and the last green pack run was the twelfth from `3dda52c2` on 2026-11-01, 72
-     commits before, so the fault came in between, or the paravirtual device's pace did; no commit
-     since touches the physics, the nearest to the robot's path being 145's mesh store and 144's
-     packed positions, which a skinned mesh does not take. The mend is the next commit, before
-     200's: Tumble's log from the job's artifact read first, the game played offscreen on lavapipe
-     at the macOS runner's pace, and if it walks there, the fault bisected among the 72 by the
-     robot's walk in the games step's own check; the games step's words say what the robot did. The
-     package waits on it; the game's 154 and 155 with it. The mend is at 105d9cb3, pushed at 08:18,
-     a script fix alone with no engine code changed and no bisect needed. Tumble opens with its
-     cannons and its bar on, and drive-game.sh turned them off only after the generic window.size
-     and a wait of 30 frames, which on a slow device are several seconds of game time with the first
-     cannon shot at 3 s; reproduced on lavapipe held to three cores under the validation layer, the
-     robot struck down through the opening, where on the RTX the 30 frames take half a second.
-     Tumble's hazards go off as soon as it serves, before the resize, and a game whose run fails
-     copies its session log to captures/<game>-driven.log, which every job uploads; on lavapipe at
-     three cores it walked 2.4, struck down and up again, twice; the suite 2,241 in both orders.
-     Settled by its run when green, and the fourteenth pack run starts from it then.
+103. **The thirteenth pack run is red on its first Windows half and its Linux games job as well, the
+     feature test not played through in 720 seconds on Windows, and on Linux wick's memory read past
+     600 seconds and manor's images climbing.** Read at 09:11 on 2026-11-04 when the run ended at
+     09:09, beside Verdict 102's macOS. On the first Windows half the suite passed, 200 in 70
+     minutes, and nine games played through with their play asserted, but the feature test was not
+     played through in 720 seconds, as far as Particles (the fountain 39, the fire 50, the smoke
+     160, the sparks 39, the lit 37, the burst 90 pixels in 148 reads, particles ok), the sections
+     after it unreached. On the Linux games job, which plays each game a while and checks nothing it
+     holds grows, wick could not be played through, its memory.collect command ending with 1 at its
+     600-second limit, and manor's images climbed from 87 at its least to 100, past its bound of 98,
+     the other games' readings within their bounds (tumble's images 42 of 46, tones' 7 of 9). The
+     run's second Windows half, Linux, the examples and both captures jobs were green. The last
+     green pack run was the twelfth from `3dda52c2` on 2026-11-01, 72 commits back, so the pace and
+     the images changed in between; the two timeouts may be the pace of the lavapipe runners under
+     this week's GI work, and the manor's thirteen images are a count to read by kind. The mend is
+     the next commit, before 200's trial, read as the games step reads. The feature test's play on
+     lavapipe at the Windows runner's pace against its 720 seconds, wick's memory read at its 600,
+     and the manor's images by kind over its play, each either a limit raised with its reading
+     stated or a growth found; the fourteenth pack run waits for it with Verdict 102's mend. Read by
+     the coder at 09:48, none of the three a regression in the engine. The feature test plays
+     through in 742 seconds from 105d9cb3's package and 735 from 3dda52c2's on lavapipe held to four
+     cores under validation, Course taking 156 and Illumination with GI at Low 191, the Windows
+     runner about 13% slower than this machine; the drive script gives the feature test alone half
+     as long again, 18 minutes under the step's 12. Wick's one reading at 210 seconds got NO_SESSION
+     while the readings around it answered and the game served to the soak's stop, the exit 1 being
+     the trap's own code rather than the command's 4, the cause unreproduced here in 900 commands
+     from three loops; a missing named app is looked for again up to five times 200 ms apart before
+     it is refused, with a test, and the trap records the real code. Manor's images are fixed ones,
+     read by a new census command memory.images with its test, a whole autopilot walk peaking at 103
+     to 104 images from this package against 97 from 3dda52c2's, the six more AO's two half-size
+     histories, the fog's two 1 by 1 images while off, the specular shares' table and the scattered
+     bloom's sixth level, none climbing, the textures streaming 16 to 27 and settling; the bound
+     goes from 92 to 104 with the reading stated, the run's series then passing at 100 against 111.
+     The commit follows its suite, carrying 200's correction; it pushes with fe224105 after
+     105d9cb3's run, and the fourteenth pack run starts after its green run.
 
 ## Decisions
 
@@ -3619,3 +3648,15 @@ fourth cascade's cell of 1 marches into the upper gallery at 10.8 in the third's
 the field's march toward the low sun from hits the shadow map does not hold stops at arches the
 meshes leave open, and the mend lies in the sun's visibility at those hits (gi.probe at 1024 paths,
 gi.toggle meshes, field.march).
+
+200's first step, its last sentence read again at fe224105 on 2026-11-04. The sun's visibility at
+the vault's hits is not the shortfall. Sponza's sixteen views at 8:00 and noon read alike to the
+third figure per pixel with the probes' rays through the meshes and with the sun ray-queried
+through the same meshes wherever the window's map does not hold a hit, the door at 8:00 0.511 of its
+reference's light in both, and with the sun ray-queried at every hit, the window's map left out,
+the second cascade's probe at 17, 1, 1 still brings none of the light its reference's first segment
+brings, 0.000246 of red, while the third cascade's over the atrium at 2, 6, 2 brings its first
+bounce 5% under. So what differs at 17, 1, 1 is what its rays meet or where they leave from against
+the reference's paths from the probe's middle, which the next step reads as each way's distance
+against the reference's first hit, the probes' sun map over the field written and held as a patch
+unpriced until then (gi.probe at 1024 paths, gi.toggle meshes, the trial's builds).

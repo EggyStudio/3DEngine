@@ -6634,6 +6634,33 @@ at `36cae0c2`.
      `8836ce27` green at 06:16 on 2026-11-04, the first Windows half in 90 minutes, the second in
      80, Linux in 109 and macOS in 41.
 
+102. **The thirteenth pack run, from `8836ce27`, is red on macOS alone, Tumble's robot not walking
+     when the games are played from the package.** Read at 07:38 on 2026-11-04 while the run's other
+     jobs went on. The macOS job's suite passed, 2,154 in 29 minutes, and every other game played
+     through e3d offscreen with its play asserted and no validation error (Pinball, Span, Siege,
+     Tones, Blockout, Effects, Scenes, Audio, the feature test), but Tumble's robot did not walk,
+     Down falls 1 rises 0 walked 0.7 at 0.00, 7.27, crouched false, its log ending at the offscreen
+     swapchain's resize at 2.08 s. The push run of `8836ce27` was green, the games job running only
+     in pack runs, and the last green pack run was the twelfth from `3dda52c2` on 2026-11-01, 72
+     commits before, so the fault came in between, or the paravirtual device's pace did; no commit
+     since touches the physics, the nearest to the robot's path being 145's mesh store and 144's
+     packed positions, which a skinned mesh does not take. The mend is the next commit, before
+     200's: Tumble's log from the job's artifact read first, the game played offscreen on lavapipe
+     at the macOS runner's pace, and if it walks there, the fault bisected among the 72 by the
+     robot's walk in the games step's own check; the games step's words say what the robot did. The
+     package waits on it; the game's 154 and 155 with it. The mend is at 105d9cb3, pushed at 08:18,
+     a script fix alone with no engine code changed and no bisect needed. Tumble opens with its
+     cannons and its bar on, and drive-game.sh turned them off only after the generic window.size
+     and a wait of 30 frames, which on a slow device are several seconds of game time with the first
+     cannon shot at 3 s; reproduced on lavapipe held to three cores under the validation layer, the
+     robot struck down through the opening, where on the RTX the 30 frames take half a second.
+     Tumble's hazards go off as soon as it serves, before the resize, and a game whose run fails
+     copies its session log to captures/<game>-driven.log, which every job uploads; on lavapipe at
+     three cores it walked 2.4, struck down and up again, twice; the suite 2,241 in both orders.
+     Settled by the run of `105d9cb3` green at 10:16 on 2026-11-04, macOS in 37 minutes, the Windows
+     halves in 65 and 95, Linux in 103; the fourteenth pack run waits for Verdict 103's mend as
+     well.
+
 ## Decisions
 
 1. **Commits stay local.** The owner pushes `main` from their own tools, and the working session

@@ -61,22 +61,27 @@ SLACK = {
 # descriptor sets, entity ids and assets on the pack run of 683e6e9d, with nothing leaking. Its
 # buffers are a vertex and an index buffer for each mesh of the models its cells show, 96 in the
 # grounds and at most 158 in the house over a whole walk on the development machine's GPU and 162 on
-# lavapipe, which the device's census named (`memory.buffers`). The other five are the most two
-# whole walks of its autopilot held at 320 by 180 on both devices, read by `memory.collect` every 60
-# frames, the second walk holding no more than the first. Its entities are the most alive at once,
-# the 539 its entity ids count, which every whole walk reached on both devices at the game's own
-# pace and with each frame a tenth or a quarter of a second (`time.frame`), as a runner's slow
-# frames count more of the game's time, where the readings found 464 to 533. Bounded by the first
-# half's least alone, 374 entities, a walk on the pack run of 80625742 held 422 at the second half's
-# least, past the 421 that gave, its halves seeing different parts of the estate. Swarm's soak sets
-# wave 3 at each turn, and a turn leaves nothing alive past the next one's reset, 27 entities after
-# each of thirty, but a frame on a slower device counts more of the game's time, up to the quarter
-# second Time clamps it to, so a turn of 300 frames reaches waves 4 to 6 there and holds more
-# entities at once, and their ids, which count the most ever alive at once, climb with it. Thirty
-# turns with every frame counting that quarter second (`time.frame 0.25`) held 152 ids at most on
-# the GPU and 151 on lavapipe.
+# lavapipe, which the device's census named (`memory.buffers`). The others but its images are the
+# most two whole walks of its autopilot held at 320 by 180 on both devices, read by `memory.collect`
+# every 60 frames, the second walk holding no more than the first. Its images are the most one whole
+# walk held at fe224105 at 320 by 180, 104 on lavapipe and 103 on the GPU, read by `memory.images`
+# every 120 frames, where the same walk held 97 at 3dda52c2. The six more are ambient occlusion's
+# two histories at half the window's size, the fog's two images of a texel while it is off, the
+# specular shares' table and the scattered bloom's sixth level, none of them climbing over the walk,
+# which takes its textures from 16 to 27 as it streams rooms in and lets them go after. Its entities
+# are the most alive at once, the 539 its entity ids count, which every whole walk reached on both
+# devices at the game's own pace and with each frame a tenth or a quarter of a second
+# (`time.frame`), as a runner's slow frames count more of the game's time, where the readings found
+# 464 to 533. Bounded by the first half's least alone, 374 entities, a walk on the pack run of
+# 80625742 held 422 at the second half's least, past the 421 that gave, its halves seeing different
+# parts of the estate. Swarm's soak sets wave 3 at each turn, and a turn leaves nothing alive past
+# the next one's reset, 27 entities after each of thirty, but a frame on a slower device counts more
+# of the game's time, up to the quarter second Time clamps it to, so a turn of 300 frames reaches
+# waves 4 to 6 there and holds more entities at once, and their ids, which count the most ever alive
+# at once, climb with it. Thirty turns with every frame counting that quarter second (`time.frame
+# 0.25`) held 152 ids at most on the GPU and 151 on lavapipe.
 WHOLE = {
-    "manor": {"buffers": 162, "images": 92, "descriptorSets": 95, "entities": 539, "entityIds": 539, "assets": 96},
+    "manor": {"buffers": 162, "images": 104, "descriptorSets": 95, "entities": 539, "entityIds": 539, "assets": 96},
     "swarm": {"entityIds": 152},
 }
 

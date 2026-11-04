@@ -128,6 +128,29 @@ internal static class CliSessionFile
         return found;
     }
 
+    /// <summary>
+    /// The sessions of running processes that <paramref name="match"/> takes, looked for again up to
+    /// <paramref name="looks"/> times a fifth of a second apart where none is found.
+    /// </summary>
+    /// <remarks>
+    /// A command that names its app once found none while the app served, answering the readings
+    /// ten seconds before and after, as Wick did under the games job's eight games at once on four
+    /// cores, and the soak it was played in ended there, so a named app is looked for for a second
+    /// before it is taken as gone.
+    /// </remarks>
+    public static IReadOnlyList<CliSession> Matching(Func<CliSession, bool> match, int looks = 5)
+    {
+        for (int look = 1; ; look++)
+        {
+            var found = All().Where(session => session.Running && match(session)).ToList();
+            if (found.Count > 0 || look >= looks) return found;
+            LookAgain();
+        }
+    }
+
+    /// <summary>The wait between looks for a session that matches, which a test makes the moment it writes one.</summary>
+    internal static Action LookAgain { get; set; } = static () => Thread.Sleep(200);
+
     /// <summary>The wait between reads of a file that cannot be read, which a test makes the moment it lets the file go.</summary>
     internal static Action Pause { get; set; } = static () => Thread.Sleep(10);
 
