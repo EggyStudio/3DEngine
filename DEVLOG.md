@@ -21,6 +21,15 @@ Sponza's door view at 8:00 and noon, metered, and the bounce rooms' thin room an
 HEAD, with each hit reading its probes' faces at its surface, and against their path-traced
 references, each row at one exposure
 
+![](.github/assets/readings/2026-11-04-item-203-base.webp)
+Sponza's gallery at noon, the foreground column's base at one bounce in the frame with the sun's
+contact shadows traced within the shadow map's reach, against references of one and of every bounce
+at one exposure
+
+![](.github/assets/readings/2026-11-04-item-204-recording.webp)
+Sponza's atrium at noon recorded on F2 held through the engine's input, before the right button
+drags the view, as it turns and held still after
+
 ## 2026-11-03
 
 ![](.github/assets/readings/2026-11-03-item-189-views.webp)

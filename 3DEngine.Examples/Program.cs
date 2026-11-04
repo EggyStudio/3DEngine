@@ -281,6 +281,7 @@ if (!examples.TryGetValue(name, out var run))
 }
 
 Example.Current = name;
+Dump.Point(name);
 run();
 return 0;
 

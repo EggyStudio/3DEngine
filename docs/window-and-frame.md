@@ -268,8 +268,13 @@ and `SetUiHiddenKey` moves the key.
 
 F2 writes a screenshot, the frame being drawn as a PNG in a `screenshots` folder beside the program,
 made on first use, named by the time as `2026-10-21_03.45.12.png`, a second in the same second `_2`
-and a third `_3`, with a line in the log saying where. `SetScreenshotKey(Key.F12)` moves it and
-`SetScreenshotKey(Key.Null)` turns it off.
+and a third `_3`, with a line in the log saying where. Held past half a second it records, fifteen
+pictures a second of the program's clock as PNGs numbered from `0001.png` in a folder named by the
+time beside the screenshots, until it is let go or the recording holds a hundred and fifty, ten
+seconds. `SetScreenshotKey(Key.F12)` moves it and `SetScreenshotKey(Key.Null)` turns it off.
+`SetScreenshotFolder(folder, written)` points both elsewhere and is called with each screenshot's
+path once it is written and each recording's folder once its last picture is, so a program names
+and notes its pictures as they land.
 
 F3 shows the engine's debug overlay over the frame, as Minecraft's debug screen, two columns of lines
 in the engine's font, each on a dark half-clear backing, with no window, header or border, drawn

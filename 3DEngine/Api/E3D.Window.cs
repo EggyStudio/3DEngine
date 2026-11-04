@@ -154,16 +154,47 @@ public static partial class E3D
     }
 
     /// <summary>
-    /// Sets the key that writes a screenshot in every program, F2 until moved, as Minecraft takes
-    /// one, or turns it off with <see cref="Key.Null"/>.
+    /// Sets the key that writes a screenshot in every program, and records while held, F2 until
+    /// moved, as Minecraft takes one, or turns it off with <see cref="Key.Null"/>.
     /// </summary>
     /// <remarks>
     /// The key writes the frame being drawn as a PNG into a <c>screenshots</c> folder beside the
-    /// program, made on first use, named by the time as <c>2026-10-21_03.45.12.png</c>, a second in
-    /// the same second <c>_2</c>, through <see cref="TakeScreenshot"/>, with a line in the log saying
-    /// where. The press reaches the program too, which reads the key as any other.
+    /// program (<see cref="SetScreenshotFolder"/>), made on first use, named by the time as
+    /// <c>2026-10-21_03.45.12.png</c>, a second in the same second <c>_2</c>, through
+    /// <see cref="TakeScreenshot"/>, with a line in the log saying where. Held past half a second it
+    /// records, fifteen pictures a second of the app's clock as PNGs numbered from <c>0001.png</c> in
+    /// a folder named by the time beside the screenshots, until it is let go or the recording holds
+    /// a hundred and fifty, ten seconds, each written by a worker so the frames go on. The press
+    /// reaches the program too, which reads the key as any other.
     /// </remarks>
     public static void SetScreenshotKey(Key key) => World.GetOrInsertResource(static () => new DebugKeys()).Screenshot = key;
+
+    /// <summary>
+    /// Sets the folder the screenshot key writes into, <c>screenshots</c> beside the program until
+    /// set, and what is called with each screenshot's path once it is written and each recording's
+    /// folder once its last picture is, for the window open and those opened after.
+    /// </summary>
+    /// <remarks>
+    /// A program that keeps its pictures elsewhere, as a repository keeps a folder a day with a
+    /// line written for each picture, points the key there and names and notes each as it lands.
+    /// The call comes on a thread of the engine's, the render thread or a worker, so what it does
+    /// there holds no lock the program's frame takes. Called before <see cref="InitWindow"/>, it
+    /// holds for the window that call opens.
+    /// </remarks>
+    public static void SetScreenshotFolder(string folder, Action<string>? written = null)
+    {
+        ScreenshotFolderAsked = Path.GetFullPath(folder);
+        ScreenshotWrittenAsked = written;
+        if (_app?.World.TryGetResource<DebugKeys>(out var keys) == true)
+        {
+            keys.Folder = ScreenshotFolderAsked;
+            keys.Written = written;
+        }
+    }
+
+    // The folder and the call SetScreenshotFolder asked for, which a window's keys start with.
+    internal static string? ScreenshotFolderAsked { get; set; }
+    internal static Action<string>? ScreenshotWrittenAsked { get; set; }
 
     // -- Timing
 

@@ -123,4 +123,46 @@ public sealed class ScreenshotKeyTests : IDisposable
         Frames(5);
         Directory.EnumerateFiles(_folder.Path, "*.png").Should().HaveCount(3, "a key turned off writes nothing");
     }
+
+    [NeedsVulkanFact]
+    [Trait("Category", "Render")]
+    public void F2_Held_Past_Half_A_Second_Records_Fifteen_Pictures_A_Second_Until_Let_Go_Or_At_Its_Most()
+    {
+        // A clock of sixtieths of a second, so the half second and the rate fall on frames.
+        var config = Config.Default.WithWindow("screenshot key", 96, 64) with { Headless = true, Offscreen = true, Samples = 1, FrameSeconds = 1 / 60.0 };
+        UseApp(new App(config).AddPlugin(new DefaultPlugins()));
+        Keys.Folder = _folder.Path;
+        Keys.Clock = static () => new DateTime(2026, 11, 4, 19, 36, 12);
+        var written = new System.Collections.Concurrent.ConcurrentQueue<string>();
+        Keys.Written = written.Enqueue;
+        Frames(2);
+
+        // Held two seconds, half a second before it records and a second and a half recorded.
+        Input.SetKey(Key.F2, true);
+        Frames(120);
+        Input.SetKey(Key.F2, false);
+        // Each picture is back by the end of its frame, so the recording is whole a frame after.
+        Frames(2);
+        Keys.Recorded!.GetAwaiter().GetResult();
+        written.Should().HaveCount(2, "the press writes its screenshot and the hold its recording, each handed on once written");
+        File.Exists(Path.Combine(_folder.Path, "2026-11-04_19.36.12.png")).Should().BeTrue("the press writes the frame as ever");
+        var recording = Path.Combine(_folder.Path, "2026-11-04_19.36.12");
+        written.Should().Contain(recording, "the recording's folder is handed on once its last picture is written");
+        var pictures = Directory.GetFiles(recording, "*.png").Select(path => Path.GetFileName(path)).Order(StringComparer.Ordinal).ToArray();
+        pictures.Length.Should().BeInRange(22, 24, "fifteen pictures a second of the clock for the second and a half it was held past the half");
+        pictures[0].Should().Be("0001.png");
+        var header = File.ReadAllBytes(Path.Combine(recording, pictures[^1])).AsSpan(16, 8);
+        (BinaryPrimitives.ReadInt32BigEndian(header), BinaryPrimitives.ReadInt32BigEndian(header[4..])).Should().Be((96, 64), "each picture is the frame, at its size");
+
+        // Held as long again with room for five, it stops at five while still held.
+        Keys.MostRecorded = 5;
+        Input.SetKey(Key.F2, true);
+        Frames(120);
+        Keys.Recorded!.GetAwaiter().GetResult();
+        written.Should().HaveCount(4, "a recording at its most is handed on while the key is still held");
+        Input.SetKey(Key.F2, false);
+        Frames(2);
+        written.Should().HaveCount(4, "the next recording waits for the next press");
+        Directory.GetFiles(Path.Combine(_folder.Path, "2026-11-04_19.36.12_2"), "*.png").Should().HaveCount(5, "it takes no more than its most");
+    }
 }

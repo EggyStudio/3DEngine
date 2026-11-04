@@ -28,7 +28,8 @@ int GetScreenHeight();                                   // The window's height,
 void TakeScreenshot(string fileName);                    // Writes the frame being drawn to a PNG file, once it is presented at EndDrawing
 void StartRecording(string fileName, int intervalMs = 100, float scale = 1);  // Starts recording what the window shows as an animated GIF or PNG, by the extension of fileName, a picture every intervalMs milliseconds of the app's clock, until StopRecording, as raylib's examples record a GIF
 void StopRecording();                                    // Stops the recording StartRecording started, whose file is written once its last pictures are back
-void SetScreenshotKey(Key key);                          // Sets the key that writes a screenshot in every program, F2 until moved, as Minecraft takes one, or turns it off with Key.Null
+void SetScreenshotKey(Key key);                          // Sets the key that writes a screenshot in every program, and records while held, F2 until moved, as Minecraft takes one, or turns it off with Key.Null
+void SetScreenshotFolder(string folder, Action<string>? written = null);  // Sets the folder the screenshot key writes into, screenshots beside the program until set, and what is called with each screenshot's path once it is written and each recording's folder once its last picture is, for the window open and those opened after
 
 void SetTargetFPS(int fps);                              // Caps the frame rate
 float GetFrameTime();                                    // Seconds the last frame took

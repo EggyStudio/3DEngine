@@ -1541,6 +1541,7 @@ static class Engine.E3D
   static void SetReflectionProbeRefresh(ReflectionProbeHandle probe, float seconds)
   static void SetSceneField(int cascades, float cellSize = 0.25f, int updateBudget = 1, int triangleBudget = 32768, float farCascade = 0f)
   static void SetSceneFieldCenter(Vector3? center)
+  static void SetScreenshotFolder(string folder, Action<string>? written = null)
   static void SetScreenshotKey(Key key)
   static void SetShaderKeepsPositions(Shader shader, bool keepsPositions)
   static void SetShaderValue(Shader shader, int location, int value)
