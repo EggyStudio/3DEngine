@@ -6699,6 +6699,36 @@ at `36cae0c2`.
      green at 12:31 on 2026-11-04, the Windows halves in 87 and 94 minutes, Linux in 105 and macOS
      in 42; the fourteenth pack run started from it at 12:32.
 
+104. **The run of `752bdc43` is red on Linux and the first Windows half, the land far from the
+     origin reading darker than near it on lavapipe.** Read at 02:01 on 2026-11-05. One test fails
+     on both, `Engine.Tests.Rendering.GlobalIlluminationTests.Far_From_The_Worlds_Origin_Glow_Lights
+     _Leave_No_More_Of_The_Land_Black_Than_Near_It` in GlobalIlluminationTests.ScreenProbes.cs,
+     which expects the land far from the world's origin, lit by glow lights through the screen
+     probes, as lit as near it and read 4,684 black pixels far where 3,982 near on Linux (the bound
+     4,579) and 4,718 where 3,985 on Windows (4,583), the rest green, 2,180 on Linux in 53 minutes
+     and 199 on the half in 67; macOS and the second Windows half green, the examples skipped. The
+     commit is 205, the screen probes' kept cycle shown while the light holds with the running mean
+     for sixteen frames after any field build or lights change, and the test passed on the RTX 4070
+     and on MoltenVK, so the difference is lavapipe's, where frames are slow and few, a scene far
+     from the origin building its field and so holding the running mean, or gathering its first
+     whole cycle, while the test reads, the far land's screen probes darker than the near land's at
+     the frame compared. The mend is the next commit, before 206's, the test's frames read against
+     the cue's sixteen and the cycle's sixteen on lavapipe, and either the test waiting for a whole
+     cycle after its last build as the field tests wait for the field, or the cycle's hand-over made
+     independent of the frame count where a scene has settled, with the reason in the remark, read
+     on lavapipe at the runners' pace as Verdict 102's was. Found by the coder at 03:54, not timing.
+     On lavapipe at four threads the far village's field is built by frame 7 and from frame 103 to
+     259 near reads 3,985 black at every frame while far reads 3,912 to 4,013 at dc40a069 and 4,308
+     to 4,776 at 752bdc43, the 806 more one house's shadow, where the probes' own light averages
+     0.00086 a frame far against 0.00186 near but the whole cycle's mean 0.00001 far against 0.00204
+     near, since ten thousand units out the frame before's matrices put a probe's point back off its
+     place, which the history's clamp hid and the cycle's means, read again each frame, drift from.
+     The mend has a still view read each probe in place (earlierIn, the view's last.w at 2), far
+     then reading 3,912 to 3,928 and the test passing on lavapipe unchanged with its comment holding
+     the reading; The mend is at 574565cb, pushed at 04:25, its suite 2,241 in both orders on a
+     worktree holding the commit's content; Settled by the run of `574565cb` green at 06:08 on
+     2026-11-05, Linux in 87 minutes, the Windows halves in 68 and 99, macOS in 40.
+
 ## Decisions
 
 1. **Commits stay local.** The owner pushes `main` from their own tools, and the working session

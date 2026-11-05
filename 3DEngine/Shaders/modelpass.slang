@@ -315,7 +315,14 @@ public float sunContact(ModelVertexOutput input, float held = 0.0)
 public struct ModelVertexOutput
 {
     public float4 position : SV_Position;
-    public float3 normal : NORMAL;
+    // Read where the samples the triangle covers lie, not at the pixel's middle, which at a
+    // triangle's edge lies past it, where the normal went on turning as its vertices' turn. Along
+    // the foot of Sponza's doors, whose bevels turn down, global illumination read light there for
+    // a surface facing the floor, a row of white pixels along each foot, 80 at the atrium view's two
+    // doors at 1920 by 1080 where 45 so, and 2,128 over the view where 1,329, a path-traced
+    // reference holding no such row. The point, the way to the eye and the coordinates read so as
+    // well took about a tenth as many more away, 1,246, and alone few.
+    public centroid float3 normal : NORMAL;
     public float3 world : POSITION1;
     public float2 uv : TEXCOORD0;
     // From the surface toward the camera, unnormalized, for specular light.

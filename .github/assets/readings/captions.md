@@ -93,3 +93,4 @@
 2026-11-04-item-204-recording.webp | Sponza's atrium at noon recorded on F2 held through the engine's input, before the right button drags the view, as it turns and held still after
 2026-11-04-item-205-flicker.webp | Sponza's atrium at noon held still after a turn, each pixel red by its spread over 60 frames, at HEAD, with the screen probes' rays sent from one place a tile, and with sixty-four frames kept and no clamp
 2026-11-05-item-206-flash.webp | Sponza's atrium at noon flown down at 5.4 units a second, four frames as the second cascade's shift builds its slab, above at HEAD with the far arch lit while the slab's cells hold nothing, below with them read in the next cascade out
+2026-11-05-item-207-outline.webp | Sponza's atrium at noon at 1920 by 1080, the foot of its left door four times its size, at HEAD with a dotted white row along the foot, with the normal read where the triangle covers samples, and the path-traced reference with the exposure held

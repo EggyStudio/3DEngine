@@ -2714,6 +2714,25 @@ down at 64 triangles a frame rose to 2.45 times the frame before's light in a fr
 and rises 1.31 at most (`CascadeEdgeTests`, the walk's frames by `./e3d command record`,
 `./e3d command profile`).
 
+**White pixel outlines, read and mended on 2026-11-05.** Sponza's atrium at noon at 1920 by 1080
+showed a dotted white row along the foot of each door, 80 pixels at the view's two doors standing
+over the median of the five by five around them by 40 levels of 255 and half again, none with global
+illumination off and 461 with the screen's probes left out, alike with the occlusion, the bloom, the
+contact shadows, the glow lights and the screen's filter left out, where a path-traced reference
+holds no such row. At the four samples a pixel the window draws with, a pixel a triangle covers some
+samples of is shaded at its middle, past the triangle's edge, where the normal went on turning as
+its vertices' turn, and at a door's bevel turning down, global illumination read light for a surface
+facing the floor, the screen's probes taking a probe on another surface and the world's reading the
+faces turned down. The model pass reads the normal where the samples the triangle covers lie
+(`centroid` in `ModelVertexOutput`), and the doors hold 45, the view's pixels so standing out 1,333
+where 2,444, the lion's 484 where 756 and the balcony's 1,252 where 1,908, the rest the text over
+the view, the sunlit edges of the arches and cornices, which the reference holds too, and the
+fountain's detail. In another shot of the atrium standing out 2,128, reading the normal so leaves
+1,329, the point, the way to the eye and the coordinates read so as well 1,246, the point with the
+way to the eye alone 2,037 and the coordinates alone 2,054. A strip three pixels tall whose normals
+turn 150 degrees across it read 18 pixels past its vertices' normals and reads none
+(`OffscreenRenderTests`, `./e3d shot`, `gi.reference`).
+
 **A crossing taken once, read on 2026-10-31.** The cascades' intervals overlap, the first's
 reaching twice as far as the second's begins, and a slab that straddled the first's end was crossed
 twice, the first cascade's ray taking the part of it within its interval and handing on what it
