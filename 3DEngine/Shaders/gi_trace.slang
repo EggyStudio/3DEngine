@@ -168,6 +168,8 @@ SceneFieldInfo gatheredAt()
     // where the field has one.
     for (int c = 0; c < min(cascades, MostProbeCascades); c++)
         then.cascades[far > 0 && c == cascades - 1 ? far : c].originAndCell.xyz = lights.before[c].xyz;
+    // The cells a shift brought in this frame lie at this frame's corner.
+    then.waitingFirst.w = 0.0;
     return then;
 }
 

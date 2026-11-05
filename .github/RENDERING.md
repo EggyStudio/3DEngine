@@ -890,7 +890,9 @@ where 1.762, within the runs' spread of 0.018 (`./e3d command profile` over 300 
 A cascade's corner lies on a grid of eight of its cells, so it moves only when the eye has gone that
 far, and where it moves by less than half its width it shifts, the cells it keeps moved on the GPU
 and the slab it brings in built alone (`SceneFieldPlan.Shifts.cs`), and farther it is built again,
-as many a frame as the budget allows, the finest first (`SceneFieldPlan`). Where a still mesh came
+as many a frame as the budget allows, the finest first (`SceneFieldPlan`). A shift moves its
+cascade with its build's first part, and the passes read the slab's cells in the next cascade out
+until its last, since those cells hold nothing near until then (`fieldCascade`). Where a still mesh came
 into it or left, the cells within the band of the box around what came or went are built again
 alone, from the still meshes within the band of those cells and of a cell around them, which a
 cell's distance is read beside, and the rest of the cascade stays as it was
@@ -2693,6 +2695,24 @@ units from the world's origin the frame before's matrices put a probe's point ba
 which the history's clamp hid, and the cycle's means, read again so each frame, went off their
 probes, a house's shadow in `GlobalIlluminationTests`' far desert village black on lavapipe, 4,718
 pixels of the land where 3,985 at the origin, and 3,912 so.
+
+**Light from the cells a shift brings in, read and mended on 2026-11-05.** Flown down Sponza's
+atrium at noon at 5.4 units a second with the exposure held, the arches at its far end flashed lit
+for about five frames each time the second cascade's corner moved its two units, and the first
+cascade's at each unit, 14 frames of 200 at 400 by 225 lighting over ten tiles of eight pixels at
+once and twice as many as the frames around, 812 tiles in all, alike with the screen's probes, the
+light past the first bounce or the history left out. A shift moves its cascade with its build's
+first part and holds the slab it brings in empty until its last, which the triangle budget spreads
+over frames, so the rays through those cells went on past the walls they stand for to the sky and
+the courtyard. The plan says which cells wait (`SceneFieldPlan.Unbuilt`), the field's info carries
+them, and every pass reads a point among them in the next cascade out, which holds the meshes there
+(`fieldCascade`), so the walk has no such frame. 188's flight down the atrium reads 41 at the
+frames' change's 99th part in the median and 53 at most where 41 and 52, and global illumination
+at High at 1920 by 1080 in the atrium reads within the runs' spread, 4.49 to 4.51 ms where 4.40 to
+4.67 in the last of three rounds, another program's tests sharing the GPU. A closed corridor walked
+down at 64 triangles a frame rose to 2.45 times the frame before's light in a frame a slab waited,
+and rises 1.31 at most (`CascadeEdgeTests`, the walk's frames by `./e3d command record`,
+`./e3d command profile`).
 
 **A crossing taken once, read on 2026-10-31.** The cascades' intervals overlap, the first's
 reaching twice as far as the second's begins, and a slab that straddled the first's end was crossed

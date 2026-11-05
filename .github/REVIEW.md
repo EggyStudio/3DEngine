@@ -6,11 +6,13 @@ Linux in 84; it keeps the form and carries the review's files and the devlog. Af
 item 205, the screen probes' kept cycle against the flicker at steep angles, pushed at 00:47 on
 2026-11-05, its run red at 02:00 on Linux and the first Windows half, Verdict 104, the land far from
 the origin darker than near it on lavapipe, macOS and the second half green; it keeps the form and
-carries the review's files and the devlog. Before it `c6d771d4`, item 203, the sun's contact shadows
-past the shadow map by default, pushed at 20:10, its run green at 21:53 with macOS in 41 minutes,
-Linux in 66 and the halves in 88 and 100. Before it `cd6cae8f`, 197's gated read, pushed at 17:23,
-its run green at 19:21 with macOS in 39 minutes, the halves in 68 and 100 and Linux in 106. Before
-it `c3f31f93`, item 199, the probes' faces read at their surfaces with the patch's turn, pushed at
+carries the review's files and the devlog. After it `574565cb`, Verdict 104's mend, a still view
+reading each screen probe in place, pushed at 04:25, its run awaited; it keeps the form and carries
+the review's files and the devlog. Before it `c6d771d4`, item 203, the sun's contact shadows past
+the shadow map by default, pushed at 20:10, its run green at 21:53 with macOS in 41 minutes, Linux
+in 66 and the halves in 88 and 100. Before it `cd6cae8f`, 197's gated read, pushed at 17:23, its run
+green at 19:21 with macOS in 39 minutes, the halves in 68 and 100 and Linux in 106. Before it
+`c3f31f93`, item 199, the probes' faces read at their surfaces with the patch's turn, pushed at
 15:35, its run green at 17:23 with macOS in 40 minutes, Linux in 66 and the halves in 82 and 86.
 Before it `b2be1e28`, item 201, every linear texture sampler at 16, pushed at 12:32 with `b0214860`,
 200's diagnostic step, its run green at 14:30 with macOS in 33 minutes, the halves in 47 and 96 and
@@ -3430,8 +3432,9 @@ Verdicts 56 to 103 are settled, said under each in REVIEW-ARCHIVE.md; 104 is ope
      place, which the history's clamp hid and the cycle's means, read again each frame, drift from.
      The mend has a still view read each probe in place (earlierIn, the view's last.w at 2), far
      then reading 3,912 to 3,928 and the test passing on lavapipe unchanged with its comment holding
-     the reading; its suite in both orders on a worktree, then the commit ahead of 206 with a Shared
-     line, settled by its run.
+     the reading; The mend is at 574565cb, pushed at 04:25, its suite 2,241 in both orders on a
+     worktree holding the commit's content; settled by its run when green on Linux and the first
+     Windows half.
 
 ## Decisions
 
@@ -4455,3 +4458,26 @@ far reads 3,912 to 3,928, the test passing on lavapipe as it is, its comment hol
 
 Shared: the screen probes' filter reads a still view's history and cycle in place (`earlierIn`),
 since far from the origin the frame before's matrices put a probe off its place.
+
+206, read on 2026-11-05 at 752bdc43 and landed as 206's commit. Flown down the atrium at noon at 5.4
+units a second with the exposure held, the far arches flash lit for about five frames at each of the
+second cascade's two-unit shifts and the first's, 14 bursts of over ten tiles of eight pixels lit at
+once in 200 frames at 400 by 225, 812 tiles, alike with the screen's probes, the light past the
+first bounce and the history each left out, so the world's probes and the field. A shift moves its
+cascade with its build's first part and the slab it brings in holds nothing until the last, which
+the triangle budget spreads over about five frames in Sponza, the rays through it going on past the
+walls to the courtyard's light. The plan says which cells wait (`SceneFieldPlan.Unbuilt`), the
+field's info carries them after the eye, and `fieldCascade` reads a point among them in the next
+cascade out for every pass, the probes found by their cascade as before, so the walk has no burst.
+The flight reads 41 and 53 where 41 and 52, and global illumination at High in the atrium within the
+runs' spread beside another program's tests on the GPU, 4.49 to 4.51 ms where 4.40 to 4.67 in the
+last of three rounds. The test is a closed corridor walked down at 64 triangles a frame, its light
+rising to 2.45 times the frame before's in a frame a slab waited at HEAD and 1.31 at most with the
+mend, its bound 1.5, the frames unpaced so the field's budget is never raised, since paced at 60 the
+suite's warm frames waited and built the slabs in a frame or two. Settled and paced it read 0.0099
+of the open floor's light, which the coarser cascades let through and which is not this item's. The
+voxel game's turn over the open land is not read again.
+
+Shared: 206 adds two float4s after the eye to the field's info (`SceneFieldInfo`,
+`GpuSceneField.InfoBytes` 208) and has `fieldCascade` in scenefield.slang pass over the cells a
+shift brought in until its build ends, which the bridge's field takes with the plan and the kernels.

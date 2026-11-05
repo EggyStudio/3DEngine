@@ -38,6 +38,13 @@ internal sealed partial class SceneFieldPlan
     /// <summary>The triangles of the meshes the build in progress splats over its frames, or none.</summary>
     public int BuildingTriangles => _job?.Triangles ?? 0;
 
+    /// <summary>
+    /// The cascade a shift moved and the cells it brought in, which hold nothing until the shift's
+    /// build ends in a later frame, or null where no shift waits.
+    /// </summary>
+    /// <remarks>A shift's first part moves its cascade, its axis then set to none, and a build begun again keeps it moved.</remarks>
+    public (int Cascade, CellBox Cells)? Unbuilt => _job is { Shifting: true, ShiftAxis: < 0, Cells: { } cells } job ? (job.Cascade, cells) : null;
+
     /// <summary>How many triangles this frame's builds splat.</summary>
     public int Splatted { get; private set; }
 

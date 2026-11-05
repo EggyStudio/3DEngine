@@ -9,8 +9,9 @@ namespace Engine.Tests.Rendering;
 /// were, its floor's light read down the picture's middle across the ends of the screen's probes,
 /// the world's cascades and the last cascade, past which the sky's light reaches the floor unhidden,
 /// and a closed room under the same sky, with the eye inside turned through a circle and in the
-/// frames before its last cascade is built, and a closed room longer than four times the last
-/// cascade's spacing, whose rays go on to the field's edge.
+/// frames before its last cascade is built, a closed room longer than four times the last
+/// cascade's spacing, whose rays go on to the field's edge, and a closed corridor walked down as the
+/// field's shifts bring its walls in.
 /// </summary>
 [Collection("E3D")]
 [Trait("Category", "Render")]

@@ -80,6 +80,11 @@ public struct SceneFieldInfo
     // xyz: the eye the cascades lie around this frame, which their outer bands keep clear of
     // (bandHold). w: unused.
     public float4 eye;
+    // The cells a shift brought into a cascade, which hold nothing until its build's last part
+    // splats the meshes there (fieldWaits). xyz: the first cell along each axis and the last,
+    // both within. w of the first: one more than the cascade, or 0 where none waits.
+    public float4 waitingFirst;
+    public float4 waitingLast;
 };
 
 // Whether the field holds anything to read.
@@ -166,18 +171,32 @@ public int fieldCoarsestBuilt(SceneFieldInfo info, int upTo, int probes = 0)
     return -1;
 }
 
-// The finest built cascade p lies in, at least margin cells inside its sides, or -1 for none.
+// Whether `cell` of the cascade the info's waitingFirst.w names lies within margin cells of those a
+// shift brought into it, which hold nothing until its build's last part, the cascade's corner moved
+// with the first.
+public bool fieldWaits(SceneFieldInfo info, float3 cell, float margin)
+{
+    return all(cell >= info.waitingFirst.xyz - margin) && all(cell <= info.waitingLast.xyz + 1.0 + margin);
+}
+
+// The finest built cascade p lies in, at least margin cells inside its sides, or -1 for none. A
+// point among the cells a shift brought into a cascade is read in the next one out, which holds
+// the meshes there, where read in the cascade those cells held nothing near, so the rays through
+// them went on past the walls they stand for. As the field followed the eye down Sponza's atrium,
+// the arches at its far end flashed lit for the five frames each slab of the second cascade
+// took to build. Probes are found by where their cascade lies, whose rays read the field so.
 public int fieldCascade(SceneFieldInfo info, float3 p, float margin, int probes = 0)
 {
     int count = cascadesOf(info, probes);
     float size = info.counts.y;
+    int waiting = probes > 0 ? -1 : int(info.waitingFirst.w + 0.5) - 1;
     for (int i = 0; i < count; i++)
     {
         float4 oc = cascadeAt(info, i, probes);
         if (oc.w <= 0.0)
             continue;
         float3 cell = (p - oc.xyz) / oc.w;
-        if (all(cell >= margin) && all(cell <= size - margin))
+        if (all(cell >= margin) && all(cell <= size - margin) && (i != waiting || !fieldWaits(info, cell, margin)))
             return i;
     }
     return -1;

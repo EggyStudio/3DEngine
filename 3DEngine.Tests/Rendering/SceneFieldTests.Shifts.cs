@@ -47,7 +47,7 @@ public sealed partial class SceneFieldTests
 
         // Four units along x, a snap of the last cascade's grid of eight cells of a half.
         eye = new Vector3(4, 2, 0);
-        var (partial, whole) = (false, true);
+        var (partial, whole, unbuilt) = (false, true, true);
         for (int frame = 0; frame < 4000 && (frame == 0 || !plan.Built); frame++)
         {
             plan.Update(eye, drawn);
@@ -56,11 +56,14 @@ public sealed partial class SceneFieldTests
             {
                 partial = true;
                 whole &= plan.Whole;
+                unbuilt &= plan.Unbuilt == (1, building.Cells.Value);
             }
         }
         partial.Should().BeTrue("the last cascade's slab was built over frames");
         whole.Should().BeFalse("the field is not whole while the last cascade's slab is empty");
+        unbuilt.Should().BeTrue("the plan says which cells wait while the slab's build goes on, which the passes read in the next cascade out");
         plan.Whole.Should().BeTrue("the slab built, the field holds every mesh in reach");
+        plan.Unbuilt.Should().BeNull("no cells wait once the slab is built");
     }
 
     [NeedsVulkanTheory]

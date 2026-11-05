@@ -24,9 +24,11 @@ internal sealed class FieldMarch
     private readonly float[] _distances, _sheets;
     private readonly Vector4[] _cascades;
     private readonly int _size;
+    // The cells a shift brought into a cascade that wait for its build, read in the next cascade out.
+    private readonly (int Cascade, SceneFieldPlan.CellBox Cells)? _unbuilt;
 
-    private FieldMarch(float[] distances, float[] sheets, Vector4[] cascades, int size) =>
-        (_distances, _sheets, _cascades, _size) = (distances, sheets, cascades, size);
+    private FieldMarch(float[] distances, float[] sheets, Vector4[] cascades, int size, (int, SceneFieldPlan.CellBox)? unbuilt) =>
+        (_distances, _sheets, _cascades, _size, _unbuilt) = (distances, sheets, cascades, size, unbuilt);
 
     /// <summary>The march's steps, each its distance along the way, the cascade and the distance to the nearest surface there.</summary>
     internal readonly record struct Step(float T, int Cascade, float Distance);
@@ -53,10 +55,13 @@ internal sealed class FieldMarch
             if (plan.BuiltOrigin(c) is { } origin)
                 cascades[c] = new Vector4(origin, plan.CellOf(c));
         why = "";
-        return new FieldMarch(device.ReadSceneField(field), device.ReadSceneFieldSheets(field), cascades, SceneFieldPlan.Resolution);
+        return new FieldMarch(device.ReadSceneField(field), device.ReadSceneFieldSheets(field), cascades, SceneFieldPlan.Resolution, plan.Unbuilt);
     }
 
-    /// <summary>The finest built cascade holding p at least margin cells inside its sides, or -1 (fieldCascade).</summary>
+    /// <summary>
+    /// The finest built cascade holding p at least margin cells inside its sides and margin cells off
+    /// those a shift brought in that wait for its build, or -1 (fieldCascade).
+    /// </summary>
     internal int CascadeAt(Vector3 p, float margin)
     {
         for (int c = 0; c < _cascades.Length; c++)
@@ -64,7 +69,9 @@ internal sealed class FieldMarch
             var oc = _cascades[c];
             if (oc.W <= 0) continue;
             var cell = (p - new Vector3(oc.X, oc.Y, oc.Z)) / oc.W;
-            if (cell.X >= margin && cell.Y >= margin && cell.Z >= margin && cell.X <= _size - margin && cell.Y <= _size - margin && cell.Z <= _size - margin)
+            if (cell.X >= margin && cell.Y >= margin && cell.Z >= margin && cell.X <= _size - margin && cell.Y <= _size - margin && cell.Z <= _size - margin
+                && !(_unbuilt is (var waiting, var cells) && waiting == c && cell.X >= cells.X0 - margin && cell.Y >= cells.Y0 - margin && cell.Z >= cells.Z0 - margin
+                    && cell.X <= cells.X1 + 1 + margin && cell.Y <= cells.Y1 + 1 + margin && cell.Z <= cells.Z1 + 1 + margin))
                 return c;
         }
         return -1;

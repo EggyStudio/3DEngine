@@ -554,7 +554,8 @@ internal sealed partial class SceneFieldRenderer : IDisposable
         return _tints[instance.Vertices] = tint;
     }
 
-    // Where each cascade lies as it was last built, as scenefield.slang's SceneFieldInfo.
+    // Where each cascade lies as it was last built and the cells a shift brought in that wait, as
+    // scenefield.slang's SceneFieldInfo.
     private static byte[] Info(SceneFieldPlan plan)
     {
         var values = new float[GpuSceneField.InfoBytes / 4];
@@ -565,6 +566,14 @@ internal sealed partial class SceneFieldRenderer : IDisposable
                 (values[4 + c * 4], values[5 + c * 4], values[6 + c * 4], values[7 + c * 4]) = (origin.X, origin.Y, origin.Z, plan.CellOf(c));
         var eyeAt = 4 + GpuSceneField.MaxCascades * 4;
         (values[eyeAt], values[eyeAt + 1], values[eyeAt + 2]) = (plan.Eye.X, plan.Eye.Y, plan.Eye.Z);
+        // The cells a shift brought in that wait for its build's last part, with one more than
+        // their cascade, which the passes read in the next cascade out until then.
+        if (plan.Unbuilt is (var cascade, var cells))
+        {
+            var (first, last) = (eyeAt + 4, eyeAt + 8);
+            (values[first], values[first + 1], values[first + 2], values[first + 3]) = (cells.X0, cells.Y0, cells.Z0, cascade + 1);
+            (values[last], values[last + 1], values[last + 2]) = (cells.X1, cells.Y1, cells.Z1);
+        }
         return MemoryMarshal.AsBytes(values.AsSpan()).ToArray();
     }
 
