@@ -159,14 +159,24 @@ float4 earlierIn(Texture2D<float4> source, uint2 id, uint across, uint down, flo
         return float4(0.0);
     float3 p = standsOn(int2(id));
 
-    float4 clip = mul(view.lastViewProjection, float4(p, 1.0));
-    if (clip.w <= 1e-5)
-        return float4(0.0);
+    // A view the frame before's takes each probe where it stands. Ten thousand units from the
+    // world's origin, the point a probe stands on, put back through the frame before's matrices,
+    // came off its place, which the history's clamp to each frame's blend hid. The cycle's means,
+    // read again so each frame, went off their probes, and on lavapipe a house's shadow in the
+    // desert village of GlobalIlluminationTests went black, 4,718 pixels of the land where 3,985
+    // at the origin, and 3,912 to 3,928 read in place.
+    float2 then = probePixel(int2(id));
+    if (view.last.w < 1.5)
+    {
+        float4 clip = mul(view.lastViewProjection, float4(p, 1.0));
+        if (clip.w <= 1e-5)
+            return float4(0.0);
+        then = (clip.xy / clip.w * 0.5 + 0.5) * view.sizes.zw;
+    }
     // The four probes around the point's pixel in the frame before, blended by where they stand
     // rather than by their tiles' middles, since read by the middles a still view's blend took the
     // next probe along each axis by a pixel's share, a sixteenth of a tile at Low and an eighth at
     // High, every frame.
-    float2 then = (clip.xy / clip.w * 0.5 + 0.5) * view.sizes.zw;
     int2 base = int2(floor(then / view.grid.x - 0.5));
     base -= select(then < probePixel(base), int2(1), int2(0));
     float2 low = probePixel(base);

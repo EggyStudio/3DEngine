@@ -110,7 +110,11 @@ public sealed partial class GlobalIlluminationTests
         // made from the two a value that is not a number, which the glow lights' light at the
         // screen's probes and the glow pass carried and their history spread, 26,258 pixels of the
         // land black at 640 by 360 on the development machine's GPU where 6,570 at the origin, the
-        // houses' shadows; facing the eye where its neighbors give it none, 6,917.
+        // houses' shadows; facing the eye where its neighbors give it none, 6,917. With the screen's
+        // probes' whole cycle of places standing in, read again each frame through the frame
+        // before's matrices, which far from the origin put a probe back off its place, a house's
+        // shadow went black on lavapipe, 4,718 pixels where 3,985, and with a still view read in
+        // place 3,912 to 3,928.
         double Black(float offset)
         {
             var config = Config.Default.WithWindow("gi test", 640, 360) with { Headless = true, Offscreen = true, Samples = 1 };

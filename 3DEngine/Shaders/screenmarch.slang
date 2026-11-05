@@ -64,7 +64,8 @@ public struct ScreenView
     // World to clip space as the frame before had it, which a probe's place then is found through.
     public float4x4 lastViewProjection;
     // xyz: the frame before's eye. w: 1 where the probes of the frame before may be read, as they
-    // may not be on the first frame or the first after the probes were laid out again.
+    // may not be on the first frame or the first after the probes were laid out again, and 2 where
+    // the view is the frame before's, each probe lying where it lay.
     public float4 last;
     // xy: how far from its tile's middle each probe marches to the glow lights from this frame, in
     // pixels, the same for every probe and moved from frame to frame so a probe's points cover its

@@ -2680,14 +2680,19 @@ last cascade's rays carry from past that reach, and begun at the change alone, a
 about an eye under the open sky read 0.0033 of the open floor's light in its walls where 0.00007,
 the light bounced off them the frame before still falling as the first cycle gathered. Held to the
 change rule alone, the cycle fell back on the frame's noisy blend at the edges, 1,893 pixels, and
-held loose it kept the moved lamp's old light some forty frames. The bounce rooms' strip room read 7,705 pixels past 2 levels and reads 1, and the
-turn reads as it did, 82 at the frames' change's 99th part. The whole cycle is the rays' own mean,
-which the running mean's clamp to each frame's blend pulls toward the typical frame, so Sponza's
-door at 8:00 reads 0.030 of its light further from its reference per pixel, its vault's probes
-reading over already, and the other fifteen views within 0.007. Global illumination at High at 1920
-by 1080 in the atrium takes 4.36 to 4.42 ms where 4.33 to 4.40, and the screen's probes 7.25 MB with
-the cycle's four images (`./e3d command record` every frame, `gi.show filtered`, `gi.compare`,
-`./e3d command profile`, `gi.state`).
+held loose it kept the moved lamp's old light some forty frames. The bounce rooms' strip room read
+7,705 pixels past 2 levels and reads 1, and the turn reads as it did, 82 at the frames' change's
+99th part. The whole cycle is the rays' own mean, which the running mean's clamp to each frame's
+blend pulls toward the typical frame, so Sponza's door at 8:00 reads 0.030 of its light further from
+its reference per pixel, its vault's probes reading over already, and the other fifteen views within
+0.007. Global illumination at High at 1920 by 1080 in the atrium takes 4.36 to 4.42 ms where 4.33 to
+4.40, and the screen's probes 7.25 MB with the cycle's four images (`./e3d command record` every
+frame, `gi.show filtered`, `gi.compare`, `./e3d command profile`, `gi.state`). A view the frame
+before's reads each probe's history and cycle where it stands (`earlierIn`), since ten thousand
+units from the world's origin the frame before's matrices put a probe's point back off its place,
+which the history's clamp hid, and the cycle's means, read again so each frame, went off their
+probes, a house's shadow in `GlobalIlluminationTests`' far desert village black on lavapipe, 4,718
+pixels of the land where 3,985 at the origin, and 3,912 so.
 
 **A crossing taken once, read on 2026-10-31.** The cascades' intervals overlap, the first's
 reaching twice as far as the second's begins, and a slab that straddled the first's end was crossed

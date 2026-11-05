@@ -624,7 +624,10 @@ internal sealed partial class GlobalIlluminationRenderer : IDisposable
         if (last is { } then)
         {
             MemoryMarshal.Write(bytes.AsSpan(192), then.ViewProjection);
-            (floats[64], floats[65], floats[66], floats[67]) = (then.Eye.X, then.Eye.Y, then.Eye.Z, 1);
+            // 2 where the view is the frame before's, which the filter reads each probe where it
+            // stands by, as the frame before's matrices put it back off its place far from the origin.
+            var still = then.ViewProjection == viewProjection && then.Eye == eye;
+            (floats[64], floats[65], floats[66], floats[67]) = (then.Eye.X, then.Eye.Y, then.Eye.Z, still ? 2 : 1);
         }
         floats[72] = _glowCount;
         var words = MemoryMarshal.Cast<byte, uint>(bytes.AsSpan());

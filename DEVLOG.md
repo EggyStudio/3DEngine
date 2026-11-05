@@ -6,6 +6,13 @@ under `.github/assets/readings` as WebP files named by their day, each on the da
 the notes written beside them as Markdown files named the same way. A line under Done names the item
 of .github/REVIEW.md or .github/REVIEW-ARCHIVE.md and the commit that closed it.
 
+## 2026-11-05
+
+![](.github/assets/readings/2026-11-05-item-206-flash.webp)
+Sponza's atrium at noon flown down at 5.4 units a second, four frames as the second cascade's shift
+builds its slab, above at HEAD with the far arch lit while the slab's cells hold nothing, below with
+them read in the next cascade out
+
 ## 2026-11-04
 
 ![](.github/assets/readings/2026-11-04-item-194-door.webp)
