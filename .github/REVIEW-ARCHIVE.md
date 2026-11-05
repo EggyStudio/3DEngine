@@ -2341,7 +2341,7 @@ batch.
     above, roads out to each zone on a ring of 40 m; a capsule character of radius 0.35 and height
     1.8 with a third-person orbit camera, walking relative to the camera, sprinting, jumping,
     crouching by the height, flying by item 55's call and put back at the zone's start by its place
-    call, a fall below minus 20 putting it back too; a zone base with name, centre, start, facing
+    call, a fall below minus 20 putting it back too; a zone base with name, center, start, facing
     and spots and its build, update, draw, screen draw and status, the zone found by position; the
     drawing zone every 3D shape call on plinths and an easel showing a render texture 2D shapes and
     text are drawn into each frame, its status reading the texture back at known pixels so the
@@ -2406,7 +2406,7 @@ batch.
     drawing the arm alone into a 96 by 96 texture every half second and reading it back, the arm
     bending when its outline's count ranges by a tenth of its most, the machine running once its
     state has been each of the three, then the meshes' vertices and the instanced count, with
-    toggles for playing and instancing. The lights zone with a grey floor, a red point lamp casting
+    toggles for playing and instancing. The lights zone with a gray floor, a red point lamp casting
     shadows round a pillar, a blue spot turning and casting shadows, a block the sun shadows, an
     emissive sphere, six balls from rough to polished with every other one metal and a three-walled
     room with a reflection probe and a polished ball; its status drawing the zone from 22 m over it
@@ -2437,16 +2437,16 @@ batch.
     particles zone of six emitters over a slab, the default fountain, an additive fire, alpha smoke,
     sparks bouncing, lit particles and a burst, the particles alone drawn every half second into a
     160 by 90 texture through an empty 3D mode and read back with each emitter's stretch counted, ok
-    when each is above 5, measured 38, 53, 158, 31, 37 and 107; an effects zone with a grey board, a
+    when each is above 5, measured 38, 53, 158, 31, 37 and 107; an effects zone with a gray board, a
     red patch and an emissive bar, a knot through the toon shader and a billboard of the plasma
     texture, the four shaders linked from the examples' resources, each of none, bloom, vignette,
     grading at zero saturation, exposure at 2, depth of field, motion blur and the AgX curve shown
     alone for a second on arriving with the window read at each phase's end, ok when bloom lifts the
     glow by more than 15 summed levels, the vignette darkens the edge by 15, the red is graded to
-    within 10 of grey and the exposure lifts the board by 30, each failure named, measured 133
+    within 10 of gray and the exposure lifts the board by 30, each failure named, measured 133
     against 117, 33 against 64, the red to 27 and the board 32 to 44; the shaders checked by the
     life shader stepping a grid read back as a blinker of three cells turning, the plasma shader's
-    colors counted and the grayscale shader drawing red into a target read grey, measured 161 turns,
+    colors counted and the grayscale shader drawing red into a target read gray, measured 161 turns,
     51 colors and 94; the screen read kept only from a first call that a shared keep makes on
     arriving at a zone that reads the window, so a run that does not visit them pays for no copy.
     The drive asserts the bounce after 440 frames, the particles after 150 and the effects with the
@@ -4826,7 +4826,7 @@ batch.
     reference pictures were exposed view by view, their means 73, 57 and 82 near flat where one
     fixed camera reads our door twenty times darker than our balcony in the frame and in the
     path-traced reference alike, and our auto exposure between EV 4 and 14 reads 89, 120 and 110 to
-    127, opening more than HDRP's centre-weighted metering, the door most. The engine's reference
+    127, opening more than HDRP's center-weighted metering, the door most. The engine's reference
     was wrong in Sponza in two ways. The stone read as metal, 24 materials carrying a metallic
     factor of 1 with the metal in the map's blue at about 0.014, SceneFieldPlan.Instance taking the
     factor alone so the reference's throughput went to 0 after the first face and every bounce read
@@ -4861,8 +4861,8 @@ batch.
 
 161. **The automatic exposure meters as the reference's camera does.** From item 160, the
     reference's pictures were exposed view by view by an automatic mode between EV 4 and 14,
-    centre-weighted, and ours between the same limits opens more, the door at 120 against 57. A
-    metering mode weighted to the centre with a compensation in stops, as SetAutoExposure's options,
+    center-weighted, and ours between the same limits opens more, the door at 120 against 57. A
+    metering mode weighted to the center with a compensation in stops, as SetAutoExposure's options,
     and the example's drive capturing each view twice, at the fixed camera for the GI readings and
     metered for the look beside the reference; read by the three views' means against the
     reference's with the metered camera. Small, after 160's second part and before 158. Done at
@@ -4873,14 +4873,14 @@ batch.
     times 2 to the compensation, in the composite and the adapt pass's bounds; the mode rides on
     ExposurePush.Mode; the docs say -0.79 stops meters as a reflected-light meter at K 12.5 does.
     ScenesSponza gains sponza.metered on and off, the reference camera's automatic range, read later under item 167 as HDRP's default automatic mode between EV -1 and 14, the night volume's 4 to 14 standing at weight 0 of EV 4 to
-    14 about the fixed camera, centre-weighted at -0.79, and drive-sponza.sh captures each view at
+    14 about the fixed camera, center-weighted at -0.79, and drive-sponza.sh captures each view at
     the fixed camera and metered after 60 frames. Metered at 15:00 at High the balcony reads 74, 66
     and 65 against the reference's 73, 67 and 64, meeting its picture; the door 107, 98 and 91
     against 57, 50 and 43, about a stop brighter, HDRP's meter bringing that view less far toward
     the key, a histogram ignoring dark pixels or its brighter shade from HTrace, unreadable without
     it; the lookup 94, 102 and 112 against 82, 75 and 71, bluer from our painted sky against its
-    physically based one. The average weighting at -0.79 read 80, 99 and 92 and the centre at 0
-    stops 91, 130 and 115. A test with a gray cube on white reads the centre weighting brighter than
+    physically based one. The average weighting at -0.79 read 80, 99 and 92 and the center at 0
+    stops 91, 130 and 115. A test with a gray cube on white reads the center weighting brighter than
     the average by more than 15 levels and a stop brighter again. The note
     2026-11-01-item-161-metered.md and the sheet in the dump.
 
@@ -5066,7 +5066,7 @@ batch.
     pictures is their per-view exposure, and item 153 kept the fixed camera as the example's default
     to hold the readings' ratios visible; played, that fixed camera at the reference's values
     exposes the sunlit stone right and the shade at a hundredth, which reads as no indirect light.
-    The example starts metered, item 161's centre-weighted automatic exposure between EV 4 and 14 at
+    The example starts metered, item 161's center-weighted automatic exposure between EV 4 and 14 at
     -0.79 stops, with M switching to the fixed camera and back and the help line saying so; the
     drive keeps capturing each view both ways, the fixed captures the readings' and the metered the
     look's. Small, with 164's commit. The proof pairs at `ea4fccb3`, the atrium at 13:00 and the
