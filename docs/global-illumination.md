@@ -380,7 +380,7 @@ boxes leave parts of global illumination out. The same is in a running program t
 
 | Command | What it does |
 |---|---|
-| `gi.state` | The quality, the cascades of probes and their rays, the screen's probes, the reflections and the GPU memory each takes, and how many small emitters are carried as lights |
+| `gi.state` | The quality, the cascades of probes and their rays, the screen's probes, the reflections and the GPU memory each takes, how many small emitters are carried as lights, and at `High` where the device traces rays how many probes of each cascade carry their rays past their interval with the rays moving |
 | `gi.show <view> [cascade or png]` | Draws over the window the screen's probes as tiles, their light, filtered or the share of it the frames before gave, a cascade's rays' light, its merge or its probes as cubes, or the frame against a reference |
 | `gi.toggle <part> <on\|off>` | Leaves out the frame before's light, the screen's filter, the screen's probes, neither made nor traced, the merge, the light past the first bounce, the indirect light following a light out, the emissive surfaces carried as lights, or every cascade but one, or with `meshes on` traces the probes' rays through the GPU's own rays at `High` |
 | `gi.probe <x> <y> <z> [samples] [bounces] [cascade]` | The light arriving at the probe nearest a point against a path-traced reference of it, each face by where its ways were met, and the ways that carry most of the face furthest from it, each with how far its rays went against what and how far the reference's path through the texel's middle first met |

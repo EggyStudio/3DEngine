@@ -142,8 +142,15 @@ internal sealed class GpuIllumination : IDisposable
     // is that place.
     internal bool CycleOn { get; init; }
 
+    // How many cascades, from the first, can carry a probe's rays past their interval and keep its
+    // cycle, every one but the last counted and the far, whose rays go on to the field's edge
+    // already. Sponza at High carried 3.3 to 6.8% of its probes' texels by the view, all of them in
+    // the first three of its five cascades, and the two after hold 57% of the texels, so the cycle
+    // takes 6 MB there where its images made whole in every cascade took 14.
+    internal int CycleCascades { get; init; }
+
     /// <summary>The bytes the carried probes' cycle takes, none where its images are stand-ins.</summary>
-    public long CycleBytes => CycleOn ? Texels.Sum(n => 4L * (Probes * n) * (Probes * n) * Probes * 8) : 0;
+    public long CycleBytes => CycleOn ? Texels.Take(CycleCascades).Sum(n => 4L * (Probes * n) * (Probes * n) * Probes * 8) : 0;
     internal (VkImage Image, VkImageView View)[] Distances { get; }
 
     // Each cascade's merged rays' share of the sky, a texel a ray, as gi_merge.slang writes it.
@@ -159,6 +166,9 @@ internal sealed class GpuIllumination : IDisposable
     // the share of the indirect light each probe's next rays take, and where the trace moved
     // each probe to, every cascade.
     internal VkImageView Held { get; }
+
+    // The image behind Held, which a command reads the carried probes from.
+    internal VkImage HeldImage { get; init; }
 
     internal VkImage Cubes { get; }
 
@@ -292,7 +302,7 @@ internal sealed unsafe partial class GraphicsDevice
             radiance[c] = ProbeImage(p * n, p * n, p);
             merged[c] = ProbeImage(p * n, p * n, p);
             hitNormals[c] = ProbeImage(p * n, p * n, p);
-            var (cycleSide, cycleDepth) = cycle ? (p * n, p) : (1u, 1u);
+            var (cycleSide, cycleDepth) = cycle && c < CarryingCascades(texels.Length, farCascade) ? (p * n, p) : (1u, 1u);
             cyclePartialBefore[c] = ProbeImage(cycleSide, cycleSide, cycleDepth);
             cyclePartial[c] = ProbeImage(cycleSide, cycleSide, cycleDepth);
             cycleFull[c] = ProbeImage(cycleSide, cycleSide, cycleDepth);
@@ -383,8 +393,12 @@ internal sealed unsafe partial class GraphicsDevice
             ways, new VulkanImageView(this, waysOwner, waysView)) { Far = farCascade, CubesAt = cubesAt, CubesAtView = cubesAtView,
                 HitNormals = [.. hitNormals.Select(i => (i.Item1, i.Item3))], CyclePartialBefore = [.. cyclePartialBefore.Select(i => (i.Item1, i.Item3))],
                 CyclePartial = [.. cyclePartial.Select(i => (i.Item1, i.Item3))], CycleFull = [.. cycleFull.Select(i => (i.Item1, i.Item3))],
-                CycleFullBefore = [.. cycleFullBefore.Select(i => (i.Item1, i.Item3))], CycleOn = cycle };
+                CycleFullBefore = [.. cycleFullBefore.Select(i => (i.Item1, i.Item3))], CycleOn = cycle, CycleCascades = cycle ? CarryingCascades(texels.Length, farCascade) : 0, HeldImage = held };
     }
+
+    // The cascades that can carry a probe's rays past their interval, every one but the last counted
+    // and the far (gi_trace.slang's carried).
+    private static int CarryingCascades(int cascades, bool farCascade) => Math.Max(0, cascades - (farCascade ? 2 : 1));
 
     // A 3D image of half-float colors the probes' work writes and reads, with its view.
     private (VkImage Image, VkDeviceMemory Memory, VkImageView View) ProbeImage(uint width, uint height, uint depth,
@@ -543,7 +557,7 @@ internal sealed unsafe partial class GraphicsDevice
         // Each cascade's carried probes' cycle as the frame before left it, which the merges read.
         MemoryBarrier(cmd, VkPipelineStageFlags2.AllCommands, VkAccessFlags2.ShaderWrite | VkAccessFlags2.ShaderRead,
             VkPipelineStageFlags2.Transfer, VkAccessFlags2.TransferRead | VkAccessFlags2.TransferWrite);
-        for (int c = 0; c < (gi.CycleOn ? gi.Cascades : 0); c++)
+        for (int c = 0; c < gi.CycleCascades; c++)
         {
             var (side, depth) = ((uint)(gi.Probes * gi.Texels[c]), (uint)gi.Probes);
             var copy = new VkImageCopy
@@ -580,7 +594,7 @@ internal sealed unsafe partial class GraphicsDevice
             // How far the probes moved, three signed bytes, with 1 << 24 where there is light before.
             var moved = shifts is not null && c < shifts.Count && shifts[c] is { } shift && Math.Max(Math.Abs(shift.X), Math.Max(Math.Abs(shift.Y), Math.Abs(shift.Z))) < p
                 ? (uint)(byte)(sbyte)shift.X | (uint)(byte)(sbyte)shift.Y << 8 | (uint)(byte)(sbyte)shift.Z << 16 | 1u << 24 : 0u;
-            if (gi.CycleOn && (traceFlags & 1u) != 0) moved |= 1u << 25;
+            if (c < gi.CycleCascades && (traceFlags & 1u) != 0) moved |= 1u << 25;
             // The last cascade and the one before the far cascade's probes merge nothing from above,
             // since their rays went on to the field's edge and brought the sky where they met nothing.
             // Merged from the far cascade's probes, whose cells hold the ground as a slab, the one
@@ -638,85 +652,6 @@ internal sealed unsafe partial class GraphicsDevice
             dstSet = ((VulkanDescriptorSet)set).Handle, dstBinding = binding, descriptorCount = 1, descriptorType = VkDescriptorType.SampledImage, pImageInfo = &image,
         };
         _deviceApi.vkUpdateDescriptorSets(1, &write, 0, null);
-    }
-
-    /// <summary>The faces of the light each probe receives, four floats a texel, read back for a test with the frames in flight finished.</summary>
-    internal float[] ReadIlluminationCubes(GpuIllumination gi)
-    {
-        var (p, c) = ((uint)gi.Probes, (uint)gi.Cascades);
-        FlushUploads();
-        _deviceApi.vkDeviceWaitIdle().CheckResult();
-        var buffer = (VulkanBuffer)CreateBuffer(new BufferDesc(6 * p * p * p * c * 8, BufferUsage.TransferDst, CpuAccessMode.Read));
-        try
-        {
-            var cmd = BeginSingleTimeCommands();
-            var whole = ColorLevels(0, 1);
-            PipelineBarrier(cmd, ImageBarrier(gi.Cubes, whole, VkImageLayout.ShaderReadOnlyOptimal, VkImageLayout.TransferSrcOptimal,
-                VkPipelineStageFlags2.AllCommands, VkAccessFlags2.ShaderRead | VkAccessFlags2.ShaderWrite, VkPipelineStageFlags2.Transfer, VkAccessFlags2.TransferRead));
-            var region = new VkBufferImageCopy
-            {
-                imageSubresource = new VkImageSubresourceLayers(VkImageAspectFlags.Color, 0, 0, 1),
-                imageExtent = new VkExtent3D(6 * p, p, p * c),
-            };
-            _deviceApi.vkCmdCopyImageToBuffer(cmd, gi.Cubes, VkImageLayout.TransferSrcOptimal, buffer.Buffer, 1, &region);
-            PipelineBarrier(cmd, ImageBarrier(gi.Cubes, whole, VkImageLayout.TransferSrcOptimal, VkImageLayout.ShaderReadOnlyOptimal,
-                VkPipelineStageFlags2.Transfer, VkAccessFlags2.TransferRead, VkPipelineStageFlags2.AllCommands, VkAccessFlags2.ShaderRead));
-            EndSingleTimeCommands(cmd);
-            var halves = MemoryMarshal.Cast<byte, Half>(Map(buffer));
-            var values = new float[halves.Length];
-            for (int i = 0; i < halves.Length; i++) values[i] = (float)halves[i];
-            return values;
-        }
-        finally
-        {
-            buffer.Dispose();
-        }
-    }
-
-    /// <summary>
-    /// A cascade's rays' light or its merge, four floats a texel, its probes' octahedrons side by side
-    /// and a layer of probes a slice, read back with the frames in flight finished.
-    /// </summary>
-    internal float[] ReadProbeVolume(GpuIllumination gi, int cascade, bool merged) =>
-        ReadProbeTexels(gi, cascade, (merged ? gi.Merged : gi.Radiance)[cascade].Image, 4);
-
-    /// <summary>
-    /// How far each of a cascade's rays went, two floats a texel laid out as
-    /// <see cref="ReadProbeVolume"/> lays its light, the distance, below zero where the rays met a
-    /// face from behind, and the share kept before the interval, read back with the frames in flight
-    /// finished.
-    /// </summary>
-    internal float[] ReadProbeDistances(GpuIllumination gi, int cascade) => ReadProbeTexels(gi, cascade, gi.Distances[cascade].Image, 2);
-
-    // A cascade's volume of half floats, so many a texel, read back.
-    private float[] ReadProbeTexels(GpuIllumination gi, int cascade, VkImage image, int channels)
-    {
-        var side = (uint)(gi.Probes * gi.Texels[cascade]);
-        var depth = (uint)gi.Probes;
-        FlushUploads();
-        _deviceApi.vkDeviceWaitIdle().CheckResult();
-        var buffer = (VulkanBuffer)CreateBuffer(new BufferDesc(side * side * depth * (uint)channels * 2, BufferUsage.TransferDst, CpuAccessMode.Read));
-        try
-        {
-            // The volumes stay in the general layout, which a copy reads.
-            var cmd = BeginSingleTimeCommands();
-            MemoryBarrier(cmd, VkPipelineStageFlags2.AllCommands, VkAccessFlags2.ShaderWrite, VkPipelineStageFlags2.Transfer, VkAccessFlags2.TransferRead);
-            var region = new VkBufferImageCopy
-            {
-                imageSubresource = new VkImageSubresourceLayers(VkImageAspectFlags.Color, 0, 0, 1),
-                imageExtent = new VkExtent3D(side, side, depth),
-            };
-            _deviceApi.vkCmdCopyImageToBuffer(cmd, image, VkImageLayout.General, buffer.Buffer, 1, &region);
-            EndSingleTimeCommands(cmd);
-            var halves = MemoryMarshal.Cast<byte, Half>(Map(buffer));
-            var values = new float[halves.Length];
-            for (int i = 0; i < halves.Length; i++) values[i] = (float)halves[i];
-            return values;
-        }
-        finally
-        {
-            buffer.Dispose();
-        }
     }
 
     // One frame's recording of the probes' work, the descriptor pool its sets come from, as many of

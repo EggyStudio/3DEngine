@@ -2751,7 +2751,11 @@ where 0.879, the gallery's pixels 0.346 where 0.377, the bounce rooms' room 3 1.
 where 0.824, its pixels 0.274 where 0.239, and the other views within 0.03. Global illumination at
 High in the atrium at 1920 by 1080 takes about 0.15 ms more, 0.05 for the cycle and 0.1 for the
 carried rays' queries, 4.54 to 4.68 ms where 4.34 to 4.63, and the world probes 29.89 MB where
-15.89. At Medium the carried rays moving through the field with a hit within half a cell brought the
+15.89. The probes carried with their rays moving held 3.3 to 6.8% of the world probes' texels in
+Sponza at High by the view, every one of them in the first three of its five cascades, since the
+last counted and the far carry none, so the cycle's images are whole in those three alone, and the
+world probes take 21.89 MB, the cycle 6 MB where 14, with global illumination at 4.58 to 4.69 ms
+where 4.65 to 4.73. At Medium the carried rays moving through the field with a hit within half a cell brought the
 door from 1.853 to 1.722 of its light at 8:00 and left the lion at 1.256, so Medium keeps its
 middles (`gi.probe`, `gi.compare`, `./e3d command profile`, `gi.state`).
 

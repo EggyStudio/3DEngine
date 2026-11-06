@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Numerics;
 
 namespace Engine;
@@ -76,6 +77,18 @@ internal static class SceneFieldCommands
             $"{quality}: {probes.Cascades} cascades of {p * p * p} probes, {string.Join(", ", probes.Texels.Select((n, c) => n * n * probes.RaysAt(c)))} rays each, {rays} rays a frame",
             $"world probes {world / 1024.0 / 1024.0:0.00} MB",
         };
+        // The probes whose rays the frame carried past their interval and moved within their
+        // texels, by cascade, and the share of every probe's texels theirs are, which the cycle keeps
+        // whole, a cascade of sixteen texels a side holding four times one of eight.
+        if (probes.CycleOn && renderer.Context.Graphics is GraphicsDevice device)
+        {
+            var moving = device.ReadCarriedMoving(probes);
+            var movingTexels = moving.Select((m, c) => (long)m * probes.Texels[c] * probes.Texels[c]).Sum();
+            var all = probes.Texels.Sum(n => (long)p * p * p * n * n);
+            var byCascade = string.Join(", ", moving.Select((m, c) => $"{m} of {p * p * p} ({probes.Texels[c]} texels a side)"));
+            lines.Add(string.Create(CultureInfo.InvariantCulture,
+                $"probes carried with their rays moving, by cascade, {byCascade}, {movingTexels} of the {all} texels, {100.0 * movingTexels / Math.Max(all, 1):0.0}%"));
+        }
         // A screen probe's nine texels of eight bytes, its light, surface, blend and the frame
         // before's two, and its places' cycle's four, and its words of the glow lights; and for
         // each texel of the depth the glow
