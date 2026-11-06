@@ -98,7 +98,8 @@ struct AmbientPush
     // w: the frame's parity, plus 2 where the cascade lies where it lay the frame before, so the
     // frame before's own light is the same probes'.
     uint4 cascade;
-    // x: where the cascade's rays' interval ends, which a ray that met nothing reached. yzw: unused.
+    // x: where the cascade's rays' interval ends, which a ray that met nothing reached. y: the share
+    // of a carried probe's own light this frame takes in its mean. zw: unused.
     float4 interval;
 };
 
@@ -126,6 +127,15 @@ void follow(uint3 at, uint probes, uint texels, float shares, bool walledIn)
     float all = sum.a / max(shares, 1e-6);
 
     float4 before = held[int3(int(parity ^ 1u) * p + int(at.x), int(at.y), z)];
+    // A carried probe's own light and all its rays brought taken as their mean since the lights or
+    // the field last changed, sixteen frames at most, where the cascade lies where it lay, since its
+    // rays moving within their texels from frame to frame bring a patch narrower than a texel some
+    // frames and not others (gi_trace.slang), which the follow below read as a light going out.
+    if ((push.cascade.w & 2u) != 0u && before.a >= 0.0 && held[int3(3 * p + int(at.x), int(at.y), z)].w > 1.5)
+    {
+        own = lerp(before.rgb, own, push.interval.y);
+        all = lerp(before.a, all, push.interval.y);
+    }
     float3 kept = float3(1.0);
     float was = luminance(before.rgb);
     if ((push.cascade.w & 2u) != 0u && before.a >= 0.0)

@@ -61,6 +61,18 @@ Texture3D<float> reachAbove;
 [[vk::binding(9, 0)]]
 Sampler3D fieldAlbedo;
 
+// A carried probe's cycle of the sixteen places its rays move through (gi_trace.slang), the mean
+// gathered from the cycle's first frame with its count, and the last whole cycle's mean, as the
+// frame before left them, and as this frame leaves them.
+[[vk::binding(10, 0)]]
+Texture3D<float4> partialBefore;
+[[vk::binding(11, 0)]]
+Texture3D<float4> fullBefore;
+[[vk::binding(12, 0)]] [format("rgba16f")]
+RWTexture3D<float4> partialNow;
+[[vk::binding(13, 0)]] [format("rgba16f")]
+RWTexture3D<float4> fullNow;
+
 // The texel of an octahedron of `texels` along each side at t, folded across its edges.
 int2 foldedAt(int2 t, int texels)
 {
@@ -91,12 +103,57 @@ struct MergePush
     // passing on its light where their rays meet nothing and nothing where they meet a surface.
     // w: where the cascade above's interval ends, which its ray that met nothing reached.
     float4 spacing;
-    // x: how many cascades. yzw: unused.
+    // x: how many cascades. y: how far the probes moved since the frame before, three signed bytes,
+    // with 1 << 24 where a cycle lies before to read and 1 << 25 where carried probes keep one. z:
+    // the frames since the lights or the field changed. w: where the cycle stands, on sixteen.
     uint4 counts;
 };
 
 [[vk::push_constant]]
 ConstantBuffer<MergePush> push;
+
+// A carried probe's light, the mean of the cycle of sixteen places its rays move through, as the
+// screen's probes keep theirs (gi_screen_filter.slang), gathered from the cycle's first frame and
+// shown as it grows until a whole cycle has been gathered since the lights or the field changed,
+// then the last whole cycle's. Read from the fixed middles alone, the vault of Sponza's vestibule
+// took none of the court's sunlit light that a path-traced reference sees past its arch's edges,
+// 92% under, and its rays moved through the places and met through the device's rays, 7% under.
+float3 settled(float3 light, uint3 at, uint2 texel, uint probes, uint texels, uint c)
+{
+    uint3 written = uint3(at.xy * texels + texel, at.z);
+    if ((push.counts.y & 0x2000000u) == 0u)
+        return light;
+    if (placeOf(int3(at), c, probes).w < 1.5)
+    {
+        partialNow[written] = float4(0.0);
+        fullNow[written] = float4(0.0);
+        return light;
+    }
+    // The cycle as the frame before left it at the probe's place then, begun again where the
+    // lights or the field changed this frame (counts.z, the frames since) or the probe's own
+    // light fell, as its kept share says.
+    uint packed = push.counts.y;
+    float4 partial = float4(0.0), full = float4(0.0);
+    int3 shift = int3(int(packed << 24u) >> 24, int(packed << 16u) >> 24, int(packed << 8u) >> 24);
+    int3 from = int3(at) + shift;
+    if ((packed & 0x1000000u) != 0u && all(from >= int3(0)) && all(from < int3(int(probes))))
+    {
+        int4 then = int4(from.xy * int(texels) + int2(texel), from.z, 0);
+        partial = partialBefore.Load(then);
+        full = fullBefore.Load(then);
+    }
+    float4 share = held[int3(2 * int(probes) + int(at.x), int(at.y), int(c * probes) + int(at.z))];
+    bool begun = push.counts.z == 0u || share.r >= 0.0 && any(share.rgb < 0.99);
+    uint phase = push.counts.w & 15u;
+    bool going = partial.a > 0.5 && !begun;
+    float count = going ? partial.a : 0.0;
+    float3 mean = phase == 0u || !going ? light : lerp(partial.rgb, light, 1.0 / (count + 1.0));
+    bool whole = !begun && (phase == 0u ? going && count >= 15.5 : full.a > 0.5);
+    float3 wholeMean = phase == 0u ? partial.rgb : full.rgb;
+    partialNow[written] = float4(mean, phase == 0u || !going ? 1.0 : count + 1.0);
+    fullNow[written] = whole ? float4(wholeMean, 1.0) : float4(0.0);
+    return whole ? wholeMean : mean;
+}
 
 // Whether each probe of the group sees each of the eight probes of the cascade above around it, a
 // probe's eight together, for every thread of the probe to read. A group holds four probes at most,
@@ -149,6 +206,11 @@ void computeMain(uint3 id : SV_DispatchThreadID, uint3 local : SV_GroupThreadID)
     {
         merged[written] = float4(0.0);
         mergedSky[written] = 0.0;
+        if ((push.counts.y & 0x2000000u) != 0u)
+        {
+            partialNow[written] = float4(0.0);
+            fullNow[written] = float4(0.0);
+        }
         return;
     }
     float4 own = radiance[written];
@@ -162,6 +224,11 @@ void computeMain(uint3 id : SV_DispatchThreadID, uint3 local : SV_GroupThreadID)
     {
         merged[written] = float4(0.0, 0.0, 0.0, 1.0);
         mergedSky[written] = 0.0;
+        if ((push.counts.y & 0x2000000u) != 0u)
+        {
+            partialNow[written] = float4(0.0);
+            fullNow[written] = float4(0.0);
+        }
         return;
     }
     if (alone > 0u && c + 1u < alone)
@@ -170,7 +237,7 @@ void computeMain(uint3 id : SV_DispatchThreadID, uint3 local : SV_GroupThreadID)
     float kept = own.a > 0.25 && own.a < 0.75 ? 0.5 : 1.0;
     if (upper == 0u || nothing <= 0.0 || push.spacing.y > 0.5 || alone == c + 1u)
     {
-        merged[written] = float4(own.rgb, own.a < 0.75 ? kept : 1.0);
+        merged[written] = float4(settled(own.rgb, at, texel, probes, texels, c), own.a < 0.75 ? kept : 1.0);
         mergedSky[written] = ownSky;
         return;
     }
@@ -222,6 +289,6 @@ void computeMain(uint3 id : SV_DispatchThreadID, uint3 local : SV_GroupThreadID)
             }
     }
     float3 beyond = weights > 1e-4 ? sum / weights : float3(0.0);
-    merged[written] = float4(own.rgb + beyond * nothing, own.a < 0.75 ? kept : 1.0);
+    merged[written] = float4(settled(own.rgb + beyond * nothing, at, texel, probes, texels, c), own.a < 0.75 ? kept : 1.0);
     mergedSky[written] = weights > 1e-4 ? sky / weights * nothing : 0.0;
 }

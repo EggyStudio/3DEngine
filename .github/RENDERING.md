@@ -2733,6 +2733,28 @@ way to the eye alone 2,037 and the coordinates alone 2,054. A strip three pixels
 turn 150 degrees across it read 18 pixels past its vertices' normals and reads none
 (`OffscreenRenderTests`, `./e3d shot`, `gi.reference`).
 
+**The vault's carried rays, read and mended on 2026-11-06.** In Sponza's door view at 8:00 at High
+the vault of the vestibule read 92% under a path-traced reference at its cascade-1 probe and 74% at
+its cascade-0 one, its light the sunlit court's past the arch's edges, which no texel's middle met
+and the carried rays' fixed ways missed. A carried probe's rays move through sixteen places within
+their texels' quarters, a place a frame, as the screen's probes' do, and the merge keeps their cycle
+as the screen's probes keep theirs (205), the mean gathered from the cycle's first frame shown as it
+grows and the last whole cycle's once one has been gathered since the lights or the field changed,
+the small emitters carried as lights among the lights compared, and the gather takes the probe's own
+light as its mean since the change. Through the field alone the moving rays passed beside an arch's
+edge thinner than its finest cells, which the meshes hold, and the vault read 98% over and the door
+1.196 of its light at 8:00, so at High on a device that traces rays the carried rays meet the meshes
+through the device's rays, and elsewhere every ray keeps its middle and the cycle's images are
+stand-ins of a texel. The vault's two probes read 7% and 21% under where 92% and 74%, the lion's
+pixels at 8:00 0.436 of its light off where 0.637, the door's 0.948 where 1.014 and its light 0.833
+where 0.879, the gallery's pixels 0.346 where 0.377, the bounce rooms' room 3 1.031 of its reference
+where 0.824, its pixels 0.274 where 0.239, and the other views within 0.03. Global illumination at
+High in the atrium at 1920 by 1080 takes about 0.15 ms more, 0.05 for the cycle and 0.1 for the
+carried rays' queries, 4.54 to 4.68 ms where 4.34 to 4.63, and the world probes 29.89 MB where
+15.89. At Medium the carried rays moving through the field with a hit within half a cell brought the
+door from 1.853 to 1.722 of its light at 8:00 and left the lion at 1.256, so Medium keeps its
+middles (`gi.probe`, `gi.compare`, `./e3d command profile`, `gi.state`).
+
 **A crossing taken once, read on 2026-10-31.** The cascades' intervals overlap, the first's
 reaching twice as far as the second's begins, and a slab that straddled the first's end was crossed
 twice, the first cascade's ray taking the part of it within its interval and handing on what it

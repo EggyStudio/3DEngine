@@ -1,9 +1,11 @@
+using System.Numerics;
 using System.Runtime.InteropServices;
 
 namespace Engine;
 
-// Whether the window's lights or the field changed within a cycle of the screen probes' sixteen
-// places, which begins every probe's cycle again (gi_screen_filter.slang).
+// Whether the window's lights or the field changed within a cycle of sixteen frames, which begins
+// every screen probe's cycle of places again (gi_screen_filter.slang) and every carried world
+// probe's (gi_merge.slang), and how far the world probes' cascades moved.
 internal sealed partial class GlobalIlluminationRenderer
 {
     // As many frames after a change as its light takes to settle, the light bounced off the walls
@@ -18,6 +20,18 @@ internal sealed partial class GlobalIlluminationRenderer
     private float[]? _lightSignature;
     private bool _lightsChanged;
     private long _changedAt = long.MinValue / 2;
+
+    // The share of a carried probe's own light this frame takes in the gather's mean, one over the
+    // frames since the lights or the field last changed, sixteen at most (gi_ambient.slang).
+    private float CarriedShare => 1f / Math.Min(16, _frame - _changedAt + 1);
+
+    // The frames since the lights or the field last changed, 0 on the frame they did, which begins a
+    // carried probe's cycle again (gi_merge.slang).
+    private uint CarriedSince => (uint)Math.Min(_frame - _changedAt, 1000);
+
+    // Where a carried probe's cycle of sixteen frames stands, counted from the last change, so the
+    // first whole cycle is gathered in the sixteen frames after it.
+    private uint CarriedPhase => (uint)((_frame - _changedAt) & 15);
 
     // Whether the lights or the field changed within the frames a change's light takes to settle.
     private bool Settling => _frame - _changedAt < SettlingFrames;
@@ -41,14 +55,32 @@ internal sealed partial class GlobalIlluminationRenderer
         _lightSignature = signature;
     }
 
-    // The sun's way and light, the sky's, the count of lights and the gain, and each point and spot
-    // light, from the lights' buffer, leaving out the frame's number and the sun's map, which move
-    // with the frames and the camera.
+    // The sun's way and light, the sky's, the count of lights and the gain, each point and spot
+    // light, and the small emitters carried as lights with their box (GlowLights), from the lights'
+    // buffer, leaving out the frame's number and the sun's map, which move with the frames and the
+    // camera. Without the emitters, a panel turned dark kept a carried probe's cycle of the light it
+    // gave, the room it lit reading 47 levels where under 20.
     private static float[] LightSignature(byte[] lights)
     {
         var floats = MemoryMarshal.Cast<byte, float>(lights.AsSpan());
         var count = (int)floats[12];
         var size = Marshal.SizeOf<LightUboEntry>() / 4;
-        return [.. floats[..13], floats[14], .. floats.Slice(16, Math.Min(count * size, floats.Length - 16))];
+        var glows = GlowLights.Offset / 4;
+        var glowFloats = GlowLights.Head / 4 + (int)floats[glows] * GlowLights.Bytes / 4;
+        return [.. floats[..13], floats[14], .. floats.Slice(16, Math.Min(count * size, floats.Length - 16)), .. floats.Slice(glows, Math.Min(glowFloats, floats.Length - glows))];
+    }
+
+    // How far each cascade's probes moved since the frame before, in probes, where it lay somewhere
+    // before, which the merge reads a carried probe's cycle at its place then by.
+    private (int X, int Y, int Z)?[] Shifts(Vector3?[] origins, SceneFieldPlan? plan, int cascades)
+    {
+        var shifts = new (int X, int Y, int Z)?[cascades];
+        for (int c = 0; c < cascades; c++)
+            if (origins[c] is { } now && c < _origins.Length && _origins[c] is { } before && plan is not null)
+            {
+                var moved = (now - before) / (plan.CellOf(plan.CascadeOfProbes(c, cascades)) * ProbeSpacing);
+                shifts[c] = ((int)MathF.Round(moved.X), (int)MathF.Round(moved.Y), (int)MathF.Round(moved.Z));
+            }
+        return shifts;
     }
 }

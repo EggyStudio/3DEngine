@@ -119,6 +119,10 @@ Sampler2D sunShadow;
 Texture3D<float> skyAbove;
 
 
+// The sixteen places in a texel a carried probe's ray leaves from, in the order the frames take
+// them, as gi_screen.slang's Places.
+static const uint TracePlaces[16] = { 0, 10, 2, 8, 5, 15, 7, 13, 1, 11, 3, 9, 4, 14, 6, 12 };
+
 struct TracePush
 {
     // x: the cascade. y: the probes along each side. z: the octahedron's texels along each side.
@@ -134,7 +138,9 @@ struct TracePush
     uint4 follow;
     // x: the cascade above's octahedron's texels along each side, 0 for the last. y: the first
     // probe the dispatch traces, past 0 where it traces a part of the cascade's probes (the far
-    // cascade's, a part a frame). zw: unused.
+    // cascade's, a part a frame). z: 1 where a carried probe's rays move within their texels and meet
+    // the meshes through the device's rays, 2 where every ray meets them (gi.toggle meshes). w:
+    // unused.
     uint4 above;
 };
 
@@ -417,6 +423,10 @@ void computeMain(uint3 id : SV_DispatchThreadID, uint lane : SV_GroupIndex)
     // the door read 0.983 but its pixels 0.482 off, the light landing in the wrong places
     // (gi.compare's frames, ./e3d command profile, BounceRoomsTests).
     bool carried = push.cascade.w == 0u && (seesAbove == 0u || around.w < 0.25);
+    // A carried probe whose rays move marked in its place's w, 2, for the merge and the gather to
+    // keep its cycle, a probe walled in keeping its 0.
+    if (lane == 0u && carried && place.w > 0.5 && !walledIn && (push.above.z & 1u) != 0u)
+        held[int3(3 * int(probes) + int(at.x), int(at.y), int(push.cascade.x) * int(probes) + int(at.z))] = float4(place.xyz, 2.0);
     // A ray carried on that meets nothing to the field's edge brings the sky as the last cascade's
     // do, once the field holds every mesh in reach, and nothing before, a build the eye's move
     // started leaving its cascade as last built, every mesh in it. Under a slab two and a half
@@ -457,7 +467,17 @@ void computeMain(uint3 id : SV_DispatchThreadID, uint lane : SV_GroupIndex)
         // probes in a room twelve units wide read the light beyond their reach from it from 44%
         // under the reference to 9% over along their ways at one bounce, where with 16 a side they
         // read it as High's did (gi.screenprobe).
-        float2 within = each == 1u ? float2(0.5) : float2(float(quarter & 1u), float(quarter >> 1u)) * 0.5 + 0.25;
+        // A carried probe's ray moved within its quarter, or its texel where it has one ray, to the
+        // next of sixteen places each frame, as the screen's probes move theirs, the sequence begun
+        // apart for each texel and probe, so a patch narrower than a texel that no middle meets, as
+        // the sunlit court past a vault's arch, is met over the cycle the merge keeps (settled in
+        // gi_merge.slang). Where the device traces no rays the rays keep their quarters' middles,
+        // since through the field alone the moving rays passed beside an arch's edge thinner than
+        // the finest cells, which the meshes hold, and the vault read 98% over. Every other probe's
+        // rays keep their middles, so the reach and the faces the gather reads stay on fixed ways.
+        uint place = TracePlaces[(uint(lights.counts.y) + texel.x * 5u + texel.y * 3u + probe * 7u) & 15u];
+        float2 spot = carried && (push.above.z & 1u) != 0u ? (float2(float(place & 3u), float(place >> 2u)) + 0.5) / 4.0 : float2(0.5);
+        float2 within = each == 1u ? spot : float2(float(quarter & 1u), float(quarter >> 1u)) * 0.5 + spot * 0.5;
         float3 way = fromOctahedron((float2(texel) + within) / float(texels));
         float t = traceFieldSheets(SheetVolume(sceneField, fieldSecond), fieldInfo, origin, way, 0.0, end);
         reached = t >= 0.0 ? t : push.interval.y;
@@ -473,7 +493,8 @@ void computeMain(uint3 id : SV_DispatchThreadID, uint lane : SV_GroupIndex)
         // at Low in the bounce rooms, though the ray met one surface as here.
 #if defined(RAY_QUERY)
         float3 meshNormal, meshColor;
-        float meshAt = meshHit(origin, way, end, meshNormal, meshColor);
+        // A carried probe's rays meet the meshes, every ray where gi.toggle meshes asks.
+        float meshAt = carried || (push.above.z & 2u) != 0u ? meshHit(origin, way, end, meshNormal, meshColor) : -1.0;
         if (meshAt >= 0.0)
         {
             reached = meshAt;

@@ -1,26 +1,28 @@
 # Review
 
-Reviewed up to `f969fe7d`, item 207, the normal read at the pixel's centroid, pushed at 08:35 on
-2026-11-05, its run green at 10:28 with macOS in 41 minutes, Linux in 89 and the Windows halves in
-91 and 107; it keeps the form and carries the review's files and the devlog. Nothing is pushed after
-it. Before it `126c7224`, item 206, a shifted-in cell read in the next cascade out until its build
-ends, pushed at 06:09, its run green at 07:52 with macOS in 33 minutes, the halves in 51 and 76 and
-Linux in 91. Before it `574565cb`, Verdict 104's mend, a still view reading each screen probe in
-place, pushed at 04:25, its run green at 06:08 with Linux in 87 minutes, the halves in 68 and 99 and
-macOS in 40, which settled Verdict 104. Before it `752bdc43`, item 205, the screen probes' kept
-cycle against the flicker at steep angles, pushed at 00:47, its run red at 02:00 on Linux and the
-first Windows half, Verdict 104, the land far from the origin darker than near it on lavapipe, macOS
-and the second half green. Before it `dc40a069`, item 204, F2 held recording and the examples' dump,
-pushed at 21:54 on 2026-11-04, its run green at 23:32 with macOS in 36 minutes, the halves in 78 and
-70 and Linux in 84. Before it `c6d771d4`, item 203, the sun's contact shadows past the shadow map by
-default, pushed at 20:10, its run green at 21:53 with macOS in 41 minutes, Linux in 66 and the
-halves in 88 and 100. Before it `cd6cae8f`, 197's gated read, pushed at 17:23, its run green at
-19:21 with macOS in 39 minutes, the halves in 68 and 100 and Linux in 106. Before it `c3f31f93`,
-item 199, the probes' faces read at their surfaces with the patch's turn, pushed at 15:35, its run
-green at 17:23 with macOS in 40 minutes, Linux in 66 and the halves in 82 and 86. Before it
-`b2be1e28`, item 201, every linear texture sampler at 16, pushed at 12:32 with `b0214860`, 200's
-diagnostic step, its run green at 14:30 with macOS in 33 minutes, the halves in 47 and 96 and Linux
-in 103. Before it `f14a9530`, Verdict 103's mend, pushed at 10:32 with `fe224105`, 200's march
+Reviewed up to `548e598c`, 209's README row with 208's and 200's replies and the review's files,
+pushed at 11:41 on 2026-11-05, its run green at 13:29 with macOS in 42 minutes, the Windows halves
+in 92 and 106 and Linux in 97; it keeps the form and carries the review's files and the devlog.
+Nothing is pushed after it. Before it `f969fe7d`, item 207, the normal read at the pixel's centroid,
+pushed at 08:35, its run green at 10:28 with macOS in 41 minutes, Linux in 89 and the Windows halves
+in 91 and 107. Before it `126c7224`, item 206, a shifted-in cell read in the next cascade out until
+its build ends, pushed at 06:09, its run green at 07:52 with macOS in 33 minutes, the halves in 51
+and 76 and Linux in 91. Before it `574565cb`, Verdict 104's mend, a still view reading each screen
+probe in place, pushed at 04:25, its run green at 06:08 with Linux in 87 minutes, the halves in 68
+and 99 and macOS in 40, which settled Verdict 104. Before it `752bdc43`, item 205, the screen
+probes' kept cycle against the flicker at steep angles, pushed at 00:47, its run red at 02:00 on
+Linux and the first Windows half, Verdict 104, the land far from the origin darker than near it on
+lavapipe, macOS and the second half green. Before it `dc40a069`, item 204, F2 held recording and the
+examples' dump, pushed at 21:54 on 2026-11-04, its run green at 23:32 with macOS in 36 minutes, the
+halves in 78 and 70 and Linux in 84. Before it `c6d771d4`, item 203, the sun's contact shadows past
+the shadow map by default, pushed at 20:10, its run green at 21:53 with macOS in 41 minutes, Linux
+in 66 and the halves in 88 and 100. Before it `cd6cae8f`, 197's gated read, pushed at 17:23, its run
+green at 19:21 with macOS in 39 minutes, the halves in 68 and 100 and Linux in 106. Before it
+`c3f31f93`, item 199, the probes' faces read at their surfaces with the patch's turn, pushed at
+15:35, its run green at 17:23 with macOS in 40 minutes, Linux in 66 and the halves in 82 and 86.
+Before it `b2be1e28`, item 201, every linear texture sampler at 16, pushed at 12:32 with `b0214860`,
+200's diagnostic step, its run green at 14:30 with macOS in 33 minutes, the halves in 47 and 96 and
+Linux in 103. Before it `f14a9530`, Verdict 103's mend, pushed at 10:32 with `fe224105`, 200's march
 command, its run green at 12:31 with the halves in 87 and 94 minutes, Linux in 105 and macOS in 42,
 which settled Verdict 103; the fourteenth pack run started from it with publish on at 12:32 and went
 green at 15:28, 6.0.91 published, the first since 6.0.14 on 2026-11-01, with the Windows halves in
@@ -1276,7 +1278,7 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     scene where no probe around a ray's end holds light proved hard to make and the corridor's bar
     keeps the march as its fallback; its Shared line a row. Over the three commits against 1567179e
     at 1080p the grove's frame at Low 16.94 to about 16.0 and at High 20.0 to 19.24, the cave's at
-    High 10.8 to about 9.5. Done at 3b85dbcd, pushed after 01dd3ced's run. Corrected under 194 on
+    High 10.8 to about 9.5. Done at `3b85dbcd`, pushed after 01dd3ced's run. Corrected under 194 on
     2026-11-04, the readings above against 186's references stood against references traced before
     190 fixed the floor's color. Against fresh ones the second commit's views are within 0.007 of
     before and the door's shade at 8:00 reads 1.762 where 1.765, three runs spreading by 0.014 (the
@@ -2694,7 +2696,7 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     bridge's trial read the cost of its room of forty emitters rising from 2.41 to 4.50 ms, the
     marches capped but the closed form worked out for every light in a reach six times longer, so
     the closed form past a few box sizes is a point's, which this engine takes with the grouping.
-    Done at 6965e4df, read at 19:33. The lights past the marched ones grouped by their quadrant of
+    Done at `6965e4df`, read at 19:33. The lights past the marched ones grouped by their quadrant of
     the surface's plane, as many groups as marches, each group's closed-form light summed and
     shadowed by one march to its brightest member in one loop of eight places with one march call
     site; the reach sqrt(surface over 4 Faint) with Faint a 300th of the light's own emission, the
@@ -2722,7 +2724,7 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     floor. Test, a closed room of 0.3 m walls on a floor with a lamp outside, the floor inside
     reading near nothing, failing without the mend; read by Sponza's eight views and the bounce
     rooms against their references, since a shut room reads darker once the leak stops, and by the
-    field's build time. After 145. Done at cb87dd98, read at 23:19. field_splat takes a face as
+    field's build time. After 145. Done at `cb87dd98`, read at 23:19. field_splat takes a face as
     behind only at -0.999 where -0.9, the comment carrying why. WallFoot, a closed room of 0.3 m
     walls in 0.5 m cells on a floor running on past them with a bright lamp outside low by the east
     wall and a dim lamp inside, the floor's luminance along the east wall's inside foot 1.48 of its
@@ -2796,7 +2798,7 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     strip room (view 6) from 0.226 to 0.234 to 0.236 to 0.243 at the three qualities over its bound
     of 0.24, views 7 and 8 by 0.005 at most, the rest by 0.002; so the bar is 0.25 and view 6's
     bound goes to 0.25 with the measurements in its description, a carried ray's single traced
-    sample standing where the merge averaged the probes above. Done at febe0b5b, the second commit,
+    sample standing where the merge averaged the probes above. Done at `febe0b5b`, the second commit,
     read at 01:47. gi_trace carries a probe whose seen probes above outside every mesh hold under
     0.25 of the eight's weight, its hits lit by shadeProbeHit as the probes' own; the door at noon
     from 0.700 to 0.889 of its reference's light with the error 0.527 to 0.467, the seven within
@@ -2814,7 +2816,7 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     alone. Test, a closed room of 0.3 m walls in 0.5 m cells with a lamp outside beside a wall, the
     hits beside the walls inside reading the lamp hidden, under a bar a channel set from the
     reading, failing without the mend; read by the bounce rooms and Sponza's views unchanged. After
-    194. Done at 8836ce27, read at 03:16. hiddenLampLight marches from a cell and a half along the
+    194. Done at `8836ce27`, read at 03:16. hiddenLampLight marches from a cell and a half along the
     normal, from its first step to two cells short of the lamp; LampMarch, a closed room of 0.3 m
     walls in 0.5 m cells with a lamp 0.7 past the east wall's middle, the probe's own hits bringing
     0.110 a channel before and 0.042 mended under a bar of 0.07 against a reference of none, hits so
@@ -3048,7 +3050,7 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     sets, the strip room's three bounds measured again by the 15% rule with the cause stated, the
     deep-bounce shortfall the gain hid, the door's 2 to 3 points stated and the cost brought down
     from the 0.3 ms by the normal once; 197's join half read again on it, and 142's gain closes with
-    it. Done at c3f31f93, pushed at 15:35 on 2026-11-04. The turn from the trace's normal kept once
+    it. Done at `c3f31f93`, pushed at 15:35 on 2026-11-04. The turn from the trace's normal kept once
     per texel, the bridge's rule for a patch met from behind or along its face and the cap at 8, no
     moving rays or history, a hit reading a probe's faces at the surface only where the probe stands
     ahead of it; the closed rooms past the first bounce 0.990, 1.107 and 1.107 where 1.112, 1.257
@@ -3221,7 +3223,88 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     the bounces' rise a cycle late, so its settling moves by one cycle with that sentence in the
     record and the lag said as frames after the cue; the four images' 5 MB at High count in
     gi.state. GI at High 4.45 to 4.52 ms where HEAD 4.41 to 4.54. 209 lands as a docs commit, which
-    needs no suite, and its push starts no run.
+    needs no suite, and its push starts no run. Read at 18:53 on 2026-11-06, the vault by source.
+    The reference barely grows past its first bounce there, the cascade-1 probe at 0.000277,
+    0.000286 and 0.000290 at one, two and three bounces and 0.000291 at every bounce, the cascade-0
+    probe 0.000267 to 0.000282, about 5% in all; the cycle's first bounce reads 0.000401 (+57%) and
+    0.000269 (+1%) and every bounce 0.000536 and 0.000391, so its light past the first bounce is
+    0.000135 and 0.000122 where the reference's is 0.000014 and 0.000015, nine times. With the
+    passage's own carried faces left out it reads 0.000110 and 0.000118, a fifth of the excess at
+    cascade 1 and next to none at cascade 0, and the views worsen, the door 1.356 and 1.083 and the
+    lion 1.500 and 1.115 where the cycle reads 1.186, 1.061, 0.887 and 0.979, since readers fall
+    back to probes farther toward the court; so the variant alone is no mend. The excess comes in at
+    the carried hits in the court, from the court probes' faces those hits read. Next, about an
+    hour, the court probe nearest those hits by bounce against the reference, whether its faces
+    carry the court's second bounce as the reference does, and where they do, whether a carried hit
+    takes them at its own surface (199) or at the probe's place; and with it why the first bounce
+    alone is +57% at cascade 1 and +1% at cascade 0, the rays finding the passage as a share of the
+    texel against the reference's paths or the hit's read, since a mend of the carried face's read
+    moves the second bounce and not the first. No frame-wide gain. Read at 18:56, the court probe
+    and the vault's ways. The court's cascade-1 probe at 15,1,1 reads its faces toward the vault and
+    up 16 and 15% under the reference with every bounce and 33 and 26% under at the first, its light
+    past the first bounce five times the reference's, so it carries the second bounce over and the
+    first under and holds near the reference whole, and the probe at 13,1,1 stands in stone. At the
+    vault's cascade-1 probe the ways split by where their rays met a surface read near the reference
+    within the interval, -x 0.00246 where 0.00185 and +y 0.00066 where 0.00073, and on the ways that
+    met a surface before the interval began the cycle's mean reads -x 0.000371 where 0.0000293, +y
+    0.000398 where 0.0000086 and +z 0.000313 where 0.0000331, at the first bounce alone and at every
+    bounce. Those are the near arch's ways, the 16 places going 1.86 and 2.04 out along
+    -0.18,0.91,0.37 and -0.91,0.18,0.37 where the reference's paths meet a black wall at 1.61 and a
+    block at 1.24, the frame's own ray bringing 0.0000127 where the mean brings 0.00303. So the
+    cascade-1 overshoot is the rays finding the opening past the near arch's edge, not the hit's
+    read at the court floor, and the excess past the first bounce rides the same ways. Next, about
+    half an hour, field.march from the probe's moved place along those two ways against the walls at
+    1.61 and 1.24, whether the probe moved off its middle or the field holds the wall further back,
+    with the field's level and cell the march read at the arch and the arch's edge against that
+    cell, since an edge thinner than the level's cell is not in that level; the mend follows the
+    answer. Read at 18:57, the march. From the vault probe's middle at 17,1,1 the field meets a
+    surface at 1.353 along -0.18,0.91,0.37, in cascade 0's 0.125 cells, where the reference's wall
+    is at 1.61, and at 1.203 along -0.91,0.18,0.37 where the block is at 1.24, so the field holds
+    the near arch where the meshes stand or a quarter cell nearer and the rays reaching 1.86 and
+    2.04 come from the probe's place as the trace moves it into the open or from the 16 places
+    spread across the texel, not from the field. Next, a short read, gi.probe printing the probe's
+    move from its held place in spacings and the reference read again from the moved place; bright
+    there, the engine is right about where the probe stands, gi.probe compares against the wrong
+    origin and the door's band is the remaining question, dark there, the move or the spread is the
+    mend's target. Read at 18:59, the three-way answered. gi.probe traces its reference from the
+    probe's moved place already and the vault probe reads at 17,1,1 exactly, so there is no move and
+    the reference from there is dark; the march reads cascade 0's 0.125 cells, the finest level,
+    meeting surfaces at 1.353 and 1.203 where the meshes stand at 1.61 and 1.24; and with the
+    probes' rays traced through the meshes (gi.toggle meshes, the device's rays at High) the cycle's
+    vault probe reads -8% with every bounce where +98% through the field, the arch's ways in line at
+    0.0000278, 0.0000071 and 0.0000426 where 0.0000294, 0.0000087 and 0.0000333. So the 16 places'
+    spread passes beside an edge thinner than cascade 0's cell, which the meshes hold and the field
+    lacks. The mend proposed, the carried rays read through the device's rays at High where it has
+    them and the spread held at zero, the fixed middles, at Low and Medium and where the device has
+    no ray queries; the door and the lion at both hours with the meshes traced and HEAD beside, and
+    the cost, are running. Taken on three conditions, the cost at High within the budget in the
+    atrium and Sponza, a device without ray queries (MoltenVK among them) taking the Low and Medium
+    path with the suite passing on lavapipe either way, and the cycle's second image off where the
+    spread is zero, since a mean of one place is the place; and one reading beside it, since the
+    spread at zero at Medium is HEAD's fixed rays and 200's slivers return there, the field's hit
+    threshold raised to half a cell for the spread's places alone at Medium against the vault and
+    the corridor, a figure and no mend, so the record says whether Medium can keep the spread at a
+    cost. Read at 19:36, the mend in the worktree, held at ~/.cache/3dengine-
+    tools/work/200-mend.patch. The carried probes' rays move and meet the meshes through the
+    device's rays at High where it has them and no surface lets light through, in a 16-frame cycle
+    begun again at the cue, the rays elsewhere keeping their fixed middles with the cycle's images
+    as 1 by 1 by 1 stand-ins, the glow lights in the signature and the walled-in mark kept; all 129
+    GI, bounce-room and cascade tests pass on the RTX at one capture of settling with no test moved.
+    The vault's cascade-1 probe reads -7% with every bounce and -11 at the first where HEAD reads
+    -92 and -100, the cascade-0 probe -21 and -28 where -74 and -82; the door 0.833 and 0.888 where
+    0.879 and 0.853, the lion 0.863 and 0.968 where 1.142 and 1.009, the gallery 0.940 where 1.000,
+    the other views within 0.03, room 3 1.031 where 0.824 and room 7 1.031 where 1.010. The cost at
+    High in the atrium at 1080p about 0.15 ms past HEAD, 4.54 to 4.56 in the quiet round where 4.34
+    and 4.63 to 4.68 against 4.48 to 4.63 in a later one, 0.05 of it the cycle and 0.1 the ray
+    queries, the default window 3.48 where 3.34; the world probes 29.89 MB where 15.89, the cascades
+    of 16 texels a side holding four times the images first counted. Medium with the carried rays
+    through the field and the hit at half a cell reads the door 1.722 and 0.833 where 1.853 and
+    0.905 and the lion unchanged, so Medium keeps its fixed middles. The budget is not met, HEAD
+    past 4 already, so the mend lands with the budget question open under 208, the owner's call,
+    since a vault at -7% for 0.15 ms is the GI the engine is for and holding it would stop the GI's
+    items on a figure the owner has not spoken on; its follow-up inside 200 is the cycle's images
+    for the carried share alone, the carried texels' count at High in the atrium said first so the
+    14 MB's cut is known before it is made.
 
 201. **Anisotropic filtering at 16 everywhere.** Decision 91 on 2026-11-04.
     TextureFilter.Anisotropic16x stands and the prototypes and the modeling slots set it, so the
@@ -3248,7 +3331,7 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     move, since the game sets its atlas to Point and reads it with SampleLevel at a level of its own
     choosing, which takes no anisotropy; that is the game's item 156. Decision 80 supersedes
     Decision 5 for the surface change, the version staying 6.0. The game's 156 was closed at 11:40
-    on the owner's word, the game being pixel filtering by choice. Done at b2be1e28, read at 11:58,
+    on the owner's word, the game being pixel filtering by choice. Done at `b2be1e28`, read at 11:58,
     on top of b0214860, the suite 2,245 in both orders; both push after f14a9530's run once the
     fourteenth pack run has started from it.
 
@@ -3324,7 +3407,7 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     beyond them in the open atrium lending light the reference finds dark, the recess b83b1a85
     mended past the second cascade here in the second, recorded with 197's. The mend, contact
     shadows default to PastShadowMap with the XML docs, the materials guide and the cheatsheet and
-    no upgrading entry, as 203's commit after cd6cae8f's run. Done at c6d771d4, pushed at 20:10.
+    no upgrading entry, as 203's commit after cd6cae8f's run. Done at `c6d771d4`, pushed at 20:10.
     Contact shadows default to PastShadowMap in ShadowSettings and in the lighting prepare's
     fallback for a world with no shadow settings, the XML docs, the materials guide and the
     cheatsheet with it and no upgrading entry, the three tests that test the contact shadows within
@@ -3338,7 +3421,7 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     of the same, so the reviewer reads the frames one by one and the owner plays the animation; the
     recording tool of item 132 is the start. Read by a recording of scenes_sponza's atrium turned
     and held still, its frames in the dump. First after 203, since the owner's reports of 205 to 207
-    come through it. Done at dc40a069, read at 20:55, to push after c6d771d4's run. F2 pressed
+    come through it. Done at `dc40a069`, read at 20:55, to push after c6d771d4's run. F2 pressed
     writes a screenshot as before and held past half a second records fifteen pictures a second of
     the app's clock as numbered PNGs in a folder named by the time, each written by a worker,
     stopping on release or at 150 (ten seconds, about 250 MB at 720p), the next waiting for a press;
@@ -3403,7 +3486,7 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     views within 0.005 and the door view 1.090 per pixel where 1.060 at 8:00, the vestibule's walls
     already over, since the history's clamp pulled the running mean below the rays' mean where rare
     bright rays come and the cycle shows the rays' own mean, 200's over-read exposed; stated as
-    200's. Lands with the still and turning recordings as the test. Done at 752bdc43, pushed at
+    200's. Lands with the still and turning recordings as the test. Done at `752bdc43`, pushed at
     00:47 on 2026-11-05. The cue became any field build or lights change, held 16 frames
     (GlobalIllumination.Changes.cs), after the trial's cue, within twice the probes' reach of the
     changed box and on the change frame alone, failed the foliage floor under a slab (the last
@@ -3418,7 +3501,7 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     nothing or from the sky, the field's region builds (139), or the probes' history dropped at a
     shift, on a recording down the atrium; then a mend that lets a shifted-in cell start from its
     coarser cascade's light or hold its draw until its probes have one frame, with the recording as
-    the test and the flight's figures unchanged. After 205. Done at 126c7224, read at 04:56, to push
+    the test and the flight's figures unchanged. After 205. Done at `126c7224`, read at 04:56, to push
     after 574565cb's run. The cells a shift brings in are read in the next cascade out until the
     shift's build ends (SceneFieldPlan.Unbuilt, the field's info grown by two float4s,
     fieldCascade), so a cell loading in takes its coarser cascade's light instead of flashing; the
@@ -3430,7 +3513,7 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     outlines along meshes in scenes_sponza. Read which pass draws them on a screenshot magnified,
     the field's surfaces standing a cell outside the meshes (203's finding, the contact shadows past
     the shadow map), the screen probes' edge read, TAA's history at edges (174), or the bloom; then
-    a mend with the screenshot as its test. After 206. Done at f969fe7d, read at 06:33, to push
+    a mend with the screenshot as its test. After 206. Done at `f969fe7d`, read at 06:33, to push
     after 126c7224's run. On a magnified atrium shot the white outlines are a dotted row along each
     door's foot, 80 pixels at the two doors standing over their surroundings' median by 40 levels
     and half again, 0 with GI off and a solid row of 461 without the screen probes, the reference
@@ -3471,14 +3554,18 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     0.48 off, and only the screen probes and the trace are that large, the views' light resting on
     their rays and tiles, so no cut that size keeps every view within 0.01. The proposal, the budget
     at High at 1080 lines to 4.5 ms for 199, 205 and 206, written under 169 on the owner's word,
-    which is asked; the budget stands at 4 until then.
+    which is asked; the budget stands at 4 until then. At 19:36 on 2026-11-06, with 200's mend High
+    in the atrium at 1080p reads 4.54 to 4.68 ms, 0.15 past the 4.34 to 4.63 before it, so the
+    proposal stands at 4.5 ms with the overrun recorded, or 4.75 if the owner would rather the
+    budget hold the carried rays' ray queries; the budget stays 4 until the owner's word.
 
 209. **The README's last top link is BevyCSharp.** Decision 93 on 2026-11-05. The row over the
     README's title, Devlog and Cheat sheet, ends with a third link, BevyCSharp, to
     https://github.com/EggyStudio/BevyCSharp, so each engine's page points at the other as the
     game's points at this engine; nothing else of the README moves. A docs-only change, carried by
-    200's next commit or by a commit of its own, whichever comes first.
-
+    200's next commit or by a commit of its own, whichever comes first. Done at `548e598c`, the row
+    ending with BevyCSharp and nothing else of the README moved, pushed at 11:41 with 208's and
+    200's replies, its run green at 13:29 since the README is among the build's paths.
 ## Verdicts
 
 Verdicts 56 to 104 are settled, said under each in REVIEW-ARCHIVE.md; none is open.
@@ -4625,3 +4712,71 @@ beside the reference's second and third bounces there, before any mend. Global i
 in the atrium reads 4.45 to 4.52 ms with the cycle where 4.41 to 4.54, within the spread, and its
 four images a cascade, the partial and the whole cycle's means and a copy of each, add 5 MB at High,
 0.25 MB each, beside the world probes' 15.89.
+
+200's read by source at the vault, on 2026-11-05 and 2026-11-06 at 548e598c on the cycle's patch. In
+the door view at 8:00 at High against 1024 paths a way, the reference's light at the vault's
+cascade-1 probe barely grows past the first bounce, 0.000277 at one bounce, 0.000286 at two,
+0.000290 at three and 0.000291 with every bounce, and at the cascade-0 one 0.000267 to 0.000282,
+about 5%. The cycle's probes read their first bounce 0.000401 and 0.000269, +57% and +1%, and every
+bounce 0.000536 and 0.000391, so the light past the first bounce there is 0.000135 and 0.000122
+where the reference's is 0.000014 and 0.000015, some nine times its share. With the passage's own
+carried probes' faces left out, their faces holding nothing, the probes read 0.000511 and 0.000372
+with every bounce, the light past the first bounce 0.000110 and 0.000118, so the passage reading
+itself is a fifth of the excess at cascade 1 and next to none at cascade 0. The views read worse so,
+every reader of those faces taking the probes farther out toward the court, the door 1.356 of its
+reference at 8:00 and 1.083 at noon where the cycle reads 1.186 and 1.061 and HEAD 0.879 and 0.853,
+and the lion 1.500 and 1.115 where 0.887 and 0.979 and HEAD 1.141 and 1.009, so that variant alone
+brings the tail within the band at neither hour. The excess comes in at the carried rays' hits in
+the court, from the faces of the court's probes those hits read. The proposal is one bounded read,
+about an hour, at the court's probe nearest those hits by bounce against the reference, whether its
+faces carry the court's second bounce as the reference does, and where they do, whether a carried
+hit reads them at its own surface (199's faces at the surface) or at the probe's place, before any
+mend. No frame-wide gain.
+
+200's court read and the cascade-1 first bounce, on 2026-11-06 at 548e598c on the cycle's patch,
+door view at 8:00 at High against 1024 paths a way. The court's cascade-1 probe at 15, 1, 1 reads
+its faces toward the vault and up 16% and 15% under with every bounce and 33% and 26% under at the
+first, its light past the first bounce five times the reference's there, so the court's faces carry
+its second bounce over and its first under and hold near the reference whole, and the one at 13, 1,
+1 stands in stone and reads nothing. At the vault's cascade-1 probe the ways split by where its rays
+met a surface show where the excess sits. Within the interval the faces read near the reference, -x
+0.00246 where 0.00185 and +y 0.00066 where 0.00073 with every bounce, and on the ways whose rays met
+a surface before the interval began the cycle's mean reads -x 0.000371 where 0.0000293, +y 0.000398
+where 0.0000086 and +z 0.000313 where 0.0000331, at the first bounce alone as at every bounce. Those
+are the near arch's ways, the cycle's sixteen places going 1.86 and 2.04 out along -0.18, 0.91, 0.37
+and -0.91, 0.18, 0.37 where the reference's paths meet a black wall at 1.61 and a block at 1.24, the
+probe's own ray of the frame bringing 0.0000127 where the mean brings 0.00303. So the cascade-1
+overshoot is the rays finding the opening past the near arch's edge, as a share of the texel's solid
+angle against the reference's paths, and not the hit's read at the court floor, and the excess past
+the first bounce rides the same ways. One read decides the mend, about half an hour, field.march
+from the probe's place as the trace moves it along those two ways against the mesh's wall at 1.61
+and 1.24, whether the probe moved off its middle or the field holds the wall further back, before
+any mend.
+
+200's mend, landed on 2026-11-06 as 200's commit with the budget open under 208, a vault 7% under
+for 0.15 ms being what global illumination is for and HEAD past 4 ms already. The three-way at the
+vault's cascade-1 probe said the edge. gi.probe traces its reference from the probe's moved place,
+which reads 17, 1, 1, so the probe was not moved, field.march from there meets the arch at 1.353 and
+1.203 in cascade 0's cells of 0.125 where the meshes stand at 1.61 and 1.24, so the field holds no
+wall further back, and with the probes' rays through the meshes the near arch's ways read -x
+0.0000278 where 0.0000294, +y 0.0000071 where 0.0000087 and +z 0.0000426 where 0.0000333, the probe
+-8% with every bounce where +98% through the field, so the moving rays passed beside an edge thinner
+than the finest cells. A carried probe's rays move and meet the meshes through the device's rays at
+High where it traces rays and no surface lets light through, and elsewhere every ray keeps its
+middle and the cycle's four images a cascade are stand-ins of a texel, which a test reads at the
+three qualities. The vault's probes read 7% and 21% under with every bounce and 11% and 28% at the
+first, where 92% and 74% and 100% and 82%. In the views, light and pixels against the references
+where HEAD, the door at 8:00 0.833 and 0.948 where 0.879 and 1.014, at noon 0.888 and 0.459 where
+0.853 and 0.457, the lion at 8:00 0.863 and 0.436 where 1.142 and 0.637, at noon 0.968 and 0.273
+where 1.009 and 0.286, the gallery at 8:00 0.940 and 0.346 where 1.000 and 0.377, the others within
+0.03, room 3 1.031 and 0.274 where 0.824 and 0.239 and room 7 1.031 where 1.010. Global illumination
+at High in the atrium at 1920 by 1080 reads 4.54 to 4.68 ms where 4.34 to 4.63, the cycle about 0.05
+and the carried rays' queries about 0.1, and gi.state counts the world probes at 29.89 MB where
+15.89, some cascades holding sixteen texels a side. At Medium the carried rays moved through the
+field with the hit at half a cell read the door 1.722 at 8:00 and 0.833 at noon where 1.853 and
+0.905 and the lion 1.256 and 1.044 as before, so Medium keeps its middles. Next inside 200 the
+cheaper cycle, first how many texels carry at High in the atrium and Sponza as a share of the world
+probes' texels.
+
+208, with 200's mend on 2026-11-06, High in the atrium at 1920 by 1080 reads 4.54 to 4.68 ms, the
+budget at 4 ms until 4.5 is decided.

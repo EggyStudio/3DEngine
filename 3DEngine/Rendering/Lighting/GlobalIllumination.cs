@@ -420,7 +420,8 @@ internal sealed partial class GlobalIlluminationRenderer : IDisposable
         {
             Release();
             var making = Stopwatch.GetTimestamp();
-            _gi = device.CreateGlobalIllumination(field.Field.Resolution / ProbeSpacing, TexelsFor(wanted, cascades, far), far);
+            _gi = device.CreateGlobalIllumination(field.Field.Resolution / ProbeSpacing, TexelsFor(wanted, cascades, far), far,
+                cycle: wanted == GlobalIllumination.High && device.CanQueryRays);
             _made = (field.Field, wanted, cascades);
             Logger.Info($"Global illumination's probes made at {wanted}, {cascades} cascades of {_gi.Probes} a side, "
                 + $"in {Stopwatch.GetElapsedTime(making).TotalMilliseconds:0} ms.");
@@ -503,6 +504,7 @@ internal sealed partial class GlobalIlluminationRenderer : IDisposable
             if (c < corners.Length && ((c < _origins.Length ? _origins[c] : null) ?? origins[c]) is { } then)
                 corners[c] = new Vector4(then, 0);
         }
+        var shifts = Shifts(origins, plan, cascades);
         _origins = origins;
         // The far cascade's probes trace a part of them a frame, and all on a frame it moved, whose
         // probes' light of the frames before lay elsewhere (RecordGlobalIllumination).
@@ -511,9 +513,14 @@ internal sealed partial class GlobalIlluminationRenderer : IDisposable
         foreach (var (instance, _) in renderWorld.TryGet<SceneFieldRenderer>()?.Drawn ?? [])
             _lightThrough |= instance.LightThrough > 0 && !switches.ThroughOff;
         RecordRays(renderContext, renderWorld, device, plan);
+        // A carried probe's rays move within their texels and meet the meshes through the device's
+        // rays at High where it traces them, the field's finest cells missing an arch's edge thinner
+        // than they are, which the moving rays passed beside, and elsewhere keep their middles.
+        var moving = _gi.CycleOn && _rays is not null && !_lightThrough;
         _retired.Add((_frame, device.RecordGlobalIllumination(renderContext.CommandBuffer, _gi, field.Field, view, sampler, sunMap, sunSampler, lights, intervals, ProbeSpacing,
             switches.MergeOff, switches.Alone, switches.Shown is BounceView.Rays or BounceView.Merged, _frame, switches.FollowOff ? null : lying,
-            far ? cascades - 2 : -1, _lightThrough, plan is { Whole: true }, farPart, switches.MeshesTraced ? _rays : null)));
+            far ? cascades - 2 : -1, _lightThrough, plan is { Whole: true }, farPart, switches.MeshesTraced || moving ? _rays : null, shifts, CarriedShare, CarriedSince, CarriedPhase,
+            (moving ? 1u : 0) | (switches.MeshesTraced ? 2u : 0))));
 
         // The screen's probes, where the window has a depth to stand them on, the first interval
         // theirs. At Low, which leaves them out, they stand for the glow lights alone while some

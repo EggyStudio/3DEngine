@@ -18,6 +18,13 @@ Sponza's atrium at noon at 1920 by 1080, the foot of its left door four times it
 a dotted white row along the foot, with the normal read where the triangle covers samples, and the
 path-traced reference with the exposure held
 
+Done that day
+
+- Item 205 at `752bdc43`. The screen probes flicker at steep angles.
+- Item 206 at `126c7224`. Light flashes from loading cells when the camera moves.
+- Item 207 at `f969fe7d`. White pixel outlines of meshes.
+- Item 209 at `548e598c`. The README's last top link is BevyCSharp.
+
 ## 2026-11-04
 
 ![](.github/assets/readings/2026-11-04-item-194-door.webp)
@@ -46,6 +53,17 @@ drags the view, as it turns and held still after
 Sponza's atrium at noon held still after a turn, each pixel red by its spread over 60 frames, at
 HEAD, with the screen probes' rays sent from one place a tile, and with sixty-four frames kept and
 no clamp
+
+Done that day
+
+- Item 194 at `febe0b5b`. Sponza's vestibule at a third of its path-traced light, and the stale
+  references.
+- Item 195 at `8836ce27`. The march toward a lamp from a probe's hit looks from its first step.
+- Item 199 at `c3f31f93`. The bounce at a hit from the surface's own irradiance, the probe's faces
+  reprojected.
+- Item 201 at `b2be1e28`. Anisotropic filtering at 16 everywhere.
+- Item 203 at `c6d771d4`. The gallery view's error by source.
+- Item 204 at `dc40a069`. F2 records while held and captures on a click, in the examples.
 
 ## 2026-11-03
 
@@ -107,12 +125,15 @@ point inside the face
 Done that day
 
 - Item 140 at `1567179e`. Each quality is a GPU budget at a size, read at 1080p, 1440p and 4K.
+- Item 141 at `3b85dbcd`. The far cascade costs a slice a frame.
 - Item 187 at `893758ea`. The fog lights dark rooms.
 - Item 188 at `5ab01df8`. Flying Sponza is stable.
 - Item 189 at `369d9b5a`. The probes' rough reflection along the mirror way, a seventh on the floor
   and thirty-fold on a face turned back.
 - Item 190 at `52e75184`. The sunlit pixels at noon read 1.28 to 1.65 times the reference.
 - Item 191 at `9a20767c`. The sun shows in the fog as shafts, not as an even haze.
+- Item 192 at `6965e4df`. The glow lights past the four brightest count.
+- Item 193 at `cb87dd98`. The field's thin-wall test at a wall's foot and head.
 
 ## 2026-11-02
 

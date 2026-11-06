@@ -70,7 +70,7 @@ internal static class SceneFieldCommands
         // probe's own light, share and place, four texels of eight bytes, and its rays' sums, four of
         // sixteen.
         var world = probes.Texels.Sum(n => 3L * (p * n) * (p * n) * p * 8) + 12L * p * p * p * probes.Cascades * 8 + probes.ReachBytes
-            + probes.SkyBytes + probes.WaysBytes + 4L * p * p * p * probes.Cascades * (8 + 16);
+            + probes.SkyBytes + probes.WaysBytes + 4L * p * p * p * probes.Cascades * (8 + 16) + probes.CycleBytes;
         var lines = new List<string>
         {
             $"{quality}: {probes.Cascades} cascades of {p * p * p} probes, {string.Join(", ", probes.Texels.Select((n, c) => n * n * probes.RaysAt(c)))} rays each, {rays} rays a frame",
