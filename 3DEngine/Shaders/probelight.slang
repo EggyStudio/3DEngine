@@ -105,7 +105,12 @@ public float3 bouncedAndSkyAt<V : IVolume>(V cubes, V skies, V reach, SceneField
 // share is the light beyond the wall that hides it, a sunlit court's or the floor's underside lit by
 // the ground under the scene. A column of Sponza's nave at 8:00 read 11.8 times its reference with
 // that light lent and 1.35 without it, and the line between its dark foot and the rest, which
-// speckled pixel by pixel, went with it.
+// speckled pixel by pixel, went with it. The probes' own hits (At) take the probes they see alone
+// so as well. A hit on the floor by the main door of Sponza's vestibule took a twentieth of the
+// light of the probes under the floor's slab, in the open under the building, 0.2 to 0.96 where
+// the vestibule's held 0.00005, and the probe above it read 60 times a path-traced reference in
+// its downward face. Taken alone, the door view at 8:00 read 0.822 of the reference's light where
+// 0.846 and its pixels 0.937 of it off where 0.955 (gi.probe, gi.compare).
 float3 bouncedIn<V : IVolume, let Sky : bool, let At : bool>(V cubes, V cubesAt, V skies, V reach, SceneFieldInfo info, float3 p, float3 n, float3 r, float probes, float spacing, int c,
     int cascades, out float sky)
 {
@@ -161,7 +166,7 @@ float3 bouncedIn<V : IVolume, let Sky : bool, let At : bool>(V cubes, V cubesAt,
     }
     sky = weights > 1e-5 ? skySum / weights : 1.0;
     float3 blended = weights > 1e-5 ? sum / weights : float3(0.0);
-    if (Sky && seenWeights > 1e-5)
+    if ((Sky || At) && seenWeights > 1e-5)
         return lerp(blended, seenSum / seenWeights, saturate(seenWeights / max(0.05 * allWeights, 1e-5)));
     return blended;
 }

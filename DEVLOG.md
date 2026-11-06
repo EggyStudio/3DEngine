@@ -6,6 +6,18 @@ under `.github/assets/readings` as WebP files named by their day, each on the da
 the notes written beside them as Markdown files named the same way. A line under Done names the item
 of .github/REVIEW.md or .github/REVIEW-ARCHIVE.md and the commit that closed it.
 
+## 2026-11-06
+
+![](.github/assets/readings/2026-11-06-item-210-door.webp)
+Sponza's door view at 8:00 at High, the path-traced reference and the frame above, and below by
+source, red where the frame brings more of it than the reference and blue where less, by the share
+of the pixel's whole light, the sun's first bounce lacking on the vestibule's floor and the sky's
+light past it over on the walls facing the court.
+
+Done that day
+
+- Item 200 at `2ceac35a`. The vault's world-probe hits read 22 to 77% under at 8:00.
+
 ## 2026-11-05
 
 ![](.github/assets/readings/2026-11-05-item-206-flash.webp)

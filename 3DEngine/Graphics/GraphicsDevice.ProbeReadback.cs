@@ -65,6 +65,13 @@ internal sealed unsafe partial class GraphicsDevice
         return moving;
     }
 
+    /// <summary>Whether the frame carried one probe past its interval with its rays moving, read from its place's w.</summary>
+    internal bool ReadCarriedMoving(GpuIllumination gi, int cascade, int x, int y, int z)
+    {
+        var p = gi.Probes;
+        return ReadIlluminationHeld(gi)[((((cascade * p + z) * p + y) * 4 * p) + 3 * p + x) * 4 + 3] > 1.5f;
+    }
+
     /// <summary>
     /// A cascade's rays' light or its merge, four floats a texel, its probes' octahedrons side by side
     /// and a layer of probes a slice, read back with the frames in flight finished.

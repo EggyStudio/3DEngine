@@ -2759,6 +2759,34 @@ where 4.65 to 4.73. At Medium the carried rays moving through the field with a h
 door from 1.853 to 1.722 of its light at 8:00 and left the lion at 1.256, so Medium keeps its
 middles (`gi.probe`, `gi.compare`, `./e3d command profile`, `gi.state`).
 
+**The views under their references after the vault, read on 2026-11-06.** At 8:00 at High the
+door view read 0.846 of a path-traced reference's light and the lion 0.867, split by source with
+the sky's light on and off (`SetEnvironmentLight`) against references of every bounce, of one and
+of none. The door's sun lacked 2.3 times the shortfall, its first bounce 0.62 of the reference's
+and the light past it 0.38, and its sky's excess hid most of it, its first bounce 4.2 times the
+reference's and the light past it 1.9. The sun's lack is the vestibule's floor, whose probes take
+their light from above from second-cascade probes, the one carried reading within 2% and the
+three with fixed middles 96 to 98% under. Their open ways toward the court's sunlit side are
+handed nothing by probes above that stand in pockets, the third cascade's with every way met
+within 1.4 units and the fourth's under the arcade's ceiling, which the merge reads as dark and
+the probes below count as seen. The sky's excess is the merge's parallax at the vestibule's arch,
+the coarse probes seeing past it where the fine probe's way meets its underside past its own
+interval, 0.00325 along one way where the reference reads 0.0000302. The lion's lack is the same
+parallax the other way, its sky's first bounce 0.757 of the reference's, the coarse probes meeting
+the arch along a way the fine probe sees the sky along. Passing those probes over in the merge
+mends the lion, 0.941, but lit the floor under a solid canopy from the probes at its edge, its
+share of the sky's light 0.137 where 0.156 and the reference's 0.17, since read as dark the
+probes above that meet a roof stand in for the fine ray's own occlusion past its interval. A
+smaller part was the probes' own hits taking a twentieth of the light of probes they do not see,
+those under the floor's slab by the main door, in the open under the building, so the probe above
+it read 60 times the reference in its downward face. The hits take the probes they see alone as
+the model pass does (`probelight.slang`), the door reading 0.822 and its pixels 0.937 of its light
+off where 0.955, the lion 0.851 and 0.429 where 0.439, at noon the door 0.881 and the lion 0.966
+within 0.003 of before, global illumination at High in the atrium at 1920 by 1080 4.65 to 4.70 ms
+where 4.70 to 4.71 in the round the desktop alone shared the GPU, the rule adding no read
+(`gi.probe`, `gi.screenprobe`, `gi.compare`, `field.march`, `./e3d command profile`,
+`.github/assets/readings/2026-11-06-item-210-door.webp`).
+
 **A crossing taken once, read on 2026-10-31.** The cascades' intervals overlap, the first's
 reaching twice as far as the second's begins, and a slab that straddled the first's end was crossed
 twice, the first cascade's ray taking the part of it within its interval and handing on what it

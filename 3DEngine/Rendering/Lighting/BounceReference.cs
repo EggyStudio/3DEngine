@@ -107,11 +107,12 @@ internal static class BounceReference
     /// them before their interval began, and the mean light they brought against the reference's
     /// along the same ways; over every way, the mean light merged with the cascades above against
     /// the reference's; and for each face, +x, -x, +y, -y, +z and -z, the light the model pass reads,
-    /// that gathered from the merge, and the reference's.
+    /// that gathered from the merge, and the reference's; and whether the frame carried the probe past
+    /// its interval with its rays moving (gi_trace.slang).
     /// </summary>
     internal sealed record ProbeLight(int Cascade, Vector3 Middle, int Ways, int Hits, int Early, Vector3 HitRays, Vector3 HitReference,
         Vector3 Merged, Vector3 Reference, Vector3[] Faces, Vector3[] FacesMerged, Vector3[] FacesReference, ProbeWay[] Each,
-        IReadOnlyDictionary<uint, string>? Names = null);
+        IReadOnlyDictionary<uint, string>? Names = null, bool Moving = false);
 
     /// <summary>
     /// One way of a probe's octahedron, where its own ray met a surface, 0 within its interval, 1
@@ -162,7 +163,7 @@ internal static class BounceReference
         var lines = new List<string>
         {
             string.Create(CultureInfo.InvariantCulture, $"the probe of cascade {probe.Cascade} at {m.X:0.##},{m.Y:0.##},{m.Z:0.##}, {probe.Ways} ways, the reference {samples} paths a way") +
-            (bounces < 0 ? "" : bounces == 1 ? ", one bounce" : $", {bounces} bounces"),
+            (bounces < 0 ? "" : bounces == 1 ? ", one bounce" : $", {bounces} bounces") + (probe.Moving ? ", carried past its interval with its rays moving" : ""),
             (probe.Hits == 0 ? "none of its own rays met a surface"
                 : $"where its own rays met a surface, {probe.Hits} ways: they bring {Rgb(probe.HitRays)}, the reference {Rgb(probe.HitReference)}, {Share(probe.HitRays, probe.HitReference)}")
             + (probe.Early > 0 ? $", {probe.Early} of them before their interval began" : ""),
@@ -190,10 +191,12 @@ internal static class BounceReference
             })));
         }
 
-        // The ways that carry most of the face furthest from the reference's light, each way's part
-        // of the face weighed as the gather weighs it, by its cosine and its texel's share.
-        var furthest = Enumerable.Range(0, 6).MaxBy(f =>
-            MathF.Abs(Luminance(probe.FacesMerged[f]) - Luminance(probe.FacesReference[f])) / Math.Max(Luminance(probe.FacesReference[f]), 1e-6f));
+        // The ways that carry most of the face whose light lies furthest from the reference's, each
+        // way's part of the face weighed as the gather weighs it, by its cosine and its texel's
+        // share. Taken by its share of the reference's light, a face the reference holds dark won
+        // over one a hundred times as bright and 99% under, as at the court's cascade-1 probes in
+        // Sponza's door view at 8:00, so the face is the one furthest in light.
+        var furthest = Enumerable.Range(0, 6).MaxBy(f => MathF.Abs(Luminance(probe.FacesMerged[f]) - Luminance(probe.FacesReference[f])));
         var weights = probe.Each.Sum(way => Math.Max(Vector3.Dot(way.Way, axes[furthest]), 0) * way.Share);
         float Part(ProbeWay way, Vector3 light) => Luminance(light) * Math.Max(Vector3.Dot(way.Way, axes[furthest]), 0) * way.Share * MathF.PI / weights;
         string[] where = ["met a surface within its interval", "met a surface before its interval began", "took the cascade above"];
@@ -313,7 +316,8 @@ internal static class BounceReference
             faces[f] = new Vector3(cubes[i], cubes[i + 1], cubes[i + 2]);
         }
         return new ProbeLight(c, middle, n * n, hits, early, hits > 0 ? hitRays / hits : Vector3.Zero, hits > 0 ? hitReference / hits : Vector3.Zero,
-            mergedAll / (n * n), referenceAll / (n * n), faces, facesMerged, facesReference, each, Names(tracer.Scene.Copies, traced.Regions));
+            mergedAll / (n * n), referenceAll / (n * n), faces, facesMerged, facesReference, each, Names(tracer.Scene.Copies, traced.Regions),
+            gi.CycleOn && device.ReadCarriedMoving(gi, c, x, y, z));
     }
 
     // The point of an octahedron a point of its square stands for, as gi.slang's octahedronPoint gives it.
