@@ -140,6 +140,27 @@ float3 worldAt(float2 uv, float d)
     return screenWorld(camera(), uv, d);
 }
 
+// The normal of the surface the depth holds at uv, where its point is p, from the nearer of the
+// texels on either side along each axis, toward the eye.
+float3 depthNormal(float2 uv, float3 p)
+{
+    float2 texel = 1.0 / view.sizes.xy;
+    float3 right = worldAt(uv + float2(texel.x, 0), depth.SampleLevel(uv + float2(texel.x, 0), 0).r) - p;
+    float3 left = p - worldAt(uv - float2(texel.x, 0), depth.SampleLevel(uv - float2(texel.x, 0), 0).r);
+    float3 down = worldAt(uv + float2(0, texel.y), depth.SampleLevel(uv + float2(0, texel.y), 0).r) - p;
+    float3 up = p - worldAt(uv - float2(0, texel.y), depth.SampleLevel(uv - float2(0, texel.y), 0).r);
+    float3 n = surfaceNormal(cross(dot(right, right) < dot(left, left) ? right : left, dot(down, down) < dot(up, up) ? down : up), view.eye.xyz - p);
+    return dot(n, view.eye.xyz - p) < 0.0 ? -n : n;
+}
+
+// The same at the middle of the depth's texel a point on screen falls in.
+float3 depthNormalAt(float3 q)
+{
+    float4 clip = mul(view.viewProjection, float4(q, 1.0));
+    float2 uv = (floor(((clip.xy / clip.w) * 0.5 + 0.5) * view.sizes.xy) + 0.5) / view.sizes.xy;
+    return depthNormal(uv, worldAt(uv, depth.SampleLevel(uv, 0).r));
+}
+
 // The way the surface at p runs along an axis of the depth, `texel` long, toward the side whose
 // next two texels go on in a line from p, so a probe at the foot of a wall takes its floor's way
 // and not the way up the wall, and away from the depth's edge. Toward the nearer texel, a floor
@@ -360,16 +381,9 @@ void computeMain(uint3 id : SV_DispatchThreadID)
         return;
     }
 
-    // The surface's normal from the nearer of the texels on either side along each axis, toward the eye.
     float3 p = worldAt(uv, d);
     float2 texel = 1.0 / view.sizes.xy;
-    float3 right = worldAt(uv + float2(texel.x, 0), depth.SampleLevel(uv + float2(texel.x, 0), 0).r) - p;
-    float3 left = p - worldAt(uv - float2(texel.x, 0), depth.SampleLevel(uv - float2(texel.x, 0), 0).r);
-    float3 down = worldAt(uv + float2(0, texel.y), depth.SampleLevel(uv + float2(0, texel.y), 0).r) - p;
-    float3 up = p - worldAt(uv - float2(0, texel.y), depth.SampleLevel(uv - float2(0, texel.y), 0).r);
-    float3 n = surfaceNormal(cross(dot(right, right) < dot(left, left) ? right : left, dot(down, down) < dot(up, up) ? down : up), view.eye.xyz - p);
-    if (dot(n, view.eye.xyz - p) < 0.0)
-        n = -n;
+    float3 n = depthNormal(uv, p);
     geometry[id.xy] = float4(n, distance(view.eye.xyz, p));
     // How much of each glow light in reach the surface sees, a word of four lights at a time, each
     // put in the buffer as it is made, since lavapipe keeps an array indexed by the light in memory
@@ -552,6 +566,8 @@ void computeMain(uint3 id : SV_DispatchThreadID)
             float3 leafAt = float3(0.0), stopAt = float3(0.0);
             float leafShare = 0.0, stopShare = 0.0;
             bool leafMet = false, stopMet = false;
+            bool stopShown = false;
+            float3 stopNormal = float3(0.0, 1.0, 0.0);
             [loop]
             for (int layer = 0; layer < 5 && t >= 0.0; layer++)
             {
@@ -573,6 +589,9 @@ void computeMain(uint3 id : SV_DispatchThreadID)
                     stopAt = at;
                     stopMet = true;
                     stopShare = taken;
+                    stopShown = onScreen;
+                    if (onScreen)
+                        stopNormal = depthNormalAt(at);
                 }
                 through *= passes;
                 met = onScreen ? 0.0 : 1.0;
@@ -590,7 +609,24 @@ void computeMain(uint3 id : SV_DispatchThreadID)
                     continue;
                 float3 itsOwn;
                 float weight = shaded == 0 ? leafShare : stopShare;
-                crossed += shadeProbeHit(sceneField, SheetVolume(sceneField, fieldSecond), fieldInfo, fieldInfo, fieldAlbedo, fieldFaces, fieldGlow, lights, bounced, bouncedAtSurface, reach, shaded == 0 ? leafAt : stopAt, way,
+                // A stop on a surface the window's depth holds is lit by the normal the depth gives
+                // there, as the probe takes its own. The field turned the normal down on the
+                // threshold of Sponza's main door, a block 0.1 high and thinner than the finest
+                // cells, so a hit there took its indirect light from the probes under the floor,
+                // which see the ground in the open below the building, and the screen's probes at
+                // the door's foot read it back up the wall. Lit by the depth's normal, the door
+                // view at 8:00 reads 0.600 of a path-traced reference's light where 0.746, its
+                // pixels' difference from it 0.813 of its light where 0.923, since that light had
+                // covered the vestibule's lack of the sun under the pockets above it, at noon 0.394
+                // where 0.433, and the lion view's 0.361 and 0.261 where 0.374 and 0.264, the
+                // bounce rooms within 0.002 of before (gi.compare, BounceRoomsTests). A wall above
+                // such a threshold on a floor 0.1 thick over a lamp read 5.05 times its light
+                // without the lamp at High and reads 2.02 (GlobalIlluminationTests).
+                float3 hitAt = shaded == 0 ? leafAt : stopAt;
+                float3 hitNormal = stopNormal;
+                if (shaded == 0 || !stopShown)
+                    hitNormal = fieldNormalSheet(SheetVolume(sceneField, fieldSecond), fieldInfo, hitAt);
+                crossed += shadeProbeHitFacing(sceneField, fieldInfo, fieldInfo, fieldAlbedo, fieldFaces, fieldGlow, lights, bounced, bouncedAtSurface, reach, hitAt, hitNormal, way,
                     view.trace.y, view.trace.z, view.trace.w, around >= 2u, float3(1.0), FieldSun(), itsOwn, true) * weight;
                 own += itsOwn * weight;
             }

@@ -8,9 +8,18 @@ of .github/REVIEW.md or .github/REVIEW-ARCHIVE.md and the commit that closed it.
 
 ## 2026-11-07
 
+![](.github/assets/readings/2026-11-07-item-212-door.webp)
+Sponza's door view at 8:00 at High, the path-traced reference, the frame before and with the
+screen's hits lit by the depth's normal, 0.746 and 0.600 of the reference's light, and under each
+its light over the reference's by block of 10 pixels, red where more and blue where less, 0.923 and
+0.813 of it off by pixel. The light the threshold sent up the door's foot and the left doorway goes,
+and the vestibule floor's lack of the sun under the pockets above it stands bare, which the pocket
+mark is to take once the corridor at High holds.
+
 Done that day
 
 - Item 210 at `3e69ec60`. The views under their reference after 200.
+- Item 211 at `d0d391de`. High's cost since the budget was set.
 
 ## 2026-11-06
 

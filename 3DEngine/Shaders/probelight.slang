@@ -343,6 +343,16 @@ public float3 shadeProbeHitN<V : IVolume, S : ISheetVolume, Sun : ISunShadow>(V 
     Sun sun, out float3 own, out float3 n, bool thinOnly = false)
 {
     n = fieldNormalSheet(sheets, info, p);
+    return shadeProbeHitFacing(field, info, gathered, albedo, faces, glow, lights, cubes, cubesAt, reach, p, n, way, probes, spacing, cascades, seen, kept, sun, own, thinOnly);
+}
+
+// The same at a face whose normal is given, its color the field's facing it, as the screen's
+// probes light a hit on a surface the window's depth holds by the normal the depth gives there
+// (gi_screen.slang).
+public float3 shadeProbeHitFacing<V : IVolume, Sun : ISunShadow>(V field, SceneFieldInfo info, SceneFieldInfo gathered, V albedo,
+    Texture3D<uint> faces, V glow, GiLights lights, V cubes, V cubesAt, V reach, float3 p, float3 n, float3 way, float probes, float spacing, float cascades, bool seen, float3 kept,
+    Sun sun, out float3 own, bool thinOnly = false)
+{
     float3 color = surfaceAlbedoFacing(faces, albedo, info, p, n);
     // Where thinOnly is set the march is made only where the surface is a wall thinner than a cell
     // of the field there, the point a cell behind it in the open, past which the probes' reach,

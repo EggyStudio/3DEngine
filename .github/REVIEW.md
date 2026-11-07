@@ -1,18 +1,21 @@
 # Review
 
-Reviewed up to `186447fb`, 210's flip mend, a carried texel's middle-way distance in the trace, with
-Verdict 106's skips, pushed at 06:10 on 2026-11-07, its run green at 08:08 with macOS in 40 minutes,
-the Windows halves in 99 and 80 and Linux in 108, which settled Verdicts 105 and 106; it keeps the
-form and carries the review's files. After it `3e69ec60`, 210's specular toggle with its line, the
-end wall's readings and two norm fixes, pushed at 08:13, its run started at 08:13; it keeps the form
-and carries the review's files. Before it `f666be74`, Verdict 105's mend, the GI class dealt into
-two processes on Windows half 1, and `0cbaf53f`, 210's rule in cascades 0 and 1, both pushed at
-03:37 on 2026-11-07 with one run on the second, red at 04:59 on Linux, macOS and Windows half 1 on
-one test (Verdict 106), half 2 green in 81 minutes, the examples skipped; both keep the form, the
-second carrying the review's files. Before it `2ceac35a`, 200's cascade cut, the cycle's images for
-the carrying cascades alone with the count line, pushed at 21:58 on 2026-11-06, its run green at
-23:45 with macOS in 41 minutes, the Windows halves in 82 and 107 and Linux in 89; it keeps the form
-and carries the review's files and the devlog. After it `798d9270`, 210's R2 with gi.probe's two
+Reviewed up to `d0d391de`, 211's gi.passes and the ray scene's top level rebuilt only on a change,
+pushed at 10:31 on 2026-11-07, its run green at 12:15 with macOS in 43 minutes, the Windows halves
+in 74 and 79 and Linux in 94; it keeps the form and carries the review's files and the devlog.
+Nothing is pushed after it. Before it `3e69ec60`, 210's specular toggle with its line, the end
+wall's readings and two norm fixes, pushed at 08:13, its run green at 10:28 with macOS in 42
+minutes, the Windows halves in 70 and 56 and Linux in 124. Before it `186447fb`, 210's flip mend, a
+carried texel's middle-way distance in the trace, with Verdict 106's skips, pushed at 06:10, its run
+green at 08:08 with macOS in 40 minutes, the Windows halves in 99 and 80 and Linux in 108, which
+settled Verdicts 105 and 106. Before it `f666be74`, Verdict 105's mend, the GI class dealt into two
+processes on Windows half 1, and `0cbaf53f`, 210's rule in cascades 0 and 1, both pushed at 03:37 on
+2026-11-07 with one run on the second, red at 04:59 on Linux, macOS and Windows half 1 on one test
+(Verdict 106), half 2 green in 81 minutes, the examples skipped; both keep the form, the second
+carrying the review's files. Before it `2ceac35a`, 200's cascade cut, the cycle's images for the
+carrying cascades alone with the count line, pushed at 21:58 on 2026-11-06, its run green at 23:45
+with macOS in 41 minutes, the Windows halves in 82 and 107 and Linux in 89; it keeps the form and
+carries the review's files and the devlog. After it `798d9270`, 210's R2 with gi.probe's two
 changes, pushed at 23:58 on 2026-11-06, its run red at 02:00 on 2026-11-07 on Windows half 1 alone
 (Verdict 105), Linux green in 114 minutes, macOS in 40 and half 2 in 85, the examples green; it
 keeps the form and carries the review's files and the devlog. Before it `72d70e66`, 200's mend, the
@@ -4166,7 +4169,9 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     rebuilding that frame with the mirror showing or losing the green block that only the device's
     rays reach, 19 of 19 with the mirror, lintel, cycle and passes tests; RENDERING.md's ray-scene
     paragraph says when the top level is built with the 0.13 to 0.17 ms. The commit follows the
-    suite and 3e69ec60's Linux job; then 212, then 213.
+    suite and 3e69ec60's Linux job; then 212, then 213. Done at `d0d391de`, pushed at 10:31 on
+    2026-11-07, gi.passes and the top-level cut with its test, the suite 2,257 in both orders, the
+    strict build clean; High in the atrium reads 4.54 ms with it, the budget's word under 208.
 
 212. **The vestibule's door at 8:00.** From item 210 on 2026-11-07. With 210's mends the door view
     reads 0.748 of its reference at 8:00, the pockets' sun lack, and with the pocket mark 1.362, the
@@ -4195,7 +4200,52 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     being on screen with its true normal known there; the other reading, the frame before's blended
     screen irradiance at the hit pixel times the field's albedo plus the hit's direct light, feeds
     the screen probes their own last frame and counts a probe's bounce twice, so it is tried only if
-    the first fails and read then over a held view across eight cycles for drift.
+    the first fails and read then over a held view across eight cycles for drift. Read on 2026-11-07
+    on shader copies with the pocket mark at 75%, the door at 8:00 by source, the pocket alone 1.362
+    with the sky past the first bounce at 2.81, the end wall 5.00, the floor's edge by the door's
+    foot 31.3, the floor 3.25 and the side wall facing +z 2.56; the screen hits shaded with the hit
+    pixel's own normal from depth in place of the field's sheet normal 1.214, the sky past 1.80, the
+    end wall 2.87, the floor's edge 5.59, the floor 2.92 and the side wall 1.21, the sun's first
+    bounce 1.21 to 1.20; the field-normal turns 1.459 (the end wall 9.61) full and 1.363 sheet-only,
+    1.286 and 1.214 with the screen normal. The four views as light with the pixels' difference,
+    pocket to pocket with the screen normal, the door 1.363 (0.852) to 1.214 (0.721) at 8:00 and
+    1.037 (0.386) to 1.019 (0.352) at noon, the lion 1.067 (0.372) to 1.053 (0.358) and 0.999
+    (0.265) to 0.993 (0.263); the screen normal without the mark the door 0.600 (0.813) and 0.900
+    (0.394) and the lion 1.019 (0.361) and 0.989 (0.261), the threshold's feedback having covered
+    the pockets' sun shortfall. Left at 1.214, the floor's and the end wall's sky past the first
+    bounce at about 2.9 and the side wall's sun at 7.7 (the third part); next where the floor's 2.9
+    comes from, then the held view's stillness and the cost of the screen normal. At 20:53 on
+    2026-11-07 nothing new stood in the tree since d0d391de, since the three readings queued at
+    10:32, the cascades on the floor for the 2.9, the held view's stillness and the cost by pass,
+    never ran, each waiter's pgrep matching its own command line, ten hours lost; they run in one
+    sequential driver with no waits, the cascades, the four views, the stillness for each form, then
+    the timings once the GPU is quiet of the bridge's test run, and the screen normal lands with the
+    pocket mark as soon as they read. Read at 21:56, the first part and (a). The floor's 2.9 rides
+    on cascade 0 alone, 0.30 of the reference's sky there, the coarser cascades giving 0.07 each
+    with the screen normal where 0.21 to 0.25 and the screen alone none, so it is the first
+    cascade's own rays meeting the over-lit end wall, which reads its sky by cascades 1 to 3 at 1.67
+    with the normal where 3.79. The held view over 8 frames 50 apart holds every form within 1.002
+    for the view and 1.01 to 1.02 at the 95th-percentile pixel, the red block's face 1.031 to 1.033
+    with the mark where 1.023; the tree's build reproduces the trial, the door 1.215 (0.722) and
+    1.019 (0.352) and the lion 1.053 (0.358) and 0.994 (0.263). The bounce rooms over 27 cases split
+    by half, the screen normal alone moving no room within 0.002 and the pocket mark moving them all
+    at High, the corridor 0.161 to 0.241, the strip's room 0.255 to 0.299 at a bound of 0.30, the
+    grazing floor 0.046 to 0.069 past its 0.06, the carried lamp's 0.077 to 0.086, the Cornell box
+    level, and at Low and Medium the corridor nearer (0.253 to 0.224, 0.242 to 0.208) and the
+    strip's further; thresholds of 7/8 and 15/16 read the rooms exactly as 75%, so the corridor's
+    probes above meet walls on nearly every way and the lever is what carrying does at High, not the
+    share. The trial's second inlined shading copy took gi_screen from 1.91 to 2.8 to 3.3 ms in the
+    atrium, and the tree's form chooses the normal before one shading call (SPIR-V 638 KB where
+    839), its cost against keeptop read with a per-reading load check. The tests failing without
+    each mend, the wall above a threshold on a thin floor at 2.02 at High and 2.08 at Medium where
+    5.05 and 4.29 without the normal (Low 1.51 either way, bounds 15% over), and a probe in a
+    passage whose probes above stand in pockets at 1.016 and 0.890 of the reference where 0.277 and
+    0.124 without the mark. Decided, the screen normal lands alone first, holding every room within
+    0.002 and bringing all four views' pixels nearer, the door 0.813 and 0.394 where 0.923 and 0.433
+    and the lion 0.361 and 0.261 where 0.374 and 0.264, the door's light at 8:00 falling to 0.600 as
+    the threshold's feedback that covered the pockets' lack goes, a step the pair's caption says;
+    (a) follows once the corridor at High holds, the next read what carrying does to the corridor's
+    probes at High.
 
 213. **The reference's lobe at every face and the rooms' shortfall.** From item 211 on 2026-11-07.
     gi_reference draws the GGX lobe at the first face the camera meets alone, where specular asks,
@@ -5585,3 +5635,30 @@ mean, where two base runs lie 0.86 apart. That cut is proposed, which leaves the
 reference's lobe, gi_reference draws the GGX lobe at the first face the camera meets alone, where
 `specular` asks for it, and lights the lamps' and the sun's specular there alone, every later face
 and every probe's path reflecting diffusely.
+
+212's first part read on 2026-11-07 against d0d391de in the door view at 8:00 at High. With the
+pocket mark the floor's 2.9 of its sky past the first bounce rides on cascade 0 alone, 0.30 of the
+reference's sky there, the coarser cascades 0.07 each with the screen normal where 0.21 to 0.25
+before and the screen alone none, the first cascade's own rays meeting the end wall, which reads
+its sky by cascades 1 to 3 at 1.67 with the normal where 3.79. Held over eight frames 50 apart, the
+view reads within 1.002 and its pixels within 1.01 to 1.02 at their 95th percentile at d0d391de,
+with the mark, with the normal and with both. The normal moves no bounce room by more than 0.002.
+The mark at 75% takes the corridor at High from 0.161 of its light off its reference to 0.241, the
+strip's room from 0.255 to 0.299, the grazing floor from 0.046 to 0.069 past its bound and the
+carried lamp's from 0.077 to 0.086, the Cornell box level, and at Low and Medium brings the corridor
+nearer, 0.253 to 0.224 and 0.242 to 0.208, the strip's further. At seven eighths and fifteen
+sixteenths the rooms read alike. So the screen normal lands alone, the door at 8:00 reading 0.600
+of its light where 0.746, its pixels 0.813 off where 0.923, at noon 0.900 and 0.394 where 0.917 and
+0.433, the lion 1.019 and 0.361 and 0.989 and 0.261 where 1.031 and 0.374 and 0.994 and 0.264, and
+(a) waits on what carrying does to the corridor at High. Its test, a closed room's wall above a
+threshold on a thin floor over a lamp, reads 2.02 at High and 2.08 at Medium where 5.05 and 4.29
+without it. With the mark too the door reads 1.214 and 0.721, and the passage test for the mark, a
+probe in a passage whose probes above stand in pockets, reads 1.016 and 0.890 of its reference
+where 0.277 and 0.124. The cost against d0d391de at 1080p at High, summed over the passes in quiet
+readings under powersave-bazzite, is level, the atrium at noon 4.59 to 4.62 ms where 4.59 to 4.61,
+the door at 8:00 3.86 to 3.92 where 3.95 to 3.99, the Cornell box 2.66 to 2.69 where 2.62 to 2.71,
+the corridor 2.33 to 2.41 where 2.41 to 2.47, the strip's room 2.96 to 3.20 where 3.05 to 3.23 and
+the grazing floor 2.20 to 2.23 where 2.21 to 2.31. The trial's second inlined copy of the shading
+took the screen's probes from 1.91 to 2.8 to 3.3 ms in the atrium, and the form landed chooses the
+normal before its one shading call. The whole pass's one timestamp pair swings by 2 to 4 ms in the
+small rooms at their frame rates, so gi.passes' sum is the reading there.

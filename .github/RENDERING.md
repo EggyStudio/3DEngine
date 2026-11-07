@@ -2850,6 +2850,41 @@ over-reading a sliver, and the merge's agreement, which a quarter of the way hol
 probes below as the light of a dark edge half a unit from it (`gi.probe`, `gi.screenprobe`,
 `gi.compare`, `field.march`).
 
+**The screen's hits lit by the depth's normal, mended on 2026-11-07.** A screen probe's ray that
+stops on a surface the window's depth holds lights its hit by the normal the depth gives there, as
+the probe takes its own, where it took the field's (`gi_screen.slang`). The field turned that normal
+down on the main door's threshold, so the hits there took the light of the probes under the floor,
+and the screen's probes at the door's foot read it back up the wall. In the door view at 8:00 at
+High the floor's edge at the door's foot reads its sky past the first bounce 3.97 times the
+reference's, where before item 210's mends it read 29.3, and the end wall 2.15 where 4.58. The door
+view reads 0.600 of a path-traced reference's light at 8:00 and 0.900 at noon where 0.746 and
+0.917, the lion 1.019 and 0.989 where 1.031 and 0.994, and the pixels' difference 0.813, 0.394,
+0.361 and 0.261 of the light where 0.923, 0.433, 0.374 and 0.264. The door's light at 8:00 falls as
+the threshold's light stops covering the vestibule's lack of the sun under the pockets above it,
+its sun's first bounce 0.501 of the reference's and the sun past it 0.282
+(`.github/assets/readings/2026-11-07-item-212-door.webp`). The bounce rooms read within 0.002 of
+before at every quality, and held, the door view moves within 1.001 over eight frames 50 apart, its
+pixels within 1.02 at their 95th percentile. A closed room's wall above a threshold 0.1 high on a
+floor 0.1 thick over a lamp read 5.05 times its light without the lamp at High and 4.29 at Medium,
+and reads 2.02 and 2.08, where Low, which has no screen's probes, reads 1.51, the world's probes
+seeing the lamp through the thin floor (`GlobalIlluminationTests`). Global illumination at 1920 by
+1080 at High, summed over its passes in quiet readings, takes 4.59 to 4.62 ms in the atrium at noon
+where the base takes 4.59 to 4.61, 3.86 to 3.92 at the door at 8:00 where 3.95 to 3.99, 2.66 to
+2.69 in the Cornell box where 2.62 to 2.71, and the corridor, the strip's room and the grazing floor
+within the base's spread, under powersave-bazzite (`./e3d command gi.passes on`, then `profile`). A
+trial that lit the depth's hits through a second copy of the shading took the screen's probes in
+the atrium from 1.91 ms to 2.8 to 3.3, so the normal is chosen before the one shading.
+
+The pocket mark, a probe of the cascades above whose texels meet a face within their interval for
+three quarters of them or more passed over by the probes below, which are then carried, took the
+door at 8:00 to 1.214 of its light and its pixels' difference to 0.721 with this mend, and its
+vestibule's probes from 78 to 97% under the reference to within 55%. At High it took the bounce
+rooms' corridor from 0.161 of its light off its reference to 0.241, the strip's room from 0.255 to
+0.299 and the grazing floor from 0.046 to 0.069, past its bound, where at Low and Medium it brought
+the corridor nearer, 0.224 and 0.208 where 0.253 and 0.242. At seven eighths and fifteen sixteenths
+the rooms read alike, so what carrying does at High is read before it lands (`gi.compare`'s
+frames, `gi.probe`, `BounceRoomsTests`).
+
 **A crossing taken once, read on 2026-10-31.** The cascades' intervals overlap, the first's
 reaching twice as far as the second's begins, and a slab that straddled the first's end was crossed
 twice, the first cascade's ray taking the part of it within its interval and handing on what it
