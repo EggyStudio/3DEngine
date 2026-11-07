@@ -72,13 +72,15 @@ public sealed class BounceViewTests : IDisposable
             Apart(without, plain).Should().BeGreaterThan(least, $"leaving {part} out changes the frame");
         }
         // The sky lost with the merge changes the frame most, by 14.5 of 255 as this test measured
-        // it on the development machine's GPU, the light past the first bounce 2.3, the first
-        // cascade's light lost 2.2, the screen's probes 0.58 and their filter 0.11.
+        // it on the development machine's GPU, the surfaces' reflection of the indirect light 8.3,
+        // the light past the first bounce 2.3, the first cascade's light lost 2.2, the screen's
+        // probes 0.58 and their filter 0.11.
         LeftOut("the merge", () => settings.MergeOff = true, () => settings.MergeOff = false, 5);
         LeftOut("every cascade but the last", () => settings.Alone = 1, () => settings.Alone = -1, 0.5f);
         LeftOut("the screen's probes", () => settings.ScreenOff = true, () => settings.ScreenOff = false, 0.2f);
         LeftOut("the screen's filter", () => settings.FilterOff = true, () => settings.FilterOff = false, 0.03f);
         LeftOut("the light past the first bounce", () => settings.AgainOff = true, () => settings.AgainOff = false, 0.5f);
+        LeftOut("the surfaces' reflection of the indirect light", () => settings.SpecularOff = true, () => settings.SpecularOff = false, 4);
 
         // The surfaces' colors left out, the red wall is drawn white, lit as before, so the frame
         // shows the light alone.

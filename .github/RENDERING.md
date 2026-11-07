@@ -2827,6 +2827,26 @@ difference 0.923, 0.433, 0.374 and 0.263 of it, and global illumination at High 
 1920 by 1080 takes 4.77 to 4.80 ms where 4.71 to 4.79 in the same quiet round (`gi.probe`,
 `gi.compare`, `./e3d command profile`).
 
+**The vestibule's end wall, read on 2026-11-07.** In the door view at 8:00 at High the wall facing
+the court read 1.55 of a path-traced reference's light, the door in it 2.08 and the side wall facing
+-z 1.35. With the surfaces' reflection of the indirect light left out (`gi.toggle specular off`)
+against a reference traced without the first face's specular, the end wall's excess is its diffuse
+light, the sky's share of it 6.4 times the reference's at 8:00 and noon and the sun's under, and the
+side wall's its reflection, 6.36 times, sun read along the mirror way. A fifth of the end wall's
+pixels read over twice the reference and nearly half under three quarters, the high ones ringing the
+door, and three quarters of its sky's excess lies at the door's foot, where the screen's probes meet
+the frame before's pixels a quarter unit off and read back the light the probes by the door's
+threshold already hold. That probe's downward face reads 43 times the reference at noon, its rays
+meeting the floor under the threshold, a block 0.1 high, where the field's normal turns down and the
+hit gathers the probes under the floor, which see the ground in the open below the building. Turned
+to face the ray at every hit, or where the field a cell further along the ray is open, that face
+reads 2.15 times, but the end wall rises to 2.61 and 2.48 and the door view's pixels' difference to
+0.974 and 0.996 where 0.925, since the vestibule's own probes are over along the court's ways: the
+second cascade's carried probe there reads a sunlit face 2.2 times its reference, its cycle
+over-reading a sliver, and the merge's agreement, which a quarter of the way holds, hands it to the
+probes below as the light of a dark edge half a unit from it (`gi.probe`, `gi.screenprobe`,
+`gi.compare`, `field.march`).
+
 **A crossing taken once, read on 2026-10-31.** The cascades' intervals overlap, the first's
 reaching twice as far as the second's begins, and a slab that straddled the first's end was crossed
 twice, the first cascade's ray taking the part of it within its interval and handing on what it

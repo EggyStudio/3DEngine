@@ -521,8 +521,12 @@ public LitLight litLight(float3 albedo, ModelVertexOutput input, float shadow = 
     LitLight light;
     light.diffuse = float3(0.0);
     light.specular = float3(0.0);
-    if (lighting.screen.w > 0.5)
+    // Every surface white, and the reflection of the indirect light left out, for debugging
+    // (gi.toggle albedo and specular).
+    uint switches = uint(lighting.screen.w + 0.5);
+    if ((switches & 1u) != 0u)
         albedo = float3(1.0);
+    float reflects = (switches & 2u) != 0u ? 0.0 : 1.0;
     float3 n = surfaceNormal(input);
     int probe = probeAt(input.world);
     bool environment = lighting.environment.z > 0.0 || probe >= 0;
@@ -609,7 +613,7 @@ public LitLight litLight(float3 albedo, ModelVertexOutput input, float shadow = 
     // the surface is glossy, with or without global illumination.
     float4 plane = mirrored(input.position, input.world, n, roughness);
     float planeShare = plane.a * (1.0 - smoothstep(0.25, 0.5, roughness));
-    light.specular += occlusion * (traced.rgb * gloss * (1.0 - planeShare) + plane.rgb * planeShare) * specularShare;
+    light.specular += reflects * occlusion * (traced.rgb * gloss * (1.0 - planeShare) + plane.rgb * planeShare) * specularShare;
     gloss += planeShare * (1.0 - gloss);
 
     // A rough surface's reflection where global illumination is on and the probes hold the point,
@@ -628,7 +632,7 @@ public LitLight litLight(float3 albedo, ModelVertexOutput input, float shadow = 
         // the wall lies in the floor's cells, the light reaching the surface stands in for theirs.
         float4 along = probesReflected(input.world, n, mirror, roughness);
         if (along.x >= 0.0)
-            light.specular += occlusion * lerp(bouncedHere, along.rgb, along.a) * specularShare * (1.0 - gloss) * waysShare;
+            light.specular += reflects * occlusion * lerp(bouncedHere, along.rgb, along.a) * specularShare * (1.0 - gloss) * waysShare;
         else
             waysShare = 0.0;
     }
@@ -645,7 +649,7 @@ public LitLight litLight(float3 albedo, ModelVertexOutput input, float shadow = 
         float3 around = probeIrradiance(probe, n) * (1.0 - held);
         float strength = lighting.probes[probe].centerAndIntensity.w * occlusion;
         light.diffuse += strength * diffuseColor * around;
-        light.specular += strength * reflected * specularShare * (1.0 - gloss);
+        light.specular += reflects * strength * reflected * specularShare * (1.0 - gloss);
     }
     else if (environment)
     {
@@ -671,7 +675,7 @@ public LitLight litLight(float3 albedo, ModelVertexOutput input, float shadow = 
             float open = (mirror.y > 0.0 ? mirror.y * mirror.y : 0.0) + 0.5 * (mirror.x * mirror.x + mirror.z * mirror.z);
             float seen = skyHere >= 0.0 ? skyHere : skySeen(input.world, n, mirror);
             float sky = bounces ? lerp(1.0, saturate(seen / max(open, 0.05)), held) : 1.0;
-            light.specular += strength * reflected * specularShare * (1.0 - gloss) * sky * (1.0 - waysShare);
+            light.specular += reflects * strength * reflected * specularShare * (1.0 - gloss) * sky * (1.0 - waysShare);
         }
     }
 
@@ -693,7 +697,7 @@ public LitLight litLight(float3 albedo, ModelVertexOutput input, float shadow = 
             float3 inOpen = distant ? distantAround(arrived, n, diffuseColor) : arrived;
             float reaches = bounces ? lerp(1.0, saturate(luminance(bouncedHere) / max(luminance(arrived), 1e-5)), held) : 1.0;
             light.diffuse += inOpen * occlusion * diffuseColor * (1.0 - held);
-            light.specular += arrived * occlusion * specularShare * (1.0 - gloss) * reaches * (1.0 - waysShare);
+            light.specular += reflects * arrived * occlusion * specularShare * (1.0 - gloss) * reaches * (1.0 - waysShare);
             continue;
         }
 
