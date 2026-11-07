@@ -9,22 +9,25 @@
 // Russian roulette draws after its third bounce, and brings back the sky, the environment map's or
 // the ambient lights', where it meets nothing. Where asked, the first face's way on is drawn about
 // its mirror way by GGX's distribution of the normals the eye sees against the cosine, by their
-// shares, so it reflects the indirect light as the model pass does. A path after the camera's first
-// ray crosses a copy that lets light through (ModelMaterial.LightThrough) by its share, as global
-// illumination's rays cross a canopy's leaves, and meets it as a solid face otherwise, while the
-// camera sees it and it shadows the sun and the lamps, as the model pass and the shadow maps hold
-// it. Lights are given as the model pass has them, the light a white diffuse surface facing one
-// returns, so a surface's diffuse light is its color times what arrives, with no pi. Each pass adds
-// its samples to an image of sums, the count in alpha, and its first sample of each pixel, through
-// the pixel's middle, writes what it met and how far along its way into the image of regions, the copy's index times eight
-// and the axis its face turns toward most, plus one, or 0 for nothing. Started at a probe instead,
-// a texel of the image is a texel of the probe's octahedron, its paths leaving the probe's middle
-// through it and every face they meet lit as global illumination lights one, so the image is the
-// light arriving at the probe from each way, as its rays and the merge of the cascades above should
-// bring it. The emission of a glow light global illumination carries is left out where such a path
-// first meets it, as the probe's rays leave it out, since it reaches a surface as a light rather
-// than through the probes; counted, the rays of twelve probes around four emissive blocks read 44
-// to 70% under it at one bounce, where left out they read within 12% of it, all but the dimmest.
+// shares, so it reflects the indirect light as the model pass does, and where asked of every face,
+// each face a camera's path meets is lit and goes on as the first is, so the gloss of what a path
+// meets carries light between bounces, as the bridge's reference traces it. A path after the
+// camera's first ray crosses a copy that lets light through (ModelMaterial.LightThrough) by its
+// share, as global illumination's rays cross a canopy's leaves, and meets it as a solid face
+// otherwise, while the camera sees it and it shadows the sun and the lamps, as the model pass and
+// the shadow maps hold it. Lights are given as the model pass has them, the light a white diffuse
+// surface facing one returns, so a surface's diffuse light is its color times what arrives, with no
+// pi. Each pass adds its samples to an image of sums, the count in alpha, and its first sample of
+// each pixel, through the pixel's middle, writes what it met and how far along its way into the
+// image of regions, the copy's index times eight and the axis its face turns toward most, plus one,
+// or 0 for nothing. Started at a probe instead, a texel of the image is a texel of the probe's
+// octahedron, its paths leaving the probe's middle through it and every face they meet lit as
+// global illumination lights one, so the image is the light arriving at the probe from each way, as
+// its rays and the merge of the cascades above should bring it. The emission of a glow light global
+// illumination carries is left out where such a path first meets it, as the probe's rays leave it
+// out, since it reaches a surface as a light rather than through the probes; counted, the rays of
+// twelve probes around four emissive blocks read 44 to 70% under it at one bounce, where left out
+// they read within 12% of it, all but the dimmest.
 
 import color;
 
@@ -103,7 +106,8 @@ struct ReferencePush
     uint4 sizeAndCounts;
     // x: the first sample this pass adds, which seeds its random numbers. y: 1 where the paths
     // start at a probe. z: 1 where a copy lets light through. w: 1 where the first face the camera
-    // sees reflects the indirect light by its specular share too.
+    // sees reflects the indirect light by its specular share too, 2 where every face a camera's path
+    // meets does (ReferenceGloss).
     uint4 first;
     // xyz: the probe's middle, where the paths start at one.
     float4 probe;
@@ -173,11 +177,11 @@ float3 specularReflected(float3 n, float3 v, float3 l, float3 f0, float alpha, o
 }
 
 // The light the sun and the lamps send back from p on a face of a color, toward v where the face is
-// the path's first, lit as the model pass lights it, and as global illumination lights a face
-// otherwise.
-float3 direct(float3 p, float3 n, float3 color, float3 v, bool first, float roughness, float metallic)
+// glossy, the path's first or every face where asked, lit as the model pass lights it, and as
+// global illumination lights a face otherwise.
+float3 direct(float3 p, float3 n, float3 color, float3 v, bool glossy, float roughness, float metallic)
 {
-    float3 diffuseColor = first ? color * (1.0 - metallic) : color;
+    float3 diffuseColor = glossy ? color * (1.0 - metallic) : color;
     float3 f0 = lerp(float3(0.04), color, metallic);
     float alpha = roughness * roughness;
     float3 start = p + n * 1e-3;
@@ -191,7 +195,7 @@ float3 direct(float3 p, float3 n, float3 color, float3 v, bool first, float roug
         {
             float3 arrived = lights.sunColor.rgb * nl;
             float3 fresnel = float3(0.0);
-            float3 specular = first ? specularReflected(n, v, l, f0, alpha, fresnel) : float3(0.0);
+            float3 specular = glossy ? specularReflected(n, v, l, f0, alpha, fresnel) : float3(0.0);
             sum += arrived * (diffuseColor * (1.0 - fresnel) + specular);
         }
     }
@@ -206,7 +210,7 @@ float3 direct(float3 p, float3 n, float3 color, float3 v, bool first, float roug
         if (lamp.colorAndShadow.w > 0.5 && blocked(start, toward, distance - 2e-3))
             continue;
         float3 fresnel = float3(0.0);
-        float3 specular = first ? specularReflected(n, v, toward, f0, alpha, fresnel) : float3(0.0);
+        float3 specular = glossy ? specularReflected(n, v, toward, f0, alpha, fresnel) : float3(0.0);
         sum += arrived * (diffuseColor * (1.0 - fresnel) + specular);
     }
     return sum;
@@ -431,7 +435,7 @@ float3 trace(float3 origin, float3 way, bool fromProbe, inout uint state, out ui
             met = hit.t;
         }
 
-        bool first = bounce == 0u && !fromProbe;
+        bool glossy = !fromProbe && (bounce == 0u || push.first.w == 2u);
         float roughness = clamp(asfloat(surface.corners.y), 0.045, 1.0);
         float metallic = saturate(asfloat(surface.corners.z));
         // The copy's color times its mesh's vertices' colors at the hit, blended as the model pass
@@ -440,15 +444,15 @@ float3 trace(float3 origin, float3 way, bool fromProbe, inout uint state, out ui
         float3 color = surface.color.rgb * (cornerColor(corners[corner]) * (1.0 - between.x - between.y)
             + cornerColor(corners[corner + 1u]) * between.x + cornerColor(corners[corner + 2u]) * between.y);
         float3 given = fromProbe && bounce == 0u && surface.emission.w > 0.5 ? float3(0.0) : surface.emission.rgb;
-        light += throughput * (given + direct(p, n, color, -way, first, roughness, metallic));
+        light += throughput * (given + direct(p, n, color, -way, glossy, roughness, metallic));
 
-        // The diffuse share goes on, the first face's past its metal, as the indirect light
-        // reaching a pixel lights it. Where asked, the first face's specular share goes on too, a
-        // way drawn for one or the other by their shares, so the face reflects the light the model
-        // pass reflects from the probes and the environment.
-        float3 diffuseColor = first ? color * (1.0 - metallic) : color;
+        // The diffuse share goes on, a glossy face's past its metal, as the indirect light
+        // reaching a pixel lights it. Where asked, the first face's specular share goes on too, or
+        // every face's, a way drawn for one or the other by their shares, so the face reflects the
+        // light the model pass reflects from the probes and the environment.
+        float3 diffuseColor = glossy ? color * (1.0 - metallic) : color;
         float3 next = float3(0.0);
-        if (first && push.first.w == 1u)
+        if (glossy && push.first.w != 0u)
         {
             float3 v = -way;
             float3 f0 = lerp(float3(0.04), color, metallic);

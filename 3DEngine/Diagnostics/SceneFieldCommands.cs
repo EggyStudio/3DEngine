@@ -137,9 +137,15 @@ internal static class SceneFieldCommands
             : "the device traces no rays, so High traces through the field alone";
     }
 
-    [Command("gi.reference", "Path traces the window's picture through the device's rays, which global illumination at High holds the meshes for, as the reference global illumination is measured by, into a PNG with its linear light, what each pixel shows and the names of those regions beside it, each path bouncing as many times as given or until it ends, -1 for that, and with specular the first face reflecting the indirect light by its specular share too: gi.reference <png> <samples> [bounces] [specular]")]
+    [Command("gi.reference", "Path traces the window's picture through the device's rays, which global illumination at High holds the meshes for, as the reference global illumination is measured by, into a PNG with its linear light, what each pixel shows and the names of those regions beside it, each path bouncing as many times as given or until it ends, -1 for that, with specular the first face reflecting the indirect light by its specular share too, and with gloss every face a path meets doing so: gi.reference <png> <samples> [bounces] [specular|gloss]")]
     internal static string Reference(string path, int samples, int bounces = -1, string ways = "") =>
-        ways is "" or "specular" ? BounceReference.Trace(ConsoleHost.World!, path, samples, bounces, ways == "specular") : "The last word is specular or nothing.";
+        ways switch
+        {
+            "" => BounceReference.Trace(ConsoleHost.World!, path, samples, bounces),
+            "specular" => BounceReference.Trace(ConsoleHost.World!, path, samples, bounces, ReferenceGloss.First),
+            "gloss" => BounceReference.Trace(ConsoleHost.World!, path, samples, bounces, ReferenceGloss.Every),
+            _ => "The last word is specular, gloss or nothing.",
+        };
 
     [Command("gi.probe", "The light arriving at the probe of a cascade nearest a point against a path-traced reference of it, where its own rays met a surface, over every way merged with the cascades above, and each face's light as the model pass reads it, with the ways that carry most of the face furthest from the reference's, each with how far its rays went against where the reference's path through the texel's middle first met a surface, and how many ways met theirs within a tenth of as far, and whether the frame carried the probe past its interval with its rays moving, its paths' bounces counted after the probe's first hit, 0 as the probes' hits are lit with gi.toggle again off: gi.probe <x> <y> <z> [samples] [bounces] [cascade]")]
     internal static string Probe(float x, float y, float z, int samples = 256, int bounces = -1, int cascade = 0) =>

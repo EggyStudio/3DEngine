@@ -2,13 +2,15 @@
 
 Reviewed up to `d0d391de`, 211's gi.passes and the ray scene's top level rebuilt only on a change,
 pushed at 10:31 on 2026-11-07, its run green at 12:15 with macOS in 43 minutes, the Windows halves
-in 74 and 79 and Linux in 94; it keeps the form and carries the review's files and the devlog.
-Nothing is pushed after it. Before it `3e69ec60`, 210's specular toggle with its line, the end
-wall's readings and two norm fixes, pushed at 08:13, its run green at 10:28 with macOS in 42
-minutes, the Windows halves in 70 and 56 and Linux in 124. Before it `186447fb`, 210's flip mend, a
-carried texel's middle-way distance in the trace, with Verdict 106's skips, pushed at 06:10, its run
-green at 08:08 with macOS in 40 minutes, the Windows halves in 99 and 80 and Linux in 108, which
-settled Verdicts 105 and 106. Before it `f666be74`, Verdict 105's mend, the GI class dealt into two
+in 74 and 79 and Linux in 94; it keeps the form and carries the review's files and the devlog. After
+it `1c14b0bf`, 212's first part, a screen probe's on-screen hit shaded with the pixel's own normal,
+pushed at 23:33 on 2026-11-07, its run started at 23:33; it keeps the form and carries the review's
+files and the devlog. Before it `3e69ec60`, 210's specular toggle with its line, the end wall's
+readings and two norm fixes, pushed at 08:13, its run green at 10:28 with macOS in 42 minutes, the
+Windows halves in 70 and 56 and Linux in 124. Before it `186447fb`, 210's flip mend, a carried
+texel's middle-way distance in the trace, with Verdict 106's skips, pushed at 06:10, its run green
+at 08:08 with macOS in 40 minutes, the Windows halves in 99 and 80 and Linux in 108, which settled
+Verdicts 105 and 106. Before it `f666be74`, Verdict 105's mend, the GI class dealt into two
 processes on Windows half 1, and `0cbaf53f`, 210's rule in cascades 0 and 1, both pushed at 03:37 on
 2026-11-07 with one run on the second, red at 04:59 on Linux, macOS and Windows half 1 on one test
 (Verdict 106), half 2 green in 81 minutes, the examples skipped; both keep the form, the second
@@ -152,8 +154,9 @@ words. On 2026-10-30 at 18:0x the owner wrote the README's new words (item 133) 
 radiance cascades (Decision 74), questions asked back, and asked that the sessions spend fewer
 tokens at the same quality, N 7.7.
 
-Next 211's cut, then 212, then 213, with 208's budget on the owner's word; 210 closed at 3e69ec60
-with its mends and 212 holds the vestibule's door, 200 closed at 2ceac35a.
+Next 213, then 212's third part, with 208's budget on the owner's word; 211 closed at d0d391de,
+212's first part landed at 1c14b0bf with its pocket mark parked, 210 closed at 3e69ec60, 200 at
+2ceac35a.
 
 Items done and verdicts settled before 2026-10-23 stand in REVIEW-ARCHIVE.md beside this file, their
 numbers kept, moved there at 19:30 on 2026-10-23 so this file holds the current work alone and is
@@ -4245,7 +4248,82 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     and the lion 0.361 and 0.261 where 0.374 and 0.264, the door's light at 8:00 falling to 0.600 as
     the threshold's feedback that covered the pockets' lack goes, a step the pair's caption says;
     (a) follows once the corridor at High holds, the next read what carrying does to the corridor's
-    probes at High.
+    probes at High. The first part is `1c14b0bf`, pushed at 23:33 on 2026-11-07, the screen normal
+    alone with its threshold test, RENDERING.md and the door pair 2026-11-07-item-212-door.webp, the
+    suite 2,259 in both orders and the strict build clean; its cost against keeptop at High at 1080p
+    summed over gi.passes in quiet readings is level, the atrium 4.59 to 4.62 where 4.59 to 4.61,
+    the door 3.86 to 3.92 where 3.95 to 3.99, the Cornell box 2.66 to 2.69 where 2.62 to 2.71 and
+    the small rooms within the base's spread, the whole pass's one timestamp pair swinging 2 to 4 ms
+    there so the sum is the reading. The pocket mark, its passage test and its patch are saved
+    aside. The first read of carrying in the corridor at High with the mark on, gi.probe along x 74
+    to 86, finds all 32 of cascade 0's corridor probes carried and going from -5, -23, -51, -65 and
+    -55% to +6, +15, +15, +23 and +22, cascade 1, carried before as well, from -4 to +2 to +11 to
+    +22, so the probes mend and overshoot, the view's 0.241 light over the reference rather than
+    misplaced, likely the gain past the first bounce compounding through the lit probes; next the
+    corridor by bounce against references of one and two bounces with the feedback off, to place the
+    overshoot. Read at 23:42, the corridor at High by bounce, and the overshoot is not the loop but
+    in the first bounce at depth. At 800 by 450 against references of every bounce and of one (the
+    none frame unusable, GI off still drawing the example's ambient), the view reads 0.983 on the
+    base and 1.148 with the mark, past the first bounce 0.983 and 1.359, and with the feedback off
+    against the one-bounce reference the side walls +9 and +4% on the base and +118 and +114 with
+    the mark, so the excess stands with no light past the first bounce in the loop and a trial
+    taking none at carried hits is moot. The carried probes themselves with the feedback off against
+    the zero-bounce reference read cascade 0 at x 74 to 86 at -21, -58, -70, -83 and -82% on the
+    base and +6, +7, +1, -6 and -17 with the mark, their faces within about a third and mostly
+    within 6, cascade 1 the same in both. The wall facing -z by depth as the one-bounce frame over
+    the reference, which falls 190 times from the open end to the camera's, reads at the open end
+    1.01 whole and 0.87 by the world gather alone on the base and 1.09 and 0.94 with the mark, in
+    the middle's three bins 0.48 to 0.72 and 0.35 to 0.51 on the base against 1.85 to 2.77 and 1.51
+    to 2.03 with the mark, and at the closed end's four bins 1.72 to 2.32 and 1.74 to 2.01 against
+    3.28 to 3.96 and 1.74 to 2.02; so the base's world gather already reads about twice a tiny first
+    bounce at the closed end untouched by the mark, the mark lifts the middle's world gather from
+    half to about twice though the probes' faces there are near, and the screen probes at depth add
+    up to 2.2 times the reference where they added 0.3. The working reading, the opening's light
+    reaching the corridor's walls at grazing ways and the probes' 8 by 8 texels holding it at their
+    middles, so once the carried probes see the opening both readers take that light with too much
+    cosine and too slow a falloff along the corridor, the fourth part's quantization. One bounded
+    read more, gi.screenprobe on the wall at depth base against mark for the rays that bring the
+    screen's share, and the gather's probes at one middle wall pixel; where it lands on the texels'
+    width, (a) parks with this placement and 213 follows, the third part and (a) standing in the
+    record. Read at 23:47, the bounded read lands on the texels' width through one reader, the
+    screen probes' rays past their reach, the world gather clean. Part of the wall's excess was
+    specular, the camera meeting the walls at grazing ways that mirror the sunlit opening, so the
+    read was taken again with the specular off against references without the first face's specular
+    (1024 paths, one bounce and every bounce). The wall facing -z by depth from the open end, one
+    bounce whole frame, reads 0.99 then 0.85 to 3.44 on the base and 1.00 then 3.83 to 5.35 with the
+    mark against a reference of 0.0002 at depth, with the screen probes off the same in both builds,
+    0.78 then 0.00 to 0.89 but for one bin at 0.04 and 0.46, and with every bounce 0.91 then 0.80 to
+    1.25 against 0.94 then 1.63 to 1.88, so the carried probes' gather adds nothing at the wall and
+    the whole of the mark's excess comes through the screen probes. gi.screenprobe on that wall with
+    the feedback off finds one grazing ray toward the opening carrying it past its 2.4 reach, deep
+    at 76 degrees from the normal reading cascade 1 at 0.127 with the mark where 0.046 against 0.011
+    over its cell and 0 along it, in the middle at 66 degrees reading cascade 0 at 0.079 where
+    0.0084 against 0.016; along its own way the ray meets the opposite wall about 5 units past its
+    end, but beyond() takes the probes' merged texels around the end blended over four, and with the
+    mark those probes are carried and their -x texels hold the opening, so an 8 by 8 texel and the
+    blend spread a light arriving at 88 degrees onto a way at 66 to 76. The one mend in sight is in
+    that reader, a screen ray past its reach whose probes around the end are carried marching on
+    through the field as it does where they hold no light, its cost the question since the march on
+    every past-reach ray took the deep cave from 1.28 to 2.42 ms and carried probes are 3.3% of the
+    texels in Sponza and 9.2 with the mark. Decided, that trial is read before (a) parks, bounded to
+    the hour beside 213's code read, on the corridor, the door at 8:00 with the mark, the bounce
+    rooms and the cost in the atrium and the deep cave; where it holds the rooms and brings the
+    door's light inside the band at a cost in step with the carried share, (a) lands with it, and
+    where it does not, (a) parks with this placement and the door stays at 0.600 as the pockets'
+    known lack. Read at 23:52, the carried-only march trial fails at the door, so (a) parks. A
+    screen ray past its reach whose probes around its end are carried by half their weight or more
+    marches on through the field, the carried flag reaching gi_screen as 4 added to the faces' alpha
+    and decoded by faceMove; the corridor's wall facing -z against the diffuse-only references reads
+    0.80 to 1.00 at one bounce where the mark alone read 3.8 to 5.4 and the base 0.85 to 1.35, the
+    reader's fault mended, and 1.41 to 1.75 with every bounce where the mark alone read 1.63 to 1.88
+    and the base 0.80 to 1.25, the light past the first bounce still over; the four views as head,
+    normal alone, mark and march read the door 0.746 (0.923), 0.600 (0.813), 1.215 (0.722) and 1.401
+    (0.963) at 8:00 and 0.917 (0.433), 0.900 (0.394), 1.019 (0.352) and 1.044 (0.415) at noon, the
+    lion 1.031 (0.374), 1.019 (0.361), 1.053 (0.358) and 1.019 (0.410) and 0.994 (0.264), 0.989
+    (0.261), 0.994 (0.263) and 1.036 (0.265), the march taking the door further out of the band and
+    every view's pixels further off, the cost unread. (a) parks with the corridor's placement, the
+    pocket mark, its passage test and the trial copies kept in the work directory, the door at 8:00
+    at 0.600 as the pockets' known lack; the third part stands for after 213, and 213 begins.
 
 213. **The reference's lobe at every face and the rooms' shortfall.** From item 211 on 2026-11-07.
     gi_reference draws the GGX lobe at the first face the camera meets alone, where specular asks,
@@ -4263,7 +4341,33 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     and the corridor read against it, the shortfall as figures; the GI tests keep the first-face
     reference as the bridge's do; then a proposal for the probes' rays carrying the gloss of what
     they meet, with the field holding each face's roughness and reflectance as the bridge packs them
-    beside its faces, measured the same way, before any mend. After 212.
+    beside its faces, measured the same way, before any mend. After 212. Read at 00:04 on
+    2026-11-08, the first part in the suite. gi.reference takes a fourth argument, gloss, tracing
+    every face of a camera's path as the first by the bridge's draw, each face lit by its lights'
+    specular past its metal and going on by the diffuse or the GGX visible-normal share, an internal
+    ReferenceGloss of None, First and Every with specular staying First, which the GI tests read
+    against, the probe paths diffuse. BounceReferenceTests.Gloss in both modes, a metal plane under
+    the sky at 0.943 of it (band 0.87 to 1.0), a gray dielectric at a grazing view at 0.658 (0.59 to
+    0.72), and a white metal wall under a 45-degree sun mirroring it onto the floor at 1.906 times
+    the floor away from the wall with every face's gloss (1.8 to 2.05) and 1.204 with the first
+    face's (1.1 to 1.3); the model pass takes indirect diffuse at the whole diffuse color beside the
+    specular share as the draw does, so the two hold the same energy. The rooms at High, 800 by 450,
+    512 paths, the light past the direct against every face's gloss with the first face's in
+    brackets, the Cornell box 0.880 (0.976) with its walls 0.85 to 0.91 and the green 0.870, the
+    thin room 0.844 (1.042), the corridor 0.647 (0.951) with its walls 0.71 and its floor and
+    ceiling 0.48, the window's 0.886 (1.029), the strip's 0.679 (0.834), the grazing 0.816 (1.043),
+    the carried lamp 0.785 (0.988) and the emissive blocks 0.801 (0.837), every face's gloss holding
+    5 to 47% more light past the direct than the first face's, the corridor most. The proposal, the
+    faces image from R8 to R32 with the way in bits 0 to 7, the roughness in 8 to 15, the metallic
+    in 16 to 23 and the dielectric f0 in 24 to 31, painted from the plan's records, which carry
+    roughness and metallic for the ray scene already, 7.5 MB more at five cascades; and a probe's
+    ray lighting its hit by its gloss, the diffuse share past the metal, the lights' specular toward
+    the probe and probesReflected along the ray's mirror way times Karis's share, the trace's hits
+    and the screen's, a probe facing a sunlit metal wall as the test. Taken, with two forms of the
+    hit's gloss measured, the bridge's first, the gloss's share at the ray's angle scaling what the
+    hit gathers with no mirror read (its 7bd61bcc), and the mirror read along the ray's way second
+    where the rooms ask for it, the cost per hit beside the rooms' figures deciding; the memory in
+    gi.state. The commit lands locally once the suite is green and goes up after 1c14b0bf's run.
 ## Verdicts
 
 Verdicts 56 to 106 are settled, said under each in REVIEW-ARCHIVE.md; none is open.
@@ -5662,3 +5766,64 @@ the grazing floor 2.20 to 2.23 where 2.21 to 2.31. The trial's second inlined co
 took the screen's probes from 1.91 to 2.8 to 3.3 ms in the atrium, and the form landed chooses the
 normal before its one shading call. The whole pass's one timestamp pair swings by 2 to 4 ms in the
 small rooms at their frame rates, so gi.passes' sum is the reading there.
+
+212's (a) read in the bounce rooms' corridor at High on 2026-11-07 against 1c14b0bf at 800 by 450,
+gi.reference at 1024 paths, gi.compare's frames, gi.probe and gi.screenprobe. The mark carries the
+corridor's 32 first-cascade probes, which read their light 6 to 23% over the reference where 5 to
+65% under, and with the light past the first bounce left out (gi.toggle again off) within 17%
+under and 7% over a reference of one bounce where 21 to 83% under, the second cascade's alike in
+both. The view reads 1.148 of its reference's light where 0.983 and its light past the first bounce
+1.359 where 0.983, but the walls' excess stands with the light past the first bounce left out, so
+it is no loop. Part of it is the walls' specular, which mirrors the sunlit opening at the grazing
+ways the camera sees them along. With the specular left out of the frame and the reference, the
+wall facing -z reads its one bounce 3.8 to 5.4 times a first bounce of 0.0002 along the corridor
+where the base reads 0.9 to 3.4, and its whole light 1.63 to 1.88 where 0.80 to 1.25. With the
+screen's probes left out, the world probes' gather reads the walls alike in both. The screen's
+probes take all of it, a grazing ray toward the opening past its reach reading the carried probes
+around its end, whose texels along the corridor hold the opening's light, at 0.127 and 0.079 where
+the base reads 0.046 and 0.0084 and the reference over the ray's cell 0.011 and 0.016, though along
+its own way the ray meets the far wall five units on. So it is the texels' width, an 8 by 8 texel
+and the blend of four spreading a light that arrives at 88 degrees onto ways at 66 to 76, read by
+a reader that keeps no account of its own way meeting a surface past its reach. The mark parks with
+this placement beside the fourth part's quantization, the door at 8:00 staying at 0.600. A screen
+ray past its reach whose probes around its end are carried could march on through the field as it
+does where those probes hold no light, the cost being the question, since that march on every such
+ray took the voxel game's deep cave from 1.28 to 2.42 ms.
+The carried-only march, read on 2026-11-07 on shader copies with the mark, sends a screen ray past
+its reach whose probes around its end are carried, half their weight or more, on through the field
+as one goes where those probes hold no light. It takes the corridor's one-bounce excess away, the
+wall facing -z at 0.80 to 1.00 of its first bounce along the corridor where the mark alone reads 3.8
+to 5.4 and the base 0.85 to 1.35, and its whole light to 1.41 to 1.75 where 1.63 to 1.88 and 0.80 to
+1.25, the light past the first bounce still over. But the door at 8:00 reads 1.401 of its light and
+its pixels 0.963 off where the mark alone reads 1.215 and 0.722, at noon 1.044 and 0.415 where 1.019
+and 0.352, and the lion 0.410 and 0.265 off where 0.358 and 0.263, so it brings no view nearer and
+(a) parks with the corridor's placement, the door at 8:00 staying at 0.600.
+
+213 read on 2026-11-08. `gi.reference <png> <samples> -1 gloss` traces every face a camera's path
+meets as the first is traced, lit by the lights' specular past its metal and going on by the shares
+of the diffuse way and GGX's visible normals, as the bridge's reference draws every face
+(`ReferenceGloss.Every`), a probe's paths staying diffuse as its rays are and `specular` keeping the
+first face's alone, which the GI tests read against. Its tests read a metal plane under the sky at
+0.943 of the sky and a gray dielectric at a grazing view at 0.658 with either gloss, the plane being
+the first face, and a white metal wall under the sun at 45 degrees mirroring it onto the floor by its
+foot, which reads 1.906 times the floor away from it with every face's gloss and 1.204 with the first
+face's. The model pass takes a face's indirect diffuse at its whole diffuse color beside its
+specular share, as the reference's draw does, so the two hold the same energy. The bounce rooms at
+High at 800 by 450 against every face's gloss, their light past the direct, with the first face's in
+brackets: the Cornell box 0.880 (0.976), its walls 0.85 to 0.91 and the green wall 0.870, the thin
+room 0.844 (1.042), the corridor 0.647 (0.951), its walls 0.706 and 0.715 and its floor and ceiling
+0.478 and 0.487, the window's room 0.886 (1.029), the strip's room 0.679 (0.834), the grazing floor
+0.816 (1.043), the carried lamp's 0.785 (0.988) and the emissive blocks 0.801 (0.837), the red
+walls lit nearly all straight. Every face's gloss holds 5 to 47% more light past the direct than the
+first face's, the corridor most. The proposal, before any mend, has two parts. First the field keeps
+each face's roughness and metallic beside its way, the faces image going from a byte a cell to four,
+the way in bits 0 to 7, the roughness in 8 to 15, the metallic in 16 to 23 and the f0 of a
+dielectric in 24 to 31 as the bridge packs its reflectance, painted by the triangle that paints the
+cell's color from the plan's records, which carry the roughness and metallic the ray scene holds
+already, 64 cubed cells at four bytes where one in the live and the still images, 7.5 MB more at five
+cascades. Then a probe's ray lights what it meets by its gloss, its diffuse share past its metal, the
+lights' specular toward the probe at its roughness, and the light the probes hold along the ray's
+mirror way at the hit (probesReflected) times the specular share Karis's fit gives, as the model
+pass reflects them, in the trace's hits and the screen's. It is measured as here, the rooms past the direct against every face's gloss, with
+a probe facing a metal wall under the sun reading the mirrored sun as its test, and its cost at High
+in the atrium and the rooms, one read of eight probes along a mirror way a hit.

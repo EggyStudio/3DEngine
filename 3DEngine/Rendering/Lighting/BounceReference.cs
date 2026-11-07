@@ -38,11 +38,11 @@ internal static class BounceReference
     /// <summary>
     /// Traces the window's picture with <paramref name="samples"/> paths a pixel, each bouncing
     /// <paramref name="bounces"/> times at most or until Russian roulette ends it where that is
-    /// negative, and writes it to <paramref name="path"/> and its files beside it, the first face
-    /// reflecting the indirect light by its specular share too with <paramref name="specular"/>.
+    /// negative, and writes it to <paramref name="path"/> and its files beside it, the faces
+    /// <paramref name="gloss"/> names reflecting the indirect light by their specular share too.
     /// </summary>
     /// <returns>What was written, or why nothing was.</returns>
-    public static string Trace(World world, string path, int samples, int bounces = -1, bool specular = false)
+    public static string Trace(World world, string path, int samples, int bounces = -1, ReferenceGloss gloss = ReferenceGloss.None)
     {
         if (Prepare(world, out var why) is not { } tracer) return why;
         var render = tracer.Render;
@@ -51,7 +51,7 @@ internal static class BounceReference
             return "the window draws no meshes through a camera";
 
         var clock = System.Diagnostics.Stopwatch.StartNew();
-        var traced = tracer.Trace(inverse, (int)window.Extent.Width, (int)window.Extent.Height, samples, bounces, null, specular);
+        var traced = tracer.Trace(inverse, (int)window.Extent.Width, (int)window.Extent.Height, samples, bounces, null, gloss);
         var seconds = clock.Elapsed.TotalSeconds;
         var scene = tracer.Scene;
 
@@ -62,7 +62,12 @@ internal static class BounceReference
         WriteRegions(full + ".regions", traced);
         var names = Names(scene.Copies, traced.Regions);
         File.WriteAllLines(full + ".regions.txt", names.OrderBy(n => n.Key).Select(n => $"{n.Key}\t{n.Value}"));
-        var bounced = (bounces < 0 ? "" : bounces == 1 ? ", one bounce" : $", {bounces} bounces") + (specular ? ", the first face's specular share traced" : "");
+        var bounced = (bounces < 0 ? "" : bounces == 1 ? ", one bounce" : $", {bounces} bounces") + gloss switch
+        {
+            ReferenceGloss.First => ", the first face's specular share traced",
+            ReferenceGloss.Every => ", every face's specular share traced",
+            _ => "",
+        };
         return $"traced {traced.Width} by {traced.Height} at {samples} paths a pixel{bounced} in {seconds:0.0} s, {scene.Count} copies, " +
                $"{names.Count} regions, into {full} with its .pfm, .regions and .regions.txt";
     }
@@ -73,7 +78,7 @@ internal static class BounceReference
     {
         // Traces the picture through the camera inverse gives, or with probe the light arriving at
         // that point from each way through a probe's octahedron of width by height texels.
-        public TracedReference Trace(Matrix4x4 inverse, int width, int height, int samples, int bounces, Vector3? probe, bool specular = false)
+        public TracedReference Trace(Matrix4x4 inverse, int width, int height, int samples, int bounces, Vector3? probe, ReferenceGloss gloss = ReferenceGloss.None)
         {
             var environment = Render.TryGet<EnvironmentMap>() is not null ? Render.TryGet<ModelRenderer>()?.Environment : null;
             using var black = environment is null ? Device.CreateCubeMap(1, 1, new Half[6 * 4]) : null;
@@ -81,7 +86,7 @@ internal static class BounceReference
             // A bounce is a face after the first, so the faces a path meets are one more, 32 at most
             // where Russian roulette ends the path.
             return Device.TraceReference(Program.Compute, Scene, inverse, width, height, Math.Max(1, samples), Lights(Render, environment is not null),
-                cubeView, cubeSampler, bounces < 0 ? 32 : bounces + 1, probe: probe, specular: specular);
+                cubeView, cubeSampler, bounces < 0 ? 32 : bounces + 1, probe: probe, gloss: gloss);
         }
     }
 

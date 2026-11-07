@@ -1426,6 +1426,21 @@ a way drawn about its mirror way by GGX's distribution of the normals the eye se
 against its diffuse way by their shares by Karis's fit, so the reference reflects the indirect light
 the model pass reflects from the probes and the environment, where it reflected none of it, and a
 closed box of emissive metal reads 1.815 with it where 1.00 without (`RoughReflectionTests`).
+`gi.reference <png> <samples> -1 gloss` traces every face a camera's path meets so, lit by the
+lights' specular past its metal and going on by the same draw, as the bridge's reference traces
+every face, so the gloss of what a path meets carries light between bounces, which the probes' rays,
+lighting a face by its diffuse share alone, do not carry. A probe's own paths stay diffuse, as its
+rays are. A white metal wall four units high under the sun at 45 degrees mirrors it back onto the
+floor by its foot, which reads 1.906 times the floor away from it with every face's gloss and 1.204
+with the first face's alone, and a metal plane and a gray one at a grazing view read the sky's light
+times their Fresnel either way, the plane being the first face (`BounceReferenceTests`). Global
+illumination's tests read against the first face's gloss. Against every face's gloss the bounce
+rooms at High at 800 by 450 read their light past the direct 11 to 35% under, the Cornell box 12%
+with its walls 9 to 15% under and the green wall 13%, the corridor 35% with its walls 28 to 29% and
+its floor and ceiling 51 to 52% under, the strip's room 32%, where against the first face's they
+read 5% under to 4% over and the strip's room and the emissive blocks 17 and 16% under, the
+reference with every face's gloss holding 5 to 47% more light past the direct than the first face's,
+the most in the corridor (`gi.reference` with 512 paths, `gi.compare`'s frames).
 A path after the camera's first ray crosses a copy that lets light through by its share to
 the power of its depth along the ray, from the face it enters by to the nearest face the copy turns
 out along the ray, `cross(b - a, c - a)` as the field takes it, or to another copy's face nearer, a

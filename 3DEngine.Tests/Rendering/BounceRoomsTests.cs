@@ -76,7 +76,7 @@ public sealed partial class BounceRoomsTests : IDisposable
             Frames(SceneFieldPlan.SettleFrames + 30);
             using var folder = new TestFolder("engine-bounce-");
             var traced = Path.Combine(folder.Path, $"view-{view}.png");
-            BounceReference.Trace(GetApp().World, traced, 4096, specular: true);
+            BounceReference.Trace(GetApp().World, traced, 4096, gloss: ReferenceGloss.First);
             var (width, height, light) = BounceReference.ReadPfm(traced + ".pfm");
             WritePfm(path, Averaged(light, width, height, 3));
         }

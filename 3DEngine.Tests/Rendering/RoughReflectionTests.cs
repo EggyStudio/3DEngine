@@ -79,7 +79,7 @@ public sealed class RoughReflectionTests(ITestOutputHelper output) : IDisposable
         // which the box's light from every way, 1 / (1 - color), is reflected by. It read 1.815, a
         // share of 0.41, on the development machine's GPU.
         var specular = Path.Combine(_folder.Path, "specular.png");
-        BounceReference.Trace(GetApp().World, specular, 512, specular: true).Should().Contain("specular share traced");
+        BounceReference.Trace(GetApp().World, specular, 512, gloss: ReferenceGloss.First).Should().Contain("specular share traced");
         var mean = Mean(specular + ".pfm");
         output.WriteLine($"with the specular share {mean:0.000}, a share of {(mean - 1) * (1 - color):0.000}");
         mean.Should().BeInRange(1 + 0.33f / (1 - color), 1 + 0.5f / (1 - color), "each face reflects the box's light from every way by its specular share");
@@ -99,7 +99,7 @@ public sealed class RoughReflectionTests(ITestOutputHelper output) : IDisposable
         held.Should().BeApproximately(1 / (1 - color), 0.02f / (1 - color), "the probes hold the box's light along every way");
 
         var path = Path.Combine(_folder.Path, "wall.png");
-        BounceReference.Trace(GetApp().World, path, 64, specular: true).Should().StartWith("traced");
+        BounceReference.Trace(GetApp().World, path, 64, gloss: ReferenceGloss.First).Should().StartWith("traced");
         var regions = BounceReference.Measure(GetApp().World, path, out var why, out _);
         regions.Should().NotBeNull(why);
         var wall = regions!.MaxBy(r => r.Pixels)!;

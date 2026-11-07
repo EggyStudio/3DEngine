@@ -388,7 +388,7 @@ boxes leave parts of global illumination out. The same is in a running program t
 | `field.march <x> <y> <z> [dx] [dy] [dz] [sun]` | Marches the scene's distance field from a point along a way, or toward the sun, as the passes march it, and says where it met a surface, in which cascade and cell, and each step, with `sun` marching on from that surface toward the sun as a probe's hit does |
 | `gi.screenprobe <x> <y> [samples] [bounces]` | Each of the sixteen rays of the screen's probe under a pixel, where it was met and its light, against a path-traced reference along the same way |
 | `gi.rays <on\|off>` | Whether `High` traces what the field misses through the GPU's own rays |
-| `gi.reference <png> <samples> [bounces] [specular]` | Path traces the window's picture through the GPU's rays, as the reference global illumination is measured by, `-1` bounces for as many as a path takes and `specular` for the first face's reflection of the indirect light |
+| `gi.reference <png> <samples> [bounces] [specular\|gloss]` | Path traces the window's picture through the GPU's rays, as the reference global illumination is measured by, `-1` bounces for as many as a path takes, `specular` for the first face's reflection of the indirect light and `gloss` for every face's |
 | `gi.compare <png>` | The window's light against that reference, region by region, with a picture of the difference |
 
 A scene is read against its reference by drawing it, tracing `gi.reference` once with a thousand

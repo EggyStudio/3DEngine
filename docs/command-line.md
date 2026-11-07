@@ -108,7 +108,8 @@ takes, `gi.rays off` or `on` turns off or on the GPU's own rays High traces what
 through ([Materials, light and shadows](materials-light-and-shadows.md)), and on a GPU that traces
 rays `gi.reference ref.png 1024` path traces the view as a reference, 1,024 paths a pixel,
 `gi.reference once.png 1024 1` one of a single bounce, `gi.reference shiny.png 1024 -1 specular`
-one whose first faces reflect the indirect light too, and `gi.compare ref.png` gives the light of
+one whose first faces reflect the indirect light too, `gi.reference glossy.png 1024 -1 gloss` one
+whose every face does, and `gi.compare ref.png` gives the light of
 each wall, floor and block in the frame against it, with a picture of the difference and the frame's
 own light beside it. `gi.probe 0 2.5 0 256` reads the probe nearest a point against a reference of
 the light arriving at it from each way, where its rays met a surface, merged with the cascades

@@ -13,7 +13,7 @@ namespace Engine.Tests.Rendering;
 /// </summary>
 [Collection("E3D")]
 [Trait("Category", "Render")]
-public sealed class BounceReferenceTests : IDisposable
+public sealed partial class BounceReferenceTests : IDisposable
 {
     private readonly TestFolder _folder = new("engine-bounce-reference-");
 
@@ -287,7 +287,7 @@ public sealed class BounceReferenceTests : IDisposable
         Frames(40);
 
         var path = Path.Combine(_folder.Path, "relit.png");
-        BounceReference.Trace(GetApp().World, path, 512, specular: true).Should().StartWith("traced");
+        BounceReference.Trace(GetApp().World, path, 512, gloss: ReferenceGloss.First).Should().StartWith("traced");
         var regions = BounceReference.Measure(GetApp().World, path, out var why, out _);
         regions.Should().NotBeNull(why);
         var floor = regions!.Single(r => r.Name.EndsWith("floor", StringComparison.Ordinal));
