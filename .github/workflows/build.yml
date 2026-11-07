@@ -264,13 +264,19 @@ jobs:
       # took 64 to 67 of its 70 minutes on three pushes of 2026-10-31, and on Linux's lavapipe the
       # class takes 12.8 of that half's 17.5 minutes, which no deal of the classes by their names
       # keeps apart. The other two take 11.4 and 10.7 there. The first half runs the class, Core and
-      # Graphics alone, and the second every part but those, so a part added later runs there.
+      # Graphics alone, and the second every part but those, so a part added later runs there. On
+      # that half the class took 67 m 40 s, 69 m 6 s, 36 m 38 s and 59 m 31 s at f969fe7d, 548e598c,
+      # 72d70e66 and 2ceac35a, and ran out its 70 at 798d9270 71 of its 77 tests in, the half's job
+      # 91, 92, 55, 82 and 84 minutes, so the class runs in two processes, its methods dealt between
+      # them, and the half's time is as before. The second half's job took 107, 106, 75, 107 and 85,
+      # which leaves no room there for any of the class. Linux's suite, run whole, took 44, 49, 44,
+      # 44 and 56 minutes on the same runs, the last on a runner as slow as the first half's.
       - run: |
           first=(--only "Rendering GlobalIlluminationTests" --only Core --only Graphics)
           second=(--except "Rendering GlobalIlluminationTests" --except Core --except Graphics)
           share=("${second[@]}")
           if [ "${{ matrix.half }}" = 1 ]; then share=("${first[@]}"); fi
-          python build/test.py --no-build --parts --split Rendering=2+GlobalIlluminationTests "${share[@]}" \
+          python build/test.py --no-build --parts --split Rendering=2+GlobalIlluminationTests/2 "${share[@]}" \
             --system "Windows, half ${{ matrix.half }}" --timeout-minutes 70 --hang-minutes 10
         env:
           E3D_REQUIRE_VALIDATION: '1'

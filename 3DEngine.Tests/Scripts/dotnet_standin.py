@@ -12,7 +12,8 @@ longer than the one before, and then hanging. With a filter, as a part, it passe
 filter takes and writes their results file, a filter of clauses joined by | taking a test any of
 them takes. Told shuffle-fails, the suite whole passes, unless E3D_SCHEDULE_SHUFFLE_SEED is set,
 when one test of NormTests fails, as a test leaning on the order of an app's systems does in
-another order.
+another order. Where E3D_STANDIN_HANG names a class, a part whose tests are all that class's ends
+each of them, the later in the list the longer each took, and then hangs.
 """
 
 import os
@@ -42,6 +43,8 @@ def holds(name, clause):
         return clause[len("FullyQualifiedName~"):] in name
     if clause.startswith("FullyQualifiedName="):
         return clause[len("FullyQualifiedName="):] == name.split("(")[0]
+    if clause.startswith("FullyQualifiedName!="):
+        return clause[len("FullyQualifiedName!="):] != name.split("(")[0]
     return True
 
 
@@ -94,6 +97,12 @@ def main():
             os._exit(134)
 
     names = [name for name in TESTS if filter_ is None or taken(name, filter_)]
+    hang = os.environ.get("E3D_STANDIN_HANG")
+    if hang and names and all(f".{hang}." in name for name in names):
+        for name in names:
+            seconds = TESTS.index(name) * 7
+            print(f"  Passed {name} [{f'{seconds // 60} m {seconds % 60} s' if seconds >= 60 else f'{seconds} s'}]", flush=True)
+        time.sleep(600)
     results = value("--results-directory")
     logger = next(arg for arg in sys.argv if arg.startswith("trx;LogFileName="))
     path = os.path.join(results, logger.split("=", 1)[1])

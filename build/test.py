@@ -4,6 +4,7 @@
     build/test.py [PART ...] [--parts] [--no-build]    # the suite whole, or parts of it by name
     build/test.py --parts --split Rendering=2          # a part run in two processes by its classes
     build/test.py --parts --split Rendering=2+Glow     # and its class Glow in a process of its own
+    build/test.py --parts --split Rendering=2+Glow/2   # or in two, its methods dealt between them
     build/test.py --parts --only Core --only Graphics  # of those parts, these alone, or --except them
     build/test.py --shuffle-seed N                     # and the suite once more, shuffled by a seed
     build/test.py --read DIR                           # the page of results already in a folder
@@ -25,7 +26,10 @@ whose filter is the negation of the others, so no test falls between two parts. 
 turn, the last taking every class the others do not name, so a class added later runs there. A
 class named after a + runs in a process of its own, as Rendering=2+GlobalIlluminationTests, and is
 dealt to none of the others, so a class that takes as long as the rest of its part together does
-not hold them back past their limit. --only runs the parts of those labels alone and --except every
+not hold them back past their limit. Named with a count after a /, as GlobalIlluminationTests/2, it
+runs in as many processes, its methods sorted by name and dealt to them in turn, the last taking
+every method the others do not name, and the page reports them as the one class, their times added
+and their slowest tests taken together. --only runs the parts of those labels alone and --except every
 part but those, so two jobs given the same labels, one with each, run the whole suite between them,
 a part added later in the second, and --system names the job on its page.
 
@@ -90,6 +94,8 @@ class Process:
         self.label, self.filter = label, filter_
         self.part = None          # the name after Engine.Tests. it runs, where it runs one
         self.classes = None       # the test classes it holds, where a split part names them
+        self.methods = None       # the methods it holds, where it runs some of a class's
+        self.group = None         # the class it runs some of, as the page reports it
         self.name = "results" if label == "the suite" else "results-" + re.sub(r"\W+", "-", label).strip("-")
         self.output = self.name.replace("results", "output", 1) + ".txt"
         self.exit_code = None
@@ -103,6 +109,7 @@ class Process:
         self.dumps = []           # the minidumps a lost test host left
         self.dump_lines = []      # what dotnet-dump read in the ones it left, a line each
         self.slowest = []         # its slowest tests that ended, each with its time
+        self.times = {}           # each test that ended's time in seconds, where it was lost
         self.finished = {}        # what its output says of the tests that ended, where it was lost
         self.counts = Counter()
 
@@ -180,7 +187,8 @@ def run(dotnet, process, args, results, seed=None):
     if process.lost:
         process.finished, times = ended_in(text)
         process.counts = Counter(outcome for outcome, _, _ in process.finished.values())
-        process.slowest = [f"`{name}` {duration(seconds)}" for name, seconds in sorted(times.items(), key=lambda t: -t[1])[:SLOWEST_SHOWN]]
+        process.times = times
+        process.slowest = slowest_of(times)
         process.running = tests_running(text)
         process.after = last_ended(text)
         process.last_lines = last_lines(text)
@@ -404,10 +412,15 @@ def list_tests(dotnet, args):
     return names
 
 
+def slowest_of(times):
+    """The SLOWEST_SHOWN tests that took longest, each with its time."""
+    return [f"`{name}` {duration(seconds)}" for name, seconds in sorted(times.items(), key=lambda t: -t[1])[:SLOWEST_SHOWN]]
+
+
 def parts_of(names, splits=None):
     """A process for each name after Engine.Tests. that holds PART_SIZE tests or more, as many as
-    splits gives a name, as 2 or 2+SomeTests, with one more for each class named after a +, and one
-    for the rest."""
+    splits gives a name, as 2 or 2+SomeTests, with one more for each class named after a +, or as
+    many as a class's count after a / says, as 2+SomeTests/2, and one for the rest."""
     counts = Counter(segment(name) for name in names)
     large = sorted(name for name, count in counts.items() if count >= PART_SIZE and name)
     parts = []
@@ -415,16 +428,32 @@ def parts_of(names, splits=None):
         pieces, *alone = str((splits or {}).get(name, 1)).split("+")
         pieces = int(pieces)
         classes = sorted({class_of(test) for test in names if segment(test) == name})
-        alone = [c for c in alone if c in classes]
+        counted = {c: int(n or 1) for c, _, n in (given.partition("/") for given in alone)}
+        alone = [c for c in counted if c in classes]
         if pieces <= 1 and not alone:
             part = Process(name, f"FullyQualifiedName~{PREFIX}{name}.")
             part.part = name
             parts.append(part)
             continue
         for c in alone:
-            part = Process(f"{name} {c}", f"FullyQualifiedName~{PREFIX}{name}.{c}.")
-            part.part, part.classes = name, {c}
-            parts.append(part)
+            if counted[c] <= 1:
+                part = Process(f"{name} {c}", f"FullyQualifiedName~{PREFIX}{name}.{c}.")
+                part.part, part.classes = name, {c}
+                parts.append(part)
+                continue
+            # The class's methods dealt by name, a theory's every case with its method, the last
+            # process taking the class but the methods the others name, so a method added later runs.
+            methods = sorted({test.split("(")[0] for test in names if segment(test) == name and class_of(test) == c})
+            dealt = [methods[k::counted[c]] for k in range(counted[c])]
+            for k, held in enumerate(dealt):
+                last = k == len(dealt) - 1
+                taken = [m for others in dealt[:-1] for m in others]
+                filter_ = ("&".join([f"FullyQualifiedName~{PREFIX}{name}.{c}."] + [f"FullyQualifiedName!={m}" for m in taken]) if last
+                           else "|".join(f"FullyQualifiedName={m}" for m in held))
+                part = Process(f"{name} {c} {k + 1}", filter_)
+                part.part, part.classes, part.group = name, {c}, f"{name} {c}"
+                part.methods = None if last else set(held)
+                parts.append(part)
         rest = [c for c in classes if c not in alone]
         dealt = [rest[k::max(1, pieces)] for k in range(max(1, pieces))]
         for k, held in enumerate(dealt[:-1]):
@@ -451,6 +480,8 @@ def label_of(name, parts):
     if not held:
         return "everything else"
     named = [p for p in held if p.classes is not None and class_of(name) in p.classes]
+    # A class dealt by its methods, the process naming the test's method, or the last of them.
+    named = [p for p in named if p.methods is not None and name.split("(")[0] in p.methods] or [p for p in named if p.methods is None]
     return (named or [p for p in held if p.classes is None])[0].label
 
 
@@ -697,10 +728,42 @@ def digest(results_dir, processes, listed, seconds):
         "seconds": round(seconds), "peak_mb": max((p.peak_mb for p in processes), default=0),
         "processes": [{"label": p.label, "lost": p.lost, "seconds": round(p.seconds), "peak_mb": p.peak_mb, "exit_code": p.exit_code,
                        "running": p.running, "after": p.after, "last_lines": p.last_lines, "summary": p.summary(), "slowest": p.slowest,
-                       "progress": p.progress, "dumps": p.dumps, "dump_lines": p.dump_lines} for p in processes],
+                       "progress": p.progress, "dumps": p.dumps, "dump_lines": p.dump_lines} for p in as_classes(processes)],
         "causes": sorted(causes.values(), key=lambda c: (-c["count"], c["key"])),
         "repeated": repeated_lines(read_text(path) for path in outputs),
     }
+
+
+def as_classes(processes):
+    """
+    The processes as the page reports them, those that each ran some of a class as the one class,
+    their times added, their largest memory and their counts, the first that was lost said lost with
+    its tests and lines, and their slowest tests taken together, so a class's time reads as it did
+    before it was dealt.
+    """
+    reported, merged = [], {}
+    for p in processes:
+        if p.group is None:
+            reported.append(p)
+            continue
+        if p.group not in merged:
+            whole = Process(p.group, None)
+            whole.output = p.output
+            whole.exit_code = 0
+            merged[p.group] = whole
+            reported.append(whole)
+        whole = merged[p.group]
+        whole.seconds += p.seconds
+        whole.peak_mb = max(whole.peak_mb, p.peak_mb)
+        whole.counts += p.counts
+        whole.exit_code = whole.exit_code or p.exit_code
+        whole.output = whole.output if whole.output == p.output else f"{whole.output} and {p.output}"
+        whole.times.update(p.times)
+        whole.slowest = slowest_of(whole.times)
+        if p.lost and not whole.lost:
+            whole.lost, whole.running, whole.after, whole.last_lines = p.lost, p.running, p.after, p.last_lines
+            whole.progress, whole.dumps, whole.dump_lines = p.progress, p.dumps, p.dump_lines
+    return reported
 
 
 def head(d):
@@ -917,12 +980,14 @@ def main():
         listed = list_tests(dotnet, args)
         processes = parts_of(listed, splits)
         if args.only or args.leave:
-            labels = {p.label for p in processes}
+            # A class dealt to several processes is named by its own label, as the page names it.
+            labels = {p.label for p in processes} | {p.group for p in processes if p.group}
             if unknown := [label for label in args.only + args.leave if label not in labels]:
                 print(f"No part is labeled {', '.join(unknown)}. The parts are {', '.join(sorted(labels))}.", flush=True)
                 return 2
             every = processes
-            processes = [p for p in every if (not args.only or p.label in args.only) and p.label not in args.leave]
+            processes = [p for p in every if (not args.only or p.label in args.only or p.group in args.only)
+                         and p.label not in args.leave and p.group not in args.leave]
             # The tests of the parts left out are no part of this run, so none counts as without a result.
             kept = {p.label for p in processes}
             listed = [name for name in listed if label_of(name, every) in kept]

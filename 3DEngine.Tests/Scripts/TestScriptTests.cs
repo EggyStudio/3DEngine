@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using System.Text;
+using System.Text.Json;
 using FluentAssertions;
 
 namespace Engine.Tests.Scripts;
@@ -219,6 +220,29 @@ public sealed class TestScriptTests : IDisposable
         Lines(log).Should().Contain(line => line.StartsWith("Rendering Lighting: 5 passed", StringComparison.Ordinal), "the class named runs alone")
             .And.Contain(line => line.StartsWith("Rendering 1: 30 passed", StringComparison.Ordinal), "the rest are dealt by their names, Drawing first")
             .And.Contain(line => line.StartsWith("Rendering 2: 5 passed", StringComparison.Ordinal), "and the last takes what the others leave but the class named");
+    }
+
+    [NeedsPythonFact]
+    public void A_Class_Dealt_To_Processes_By_Its_Methods_Is_Reported_As_The_One_Class_Its_Times_Added()
+    {
+        // As global illumination's class ran out its 70 minutes on the Windows runner's first half
+        // at 798d9270, 71 of its 77 tests in, where it had taken 67 and 69 two pushes before, and
+        // its time in two processes is read against those figures.
+        var (_, log) = Script(new Dictionary<string, string> { ["E3D_STANDIN_HANG"] = "Drawing" }, "--parts", "--split", "Rendering=2+Drawing/2",
+            "--dotnet", $"{Probes.Python.Value} 3DEngine.Tests/Scripts/dotnet_standin.py", "--results", _folder.Path, "--timeout-minutes", "0.05");
+
+        Lines(log).Should().Contain(line => line.StartsWith("Rendering Drawing 1: 15 passed", StringComparison.Ordinal), "the class's methods are dealt in turn")
+            .And.Contain(line => line.StartsWith("Rendering Drawing 2: 15 passed", StringComparison.Ordinal), "and the last takes the rest");
+        var processes = JsonDocument.Parse(File.ReadAllText(_folder.File("digest.json"))).RootElement.GetProperty("processes").EnumerateArray()
+            .Where(p => p.GetProperty("label").GetString()!.Contains("Drawing", StringComparison.Ordinal)).ToList();
+        processes.Should().ContainSingle("the page reports the class as one").Which.GetProperty("label").GetString().Should().Be("Rendering Drawing");
+        processes[0].GetProperty("seconds").GetInt32().Should().BeGreaterThanOrEqualTo(6, "its time is its two processes' added, each held to its 3 seconds");
+        var page = File.ReadAllLines(_folder.File("digest.md"));
+        page.Should().ContainSingle(line => line.StartsWith("### Lost: Rendering Drawing,", StringComparison.Ordinal));
+        page.SkipWhile(line => line != "Its slowest tests that ended:").Skip(1).Take(5).Should().Equal(
+            "    `Engine.Tests.Rendering.Drawing.Draws_29` 3 m 23 s", "    `Engine.Tests.Rendering.Drawing.Draws_28` 3 m 16 s",
+            "    `Engine.Tests.Rendering.Drawing.Draws_27` 3 m 9 s", "    `Engine.Tests.Rendering.Drawing.Draws_26` 3 m 2 s",
+            "    `Engine.Tests.Rendering.Drawing.Draws_25` 2 m 55 s");
     }
 
     [NeedsPythonFact]
