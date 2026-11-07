@@ -3,13 +3,16 @@
 Reviewed up to `2ceac35a`, 200's cascade cut, the cycle's images for the carrying cascades alone
 with the count line, pushed at 21:58 on 2026-11-06, its run green at 23:45 with macOS in 41 minutes,
 the Windows halves in 82 and 107 and Linux in 89; it keeps the form and carries the review's files
-and the devlog. Nothing is pushed after it. Before it `72d70e66`, 200's mend, the carried probes'
-rays moving through the meshes by ray queries at High, pushed at 20:10, its run green at 21:56 with
-macOS in 35 minutes, the Windows halves in 55 and 75 and Linux in 97. Before it `548e598c`, 209's
-README row with 208's and 200's replies and the review's files, pushed at 11:41 on 2026-11-05, its
-run green at 13:29 with macOS in 42 minutes, the Windows halves in 92 and 106 and Linux in 97.
-Before it `f969fe7d`, item 207, the normal read at the pixel's centroid, pushed at 08:35, its run
-green at 10:28 with macOS in 41 minutes, Linux in 89 and the Windows halves in 91 and 107. Before it
+and the devlog. After it `798d9270`, 210's R2 with gi.probe's two changes, pushed at 23:58 on
+2026-11-06, its run red at 02:00 on 2026-11-07 on Windows half 1 alone (Verdict 105), Linux green in
+114 minutes, macOS in 40 and half 2 in 85, the examples green; it keeps the form and carries the
+review's files and the devlog. Before it `72d70e66`, 200's mend, the carried probes' rays moving
+through the meshes by ray queries at High, pushed at 20:10, its run green at 21:56 with macOS in 35
+minutes, the Windows halves in 55 and 75 and Linux in 97. Before it `548e598c`, 209's README row
+with 208's and 200's replies and the review's files, pushed at 11:41 on 2026-11-05, its run green at
+13:29 with macOS in 42 minutes, the Windows halves in 92 and 106 and Linux in 97. Before it
+`f969fe7d`, item 207, the normal read at the pixel's centroid, pushed at 08:35, its run green at
+10:28 with macOS in 41 minutes, Linux in 89 and the Windows halves in 91 and 107. Before it
 `126c7224`, item 206, a shifted-in cell read in the next cascade out until its build ends, pushed at
 06:09, its run green at 07:52 with macOS in 33 minutes, the halves in 51 and 76 and Linux in 91.
 Before it `574565cb`, Verdict 104's mend, a still view reading each screen probe in place, pushed at
@@ -3688,7 +3691,100 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     alone passes the canopy and reads the door 0.822 and 0.881 and the lion 0.851 and 0.966 with the
     pixels' difference 0.937, 0.454, 0.429 and 0.272, a fault of its own, and lands as the first
     mend with the gi.probe changes after the GI tests and the suite, its cost at High beside 4.58 to
-    4.69, held until 2ceac35a's run ends.
+    4.69, held until 2ceac35a's run ends. R2 is `798d9270`, pushed at 23:58 on 2026-11-06 with
+    gi.probe picking the face furthest from the reference's in absolute terms and saying whether its
+    probe was carried, the door sheet in the readings, the suite 2,252 plain and shuffled, 155 of
+    155 GI tests, the strict build clean; its cost no read, a blend of sums the loop already takes,
+    4.65 to 4.70 ms where 2ceac35a reads 4.70 to 4.71 in the one round the GPU was shared with the
+    desktop alone. The one rule, a trial on a copy over R2, the merge marching the fine ray on from
+    its interval's end, four times its spacing, to the interval end of the cascade above for
+    occluders alone through the field it binds, a probe above agreeing where its hit along the way
+    projected on the fine ray lies within the larger of two cells above and a quarter of the
+    occluder's distance of the fine ray's occluder or where both go past the limit, the agreeing
+    probes taken alone, the way dark where none agrees and the fine ray met an occluder; the door at
+    8:00 and noon and the lion at 8:00 and noon as light over the reference with the pixels'
+    difference, at 2ceac35a 0.846 (0.955), 0.884 (0.457), 0.867 (0.439) and 0.968 (0.274), with two
+    cells' tolerance 0.717, 0.691, 0.911 and 0.920, the door at noon losing its far wall since the
+    fine ray and the probes above meet it from different places, with the growing tolerance 0.765
+    (0.889), 0.895 (0.432), 0.990 (0.372) and 0.986 (0.261), the pixels better in all four and the
+    door at 8:00 down since the arch's sky excess is gone and the pockets' sun lack remains, and
+    with the pocket mark beside it 1.106 (0.943), 0.827 (0.459), 1.013 (0.375) and 0.975 (0.262),
+    the two interacting at noon, read next. Still to read, the canopy test, the GI tests and the
+    price, by cascade from builds applying the rule in one cascade at a time once the GPU is quiet,
+    with whether the march may stop at the first opaque hit or the farthest point a probe above
+    reads, a probe seeing the sky having none. Read at 00:22 on 2026-11-07. The rule with its march
+    crossing surfaces that let light through, as seesPastLeaves does, holds all 155 tests, the
+    canopy among them, where without the crossing 8 failed under leaves or a slab letting light
+    through, the march taking the slab for an occluder and the probes seeing past it disagreeing.
+    Over 798d9270's R2 (0.822, 0.881, 0.851 and 0.966 with the pixels' difference 0.937, 0.454,
+    0.429 and 0.272) the rule reads 0.771 (0.888), 0.892 (0.432), 0.989 (0.371) and 0.984 (0.261),
+    and with the trial pocket mark 1.102 (0.944), 0.825 (0.460), 1.029 (0.375) and 0.976 (0.261). At
+    noon the door by source under the rule reads the sun's first bounce 0.890 of the reference, the
+    light past it 0.707 and the sky 3.6 and 2.2 times, and with the trial mark the sun's first
+    bounce 0.761, the 0.073 lost lying on the vestibule's walls, the side wall facing -z 0.97 to
+    0.73 of the reference's sun bounce for 44% of it, the wall facing +z 1.91 to 1.61 for 20 and the
+    white block facing -x 0.66 to 0.55 for 18; the trial's pocket test, 14 marches from the probe
+    above within half the cascade's interval end and a pocket where fewer than 2 get out, counts a
+    probe above that sees along a narrow vestibule's axis alone as a pocket, so probes the merge
+    served well are carried and their own rays take less of the noon sun's bounce. So (a) takes its
+    mark from the probe's own rays, the share of its texels that met a surface before their
+    interval, its threshold read in the rooms, the Cornell box and the vestibule at noon, not from
+    the march. Next the price, a scratch command counting from read-back images in the atrium and
+    the vestibule by cascade the share of ways that take the cascade above, of those the share where
+    some probe above sees past that cascade's end and runs the march to it, and for the rest the
+    march's length to the farthest point a probe above reads, then the timings per cascade once the
+    GPU is quiet; and after the price, where the door's sky at noon still reads 3.6 times at its
+    first bounce under the rule, by surface, since the rule took the arch's sky excess at 8:00 and
+    left noon's. Read at 00:27, the price, counted from read-back images by a scratch command in a
+    work copy (gi.farshare, not in the tree) at 798d9270. In the atrium at noon cascade 0's ways
+    take the cascade above at 51.6%, 50.1 of those running the march to the span's end (4 to 8) and
+    the rest 73% of it, cascade 1 24.0, 78.8 and 46% of 8 to 16, cascade 2 55.9, 99.4 and 2% of 16
+    to the field's edge at 221.7; at the door at 8:00 (noon within 0.6 points) 33.7, 61.4 and 55%,
+    then 47.6, 98.4 and 35, then 73.7, 99.5 and 5. So the stopping point saves little and the price
+    sits at cascade 2, about 90,000 ways in the vestibule and 68,000 in the atrium each marching to
+    the field's edge for occluders, near a second trace of the last counted cascade without its
+    shading; the trial's march took traceField's 64-step cap and read a way as clear once it ran
+    out, so its figures bound the full march from below there. The timings by cascade follow once
+    the GPU is quiet, with a fourth build, the rule in cascades 0 and 1 alone, since the arch, the
+    canopy and the lion's pockets lie in their spans and cascade 2 is the cost; the rule lands in 0
+    and 1 alone where that build holds the views within a few percent of the full rule, cascade 2's
+    share the recorded remainder. Noon's sky excess under the rule is something else, on the same
+    court-facing surfaces as at 8:00, the floor by the door at 2.38 times at its first bounce for
+    46% of it, the end wall 4.97 times past it and the door; at the end wall's screen probe four
+    rays carry it into world cascade 0, the largest downward to the probe at 18.5,0.5,-3.5 whose -y
+    face reads 40 times the reference at noon, along -0.18,-0.91,-0.37, whose ray meets the floor
+    under the door's threshold at 1.31 and brings 0.0718 where the reference's path meets the
+    threshold's top at 0.94, a block 0.1 high and thinner than cascade 0's cell, and brings
+    0.0000257, nothing with the light past the first bounce off, so it is the hit's gather;
+    field.march meets a surface at 18.31,-0.447,-3.885 in cascade 1's 0.25 cells with a normal
+    facing down, 0.126,-0.627,-0.769, and the hit gathers from the probes under the floor in the
+    open beneath the building, which stand in front of that normal, R2's seen rule keeping them; the
+    same probe's 60 times at 8:00 is this cause, R2 having taken 0.024 of the view off it. Not a
+    merge, so the rule leaves it; it is a thin surface's normal in the field at a hit. The mend, its
+    own small commit before the rule's, a hit's normal turned to face the ray that met it, since a
+    ray marching from the open meets a surface from its own side and a normal facing away is the
+    field's gradient at a sheet thinner than its cell, measured on that probe's -y face at both
+    hours and the door's sky at noon by surface, with the GI tests. Read at 00:55, the turn and the
+    timings. Every probe hit's normal turned to face its ray reads the door 0.839 (0.983) and 0.903
+    (0.489) and the lion 0.861 (0.452) and 0.966 (0.276) where 798d9270 reads 0.822 (0.937), 0.881
+    (0.454), 0.851 (0.429) and 0.966 (0.272), the same only where the hit is not met from behind
+    within 0.005 of it, and on the field's sheets alone 0.733, 0.871, 0.850 and 0.966 with the -y
+    face of 18.5,0.5,-3.5 still 43 times, so the threshold is a solid surface's gradient and not a
+    sheet; turned, that face reads +115% at noon (0.000659 against 0.000305) and 0.50 at 8:00, its
+    own hits -37% where +623. The turn's harm is the end wall facing the court, block 8's -x side,
+    from 1.91 to 2.97 of the reference at 8:00, carrying the pixels' rise (+0.079 of the view
+    against a net +0.045), and from 1.23 to 1.48 at noon, the wall already over from the vestibule's
+    sky excess and hits facing their rays passing more of it around, the other surfaces within 0.01;
+    so the turn lands only once the sky reaching that wall is read, which of its hits the turn
+    changes and what they gather. The rule in cascades 0 and 1 alone holds the full rule's figures,
+    0.776 (0.887), 0.904 (0.432), 0.997 (0.372) and 0.991 (0.263) against 0.771, 0.892, 0.989 and
+    0.984, and GI at High in the atrium at 1080p in quiet rounds with the 64-step march reads 4.69
+    to 4.71 ms at 798d9270, 4.81 to 4.83 with the full rule, 4.72 to 4.73 with cascade 0 alone, 4.70
+    to 4.74 with 1, 4.71 to 4.85 with 2 and 4.71 to 4.78 with 0 and 1, about 0.04 ms where the whole
+    costs 0.13, the uncapped march's price of cascade 2 timing for the record. Taken, the rule in
+    cascades 0 and 1 lands first, after the GI tests on that form and the suite, with cascade 2's
+    share and its uncapped cost as the recorded remainder; then the end wall's read and the turn;
+    (a) after them.
 
 211. **High's cost since the budget was set.** From item 208 on 2026-11-06. GI at High in the atrium
     at 1080p reads 4.58 to 4.69 ms against the budget of 4, the parts since the budget was set 199's
@@ -3699,7 +3795,37 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     candidates, with the figures before any cut; the owner's word on 208 may close it. After 210.
 ## Verdicts
 
-Verdicts 56 to 104 are settled, said under each in REVIEW-ARCHIVE.md; none is open.
+Verdicts 56 to 104 are settled, said under each in REVIEW-ARCHIVE.md; 105 is open.
+
+105. **The GI test class ends at its limit on Windows half 1.** The run of `798d9270` is red on
+     Windows half 1 at 01:23 on 2026-11-07, where Rendering GlobalIlluminationTests ended at its
+     time limit after 70 minutes with 66 passed, 0 failed, 5 skipped and 77 without a result, the
+     half 132 passed in 81 minutes with 77 without a result, 885 MB at most; its slowest tests that
+     ended the glow lights far from the origin at 4 m 30 s, the floor under a solid slab in four
+     cascades at High 3 m 12 s and at Low 2 m 8 s, the camera's slide 3 m 7 s and the carried
+     probes' cycle at High 1 m 59 s, the last to end the emissive panel's render texture, the next
+     begun on a device tracing no rays. 2ceac35a's half 1 passed in 82 minutes whole, so the class
+     stood near its limit before this commit; macOS and half 2 are green and Linux is still running
+     at 01:55. Read the class's time on that half across the last five runs from the digests, by
+     test, and whether 798d9270 added to it, R2's blend on a device without ray queries or the tests
+     the commit touched; then split the class between the halves or raise its limit with the
+     figures, no test trimmed, so the half ends inside its 120 minutes with room. Read at 01:58. The
+     class's part on half 1 from the digests, 67 m 40 s at f969fe7d, 69 m 06 s at 548e598c, 36 m 38
+     s at 72d70e66, 59 m 31 s at 2ceac35a and the limit at 798d9270 with 71 of 77 ended, so it stood
+     1 to 3 minutes under the limit two pushes before and swings by half with the runner; the
+     halves' wall times 91, 92, 55, 82 and 84 minutes for half 1 and 107, 106, 75, 107 and 85 for
+     half 2, which has no room for any of the class. The earlier logs keep no per-test times, so
+     whether 798d9270 added time is read locally on lavapipe with Mesa's cache off as Windows runs
+     it, the class alone with 2ceac35a's shaders, 798d9270's (R2 the only shader change) and the
+     rule's, since the merge's march on a device without ray queries has to hold this limit too. The
+     mend taken, test.py splitting a class named with a plus into as many processes as it is given,
+     its methods dealt in turn (Rendering=2+GlobalIlluminationTests/2), half 1 running the class in
+     two processes of about 35 minutes each under their 70 with its whole time unchanged inside its
+     120, no limit raised and no test trimmed, the digest and the page reporting the class as one
+     with the processes' times summed, the workflow's comment carrying the five runs' figures; on
+     its own first, the rule's commit after it once the Linux job ends. The run ended at 02:00,
+     Linux green in 114 minutes where the five before took 89 to 97, so the class's slowness is on
+     lavapipe there as well, inside Linux's limit but worth the same figure.
 
 ## Decisions
 
@@ -4956,3 +5082,35 @@ session's tests, the rule adding no read. Next the one rule, the fine ray marchi
 past its interval for occluders alone and each probe above whose own hit along the way disagrees
 with it passed over, priced by cascade at High in the atrium and Sponza with the canopy, the lion
 and the arch as its cases, then the pocket mark.
+
+210, the rule landed on 2026-11-07 in cascades 0 and 1, where the cascade above's interval ends at
+twice the lower one's. The ray below marches on past its interval to that end through the field,
+across surfaces that let light through, and each probe above whose own hit along the way lies off
+where the march met a surface, by two of its cells or a quarter of the way, or that met one where
+the march met none, is passed over, the agreeing ones taken alone, none where none agrees and the
+march met a surface. A new test, a probe under a hall's roof whose rays toward its opening meet a
+lintel past its interval, reads 0.0778 against the reference's 0.0812, where without the rule it
+reads 0.1227. The door at 8:00 and noon and the lion at 8:00 and noon read 0.777 and 0.892, 0.904
+and 0.431, 1.005 and 0.372, 0.990 and 0.262 where 798d9270 reads 0.822 and 0.937, 0.881 and 0.454,
+0.851 and 0.429, 0.966 and 0.272, all 156 GI, bounce-room, cascade-edge, bounce-reference, glow and
+lintel tests passing. Global illumination at High in the atrium reads 4.67 to 4.78 ms where 4.65 to
+4.71 in the quiet rounds. The remainder recorded is cascade 2, whose march runs to the field's
+edge, 99.4 and 99.5% of its ways that take the cascade above in the atrium and the vestibule having
+a probe above that sees past it, the whole rule uncapped 4.77 to 4.79 ms in the same round as 4.65
+to 4.70 and the views within 0.012 of the rule in 0 and 1. The threshold's normal turned to face
+the ray mends its probe, the -y face 2.15 times the reference at noon where 43, but raised the end
+wall facing the court from 1.91 to 2.97 at 8:00 before the rule, which the end wall's read decides
+next, then the pocket mark.
+
+Verdict 105, read on 2026-11-07. On Windows' first half the GI class took 67 m 40 s, 69 m 6 s,
+36 m 38 s and 59 m 31 s at f969fe7d, 548e598c, 72d70e66 and 2ceac35a and ran out its 70 at
+798d9270 71 of its 77 tests in, the half's job 91, 92, 55, 82 and 84 minutes, the second half's
+107, 106, 75, 107 and 85, and Linux's suite, run whole, 44, 49, 44, 44 and 56 minutes. 798d9270
+added no time. On lavapipe with Mesa's cache off, five of the class's methods, the three the run
+named slowest among them, took 533 s with 2ceac35a's shaders, 500 with 798d9270's and 514 with
+the rule's, each test within 12 s of its time at 2ceac35a, so the run's slowness was its runners',
+Linux's and the first half's alike. build/test.py deals a class named after a + with a count after
+a / into as many processes by its methods, the last taking every method the others do not name,
+and reports them as the one class, their times added and their slowest tests together, which a
+test holds with the stand-in, and the workflow runs the GI class so in two, the half's time as
+before.

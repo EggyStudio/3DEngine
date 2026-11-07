@@ -2787,6 +2787,31 @@ where 4.70 to 4.71 in the round the desktop alone shared the GPU, the rule addin
 (`gi.probe`, `gi.screenprobe`, `gi.compare`, `field.march`, `./e3d command profile`,
 `.github/assets/readings/2026-11-06-item-210-door.webp`).
 
+**The probes above that see past what a ray meets, mended on 2026-11-07.** A probe above stands a
+spacing from the probe below it and may see past a surface that the lower probe's ray would meet
+beyond its interval, or meet one that ray passes. Where the cascade above's interval ends at twice
+the lower one's, the lower ray marches on past its interval to that end through the field, across
+surfaces that let light through, and each probe above whose own hit along the way lies off where the
+march met a surface, by two of its cells or a quarter of the way, or that met one where the march
+met none, is passed over, those that agree taken alone, and the light from beyond is none where none
+agrees and the march met a surface (`gi_merge.slang`). A probe under a hall's roof whose rays toward
+its opening meet a lintel past its interval read 51% over a path-traced reference with the sky the
+probes above saw under the lintel, and 4% under marched so. At High the door view read 0.777 of its
+light at 8:00 where 0.822 and 0.904 at noon where 0.881, the lion 1.005 and 0.990 where 0.851 and
+0.966, the pixels' difference 0.892, 0.431, 0.372 and 0.262 of the light where 0.937, 0.454, 0.429
+and 0.272, and global illumination took 4.67 to 4.78 ms in the atrium at 1920 by 1080 where 4.65 to
+4.71. The door at 8:00 falls as its sky's excess past the arch goes and its sun's lack under the
+pockets above the vestibule stays. The cascade whose above is the last counted is not marched, its
+march running to the field's edge, where 99% of the ways that take the cascade above have a probe
+above that sees past it, for 0.05 to 0.1 ms more and the views within 0.012. On lavapipe with Mesa's
+cache off, five of global illumination's tests took 514 s where 533 before it (`dotnet test`). Left
+are those pockets, which hand the vestibule's floor none of the court's sunlit light, and a hit on
+the main door's threshold, a block 0.1 high and thinner than the finest cells, whose normal the
+field turns down, so the hit takes the light of the probes under the floor and the probe above it
+reads 43 times the reference in its downward face at noon. Turned to face the ray, that face reads
+2.15 times, but before the march the end wall facing the court rose from 1.91 to 2.97 of the
+reference at 8:00 with it (`gi.probe`, `gi.compare`, `field.march`, `./e3d command profile`).
+
 **A crossing taken once, read on 2026-10-31.** The cascades' intervals overlap, the first's
 reaching twice as far as the second's begins, and a slab that straddled the first's end was crossed
 twice, the first cascade's ray taking the part of it within its interval and handing on what it

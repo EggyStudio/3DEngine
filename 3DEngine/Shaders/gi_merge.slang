@@ -18,6 +18,28 @@
 // cascade above 171% over a path-traced reference, where read so 61%, at no cost worth measuring;
 // a trace from this ray toward each probe above, the bilinear fix, read it 116% over at a tenth of
 // global illumination's time more (gi.probe, ./e3d command profile).
+//
+// A probe above stands a spacing from this one and may see past what this ray would meet beyond
+// its interval, or meet what this ray passes. Where the cascade above's interval ends at twice this
+// one's, this ray is marched on past its interval to that end through the field, across surfaces
+// that let light through, and each probe above whose own hit along the way lies off where the march
+// met a surface, by two of its cells or a quarter of the way, or that met one where the march met
+// none, is passed over, those that agree taken alone, and where none agrees and the march met a
+// surface, the light from beyond is none. In Sponza's door view at 8:00 at High the probes above
+// the vestibule saw the sky and the court past its arch along ways whose rays meet its underside,
+// 0.00325 along one where a path-traced reference reads 0.0000302, and in the lion view the
+// probes above under the arcade met its arch along a way the probe below sees the sky along.
+// Marched so, the lion at 8:00 read 0.997 of the reference's light where 0.851 and the door at
+// noon 0.904 where 0.881, the door at 8:00 0.776 where 0.822 with its sky's excess gone and the
+// pockets' lack of its sun left, the pixels' difference from the reference falling in all four,
+// and global illumination took 0.01 to 0.04 ms more at High in the atrium at 1920 by 1080. The
+// cascade whose above is the last counted is not marched, since its march runs to the field's
+// edge, where 99% of the ways that take the cascade above have a probe above that sees past it,
+// for 0.05 to 0.1 ms more and the views within 0.012. Passing over the probes above that met a
+// surface before their interval without the march lit the floor under a solid canopy from the
+// probes at its edge, its share of the sky's light 0.137 where 0.156 and the reference's 0.17,
+// since read as dark they stood in for this ray's own meeting with the roof (gi.probe,
+// gi.compare, ./e3d command profile).
 import gi;
 import scenefield;
 import lightthrough;
@@ -160,6 +182,27 @@ float3 settled(float3 light, uint3 at, uint2 texel, uint probes, uint texels, ui
 // as a probe has sixteen threads at fewest.
 groupshared uint seen[32];
 
+// Where a ray from origin along way meets a surface that does not let light through between tMin
+// and tMax, crossing up to four that do as seesPastLeaves crosses them, or -1 where it meets none.
+float metPast(float3 origin, float3 way, float tMin, float tMax)
+{
+    float t = tMin;
+    [loop]
+    for (int layer = 0; layer < 4; layer++)
+    {
+        t = traceField(sceneField, fieldInfo, origin, way, t, tMax);
+        if (t < 0.0)
+            return -1.0;
+        if (lightThroughAt(fieldAlbedo, fieldInfo, origin + way * t) <= 0.0)
+            return t;
+        bool inside = false;
+        t += lightThroughDepth(sceneField, fieldInfo, origin, way, t, tMax - t, inside);
+        if (inside)
+            return -1.0;
+    }
+    return -1.0;
+}
+
 [shader("compute")]
 [numthreads(64, 1, 1)]
 void computeMain(uint3 id : SV_DispatchThreadID, uint3 local : SV_GroupThreadID)
@@ -247,9 +290,16 @@ void computeMain(uint3 id : SV_DispatchThreadID, uint3 local : SV_GroupThreadID)
     float3 f = q - float3(base);
     uint factor = upper / texels;
     float3 d = fromOctahedron((float2(texel) + 0.5) / float(texels));
-    float3 sum = float3(0.0);
-    float sky = 0.0;
-    float weights = 0.0;
+    // Where this ray meets a surface past its interval, which ends at four times the probes'
+    // spacing below the last cascade, up to where the cascade above's ends, or -1 where it meets
+    // none or the cascade above's runs on to the field's edge.
+    float end = 4.0 * oc.w * push.spacing.x;
+    float limit = push.spacing.w;
+    bool marched = limit < 2.5 * end;
+    float occluder = marched ? metPast(origin, d, end, limit) : -1.0;
+    float3 sum = float3(0.0), agreedSum = float3(0.0);
+    float sky = 0.0, agreedSky = 0.0;
+    float weights = 0.0, agreedWeights = 0.0;
     for (int corner = 0; corner < 8; corner++)
     {
         int3 offset = int3(corner & 1, (corner >> 1) & 1, corner >> 2);
@@ -270,6 +320,9 @@ void computeMain(uint3 id : SV_DispatchThreadID, uint3 local : SV_GroupThreadID)
                 way = normalize(toward);
         }
         int2 first = int2(floor(octahedron(way) * float(upper) - float(factor) * 0.5 + 0.5));
+        // Where along this ray the probe above's own hit lies, or past the limit where it met none.
+        float along = r > 0.0 && r < limit * 0.999 ? dot(upperAt + d * r - origin, d) : 1e30;
+        bool agrees = !marched || (occluder < 0.0 ? along >= limit * 0.999 : abs(along - occluder) <= max(2.0 * ac.w, 0.25 * occluder));
         // The texels of the cascade above that lie inside this one's, one or four of them, those
         // that met a surface before their interval dark, and those inside a mesh passed over.
         for (uint v = 0u; v < factor; v++)
@@ -280,13 +333,35 @@ void computeMain(uint3 id : SV_DispatchThreadID, uint3 local : SV_GroupThreadID)
                 float4 child = above.Load(from);
                 if (child.a > 0.75)
                 {
+                    float itsSky = aboveSky.Load(from);
                     sum += child.rgb * weight;
-                    sky += aboveSky.Load(from) * weight;
+                    sky += itsSky * weight;
                     weights += weight;
+                    if (agrees)
+                    {
+                        agreedSum += child.rgb * weight;
+                        agreedSky += itsSky * weight;
+                        agreedWeights += weight;
+                    }
                 }
                 else if (child.a > 0.25)
+                {
                     weights += weight;
+                    if (agrees)
+                        agreedWeights += weight;
+                }
             }
+    }
+    if (agreedWeights > 1e-4)
+    {
+        sum = agreedSum;
+        sky = agreedSky;
+        weights = agreedWeights;
+    }
+    else if (occluder >= 0.0)
+    {
+        sum = float3(0.0);
+        sky = 0.0;
     }
     float3 beyond = weights > 1e-4 ? sum / weights : float3(0.0);
     merged[written] = float4(settled(own.rgb + beyond * nothing, at, texel, probes, texels, c), own.a < 0.75 ? kept : 1.0);
