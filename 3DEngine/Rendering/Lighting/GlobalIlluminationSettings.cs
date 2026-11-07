@@ -93,6 +93,13 @@ internal sealed class GlobalIlluminationSettings
     /// </summary>
     public bool SpecularOff { get; set; }
 
+    /// <summary>
+    /// Whether the profile times global illumination's passes apart, the ray scene, each cascade's
+    /// trace, the merges, the gather and the screen's probes, as <c>gi.passes on</c> sets it, so
+    /// where its time goes can be read, the rest staying <c>gpu.global_illumination</c>.
+    /// </summary>
+    public bool PassesTimed { get; set; }
+
     /// <summary>The one cascade whose rays' light alone reaches the pixels, or -1 for every cascade, as <c>gi.toggle cascade</c> sets it.</summary>
     public int Alone { get; set; } = -1;
 

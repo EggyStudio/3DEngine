@@ -1393,8 +1393,11 @@ time with `RAY_QUERY` defined (`SlangLoader`'s variants, which `e3d shaders` com
 program's cache too), and its lights' set holds the window's meshes as the GPU's rays see them
 (`GraphicsDevice.RayQuery`). Each mesh the field gathered, the skinned left out, gets a
 bottom-level structure from its triangles the first frame it is drawn, its corners kept in one
-buffer, and at `High` the top-level structure of every copy is built again each frame with each
-copy's color and emission, written into one of a ring of buffers a frame in flight. A
+buffer, and at `High` the top-level structure of every copy is built again on a frame a copy
+moved, came or went, each copy's color and emission written each frame into one of a ring of
+buffers a frame in flight. A build waits on every fragment and compute pass before it, so keeping
+the structure while nothing moved took 0.13 to 0.17 ms a frame off global illumination in Sponza
+at `High` (`./e3d command gi.passes on`, then `profile`). A
 reflection whose ray the field misses traces it there, and the triangle it meets, its face from the
 corners turned toward the ray, is lit by the lamps, each that casts shadows through a ray toward
 it, the sun through a second ray, and the indirect light or the sky (`rayReflection` in

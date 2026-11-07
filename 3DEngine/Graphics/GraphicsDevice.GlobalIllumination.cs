@@ -551,6 +551,7 @@ internal sealed unsafe partial class GraphicsDevice
             push.First = first;
             run.Dispatch(trace, set, MemoryMarshal.AsBytes(new ReadOnlySpan<IlluminationTrace>(in push)),
                 (count * n * n * (uint)gi.RaysAt(c) + 63) / 64);
+            MarkGlobalIllumination(commandBuffer, $"gi_trace{c}");
         }
         MemoryBarrier(cmd, VkPipelineStageFlags2.ComputeShader, VkAccessFlags2.ShaderWrite, VkPipelineStageFlags2.ComputeShader, VkAccessFlags2.ShaderRead);
 
@@ -606,6 +607,7 @@ internal sealed unsafe partial class GraphicsDevice
             run.Dispatch(MergeStage, set, MemoryMarshal.AsBytes(push), (p * p * p * n * n + 63) / 64);
             MemoryBarrier(cmd, VkPipelineStageFlags2.ComputeShader, VkAccessFlags2.ShaderWrite, VkPipelineStageFlags2.ComputeShader, VkAccessFlags2.ShaderRead);
         }
+        MarkGlobalIllumination(commandBuffer, "gi_merge");
 
         // The faces, the reach and the light by way go to the general layout for the gather, after
         // this frame's rays read them.
@@ -629,6 +631,7 @@ internal sealed unsafe partial class GraphicsDevice
                 BitConverter.SingleToUInt32Bits(intervals[c].End), BitConverter.SingleToUInt32Bits(carriedShare), 0, 0];
             run.Dispatch(AmbientStage, set, MemoryMarshal.AsBytes(push), (p * p * p * 6 + 63) / 64);
         }
+        MarkGlobalIllumination(commandBuffer, "gi_gather");
         PipelineBarrier(cmd, [.. new[] { gi.Cubes, gi.CubesAt, gi.Reach, gi.Skies, gi.Ways }.Select(image => ImageBarrier(image, ColorLevels(0, 1), VkImageLayout.General,
             VkImageLayout.ShaderReadOnlyOptimal, VkPipelineStageFlags2.ComputeShader, VkAccessFlags2.ShaderWrite, readers, VkAccessFlags2.ShaderRead))]);
         // Each probe's own light and share, which the next frame's rays read.
@@ -706,6 +709,17 @@ internal sealed unsafe partial class GraphicsDevice
         }
 
         public void Dispose() => _device.DestroyDescriptorPool(_pool);
+    }
+
+    /// <summary>Whether global illumination's passes are timed apart in the profile, as <c>gi.passes on</c> sets it.</summary>
+    internal bool GlobalIlluminationPassesTimed { get; set; }
+
+    // Marks the end of one of global illumination's passes for the profile, where they are timed
+    // apart, the profile naming the time since the mark before by this one's label.
+    internal void MarkGlobalIllumination(ICommandBuffer commandBuffer, string label)
+    {
+        if (GlobalIlluminationPassesTimed && TimestampsSupported)
+            Timestamp(commandBuffer, label);
     }
 
     // Runs before the device goes.

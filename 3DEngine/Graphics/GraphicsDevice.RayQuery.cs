@@ -72,6 +72,9 @@ internal sealed class GpuRayScene : IDisposable
     internal readonly AddressedBuffer?[] Instances = new AddressedBuffer?[GpuTextures.RetireFrames + 1];
     internal readonly AddressedBuffer?[] Surfaces = new AddressedBuffer?[GpuTextures.RetireFrames + 1];
     internal int Slot;
+    // The copies' records the top level was last built from, and how many builds it has had.
+    internal byte[]? Built;
+    internal int TopBuilds;
     internal Action? Destroy;
 
     /// <summary>How many copies the frame's top-level structure holds.</summary>
@@ -378,6 +381,17 @@ internal sealed unsafe partial class GraphicsDevice
             }));
             (scene.Top, scene.TopStorage, scene.TopScratch) = (default, null, null);
         }
+
+        // A top level whose copies' records are those its last build read is kept, the surfaces
+        // written above holding the frame's colors, since its build waits on every fragment and
+        // compute pass before it, and with nothing moving in Sponza at High the build and the wait
+        // cost global illumination 0.13 to 0.17 ms a frame (./e3d command gi.passes on, profile).
+        // A copy moved, come or gone, or a mesh's structure built anew, changes the records.
+        var bytes = MemoryMarshal.AsBytes(written);
+        if (scene.Top.Handle != 0 && scene.Capacity >= count && scene.Built is { } last && bytes.SequenceEqual(last))
+            return retired;
+        scene.Built = bytes.ToArray();
+        scene.TopBuilds++;
 
         var geometry = new VkAccelerationStructureGeometryKHR
         {

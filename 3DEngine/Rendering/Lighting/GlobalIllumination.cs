@@ -407,6 +407,7 @@ internal sealed partial class GlobalIlluminationRenderer : IDisposable
         _lightThrough = false;
         foreach (var (instance, _) in renderWorld.TryGet<SceneFieldRenderer>()?.Drawn ?? [])
             _lightThrough |= instance.LightThrough > 0 && !switches.ThroughOff;
+        device.GlobalIlluminationPassesTimed = switches.PassesTimed;
         RecordRays(renderContext, renderWorld, device, plan);
         // A carried probe's rays move within their texels and meet the meshes through the device's
         // rays at High where it traces them, the field's finest cells missing an arch's edge thinner

@@ -6729,6 +6729,65 @@ at `36cae0c2`.
      worktree holding the commit's content; Settled by the run of `574565cb` green at 06:08 on
      2026-11-05, Linux in 87 minutes, the Windows halves in 68 and 99, macOS in 40.
 
+105. **The GI test class ends at its limit on Windows half 1.** The run of `798d9270` is red on
+     Windows half 1 at 01:23 on 2026-11-07, where Rendering GlobalIlluminationTests ended at its
+     time limit after 70 minutes with 66 passed, 0 failed, 5 skipped and 77 without a result, the
+     half 132 passed in 81 minutes with 77 without a result, 885 MB at most; its slowest tests that
+     ended the glow lights far from the origin at 4 m 30 s, the floor under a solid slab in four
+     cascades at High 3 m 12 s and at Low 2 m 8 s, the camera's slide 3 m 7 s and the carried
+     probes' cycle at High 1 m 59 s, the last to end the emissive panel's render texture, the next
+     begun on a device tracing no rays. 2ceac35a's half 1 passed in 82 minutes whole, so the class
+     stood near its limit before this commit; macOS and half 2 are green and Linux is still running
+     at 01:55. Read the class's time on that half across the last five runs from the digests, by
+     test, and whether 798d9270 added to it, R2's blend on a device without ray queries or the tests
+     the commit touched; then split the class between the halves or raise its limit with the
+     figures, no test trimmed, so the half ends inside its 120 minutes with room. Read at 01:58. The
+     class's part on half 1 from the digests, 67 m 40 s at f969fe7d, 69 m 06 s at 548e598c, 36 m 38
+     s at 72d70e66, 59 m 31 s at 2ceac35a and the limit at 798d9270 with 71 of 77 ended, so it stood
+     1 to 3 minutes under the limit two pushes before and swings by half with the runner; the
+     halves' wall times 91, 92, 55, 82 and 84 minutes for half 1 and 107, 106, 75, 107 and 85 for
+     half 2, which has no room for any of the class. The earlier logs keep no per-test times, so
+     whether 798d9270 added time is read locally on lavapipe with Mesa's cache off as Windows runs
+     it, the class alone with 2ceac35a's shaders, 798d9270's (R2 the only shader change) and the
+     rule's, since the merge's march on a device without ray queries has to hold this limit too. The
+     mend taken, test.py splitting a class named with a plus into as many processes as it is given,
+     its methods dealt in turn (Rendering=2+GlobalIlluminationTests/2), half 1 running the class in
+     two processes of about 35 minutes each under their 70 with its whole time unchanged inside its
+     120, no limit raised and no test trimmed, the digest and the page reporting the class as one
+     with the processes' times summed, the workflow's comment carrying the five runs' figures; on
+     its own first, the rule's commit after it once the Linux job ends. The run ended at 02:00,
+     Linux green in 114 minutes where the five before took 89 to 97, so the class's slowness is on
+     lavapipe there as well, inside Linux's limit but worth the same figure. The mend is `f666be74`,
+     pushed at 03:37 on 2026-11-07 with 0cbaf53f, one run on the pair. test.py deals a class named
+     after a plus with a count after a slash into that many processes by its methods, the last
+     taking the class less the others', --only and --except matching the class's own label, the
+     digest and the page reporting the processes as the one class with the times added, the largest
+     memory, the counts summed and the slowest tests pooled, the workflow running
+     Rendering=2+GlobalIlluminationTests/2 on half 1, its comment carrying half 1's five class and
+     job times, half 2's job times and Linux's whole-suite times (44, 49, 44, 44 and 56 minutes,
+     Linux running the suite as one process with no class time), a stand-in test holding the one
+     record and failing on the old script. Five of the class's methods on lavapipe with Mesa's cache
+     off, the run's three slowest among them, took 533 s with 2ceac35a's shaders, 500 with
+     798d9270's and 514 with the rule's, each test within 12 s, so the run's slowness was its
+     runners', Linux and half 1 together, not the commit's. Settles on the run. Settled, the run of
+     `186447fb` passing on the three systems at 08:08 on 2026-11-07, Windows half 1 in 99 minutes
+     with the GI class in its two processes and both lintel tests skipped on lavapipe.
+
+106. **The lintel test asserts where it should skip.** The run of `0cbaf53f` is red on Linux, macOS
+     and Windows half 1 at 04:2x on 2026-11-07, one failure of one cause on each,
+     A_Probe_Whose_Ray_Meets_A_Lintel_Past_Its_Interval_Takes_No_Sky_The_Probes_Above_See_Under_It
+     failing with "Expected probe not to be <null> because the device traces no rays, which the
+     reference is traced through", Linux 2,187 passed and 39 skipped in 35 minutes, macOS 2,165 and
+     43 in 32, half 1 203 and 6 in 43 with the GI class dealt into its two processes, so Verdict
+     105's split holds and the runners' lavapipe has no ray queries for gi.probe's reference, which
+     the other reference tests skip on. The mend is the test skipping where the device traces no
+     rays, as its neighbors do, with the reason in the skip and no figure moved, riding in the
+     flip's commit, which goes up once half 2 ends. Settles on that run. The mend is in `186447fb`,
+     pushed at 06:10 on 2026-11-07, both lintel tests under NeedsRayQueryFact; settles on its run.
+     Settled, the run of `186447fb` passing on the three systems at 08:08 on 2026-11-07, Windows
+     half 1 in 99 minutes with the GI class in its two processes and both lintel tests skipped on
+     lavapipe.
+
 ## Decisions
 
 1. **Commits stay local.** The owner pushes `main` from their own tools, and the working session

@@ -81,7 +81,9 @@ window. A window of a hidden program's is never shown either.
 `profile` gives where a frame's time goes, averaged over about a second, and `profile.slowest` the
 slowest frame since it was last asked, every stage, system and render phase measured in it, so a
 stall of one frame shows with what held it, the program's own work or a wait on the GPU or the
-display (BUILDING.md, Timing a program).
+display (BUILDING.md, Timing a program). `gi.passes on` splits global illumination's GPU time
+there by pass, each cascade's trace, the merges, the gather and the screen's probes as `gpu.gi_`
+lines, which `gi.passes off` takes back to the one `gpu.global_illumination`.
 
 `model.room house 6 3 5 0.2`, `model.select house +z`, `model.cut house window 1.2 1 4.5 1` and the
 other `model.*` commands run the lines of an edit mesh's recipe on a model by its name, each

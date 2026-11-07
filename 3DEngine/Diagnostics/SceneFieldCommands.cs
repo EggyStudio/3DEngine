@@ -219,6 +219,17 @@ internal static class SceneFieldCommands
             : "showing nothing until a reference is given",
     };
 
+    [Command("gi.passes", "Whether the profile times global illumination's passes apart, the ray scene, each cascade's trace, the merges, the gather, the screen's probes, their filter and the glow lights, as gpu.gi_ lines, the rest staying gpu.global_illumination: gi.passes <on|off>")]
+    internal static string TimePasses(string state)
+    {
+        var world = ConsoleHost.World!;
+        if (!world.TryGetResource<GlobalIlluminationSettings>(out var settings))
+            return "global illumination is off, and SetGlobalIllumination turns it on";
+        settings.PassesTimed = state is "on" or "true" or "1";
+        return settings.PassesTimed ? "global illumination's passes are timed apart in the profile as gpu.gi_rays, gpu.gi_trace0 and on, gpu.gi_merge, gpu.gi_gather, gpu.gi_screen, gpu.gi_filter and gpu.gi_glow"
+            : "global illumination is timed whole in the profile";
+    }
+
     [Command("gi.toggle", "Leaves a part of global illumination out, to see what it gives, among the frame before's light in the screen's probes, their filter, the screen's probes, neither traced nor read, the merge of the cascades, the light past the first bounce from the frame before's probes, indirect light following a light that goes out, the small emissive surfaces carried as lights, the crossing of surfaces that let light through, the surfaces' colors, every surface drawn white, the surfaces' reflection of the indirect light, or every cascade but one, or with meshes on traces the probes' rays through the device's rays at High in place of the field: gi.toggle <history|filter|screen|merge|again|follow|glow|through|albedo|specular|cascade|meshes> <on|off|cascade>")]
     internal static string ToggleBounce(string part, string state)
     {

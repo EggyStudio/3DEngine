@@ -1,18 +1,21 @@
 # Review
 
-Reviewed up to `2ceac35a`, 200's cascade cut, the cycle's images for the carrying cascades alone
-with the count line, pushed at 21:58 on 2026-11-06, its run green at 23:45 with macOS in 41 minutes,
-the Windows halves in 82 and 107 and Linux in 89; it keeps the form and carries the review's files
-and the devlog. After it `798d9270`, 210's R2 with gi.probe's two changes, pushed at 23:58 on
-2026-11-06, its run red at 02:00 on 2026-11-07 on Windows half 1 alone (Verdict 105), Linux green in
-114 minutes, macOS in 40 and half 2 in 85, the examples green; it keeps the form and carries the
-review's files and the devlog. After it `f666be74`, Verdict 105's mend, the GI class dealt into two
-processes on Windows half 1, and `0cbaf53f`, 210's rule in cascades 0 and 1, both pushed at 03:37 on
-2026-11-07 with one run on the second, red at 04:59 on Linux, macOS and Windows half 1 on one test
-(Verdict 106), half 2 green in 81 minutes, the examples skipped; both keep the form, the second
-carrying the review's files. After it `186447fb`, 210's flip mend, a carried texel's middle-way
-distance in the trace, with Verdict 106's skips, pushed at 06:10 on 2026-11-07, its run started at
-06:10; it keeps the form and carries the review's files. Before it `72d70e66`, 200's mend, the
+Reviewed up to `186447fb`, 210's flip mend, a carried texel's middle-way distance in the trace, with
+Verdict 106's skips, pushed at 06:10 on 2026-11-07, its run green at 08:08 with macOS in 40 minutes,
+the Windows halves in 99 and 80 and Linux in 108, which settled Verdicts 105 and 106; it keeps the
+form and carries the review's files. After it `3e69ec60`, 210's specular toggle with its line, the
+end wall's readings and two norm fixes, pushed at 08:13, its run started at 08:13; it keeps the form
+and carries the review's files. Before it `f666be74`, Verdict 105's mend, the GI class dealt into
+two processes on Windows half 1, and `0cbaf53f`, 210's rule in cascades 0 and 1, both pushed at
+03:37 on 2026-11-07 with one run on the second, red at 04:59 on Linux, macOS and Windows half 1 on
+one test (Verdict 106), half 2 green in 81 minutes, the examples skipped; both keep the form, the
+second carrying the review's files. Before it `2ceac35a`, 200's cascade cut, the cycle's images for
+the carrying cascades alone with the count line, pushed at 21:58 on 2026-11-06, its run green at
+23:45 with macOS in 41 minutes, the Windows halves in 82 and 107 and Linux in 89; it keeps the form
+and carries the review's files and the devlog. After it `798d9270`, 210's R2 with gi.probe's two
+changes, pushed at 23:58 on 2026-11-06, its run red at 02:00 on 2026-11-07 on Windows half 1 alone
+(Verdict 105), Linux green in 114 minutes, macOS in 40 and half 2 in 85, the examples green; it
+keeps the form and carries the review's files and the devlog. Before it `72d70e66`, 200's mend, the
 carried probes' rays moving through the meshes by ray queries at High, pushed at 20:10, its run
 green at 21:56 with macOS in 35 minutes, the Windows halves in 55 and 75 and Linux in 97. Before it
 `548e598c`, 209's README row with 208's and 200's replies and the review's files, pushed at 11:41 on
@@ -146,8 +149,8 @@ words. On 2026-10-30 at 18:0x the owner wrote the README's new words (item 133) 
 radiance cascades (Decision 74), questions asked back, and asked that the sessions spend fewer
 tokens at the same quality, N 7.7.
 
-Next 210, then 211, with 208's budget on the owner's word; 200 closes with 2ceac35a's run, the Low
-and Medium slivers not taken and the bridge's 104 read beside it.
+Next 211's cut, then 212, then 213, with 208's budget on the owner's word; 210 closed at 3e69ec60
+with its mends and 212 holds the vestibule's door, 200 closed at 2ceac35a.
 
 Items done and verdicts settled before 2026-10-23 stand in REVIEW-ARCHIVE.md beside this file, their
 numbers kept, moved there at 19:30 on 2026-10-23 so this file holds the current work alone and is
@@ -3599,7 +3602,10 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     which is asked; the budget stands at 4 until then. At 19:36 on 2026-11-06, with 200's mend High
     in the atrium at 1080p reads 4.54 to 4.68 ms, 0.15 past the 4.34 to 4.63 before it, so the
     proposal stands at 4.5 ms with the overrun recorded, or 4.75 if the owner would rather the
-    budget hold the carried rays' ray queries; the budget stays 4 until the owner's word.
+    budget hold the carried rays' ray queries; the budget stays 4 until the owner's word. At 09:55
+    on 2026-11-07, by 211's passes High in the atrium at 1080p reads 4.70 to 4.79 ms with the screen
+    probes 1.9 of it and the trace of the counted cascades 1.8, and 4.54 with 211's top-level cut;
+    the proposal stands at 4.5 with the overrun recorded.
 
 209. **The README's last top link is BevyCSharp.** Decision 93 on 2026-11-05. The row over the
     README's title, Devlog and Cheat sheet, ends with a third link, BevyCSharp, to
@@ -4037,7 +4043,93 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     specular toggle and its BounceViewTests line commit when 186447fb's run ends, with 210's
     readings in the record and the turn's figures as read; then (a), the pocket mark as approved,
     which reads the door's sun through the same chain, and the slivers' 2.2 times as the next
-    figure, read under this item since 200 is closed.
+    figure, read under this item since 200 is closed. The specular toggle is `3e69ec60`, committed
+    at 08:00 on 2026-11-07 and held until 186447fb's run ends, with its BounceViewTests line, the
+    docs' toggle lists and the end wall's readings with the turns' figures in RENDERING.md and a
+    reply; two norm fixes ride in it, the internal GlobalIlluminationSettings class moved to its own
+    file as GlobalIllumination.cs reached 806 lines (692 after) and the public GlobalIllumination
+    enum staying in the file named for it; the suite 2,255 plain and shuffled, the strict build
+    clean. Next (a) on a shader copy, the gather marking a probe a pocket where 90% or more of its
+    texels met a front face before their interval and it is not walled in, 0.25 in the held share's
+    w beside walled-in's 1, the trace's carry test counting such a probe above as unseen; read on
+    the door at both hours, the lion, the GI tests, the carried share and the cost at High in the
+    bounce rooms and the Cornell box beside Sponza's, and the threshold read in those rooms and the
+    vestibule at noon; then the slivers' count of places against the sunlit face's share of the
+    texel. Read at 08:03, (a) on shader copies over 3e69ec60 at three thresholds, the door at 8:00
+    and noon and the lion at 8:00 and noon as light over the reference with the pixels' difference:
+    3e69ec60 0.748 (0.925), 0.917 (0.433), 1.031 (0.374) and 0.995 (0.263); 75% of texels 1.363
+    (0.852), 1.036 (0.386), 1.067 (0.372) and 0.999 (0.266); 90% 1.371 (0.857), 1.036 (0.385), 1.291
+    (0.457) and 1.029 (0.267); 97% 1.447 (0.982), 0.967 (0.418), 1.059 (0.377) and 0.990 (0.263). At
+    75% the door's pixels improve at both hours and the lion holds, but the door at 8:00 reads 1.36
+    of its light at every threshold, past the band, the newly carried probes bringing the court's
+    sun through their cycle, which over-reads a sunlit face 2.2 times at the probe already read, and
+    the lion at 90% reads 1.291 where 75 and 97 read about 1.06, a probe near the threshold likely
+    flipping its mark, so any landing of (a) takes the stillness sampling with it. So (a) waits on
+    the slivers, since carrying more probes multiplies the cycle's over-read; the rooms' carried
+    share and cost and the GI tests follow when it lands. Next the slivers' count at the carried
+    probe 18,2,-2 along -0.97,0.22,0 by field.march, the 16 places of its texel in the trace's order
+    with this texel's offset and how many meet the sunlit block face (block 12's +x side about 9.3
+    out), against the face's share of the texel over a 256-way even sampling, the share the
+    reference's paths take; a count over its share says the cycle's places favor the face, a count
+    at its share points to the shading of the hits. Read at 08:06, the slivers' count at 18,2,-2
+    along -0.97,0.22,0, texel 1,9 of cascade 2's 16 a side, the cycle's 16 places its 4 by 4 grid,
+    each marched through the field with its sun leg beside a 16 by 16 even sampling of the texel for
+    the reference's paths. The block face, block 12's +x side about 8.9 out, is met by 7 of the 16
+    places (44%) and 116 of the 256 even ways (45%), none of those hits in sun in either set, their
+    sun legs meeting the gallery 2.8 to 3.1 out, so the face is met at its share and in shade; the
+    sunlit hits lie on the court's far side 18 to 26 out, 1 of the 16 places (6.3%) against 3 of the
+    256 even ways (1.2%), 67 of the even ways reaching that side and the 3 sunlit a narrow sliver of
+    it. So the place grid weighs that sliver about five times its share, a sixteenth being the least
+    any place can take on a sliver of about a hundredth, which fits the 2.2 (0.0256 against 0.0114
+    carrying the sliver and the shaded face's bounce), the cycle's quantization and not the shading,
+    the face's shading reading right by the field. The mend to read, bounded, is the cycle's 4 by 4
+    lattice offset per cycle on a low-discrepancy sequence, with the kept mean blended across the
+    last few whole cycles, one image, restarted at the cue so a change shows within a cycle and
+    refines over the next, measured on the probe's 2.2, the door at 8:00 with (a) at 75% beside it,
+    the stillness and lintel tests, the 157 and the cost; the finer places, 16 a side at cascade 2,
+    are not read, since they multiply the carried rays' cost where the offset lattice keeps it. Read
+    at 08:35, the offset lattice does not land and the tree is back at 3e69ec60. The 4 by 4 places
+    offset per cycle on R2 with the cycle count in the trace push's free w, read alone and with the
+    kept mean blended over whole cycles at 1 over the lesser of n and K for K of 4 and 2: the
+    carried probe's -x face against the reference a cycle apart reads about +74% steady on the fixed
+    lattice, -29, -54, +11, -51, -68 and +42 on the offset alone, a 4.8 times range as each lattice
+    catches different slivers, and +2, 0 and -9 blended at K 4, so the 2.2 is mended by blending
+    alone; the held door view eight frames a cycle apart reads the whole view, the end wall's
+    region, its 95th-percentile pixel and the door's at 1.003, 1.003, 1.02 and 1.01 on the fixed
+    lattice, 1.041, 1.121, 2.04 and 3.08 on the offset alone and 1.024, 1.052, 1.36 and 1.37 blended
+    at K 4, the fixed lattice still by construction and any offset trading the sliver's steady bias
+    for a step each cycle that the blend shrinks without taking away; the lintel stillness 1.348 and
+    1.131 fixed, 1.339 and 1.044 offset and 1.346 and 1.050 blended, that scene holding no sunlit
+    sliver; blended at K 4 the bounce rooms' view 7 at High reads 0.0996 against its bound of 0.06
+    and 0.070 given 64 frames more, so more than the lag, and the screen probe past a thin wall's
+    end leaves its range, where the offset alone passes both and K 2 reads view 7 at 0.079 with the
+    thin wall passing; the views at K 4 the door 0.736 (0.918) and 0.914 (0.432) and the lion 1.038
+    (0.377) and 0.994 (0.264), and with (a) at 75% beside it the door at 8:00 still 1.385 (0.848),
+    so the door's overshoot under (a) is not this probe's sliver. Decided, the fixed lattice stays
+    and the 2.2 is recorded as the cycle's quantization at a sliver under a sixteenth of the texel,
+    a steady bias preferred to a step each cycle. One bounded read more, (a)'s door overshoot at 75%
+    by source as the door was read, the newly carried probes that bring it and what they carry; then
+    210 closes with its records, the quarter's trade, the quantization, the threshold waiting on the
+    vestibule's sun and the pockets, and what stays open goes to an item of its own; 211 next. Read
+    at 08:39, (a)'s door overshoot at 75% by source in the door view at 8:00 at High. The view reads
+    1.362, the sun's first bounce 1.212 for 34% of the excess, the sun past it 0.894, the sky's
+    first bounce 1.42 for 3 and the sky past it 2.81 for 69, where 2ceac35a without (a) read 0.617,
+    0.377, 4.24 and 1.95; the sky past the first bounce sits on the end wall at 5.0 times for 24% of
+    it, the floor's edge facing +z by the door's foot at 31 times for 23, the floor at 3.26 for 20
+    and the side wall facing +z at 2.56 for 13, and the sun's first bounce on the side wall facing
+    -z at 7.73 times its small share for 85%. (a) carries 326, 121 and 53 probes by cascade where
+    47, 52 and 34, their texels 9.2% of the world probes' where 3.3, the cost question if it lands,
+    and the vestibule probes it carries read near the reference at every bounce where -78 to -97%
+    before, cascade 1's 13,1,1 at +8%, 13,1,-1 +9, 17,1,-1 +25 and 15,1,-1 -44, cascade 2's 10,2,2
+    at +5, 10,2,-2 0 and 14,2,-2 +55. So the pocket mark mends the probes and the door's overshoot
+    is what the surfaces make of their light, the door's foot where the screen probes read back the
+    threshold's already-lit pixels, over brighter probes with the mark, and the side wall's sun
+    through the specular's mirror way; (a) lands once the threshold's hits stop gathering the probes
+    under the floor and the screen probes stop reading that back. Done at `3e69ec60` as a reading,
+    its mends 798d9270 (R2), 0cbaf53f (the rule in cascades 0 and 1), 186447fb (the still carried
+    distance) and 3e69ec60 (the specular toggle), the lion within 4% at both hours and the door at
+    noon within 9 where 0.853 and 1.142 before; the threshold's feedback, the side wall's specular
+    parallax, (a) and the slivers' quantization go to item 212. Next 211.
 
 211. **High's cost since the budget was set.** From item 208 on 2026-11-06. GI at High in the atrium
     at 1080p reads 4.58 to 4.69 ms against the budget of 4, the parts since the budget was set 199's
@@ -4046,64 +4138,85 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     that hold every reading of 199, 200 and 205 within 2% of its figure, the carried rays' ray
     queries only for texels whose middle ray met the field within a cell of a surface among the
     candidates, with the figures before any cut; the owner's word on 208 may close it. After 210.
+    Read at 09:55 on 2026-11-07 at 3e69ec60 with a new gi.passes diagnostic, GPU timestamps between
+    GI's passes, High at 1080p on a quiet GPU. The atrium at noon whole 4.70 to 4.79 ms, the screen
+    probes 1.88 to 1.93, the trace by cascade 0.60, 0.46 to 0.48, 0.45 to 0.46, 0.28 and 0.02, the
+    gather 0.28 to 0.29, the glow 0.25 to 0.27, the merge 0.19, the ray scene 0.115, the filter 0.06
+    to 0.07 or 0.11 to 0.12 by session and the rest 0.045; the door at 8:00 whole 4.00 to 4.11, the
+    screen probes 1.40 to 1.46, the trace 0.61 to 0.62, 0.41 to 0.45, 0.38 to 0.39, 0.27 and 0.03,
+    the gather 0.28 to 0.30, the glow 0.24 to 0.25, the merge 0.17 to 0.18, the ray scene 0.115 and
+    the filter 0.06 to 0.07. By part, 200 is the trace of cascades 0 to 2 at 1.52 where 1.33 with
+    the carried rays held still in the atrium and 1.45 where 1.25 at the door with the merge 0.005
+    to 0.01, the queries 0.14 and 0.21 of it and the moving places 0.05 and none; 199 is the gather
+    at 0.28 where 208 read 0.21; 205 the filter's second mode. The candidate cut, the queries only
+    where the texel's middle way comes within a cell, reads the trace at 1.57 and 1.43, +0.05 in the
+    atrium and level at the door, a per-ray gate 1.54 to 1.57 and 1.44 to 1.45, since nearly every
+    carried ray comes within a cell, so neither saves and neither is taken. Taken instead, moving no
+    pixel, the ray scene's top level rebuilt only when a copy's record differs from its last
+    build's, gi_rays 0.115 to 0, the whole 4.701 to 4.536 in the atrium and 4.001 to 3.873 at the
+    door, the other passes within 0.01, the door frame after 600 frames 0.08 of a level off its base
+    in the mean against 0.86 between two base runs; it leaves the atrium 0.54 over 4, near 208's
+    4.5, and no other cut of that size holds the readings. gi.passes with its test commits once
+    3e69ec60's Linux job ends, the top-level cut with it. The reference's lobe, gi_reference draws
+    GGX at the first face the camera meets alone where specular asks, the lights' specular there
+    only, the later faces and the probe paths diffuse, the bridge's gap; item 213. The cut is in the
+    tree with gi.passes, GpuRayScene keeping the records its last build read and skipping the build
+    when they match, its test GlobalIlluminationTests.TopLevel holding 580 still frames with no
+    build, then a block moved out of a mirror's sight, a second added and the second removed, each
+    rebuilding that frame with the mirror showing or losing the green block that only the device's
+    rays reach, 19 of 19 with the mirror, lintel, cycle and passes tests; RENDERING.md's ray-scene
+    paragraph says when the top level is built with the 0.13 to 0.17 ms. The commit follows the
+    suite and 3e69ec60's Linux job; then 212, then 213.
 
+212. **The vestibule's door at 8:00.** From item 210 on 2026-11-07. With 210's mends the door view
+    reads 0.748 of its reference at 8:00, the pockets' sun lack, and with the pocket mark 1.362, the
+    surfaces making too much of their mended probes. Four parts, in this order. First the
+    threshold's feedback, a hit on the door's 0.1 threshold gathering from the probes under the
+    floor through a normal the field's gradient turns down at a sheet thinner than its cell, and the
+    screen probes at the door's foot reading those already-lit pixels back onto the wall, its 95th-
+    percentile pixel 29 times and the floor's edge 31 with the mark; the turns tried in 210 (every
+    hit, the sheet-only hit) mended the threshold and raised the end wall through the vestibule's
+    over-read probes, so the mend is read with the pocket mark on, at the door's foot and the end
+    wall by surface, and a screen probe's ray that meets the frame before's pixel reading its own
+    gather rather than the pixel is the candidate beside the normal. Second, (a), the pocket mark
+    from a probe's own texels at 75% with the stillness sampling, landing once the first part holds
+    the door at 8:00 inside the band, with the carried texels' share (9.2% of the world probes'
+    where 3.3) and the cost at High in Sponza, the bounce rooms and the Cornell box, and the
+    threshold read in those rooms at noon. Third, the side wall facing -z, the specular's mirror way
+    reading one over-bright probe way nearly whole, 7.73 times its share of the sun, read with the
+    merge's agreement on its ways against the figure recorded as the parallax's echo. Fourth,
+    recorded and not mended, the carried cycle's quantization, a sliver under a sixteenth of a texel
+    weighed a sixteenth, 2.2 times at 18,2,-2's sunlit way, a steady bias preferred to the offset
+    lattice's step. After 211. A correction to the first part on 2026-11-07: an on-screen hit is not
+    shaded from the frame before's pixel but shaded again through the field at the hit
+    (shadeProbeHit in gi_screen) with the field's sheet normal, which turns down at the threshold,
+    so the 29 times is that re-shading. The candidate beside the normal turn is the world probes'
+    gather at the hit with the pixel's own normal from the G-buffer in place of the field's, the hit
+    being on screen with its true normal known there; the other reading, the frame before's blended
+    screen irradiance at the hit pixel times the field's albedo plus the hit's direct light, feeds
+    the screen probes their own last frame and counts a probe's bounce twice, so it is tried only if
+    the first fails and read then over a held view across eight cycles for drift.
+
+213. **The reference's lobe at every face and the rooms' shortfall.** From item 211 on 2026-11-07.
+    gi_reference draws the GGX lobe at the first face the camera meets alone, where specular asks,
+    with the lights' specular there only, and every later face and every probe path goes on by the
+    diffuse share, so the reference holds no gloss between bounces. The bridge's reference samples
+    the material at every face, the diffuse share or the GGX lobe by Heitz's visible normals drawn
+    by their weights (its 105's fourth commit), and against it its closed rooms read 21 to 28% under
+    past the direct at reflectance 0.5 and roughness 0.5, its Cornell box 23 to 44 with the green
+    wall most and its corridor 12 to 13, a diffuse probe holding no gloss between bounces; its
+    transport tests read a reference with gloss at the first face alone, and its 110 reads the
+    specular share from the probes' directions along the mirror way, which this engine's
+    probesReflected has, then its probes' rays carrying the gloss of what they meet. First the
+    reference tracing the lobe at every face by the same draw, with a smooth metal plane under the
+    sky and a rough dielectric at a grazing view as its tests and the bounce rooms, the Cornell box
+    and the corridor read against it, the shortfall as figures; the GI tests keep the first-face
+    reference as the bridge's do; then a proposal for the probes' rays carrying the gloss of what
+    they meet, with the field holding each face's roughness and reflectance as the bridge packs them
+    beside its faces, measured the same way, before any mend. After 212.
 ## Verdicts
 
-Verdicts 56 to 104 are settled, said under each in REVIEW-ARCHIVE.md; 105 and 106 are open.
-
-105. **The GI test class ends at its limit on Windows half 1.** The run of `798d9270` is red on
-     Windows half 1 at 01:23 on 2026-11-07, where Rendering GlobalIlluminationTests ended at its
-     time limit after 70 minutes with 66 passed, 0 failed, 5 skipped and 77 without a result, the
-     half 132 passed in 81 minutes with 77 without a result, 885 MB at most; its slowest tests that
-     ended the glow lights far from the origin at 4 m 30 s, the floor under a solid slab in four
-     cascades at High 3 m 12 s and at Low 2 m 8 s, the camera's slide 3 m 7 s and the carried
-     probes' cycle at High 1 m 59 s, the last to end the emissive panel's render texture, the next
-     begun on a device tracing no rays. 2ceac35a's half 1 passed in 82 minutes whole, so the class
-     stood near its limit before this commit; macOS and half 2 are green and Linux is still running
-     at 01:55. Read the class's time on that half across the last five runs from the digests, by
-     test, and whether 798d9270 added to it, R2's blend on a device without ray queries or the tests
-     the commit touched; then split the class between the halves or raise its limit with the
-     figures, no test trimmed, so the half ends inside its 120 minutes with room. Read at 01:58. The
-     class's part on half 1 from the digests, 67 m 40 s at f969fe7d, 69 m 06 s at 548e598c, 36 m 38
-     s at 72d70e66, 59 m 31 s at 2ceac35a and the limit at 798d9270 with 71 of 77 ended, so it stood
-     1 to 3 minutes under the limit two pushes before and swings by half with the runner; the
-     halves' wall times 91, 92, 55, 82 and 84 minutes for half 1 and 107, 106, 75, 107 and 85 for
-     half 2, which has no room for any of the class. The earlier logs keep no per-test times, so
-     whether 798d9270 added time is read locally on lavapipe with Mesa's cache off as Windows runs
-     it, the class alone with 2ceac35a's shaders, 798d9270's (R2 the only shader change) and the
-     rule's, since the merge's march on a device without ray queries has to hold this limit too. The
-     mend taken, test.py splitting a class named with a plus into as many processes as it is given,
-     its methods dealt in turn (Rendering=2+GlobalIlluminationTests/2), half 1 running the class in
-     two processes of about 35 minutes each under their 70 with its whole time unchanged inside its
-     120, no limit raised and no test trimmed, the digest and the page reporting the class as one
-     with the processes' times summed, the workflow's comment carrying the five runs' figures; on
-     its own first, the rule's commit after it once the Linux job ends. The run ended at 02:00,
-     Linux green in 114 minutes where the five before took 89 to 97, so the class's slowness is on
-     lavapipe there as well, inside Linux's limit but worth the same figure. The mend is `f666be74`,
-     pushed at 03:37 on 2026-11-07 with 0cbaf53f, one run on the pair. test.py deals a class named
-     after a plus with a count after a slash into that many processes by its methods, the last
-     taking the class less the others', --only and --except matching the class's own label, the
-     digest and the page reporting the processes as the one class with the times added, the largest
-     memory, the counts summed and the slowest tests pooled, the workflow running
-     Rendering=2+GlobalIlluminationTests/2 on half 1, its comment carrying half 1's five class and
-     job times, half 2's job times and Linux's whole-suite times (44, 49, 44, 44 and 56 minutes,
-     Linux running the suite as one process with no class time), a stand-in test holding the one
-     record and failing on the old script. Five of the class's methods on lavapipe with Mesa's cache
-     off, the run's three slowest among them, took 533 s with 2ceac35a's shaders, 500 with
-     798d9270's and 514 with the rule's, each test within 12 s, so the run's slowness was its
-     runners', Linux and half 1 together, not the commit's. Settles on the run.
-
-106. **The lintel test asserts where it should skip.** The run of `0cbaf53f` is red on Linux, macOS
-     and Windows half 1 at 04:2x on 2026-11-07, one failure of one cause on each,
-     A_Probe_Whose_Ray_Meets_A_Lintel_Past_Its_Interval_Takes_No_Sky_The_Probes_Above_See_Under_It
-     failing with "Expected probe not to be <null> because the device traces no rays, which the
-     reference is traced through", Linux 2,187 passed and 39 skipped in 35 minutes, macOS 2,165 and
-     43 in 32, half 1 203 and 6 in 43 with the GI class dealt into its two processes, so Verdict
-     105's split holds and the runners' lavapipe has no ray queries for gi.probe's reference, which
-     the other reference tests skip on. The mend is the test skipping where the device traces no
-     rays, as its neighbors do, with the reason in the skip and no figure moved, riding in the
-     flip's commit, which goes up once half 2 ends. Settles on that run. The mend is in `186447fb`,
-     pushed at 06:10 on 2026-11-07, both lintel tests under NeedsRayQueryFact; settles on its run.
+Verdicts 56 to 106 are settled, said under each in REVIEW-ARCHIVE.md; none is open.
 
 ## Decisions
 
@@ -5429,3 +5542,46 @@ lintel's probe 92% under, the full turn raised the end wall to 2.61 and the thin
 2.48, and no vestibule probe counts the outside probe at 20.8,4,-4 seen. The toggle lands with its
 line in BounceViewTests, 8.3 of 255 there with its least at 4, and the turn waits on the
 vestibule's sun, the carried probe's slivers and the agreement's quarter.
+
+210 closes at 3e69ec60, read on 2026-11-07. The offset lattice, the cycle's 4 by 4 places moved
+each cycle on R2, took the carried probe at 18,2,-2 from about +74% on its -x face to a range of
+-68 to +42% cycle to cycle alone and to -9 to +2% blended over four whole cycles, but the held door
+view a cycle apart moved within 1.041 alone and 1.024 blended where the fixed lattice holds 1.003,
+the end wall's pixels at their 95th percentile within 2.04 and 1.36 where 1.02, and blended the
+bounce rooms' view 7 at High read 0.0996 against its bound of 0.06, 0.070 with 64 frames more, so
+the fixed lattice stays and the 2.2 is its quantization at a sliver under a sixteenth of the texel.
+The pocket mark at 75% carries 326, 121 and 53 probes in the first three cascades where 47, 52 and
+34, 9.2% of the world probes' texels where 3.3%, and the vestibule's probes it carries read 13,1,1
++8%, 13,1,-1 +9%, 17,1,-1 +25%, 15,1,-1 -44%, 10,2,2 +5%, 10,2,-2 0% and 14,2,-2 +55% where -78 to
+-97%, but the door at 8:00 reads 1.362, its sky past the first bounce 2.81 times the reference's on
+the end wall at 5.0, the floor's edge by the door's foot at 31 and the floor at 3.26, and its sun's
+first bounce 1.21, 85% of it on the side wall facing -z. So the probes mend and the door's foot,
+where the screen's probes read back the threshold's pixels, carries their light past the band,
+which 212 takes first.
+
+211 read on 2026-11-07 at 3e69ec60 by pass (`./e3d command gi.passes on`, then `profile`), High at
+1080p, three readings of 300 frames each with the other sessions at 0% of the GPU, under
+powersave-bazzite. The atrium at noon reads 4.70 to 4.79 ms whole, the screen probes 1.88 to 1.93,
+the trace's cascades 0.60, 0.46 to 0.48, 0.45 to 0.46, 0.28 and 0.02, the gather 0.28 to 0.29, the
+glow 0.25 to 0.27, the merge 0.19, the ray scene 0.115, the filter 0.06 to 0.07 in some sessions
+and 0.11 to 0.12 in others, and the rest 0.045. The door at 8:00 reads 4.00 to 4.11, the screen
+probes 1.40 to 1.46, the cascades 0.61 to 0.62, 0.41 to 0.45, 0.38 to 0.39, 0.27 and 0.03, the
+gather 0.28 to 0.30, the glow 0.24 to 0.25, the merge 0.17 to 0.18, the ray scene 0.115 and the
+filter 0.06 to 0.07. 200's part is the first three cascades' trace, 1.52 ms where 1.33 with the
+carried rays held still in the atrium and 1.45 where 1.25 at the door, with the merge's cycle 0.005
+to 0.01. The ray queries take 0.14 and 0.21 of it, read with the rays moving and no query, and the
+moving places 0.05 and none. 199's part is the gather's 0.28 where 208 read 0.21 before it, and
+205's is the filter's second mode. The candidate, the carried rays' ray queries only for texels
+whose middle way's march comes within a cell of a surface, read those cascades at 1.57 and 1.43 ms,
+0.05 over in the atrium and level at the door. By each ray's own march they read 1.54 to 1.57 and
+1.44 to 1.45, since nearly every carried ray comes within a cell of a surface and the march that
+finds it costs about what the queries it saves cost. A cut that moves no pixel builds the ray
+scene's top level again only where a copy's record differs from the one its last build read. It
+takes the ray scene's 0.115 ms and the stall before it, the atrium reading 4.536 where 4.701 and
+the door 3.873 where 4.001 in the same rounds, the other passes within 0.01. Every query meets the
+same structure, and the door's frame after 600 frames lies 0.08 of a level from the base's on the
+mean, where two base runs lie 0.86 apart. That cut is proposed, which leaves the atrium 0.54 over
+4 ms, near 208's 4.5, and no other cut of that size was found that holds the readings. On the
+reference's lobe, gi_reference draws the GGX lobe at the first face the camera meets alone, where
+`specular` asks for it, and lights the lamps' and the sun's specular there alone, every later face
+and every probe's path reflecting diffusely.

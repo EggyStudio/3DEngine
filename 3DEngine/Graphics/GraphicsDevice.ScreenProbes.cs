@@ -155,6 +155,7 @@ internal sealed unsafe partial class GraphicsDevice
         fixed (uint* p = push)
             _deviceApi.vkCmdPushConstants(cmd, layout, VkShaderStageFlags.Compute, 0, 32, p);
         _deviceApi.vkCmdDispatch(cmd, (uint)(screen.Across + 7) / 8, (uint)(screen.Down + 7) / 8, 1);
+        MarkGlobalIllumination(commandBuffer, "gi_screen");
 
         // Each probe's light kept over the frames, then blended with its neighbors' on like
         // surfaces, where they traced any, two passes of gi_screen_filter.slang.
@@ -186,6 +187,8 @@ internal sealed unsafe partial class GraphicsDevice
             }
         }
 
+        MarkGlobalIllumination(commandBuffer, "gi_filter");
+
         // The glow lights' light on each texel of the view's depth, from the probes around it and
         // the frame before's, beside the blend, which writes none of what it reads. A frame with no
         // glow lights skips it, the model pass reading none of it then. Its threads leaving at
@@ -213,6 +216,7 @@ internal sealed unsafe partial class GraphicsDevice
             _deviceApi.vkCmdBindDescriptorSets(cmd, VkPipelineBindPoint.Compute, glowLayout, 0, 1, &lit, 0, null);
             _deviceApi.vkCmdDispatch(cmd, (glowExtent.Width + 7) / 8, (glowExtent.Height + 7) / 8, 1);
         }
+        MarkGlobalIllumination(commandBuffer, "gi_glow");
 
         // This frame's kept light and surfaces, and its glow light, held for the next frame's.
         MemoryBarrier(cmd, VkPipelineStageFlags2.ComputeShader, VkAccessFlags2.ShaderWrite | VkAccessFlags2.ShaderRead,
