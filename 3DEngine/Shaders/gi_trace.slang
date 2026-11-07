@@ -773,6 +773,14 @@ void computeMain(uint3 id : SV_DispatchThreadID, uint lane : SV_GroupIndex)
         for (uint q = 0u; q < each; q++)
             normals += rayNormal[lane + q];
         hitNormals[written] = float4(dot(normals, normals) > 1e-6 ? normalize(normals) : float3(0.0), 0.0);
+        // A carried probe whose rays move keeps its texel's middle way's hit through the field, up
+        // to its interval's end, in place of its rays' mean, so the reach the merge, the gather
+        // and the screen's probes read of it holds still from frame to frame (gi_merge.slang).
+        if (carried && (push.above.z & 1u) != 0u && place.w > 0.5 && !walledIn)
+        {
+            float met = metPastLeaves(sceneField, fieldAlbedo, fieldInfo, origin, fromOctahedron((float2(texel) + 0.5) / float(texels)), 1e-3, push.interval.y);
+            reach = met >= 0.0 ? met : push.interval.y;
+        }
         // Below zero where the rays met a face from behind, which the gather counts.
         distances[written] = float2(behinds * 2u > each ? -reach : reach, before / float(each));
     }

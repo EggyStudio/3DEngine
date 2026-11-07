@@ -6,7 +6,11 @@ the Windows halves in 82 and 107 and Linux in 89; it keeps the form and carries 
 and the devlog. After it `798d9270`, 210's R2 with gi.probe's two changes, pushed at 23:58 on
 2026-11-06, its run red at 02:00 on 2026-11-07 on Windows half 1 alone (Verdict 105), Linux green in
 114 minutes, macOS in 40 and half 2 in 85, the examples green; it keeps the form and carries the
-review's files and the devlog. Before it `72d70e66`, 200's mend, the carried probes' rays moving
+review's files and the devlog. After it `f666be74`, Verdict 105's mend, the GI class dealt into two
+processes on Windows half 1, and `0cbaf53f`, 210's rule in cascades 0 and 1, both pushed at 03:37 on
+2026-11-07 with one run on the second, red at 04:59 on Linux, macOS and Windows half 1 on one test
+(Verdict 106), half 2 green in 81 minutes, the examples skipped; both keep the form, the second
+carrying the review's files. Before it `72d70e66`, 200's mend, the carried probes' rays moving
 through the meshes by ray queries at High, pushed at 20:10, its run green at 21:56 with macOS in 35
 minutes, the Windows halves in 55 and 75 and Linux in 97. Before it `548e598c`, 209's README row
 with 208's and 200's replies and the review's files, pushed at 11:41 on 2026-11-05, its run green at
@@ -3784,7 +3788,89 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     costs 0.13, the uncapped march's price of cascade 2 timing for the record. Taken, the rule in
     cascades 0 and 1 lands first, after the GI tests on that form and the suite, with cascade 2's
     share and its uncapped cost as the recorded remainder; then the end wall's read and the turn;
-    (a) after them.
+    (a) after them. The rule in cascades 0 and 1 is `0cbaf53f`, pushed at 03:37 on 2026-11-07 behind
+    f666be74 with one run on it, where the cascade above's interval ends at twice the lower one's;
+    the lintel test reads 0.0778 against the reference's 0.0812 and 0.1227 before the rule; the door
+    0.777 (0.892) at 8:00 and 0.904 (0.431) at noon, the lion 1.005 (0.372) and 0.990 (0.262); GI at
+    High in the atrium 4.67 to 4.78 ms where 4.65 to 4.71 in quiet rounds of the trial build of the
+    same code; the remainder cascade 2, 99.4 and 99.5% of its ways that take the cascade above
+    running to the field's edge, the whole rule uncapped 4.77 to 4.79 where 4.65 to 4.70. The suite
+    2,254 plain and shuffled over both commits, the strict build clean, the 14 script tests and the
+    156 GI-side tests passing. Next the end wall's read, its hits' sky by cascade against the
+    reference's sky at the same hits, with one cascade alone and the sky on and off, in the door
+    view at 8:00 and noon; then the turn, then (a). Read at 03:49, the end wall at 0cbaf53f in the
+    door view at High, each cascade alone less none, the sky as on less off and the sun as off
+    alone, summed over the reference's region map against the reference's sky and sun at the same
+    pixels. The end wall, block 8's -x side over 31,054 pixels, takes the sky at 8:00 at 1.53, 3.68,
+    3.34, 3.39 and 0.00 of the reference's through cascades 0 to 3 and the far, about 12 times
+    together, and the sun at 0.03, 0.14, 0.31, 0 and 0, 0.48 together; at noon the sky 1.15, 4.02,
+    4.25, 3.67 and 0 and the sun 0, 0.24, 0.39, 0, 0. The door, block 11's -x side, takes the sky at
+    3.60, 2.66, 3.89 and 3.44 and the sun at 0.10, 0.51, 0.16 and 0 with the screen probes' own rays
+    0.59; the floor the sky at 1.19, 0.25, 0.23 and 0.21 and the sun 0.18, 0.15, 0, 0; the screen
+    probes' own rays bring the wall no sky. So the court-facing surfaces take about 12 times the
+    reference's sky through every counted cascade at 1.5 to 4.3 times each, the rule's two carrying
+    about 5 of it and cascades 2 and 3 about 7, no single cascade the remainder; the sky enters
+    upstream of the merges, in what those cascades' probes near the door see, and their sun there is
+    under at 0.48, so the turn's rise from 1.91 to 2.97 passed sky around, not sun. Next, bounded,
+    gi.probe at the vestibule probes by the end wall in cascades 1, 2 and 3 with the sky on and off,
+    their -x ways' sky against the reference's from each probe's place, whether they see the sky
+    through the main door's gaps, or the outside probes past the door are counted seen, or something
+    else; then the turn and (a). Read at 03:52, a fault in 0cbaf53f found at the end wall's probes.
+    At 8:00 with the view held still cascade 1's probe at 18.96,3,-3 flips its -x face between
+    0.000602 and 0.0000258 at irregular times, ten samples 50 frames apart reading five high, three
+    low, two high and one low, cascade 0's probe there following it between 0.000394 and 0.00009 and
+    cascade 2's holding at 0.000736, where 798d9270's shaders hold cascade 1 at 0.00063 throughout;
+    in the low state the -x ways that take the cascade above bring 0 where the reference's paths
+    meet surfaces at 9.8 to 16 units, the way gone dark with no probe above agreeing while the march
+    met a surface, the likely cause the carried cascade-2 probe at 18,2,-2 whose rays move through
+    their 16 places, its hit distance along a way crossing the agreement's tolerance or moving
+    between a surface and the limit frame to frame; so the end wall's by-cascade figures are a
+    sample of one state. The mend, read with this sampling, the lintel test, the GI tests and the
+    four views, (i) the agreement made binary on what each side met and not on distance, a probe
+    above passed over only where the march met a surface and its ray met none to the limit or where
+    the march met none and its ray met one, kept wherever both met a surface, and (ii) where that
+    still flips on the carried probe's moving rays, a carried probe above, which keeps a cycle, kept
+    as before; whichever holds the flip still goes in a commit of its own with a test sampling that
+    face across a held view, its spread under a bound, so the flip cannot return unseen. Read at
+    04:30, the flip's mends. A stillness test, the lintel hall held and two probes by the lintel
+    read 12 times 23 frames apart, the spread of each one's face toward the opening as max over min,
+    reads 1.717 and 1.667 under 0cbaf53f and 1.284 and 1.094 under 798d9270's merge, its bounds 1.47
+    and 1.26, repeating to the third place; on screen in the door view held at 8:00, the frame kept
+    8 times 50 frames apart, the whole view's max over min 1.016 under 798d9270 and 1.012 under
+    0cbaf53f, the end wall's region 1.059 and 1.036 and its 95th-percentile pixel 1.38 and 1.76, so
+    the probe's 23-times flip shows as a third more per-pixel movement on that wall, not a flash.
+    (i) the binary agreement still flips cascade 1, 0.00063 to 0.000045; (ii) a carried probe above
+    kept as before holds still at 1.282 and 1.093 but fails the lintel test at 0.1226 where 0cbaf53f
+    reads 0.0778, the probes seeing under the lintel being carried, so it undoes the rule where
+    carried probes stand above; (iii) a carried probe above with its hit along the way marched from
+    where it stands rather than taken from its moving rays' reach passes both lintel tests and 157
+    of 157, holds cascade 1 at 0.000032 to 0.000044 with cascade 0 there moving 0.000053 to 0.00052,
+    the wall's 95th-percentile pixel 1.35, the region 1.040 and the view 1.010, the door 0.742
+    (0.915) at 8:00 and 0.944 (0.439) at noon and the lion 1.025 (0.370) and 1.012 (0.262) where
+    0cbaf53f reads 0.777 (0.892), 0.904 (0.431), 1.005 (0.372) and 0.990 (0.262), at GI at High in
+    the atrium 4.86 to 5.06 ms where 0cbaf53f reads 4.72 to 4.83 in rounds at 10 to 27% other load,
+    about 0.25 ms and not yet quiet; (iv) the march only where a carried probe's reach says it
+    disagrees fails the stillness test at 1.354 for cascade 0 and was no cheaper. Decided, the rule
+    is not taken back; (iii)'s march repeats per fine way what the carried probe could hold once, so
+    before it lands a fifth form is read, the carried probe's middle ray's hit distance kept beside
+    its moving rays' in the trace, one march per carried texel per frame over the 3 to 7% that
+    carry, and the agreement reading that distance in the merge with no march of its own; where it
+    holds (iii)'s figures and tests it lands in (iii)'s place at near the rule's cost, and where it
+    does not, (iii) lands with its quiet price in 208's record, the stillness test in the commit
+    either way. Read at 05:18, the fifth form holds and lands in (iii)'s place, the trace writing a
+    carried texel's distance from its middle way through the field up to its interval's end,
+    crossing surfaces that let light through, in place of its moving rays' mean, the merge's code
+    back to 0cbaf53f's with only its comment changed. The end wall's ten samples hold cascade 0 at
+    0.000392 to 0.000393 and cascade 1 at 0.000604 to 0.000605; the held door view's 95th-percentile
+    pixel over eight frames reads the end wall 1.02 where 0cbaf53f reads 1.76, 798d9270 1.38 and
+    (iii) 1.35, the door 1.01 where 2.05 and 2.24, the whole view within 1.003, so the moving rays'
+    reach had unsettled the gather and the screen probes there before the rule too; the door 0.747
+    (0.923) at 8:00 and 0.917 (0.433) at noon, the lion 1.026 (0.374) and 0.995 (0.263); the lintel
+    test and all 157 pass, the stillness test 1.348 and 1.131 against bounds of 1.55 and 1.30 that
+    0cbaf53f's 1.717 and 1.667 fail; GI at High in the atrium 4.77 to 4.80 ms where 0cbaf53f reads
+    4.71 to 4.79 in the one quiet round, (iii) having read 4.89 to 5.02. Verdict 106 rides in it,
+    both lintel tests taking NeedsRayQueryFact as the passage's and the reach's do, no figure moved;
+    the record and a reply carry the five forms. The commit follows its suite.
 
 211. **High's cost since the budget was set.** From item 208 on 2026-11-06. GI at High in the atrium
     at 1080p reads 4.58 to 4.69 ms against the budget of 4, the parts since the budget was set 199's
@@ -3793,9 +3879,10 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     that hold every reading of 199, 200 and 205 within 2% of its figure, the carried rays' ray
     queries only for texels whose middle ray met the field within a cell of a surface among the
     candidates, with the figures before any cut; the owner's word on 208 may close it. After 210.
+
 ## Verdicts
 
-Verdicts 56 to 104 are settled, said under each in REVIEW-ARCHIVE.md; 105 is open.
+Verdicts 56 to 104 are settled, said under each in REVIEW-ARCHIVE.md; 105 and 106 are open.
 
 105. **The GI test class ends at its limit on Windows half 1.** The run of `798d9270` is red on
      Windows half 1 at 01:23 on 2026-11-07, where Rendering GlobalIlluminationTests ended at its
@@ -3825,7 +3912,30 @@ Verdicts 56 to 104 are settled, said under each in REVIEW-ARCHIVE.md; 105 is ope
      with the processes' times summed, the workflow's comment carrying the five runs' figures; on
      its own first, the rule's commit after it once the Linux job ends. The run ended at 02:00,
      Linux green in 114 minutes where the five before took 89 to 97, so the class's slowness is on
-     lavapipe there as well, inside Linux's limit but worth the same figure.
+     lavapipe there as well, inside Linux's limit but worth the same figure. The mend is `f666be74`,
+     pushed at 03:37 on 2026-11-07 with 0cbaf53f, one run on the pair. test.py deals a class named
+     after a plus with a count after a slash into that many processes by its methods, the last
+     taking the class less the others', --only and --except matching the class's own label, the
+     digest and the page reporting the processes as the one class with the times added, the largest
+     memory, the counts summed and the slowest tests pooled, the workflow running
+     Rendering=2+GlobalIlluminationTests/2 on half 1, its comment carrying half 1's five class and
+     job times, half 2's job times and Linux's whole-suite times (44, 49, 44, 44 and 56 minutes,
+     Linux running the suite as one process with no class time), a stand-in test holding the one
+     record and failing on the old script. Five of the class's methods on lavapipe with Mesa's cache
+     off, the run's three slowest among them, took 533 s with 2ceac35a's shaders, 500 with
+     798d9270's and 514 with the rule's, each test within 12 s, so the run's slowness was its
+     runners', Linux and half 1 together, not the commit's. Settles on the run.
+
+106. **The lintel test asserts where it should skip.** The run of `0cbaf53f` is red on Linux, macOS
+     and Windows half 1 at 04:2x on 2026-11-07, one failure of one cause on each,
+     A_Probe_Whose_Ray_Meets_A_Lintel_Past_Its_Interval_Takes_No_Sky_The_Probes_Above_See_Under_It
+     failing with "Expected probe not to be <null> because the device traces no rays, which the
+     reference is traced through", Linux 2,187 passed and 39 skipped in 35 minutes, macOS 2,165 and
+     43 in 32, half 1 203 and 6 in 43 with the GI class dealt into its two processes, so Verdict
+     105's split holds and the runners' lavapipe has no ray queries for gi.probe's reference, which
+     the other reference tests skip on. The mend is the test skipping where the device traces no
+     rays, as its neighbors do, with the reason in the skip and no figure moved, riding in the
+     flip's commit, which goes up once half 2 ends. Settles on that run.
 
 ## Decisions
 
@@ -5114,3 +5224,19 @@ a / into as many processes by its methods, the last taking every method the othe
 and reports them as the one class, their times added and their slowest tests together, which a
 test holds with the stand-in, and the workflow runs the GI class so in two, the half's time as
 before.
+
+210's flip, mended on 2026-11-07 as the fifth form. The trace keeps a carried probe's texel's
+middle way's hit through the field, up to its interval's end, in place of its moving rays' mean,
+and the merge reads it as it reads any probe's reach, its code as 0cbaf53f left it. Ten readings
+50 frames apart hold the end wall's cascade-0 and cascade-1 probes at 0.000392 to 0.000393 and
+0.000604 to 0.000605, and over eight frames the end wall's pixels move within 1.02 of each other at
+their 95th percentile where 0cbaf53f's moved within 1.76 and 798d9270's within 1.38, the door's
+within 1.01 where 2.05 and 2.24, the view within 1.003. The door at 8:00 and noon and the lion at
+8:00 and noon read 0.747 and 0.923, 0.917 and 0.433, 1.026 and 0.374, 0.995 and 0.263, all 157 GI,
+bounce-room, cascade-edge, bounce-reference, glow and lintel tests passing, and global
+illumination at High in the atrium 4.77 to 4.80 ms where 0cbaf53f reads 4.71 to 4.79 in the one
+round the GPU was quiet. A new test reads two probes by the lintel twelve times 23 frames apart,
+1.348 and 1.131 times between their readings where 0cbaf53f reads 1.717 and 1.667. The forms
+before it read as recorded, (iii) the carried probe's hit marched in the merge holding the probes
+at about 0.2 ms more (4.89 to 5.02 ms where 4.65 to 4.80). Verdict 106's mend rides in it, the
+lintel's two tests skipped where the device traces no rays, as the passage's and the reach's are.

@@ -8,7 +8,7 @@ namespace Engine.Tests.Rendering;
 // surface along the same way.
 public sealed partial class GlobalIlluminationTests
 {
-    [NeedsVulkanFact]
+    [NeedsRayQueryFact]
     [Trait("Category", "Render")]
     public void A_Probe_Whose_Ray_Meets_A_Lintel_Past_Its_Interval_Takes_No_Sky_The_Probes_Above_See_Under_It()
     {
@@ -53,6 +53,67 @@ public sealed partial class GlobalIlluminationTests
         float Luminance(Vector3 c) => 0.2126f * c.X + 0.7152f * c.Y + 0.0722f * c.Z;
         Luminance(opening).Should().BeInRange(Luminance(reference) * 0.8f, Luminance(reference) * 1.1f,
             $"the probe at {probe.Middle} reads the sky under the lintel, {Luminance(opening):0.00000} against the reference's {Luminance(reference):0.00000}");
+        UnloadModel(slab);
+    }
+
+    [NeedsRayQueryFact]
+    [Trait("Category", "Render")]
+    public void A_Probe_Under_The_Lintel_Holds_Its_Face_Still_While_The_View_Is_Held()
+    {
+        // The same hall, two probes by the lintel read twelve times 23 frames apart with nothing
+        // moving. A probe above whose rays move through their sixteen places, carried past its
+        // interval, met a surface along a way in some frames and saw past it in others, so with the
+        // probes above passed over where they disagree with the ray marched past its interval, the
+        // second cascade's probe's face toward the opening went between its readings by 1.717
+        // times and the first's by 1.667, where 1.284 and 1.094 before the march. In Sponza's
+        // door view at 8:00 such a probe by the end wall went between 0.000602 and 0.0000258 at
+        // irregular times. With such a probe read by its texels' middle ways' hits, which hold
+        // still, the two read 1.348 and 1.131.
+        Open();
+        SetSceneField(4, 0.125f, 2);
+        SetSceneFieldCenter(new Vector3(-2, 1.5f, 0));
+        SetGlobalIllumination(GlobalIllumination.High);
+        SetAmbientLight(new Color(200, 220, 255), 1);
+        var slab = LoadModelFromMesh(GenMeshCube(1, 1, 1));
+        slab.Materials[0].Roughness = 1;
+        var gray = new Color(160, 160, 160);
+        var camera = new Camera3D(new Vector3(6, 3, 6), new Vector3(0, 1.5f, 0), Vector3.UnitY, 60);
+        void Box(float x0, float x1, float y0, float y1, float z0, float z1) =>
+            DrawModelEx(slab, new Vector3(x0 + x1, y0 + y1, z0 + z1) / 2, Vector3.UnitY, 0, new Vector3(x1 - x0, y1 - y0, z1 - z0), gray);
+        void Frames(int count)
+        {
+            for (int frame = 0; frame < count; frame++)
+            {
+                BeginDrawing();
+                ClearBackground(Color.Black);
+                BeginMode3D(camera);
+                Box(-24, 10, -0.5f, 0, -12, 12);
+                Box(-6.5f, 10.5f, 4, 4.5f, -3.5f, 3.5f);
+                Box(-6.5f, -6, 2, 4, -3.5f, 3.5f);
+                Box(10, 10.5f, 0, 4, -3.5f, 3.5f);
+                Box(-6.5f, 10.5f, 0, 4, -4, -3.5f);
+                Box(-6.5f, 10.5f, 0, 4, 3.5f, 4);
+                EndMode3D();
+                EndDrawing();
+            }
+        }
+        Frames(SceneFieldPlan.SettleFrames + 20);
+        float Luminance(Vector3 c) => 0.2126f * c.X + 0.7152f * c.Y + 0.0722f * c.Z;
+        var spreads = new List<float>();
+        foreach (var (point, cascade) in new[] { (new Vector3(-2.5f, 2.5f, 0.5f), 1), (new Vector3(-1.5f, 3.5f, 0.5f), 0) })
+        {
+            var faces = new List<float>();
+            for (int sample = 0; sample < 12; sample++)
+            {
+                Frames(23);
+                var probe = BounceReference.MeasureProbe(GetApp().World, point, 1, 0, cascade, out var why);
+                probe.Should().NotBeNull(why);
+                faces.Add(Luminance(probe!.FacesMerged[1]));
+            }
+            spreads.Add(faces.Max() / Math.Max(faces.Min(), 1e-9f));
+        }
+        spreads[0].Should().BeLessThan(1.55f, $"the second cascade's probe holds still, its face's readings within {spreads[0]:0.000} times of each other");
+        spreads[1].Should().BeLessThan(1.3f, $"the first cascade's probe holds still, its face's readings within {spreads[1]:0.000} times of each other");
         UnloadModel(slab);
     }
 }

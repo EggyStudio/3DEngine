@@ -25,7 +25,11 @@
 // that let light through, and each probe above whose own hit along the way lies off where the march
 // met a surface, by two of its cells or a quarter of the way, or that met one where the march met
 // none, is passed over, those that agree taken alone, and where none agrees and the march met a
-// surface, the light from beyond is none. In Sponza's door view at 8:00 at High the probes above
+// surface, the light from beyond is none. A probe above that is carried past its interval with its
+// rays moving through their sixteen places is read by its texels' middle ways' hits, which the
+// trace keeps for it (gi_trace.slang), since its rays' own met a surface in some frames and saw
+// past the end in others, and passed over in some frames and not others, a probe below it by the
+// door view's end wall went between 0.000602 and 0.0000258 at irregular times with the view held. In Sponza's door view at 8:00 at High the probes above
 // the vestibule saw the sky and the court past its arch along ways whose rays meet its underside,
 // 0.00325 along one where a path-traced reference reads 0.0000302, and in the lion view the
 // probes above under the arcade met its arch along a way the probe below sees the sky along.
@@ -182,27 +186,6 @@ float3 settled(float3 light, uint3 at, uint2 texel, uint probes, uint texels, ui
 // as a probe has sixteen threads at fewest.
 groupshared uint seen[32];
 
-// Where a ray from origin along way meets a surface that does not let light through between tMin
-// and tMax, crossing up to four that do as seesPastLeaves crosses them, or -1 where it meets none.
-float metPast(float3 origin, float3 way, float tMin, float tMax)
-{
-    float t = tMin;
-    [loop]
-    for (int layer = 0; layer < 4; layer++)
-    {
-        t = traceField(sceneField, fieldInfo, origin, way, t, tMax);
-        if (t < 0.0)
-            return -1.0;
-        if (lightThroughAt(fieldAlbedo, fieldInfo, origin + way * t) <= 0.0)
-            return t;
-        bool inside = false;
-        t += lightThroughDepth(sceneField, fieldInfo, origin, way, t, tMax - t, inside);
-        if (inside)
-            return -1.0;
-    }
-    return -1.0;
-}
-
 [shader("compute")]
 [numthreads(64, 1, 1)]
 void computeMain(uint3 id : SV_DispatchThreadID, uint3 local : SV_GroupThreadID)
@@ -296,7 +279,7 @@ void computeMain(uint3 id : SV_DispatchThreadID, uint3 local : SV_GroupThreadID)
     float end = 4.0 * oc.w * push.spacing.x;
     float limit = push.spacing.w;
     bool marched = limit < 2.5 * end;
-    float occluder = marched ? metPast(origin, d, end, limit) : -1.0;
+    float occluder = marched ? metPastLeaves(sceneField, fieldAlbedo, fieldInfo, origin, d, end, limit) : -1.0;
     float3 sum = float3(0.0), agreedSum = float3(0.0);
     float sky = 0.0, agreedSky = 0.0;
     float weights = 0.0, agreedWeights = 0.0;

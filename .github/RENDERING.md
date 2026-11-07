@@ -2812,6 +2812,21 @@ reads 43 times the reference in its downward face at noon. Turned to face the ra
 2.15 times, but before the march the end wall facing the court rose from 1.91 to 2.97 of the
 reference at 8:00 with it (`gi.probe`, `gi.compare`, `field.march`, `./e3d command profile`).
 
+**A carried probe's reach held still, mended on 2026-11-07.** A carried probe whose rays move
+through their sixteen places wrote the reach its rays found that frame, which met a surface along a
+way in some frames and saw past it in others, so the march's agreement passed it over in some frames
+and not others, and by the door view's end wall at 8:00 a second-cascade probe's face toward the
+court went between 0.000602 and 0.0000258 at irregular times with the view held. Such a probe's
+texel keeps its middle way's hit through the field, up to its interval's end, in place of its rays'
+mean (`gi_trace.slang`), so the reach the merge, the gather and the screen's probes read of it holds
+still. That probe reads 0.000604 to 0.000605 over ten readings 50 frames apart, and over eight
+frames the end wall's pixels move within 1.02 of each other at their 95th percentile where 1.76 with
+the march and 1.38 before it, the door's within 1.01 where 2.05 and 2.24. The door view reads 0.747
+and 0.917 of a path-traced reference's light at 8:00 and noon, the lion 1.026 and 0.995, the pixels'
+difference 0.923, 0.433, 0.374 and 0.263 of it, and global illumination at High in the atrium at
+1920 by 1080 takes 4.77 to 4.80 ms where 4.71 to 4.79 in the same quiet round (`gi.probe`,
+`gi.compare`, `./e3d command profile`).
+
 **A crossing taken once, read on 2026-10-31.** The cascades' intervals overlap, the first's
 reaching twice as far as the second's begins, and a slab that straddled the first's end was crossed
 twice, the first cascade's ray taking the part of it within its interval and handing on what it

@@ -85,3 +85,26 @@ public bool seesPastLeaves<V : IVolume, A : IVolume>(V field, A albedo, SceneFie
     }
     return false;
 }
+
+// Where a ray from origin along way meets a surface that does not let light through between tMin
+// and tMax, crossing up to four that do as seesPastLeaves crosses them, or -1 where it meets none.
+// The merge marches a probe's ray past its interval so, and the trace a carried probe's texel's
+// middle way.
+public float metPastLeaves<V : IVolume, A : IVolume>(V field, A albedo, SceneFieldInfo info, float3 origin, float3 way, float tMin, float tMax)
+{
+    float t = tMin;
+    [loop]
+    for (int layer = 0; layer < 4; layer++)
+    {
+        t = traceField(field, info, origin, way, t, tMax);
+        if (t < 0.0)
+            return -1.0;
+        if (lightThroughAt(albedo, info, origin + way * t) <= 0.0)
+            return t;
+        bool inside = false;
+        t += lightThroughDepth(field, info, origin, way, t, tMax - t, inside);
+        if (inside)
+            return -1.0;
+    }
+    return -1.0;
+}
