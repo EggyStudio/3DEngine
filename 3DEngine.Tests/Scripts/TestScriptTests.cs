@@ -119,6 +119,8 @@ public sealed class TestScriptTests : IDisposable
     [NeedsPythonFact]
     public void Two_Cases_Of_A_Theory_Cut_To_One_Name_Are_Counted_Apart()
     {
+        // The three middle dots end a theory case's name cut short in a results file, quoted as the
+        // file holds them.
         const string cut = "Engine.Tests.Scripts.ScriptTests.Compiles(script: &quot;[Behavior] public partial struct&quot;···)";
         var cases = $"<UnitTestResult testName=\"{cut}\" outcome=\"Passed\" /><UnitTestResult testName=\"{cut}\" outcome=\"Passed\" />";
         foreach (var file in new[] { "results-the-suite.trx", "results-ScriptTests.trx" })

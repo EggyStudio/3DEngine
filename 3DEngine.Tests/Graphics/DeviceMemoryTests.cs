@@ -38,4 +38,33 @@ public sealed class DeviceMemoryTests
         foreach (var buffer in buffers.Skip(5_000).Concat(again)) buffer.Dispose();
         foreach (var image in images) image.Dispose();
     }
+
+    [NeedsVulkanFact]
+    public void A_Buffer_The_CPU_Writes_Is_Mapped_Though_Its_Block_Was_Made_For_The_Devices_Own()
+    {
+        using var device = new GraphicsDevice();
+        device.Initialize(new OffscreenSurface(16, 16), "memory test");
+
+        // Where the device's own memory and the memory the CPU sees are one type, as on lavapipe and
+        // a GPU sharing the computer's memory, a block made for a buffer of the device's own holds
+        // the next that does not fit the blocks before it, whichever kind it is. Buffers of 30 MB
+        // of the device's own are made until one takes a new block, so the blocks before hold less
+        // than that free, and one of 32 MB the CPU writes, half a block and so carved from one,
+        // fits the new block alone. Unmapped there, its first write through the null pointer ended
+        // a voxel game's play on lavapipe.
+        var own = new List<IBuffer>();
+        try
+        {
+            var blocks = device.MemoryBlockCount;
+            while (device.MemoryBlockCount == blocks && own.Count < 64)
+                own.Add(device.CreateBuffer(new BufferDesc(30UL << 20, BufferUsage.Storage, CpuAccessMode.None)));
+            own.Add(device.CreateBuffer(new BufferDesc(32UL << 20, BufferUsage.Storage, CpuAccessMode.Write)));
+            device.Map(own[^1]).Fill(7);
+            device.Map(own[^1])[^1].Should().Be(7, "the buffer the CPU writes is mapped wherever its range was carved");
+        }
+        finally
+        {
+            foreach (var buffer in own) buffer.Dispose();
+        }
+    }
 }

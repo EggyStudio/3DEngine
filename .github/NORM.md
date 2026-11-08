@@ -256,6 +256,17 @@ compares is also shown to the owner in the session as it is made, with its sente
 follows the work by its pictures and a capture compared behind the scenes and never shown is work
 the owner cannot see. By review, the reviewer reading a day's folder against the items worked.
 
+**N 4.11 A comment stands on the code's own terms.** It says what the code does and why in the
+engine's words, and a number taken from elsewhere stands with the reason it is right here, what it
+makes the frame or the program do, the source named once in the documents' references and not in the
+comment. The file names of outside assets, another product's profile or process as the explanation,
+"as X works it out", and the facts of the sessions' work are not written in a comment, since a
+reader of the source has none of them, and a comment that leans on them says nothing to that reader;
+the owner asked for it on 2026-11-08 reading one that graded a scene "as that scene's HDRP profile
+grades it". A comparison test names the reference it compares against, since the comparison is the
+test. By review, and by STYLE.md's search for the products' and the sessions' words in comments,
+read rather than counted.
+
 ## 5 Examples and games
 
 **N 5.1 An example has the followed engine's name for it where that engine has one, is opened by
@@ -416,6 +427,7 @@ not the code keeps the rule. `by review` is held by the reviewing session.
 | N 4.8 | by review | by review |
 | N 4.9 | by review | by review |
 | N 4.10 | by review | by review |
+| N 4.11 | by review, and STYLE.md's search | by review, and STYLE.md's search |
 | N 5.1 | checked, the pack workflow's capture of every example | checked, the pack workflow's capture of every example |
 | N 5.2 | checked, `NormTests.N_5_2` before a commit and `build/examples-table.py --check` in the workflow | checked, `build/examples-table.py --check` in the workflow |
 | N 5.3 | checked, the pack workflow's games | checked, the pack workflow's Courtyard |

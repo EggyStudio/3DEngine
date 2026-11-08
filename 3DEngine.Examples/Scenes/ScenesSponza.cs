@@ -157,10 +157,13 @@ public static class ScenesSponza
         SetHour(hour);
         SetShadowDistance(40);
         SetCameraExposure(200, 1 / 200f, 16);
-        // The frame graded as that scene's HDRP profile grades it, by the look of its
-        // AgX - Powerful.exr, a lookup build/unity-lut.py writes from that strip, a gamma of w
-        // 0.225, and a bloom of intensity 0.25, threshold 0.333 and scatter 0.7, worked out as HDRP
-        // works them out.
+        // The frame graded by the AgX lookup at resources/agx_powerful.ktx2, which bends the light
+        // past white into the highlights rather than clipping it, with the middle tones the lookup
+        // darkens lifted by a gamma of 0.225, and bloomed at an intensity of 0.25, a threshold of
+        // 0.333 and a scatter of 0.7, so the sun's disc and a lit lamp's glass take a soft halo past
+        // their edges and the stone under the threshold none. The intensity is 2 to that power less
+        // 1, the threshold is decoded from sRGB to be measured on linear light, and the scatter is
+        // laid over the chain's range from 0.05 to 0.95.
         SetTonemapLookup("resources/agx_powerful.ktx2");
         SetLiftGammaGain(new Vector4(1, 1, 1, 0), new Vector4(1, 1, 1, 0.225f), new Vector4(1, 1, 1, 0));
         SetBloom(MathF.Pow(2, 0.25f) - 1, MathF.Pow((0.333f + 0.055f) / 1.055f, 2.4f));

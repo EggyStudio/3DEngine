@@ -117,7 +117,17 @@ internal sealed unsafe partial class GraphicsDevice
 
             foreach (var block in blocks)
                 if (!block.Dedicated && TryCarve(block, requirements.size, alignment) is { } slice)
-                    return slice;
+                {
+                    // Where the device's own memory is the memory the CPU sees, as on lavapipe, one type
+                    // serves both and a block made for a buffer of the device's own, left unmapped,
+                    // holds the next of either kind that fits it. One the CPU writes is mapped there,
+                    // which left out gave it a null pointer, and a voxel game's scene field pool, carved
+                    // there after the field was made again three times in two seconds, took its
+                    // first write through it and ended the game.
+                    if (!hostVisible || block.Mapped != 0) return slice;
+                    MapBlock(block);
+                    return slice with { Mapped = block.Mapped + (nint)slice.Offset };
+                }
 
             var fresh = NewBlock(type, MemoryBlockSize, hostVisible);
             blocks.Add(fresh);
@@ -153,13 +163,16 @@ internal sealed unsafe partial class GraphicsDevice
         var block = new MemoryBlock { Memory = memory, Size = size };
         block.Free.Add((0, size));
         // Mapped once for good, since a block holds many buffers and Vulkan maps memory once.
-        if (hostVisible)
-        {
-            void* data;
-            _deviceApi.vkMapMemory(memory, 0, Vulkan.VK_WHOLE_SIZE, 0, &data).CheckResult();
-            block.Mapped = (nint)data;
-        }
+        if (hostVisible) MapBlock(block);
         return block;
+    }
+
+    // Maps a block's whole memory for good.
+    private void MapBlock(MemoryBlock block)
+    {
+        void* data;
+        _deviceApi.vkMapMemory(block.Memory, 0, Vulkan.VK_WHOLE_SIZE, 0, &data).CheckResult();
+        block.Mapped = (nint)data;
     }
 
     // Gives a range back to its block, merged with the free ranges beside it, and frees a block

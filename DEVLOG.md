@@ -13,6 +13,7 @@ Done that day
 - Item 213 at `e63a44f5`. The reference's lobe at every face and the rooms' shortfall.
 - Item 214 at `6a190757`. A probe's reach for each of its rays.
 - Item 217 at `66982f6c`. The parked forms land by their figures.
+- Item 219 at `eda81295`. The balcony's flicker at steep edges and thin features.
 - Item 220 at `8ab130e4`. Sponza's lamps shine through their housings, off by default, and the
   corner's spot.
 - Item 221 at `98b26c9e`. The night sky from the Sky module.

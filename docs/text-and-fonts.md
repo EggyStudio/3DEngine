@@ -115,7 +115,7 @@ uses, so the bake holds those and no more:
 
 ```csharp
 // Beyond Latin-1, a font is baked with the characters a text needs.
-const string World = "Grüße · Γειά σου · Привет · 5 €";
+const string World = "Grüße Γειά σου Привет 5 €";
 var wide = LoadFontEx("resources/fonts/Lato-Regular.ttf", 28, LoadCodepoints(World));
 // ...
 DrawTextEx(wide, World, new Vector2(20, 270), 28, 0, Color.DarkPurple);

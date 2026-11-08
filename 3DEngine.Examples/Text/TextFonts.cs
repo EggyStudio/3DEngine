@@ -13,7 +13,7 @@ public static class TextFonts
         var lato = LoadFontEx("resources/fonts/Lato-Regular.ttf", 48);
 
         // Beyond Latin-1, a font is baked with the characters a text needs.
-        const string World = "Grüße · Γειά σου · Привет · 5 €";
+        const string World = "Grüße Γειά σου Привет 5 €";
         var wide = LoadFontEx("resources/fonts/Lato-Regular.ttf", 28, LoadCodepoints(World));
         var target = LoadRenderTexture(300, 120);
         var t = 0f;

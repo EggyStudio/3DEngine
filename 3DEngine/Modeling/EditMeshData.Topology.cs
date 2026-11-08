@@ -397,7 +397,7 @@ internal sealed partial class EditMeshData
         }
 
         // The sum of each normal's outer product with itself, and of the normals, the normal
-        // equations of v · n = d for every n, solved by Cramer's rule.
+        // equations of the dot of v with n equal to d for every n, solved by Cramer's rule.
         double xx = 0, xy = 0, xz = 0, yy = 0, yz = 0, zz = 0, bx = 0, by = 0, bz = 0;
         foreach (var n in normals)
         {

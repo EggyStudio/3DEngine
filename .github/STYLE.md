@@ -9,6 +9,9 @@ given file.
 
 Em dashes and en dashes are not used. Neither `—` nor `–`, in any file.
 
+The middle dot `·` is not used either. A row of links is separated by a space, a list by commas,
+and a product is said in words or with the word dot.
+
 The spaced hyphen ` - ` is not sentence punctuation. Replace it according to the relationship
 between the clauses.
 

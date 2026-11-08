@@ -22,7 +22,7 @@ namespace FeatureTest;
 sealed class Text : Zone
 {
     private const int Width = 360, Height = 160;
-    private const string World = "Grüße · Γειά σου · Привет · 5 €", Hebrew = "אבג", Joined = "office";
+    private const string World = "Grüße Γειά σου Привет 5 €", Hebrew = "אבג", Joined = "office";
     private readonly RenderTexture2D _page = LoadRenderTexture(Width, Height);
     private readonly Font _lato = LoadFontEx("resources/fonts/Lato-Regular.ttf", 28, LoadCodepoints(World + Joined));
     private readonly Font _unjoined = LoadFontEx("resources/fonts/Lato-Regular.ttf", 28, LoadCodepoints(Joined));

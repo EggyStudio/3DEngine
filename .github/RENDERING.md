@@ -10,8 +10,12 @@ needs an offline toolchain beyond `slangc`.
 - **A Vulkan device** (`GraphicsDevice`, over Vortice.Vulkan) targeting Vulkan 1.4 with
   `VK_KHR_swapchain`, three frames in flight, mailbox presentation where the surface offers it, a
   depth image of its own, and optional validation layers. Buffers and textures are carved out of
-  blocks (`GraphicsDevice.Memory`). `IGraphicsDevice` is the interface the rest of the engine draws
-  through, and `NullGraphicsDevice` stands in for it in tests.
+  blocks (`GraphicsDevice.Memory`), a block mapped for good once a buffer the CPU writes is carved
+  from it, since where the device's own memory and the memory the CPU sees are one type, as on
+  lavapipe, a block made for the device's own buffers holds either kind, and one the CPU writes
+  carved there unmapped took a null pointer, which ended a voxel game's play (`DeviceMemoryTests`).
+  `IGraphicsDevice` is the interface the rest of the engine draws through, and `NullGraphicsDevice`
+  stands in for it in tests.
 - **Dynamic rendering and synchronization2.** A pass is begun on the images it draws into
   (`GraphicsDevice.Rendering`), with no render pass object or framebuffer made ahead, and moves
   them into their attachment layouts and out to the layout they are read in by barriers of its
