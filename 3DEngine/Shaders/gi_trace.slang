@@ -124,10 +124,6 @@ Sampler2D sunShadow;
 [[vk::binding(14, 0)]]
 Texture3D<float> skyAbove;
 
-// The sixteen places in a texel a carried probe's ray leaves from, in the order the frames take
-// them, as gi_screen.slang's Places.
-static const uint TracePlaces[16] = { 0, 10, 2, 8, 5, 15, 7, 13, 1, 11, 3, 9, 4, 14, 6, 12 };
-
 struct TracePush
 {
     // x: the cascade. y: the probes along each side. z: the octahedron's texels along each side.
@@ -415,6 +411,7 @@ void computeMain(uint3 id : SV_DispatchThreadID, uint lane : SV_GroupIndex)
     // A carried probe whose rays move marked in its place's w, 2, for the merge and the gather to
     // keep its cycle, a probe walled in keeping its 0.
     bool moving = carried && place.w > 0.5 && !walledIn && (push.above.z & 1u) != 0u;
+    float widen = moving ? 0.0 : texelWidening(texels);
     if (lane == 0u && moving)
         held[int3(3 * int(probes) + int(at.x), int(at.y), int(push.cascade.x) * int(probes) + int(at.z))] = float4(place.xyz, 2.0);
     // A ray carried on that meets nothing to the field's edge brings the sky as the last cascade's
@@ -489,8 +486,8 @@ void computeMain(uint3 id : SV_DispatchThreadID, uint lane : SV_GroupIndex)
         {
             reached = meshAt;
             hitNormal = meshNormal;
-            light = float4(shadeProbeHitAt(sceneField, fieldInfo, gatheredAt(), fieldAlbedo, fieldGlow, lights, bounced, bouncedAtSurface, origin + way * meshAt, meshNormal, reflectedShare(meshColor, meshGloss, dot(meshNormal, -way)), way,
-                float(probes), push.interval.z, push.interval.w, share, SunShadowMap(sunShadow), own), meshAt < push.interval.x ? 0.5 : 0.0);
+            light = float4(shadeProbeHitAt(sceneField, fieldInfo, gatheredAt(), fieldAlbedo, fieldGlow, lights, bounced, bouncedAtSurface, origin + way * meshAt, meshNormal, meshColor, meshGloss, way,
+                float(probes), push.interval.z, push.interval.w, share, SunShadowMap(sunShadow), own, widen), meshAt < push.interval.x ? 0.5 : 0.0);
             through = 0.0;
         }
         else if (false)
@@ -506,7 +503,7 @@ void computeMain(uint3 id : SV_DispatchThreadID, uint lane : SV_GroupIndex)
             // The indirect light reaching the hit from the probes a march reaches, so the probes'
             // reach goes unread and the faces stand in its place.
             light = float4(shadeProbeHitN(sceneField, SheetVolume(sceneField, fieldSecond), fieldInfo, gatheredAt(), fieldAlbedo, fieldFaces, fieldGlow, lights, bounced, bouncedAtSurface, bounced, origin + way * t, way,
-                float(probes), push.interval.z, push.interval.w, true, share, SunShadowMap(sunShadow), own, hitNormal), t < push.interval.x ? 0.5 : 0.0);
+                float(probes), push.interval.z, push.interval.w, true, share, SunShadowMap(sunShadow), own, hitNormal, false, widen), t < push.interval.x ? 0.5 : 0.0);
             through = 0.0;
         }
         else if (skyPast)
@@ -561,6 +558,7 @@ void computeMain(uint3 id : SV_DispatchThreadID, uint lane : SV_GroupIndex)
         // part entered before the cascade below's interval ends that cascade's, and the first such
         // face and the one the ray stops at shaded by their own normal and color.
         float3 leafNormal = float3(0.0, 1.0, 0.0), leafColor = float3(0.0), stopNormal = float3(0.0, 1.0, 0.0), stopColor = float3(0.0);
+        float2 leafGloss = float2(0.5, 0.0), stopGloss = float2(0.5, 0.0);
         float from = 0.0;
         t = -1.0;
         [loop]
@@ -590,7 +588,8 @@ void computeMain(uint3 id : SV_DispatchThreadID, uint lane : SV_GroupIndex)
                 {
                     leafAt = at;
                     leafNormal = metNormal;
-                    leafColor = reflectedShare(metColor, meshGloss(copy), dot(metNormal, -way));
+                    leafColor = metColor;
+                    leafGloss = meshGloss(copy);
                 }
                 leafShare += taken;
             }
@@ -598,7 +597,8 @@ void computeMain(uint3 id : SV_DispatchThreadID, uint lane : SV_GroupIndex)
             {
                 stopAt = at;
                 stopNormal = metNormal;
-                stopColor = reflectedShare(metColor, meshGloss(copy), dot(metNormal, -way));
+                stopColor = metColor;
+                stopGloss = meshGloss(copy);
                 stopShare = taken;
             }
             through *= passes;
@@ -671,13 +671,13 @@ void computeMain(uint3 id : SV_DispatchThreadID, uint lane : SV_GroupIndex)
             float3 itsOwn;
 #if defined(RAY_QUERY)
             float3 itsLight = shadeProbeHitAt(sceneField, fieldInfo, gatheredAt(), fieldAlbedo, fieldGlow, lights, bounced, bouncedAtSurface, origin + way * shadedAt,
-                shaded == 0 ? leafNormal : stopNormal, shaded == 0 ? leafColor : stopColor, way, float(probes), push.interval.z, push.interval.w, share,
-                SunShadowMap(sunShadow), itsOwn);
+                shaded == 0 ? leafNormal : stopNormal, shaded == 0 ? leafColor : stopColor, shaded == 0 ? leafGloss : stopGloss, way, float(probes),
+                push.interval.z, push.interval.w, share, SunShadowMap(sunShadow), itsOwn, widen);
             hitNormal = shaded == 0 ? leafNormal : stopNormal;
 #else
             float3 itsNormal;
             float3 itsLight = shadeProbeHitN(sceneField, SheetVolume(sceneField, fieldSecond), fieldInfo, gatheredAt(), fieldAlbedo, fieldFaces, fieldGlow, lights, bounced, bouncedAtSurface, bounced, origin + way * shadedAt, way,
-                float(probes), push.interval.z, push.interval.w, true, share, SunShadowMap(sunShadow), itsOwn, itsNormal);
+                float(probes), push.interval.z, push.interval.w, true, share, SunShadowMap(sunShadow), itsOwn, itsNormal, false, widen);
             hitNormal = itsNormal;
 #endif
             float weight = shaded == 0 ? leafShare : stopShare;

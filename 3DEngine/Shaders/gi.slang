@@ -352,6 +352,82 @@ public float3 directLight<V : IVolume, Sun : ISunShadow>(V field, SceneFieldInfo
     return arrived;
 }
 
+// The sixteen places in a texel a moving ray leaves from, in the order the frames take them, each
+// four in a row spread over the texel, as the glow lights' points are
+// (GlobalIlluminationRenderer.JitterAt), which a carried probe's rays (gi_trace.slang) and the
+// screen's probes' (gi_screen.slang) take.
+public static const uint TracePlaces[16] = { 0, 10, 2, 8, 5, 15, 7, 13, 1, 11, 3, 9, 4, 14, 6, 12 };
+
+// How much a probe's ray standing for its whole texel widens GGX's alpha squared, the tangent
+// squared of the half-angle of the cone a texel of an n by n octahedron spans on the mean, 4 pi over
+// n squared, 0.0657 at 8 by 8 and 0.0158 at 16 by 16, so a smooth face it meets reflects a light by
+// the lobe's mean over its texel and not by its peak.
+public float texelWidening(uint n)
+{
+    float c = 1.0 - 2.0 / float(n * n);
+    return (1.0 - c * c) / (c * c);
+}
+
+// GGX's reflection of a light along l toward v off a face of roughness and f0 facing n, its alpha
+// squared widened by widen, times pi as the lights are given, as the reference's
+// specularReflected, and in fresnel its Fresnel.
+public float3 ggxReflected(float3 n, float3 v, float3 l, float3 f0, float roughness, float widen, out float3 fresnel)
+{
+    float alpha = max(roughness, 0.045) * max(roughness, 0.045);
+    float3 h = normalize(v + l);
+    float nl = max(dot(n, l), 1e-4);
+    float nv = max(dot(n, v), 1e-4);
+    float nh = max(dot(n, h), 0.0);
+    float a2 = alpha * alpha + widen;
+    float d = nh * nh * (a2 - 1.0) + 1.0;
+    float distribution = a2 / (Pi * d * d);
+    float visibility = 0.5 / (nl * sqrt(nv * nv * (1.0 - a2) + a2) + nv * sqrt(nl * nl * (1.0 - a2) + a2));
+    fresnel = f0 + (1.0 - f0) * pow(1.0 - max(dot(v, h), 0.0), 5.0);
+    return distribution * visibility * fresnel * Pi;
+}
+
+// The light the sun and the lights send back from p on a face facing n toward v, each light's
+// diffuse share past its Fresnel and its GGX reflection, as the reference lights a glossy face, the
+// sun found as directLight finds it and the lamps unshadowed, falling off as there.
+public float3 directReflected<V : IVolume, Sun : ISunShadow>(V field, SceneFieldInfo info, GiLights lights, float3 p, float3 n, float3 v,
+    float3 diffuse, float3 f0, float roughness, float widen, Sun sun)
+{
+    float3 sent = float3(0.0);
+    float3 fresnel;
+    if (lights.sunDirection.w > 0.5)
+    {
+        float3 l = lights.sunDirection.xyz;
+        float facing = dot(n, l);
+        if (facing > 0.0)
+        {
+            float cell = fieldCell(info, p);
+            float mapped = sun.reached(lights, p, n, cell);
+            float reaches = mapped >= 0.0 ? mapped : traceField(field, info, p + n * (cell * 1.5), l, cell, 1e5) < 0.0 ? 1.0 : 0.0;
+            float3 specular = ggxReflected(n, v, l, f0, roughness, widen, fresnel);
+            sent += lights.sunColor.rgb * (facing * reaches) * (diffuse * (1.0 - fresnel) + specular);
+        }
+    }
+    for (int i = 0; i < min(int(lights.counts.x), 16); i++)
+    {
+        GiLight light = lights.lights[i];
+        float3 toLight = light.positionAndKind.xyz - p;
+        float distance2 = max(dot(toLight, toLight), 1e-4);
+        float3 l = toLight * rsqrt(distance2);
+        float result = max(dot(n, l), 0.0) / distance2;
+        float range = light.directionAndRange.w;
+        if (range > 0.0)
+        {
+            float edge = saturate(1.0 - pow(distance2 / (range * range), 2.0));
+            result *= edge * edge;
+        }
+        if (int(light.positionAndKind.w) == 2)
+            result *= smoothstep(light.cone.y, max(light.cone.x, light.cone.y + 1e-4), dot(-l, light.directionAndRange.xyz));
+        float3 specular = ggxReflected(n, v, l, f0, roughness, widen, fresnel);
+        sent += light.colorAndShadow.rgb * result * (diffuse * (1.0 - fresnel) + specular);
+    }
+    return sent;
+}
+
 // How much a probe at probe counts toward the light at a surface at p facing n, besides how near
 // it is, more the more squarely it stands in front of the surface, as DDGI weighs its probes.
 public float probeFacing(float3 p, float3 n, float3 probe)
@@ -493,6 +569,43 @@ public float3 hiddenLampLight<V : IVolume>(V field, SceneFieldInfo info, GiLight
         float apart = length(along);
         if (result > 0.0 && apart > cell * 2.0 && traceField(field, info, from, along / apart, 0.0, apart - cell * 2.0) >= 0.0)
             hidden += light.colorAndShadow.rgb * result;
+    }
+    return hidden;
+}
+
+// The same as directReflected sends it back toward v, each hidden lamp's diffuse share past its
+// Fresnel and its GGX reflection, so a lamp the field hides lights none of a glossy hit either.
+public float3 hiddenLampReflected<V : IVolume>(V field, SceneFieldInfo info, GiLights lights, float3 p, float3 n, float3 v, float3 diffuse,
+    float3 f0, float roughness, float widen)
+{
+    float3 hidden = float3(0.0);
+    float cell = fieldCell(info, p);
+    float3 from = p + n * (cell * 1.5);
+    for (int i = 0; i < min(int(lights.counts.x), 16); i++)
+    {
+        GiLight light = lights.lights[i];
+        if (light.colorAndShadow.w < 0.5)
+            continue;
+        float3 toLight = light.positionAndKind.xyz - p;
+        float distance2 = max(dot(toLight, toLight), 1e-4);
+        float3 l = toLight * rsqrt(distance2);
+        float result = max(dot(n, l), 0.0) / distance2;
+        float range = light.directionAndRange.w;
+        if (range > 0.0)
+        {
+            float edge = saturate(1.0 - pow(distance2 / (range * range), 2.0));
+            result *= edge * edge;
+        }
+        if (int(light.positionAndKind.w) == 2)
+            result *= smoothstep(light.cone.y, max(light.cone.x, light.cone.y + 1e-4), dot(-l, light.directionAndRange.xyz));
+        float3 along = light.positionAndKind.xyz - from;
+        float apart = length(along);
+        if (result > 0.0 && apart > cell * 2.0 && traceField(field, info, from, along / apart, 0.0, apart - cell * 2.0) >= 0.0)
+        {
+            float3 fresnel;
+            float3 specular = ggxReflected(n, v, l, f0, roughness, widen, fresnel);
+            hidden += light.colorAndShadow.rgb * result * (diffuse * (1.0 - fresnel) + specular);
+        }
     }
     return hidden;
 }

@@ -9,24 +9,25 @@ public sealed partial class GlobalIlluminationTests
 {
     [NeedsRayQueryTheory]
     [Trait("Category", "Render")]
-    [InlineData(0f, 0.3f, 0.120f)]
-    [InlineData(0f, 1f, 0.164f)]
-    [InlineData(1f, 0.6f, 0.168f)]
-    [InlineData(1f, 0.3f, 0.213f)]
+    [InlineData(0f, 0.3f, 0.129f)]
+    [InlineData(0f, 1f, 0.126f)]
+    [InlineData(1f, 0.6f, 0.100f)]
+    [InlineData(1f, 0.3f, 0.134f)]
     public void A_Probe_Facing_A_Sunlit_Wall_Reads_Its_Gloss_Within_Its_Measured_Difference_From_The_Reference(float metallic, float roughness, float bound)
     {
         // A white wall five units high under the sun at 45 degrees, a dark floor before it, and the
         // first cascade's probe a unit from the wall, its face toward the wall read against a
         // reference of one bounce whose paths reflect by every face's gloss. A probe's ray lights
-        // what it meets by its gloss's share at the ray's angle of the light from all around and
-        // its color past its metal of what the gloss leaves (reflectedShare in probelight.slang),
-        // as though the face reflected it evenly, so a metal's reflection of the sun, which the
-        // reference's GGX lobe throws along its mirror way into the probe, is read spread over
-        // every way. On the development machine's GPU the face reads 1.104 and 1.142 of the
-        // reference for dielectrics of a roughness of 0.3 and 1, and the metals' shortfall shows,
-        // 0.854 and 0.815 at 0.6 and 0.3. Taken as a white diffuse face, as the probes took every
-        // face before, the metal of 0.6 read 1.27 and that of 0.3 0.98. Each bound is 15% over its
-        // reading's distance from the reference.
+        // what it meets by each light's GGX reflection toward the ray and by its gloss's share of a
+        // lobe of the probes' faces about the ray's mirror way (glossyHit in probelight.slang), so
+        // a metal's reflection of the sun, which the reference's lobe throws along its mirror way
+        // into the probe, reaches it. On the development machine's GPU the face reads 1.112 and
+        // 1.110 of the reference for dielectrics of a roughness of 0.3 and 1 and 1.087 and 1.116
+        // for metals of 0.6 and 0.3, beside the dielectrics. Lit by the even shares alone, as though
+        // the face reflected the light from all around evenly (reflectedShare), the metals' fell
+        // short, 0.854 and 0.815, where the dielectrics read 1.104 and 1.142, and taken as a white
+        // diffuse face, as the probes took every face before, the metal of 0.6 read 1.27 and that
+        // of 0.3 0.98. Each bound is 15% over its reading's distance from the reference.
         Open();
         SetSceneField(3, 0.25f, 2);
         SetSceneFieldCenter(new Vector3(2, 1.5f, 0));
@@ -65,8 +66,8 @@ public sealed partial class GlobalIlluminationTests
         // A closed room whose walls are a white of 250 and nearly smooth, a lamp inside, its back
         // wall read in linear light once the light has settled and again 300 frames later. A probe's
         // ray's hit sends on its gloss's share and its diffuse share of what the gloss leaves
-        // (reflectedShare in probelight.slang), no more than reaches it, and the wall reads 11.80
-        // both times on the development machine's GPU. With the whole diffuse share beside the
+        // (glossyHit in probelight.slang), no more than reaches it, and the wall reads 11.66 both
+        // times on the development machine's GPU. With the whole diffuse share beside the
         // gloss's, a wall met at a grazing way sent on nearly twice what reached it, and the light
         // past the first bounce, which comes back to the probes each frame, grew without end, the
         // wall 13,247 and then 20,935. The bound on the wall's light is 15% over its reading.
@@ -113,7 +114,7 @@ public sealed partial class GlobalIlluminationTests
         var later = Wall(300);
         float.IsFinite(later).Should().BeTrue("the wall's light stays a number");
         (later / settled).Should().BeInRange(0.99f, 1.01f, $"the wall reads {settled:0.0000} and 300 frames later {later:0.0000}");
-        later.Should().BeLessThan(13.6f, "the walls send on no more of the lamp's light than reaches them");
+        later.Should().BeLessThan(13.4f, "the walls send on no more of the lamp's light than reaches them");
         UnloadModel(slab);
     }
 }

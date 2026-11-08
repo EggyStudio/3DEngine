@@ -11,6 +11,7 @@ of .github/REVIEW.md or .github/REVIEW-ARCHIVE.md and the commit that closed it.
 Done that day
 
 - Item 213 at `e63a44f5`. The reference's lobe at every face and the rooms' shortfall.
+- Item 214 at `6a190757`. A probe's reach for each of its rays.
 
 ## 2026-11-07
 

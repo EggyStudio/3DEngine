@@ -331,23 +331,30 @@ public sealed partial class BounceRoomsTests : IDisposable
     // to 0.58; taken from the cells whose face looks the hit's way, it holds 0.007 to 0.008 of green
     // to 0.429 to 0.448 of red, and the hits read 12 to 31% over the reference across the ways they
     // stand for where they read 24 to 139% over. Over the sixteen frames it keeps, 78 of its rays
-    // meet the red wall on the screen.
+    // meet the red wall on the screen. Lit by the lamp's reflection off walls of a roughness of 1
+    // and read past it and past the lamp's own color, the color holds 0.011 to 0.012 of green to its
+    // red's 0.578, the wall's own green 0.013.
     [NeedsRayQueryFact]
     public void A_Red_Walls_Rays_Beside_The_White_Wall_It_Meets_Take_The_Red_Walls_Color()
     {
         // Its rays leave from another place in their texels each frame, so they are read over the
-        // sixteen frames it keeps.
+        // sixteen frames it keeps, the rooms' walls of a roughness of 1, whose GGX lobe stands the
+        // same whatever its normal, since the hits by the corner take the normal the window's depth
+        // gives across it, and at the rooms' half the lamp's reflection off them read past a wall
+        // facing +x left their green at 0.036 to 0.048.
         var frames = new List<BounceReference.ScreenProbeLight>();
-        ReadScreenProbe(0, 276, 140, out var report, more: frames);
-        var onRed = frames.SelectMany(frame => frame.Rays).Where(ray => ray.Met == 0 && ray.Way.X < -0.3f).ToArray();
+        ReadScreenProbe(0, 276, 140, out var report, more: frames, roughness: 1);
+        var onRed = frames.SelectMany(frame => frame.Rays.Select(ray => (frame.Start, Ray: ray))).Where(hit => hit.Ray.Met == 0 && hit.Ray.Way.X < -0.3f).ToArray();
         onRed.Should().HaveCountGreaterThanOrEqualTo(4 * 16, $"the probe's rays toward the red wall meet it on the screen\n{report}");
-        // A hit sends back its gloss's share at the ray's angle alike in every channel and its color
-        // of what the gloss leaves (reflectedShare in probelight.slang), so the green of the color
-        // it was lit by is read past that share, the red wall's red its own 0.578.
-        static float Green(BounceReference.ScreenProbeRay ray)
+        // A hit sends back the lamp's GGX reflection toward the ray alike in every channel and its
+        // color of what the reflection's Fresnel leaves (glossyHit in probelight.slang), so the
+        // green of the color it was lit by is read past the reflection, worked out at the hit, and
+        // past the lamp's own color, the red wall's red its own 0.578.
+        static float Green((Vector3 Start, BounceReference.ScreenProbeRay Ray) hit)
         {
-            var share = GlossShare(-ray.Way.X);
-            return (ray.Own.Y / ray.Own.X * (0.578f * (1 - share) + share) - share) / (1 - share);
+            var (fresnel, specular) = LampReflected(hit.Start + hit.Ray.Way * hit.Ray.Distance, Vector3.UnitX, -hit.Ray.Way, 1);
+            var greenOverRed = hit.Ray.Own.Y / BloomRenderer.SrgbToLinear(236 / 255f) / (hit.Ray.Own.X / BloomRenderer.SrgbToLinear(1));
+            return (greenOverRed * (0.578f * (1 - fresnel) + specular) - specular) / (1 - fresnel);
         }
         var greens = onRed.Select(Green).ToArray();
         greens.Should().OnlyContain(g => g < 0.05f * 0.578f, $"the red wall's hits beside the white wall take the red wall's color, their green {greens.Min():0.000} to {greens.Max():0.000}\n{report}");
@@ -472,6 +479,21 @@ public sealed partial class BounceRoomsTests : IDisposable
 
     // The share of the light a uniformly bright polygon sends a point at p facing n, the polygon
     // clipped to the side n faces.
+    // The Fresnel and the GGX reflection times pi of the Cornell box's lamp, off a dielectric face of
+    // a roughness at p facing n toward v, as a probe's ray's hit reflects a light (ggxReflected in
+    // gi.slang).
+    private static (float Fresnel, float Specular) LampReflected(Vector3 p, Vector3 n, Vector3 v, float roughness)
+    {
+        var l = Vector3.Normalize(new Vector3(0, 4.2f, 0) - p);
+        var h = Vector3.Normalize(v + l);
+        var (nl, nv, nh) = (MathF.Max(Vector3.Dot(n, l), 1e-4f), MathF.Max(Vector3.Dot(n, v), 1e-4f), MathF.Max(Vector3.Dot(n, h), 0));
+        var a2 = MathF.Pow(roughness, 4);
+        var d = nh * nh * (a2 - 1) + 1;
+        var visibility = 0.5f / (nl * MathF.Sqrt(nv * nv * (1 - a2) + a2) + nv * MathF.Sqrt(nl * nl * (1 - a2) + a2));
+        var fresnel = 0.04f + 0.96f * MathF.Pow(1 - MathF.Max(Vector3.Dot(v, h), 0), 5);
+        return (fresnel, a2 / (MathF.PI * d * d) * visibility * fresnel * MathF.PI);
+    }
+
     // The share of the light around it a dielectric face of a roughness of a half, the rooms', sends
     // back toward a way at a cosine of nv from its normal by its gloss, Karis's fit of the split sum,
     // as a probe's ray takes it at its hit (reflectedShare in probelight.slang).
@@ -510,13 +532,13 @@ public sealed partial class BounceRoomsTests : IDisposable
     // gi.screenprobe reads it, with the lines it writes of it, and where more is given the probe read
     // again in each of the frames after, its rays leaving from the next place in their texels each.
     private static BounceReference.ScreenProbeLight ReadScreenProbe(int view, int x, int y, out string report, Vector3? lamp = null, bool moved = false,
-        List<BounceReference.ScreenProbeLight>? more = null, int frames = 16)
+        List<BounceReference.ScreenProbeLight>? more = null, int frames = 16, float roughness = 0.5f)
     {
         var config = Config.Default.WithWindow("bounce rooms", 800, 450) with { Headless = true, Offscreen = true, Samples = 1 };
         UseApp(new App(config).AddPlugin(new DefaultPlugins()));
         SetSceneField(3, 0.15f, 2);
         SetGlobalIllumination(GlobalIllumination.High);
-        using var rooms = new Rooms(lamp, moved);
+        using var rooms = new Rooms(lamp, moved, roughness);
         var world = GetApp().World;
         GpuScreenProbes? screen = null;
         void Frame()
@@ -617,7 +639,7 @@ public sealed partial class BounceRoomsTests : IDisposable
             new(new Vector3(320, 2.6f, 3.2f), new Vector3(320, 0, -0.3f), Vector3.UnitY, 60),
         ];
 
-        public Rooms(Vector3? carried = null, bool moved = false)
+        public Rooms(Vector3? carried = null, bool moved = false, float roughness = 0.5f)
         {
             _carried = carried ?? new Vector3(278, 2, -1.5f);
             _moved = moved;
@@ -628,6 +650,7 @@ public sealed partial class BounceRoomsTests : IDisposable
             CreatePointLight(new Vector3(240, 2.6f, 0), new Color(255, 236, 210), 14, range: 16);
             CreatePointLight(_carried, new Color(255, 230, 200), 8, range: 10, castsShadows: true);
             _slab = LoadModelFromMesh(GenMeshCube(1, 1, 1));
+            _slab.Materials[0].Roughness = roughness;
             _glow = LoadModelFromMesh(GenMeshCube(1, 1, 1));
             _glow.Materials[0].Emissive = new Color(255, 240, 220);
             _glow.Materials[0].EmissiveIntensity = 6;

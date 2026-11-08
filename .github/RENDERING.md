@@ -1507,7 +1507,46 @@ at its texel's middle, 0.0657 of alpha squared at 8 by 8 and 0.0158 at 16 by 16,
 1.087 and 1.116 beside the dielectrics' 1.110 and 1.112 against the reference before its later faces
 conserved, at 0.29 ms more in the atrium, and gated by the hit's gloss, the even share where the
 gloss's is under a twentieth of the diffuse share's, at 0.47 ms more, both shadings kept in the
-shaders, so it waits under the frame's budget.
+shaders, so it waited under the frame's budget until the record after this one.
+
+**Each light's reflection at a probe's hit, landed on 2026-11-08.** With no budget (Decision 94),
+the form read above lands. A probe's ray lights what it meets by each light's diffuse share past its
+Fresnel and its GGX reflection toward the ray, the sun and the lamps as the reference's faces light
+them, the lobe widened by the texel's half-angle where the ray stands at its texel's middle
+(`texelWidening` in `gi.slang`). It lights it by the indirect light's diffuse share past what the
+gloss takes of the probes' faces about the normal and by the gloss's share of a lobe of the same
+faces about the ray's mirror way, read in the gather's one loop (`glossyHit` in `probelight.slang`),
+the two summing to one at most as the rule kept above holds them, at the field's hits, the device's
+rays' and the screen's, whose moving rays take no widening. A lamp the field hides takes back its
+own reflection (`hiddenLampReflected`), and the glow lights go by the even shares. The probe a unit
+from a sunlit wall reads its face toward the wall 1.112 and 1.110 of the reference for dielectrics
+of a roughness of 0.3 and 1 and 1.087 and 1.116 for metals of 0.6 and 0.3, where the even shares
+read 1.104, 1.142, 0.854 and 0.815, the closed room of smooth white walls 11.66 and steady where
+11.81, and the closed box of emissive metal 1.513 of its reference's 1.689 as before, its light
+alike along every way. Past the direct light the bounce rooms read, the reading before in brackets,
+the Cornell box 0.970 (0.982), the thin room 1.021 (1.033), the corridor 0.922 (0.891), the window's
+room 1.029 (1.030), the red walls 1.590 (1.587), the strip's room 0.822 (0.824), the grazing floor
+1.028 (1.027), the carried lamp 0.966 (0.964) and the emissive blocks 0.856 (0.859), each room
+within its bound. Sponza's views against every face's gloss read the door 0.548 (0.824) at 8:00 and
+0.904 (0.388) at noon where 0.548 (0.830) and 0.979 (0.386), and the lion 1.003 (0.348) and 0.984
+(0.257) where 0.985 (0.350) and 1.019 (0.260). With the lights at the hits by the even shares and
+the mirror's lobe kept, the door at noon reads 0.979, and with the indirect light by the even shares
+and the lights by GGX 0.904, so the lights' reflection carries the door's fall. The reference lights
+its faces by the same reflection of each light, and at noon a vestibule probe of the first cascade
+reads its own rays' hits 42% under the reference where 36%, and one of the second 32% where 20%, so
+the even shares lit a rough stone hit's sun over what the reference gives it, covering part of the
+hits' shortfall in the light past the first bounce, which now shows, and the figure is recorded.
+Global illumination at High at 1920 by 1080 takes 4.86 to 4.93 ms in the atrium at noon where 4.74
+to 4.78, 4.02 to 4.10 at the door at 8:00 where 4.01 to 4.03, 3.05 to 3.06 in the Cornell box where
+2.88 to 2.90 and 3.32 to 3.33 in the strip's room where 3.06 to 3.31, in quiet readings alternated
+between the two. The test of the red wall's screen hits beside the Cornell box's white wall reads
+them with the rooms' walls at a roughness of 1, whose lobe stands the same whatever the normal,
+since by the corner the hits take the normal the window's depth gives across it and at a roughness
+of a half the lamp's reflection read past a wall facing +x left their green at 0.036 to 0.048 of the
+color, where at 1 they hold 0.011 to 0.012, the wall's own 0.013. The sixteen places a moving ray
+takes stand in one table in `gi.slang` for the trace and the screen's probes
+(`GlobalIlluminationTests`, `RoughReflectionTests`, `BounceRoomsTests`, `gi.compare`, `gi.probe`,
+`./e3d command profile`).
 
 What the light holds is drawn to be looked at (`BounceViewRenderer`), as `gi.show` and
 `DrawBounceWindow` choose it. `gi_view.slang` draws over the window after its shapes and before

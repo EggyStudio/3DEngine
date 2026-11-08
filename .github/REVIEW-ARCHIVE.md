@@ -6813,6 +6813,26 @@ at `36cae0c2`.
      the run of `e52877dd` passing the pool test on macOS, Linux and half 1 with the gloss buffer
      bound in the paint-again path.
 
+108. **Half 2's Rendering process ends at its limit.** The run of `e52877dd` is red on Windows half
+     2 at 08:28 on 2026-11-08, its process Rendering 1 ending at its 70-minute time limit with 271
+     passed, 0 failed and 12 skipped, 298 tests without a result, the half 1,694 passed in 111
+     minutes; macOS, half 1 and Linux green in 39, 101 and 127. The conservation's batch added the
+     smooth room, the retraced rooms' references and the sunlit-wall probe cases to the Rendering
+     tests half 2 runs, which on the runner's software device took the process past the limit
+     Verdict 105 met on half 1. Read Rendering 1's time on half 2 across the last five runs from the
+     digests, by class, and deal it into two processes as half 1's GI class is dealt (Verdict 105's
+     test.py form), or move its slowest class to the half with room, no limit raised and no test
+     trimmed, so both halves end inside their 120 minutes with room; the mend rides in 214's commit
+     or goes first on its own, whichever is sooner. The mend is `41253cab`, pushed at 08:38 on
+     2026-11-08, workflow only, half 2's Rendering 1 having taken 45.5, 69.4, 32.5 and 30.9 minutes
+     at d0d391de, 1c14b0bf, 48096231 and e63a44f5 before running out, half 2's tests 76, 110, 55, 53
+     and 111 and half 1's 64, 63, 85, 48 and 89, so SceneFieldTests (8.9 minutes) moves to half 1 as
+     its own process and the rest of Rendering runs in three on half 2, the jobs about 110 and 104
+     and the processes about 40, 24 and 33 of 70, GlowLightsTests at 23 minutes left where it is
+     since it would take half 1 to about 124; NormTests and TestScriptTests 30 of 30. Settles on its
+     run. Settled, the run of `41253cab` passing with half 2 in 50 minutes in its three processes
+     and half 1 in 108 with SceneFieldTests beside the GI class's two.
+
 ## Decisions
 
 1. **Commits stay local.** The owner pushes `main` from their own tools, and the working session

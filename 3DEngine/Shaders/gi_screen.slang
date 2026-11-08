@@ -122,10 +122,6 @@ ConstantBuffer<ScreenPush> push;
 // The hemisphere's texels along each side, sixteen rays a probe.
 static const uint Rays = 4;
 
-// The sixteen places in a texel a ray leaves from, in the order the frames take them, each four in a
-// row spread over the texel, as the glow lights' points are (GlobalIlluminationRenderer.JitterAt).
-static const uint Places[16] = { 0, 10, 2, 8, 5, 15, 7, 13, 1, 11, 3, 9, 4, 14, 6, 12 };
-
 ScreenCamera camera()
 {
     ScreenCamera c;
@@ -526,7 +522,7 @@ void computeMain(uint3 id : SV_DispatchThreadID)
     // parallax and the walls thinner than a cell. Held at one place a tile, a patch narrower than
     // a texel that one probe's ray met lit that probe alone, frame after frame, and the window's
     // filter spread it into a round spot that stood still.
-    uint place = Places[((id.x & 3u) + 4u * (id.y & 3u) + uint(view.jitter.z + 0.5)) & 15u];
+    uint place = TracePlaces[((id.x & 3u) + 4u * (id.y & 3u) + uint(view.jitter.z + 0.5)) & 15u];
     float2 within = (float2(place & 3u, place >> 2u) + 0.5) / 4.0;
     for (uint v = 0u; v < Rays; v++)
         for (uint u = 0u; u < Rays; u++)
