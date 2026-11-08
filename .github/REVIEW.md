@@ -4618,7 +4618,24 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     alone, the pocket mark with the carried-only march where the door at 8:00 comes into its band
     and the rooms hold, or stays parked where it does not, the cost no longer a reason either way.
     Cascade 2's march of 210's rule stays out, since cascades 0 and 1 held the full rule's figures.
-    Before 214's commit if it is at hand, else after it.
+    Before 214's commit if it is at hand, else after it. The first part, form 2, is `66982f6c`,
+    committed at 10:56 on 2026-11-08 and held for 6a190757's run, the suite under the layer 2,272 in
+    both orders and the strict build clean. The sunlit-wall probe's metals read 1.087 and 1.116
+    where 0.854 and 0.815, the dielectrics 1.112 and 1.110, each bound 15% over its reading; the
+    smooth room 11.66 steady, the metal box 1.513 against 1.689 as before, all 27 room cases within
+    their bounds; past the direct the Cornell box 0.970 (0.982), the thin room 1.021 (1.033), the
+    corridor 0.922 (0.891), the rest within 0.003; Sponza's door 0.548 (0.548) at 8:00 and 0.904
+    (0.979) at noon, the lion 1.003 and 0.984. Decision 95's two reads on the door at noon, with the
+    lights by the even shares 0.979 and with the indirect alone by them 0.904, so the lights' GGX
+    carries the fall, and the reference lighting its faces by the same GGX, the vestibule probes'
+    own hits reading 42 and 32% under the reference where 36 and 20, so the even shares had over-lit
+    rough stone's sun and covered part of the shortfall past the first bounce, the figure recorded
+    and not chased. The cost in the atrium 4.86 to 4.93 ms (4.74 to 4.78), the Cornell box 0.16
+    more, under Decision 94. The first suite failed the red wall's screen hits by the Cornell box's
+    white corner, its decode assuming the even shares where at a roughness of 0.5 the lamp's GGX
+    depends on the depth's normal across the corner, so the test reads walls of a roughness of 1,
+    the greens 0.011 to 0.012 against the wall's own 0.013. Next the second part, the pocket mark
+    with the carried-only march against the every-face references.
 
 218. **The probes' texels at 16 by 16 in the near cascades.** Decision 95 on 2026-11-08. A probe's
     light lies in an 8 by 8 octahedron at cascades 0 and 1, so a sunlit sliver a hundredth of a
@@ -6259,3 +6276,14 @@ hits by the corner still read 0.036 to 0.048 at the rooms' roughness of a half, 
 depth's across the corner, so the test reads the rooms' walls at a roughness of 1, whose lobe holds
 whatever the normal, the greens 0.011 to 0.012 against the wall's 0.013. Next the second part, the
 pocket mark with the carried-only march read again against the every-face references.
+
+217's second part read on 2026-11-08 on 66982f6c with shader copies, against the every-face
+references, light and pixels' difference over the reference's light. The door at 8:00 reads 0.548
+(0.824), with the pocket mark 1.153 (0.676) and with the carried-only march beside it 1.397
+(0.938), at noon 0.904 (0.388), 1.013 (0.348) and 1.066 (0.422), the lion at 8:00 1.003 (0.348),
+1.171 (0.403) and 1.132 (0.423), at noon 0.984 (0.257), 0.993 (0.259) and 1.036 (0.261). The last
+read by the stop rule, the mark at seven eighths of the texels, reads the door as at three quarters
+and the lion 1.279 (0.438) and 1.022 (0.263). Neither brings the door at 8:00 into its band of 0.9
+to 1.1, the lion at 8:00 leaving it with either, so both stay parked with these figures in
+RENDERING.md, the door's remainder 0.548 at 8:00, the mark's 1.153 the nearest to its reference yet
+read. 217 is done with form 2 landed at 66982f6c. Next 218.

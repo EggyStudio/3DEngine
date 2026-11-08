@@ -1548,6 +1548,18 @@ takes stand in one table in `gi.slang` for the trace and the screen's probes
 (`GlobalIlluminationTests`, `RoughReflectionTests`, `BounceRoomsTests`, `gi.compare`, `gi.probe`,
 `./e3d command profile`).
 
+**The pocket mark and the carried-only march against every face's gloss, read on 2026-11-08.** After
+the lights' reflection at the hits, against references traced with every face's gloss, light and
+pixels' difference over the reference's light, the door view at 8:00 reads 0.548 (0.824), with the
+pocket mark 1.153 (0.676) and with the carried-only march beside it 1.397 (0.938), at noon 0.904
+(0.388), 1.013 (0.348) and 1.066 (0.422), and the lion view at 8:00 1.003 (0.348), 1.171 (0.403) and
+1.132 (0.423), at noon 0.984 (0.257), 0.993 (0.259) and 1.036 (0.261). With a probe pocketed only
+where seven eighths of its texels meet a face within their interval, the door reads as with three
+quarters and the lion 1.279 (0.438) and 1.022 (0.263). So neither brings the door at 8:00 into its
+band of 0.9 to 1.1, the lion at 8:00 leaving it with either, and both stay parked by the stop rule,
+the door's remainder at 8:00 0.548 of its light, the vestibule's pockets' lack, and the mark's
+door at 8:00 the nearest to its reference yet read (`gi.compare`).
+
 What the light holds is drawn to be looked at (`BounceViewRenderer`), as `gi.show` and
 `DrawBounceWindow` choose it. `gi_view.slang` draws over the window after its shapes and before
 ImGui, in the `bounce_view` node after `scene_field_view`. It draws the screen's probes as tiles
