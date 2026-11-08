@@ -1560,6 +1560,24 @@ band of 0.9 to 1.1, the lion at 8:00 leaving it with either, and both stay parke
 the door's remainder at 8:00 0.548 of its light, the vestibule's pockets' lack, and the mark's
 door at 8:00 the nearest to its reference yet read (`gi.compare`).
 
+**Sponza's lamps through their glass, read on 2026-11-08.** The pack keeps each lamp's glass, its
+one gray material with no texture and no light of its own, as four solid panes about the bulb open
+at the top and the bottom, inside a cage of metal bars, and the field, the shadow maps and the ray
+scene held the panes so, so a lamp's light left through the openings alone and lit a spot on the
+floor under it, as on the vestibule's floor by the wooden door at 2:00, a path-traced reference
+holding the same spot and the frame within 1 to 13% of it by surface. `scenes_sponza` keeps the
+glass out of the shadow maps and of global illumination (`BouncesLight`), so the light of every path
+a lamp's light takes, the field's, the glow lights', the shadow maps' and the reference's, passes
+it, and draws it mostly clear, and the spot goes, the floor lit about the lamp. Against the
+reference with the glass passing light, the floor by the lamp reads 12 to 24% under it and the walls
+and blocks by it 21 to 56%, alike with the glow lights left out of global illumination, with the
+light past the first bounce left out and with the glow lights' march stopped three cells short of
+the bulb, so the shortfall lies in none of those and is recorded. The lamps are off when the example
+starts and L or `sponza.lamps` turns them on, the 23 bulbs nearest the eye carried as glow lights
+when on and none when off, and at 2:00 with the lamps off the vestibule's floor under its lamp reads
+0 in every channel, metered, and with them on 9, which `build/drive-sponza.sh` holds (`gi.compare`,
+`gi.state`, `frame.read`).
+
 What the light holds is drawn to be looked at (`BounceViewRenderer`), as `gi.show` and
 `DrawBounceWindow` choose it. `gi_view.slang` draws over the window after its shapes and before
 ImGui, in the `bounce_view` node after `scene_field_view`. It draws the screen's probes as tiles

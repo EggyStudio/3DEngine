@@ -8,7 +8,8 @@ and an emissive surface lights its room. This page says how it works, what it co
 falls short, and how a scene's light is read against a path-traced reference. The
 `shaders_cornell_box` example draws the room it is built on, and `shaders_bounce_rooms` the rooms
 global illumination finds hardest. `scenes_sponza` draws Intel's Sponza, fetched with `./e3d scenes
-fetch intel-sponza`, from named views at an hour of the day.
+fetch intel-sponza`, from named views at an hour of the day, its lamps off until L turns them on,
+their light passing the glass about each bulb.
 
 ## Turning it on
 

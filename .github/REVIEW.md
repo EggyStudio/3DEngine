@@ -171,7 +171,8 @@ item in REVIEW-ARCHIVE.md, its devlog note and its own words. On 2026-10-30 at 1
 the README's new words (item 133) and the focus on radiance cascades (Decision 74), questions asked
 back, and asked that the sessions spend fewer tokens at the same quality, N 7.7.
 
-Next 217, then 218, then 214, 215 and 216, no budget by Decision 94 and 208 closed, the door at 8:00
+Next 220, the owner's lamps, then 221, the night sky, then 219, the owner's flicker, then 218, 215
+and 216, 214 and 217 done on their runs, no budget by Decision 94 and 208 closed, the door at 8:00
 the one target by Decision 95; 213 closed at e52877dd with form 2 parked under 208, 212 recorded
 with its first part landed and the rest parked, 211 closed at d0d391de, 212's first part landed at
 1c14b0bf with its pocket mark parked, 210 closed at 3e69ec60, 200 at 2ceac35a.
@@ -4635,7 +4636,15 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     white corner, its decode assuming the even shares where at a roughness of 0.5 the lamp's GGX
     depends on the depth's normal across the corner, so the test reads walls of a roughness of 1,
     the greens 0.011 to 0.012 against the wall's own 0.013. Next the second part, the pocket mark
-    with the carried-only march against the every-face references.
+    with the carried-only march against the every-face references. The second part is `45103a96` at
+    11:03, docs only, read on 66982f6c with shader copies against the every-face references, the
+    door at 8:00 0.548 (0.824) at 66982f6c, 1.153 (0.676) with the mark and 1.397 (0.938) with the
+    mark and the march, at noon 0.904, 1.013 and 1.066, the lion at 8:00 1.003, 1.171 and 1.132 and
+    at noon 0.984, 0.993 and 1.036, and the stop rule's last read, the mark at 7/8, the door the
+    same and the lion 1.279 and 1.022; neither brings the door at 8:00 inside 0.9 to 1.1 and the
+    lion at 8:00 leaves its band with either, so both stay parked, the door's remainder 0.548 and
+    the mark's 1.153 the nearest to its reference yet. Done at `66982f6c` on its run, form 2 landed
+    and the parked parts read and parked again by their figures. Next 218.
 
 218. **The probes' texels at 16 by 16 in the near cascades.** Decision 95 on 2026-11-08. A probe's
     light lies in an 8 by 8 octahedron at cascades 0 and 1, so a sunlit sliver a hundredth of a
@@ -4652,6 +4661,55 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     with the rooms held, the cost in the record by Decision 94; where they do not, the record says
     what 16 by 16 bought and the door's remainder is named at that size. After 217, before 214's
     commit if it is at hand.
+
+219. **The balcony's flicker at steep edges and thin features.** Decision 96 on 2026-11-08. The
+    owner's F2 recordings of scenes_sponza's balcony view (the dump of 2026-11-08, 11-09-29 at 109
+    pictures and 11-09-47 at 53, 15 a second) show, picture to picture, an idle flicker over 1.3% of
+    the pixels by 12 levels or more along the right wall's steep edge, the arches' edges and
+    undersides, the columns and the far windows, 0.36% by 25 levels, and after the hour's change 6.4
+    and 1.4% settling in about a second and a half, where 205's kept cycle and 210's stillness test
+    read whole frames and a probe's face. Read it the owner's way first, the balcony view at 7:00
+    and 17:00 held still for 120 frames and the frame kept every frame, the share of pixels moving
+    by 12 and by 25 levels picture to picture with a map of where, then the same with each GI part
+    out by its toggle, the screen probes, the carried cycle, the merge's rule, the reprojected faces
+    (199), the specular read and the shadow map, so the record names which parts move the edges and
+    which the windows, and the same after an hour's change for the settling's length and its parts;
+    the recordings' method, a script reading the dump's pictures, goes into the tools so the owner's
+    recordings are read the same way each time. Then a mend for the largest part, measured on these
+    shares with the four views and the rooms held; 218's 16 by 16 is read beside it where the
+    texel's width is a part. Before 218.
+
+220. **Sponza's lamps shine through their housings, off by default, and the corner's spot.**
+    Decision 97 on 2026-11-08. Three parts. First, the lamps' light passes their housings, which are
+    glass and should let it through but do not, so read how the housing meshes stand in the scene
+    field, the shadow maps and the ray scene, as solid surfaces that hold the lamp's light in or as
+    surfaces letting a share through, and against the path-traced reference with the housing's
+    material as the pack gives it; then the housing as a surface letting its light through in every
+    path a lamp's light takes, the field's share (item 100's LightThrough), the glow lights' reach
+    (192), the shadow maps and the reference, so the lamp lights the room as the reference does,
+    measured at a lamp's wall and floor. Second, the light spot in the corner of the room by the
+    wooden door that looks bad, placed by source with the toggles, a lamp's glow light reaching past
+    a wall, a probe's leak or the specular's echo, with a picture before and after, and mended.
+    Third, the lamps off by default in scenes_sponza with a key toggling them on and off, named in
+    the example's help line and the docs, and a test that holds the corner's wooden door area pure
+    dark at night with the lamps off, under a bound near zero against the reference with the lamps
+    off, and lit with them on. Before 219.
+
+
+221. **The night sky from the Sky module.** Decision 98 on 2026-11-08. At 02:00 scenes_sponza's sky
+    is a field of large white blobs with a glowing disc many times the moon's half degree, the voxel
+    game's sky taken over, where the day draws the sun's disc and the atmosphere from the Sky
+    module. The night is drawn from the module too, the moon's disc at its true angular size, phase
+    and place by SkyClock, lit by the module's Moon with its earthshine, the stars by their places
+    and magnitudes at the camera's exposure so a metered night shows the few hundred the eye would
+    and a held camera more, points and not blobs, with the atmosphere's night luminance and color by
+    the module's Night under them and the Milky Way's band where the module gives it, the glow and
+    the bloom taking the moon and the brightest stars as any bright source; the moon lighting the
+    scene as the one light at night with the stars and the sky as the light from all around, through
+    the same sun path at the moon's illuminance. Measured against the module's figures, the moon's
+    illuminance and size and a star's magnitude to pixels at the exposure, and against a night
+    photograph's look as the day was measured against the reference picture; the pair at 02:00 from
+    the balcony and from the court looking up, sent to the owner. After 220, before 219.
 
 ## Verdicts
 
@@ -4979,6 +5037,34 @@ REVIEW-ARCHIVE.md.
    patches, the probes' texels at 16 by 16 in the near cascades, since the carried probes' sliver,
    the corridor's over-read, the side wall's echo and the door's pocket parts all trace to an 8 by 8
    texel, item 218.
+
+96. **The owner's flicker recordings.** The owner put two F2 recordings and three screenshots of
+   scenes_sponza's balcony view in the dump of 2026-11-08 at 11:08 to 11:09 and wrote that it
+   flickers still, a basic flicker through the first 76 pictures, the hour switched forth and back
+   from 77 to 85, and then a flicker right after movement or a light recalculation that settles
+   after a time, more visible at steep angles and thin surfaces. Measured here picture to picture,
+   the idle 76 pictures move 1.3% of the pixels by 12 levels or more at some time and 0.36 by 25,
+   along the right wall's steep edge, the arches' edges and undersides, the columns and the far
+   windows; after the hour's change 6.4 and 1.4% move over the next 24 pictures, settling in about a
+   second and a half; the second recording's largest step moves 0.6% at the same places. So the
+   flicker the owner sees is small in pixels and lies where the readings of 205 and 210 did not
+   look, the steep-angle edges a held view's whole-frame figure averages out. Item 219, first in the
+   order since it is in the scene the owner looks at.
+
+97. **Sponza's lamps.** The owner wrote on 2026-11-08 at 11:17 that the lamps in scenes_sponza do
+   not work properly, since the light housing should be transparent and let the light through and
+   does not, that in the corner of the room there is a light spot that looks bad, and that the
+   housing should be fixed so the light shines through it, the lights off by default with a key
+   toggling them on and off, so that in the dark the corner's wooden door area reads pure dark in
+   the tests. Item 220, first in the order as the owner's direct ask in the scene they look at.
+
+
+98. **The night sky.** The owner wrote on 2026-11-08 at 11:20 that the night sky looks really bad,
+   never updated from the voxel game's sky that was taken over, while the day with its sun disc
+   looks super good, and put screenshots of the lamp and the night sky from a build in the dump
+   (11-15-26 and 11-18-18, the balcony at 02:00). The night sky there is a field of large white
+   blobs over the whole sky with a glowing white disc many times the moon's size. Item 221, after
+   220.
 
 ## Replies
 
@@ -6287,3 +6373,22 @@ and the lion 1.279 (0.438) and 1.022 (0.263). Neither brings the door at 8:00 in
 to 1.1, the lion at 8:00 leaving it with either, so both stay parked with these figures in
 RENDERING.md, the door's remainder 0.548 at 8:00, the mark's 1.153 the nearest to its reference yet
 read. 217 is done with form 2 landed at 66982f6c. Next 218.
+
+220 read and mended on 2026-11-08. The pack keeps each lamp's glass, its one gray material with
+no texture and no light of its own, as four solid panes about the bulb open at the top and the
+bottom inside a cage of metal bars, and the field, the shadow maps and the ray scene held them so,
+so the lamp's light left through the openings alone and lit the spot on the vestibule's floor by
+the wooden door at 2:00, which a reference with the pack's glass holds too, the frame within 1 to
+13% of it by surface. scenes_sponza keeps the glass out of the shadow maps and of global
+illumination (BouncesLight), so every path a lamp's light takes passes it, the field's, the glow
+lights', the shadow maps' and the reference's, and draws it mostly clear, and the spot goes, the
+floor lit about the lamp, a sheet before and after in the dump and sent. Against the reference with
+the glass passing light the floor by the lamp reads 12 to 24% under and the walls and blocks by it
+21 to 56%, alike with the glow lights left out of global illumination, with the light past the
+first bounce left out and with the glow lights' march stopped three cells short of the bulb, so by
+the stop rule's two reads the shortfall lies in none of those and is recorded. The lamps are off
+when the example starts, L or sponza.lamps turning them on, named in the help line and the GI
+guide, 23 bulbs carried as glow lights when on and none when off, and build/drive-sponza.sh holds
+the vestibule's floor under its lamp at 2:00 at 0 in every channel with the lamps off, metered,
+and lit with them on, 28 of the three channels summed against its 21, the macOS captures job
+running it where the pack is fetched. The example's capture and the gallery are taken again.

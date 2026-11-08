@@ -28,6 +28,7 @@ public static class ScenesSponza
     private static float? _askedHour;
     private static Camera3D? _askedCamera;
     private static bool? _askedMetered;
+    private static bool? _askedLamps;
 
     [Command("sponza.look", "Puts the camera at a point looking at another, with a field of view in degrees, 60 unless given: sponza.look <x> <y> <z> <tx> <ty> <tz> [fov]")]
     internal static string Look(float x, float y, float z, float tx, float ty, float tz, float fov = 60)
@@ -52,6 +53,13 @@ public static class ScenesSponza
     {
         _askedMetered = on is "on" or "true" or "1";
         return _askedMetered.Value ? "metered" : "held";
+    }
+
+    [Command("sponza.lamps", "Turns the lamps of the galleries and the vestibule on or off, off when the example starts: sponza.lamps <on|off>")]
+    internal static string Lamps(string on)
+    {
+        _askedLamps = on is "on" or "true" or "1";
+        return _askedLamps.Value ? "lamps on" : "lamps off";
     }
 
     [Command("sponza.time", "Sets the hour the sun and the sky stand at, from 0 to 24: sponza.time <hour>")]
@@ -162,6 +170,29 @@ public static class ScenesSponza
         // sky shows through no gap around it, as the scene the views are matched against holds.
         var blackout = LoadModelFromMesh(GenMeshCube(1, 1, 1));
         blackout.Materials[0].Roughness = 1;
+        // The lamps' glass, the pack's one gray material with no texture and no light of its own,
+        // four panes about each bulb open at the top and the bottom, which the pack keeps solid, so
+        // a lamp's light left only through the openings and lit a spot on the floor under it, as
+        // under the vestibule's lamp by the wooden door. Glass lets the light through, so the panes
+        // stand in no light's way, left out of the shadow maps and of global illumination's field,
+        // glow lights and reference, and are drawn mostly clear.
+        for (int i = 0; i < sponza.Materials.Length; i++)
+        {
+            var m = sponza.Materials[i];
+            if (!IsTextureValid(m.Texture) && m.Emissive == Color.Black && m.Color.R == m.Color.G && m.Color.G == m.Color.B && m.Color.R > 0)
+                sponza.Materials[i] = m with { Color = m.Color with { A = 40 }, AlphaMode = MaterialAlphaMode.Blend, CastsShadows = false, BouncesLight = false };
+        }
+        // The bulbs, the pack's material that glows, are its lamps' light, kept to turn them on with
+        // L and dark until then.
+        var bulbs = Enumerable.Range(0, sponza.Materials.Length).Where(i => sponza.Materials[i].Emissive != Color.Black)
+            .Select(i => (Index: i, sponza.Materials[i].Emissive)).ToArray();
+        void SetLamps(bool on)
+        {
+            foreach (var (index, emissive) in bulbs)
+                sponza.Materials[index] = sponza.Materials[index] with { Emissive = on ? emissive : Color.Black };
+        }
+        var lampsOn = false;
+        SetLamps(lampsOn);
 
         var view = 0;
         var camera = Views[view].Camera;
@@ -190,6 +221,12 @@ public static class ScenesSponza
             if (!flying && IsKeyPressed(Key.Right)) _askedHour = (hour + 1) % 24;
             if (!flying && IsKeyPressed(Key.Left)) _askedHour = (hour + 23) % 24;
             if (!flying && IsKeyPressed(Key.M)) _askedMetered = !metered;
+            if (!flying && IsKeyPressed(Key.L)) _askedLamps = !lampsOn;
+            if (_askedLamps is { } lamps)
+            {
+                (lampsOn, _askedLamps) = (lamps, null);
+                SetLamps(lampsOn);
+            }
             if (_askedHour is { } at)
             {
                 (hour, _askedHour) = (at, null);
@@ -227,9 +264,9 @@ public static class ScenesSponza
             DrawModelEx(blackout, new Vector3(20.4f, 1.4f, 0.05f), Vector3.UnitY, 0, new Vector3(0.8f, 4.2f, 4), Color.Black);
             EndMode3D();
 
-            DrawText($"{view + 1}: {Views[view].Name}, {(int)hour:00}:{(int)(hour % 1 * 60):00}, {(metered ? "metered" : "fixed camera")}", 10, 10, 20, Color.RayWhite);
+            DrawText($"{view + 1}: {Views[view].Name}, {(int)hour:00}:{(int)(hour % 1 * 60):00}, {(metered ? "metered" : "fixed camera")}, {(lampsOn ? "lamps on" : "lamps off")}", 10, 10, 20, Color.RayWhite);
             DrawText("1 to 8 change the view, the left and right arrows the hour, and M meters the exposure or holds the camera at ISO 200, 1/200 s and f/16.", 10, 36, 10, Color.LightGray);
-            DrawText("The right button held looks around with W, A, S and D, E rising and Q sinking.", 10, 50, 10, Color.LightGray);
+            DrawText("The right button held looks around with W, A, S and D, E rising and Q sinking, and L turns the lamps on and off.", 10, 50, 10, Color.LightGray);
             DrawText("Intel Sponza (2022) by Frank Meinl and Anton Kaplanyan, from Intel's Sample Library, under CC BY 4.0.", 10, 432, 10, Color.LightGray);
             EndDrawing();
         }
