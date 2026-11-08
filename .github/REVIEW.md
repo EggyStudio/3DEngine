@@ -193,11 +193,11 @@ tokens at the same quality, N 7.7.
 
 Next 229, the reference's normal maps, then 225 and 226, the projects and the live path, 214, 217,
 219, 220, 221, 222, 223 and 224 done on their runs, 227, 218 and 215 pushed on their run, 228 and
-230 recorded at ca037368 and 216 at c8baed4b, waiting to push, no budget by Decision 94 and 208
-closed, the door at 8:00 the one target by Decision 95; 213 closed at e52877dd with form 2 parked
-under 208, 212 recorded with its first part landed and the rest parked, 211 closed at d0d391de,
-212's first part landed at 1c14b0bf with its pocket mark parked, 210 closed at 3e69ec60, 200 at
-2ceac35a.
+230 recorded at ca037368, 216 at c8baed4b and 229's switch at 77f45030, waiting to push, no budget
+by Decision 94 and 208 closed, the door at 8:00 the one target by Decision 95; 213 closed at
+e52877dd with form 2 parked under 208, 212 recorded with its first part landed and the rest parked,
+211 closed at d0d391de, 212's first part landed at 1c14b0bf with its pocket mark parked, 210 closed
+at 3e69ec60, 200 at 2ceac35a.
 
 Items done and verdicts settled before 2026-10-23 stand in REVIEW-ARCHIVE.md beside this file, their
 numbers kept, moved there at 19:30 on 2026-10-23 so this file holds the current work alone and is
@@ -4932,17 +4932,19 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     4ad66505 (SHARED.md), and a switch in the example or the console turns the frame's maps off for
     a reading; then 215's faces are read again against the reference, and what remains of the miss
     is placed or recorded. After 228 and 216. The first part, the switch `gi.toggle normals off`
-    lighting every face by its own normal, with or without global illumination, is written at 23:05
-    on 2026-11-08 and in its suite; read with it, 215's grazed faces at 8:00 read 0.914 to 1.086
-    where they read 1.064 to 1.357 with their maps, so their excess is the maps', and the faces
-    toward the sun read 0.889 to 1.121 either way, a shortfall of up to 11% that is not the maps and
-    is likely the reference's copy color, the material's color times its texture's average over the
-    whole image, against the frame's texture at each pixel. The second part is a batch of its own
-    and goes next, before 225, texture coordinates in the ray scene's corners, the materials'
-    textures bound to the reference as an array through descriptor indexing, which the device asks
-    for where it is offered and the null device stands in for, each hit's color its texture's at the
-    point and its normal the map's in the hit's tangent frame, the copy color the fall-back for a
-    material with no texture; then the faces read again and what remains placed or recorded.
+    lighting every face by its own normal, with or without global illumination, is committed at
+    `77f45030` on c8baed4b at 23:10 on 2026-11-08, the strict build clean and the suite 2,279 in
+    order and shuffled, pushed once b3c471d9's run has ended; read with it, 215's grazed faces at
+    8:00 read 0.914 to 1.086 where they read 1.064 to 1.357 with their maps, so their excess is the
+    maps', and the faces toward the sun read 0.889 to 1.121 either way, a shortfall of up to 11%
+    that is not the maps and is likely the reference's copy color, the material's color times its
+    texture's average over the whole image, against the frame's texture at each pixel. The second
+    part is a batch of its own and goes next, before 225, texture coordinates in the ray scene's
+    corners, the materials' textures bound to the reference as an array through descriptor indexing,
+    which the device asks for where it is offered and the null device stands in for, each hit's
+    color its texture's at the point and its normal the map's in the hit's tangent frame, the copy
+    color the fall-back for a material with no texture; then the faces read again and what remains
+    placed or recorded.
 
 230. **Four rays a texel at 16 a side.** From 228's reading on 2026-11-08, which the 2026-11-01
     record chose at a millisecond more and Decision 94 sets no budget against. In High's near
@@ -6901,3 +6903,17 @@ hit's normal map, needs texture coordinates in the ray scene and the materials' 
 the reference as an array, descriptor indexing the device does not yet ask for, so it is a batch of
 its own, and with it each hit's color can be its texture's there, which would read the faces toward
 the sun apart too.
+
+229's second part written on 2026-11-08. The reference reads each copy's texture and normal map at
+each point it meets, the ray scene's corners keeping their texture coordinates in a buffer beside
+them, the copies' textures bound to the reference as an array of 256 at most indexed by a slot that
+differs from ray to ray, which the device asks for where the driver has it, and each face bent by
+its map in the hit triangle's tangent frame as the model pass bends it, the copy's average color
+kept for a copy whose texture finds no slot. BounceReferenceTests holds a slab of two halves, each
+pixel 0.003 of its light off the frame where the average color left it 0.925, and a slab bent by a
+leaning normal map, 1.001 of the reference where the face's own normal left the frame 1.614. 215's
+faces at 8:00 read again, in the insides the untextured reference marks, the faces toward the sun
+0.903 to 1.068 where 0.880 to 1.116, the grazed ones in the arcades and the lookup 0.978 and 1.013
+where 1.064 and 1.087, 0.840 and 0.862 with the frame's maps off, and the balcony's three faces
+along the view's top edge 1.383, 0.740 and 0.749, their insides a few hundred pixels, no nearer at
+1920 by 1080, where the two sunlit patches part, recorded.

@@ -180,6 +180,15 @@ internal sealed partial class SceneFieldRenderer : IDisposable
         for (int i = 0; i < corners.Length; i++) corners[i] = vertices[indices[i]].Position;
         return corners;
     }
+
+    /// <summary>The texture coordinates of a mesh's corners drawn this frame, as <see cref="CornersOf"/> lays them out, or null for one not drawn.</summary>
+    internal Vector2[]? UvsOf(ModelVertex[] vertices)
+    {
+        if (!_indices.TryGetValue(vertices, out var indices)) return null;
+        var uvs = new Vector2[indices.Length / 3 * 3];
+        for (int i = 0; i < uvs.Length; i++) uvs[i] = vertices[indices[i]].Uv;
+        return uvs;
+    }
     private ModelRenderer.Instance[] _groupInstances = [];
 
     /// <summary>
@@ -409,9 +418,10 @@ internal sealed partial class SceneFieldRenderer : IDisposable
                 {
                     var tint = ModelRenderer.Instance.Linear;
                     var (rough, metal) = Surfaced(draw.Roughness, draw.Metallic, draw.MetallicRoughnessMap);
+                    var own = new Vector3(tint[draw.Color.R], tint[draw.Color.G], tint[draw.Color.B]);
                     _drawn.Add((new SceneFieldPlan.Instance(draw.Mesh, standing, draw.World, draw.DoubleSided,
-                        Textured(new Vector3(tint[draw.Color.R], tint[draw.Color.G], tint[draw.Color.B]), draw.Texture), draw.Emission,
-                        null, rough, metal, draw.LightThrough), false));
+                        Textured(own, draw.Texture), draw.Emission, null, rough, metal, draw.LightThrough,
+                        draw.Texture, draw.NormalMap, draw.NormalMap == 0 ? 0 : draw.NormalScale, own), false));
                 }
                 continue;
             }
@@ -421,9 +431,10 @@ internal sealed partial class SceneFieldRenderer : IDisposable
             var linear = ModelRenderer.Instance.Linear;
             var skinned = store.IsSkinned(draw.Mesh);
             var (roughness, metallic) = Surfaced(draw.Roughness, draw.Metallic, draw.MetallicRoughnessMap);
+            var color = new Vector3(linear[draw.Color.R], linear[draw.Color.G], linear[draw.Color.B]);
             _drawn.Add((new SceneFieldPlan.Instance(draw.Mesh, vertices, draw.World, draw.DoubleSided,
-                Textured(new Vector3(linear[draw.Color.R], linear[draw.Color.G], linear[draw.Color.B]), draw.Texture), draw.Emission,
-                skinned ? Limbs(store, draw.Mesh, vertices) : null, roughness, metallic, draw.LightThrough), skinned));
+                Textured(color, draw.Texture), draw.Emission, skinned ? Limbs(store, draw.Mesh, vertices) : null, roughness, metallic, draw.LightThrough,
+                draw.Texture, draw.NormalMap, draw.NormalMap == 0 ? 0 : draw.NormalScale, color), skinned));
         }
         foreach (var group in draws.Groups)
         {
@@ -453,9 +464,10 @@ internal sealed partial class SceneFieldRenderer : IDisposable
                 var (x, y, z) = (instance.WorldX, instance.WorldY, instance.WorldZ);
                 var world = new Matrix4x4(x.X, y.X, z.X, 0, x.Y, y.Y, z.Y, 0, x.Z, y.Z, z.Z, 0, x.W, y.W, z.W, 1);
                 var (roughness, metallic) = Surfaced(instance.Factors.Y, instance.Factors.X, template.MetallicRoughnessMap);
+                var color = new Vector3(instance.Color.X, instance.Color.Y, instance.Color.Z);
                 _drawn.Add((new SceneFieldPlan.Instance(template.Mesh, vertices, world, template.DoubleSided,
-                    Textured(new Vector3(instance.Color.X, instance.Color.Y, instance.Color.Z), template.Texture),
-                    new Vector3(instance.Emission.X, instance.Emission.Y, instance.Emission.Z), limbs, roughness, metallic, template.LightThrough), skinned));
+                    Textured(color, template.Texture), new Vector3(instance.Emission.X, instance.Emission.Y, instance.Emission.Z), limbs,
+                    roughness, metallic, template.LightThrough, template.Texture, template.NormalMap, instance.Factors.Z, color), skinned));
             }
         }
     }

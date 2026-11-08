@@ -1,7 +1,8 @@
 // A path-traced reference of the window's picture, which global illumination is measured against.
 // From each pixel it traces paths through the window's meshes as the device's ray tracing holds
-// them (GpuRayScene), each hit a copy's color times its mesh's vertices' colors there, and its
-// emission. The first hit is lit as the model pass lights one, each light's diffuse share past what
+// them (GpuRayScene), each hit a copy's color times its mesh's vertices' colors there, the copy's
+// color its texture's at the point where it has one, and its emission, the face bent by the
+// copy's normal map there as the model pass bends it. The first hit is lit as the model pass lights one, each light's diffuse share past what
 // its face reflects and its specular share by the material's roughness and metallic, and every hit
 // after it as global illumination lights one, its color times what arrives. A light that casts
 // shadows reaches a hit only where a ray toward it gets through, as the shadow maps and the field
@@ -98,6 +99,29 @@ ConstantBuffer<ReferenceLights> lights;
 [[vk::binding(6, 0)]]
 SamplerCube environment;
 
+// Every mesh's corners' texture coordinates, each at its corner's place in corners (GpuRayScene).
+[[vk::binding(7, 0)]]
+StructuredBuffer<float2> cornerUvs;
+
+struct CopyLook
+{
+    // x: the slot in textures of the copy's color texture, 0 for none, where the copy's color
+    // stands for it. y: its normal map's, 0 for none. z: the bits of the map's strength.
+    uint4 slots;
+    // rgb: the copy's color before its texture, linear, which the texture's color is multiplied by.
+    float4 tint;
+};
+
+// Each copy's textures, in the order of surfaces (BounceReference).
+[[vk::binding(8, 0)]]
+StructuredBuffer<CopyLook> looks;
+
+// The textures the copies read, the white one in the first slot and in every slot no texture
+// takes, indexed by a slot that differs from one invocation to the next.
+static const uint ReferenceTextures = 256;
+[[vk::binding(9, 0)]]
+Sampler2D textures[ReferenceTextures];
+
 struct ReferencePush
 {
     // Clip space to the world, the window's camera's.
@@ -176,15 +200,17 @@ float3 specularReflected(float3 n, float3 v, float3 l, float3 f0, float alpha, o
     return distribution * visibility * fresnel * Pi;
 }
 
-// The light the sun and the lamps send back from p on a face of a color, toward v where the face is
-// glossy, the path's first or every face where asked, lit as the model pass lights it, and as
-// global illumination lights a face otherwise.
-float3 direct(float3 p, float3 n, float3 color, float3 v, bool glossy, float roughness, float metallic)
+// The light the sun and the lamps send back from p on a face of a color facing n, toward v where
+// the face is glossy, the path's first or every face where asked, lit as the model pass lights it,
+// and as global illumination lights a face otherwise. A ray toward a light leaves a thousandth of a
+// unit off the face along its own way out, `face`, so a light behind the face is held back by it
+// where a normal map bends n toward that light, as the shadow map holds it back in the model pass.
+float3 direct(float3 p, float3 face, float3 n, float3 color, float3 v, bool glossy, float roughness, float metallic)
 {
     float3 diffuseColor = glossy ? color * (1.0 - metallic) : color;
     float3 f0 = lerp(float3(0.04), color, metallic);
     float alpha = roughness * roughness;
-    float3 start = p + n * 1e-3;
+    float3 start = p + face * 1e-3;
     float3 sum = float3(0.0);
 
     if (lights.sunDirection.w > 0.5)
@@ -301,6 +327,7 @@ struct Met
     float t;
     float2 between;
     float3x4 worldToObject;
+    float3x4 objectToWorld;
 };
 
 // The nearest face along a ray from tMin on, every face met as it is.
@@ -321,6 +348,7 @@ Met nearestFace(float3 origin, float3 way, float tMin)
     hit.t = query.CommittedRayT();
     hit.between = query.CommittedTriangleBarycentrics();
     hit.worldToObject = query.CommittedWorldToObject3x4();
+    hit.objectToWorld = query.CommittedObjectToWorld3x4();
     return hit;
 }
 
@@ -333,6 +361,32 @@ float3 faceOut(float3x4 toWorld, uint instance, uint primitive)
     float3 b = mul(toWorld, float4(corners[corner + 1u].xyz, 1.0));
     float3 c = mul(toWorld, float4(corners[corner + 2u].xyz, 1.0));
     return cross(b - a, c - a);
+}
+
+// The way a face of n bent by the normal map in the slot given at uv, with the map's strength,
+// in the tangent frame of the triangle whose corners in the world lie along ab and ac from its
+// first and whose texture coordinates move along uvAb and uvAc. The frame is the model pass's
+// (surfaceNormal in modelpass.slang), x along rising u and y along falling v, the top of the
+// image up, each scaled by the longer of the two, and a map of two channels has its z worked out
+// from x and y. A way bent past the face's edge is kept as the face's own.
+float3 mappedNormal(float3 n, float3 ab, float3 ac, float2 uvAb, float2 uvAc, uint slot, float strength, float2 uv)
+{
+    float d = uvAb.x * uvAc.y - uvAc.x * uvAb.y;
+    if (abs(d) < 1e-12)
+        return n;
+    float3 t = (ab * uvAc.y - ac * uvAb.y) / d;
+    float3 b = -(ac * uvAb.x - ab * uvAc.x) / d;
+    float scale = max(dot(t, t), dot(b, b));
+    if (scale <= 1e-20)
+        return n;
+    float3 sampled = textures[NonUniformResourceIndex(slot)].SampleLevel(uv, 0.0).xyz;
+    float3 mapped = sampled * 2.0 - 1.0;
+    if (sampled.z == 0.0)
+        mapped.z = sqrt(saturate(1.0 - dot(mapped.xy, mapped.xy)));
+    mapped.xy *= strength;
+    float s = rsqrt(scale);
+    float3 bent = normalize(t * s * mapped.x + b * s * mapped.y + n * mapped.z);
+    return dot(bent, n) > 1e-3 ? bent : n;
 }
 
 // The nearest face along a ray from tMin on but the faces a ray leaves a copy that lets light
@@ -362,6 +416,7 @@ Met nearestEntered(float3 origin, float3 way, float tMin)
     hit.t = query.CommittedRayT();
     hit.between = query.CommittedTriangleBarycentrics();
     hit.worldToObject = query.CommittedWorldToObject3x4();
+    hit.objectToWorld = query.CommittedObjectToWorld3x4();
     return hit;
 }
 
@@ -439,12 +494,30 @@ float3 trace(float3 origin, float3 way, bool fromProbe, inout uint state, out ui
         float roughness = clamp(asfloat(surface.corners.y), 0.045, 1.0);
         float metallic = saturate(asfloat(surface.corners.z));
         // The copy's color times its mesh's vertices' colors at the hit, blended as the model pass
-        // blends them, so a mesh of many colors, as a voxel game's section, is traced in them.
+        // blends them, so a mesh of many colors, as a voxel game's section, is traced in them. A
+        // copy with a texture takes its color before the texture times the texture's at the hit's
+        // texture coordinates, where its color alone holds the texture's average over the whole
+        // image, which a face showing a darker or a lighter part of the image than the whole read
+        // as a shortfall or an excess of light.
         float2 between = hit.between;
-        float3 color = surface.color.rgb * (cornerColor(corners[corner]) * (1.0 - between.x - between.y)
-            + cornerColor(corners[corner + 1u]) * between.x + cornerColor(corners[corner + 2u]) * between.y);
+        float3 weights = float3(1.0 - between.x - between.y, between.x, between.y);
+        float3 painted = cornerColor(corners[corner]) * weights.x + cornerColor(corners[corner + 1u]) * weights.y + cornerColor(corners[corner + 2u]) * weights.z;
+        CopyLook look = looks[instance];
+        float2 uv = cornerUvs[corner] * weights.x + cornerUvs[corner + 1u] * weights.y + cornerUvs[corner + 2u] * weights.z;
+        float3 color = look.slots.x != 0u
+            ? look.tint.rgb * textures[NonUniformResourceIndex(look.slots.x)].SampleLevel(uv, 0.0).rgb * painted
+            : surface.color.rgb * painted;
+        // The face lit by its normal map where it has one, which bends it as the model pass does.
+        float3 face = n;
+        if (look.slots.y != 0u)
+        {
+            float3 ab = mul(hit.objectToWorld, float4(b - a, 0.0));
+            float3 ac = mul(hit.objectToWorld, float4(c - a, 0.0));
+            float2 uvA = cornerUvs[corner];
+            n = mappedNormal(face, ab, ac, cornerUvs[corner + 1u] - uvA, cornerUvs[corner + 2u] - uvA, look.slots.y, asfloat(look.slots.z), uv);
+        }
         float3 given = fromProbe && bounce == 0u && surface.emission.w > 0.5 ? float3(0.0) : surface.emission.rgb;
-        light += throughput * (given + direct(p, n, color, -way, glossy, roughness, metallic));
+        light += throughput * (given + direct(p, face, n, color, -way, glossy, roughness, metallic));
 
         // The diffuse share goes on, a glossy face's past its metal, as the indirect light
         // reaching a pixel lights it. Where asked, the first face's specular share goes on too, or
@@ -469,7 +542,7 @@ float3 trace(float3 origin, float3 way, bool fromProbe, inout uint state, out ui
                 float3 h = visibleNormal(n, v, alpha, state);
                 next = reflect(-v, h);
                 float nl = dot(n, next);
-                if (nl <= 0.0)
+                if (nl <= 0.0 || dot(face, next) <= 0.0)
                     break;
                 float3 fresnel = f0 + (1.0 - f0) * pow(1.0 - saturate(dot(v, h)), 5.0);
                 throughput *= fresnel * smithShadowing(nl, alpha) / specular;
@@ -488,8 +561,12 @@ float3 trace(float3 origin, float3 way, bool fromProbe, inout uint state, out ui
         }
         if (all(throughput <= float3(0.0)))
             break;
-        origin = p + n * 1e-3;
+        // The next way drawn about the face as it is lit, turned back above the face where the
+        // map's bend takes it below.
+        origin = p + face * 1e-3;
         way = any(next != float3(0.0)) ? next : cosineAbout(n, state);
+        if (dot(way, face) <= 0.0)
+            way = reflect(way, face);
     }
     return light;
 }

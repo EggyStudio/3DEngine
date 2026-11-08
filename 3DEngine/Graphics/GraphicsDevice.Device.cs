@@ -35,6 +35,13 @@ internal sealed unsafe partial class GraphicsDevice
     public bool CanQueryRays { get; private set; }
 
     /// <summary>
+    /// Whether a shader indexes an array of textures by a value that differs from one invocation to
+    /// the next, Vulkan 1.2's shaderSampledImageArrayNonUniformIndexing, which the device turns on
+    /// where the driver has it and the path traced reference reads each copy's textures through.
+    /// </summary>
+    public bool CanIndexTextures { get; private set; }
+
+    /// <summary>
     /// Whether a pipeline can blend and mask each color attachment of its own, which needs the
     /// device's independentBlend, so a target of several images keeps those past a shader's outputs.
     /// </summary>
@@ -168,11 +175,13 @@ internal sealed unsafe partial class GraphicsDevice
             synchronization2 = true,
         };
         CanMirrorClamp = vulkan12.samplerMirrorClampToEdge;
+        CanIndexTextures = vulkan12.shaderSampledImageArrayNonUniformIndexing;
         var enabled12 = new VkPhysicalDeviceVulkan12Features
         {
             pNext = &enabled13,
             samplerMirrorClampToEdge = CanMirrorClamp,
             bufferDeviceAddress = CanQueryRays,
+            shaderSampledImageArrayNonUniformIndexing = CanIndexTextures,
         };
         var enabled11 = new VkPhysicalDeviceVulkan11Features { pNext = &enabled12, shaderDrawParameters = vulkan11.shaderDrawParameters };
 

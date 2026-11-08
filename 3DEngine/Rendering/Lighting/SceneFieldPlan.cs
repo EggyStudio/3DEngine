@@ -91,10 +91,13 @@ internal sealed partial class SceneFieldPlan
     /// A mesh drawn this frame, its id, the vertices it has, where it is drawn, whether it has an
     /// inside, its surface's color and emission, linear, which the field paints its
     /// cells with, its material's roughness and metallic, which a path traced reference lights
-    /// it by, and the share of light that passes a unit of its depth (<see cref="ModelMaterial.LightThrough"/>).
+    /// it by, the share of light that passes a unit of its depth (<see cref="ModelMaterial.LightThrough"/>),
+    /// and its color texture, its normal map with the map's strength, and its color before the
+    /// texture's average, which the reference reads at each point it meets in place of the average.
     /// </summary>
     internal readonly record struct Instance(int Mesh, ModelVertex[] Vertices, Matrix4x4 World, bool DoubleSided,
-        Vector3 Color = default, Vector3 Emission = default, Part[]? Parts = null, float Roughness = 1, float Metallic = 0, float LightThrough = 0);
+        Vector3 Color = default, Vector3 Emission = default, Part[]? Parts = null, float Roughness = 1, float Metallic = 0, float LightThrough = 0,
+        int Texture = 0, int NormalMap = 0, float NormalScale = 0, Vector3 Tint = default);
 
     /// <summary>
     /// A part of a mesh stamped as a box of its own, the box around the part's vertices at rest in

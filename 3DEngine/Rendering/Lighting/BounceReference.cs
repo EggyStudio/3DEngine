@@ -83,11 +83,45 @@ internal static class BounceReference
             var environment = Render.TryGet<EnvironmentMap>() is not null ? Render.TryGet<ModelRenderer>()?.Environment : null;
             using var black = environment is null ? Device.CreateCubeMap(1, 1, new Half[6 * 4]) : null;
             var (cubeView, cubeSampler) = environment is not null ? (environment.View, environment.Sampler) : (black!.View, black.Sampler);
+            var (textures, looks) = Looks(Device, Render.TryGet<GpuTextures>()!, Scene.Copies);
             // A bounce is a face after the first, so the faces a path meets are one more, 32 at most
             // where Russian roulette ends the path.
             return Device.TraceReference(Program.Compute, Scene, inverse, width, height, Math.Max(1, samples), Lights(Render, environment is not null),
-                cubeView, cubeSampler, bounces < 0 ? 32 : bounces + 1, probe: probe, gloss: gloss);
+                cubeView, cubeSampler, textures, looks, bounces < 0 ? 32 : bounces + 1, probe: probe, gloss: gloss);
         }
+    }
+
+    // Each copy's textures as slots of the array the reference reads them through, the white
+    // texture first, a texture taking a slot of its own the first time a copy names it, its color
+    // decoded from sRGB as the model pass samples it and a normal map as it is stored, and a copy
+    // whose texture finds no slot left reading its color alone. A copy's look is its color's slot,
+    // its normal map's, the map's strength, and then its color before the texture.
+    private static (List<(IImageView View, ISampler Sampler)> Textures, byte[] Looks) Looks(GraphicsDevice device, GpuTextures gpu, IReadOnlyList<RayInstance> copies)
+    {
+        var textures = new List<(IImageView View, ISampler Sampler)> { gpu.ViewFor(device, 0) };
+        var slots = new Dictionary<(int Id, bool Srgb), uint>();
+        uint Slot(int id, bool srgb)
+        {
+            if (id == 0) return 0;
+            if (slots.TryGetValue((id, srgb), out var slot)) return slot;
+            if (textures.Count >= GraphicsDevice.ReferenceTextures) return 0;
+            slots[(id, srgb)] = slot = (uint)textures.Count;
+            textures.Add(gpu.ViewFor(device, id, srgb));
+            return slot;
+        }
+        var looks = new byte[Math.Max(1, copies.Count) * GraphicsDevice.ReferenceLookBytes];
+        var words = MemoryMarshal.Cast<byte, uint>(looks.AsSpan());
+        for (int i = 0; i < copies.Count; i++)
+        {
+            var copy = copies[i];
+            var at = i * GraphicsDevice.ReferenceLookBytes / 4;
+            words[at] = Slot(copy.Texture, srgb: true);
+            words[at + 1] = copy.NormalScale > 0 ? Slot(copy.NormalMap, srgb: false) : 0;
+            words[at + 2] = BitConverter.SingleToUInt32Bits(copy.NormalScale);
+            (words[at + 4], words[at + 5], words[at + 6]) = (BitConverter.SingleToUInt32Bits(copy.Tint.X), BitConverter.SingleToUInt32Bits(copy.Tint.Y),
+                BitConverter.SingleToUInt32Bits(copy.Tint.Z));
+        }
+        return (textures, looks);
     }
 
     private static Tracer? Prepare(World world, out string why)
@@ -97,6 +131,8 @@ internal static class BounceReference
             why = "there is no renderer";
         else if (!device.CanQueryRays)
             why = "the device traces no rays, which the reference is traced through";
+        else if (!device.CanIndexTextures)
+            why = "the device indexes no array of textures, which the reference reads its copies' textures through";
         else if (renderer.RenderWorld.TryGet<GlobalIlluminationRenderer>()?.Rays is not { } scene)
             why = "the window's meshes are not held for the device's rays, which global illumination at High on a GPU that traces rays holds them for";
         else if (!world.TryGetResource<AssetServer>(out var assets))

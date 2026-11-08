@@ -126,11 +126,14 @@ internal sealed unsafe partial class GraphicsDevice
         _filterStages[EnvironmentStage] = MakeComputeStage(environment, [VkDescriptorType.CombinedImageSampler, VkDescriptorType.StorageImage], 8);
     }
 
-    private ComputeStage MakeComputeStage(ReadOnlySpan<byte> spirv, VkDescriptorType[] types, uint pushSize)
+    private ComputeStage MakeComputeStage(ReadOnlySpan<byte> spirv, VkDescriptorType[] types, uint pushSize, uint[]? counts = null)
     {
         var bindings = stackalloc VkDescriptorSetLayoutBinding[types.Length];
         for (int b = 0; b < types.Length; b++)
-            bindings[b] = new VkDescriptorSetLayoutBinding { binding = (uint)b, descriptorType = types[b], descriptorCount = 1, stageFlags = VkShaderStageFlags.Compute };
+            bindings[b] = new VkDescriptorSetLayoutBinding
+            {
+                binding = (uint)b, descriptorType = types[b], descriptorCount = counts is { } c && b < c.Length ? c[b] : 1, stageFlags = VkShaderStageFlags.Compute,
+            };
         var setInfo = new VkDescriptorSetLayoutCreateInfo { bindingCount = (uint)types.Length, pBindings = bindings };
         _deviceApi.vkCreateDescriptorSetLayout(&setInfo, null, out var setLayout).CheckResult();
 
