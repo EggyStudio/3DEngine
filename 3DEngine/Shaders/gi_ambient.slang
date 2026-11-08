@@ -92,6 +92,11 @@ RWTexture3D<float4> cubesAt;
 [[vk::binding(10, 0)]]
 Texture3D<float4> hitNormals;
 
+// How far each of the four rays of this cascade's texels went where it has 8 a side, two by two in
+// the texel, as gi_trace.slang wrote them.
+[[vk::binding(11, 0)]]
+Texture3D<float> rayReach;
+
 struct AmbientPush
 {
     // x: the cascade. y: the probes along each side. z: the octahedron's texels along each side.
@@ -260,23 +265,33 @@ void computeMain(uint3 id : SV_DispatchThreadID)
     if (face == 0u)
         follow(at, probes, texels, shares, walledIn(at, texels));
 
-    // This probe's reach, the distance of its ray along each direction, the nearest ray's where the
-    // cascade has fewer directions. Kept at sixteen by sixteen directions, the cascades of sixteen a
-    // side keep each ray's own, where kept at eight by eight a direction took the mean of the four
-    // rays in it, some 25 degrees across, which at the far end of the closed corridor of
+    // This probe's reach, the distance of its ray along each direction, kept at sixteen by sixteen
+    // directions, each ray's own, the four rays of each texel of a cascade of 8 a side two by two in
+    // it as the trace wrote them. Kept at eight by eight a direction took the mean of the four rays
+    // in it, some 25 degrees across, which at the far end of the closed corridor of
     // CascadeEdgeTests, in the fourth cascade with probes sixteen units apart, blended the rays
     // that passed beside the corridor with those that met its walls, so the probes outside counted
     // as seeing its end and lent it the sky-lit outside, 0.499 of the light of the same end open.
+    // The cascades of 8 a side took the mean of a texel's four rays for its four directions the
+    // same way, and a board lit by a lamp outside a closed room of walls 0.3 thick in cells of 0.5
+    // lit the floor inside 0.0509 in linear light where a path-traced reference takes none, and
+    // with each ray's own 0.0033 (GlobalIlluminationTests). A direction of the reach is still some
+    // 13 degrees across, a sixteenth of the octahedron's side, one distance for every way in it.
     uint step = max(texels / uint(ReachTexels), 1u);
     for (uint k = face; k < uint(ReachTexels * ReachTexels); k += 6u)
     {
         uint2 texel = uint2(k % uint(ReachTexels), k / uint(ReachTexels));
-        uint2 first = texels >= uint(ReachTexels) ? texel * step : uint2((float2(texel) + 0.5) / float(ReachTexels) * float(texels));
         float reached = 0.0;
-        for (uint v = 0u; v < step; v++)
-            for (uint u = 0u; u < step; u++)
-                reached += abs(distances.Load(int4(int2(at.xy * texels + first + uint2(u, v)), int(at.z), 0)).x);
-        reach[uint3(at.xy * uint(ReachTexels) + texel, push.cascade.x * probes + at.z)] = reached / float(step * step);
+        if (texels < uint(ReachTexels))
+            reached = rayReach.Load(int4(int2(at.xy * uint(ReachTexels) + texel), int(push.cascade.x * probes + at.z), 0));
+        else
+        {
+            for (uint v = 0u; v < step; v++)
+                for (uint u = 0u; u < step; u++)
+                    reached += abs(distances.Load(int4(int2(at.xy * texels + texel * step + uint2(u, v)), int(at.z), 0)).x);
+            reached /= float(step * step);
+        }
+        reach[uint3(at.xy * uint(ReachTexels) + texel, push.cascade.x * probes + at.z)] = reached;
     }
 
     // The probe's light by way, eight by eight directions in a block with a texel's border.

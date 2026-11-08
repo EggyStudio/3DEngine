@@ -434,6 +434,21 @@ public float fieldCell(SceneFieldInfo info, float3 p)
     return i < 0 ? 0.0 : cascadeAt(info, i).w;
 }
 
+// Whether the open space at p is narrower than `apart` along two axes or three, a surface within it
+// either way, as a corridor's inside is across it and up it.
+public bool narrowAt<S : ISheetVolume>(S sheets, SceneFieldInfo info, float3 p, float apart)
+{
+    int narrow = 0;
+    for (int axis = 0; axis < 3; axis++)
+    {
+        float3 way = float3(0.0);
+        way[axis] = 1.0;
+        if (traceFieldSheets(sheets, info, p, way, 0.0, apart) >= 0.0 && traceFieldSheets(sheets, info, p, -way, 0.0, apart) >= 0.0)
+            narrow++;
+    }
+    return narrow >= 2;
+}
+
 // The way a face looks in eight bits, four along each side of the octahedron the sphere is folded
 // onto, as field_splat.slang keeps it in each cell's uint, enough to tell faces that look apart
 // from faces that meet square; and the way back from the eight bits.

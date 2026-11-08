@@ -13,50 +13,52 @@ Windows half 2 alone, a Rendering process at its 70-minute limit (Verdict 108), 
 minutes, half 1 in 101 and Linux in 127 green, which settled Verdict 107; it keeps the form and
 carries the review's files and the devlog. After it `e1755843`, 212's third and fourth parts'
 records in RENDERING.md and the replies, docs only, pushed at 06:19, which starts no run; it keeps
-the form. Before it `1c14b0bf`, 212's first part, a screen probe's on-screen hit shaded with the
-pixel's own normal, pushed at 23:33 on 2026-11-07, its run green at 01:50 with macOS in 41 minutes,
-the Windows halves in 72 and 113 and Linux in 126. Before it `d0d391de`, 211's gi.passes and the ray
-scene's top level rebuilt only on a change, pushed at 10:31 on 2026-11-07, its run green at 12:15
-with macOS in 43 minutes, the Windows halves in 74 and 79 and Linux in 94. Before it `3e69ec60`,
-210's specular toggle with its line, the end wall's readings and two norm fixes, pushed at 08:13,
-its run green at 10:28 with macOS in 42 minutes, the Windows halves in 70 and 56 and Linux in 124.
-Before it `186447fb`, 210's flip mend, a carried texel's middle-way distance in the trace, with
-Verdict 106's skips, pushed at 06:10, its run green at 08:08 with macOS in 40 minutes, the Windows
-halves in 99 and 80 and Linux in 108, which settled Verdicts 105 and 106. Before it `f666be74`,
-Verdict 105's mend, the GI class dealt into two processes on Windows half 1, and `0cbaf53f`, 210's
-rule in cascades 0 and 1, both pushed at 03:37 on 2026-11-07 with one run on the second, red at
-04:59 on Linux, macOS and Windows half 1 on one test (Verdict 106), half 2 green in 81 minutes, the
-examples skipped; both keep the form, the second carrying the review's files. Before it `2ceac35a`,
-200's cascade cut, the cycle's images for the carrying cascades alone with the count line, pushed at
-21:58 on 2026-11-06, its run green at 23:45 with macOS in 41 minutes, the Windows halves in 82 and
-107 and Linux in 89; it keeps the form and carries the review's files and the devlog. After it
-`798d9270`, 210's R2 with gi.probe's two changes, pushed at 23:58 on 2026-11-06, its run red at
-02:00 on 2026-11-07 on Windows half 1 alone (Verdict 105), Linux green in 114 minutes, macOS in 40
-and half 2 in 85, the examples green; it keeps the form and carries the review's files and the
-devlog. Before it `72d70e66`, 200's mend, the carried probes' rays moving through the meshes by ray
-queries at High, pushed at 20:10, its run green at 21:56 with macOS in 35 minutes, the Windows
-halves in 55 and 75 and Linux in 97. Before it `548e598c`, 209's README row with 208's and 200's
-replies and the review's files, pushed at 11:41 on 2026-11-05, its run green at 13:29 with macOS in
-42 minutes, the Windows halves in 92 and 106 and Linux in 97. Before it `f969fe7d`, item 207, the
-normal read at the pixel's centroid, pushed at 08:35, its run green at 10:28 with macOS in 41
-minutes, Linux in 89 and the Windows halves in 91 and 107. Before it `126c7224`, item 206, a
-shifted-in cell read in the next cascade out until its build ends, pushed at 06:09, its run green at
-07:52 with macOS in 33 minutes, the halves in 51 and 76 and Linux in 91. Before it `574565cb`,
-Verdict 104's mend, a still view reading each screen probe in place, pushed at 04:25, its run green
-at 06:08 with Linux in 87 minutes, the halves in 68 and 99 and macOS in 40, which settled Verdict
-104. Before it `752bdc43`, item 205, the screen probes' kept cycle against the flicker at steep
-angles, pushed at 00:47, its run red at 02:00 on Linux and the first Windows half, Verdict 104, the
-land far from the origin darker than near it on lavapipe, macOS and the second half green. Before it
-`dc40a069`, item 204, F2 held recording and the examples' dump, pushed at 21:54 on 2026-11-04, its
-run green at 23:32 with macOS in 36 minutes, the halves in 78 and 70 and Linux in 84. Before it
-`c6d771d4`, item 203, the sun's contact shadows past the shadow map by default, pushed at 20:10, its
-run green at 21:53 with macOS in 41 minutes, Linux in 66 and the halves in 88 and 100. Before it
-`cd6cae8f`, 197's gated read, pushed at 17:23, its run green at 19:21 with macOS in 39 minutes, the
-halves in 68 and 100 and Linux in 106. Before it `c3f31f93`, item 199, the probes' faces read at
-their surfaces with the patch's turn, pushed at 15:35, its run green at 17:23 with macOS in 40
-minutes, Linux in 66 and the halves in 82 and 86. Before it `b2be1e28`, item 201, every linear
-texture sampler at 16, pushed at 12:32 with `b0214860`, 200's diagnostic step, its run green at
-14:30 with macOS in 33 minutes, the halves in 47 and 96 and Linux in 103. Before it `f14a9530`,
+the form. After it `41253cab`, Verdict 108's mend, half 2's Rendering tests dealt into three
+processes with SceneFieldTests moved to half 1, pushed at 08:38, its run started at 08:38; it keeps
+the form and carries the review's files. Before it `1c14b0bf`, 212's first part, a screen probe's
+on-screen hit shaded with the pixel's own normal, pushed at 23:33 on 2026-11-07, its run green at
+01:50 with macOS in 41 minutes, the Windows halves in 72 and 113 and Linux in 126. Before it
+`d0d391de`, 211's gi.passes and the ray scene's top level rebuilt only on a change, pushed at 10:31
+on 2026-11-07, its run green at 12:15 with macOS in 43 minutes, the Windows halves in 74 and 79 and
+Linux in 94. Before it `3e69ec60`, 210's specular toggle with its line, the end wall's readings and
+two norm fixes, pushed at 08:13, its run green at 10:28 with macOS in 42 minutes, the Windows halves
+in 70 and 56 and Linux in 124. Before it `186447fb`, 210's flip mend, a carried texel's middle-way
+distance in the trace, with Verdict 106's skips, pushed at 06:10, its run green at 08:08 with macOS
+in 40 minutes, the Windows halves in 99 and 80 and Linux in 108, which settled Verdicts 105 and 106.
+Before it `f666be74`, Verdict 105's mend, the GI class dealt into two processes on Windows half 1,
+and `0cbaf53f`, 210's rule in cascades 0 and 1, both pushed at 03:37 on 2026-11-07 with one run on
+the second, red at 04:59 on Linux, macOS and Windows half 1 on one test (Verdict 106), half 2 green
+in 81 minutes, the examples skipped; both keep the form, the second carrying the review's files.
+Before it `2ceac35a`, 200's cascade cut, the cycle's images for the carrying cascades alone with the
+count line, pushed at 21:58 on 2026-11-06, its run green at 23:45 with macOS in 41 minutes, the
+Windows halves in 82 and 107 and Linux in 89; it keeps the form and carries the review's files and
+the devlog. After it `798d9270`, 210's R2 with gi.probe's two changes, pushed at 23:58 on
+2026-11-06, its run red at 02:00 on 2026-11-07 on Windows half 1 alone (Verdict 105), Linux green in
+114 minutes, macOS in 40 and half 2 in 85, the examples green; it keeps the form and carries the
+review's files and the devlog. Before it `72d70e66`, 200's mend, the carried probes' rays moving
+through the meshes by ray queries at High, pushed at 20:10, its run green at 21:56 with macOS in 35
+minutes, the Windows halves in 55 and 75 and Linux in 97. Before it `548e598c`, 209's README row
+with 208's and 200's replies and the review's files, pushed at 11:41 on 2026-11-05, its run green at
+13:29 with macOS in 42 minutes, the Windows halves in 92 and 106 and Linux in 97. Before it
+`f969fe7d`, item 207, the normal read at the pixel's centroid, pushed at 08:35, its run green at
+10:28 with macOS in 41 minutes, Linux in 89 and the Windows halves in 91 and 107. Before it
+`126c7224`, item 206, a shifted-in cell read in the next cascade out until its build ends, pushed at
+06:09, its run green at 07:52 with macOS in 33 minutes, the halves in 51 and 76 and Linux in 91.
+Before it `574565cb`, Verdict 104's mend, a still view reading each screen probe in place, pushed at
+04:25, its run green at 06:08 with Linux in 87 minutes, the halves in 68 and 99 and macOS in 40,
+which settled Verdict 104. Before it `752bdc43`, item 205, the screen probes' kept cycle against the
+flicker at steep angles, pushed at 00:47, its run red at 02:00 on Linux and the first Windows half,
+Verdict 104, the land far from the origin darker than near it on lavapipe, macOS and the second half
+green. Before it `dc40a069`, item 204, F2 held recording and the examples' dump, pushed at 21:54 on
+2026-11-04, its run green at 23:32 with macOS in 36 minutes, the halves in 78 and 70 and Linux in
+84. Before it `c6d771d4`, item 203, the sun's contact shadows past the shadow map by default, pushed
+at 20:10, its run green at 21:53 with macOS in 41 minutes, Linux in 66 and the halves in 88 and 100.
+Before it `cd6cae8f`, 197's gated read, pushed at 17:23, its run green at 19:21 with macOS in 39
+minutes, the halves in 68 and 100 and Linux in 106. Before it `c3f31f93`, item 199, the probes'
+faces read at their surfaces with the patch's turn, pushed at 15:35, its run green at 17:23 with
+macOS in 40 minutes, Linux in 66 and the halves in 82 and 86. Before it `b2be1e28`, item 201, every
+linear texture sampler at 16, pushed at 12:32 with `b0214860`, 200's diagnostic step, its run green
+at 14:30 with macOS in 33 minutes, the halves in 47 and 96 and Linux in 103. Before it `f14a9530`,
 Verdict 103's mend, pushed at 10:32 with `fe224105`, 200's march command, its run green at 12:31
 with the halves in 87 and 94 minutes, Linux in 105 and macOS in 42, which settled Verdict 103; the
 fourteenth pack run started from it with publish on at 12:32 and went green at 15:28, 6.0.91
@@ -166,10 +168,10 @@ item in REVIEW-ARCHIVE.md, its devlog note and its own words. On 2026-10-30 at 1
 the README's new words (item 133) and the focus on radiance cascades (Decision 74), questions asked
 back, and asked that the sessions spend fewer tokens at the same quality, N 7.7.
 
-Next 214, then 215 and 216, with 208's budget on the owner's word; 213 closed at e52877dd with form
-2 parked under 208, 212 recorded with its first part landed and the rest parked, 211 closed at
-d0d391de, 212's first part landed at 1c14b0bf with its pocket mark parked, 210 closed at 3e69ec60,
-200 at 2ceac35a.
+Next 217, then 218, then 214, 215 and 216, no budget by Decision 94 and 208 closed, the door at 8:00
+the one target by Decision 95; 213 closed at e52877dd with form 2 parked under 208, 212 recorded
+with its first part landed and the rest parked, 211 closed at d0d391de, 212's first part landed at
+1c14b0bf with its pocket mark parked, 210 closed at 3e69ec60, 200 at 2ceac35a.
 
 Items done and verdicts settled before 2026-10-23 stand in REVIEW-ARCHIVE.md beside this file, their
 numbers kept, moved there at 19:30 on 2026-10-23 so this file holds the current work alone and is
@@ -3624,7 +3626,9 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     budget hold the carried rays' ray queries; the budget stays 4 until the owner's word. At 09:55
     on 2026-11-07, by 211's passes High in the atrium at 1080p reads 4.70 to 4.79 ms with the screen
     probes 1.9 of it and the trace of the counted cascades 1.8, and 4.54 with 211's top-level cut;
-    the proposal stands at 4.5 with the overrun recorded.
+    the proposal stands at 4.5 with the overrun recorded. Closed on 2026-11-08 by Decision 94, no
+    millisecond budget, the cost recorded and cut after or along the way; High in the atrium stands
+    at 4.6 ms as a figure, not a gate.
 
 209. **The README's last top link is BevyCSharp.** Decision 93 on 2026-11-05. The row over the
     README's title, Devlog and Cheat sheet, ends with a third link, BevyCSharp, to
@@ -4565,7 +4569,13 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     rooms the same way, a lit board outside past the lamp with the floor inside by probe, and where
     the leak shows, keep each ray's own reach the same way, measured on that room, the thin-wall
     foot, the lamp march and the bounce rooms, with the memory in gi.state; the rule's limit, a cell
-    of ways about 15 degrees wide, in the record. After 212's third part.
+    of ways about 15 degrees wide, in the record. After 212's third part. Read on 2026-11-08, in the
+    tree and not committed, since the first suite under the layer failed the lintel test at 0.032
+    against 0.081 and the slab at Low at 0.375 against 0.38, the merge reading the reach above at a
+    texel-middle corner that picked one quarter's cell, mended by reading the four cells' mean
+    again, HEAD's value, both tests then reading as at HEAD; the lit board reads 0.0016 against
+    0.0195 at HEAD; GI at High in the atrium costs about 0.15 to 0.2 ms more, a variant without the
+    quarter-middle march the same, so which part costs it is timed before the suite and the commit.
 
 215. **The sun's shadow map on grazing walls against the reference.** From the bridge's item 106 on
     2026-11-08. The bridge's grazed walls read 12 to 32% under its reference's sun until its biases
@@ -4585,6 +4595,33 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     trees against the reference the same way and take the cell-by-cell density where they ask for
     it, measured on the canopy floor and the game's trees. After 215.
 
+217. **The parked forms land by their figures.** Decision 94 on 2026-11-08. With no millisecond
+    budget, 213's form 2 lands, each light's reflection at a probe ray's hit by GGX at the hit's
+    roughness with the filtered lobe at fixed middles and the indirect's gloss from a lobe of the
+    probes' faces about the mirror way in the gather's loop (the ungated form, 0.29 ms over form 1
+    in the atrium), the metals' probe cases inside the dielectrics' band its test, the rooms within
+    their bounds, the cost in the record; and 212's parked parts are read again by their figures
+    alone, the pocket mark with the carried-only march where the door at 8:00 comes into its band
+    and the rooms hold, or stays parked where it does not, the cost no longer a reason either way.
+    Cascade 2's march of 210's rule stays out, since cascades 0 and 1 held the full rule's figures.
+    Before 214's commit if it is at hand, else after it.
+
+218. **The probes' texels at 16 by 16 in the near cascades.** Decision 95 on 2026-11-08. A probe's
+    light lies in an 8 by 8 octahedron at cascades 0 and 1, so a sunlit sliver a hundredth of a
+    texel wide is weighed a sixteenth (200's 2.2 times at 18,2,-2), the corridor's walls take the
+    opening's grazing light at the texel's middle with too much cosine and too slow a falloff (212's
+    fourth part), the side wall's mirror way reads one over-bright texel nearly whole (212's third),
+    and a smooth hit's lobe peak stands for a whole texel (213's filtered lobe). Read 16 by 16
+    texels at cascades 0 and 1 as a trial, the trace's rays four a texel as they are or one a texel
+    where the count would quadruple, with the memory and the cost at High in the atrium and the door
+    by gi.passes; then the figures, the carried probe's sliver, the corridor by depth, the side
+    wall's specular, the door at 8:00 with the pocket mark and the carried-only march beside it, the
+    lion and the bounce rooms, each against its reference; and the texel's half-angle in the
+    filtered lobe following the size. Land where the door and the corridor move toward their bands
+    with the rooms held, the cost in the record by Decision 94; where they do not, the record says
+    what 16 by 16 bought and the door's remainder is named at that size. After 217, before 214's
+    commit if it is at hand.
+
 ## Verdicts
 
 Verdicts 56 to 107 are settled, said under each in REVIEW-ARCHIVE.md; 108 is open.
@@ -4599,7 +4636,14 @@ Verdicts 56 to 107 are settled, said under each in REVIEW-ARCHIVE.md; 108 is ope
      digests, by class, and deal it into two processes as half 1's GI class is dealt (Verdict 105's
      test.py form), or move its slowest class to the half with room, no limit raised and no test
      trimmed, so both halves end inside their 120 minutes with room; the mend rides in 214's commit
-     or goes first on its own, whichever is sooner.
+     or goes first on its own, whichever is sooner. The mend is `41253cab`, pushed at 08:38 on
+     2026-11-08, workflow only, half 2's Rendering 1 having taken 45.5, 69.4, 32.5 and 30.9 minutes
+     at d0d391de, 1c14b0bf, 48096231 and e63a44f5 before running out, half 2's tests 76, 110, 55, 53
+     and 111 and half 1's 64, 63, 85, 48 and 89, so SceneFieldTests (8.9 minutes) moves to half 1 as
+     its own process and the rest of Rendering runs in three on half 2, the jobs about 110 and 104
+     and the processes about 40, 24 and 33 of 70, GlowLightsTests at 23 minutes left where it is
+     since it would take half 1 to about 124; NormTests and TestScriptTests 30 of 30. Settles on its
+     run.
 
 ## Decisions
 
@@ -4903,6 +4947,26 @@ REVIEW-ARCHIVE.md.
    engine's name and linking to it. So the row of links over each engine's README title ends with
    the other engine's name linked to its repository, BevyCSharp's with 3DEngine and 3DEngine's with
    BevyCSharp, as the game's row ends with 3DEngine. Item 209.
+
+94. **No millisecond budget.** The owner wrote on 2026-11-08 at 08:50, "There is no ms limit budget.
+   We first make it work and performant and focus on crunching the numbers after or along the way as
+   much as possible." So the GI budgets of Decision 84 and item 208's 4 ms at High are no gate, and
+   a mend that brings a view to its reference lands by its figures, its cost measured and recorded
+   beside them and cut after or along the way where a cut holds the readings, the quality levels
+   keeping their names and not their milliseconds. Item 208 closes; the parked forms of items 213
+   and 212 are read again by their figures alone, item 217.
+
+95. **A stop rule, one target and one lever.** The owner wrote on 2026-11-08 at 08:5x, asked why the
+   light leaking had moved little in days, that the review should do what it thinks right and tell
+   them for approval. The owner approved at 08:49 on 2026-11-08 ("Do it"), so three things hold for
+   the GI work. A view inside its band lands and a figure that remains is recorded and not chased,
+   unless it lies in a scene the owner looks at, Sponza's named views here and the meadow in the
+   bridge; one bounded read places a cause, and a second is the last before a mend is tried or the
+   figure recorded. The vestibule's door at 8:00 is the engine's one target scene until it is in its
+   band, the rest of Sponza within its bands already. And one structural lever is read before more
+   patches, the probes' texels at 16 by 16 in the near cascades, since the carried probes' sliver,
+   the corridor's over-read, the side wall's echo and the door's pocket parts all trace to an 8 by 8
+   texel, item 218.
 
 ## Replies
 
@@ -6142,3 +6206,34 @@ class, GlowLightsTests at 23 minutes, would take half 1's job to some 124, and S
 three in half 2, the halves' jobs some 110 and 104 minutes on that runner and the three processes
 some 40, 24 and 33 of their 70. Dealt in two as the GI class is, the half's sum stays, some 114
 there. No limit is raised and no test trimmed.
+
+214 read and mended on 2026-11-08. The wall foot's closed room with a board three units past the
+lamp outside, its inside read by its probes alone with the screen's off, read 0.0195 in linear light
+across the view at Low and Medium and 0.0197 at High where the reference takes none, the floor
+0.0509 where the bridge's read 0.0119. Each ray's own reach is kept beside the reach, two by two in
+each texel of the cascades of 8 a side, and the gather lays it out in place of the mean. A carried
+probe whose rays move keeps each quarter's middle way's hit, so its reach holds still on the fixed
+probes' ways. The view reads 0.0016 at every quality and the floor 0.0033, under the bridge's bar of
+0.005, which GlobalIlluminationTests holds under 0.00184 at Medium and High. The merge keeps the
+mean of the four cells where it reads a probe above along a texel's middle way, which lies on their
+corner, since the first suite under the layer found the lintel's probe at 0.032 of its face's light
+where the reference takes 0.081 read from one cell, and the slab of leaves at Low 0.375 under its
+bound of 0.38, both as before with the mean. The wall foot reads 1.003 where 1.015, the bounce
+rooms' thin wall's foot 0.992 where 1.007, the lamp march's probe 0.0477 as before, and the bounce
+rooms past the direct within 0.004 of before but the corridor 0.891 where 0.823. gi.state's world
+probes read 10.35 MB where 9.28 in the bounce rooms at High, 0.50 MB the rays' own reach and 0.56
+the reach counted at its sixteen a side, which the count took at eight. Global illumination at High
+at 1920 by 1080 takes 4.73 to 4.95 ms in the atrium at noon where 4.54 to 4.75, 3.99 to 4.13 in the
+door view at 8:00 where 3.79 to 4.00 and 2.44 to 2.57 in the thin room where 2.37 to 2.46. By the
+passes the merge's four reads take 0.02 ms and the trace's passes 0.01 to 0.07 each, those of 16 a
+side as well, which stays with the quarters' march left out and with the texel's first lane storing
+the four, and goes with no store of the rays' own reach in the shader, so the store's presence in
+the build carries it, recorded by Decision 94 and not cut. The rule's limit is in RENDERING.md, the
+reach's cell some 13 degrees across where the item says about 15, a sixteenth of the octahedron's
+side as an eighth was some 25.
+
+Shared: 214 lands the bridge's 111 here, each ray's own reach for the cascades of four rays a texel,
+with a carried probe whose rays move keeping each quarter's middle way's hit in place of each moving
+ray's, which read lower but moved each frame, and the merge reading the four cells' mean at a
+texel's middle way, which the bridge's merge may read the same way where its middle way falls on
+their corner.

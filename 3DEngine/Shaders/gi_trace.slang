@@ -85,6 +85,12 @@ SamplerCube environment;
 [[vk::binding(8, 0)]] [format("rg16f")]
 RWTexture3D<float2> distances;
 
+// How far each of the four rays of a texel of a cascade of 8 a side went, two by two in the texel,
+// sixteen by sixteen a probe, which gi_ambient.slang lays out as the probe's reach in place of
+// their mean, the cascades one after another along z.
+[[vk::binding(17, 0)]] [format("r16f")]
+RWTexture3D<float> rayReach;
+
 // Each probe's own light as gi_ambient.slang left it, the frame before's and the one before that
 // side by side, the share of the indirect light each probe takes, and where this trace moved
 // each probe to, its move in its spacing with w 1 where it stands outside every mesh, every
@@ -117,7 +123,6 @@ Sampler2D sunShadow;
 // frame before, which says along a ray's way whether the probes above it see the sky there.
 [[vk::binding(14, 0)]]
 Texture3D<float> skyAbove;
-
 
 // The sixteen places in a texel a carried probe's ray leaves from, in the order the frames take
 // them, as gi_screen.slang's Places.
@@ -179,22 +184,6 @@ SceneFieldInfo gatheredAt()
     return then;
 }
 
-// Whether the open space at p is narrower than `apart` along two axes or three, a surface within it
-// either way, as a corridor's inside is across it and up it.
-bool narrowAt(float3 p, float apart)
-{
-    int narrow = 0;
-    for (int axis = 0; axis < 3; axis++)
-    {
-        float3 way = float3(0.0);
-        way[axis] = 1.0;
-        if (traceFieldSheets(SheetVolume(sceneField, fieldSecond), fieldInfo, p, way, 0.0, apart) >= 0.0
-            && traceFieldSheets(SheetVolume(sceneField, fieldSecond), fieldInfo, p, -way, 0.0, apart) >= 0.0)
-            narrow++;
-    }
-    return narrow >= 2;
-}
-
 // Where the probe whose spot in the grid is at stands, moved off a surface nearer than Clearance of
 // the spacing, or out of a mesh, along the field's normal, by MostMoved of the spacing at most, as
 // its move in its spacing, with w 1 where it then stands outside every mesh. Above the first
@@ -236,7 +225,7 @@ float4 placed(float3 at, float apart)
             least = min(least, dq);
             if (least <= 0.0 && dq >= Clearance * apart)
             {
-                if (narrowAt(q, apart) && !narrowAt(p, apart))
+                if (narrowAt(SheetVolume(sceneField, fieldSecond), fieldInfo, q, apart) && !narrowAt(SheetVolume(sceneField, fieldSecond), fieldInfo, p, apart))
                 {
                     p = q;
                     d = dq;
@@ -425,7 +414,8 @@ void computeMain(uint3 id : SV_DispatchThreadID, uint lane : SV_GroupIndex)
     bool carried = push.cascade.w == 0u && (seesAbove == 0u || around.w < 0.25);
     // A carried probe whose rays move marked in its place's w, 2, for the merge and the gather to
     // keep its cycle, a probe walled in keeping its 0.
-    if (lane == 0u && carried && place.w > 0.5 && !walledIn && (push.above.z & 1u) != 0u)
+    bool moving = carried && place.w > 0.5 && !walledIn && (push.above.z & 1u) != 0u;
+    if (lane == 0u && moving)
         held[int3(3 * int(probes) + int(at.x), int(at.y), int(push.cascade.x) * int(probes) + int(at.z))] = float4(place.xyz, 2.0);
     // A ray carried on that meets nothing to the field's edge brings the sky as the last cascade's
     // do, once the field holds every mesh in reach, and nothing before, a build the eye's move
@@ -735,6 +725,14 @@ void computeMain(uint3 id : SV_DispatchThreadID, uint lane : SV_GroupIndex)
     // their own light and their reach their means, and a face met from behind where most met one so.
     rayLight[lane] = light;
     rayOwn[lane] = float4(own, behind ? -reached : reached);
+    // Each of a texel's four rays' own reach, a carried probe's whose rays move its quarter's middle
+    // way's hit, as its texel's middle stands for the texel below.
+    if (each == 4u)
+    {
+        uint2 corner = uint2(quarter & 1u, quarter >> 1u);
+        float met = moving ? metPastLeaves(sceneField, fieldAlbedo, fieldInfo, origin, fromOctahedron((float2(texel) + (float2(corner) + 0.5) * 0.5) / float(texels)), 1e-3, push.interval.y) : reached;
+        rayReach[uint3(at.xy * 16u + texel * 2u + corner, push.cascade.x * probes + at.z)] = met < 0.0 ? push.interval.y : met;
+    }
     rayNormal[lane] = hitNormal;
     rayNothing[lane] = nothingShare;
     rayEarly[lane] = keptBefore;
@@ -776,7 +774,7 @@ void computeMain(uint3 id : SV_DispatchThreadID, uint lane : SV_GroupIndex)
         // A carried probe whose rays move keeps its texel's middle way's hit through the field, up
         // to its interval's end, in place of its rays' mean, so the reach the merge, the gather
         // and the screen's probes read of it holds still from frame to frame (gi_merge.slang).
-        if (carried && (push.above.z & 1u) != 0u && place.w > 0.5 && !walledIn)
+        if (moving)
         {
             float met = metPastLeaves(sceneField, fieldAlbedo, fieldInfo, origin, fromOctahedron((float2(texel) + 0.5) / float(texels)), 1e-3, push.interval.y);
             reach = met >= 0.0 ? met : push.interval.y;

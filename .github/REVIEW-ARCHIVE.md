@@ -6788,6 +6788,31 @@ at `36cae0c2`.
      half 1 in 99 minutes with the GI class in its two processes and both lintel tests skipped on
      lavapipe.
 
+107. **The gloss buffer is bound nowhere for one dispatch.** The run of `e63a44f5` is red on macOS
+     at 04:5x on 2026-11-08, 2,165 passed, 1 failed and 51 skipped in 38 minutes,
+     DescriptorPoolTests.No_Pool_Is_Asked_For_A_Set_Past_Its_Counts failing on a logged validation
+     error, a vkCmdDispatch using set 0's binding 10, the variable gloss, which was never updated
+     through vkUpdateDescriptorSets, three times in the run; so one of form 1's dispatches binds the
+     field's new gloss buffer in its layout and writes it in no path the test takes, the splat's
+     buffer painted where the stamp or the resolve runs without it, and MoltenVK's validation names
+     it where lavapipe and the Windows device may not. Read which dispatch and which path, bind the
+     buffer in every path of that dispatch or leave it out of the layout where the path paints none,
+     and hold it with the pool test; the mend rides in the conservation commit, which goes up as
+     soon as the run ends. Linux and the Windows halves still running. Placed at 04:57:
+     RecordSceneFieldRepaint, the splat's paint-again for a mesh recolored in place, fills the splat
+     set through binding 9 and never binding 10, the layout naming the gloss buffer and the paint-
+     again mode writing no gloss, where the build path binds it; the mend binds field.Gloss at 10
+     there too with a line saying painting again keeps the build's gloss, the pool test taking that
+     path at SettleFrames plus 10, which is how macOS caught it with the layer the home suite runs
+     without. The home suite is run under the layer with E3D_REQUIRE_VALIDATION without and with the
+     mend once the bin is free, and the mend rides in the conservation commit. The run ended at
+     05:15 red on Linux and Windows half 2 as well, each on the same pool test and the same unbound
+     gloss binding, Linux 2,187 passed and 47 skipped in 63 minutes and half 2 1,977 and 42 in 53,
+     half 1 green in 56, so the layer runs on all three systems and the one cause is the whole of
+     the red. The mend is in `e52877dd`, pushed at 06:12 on 2026-11-08; settles on its run. Settled,
+     the run of `e52877dd` passing the pool test on macOS, Linux and half 1 with the gloss buffer
+     bound in the paint-again path.
+
 ## Decisions
 
 1. **Commits stay local.** The owner pushes `main` from their own tools, and the working session

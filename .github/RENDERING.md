@@ -2965,6 +2965,43 @@ hold it within 1.003, and the bounce rooms' grazing floor at High read 0.0996 of
 reference against its bound of 0.06. So the fixed places stay, their bias steady, recorded and not
 mended (`gi.probe`, `gi.compare`'s frames, `BounceRoomsTests`).
 
+**Each ray's own reach, mended on 2026-11-08.** The cascades of 8 a side send four rays a texel, and
+the gather laid out their reach at sixteen by sixteen directions from each texel's mean, one
+distance for the four directions its quarters stand for. In the wall foot's closed room, walls 0.3
+thick in cells of 0.5, with a board three units past the lamp outside lit by it, the room's inside
+read by its probes alone, the screen's off, read 0.0195 in linear light across the view at Low and
+Medium and 0.0197 at High, where a path-traced reference takes none, the floor 0.0509 and the wall
+facing -z 0.076 at Medium. The trace keeps each ray's own reach beside the reach, two by two in each
+texel (`rayReach`), and the gather lays it out in place of the mean. A carried probe whose rays move
+keeps each quarter's middle way's hit through the field, as its texel's middle stands for a texel of
+one ray, so its reach holds still on the fixed probes' ways. The view reads 0.0016 at every quality,
+the floor 0.0033 and the wall 0.0065, and without the board 0.00013 where 0.00147. The merge reads
+the reach of a probe above along a texel's middle way, which lies on the corner four of its cells
+meet at where the cascade above sends four rays a texel, so it reads the mean of the four there, as
+before, since read from the one cell past the corner the probe in the lintel's hall read its face
+toward the opening 0.032 where a path-traced reference takes 0.081, and with the mean 0.077 as
+before, the floors under the slabs letting light through as before. Read while the merge took the
+one cell, at High the texel's middle for a carried probe's four directions left the view at 0.0038,
+and each moving ray's own reach at 0.00045, a reach that moves each frame. The wall foot's floor
+with the lamp outside reads 1.003 of its light without it where 1.015, the bounce rooms' thin wall's
+foot 0.992 where 1.007 and at Low 1.000 as before, and the lamp march's probe's hits 0.0477 in each
+channel as before. Past the direct light the bounce rooms read against their every-face references,
+the reading before in brackets, the Cornell box 0.982 (0.982), the thin room 1.033 (1.034), the
+corridor 0.891 (0.823), the window's room 1.030 (1.030), the red walls 1.587 (1.583), the strip's
+room 0.824 (0.824), the grazing floor 1.027 (1.029), the carried lamp 0.964 (0.964) and the emissive
+blocks 0.859 (0.859). The world probes take 10.35 MB in the bounce rooms at High where 9.28, 0.50 MB
+of it the rays' own reach and 0.56 MB the reach itself counted at its sixteen a side, which the
+count took at eight. Global illumination at High at 1920 by 1080 takes 4.73 to 4.95 ms in the atrium
+at noon where 4.54 to 4.75, 3.99 to 4.13 in the door view at 8:00 where 3.79 to 4.00, and 2.44 to
+2.57 in the thin room where 2.37 to 2.46, in quiet readings alternated between the two. By its
+passes in the atrium each cascade's trace takes 0.01 to 0.07 ms more, those of 16 a side that store
+none of the rays' own reach as well as those of 8, and the merge 0.02 for its four reads. The
+trace's share stays with the quarters' march left out and with the texel's first lane storing all
+four, and goes with no store of it in the shader, so the store's presence in the build carries it.
+The rule's limit is the reach's cell, some 13 degrees across, a sixteenth of the octahedron's side,
+which holds one distance for every way in it (`GlobalIlluminationTests`, `BounceRoomsTests`,
+`gi.compare`, `gi.state`, `./e3d command profile`).
+
 **A crossing taken once, read on 2026-10-31.** The cascades' intervals overlap, the first's
 reaching twice as far as the second's begins, and a slab that straddled the first's end was crossed
 twice, the first cascade's ray taking the part of it within its interval and handing on what it

@@ -292,8 +292,17 @@ void computeMain(uint3 id : SV_DispatchThreadID, uint3 local : SV_GroupThreadID)
         // The probe above read toward the point of this ray nearest where its own ray along the way
         // met a surface, and along the way itself where it met nothing.
         float3 upperAt = ac.xyz + (float3(neighbor) + 0.5 + placeOf(neighbor, upperCascade, probes).xyz) * (ac.w * push.spacing.x);
-        int2 rt = min(int2(octahedron(d) * float(ReachTexels)), int2(ReachTexels - 1));
-        float r = reachAbove.Load(int4(neighbor.xy * ReachTexels + rt, int(c + 1u) * int(probes) + neighbor.z, 0));
+        // Its reach along this texel's middle way, which lies on the corner its rays' cells meet at
+        // where its cascade sends four rays a texel, read as the mean of the four, as the reach
+        // held it before each ray kept its own. Read from the one cell past the corner, the probe
+        // in the lintel's hall of GlobalIlluminationTests read its face toward the opening 0.032 in
+        // linear light where a path-traced reference takes 0.081, and with the mean 0.077.
+        uint cells = max(uint(ReachTexels) / upper, 1u);
+        int2 rt = min(int2(octahedron(d) * float(ReachTexels / int(cells))), int2(ReachTexels / int(cells) - 1)) * int(cells);
+        float r = 0.0;
+        for (uint k = 0u; k < cells * cells; k++)
+            r += reachAbove.Load(int4(neighbor.xy * ReachTexels + rt + int2(k % cells, k / cells), int(c + 1u) * int(probes) + neighbor.z, 0));
+        r /= float(cells * cells);
         float3 way = d;
         if (r > 0.0 && r < push.spacing.w * 0.999)
         {
