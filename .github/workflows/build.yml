@@ -257,7 +257,7 @@ jobs:
       # 9f9180b7. A test is held to ten minutes without a result here where five elsewhere, since the
       # glowstone shut in a room draws its 360 frames in 4 minutes 25 seconds on this lavapipe, the
       # exposure the device fault it guards needs, and the limit is there to find a hang. The
-      # Rendering part runs in two processes by its classes, since whole it ran out its 70 minutes
+      # Rendering part ran in two processes by its classes, since whole it ran out its 70 minutes
       # 420 and 374 tests in on two runners of the same code, the same tests half again as slow on
       # the second, where on Linux's lavapipe with Mesa's cache off it takes 44 minutes, its halves
       # 24 and 20. Global illumination's class runs in a third of its own, since the half holding it
@@ -270,13 +270,21 @@ jobs:
       # 91, 92, 55, 82 and 84 minutes, so the class runs in two processes, its methods dealt between
       # them, and the half's time is as before. The second half's job took 107, 106, 75, 107 and 85,
       # which leaves no room there for any of the class. Linux's suite, run whole, took 44, 49, 44,
-      # 44 and 56 minutes on the same runs, the last on a runner as slow as the first half's.
+      # 44 and 56 minutes on the same runs, the last on a runner as slow as the first half's. The
+      # second half's Rendering 1 took 45.5, 69.4, 32.5 and 30.9 minutes at d0d391de, 1c14b0bf,
+      # 48096231 and e63a44f5 and ran out its 70 at e52877dd 283 tests in, and its Rendering 2 took
+      # 27.2, 36.1, 19.4, 19.2 and 37.4, that half's tests 76, 110, 55, 53 and 111 minutes and the
+      # first half's 64, 63, 85, 48 and 89. On e52877dd's runner the slowest class, the glow
+      # lights', took 23 minutes, which the first half has no room for, and the scene field's 8.9,
+      # which balances the two, so that class runs in a process of its own in the first half and the
+      # rest of the part in three, by the classes' times there the halves' jobs some 110 and 104
+      # minutes and the three some 40, 24 and 33.
       - run: |
-          first=(--only "Rendering GlobalIlluminationTests" --only Core --only Graphics)
-          second=(--except "Rendering GlobalIlluminationTests" --except Core --except Graphics)
+          first=(--only "Rendering GlobalIlluminationTests" --only "Rendering SceneFieldTests" --only Core --only Graphics)
+          second=(--except "Rendering GlobalIlluminationTests" --except "Rendering SceneFieldTests" --except Core --except Graphics)
           share=("${second[@]}")
           if [ "${{ matrix.half }}" = 1 ]; then share=("${first[@]}"); fi
-          python build/test.py --no-build --parts --split Rendering=2+GlobalIlluminationTests/2 "${share[@]}" \
+          python build/test.py --no-build --parts --split Rendering=3+GlobalIlluminationTests/2+SceneFieldTests "${share[@]}" \
             --system "Windows, half ${{ matrix.half }}" --timeout-minutes 70 --hang-minutes 10
         env:
           E3D_REQUIRE_VALIDATION: '1'
