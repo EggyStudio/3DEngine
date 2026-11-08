@@ -5,10 +5,12 @@ namespace Engine;
 
 /// <summary>
 /// The air's sky as a pass draws it, the Sky module's air, the way toward the sun and the sun's
-/// light outside the air times what a luminance is multiplied by for the frame, which an
-/// environment map made from it holds in place of an image (<see cref="EnvironmentMap.FromAir"/>).
+/// light outside the air times what a luminance is multiplied by for the frame, or the moon's in
+/// their place by night, and the luminance of a moonless sky's own glow under it in the same
+/// light, which an environment map made from it holds in place of an image
+/// (<see cref="EnvironmentMap.FromAir"/>).
 /// </summary>
-internal sealed record AirSky(Sky.Atmosphere Air, Vector3 SunToward, Vector3 Light)
+internal sealed record AirSky(Sky.Atmosphere Air, Vector3 SunToward, Vector3 Light, float Night = 0)
 {
     /// <summary>
     /// The tables' sizes, the cosine with the zenith across and the height down, as the Sky
@@ -36,7 +38,7 @@ internal sealed record AirSky(Sky.Atmosphere Air, Vector3 SunToward, Vector3 Lig
             Ground = new Vector4(air.GroundAlbedo, air.OzoneWidth),
             Planet = new Vector4(air.PlanetRadius, air.Top, air.AerosolExtinction, air.AerosolAnisotropy),
             Sun = new Vector4(Vector3.Normalize(SunToward), 0),
-            Light = new Vector4(Light, 0),
+            Light = new Vector4(Light, Night),
             Width = width,
             Height = height,
         };

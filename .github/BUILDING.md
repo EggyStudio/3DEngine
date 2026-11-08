@@ -231,11 +231,14 @@ packages to nuget.org through nuget.org's trusted publishing, with no key stored
 nuget.org, owned by the user EggyStudio, names the repository owner EggyStudio, the repository
 3DEngine, the workflow file `pack.yml`, no environment, the push scope and the packages `3DEngine*`,
 and the run's `NuGet/login` step gives it the run's identity for a key that lasts an hour. A push
-runs the three systems' tests, Slide played
-on each, and the Linux `examples` job, and leaves the rest to the pack run. The version is
-`build/version.sh`'s, the major and minor written in `build/version.txt` and, as the patch, the
-number of commits since that file last changed, so each commit counts the patch up by one and
-changing `5.0` to `5.1` starts it again at `5.1.0`.
+runs the three systems' tests, Slide played on each, and the Linux `examples` job, and leaves the
+rest to the pack run. The version is `build/version.sh`'s, the major and minor written in
+`build/version.txt` and, as the patch, the number of commits since that file last changed, so each
+commit counts the patch up by one and changing `5.0` to `5.1` starts it again at `5.1.0`. The major
+or the minor is raised in a commit that changes `build/version.txt` alone once a step is done and
+the changes behind it are meaningful, and that commit and the commit a package was published from
+are tagged with the letter v and the version, such as `v6.0.91`, and no other
+([COMMITS.md](COMMITS.md)).
 
 The package's release notes are the commits since the newest package of the minor on nuget.org was
 built, each one's sentence a line and the newest first, so a package's page says what changed since

@@ -33,7 +33,7 @@ internal sealed partial class DaySky
         if (hour != _litHour || tilt != _litTilt || Light != _litLight)
         {
             (_litHour, _litTilt, _litLight) = (hour, tilt, Light);
-            var (direction, light) = AirLightAt(air, Outside(), hour, tilt);
+            var (direction, light) = AirLightAt(air, Outside(), hour, tilt, Days);
             var lux = Sky.Colorimetry.Luminance(light);
             var most = MathF.Max(light.X, MathF.Max(light.Y, light.Z));
             var color = lux > 0 ? ColorOf(Encode(light / most) * 255) : Color.White;
@@ -42,13 +42,21 @@ internal sealed partial class DaySky
             E3D.SetLightDirection(Light, direction);
             E3D.SetLightColor(Light, color, intensity);
             SunDisc = DiscAt(air, Outside(), hour, tilt, units.PreExposure);
+            MoonDisc = MoonDiscAt(air, hour, tilt, units.PreExposure);
         }
 
         if (!double.IsNaN(_paintedHours) && (Math.Abs(Hours - _paintedHours) < RepaintHours || now - _paintedAt < RepaintSeconds)) return;
         (_paintedHours, _paintedAt) = (Hours, now);
         // The air's sky is its own below the horizon, the ground lit through the air, so no horizon
-        // color is drawn over it.
-        world.InsertResource(EnvironmentMap.FromAir(new AirSky(air, SunToward(hour, tilt), Outside() * units.PreExposure), AirWidth, AirHeight));
+        // color is drawn over it. Once the sun is twelve degrees down, the end of the astronomical
+        // twilight, past which it lights no part of the air, the air scatters the moon's light in its
+        // place, and under both lies a moonless sky's own glow (Sky.Night).
+        var (toMoon, phaseAngle) = MoonAt(hour, tilt, Days);
+        var byMoon = SunToward(hour, tilt).Y < MathF.Sin(float.DegreesToRadians(-12));
+        var (toward, outside) = byMoon
+            ? (toMoon, Sky.Sun.Outside / Sky.Sun.OutsideIlluminance * Sky.Moon.OutsideIlluminance(phaseAngle))
+            : (SunToward(hour, tilt), Outside());
+        world.InsertResource(EnvironmentMap.FromAir(new AirSky(air, toward, outside * units.PreExposure, Sky.Night.SkyLuminance * units.PreExposure), AirWidth, AirHeight));
         world.RemoveResource<SkyHorizon>();
     }
 
@@ -76,11 +84,12 @@ internal sealed partial class DaySky
     }
 
     /// <summary>
-    /// The light through <paramref name="air"/> at an hour, the way it travels and its color in
-    /// linear light, whose luminance is its lux, the sun's of <paramref name="outside"/> outside
-    /// the air while its disc is up and the full moon's opposite it once the sun is well down.
+    /// The light through <paramref name="air"/> at an hour of day <paramref name="days"/>, the way
+    /// it travels and its color in linear light, whose luminance is its lux, the sun's of
+    /// <paramref name="outside"/> outside the air while its disc is up and the moon's at its place
+    /// and phase once the sun is well down and the moon up (<see cref="MoonAt"/>).
     /// </summary>
-    internal static (Vector3 Direction, Vector3 Light) AirLightAt(Sky.Atmosphere air, Vector3 outside, float hour, float tilt)
+    internal static (Vector3 Direction, Vector3 Light) AirLightAt(Sky.Atmosphere air, Vector3 outside, float hour, float tilt, int days = 0)
     {
         var toSun = SunToward(hour, tilt);
         if (toSun.Y > -0.05f)
@@ -91,7 +100,12 @@ internal sealed partial class DaySky
             var through = air.Transmittance(0, MathF.Max(toSun.Y, 0));
             return (-toSun, outside * through * disc);
         }
-        var moon = Sky.Moon.At(air, float.RadiansToDegrees(MathF.Asin(-toSun.Y)), 0);
-        return (toSun, moon.Color * moon.Illuminance * SmoothStep(0.05f, 0.2f, -toSun.Y));
+        // The moon's light by its phase and its height, fading in as the sun's sky goes and out as
+        // its disc sets, a full moon high giving a third of a lux.
+        var (toMoon, phaseAngle) = MoonAt(hour, tilt, days);
+        var height = float.RadiansToDegrees(MathF.Asin(Math.Clamp(toMoon.Y, -1, 1)));
+        var moon = Sky.Moon.At(air, MathF.Max(height, 0), phaseAngle);
+        var shown = SmoothStep(-DiscRadiusDegrees, DiscRadiusDegrees, height) * SmoothStep(0.05f, 0.2f, -toSun.Y);
+        return (-toMoon, moon.Color * moon.Illuminance * shown);
     }
 }

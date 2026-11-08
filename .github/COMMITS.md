@@ -74,6 +74,17 @@ git commit -F /tmp/msg
 A message that reads right in `git log --format='%B' | cat -v` shows `M-bM-^@M-^N` three times on
 the first line, an empty second line and the sentence on the third.
 
+## The version
+
+The version is `build/version.sh`'s, the major and the minor written in `build/version.txt` and the
+patch the number of commits since that file last changed, so every commit is a patch. A working
+session or the reviewing session raises the minor in a commit that changes `build/version.txt`
+alone, once a step is done and the changes behind it are meaningful, and the major at a step the
+size of a release. The commit's message keeps the form above, though the message rule leaves such a
+commit out (NORM.md, N 7.2). The reviewing session tags that commit and the commit a package was
+published from, and no other, with the letter v and the version, such as `v6.0.91`, so the tags mark
+releases with meaningful changes between them rather than single commits (NORM.md, N 6.3).
+
 ## A batch that shares a file with another
 
 When two batches touch one file, only the first batch's hunks are staged, so each commit holds one

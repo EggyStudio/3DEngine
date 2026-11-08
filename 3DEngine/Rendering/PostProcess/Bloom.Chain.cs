@@ -20,12 +20,16 @@ internal sealed partial class BloomRenderer
         var levels = sized.Levels;
         var scattered = bloom.Scatter > 0;
         var count = scattered ? levels.Length : sized.EngineLevels;
-        var (threshold, knee, adapted) = (bloom.Threshold, 0.1f, 0f);
+        var (threshold, knee, adapted, white) = (bloom.Threshold, 0.1f, 0f, 0f);
         if (scattered)
         {
             effects ??= new FrameEffects();
             var follows = effects.AutoExposure && _adaptedFrame == _frame;
-            threshold /= Math.Max(effects.Exposure * (follows ? effects.AutoExposureKey : 1), 1e-6f);
+            // White after the exposure as the light before it, which the GPU multiplies by the
+            // scene's adapted luminance where the exposure follows it, the threshold measured on it
+            // and the light held under 256 of it (bloom.slang).
+            white = 1 / Math.Max(effects.Exposure * (follows ? effects.AutoExposureKey : 1), 1e-6f);
+            threshold *= white;
             (knee, adapted) = (0.5f, follows ? 1 : 0);
         }
         for (int i = 0; i < count; i++)
@@ -34,7 +38,7 @@ internal sealed partial class BloomRenderer
             Pass(renderContext, levels[i], LoadOp.Clear, _down, i == 0 ? first[_adaptedLast] : sized.Down[i]!, new Push
             {
                 TexelX = 1f / source.Width, TexelY = 1f / source.Height, Threshold = threshold, Mode = i == 0 ? 0 : 1,
-                Knee = knee, Adapted = adapted,
+                Knee = knee, Adapted = adapted, White = white,
             });
         }
         for (int i = count - 1; i > 0; i--)

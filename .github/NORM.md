@@ -227,9 +227,14 @@ grove sheets of item 136 did. A title and a label a panel go where several panel
 a box is drawn at a place only where a number read there is given in the caption or the note, never
 a box with no reading; a difference panel against a reference, or a plot, as the light hall's floor
 against the turn in BevyCSharp's item 82, goes where it says more than the frames do; and every
-panel keeps the same view and exposure. The ground stays white, with labels in dark text. The owner,
-shown the kinds on 2026-10-31, keeps the plain form as it was and asks that a sheet's parts come
-from its reading and not from a list. By review.
+panel keeps the same view and exposure. A pair before and after a mend carries a third panel on its
+right, the after's luminance less the before's at a gain the caption names, brighter in orange and
+darker in blue on the panel's own black ground, so the reader sees the change the pair claims where
+the eye finds none in the two frames, as the owner found none in the meadow's pairs on 2026-11-08
+and asked for the difference beside them; the panel is left out only where the caption says the two
+frames differ to the eye. The ground stays white, with labels in dark text, the difference panel's
+own apart. The owner, shown the kinds on 2026-10-31, keeps the plain form as it was and asks that a
+sheet's parts come from its reading and not from a list. By review.
 
 **N 4.10 Every picture a session makes is kept in the repository's dump folder, apart from the
 devlog's chosen few.** N 4.8 keeps the pictures chosen for the devlog; the rest, every shot,
@@ -277,8 +282,15 @@ and the names of native libraries differ between the three, a Mac's GPU draws th
 validation layer finds what a forgiving driver lets pass. The build workflow.
 
 **N 6.3 A package is made by a workflow run by hand, from a commit whose tests passed, numbered by
-`build/version.txt` and the count of commits since it changed.** The owner sets the major and the
-minor, and no commit message decides a release. The pack workflow and `build/version.sh`.
+`build/version.txt` and the count of commits since it changed, and a tag of the letter v and the
+version marks the commit a package was published from and the commit that raises the major or the
+minor, and no other.** A working session or the reviewer raises the major or the minor in a commit
+that changes `build/version.txt` alone, when a step is done and the changes behind it are
+meaningful, the major at a step the size of a release, and no commit message decides a release. The
+owner asked on 2026-11-08 for tags that mark releases time apart with meaningful changes and not
+commits apart, and gave the sessions the minor and the major. The reviewer sets the tag, lightweight
+with no message, as it pushes the version's commit and once a pack run has published, and pushes the
+tag by itself. The pack workflow and `build/version.sh`, the tags by review.
 
 **N 6.4 A test opens the packed package and finds what it should hold, the natives for each system
 among it.** A package without a native library fails on somebody else's machine. A test.
@@ -320,7 +332,7 @@ so a coder never pushes and no run is cancelled midway by a push. By review.
 **N 7.2 A commit is one finished batch, and its message has the form COMMITS.md gives.** The history
 is read by its descriptions, and release notes are written from them. A test reads the messages
 back, from the commit that adds the test on. A commit that changes `build/version.txt` alone is the
-owner's setting of the version and is left out, whatever its message, and any other commit of the
+setting of the version, the owner's or a session's, and is left out, whatever its message, and any other commit of the
 owner's is left out on the rule's list with that reason, as is a commit of a working session's
 pushed before its fault was seen, with the fault as its reason, since a pushed commit is not
 amended; the subject is pasted from COMMITS.md and not typed, which BUILDING.md says.
@@ -409,7 +421,7 @@ not the code keeps the rule. `by review` is held by the reviewing session.
 | N 5.3 | checked, the pack workflow's games | checked, the pack workflow's Courtyard |
 | N 6.1 | checked, `-warnaserror` in the workflow | checked, `-warnaserror` and `CARGO_BUILD_WARNINGS=deny` in the workflow |
 | N 6.2 | checked, `build.yml` | checked, `build.yml`, the macOS job green at `156d2ce` |
-| N 6.3 | checked, `pack.yml` and `build/version.sh` | checked, `pack.yml` and `build/version.sh` |
+| N 6.3 | checked, `pack.yml` and `build/version.sh`; the tags by review | checked, `pack.yml` and `build/version.sh`; the tags by review |
 | N 6.4 | checked, `PackageContentsTests` | checked, `NormTests` on the packed package |
 | N 6.5 | checked, `PackageContentsTests` | checked, `NormTests` |
 | N 6.6 | checked, `ScriptTests` | checked, `ScriptTests` |

@@ -12,6 +12,9 @@ Done that day
 
 - Item 213 at `e63a44f5`. The reference's lobe at every face and the rooms' shortfall.
 - Item 214 at `6a190757`. A probe's reach for each of its rays.
+- Item 217 at `66982f6c`. The parked forms land by their figures.
+- Item 220 at `8ab130e4`. Sponza's lamps shine through their housings, off by default, and the
+  corner's spot.
 
 ## 2026-11-07
 
@@ -1541,15 +1544,36 @@ Done that day
 ## 2026-10-24
 
 ![](.github/assets/readings/2026-10-24-blockout-spots.webp)
+Blockout's wall under its lamp with the screen probes on and left out; the round spots are the
+probes' own, the ceiling's bright patch narrower than a texel read by a few fixed rays (item 71).
+
 ![](.github/assets/readings/2026-10-24-bounce-rooms-nine.webp)
+The nine views of the bounce rooms as the readings take them, the Cornell box, the strip, the
+corridor and the rooms with a window.
+
 ![](.github/assets/readings/2026-10-24-bounce-rooms-noise.webp)
+The bounce rooms' noise, views with the screen probes on and off beside their path-traced
+references, the still spots the sixth term's and the sunlit floor under a window its third form
+(item 71).
+
 ![](.github/assets/readings/2026-10-24-edge-leak.webp)
+The edge leak at eight times its brightness, a glow light's fan at the foot of the edge two blocks
+meet, before the mend above and after it below, the checkerboard cell held inside the field (item
+71).
+
 ![](.github/assets/readings/2026-10-24-non-number-texels.webp)
+Item 90's reading at the desert village view, the glow texels whose normal is a non-number, marked,
+which the screen probes' history keeps and spreads as black.
+
 ![](.github/assets/readings/2026-10-24-shift.webp)
+A lantern room before and after the eye steps half a block, with the screen probes on and left out;
+the sixth term's spots stand at new places after the step while the lamps move by parallax alone
+(item 71).
+
 ![](.github/assets/readings/2026-10-24-wheat-acne.webp)
-The test runner splits a part by its classes into processes of its own, and the Windows job runs
-Rendering in two halves, its runners having read the part from 0.87 to 1.7 times its time on Linux.
-(`98cf2ded`)
+A wheat field's thin walls in the voxel game as it ships and with its lighting turned back part by
+part; the speckled stripes are the shadow map's acne on two-sided masked faces, not faces fighting
+(item 71, item 89).
 
 ![](.github/assets/readings/2026-10-24-item-101-cave-culling.webp)
 The deep cave's tops 45 blocks in at noon, above with the game drawing only the sections its eye
@@ -1618,11 +1642,16 @@ Done that day
 ## 2026-10-23
 
 ![](.github/assets/readings/2026-10-23-blotches.webp)
+The blotches read as contour bands of the light around a small emitter at four headings, the round
+spots its near field caught by one fixed probe ray, the sixth term of where the method stops (item
+71).
+
 ![](.github/assets/readings/2026-10-23-cascade-seams.webp)
+The sun's cascades at a low sun with their seams mended, a long shadow held across them (item 83).
+
 ![](.github/assets/readings/2026-10-23-summit-horizon.webp)
-The test runner splits a part by its classes into processes of its own, and the Windows job runs
-Rendering in two halves, its runners having read the part from 0.87 to 1.7 times its time on Linux.
-(`98cf2ded`)
+Summit before and after the sky below the horizon took the island's gray blue, so the fogged edge of
+the land meets the color it fades into (item 75).
 
 ![](.github/assets/examples/models_edit_mesh.webp)
 The models_edit_mesh example shows the seven primitives of an edit mesh, each built into a model and
@@ -1673,9 +1702,8 @@ Done that day
 ## 2026-10-21
 
 ![](.github/assets/readings/2026-10-21-ore-glow-crops.webp)
-The test runner splits a part by its classes into processes of its own, and the Windows job runs
-Rendering in two halves, its runners having read the part from 0.87 to 1.7 times its time on Linux.
-(`98cf2ded`)
+Ore's glowstone light in three crops, read for the glow lights of small emitters (item 71's first
+part).
 
 ![](.github/assets/cascades/glow-only-ore.webp)
 With the screen's probes left out and a glow light lit, probes stand for the glow lights alone,
@@ -1831,11 +1859,12 @@ Done that day
 ## 2026-10-17
 
 ![](.github/assets/readings/2026-10-17-bounce-before-after-1.webp)
+The Cornell box before and after the light that bounces, and the bounce rooms after it, at the
+radiance cascades' first landing.
+
 ![](.github/assets/readings/2026-10-17-bounce-before-after-2.webp)
+
 ![](.github/assets/readings/2026-10-17-bounce-before-after-3.webp)
-The test runner splits a part by its classes into processes of its own, and the Windows job runs
-Rendering in two halves, its runners having read the part from 0.87 to 1.7 times its time on Linux.
-(`98cf2ded`)
 
 Done that day
 
@@ -1915,9 +1944,8 @@ Done that day
 ## 2026-10-10
 
 ![](.github/assets/readings/2026-10-10-subsurface-pair.webp)
-The test runner splits a part by its classes into processes of its own, and the Windows job runs
-Rendering in two halves, its runners having read the part from 0.87 to 1.7 times its time on Linux.
-(`98cf2ded`)
+Subsurface scattering's first experiment, the spheres with the light under the surface on and off
+(item 3).
 
 ![](.github/assets/bounce/cornell-ceiling.webp)
 ![](.github/assets/bounce/cornell-floor-bands.webp)
@@ -1956,9 +1984,8 @@ ended, its exit code and the crash Windows logged of it. (`e50fd247`)
 ## 2026-10-09
 
 ![](.github/assets/readings/2026-10-09-bounce-rooms.webp)
-The test runner splits a part by its classes into processes of its own, and the Windows job runs
-Rendering in two halves, its runners having read the part from 0.87 to 1.7 times its time on Linux.
-(`98cf2ded`)
+The bounce rooms, the test scenes the global illumination is read against, each a view with its
+path-traced reference.
 
 ![](.github/assets/examples/shaders_bounce_rooms.webp)
 A level of the eight rooms the light that bounces finds hardest, each with a fixed view, and a

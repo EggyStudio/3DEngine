@@ -13,7 +13,9 @@ struct BloomPush
     float4 source;
     // x: the share of the threshold the light eases in over. y: 1 where the threshold is times the
     // exposure that follows the scene, as the adapted texel holds it. z: an upsample's scatter, the
-    // share of the level above's light it takes the place of, or 0 where it is added.
+    // share of the level above's light it takes the place of, or 0 where it is added. w: white
+    // after the exposure as the light before it, times the adapted luminance as the threshold is,
+    // for a scattered bloom, 0 to hold the light under 256 itself.
     float4 spread;
 };
 
@@ -50,11 +52,13 @@ float3 downsample(float2 uv)
 }
 
 // The light past the threshold, easing in over a share of it so the edge of what blooms is soft
-// rather than a step. The scene's light is held under 256 first, so a half float that overflowed
-// to infinity cannot spread through the chain.
-float3 brightPass(float3 c, float threshold, float share)
+// rather than a step. The scene's light is held under `cap` first, 256 times white as the exposure
+// leaves it and below half floats' last value, 65,504, so one that overflowed to infinity cannot
+// spread through the chain, and a small bright source blooms alike however far the exposure lifts
+// the scene.
+float3 brightPass(float3 c, float threshold, float share, float cap)
 {
-    c = min(c, 256.0);
+    c = min(c, cap);
     float peak = max(c.r, max(c.g, c.b));
     float knee = max(threshold * share, 1e-4);
     float soft = clamp(peak - threshold + knee, 0.0, 2.0 * knee);
@@ -70,11 +74,20 @@ float4 fragmentMain(FullscreenOutput input) : SV_Target
     float3 color = downsample(input.uv);
     if (push.source.w < 0.5)
     {
-        // The threshold of light after the exposure, as the light before it.
+        // The threshold of light after the exposure, as the light before it, and a scattered
+        // bloom's light held under 256 times white after the exposure. Held at 256 before the
+        // exposure, the moon a metered night lifts fifteen stops bloomed at some 1,900 times white
+        // and the sun at 9:00 in Sponza's court looking up whitened the frame, where the sun at
+        // noon, the exposure lifting the scene less, bloomed as a disc with a halo about it.
         float threshold = push.source.z;
+        float white = push.spread.w;
         if (push.spread.y > 0.0)
-            threshold *= exp2(adapted.Load(int3(0, 0, 0)).r);
-        color = brightPass(color, threshold, push.spread.x);
+        {
+            float mean = exp2(adapted.Load(int3(0, 0, 0)).r);
+            threshold *= mean;
+            white *= mean;
+        }
+        color = brightPass(color, threshold, push.spread.x, white > 0.0 ? min(256.0 * white, 60000.0) : 256.0);
     }
     return float4(color, 1.0);
 }

@@ -40,30 +40,24 @@ public sealed class DaySkyAirTests : IDisposable
 
     [Fact]
     [Trait("Category", "Unit")]
-    public void The_Suns_Light_Fades_As_Its_Disc_Sets_And_The_Full_Moons_Takes_Over_Once_It_Is_Down()
+    public void The_Suns_Light_Fades_As_Its_Disc_Sets_And_The_Moons_Takes_Over_By_Its_Place_And_Phase_Once_It_Is_Down()
     {
         var horizon = Sky.Colorimetry.Luminance(DaySky.AirLightAt(Earth, Sky.Sun.Outside, 6, 0).Light);
         var high = Sky.Colorimetry.Luminance(Sky.Sun.Outside * Earth.Transmittance(0, 0));
         horizon.Should().BeApproximately(high / 2, high * 0.01f, "half the disc is up as its middle meets the horizon");
         Sky.Colorimetry.Luminance(DaySky.AirLightAt(Earth, Sky.Sun.Outside, HourAt(-0.3f), 0).Light).Should().Be(0, "the disc has set");
 
-        var (direction, moonlight) = DaySky.AirLightAt(Earth, Sky.Sun.Outside, 0, 0);
-        direction.Y.Should().BeNegative("the moon stands high opposite the sun at midnight");
-        Sky.Colorimetry.Luminance(moonlight).Should().BeApproximately(Sky.Moon.At(Earth, 90, 0).Illuminance, 1e-3f, "the full moon overhead");
-    }
-
-    [Fact]
-    [Trait("Category", "Unit")]
-    public void Through_The_Air_The_Stars_Wait_Until_The_Sun_Is_Six_Degrees_Down_And_The_Sun_Is_The_Skys_Disc()
-    {
-        static void Quad(ReadOnlySpan<ImmediateVertex> corners, int texture) { }
-        var sky = new DaySky { Day = new SkyDay { Minutes = 0, Tilt = 0, Atmosphere = Earth } };
-        sky.Hours = HourAt(-3);
-        sky.DrawStars(Quad, 0).Should().Be(0, "the sky is light in civil twilight");
-        sky.Hours = HourAt(-15);
-        sky.DrawStars(Quad, 0).Should().BeGreaterThan(1_000, "the stars are out past nautical twilight");
-        sky.Hours = HourAt(30);
-        sky.DrawSunAndMoon(Quad, 0, 1, 2).Should().Be(0, "the sky draws the sun's disc and the moon is down");
+        // At midnight of the sky's 25th day the moon is a day short of full, near the meridian, and
+        // lights the world by the module's moon at its height and phase.
+        var (toMoon, phaseAngle) = DaySky.MoonAt(0, 0, 24);
+        phaseAngle.Should().BeLessThan(20, "the moon is nearly full");
+        var (direction, moonlight) = DaySky.AirLightAt(Earth, Sky.Sun.Outside, 0, 0, 24);
+        (direction + toMoon).Length().Should().BeLessThan(1e-5f, "the light comes from the moon");
+        var height = float.RadiansToDegrees(MathF.Asin(toMoon.Y));
+        Sky.Colorimetry.Luminance(moonlight).Should().BeApproximately(Sky.Moon.At(Earth, height, phaseAngle).Illuminance, 1e-5f, "the module's moon at its height and phase");
+        // On the tenth day the moon is a day from new, down with the sun at midnight, and gives no light.
+        DaySky.MoonAt(0, 0, 9).Toward.Y.Should().BeNegative("the moon near new stands with the sun under the ground");
+        Sky.Colorimetry.Luminance(DaySky.AirLightAt(Earth, Sky.Sun.Outside, 0, 0, 9).Light).Should().Be(0, "the moon is down");
     }
 
     [Fact]

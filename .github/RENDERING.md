@@ -582,6 +582,38 @@ image, and the sun's disc is added by `sky.slang` alone, at the disc's luminance
 its light at the ground over the half degree it spans, so the light from all around holds no sun
 the directional light also gives.
 
+At night the same draw adds the moon, the stars and the Milky Way by their luminance from the Sky
+module (`DaySky.Night`). The moon stands on the sun's path behind the sun by the clock's elongation
+(`SkyClock.MoonPhase`), at the equator as the day sky's sun is, its disc the module's 0.518 degrees
+across, its sunlit part at `Moon.LitLuminance` for its phase angle through the air along its way and
+its dark part at the earthshine, the terminator found on the sphere the pixel sees. Once the sun is
+12 degrees down the light is the moon's, `Moon.At` through the path the sun's light takes
+(`DaySky.AirLightAt`), and the sky's image adds the module's night luminance under it, 2.26e-4
+candelas a square meter (`AirSky.Night`). The Bright Star Catalogue's 9,096 stars go to the GPU once
+as a storage buffer sorted into a cube of 32 cells a side (`DaySky.StarGrid`), and `sky.slang` sums
+each star of the pixel's cell and the eight about it on the same face as a Gaussian 0.8 of the
+pixel's angle across holding its illuminance, the band's profile under them
+(`Night.GalaxyLuminance`), both dimmed by the air's optical depth at the zenith over the sine of the
+height, held at twenty times it. A star within a pixel of a face's edge loses the part of its spread
+across it. The pixel's angle is the longer of its two steps and a star's angle from the pixel's way
+the chord between them, where the length of `fwidth` had made the pixel 1.4 to 1.9 times its angle
+and `acos` of the ways' dot had given the angle in steps of 3.5e-4 radians, a third of a pixel 4
+degrees across. Sirius lands on a frame 4 degrees high with 0.9991 of the illuminance its magnitude
+gives through the air and 0.1683 of it in each of the four pixels about its corner, a Gaussian of
+0.8 of a pixel giving 0.168, and the moon's middle within 5% of its luminance with its disc its half
+degree across (`DaySkyNightTests`). The sky's draw carried no storage buffer at first, so the model
+pass bound its stand-in of 16 bytes in the stars' place, and with no robust access the cells' ends
+read past it ran loops long enough to lose the device on the RTX 4070 and drew no star on lavapipe,
+which reads zero there. Each read is still held within the stars, as a guard.
+
+scenes_sponza's metered night reads black but for the moon. On the 26th day at 2:00 the moon stands
+79 degrees up, its phase angle 21 degrees, and its light is 0.167 lux as the module gives it
+(`DaySky.AirLightAt`), but the meter takes each texel's luminance as at least 1/4096 of the frame's
+light so black does not pull its mean to minus infinity (`exposure.slang`), 7.5 candelas a square
+meter at the example's EV 14.64, and exposes any night as one that bright, a floor returning 0.4 of
+the moon's light at 1/350 of it and the moonless sky's 2.26e-4 candelas a square meter at 1/33,000.
+The frames lifted 8 stops show the stars and the moonlit floor.
+
 A `ReflectionProbe` entity, which `CreateReflectionProbe` makes, is a box whose surfaces reflect
 what is around its middle rather than the environment map. `ProbeNode`, after the window's shadow
 and before its passes, captures the first probe out of date, one face a frame. The window's batches,
@@ -4486,6 +4518,16 @@ level is laid over the one above by its alpha, the scatter, so it takes that sha
 above's place, and the composite mixes the first level into the exposed light as HDRP's uber pass
 does, the light past the threshold giving way to it by the intensity, `lerp(c, c - past(c) + bloom,
 intensity)`, which keeps the frame's light where the engine's bloom adds to it.
+
+The scattered chain's first step holds the light under 256 times white after the exposure, the
+white before it passed beside the threshold and multiplied by the adapted luminance as the
+threshold is, and under 60,000, below half floats' last value. Held at 256 before the exposure, as
+the engine's own bloom still holds it, a metered night lifting the scene some fifteen stops let the
+moon bloom at some 1,900 times white and whiten the frame, and the sun at 9:00 did the same in
+Sponza's court looking up. HDRP holds its bloom's light after the exposure too, at 65,472 by
+default, which a scene its exposure keeps near 1 does not reach, so 256 is the stricter hold, kept
+for the half floats and the moon. A sphere 64 times white after the exposure blooms alike at 1,024
+before an exposure of a sixteenth and at 64 before none (`BloomTests`).
 
 `main_pass` draws the composite first, over the whole window, the scene decoded or the decoded image
 read as it is, with the first level added at the intensity over the number of levels, tonemapped and

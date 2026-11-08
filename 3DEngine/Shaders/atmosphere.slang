@@ -21,7 +21,8 @@ public struct AirPush
     // xyz: the way toward the sun, +Y up. w: unused.
     public float4 sun;
     // rgb: the sun's light outside the air in lux, times what a luminance is multiplied by for the
-    // frame. w: unused.
+    // frame, or the moon's by night. w: a moonless sky's own luminance in the same light, which the
+    // drawn sky adds under what the air scatters.
     public float4 light;
     // xy: the width and height of the image the pass writes. zw: unused.
     public uint4 size;

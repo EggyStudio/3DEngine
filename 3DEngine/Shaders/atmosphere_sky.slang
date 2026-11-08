@@ -59,5 +59,7 @@ void computeMain(uint3 id : SV_DispatchThreadID)
         light += through * transmittanceAt(0.0, sunZenith) * max(sunZenith, 0.0) * push.ground.rgb / Pi;
     }
     // Half floats stop at 65504.
-    sky[id.xy] = float4(min(light * push.light.rgb, 65000.0), 1.0);
+    // Under the light the air scatters lies a moonless sky's own glow, the stars' and the air's,
+    // its luminance in w, alike over the sky.
+    sky[id.xy] = float4(min(light * push.light.rgb + push.light.w, 65000.0), 1.0);
 }

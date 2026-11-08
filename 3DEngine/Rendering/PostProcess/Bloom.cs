@@ -71,7 +71,7 @@ internal sealed partial class BloomRenderer : IDisposable
     private struct Push
     {
         public float TexelX, TexelY, Threshold, Mode;
-        public float Knee, Adapted, Scatter, Unused;
+        public float Knee, Adapted, Scatter, White;
     }
 
     // As dof.slang and motion_blur.slang read them.

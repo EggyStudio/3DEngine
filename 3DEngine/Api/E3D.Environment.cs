@@ -85,6 +85,7 @@ public static partial class E3D
 
     private static ModelMesh _skyMesh;
     private static Texture2D _skySun, _skyMoon;
+    private static ShaderBuffer _skyStars;
     private static Shader _skyShader;
     private static bool _skyShaderFailed;
 
@@ -115,9 +116,30 @@ public static partial class E3D
         SetShaderValue(shader, GetShaderLocation(shader, "sunDisc"),
             disc is { } sun ? new Vector4(sun.Toward, MathF.Cos(float.DegreesToRadians(DaySky.DiscRadiusDegrees))) : Vector4.Zero);
         SetShaderValue(shader, GetShaderLocation(shader, "sunLight"), disc is { } lit ? new Vector4(lit.Light, 0) : Vector4.Zero);
+        // The night of a day sky with air, the moon's disc by its luminance in its phase and the
+        // stars and the Milky Way by theirs, which the air's daylight outshines by day as it does
+        // in the sky (DaySky.Night).
+        var moon = daySky?.MoonDisc;
+        SetShaderValue(shader, GetShaderLocation(shader, "moonDisc"),
+            moon is { } m ? new Vector4(m.Toward, MathF.Cos(float.DegreesToRadians(Sky.Moon.AngularDiameter / 2))) : Vector4.Zero);
+        SetShaderValue(shader, GetShaderLocation(shader, "moonLight"), moon is { } ml ? new Vector4(ml.Lit, ml.Earthshine) : Vector4.Zero);
+        SetShaderValue(shader, GetShaderLocation(shader, "moonSun"), moon is { } ms ? new Vector4(ms.TowardSun, 0) : Vector4.Zero);
+        var night = daySky is { Day.Atmosphere: { } air } ? (Air: air, Turn: DaySky.SiderealTurn(daySky.Hour, daySky.Days)) : default((Sky.Atmosphere Air, Vector2 Turn)?);
+        if (night is { } n)
+        {
+            if (!_skyStars.IsValid) _skyStars = LoadShaderBuffer<uint>(DaySky.StarGrid());
+            SetShaderValueBuffer(shader, GetShaderLocation(shader, "stars"), _skyStars);
+            var zenith = n.Air.Transmittance(0, 1);
+            SetShaderValue(shader, GetShaderLocation(shader, "nightSky"),
+                new Vector4(n.Turn.X, n.Turn.Y, World.GetOrInsertResource(static () => new PhysicalUnits()).PreExposure, DaySky.StarCells));
+            SetShaderValue(shader, GetShaderLocation(shader, "nightAir"), new Vector4(-MathF.Log(zenith.X), -MathF.Log(zenith.Y), -MathF.Log(zenith.Z), Sky.Stars.Catalog.Count));
+        }
+        else SetShaderValue(shader, GetShaderLocation(shader, "nightSky"), Vector4.Zero);
         Res<ModelDrawList>().Add(new ModelDraw(_skyMesh.Id, world, DrawList.Transform, tint, 0, DrawList.Target, shader.Id,
-            UniformSnapshot(shader), AlphaMode: MaterialAlphaMode.Opaque, CastsShadow: false));
-        if (TryRes<DaySky>(out var day)) DrawSkyBodies(day, camera.Position, horizon?.BlendDegrees ?? 0);
+            UniformSnapshot(shader), AlphaMode: MaterialAlphaMode.Opaque, ShaderTextures: TextureSnapshot(shader), CastsShadow: false));
+        // A sky with air draws its night by luminance above, and one without the voxel game's
+        // sun, moon and stars as pictures.
+        if (TryRes<DaySky>(out var day) && day.Day.Atmosphere is null) DrawSkyBodies(day, camera.Position, horizon?.BlendDegrees ?? 0);
     }
 
     // The day sky's stars, added to the sky the model pass drew, so a faint one brightens the sky
@@ -251,6 +273,8 @@ public static partial class E3D
         foreach (var picture in (ReadOnlySpan<Texture2D>)[_skySun, _skyMoon])
             if (_app is not null && picture.IsValid && IsTextureValid(picture)) UnloadTexture(picture);
         (_skySun, _skyMoon) = (default, default);
+        if (_app is not null && _skyStars.IsValid && IsShaderBufferValid(_skyStars)) UnloadShaderBuffer(_skyStars);
+        _skyStars = default;
         _skyShader = default;
         _skyShaderFailed = false;
         _camera3D = null;

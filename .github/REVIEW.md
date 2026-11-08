@@ -1,67 +1,72 @@
 # Review
 
-Reviewed up to `41253cab`, Verdict 108's mend, half 2's Rendering tests dealt into three processes
-with SceneFieldTests moved to half 1, pushed at 08:38 on 2026-11-08, its run green at 10:26 with
-macOS in 44 minutes, the Windows halves in 108 and 50 and Linux in 74, which settled Verdict 108; it
-keeps the form and carries the review's files. After it `6a190757`, item 214, a probe's reach kept
-for each of its rays, pushed at 10:31, its run started at 10:31; it keeps the form and carries the
-review's files. Before it `48096231`, 213's first part, the reference tracing the GGX lobe at every
-face with its tests and the rooms' shortfall, pushed at 01:51 on 2026-11-08, its run green at 04:05
-with macOS in 40 minutes, the Windows halves in 96 and 57 and Linux in 123; it keeps the form and
-carries the review's files. After it `e63a44f5`, 213's form 1, the field's faces holding each face's
-gloss and a probe's ray lighting its hit by it, pushed at 04:10, its run red at 05:15 on macOS,
-Linux and Windows half 2 with half 1 green (Verdict 107 and its reading); it keeps the form and
-carries the review's files, and it blows Sponza's door fittings out to white, a hit sending on more
-light than reaches it, the mend in the next commit. After it `e52877dd`, 213's conservation at the
-probes' hits and in the reference's later faces with Verdict 107's mend, pushed at 06:12, its run
-red at 08:28 on Windows half 2 alone, a Rendering process at its 70-minute limit (Verdict 108), with
-macOS in 39 minutes, half 1 in 101 and Linux in 127 green, which settled Verdict 107; it keeps the
-form and carries the review's files and the devlog. After it `e1755843`, 212's third and fourth
-parts' records in RENDERING.md and the replies, docs only, pushed at 06:19, which starts no run; it
-keeps the form. Before it `1c14b0bf`, 212's first part, a screen probe's on-screen hit shaded with
-the pixel's own normal, pushed at 23:33 on 2026-11-07, its run green at 01:50 with macOS in 41
-minutes, the Windows halves in 72 and 113 and Linux in 126. Before it `d0d391de`, 211's gi.passes
-and the ray scene's top level rebuilt only on a change, pushed at 10:31 on 2026-11-07, its run green
-at 12:15 with macOS in 43 minutes, the Windows halves in 74 and 79 and Linux in 94. Before it
-`3e69ec60`, 210's specular toggle with its line, the end wall's readings and two norm fixes, pushed
-at 08:13, its run green at 10:28 with macOS in 42 minutes, the Windows halves in 70 and 56 and Linux
-in 124. Before it `186447fb`, 210's flip mend, a carried texel's middle-way distance in the trace,
-with Verdict 106's skips, pushed at 06:10, its run green at 08:08 with macOS in 40 minutes, the
-Windows halves in 99 and 80 and Linux in 108, which settled Verdicts 105 and 106. Before it
-`f666be74`, Verdict 105's mend, the GI class dealt into two processes on Windows half 1, and
-`0cbaf53f`, 210's rule in cascades 0 and 1, both pushed at 03:37 on 2026-11-07 with one run on the
-second, red at 04:59 on Linux, macOS and Windows half 1 on one test (Verdict 106), half 2 green in
-81 minutes, the examples skipped; both keep the form, the second carrying the review's files. Before
-it `2ceac35a`, 200's cascade cut, the cycle's images for the carrying cascades alone with the count
-line, pushed at 21:58 on 2026-11-06, its run green at 23:45 with macOS in 41 minutes, the Windows
-halves in 82 and 107 and Linux in 89; it keeps the form and carries the review's files and the
-devlog. After it `798d9270`, 210's R2 with gi.probe's two changes, pushed at 23:58 on 2026-11-06,
-its run red at 02:00 on 2026-11-07 on Windows half 1 alone (Verdict 105), Linux green in 114
-minutes, macOS in 40 and half 2 in 85, the examples green; it keeps the form and carries the
-review's files and the devlog. Before it `72d70e66`, 200's mend, the carried probes' rays moving
-through the meshes by ray queries at High, pushed at 20:10, its run green at 21:56 with macOS in 35
-minutes, the Windows halves in 55 and 75 and Linux in 97. Before it `548e598c`, 209's README row
-with 208's and 200's replies and the review's files, pushed at 11:41 on 2026-11-05, its run green at
-13:29 with macOS in 42 minutes, the Windows halves in 92 and 106 and Linux in 97. Before it
-`f969fe7d`, item 207, the normal read at the pixel's centroid, pushed at 08:35, its run green at
-10:28 with macOS in 41 minutes, Linux in 89 and the Windows halves in 91 and 107. Before it
-`126c7224`, item 206, a shifted-in cell read in the next cascade out until its build ends, pushed at
-06:09, its run green at 07:52 with macOS in 33 minutes, the halves in 51 and 76 and Linux in 91.
-Before it `574565cb`, Verdict 104's mend, a still view reading each screen probe in place, pushed at
-04:25, its run green at 06:08 with Linux in 87 minutes, the halves in 68 and 99 and macOS in 40,
-which settled Verdict 104. Before it `752bdc43`, item 205, the screen probes' kept cycle against the
-flicker at steep angles, pushed at 00:47, its run red at 02:00 on Linux and the first Windows half,
-Verdict 104, the land far from the origin darker than near it on lavapipe, macOS and the second half
-green. Before it `dc40a069`, item 204, F2 held recording and the examples' dump, pushed at 21:54 on
-2026-11-04, its run green at 23:32 with macOS in 36 minutes, the halves in 78 and 70 and Linux in
-84. Before it `c6d771d4`, item 203, the sun's contact shadows past the shadow map by default, pushed
-at 20:10, its run green at 21:53 with macOS in 41 minutes, Linux in 66 and the halves in 88 and 100.
-Before it `cd6cae8f`, 197's gated read, pushed at 17:23, its run green at 19:21 with macOS in 39
-minutes, the halves in 68 and 100 and Linux in 106. Before it `c3f31f93`, item 199, the probes'
-faces read at their surfaces with the patch's turn, pushed at 15:35, its run green at 17:23 with
-macOS in 40 minutes, Linux in 66 and the halves in 82 and 86. Before it `b2be1e28`, item 201, every
-linear texture sampler at 16, pushed at 12:32 with `b0214860`, 200's diagnostic step, its run green
-at 14:30 with macOS in 33 minutes, the halves in 47 and 96 and Linux in 103. Before it `f14a9530`,
+Reviewed up to `8ab130e4`, 220's lamps through their glass and off by default, pushed at 12:25 with
+`66982f6c`, 217's form 2, and `45103a96`, 217's second part as docs, one run on the last, green at
+14:12 with macOS in 42 minutes, Linux in 75, the Windows halves in 84 and 107 and the examples in 9;
+the three keep the form, the last carrying the review's files. Nothing is pushed after it. Before it
+`6a190757`, item 214, a probe's reach kept for each of its rays, pushed at 10:31 on 2026-11-08, its
+run green at 12:24 with macOS in 44 minutes, the Windows halves in 81 and 106 and Linux in 102; it
+keeps the form and carries the review's files. Before it `41253cab`, Verdict 108's mend, half 2's
+Rendering tests dealt into three processes with SceneFieldTests moved to half 1, pushed at 08:38 on
+2026-11-08, its run green at 10:26 with macOS in 44 minutes, the Windows halves in 108 and 50 and
+Linux in 74, which settled Verdict 108; it keeps the form and carries the review's files. Before it
+`48096231`, 213's first part, the reference tracing the GGX lobe at every face with its tests and
+the rooms' shortfall, pushed at 01:51 on 2026-11-08, its run green at 04:05 with macOS in 40
+minutes, the Windows halves in 96 and 57 and Linux in 123; it keeps the form and carries the
+review's files. After it `e63a44f5`, 213's form 1, the field's faces holding each face's gloss and a
+probe's ray lighting its hit by it, pushed at 04:10, its run red at 05:15 on macOS, Linux and
+Windows half 2 with half 1 green (Verdict 107 and its reading); it keeps the form and carries the
+review's files, and it blows Sponza's door fittings out to white, a hit sending on more light than
+reaches it, the mend in the next commit. After it `e52877dd`, 213's conservation at the probes' hits
+and in the reference's later faces with Verdict 107's mend, pushed at 06:12, its run red at 08:28 on
+Windows half 2 alone, a Rendering process at its 70-minute limit (Verdict 108), with macOS in 39
+minutes, half 1 in 101 and Linux in 127 green, which settled Verdict 107; it keeps the form and
+carries the review's files and the devlog. After it `e1755843`, 212's third and fourth parts'
+records in RENDERING.md and the replies, docs only, pushed at 06:19, which starts no run; it keeps
+the form. Before it `1c14b0bf`, 212's first part, a screen probe's on-screen hit shaded with the
+pixel's own normal, pushed at 23:33 on 2026-11-07, its run green at 01:50 with macOS in 41 minutes,
+the Windows halves in 72 and 113 and Linux in 126. Before it `d0d391de`, 211's gi.passes and the ray
+scene's top level rebuilt only on a change, pushed at 10:31 on 2026-11-07, its run green at 12:15
+with macOS in 43 minutes, the Windows halves in 74 and 79 and Linux in 94. Before it `3e69ec60`,
+210's specular toggle with its line, the end wall's readings and two norm fixes, pushed at 08:13,
+its run green at 10:28 with macOS in 42 minutes, the Windows halves in 70 and 56 and Linux in 124.
+Before it `186447fb`, 210's flip mend, a carried texel's middle-way distance in the trace, with
+Verdict 106's skips, pushed at 06:10, its run green at 08:08 with macOS in 40 minutes, the Windows
+halves in 99 and 80 and Linux in 108, which settled Verdicts 105 and 106. Before it `f666be74`,
+Verdict 105's mend, the GI class dealt into two processes on Windows half 1, and `0cbaf53f`, 210's
+rule in cascades 0 and 1, both pushed at 03:37 on 2026-11-07 with one run on the second, red at
+04:59 on Linux, macOS and Windows half 1 on one test (Verdict 106), half 2 green in 81 minutes, the
+examples skipped; both keep the form, the second carrying the review's files. Before it `2ceac35a`,
+200's cascade cut, the cycle's images for the carrying cascades alone with the count line, pushed at
+21:58 on 2026-11-06, its run green at 23:45 with macOS in 41 minutes, the Windows halves in 82 and
+107 and Linux in 89; it keeps the form and carries the review's files and the devlog. After it
+`798d9270`, 210's R2 with gi.probe's two changes, pushed at 23:58 on 2026-11-06, its run red at
+02:00 on 2026-11-07 on Windows half 1 alone (Verdict 105), Linux green in 114 minutes, macOS in 40
+and half 2 in 85, the examples green; it keeps the form and carries the review's files and the
+devlog. Before it `72d70e66`, 200's mend, the carried probes' rays moving through the meshes by ray
+queries at High, pushed at 20:10, its run green at 21:56 with macOS in 35 minutes, the Windows
+halves in 55 and 75 and Linux in 97. Before it `548e598c`, 209's README row with 208's and 200's
+replies and the review's files, pushed at 11:41 on 2026-11-05, its run green at 13:29 with macOS in
+42 minutes, the Windows halves in 92 and 106 and Linux in 97. Before it `f969fe7d`, item 207, the
+normal read at the pixel's centroid, pushed at 08:35, its run green at 10:28 with macOS in 41
+minutes, Linux in 89 and the Windows halves in 91 and 107. Before it `126c7224`, item 206, a
+shifted-in cell read in the next cascade out until its build ends, pushed at 06:09, its run green at
+07:52 with macOS in 33 minutes, the halves in 51 and 76 and Linux in 91. Before it `574565cb`,
+Verdict 104's mend, a still view reading each screen probe in place, pushed at 04:25, its run green
+at 06:08 with Linux in 87 minutes, the halves in 68 and 99 and macOS in 40, which settled Verdict
+104. Before it `752bdc43`, item 205, the screen probes' kept cycle against the flicker at steep
+angles, pushed at 00:47, its run red at 02:00 on Linux and the first Windows half, Verdict 104, the
+land far from the origin darker than near it on lavapipe, macOS and the second half green. Before it
+`dc40a069`, item 204, F2 held recording and the examples' dump, pushed at 21:54 on 2026-11-04, its
+run green at 23:32 with macOS in 36 minutes, the halves in 78 and 70 and Linux in 84. Before it
+`c6d771d4`, item 203, the sun's contact shadows past the shadow map by default, pushed at 20:10, its
+run green at 21:53 with macOS in 41 minutes, Linux in 66 and the halves in 88 and 100. Before it
+`cd6cae8f`, 197's gated read, pushed at 17:23, its run green at 19:21 with macOS in 39 minutes, the
+halves in 68 and 100 and Linux in 106. Before it `c3f31f93`, item 199, the probes' faces read at
+their surfaces with the patch's turn, pushed at 15:35, its run green at 17:23 with macOS in 40
+minutes, Linux in 66 and the halves in 82 and 86. Before it `b2be1e28`, item 201, every linear
+texture sampler at 16, pushed at 12:32 with `b0214860`, 200's diagnostic step, its run green at
+14:30 with macOS in 33 minutes, the halves in 47 and 96 and Linux in 103. Before it `f14a9530`,
 Verdict 103's mend, pushed at 10:32 with `fe224105`, 200's march command, its run green at 12:31
 with the halves in 87 and 94 minutes, Linux in 105 and macOS in 42, which settled Verdict 103; the
 fourteenth pack run started from it with publish on at 12:32 and went green at 15:28, 6.0.91
@@ -171,11 +176,12 @@ item in REVIEW-ARCHIVE.md, its devlog note and its own words. On 2026-10-30 at 1
 the README's new words (item 133) and the focus on radiance cascades (Decision 74), questions asked
 back, and asked that the sessions spend fewer tokens at the same quality, N 7.7.
 
-Next 220, the owner's lamps, then 221, the night sky, then 219, the owner's flicker, then 218, 215
-and 216, 214 and 217 done on their runs, no budget by Decision 94 and 208 closed, the door at 8:00
-the one target by Decision 95; 213 closed at e52877dd with form 2 parked under 208, 212 recorded
-with its first part landed and the rest parked, 211 closed at d0d391de, 212's first part landed at
-1c14b0bf with its pocket mark parked, 210 closed at 3e69ec60, 200 at 2ceac35a.
+Next 222, the version's words, in 221's batch, then 221, the night sky, then 219, the owner's
+flicker, then 218, 215 and 216, 214, 217 and 220 done on their runs, no budget by Decision 94 and
+208 closed, the door at 8:00 the one target by Decision 95; 213 closed at e52877dd with form 2
+parked under 208, 212 recorded with its first part landed and the rest parked, 211 closed at
+d0d391de, 212's first part landed at 1c14b0bf with its pocket mark parked, 210 closed at 3e69ec60,
+200 at 2ceac35a.
 
 Items done and verdicts settled before 2026-10-23 stand in REVIEW-ARCHIVE.md beside this file, their
 numbers kept, moved there at 19:30 on 2026-10-23 so this file holds the current work alone and is
@@ -4590,7 +4596,8 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     cascade in the trace from the store of the rays' own reach, present even in cascades that never
     run it and gone only with no store in the shader, the merge's four reads 0.02, recorded under
     Decision 94 and not cut; the reach cell about 13 degrees across, a sixteenth of the octahedron's
-    side, against the item's 15. Pushed at 10:31 on 2026-11-08; done on its run. Next 217.
+    side, against the item's 15. Pushed at 10:31 on 2026-11-08; done on its run. Next 217. Done at
+    `6a190757`, its run green at 12:24 on 2026-11-08.
 
 215. **The sun's shadow map on grazing walls against the reference.** From the bridge's item 106 on
     2026-11-08. The bridge's grazed walls read 12 to 32% under its reference's sun until its biases
@@ -4644,7 +4651,8 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     same and the lion 1.279 and 1.022; neither brings the door at 8:00 inside 0.9 to 1.1 and the
     lion at 8:00 leaves its band with either, so both stay parked, the door's remainder 0.548 and
     the mark's 1.153 the nearest to its reference yet. Done at `66982f6c` on its run, form 2 landed
-    and the parked parts read and parked again by their figures. Next 218.
+    and the parked parts read and parked again by their figures. Next 218. Pushed at 12:25 on
+    2026-11-08 with 220's commit, one run on the three. Its run, 8ab130e4's, is green at 14:12.
 
 218. **The probes' texels at 16 by 16 in the near cascades.** Decision 95 on 2026-11-08. A probe's
     light lies in an 8 by 8 octahedron at cascades 0 and 1, so a sunlit sliver a hundredth of a
@@ -4693,8 +4701,24 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     Third, the lamps off by default in scenes_sponza with a key toggling them on and off, named in
     the example's help line and the docs, and a test that holds the corner's wooden door area pure
     dark at night with the lamps off, under a bound near zero against the reference with the lamps
-    off, and lit with them on. Before 219.
-
+    off, and lit with them on. Before 219. Committed as `8ab130e4` at 12:22 on 2026-11-08 and held
+    for 6a190757's run behind 217's two, the suite under the layer 2,272 in both orders and the
+    strict build clean. The cause, the pack's lamp glass as four solid panes open at the top and
+    bottom around each bulb in a metal cage, held solid by the field, the shadow maps and the ray
+    scene so the light left through the openings alone, the spot on the vestibule floor at 2:00,
+    which the pack-glass reference holds too, the frame within 1 to 13% by surface. The mend, the
+    example finding the glass, the pack's one gray untextured non-emissive material, and setting it
+    CastsShadows false, BouncesLight false and drawn mostly clear (alpha 40, blended) so every path
+    passes it, the spot gone, the before-and-after sheet in the dump and sent to the owner; the
+    lamps off by default, L or sponza.lamps toggling them, named in the help line and the GI guide,
+    23 bulbs carried as glow lights when on; build/drive-sponza.sh holding the floor under the
+    vestibule's lamp at 2:00 at 0 in every channel with the lamps off and at 28 summed with them on
+    against a bound of 21, in the macOS captures job. The remaining figure against the reference
+    with the glass passing light, the floor by the lamp 12 to 24% under and the walls and blocks 21
+    to 56, the same with the glow lights out, with the light past the first bounce out and with the
+    glow march stopped three cells short, recorded by the two reads and not chased. Done on its run.
+    Pushed at 12:25 on 2026-11-08 behind 217's two, its run started then. Done at `8ab130e4`, green
+    at 14:12.
 
 221. **The night sky from the Sky module.** Decision 98 on 2026-11-08. At 02:00 scenes_sponza's sky
     is a field of large white blobs with a glowing disc many times the moon's half degree, the voxel
@@ -4709,7 +4733,26 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     the same sun path at the moon's illuminance. Measured against the module's figures, the moon's
     illuminance and size and a star's magnitude to pixels at the exposure, and against a night
     photograph's look as the day was measured against the reference picture; the pair at 02:00 from
-    the balcony and from the court looking up, sent to the owner. After 220, before 219.
+    the balcony and from the court looking up, sent to the owner. After 220, before 219. The module
+    side comes first, since the Sky module holds the moon's illuminance and Night's luminance and no
+    stars, no earthshine and no Milky Way; the night's model goes to the module as its item 5 and
+    Decision 7, written by this session through the submodule as the vegetation was, a bright-star
+    catalog to about magnitude 6.5 as a compact data file with its source named, placed by
+    SkyClock's sidereal time, the earthshine in Moon, the Milky Way's band by a simple profile and a
+    star's magnitude to luminance and illuminance, with tests against an almanac; the engine then
+    draws from it. The module's commit goes up before the engine's that points at it. The module's
+    side is in Sky's `ff8f9df`, pushed at 12:31 on 2026-11-08 and green at 12:32, the Bright Star
+    Catalogue's 9,096 stars as a resource, the earthshine, the band and the magnitude scale with 49
+    tests, and the common noun's spelling, catalog, in `a9573d6`, pushed at 13:30, which the
+    engine's commit points at; the engine's drawing is on, its sheet of 13:27 in the dump.
+
+222. **The version and its tags in the documents.** Decision 100 on 2026-11-08. COMMITS.md gains a
+    section on the version, `build/version.txt`'s major and minor raised by this session in a commit
+    of its own when a step is done and the changes behind it are meaningful, the major at a step the
+    size of a release, and the tags of the letter v and the version that the reviewer sets on that
+    commit and on the commit a package was published from, no other; BUILDING.md's paragraph on the
+    version says the same of the tags. The session judges whether the cascades' framework landing is
+    6.1 and says so in the Replies, raising the minor or not. In 221's batch.
 
 ## Verdicts
 
@@ -5058,13 +5101,33 @@ REVIEW-ARCHIVE.md.
    toggling them on and off, so that in the dark the corner's wooden door area reads pure dark in
    the tests. Item 220, first in the order as the owner's direct ask in the scene they look at.
 
-
 98. **The night sky.** The owner wrote on 2026-11-08 at 11:20 that the night sky looks really bad,
    never updated from the voxel game's sky that was taken over, while the day with its sun disc
    looks super good, and put screenshots of the lamp and the night sky from a build in the dump
    (11-15-26 and 11-18-18, the balcony at 02:00). The night sky there is a field of large white
    blobs over the whole sky with a glowing white disc many times the moon's size. Item 221, after
    220.
+
+99. **The difference beside a pair.** The owner wrote to the BevyCSharp session at about 13:50 on
+    2026-11-08, shown item 116's meadow pair, that they saw no visible changes in the comparison, as
+    in the times before, and asked that where there is a difference a third image to the right show
+    it. From here a reading's pair in this engine too carries a third panel, the after's luminance
+    less the before's at a gain the caption names, brighter in orange and darker in blue on black (N
+    4.9, BevyCSharp Decision 82), from item 221's pairs on; a pair whose two frames differ to the
+    eye says so in its caption and may leave it. The earlier readings stand as they are.
+
+100. **Version tags.** The owner wrote at about 14:00 on 2026-11-08, having tagged every commit of
+    the Unity Essentials repositories as `v2.0.30` and the like, that the three projects take tags
+    too, and answered the review's questions at 14:1x. The form is `v6.0.91`, the letter v before
+    `build/version.sh`'s number. Tags go on each major or minor change and on the commits packages
+    were built from, since "doing every commit clutters it and is unnecessary as we want to focus
+    the version tags to releases time apart with meaningful changes and not commits apart". The
+    major and the minor are the sessions' to raise, "each session working on the project can decide
+    when the time is right to rise that number in minor or major as each commit counts as patch",
+    with "full liberty" when "a step is done and meaningful changes were done". N 6.3 holds the rule
+    and the reviewer sets the tags as it pushes. `v6.0.0` marks the commit that set 6.0 and
+    `v6.0.91` the commit `f14a9530` the package of 6.0.91 was published from on 2026-11-04, both set
+    at 14:2x.
 
 ## Replies
 
@@ -6392,3 +6455,50 @@ guide, 23 bulbs carried as glow lights when on and none when off, and build/driv
 the vestibule's floor under its lamp at 2:00 at 0 in every channel with the lamps off, metered,
 and lit with them on, 28 of the three channels summed against its 21, the macOS captures job
 running it where the pack is fetched. The example's capture and the gallery are taken again.
+
+221 read and drawn on 2026-11-08. The night is the Sky module's, the moon's disc at its half degree
+with its phase, place and earthshine by SkyClock and Moon, the Bright Star Catalogue's stars as
+points by their magnitudes, the Milky Way's band and a moonless sky's glow under them, and the moon
+the light once the sun is twelve degrees down (`DaySky.Night`, `sky.slang`). The device lost on the
+stars' reads had one cause, placed by one bounded read. The sky's model draw carried no storage
+buffer, so the pass bound its stand-in of 16 bytes where the stars belong, and the cells' ends read
+past it were whatever memory lay beyond, loops long enough to lose the device on the RTX 4070 and no
+star at all on lavapipe, which reads zero there. Sirius drew nothing in a frame 4 degrees high
+without the buffer and lands with 0.9991 of its light with it. No read crosses a face's edge, a
+neighbor off the face being left out, and the clamp stays as a guard with the cause named. The two
+white bodies from the balcony and the round one in the court of the 13:27 sheet were stars read from
+that memory, their light whatever the numbers there held, and the gray of its sky their bloom, all
+gone. A star was also spread over two to nearly four times the pixels it was given, the pixel's
+angle taken as the length of fwidth, and its angle from the way was given by acos in steps of 3.5e-4
+radians. Both are mended, the pixel's angle the longer of its steps and the angle the chord, a
+corner pixel holding 0.1683 of the star's light where a Gaussian of 0.8 of a pixel gives 0.168. A
+scattered bloom's light is held under 256 times white after the exposure, where it was 256 before
+it, and under 60,000 for the half floats, since a metered night lifting the scene some fifteen stops
+let the moon bloom at some 1,900 times white. HDRP holds its bloom's light after the exposure too,
+at 65,472 by default, so 256 is the stricter hold. A sphere 64 times white after the exposure blooms
+alike at 1,024 before an exposure of a sixteenth and at 64 before none, 216 in both, where the hold
+before the exposure gave 176 (`BloomTests`). The pairs it touches, the court looking up at noon and
+at 9:00, are in the dump with the difference panel, the largest step 0.29 at noon, where the sun's
+halo narrows, and 0.038 at 9:00. At 2:00 metered the frames read black but for the moon, since the
+meter takes each texel's luminance as at least 1/4096 of the frame's light, 7.5 candelas a square
+meter at the example's EV 14.64, the metering floor this item leaves. The sheet of 14:12 holds the
+pair before and after, the same lifted 8 stops, and the 26th day with the moon 79 degrees up at
+0.167 lux, sent to the owner, and RENDERING.md records the night and the hold.
+
+222 written on 2026-11-08. COMMITS.md gains a section on the version, the minor raised by a working
+session or the reviewing session in a commit that changes `build/version.txt` alone once a step is
+done and the changes behind it are meaningful, the major at a step the size of a release, and the
+tags of the letter v and the version on that commit and on the commit a package was published from,
+no other, and BUILDING.md's paragraph on the version says the same of the tags. The cascades'
+framework landing is 6.1 in this session's judgment. Since 6.0 at `edf301e0` on 2026-10-31 the
+scene's global illumination by radiance cascades has come whole, each ray's own reach (214), the
+gloss at the probes' hits and in the reference (213, 217), and the lamps' light through their glass
+(220), the night drawn from the Sky module beside it (221), and what stays open, the balcony's
+flicker (219) and the texels of 218, are mends within it that the patch carries. The minor goes to
+6.1 in a commit of its own after 221's.
+
+Shared: the night is drawn from the Sky module, the moon's disc by `Moon.LitLuminance` with
+`Moon.EarthshineLuminance`, the light by `Moon.At` once the sun is twelve degrees down, and the
+catalog's stars sorted into a cube of 32 cells a side as one storage buffer and summed as Gaussians
+of 0.8 of a pixel by the chord between the ways (`DaySky.Night`, `sky.slang`). A scattered bloom
+holds its light under 256 times white after the exposure (`bloom.slang`).

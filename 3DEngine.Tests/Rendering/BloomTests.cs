@@ -108,6 +108,28 @@ public sealed class BloomTests : IDisposable
     }
 
     [NeedsVulkanFact]
+    public void A_Scattered_Bloom_Holds_The_Light_Under_256_Times_White_After_The_Exposure_However_Far_It_Lifts_The_Scene()
+    {
+        Open();
+        var sphere = LoadModelFromMesh(GenMeshSphere(0.6f, 24, 24));
+        SetTonemap(Tonemap.Reinhard);
+        SetBloom(0.5f, 0.1f);
+        SetBloomScatter(0.7f);
+
+        // The same light after the exposure, 64 times white, at 1,024 before an exposure of a
+        // sixteenth and at 64 before none. Held at 256 before the exposure, the first bloomed with
+        // a quarter of the second's light, as the moon of a metered night did with the sky's sun.
+        SetExposure(1 / 16f);
+        var lifted = Capture(EmissiveSphere(sphere, intensity: 1_024), "lifted");
+        SetExposure(1);
+        var plain = Capture(EmissiveSphere(sphere, intensity: 64), "plain");
+
+        Brightness(plain, 100, 60).Should().BeGreaterThan(40, "the light spreads past the sphere's edge");
+        Brightness(lifted, 100, 60).Should().BeCloseTo(Brightness(plain, 100, 60), 2, "the light is held after the exposure, where it is the same");
+        UnloadModel(sphere);
+    }
+
+    [NeedsVulkanFact]
     public void What_Is_Drawn_After_The_Scene_Keeps_Its_Exact_Color()
     {
         Open();
