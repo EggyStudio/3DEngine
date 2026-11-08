@@ -4855,6 +4855,9 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     repository's own figure and reason or goes, since a reader here has neither the sibling's
     readings nor the sessions' comparison, which SHARED.md holds; the sibling is named once, where a
     rule or a model was taken from it, as the API's names are from raylib, and nowhere else.
+    Committed at `fbf35060` on 20acb49e at 20:4x on 2026-11-08, 48 files, the strict build clean,
+    the suite 2,279 under the layer with the cheat sheet regenerated for four changed summaries; it
+    is pushed once 20acb49e's run has ended.
 
 ## Verdicts
 
@@ -6713,3 +6716,16 @@ shared with it stay named where they are taken, and the comparison tests keep th
 tonemap ramp, the lookup's table and the sky's figures. STYLE.md's Register gains the paragraph,
 BevyCSharp named once where a rule, a format or a model is taken from it, with two rows, and its
 Checks the search, read rather than counted, whose remaining hits are those.
+
+218 read on 2026-11-08 and recorded in RENDERING.md, docs only. 16 by 16 texels in High's near
+cascades, one ray a texel, take the world probes from 11.35 to 25.72 MB and global illumination 0.17
+ms more in the atrium at noon and about 0.2 at the door at 8:00. Against references traced again
+with the lamps off, as the example starts, the door at 8:00 reads 0.372 where 0.355, the corridor
+0.781 past the direct where 0.936, the far walls' excess gone and the whole corridor under, the
+sliver's probe 2.23 times the reference where 1.29, and the rooms hold their bounds, so it is not
+landed and the door's remainder at that size is 0.628 of its light. The pocket mark at 16 by 16
+takes the door at 8:00 to 1.071 (0.603), within its band, the nearest yet, where the mark at 8 by 8
+reads 1.194 and takes the corridor to 1.383. With it the lion at 8:00 reads 1.113, the corridor
+0.860, and four rooms pass their bounds by 0.004 to 0.014, the thin room, the strip's room, the
+grazing floor and the carried lamp, with the pocket probe's test at NaN, at 0.30 ms more in the
+atrium than 8 by 8 alone. The mark at 16 by 16 is the review's to weigh as an item of its own.

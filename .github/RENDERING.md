@@ -1614,6 +1614,47 @@ when on and none when off, and at 2:00 with the lamps off the vestibule's floor 
 0 in every channel, metered, and with them on 9, which `build/drive-sponza.sh` holds (`gi.compare`,
 `gi.state`, `frame.read`).
 
+**The probes' texels at 16 by 16 in High's near cascades, read on 2026-11-08.** High lays a probe's
+light in octahedrons of 8 by 8 texels in its first two cascades, four rays a texel, and of 16 by 16
+in its third. Read with 16 by 16 in all three and one ray a texel, so the rays a frame stay 393,216,
+the world probes take 25.72 MB where 11.35, and global illumination at 1920 by 1080 takes 4.54 to
+4.62 ms in the atrium at noon where 4.37 to 4.45 and 3.81 to 3.90 at the door at 8:00 where 3.61,
+the merge 0.10 to 0.12 ms of the difference, under powersave-bazzite. The lobe's widening at a hit
+follows the size (`texelWidening`). Against references traced with every face's gloss and the lamps
+off, as the example starts, light and pixels' difference over the reference's light, the door view
+reads 0.372 (0.826) at 8:00 and 0.897 (0.382) at noon where 0.355 (0.853) and 0.888 (0.385), and the
+lion view 1.021 (0.318) and 0.985 (0.256) where 0.994 (0.344) and 0.985 (0.257). The second
+cascade's probe at 18,2,-2 reads its face toward the court 2.23 times the reference where 1.29, a
+texel a quarter the size taking the cascade above's sunlit way whole, while its own rays meet a
+surface within a tenth of the reference's distance along 231 of its 243 ways where 43 of 61. Past
+the direct light the bounce rooms read, the 8 by 8 reading in brackets, the Cornell box 0.949
+(0.970), the thin room 1.021 (1.021), the corridor 0.781 (0.936), the window's room 1.031 (1.029),
+the red walls 1.291 (1.590), the strip's room 0.796 (0.822), the grazing floor 1.013 (1.028), the
+carried lamp 0.945 (0.966) and the emissive blocks 0.852 (0.856), each within its bound. The
+corridor's walls read, in bands of 40 to 70 pixels across the view from its brightest columns, 0.86,
+0.84, 0.54, 0.69, 0.79, 0.82, 0.87 and 0.92 of the reference where 0.96, 0.90, 0.72, 0.92, 1.22,
+1.17, 1.15 and 1.14, so the far walls' excess goes and the whole corridor reads under. The specular
+of the vestibule's walls at 8:00, read against references traced with the lamps on before their
+glass let light through, so that the two sizes' ratio alone is read, falls to 0.46 of the 8 by 8
+reading on the gray block's side facing -x, 0.88 on its side facing -z and 0.70 on the red block's.
+So 16 by 16 alone takes the door at 8:00 0.017 nearer and the corridor further from its reference,
+and is not landed, the door's remainder at that size 0.628 of its light, the vestibule's pockets'
+lack of the court's sunlit light.
+
+With the pocket mark at 16 by 16 the door view reads 1.071 (0.603) at 8:00 and 1.013 (0.328) at noon
+and the lion view 1.113 (0.367) and 0.999 (0.253), where the mark at 8 by 8 reads 1.194 (0.671),
+1.015 (0.348), 1.166 (0.395) and 0.992 (0.259), the door at 8:00 within its band of 0.9 to 1.1 and
+nearest its reference's pixels of any reading, the lion at 8:00 past it by 0.013. The corridor reads
+0.860 past the direct, its bands 0.87, 0.86, 0.68, 0.83, 0.91, 0.93, 0.97 and 1.00, where the mark
+at 8 by 8 takes it to 1.383, its bands 1.02 to 1.70. Four rooms then read past their bounds at High,
+the thin room 0.044 of its light off its reference against 0.03, the strip's room 0.314 against
+0.31, the grazing floor 0.067 against 0.06 and the carried lamp 0.105 against 0.10, and the pocket
+probe's test reads its light as NaN, where 16 by 16 alone holds all 42 of the rooms' tests. Global
+illumination with the mark takes 4.67 to 4.70 ms in the atrium and 3.89 to 3.92 at the door. The
+carried-only march beside the mark at 16 by 16 reads the door 1.446 (0.907) and 1.120 (0.399) and
+the lion 1.131 (0.405) and 1.009 (0.251), past the mark alone (`gi.compare`, `gi.probe`, `gi.state`,
+`BounceRoomsTests`, `./e3d command gi.passes on`, then `profile`).
+
 What the light holds is drawn to be looked at (`BounceViewRenderer`), as `gi.show` and
 `DrawBounceWindow` choose it. `gi_view.slang` draws over the window after its shapes and before
 ImGui, in the `bounce_view` node after `scene_field_view`. It draws the screen's probes as tiles
