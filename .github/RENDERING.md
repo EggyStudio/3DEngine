@@ -763,6 +763,27 @@ floor under texels of some eight pixels, a map of 256 texels a tile, steps by 8 
 neighbouring pixels at most where it stepped by 72, of a drop of 146 across the edge
 (ShadowEdgeTests, `.github/assets/readings/2026-11-02-item-188-shadow.webp`).
 
+**A wall the sun grazes against the reference's direct light, read on 2026-11-08.** A white wall at
+a roughness of 1, the sun 45, 70 and 80 degrees from its normal and the eye 5, 15 and 40 units off,
+in the first and second cascades, is read against a path-traced reference of the sun's direct light
+alone (bounces 0). From 5 units its lit part reads within 0.4% of the reference at each angle. With
+the sun's shadows and without them its lit part reads alike to 0.13% at 45 degrees from 5 units and
+to 0.04% at every other angle and distance, so the map does not shadow the face it grazes, and an
+overhang along the wall's top holds the band it shades at 0.008 to 0.016 of the lit wall's light
+from 5 units where the reference holds none. From 15 and 40 units the wall reads 21% to 2.3 times
+over the reference with the sun's shadows and without them alike, the light past the probes' reach
+that a wall takes from a ground of its own color (`distantSun`), 0.308 at 80 degrees from 40 units,
+which a wall standing over no ground lacks. In Sponza at 8:00, the sun some 30 degrees from the
+faces facing +x and 87 degrees from those facing +z, a texel of the map spread some nineteen times
+its width along the second, with the sky's light, the lamps and global illumination off, the insides
+of the sunlit patches read 0.880 to 1.012 of the sun's direct light on the faces facing +x and 0.554
+to 1.357 on those facing +z. Without contact shadows they read alike, and without the map, its reach
+a unit and no fill, the first read 0.1 to 1.3% higher and the second 0.8 to 5.3%, so the map holds
+back up to a twentieth of a grazed face's sunlit light. The rest of each face's difference stands
+without the map, in the shading, where the frame bends the normal by the stone's normal maps and the
+reference takes the face's own, not read apart here. The offset of a texel and a half along the lit
+side's normal and the depth bias of 0.0005 of the depth range stand (`gi.reference`, `gi.compare`).
+
 Past the last cascade a fill cascade reaches on to the camera's far plane (`ShadowFit.TryFitFill`),
 which `SetShadowFill` turns off and the cascades' count leaves out. It is fitted as the others are,
 to the sphere around the views' slice from the shadow distance to their far planes, and is fitted

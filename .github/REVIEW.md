@@ -187,12 +187,12 @@ words. On 2026-10-30 at 18:0x the owner wrote the README's new words (item 133) 
 radiance cascades (Decision 74), questions asked back, and asked that the sessions spend fewer
 tokens at the same quality, N 7.7.
 
-Next 227, the comments on their own terms, then 218, 215 and 216, then 225 and 226, the projects and
-the live path, 214, 217, 219, 220, 221, 222, 223 and 224 done on their runs, no budget by Decision
-94 and 208 closed, the door at 8:00 the one target by Decision 95; 213 closed at e52877dd with form
-2 parked under 208, 212 recorded with its first part landed and the rest parked, 211 closed at
-d0d391de, 212's first part landed at 1c14b0bf with its pocket mark parked, 210 closed at 3e69ec60,
-200 at 2ceac35a.
+Next 215, then 228, the pocket mark at 16 by 16 texels, then 216, then 225 and 226, the projects and
+the live path, 214, 217, 219, 220, 221, 222, 223 and 224 done on their runs, 227 and 218 committed
+and waiting to push, no budget by Decision 94 and 208 closed, the door at 8:00 the one target by
+Decision 95; 213 closed at e52877dd with form 2 parked under 208, 212 recorded with its first part
+landed and the rest parked, 211 closed at d0d391de, 212's first part landed at 1c14b0bf with its
+pocket mark parked, 210 closed at 3e69ec60, 200 at 2ceac35a.
 
 Items done and verdicts settled before 2026-10-23 stand in REVIEW-ARCHIVE.md beside this file, their
 numbers kept, moved there at 19:30 on 2026-10-23 so this file holds the current work alone and is
@@ -4679,7 +4679,15 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     filtered lobe following the size. Land where the door and the corridor move toward their bands
     with the rooms held, the cost in the record by Decision 94; where they do not, the record says
     what 16 by 16 bought and the door's remainder is named at that size. After 217, before 214's
-    commit if it is at hand.
+    commit if it is at hand. Done at `e9462fb1` as docs alone at 21:18 on 2026-11-08, committed on
+    fbf35060 and pushed once 20acb49e's run has ended. The references were traced again with every
+    face's gloss and the lamps off, as the example starts. 16 by 16 texels alone do not land, the
+    door at 8:00 reading 0.372 where 8 by 8 read 0.355, the corridor 0.781 past the direct where
+    0.936, the sliver probe 2.23 times its reference where 1.29, 25.7 MB where 11.4 and 0.2 ms more;
+    the door's remainder at that size is 0.628. With the pocket mark at 16 by 16 the door at 8:00
+    reads 1.071 and the lion 1.113, inside their bands and the nearest yet, the corridor 0.860 and
+    0.68 to 1.00 by depth, four rooms past their bounds by 0.004 to 0.014, the pocket probe's test
+    reading NaN, and 0.30 ms more in the atrium; that is item 228.
 
 219. **The balcony's flicker at steep edges and thin features.** Decision 96 on 2026-11-08. The
     owner's F2 recordings of scenes_sponza's balcony view (the dump of 2026-11-08, 11-09-29 at 109
@@ -4858,6 +4866,17 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     Committed at `fbf35060` on 20acb49e at 20:4x on 2026-11-08, 48 files, the strict build clean,
     the suite 2,279 under the layer with the cheat sheet regenerated for four changed summaries; it
     is pushed once 20acb49e's run has ended.
+
+228. **The pocket mark at 16 by 16 texels.** From 218's reading on 2026-11-08, the one form that
+    puts the door at 8:00 inside its band, 1.071 against the every-face reference, with the lion at
+    1.113, in the scene the owner looks at, so by Decision 95 it is pursued. Place the NaN in the
+    pocket probe's test first and mend it; read the four rooms past their bounds by 0.004 to 0.014,
+    the thin room, the strip's room, the grazing floor and the carried lamp, and whether the mark's
+    tolerance or the bounds move, the bounds only where the new reading is the truer one by its
+    reference; read the corridor's 0.860 against its band. It lands if the door and the lion stay
+    inside their bands and no room leaves its own, the 14 MB and 0.30 ms recorded beside it and no
+    reason to park (Decision 94); otherwise the readings are recorded and the door's remainder
+    stands. After 215, before 216.
 
 ## Verdicts
 
@@ -6729,3 +6748,15 @@ reads 1.194 and takes the corridor to 1.383. With it the lion at 8:00 reads 1.11
 0.860, and four rooms pass their bounds by 0.004 to 0.014, the thin room, the strip's room, the
 grazing floor and the carried lamp, with the pocket probe's test at NaN, at 0.30 ms more in the
 atrium than 8 by 8 alone. The mark at 16 by 16 is the review's to weigh as an item of its own.
+
+215 read on 2026-11-08 and recorded in RENDERING.md, docs only, with no mend. A white wall the sun
+grazes at 45, 70 and 80 degrees reads its lit part within 0.4% of the reference's direct light from
+5 units, and alike with the sun's shadows and without them to 0.13% from 5, 15 and 40 units, so the
+map does not shadow the face it grazes. From 15 and 40 units the wall reads 21% to 2.3 times over
+with and without the map, the ground's light past the probes' reach (distantSun), which the lone
+wall's reference lacks, a model and not the shadow. In Sponza at 8:00, against the sun's direct
+light with the sky, the lamps and global illumination off, contact shadows change nothing, and the
+map holds back 0.1 to 1.3% of the sunlit light on faces 30 degrees from the sun and 0.8 to 5.3% on
+faces it grazes at 87. The faces' remaining 0.88 to 1.36 stands without the map, in the shading, the
+frame's normal maps against the reference's face normals the likely source, not read apart since
+nothing turns the maps off. The biases stand, the wall within a twentieth. 228 next.
