@@ -191,13 +191,12 @@ words. On 2026-10-30 at 18:0x the owner wrote the README's new words (item 133) 
 radiance cascades (Decision 74), questions asked back, and asked that the sessions spend fewer
 tokens at the same quality, N 7.7.
 
-Next 230, four rays a texel at 16 a side, with 228, the pocket mark, landing on it, then 216, then
-229, the reference's normal maps, then 225 and 226, the projects and the live path, 214, 217, 219,
-220, 221, 222, 223 and 224 done on their runs, 227, 218 and 215 pushed on their run, no budget by
-Decision 94 and 208 closed, the door at 8:00 the one target by Decision 95; 213 closed at e52877dd
-with form 2 parked under 208, 212 recorded with its first part landed and the rest parked, 211
-closed at d0d391de, 212's first part landed at 1c14b0bf with its pocket mark parked, 210 closed at
-3e69ec60, 200 at 2ceac35a.
+Next 216, then 229, the reference's normal maps, then 225 and 226, the projects and the live path,
+214, 217, 219, 220, 221, 222, 223 and 224 done on their runs, 227, 218 and 215 pushed on their run,
+228 and 230 recorded at ca037368 and waiting to push, no budget by Decision 94 and 208 closed, the
+door at 8:00 the one target by Decision 95; 213 closed at e52877dd with form 2 parked under 208, 212
+recorded with its first part landed and the rest parked, 211 closed at d0d391de, 212's first part
+landed at 1c14b0bf with its pocket mark parked, 210 closed at 3e69ec60, 200 at 2ceac35a.
 
 Items done and verdicts settled before 2026-10-23 stand in REVIEW-ARCHIVE.md beside this file, their
 numbers kept, moved there at 19:30 on 2026-10-23 so this file holds the current work alone and is
@@ -4904,7 +4903,14 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     8, and none of the four is truer. The same form at 8 by 8 passes the rooms and misses the
     target, the door at 1.168 and the lion at 1.268. The review chose four rays a texel first, item
     230, over moving bounds that got worse; 228 lands on it if the four hold and the door stays in
-    its band.
+    its band. Recorded, not landed, at `ca037368` as docs at 23:05 on 2026-11-08, committed on
+    b3c471d9 and pushed once its run has ended; with 230's four rays the rooms pass and the canopy
+    at 2.5 under comes back, the canopy at 5.5 under reads 0.167 against 0.18, the metal walls 1.21
+    and 1.16 against 1.134 and 1.10, and the door at 8:00 1.105 and the lion 1.108, both a little
+    past their bands, at noon 1.026 and 0.999; the canopy's and the metals' misses are the 16 by 16
+    size's and hold with the mark off. The door's remainder at 8:00 stands at 0.645 of its light at
+    8 by 8, the method's limit as the review reads it today; the form and the four rays are kept as
+    a patch outside the tree.
 
 229. **The reference reads the normal maps.** From 215's reading on 2026-11-08. The frame shades
     Sponza's faces with their normal maps and the path-traced reference with the faces' own normals,
@@ -4924,7 +4930,11 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     and 5.5 under and the probes facing the sunlit metal wall at roughness 0.3 and 0.6 back inside
     their bounds, the door at 8:00 and the lion inside their bands, the rooms in theirs, and the
     cost recorded; then 228 lands with it. If the four do not come back, 228's readings are recorded
-    and the door's remainder stands. Before 216.
+    and the door's remainder stands. Before 216. Recorded, not landed, at `ca037368` as docs at
+    23:05 on 2026-11-08; RaysAt takes the cascade so the first two send four rays a texel with 16
+    partial-sum workgroups a probe. The cost is 6.94 to 6.98 ms in the atrium at noon where the base
+    takes 4.34 to 4.72, 5.91 to 5.98 at the door at 8:00 where 3.56 to 3.69, and 40.7 MB of world
+    probes where 26.3. Every reading and form is in the Replies and RENDERING.md.
 
 ## Verdicts
 
@@ -6844,3 +6854,14 @@ noon where 4.34 to 4.72 and 5.91 to 5.98 at the door at 8:00 where 3.56 to 3.69,
 probes 40.70 MB where 26.33. The one-ray form took 4.55 to 4.70 and 3.85 to 4.19 where 4.32 to 4.33
 and 3.53 to 3.61, 25.72 MB where 11.35 in the bounce rooms, all under powersave-bazzite. So the
 door's remainder at 8:00 stands at 8 by 8, 0.645 of its light.
+
+216 read on 2026-11-08 and recorded in RENDERING.md, docs only, with no mend. The field holds a leaf
+block's share a unit in the cells inside the block and a ray crosses it only as far as it runs
+inside one, so a coarse cell over a sparse crown is not taken for leaves where no block stands. A
+floor under a crown of leaf blocks three deep, letting half the light through a unit, against a
+path-traced reference with the sky's light alone, reads with 35% of the crown's places filled 5%
+over at High, 5% at Medium and 3% under at Low, with 15% filled 7% and 4% over, and filled whole 25%
+and 13% over, the canopy's excess the leaf-block test already holds. The forest floor's slab and the
+leaf-block canopy read as their tests hold them. The voxel game's trees are leaf blocks of a unit,
+which the crown of blocks a unit apart stands for, not read in the game itself. So no density is
+kept cell by cell. 229 next.

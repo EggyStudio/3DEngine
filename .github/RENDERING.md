@@ -3255,6 +3255,19 @@ through, global illumination takes 2.88 to 2.95 ms at `High` where 2.77 to 2.79,
 reads in each of two runs with no other program on the GPU under tuned's `powersave-bazzite`, and
 1.27 at `Low` and 1.89 to 1.93 solid at `High` as before.
 
+**A sparse crown's density, read on 2026-11-08.** The field holds a leaf block's share of the light
+a unit of its depth lets through in the cells inside the block, and a ray crosses it only as far as
+it runs inside one (`lightThroughDepth` in `lightthrough.slang`), so a coarse cascade's cell over a
+crown whose blocks stand apart is crossed as leaves only where a block stands. A gray floor lit by
+an ambient sky alone under a crown of leaf blocks three deep and twenty by twenty-two across, three
+and a half units up and letting half the light through a unit, read with the eye under it against a
+path-traced reference, reads with every place of the crown filled 0.0337 at `High` and 0.0304 at
+`Low` where the reference takes 0.0270, 25% and 13% over, with 35% of the places filled 0.0712 at
+`High`, 0.0711 at `Medium` and 0.0653 at `Low` where 0.0676, within 5%, and with 15% filled 0.0960
+at `High` and 0.0937 at `Low` where 0.0898, within 7%. A sparse crown is held no denser than its
+blocks, so the share stays the material's and no density is kept cell by cell. The dense crown's
+excess at `High` is the leaf-block canopy's above, over its reference as there.
+
 **An ambient light's reflection under a roof, read on 2026-11-01.** In item 100's slab scene, a gray
 floor lit by an ambient light alone, the floor two and a half units under a solid slab twenty
 across read 0.074 in linear light at `High` and 0.071 at `Low` where a path-traced reference takes
