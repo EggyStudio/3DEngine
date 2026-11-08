@@ -449,8 +449,13 @@ float3 trace(float3 origin, float3 way, bool fromProbe, inout uint state, out ui
         // The diffuse share goes on, a glossy face's past its metal, as the indirect light
         // reaching a pixel lights it. Where asked, the first face's specular share goes on too, or
         // every face's, a way drawn for one or the other by their shares, so the face reflects the
-        // light the model pass reflects from the probes and the environment.
+        // light the model pass reflects from the probes and the environment. A face after the first
+        // sends on its diffuse share of what its gloss leaves, as a probe's ray's hit does
+        // (reflectedShare in probelight.slang), the two summing to one at most, since a reference
+        // that sends on more than reaches it is no truth for probes that cannot; the first face
+        // keeps the model pass's whole diffuse share beside its gloss.
         float3 diffuseColor = glossy ? color * (1.0 - metallic) : color;
+        bool first = !fromProbe && bounce == 0u;
         float3 next = float3(0.0);
         if (glossy && push.first.w != 0u)
         {
@@ -470,7 +475,7 @@ float3 trace(float3 origin, float3 way, bool fromProbe, inout uint state, out ui
                 throughput *= fresnel * smithShadowing(nl, alpha) / specular;
             }
             else
-                throughput *= diffuseColor / (1.0 - specular);
+                throughput *= (first ? diffuseColor : diffuseColor * (1.0 - saturate(specularShare))) / (1.0 - specular);
         }
         else
             throughput *= diffuseColor;

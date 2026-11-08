@@ -348,18 +348,26 @@ public float3 shadeProbeHitN<V : IVolume, S : ISheetVolume, Sun : ISunShadow>(V 
 
 // What a face of a color and a gloss, its roughness and metallic share, sends back of the light
 // reaching it toward a way at a cosine of nv from its normal, as though it reflected the light from
-// all around evenly, its diffuse share past its metal and its gloss's share toward that way by
-// Karis's fit of the split sum, its f0 a dielectric's 0.04 and its color by its metal, as the model
-// pass works them out. Taken at a probe's ray's hit, so the gloss of a wall the ray meets carries
-// light between bounces as its diffuse share does, as the reference's paths carry it at every face
-// (ReferenceGloss), with no read of the light along the hit's mirror way.
+// all around evenly, its gloss's share toward that way by Karis's fit of the split sum, its f0 a
+// dielectric's 0.04 and its color by its metal, as the model pass works it out, and its diffuse
+// share past its metal of what the gloss leaves. Taken at a probe's ray's hit, so the gloss of a
+// wall the ray meets carries light between bounces as its diffuse share does, as the reference's
+// paths carry it at every face (ReferenceGloss), with no read of the light along the hit's mirror
+// way. Every hit a probe's ray lights, the field's, the screen's and the device's rays', sends on
+// no more than reaches it where its color is under one, the two shares summing to one at most,
+// since the light past the first bounce comes back to the probes each frame and a share over one
+// grows it without end. With the whole diffuse share beside the gloss's, a smooth face seen at a
+// grazing way, whose gloss Karis's fit puts near one, sent on nearly twice what reached it, and
+// Sponza's door view at 8:00 read 27 times its reference's light, its door's fittings and its
+// lantern white, where it reads 0.840 (gi.compare's frames).
 public float3 reflectedShare(float3 color, float2 gloss, float nv)
 {
     float4 r = gloss.x * float4(-1.0, -0.0275, -0.572, 0.022) + float4(1.0, 0.0425, 1.04, -0.04);
     float a004 = min(r.x * r.x, exp2(-9.28 * saturate(nv))) * r.x + r.y;
     float2 ab = float2(-1.04, 1.04) * a004 + r.zw;
     float3 f0 = lerp(float3(0.04), color, gloss.y);
-    return color * (1.0 - gloss.y) + f0 * ab.x + ab.y;
+    float3 share = saturate(f0 * ab.x + ab.y);
+    return color * (1.0 - gloss.y) * (1.0 - share) + share;
 }
 
 // The same at a face whose normal is given, its color the field's facing it, as the screen's

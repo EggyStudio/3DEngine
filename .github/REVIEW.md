@@ -1,28 +1,32 @@
 # Review
 
-Reviewed up to `1c14b0bf`, 212's first part, a screen probe's on-screen hit shaded with the pixel's
-own normal, pushed at 23:33 on 2026-11-07, its run green at 01:50 on 2026-11-08 with macOS in 41
-minutes, the Windows halves in 72 and 113 and Linux in 126; it keeps the form and carries the
-review's files and the devlog. After it `48096231`, 213's first part, the reference tracing the GGX
-lobe at every face with its tests and the rooms' shortfall, pushed at 01:51, its run started at
-01:51; it keeps the form and carries the review's files. Before it `d0d391de`, 211's gi.passes and
-the ray scene's top level rebuilt only on a change, pushed at 10:31 on 2026-11-07, its run green at
-12:15 with macOS in 43 minutes, the Windows halves in 74 and 79 and Linux in 94. Before it
-`3e69ec60`, 210's specular toggle with its line, the end wall's readings and two norm fixes, pushed
-at 08:13, its run green at 10:28 with macOS in 42 minutes, the Windows halves in 70 and 56 and Linux
-in 124. Before it `186447fb`, 210's flip mend, a carried texel's middle-way distance in the trace,
-with Verdict 106's skips, pushed at 06:10, its run green at 08:08 with macOS in 40 minutes, the
-Windows halves in 99 and 80 and Linux in 108, which settled Verdicts 105 and 106. Before it
-`f666be74`, Verdict 105's mend, the GI class dealt into two processes on Windows half 1, and
-`0cbaf53f`, 210's rule in cascades 0 and 1, both pushed at 03:37 on 2026-11-07 with one run on the
-second, red at 04:59 on Linux, macOS and Windows half 1 on one test (Verdict 106), half 2 green in
-81 minutes, the examples skipped; both keep the form, the second carrying the review's files. Before
-it `2ceac35a`, 200's cascade cut, the cycle's images for the carrying cascades alone with the count
-line, pushed at 21:58 on 2026-11-06, its run green at 23:45 with macOS in 41 minutes, the Windows
-halves in 82 and 107 and Linux in 89; it keeps the form and carries the review's files and the
-devlog. After it `798d9270`, 210's R2 with gi.probe's two changes, pushed at 23:58 on 2026-11-06,
-its run red at 02:00 on 2026-11-07 on Windows half 1 alone (Verdict 105), Linux green in 114
-minutes, macOS in 40 and half 2 in 85, the examples green; it keeps the form and carries the
+Reviewed up to `48096231`, 213's first part, the reference tracing the GGX lobe at every face with
+its tests and the rooms' shortfall, pushed at 01:51 on 2026-11-08, its run green at 04:05 with macOS
+in 40 minutes, the Windows halves in 96 and 57 and Linux in 123; it keeps the form and carries the
+review's files. After it `e63a44f5`, 213's form 1, the field's faces holding each face's gloss and a
+probe's ray lighting its hit by it, pushed at 04:10, its run red at 05:15 on macOS, Linux and
+Windows half 2 with half 1 green (Verdict 107 and its reading); it keeps the form and carries the
+review's files, and it blows Sponza's door fittings out to white, a hit sending on more light than
+reaches it, the mend in the next commit. Before it `1c14b0bf`, 212's first part, a screen probe's
+on-screen hit shaded with the pixel's own normal, pushed at 23:33 on 2026-11-07, its run green at
+01:50 with macOS in 41 minutes, the Windows halves in 72 and 113 and Linux in 126. Before it
+`d0d391de`, 211's gi.passes and the ray scene's top level rebuilt only on a change, pushed at 10:31
+on 2026-11-07, its run green at 12:15 with macOS in 43 minutes, the Windows halves in 74 and 79 and
+Linux in 94. Before it `3e69ec60`, 210's specular toggle with its line, the end wall's readings and
+two norm fixes, pushed at 08:13, its run green at 10:28 with macOS in 42 minutes, the Windows halves
+in 70 and 56 and Linux in 124. Before it `186447fb`, 210's flip mend, a carried texel's middle-way
+distance in the trace, with Verdict 106's skips, pushed at 06:10, its run green at 08:08 with macOS
+in 40 minutes, the Windows halves in 99 and 80 and Linux in 108, which settled Verdicts 105 and 106.
+Before it `f666be74`, Verdict 105's mend, the GI class dealt into two processes on Windows half 1,
+and `0cbaf53f`, 210's rule in cascades 0 and 1, both pushed at 03:37 on 2026-11-07 with one run on
+the second, red at 04:59 on Linux, macOS and Windows half 1 on one test (Verdict 106), half 2 green
+in 81 minutes, the examples skipped; both keep the form, the second carrying the review's files.
+Before it `2ceac35a`, 200's cascade cut, the cycle's images for the carrying cascades alone with the
+count line, pushed at 21:58 on 2026-11-06, its run green at 23:45 with macOS in 41 minutes, the
+Windows halves in 82 and 107 and Linux in 89; it keeps the form and carries the review's files and
+the devlog. After it `798d9270`, 210's R2 with gi.probe's two changes, pushed at 23:58 on
+2026-11-06, its run red at 02:00 on 2026-11-07 on Windows half 1 alone (Verdict 105), Linux green in
+114 minutes, macOS in 40 and half 2 in 85, the examples green; it keeps the form and carries the
 review's files and the devlog. Before it `72d70e66`, 200's mend, the carried probes' rays moving
 through the meshes by ray queries at High, pushed at 20:10, its run green at 21:56 with macOS in 35
 minutes, the Windows halves in 55 and 75 and Linux in 97. Before it `548e598c`, 209's README row
@@ -156,9 +160,9 @@ item in REVIEW-ARCHIVE.md, its devlog note and its own words. On 2026-10-30 at 1
 the README's new words (item 133) and the focus on radiance cascades (Decision 74), questions asked
 back, and asked that the sessions spend fewer tokens at the same quality, N 7.7.
 
-Next 213, then 212's third part, with 208's budget on the owner's word; 211 closed at d0d391de,
-212's first part landed at 1c14b0bf with its pocket mark parked, 210 closed at 3e69ec60, 200 at
-2ceac35a.
+Next 212's third part, then 214, 215 and 216, with 208's budget on the owner's word; 213 closed at
+e63a44f5 with form 2 parked under 208, 211 closed at d0d391de, 212's first part landed at 1c14b0bf
+with its pocket mark parked, 210 closed at 3e69ec60, 200 at 2ceac35a.
 
 Items done and verdicts settled before 2026-10-23 stand in REVIEW-ARCHIVE.md beside this file, their
 numbers kept, moved there at 19:30 on 2026-10-23 so this file holds the current work alone and is
@@ -4451,11 +4455,136 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     at the ray's angle is more than a few percent of its diffuse, which in Sponza's rough stone is
     nearly nowhere, measured the same way in the atrium, the door and the rooms, since 208's budget
     stands over 4 ms already and the owner has not spoken; under about 0.1 ms in the atrium it lands
-    with the metals' test, and past that it parks under 208 with these figures.
+    with the metals' test, and past that it parks under 208 with these figures. Form 1 is
+    `e63a44f5`, committed at 03:0x on 2026-11-08 and held for 48096231's run, the suite 2,269 in
+    both orders and the strict build clean, the faces images R32 with the way in bits 0 to 7, the
+    roughness in 8 to 15, the metallic in 16 to 23 and bit 24 marking a painted cell, the splat
+    painting a gloss buffer the resolve puts beside the way, the field's memory res cubed times 60
+    cascades plus 28; reflectedShare at field, device-ray and screen hits, the probe references
+    glossy by default; the rooms' nine references traced again with every face's gloss, each bound
+    15% over its reading (the corridor at High 0.18 where 0.30), the emissive box's closed form
+    reading a diffuse-only reference, the strip ceiling and the red wall's rays taking the gloss
+    share by Karis's fit, the colored slab and the metal box against every face's gloss; the new
+    sunlit-wall probe test of four cases each bounded 15% over its distance, the dielectrics 1.157
+    and 1.160 and the metals' shortfall named at 0.860 and 0.820, the base failing at 1.27 for the
+    metal at 0.6; the metal box's probes 1.512 against 1.689 banded at 12.1%; RENDERING.md recording
+    the field's bits, the rooms, the cost and form 2's figures. The Linux job's suite times from the
+    digests, 63 and 61 minutes at 1c14b0bf, 47 and 45 at d0d391de and 63 and 58 at 3e69ec60, so the
+    job's 126 is two suites, plain and shuffled, at about an hour each swinging 45 to 63 between
+    runs, growth no part of it. Form 2 gated runs next, a hit taking the per-light GGX and the
+    mirror lobe only where its gloss share at the ray's angle is over 5% of its diffuse, rough stone
+    at roughness 1 sharing about 3% and staying even and the rooms' 0.5 walls 6 to 31%, then the
+    probe cases, the rooms and the cost against form 1 in the atrium, the door and four rooms. The
+    first part's run is green at 04:05 on 2026-11-08, and form 1 is pushed at 04:10 with its run
+    started. Read at 04:11, form 2 with the 5% gate parks under 208. Its cost by gi.passes summed on
+    a quiet GPU at High at 1080p, form 1 then the gated form 2, the atrium 4.58 to 4.60 then 5.05 to
+    5.10, the door 3.79 to 3.84 then 4.34 to 4.35, the Cornell box 2.66 to 2.68 then 3.78 to 3.80,
+    the corridor 2.34 to 2.41 then 3.05 to 3.07, the strip's 2.96 to 3.06 then 4.48 to 4.52, the
+    grazing 2.23 to 2.31 then 2.59 to 2.65, the gate costing more than the ungated form since the
+    branch puts both shadings in the shaders and the even path pays the glossy one's registers while
+    the rooms' 0.5 walls take the glossy path at most angles; the rooms past the direct with the
+    gate, form 1 in brackets, the Cornell box 0.984 (1.012), the thin room 1.090 (1.068), the
+    corridor 0.856 (0.814), the window's 1.034 (1.073), the strip's 0.800 (0.801), the grazing 1.052
+    (1.091), the carried lamp 0.978 (1.005) and the emissive blocks 0.853 (0.856), the four sunlit-
+    wall probe cases inside form 1's bounds. Form 2's copies stay at work/t213/form2c (the shared
+    loop, filtered) and form2g (gated) for a later read under 208. Done at `e63a44f5` on its run,
+    form 1 landed and form 2 parked, the metals' shortfall at a probe facing a sunlit wall the named
+    remainder. Next 212's third part, then 214. At 04:25 on 2026-11-08 a regression in e63a44f5,
+    pushed and on its run: Sponza's door view at 8:00 shows the door's fittings and the lantern
+    blown out to white where 48096231 shows none of it, the view reading 27 times its reference's
+    light and the red block's face 773, since reflectedShare gives a hit its full diffuse color plus
+    its gloss share and for a smooth surface at a grazing ray Karis's fit gives a share near 1, the
+    hit sending on more than reaches it and the probes feeding the light past the first bounce back
+    each frame until it runs away, the rooms' walls at roughness 0.5 staying under 1 so no test
+    caught it. The mend, not a revert, the hit's diffuse share times one less the gloss's share so
+    the sum stays under 1 for a color under 1, with a test that fails without it, a closed room of
+    smooth white walls under a lamp with its light bounded, the Sponza four views and the rooms read
+    again; it goes up as soon as its suite passes and e63a44f5's run ends. Read at 04:57, the
+    conservation's figures and the reference question. With form 1 mended, Sponza against item 194's
+    references, which trace the later faces as diffuse, reads the door 0.840 (0.896) at 8:00 where
+    the screen normal alone read 0.600 (0.813) and unmended form 1 26.97, and 1.162 (0.426) at noon
+    where 0.900 (0.394), the lion 1.340 (0.575) and 1.227 (0.354) where 1.019 (0.361) and 0.989
+    (0.261), the gloss lifting Sponza 16 to 34% over those references; the rooms past the direct
+    against every face's gloss read 6 to 30% under, the Cornell box 0.936, the thin room 0.901, the
+    corridor 0.703, the window's 0.938, the strip's 0.710, the grazing 0.884, the lamp 0.874 and the
+    emissive blocks 0.849, since the every-face reference, like the bridge's and the model pass's
+    indirect, takes a glossy face's diffuse at the full color beside its gloss and holds energy the
+    conserving probes cannot. Decided, the reference's later faces conserve too, the diffuse draw
+    weighted by one less the gloss's share, the first face kept as the model pass lights it, the
+    rooms' references traced again and Sponza given every-face references, since a reference that
+    sends on more than reaches it is no truth to hold a conserving probe to and the two engines'
+    references keep one rule; the bridge is told the same. At 05:36 the conservation with Verdict
+    107's mend is in the suite under the validation layer as the runners run it, committing when
+    green. reflectedShare sends on the gloss share plus the diffuse share times one less the share,
+    the rule in its comment for the three hit kinds; the new test, a closed room of walls of 250
+    white nearly smooth under a lamp, reads 11.80 at the back wall both times 300 frames apart where
+    without the rule it read 13,247 then 20,935; the reference's later faces conserve the same way
+    with the first face as the model pass lights it, the rooms' references traced again and their
+    bounds by the rule, the grazing floor's far cascade at 0.046 against 0.06 where 0.05. The rooms
+    past the direct against the conserving every-face reference, the Cornell box 0.982, the thin
+    room 1.034, the window's 1.030, the grazing 1.029, the lamp 0.964, the corridor 0.823, the
+    strip's 0.824 and the emissive blocks 0.859, the reference holding 3 to 23% more past the direct
+    than the first face's; Sponza against every-face references at 1024 paths, 1c14b0bf's build to
+    this, the door 0.585 (0.858) to 0.550 (0.804) at 8:00 and 0.758 (0.450) to 0.966 (0.382) at
+    noon, the lion 0.931 (0.355) to 0.982 (0.349) and 0.852 (0.283) to 1.018 (0.260), every view's
+    pixels nearer; the sunlit-wall probe's dielectrics 1.104 and 1.142 and metals 0.854 and 0.815
+    with bounds by the rule.
+
+214. **A probe's reach for each of its rays.** From the bridge's item 111 on 2026-11-08 (SHARED.md).
+    This engine's probes lay out their reach as a texel's mean over its rays as the bridge's did,
+    and the bridge found a probe past a thin wall lighting the floor inside through one ray passing
+    beside the room's corner, the texel's mean reading past the wall, a lit board outside its thin-
+    walled room lighting the floor 0.0119 where its bar is 0.005 and 0.0037 with each ray's own
+    reach kept, the reach image at 16 texels a side with no ray more. Read this engine's thin-walled
+    rooms the same way, a lit board outside past the lamp with the floor inside by probe, and where
+    the leak shows, keep each ray's own reach the same way, measured on that room, the thin-wall
+    foot, the lamp march and the bounce rooms, with the memory in gi.state; the rule's limit, a cell
+    of ways about 15 degrees wide, in the record. After 212's third part.
+
+215. **The sun's shadow map on grazing walls against the reference.** From the bridge's item 106 on
+    2026-11-08. The bridge's grazed walls read 12 to 32% under its reference's sun until its biases
+    took Bevy's own defaults, a wall 40 units off lit at 70 degrees from its normal reading -19% and
+    +1 after. Read this engine's sun shadow the same way, a white wall lit at 70 degrees with GI off
+    against the reference's direct light, and Sponza's grazed walls at 8:00 by window, the map's
+    biases and its texel's footprint on a grazing face; then a mend where the wall reads outside 5%,
+    measured on that wall and the Sponza windows with the hall's figures unchanged. After 214.
+
+216. **A crown's density cell by cell in the field.** From the bridge's item 113 on 2026-11-08. The
+    bridge's field filled a crown at one density a meter and the probes under a crown's sparse edge
+    held a third of the sky its few cards let past, the meadow's shaded grass 45% under its
+    reference; with the splat summing the area of leaf cards whose middles lie in each cell and the
+    resolve raising the share a meter to that area, the march crossing cards half a cell a step, the
+    grass came to 17 under. This engine's field holds LightThrough as one share a meter the same way
+    (item 100's first part), so read its canopies, the forest floor's test and the voxel game's
+    trees against the reference the same way and take the cell-by-cell density where they ask for
+    it, measured on the canopy floor and the game's trees. After 215.
 
 ## Verdicts
 
-Verdicts 56 to 106 are settled, said under each in REVIEW-ARCHIVE.md; none is open.
+Verdicts 56 to 106 are settled, said under each in REVIEW-ARCHIVE.md; 107 is open.
+
+107. **The gloss buffer is bound nowhere for one dispatch.** The run of `e63a44f5` is red on macOS
+     at 04:5x on 2026-11-08, 2,165 passed, 1 failed and 51 skipped in 38 minutes,
+     DescriptorPoolTests.No_Pool_Is_Asked_For_A_Set_Past_Its_Counts failing on a logged validation
+     error, a vkCmdDispatch using set 0's binding 10, the variable gloss, which was never updated
+     through vkUpdateDescriptorSets, three times in the run; so one of form 1's dispatches binds the
+     field's new gloss buffer in its layout and writes it in no path the test takes, the splat's
+     buffer painted where the stamp or the resolve runs without it, and MoltenVK's validation names
+     it where lavapipe and the Windows device may not. Read which dispatch and which path, bind the
+     buffer in every path of that dispatch or leave it out of the layout where the path paints none,
+     and hold it with the pool test; the mend rides in the conservation commit, which goes up as
+     soon as the run ends. Linux and the Windows halves still running. Placed at 04:57:
+     RecordSceneFieldRepaint, the splat's paint-again for a mesh recolored in place, fills the splat
+     set through binding 9 and never binding 10, the layout naming the gloss buffer and the paint-
+     again mode writing no gloss, where the build path binds it; the mend binds field.Gloss at 10
+     there too with a line saying painting again keeps the build's gloss, the pool test taking that
+     path at SettleFrames plus 10, which is how macOS caught it with the layer the home suite runs
+     without. The home suite is run under the layer with E3D_REQUIRE_VALIDATION without and with the
+     mend once the bin is free, and the mend rides in the conservation commit. The run ended at
+     05:15 red on Linux and Windows half 2 as well, each on the same pool test and the same unbound
+     gloss binding, Linux 2,187 passed and 47 skipped in 63 minutes and half 2 1,977 and 42 in 53,
+     half 1 green in 56, so the layer runs on all three systems and the one cause is the whole of
+     the red.
 
 ## Decisions
 
@@ -5936,3 +6065,39 @@ with the filtered lobe read the metals 1.087 and 1.116 beside the dielectrics' 1
 the suite twice, 63 m 7 s and 61 m 2 s at 1c14b0bf, 47 m 34 s and 45 m 4 s at d0d391de and 63 m
 13 s and 58 m 34 s at 3e69ec60, from the digests, so its job's 126 minutes is two runs of the suite
 at about an hour each, which swing between 45 and 63 minutes from run to run.
+
+213's form 2 parked on 2026-11-08 under 208 with its figures. Gated by the hit's gloss, each
+light's GGX toward the ray and the probes' faces about the ray's mirror way taken only where the
+gloss's share at the ray's angle passes a twentieth of the diffuse share's and the even share
+elsewhere, it read the rooms past the direct the Cornell box 0.984, the thin room 1.090, the
+corridor 0.856, the window's 1.034, the strip's 0.800, the grazing floor 1.052, the carried lamp's
+0.978 and the emissive blocks 0.853, and the sunlit-wall probe's four cases inside form 1's bounds,
+but took global illumination at High at 1080p to 5.05 to 5.10 ms in the atrium at noon where form 1
+takes 4.58 to 4.60, 4.34 at the door where 3.79 to 3.84, 3.78 to 3.80 in the Cornell box where 2.66
+to 2.68, 3.05 in the corridor where 2.34 to 2.41, 4.48 to 4.52 in the strip's room where 2.96 to
+3.06 and 2.59 to 2.65 on the grazing floor where 2.23 to 2.31, more than ungated, since the branch
+keeps both shadings in the shaders and the rooms' walls of a roughness of a half take the glossy
+one at most angles. The ungated form with the gather's loop shared took 0.29 ms in the atrium.
+
+213's conservation and Verdict 107's mend on 2026-11-08. A probe's ray's hit sends on its gloss's
+share and its diffuse share of what the gloss leaves, the two summing to one at most where its
+color is under one (reflectedShare), since with the whole diffuse share beside the gloss's a smooth
+face at a grazing way sent on nearly twice what reached it and the light past the first bounce, fed
+back each frame, ran away, Sponza's door view at 8:00 at 27 times its reference's light with the
+door's fittings and lantern white. A closed room of walls of a white of 250, nearly smooth, under a
+lamp holds 11.80 at its back wall 300 frames apart, where the whole diffuse share read 13,247 and
+then 20,935, a test of the rule. The reference's faces after the first send on their diffuse share
+of what their gloss leaves the same way, its first face kept as the model pass lights it, and the
+rooms' nine references were traced again and their bounds set 15% over their readings, the
+grazing floor's with the far cascade 0.06 where 0.05 at 0.046. Against it the rooms read their light
+past the direct within 4% in the closed rooms, the Cornell box 0.982, the thin room 1.034, the
+window's 1.030, the grazing floor 1.029 and the carried lamp's 0.964, and the corridor 0.823, the
+strip's room 0.824 and the emissive blocks 0.859, the reference holding 3 to 23% more past the
+direct than the first face's. Sponza's four views against references traced with every face's
+gloss read the door 0.550 (0.804) at 8:00 and 0.966 (0.382) at noon where 0.585 (0.858) and 0.758
+(0.450) at 1c14b0bf, and the lion 0.982 (0.349) and 1.018 (0.260) where 0.931 (0.355) and 0.852
+(0.283), every view's pixels nearer. The sunlit-wall probe reads 1.104 and 1.142 for the
+dielectrics and 0.854 and 0.815 for the metals. Verdict 107's cause was the splat's paint-again for
+a mesh recolored in place, RecordSceneFieldRepaint, which filled the splat's set through binding 9
+and left the gloss buffer at 10 unwritten. It binds it now, and the pool test under the validation
+layer locally failed three times on that binding without the mend and passes with it.

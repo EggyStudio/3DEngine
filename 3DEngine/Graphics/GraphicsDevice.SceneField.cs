@@ -510,6 +510,8 @@ internal sealed unsafe partial class GraphicsDevice
         run.Image(splat, 7, field.StillPaintView);
         run.Image(splat, 8, ((VulkanImageView)field.AlbedoView).View);
         run.Buffer(splat, 9, VkDescriptorType.StorageBuffer, field.Second);
+        // Painting again keeps the gloss the build painted, though the splat's layout names its buffer.
+        run.Buffer(splat, 10, VkDescriptorType.StorageBuffer, field.Gloss);
         var groupsX = (uint)Math.Min(triangleCount, 65535);
         var push = new SplatPush
         {

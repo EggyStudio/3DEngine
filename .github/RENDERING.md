@@ -1426,52 +1426,23 @@ a way drawn about its mirror way by GGX's distribution of the normals the eye se
 against its diffuse way by their shares by Karis's fit, so the reference reflects the indirect light
 the model pass reflects from the probes and the environment, where it reflected none of it, and a
 closed box of emissive metal reads 1.815 with it where 1.00 without (`RoughReflectionTests`).
-`gi.reference <png> <samples> -1 gloss` traces every face a camera's path meets so, lit by the
-lights' specular past its metal and going on by the same draw, as the bridge's reference traces
-every face, so the gloss of what a path meets carries light between bounces, which the probes' rays,
-lighting a face by its diffuse share alone, do not carry. A probe's own paths stay diffuse, as its
-rays are. A white metal wall four units high under the sun at 45 degrees mirrors it back onto the
-floor by its foot, which reads 1.906 times the floor away from it with every face's gloss and 1.204
-with the first face's alone, and a metal plane and a gray one at a grazing view read the sky's light
-times their Fresnel either way, the plane being the first face (`BounceReferenceTests`). Global
-illumination's tests read against the first face's gloss. Against every face's gloss the bounce
-rooms at High at 800 by 450 read their light past the direct 11 to 35% under, the Cornell box 12%
-with its walls 9 to 15% under and the green wall 13%, the corridor 35% with its walls 28 to 29% and
-its floor and ceiling 51 to 52% under, the strip's room 32%, where against the first face's they
-read 5% under to 4% over and the strip's room and the emissive blocks 17 and 16% under, the
-reference with every face's gloss holding 5 to 47% more light past the direct than the first face's,
-the most in the corridor (`gi.reference` with 512 paths, `gi.compare`'s frames).
-
-**The probes' rays lighting what they meet by its gloss, read on 2026-11-08.** The field keeps each
-face's roughness and metallic share beside its way in the faces images, four bytes a cell where one,
-the way in bits 0 to 7, the roughness in 8 to 15 and the metallic share in 16 to 23 in 255ths, and
-bit 24 where a surface's gloss painted the cell, a shape stamped over the field taking a material's
-default of a roughness of a half and no metal (`glossBits` and `faceGloss` in `scenefield.slang`).
-The splat paints it with the cell's color from the instance's records, which carry the roughness and
-metallic the ray scene's surfaces hold, and the field takes 60 bytes a cell of its cascades and 28 of
-one where 54 and 24, 8.5 MB more at five cascades of 64 cells a side. A probe's ray lights what it
-meets by its color past its metal and its gloss's share at the ray's angle of the light from all
-around, by Karis's fit of the split sum, as though the face reflected that light evenly
-(`reflectedShare` in `probelight.slang`), at the field's hits, the device's rays' and the screen's,
-as the bridge's probes light theirs. Against every face's gloss the bounce rooms read their light
-past the direct at High within 1 to 9% in the closed rooms where 12 to 16% under, the Cornell box
-1.012 where 0.880, the thin room 1.068 where 0.844, the window's 1.073 where 0.886, the grazing
-floor 1.091 where 0.816 and the carried lamp's 1.005 where 0.785, and the corridor 0.814 where
-0.647, the strip's room 0.801 where 0.679 and the emissive blocks 0.856 where 0.801. Global
-illumination at 1920 by 1080 at High takes 4.52 to 4.56 ms in the atrium at noon, 3.84 to 3.89 at
-the door at 8:00 where 3.86 to 3.91, and the Cornell box, the corridor, the strip's room and the
-grazing floor within the base's spread (`./e3d command gi.passes on`, then `profile`, quiet,
-powersave-bazzite). The even share leaves a metal's reflection of a light, thrown along its mirror
-way, spread over every way, so a probe a unit from a sunlit metal wall reads its face toward the
-wall 0.860 and 0.820 of a reference with every face's gloss at a roughness of 0.6 and 0.3, where a
-dielectric's reads 1.16, and a closed box of emissive metal's probes hold 10.5% under it
-(`GlobalIlluminationTests`, `RoughReflectionTests`). The tests read against every face's gloss, the
-bounce rooms' references traced again and their bounds 15% over their readings. Lit instead by each
-light's GGX toward the ray and the probes' faces about the ray's mirror way for the gloss's share,
-the lobe widened by the half-angle of a texel where the ray stands at its texel's middle, 0.0657 of
-alpha squared at 8 by 8 and 0.0158 at 16 by 16, the metals read 1.087 and 1.116 beside the
-dielectrics' 1.110 and 1.112 and the rooms within 4% but the thin room's 10%, at 0.29 ms more in the
-atrium, which waits on a gate by the hit's gloss.
+`gi.reference <png> <samples> -1 gloss` traces every face a path meets so, a camera's and a probe's,
+lit by the lights' specular past its metal and going on by the same draw, as the bridge's reference
+traces every face, so the gloss of what a path meets carries light between bounces, each face after
+the first sending on its diffuse share of what its gloss leaves, as the probes' hits do, so it sends
+on no more than reaches a face, where its first face keeps the model pass's whole diffuse share
+beside its gloss. A white metal wall four units high under the sun at 45 degrees mirrors it back
+onto the floor by its foot, which reads 1.906 times the floor away from it with every face's gloss
+and 1.204 with the first face's alone, and a metal plane and a gray one at a grazing view read the
+sky's light times their Fresnel either way, the plane being the first face (`BounceReferenceTests`).
+Against every face's gloss, before the probes' rays carried it and before its later faces conserved,
+the bounce rooms at High at 800 by 450 read their light past the direct 11 to 35% under, the Cornell
+box 12% with its walls 9 to 15% under and the green wall 13%, the corridor 35% with its walls 28 to
+29% and its floor and ceiling 51 to 52% under, the strip's room 32%, where against the first face's
+they read 5% under to 4% over and the strip's room and the emissive blocks 17 and 16% under. With
+its later faces conserving, the reference with every face's gloss holds 3 to 23% more light past the
+direct than the first face's, the most in the corridor (`gi.reference` with 512 paths,
+`gi.compare`'s frames).
 A path after the camera's first ray crosses a copy that lets light through by its share to
 the power of its depth along the ray, from the face it enters by to the nearest face the copy turns
 out along the ray, `cross(b - a, c - a)` as the field takes it, or to another copy's face nearer, a
@@ -1496,6 +1467,47 @@ end, the sun through a window, white blocks beside red walls one, three and six 
 bright strip in a dark room, a floor seen at a grazing angle, and a room whose lamp a key carries
 and whose wall another moves. `build/bounce-rooms.sh` captures each view, traces its reference at
 `High` and compares each quality's frame with it.
+
+**The probes' rays lighting what they meet by its gloss, read on 2026-11-08.** The field keeps each
+face's roughness and metallic share beside its way in the faces images, four bytes a cell where one,
+the way in bits 0 to 7, the roughness in 8 to 15 and the metallic share in 16 to 23 in 255ths, and
+bit 24 where a surface's gloss painted the cell, a shape stamped over the field taking a material's
+default of a roughness of a half and no metal (`glossBits` and `faceGloss` in `scenefield.slang`).
+The splat paints it with the cell's color from the instance's records, which carry the roughness and
+metallic the ray scene's surfaces hold, and the field takes 60 bytes a cell of its cascades and 28
+of one where 54 and 24, 8.5 MB more at five cascades of 64 cells a side. A probe's ray lights what
+it meets by its gloss's share at the ray's angle of the light from all around, by Karis's fit of the
+split sum, and its color past its metal of what the gloss leaves, as though the face reflected that
+light evenly (`reflectedShare` in `probelight.slang`), at the field's hits, the device's rays' and
+the screen's, as the bridge's probes light theirs. The two shares sum to one at most, since the
+light past the first bounce comes back to the probes each frame. With the whole diffuse share beside
+the gloss's, a smooth face seen at a grazing way, whose gloss the fit puts near one, sent on nearly
+twice what reached it, and Sponza's door view at 8:00 read 27 times its reference's light, its
+door's fittings and its lantern white, and a closed room of walls of a white of 250, nearly smooth,
+under a lamp read 13,247 and then 20,935 300 frames on, where it holds 11.80
+(`GlobalIlluminationTests`). Against every face's gloss the bounce rooms read their light past the
+direct at High within 4% in the closed rooms, the Cornell box 0.982, the thin room 1.034, the
+window's 1.030, the grazing floor 1.029 and the carried lamp's 0.964, and the corridor 0.823, the
+strip's room 0.824 and the emissive blocks 0.859. Sponza's views read against every face's gloss at
+High, light and pixels' difference over the reference's light, the door 0.550 (0.804) at 8:00 and
+0.966 (0.382) at noon where 0.585 (0.858) and 0.758 (0.450), and the lion 0.982 (0.349) and 1.018
+(0.260) where 0.931 (0.355) and 0.852 (0.283), every view's pixels nearer and the door at 8:00
+holding the vestibule's pockets' lack. Global illumination at 1920 by 1080 at High takes 4.52 to
+4.56 ms in the atrium at noon, 3.84 to 3.89 at the door at 8:00 where 3.86 to 3.91, and the Cornell
+box, the corridor, the strip's room and the grazing floor within the base's spread (`./e3d command
+gi.passes on`, then `profile`, quiet, powersave-bazzite). The even share leaves a metal's reflection
+of a light, thrown along its mirror way, spread over every way, so a probe a unit from a sunlit
+metal wall reads its face toward the wall 0.854 and 0.815 of a reference with every face's gloss at
+a roughness of 0.6 and 0.3, where a dielectric's reads 1.104 and 1.142, and a closed box of emissive
+metal's probes hold 10.5% under it (`GlobalIlluminationTests`, `RoughReflectionTests`). The tests
+read against every face's gloss, the bounce rooms' references traced again and their bounds 15% over
+their readings. Lit instead by each light's GGX toward the ray and the probes' faces about the ray's
+mirror way for the gloss's share, the lobe widened by the half-angle of a texel where the ray stands
+at its texel's middle, 0.0657 of alpha squared at 8 by 8 and 0.0158 at 16 by 16, the metals read
+1.087 and 1.116 beside the dielectrics' 1.110 and 1.112 against the reference before its later faces
+conserved, at 0.29 ms more in the atrium, and gated by the hit's gloss, the even share where the
+gloss's is under a twentieth of the diffuse share's, at 0.47 ms more, both shadings kept in the
+shaders, so it waits under the frame's budget.
 
 What the light holds is drawn to be looked at (`BounceViewRenderer`), as `gi.show` and
 `DrawBounceWindow` choose it. `gi_view.slang` draws over the window after its shapes and before
@@ -2929,7 +2941,11 @@ rooms' corridor from 0.161 of its light off its reference to 0.241, the strip's 
 0.299 and the grazing floor from 0.046 to 0.069, past its bound, where at Low and Medium it brought
 the corridor nearer, 0.224 and 0.208 where 0.253 and 0.242. At seven eighths and fifteen sixteenths
 the rooms read alike, so what carrying does at High is read before it lands (`gi.compare`'s
-frames, `gi.probe`, `BounceRoomsTests`).
+frames, `gi.probe`, `BounceRoomsTests`). With the probes' rays lighting what they meet by its
+gloss, the door view at 8:00 reads 0.550 of the light of a reference traced with every face's
+gloss, where without the gloss it read 0.600 of a reference with the first face's, the same lack
+under the vestibule's pockets seen against the reference that holds every face's gloss, which the
+mark parked here would take.
 
 **A crossing taken once, read on 2026-10-31.** The cascades' intervals overlap, the first's
 reaching twice as far as the second's begins, and a slab that straddled the first's end was crossed

@@ -6,6 +6,12 @@ under `.github/assets/readings` as WebP files named by their day, each on the da
 the notes written beside them as Markdown files named the same way. A line under Done names the item
 of .github/REVIEW.md or .github/REVIEW-ARCHIVE.md and the commit that closed it.
 
+## 2026-11-08
+
+Done that day
+
+- Item 213 at `e63a44f5`. The reference's lobe at every face and the rooms' shortfall.
+
 ## 2026-11-07
 
 ![](.github/assets/readings/2026-11-07-item-212-door.webp)

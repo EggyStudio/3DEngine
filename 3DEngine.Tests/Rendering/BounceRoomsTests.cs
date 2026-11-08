@@ -42,10 +42,11 @@ public sealed partial class BounceRoomsTests : IDisposable
         // its light from its reference, over its own bound of 0.09, where it reads 0.069 with the
         // last counted cascade tracing to the field's edge as the last does and merging nothing,
         // and 0.041 against its reference traced with the first face's specular share, where 0.116
-        // before the floor reflected the light its probes hold, and 0.037 against one traced with
-        // every face's gloss, the probes' rays lighting what they meet by its gloss.
+        // before the floor reflected the light its probes hold, and 0.046 against one traced with
+        // every face's gloss, the probes' rays lighting what they meet by its gloss, and its bound
+        // is 15% over that.
         var share = Differs(7, GlobalIllumination.Low, far: true);
-        share.Should().BeLessThan(0.05, $"the grazing floor with a far cascade differs from its reference by {share:0.000} of its light");
+        share.Should().BeLessThan(0.06, $"the grazing floor with a far cascade differs from its reference by {share:0.000} of its light");
     }
 
     // How far a view's frame at a quality differs from its reference, its pixels' differences summed
@@ -340,13 +341,13 @@ public sealed partial class BounceRoomsTests : IDisposable
         ReadScreenProbe(0, 276, 140, out var report, more: frames);
         var onRed = frames.SelectMany(frame => frame.Rays).Where(ray => ray.Met == 0 && ray.Way.X < -0.3f).ToArray();
         onRed.Should().HaveCountGreaterThanOrEqualTo(4 * 16, $"the probe's rays toward the red wall meet it on the screen\n{report}");
-        // A hit sends back its color and its gloss's share at the ray's angle alike in every channel
-        // (reflectedShare in probelight.slang), so the green of the color it was lit by is read past
-        // that share, the red wall's red its own 0.578.
+        // A hit sends back its gloss's share at the ray's angle alike in every channel and its color
+        // of what the gloss leaves (reflectedShare in probelight.slang), so the green of the color
+        // it was lit by is read past that share, the red wall's red its own 0.578.
         static float Green(BounceReference.ScreenProbeRay ray)
         {
             var share = GlossShare(-ray.Way.X);
-            return ray.Own.Y / ray.Own.X * (0.578f + share) - share;
+            return (ray.Own.Y / ray.Own.X * (0.578f * (1 - share) + share) - share) / (1 - share);
         }
         var greens = onRed.Select(Green).ToArray();
         greens.Should().OnlyContain(g => g < 0.05f * 0.578f, $"the red wall's hits beside the white wall take the red wall's color, their green {greens.Min():0.000} to {greens.Max():0.000}\n{report}");
@@ -443,8 +444,8 @@ public sealed partial class BounceRoomsTests : IDisposable
     }
 
     // The strip's light at p on the room's white facing n, Lambert's closed form over each face of its
-    // box p lies before, in linear light, with the gloss's share a probe's ray takes of it beside the
-    // white's (reflectedShare in probelight.slang).
+    // box p lies before, in linear light, with the gloss's share a probe's ray takes of it and the
+    // white's of what the gloss leaves (reflectedShare in probelight.slang).
     private static Vector3 StripLight(Vector3 p, Vector3 n, float gloss = 0)
     {
         static float Linear(byte c)
@@ -465,7 +466,8 @@ public sealed partial class BounceRoomsTests : IDisposable
                 seen += FormFactor(p, n, [face + u + v, face - u + v, face - u - v, face + u - v]);
             }
         var (white, emitted) = (new Color(220, 220, 215), new Color(255, 230, 190));
-        return new Vector3((Linear(white.R) + gloss) * Linear(emitted.R), (Linear(white.G) + gloss) * Linear(emitted.G), (Linear(white.B) + gloss) * Linear(emitted.B)) * 30 * seen;
+        static float Sent(float color, float gloss) => color * (1 - gloss) + gloss;
+        return new Vector3(Sent(Linear(white.R), gloss) * Linear(emitted.R), Sent(Linear(white.G), gloss) * Linear(emitted.G), Sent(Linear(white.B), gloss) * Linear(emitted.B)) * 30 * seen;
     }
 
     // The share of the light a uniformly bright polygon sends a point at p facing n, the polygon

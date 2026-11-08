@@ -296,12 +296,12 @@ public sealed partial class BounceReferenceTests : IDisposable
         var front = regions!.Single(r => r.Name.Contains("wall facing +z", StringComparison.Ordinal));
         (floor.Reference.X / floor.Reference.Y).Should().BeGreaterThan(5, $"the reference traces the slab red, {floor.Reference}");
         // Against the reference traced with every face's gloss, as the probes' rays light what they
-        // meet by its gloss, it reads 3.9% under it on the development machine's GPU, and against one
+        // meet by its gloss, it reads 4.5% under it on the development machine's GPU, and against one
         // with the first face's gloss alone 5.1% under, as the slab reflects the light its probes
         // hold, where it read 14.3% under reflecting the environment's alone, of which there is none
         // here.
         Math.Abs(floor.Share).Should().BeLessThan(0.06f, $"the slab reads in the frame {floor.Frame} as in the reference {floor.Reference}");
-        // The wall's red over its green reads 1.233 in the frame and 1.239 in the reference with
+        // The wall's red over its green reads 1.216 in the frame and 1.234 in the reference with
         // every face's gloss on the development machine's GPU, and 1.212 against 1.240 with the
         // first face's alone, the slab's own light 3.6% from that reference's. It read 1.230
         // while the screen's rays past their reach took the light of the world's probes around the
