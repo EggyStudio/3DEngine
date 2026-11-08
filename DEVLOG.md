@@ -12,7 +12,9 @@ Done that day
 
 - Item 213 at `e63a44f5`. The reference's lobe at every face and the rooms' shortfall.
 - Item 214 at `6a190757`. A probe's reach for each of its rays.
+- Item 215 at `b3c471d9`. The sun's shadow map on grazing walls against the reference.
 - Item 217 at `66982f6c`. The parked forms land by their figures.
+- Item 218 at `e9462fb1`. The probes' texels at 16 by 16 in the near cascades.
 - Item 219 at `eda81295`. The balcony's flicker at steep edges and thin features.
 - Item 220 at `8ab130e4`. Sponza's lamps shine through their housings, off by default, and the
   corner's spot.
@@ -20,6 +22,7 @@ Done that day
 - Item 222 at `98b26c9e`. The version and its tags in the documents.
 - Item 223 at `20acb49e`. The scene field's pool after a cascade change.
 - Item 224 at `20acb49e`. The middle dot out.
+- Item 227 at `fbf35060`. Comments on the code's own terms.
 
 ## 2026-11-07
 

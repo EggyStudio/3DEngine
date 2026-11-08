@@ -1676,6 +1676,31 @@ carried-only march beside the mark at 16 by 16 reads the door 1.446 (0.907) and 
 the lion 1.131 (0.405) and 1.009 (0.251), past the mark alone (`gi.compare`, `gi.probe`, `gi.state`,
 `BounceRoomsTests`, `./e3d command gi.passes on`, then `profile`).
 
+**The pocket mark at 16 by 16 and four rays a texel, read on 2026-11-08.** With High's first two
+cascades at 16 by 16 texels, one ray a texel, and a probe of the cascades above whose texels meet a
+face within their interval for seven eighths of them or more, and not every one, marked as standing
+in a pocket and passed over by the probes below, which carry their own rays on past their interval,
+Sponza's door view reads 1.050 (0.596) at 8:00 and 1.013 (0.328) at noon and the lion view 1.044
+(0.320) and 0.985 (0.246) against references traced with every face's gloss and the lamps off, the
+door at 8:00 inside its band of 0.9 to 1.1 with the lion. The bounce rooms hold their bounds but the
+grazing floor, 0.063 of its light off its reference against 0.06, 0.059 without the mark. Marked at
+three quarters the lion at 8:00 reads 1.112, at fifteen sixteenths the door 1.174, and in the third
+cascade and above alone the door 1.156, and with a probe whose every texel meets a face marked as
+well, as one in a closed room, the thin room, the strip's room, the grazing floor and the carried
+lamp read 0.044, 0.314, 0.067 and 0.105, past their bounds. The same form at 8 by 8 reads the door
+1.168 and the lion 1.268. The 16 by 16 texels alone take the floor under a canopy of leaf blocks to
+0.134 and 0.155 of the sky's light the canopy holds back, two and a half and five and a half units
+under it, where a path-traced reference takes 0.17 and 0.21 and 8 by 8 reads 0.156 and 0.248, and a
+probe facing a sunlit metal wall to 1.27 and 1.20 of the reference at a roughness of 0.3 and 0.6
+where 1.116 and 1.087, each past its bound. Four rays a texel in the first two cascades, 1,024 a
+probe, read the canopy's floor 0.167 five and a half units under, the metal walls 1.21 and 1.16, and
+with the mark the door 1.105 and the lion 1.108 at 8:00 and 1.026 and 0.999 at noon, the rooms
+within their bounds, and Sponza's world probes take 40.70 MB where 26.33 and global illumination at
+1920 by 1080 6.94 to 6.98 ms in the atrium at noon where 4.34 to 4.72 and 5.91 to 5.98 at the door
+at 8:00 where 3.56 to 3.69, under powersave-bazzite. Neither form is landed, and the door's
+remainder at 8:00 stands at 8 by 8, 0.645 of its light (`gi.compare`, `gi.state`,
+`BounceRoomsTests`, `GlobalIlluminationTests`, `./e3d command gi.passes on`, then `profile`).
+
 What the light holds is drawn to be looked at (`BounceViewRenderer`), as `gi.show` and
 `DrawBounceWindow` choose it. `gi_view.slang` draws over the window after its shapes and before
 ImGui, in the `bounce_view` node after `scene_field_view`. It draws the screen's probes as tiles
