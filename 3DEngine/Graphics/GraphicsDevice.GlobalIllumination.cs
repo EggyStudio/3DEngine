@@ -137,6 +137,15 @@ internal sealed class GpuIllumination : IDisposable
     internal (VkImage Image, VkImageView View)[] CycleFull { get; init; } = [];
     internal (VkImage Image, VkImageView View)[] CycleFullBefore { get; init; } = [];
 
+    // The same cycle's share of the sky and mark of what the rays met, the merged light's alpha,
+    // the mean gathered so far and the last whole cycle's of each, as the frame before left them
+    // and as this frame's merge writes them, since taken from each frame's places the share and the
+    // mark a carried probe passed down and to its faces moved with its rays, and every probe whose
+    // hits read them flickered with them, the edges of Sponza's balcony at 7:00 0.16% of the
+    // frame's pixels by 12 levels a frame.
+    internal (VkImage Image, VkImageView View)[] CycleSkyMarkBefore { get; init; } = [];
+    internal (VkImage Image, VkImageView View)[] CycleSkyMark { get; init; } = [];
+
     // Whether the cycle's images are made whole, at High on a device that traces rays, where a
     // carried probe's rays move (gi_trace.slang), or stand-ins of a texel, since a mean of one place
     // is that place.
@@ -146,11 +155,11 @@ internal sealed class GpuIllumination : IDisposable
     // cycle, every one but the last counted and the far, whose rays go on to the field's edge
     // already. Sponza at High carried 3.3 to 6.8% of its probes' texels by the view, all of them in
     // the first three of its five cascades, and the two after hold 57% of the texels, so the cycle
-    // takes 6 MB there where its images made whole in every cascade took 14.
+    // takes 9 MB there where its images made whole in every cascade took 21.
     internal int CycleCascades { get; init; }
 
     /// <summary>The bytes the carried probes' cycle takes, none where its images are stand-ins.</summary>
-    public long CycleBytes => CycleOn ? Texels.Take(CycleCascades).Sum(n => 4L * (Probes * n) * (Probes * n) * Probes * 8) : 0;
+    public long CycleBytes => CycleOn ? Texels.Take(CycleCascades).Sum(n => 6L * 8 * (Probes * n) * (Probes * n) * Probes) : 0;
     internal (VkImage Image, VkImageView View)[] Distances { get; }
 
     // Each cascade's merged rays' share of the sky, a texel a ray, as gi_merge.slang writes it.
@@ -261,7 +270,8 @@ internal sealed unsafe partial class GraphicsDevice
             _giStages[MergeStage] = MakeComputeStage(merge, [VkDescriptorType.SampledImage, VkDescriptorType.SampledImage, VkDescriptorType.StorageImage,
                 VkDescriptorType.UniformBuffer, VkDescriptorType.CombinedImageSampler, VkDescriptorType.StorageImage, VkDescriptorType.StorageImage,
                 VkDescriptorType.SampledImage, VkDescriptorType.SampledImage, VkDescriptorType.CombinedImageSampler, VkDescriptorType.SampledImage,
-                VkDescriptorType.SampledImage, VkDescriptorType.StorageImage, VkDescriptorType.StorageImage], 48);
+                VkDescriptorType.SampledImage, VkDescriptorType.StorageImage, VkDescriptorType.StorageImage, VkDescriptorType.SampledImage,
+                VkDescriptorType.StorageImage], 48);
             _giStages[AmbientStage] = MakeComputeStage(ambient, [VkDescriptorType.SampledImage, VkDescriptorType.StorageImage,
                 VkDescriptorType.SampledImage, VkDescriptorType.StorageImage, VkDescriptorType.SampledImage, VkDescriptorType.StorageImage,
                 VkDescriptorType.SampledImage, VkDescriptorType.StorageImage, VkDescriptorType.StorageImage, VkDescriptorType.StorageImage,
@@ -302,6 +312,8 @@ internal sealed unsafe partial class GraphicsDevice
         var cyclePartial = new (VkImage, VkDeviceMemory, VkImageView)[texels.Length];
         var cycleFull = new (VkImage, VkDeviceMemory, VkImageView)[texels.Length];
         var cycleFullBefore = new (VkImage, VkDeviceMemory, VkImageView)[texels.Length];
+        var cycleSkyMarkBefore = new (VkImage, VkDeviceMemory, VkImageView)[texels.Length];
+        var cycleSkyMark = new (VkImage, VkDeviceMemory, VkImageView)[texels.Length];
         var distances = new (VkImage, VkDeviceMemory, VkImageView)[texels.Length];
         var mergedSky = new (VkImage, VkDeviceMemory, VkImageView)[texels.Length];
         for (int c = 0; c < texels.Length; c++)
@@ -315,6 +327,8 @@ internal sealed unsafe partial class GraphicsDevice
             cyclePartial[c] = ProbeImage(cycleSide, cycleSide, cycleDepth);
             cycleFull[c] = ProbeImage(cycleSide, cycleSide, cycleDepth);
             cycleFullBefore[c] = ProbeImage(cycleSide, cycleSide, cycleDepth);
+            cycleSkyMarkBefore[c] = ProbeImage(cycleSide, cycleSide, cycleDepth);
+            cycleSkyMark[c] = ProbeImage(cycleSide, cycleSide, cycleDepth);
             distances[c] = ProbeImage(p * n, p * n, p, VkFormat.R16G16Sfloat);
             mergedSky[c] = ProbeImage(p * n, p * n, p, VkFormat.R16Sfloat);
         }
@@ -333,7 +347,7 @@ internal sealed unsafe partial class GraphicsDevice
 
         var cmd = BeginSingleTimeCommands();
         var whole = ColorLevels(0, 1);
-        var all = radiance.Concat(merged).Concat(hitNormals).Concat(cyclePartialBefore).Concat(cyclePartial).Concat(cycleFull).Concat(cycleFullBefore).Concat(distances).Concat(mergedSky).Select(i => i.Item1).Append(cubes).Append(cubesAt).Append(reach).Append(skies)
+        var all = radiance.Concat(merged).Concat(hitNormals).Concat(cyclePartialBefore).Concat(cyclePartial).Concat(cycleFull).Concat(cycleFullBefore).Concat(cycleSkyMarkBefore).Concat(cycleSkyMark).Concat(distances).Concat(mergedSky).Select(i => i.Item1).Append(cubes).Append(cubesAt).Append(reach).Append(skies)
             .Append(ways).Append(held).Append(partial).Append(rayReach.Item1).ToArray();
         PipelineBarrier(cmd, [.. all.Select(image => ImageBarrier(image, ColorLevels(0, 1), VkImageLayout.Undefined, VkImageLayout.General,
             VkPipelineStageFlags2.None, VkAccessFlags2.None, VkPipelineStageFlags2.Transfer, VkAccessFlags2.TransferWrite))]);
@@ -392,7 +406,7 @@ internal sealed unsafe partial class GraphicsDevice
                 skiesOwner.Dispose();
                 _deviceApi.vkDestroyImageView(waysView);
                 waysOwner.Dispose();
-                foreach (var (image, memory, view) in radiance.Concat(merged).Concat(hitNormals).Concat(cyclePartialBefore).Concat(cyclePartial).Concat(cycleFull).Concat(cycleFullBefore).Concat(distances).Concat(mergedSky).Append((held, heldMemory, heldView))
+                foreach (var (image, memory, view) in radiance.Concat(merged).Concat(hitNormals).Concat(cyclePartialBefore).Concat(cyclePartial).Concat(cycleFull).Concat(cycleFullBefore).Concat(cycleSkyMarkBefore).Concat(cycleSkyMark).Concat(distances).Concat(mergedSky).Append((held, heldMemory, heldView))
                     .Append((partial, partialMemory, partialView)).Append((cubesAt, cubesAtMemory, cubesAtView)).Append(rayReach))
                 {
                     _deviceApi.vkDestroyImageView(view);
@@ -406,7 +420,8 @@ internal sealed unsafe partial class GraphicsDevice
             ways, new VulkanImageView(this, waysOwner, waysView)) { Far = farCascade, CubesAt = cubesAt, CubesAtView = cubesAtView, RayReach = rayReach.Item3,
                 HitNormals = [.. hitNormals.Select(i => (i.Item1, i.Item3))], CyclePartialBefore = [.. cyclePartialBefore.Select(i => (i.Item1, i.Item3))],
                 CyclePartial = [.. cyclePartial.Select(i => (i.Item1, i.Item3))], CycleFull = [.. cycleFull.Select(i => (i.Item1, i.Item3))],
-                CycleFullBefore = [.. cycleFullBefore.Select(i => (i.Item1, i.Item3))], CycleOn = cycle, CycleCascades = cycle ? CarryingCascades(texels.Length, farCascade) : 0, HeldImage = held };
+                CycleFullBefore = [.. cycleFullBefore.Select(i => (i.Item1, i.Item3))], CycleSkyMarkBefore = [.. cycleSkyMarkBefore.Select(i => (i.Item1, i.Item3))],
+                CycleSkyMark = [.. cycleSkyMark.Select(i => (i.Item1, i.Item3))], CycleOn = cycle, CycleCascades = cycle ? CarryingCascades(texels.Length, farCascade) : 0, HeldImage = held };
     }
 
     // The cascades that can carry a probe's rays past their interval, every one but the last counted
@@ -583,6 +598,7 @@ internal sealed unsafe partial class GraphicsDevice
             };
             _deviceApi.vkCmdCopyImage(cmd, gi.CyclePartial[c].Image, VkImageLayout.General, gi.CyclePartialBefore[c].Image, VkImageLayout.General, 1, &copy);
             _deviceApi.vkCmdCopyImage(cmd, gi.CycleFull[c].Image, VkImageLayout.General, gi.CycleFullBefore[c].Image, VkImageLayout.General, 1, &copy);
+            _deviceApi.vkCmdCopyImage(cmd, gi.CycleSkyMark[c].Image, VkImageLayout.General, gi.CycleSkyMarkBefore[c].Image, VkImageLayout.General, 1, &copy);
         }
         MemoryBarrier(cmd, VkPipelineStageFlags2.Transfer, VkAccessFlags2.TransferWrite | VkAccessFlags2.TransferRead,
             VkPipelineStageFlags2.ComputeShader, VkAccessFlags2.ShaderRead | VkAccessFlags2.ShaderWrite);
@@ -606,6 +622,8 @@ internal sealed unsafe partial class GraphicsDevice
             run.Image(set, 11, VkDescriptorType.SampledImage, gi.CycleFullBefore[c].View, null, VkImageLayout.General);
             run.Image(set, 12, VkDescriptorType.StorageImage, gi.CyclePartial[c].View, null, VkImageLayout.General);
             run.Image(set, 13, VkDescriptorType.StorageImage, gi.CycleFull[c].View, null, VkImageLayout.General);
+            run.Image(set, 14, VkDescriptorType.SampledImage, gi.CycleSkyMarkBefore[c].View, null, VkImageLayout.General);
+            run.Image(set, 15, VkDescriptorType.StorageImage, gi.CycleSkyMark[c].View, null, VkImageLayout.General);
             // How far the probes moved, three signed bytes, with 1 << 24 where there is light before.
             var moved = shifts is not null && c < shifts.Count && shifts[c] is { } shift && Math.Max(Math.Abs(shift.X), Math.Max(Math.Abs(shift.Y), Math.Abs(shift.Z))) < p
                 ? (uint)(byte)(sbyte)shift.X | (uint)(byte)(sbyte)shift.Y << 8 | (uint)(byte)(sbyte)shift.Z << 16 | 1u << 24 : 0u;

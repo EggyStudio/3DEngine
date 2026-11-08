@@ -2989,6 +2989,32 @@ difference 0.923, 0.433, 0.374 and 0.263 of it, and global illumination at High 
 1920 by 1080 takes 4.77 to 4.80 ms where 4.71 to 4.79 in the same quiet round (`gi.probe`,
 `gi.compare`, `./e3d command profile`).
 
+**A carried probe's share of the sky and mark held still, mended on 2026-11-08.** Recordings of
+Sponza's balcony view held still, F2 held at 15 pictures a second, read by `build/flicker.py` moved
+0.03 to 0.17% of the pixels by 12 levels or more a picture, with one picture about twice a second
+moving 0.8% by 12 and 0.31% by 25, and after the hour's change 0.6 to 1.7% for over two seconds,
+along the right wall's steep edge, the arches' edges and undersides and the columns. Read every
+frame offscreen at the head, the balcony at 7:00 moved 0.151% by 12 on a cycle of sixteen frames and
+0.006% at most by 25, the larger pictures of the recordings not seen, and nothing moved with the
+carried rays held on their middles, little with the surfaces' reflection of the indirect light left
+out, 0.011%, the probes' along the mirror way alone carrying it, and cascade 2 alone most of it. A
+carried probe whose rays move kept its light's mean over its cycle (205) but wrote its share of the
+sky and its mark of what its rays met, the merged light's alpha, from each frame's places, so the
+cascade below took the sky and the light through its texels in some frames and not others, and the
+faces and the ways the gather builds took it on. The merge keeps the share and the mark over the
+cycle as it keeps the light, in an image of four half floats a texel beside the cycle's own
+(`gi_merge.slang`), 9 MB at Sponza's High where 6. Held still, the balcony moves 0.001% at 7:00 and
+17:00 where 0.151 and 0.069, the atrium 0.000 where 0.035 and 0.126, the lion 0.003 where 0.012 and
+0.045, and the door 0.008 as before, some 30 pixels by its frame that no part left out stills. After
+the hour's change from 7:00 to 8:00 the balcony settles in 32 frames where 35, the frames after
+still where they moved 0.09% every few. Under a slab whose edge the carried rays cross, every
+texel's share of the sky holds within 0.001 from frame to frame where it went between 0.05 and 1
+(`GlobalIlluminationTests`). The door view reads 0.335 and 0.882 of its reference at 8:00 and noon
+where 0.336 and 0.882, that reference traced with the lamps lit, the lion 0.987 and 0.984 where
+0.986 and 0.983, the bounce rooms as before but the corridor, 0.978 where 0.970, and the merge takes
+0.222 ms in the atrium at noon at 1920 by 1080 where 0.210 to 0.218, on powersave-bazzite
+(`gi.compare`, `./e3d command profile`).
+
 **The vestibule's end wall, read on 2026-11-07.** In the door view at 8:00 at High the wall facing
 the court read 1.55 of a path-traced reference's light, the door in it 2.08 and the side wall facing
 -z 1.35. With the surfaces' reflection of the indirect light left out (`gi.toggle specular off`)

@@ -87,6 +87,12 @@ internal sealed unsafe partial class GraphicsDevice
     /// </summary>
     internal float[] ReadProbeDistances(GpuIllumination gi, int cascade) => ReadProbeTexels(gi, cascade, gi.Distances[cascade].Image, 2);
 
+    /// <summary>
+    /// A cascade's merged rays' share of the sky, a float a texel laid out as
+    /// <see cref="ReadProbeVolume"/> lays its light, read back with the frames in flight finished.
+    /// </summary>
+    internal float[] ReadMergedSky(GpuIllumination gi, int cascade) => ReadProbeTexels(gi, cascade, gi.MergedSky[cascade].Image, 1);
+
     // A cascade's volume of half floats, so many a texel, read back.
     private float[] ReadProbeTexels(GpuIllumination gi, int cascade, VkImage image, int channels)
     {

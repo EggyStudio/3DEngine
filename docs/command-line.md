@@ -197,6 +197,16 @@ writers through `./e3d animate` where it is not, for PNG pictures and a GIF or a
 python3 build/animate.py build/walk.gif captures/walk-*.png --delay 250
 ```
 
+A recording of a view held still is read for flicker by `build/flicker.py`, picture to picture, the
+share of the pixels that changed by 12 and by 25 levels in any channel and a map of where, from a
+folder of pictures numbered from `0001.png`, as F2 held writes one, or from an animated PNG, so a
+still view that moves is measured the same way each time:
+
+```bash
+./e3d record still.png 120f --every 1f               # every frame, two seconds at 60
+python3 build/flicker.py still.png --map where.png
+```
+
 ## The log
 
 `./e3d logs -n 50` gives the program's last fifty lines, from its own log, so a shader that did not

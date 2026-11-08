@@ -15,6 +15,8 @@ Done that day
 - Item 217 at `66982f6c`. The parked forms land by their figures.
 - Item 220 at `8ab130e4`. Sponza's lamps shine through their housings, off by default, and the
   corner's spot.
+- Item 221 at `98b26c9e`. The night sky from the Sky module.
+- Item 222 at `98b26c9e`. The version and its tags in the documents.
 
 ## 2026-11-07
 

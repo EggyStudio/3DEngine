@@ -1,12 +1,16 @@
 # Review
 
-Reviewed up to `8ab130e4`, 220's lamps through their glass and off by default, pushed at 12:25 with
-`66982f6c`, 217's form 2, and `45103a96`, 217's second part as docs, one run on the last, green at
-14:12 with macOS in 42 minutes, Linux in 75, the Windows halves in 84 and 107 and the examples in 9;
-the three keep the form, the last carrying the review's files. Nothing is pushed after it. Before it
-`6a190757`, item 214, a probe's reach kept for each of its rays, pushed at 10:31 on 2026-11-08, its
-run green at 12:24 with macOS in 44 minutes, the Windows halves in 81 and 106 and Linux in 102; it
-keeps the form and carries the review's files. Before it `41253cab`, Verdict 108's mend, half 2's
+Reviewed up to `e8e0f73f`, the minor to 6.1 alone, tagged `v6.1.0`, pushed at 14:38 on 2026-11-08
+with `98b26c9e`, 221, the night drawn from the Sky module with 222's documents, one run on the last,
+green at 17:02 with macOS in 42 minutes, the Windows halves in 75 and 101, Linux in 133 where it
+took 102 in the morning, and the examples in 10; they keep the form, the first carrying the review's
+files. Nothing is pushed after it. Before it `8ab130e4`, 220's lamps through their glass and off by
+default, pushed at 12:25 with `66982f6c`, 217's form 2, and `45103a96`, 217's second part as docs,
+one run on the last, green at 14:12 with macOS in 42 minutes, Linux in 75, the Windows halves in 84
+and 107 and the examples in 9; the three keep the form, the last carrying the review's files. Before
+it `6a190757`, item 214, a probe's reach kept for each of its rays, pushed at 10:31 on 2026-11-08,
+its run green at 12:24 with macOS in 44 minutes, the Windows halves in 81 and 106 and Linux in 102;
+it keeps the form and carries the review's files. Before it `41253cab`, Verdict 108's mend, half 2's
 Rendering tests dealt into three processes with SceneFieldTests moved to half 1, pushed at 08:38 on
 2026-11-08, its run green at 10:26 with macOS in 44 minutes, the Windows halves in 108 and 50 and
 Linux in 74, which settled Verdict 108; it keeps the form and carries the review's files. Before it
@@ -176,12 +180,12 @@ item in REVIEW-ARCHIVE.md, its devlog note and its own words. On 2026-10-30 at 1
 the README's new words (item 133) and the focus on radiance cascades (Decision 74), questions asked
 back, and asked that the sessions spend fewer tokens at the same quality, N 7.7.
 
-Next 222, the version's words, in 221's batch, then 221, the night sky, then 219, the owner's
-flicker, then 218, 215 and 216, 214, 217 and 220 done on their runs, no budget by Decision 94 and
-208 closed, the door at 8:00 the one target by Decision 95; 213 closed at e52877dd with form 2
-parked under 208, 212 recorded with its first part landed and the rest parked, 211 closed at
-d0d391de, 212's first part landed at 1c14b0bf with its pocket mark parked, 210 closed at 3e69ec60,
-200 at 2ceac35a.
+Next 223, the scene field's pool that ends the game's play, with 224, the middle dot, in its batch,
+then 219, the owner's flicker, then 218, 215 and 216, 214, 217, 220, 221 and 222 done on their runs,
+no budget by Decision 94 and 208 closed, the door at 8:00 the one target by Decision 95; 213 closed
+at e52877dd with form 2 parked under 208, 212 recorded with its first part landed and the rest
+parked, 211 closed at d0d391de, 212's first part landed at 1c14b0bf with its pocket mark parked, 210
+closed at 3e69ec60, 200 at 2ceac35a.
 
 Items done and verdicts settled before 2026-10-23 stand in REVIEW-ARCHIVE.md beside this file, their
 numbers kept, moved there at 19:30 on 2026-10-23 so this file holds the current work alone and is
@@ -4744,7 +4748,13 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     side is in Sky's `ff8f9df`, pushed at 12:31 on 2026-11-08 and green at 12:32, the Bright Star
     Catalogue's 9,096 stars as a resource, the earthshine, the band and the magnitude scale with 49
     tests, and the common noun's spelling, catalog, in `a9573d6`, pushed at 13:30, which the
-    engine's commit points at; the engine's drawing is on, its sheet of 13:27 in the dump.
+    engine's commit points at; the engine's drawing is on, its sheet of 13:27 in the dump. Done at
+    `98b26c9e`, pushed at 14:38 on 2026-11-08 with the minor's commit, one run on the last; the
+    device loss placed, DrawSkybox's draw carrying no shader textures so the stars read a 16-byte
+    stand-in, which also made the 13:27 sheet's white bodies, the pixel's angle and the chord
+    mended, the bloom held at 256 times white after the exposure with a ceiling of 60,000, and the
+    night's metered frames black but for the moon by the exposure's floor, left for the owner's
+    word.
 
 222. **The version and its tags in the documents.** Decision 100 on 2026-11-08. COMMITS.md gains a
     section on the version, `build/version.txt`'s major and minor raised by this session in a commit
@@ -4752,7 +4762,32 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     size of a release, and the tags of the letter v and the version that the reviewer sets on that
     commit and on the commit a package was published from, no other; BUILDING.md's paragraph on the
     version says the same of the tags. The session judges whether the cascades' framework landing is
-    6.1 and says so in the Replies, raising the minor or not. In 221's batch.
+    6.1 and says so in the Replies, raising the minor or not. In 221's batch. Done at `98b26c9e`,
+    pushed at 14:38 on 2026-11-08; the minor goes to 6.1 in `e8e0f73f` alone, the cascades'
+    illumination whole with its gloss and the night drawn, tagged `v6.1.0`.
+
+223. **The scene field's pool after a cascade change.** From the game's red play job of 2026-11-08
+    (Voxel-Sandbox Verdict 8), twice the same on 6.0.91. The game's log shows the scene's distance
+    field made three times in two seconds with 5, 4 and 5 cascades as an option was posted, then six
+    seconds later a NullReferenceException inside the memory copy in `SceneFieldRenderer.Pool`, from
+    `Record` and `Draw` in the render graph, and an AccessViolationException on the same copy, the
+    process gone. Read `Pool`'s buffers against a field whose cascade count changes between frames,
+    the instance buffers it copies into being sized or freed for the count before while a copy for
+    the count after runs, or the copy's source gone with the old field, and mend it so a field
+    remade with another count never leaves a buffer the pool copies into stale; hold it in a test
+    that remakes the field with 5, 4 and 5 cascades across recorded frames on the null device and on
+    lavapipe, and read the game's play script's option post as the way it happened. The fix is
+    packed and the game pins the package, since its play is red until then. Before 219, recorded at
+    17:24.
+
+224. **The middle dot out.** Decision 101 on 2026-11-08. The README's first line, changed in the
+    tree, goes in the next commit. The dot products in the comments of EditMeshData.Topology.cs and
+    EditMeshData.cs are said in words or with the word dot; the sample strings of TextFonts.cs, the
+    feature test's Text.cs and docs/text-and-fonts.md separate their words by spaces, the glyphs
+    they test unchanged; the test string in TestScriptTests.cs that quotes the tool's own three dots
+    is read, kept where it is the tool's output and said so in a comment; and STYLE.md's Punctuation
+    gains the sentence that the middle dot is not used, a row of links separated by a space, a list
+    by commas and a product said in words. In 223's batch.
 
 ## Verdicts
 
@@ -5128,6 +5163,12 @@ REVIEW-ARCHIVE.md.
     and the reviewer sets the tags as it pushes. `v6.0.0` marks the commit that set 6.0 and
     `v6.0.91` the commit `f14a9530` the package of 6.0.91 was published from on 2026-11-04, both set
     at 14:2x.
+
+101. **No middle dot.** The owner wrote at 17:57 and 18:00 on 2026-11-08 that the middle dot is not
+    used, the README's top links separated by a space alone and the dot nowhere else; the reviewer
+    changed the README's first line in the tree on their word, for the next commit to carry, and
+    every other middle dot in the repository is item 224's. The rule goes into STYLE.md's
+    Punctuation as the shared text has it everywhere.
 
 ## Replies
 
@@ -6502,3 +6543,32 @@ Shared: the night is drawn from the Sky module, the moon's disc by `Moon.LitLumi
 catalog's stars sorted into a cube of 32 cells a side as one storage buffer and summed as Gaussians
 of 0.8 of a pixel by the chord between the ways (`DaySky.Night`, `sky.slang`). A scattered bloom
 holds its light under 256 times white after the exposure (`bloom.slang`).
+
+219 read and mended on 2026-11-08. `build/flicker.py` reads a recording, a folder of pictures F2
+held writes or an animated PNG `./e3d record` writes, picture to picture for the share of the pixels
+that moved by 12 and by 25 levels and a map of where, and the guide to the command line says so. The
+two recordings of 11:09 read 0.03 to 0.17% by 12 held still, one picture about twice a second 0.8%
+by 12 and 0.31% by 25, and 0.6 to 1.7% after the hour's change. Read every frame offscreen, the
+balcony at 7:00 moved 0.151% by 12 on a cycle of sixteen frames and 0.006% at most by 25, so the
+larger pictures were not seen again. Of the parts, the screen's probes, their history, the carried
+light past the first bounce, the merge's rule, the filter, the shadow map and each cascade alone,
+the reflection of the indirect light alone took it nearly whole, 0.011% without it, the probes' read
+along the mirror way carrying it and cascade 2 most of it, and with the carried rays held on their
+middles nothing moved. Variants of the shaders placed it in two of the merge's outputs a carried
+probe whose rays move wrote from each frame's places outside its cycle, its share of the sky,
+without which nothing moved, and its mark of what its rays met, through which a probe below took the
+sky and the light through a texel above in some frames and not others, 0.05 and 1.00 in turn under a
+slab. The merge keeps both over the cycle as it keeps the light, 3 MB more at Sponza's High and 0.01
+ms in the merge. The balcony moves 0.001% at 7:00 and 17:00 where 0.151 and 0.069, the atrium 0.000
+where 0.035 and 0.126, the lion 0.003 where 0.012 and 0.045, the door 0.008 as before by some 30
+pixels no part stills, and after the hour's change the balcony settles in 32 frames where 35 and
+stays still where it rippled 0.09%. The door and the lion at 8:00 and noon read within 0.002 of
+before against their references and the bounce rooms as before, the corridor 0.978 where 0.970, and
+a test under a slab holds every texel's share of the sky within 0.001 frame to frame, failing at 1.0
+without the mend. The flicker sheet and the still pair are in the dump and sent. One session of the
+first reading moved nothing at all, unplaced. 218 next, after 223.
+
+Shared: a carried probe's share of the sky and its mark of what its rays met are kept over the cycle
+of places its rays move through as its light is, since written from each frame's places they made
+every probe that read them flicker with the cycle (`gi_merge.slang`), and `build/flicker.py` reads a
+recording picture to picture for the share of the pixels that moved.

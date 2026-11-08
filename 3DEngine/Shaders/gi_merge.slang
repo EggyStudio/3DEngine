@@ -99,6 +99,14 @@ RWTexture3D<float4> partialNow;
 [[vk::binding(13, 0)]] [format("rgba16f")]
 RWTexture3D<float4> fullNow;
 
+// The same cycle's share of the sky and mark of what the rays met, the merged light's alpha, the
+// mean of each gathered from the cycle's first frame and the last whole cycle's, x and y the share's
+// and z and w the mark's, as the frame before left them, and as this frame leaves them.
+[[vk::binding(14, 0)]]
+Texture3D<float4> skyMarkBefore;
+[[vk::binding(15, 0)]] [format("rgba16f")]
+RWTexture3D<float4> skyMarkNow;
+
 // The texel of an octahedron of `texels` along each side at t, folded across its edges.
 int2 foldedAt(int2 t, int texels)
 {
@@ -144,7 +152,12 @@ ConstantBuffer<MergePush> push;
 // then the last whole cycle's. Read from the fixed middles alone, the vault of Sponza's vestibule
 // took none of the court's sunlit light that a path-traced reference sees past its arch's edges,
 // 92% under, and its rays moved through the places and met through the device's rays, 7% under.
-float3 settled(float3 light, uint3 at, uint2 texel, uint probes, uint texels, uint c)
+// Its share of the sky and its mark of what the rays met are kept the same way, which the cascade
+// below and the probe's faces read, since taken from each frame's places alone they moved with the
+// rays, and every probe whose hits read them flickered with them, the edges of Sponza's balcony at
+// 7:00 0.16% of the frame's pixels by 12 levels a frame where 0.001% with them kept, and a probe
+// below took the sky through a texel above in some frames and not others (build/flicker.py).
+float3 settled(float3 light, inout float sky, inout float mark, uint3 at, uint2 texel, uint probes, uint texels, uint c)
 {
     uint3 written = uint3(at.xy * texels + texel, at.z);
     if ((push.counts.y & 0x2000000u) == 0u)
@@ -153,6 +166,7 @@ float3 settled(float3 light, uint3 at, uint2 texel, uint probes, uint texels, ui
     {
         partialNow[written] = float4(0.0);
         fullNow[written] = float4(0.0);
+        skyMarkNow[written] = float4(0.0);
         return light;
     }
     // The cycle as the frame before left it at the probe's place then, begun again where the
@@ -160,6 +174,7 @@ float3 settled(float3 light, uint3 at, uint2 texel, uint probes, uint texels, ui
     // light fell, as its kept share says.
     uint packed = push.counts.y;
     float4 partial = float4(0.0), full = float4(0.0);
+    float4 skyMark = float4(0.0);
     int3 shift = int3(int(packed << 24u) >> 24, int(packed << 16u) >> 24, int(packed << 8u) >> 24);
     int3 from = int3(at) + shift;
     if ((packed & 0x1000000u) != 0u && all(from >= int3(0)) && all(from < int3(int(probes))))
@@ -167,6 +182,7 @@ float3 settled(float3 light, uint3 at, uint2 texel, uint probes, uint texels, ui
         int4 then = int4(from.xy * int(texels) + int2(texel), from.z, 0);
         partial = partialBefore.Load(then);
         full = fullBefore.Load(then);
+        skyMark = skyMarkBefore.Load(then);
     }
     float4 share = held[int3(2 * int(probes) + int(at.x), int(at.y), int(c * probes) + int(at.z))];
     bool begun = push.counts.z == 0u || share.r >= 0.0 && any(share.rgb < 0.99);
@@ -174,10 +190,16 @@ float3 settled(float3 light, uint3 at, uint2 texel, uint probes, uint texels, ui
     bool going = partial.a > 0.5 && !begun;
     float count = going ? partial.a : 0.0;
     float3 mean = phase == 0u || !going ? light : lerp(partial.rgb, light, 1.0 / (count + 1.0));
+    float2 means = phase == 0u || !going ? float2(sky, mark) : lerp(skyMark.xz, float2(sky, mark), 1.0 / (count + 1.0));
     bool whole = !begun && (phase == 0u ? going && count >= 15.5 : full.a > 0.5);
     float3 wholeMean = phase == 0u ? partial.rgb : full.rgb;
+    float2 wholeMeans = phase == 0u ? skyMark.xz : skyMark.yw;
     partialNow[written] = float4(mean, phase == 0u || !going ? 1.0 : count + 1.0);
     fullNow[written] = whole ? float4(wholeMean, 1.0) : float4(0.0);
+    float2 lastWhole = whole ? wholeMeans : float2(0.0);
+    skyMarkNow[written] = float4(means.x, lastWhole.x, means.y, lastWhole.y);
+    sky = whole ? wholeMeans.x : means.x;
+    mark = whole ? wholeMeans.y : means.y;
     return whole ? wholeMean : mean;
 }
 
@@ -236,6 +258,7 @@ void computeMain(uint3 id : SV_DispatchThreadID, uint3 local : SV_GroupThreadID)
         {
             partialNow[written] = float4(0.0);
             fullNow[written] = float4(0.0);
+            skyMarkNow[written] = float4(0.0);
         }
         return;
     }
@@ -254,6 +277,7 @@ void computeMain(uint3 id : SV_DispatchThreadID, uint3 local : SV_GroupThreadID)
         {
             partialNow[written] = float4(0.0);
             fullNow[written] = float4(0.0);
+            skyMarkNow[written] = float4(0.0);
         }
         return;
     }
@@ -263,7 +287,9 @@ void computeMain(uint3 id : SV_DispatchThreadID, uint3 local : SV_GroupThreadID)
     float kept = own.a > 0.25 && own.a < 0.75 ? 0.5 : 1.0;
     if (upper == 0u || nothing <= 0.0 || push.spacing.y > 0.5 || alone == c + 1u)
     {
-        merged[written] = float4(settled(own.rgb, at, texel, probes, texels, c), own.a < 0.75 ? kept : 1.0);
+        float ownMark = own.a < 0.75 ? kept : 1.0;
+        float3 ownLight = settled(own.rgb, ownSky, ownMark, at, texel, probes, texels, c);
+        merged[written] = float4(ownLight, ownMark);
         mergedSky[written] = ownSky;
         return;
     }
@@ -356,6 +382,9 @@ void computeMain(uint3 id : SV_DispatchThreadID, uint3 local : SV_GroupThreadID)
         sky = 0.0;
     }
     float3 beyond = weights > 1e-4 ? sum / weights : float3(0.0);
-    merged[written] = float4(settled(own.rgb + beyond * nothing, at, texel, probes, texels, c), own.a < 0.75 ? kept : 1.0);
-    mergedSky[written] = weights > 1e-4 ? sky / weights * nothing : 0.0;
+    float shareOfSky = weights > 1e-4 ? sky / weights * nothing : 0.0;
+    float mark = own.a < 0.75 ? kept : 1.0;
+    float3 light = settled(own.rgb + beyond * nothing, shareOfSky, mark, at, texel, probes, texels, c);
+    merged[written] = float4(light, mark);
+    mergedSky[written] = shareOfSky;
 }
