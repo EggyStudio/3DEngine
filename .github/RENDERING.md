@@ -2947,6 +2947,24 @@ gloss, where without the gloss it read 0.600 of a reference with the first face'
 under the vestibule's pockets seen against the reference that holds every face's gloss, which the
 mark parked here would take.
 
+**The side wall's specular and the carried cycle's quantization, read on 2026-11-08.** In the door
+view at 8:00 at High the vestibule's side wall facing -z reads 1.83 of a path-traced reference's
+light, its diffuse 0.65 and its specular 9.19 times the reference's, which is 14% of the reference's
+light there, and with the sky off 2.15, 0.47 and 11.37, the sun read along the wall's mirror way
+from the probes' light along the court's way (`probesReflected`). Read only from the probes whose
+own hit along the mirror way agrees with a march through the field from the wall, four spacings out,
+as the merge's agreement passes probes over, the specular reads 8.26 and 10.12 and the end wall's
+1.97 where 1.19, so the probes that agree carry the excess, and the wall's figure is kept as the
+parallax's echo in the specular. Its source is the carried cycle's quantization. A carried probe's
+rays move through sixteen places in each texel, so a sunlit sliver under a sixteenth of a texel that
+one place meets is weighed a whole sixteenth, and the second cascade's probe at 18,2,-2 reads its
+sunlit way 2.2 times the reference. Moved by an offset lattice each cycle, the places took that
+probe from about +74% on its face toward the court to -68 to +42% from cycle to cycle and -9 to +2%
+blended over four cycles, but the held door view moved within 1.041 and 1.024 where the fixed places
+hold it within 1.003, and the bounce rooms' grazing floor at High read 0.0996 of its light off its
+reference against its bound of 0.06. So the fixed places stay, their bias steady, recorded and not
+mended (`gi.probe`, `gi.compare`'s frames, `BounceRoomsTests`).
+
 **A crossing taken once, read on 2026-10-31.** The cascades' intervals overlap, the first's
 reaching twice as far as the second's begins, and a slab that straddled the first's end was crossed
 twice, the first cascade's ray taking the part of it within its interval and handing on what it
