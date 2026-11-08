@@ -784,6 +784,19 @@ without the map, in the shading, where the frame bends the normal by the stone's
 reference takes the face's own, not read apart here. The offset of a texel and a half along the lit
 side's normal and the depth bias of 0.0005 of the depth range stand (`gi.reference`, `gi.compare`).
 
+**Sponza's grazed faces without their normal maps, read on 2026-11-08.** `gi.toggle normals off`
+lights every face by its own normal and leaves the materials' normal maps out, with global
+illumination on or off (the fourth bit of the lighting buffer's `screen.w`). In Sponza at 8:00,
+against the sun's direct light as above, the insides of the sunlit patches on the faces the sun
+grazes, facing +z, read 0.914 to 1.086 where with their maps 1.064 to 1.357, the balcony's block 76
+1.086 where 1.357 and block 34 0.994 where 1.198, and the balcony's view 0.993 where 1.161, so their
+excess is their normal maps' bumps catching a sun 87 degrees from the face, which the reference,
+taking each face's own normal, has none of. The faces toward the sun, facing +x, read 0.889 to 1.121
+where 0.880 to 1.116, the most lit three 0.906, 0.889 and 0.897, so their shortfall is not the
+maps'. A copy in the reference takes its material's color times its texture's average over the whole
+image, where the frame takes each pixel's, which a face showing a darker part of its texture than
+the whole reads as a shortfall, not read apart here (`gi.compare`).
+
 Past the last cascade a fill cascade reaches on to the camera's far plane (`ShadowFit.TryFitFill`),
 which `SetShadowFill` turns off and the cascades' count leaves out. It is fitted as the others are,
 to the sphere around the views' slice from the shadow distance to their far planes, and is fitted

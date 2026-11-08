@@ -94,6 +94,14 @@ internal sealed class GlobalIlluminationSettings
     public bool SpecularOff { get; set; }
 
     /// <summary>
+    /// Whether the window lights every face by its own normal and leaves the materials' normal maps
+    /// out, as <c>gi.toggle normals off</c> sets it, with global illumination on or off, so a reading
+    /// takes the faces' light apart from their maps against a reference that takes the faces' own
+    /// normals.
+    /// </summary>
+    public bool NormalMapsOff { get; set; }
+
+    /// <summary>
     /// Whether the profile times global illumination's passes apart, the ray scene, each cascade's
     /// trace, the merges, the gather and the screen's probes, as <c>gi.passes on</c> sets it, so
     /// where its time goes can be read, the rest staying <c>gpu.global_illumination</c>.

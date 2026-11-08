@@ -457,8 +457,10 @@ public float3 surfaceNormal(ModelVertexOutput input)
     // turned up takes keeps its normal above the eye's height.
     if (drawsBacks && dot(n, input.toEye) < 0.0)
         n = -n;
+    // Left out for a reading of the faces against a reference that takes their own normals
+    // (gi.toggle normals off).
     float strength = materialNormalScale(input);
-    if (strength <= 0.0)
+    if (strength <= 0.0 || (uint(lighting.screen.w + 0.5) & 4u) != 0u)
         return n;
 
     float3 dp1 = ddx(input.world);

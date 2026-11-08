@@ -191,12 +191,13 @@ words. On 2026-10-30 at 18:0x the owner wrote the README's new words (item 133) 
 radiance cascades (Decision 74), questions asked back, and asked that the sessions spend fewer
 tokens at the same quality, N 7.7.
 
-Next 216, then 229, the reference's normal maps, then 225 and 226, the projects and the live path,
-214, 217, 219, 220, 221, 222, 223 and 224 done on their runs, 227, 218 and 215 pushed on their run,
-228 and 230 recorded at ca037368 and waiting to push, no budget by Decision 94 and 208 closed, the
-door at 8:00 the one target by Decision 95; 213 closed at e52877dd with form 2 parked under 208, 212
-recorded with its first part landed and the rest parked, 211 closed at d0d391de, 212's first part
-landed at 1c14b0bf with its pocket mark parked, 210 closed at 3e69ec60, 200 at 2ceac35a.
+Next 229, the reference's normal maps, then 225 and 226, the projects and the live path, 214, 217,
+219, 220, 221, 222, 223 and 224 done on their runs, 227, 218 and 215 pushed on their run, 228 and
+230 recorded at ca037368 and 216 at c8baed4b, waiting to push, no budget by Decision 94 and 208
+closed, the door at 8:00 the one target by Decision 95; 213 closed at e52877dd with form 2 parked
+under 208, 212 recorded with its first part landed and the rest parked, 211 closed at d0d391de,
+212's first part landed at 1c14b0bf with its pocket mark parked, 210 closed at 3e69ec60, 200 at
+2ceac35a.
 
 Items done and verdicts settled before 2026-10-23 stand in REVIEW-ARCHIVE.md beside this file, their
 numbers kept, moved there at 19:30 on 2026-10-23 so this file holds the current work alone and is
@@ -4642,7 +4643,18 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     grass came to 17 under. This engine's field holds LightThrough as one share a meter the same way
     (item 100's first part), so read its canopies, the forest floor's test and the voxel game's
     trees against the reference the same way and take the cell-by-cell density where they ask for
-    it, measured on the canopy floor and the game's trees. After 215.
+    it, measured on the canopy floor and the game's trees. After 215. Recorded at `c8baed4b` as docs
+    at 22:59 on 2026-11-08, no mend, committed on ca037368 and pushed once b3c471d9's run has ended.
+    The field holds a leaf block's share per unit in the cells inside the block and a ray crosses it
+    only as far as it runs inside one, so a coarse cell over a sparse crown is not taken for leaves
+    where no block stands; a floor under a crown three blocks deep at half the light through per
+    unit, against a path-traced reference under the sky alone, reads 5% over at High and 3% under at
+    Low at 35% filled, 7% over at High and 4% over at Low at 15% filled, and 25% over at High and
+    13% at Low fully filled, which is the excess the leaf-block canopy test holds already. The
+    sibling's sparse-edge shortfall does not appear here, so no density is kept cell by cell. The
+    game's trees are one-unit leaf blocks the synthetic crown stands for; the game itself was not
+    read. The 228 and 230 patch is in the dump as 22-55-item-228-mark.diff with its caption line and
+    applies to the head.
 
 217. **The parked forms land by their figures.** Decision 94 on 2026-11-08. With no millisecond
     budget, 213's form 2 lands, each light's reflection at a probe ray's hit by GGX at the hit's
@@ -4903,7 +4915,7 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     8, and none of the four is truer. The same form at 8 by 8 passes the rooms and misses the
     target, the door at 1.168 and the lion at 1.268. The review chose four rays a texel first, item
     230, over moving bounds that got worse; 228 lands on it if the four hold and the door stays in
-    its band. Recorded, not landed, at `ca037368` as docs at 23:05 on 2026-11-08, committed on
+    its band. Recorded, not landed, at `ca037368` as docs at 22:57 on 2026-11-08, committed on
     b3c471d9 and pushed once its run has ended; with 230's four rays the rooms pass and the canopy
     at 2.5 under comes back, the canopy at 5.5 under reads 0.167 against 0.18, the metal walls 1.21
     and 1.16 against 1.134 and 1.10, and the door at 8:00 1.105 and the lion 1.108, both a little
@@ -4919,7 +4931,18 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     frame does, sampling each hit's map in its tangent frame, as BevyCSharp's reference did at its
     4ad66505 (SHARED.md), and a switch in the example or the console turns the frame's maps off for
     a reading; then 215's faces are read again against the reference, and what remains of the miss
-    is placed or recorded. After 228 and 216.
+    is placed or recorded. After 228 and 216. The first part, the switch `gi.toggle normals off`
+    lighting every face by its own normal, with or without global illumination, is written at 23:05
+    on 2026-11-08 and in its suite; read with it, 215's grazed faces at 8:00 read 0.914 to 1.086
+    where they read 1.064 to 1.357 with their maps, so their excess is the maps', and the faces
+    toward the sun read 0.889 to 1.121 either way, a shortfall of up to 11% that is not the maps and
+    is likely the reference's copy color, the material's color times its texture's average over the
+    whole image, against the frame's texture at each pixel. The second part is a batch of its own
+    and goes next, before 225, texture coordinates in the ray scene's corners, the materials'
+    textures bound to the reference as an array through descriptor indexing, which the device asks
+    for where it is offered and the null device stands in for, each hit's color its texture's at the
+    point and its normal the map's in the hit's tangent frame, the copy color the fall-back for a
+    material with no texture; then the faces read again and what remains placed or recorded.
 
 230. **Four rays a texel at 16 a side.** From 228's reading on 2026-11-08, which the 2026-11-01
     record chose at a millisecond more and Decision 94 sets no budget against. In High's near
@@ -4931,7 +4954,7 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     their bounds, the door at 8:00 and the lion inside their bands, the rooms in theirs, and the
     cost recorded; then 228 lands with it. If the four do not come back, 228's readings are recorded
     and the door's remainder stands. Before 216. Recorded, not landed, at `ca037368` as docs at
-    23:05 on 2026-11-08; RaysAt takes the cascade so the first two send four rays a texel with 16
+    22:57 on 2026-11-08; RaysAt takes the cascade so the first two send four rays a texel with 16
     partial-sum workgroups a probe. The cost is 6.94 to 6.98 ms in the atrium at noon where the base
     takes 4.34 to 4.72, 5.91 to 5.98 at the door at 8:00 where 3.56 to 3.69, and 40.7 MB of world
     probes where 26.3. Every reading and form is in the Replies and RENDERING.md.
@@ -6865,3 +6888,16 @@ and 13% over, the canopy's excess the leaf-block test already holds. The forest 
 leaf-block canopy read as their tests hold them. The voxel game's trees are leaf blocks of a unit,
 which the crown of blocks a unit apart stands for, not read in the game itself. So no density is
 kept cell by cell. 229 next.
+
+229's first part written on 2026-11-08. gi.toggle normals off lights every face by its own normal,
+with global illumination on or off, and 215's faces read again with it against the same references
+of the sun's direct light. The faces the sun grazes, facing +z, read 0.914 to 1.086 where with their
+maps 1.064 to 1.357, the balcony's block 76 1.086 where 1.357 and its view 0.993 where 1.161, so
+their excess is the normal maps'. The faces toward the sun, facing +x, read 0.889 to 1.121 where
+0.880 to 1.116, so their shortfall of up to 11% is not the maps', and a copy's color in the
+reference, its material's times its texture's average over the whole image where the frame takes
+each pixel's, is the likely place, not read apart. The second part, the reference sampling each
+hit's normal map, needs texture coordinates in the ray scene and the materials' textures bound to
+the reference as an array, descriptor indexing the device does not yet ask for, so it is a batch of
+its own, and with it each hit's color can be its texture's there, which would read the faces toward
+the sun apart too.

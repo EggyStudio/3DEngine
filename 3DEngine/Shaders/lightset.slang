@@ -76,7 +76,10 @@ public struct Lighting
     // x: the pixels along each side of a screen probe's tile. y: 1 when the screen's probes, in
     // screenLight and screenSurfaces, are read before the world's. z: 1 at Low, which leaves them
     // out, where they stand for the glow lights alone, whose light on the depth's texels is read.
-    // w: 1 where every surface is drawn white, the light alone (gi.toggle albedo off).
+    // w: the switches a reading sets, 1 where every surface is drawn white, the light alone (gi.toggle
+    // albedo off), 2 where the reflection of the indirect light is left out (gi.toggle specular off)
+    // and 4 where the materials' normal maps are, the faces lit by their own normals (gi.toggle
+    // normals off), set with global illumination off as well.
     public float4 screen;
     // The window's camera this frame, world to clip space and back, and the frame before's, both
     // ways, which a glossy surface's reflection is traced through the window's depth with and

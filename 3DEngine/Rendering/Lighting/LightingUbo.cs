@@ -94,7 +94,9 @@ internal struct LightingUbo
     /// <summary>
     /// x: the pixels along each side of a screen probe's tile. y: 1 when the screen's probes are
     /// read before the world's. z: 1 at <see cref="GlobalIllumination.Low"/>, which leaves them out,
-    /// where they stand for the glow lights alone, whose light on the depth's texels is read.
+    /// where they stand for the glow lights alone, whose light on the depth's texels is read. w: the
+    /// switches a reading sets, 1 every surface white, 2 the reflection of the indirect light left
+    /// out and 4 the materials' normal maps left out (<c>gi.toggle</c>).
     /// </summary>
     public Vector4 Screen;
 

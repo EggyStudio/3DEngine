@@ -116,6 +116,9 @@ internal sealed class LightingUboPrepare : IPrepareSystem
                 windowUbo.ReflectionReach = new System.Numerics.Vector4(reach, gi.Rays is null ? 0 : 1, 0, 0);
             }
         }
+        // And the materials' normal maps left out for a reading, with global illumination on or off.
+        if (renderWorld.TryGet<GlobalIlluminationSettings>() is { NormalMapsOff: true })
+            windowUbo.Screen.W += 4;
         // And the scene mirrored in the program's plane, which a glossy surface lying in it reads.
         if (MirrorRenderer.Shows(renderWorld)
             && renderWorld.TryGet<ReflectionPlane>() is { } mirrorPlane && renderWorld.TryGet<SwapchainTarget>() is { } swapchain)
