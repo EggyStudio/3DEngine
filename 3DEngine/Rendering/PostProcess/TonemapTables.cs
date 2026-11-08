@@ -5,14 +5,14 @@ using Vortice.Vulkan;
 namespace Engine;
 
 /// <summary>
-/// Bevy's tonemapping tables, which <see cref="Tonemap.AgX"/>, <see cref="Tonemap.TonyMcMapface"/>
+/// The tonemapping tables, which <see cref="Tonemap.AgX"/>, <see cref="Tonemap.TonyMcMapface"/>
 /// and <see cref="Tonemap.BlenderFilmic"/> look light up in, read from the KTX2 files staged under
 /// <c>source/shaders/tonemapping</c> beside every program.
 /// </summary>
 /// <remarks>
-/// Each file is Bevy's own, its one level's Zstandard supercompression swapped for zlib's by
-/// <c>build/bevy-luts.py</c>, so .NET reads it with nothing of its own. It is a cube of texels, x fastest,
-/// then y, then z, in half-float RGBA or in RGB9E5 as Bevy has it.
+/// Each file is the one THIRD-PARTY-NOTICES.md names, its one level's Zstandard supercompression
+/// swapped for zlib's by <c>build/bevy-luts.py</c>, so .NET reads it with nothing of its own. It is
+/// a cube of texels, x fastest, then y, then z, in half-float RGBA or in RGB9E5.
 /// </remarks>
 internal static class TonemapTables
 {

@@ -152,7 +152,7 @@ internal sealed unsafe partial class GraphicsDevice
         // computer's memory are, is written in place, since a staging buffer there holds a second
         // copy of every mesh until its upload is done. Staged on lavapipe, the leak test's resident
         // memory read 500 MB at its thirtieth app where 438 written in place, and on Windows its
-        // private bytes rose 112 MB between its fiftieth app and its sixtieth (Verdict 97).
+        // private bytes rose 112 MB between its fiftieth app and its sixtieth.
         if (_sharesMemory)
         {
             var shared = CreateBuffer(new BufferDesc((ulong)Math.Max(16, data.Length), usage, CpuAccessMode.Write), maker, line);

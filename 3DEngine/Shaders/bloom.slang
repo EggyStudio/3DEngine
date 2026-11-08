@@ -2,8 +2,8 @@
 // of the level above in Jimenez's pattern, which keeps a small bright point from flickering as it
 // moves, and the first one keeps only the light past the threshold. An upsample reads the level
 // below through a tent and is added onto the level above it, so the first level ends up holding
-// the light spread over every size, or with a scatter, as Unity's HDRP spreads it, takes that
-// share of the level above's place, so each level wider down the chain holds less of the light.
+// the light spread over every size, or with a scatter takes that share of the level above's
+// place, so each level wider down the chain holds less of the light and the glow fades as a haze.
 import fullscreen;
 
 struct BloomPush

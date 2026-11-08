@@ -17,8 +17,8 @@ internal sealed class BloomSettings
     public float Threshold { get; set; } = 1;
 
     /// <summary>
-    /// The share of each level of the chain the wider level below it takes the place of, as Unity's
-    /// HDRP spreads its bloom, or 0 for the engine's, which adds every level alike.
+    /// The share of each level of the chain the wider level below it takes the place of, for a haze
+    /// that spreads by its scatter, or 0 for the engine's bloom, which adds every level alike.
     /// </summary>
     public float Scatter { get; set; }
 
@@ -142,7 +142,7 @@ internal sealed partial class BloomRenderer : IDisposable
     private bool _shownLinear;
     // Whether the engine's curve bends this frame's light, or gives way to a clamp, as Bends says.
     private bool _bends;
-    // Bevy's tables by the curve that looks light up in each, read the first time it is chosen, and
+    // The tables by the curve that looks light up in each, read the first time it is chosen, and
     // the texel bound in their place for the other curves.
     private readonly Dictionary<Tonemap, VolumeTexture> _tables = [];
     private VolumeTexture? _noTable;
@@ -627,9 +627,10 @@ internal sealed partial class BloomRenderer : IDisposable
         // Drawn into the window's own multisampled depth, which the window's pass after the
         // composite clears and draws nothing into with depth.
         var scene = device.CreateRenderTargetOnWindowDepth(ImageFormat.R16G16B16A16_Float);
-        // Halved each level, down to a thirty-second of the window for the engine's bloom and as far
-        // as Unity's HDRP halves it for a scattered one, to the log2 of the window's longer side
-        // less 2 levels, or fewer levels for a window too small to halve that often.
+        // Halved each level, down to a thirty-second of the window for the engine's bloom and for a
+        // scattered one to the log2 of the window's longer side less 2 levels, four pixels along
+        // it, so its haze can cross the window, or fewer levels for a window too small to halve so
+        // often.
         var levels = new List<RenderTarget>();
         var count = Math.Max(MaxLevels, (int)MathF.Log2(Math.Max(extent.Width, extent.Height)) - 2);
         for (int i = 1; i <= count && Math.Min(extent.Width, extent.Height) >> i >= 2; i++)

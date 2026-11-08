@@ -4,7 +4,7 @@
 # with LLVM for the processor it runs on, using what instructions that processor has, and Mesa's
 # own key for its cache holds a few capability bits that do not tell every kind apart, so a runner
 # of one kind restored code a runner of another made and died on an instruction its processor
-# lacks (REVIEW.md, Verdict 63). Keyed by this, a runner restores only what its own kind made.
+# lacks. Keyed by this, a runner restores only what its own kind made.
 #
 #   build/processor.sh
 #

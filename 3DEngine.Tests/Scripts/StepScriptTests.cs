@@ -4,10 +4,10 @@ using FluentAssertions;
 namespace Engine.Tests.Scripts;
 
 /// <summary>
-/// <c>build/step.py</c>, which runs each step of the Linux jobs on the package, says what failed
-/// in a step that fails having said nothing, and <c>build/raylib-bench/compare.py</c> says the pairs
+/// <c>build/step.py</c>, which runs each step of the Linux jobs on the package, says what failed in
+/// a step that fails having said nothing, and <c>build/raylib-bench/compare.py</c> says the pairs
 /// it measured for the first time and the pairs that fail where a reader who is not signed in sees
-/// them (REVIEW.md, Verdicts 28 and 66).
+/// them.
 /// </summary>
 /// <remarks>
 /// Three examples jobs in a row ended with <c>Process completed with exit code 4</c> and nothing
@@ -113,8 +113,8 @@ public sealed class StepScriptTests : IDisposable
     [NeedsPythonFact]
     public void A_Measure_Where_Raylib_Drew_No_Frame_For_Any_Pair_Says_Why_The_First_Drew_None()
     {
-        // The examples job of 22bbf15a, where every program failed to load SDL and every pair was
-        // recorded as having no frame (REVIEW.md, Verdict 31).
+        // An examples job where every program failed to load SDL and every pair was recorded as
+        // having no frame.
         var program = "import compare\n"
                       + "print('\\n'.join(compare.nothing_drawn(('core_basic_window', ['it ended with 127', "
                       + "'error while loading shared libraries: libSDL3.so.0: cannot open shared object file']), 221)))\n";
@@ -163,8 +163,8 @@ public sealed class StepScriptTests : IDisposable
     [NeedsPythonFact]
     public void A_Measure_Says_The_Pairs_That_Fail_Their_Shares_As_Errors_With_The_Shares_And_Their_Room()
     {
-        // The captures job of 704952c5, whose measure failed and whose page named no pair, compare.py
-        // having printed them alone (REVIEW.md, Verdict 66).
+        // A captures job whose measure failed and whose page named no pair, compare.py having
+        // printed them alone.
         var program = "import compare\n"
                       + "compare.ROOMS['models_loading'] = 3.0\n"
                       + "failures = [f'{name}: {compare.held(name, share, recorded)}' for name, share, recorded in "
@@ -211,8 +211,8 @@ public sealed class StepScriptTests : IDisposable
         // shell wrote, the first naming the process, for another game a line that names another
         // process, as one an earlier opening wrote late, which is not this opening's, for a third
         // the line of one that ended of its own, which costs the error nothing, and for a fourth
-        // the id of a process that still runs. The measure of 704952c5 listed 21 games that ended
-        // of their own, and its error was cut before the step's last lines (REVIEW.md, Verdict 66).
+        // the id of a process that still runs. One measure listed 21 games that ended of their own,
+        // and its error was cut before the step's last lines.
         File.WriteAllText(_folder.File("died.sh"), """
             sh -c 'exit 0' & gone="$!"
             wait "$gone"

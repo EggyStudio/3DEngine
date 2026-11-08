@@ -47,8 +47,8 @@ exec 3>&1
 # games after it are still played. The game's last status is kept in a file for that error.
 minutes="${DRIVE_MINUTES:-8}"
 # The feature test plays every zone twice, the second time with global illumination on at Low, and
-# took 742 seconds on lavapipe held to four cores of the development machine at 105d9cb3 and 735 at
-# 3dda52c2, where the Windows runner reached its particles' zone at 720 in the pack run of 8836ce27,
+# took 742 seconds on lavapipe held to four cores of the development machine, and 735 later, where
+# the Windows runner reached its particles' zone at 720 in a pack run,
 # so it is given half as long again.
 if [ "$game" = FeatureTest ]; then minutes=$(( minutes * 3 / 2 )); fi
 last="captures/$name-last-status.txt"
@@ -565,7 +565,7 @@ case "$game" in
     case "$status" in *" flips 0 "*) fail "no flipper met the ball, $status" ;; esac
     cmd pinball.autopilot false
     # A ball that rolled back down its lane to the plunger is ready again and drains from nowhere
-    # there, as a macOS runner's pack run of a16227a7 found it after one flip, so it is launched
+    # there, as a macOS runner's pack run found it after one flip, so it is launched
     # again and the wait begun over, three times at most.
     waited=0
     relaunched=0

@@ -29,8 +29,8 @@ public sealed partial class BounceReferenceTests
     {
         // A gray of a linear half under the sky reads its diffuse share, a half less what its
         // Fresnel takes, and the gloss its Fresnel reflects at a grazing view of a tenth, about 0.15
-        // at a roughness of a half, as the bridge's reference reads such a plane at 0.59 to 0.72. It
-        // reads 0.658 on the development machine's GPU with the first face's gloss and every face's.
+        // at a roughness of a half. It reads 0.658 on the development machine's GPU with the first
+        // face's gloss and every face's, and the bound is a tenth either side of that.
         var gloss = every ? ReferenceGloss.Every : ReferenceGloss.First;
         var (plane, sky) = PlaneUnderTheSky(new Color(188, 188, 188), metallic: 0, roughness: 0.5f, gloss);
         (plane / sky).Should().BeInRange(0.59f, 0.72f, $"the gray plane reads {plane / sky:0.000} of the sky");

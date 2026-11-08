@@ -5,8 +5,8 @@
 // gives, one where the scene brightened and another where it darkened, held between the brightest
 // and darkest the exposure is let reach. Both keep the log2 of the luminance, since the eye adapts
 // by ratios and a mean of logs is not pulled up by one lamp. Where the push leaves out the darkest
-// and the brightest shares of the weighted picture, as HDRP's histogram metering does, the mean is
-// of what lies between, binned by half a stop, so a sky in a corner of the view does not dim it.
+// and the brightest shares of the weighted picture, the mean is of what lies between, binned by
+// half a stop, so a sky in a corner of the view does not dim it.
 import fullscreen;
 
 struct ExposurePush

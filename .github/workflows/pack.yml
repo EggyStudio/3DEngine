@@ -91,7 +91,7 @@ jobs:
     permissions:
       contents: read
       id-token: write
-    # It took 3 minutes on the pack run of fc5fdc97, the engine built in Release, packed and its
+    # It took 3 minutes on a pack run, the engine built in Release, packed and its
     # contents checked, so 30 ends a push to nuget.org that stalls.
     timeout-minutes: 30
     steps:

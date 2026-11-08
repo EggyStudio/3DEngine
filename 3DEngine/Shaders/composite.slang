@@ -14,8 +14,8 @@ FullscreenOutput vertexMain(uint id : SV_VertexID)
     return fullscreenTriangle(id);
 }
 
-// Bevy's curves, as bevy_core_pipeline 0.19.1's tonemapping_shared.wgsl works them out, each of
-// its matrices written as the dot products it takes of a color.
+// The curves worked out by their formulas, ported as THIRD-PARTY-NOTICES.md says, each matrix
+// written as the dot products it takes of a color.
 
 float3 reinhardLuminance(float3 c)
 {
@@ -101,14 +101,15 @@ float3 numbered(float3 c, float4 numbers)
     return srgbToLinear(pow(c, 1.0 / 2.2));
 }
 
-// ARRI's LogC for an exposure index of 1000, as Unity's HDRP encodes light to look it up in a table.
+// ARRI's LogC for an exposure index of 1000, the encoding a lookup table of light is made for,
+// which takes 0 to about 55 into the table's span.
 float3 logC(float3 c)
 {
     return 0.244161 * log10(5.555556 * c + 0.047996) + 0.386036;
 }
 
 // A table loaded from a file, the light looked up as LogC and the table's share of it taking the
-// light's place, as HDRP's external tonemapping looks it up.
+// light's place.
 float3 lookedUp(float3 c, float share, float size)
 {
     return lerp(c, lookUp(saturate(logC(c)), size), share);

@@ -326,7 +326,7 @@ def gallery(written):
             heads.append(f"[![{picture}]({RAW}.github/assets/gallery/{picture}.webp)]({link})")
             # The caption sets each column's width, its name padded with spaces that do not break to
             # thirty-two characters, about the picture's width in code, so a column is as wide as
-            # its picture whatever the name, as BevyCSharp's gallery measured on both sites.
+            # its picture whatever the name.
             captions.append(f"[`{name}" + "\u00a0" * max(0, 32 - len(name)) + f"`]({link})")
         # The pictures are the table's head, so each name stands under its picture.
         sections.append(f"### {title} ({len(row)})\n\n| " + " | ".join(heads) + " |\n|" + "---|" * len(heads)

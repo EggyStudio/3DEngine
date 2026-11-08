@@ -55,7 +55,7 @@ public sealed class PackageContentsTests
     [NeedsPackageFact]
     public void Every_Staged_File_Of_The_Shaders_Folder_Is_At_Its_Own_Path()
     {
-        // Each file under 3DEngine/Shaders, a subfolder's as Bevy's tables in tonemapping/, at the
+        // Each file under 3DEngine/Shaders, a subfolder's as the tables in tonemapping/, at the
         // path below source/shaders the program reads it from, which a folder named twice misses.
         using var package = Open();
         var entries = Entries(package).ToHashSet(StringComparer.Ordinal);

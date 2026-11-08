@@ -58,7 +58,7 @@ SLACK = {
 # that plays two turns in the soak's two minutes, as the workflow's runner drawing every game at
 # once on four cores does, Manor's walk enters rooms the first half never reached and the least
 # climbs with the world, as its buffers did from 133 to 149 on lavapipe at a core and its images,
-# descriptor sets, entity ids and assets on the pack run of 683e6e9d, with nothing leaking. Its
+# descriptor sets, entity ids and assets on a pack run, with nothing leaking. Its
 # buffers are a vertex and an index buffer for each mesh of the models its cells show, 96 in the
 # grounds and at most 158 in the house over a whole walk on the development machine's GPU and 162 on
 # lavapipe, which the device's census named (`memory.buffers`). The others but its images are the
@@ -112,8 +112,8 @@ def ended(path):
 
 
 # What the engine writes as a program's main loop is asked to end, each saying what asked, so a game
-# that ended of its own, with an exit code of 0, says why. The pack run of c721746b read Tumble
-# ending so in its soak's first seconds, its log not kept and its warnings none (Verdict 91).
+# that ended of its own, with an exit code of 0, says why, where a game that ended so in its soak's
+# first seconds left no log and no warning to say it.
 CLOSING = ("WindowShouldClose returns true from here on", "The app exits, since", "app.quit was asked by", "frame(s) asked for",
            "closing before it was ready")
 

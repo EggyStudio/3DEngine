@@ -7,10 +7,10 @@ namespace Engine;
 /// it holds, first to last, as the GPU takes them.
 /// </summary>
 /// <remarks>
-/// A level supercompressed, as a file written for Bevy is with zstd, is refused with the reason, since
-/// .NET's library holds no zstd; build/make-scene-pack.py writes such a pack's files again with their
-/// levels as they are. A BC1 or BC7 file of an sRGB format is a color's, its blocks sampled decoded
-/// to linear, and every other's linear.
+/// A level supercompressed with zstd is refused with the reason, since .NET's library holds no
+/// zstd; build/make-scene-pack.py writes such a pack's files again with their levels as they are. A
+/// BC1 or BC7 file of an sRGB format is a color's, its blocks sampled decoded to linear, and every
+/// other's linear.
 /// </remarks>
 internal static class Ktx2
 {

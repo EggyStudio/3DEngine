@@ -34,11 +34,11 @@ public sealed partial class AppLeakTests(ITestOutputHelper output)
     {
         // How far the process's memory rose, the last reading less the most of the readings at the
         // tenth, the twentieth and the thirtieth app. One reading cannot be the base, since the
-        // process gives memory back between apps when it likes. On the pack run of 193c68b0 the
+        // process gives memory back between apps when it likes. On a pack run the
         // offscreen test's private bytes on Windows read 156.5 MB at the tenth app, 80.0 at the
         // twentieth and 159.2 at the thirtieth, and on to 169.6 at the hundredth, with the heap's
         // live objects at 14.3 to 14.8 MB throughout, and the last less the twentieth, 89.6, failed
-        // the bound of 50, where the last less the thirtieth read 10.4 (REVIEW.md, Verdict 75). The
+        // the bound of 50, where the last less the thirtieth read 10.4. The
         // base is the twentieth's reading after its heap census where one was taken, so what the
         // census keeps is in it. Read from the thirtieth at most, the bound of 50 fails a leak of
         // 0.71 MB an app over a hundred apps, where from the twentieth it failed one of 0.63.
@@ -47,13 +47,13 @@ public sealed partial class AppLeakTests(ITestOutputHelper output)
         public double ResidentGrowth => GrowthOf(ResidentEveryTen, ResidentAt20, ResidentAtLast);
 
         // The one rise between readings ten apps apart past the thirtieth that alone passes the
-        // bound, forgiven, or null where none does or more than one does. On cb92986f's run on
+        // bound, forgiven, or null where none does or more than one does. On one run on
         // Windows lavapipe took one allocation of an app's drawing, 115.3 MB, between the fortieth
         // and the fiftieth app and kept it until the driver went, the private bytes reading 91.9,
         // 87.3, 91.4, 94.3, 209.6 and 219.3 MB every ten apps, and beside the held instance just
         // before it 113.1 MB between the fiftieth and the sixtieth, with no allocation a followed
         // app's steps added standing, no Vulkan object left, and the heaps and the collector flat
-        // (REVIEW.md, Verdict 101). A leak of each app raises every rise and none alone, so it is
+        // A leak of each app raises every rise and none alone, so it is
         // judged whole, and a second step fails.
         public (int Apps, double Rise)? ResidentStep => StepOf(ResidentEveryTen);
 
@@ -87,15 +87,14 @@ public sealed partial class AppLeakTests(ITestOutputHelper output)
         }
 
         // A line each, since the test page shows a message's first five lines and cuts each at its
-        // width, which a series on one line with the rest ran past.
-        // The resident memory's series says whether a growth is steady, an allocation each app makes
-        // and its closing does not give back, or a step taken once.
-        // The heap and the series after every ten apps come first, then the kinds of region and
-        // what each step took, which name where a climb lies, and the private data the followed
-        // apps' steps left comes last, cut so the whole fits the 4,096 characters the test page
-        // keeps of a message, as the handle failure's steps are. On 1398ed24's run the regions and
-        // the four apps' allocation lines standing first left the series and the heaps among the
-        // lines the page leaves out (REVIEW.md, Verdict 64).
+        // width, which a series on one line with the rest ran past. The resident memory's series
+        // says whether a growth is steady, an allocation each app makes and its closing does not
+        // give back, or a step taken once. The heap and the series after every ten apps come first,
+        // then the kinds of region and what each step took, which name where a climb lies, and the
+        // private data the followed apps' steps left comes last, cut so the whole fits the 4,096
+        // characters the test page keeps of a message, as the handle failure's steps are. On one
+        // run the regions and the four apps' allocation lines standing first left the series and
+        // the heaps among the lines the page leaves out.
         public string Series
         {
             get
@@ -136,7 +135,7 @@ public sealed partial class AppLeakTests(ITestOutputHelper output)
     // allows on top of this as many for each app past the twentieth as the census of the followed
     // apps finds kept. Counted before by the net of the handle counts across the driver's steps,
     // they came to 1 where the census showed 4, since the engine's own threads close their handles
-    // in those steps too (REVIEW.md, Verdict 68).
+    // in those steps too.
     private const int HandleAllowance = 200;
 
     // The steps the driver opens its threads' handles at, whose handles kept of ended unnamed
@@ -230,12 +229,12 @@ public sealed partial class AppLeakTests(ITestOutputHelper output)
                     HandlesFailure(i, handles, handlesAt20, driverThreads, handlesEveryTen, steps, threads));
             if (i % 10 != 0) continue;
             var last = i == 100 || i >= 50 && spent.Elapsed >= Budget;
-            // Each reading is taken once the app's threads have ended, ReadingWait at most, since on
-            // Windows lavapipe's threads may run on past the half second an app's end waits for
-            // them, and a reading taken while they ran held what the app's life committed, some
-            // 188 MB. On dfbf7614's run the fortieth and seventieth apps read 208.0 and 213.2 MB
-            // where the readings around them read 92.4 to 100.1, the heap flat, and the test failed
-            // its bound of 50 with nothing kept (REVIEW.md, Verdict 99).
+            // Each reading is taken once the app's threads have ended, ReadingWait at most, since
+            // on Windows lavapipe's threads may run on past the half second an app's end waits for
+            // them, and a reading taken while they ran held what the app's life committed, some 188
+            // MB. On one run the fortieth and seventieth apps read 208.0 and 213.2 MB where the
+            // readings around them read 92.4 to 100.1, the heap flat, and the test failed its bound
+            // of 50 with nothing kept.
             var waited = Stopwatch.StartNew();
             while (ProcessMemory.Threads() > threadsBefore && waited.Elapsed < ReadingWait) Thread.Sleep(20);
             using (var process = System.Diagnostics.Process.GetCurrentProcess())
@@ -277,8 +276,7 @@ public sealed partial class AppLeakTests(ITestOutputHelper output)
             // The heap read as the bytes the last full blocking collection kept, its live objects.
             // GC.GetTotalMemory counts with them what the collector left on the heap where it did
             // not compact, which on macOS swung by 6 MB between collections of the same live set,
-            // and on 32ce6f4e's run one trough of it among flat readings raised the floor by 6 MB
-            // (REVIEW.md, Verdict 69). BevyCSharp's soak judges the same figure.
+            // and on one run a trough of it among flat readings raised the floor by 6 MB.
             GC.Collect();
             GC.WaitForPendingFinalizers();
             GC.Collect();
@@ -317,16 +315,15 @@ public sealed partial class AppLeakTests(ITestOutputHelper output)
     // the process has committed, its commit charge, which GetProcessMemoryInfo answers, and not its
     // working set, which Windows trims when it likes. On a runner the drawing test's working set
     // swung 60 to 90 MB between neighboring readings with the heap flat and no Vulkan object alive,
-    // and a twentieth reading that fell in a trough failed the bound with nothing kept. BevyCSharp's
-    // memory guard reads the same figure for the same reason. Elsewhere it is the resident set,
-    // which the system trims only when memory runs short.
+    // and a twentieth reading that fell in a trough failed the bound with nothing kept. Elsewhere
+    // it is the resident set, which the system trims only when memory runs short.
     private static double Resident() => OperatingSystem.IsWindows() ? ProcessMemory.PrivateBytes() : Environment.WorkingSet / 1e6;
 
     // The handle bound's message. The counts after every ten apps and what each followed app kept,
-    // by kind and its Thread handles by the thread each refers to, come first, then the threads, then
-    // each followed app's steps, cut so the whole fits the 4,096 characters the test page keeps of a
-    // message, where on 4c6630a4's run the steps standing first pushed the series past it and the
-    // test's name with them (REVIEW.md, Verdict 68).
+    // by kind and its Thread handles by the thread each refers to, come first, then the threads,
+    // then each followed app's steps, cut so the whole fits the 4,096 characters the test page
+    // keeps of a message, where on one run the steps standing first pushed the series past it and
+    // the test's name with them.
     private static string HandlesFailure(int apps, int handles, int at20, int driverThreads, List<string> everyTen,
         Dictionary<int, Steps> steps, List<string> threads)
     {
@@ -566,13 +563,13 @@ public sealed partial class AppLeakTests(ITestOutputHelper output)
     }
 
     // What each step of an app's life took of the process's memory, as Resident reads it, summed
-    // over every app past the twentieth and averaged, in the order the steps first came, so a failure
-    // names the step whose memory the closing does not give back. On Windows each drawing app kept
-    // some 1 MB, with the collector's memory and the heap flat, beside a held instance as without
-    // one (REVIEW.md, Verdict 64). A step that took less than 0.05 MB an app either way is counted
-    // among the rest, so the line names the steps that matter. What changes between one app's last
-    // reading and the next app's first is a step of its own, so the steps sum to the climb of the
-    // reading after every tenth app.
+    // over every app past the twentieth and averaged, in the order the steps first came, so a
+    // failure names the step whose memory the closing does not give back. On Windows each drawing
+    // app kept some 1 MB, with the collector's memory and the heap flat, beside a held instance as
+    // without one. A step that took less than 0.05 MB an app either way is counted among the rest,
+    // so the line names the steps that matter. What changes between one app's last reading and the
+    // next app's first is a step of its own, so the steps sum to the climb of the reading after
+    // every tenth app.
     private sealed class Stages
     {
         private readonly List<string> _order = [];
@@ -719,11 +716,11 @@ public sealed partial class AppLeakTests(ITestOutputHelper output)
     // layer off, whose unloading with each app kept about a megabyte on Windows (Draw, below).
     // Beyond the test above, this one measures the driver kept loaded through the hundred apps, so
     // its private bytes are said and not judged, and it judges the heap's floor and the Vulkan
-    // objects as that test does. On 1398ed24's run on Windows the test above held within its 50 MB,
+    // objects as that test does. On one run on Windows the test above held within its 50 MB,
     // and here the private bytes rose 59.7 MB from the twentieth app to the hundredth with no
     // allocation a followed app's steps added standing once the next app had ended, the growth
     // lying inside allocations that stood before, the driver's state kept across apps or the
-    // readings' swing, and none of the engine's (REVIEW.md, Verdict 64).
+    // readings' swing, and none of the engine's.
     [NeedsVulkanFact]
     public void An_Offscreen_App_That_Draws_Made_And_Closed_A_Hundred_Times_Beside_A_Held_Instance_Leaves_Nothing_Behind()
     {
@@ -737,14 +734,14 @@ public sealed partial class AppLeakTests(ITestOutputHelper output)
     }
 
     // The apps are made with the validation layer off, in the Debug build as well, on every system,
-    // so the test reads the engine and the driver and not the layer. The loader loads the layer with
-    // each app's instance and unloads it as the instance is destroyed, and the layer's Windows build
-    // at 1.4.363.0 allocates through mimalloc, which keeps what it reserved when its library goes.
-    // Under it each app on Windows kept about a megabyte of private data the process took from the
-    // system directly, with the heaps and the collector flat, and on 351cc461's run the test beside
-    // an instance holding the layer loaded passed where this one, the layer let go with each app,
-    // failed (REVIEW.md, Verdict 64). The test that requires the layer under E3D_REQUIRE_VALIDATION
-    // makes devices of its own.
+    // so the test reads the engine and the driver and not the layer. The loader loads the layer
+    // with each app's instance and unloads it as the instance is destroyed, and the layer's Windows
+    // build at 1.4.363.0 allocates through mimalloc, which keeps what it reserved when its library
+    // goes. Under it each app on Windows kept about a megabyte of private data the process took
+    // from the system directly, with the heaps and the collector flat, and on one run the test
+    // beside an instance holding the layer loaded passed where this one, the layer let go with each
+    // app, failed. The test that requires the layer under E3D_REQUIRE_VALIDATION makes devices of
+    // its own.
     private Cycled Draw()
     {
         var config = Config.Default.WithWindow("leak", 64, 64) with { Headless = true, Offscreen = true };

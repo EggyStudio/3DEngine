@@ -124,25 +124,24 @@ public static class ScenesSponza
         // which in the door view brought the pattern of nine surfaces of ten nearer the path-traced
         // reference's (RENDERING.md).
         SetAmbientOcclusion(1, 0.5f);
-        // The air holds no fog, though that scene's volume profile has it, since the fog lit the
-        // air of the dark rooms that the light reaching them leaves dark, and showed the sun as an
-        // even haze rather than shafts (RENDERING.md).
+        // The air holds no fog, since the fog lit the air of the dark rooms that the light reaching
+        // them leaves dark, and showed the sun as an even haze rather than shafts (RENDERING.md).
         // The sun stands at the hour asked, rising over the main door and setting over the lion along
         // the atrium's length, its path leaning 6 degrees, so at noon it lights two thirds of the
         // atrium's floor, 5.6 units wide, past the shadow of its walls and eaves 17.6 high, where 10
         // leaves the floor in it.
         var hour = 12f;
-        // The sun, the sky and the camera in physical units at the values of the scene the views
-        // are matched against. Its sun is set outside the air to 120,000 lux times the sine of its
-        // height, 5,000 at least, at 5,633 K, and lit through the air of its sky, HDRP's Earth with
-        // the aerosols spread over 12 km and a white ground, which the Sky module models, so the
-        // light dims and warms through the air as the hour moves and the sky is the air's, 97,050
-        // lux outside reaching the ground at 4,924 K with the sun 54 degrees high as in that scene.
-        // The camera is at ISO 200, 1/200 s and f/16, EV 14.64, under AgX's curve. Held there, the
-        // stone the sun lights reads as there and the light in the shade shows how far the bounce
-        // falls short of it, as the readings take it, and the shade reads a hundredth of the
-        // sunlit stone, which played looks as though it had no indirect light, so the example
-        // starts metered and M holds the camera at those values.
+        // The sun, the sky and the camera in physical units. The sun is set outside the air to
+        // 120,000 lux times the sine of its height, about a clear day's sun outside the air, 5,000
+        // at least as it nears the horizon, at 5,633 K, and lit through the Sky module's Earth air,
+        // its aerosols spread over 12 km above a white ground, so the light dims and warms through
+        // the air as the hour moves and the sky is the air's, 97,050 lux outside reaching the
+        // ground at 4,924 K with the sun 54 degrees high. The camera is at ISO 200, 1/200 s and
+        // f/16, EV 14.64, a sunny day's exposure, under AgX's curve. Held there, the stone the sun
+        // lights reads as there and the light in the shade shows how far the indirect light falls
+        // short of it, and the shade reads a hundredth of the sunlit stone, which played looks as
+        // though it had no indirect light, so the example starts metered and M holds the camera at
+        // those values.
         var air = Sky.Atmosphere.Earth with { AerosolExtinction = 1e-6f, AerosolScaleHeight = 12_000, GroundAlbedo = Vector3.One };
         void SetHour(float at)
         {
@@ -169,8 +168,8 @@ public static class ScenesSponza
         SetBloom(MathF.Pow(2, 0.25f) - 1, MathF.Pow((0.333f + 0.055f) / 1.055f, 2.4f));
         SetBloomScatter(0.05f + 0.9f * 0.7f);
         var sponza = LoadModel(file);
-        // A black box outside the main door, which stands a little apart from its frame, so the
-        // sky shows through no gap around it, as the scene the views are matched against holds.
+        // A black box outside the main door, which stands a little apart from its frame, so the sky
+        // shows through no gap around it and the vestibule takes its light from the court alone.
         var blackout = LoadModelFromMesh(GenMeshCube(1, 1, 1));
         blackout.Materials[0].Roughness = 1;
         // The lamps' glass, the pack's one gray material with no texture and no light of its own,
@@ -235,10 +234,10 @@ public static class ScenesSponza
                 (hour, _askedHour) = (at, null);
                 SetHour(hour);
             }
-            // Metered as the camera of the scene the views are matched against meters, its
-            // automatic mode between EV -1 and 14 about the camera's EV, center-weighted, its mean
-            // brought to 12.5 / 120 by HDRP's calibration of 12.5, 0.79 stops under a mid gray,
-            // faster to light than to dark, which the pictures were exposed by view by view.
+            // Metered between EV -1 and 14 about the camera's EV, center-weighted, its mean brought
+            // to 12.5 / 120 by a light meter's calibration of 12.5, 0.79 stops under a mid gray, so
+            // the sunlit stone keeps its texture where a view holds both sun and shade, and faster
+            // to light than to dark, as an eye adapts.
             if (_askedMetered is { } meter)
             {
                 (metered, _askedMetered) = (meter, null);

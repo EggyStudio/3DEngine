@@ -62,9 +62,9 @@ public sealed class ScriptGenerationTests : IDisposable
 
             // The thread that threw needs no ending of its hold. On .NET 10 a thread lets go of an
             // exception once the method that caught it has returned, as the schedule's Invoke does,
-            // which a probe read on Linux with a collectible type thrown and caught on a thread kept
-            // alive, the type kept while the catching frame stood and let go once it had returned
-            // (REVIEW.md, Verdict 70).
+            // which a probe read on Linux with a collectible type thrown and caught on a thread
+            // kept alive, the type kept while the catching frame stood and let go once it had
+            // returned.
             for (int i = 0; i < 20 && first.IsAlive; i++)
             {
                 GC.Collect();

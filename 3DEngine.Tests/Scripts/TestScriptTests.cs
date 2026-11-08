@@ -113,8 +113,8 @@ public sealed class TestScriptTests : IDisposable
 
     /// <summary>
     /// Two cases of a theory whose arguments are cut to the same name are both counted, as the
-    /// suite's own tally counts them, and the same cases read again from a part are not, as
-    /// BevyCSharp's 1f68fde8 counts them.
+    /// suite's own tally counts them, and the same cases read again from a part are not, so a run
+    /// cut short of one cannot pass for a whole one.
     /// </summary>
     [NeedsPythonFact]
     public void Two_Cases_Of_A_Theory_Cut_To_One_Name_Are_Counted_Apart()
@@ -250,7 +250,7 @@ public sealed class TestScriptTests : IDisposable
     [NeedsPythonFact]
     public void A_Whole_Run_Lost_To_Its_Time_Whose_Parts_Give_Every_Test_A_Passing_Result_Passes_With_A_Notice()
     {
-        // As the pack run of 448aa3fc's Windows suite ran out its hour 1,302 tests in, its parts
+        // As a pack run's Windows suite ran out its hour 1,302 tests in, its parts
         // passed every test and the step ended with exit code 1, so the pack job was skipped on a
         // suite with nothing failing.
         var (exit, log) = Script(new Dictionary<string, string> { ["GITHUB_ACTIONS"] = "true", ["GITHUB_STEP_SUMMARY"] = _folder.File("summary.md") },

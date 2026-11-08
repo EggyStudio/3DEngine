@@ -19,7 +19,7 @@ namespace Engine.Tests.Cli;
 /// <para>
 /// The engine's path runs the client the suite's own build made, named by <c>E3D_CLIENT</c>, and
 /// never builds one, since an MSBuild node a build inside a test starts can hold the script's
-/// output open while it idles, as BevyCSharp's suite found (its Verdict 41). The script is held to
+/// output open while it idles. The script is held to
 /// a minute and ended with all it started past that, the test failing with what it printed.
 /// </para>
 /// </remarks>

@@ -80,8 +80,8 @@ internal sealed class FrameEffects
     public float LookupShare { get; set; } = 1;
 
     /// <summary>
-    /// The lift, gamma and gain as Unity's HDRP's trackballs set them, each a color in x, y and z
-    /// and an offset in w, white and 0 for none.
+    /// The lift, gamma and gain, each a color in x, y and z and an offset in w, white and 0 for
+    /// none.
     /// </summary>
     public Vector4 Lift { get; set; } = new(1, 1, 1, 0);
 
@@ -95,9 +95,9 @@ internal sealed class FrameEffects
     public bool Grades => Lift != new Vector4(1, 1, 1, 0) || Gamma != new Vector4(1, 1, 1, 0) || Gain != new Vector4(1, 1, 1, 0);
 
     /// <summary>
-    /// What the light is lifted by, raised to and gained by, as HDRP's <c>PrepareLiftGammaGain</c>
-    /// works them out from its trackballs, each color decoded from sRGB, scaled, its luminance taken
-    /// away and its offset added, so a white trackball moves every channel by its offset alone.
+    /// What the light is lifted by, raised to and gained by, each color decoded from sRGB, scaled,
+    /// its luminance taken away and its offset added, so a white color moves every channel by its
+    /// offset alone and a hue tints its part of the light without changing how bright it is.
     /// </summary>
     public (Vector3 Lift, Vector3 Gamma, Vector3 Gain) LiftGammaGain()
     {

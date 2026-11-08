@@ -20,7 +20,7 @@ namespace Engine.Tests;
 /// </para>
 /// <para>
 /// The files are the repository's own, as Git lists them, those not yet added among them, so what
-/// a build leaves under <c>bin</c> and <c>obj</c> and a session's own scratch are never read.
+/// a build leaves under <c>bin</c> and <c>obj</c> and the scratch Git ignores are never read.
 /// </para>
 /// </remarks>
 [Trait("Category", "Unit")]
@@ -68,7 +68,7 @@ public sealed partial class NormTests
     [Fact]
     public void N_1_3()
     {
-        // The Slang shaders count as the C# does, as BevyCSharp's test counts its Rust bridge.
+        // The Slang shaders count as the C# does, since a shader is read as a source is.
         var found = new[] { "3DEngine/", "3DEngine.Tests/", "3DEngine.Examples/" }
             .SelectMany(project => Files(project, ".cs").Concat(Files(project, ".slang")))
             .Where(file => File.ReadLines(Path.Combine(Root, file)).Count() > 800);

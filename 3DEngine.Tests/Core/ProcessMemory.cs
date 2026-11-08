@@ -6,7 +6,7 @@ namespace Engine.Tests.Core;
 /// <summary>
 /// The process's private bytes, its heaps and its threads, read from Windows without allocating
 /// anything of the collector's, since a leak test reads them between two steps of an app, so a leak
-/// found on a machine no one here has says where it lies (REVIEW.md, Verdict 64).
+/// found on a runner's machine says where it lies.
 /// </summary>
 internal static class ProcessMemory
 {
@@ -150,8 +150,8 @@ internal static class ProcessMemory
 /// VirtualQuery. Elsewhere it reads nothing.
 /// </summary>
 /// <remarks>
-/// On Windows each drawing app kept some 1 MB that no heap and not the collector held (REVIEW.md,
-/// Verdict 64), and the kind that grows names its owner. The code LLVM compiles for lavapipe's
+/// On Windows each drawing app kept some 1 MB that no heap and not the collector held, and the kind
+/// that grows names its owner. The code LLVM compiles for lavapipe's
 /// shaders is private code, the runtime's compiled code is mapped code, since it maps each page
 /// twice so none is writable and executable at once, a thread's stack is a stack, and what LLVM or
 /// the runtime allocates for itself outside a heap is private data.

@@ -470,10 +470,10 @@ public float3 faceWay(uint bits)
 }
 
 // A face's gloss in the bits above its way in a cell of the faces image, its roughness in bits 8 to
-// 15 and its metallic share in bits 16 to 23, each in 255ths, with bit 24 set, as the bridge keeps a
-// face's gloss beside its way, painted by the triangle that painted the cell's color; and the gloss
-// back from the bits, a roughness of a half and no metal, a material's default, where no gloss
-// painted the cell, as a shape stamped over the field.
+// 15 and its metallic share in bits 16 to 23, each in 255ths, with bit 24 set, painted by the
+// triangle that painted the cell's color. And the gloss back from the bits, a roughness of a half
+// and no metal, a material's default, where no gloss painted the cell, as a shape stamped over the
+// field.
 public uint glossBits(float roughness, float metallic)
 {
     uint2 bytes = uint2(saturate(float2(roughness, metallic)) * 255.0 + 0.5);

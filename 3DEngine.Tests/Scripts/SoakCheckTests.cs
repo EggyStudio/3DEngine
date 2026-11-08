@@ -4,8 +4,8 @@ using FluentAssertions;
 namespace Engine.Tests.Scripts;
 
 /// <summary>
-/// <c>build/soak-check.py</c> names each game whose soak fails, with what climbed and its numbers or
-/// the command that ended it, in an error a reader who is not signed in sees (REVIEW.md, Verdict 30).
+/// <c>build/soak-check.py</c> names each game whose soak fails, with what climbed and its numbers
+/// or the command that ended it, in an error a reader who is not signed in sees.
 /// </summary>
 /// <remarks>
 /// The examples job of <c>22bbf15a</c> failed its soak with the step's own line, "a game grew, or
@@ -67,7 +67,7 @@ public sealed class SoakCheckTests : IDisposable
     [NeedsPythonFact]
     public void A_Game_That_Ended_Of_Its_Own_Is_Named_With_What_Asked_Its_Main_Loop_To_End()
     {
-        // As Tumble ended in its soak's first seconds on the pack run of c721746b, with an exit code
+        // As Tumble ended in its soak's first seconds on a pack run, with an exit code
         // of 0 and no warning, the lines the engine writes as a main loop is asked to end say why.
         var readings = Readings("tumble", 100 << 20);
         File.WriteAllText(_folder.File("tumble.failed"), "1 Tumble ./e3d command frames.wait 60 --name Tumble --quiet --timeout 600\n");
@@ -130,12 +130,12 @@ public sealed class SoakCheckTests : IDisposable
     [NeedsPythonFact]
     public void Manors_And_Swarms_Climbs_On_The_Pack_Run_Are_Bounded_By_What_A_Whole_Walk_Or_Turn_Holds()
     {
-        // The least of each half on the pack run of 683e6e9d, where nothing leaked. Manor's walk
-        // entered rooms the first half never reached, its images going from 81 to 90, its descriptor
-        // sets from 82 to 95, its entity ids from 399 to 478 and its assets from 81 to 95, and
-        // Swarm's turns on a slow device reached later waves, its entity ids, the most alive at
-        // once, going from 108 to 130. Each passes under what a whole walk or turn holds and fails
-        // past it, and the same climb in a game with neither fails.
+        // The least of each half on a pack run, where nothing leaked. Manor's walk entered rooms
+        // the first half never reached, its images going from 81 to 90, its descriptor sets from 82
+        // to 95, its entity ids from 399 to 478 and its assets from 81 to 95, and Swarm's turns on
+        // a slow device reached later waves, its entity ids, the most alive at once, going from 108
+        // to 130. Each passes under what a whole walk or turn holds and fails past it, and the same
+        // climb in a game with neither fails.
         string Walked(string name, (int Images, int Sets, int Ids, int Assets) before, (int Images, int Sets, int Ids, int Assets) after)
         {
             var path = _folder.File(name + ".csv");
@@ -161,7 +161,7 @@ public sealed class SoakCheckTests : IDisposable
     [NeedsPythonFact]
     public void Manors_Entities_Are_Bounded_By_What_A_Whole_Walk_Holds_And_A_Climb_Says_Where_The_Walk_Stood()
     {
-        // The least of each half on the pack run of 80625742, Manor's entities from 374 to 422 with
+        // The least of each half on a pack run, Manor's entities from 374 to 422 with
         // nothing leaking, its walk where its status says after each reading's figures. They pass
         // under the 539 a whole walk holds at once, and past it the error says where the walk stood
         // at each half's least, so the run reads itself.

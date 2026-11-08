@@ -18,6 +18,8 @@ Done that day
   corner's spot.
 - Item 221 at `98b26c9e`. The night sky from the Sky module.
 - Item 222 at `98b26c9e`. The version and its tags in the documents.
+- Item 223 at `20acb49e`. The scene field's pool after a cascade change.
+- Item 224 at `20acb49e`. The middle dot out.
 
 ## 2026-11-07
 

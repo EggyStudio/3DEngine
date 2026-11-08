@@ -8,8 +8,8 @@ public sealed partial class AppLeakTests
     [Fact]
     public void The_Growth_Is_Read_From_The_Most_Of_Three_Readings_So_A_Trough_In_A_Flat_Series_Holds_And_A_Climb_Fails()
     {
-        // The offscreen test's private bytes on Windows on the pack run of 193c68b0, flat but for a
-        // trough at the twentieth app, and a process that keeps 0.8 MB of each app from the same start.
+        // The offscreen test's private bytes on Windows on a pack run, flat but for a trough at the
+        // twentieth app, and a process that keeps 0.8 MB of each app from the same start.
         (int Apps, double Resident)[] trough =
             [(10, 156.5), (20, 80.0), (30, 159.2), (40, 164.0), (50, 163.9), (60, 164.1), (70, 166.6), (80, 168.7), (90, 165.9), (100, 169.6)];
         var climbing = Enumerable.Range(1, 10).Select(k => (Apps: 10 * k, Resident: 150 + 8.0 * k)).ToArray();
@@ -23,9 +23,9 @@ public sealed partial class AppLeakTests
     [Fact]
     public void One_Step_Past_The_Thirtieth_App_That_Alone_Passes_The_Bound_Is_Forgiven_And_A_Leak_Of_Each_App_Or_A_Second_Step_Is_Not()
     {
-        // The offscreen tests' private bytes on Windows on cb92986f's run, without the held instance
+        // The offscreen tests' private bytes on Windows on one run, without the held instance
         // and beside it, each with lavapipe's one allocation of an app's drawing kept from some
-        // fifty apps on, the trough of 193c68b0's run, a process that keeps 0.8 MB of each app, and
+        // fifty apps on, the trough of another run, a process that keeps 0.8 MB of each app, and
         // one that takes two such steps.
         (int Apps, double Resident)[] alone = [(10, 91.9), (20, 87.3), (30, 91.4), (40, 94.3), (50, 209.6), (60, 219.3)];
         (int Apps, double Resident)[] held = [(10, 98.4), (20, 89.4), (30, 94.3), (40, 92.4), (50, 99.1), (60, 212.2)];

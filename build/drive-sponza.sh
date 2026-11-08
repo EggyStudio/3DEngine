@@ -9,8 +9,8 @@
 #
 # Each picture is <folder>/sponza-<view>-<hour>.png, at the example's fixed camera, which the
 # readings of its light take, and <folder>/sponza-<view>-<hour>-metered.png, metered view by view as
-# the camera of the scene its views are matched against meters and as the example starts, for the
-# look beside that scene's pictures, and <folder>/times.tsv holds each fixed one's frame in
+# the example starts, center-weighted between EV -1 and 14, for the look as a player sees it, and
+# <folder>/times.tsv holds each fixed one's frame in
 # milliseconds. A view is held until the field is built around it and its light has run 60 frames
 # on it (field.wait), so the screen's probes and their history settle on it too, and 60 more
 # metered. At 2:00 the vestibule's floor under its lamp by the wooden door is read with the lamps

@@ -12,8 +12,8 @@ namespace Engine.Tests.Core;
 /// process, the handle and the index of its kind, and the kind's name is asked of one handle of
 /// each, its own process's, which never waits as asking a pipe's name can. A handle closed between
 /// the snapshot and the question leaves its kind named by its index. A Thread handle is also asked
-/// which thread it is, its id and name, and whether the thread has ended, so a handle kept after its
-/// thread ended is told from a thread still running (REVIEW.md, Verdict 68).
+/// which thread it is, its id and name, and whether the thread has ended, so a handle kept after
+/// its thread ended is told from a thread still running.
 /// </remarks>
 internal static class HandleCensus
 {

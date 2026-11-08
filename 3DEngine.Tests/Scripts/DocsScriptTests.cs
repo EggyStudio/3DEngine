@@ -4,8 +4,8 @@ using FluentAssertions;
 namespace Engine.Tests.Scripts;
 
 /// <summary>
-/// <c>build/docs-on-package.py</c> builds every C# block of the guides against the packed package and
-/// names a block that no longer builds by its page and line (REVIEW.md, item 4).
+/// <c>build/docs-on-package.py</c> builds every C# block of the guides against the packed package
+/// and names a block that no longer builds by its page and line.
 /// </summary>
 [Trait("Category", "Integration")]
 public sealed class DocsScriptTests : IDisposable

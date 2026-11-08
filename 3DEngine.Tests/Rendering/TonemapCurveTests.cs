@@ -5,8 +5,8 @@ using static Engine.E3D;
 namespace Engine.Tests.Rendering;
 
 /// <summary>
-/// The curve set by its numbers, as BSL's shader draws it, against the levels the voxel game read
-/// from a modpack's shader, and a shader of the program's own drawn in the curve's place.
+/// The curve set by its numbers, as BSL's shader draws it, against the levels that shader gives,
+/// and a shader of the program's own drawn in the curve's place.
 /// </summary>
 /// <remarks>
 /// The frame is seven bands of light, 0.05 to 4, each eight pixels wide, which a shader of the test's
@@ -27,8 +27,8 @@ public sealed class TonemapCurveTests : IDisposable
         _folder.Dispose();
     }
 
-    // The ask's seven lights, and what the curve shows for each at the settings the voxel game's
-    // entry in ASKS.md reads them at from the modpack's shader.
+    // Seven lights from deep shade to four times white, and what the curve shows for each at the
+    // settings a voxel game's look is read at.
     private static readonly float[] Lights = [0.05f, 0.1f, 0.25f, 0.5f, 1, 2, 4];
     private static readonly double[] Modpacks = [0.230, 0.317, 0.475, 0.620, 0.763, 0.874, 0.941];
 

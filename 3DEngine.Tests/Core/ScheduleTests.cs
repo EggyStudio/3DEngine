@@ -210,7 +210,7 @@ public class ScheduleTests
     // script's system threw in another test's app would keep the script's load context alive while
     // this test ran, ScriptGenerationTests' generation among them, which runs in another collection
     // beside this one. It is the one holder of a system's exception that kept the object when that
-    // test found its generation alive on 5a2d7df3's macOS run (REVIEW.md, Verdict 70).
+    // test found its generation alive on a macOS run.
     private sealed class Heard : ILoggerProvider
     {
         public ConcurrentQueue<(LogLevel Level, string Message, string? Exception)> Lines { get; } = new();

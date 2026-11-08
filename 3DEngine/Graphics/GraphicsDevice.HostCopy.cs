@@ -40,8 +40,8 @@ internal sealed unsafe partial class GraphicsDevice
         _hostCopyKept = null;
         if (!offered || StagesUploads) return;
         // Not through MoltenVK, whose 1.4.2 offers the copy, its layouts and its fast access on the
-        // macOS runner's paravirtual device and then crashes in vkBindImageMemory at the first image
-        // made for it, a texture of a pixel, in every part of the suite (Verdict 100).
+        // macOS runner's paravirtual device and then crashes in vkBindImageMemory at the first
+        // image made for it, a texture of a pixel, in every part of the suite.
         var driver = new VkPhysicalDeviceDriverProperties();
         var driverProperties = new VkPhysicalDeviceProperties2 { pNext = &driver };
         _instanceApi.vkGetPhysicalDeviceProperties2(_physicalDevice, &driverProperties);

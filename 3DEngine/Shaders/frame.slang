@@ -31,7 +31,7 @@ public struct FramePush
     // x: 1 when the exposure follows the scene. y: the luminance it brings the scene's mean to.
     // z: 1 when the scene is read as the scene drew it, encoded on past 1, and 0 when a pass before
     // decoded it to linear light. w: the exposed light past which the bloom takes the place of the
-    // light, as Unity's HDRP mixes it, or -1 where it is added.
+    // light, so the frame keeps the light it had, or -1 where it is added.
     public float4 exposure;
     // The chosen curve's numbers. The engine's, the knee past which each channel bends toward 1 on
     // its own and how much (tonemapKnee). The one set by its numbers, its exposure, white curve,
@@ -58,7 +58,7 @@ public Sampler2D frameBloom;
 [[vk::binding(2, 1)]]
 public Sampler2D frameAdapted;
 
-// The table of Bevy's the curve looks light up in, AgX's, Tony McMapface's or Blender's filmic, or
+// The table the curve looks light up in, AgX's, Tony McMapface's or Blender's filmic, or
 // a texel standing in where the curve is worked out without one.
 [[vk::binding(3, 1)]]
 public Sampler3D frameTable;
@@ -68,7 +68,7 @@ public float luminance(float3 c)
     return dot(c, float3(0.2126, 0.7152, 0.0722));
 }
 
-// The light past threshold, eased in over half of it, as Unity's HDRP keeps what blooms.
+// The light past threshold, eased in over half of it, so what blooms has no edge.
 float3 pastThreshold(float3 c, float threshold)
 {
     float peak = max(c.r, max(c.g, c.b));
@@ -79,9 +79,9 @@ float3 pastThreshold(float3 c, float threshold)
 }
 
 // The scene's light at uv, linear, with the bloom chain's added, times the exposure and the one
-// that follows the scene, then lifted, raised and gained as Unity's HDRP grades it, what the curve
-// brings under 1. Where the bloom is mixed as HDRP mixes it, the light past its threshold gives way
-// to the spread light by its intensity, so the frame keeps the light it had.
+// that follows the scene, then lifted, raised and gained, what the curve brings under 1. Where the
+// bloom is mixed in, the light past its threshold gives way to the spread light by its intensity,
+// so the frame keeps the light it had.
 public float3 frameLight(float2 uv)
 {
     float3 light = frameScene.SampleLevel(uv, 0).rgb;

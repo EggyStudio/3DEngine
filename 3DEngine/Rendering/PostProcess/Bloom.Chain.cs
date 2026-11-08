@@ -4,15 +4,16 @@ internal sealed partial class BloomRenderer
 {
     /// <summary>
     /// Spreads the HDR target's light down the levels and back up into the first one, each level
-    /// added onto the one above, or with a scatter mixed into it as Unity's HDRP spreads its bloom,
-    /// over as many levels as HDRP halves the window to.
+    /// added onto the one above, or with a scatter laid over it by that share, over as many levels
+    /// as halve the window to four pixels along its longer side, so its haze can cross the window.
     /// </summary>
     /// <remarks>
-    /// A scattered bloom keeps the light past its threshold as HDRP keeps it, easing in over half
-    /// the threshold, which is measured on the light after the exposure, and so after the exposure
-    /// that follows the scene too where that is on. The chain reads the light before the exposure,
-    /// so the threshold is divided by the exposure set and the key here, and multiplied on the GPU
-    /// by the scene's adapted luminance, which <see cref="Adapt"/> wrote earlier in the frame.
+    /// A scattered bloom keeps the light past its threshold, easing in over half the threshold so
+    /// what blooms has no edge. The threshold is measured on the light after the exposure, and so
+    /// after the exposure that follows the scene too where that is on. The chain reads the light
+    /// before the exposure, so the threshold is divided by the exposure set and the key here, and
+    /// multiplied on the GPU by the scene's adapted luminance, which <see cref="Adapt"/> wrote
+    /// earlier in the frame.
     /// </remarks>
     public void DrawChain(RenderContext renderContext, BloomSettings bloom, FrameEffects? effects)
     {

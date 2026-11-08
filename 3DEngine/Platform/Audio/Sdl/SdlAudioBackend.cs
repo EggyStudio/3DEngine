@@ -34,7 +34,7 @@ namespace Engine;
 /// <para>
 /// <b>No device:</b> where no audio device opens, as on a machine with none or a runner, sound
 /// goes to SDL's dummy driver, which takes samples at the rate a device would play them and plays
-/// none, as raylib's goes to miniaudio's null device (REVIEW.md, Decision 13), so sounds end,
+/// none, as raylib's goes to miniaudio's null device, so sounds end,
 /// music moves on and streams ask for more as they do with a device. Where even that fails,
 /// <see cref="Initialize"/> logs and leaves <see cref="IsInitialized"/> <c>false</c>, and every
 /// call after is a no-op, as <see cref="NullAudioBackend"/>'s are.

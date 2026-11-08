@@ -2,7 +2,8 @@
 // corridor, stairs up to a second floor, two doors and a window, in the prototype materials, under a
 // sun and global illumination. WASD walks, the mouse looks about and the arrows too, Space jumps,
 // Tab opens the modeling window on the level so it is reshaped while it is walked in, and F5 saves
-// the recipe. Written against the engine's package, as a game outside this repository would be.
+// the recipe. The recipe, its sun and the walker's routes are BevyCSharp's Blockout's. Written
+// against the engine's package, as a game outside this repository would be.
 using System.Numerics;
 using Engine;
 using ImGuiNET;
@@ -23,11 +24,11 @@ var built = -1;
 // -- The light
 
 // The day sky standing at two in the afternoon on a path leaning 40 degrees toward -Z, which puts
-// the sun high in the west over the second room's window as BevyCSharp's Blockout has it, and gives
-// global illumination the sky's light through the doors, the window and the open room. Two
-// cascades of the scene field of 0.25 reach 32 meters across, the level's 22 in the second, as
-// Wick's house has them. A lamp hangs under the hall's ceiling, since the room over it keeps the sun
-// out, as strong as Wick's lamp a player carries.
+// the sun high in the west over the second room's window, and gives global illumination the sky's
+// light through the doors, the window and the open room. Two cascades of the scene field of 0.25
+// reach 32 meters across, the level's 22 in the second, as Wick's house has them. A lamp hangs
+// under the hall's ceiling, since the room over it keeps the sun out, as strong as Wick's lamp a
+// player carries.
 SetSkyDay(new SkyDay { Minutes = 0, Tilt = -40 });
 SetSkyTime(14);
 SetSceneField(2, 0.25f, 1);
@@ -133,8 +134,8 @@ internal static class Level
 
     /// <summary>
     /// Draws each slot that gives off light at a ten-thousandth of the recipe's number, since the
-    /// recipe is BevyCSharp's Blockout's, whose emission is a luminance in its units, which this
-    /// engine's linear light reads ten thousand times as bright, its lamp of 40,000 a light of 4.
+    /// recipe gives its emission as a luminance, which this engine's linear light reads ten
+    /// thousand times as bright, its lamp of 40,000 a light of 4.
     /// </summary>
     /// <remarks>Each slot's material is made again from its look first, so a look changed in the window is scaled once.</remarks>
     public static void Glow(Model model, EditMesh mesh)
@@ -166,7 +167,7 @@ internal static class Play
 /// A route is points on the floors, reached in turn, each within a third of a meter along the ground,
 /// the stairs climbed by walking at their top as a player climbs them. Where the walker comes no
 /// nearer its point for three seconds it is stuck, which the status says, so a drive fails with
-/// where rather than waiting on a walk that will never end. The routes are BevyCSharp's Blockout's.
+/// where rather than waiting on a walk that will never end.
 /// </remarks>
 internal static class Autopilot
 {

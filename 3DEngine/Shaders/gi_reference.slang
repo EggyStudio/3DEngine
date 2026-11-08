@@ -11,23 +11,23 @@
 // its mirror way by GGX's distribution of the normals the eye sees against the cosine, by their
 // shares, so it reflects the indirect light as the model pass does, and where asked of every face,
 // each face a path meets, a camera's or a probe's, is lit and goes on as the first is, so the gloss
-// of what a path meets carries light between bounces, as the bridge's reference traces it. A path
-// after the camera's first ray crosses a copy that lets light through (ModelMaterial.LightThrough)
-// by its share, as global illumination's rays cross a canopy's leaves, and meets it as a solid face
-// otherwise, while the camera sees it and it shadows the sun and the lamps, as the model pass and
-// the shadow maps hold it. Lights are given as the model pass has them, the light a white diffuse
-// surface facing one returns, so a surface's diffuse light is its color times what arrives, with no
-// pi. Each pass adds its samples to an image of sums, the count in alpha, and its first sample of
-// each pixel, through the pixel's middle, writes what it met and how far along its way into the
-// image of regions, the copy's index times eight and the axis its face turns toward most, plus one,
-// or 0 for nothing. Started at a probe instead, a texel of the image is a texel of the probe's
-// octahedron, its paths leaving the probe's middle through it and every face they meet lit as
-// global illumination lights one, so the image is the light arriving at the probe from each way, as
-// its rays and the merge of the cascades above should bring it. The emission of a glow light global
-// illumination carries is left out where such a path first meets it, as the probe's rays leave it
-// out, since it reaches a surface as a light rather than through the probes; counted, the rays of
-// twelve probes around four emissive blocks read 44 to 70% under it at one bounce, where left out
-// they read within 12% of it, all but the dimmest.
+// of what a path meets carries light between bounces. A path after the camera's first ray crosses a
+// copy that lets light through (ModelMaterial.LightThrough) by its share, as global illumination's
+// rays cross a canopy's leaves, and meets it as a solid face otherwise, while the camera sees it
+// and it shadows the sun and the lamps, as the model pass and the shadow maps hold it. Lights are
+// given as the model pass has them, the light a white diffuse surface facing one returns, so a
+// surface's diffuse light is its color times what arrives, with no pi. Each pass adds its samples
+// to an image of sums, the count in alpha, and its first sample of each pixel, through the pixel's
+// middle, writes what it met and how far along its way into the image of regions, the copy's index
+// times eight and the axis its face turns toward most, plus one, or 0 for nothing. Started at a
+// probe instead, a texel of the image is a texel of the probe's octahedron, its paths leaving the
+// probe's middle through it and every face they meet lit as global illumination lights one, so the
+// image is the light arriving at the probe from each way, as its rays and the merge of the cascades
+// above should bring it. The emission of a glow light global illumination carries is left out where
+// such a path first meets it, as the probe's rays leave it out, since it reaches a surface as a
+// light rather than through the probes; counted, the rays of twelve probes around four emissive
+// blocks read 44 to 70% under it at one bounce, where left out they read within 12% of it, all but
+// the dimmest.
 
 import color;
 

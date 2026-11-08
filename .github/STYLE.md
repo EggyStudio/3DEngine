@@ -176,12 +176,25 @@ is and does. Another product is named only where a rule or a number is taken fro
 API's names are taken from raylib's functions and the draw list's batching from its rlgl layer. A
 description holds no plan, so no line says what a thing is the start of or grows toward.
 
+A comment stands on the code's own terms (NORM.md, N 4.11). It says what the code does and why in
+the engine's words, and a number taken from elsewhere stands with the reason it is right here, what
+it makes the frame or the program do, its source named once in the documents and not in the
+comment. The file name of an outside asset, another product's profile or process given as the
+explanation, and the facts of the work that made the code, a review's verdict, a commit's run or a
+session's finding, are not written in a comment, since a reader of the source has none of them.
+BevyCSharp is named once where a rule, a format or a model was taken from it, as the API's names
+are from raylib, and its readings and its process are not the explanation, which SHARED.md holds
+for the sessions. A comparison test names the reference it compares against, since the comparison
+is the test.
+
 | instead of | write |
 |---|---|
 | `the light that bounces`, `the bounce` | `global illumination`, or `radiance cascades` where the technique is meant and `indirect light` where its effect is |
 | `a panel that gives off light`, `a glowing panel` | `an emissive panel` |
 | `drives a running program`, `driving a session` | `controls a running program through the command line`, `scripting a session` |
 | `a drive of the puzzle` | `a scripted run of the puzzle` |
+| `// graded as that scene's HDRP profile grades it, by the look of its AgX - Powerful.exr` | `// graded by the AgX lookup at resources/agx_powerful.ktx2, which bends the light past white into the highlights` |
+| `// on 1398ed24's run (REVIEW.md, Verdict 64)` | `// on one run`, with the reason the run showed |
 | `A voxel game in the manner of Minecraft, and the ground floor of a larger one` | `A voxel game set in an endless generated world whose blocks are placed and broken, with its light, its water, its mobs and the items they drop` |
 
 The idioms in the manner of, the ground floor of, out of the box, under the hood, at a glance, a
@@ -285,6 +298,11 @@ git grep -n -i -E "light that bounces|the bounce|bounc(e|es|ing) (no )?light|giv
 # The likenesses and idioms the register replaces. A word in its literal sense is left, so each hit
 # is read.
 git grep -n -i -E "in the manner of|ground floor|out of the box|under the hood|at a glance|a handful of|a great deal of|in the wild|on the fly|for free|first-class|a hair (apart|in front)|plumbing|\bwir(e|es|ed|ing) (up|into)\b|a long way|[a-z]-style\b" -- ':!.github/REVIEW.md'
+
+# Comments that lean on another product, the sibling engine, an outside asset, a review's records or
+# a commit's run (N 4.11). A comparison test names its reference, so the hits are read rather than
+# counted.
+git grep -n -i -E "HDRP|Unity|BevyCSharp|bridge's|\.exr\b|REVIEW\.md|Verdict [0-9]|[0-9a-f]{8}'s run|(push|pack run) of [0-9a-f]{8}" -- '*.cs' '*.slang' '*.sh' '*.py' '*.yml' | grep -E "//|#|/\*"
 
 # Padded section banners.
 grep -rn "// -- .*--" --include=*.cs --include=*.slang . | grep -v "^\./\.ref/"

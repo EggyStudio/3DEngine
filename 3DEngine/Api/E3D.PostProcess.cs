@@ -36,23 +36,25 @@ public static partial class E3D
         TryRes<BloomSettings>(out var bloom) ? (bloom.Intensity, bloom.Threshold) : (0, 1);
 
     /// <summary>
-    /// Spreads the bloom as Unity's HDRP spreads it, each level of the chain giving
-    /// <paramref name="scatter"/> of its place to the wider level below it, from 0.05 for a tight
-    /// glow to 0.95 for a wide haze, or the engine's way again with 0, which it is by default.
+    /// Spreads the bloom by laying each level of the chain over the wider one below it, each giving
+    /// <paramref name="scatter"/> of its place to it, from 0.05 for a tight glow to 0.95 for a wide
+    /// haze, or adds every level alike again with 0, the engine's bloom and the default.
     /// </summary>
     /// <remarks>
     /// <para>
     /// With a scatter, the threshold <see cref="SetBloom"/> sets is measured on the light after the
-    /// exposure, the one that follows the scene too, easing in over half of it, and the chain halves
-    /// the window as HDRP does, to the log2 of its longer side less 2 levels. The intensity is the
-    /// share of the light past the threshold that the spread light takes the place of, so the frame
-    /// keeps the light it had where the engine's bloom adds to it.
+    /// exposure, the one that follows the scene too, easing in over half of it, and the chain
+    /// halves the window to the log2 of its longer side less 2 levels, its widest level four pixels
+    /// along that side, so the haze can reach across the whole window. The intensity is the share
+    /// of the light past the threshold that the spread light takes the place of, so the frame keeps
+    /// the light it had where the engine's bloom adds to it.
     /// </para>
     /// <para>
-    /// HDRP's own bloom settings give these as its renderer works them out. Its intensity <c>i</c>
-    /// is 2 to the <c>i</c> less 1, its threshold is decoded from sRGB, and its scatter <c>s</c> is
-    /// 0.05 plus 0.9 times <c>s</c>, so an intensity of 0.25, a threshold of 0.333 and a scatter of
-    /// 0.7 are <c>SetBloom(0.189f, 0.0907f)</c> and <c>SetBloomScatter(0.68f)</c>.
+    /// Settings given as an intensity <c>i</c> on a scale of powers of 2, a threshold in sRGB and a
+    /// scatter <c>s</c> from 0 to 1 are 2 to the <c>i</c> less 1, the threshold decoded from sRGB,
+    /// and 0.05 plus 0.9 times <c>s</c> here, so 0.25, 0.333 and 0.7 are
+    /// <c>SetBloom(0.189f, 0.0907f)</c> and <c>SetBloomScatter(0.68f)</c>, as the guide to
+    /// materials, light and shadows works through.
     /// </para>
     /// </remarks>
     public static void SetBloomScatter(float scatter) =>
@@ -137,9 +139,9 @@ public static partial class E3D
     /// alike.
     /// </summary>
     /// <remarks>
-    /// An eye and a camera's metering adapt faster to light than to dark, so a player walking out of
-    /// a cave is dazzled briefly and one walking into it waits longer to see. HDRP's automatic
-    /// exposure takes 3 and 1 by default.
+    /// An eye and a camera's metering adapt faster to light than to dark, so a player walking out
+    /// of a cave is dazzled briefly and one walking into it waits longer to see, which 3 and 1
+    /// give.
     /// </remarks>
     public static void SetAutoExposureSpeeds(float brightening, float darkening)
     {
@@ -165,10 +167,10 @@ public static partial class E3D
     /// share <paramref name="high"/>, the whole picture with 0 and 1, which it measures unless set.
     /// </summary>
     /// <remarks>
-    /// The mean of what lies between is taken, so a sky filling a corner of the view, past the share
-    /// left out above, does not dim the walls under it, and a black doorway does not brighten
-    /// them, as HDRP's histogram metering leaves out the darkest 40% and the brightest 10% by
-    /// default. The light is binned by half a stop.
+    /// The mean of what lies between is taken, so a sky filling a corner of the view, past the
+    /// share left out above, does not dim the walls under it, and a black doorway, past the share
+    /// left out below, does not brighten them, 0.4 and 0.9 leaving out the darkest 40% and the
+    /// brightest 10%. The light is binned by half a stop.
     /// </remarks>
     public static void SetAutoExposureHistogram(float low, float high)
     {
@@ -226,12 +228,12 @@ public static partial class E3D
 
     /// <summary>
     /// Chooses the curve that brings the scene's light past 1 under it, the engine's own, which
-    /// leaves colors under 0.9 as they are, Narkowicz's fit of ACES, a cut at 1, or one of the
-    /// eight Bevy offers, drawn as Bevy draws them.
+    /// leaves colors under 0.9 as they are, Narkowicz's fit of ACES, a cut at 1, or one of eight
+    /// more by their usual names.
     /// </summary>
     /// <remarks>
     /// <see cref="Tonemap.AgX"/>, <see cref="Tonemap.TonyMcMapface"/> and
-    /// <see cref="Tonemap.BlenderFilmic"/> look the light up in Bevy's own tables, each read the
+    /// <see cref="Tonemap.BlenderFilmic"/> look the light up in tables of their own, each read the
     /// first time its curve is chosen, which takes that frame a few milliseconds.
     /// </remarks>
     public static void SetTonemap(Tonemap curve) => Effects.Tonemap = curve;
@@ -294,19 +296,19 @@ public static partial class E3D
     }
 
     /// <summary>
-    /// Brings the scene's light under 1 by a table read from <paramref name="fileName"/>, as Unity's
-    /// HDRP looks light up in one for its external tonemapping, the looked-up light taking
-    /// <paramref name="share"/> of the light's place, and chooses that curve,
-    /// <see cref="Tonemap.Lookup"/>.
+    /// Brings the scene's light under 1 by a table read from <paramref name="fileName"/>, a cube of
+    /// colors the light is looked up in, the looked-up light taking <paramref name="share"/> of the
+    /// light's place, and chooses that curve, <see cref="Tonemap.Lookup"/>.
     /// </summary>
     /// <remarks>
     /// <para>
     /// The file is a KTX2 file holding one level of a cube of texels in half-float RGBA or RGB9E5,
-    /// as it is or with zlib's supercompression, which <c>build/unity-lut.py</c> writes from the
-    /// strip of squares an HDRP table is drawn as. The light, after the exposure and
+    /// as it is or with zlib's supercompression, which <c>build/unity-lut.py</c> writes from a
+    /// table drawn as a strip of squares. The light, after the exposure and
     /// <see cref="SetLiftGammaGain"/>, is looked up as ARRI's LogC encodes it for an exposure index
-    /// of 1000, which takes 0 to about 55 into the table, and the table gives linear light, which
-    /// <see cref="SetColorGrading"/> and the vignette then take as they take every curve's.
+    /// of 1000, the encoding such tables are made for, which takes 0 to about 55 into the table,
+    /// and the table gives linear light, which <see cref="SetColorGrading"/> and the vignette then
+    /// take as they take every curve's.
     /// </para>
     /// <para>
     /// The file is read when this is called, and a file that cannot be read leaves the curve as it
@@ -396,18 +398,18 @@ public static partial class E3D
     }
 
     /// <summary>
-    /// Lifts the scene's shadows, bends its middle and gains its highlights before the curve, as
-    /// Unity's HDRP's lift, gamma and gain trackballs do. Each is a color in x, y and z, white for
-    /// none, whose hue it moves that part of the light toward, and in w how far it moves that part
-    /// brighter, 0 for none and below 0 darker.
+    /// Lifts the scene's shadows, bends its middle and gains its highlights before the curve. Each
+    /// is a color in x, y and z, white for none, whose hue it moves that part of the light toward,
+    /// and in w how far it moves that part brighter, 0 for none and below 0 darker.
     /// </summary>
     /// <remarks>
     /// The light after the exposure and the bloom is multiplied by the gain, has the lift added and
-    /// is raised to one over the gamma, as HDRP prepares the three. Each color is decoded from sRGB,
-    /// scaled by 0.15 for the lift and 0.8 for the others, has its luminance taken away and its w
-    /// added, and 1 more for the gamma and the gain. A white trackball moves every channel by its w
-    /// alone, so a gamma of w 0.225 raises the light to 1 over 1.225, brightening its middle. White
-    /// and 0 for each leave the light as it is, as they are by default.
+    /// is raised to one over the gamma. Each color is decoded from sRGB, scaled by 0.15 for the
+    /// lift and 0.8 for the others, so a full hue tints the shadows a little and the rest more, has
+    /// its luminance taken away and its w added, and 1 more for the gamma and the gain. A white
+    /// trackball moves every channel by its w alone, so a gamma of w 0.225 raises the light to 1
+    /// over 1.225, brightening its middle. White and 0 for each leave the light as it is, as they
+    /// are by default.
     /// </remarks>
     public static void SetLiftGammaGain(Vector4 lift, Vector4 gamma, Vector4 gain)
     {
@@ -618,7 +620,7 @@ public static partial class E3D
 
         if (ImGuiNET.ImGui.CollapsingHeader("Lift, gamma and gain"))
         {
-            // Each a color and its offset, as HDRP's trackballs show them.
+            // Each a color and the offset that moves its part brighter or darker.
             static bool Trackball(string name, ref Vector4 ball)
             {
                 var color = new Vector3(ball.X, ball.Y, ball.Z);

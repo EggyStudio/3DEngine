@@ -203,7 +203,7 @@ public sealed class DataAssetTests : IDisposable
         // The log's sinks the process holds, which the read's debug line reaches on this thread,
         // are the file the process's first app opens, kept from then on, and a test's listener. One
         // begun by a test beside this one between the two counts adds its cost to the second alone,
-        // 160 bytes on the build run of ec87f64b, so the pair is taken again until the sinks stood
+        // 160 bytes on one build run, so the pair is taken again until the sinks stood
         // still through both.
         static (bool File, bool Heard) Sinks() => (FileLoggerProvider.Instance is not null, Logger.Heard is not null);
 

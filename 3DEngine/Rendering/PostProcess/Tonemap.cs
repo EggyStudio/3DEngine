@@ -3,15 +3,15 @@ using System.Numerics;
 namespace Engine;
 
 /// <summary>
-/// A curve that brings the HDR frame's light past 1 under it, for <see cref="FrameEffects.Tonemap"/>:
-/// the engine's own, Narkowicz's fit of ACES and a cut at 1, the eight Bevy offers, named as
-/// BevyCSharp names them and drawn as Bevy draws them, one set by its numbers and one loaded from a
-/// file.
+/// A curve that brings the HDR frame's light past 1 under it, for
+/// <see cref="FrameEffects.Tonemap"/>: the engine's own, Narkowicz's fit of ACES and a cut at 1,
+/// eight more by their usual names, which TonemapTests holds to pictures of the same ramp, one set
+/// by its numbers and one loaded from a file.
 /// </summary>
 /// <remarks>
 /// <see cref="AgX"/>, <see cref="TonyMcMapface"/> and <see cref="BlenderFilmic"/> look the light up
-/// in Bevy's own tables, 3D textures read the first time one is chosen, and the others are worked
-/// out as Bevy's <c>tonemapping_shared.wgsl</c> works them out (THIRD-PARTY-NOTICES.md).
+/// in tables of their own, 3D textures read the first time one is chosen, and the others are
+/// worked out by their formulas, the tables and the formulas ported as THIRD-PARTY-NOTICES.md says.
 /// </remarks>
 public enum Tonemap
 {
@@ -23,7 +23,7 @@ public enum Tonemap
     /// </summary>
     Engine,
 
-    /// <summary>Reinhard's, each channel over one plus itself, as Bevy draws it, its hues shifting as they brighten.</summary>
+    /// <summary>Reinhard's, each channel over one plus itself, its hues shifting as they brighten.</summary>
     Reinhard,
 
     /// <summary>The ACES filmic curve as Narkowicz fitted it, with deeper shadows and highlights that saturate toward white.</summary>
@@ -32,7 +32,7 @@ public enum Tonemap
     /// <summary>No curve, each channel cut at 1.</summary>
     Clamp,
 
-    /// <summary>Bevy's none, no curve, each channel cut at 1 as the window's eight bits cut it.</summary>
+    /// <summary>No curve, each channel cut at 1 as the window's eight bits cut it.</summary>
     None,
 
     /// <summary>Reinhard's by luminance, the color over one plus its luminance, which keeps a bright color's hue better.</summary>
@@ -41,16 +41,16 @@ public enum Tonemap
     /// <summary>The ACES filmic curve as Stephen Hill fitted it, film-like with deliberate hue shifts and high contrast.</summary>
     AcesFitted,
 
-    /// <summary>Troy Sobotka's AgX, neutral and slightly desaturated, with almost no hue shift, from Bevy's table.</summary>
+    /// <summary>Troy Sobotka's AgX, neutral and slightly desaturated, with almost no hue shift, from its table.</summary>
     AgX,
 
     /// <summary>Tomasz Stachowiak's somewhat boring display transform, a plain one to judge the others against.</summary>
     SomewhatBoring,
 
-    /// <summary>Tomasz Stachowiak's Tony McMapface, Bevy's default, neutral and keeping saturation in the highlights, from Bevy's table.</summary>
+    /// <summary>Tomasz Stachowiak's Tony McMapface, neutral and keeping saturation in the highlights, from its table.</summary>
     TonyMcMapface,
 
-    /// <summary>Blender's filmic view transform, for matching a render done there, from Bevy's table.</summary>
+    /// <summary>Blender's filmic view transform, for matching a render done there, from its table.</summary>
     BlenderFilmic,
 
     /// <summary>
@@ -62,8 +62,8 @@ public enum Tonemap
 
     /// <summary>
     /// A table loaded from a file, which <see cref="E3D.SetTonemapLookup"/> loads and chooses, the
-    /// light looked up in it as Unity's HDRP's external tonemapping looks it up, and cut at 1 until
-    /// one is loaded.
+    /// light encoded by ARRI's LogC to look it up, the encoding such tables are made for, and cut
+    /// at 1 until one is loaded.
     /// </summary>
     Lookup,
 }

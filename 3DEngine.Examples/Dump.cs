@@ -6,8 +6,8 @@ namespace Engine.Examples;
 /// <summary>
 /// Points the screenshot key into the day's folder of pictures where an example runs from this
 /// repository, <c>.github/dump/&lt;date&gt;/</c>, each screenshot and recording named by its time,
-/// the example and a word, with its line in that day's <c>captions.md</c>, as NORM.md's N 4.10 keeps
-/// the pictures a session reads.
+/// the example and a word, with its line in that day's <c>captions.md</c>, as NORM.md's N 4.10
+/// keeps every picture taken while the work goes on.
 /// </summary>
 /// <remarks>
 /// F2 pressed writes a screenshot and F2 held records fifteen pictures a second as PNGs in a folder

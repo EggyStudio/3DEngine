@@ -1032,7 +1032,7 @@ void SetAmbientLight(Color color, float intensity);      // Sets the light from 
 
 void SetBloom(float intensity, float threshold = 1);     // Spreads light brighter than threshold into the pixels around it, as a bright light spreads through a lens, adding intensity of it to the frame, or turns bloom off with an intensity of 0, which it is by default
 (float Intensity, float Threshold) GetBloom();           // The bloom's intensity and threshold as SetBloom left them, 0 and 1 unless set
-void SetBloomScatter(float scatter);                     // Spreads the bloom as Unity's HDRP spreads it, each level of the chain giving scatter of its place to the wider level below it, from 0.05 for a tight glow to 0.95 for a wide haze, or the engine's way again with 0, which it is by default
+void SetBloomScatter(float scatter);                     // Spreads the bloom by laying each level of the chain over the wider one below it, each giving scatter of its place to it, from 0.05 for a tight glow to 0.95 for a wide haze, or adds every level alike again with 0, the engine's bloom and the default
 float GetBloomScatter();                                 // The share SetBloomScatter left, 0 for the engine's bloom unless set
 void SetExposure(float exposure);                        // Multiplies the scene's light by exposure before it is brought under 1, so 2 brightens a dark scene and 0.5 dims a bright one, 1 being as it is and the default
 float GetExposure();                                     // What the scene's light is multiplied by before its curve, as SetExposure left it, 1 unless set
@@ -1046,19 +1046,19 @@ void SetAutoExposureHistogram(float low, float high);    // Sets the part of the
 void SetAutoExposureMetering(ExposureMetering metering, float compensation = 0);  // Sets how the exposure that follows the scene weighs the picture it measures, and the stops it is moved by from bringing it to a mid gray, brighter above 0, the whole picture and none unless set
 (ExposureMetering Metering, float Compensation) GetAutoExposureMetering();  // How the exposure that follows the scene weighs the picture and its compensation in stops, as SetAutoExposureMetering left them, the whole picture and 0 unless set
 (bool Enabled, float Min, float Max, float Speed) GetAutoExposure();  // Whether the exposure follows the scene, and its bounds and speed, as SetAutoExposure left them, off between 0.25 and 4 at a speed of 2 unless set
-void SetTonemap(Tonemap curve);                          // Chooses the curve that brings the scene's light past 1 under it, the engine's own, which leaves colors under 0.9 as they are, Narkowicz's fit of ACES, a cut at 1, or one of the eight Bevy offers, drawn as Bevy draws them
+void SetTonemap(Tonemap curve);                          // Chooses the curve that brings the scene's light past 1 under it, the engine's own, which leaves colors under 0.9 as they are, Narkowicz's fit of ACES, a cut at 1, or one of eight more by their usual names
 Tonemap GetTonemap();                                    // The curve the scene's light past 1 is brought under by, Tonemap.Engine unless set
 void SetHighlightKnee(float knee, float strength = 1);   // Has the engine's curve bend each channel of the scene's light past knee toward 1 on its own, by strength from 0 for none to 1, so a light bright in every channel goes toward white as a camera's film takes it
 (float Knee, float Strength) GetHighlightKnee();         // The knee and strength SetHighlightKnee left, 0.8 and 1 unless set
 void SetTonemapCurve(float exposure, float white, float lower, float upper);  // Brings the scene's light under 1 by a curve set by four numbers, as the BSL shader draws it, and chooses that curve, Tonemap.Curve
 (float Exposure, float White, float Lower, float Upper) GetTonemapCurve();  // The numbers of the curve SetTonemapCurve sets, as it left them, 1.4, 2, 1.2 and 1.5 unless set, whether or not that curve is the one chosen
-void SetTonemapLookup(string fileName, float share = 1);  // Brings the scene's light under 1 by a table read from fileName, as Unity's HDRP looks light up in one for its external tonemapping, the looked-up light taking share of the light's place, and chooses that curve, Tonemap.Lookup
+void SetTonemapLookup(string fileName, float share = 1);  // Brings the scene's light under 1 by a table read from fileName, a cube of colors the light is looked up in, the looked-up light taking share of the light's place, and chooses that curve, Tonemap.Lookup
 (string? FileName, float Share) GetTonemapLookup();      // The file SetTonemapLookup last read its table from and the table's share, null and 1 before one is read, whether or not that curve is the one chosen
 void SetTonemapShader(Shader shader);                    // Draws the window's scene through shader's fragment stage in the curve's place, for a curve no other setting gives, or the chosen curve again with the default shader
 Shader GetTonemapShader();                               // The shader SetTonemapShader draws the scene through in the curve's place, or the default shader for the curve
 void SetColorGrading(float contrast, float saturation, Color tint);  // Grades the scene's color
 (float Contrast, float Saturation, Color Tint) GetColorGrading();  // The contrast, saturation and tint SetColorGrading left, 1, 1 and white unless set
-void SetLiftGammaGain(Vector4 lift, Vector4 gamma, Vector4 gain);  // Lifts the scene's shadows, bends its middle and gains its highlights before the curve, as Unity's HDRP's lift, gamma and gain trackballs do
+void SetLiftGammaGain(Vector4 lift, Vector4 gamma, Vector4 gain);  // Lifts the scene's shadows, bends its middle and gains its highlights before the curve
 (Vector4 Lift, Vector4 Gamma, Vector4 Gain) GetLiftGammaGain();  // The lift, gamma and gain SetLiftGammaGain left, each white and 0 unless set
 void SetVignette(float intensity, float radius = 0.5f);  // Darkens the scene toward its corners by intensity, 0 for none and 1 to black, from radius of the way from the middle to a corner
 (float Intensity, float Radius) GetVignette();           // How much the corners darken and from how far out, as SetVignette left them, 0 and 0.5 unless set

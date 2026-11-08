@@ -332,9 +332,9 @@ def last_ended(text):
 
 
 # A test's line in dotnet test's console log, its outcome, its name and its time, as `1 m 3 s`,
-# `49 s`, `12 ms` or `< 1 ms`. Read without the last, the 508 tests of the run of b16f26b5 on Linux
-# that ended in under a millisecond had no result, and every part holding one ran again, Rendering
-# whole for 35 minutes where the whole run had ended each of its tests.
+# `49 s`, `12 ms` or `< 1 ms`. Read without the last, the 508 tests of one run on Linux that ended
+# in under a millisecond had no result, and every part holding one ran again, Rendering whole for
+# 35 minutes where the whole run had ended each of its tests.
 ENDED = re.compile(r"^\s+(Passed|Failed|Skipped) (Engine\.Tests\.\S.*?) \[(?:< 1 ms|(?:(\d+) m)? ?(?:(\d+) s)? ?(?:(\d+) ms)?)\]\s*$")
 
 
@@ -614,9 +614,8 @@ def read_results(path):
     """
     Each test in a results file, by name, as its outcome, the first line of its message and its
     stack. Two cases of a theory whose arguments are cut to the same name are both counted, the
-    second under the name and a number, as BevyCSharp's page counts them, so the same cases read
-    from a lost run and from its parts are still one each and a run cut short of one cannot pass
-    for a whole one.
+    second under the name and a number, so the same cases read from a lost run and from its parts
+    are still one each and a run cut short of one cannot pass for a whole one.
     """
     try:
         run_ = ET.parse(path).getroot()
@@ -1020,9 +1019,9 @@ def main():
     d = digest(results, done, listed, time.monotonic() - started)
     # A run whose every test has a result and none failed passes where a process was lost to its
     # time limit alone, the loss said in a notice, as a whole run on a slow runner runs out its hour
-    # before the parts give the rest of its tests their results. On the pack run of 448aa3fc the
-    # Windows suite's 1,667 tests all passed so and the step ended with exit code 1, which skipped the
-    # pack. A crash, a hang or a climb of memory is a fault the run met, whatever the parts gave after.
+    # before the parts give the rest of its tests their results. On a pack run the Windows suite's
+    # 1,667 tests all passed so and the step ended with exit code 1, which skipped the pack. A
+    # crash, a hang or a climb of memory is a fault the run met, whatever the parts gave after.
     ended = d["failed"] == 0 and d["no_result"] == 0
     publish(page(d), annotations([p for p in d["processes"] if p["lost"]], d["causes"], head(d), d["repeated"], ended), results, d)
     passed = ended and all(p.lost in (None, "time") for p in done)
