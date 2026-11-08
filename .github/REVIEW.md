@@ -191,13 +191,12 @@ words. On 2026-10-30 at 18:0x the owner wrote the README's new words (item 133) 
 radiance cascades (Decision 74), questions asked back, and asked that the sessions spend fewer
 tokens at the same quality, N 7.7.
 
-Next 229, the reference's normal maps, then 225 and 226, the projects and the live path, 214, 217,
-219, 220, 221, 222, 223 and 224 done on their runs, 227, 218 and 215 pushed on their run, 228 and
-230 recorded at ca037368, 216 at c8baed4b and 229's switch at 77f45030, waiting to push, no budget
-by Decision 94 and 208 closed, the door at 8:00 the one target by Decision 95; 213 closed at
-e52877dd with form 2 parked under 208, 212 recorded with its first part landed and the rest parked,
-211 closed at d0d391de, 212's first part landed at 1c14b0bf with its pocket mark parked, 210 closed
-at 3e69ec60, 200 at 2ceac35a.
+Next 225 and 226, the projects and the live path, 214, 217, 219, 220, 221, 222, 223 and 224 done on
+their runs, 227, 218 and 215 pushed on their run, 228 and 230 recorded at ca037368, 216 at c8baed4b
+and 229 at 77f45030 and f1cc2022, waiting to push, no budget by Decision 94 and 208 closed, the door
+at 8:00 the one target by Decision 95; 213 closed at e52877dd with form 2 parked under 208, 212
+recorded with its first part landed and the rest parked, 211 closed at d0d391de, 212's first part
+landed at 1c14b0bf with its pocket mark parked, 210 closed at 3e69ec60, 200 at 2ceac35a.
 
 Items done and verdicts settled before 2026-10-23 stand in REVIEW-ARCHIVE.md beside this file, their
 numbers kept, moved there at 19:30 on 2026-10-23 so this file holds the current work alone and is
@@ -4944,7 +4943,19 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     which the device asks for where it is offered and the null device stands in for, each hit's
     color its texture's at the point and its normal the map's in the hit's tangent frame, the copy
     color the fall-back for a material with no texture; then the faces read again and what remains
-    placed or recorded.
+    placed or recorded. Done at `f1cc2022` on 77f45030 at 00:33 on 2026-11-09, pushed once
+    b3c471d9's run has ended; the ray scene keeps every corner's texture coordinates beside the
+    corners, the device asks for non-uniform indexing of sampled images where it is offered and the
+    reference says why where it is not, the copies' textures are bound as an array of 256 at most
+    with white in every unused slot, each hit takes the copy's untextured color times its texture
+    there and bends the face by its normal map in the hit triangle's tangent frame, and a copy whose
+    texture finds no slot keeps its average color; two tests hold a two-tone slab within 0.003 of
+    the frame where the average color left it 0.925 off and a leaning normal map at 1.001 where the
+    face's normal left the frame at 1.614, both failing with the reads off. 215's faces toward the
+    sun at 8:00 read 0.903 to 1.068 where 0.880 to 1.116, the grazed faces in the arcades 0.978 and
+    1.013 where 1.064 and 1.087, and the balcony's three faces along the view's top edge 1.383,
+    0.740 and 0.749, their insides a few hundred pixels where two sunlit patches part, recorded and
+    not placed; the balcony picture is in the dump.
 
 230. **Four rays a texel at 16 a side.** From 228's reading on 2026-11-08, which the 2026-11-01
     record chose at a millisecond more and Decision 94 sets no budget against. In High's near
@@ -6917,3 +6928,48 @@ faces at 8:00 read again, in the insides the untextured reference marks, the fac
 where 1.064 and 1.087, 0.840 and 0.862 with the frame's maps off, and the balcony's three faces
 along the view's top edge 1.383, 0.740 and 0.749, their insides a few hundred pixels, no nearer at
 1920 by 1080, where the two sunlit patches part, recorded.
+
+225 planned on 2026-11-09, before the batch. The engine's fifteen folders were read for which
+top-level types each names of another's, the code without its comments and strings. The graph is not
+the item's layering yet, so the split is two parts, first cutting the back edges inside the one
+project, each cut a commit with its suite, and then the projects drawn along the cut folders.
+
+The back edges and their cuts. DefaultPlugins in Core names every area's plugin, nine areas, and
+moves to the flat surface's project, which composes the rest. Handle and Transform, which Core, the
+ECS, the device, physics, the platform and the components all name, move into Core, and Color,
+Image, ConfigFlags, PixelFormat and the blend enums, which the device and the ImGui pass name, move
+into Graphics with Api naming them. Assets and Scenes name each other, 60 and 41 times, the readers
+in Assets making the scene model in Scenes, so the scene model, Scene, SceneNode and the payloads,
+moves into Assets and Scenes keeps the spawner on it. Rendering names Model, Camera3D, MeshStream
+and its format and ModelAnimation from Api, which move into Rendering as the public types they are,
+and PngWriter, FrameProfile, Recorder, the debug keys and the overlay from Diagnostics, which move
+into Rendering. Modeling names E3D, SelectionMode, MaterialMapIndex and Model, which it takes as its
+own types or through Rendering. Physics names MeshStore and AnimatedModelDraws for its colliders,
+which it reads through an interface in Core the renderer fills. The audio under Platform names the
+asset loaders and Api's AudioCallback and IMusicDecoder, so audio becomes its own area on Assets,
+and the window and input stay as Engine.Platform on Core, which Rendering names for AppWindow.
+
+Two of the item's placings do not hold as written. The device's 47 partial files include the scene
+field's, global illumination's, the screen probes', the fog's, the sky's, the particles', the
+reference's and the ray queries' device code, and a partial class cannot span assemblies, so
+Engine.Rendering.GlobalIllumination needs that code made into classes of its own over an internal
+surface of the device, some fifteen files, the largest of the cuts. And Diagnostics' console
+commands name the renderer 36 times and the device 9, so Engine.Diagnostics on Core holds the
+console, the log ring and the command catalog, and each area's commands move into that area's
+project, the command generator running in each, and Engine.Cli on Core likewise. Internal types one
+project's code reaches in another's go through InternalsVisibleTo among the engine's projects, as
+the tests reach them, since the renderer, the device and the loaders stay internal by DESIGN.md's
+section 11.
+
+Once the cuts are in, a norm test reads the folders' edges as the projects will and fails one that
+points upward, so the second part moves files without a cycle coming back. The second part makes the
+projects, the generators wired into each, PublicApi.txt split per project and held to the whole
+before it, the pack workflow packing every project at the one version with a package named 3DEngine
+depending on all of them, so the games and the templates keep their one reference, and DESIGN.md's
+section 9 and the tables in RENDERING.md and BUILDING.md redrawn. AGENTS.md's table of where things
+are lists folders of the one project, and the owner's allowance of 2026-10-05 covers adding a row it
+lacks, not redrawing it, so its rows change with the owner's word in a session, which this plan asks
+for and does not take from the review.
+
+The cuts are some eight commits, the device's the longest, then the split as one or two. The review
+is asked to confirm the order and the two changed placings before the first cut.
