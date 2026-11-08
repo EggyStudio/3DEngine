@@ -578,7 +578,8 @@ internal sealed partial class SceneFieldRenderer : IDisposable
     }
 
     // A build's instances as field_splat.slang's FieldInstance reads them, 96 bytes each, whether
-    // one has an inside and the share of light it lets through in its third count, with how many
+    // one has an inside, the share of light it lets through, its roughness and its metallic share
+    // in its third count, with how many
     // there are, how many triangles they have in all, and whether one is emissive and thinner than a
     // cell of the build, which field_splat.slang lends the light of.
     private (IBuffer Buffer, int Count, int Triangles, bool ThinGlow) Instances(GraphicsDevice device, SceneFieldPlan.Instance[] instances, float cell)
@@ -595,7 +596,7 @@ internal sealed partial class SceneFieldRenderer : IDisposable
             ReadOnlySpan<float> rows = [w.M11, w.M21, w.M31, w.M41, w.M12, w.M22, w.M32, w.M42, w.M13, w.M23, w.M33, w.M43];
             MemoryMarshal.Cast<float, uint>(rows).CopyTo(record);
             (record[12], record[13], record[14], record[15]) = ((uint)pooled.First, (uint)pooled.Count,
-                (instance.DoubleSided ? 1u : 0u) | (uint)MathF.Round(Math.Clamp(instance.LightThrough, 0, 1) * 255) << 8, (uint)triangles);
+                (instance.DoubleSided ? 1u : 0u) | Byte(instance.LightThrough) << 8 | Byte(instance.Roughness) << 16 | Byte(instance.Metallic) << 24, (uint)triangles);
             var thinnest = Thinnest(instance);
             // An emitter global illumination carries as a glow light marks its cells and lends
             // none.
@@ -609,6 +610,9 @@ internal sealed partial class SceneFieldRenderer : IDisposable
         device.Unmap(buffer);
         return (buffer, written, triangles, thinGlow);
     }
+
+    // A share from 0 to 1 in 255ths.
+    private static uint Byte(float share) => (uint)MathF.Round(Math.Clamp(share, 0, 1) * 255);
 
     // How thin an emissive instance is, its mesh's bounds along each of its own axes
     // scaled by its world matrix, the least of them, which field_splat.slang lends the light of

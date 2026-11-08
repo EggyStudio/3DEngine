@@ -57,10 +57,10 @@ RWTexture3D<float4> albedoField;
 
 // The way each cell's nearest face looks, the still meshes' and the one the passes read, as
 // field_resolve.slang wrote them, a box's face's where the box is nearer.
-[[vk::binding(7, 0)]] [format("r8ui")]
+[[vk::binding(7, 0)]] [format("r32ui")]
 RWTexture3D<uint> stillFaces;
 
-[[vk::binding(8, 0)]] [format("r8ui")]
+[[vk::binding(8, 0)]] [format("r32ui")]
 RWTexture3D<uint> faceField;
 
 // The emission the still meshes give each cell and the one the passes read, as field_resolve.slang

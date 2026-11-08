@@ -10,10 +10,10 @@
 // the ambient lights', where it meets nothing. Where asked, the first face's way on is drawn about
 // its mirror way by GGX's distribution of the normals the eye sees against the cosine, by their
 // shares, so it reflects the indirect light as the model pass does, and where asked of every face,
-// each face a camera's path meets is lit and goes on as the first is, so the gloss of what a path
-// meets carries light between bounces, as the bridge's reference traces it. A path after the
-// camera's first ray crosses a copy that lets light through (ModelMaterial.LightThrough) by its
-// share, as global illumination's rays cross a canopy's leaves, and meets it as a solid face
+// each face a path meets, a camera's or a probe's, is lit and goes on as the first is, so the gloss
+// of what a path meets carries light between bounces, as the bridge's reference traces it. A path
+// after the camera's first ray crosses a copy that lets light through (ModelMaterial.LightThrough)
+// by its share, as global illumination's rays cross a canopy's leaves, and meets it as a solid face
 // otherwise, while the camera sees it and it shadows the sun and the lamps, as the model pass and
 // the shadow maps hold it. Lights are given as the model pass has them, the light a white diffuse
 // surface facing one returns, so a surface's diffuse light is its color times what arrives, with no
@@ -106,8 +106,8 @@ struct ReferencePush
     uint4 sizeAndCounts;
     // x: the first sample this pass adds, which seeds its random numbers. y: 1 where the paths
     // start at a probe. z: 1 where a copy lets light through. w: 1 where the first face the camera
-    // sees reflects the indirect light by its specular share too, 2 where every face a camera's path
-    // meets does (ReferenceGloss).
+    // sees reflects the indirect light by its specular share too, 2 where every face a path meets
+    // does, a camera's or a probe's (ReferenceGloss).
     uint4 first;
     // xyz: the probe's middle, where the paths start at one.
     float4 probe;
@@ -435,7 +435,7 @@ float3 trace(float3 origin, float3 way, bool fromProbe, inout uint state, out ui
             met = hit.t;
         }
 
-        bool glossy = !fromProbe && (bounce == 0u || push.first.w == 2u);
+        bool glossy = !fromProbe && bounce == 0u || push.first.w == 2u;
         float roughness = clamp(asfloat(surface.corners.y), 0.045, 1.0);
         float metallic = saturate(asfloat(surface.corners.z));
         // The copy's color times its mesh's vertices' colors at the hit, blended as the model pass

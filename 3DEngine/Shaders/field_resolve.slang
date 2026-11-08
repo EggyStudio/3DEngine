@@ -47,9 +47,9 @@ StructuredBuffer<uint> emitted;
 // The way each cell's nearest face looks, the eight bits field_splat.slang kept in its uint, into
 // the image the passes read and the one the still meshes' faces are kept in for field_stamp.slang,
 // so a ray's hit takes its color from cells its own face painted (gi.slang's surfaceAlbedoFacing).
-[[vk::binding(10, 0)]] [format("r8ui")]
+[[vk::binding(10, 0)]] [format("r32ui")]
 RWTexture3D<uint> faceField;
-[[vk::binding(11, 0)]] [format("r8ui")]
+[[vk::binding(11, 0)]] [format("r32ui")]
 RWTexture3D<uint> stillFaces;
 
 // The word of a second double-sided face as near a cell, as field_splat.slang's painting pass kept
@@ -68,6 +68,11 @@ RWStructuredBuffer<uint> kept;
 // The emission the still meshes give, kept apart for field_stamp.slang to start its bricks from.
 [[vk::binding(15, 0)]] [format("rgba16f")]
 RWTexture3D<float4> stillGlow;
+
+// The gloss each cell's nearest surface painted (glossBits in scenefield.slang), which goes beside
+// its face's way into the faces images.
+[[vk::binding(16, 0)]]
+RWStructuredBuffer<uint> gloss;
 
 struct ResolvePush
 {
@@ -210,8 +215,9 @@ void computeMain(uint3 thread : SV_DispatchThreadID)
     float4 paint = float4(float(color & 255u), float((color >> 8) & 255u), float((color >> 16) & 255u), float(color >> 24)) / 255.0;
     stillPaint[at] = paint;
     albedoField[at] = paint;
-    stillFaces[at] = code & 255u;
-    faceField[at] = code & 255u;
+    uint face = (code & 255u) | gloss[(id.z * size + id.y) * size + id.x];
+    stillFaces[at] = face;
+    faceField[at] = face;
     uint index = (id.z * size + id.y) * size + id.x;
     uint2 light = glow[index];
     // The lent light times the share of the cell's face the emitters cover along the axis they

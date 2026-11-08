@@ -223,7 +223,7 @@ internal static class BounceReference
     }
 
     /// <summary>What <see cref="Probe"/> reports, or null and why where it cannot be measured, the probe inside a mesh among those.</summary>
-    internal static ProbeLight? MeasureProbe(World world, Vector3 point, int samples, int bounces, int cascade, out string why)
+    internal static ProbeLight? MeasureProbe(World world, Vector3 point, int samples, int bounces, int cascade, out string why, ReferenceGloss gloss = ReferenceGloss.Every)
     {
         if (Prepare(world, out why) is not { } tracer) return null;
         if (tracer.Render.TryGet<GlobalIlluminationRenderer>()?.Probes is not { } gi || tracer.Render.TryGet<SceneFieldRenderer>()?.Plan is not { } plan)
@@ -271,7 +271,7 @@ internal static class BounceReference
             why = string.Create(CultureInfo.InvariantCulture, $"the probe of cascade {c} at {middle.X:0.##},{middle.Y:0.##},{middle.Z:0.##} lies inside a mesh and holds nothing");
             return null;
         }
-        var traced = tracer.Trace(Matrix4x4.Identity, n, n, samples, bounces, middle);
+        var traced = tracer.Trace(Matrix4x4.Identity, n, n, samples, bounces, middle, gloss);
         var reference = traced.Light;
 
         var (hitRays, hitReference, mergedAll, referenceAll, hits, early) = (Vector3.Zero, Vector3.Zero, Vector3.Zero, Vector3.Zero, 0, 0);

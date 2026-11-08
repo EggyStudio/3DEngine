@@ -38,7 +38,8 @@ struct FieldInstance
     // x: its mesh's first triangle in the pool. y: how many it has. z: 1 in its lowest bit when the
     // mesh has no inside, as a double-sided one, whose cells are all in front, and in its second
     // byte the share of light that passes a unit of its depth in 255ths (lightThroughPaint). w: the
-    // first of its triangles counted over every instance before it.
+    // first of its triangles counted over every instance before it. z's third byte holds its
+    // roughness and its fourth its metallic share, in 255ths.
     uint4 triangles;
     // rgb: the surface's color, linear, its material's times its texture's average. w: 2 where
     // global illumination carries its emission as a glow light, 1 elsewhere.
@@ -93,6 +94,11 @@ RWTexture3D<float4> albedoField;
 // atomic minimum and field_resolve.slang turns into the cell's second plane.
 [[vk::binding(9, 0)]]
 RWStructuredBuffer<uint> second;
+
+// The gloss of each cell's nearest surface (glossBits), painted with its color, which
+// field_resolve.slang puts beside its face.
+[[vk::binding(10, 0)]]
+RWStructuredBuffer<uint> gloss;
 
 struct SplatPush
 {
@@ -419,6 +425,7 @@ void computeMain(uint3 group : SV_GroupID, uint lane : SV_GroupIndex)
                 continue;
             }
             albedo[index] = c.r | (c.g << 8) | (c.b << 16) | (c.a << 24);
+            gloss[index] = glossBits(float((instance.triangles.z >> 16u) & 255u) / 255.0, float(instance.triangles.z >> 24u) / 255.0);
             float3 e = max(instance.emission.rgb, 0.0);
             glow[index] = uint2(packHalves(e.rg), packHalves(float2(e.b, carried && any(e > 0.0) ? 1.0 : 0.0)));
         }

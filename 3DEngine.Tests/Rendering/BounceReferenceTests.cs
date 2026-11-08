@@ -51,8 +51,10 @@ public sealed partial class BounceReferenceTests : IDisposable
     [NeedsRayQueryFact]
     public void A_Probe_Inside_The_Emissive_Box_Has_Its_Light_Over_One_Less_Its_Color_Arriving_From_Every_Way()
     {
+        // The closed form holds for walls sending on their color's share of what reaches them, so
+        // the reference's paths go on by the walls' diffuse share alone.
         var share = EmissiveBox();
-        var probe = BounceReference.MeasureProbe(GetApp().World, Vector3.Zero, 256, -1, 0, out var why);
+        var probe = BounceReference.MeasureProbe(GetApp().World, Vector3.Zero, 256, -1, 0, out var why, ReferenceGloss.None);
         probe.Should().NotBeNull(why);
         var expected = 1 / (1 - share);
         probe!.Ways.Should().Be(64, "High's first cascade has eight texels along each side of its octahedron");
@@ -287,18 +289,21 @@ public sealed partial class BounceReferenceTests : IDisposable
         Frames(40);
 
         var path = Path.Combine(_folder.Path, "relit.png");
-        BounceReference.Trace(GetApp().World, path, 512, gloss: ReferenceGloss.First).Should().StartWith("traced");
+        BounceReference.Trace(GetApp().World, path, 512, gloss: ReferenceGloss.Every).Should().StartWith("traced");
         var regions = BounceReference.Measure(GetApp().World, path, out var why, out _);
         regions.Should().NotBeNull(why);
         var floor = regions!.Single(r => r.Name.EndsWith("floor", StringComparison.Ordinal));
         var front = regions!.Single(r => r.Name.Contains("wall facing +z", StringComparison.Ordinal));
         (floor.Reference.X / floor.Reference.Y).Should().BeGreaterThan(5, $"the reference traces the slab red, {floor.Reference}");
-        // Against the reference traced with the first face's specular share, as the slab reflects
-        // the light its probes hold, it reads 5.1% under it on the development machine's GPU, where
-        // it read 14.3% under reflecting the environment's alone, of which there is none here.
+        // Against the reference traced with every face's gloss, as the probes' rays light what they
+        // meet by its gloss, it reads 3.9% under it on the development machine's GPU, and against one
+        // with the first face's gloss alone 5.1% under, as the slab reflects the light its probes
+        // hold, where it read 14.3% under reflecting the environment's alone, of which there is none
+        // here.
         Math.Abs(floor.Share).Should().BeLessThan(0.06f, $"the slab reads in the frame {floor.Frame} as in the reference {floor.Reference}");
-        // The wall's red over its green reads 1.212 in the frame and 1.240 in the reference on the
-        // development machine's GPU, the slab's own light 3.6% from the reference's. It read 1.230
+        // The wall's red over its green reads 1.233 in the frame and 1.239 in the reference with
+        // every face's gloss on the development machine's GPU, and 1.212 against 1.240 with the
+        // first face's alone, the slab's own light 3.6% from that reference's. It read 1.230
         // while the screen's rays past their reach took the light of the world's probes around the
         // point they left the wall from, nearer the slab, which lent the upper wall's rays toward
         // the open side 0.053 of red where the reference along their ways holds 0.001. Read where

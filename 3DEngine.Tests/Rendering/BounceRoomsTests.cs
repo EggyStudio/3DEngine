@@ -12,8 +12,9 @@ namespace Engine.Tests.Rendering;
 /// difference from its reference.
 /// </summary>
 /// <remarks>
-/// A reference is the view's light traced with 4096 paths a pixel at 160 by 90 with the first face's
-/// specular share, averaged to 80 by 45, in linear light, checked in under
+/// A reference is the view's light traced with 4096 paths a pixel at 160 by 90 with every face's
+/// gloss (<see cref="ReferenceGloss.Every"/>), as the probes' rays light what they meet by its
+/// gloss, averaged to 80 by 45, in linear light, checked in under
 /// <c>References/bounce</c>; setting
 /// <c>E3D_WRITE_REFERENCES=1</c> traces them again. The frame's linear light is averaged the same,
 /// and a view's difference is its pixels' differences summed over the reference's light, so one
@@ -41,7 +42,8 @@ public sealed partial class BounceRoomsTests : IDisposable
         // its light from its reference, over its own bound of 0.09, where it reads 0.069 with the
         // last counted cascade tracing to the field's edge as the last does and merging nothing,
         // and 0.041 against its reference traced with the first face's specular share, where 0.116
-        // before the floor reflected the light its probes hold.
+        // before the floor reflected the light its probes hold, and 0.037 against one traced with
+        // every face's gloss, the probes' rays lighting what they meet by its gloss.
         var share = Differs(7, GlobalIllumination.Low, far: true);
         share.Should().BeLessThan(0.05, $"the grazing floor with a far cascade differs from its reference by {share:0.000} of its light");
     }
@@ -76,7 +78,7 @@ public sealed partial class BounceRoomsTests : IDisposable
             Frames(SceneFieldPlan.SettleFrames + 30);
             using var folder = new TestFolder("engine-bounce-");
             var traced = Path.Combine(folder.Path, $"view-{view}.png");
-            BounceReference.Trace(GetApp().World, traced, 4096, gloss: ReferenceGloss.First);
+            BounceReference.Trace(GetApp().World, traced, 4096, gloss: ReferenceGloss.Every);
             var (width, height, light) = BounceReference.ReadPfm(traced + ".pfm");
             WritePfm(path, Averaged(light, width, height, 3));
         }
@@ -338,7 +340,16 @@ public sealed partial class BounceRoomsTests : IDisposable
         ReadScreenProbe(0, 276, 140, out var report, more: frames);
         var onRed = frames.SelectMany(frame => frame.Rays).Where(ray => ray.Met == 0 && ray.Way.X < -0.3f).ToArray();
         onRed.Should().HaveCountGreaterThanOrEqualTo(4 * 16, $"the probe's rays toward the red wall meet it on the screen\n{report}");
-        onRed.Should().OnlyContain(ray => ray.Own.Y < 0.05f * ray.Own.X, $"the red wall's hits beside the white wall take the red wall's color\n{report}");
+        // A hit sends back its color and its gloss's share at the ray's angle alike in every channel
+        // (reflectedShare in probelight.slang), so the green of the color it was lit by is read past
+        // that share, the red wall's red its own 0.578.
+        static float Green(BounceReference.ScreenProbeRay ray)
+        {
+            var share = GlossShare(-ray.Way.X);
+            return ray.Own.Y / ray.Own.X * (0.578f + share) - share;
+        }
+        var greens = onRed.Select(Green).ToArray();
+        greens.Should().OnlyContain(g => g < 0.05f * 0.578f, $"the red wall's hits beside the white wall take the red wall's color, their green {greens.Min():0.000} to {greens.Max():0.000}\n{report}");
     }
 
     // The screen probe on the far wall of the carried lamp's room in shaders_bounce_rooms at 800 by
@@ -427,13 +438,14 @@ public sealed partial class BounceRoomsTests : IDisposable
             .Where(hit => hit.At.Y > 2.8f && MathF.Abs(hit.At.X - 200) <= 1 && hit.At.Z < -1.6f).ToArray();
         over.Should().NotBeEmpty($"the probe's rays meet the ceiling over the strip\n{report}");
         var read = over.Sum(hit => Luminance(hit.Own));
-        var exact = over.Sum(hit => Luminance(StripLight(hit.At with { Y = 3 }, -Vector3.UnitY)));
+        var exact = over.Sum(hit => Luminance(StripLight(hit.At with { Y = 3 }, -Vector3.UnitY, GlossShare(Vector3.Normalize(hit.At - probe.Start).Y))));
         (read / exact - 1).Should().BeInRange(-0.1f, 0.1f, $"the ceiling over the strip takes its light as its closed form gives it\n{report}");
     }
 
     // The strip's light at p on the room's white facing n, Lambert's closed form over each face of its
-    // box p lies before, in linear light.
-    private static Vector3 StripLight(Vector3 p, Vector3 n)
+    // box p lies before, in linear light, with the gloss's share a probe's ray takes of it beside the
+    // white's (reflectedShare in probelight.slang).
+    private static Vector3 StripLight(Vector3 p, Vector3 n, float gloss = 0)
     {
         static float Linear(byte c)
         {
@@ -453,11 +465,23 @@ public sealed partial class BounceRoomsTests : IDisposable
                 seen += FormFactor(p, n, [face + u + v, face - u + v, face - u - v, face + u - v]);
             }
         var (white, emitted) = (new Color(220, 220, 215), new Color(255, 230, 190));
-        return new Vector3(Linear(white.R) * Linear(emitted.R), Linear(white.G) * Linear(emitted.G), Linear(white.B) * Linear(emitted.B)) * 30 * seen;
+        return new Vector3((Linear(white.R) + gloss) * Linear(emitted.R), (Linear(white.G) + gloss) * Linear(emitted.G), (Linear(white.B) + gloss) * Linear(emitted.B)) * 30 * seen;
     }
 
     // The share of the light a uniformly bright polygon sends a point at p facing n, the polygon
     // clipped to the side n faces.
+    // The share of the light around it a dielectric face of a roughness of a half, the rooms', sends
+    // back toward a way at a cosine of nv from its normal by its gloss, Karis's fit of the split sum,
+    // as a probe's ray takes it at its hit (reflectedShare in probelight.slang).
+    private static float GlossShare(float nv)
+    {
+        const float Roughness = 0.5f;
+        var (x, y, z, w) = (Roughness * -1 + 1, Roughness * -0.0275f + 0.0425f, Roughness * -0.572f + 1.04f, Roughness * 0.022f - 0.04f);
+        var a004 = MathF.Min(x * x, MathF.Pow(2, -9.28f * Math.Clamp(nv, 0, 1))) * x + y;
+        var (a, b) = (-1.04f * a004 + z, 1.04f * a004 + w);
+        return 0.04f * a + b;
+    }
+
     private static float FormFactor(Vector3 p, Vector3 n, Vector3[] corners)
     {
         var kept = new List<Vector3>();

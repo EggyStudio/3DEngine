@@ -221,6 +221,15 @@ public float3 surfaceAlbedo<V : IVolume>(V albedo, SceneFieldInfo info, float3 p
 // not tell those cells apart, as they lie as far from both.
 public float3 surfaceAlbedoFacing<V : IVolume>(Texture3D<uint> faces, V albedo, SceneFieldInfo info, float3 p, float3 n)
 {
+    float2 gloss;
+    return surfaceFacing(faces, albedo, info, p, n, gloss);
+}
+
+// The same, with in gloss the roughness and metallic share of the same cells blended the same way
+// (faceGloss), or a material's default where no cell's face looks the way n does.
+public float3 surfaceFacing<V : IVolume>(Texture3D<uint> faces, V albedo, SceneFieldInfo info, float3 p, float3 n, out float2 gloss)
+{
+    gloss = float2(0.5, 0.0);
     int c = fieldCascade(info, p, 1.0);
     if (c < 0)
         return float3(0.5);
@@ -230,16 +239,23 @@ public float3 surfaceAlbedoFacing<V : IVolume>(Texture3D<uint> faces, V albedo, 
     int3 base = int3(floor(q));
     float3 f = q - float3(base);
     float4 sum = float4(0.0);
+    float2 glossSum = float2(0.0);
     for (int corner = 0; corner < 8; corner++)
     {
         int3 offset = int3(corner & 1, (corner >> 1) & 1, corner >> 2);
         int3 at = min(base + offset, int3(size - 1));
         int3 texel = int3(at.xy, at.z + c * size);
         float3 lerps = lerp(1.0 - f, f, float3(offset));
-        float facing = dot(faceWay(faces.Load(int4(texel, 0))), n) >= 0.5 ? 1.0 : 0.0;
-        sum += albedo.loadAt(texel) * (lerps.x * lerps.y * lerps.z * facing);
+        uint bits = faces.Load(int4(texel, 0));
+        float facing = dot(faceWay(bits), n) >= 0.5 ? 1.0 : 0.0;
+        float4 paint = albedo.loadAt(texel) * (lerps.x * lerps.y * lerps.z * facing);
+        sum += paint;
+        glossSum += faceGloss(bits) * paint.a;
     }
-    return sum.a > 0.01 ? sum.rgb / sum.a : surfaceAlbedo(albedo, info, p);
+    if (sum.a <= 0.01)
+        return surfaceAlbedo(albedo, info, p);
+    gloss = glossSum / sum.a;
+    return sum.rgb / sum.a;
 }
 
 // The emission of the field's surfaces at p, blended as their colors are.

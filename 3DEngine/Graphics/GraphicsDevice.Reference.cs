@@ -44,8 +44,9 @@ internal sealed unsafe partial class GraphicsDevice
     /// arriving at a probe from each way. A path crosses a copy that lets light through by its
     /// share where the scene holds one, and a scene that holds none is traced as it was before.
     /// <paramref name="gloss"/> says which faces of a camera's path reflect the indirect light by
-    /// their specular share too, a way drawn about its mirror way by GGX's visible normals, a
-    /// probe's paths reflecting by their diffuse share alone as the probes' rays do.
+    /// their specular share too, a way drawn about its mirror way by GGX's visible normals, and of a
+    /// probe's paths every face where it asks for every face, as the probes' rays light what they
+    /// meet by its gloss, and none otherwise.
     /// </remarks>
     /// <exception cref="InvalidOperationException">The device traces no rays.</exception>
     public TracedReference TraceReference(ReadOnlySpan<byte> spirv, GpuRayScene scene, Matrix4x4 inverseViewProjection, int width, int height,
@@ -113,7 +114,7 @@ internal sealed unsafe partial class GraphicsDevice
                     First = (uint)first,
                     FromProbe = probe is null ? 0u : 1u,
                     Through = through ? 1u : 0u,
-                    Specular = probe is null ? (uint)gloss : 0u,
+                    Specular = probe is null || gloss == ReferenceGloss.Every ? (uint)gloss : 0u,
                     Probe = new Vector4(probe ?? Vector3.Zero, 0),
                 };
                 _deviceApi.vkCmdPushConstants(cmd, layout, VkShaderStageFlags.Compute, 0, (uint)sizeof(ReferencePush), &push);

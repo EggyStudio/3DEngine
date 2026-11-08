@@ -34,8 +34,9 @@ public float3 meshCornerColor(float4 corner)
 // How far a ray from origin along way goes before it meets one of the window's meshes, within
 // reach, with that face's normal turned toward the ray and its color as the copy's color times
 // its corners', or below zero where it meets none.
-public float meshHit(float3 origin, float3 way, float reach, out float3 n, out float3 color)
+public float meshHit(float3 origin, float3 way, float reach, out float3 n, out float3 color, out float2 gloss)
 {
+    gloss = float2(0.5, 0.0);
     n = float3(0.0, 1.0, 0.0);
     color = float3(0.0);
     RayQuery<RAY_FLAG_FORCE_OPAQUE> query;
@@ -49,6 +50,7 @@ public float meshHit(float3 origin, float3 way, float reach, out float3 n, out f
     if (query.CommittedStatus() != COMMITTED_TRIANGLE_HIT)
         return -1.0;
     RaySurface surface = raySurfaces[query.CommittedInstanceID()];
+    gloss = meshGloss(query.CommittedInstanceID());
     uint corner = surface.corners.x + query.CommittedPrimitiveIndex() * 3u;
     float3 a = rayCorners[corner].xyz, b = rayCorners[corner + 1u].xyz, c = rayCorners[corner + 2u].xyz;
     n = normalize(mul(cross(b - a, c - a), (float3x3)query.CommittedWorldToObject3x4()));
@@ -67,6 +69,12 @@ public float3 meshFaceOut(uint copy, uint face, float3x4 worldToObject)
     uint corner = raySurfaces[copy].corners.x + face * 3u;
     float3 a = rayCorners[corner].xyz, b = rayCorners[corner + 1u].xyz, c = rayCorners[corner + 2u].xyz;
     return mul(cross(b - a, c - a), (float3x3)worldToObject);
+}
+
+// A copy's roughness and metallic share, as the reference lights it by (GpuRayScene).
+public float2 meshGloss(uint copy)
+{
+    return saturate(float2(asfloat(raySurfaces[copy].corners.y), asfloat(raySurfaces[copy].corners.z)));
 }
 
 // The nearest face a ray from origin along way meets from tMin to reach but those it leaves a copy

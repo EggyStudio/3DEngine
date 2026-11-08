@@ -453,3 +453,19 @@ public float3 faceWay(uint bits)
         n.xy = (1.0 - abs(n.yx)) * float2(n.x >= 0.0 ? 1.0 : -1.0, n.y >= 0.0 ? 1.0 : -1.0);
     return normalize(n);
 }
+
+// A face's gloss in the bits above its way in a cell of the faces image, its roughness in bits 8 to
+// 15 and its metallic share in bits 16 to 23, each in 255ths, with bit 24 set, as the bridge keeps a
+// face's gloss beside its way, painted by the triangle that painted the cell's color; and the gloss
+// back from the bits, a roughness of a half and no metal, a material's default, where no gloss
+// painted the cell, as a shape stamped over the field.
+public uint glossBits(float roughness, float metallic)
+{
+    uint2 bytes = uint2(saturate(float2(roughness, metallic)) * 255.0 + 0.5);
+    return (bytes.x << 8) | (bytes.y << 16) | (1u << 24);
+}
+
+public float2 faceGloss(uint bits)
+{
+    return (bits & (1u << 24)) != 0u ? float2(float((bits >> 8) & 255u), float((bits >> 16) & 255u)) / 255.0 : float2(0.5, 0.0);
+}

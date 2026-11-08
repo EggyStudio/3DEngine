@@ -44,12 +44,13 @@ internal sealed unsafe partial class GraphicsDevice
             if (_fieldStages[StampStage].Pipeline.Handle != 0 || _fieldSpirv is not { } spirv) return _fieldStages;
             _fieldStages[SplatStage] = MakeComputeStage(spirv[0], [VkDescriptorType.StorageBuffer, VkDescriptorType.StorageBuffer,
                 VkDescriptorType.StorageBuffer, VkDescriptorType.StorageBuffer, VkDescriptorType.StorageBuffer, VkDescriptorType.StorageBuffer,
-                VkDescriptorType.StorageBuffer, VkDescriptorType.StorageImage, VkDescriptorType.StorageImage, VkDescriptorType.StorageBuffer], (uint)sizeof(SplatPush));
+                VkDescriptorType.StorageBuffer, VkDescriptorType.StorageImage, VkDescriptorType.StorageImage, VkDescriptorType.StorageBuffer,
+                VkDescriptorType.StorageBuffer], (uint)sizeof(SplatPush));
             _fieldStages[ResolveStage] = MakeComputeStage(spirv[1], [VkDescriptorType.StorageBuffer, VkDescriptorType.StorageImage,
                 VkDescriptorType.StorageImage, VkDescriptorType.StorageBuffer, VkDescriptorType.StorageBuffer, VkDescriptorType.StorageImage,
                 VkDescriptorType.StorageImage, VkDescriptorType.StorageBuffer, VkDescriptorType.StorageImage, VkDescriptorType.StorageBuffer,
                 VkDescriptorType.StorageImage, VkDescriptorType.StorageImage, VkDescriptorType.StorageBuffer, VkDescriptorType.StorageImage,
-                VkDescriptorType.StorageBuffer, VkDescriptorType.StorageImage], 64);
+                VkDescriptorType.StorageBuffer, VkDescriptorType.StorageImage, VkDescriptorType.StorageBuffer], 64);
             _fieldStages[StampStage] = MakeComputeStage(spirv[2], [VkDescriptorType.StorageBuffer, VkDescriptorType.StorageBuffer,
                 VkDescriptorType.StorageImage, VkDescriptorType.StorageImage, VkDescriptorType.UniformBuffer, VkDescriptorType.StorageImage,
                 VkDescriptorType.StorageImage, VkDescriptorType.StorageImage, VkDescriptorType.StorageImage, VkDescriptorType.StorageImage,
@@ -88,8 +89,8 @@ internal sealed unsafe partial class GraphicsDevice
         var (albedoImage, albedoMemory, albedoView) = FieldImage(size, depth, VkFormat.R8G8B8A8Unorm);
         var (glowImage, glowMemory, glowView) = FieldImage(size, depth, VkFormat.R16G16B16A16Sfloat);
         var (stillGlow, stillGlowMemory, stillGlowView) = FieldImage(size, depth, VkFormat.R16G16B16A16Sfloat);
-        var (facesImage, facesMemory, facesView) = FieldImage(size, depth, VkFormat.R8Uint);
-        var (stillFaces, stillFacesMemory, stillFacesView) = FieldImage(size, depth, VkFormat.R8Uint);
+        var (facesImage, facesMemory, facesView) = FieldImage(size, depth, VkFormat.R32Uint);
+        var (stillFaces, stillFacesMemory, stillFacesView) = FieldImage(size, depth, VkFormat.R32Uint);
         // A second plane where two double-sided faces lie as near a cell, as where two walls cross.
         var (secondImage, secondMemory, secondView) = FieldImage(size, depth, VkFormat.R16G16B16A16Sfloat);
         var info = CreateBuffer(new BufferDesc(GpuSceneField.InfoBytes, BufferUsage.Uniform | BufferUsage.TransferDst));
@@ -98,6 +99,7 @@ internal sealed unsafe partial class GraphicsDevice
         var glow = CreateBuffer(new BufferDesc((ulong)size * size * size * 8, BufferUsage.Storage | BufferUsage.TransferDst));
         var behind = CreateBuffer(new BufferDesc((ulong)size * size * size * 4, BufferUsage.Storage | BufferUsage.TransferDst));
         var second = CreateBuffer(new BufferDesc((ulong)size * size * size * 4, BufferUsage.Storage | BufferUsage.TransferDst));
+        var gloss = CreateBuffer(new BufferDesc((ulong)size * size * size * 4, BufferUsage.Storage | BufferUsage.TransferDst));
 
         // The distances cleared to far and the colors to none, the still images left in the general
         // layout and the ones the passes read ready to be sampled, and the info zeroed, which
@@ -166,6 +168,7 @@ internal sealed unsafe partial class GraphicsDevice
                 glow.Dispose();
                 behind.Dispose();
                 second.Dispose();
+                gloss.Dispose();
                 info.Dispose();
                 _deviceApi.vkDestroyImageView(secondView);
                 secondOwner.Dispose();
@@ -201,6 +204,7 @@ internal sealed unsafe partial class GraphicsDevice
             stillPaint, stillPaintView, facesImage, new VulkanImageView(this, facesOwner, facesView), stillFaces, stillFacesView)
         {
             Second = second,
+            Gloss = gloss,
             SecondImage = secondImage,
             SecondView = new VulkanImageView(this, secondOwner, secondView),
             StillGlow = stillGlow,
@@ -369,6 +373,7 @@ internal sealed unsafe partial class GraphicsDevice
             // No second face as near as the nearest, until the painting pass finds one.
             _deviceApi.vkCmdFillBuffer(cmd, ((VulkanBuffer)field.Second).Buffer, 0, Vulkan.VK_WHOLE_SIZE, uint.MaxValue);
             _deviceApi.vkCmdFillBuffer(cmd, ((VulkanBuffer)field.Albedo).Buffer, 0, Vulkan.VK_WHOLE_SIZE, 0);
+            _deviceApi.vkCmdFillBuffer(cmd, ((VulkanBuffer)field.Gloss).Buffer, 0, Vulkan.VK_WHOLE_SIZE, 0);
             _deviceApi.vkCmdFillBuffer(cmd, ((VulkanBuffer)field.Glow).Buffer, 0, Vulkan.VK_WHOLE_SIZE, 0);
             _deviceApi.vkCmdFillBuffer(cmd, ((VulkanBuffer)field.Behind).Buffer, 0, Vulkan.VK_WHOLE_SIZE, uint.MaxValue);
             // The emitters' light cleared, and later read, where a build lends it alone, as clearing
@@ -402,6 +407,7 @@ internal sealed unsafe partial class GraphicsDevice
             run.Image(splat, 7, field.StillPaintView);
             run.Image(splat, 8, ((VulkanImageView)field.AlbedoView).View);
             run.Buffer(splat, 9, VkDescriptorType.StorageBuffer, field.Second);
+            run.Buffer(splat, 10, VkDescriptorType.StorageBuffer, field.Gloss);
             var groupsX = (uint)Math.Min(triangleCount, 65535);
             var push = new SplatPush
             {
@@ -458,6 +464,7 @@ internal sealed unsafe partial class GraphicsDevice
         run.Image(resolve, 13, ((VulkanImageView)field.SecondView).View);
         run.Buffer(resolve, 14, VkDescriptorType.StorageBuffer, field.KeptCells!);
         run.Image(resolve, 15, field.StillGlowView);
+        run.Buffer(resolve, 16, VkDescriptorType.StorageBuffer, field.Gloss);
         var (from, to) = cells is { } c
             ? (new Vector4(c.X0, c.Y0, c.Z0, 0), new Vector4(c.X1, c.Y1, c.Z1, 0))
             : (Vector4.Zero, new Vector4(size - 1, size - 1, size - 1, 0));

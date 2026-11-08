@@ -18,9 +18,10 @@ internal enum ReferenceGloss
     First,
 
     /// <summary>
-    /// Every face a camera's path meets is lit and goes on as the first is, its metal reflecting
-    /// and its lights' specular share reflected, so the gloss of what a path meets carries light
-    /// between bounces, as the bridge's reference traces it and as the probes' rays do not.
+    /// Every face a path meets, a camera's or a probe's, is lit and goes on as the first is, its
+    /// metal reflecting and its lights' specular share reflected, so the gloss of what a path meets
+    /// carries light between bounces, as the bridge's reference traces it and the probes' rays
+    /// carry it.
     /// </summary>
     Every,
 }

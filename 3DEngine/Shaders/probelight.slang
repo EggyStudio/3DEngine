@@ -346,6 +346,22 @@ public float3 shadeProbeHitN<V : IVolume, S : ISheetVolume, Sun : ISunShadow>(V 
     return shadeProbeHitFacing(field, info, gathered, albedo, faces, glow, lights, cubes, cubesAt, reach, p, n, way, probes, spacing, cascades, seen, kept, sun, own, thinOnly);
 }
 
+// What a face of a color and a gloss, its roughness and metallic share, sends back of the light
+// reaching it toward a way at a cosine of nv from its normal, as though it reflected the light from
+// all around evenly, its diffuse share past its metal and its gloss's share toward that way by
+// Karis's fit of the split sum, its f0 a dielectric's 0.04 and its color by its metal, as the model
+// pass works them out. Taken at a probe's ray's hit, so the gloss of a wall the ray meets carries
+// light between bounces as its diffuse share does, as the reference's paths carry it at every face
+// (ReferenceGloss), with no read of the light along the hit's mirror way.
+public float3 reflectedShare(float3 color, float2 gloss, float nv)
+{
+    float4 r = gloss.x * float4(-1.0, -0.0275, -0.572, 0.022) + float4(1.0, 0.0425, 1.04, -0.04);
+    float a004 = min(r.x * r.x, exp2(-9.28 * saturate(nv))) * r.x + r.y;
+    float2 ab = float2(-1.04, 1.04) * a004 + r.zw;
+    float3 f0 = lerp(float3(0.04), color, gloss.y);
+    return color * (1.0 - gloss.y) + f0 * ab.x + ab.y;
+}
+
 // The same at a face whose normal is given, its color the field's facing it, as the screen's
 // probes light a hit on a surface the window's depth holds by the normal the depth gives there
 // (gi_screen.slang).
@@ -353,7 +369,8 @@ public float3 shadeProbeHitFacing<V : IVolume, Sun : ISunShadow>(V field, SceneF
     Texture3D<uint> faces, V glow, GiLights lights, V cubes, V cubesAt, V reach, float3 p, float3 n, float3 way, float probes, float spacing, float cascades, bool seen, float3 kept,
     Sun sun, out float3 own, bool thinOnly = false)
 {
-    float3 color = surfaceAlbedoFacing(faces, albedo, info, p, n);
+    float2 gloss;
+    float3 color = reflectedShare(surfaceFacing(faces, albedo, info, p, n, gloss), gloss, dot(n, -way));
     // Where thinOnly is set the march is made only where the surface is a wall thinner than a cell
     // of the field there, the point a cell behind it in the open, past which the probes' reach,
     // whose slack is a cell, takes a probe beyond the wall for one that sees the surface.

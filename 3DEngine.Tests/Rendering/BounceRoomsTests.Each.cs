@@ -94,32 +94,38 @@ public sealed partial class BounceRoomsTests
     // 0.268 and 0.260 where 0.241, 0.243 and 0.236. Its room reads its first two bounces 9 to 12%
     // under its reference as before, and the light past them, 44% of the reference's, 24 to 25%
     // under where 17 to 19%, the shortfall each bounce through the probes takes on, which the gain
-    // past the first bounce had made up for, and its bounds are 15% over these.
+    // past the first bounce had made up for. With the probes' rays lighting what they meet by its
+    // gloss (reflectedShare in probelight.slang), against references traced with every face's gloss,
+    // the views read at Low, Medium and High the Cornell box 0.089, 0.096 and 0.082, the thin room
+    // 0.082, 0.066 and 0.038, the corridor 0.303, 0.292 and 0.152, the window's 0.092, 0.115 and
+    // 0.102, the red walls 0.015, 0.020 and 0.019, the strip's 0.275, 0.265 and 0.280, the grazing
+    // floor 0.037, 0.048 and 0.042, the carried lamp's 0.052, 0.088 and 0.076 and the emissive
+    // blocks 0.085, 0.082 and 0.076, and the bounds are 15% over these.
     [NeedsRayQueryTheory]
     [InlineData(1, GlobalIllumination.Low, 0.11)]
     [InlineData(1, GlobalIllumination.Medium, 0.12)]
     [InlineData(1, GlobalIllumination.High, 0.10)]
-    [InlineData(2, GlobalIllumination.Low, 0.13)]
-    [InlineData(2, GlobalIllumination.Medium, 0.11)]
-    [InlineData(2, GlobalIllumination.High, 0.11)]
-    [InlineData(3, GlobalIllumination.Low, 0.32)]
-    [InlineData(3, GlobalIllumination.Medium, 0.31)]
-    [InlineData(3, GlobalIllumination.High, 0.30)]
-    [InlineData(4, GlobalIllumination.Low, 0.27)]
-    [InlineData(4, GlobalIllumination.Medium, 0.30)]
-    [InlineData(4, GlobalIllumination.High, 0.29)]
-    [InlineData(5, GlobalIllumination.Low, 0.03)]
+    [InlineData(2, GlobalIllumination.Low, 0.10)]
+    [InlineData(2, GlobalIllumination.Medium, 0.08)]
+    [InlineData(2, GlobalIllumination.High, 0.05)]
+    [InlineData(3, GlobalIllumination.Low, 0.35)]
+    [InlineData(3, GlobalIllumination.Medium, 0.34)]
+    [InlineData(3, GlobalIllumination.High, 0.18)]
+    [InlineData(4, GlobalIllumination.Low, 0.11)]
+    [InlineData(4, GlobalIllumination.Medium, 0.14)]
+    [InlineData(4, GlobalIllumination.High, 0.12)]
+    [InlineData(5, GlobalIllumination.Low, 0.02)]
     [InlineData(5, GlobalIllumination.Medium, 0.03)]
     [InlineData(5, GlobalIllumination.High, 0.03)]
-    [InlineData(6, GlobalIllumination.Low, 0.30)]
+    [InlineData(6, GlobalIllumination.Low, 0.32)]
     [InlineData(6, GlobalIllumination.Medium, 0.31)]
-    [InlineData(6, GlobalIllumination.High, 0.30)]
+    [InlineData(6, GlobalIllumination.High, 0.33)]
     [InlineData(7, GlobalIllumination.Low, 0.05)]
     [InlineData(7, GlobalIllumination.Medium, 0.06)]
-    [InlineData(7, GlobalIllumination.High, 0.06)]
-    [InlineData(8, GlobalIllumination.Low, 0.09)]
+    [InlineData(7, GlobalIllumination.High, 0.05)]
+    [InlineData(8, GlobalIllumination.Low, 0.06)]
     [InlineData(8, GlobalIllumination.Medium, 0.11)]
-    [InlineData(8, GlobalIllumination.High, 0.10)]
+    [InlineData(8, GlobalIllumination.High, 0.09)]
     [InlineData(9, GlobalIllumination.Low, 0.10)]
     [InlineData(9, GlobalIllumination.Medium, 0.10)]
     [InlineData(9, GlobalIllumination.High, 0.09)]

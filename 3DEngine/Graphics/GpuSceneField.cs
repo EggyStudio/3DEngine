@@ -73,14 +73,14 @@ internal sealed class GpuSceneField : IDisposable
 
     /// <summary>
     /// The bytes of GPU memory a field of <paramref name="cascades"/> cascades of
-    /// <paramref name="resolution"/> cells a side takes, 54 bytes a cell of its cascades, the still
+    /// <paramref name="resolution"/> cells a side takes, 60 bytes a cell of its cascades, the still
     /// and the read distances with their planes in eight each, the still and the read colors in four
-    /// each, the still and the read emission in eight each, the faces in one each, the second planes
-    /// in eight and the codes kept in four, and the five buffers a build splats a cascade into, 24 a
-    /// cell of one cascade.
+    /// each, the still and the read emission in eight each, the faces with their gloss in four each,
+    /// the second planes in eight and the codes kept in four, and the six buffers a build splats a
+    /// cascade into, 28 a cell of one cascade.
     /// </summary>
     public static long MemoryBytes(int cascades, int resolution) =>
-        (long)resolution * resolution * resolution * (54L * Math.Max(1, cascades) + 24);
+        (long)resolution * resolution * resolution * (60L * Math.Max(1, cascades) + 28);
 
     /// <summary>
     /// The color of each cell's nearest still surface, linear, its alpha 1 where a surface painted
@@ -93,8 +93,8 @@ internal sealed class GpuSceneField : IDisposable
 
     /// <summary>
     /// The way each cell's nearest surface's face looks, in eight bits, as <c>scenefield.slang</c>'s
-    /// <c>faceWay</c> reads them, laid out as <see cref="View"/> is, which a ray's hit takes its color
-    /// from cells by.
+    /// <c>faceWay</c> reads them, and its gloss in the bits above (<c>faceGloss</c>), laid out as
+    /// <see cref="View"/> is, which a ray's hit takes its color and its gloss from cells by.
     /// </summary>
     public IImageView FacesView { get; }
 
@@ -145,6 +145,10 @@ internal sealed class GpuSceneField : IDisposable
     // where two walls cross, which the splat's painting pass keeps and the resolve turns into the
     // cell's second plane, the passes' own image beside the field, read by the probes' rays alone.
     internal IBuffer Second { get; init; } = null!;
+
+    // The gloss of each cell's nearest surface, its roughness and metallic share, which the splat's
+    // painting pass keeps with its color and the resolve puts beside the face's way in the faces.
+    internal IBuffer Gloss { get; init; } = null!;
     internal VkImage SecondImage { get; init; }
 
     /// <summary>The second plane a cell keeps where two double-sided faces lie as near it, every cascade, as a 3D texture.</summary>

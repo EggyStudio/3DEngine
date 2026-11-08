@@ -93,7 +93,7 @@ Sampler3D reach;
 RWStructuredBuffer<float4> rayLog;
 
 // The way each cell's nearest face looks, which a hit takes its color from cells by.
-[[vk::binding(15, 0)]] [format("r8ui")]
+[[vk::binding(15, 0)]] [format("r32ui")]
 Texture3D<uint> fieldFaces;
 
 // The second plane each cell of the field keeps where two double-sided faces lie as near it, which

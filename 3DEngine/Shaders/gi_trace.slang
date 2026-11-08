@@ -100,7 +100,7 @@ RWTexture3D<float4> held;
 RWTexture3D<float4> partial;
 
 // The way each cell's nearest face looks, which a hit takes its color from cells by.
-[[vk::binding(11, 0)]] [format("r8ui")]
+[[vk::binding(11, 0)]] [format("r32ui")]
 Texture3D<uint> fieldFaces;
 
 // The second plane each cell of the field keeps where two double-sided faces lie as near it, which
@@ -492,14 +492,14 @@ void computeMain(uint3 id : SV_DispatchThreadID, uint lane : SV_GroupIndex)
         // takes it, summed over what the ray met and set after, global illumination took 7% more
         // at Low in the bounce rooms, though the ray met one surface as here.
 #if defined(RAY_QUERY)
-        float3 meshNormal, meshColor;
+        float3 meshNormal, meshColor; float2 meshGloss;
         // A carried probe's rays meet the meshes, every ray where gi.toggle meshes asks.
-        float meshAt = carried || (push.above.z & 2u) != 0u ? meshHit(origin, way, end, meshNormal, meshColor) : -1.0;
+        float meshAt = carried || (push.above.z & 2u) != 0u ? meshHit(origin, way, end, meshNormal, meshColor, meshGloss) : -1.0;
         if (meshAt >= 0.0)
         {
             reached = meshAt;
             hitNormal = meshNormal;
-            light = float4(shadeProbeHitAt(sceneField, fieldInfo, gatheredAt(), fieldAlbedo, fieldGlow, lights, bounced, bouncedAtSurface, origin + way * meshAt, meshNormal, meshColor, way,
+            light = float4(shadeProbeHitAt(sceneField, fieldInfo, gatheredAt(), fieldAlbedo, fieldGlow, lights, bounced, bouncedAtSurface, origin + way * meshAt, meshNormal, reflectedShare(meshColor, meshGloss, dot(meshNormal, -way)), way,
                 float(probes), push.interval.z, push.interval.w, share, SunShadowMap(sunShadow), own), meshAt < push.interval.x ? 0.5 : 0.0);
             through = 0.0;
         }
@@ -600,7 +600,7 @@ void computeMain(uint3 id : SV_DispatchThreadID, uint lane : SV_GroupIndex)
                 {
                     leafAt = at;
                     leafNormal = metNormal;
-                    leafColor = metColor;
+                    leafColor = reflectedShare(metColor, meshGloss(copy), dot(metNormal, -way));
                 }
                 leafShare += taken;
             }
@@ -608,7 +608,7 @@ void computeMain(uint3 id : SV_DispatchThreadID, uint lane : SV_GroupIndex)
             {
                 stopAt = at;
                 stopNormal = metNormal;
-                stopColor = metColor;
+                stopColor = reflectedShare(metColor, meshGloss(copy), dot(metNormal, -way));
                 stopShare = taken;
             }
             through *= passes;
