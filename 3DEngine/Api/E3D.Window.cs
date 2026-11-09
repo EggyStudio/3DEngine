@@ -26,6 +26,7 @@ public static partial class E3D
             throw new InvalidOperationException("A window is open already. Call CloseWindow first.");
 
         _app = new App(ConfigFor(width, height, title)).AddPlugin(new DefaultPlugins());
+        FlatApiWorld.Current = _app.World;
         // A window never shown is left its size, as fullscreen is.
         if (_configFlags.HasFlag(ConfigFlags.BorderlessWindowedMode) && !IsWindowHidden()) ToggleBorderlessWindowed();
         _shouldClose = false;
@@ -53,6 +54,7 @@ public static partial class E3D
             Log.Category("Engine.Api").Warn($"CloseWindow: {textures.Count} texture(s) were still loaded.");
         _app?.Shutdown();
         _app = null;
+        FlatApiWorld.Current = null;
         ForgetConfigFlags();
         ForgetRlgl();
         ForgetAutomation();

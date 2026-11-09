@@ -116,7 +116,7 @@ internal sealed partial class EditMeshData
     /// <exception cref="FormatException">The file does not start with the header, or a line of it is not an operation.</exception>
     public static EditMeshData Load(string path)
     {
-        var found = E3D.ResolveFile(path) ?? throw new FileNotFoundException($"There is no model at {path}.", path);
+        var found = ProgramFiles.Resolve(path) ?? throw new FileNotFoundException($"There is no model at {path}.", path);
         var text = File.ReadAllText(found);
         var first = text.ReplaceLineEndings("\n").Split('\n').Select(line => (line.IndexOf('#') is var hash and >= 0 ? line[..hash] : line).Trim())
             .FirstOrDefault(line => line.Length > 0);

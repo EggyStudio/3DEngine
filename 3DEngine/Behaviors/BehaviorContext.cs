@@ -51,16 +51,6 @@ public sealed class BehaviorContext
     /// <summary>Current frame input state (keyboard, mouse, text).</summary>
     public Input Input { get; }
 
-    private PhysicsWorld? _physics;
-
-    /// <summary>Active physics world (rigid bodies, raycasts, gravity).</summary>
-    /// <remarks>
-    /// Resolved when first read rather than when the context is made, so an app without
-    /// <c>PhysicsPlugin</c> runs every behavior that does not touch physics.
-    /// </remarks>
-    /// <exception cref="InvalidOperationException">The world has no <see cref="PhysicsWorld"/>.</exception>
-    public PhysicsWorld Physics => _physics ??= World.Resource<PhysicsWorld>();
-
     /// <summary>Entity being processed for instance methods; <c>0</c> if not applicable.</summary>
     public int EntityId { get; set; }
 

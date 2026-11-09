@@ -311,7 +311,6 @@ sealed class Engine.BehaviorContext
   EcsWorld Ecs { get; }
   Entity Entity { get; }
   Input Input { get; }
-  PhysicsWorld Physics { get; }
   T Res<T>()
   TState State<TState>() where TState : struct, Enum
   Time Time { get; }
@@ -319,6 +318,11 @@ sealed class Engine.BehaviorContext
   float FixedDelta { get; }
   int EntityId { get; set; }
   void SetState<TState>(TState value) where TState : struct, Enum
+static class Engine.BehaviorContextPhysics
+  static PhysicsWorld get_Physics(BehaviorContext context)
+sealed class Engine.BehaviorContextPhysics.<G>$A7E56A9E186CAC295BECB17AD5EE8022
+  PhysicsWorld Physics { get; }
+static class Engine.BehaviorContextPhysics.<G>$A7E56A9E186CAC295BECB17AD5EE8022.<M>$6650CE80E598B085DF4C1E778BBC5506
 static class Engine.BehaviorSounds
   static AudioSource PlaySpatialSound(this BehaviorContext ctx, string path, Vector3 position, AudioVoiceParams parameters = default)
 enum Engine.BlendMode : int

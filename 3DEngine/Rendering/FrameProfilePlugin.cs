@@ -17,7 +17,7 @@ internal sealed class FrameProfilePlugin : IPlugin
 
     private static TimeSpan _paused = GC.GetTotalPauseDuration();
 
-    // The frame just ended, read before the schedule overwrites its numbers with this frame's.
+    // The frame that ended, read before the schedule overwrites its numbers with this frame's.
     private static void Measure(World world)
     {
         var profile = world.Resource<FrameProfile>();

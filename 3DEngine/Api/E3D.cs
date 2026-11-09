@@ -34,7 +34,7 @@ public static partial class E3D
     /// Runs the flat API against an app the caller built, or against none, so tests can exercise
     /// the functions that need no window.
     /// </summary>
-    internal static void UseApp(App? app) => _app = app;
+    internal static void UseApp(App? app) => FlatApiWorld.Current = (_app = app)?.World;
 
     /// <summary>The app the flat API runs against now, or null for none.</summary>
     internal static App? CurrentApp => _app;

@@ -27,8 +27,8 @@ internal sealed partial class EditMeshData
     {
         ArgumentException.ThrowIfNullOrEmpty(path);
         if (path.Any(char.IsWhiteSpace)) throw new ArgumentException("An imported model's path is one word, with no space in it.", nameof(path));
-        if (E3D.ResolveFile(path) is null) throw new FileNotFoundException($"There is no model at {path}.", path);
-        var scene = E3D.ReadSceneForEditMesh(path) ?? throw new FormatException($"{path} is not a model this engine reads.");
+        if (ProgramFiles.Resolve(path) is null) throw new FileNotFoundException($"There is no model at {path}.", path);
+        var scene = ModelFiles.ReadScene(path, "EditMeshImport") ?? throw new FormatException($"{path} is not a model this engine reads.");
 
         var first = _faces.Count;
         // A vertex for each place, within a hundredth of a millimeter.

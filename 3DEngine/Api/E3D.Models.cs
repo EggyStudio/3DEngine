@@ -102,7 +102,7 @@ public static partial class E3D
     /// </remarks>
     public static Model LoadModel(string fileName)
     {
-        if (ReadModelScene(fileName, "LoadModel") is not { } scene) return new Model();
+        if (ModelFiles.ReadScene(fileName, "LoadModel") is not { } scene) return new Model();
 
         var directory = Path.GetDirectoryName(Path.GetFullPath(ResolveFile(fileName)!)) ?? ".";
         var materials = new List<ModelMaterial>();

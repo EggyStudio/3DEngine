@@ -620,9 +620,6 @@ public static partial class E3D
         }
     }
 
-    /// <summary>A model file read for an edit mesh, as <see cref="LoadModel"/> reads it, or null with the reason logged.</summary>
-    internal static Scene? ReadSceneForEditMesh(string fileName) => ReadModelScene(fileName, nameof(EditMeshImport));
-
     // -- Building a model to draw and collide with
 
     /// <summary>Builds the mesh into a model, one mesh for each material slot in the order of the slots, each drawn with its slot's look or the prototype material of its slot's name.</summary>

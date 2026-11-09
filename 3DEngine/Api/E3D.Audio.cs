@@ -2,23 +2,6 @@ using System.Runtime.CompilerServices;
 
 namespace Engine;
 
-/// <summary>Reads a piece of music a piece at a time, for <see cref="Music"/>.</summary>
-internal interface IMusicDecoder : IDisposable
-{
-    int Channels { get; }
-
-    int SampleRate { get; }
-
-    long TotalFrames { get; }
-
-    /// <summary>Fills <paramref name="buffer"/> with interleaved samples from where the last read ended.</summary>
-    /// <returns>How many samples were written, 0 at the end.</returns>
-    int Read(Span<float> buffer);
-
-    /// <summary>Moves to a frame, from which the next read starts.</summary>
-    void Seek(long frame);
-}
-
 /// <summary>Decodes Ogg Vorbis from its file, or bytes in memory, through NVorbis as it is read.</summary>
 internal sealed class OggMusicDecoder(Stream stream) : IMusicDecoder
 {

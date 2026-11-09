@@ -118,7 +118,7 @@ internal sealed partial class EditMeshData
     public int? SelectedTextureWidth()
     {
         if (_selectedFaces.Count == 0 || _looks[_faces[_selectedFaces.Min()].Slot].Texture is not { } path) return null;
-        if (E3D.ResolveFile(path) is not { } found) return null;
+        if (ProgramFiles.Resolve(path) is not { } found) return null;
         try
         {
             using var stream = File.OpenRead(found);
