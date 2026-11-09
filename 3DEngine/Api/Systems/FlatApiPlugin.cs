@@ -10,6 +10,12 @@ internal sealed class FlatApiPlugin : IPlugin
 {
     public void Build(App app)
     {
+        // The files the flat API loads by name, loaded again as they are saved where the program is
+        // live, at the frame's start before anything reads what they were loaded into.
+        var config = app.World.TryGetResource<Config>(out var given) ? given : Config.Default;
+        var live = new LiveFiles(RunMode.IsLive(config), ProgramFiles.OwnProject());
+        app.World.InsertResource(live);
+        app.AddSystem(Stage.First, new SystemDescriptor(world => live.Run(world.TryGetResource<Time>(out var time) ? time.FrameCount : 0), "FlatApi.LiveFiles").MainThreadOnly());
         // A recording asks for its pictures before the frame's systems draw, so each is of this
         // frame, and writes what it took where the app ends while it records.
         app.AddSystem(Stage.First, new SystemDescriptor(Recorder.Tick, "RenderPlugin.Recorder").MainThreadOnly());

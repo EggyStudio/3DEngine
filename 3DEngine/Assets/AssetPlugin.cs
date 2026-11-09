@@ -61,7 +61,8 @@ internal sealed class AssetPlugin : IPlugin
 
     /// <summary>
     /// When <c>true</c>, enables <see cref="FileWatcher"/>-based hot-reload for filesystem sources.
-    /// Defaults to <c>false</c>.
+    /// Defaults to <c>false</c>, the sources watched all the same where the program is live
+    /// (<see cref="Config.Live"/>).
     /// </summary>
     public bool WatchForChanges { get; init; }
 
@@ -114,8 +115,8 @@ internal sealed class AssetPlugin : IPlugin
             Logger.Debug("AssetPlugin: Built-in loaders registered (ByteArray, String).");
         }
 
-        // Enable hot-reload
-        if (WatchForChanges)
+        // Enable hot-reload, where asked or where the program is live.
+        if (WatchForChanges || (app.World.TryGetResource<Config>(out var config) && RunMode.IsLive(config)))
         {
             server.EnableWatching();
             Logger.Info("AssetPlugin: Hot-reload file watching enabled.");

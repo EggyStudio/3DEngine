@@ -12,6 +12,7 @@ Done that day
 
 - Item 229 at `f1cc2022`. The reference reads the normal maps.
 - Item 232 at `8dba0d1c`. Three examples drift from raylib's programs.
+- Item 233 at `fae33540`. Comments without readings and costs.
 - Item 234 at `620cfeb4`. The Windows halves' limit.
 
 ## 2026-11-08

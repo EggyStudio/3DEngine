@@ -11,7 +11,9 @@ namespace Engine;
 /// <c>--frames N</c>, <c>--frame-time SECONDS</c>, <c>--samples N</c> and <c>--seed N</c>, and the variables
 /// <c>E3D_SERVE</c>, <c>E3D_HEADLESS</c>, <c>E3D_OFFSCREEN</c>, <c>E3D_HIDDEN</c> (any of <c>1</c>,
 /// <c>true</c>, <c>yes</c>, <c>on</c>), <c>E3D_FRAMES</c>, <c>E3D_FRAME_TIME</c>, <c>E3D_SAMPLES</c> and <c>E3D_SEED</c>. A flag or variable only turns a mode on, so a
-/// program that sets <see cref="Config.Serve"/> itself stays served.
+/// program that sets <see cref="Config.Serve"/> itself stays served. <c>--live</c> and
+/// <c>--no-live</c>, or <c>E3D_LIVE</c> on or off, say whether the program is live either way
+/// (<see cref="Config.Live"/>).
 /// </para>
 /// <para>
 /// <c>e3d open</c> passes the flags it needs, which is how the command line starts an app it can
@@ -50,8 +52,22 @@ internal static class RunMode
             Hidden = config.Hidden || Asked(arguments, "--hidden", "E3D_HIDDEN"),
             Frames = frames,
             FrameSeconds = Math.Max(0, frameSeconds),
+            Live = arguments.Contains("--live") ? true
+                : arguments.Contains("--no-live") ? false
+                : Variable("E3D_LIVE")?.ToLowerInvariant() switch
+                {
+                    "1" or "true" or "yes" or "on" => true,
+                    "0" or "false" or "no" or "off" => false,
+                    _ => config.Live,
+                },
         };
     }
+
+    /// <summary>
+    /// Whether the program reloads its files as they change, as <see cref="Config.Live"/> says, or
+    /// where it says nothing, whether the program runs from its own project's build folder.
+    /// </summary>
+    public static bool IsLive(Config config) => config.Live ?? ProgramFiles.OwnProject() is not null;
 
     /// <summary>
     /// The samples a pixel a window is drawn with when its program asks for none, from

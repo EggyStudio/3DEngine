@@ -164,6 +164,7 @@ sealed class Engine.Config : IEquatable<Config>
   bool Undecorated { get; init; }
   bool Unfocused { get; init; }
   bool Vsync { get; init; }
+  bool? Live { get; init; }
   double FrameSeconds { get; init; }
   double HeadlessFps { get; init; }
   int Samples { get; init; }

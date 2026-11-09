@@ -139,6 +139,19 @@ public sealed record Config
     /// </summary>
     public GlobalIllumination GlobalIllumination { get; init; }
 
+    /// <summary>
+    /// Whether the program loads again, in place, the files it loaded by name as they are saved,
+    /// and the asset server its handles' files, or null to be live where the program runs from its
+    /// own project's build folder, as a game in development does, and not where it runs from
+    /// anywhere else, as a shipped one does.
+    /// </summary>
+    /// <remarks>
+    /// <c>--live</c> and <c>--no-live</c>, or <c>E3D_LIVE</c>, say it from the command line, and
+    /// e3d's <c>live on</c> and <c>live off</c> while the program runs. The engine's own code and
+    /// shaders are not reloaded, and a change to them needs the program run again.
+    /// </remarks>
+    public bool? Live { get; init; }
+
     /// <summary>Returns a copy with the provided window properties.</summary>
     /// <param name="title">Window title bar text.</param>
     /// <param name="width">Window width in pixels.</param>

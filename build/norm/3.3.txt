@@ -1,5 +1,7 @@
 # N 3.3, a test that waits on or reads the machine's clock, by file and kind.
 3DEngine.Tests/Api/BadFileTests.cs Thread.Sleep	the asset server reads a file on its worker, outside the frame loop
+3DEngine.Tests/Api/LiveFilesTests.cs Stopwatch	a saved file's change, which the system's watch tells on a thread of its own, waited for up to ten seconds
+3DEngine.Tests/Api/LiveFilesTests.cs Thread.Sleep	the system's watch tells of a change outside the frame loop, and a file is loaded again once it has been quiet a set time
 3DEngine.Tests/Assets/FileHandleTests.cs Thread.Sleep	the asset server reads a file on its worker, outside the frame loop
 3DEngine.Tests/Core/AppLeakTests.cs Stopwatch	each app's time printed, and the apps counted against four minutes, which a slow runner's lavapipe needs
 3DEngine.Tests/Core/AppLeakTests.cs Thread.Sleep	a closed app's threads waited for, half a second at most, so its last reading is taken once their stacks are given back
