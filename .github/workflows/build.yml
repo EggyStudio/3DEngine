@@ -165,14 +165,15 @@ jobs:
     # rest of Rendering 31 to 50 and 25 to 34, Core 9, Graphics 2 and the other parts 3 together,
     # with 3 minutes before the suite and 9 after it. The first half takes the class, Core and
     # Graphics, 46 to 65 minutes, and plays the games after, 58 to 77 in all. The second takes every
-    # other part, 59 to 87 minutes, 62 to 90 in all. So each has 120 on a push, the slowest half
-    # read with a third again for a slower runner, and the first 240 in the pack run, which plays
-    # every game at the step's own 110 after its suite. The suite's parts are held to 70 each below.
+    # other part, 59 to 87 minutes, 62 to 90 in all. Each has 160 on a push, the slowest half's 118
+    # minutes on the slowest runner yet read with a third again for a slower one, and the first 240
+    # in the pack run, which plays every game at the step's own 110 after its suite. The suite's
+    # parts are held to 70 each below.
     strategy:
       fail-fast: false
       matrix:
         half: [1, 2]
-    timeout-minutes: ${{ inputs.pack && matrix.half == 1 && 240 || 120 }}
+    timeout-minutes: ${{ inputs.pack && matrix.half == 1 && 240 || 160 }}
     defaults:
       run:
         shell: bash
@@ -192,6 +193,9 @@ jobs:
 
       - run: build/fetch-slang.ps1
         shell: pwsh
+
+      # The runner's processor in the log, which a half's time follows.
+      - run: build/processor.sh
 
       # The Vulkan loader from LunarG's runtime, the validation layer from its SDK, and lavapipe
       # from Mesa's Windows build, pointed at by the loader's variables rather than installed. The

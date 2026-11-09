@@ -56,10 +56,12 @@ commit.
 
 ## 1 Layout
 
-**N 1.1 The library is one project with a folder an area, and its namespaces are the ones its
-annex lists.** A game finds what it calls behind one `using`, and a second namespace is a decision
-somebody made and wrote down. A test reads the built library's public types and fails for a
-namespace the annex does not have.
+**N 1.1 The library is a project an area where it is split and one project otherwise, each project
+in its area's folder with its assembly and package named for the repository and the area, the flat
+API's project over them the one package a game references at the one version, and its namespaces are
+the ones its annex lists.** A game finds what it calls behind one `using` and one package, and a
+second namespace or a second package to reference is a decision somebody made and wrote down. A test
+reads the built library's public types and fails for a namespace the annex does not have.
 
 **N 1.2 A public type that is not nested is declared in a file named for it, `Type.cs`, or
 `Type.Part.cs` for a part of it.** A type is found by its name with no search, and two batches
@@ -411,7 +413,7 @@ not the code keeps the rule. `by review` is held by the reviewing session.
 | N 1.3 | checked, `NormTests` | listed 4, `NormTests`, 2 of them in the bridge |
 | N 1.4 | checked, `NormTests`, 14 left out | listed 73, `NormTests`, 28 left out |
 | N 1.5 | checked, `NormTests` | checked, `NormTests` |
-| N 1.6 | to take, at item 225's split | to take, at item 119 |
+| N 1.6 | checked, `NormTests` | to take, at item 119 |
 | N 2.1 | checked, `PublicSurfaceTests` and `PublicApi.txt` | checked, `PublicSurfaceTests` and `PublicApi.txt` |
 | N 2.2 | checked, CS1591 an error in `3DEngine.csproj` | checked, CS1591 and the doc faults errors in `BevyCSharp.csproj` |
 | N 2.3 | checked, `CheatsheetTests` | checked, `CheatsheetTests` |
