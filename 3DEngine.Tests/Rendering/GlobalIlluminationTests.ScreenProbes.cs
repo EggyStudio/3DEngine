@@ -108,13 +108,12 @@ public sealed partial class GlobalIlluminationTests
         // torches under a low sun, drawn 10,000 units from the world's origin and at it. Far from it,
         // a far texel's neighbor read back from the window's depth fell on the same point, its normal
         // made from the two a value that is not a number, which the glow lights' light at the
-        // screen's probes and the glow pass carried and their history spread, 26,258 pixels of the
-        // land black at 640 by 360 on the development machine's GPU where 6,570 at the origin, the
-        // houses' shadows; facing the eye where its neighbors give it none, 6,917. With the screen's
-        // probes' whole cycle of places standing in, read again each frame through the frame
-        // before's matrices, which far from the origin put a probe back off its place, a house's
-        // shadow went black on lavapipe, 4,718 pixels where 3,985, and with a still view read in
-        // place 3,912 to 3,928.
+        // screen's probes and the glow pass carried and their history spread, leaving far more of
+        // the land black than the houses' shadows do at the origin, so such a texel faces the eye
+        // where its neighbors give it none. With the screen's probes' whole cycle of places
+        // standing in, read again each frame through the frame before's matrices, which far from
+        // the origin put a probe back off its place, a house's shadow went black, so a still view
+        // reads them in place.
         double Black(float offset)
         {
             var config = Config.Default.WithWindow("gi test", 640, 360) with { Headless = true, Offscreen = true, Samples = 1 };
@@ -225,8 +224,8 @@ public sealed partial class GlobalIlluminationTests
         // Two thin two-sided walls side by side facing the eye over a red emissive slab, the first's
         // normal toward the eye and the second's away from it, read at Medium with the screen's
         // probes and with them left out. Looked up along the normal as given, the second wall took
-        // no screen probe, its red 1.000 of what it was with them left out where the first's was
-        // 1.560; along the normal turned to the eye, 1.515.
+        // no screen probe, its red the same as with them left out where the first's rose, so the
+        // probes are looked up along the normal turned to the eye.
         Open();
         SetGlobalIllumination(GlobalIllumination.Medium);
         SetAmbientLight(new Color(150, 180, 230), 0.3f);

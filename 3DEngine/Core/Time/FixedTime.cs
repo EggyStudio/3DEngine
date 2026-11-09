@@ -14,9 +14,9 @@ namespace Engine;
 /// Every second a frame reports is stepped through, so what the program moved by the frame's time
 /// and what the simulation moved agree. The one clamp is <see cref="Time.MaxDeltaSeconds"/>, a
 /// quarter of a second, which holds a frame to fifteen steps of a sixtieth, so a slow frame cannot
-/// owe more, and below four frames a second the whole game slows together. A second cap here
-/// dropped what was past five steps, so a frame of 83 to 250 ms told the program a quarter of a
-/// second passed and simulated a twelfth.
+/// owe more, and below four frames a second the whole game slows together. A second cap here,
+/// dropping what is past five steps, would let a frame longer than five steps tell the program its
+/// whole time passed and simulate only a twelfth of a second.
 /// </para>
 /// </remarks>
 public sealed class FixedTime

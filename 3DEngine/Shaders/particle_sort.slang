@@ -8,9 +8,9 @@
 //
 // The sort is Batcher's bitonic sort, which orders each key with the one j away by which half of a
 // run of k it is in. The steps within a block of 512 keys are done in a workgroup's shared memory,
-// all of them in one dispatch, since a dispatch a step with a barrier between each took half a
-// millisecond for 512 keys. Only the steps across blocks, for an emitter of more than 512, are
-// dispatches of their own, each followed by the block's remaining steps in shared memory.
+// all of them in one dispatch, since a dispatch a step with a barrier between each is slower. Only
+// the steps across blocks, for an emitter of more than 512, are dispatches of their own, each
+// followed by the block's remaining steps in shared memory.
 
 [[vk::binding(0, 0)]]
 RWStructuredBuffer<float4> slots;

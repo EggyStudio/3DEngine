@@ -122,9 +122,7 @@ public sealed partial class SceneFieldTests
         // A room of walls on a ground under a bright sky, its roof drawn through a material with
         // ShadowOnly set, as the voxel game draws the rock its eye cannot see. The field holds the
         // roof as the shadows do, so the sky's light reaches the floor no more than under a roof
-        // drawn as any other, where left out of the field the floor took the sky through it. The
-        // frame's mean light from inside read 0.0001 under either roof on the development machine's
-        // GPU and 0.058 under none, and 0.058 under the roof left out of the field.
+        // drawn as any other, where left out of the field the floor took the sky through it.
         var config = Config.Default.WithWindow("shadow only roof", 160, 90) with { Headless = true, Offscreen = true, Samples = 1 };
         UseApp(new App(config).AddPlugin(new DefaultPlugins()));
         SetSceneField(4, 0.25f, 2);

@@ -76,12 +76,11 @@ public record struct ModelMaterial(Color Color, Texture2D Texture = default)
     /// often and matters little to the light around it, as a game's animals and people.
     /// </summary>
     /// <remarks>
-    /// The scene's field stamps a mesh again in each frame it moves, which a voxel game's walking
-    /// animal, four to six pieces, cost 16 to 28 microseconds of the CPU and 13 to 15 of the GPU a
-    /// piece a frame. A mesh with this false casts its shadows and is lit as any other, and the field,
-    /// the glow lights and the path-traced reference of global illumination leave it out, so it
-    /// reflects no indirect light and holds none back. A surface that casts no shadow is left out
-    /// of them already.
+    /// The scene's field stamps a mesh again in each frame it moves, a cost to the CPU and the GPU
+    /// that a voxel game's walking animal pays for each of its pieces. A mesh with this false casts
+    /// its shadows and is lit as any other, and the field, the glow lights and the path-traced
+    /// reference of global illumination leave it out, so it reflects no indirect light and holds
+    /// none back. A surface that casts no shadow is left out of them already.
     /// </remarks>
     public bool BouncesLight { get; set; } = true;
 

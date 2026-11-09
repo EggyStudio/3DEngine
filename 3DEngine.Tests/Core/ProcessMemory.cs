@@ -150,11 +150,11 @@ internal static class ProcessMemory
 /// VirtualQuery. Elsewhere it reads nothing.
 /// </summary>
 /// <remarks>
-/// On Windows each drawing app kept some 1 MB that no heap and not the collector held, and the kind
-/// that grows names its owner. The code LLVM compiles for lavapipe's
-/// shaders is private code, the runtime's compiled code is mapped code, since it maps each page
-/// twice so none is writable and executable at once, a thread's stack is a stack, and what LLVM or
-/// the runtime allocates for itself outside a heap is private data.
+/// Where a drawing app keeps memory that no heap and not the collector holds, the kind that grows
+/// names its owner. The code LLVM compiles for lavapipe's shaders is private code, the runtime's
+/// compiled code is mapped code, since it maps each page twice so none is writable and executable
+/// at once, a thread's stack is a stack, and what LLVM or the runtime allocates for itself outside
+/// a heap is private data.
 /// </remarks>
 internal sealed class ProcessRegions
 {

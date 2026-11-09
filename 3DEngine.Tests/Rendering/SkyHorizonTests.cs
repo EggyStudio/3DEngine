@@ -151,7 +151,6 @@ public sealed class SkyHorizonTests : IDisposable
         // Eight degrees are thirteen pixels, so the most red changes between neighbors, 120 between
         // the fog and the sky, is about 120 times the smoothstep's steepest, 1.5, over thirteen,
         // 14, and a little more near the sky, where the two mixed as light change faster in sRGB.
-        // Lavapipe reads 16, against 131 at the image's own edge.
         blended.Step.Should().BeLessThanOrEqualTo(20, $"the image blends into the fog's color over the degrees above the horizon, {blended}");
         GetImageColor(fogged, 24, 90).Should().Be(Fog, "below the horizon the sky is the fog's color as the program gave it");
         GetImageColor(fogged, 24, 3).Should().Be(GetImageColor(bare, 24, 3), "above the blend the image is drawn as it was");

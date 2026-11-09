@@ -16,10 +16,10 @@ public sealed partial class GlobalIlluminationTests
         // galleries roofed 6 units up, in a field of four cascades of cells a quarter of a unit,
         // the last's probes 16 units apart, against the same floor in the open. A long slot of
         // that width at that height gives the floor the sky over a view factor of sin 22.6
-        // degrees, 0.38. With the light past the probes above read from them alone, which stood
-        // under the roofs and saw none of the sky up the court, the floor took 0.223 of the open
-        // floor's light on the development machine's GPU, and with the rays those probes see no
-        // sky along traced on to the sky past them, 0.297.
+        // degrees, 0.38. Read from the probes above alone, which stand under the roofs and see
+        // none of the sky up the court, the light past them leaves the floor darker, so the rays
+        // those probes see no sky along are traced on to the sky past them, and the bound lies
+        // between the floor's share read the one way and the other.
         Open();
         SetSceneField(4, 0.25f);
         SetGlobalIllumination(GlobalIllumination.High);

@@ -8,8 +8,8 @@ namespace Engine.Tests.Scripts;
 /// or the command that ended it, in an error a reader who is not signed in sees.
 /// </summary>
 /// <remarks>
-/// The examples job of <c>22bbf15a</c> failed its soak with the step's own line, "a game grew, or
-/// could not be played, over two minutes", and nothing that named the game.
+/// The step's own line, "a game grew, or could not be played, over two minutes", names no game, so
+/// a failed soak said by it alone leaves the reader to find which.
 /// </remarks>
 [Trait("Category", "Unit")]
 public sealed class SoakCheckTests : IDisposable
@@ -67,8 +67,8 @@ public sealed class SoakCheckTests : IDisposable
     [NeedsPythonFact]
     public void A_Game_That_Ended_Of_Its_Own_Is_Named_With_What_Asked_Its_Main_Loop_To_End()
     {
-        // As Tumble ended in its soak's first seconds on a pack run, with an exit code
-        // of 0 and no warning, the lines the engine writes as a main loop is asked to end say why.
+        // A game may end in its soak's first seconds with an exit code of 0 and no warning, so the
+        // lines the engine writes as a main loop is asked to end say why.
         var readings = Readings("tumble", 100 << 20);
         File.WriteAllText(_folder.File("tumble.failed"), "1 Tumble ./e3d command frames.wait 60 --name Tumble --quiet --timeout 600\n");
         File.WriteAllLines(Path.Combine(_folder.File("sessions"), "Tumble.log"),

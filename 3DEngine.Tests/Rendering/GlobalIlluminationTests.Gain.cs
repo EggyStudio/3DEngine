@@ -27,9 +27,7 @@ public sealed partial class GlobalIlluminationTests
     public void A_Floor_Lit_By_A_Panel_Takes_More_Of_Its_Walls_Light_As_The_Bounce_Gain_Rises()
     {
         // The emissive panel's room of gray walls, whose floor takes the panel's light straight and
-        // the walls' light after it, which the gain takes times itself. On the development
-        // machine's GPU the floor read 101.8 of 255 at a gain of 0 and with the part left out
-        // alike, 106.0 at 1 and 115.1 at 2.
+        // the walls' light after it, which the gain takes times itself.
         Open();
         var slab = LoadModelFromMesh(GenMeshCube(1, 1, 1));
         var panel = LoadModelFromMesh(GenMeshCube(1, 1, 1));

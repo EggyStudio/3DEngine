@@ -11,9 +11,9 @@ using static Engine.E3D;
 public sealed class Castle
 {
     // The force a weld breaks past, in newtons, and the push a block takes before it goes, in
-    // kilogram meters a second over the steps something thrown presses it. The keep's welds hold
-    // 5,064 newtons at most standing, a stone striking it puts 9,000 to 14,000 on the welds near
-    // it, and a stone thrown hard presses the block it meets 430 to 480 over a step.
+    // kilogram meters a second over the steps something thrown presses it. The strength lies above
+    // what the keep's welds carry standing and below what a stone striking it puts on those near
+    // it, and the toughness within the push a stone thrown hard gives the block it meets.
     public const float Strength = 8000;
     public const float Toughness = 450;
     public const float BlockMass = 40;

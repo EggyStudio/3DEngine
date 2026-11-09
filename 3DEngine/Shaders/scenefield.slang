@@ -93,15 +93,14 @@ public bool fieldOn(SceneFieldInfo info)
     return info.counts.x > 0.5;
 }
 
-// Cascade c's corner and the width of its cell among the field's cascades, or where `probes` is more
-// than 0 among those the world's `probes` cascades of probes stand in, the field's own in order but
-// for the last, which stands in the far cascade where the field has one, so a cascade of probes lies
-// where its cascade does and the probes holding a point are found as the field's cascades holding it
-// are (cascadesOf). The probes' reads take the info as the uniform holds it with the count beside
-// it, since an info made from it for the probes, its last cascade written over, was copied into
-// each thread's own memory to be indexed and read from there, several copies a pixel in the model
-// pass, which drew the voxel game's cherry grove at 1920 by 1080 in 66 ms on the development
-// machine's GPU, 20 with the cascades written over no more, and 10 with no info made at all.
+// Cascade c's corner and the width of its cell among the field's cascades, or where `probes` is
+// more than 0 among those the world's `probes` cascades of probes stand in, the field's own in
+// order but for the last, which stands in the far cascade where the field has one, so a cascade of
+// probes lies where its cascade does and the probes holding a point are found as the field's
+// cascades holding it are (cascadesOf). The probes' reads take the info as the uniform holds it
+// with the count beside it, since an info made from it for the probes, its last cascade written
+// over, is copied into each thread's own memory to be indexed and read from there, several copies a
+// pixel in the model pass.
 public float4 cascadeAt(SceneFieldInfo info, int c, int probes = 0)
 {
     int far = int(info.counts.w);
@@ -125,14 +124,13 @@ public static const float FieldBand = 8.0;
 public static const float EyeClear = 6.0;
 
 // How far into cascade c's outer band a point `cell` lies, in its cells, as a share of the band, 1
-// at the band's inner edge and beyond and 0 at the side, `margin` cells off each side. On a side the
-// eye stands near, the band ends EyeClear cells short of it, or is none and the light steps at the
-// side, behind the eye where no surface it sees lies. A cascade lies around the eye, which stands 28
-// to 36 cells from each side, past a band of eight and EyeClear, so this holds the band whole but
-// for a cascade the eye stands nearer a side of. With the last cascade's band across the side
-// behind an eye standing near it, a closed room's walls took the sky's light whole wherever the band
-// reached them, up to 0.14 of the open floor's light, and with the band kept clear of the eye under
-// 0.0004 (CascadeEdgeTests).
+// at the band's inner edge and beyond and 0 at the side, `margin` cells off each side. On a side
+// the eye stands near, the band ends EyeClear cells short of it, or is none and the light steps at
+// the side, behind the eye where no surface it sees lies. A cascade lies around the eye, which
+// stands 28 to 36 cells from each side, past a band of eight and EyeClear, so this holds the band
+// whole but for a cascade the eye stands nearer a side of. With the last cascade's band across the
+// side behind an eye standing near it, a closed room's walls take the sky's light wherever the band
+// reaches them (CascadeEdgeTests).
 public float bandHold(SceneFieldInfo info, int c, float3 cell, float band, float margin, int probes = 0)
 {
     float4 oc = cascadeAt(info, c, probes);
@@ -147,8 +145,8 @@ public float bandHold(SceneFieldInfo info, int c, float3 cell, float band, float
 // falling to none across the outer band (FieldBand) of the coarsest one built, kept clear of the
 // eye (bandHold), and none past it, so a pass that reads the field to its edge, as the occlusion
 // from it, the sun's contact shadows or a glow light's march, fades there rather than stepping.
-// Taken from the last cascade whether built or not, it read none while the last was not built, and
-// a turn of five pixels moved the floor's light across an emissive block's penumbra by 16% where 3%
+// Taken from the last cascade whether built or not, it reads none while the last is not built, and
+// a turn of a few pixels shifts the floor's light across an emissive block's penumbra
 // (GlowPenumbraTests).
 public float fieldHold(SceneFieldInfo info, float3 p)
 {
@@ -183,8 +181,8 @@ public bool fieldWaits(SceneFieldInfo info, float3 cell, float margin)
 // point among the cells a shift brought into a cascade is read in the next one out, which holds
 // the meshes there, where read in the cascade those cells held nothing near, so the rays through
 // them went on past the walls they stand for. As the field followed the eye down Sponza's atrium,
-// the arches at its far end flashed lit for the five frames each slab of the second cascade
-// took to build. Probes are found by where their cascade lies, whose rays read the field so.
+// the arches at its far end flashed lit while each slab of the second cascade built. Probes are
+// found by where their cascade lies, whose rays read the field so.
 public int fieldCascade(SceneFieldInfo info, float3 p, float margin, int probes = 0)
 {
     int count = cascadesOf(info, probes);
@@ -209,9 +207,9 @@ static const float SheetLength = 2.0;
 // How far either side of its plane a double-sided face is held below zero, in cells, which leaves
 // two sheets two cells apart a quarter of a cell between them and a march's start half a cell off
 // one. A march steps a quarter of a cell at least and meets a surface under a tenth, so a plane
-// held at no thickness, come at from a little over a tenth, was stepped over to a little over a
-// tenth past it; held a tenth either side, a closed room of sheets on the grid took 0.037 of the
-// sky's light at High where the half cell held it to 0.016, and a quarter 0.018.
+// held at no thickness, come at from a little over a tenth, is stepped over to a little over a
+// tenth past it, and held a tenth either side, a closed room of sheets on the grid lets in more of
+// the sky's light than held a quarter or a half.
 static const float SheetHalf = 0.25;
 
 // The distance from p to the nearest surface in cascade i, in world units, blended between the
@@ -237,9 +235,9 @@ public float fieldDistanceIn<V : IVolume>(V field, SceneFieldInfo info, int i, f
 // it no nearer than half a cell, and two sheets two cells apart, as the voxel game's crops stand,
 // leave the cells between them open, where held within half a cell either side every cell between
 // them read a surface and a screen probe there met its own wall at its rays' start. The probes'
-// rays alone take it, since each sample read the plane cost the model pass's march 1.3 ms more in
-// the voxel game's cherry grove at High at 1920 by 1080 with no sheet near. A cell where a second
-// double-sided face of another way passes near, as where two walls cross, keeps its plane too.
+// rays alone take it, since where each sample reads the plane the model pass's march costs more
+// even with no sheet near. A cell where a second double-sided face of another way passes near, as
+// where two walls cross, keeps its plane too.
 public float fieldDistanceSheetIn<S : ISheetVolume>(S field, SceneFieldInfo info, int i, float3 p)
 {
     float4 oc = info.cascades[i].originAndCell;
@@ -250,7 +248,7 @@ public float fieldDistanceSheetIn<S : ISheetVolume>(S field, SceneFieldInfo info
     float d = read.r;
     // The planes blended with the rest read nothing where no cell around keeps one, so the cell's
     // own is read only near a sheet, in a branch the compiler keeps, since flattened every sample
-    // read it and the grove's global illumination took 1.2 ms more.
+    // reads it.
     [branch]
     if (d < oc.w * 0.75 && dot(read.yzw, read.yzw) >= 1e-6)
     {
@@ -320,12 +318,12 @@ public float3 fieldNormal<V : IVolume>(V field, SceneFieldInfo info, float3 p)
 }
 
 // The way out from the nearest surface at p as the probes' rays take the field
-// (fieldDistanceSheetIn). Where the nearest is a double-sided face whose plane p's cell keeps, it is
-// the plane's way toward the side p lies on, its own way on the plane, since across a sheet the
-// gradient of its distance cancels, and a world probe standing on a sheet of the voxel game's
-// grid, as a sheet on a cell's side does, was moved off it no way in particular, its rays seeing
-// both sides, so a closed room of such sheets took a sixth of the sky's light at Low where shifted
-// off the grid a two-hundredth.
+// (fieldDistanceSheetIn). Where the nearest is a double-sided face whose plane p's cell keeps, it
+// is the plane's way toward the side p lies on, its own way on the plane, since across a sheet the
+// gradient of its distance cancels, and a world probe standing on a sheet of the voxel game's grid,
+// as a sheet on a cell's side does, was moved off it no way in particular, its rays seeing both
+// sides, so a closed room of such sheets on the grid took in the sky's light where one off the grid
+// does not.
 public float3 fieldNormalSheet<S : ISheetVolume>(S field, SceneFieldInfo info, float3 p)
 {
     int i = fieldCascade(info, p, 1.5);

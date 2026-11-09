@@ -19,9 +19,9 @@ const string BestFile = "pinball-best.txt";
 const float BumperKick = 16, SlingKick = 11;
 // The plunger's pull back, in units a second, and how fast its spring drives it home on release and
 // with how much force. The force is held so the plunger speeds up over its travel as a spring does,
-// the ball riding it and leaving it at the stop. Driven home at once, from rest to 33 units a
-// second in one step, it passed through the ball, since the contacts a step makes are found from
-// the velocities it began with.
+// the ball riding it and leaving it at the stop. Driven home at once, from rest to full speed in
+// one step, it passed through the ball, since the contacts a step makes are found from the
+// velocities it began with.
 const float Pull = 2.5f, Launch = 45, LaunchForce = 120;
 
 // -- The table, its rails, its bumpers, the glass over it and the drain under the flippers.

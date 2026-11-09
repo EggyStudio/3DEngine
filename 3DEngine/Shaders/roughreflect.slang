@@ -30,10 +30,8 @@ public float probeSeesBlended<V : IVolume>(V reach, float3 p, float3 n, float3 p
 // The light a rough surface at p facing n reflects along r, radiance, from the eight probes of the
 // finest cascade around p that holds it, with the share of it the probes the surface sees give, or
 // -1 where no cascade of probes holds p (reflectedIn). The finest cascade is read alone, as the
-// sky's share is (skyAt), since faded to the next across its outer band as bouncedAt fades, the
-// reads doubled there took the scene pass in Sponza's nave at 1920 by 1080 1.5 to 2.0 ms more than
-// before, where read so it takes what it did before within the noise of the GPU's other work
-// (./e3d command profile, gpu.hdr_scene).
+// sky's share is (skyAt), since fading it to the next across its outer band, as bouncedAt fades,
+// doubles the reads there.
 public float4 reflectedAt<V : IVolume>(V cubes, V ways, V reach, SceneFieldInfo info, float3 p, float3 n, float3 r, float roughness, float probes,
     float spacing, float cascades)
 {
@@ -57,12 +55,9 @@ public float4 reflectedAt<V : IVolume>(V cubes, V ways, V reach, SceneFieldInfo 
 // box's walls showed a seam at the eye's height and shards along the folds. A probe the surface
 // does not see is left out, since along a mirror way it lends the light of that one way, and a
 // probe under the floor at the foot of a wall reads the ground the sky holds below the scene, in
-// the sun. Kept at the twentieth of its weight bouncedIn keeps, the foot of a wall of Sponza's
-// atrium at 15:00 read 1.66 times a path-traced reference where the wall above it reads 0.54, and
-// less the share of the sky its faces saw, as bouncedIn takes it, 1.14, the face spreading a
-// hemisphere the floor above closes half of. Left out, the foot reads 0.64, as it reads with no
-// reflection from the probes at all, 0.58 (gi.compare, the frame's luminance over the
-// reference's).
+// the sun. Kept at the twentieth of its weight bouncedIn keeps, even less the share of the sky its
+// faces saw, as bouncedIn takes it, such a probe lit the foot of a wall far brighter than the wall
+// above it, the face spreading a hemisphere the floor above closes half of.
 float4 reflectedIn<V : IVolume>(V cubes, V ways, V reach, SceneFieldInfo info, float3 p, float3 n, float3 r, float roughness, float probes, float spacing,
     int c, int cascades)
 {

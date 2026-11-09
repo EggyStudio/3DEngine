@@ -12,9 +12,9 @@ public enum ContactShadows
     /// </summary>
     /// <remarks>
     /// Within the map's reach the map holds the sun's light, and a contact shadow there darkened
-    /// sunlit surfaces it did not reach, its ray passing near the field's surfaces, which stand up to
-    /// a cell outside the meshes. Sponza's gallery at noon read its sunlit parapet and column base at
-    /// 0.38 to 0.43 of a path-traced reference's light, and at 0.83 to 0.93 with the map alone.
+    /// sunlit surfaces it did not reach, its ray passing near the field's surfaces, which stand up
+    /// to a cell outside the meshes, as Sponza's gallery at noon read its sunlit parapet and column
+    /// base far darker than a path-traced reference.
     /// </remarks>
     PastShadowMap,
 

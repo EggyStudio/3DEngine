@@ -204,11 +204,9 @@ internal static unsafe class GpuRayScenes
                     host: true, lasting: true);
                 if (scene.Corners is not null)
                 {
-                    // Copied on the GPU and waited for, since the CPU reads memory it writes through
-                    // uncached, and the corners it writes into the new buffer after, a mesh's colors
-                    // among them, come after the copy. Copied by the CPU, the frame that built
-                    // Sponza's ray structures at High took 1.4 to 1.6 s of the CPU, and copied so 0.62
-                    // to 0.68 s, with the corners on the device 0.47 to 0.51.
+                    // Copied on the GPU and waited for, since the CPU reads memory it writes
+                    // through uncached, and the corners it writes into the new buffer after, a
+                    // mesh's colors among them, come after the copy.
                     var cmd = device.BeginSingleTimeCommands();
                     var region = new VkBufferCopy { size = (ulong)scene.CornerCount * 16 };
                     device.Api.vkCmdCopyBuffer(cmd, scene.Corners.Buffer, bigger.Buffer, 1, &region);
@@ -329,9 +327,8 @@ internal static unsafe class GpuRayScenes
 
             // A top level whose copies' records are those its last build read is kept, the surfaces
             // written above holding the frame's colors, since its build waits on every fragment and
-            // compute pass before it, and with nothing moving in Sponza at High the build and the wait
-            // cost global illumination 0.13 to 0.17 ms a frame (./e3d command gi.passes on, profile).
-            // A copy moved, come or gone, or a mesh's structure built anew, changes the records.
+            // compute pass before it, a cost each frame with nothing moving. A copy moved, come or
+            // gone, or a mesh's structure built anew, changes the records.
             var bytes = MemoryMarshal.AsBytes(written);
             if (scene.Top.Handle != 0 && scene.Capacity >= count && scene.Built is { } last && bytes.SequenceEqual(last))
                 return retired;

@@ -52,9 +52,7 @@ internal sealed class MirrorRenderer : IDisposable
     /// <remarks>
     /// Its pipelines are made on worker threads the first time they are asked for, the view drawn
     /// without the batches still waiting for theirs and the window reading none of it until a frame
-    /// draws it whole, so the frame a plane is first set in waits for no compile. The voxel game's
-    /// first frame with a reflection plane took 23.7 to 24.0 s of the wall clock with them made on
-    /// the frame's own thread.
+    /// draws it whole, so the frame a plane is first set in waits for no compile.
     /// </remarks>
     internal bool Whole { get; private set; }
 

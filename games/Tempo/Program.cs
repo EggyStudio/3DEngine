@@ -143,7 +143,7 @@ while (!WindowShouldClose())
             // a note less than half the song's step in a frame ahead. The step is the larger of the
             // last frame's and the frames' mean, so a frame slower than those before it is not
             // waited for past the note. Played at the frame's time alone, a step longer than the Bad
-            // window, as an arm64 runner under load took, left the note it passed missed.
+            // window, as a machine under load takes, leaves the note it passed missed.
             while (TempoCommands.Autopilot && run.Due(lane) is { } due && due - run.Clock <= Math.Max(run.Last, run.Step) / 2)
                 if (!Played(lane, Math.Clamp(due, before, run.Clock))) break;
         }

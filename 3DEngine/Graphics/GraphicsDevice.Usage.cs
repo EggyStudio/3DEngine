@@ -36,8 +36,7 @@ internal sealed partial class GraphicsDevice
     private int _liveBuffers, _liveImages, _liveDescriptorSets, _livePipelines;
 
     // The buffers alive by where each was made and what it is for, which a soak reads beside the
-    // count to name what climbs (`memory.buffers`), as Manor's buffers did past the soak's bound
-    // with nothing else of it growing.
+    // count to name what climbs (`memory.buffers`).
     private readonly Dictionary<BufferMaker, (int Count, long Bytes)> _bufferCensus = [];
 
     private void Census(BufferMaker made, int count, long bytes)

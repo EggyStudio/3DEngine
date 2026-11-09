@@ -77,13 +77,12 @@ internal sealed partial class SceneFieldPlan
     /// </summary>
     /// <remarks>
     /// A build in progress, as the eye's move starts one, leaves the passes reading its cascade as
-    /// it was last built, which holds the meshes it held. A shift of the last cascade holds the slab
-    /// it brings in empty until its build ends, and the field is not whole until then, the slab
-    /// lying at the field's edge. Taken as a field not whole, as it was
-    /// while every cascade was built and none waited, the probes' carried rays brought no sky
-    /// through Sponza's court for the 40 frames its cascades took to build again after the eye
-    /// moved, and the gallery's view read its blue less red at -0.65 in a thousandth of linear
-    /// light against +1.00 at rest and a path-traced reference's +0.80.
+    /// it was last built, which holds the meshes it held. A shift of the last cascade holds the
+    /// slab it brings in empty until its build ends, and the field is not whole until then, the
+    /// slab lying at the field's edge. Taken as a field not whole, as it was while every cascade
+    /// was built and none waited, the probes' carried rays brought no sky through Sponza's court
+    /// for as long as its cascades took to build again after the eye moved, and the gallery's view
+    /// read redder than at rest.
     /// </remarks>
     public bool Whole => Arriving == 0 && _pending.Count == 0 && Array.TrueForAll(_built, origin => origin is not null)
         && !(_job is { Cells: not null } shifting && shifting.Cascade == Cascades - 1);

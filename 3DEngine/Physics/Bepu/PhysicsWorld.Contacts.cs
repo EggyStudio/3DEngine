@@ -26,7 +26,7 @@ public sealed partial class PhysicsWorld
 
     // Hashes a pair's key by all its bits. A ulong hashes as its halves XORed, which for a key of
     // two small handles side by side is the same for thousands of pairs in a crowd, so the sets
-    // above slowed to lists, 2 microseconds a pair with 2000 bodies touching.
+    // above would look a pair up as slowly as a list.
     private sealed class PairKeys : IEqualityComparer<ulong>
     {
         public static readonly PairKeys Instance = new();

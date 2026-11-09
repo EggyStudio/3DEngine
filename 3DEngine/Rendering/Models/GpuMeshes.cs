@@ -7,13 +7,13 @@ namespace Engine;
 /// <remarks>
 /// A mesh whose vertices are replaced, as an animated one is each frame, moves into a ring of
 /// <see cref="GpuTextures.RetireFrames"/> and one vertex buffers kept mapped, more than there are
-/// frames in flight, and each update is written into the next. Creating a buffer for each update instead
-/// cost about 2 ms a mesh in allocation on an NVIDIA driver (RENDERING.md §6). A stream written in
-/// place moves into a ring of its own the same way. Once RetireFrames frames pass with no write, a
-/// ring is given back for one buffer in the device's own memory holding its last write, so a mesh
-/// written now and then, as a voxel game's section relit while the land around it arrives, holds one
-/// copy rather than a ring's in the memory the CPU sees, which every pass that draws it reads across
-/// the bus.
+/// frames in flight, and each update is written into the next, where creating a buffer for each
+/// update put the driver's allocation in every update (RENDERING.md §6). A stream written in place
+/// moves into a ring of its own the same way. Once RetireFrames frames pass with no write, a ring
+/// is given back for one buffer in the device's own memory holding its last write, so a mesh
+/// written now and then, as a voxel game's section relit while the land around it arrives, holds
+/// one copy rather than a ring's in the memory the CPU sees, which every pass that draws it reads
+/// across the bus.
 /// </remarks>
 internal sealed class GpuMeshes : IDisposable
 {
@@ -150,8 +150,8 @@ internal sealed class GpuMeshes : IDisposable
                     ? (Buffer(gfx, MemoryMarshal.AsBytes(Narrowed(upload.Indices).AsSpan()), BufferUsage.Index), IndexType.UInt16)
                     : (Buffer(gfx, MemoryMarshal.AsBytes(upload.Indices.AsSpan()), BufferUsage.Index), IndexType.UInt32);
                 // A mesh with one of the two is given the other at its default, white or zero, so
-                // the model pass reads both a vertex at a time, which measured faster than reading
-                // the missing one from a buffer of a single element.
+                // the model pass reads both a vertex at a time, which draws faster than reading the
+                // missing one from a buffer of a single element.
                 var (colors, texcoords2) = upload.Streams is { } streams
                     ? (Buffer(gfx, streams.Colors is { } c ? MemoryMarshal.AsBytes(c.AsSpan()) : Filled(upload.Vertices.Length * 4, 255), BufferUsage.Vertex),
                        Buffer(gfx, streams.Texcoords2 is { } t ? MemoryMarshal.AsBytes(t.AsSpan()) : new byte[upload.Vertices.Length * 8], BufferUsage.Vertex))

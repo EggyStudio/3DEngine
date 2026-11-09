@@ -6,9 +6,9 @@ namespace Engine;
 /// are built again a frame at most.
 /// </summary>
 /// <remarks>
-/// <c>E3D.SetSceneField</c> changes it while the app runs. Each cascade is 64 cells a
-/// side and twice as coarse and as wide as the one before, so four cascades of 0.25 units reach 128
-/// units across and take 27 MB of the GPU's memory, and the far cascade 5.5 MB more.
+/// <c>E3D.SetSceneField</c> changes it while the app runs. Each cascade is 64 cells a side and
+/// twice as coarse and as wide as the one before, so four cascades of 0.25 units reach 128 units
+/// across.
 /// </remarks>
 /// <param name="Cascades">How many cascades, from 1 to 8, or 0 for no field.</param>
 /// <param name="CellSize">The width of a cell of the finest cascade, in world units.</param>
@@ -30,10 +30,10 @@ public sealed record SceneFieldConfig(int Cascades = 0, float CellSize = SceneFi
 
     /// <summary>How many triangles the builds splat a frame unless a number is given.</summary>
     /// <remarks>
-    /// Read from the field's counts of the two scenes its readings are taken in. Ore splats 18,824
-    /// triangles in a frame at its budget of two cascades and the Cornell box 180, and this is the
-    /// least power of two above Ore's, so both build as they did, where 500 sections of 1,024
-    /// triangles arriving in one frame, 512,000 at once, are built over sixteen frames or more.
+    /// The least power of two above the triangles a voxel game's field splats in a frame at its
+    /// budget of two cascades, so such a game's changes build in the frame they arrive, where 500
+    /// sections of 1,024 triangles arriving in one frame, 512,000 at once, are built over sixteen
+    /// frames or more.
     /// </remarks>
     public const int DefaultTriangleBudget = 32_768;
 }

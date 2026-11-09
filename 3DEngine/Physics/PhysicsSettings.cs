@@ -34,10 +34,9 @@ public sealed class PhysicsSettings
 
     /// <summary>How many bodies awake a step needs before it runs on the workers rather than the calling thread, 500 to begin with.</summary>
     /// <remarks>
-    /// Measured on a 16-core machine, four workers step 2000 boxes in 1.4 ms where one takes 2.6, and
-    /// 2000 characters in 5.0 where one takes 6.0, while 290 of either take the same on one as on
-    /// four, and <c>games/Swarm</c>'s crowd of 180 took longer on four. The choice follows from the
-    /// world, so a run is stepped the same way each time.
+    /// Four workers step a world of thousands of boxes or characters awake faster than one, while a
+    /// few hundred step as fast on one as on four and a smaller crowd steps slower on four. The
+    /// choice follows from the world, so a run is stepped the same way each time.
     /// </remarks>
     public int ThreadedAbove { get; set; } = 500;
 

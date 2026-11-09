@@ -3,10 +3,10 @@
 # program loads and fills its caches, is left out, and the rest is cut in two halves, and the least
 # a value fell to in the second half may pass the least it fell to in the first by a little, the
 # slack each kind of value is given, and no more. A leak raises a value's least as well as its most,
-# where a level streamed in and let go swings between them, as Manor's buffers go from 96 to 158 and
-# back as its walk passes from the grounds into the house, so the least tells the one from the other
-# where both halves see the level. A game that streams its level gives the most a whole walk through
-# it holds of such a value, which bounds the value in place of the first half's least.
+# where a level streamed in and let go swings between them, as Manor's buffers climb and fall back
+# as its walk passes between the grounds and the house, so the least tells the one from the other
+# where both halves see the level. A game that streams its level gives the most a whole walk
+# through it holds of such a value, which bounds the value in place of the first half's least.
 #
 #   python3 build/soak-check.py build/soak/<name>.csv [...] [--sessions DIR]
 #
@@ -56,30 +56,25 @@ SLACK = {
 # The most a game holds of a value over a whole walk through its level or a whole turn of its soak,
 # which bounds the second half's least with the same slack in place of the first half's. On a device
 # that plays two turns in the soak's two minutes, as the workflow's runner drawing every game at
-# once on four cores does, Manor's walk enters rooms the first half never reached and the least
-# climbs with the world, as its buffers did from 133 to 149 on lavapipe at a core and its images,
-# descriptor sets, entity ids and assets on a pack run, with nothing leaking. Its
-# buffers are a vertex and an index buffer for each mesh of the models its cells show, 96 in the
-# grounds and at most 158 in the house over a whole walk on the development machine's GPU and 162 on
-# lavapipe, which the device's census named (`memory.buffers`). The others but its images are the
-# most two whole walks of its autopilot held at 320 by 180 on both devices, read by `memory.collect`
-# every 60 frames, the second walk holding no more than the first. Its images are the most one whole
-# walk held at fe224105 at 320 by 180, 104 on lavapipe and 103 on the GPU, read by `memory.images`
-# every 120 frames, where the same walk held 97 at 3dda52c2. The six more are ambient occlusion's
-# two histories at half the window's size, the fog's two images of a texel while it is off, the
-# specular shares' table and the scattered bloom's sixth level, none of them climbing over the walk,
-# which takes its textures from 16 to 27 as it streams rooms in and lets them go after. Its entities
-# are the most alive at once, the 539 its entity ids count, which every whole walk reached on both
-# devices at the game's own pace and with each frame a tenth or a quarter of a second
-# (`time.frame`), as a runner's slow frames count more of the game's time, where the readings found
-# 464 to 533. Bounded by the first half's least alone, 374 entities, a walk on the pack run of
-# 80625742 held 422 at the second half's least, past the 421 that gave, its halves seeing different
-# parts of the estate. Swarm's soak sets wave 3 at each turn, and a turn leaves nothing alive past
-# the next one's reset, 27 entities after each of thirty, but a frame on a slower device counts more
-# of the game's time, up to the quarter second Time clamps it to, so a turn of 300 frames reaches
-# waves 4 to 6 there and holds more entities at once, and their ids, which count the most ever alive
-# at once, climb with it. Thirty turns with every frame counting that quarter second (`time.frame
-# 0.25`) held 152 ids at most on the GPU and 151 on lavapipe.
+# once on four cores does, Manor's walk enters rooms the first half never reached, and the least of
+# its buffers, images, descriptor sets, entity ids and assets climbs with the world with nothing
+# leaking, so a walk whose halves see different parts of the estate fails a bound of the first
+# half's least alone. Its buffers, which the device's census names (`memory.buffers`), are a vertex
+# and an index buffer for each mesh of the models its cells show, more in the house than in the
+# grounds, and 162 at most over a whole walk. Its descriptor sets and assets are the most two whole
+# walks of its autopilot hold at 320 by 180, the second walk holding no more than the first. Its
+# images are the most one whole walk holds at 320 by 180, among them ambient occlusion's two
+# histories at half the window's size, the fog's two images of a texel while it is off, the
+# specular shares' table and the scattered bloom's sixth level, none of them climbing over the
+# walk, where its textures rise and fall as it streams rooms in and lets them go. Its entities are
+# the most alive at once, the 539 its entity ids count, which every whole walk reaches at the game's
+# own pace and with each frame a tenth or a quarter of a second (`time.frame`), as a runner's slow
+# frames count more of the game's time. Swarm's soak sets wave 3 at each turn, and a turn leaves
+# nothing alive past the next one's reset, but a frame on a slower device counts more of the game's
+# time, up to the quarter second Time clamps it to, so a turn of 300 frames reaches later waves
+# there and holds more entities at once, and their ids, which count the most ever alive at once,
+# climb with it. Its bound is the most thirty turns hold with every frame counting that quarter
+# second (`time.frame 0.25`).
 WHOLE = {
     "manor": {"buffers": 162, "images": 104, "descriptorSets": 95, "entities": 539, "entityIds": 539, "assets": 96},
     "swarm": {"entityIds": 152},

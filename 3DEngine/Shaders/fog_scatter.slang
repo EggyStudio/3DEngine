@@ -59,13 +59,11 @@ float sunReaches(float3 p)
 // The light from all around a point in the air, the mean over the sphere of the irradiance up and
 // down of the probes of cascade c around it that see it, by their reach toward the point itself,
 // and none where no probe does. Read as a surface's light up and down is read (bouncedAt), the
-// point was taken three tenths of the probes' spacing up and down before the probes were judged,
-// 2.4 units where they stand 8 apart, past a room's roof or floor, and weighed by how squarely
-// they stood above or below it, so a sealed room's fog in the third cascade scattered 0.436 of
-// light where an open one's scattered 0.428, the probes outside seeing the sky, and Sponza's
-// vestibule at 15:00 had the fog add 62% to its darkest quarter of pixels, where now 0.0012 and
-// 34% (VolumetricFogTests). Probes 8 apart see little of a small room, and the open room's fog
-// scatters 0.035 where with probes 2 apart, seeing it from inside, it scatters 0.17 to 0.19.
+// point would be taken three tenths of the probes' spacing up and down before the probes were
+// judged, 2.4 units where they stand 8 apart, past a room's roof or floor, and weighed by how
+// squarely they stood above or below it, so a sealed room's fog would scatter as much light as an
+// open one's, the probes outside seeing the sky (VolumetricFogTests). Probes 8 apart see little of
+// a small room, which probes 2 apart see from inside.
 float3 airAt(float3 p, int c)
 {
     float probes = fog.grid.w, spacing = fog.probes.x;

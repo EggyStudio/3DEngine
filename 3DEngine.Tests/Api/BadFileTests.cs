@@ -173,8 +173,8 @@ public sealed class BadFileTests : IDisposable
 
     // Draws frames until done says so, sleeping 5 ms after each, six hundred times at most, three
     // seconds of sleep and more. A file is read on the asset server's worker, outside the frame
-    // loop, so the wait is long in time, where sixty frames were once less time than a slow
-    // runner's worker took to say a file was bad.
+    // loop, so the wait is long in time, since sixty frames may be less time than a slow runner's
+    // worker takes to say a file is bad.
     private static void Wait(Func<bool> done)
     {
         for (int frame = 0; frame < 600 && !done(); frame++)

@@ -147,10 +147,9 @@ float3 pictureNormal<P : IPicture>(P depth, ScreenCamera camera, float2 uv, floa
 // ray. A ray that passed behind the depth so and then went off the picture is left at the last
 // point it stood in front of it, for the field to find what it passed behind, since left where it
 // went off it stood past a wall it had gone behind, and the field's trace from there lit a closed
-// room with the lamp outside it, 92 levels where 8 at most, once the screen's probes' rays reached
-// twice as far. One still behind the depth at its end is left there too, where counted as meeting
-// nothing a ray that went into the floor before a wall ended under it, and the light from beyond
-// read there was none (gi.screenprobe). One that went off the picture without passing behind the
+// room with the lamp outside it. One still behind the depth at its end is left there too, where
+// counted as meeting nothing a ray that went into the floor before a wall ended under it, and the
+// light from beyond read there was none. One that went off the picture without passing behind the
 // depth is left at its last point on it, since left at its first point off it the field's trace
 // began under a floor the step had crossed.
 public bool traceScreen<P : IPicture>(P depth, ScreenCamera camera, float3 p, float3 way, float length, int steps, out float3 hit, out float left)
@@ -196,10 +195,9 @@ public bool traceScreen<P : IPicture>(P depth, ScreenCamera camera, float3 p, fl
                 // step allows, and a ray that crossed such an edge passed behind the thing and goes
                 // on as any ray behind the depth. Taken as met, the rays of the far wall's probe in
                 // the carried lamp's room that pass the thin green wall's end took its face the eye
-                // sees, dark, where the reference meets the lit floor and wall beyond, and the probe
-                // read 51% under the reference along its ways, where it reads 2% over
-                // (gi.screenprobe); judged by how near the halving ends to the surface alone, a
-                // mirror floor seen past a metal sphere at a slant drew in stripes.
+                // sees, dark, where the reference meets the lit floor and wall beyond. Judged by
+                // how near the halving ends to the surface alone, a mirror floor seen past a metal
+                // sphere at a slant drew in stripes.
                 float4 inFront;
                 bool leaps = false;
                 if (onScreen(depth, camera, p + way * near, inFront))
@@ -211,13 +209,10 @@ public bool traceScreen<P : IPicture>(P depth, ScreenCamera camera, float3 p, fl
                     leaps = behindBy - frontBy > max(0.25, 8.0 * (far - near));
                 }
                 // A face the ray meets from behind, its way leaving the surface, is not where it
-                // meets the thing, and the ray passed behind the thing as above. Taken as met, a ray
-                // of a probe on the carried lamp's room's back wall past the green wall's end, the
-                // lamp beyond the wall, met the face the eye sees, lit, where the face toward the
-                // probe is dark, 1375% over the reference along it (gi.screenprobe), and green over
-                // red read 0.97 on the back wall past the wall's edge and 1.44 on the floor where
-                // the reference reads 0.74 and 0.99. Going on, the field reads the ray 57% under,
-                // and green over red 0.83 and 1.08.
+                // meets the thing, and the ray passed behind the thing as above. Taken as met, a
+                // ray of a probe on the carried lamp's room's back wall past the green wall's end,
+                // the lamp beyond the wall, met the face the eye sees, lit, where the face toward
+                // the probe is dark.
                 if (!leaps && dot(pictureNormal(depth, camera, at.xy, hit), way) < 0.0)
                     return true;
             }

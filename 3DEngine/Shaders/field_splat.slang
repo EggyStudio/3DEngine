@@ -273,11 +273,12 @@ void computeMain(uint3 group : SV_GroupID, uint lane : SV_GroupIndex)
     GroupMemoryBarrierWithGroupSync();
     FieldInstance instance = instances[triangleInstance];
     // An emitter thinner than a cell paints no cell its own where a surface behind it is nearer
-    // the cells' middles, as a bright strip on a wall, so its light was in the field nowhere and
-    // added nothing to global illumination. It lends the cells within half a cell of it its light, with the area of
-    // its faces near each, which the resolve turns into the share of a cell's face it covers, so a
-    // strip 0.06 wide lends cells of 0.15 two fifths of its light and a sheet as thin lends its
-    // whole light, where a share of its thickness over the cell lent a sheet 0.02 thick a seventh.
+    // the cells' middles, as a bright strip on a wall, so its light would be in the field nowhere
+    // and add nothing to global illumination. It lends the cells within half a cell of it its
+    // light, with the area of its faces near each, which the resolve turns into the share of a
+    // cell's face it covers, so a strip 0.06 wide lends cells of 0.15 two fifths of its light and a
+    // sheet as thin lends its whole light, where a share of its thickness over the cell would lend
+    // a sheet 0.02 thick a seventh.
     // An emitter global illumination carries as a glow light lends nothing, its light reaching the
     // cells' surfaces as a light's does.
     float thickness = instance.emission.w;

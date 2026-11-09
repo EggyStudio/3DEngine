@@ -84,8 +84,8 @@ public sealed partial class Schedule
     /// <remarks>
     /// Handing a batch to the thread pool costs tens of microseconds when the pool is idle, and the
     /// calling thread waits for the tasks it queued even once it has run every system itself. While
-    /// a level's files load, those tasks queued behind the loads, and a batch of five systems taking
-    /// microseconds took 20 to 47 milliseconds.
+    /// a level's files load, those tasks queue behind the loads, so a batch of systems taking
+    /// microseconds waits on the loads.
     /// </remarks>
     internal const double SequentialBatchMilliseconds = 0.5;
 

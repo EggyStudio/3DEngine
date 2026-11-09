@@ -238,11 +238,11 @@ internal sealed partial class ModelRenderer
 
     // This frame's sets of the draws with a shader of their own, by the shader, the values and the
     // shader's own textures the draw was given and its five maps, so the draws of one look share a
-    // set across the frame's passes. Made and written whole for each draw in each pass, 2.8 to 3.2
-    // µs a set, the voxel game's sections, every one holding the same values, took 2,041 to 2,047
-    // sets a frame at 12 columns, 5.6 to 6.5 ms of the four passes' recording on the main thread.
-    // An entity's values are one copy a frame for every entity drawn with the shader and a call's a
-    // copy of its own, so the copies themselves tell the values apart.
+    // set across the frame's passes. Made and written whole for each draw in each pass, the voxel
+    // game's sections, every one holding the same values, took a set each in each of the four
+    // passes, all of them written on the main thread. An entity's values are one copy a frame for
+    // every entity drawn with the shader and a call's a copy of its own, so the copies themselves
+    // tell the values apart.
     private readonly Dictionary<(int Shader, byte[]? Values, int[]? Own, (int, int, int, int, int) Maps), IDescriptorSet> _drawSetsByLook = [];
 
     /// <summary>How many sets this frame's draws with a shader of their own were written into, one a look.</summary>

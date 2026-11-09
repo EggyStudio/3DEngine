@@ -88,8 +88,8 @@ public sealed class SceneRefTests : IDisposable
         // that next asks the file system for the files' times, which it does twice a second, spawns
         // the copies placed before again from the new version too, and that step may be this one,
         // so the third copy is held against the arrays the first had before the write. Held against
-        // the first's arrays after the step, the test failed on one macOS runner of two, as it does
-        // wherever half a second passes between the last asking and the step after the write.
+        // the first's arrays after the step, the test fails wherever half a second passes between
+        // the last asking and the step after the write.
         var before = Positions(first);
         var later = File.GetLastWriteTimeUtc(path).AddSeconds(5);
         File.SetLastWriteTimeUtc(path, later);

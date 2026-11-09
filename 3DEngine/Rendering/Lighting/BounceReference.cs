@@ -187,13 +187,13 @@ internal static class BounceReference
     /// <para>
     /// <paramref name="bounces"/> counts what a path does after the probe's own ray meets its first
     /// surface, so 0 lights that surface alone, as the probes' hits are lit with the light past the
-    /// first bounce left out (<c>gi.toggle again off</c>), where a reference of the window's picture
-    /// (<see cref="Trace"/>) counts from the face the eye sees, and its 1 is the one that frame is
-    /// read against. Read against 1, a probe took the walls' light reflected once more and read 35 to
-    /// 59% under at one bounce in the bounce rooms, where against 0 it reads within 3%. A glow
-    /// light's own light reaches a hit only along a path's next segment in the reference, whose
-    /// lights are the sun and the lamps, so a probe lit by a glow light with the light past the first
-    /// bounce left out is read against 1.
+    /// first bounce left out (<c>gi.toggle again off</c>), where a reference of the window's
+    /// picture (<see cref="Trace"/>) counts from the face the eye sees, and its 1 is the one that
+    /// frame is read against. Read against 1, a probe took the walls' light reflected once more and
+    /// read under the reference at one bounce in the bounce rooms. A glow light's own light reaches
+    /// a hit only along a path's next segment in the reference, whose lights are the sun and the
+    /// lamps, so a probe lit by a glow light with the light past the first bounce left out is read
+    /// against 1.
     /// </para>
     /// </remarks>
     public static string Probe(World world, Vector3 point, int samples, int bounces = -1, int cascade = 0)
@@ -235,8 +235,8 @@ internal static class BounceReference
         // The ways that carry most of the face whose light lies furthest from the reference's, each
         // way's part of the face weighed as the gather weighs it, by its cosine and its texel's
         // share. Taken by its share of the reference's light, a face the reference holds dark won
-        // over one a hundred times as bright and 99% under, as at the court's cascade-1 probes in
-        // Sponza's door view at 8:00, so the face is the one furthest in light.
+        // over one many times as bright that read far under it, so the face is the one furthest in
+        // light.
         var furthest = Enumerable.Range(0, 6).MaxBy(f => MathF.Abs(Luminance(probe.FacesMerged[f]) - Luminance(probe.FacesReference[f])));
         var weights = probe.Each.Sum(way => Math.Max(Vector3.Dot(way.Way, axes[furthest]), 0) * way.Share);
         float Part(ProbeWay way, Vector3 light) => Luminance(light) * Math.Max(Vector3.Dot(way.Way, axes[furthest]), 0) * way.Share * MathF.PI / weights;

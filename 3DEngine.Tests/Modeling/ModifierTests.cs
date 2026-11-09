@@ -209,8 +209,8 @@ public sealed class ModifierTests : IDisposable
         clock.ElapsedMilliseconds.Should().BeLessThan(Budget, "a stack this size builds within {0} ms", Budget);
     }
 
-    // Measured at 176 to 205 ms over five runs on four cores of a Linux container, the first
-    // build of each test process, so the budget allows a runner seven times slower.
+    // Several times what the stack's first build in a test process takes on four cores of a Linux
+    // container, so a slower runner holds the budget.
     private const long Budget = 1500;
 
     [Fact]

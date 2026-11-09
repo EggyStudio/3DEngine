@@ -5,11 +5,7 @@
 // sends the point in closed form, and blends that with what the texel held the frame before where
 // its surface was. Over a round of the probes' points the blend is their mean, each frame counting
 // alike, so a penumbra a probe's tile cuts across reads as the probes standing at every place in
-// their tiles would read it, and a turn moves it with the world and not with the window's grid. The
-// floor across a lamp's penumbra moves with turns of one to eight pixels at 640 by 360 by 0.45 to
-// 0.94% of its light, where a pixel that marches itself moves by 0.69 to 0.91%; blended at the
-// probes, the points moving with them, by 1.6 to 2.7%, and read at the tiles' middles by 3.1 to
-// 7.9%.
+// their tiles would read it, and a turn moves it with the world and not with the window's grid.
 import gi;
 import scenefield;
 
@@ -56,10 +52,9 @@ RWTexture2D<float4> glowState;
 Texture2D<float4> lastGlowState;
 
 // rgb: the light of the other glow lights, irradiance, which changes less from texel to texel and
-// the model pass takes as it is. This frame's and the frame before's, as the share's. With every
-// glow light's rough light summed at each pixel, the model pass cost 1.1 ms more in a room of 64
-// lamps at 1280 by 720 on the development machine's GPU, and with that of the lights near each
-// pixel 0.55 ms more, its loop over the lights alone.
+// the model pass takes as it is, rather than summing every glow light's rough light at each pixel,
+// or that of the lights near each pixel, which would run a loop over the lights at every pixel.
+// This frame's and the frame before's, as the share's.
 [[vk::binding(10, 0)]] [format("rgba16f")]
 RWTexture2D<float4> glowFar;
 
@@ -79,9 +74,9 @@ RWTexture2D<float4> glowNormal;
 // frame's light alike and may be dropped. The least share of this frame's light in the blend after
 // a round where the view holds still, a thirty-second, since at a sixty-fourth what the first
 // frames of an app saw before the field held the wall stayed in the blend under its shadow twice as
-// long, and a turn read 150 frames on moved the floor's light along the penumbra by 0.9 to 1.8%
-// where by 0.44 to 0.92%. And where the view moves, when each frame's blend is read between four
-// texels of the frame before's and spreads a little further over the surface.
+// long, and a turn moved the floor's light further along the penumbra. And where the view moves,
+// when each frame's blend is read between four texels of the frame before's and spreads a little
+// further over the surface.
 static const float GlowRound = 16.0;
 static const float GlowStill = 1.0 / 32.0;
 static const float GlowMoving = 1.0 / 8.0;
@@ -100,8 +95,7 @@ static const float GlowLetGo = 1.0 / 64.0;
 // The least cosine between a point's normal and the normal of a texel of the frame before that the
 // point takes the texel's light from, 60 degrees, so the two sides of a right-angled corner part.
 // At 25 degrees the texels of the ninth room at 160 by 90, two pixels wide and their normals taken
-// from a depth that wavers near a surface's edge, lost the frame before's light on one surface too,
-// and the view read 0.0506 of its light from its reference where 0.0502.
+// from a depth that wavers near a surface's edge, lost the frame before's light on one surface too.
 static const float GlowSameSurface = 0.5;
 
 float3 worldAt(float2 uv, float d)
@@ -298,8 +292,7 @@ void computeMain(uint3 id : SV_DispatchThreadID)
     // point's, the point is marked for the model pass's pixels on it to march to the lights' faces'
     // halves themselves, as a probe does. Taken from the probes on any surface by how near each is,
     // the floor along a wall's foot took the light its top saw, and marched from here, the march's
-    // code in this pass cost global illumination 0.15 to 0.26 ms more in a room of sixteen lamps,
-    // few as its texels are.
+    // code made this pass slower, few as its texels are.
     float2 g = (uv - marchedFrom(int2(0))) * view.sizes.zw / view.grid.x;
     int2 base = int2(floor(g));
     float2 f = g - float2(base);
@@ -315,8 +308,8 @@ void computeMain(uint3 id : SV_DispatchThreadID)
     float total = weight.x + weight.y + weight.z + weight.w;
     // Where none of the four is, as on the floor behind a lamp whose probes stand on the lamp, the
     // four of the four by four around that count most by how near each is, two tiles off counting
-    // nothing. Its pixels marching, the floor along the near lamps' backs cost the model pass 0.6
-    // ms in a room of sixteen lamps.
+    // nothing, so the model pass's pixels on the floor along the near lamps' backs need not march
+    // themselves.
     if (total <= 1e-3)
     {
         [loop]
@@ -417,9 +410,9 @@ void computeMain(uint3 id : SV_DispatchThreadID)
     // the probes saw before the field held what stands between is no part of what they see. Held
     // whole, the frames of an app before the field built its meshes in place of their boxes lay in
     // the blend under a wall's shadow, and the floor across a lamp's penumbra strayed from where it
-    // settles by 13% a round after the app began and by 6% two rounds after. Dropped wherever the
-    // cascade was built, the blends begun the frame a lamp was placed began again when its own mesh
-    // was built eight frames on, and the penumbra was 2% from where it settles a round after the lamp.
+    // settles for rounds after the app began. Dropped wherever the cascade was built, the blends
+    // begun the frame a lamp was placed began again when its own mesh was built frames later, and
+    // the penumbra had not settled a round after the lamp.
     int under = fieldCascade(fieldInfo, p, 1.0);
     bool rebuilt = under >= 0 && ((asuint(view.glows.w) >> uint(under)) & 1u) != 0u
         && all(p >= view.changedMin.xyz) && all(p <= view.changedMax.xyz);
@@ -428,13 +421,12 @@ void computeMain(uint3 id : SV_DispatchThreadID)
     if (dropped)
         frames = 0.0;
     // steady is 1 where the view held still and one texel of the frame before gives the whole, less
-    // as the view moves and four share it; and where they cover the place in part, as at the edge
+    // as the view moves and four share it, and where they cover the place in part, as at the edge
     // of what the frame before showed, this frame's light counts for the rest. A moving view's
     // blend counts as one frame's light, so where the view stops the frames after it make the mean
     // anew and reach a round's within a round. Counted as all the frames it held, the blend the
-    // moving view had spread over the surface took 64 frames to leave, and the 99th part of a
-    // turn's pixels changed after the stop by 5.6% of the picture's mean light in the frame after
-    // and 2.7% fifteen frames on, where so by 0.8% and 0.3%.
+    // moving view had spread over the surface was slow to leave, and a turn's pixels went on
+    // changing after the stop.
     float steady = saturate(2.0 * still - 1.0);
     float least = lerp(GlowMoving, GlowStill, steady);
     float fresh = dropped ? 1.0 : lerp(1.0, max(1.0 / (frames + 1.0), least), saturate(held));

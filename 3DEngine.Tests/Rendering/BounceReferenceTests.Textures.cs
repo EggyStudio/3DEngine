@@ -12,9 +12,9 @@ public sealed partial class BounceReferenceTests
     {
         // A slab whose texture is dark on one half and light on the other, under a lamp. Taking the
         // copy's color as its texture's average, the reference read the slab's top one gray
-        // everywhere, each pixel 0.925 of its light off the frame's on the development machine's
-        // GPU and the whole top 0.188 under it, the lamp nearer the light half; read from the
-        // texture at each point, 0.003 and 0.001, the bound leaving the paths' noise room.
+        // everywhere, each pixel far off the frame's and the whole top under it, the lamp nearer
+        // the light half. Read from the texture at each point, the two agree, the bound leaving the
+        // paths' noise room.
         var config = Config.Default.WithWindow("bounce reference test", 160, 120) with { Headless = true, Offscreen = true, Samples = 1 };
         UseApp(new App(config).AddPlugin(new DefaultPlugins()));
         SetSceneField(2, 0.25f, 1);
@@ -36,9 +36,8 @@ public sealed partial class BounceReferenceTests
     {
         // A slab whose normal map leans every point of it 35 degrees between its texture's two
         // ways, under a sun from a corner of the sky. Lit by the face's own normal, the reference
-        // read the slab's top so that the frame took 1.614 times its light on the development
-        // machine's GPU; bent by the map in the triangle's tangent frame as the model pass bends
-        // it, 1.001, the bound leaving the paths' noise room.
+        // read the slab's top far darker than the frame. Bent by the map in the triangle's tangent
+        // frame as the model pass bends it, the two agree, the bound leaving the paths' noise room.
         var config = Config.Default.WithWindow("bounce reference test", 160, 120) with { Headless = true, Offscreen = true, Samples = 1 };
         UseApp(new App(config).AddPlugin(new DefaultPlugins()));
         SetSceneField(2, 0.25f, 1);

@@ -60,8 +60,8 @@ public static partial class E3D
     /// </summary>
     /// <remarks>
     /// A ligature or a pair chosen by its context, which a Latin font's <c>liga</c> and <c>kern</c>
-    /// rarely make, is not read, so a line is shaped by a lookup at each glyph and each pair, a few
-    /// microseconds where the font's own engine took a few hundred.
+    /// rarely make, is not read, so a line is shaped by a lookup at each glyph and each pair, far
+    /// quicker than the font's own engine.
     /// </remarks>
     internal static Font.LatinShaping? LatinPlan(TrueTypeFont? reader, IEnumerable<int> asked)
     {

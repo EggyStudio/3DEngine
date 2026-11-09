@@ -17,9 +17,9 @@ namespace Engine;
 /// that of the normal and the half way, Schlick's Fresnel apart into the scale and the bias.
 /// </para>
 /// <para>
-/// It takes the place of Karis's fit for mobile, which in a box of emissive metal of roughness 0.6
-/// gave a wall seen square on 0.336 of the light around it where GGX's lobe gives 0.414, and at a
-/// roughness of 1 0.225 where it gives 0.154 (<c>RoughReflectionTests</c>).
+/// It takes the place of Karis's fit for mobile, which in a box of emissive metal gave a wall seen
+/// square on less of the light around it than GGX's lobe gives at a roughness of 0.6, and more at a
+/// roughness of 1 (<c>RoughReflectionTests</c>).
 /// </para>
 /// </remarks>
 internal static class SpecularShares

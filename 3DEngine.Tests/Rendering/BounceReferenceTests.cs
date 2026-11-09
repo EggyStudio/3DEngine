@@ -96,8 +96,8 @@ public sealed partial class BounceReferenceTests : IDisposable
         {
             ray.Reference.X.Should().BeApproximately(expected, expected * 0.06f, $"the light along every way is that of every wall\n{report}");
             ray.OverCell.X.Should().BeApproximately(expected, expected * 0.03f, $"and over every way of its cell\n{report}");
-            // A ray the field meets on a wall near the ceiling's edge reads 13% short, which the
-            // bound allows.
+            // A ray the field meets on a wall near the ceiling's edge reads short, and the bound
+            // leaves it room.
             ray.Light.X.Should().BeApproximately(expected, expected * 0.15f, $"every ray reads the walls' light wherever it was met\n{report}");
             if (ray.Met < 2) ray.Own.X.Should().BeApproximately(1, 0.02f, $"what a ray meets on the screen or in the field emits 1\n{report}");
             summed += ray.Light * ray.Share;
@@ -112,12 +112,11 @@ public sealed partial class BounceReferenceTests : IDisposable
     [NeedsRayQueryFact]
     public void A_Probe_Beside_A_Block_Carried_As_A_Glow_Light_Reads_None_Of_Its_Emission_In_The_Reference()
     {
-        // An emissive block two units on a side, which global illumination carries as a light, alone
-        // under a black sky. The probe's rays leave its emission out where they meet it, since the light reaches
-        // a surface as a glow light rather than through the probes, and the reference leaves it out
-        // as they do, where it counted it and read the rays of the probes around four emissive
-        // blocks 44 to 70% under; a reference of the window's picture still shows the block's
-        // emission.
+        // An emissive block two units on a side, which global illumination carries as a light,
+        // alone under a black sky. The probe's rays leave its emission out where they meet it,
+        // since the light reaches a surface as a glow light rather than through the probes, and the
+        // reference leaves it out as they do, or the probes' rays around emissive blocks read far
+        // under it. A reference of the window's picture still shows the block's emission.
         var config = Config.Default.WithWindow("bounce reference test", 160, 120) with { Headless = true, Offscreen = true, Samples = 1 };
         UseApp(new App(config).AddPlugin(new DefaultPlugins()));
         SetSceneField(2, 0.25f, 1);
@@ -210,8 +209,7 @@ public sealed partial class BounceReferenceTests : IDisposable
         regions.Should().NotBeNull(why);
         var floor = regions!.Single(r => r.Name.EndsWith("floor", StringComparison.Ordinal));
         floor.Pixels.Should().BeGreaterThan(5000, "the slab's top fills most of the view");
-        // The two read alike to a hundredth of a percent on the development machine's GPU, the
-        // paths' noise the rest.
+        // The two read alike but for the paths' noise, which the bound leaves room for.
         Math.Abs(floor.Share).Should().BeLessThan(0.01f, $"the slab's top reads in the frame {floor.Frame} as in the reference {floor.Reference}");
         UnloadModel(slab);
     }
@@ -221,7 +219,7 @@ public sealed partial class BounceReferenceTests : IDisposable
     {
         // The slab above with its color in its vertices and a white material, as a voxel game colors
         // a section's blocks. The reference traced a copy's flat color alone, so a game's rooms of
-        // white concrete read a third brighter in it than in the frame.
+        // white concrete read brighter in it than in the frame.
         var config = Config.Default.WithWindow("bounce reference test", 160, 120) with { Headless = true, Offscreen = true, Samples = 1 };
         UseApp(new App(config).AddPlugin(new DefaultPlugins()));
         SetSceneField(2, 0.25f, 1);
@@ -295,21 +293,18 @@ public sealed partial class BounceReferenceTests : IDisposable
         var floor = regions!.Single(r => r.Name.EndsWith("floor", StringComparison.Ordinal));
         var front = regions!.Single(r => r.Name.Contains("wall facing +z", StringComparison.Ordinal));
         (floor.Reference.X / floor.Reference.Y).Should().BeGreaterThan(5, $"the reference traces the slab red, {floor.Reference}");
-        // Against the reference traced with every face's gloss, as the probes' rays light what they
-        // meet by its gloss, it reads 4.5% under it on the development machine's GPU, and against one
-        // with the first face's gloss alone 5.1% under, as the slab reflects the light its probes
-        // hold, where it read 14.3% under reflecting the environment's alone, of which there is none
-        // here.
+        // The reference is traced with every face's gloss, as the probes' rays light what they meet
+        // by its gloss, and the bound leaves room for the slab reading a little under it. The slab
+        // reflects the light its probes hold, where reflecting the environment's alone, of which
+        // there is none here, read it well under the reference.
         Math.Abs(floor.Share).Should().BeLessThan(0.06f, $"the slab reads in the frame {floor.Frame} as in the reference {floor.Reference}");
-        // The wall's red over its green reads 1.216 in the frame and 1.234 in the reference with
-        // every face's gloss on the development machine's GPU, and 1.212 against 1.240 with the
-        // first face's alone, the slab's own light 3.6% from that reference's. It read 1.230
-        // while the screen's rays past their reach took the light of the world's probes around the
-        // point they left the wall from, nearer the slab, which lent the upper wall's rays toward
-        // the open side 0.053 of red where the reference along their ways holds 0.001. Read where
-        // they end, they hold the dark the reference does, and a probe's sixteen ways there miss
-        // the slab's red their cells hold, the probe 4% over the reference along its ways and 34%
-        // under it over the hemisphere (gi.screenprobe), a fault of the rays' fixed ways.
+        // The screen's rays past their reach are read where they end, holding the dark the
+        // reference does, rather than taking the light of the world's probes around the point
+        // they left the wall from, nearer the slab, which lent the upper wall's rays toward the
+        // open side a red the reference along their ways does not hold. A probe's sixteen ways
+        // there miss the slab's red their cells hold, a fault of the rays' fixed ways, so the
+        // wall's red over its green reads a little under the reference's, and the bound leaves
+        // room for it.
         float Tint(Vector3 light) => light.X / light.Y;
         Tint(front.Frame).Should().BeApproximately(Tint(front.Reference), Tint(front.Reference) * 0.03f,
             $"the wall takes the slab's red as it bounces, the frame's {front.Frame} against the reference's {front.Reference}");
@@ -325,7 +320,7 @@ public sealed partial class BounceReferenceTests : IDisposable
         // at a way whose cosine to the floor's normal is mu crosses 1 / mu of the slab and keeps a
         // half to that power, so the floor takes of the open floor's light twice the integral over
         // mu from 0 to 1 of mu times a half to the 1 / mu, 0.335, and the ways past the slab's edge
-        // 0.0006 more. It read 0.3358 on the development machine's GPU.
+        // 0.0006 more.
         var config = Config.Default.WithWindow("bounce reference test", 160, 120) with { Headless = true, Offscreen = true, Samples = 1 };
         UseApp(new App(config).AddPlugin(new DefaultPlugins()));
         SetSceneField(2, 0.25f, 1);

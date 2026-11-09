@@ -1,9 +1,8 @@
 // The small emissive surfaces global illumination carries as lights of their own, each a box in
 // the world, the light one sends a point in closed form, and the marches through the field that say
 // how much of it a point sees, which gi.slang sums (GlowLights.cs). Its loops are kept from
-// unrolling, since unrolled, with each of the model pass's calls of them inlined apart, they made
-// the model pass's compile on lavapipe four times as long, 0.9 s for every app where 0.23 before
-// them.
+// unrolling, since unrolled, with each of the model pass's calls of them inlined apart, they
+// lengthen the model pass's compile for every app.
 module glow;
 
 import scenefield;
@@ -105,10 +104,9 @@ float squareIrradiance(float3 x, float3 n, float3 c, float3 u, float3 v)
 
 // The light reaching a point x facing n from a glow light, unhidden, the light from each face of
 // its box that x lies before, three at most, in closed form within four of the box's half
-// diagonals, which a path-traced floor beside an emissive block reads to within 3% from one block
-// out to four, and past them each face's as points, its area by the two cosines over the square of
-// its distance, within 1.6% of the closed form there at a fraction of its cost.
-// None where x lies on the light's own surface, as glowLightOn finds it within margin.
+// diagonals, and past them each face's as points, its area by the two cosines over the square of
+// its distance, which there come near the closed form at a fraction of its cost. None where x lies
+// on the light's own surface, as glowLightOn finds it within margin.
 public float3 glowLightIrradiance(GlowLight light, float3 x, float3 n, float margin)
 {
     if (glowLightOn(light, x, n, margin))
@@ -134,11 +132,10 @@ public float3 glowLightIrradiance(GlowLight light, float3 x, float3 n, float mar
         else
         {
             // The face cut along its longer side into pieces about as long as its shorter, four at
-            // most, or a face about square into quarters, each a point at its middle. Whole, a face
-            // fifteen sixteenths of a block long and two wide, as an emissive rod's side, read 11%
-            // over the closed form at four half diagonals and a block's face 7%, a step in the
-            // floor's light where the forms met; cut so, 0.6% and 1.6%. Unrolled with the count
-            // kept, so no loop nests in the faces' loop.
+            // most, or a face about square into quarters, each a point at its middle, since a long
+            // face taken whole as one point, as an emissive rod's side, stands off the closed form
+            // at four half diagonals and leaves a step in the floor's light where the forms meet.
+            // Unrolled with the count kept, so no loop nests in the faces' loop.
             bool longer = u.w >= v.w;
             float3 along = longer ? u.xyz : v.xyz, across = longer ? v.xyz : u.xyz;
             int pieces = clamp(int(max(u.w, v.w) / max(min(u.w, v.w), 1e-6) + 0.5), 1, 4);
@@ -166,12 +163,9 @@ public float3 glowLightIrradiance(GlowLight light, float3 x, float3 n, float mar
 // its thinnest half side, by how far its middle rises above p's plane. The window's glow light is
 // kept as a share of it (gi_screen_glow.slang), read from texels of half the window's size, and the
 // model pass scales that share by this at each pixel, so the light rises toward a lamp at each
-// pixel as it does across the lamp's own thickness. Taken from the texels whole, the room around an
-// emissive strip six hundredths of a block thick read 3.4 to 4% further from its path-traced
-// reference at 160 by 90 than with each pixel's own light; with this softened by the box's whole
-// size, 3.4 to 3.5%, the strip's two blocks of length keeping it flat across the strip's thickness;
-// with this, 1.7 to 2%, and at 1280 by 720 within 0.1%. None where p lies on the light's own
-// surface, as glowLightIrradiance gives.
+// pixel as it does across the lamp's own thickness. It is softened by the box's thinnest half side
+// rather than by its whole size, since a thin strip's length would keep the light flat across the
+// strip's thickness. None where p lies on the light's own surface, as glowLightIrradiance gives.
 public float3 glowLightRough(GlowLight light, float3 p, float3 n, float margin)
 {
     if (glowLightOn(light, p, n, margin))
@@ -249,10 +243,9 @@ public float glowLightFade(GlowLight light, float3 p, float3 n)
 // Whether p, facing n, lies on a glow light's own surface, within margin of its box with n leading
 // out of it, so that a step of margin along n moves p away from the box by half the step or more. A
 // ray's hit on the light lies anywhere within a fraction of a cell of the box, inside or out, and
-// the field's normal tilts near its edges, so part of a face rose above the hit's plane and lit it.
-// On lavapipe, whose hits fell a little outside the faces where those on the development machine's
-// GPU fell inside, the light reflected off the block's own faces added 0.018 to the floor two
-// blocks from it, 0.044. A floor beside the box, n along the box's side, is not on it.
+// the field's normal tilts near its edges, so part of a face rises above the hit's plane and lights
+// it, and a hit a little outside the faces would reflect the block's own light onto the floor
+// around it. A floor beside the box, n along the box's side, is not on it.
 public bool glowLightOn(GlowLight light, float3 p, float3 n, float margin)
 {
     float at = glowLightDistance(light, p);
@@ -264,13 +257,10 @@ public bool glowLightOn(GlowLight light, float3 p, float3 n, float margin)
 // middle, and meets the wall behind it, where the light reaches it from no distance. A path-traced
 // reference's path stops at the light and leaves out its emission there, since the light reaches
 // every surface as a light of its own (GlowLights), counted at the surface, and a path that went on
-// through it would count it again, so such a hit takes none of that light. A ray through the strip
-// 0.06 thick of shaders_bounce_rooms met the wall 0.02 behind it and brought a texel of each of the
-// two probes beside the strip 3.7 of light, their faces toward it 211 and 206% over the reference
-// at the first bounce on the development machine's GPU, where with this test they read 7 and 10%
-// over. Leaving out any light whose box lay within half a cell behind a hit also took the light
-// around the strip from rays that never passed it, and its room read 17% under where this test read
-// it 14%, both before glowMarch's cone.
+// through it would count it again, so such a hit takes none of that light. Otherwise a ray through
+// a thin strip meets the wall close behind it and brings the probes beside the strip far more of
+// its light than they see. Leaving out instead any light whose box lies within half a cell behind a
+// hit also takes the light around the strip from rays that never passed it.
 public bool glowLightPassed(GlowLight light, float3 p, float3 way, float within)
 {
     float3 offset = p - light.middleAndReach.xyz;
@@ -320,13 +310,12 @@ public float glowLightDistance(GlowLight light, float3 q)
 // as a sphere tracer's is, from the two distances, so the share does not step with them. Inside a
 // surface the share is half and less by how far under its edge the way passes, read by stepping out
 // along p's normal, since the distance to its nearest face reads no deeper than half a thin wall
-// and let a fifteenth of the light through one. That is read once, after the march, at the step
-// that lay deepest inside. Read at each step, a loop inside the march's own, it lost the device on
-// the development machine's GPU where the world probes' rays met a closed room's walls with a lamp
-// inside, an MMU fault through the constant cache (Xid 31) that the validation layer's GPU-assisted
-// checks found no read out of range for and lavapipe never met. The cone is kept within the step's
-// height over p's plane, below which glowLightIrradiance has already cut the box's light. Where
-// nothing stands nearer, or the field does not hold p, all of it.
+// and lets light through one. That is read once, after the march, at the step that lay deepest
+// inside, since read at each step, a loop inside the march's own, it lost the device where the
+// world probes' rays met a closed room's walls with a lamp inside, an MMU fault through the
+// constant cache that the validation layer's GPU-assisted checks found no read out of range for.
+// The cone is kept within the step's height over p's plane, below which glowLightIrradiance cuts
+// the box's light. Where nothing stands nearer, or the field does not hold p, all of it.
 float glowMarch<V : IVolume>(V field, SceneFieldInfo info, GlowLight light, float3 p, float3 n, float cell, float3 target, float radius, float lift)
 {
     float3 from = p + n * (cell * lift);
@@ -359,16 +348,11 @@ float glowMarch<V : IVolume>(V field, SceneFieldInfo info, GlowLight light, floa
             // wide as the box across the way toward the surface the step passes, the box's support
             // along the field's slope there, 0.03 for a strip 0.06 thick toward the wall it is
             // mounted on and 0.5 for a cube a unit wide toward a face. As wide as the box's mean
-            // half side in every way, 0.35 for a strip 2 long, a march from a hit above or below
-            // the strip ran along its wall within a cell and took the wall, inside the cone, for
-            // something between, though the wall stands behind the strip, and the hits in the
-            // strip's room of shaders_bounce_rooms read its light 28% under its closed form at the
-            // floor, 30% at the ceiling and 35% right over the strip, where with the support the
-            // floor reads it, the ceiling 8% under and the hits over the strip 4%, a few hits in
-            // the ceiling's back corners 35% under. The slope is read by forward differences, three
-            // reads of the field, where central differences' six took the ceiling to 10% under and
-            // the side walls to 10 and 21% against 8 and 20%, at the same cost, global illumination
-            // taking 0.15 to 0.24 ms more in the Cornell box on the development machine's GPU.
+            // half side in every way, a march from a hit above or below a strip runs along its wall
+            // within a cell and takes the wall, inside the cone, for something between, though the
+            // wall stands behind the strip, and the strip's room reads too little of its light.
+            // The slope is read by forward differences, three reads of the field, since central
+            // differences' six bring the light no nearer its closed form.
             float wide = radius;
             if (wide < 0.0)
             {
@@ -388,11 +372,10 @@ float glowMarch<V : IVolume>(V field, SceneFieldInfo info, GlowLight light, floa
             {
                 // Inside one, the way out along p's normal is no shorter than the way to the
                 // nearest face, so the share is at most what that gives, and a march into a wall
-                // thicker than the cone ends there, where with the depth read after the march alone
-                // it ran on to the light and cost global illumination in the Cornell box 0.13 ms
-                // more at Low. It ends by its own condition, `t` set to its end, since left by a
-                // break there the march lost the device on the development machine's GPU in five
-                // runs of five as the loop nested in it had.
+                // thicker than the cone ends there rather than running on to the light, as it does
+                // with the depth read after the march alone. It ends by its own condition, `t` set
+                // to its end, since left by a break there the march lost the device as the loop
+                // nested in it had.
                 seen = min(seen, saturate(0.5 + 0.5 * d / cone));
                 if (seen <= 0.0)
                     t = end;
@@ -410,14 +393,13 @@ float glowMarch<V : IVolume>(V field, SceneFieldInfo info, GlowLight light, floa
     }
     // Inside one, half and less by how far under its edge the way passes, stepped out along p's
     // normal and, where the field's slope there leans across the way, across it toward the nearest
-    // face, the nearer way out kept. Along p's normal alone, a march passing a twentieth of a block
-    // inside the side of a block floating over the floor stepped up through the whole block, and
-    // the floor under it took 0.29 of the light a reference gives it, where 0.96 with the way
-    // across. Each way out ends where it left the surface, the step that overshot taken back by the
-    // distance read past it. Ended at the step's end, a way that grazed an edge was at least half a
-    // cell under it, and a lamp's light past a pillar in the voxel game fell by a fifth in 20
-    // pixels on the wall behind, toothed where the steps crossed the pillar's ends, where a
-    // path-traced reference rises smoothly.
+    // face, the nearer way out kept. Along p's normal alone, a march passing a little inside the
+    // side of a block floating over the floor steps up through the whole block, and the floor under
+    // it takes too little of the light. Each way out ends where it left the surface, the step that
+    // overshot taken back by the distance read past it. Ended at the step's end, a way that grazes
+    // an edge is at least half a cell under it, and a lamp's light past a pillar falls in teeth on
+    // the wall behind where the steps cross the pillar's ends, where a path-traced reference rises
+    // smoothly.
     if (deepest < 0.0 && seen > 0.0)
     {
         float step = info.cascades[deepIn].originAndCell.w;
@@ -485,11 +467,10 @@ public float glowLightSeen<V : IVolume>(V field, SceneFieldInfo info, GlowLight 
 // which the screen's probes take, by each face of its box p lies before, two or three, halved
 // across the face's axis that rises most from p's surface, and a march from a tenth of a cell off
 // the surface to the middle of each half, the cone the half's own rise, each half's share by its
-// own light at p. Past a wall half as high as a lamp beside it the floor reads a path-traced
-// reference to within a tenth of its light, the lamp's side hidden and then its upper half seen
-// from two blocks out, where one march to the box's middle, level with the wall's top, found the
-// lamp hidden from the whole floor past the wall, and marches from a cell and a half off saw over
-// the wall where the floor does not.
+// own light at p. Past a wall half as high as a lamp beside it the floor sees the lamp's side
+// hidden and then its upper half from two blocks out, as a path-traced reference does, where one
+// march to the box's middle, level with the wall's top, finds the lamp hidden from the whole floor
+// past the wall, and marches from a cell and a half off see over the wall where the floor does not.
 public float glowLightShown<V : IVolume>(V field, SceneFieldInfo info, GlowLight light, float3 p, float3 n, float cell)
 {
     if (cell <= 0.0)
@@ -510,10 +491,10 @@ public float glowLightShown<V : IVolume>(V field, SceneFieldInfo info, GlowLight
         float4 u = halves[(k + 1) % 3], v = halves[(k + 2) % 3];
         // The face's axis that rises most from p's surface is halved, the other kept whole, and the
         // longer where neither rises more, as from a floor under a level face. Halved along the
-        // first, a row of three lamps under a ceiling, one light of a face three blocks long, was
-        // marched to two points on its middle line, and a block floating under the middle lamp hid
-        // the whole row from the floor beneath all three, which read none of its light where a
-        // path-traced reference gives it two fifths of the row's unhidden light.
+        // first, a row of three lamps under a ceiling, one light of a face three blocks long, is
+        // marched to two points on its middle line, and a block floating under the middle lamp
+        // hides the whole row from the floor beneath all three, which a path-traced reference
+        // lights.
         float riseU = abs(dot(u.xyz, n)) * v.w, riseV = abs(dot(v.xyz, n)) * u.w;
         bool alongU = abs(riseU - riseV) > 0.05 * u.w * v.w ? riseU > riseV : u.w >= v.w;
         float3 rise = alongU ? u.xyz : v.xyz;
@@ -528,9 +509,8 @@ public float glowLightShown<V : IVolume>(V field, SceneFieldInfo info, GlowLight
             // Each half by its own light as a point, its area by the two cosines over the square
             // of its distance. Weighed by the box's half size along the face's normal in place of
             // the face's area, as for a cube the two are alike, a light of four blocks two by two
-            // weighed the face a pillar beside it hid at a quarter of its due against the face it
-            // left open, and a wall past the pillar read 0.385 to 0.684 of the light seen past it
-            // where a path-traced reference reads 0.235 to 0.550, and 0.234 to 0.521 weighed so.
+            // weighs the face a pillar beside it hides at a quarter of its due against the face it
+            // leaves open, and a wall past the pillar takes too much of the light.
             float given = abs(dot(way, h)) / halves[k].w * u.w * v.w * max(dot(way, n), 0.0) / distance2;
             if (given <= 0.0)
                 continue;

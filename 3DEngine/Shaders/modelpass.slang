@@ -200,17 +200,14 @@ public float3 screenBounced(ScreenProbesHere probes)
 // and how near its point's distance from the eye is to the distance the fragment's own plane lies
 // at there, found from how the fragment's point moves from pixel to pixel, as screenProbesHere
 // weighs the probes. Weighed by the distance alone, the floor's texels at a lamp's foot, as far
-// from the eye as the lamp's face, lent the face the floor's light, and the emissive blocks' room
-// read 1.1% further from its path-traced reference. A pixel whose like texels no probe around
-// holds, as a sliver of floor seen between two lamps, marches to the lights' middles itself, and
-// one where the screen's probes are not read to their faces' halves, as a probe does (glowLights).
-// Marched to the halves, the slivers above the near lamps of a room of sixteen cost the model pass
-// 0.3 ms at 1280 by 720, 271 pixels holding up the groups they ran in. A pixel no texel around
-// holds a point like its own, as along a thin mesh the half-sized depth missed, takes the texels
-// around on any surface by how near each is, since marching from those few pixels, as from a pixel
-// at an edge no probe around held, cost the model pass 1.1 ms in a room of 64 lamps at 1280 by 720
-// on the development machine's GPU, since each group of pixels the GPU runs together waits on its
-// slowest.
+// from the eye as the lamp's face, lent the face the floor's light. A pixel whose like texels no
+// probe around holds, as a sliver of floor seen between two lamps, marches to the lights' middles
+// itself, and one where the screen's probes are not read to their faces' halves, as a probe does
+// (glowLights), since marched to the halves the slivers above the near lamps held up the groups of
+// pixels they ran in. A pixel no texel around holds a point like its own, as along a thin mesh the
+// half-sized depth missed, takes the texels around on any surface by how near each is rather than
+// marching from those few pixels, as from a pixel at an edge no probe around holds, since each
+// group of pixels the GPU runs together waits on its slowest.
 public float3 glowLightsHere(ModelVertexOutput input, float3 n, bool screen)
 {
     int count = min(int(reflectLights.glowCounts.x), MostGlowLights);
@@ -278,8 +275,8 @@ public float3 glowLightsHere(ModelVertexOutput input, float3 n, bool screen)
         if (onLight && askWeight <= 1e-3)
             return float3(0.0);
         // A pixel on a lamp's own side, whose half-sized texels lie across its edge, takes no other
-        // light's either. Marched, the sides of a room of sixteen lamps cost the model pass 0.9 ms
-        // at 1280 by 720, a thousand pixels holding up the groups they ran in.
+        // light's either, since marched, the pixels along the lamps' sides hold up the groups of
+        // pixels they run in.
         [loop]
         for (int i = 0; i < count; i++)
             if (glowLightNear(reflectLights.glows[i], input.world) > 0.0 && glowLightOn(reflectLights.glows[i], input.world, n, margin))
@@ -318,10 +315,9 @@ public struct ModelVertexOutput
     // Read where the samples the triangle covers lie, not at the pixel's middle, which at a
     // triangle's edge lies past it, where the normal went on turning as its vertices' turn. Along
     // the foot of Sponza's doors, whose bevels turn down, global illumination read light there for
-    // a surface facing the floor, a row of white pixels along each foot, 80 at the atrium view's two
-    // doors at 1920 by 1080 where 45 so, and 2,128 over the view where 1,329, a path-traced
-    // reference holding no such row. The point, the way to the eye and the coordinates read so as
-    // well took about a tenth as many more away, 1,246, and alone few.
+    // a surface facing the floor, a row of white pixels along each foot that a path-traced
+    // reference does not hold, which reading the normal so thins. The point, the way to the eye and
+    // the coordinates read so as well took few more of the row away.
     public centroid float3 normal : NORMAL;
     public float3 world : POSITION1;
     public float2 uv : TEXCOORD0;
@@ -410,9 +406,8 @@ public float4 baseColor(ModelStreamsOutput input)
 }
 
 // Set by the pipeline of a batch whose material cuts nothing out, which folds alphaTested's discard
-// away: a stage that can discard keeps the GPU's early depth test off, so every fragment behind a
-// wall was lit before the depth test threw it away, and the land outside the voxel game's room cost
-// its model pass 0.6 ms.
+// away, since a stage that can discard keeps the GPU's early depth test off, so every fragment
+// behind a wall is lit before the depth test throws it away.
 [vk::constant_id(0)]
 public const bool solidMaterial = false;
 
@@ -514,10 +509,9 @@ public struct LitLight
 // occlusion map, with indirect light where global illumination is on, in its two shares. A caller
 // that reads the shadowed light's map itself, as one stepping the shadow along a grid of its own,
 // hands the share it read as `shadow` and how much of its point the counted cascades hold as
-// `shadowHeld` (lightReaching), which stand for the read at the point, so the map is read once; a
-// negative `shadow` has it read here. The voxel game read it three times a pixel to step it, at the
-// point here, at the point again to take that share out, and at the step, which cost its cherry
-// grove's model pass about 1.6 ms of 12.5 at 1920 by 1080.
+// `shadowHeld` (lightReaching), which stand for the read at the point, so the map is read once,
+// where stepping it would read it three times a pixel, at the point here, at the point again to
+// take that share out, and at the step. A negative `shadow` has it read here.
 public LitLight litLight(float3 albedo, ModelVertexOutput input, float shadow = -1.0, float shadowHeld = 0.0)
 {
     LitLight light;
@@ -566,16 +560,16 @@ public LitLight litLight(float3 albedo, ModelVertexOutput input, float shadow = 
             bouncedHere = screenBounced(probes);
         // The screen's probes reach as far as the world's last cascade, across whose outer band
         // their light fades to the world's probes', which read alone past it. Switched there, a
-        // canyon's floor stepped by 14% at High.
+        // canyon's floor showed a step in its light.
         float near = bouncedHere.x >= 0.0 ? screenHold(input.world, n) : 0.0;
         if (near < 1.0)
         {
             // A pixel the screen's probes stand around on no surface like its own, as at a corner,
-            // reads the world's probes it sees through the field (bouncedSeen) where it lies by a wall
-            // thinner than a cell, whose probes beyond the reach takes for seen (byThinWall), and so
-            // does one where no screen probe stands, as at Low. Marched at every such pixel, 9% of the
-            // voxel game's cherry grove at High, its leaves, grass and far blocks, the march took 3 to
-            // 5.7 ms of the scene pass at 1920 by 1080, and a world of blocks has no wall that thin.
+            // reads the world's probes it sees through the field (bouncedSeen) where it lies by a
+            // wall thinner than a cell, whose probes beyond the reach takes for seen (byThinWall),
+            // and so does one where no screen probe stands, as at Low. It is not marched at every
+            // such pixel, since a world of blocks holds many, its leaves, grass and far blocks, and
+            // has no wall that thin.
             bool edge = screen && bouncedHere.x < 0.0 && probes.near[0] + probes.near[1] + probes.near[2] + probes.near[3] > 0.0
                 && byThinWall(input.world, n);
             float3 world = edge || (!screen && byThinWall(input.world, n)) ? bouncedSeen(input.world, n)
@@ -596,8 +590,7 @@ public LitLight litLight(float3 albedo, ModelVertexOutput input, float shadow = 
         light.diffuse += occlusion * diffuseColor * bouncedHere * held;
     // The glow lights' light straight to the surface, taken here at each pixel rather than at the
     // screen's probes, whose filter spread a small bright strip's light near it over five tiles
-    // and doubled its room's difference from a path-traced reference at Low (glowLightsAt). The
-    // build for a frame with no glow lights leaves it out (Glowing in lights).
+    // (glowLightsAt). The build for a frame with no glow lights leaves it out (Glowing in lights).
     // At Low, which leaves the screen's probes out, they stand for the glow lights alone, so a
     // pixel reads their texels as it does with the whole probes, at a cost that does not grow with
     // the lights in view (GlowOnly in GlobalIllumination.cs).
@@ -661,8 +654,7 @@ public LitLight litLight(float3 albedo, ModelVertexOutput input, float shadow = 
         float3 strength = lighting.environment.x * lighting.environmentLight.rgb * occlusion;
         light.diffuse += strength * diffuseColor * around;
         // Its reflection where the probes' takes less than all of it, so a rough surface the probes
-        // hold makes no second gather of them for the sky's share (skySeen), which with it took the
-        // scene pass in Sponza's nave at 1920 by 1080 a millisecond more.
+        // hold makes no second gather of them for the sky's share (skySeen).
         if (waysShare < 1.0)
         {
             float lastMip = lighting.environment.y;
@@ -672,8 +664,8 @@ public LitLight litLight(float3 albedo, ModelVertexOutput input, float shadow = 
             // of it, where the occlusion alone left a rough wall in a sealed cave a blue sheen. The
             // share is read against an open plain's, whose probes' faces see the whole sky up, half
             // of it level and none down, so a floor in the open reflects the sky toward its horizon
-            // whole inside the field as past it, where read as it was a canyon's floor stepped by
-            // 8% where the field ended.
+            // whole inside the field as past it, where read as it was a canyon's floor stepped
+            // where the field ended.
             float open = (mirror.y > 0.0 ? mirror.y * mirror.y : 0.0) + 0.5 * (mirror.x * mirror.x + mirror.z * mirror.z);
             float seen = skyHere >= 0.0 ? skyHere : skySeen(input.world, n, mirror);
             float sky = bounces ? lerp(1.0, saturate(seen / max(open, 0.05)), held) : 1.0;
@@ -688,14 +680,13 @@ public LitLight litLight(float3 albedo, ModelVertexOutput input, float shadow = 
         if (int(lamp.positionAndKind.w) == Ambient)
         {
             // Its reflection as far as the indirect light reaching the surface, the probes' where
-            // they hold it, holds this light's own, so a floor under a roof reflects as little of it
-            // as the roof lets reach it, where taken whole a floor two and a half units under a
-            // solid slab took 0.067 in linear light from the reflection alone at roughness 0.5 and a
-            // path-traced reference 0.006 in all. Held against the light the face takes in the open
-            // instead, the sky above it and below it a ground of its own color, a dark face turned
-            // down took more than that from the floor under the slab and reflected this light
-            // whole, the slab's underside 0.048 at High where the reference, which reflects no
-            // indirect light, reads 0.0019 and its diffuse light alone 0.0022.
+            // they hold it, holds this light's own, so a floor under a roof reflects as little of
+            // it as the roof lets reach it, where taken whole a floor under a solid slab took more
+            // from the reflection alone than a path-traced reference gives it in all. Held against
+            // the light the face takes in the open instead, the sky above it and below it a ground
+            // of its own color, a dark face turned down took more than that from the floor under
+            // the slab and reflected this light whole, and the slab's underside read far over the
+            // reference, which reflects no indirect light.
             float3 inOpen = distant ? distantAround(arrived, n, diffuseColor) : arrived;
             float reaches = bounces ? lerp(1.0, saturate(luminance(bouncedHere) / max(luminance(arrived), 1e-5)), held) : 1.0;
             light.diffuse += inOpen * occlusion * diffuseColor * (1.0 - held);

@@ -179,7 +179,7 @@ public class TextureStoreTests
         // A texture 1,024 texels square of white tiles 256 wide between black grout one texel wide,
         // at every 256th column and row. Read every 256th texel as the pixels lie, the average took
         // the grout's columns alone and came out black, where a grid over the rows and columns
-        // takes the tiles' share, 0.996 of white. Its levels are read from the same texels.
+        // takes the tiles' share. Its levels are read from the same texels.
         const int size = 1024;
         var rgba = new byte[size * size * 4];
         for (int y = 0; y < size; y++)

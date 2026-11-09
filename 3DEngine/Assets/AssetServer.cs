@@ -99,8 +99,7 @@ public sealed partial class AssetServer : IDisposable
         int count = workerCount ?? Math.Max(2, Environment.ProcessorCount / 2);
         _workers = new Task[count];
         // On the thread pool, since each worker awaits the queue from its first line. Started as
-        // long running, each took a thread of its own that ended at that first await, unjoined,
-        // sixteen threads an app on a machine of thirty-two.
+        // long running, each took a thread of its own that ended at that first await, unjoined.
         for (int i = 0; i < count; i++)
         {
             int id = i;

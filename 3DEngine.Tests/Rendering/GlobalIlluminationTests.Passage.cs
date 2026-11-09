@@ -17,10 +17,11 @@ public sealed partial class GlobalIlluminationTests
         // the cells of Sponza's field, whose cascades' probes stand half a unit, one and two apart.
         // The first cascade's probe five units in, under the roof by a wall, reads its face toward
         // the opening against a reference of one bounce, the sunlit court floor its light. Its rays
-        // that way leave its interval with nothing met and took the light past it from the probes
-        // of the cascades above, which stand in the stone around it, so the face read nothing where
-        // the reference reads 0.025, until such a ray, its probes above seen for under half their
-        // weight, was traced on and lit by what it met, as Sponza's vestibule off its atrium is.
+        // that way leave its interval with nothing met, and taking the light past it from the
+        // probes of the cascades above, which stand in the stone around it, the face reads nothing
+        // where the reference reads the court. So such a ray, its probes above seen for under half
+        // their weight, is traced on and lit by what it meets, as Sponza's vestibule off its atrium
+        // is.
         Open();
         SetSceneField(4, 0.125f, 2);
         SetSceneFieldCenter(new Vector3(3, 1, 0));

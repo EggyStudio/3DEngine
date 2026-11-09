@@ -65,11 +65,11 @@ public sealed partial class CascadeEdgeTests
 
         // The largest change from one pixel to the next along each, and the wall's light past the
         // field's last cascade against its light inside it. With the environment's light taken whole
-        // past the probes the wall's largest step at High was 2.32%, where the field's last cascade
-        // ends, and it read 6.3% darker past the field than inside it; as a sky over a ground, 0.88%
-        // and 2.8%, the floor's 0.27% either way, since the sky's light from above is all a floor
-        // takes of the term. Low's probes end 28 units out, where the wall stepped by 0.44%, so both
-        // of its readings lie past them.
+        // past the probes the wall stepped at High where the field's last cascade ends and read
+        // darker past the field than inside it, and the floor stepped by little either way, since
+        // the sky's light from above is all a floor takes of the term. Taken as a sky over a
+        // ground, the wall's light holds across the field's end. Low's probes end 28 units out, so
+        // both of its readings lie past them.
         (double Step, float At) Largest(List<(float Along, double Light)> line) =>
             line.Zip(line.Skip(1), (a, b) => (Math.Abs(b.Light / a.Light - 1), a.Along)).MaxBy(s => s.Item1);
         var (floorStep, floorAt) = Largest(floor);

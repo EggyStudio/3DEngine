@@ -208,7 +208,7 @@ internal sealed class RenderPlugin : IPlugin
             // One asked for before the first frame is drawn, by a program sizing its window before it
             // draws, is carried out at once, since no drag follows it. Debounced, a load that held
             // the frames after the first kept the first size until a present failed, the voxel
-            // game's loading screen drawn at a quarter of its window for eight seconds.
+            // game's loading screen drawn at a quarter of its window.
             if (resize.Pending && !resize.Drawn) resize.Waited = double.PositiveInfinity;
             if (resize.Pending && world.TryGetResource<Time>(out var time)) resize.Waited += time.DeltaSeconds;
             if (resize.Pending && resize.Waited >= ResizeDebounceSeconds)

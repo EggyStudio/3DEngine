@@ -22,8 +22,8 @@ public sealed class Bridge
     public static bool IsTower(Vector2 node) => node.Y > 2;
 
     // The force a joint breaks past, in newtons. Under the load of 150 kilograms the truss's joints
-    // held 4,326 at most and the road's 10,213, past 8,000 before the load was halfway across, and
-    // the road's 5,767 under its own weight.
+    // stay below it and those of the road alone pass it before the load is halfway across, though
+    // they hold the road's own weight.
     public const float Strength = 7000;
 
     public readonly record struct Plank(Vector2 A, Vector2 B, PhysicsBody Body);

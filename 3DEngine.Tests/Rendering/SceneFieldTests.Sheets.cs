@@ -140,14 +140,9 @@ public sealed partial class SceneFieldTests
         // A room of double-sided sheets on a ground under a bright sky, each sheet lying midway
         // between two rows of cells, where a march between the cells' middles comes no nearer it
         // than half a cell, and its corners where two sheets meet, each cell there keeping the plane
-        // of the nearer alone. The picture's mean light from inside, against the open ground's,
-        // bound 15% over what it read on the development machine's GPU, 0.070 at Low and 0.036 at
-        // High, the world's probes beyond a wall thinner than their spacing blended into the pixels
-        // beside it. Its frames' sRGB mean read 0.054 and 0.013 of the open ground's, where with each
-        // sheet held below zero within half a cell either side 0.104 and 0.016, and with the sheets'
-        // planes held a tenth of a cell either side, the march stepping over them, and the probes
-        // standing on them moved off by the field's gradient, which cancels across a sheet, 0.16 and
-        // 0.037. Shifted off the cells' grid by 0.37 the room reads 0.004 at Low where 0.019.
+        // of the nearer alone. The picture's mean light from inside is read against the open
+        // ground's, the bound at each quality leaving room for the world's probes beyond a wall
+        // thinner than their spacing, which blend into the pixels beside it.
         var config = Config.Default.WithWindow("sheet room", 160, 90) with { Headless = true, Offscreen = true, Samples = 1 };
         UseApp(new App(config).AddPlugin(new DefaultPlugins()));
         SetSceneField(4, 0.25f, 2);

@@ -8,12 +8,11 @@ namespace Engine;
 /// <remarks>
 /// The driver's compiled pipelines are read from a file in the user's cache folder when the device
 /// is made and written back when it is let go, so a run compiles no pipeline a run before it
-/// compiled. The voxel game's first frame with a reflection plane took 23.7 to 24.0 s of the wall
-/// clock, the driver compiling the mirrored pass's pipelines, wherever the driver's own cache missed,
-/// which on the development machine held 1.1 GB across six programs and served none of the game's
-/// runs. Kept in the program's folder, the file went with every build that folder was deleted
-/// before, so it is kept in the user's cache folder under the program's name, and one the
-/// program's folder holds is read into it.
+/// compiled, since the driver's own cache, shared by every program, can serve none of a program's
+/// runs, and a frame that first draws a pass, as a reflection plane's mirrored one, waits on the
+/// driver compiling its pipelines. Kept in the program's folder, the file went with every build
+/// that folder was deleted before, so it is kept in the user's cache folder under the program's
+/// name, and one the program's folder holds is read into it.
 /// </remarks>
 internal sealed unsafe partial class GraphicsDevice
 {

@@ -30,14 +30,13 @@ public sealed class GlowPenumbraTests : IDisposable
     public void A_Turn_Of_A_Few_Pixels_Moves_The_Penumbra_With_The_World()
     {
         // Marched to from their tiles' middles, the probes moved the floor's light along the line
-        // by 3.1 to 7.9% of it on average with turns of one to eight pixels at 640 by 360, as the
-        // window's grid moved over the floor, and here by 15 to 18% with turns of two and five;
-        // from points moved about their tiles, read through a blend over a round at each texel of
-        // the window's depth, by 0.44 to 0.89% at 640 by 360, where a pixel that marches itself
-        // reads 0.69 to 0.91%, and here by 1.8 to 3.1%, where such a pixel reads 1.2 to 3.5%. A way
-        // out of the wall that ends where it left it, so a march grazing the wall's top is barely
-        // under it, moved the line by 5.4% at a turn of five where 2.2% on the development
-        // machine's GPU, the share under a wall one cell thick read from the field's distance there.
+        // with turns of a few pixels, as the window's grid moved over the floor. From points moved
+        // about their tiles, read through a blend over a round at each texel of the window's depth,
+        // the line moves about as little as where a pixel marches itself. A way out of the wall
+        // that ends where it left it leaves a march grazing the wall's top barely under it, the
+        // share under a wall one cell thick read from the field's distance there, and the bound
+        // leaves room for what that moves the line by at a turn of five, which differs from one GPU
+        // to another.
         using var scene = new Scene(screenOff: false);
         var still = scene.Line(0, Warm, out var moved);
         var turned = scene.Line(5, 2 * Round, out _);
@@ -49,11 +48,11 @@ public sealed class GlowPenumbraTests : IDisposable
     public void A_Lamp_Placed_Shows_At_Once_And_A_Wall_Taken_Away_Lets_It_Through_At_Once()
     {
         // The lamp's place is new, so the blend each texel held is dropped and the frame's light
-        // taken alone. The line holds all the lamp's light in that frame, 3.0% over where it
-        // settles while the lamp stands in for nothing in the field until it is built, and strays
-        // from where it settles by 7.7%, its penumbra one point of a round, and by 0.8% a round on.
-        // The floor behind the wall sees all of the lamp in the frame the wall goes, further from
-        // the blend than the frames before had lain, and strays by 0.04%.
+        // taken alone. The line holds all the lamp's light in that frame, a little over where it
+        // settles while the lamp stands in for nothing in the field until it is built, and its
+        // penumbra in that frame is one point of a round, so it strays from where it settles until
+        // a round on. The floor behind the wall sees all of the lamp in the frame the wall goes,
+        // further from the blend than the frames before had lain.
         using var scene = new Scene(screenOff: false);
         scene.Lamp = false;
         scene.Frames(2 * Round);
@@ -76,9 +75,9 @@ public sealed class GlowPenumbraTests : IDisposable
     public void The_Shadow_Settles_Within_Two_Rounds_Of_An_Apps_Start()
     {
         // Before the field holds the wall, the probes see the lamp past it. Held whole in the
-        // blend, those frames left the line straying from where it settles by 6.3% two rounds after
-        // the app began and under 1% only after 110 frames; with a young blend restarted where the
-        // field's cascade under its point is built where it lay, by 0.5%.
+        // blend, those frames left the line straying from where it settles long after two rounds,
+        // and with a young blend restarted where the field's cascade under its point is built where
+        // it lay, the shadow settles within two rounds.
         using var scene = new Scene(screenOff: false);
         scene.Frames(2 * Round - 1);
         var early = scene.Read();
@@ -91,8 +90,7 @@ public sealed class GlowPenumbraTests : IDisposable
     {
         // A pixel no screen probe holds marches to the faces' halves, as a probe does. With one
         // march to the lamp's middle from a cell and a half off the floor, the floor at the wall's
-        // foot saw over the wall and read 0.3 to 1.0 of the most light along the line, where the
-        // lamp is hidden from it whole.
+        // foot saw over the wall and took the lamp's light, where the lamp is hidden from it whole.
         using var scene = new Scene(screenOff: true);
         scene.Frames(Warm / 2);
         var line = scene.Read();
@@ -103,11 +101,11 @@ public sealed class GlowPenumbraTests : IDisposable
     [NeedsVulkanFact]
     public void Each_Frame_Draws_With_The_Build_That_Leaves_Out_What_It_Does_Not_Hold()
     {
-        // The model pass's fragment stage is 253,212 bytes of SPIR-V whole, 124,660 without the
-        // glow lights' marches and 55,228 without global illumination as well, which lavapipe
-        // compiles as it first draws with each pipeline. Each frame takes its build by its own glow
-        // lights and global illumination, so the lamp shows in the frame it is placed in, as the
-        // test of a lamp placed reads.
+        // The model pass's fragment stage is built whole, without the glow lights' marches and
+        // without global illumination as well, each build smaller in SPIR-V than the one before,
+        // and lavapipe compiles each as it first draws with its pipeline. Each frame takes its
+        // build by its own glow lights and global illumination, so the lamp shows in the frame it
+        // is placed in, as the test of a lamp placed reads.
         using var scene = new Scene(screenOff: false);
         var models = GetApp().World.Resource<Engine.Renderer>().RenderWorld.TryGet<ModelRenderer>()!;
         scene.Lamp = false;

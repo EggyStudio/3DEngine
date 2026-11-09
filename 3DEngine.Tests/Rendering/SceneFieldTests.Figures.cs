@@ -11,9 +11,10 @@ public sealed partial class SceneFieldTests
     {
         // Forty still meshes and a figure of vertices of its own that walks for 30 frames, stands
         // for 100 and walks on, drawn in the same order every frame. The plan reads the frame by
-        // place as the figure walks, where it read every mesh into a dictionary each frame, and the
-        // figure, a copy of whose vertices moved, is stamped as it stands rather than settled into
-        // the cascades, which would be built again when it settled and again when it walked on.
+        // place as the figure walks, rather than reading every mesh into a dictionary each frame,
+        // and the figure, a copy of whose vertices moved, is stamped as it stands rather than
+        // settled into the cascades, which would be built again when it settled and again when it
+        // walked on.
         var plan = new SceneFieldPlan(2, 0.25f, 1);
         var figure = GenMeshCubeVertices(0.5f);
         var builds = new List<int>();

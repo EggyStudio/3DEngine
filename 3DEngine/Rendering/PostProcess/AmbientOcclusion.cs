@@ -65,9 +65,8 @@ internal sealed class TargetOcclusion
 /// before's view-projection, where the depth along the view there is within 5% of the point's, and
 /// starts again from the frame's own occlusion where it is not, as where a surface comes out from
 /// behind another. Where light bounces the field's occlusion is left out, since the cascades hold
-/// what it would close off, and in Sponza's door view it took each surface's light 11 to 41% under
-/// what the horizons alone leave and its pattern further from the reference's on nine surfaces of
-/// ten.
+/// what it would close off, and in Sponza's door view it took each surface's light under what the
+/// horizons alone leave and its pattern further from a path-traced reference's.
 /// </para>
 /// <para>
 /// A render target that draws meshes through a camera of its own has images of its own, worked out

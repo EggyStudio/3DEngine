@@ -30,8 +30,8 @@ CreatePhysicsStaticBox(new Vector3(15, -0.5f, 0), new Vector3(140, 1, 90));
 var castle = new Castle(new Castle.Models(cube, column, roof));
 var catapult = new Catapult(stone);
 // The field round the castle up to the walls' top, a trigger the banner enters when it is brought
-// down onto the field or onto the rubble of the keep, which held it 4 units up once, out of the
-// bombs' reach, where a trigger 1.5 high took a banner only on the field.
+// down onto the field or onto the rubble of the keep, which can hold it well above the field, out
+// of the bombs' reach, where a low trigger takes a banner only on the field.
 var fallen = CreatePhysicsKinematicBox(Castle.Keep with { Y = Castle.WallTop / 2 }, new Vector3(30, Castle.WallTop, 30));
 SetPhysicsBodyTrigger(fallen, true);
 

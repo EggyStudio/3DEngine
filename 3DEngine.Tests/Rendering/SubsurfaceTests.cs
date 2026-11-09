@@ -107,13 +107,10 @@ public sealed class SubsurfaceTests : IDisposable
         // thick one whose material scatters over 0.3 and a thin one that does not. Behind them a
         // lamp whose light's way through each is measured in the scene's distance field, or the
         // sun, a point light or a spot light that casts shadows with no field, whose own shadow map
-        // measures it. The thin one's front reads (141, 65, 41) by the lamp through the field,
-        // (184, 145, 104) by the sun and (152, 113, 76) by the point and the spot light through
-        // their maps, each color falling as the spread's Gaussian of its width, and the thick one's
-        // and the unmarked one's 39 in every channel, the ambient light alone, the thick one's
-        // light a unit through faded out past its reach, as this test measured on the development
-        // machine's GPU. A point or a spot light that casts shadows and no field measures through
-        // its own map.
+        // measures it. The light through the thin one falls in each color as the spread's Gaussian
+        // of its width, so red comes through most, and the thick one's light a unit through fades
+        // out past its reach, leaving its front and the unmarked one's the ambient light alone. A
+        // point or a spot light that casts shadows and no field measures through its own map.
         Open();
         switch (light)
         {
@@ -172,9 +169,8 @@ public sealed class SubsurfaceTests : IDisposable
     {
         // A sheet facing the camera with a lamp behind it and no scene's field to measure how thick
         // it is toward the lamp, so no light comes through it, until its material says it is five
-        // centimeters thick, as an ear is. Its front reads (39, 39, 39), the ambient light alone,
-        // and (138, 96, 62) with the thickness, as this test measured on the development machine's
-        // GPU.
+        // centimeters thick, as an ear is. Without the thickness its front holds the ambient light
+        // alone.
         Open();
         CreatePointLight(new Vector3(0, 0, -1.5f), Color.White, 0.6f, range: 10);
         SetAmbientLight(Color.White, 0.02f);
@@ -213,8 +209,7 @@ public sealed class SubsurfaceTests : IDisposable
         // A sheet with no thickness of its own in a field of 0.15 cells, which holds it half a cell
         // either side, so the lamp behind it is measured through 0.15 and comes through faintly,
         // until its material says it is two millimeters thick, as a leaf is, and the lesser of the
-        // two is taken. Its front reads (39, 39, 39), the ambient light alone, and (146, 146, 145)
-        // with the two millimeters, as this test measured on the development machine's GPU.
+        // two is taken.
         Open();
         SetSceneField(1, 0.15f);
         CreatePointLight(new Vector3(0, 0, -1.5f), Color.White, 0.6f, range: 10);
@@ -296,15 +291,13 @@ public sealed class SubsurfaceTests : IDisposable
     public void A_Scattering_Spheres_Light_Falls_From_Its_Lit_Side_Across_Its_Terminator_Without_A_Dip(string material, bool field)
     {
         // A sphere lit from its side, read along the meridian the camera sees from the lit side
-        // through the terminator at 90 degrees into the shadow. The light through a few degrees
-        // past the terminator, where the sphere's edge as the light sees it took the empty map
-        // beyond it or the field's march along the surface took it for a sheet, came through whole,
-        // a line six degrees past it as bright as the lit side six before, skin's 117 against the
-        // shadow's 39, the terminator dark between; and the far side of the field's wax took a
-        // twentieth of the light through past its reach, 70 at 120 degrees and 88 at 148. Measured
-        // each the thickness the light crosses, faded out by its reach and falling as the spread's
-        // Gaussian, wax falls 84, 69, 60, 54, 50, 47, 43 from 88 degrees to 100, as this test
-        // measured on the development machine's GPU.
+        // through the terminator at 90 degrees into the shadow. Where the sphere's edge as the
+        // light sees it took the empty map beyond it, or the field's march along the surface took
+        // it for a sheet, the light through a few degrees past the terminator came through whole,
+        // a line past it as bright as the lit side before it with the terminator dark between, and
+        // the far side of the field's wax took light through past its reach. Measured each the
+        // thickness the light crosses, faded out by its reach and falling as the spread's
+        // Gaussian, the light falls from the lit side into the shadow without a dip.
         var image = Lit(Vector3.UnitX, material, field);
         var before = 255;
         for (int degree = 84; degree <= 150; degree++)
@@ -329,11 +322,9 @@ public sealed class SubsurfaceTests : IDisposable
         // each read from the terminator into the shadow until the light falls to the ambient's, and
         // the angle it falls there at is the edge of the light past the terminator, which a zig-zag
         // sets apart from the mean of its neighbors' on either side, where the camera's view of the
-        // sphere bends it slowly. Skin's edge, its light through read from the sun's map texel by
-        // texel, ran 99.25 to 102.75 degrees and stood 0.41 of a degree from its neighbors' mean on
-        // average; afterward it lies at the terminator, 90.5 to 91 and 0.04 apart, and wax's at 100
-        // to 102 and 0.22 apart, the reading's own quarter degree, as this test measured on the
-        // development machine's GPU.
+        // sphere bends it slowly. With its light through read from the sun's map texel by texel,
+        // skin's edge zig-zagged from circle to circle. The bound sits a little over the quarter
+        // degree the reading steps by.
         var toLight = Vector3.Normalize(new Vector3(1, 0, 0.35f));
         var image = Lit(toLight, material, field: false);
         var side = Vector3.Normalize(Vector3.Cross(toLight, Vector3.UnitY));

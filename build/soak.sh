@@ -20,8 +20,8 @@ out="build/soak/$name.csv"
 : > "$out"
 # The first command that ends the soak early, with its exit code and the program's name, which
 # build/soak-check.py names with the program's last warnings. -E keeps the trap in functions and
-# the reader's subshell. The code is taken before the test of the file, whose own 1 it said in its
-# place for Wick's reading that found no session, which ended with 4.
+# the reader's subshell. The code is taken before the test of the file, whose own 1 would otherwise
+# be said in its place, where a reading that found no session ends with 4.
 rm -f "build/soak/$name.failed"
 trap 'code=$?; [ -e "build/soak/$name.failed" ] || echo "$code $(basename "$program") $BASH_COMMAND" > "build/soak/$name.failed"' ERR
 
@@ -35,8 +35,8 @@ cmd() { ./e3d command "$@" "${session[@]}" --quiet --timeout 600; }
 
 # Drawn at 320 by 180, since a soak reads the memory a program holds and not its picture, and a
 # small frame lets a device drawing on its CPU, as a runner with lavapipe is, play far more of each
-# game in the soak's time. At the window's own size eight games on four cores drew a frame or two a
-# second, and Manor's walk had not passed its first rooms in two minutes, still streaming them in.
+# game in the soak's time, where at the window's own size a walk such as Manor's reaches few of its
+# rooms.
 cmd window.size 320 180
 
 # How each game starts.
@@ -167,10 +167,10 @@ turn() {
     tones)
       # Notes and drums played under the echo and the filter turned on and off in turn, and every
       # few turns, from the first, a note recorded, saved, read back and played, the sound made of
-      # it let go each time. The recording is of the note alone, at the start of the turn, since a
-      # recording's samples come at the rate it plays, so one as long as a turn on a runner whose
-      # turns took 30 seconds held its buffers from past the soak's first quarter, a step its check
-      # read as a climb, where each recording now holds as much as the first.
+      # it let go each time. The recording is of the note alone, at the start of the turn, so each
+      # holds as much as the first, since a recording's samples come at the rate it plays, and one
+      # as long as a turn on a runner whose turns are slow would hold its buffers from past the
+      # soak's first quarter, a step its check reads as a climb.
       if (( i % 2 == 0 )); then cmd tones.effect echo on; else cmd tones.effect echo off; fi
       if (( i % 3 == 0 )); then cmd tones.effect filter on; else cmd tones.effect filter off; fi
       if (( i % 4 == 0 )); then cmd tones.record start; key A 10; cmd tones.record stop; wait_frames 2; key Four 2; fi
@@ -220,8 +220,8 @@ turn() {
 
 # What the program holds is read every ten seconds on a clock of its own, beside the turns, which
 # the program answers between frames while a turn waits on them. A device whose turns take long, as
-# a runner drawing eight games on four cores is, where a turn of 240 frames took two minutes, so
-# still gives a dozen readings, where reading after each turn gave two.
+# a runner drawing eight games on four cores is, so still gives a reading every ten seconds, where
+# reading after each turn would give no more than the turns it gets through.
 # A game that walks a level says where it stands after each reading's figures, so a figure that
 # climbs is read with the rooms the walk was in (build/soak-check.py).
 where() { case "$name" in manor) echo " | $(./e3d command manor.status "${session[@]}" --timeout 600)" ;; esac; }

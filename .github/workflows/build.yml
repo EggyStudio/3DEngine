@@ -40,7 +40,7 @@ permissions:
 
 # A newer push to a branch cancels the run of the one before it, whose result nobody reads. A called
 # run takes its caller's github context, so the pack run's jobs have a group of their own, and a push
-# during a pack run cannot cancel its two hours, nor the pack run a push.
+# during a pack run cannot cancel it, nor the pack run a push.
 concurrency:
   group: build-${{ inputs.pack && 'pack-' || '' }}${{ github.ref }}
   cancel-in-progress: ${{ !inputs.pack }}
@@ -51,10 +51,9 @@ jobs:
     # moving to a new release would change it under the tests with no commit to show for it. Moving
     # to the next release is a commit of its own.
     runs-on: ubuntu-24.04
-    # The job took 17 minutes on a push with the suite run once. The suite runs twice,
-    # the second time shuffled, each run 32 to 34 minutes on one push and past 40 on another,
-    # where build/test.py ended the first at its limit of 40, ran its parts for 40 more
-    # and the job reached its 100 in the second. Each run is held to 90 here, and the job to 150.
+    # The suite runs twice, the second time shuffled, and a run on a slow runner can pass
+    # build/test.py's own limit of 40 minutes, where the script ends it and runs its parts for as
+    # long again, so each run is held to 90 here, and the job to 150.
     timeout-minutes: 150
     steps:
       - uses: actions/checkout@v7
@@ -87,12 +86,11 @@ jobs:
 
       # Mesa's cache of the shaders lavapipe compiles, named in the workspace and kept from run to
       # run. lavapipe compiles a pipeline's variants as it first draws with them, and every app of the
-      # suite opens a device of its own, so with no cache each app compiled them again. On a host's
-      # lavapipe four apps in one process took 3.7 seconds each with Mesa's cache off and 0.84 with
-      # it, a pipeline cache of the engine's own sparing none of it, since lavapipe keeps its
-      # variants out of one. It is restored here and saved after the suite whatever the suite does,
-      # since actions/cache saves only from a job that passed, and a push's job that failed left the
-      # shaders it changed unsaved for the next run to compile again in every app.
+      # suite opens a device of its own, so with no cache each app compiles them again. A pipeline
+      # cache of the engine's own spares none of it, since lavapipe keeps its variants out of one.
+      # It is restored here and saved after the suite whatever the suite does, since actions/cache
+      # saves only from a job that passed, and a job that failed would leave the shaders it changed
+      # unsaved for the next run to compile again in every app.
       - uses: actions/cache/restore@v6
         with:
           path: build/mesa-cache
@@ -111,10 +109,10 @@ jobs:
       # build/test.py runs the suite held to a time and a memory, runs it again in parts where a
       # process is lost, and ends the log with a page of what failed, which is the job's summary and
       # its annotations. glibc is held to two arenas, since each device lavapipe opens starts threads
-      # that glibc gives arenas of their own, and what is freed in an arena stays the test host's,
-      # some hundred MB over the drawing tests. A suite that passed runs whole once more with each
-      # stage's systems shuffled by the day's date as a seed, so a system leaning on an order nothing
-      # asks for meets a new order each day, and a failure names the seed that runs it again.
+      # that glibc gives arenas of their own, and what is freed in an arena stays the test host's
+      # over the drawing tests. A suite that passed runs whole once more with each stage's systems
+      # shuffled by the day's date as a seed, so a system leaning on an order nothing asks for meets
+      # a new order each day, and a failure names the seed that runs it again.
       - run: python3 build/test.py --no-build --timeout-minutes 90 --shuffle-seed "$(date -u +%Y%m%d)"
         env:
           E3D_REQUIRE_VALIDATION: '1'
@@ -160,15 +158,12 @@ jobs:
     runs-on: windows-latest
     # The suite's parts run one after another, and their sum follows the runner, so the suite is
     # dealt to two runners, each half a job of its own with its own limit and its own lines on the
-    # page. On the four pushes of 2026-11-02 from adf7bb79 to fdf4dedb the job took 149 to 159
-    # minutes, the suite 147 of them, its global illumination class 35 to 54, the two halves of the
-    # rest of Rendering 31 to 50 and 25 to 34, Core 9, Graphics 2 and the other parts 3 together,
-    # with 3 minutes before the suite and 9 after it. The first half takes the class, Core and
-    # Graphics, 46 to 65 minutes, and plays the games after, 58 to 77 in all. The second takes every
-    # other part, 59 to 87 minutes, 62 to 90 in all. Each has 160 on a push, the slowest half's 118
-    # minutes on the slowest runner yet read with a third again for a slower one, and the first 240
-    # in the pack run, which plays every game at the step's own 110 after its suite. The suite's
-    # parts are held to 70 each below.
+    # page. The first half takes global illumination's class, the scene field's, Core and Graphics
+    # and plays the games after its suite, and the second takes every other part, as the suite's
+    # step below deals them. Each has 160 on a push, the slowest half's 118 minutes on the slowest
+    # runner yet read with a third again for a slower one, and the first 240 in the pack run, which
+    # plays every game at the step's own 110 after its suite. The suite's parts are held to 70 each
+    # below.
     strategy:
       fail-fast: false
       matrix:
@@ -250,39 +245,23 @@ jobs:
           New-Item -ItemType Directory -Force -Path "$env:GITHUB_WORKSPACE\3DEngine.Tests\TestResults\dumps" | Out-Null
 
       # The suite through build/test.py in its parts from the start, each a process held to 70
-      # minutes where the script's own limit is 40. Mesa's Windows builds keep no shader cache, the
-      # disk cache built into neither the MSVC nor the MinGW one, whose lavapipe carries none of its
-      # names where Linux's does, so no cache is restored or saved here and every app compiles every
-      # shader, which on lavapipe with Mesa's cache off takes 56% of the Rendering and Core parts,
-      # most of it at an app's first frame. On a pack run on an EPYC 7763 the whole run ran out its
-      # hour 1,302 tests in, and the parts holding tests it gave no result, thirteen of fifteen, ran
-      # again for 121 minutes 5 seconds in all, past a push's 100. Run in parts with no whole run to
-      # lose, the suite took 66 minutes 23 seconds cold there. A test is
-      # held to ten minutes without a result here where five elsewhere, since the glowstone shut in
-      # a room draws its 360 frames in 4 minutes 25 seconds on this lavapipe, the exposure the
-      # device fault it guards needs, and the limit is there to find a hang. The Rendering part ran
-      # in two processes by its classes, since whole it ran out its 70 minutes 420 and 374 tests in
-      # on two runners of the same code, the same tests half again as slow on the second, where on
-      # Linux's lavapipe with Mesa's cache off it takes 44 minutes, its halves 24 and 20. Global
-      # illumination's class runs in a third of its own, since the half holding it took 64 to 67 of
-      # its 70 minutes on three pushes of 2026-10-31, and on Linux's lavapipe the class takes 12.8
-      # of that half's 17.5 minutes, which no deal of the classes by their names keeps apart. The
-      # other two take 11.4 and 10.7 there. The first half runs the class, Core and Graphics alone,
-      # and the second every part but those, so a part added later runs there. On that half the
-      # class took 67 m 40 s, 69 m 6 s, 36 m 38 s and 59 m 31 s at f969fe7d, 548e598c, 72d70e66 and
-      # 2ceac35a, and ran out its 70 at 798d9270 71 of its 77 tests in, the half's job 91, 92, 55,
-      # 82 and 84 minutes, so the class runs in two processes, its methods dealt between them, and
-      # the half's time is as before. The second half's job took 107, 106, 75, 107 and 85, which
-      # leaves no room there for any of the class. Linux's suite, run whole, took 44, 49, 44, 44 and
-      # 56 minutes on the same runs, the last on a runner as slow as the first half's. The second
-      # half's Rendering 1 took 45.5, 69.4, 32.5 and 30.9 minutes at d0d391de, 1c14b0bf, 48096231
-      # and e63a44f5 and ran out its 70 at e52877dd 283 tests in, and its Rendering 2 took 27.2,
-      # 36.1, 19.4, 19.2 and 37.4, that half's tests 76, 110, 55, 53 and 111 minutes and the first
-      # half's 64, 63, 85, 48 and 89. On one runner the slowest class, the glow lights', took 23
-      # minutes, which the first half has no room for, and the scene field's 8.9, which balances the
-      # two, so that class runs in a process of its own in the first half and the rest of the part
-      # in three, by the classes' times there the halves' jobs some 110 and 104 minutes and the
-      # three some 40, 24 and 33.
+      # minutes where the script's own limit is 40, since a whole run that ran out its limit left
+      # most parts with no result, to run again after it, and run in parts it has no whole run to
+      # lose. Mesa's Windows builds keep no shader cache, the disk cache built into neither the MSVC
+      # nor the MinGW one, whose lavapipe carries none of its names where Linux's does, so no cache
+      # is restored or saved here and every app compiles every shader. A test is held to ten minutes
+      # without a result here where five elsewhere, since the glowstone shut in a room draws its 360
+      # frames, the exposure the device fault it guards needs, in close to five minutes on this
+      # lavapipe, and the limit is there to find a hang. The Rendering part runs in several
+      # processes by its classes, since whole it runs out its 70 minutes on a slow runner. Global
+      # illumination's class takes most of the time of a process holding it, which no deal of the
+      # classes by their names keeps apart, and alone it comes near its 70 minutes, so it runs in
+      # two processes of its own, its methods dealt between them, in the first half, since the
+      # second has no room for any of it. The slowest class, the glow lights', has no room in the
+      # first half either, so the scene field's, which balances the two halves, runs there in a
+      # process of its own, and the rest of the part runs in three in the second. The first half
+      # runs these classes, Core and Graphics alone, and the second every part but those, so a part
+      # added later runs there.
       - run: |
           first=(--only "Rendering GlobalIlluminationTests" --only "Rendering SceneFieldTests" --only Core --only Graphics)
           second=(--except "Rendering GlobalIlluminationTests" --except "Rendering SceneFieldTests" --except Core --except Graphics)
@@ -325,8 +304,8 @@ jobs:
       # ./e3d controls are tried on this system too. A game that fails says why in an error of its own,
       # naming the system, and the rest are played still. Each has twelve minutes, twice Manor's walk
       # on four cores of lavapipe, past which it is stopped and its error says how far it got, so a
-      # slow device names the game it is slow at, where the job's time otherwise ran out with the
-      # games still playing and nothing on the page. The step has 110 minutes of the job's 180, so a
+      # slow device names the game it is slow at, where otherwise the job's time runs out with the
+      # games still playing and nothing on the page. The step has 110 minutes of the job's 240, so a
       # wait no budget catches ends the step, with the errors said so far on the page and the page's
       # artifacts uploaded, and not the job.
       - name: Play every game from the package through e3d
@@ -383,9 +362,9 @@ jobs:
   macos:
     # Apple silicon, whose GPU MoltenVK draws on through Metal.
     runs-on: macos-15
-    # The job took 40 minutes on a push, 14 of them the suite and 18 the twelve games,
-    # so a push, which plays Slide alone, has 75, and the pack run, which plays the twelve, 120.
-    # Every example's capture on this GPU is the pack run's, in captures-macos below.
+    # A push, which plays Slide alone after the suite, has 75 minutes, and the pack run, which plays
+    # every game after it, 120. Every example's capture on this GPU is the pack run's, in
+    # captures-macos below.
     timeout-minutes: ${{ inputs.pack && 120 || 75 }}
     steps:
       - uses: actions/checkout@v7
@@ -475,8 +454,8 @@ jobs:
           exit $failed
 
       # Slide played once more in a window on the runner's desktop, as a player sees it, so SDL's
-      # window and the swapchain are tried on this system and not the offscreen path alone. Its
-      # play takes about a minute on lavapipe, and the step stops it at four.
+      # window and the swapchain are tried on this system and not the offscreen path alone, with
+      # four minutes as on Windows.
       - name: Play a game in a window through e3d
         timeout-minutes: 6
         env:
@@ -516,7 +495,7 @@ jobs:
     needs: [linux, windows, macos]
     if: always()
     runs-on: ubuntu-24.04
-    # It reads four pages and writes one, where three took seconds on a push.
+    # It reads four pages and writes one, and its 10 minutes end one that stalls.
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v7
@@ -541,9 +520,8 @@ jobs:
   examples:
     needs: linux
     runs-on: ubuntu-24.04
-    # The job took 9 minutes on a push, and 90 leaves room for lavapipe compiling every
-    # shader again where Mesa's cache is cold, a step that hangs ending the job there and not at
-    # GitHub's six hours.
+    # 90 minutes leave room for lavapipe compiling every shader again where Mesa's cache is cold, a
+    # step that hangs ending the job there and not at GitHub's six hours.
     timeout-minutes: 90
     defaults:
       run:
@@ -679,8 +657,8 @@ jobs:
     if: ${{ inputs.pack }}
     needs: linux
     runs-on: ubuntu-24.04
-    # The captures took 23 minutes and the measure 27 on a pack run, and 150 leaves
-    # room for lavapipe compiling every shader again where Mesa's cache is cold.
+    # 150 minutes leave the captures and the measure room for lavapipe compiling every shader again
+    # where Mesa's cache is cold.
     timeout-minutes: 150
     defaults:
       run:
@@ -774,16 +752,14 @@ jobs:
           path: captures/
 
   # Every example captured on the macOS runner's GPU through MoltenVK, in the pack run alone, as the
-  # Linux captures are, since the job took 53 to 58 minutes.
+  # Linux captures are, since a capture of every example is too long for a push.
   captures-macos:
     if: ${{ inputs.pack }}
     needs: linux
     # A job of its own beside the tests, so the captures' time is their own and the games, the
-    # window, the native publish and the walk keep theirs. The captures took 3,012 seconds inside the
-    # tests' job at b526089c and were stopped there by the step's 50 minutes, so the step has 140 here
-    # and the script a budget of 130, past which it names the last example reached, and each example
-    # 300 seconds, past which it alone fails. The 253 took 1,481 seconds on a laptop's RTX 4070
-    # (build/capture-examples.sh), and the script's notice says how many drew here and how long they
+    # window, the native publish and the walk keep theirs. The step has 140 minutes and the script a
+    # budget of 130, past which it names the last example reached, and each example 300 seconds,
+    # past which it alone fails, and the script's notice says how many drew here and how long they
     # took.
     runs-on: macos-15
     timeout-minutes: 160
@@ -834,7 +810,7 @@ jobs:
       # Intel's Sponza, kept between runs by its manifest, which names its SHA-256, and fetched
       # where the cache holds none (./e3d scenes fetch), then driven through its views at noon and
       # at evening on the runner's GPU, each captured with its frame's time (build/drive-sponza.sh).
-      # Lavapipe drew a frame of it in 40 seconds, so it is driven here and not on Linux. The fetch
+      # It is driven here and not on Linux, since lavapipe draws a frame of it too slowly. The fetch
       # fails with the reason until the release scene-packs holds the pack its manifest names, and
       # the job goes on without the drive meanwhile, so a pack not yet published holds back no
       # package.
@@ -870,9 +846,8 @@ jobs:
     if: ${{ inputs.pack }}
     needs: linux
     runs-on: ubuntu-24.04
-    # The games, the soak, the resizes and the README's walk took 28 minutes on the pack run of
-    # fc5fdc97, Manor's walk the longest game at 4, and 150 leaves room for lavapipe compiling every
-    # shader again where Mesa's cache is cold.
+    # 150 minutes leave the games, the soak, the resizes and the README's walk room for lavapipe
+    # compiling every shader again where Mesa's cache is cold.
     timeout-minutes: 150
     defaults:
       run:
@@ -1456,8 +1431,8 @@ jobs:
       # leveling off, as a leak does, or a game cannot be played through (build/soak-check.py),
       # which names the game, what climbed with its numbers or the command that ended it, and its
       # log's last warnings. The games start three seconds apart and each is given five minutes to
-      # serve, since nineteen starting at once on the runner's four cores took two past the minute
-      # an opening is given on a pack run. Each log says how long its game took.
+      # serve, since a game starting with the rest on the runner's four cores can take past the
+      # minute an opening is otherwise given. Each log says how long its game took.
       - name: Play each game a while and check nothing it holds grows
         run: |
           games=(Hopper Summit Swarm Rally Manor Tactics Tempo Sumo Wordfall Slide Jelly Wick Ore Pinball Span Siege Tumble Tones Blockout FeatureTest)

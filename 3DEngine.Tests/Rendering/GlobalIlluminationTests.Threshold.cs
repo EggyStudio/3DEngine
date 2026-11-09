@@ -19,12 +19,11 @@ public sealed partial class GlobalIlluminationTests
         // four tenths above the threshold is read in linear light with the bright lamp and without
         // it. The screen's probes there meet the threshold's top on screen, and lit by the field's
         // normal, which the field turns down there, the hits took the light of the world's probes
-        // under the floor, the wall 5.05 times its light without the lamp at High and 4.29 at
-        // Medium on the development machine's GPU, where with the floor's top at 0 or 0.375 the
-        // two normals read alike. Lit by the depth's normal the wall reads 2.02 and 2.08, and at
-        // Low, which has no screen's probes, 1.51, the world's probes seeing the lamp through the
-        // floor thinner than their cells as its floor reads it, 1.54. The bounds are 15% over
-        // these.
+        // under the floor, though with the floor's top at 0 or 0.375 the two normals read alike.
+        // Lit by the depth's normal, the wall keeps only the leak of the world's probes seeing the
+        // lamp through the floor thinner than their cells, which Low, with no screen's probes, and
+        // the floor itself read as well. The bounds are 15% over that leak as this test measured it
+        // at each quality.
         const int width = 320, height = 180;
         var config = Config.Default.WithWindow("threshold", width, height) with { Headless = true, Offscreen = true, Samples = 1 };
         UseApp(new App(config).AddPlugin(new DefaultPlugins()));

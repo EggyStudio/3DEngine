@@ -17,9 +17,9 @@ public sealed partial class CascadeEdgeTests
         // moves its cascade with its build's first part, the cells it brings in holding nothing
         // until the last, and read so the rays through them went on past the walls they stand for
         // to the sky, as Sponza's atrium's far arches flashed lit while the field followed the eye
-        // down it. Walked down a tenth of a unit a frame, the corridor's light rose to 2.45 times
-        // the frame before's in a frame a slab waited, and with those cells read in the next
-        // cascade out, which holds the walls there, 1.31 at most in any frame.
+        // down it. Walked down a tenth of a unit a frame, the corridor's light leapt over the frame
+        // before's in a frame a slab waited, and with those cells read in the next cascade out,
+        // which holds the walls there, it holds in every frame.
         // The frames unpaced, so none waits and the field's triangle budget is never raised past the
         // 64 it is set to, where paced at 60 a frame of the suite's warm caches waited and the slabs
         // were built in a frame or two.

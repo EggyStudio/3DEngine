@@ -21,13 +21,11 @@ public sealed partial class GlobalIlluminationTests
         // what it meets by each light's GGX reflection toward the ray and by its gloss's share of a
         // lobe of the probes' faces about the ray's mirror way (glossyHit in probelight.slang), so
         // a metal's reflection of the sun, which the reference's lobe throws along its mirror way
-        // into the probe, reaches it. On the development machine's GPU the face reads 1.112 and
-        // 1.110 of the reference for dielectrics of a roughness of 0.3 and 1 and 1.087 and 1.116
-        // for metals of 0.6 and 0.3, beside the dielectrics. Lit by the even shares alone, as though
-        // the face reflected the light from all around evenly (reflectedShare), the metals' fell
-        // short, 0.854 and 0.815, where the dielectrics read 1.104 and 1.142, and taken as a white
-        // diffuse face, as the probes took every face before, the metal of 0.6 read 1.27 and that
-        // of 0.3 0.98. Each bound is 15% over its reading's distance from the reference.
+        // into the probe, reaches it, and the metals read as near the reference as the dielectrics.
+        // Lit by the even shares alone, as though the face reflected the light from all around
+        // evenly (reflectedShare), the metals' faces fell short of the reference, and taken as a
+        // white diffuse face the metal of 0.6 read well over it. Each bound is 15% over the
+        // distance from the reference this test measured for its gloss.
         Open();
         SetSceneField(3, 0.25f, 2);
         SetSceneFieldCenter(new Vector3(2, 1.5f, 0));
@@ -66,11 +64,11 @@ public sealed partial class GlobalIlluminationTests
         // A closed room whose walls are a white of 250 and nearly smooth, a lamp inside, its back
         // wall read in linear light once the light has settled and again 300 frames later. A probe's
         // ray's hit sends on its gloss's share and its diffuse share of what the gloss leaves
-        // (glossyHit in probelight.slang), no more than reaches it, and the wall reads 11.66 both
-        // times on the development machine's GPU. With the whole diffuse share beside the
-        // gloss's, a wall met at a grazing way sent on nearly twice what reached it, and the light
-        // past the first bounce, which comes back to the probes each frame, grew without end, the
-        // wall 13,247 and then 20,935. The bound on the wall's light is 15% over its reading.
+        // (glossyHit in probelight.slang), no more than reaches it, so the wall reads the same both
+        // times. With the whole diffuse share beside the gloss's, a wall met at a grazing way sent
+        // on nearly twice what reached it, and the light past the first bounce, which comes back to
+        // the probes each frame, grew without end. The bound on the wall's light is 15% over the
+        // light this test measured on it.
         Open();
         SetSceneField(3, 0.25f, 2);
         SetSceneFieldCenter(new Vector3(0, 1.5f, 0));

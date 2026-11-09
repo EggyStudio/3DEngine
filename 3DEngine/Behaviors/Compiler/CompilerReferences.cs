@@ -7,10 +7,10 @@ namespace Engine.Files.Compiler;
 internal static class CompilerReferences
 {
     // Each assembly read once for the process and shared by every compiler. A reference holds its
-    // file's whole image in native memory, which only its finalizer gives back, so read at every
-    // compiler's start, as they were, each app with the behaviors plugin took some 60 MB the GC
-    // did not count, scripts or none, and a test run making hundreds of apps reached 16 GB before
-    // a full collection came. An assembly that cannot be read is left out, as it was.
+    // file's whole image in native memory, which the GC does not count and only its finalizer gives
+    // back, so read at every compiler's start, each app with the behaviors plugin would hold every
+    // image again, scripts or none, and a process making many apps would grow before a full
+    // collection came. An assembly that cannot be read is left out.
     private static readonly ConcurrentDictionary<string, MetadataReference?> Shared = new();
 
     /// <summary>

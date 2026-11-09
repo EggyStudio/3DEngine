@@ -474,9 +474,9 @@ internal sealed partial class SceneFieldRenderer : IDisposable
 
     // Whether the model pass blends a draw at less than half of it, as a decal or a pane of tinted
     // glass, which stands in the field as nothing rather than as a solid of its color, since the
-    // surface it lies on shows through it. Intel's Sponza lays a dirt decal blended at 0.35 over its
-    // court's walls, which the field and the path-traced reference held solid, the reference
-    // reading those walls a sixth as bright in the sun as the frame.
+    // surface it lies on shows through it. Intel's Sponza lays a dirt decal blended at 0.35 over
+    // its court's walls, which the field and the path-traced reference held solid, the reference
+    // reading those walls far darker in the sun than the frame.
     private static bool SeeThrough(MaterialAlphaMode mode, float alpha) => mode == MaterialAlphaMode.Blend && alpha < 0.5f;
 
     // How far the window's camera's far plane lies from its eye, at its middle, or no finite

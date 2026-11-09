@@ -1,34 +1,33 @@
 // A path-traced reference of the window's picture, which global illumination is measured against.
 // From each pixel it traces paths through the window's meshes as the device's ray tracing holds
 // them (GpuRayScene), each hit a copy's color times its mesh's vertices' colors there, the copy's
-// color its texture's at the point where it has one, and its emission, the face bent by the
-// copy's normal map there as the model pass bends it. The first hit is lit as the model pass lights one, each light's diffuse share past what
-// its face reflects and its specular share by the material's roughness and metallic, and every hit
-// after it as global illumination lights one, its color times what arrives. A light that casts
-// shadows reaches a hit only where a ray toward it gets through, as the shadow maps and the field
-// let it. A path goes on in a direction drawn by the cosine about the face's normal, ends at what
-// Russian roulette draws after its third bounce, and brings back the sky, the environment map's or
-// the ambient lights', where it meets nothing. Where asked, the first face's way on is drawn about
-// its mirror way by GGX's distribution of the normals the eye sees against the cosine, by their
-// shares, so it reflects the indirect light as the model pass does, and where asked of every face,
-// each face a path meets, a camera's or a probe's, is lit and goes on as the first is, so the gloss
-// of what a path meets carries light between bounces. A path after the camera's first ray crosses a
-// copy that lets light through (ModelMaterial.LightThrough) by its share, as global illumination's
-// rays cross a canopy's leaves, and meets it as a solid face otherwise, while the camera sees it
-// and it shadows the sun and the lamps, as the model pass and the shadow maps hold it. Lights are
-// given as the model pass has them, the light a white diffuse surface facing one returns, so a
-// surface's diffuse light is its color times what arrives, with no pi. Each pass adds its samples
-// to an image of sums, the count in alpha, and its first sample of each pixel, through the pixel's
-// middle, writes what it met and how far along its way into the image of regions, the copy's index
-// times eight and the axis its face turns toward most, plus one, or 0 for nothing. Started at a
-// probe instead, a texel of the image is a texel of the probe's octahedron, its paths leaving the
-// probe's middle through it and every face they meet lit as global illumination lights one, so the
-// image is the light arriving at the probe from each way, as its rays and the merge of the cascades
-// above should bring it. The emission of a glow light global illumination carries is left out where
-// such a path first meets it, as the probe's rays leave it out, since it reaches a surface as a
-// light rather than through the probes; counted, the rays of twelve probes around four emissive
-// blocks read 44 to 70% under it at one bounce, where left out they read within 12% of it, all but
-// the dimmest.
+// color its texture's at the point where it has one, and its emission, the face bent by the copy's
+// normal map there as the model pass bends it. The first hit is lit as the model pass lights one,
+// each light's diffuse share past what its face reflects and its specular share by the material's
+// roughness and metallic, and every hit after it as global illumination lights one, its color times
+// what arrives. A light that casts shadows reaches a hit only where a ray toward it gets through,
+// as the shadow maps and the field let it. A path goes on in a direction drawn by the cosine about
+// the face's normal, ends at what Russian roulette draws after its third bounce, and brings back
+// the sky, the environment map's or the ambient lights', where it meets nothing. Where asked, the
+// first face's way on is drawn about its mirror way by GGX's distribution of the normals the eye
+// sees against the cosine, by their shares, so it reflects the indirect light as the model pass
+// does, and where asked of every face, each face a path meets, a camera's or a probe's, is lit and
+// goes on as the first is, so the gloss of what a path meets carries light between bounces. A path
+// after the camera's first ray crosses a copy that lets light through (ModelMaterial.LightThrough)
+// by its share, as global illumination's rays cross a canopy's leaves, and meets it as a solid face
+// otherwise, while the camera sees it and it shadows the sun and the lamps, as the model pass and
+// the shadow maps hold it. Lights are given as the model pass has them, the light a white diffuse
+// surface facing one returns, so a surface's diffuse light is its color times what arrives, with no
+// pi. Each pass adds its samples to an image of sums, the count in alpha, and its first sample of
+// each pixel, through the pixel's middle, writes what it met and how far along its way into the
+// image of regions, the copy's index times eight and the axis its face turns toward most, plus one,
+// or 0 for nothing. Started at a probe instead, a texel of the image is a texel of the probe's
+// octahedron, its paths leaving the probe's middle through it and every face they meet lit as
+// global illumination lights one, so the image is the light arriving at the probe from each way, as
+// its rays and the merge of the cascades above should bring it. The emission of a glow light global
+// illumination carries is left out where such a path first meets it, as the probe's rays leave it
+// out, since it reaches a surface as a light rather than through the probes, and counted, the rays
+// of the probes around emissive blocks read far under it at one bounce.
 
 import color;
 

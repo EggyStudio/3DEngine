@@ -9,9 +9,9 @@ namespace Engine;
 /// <remarks>
 /// <para>
 /// A parent the program moves in its update moves once a frame, and a frame holds as many steps as
-/// its time comes to, none, one or several. Aiming each step at the parent's place gave the body the
-/// whole frame's distance in the first step and nothing in the rest, so a crate on a platform rode
-/// at 1.75 of a pace of 2 at 144 frames a second, 2.37 at 50 and 0.06 at 20. Instead, the parent's
+/// its time comes to, none, one or several. Aiming each step at the parent's place gave the body
+/// the whole frame's distance in the first step and nothing in the rest, so a crate on a platform
+/// rode slower or faster than the platform as the frame rate changed. Instead, the parent's
 /// place is observed once the frame's update has moved it, its velocity is that move over the
 /// frame's time, and each step aims at the observed place moved on by that velocity for the time
 /// from the observation to the end of the step. The steps run behind the frame's clock by what the

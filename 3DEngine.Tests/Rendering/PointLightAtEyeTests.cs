@@ -27,8 +27,8 @@ public sealed class PointLightAtEyeTests : IDisposable
     {
         // A closed room six units across of slabs a fifth of a unit thick, with a block in it,
         // glossy and rough, lit by a point light at the camera's point and nothing else. With
-        // Fresnel's base taken unclamped, a dot rounding a hair over 1 gave the fifth power of a
-        // base under 0, and lavapipe read 12,617 of 57,600 pixels black where the RTX 4070 read none.
+        // Fresnel's base taken unclamped, a dot rounding a little over 1 gave the fifth power of a
+        // base under 0, and lavapipe drew pixels of the room black.
         var config = Config.Default.WithWindow("eye light test", 320, 180) with { Headless = true, Offscreen = true, Samples = 1 };
         UseApp(new App(config).AddPlugin(new DefaultPlugins()));
         var eye = new Vector3(1.2f, 1.6f, 2.1f);

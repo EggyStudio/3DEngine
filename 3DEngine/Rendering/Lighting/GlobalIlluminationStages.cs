@@ -142,8 +142,7 @@ internal sealed class GpuIllumination : IDisposable
     // the mean gathered so far and the last whole cycle's of each, as the frame before left them
     // and as this frame's merge writes them, since taken from each frame's places the share and the
     // mark a carried probe passed down and to its faces moved with its rays, and every probe whose
-    // hits read them flickered with them, the edges of Sponza's balcony at 7:00 0.16% of the
-    // frame's pixels by 12 levels a frame.
+    // hits read them flickered with them, as along the edges of Sponza's balcony.
     internal (VkImage Image, VkImageView View)[] CycleSkyMarkBefore { get; init; } = [];
     internal (VkImage Image, VkImageView View)[] CycleSkyMark { get; init; } = [];
 
@@ -154,9 +153,9 @@ internal sealed class GpuIllumination : IDisposable
 
     // How many cascades, from the first, can carry a probe's rays past their interval and keep its
     // cycle, every one but the last counted and the far, whose rays go on to the field's edge
-    // already. Sponza at High carried 3.3 to 6.8% of its probes' texels by the view, all of them in
-    // the first three of its five cascades, and the two after hold 57% of the texels, so the cycle
-    // takes 9 MB there where its images made whole in every cascade took 21.
+    // already. The probes the view carries lie in the first cascades, and the last counted and the
+    // far hold the most texels of all, so the cycle's images are made whole in the cascades before
+    // them alone.
     internal int CycleCascades { get; init; }
 
     /// <summary>The bytes the carried probes' cycle takes, none where its images are stand-ins.</summary>
@@ -533,13 +532,11 @@ internal sealed unsafe partial class GlobalIlluminationStages(GraphicsDevice dev
                 TexelsAbove = c + 1 < gi.Cascades && c != lastCounted ? (uint)gi.Texels[c + 1] : 0,
                 Flags = gi.CycleOn ? traceFlags : traceFlags & 2u,
             };
-            // The far cascade's probes trace one part of them a frame, layers of probes in turn, each
-            // part's rays' light kept until its turn comes again, and the merge and the gather take
-            // them whole each frame as they lie. Traced whole, the far probes' rays took 0.55 to 0.75
-            // ms of the 1 to 2 ms the voxel game's far cascade cost at 1920 by 1080, at seed 1's
-            // cherry grove and its deep cave at Low and High (a GPU mark after each dispatch). A
-            // quarter a frame, global illumination there takes 0.4 to 0.47 ms less, the far light at
-            // most three frames behind, and the cave's far walls read as dark (./e3d command profile).
+            // The far cascade's probes trace one part of them a frame, layers of probes in turn,
+            // each part's rays' light kept until its turn comes again, and the merge and the gather
+            // take them whole each frame as they lie. Their rays are a large share of the far
+            // cascade's work, and traced a quarter a frame the far light lies at most three frames
+            // behind, a cave's far walls reading as dark as they do traced whole.
             var (first, count) = (0u, p * p * p);
             if (c == gi.Cascades - 1 && lastCounted >= 0 && farPart >= 0)
             {

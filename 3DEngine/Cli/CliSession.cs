@@ -110,12 +110,11 @@ internal static class CliSessionFile
     /// <summary>Every session file that can be read, newest first.</summary>
     /// <remarks>
     /// An app replaces its file around each command it answers, and a listing of the directory made
-    /// while the new file is moved over the old can leave the name out, which reported a serving
-    /// app as gone about once in a hundred commands. The names of two listings are taken together,
-    /// with a file still being written counted under the name it is moved to. On Windows the file
-    /// cannot be opened for the moment the move takes, so a read that fails is tried again a few
-    /// times 10 ms apart, since read once it found no session for the puzzle game while it served,
-    /// its process alive, about once a scripted run.
+    /// while the new file is moved over the old can leave the name out, which reports a serving app
+    /// as gone. The names of two listings are taken together, with a file still being written
+    /// counted under the name it is moved to. On Windows the file cannot be opened for the moment
+    /// the move takes, so a read that fails is tried again a few times 10 ms apart, since a single
+    /// read can find no session for an app that serves, its process alive.
     /// </remarks>
     public static IReadOnlyList<CliSession> All()
     {
@@ -133,10 +132,9 @@ internal static class CliSessionFile
     /// <paramref name="looks"/> times a fifth of a second apart where none is found.
     /// </summary>
     /// <remarks>
-    /// A command that names its app once found none while the app served, answering the readings
-    /// ten seconds before and after, as Wick did under the games job's eight games at once on four
-    /// cores, and the soak it was played in ended there, so a named app is looked for for a second
-    /// before it is taken as gone.
+    /// A command that names its app can find none while the app serves and answers the commands
+    /// before and after it, where several games run at once on a machine of few cores, so a named
+    /// app is looked for for a second before it is taken as gone.
     /// </remarks>
     public static IReadOnlyList<CliSession> Matching(Func<CliSession, bool> match, int looks = 5)
     {

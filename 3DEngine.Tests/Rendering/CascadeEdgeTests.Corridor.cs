@@ -15,19 +15,19 @@ public sealed partial class CascadeEdgeTests
         // Four units wide and three high, its end 34 units from the eye, which the field lies
         // around, past the third cascade's half width of 32 in the fourth, whose probes stand
         // sixteen units apart. The far end sees none of them, and blended by distance alone it took
-        // the sky the probes outside saw, as the far end of Sponza's atrium did, 0.92 of the light
-        // of the same end with the corridor open. With none of their sky it takes 0.183, the light
+        // the sky the probes outside saw, as the far end of Sponza's atrium did, nearly the light
+        // of the same end with the corridor open. With none of their sky it still takes the light
         // they see on the corridor's outer walls and the ground, which a surface that sees none of
-        // its probes still blends, as it took 0.220 with the field ahead of the eye and the end in
-        // the third cascade, eight apart. With their reach kept at eight by eight directions, each
-        // the mean of the four rays inside it, some 25 degrees across, the rays that passed beside
-        // the corridor and those that met its walls were blended, the probes outside counted as
-        // seeing the end, and it took 0.499. With the screen's probes standing in every cascade,
-        // the end's own rays reaching as far as the fourth cascade's probes are apart, it takes
-        // 0.052, the light its rays meet on the corridor's walls taken from the probes each hit
-        // sees through the field; weighed by the probes' reach, whose slack past the walls the
-        // coarse probes outside passed, it took 0.309. At Low the end lies past both cascades of
-        // probes, where the light from beyond them takes their place, closed or open alike.
+        // its probes still blends, as it does with the field ahead of the eye and the end in the
+        // third cascade, eight apart. With their reach kept at eight by eight directions, each the
+        // mean of the four rays inside it, some 25 degrees across, the rays that passed beside the
+        // corridor and those that met its walls were blended and the probes outside counted as
+        // seeing the end. With the screen's probes standing in every cascade, the end's own rays
+        // reaching as far as the fourth cascade's probes are apart, the light its rays meet on the
+        // corridor's walls is taken from the probes each hit sees through the field, where weighed
+        // by the probes' reach, whose slack past the walls the coarse probes outside passed, it
+        // took more. At Low the end lies past both cascades of probes, where the light from beyond
+        // them takes their place, closed or open alike.
         const GlobalIllumination quality = GlobalIllumination.High;
         var config = Config.Default.WithWindow("corridor", Width, Height) with { Headless = true, Offscreen = true, Samples = 1 };
         UseApp(new App(config).AddPlugin(new DefaultPlugins()));

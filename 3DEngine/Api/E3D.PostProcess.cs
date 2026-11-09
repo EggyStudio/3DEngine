@@ -234,7 +234,7 @@ public static partial class E3D
     /// <remarks>
     /// <see cref="Tonemap.AgX"/>, <see cref="Tonemap.TonyMcMapface"/> and
     /// <see cref="Tonemap.BlenderFilmic"/> look the light up in tables of their own, each read the
-    /// first time its curve is chosen, which takes that frame a few milliseconds.
+    /// first time its curve is chosen, which lengthens that frame.
     /// </remarks>
     public static void SetTonemap(Tonemap curve) => Effects.Tonemap = curve;
 
@@ -250,10 +250,9 @@ public static partial class E3D
     /// <remarks>
     /// The engine's curve, <see cref="Tonemap.Engine"/>, bends the brightest channel past 0.9 and
     /// scales the other two with it, so a bright orange lamp stays orange where a path-traced
-    /// reference, clipping each channel at white, shows it white, as the bounce rooms' strip lamp
-    /// did beside its own. A color whose channels all lie under the knee is shown as it was. The
-    /// window's frame and a render texture take it alike, and the other curves, which bend their
-    /// highlights as their makers chose, take none of it.
+    /// reference, clipping each channel at white, shows it white. A color whose channels all lie
+    /// under the knee is shown as it was. The window's frame and a render texture take it alike,
+    /// and the other curves, which bend their highlights as their makers chose, take none of it.
     /// </remarks>
     public static void SetHighlightKnee(float knee, float strength = 1)
     {

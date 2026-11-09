@@ -1,25 +1,27 @@
 # Review
 
-Reviewed up to `d8eedc29`, cut seven's sixth commit, pushed at 09:33 on 2026-11-09 with `a01f88ea`
-and `989ab124`, the fourth and fifth, the cube filter with the air's sky, the global illumination's
-device work and the scene field's device work as parts the device keeps, one run on the last, green
-at 11:53 with macOS in 46 minutes, Windows in 77 and 83, Linux in 132, the longest yet and the
-shader cache's as item 231 reads it, and the examples in 8; they keep the form, the first carrying
-SHARED.md's row. After it `4de5d9b2`, `94600503` and `ef69de7f`, cut seven's seventh commit, the
-particles as one part in Rendering/Particles, and cut eight's first two, the renderer's console
-commands to Rendering as they are and the ImGui commands to Gui with the synthetic input's ImGui
-half behind an internal Core interface, pushed together at 11:56 on 2026-11-09 with one run on the
-last; they keep the form. After them `1d78c3a9` and `f2b695c9`, cut eight's third and fourth commits
-and its end, the flat API's console commands to Api and the built-in commands that name an area
-moved to it, committed at 11:57 and 12:34 on 2026-11-09 and waiting on ef69de7f's run; they keep the
-form. After them `1a11d7bf`, 225's split, the engine a project for each area in layers packed at the
-one version under the package 3DEngine, with the norm test of the layers and the listings split by
-project, 174 files, committed at 13:44 on 2026-11-09 and waiting with them; it keeps the form and
-carries N 1.6. Before it `a36b8540`, cut seven's third commit, pushed at 07:39 on 2026-11-09 with
-`f66c4a54` and `93d96996`, the first and second, the reference, the ray scene and the fog as parts
-over the device's listed surface, one run on the last, green at 09:30 with macOS in 44 minutes,
-Linux in 103, Windows in 108 and 111 and the examples in 8; they keep the form and carry the
-review's files. Before it `4fe1bfe4`, 225's sixth cut, pushed at 05:55 on 2026-11-09 with
+Reviewed up to `ef69de7f`, cut eight's second commit, pushed at 11:56 on 2026-11-09 with `4de5d9b2`
+and `94600503`, the particles as one part that ends cut seven's device work and the renderer's
+console commands to Rendering, one run on the last, green at 13:56 with macOS in 44 minutes, Windows
+in 64 and 93, Linux in 112 and the examples in 8; they keep the form. After it `1d78c3a9`,
+`f2b695c9`, `1a11d7bf`, `620cfeb4` and `1c3c38d5`, cut eight's last two commits, the flat API's
+console commands to Api and the built-in commands that name an area moved to it, then 225's split,
+the engine a project for each area in layers packed at the one version under the package 3DEngine
+with the norm test of the layers and the listings split by project, then 234, the Windows halves at
+160 minutes on a push with their log naming the runner's processor, and the minor to 6.2 for the
+split, pushed together at 14:00 on 2026-11-09 with one run on the last, the last tagged `v6.2.0` and
+the pack run for 6.2.0 with publish started on it at 14:00, since the pack run tests what it packs
+and the split's twelve packages are new names on nuget.org; they keep the form and carry NORM.md's N
+1.1 and N 1.6. Before it `d8eedc29`, cut seven's sixth commit, pushed at 09:33 on 2026-11-09 with
+`a01f88ea` and `989ab124`, the fourth and fifth, the cube filter with the air's sky, the global
+illumination's device work and the scene field's device work as parts the device keeps, one run on
+the last, green at 11:53 with macOS in 46 minutes, Windows in 77 and 83, Linux in 132, the longest
+yet and the shader cache's as item 231 reads it, and the examples in 8; they keep the form, the
+first carrying SHARED.md's row. Before it `a36b8540`, cut seven's third commit, pushed at 07:39 on
+2026-11-09 with `f66c4a54` and `93d96996`, the first and second, the reference, the ray scene and
+the fog as parts over the device's listed surface, one run on the last, green at 09:30 with macOS in
+44 minutes, Linux in 103, Windows in 108 and 111 and the examples in 8; they keep the form and carry
+the review's files. Before it `4fe1bfe4`, 225's sixth cut, pushed at 05:55 on 2026-11-09 with
 `db48a8b5`, `f1422dc2`, `4aff2190` and `723bc098`, the second to fifth, one run on the last, which
 the rerun of 8dba0d1c's Windows half cancelled at once through the workflow's one run a branch and
 which started again at 05:59, green at 07:37 with macOS in 42 minutes, Windows in 71 and 97, Linux
@@ -4855,7 +4857,9 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     version says the same of the tags. The session judges whether the cascades' framework landing is
     6.1 and says so in the Replies, raising the minor or not. In 221's batch. Done at `98b26c9e`,
     pushed at 14:38 on 2026-11-08; the minor goes to 6.1 in `e8e0f73f` alone, the cascades'
-    illumination whole with its gloss and the night drawn, tagged `v6.1.0`.
+    illumination whole with its gloss and the night drawn, tagged `v6.1.0`. The minor rose to 6.2 at
+    `1c3c38d5` on 2026-11-09 for the split into a project an area, the session's raise by Decision
+    100, tagged `v6.2.0` at its push.
 
 223. **The scene field's pool after a cascade change.** From the game's red play job of 2026-11-08
     (Voxel-Sandbox Verdict 8), twice the same on 6.0.91. The game's log shows the scene's distance
@@ -5047,10 +5051,11 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     row checked in NORM.md with it. The version rises to 6.2 with the next commit, the split being
     the step by Decision 100, tagged at its push. Three things for the owner. The packages
     3DEngine.Core and the eleven beside it are new names on nuget.org, which BUILDING.md's trusted
-    publishing policy for 3DEngine* covers, read at the next pack run; the game's nuget.config takes
-    the package pattern for them with its next pin, the game's item 164; AGENTS.md's table of areas
-    waits on the owner's word with its Components row naming a folder gone since cut three. The
-    three wait on 4fe1bfe4's run.
+    publishing policy for 3DEngine* covers, read at the next pack run; the game maps no package
+    source and restores from nuget.org alone, so the twelve come as the package's dependencies with
+    nothing to change, read as the game's item 164; AGENTS.md's table of areas waits on the owner's
+    word with its Components row naming a folder gone since cut three. The three wait on 4fe1bfe4's
+    run.
 
 226. **The live path.** Decision 102 on 2026-11-08. A watcher over a program's shaders, assets,
     scenes and behavior scripts, which recompiles a changed shader through slangc and swaps its
@@ -5217,7 +5222,12 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     over the last ten runs by the runner's processor, and either deal the suite to three Windows
     parts as the two were dealt, or raise the halves' limit on a push to what the slowest processor
     needs with the room the workflow's comment gives; the pack run's 240 stays. In 233's commit or
-    before it, as a workflow change alone.
+    before it, as a workflow change alone. Done at `620cfeb4` on 2026-11-09, a workflow change
+    alone: over the thirteen runs from 41253cab to d8eedc29 the first half took 60 to 118 minutes
+    and the second 50 to 114, the first past 120 once at 8dba0d1c, and the Windows logs name no
+    processor, so the reading by processor waits on the job running build/processor.sh from here;
+    both halves have 160 on a push, the slowest half's 118 with a third again as the workflow's
+    comment reasons, and the pack run's first half keeps 240. The next reading goes by processor.
 
 235. **The global illumination as its own project.** From item 225's split on 2026-11-09. The plan
     names Engine.Rendering.GlobalIllumination as a project on Rendering, and at the split the
@@ -5240,7 +5250,9 @@ Verdicts 56 to 109 are settled, said under each in REVIEW-ARCHIVE.md; Verdict 11
     took 137, as item 231 read the runner's processors to give. Nothing of the two commits'
     lengthens the half, and the pack run beside it, whose halves have 240, is still going, so the
     cause is the runner's speed and the limit, not the engine. The job is rerun at 05:55 for the
-    record, and the limit is the coder's item 234. Written at 05:55.
+    record, and the limit is the coder's item 234. Written at 05:55. Mended at `620cfeb4` on
+    2026-11-09, item 234, the halves at 160 minutes on a push. Settles on the build run of 620cfeb4
+    or a later commit with both halves green within it.
 
 ## Decisions
 
@@ -7485,3 +7497,17 @@ by it. The limit on a push rises from 120 to 160 for both halves, the slowest ha
 a third again as the workflow's comment reads it, the pack run's first half keeping 240, and the
 Windows job prints its runner's processor through build/processor.sh, so the next reading can be
 made by processor. A workflow change alone.
+
+233 written on 2026-11-09, comments without readings and costs. Every comment in the engine's
+sources, its tests, its shaders, the examples, the games, the build scripts and the workflows that
+carried a reading before and after, a cost measured in a trial or an account of what was tried is
+rewritten to its reason, a decision keeping the alternative it rejects as a reason without the
+trial's numbers, a test saying what it guards and why its bound is what it is, and a number left
+only where the code's choice depends on it, a size, a count, a threshold or a limit, with its
+reason, the readings left to RENDERING.md and the review. scenes_sponza's far cascade comment says
+that the building's size against the four cascades' reach, ahead of the camera, puts the main door
+past them from the lion's end, where a ray takes the sky, so a far cascade of 100 holds the whole
+building from anywhere in it. STYLE.md's Register gains the sentence and its Checks the search for
+milliseconds, a reading against a reference, where something read and from so much to so much,
+whose hits that remain are units, constants the code uses and the meaning of a read. 167 files,
+comment lines alone, the workflows' YAML the same as before, the suite 2,297 in order and shuffled.

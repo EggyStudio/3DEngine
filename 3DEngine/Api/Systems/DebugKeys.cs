@@ -39,8 +39,8 @@ internal sealed class DebugKeys
     public const int RecordedPerSecond = 15;
 
     /// <summary>
-    /// The most pictures one recording takes, ten seconds, about 250 MB of PNGs at 1280 by 720 and
-    /// 500 at 1920 by 1080, a few hundred megabytes as a day's folder of pictures holds.
+    /// The most pictures one recording takes, ten seconds, a few hundred megabytes of PNGs at 1280
+    /// by 720 or 1920 by 1080, as a day's folder of pictures holds.
     /// </summary>
     public int MostRecorded { get; set; } = 150;
 

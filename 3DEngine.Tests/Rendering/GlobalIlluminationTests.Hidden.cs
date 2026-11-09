@@ -14,9 +14,9 @@ public sealed partial class GlobalIlluminationTests
     {
         // The feet test's closed room of rough gray slabs two cells thick lit by a dim lamp, in a sky
         // 64 times as bright that lights its floor's underside, at Low, where every surface reads the
-        // world's probes. On the development machine's GPU the wall's foot read 139.3 of 255 where the
-        // wall above it reads 67.3, the probes under the floor lending it the underside's light at the
-        // twentieth of their weight a hidden probe kept, and 55.6 with them left out.
+        // world's probes. At the twentieth of their weight a hidden probe kept, the probes under
+        // the floor lent the wall's foot the underside's light and lit it brighter than the wall
+        // above it, which with them left out it is not.
         Open();
         SetGlobalIllumination(GlobalIllumination.Low);
         SetAmbientLight(Color.White, 64);

@@ -40,9 +40,8 @@ public static partial class E3D
     // Whether nothing a scene places still waits for its file, with no prefab or model an entity
     // names that has not been asked for, which the next frame asks for, no asset the server is
     // loading, and none loaded and not yet spawned, so a picture taken once it holds shows every
-    // model. Models load on the asset server's workers, and a reference frame of Summit taken after
-    // a settle of ten frames alone came gray on a runner slow that minute, its island not yet
-    // loaded.
+    // model. Models load on the asset server's workers, so a settle of a set number of frames alone
+    // can end on a slow machine before a scene's models are loaded.
     internal static bool IsSceneLoaded()
     {
         if (World.TryGetResource<AssetServer>(out var server) && server.AnyLoading) return false;

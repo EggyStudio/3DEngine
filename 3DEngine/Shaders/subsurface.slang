@@ -38,11 +38,12 @@ struct Marked
 // The depth a shadow map holds in front of a point at depth about uv, the mean of those of nine
 // samples a texel apart that lie in front of it, each blended between the four texels about it,
 // kept within the square from low to high, or the point's own where none does. One texel's face
-// lies a little off the point's, and read texel by texel it speckled a sphere's shadowed side with
-// the light through and drew the edge of its band along the terminator in the texels' steps. A few degrees
-// past the terminator the point lies at the sphere's edge as the light sees it, and a mean of every
-// sample there took in the empty map beyond the edge, so the sphere read no thicker than nothing
-// there and let the light through whole, a bright line six degrees past a dark terminator.
+// lies a little off the point's, and read texel by texel it would speckle a sphere's shadowed side
+// with the light through and draw the edge of its band along the terminator in the texels' steps.
+// A few degrees past the terminator the point lies at the sphere's edge as the light sees it, and a
+// mean of every sample there would take in the empty map beyond the edge, so the sphere would read
+// no thicker than nothing there and let the light through whole, a bright line past a dark
+// terminator.
 float nearestDepth(float2 uv, float2 texel, float2 low, float2 high, int layer, float depth)
 {
     float nearest = 0.0, count = 0.0;

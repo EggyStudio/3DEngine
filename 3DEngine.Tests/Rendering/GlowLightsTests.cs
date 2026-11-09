@@ -142,11 +142,11 @@ public sealed class GlowLightsTests : IDisposable
     [Trait("Category", "Render")]
     public void An_Emissive_Rods_Light_On_The_Floor_Falls_With_No_Step()
     {
-        // The rod's light stepped by 7 to 9% on a curve around it where its faces' closed form gave
-        // way to points at four of its half diagonals, a face fifteen sixteenths long read as one
-        // point 11% over the closed form there, the bend of the light's log 0.062 at 1.8 blocks.
-        // Cut into points as long as the face is wide, the floor reads the reference within 2% to
-        // 1.6 blocks, past which the light fades by its reach, and bends nowhere over 0.021.
+        // The rod's light stepped on a curve around it where its faces' closed form gave way to
+        // points at four of its half diagonals, a face fifteen sixteenths long read as one point
+        // over the closed form there. Cut into points as long as the face is wide, the floor reads
+        // as the reference out to 1.6 blocks and its light's log bends nowhere, and the bound
+        // leaves room past 1.6 blocks for the light fading by its reach.
         float[] radii = [.. Enumerable.Range(0, 41).Select(i => 1.0f + i * 0.05f)];
         var light = Rings(GlobalIllumination.High, 5, rod: true, radii);
         double At(float radius) => light[radii.First(r => MathF.Abs(r - radius) < 1e-4f)].Mean;
@@ -165,15 +165,11 @@ public sealed class GlowLightsTests : IDisposable
     public void An_Emissive_Block_Lights_The_Floor_Around_It_As_A_Path_Traced_Reference_Does(GlobalIllumination quality)
     {
         // The world's probes stand above the floor at their spacing, so the faces the floor reads
-        // see none of a block lying on it, and the block's light reached the floor through the
-        // screen probes' sixteen rays alone, 0.077 two blocks out and nothing past two and a half,
-        // and at High eight lobes around the ring, its eighth harmonic 0.17 of its light at two
-        // blocks and 0.35 at two and a half, where the rays met the block at some angles and not
-        // others. Carried as a light whose penumbra counted the floor and the block's own faces as
-        // what hid it, the floor's light ran in dark rings, the falloff 0.83 to 1.02 of the
-        // reference's, dipping by a tenth every block or so, as this test measured on the
-        // development machine's GPU. Each ring reads within 2% of the reference and the eighth
-        // harmonic 0.005.
+        // see none of a block lying on it. Through the screen probes' sixteen rays alone the
+        // block's light reached nothing past two and a half blocks, and at High lay in eight lobes
+        // around the ring, where the rays met the block at some angles and not others. Carried as a
+        // light whose penumbra counted the floor and the block's own faces as what hid it, the
+        // floor's light ran in dark rings, dipping every block or so.
         var light = Rings(quality, 9);
         var shares = Traced.Select(t => light[t.Radius].Mean / t.Light).ToArray();
         for (int i = 0; i < Traced.Length; i++)
@@ -191,10 +187,9 @@ public sealed class GlowLightsTests : IDisposable
         // A voxel game draws its blocks of a kind as one mesh, as Ore draws its ore, whose box
         // stretches across the land, so the block here shares its mesh with another thirty blocks
         // off. Taken whole the mesh was too long to carry, and the floor around the block took its
-        // light through the screen probes' rays alone, 1.04 to 1.53 of the reference's from 1.2 to
-        // 2.2 blocks out and 0.004 at 3.8, past their reach, as this test measured on the
-        // development machine's GPU. Cut into its two blocks and carried, it reads 0.978 to 0.988
-        // at every ring, the lobes 0.011.
+        // light through the screen probes' rays alone, over the reference's near the block and
+        // nothing past their reach. Cut into its two blocks and carried, it reads as the reference
+        // at every ring.
         var light = Rings(GlobalIllumination.High, 9, farBlock: new Vector3(30, 0, 0));
         var shares = Traced.Select(t => light[t.Radius].Mean / t.Light).ToArray();
         for (int i = 0; i < Traced.Length; i++)
@@ -223,11 +218,10 @@ public sealed class GlowLightsTests : IDisposable
     public void An_Emissive_Block_Shut_In_A_Room_And_Seen_From_Outside_Keeps_The_Device()
     {
         // The voxel game's case, a glowstone set in a closed room of white blocks, eleven by six by
-        // eleven inside, the eye twenty blocks off outside, lost the device on the development
-        // machine's GPU within a few frames in three runs of five, an MMU fault through the
-        // constant cache (Xid 31), while the world probes' rays met the walls and marched through
-        // them to the lamp with a loop nested in the march's own; read once after the march, the
-        // device holds.
+        // eleven inside, the eye twenty blocks off outside, lost the device within a few frames in
+        // some runs, an MMU fault through the constant cache, while the world probes' rays met the
+        // walls and marched through them to the lamp with a loop nested in the march's own. Read
+        // once after the march, the device holds.
         var config = Config.Default.WithWindow("glow room", 640, 360) with { Headless = true, Offscreen = true, Samples = 1 };
         UseApp(new App(config).AddPlugin(new DefaultPlugins()));
         SetSceneField(4, 0.25f, 4);
@@ -273,13 +267,14 @@ public sealed class GlowLightsTests : IDisposable
     [Trait("Category", "Render")]
     public void A_Row_Of_Lamps_Lights_The_Floor_Under_A_Block_Floating_Below_It_As_Beside_It()
     {
-        // The voxel game's room, three emissive blocks touching in a row under the ceiling, one light,
-        // and a white block floating two under the middle one, the floor three under the block, a
-        // path-traced reference reading the floor under the block 0.98 of the floor beside it. The
-        // row's face was marched to two points on its middle line, both behind the block from the
-        // floor under the whole row, and a march passing inside the block's side was taken as deep
-        // as the block is tall, so the floor under it read 0.68 of the floor beside it, and reads
-        // 0.92 with the longer side halved and the way out taken across the march.
+        // The voxel game's room, three emissive blocks touching in a row under the ceiling, one
+        // light, and a white block floating two under the middle one, the floor three under the
+        // block, a path-traced reference reading the floor under the block nearly as light as the
+        // floor beside it. The row's face was marched to two points on its middle line, both behind
+        // the block from the floor under the whole row, and a march passing inside the block's side
+        // was taken as deep as the block is tall, so the floor under it read darker than the
+        // reference's. With the longer side halved and the way out taken across the march, it
+        // takes the row's light past the block.
         var config = Config.Default.WithWindow("lamp row", 320, 180) with { Headless = true, Offscreen = true, Samples = 1 };
         UseApp(new App(config).AddPlugin(new DefaultPlugins()));
         SetSceneField(4, 0.25f, 2);
@@ -350,9 +345,9 @@ public sealed class GlowLightsTests : IDisposable
         // The voxel game's room where a pillar's shadow drew a seam. The faces of a light's box
         // were weighed by the box's half size along each face's normal where their area belongs,
         // alike for a cube, so for the four blocks two by two the side the pillar hides weighed a
-        // quarter of its due against the face it leaves open, and the wall read 0.07 to 0.19 more
-        // of the light past the pillar than the reference, 0.893, 0.679, 0.572, 0.478 and 0.388;
-        // weighed by area, within 0.03.
+        // quarter of its due against the face it leaves open, and the wall saw more of the light
+        // past the pillar than the reference. Weighed by area, the faces give the wall the
+        // reference's share.
         var eye = new Vector3(9.5f, 56.62f, -35.4f);
         var heading = 185 * MathF.PI / 180;
         var pitch = -3 * MathF.PI / 180;
@@ -429,9 +424,9 @@ public sealed class GlowLightsTests : IDisposable
         // the walls, the floor and the ceiling read together against the path-traced reference of
         // each. Past the four brightest at a point, the lights were left out, and each reached
         // where it lit a surface by a fiftieth of a unit, so a sixth as bright reached two and a
-        // half times less far, and the room took 0.39 of its reference's light where one block's
-        // takes 0.96; with every light reaching by a share of its own light it takes 0.82, and
-        // with the lights past the four grouped 0.92.
+        // half times less far, and the room took well under its reference's light where one
+        // block's reads as its own. With every light reaching by a share of its own light and the
+        // lights past the four grouped, the six read as their reference too.
         float Room(bool six)
         {
             var config = Config.Default.WithWindow("emitters", 320, 180) with { Headless = true, Offscreen = true, Samples = 1 };

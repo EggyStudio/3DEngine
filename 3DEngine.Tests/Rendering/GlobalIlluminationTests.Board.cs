@@ -16,9 +16,9 @@ public sealed partial class GlobalIlluminationTests
         // The wall foot's room, walls 0.3 thick in cells of 0.5 on a floor running on past them, a
         // bright lamp outside low beside the east wall and a board three units past it lit by the
         // lamp, the room's inside read in linear light by its probes alone, the screen's off, which
-        // a path-traced reference takes as dark. The cascades of 8 a side laid out their reach as
-        // the mean of each texel's four rays, and the whole view read 0.0195 at Medium and 0.0197
-        // at High. With each ray's own reach it reads 0.0016 at both.
+        // a path-traced reference takes as dark. Cascades of 8 a side that lay out their reach as
+        // the mean of each texel's four rays bring the board's light into the room, so each ray
+        // keeps its own reach.
         const int width = 160, height = 90;
         var config = Config.Default.WithWindow("board", width, height) with { Headless = true, Offscreen = true, Samples = 1 };
         UseApp(new App(config).AddPlugin(new DefaultPlugins()));

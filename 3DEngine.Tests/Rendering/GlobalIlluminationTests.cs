@@ -108,7 +108,7 @@ public sealed partial class GlobalIlluminationTests : IDisposable
         // A sky of 1 and nothing near the probes in the middle of the first cascade, a block drawn
         // far below them so the window shows a scene, so every face of such a probe gathers pi.
         // Each texel of the probes' octahedrons taken as an equal share of the sphere read the
-        // faces along z at 0.82 of that at Low, its first cascade's 4 texels a side, and 0.93 at High.
+        // faces along z short of that, the more so at Low, its first cascade's 4 texels a side.
         foreach (var quality in new[] { GlobalIllumination.Low, GlobalIllumination.High })
         {
             Open();
@@ -136,10 +136,9 @@ public sealed partial class GlobalIlluminationTests : IDisposable
         // far end, the camera low over it, so each row of the screen's probes stands further off
         // than the one below. Weighed by how alike their distances from the eye were, the probes
         // around a pixel of the floor by the wall lay too far apart for any to count, the pixel
-        // took the world's probes instead, and the wall's light on the floor ended in a hard line,
-        // the light falling by half within four rows, where weighed by how near each lies to the
-        // pixel's plane it falls by 18% at most, as this test measured on the development machine's
-        // GPU.
+        // took the world's probes instead, and the wall's light on the floor ended in a hard line.
+        // Weighed by how near each lies to the pixel's plane, they hold the light falling smoothly
+        // along the floor.
         var config = Config.Default.WithWindow("gi test", 480, 270) with { Headless = true, Offscreen = true, Samples = 1 };
         UseApp(new App(config).AddPlugin(new DefaultPlugins()));
         SetSceneField(2, 0.15f, 2);
@@ -170,10 +169,9 @@ public sealed partial class GlobalIlluminationTests : IDisposable
     {
         // A floor fifty units long seen from one end, its far part past the field's first cascade,
         // 9.6 units across at cells of 0.15. The screen's probes there held nothing, the model pass
-        // took the world's probes' light alone where they stood, and a step showed along that edge;
-        // they take the light from beyond their rays from the second cascade, 19.2 units across. Of
-        // the 182 probes on the floor 106 held light, where 161 do, the rest past both cascades, as
-        // this test measured on the development machine's GPU.
+        // took the world's probes' light alone where they stood, and a step showed along that edge.
+        // They take the light from beyond their rays from the second cascade, 19.2 units across, so
+        // those past the first cascade within the second hold light.
         var config = Config.Default.WithWindow("gi test", 480, 270) with { Headless = true, Offscreen = true, Samples = 1 };
         UseApp(new App(config).AddPlugin(new DefaultPlugins()));
         SetSceneField(2, 0.15f, 2);
@@ -218,8 +216,6 @@ public sealed partial class GlobalIlluminationTests : IDisposable
             DrawModelEx(slab, new Vector3(2.65f, 1.5f, 0), Vector3.UnitY, 0, new Vector3(0.3f, 3, 5.6f), Color.White);
             DrawModelEx(strip, new Vector3(0, 1.5f, -2.45f), Vector3.UnitY, 0, new Vector3(2, 0.06f, 0.06f), Color.White);
         }, new Camera3D(new Vector3(0, 1.4f, 2.3f), new Vector3(0, 1.2f, -2.5f), Vector3.UnitY, 65)), 0, 60, 160, 36);
-        // The floor reads 131 levels where it read none, as this test measured on the development
-        // machine's GPU.
         room.X.Should().BeGreaterThan(40, $"the strip's light, lent to the cells near it, reaches the floor as indirect light, {room}");
         UnloadModel(slab);
         UnloadModel(strip);
@@ -331,9 +327,8 @@ public sealed partial class GlobalIlluminationTests : IDisposable
         // the first cascade's probes, 1.2 apart from 0.6 at cells of 0.15, lit by an emissive panel
         // on its floor, so the ceiling, seen from below, is lit by indirect light alone.
         // Weighed at the ceiling itself, its probes were those in its plane, inside the ceiling,
-        // which hold nothing, and it read 9.8 levels at Low and 13.3 at High, where weighed half
-        // their spacing below it, the row of probes in the room taking its weight, it reads 191
-        // and 195, as this test measured on the development machine's GPU.
+        // which hold nothing, and it stayed dark, so it is weighed half their spacing below it, the
+        // row of probes in the room taking its weight.
         Open();
         SetGlobalIllumination(quality);
         var slab = LoadModelFromMesh(GenMeshCube(1, 1, 1));

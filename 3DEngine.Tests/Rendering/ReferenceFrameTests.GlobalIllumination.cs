@@ -37,9 +37,9 @@ public sealed partial class ReferenceFrameTests
         }, settle: SceneFieldPlan.SettleFrames + 10);
         // The rays of global illumination meet the box's edges and the lamp's bright patch on the
         // ceiling at grazing angles, where a hit rounds one way on one device's compiler and the
-        // other on another's, and sixteen rays a probe carry each such ray's light far. The Windows
-        // job's lavapipe drew 3.3% of the pixels apart from this reference at c4f248fd, where the
-        // Linux job's drew 1.3%, so the frame allows 5%.
+        // other on another's, and sixteen rays a probe carry each such ray's light far, so the
+        // frame allows 5% of its pixels apart where the others allow 2%, room for lavapipe on
+        // CI's Windows and Linux jobs.
         Matches(frame, "cornell_box", 0.05);
         UnloadModel(slab);
         UnloadModel(panel);

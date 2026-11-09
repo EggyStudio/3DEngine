@@ -4,11 +4,11 @@
 // texel spans, which the model pass and the next frame's rays read, blended between probes. The
 // weights are scaled to sum to pi, the light reaching a face under a sky of 1, so a uniform sky
 // reads alike on every face at any number of texels, where an equal share for every texel read a
-// face along z at 0.82 of it with 4 texels a side and 0.93 with 8. Each probe's reach is laid out
-// beside, how far its rays went along each of sixteen by sixteen directions before a surface stopped
-// them, from this cascade's rays, each face's thread a sixth of the directions, which bouncedAt
-// weighs a probe by, and the light arriving about each of those directions, blurred as a surface
-// of roughness 0.5 reflects it, which a rough surface reflects (reflectedAt).
+// face along z under it, the more so the fewer the texels. Each probe's reach is laid out beside,
+// how far its rays went along each of sixteen by sixteen directions before a surface stopped them,
+// from this cascade's rays, each face's thread a sixth of the directions, which bouncedAt weighs a
+// probe by, and the light arriving about each of those directions, blurred as a surface of
+// roughness 0.5 reflects it, which a rough surface reflects (reflectedAt).
 //
 // The first face's thread also adds up the light the probe's rays brought straight from the sun,
 // the lights and emissive surfaces, its own light, and all they brought, as the trace summed them a
@@ -19,17 +19,16 @@
 // bounce takes; where its own light is less, it is a mark that the probe is judged by the probes
 // around it (gi_trace.slang).
 //
-// Each face is gathered a second time as the surface it is read for sees the light, the surface
-// the probe's own ray along the face's opposite way met, which a hit reads in place of the face
-// as far as it lies ahead of the probe (towardSurface in probelight.slang). A probe off a surface
-// sees the surfaces beside it more squarely than the surface does, and the closed white rooms of
-// 4, 8 and 16 under a lamp read 1.11, 1.26 and 1.23 of their references' light past the first
-// bounce on the development machine's GPU, where 0.99, 1.11 and 1.11 with each hit reading the
-// faces moved to its surface. Each merged direction is carried to the point its ray met and seen
-// from the surface's, its texel's share of the sphere scaled by the distances squared and turned by
-// the cosine its patch shows the surface over the one it shows the probe, from the normal the
-// trace kept, without which the room of 4 read 0.92 past the first bounce and the grazing floor of
-// the bounce rooms at Low 0.060 of its light from its reference where 0.037.
+// Each face is gathered a second time as the surface it is read for sees the light, the surface the
+// probe's own ray along the face's opposite way met, which a hit reads in place of the face as far
+// as it lies ahead of the probe (towardSurface in probelight.slang). A probe off a surface sees the
+// surfaces beside it more squarely than the surface does, so read from the faces as they stand,
+// closed white rooms under a lamp took more light past the first bounce than their references. Each
+// merged direction is carried to the point its ray met and seen from the surface's, its texel's
+// share of the sphere scaled by the distances squared and turned by the cosine its patch shows the
+// surface over the one it shows the probe, from the normal the trace kept, without which a closed
+// room took less light past the first bounce than its reference and a grazing floor stood further
+// from its own.
 import gi;
 import roughreflect;
 
@@ -161,15 +160,15 @@ void follow(uint3 at, uint probes, uint texels, float shares, bool walledIn)
 // does. The field holds a solid as the faces around it, so its cells deeper inside than the faces'
 // band read as the open, and a probe standing there traces through the rock to the backs of the
 // faces around it. In the voxel game the last cascade's probes deep in the mountain around a dug
-// tunnel held the sky they found past the field's side and the grass they met from below, which
-// any surface reading them would take. A probe in the open meets faces from in front, those past
-// its interval none. As DDGI finds its probes inside geometry by the share of rays that met back
-// faces, a probe whose rays met more faces from behind, or more than a quarter of them so, the
-// share DDGI takes, is passed over until it meets fewer. In the voxel game the stone's faces
-// against a lamp block are left out of its section's mesh, so the field reads the stone beside the
-// lamp as the open in front of the lamp's faces, and a probe whose spot was the corner of a wall, a
-// floor and a lamp against them was moved into the stone, its rays meeting 21 faces from behind of
-// 64 and 42 in front, and lent the grass outside the wall the lamp's light.
+// tunnel held the sky they found past the field's side and the grass they met from below, which any
+// surface reading them would take. A probe in the open meets faces from in front, those past its
+// interval none. As DDGI finds its probes inside geometry by the share of rays that met back faces,
+// a probe whose rays met more faces from behind, or more than a quarter of them so, the share DDGI
+// takes, is passed over until it meets fewer. In the voxel game the stone's faces against a lamp
+// block are left out of its section's mesh, so the field reads the stone beside the lamp as the
+// open in front of the lamp's faces, and a probe whose spot was the corner of a wall, a floor and a
+// lamp against them was moved into the stone, its rays meeting fewer faces from behind than in
+// front but over a quarter of them so, and lent the grass outside the wall the lamp's light.
 bool walledIn(uint3 at, uint texels)
 {
     uint backs = 0u, fronts = 0u;
@@ -266,17 +265,16 @@ void computeMain(uint3 id : SV_DispatchThreadID)
         follow(at, probes, texels, shares, walledIn(at, texels));
 
     // This probe's reach, the distance of its ray along each direction, kept at sixteen by sixteen
-    // directions, each ray's own, the four rays of each texel of a cascade of 8 a side two by two in
-    // it as the trace wrote them. Kept at eight by eight a direction took the mean of the four rays
-    // in it, some 25 degrees across, which at the far end of the closed corridor of
+    // directions, each ray's own, the four rays of each texel of a cascade of 8 a side two by two
+    // in it as the trace wrote them. Kept at eight by eight a direction took the mean of the four
+    // rays in it, some 25 degrees across, which at the far end of the closed corridor of
     // CascadeEdgeTests, in the fourth cascade with probes sixteen units apart, blended the rays
     // that passed beside the corridor with those that met its walls, so the probes outside counted
-    // as seeing its end and lent it the sky-lit outside, 0.499 of the light of the same end open.
-    // The cascades of 8 a side took the mean of a texel's four rays for its four directions the
-    // same way, and a board lit by a lamp outside a closed room of walls 0.3 thick in cells of 0.5
-    // lit the floor inside 0.0509 in linear light where a path-traced reference takes none, and
-    // with each ray's own 0.0033 (GlobalIlluminationTests). A direction of the reach is still some
-    // 13 degrees across, a sixteenth of the octahedron's side, one distance for every way in it.
+    // as seeing its end and lent it the sky-lit outside. With the mean of a texel's four rays taken
+    // for its four directions the same way in the cascades of 8 a side, a board lit by a lamp
+    // outside a closed room of walls 0.3 thick in cells of 0.5 lit the floor inside, dark in a
+    // path-traced reference (GlobalIlluminationTests). A direction of the reach is still some 13
+    // degrees across, a sixteenth of the octahedron's side, one distance for every way in it.
     uint step = max(texels / uint(ReachTexels), 1u);
     for (uint k = face; k < uint(ReachTexels * ReachTexels); k += 6u)
     {
@@ -301,14 +299,13 @@ void computeMain(uint3 id : SV_DispatchThreadID)
     {
         uint2 texel = uint2(k % along, k / along);
         // Its light along the direction, every merged direction weighed by its share of the sphere
-        // and by its cosine to the direction to the power of 8, the lobe a surface of
-        // roughness 0.5 spreads its reflection over, so the eight by eight directions hold the light
-        // blurred as that surface reflects it, smooth between them. Their mean alone left the
-        // octahedron's facets in a wall's reflection where the light changed sharply between two
-        // directions, as at a wall's foot between the floor and the wall across. A cascade of more
-        // directions is read at one in each stride by stride of them, the lobe spanning some 30 degrees
-        // where its directions are 11 apart, which reading them all took a quarter of a millisecond
-        // of the GPU more in Sponza at 1920 by 1080.
+        // and by its cosine to the direction to the power of 8, the lobe a surface of roughness 0.5
+        // spreads its reflection over, so the eight by eight directions hold the light blurred as
+        // that surface reflects it, smooth between them. Their mean alone left the octahedron's
+        // facets in a wall's reflection where the light changed sharply between two directions, as
+        // at a wall's foot between the floor and the wall across. A cascade of more directions is
+        // read at one in each stride by stride of them, the lobe spanning some 30 degrees where its
+        // directions are 11 apart, since reading them all costs the gather more.
         float3 toward = fromOctahedron((float2(texel) + 0.5) / float(along));
         float3 light = float3(0.0);
         float weights = 0.0;

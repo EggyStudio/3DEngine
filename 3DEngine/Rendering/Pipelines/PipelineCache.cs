@@ -63,9 +63,9 @@ internal sealed class PipelineCache : IDisposable
     /// </summary>
     /// <remarks>
     /// A pass a program turns on in play draws with what is made and leaves out the rest until it
-    /// is, as the window's view mirrored in a plane does. The voxel game's first frame with a
-    /// reflection plane took 23.7 to 24.0 s of the wall clock, the driver compiling the mirrored
-    /// pass's pipelines on the thread that records the frame.
+    /// is, as the window's view mirrored in a plane does. Made on the thread that records the
+    /// frame, the mirrored pass's pipelines held the first frame with a reflection plane until the
+    /// driver had compiled them all.
     /// </remarks>
     public IPipeline? GetOrBegin(GraphicsPipelineDesc desc)
     {

@@ -233,8 +233,8 @@ internal sealed class Renderer : IDisposable
     private static readonly TimeSpan SlowPipelines = TimeSpan.FromMilliseconds(100);
 
     // Says in the log the first frame's time and the pipelines it made, and any later frame's
-    // pipelines where the driver took long over them, as the voxel game's first frame with a
-    // reflection plane waited 24 s on them.
+    // pipelines where the driver took long over them, as a first frame with a reflection plane can
+    // wait on them.
     private void LogPipelines(long started)
     {
         if (Context.Graphics is not GraphicsDevice device) return;

@@ -23,13 +23,12 @@ public sealed partial class GlobalIlluminationTests
         // screen's probes' too. A ray keeps half its light a unit of slab, and one at a slant
         // crosses more of it, so the half slab lets the share of the sky's light the solid one
         // holds back reach the floor that the slab's depth along each way the floor's sky comes
-        // from gives, 0.36 two units up and 0.41 five, where this test measures 0.36 at Low and
-        // 0.38 at High two up and 0.42 and 0.39 five up, and a slab letting all of it through 0.99
-        // at both. Before each crossing was taken once, by the cascade whose interval it is
-        // entered in, the cascades' overlapping intervals crossing the slab twice where it
-        // straddled one's end, it measured 0.36 and 0.39 two up and 0.37 and 0.31 five up. Before
-        // the merge saw the probes above past the leaves, 0.23 and 0.29 two up and 0.07 five up at
-        // High, past the screen's probes' reach.
+        // from gives, 0.36 two units up and 0.41 five, and a slab letting all of it through lets
+        // nearly all of it reach the floor. Each crossing is taken once, by the cascade whose
+        // interval it is entered in, since the cascades' overlapping intervals cross the slab
+        // twice where it straddles one's end, and the merge sees the probes above past the leaves,
+        // without which the floor took too little, least of all five up at High, past the screen's
+        // probes' reach.
         Open();
         SetGlobalIllumination(quality);
         SetAmbientLight(new Color(200, 220, 255), 1);
@@ -75,7 +74,7 @@ public sealed partial class GlobalIlluminationTests
         // The same floor under a sky map, whose reflection the probes' share of the sky along the
         // mirror way scales, which the last cascade's rays counted none of past the slab, having
         // marked the leaves they crossed as a surface, so the floor under a slab letting all the
-        // light through took 0.80 to 0.82 of what the solid slab held back.
+        // light through took less of what the solid slab held back than the slab let through.
         Open();
         SetGlobalIllumination(quality);
         SetEnvironmentMap(GenImageColor(64, 32, new Color(200, 220, 255)));
@@ -111,9 +110,9 @@ public sealed partial class GlobalIlluminationTests
         // and with one letting half the light through a unit. The probes of each cascade under the
         // canopy took no light from those of the cascade above while the canopy hid them from them,
         // so the screen's probes read the cascades' light past their reach as black, and the floor
-        // took 0.004 of the sky's light the solid canopy holds back where the canopy's depth along
-        // each way gives 0.38; with the merge seeing past the leaves (seesPastLeaves) it took 0.31,
-        // and with each crossing taken once by one cascade 0.39, on the development machine's GPU.
+        // took next to none of the sky's light the solid canopy holds back, where the canopy's
+        // depth along each way gives 0.38. The merge sees past the leaves (seesPastLeaves) and each
+        // crossing is taken once by one cascade.
         Open();
         SetSceneField(4, 0.25f);
         SetGlobalIllumination(GlobalIllumination.High);
@@ -160,16 +159,14 @@ public sealed partial class GlobalIlluminationTests
         // deep, each a cube of its own, so two faces stand between neighbors as a voxel game's
         // cut-out leaves have them, read with no canopy, a solid one and one letting half the light
         // through a unit. A ray crosses a face a block, up to four, the first face it crosses
-        // shaded for all of them, which read the same to four places as each face shaded where the
-        // ray crossed it. The floor takes 0.18 of the sky's light the solid canopy holds back at
-        // High two and a half units under it where a path-traced reference takes 0.17, 0.14 at
-        // Low, and 0.23 at High five and a half under it where the reference takes 0.21, the point
-        // read three units before the eye in the finest cascade's middle. Those took the floor under
-        // the solid canopy as dark, 0.0000 at Low and 0.0004 at High two and a half under, where
-        // it sees the sky below the canopy's edges, 5 units off on its near side, which a sky even
-        // over the directions below those edges gives about a twelfth of the open floor's light.
-        // With the rays the probes above see no sky along traced on to the sky past them, it
-        // takes 0.0020 and 0.0028, and the share reads 0.126 at Low and 0.156 and 0.248 at High.
+        // shaded for all of them, which reads as each face shaded where the ray crossed it does. A
+        // path-traced reference takes 0.17 of the sky's light the solid canopy holds back two and
+        // a half units under it and 0.21 five and a half under it, at the point read three units
+        // before the eye in the finest cascade's middle, and the bounds lie around those. The
+        // floor under the solid canopy sees the sky below the canopy's edges, 5 units off on its
+        // near side, which a sky even over the directions below those edges gives about a twelfth
+        // of the open floor's light, and read from the probes above alone it was dark, so the rays
+        // those probes see no sky along are traced on to the sky past them.
         Open();
         SetSceneField(4, 0.25f);
         SetGlobalIllumination(quality);

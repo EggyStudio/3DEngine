@@ -177,8 +177,8 @@ public partial class SlangCompilerTests : IDisposable
     public void Every_Integer_Image_Of_A_Built_In_Shader_Says_Its_Format()
     {
         // Slang gives an integer image its 32-bit format where none is said, which Vulkan reads an
-        // image of 8 bits through as undefined, every load to the whole image, as the field's faces
-        // were read on lavapipe until each named its own.
+        // image of 8 bits through as undefined, every load to the whole image, as lavapipe read the
+        // field's faces where they named none.
         var shaders = Path.Combine(Api.CheatsheetTests.RepoRoot(), "3DEngine", "Shaders");
         var unsaid = new List<string>();
         foreach (var file in Directory.GetFiles(shaders, "*.slang"))

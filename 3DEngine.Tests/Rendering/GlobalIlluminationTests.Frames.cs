@@ -14,12 +14,10 @@ public sealed partial class GlobalIlluminationTests
     {
         // The room an emissive panel lights by indirect light alone, drawn into a render texture
         // read each frame after the panel goes dark. Each frame the probes' rays take the indirect
-        // light reaching what they meet the frame before, so it went on after the panel, its room
-        // under a level 30 frames on at Low and 28 at High, and 45 at Low once surfaces weighed
-        // their probes off themselves, as this test measured on the development machine's GPU,
-        // where it goes the frame after the own light of the probes around each falls, under a
-        // level 2 frames on, the room's probes lit more by the panel's indirect light than by the
-        // panel.
+        // light reaching what they meet the frame before, so taken whole it went on long after the
+        // panel, the longer once surfaces weighed their probes off themselves. It goes the frame
+        // after the own light of the probes around each falls, under a level 2 frames on, the
+        // room's probes lit more by the panel's indirect light than by the panel.
         Open();
         SetGlobalIllumination(quality);
         var slab = LoadModelFromMesh(GenMeshCube(1, 1, 1));
@@ -75,9 +73,8 @@ public sealed partial class GlobalIlluminationTests
         // which only indirect light around the corner reaches, and a second lit room apart,
         // whose lamp, bright enough to hold some half of every probe's own light, goes out at frame
         // 0. A probe lit mostly by indirect light is judged by the probes around it, so the
-        // corridor keeps its light to the tenth of a level; judged by every probe's own light, it
-        // dimmed with the far room's lamp by 3.3 and 3.7% 3 frames on, as this test measured on the
-        // development machine's GPU.
+        // corridor keeps its light, where judged by every probe's own light it dimmed with the far
+        // room's lamp.
         Open();
         SetGlobalIllumination(quality);
         CreatePointLight(new Vector3(0, 2.4f, 0), new Color(255, 236, 210), 14, range: 14, castsShadows: true);
@@ -138,10 +135,9 @@ public sealed partial class GlobalIlluminationTests
     {
         // A room split by an inner wall, its lamp carried from one side to the other at frame 0,
         // each frame after against the frame 90 on, the light left where the lamp was, the picture
-        // brighter than it settles, under half of it 4 frames on. Taken whole, as the probes took
-        // the indirect light before, it kept nine tenths of it 4 frames on, where each probe on
-        // the lamp's old side taking it at the share its own light kept leaves 0.17 at Low and
-        // 0.22 at High, as this test measured on the development machine's GPU.
+        // brighter than it settles, under half of it 4 frames on. Taken whole, the indirect light
+        // lingered where the lamp was, so each probe on the lamp's old side takes it at the share
+        // its own light kept.
         Open();
         SetGlobalIllumination(quality);
         var lamp = CreatePointLight(new Vector3(-1.5f, 2.2f, -0.5f), new Color(255, 230, 200), 8, range: 10, castsShadows: true);
@@ -198,7 +194,7 @@ public sealed partial class GlobalIlluminationTests
         // which only the wall's light reaches, so the screen's probes stand on it. The side is read
         // each frame from frame 28, and the frames after 30 it takes to come and stay within a
         // tenth of the way from its light before to its light at frame 59 are how far global
-        // illumination lags the lamp, seven where each frame blended a fifth of its light.
+        // illumination lags the lamp, a lag that blending a fifth of each frame's light drew out.
         Open();
         SetGlobalIllumination(GlobalIllumination.Low);
         var lamp = CreatePointLight(new Vector3(0.5f, 60, 0.8f), Color.White, 6, range: 10);
@@ -244,9 +240,9 @@ public sealed partial class GlobalIlluminationTests
         // changes with them, which blending each with the frame before's where its surface was
         // holds still. One slide's change differs from the next's by as much as global illumination
         // adds, so the change is read over the five. One app draws every slide, each from thirty
-        // frames still, since an app opened for each of the fifteen took the test past the five
-        // minutes without a result the runner allows on Windows' lavapipe, its shaders compiled
-        // again at each app's first frame.
+        // frames still, since an app opened for each of the fifteen compiles its shaders again at
+        // its first frame, which takes the test past the five minutes without a result the runner
+        // allows on Windows' lavapipe.
         var slide = Vector3.UnitX;
         Open();
         CreatePointLight(new Vector3(0, 4.2f, 0), new Color(255, 236, 210), 9, range: 12);
@@ -290,12 +286,11 @@ public sealed partial class GlobalIlluminationTests
             return changes.Average();
         }
 
-        // What global illumination adds to the change, held by the frame before's light and not,
-        // 0.33 levels a frame of 1.61 on the development machine's GPU, as this test measured them,
-        // while each ray of a screen probe took the world's probes' light from the one texel of
-        // their octahedron it fell in, so a ray near a texel's border flipped to the next as its
-        // probe slid; read between the four texels around it, -0.03 of 0.03, the slide's own change
-        // and that of global illumination alike.
+        // What global illumination adds to the change, held by the frame before's light and not.
+        // Each ray of a screen probe reads the world's probes' light between the four texels of
+        // their octahedron around it, since taken from the one texel it fell in, a ray near a
+        // texel's border flipped to the next as its probe slid and global illumination added to
+        // the slide's own change.
         var (adds, unhelds) = (new List<double>(), new List<double>());
         foreach (var way in new[] { Vector3.UnitX, -Vector3.UnitX, Vector3.UnitY, -Vector3.UnitZ, new Vector3(0.7f, 0.3f, -0.6f) })
         {
@@ -321,9 +316,8 @@ public sealed partial class GlobalIlluminationTests
         // probe stood, a sixteenth of a tile at Low and an eighth at High, so each blend took that
         // share of the probes to its right and below, and a probe at the wall's right or bottom
         // edge, whose neighbor there stands on the sky, took more of its light from this frame than
-        // the fifth it took, which its alpha reads, one more than the share the frames before gave,
-        // 1.75 at Low, 1.73 at Medium and 1.70 at High, where 1.8. Each probe keeps sixteen frames
-        // of its light, so its alpha is 2 less a sixteenth.
+        // its blend gives, which its alpha reads, one more than the share the frames before gave.
+        // Each probe keeps sixteen frames of its light, so its alpha is 2 less a sixteenth.
         Open();
         SetGlobalIllumination(quality);
         CreatePointLight(new Vector3(0, 0, 2), new Color(255, 236, 210), 6, range: 8);
@@ -363,14 +357,13 @@ public sealed partial class GlobalIlluminationTests
         // ahead over 20 frames or turning a quarter in one, and the picture's change from each
         // frame to the next read after. The screen's probes' rays read the world's probes' light
         // from the texel each fell in, which flipped for a ray near a texel's border as the camera
-        // moved and the frame before's light averaged, so it drifted for a dozen frames after; and
-        // the world's probes' rays read the indirect light of the frame before at their cascade's
-        // new corner once it moved with the eye, as every cascade does in a turn, each probe taking
-        // the faces of a probe a step or more beside it, so the light past the first bounce found
-        // itself over ten frames and more. The fifth frame after the walk changed 0.19 levels and
-        // after the turn 0.84, as this test measured on the development machine's GPU, and read
-        // between the texels and at the corners gathered at, 0.07 and 0.06; the texels alone leave
-        // the turn at 0.69, and the corners alone the walk at 0.19.
+        // moved and the frame before's light averaged, so it drifted for frames after. The world's
+        // probes' rays read the indirect light of the frame before at their cascade's new corner
+        // once it moved with the eye, as every cascade does in a turn, each probe taking the faces
+        // of a probe a step or more beside it, so the light past the first bounce found itself
+        // only over many frames. Read between the texels and at the corners gathered at, the light
+        // settles by the fifth frame after either, the texels settling the walk and the corners the
+        // turn.
         var config = Config.Default.WithWindow("gi test", 320, 180) with { Headless = true, Offscreen = true, Samples = 1 };
         UseApp(new App(config).AddPlugin(new DefaultPlugins()));
         SetSceneField(4, 0.25f, 2);
@@ -432,9 +425,8 @@ public sealed partial class GlobalIlluminationTests
         // Three walls around a lamp drawn apart, which lights them by indirect light alone, the
         // walls one mesh replaced at frame 60 by one of four, the fourth a block beside the lamp,
         // as a game's section is meshed again when a block is placed. The walls left the field at
-        // once and their replacement stood in as a few boxes until it settled, the wall reading 116
-        // before and 69 six frames after and the floor 85 and 60, as this test measured on the
-        // development machine's GPU; kept in the field until the replacement settles, neither fell.
+        // once and their replacement stood in as a few boxes until it settled, darkening the wall
+        // and the floor, so the walls are kept in the field until the replacement settles.
         Open();
         SetGlobalIllumination(GlobalIllumination.Medium);
         SetAmbientLight(Color.Black, 0);
@@ -494,9 +486,8 @@ public sealed partial class GlobalIlluminationTests
         // A box sealed on every side and a floor under the open sky beside it, both of stone as
         // rough as the voxel game's, under a blue sky, looked at along the box's inside wall and
         // across the floor at a grazing angle, where a rough surface reflects most. Weighed by the
-        // occlusion alone the sky's reflection read 37.5 in blue inside the box, the open floor
-        // 62.7; weighed by the share of the sky the probes see, 0.13 and 61.8, as this test
-        // measured on the development machine's GPU.
+        // occlusion alone, the sky's reflection lit the inside of the box though it sees no sky, so
+        // it is weighed by the share of the sky the probes see.
         Open();
         SetGlobalIllumination(GlobalIllumination.High);
         SetAmbientLight(Color.Black, 0);

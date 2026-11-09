@@ -62,11 +62,11 @@ internal sealed partial class SceneFieldPlan
         return new Box(low, high).Grown(Band * cell);
     }
 
-    // What a mesh a build of cells splats costs of a frame's triangle budget, its triangles times the
-    // share of its bounds within the build's reach, and an eighth of them at least, since a triangle
-    // whose band misses the cells is passed over at the start, at a thirteenth of the cost of one
-    // splatted, 2.2 ns against 28 in the voxel game, and a wall of Sponza crossing a slab whole was
-    // counted whole for the few of its triangles within it.
+    // What a mesh a build of cells splats costs of a frame's triangle budget, its triangles times
+    // the share of its bounds within the build's reach, and an eighth of them at least, since a
+    // triangle whose band misses the cells is passed over at the start, at a small share of the
+    // cost of one splatted, and a wall of Sponza crossing a slab whole was counted whole for the
+    // few of its triangles within it.
     private int Cost(Instance instance, Job job)
     {
         var triangles = _triangles(instance.Vertices);

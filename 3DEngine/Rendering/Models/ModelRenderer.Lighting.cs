@@ -386,8 +386,8 @@ internal sealed partial class ModelRenderer
     /// first bound, so the metal in its room reflects the room in the capture rather than the sky.
     /// </summary>
     /// <remarks>
-    /// All six faces in one frame cost it 3 to 5 ms while a level streamed rooms in, each bringing
-    /// a probe to capture twice, and a face a frame costs a sixth of that. The filter
+    /// A face a frame spreads a capture's draws over six frames, where all six in one frame weighed
+    /// on each frame a level streamed rooms in, each bringing a probe to capture twice. The filter
     /// (<see cref="CubeFilter.RecordProbeFilter"/>) is recorded after the last face, so its cube
     /// and irradiance are on the GPU for the frames after, with nothing read back.
     /// </remarks>

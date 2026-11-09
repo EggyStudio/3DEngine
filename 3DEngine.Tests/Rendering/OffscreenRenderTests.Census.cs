@@ -33,8 +33,7 @@ public sealed partial class OffscreenRenderTests
 
         UnloadTexture(texture);
         texture = default;
-        // Let go the fifth frame after on the development machine's GPU, the frames in flight having
-        // finished.
+        // Let go a few frames after, once the frames in flight have finished.
         Frames(8);
         Held().Should().Be(0, "the image goes once the frames that drew with it have finished");
     }

@@ -14,13 +14,11 @@ namespace Engine.Tests.Rendering;
 /// <remarks>
 /// A reference is the view's light traced with 4096 paths a pixel at 160 by 90 with every face's
 /// gloss (<see cref="ReferenceGloss.Every"/>), as the probes' rays light what they meet by its
-/// gloss, averaged to 80 by 45, in linear light, checked in under
-/// <c>References/bounce</c>; setting
-/// <c>E3D_WRITE_REFERENCES=1</c> traces them again. The frame's linear light is averaged the same,
-/// and a view's difference is its pixels' differences summed over the reference's light, so one
-/// region's excess does not hide another's shortfall. The test runs where the GPU traces rays, as
-/// the references are traced through them and the bounds were measured on such a GPU, the
-/// development machine's.
+/// gloss, averaged to 80 by 45, in linear light, checked in under <c>References/bounce</c>, and
+/// setting <c>E3D_WRITE_REFERENCES=1</c> traces them again. The frame's linear light is averaged
+/// the same, and a view's difference is its pixels' differences summed over the reference's light,
+/// so one region's excess does not hide another's shortfall. The test runs where the GPU traces
+/// rays, as the references are traced through them and the bounds were measured on such a GPU.
 /// </remarks>
 [Collection("E3D")]
 [Trait("Category", "Render")]
@@ -38,13 +36,11 @@ public sealed partial class BounceRoomsTests : IDisposable
     public void The_Grazing_Floor_At_Low_Keeps_Its_Difference_With_A_Far_Cascade_Set()
     {
         // With a far cascade the last counted one merged the far cascade's probes over its own sky
-        // and took their share of the sky in its place, and the grazing floor at Low read 0.108 of
-        // its light from its reference, over its own bound of 0.09, where it reads 0.069 with the
-        // last counted cascade tracing to the field's edge as the last does and merging nothing,
-        // and 0.041 against its reference traced with the first face's specular share, where 0.116
-        // before the floor reflected the light its probes hold, and 0.046 against one traced with
-        // every face's gloss, the probes' rays lighting what they meet by its gloss, and its bound
-        // is 15% over that.
+        // and took their share of the sky in its place, and the grazing floor at Low differed from
+        // its reference by more than the bound it keeps without one. The last counted cascade
+        // traces to the field's edge as the last does and merges nothing. The reference is traced
+        // with every face's gloss, as the probes' rays light what they meet by its gloss, and the
+        // bound stands a little over the difference the floor reads against it.
         var share = Differs(7, GlobalIllumination.Low, far: true);
         share.Should().BeLessThan(0.06, $"the grazing floor with a far cascade differs from its reference by {share:0.000} of its light");
     }
@@ -105,10 +101,9 @@ public sealed partial class BounceRoomsTests : IDisposable
         // The thin room seen as shaders_bounce_rooms' capture sees it, where the right wall meets
         // the front wall at the outside lamp's height. A pixel there that no screen probe on a
         // surface like its own stands near read the world's probes, and one beyond the walls
-        // thinner than their spacing lent it the lamp's light, the corner's brightest 3.90 times the
-        // wall beside it at 800 by 450 on the development machine's GPU, where a path-traced
-        // reference reads the tick's pixels 1.10 of it. Read from the probes it sees through the
-        // field, it reads 1.09.
+        // thinner than their spacing lent it the lamp's light, the corner's brightest several
+        // times the wall beside it, where a path-traced reference reads it a little brighter than
+        // the wall. Read from the probes it sees through the field, it reads as the reference does.
         const int Wide = 800, High = 450;
         var config = Config.Default.WithWindow("bounce rooms", Wide, High) with { Headless = true, Offscreen = true, Samples = 1 };
         UseApp(new App(config).AddPlugin(new DefaultPlugins()));
@@ -145,8 +140,7 @@ public sealed partial class BounceRoomsTests : IDisposable
         // The screen's probes' hits beside the wall read the world's probes by their reach, and
         // those beyond it read as seeing the hits through the slack the reach is given (probeSees),
         // which over half the probes' spacing lent them the lamp's light through the wall 0.1
-        // thick, the foot 1.279 times its light with the lamp off on the development machine's GPU,
-        // and over an eighth 1.050.
+        // thick, and over an eighth keeps the foot within the bound.
         const int Wide = 800, High = 450;
         var config = Config.Default.WithWindow("bounce rooms", Wide, High) with { Headless = true, Offscreen = true, Samples = 1 };
         UseApp(new App(config).AddPlugin(new DefaultPlugins()));
@@ -180,21 +174,19 @@ public sealed partial class BounceRoomsTests : IDisposable
         (lit / dark).Should().BeLessThan(1.1, $"the wall's foot reads {lit:0.0000} with the lamp outside and {dark:0.0000} without it");
     }
 
-    // The screen probe gi.screenprobe read in shaders_bounce_rooms at 800 by 450 on the small block's
-    // front in the Cornell box. Its rays that met nothing in reach took the world's probes around
-    // the point they left the surface from, which saw along each ray's way what the ray passed by,
-    // and read 97% over the reference across the ways they stand for on the development machine's
-    // GPU; read around where they ended, 9% over. The far wall of the carried lamp's room read 13%
-    // under and then 5% under, and is held below by its whole light instead, since once its rays
-    // passing the thin wall's end go past their reach they read 11% over the reference along their
-    // ways and 116% over it across the ways they stand for, the sixteen ways' own error, which is
-    // read apart (RENDERING.md). The probe on the Cornell box's back wall beside the red wall's
-    // corner is left out too, its rays past their reach reading the second cascade, whose probes
-    // 2.4 apart hold what they meet nearer than that as met before their interval began, so they
-    // read 22% under, and the probe as a whole is held below. With each tile's rays at one of
-    // sixteen places in their texels, a ray stands for its texel from one place of it, and the
-    // block's front's rays past their reach read 34% under the reference across their texels, where
-    // 9% over from the texels' middles.
+    // The screen probe gi.screenprobe reads in shaders_bounce_rooms at 800 by 450 on the small
+    // block's front in the Cornell box. Its rays that met nothing in reach took the world's probes
+    // around the point they left the surface from, which saw along each ray's way what the ray
+    // passed by, and read far over the reference across the ways they stand for, where read around
+    // where they end they hold near it. The far wall of the carried lamp's room is held below by
+    // its whole light instead, since once its rays passing the thin wall's end go past their reach
+    // they read near the reference along their ways and far over it across the ways they stand for,
+    // the sixteen ways' own error, which is read apart (RENDERING.md). The probe on the Cornell
+    // box's back wall beside the red wall's corner is left out too, its rays past their reach
+    // reading the second cascade, whose probes 2.4 apart hold what they meet nearer than that as
+    // met before their interval began, so they read under, and the probe as a whole is held below.
+    // With each tile's rays at one of sixteen places in their texels, a ray stands for its texel
+    // from one place of it, so the bound leaves room for the difference that makes across a texel.
     [NeedsRayQueryTheory]
     [InlineData(1, 468, 364, 0.4)]
     public void A_Screen_Probes_Rays_Past_Their_Reach_Read_The_Light_The_Reference_Holds_Over_Their_Ways(int view, int x, int y, double bound)
@@ -211,10 +203,8 @@ public sealed partial class BounceRoomsTests : IDisposable
     // The first cascade's probe in the Cornell box's pocket between the floor and the small block, as
     // gi.probe reads it. Its texels' rays, one through each texel's middle, took the lamp's bright
     // spot on the panel's underside for a whole texel, a sixty-fourth of the sphere, its upward face
-    // 93% over the path-traced reference's on the development machine's GPU and its faces from 13%
-    // over; four rays a texel, one from the middle of each quarter of it, read 7 to 24% over, at a
-    // cost to global illumination of 0.10 to 0.19 ms in the Cornell box at 800 by 450 on that GPU and
-    // 13 ms of lavapipe's 87 there.
+    // far over the path-traced reference's. Four rays a texel, one from the middle of each quarter
+    // of it, hold each face within the bound.
     [NeedsRayQueryFact]
     public void The_First_Cascades_Probe_In_The_Cornell_Boxs_Pocket_Reads_Each_Face_Near_The_Reference()
     {
@@ -244,8 +234,8 @@ public sealed partial class BounceRoomsTests : IDisposable
     // The first cascade's probe in the Cornell box's pocket, as the test above reads it, its upward
     // face's part from the cascade above, the ways that met nothing within its interval. Read along
     // the same way from where they stand, the probes above lent the ceiling nearer the lamp that
-    // they meet, 171% over the path-traced reference on the development machine's GPU; read toward
-    // the point of the pocket's ray nearest where their own met a surface, 61% over.
+    // they meet, far over the path-traced reference. Read toward the point of the pocket's ray
+    // nearest where their own met a surface, they lend it within the bound.
     [NeedsRayQueryFact]
     public void The_Pocket_Probes_Light_From_The_Cascade_Above_Is_Read_Toward_What_Its_Own_Rays_Would_Meet()
     {
@@ -275,10 +265,9 @@ public sealed partial class BounceRoomsTests : IDisposable
     // shaders_bounce_rooms at 800 by 450, which stands in the field's second cascade. Its rays went
     // 1.2 units, half as far as the first cascade's, and read the light beyond them from the second
     // cascade's probe over the tall block, which holds the block's lamp-lit top and the ceiling
-    // under the lamp as met before its interval began, so the probe read 86% over the path-traced
-    // reference across its hemisphere on the development machine's GPU. Going 2.4 units, they meet
-    // the ceiling and the block themselves, and it reads 5% over, and 15% over as the mean of the
-    // sixteen frames it keeps, its rays leaving from another place in their texels each.
+    // under the lamp as met before its interval began, so the probe read far over the path-traced
+    // reference across its hemisphere. Going 2.4 units, they meet the ceiling and the block
+    // themselves, and the probe holds near the reference.
     [NeedsRayQueryFact]
     public void The_Screen_Probe_In_The_Cornell_Boxs_Back_Corner_Reads_Its_Light_Near_The_Reference()
     {
@@ -295,8 +284,8 @@ public sealed partial class BounceRoomsTests : IDisposable
     // The screen probe on the corridor's wall facing +z, 13 units from its open end, in
     // shaders_bounce_rooms at 800 by 450. The corridor holds no world probe of the second cascade
     // or above, so its first cascade's probes hold nothing along it, and the probe's rays past
-    // their reach read nothing, the probe 1% of the reference's light along its ways on the
-    // development machine's GPU. Marched on through the field to what they meet, it reads 13%.
+    // their reach read nothing, the probe almost none of the reference's light along its ways.
+    // Marched on through the field to what they meet, they take the light of the open end.
     [NeedsRayQueryFact]
     public void A_Screen_Probe_On_The_Corridors_Wall_Takes_The_Light_Of_Its_Open_End()
     {
@@ -309,11 +298,11 @@ public sealed partial class BounceRoomsTests : IDisposable
     // The screen probe on the far wall of the carried lamp's room in shaders_bounce_rooms at 800 by
     // 450, two of whose rays pass the thin green wall's end within two of the march's steps behind
     // the depth there. The screen's march took them for meeting the wall's face the eye sees, dark,
-    // and the probe read 51% under the reference along its sixteen ways on the development
-    // machine's GPU; taken only where the depth does not leap across the step they cross it in, they
-    // go on past the wall, and it reads 2% over. With each tile's rays at one of sixteen places in
-    // their texels, it reads 22% over, its rays past their reach 34% over the reference along their
-    // ways, the merge's parallax, which the sixteen fixed ways' reading under had covered.
+    // and the probe read far under the reference along its sixteen ways. Taken only where the depth
+    // does not leap across the step they cross it in, they go on past the wall. With each tile's
+    // rays at one of sixteen places in their texels, its rays past their reach read over the
+    // reference along their ways, the merge's parallax, so the bound leaves more room over than
+    // under.
     [NeedsRayQueryFact]
     public void A_Screen_Probes_Rays_Passing_Behind_A_Thin_Walls_End_Read_What_Lies_Beyond_It()
     {
@@ -325,15 +314,10 @@ public sealed partial class BounceRoomsTests : IDisposable
 
     // The screen probe on the Cornell box's back wall beside the red wall's corner, as the test above
     // reads it. Its rays meeting the red wall within a cell of the white back wall took their color
-    // from the field's cells blended, those on the corner's diagonal holding the white wall's, and
-    // what the wall sends on of the light straight from the lamp held 0.050 to 0.105 of green to
-    // 0.439 to 0.471 of red on the development machine's GPU, where the wall's own color holds 0.012
-    // to 0.58; taken from the cells whose face looks the hit's way, it holds 0.007 to 0.008 of green
-    // to 0.429 to 0.448 of red, and the hits read 12 to 31% over the reference across the ways they
-    // stand for where they read 24 to 139% over. Over the sixteen frames it keeps, 78 of its rays
-    // meet the red wall on the screen. Lit by the lamp's reflection off walls of a roughness of 1
-    // and read past it and past the lamp's own color, the color holds 0.011 to 0.012 of green to its
-    // red's 0.578, the wall's own green 0.013.
+    // from the field's cells blended, those on the corner's diagonal holding the white wall's, so
+    // what the wall sends on of the light straight from the lamp held several times the green of
+    // the wall's own color, which holds 0.012 of green to 0.578 of red. Taken from the cells whose
+    // face looks the hit's way, it holds the wall's own color.
     [NeedsRayQueryFact]
     public void A_Red_Walls_Rays_Beside_The_White_Wall_It_Meets_Take_The_Red_Walls_Color()
     {
@@ -341,7 +325,7 @@ public sealed partial class BounceRoomsTests : IDisposable
         // sixteen frames it keeps, the rooms' walls of a roughness of 1, whose GGX lobe stands the
         // same whatever its normal, since the hits by the corner take the normal the window's depth
         // gives across it, and at the rooms' half the lamp's reflection off them read past a wall
-        // facing +x left their green at 0.036 to 0.048.
+        // facing +x left their green over the bound.
         var frames = new List<BounceReference.ScreenProbeLight>();
         ReadScreenProbe(0, 276, 140, out var report, more: frames, roughness: 1);
         var onRed = frames.SelectMany(frame => frame.Rays.Select(ray => (frame.Start, Ray: ray))).Where(hit => hit.Ray.Met == 0 && hit.Ray.Way.X < -0.3f).ToArray();
@@ -364,9 +348,9 @@ public sealed partial class BounceRoomsTests : IDisposable
     // 450, the lamp carried past the green wall and the wall moved toward it, as L twice and M leave
     // them. Its ray toward the green wall's end meets the wall's dark face toward the probe, which
     // the eye does not see, and the screen's march took it for meeting the face the eye sees, lit by
-    // the lamp, so the ray read 1375% over the reference along it on the development machine's GPU
-    // and the face's green lay over the far wall and the floor past the wall's edge. A face met from
-    // behind is passed as the depth is, and the field reads the ray 57% under.
+    // the lamp, so the ray read many times the reference along it and the face's green lay over the
+    // far wall and the floor past the wall's edge. A face met from behind is passed as the depth
+    // is, and the field reads the ray.
     [NeedsRayQueryFact]
     public void A_Screen_Probes_Ray_Meeting_A_Walls_Unseen_Face_Does_Not_Take_The_Face_The_Eye_Sees()
     {
@@ -382,9 +366,8 @@ public sealed partial class BounceRoomsTests : IDisposable
     // quarter of a block off it. The glow lights' pass took a texel of the frame before by its
     // distance from the eye alone, and at a corner the other surface's texels lie as far, so the
     // floor took the wall's share of its rough light times its own, a line of light along the
-    // corner a texel apart, the points 37% over the floor and the wall beside them on average and
-    // 47 of 101 more than 20% on the development machine's GPU; taken only from texels facing as
-    // the point does, 4% under, and 4 of 101.
+    // corner a texel apart. Taken only from texels facing as the point does, the corner's points
+    // read as the floor and the wall beside them.
     [NeedsVulkanFact]
     public void A_Corner_Lit_By_Glow_Lights_Carries_No_Line_Of_Light_Along_It()
     {
@@ -434,9 +417,8 @@ public sealed partial class BounceRoomsTests : IDisposable
     // that meet the ceiling right above the strip bring back the strip's light there. The march that
     // tells how much of a glow light a hit sees ran beside the wall the strip is mounted on, against
     // a cone as wide as the strip's mean half side, 0.35, and took the wall for something between,
-    // and the six such hits read the strip's light 35% under its closed form on the development
-    // machine's GPU; against a cone as wide as the strip across the way toward the wall, 0.03, they
-    // read it 4% under.
+    // and the hits read the strip's light well under its closed form. Against a cone as wide as the
+    // strip across the way toward the wall, 0.03, they read it within the bound.
     [NeedsRayQueryFact]
     public void The_Ceiling_Over_A_Strip_On_Its_Wall_Takes_The_Strips_Light_In_Closed_Form()
     {

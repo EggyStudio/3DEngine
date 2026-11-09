@@ -15,11 +15,10 @@ public sealed partial class GlobalIlluminationTests
         // A closed room of walls 0.3 thick in cells of 0.5, lit by nothing inside, a lamp outside
         // half a unit up and 0.7 from the east wall's middle, and the first cascade's probe inside
         // by that wall, whose own rays' hits a reference of one bounce takes none of the lamp's
-        // light at. The march toward the lamp from a hit began two cells past a cell and a half off
-        // it, beyond the wall for a hit within a unit or so of it, and its hits brought 0.110 a
-        // channel on the development machine's GPU, where looking from its first step they bring
-        // 0.042, those so near the wall that the two cells it stops short of the lamp take the wall
-        // in too still lit.
+        // light at. A march toward the lamp begun two cells past a cell and a half off a hit starts
+        // beyond the wall for a hit within a unit or so of it and lights that hit through it, so
+        // the march looks from its first step, and the bound leaves room for the hits so near the
+        // wall that the two cells it stops short of the lamp take the wall in too, which stay lit.
         Open();
         SetSceneField(3, 0.5f, 2);
         SetSceneFieldCenter(new Vector3(1, 1.5f, 1));

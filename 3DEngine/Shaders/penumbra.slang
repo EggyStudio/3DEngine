@@ -62,9 +62,9 @@ float depthAt(float2 at, bool fill)
 // the point the point is lit; where it does, the filter reads over the width the casters it found,
 // at their mean depth, spread the sun to, a texel either side at least, so the edge is sharp where a
 // caster meets the ground and widens with its height over it, by the sun's width across at a
-// caster's height over the point. Read over twice that width, the edge near a pole's foot was 0.14
-// units wide between a quarter and three quarters of the light where a hard one was 0.04. The taps turn by a hash of the point, which leaves a grain
-// in a wide edge where a fixed disc left rings.
+// caster's height over the point. Read over twice that width, the edge near a pole's foot would be
+// soft where a hard one is sharp. The taps turn by a hash of the point, which leaves a grain in a
+// wide edge where a fixed disc would leave rings.
 public float cascadeSoftly(int c, float3 p, float2 uv, float2 texel, float2 lo, float2 hi, bool fill, float3 n, float3 world)
 {
     float spread = lighting.shadowSoftness.x;

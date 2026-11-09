@@ -24,10 +24,10 @@ public sealed class GlowPillarTests : IDisposable
     [NeedsVulkanFact]
     public void A_Lamps_Light_Past_A_Pillars_Edge_Rises_On_The_Wall_Behind_Without_A_Step()
     {
-        // In the game the wall's light past the pillar rose by a fifth in 20 pixels where the march
-        // to the lamp's face grazed the pillar's edge, since a way out of the pillar ended at the
-        // step that left it, at least half a cell under the edge, and the share inside fell short of
-        // the share outside by that much. A path-traced reference rises smoothly there.
+        // In the game the wall's light past the pillar rose in a step where the march to the lamp's
+        // face grazed the pillar's edge, since a way out of the pillar ended at the step that left
+        // it, at least half a cell under the edge, and the share inside fell short of the share
+        // outside by that much. A path-traced reference rises smoothly there.
         var config = Config.Default.WithWindow("glow pillar", Width, Height) with { Headless = true, Offscreen = true, Samples = 1 };
         UseApp(new App(config).AddPlugin(new DefaultPlugins()));
         SetSceneField(4, 0.25f, 2);
@@ -63,9 +63,7 @@ public sealed class GlowPillarTests : IDisposable
                 EndDrawing();
             }
         }
-        // Settled by the 150th frame, the line reading to the last digit as it does after 400 on the
-        // development machine's GPU and on lavapipe, which draws them in 43 seconds where 84 without
-        // its shader cache.
+        // Settled by the 150th frame, the line reading to the last digit as it does after 400.
         Frames(150);
 
         // The wall's light, linear, along x from 9 to 11.5 blocks at the lamp's height, a point a
@@ -85,9 +83,8 @@ public sealed class GlowPillarTests : IDisposable
         }
         var rises = Enumerable.Range(0, line.Length - 1).Select(i => Math.Abs(line[i] - line[i + 1]) / Math.Max(line[i], line[i + 1])).ToArray();
         var steepest = rises.Max();
-        // The steepest tenth of a block fell by 9.8% of the light where the march grazed the
-        // pillar's edge, the median tenth by 4.1%, and by 7.2% after on the development machine's
-        // GPU, the climb toward the lamp's side.
+        // The bound lies between the steepest tenth of a block of the smooth climb toward the
+        // lamp's side and the step where the march grazed the pillar's edge.
         steepest.Should().BeLessThan(0.085, $"the light climbs smoothly toward the lamp, not by a step, along {string.Join(" ", line.Select(v => v.ToString("0.0000")))}");
         UnloadModel(block);
         UnloadModel(lamp);

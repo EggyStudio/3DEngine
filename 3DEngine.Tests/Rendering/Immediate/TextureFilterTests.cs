@@ -23,9 +23,8 @@ public sealed class TextureFilterTests : IDisposable
     {
         // A checker of single pixels, black and white, drawn at its own size where the window's
         // pixels meet its texels, through the bilinear filter LoadTextureFromImage gives it. Taking
-        // sixteen samples along a slant, lavapipe blurred it, its pixels up to 43 levels off black
-        // and white where a GPU leaves them whole, and textures_cellular_automata read 7.0% of its
-        // pixels apart from raylib's program where with one sample 1.0% (build/raylib-bench/compare.py).
+        // sixteen samples along a slant, lavapipe blurred it where a GPU leaves its pixels whole,
+        // and textures_cellular_automata drew apart from raylib's program.
         var config = Config.Default.WithWindow("texture filter test", 160, 120) with { Headless = true, Offscreen = true, Samples = 1 };
         UseApp(new App(config).AddPlugin(new DefaultPlugins()));
         var checker = LoadTextureFromImage(GenImageChecked(64, 64, 1, 1, Color.Black, Color.White));

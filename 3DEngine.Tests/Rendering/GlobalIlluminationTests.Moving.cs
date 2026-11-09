@@ -16,10 +16,9 @@ public sealed partial class GlobalIlluminationTests
     {
         // A gray wall and floor in the dark, and before the wall an emissive bar five units long,
         // past the 2.4 a glow light may be at cells of 0.15, held still, so the field is built with
-        // it, or moved a little each frame, so it never settles and is stamped as its box. The wall
-        // reads 0.0312 in linear light at Low and 0.0125 at High by the bar held still, and by the
-        // moving one 0.0317 and 0.0179, which stamped with its color alone lit nothing past itself
-        // and left the wall at 0.0000, on the development machine's GPU.
+        // it, or moved a little each frame, so it never settles and is stamped as its box. Stamped
+        // with its color alone, the moving bar lit nothing past itself and left the wall dark, so
+        // its box carries its emission.
         Open();
         SetGlobalIllumination(quality);
         var (slab, bar) = (LoadModelFromMesh(GenMeshCube(1, 1, 1)), LoadModelFromMesh(GenMeshCube(1, 1, 1)));

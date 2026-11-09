@@ -139,10 +139,10 @@ public sealed class TestScriptTests : IDisposable
     [InlineData("die-unsaid", "lost to a crash")]
     public void A_Lost_Process_Is_Said_First_And_The_Suite_Runs_Again_In_Parts(string mode, string said)
     {
-        // dotnet-dump's stand-in reads the minidump a death leaves. The growing stand-in passes the
-        // memory limit in about a second here, and on a slow macOS runner it held 196 MB of the 200
-        // when the six seconds the hang is given ran out, so the page said the time limit. It is
-        // given a minute, so the memory limit comes first on any runner.
+        // dotnet-dump's stand-in reads the minidump a death leaves. The growing stand-in is given a
+        // minute rather than the six seconds the hang is given, since on a slow runner it may not
+        // reach the memory limit within six seconds, and the page then says the time limit, so the
+        // memory limit comes first on any runner.
         var minutes = mode == "grow" ? "1" : "0.1";
         var (exit, log) = Script(new Dictionary<string, string> { ["E3D_DOTNET_DUMP"] = $"{Probes.Python.Value} 3DEngine.Tests/Scripts/dotnet_dump_standin.py" },
             mode, "--dotnet", $"{Probes.Python.Value} 3DEngine.Tests/Scripts/dotnet_standin.py",
@@ -186,10 +186,10 @@ public sealed class TestScriptTests : IDisposable
     public void A_Whole_Run_Lost_Near_Its_End_Runs_Again_Only_The_Parts_Holding_Tests_It_Gave_No_Result()
     {
         // A whole run that ends every test of Api, each in under a millisecond, and of NormTests,
-        // one of them failing, and ten of Rendering's forty, before its time runs out, as a Windows
-        // runner of a slow processor ran out its hour 1,705 tests in, and every part run again from
-        // the start took the job past its limit with no page written. Rendering runs its thirty
-        // left, where the run of b16f26b5 on Linux ran its part's 529 tests again for 35 minutes.
+        // one of them failing, and ten of Rendering's forty, before its time runs out, as a runner
+        // of a slow processor may run out its hour near the end, and every part run again from the
+        // start takes the job past its limit with no page written. Rendering runs its thirty left
+        // rather than all forty again.
         var (exit, log) = Script("most", "--dotnet", $"{Probes.Python.Value} 3DEngine.Tests/Scripts/dotnet_standin.py",
             "--results", _folder.Path, "--timeout-minutes", "0.1");
 
@@ -212,8 +212,8 @@ public sealed class TestScriptTests : IDisposable
     [NeedsPythonFact]
     public void A_Class_Named_In_A_Split_Runs_In_A_Process_Of_Its_Own_And_The_Rest_Are_Dealt_Without_It()
     {
-        // As the Windows runner's first half of Rendering took 67 of its 70 minutes, 54 of them
-        // global illumination's one class, which no deal of the classes by name keeps apart.
+        // Global illumination's one class takes most of the time of the part it falls in, and no
+        // deal of the classes by name keeps it apart.
         var (exit, log) = Script("--parts", "--split", "Rendering=2+Lighting", "--dotnet", $"{Probes.Python.Value} 3DEngine.Tests/Scripts/dotnet_standin.py",
             "--results", _folder.Path);
 
@@ -227,9 +227,9 @@ public sealed class TestScriptTests : IDisposable
     [NeedsPythonFact]
     public void A_Class_Dealt_To_Processes_By_Its_Methods_Is_Reported_As_The_One_Class_Its_Times_Added()
     {
-        // As global illumination's class ran out its 70 minutes on the Windows runner's first half
-        // at 798d9270, 71 of its 77 tests in, where it had taken 67 and 69 two pushes before, and
-        // its time in two processes is read against those figures.
+        // Global illumination's class can run out a part's time limit alone, so its methods are
+        // dealt to processes in turn, and its time in them is reported added, to be read against
+        // the class's time in one.
         var (_, log) = Script(new Dictionary<string, string> { ["E3D_STANDIN_HANG"] = "Drawing" }, "--parts", "--split", "Rendering=2+Drawing/2",
             "--dotnet", $"{Probes.Python.Value} 3DEngine.Tests/Scripts/dotnet_standin.py", "--results", _folder.Path, "--timeout-minutes", "0.05");
 
@@ -250,9 +250,8 @@ public sealed class TestScriptTests : IDisposable
     [NeedsPythonFact]
     public void A_Whole_Run_Lost_To_Its_Time_Whose_Parts_Give_Every_Test_A_Passing_Result_Passes_With_A_Notice()
     {
-        // As a pack run's Windows suite ran out its hour 1,302 tests in, its parts
-        // passed every test and the step ended with exit code 1, so the pack job was skipped on a
-        // suite with nothing failing.
+        // A whole run may run out its hour and its parts then pass every test, where an exit code
+        // of 1 would skip the pack job on a suite with nothing failing.
         var (exit, log) = Script(new Dictionary<string, string> { ["GITHUB_ACTIONS"] = "true", ["GITHUB_STEP_SUMMARY"] = _folder.File("summary.md") },
             "hang", "--dotnet", $"{Probes.Python.Value} 3DEngine.Tests/Scripts/dotnet_standin.py", "--results", _folder.Path, "--timeout-minutes", "0.1");
 

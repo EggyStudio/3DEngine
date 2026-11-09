@@ -28,10 +28,8 @@ public sealed class ShadowSoftnessTests : IDisposable
         // A pole half a unit thick and five tall under a sun 45 degrees up, its shadow a strip
         // along x on the floor, read across at a unit from the pole, where the pole over it is a
         // unit tall, and at four and a half, where it is four and a half. With no width the edge
-        // is a texel or so at both; the sun 3 degrees across spreads it by 0.05 a unit of height,
-        // 0.24 units at the tip and 0.05 near the foot. Between a quarter and three quarters of
-        // the light the edges read 0.04 units across at both hard, and 0.08 near the foot and 0.24
-        // near the tip with the sun 3 degrees across, on the development machine's GPU.
+        // is a texel or so at both, and the sun 3 degrees across spreads it by 0.05 a unit of
+        // height, 0.24 units at the tip and 0.05 near the foot.
         var config = Config.Default.WithWindow("softness test", 480, 270) with { Headless = true, Offscreen = true, Samples = 1 };
         UseApp(new App(config).AddPlugin(new DefaultPlugins()));
         SetAmbientLight(new Color(255, 255, 255), 0.2f);

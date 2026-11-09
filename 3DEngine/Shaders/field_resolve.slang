@@ -124,11 +124,11 @@ float resolvedAt(uint3 c, uint size)
     bool thin = (code & 0x300u) == 0x100u && hidden != 0xFFFFFFFFu && beyond - d < push.cascade.z
         && dot(way(code), way(hidden)) < -0.7;
     // A double-sided face is held at its distance, its plane kept beside it (sheetAt). Held below
-    // zero within half a cell either side, as it was, a sheet lying midway between two cells'
-    // middles crossed zero between them, but two sheets two cells apart, as the voxel game's crops
-    // stand, held every cell between them below zero, and a screen probe there met its own wall
-    // at its rays' start, the walls 44% over a path-traced reference; held within less, a sheet
-    // midway lay further than the march's tenth of a cell from both middles and a ray passed it.
+    // zero within half a cell either side, a sheet lying midway between two cells' middles crosses
+    // zero between them, but two sheets two cells apart, as the voxel game's crops stand, hold
+    // every cell between them below zero, and a screen probe there meets its own wall at its rays'
+    // start. Held within less, a sheet midway lies further than the march's tenth of a cell from
+    // both middles and a ray passes it.
     if ((code & 0x200u) != 0u)
         return d;
     if (thin)
@@ -200,8 +200,8 @@ void computeMain(uint3 thread : SV_DispatchThreadID)
     // Such a cell is held inside at its distance, so a march through the edge between the two
     // blocks meets the field there, where between the four cells about the edge the distance never
     // fell below zero, and a march from the floor east of a wall whose halves met along one edge
-    // saw half of a glowstone west of it, the floor about the edge 21 sRGB levels where a
-    // path-traced reference reads none (GlobalIlluminationTests).
+    // saw half of a glowstone west of it and lit the floor about the edge, which a path-traced
+    // reference leaves dark (GlobalIlluminationTests).
     float d = resolvedAt(id, size);
     if (d > 0.0 && pinched(id, size))
         d = -d;

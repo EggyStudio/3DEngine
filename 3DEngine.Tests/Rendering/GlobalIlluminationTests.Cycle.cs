@@ -16,9 +16,9 @@ public sealed partial class GlobalIlluminationTests
     {
         // A carried probe's rays move through sixteen places and meet the meshes at High on a
         // device that traces rays, its cycle's six images a cascade made whole there in every
-        // cascade but the last counted and the far, 9 MB at Sponza's High, and stand-ins of a texel
-        // elsewhere, a mean of one place being that place, so Low, Medium and a device that traces
-        // no rays, as lavapipe and MoltenVK, keep none of it. Under a slab two and a half units up
+        // cascade but the last counted and the far, and stand-ins of a texel elsewhere, a mean of
+        // one place being that place, so Low, Medium and a device that traces no rays, as lavapipe
+        // and MoltenVK, keep none of it. Under a slab two and a half units up
         // in four cascades the probes beneath it see none of those above and carry their rays on,
         // and each cascade they carry in has its cycle whole, so a trace that came to carry in a
         // cascade whose cycle is a stand-in would read one place for sixteen.
@@ -47,9 +47,8 @@ public sealed partial class GlobalIlluminationTests
         // past its edge to the sky and some onto its underside, so a share of the sky and a mark of
         // what the rays met read from each frame's places alone moved with them, a probe below
         // taking the sky through a texel above in some frames and not others, and every probe whose
-        // hits read them flickered, the edges of Sponza's balcony 0.16% of the frame's pixels by 12
-        // levels a frame. Kept as the light is, every texel's share holds still from frame to frame
-        // once its cycle is whole.
+        // hits read them flickered. Kept as the light is, every texel's share holds still from
+        // frame to frame once its cycle is whole.
         var block = UnderSlab(GlobalIllumination.High, 120);
         var renderer = GetApp().World.Resource<Engine.Renderer>();
         var probes = renderer.RenderWorld.TryGet<GlobalIlluminationRenderer>()!.Probes!;

@@ -131,9 +131,8 @@ public float3 bouncedHitAt<V : IVolume>(V cubes, V cubesAt, V reach, SceneFieldI
 // The light bouncedAt gives with the share of the sky the surface sees along r beside it, as skyAt
 // gives it from the finest cascade around p, taken from the faces r looks toward in the same gather
 // of that cascade's probes, which the two weigh alike, since a face's alpha holds its probe's move
-// along the face's axis on both faces of it. Read apart, the share took a second gather of the eight
-// probes, and the voxel game's cherry grove at 1920 by 1080 drew its scene pass in 10.1 ms on the
-// development machine's GPU where it takes 8.9.
+// along the face's axis on both faces of it. Read apart, the share would take a second gather of
+// the eight probes.
 public float3 bouncedAndSkyAt<V : IVolume>(V cubes, V skies, V reach, SceneFieldInfo info, float3 p, float3 n, float3 r, float probes, float spacing,
     float cascades, out float sky)
 {
@@ -162,28 +161,25 @@ public float3 bouncedAndSkyAt<V : IVolume>(V cubes, V skies, V reach, SceneField
 // The indirect light reaching a surface at p facing n, irradiance, from the faces of the eight
 // probes of cascade c around it that the probes reach, each weighed by how near it is, how squarely
 // it stands in front of the surface and how much of it it sees (probeSees), a probe inside a mesh
-// passed over, the three faces n looks toward weighed by the square of n along each. A probe it does
-// not see keeps a twentieth of its weight, as one behind its plane keeps a little, since cut to
-// nothing a pixel left with one or two probes around it seen took their light alone and a Cornell
-// box showed a notch beside its tall block, and a surface that sees none of them, as one wedged
-// between two meshes may, blends them by that twentieth, so it is not left dark. With Sky, the share
-// of the sky the probes' faces r looks toward saw, blended alike, as skyAt blends it, or the whole
-// sky where the weights are none, and a probe the surface does not see lends it its light less the
-// share of its faces' light the sky gave and none of its share of the sky. Blended by distance
-// alone, the probes around the far end of Sponza's atrium, eight units apart in its last cascade,
-// lent a wall by the main door the sky that those under the floor and outside the door saw, and it
-// read 5.9 times a path-traced reference and blue, its dark door's reflection the sky. With Sky the
-// probes it does not see lend it nothing where those it sees hold a twentieth of the weight, the
-// blend of them all taken below that, since what a hidden probe's faces gather past the sky's
-// share is the light beyond the wall that hides it, a sunlit court's or the floor's underside lit by
-// the ground under the scene. A column of Sponza's nave at 8:00 read 11.8 times its reference with
-// that light lent and 1.35 without it, and the line between its dark foot and the rest, which
-// speckled pixel by pixel, went with it. The probes' own hits (At) take the probes they see alone
-// so as well. A hit on the floor by the main door of Sponza's vestibule took a twentieth of the
-// light of the probes under the floor's slab, in the open under the building, 0.2 to 0.96 where
-// the vestibule's held 0.00005, and the probe above it read 60 times a path-traced reference in
-// its downward face. Taken alone, the door view at 8:00 read 0.822 of the reference's light where
-// 0.846 and its pixels 0.937 of it off where 0.955 (gi.probe, gi.compare).
+// passed over, the three faces n looks toward weighed by the square of n along each. A probe it
+// does not see keeps a twentieth of its weight, as one behind its plane keeps a little, since cut
+// to nothing a pixel left with one or two probes around it seen took their light alone and a
+// Cornell box showed a notch beside its tall block, and a surface that sees none of them, as one
+// wedged between two meshes may, blends them by that twentieth, so it is not left dark. With Sky,
+// the share of the sky the probes' faces r looks toward saw, blended alike, as skyAt blends it, or
+// the whole sky where the weights are none, and a probe the surface does not see lends it its light
+// less the share of its faces' light the sky gave and none of its share of the sky. Blended by
+// distance alone, the probes around the far end of Sponza's atrium, eight units apart in its last
+// cascade, lent a wall by the main door the sky that those under the floor and outside the door
+// saw, and it read bright and blue, its dark door's reflection the sky. With Sky the probes it does
+// not see lend it nothing where those it sees hold a twentieth of the weight, the blend of them all
+// taken below that, since what a hidden probe's faces gather past the sky's share is the light
+// beyond the wall that hides it, a sunlit court's or the floor's underside lit by the ground under
+// the scene, which lit a column of Sponza's nave far over its reference and speckled the line
+// between its dark foot and the rest pixel by pixel. The probes' own hits (At) take the probes they
+// see alone so as well, since a hit on the floor by the main door of Sponza's vestibule took a
+// twentieth of the light of the probes under the floor's slab, in the open under the building, and
+// lit the probe above it far over its reference in its downward face.
 float3 bouncedIn<V : IVolume, let Sky : bool, let At : bool>(V cubes, V cubesAt, V skies, V reach, SceneFieldInfo info, float3 p, float3 n, float3 r, float probes, float spacing, int c,
     int cascades, out float sky)
 {
@@ -310,8 +306,8 @@ public float3 bouncedSeenAt<V : IVolume>(V field, SceneFieldInfo info, SceneFiel
 // the hit's plane keeps its faces' light, so its faces at the surface go unread. A hit a spacing or
 // more in front of the faces' surface lies on another surface than theirs and keeps their own light
 // too. Beside an arch, where the probes' rays along the faces' opposite way went through it to a
-// wall 10 to 14 units beyond, whose light there read 3.4 to 4.9 times the faces' own, a hit on the
-// arch's pier 1.85 ahead of a probe took a fifth of that light.
+// brighter wall beyond, a hit on the arch's pier well ahead of a probe took part of that wall's
+// light.
 float3 towardSurface<V : IVolume>(V cubesAt, float3 light, float3 n, float3 n2, int3 at, int c, float probes, float ahead, float apart)
 {
     if (ahead <= 0.0)
@@ -428,26 +424,23 @@ float4 seenSumIn<V : IVolume, let At : bool>(V field, SceneFieldInfo info, Scene
 // light is not reflected off the far side of a wall, and where seen is set the indirect light
 // reaching it from the probes it sees alone (bouncedSeenAt). The world's probes set it, since every
 // surface's light comes to them. The screen's probes, whose rays are many and short, do not where
-// they stand in the first two cascades, because marching to the probes at each of their hits cost
-// 0.10 to 0.15 ms of global illumination's 0.3 to 0.4 on the development machine's GPU in
-// shaders_cornell_box, and a closed room under a lamp held 3 levels of its light without it, where
-// it held 247 before either. Past them they do where the surface is a wall thinner than a cell of
-// the field there (thinOnly), since a hit weighs probes 4 to 16 units apart by a reach whose slack
-// is a cell, and the far end of a closed corridor took 0.309 of the open one's light where it takes
-// 0.062. Marched at every such hit, it took 0.052, and the voxel game's cherry grove, whose walls
-// are blocks, took global illumination 8.8 ms at High at 1920 by 1080 where it takes 7.95. Weighed
-// by the probes' reach instead, as bouncedAt does, the world's probes saved 0.03 to 0.05 ms and let
-// 42.9 levels of a lamp under a closed room's floor into it where the marches hold it to 2.5. The
-// model pass's reflections call shadeHit, which hides the lamps as this does and marches to no
-// probe. The indirect light is taken at kept's share of it, from the faces where gathered says the
-// probes stood, and own holds the light the surface sends on of what reaches it straight from the
-// sun, the lights and the two brightest glow lights, with its emission but a glow light's, which a
-// world probe weighs the frame before's light by (gi_ambient.slang). The probes' rays meet a
-// double-sided face at its plane (fieldDistanceSheetIn), where the held field's gradient cancels
-// across the sheet, so the hit's normal is the plane's (fieldNormalSheet), turned up there, the
-// voxel game's crops lit as floors from the sun took 29% over a path-traced reference. The sun is
-// found through sun where it holds the hit, the window's shadow map for the world's probes, and
-// through the field elsewhere.
+// they stand in the first two cascades, because a march to the probes at each of their hits is
+// dear for so many rays, and a closed room under a lamp holds little of its light without it. Past
+// them they do where the surface is a wall thinner than a cell of the field there (thinOnly), since
+// a hit weighs probes 4 to 16 units apart by a reach whose slack is a cell, and the far end of a
+// closed corridor took much of the open one's light. Marching at every such hit gains the corridor
+// little and costs a world whose walls are blocks a march at each of its hits. Weighed by the
+// probes' reach instead, as bouncedAt does, the world's probes let the light of a lamp under a
+// closed room's floor into it, which the marches hold out. The model pass's reflections call
+// shadeHit, which hides the lamps as this does and marches to no probe. The indirect light is taken
+// at kept's share of it, from the faces where gathered says the probes stood, and own holds the
+// light the surface sends on of what reaches it straight from the sun, the lights and the two
+// brightest glow lights, with its emission but a glow light's, which a world probe weighs the frame
+// before's light by (gi_ambient.slang). The probes' rays meet a double-sided face at its plane
+// (fieldDistanceSheetIn), where the held field's gradient cancels across the sheet, so the hit's
+// normal is the plane's (fieldNormalSheet), since one turned up there lit the voxel game's crops as
+// floors from the sun. The sun is found through sun where it holds the hit, the window's shadow map
+// for the world's probes, and through the field elsewhere.
 public float3 shadeProbeHit<V : IVolume, S : ISheetVolume, Sun : ISunShadow>(V field, S sheets, SceneFieldInfo info, SceneFieldInfo gathered, V albedo,
     Texture3D<uint> faces, V glow, GiLights lights, V cubes, V cubesAt, V reach, float3 p, float3 way, float probes, float spacing, float cascades, bool seen, float3 kept,
     Sun sun, out float3 own, bool thinOnly = false, float widen = 0.0)
@@ -474,8 +467,8 @@ public float3 shadeProbeHitN<V : IVolume, S : ISheetVolume, Sun : ISunShadow>(V 
 // under one, which a probe's ray's hit reflects the glow lights by (glossyHit). With the whole
 // diffuse share beside the gloss's, a smooth face seen at a grazing way, whose gloss Karis's fit
 // puts near one, sent on nearly twice what reached it, and since the light past the first bounce
-// comes back to the probes each frame, Sponza's door view at 8:00 read 27 times its reference's
-// light, its door's fittings and its lantern white, where it read 0.840 (gi.compare's frames).
+// comes back to the probes each frame, Sponza's door view read many times its reference's light,
+// its door's fittings and its lantern white.
 public float3 reflectedShare(float3 color, float2 gloss, float nv)
 {
     float3 share = glossShare(lerp(float3(0.04), color, gloss.y), gloss.x, nv);
@@ -501,10 +494,10 @@ public float3 glossShare(float3 f0, float roughness, float nv)
 // carries light between bounces as the reference's paths carry it at every face (ReferenceGloss).
 // The glow lights go by reflectedShare's even shares and the lamps the field hides by each one's
 // own reflection, as directReflected lights them. Every hit a probe's ray lights, the field's, the
-// screen's and the device's rays', is lit this way. With the even shares alone
-// a metal's reflection of a light, thrown along its mirror way, spread over every way, and a probe
-// a unit from a sunlit metal wall read its face toward it 0.854 and 0.815 of a reference with
-// every face's gloss at a roughness of 0.6 and 0.3 where a dielectric's read 1.104 and 1.142.
+// screen's and the device's rays', is lit this way. With the even shares alone a metal's
+// reflection of a light, thrown along its mirror way, spread over every way, and a probe a unit
+// from a sunlit metal wall read its face toward it under its reference, where beside a dielectric
+// wall it read over.
 float3 glossyHit<V : IVolume, Sun : ISunShadow>(V field, SceneFieldInfo info, SceneFieldInfo gathered, V albedo, V glow, GiLights lights, V cubes,
     V cubesAt, V reach, float3 p, float3 n, float3 paint, float2 gloss, float3 way, float probes, float spacing, float cascades, bool marched,
     float3 kept, Sun sun, float widen, out float3 own)
@@ -559,12 +552,12 @@ public float3 shadeProbeHitAt<V : IVolume, Sun : ISunShadow>(V field, SceneField
 // light that reached it the frame before, with its emission. The sun and the lights are given as
 // the model pass has them, the light a white surface facing one returns, which is the light
 // reaching it over pi, so they are taken times pi beside the indirect light, which the probes hold
-// as the light reaching a face; read as they are, a lit surface sent on a pi-th of its light,
-// which left the probes' hits 48 to 75% under a path-traced reference. hiddenLampLight's loop after
-// directLight's is the shape lavapipe draws, which the probes' passes already have, where the lamps'
-// loop moved ahead of the sun's in directLight is not (build/mesa). Glowing false leaves the glow
-// lights' marches out, the model pass's build for a frame with none passing it so (Glowing in
-// lights); a parameter of the build, since a constant argument left them in the SPIR-V.
+// as the light reaching a face. Read as they are, a lit surface would send on a pi-th of its light.
+// hiddenLampLight's loop after directLight's is the shape lavapipe draws, which the probes' passes
+// already have, where the lamps' loop moved ahead of the sun's in directLight is not (build/mesa).
+// Glowing false leaves the glow lights' marches out, the model pass's build for a frame with none
+// passing it so (Glowing in lights). It is a parameter of the build, since a constant argument left
+// them in the SPIR-V.
 public float3 shadeHit<V : IVolume, let Glowing : bool>(V field, SceneFieldInfo info, V albedo, Texture3D<uint> faces, V glow, GiLights lights, V cubes,
     V skies, V reach, float3 p, float probes, float spacing, float cascades)
 {

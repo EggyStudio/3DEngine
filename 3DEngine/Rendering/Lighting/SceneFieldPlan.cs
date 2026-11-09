@@ -26,9 +26,9 @@ namespace Engine;
 /// fade across, from a cascade to the next and from the last to what lies past the field
 /// (<c>scenefield.slang</c>'s <c>bandHold</c>). A cascade lying a share of its width ahead of the
 /// eye the way it looks crosses to the other side with a turn and is built again whole, Sponza's
-/// 3.75 million triangles over some sixty frames at the default budget, what stood behind lying
-/// outside the fine cascades meanwhile. A program whose camera looks on the scene from afar gives
-/// the point the field lies around in the eye's place (<c>SetSceneFieldCenter</c>).
+/// 3.75 million triangles over frames at the default budget, what stood behind lying outside the
+/// fine cascades meanwhile. A program whose camera looks on the scene from afar gives the point the
+/// field lies around in the eye's place (<c>SetSceneFieldCenter</c>).
 /// </para>
 /// <para>
 /// A mesh drawn the same, by its mesh, its vertices, its world matrix and its sides, for
@@ -63,13 +63,11 @@ internal sealed partial class SceneFieldPlan
     /// </summary>
     /// <remarks>
     /// A mesh that settles marks the cascades around it to be built again, and one that leaves
-    /// marks them again, a few milliseconds of the GPU each time, where stamping its box costs half a
-    /// microsecond a frame, so a figure that stopped after walking is stamped on until it has stood
-    /// this long. The voxel game's animals stand one to eight seconds between walks, up to 960
-    /// frames at 120 a second, and 76 figures standing so for 240 to 960 frames among a land of 400
-    /// meshes had a cascade built again in a fourth of the frames, 2.5 ms of the GPU's, with 480
-    /// frames here, and with 1024 in one frame of fifty, for the figures that stood from the first
-    /// frame, settled and then walked, the field's share 0.27 ms.
+    /// marks them again, a build on the GPU each time, where stamping its box costs far less a
+    /// frame, so a figure that stopped after walking is stamped on until it has stood this long.
+    /// The voxel game's animals stand one to eight seconds between walks, up to 960 frames at 120 a
+    /// second, so a count past that leaves the cascades built again for the figures that stood from
+    /// the first frame, settled and then walked, and not for each stand.
     /// </remarks>
     public const int MobileSettleFrames = 1024;
 
@@ -205,9 +203,8 @@ internal sealed partial class SceneFieldPlan
     // Still meshes that waited for their cascades having moved before they settled, which are
     // stamped meanwhile as they were while they moved. One that never moved, as a scene's meshes on
     // its first load or a world's sections streamed in, is not, since a box stands in for a mesh
-    // badly where it is larger than what it holds, as while Intel's Sponza built over 330 frames
-    // the box of its outer walls filled the building and the sun's contact shadows darkened every
-    // room.
+    // badly where it is larger than what it holds, as while Intel's Sponza was built the box of its
+    // outer walls filled the building and the sun's contact shadows darkened every room.
     private readonly HashSet<Instance> _movedIn = new(Keys.Shared);
     private readonly Vector3?[] _built;
     private readonly long[] _builtFrame;
@@ -409,13 +406,11 @@ internal sealed partial class SceneFieldPlan
         {
             // The meshes drawn the frame before, in the same order, each one frame more the same,
             // read by place, so a scene that did not change costs a comparison a mesh, the frames
-            // of those not yet still counted in the order alone and those still in the
-            // dictionary as well, which a frame read whole reads them from. A mesh in a
-            // place drawn the frame before through another matrix moved, and where it stood leaves
-            // as one gone from a scene read whole, so a figure walking among still meshes costs a
-            // comparison a mesh too, where read whole each frame, every mesh in a dictionary, a land
-            // of 400 meshes and 76 walking figures of five pieces cost 0.9 ms of the field's 2.4 in
-            // a build that is not optimized.
+            // of those not yet still counted in the order alone and those still in the dictionary
+            // as well, which a frame read whole reads them from. A mesh in a place drawn the frame
+            // before through another matrix moved, and where it stood leaves as one gone from a
+            // scene read whole, so a figure walking among still meshes costs a comparison a mesh
+            // too, where a frame read whole looks every mesh up in a dictionary.
             List<Instance>? left = null;
             var span = Span(drawn);
             for (int i = 0; i < _orderCount; i++)

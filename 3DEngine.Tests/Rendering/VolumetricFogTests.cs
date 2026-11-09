@@ -85,7 +85,7 @@ public sealed class VolumetricFogTests : IDisposable
         // 0.02 a unit scattering alike every way, which the volume holds to 128 units. Each unit
         // scatters the sun's light at the fog's density times the phase, one over four pi, and the
         // eye takes it through the fog before it, so the pixel takes (1 − e^(−0.02 × 128)) / 4 pi,
-        // 0.0734, which it reads within 0.1% on the development machine's GPU.
+        // 0.0734.
         var config = Config.Default.WithWindow("fog test", 160, 120) with { Headless = true, Offscreen = true, Samples = 1 };
         UseApp(new App(config).AddPlugin(new DefaultPlugins()));
         SetAmbientLight(Color.Black, 0);
@@ -117,15 +117,13 @@ public sealed class VolumetricFogTests : IDisposable
         // inside it at High, the field's middle 20 units off, so the room lies in the third
         // cascade, whose probes stand 8 units apart, all outside it. The fog's light in the room is
         // the frame's linear light with fog less without, at the wall ahead, against the same room
-        // with its roof off. No light enters the sealed room, so its fog has none to scatter. Its
-        // cells read as a surface's light is read, the point taken past the roof and the probes
-        // outside seeing the sky, the sealed room's fog scattered 0.436 where the open room's
-        // scattered 0.428 on the development machine's GPU, and read for the air, 0.0012 where
-        // 0.035. With the field around the eye, probes 2 apart, the open room's fog scatters 0.17 to
-        // 0.19 either way, so probes 8 apart leave the open room's fog five times too dark, the cost
-        // of reading only the probes that see it. Walls 0.3 thick, thinner than the field's cells of
-        // a unit there, the probes' own rays pass, and the sealed room's fog scattered 0.269 where
-        // the open room's 0.296.
+        // with its roof off. No light enters the sealed room, so its fog has none to scatter. With
+        // its cells read as a surface's light is read, the point taken past the roof and the probes
+        // outside seeing the sky, the sealed room's fog scattered as much as the open room's, where
+        // read for the air it scatters a small share of the open room's. Probes 8 apart leave the
+        // open room's fog darker than probes 2 apart around the eye do, the cost of reading only
+        // the probes that see it. Walls thinner than the field's cells of a unit there let the
+        // probes' own rays pass, and the sealed room's fog scattered near the open room's.
         var config = Config.Default.WithWindow("fog test", 160, 120) with { Headless = true, Offscreen = true, Samples = 1 };
         UseApp(new App(config).AddPlugin(new DefaultPlugins()));
         SetSceneField(3, 0.25f, 2);

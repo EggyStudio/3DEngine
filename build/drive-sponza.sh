@@ -47,8 +47,8 @@ for hour in 12 16; do
 done
 
 # At night with the lamps off the floor under the vestibule's lamp reads dark in every channel,
-# metered, and lit with them on, 9 levels a channel on the development machine's GPU, held at 7,
-# the lamp's light passing its glass (scenes_sponza).
+# metered, and lit with them on it reads 7 levels a channel or more, 21 over the three summed, a
+# bound with room under what the lamp's light passing its glass gives there (scenes_sponza).
 ./e3d command sponza.time 2 --session "$pid" --quiet
 ./e3d command sponza.view door --session "$pid" --quiet
 ./e3d command sponza.metered on --session "$pid" --quiet

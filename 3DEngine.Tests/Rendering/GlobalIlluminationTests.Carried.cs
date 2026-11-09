@@ -17,20 +17,14 @@ public sealed partial class GlobalIlluminationTests
         // A gray floor of roughness 1 lit by an ambient light alone, under a dark green slab a unit
         // thick and twenty across two and a half units over it, in a field of four cascades whose
         // last's probes stand 9.6 apart, above the slab and under the ground. The third cascade's
-        // probes under the slab see none of them and carry their rays on, and those out past the
-        // slab's open sides met nothing and brought nothing, so the floor read 0.0001 in linear
-        // light at High where a path-traced reference takes 0.0069. Brought the sky, the slab's
-        // underside took the floor's light as more than a face turned down takes in the open and
-        // reflected the ambient light whole, 0.048 where the reference reads 0.0019. Read through
-        // the frame's display, the floor takes 0.0008 at High and 0.0014 at Low where it took
-        // 0.0000 at High, and the underside 0.0037 and 0.0033 where 0.051 with the sky brought and
-        // the reflection held whole, and at Low 0.048 before either, on the development machine's
-        // GPU. Reflecting the light its probes hold along its mirror way, the underside reads 0.0125
-        // at High, where the reference traced with the first face's specular share reads the
-        // underside's region at 0.0170 in luminance, nearly all of it reflected, and the frame's
-        // region 44% over it. With Low's third cascade its underside reads 0.0156, nearer the
-        // reference than High's, so it is held under 0.02, well under the 0.048 of the reflection
-        // taken whole.
+        // probes under the slab see none of them and carry their rays on. Where those out past the
+        // slab's open sides meet nothing and bring nothing the floor takes no light, and where they
+        // bring the sky the slab's underside takes the floor's light as more than a face turned
+        // down takes in the open and reflects the ambient light whole. The underside reflects the
+        // light its probes hold along its mirror way, and a path-traced reference traced with the
+        // first face's specular share reads the underside's region at 0.0170 in luminance, nearly
+        // all of it reflected, so it is held under 0.02, well under the ambient light reflected
+        // whole.
         Open();
         SetSceneField(4, 0.15f, 2);
         SetGlobalIllumination(quality);

@@ -15,7 +15,7 @@ namespace Engine;
 /// none of a lamp lying on it. An emissive block on a floor lit the floor beside it through the
 /// screen probes' sixteen rays alone, in eight lobes where some rays met it, to the two blocks
 /// they reach, and from no farther. Carried as a light, its light reaches a surface in closed form
-/// from the faces of its box, which a path-traced floor beside a block reads to within 3%.
+/// from the faces of its box, which a path-traced floor beside a block agrees with.
 /// </para>
 /// <para>
 /// Each pixel takes it in the model pass as the screen probes around the pixel saw it, each of
@@ -65,10 +65,9 @@ internal static class GlowLights
     // the light is let go, over a quarter of the box's surface as the box's mean face seen from
     // afar. A share of its own, so every light keeps the same share of its light whatever its
     // brightness, where let go at a fiftieth of a unit a dim light reached less far than a bright
-    // one of its size, and six emitters of a sixth of one's light each two and a half times less
-    // far, so a closed room lit by six took 0.40 of a path-traced reference's light, 0.82 with the
-    // share alone and 0.96 lit by one (GlowLightsTests). A 300th keeps the reach of the bounce
-    // rooms' box lamp, whose light is 6.
+    // one of its size, and six emitters of a sixth of one's light each less far still, so a closed
+    // room lit by six took far less of a path-traced reference's light than one lit by one
+    // (GlowLightsTests). A 300th keeps the reach of the bounce rooms' box lamp, whose light is 6.
     private const float Faint = 1f / 300;
 
     /// <summary>

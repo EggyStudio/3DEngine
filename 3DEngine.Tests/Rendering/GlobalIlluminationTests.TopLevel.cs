@@ -12,12 +12,11 @@ public sealed partial class GlobalIlluminationTests
     public void The_Ray_Scenes_Top_Level_Is_Built_Again_The_Frame_A_Copy_Moves_Comes_Or_Goes_And_Kept_While_None_Does()
     {
         // The top level is kept while its copies' records are those its last build read, which
-        // took 0.13 to 0.17 ms a frame off global illumination in Sponza at High. Kept past a copy's
-        // move, coming or going, it would hold a wall where none stands, which the carried rays and
-        // the reflections would meet, and leave out one that does. A green block twenty-five units
-        // behind the camera, past the field's one cascade, shows in a mirror through the device's
-        // rays alone, as A_Mirror_Reflects_A_Block_Past_The_Field_Through_The_Devices_Rays_At_High
-        // reads it.
+        // spares global illumination a build each frame. Kept past a copy's move, coming or going,
+        // it would hold a wall where none stands, which the carried rays and the reflections would
+        // meet, and leave out one that does. A green block twenty-five units behind the camera,
+        // past the field's one cascade, shows in a mirror through the device's rays alone, as
+        // A_Mirror_Reflects_A_Block_Past_The_Field_Through_The_Devices_Rays_At_High reads it.
         var config = Config.Default.WithWindow("gi test", 160, 96) with { Headless = true, Offscreen = true, Samples = 1 };
         UseApp(new App(config).AddPlugin(new DefaultPlugins()));
         SetSceneField(1, 0.15f, 1);

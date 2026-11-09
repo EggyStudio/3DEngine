@@ -46,10 +46,9 @@ exec 3>&1
 # names how far it got by its last status, so a slow device says which game it is slow at and the
 # games after it are still played. The game's last status is kept in a file for that error.
 minutes="${DRIVE_MINUTES:-8}"
-# The feature test plays every zone twice, the second time with global illumination on at Low, and
-# took 742 seconds on lavapipe held to four cores of the development machine, and 735 later, where
-# the Windows runner reached its particles' zone at 720 in a pack run,
-# so it is given half as long again.
+# The feature test plays every zone twice, the second time with global illumination on at Low,
+# which on lavapipe held to four cores takes past the twelve minutes the workflows give a game, so
+# it is given half as long again.
 if [ "$game" = FeatureTest ]; then minutes=$(( minutes * 3 / 2 )); fi
 last="captures/$name-last-status.txt"
 expired="captures/$name-expired"
@@ -262,9 +261,9 @@ if ! start; then
   fail "did not open, e3d said $(printf '%s\n' "$said" | head -n 1)${ending:+, and the log ends with $ending}"
 fi
 # Tumble's cannons fire from its third second and its bar sweeps the arena, and the frames before
-# its play take that long on a device as slow as the macOS runner's or lavapipe's, where a ball
-# knocked the robot down in the thirty frames after the resize and its walk read 0.7 and 0.8. So they
-# are stopped as it serves.
+# its play take that long on a device as slow as the macOS runner's or lavapipe's, where a ball can
+# knock the robot down in the thirty frames after the resize and cut its walk short. So they are
+# stopped as it serves.
 if [ "$game" = Tumble ]; then cmd tumble.hazards off; fi
 cmd window.size 480 270
 cmd frames.wait 30
@@ -430,7 +429,7 @@ case "$game" in
     # again, and the autopilot plays until no move is left. A gesture is timed on the game's
     # clock, a swipe a drag let go faster than 0.2 of the window a second and a double tap two
     # taps within 0.3 seconds, so each frame is made a sixtieth of a second first, since where a
-    # device drew the drag's ten frames in two seconds, the swipe slid nothing.
+    # device drew the drag's ten frames slowly, the swipe slid nothing.
     cmd time.frame 0.0166667
     cmd input.click 240 135
     cmd frames.wait 10
@@ -564,9 +563,9 @@ case "$game" in
     echo "$status"
     case "$status" in *" flips 0 "*) fail "no flipper met the ball, $status" ;; esac
     cmd pinball.autopilot false
-    # A ball that rolled back down its lane to the plunger is ready again and drains from nowhere
-    # there, as a macOS runner's pack run found it after one flip, so it is launched
-    # again and the wait begun over, three times at most.
+    # A ball that rolled back down its lane to the plunger, as one can after a single flip, is ready
+    # again and drains from nowhere there, so it is launched again and the wait begun over, three
+    # times at most.
     waited=0
     relaunched=0
     while [ "$waited" -lt 60 ]; do
@@ -597,8 +596,8 @@ case "$game" in
       cmd frames.wait 5
       cmd span.go
       # The game takes a command in its next frame, and its state moves at the start of the frame
-      # after, so a status read within a frame of the go, as a macOS runner's slow frames made it,
-      # read the bridge still building. Two frames run before the first read.
+      # after, so a status read within a frame of the go, as a device's slow frames can make it,
+      # reads the bridge still building. Two frames run before the first read.
       cmd frames.wait 2
       status=""
       for i in $(seq 1 60); do

@@ -162,15 +162,12 @@ public struct FieldSun : ISunShadow
 // moved off its surface along n by a texel and a half of that cascade and toward the sun by a cell
 // of the field, since the field's surface lies within half a cell of the mesh's, and nine depths
 // around it compared and averaged. The map is drawn from the meshes themselves, where the field
-// holds them at its cells. Through the field alone the probes' hits in the vestibule of Sponza's
-// main door saw none of the sun the path-traced reference sees there, and the vestibule read 21 to
-// 69% under that reference. Moved toward the sun, the point is read at the same place in the map
-// and only nearer the sun, where moved a cell and a half along n a floor's hit in cells of half a
-// unit stood 0.75 over the floor, which under a sun 20 degrees up shortened every shadow a low wall
-// cast on it by 2.1 units, and a probe over such a shadow read its floor 56% over a reference where
-// it reads within 1%. Moved by the texel alone, the hits a little behind their surface shadowed
-// themselves, and the door's vestibule at 15:00 read its brightest fifth at 0.63 of the reference
-// where 0.87.
+// holds them at its cells, and through the field alone the probes' hits in the vestibule of
+// Sponza's main door see none of the sun a path-traced reference sees there. Moved toward the sun,
+// the point is read at the same place in the map and only nearer the sun, where moved a cell and a
+// half along n a floor's hit in cells of half a unit stands 0.75 over the floor, which under a sun
+// 20 degrees up shortens every shadow a low wall casts on it by 2.1 units. Moved by the texel
+// alone, the hits a little behind their surface shadow themselves.
 public struct SunShadowMap : ISunShadow
 {
     public Sampler2D map;
@@ -216,9 +213,8 @@ public float3 surfaceAlbedo<V : IVolume>(V albedo, SceneFieldInfo info, float3 p
 // n, a cosine of a half or more, or surfaceAlbedo's blend where none of them does, as at a thin
 // edge, so the hit is not left dark. A cell on a corner's diagonal lies as far from either wall
 // and holds whichever painted it, so a red wall's hit within a cell of the white wall it meets
-// blended the white in, its green 0.15 where the wall's is 0.012, the light it sends on 0.56 where
-// a path-traced reference reads 0.25 (gi.screenprobe); a cell's distance to the hit's plane does
-// not tell those cells apart, as they lie as far from both.
+// would blend the white in, and a cell's distance to the hit's plane does not tell those cells
+// apart, as they lie as far from both.
 public float3 surfaceAlbedoFacing<V : IVolume>(Texture3D<uint> faces, V albedo, SceneFieldInfo info, float3 p, float3 n)
 {
     float2 gloss;
@@ -515,14 +511,9 @@ public static const float OwnShare = 0.25;
 // it, a cell of the probes' cascade, as DDGI weighs its probes by the distances they traced. Taken
 // off the surface, the point comes nearer a probe on its own side and goes further from one past
 // it, so a probe under a floor or beyond a wall, whose rays stop at the floor's or the wall's far
-// face, lends a surface on this side none of the light it sees there. Over half the spacing, a
-// probe 0.55 beyond a wall 0.1 thick, whose rays reached the wall's far face, read as seeing the
-// screen's probes' hits on this side and lent them the light it sees. The thin room's right wall,
-// its lamp outside, read 1.153 of a path-traced reference on its inner face and 1.072 with that
-// lamp off, the reference reading the wall alike either way, and over an eighth it reads 1.098.
-// Through walls 0.3 thick the corridor's walls took the light of sunlit probes outside, which
-// covered part of their own reading under, 67 to 70% under the reference with it and 78 to 79%
-// without (gi.compare at 800 by 450, gi.screenprobe).
+// face, lends a surface on this side none of the light it sees there. Falling over half the
+// spacing, a probe 0.55 beyond a wall 0.1 thick, whose rays reach the wall's far face, would read
+// as seeing the screen's probes' hits on this side and lend them the light it sees.
 public float probeSees<V : IVolume>(V reach, float3 p, float3 n, float3 probe, int3 at, int c, float probes, float apart)
 {
     float3 toward = p + n * (0.3 * apart) - probe;
@@ -539,10 +530,10 @@ public float probeSees<V : IVolume>(V reach, float3 p, float3 n, float3 probe, i
 // holds between them, each found by a march toward the lamp from a cell and a half off the
 // surface, looking from its first step and stopping two cells short of the lamp so its own
 // fitting does not hide it. Kept two cells clear at its start as well, as seesThrough keeps both
-// its ends, the march began a unit past its point in cells of half a unit and passed over a wall
-// that near the surface, so a lamp outside a closed room of walls 0.3 thick lit the floor inside
-// along the wall's foot (GlobalIlluminationTests). The falloff is directLight's, written again
-// here, since that loop is kept in the shape lavapipe draws the model pass in.
+// its ends, the march would begin a unit past its point in cells of half a unit and pass over a
+// wall that near the surface, so a lamp outside a closed room of walls 0.3 thick would light the
+// floor inside along the wall's foot (GlobalIlluminationTests). The falloff is directLight's,
+// written again here, since that loop is kept in the shape lavapipe draws the model pass in.
 public float3 hiddenLampLight<V : IVolume>(V field, SceneFieldInfo info, GiLights lights, float3 p, float3 n)
 {
     float3 hidden = float3(0.0);
@@ -614,18 +605,17 @@ public float3 hiddenLampReflected<V : IVolume>(V field, SceneFieldInfo info, GiL
 // much of it as p sees, by glowLightSeen's one march to its middle, as a probe's ray's hit reads
 // them, or with halves by glowLightShown's marches to its faces' halves, as the screen's probes and
 // a pixel no screen probe holds read them, since the one march, from a cell and a half off the
-// surface, sees over a wall half as high as a lamp and lit the floor behind it whole. The marches
-// are the cost, so the brightest at p, as many as `marches`, four at most, are kept with their
-// light as the lights are read and only they are marched each. The fainter ones are gathered by
-// their way from p into as many groups, a quarter of the surface's plane each, every group's light
-// summed and shadowed by one march to its brightest, so a point lit by more lights than are marched
-// takes them all for twice the marches at most. Left out, a closed room lit by six small emitters
-// took 0.82 of a path-traced reference's light where it takes 0.92, and 0.96 lit by one emitter of
-// their six (GlowLightsTests). One way through for every count, the lights read and the kept ones marched in loops kept from
-// unrolling, so a shader holds one march and one closed form of it. A second way for few lights, and both in
-// each of the model pass's two shadings of a reflection's hit, made its compile on lavapipe 0.68 s
-// longer for each app. A light gives nothing to its own surface, which a hit finds within half a
-// cell of its box (glowLightOn). Where the field does not hold p, every light unhidden.
+// surface, sees over a wall half as high as a lamp and lights the floor behind it whole. The
+// marches are the cost, so the brightest at p, as many as `marches`, four at most, are kept with
+// their light as the lights are read and only they are marched each. The fainter ones are gathered
+// by their way from p into as many groups, a quarter of the surface's plane each, every group's
+// light summed and shadowed by one march to its brightest, so a point lit by more lights than are
+// marched takes them all for twice the marches at most. One way through for every count, the
+// lights read and the kept ones marched in loops kept from unrolling, so a shader holds one march
+// and one closed form of it, since a second way for few lights would stand in each of the model
+// pass's two shadings of a reflection's hit and lengthen its compile for every app. A light gives
+// nothing to its own surface, which a hit finds within half a cell of its box (glowLightOn). Where
+// the field does not hold p, every light unhidden.
 public float3 glowLightsAt<V : IVolume>(V field, SceneFieldInfo info, GiLights lights, float3 p, float3 n, int marches, bool halves)
 {
     return glowLightsAt(field, info, lights, p, n, marches, halves, float3(0.0));
@@ -636,17 +626,13 @@ public float3 glowLightsAt<V : IVolume>(V field, SceneFieldInfo info, GiLights l
 // light's box takes the light as its mean over a square a cell wide about the hit on its plane, at
 // the middles of the square's four quarters, since a light thinner than a cell lights the wall it
 // stands against within a few hundredths of a block of its box, a patch one probe's ray meets and
-// the next probe's misses. Taken at the hit alone, the strip's room of shaders_bounce_rooms read
-// 0.233 and 0.213 of its light apart from its path-traced reference at Medium and High at 160 by
-// 90, where with the mean 0.217 and 0.201; taken at a cell's distance from the box, 0.263 and
-// 0.279, since the strip's light on its own wall is light the reference has.
+// the next probe's misses. Taken at a cell's distance from the box instead, the hit would lose the
+// strip's light on its own wall, which is light a path-traced reference has.
 public float3 glowLightsAt<V : IVolume>(V field, SceneFieldInfo info, GiLights lights, float3 p, float3 n, int marches, bool halves, float3 way)
 {
     // A point past every light's reach takes none of their light, found before the loop over them,
-    // which the voxel game's cherry grove ran at each pixel of the far land and the clouds, a fifth
-    // of its pixels, their surfaces blended and so missing from the window's depth the screen's
-    // texels are taken from, its scene pass 9.1 ms at 1920 by 1080 on the development machine's GPU
-    // where it takes 8.4.
+    // which would otherwise run at each pixel of the far land and the clouds, whose surfaces are
+    // blended and so missing from the window's depth the screen's texels are taken from.
     if (any(p < lights.glowCounts.yzw) || any(p > lights.glowHigh.xyz))
         return float3(0.0);
     int count = min(int(lights.glowCounts.x), MostGlowLights);

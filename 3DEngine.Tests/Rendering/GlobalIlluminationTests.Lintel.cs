@@ -17,9 +17,9 @@ public sealed partial class GlobalIlluminationTests
         // light alone lighting it. The first cascade's probe at the hall's middle reads its face
         // toward the opening against a reference of one bounce. Its rays that way leave its
         // interval and meet the lintel past it, where the probes above it, standing lower, see the
-        // sky under the lintel along the same ways, and blended so the face read 0.1227 where the
-        // reference reads 0.0812, 51% over, as Sponza's vestibule took the sky past its arch.
-        // With its ray marched on past its interval and those probes passed over it reads 0.0778.
+        // sky under the lintel along the same ways, and blended with them the face takes sky the
+        // reference does not, as Sponza's vestibule took the sky past its arch. So its ray is
+        // marched on past its interval and those probes are passed over.
         Open();
         SetSceneField(4, 0.125f, 2);
         SetSceneFieldCenter(new Vector3(-2, 1.5f, 0));
@@ -62,13 +62,11 @@ public sealed partial class GlobalIlluminationTests
     {
         // The same hall, two probes by the lintel read twelve times 23 frames apart with nothing
         // moving. A probe above whose rays move through their sixteen places, carried past its
-        // interval, met a surface along a way in some frames and saw past it in others, so with the
-        // probes above passed over where they disagree with the ray marched past its interval, the
-        // second cascade's probe's face toward the opening went between its readings by 1.717
-        // times and the first's by 1.667, where 1.284 and 1.094 before the march. In Sponza's
-        // door view at 8:00 such a probe by the end wall went between 0.000602 and 0.0000258 at
-        // irregular times. With such a probe read by its texels' middle ways' hits, which hold
-        // still, the two read 1.348 and 1.131.
+        // interval, meets a surface along a way in some frames and sees past it in others, so with
+        // the probes above passed over where they disagree with the ray marched past its interval,
+        // the two probes' faces toward the opening went up and down from frame to frame, as such a
+        // probe by the end wall of Sponza's door view did at irregular times. Such a probe is read
+        // by its texels' middle ways' hits, which hold still.
         Open();
         SetSceneField(4, 0.125f, 2);
         SetSceneFieldCenter(new Vector3(-2, 1.5f, 0));

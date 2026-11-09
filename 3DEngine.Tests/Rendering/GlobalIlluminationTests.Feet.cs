@@ -14,9 +14,8 @@ public sealed partial class GlobalIlluminationTests
     {
         // A closed room of rough gray slabs two cells thick lit by a dim lamp, standing in a sky 64
         // times as bright that the probes under its floor see, the camera inside looking along its
-        // right wall. On the development machine's GPU the wall's foot read 79.7 to 84.8 of 255
-        // where the wall above it reads 66.5 to 72.7, the probes under the floor lending the foot's
-        // reflection the sky, and 60.2 to 62.5 with them left out.
+        // right wall. Where the probes under the floor lent the foot's reflection the sky, the
+        // wall's foot was brighter than the wall above it, which with them left out it is not.
         Open();
         SetGlobalIllumination(GlobalIllumination.High);
         SetAmbientLight(Color.White, 64);

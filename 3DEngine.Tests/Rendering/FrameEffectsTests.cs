@@ -446,7 +446,7 @@ public sealed class FrameEffectsTests : IDisposable
         // Without the history it would go from one side of the step to the other, and with an
         // eighth of each frame blended in it would move by up to an eighth of the step, 0.125.
         // A pixel that holds still takes less of each frame the longer it does, down to a
-        // thirty-second, which reads 0.026 on lavapipe and on an RTX 4070.
+        // thirty-second, and the bound lies between that and the eighth.
         var most = 0f;
         for (int y = 0; y < before.Height; y++)
             for (int x = 0; x < before.Width; x++)
@@ -467,8 +467,8 @@ public sealed class FrameEffectsTests : IDisposable
         var settled = CaptureAfter(24, Slanted(1.5f, gray));
 
         // The left of the frame, where the triangle was and is no longer, held to the gray around
-        // it this frame though the history saw the triangle there. It reads 0, and 0.010 where
-        // the box was widened by the pixel's own depth alone, the edge's history held in it.
+        // it this frame though the history saw the triangle there. A box widened by the pixel's
+        // own depth alone would keep the edge's history in it, past the bound.
         var most = 0f;
         for (int y = 0; y < moved.Height; y++)
             for (int x = 0; x < 40; x++)

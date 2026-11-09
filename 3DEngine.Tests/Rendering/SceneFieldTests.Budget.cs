@@ -209,12 +209,12 @@ public sealed partial class SceneFieldTests
 
         var whole = Run(int.MaxValue);
         var budgeted = Run(65_536);
-        // Lavapipe read the frame that built all 500 at once at 5,565 ms, and with a budget of 65,536
-        // triangles the slowest of the 14 frames the builds took at 812 ms, the default's 32,768
-        // 312 ms over 27, the field's time a frame held to about the budget's share of the whole.
+        // A budget holds the field's time a frame to about its share of the time of the frame
+        // that builds all 500 sections at once, so the slowest budgeted frame lies well under half
+        // of it.
         budgeted.Frames.Should().BeGreaterThan(whole.Frames, "the budget spreads the builds over more frames");
-        // The macOS runner's device, through MoltenVK, reads the field's time at 0.0 ms every frame,
-        // so there the counts alone are held.
+        // The macOS runner's device, through MoltenVK, reports the field's time as zero every
+        // frame, so there the counts alone are held.
         if (whole.Slowest > 0)
             budgeted.Slowest.Should().BeLessThan(whole.Slowest / 2, $"no frame's field time is near the frame that built them all at once, {budgeted.Slowest:0.0} ms against {whole.Slowest:0.0} ms");
     }

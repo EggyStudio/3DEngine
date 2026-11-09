@@ -83,9 +83,7 @@ public sealed class AmbientOcclusionTests(ITestOutputHelper output) : IDisposabl
 
     // The floor a tenth of a unit in front of the cube, the floor in the walls' corner, and the
     // floor a unit and a half from anything. Near white with the ambient light and the sun on it,
-    // the floor reads 729, 720 and 750 with the occlusion where 753 without, and the render
-    // texture's beside the cube 732, on the development machine's GPU, so a place closed off reads
-    // 12 under.
+    // the floor in a place closed off reads more than 12 under its light without the occlusion.
     private static readonly Vector3 Beside = new(0, 0, 0.6f), Corner = new(-3.7f, 0, -1.3f), Far = new(2.2f, 0, 0.3f);
 
     [NeedsVulkanFact]
@@ -135,7 +133,7 @@ public sealed class AmbientOcclusionTests(ITestOutputHelper output) : IDisposabl
                 moved += Math.Abs(Sum(GetImageColor(settled, x, y)) - Sum(GetImageColor(next, x, y)));
         moved /= settled.Width * settled.Height;
         output.WriteLine($"a pixel moved {moved:0.000} of 765 between two frames");
-        // 0.096 on the development machine's GPU, and 0.645 with the history kept none of.
+        // The bound lies between a still view's movement with its history and without it.
         moved.Should().BeLessThan(0.3, "the history holds what the frames before read");
         UnloadModel(floor);
         UnloadModel(cube);

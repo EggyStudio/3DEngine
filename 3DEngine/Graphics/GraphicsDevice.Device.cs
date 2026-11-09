@@ -156,9 +156,8 @@ internal sealed unsafe partial class GraphicsDevice
         // structures, which it builds without a word from the validation layer, trace on a GPU.
         _instanceApi.vkGetPhysicalDeviceProperties(_physicalDevice, out var device);
         var onCpu = device.deviceType == VkPhysicalDeviceType.Cpu;
-        // No samples along a slant on a device that draws on its CPU: lavapipe's sixteen blurred a
-        // texture drawn at its own size, which a GPU's leave whole, and textures_cellular_automata
-        // read 7.0% of its pixels apart from raylib's program where with one sample 1.0%.
+        // No samples along a slant on a device that draws on its CPU, since lavapipe's sixteen blur
+        // a texture drawn at its own size, which a GPU's leave whole.
         _maxAnisotropy = onCpu ? 1 : Math.Max(1, device.limits.maxSamplerAnisotropy);
         CanQueryRays = hasRayExtensions && structures.accelerationStructure && rayQuery.rayQuery && vulkan12.bufferDeviceAddress && !onCpu;
         if (CanQueryRays) extensionNames.AddRange(rayExtensions);

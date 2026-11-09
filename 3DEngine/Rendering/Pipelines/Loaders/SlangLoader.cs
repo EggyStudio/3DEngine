@@ -18,8 +18,7 @@ namespace Engine;
 /// </para>
 /// <para>
 /// Kept beside the program, the compiled shaders went with every build the program's folder was
-/// deleted before, and Sponza's first start after one took 44 s of slangc's compiles, 72 of them
-/// one after another, where with them cached the renderer starts in 0.3 s.
+/// deleted before, and the first start after one compiled every stage again through slangc.
 /// </para>
 /// </remarks>
 /// <example>
@@ -182,8 +181,8 @@ internal sealed partial class SlangLoader : IAssetLoader<ShaderProgram>
     /// read them. A stage that fails to compile is left for its load to say why.
     /// </summary>
     /// <remarks>
-    /// Compiled one after another as each was loaded, Sponza's first start with no cache spent
-    /// 44 s on 68 stages of 0.3 to 1.6 s each, on a machine of 32 cores.
+    /// Compiled one after another as each was loaded, a first start with no cache waited on every
+    /// stage in turn, where the machine's cores can compile them together.
     /// </remarks>
     /// <param name="wanted">Whether the build of a shader of the file's name with the names given is loaded, the plain build's none.</param>
     internal void CompileAhead(Func<string, string[], bool> wanted)

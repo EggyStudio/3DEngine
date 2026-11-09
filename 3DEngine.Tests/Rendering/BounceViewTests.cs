@@ -71,10 +71,9 @@ public sealed class BounceViewTests : IDisposable
             restore();
             Apart(without, plain).Should().BeGreaterThan(least, $"leaving {part} out changes the frame");
         }
-        // The sky lost with the merge changes the frame most, by 14.5 of 255 as this test measured
-        // it on the development machine's GPU, the surfaces' reflection of the indirect light 8.3,
-        // the light past the first bounce 2.3, the first cascade's light lost 2.2, the screen's
-        // probes 0.58 and their filter 0.11.
+        // Each bound lies under how far leaving its part out changes the frame, the sky lost with
+        // the merge most, then the surfaces' reflection of the indirect light, the light past the
+        // first bounce and the first cascade's light, the screen's probes, and their filter least.
         LeftOut("the merge", () => settings.MergeOff = true, () => settings.MergeOff = false, 5);
         LeftOut("every cascade but the last", () => settings.Alone = 1, () => settings.Alone = -1, 0.5f);
         LeftOut("the screen's probes", () => settings.ScreenOff = true, () => settings.ScreenOff = false, 0.2f);

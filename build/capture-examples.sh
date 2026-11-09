@@ -94,7 +94,7 @@ it wrote no picture"
     ./e3d stop --quiet || true
     printf '%s\t%s\tfailed\n' "$example" "$seconds" >> "$times"
     # A capture that failed on build/webp.sh's own line lacks a tool every capture after it needs
-    # as well, so the rest are left, where the examples job spent twenty minutes failing each one.
+    # as well, so the rest are left rather than each failing in turn.
     case "$(printf '%s' "$said" | tail -n 1)" in
       webp.sh:*)
         echo "::error title=Captures on $system::The captures stopped after $example, since build/webp.sh lacks a tool each capture needs, $(( total - reached )) left uncaptured"

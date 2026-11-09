@@ -181,7 +181,11 @@ the engine's words, and a number taken from elsewhere stands with the reason it 
 it makes the frame or the program do, its source named once in the documents and not in the
 comment. The file name of an outside asset, another product's profile or process given as the
 explanation, and the facts of the work that made the code, a review's verdict, a commit's run or a
-session's finding, are not written in a comment, since a reader of the source has none of them.
+session's finding, are not written in a comment, since a reader of the source has none of them. A
+comment carries no reading of before and after, no cost in milliseconds or bytes and no account of
+the trials that led to the code, since those are the review's records and RENDERING.md's and go
+stale at the first tuning. A number stands in a comment only where the code's choice depends on it,
+a size, a count or a threshold, and then with its reason.
 BevyCSharp is named once where a rule, a format or a model was taken from it, as the API's names
 are from raylib, and its readings and its process are not the explanation, which SHARED.md holds
 for the sessions. A comparison test names the reference it compares against, since the comparison
@@ -303,6 +307,11 @@ git grep -n -i -E "in the manner of|ground floor|out of the box|under the hood|a
 # a commit's run (N 4.11). A comparison test names its reference, so the hits are read rather than
 # counted.
 git grep -n -i -E "HDRP|Unity|BevyCSharp|bridge's|\.exr\b|REVIEW\.md|Verdict [0-9]|[0-9a-f]{8}'s run|(push|pack run) of [0-9a-f]{8}" -- '*.cs' '*.slang' '*.sh' '*.py' '*.yml' | grep -E "//|#|/\*"
+
+# Readings, costs and trials in comments (N 4.11), milliseconds, a reading against a reference,
+# where something read and from so much to so much. A number the code's choice depends on stands
+# with its reason, so the hits are read rather than counted.
+git grep -n -i -E "[0-9] ?ms\b|millisecond|times its reference|where it read|\bread [0-9]|from [0-9][0-9.,]*( [a-z%]+)? to [0-9]" -- '*.cs' '*.slang' '*.sh' '*.py' '*.yml' | grep -E "//|#|/\*"
 
 # Padded section banners.
 grep -rn "// -- .*--" --include=*.cs --include=*.slang . | grep -v "^\./\.ref/"

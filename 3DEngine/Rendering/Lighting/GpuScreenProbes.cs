@@ -53,11 +53,6 @@ internal sealed class GpuScreenProbes : IDisposable
     /// rows and as many as hold the images at 540 rows past that, as the screen probes' tile grows,
     /// so the glow lights' pass, which works out each texel's light, costs at 4K what it does at 1080p.
     /// </summary>
-    /// <remarks>
-    /// At two pixels a texel in Sponza's atrium at 3840 by 2160 the pass took 1.07 to 1.37 ms of
-    /// global illumination's 4.0 to 5.1 where 0.29 to 0.42 at 1920 by 1080, global illumination
-    /// growing past half again from one size to the other, where without the glow lights it held.
-    /// </remarks>
     public static float GlowTexelAt(uint height) => 2 * Math.Max(1f, height / 1080f);
 
     internal IImage Irradiance { get; }

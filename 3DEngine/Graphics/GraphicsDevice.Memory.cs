@@ -35,8 +35,8 @@ internal sealed unsafe partial class GraphicsDevice
     /// device, or null where the driver does not say.
     /// </summary>
     /// <remarks>
-    /// The budget counts what other programs hold, so an example started beside an editor holding
-    /// 3.5 of a GPU's 8 GB reads what is left to it.
+    /// The budget counts what other programs hold, so an example started beside an editor that
+    /// holds part of the GPU's memory reads what is left to it.
     /// </remarks>
     // Memory as the info asks, or where the device has none a DeviceMemoryException saying how much
     // was asked and how much is free, which a caller that can take less or go without catches.
@@ -118,12 +118,12 @@ internal sealed unsafe partial class GraphicsDevice
             foreach (var block in blocks)
                 if (!block.Dedicated && TryCarve(block, requirements.size, alignment) is { } slice)
                 {
-                    // Where the device's own memory is the memory the CPU sees, as on lavapipe, one type
-                    // serves both and a block made for a buffer of the device's own, left unmapped,
-                    // holds the next of either kind that fits it. One the CPU writes is mapped there,
-                    // which left out gave it a null pointer, and a voxel game's scene field pool, carved
-                    // there after the field was made again three times in two seconds, took its
-                    // first write through it and ended the game.
+                    // Where the device's own memory is the memory the CPU sees, as on lavapipe,
+                    // one type serves both and a block made for a buffer of the device's own, left
+                    // unmapped, holds the next of either kind that fits it. One the CPU writes is
+                    // mapped there, which left out gave it a null pointer, and a voxel game's scene
+                    // field pool, carved there after the field was made again, took its first
+                    // write through it and ended the game.
                     if (!hostVisible || block.Mapped != 0) return slice;
                     MapBlock(block);
                     return slice with { Mapped = block.Mapped + (nint)slice.Offset };

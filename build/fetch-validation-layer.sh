@@ -5,8 +5,8 @@
 #
 # Ubuntu 24.04's own layer, 1.3.275, predates VK_KHR_line_rasterization, which lavapipe offers and
 # the engine draws its lines with, so it warned at every device the suite opened and left those
-# lines unvalidated. Of the SDK's 370 MB only the layer and its manifest are kept, the layer
-# stripped of its symbols to some 33 MB, which the workflows cache by this file.
+# lines unvalidated. Of the whole SDK only the layer and its manifest are kept, the layer stripped
+# of its symbols, so the cache the workflows keep by this file holds the layer and not the SDK.
 #
 # The version is pinned so a change of layer comes in a commit, as Slang's does. Pass --force to
 # download it again over what is there.

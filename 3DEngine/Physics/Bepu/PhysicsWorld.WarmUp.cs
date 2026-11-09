@@ -12,11 +12,10 @@ public sealed partial class PhysicsWorld
     /// </summary>
     /// <remarks>
     /// The solver is generic over the engine's callbacks, each pair of shapes and each kind of
-    /// joint, and .NET compiles each of those the first time it runs. In <c>games/Manor</c> the
-    /// first steps with a character on a mesh, doors on hinges and bodies falling asleep compiled
-    /// up to 173 methods in a step, 25 to 38 ms, which this brings under 15 ms. A native build
-    /// compiles nothing as it runs. <see cref="PhysicsPlugin"/> runs this on a worker as the app is
-    /// built, where it costs no frame.
+    /// joint, and .NET compiles each of those the first time it runs, so a game's first steps with
+    /// a character on a mesh, doors on hinges and bodies falling asleep compile many methods in one
+    /// step and hold up its frame. A native build compiles nothing as it runs.
+    /// <see cref="PhysicsPlugin"/> runs this on a worker as the app is built, costing no frame.
     /// </remarks>
     internal static void WarmUp()
     {

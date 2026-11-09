@@ -15,9 +15,9 @@ public sealed partial class GlobalIlluminationTests
         // A room lit by an emissive panel at Medium, which stands the screen's probes, the light they
         // give read with their frames before kept and left out (gi.toggle history off). Left out,
         // the count of frames a probe kept was never set and took whatever the GPU held there, and
-        // on the development machine's GPU the probes gave 0.150 where 0.187 with the frames kept,
-        // and Sponza's lookup at 8:00 read 27% darker, though the mean of sixteen frames without
-        // them read as dark as one. Set to none, they give 0.192, a frame's rays alone, 2.9% off.
+        // the probes gave less light than with the frames kept, though the mean of sixteen frames
+        // without them is as dark as one. Set to none, they give a frame's rays alone, which
+        // differ from the mean of sixteen by those rays' noise.
         Open();
         var slab = LoadModelFromMesh(GenMeshCube(1, 1, 1));
         var panel = LoadModelFromMesh(GenMeshCube(1, 1, 1));

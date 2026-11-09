@@ -15,8 +15,9 @@ public sealed partial class BounceReferenceTests
     public void A_Smooth_Metal_Plane_Under_The_Sky_Reads_The_Sky_Times_Its_Fresnel(bool every)
     {
         // A metal of a linear 0.87 reflects the sky by its Fresnel, its color at a square view and
-        // more of the sky toward a grazing one. Read on the development machine's GPU it reads 0.943
-        // with the first face's gloss and with every face's, the plane being the first face.
+        // more of the sky toward a grazing one, so the plane reads between its color and the whole
+        // sky, alike with the first face's gloss and with every face's, the plane being the first
+        // face.
         var gloss = every ? ReferenceGloss.Every : ReferenceGloss.First;
         var (plane, sky) = PlaneUnderTheSky(new Color(240, 240, 240), metallic: 1, roughness: 0.05f, gloss);
         (plane / sky).Should().BeInRange(0.87f, 1.0f, $"the metal plane reads {plane / sky:0.000} of the sky");
@@ -29,8 +30,8 @@ public sealed partial class BounceReferenceTests
     {
         // A gray of a linear half under the sky reads its diffuse share, a half less what its
         // Fresnel takes, and the gloss its Fresnel reflects at a grazing view of a tenth, about 0.15
-        // at a roughness of a half. It reads 0.658 on the development machine's GPU with the first
-        // face's gloss and every face's, and the bound is a tenth either side of that.
+        // at a roughness of a half. It reads alike with the first face's gloss and every face's,
+        // and the bound is a tenth either side of where it reads.
         var gloss = every ? ReferenceGloss.Every : ReferenceGloss.First;
         var (plane, sky) = PlaneUnderTheSky(new Color(188, 188, 188), metallic: 0, roughness: 0.5f, gloss);
         (plane / sky).Should().BeInRange(0.59f, 0.72f, $"the gray plane reads {plane / sky:0.000} of the sky");
@@ -43,11 +44,10 @@ public sealed partial class BounceReferenceTests
     {
         // A white metal wall four units high stands on a white floor, the sun at 45 degrees coming
         // toward it, so the wall mirrors the sun back onto the floor within four units of its foot at
-        // the same slant. With every face glossy the floor there takes the sun twice, less what the
-        // wall's roughness of 0.3 scatters past it, and reads 1.906 times the floor six to eight
-        // units off on the development machine's GPU. With the first face's gloss alone the wall is
-        // a face after the first, lit and going on as a white diffuse face, and the floor by it
-        // takes a fifth more, 1.204.
+        // the same slant. With every face glossy the floor there takes the sun twice against the
+        // floor six to eight units off, less what the wall's roughness of 0.3 scatters past it.
+        // With the first face's gloss alone the wall is a face after the first, lit and going on as
+        // a white diffuse face, and the floor by it takes about a fifth more.
         var gloss = every ? ReferenceGloss.Every : ReferenceGloss.First;
         var config = Config.Default.WithWindow("bounce reference test", 160, 120) with { Headless = true, Offscreen = true, Samples = 1 };
         UseApp(new App(config).AddPlugin(new DefaultPlugins()));

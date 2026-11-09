@@ -419,8 +419,8 @@ internal sealed unsafe partial class GraphicsDevice
     private readonly List<(VkFence Fence, VkCommandBuffer Commands, IBuffer[] Staging)> _uploads = [];
 
     // The uploads recorded since the last submit, into one command buffer, with the staging buffers
-    // it reads. A submit of its own for each texture cost 0.25 to 0.8 ms, most of a texture's
-    // upload, so a cell of a level streaming in with ten of them spent a frame's budget on submits.
+    // it reads. A submit of its own for each texture is most of the texture's upload, so a cell of
+    // a level streaming in with its textures would spend a frame's budget on submits.
     private VkCommandBuffer? _uploadBatch;
     private readonly List<IBuffer> _batchStaging = [];
 

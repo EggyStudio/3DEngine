@@ -91,8 +91,8 @@ jobs:
     permissions:
       contents: read
       id-token: write
-    # It took 3 minutes on a pack run, the engine built in Release, packed and its
-    # contents checked, so 30 ends a push to nuget.org that stalls.
+    # It builds the engine in Release, packs it and checks what the package holds, and its 30
+    # minutes end a push to nuget.org that stalls.
     timeout-minutes: 30
     steps:
       # The whole history, since the patch counts commits.

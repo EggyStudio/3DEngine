@@ -76,9 +76,9 @@ float4 fragmentMain(FullscreenOutput input) : SV_Target
     {
         // The threshold of light after the exposure, as the light before it, and a scattered
         // bloom's light held under 256 times white after the exposure. Held at 256 before the
-        // exposure, the moon a metered night lifts fifteen stops bloomed at some 1,900 times white
-        // and the sun at 9:00 in Sponza's court looking up whitened the frame, where the sun at
-        // noon, the exposure lifting the scene less, bloomed as a disc with a halo about it.
+        // exposure, the moon a metered night lifts fifteen stops would bloom far past white, and a
+        // morning sun looked up at, the exposure lifting the scene more than at noon, would whiten
+        // the frame.
         float threshold = push.source.z;
         float white = push.spread.w;
         if (push.spread.y > 0.0)

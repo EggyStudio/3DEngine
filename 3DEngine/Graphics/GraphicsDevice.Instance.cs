@@ -133,8 +133,8 @@ internal sealed unsafe partial class GraphicsDevice
     /// <remarks>
     /// The loader loads the layer with each instance and unloads it as the instance is destroyed.
     /// The layer's Windows build at 1.4.363.0 allocates through mimalloc, which keeps what it
-    /// reserved when its library is unloaded, about a megabyte each time, so a hundred apps under it
-    /// measured the layer and not the engine.
+    /// reserved when its library is unloaded, so the process's memory over many apps under it
+    /// measures the layer and not the engine.
     /// </remarks>
     internal static bool LeaveValidationOff { get; set; }
 

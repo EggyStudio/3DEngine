@@ -127,11 +127,10 @@ public float cascadeReached(int c, float3 world, float3 n, float2 texel, out flo
 
 // The normal n of a face turned to the side toward a light, toward being the way to it, which a
 // shadow's point is moved along before it is compared. A two-sided face lit from its back, as a
-// plant's thin wall is, has its normal facing away from the light, and moved along it the point went
-// behind the face as the light sees it, so the face shadowed itself; in a field of wheat's walls a
-// block tall under a sun at 56 degrees, the walls lit from their backs read in speckles and stripes,
-// their light within each wall spread 0.149 of its mean against 0.053 in a path-traced reference
-// where every wall reads even, and turned to the light's side 0.054.
+// plant's thin wall is, has its normal facing away from the light, and moved along it the point
+// goes behind the face as the light sees it, so the face shadows itself, and in a field of wheat's
+// walls the walls lit from their backs read in speckles and stripes where a path-traced reference
+// reads every wall even.
 public float3 litSide(float3 n, float3 toward)
 {
     return dot(n, toward) < 0.0 ? -n : n;
@@ -361,9 +360,9 @@ static const float PI = 3.14159265;
 // since a light here is given as the light a white diffuse surface facing it returns, so the
 // diffuse term is the albedo itself rather than the albedo over pi. Fresnel's base is held to 0 to
 // 1, since with the light at the eye, as a game's held light is, the half vector is the view's and
-// their dot rounds a hair over 1, and the fifth power of a base a hair under 0 is no number on a
-// device that takes a power as exp2 of a logarithm, as lavapipe does; a room lit by a light at its
-// camera read 12,617 of 57,600 pixels black there where the RTX 4070 read none.
+// their dot rounds a little over 1, and the fifth power of a base a little under 0 is no number on
+// a device that takes a power as exp2 of a logarithm, as lavapipe does, which leaves pixels black
+// in a room lit by a light at its camera.
 public float3 specularReflected(float3 n, float3 v, float3 l, float3 f0, float alpha, out float3 fresnel)
 {
     float3 h = normalize(v + l);
@@ -463,8 +462,8 @@ public float3 environmentIrradiance(float3 n)
 // The share of light from all around that a surface reflects, with no environment to reflect, as
 // the split sum takes it apart from the light, GGX's lobe integrated for each cosine to the eye and
 // roughness (SpecularShares), so a smooth or metal surface under an ambient light is not black.
-// Karis's fit for mobile, which it replaced, gave a metal wall of roughness 0.6 seen square on 0.34
-// of the light around it where the lobe gives 0.41, and the path-traced reference 0.41.
+// Karis's fit for mobile, the alternative, gives a rough metal wall seen square on less of the
+// light around it than the lobe and a path-traced reference give.
 public float3 ambientReflected(float3 f0, float roughness, float nv)
 {
     float2 ab = specularShares.SampleLevel(lightLinear, float2(saturate(nv), saturate(roughness)), 0).rg;
@@ -507,23 +506,21 @@ public float3 bouncedAndSky(float3 p, float3 n, float3 r, out float sky)
 // Whether a surface at p facing n lies by a wall thinner than a cell, whose probes beyond it the
 // reach takes for seen (probeSees), so the world's probes are read through the field there
 // (bouncedSeen) where no screen probe stands. The reach is judged from 0.3 of the probes' spacing
-// off the surface, and by a wall's foot that point lies within the wall's cells, as far from a probe
-// beyond the wall as the probe's rays reached, so at Low the lamp outside a room of walls a tenth of
-// a unit thick lit the floor and the walls along each foot in triangles. Where another surface lies
-// nearer that point than the pixel's own, the field a cell through that surface tells a thin wall,
-// outside it again, from a solid one, inside, so a voxel world's blocks leave their corners to the
-// reach. In the voxel game's room of forty glowstones at 1920 by 1080 at Low 0.5% of the pixels
-// march and the scene pass takes 0.25 to 0.57 ms more, where marching from every pixel another
-// surface stood by took 2.5 ms more.
+// off the surface, and by a wall's foot that point lies within the wall's cells, as far from a
+// probe beyond the wall as the probe's rays reached, so at Low the lamp outside a room of walls a
+// tenth of a unit thick lit the floor and the walls along each foot in triangles. Where another
+// surface lies nearer that point than the pixel's own, the field a cell through that surface tells
+// a thin wall, outside it again, from a solid one, inside, so a voxel world's blocks leave their
+// corners to the reach, and the pixels by a thin wall march rather than every pixel another surface
+// stands by.
 public bool byThinWall(float3 p, float3 n)
 {
     float cell = fieldCell(bouncedField, p);
     if (cell <= 0.0)
         return false;
-    // Not in the far cascade, whose cells, as wide as its reach makes them, are wider than every wall
-    // of a world of blocks, where the judgment read the field at each far pixel and marched to the
-    // probes at most of them, 0.45 to 0.74 ms of the voxel game's cherry grove at 1920 by 1080
-    // (./e3d command profile).
+    // Not in the far cascade, whose cells, as wide as its reach makes them, are wider than every
+    // wall of a world of blocks, so the judgment there would read the field at each far pixel and
+    // march to the probes at most of them.
     if (bouncedField.counts.w > 0.5 && fieldCascade(bouncedField, p, 1.0) == int(bouncedField.counts.w))
         return false;
     float judged = 0.3 * cell * lighting.indirect.y;
@@ -535,16 +532,14 @@ public bool byThinWall(float3 p, float3 n)
     return fieldDistance(SplitVolume(reflectField, lightLinear), bouncedField, at - out * (nearest + cell)) >= 0.0;
 }
 
-// The indirect light reaching a surface at p facing n, irradiance over pi, from those of the world's
-// probes around it it sees with nothing the field holds between (bouncedSeenAt), or from them all as
-// bounced reads them where it sees none, or -1 where no cascade of probes holds p. A pixel no screen
-// probe on a surface like its own stands near, as where two walls meet, reads it, since a probe
-// beyond a wall thinner than the probes' spacing is seen by bounced's reach where the point it
-// judges from lies in the other wall's cells, and lent the thin room's corner the lamp's light
-// outside, 3.25 times the wall beside it where a path-traced reference reads 1.10, and 1.02 so.
-// Marched to its probes, faded across a cascade's outer band as bounced fades, it costs those
-// pixels' groups, 185 pixels of the room's 360,000 at 800 by 450, the model pass 0.07 ms on the
-// development machine's GPU, 0.31 where 0.24, and the Cornell box's 0.09, 0.27 where 0.18.
+// The indirect light reaching a surface at p facing n, irradiance over pi, from those of the
+// world's probes around it it sees with nothing the field holds between (bouncedSeenAt), or from
+// them all as bounced reads them where it sees none, or -1 where no cascade of probes holds p. A
+// pixel no screen probe on a surface like its own stands near, as where two walls meet, reads it,
+// since a probe beyond a wall thinner than the probes' spacing is seen by bounced's reach where the
+// point it judges from lies in the other wall's cells, and lends the thin room's corner the lamp's
+// light outside. Marched to its probes, faded across a cascade's outer band as bounced fades, it
+// costs the groups of those few pixels alone.
 public float3 bouncedSeen(float3 p, float3 n)
 {
     int cascades = int(lighting.indirect.w);
@@ -552,8 +547,8 @@ public float3 bouncedSeen(float3 p, float3 n)
     if (c < 0 || c >= cascades)
         return float3(-1.0);
     // Faded to the next cascade across this one's outer band, as bouncedAt fades, since read from
-    // one cascade alone a far floor that no screen probe like it holds stepped by 10% where the
-    // third cascade ended (CascadeEdgeTests).
+    // one cascade alone a far floor that no screen probe like it holds steps where a cascade ends
+    // (CascadeEdgeTests).
     float own = fadesOn(bouncedField, c, cascades) ? cascadeHold(bouncedField, c, p, cascades) : 1.0;
     float3 light = float3(0.0);
     [loop]
@@ -618,8 +613,8 @@ public float4 tracedReflection(float3 p, float3 n, float3 r, float roughness, fl
     float3 hit;
     float left;
     // The surface met, on the screen or past it in the field, shaded once, since each shading of a
-    // hit holds the glow lights' marches, and the model pass compiled two of them in a second more
-    // on lavapipe for each app.
+    // hit holds the glow lights' marches, and two of them lengthen the model pass's compile for
+    // every app.
     bool onScreen = traceScreen(SplitPicture(reflectDepth, lightNearest), camera, start, r, lighting.reflectionReach.x, int(lighting.reflection.z), hit, left);
     if (!onScreen)
     {

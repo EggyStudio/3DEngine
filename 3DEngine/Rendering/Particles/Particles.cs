@@ -73,8 +73,8 @@ internal sealed class ParticleExtract : IExtractSystem
 /// The step, the sort and the draw take only the slots that may hold a live particle, counted back
 /// from the newest, which the births of the frames before and the longest life one of them can draw
 /// bound, so an emitter whose particles have died costs nothing until it emits again, and one with
-/// a few alive costs its few, where twenty empty emitters of a voxel game read 3.5 ms of the CPU and
-/// 2.1 of the GPU stepping, sorting and drawing every slot.
+/// a few alive costs its few, where stepping, sorting and drawing every slot cost an empty emitter
+/// as much as a full one.
 /// </para>
 /// </remarks>
 internal sealed class ParticleRenderer : IDisposable

@@ -76,8 +76,7 @@ public sealed class RoughReflectionTests(ITestOutputHelper output) : IDisposable
         Mean(plain + ".pfm").Should().BeApproximately(1, 0.02f, "the metal's first faces scatter nothing diffusely, so each shows its emission alone");
 
         // GGX's metal of this color reflects between a third and a half of light from all around,
-        // which the box's light from every way, 1 / (1 - color), is reflected by. It read 1.815, a
-        // share of 0.41, on the development machine's GPU.
+        // which the box's light from every way, 1 / (1 - color), is reflected by.
         var specular = Path.Combine(_folder.Path, "specular.png");
         BounceReference.Trace(GetApp().World, specular, 512, gloss: ReferenceGloss.First).Should().Contain("specular share traced");
         var mean = Mean(specular + ".pfm");
@@ -90,8 +89,8 @@ public sealed class RoughReflectionTests(ITestOutputHelper output) : IDisposable
     {
         // A wall seen square on from the box's middle, so each pixel's share is the table's at an
         // nv of 1, and the probes hold the box's light alike along every way, which the model pass
-        // reflected none of, with no environment in the box. Karis's fit for mobile, before the
-        // table, gave it 0.336 of the light around it and the wall read 1.675, the reference 1.832.
+        // reflected none of, with no environment in the box. Karis's fit for mobile, in the table's
+        // place, gave the wall less of the light around it than the reference.
         var color = MetalBox(0.6f, new Camera3D(Vector3.Zero, new Vector3(0, 0, -1), Vector3.UnitY, 20));
         var probe = BounceReference.MeasureProbe(GetApp().World, new Vector3(1, 1, 1), 64, -1, 0, out var said);
         probe.Should().NotBeNull(said);
@@ -99,9 +98,8 @@ public sealed class RoughReflectionTests(ITestOutputHelper output) : IDisposable
         // The probes' rays light a metal wall by its color's share of the light from all around at
         // the ray's angle (reflectedShare in probelight.slang), and the reference by its GGX lobe at
         // every face, a light's reflection thrown along its mirror way, which the even share spreads
-        // over every way. The probes hold 1.512 of the box's light on the development machine's GPU,
-        // 10.5% under the reference's 1.689, where taking the metal as a white diffuse face they held
-        // the closed form's 2.012 for such a face, and the bound is 15% over the shortfall.
+        // over every way, so the probes hold less of the box's light than the reference, and the
+        // bound leaves room for that shortfall.
         var reference = probe.Each.Average(way => way.Reference.X);
         held.Should().BeInRange(reference * 0.879f, reference * 1.121f, $"the probes hold {held:0.0000} of the box's light along every way, the reference {reference:0.0000}");
 
@@ -113,7 +111,6 @@ public sealed class RoughReflectionTests(ITestOutputHelper output) : IDisposable
         var (scale, bias) = SpecularShares.At(1, 0.6f);
         var expected = 1 + (color * scale + bias) * held;
         output.WriteLine($"the wall reads {wall.Frame.X:0.000} in the frame, {expected:0.000} expected and {wall.Reference.X:0.000} in the reference");
-        // On the development machine's GPU, the reference reading 1.832.
         wall.Frame.X.Should().BeApproximately(expected, expected * 0.005f, "the wall reflects the box's light the probes hold along its mirror ways by its specular share");
     }
 }

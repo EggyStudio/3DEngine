@@ -6,7 +6,7 @@ public static partial class E3D
 {
     // What a program set on its shaders, by id, which belongs to the app whose shader store gave
     // the ids, so an app made after another, whose store gives ids from 1 again, finds none of the
-    // other's values under them, as a uniform block of another shader's size once was found.
+    // other's values under them, such as a uniform block of another shader's size.
     private sealed class ShaderState
     {
         public readonly Dictionary<int, ShaderParams> Values = [];

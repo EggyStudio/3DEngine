@@ -17,9 +17,8 @@ public sealed partial class GlobalIlluminationTests
         // cells of half a unit, reads its face toward the floor against a reference of one bounce.
         // A hit taken a cell and a half off the floor before the shadow map was read, 0.75 units,
         // stood over the wall from 3.4 units out, so the far 2.1 units of the shadow read sunlit,
-        // and the probe, which stands at 6, 2, 2, read its face 0.979 against the reference's 0.629
-        // on the development machine's GPU, where moved a cell toward the sun, which reads the map at
-        // the same place, it reads 0.633.
+        // and the probe, which stands at 6, 2, 2, read its face far brighter than the reference. So
+        // the hit is moved a cell toward the sun instead, which reads the map at the same place.
         Open();
         SetSceneField(3, 0.5f, 2);
         SetGlobalIllumination(GlobalIllumination.High);

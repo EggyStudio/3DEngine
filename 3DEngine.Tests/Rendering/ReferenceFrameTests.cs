@@ -57,8 +57,8 @@ public sealed partial class ReferenceFrameTests : IDisposable
     // Draws frames until the first one's capture has been written, as OffscreenRenderTests does,
     // once every model the scene places has loaded and what the test waits on is ready, as a
     // probe's capture, and then settle frames for what takes a frame or more to appear. Summit's
-    // island, loaded on the asset server's workers, was captured gray on a runner slow that minute
-    // after a settle of ten frames alone.
+    // island is loaded on the asset server's workers, so on a slow machine a settle of frames alone
+    // captured it gray.
     private Image Capture(Action draw, int settle = 0, Func<bool>? ready = null)
     {
         // A capture taken earlier in the test is written over, rather than mistaken for this one.

@@ -30,11 +30,11 @@ public sealed partial class CascadeEdgeTests : IDisposable
     [InlineData(GlobalIllumination.High)]
     public void The_Floors_Light_Fades_Across_Each_Cascades_End_Rather_Than_Stepping(GlobalIllumination quality)
     {
-        // Read from one cascade alone, the floor's light stepped from one row to the next by 14% at
-        // the screen's probes' end at High, by 10% at the third cascade's and by 15% at the last's,
-        // past which the sky's light lit it unhidden, and by 25% at Low, whose screen probes end with
-        // its last cascade, as the voxel game's hills at sunset stepped from 0.6 to 1.0 of the
-        // sky's light where the last ended; faded across each one's outer band, by 3.7% and 1.9%.
+        // Read from one cascade alone, the floor's light stepped from one row to the next at the
+        // screen's probes' end at High, at the third cascade's and at the last's, past which the
+        // sky's light lit it unhidden, and most at Low, whose screen probes end with its last
+        // cascade, as the voxel game's hills at sunset stepped where the last ended. Each one's
+        // outer band fades it across the end, and the bound lies under the least of those steps.
         var (step, at) = FloorStep(quality, () => SetAmbientLight(new Color(140, 170, 220), 1));
         step.Should().BeLessThan(0.06, $"the floor's light at {quality} changes from one row to the next by no step, as it did {at:0} blocks out");
     }
@@ -107,10 +107,9 @@ public sealed partial class CascadeEdgeTests : IDisposable
     {
         // The cascades lie 0.35 of their width ahead of the eye, which stands 1.6 to 9.6 cells from
         // the side behind it. With the last cascade's band across that side, the walls took the
-        // sky's light whole wherever the band reached them, by the heading as the cascades turned
-        // with the eye, at High at six headings of twelve 0.11 to 0.14 of the open floor's light and
-        // at Low at four up to 0.021; with each band kept clear of the eye, under 0.0004 at every
-        // heading at both.
+        // sky's light whole wherever the band reached them, at some headings and not others as the
+        // cascades turned with the eye. With each band kept clear of the eye, they stay dark at
+        // every heading at both qualities.
         var config = Config.Default.WithWindow("closed room", Width, Height) with { Headless = true, Offscreen = true, Samples = 1 };
         UseApp(new App(config).AddPlugin(new DefaultPlugins()));
         SetSceneField(4, 0.25f, 2);
@@ -170,9 +169,9 @@ public sealed partial class CascadeEdgeTests : IDisposable
         // A surface facing the eye is leaned four cells toward the side behind the eye as the
         // probes are read for it, so a pillar's face a block and a half before an eye standing
         // near that side, held at its leaned point, could lie past the side, hold nothing and take
-        // the sky's light whole, 0.157 of the open floor's light where the eye stood 1.6 cells
-        // from it; held at the face itself where that holds more, 0.0006. The cascades lie around
-        // the eye, which stands 28 cells from a side at the nearest, where the face stays dark.
+        // the sky's light whole. Held at the face itself where that holds more, it holds the
+        // probes' light and hides the sky. The cascades lie around the eye, which stands 28 cells
+        // from a side at the nearest, where the face stays dark.
         var config = Config.Default.WithWindow("near the side", Width, Height) with { Headless = true, Offscreen = true, Samples = 1 };
         UseApp(new App(config).AddPlugin(new DefaultPlugins()));
         SetSceneField(4, 0.25f, 2);
@@ -230,11 +229,11 @@ public sealed partial class CascadeEdgeTests : IDisposable
     [NeedsVulkanFact]
     public void A_Closed_Rooms_Floor_Stays_Hidden_From_An_Ambient_Light_Before_The_Last_Cascade_Is_Built()
     {
-        // The field built a cascade a frame, its last comes in the fourth. Held by the last cascade
-        // whether built or not, the floor took the ambient light unhidden in the place of global
-        // illumination and read 9.4 times the light it settles at in the three frames before; held
-        // by the coarsest cascade built, 0.54, 0.54 and 1.46 times it, global illumination gathered
-        // over fewer cascades.
+        // The field builds a cascade a frame, so its last comes in the fourth. Held by the last
+        // cascade whether built or not, the floor took the ambient light unhidden in the place of
+        // global illumination in the three frames before, many times the light it settles at. Held
+        // by the coarsest cascade built, it reads within twice that light, global illumination
+        // gathered over fewer cascades.
         var config = Config.Default.WithWindow("closed room", Width, Height) with { Headless = true, Offscreen = true, Samples = 1 };
         UseApp(new App(config).AddPlugin(new DefaultPlugins()));
         SetSceneField(4, 0.25f, 1);

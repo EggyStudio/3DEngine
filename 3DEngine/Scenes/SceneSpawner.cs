@@ -304,9 +304,8 @@ internal static class SceneSpawner
 
     // Each mesh of a loaded scene de-indexed once, so every entity spawned from it shares its arrays
     // and the renderer, which keeps a mesh's buffers by its positions array, uploads it once. Made
-    // again at each spawn, every cell of Manor that placed a model held buffers of its own, 176
-    // meshes at sixteen cells and 259 at twenty-three, which climbed past the soak's bound as its
-    // walk entered the house on a slow device. A scene loaded again is a new payload and is
+    // again at each spawn, every cell of a level that placed a model held buffers of its own, which
+    // climbed with each cell a walk entered. A scene loaded again is a new payload and is
     // de-indexed again, and the arrays go with the payload.
     private static readonly ConditionalWeakTable<SceneMeshPayload, Deindexed> s_deindexed = new();
 

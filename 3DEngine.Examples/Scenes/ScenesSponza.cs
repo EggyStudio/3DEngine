@@ -7,10 +7,10 @@ public static class ScenesSponza
 {
     // Intel's Sponza, its long axis along x with the main door at +x and the lion's head at -x, its
     // open atrium in the middle under the sky and a gallery on each floor along either side. The
-    // last three stand where pictures of the scene drawn in another engine were taken, as near as
-    // was found by eye, the first floor's gallery at the lion's end looking down the atrium to the
-    // door's end, the main door seen from above under the vault inside it, lit by the sky and the
-    // light off the walls alone, and the atrium's floor at the lion's end looking up.
+    // last three stand about where pictures of the scene drawn in another engine were taken, the
+    // first floor's gallery at the lion's end looking down the atrium to the door's end, the main
+    // door seen from above under the vault inside it, lit by the sky and the light off the walls
+    // alone, and the atrium's floor at the lion's end looking up.
     private static readonly (string Name, Camera3D Camera)[] Views =
     [
         ("atrium", new Camera3D(new Vector3(9.5f, 1.7f, 0), new Vector3(-8, 5, 0), Vector3.UnitY, 60)),
@@ -107,22 +107,17 @@ public static class ScenesSponza
             return;
         }
 
-        // The building is 36 units long, 20 wide and 18 high, so the field's four cascades of cells
-        // an eighth of a unit reach 8, 16, 32 and 64 units across, the last holding all of it. The
-        // default budgets build its 3.75 million triangles over frames, the meshes waiting standing
-        // in as nothing where they never moved, where a budget of all of them had every cascade a
-        // walk carried on splat up to 4 million in one frame, 0.14 to 0.17 s of the GPU. The last
-        // holds all of it only around the building's middle, and the field lies ahead of the camera,
-        // so from by the lion's end the main door lay past its side, where a ray takes the sky, and
-        // the morning sun's sky came down the nave from it. A far cascade of 100 holds the whole
-        // building from anywhere in it, which took the lion's end wall from 34.6 times its
-        // path-traced reference at 8:00 to 15.1, at 0.6 ms of the GPU (RENDERING.md).
+        // The building is 36 units long, 20 wide and 18 high, and the field's four cascades of
+        // cells an eighth of a unit reach 8, 16, 32 and 64 units across, ahead of the camera, so
+        // the last holds all of it only from around its middle. From the lion's end the main door
+        // lies past the four, where a ray takes the sky and brings the morning sun's down the nave,
+        // so a far cascade of 100 holds the whole building from anywhere in it. The default budgets
+        // build its 3.75 million triangles over frames, the meshes waiting standing in as nothing
+        // where they never moved, so no frame splats every cascade a walk carries on at once.
         SetSceneField(4, 0.125f, farCascade: 100);
         SetGlobalIllumination(GlobalIllumination.High);
         // The corners, the cracks and the feet of the columns darken by the horizons the window's
-        // depth gives within half a unit, four of the field's cells, finer than the cascades hold,
-        // which in the door view brought the pattern of nine surfaces of ten nearer the path-traced
-        // reference's (RENDERING.md).
+        // depth gives within half a unit, four of the field's cells, finer than the cascades hold.
         SetAmbientOcclusion(1, 0.5f);
         // The air holds no fog, since the fog lit the air of the dark rooms that the light reaching
         // them leaves dark, and showed the sun as an even haze rather than shafts (RENDERING.md).
@@ -139,7 +134,7 @@ public static class ScenesSponza
         // ground at 4,924 K with the sun 54 degrees high. The camera is at ISO 200, 1/200 s and
         // f/16, EV 14.64, a sunny day's exposure, under AgX's curve. Held there, the stone the sun
         // lights reads as there and the light in the shade shows how far the indirect light falls
-        // short of it, and the shade reads a hundredth of the sunlit stone, which played looks as
+        // short of it, but the shade lies so far under the sunlit stone that played it looks as
         // though it had no indirect light, so the example starts metered and M holds the camera at
         // those values.
         var air = Sky.Atmosphere.Earth with { AerosolExtinction = 1e-6f, AerosolScaleHeight = 12_000, GroundAlbedo = Vector3.One };

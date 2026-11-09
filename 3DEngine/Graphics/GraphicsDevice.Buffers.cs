@@ -109,18 +109,16 @@ internal sealed unsafe partial class GraphicsDevice
 
         _deviceApi.vkGetBufferMemoryRequirements(buffer, out VkMemoryRequirements requirements);
 
-        // A buffer only the CPU reads takes memory the CPU caches where the device has it, since the
-        // first memory the CPU sees is often write combined, which the CPU reads a byte at a time:
-        // on an RTX 4070 a texture's 4 MB of pixels took 34 ms to read from it.
+        // A buffer only the CPU reads takes memory the CPU caches where the device has it, since
+        // the first memory the CPU sees is often write combined, which it reads a byte at a time.
         const VkMemoryPropertyFlags shared = VkMemoryPropertyFlags.HostVisible | VkMemoryPropertyFlags.HostCoherent;
         var properties = desc.CpuAccess switch
         {
             CpuAccessMode.None => VkMemoryPropertyFlags.DeviceLocal,
             CpuAccessMode.Read when HasMemoryType(requirements.memoryTypeBits, shared | VkMemoryPropertyFlags.HostCached) => shared | VkMemoryPropertyFlags.HostCached,
-            // A buffer the CPU writes each frame stays in the computer's memory where the device
-            // offers its own to the CPU as well, since models_stress at 20,000 entities at 1280 by
-            // 720 drew 1 to 8% slower on an RTX 4070 Laptop GPU with them there, the CPU's
-            // writes 2 to 5% slower, three rounds each.
+            // Buffers the CPU writes each frame stay in the computer's memory where the device
+            // offers its own to the CPU as well, since with them there the frame draws slower and
+            // the CPU writes them slower.
             _ => shared,
         };
 
@@ -137,10 +135,8 @@ internal sealed unsafe partial class GraphicsDevice
     /// </summary>
     /// <remarks>
     /// A buffer the CPU writes lies in memory the CPU sees, which on a GPU of its own is the
-    /// computer's, so every pass that reads it reads it across the bus. Intel's Sponza, 3.75 million
-    /// triangles over 2 million vertices, took each pass that drew all of it about 10 ms of the GPU
-    /// on an RTX 4070 Laptop GPU, whatever the shadow map's size, its shadows 35 ms in five such
-    /// passes.
+    /// computer's, so every pass that reads it reads it across the bus, at a cost its vertices set
+    /// whatever the shadow map's size, which the shadows pay again in each of their passes.
     /// </remarks>
     /// <param name="data">What the buffer holds.</param>
     /// <param name="usage">How the GPU reads it, to which the copy's own usage is added.</param>
@@ -150,9 +146,7 @@ internal sealed unsafe partial class GraphicsDevice
     {
         // A device whose own memory is the memory the CPU sees, as lavapipe's and a GPU sharing the
         // computer's memory are, is written in place, since a staging buffer there holds a second
-        // copy of every mesh until its upload is done. Staged on lavapipe, the leak test's resident
-        // memory read 500 MB at its thirtieth app where 438 written in place, and on Windows its
-        // private bytes rose 112 MB between its fiftieth app and its sixtieth.
+        // copy of every mesh until its upload is done.
         if (_sharesMemory)
         {
             var shared = CreateBuffer(new BufferDesc((ulong)Math.Max(16, data.Length), usage, CpuAccessMode.Write), maker, line);

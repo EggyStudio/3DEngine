@@ -153,10 +153,9 @@ def run(dotnet, process, args, results, seed=None):
             environment[SHUFFLE_SEED] = str(seed)
         # An NVIDIA driver's cache of the pipelines it compiled, a folder of the suite's own and
         # larger than the driver's 128 MiB, where a desktop's cache at that size keeps no pipeline
-        # new to it and every app compiles each again, the suite taking 12.6 to 13 minutes where
-        # 7.2, and once in two runs a compile failing with VK_ERROR_UNKNOWN (BUILDING.md). The
-        # folder is made here, since the driver makes none and with one it cannot write in failed
-        # a compile so too. Other drivers read neither name.
+        # new to it, so every app compiles each again and a compile can fail with VK_ERROR_UNKNOWN
+        # (BUILDING.md). The folder is made here, since the driver makes none and with one it
+        # cannot write in failed a compile so too. Other drivers read neither name.
         cache = environment.setdefault("__GL_SHADER_DISK_CACHE_PATH", os.path.join(ROOT, "build", "nvidia-cache"))
         os.makedirs(cache, exist_ok=True)
         environment.setdefault("__GL_SHADER_DISK_CACHE_SIZE", str(2 << 30))
@@ -332,9 +331,9 @@ def last_ended(text):
 
 
 # A test's line in dotnet test's console log, its outcome, its name and its time, as `1 m 3 s`,
-# `49 s`, `12 ms` or `< 1 ms`. Read without the last, the 508 tests of one run on Linux that ended
-# in under a millisecond had no result, and every part holding one ran again, Rendering whole for
-# 35 minutes where the whole run had ended each of its tests.
+# `49 s`, `12 ms` or `< 1 ms`. Read without the last, a test that ended in under a millisecond
+# would have no result, and every part holding one would run again where the whole run had ended
+# each of its tests.
 ENDED = re.compile(r"^\s+(Passed|Failed|Skipped) (Engine\.Tests\.\S.*?) \[(?:< 1 ms|(?:(\d+) m)? ?(?:(\d+) s)? ?(?:(\d+) ms)?)\]\s*$")
 
 
@@ -999,9 +998,9 @@ def main():
         print(process.summary(), flush=True)
     if not args.parts and not args.all_parts and done[0].lost:
         # Run again in parts, each a process, so a part that is lost costs only its own tests, and
-        # only the parts holding a test the whole run gave no result, each with those tests alone.
-        # On a Windows runner of a slow processor the whole suite ran out its hour 1,705 tests in,
-        # and every part run again from the start took the job past its limit with no page written.
+        # only the parts holding a test the whole run gave no result, each with those tests alone,
+        # since every part run again from the start, after a whole run that ran out its time on a
+        # slow runner, could take the job past its limit with no page written.
         listed = list_tests(dotnet, args)
         parts = parts_of(listed, splits)
         for process in parts:
@@ -1018,10 +1017,10 @@ def main():
 
     d = digest(results, done, listed, time.monotonic() - started)
     # A run whose every test has a result and none failed passes where a process was lost to its
-    # time limit alone, the loss said in a notice, as a whole run on a slow runner runs out its hour
-    # before the parts give the rest of its tests their results. On a pack run the Windows suite's
-    # 1,667 tests all passed so and the step ended with exit code 1, which skipped the pack. A
-    # crash, a hang or a climb of memory is a fault the run met, whatever the parts gave after.
+    # time limit alone, the loss said in a notice, as a whole run on a slow runner runs out its time
+    # before the parts give the rest of its tests their results, where failing it would end the
+    # step with exit code 1 and skip the pack though every test passed. A crash, a hang or a climb
+    # of memory is a fault the run met, whatever the parts gave after.
     ended = d["failed"] == 0 and d["no_result"] == 0
     publish(page(d), annotations([p for p in d["processes"] if p["lost"]], d["causes"], head(d), d["repeated"], ended), results, d)
     passed = ended and all(p.lost in (None, "time") for p in done)

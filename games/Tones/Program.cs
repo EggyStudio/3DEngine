@@ -16,8 +16,7 @@ SetTargetFPS(60);
 const int Rate = 44100, Block = 512;
 // The longest a recording runs, which keeps its first quarter of a minute. Its buffer is made that
 // long once, at the start, and a recording read back is held once, shared by what draws it and the
-// sound that plays it, so what recordings hold is bounded from the first frame. A recording as long
-// as a slow turn of the soak, 30 seconds on a runner, once held 19 MB between turns.
+// sound that plays it, so what recordings hold is bounded from the first frame.
 const int RecordingSeconds = 15;
 const string RecordingFile = "tones-recording.wav";
 

@@ -13,9 +13,9 @@ public sealed partial class BounceRoomsTests
     {
         // The strip's room at High at 320 by 180, settled, its frames' light read 48 frames held
         // still. The running mean alone, its rays' sixteen places held over sixteen frames, left
-        // 1,651 pixels spreading past a fiftieth of their light on the development machine's GPU,
-        // and with the last whole cycle of places standing in for it none, so the bound is a
-        // twentieth of the first.
+        // many pixels spreading past a fiftieth of their light, and with the last whole cycle of
+        // places standing in for it none, so the bound is a twentieth of what the running mean
+        // alone leaves.
         const int Wide = 320, Tall = 180, Read = 48;
         var config = Config.Default.WithWindow("bounce rooms", Wide, Tall) with { Headless = true, Offscreen = true, Samples = 1 };
         UseApp(new App(config).AddPlugin(new DefaultPlugins()));

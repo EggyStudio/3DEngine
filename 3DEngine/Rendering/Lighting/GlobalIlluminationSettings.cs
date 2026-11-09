@@ -17,11 +17,9 @@ internal sealed class GlobalIlluminationSettings
     /// <c>gi.toggle meshes on</c> sets it.
     /// </summary>
     /// <remarks>
-    /// Off until it reads every view at least as near a path-traced reference as the field: taken,
-    /// Sponza's door at 8:00 read half its light where the field reads 0.98 of it, the bounce rooms'
-    /// window's room 0.250 of its light off where 0.228, and the floor under a canopy of leaf blocks
-    /// two and a half units down 0.135 of the sky's light the canopy holds back where the reference
-    /// takes 0.17 and the field 0.155.
+    /// Off until it reads every view at least as near a path-traced reference as the field, where
+    /// Sponza's door, the bounce rooms' window's room and the floor under a canopy of leaf blocks
+    /// read further from the reference than the field does.
     /// </remarks>
     public bool MeshesTraced { get; set; }
 
@@ -40,8 +38,7 @@ internal sealed class GlobalIlluminationSettings
     /// <remarks>
     /// A debugging switch alone, which no program's call reaches. A program leaves the screen's
     /// probes out by <see cref="GlobalIllumination.Low"/> (<see cref="GlobalIlluminationRenderer.ScreenProbesAt"/>).
-    /// Each pixel's march costs the model pass in step with the glow lights in view, 13.3 ms in a
-    /// voxel game's room of forty glowstones at 1280 by 720 at High, where 2.2 with the probes read.
+    /// Each pixel's march costs the model pass in step with the glow lights in view.
     /// </remarks>
     public bool ScreenOff { get; set; }
 

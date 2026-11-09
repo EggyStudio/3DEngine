@@ -59,9 +59,9 @@ public float lightThroughKept(float passing, float depth, float cell, bool insid
 
 // Whether nothing the field holds stands between a and b but surfaces that let light through, as
 // seesThrough in gi.slang asks with clearance kept clear at either end, the light a ray crossing
-// them keeps being its own to take. The merge asks it of the probes of the cascade above, which a
-// canopy hid from those under it, so the floor under one 4 units up took no sky through the screen's
-// probes however much of it the leaves let through.
+// them keeps being its own to take. The merge asks it of the probes of the cascade above, which
+// seesThrough would hide behind a canopy from those under it, so the floor under one would take no
+// sky through the screen's probes however much of it the leaves let through.
 public bool seesPastLeaves<V : IVolume, A : IVolume>(V field, A albedo, SceneFieldInfo info, float3 a, float3 b, float clearance)
 {
     float3 toward = b - a;

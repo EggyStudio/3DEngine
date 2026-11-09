@@ -99,8 +99,8 @@ internal sealed class EnvironmentMap
             return FromLinear(linear, image.Width, image.Height, intensity, faceSize);
         }
 
-        // Each byte's light as a half float, looked up, since a 4096 by 2048 image decoded a channel
-        // at a time through a power took most of half a second.
+        // Each byte's light as a half float, looked up from the 256 a byte holds, rather than
+        // worked out through a power for each channel of each pixel of a large image.
         var decoded = new Half[256];
         for (int i = 0; i < 256; i++) decoded[i] = (Half)Decode((byte)i);
         var halves = new Half[image.Width * image.Height * 4];

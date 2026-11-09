@@ -37,14 +37,14 @@ internal sealed partial class ModelRenderer
 
     // Orders the opaque batches planned by the pipeline each draws with, in the order each pipeline
     // first comes, and within a pipeline the nearest first, each run between two batches that write
-    // no depth apart, so a sky drawn first with depth writes off stays under what follows it, and the
-    // translucent batches after them as they were recorded. A voxel game's sections, each drawn
+    // no depth apart, so a sky drawn first with depth writes off stays under what follows it, and
+    // the translucent batches after them as they were recorded. A voxel game's sections, each drawn
     // through DrawMesh with its solid faces, its faces cut out and its lava by turns, bound its
-    // terrain shader's pipelines 315 times a frame in its cherry grove at 1920 by 1080, where the
-    // same sections as entities bound them 7 times, and the scene pass took 13.1 to 14.1 ms against
-    // 9.3 to 10.8; bound by their pipeline the sections took 9.2 to 10.6 ms, and nearest first within
-    // it 8.4 to 9.0, the GPU's early depth test leaving more behind. A thousand meshes of one
-    // pipeline pay 0.03 to 0.15 ms of the pass's recording for the order.
+    // terrain shader's pipelines again at every turn, where the same sections as entities bound
+    // them a few times a frame, and the scene pass took longer for it. Bound by their pipeline the
+    // sections draw as fast as the entities, and nearest first within it the GPU's early depth test
+    // leaves more behind. The order costs the pass's recording little, even for a thousand meshes
+    // of one pipeline.
     private void OrderOpaque(ReadOnlySpan<Batch> batches, int opaque, Block[] blocks, Matrix4x4? viewProjection)
     {
         var planned = CollectionsMarshal.AsSpan(_planned);

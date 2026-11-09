@@ -80,7 +80,7 @@ public sealed class AirSkyTests(ITestOutputHelper output) : IDisposable
                 }
         output.WriteLine($"{count} texels, the worst channel {worst * 100:0.00}% from the module's luminance");
         count.Should().BeGreaterThan(500);
-        // 0.21% at worst over 5,850 texels on an RTX 4070, the tables' and the image's half floats.
+        // The bound leaves room for the tables' and the image's half floats.
         worst.Should().BeLessThan(0.01f, "the GPU draws the module's sky");
     }
 
@@ -120,7 +120,7 @@ public sealed class AirSkyTests(ITestOutputHelper output) : IDisposable
         // The module's sky over the whole sphere projected onto the same nine harmonics, each band
         // times its share of a cosine lobe, 1, 2/3 and 1/4, so the floor's light is read as the
         // model pass reads it, nine numbers taking in a little of the ground below the horizon,
-        // which on its own puts the floor 1.5 to 5% over the module's own integral.
+        // which on its own puts the floor over the module's own integral.
         var projected = new Vector3[9];
         const int Rows = 64, Columns = 128;
         for (int row = 0; row < Rows; row++)
@@ -146,7 +146,6 @@ public sealed class AirSkyTests(ITestOutputHelper output) : IDisposable
         }
         output.WriteLine($"level floor: drawn {level * MathF.PI / preExposure}, the module's in nine harmonics {expected * MathF.PI / preExposure}, "
             + $"its own integral {sky.Illuminance(toSun)} lux");
-        // Within 0.2% on an RTX 4070.
         for (int c = 0; c < 3; c++)
             level[c].Should().BeApproximately(expected[c], expected[c] * 0.01f, $"channel {c}");
     }

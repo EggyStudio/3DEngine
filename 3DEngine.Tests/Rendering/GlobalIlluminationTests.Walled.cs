@@ -15,10 +15,9 @@ public sealed partial class GlobalIlluminationTests
         // emissive cube, as the game draws its lamps. The stone's faces against the lamp are left
         // out, so the field reads the stone beside the lamp as the open in front of the lamp's
         // faces, and the probe whose spot is the corner of the wall, the floor and the lamp's face
-        // was moved into the stone along the field's normal, by 0.14, 0.14 and 0.23 toward the
-        // stone. Its rays met 26 faces from behind of 64 and 38 in front on the development
-        // machine's GPU, too few for the majority to wall it in, and it held the lamp's light,
-        // which in the game the grass outside the wall took from it.
+        // is moved into the stone along the field's normal. Fewer than half its rays meet faces
+        // from behind, too few for the majority to wall it in, and it held the lamp's light, which
+        // in the game the grass outside the wall took from it, so a quarter of them walls it in.
         var config = Config.Default.WithWindow("gi test", 160, 96) with { Headless = true, Offscreen = true, Samples = 1 };
         UseApp(new App(config).AddPlugin(new DefaultPlugins()));
         SetSceneField(2, 0.25f, 2);
@@ -72,10 +71,9 @@ public sealed partial class GlobalIlluminationTests
         // no ray from the glowstone reaches what the eye sees but through the edge itself. The
         // field's cells about the edge lay inside the blocks on one diagonal and outside them on the
         // other, the distance between them never below zero along the edge, and the march from the
-        // floor to the glowstone saw half of it through the edge, the floor about the edge's foot 10
-        // sRGB levels at 640 by 360 at High on the development machine's GPU and 7 with the edge
-        // closed by a block, where a path-traced reference reads none. With the cells about such an
-        // edge held inside it reads 2 either way.
+        // floor to the glowstone saw half of it through the edge, so the floor about the edge's
+        // foot was lit, and still lit with the edge closed by a block, where a path-traced
+        // reference reads none. The cells about such an edge are held inside.
         var config = Config.Default.WithWindow("gi test", 640, 360) with { Headless = true, Offscreen = true, Samples = 1 };
         UseApp(new App(config).AddPlugin(new DefaultPlugins()));
         SetSceneField(4, 0.25f, 2);

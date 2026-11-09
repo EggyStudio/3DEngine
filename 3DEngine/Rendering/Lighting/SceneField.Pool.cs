@@ -9,8 +9,8 @@ internal sealed partial class SceneFieldRenderer
     // The buffer of triangles holding every mesh the frame's builds read, made again larger with
     // those meshes where they do not fit, large enough for the triangles of the build in progress
     // (building) its later parts are added from. Made for one frame's part, the next part's meshes
-    // overflowed it and it was made again with every mesh's corners written again, 427 times in a
-    // voxel game's twenty steps over loaded land, 9.5 ms of each frame.
+    // overflowed it and it was made again over and over, every mesh's corners written again each
+    // time.
     private IBuffer Pool(GraphicsDevice device, IEnumerable<SceneFieldPlan.Instance> needed, int building)
     {
         // A mesh by its vertices, with the id of one draw of it, whose vertices' colors it is pooled with.
@@ -113,9 +113,8 @@ internal sealed partial class SceneFieldRenderer
         return Math.Max(Math.Max(1024, needed), (int)Math.Min(wanted, (long)(bytes / 2 / 48)));
     }
 
-    // Each mesh's open edges as OpenEdges finds them, a bit a corner, kept for its vertices, since
-    // found again for every mesh the pool took in they cost 0.9 ms for each of the voxel game's
-    // sections.
+    // Each mesh's open edges as OpenEdges finds them, a bit a corner, kept for its vertices rather
+    // than found again each time the pool takes the mesh in.
     private readonly Dictionary<ModelVertex[], uint[]> _openEdges = new(ReferenceEqualityComparer.Instance);
 
     private uint[] OpenEdgesOf(ModelVertex[] vertices, uint[] indices)
@@ -221,10 +220,10 @@ internal sealed partial class SceneFieldRenderer
         return parts.Count > 1 ? [.. parts] : null;
     }
 
-    // The triangles sorted by their middles along an axis, those as far along in the order given, as
-    // a stable sort leaves them, each keyed by its middle's bits made to order as the floats do above
-    // its place. Sorted by LINQ's OrderBy, the voxel game's sections that came back into the field at
-    // a crossing took 1.3 ms each to cut, 34 ms of a frame.
+    // The triangles sorted by their middles along an axis, those as far along in the order given,
+    // as a stable sort leaves them, each keyed by its middle's bits made to order as the floats do
+    // above its place, rather than by LINQ's OrderBy, which was slow to cut the voxel game's
+    // sections that came back into the field at a crossing.
     private static int[] SortedAlong(int[] triangles, Vector3[] middles, int axis)
     {
         var keyed = new ulong[triangles.Length];

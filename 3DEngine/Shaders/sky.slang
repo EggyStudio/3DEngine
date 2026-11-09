@@ -74,10 +74,10 @@ float3 starLight(float3 e, float pixel, int cells, uint count)
             if (any(near < int2(0)) || any(near >= int2(cells)))
                 continue;
             int cell = (face * cells + near.y) * cells + near.x;
-            // Every read is held within the stars. The sky's draw once went without its buffer,
-            // the model pass bound its sixteen bytes in this one's place, and with no robust access
-            // the cells' ends read past them were whatever lay beyond, loops long enough to lose
-            // the device on the RTX 4070 and none at all on lavapipe, which reads zero there.
+            // Every read is held within the stars, since a draw that goes without its buffer
+            // reads another bound in its place, as the model pass's sixteen bytes, and with no
+            // robust access the cells' ends read past it are whatever lies beyond, loops long
+            // enough to lose the device.
             uint first = min(stars[cell], count);
             uint last = min(stars[cell + 1], count);
             for (uint k = first; k < last; k++)

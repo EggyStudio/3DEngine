@@ -2,22 +2,20 @@
 // direction, from the last cascade down to the first. What a probe's ray brought back is kept, and
 // where the ray met nothing the light from beyond is added, the cascade above's probes around this
 // one blended by how near each is, each one's texels of the directions inside this texel's
-// averaged, so the first cascade holds the light from every distance. A probe inside a mesh, or
-// one a surface hides from this probe, as a probe above a ceiling is hidden from one under it, is
+// averaged, so the first cascade holds the light from every distance. A probe inside a mesh, or one
+// a surface hides from this probe, as a probe above a ceiling is hidden from one under it, is
 // passed over in the blend, and a probe inside a mesh holds nothing itself, its alpha 0 where every
 // other's is 1. A ray of the cascade above that met a surface before its interval began keeps that
 // surface's light for its own probe's faces, its alpha a half, and the blend reads it as dark,
 // since the surface lies nearer that probe than this one's ray reaches, so the light it sees there
-// is not the light along this ray, and taken it read a ceiling beside a lamp for one two units off,
-// up to 26 times too bright in a Cornell box. Each probe above is read toward the point of this
-// probe's ray nearest where its own ray along the way met a surface the frame before (its reach),
-// and not along the same way, so a probe above standing elsewhere lends the light of what this ray
-// would meet and not of what it sees from where it stands, the merge's parallax. Read along the same
-// way, the first cascade's probe in a Cornell box's pocket between the floor and the small block
-// took for its upward face the ceiling nearer the lamp that the probe above meets, its part from the
-// cascade above 171% over a path-traced reference, where read so 61%, at no cost worth measuring;
-// a trace from this ray toward each probe above, the bilinear fix, read it 116% over at a tenth of
-// global illumination's time more (gi.probe, ./e3d command profile).
+// is not the light along this ray, and taken it read a ceiling beside a lamp for one two units off
+// in a Cornell box. Each probe above is read toward the point of this probe's ray nearest where its
+// own ray along the way met a surface the frame before (its reach), and not along the same way, so
+// a probe above standing elsewhere lends the light of what this ray would meet and not of what it
+// sees from where it stands, the merge's parallax. Read along the same way, the first cascade's
+// probe in a Cornell box's pocket between the floor and the small block took for its upward face
+// the ceiling nearer the lamp that the probe above meets. A trace from this ray toward each probe
+// above, the bilinear fix, mends that less than the parallax and costs a trace for each.
 //
 // A probe above stands a spacing from this one and may see past what this ray would meet beyond
 // its interval, or meet what this ray passes. Where the cascade above's interval ends at twice this
@@ -29,21 +27,15 @@
 // rays moving through their sixteen places is read by its texels' middle ways' hits, which the
 // trace keeps for it (gi_trace.slang), since its rays' own met a surface in some frames and saw
 // past the end in others, and passed over in some frames and not others, a probe below it by the
-// door view's end wall went between 0.000602 and 0.0000258 at irregular times with the view held. In Sponza's door view at 8:00 at High the probes above
-// the vestibule saw the sky and the court past its arch along ways whose rays meet its underside,
-// 0.00325 along one where a path-traced reference reads 0.0000302, and in the lion view the
-// probes above under the arcade met its arch along a way the probe below sees the sky along.
-// Marched so, the lion at 8:00 read 0.997 of the reference's light where 0.851 and the door at
-// noon 0.904 where 0.881, the door at 8:00 0.776 where 0.822 with its sky's excess gone and the
-// pockets' lack of its sun left, the pixels' difference from the reference falling in all four,
-// and global illumination took 0.01 to 0.04 ms more at High in the atrium at 1920 by 1080. The
-// cascade whose above is the last counted is not marched, since its march runs to the field's
-// edge, where 99% of the ways that take the cascade above have a probe above that sees past it,
-// for 0.05 to 0.1 ms more and the views within 0.012. Passing over the probes above that met a
-// surface before their interval without the march lit the floor under a solid canopy from the
-// probes at its edge, its share of the sky's light 0.137 where 0.156 and the reference's 0.17,
-// since read as dark they stood in for this ray's own meeting with the roof (gi.probe,
-// gi.compare, ./e3d command profile).
+// door view's end wall flickered with the view held. In Sponza's door view the probes above the
+// vestibule saw the sky and the court past its arch along ways whose rays meet its underside, and
+// in the lion view the probes above under the arcade met its arch along a way the probe below sees
+// the sky along. The cascade whose above is the last counted is not marched, since its march runs
+// to the field's edge, where nearly every way that takes the cascade above has a probe above that
+// sees past it, so the march changes little there for its cost. The probes above that met a
+// surface before their interval are read as dark and not passed over, since read as dark they stand
+// in for this ray's own meeting with the roof, and passed over without the march they lit the floor
+// under a solid canopy from the probes at its edge.
 import gi;
 import scenefield;
 import lightthrough;
@@ -150,13 +142,11 @@ ConstantBuffer<MergePush> push;
 // screen's probes keep theirs (gi_screen_filter.slang), gathered from the cycle's first frame and
 // shown as it grows until a whole cycle has been gathered since the lights or the field changed,
 // then the last whole cycle's. Read from the fixed middles alone, the vault of Sponza's vestibule
-// took none of the court's sunlit light that a path-traced reference sees past its arch's edges,
-// 92% under, and its rays moved through the places and met through the device's rays, 7% under.
+// took none of the court's sunlit light that a path-traced reference sees past its arch's edges.
 // Its share of the sky and its mark of what the rays met are kept the same way, which the cascade
 // below and the probe's faces read, since taken from each frame's places alone they moved with the
-// rays, and every probe whose hits read them flickered with them, the edges of Sponza's balcony at
-// 7:00 0.16% of the frame's pixels by 12 levels a frame where 0.001% with them kept, and a probe
-// below took the sky through a texel above in some frames and not others (build/flicker.py).
+// rays, and every probe whose hits read them flickered with them, as the edges of Sponza's balcony
+// did, and a probe below took the sky through a texel above in some frames and not others.
 float3 settled(float3 light, inout float sky, inout float mark, uint3 at, uint2 texel, uint probes, uint texels, uint c)
 {
     uint3 written = uint3(at.xy * texels + texel, at.z);
@@ -319,10 +309,9 @@ void computeMain(uint3 id : SV_DispatchThreadID, uint3 local : SV_GroupThreadID)
         // met a surface, and along the way itself where it met nothing.
         float3 upperAt = ac.xyz + (float3(neighbor) + 0.5 + placeOf(neighbor, upperCascade, probes).xyz) * (ac.w * push.spacing.x);
         // Its reach along this texel's middle way, which lies on the corner its rays' cells meet at
-        // where its cascade sends four rays a texel, read as the mean of the four, as the reach
-        // held it before each ray kept its own. Read from the one cell past the corner, the probe
-        // in the lintel's hall of GlobalIlluminationTests read its face toward the opening 0.032 in
-        // linear light where a path-traced reference takes 0.081, and with the mean 0.077.
+        // where its cascade sends four rays a texel, read as the mean of the four. Read from the
+        // one cell past the corner, the probe in the lintel's hall of GlobalIlluminationTests read
+        // its face toward the opening well under a path-traced reference.
         uint cells = max(uint(ReachTexels) / upper, 1u);
         int2 rt = min(int2(octahedron(d) * float(ReachTexels / int(cells))), int2(ReachTexels / int(cells) - 1)) * int(cells);
         float r = 0.0;

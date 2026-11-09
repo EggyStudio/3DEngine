@@ -142,17 +142,16 @@ internal sealed partial class GlobalIlluminationRenderer : IDisposable
     /// <summary>Each cascade's octahedron's texels along each side at a quality, before the field's cascades cut them short.</summary>
     internal static int[] TexelsAt(GlobalIllumination quality) => quality switch
     {
-        // Low's third cascade of 8 a side, so a surface past its second, 16 units across in Sponza's
-        // field of 0.125, takes probes rather than the sky over a ground from beyond them, which lit
-        // the atrium's far half at noon as though it stood outdoors, the whole view 1.67 times a
-        // path-traced reference where with a third it reads 1.18, for 0.34 ms at 1920 by 1080.
+        // Low's third cascade of 8 a side, so a surface past its second, 16 units across in
+        // Sponza's field of 0.125, takes probes rather than the sky over a ground from beyond them,
+        // which lit the atrium's far half at noon as though it stood outdoors.
         GlobalIllumination.Low => [8, 8, 8],
         GlobalIllumination.Medium => [8, 8, 16],
-        // High's second cascade of 8 a side as Low's and Medium's, four rays a texel, where of 16
-        // a side, one ray from each texel's middle, its probes under a slab read the sky past its
-        // edge along the level ways at 0.31 where a path-traced reference takes 0.17, the floor
-        // 18 to 27% over Low's and the reference's; four rays a texel of 16 a side read it right
-        // at a millisecond more of global illumination at 1920 by 1080 under a canopy.
+        // High's second cascade of 8 a side as Low's and Medium's, four rays a texel, where of 16 a
+        // side, one ray from each texel's middle, its probes under a slab read the sky past its
+        // edge along the level ways brighter than a path-traced reference takes it, the floor over
+        // both Low's and the reference's. Four rays a texel of 16 a side read it right, at four
+        // times the rays.
         GlobalIllumination.High => [8, 8, 16, 16],
         _ => [],
     };
@@ -172,11 +171,11 @@ internal sealed partial class GlobalIlluminationRenderer : IDisposable
     /// cell once and each frame's cell lies far from the last.
     /// </summary>
     /// <remarks>
-    /// At the window's half-sized depth a tile of eight pixels holds four by four of its texels, which
-    /// a probe's point falls on, so a round marches from each texel once. The Halton points of bases
-    /// 2 and 3 fell on one row of those texels five times a round and on another three, and the floor
-    /// along a lamp's penumbra moved with turns of one to eight pixels by 0.64 to 1.27% of its light,
-    /// where by 0.45 to 0.94% with these.
+    /// At the window's half-sized depth a tile of eight pixels holds four by four of its texels,
+    /// which a probe's point falls on, so a round marches from each texel once. The Halton points
+    /// of bases 2 and 3 fell on one row of those texels five times a round and on another three, so
+    /// the floor along a lamp's penumbra moved more with turns of one to eight pixels than it does
+    /// with these.
     /// </remarks>
     internal static Vector2 JitterAt(long frame, int tile)
     {
@@ -203,13 +202,11 @@ internal sealed partial class GlobalIlluminationRenderer : IDisposable
     /// <see cref="GlobalIllumination.Low"/>, which leaves them out, while some glow light is lit.
     /// </summary>
     /// <remarks>
-    /// Without them each pixel marches to every glow light in view itself, which took the model pass
-    /// from 0.31 to 1.01 ms at Low on the Cornell box's four small emitters at 800 by 450 on the
-    /// development machine's GPU, and the voxel game's from 1.2 to 13.3 ms with forty glowstones in
-    /// view at 1280 by 720, so they are marched to once a tile, as the screen's probes march to
-    /// them, and a pixel reads the texels around it, its cost the same however many lights there
-    /// are. Left out for debugging (<see cref="GlobalIlluminationSettings.ScreenOff"/>), they stand
-    /// for nothing, and each pixel marches.
+    /// Without them each pixel marches to every glow light in view itself, the model pass's cost
+    /// growing with the lights in view, so they are marched to once a tile, as the screen's probes
+    /// march to them, and a pixel reads the texels around it, its cost the same however many lights
+    /// there are. Left out for debugging (<see cref="GlobalIlluminationSettings.ScreenOff"/>), they
+    /// stand for nothing, and each pixel marches.
     /// </remarks>
     internal bool GlowOnly(RenderWorld renderWorld) =>
         _glowCount > 0 && renderWorld.TryGet<GlobalIlluminationSettings>() is { ScreenOff: false, Quality: GlobalIllumination.Low };
@@ -220,11 +217,10 @@ internal sealed partial class GlobalIlluminationRenderer : IDisposable
     /// it, so a probe stands for about the same share of the picture on any screen.
     /// </summary>
     /// <remarks>
-    /// The probes' cost grows with how many there are. Every 8 pixels at High whatever the screen,
-    /// the voxel game's room of forty glowstones took 8.3 ms of global illumination at 1280 by 720
-    /// and 35.9 at 3840 by 2160 on the development machine's GPU, the world's probes about 3 of it,
-    /// and the Cornell box 3.3 and 7.2. A render texture's probes take the window's tile, so a view
-    /// of a split screen reads the window's spacing.
+    /// The probes' cost grows with how many there are, which at the same spacing on every screen
+    /// grows with the window's pixels, so the spacing grows with the height past 1080. A render
+    /// texture's probes take the window's tile, so a view of a split screen reads the window's
+    /// spacing.
     /// </remarks>
     internal static int TileAt(GlobalIllumination quality, uint height = 1080)
     {
@@ -305,30 +301,29 @@ internal sealed partial class GlobalIlluminationRenderer : IDisposable
                 + $"in {Stopwatch.GetElapsedTime(making).TotalMilliseconds:0} ms.");
         }
 
-        // Each cascade's interval, from its probes' spacing to four times that, the first's from the
-        // probe, so a ray reaches as far again as the next cascade's begin. Ending at twice the
+        // Each cascade's interval, from its probes' spacing to four times that, the first's from
+        // the probe, so a ray reaches as far again as the next cascade's begin. Ending at twice the
         // spacing, where the next cascade's begin, a ray met nothing short of a surface that the
         // probes of the next cascade nearer it met before their own interval began, which the merge
-        // takes as dark, and the sun's patch on a room's floor lit the room 62% under a path-traced
-        // reference at Low, where it reads 50% under.
+        // takes as dark, and the room lost part of the light the sun's patch on its floor gave it.
         //
         // The last cascade's interval ends at the field's edge, the diagonal of its coarsest
         // cascade, since past it no cascade takes over. Ending at four times its spacing, a ray
         // across a room wider than that ended in mid-air and brought nothing, and at Low, whose
         // last cascade reached 9.6 units, the probe at the far wall of a room 12 wide read its face
-        // toward the room 35% under a path-traced reference where High's, with a third cascade past
-        // it, read 21%. Its rays go on until they meet a surface or leave the field, and read the
-        // sky there as a ray leaving the field does.
+        // toward the room dimmer than High's, with a third cascade past it, did. Its rays go on
+        // until they meet a surface or leave the field, and read the sky there as a ray leaving the
+        // field does.
         //
-        // The far cascade's probes stand in the field's far cascade, their spacing that of its cells,
-        // and its interval begins half way along the one before's, as each cascade's does. The
-        // cascade before it traces as the last does, on to the far cascade's edge, meeting the far
-        // cascade's cells only once its ray has left the counted ones, and bringing the sky where it
-        // meets nothing, so it takes no light from the far cascade's probes. Those stand eight of its
-        // cells apart, in cells that hold the ground near them as a slab, and merged into the
-        // cascade before at four times its spacing, the voxel game's glass frame read 197, 192, 144
-        // where 197, 195, 194 without the far cascade, and a red wall's blue 57 against 98. The far
-        // cascade's probes give their light to the pixels past the counted cascades alone.
+        // The far cascade's probes stand in the field's far cascade, their spacing that of its
+        // cells, and its interval begins half way along the one before's, as each cascade's does.
+        // The cascade before it traces as the last does, on to the far cascade's edge, meeting the
+        // far cascade's cells only once its ray has left the counted ones, and bringing the sky
+        // where it meets nothing, so it takes no light from the far cascade's probes. Those stand
+        // eight of its cells apart, in cells that hold the ground near them as a slab, and merged
+        // into the cascade before at four times its spacing they drew the blue out of the voxel
+        // game's glass frame and of a red wall. The far cascade's probes give their light to the
+        // pixels past the counted cascades alone.
         var fieldEdge = SceneFieldPlan.Resolution * (plan?.CellOf(plan.Cascades - 1)
             ?? fieldSettings.CellSize * (1 << (Math.Clamp(fieldSettings.Cascades, 1, 8) - 1))) * MathF.Sqrt(3);
         var intervals = new (float Start, float End)[cascades];
@@ -343,9 +338,8 @@ internal sealed partial class GlobalIlluminationRenderer : IDisposable
         // (gi_screen.slang), so a wall two units before a pillar sees the pillar and the floor lit
         // around it itself where those probes, standing at the pillar's dark face, saw the face
         // alone. Reaching as far as the probes are apart, the wall behind a pillar beside a lamp
-        // read 0.68 of a path-traced reference's bounce where it read 1.05 without the pillar, and
-        // reaching twice as far 0.79 and 1.01; three and four times as far read the wall past the
-        // pillar up to 1.75.
+        // read darker than a path-traced reference, and three and four times as far read the wall
+        // past the pillar brighter than it.
         _screenReach = 2 * ProbeSpacing * fieldSettings.CellSize;
 
         var environment = renderWorld.TryGet<EnvironmentMap>() is not null ? renderWorld.TryGet<ModelRenderer>()?.Environment : null;

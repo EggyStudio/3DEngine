@@ -87,8 +87,8 @@ public sealed class MirrorPlaneTests : IDisposable
     {
         // A window of four samples, whose scene's pipelines are made for its own pass, where the
         // mirrored view draws at one sample through pipelines of its own, which worker threads make
-        // while the frames go on. The voxel game's first frame with a plane took 24 s of the wall
-        // clock with them made on the frame's own thread.
+        // while the frames go on, where made on the frame's own thread they would hold up the first
+        // frame with a plane.
         var config = Config.Default.WithWindow("mirror test", 160, 90) with { Headless = true, Offscreen = true, Samples = 4 };
         UseApp(new App(config).AddPlugin(new DefaultPlugins()));
         CreateDirectionalLight(Vector3.Normalize(new Vector3(-0.5f, -0.7f, -0.4f)), Color.White, 2.5f);

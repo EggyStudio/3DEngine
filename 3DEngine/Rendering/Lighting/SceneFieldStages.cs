@@ -385,8 +385,8 @@ internal sealed unsafe partial class SceneFieldStages(GraphicsDevice device) : I
             device.Api.vkCmdFillBuffer(cmd, ((VulkanBuffer)field.Gloss).Buffer, 0, Vulkan.VK_WHOLE_SIZE, 0);
             device.Api.vkCmdFillBuffer(cmd, ((VulkanBuffer)field.Glow).Buffer, 0, Vulkan.VK_WHOLE_SIZE, 0);
             device.Api.vkCmdFillBuffer(cmd, ((VulkanBuffer)field.Behind).Buffer, 0, Vulkan.VK_WHOLE_SIZE, uint.MaxValue);
-            // The emitters' light cleared, and later read, where a build lends it alone, as clearing
-            // and reading it cost a cascade's build some 0.03 ms.
+            // The emitters' light cleared, and later read, where a build lends it alone, since
+            // clearing and reading it adds to every cascade's build.
             if (lent)
             {
                 field.Emitted ??= device.CreateBuffer(new BufferDesc((ulong)size * size * size * 24, BufferUsage.Storage | BufferUsage.TransferDst));

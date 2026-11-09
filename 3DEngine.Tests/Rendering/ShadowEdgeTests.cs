@@ -29,8 +29,8 @@ public sealed class ShadowEdgeTests : IDisposable
         // sun 45 degrees up, in a map of 256 texels a tile, so a texel is some eight pixels across
         // the floor near the camera, and the floor read along a row across the edge. Compared at the
         // nine nearest texels the edge's light stood still across each texel and stepped at its side,
-        // its steepest step 72 of a drop of 146 on the development machine's GPU, and weighed
-        // bilinearly at sixteen it steps by 8.
+        // where weighed bilinearly at sixteen it ramps across the texel, and the bound on the
+        // steepest step lies between the two.
         var config = Config.Default.WithWindow("shadow edge test", 480, 270) with { Headless = true, Offscreen = true, Samples = 1 };
         UseApp(new App(config).AddPlugin(new DefaultPlugins()));
         SetShadowMapSize(256);
