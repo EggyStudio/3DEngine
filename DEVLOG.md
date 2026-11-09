@@ -8,8 +8,13 @@ of .github/REVIEW.md or .github/REVIEW-ARCHIVE.md and the commit that closed it.
 
 ## 2026-11-09
 
+![](.github/assets/showcase.webp)
+The README opens on Intel's Sponza, six of its views from morning to the lamps at night drawn by the
+engine, and the example's text is interface that F1 hides. (`86339f72`)
+
 Done that day
 
+- Item 225 at `1a11d7bf`. The engine as projects.
 - Item 226 at `50d7b427`. The live path.
 - Item 229 at `f1cc2022`. The reference reads the normal maps.
 - Item 232 at `8dba0d1c`. Three examples drift from raylib's programs.
@@ -116,6 +121,7 @@ Done that day
 - Item 194 at `febe0b5b`. Sponza's vestibule at a third of its path-traced light, and the stale
   references.
 - Item 195 at `8836ce27`. The march toward a lamp from a probe's hit looks from its first step.
+- Item 197 at `cd6cae8f`. A pier face reads 15 to 18 points apart between eyes 0.3 m apart.
 - Item 199 at `c3f31f93`. The bounce at a hit from the surface's own irradiance, the probe's faces
   reprojected.
 - Item 201 at `b2be1e28`. Anisotropic filtering at 16 everywhere.
@@ -183,6 +189,11 @@ Done that day
 
 - Item 140 at `1567179e`. Each quality is a GPU budget at a size, read at 1080p, 1440p and 4K.
 - Item 141 at `3b85dbcd`. The far cascade costs a slice a frame.
+- Item 144 at `a170718d`. A mesh over shader buffers packs its positions to 16 bits within its
+  bounds and its indices to 16 bits.
+- Item 145 at `88943e50`. A mesh written in place gives back its ring of mapped buffers once the
+  writes stop.
+- Item 182 at `57dae5a6`. Vulkan 1.4.
 - Item 187 at `893758ea`. The fog lights dark rooms.
 - Item 188 at `5ab01df8`. Flying Sponza is stable.
 - Item 189 at `369d9b5a`. The probes' rough reflection along the mirror way, a seventh on the floor
@@ -352,6 +363,7 @@ Done that day
 - Item 174 at `0dff5d04`. Temporal antialiasing.
 - Item 175 at `f8872d03`. Volumetric fog.
 - Item 178 at `22c523ae`. The gather's fallback for a surface that sees none of its probes.
+- Item 183 at `dfbf7614`. The Windows job's time, up to 159 minutes.
 - Item 184 at `fdf4dedb`. The corridor test's drift from 0.22 to 0.50.
 - Item 185 at `4a01d5ef`. A closed space in the coarsest cascade takes half the open light.
 - Item 186 at `aca80ca2`. The look read whole against the reference, and the knob.
@@ -443,6 +455,7 @@ Done that day
 - Item 166 at `6cc2a0a0`. The atrium's far end does not glow blue.
 - Item 167 at `5ea3e98f`. The Sponza example's look matches the reference's warmth and post-
   processing.
+- Item 168 at `001e93f0`. A cold start compiles its shaders in parallel.
 - Item 169 at `4b80c5c8`. An example that cannot get its memory says so and runs smaller.
 - Item 179 at `5932c389`. A capture waits for the scene field.
 - Item 180 at `60fd7e23`. A still camera turns Sponza's shade blue within five seconds.

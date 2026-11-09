@@ -3198,6 +3198,26 @@ bloom as it is, the halo soft against the lit walls. A bulb a tenth of a unit ac
 over a floor lights the point under it within a fifth of its lower face's closed form, where it lit
 none of it (`GlowLightsTests`; `gi.reference`, `gi.compare`, `./e3d command profile`).
 
+**The glow lights' marches at a ray's hit, read and mended on 2026-11-09.** With 241's floor every
+lamp of Sponza's 23 lies in reach of every probe and every ray's hit, and the screen's probes took
+2.5 to 2.7 ms where 1.3 at 800 by 450 in the gallery at 20:00. Marching a probe's fainter lamps only
+over a share of its glow light, the rest taken at the marched ones' mean visibility, or in turns of
+four and eight by tile and frame scaled by the turn, changed neither the time, 2.56 to 2.65 ms, nor
+the light, the door at 0.953 to 0.956 of its reference and the gallery at 1.31 to 1.35, and taking a
+lamp past sixteen of its box's half diagonals as one point took 5% off within the readings' spread.
+The time lay at the hits, each marching its two brightest lamps and two groups of the rest, which
+every hit of every probe's ray did once every lamp reached it, with none marched the screen's probes
+taking 1.51 ms and the first three cascades' traces 1.54 where 2.54 and 2.60. A hit now marches its brightest lamp and the rest as one group shadowed as its brightest is
+(`probelight.slang`), alternated twice under the GPU's lock (N 7.9) at 2.09 and 2.10 ms in the
+screen's probes where 2.64 and 2.61 and 2.32 in the first three traces where 2.79, the door at 0.954
+and the gallery at 1.316 of their references as with two, and Ore at night from its hill at 1.010 of
+its reference where 1.009, its screen's probes at 3.52 and 3.50 ms where 4.29 and 4.27 and its first
+two traces at 2.41 where 2.66, on powersave-bazzite. Held still in the gallery at 20:00, 0.043% of
+the pixels move by 12 levels or more from one frame to the next where 0.044%, at most 0.079% as
+before, so which lamp is brightest at a hit does not move the picture (`gi.passes`, `./e3d command
+profile`, `gi.reference`, `gi.compare`, `./e3d command record` every frame). Wick's house reads its light at `Low` offscreen and four wicks, so it stands for no
+torch-lit cave, and the voxel game's lies outside this repository.
+
 **The vestibule's end wall, read on 2026-11-07.** In the door view at 8:00 at High the wall facing
 the court read 1.55 of a path-traced reference's light, the door in it 2.08 and the side wall facing
 -z 1.35. With the surfaces' reflection of the indirect light left out (`gi.toggle specular off`)

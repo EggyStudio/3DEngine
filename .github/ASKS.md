@@ -1412,3 +1412,65 @@ the four passes' main thread at 16 columns 7.6 and 7.8 ms to 3.0 and 3.4.
 Review: read by the game on 6.0.14 at `23ba89e` on 2026-11-01, the GPU's passes at 16 columns 22.8
 ms to 13.6 with the shadows 2.6 to 0.45 and the depth pass 3.1 to 0.19, the engine's item 151; the
 cascades' entry of 2026-10-30 is answered by it.
+
+### 2026-11-09, the voxel game in `Voxel-Sandbox`, a walk moves the far cascade a cell and the light of what stands outside the field steps in one frame
+
+Read on the 3DEngine 6.1.12 package for the game's item 166, Debug, offscreen at 1280 by 720, the
+RTX 4070 Laptop GPU with driver 615.78.08, on tuned's power-saving profile, every frame recorded by
+`record <path> 900f every 1f` while the game's `voxel.flicker` moved the eye. The game's settings
+are the illumination at High, four cascades with a cell of 0.25 and a budget of two, and the far
+cascade reaching the 192 blocks of 12 columns, the field's center half the finest cascade ahead of
+the eye. Seed 1's cherry grove at hour 16, from -736, 79, -960 facing 345 and pitched -12, the eye
+walking 0.0717 blocks a frame for 180 frames along its heading. The clouds stand at a height of 120
+outside the field, since they cast no shadow, and take their indirect light through the model pass.
+
+In that part of the walk each frame differs from the one before on 9.2 to 9.5 percent of the window
+past 12 levels, the land moving, and at the walk's frame 123 the share is 11.6, the near clouds'
+patch of 260 by 70 pixels going in that one frame from 163, 180, 203 to 148, 163, 186 in sRGB
+levels, the frames before and after it moving as their neighbors do. Settled, the same patch reads
+158, 178, 205 at the walk's frame 90 and 144, 161, 184 at frame 122, 2.3 blocks on, and with the far
+cascade off 164, 184, 210 and 169, 185, 209, with the illumination off 150, 166, 189 and 154, 166,
+186. So the clouds' light changes with where the far cascade lies, by 14 to 21 levels between those
+two places, and in the walk it holds the light of the cascade's old place and takes the new one in a
+single frame, where the frame in motion matches the settled picture of its pose within 1 percent of
+its pixels everywhere else. The same walk in the village at dusk and in a torch-lit cave, and a turn
+of 0.25 degrees a frame in all three, have no such frame.
+
+Of the engine's items, 239's arrival after a cut is the nearest, a cascade arriving at a new place
+as a step. Its first lever starts the arriving cascade from the light of the cascade above, which
+the far cascade does not have, and a walk moves the far cascade a cell at a time with no cut. The
+engine lacks the far cascade's move eased in the light it gives, the light at a place it held before
+the move carried into the frames after it, so a walk does not step the light of the clouds or of
+anything else the model pass lights from it. The game draws the clouds as before meanwhile.
+
+The frames are in the game's `.github/dump/2026-11-09`, which git ignores, under
+`22-05-item-166-grove-`: the recording, the walk's frames 252 and 253 and their difference, and the
+settled shots of the walk's frames 90, 122 and 123, of 90 and 122 with the far cascade off, and of
+90, 122 and 123 with the illumination off.
+
+### 2026-11-09, the voxel game in `Voxel-Sandbox`, a settled view's indirect light depends on how the eye came to it, in the screen probes' tiles
+
+Read on the 3DEngine 6.1.12 package for the game's item 166, Debug, offscreen at 1280 by 720, the
+RTX 4070 Laptop GPU with driver 615.78.08, on tuned's power-saving profile, at the game's settings
+as in the entry above. Seed 1's cherry grove at hour 16 with the clock held, the eye at -739.34, 79,
+-972.47 facing 345 and pitched -12. Walked there over 180 frames from 12.9 blocks back and let
+settle, `field.wait` and 240 frames, then taken 64 blocks off and back and let settle the same, the
+two pictures differ on 0.35 percent of the window past 12 levels and 0.07 past 25, and the same
+place teleported to in another run differs from the second by 0.69 and 0.25. A settled view's frames
+are the same to the bit from one to the next, so each holds one estimate of the light, and the
+difference lies in the screen probes' 8-pixel tiles across the land.
+
+In the recordings of the same read, each frame of a turn made from where the eye had settled matches
+the settled picture of its pose within 0.02 to 0.06 percent past 12 at 0.75 and 3 degrees a frame,
+where the frames of a walk or a sprint differ from pictures settled after a teleport by 0.55 to 1.0,
+the size of the path's own difference. So no lag of the light behind the motion shows past what the
+path leaves, and what changes as the eye moves is which held estimate a place shows.
+
+The engine lacks a settled light that is the same for a view whatever the eye did before it, the
+error of a probe's light averaging out over the frames a view is held rather than standing in the
+pattern its placement and history leave. Of the engine's items, 240's kind, the screen probes' tiles
+and their kept light, is the nearest, here in a still view after a walk rather than on a thin shape.
+The game does nothing about it meanwhile.
+
+The frames are in the game's `.github/dump/2026-11-09`, which git ignores, under `item-166-path-`:
+the place walked to and teleported to, both settled, and their difference eight times over.

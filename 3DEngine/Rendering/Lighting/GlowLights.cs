@@ -22,8 +22,10 @@ namespace Engine;
 /// which marches the field to the halves of each face of each light in reach and keeps sixteen
 /// levels of how much of it it sees, a soft shadow from the field's distances; a pixel no screen
 /// probe stands on a surface like its own marches to the four brightest itself, once each, as do
-/// the pixels past the screen's probes. A probe's ray's hit takes the two brightest, so the walls a
-/// lamp lights reflect its light on. Emitters square to the axes that touch and emit the same light
+/// the pixels past the screen's probes. A probe's ray's hit takes the brightest and the rest as one
+/// group shadowed as its brightest is, so the walls a lamp lights reflect its light on, at two
+/// marches a hit, since every lamp in reach of a hit is weighed and marched to at every ray of every
+/// probe, and its light reaches the window only after the bounce. Emitters square to the axes that touch and emit the same light
 /// are one light, so a stack of emissive blocks is not four lights each hidden by the others. The
 /// field marks the cells such an emitter paints, so a ray that meets it does not take its light a
 /// second time; a reflection keeps it.

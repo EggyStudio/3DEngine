@@ -434,8 +434,8 @@ float4 seenSumIn<V : IVolume, let At : bool>(V field, SceneFieldInfo info, Scene
 // closed room's floor into it, which the marches hold out. The model pass's reflections call
 // shadeHit, which hides the lamps as this does and marches to no probe. The indirect light is taken
 // at kept's share of it, from the faces where gathered says the probes stood, and own holds the
-// light the surface sends on of what reaches it straight from the sun, the lights and the two
-// brightest glow lights, with its emission but a glow light's, which a world probe weighs the frame
+// light the surface sends on of what reaches it straight from the sun, the lights and the
+// brightest glow light with the rest gathered as one, with its emission but a glow light's, which a world probe weighs the frame
 // before's light by (gi_ambient.slang). The probes' rays meet a double-sided face at its plane
 // (fieldDistanceSheetIn), where the held field's gradient cancels across the sheet, so the hit's
 // normal is the plane's (fieldNormalSheet), since one turned up there lit the voxel game's crops as
@@ -515,7 +515,7 @@ float3 glossyHit<V : IVolume, Sun : ISunShadow>(V field, SceneFieldInfo info, Sc
         bounced = bouncedHitAtBoth(cubes, cubesAt, reach, gathered, p, n, m, probes, spacing, cascades, alongMirror);
     own = directReflected(field, info, lights, p, n, v, diffuse, f0, gloss.x, widen, sun)
         - hiddenLampReflected(field, info, lights, p, n, v, diffuse, f0, gloss.x, widen)
-        + reflectedShare(paint, gloss, dot(n, v)) * glowLightsAt(field, info, lights, p, n, 2, false, way) / Pi + surfaceGlowUncarried(glow, albedo, info, p);
+        + reflectedShare(paint, gloss, dot(n, v)) * glowLightsAt(field, info, lights, p, n, 1, false, way) / Pi + surfaceGlowUncarried(glow, albedo, info, p);
     return own + (diffuse * (1.0 - share) * bounced + share * alongMirror) / Pi * (lights.counts.z * kept);
 }
 
@@ -566,6 +566,6 @@ public float3 shadeHit<V : IVolume, let Glowing : bool>(V field, SceneFieldInfo 
     float3 arrived = (directLight(field, info, lights, p, n) - hiddenLampLight(field, info, lights, p, n)) * Pi
         + bouncedAt(cubes, skies, reach, info, p, n, probes, spacing, cascades) * lights.counts.z;
     if (Glowing)
-        arrived += glowLightsAt(field, info, lights, p, n, 2, false);
+        arrived += glowLightsAt(field, info, lights, p, n, 1, false);
     return color / Pi * arrived + surfaceGlow(glow, albedo, info, p);
 }

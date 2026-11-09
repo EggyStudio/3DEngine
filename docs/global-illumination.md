@@ -83,7 +83,10 @@ the materials guide says.
 `SetSceneField(cascades, cellSize, updateBudget, triangleBudget, farCascade)` sets its shape. The
 field is cascades of 64 cells a side, each twice as coarse and as wide as the one before, so four
 cascades of a quarter reach 16 units across in the first and 128 in the last, and the probes stand
-in the same cascades. The cell is the finest detail global illumination sees. A wall thinner than a
+in the same cascades. The cell is the finest detail global illumination sees, and it sets how far an
+emissive surface smaller than the probes' spacing of eight cells lights, where its light falls to a
+300th of what it gives half that spacing from it, 8.7 units at a cell of an eighth and 17 at a
+quarter, so a game's cell sets how far its torches light. A wall thinner than a
 cell is held about its middle so it still stops light, and an emissive strip thinner than a cell
 lends its light to the cells near it. The cascades lie around the camera, so a turn builds none of
 them, or around the point `SetSceneFieldCenter(point)` gives. A bounded level gives its middle once,
@@ -242,8 +245,8 @@ faces of its box it shows, as a block sunk in the ground shows its top alone. Th
 nearest the eye light so, each as far as it lights a surface by a 300th of its own light, 21 units
 for a block however bright, and one smaller than the probes' spacing as far as it lights one by a
 300th of what it gives half that spacing from it, so a lamp's small bulb lights the room around it,
-and a mesh of more parts than that lights the ground around none of the
-rest, which `gi.state` counts. Past the four brightest at a point, the rest are gathered by their
+and a mesh of more parts than that lights the ground around none of the rest, which `gi.state`
+counts. Past the four brightest at a point, the rest are gathered by their
 way from it, each group shadowed as its brightest is, so a room lit by many small lamps takes the
 light of every one. A larger surface, as a panel across a ceiling, is left to the probes' rays,
 which meet it often enough. A frame with none of them pays nothing for them.
