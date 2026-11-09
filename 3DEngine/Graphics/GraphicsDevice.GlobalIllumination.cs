@@ -551,7 +551,7 @@ internal sealed unsafe partial class GraphicsDevice
             run.Image(set, 16, VkDescriptorType.StorageImage, gi.HitNormals[c].View, null, VkImageLayout.General);
             run.Image(set, 17, VkDescriptorType.StorageImage, gi.RayReach, null, VkImageLayout.General);
             if (traced)
-                WriteRayScene(set, 18, rays!);
+                this.WriteRayScene(set, 18, rays!);
             var push = new IlluminationTrace
             {
                 Cascade = (uint)c, Probes = p, Texels = n, Last = c == gi.Cascades - 1 || c == lastCounted ? 1u : 0u,

@@ -8,7 +8,6 @@ sealed class Engine.GraphicsDevice : IDisposable, IGraphicsDevice
   GpuParticles CreateParticles(int capacity)
   GpuParticles CreatePlacedParticles(ReadOnlySpan<Vector3> points)
   GpuPlanarReflection CreatePlanarReflection(uint width, uint height)
-  GpuRayScene CreateRayScene()
   GpuReflectionHistory CreateReflectionHistory(uint width, uint height)
   GpuSceneField CreateSceneField(int cascades, int resolution)
   GpuScreenProbes CreateScreenProbes(uint width, uint height, int tile, float glowTexel = 2f)
@@ -26,7 +25,6 @@ sealed class Engine.GraphicsDevice : IDisposable, IGraphicsDevice
   IDisposable RecordFog(ICommandBuffer commandBuffer, GpuFog fog, ReadOnlySpan<byte> uniforms, IImageView shadowMap, ISampler shadowSampler, GpuIllumination? gi, GpuSceneField field)
   IDisposable RecordGlobalIllumination(ICommandBuffer commandBuffer, GpuIllumination gi, GpuSceneField field, IImageView environment, ISampler environmentSampler, IImageView sunMap, ISampler sunSampler, ReadOnlySpan<byte> lights, IReadOnlyList<(float, float)> intervals, float spacing, bool mergeOff = false, int alone = -1, bool viewed = false, long frame = 0L, IReadOnlyList<bool>? lying = null, int lastCounted = -1, bool lightThrough = false, bool fieldWhole = false, int farPart = -1, GpuRayScene? rays = null, IReadOnlyList<(int, int, int)?>? shifts = null, float carriedShare = 1f, uint carriedSince = 0u, uint carriedPhase = 0u, uint traceFlags = 0u)
   IDisposable RecordProbeFilter(ICommandBuffer commandBuffer, IReadOnlyList<IImageView> faces, ReadOnlySpan<Matrix4x4> viewProjections, Vector3 eye, FilteredCube target)
-  IDisposable RecordRayScene(ICommandBuffer commandBuffer, GpuRayScene scene, IReadOnlyList<RayInstance> instances, Func<object, Vector3[]?> cornersOf, Func<object, uint[]?>? colorsOf = null, IEnumerable<object>? recolored = null, Func<object, Vector2[]?>? uvsOf = null)
   IDisposable RecordSceneFieldBuild(ICommandBuffer commandBuffer, GpuSceneField field, IBuffer corners, IBuffer instances, int instanceCount, int triangleCount, int cascade, Vector3 origin, float cell, int band, bool thinGlow = false, bool first = true, bool last = true, bool? lend = null, float sheet = 0f, SceneFieldPlan.CellBox? cells = null, bool empty = false)
   IDisposable RecordSceneFieldRepaint(ICommandBuffer commandBuffer, GpuSceneField field, IBuffer corners, IBuffer instances, int instanceCount, int triangleCount, int cascade, Vector3 origin, float cell, int band)
   IDisposable RecordSceneFieldStamp(ICommandBuffer commandBuffer, GpuSceneField field, IBuffer bricks, int brickCount, IBuffer shapes, int shapeCount)
@@ -132,6 +130,7 @@ sealed class Engine.GraphicsDevice : IDisposable, IGraphicsDevice
   internal int ReadbackStagingCount { get; }
   internal int WindowDepthGeneration { get; }
   internal int[] ReadCarriedMoving(GpuIllumination gi)
+  internal static VkDescriptorSet SetHandle(IDescriptorSet set)
   internal static VkImageMemoryBarrier2 ImageBarrier(VkImage image, VkImageSubresourceRange range, VkImageLayout from, VkImageLayout to, VkPipelineStageFlags2 srcStage, VkAccessFlags2 srcAccess, VkPipelineStageFlags2 dstStage, VkAccessFlags2 dstAccess)
   internal static VkImageSubresourceRange ColorLevels(uint firstLevel, uint levelCount)
   internal static bool HoldsBlocks(IImage image)
@@ -169,7 +168,6 @@ sealed class Engine.GraphicsDevice : IDisposable, IGraphicsDevice
   void BindGraphicsPipeline(ICommandBuffer commandBuffer, IPipeline pipeline)
   void BindIndexBuffer(ICommandBuffer commandBuffer, IBuffer buffer, ulong offset, IndexType indexType)
   void BindProbeVolume(IDescriptorSet set, uint binding, GpuIllumination gi, int cascade, bool merged)
-  void BindRayScene(IDescriptorSet set, uint first, GpuRayScene scene)
   void BindVertexBuffers(ICommandBuffer commandBuffer, uint firstBinding, IBuffer[] buffers, ulong[] offsets)
   void CmdBeginRenderPass(ICommandBuffer commandBuffer, IRenderPass renderPass, IFramebuffer framebuffer, Extent2D extent, ClearColor? clear = null)
   void CmdEndRenderPass(ICommandBuffer commandBuffer)
@@ -279,6 +277,9 @@ sealed class Engine.GraphicsDevice.VulkanBuffer : IBuffer, IDisposable
   internal bool IsHostVisible
   internal nint MappedPtr
   void Dispose()
+sealed class Engine.GraphicsDevice.VulkanCommandBuffer : ICommandBuffer
+  VulkanCommandBuffer(VkCommandBuffer handle)
+  internal VkCommandBuffer Handle { get; }
 sealed class Engine.GraphicsDevice.VulkanImageView : IDisposable, IImageView
   IImage Image { get; }
   VulkanImageView(GraphicsDevice device, IImage image, VkImageView view)

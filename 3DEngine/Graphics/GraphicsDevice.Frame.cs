@@ -270,7 +270,7 @@ internal sealed unsafe partial class GraphicsDevice
 
     /// <summary>Thin wrapper around a native <c>VkCommandBuffer</c> handle.</summary>
     /// <seealso cref="ICommandBuffer"/>
-    private sealed class VulkanCommandBuffer : ICommandBuffer
+    internal sealed class VulkanCommandBuffer : ICommandBuffer
     {
         /// <summary>The underlying Vulkan command buffer handle.</summary>
         internal VkCommandBuffer Handle { get; }

@@ -27,6 +27,12 @@ internal sealed partial class GraphicsDevice
     /// <summary>The device's own Vulkan calls, through which a part records and makes its objects.</summary>
     internal VkDeviceApi Api => _deviceApi;
 
+    /// <summary>
+    /// The Vulkan set behind a descriptor set the device made, which a part writes its own
+    /// bindings into, the set's class staying the device's with the pool it goes back to.
+    /// </summary>
+    internal static VkDescriptorSet SetHandle(IDescriptorSet set) => ((VulkanDescriptorSet)set).Handle;
+
     // Lets the parts go, the last made first, since a part may use one made before it.
     private void DisposeParts()
     {
