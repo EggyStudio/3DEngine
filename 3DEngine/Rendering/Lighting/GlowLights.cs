@@ -33,8 +33,8 @@ namespace Engine;
 /// cascade's probe spacing, which does not change while it stands still, so the field's mark holds
 /// between its builds. A mesh of many emitters, as a voxel game draws its blocks of a kind, is cut
 /// into its parts, its triangles joined where they share a corner, and is carried where each part
-/// is, each a light of its own (<see cref="PartsOf"/>). Its light reaches as far as it lights a
-/// surface by a fiftieth, 17 blocks for the voxel game's glowstone. The <see cref="Most"/> carried
+/// is, each a light of its own (<see cref="PartsOf"/>). Its light reaches as far as a surface there
+/// takes a 300th of the light it emits, the share below. The <see cref="Most"/> carried
 /// emitters nearest the eye are lights each frame; one past them lights nothing a probe carries to
 /// a floor, its cells marked all the same, so a level of more lamps than that lights only the
 /// nearest. The field marks a mesh whole, so a mesh of many parts past the nearest lights none of

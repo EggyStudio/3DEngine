@@ -15,7 +15,7 @@
 # The pack run adds what a push leaves out, every example captured on Linux for the gallery and
 # measured against raylib's program (captures), every example captured on the macOS runner's GPU
 # (captures-macos), every game played, captured, soaked and resized from the package and the README
-# followed on Linux (games), and the other eleven games played on Windows and macOS.
+# followed on Linux (games), and the rest of the games played on Windows and macOS.
 name: build
 
 # Documents and captures are left out, apart from the README and BUILDING.md, whose steps the

@@ -12,59 +12,61 @@ with the norm test of the layers and the listings split by project, then 234, th
 split, pushed together at 14:00 on 2026-11-09 with one run on the last, the last tagged `v6.2.0` and
 the pack run for 6.2.0 with publish started on it at 14:00, since the pack run tests what it packs
 and the split's twelve packages are new names on nuget.org; they keep the form and carry NORM.md's N
-1.1 and N 1.6. Before it `d8eedc29`, cut seven's sixth commit, pushed at 09:33 on 2026-11-09 with
-`a01f88ea` and `989ab124`, the fourth and fifth, the cube filter with the air's sky, the global
-illumination's device work and the scene field's device work as parts the device keeps, one run on
-the last, green at 11:53 with macOS in 46 minutes, Windows in 77 and 83, Linux in 132, the longest
-yet and the shader cache's as item 231 reads it, and the examples in 8; they keep the form, the
-first carrying SHARED.md's row. Before it `a36b8540`, cut seven's third commit, pushed at 07:39 on
-2026-11-09 with `f66c4a54` and `93d96996`, the first and second, the reference, the ray scene and
-the fog as parts over the device's listed surface, one run on the last, green at 09:30 with macOS in
-44 minutes, Linux in 103, Windows in 108 and 111 and the examples in 8; they keep the form and carry
-the review's files. Before it `4fe1bfe4`, 225's sixth cut, pushed at 05:55 on 2026-11-09 with
-`db48a8b5`, `f1422dc2`, `4aff2190` and `723bc098`, the second to fifth, one run on the last, which
-the rerun of 8dba0d1c's Windows half cancelled at once through the workflow's one run a branch and
-which started again at 05:59, green at 07:37 with macOS in 42 minutes, Windows in 71 and 97, Linux
-in 72 and the examples in 8; they keep the form and carry the review's files. Before it `30a8747f`,
-225's first cut, Core naming no area above it, and `8dba0d1c`, 232, a device drawing on its CPU
-taking no anisotropic samples, pushed together at 03:25 on 2026-11-09 with one run on the last and
-the pack run for 6.1.12 with publish started on it at 03:25, since the pack run tests what it packs,
-green at 06:42 with every job, the captures within their rooms after 232 and Sumo's play through,
-the package published and the commit tagged `v6.1.12` at 06:45; they keep the form and carry the
-review's files; the run ended at 05:53 with Linux green in 137 minutes, macOS in 45, the second
-Windows half in 77 and the examples in 10, and the first Windows half cancelled at its limit of 120
-minutes (Verdict 110), rerun at 05:55. Before it `9e150e3e`, 225's plan, pushed at 00:47 on
-2026-11-09 with `ca037368`, 228 and 230 recorded, `c8baed4b`, 216 recorded, `77f45030`, 229's
-switch, and `f1cc2022`, 229's reference reading the textures and the normal maps, one run on the
-last, green at 02:41 with macOS in 42 minutes, Windows in 78 and 114, Linux in 79 and the examples
-in 10; they keep the form and carry the review's files. Before it `b3c471d9`, 215 as docs, pushed at
-22:23 on 2026-11-08 with `fbf35060`, 227, the comments on their own terms over 48 files, and
-`e9462fb1`, 218 as docs, one run on the last, green at 00:44 on 2026-11-09 with macOS in 38 minutes,
-the Windows halves in 60 and 107, Linux in 133 for the second time where it took 102 in the morning,
-and the examples in 8; they keep the form and carry the review's files. Behind them `f66c4a54`,
-`93d96996` and `a36b8540`, cut seven's first three commits, the reference, the ray scene and the fog
-as parts over the device's listed surface, committed and waiting on that run. Before it `20acb49e`,
-223, the device mapping a memory block once a buffer the CPU writes is carved from it, which ends
-the game's play's exit, with 224's dots, the README's first line and scenes_sponza's grading comment
-on its own terms, pushed at 20:24 on 2026-11-08, its run green at 22:21 with macOS in 43 minutes,
-Linux in 78, the Windows halves in 107 and 118 and the examples in 8; it keeps the form and carries
-the review's files. Before it `eda81295`, 219, the owner's flicker placed in a carried probe's sky
-share and mark written from each frame's places and mended by keeping both over the cycle, pushed at
-18:07 on 2026-11-08, its run green at 20:22 with macOS in 45 minutes, the Windows halves in 77 and
-117, Linux in 124 and the examples in 10; it keeps the form and carries the review's files. Before
-it `e8e0f73f`, the minor to 6.1 alone, tagged `v6.1.0`, pushed at 14:38 on 2026-11-08 with
-`98b26c9e`, 221, the night drawn from the Sky module with 222's documents, one run on the last,
-green at 17:02 with macOS in 42 minutes, the Windows halves in 75 and 101, Linux in 133 where it
-took 102 in the morning, and the examples in 10; they keep the form, the first carrying the review's
-files. Before it `8ab130e4`, 220's lamps through their glass and off by default, pushed at 12:25
-with `66982f6c`, 217's form 2, and `45103a96`, 217's second part as docs, one run on the last, green
-at 14:12 with macOS in 42 minutes, Linux in 75, the Windows halves in 84 and 107 and the examples in
-9; the three keep the form, the last carrying the review's files. Before it `6a190757`, item 214, a
-probe's reach kept for each of its rays, pushed at 10:31 on 2026-11-08, its run green at 12:24 with
-macOS in 44 minutes, the Windows halves in 81 and 106 and Linux in 102; it keeps the form and
-carries the review's files. Before it `41253cab`, Verdict 108's mend, half 2's Rendering tests dealt
-into three processes with SceneFieldTests moved to half 1, pushed at 08:38 on 2026-11-08, its run
-green at 10:26 with macOS in 44 minutes, the Windows halves in 108 and 50 and Linux in 74, which
+1.1 and N 1.6. After them `fae33540`, 233, the comments saying the reason alone in 164 files with
+STYLE.md's sentence and search, committed at 14:38 on 2026-11-09 and waiting on 1c3c38d5's run; it
+keeps the form and carries the devlog. Before it `d8eedc29`, cut seven's sixth commit, pushed at
+09:33 on 2026-11-09 with `a01f88ea` and `989ab124`, the fourth and fifth, the cube filter with the
+air's sky, the global illumination's device work and the scene field's device work as parts the
+device keeps, one run on the last, green at 11:53 with macOS in 46 minutes, Windows in 77 and 83,
+Linux in 132, the longest yet and the shader cache's as item 231 reads it, and the examples in 8;
+they keep the form, the first carrying SHARED.md's row. Before it `a36b8540`, cut seven's third
+commit, pushed at 07:39 on 2026-11-09 with `f66c4a54` and `93d96996`, the first and second, the
+reference, the ray scene and the fog as parts over the device's listed surface, one run on the last,
+green at 09:30 with macOS in 44 minutes, Linux in 103, Windows in 108 and 111 and the examples in 8;
+they keep the form and carry the review's files. Before it `4fe1bfe4`, 225's sixth cut, pushed at
+05:55 on 2026-11-09 with `db48a8b5`, `f1422dc2`, `4aff2190` and `723bc098`, the second to fifth, one
+run on the last, which the rerun of 8dba0d1c's Windows half cancelled at once through the workflow's
+one run a branch and which started again at 05:59, green at 07:37 with macOS in 42 minutes, Windows
+in 71 and 97, Linux in 72 and the examples in 8; they keep the form and carry the review's files.
+Before it `30a8747f`, 225's first cut, Core naming no area above it, and `8dba0d1c`, 232, a device
+drawing on its CPU taking no anisotropic samples, pushed together at 03:25 on 2026-11-09 with one
+run on the last and the pack run for 6.1.12 with publish started on it at 03:25, since the pack run
+tests what it packs, green at 06:42 with every job, the captures within their rooms after 232 and
+Sumo's play through, the package published and the commit tagged `v6.1.12` at 06:45; they keep the
+form and carry the review's files; the run ended at 05:53 with Linux green in 137 minutes, macOS in
+45, the second Windows half in 77 and the examples in 10, and the first Windows half cancelled at
+its limit of 120 minutes (Verdict 110), rerun at 05:55. Before it `9e150e3e`, 225's plan, pushed at
+00:47 on 2026-11-09 with `ca037368`, 228 and 230 recorded, `c8baed4b`, 216 recorded, `77f45030`,
+229's switch, and `f1cc2022`, 229's reference reading the textures and the normal maps, one run on
+the last, green at 02:41 with macOS in 42 minutes, Windows in 78 and 114, Linux in 79 and the
+examples in 10; they keep the form and carry the review's files. Before it `b3c471d9`, 215 as docs,
+pushed at 22:23 on 2026-11-08 with `fbf35060`, 227, the comments on their own terms over 48 files,
+and `e9462fb1`, 218 as docs, one run on the last, green at 00:44 on 2026-11-09 with macOS in 38
+minutes, the Windows halves in 60 and 107, Linux in 133 for the second time where it took 102 in the
+morning, and the examples in 8; they keep the form and carry the review's files. Behind them
+`f66c4a54`, `93d96996` and `a36b8540`, cut seven's first three commits, the reference, the ray scene
+and the fog as parts over the device's listed surface, committed and waiting on that run. Before it
+`20acb49e`, 223, the device mapping a memory block once a buffer the CPU writes is carved from it,
+which ends the game's play's exit, with 224's dots, the README's first line and scenes_sponza's
+grading comment on its own terms, pushed at 20:24 on 2026-11-08, its run green at 22:21 with macOS
+in 43 minutes, Linux in 78, the Windows halves in 107 and 118 and the examples in 8; it keeps the
+form and carries the review's files. Before it `eda81295`, 219, the owner's flicker placed in a
+carried probe's sky share and mark written from each frame's places and mended by keeping both over
+the cycle, pushed at 18:07 on 2026-11-08, its run green at 20:22 with macOS in 45 minutes, the
+Windows halves in 77 and 117, Linux in 124 and the examples in 10; it keeps the form and carries the
+review's files. Before it `e8e0f73f`, the minor to 6.1 alone, tagged `v6.1.0`, pushed at 14:38 on
+2026-11-08 with `98b26c9e`, 221, the night drawn from the Sky module with 222's documents, one run
+on the last, green at 17:02 with macOS in 42 minutes, the Windows halves in 75 and 101, Linux in 133
+where it took 102 in the morning, and the examples in 10; they keep the form, the first carrying the
+review's files. Before it `8ab130e4`, 220's lamps through their glass and off by default, pushed at
+12:25 with `66982f6c`, 217's form 2, and `45103a96`, 217's second part as docs, one run on the last,
+green at 14:12 with macOS in 42 minutes, Linux in 75, the Windows halves in 84 and 107 and the
+examples in 9; the three keep the form, the last carrying the review's files. Before it `6a190757`,
+item 214, a probe's reach kept for each of its rays, pushed at 10:31 on 2026-11-08, its run green at
+12:24 with macOS in 44 minutes, the Windows halves in 81 and 106 and Linux in 102; it keeps the form
+and carries the review's files. Before it `41253cab`, Verdict 108's mend, half 2's Rendering tests
+dealt into three processes with SceneFieldTests moved to half 1, pushed at 08:38 on 2026-11-08, its
+run green at 10:26 with macOS in 44 minutes, the Windows halves in 108 and 50 and Linux in 74, which
 settled Verdict 108; it keeps the form and carries the review's files. Before it `48096231`, 213's
 first part, the reference tracing the GGX lobe at every face with its tests and the rooms'
 shortfall, pushed at 01:51 on 2026-11-08, its run green at 04:05 with macOS in 40 minutes, the
@@ -5214,7 +5216,20 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     lion's end, where a ray took the sky, so a far cascade of 100 holds the whole building from
     anywhere in it. STYLE.md's Register gains the sentence and its Checks a search for milliseconds,
     times its reference, where it read and from so much to so much in comments, read rather than
-    counted. One commit, after 225's cuts and before 226, since the cuts move the files.
+    counted. One commit, after 225's cuts and before 226, since the cuts move the files. Done at
+    `fae33540` on 2026-11-09, comment lines alone in 164 files across the sources, tests, shaders,
+    examples, games, build scripts and workflows, with STYLE.md's Register sentence and Checks
+    search and the far cascade's comment as the review worded it; kept are decisions with the
+    alternative they reject without trial numbers, tests saying what they guard and why the bound,
+    and the numbers the code depends on, among them the scene field's 32,768 as the least power of
+    two above a voxel game's splatted triangles and the tonemap test's naming of the bridge commit
+    its reference comes from, as a comparison test names its reference; the workflows parse to the
+    same YAML, the strict build is clean, the suite 2,297 in order and shuffled. What the search
+    still finds is units, constants the code uses and the words where it reads none. Two stale
+    comments the sweep found go in one small commit of comment lines before 226: GlowLights.cs's
+    fiftieth at line 37 against the three-hundredth share the code takes at line 64, and build.yml's
+    eleven games at line 18 where twenty are played. The semicolons in three test comments stay, a
+    semicolon being no fault.
 
 234. **The Windows halves' limit.** From Verdict 110 on 2026-11-09. On a push each Windows half has
     120 minutes and the first half took 118 and then past 120 on the day's slower runners, where the
@@ -7511,3 +7526,8 @@ building from anywhere in it. STYLE.md's Register gains the sentence and its Che
 milliseconds, a reading against a reference, where something read and from so much to so much,
 whose hits that remain are units, constants the code uses and the meaning of a read. 167 files,
 comment lines alone, the workflows' YAML the same as before, the suite 2,297 in order and shuffled.
+
+233's two stale comments mended on 2026-11-09. GlowLights says an emitter's light reaches as far as
+a surface there takes a 300th of the light it emits, the share the code lets a light go at, where
+it said a fiftieth with a reach in blocks of the voxel game's, and build.yml's head says the pack
+run plays the rest of the games on Windows and macOS, where it counted eleven of the twenty.
