@@ -478,6 +478,55 @@ public sealed class GlowLightsTests : IDisposable
         six.Should().BeApproximately(1, 0.1f, $"the room lit by six blocks of a sixth its light reads as its reference too, {six:0.000}, where one block's reads {one:0.000}");
     }
 
+    [NeedsVulkanFact]
+    [Trait("Category", "Render")]
+    public void A_Bulb_Hung_High_Lights_The_Floor_Under_It_As_Its_Lower_Face_Does()
+    {
+        // A bulb a tenth of a unit across hung four units over a gray floor in the dark, the field's
+        // cells an eighth of a unit as Sponza's are. Under the bulb the floor takes the light of its
+        // lower face, a square a tenth of a unit across facing straight down, its irradiance the
+        // face's light times its area over the distance squared. The bulb's reach is measured half a
+        // probe's spacing from it, which lies past the floor, where its own light alone gives a reach
+        // of a few of its widths, short of it.
+        const int Size = 128;
+        var config = Config.Default.WithWindow("glow test", Size, Size) with { Headless = true, Offscreen = true, Samples = 1 };
+        UseApp(new App(config).AddPlugin(new DefaultPlugins()));
+        SetSceneField(4, 0.125f, 4);
+        SetGlobalIllumination(GlobalIllumination.High);
+        SetAmbientLight(Color.Black, 0);
+        var floor = LoadModelFromMesh(GenMeshCube(1, 1, 1));
+        var bulb = LoadModelFromMesh(GenMeshCube(1, 1, 1));
+        bulb.Materials[0].Emissive = Color.White;
+        bulb.Materials[0].EmissiveIntensity = 300;
+        var camera = new Camera3D(new Vector3(5, 3, 0), Vector3.Zero, Vector3.UnitY, 50);
+        for (int frame = 0; frame < 60; frame++)
+        {
+            BeginDrawing();
+            ClearBackground(Color.Black);
+            BeginMode3D(camera);
+            DrawModelEx(floor, new Vector3(0, -0.5f, 0), Vector3.UnitY, 0, new Vector3(32, 1, 32), new Color(200, 200, 200));
+            DrawModelEx(bulb, new Vector3(0, 4.05f, 0), Vector3.UnitY, 0, new Vector3(0.1f), Color.White);
+            EndMode3D();
+            EndDrawing();
+        }
+        var renderer = GetApp().World.Resource<Engine.Renderer>();
+        var linear = ((GraphicsDevice)renderer.Context.Graphics!).ReadFloats(renderer.RenderWorld.TryGet<BloomRenderer>()!.Decoded!.ColorView.Image);
+        var at = GetWorldToScreen(Vector3.Zero, camera);
+        double sum = 0;
+        for (int dy = -1; dy <= 1; dy++)
+            for (int dx = -1; dx <= 1; dx++)
+            {
+                int x = (int)MathF.Round(at.X) + dx, y = (int)MathF.Round(at.Y) + dy, p = (y * Size + x) * 4;
+                sum += 0.2126 * linear[p] + 0.7152 * linear[p + 1] + 0.0722 * linear[p + 2];
+            }
+        UnloadModel(floor);
+        UnloadModel(bulb);
+
+        // The floor's color, 200 of 255 decoded from sRGB, over pi, times the face's irradiance.
+        var expected = MathF.Pow((200 / 255f + 0.055f) / 1.055f, 2.4f) / MathF.PI * 300 * 0.1f * 0.1f / (4 * 4);
+        (sum / 9).Should().BeApproximately(expected, expected * 0.2, "the floor four units under the bulb takes the light of its lower face");
+    }
+
     private Dictionary<float, (double Mean, double Lobes)> Rings(GlobalIllumination quality, float height, bool rod = false, float[]? radii = null,
         Vector3? farBlock = null)
     {

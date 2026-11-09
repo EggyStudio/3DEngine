@@ -16,6 +16,7 @@ Done that day
 - Item 233 at `fae33540`. Comments without readings and costs.
 - Item 234 at `620cfeb4`. The Windows halves' limit.
 - Item 236 at `500730bf`. The build workflow runs on branch pushes alone.
+- Item 237 at `ed469e90`. Sponza flickers whole frames at views 6 and 7.
 
 ## 2026-11-08
 

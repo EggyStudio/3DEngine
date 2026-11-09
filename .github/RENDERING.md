@@ -3178,6 +3178,26 @@ rooms' seventh view at `High` 0.093 of its light from its reference 98 frames af
 0.041 after 198, where it read within 0.06 at 98 (`./e3d command record`
 every frame, `field.state`, `gi.toggle`, `gi.show filtered`, `./e3d command profile`).
 
+**Sponza's lamps lighting their surroundings, read and mended on 2026-11-09.** At 20:00 with the
+lamps on, the door and gallery views read 0.03 of the light a path-traced reference at 16,384 paths
+a pixel reads, the bulbs and their glass left out, though the bulbs' own pixels read alike, 77
+behind the glass where the reference reads 116. A glow light's reach lay where a surface takes
+a 300th of the light it emits, its own size's measure, 2.7 units for a bulb 0.07 to 0.09 units
+across, and the vestibule's lamp hangs 3.3 units over its floor. With the reach ten times as long,
+every region of the door view read within -54% and +42% of the reference. A glow light now reaches
+at least as far as a surface takes a 300th of what one half the first cascade's probe spacing from
+it takes, 8.7 units in Sponza, which the door view reads at 0.95 of the reference and the gallery at
+1.31, and at a whole spacing 1.10 and 1.49 (`GlowLights.cs`). The screen's probes march to every
+lamp in reach, so their pass takes 2.7 ms where 1.3 at 800 by 450, and 3.7 at a whole spacing
+(242). The example's bulbs, the pack's one material, are a material a lamp at 300 times the pack's
+emission, two thirds of them between 2,400 and 3,000 K and a third between 4,000 and 5,500 K, drawn
+from a seed. At 3,000 the lamps lit only what lay within the old reach, which the meter brought up
+under them as pools, and at 1 the views read black but for the bulbs. Under the meter, 1.5 and 2.5
+stops under left the frames a little darker alone, so the evening keeps the meter as it is, and the
+bloom as it is, the halo soft against the lit walls. A bulb a tenth of a unit across four units
+over a floor lights the point under it within a fifth of its lower face's closed form, where it lit
+none of it (`GlowLightsTests`; `gi.reference`, `gi.compare`, `./e3d command profile`).
+
 **The vestibule's end wall, read on 2026-11-07.** In the door view at 8:00 at High the wall facing
 the court read 1.55 of a path-traced reference's light, the door in it 2.08 and the side wall facing
 -z 1.35. With the surfaces' reflection of the indirect light left out (`gi.toggle specular off`)

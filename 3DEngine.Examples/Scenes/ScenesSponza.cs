@@ -179,14 +179,33 @@ public static class ScenesSponza
             if (!IsTextureValid(m.Texture) && m.Emissive == Color.Black && m.Color.R == m.Color.G && m.Color.G == m.Color.B && m.Color.R > 0)
                 sponza.Materials[i] = m with { Color = m.Color with { A = 40 }, AlphaMode = MaterialAlphaMode.Blend, CastsShadows = false, BouncesLight = false };
         }
-        // The bulbs, the pack's material that glows, are its lamps' light, kept to turn them on with
-        // L and dark until then.
-        var bulbs = Enumerable.Range(0, sponza.Materials.Length).Where(i => sponza.Materials[i].Emissive != Color.Black)
-            .Select(i => (Index: i, sponza.Materials[i].Emissive)).ToArray();
+        // The bulbs, the pack's one material that glows, a bulb in each of its 23 lamps, are the
+        // lamps' light, kept to turn them on with L and dark until then. Each lamp's bulb has a
+        // material of its own in a model drawn over the pack's meshes, so each burns at a color of
+        // its own, two thirds of them warm, between 2,400 and 3,000 K, and a third cool, between
+        // 4,000 and 5,500 K, drawn from a seed so every run draws the same lamps. Global illumination carries
+        // each bulb as a light of its own (GlowLights), 300 times the pack's emission, at which the
+        // vault above a lamp and the floor under it read lit in the evening as a path-traced
+        // reference reads them.
+        var glowing = Enumerable.Range(0, sponza.Materials.Length).Where(i => sponza.Materials[i].Emissive != Color.Black).ToHashSet();
+        var materials = sponza.Materials.ToList();
+        var meshMaterial = sponza.MeshMaterial.ToArray();
+        var bulbMeshes = Enumerable.Range(0, meshMaterial.Length).Where(i => glowing.Contains(meshMaterial[i])).ToArray();
+        var seeded = new Random(23);
+        var cooler = bulbMeshes.OrderBy(_ => seeded.Next()).Take(bulbMeshes.Length / 3).ToHashSet();
+        var bulbs = new List<(int Index, Color Emissive)>();
+        foreach (var mesh in bulbMeshes)
+        {
+            var kelvin = cooler.Contains(mesh) ? 4000 + 1500 * seeded.NextSingle() : 2400 + 600 * seeded.NextSingle();
+            materials.Add(materials[meshMaterial[mesh]] with { EmissiveIntensity = 300 });
+            meshMaterial[mesh] = materials.Count - 1;
+            bulbs.Add((materials.Count - 1, ColorFromTemperature(kelvin)));
+        }
+        var lit = new Model { Meshes = sponza.Meshes, Materials = [.. materials], MeshMaterial = meshMaterial };
         void SetLamps(bool on)
         {
             foreach (var (index, emissive) in bulbs)
-                sponza.Materials[index] = sponza.Materials[index] with { Emissive = on ? emissive : Color.Black };
+                lit.Materials[index] = lit.Materials[index] with { Emissive = on ? emissive : Color.Black };
         }
         var lampsOn = false;
         SetLamps(lampsOn);
@@ -257,7 +276,7 @@ public static class ScenesSponza
             ClearBackground(Color.Black);
             BeginMode3D(camera);
             DrawSkybox();
-            DrawModel(sponza, Vector3.Zero, 1, Color.White);
+            DrawModel(lit, Vector3.Zero, 1, Color.White);
             DrawModelEx(blackout, new Vector3(20.4f, 1.4f, 0.05f), Vector3.UnitY, 0, new Vector3(0.8f, 4.2f, 4), Color.Black);
             EndMode3D();
 

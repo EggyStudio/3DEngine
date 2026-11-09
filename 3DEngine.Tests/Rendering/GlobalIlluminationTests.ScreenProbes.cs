@@ -156,8 +156,11 @@ public sealed partial class GlobalIlluminationTests
             return black;
         }
 
+        // The black far away lies no more than 600 pixels over the black near, a quarter of a percent
+        // of the frame, a count and not a share, since the share of the black near the origin
+        // shrinks as the torches light more of the land while the excess does not.
         var (near, far) = (Black(0), Black(10_000));
-        far.Should().BeLessThan(near * 1.15, $"the land far from the origin is as lit as near it, {far} pixels black where {near}");
+        far.Should().BeLessThan(near + 600, $"the land far from the origin is as lit as near it, {far} pixels black where {near}");
     }
 
     [NeedsVulkanFact]

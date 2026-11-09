@@ -240,7 +240,9 @@ of them, are one light. A mesh of many such surfaces, as a voxel game draws its 
 one mesh, is cut into them, its triangles joined where they share a corner, each lighting from the
 faces of its box it shows, as a block sunk in the ground shows its top alone. The 64 such lights
 nearest the eye light so, each as far as it lights a surface by a 300th of its own light, 21 units
-for a block however bright, and a mesh of more parts than that lights the ground around none of the
+for a block however bright, and one smaller than the probes' spacing as far as it lights one by a
+300th of what it gives half that spacing from it, so a lamp's small bulb lights the room around it,
+and a mesh of more parts than that lights the ground around none of the
 rest, which `gi.state` counts. Past the four brightest at a point, the rest are gathered by their
 way from it, each group shadowed as its brightest is, so a room lit by many small lamps takes the
 light of every one. A larger surface, as a panel across a ceiling, is left to the probes' rays,

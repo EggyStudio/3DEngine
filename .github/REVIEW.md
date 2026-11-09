@@ -1,90 +1,93 @@
 # Review
 
-Reviewed up to `500730bf`, 236, the build on a push to a branch alone, pushed at 16:04 on 2026-11-09
-with `fae33540`, `28a95e70` and `1a66d9a6`, 233's comment sweep in 164 files and its two stale
-comments mended, and 226's first commit, a program live where it runs from its own project's build
-folder, one run on the last, green at 17:52 with macOS in 45 minutes, Windows in 75 and 108, Linux
-in 81 and the examples in 11; they keep the form and carry the devlog. After it `f9cfb376`,
-`acedb940`, `50d7b427` and `c23cd2d4`, Verdict 111's mend, the bench script finding the SDL version
-in the library's projects and the first wait after a game opens giving a cold compile ten minutes,
-and 226's second to fourth commits, the shaders compiled again as saved, the textures uploaded again
-and the models and scenes reloaded live with the editing-while-running guide, pushed together at
-17:53 on 2026-11-09 with one run on the last and the pack run for 6.2 with publish started on it at
-17:54, the first pack run carrying the mend and the split's twelve new package names; they keep the
-form, the first and last carrying the review's files. The owner published the release scene-packs
-with intel-sponza.pack at 17:58 on 2026-11-09, the pack made again by review from the bridge's with
-the manifest's hash after the user cache's clearing had deleted the fetched one, so ./e3d scenes
-fetch works and the pack run's macOS captures job drives Sponza from this run on. Before it
-`1c3c38d5`, the minor to 6.2 for the split, pushed at 14:00 on 2026-11-09 with `1d78c3a9`,
-`f2b695c9`, `1a11d7bf` and `620cfeb4`, cut eight's last two commits, 225's split into a project for
-each area in layers packed at the one version under the package 3DEngine, and 234, the Windows
-halves at 160 minutes on a push, one run on the last, green at 16:00 with macOS in 45 minutes,
-Windows in 75 and 120, Linux in 76 and the examples in 11, both halves within 160, which settles
-Verdict 110; the last tagged `v6.2.0`, and the pack run for 6.2.0 with publish started on it at
-14:00, its captures and games jobs red at 15:44 and 15:39, the bench script's read of the SDL
-version from the root project the split emptied and Sumo's wait of 30 seconds timed out again,
-Verdict 111, its suites green and its pack job skipped when the run ended red at 17:00 with its
-first Windows half in 180 minutes of the pack run's 240, so 6.2.0 is not published; they keep the
-form and carry NORM.md's N 1.1 and N 1.6. The tag's push started a build run of its own on the ref
-v6.2.0 beside main's, the workflow running on any push, whose first Windows half failed in a minute
-at 14:01 on a GitHub 500 while downloading Mesa, the host's fault and no verdict; the workflow runs
-on branches alone from item 236. Before it `ef69de7f`, cut eight's second commit, pushed at 11:56 on
-2026-11-09 with `4de5d9b2` and `94600503`, the particles as one part that ends cut seven's device
-work and the renderer's console commands to Rendering, one run on the last, green at 13:56 with
-macOS in 44 minutes, Windows in 64 and 93, Linux in 112 and the examples in 8; they keep the form.
-Before it `d8eedc29`, cut seven's sixth commit, pushed at 09:33 on 2026-11-09 with `a01f88ea` and
-`989ab124`, the fourth and fifth, the cube filter with the air's sky, the global illumination's
-device work and the scene field's device work as parts the device keeps, one run on the last, green
-at 11:53 with macOS in 46 minutes, Windows in 77 and 83, Linux in 132, the longest yet and the
-shader cache's as item 231 reads it, and the examples in 8; they keep the form, the first carrying
-SHARED.md's row. Before it `a36b8540`, cut seven's third commit, pushed at 07:39 on 2026-11-09 with
-`f66c4a54` and `93d96996`, the first and second, the reference, the ray scene and the fog as parts
-over the device's listed surface, one run on the last, green at 09:30 with macOS in 44 minutes,
-Linux in 103, Windows in 108 and 111 and the examples in 8; they keep the form and carry the
-review's files. Before it `4fe1bfe4`, 225's sixth cut, pushed at 05:55 on 2026-11-09 with
-`db48a8b5`, `f1422dc2`, `4aff2190` and `723bc098`, the second to fifth, one run on the last, which
-the rerun of 8dba0d1c's Windows half cancelled at once through the workflow's one run a branch and
-which started again at 05:59, green at 07:37 with macOS in 42 minutes, Windows in 71 and 97, Linux
-in 72 and the examples in 8; they keep the form and carry the review's files. Before it `30a8747f`,
-225's first cut, Core naming no area above it, and `8dba0d1c`, 232, a device drawing on its CPU
-taking no anisotropic samples, pushed together at 03:25 on 2026-11-09 with one run on the last and
-the pack run for 6.1.12 with publish started on it at 03:25, since the pack run tests what it packs,
-green at 06:42 with every job, the captures within their rooms after 232 and Sumo's play through,
-the package published and the commit tagged `v6.1.12` at 06:45; they keep the form and carry the
-review's files; the run ended at 05:53 with Linux green in 137 minutes, macOS in 45, the second
-Windows half in 77 and the examples in 10, and the first Windows half cancelled at its limit of 120
-minutes (Verdict 110), rerun at 05:55. Before it `9e150e3e`, 225's plan, pushed at 00:47 on
-2026-11-09 with `ca037368`, 228 and 230 recorded, `c8baed4b`, 216 recorded, `77f45030`, 229's
-switch, and `f1cc2022`, 229's reference reading the textures and the normal maps, one run on the
-last, green at 02:41 with macOS in 42 minutes, Windows in 78 and 114, Linux in 79 and the examples
-in 10; they keep the form and carry the review's files. Before it `b3c471d9`, 215 as docs, pushed at
-22:23 on 2026-11-08 with `fbf35060`, 227, the comments on their own terms over 48 files, and
-`e9462fb1`, 218 as docs, one run on the last, green at 00:44 on 2026-11-09 with macOS in 38 minutes,
-the Windows halves in 60 and 107, Linux in 133 for the second time where it took 102 in the morning,
-and the examples in 8; they keep the form and carry the review's files. Behind them `f66c4a54`,
-`93d96996` and `a36b8540`, cut seven's first three commits, the reference, the ray scene and the fog
-as parts over the device's listed surface, committed and waiting on that run. Before it `20acb49e`,
-223, the device mapping a memory block once a buffer the CPU writes is carved from it, which ends
-the game's play's exit, with 224's dots, the README's first line and scenes_sponza's grading comment
-on its own terms, pushed at 20:24 on 2026-11-08, its run green at 22:21 with macOS in 43 minutes,
-Linux in 78, the Windows halves in 107 and 118 and the examples in 8; it keeps the form and carries
-the review's files. Before it `eda81295`, 219, the owner's flicker placed in a carried probe's sky
-share and mark written from each frame's places and mended by keeping both over the cycle, pushed at
-18:07 on 2026-11-08, its run green at 20:22 with macOS in 45 minutes, the Windows halves in 77 and
-117, Linux in 124 and the examples in 10; it keeps the form and carries the review's files. Before
-it `e8e0f73f`, the minor to 6.1 alone, tagged `v6.1.0`, pushed at 14:38 on 2026-11-08 with
-`98b26c9e`, 221, the night drawn from the Sky module with 222's documents, one run on the last,
-green at 17:02 with macOS in 42 minutes, the Windows halves in 75 and 101, Linux in 133 where it
-took 102 in the morning, and the examples in 10; they keep the form, the first carrying the review's
-files. Before it `8ab130e4`, 220's lamps through their glass and off by default, pushed at 12:25
-with `66982f6c`, 217's form 2, and `45103a96`, 217's second part as docs, one run on the last, green
-at 14:12 with macOS in 42 minutes, Linux in 75, the Windows halves in 84 and 107 and the examples in
-9; the three keep the form, the last carrying the review's files. Before it `6a190757`, item 214, a
-probe's reach kept for each of its rays, pushed at 10:31 on 2026-11-08, its run green at 12:24 with
-macOS in 44 minutes, the Windows halves in 81 and 106 and Linux in 102; it keeps the form and
-carries the review's files. Before it `41253cab`, Verdict 108's mend, half 2's Rendering tests dealt
-into three processes with SceneFieldTests moved to half 1, pushed at 08:38 on 2026-11-08, its run
-green at 10:26 with macOS in 44 minutes, the Windows halves in 108 and 50 and Linux in 74, which
+Reviewed up to `c23cd2d4`, 226's fourth and last commit, pushed at 17:53 on 2026-11-09 with
+`f9cfb376`, `acedb940` and `50d7b427`, Verdict 111's mend and 226's second and third, the live path
+whole, one run on the last, green at 20:15 with macOS in 51 minutes, Windows in 85 and 98, Linux in
+132 through the Actions outage and the examples in 9; they keep the form, the first and last
+carrying the review's files. The pack run for 6.2 with publish started on it at 17:54 is on its
+first Windows half, its captures, its macOS captures with Sponza's first drive and its games, the
+first pack run carrying the mend and the split's twelve new package names. The owner published the
+release scene-packs with intel-sponza.pack at 17:58 on 2026-11-09, the pack made again by review
+from the bridge's with the manifest's hash after the user cache's clearing had deleted the fetched
+one, so ./e3d scenes fetch works and the pack run's macOS captures job drives Sponza from this run
+on. After it `ed469e90`, 237, the illumination's cycles eased in the merge and the screen filter
+with the switch change beginning them, the pipelines named in the slow-frame line, the tests and the
+rooms' wait, pushed at 20:18 on 2026-11-09 with a run on it; it keeps the form and carries the
+review's files. GitHub's status page named a major outage of Actions from about 19:16 to 19:47.
+Before it `500730bf`, 236, the build on a push to a branch alone, pushed at 16:04 on 2026-11-09 with
+`fae33540`, `28a95e70` and `1a66d9a6`, 233's comment sweep in 164 files and its two stale comments
+mended, and 226's first commit, a program live where it runs from its own project's build folder,
+one run on the last, green at 17:52 with macOS in 45 minutes, Windows in 75 and 108, Linux in 81 and
+the examples in 11; they keep the form and carry the devlog. Before it `1c3c38d5`, the minor to 6.2
+for the split, pushed at 14:00 on 2026-11-09 with `1d78c3a9`, `f2b695c9`, `1a11d7bf` and `620cfeb4`,
+cut eight's last two commits, 225's split into a project for each area in layers packed at the one
+version under the package 3DEngine, and 234, the Windows halves at 160 minutes on a push, one run on
+the last, green at 16:00 with macOS in 45 minutes, Windows in 75 and 120, Linux in 76 and the
+examples in 11, both halves within 160, which settles Verdict 110; the last tagged `v6.2.0`, and the
+pack run for 6.2.0 with publish started on it at 14:00, its captures and games jobs red at 15:44 and
+15:39, the bench script's read of the SDL version from the root project the split emptied and Sumo's
+wait of 30 seconds timed out again, Verdict 111, its suites green and its pack job skipped when the
+run ended red at 17:00 with its first Windows half in 180 minutes of the pack run's 240, so 6.2.0 is
+not published; they keep the form and carry NORM.md's N 1.1 and N 1.6. The tag's push started a
+build run of its own on the ref v6.2.0 beside main's, the workflow running on any push, whose first
+Windows half failed in a minute at 14:01 on a GitHub 500 while downloading Mesa, the host's fault
+and no verdict; the workflow runs on branches alone from item 236. Before it `ef69de7f`, cut eight's
+second commit, pushed at 11:56 on 2026-11-09 with `4de5d9b2` and `94600503`, the particles as one
+part that ends cut seven's device work and the renderer's console commands to Rendering, one run on
+the last, green at 13:56 with macOS in 44 minutes, Windows in 64 and 93, Linux in 112 and the
+examples in 8; they keep the form. Before it `d8eedc29`, cut seven's sixth commit, pushed at 09:33
+on 2026-11-09 with `a01f88ea` and `989ab124`, the fourth and fifth, the cube filter with the air's
+sky, the global illumination's device work and the scene field's device work as parts the device
+keeps, one run on the last, green at 11:53 with macOS in 46 minutes, Windows in 77 and 83, Linux in
+132, the longest yet and the shader cache's as item 231 reads it, and the examples in 8; they keep
+the form, the first carrying SHARED.md's row. Before it `a36b8540`, cut seven's third commit, pushed
+at 07:39 on 2026-11-09 with `f66c4a54` and `93d96996`, the first and second, the reference, the ray
+scene and the fog as parts over the device's listed surface, one run on the last, green at 09:30
+with macOS in 44 minutes, Linux in 103, Windows in 108 and 111 and the examples in 8; they keep the
+form and carry the review's files. Before it `4fe1bfe4`, 225's sixth cut, pushed at 05:55 on
+2026-11-09 with `db48a8b5`, `f1422dc2`, `4aff2190` and `723bc098`, the second to fifth, one run on
+the last, which the rerun of 8dba0d1c's Windows half cancelled at once through the workflow's one
+run a branch and which started again at 05:59, green at 07:37 with macOS in 42 minutes, Windows in
+71 and 97, Linux in 72 and the examples in 8; they keep the form and carry the review's files.
+Before it `30a8747f`, 225's first cut, Core naming no area above it, and `8dba0d1c`, 232, a device
+drawing on its CPU taking no anisotropic samples, pushed together at 03:25 on 2026-11-09 with one
+run on the last and the pack run for 6.1.12 with publish started on it at 03:25, since the pack run
+tests what it packs, green at 06:42 with every job, the captures within their rooms after 232 and
+Sumo's play through, the package published and the commit tagged `v6.1.12` at 06:45; they keep the
+form and carry the review's files; the run ended at 05:53 with Linux green in 137 minutes, macOS in
+45, the second Windows half in 77 and the examples in 10, and the first Windows half cancelled at
+its limit of 120 minutes (Verdict 110), rerun at 05:55. Before it `9e150e3e`, 225's plan, pushed at
+00:47 on 2026-11-09 with `ca037368`, 228 and 230 recorded, `c8baed4b`, 216 recorded, `77f45030`,
+229's switch, and `f1cc2022`, 229's reference reading the textures and the normal maps, one run on
+the last, green at 02:41 with macOS in 42 minutes, Windows in 78 and 114, Linux in 79 and the
+examples in 10; they keep the form and carry the review's files. Before it `b3c471d9`, 215 as docs,
+pushed at 22:23 on 2026-11-08 with `fbf35060`, 227, the comments on their own terms over 48 files,
+and `e9462fb1`, 218 as docs, one run on the last, green at 00:44 on 2026-11-09 with macOS in 38
+minutes, the Windows halves in 60 and 107, Linux in 133 for the second time where it took 102 in the
+morning, and the examples in 8; they keep the form and carry the review's files. Behind them
+`f66c4a54`, `93d96996` and `a36b8540`, cut seven's first three commits, the reference, the ray scene
+and the fog as parts over the device's listed surface, committed and waiting on that run. Before it
+`20acb49e`, 223, the device mapping a memory block once a buffer the CPU writes is carved from it,
+which ends the game's play's exit, with 224's dots, the README's first line and scenes_sponza's
+grading comment on its own terms, pushed at 20:24 on 2026-11-08, its run green at 22:21 with macOS
+in 43 minutes, Linux in 78, the Windows halves in 107 and 118 and the examples in 8; it keeps the
+form and carries the review's files. Before it `eda81295`, 219, the owner's flicker placed in a
+carried probe's sky share and mark written from each frame's places and mended by keeping both over
+the cycle, pushed at 18:07 on 2026-11-08, its run green at 20:22 with macOS in 45 minutes, the
+Windows halves in 77 and 117, Linux in 124 and the examples in 10; it keeps the form and carries the
+review's files. Before it `e8e0f73f`, the minor to 6.1 alone, tagged `v6.1.0`, pushed at 14:38 on
+2026-11-08 with `98b26c9e`, 221, the night drawn from the Sky module with 222's documents, one run
+on the last, green at 17:02 with macOS in 42 minutes, the Windows halves in 75 and 101, Linux in 133
+where it took 102 in the morning, and the examples in 10; they keep the form, the first carrying the
+review's files. Before it `8ab130e4`, 220's lamps through their glass and off by default, pushed at
+12:25 with `66982f6c`, 217's form 2, and `45103a96`, 217's second part as docs, one run on the last,
+green at 14:12 with macOS in 42 minutes, Linux in 75, the Windows halves in 84 and 107 and the
+examples in 9; the three keep the form, the last carrying the review's files. Before it `6a190757`,
+item 214, a probe's reach kept for each of its rays, pushed at 10:31 on 2026-11-08, its run green at
+12:24 with macOS in 44 minutes, the Windows halves in 81 and 106 and Linux in 102; it keeps the form
+and carries the review's files. Before it `41253cab`, Verdict 108's mend, half 2's Rendering tests
+dealt into three processes with SceneFieldTests moved to half 1, pushed at 08:38 on 2026-11-08, its
+run green at 10:26 with macOS in 44 minutes, the Windows halves in 108 and 50 and Linux in 74, which
 settled Verdict 108; it keeps the form and carries the review's files. Before it `48096231`, 213's
 first part, the reference tracing the GGX lobe at every face with its tests and the rooms'
 shortfall, pushed at 01:51 on 2026-11-08, its run green at 04:05 with macOS in 40 minutes, the
@@ -252,8 +255,9 @@ words. On 2026-10-30 at 18:0x the owner wrote the README's new words (item 133) 
 radiance cascades (Decision 74), questions asked back, and asked that the sessions spend fewer
 tokens at the same quality, N 7.7.
 
-Next 237's commit, then 241, the lamps lighting their surroundings, 240, the bands on thin shafts,
-239, the finest cascade's arrival, 238, and 235 last, 226 done in four commits, 225's split, 233,
+Next 241, the lamps lighting their surroundings, 243, Sponza at the top of the README, 242, the
+lamps a probe marches to, 240, the bands on thin shafts, 239, the finest cascade's arrival, 238, and
+235 last, 237 committed at ed469e90 waiting on its run, 226 done in four commits, 225's split, 233,
 234 and 236 pushed with 226's first commit, 232 done on its run, 214, 217, 219, 220, 221, 222, 223
 and 224 done on their runs, 227, 218 and 215 pushed on their run, 228, 230, 216 and 229 pushed on
 their run, no budget by Decision 94 and 208 closed, the door at 8:00 the one target by Decision 95;
@@ -5425,7 +5429,7 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     thousand frames. So the model pass's pipelines are served once a run has written them, and the
     blob is written at the device's dispose alone, which is why the owner's two makes of 2.1 seconds
     came from a blob lacking them, a run before having made them and never written them back; that
-    is 238's. The first suite found two things: a toggle of the illumination's switches is no change
+    is 238's. The first suite found two things, a toggle of the illumination's switches is no change
     of the lights, so the carried cycles eased into it over two cycles and the bounce view's test
     read 4.3 against its 5, and a change of any of the illumination's switches begins the cycles
     again as a lights change does, with the test failing without it; and a room lit by its bounces
@@ -5433,7 +5437,12 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     shown, so the bounce rooms' reference test waits 190 frames past the field's settling with the
     reason in a comment, every room within its bound there and most nearer their references than the
     bounds' readings, the bounds left as they are by N 3.5. The ramp stays sixteen frames, the
-    cycle's length, its cost the slower settling; RENDERING.md has the dated entry.
+    cycle's length, its cost the slower settling; RENDERING.md has the dated entry. Done at
+    `ed469e90` at 19:21 on 2026-11-09, the eased cycles in the merge and the screen filter, the
+    switch change beginning the cycles, the pipelines named through the shader names with the
+    slow-frame line and the device surface's listing, the dimming lamp's and the names' tests, the
+    rooms' wait and RENDERING.md's entry; the suite 2,312 in order and shuffled; SHARED.md's row
+    goes with the next commit. Items 239, 240 and 241 carry what remains.
 
 238. **The caches listed and cleared from e3d.** From the owner's question of 2026-11-09, whether an
     old cache of shaders keeps the picture old. The shader cache is keyed by the source's hash, the
@@ -5488,7 +5497,57 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     the exposure and the halo with it, and its intensity and threshold are changed only where the
     glass's halo still reads as a blot rather than a soft halo once the surround is lit. Read by the
     vestibule at 20:00 and a gallery view with the lamps on, pairs with their difference panels by N
-    4.9, and the owner shown. After 237's commit, before 240.
+    4.9, and the owner shown. After 237's commit, before 240. The read on 2026-11-09 changes the
+    item, since the power is not the cause but the glow lights' reach. A glow light reaches where a
+    surface takes a three-hundredth of what it emits, so the reach scales with the emitter's size,
+    and Sponza's bulbs, 0.07 to 0.09 units across, reach about 2.7 units and fade before that while
+    the vestibule's lamp hangs 3.3 over the floor; against references at 16,384 paths the frame
+    carries 0.03 of the reference's lamp light in the door and gallery views at 20:00, the bulbs'
+    own pixels agreeing, so the emission is counted alike and goes nowhere. The mend, approved the
+    same evening, is a floor on a light's reach, where its light falls to a three-hundredth of what
+    it gives at half a probe spacing of the first cascade, which floors a small emitter's reach at
+    8.7 units in Sponza and leaves a wider light its own; at an intensity of 300 the frame comes to
+    0.95 of the reference in the door view and 1.31 in the gallery, nearer than a whole spacing's
+    1.10 and 1.49. Its cost is the screen pass from 1.3 to 2.7 milliseconds at 800 by 450, every
+    probe marching to all 23 lamps, and in a voxel game a floor of about 17 blocks for a torch; a
+    cap on the lamps a probe marches to is item 242, right after. The look, the coder's
+    recommendation to the owner and the review's choice until the owner says otherwise, is 2,400 to
+    3,000 K with three lamps cooler at an intensity of 300, since under the meter the intensity
+    matters little once the reach is right, the pools of light the owner liked at 3,000 under the
+    old reach being the cut-off's, and a night view metered lower changing the frame little; the
+    sheets are in the dump at 19:38 and 19:40. The temporary knobs in the tree come out before the
+    commit. The owner's word the same evening, to the coder's session, was to take the reach fix
+    with the bulbs at 300 and the 2,400 to 3,000 K colors, and make it cooler too, not only warm. So
+    a third of the lamps, 7 of 23, lie between 4,000 and 5,500 K and the rest between 2,400 and
+    3,000, seeded, the owner shown the pair at 19:44 in the dump with difference panels of the door
+    and gallery at 20:00. The engine's reach is the greater of a light's own and the floor measured
+    at half a probe spacing of the first cascade, said in the remarks and the illumination guide;
+    the example gives a material a lamp at 300 with the knobs out; a test puts a bulb a tenth of a
+    unit across four units over a floor and reads the point under it within 20 percent of the closed
+    form, failing at nothing without the floor; RENDERING.md has the entry; the default capture,
+    lamps off at noon, stands. The commit follows the suite.
+
+242. **A probe marches to the brightest few lamps alone.** From item 241's read on 2026-11-09. With
+    the reach floored at half a probe spacing, every screen probe marches to all of Sponza's 23
+    lamps and the screen pass doubles, from 1.3 to 2.7 milliseconds at 800 by 450, and a voxel
+    game's torches at a floor of about 17 blocks would cost the same way. A probe marches to the few
+    lamps that give it the most light at its place, the rest left out or taken as their mean, with
+    the count read against the reference in the door and gallery views at 20:00 and in the voxel
+    game's torch-lit cave; where the frame holds within the bound of 241's reading, it stands, and
+    the cost comes back toward the old. Right after 241, before 240.
+
+243. **Sponza shown at the top of the README.** The owner on 2026-11-09, asking that the Sponza
+    scene be shown at the top of this README as the modeling is at the top of BevyCSharp's. The
+    bridge's README has, inside its centered head under the badges, one animated picture,
+    .github/assets/showcase_3.gif, and under it a line naming the program and the command that runs
+    it; this README gets the same in the same place, an animated picture of scenes_sponza under
+    .github/assets in the bridge's form, which is six still views two seconds each at 1,280 by 720
+    in 2.4 MB, here six of the example's views at hours that show the engine, the atrium at noon,
+    the door at 8:00, a gallery and the vestibule at 20:00 with the lamps on after item 241 among
+    them, taken on the GPU at 1,280 by 720, with the line under it naming scenes_sponza, the command
+    that runs it from the examples' project and the fetch that comes first; the README's words above
+    it stand, and the picture is linked by the raw address as the examples' captures are. One commit
+    after 241's, before 242; the picture's frames into the dump with a captions line by N 4.10.
 
 ## Verdicts
 
@@ -5950,7 +6009,9 @@ REVIEW-ARCHIVE.md.
     asked that the lights in Sponza contribute more light to the environment, that their colors be
     warm and vary in warmth with some cooler, and that the bloom, which looks too strong against an
     unlit surround, be judged once the environment is properly lit and the exposure has adjusted,
-    when it would normalize. Item 241.
+    when it would normalize. Item 241. Later that evening the owner chose the look with the coder's
+    session, the reach fix with the bulbs at 300 and colors of 2,400 to 3,000 K, and cooler lamps as
+    well, not warm alone, which became a third of the lamps between 4,000 and 5,500 K.
 
 ## Replies
 
@@ -7900,3 +7961,19 @@ The light past the first bounce reads the light shown, so a room lit by its boun
 later for each, and the bounce rooms' reference test reads them 190 frames past the field's settling
 where 90, each within its bound. RENDERING.md has the read and the mend. The suite 2,312 in order and
 shuffled.
+
+241 written on 2026-11-09, Sponza's lamps. The lamps lit nothing around them because a glow light's
+reach lay where a surface takes a 300th of the light it emits, a few of a bulb's widths, short of
+the floor under a lamp hung higher. A glow light now reaches at least as far as a surface takes a
+300th of what one half the first cascade's probe spacing from it takes (GlowLights), which brings
+the door and gallery views at 20:00 to 0.95 and 1.31 of a path-traced reference's light where 0.03.
+The example gives each lamp's bulb a material of its own at 300 times the pack's emission, two
+thirds of them warm between 2,400 and 3,000 K and a third cool between 4,000 and 5,500 K, seeded,
+as the owner chose, and keeps the meter and the bloom, the halo soft once the walls are lit. A test
+hangs a bulb a tenth of a unit across four units over a floor and reads the point under it within a
+fifth of its lower face's closed form, which reads nothing without the floor. The example's first
+view, lamps off at noon, draws as before, so its capture stands. The voxel desert's torches light
+three times as much of the land, so far from the origin it reads 1,301 black pixels where 1,036
+near it and 4,281 where 3,982 before, the excess the same, and its bound is 600 pixels more, a
+quarter of a percent of the frame, which its share of the black allowed before (N 3.5). RENDERING.md
+has the read. The suite 2,313 in order and shuffled.

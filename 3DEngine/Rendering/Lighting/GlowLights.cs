@@ -34,7 +34,8 @@ namespace Engine;
 /// between its builds. A mesh of many emitters, as a voxel game draws its blocks of a kind, is cut
 /// into its parts, its triangles joined where they share a corner, and is carried where each part
 /// is, each a light of its own (<see cref="PartsOf"/>). Its light reaches as far as a surface there
-/// takes a 300th of the light it emits, the share below. The <see cref="Most"/> carried
+/// takes a 300th of the light it emits, the share below, or a 300th of what a surface takes half
+/// the first cascade's probe spacing from it where that is further, as for a lamp's small bulb. The <see cref="Most"/> carried
 /// emitters nearest the eye are lights each frame; one past them lights nothing a probe carries to
 /// a floor, its cells marked all the same, so a level of more lamps than that lights only the
 /// nearest. The field marks a mesh whole, so a mesh of many parts past the nearest lights none of
@@ -69,6 +70,14 @@ internal static class GlowLights
     // room lit by six took far less of a path-traced reference's light than one lit by one
     // (GlowLightsTests). A 300th keeps the reach of the bounce rooms' box lamp, whose light is 6.
     private const float Faint = 1f / 300;
+
+    // How far from an emitter, in the first cascade's probe spacings, a surface's light is the one
+    // the reach is measured against where that reaches further than the emitter's own light does.
+    // An emitter smaller than the probes resolve lights the surfaces about it as a point does, its
+    // light falling with the square of the distance, so a reach measured against its own light
+    // alone lies a few of its widths from it, short of the floor under a lamp's bulb however
+    // bright it burns, and one measured here lies past it.
+    private const float MeasuredAt = 0.5f;
 
     /// <summary>
     /// Whether an instance emitting <paramref name="emission"/> is carried as lights, every part of
@@ -237,7 +246,7 @@ internal static class GlowLights
             if (places is null) placeOf[n] = n;
             var (middle, x, y, z, glow, share, faces) = lights[n];
             var surface = 4 * FacesSurface(new Vector3(x.Length(), y.Length(), z.Length()), faces == 0 ? All : faces) * share;
-            var reach = MathF.Sqrt(surface / (4 * Faint));
+            var reach = MathF.Max(MathF.Sqrt(surface / (4 * Faint)), MeasuredAt * GlobalIlluminationRenderer.ProbeSpacing * firstCell / MathF.Sqrt(Faint));
             var light = floats.Slice(Head / 4 + placeOf[n] * Bytes / 4, Bytes / 4);
             (light[0], light[1], light[2], light[3]) = (middle.X, middle.Y, middle.Z, reach);
             (low, high) = (Vector3.Min(low, middle - new Vector3(reach)), Vector3.Max(high, middle + new Vector3(reach)));
