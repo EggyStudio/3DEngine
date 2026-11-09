@@ -77,7 +77,7 @@ public static partial class E3D
         try
         {
             var program = new SlangLoader().Compile(File.ReadAllText(path), Path.GetFileName(path));
-            return Res<ShaderStore>().Replace(id, program) ? null : "the shader was unloaded";
+            return Res<ShaderStore>().Replace(id, program) ? null : "The shader was unloaded.";
         }
         catch (Exception ex) when (ex is InvalidOperationException or ArgumentException)
         {

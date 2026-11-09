@@ -57,6 +57,42 @@ public sealed class LiveReloadTests : IDisposable
         GraphicsDevice.ValidationErrors.Skip(_validationErrorsBefore).Should().BeEmpty("the validation layer, where it runs, reports nothing wrong with the frames drawn");
     }
 
+    [NeedsVulkanFact]
+    public void A_Texture_Saved_While_Live_Is_Drawn_From_Then_On_At_Its_New_Size()
+    {
+        Open();
+        var file = _folder.File("wall.png");
+        ExportImage(GenImageColor(2, 2, Color.Red), file);
+        var wall = LoadTexture(file);
+        Shown(wall).Should().Be("red");
+
+        // Saved green at twice the size, read again into its handle, the store taking the new size
+        // and the handle the program holds keeping the one it was given.
+        ExportImage(GenImageColor(4, 4, Color.Green), file);
+        FramesUntil(() => Live().Entries.Single().Reloads == 1);
+        Live().Entries.Single().LastError.Should().BeNull();
+        GetApp().World.Resource<TextureStore>().SizeOf(wall.Id).Should().Be((4, 4));
+        (wall.Width, wall.Height).Should().Be((2, 2));
+        Shown(wall).Should().Be("green", "a saved texture draws from the frames after it is read again");
+
+        // A save that is no picture keeps what the texture was.
+        File.WriteAllText(file, "not a picture");
+        FramesUntil(() => Live().Entries.Single().Reloads == 2);
+        Live().Entries.Single().LastError.Should().NotBeNullOrEmpty();
+        Shown(wall).Should().Be("green", "a file that cannot be decoded keeps the texture it was");
+
+        UnloadTexture(wall);
+        Live().Entries.Should().BeEmpty("an unloaded texture's file is no longer watched");
+        GraphicsDevice.ValidationErrors.Skip(_validationErrorsBefore).Should().BeEmpty("the validation layer, where it runs, reports nothing wrong with the frames drawn");
+    }
+
+    // The color a texture shows drawn over the whole window, by its brightest channel.
+    private string Shown(Texture2D texture) => Brightest(GetImageColor(Capture(() =>
+    {
+        ClearBackground(Color.Black);
+        DrawTexturePro(texture, new Rectangle(0, 0, texture.Width, texture.Height), new Rectangle(0, 0, 32, 32), Vector2.Zero, 0, Color.White);
+    }), 16, 16));
+
     private static void Open() =>
         UseApp(new App(Config.Default.WithWindow("live test", 32, 32) with { Headless = true, Offscreen = true, Samples = 1, Live = true })
             .AddPlugin(new DefaultPlugins()));

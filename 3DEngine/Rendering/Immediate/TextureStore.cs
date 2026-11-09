@@ -300,6 +300,49 @@ internal sealed class TextureStore
         lock (_gate) return _live.ContainsKey(id);
     }
 
+    /// <summary>A loaded texture's size in pixels, or null where <paramref name="id"/> names none.</summary>
+    internal (int Width, int Height)? SizeOf(int id)
+    {
+        lock (_gate) return _live.TryGetValue(id, out var texture) ? (texture.Width, texture.Height) : null;
+    }
+
+    /// <summary>
+    /// Queues pixels of any size in place of a loaded texture's, as one loaded again from its file
+    /// takes, its filter, mip levels and wrap kept and its image made again at the new size.
+    /// </summary>
+    /// <returns>Whether <paramref name="id"/> names a texture of pixels, and not a cube, a render target or blocks.</returns>
+    /// <exception cref="ArgumentException">The pixel array does not hold <paramref name="width"/> by <paramref name="height"/> pixels.</exception>
+    internal bool Replace(int id, byte[] rgba, int width, int height)
+    {
+        Validate(rgba, width, height);
+        lock (_gate)
+        {
+            if (!_live.TryGetValue(id, out var texture) || _cubes.Contains(id) || _blocks.Contains(id) || _targets.Contains(id)) return false;
+            _live[id] = texture with { Width = width, Height = height };
+            _uploads.Add(new Upload(id, rgba, width, height, texture.Filter, Mipmaps: texture.Mipmaps, Wrap: texture.Wrap));
+            if (HasPartialAlpha(rgba)) _translucent.Add(id);
+            else _translucent.Remove(id);
+            (_averages[id], _levels[id]) = (Average(rgba, width), Levels(rgba, width));
+            return true;
+        }
+    }
+
+    /// <summary>
+    /// Queues a texture of blocks in place of the one <paramref name="id"/> holds, as a KTX2 file
+    /// loaded again takes, its filter and wrap kept, its average color read again once it is on the GPU.
+    /// </summary>
+    /// <returns>Whether <paramref name="id"/> names a texture of blocks.</returns>
+    internal bool ReplaceCompressed(int id, TextureAsset texture)
+    {
+        lock (_gate)
+        {
+            if (!_live.TryGetValue(id, out var held) || !_blocks.Contains(id)) return false;
+            _live[id] = held with { Width = texture.Width, Height = texture.Height, Mipmaps = texture.MipCount > 1 };
+            _uploads.Add(new Upload(id, null, texture.Width, texture.Height, held.Filter, Mipmaps: texture.MipCount > 1, Wrap: held.Wrap, Blocks: texture));
+            return true;
+        }
+    }
+
     /// <summary>Unloads a texture. Its GPU objects are destroyed once no frame in flight can use them.</summary>
     /// <returns>Whether the texture was loaded.</returns>
     public bool Remove(int id)

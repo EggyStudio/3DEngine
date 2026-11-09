@@ -202,12 +202,48 @@ public static partial class E3D
     /// A KTX2 file's blocks go to the GPU as they are, with every mip level the file holds, sampled
     /// trilinearly, a quarter or an eighth of the memory of the same texture's pixels; its levels
     /// must not be supercompressed. <see cref="LoadImage"/> reads none, since it gives pixels.
+    /// Where the program is live (<see cref="Config.Live"/>), the file is read again as it is saved
+    /// and drawn from the next frame under the same handle, at its new size where it has one, while
+    /// the <see cref="Texture2D"/> the program holds keeps the size it was given, which the log says.
     /// </remarks>
     public static Texture2D LoadTexture(string fileName)
     {
-        if (Path.GetExtension(fileName).Equals(".ktx2", StringComparison.OrdinalIgnoreCase)) return LoadBlocks(fileName);
-        var image = LoadImage(fileName);
-        return image.IsValid ? LoadTextureFromImage(image) : default;
+        var blocks = Path.GetExtension(fileName).Equals(".ktx2", StringComparison.OrdinalIgnoreCase);
+        var texture = blocks ? LoadBlocks(fileName) : LoadImage(fileName) is { IsValid: true } image ? LoadTextureFromImage(image) : default;
+        if (texture.IsValid && ResolveFile(fileName) is { } path && TryRes<LiveFiles>(out var live))
+            live.Watch("texture", texture.Id, path, file => ReloadTexture(texture.Id, file, blocks));
+        return texture;
+    }
+
+    // Reads a texture's file again into its id, answering why where it cannot be read.
+    private static string? ReloadTexture(int id, string path, bool blocks)
+    {
+        var before = Textures.SizeOf(id);
+        (int Width, int Height) size;
+        if (blocks)
+        {
+            var texture = Ktx2.Read(File.ReadAllBytes(path), Path.GetFileName(path));
+            if (!Textures.ReplaceCompressed(id, texture)) return "The texture was unloaded.";
+            size = (texture.Width, texture.Height);
+        }
+        else
+        {
+            ImageResult read;
+            try
+            {
+                using var stream = File.OpenRead(path);
+                read = ImageResult.FromStream(stream, ColorComponents.RedGreenBlueAlpha);
+            }
+            catch (Exception ex) when (ex is InvalidOperationException or ArgumentException)
+            {
+                return $"It could not be decoded. {ex.Message}";
+            }
+            if (!Textures.Replace(id, read.Data, read.Width, read.Height)) return "The texture was unloaded.";
+            size = (read.Width, read.Height);
+        }
+        if (before is { } was && was != size)
+            ApiLogger.Warn($"{path} was loaded again at {size.Width} by {size.Height} into texture {id}, which the program's Texture2D still gives as {was.Width} by {was.Height}.");
+        return null;
     }
 
     // A KTX2 file's blocks as a texture, or an invalid one with the reason in the log.
@@ -320,7 +356,9 @@ public static partial class E3D
     /// <summary>Frees a texture. Drawing it afterward draws nothing.</summary>
     public static void UnloadTexture(Texture2D texture)
     {
-        if (texture.IsValid) Textures.Remove(texture.Id);
+        if (!texture.IsValid) return;
+        Textures.Remove(texture.Id);
+        if (TryRes<LiveFiles>(out var live)) live.Forget("texture", texture.Id);
     }
 
     /// <summary>Whether <paramref name="texture"/> is loaded.</summary>
