@@ -5089,7 +5089,7 @@ past the curve's knee, which the window bends after blending and a render textur
 
 ## 6. What a frame costs
 
-The frame profile (`FrameProfile`, in `Diagnostics/`) averages over about a second of frames how
+The frame profile (`FrameProfile`, in `Core/Profile/`) averages over about a second of frames how
 long each stage of the schedule and each system in it took, the renderer's extract, begin, prepare,
 graph and end steps, each prepare system, and each graph node on the CPU and, through timestamp
 queries, on the GPU. A program on the flat API runs its own code outside the stages, which shows as
