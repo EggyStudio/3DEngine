@@ -55,7 +55,7 @@ public sealed partial class GlobalIlluminationTests
         at.Should().Be(new Vector3(MathF.Round(at.X), MathF.Round(at.Y), MathF.Round(at.Z)), "the corner is a probe's spot, as the game's corners of blocks are");
         var (p, n) = (gi.Probes, gi.Texels[0]);
         var (px, py, pz) = ((int)at.X, (int)at.Y, (int)at.Z);
-        var merged = ((GraphicsDevice)renderer.Context.Graphics!).ReadProbeVolume(gi, 0, merged: true);
+        var merged = GlobalIlluminationStages.Of((GraphicsDevice)renderer.Context.Graphics!).ReadProbeVolume(gi, 0, merged: true);
         var side = p * n;
         var alpha = merged[((pz * side + py * n) * side + px * n) * 4 + 3];
         alpha.Should().BeLessThan(0.25f, "a probe a quarter of whose rays meet faces from behind stands inside a solid and holds nothing");

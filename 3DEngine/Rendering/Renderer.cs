@@ -101,7 +101,7 @@ internal sealed class Renderer : IDisposable
                 server.LoadSync<ShaderProgram>("shaders/field_stamp.slang").Compute);
             // The probes' trace and its build for a frame where no surface lets light through,
             // which leaves the crossing of such a surface out.
-            device.InitializeGlobalIllumination(server.LoadSync<ShaderProgram>("shaders/gi_trace.slang").Compute,
+            GlobalIlluminationStages.Of(device).InitializeGlobalIllumination(server.LoadSync<ShaderProgram>("shaders/gi_trace.slang").Compute,
                 server.LoadSync<ShaderProgram>("shaders/gi_merge.slang").Compute,
                 server.LoadSync<ShaderProgram>("shaders/gi_ambient.slang").Compute,
                 server.LoadSync<ShaderProgram>("shaders/gi_screen.slang").Compute,

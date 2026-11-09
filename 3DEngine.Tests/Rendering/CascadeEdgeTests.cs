@@ -313,7 +313,7 @@ public sealed partial class CascadeEdgeTests : IDisposable
         var gi = renderer.RenderWorld.TryGet<GlobalIlluminationRenderer>()!.Probes!;
         var device = (GraphicsDevice)renderer.Context.Graphics!;
         var last = gi.Cascades - 1;
-        var rays = device.ReadProbeVolume(gi, last, merged: false);
+        var rays = GlobalIlluminationStages.Of(device).ReadProbeVolume(gi, last, merged: false);
         var origin = renderer.RenderWorld.TryGet<SceneFieldRenderer>()!.Plan!.BuiltOrigin(last)!.Value;
         var (p, n) = (gi.Probes, gi.Texels[last]);
         var spacing = 0.15f * (1 << last) * GlobalIlluminationRenderer.ProbeSpacing;

@@ -80,4 +80,45 @@ internal sealed unsafe partial class GraphicsDevice
             SamplerAddressMode.ClampToEdge, SamplerAddressMode.ClampToEdge, SamplerAddressMode.ClampToEdge));
         return new VolumeTexture(owner, new VulkanImageView(this, owner, view), sampler);
     }
+
+    // A 3D image of half-float colors a compute shader writes and reads, as the probes' and the
+    // fog's volumes are, with its view.
+    internal (VkImage Image, VkDeviceMemory Memory, VkImageView View) ProbeImage(uint width, uint height, uint depth,
+        VkFormat format = VkFormat.R16G16B16A16Sfloat)
+    {
+        var info = new VkImageCreateInfo
+        {
+            imageType = VkImageType.Image3D,
+            format = format,
+            extent = new VkExtent3D(width, height, depth),
+            mipLevels = 1,
+            arrayLayers = 1,
+            samples = VkSampleCountFlags.Count1,
+            tiling = VkImageTiling.Optimal,
+            usage = VkImageUsageFlags.Sampled | VkImageUsageFlags.Storage | VkImageUsageFlags.TransferSrc | VkImageUsageFlags.TransferDst,
+            sharingMode = VkSharingMode.Exclusive,
+            initialLayout = VkImageLayout.Undefined,
+        };
+        _deviceApi.vkCreateImage(&info, null, out VkImage image).CheckResult();
+        DeviceObjects.Made(DeviceObjects.Kind.Image);
+        _deviceApi.vkGetImageMemoryRequirements(image, out VkMemoryRequirements requirements);
+        var allocation = new VkMemoryAllocateInfo
+        {
+            allocationSize = requirements.size,
+            memoryTypeIndex = FindMemoryType(requirements.memoryTypeBits, VkMemoryPropertyFlags.DeviceLocal),
+        };
+        var memory = AllocateSaying(&allocation);
+        DeviceObjects.Made(DeviceObjects.Kind.Memory);
+        _deviceApi.vkBindImageMemory(image, memory, 0).CheckResult();
+        var viewInfo = new VkImageViewCreateInfo
+        {
+            image = image,
+            viewType = VkImageViewType.Image3D,
+            format = format,
+            components = VkComponentMapping.Rgba,
+            subresourceRange = ColorLevels(0, 1),
+        };
+        _deviceApi.vkCreateImageView(&viewInfo, null, out VkImageView view).CheckResult();
+        return (image, memory, view);
+    }
 }

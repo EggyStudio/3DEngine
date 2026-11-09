@@ -1,34 +1,35 @@
 using System.Runtime.InteropServices;
 using Vortice.Vulkan;
+using static Engine.GraphicsDevice;
 
 namespace Engine;
 
 // The world probes' images read back whole, for the tests and the console, with the frames in
 // flight finished.
-internal sealed unsafe partial class GraphicsDevice
+internal sealed unsafe partial class GlobalIlluminationStages
 {
     /// <summary>The faces of the light each probe receives, four floats a texel, read back for a test with the frames in flight finished.</summary>
     internal float[] ReadIlluminationCubes(GpuIllumination gi)
     {
         var (p, c) = ((uint)gi.Probes, (uint)gi.Cascades);
-        FlushUploads();
-        _deviceApi.vkDeviceWaitIdle().CheckResult();
-        var buffer = (VulkanBuffer)CreateBuffer(new BufferDesc(6 * p * p * p * c * 8, BufferUsage.TransferDst, CpuAccessMode.Read));
+        device.FlushUploads();
+        device.Api.vkDeviceWaitIdle().CheckResult();
+        var buffer = (VulkanBuffer)device.CreateBuffer(new BufferDesc(6 * p * p * p * c * 8, BufferUsage.TransferDst, CpuAccessMode.Read));
         try
         {
-            var cmd = BeginSingleTimeCommands();
+            var cmd = device.BeginSingleTimeCommands();
             var whole = ColorLevels(0, 1);
-            PipelineBarrier(cmd, ImageBarrier(gi.Cubes, whole, VkImageLayout.ShaderReadOnlyOptimal, VkImageLayout.TransferSrcOptimal,
+            device.PipelineBarrier(cmd, ImageBarrier(gi.Cubes, whole, VkImageLayout.ShaderReadOnlyOptimal, VkImageLayout.TransferSrcOptimal,
                 VkPipelineStageFlags2.AllCommands, VkAccessFlags2.ShaderRead | VkAccessFlags2.ShaderWrite, VkPipelineStageFlags2.Transfer, VkAccessFlags2.TransferRead));
             var region = new VkBufferImageCopy
             {
                 imageSubresource = new VkImageSubresourceLayers(VkImageAspectFlags.Color, 0, 0, 1),
                 imageExtent = new VkExtent3D(6 * p, p, p * c),
             };
-            _deviceApi.vkCmdCopyImageToBuffer(cmd, gi.Cubes, VkImageLayout.TransferSrcOptimal, buffer.Buffer, 1, &region);
-            PipelineBarrier(cmd, ImageBarrier(gi.Cubes, whole, VkImageLayout.TransferSrcOptimal, VkImageLayout.ShaderReadOnlyOptimal,
+            device.Api.vkCmdCopyImageToBuffer(cmd, gi.Cubes, VkImageLayout.TransferSrcOptimal, buffer.Buffer, 1, &region);
+            device.PipelineBarrier(cmd, ImageBarrier(gi.Cubes, whole, VkImageLayout.TransferSrcOptimal, VkImageLayout.ShaderReadOnlyOptimal,
                 VkPipelineStageFlags2.Transfer, VkAccessFlags2.TransferRead, VkPipelineStageFlags2.AllCommands, VkAccessFlags2.ShaderRead));
-            EndSingleTimeCommands(cmd);
+            device.EndSingleTimeCommands(cmd);
             return Halves(buffer);
         }
         finally
@@ -104,16 +105,16 @@ internal sealed unsafe partial class GraphicsDevice
     // images stay in, which a copy reads.
     private float[] ReadGeneralImage(VkImage image, VkExtent3D extent, int channels)
     {
-        FlushUploads();
-        _deviceApi.vkDeviceWaitIdle().CheckResult();
-        var buffer = (VulkanBuffer)CreateBuffer(new BufferDesc(extent.width * extent.height * extent.depth * (uint)channels * 2, BufferUsage.TransferDst, CpuAccessMode.Read));
+        device.FlushUploads();
+        device.Api.vkDeviceWaitIdle().CheckResult();
+        var buffer = (VulkanBuffer)device.CreateBuffer(new BufferDesc(extent.width * extent.height * extent.depth * (uint)channels * 2, BufferUsage.TransferDst, CpuAccessMode.Read));
         try
         {
-            var cmd = BeginSingleTimeCommands();
-            MemoryBarrier(cmd, VkPipelineStageFlags2.AllCommands, VkAccessFlags2.ShaderWrite, VkPipelineStageFlags2.Transfer, VkAccessFlags2.TransferRead);
+            var cmd = device.BeginSingleTimeCommands();
+            device.MemoryBarrier(cmd, VkPipelineStageFlags2.AllCommands, VkAccessFlags2.ShaderWrite, VkPipelineStageFlags2.Transfer, VkAccessFlags2.TransferRead);
             var region = new VkBufferImageCopy { imageSubresource = new VkImageSubresourceLayers(VkImageAspectFlags.Color, 0, 0, 1), imageExtent = extent };
-            _deviceApi.vkCmdCopyImageToBuffer(cmd, image, VkImageLayout.General, buffer.Buffer, 1, &region);
-            EndSingleTimeCommands(cmd);
+            device.Api.vkCmdCopyImageToBuffer(cmd, image, VkImageLayout.General, buffer.Buffer, 1, &region);
+            device.EndSingleTimeCommands(cmd);
             return Halves(buffer);
         }
         finally
@@ -125,7 +126,7 @@ internal sealed unsafe partial class GraphicsDevice
     // A buffer of half floats read as floats.
     private float[] Halves(VulkanBuffer buffer)
     {
-        var halves = MemoryMarshal.Cast<byte, Half>(Map(buffer));
+        var halves = MemoryMarshal.Cast<byte, Half>(device.Map(buffer));
         var values = new float[halves.Length];
         for (int i = 0; i < halves.Length; i++) values[i] = (float)halves[i];
         return values;

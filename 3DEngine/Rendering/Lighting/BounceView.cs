@@ -131,7 +131,7 @@ internal sealed class BounceViewRenderer : IDisposable
         var set = _sets[slot] ??= device.CreateDescriptorSet(_viewLayout);
         var plane = screen is null ? decoded.ColorView : shown == BounceView.Light ? screen.IrradianceView : screen.BlendedView;
         device.UpdateDescriptorSet(set, null, new CombinedImageSamplerBinding(plane, _sampler, 0));
-        device.BindProbeVolume(set, 1, probes, cascade, merged: shown != BounceView.Rays);
+        GlobalIlluminationStages.Of(device).BindProbeVolume(set, 1, probes, cascade, merged: shown != BounceView.Rays);
         device.UpdateDescriptorSet(set, null, new CombinedImageSamplerBinding(decoded.ColorView, _sampler, 2));
         device.UpdateDescriptorSet(set, null, new CombinedImageSamplerBinding(reference ?? decoded.ColorView, _sampler, 3));
 

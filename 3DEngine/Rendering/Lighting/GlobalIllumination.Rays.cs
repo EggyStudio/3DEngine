@@ -22,7 +22,7 @@ internal sealed partial class GlobalIlluminationRenderer
             {
                 _retired.Add((_frame, device.RecordRayScene(renderContext.CommandBuffer, _rays, copies, mesh => fields.CornersOf((ModelVertex[])mesh),
                     mesh => fields.CornerColorsOf((ModelVertex[])mesh), fields.Recolored, mesh => fields.UvsOf((ModelVertex[])mesh))));
-                device.MarkGlobalIllumination(renderContext.CommandBuffer, "gi_rays");
+                GlobalIlluminationStages.Of(device).MarkGlobalIllumination(renderContext.CommandBuffer, "gi_rays");
             }
             catch (DeviceMemoryException e)
             {

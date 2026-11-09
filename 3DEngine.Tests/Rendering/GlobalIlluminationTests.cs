@@ -118,7 +118,7 @@ public sealed partial class GlobalIlluminationTests : IDisposable
             Capture(() => DrawModelEx(slab, new Vector3(0, -30, 0), Vector3.UnitY, 0, Vector3.One, Color.White));
             var renderer = GetApp().World.Resource<Engine.Renderer>();
             var probes = renderer.RenderWorld.TryGet<GlobalIlluminationRenderer>()!.Probes!;
-            var cubes = ((GraphicsDevice)renderer.Context.Graphics).ReadIlluminationCubes(probes);
+            var cubes = GlobalIlluminationStages.Of((GraphicsDevice)renderer.Context.Graphics).ReadIlluminationCubes(probes);
             var (p, middle) = (probes.Probes, probes.Probes / 2);
             var faces = Enumerable.Range(0, 6).Select(f => cubes[((middle * p + middle) * 6 * p + f * p + middle) * 4]).ToArray();
             faces.Should().AllSatisfy(face => face.Should().BeApproximately(MathF.PI, MathF.PI * 0.02f, $"each face at {quality} reads the sky alike, {string.Join(", ", faces)}"));
@@ -381,7 +381,7 @@ public sealed partial class GlobalIlluminationTests : IDisposable
         }, new Camera3D(new Vector3(0, 0.5f, 2.6f), new Vector3(0, 3, -0.5f), Vector3.UnitY, 70));
         var renderer = GetApp().World.Resource<Engine.Renderer>();
         var gi = renderer.RenderWorld.TryGet<GlobalIlluminationRenderer>()!.Probes!;
-        var cubes = ((GraphicsDevice)renderer.Context.Graphics!).ReadIlluminationCubes(gi);
+        var cubes = GlobalIlluminationStages.Of((GraphicsDevice)renderer.Context.Graphics!).ReadIlluminationCubes(gi);
         var origin = renderer.RenderWorld.TryGet<SceneFieldRenderer>()!.Plan!.BuiltOrigin(0)!.Value;
         var p = gi.Probes;
         const float spacing = 0.15f * GlobalIlluminationRenderer.ProbeSpacing;

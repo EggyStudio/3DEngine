@@ -82,7 +82,7 @@ internal static class SceneFieldCommands
         // whole, a cascade of sixteen texels a side holding four times one of eight.
         if (probes.CycleOn && renderer.Context.Graphics is GraphicsDevice device)
         {
-            var moving = device.ReadCarriedMoving(probes);
+            var moving = GlobalIlluminationStages.Of(device).ReadCarriedMoving(probes);
             var movingTexels = moving.Select((m, c) => (long)m * probes.Texels[c] * probes.Texels[c]).Sum();
             var all = probes.Texels.Sum(n => (long)p * p * p * n * n);
             var byCascade = string.Join(", ", moving.Select((m, c) => $"{m} of {p * p * p} ({probes.Texels[c]} texels a side)"));

@@ -29,8 +29,8 @@ internal sealed class TargetIllumination
 /// <summary>
 /// Global illumination, as cascades of light probes over the scene's distance field (Radiance
 /// Cascades), traced, merged and gathered on the GPU each frame
-/// (<see cref="GraphicsDevice.RecordGlobalIllumination"/>), which the model pass adds to the
-/// window's light from all around.
+/// (<see cref="GlobalIlluminationStages.RecordGlobalIllumination"/>), which the model pass adds to
+/// the window's light from all around.
 /// </summary>
 /// <remarks>
 /// <para>
@@ -283,7 +283,7 @@ internal sealed partial class GlobalIlluminationRenderer : IDisposable
             _targets.Remove(id);
         }
         var cascades = CascadesIn(renderWorld);
-        if (cascades == 0 || renderContext.Device is not GraphicsDevice { CanBounceLight: true } device
+        if (cascades == 0 || renderContext.Device is not GraphicsDevice device || !GlobalIlluminationStages.Of(device).CanBounceLight
             || renderWorld.TryGet<SceneFieldBinding>() is not { On: true } field || renderWorld.TryGet<SceneFieldSettings>() is not { } fieldSettings)
         {
             Release();
@@ -298,7 +298,7 @@ internal sealed partial class GlobalIlluminationRenderer : IDisposable
         {
             Release();
             var making = Stopwatch.GetTimestamp();
-            _gi = device.CreateGlobalIllumination(field.Field.Resolution / ProbeSpacing, TexelsFor(wanted, cascades, far), far,
+            _gi = GlobalIlluminationStages.Of(device).CreateGlobalIllumination(field.Field.Resolution / ProbeSpacing, TexelsFor(wanted, cascades, far), far,
                 cycle: wanted == GlobalIllumination.High && device.CanQueryRays);
             _made = (field.Field, wanted, cascades);
             Logger.Info($"Global illumination's probes made at {wanted}, {cascades} cascades of {_gi.Probes} a side, "
@@ -386,17 +386,17 @@ internal sealed partial class GlobalIlluminationRenderer : IDisposable
         _origins = origins;
         // The far cascade's probes trace a part of them a frame, and all on a frame it moved, whose
         // probes' light of the frames before lay elsewhere (RecordGlobalIllumination).
-        var farPart = far && lying[cascades - 1] ? (int)(_frame % GraphicsDevice.FarParts) : -1;
+        var farPart = far && lying[cascades - 1] ? (int)(_frame % GlobalIlluminationStages.FarParts) : -1;
         _lightThrough = false;
         foreach (var (instance, _) in renderWorld.TryGet<SceneFieldRenderer>()?.Drawn ?? [])
             _lightThrough |= instance.LightThrough > 0 && !switches.ThroughOff;
-        device.GlobalIlluminationPassesTimed = switches.PassesTimed;
+        GlobalIlluminationStages.Of(device).GlobalIlluminationPassesTimed = switches.PassesTimed;
         RecordRays(renderContext, renderWorld, device, plan);
         // A carried probe's rays move within their texels and meet the meshes through the device's
         // rays at High where it traces them, the field's finest cells missing an arch's edge thinner
         // than they are, which the moving rays passed beside, and elsewhere keep their middles.
         var moving = _gi.CycleOn && _rays is not null && !_lightThrough;
-        _retired.Add((_frame, device.RecordGlobalIllumination(renderContext.CommandBuffer, _gi, field.Field, view, sampler, sunMap, sunSampler, lights, intervals, ProbeSpacing,
+        _retired.Add((_frame, GlobalIlluminationStages.Of(device).RecordGlobalIllumination(renderContext.CommandBuffer, _gi, field.Field, view, sampler, sunMap, sunSampler, lights, intervals, ProbeSpacing,
             switches.MergeOff, switches.Alone, switches.Shown is BounceView.Rays or BounceView.Merged, _frame, switches.FollowOff ? null : lying,
             far ? cascades - 2 : -1, _lightThrough, plan is { Whole: true }, farPart, switches.MeshesTraced || moving ? _rays : null, shifts, CarriedShare, CarriedSince, CarriedPhase,
             (moving ? 1u : 0) | (switches.MeshesTraced ? 2u : 0))));
@@ -416,13 +416,13 @@ internal sealed partial class GlobalIlluminationRenderer : IDisposable
                 || _screenGlowOnly != glowOnly || _screen.GlowTexel != glowTexel)
             {
                 if (_screen is not null) _retired.Add((_frame, _screen));
-                _screen = device.CreateScreenProbes(width, height, tile, glowTexel);
+                _screen = GlobalIlluminationStages.Of(device).CreateScreenProbes(width, height, tile, glowTexel);
                 _screenGlowOnly = glowOnly;
                 _lastScreen = null;
             }
             var jitter = JitterAt(_frame, tile);
             var bytes = ViewBytes(window.Unjittered, inverse, window.Eye, _screen, depth.Extent, swapchain.Extent, jitter, _lastScreen);
-            _retired.Add((_frame, device.RecordScreenProbes(renderContext.CommandBuffer, _gi, _screen, field.Field, depth.View, depth.Sampler, bytes, _glowCount > 0,
+            _retired.Add((_frame, GlobalIlluminationStages.Of(device).RecordScreenProbes(renderContext.CommandBuffer, _gi, _screen, field.Field, depth.View, depth.Sampler, bytes, _glowCount > 0,
                 renderWorld.TryGet<GlobalIlluminationSettings>()?.LoggedScreenProbe ?? -1, glowOnly,
                 renderWorld.TryGet<GlobalIlluminationSettings>()?.LoggedScreenProbeNotANumber ?? false, _lightThrough)));
             _lastScreen = (window.Unjittered, window.Eye);
@@ -472,14 +472,14 @@ internal sealed partial class GlobalIlluminationRenderer : IDisposable
             || state.Screen.Across != (size.Width + tile - 1) / tile || state.Screen.Down != (size.Height + tile - 1) / tile)
         {
             if (state is not null) _retired.Add((_frame, state));
-            state = _targets[id] = new TargetScreen(device.CreateScreenProbes(size.Width, size.Height, tile, glowTexel)) { GlowOnly = glowOnly };
+            state = _targets[id] = new TargetScreen(GlobalIlluminationStages.Of(device).CreateScreenProbes(size.Width, size.Height, tile, glowTexel)) { GlowOnly = glowOnly };
         }
         state.Drawn = _frame;
         var eye = Vector4.Transform(new Vector4(0, 0, 0, 1), inverse);
         var at = new Vector3(eye.X, eye.Y, eye.Z) / eye.W;
         var jitter = JitterAt(_frame, tile);
         var bytes = ViewBytes(camera, inverse, at, state.Screen, depth.Extent, size, jitter, state.Last);
-        _retired.Add((_frame, device.RecordScreenProbes(renderContext.CommandBuffer, _gi, state.Screen, field.Field, depth.View, depth.Sampler, bytes, _glowCount > 0,
+        _retired.Add((_frame, GlobalIlluminationStages.Of(device).RecordScreenProbes(renderContext.CommandBuffer, _gi, state.Screen, field.Field, depth.View, depth.Sampler, bytes, _glowCount > 0,
             glowOnly: glowOnly, lightThrough: _lightThrough)));
         state.Last = (camera, at);
         targets.ByTarget[id] = new IlluminationBinding(_gi, field.Field, state.Screen, depth, GlowLights: _glowCount);

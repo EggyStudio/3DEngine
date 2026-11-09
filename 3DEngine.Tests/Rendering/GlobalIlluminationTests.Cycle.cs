@@ -27,7 +27,7 @@ public sealed partial class GlobalIlluminationTests
         var probes = renderer.RenderWorld.TryGet<GlobalIlluminationRenderer>()!.Probes!;
         var device = (GraphicsDevice)renderer.Context.Graphics!;
         var moving = quality == GlobalIllumination.High && device.CanQueryRays;
-        var carried = device.ReadCarriedMoving(probes);
+        var carried = GlobalIlluminationStages.Of(device).ReadCarriedMoving(probes);
         probes.CycleBytes.Should().Be(moving ? probes.Texels.Take(probes.CycleCascades).Sum(n => 6L * 8 * (probes.Probes * n) * (probes.Probes * n) * probes.Probes) : 0,
             $"the cycle is kept whole at {quality} only where the rays move, {(moving ? "here" : "not here")}");
         if (moving)
@@ -54,15 +54,15 @@ public sealed partial class GlobalIlluminationTests
         var renderer = GetApp().World.Resource<Engine.Renderer>();
         var probes = renderer.RenderWorld.TryGet<GlobalIlluminationRenderer>()!.Probes!;
         var device = (GraphicsDevice)renderer.Context.Graphics!;
-        device.ReadCarriedMoving(probes).Take(probes.CycleCascades).Sum().Should().BeGreaterThan(0, "the probes under the slab carry their rays on");
-        var before = Enumerable.Range(0, probes.CycleCascades).Select(c => device.ReadMergedSky(probes, c)).ToArray();
+        GlobalIlluminationStages.Of(device).ReadCarriedMoving(probes).Take(probes.CycleCascades).Sum().Should().BeGreaterThan(0, "the probes under the slab carry their rays on");
+        var before = Enumerable.Range(0, probes.CycleCascades).Select(c => GlobalIlluminationStages.Of(device).ReadMergedSky(probes, c)).ToArray();
         var most = 0f;
         for (int frame = 0; frame < 32; frame++)
         {
             UnderSlab(GlobalIllumination.High, 1, block);
             for (int c = 0; c < probes.CycleCascades; c++)
             {
-                var now = device.ReadMergedSky(probes, c);
+                var now = GlobalIlluminationStages.Of(device).ReadMergedSky(probes, c);
                 for (int i = 0; i < now.Length; i++)
                     most = Math.Max(most, Math.Abs(now[i] - before[c][i]));
                 before[c] = now;

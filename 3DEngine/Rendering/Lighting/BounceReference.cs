@@ -283,10 +283,11 @@ internal static class BounceReference
         var (x, y, z) = ((int)at.X, (int)at.Y, (int)at.Z);
 
         var device = tracer.Device;
-        var rays = device.ReadProbeVolume(gi, c, merged: false);
-        var merged = device.ReadProbeVolume(gi, c, merged: true);
-        var distances = device.ReadProbeDistances(gi, c);
-        var cubes = device.ReadIlluminationCubes(gi);
+        var stages = GlobalIlluminationStages.Of(device);
+        var rays = stages.ReadProbeVolume(gi, c, merged: false);
+        var merged = stages.ReadProbeVolume(gi, c, merged: true);
+        var distances = stages.ReadProbeDistances(gi, c);
+        var cubes = stages.ReadIlluminationCubes(gi);
         var side = p * n;
         Vector4 Texel(float[] volume, int u, int v)
         {
@@ -358,7 +359,7 @@ internal static class BounceReference
         }
         return new ProbeLight(c, middle, n * n, hits, early, hits > 0 ? hitRays / hits : Vector3.Zero, hits > 0 ? hitReference / hits : Vector3.Zero,
             mergedAll / (n * n), referenceAll / (n * n), faces, facesMerged, facesReference, each, Names(tracer.Scene.Copies, traced.Regions),
-            gi.CycleOn && device.ReadCarriedMoving(gi, c, x, y, z));
+            gi.CycleOn && GlobalIlluminationStages.Of(device).ReadCarriedMoving(gi, c, x, y, z));
     }
 
     // The point of an octahedron a point of its square stands for, as gi.slang's octahedronPoint gives it.

@@ -28,7 +28,7 @@ public sealed partial class GlobalIlluminationTests
             probes.Cascades.Should().Be(farCascade > 0 ? 3 : 2, "the far cascade has probes of its own past those Low traces");
             var plan = renderer.RenderWorld.TryGet<SceneFieldRenderer>()!.Plan!;
             plan.BuiltOrigin(plan.Cascades - 1).Should().NotBeNull("every cascade is built by the capture");
-            var cubes = ((GraphicsDevice)renderer.Context.Graphics).ReadIlluminationCubes(probes);
+            var cubes = GlobalIlluminationStages.Of((GraphicsDevice)renderer.Context.Graphics).ReadIlluminationCubes(probes);
             // The -z face of the first cascade's middle probe.
             var (p, middle) = (probes.Probes, probes.Probes / 2);
             var face = cubes[((middle * p + middle) * 6 * p + 5 * p + middle) * 4];
@@ -73,17 +73,17 @@ public sealed partial class GlobalIlluminationTests
         var probes = renderer.RenderWorld.TryGet<GlobalIlluminationRenderer>()!.Probes!;
         var (far, p, side) = (probes.Cascades - 1, probes.Probes, probes.Probes * probes.Texels[probes.Cascades - 1]);
         // The layers of probes along z whose rays' light changed since the reading before.
-        var before = device.ReadProbeVolume(probes, far, merged: false);
+        var before = GlobalIlluminationStages.Of(device).ReadProbeVolume(probes, far, merged: false);
         List<int> Changed()
         {
-            var now = device.ReadProbeVolume(probes, far, merged: false);
+            var now = GlobalIlluminationStages.Of(device).ReadProbeVolume(probes, far, merged: false);
             var layers = Enumerable.Range(0, p).Where(z => Enumerable.Range(0, side * side).Any(t => now[(z * side * side + t) * 4] != before[(z * side * side + t) * 4])).ToList();
             before = now;
             return layers;
         }
-        var each = p / GraphicsDevice.FarParts;
+        var each = p / GlobalIlluminationStages.FarParts;
         var seen = new HashSet<int>();
-        for (int frame = 0; frame < GraphicsDevice.FarParts; frame++)
+        for (int frame = 0; frame < GlobalIlluminationStages.FarParts; frame++)
         {
             Frame(0);
             var layers = Changed();

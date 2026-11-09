@@ -2,13 +2,11 @@ sealed class Engine.GraphicsDevice : IDisposable, IGraphicsDevice
   ComputePipeline CreateComputePipeline(ReadOnlySpan<byte> spirv, int uniformSize, IReadOnlyList<int> bufferBindings, IReadOnlyList<int>? imageBindings = null, IReadOnlyList<(int, DescriptorType)>? textureBindings = null)
   CubeMap CreateCubeMap(uint size, uint mipLevels, ReadOnlySpan<Half> texels)
   DeviceUsage Usage { get; }
-  GpuIllumination CreateGlobalIllumination(int probes, int[] texels, bool farCascade = false, bool cycle = false)
   GpuParticles CreateParticles(int capacity)
   GpuParticles CreatePlacedParticles(ReadOnlySpan<Vector3> points)
   GpuPlanarReflection CreatePlanarReflection(uint width, uint height)
   GpuReflectionHistory CreateReflectionHistory(uint width, uint height)
   GpuSceneField CreateSceneField(int cascades, int resolution)
-  GpuScreenProbes CreateScreenProbes(uint width, uint height, int tile, float glowTexel = 2f)
   GpuSkin CreateSkin(ReadOnlySpan<ModelVertex> rest, ReadOnlySpan<ushort> joints, ReadOnlySpan<float> weights, int jointCount, int ring, ReadOnlySpan<Vector4> morphs = default, int morphCount = 0)
   GraphicsAdapterInfo AdapterInfo { get; }
   GraphicsDevice()
@@ -19,11 +17,9 @@ sealed class Engine.GraphicsDevice : IDisposable, IGraphicsDevice
   IDescriptorSet CreateDescriptorSet(IDescriptorSetLayout layout)
   IDescriptorSetLayout CreateDescriptorSetLayout(DescriptorSetLayoutBinding[] bindings)
   IDisposable RecordCountedCorners(ICommandBuffer commandBuffer, IBuffer corners, IReadOnlyList<(IBuffer, IBuffer?, int, int, int)> meshes)
-  IDisposable RecordGlobalIllumination(ICommandBuffer commandBuffer, GpuIllumination gi, GpuSceneField field, IImageView environment, ISampler environmentSampler, IImageView sunMap, ISampler sunSampler, ReadOnlySpan<byte> lights, IReadOnlyList<(float, float)> intervals, float spacing, bool mergeOff = false, int alone = -1, bool viewed = false, long frame = 0L, IReadOnlyList<bool>? lying = null, int lastCounted = -1, bool lightThrough = false, bool fieldWhole = false, int farPart = -1, GpuRayScene? rays = null, IReadOnlyList<(int, int, int)?>? shifts = null, float carriedShare = 1f, uint carriedSince = 0u, uint carriedPhase = 0u, uint traceFlags = 0u)
   IDisposable RecordSceneFieldBuild(ICommandBuffer commandBuffer, GpuSceneField field, IBuffer corners, IBuffer instances, int instanceCount, int triangleCount, int cascade, Vector3 origin, float cell, int band, bool thinGlow = false, bool first = true, bool last = true, bool? lend = null, float sheet = 0f, SceneFieldPlan.CellBox? cells = null, bool empty = false)
   IDisposable RecordSceneFieldRepaint(ICommandBuffer commandBuffer, GpuSceneField field, IBuffer corners, IBuffer instances, int instanceCount, int triangleCount, int cascade, Vector3 origin, float cell, int band)
   IDisposable RecordSceneFieldStamp(ICommandBuffer commandBuffer, GpuSceneField field, IBuffer bricks, int brickCount, IBuffer shapes, int shapeCount)
-  IDisposable RecordScreenProbes(ICommandBuffer commandBuffer, GpuIllumination gi, GpuScreenProbes screen, GpuSceneField field, IImageView depth, ISampler depthSampler, ReadOnlySpan<byte> view, bool glowLights, int loggedProbe = -1, bool glowOnly = false, bool loggedNotANumber = false, bool lightThrough = false)
   IFrameContext BeginFrame(ClearColor? clearOverride = null)
   IFramebuffer GetSwapchainFramebuffer(uint imageIndex)
   IImage CreateImage(ImageDesc desc)
@@ -46,7 +42,6 @@ sealed class Engine.GraphicsDevice : IDisposable, IGraphicsDevice
   ShadowMap CreateShadowMap(uint size, uint layers = 1u)
   Span<byte> Map(IBuffer buffer)
   bool CanBlendEachAttachment { get; }
-  bool CanBounceLight { get; }
   bool CanBuildSceneField { get; }
   bool CanClampDepth { get; }
   bool CanDrawBresenhamLines { get; }
@@ -94,31 +89,22 @@ sealed class Engine.GraphicsDevice : IDisposable, IGraphicsDevice
   internal VolumeTexture CreateVolumeTexture(uint size, VkFormat format, ReadOnlySpan<byte> texels)
   internal bool AcquireWindowImage(GraphicsDevice.WindowSurface surface)
   internal bool CopiesOnHost { get; }
-  internal bool GlobalIlluminationPassesTimed { get; set; }
   internal bool HasWindowSurfaces { get; }
-  internal bool ReadCarriedMoving(GpuIllumination gi, int cascade, int x, int y, int z)
   internal bool SharesMemory { get; }
   internal bool StagesUploads { get; init; }
   internal byte[] ReadPixels(IImage image)
   internal byte[]? DecodedPixels(IImage compressed, uint level = 0u)
   internal byte[]? ReadKeptScreen(out int width, out int height)
-  internal const int FarParts = 4
   internal const int MaxColorAttachments = 4
   internal const int ReadbackStagingKept = 4
   internal float AnisotropyLimit { get; set; }
   internal float[] ReadFloats(IImage image)
-  internal float[] ReadIlluminationCubes(GpuIllumination gi)
-  internal float[] ReadIlluminationHeld(GpuIllumination gi)
-  internal float[] ReadMergedSky(GpuIllumination gi, int cascade)
-  internal float[] ReadProbeDistances(GpuIllumination gi, int cascade)
-  internal float[] ReadProbeVolume(GpuIllumination gi, int cascade, bool merged)
   internal float[] ReadSceneField(GpuSceneField field)
   internal float[] ReadSceneFieldSheets(GpuSceneField field, bool second = false)
   internal int CountedRecords { get; }
   internal int MemoryBlockCount { get; }
   internal int ReadbackStagingCount { get; }
   internal int WindowDepthGeneration { get; }
-  internal int[] ReadCarriedMoving(GpuIllumination gi)
   internal static VkDescriptorSet SetHandle(IDescriptorSet set)
   internal static VkImageMemoryBarrier2 ImageBarrier(VkImage image, VkImageSubresourceRange range, VkImageLayout from, VkImageLayout to, VkPipelineStageFlags2 srcStage, VkAccessFlags2 srcAccess, VkPipelineStageFlags2 dstStage, VkAccessFlags2 dstAccess)
   internal static VkImageMemoryBarrier2 ImageLayoutBarrier(IImage image, VkImageLayout from, VkImageLayout to, VkPipelineStageFlags2 srcStage, VkAccessFlags2 before, VkPipelineStageFlags2 dstStage, VkAccessFlags2 after)
@@ -140,7 +126,6 @@ sealed class Engine.GraphicsDevice : IDisposable, IGraphicsDevice
   internal void EndSingleTimeCommands(VkCommandBuffer cmd)
   internal void FillBuffer(IBuffer destination, ulong offset, ReadOnlySpan<byte> data, string maker = "", int line = 0)
   internal void FlushUploads()
-  internal void MarkGlobalIllumination(ICommandBuffer commandBuffer, string label)
   internal void MemoryBarrier(VkCommandBuffer cmd, VkPipelineStageFlags2 srcStage, VkAccessFlags2 srcAccess, VkPipelineStageFlags2 dstStage, VkAccessFlags2 dstAccess)
   internal void Name(object resource, string name)
   internal void PipelineBarrier(VkCommandBuffer cmd, ReadOnlySpan<VkImageMemoryBarrier2> images, VkMemoryBarrier2? memory = null)
@@ -159,7 +144,6 @@ sealed class Engine.GraphicsDevice : IDisposable, IGraphicsDevice
   void BindDescriptorSet(ICommandBuffer commandBuffer, IPipeline pipeline, IDescriptorSet descriptorSet, uint index, ReadOnlySpan<uint> dynamicOffsets)
   void BindGraphicsPipeline(ICommandBuffer commandBuffer, IPipeline pipeline)
   void BindIndexBuffer(ICommandBuffer commandBuffer, IBuffer buffer, ulong offset, IndexType indexType)
-  void BindProbeVolume(IDescriptorSet set, uint binding, GpuIllumination gi, int cascade, bool merged)
   void BindVertexBuffers(ICommandBuffer commandBuffer, uint firstBinding, IBuffer[] buffers, ulong[] offsets)
   void CmdBeginRenderPass(ICommandBuffer commandBuffer, IRenderPass renderPass, IFramebuffer framebuffer, Extent2D extent, ClearColor? clear = null)
   void CmdEndRenderPass(ICommandBuffer commandBuffer)
@@ -175,7 +159,6 @@ sealed class Engine.GraphicsDevice : IDisposable, IGraphicsDevice
   void FlushDeferredStagingBuffers(int inFlightIndex)
   void Initialize(ISurfaceSource surfaceSource, string appName = "3DEngine")
   void InitializeCountedCorners(ReadOnlySpan<byte> spirv)
-  void InitializeGlobalIllumination(ReadOnlySpan<byte> trace, ReadOnlySpan<byte> merge, ReadOnlySpan<byte> ambient, ReadOnlySpan<byte> screen, ReadOnlySpan<byte> filter, ReadOnlySpan<byte> glow, ReadOnlySpan<byte> solidTrace = default, ReadOnlySpan<byte> rayTrace = default, ReadOnlySpan<byte> rayCross = default)
   void InitializeMeshCounts(ReadOnlySpan<byte> spirv)
   void InitializeParticleSort(ReadOnlySpan<byte> spirv)
   void InitializeParticles(ReadOnlySpan<byte> spirv)
@@ -226,23 +209,6 @@ readonly struct Engine.GraphicsDevice.ComputeStage : IEquatable<GraphicsDevice.C
   static bool op_Equality(GraphicsDevice.ComputeStage left, GraphicsDevice.ComputeStage right)
   static bool op_Inequality(GraphicsDevice.ComputeStage left, GraphicsDevice.ComputeStage right)
   void Deconstruct(out VkPipeline Pipeline, out VkPipelineLayout Layout, out VkDescriptorSetLayout SetLayout)
-struct Engine.GraphicsDevice.IlluminationTrace
-  float BelowEnd
-  float Cascades
-  float Edge
-  float End
-  float Spacing
-  float Start
-  uint Cascade
-  uint First
-  uint Flags
-  uint Kept
-  uint Last
-  uint Parity
-  uint Probes
-  uint Texels
-  uint TexelsAbove
-  uint UnusedW
 readonly struct Engine.GraphicsDevice.MoreFormats : IEquatable<GraphicsDevice.MoreFormats>
   MoreFormats(VkFormat First = VkFormat.Undefined, VkFormat Second = VkFormat.Undefined, VkFormat Third = VkFormat.Undefined)
   VkFormat First { get; init; }

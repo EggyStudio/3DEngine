@@ -219,13 +219,13 @@ internal sealed partial class ModelRenderer
     // the light that comes through a mesh by, or else the field of nothing.
     private void BindBounced(GraphicsDevice device, IDescriptorSet set, IlluminationBinding? bounced, GpuSceneField? built)
     {
-        var screen = bounced?.Screen ?? (_noScreen ??= device.CreateScreenProbes(1, 1, 1));
+        var screen = bounced?.Screen ?? (_noScreen ??= GlobalIlluminationStages.Of(device).CreateScreenProbes(1, 1, 1));
         device.UpdateDescriptorSet(set, null, Lit(screen.BlendedView, screen.Sampler, ScreenLightBinding));
         device.UpdateDescriptorSet(set, null, Lit(screen.GeometryView, screen.Sampler, ScreenSurfacesBinding));
         device.UpdateDescriptorSet(set, null, Lit(screen.Glow.LightView, screen.Sampler, ScreenGlowBinding));
         device.UpdateDescriptorSet(set, null, Lit(screen.Glow.NormalView, screen.Sampler, ScreenGlowNormalBinding));
         device.UpdateDescriptorSet(set, null, Lit(screen.Glow.FarView, screen.Sampler, ScreenGlowFarBinding));
-        _noScreen ??= device.CreateScreenProbes(1, 1, 1);
+        _noScreen ??= GlobalIlluminationStages.Of(device).CreateScreenProbes(1, 1, 1);
         var (depthView, depthSampler) = bounced?.Depth is { } depth ? (depth.View, depth.Sampler) : (_noScreen.BlendedView, _noScreen.Sampler);
         var (historyView, historySampler) = bounced?.History is { } history ? (history.View, history.Sampler) : (_noScreen.BlendedView, _noScreen.Sampler);
         device.UpdateDescriptorSet(set, null, Lit(depthView, depthSampler, ReflectDepthBinding));
