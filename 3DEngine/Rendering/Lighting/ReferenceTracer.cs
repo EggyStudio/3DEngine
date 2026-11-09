@@ -18,6 +18,9 @@ internal sealed record TracedReference(int Width, int Height, float[] Light, uin
 /// </summary>
 internal sealed unsafe class ReferenceTracer(GraphicsDevice device) : IDisposable
 {
+    /// <summary>The device's tracer, made the first time it is asked for.</summary>
+    internal static ReferenceTracer Of(GraphicsDevice device) => device.Part(static device => new ReferenceTracer(device));
+
     private ComputeStage _referenceStage;
 
     // gi_reference.slang's push block.

@@ -1,4 +1,5 @@
 using Vortice.Vulkan;
+using static Engine.GraphicsDevice;
 
 namespace Engine;
 
@@ -51,8 +52,15 @@ internal sealed class GpuFog : IDisposable
     public void Dispose() => _dispose();
 }
 
-internal sealed unsafe partial class GraphicsDevice
+/// <summary>
+/// The fog's compute stages on the device and the passes that make and light its volume, a part the
+/// device keeps (<see cref="GraphicsDevice.Part{T}"/>) and lets go with itself.
+/// </summary>
+internal sealed unsafe class FogStages(GraphicsDevice device) : IDisposable
 {
+    /// <summary>The device's fog stages, made the first time they are asked for.</summary>
+    internal static FogStages Of(GraphicsDevice device) => device.Part(static device => new FogStages(device));
+
     private const int FogScatterStage = 0, FogIntegrateStage = 1;
     private readonly ComputeStage[] _fogStages = new ComputeStage[2];
 
@@ -66,21 +74,21 @@ internal sealed unsafe partial class GraphicsDevice
     /// <summary>Keeps the compute stages of <c>fog_scatter.slang</c> and <c>fog_integrate.slang</c> for the first frame with fog.</summary>
     public void InitializeFog(ReadOnlySpan<byte> scatter, ReadOnlySpan<byte> integrate)
     {
-        if (!IsInitialized || scatter.IsEmpty || integrate.IsEmpty) return;
+        if (!device.IsInitialized || scatter.IsEmpty || integrate.IsEmpty) return;
         _fogSpirv = [scatter.ToArray(), integrate.ToArray()];
     }
 
     // Each stage reads its numbers from the block of uniforms, and the four bytes of push constants
     // each is made with, since a stage is made with a range of them, are never pushed.
-    private ComputeStage[] FogStages
+    private ComputeStage[] Stages
     {
         get
         {
             if (_fogStages[FogIntegrateStage].Pipeline.Handle != 0 || _fogSpirv is not { } spirv) return _fogStages;
-            _fogStages[FogScatterStage] = MakeComputeStage(spirv[0], [VkDescriptorType.StorageImage, VkDescriptorType.CombinedImageSampler,
+            _fogStages[FogScatterStage] = device.MakeComputeStage(spirv[0], [VkDescriptorType.StorageImage, VkDescriptorType.CombinedImageSampler,
                 VkDescriptorType.CombinedImageSampler, VkDescriptorType.CombinedImageSampler, VkDescriptorType.CombinedImageSampler,
                 VkDescriptorType.UniformBuffer, VkDescriptorType.UniformBuffer], 4);
-            _fogStages[FogIntegrateStage] = MakeComputeStage(spirv[1], [VkDescriptorType.SampledImage, VkDescriptorType.StorageImage,
+            _fogStages[FogIntegrateStage] = device.MakeComputeStage(spirv[1], [VkDescriptorType.SampledImage, VkDescriptorType.StorageImage,
                 VkDescriptorType.UniformBuffer], 4);
             return _fogStages;
         }
@@ -93,39 +101,39 @@ internal sealed unsafe partial class GraphicsDevice
     /// </summary>
     public GpuFog CreateFog(uint across, uint down, uint slices)
     {
-        var (scattered, scatteredMemory, scatteredView) = ProbeImage(across, down, slices);
-        var (summed, summedMemory, summedView) = ProbeImage(across, down, slices);
-        var uniforms = CreateBuffer(new BufferDesc(GpuFog.UniformBytes, BufferUsage.Uniform | BufferUsage.TransferDst));
+        var (scattered, scatteredMemory, scatteredView) = device.ProbeImage(across, down, slices);
+        var (summed, summedMemory, summedView) = device.ProbeImage(across, down, slices);
+        var uniforms = device.CreateBuffer(new BufferDesc(GpuFog.UniformBytes, BufferUsage.Uniform | BufferUsage.TransferDst));
 
-        var cmd = BeginSingleTimeCommands();
+        var cmd = device.BeginSingleTimeCommands();
         var whole = ColorLevels(0, 1);
-        PipelineBarrier(cmd, [
+        device.PipelineBarrier(cmd, [
             ImageBarrier(scattered, whole, VkImageLayout.Undefined, VkImageLayout.General,
                 VkPipelineStageFlags2.None, VkAccessFlags2.None, VkPipelineStageFlags2.Transfer, VkAccessFlags2.TransferWrite),
             ImageBarrier(summed, whole, VkImageLayout.Undefined, VkImageLayout.General,
                 VkPipelineStageFlags2.None, VkAccessFlags2.None, VkPipelineStageFlags2.Transfer, VkAccessFlags2.TransferWrite),
         ]);
         var none = new VkClearColorValue(0f, 0f, 0f, 0f);
-        _deviceApi.vkCmdClearColorImage(cmd, scattered, VkImageLayout.General, &none, 1, &whole);
+        device.Api.vkCmdClearColorImage(cmd, scattered, VkImageLayout.General, &none, 1, &whole);
         var clear = new VkClearColorValue(0f, 0f, 0f, 1f);
-        _deviceApi.vkCmdClearColorImage(cmd, summed, VkImageLayout.General, &clear, 1, &whole);
-        PipelineBarrier(cmd, [
+        device.Api.vkCmdClearColorImage(cmd, summed, VkImageLayout.General, &clear, 1, &whole);
+        device.PipelineBarrier(cmd, [
             ImageBarrier(scattered, whole, VkImageLayout.General, VkImageLayout.General, VkPipelineStageFlags2.Transfer, VkAccessFlags2.TransferWrite,
                 VkPipelineStageFlags2.ComputeShader, VkAccessFlags2.ShaderRead | VkAccessFlags2.ShaderWrite),
             ImageBarrier(summed, whole, VkImageLayout.General, VkImageLayout.ShaderReadOnlyOptimal, VkPipelineStageFlags2.Transfer,
                 VkAccessFlags2.TransferWrite, VkPipelineStageFlags2.AllCommands, VkAccessFlags2.ShaderRead),
         ]);
-        EndSingleTimeCommands(cmd);
+        device.EndSingleTimeCommands(cmd);
 
-        var scatteredOwner = new VulkanImage(this, scattered, scatteredMemory,
+        var scatteredOwner = new VulkanImage(device, scattered, scatteredMemory,
             new ImageDesc(new Extent2D(across, down), ImageFormat.R16G16B16A16_Float, ImageUsage.Sampled | ImageUsage.Storage));
-        Name(scatteredOwner, "Fog's light by cell");
-        var summedOwner = new VulkanImage(this, summed, summedMemory,
+        device.Name(scatteredOwner, "Fog's light by cell");
+        var summedOwner = new VulkanImage(device, summed, summedMemory,
             new ImageDesc(new Extent2D(across, down), ImageFormat.R16G16B16A16_Float, ImageUsage.Sampled | ImageUsage.Storage));
-        Name(summedOwner, "Fog's light from the eye");
-        var scatteredWrapped = new VulkanImageView(this, scatteredOwner, scatteredView);
-        var summedWrapped = new VulkanImageView(this, summedOwner, summedView);
-        var sampler = CreateSampler(new SamplerDesc(SamplerFilter.Linear, SamplerFilter.Linear,
+        device.Name(summedOwner, "Fog's light from the eye");
+        var scatteredWrapped = new VulkanImageView(device, scatteredOwner, scatteredView);
+        var summedWrapped = new VulkanImageView(device, summedOwner, summedView);
+        var sampler = device.CreateSampler(new SamplerDesc(SamplerFilter.Linear, SamplerFilter.Linear,
             SamplerAddressMode.ClampToEdge, SamplerAddressMode.ClampToEdge, SamplerAddressMode.ClampToEdge));
         return new GpuFog(across, down, scatteredOwner, scatteredWrapped, summedOwner, summedWrapped, sampler, uniforms, () =>
         {
@@ -149,22 +157,22 @@ internal sealed unsafe partial class GraphicsDevice
         GpuIllumination? gi, GpuSceneField field)
     {
         if (commandBuffer is not VulkanCommandBuffer vkCmd) throw new ArgumentException("Command buffer was not created by this device.", nameof(commandBuffer));
-        var stages = FogStages;
+        var stages = Stages;
         var cmd = vkCmd.Handle;
-        var pool = MakeDescriptorPool([(stages[FogScatterStage].Descriptors, 1), (stages[FogIntegrateStage].Descriptors, 1)]);
+        var pool = device.MakeDescriptorPool([(stages[FogScatterStage].Descriptors, 1), (stages[FogIntegrateStage].Descriptors, 1)]);
         var readers = VkPipelineStageFlags2.ComputeShader;
-        MemoryBarrier(cmd, readers, VkAccessFlags2.UniformRead, VkPipelineStageFlags2.Transfer, VkAccessFlags2.TransferWrite);
+        device.MemoryBarrier(cmd, readers, VkAccessFlags2.UniformRead, VkPipelineStageFlags2.Transfer, VkAccessFlags2.TransferWrite);
         var bytes = uniforms[..(Math.Min(uniforms.Length, GpuFog.UniformBytes) & ~3)];
         fixed (byte* data = bytes)
-            _deviceApi.vkCmdUpdateBuffer(cmd, ((VulkanBuffer)fog.Uniforms).Buffer, 0, (ulong)bytes.Length, data);
-        MemoryBarrier(cmd, VkPipelineStageFlags2.Transfer, VkAccessFlags2.TransferWrite, readers, VkAccessFlags2.UniformRead);
+            device.Api.vkCmdUpdateBuffer(cmd, ((VulkanBuffer)fog.Uniforms).Buffer, 0, (ulong)bytes.Length, data);
+        device.MemoryBarrier(cmd, VkPipelineStageFlags2.Transfer, VkAccessFlags2.TransferWrite, readers, VkAccessFlags2.UniformRead);
 
         VkDescriptorSet Set(int stage)
         {
             var layout = stages[stage].SetLayout;
             var allocInfo = new VkDescriptorSetAllocateInfo { descriptorPool = pool, descriptorSetCount = 1, pSetLayouts = &layout };
             VkDescriptorSet set;
-            _deviceApi.vkAllocateDescriptorSets(&allocInfo, &set).CheckResult();
+            device.Api.vkAllocateDescriptorSets(&allocInfo, &set).CheckResult();
             return set;
         }
         void Image(VkDescriptorSet set, uint binding, VkDescriptorType type, IImageView view, ISampler? sampler, VkImageLayout layout)
@@ -174,21 +182,21 @@ internal sealed unsafe partial class GraphicsDevice
                 imageView = ((VulkanImageView)view).View, sampler = sampler is VulkanSampler s ? s.Sampler : default, imageLayout = layout,
             };
             var write = new VkWriteDescriptorSet { dstSet = set, dstBinding = binding, descriptorCount = 1, descriptorType = type, pImageInfo = &image };
-            _deviceApi.vkUpdateDescriptorSets(1, &write, 0, null);
+            device.Api.vkUpdateDescriptorSets(1, &write, 0, null);
         }
         void Buffer(VkDescriptorSet set, uint binding, IBuffer buffer)
         {
             var vk = (VulkanBuffer)buffer;
             var info = new VkDescriptorBufferInfo { buffer = vk.Buffer, offset = 0, range = vk.Description.Size };
             var write = new VkWriteDescriptorSet { dstSet = set, dstBinding = binding, descriptorCount = 1, descriptorType = VkDescriptorType.UniformBuffer, pBufferInfo = &info };
-            _deviceApi.vkUpdateDescriptorSets(1, &write, 0, null);
+            device.Api.vkUpdateDescriptorSets(1, &write, 0, null);
         }
         void Dispatch(int stage, VkDescriptorSet set, uint x, uint y, uint z)
         {
             var (pipeline, layout, _) = stages[stage];
-            _deviceApi.vkCmdBindPipeline(cmd, VkPipelineBindPoint.Compute, pipeline);
-            _deviceApi.vkCmdBindDescriptorSets(cmd, VkPipelineBindPoint.Compute, layout, 0, 1, &set, 0, null);
-            _deviceApi.vkCmdDispatch(cmd, Math.Max(1, x), Math.Max(1, y), Math.Max(1, z));
+            device.Api.vkCmdBindPipeline(cmd, VkPipelineBindPoint.Compute, pipeline);
+            device.Api.vkCmdBindDescriptorSets(cmd, VkPipelineBindPoint.Compute, layout, 0, 1, &set, 0, null);
+            device.Api.vkCmdDispatch(cmd, Math.Max(1, x), Math.Max(1, y), Math.Max(1, z));
         }
 
         // Where light does not bounce, the summed light stands in for the probes' images, which the
@@ -202,12 +210,12 @@ internal sealed unsafe partial class GraphicsDevice
         Buffer(scatter, 5, field.Info);
         Buffer(scatter, 6, fog.Uniforms);
         // The cells written again only once the frame before's sum has read them.
-        MemoryBarrier(cmd, readers, VkAccessFlags2.ShaderRead, readers, VkAccessFlags2.ShaderWrite);
+        device.MemoryBarrier(cmd, readers, VkAccessFlags2.ShaderRead, readers, VkAccessFlags2.ShaderWrite);
         Dispatch(FogScatterStage, scatter, (fog.Across + 3) / 4, (fog.Down + 3) / 4, (VolumetricFogRenderer.Slices + 3) / 4);
 
         var summed = ((VulkanImage)fog.Summed).Image;
         var whole = ColorLevels(0, 1);
-        PipelineBarrier(cmd, [ImageBarrier(summed, whole, VkImageLayout.ShaderReadOnlyOptimal, VkImageLayout.General,
+        device.PipelineBarrier(cmd, [ImageBarrier(summed, whole, VkImageLayout.ShaderReadOnlyOptimal, VkImageLayout.General,
             VkPipelineStageFlags2.FragmentShader | VkPipelineStageFlags2.ComputeShader, VkAccessFlags2.ShaderRead,
             VkPipelineStageFlags2.ComputeShader, VkAccessFlags2.ShaderWrite)],
             new VkMemoryBarrier2
@@ -220,10 +228,10 @@ internal sealed unsafe partial class GraphicsDevice
         Image(integrate, 1, VkDescriptorType.StorageImage, fog.SummedView, null, VkImageLayout.General);
         Buffer(integrate, 2, fog.Uniforms);
         Dispatch(FogIntegrateStage, integrate, (fog.Across + 7) / 8, (fog.Down + 7) / 8, 1);
-        PipelineBarrier(cmd, [ImageBarrier(summed, whole, VkImageLayout.General, VkImageLayout.ShaderReadOnlyOptimal,
+        device.PipelineBarrier(cmd, [ImageBarrier(summed, whole, VkImageLayout.General, VkImageLayout.ShaderReadOnlyOptimal,
             VkPipelineStageFlags2.ComputeShader, VkAccessFlags2.ShaderWrite, VkPipelineStageFlags2.FragmentShader | VkPipelineStageFlags2.ComputeShader,
             VkAccessFlags2.ShaderRead)]);
-        return new FogRun(this, pool);
+        return new FogRun(device, pool);
     }
 
     // The descriptor pool of a frame's fog, destroyed once no frame in flight reads its sets.
@@ -232,15 +240,15 @@ internal sealed unsafe partial class GraphicsDevice
         public void Dispose() => device.DestroyDescriptorPool(pool);
     }
 
-    // Runs before the device goes.
-    private void DestroyFog()
+    /// <inheritdoc />
+    public void Dispose()
     {
         foreach (var (pipeline, layout, setLayout) in _fogStages.Where(s => s.Pipeline.Handle != 0))
         {
             DeviceObjects.Gone(DeviceObjects.Kind.Pipeline);
-            _deviceApi.vkDestroyPipeline(pipeline);
-            _deviceApi.vkDestroyPipelineLayout(layout);
-            _deviceApi.vkDestroyDescriptorSetLayout(setLayout);
+            device.Api.vkDestroyPipeline(pipeline);
+            device.Api.vkDestroyPipelineLayout(layout);
+            device.Api.vkDestroyDescriptorSetLayout(setLayout);
         }
         Array.Clear(_fogStages);
         _fogSpirv = null;

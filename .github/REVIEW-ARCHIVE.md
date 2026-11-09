@@ -6833,6 +6833,32 @@ at `36cae0c2`.
      run. Settled, the run of `41253cab` passing with half 2 in 50 minutes in its three processes
      and half 1 in 108 with SceneFieldTests beside the GI class's two.
 
+109. **Two jobs of the pack run for 6.1.5 are red on a cold processor.** The pack run of `b3c471d9`,
+    started at 22:23 on 2026-11-08 for the package that carries the allocator's mend, has its
+    captures job red after 65 minutes and its games job red after 21, both on an Intel Xeon 8573C
+    runner, the processor that first appeared in the day's runs at eda81295 and whose Mesa cache is
+    the youngest. The captures job measured all 265 examples against raylib's programs and three
+    pairs stand past their recorded room of a point, shapes_bullet_hell at 3.1% where 1.9 is
+    recorded, textures_cellular_automata at 7.0 where 1.0, and shaders_cel_shading at 5.8 where 3.0;
+    the games job opened Sumo from the package, which served after 7 seconds, and the wait for 30
+    frames timed out at 30 seconds with the process still running and no error in its log beyond a
+    validation note on an unconsumed vertex attribute. The reading is the runner's, every shader
+    compiled anew on a processor without a cache, a frame's timing moving the automaton's state and
+    the first frames outlasting the wait; the failed jobs are rerun when the run ends, and if a pair
+    stands past its room on a warm cache or Sumo's wait times out again, the item is the coder's,
+    the three examples' drift read and the games step's wait given the cold compile's time. Written
+    at 00:53 on 2026-11-09. The run ended red at 01:20 on 2026-11-09 with its pack job skipped
+    behind the two, so 6.1.5 is not published; the two jobs are rerun at 01:21, the pack following
+    them if they pass. The rerun ended at 02:32 on 2026-11-09 on an EPYC 7763 with the games job
+    green, so Sumo's wait was the cold compile's, and the captures job red again with the pack
+    skipped behind it, the automaton at 7.0% where 1.0 is recorded on both processors alike, the
+    bullet hell at 3.2 where 1.9, and hybrid rendering at 4.8 where 3.7 in place of cel shading,
+    which held this time. The two that repeat to the tenth are a drift of the engine's since the
+    last pack run of 2026-11-04 and not the runner's, so the item is the coder's, 232, and 6.1
+    publishes from a pack run after it. Settled, the pack run of 8dba0d1c with 232's mend green in
+    every job at 06:42 on 2026-11-09, the captures' pairs within their rooms on an EPYC 7763 and
+    Sumo's play through, 6.1.12 published.
+
 ## Decisions
 
 1. **Commits stay local.** The owner pushes `main` from their own tools, and the working session

@@ -103,7 +103,7 @@ internal sealed class VolumetricFogRenderer : IDisposable
         Retire();
         _push = default;
         if (renderWorld.TryGet<VolumetricFogSettings>() is not { On: true } settings || renderWorld.TryGet<WindowView>() is not { } view
-            || renderWorld.TryGet<SwapchainTarget>() is not { } swapchain || renderContext.Device is not GraphicsDevice { CanDrawFog: true } device
+            || renderWorld.TryGet<SwapchainTarget>() is not { } swapchain || renderContext.Device is not GraphicsDevice device || !FogStages.Of(device).CanDrawFog
             || !Matrix4x4.Invert(view.Unjittered, out var inverse) || !Matrix4x4.Invert(view.ViewProjection, out var shown))
         {
             if (_sized is { } made) _retired.Add((_frame, Disposing(made)));
@@ -142,7 +142,7 @@ internal sealed class VolumetricFogRenderer : IDisposable
         foreach (var light in renderWorld.TryGet<RenderLights>()?.All ?? [])
             if (light.Kind == LightKind.Ambient) uniforms.Ambient += new Vector4(light.EmittedColor, 0);
         var field = bounced?.Field ?? renderWorld.TryGet<SceneFieldBinding>()?.Field ?? (_noField ??= device.CreateSceneField(1, 1));
-        _retired.Add((_frame, device.RecordFog(renderContext.CommandBuffer, sized.Fog, MemoryMarshal.AsBytes(new ReadOnlySpan<Uniforms>(in uniforms)),
+        _retired.Add((_frame, FogStages.Of(device).RecordFog(renderContext.CommandBuffer, sized.Fog, MemoryMarshal.AsBytes(new ReadOnlySpan<Uniforms>(in uniforms)),
             shadowView, shadowSampler, bounced?.Probes, field)));
         _push = new DecodePush { InverseViewProjection = shown, Eye = new Vector4(view.Eye, 1), Slices = new Vector4(start, far, scale.X, scale.Y) };
     }
@@ -188,7 +188,7 @@ internal sealed class VolumetricFogRenderer : IDisposable
     // A volume and the decode pass's set reading it.
     private (GpuFog Fog, IDescriptorSet Set) Made(GraphicsDevice device, uint across, uint down, uint slices)
     {
-        var fog = device.CreateFog(across, down, slices);
+        var fog = FogStages.Of(device).CreateFog(across, down, slices);
         var set = device.CreateDescriptorSet(DecodeLayout(device));
         device.UpdateDescriptorSet(set, null, new CombinedImageSamplerBinding(fog.SummedView, fog.Sampler, 0));
         return (fog, set);

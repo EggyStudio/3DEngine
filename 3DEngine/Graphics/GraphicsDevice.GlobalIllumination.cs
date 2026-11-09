@@ -429,7 +429,7 @@ internal sealed unsafe partial class GraphicsDevice
     private static int CarryingCascades(int cascades, bool farCascade) => Math.Max(0, cascades - (farCascade ? 2 : 1));
 
     // A 3D image of half-float colors the probes' work writes and reads, with its view.
-    private (VkImage Image, VkDeviceMemory Memory, VkImageView View) ProbeImage(uint width, uint height, uint depth,
+    internal (VkImage Image, VkDeviceMemory Memory, VkImageView View) ProbeImage(uint width, uint height, uint depth,
         VkFormat format = VkFormat.R16G16B16A16Sfloat)
     {
         var info = new VkImageCreateInfo

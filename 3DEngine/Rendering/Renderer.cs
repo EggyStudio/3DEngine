@@ -118,7 +118,7 @@ internal sealed class Renderer : IDisposable
             device.InitializeAtmosphere(server.LoadSync<ShaderProgram>("shaders/atmosphere_transmittance.slang").Compute,
                 server.LoadSync<ShaderProgram>("shaders/atmosphere_scatter.slang").Compute,
                 server.LoadSync<ShaderProgram>("shaders/atmosphere_sky.slang").Compute);
-            device.InitializeFog(server.LoadSync<ShaderProgram>("shaders/fog_scatter.slang").Compute,
+            FogStages.Of(device).InitializeFog(server.LoadSync<ShaderProgram>("shaders/fog_scatter.slang").Compute,
                 server.LoadSync<ShaderProgram>("shaders/fog_integrate.slang").Compute);
         }
         RenderWorld.Set(new ParticleRenderer(server.LoadSync<ShaderProgram>("shaders/particles.slang")));

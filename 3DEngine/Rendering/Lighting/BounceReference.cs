@@ -84,10 +84,9 @@ internal static class BounceReference
             using var black = environment is null ? Device.CreateCubeMap(1, 1, new Half[6 * 4]) : null;
             var (cubeView, cubeSampler) = environment is not null ? (environment.View, environment.Sampler) : (black!.View, black.Sampler);
             var (textures, looks) = Looks(Device, Render.TryGet<GpuTextures>()!, Scene.Copies);
-            var tracer = Device.Part(static device => new ReferenceTracer(device));
             // A bounce is a face after the first, so the faces a path meets are one more, 32 at most
             // where Russian roulette ends the path.
-            return tracer.TraceReference(Program.Compute, Scene, inverse, width, height, Math.Max(1, samples), Lights(Render, environment is not null),
+            return ReferenceTracer.Of(Device).TraceReference(Program.Compute, Scene, inverse, width, height, Math.Max(1, samples), Lights(Render, environment is not null),
                 cubeView, cubeSampler, textures, looks, bounces < 0 ? 32 : bounces + 1, probe: probe, gloss: gloss);
         }
     }

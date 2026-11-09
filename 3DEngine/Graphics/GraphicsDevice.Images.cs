@@ -7,7 +7,7 @@ internal sealed unsafe partial class GraphicsDevice
 {
     /// <summary>Wraps a Vulkan image with its backing device memory and current layout.</summary>
     /// <seealso cref="IImage"/>
-    private sealed class VulkanImage : IImage
+    internal sealed class VulkanImage : IImage
     {
         private readonly GraphicsDevice _device;
 
