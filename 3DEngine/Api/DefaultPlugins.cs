@@ -49,6 +49,7 @@ public sealed class DefaultPlugins : IPluginGroup, IPlugin
         new LightingPlugin(),
         new TimePlugin(),
         new InputPlugin(),
+        new PickingPlugin(),
         new EcsPlugin(),
         new PhysicsPlugin(),
         new CliPlugin(),

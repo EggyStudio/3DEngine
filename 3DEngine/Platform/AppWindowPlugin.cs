@@ -207,6 +207,7 @@ internal sealed class AppWindowPlugin : IPlugin
             logger.Warn($"AppWindowPlugin: StartTextInput failed, so typed text will not arrive. {SDL.GetError()}");
 
         app.World.InsertResource(window);
+        app.World.InsertResource<IWindowSize>(new WindowSize(window));
         app.World.InsertResource<IMainLoopDriver>(new SdlMainLoopDriver(window));
         app.World.InsertResource<IInputBackend>(new SdlInputBackend());
         logger.Info("AppWindow, IMainLoopDriver, and IInputBackend resources registered.");

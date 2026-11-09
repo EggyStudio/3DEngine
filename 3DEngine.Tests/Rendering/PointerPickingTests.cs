@@ -27,7 +27,7 @@ public class PointerPickingTests
 
         public Scene(bool picking = true)
         {
-            App.AddPlugin(new InputPlugin()).AddPlugin(new EcsPlugin());
+            App.AddPlugin(new InputPlugin()).AddPlugin(new PickingPlugin()).AddPlugin(new EcsPlugin());
             Ecs = App.World.Resource<EcsWorld>();
             Input = App.World.Resource<Input>();
             Camera = Ecs.Spawn();

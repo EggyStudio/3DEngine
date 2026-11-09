@@ -89,6 +89,7 @@ internal sealed class RenderPlugin : IPlugin
         renderer.AddPrepareSystem(new GpuTexturesPrepare());
         renderer.AddPrepareSystem(new GpuMeshesPrepare());
         app.World.InsertResource(renderer);
+        app.World.InsertResource<IRendererStatus>(new RendererStatus(renderer));
         Logger.Debug("Renderer resource registered with extract and prepare systems.");
 
         app.World.InitResource<DrawList>();

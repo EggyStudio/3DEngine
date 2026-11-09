@@ -91,7 +91,7 @@ internal static class RunMode
 
     /// <summary>Whether the world has a renderer that draws.</summary>
     public static bool HasRenderer(World world) =>
-        world.TryGetResource<Renderer>(out var renderer) && renderer.Context.IsInitialized;
+        world.TryGetResource<IRendererStatus>(out var renderer) && renderer.Draws;
 
     private static bool Asked(string[] arguments, string flag, string variable) =>
         arguments.Contains(flag) || Variable(variable)?.ToLowerInvariant() is "1" or "true" or "yes" or "on";

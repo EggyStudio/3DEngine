@@ -48,8 +48,8 @@ internal sealed class InputPlugin : IPlugin
             {
                 if (!world.TryGetResource<Time>(out var time)) return;
                 var input = world.Resource<Input>();
-                var (width, height) = world.TryGetResource<AppWindow>(out var window)
-                    ? (window.Sdl.Width, window.Sdl.Height)
+                var (width, height) = world.TryGetResource<IWindowSize>(out var window)
+                    ? (window.Width, window.Height)
                     : world.TryGetResource<Config>(out var config) ? (config.WindowData.Width, config.WindowData.Height) : (1, 1);
                 var size = new System.Numerics.Vector2(Math.Max(1, width), Math.Max(1, height));
                 Span<System.Numerics.Vector2> points = stackalloc System.Numerics.Vector2[Math.Min(input.Touches.Count, 10)];
