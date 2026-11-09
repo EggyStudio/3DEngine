@@ -111,25 +111,8 @@ internal sealed class RenderPlugin : IPlugin
         app.World.InitResource<MeshStore>();
         app.World.InitResource<ShaderStore>();
         app.World.InitResource<ShaderBufferStore>();
-        // A recording asks for its pictures before the frame's systems draw, so each is of this
-        // frame, and writes what it took where the app ends while it records.
-        app.AddSystem(Stage.First, new SystemDescriptor(Recorder.Tick, "RenderPlugin.Recorder").MainThreadOnly());
-        app.AddSystem(Stage.Cleanup, new SystemDescriptor(_ => Recorder.Shutdown(), "RenderPlugin.RecorderShutdown").Before("RenderPlugin.Cleanup").MainThreadOnly());
-        // F2 writes a screenshot in every program, F1 hides its interface and F3 shows the debug
-        // overlay, once the frame's input is in.
-        app.World.InitResource<DebugKeys>();
-        app.AddSystem(Stage.PreUpdate, new SystemDescriptor(DebugKeys.Run, "RenderPlugin.ScreenshotKey").MainThreadOnly().Read<Input>());
-        app.AddSystem(Stage.PreUpdate, new SystemDescriptor(DebugOverlay.Keys, "RenderPlugin.DebugOverlayKeys").MainThreadOnly().Read<Input>());
-        // The day sky moves its hour, its light and its map after the program's frame, so an hour the
-        // program set in it is drawn in it.
-        app.AddSystem(Stage.PostUpdate, new SystemDescriptor(world => DaySky.Run(world, app), "RenderPlugin.DaySky").MainThreadOnly());
-        // The overlay is drawn over everything else in 2D, after the frame's systems and before the
-        // frame is rendered where it is.
-        SystemDescriptor Overlay() => new SystemDescriptor(world => DebugOverlay.Draw(world, app), "RenderPlugin.DebugOverlay").MainThreadOnly();
+        // The mesh entities, recorded first in Render, the flat API's systems after them (FlatApiPlugin).
         app.AddSystem(Stage.Render, new SystemDescriptor(MeshEntityDraws.Run, "RenderPlugin.MeshEntityDraws").MainThreadOnly());
-        app.AddSystem(Stage.Render, new SystemDescriptor(world => AnimatedModelDraws.Run(world, app), "RenderPlugin.AnimatedModelDraws").MainThreadOnly());
-        // The edit meshes model.show put in the world, built again as the commands change them.
-        app.AddSystem(Stage.Render, new SystemDescriptor(world => EditMeshNames.Draw(world, app), "RenderPlugin.EditMeshDraws").MainThreadOnly());
 
         // An offscreen run has no window either, and renders into the device's own images.
         if (cfg.Offscreen && !app.World.ContainsResource<AppWindow>() && cfg.Graphics == GraphicsBackend.Vulkan)
@@ -140,11 +123,9 @@ internal sealed class RenderPlugin : IPlugin
         if (!app.World.TryGetResource<AppWindow>(out var window) && !renderer.Context.IsInitialized)
         {
             Logger.Info("RenderPlugin: No window (headless run), so the renderer stays uninitialized.");
-            app.AddSystem(Stage.Last, Overlay());
             // What a program draws is let go at the frame's end here too, which nothing renders, so
             // a headless program that draws each frame does not grow its lists frame by frame.
             app.AddSystem(Stage.Last, new SystemDescriptor(ClearDraws, "RenderPlugin.ClearDraws")
-                .After("RenderPlugin.DebugOverlay")
                 .MainThreadOnly()
                 .Write<DrawList>()
                 .Write<ModelDrawList>());
@@ -192,7 +173,6 @@ internal sealed class RenderPlugin : IPlugin
         if (renderer.Context.IsInitialized)
             renderer.Initialize(app.World);
 
-        app.AddSystem(Stage.Last, Overlay().Before("RenderPlugin.Render"));
 
         // GPU submission runs in Stage.Last so it executes after every Stage.Render system
         // has emitted ImGui UI / per-frame data. Also resolves debounced resize.

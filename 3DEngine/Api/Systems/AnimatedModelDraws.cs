@@ -117,6 +117,8 @@ internal sealed class AnimatedModelDraws
     {
         if (!world.TryGetResource<EcsWorld>(out var ecs)) return;
         var self = world.GetOrInsertResource(static () => new AnimatedModelDraws());
+        // The posed triangles physics makes a collider of, read once the draws are there.
+        world.GetOrInsertResource<IPosedTriangles>(() => new PosedTriangles(world));
         var current = E3D.CurrentApp;
         var borrowed = app is not null && !E3D.Holds(world) && ReferenceEquals(app.World, world);
         if (borrowed) E3D.UseApp(app);

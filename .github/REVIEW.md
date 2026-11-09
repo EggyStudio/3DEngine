@@ -8,15 +8,15 @@ review's files. After it `30a8747f`, 225's first cut, Core naming no area above 
 232, a device drawing on its CPU taking no anisotropic samples, pushed together at 03:25 on
 2026-11-09 with one run on the last and the pack run for 6.1.12 with publish started on it at 03:25,
 since the pack run tests what it packs; they keep the form and carry the review's files. Behind them
-`db48a8b5` and `f1422dc2`, 225's second and third cuts, committed and waiting on that run. Before it
-`b3c471d9`, 215 as docs, pushed at 22:23 on 2026-11-08 with `fbf35060`, 227, the comments on their
-own terms over 48 files, and `e9462fb1`, 218 as docs, one run on the last, green at 00:44 on
-2026-11-09 with macOS in 38 minutes, the Windows halves in 60 and 107, Linux in 133 for the second
-time where it took 102 in the morning, and the examples in 8; they keep the form and carry the
-review's files. Before it `20acb49e`, 223, the device mapping a memory block once a buffer the CPU
-writes is carved from it, which ends the game's play's exit, with 224's dots, the README's first
-line and scenes_sponza's grading comment on its own terms, pushed at 20:24 on 2026-11-08, its run
-green at 22:21 with macOS in 43 minutes, Linux in 78, the Windows halves in 107 and 118 and the
+`db48a8b5`, `f1422dc2` and `4aff2190`, 225's second, third and fourth cuts, committed and waiting on
+that run. Before it `b3c471d9`, 215 as docs, pushed at 22:23 on 2026-11-08 with `fbf35060`, 227, the
+comments on their own terms over 48 files, and `e9462fb1`, 218 as docs, one run on the last, green
+at 00:44 on 2026-11-09 with macOS in 38 minutes, the Windows halves in 60 and 107, Linux in 133 for
+the second time where it took 102 in the morning, and the examples in 8; they keep the form and
+carry the review's files. Before it `20acb49e`, 223, the device mapping a memory block once a buffer
+the CPU writes is carved from it, which ends the game's play's exit, with 224's dots, the README's
+first line and scenes_sponza's grading comment on its own terms, pushed at 20:24 on 2026-11-08, its
+run green at 22:21 with macOS in 43 minutes, Linux in 78, the Windows halves in 107 and 118 and the
 examples in 8; it keeps the form and carries the review's files. Before it `eda81295`, 219, the
 owner's flicker placed in a carried probe's sky share and mark written from each frame's places and
 mended by keeping both over the cycle, pushed at 18:07 on 2026-11-08, its run green at 20:22 with
@@ -4908,7 +4908,16 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     unchanged at every cut and the suite 2,282 on the tree of all four, Core, the ECS and Assets
     naming nothing above them; the two wait on 8dba0d1c's run. Cut four is Model, Camera3D,
     MeshStream and its format into Rendering, then Modeling's types, Physics' mesh interface and
-    audio.
+    audio. Cut four, `4aff2190` at 04:07 on 2026-11-09, moves Model with its material, mesh and
+    skeleton, MeshStream and its format, Camera3D and its projection, Texture2D, Shader and
+    BoundingBox into Rendering's types, public in Engine as before, SkinnedMesh beside them, the CPU
+    skinning into Rendering, a model's edit-mesh slots into a table the flat API's modeling keeps,
+    the sample rate into an internal constant the API gives, and shader values to the mesh entities
+    through a read the shader store holds; the listing unchanged and the suite 2,282. Rendering
+    names the API only in DaySky and AnimatedModelDraws, which cut five moves to Api with
+    RenderPlugin's flat-API systems, keeping their system names for the ordering, with PngWriter and
+    FrameProfile into Rendering and an interface for Physics' use of the animated draws. Cuts two to
+    four wait on 8dba0d1c's run.
 
 226. **The live path.** Decision 102 on 2026-11-08. A watcher over a program's shaders, assets,
     scenes and behavior scripts, which recompiles a changed shader through slangc and swaps its
@@ -7153,3 +7162,17 @@ gives, and the shader values a program set reach the mesh entities through a rea
 holds, which the flat API fills in once it keeps values for the store. Rendering then names E3D only
 in DaySky and AnimatedModelDraws, which run against the flat API and move to it in the next cut with
 the registrations that name Diagnostics and Modeling. The public listing is unchanged.
+
+225's fifth cut written on 2026-11-09, the renderer free of the flat API. The systems that run
+against the flat API, the recorder with its commands, the debug keys and the overlay, the day sky,
+the animated models with their machines and the edit meshes the commands show, move to Api's
+systems, registered by FlatApiPlugin, which DefaultPlugins adds right after the render plugin, each
+under the name the render plugin gave it, so the stages hold them in the order they did, the overlay
+before the render system where one renders and before the draw lists are let go where none does.
+Physics reads an animated model's posed triangles through IPosedTriangles beside the AnimatedModel
+component, which the animated draws insert beside themselves, as physics found the draws before once
+they ran, so it names neither the animated draws nor the mesh store. The frame profile, a store of
+values the audio, the renderer and the flat API set, moves to Core, its plugin, which reads the
+renderer's times, to Rendering, and the PNG writer with RgbaFrame to Core's files. Rendering then
+names Graphics, Core, the ECS, Assets and the platform alone, and physics Core, the ECS and Assets.
+The public listing is unchanged.

@@ -170,8 +170,8 @@ internal static class PhysicsBodies
     private static void NoneComing(World world, EcsWorld ecs, int entity, Collider collider)
     {
         if (!ecs.Has<AnimatedModel>(entity) || ecs.ChildrenOf(entity).Count > 0) return;
-        if (!world.TryGetResource<AnimatedModelDraws>(out var animated) || !world.TryGetResource<MeshStore>(out var meshes)) return;
-        animated.TryPosedTriangles(ecs, meshes, entity, out _, out var never);
+        if (!world.TryGetResource<IPosedTriangles>(out var animated)) return;
+        animated.TryPosedTriangles(ecs, entity, out _, out var never);
         if (!never) return;
         Log.Category("Engine.Physics").Warn($"Collider: entity {entity} is drawn by its AnimatedModel, whose file gives no meshes, " +
             $"so its {collider.Shape} collider has no triangles and it has no body.");
@@ -186,8 +186,7 @@ internal static class PhysicsBodies
     {
         var vertices = new List<Vector3>();
         var at = world.Translation;
-        ecsWorld.TryGetResource<AnimatedModelDraws>(out var animated);
-        ecsWorld.TryGetResource<MeshStore>(out var meshes);
+        ecsWorld.TryGetResource<IPosedTriangles>(out var animated);
         var pending = new Stack<int>();
         pending.Push(entity);
         while (pending.Count > 0)
@@ -196,8 +195,8 @@ internal static class PhysicsBodies
             foreach (var child in ecs.ChildrenOf(next)) pending.Push(child);
             Vector3[] positions;
             if (ecs.TryGet<Mesh>(next, out var mesh) && mesh.Positions is { Length: >= 3 } own) positions = own;
-            else if (animated is not null && meshes is not null && ecs.Has<AnimatedModel>(next)
-                && animated.TryPosedTriangles(ecs, meshes, next, out var posed, out _)) positions = posed;
+            else if (animated is not null && ecs.Has<AnimatedModel>(next)
+                && animated.TryPosedTriangles(ecs, next, out var posed, out _)) positions = posed;
             else continue;
             var placed = TransformPropagation.ComposedWorldMatrix(ecs, next);
             for (int i = 0; i + 2 < positions.Length; i += 3)
