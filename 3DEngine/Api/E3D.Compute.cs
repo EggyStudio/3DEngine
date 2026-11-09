@@ -25,6 +25,9 @@ public static partial class E3D
 
     private static ShaderBufferStore ShaderBuffers => Res<ShaderBufferStore>();
     private static readonly Dictionary<int, ComputePipeline> ComputePipelines = [];
+    // The program each compute shader's pipeline was made from, which a shader loaded again replaces
+    // under the same id.
+    private static readonly Dictionary<int, ShaderProgram> ComputeMadeFrom = [];
     // The buffer each of a compute shader's storage buffers is set to, by its index in ShaderProgram.Buffers.
     private static readonly Dictionary<int, int[]> BufferValues = [];
 
@@ -285,9 +288,20 @@ public static partial class E3D
             textures.Add((program.Textures[i].Binding, view, sampler));
         }
 
+        // A shader loaded again holds another program under the same id, so its pipeline is made
+        // again, once the dispatches before it have ended.
+        if (ComputePipelines.TryGetValue(shader.Id, out var made) && !ReferenceEquals(ComputeMadeFrom.GetValueOrDefault(shader.Id), program))
+        {
+            device.WaitForCompute();
+            made.Dispose();
+            ComputePipelines.Remove(shader.Id);
+        }
         if (!ComputePipelines.TryGetValue(shader.Id, out var pipeline))
+        {
             ComputePipelines[shader.Id] = pipeline = device.CreateComputePipeline(spirv, program.UniformSize, [.. program.Buffers.Select(b => b.Binding)],
                 [.. program.Images.Select(i => i.Binding)], [.. program.Textures.Select(t => (t.Binding, t.Type))]);
+            ComputeMadeFrom[shader.Id] = program;
+        }
         device.Dispatch(pipeline, UniformValues.GetValueOrDefault(shader.Id) ?? [], buffers, (uint)groupsX, (uint)groupsY, (uint)groupsZ, images, textures);
         // A mesh over a buffer the dispatch bound may have new triangles, which global illumination
         // reads again.
@@ -299,6 +313,7 @@ public static partial class E3D
     private static void ForgetComputeShader(int id)
     {
         BufferValues.Remove(id);
+        ComputeMadeFrom.Remove(id);
         if (ComputePipelines.Remove(id, out var pipeline)) pipeline.Dispose();
     }
 
@@ -312,6 +327,7 @@ public static partial class E3D
             foreach (var buffer in buffers.TakeAll()) buffer.Dispose();
         foreach (var pipeline in ComputePipelines.Values) pipeline.Dispose();
         ComputePipelines.Clear();
+        ComputeMadeFrom.Clear();
         BufferValues.Clear();
     }
 }

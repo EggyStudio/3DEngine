@@ -52,6 +52,11 @@ public static partial class E3D
 
     /// <summary>Loads and compiles a Slang shader file.</summary>
     /// <returns>The shader, or an invalid one when the file cannot be read or compiled, with the reason in the log.</returns>
+    /// <remarks>
+    /// Where the program is live (<see cref="Config.Live"/>), the file is compiled again as it is
+    /// saved and drawn with from the next frame under the same handle, and a save that does not
+    /// compile keeps the shader as it was, with slangc's reason in the log.
+    /// </remarks>
     public static Shader LoadShader(string fileName)
     {
         var path = ResolveFile(fileName);
@@ -60,7 +65,24 @@ public static partial class E3D
             ApiLogger.Warn($"LoadShader: '{fileName}' was not found beside the program or in the working directory.");
             return default;
         }
-        return LoadShaderFromMemory(File.ReadAllText(path), Path.GetFileName(path));
+        var shader = LoadShaderFromMemory(File.ReadAllText(path), Path.GetFileName(path));
+        if (shader.IsValid && TryRes<LiveFiles>(out var live))
+            live.Watch("shader", shader.Id, path, file => ReloadShader(shader.Id, file));
+        return shader;
+    }
+
+    // Compiles a shader's file again into its id, answering why where it does not compile.
+    private static string? ReloadShader(int id, string path)
+    {
+        try
+        {
+            var program = new SlangLoader().Compile(File.ReadAllText(path), Path.GetFileName(path));
+            return Res<ShaderStore>().Replace(id, program) ? null : "the shader was unloaded";
+        }
+        catch (Exception ex) when (ex is InvalidOperationException or ArgumentException)
+        {
+            return ex.Message;
+        }
     }
 
     /// <summary>Compiles Slang source held in memory as a shader.</summary>
@@ -107,6 +129,7 @@ public static partial class E3D
     {
         if (!shader.IsValid) return;
         Res<ShaderStore>().Remove(shader.Id);
+        if (TryRes<LiveFiles>(out var live)) live.Forget("shader", shader.Id);
         ShaderValues.Remove(shader.Id);
         UniformValues.Remove(shader.Id);
         TextureValues.Remove(shader.Id);

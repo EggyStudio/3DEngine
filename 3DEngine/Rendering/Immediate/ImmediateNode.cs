@@ -65,6 +65,9 @@ internal sealed class ImmediateRenderer : IDisposable
     private readonly List<IDescriptorSet>[] _uniformSets = Enumerable.Range(0, GpuTextures.RetireFrames).Select(_ => new List<IDescriptorSet>()).ToArray();
     private int _uniformSetNext;
     private readonly Dictionary<int, ShaderSets> _shaderSets = [];
+    // The program each shader's stages and sets were made from, which a shader loaded again
+    // replaces under the same id.
+    private readonly Dictionary<int, ShaderProgram> _madeFrom = [];
 
     // The texture the pass fills itself, engine.slang's, at binding 1. Any other a shader samples is its own.
     private static readonly string[] PassTextures = ["boundTexture"];
@@ -288,6 +291,7 @@ internal sealed class ImmediateRenderer : IDisposable
     private ShaderSets SetsFor(IGraphicsDevice gfx, int shader, ShaderProgram program)
     {
         if (_shaderSets.TryGetValue(shader, out var sets)) return sets;
+        _madeFrom.TryAdd(shader, program);
         // The shader's set 0 as it declares it, with the batch's texture at 1, which the pass fills,
         // and the uniform buffer at 0 unless a texture or buffer of the shader's own took it.
         var bindings = ShaderProgram.Merge(program.LayoutOf(0),
@@ -374,19 +378,24 @@ internal sealed class ImmediateRenderer : IDisposable
             gfx.CreateShader(new ShaderDesc(ShaderStage.Vertex, vertex)),
             gfx.CreateShader(new ShaderDesc(ShaderStage.Fragment, held ? ShaderProgram.HeldToEightBits(program.Fragment) : program.Fragment)));
         _customStages[(id, held)] = custom;
+        _madeFrom.TryAdd(id, program);
         shader = id;
         return custom;
     }
 
     // An unloaded shader's stages and pipelines may still be in use by a frame in flight, so they
-    // are destroyed GpuTextures.RetireFrames frames after the shader is unloaded.
+    // are destroyed GpuTextures.RetireFrames frames after the shader is unloaded. A shader loaded
+    // again holds another program under the same id, so what was made from the one before goes as
+    // an unloaded shader's does and is made again at the shader's next draw.
     private void RetireUnloadedShaders(ShaderStore? store)
     {
         _frame++;
         if (store is not null)
         {
-            foreach (var id in store.TakeRemovals())
+            var replaced = _madeFrom.Where(made => store.Get(made.Key) is { } now && !ReferenceEquals(now, made.Value)).Select(made => made.Key).ToArray();
+            foreach (var id in store.TakeRemovals().Concat(replaced))
             {
+                _madeFrom.Remove(id);
                 foreach (var held in (bool[])[false, true])
                     if (_customStages.Remove((id, held), out var stages)) _retired.Add((_frame, stages));
                 if (_shaderSets.Remove(id, out var sets)) _retired.Add((_frame, sets));

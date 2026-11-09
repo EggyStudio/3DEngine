@@ -7646,3 +7646,14 @@ wait after each game opens in the games job and in build/first-game.sh, Summit's
 Tactics', Tempo's, Sumo's, Siege's and the feature test's, has e3d's ten minutes, since its first
 frames compile the shaders where Mesa's cache is cold, past the thirty seconds a command waits
 otherwise, as the job's comment says. A script and workflow change alone.
+
+226's second commit written on 2026-11-09, the shaders. A shader LoadShader read from a file is
+compiled again as the file is saved and put into the shader store under its id (ShaderStore.Replace),
+and a save that does not compile keeps the shader as it was, slangc's reason in the log and in the
+live command's line. The immediate pass, the model pass and the compute dispatch each keep the
+program they made a shader's stages, sets and pipelines from, and where the store holds another
+under the id they let those go as they do an unloaded shader's and make them again at its next draw,
+as the tonemap's custom shader already did. UnloadShader forgets the file. A test draws a rectangle
+with a shader of the flat API's and a cube with a shader of the model pass's, saves both another
+color and reads the frames after in the new one, then saves one that does not compile and reads the
+color kept, its waits on N 3.3's list.

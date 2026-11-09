@@ -81,6 +81,10 @@ internal sealed partial class ModelRenderer
         return made;
     }
 
+    // The program each shader's modules were made from, which a shader loaded again replaces
+    // under the same id.
+    private readonly Dictionary<int, ShaderProgram> _customFrom = [];
+
     // A material's own shader's stages, whether it reads a mesh's colors and second texture
     // coordinates, a vertex stage of its own that takes an input past the mesh's vertex and its
     // instance, or a fragment stage that takes ModelStreamsOutput, which then draws with
@@ -89,6 +93,7 @@ internal sealed partial class ModelRenderer
     private (IShader Vertex, IShader Fragment, bool ReadsStreams, ShaderInput? Custom0) CustomModules(IGraphicsDevice gfx, int id, ShaderProgram program)
     {
         if (_custom.TryGetValue(id, out var modules)) return modules;
+        _customFrom[id] = program;
         var own = program.Stages.TryGetValue(ShaderStage.Vertex, out var vertex);
         var reads = own
             ? program.VertexInputs.Count > 0
@@ -103,14 +108,16 @@ internal sealed partial class ModelRenderer
             custom0);
     }
 
-    // Frees what was made for shaders the program has unloaded. Their pipelines belong to the
+    // Frees what was made for shaders the program has unloaded, or loaded again into the same id
+    // from another program, which the next draw makes again. Their pipelines belong to the
     // PipelineCache, and a pipeline does not need its modules once it is made, so those the cache's
     // workers make are waited for first.
     private void RetireUnloadedShaders(ShaderStore? store, RenderWorld renderWorld)
     {
         if (_custom.Count == 0) return;
-        foreach (var id in _custom.Keys.Where(id => store?.Get(id) is null).ToArray())
+        foreach (var id in _custom.Keys.Where(id => store?.Get(id) is not { } now || !ReferenceEquals(now, _customFrom.GetValueOrDefault(id))).ToArray())
         {
+            _customFrom.Remove(id);
             renderWorld.TryGet<PipelineCache>()?.WaitForMaking();
             _custom[id].Vertex.Dispose();
             _custom[id].Fragment.Dispose();

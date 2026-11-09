@@ -43,14 +43,37 @@ internal sealed class ShaderStore
     /// <exception cref="ArgumentException">The program has neither a fragment stage to draw with nor a compute stage to dispatch.</exception>
     public int Add(ShaderProgram program)
     {
-        if (!program.Stages.ContainsKey(ShaderStage.Fragment) && !program.Stages.ContainsKey(ShaderStage.Compute))
-            throw new ArgumentException($"'{program.Name}' has no fragment stage, which a shader for the immediate pass needs, and no compute stage.", nameof(program));
+        Check(program);
         lock (_gate)
         {
             var id = _next++;
             _live[id] = program;
             return id;
         }
+    }
+
+    /// <summary>
+    /// Puts <paramref name="program"/> in place of the one id <paramref name="id"/> holds, as a
+    /// shader loaded again does, each pass making what it draws the shader with again once it sees
+    /// another program under the id.
+    /// </summary>
+    /// <returns>Whether the id held a shader.</returns>
+    /// <exception cref="ArgumentException">The program has neither a fragment stage to draw with nor a compute stage to dispatch.</exception>
+    public bool Replace(int id, ShaderProgram program)
+    {
+        Check(program);
+        lock (_gate)
+        {
+            if (!_live.ContainsKey(id)) return false;
+            _live[id] = program;
+            return true;
+        }
+    }
+
+    private static void Check(ShaderProgram program)
+    {
+        if (!program.Stages.ContainsKey(ShaderStage.Fragment) && !program.Stages.ContainsKey(ShaderStage.Compute))
+            throw new ArgumentException($"'{program.Name}' has no fragment stage, which a shader for the immediate pass needs, and no compute stage.", nameof(program));
     }
 
     /// <summary>The program with id <paramref name="id"/>, or <c>null</c>.</summary>
