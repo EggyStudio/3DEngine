@@ -46,7 +46,7 @@ public sealed class AnimationStateMachine
     /// <exception cref="FileNotFoundException">There is no such file.</exception>
     /// <exception cref="InvalidDataException">The file is not a machine this code reads.</exception>
     public static AnimationStateMachine Load(string fileName) =>
-        Read(E3D.ResolveFile(fileName) is { } path ? File.ReadAllText(path)
+        Read(ProgramFiles.Resolve(fileName) is { } path ? File.ReadAllText(path)
             : throw new FileNotFoundException($"The animation state machine '{fileName}' was not found in the working directory, beside the program or under source/ beside it.", fileName));
 
     /// <summary>

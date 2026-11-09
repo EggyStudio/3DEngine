@@ -7114,3 +7114,15 @@ named from Api, to Graphics, and ConfigFlags to Core's config. Core and the ECS 
 above them, and the public listing is unchanged. Their documentation's links to E3D, as the enums'
 to the functions that take them, point up once each lies in a project below Api, so the split writes
 those as code where a project does not reference Api, a step it keeps.
+
+225's third cut written on 2026-11-09, Assets and Scenes apart. The scene model, Scene, SceneNode,
+the payloads, the codecs, the readers' context and the data assets, 27 files, moves into Assets
+beside the readers that make it, and the loading extension that spawns a model, which named the
+spawner, moves to Scenes, which keeps the spawner, the saves, the packs and the hot reload on
+Assets. LightKind goes with the payloads, Color moves to Core, and the file lookup the data assets
+and the animation machine reached through E3D moves to Core as ProgramFiles. The components a scene
+file carries, the camera, the mesh, the material and the animation ones, which Assets and the
+components named both ways, join Assets, and the render-side mirrors, CameraUniform and
+ExtractedView, go to Rendering's extracts. ModelAnimation and BoneInfo, which the model readers
+make, move from Api to Assets' animation. Assets then names Core, the ECS and the behaviors alone,
+and Rendering names Scenes nowhere, so Scenes stands above it.

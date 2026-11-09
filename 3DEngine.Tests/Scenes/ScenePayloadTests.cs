@@ -6,7 +6,7 @@ namespace Engine.Tests.Scenes;
 
 /// <summary>
 /// Pure-managed tests for the backend-agnostic payload types under
-/// <c>3DEngine/Scenes/Payloads/</c>. These pin the payload contracts (defaults, required
+/// <c>3DEngine/Assets/Scenes/Payloads/</c>. These pin the payload contracts (defaults, required
 /// fields, derived helpers) without loading any file.
 /// </summary>
 [Trait("Category", "Unit")]

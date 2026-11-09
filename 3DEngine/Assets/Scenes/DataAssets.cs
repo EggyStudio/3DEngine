@@ -165,7 +165,7 @@ public static class DataAssets
         lock (Gate)
         {
             Asked++;
-            var found = E3D.ResolveFile(fileName) is { } file ? Path.GetFullPath(file) : null;
+            var found = ProgramFiles.Resolve(fileName) is { } file ? Path.GetFullPath(file) : null;
             if (found is not null && Ids.TryGetValue(found, out var known) && Values.TryGetValue((known, typeof(T)), out var shared))
                 return new DataRef<T>((Held<T>)shared);
             if (found is null || !TryRead(kind, found, null, null, out var held))
