@@ -134,7 +134,7 @@ internal sealed class SceneExportSettings
 /// without naming a reader.
 /// </summary>
 /// <remarks>
-/// Inserted into the <see cref="World"/> by <see cref="ScenesPlugin"/>. A plugin with a
+/// Inserted into the <see cref="World"/> by <c>ScenesPlugin</c>. A plugin with a
 /// reader or writer, as <see cref="AssimpModelPlugin"/> has, calls <see cref="RegisterReader"/> or
 /// <see cref="RegisterWriter"/> during <see cref="IPlugin.Build"/>.
 /// </remarks>

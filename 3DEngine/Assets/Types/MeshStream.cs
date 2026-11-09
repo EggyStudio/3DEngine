@@ -12,9 +12,9 @@ namespace Engine;
 /// It is for what a vertex holds that the mesh's own streams do not say, such as a voxel's face and
 /// texture packed into four bytes and unpacked in the shader, a blend weight or a wind phase. The stage declares the
 /// input by its semantic, as <c>uint packed : CUSTOM0</c>, and the model pass places it where Slang
-/// put it. A mesh carries one stream, given to <see cref="E3D.UploadMesh(ModelVertex[], uint[], Color[], System.Numerics.Vector2[], MeshStream)"/>
-/// and written in place by <see cref="E3D.UpdateMeshBuffer{T}"/> at
-/// <see cref="E3D.MeshStreamBuffer"/>, which never uploads the mesh again.
+/// put it. A mesh carries one stream, given to <c>E3D.UploadMesh(ModelVertex[], uint[], Color[], System.Numerics.Vector2[], MeshStream)</c>
+/// and written in place by <c>E3D.UpdateMeshBuffer&lt;T&gt;</c> at
+/// <c>E3D.MeshStreamBuffer</c>, which never uploads the mesh again.
 /// </para>
 /// <para>
 /// Bytes packed for the shader are a <see cref="MeshStreamFormat.UInt"/> and not a float, because

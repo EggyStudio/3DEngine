@@ -76,8 +76,8 @@ public sealed partial class EcsWorld
     // How many observers of any component's Loaded the world has, which a scene read reads first.
     private int _loadObservers;
 
-    /// <summary>Whether anything observes a component loaded with a scene, or the scene's load itself, which a read with none skips.</summary>
-    internal bool WatchesLoads => Volatile.Read(ref _loadObservers) > 0 || Watches<SceneLoaded>();
+    /// <summary>Whether anything observes a component loaded with a scene, which a read with none, and none of the scene's load itself, skips.</summary>
+    internal bool WatchesComponentLoads => Volatile.Read(ref _loadObservers) > 0;
 
     /// <summary>Whether any observer watches every <typeparamref name="TEvent"/>.</summary>
     internal bool Watches<TEvent>() => _observers?.Watches(typeof(TEvent)) ?? false;

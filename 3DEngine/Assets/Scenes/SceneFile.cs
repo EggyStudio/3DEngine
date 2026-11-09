@@ -34,8 +34,8 @@ internal struct SceneKept
 /// <remarks>
 /// <para>
 /// A level, as a game keeps one. Entities spawned from a model file or another scene file (those
-/// with a <see cref="SceneInstance"/>) are not saved, since the <see cref="ModelRef"/> or
-/// <see cref="SceneRef"/> that spawned them brings them back, and neither are components no codec is registered for. An entity is given a
+/// with a <see cref="SceneInstance"/>) are not saved, since the <c>ModelRef</c> or
+/// <c>SceneRef</c> that spawned them brings them back, and neither are components no codec is registered for. An entity is given a
 /// <see cref="SceneId"/> when it is first saved, which other entities' fields and parents refer to
 /// it by, and which survives a rename.
 /// </para>
@@ -43,7 +43,7 @@ internal struct SceneKept
 /// Loading spawns every entity first and reads components after, so a field may refer to an
 /// entity later in the file. A component the running program has no codec for is skipped with a
 /// warning, so a file outlives a component type being removed. A component saved at an earlier
-/// version of its type's <see cref="DataVersionAttribute"/> is moved forward as it is read, and one
+/// version of its type's <c>DataVersionAttribute</c> is moved forward as it is read, and one
 /// saved at a later version is read as far as this build knows it and saved back as that version
 /// with every value it held. Once the whole file is in, each component's <see cref="Loaded{T}"/> is
 /// told on each entity it spawned, and then the file's <see cref="SceneLoaded"/>, where anything
@@ -248,7 +248,7 @@ public static partial class SceneFile
     internal static void TellLoaded(EcsWorld ecs, List<int> spawned, string path)
     {
         // A world with no observer of a load reads a count and asks the observers no more.
-        if (!ecs.WatchesLoads) return;
+        if (!ecs.WatchesComponentLoads && !ecs.Watches<SceneLoaded>()) return;
         var watched = SceneComponents.All.OfType<ITellsLoaded>().Where(codec => codec.Watched(ecs)).ToArray();
         if (watched.Length > 0)
             foreach (var entity in spawned)

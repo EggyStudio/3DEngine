@@ -1,6 +1,6 @@
 namespace Engine;
 
-/// <summary>How the exposure that follows the scene weighs the picture it measures (<see cref="E3D.SetAutoExposureMetering"/>).</summary>
+/// <summary>How the exposure that follows the scene weighs the picture it measures (<c>E3D.SetAutoExposureMetering</c>).</summary>
 public enum ExposureMetering
 {
     /// <summary>The whole picture, its middle counting four times as much as its edges, the default.</summary>

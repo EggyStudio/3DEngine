@@ -12,15 +12,14 @@ namespace Engine;
 /// is refused (see <see cref="AssimpModelLoader"/>).
 /// </para>
 /// <para>
-/// <b>Order:</b> add <i>after</i> <see cref="ScenesPlugin"/> and <see cref="AssetPlugin"/>;
-/// <see cref="DefaultPlugins"/> adds this. Standalone consumers can opt in:
+/// <b>Order:</b> add <i>after</i> <c>ScenesPlugin</c> and <see cref="AssetPlugin"/>;
+/// <c>DefaultPlugins</c> adds this. Standalone consumers can opt in:
 /// <code>
 /// app.AddPlugin(new ScenesPlugin())
 ///    .AddPlugin(new ModelsPlugin());
 /// </code>
 /// </para>
 /// </remarks>
-/// <seealso cref="ScenesPlugin"/>
 /// <seealso cref="AssimpModelPlugin"/>
 internal sealed class ModelsPlugin : IPlugin
 {

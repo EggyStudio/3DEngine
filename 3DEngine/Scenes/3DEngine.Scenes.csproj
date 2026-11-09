@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <AssemblyName>3DEngine.Scenes</AssemblyName>
+        <PackageId>3DEngine.Scenes</PackageId>
+        <Title>3DEngine.Scenes</Title>
+        <Description>The spawner that turns a scene into entities, and the scene packs.</Description>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\Core\3DEngine.Core.csproj" />
+        <ProjectReference Include="..\Assets\3DEngine.Assets.csproj" />
+        <ProjectReference Include="..\Rendering\3DEngine.Rendering.csproj" />
+    </ItemGroup>
+
+</Project>

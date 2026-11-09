@@ -4,7 +4,7 @@ namespace Engine;
 /// A reference to a data file holding a <typeparamref name="T"/>, by the id the file was given at
 /// its first save, which a rename or a move of the file keeps.
 /// </summary>
-/// <typeparam name="T">What the file holds, a <see cref="DataAssetAttribute"/> type or an <see cref="AnimationStateMachine"/>.</typeparam>
+/// <typeparam name="T">What the file holds, a <c>DataAssetAttribute</c> type or an <see cref="AnimationStateMachine"/>.</typeparam>
 /// <remarks>
 /// <para>
 /// A component holds one as a field, which a scene file writes as the id and resolves as it loads,

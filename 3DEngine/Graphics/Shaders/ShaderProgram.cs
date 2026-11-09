@@ -6,7 +6,6 @@ namespace Engine;
 /// apart in what they pass between them. Each stage's SPIR-V names its entry point <c>main</c>,
 /// whatever the function is called in the source.
 /// </remarks>
-/// <seealso cref="SlangLoader"/>
 internal sealed class ShaderProgram
 {
     /// <summary>Creates a program from compiled stages.</summary>

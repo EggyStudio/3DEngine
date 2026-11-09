@@ -3,8 +3,8 @@ using System.Numerics;
 namespace Engine;
 
 /// <summary>
-/// A clip of a model file, sampled into poses of every bone at <see cref="E3D.AnimationFps"/>
-/// frames a second, played on a model with <see cref="E3D.UpdateModelAnimation"/>.
+/// A clip of a model file, sampled into poses of every bone at <c>E3D.AnimationFps</c>
+/// frames a second, played on a model with <c>E3D.UpdateModelAnimation</c>.
 /// </summary>
 /// <remarks>
 /// The fields are raylib's. <see cref="KeyframePoses"/> holds each keyframe's bones in the model's

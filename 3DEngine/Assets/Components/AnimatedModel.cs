@@ -9,7 +9,7 @@ namespace Engine;
 /// <para>
 /// Each entity loads a copy of the model of its own, so entities showing the same file are posed
 /// apart, and lets it go when the component or the entity goes. It is drawn through the first
-/// entity with a <see cref="Camera"/>, as mesh entities are, by <see cref="AnimatedModelDraws"/>,
+/// entity with a <see cref="Camera"/>, as mesh entities are, by <c>AnimatedModelDraws</c>,
 /// which advances <see cref="Time"/> by <see cref="Speed"/> each frame.
 /// </para>
 /// <para>
@@ -20,9 +20,9 @@ namespace Engine;
 /// </para>
 /// <para>
 /// The model's meshes are the entity's in the world as the clip last posed them, so a
-/// <see cref="Collider.Mesh"/> or <see cref="Collider.ConvexHull"/> beside a
-/// <see cref="RigidBody"/> shapes a body from them once the file has loaded, and the body keeps
-/// that shape until the entity's <see cref="PhysicsBody"/> is removed and it is made again.
+/// <c>Collider.Mesh</c> or <c>Collider.ConvexHull</c> beside a
+/// <c>RigidBody</c> shapes a body from them once the file has loaded, and the body keeps
+/// that shape until the entity's <c>PhysicsBody</c> is removed and it is made again.
 /// </para>
 /// </remarks>
 [SceneComponent]

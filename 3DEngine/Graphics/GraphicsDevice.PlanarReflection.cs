@@ -5,7 +5,7 @@ namespace Engine;
 /// <summary>
 /// The scene as the window's camera mirrored in the plane a program set sees it, drawn at half the
 /// window's size in linear light and kept with its mips, which a surface lying in the plane reflects
-/// (<see cref="E3D.SetReflectionPlane"/>).
+/// (<c>E3D.SetReflectionPlane</c>).
 /// </summary>
 internal sealed class GpuPlanarReflection : IDisposable
 {

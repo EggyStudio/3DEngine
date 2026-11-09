@@ -11,7 +11,7 @@ public static class SceneJson
 {
     /// <summary>
     /// The key a component's object holds the version of its layout under, written where its
-    /// <see cref="DataVersionAttribute"/> is past 1.
+    /// <c>DataVersionAttribute</c> is past 1.
     /// </summary>
     public const string VersionName = "$version";
 

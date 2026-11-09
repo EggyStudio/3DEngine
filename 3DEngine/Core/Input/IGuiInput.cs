@@ -1,17 +1,21 @@
 namespace Engine;
 
 /// <summary>
-/// The immediate-mode GUI's side of input the program makes itself, as the console's, so the GUI's
-/// windows see a key, the pointer, a button, typed text and the wheel as they see the window's own.
+/// The immediate-mode GUI's side of input, for the code below the GUI, whether it holds the pointer
+/// and the input the program makes itself, as the console's, so the GUI's windows see a key, the
+/// pointer, a button, typed text and the wheel as they see the window's own.
 /// </summary>
 /// <remarks>
-/// The GUI's plugin sets <see cref="Current"/>, which input made where no GUI was ever built leaves
-/// at null, and each call does nothing while the GUI has no context.
+/// The GUI's plugin sets <see cref="Current"/>, which a program where no GUI was ever built leaves
+/// at null, and each member answers no and does nothing while the GUI has no context.
 /// </remarks>
 internal interface IGuiInput
 {
     /// <summary>The GUI that input the program makes reaches, or null where none was built.</summary>
     static IGuiInput? Current { get; set; }
+
+    /// <summary>Whether the pointer is the GUI's, as over one of its windows, and over nothing of the scene.</summary>
+    bool HasPointer { get; }
 
     /// <summary>A key pressed or let go.</summary>
     void Key(Key key, bool down);

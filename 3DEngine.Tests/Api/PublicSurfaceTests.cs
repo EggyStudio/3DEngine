@@ -3,22 +3,35 @@ using FluentAssertions;
 namespace Engine.Tests.Api;
 
 /// <summary>
-/// The engine's public surface against <c>3DEngine/PublicApi.txt</c>, the listing checked in beside
-/// it, so a commit that adds, removes or reshapes anything a game can call changes that file too and
-/// is read as such a change.
+/// Each engine project's public surface against the <c>PublicApi.txt</c> checked in beside its
+/// project file, the flat API's at <c>3DEngine/PublicApi.txt</c>, so a commit that adds, removes or
+/// reshapes anything a game can call changes that file too and is read as such a change.
 /// </summary>
 /// <remarks>
-/// <c>build/api.sh</c> writes the listing again from the built assembly, through this test with
-/// <c>ENGINE_WRITE_API</c> set, once a change to the surface is meant.
+/// <c>build/api.sh</c> writes the listings again from the built assemblies, through this test with
+/// <c>ENGINE_WRITE_API</c> set, once a change to a surface is meant.
 /// </remarks>
 [Trait("Category", "Unit")]
 public sealed class PublicSurfaceTests
 {
-    private static string Listing() => Path.Combine(CheatsheetTests.RepoRoot(), "3DEngine", "PublicApi.txt");
+    /// <summary>The name of each engine assembly, for the listing of each.</summary>
+    public static TheoryData<string> Projects() => [.. EngineAssemblies.Names];
 
-    [Fact]
-    public void The_Public_Surface_Is_The_Listing_Checked_In() =>
-        IsTheListing(PublicSurface.Write(typeof(E3D).Assembly), Listing(), "the public surface");
+    [Theory]
+    [MemberData(nameof(Projects))]
+    public void The_Public_Surface_Is_The_Listing_Checked_In(string assembly) =>
+        IsTheListing(PublicSurface.Write(TestEngine.Assemblies.Single(a => a.GetName().Name == assembly)), ListingOf(assembly), $"{assembly}'s public surface");
+
+    // The listing beside the project file whose AssemblyName is the one given.
+    internal static string ListingOf(string assembly)
+    {
+        var engine = Path.Combine(CheatsheetTests.RepoRoot(), "3DEngine");
+        foreach (var project in Directory.EnumerateFiles(engine, "*.csproj", SearchOption.AllDirectories))
+            if (System.Text.RegularExpressions.Regex.Match(File.ReadAllText(project), "<AssemblyName>([^<]+)</AssemblyName>") is { Success: true } name
+                && name.Groups[1].Value == assembly)
+                return Path.Combine(Path.GetDirectoryName(project)!, "PublicApi.txt");
+        throw new InvalidOperationException($"No project file under 3DEngine names the assembly {assembly}.");
+    }
 
     // A surface written from the built assembly against the listing checked in at the path given,
     // which the listing becomes where ENGINE_WRITE_API is set.

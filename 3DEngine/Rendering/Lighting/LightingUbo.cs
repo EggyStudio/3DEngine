@@ -124,20 +124,20 @@ internal struct LightingUbo
 
     /// <summary>
     /// rgb: what the environment map's light on the scene is multiplied by, the share and the tint
-    /// <see cref="E3D.SetEnvironmentLight"/> set, linear, apart from the sky the map draws.
+    /// <c>E3D.SetEnvironmentLight</c> set, linear, apart from the sky the map draws.
     /// </summary>
     public Vector4 EnvironmentLight;
 
     /// <summary>
     /// x: how wide the sun's shadow's edge spreads per unit of a caster's height over the point it
-    /// shades, twice the tangent of half the sun's width across (<see cref="E3D.SetShadowSoftness"/>),
+    /// shades, twice the tangent of half the sun's width across (<c>E3D.SetShadowSoftness</c>),
     /// 0 for an edge as sharp everywhere.
     /// </summary>
     public Vector4 ShadowSoftness;
 
     /// <summary>
     /// The plane the window's glossy surfaces lying in it mirror the scene in
-    /// (<see cref="E3D.SetReflectionPlane"/>), its normal in xyz and how far along it the plane lies in w.
+    /// (<c>E3D.SetReflectionPlane</c>), its normal in xyz and how far along it the plane lies in w.
     /// </summary>
     public Vector4 MirrorPlane;
 

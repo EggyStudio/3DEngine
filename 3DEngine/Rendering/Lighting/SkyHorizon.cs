@@ -1,9 +1,9 @@
 namespace Engine;
 
 /// <summary>
-/// The color the sky <see cref="E3D.DrawSkybox()"/> draws below the horizon, and the degrees above
+/// The color the sky <c>E3D.DrawSkybox()</c> draws below the horizon, and the degrees above
 /// it over which the map's image blends into it, a world resource which
-/// <see cref="E3D.SetSkyHorizon"/> sets and a clear color takes away.
+/// <c>E3D.SetSkyHorizon</c> sets and a clear color takes away.
 /// </summary>
 /// <remarks>
 /// A resource of its own rather than the map's, as <see cref="EnvironmentLight"/> is, so the horizon

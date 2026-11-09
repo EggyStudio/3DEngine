@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 # Builds the engine in Release, compiles its shaders into a cache with `e3d shaders`, and packs
-# the library, the shaders and that cache into build/package, with the `dotnet new` templates
-# beside it. A game built from the package then loads the built-in shaders with no slangc of its
-# own.
+# the library, its areas, the shaders and that cache into build/package, with the `dotnet new`
+# templates beside it. A game built from the package then loads the built-in shaders with no
+# slangc of its own.
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
@@ -25,7 +25,11 @@ fi
 if [ ! -s "$notes" ]; then
   echo "No commits since the package before $version." > "$notes"
 fi
-dotnet pack 3DEngine/3DEngine.csproj -c Release --no-build -o build/package -p:Version="$version" -p:ReleaseNotesFile="$notes"
+# The engine's package, the flat API's, and a package for each area it depends on, all of the one
+# version, so a game's one reference to 3DEngine brings every area at that version.
+for project in 3DEngine/3DEngine.csproj $(find 3DEngine -mindepth 2 -name '*.csproj' -not -path '*/obj/*' | sort); do
+  dotnet pack "$project" -c Release --no-build -o build/package -p:Version="$version" -p:ReleaseNotesFile="$notes"
+done
 # The templates, of the same version, from a copy with that version written in as the one a new
 # project asks for, so a project made from them builds against the engine packed with them.
 rm -rf build/templates
@@ -37,4 +41,4 @@ for template in build/templates/content/*/.template.config/template.json; do
   mv "$template.packed" "$template"
 done
 dotnet pack build/templates/3DEngine.Templates.csproj -c Release -o build/package -p:Version="$version"
-echo "packed 3DEngine and 3DEngine.Templates $version into build/package, with $(wc -l < "$notes") lines of release notes"
+echo "packed 3DEngine, its areas and 3DEngine.Templates $version into build/package, with $(wc -l < "$notes") lines of release notes"

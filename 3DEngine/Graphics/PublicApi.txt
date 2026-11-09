@@ -1,0 +1,64 @@
+enum Engine.BlendMode : int
+  AddColors = 3
+  Additive = 1
+  Alpha = 0
+  AlphaPremultiply = 5
+  Custom = 6
+  CustomSeparate = 7
+  Multiplied = 2
+  SubtractColors = 4
+readonly struct Engine.ModelVertex : IEquatable<ModelVertex>
+  ModelVertex(Vector3 Position, Vector3 Normal, Vector2 Uv)
+  Vector2 Uv { get; init; }
+  Vector3 Normal { get; init; }
+  Vector3 Position { get; init; }
+  bool Equals(ModelVertex other)
+  override bool Equals(object obj)
+  override int GetHashCode()
+  override string ToString()
+  static bool op_Equality(ModelVertex left, ModelVertex right)
+  static bool op_Inequality(ModelVertex left, ModelVertex right)
+  void Deconstruct(out Vector3 Position, out Vector3 Normal, out Vector2 Uv)
+enum Engine.PixelFormat : int
+  CompressedAstc4x4Rgba = 23
+  CompressedAstc8x8Rgba = 24
+  CompressedDxt1Rgb = 14
+  CompressedDxt1Rgba = 15
+  CompressedDxt3Rgba = 16
+  CompressedDxt5Rgba = 17
+  CompressedEtc1Rgb = 18
+  CompressedEtc2EacRgba = 20
+  CompressedEtc2Rgb = 19
+  CompressedPvrtRgb = 21
+  CompressedPvrtRgba = 22
+  UncompressedGrayAlpha = 2
+  UncompressedGrayscale = 1
+  UncompressedR16 = 11
+  UncompressedR16G16B16 = 12
+  UncompressedR16G16B16A16 = 13
+  UncompressedR32 = 8
+  UncompressedR32G32B32 = 9
+  UncompressedR32G32B32A32 = 10
+  UncompressedR4G4B4A4 = 6
+  UncompressedR5G5B5A1 = 5
+  UncompressedR5G6B5 = 3
+  UncompressedR8G8B8 = 4
+  UncompressedR8G8B8A8 = 7
+enum Engine.RlBlendEquation : int
+  FuncAdd = 32774
+  FuncReverseSubtract = 32779
+  FuncSubtract = 32778
+  Max = 32776
+  Min = 32775
+enum Engine.RlBlendFactor : int
+  DstAlpha = 772
+  DstColor = 774
+  One = 1
+  OneMinusDstAlpha = 773
+  OneMinusDstColor = 775
+  OneMinusSrcAlpha = 771
+  OneMinusSrcColor = 769
+  SrcAlpha = 770
+  SrcAlphaSaturate = 776
+  SrcColor = 768
+  Zero = 0

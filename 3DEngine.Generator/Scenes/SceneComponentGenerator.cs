@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 using System.Text;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -25,7 +26,8 @@ namespace Engine;
 /// A type's <c>[DataVersion]</c> past 1 is written under <c>"$version"</c>, and an object of an
 /// earlier version is passed through the type's static <c>Migrate</c>, once with the version it
 /// holds, before its fields are read. A versioned type without one is warned of (E3D200) and read
-/// as the file has it.
+/// as the file has it. An assembly's <c>[assembly: SceneComponentOf(typeof(T))]</c> registers a
+/// component declared in an assembly below the registry's, which cannot name the registry itself.
 /// </remarks>
 [Generator(LanguageNames.CSharp)]
 internal sealed class SceneComponentGenerator : IIncrementalGenerator
@@ -35,9 +37,10 @@ internal sealed class SceneComponentGenerator : IIncrementalGenerator
     private const string FormerName = "Engine.FormerNameAttribute";
     private const string DataVersion = "Engine.DataVersionAttribute";
     private const string DataAsset = "Engine.DataAssetAttribute";
+    private const string SceneComponentOf = "Engine.SceneComponentOfAttribute";
 
     /// <summary>Every attribute this generator reads, by full name.</summary>
-    public static IReadOnlyList<string> Attributes { get; } = [SceneComponent, Behavior, FormerName, DataVersion, DataAsset];
+    public static IReadOnlyList<string> Attributes { get; } = [SceneComponent, Behavior, FormerName, DataVersion, DataAsset, SceneComponentOf];
 
     private static readonly DiagnosticDescriptor NoMigration = new(
         "E3D200",
@@ -69,10 +72,20 @@ internal sealed class SceneComponentGenerator : IIncrementalGenerator
             .Where(static m => m is not null)
             .Collect();
 
-        context.RegisterSourceOutput(marked.Combine(behaviors).Combine(data), static (spc, all) =>
+        // A component declared below the scene model, as the ECS's Transform, which the assembly
+        // that holds the registry names in an attribute of its own, since the component's
+        // assembly cannot name the registry.
+        var named = context.CompilationProvider
+            .Select(static (compilation, _) => compilation.Assembly.GetAttributes()
+                .Where(a => a.AttributeClass?.ToDisplayString() == SceneComponentOf && a.ConstructorArguments.Length == 1)
+                .Select(a => Model(a.ConstructorArguments[0].Value as INamedTypeSymbol))
+                .Where(m => m is not null)
+                .ToImmutableArray());
+
+        context.RegisterSourceOutput(marked.Combine(behaviors).Combine(data).Combine(named), static (spc, all) =>
         {
             // A type marked both as a component and as a data asset is registered as each.
-            var models = all.Left.Left.Concat(all.Left.Right).Concat(all.Right)
+            var models = all.Left.Left.Left.Concat(all.Left.Left.Right).Concat(all.Left.Right).Concat(all.Right)
                 .Where(m => m is not null)
                 .GroupBy(m => m!.Type)
                 .Select(g => g.First()! with { Component = g.Any(m => m!.Component), Data = g.Any(m => m!.Data) })

@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <AssemblyName>3DEngine.CliServer</AssemblyName>
+        <PackageId>3DEngine.CliServer</PackageId>
+        <Title>3DEngine.CliServer</Title>
+        <Description>The server side of the e3d client, its socket, request queue and session files.</Description>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\Core\3DEngine.Core.csproj" />
+        <ProjectReference Include="..\Diagnostics\3DEngine.Diagnostics.csproj" />
+    </ItemGroup>
+
+</Project>

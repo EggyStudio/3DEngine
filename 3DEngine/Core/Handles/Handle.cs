@@ -9,8 +9,8 @@ namespace Engine;
 /// <typeparam name="T">The asset type this handle points to.</typeparam>
 /// <remarks>
 /// <para>
-/// Handles are returned immediately by <see cref="AssetServer.Load{T}(string)"/> before the asset
-/// finishes loading. The actual asset data becomes available in <see cref="Assets{T}"/> once the
+/// Handles are returned immediately by <c>AssetServer.Load&lt;T&gt;(string)</c> before the asset
+/// finishes loading. The actual asset data becomes available in <c>Assets&lt;T&gt;</c> once the
 /// background load completes (typically the next frame).
 /// </para>
 /// <para>
@@ -30,8 +30,6 @@ namespace Engine;
 /// </code>
 /// </example>
 /// <seealso cref="AssetId"/>
-/// <seealso cref="Assets{T}"/>
-/// <seealso cref="AssetServer"/>
 public readonly struct Handle<T> : IEquatable<Handle<T>>
 {
     /// <summary>The unique asset identifier this handle refers to.</summary>
@@ -83,7 +81,7 @@ public readonly struct Handle<T> : IEquatable<Handle<T>>
 }
 
 /// <summary>
-/// Type-erased handle used internally by the <see cref="AssetServer"/> for tracking loads
+/// Type-erased handle used internally by the <c>AssetServer</c> for tracking loads
 /// across different asset types.
 /// </summary>
 /// <seealso cref="Handle{T}"/>

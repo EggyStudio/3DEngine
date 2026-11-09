@@ -6,7 +6,7 @@ namespace Engine;
 // their triangles joined back into faces.
 internal sealed partial class EditMeshData
 {
-    /// <summary>Adds the meshes of a model file, read as <see cref="E3D.LoadModel"/> reads it, as faces of this mesh, and selects them.</summary>
+    /// <summary>Adds the meshes of a model file, read as <c>E3D.LoadModel</c> reads it, as faces of this mesh, and selects them.</summary>
     /// <remarks>
     /// <para>
     /// A file's meshes are placed as its nodes place them, as a loaded model's are. Their vertices

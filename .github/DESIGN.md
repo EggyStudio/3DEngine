@@ -13,8 +13,9 @@ ImGui for interfaces and Slang for shaders. It runs on Linux, Windows and macOS 
 
 ## What exists
 
-- **One project.** The engine is `3DEngine/`, compiled into `3DEngine.dll` under the `Engine`
-  namespace, with the source generator as a separate analyzer assembly.
+- **Projects in layers.** The engine is the projects under `3DEngine/`, the flat API's
+  `3DEngine.dll` over an assembly for each area, every one under the `Engine` namespace, with the
+  source generator as a separate analyzer assembly.
 - **A sparse-set ECS** (`EcsWorld`) with deferred commands, change ticks and queries over up to three
   components, and a resource map (`World`) beside it.
 - **A staged schedule** (`Startup`, `First`, `PreUpdate`, `FixedUpdate`, `Update`, `PostUpdate`,
@@ -261,14 +262,29 @@ audio middleware and an editor are left out. Each brings more surface than the e
 for, and each was tried in an earlier revision of this repository and kept on the `legacy-modules`
 branch.
 
-## 9. One project
+## 9. Projects in layers
 
-The engine is one project, `3DEngine/`, with a folder per area (`Core`, `Ecs`, `Behaviors`,
-`Components`, `Platform`, `Graphics`, `Rendering`, `Gui`, `Assets`, `Scenes`, `Physics`, and `Api`
-for the flat functions). Beside it are the generator, the tests and the examples. A folder is a
-namespace's worth of code, and the engine's own code lies in no module repository, so a change
-that touches the ECS and the renderer is one commit. The modules of §8 hold only what this engine
-and BevyCSharp share, and a change one of them takes is committed in its repository first.
+The engine is a project for each area under `3DEngine/`, each with its own public surface and
+packed as its own package at the engine's one version, in layers where a project references only
+those of the layers below it:
+
+| layer | projects |
+|---|---|
+| 6 | `3DEngine`, the flat functions (`Api`), over every area |
+| 5 | `3DEngine.Scenes`, `3DEngine.Modeling`, `3DEngine.Gui` |
+| 4 | `3DEngine.Audio` (`Platform/Audio`), `3DEngine.Rendering`, `3DEngine.Physics` |
+| 3 | `3DEngine.Platform`, `3DEngine.Assets`, `3DEngine.CliServer` (`Cli`) |
+| 2 | `3DEngine.Diagnostics`, `3DEngine.Graphics` |
+| 1 | `3DEngine.Core`, with the folders `Ecs` and `Behaviors` beside its own |
+
+Each sits in the lowest layer its references allow, and the norm test of the layers fails a
+reference sideways or up (NORM.md, N 1.6). A game references the package `3DEngine` alone, which
+brings each area's package at its version. Every public type keeps the namespace `Engine`, which
+§11 promises, so no program sees which project holds a type, and the internals one project reaches
+in another's go through `InternalsVisibleTo` among the engine's projects. Beside the projects are
+the generator, the tests and the examples. The engine's own code lies in no module repository, so a
+change that touches the ECS and the renderer is one commit. The modules of §8 hold only what this
+engine and BevyCSharp share, and a change one of them takes is committed in its repository first.
 
 ## 10. The cheatsheet
 
@@ -284,9 +300,9 @@ give, the ECS's components, resources and attributes a behavior names, the scene
 level or a loader is built from, and what the code the generators write into a game calls. The
 renderer, the device, the platform's backends, the loaders and the plugins inside `DefaultPlugins`
 are the engine's own and internal, since each public type is a promise a game may come to rely on
-from 5.0 on. `3DEngine/PublicApi.txt` lists what is public, the tests and the `e3d` client see the
-rest through `InternalsVisibleTo`, and a type made public again is a change to that file read as
-one.
+from 5.0 on. Each project's `PublicApi.txt`, beside its project file, lists what of it is public,
+the tests and the `e3d` client see the rest through `InternalsVisibleTo`, and a type made public
+again is a change to one of those files read as one.
 
 Where two public names are near, the name says which is which. A type beginning `Physics` names a
 handle the physics world gives or takes, or a result of it (`PhysicsBody`, `PhysicsJoint`,

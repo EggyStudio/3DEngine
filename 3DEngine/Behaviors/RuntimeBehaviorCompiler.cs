@@ -17,7 +17,7 @@ namespace Engine;
 /// <para>
 /// At compile time the <c>BehaviorGenerator</c> incremental generator (<c>3DEngine.Generator</c>) is
 /// consumed as an analyzer, and the <em>same</em> generator type is also compiled into
-/// <c>3DEngine.dll</c> (the engine csproj's <c>3DEngine.Generator\Behaviors</c> Compile glob), so
+/// <c>3DEngine.Core.dll</c> (its project's <c>3DEngine.Generator\Behaviors</c> Compile glob), so
 /// this compiler can attach it via
 /// <see cref="CSharpGeneratorDriver"/> and produce the same <c>BehaviorsRegistration.g.cs</c>
 /// + per-behavior system files for hot-loaded scripts.
@@ -65,11 +65,12 @@ internal sealed class RuntimeBehaviorCompiler : RuntimeAssemblyCompiler<Behavior
         _app = app ?? throw new ArgumentNullException(nameof(app));
         SourceTag = sourceTag;
 
-        // Engine assembly carries App, EcsWorld, BehaviorAttribute, and the BehaviorGenerator type itself.
-        AddReference(typeof(App).Assembly);
+        // The engine's assemblies, Core's with App, EcsWorld and BehaviorAttribute and each area's,
+        // so a script names what a behavior compiled with the game names.
+        foreach (var assembly in EngineAssemblies.Loaded()) AddReference(assembly);
         // The program's own, so a script reads and writes the components and resources the game
         // declares, as a behavior compiled with the game does.
-        if (System.Reflection.Assembly.GetEntryAssembly() is { } program && program != typeof(App).Assembly)
+        if (System.Reflection.Assembly.GetEntryAssembly() is { } program && !EngineAssemblies.Holds(program))
             AddReference(program);
     }
 

@@ -17,7 +17,7 @@ internal sealed record SkinnedMesh(int Mesh, ModelVertex[] Rest, ushort[] Joints
     /// <summary>The mesh's morph targets' names, empty for a mesh with none.</summary>
     public string[] MorphNames { get; init; } = [];
 
-    /// <summary>Each morph target's weight now, which clips and <see cref="E3D.SetModelMorphWeight"/> change in place.</summary>
+    /// <summary>Each morph target's weight now, which clips and <c>E3D.SetModelMorphWeight</c> change in place.</summary>
     public float[] MorphWeights { get; init; } = [];
 
     /// <summary>How far each target moves each vertex at full weight, in the model's space.</summary>

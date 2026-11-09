@@ -15,7 +15,11 @@ needs an offline toolchain beyond `slangc`.
   lavapipe, a block made for the device's own buffers holds either kind, and one the CPU writes
   carved there unmapped took a null pointer, which ended a voxel game's play (`DeviceMemoryTests`).
   `IGraphicsDevice` is the interface the rest of the engine draws through, and `NullGraphicsDevice`
-  stands in for it in tests.
+  stands in for it in tests. An area's work on the device, its compute stages and the passes that
+  record them, is a part the device keeps (`GraphicsDevice.Part`), a class in the area's own
+  project, as `FogStages`, `CubeFilter`, `SceneFieldStages`, `GlobalIlluminationStages` and
+  `ParticleStages` are in the renderer's, over the internal surface `DeviceSurface.txt` beside the
+  device lists, and the ray scene's work is extension members of the device (`GpuRayScenes`).
 - **Dynamic rendering and synchronization2.** A pass is begun on the images it draws into
   (`GraphicsDevice.Rendering`), with no render pass object or framebuffer made ahead, and moves
   them into their attachment layouts and out to the layout they are read in by barriers of its

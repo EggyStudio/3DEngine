@@ -1,0 +1,15 @@
+readonly struct Engine.EditMesh : IEquatable<EditMesh>
+  EditMesh(int Id)
+  bool Equals(EditMesh other)
+  bool IsValid { get; }
+  int Id { get; init; }
+  override bool Equals(object obj)
+  override int GetHashCode()
+  override string ToString()
+  static bool op_Equality(EditMesh left, EditMesh right)
+  static bool op_Inequality(EditMesh left, EditMesh right)
+  void Deconstruct(out int Id)
+enum Engine.SelectionMode : int
+  Add = 1
+  Remove = 2
+  Replace = 0

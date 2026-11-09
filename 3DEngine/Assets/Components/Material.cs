@@ -4,7 +4,7 @@ namespace Engine;
 
 /// <summary>
 /// Runtime material component. Carries the PBR factors and (optional) texture handles
-/// translated from a <see cref="SceneMaterialPayload"/> by <see cref="SceneSpawner"/>,
+/// translated from a <see cref="SceneMaterialPayload"/> by <c>SceneSpawner</c>,
 /// or set explicitly by gameplay code.
 /// </summary>
 /// <remarks>
@@ -21,7 +21,7 @@ namespace Engine;
 /// <para>
 /// <b>Color-space convention</b> (matches glTF / USD). <see cref="BaseColorTexture"/>
 /// and <see cref="EmissiveTexture"/> store sRGB-encoded values; the other three are
-/// linear. <see cref="SceneSpawner"/> requests the right encoding from the asset server
+/// linear. <c>SceneSpawner</c> requests the right encoding from the asset server
 /// at load time via the <c>"srgb"</c> / <c>"linear"</c> sub-asset label honored by
 /// <see cref="TextureAssetLoader"/>.
 /// </para>
@@ -71,7 +71,7 @@ public struct Material : IEquatable<Material>
 
     /// <summary>
     /// Stable handle to the authoring <see cref="MaterialDescription"/> in the world's
-    /// <see cref="MaterialLibrary"/>. Populated by <see cref="SceneSpawner"/> (or by
+    /// <see cref="MaterialLibrary"/>. Populated by <c>SceneSpawner</c> (or by
     /// gameplay code that authors materials through <see cref="MaterialLibrary.Create"/>).
     /// The renderer keys per-material GPU resources (pipelines, descriptor sets, uniform
     /// buffers) by this handle. <see cref="MaterialHandle.IsValid"/>

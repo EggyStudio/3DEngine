@@ -1,7 +1,6 @@
 namespace Engine;
 
 /// <summary>How much global illumination is worked out, from none to the full set of cascades.</summary>
-/// <seealso cref="E3D.SetGlobalIllumination"/>
 public enum GlobalIllumination
 {
     /// <summary>No global illumination, as raylib draws a scene.</summary>

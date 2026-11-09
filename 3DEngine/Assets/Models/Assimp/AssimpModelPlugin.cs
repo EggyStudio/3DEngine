@@ -14,7 +14,7 @@ namespace Engine;
 /// registers the loader for every extension it advertises except the USD family.
 /// </para>
 /// <para>
-/// <b>Order:</b> add <i>after</i> <see cref="ScenesPlugin"/> and <see cref="AssetPlugin"/>;
+/// <b>Order:</b> add <i>after</i> <c>ScenesPlugin</c> and <see cref="AssetPlugin"/>;
 /// <see cref="ModelsPlugin"/> adds this.
 /// </para>
 /// </remarks>

@@ -3,9 +3,10 @@ using System.Numerics;
 namespace Engine;
 
 /// <summary>World-space transform component (position, rotation, scale).</summary>
-/// <seealso cref="Camera"/>
-/// <seealso cref="Mesh"/>
-[SceneComponent]
+/// <remarks>
+/// A scene file holds it as it holds a <c>[SceneComponent]</c>, registered by the scene model's
+/// assembly, which names it in a <c>SceneComponentOf</c>, since the ECS lies below the registry.
+/// </remarks>
 public struct Transform
 {
     /// <summary>Position in world space.</summary>

@@ -18,8 +18,6 @@ namespace Engine;
 /// var parsed = AssetPath.Parse("models/tree.gltf#Mesh0");
 /// </code>
 /// </example>
-/// <seealso cref="AssetServer"/>
-/// <seealso cref="IAssetReader"/>
 public readonly record struct AssetPath
 {
     /// <summary>Relative path to the asset file (forward slashes, no leading slash).</summary>

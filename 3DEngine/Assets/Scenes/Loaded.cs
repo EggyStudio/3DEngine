@@ -10,7 +10,7 @@ namespace Engine;
 /// entity of the file is spawned, every parent set and every component read, so an observer of it
 /// builds what the file does not hold, as a door's hinge or a sound a lamp hums, with every other
 /// entity of the file present to find. It is told for a file read by <see cref="SceneFile"/> or
-/// <c>LoadScene</c>, a save being one, and for each copy a <see cref="SceneRef"/> places, once the
+/// <c>LoadScene</c>, a save being one, and for each copy a <c>SceneRef</c> places, once the
 /// copy is placed under its entity. <see cref="SceneLoaded"/> follows, once for the file.
 /// </para>
 /// <para>

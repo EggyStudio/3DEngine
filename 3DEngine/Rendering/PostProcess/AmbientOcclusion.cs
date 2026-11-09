@@ -4,7 +4,6 @@ using System.Runtime.InteropServices;
 namespace Engine;
 
 /// <summary>How strongly the surfaces around a point close off its light from all around, a world resource the renderer reads each frame.</summary>
-/// <seealso cref="E3D.SetAmbientOcclusion"/>
 internal sealed class AmbientOcclusionSettings
 {
     /// <summary>How strongly it darkens, 0 for not at all, which draws no pass for it.</summary>

@@ -6,20 +6,31 @@ public surface is for, and this document says how the parts under it fit togethe
 ## The layers
 
 ```
-  Program            using static Engine.E3D; InitWindow, BeginDrawing, DrawCube, ImGui.*
+  Program               using static Engine.E3D; InitWindow, BeginDrawing, DrawCube, ImGui.*
      │
-  Api/               E3D: the flat functions, a DrawList, Camera3D, Color
+  3DEngine              Api/: E3D, the flat functions, over every area
      │
-  Core/  Ecs/        App, plugins, the schedule, World (resources), EcsWorld (entities), events
-  Behaviors/         [Behavior] structs, generated into systems at compile time or at runtime
+  .Scenes  .Modeling    the scene spawner and packs, the edit meshes
+  .Gui                  ImGui's context, its input and its Vulkan pass
      │
-  Platform/  Gui/    SDL3 window, events, input and audio; ImGui context and input
-  Assets/  Scenes/   AssetServer, loaders, textures, Assimp models, materials, the scene spawner
-  Physics/           BepuPhysics bodies
+  .Audio  .Physics      sounds and music over SDL3, BepuPhysics bodies
+  .Rendering            Renderer: extract, prepare, the render graph, its nodes and passes
      │
-  Rendering/         Renderer: extract, prepare, the render graph and its nodes
-  Graphics/          GraphicsDevice over Vortice.Vulkan, SlangCompiler
+  .Platform             SDL3 window, events and input
+  .Assets               AssetServer, loaders, the scene model, models, textures, materials
+  .CliServer            the server side of ./e3d
+     │
+  .Diagnostics          the console, its command catalog and the log ring
+  .Graphics             GraphicsDevice over Vortice.Vulkan, SlangCompiler
+     │
+  .Core                 Core/, Ecs/, Behaviors/: App, plugins, the schedule, World,
+                        EcsWorld, events, [Behavior] structs generated into systems
 ```
+
+Each name is a project and its assembly, `3DEngine` with the area's after it, and a project
+references only those of the layers below it ([DESIGN.md](DESIGN.md) §9). An area's work on the
+GPU is a part of the device it keeps in its own project, as the renderer's fog stages are, over the
+internal surface `3DEngine/Graphics/DeviceSurface.txt` lists.
 
 ## The app and its frame
 
@@ -204,8 +215,8 @@ input when it is made, and `ctx.Physics` only when it is read, so behaviors run 
 `PhysicsPlugin`. The generated registrations are found by `BehaviorsPlugin` when it builds.
 `RuntimeBehaviorCompiler` watches `source/behaviors` beside the program, or the project's own when
 the program runs from a project's `bin/<configuration>/<framework>`, compiles what it finds with
-Roslyn and the same generator against the engine and the program's assembly into a collectible load
-context, and replaces the previous generation's systems.
+Roslyn and the same generator against the engine's assemblies and the program's into a collectible
+load context, and replaces the previous generation's systems.
 
 ## Assets
 

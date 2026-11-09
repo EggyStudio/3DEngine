@@ -43,7 +43,7 @@ public sealed partial class NormTests
         var allowed = Ticked().Matches(sentence).Select(m => m.Groups["name"].Value).ToHashSet();
         allowed.Should().Contain("Engine", "N 1.1 reads the namespaces from Annex A");
 
-        var found = typeof(App).Assembly.GetExportedTypes()
+        var found = TestEngine.Assemblies.SelectMany(assembly => assembly.GetExportedTypes())
             .Select(t => t.Namespace ?? "(none)").Where(n => !allowed.Contains(n)).Distinct();
 
         Hold("1.1", found, "a namespace of the library that Annex A does not list");
@@ -106,6 +106,53 @@ public sealed partial class NormTests
         var found = wanted.Where(path => !rows.Any(row => row == path || row.StartsWith(path + "/", StringComparison.Ordinal)));
 
         Hold("1.5", found, "a top folder of the repository or of the library with no row in AGENTS.md's table of areas");
+    }
+
+    [Fact]
+    public void N_1_6()
+    {
+        // The engine's projects in their layers, the lowest first, each in the lowest layer its
+        // references allow, so the list says what the graph of references does.
+        string[][] layers =
+        [
+            ["3DEngine.Core"],
+            ["3DEngine.Diagnostics", "3DEngine.Graphics"],
+            ["3DEngine.Platform", "3DEngine.Assets", "3DEngine.CliServer"],
+            ["3DEngine.Audio", "3DEngine.Rendering", "3DEngine.Physics"],
+            ["3DEngine.Scenes", "3DEngine.Modeling", "3DEngine.Gui"],
+            ["3DEngine"],
+        ];
+        var layerOf = layers.SelectMany((names, layer) => names.Select(name => (name, layer))).ToDictionary(p => p.name, p => p.layer);
+        string? AssemblyOf(string project) =>
+            Regex.Match(File.ReadAllText(project), "<AssemblyName>([^<]+)</AssemblyName>") is { Success: true } m ? m.Groups[1].Value : null;
+
+        var found = new List<string>();
+        var projects = Files("3DEngine/", ".csproj").Select(f => Path.GetFullPath(Path.Combine(Root, f))).ToList();
+        foreach (var project in projects)
+        {
+            var name = AssemblyOf(project) ?? Path.GetFileNameWithoutExtension(project);
+            var place = Path.GetRelativePath(Root, project).Replace('\\', '/');
+            if (!layerOf.TryGetValue(name, out var layer))
+            {
+                found.Add($"{place} in no layer");
+                continue;
+            }
+            // The engine's own projects it references, each by the assembly its file names.
+            var below = Regex.Matches(File.ReadAllText(project), "<ProjectReference Include=\"([^\"]+)\"")
+                .Select(m => Path.GetFullPath(Path.Combine(Path.GetDirectoryName(project)!, m.Groups[1].Value.Replace('\\', '/'))))
+                .Where(referenced => projects.Contains(referenced))
+                .Select(referenced => AssemblyOf(referenced)!)
+                .ToList();
+            foreach (var referenced in below.Where(r => !layerOf.TryGetValue(r, out var at) || at >= layer))
+                found.Add($"{place} references {referenced}, of its own layer or one above");
+            var lowest = below.Count == 0 ? 0 : below.Max(r => layerOf.GetValueOrDefault(r)) + 1;
+            if (layer != lowest) found.Add($"{place} in layer {layer + 1} where its references allow {lowest + 1}");
+        }
+        // The engine loads its assemblies by these names, so each is a project's.
+        found.AddRange(layerOf.Keys.Except(EngineAssemblies.Names).Select(name => $"{name} not in EngineAssemblies.Names"));
+        found.AddRange(EngineAssemblies.Names.Except(layerOf.Keys).Select(name => $"{name} in EngineAssemblies.Names and in no layer"));
+
+        Hold("1.6", found, "a project out of its layer, or referencing one of its own layer or above");
     }
 
     [Fact]
@@ -364,22 +411,23 @@ public sealed partial class NormTests
     // virtual methods that the binding's own such methods reach, as an Assimp file system's are.
     private static List<MethodBase> HandedToNativeCode()
     {
-        var engine = typeof(App).Assembly;
+        var engine = TestEngine.Assemblies.ToHashSet();
+        var methods = engine.SelectMany(Methods).ToList();
         var handed = new HashSet<MethodBase>();
-        foreach (var method in Methods(engine))
+        foreach (var method in methods)
         {
             if (method.IsDefined(typeof(System.Runtime.InteropServices.UnmanagedCallersOnlyAttribute))) handed.Add(method);
             foreach (var target in DelegatesHandedOver(method))
-                if (target.Module.Assembly == engine) handed.Add(target);
+                if (engine.Contains(target.Module.Assembly)) handed.Add(target);
         }
 
-        var bindings = engine.GetTypes()
+        var bindings = engine.SelectMany(assembly => assembly.GetTypes())
             .SelectMany(type => Bases(type))
             .Select(type => type.Assembly)
-            .Where(assembly => assembly != engine && assembly != typeof(object).Assembly)
+            .Where(assembly => !engine.Contains(assembly) && assembly != typeof(object).Assembly)
             .ToHashSet();
         var reached = bindings.SelectMany(VirtualsReachedFromNativeCode).ToHashSet();
-        foreach (var method in Methods(engine))
+        foreach (var method in methods)
             if (method is MethodInfo { IsVirtual: true } info && reached.Contains(info.GetBaseDefinition()))
                 handed.Add(method);
 

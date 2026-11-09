@@ -15,14 +15,14 @@ public interface ISceneCodec
 
     /// <summary>
     /// The full names the component was written under before, from its type's
-    /// <see cref="FormerNameAttribute"/>, which a file is read from where no registered type now has
+    /// <c>FormerNameAttribute</c>, which a file is read from where no registered type now has
     /// the name. None, the default, where it was never renamed.
     /// </summary>
     IReadOnlyList<string> FormerNames => [];
 
     /// <summary>
     /// The version of the layout the component is saved in, from its type's
-    /// <see cref="DataVersionAttribute"/>, 1 where it has none.
+    /// <c>DataVersionAttribute</c>, 1 where it has none.
     /// </summary>
     int Version => 1;
 

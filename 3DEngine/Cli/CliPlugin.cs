@@ -15,7 +15,7 @@ namespace Engine;
 /// process exit, so a file left behind belongs to a process that died.
 /// </para>
 /// <para>
-/// The plugin is in <see cref="DefaultPlugins"/> and does nothing unless asked, so every program
+/// The plugin is in <c>DefaultPlugins</c> and does nothing unless asked, so every program
 /// can be served with <c>--serve</c> and none pays for it otherwise.
 /// </para>
 /// </remarks>

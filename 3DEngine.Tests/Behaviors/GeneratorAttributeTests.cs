@@ -198,6 +198,7 @@ public class GeneratorAttributeTests
         ["Engine.FormerNameAttribute"] = "Formerly",
         ["Engine.DataVersionAttribute"] = "Versioned",
         ["Engine.DataAssetAttribute"] = "Stats",
+        ["Engine.SceneComponentOfAttribute"] = "Transform",
     };
 
     private static IEnumerable<string> GeneratorAttributes =>
@@ -215,7 +216,7 @@ public class GeneratorAttributeTests
     {
         // Emitted onto generated code rather than read from a program's.
         string[] emitted = ["Engine.GeneratedBehaviorRegistrationAttribute"];
-        var declared = typeof(App).Assembly.GetTypes()
+        var declared = TestEngine.Assemblies.SelectMany(assembly => assembly.GetTypes())
             .Where(t => t.IsPublic && typeof(Attribute).IsAssignableFrom(t) && t.Namespace == "Engine")
             .Select(t => t.FullName!);
 
@@ -340,6 +341,7 @@ public class GeneratorAttributeTests
         ConsoleCommands.Find("notacommand").Should().BeNull("a method without [Command] is not one");
         SceneComponents.Find("GeneratorProbe.Marker").Should().NotBeNull("[SceneComponent] registers the type for scene files");
         SceneComponents.Find("GeneratorProbe.Unmarked").Should().BeNull("a struct without it is not registered");
+        SceneComponents.Find("Engine.Transform").Should().NotBeNull("the scene model's [assembly: SceneComponentOf] registers the ECS's Transform, below it");
         SceneComponents.Find("GeneratorProbe.Formerly")?.Type.Name.Should().Be("Renamed", "[FormerName] finds a type by the name it had");
         SceneComponents.Find("GeneratorProbe.Versioned")?.Version.Should().Be(2, "[DataVersion] gives the codec its version");
 
@@ -405,7 +407,7 @@ public class GeneratorAttributeTests
         var references = ((string)AppContext.GetData("TRUSTED_PLATFORM_ASSEMBLIES")!)
             .Split(Path.PathSeparator)
             .Select(path => MetadataReference.CreateFromFile(path))
-            .Append(MetadataReference.CreateFromFile(typeof(App).Assembly.Location));
+            .Concat(TestEngine.References());
         var compilation = CSharpCompilation.Create($"GeneratorProbe{Guid.NewGuid():N}",
             [CSharpSyntaxTree.ParseText(Source)], references,
             new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));

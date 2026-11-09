@@ -4,7 +4,7 @@ namespace Engine;
 
 /// <summary>
 /// The plane the window's glossy surfaces lying in it mirror the scene in, a world resource
-/// <see cref="E3D.SetReflectionPlane"/> sets and the renderer reads each frame.
+/// <c>E3D.SetReflectionPlane</c> sets and the renderer reads each frame.
 /// </summary>
 internal sealed class ReflectionPlane
 {

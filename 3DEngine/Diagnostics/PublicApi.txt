@@ -1,0 +1,39 @@
+sealed class Engine.CommandAttribute : Attribute
+  CommandAttribute(string name = "", string help = "")
+  string Help { get; }
+  string Name { get; }
+readonly struct Engine.CommandParameter : IEquatable<CommandParameter>
+  CommandParameter(string Name, string Kind, bool TakesLine = false)
+  bool Equals(CommandParameter other)
+  bool TakesLine { get; init; }
+  override bool Equals(object obj)
+  override int GetHashCode()
+  override string ToString()
+  static bool op_Equality(CommandParameter left, CommandParameter right)
+  static bool op_Inequality(CommandParameter left, CommandParameter right)
+  string Kind { get; init; }
+  string Name { get; init; }
+  void Deconstruct(out string Name, out string Kind, out bool TakesLine)
+sealed class Engine.ConsoleCommand : IEquatable<ConsoleCommand>
+  ConsoleCommand(string Name, string Help, string Usage, Func<string[], string?> Run)
+  Func<string[], string?> Run { get; init; }
+  IReadOnlyList<CommandParameter> Parameters { get; init; }
+  bool Equals(ConsoleCommand? other)
+  override bool Equals(object? obj)
+  override int GetHashCode()
+  override string ToString()
+  static bool op_Equality(ConsoleCommand? left, ConsoleCommand? right)
+  static bool op_Inequality(ConsoleCommand? left, ConsoleCommand? right)
+  string Help { get; init; }
+  string Name { get; init; }
+  string Usage { get; init; }
+  void Deconstruct(out string Name, out string Help, out string Usage, out Func<string[], string?> Run)
+static class Engine.ConsoleCommands
+  static ConsoleCommand? Find(string name)
+  static IReadOnlyList<ConsoleCommand> All { get; }
+  static bool Remove(string name)
+  static string Unwrap(string line)
+  static string? Run(string line)
+  static string[] Split(string line)
+  static void Add(ConsoleCommand command)
+  static void Add(string name, string help, Func<string[], string?> run)

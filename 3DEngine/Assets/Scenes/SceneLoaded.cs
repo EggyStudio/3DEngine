@@ -6,6 +6,6 @@ namespace Engine;
 /// <remarks>
 /// For what a game builds once for a whole level, as the paths its creatures walk between the
 /// markers the file holds. Triggered for a save read back too, since a save is a scene file, and for
-/// each copy a <see cref="SceneRef"/> places.
+/// each copy a <c>SceneRef</c> places.
 /// </remarks>
 public readonly record struct SceneLoaded(string Path, IReadOnlyList<Entity> Entities);

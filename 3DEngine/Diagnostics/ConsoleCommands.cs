@@ -10,7 +10,11 @@ public static class ConsoleCommands
     /// <summary>Every command, sorted by name.</summary>
     public static IReadOnlyList<ConsoleCommand> All
     {
-        get { lock (Gate) return [.. Registered.Values]; }
+        get
+        {
+            EngineAssemblies.Load();
+            lock (Gate) return [.. Registered.Values];
+        }
     }
 
     /// <summary>Registers a command, replacing one of the same name.</summary>
@@ -34,6 +38,7 @@ public static class ConsoleCommands
     /// <summary>The command of that name, or <c>null</c>.</summary>
     public static ConsoleCommand? Find(string name)
     {
+        EngineAssemblies.Load();
         lock (Gate) return Registered.GetValueOrDefault(name);
     }
 

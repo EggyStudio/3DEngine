@@ -1,0 +1,558 @@
+struct Engine.AnimatedModel
+  AnimatedModel(string path = "", string clip = "", float speed = 1f, float blendSeconds = 0.2f)
+  float BlendSeconds
+  float Speed
+  float Time
+  string Clip
+  string Path
+enum Engine.AnimationCondition : int
+  Above = 3
+  Below = 4
+  False = 2
+  Finished = 0
+  Triggered = 5
+  True = 1
+struct Engine.AnimationMachine
+  AnimationMachine(AnimationStateMachine machine)
+  AnimationMachine(DataRef<AnimationStateMachine> file)
+  AnimationMachine(string path)
+  AnimationStateMachine? Machine
+  DataRef<AnimationStateMachine> File
+  float Get(string name)
+  string Path
+  string State
+  void Set(string name, bool value)
+  void Set(string name, float value)
+  void Trigger(string name)
+sealed class Engine.AnimationMachineState
+  AnimationMachineState()
+  bool Loop
+  float Speed
+  string Clip
+  string Name
+sealed class Engine.AnimationMachineTransition
+  AnimationCondition When
+  AnimationMachineTransition()
+  float Fade
+  float Value
+  string From
+  string Parameter
+  string To
+sealed class Engine.AnimationStateMachine
+  AnimationStateMachine()
+  List<AnimationMachineState> States
+  List<AnimationMachineTransition> Transitions
+  const int Version = 1
+  const string Format = "3dengine-animation-machine"
+  static AnimationStateMachine Load(string fileName)
+  static AnimationStateMachine Read(string json)
+  string Start
+  string Write()
+  void Save(string fileName)
+enum Engine.AssetEventKind : int
+  Added = 0
+  LoadedWithDependencies = 3
+  Modified = 1
+  Removed = 2
+readonly struct Engine.AssetEvent<T> : IEquatable<AssetEvent<T>>
+  AssetEventKind Kind { get; init; }
+  AssetId Id { get; init; }
+  Handle<T?> Handle { get; init; }
+  bool Equals(AssetEvent<T> other)
+  override bool Equals(object obj)
+  override int GetHashCode()
+  override string ToString()
+  static AssetEvent<T?> Added(Handle<T?> handle)
+  static AssetEvent<T?> LoadedWithDependencies(Handle<T?> handle)
+  static AssetEvent<T?> Modified(Handle<T?> handle)
+  static AssetEvent<T?> Removed(Handle<T?> handle)
+  static bool op_Equality(AssetEvent<T> left, AssetEvent<T> right)
+  static bool op_Inequality(AssetEvent<T> left, AssetEvent<T> right)
+sealed class Engine.AssetLoadContext : IDisposable
+  AssetId LoadDependency(AssetPath dependencyPath)
+  AssetPath Path { get; }
+  Stream GetStream()
+  Task<byte[]> ReadAllBytesAsync(CancellationToken ct = default)
+  Task<string> ReadAllTextAsync(CancellationToken ct = default)
+  void Dispose()
+sealed class Engine.AssetLoadResult<T>
+  AssetLoadResult()
+  Dictionary<string, object>? SubAssets { get; init; }
+  List<AssetPath>? Dependencies { get; init; }
+  T? Asset { get; init; }
+  bool Success { get; init; }
+  static AssetLoadResult<T?> Fail(string error)
+  static AssetLoadResult<T?> Ok(T? asset)
+  static AssetLoadResult<T?> Ok(T? asset, Dictionary<string, object> subAssets)
+  string? Error { get; init; }
+sealed class Engine.AssetServer : IDisposable
+  AssetServer AddSource(IAssetReader reader, string? label = null)
+  AssetServer(int? workerCount = null)
+  Handle<T> Load<T>(AssetPath path)
+  Handle<T?> Load<T>(string path)
+  void Dispose()
+sealed class Engine.Assets<T> : IDisposable
+  Assets()
+  ICollection<T?> Values { get; }
+  bool Contains(AssetId id)
+  bool Contains(Handle<T?> handle)
+  int Count { get; }
+  void Dispose()
+readonly struct Engine.BoneInfo : IEquatable<BoneInfo>
+  BoneInfo(string Name, int Parent)
+  bool Equals(BoneInfo other)
+  int Parent { get; init; }
+  override bool Equals(object obj)
+  override int GetHashCode()
+  override string ToString()
+  static bool op_Equality(BoneInfo left, BoneInfo right)
+  static bool op_Inequality(BoneInfo left, BoneInfo right)
+  string Name { get; init; }
+  void Deconstruct(out string Name, out int Parent)
+readonly struct Engine.BoundingBox : IEquatable<BoundingBox>
+  BoundingBox(Vector3 Min, Vector3 Max)
+  Vector3 Max { get; init; }
+  Vector3 Min { get; init; }
+  bool Equals(BoundingBox other)
+  override bool Equals(object obj)
+  override int GetHashCode()
+  override string ToString()
+  static BoundingBox Around(ReadOnlySpan<Vector3> points)
+  static bool op_Equality(BoundingBox left, BoundingBox right)
+  static bool op_Inequality(BoundingBox left, BoundingBox right)
+  void Deconstruct(out Vector3 Min, out Vector3 Max)
+struct Engine.Camera
+  Camera(float fovY = 60f, float near = 0.1f, float far = 1000f, RenderTexture2D target = default)
+  Color Background
+  RenderTexture2D Target
+  bool Picking
+  float Far
+  float FovY
+  float Near
+  static Camera Default { get; }
+struct Engine.Camera3D
+  Camera3D(Vector3 position, Vector3 target, Vector3 up, float fovY = 45f, CameraProjection projection = CameraProjection.Perspective)
+  CameraProjection Projection
+  Matrix4x4 ProjectionMatrix(float aspect)
+  Matrix4x4 View { get; }
+  Vector3 Position
+  Vector3 Target
+  Vector3 Up
+  float FovY
+enum Engine.CameraProjection : int
+  Orthographic = 1
+  Perspective = 0
+static class Engine.DataAssets
+  const int Version = 1
+  const string Format = "3dengine-data"
+  static DataRef<T?> Find<T>(string id)
+  static DataRef<T?> Load<T>(string fileName)
+  static DataRef<T?> Save<T>(string fileName, T? value)
+  static void Add<T>(SceneCodec<T?> codec)
+  static void Save<T>(DataRef<T?> reference, T? value)
+readonly struct Engine.DataRef<T> : IEquatable<DataRef<T>>
+  T? Value { get; }
+  bool Equals(DataRef<T?> other)
+  bool IsNone { get; }
+  bool TryGet(out T? value)
+  override bool Equals(object? obj)
+  override int GetHashCode()
+  override string ToString()
+  static bool op_Equality(DataRef<T?> left, DataRef<T?> right)
+  static bool op_Inequality(DataRef<T?> left, DataRef<T?> right)
+  string? Id { get; }
+  string? Path { get; }
+  string? Problem { get; }
+interface Engine.IAssetLoader<T>
+  Task<AssetLoadResult<T?>> LoadAsync(AssetLoadContext context, CancellationToken ct)
+  string[] Extensions { get; }
+interface Engine.IAssetReader
+  IAssetWatcher? CreateWatcher()
+  Task<Stream> ReadAsync(AssetPath path, CancellationToken ct = default)
+  bool Exists(AssetPath path)
+interface Engine.IAssetWatcher : IDisposable
+  event Action<AssetPath[]> AssetsChanged
+  void Start()
+  void Stop()
+interface Engine.ISceneCodec
+  IReadOnlyList<string> FormerNames { get; }
+  Type Type { get; }
+  bool Has(EcsWorld ecs, int entity)
+  int Version { get; }
+  string Name { get; }
+  void Read(JsonElement element, EcsWorld ecs, int entity, SceneReadContext context)
+  void Write(Utf8JsonWriter writer, EcsWorld ecs, int entity, SceneWriteContext context)
+readonly struct Engine.Image : IEquatable<Image>
+  Image(byte[] Data, int Width, int Height)
+  bool Equals(Image other)
+  bool IsValid { get; }
+  byte[] Data { get; init; }
+  int Height { get; init; }
+  int Width { get; init; }
+  override bool Equals(object obj)
+  override int GetHashCode()
+  override string ToString()
+  static bool op_Equality(Image left, Image right)
+  static bool op_Inequality(Image left, Image right)
+  void Deconstruct(out byte[] Data, out int Width, out int Height)
+enum Engine.LightKind : int
+  Ambient = 3
+  Directional = 0
+  Point = 1
+  Spot = 2
+enum Engine.LoadState : int
+  Failed = 3
+  Loaded = 2
+  Loading = 1
+  NotLoaded = 0
+readonly struct Engine.Loaded<T> : IComponentEvent, IEntityEvent, IEquatable<Loaded<T>>
+  Entity Entity { get; init; }
+  Loaded(Entity Entity, T? Value)
+  T? Value { get; init; }
+  bool Equals(Loaded<T> other)
+  override bool Equals(object obj)
+  override int GetHashCode()
+  override string ToString()
+  static bool op_Equality(Loaded<T> left, Loaded<T> right)
+  static bool op_Inequality(Loaded<T> left, Loaded<T> right)
+  void Deconstruct(out Entity Entity, out T? Value)
+struct Engine.Material : IEquatable<Material>
+  Handle<TextureAsset> BaseColorTexture
+  Handle<TextureAsset> EmissiveTexture
+  Handle<TextureAsset> MetallicRoughnessTexture
+  Handle<TextureAsset> NormalTexture
+  Handle<TextureAsset> OcclusionTexture
+  Material(Color color)
+  Material(Vector4 albedo)
+  MaterialAlphaMode AlphaMode
+  MaterialHandle Handle
+  Shader Shader
+  Vector3 EmissiveFactor
+  Vector3 SubsurfaceColor
+  Vector4 Albedo
+  bool BouncesLight
+  bool CastsShadows
+  bool DoubleSided
+  bool Equals(Material other)
+  float AlphaCutoff
+  float LightThrough
+  float MetallicFactor
+  float NormalScale
+  float OcclusionStrength
+  float RoughnessFactor
+  float SubsurfaceRadius
+  float SubsurfaceThickness
+  override bool Equals(object? obj)
+  override int GetHashCode()
+  static Material Default { get; }
+  static bool op_Equality(Material left, Material right)
+  static bool op_Inequality(Material left, Material right)
+enum Engine.MaterialAlphaMode : byte
+  Blend = 2
+  Mask = 1
+  Opaque = 0
+readonly struct Engine.MaterialHandle : IEquatable<MaterialHandle>
+  bool Equals(MaterialHandle other)
+  bool IsValid { get; }
+  override bool Equals(object? obj)
+  override int GetHashCode()
+  readonly int Id
+  static bool op_Equality(MaterialHandle a, MaterialHandle b)
+  static bool op_Inequality(MaterialHandle a, MaterialHandle b)
+  string Name { get; }
+  void Destroy()
+  void SetBaseColor(Vector4 color)
+  void SetEmissive(Vector3 emissive)
+  void SetMetallic(float metallic)
+  void SetRoughness(float roughness)
+enum Engine.MaterialMapIndex : int
+  Albedo = 0
+  Brdf = 10
+  Cubemap = 7
+  Emission = 5
+  Height = 6
+  Irradiance = 8
+  Metalness = 1
+  Normal = 2
+  Occlusion = 4
+  Prefilter = 9
+  Roughness = 3
+struct Engine.Mesh
+  Mesh(ModelMesh uploaded)
+  Mesh(Vector3[] positions, Vector3[]? normals = null, Vector2[]? uvs = null)
+  Mesh(Vector3[] positions, uint[] indices, Vector3[]? normals = null, Vector2[]? uvs = null)
+  ModelMesh Uploaded
+  Vector2[]? Uvs
+  Vector3[] Positions
+  Vector3[]? Normals
+  uint[]? Indices
+sealed class Engine.MeshStream : IEquatable<MeshStream>
+  MeshStream(MeshStreamFormat Format, byte[] Data)
+  MeshStreamFormat Format { get; init; }
+  bool Equals(MeshStream? other)
+  byte[] Data { get; init; }
+  int Count { get; }
+  override bool Equals(object? obj)
+  override int GetHashCode()
+  override string ToString()
+  static MeshStream From<T>(MeshStreamFormat format, ReadOnlySpan<T> values) where T : unmanaged
+  static bool op_Equality(MeshStream? left, MeshStream? right)
+  static bool op_Inequality(MeshStream? left, MeshStream? right)
+  static int SizeOf(MeshStreamFormat format)
+  void Deconstruct(out MeshStreamFormat Format, out byte[] Data)
+enum Engine.MeshStreamFormat : int
+  Float = 2
+  Float4 = 3
+  UInt = 0
+  UInt2 = 1
+  UNorm8x4 = 4
+sealed class Engine.Model
+  Matrix4x4 Transform { get; set; }
+  Model()
+  ModelMaterial[] Materials { get; init; }
+  ModelMesh[] Meshes { get; init; }
+  ModelSkeleton Skeleton { get; init; }
+  bool IsValid { get; }
+  int[] MeshMaterial { get; init; }
+sealed class Engine.ModelAnimation
+  (string, int)[] MorphChannels { get; init; }
+  BoneInfo[] Bones { get; init; }
+  ModelAnimation()
+  Transform[][] KeyframePoses { get; init; }
+  float[][] KeyframeMorphWeights { get; init; }
+  int BoneCount { get; }
+  int KeyframeCount { get; }
+  string Name { get; init; }
+struct Engine.ModelMaterial : IEquatable<ModelMaterial>
+  Color Color { get; set; }
+  Color Emissive { get; set; }
+  Color SubsurfaceColor { get; set; }
+  MaterialAlphaMode AlphaMode { get; set; }
+  ModelMaterial(Color Color, Texture2D Texture = default)
+  Shader Shader { get; set; }
+  Texture2D EmissiveMap { get; set; }
+  Texture2D MetallicRoughnessMap { get; set; }
+  Texture2D NormalMap { get; set; }
+  Texture2D OcclusionMap { get; set; }
+  Texture2D Texture { get; set; }
+  bool BouncesLight { get; set; }
+  bool CastsShadows { get; set; }
+  bool DoubleSided { get; set; }
+  bool Equals(ModelMaterial other)
+  bool ShadowOnly { get; set; }
+  float AlphaCutoff { get; set; }
+  float EmissiveIntensity { get; set; }
+  float LightThrough { get; set; }
+  float Metallic { get; set; }
+  float NormalScale { get; set; }
+  float OcclusionStrength { get; set; }
+  float Roughness { get; set; }
+  float SubsurfaceRadius { get; set; }
+  float SubsurfaceThickness { get; set; }
+  override bool Equals(object obj)
+  override int GetHashCode()
+  override string ToString()
+  static bool op_Equality(ModelMaterial left, ModelMaterial right)
+  static bool op_Inequality(ModelMaterial left, ModelMaterial right)
+  void Deconstruct(out Color Color, out Texture2D Texture)
+readonly struct Engine.ModelMesh : IEquatable<ModelMesh>
+  BoundingBox Bounds { get; init; }
+  ModelMesh(int Id, int VertexCount, int TriangleCount, BoundingBox Bounds)
+  bool Equals(ModelMesh other)
+  bool IsValid { get; }
+  int Id { get; init; }
+  int TriangleCount { get; init; }
+  int VertexCount { get; init; }
+  override bool Equals(object obj)
+  override int GetHashCode()
+  override string ToString()
+  static bool op_Equality(ModelMesh left, ModelMesh right)
+  static bool op_Inequality(ModelMesh left, ModelMesh right)
+  void Deconstruct(out int Id, out int VertexCount, out int TriangleCount, out BoundingBox Bounds)
+sealed class Engine.ModelSkeleton
+  BoneInfo[] Bones { get; init; }
+  ModelSkeleton()
+  Transform[] BindPose { get; init; }
+  int BoneCount { get; }
+readonly struct Engine.RenderTexture2D : IEquatable<RenderTexture2D>
+  IReadOnlyList<Texture2D> Textures { get; init; }
+  RenderTexture2D(Texture2D Texture, Texture2D Depth = default)
+  Texture2D Depth { get; init; }
+  Texture2D Texture { get; init; }
+  bool Equals(RenderTexture2D other)
+  bool IsValid { get; }
+  override bool Equals(object obj)
+  override int GetHashCode()
+  override string ToString()
+  static bool op_Equality(RenderTexture2D left, RenderTexture2D right)
+  static bool op_Inequality(RenderTexture2D left, RenderTexture2D right)
+  void Deconstruct(out Texture2D Texture, out Texture2D Depth)
+sealed class Engine.Scene
+  IEnumerable<SceneNode> Traverse()
+  List<SceneEmbeddedTexture> EmbeddedTextures { get; }
+  List<SceneNode> Roots { get; }
+  Scene()
+  SceneCoordinateSystem SourceCoordinateSystem { get; init; }
+  SceneEmbeddedTexture? FindEmbeddedTexture(string path)
+  double SourceMetersPerUnit { get; init; }
+  string Name { get; init; }
+sealed class Engine.SceneAsset
+  Scene Scene { get; init; }
+  SceneAsset()
+  string SourceFormat { get; init; }
+  string? SourcePath { get; init; }
+sealed class Engine.SceneCodec<T> : ISceneCodec, ITellsLoaded
+  IReadOnlyList<string> FormerNames { get; init; }
+  SceneCodec(string name, SceneCodec<T?>.Writer write, SceneCodec<T?>.Reader read)
+  Type Type { get; }
+  bool Has(EcsWorld ecs, int entity)
+  int Version { get; init; }
+  string Name { get; }
+  void Read(JsonElement element, EcsWorld ecs, int entity, SceneReadContext context)
+  void Write(Utf8JsonWriter writer, EcsWorld ecs, int entity, SceneWriteContext context)
+delegate T? Engine.SceneCodec<T>.Reader(JsonElement element, SceneReadContext context)
+delegate void Engine.SceneCodec<T>.Writer(Utf8JsonWriter writer, in T? value, SceneWriteContext context)
+static class Engine.SceneComponents
+  static IReadOnlyList<ISceneCodec> All { get; }
+  static ISceneCodec? Find(string key)
+  static string KeyOf(ISceneCodec codec)
+  static void Add(ISceneCodec codec)
+enum Engine.SceneCoordinateSystem : int
+  YUp = 0
+  ZUp = 1
+sealed class Engine.SceneEmbeddedTexture : IEquatable<SceneEmbeddedTexture>
+  SceneEmbeddedTexture(string? FileName, byte[]? Encoded, string FormatHint, int Width, int Height, byte[]? Rgba)
+  bool Equals(SceneEmbeddedTexture? other)
+  byte[]? Encoded { get; init; }
+  byte[]? Rgba { get; init; }
+  int Height { get; init; }
+  int Width { get; init; }
+  override bool Equals(object? obj)
+  override int GetHashCode()
+  override string ToString()
+  static bool op_Equality(SceneEmbeddedTexture? left, SceneEmbeddedTexture? right)
+  static bool op_Inequality(SceneEmbeddedTexture? left, SceneEmbeddedTexture? right)
+  string FormatHint { get; init; }
+  string? FileName { get; init; }
+  void Deconstruct(out string? FileName, out byte[]? Encoded, out string FormatHint, out int Width, out int Height, out byte[]? Rgba)
+static class Engine.SceneFile
+  const int Version = 1
+  const string Format = "3dengine-scene"
+  static List<int> Load(World world, string path)
+  static List<int> Read(World world, string json)
+  static string Write(EcsWorld ecs, IEnumerable<int>? entities = null)
+  static void Save(EcsWorld ecs, string path, IEnumerable<int>? entities = null)
+static class Engine.SceneJson
+  const string VersionName = "$version"
+  static Color ReadColor(JsonElement e)
+  static JsonElement Migrated(JsonElement e, int version, Func<int, JsonObject, JsonObject> migrate, string type)
+  static Matrix4x4 ReadMatrix4x4(JsonElement e)
+  static Quaternion ReadQuaternion(JsonElement e)
+  static Vector2 ReadVector2(JsonElement e)
+  static Vector3 ReadVector3(JsonElement e)
+  static Vector4 ReadVector4(JsonElement e)
+  static void Write(Utf8JsonWriter writer, string? name, Color c)
+  static void Write(Utf8JsonWriter writer, string? name, Matrix4x4 m)
+  static void Write(Utf8JsonWriter writer, string? name, Quaternion q)
+  static void Write(Utf8JsonWriter writer, string? name, Vector2 v)
+  static void Write(Utf8JsonWriter writer, string? name, Vector3 v)
+  static void Write(Utf8JsonWriter writer, string? name, Vector4 v)
+readonly struct Engine.SceneLoaded : IEquatable<SceneLoaded>
+  IReadOnlyList<Entity> Entities { get; init; }
+  SceneLoaded(string Path, IReadOnlyList<Entity> Entities)
+  bool Equals(SceneLoaded other)
+  override bool Equals(object obj)
+  override int GetHashCode()
+  override string ToString()
+  static bool op_Equality(SceneLoaded left, SceneLoaded right)
+  static bool op_Inequality(SceneLoaded left, SceneLoaded right)
+  string Path { get; init; }
+  void Deconstruct(out string Path, out IReadOnlyList<Entity> Entities)
+sealed class Engine.SceneNode
+  List<SceneNode> Children { get; }
+  List<object> Components { get; }
+  SceneNode()
+  ScenePurpose Purpose { get; set; }
+  T? GetComponent<T>() where T : class
+  Transform LocalTransform { get; set; }
+  bool Enabled { get; set; }
+  string Name { get; init; }
+  string SourcePath { get; init; }
+enum Engine.ScenePurpose : int
+  Default = 0
+  Guide = 3
+  Proxy = 2
+  Render = 1
+enum Engine.ScenePurposeMask : int
+  All = 15
+  Default = 1
+  Editor = 7
+  Guide = 8
+  None = 0
+  Proxy = 4
+  Render = 2
+  Runtime = 3
+sealed class Engine.SceneReadContext
+  DataRef<T> Data<T>(string? id)
+  Entity Resolve(string? id)
+  Handle<TAsset> Load<TAsset>(string? path)
+sealed class Engine.SceneWriteContext
+  string? IdOf(Entity entity)
+  string? PathOf<TAsset>(Handle<TAsset> handle)
+readonly struct Engine.Shader : IEquatable<Shader>
+  Shader(int Id)
+  bool Equals(Shader other)
+  bool IsValid { get; }
+  int Id { get; init; }
+  override bool Equals(object obj)
+  override int GetHashCode()
+  override string ToString()
+  static bool op_Equality(Shader left, Shader right)
+  static bool op_Inequality(Shader left, Shader right)
+  void Deconstruct(out int Id)
+struct Engine.ShadowOnly
+  ShadowOnly(bool value)
+  bool Value
+readonly struct Engine.Texture2D : IEquatable<Texture2D>
+  Texture2D(int Id, int Width, int Height)
+  bool Equals(Texture2D other)
+  bool IsValid { get; }
+  int Height { get; init; }
+  int Id { get; init; }
+  int Mipmaps { get; init; }
+  int Width { get; init; }
+  override bool Equals(object obj)
+  override int GetHashCode()
+  override string ToString()
+  static bool op_Equality(Texture2D left, Texture2D right)
+  static bool op_Inequality(Texture2D left, Texture2D right)
+  void Deconstruct(out int Id, out int Width, out int Height)
+sealed class Engine.TextureAsset
+  TextureAsset()
+  TextureColorSpace ColorSpace { get; init; }
+  TextureFormat Format { get; init; }
+  byte[] Pixels { get; init; }
+  int Height { get; init; }
+  int MipCount { get; init; }
+  int Width { get; init; }
+  string SourceFormat { get; init; }
+  string SourcePath { get; init; }
+enum Engine.TextureColorSpace : int
+  Linear = 0
+  Srgb = 1
+enum Engine.TextureFormat : int
+  Bc1 = 5
+  Bc3 = 6
+  Bc4 = 7
+  Bc5 = 8
+  Bc6H = 9
+  Bc7 = 10
+  R8 = 0
+  Rg8 = 1
+  Rgba16F = 3
+  Rgba32F = 4
+  Rgba8 = 2
+struct Engine.Visible
+  Visible(bool value)
+  bool Value
+  static Visible Default { get; }

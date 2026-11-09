@@ -4,11 +4,11 @@ namespace Engine;
 
 /// <summary>
 /// How much of the environment map's light reaches the scene, and its tint, apart from the sky the
-/// map draws, a world resource which <see cref="E3D.SetEnvironmentLight"/> sets and the model pass
+/// map draws, a world resource which <c>E3D.SetEnvironmentLight</c> sets and the model pass
 /// and the global illumination's sky read.
 /// </summary>
 /// <remarks>
-/// A resource of its own rather than the map's, since <see cref="E3D.SetEnvironmentMap(Image, float)"/>
+/// A resource of its own rather than the map's, since <c>E3D.SetEnvironmentMap(Image, float)</c>
 /// replaces the map, and the share a program set for the scene stays through a change of sky.
 /// </remarks>
 internal sealed class EnvironmentLight

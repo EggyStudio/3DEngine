@@ -2,8 +2,8 @@ namespace Engine;
 
 /// <summary>
 /// The camera the lights and the sky given in physical units are seen through, and those lights,
-/// each with the quantity it was given in (<see cref="E3D.SetCameraExposure"/>,
-/// <see cref="E3D.SetLightIlluminance"/>).
+/// each with the quantity it was given in (<c>E3D.SetCameraExposure</c>,
+/// <c>E3D.SetLightIlluminance</c>).
 /// </summary>
 /// <remarks>
 /// A light's intensity is the light a white diffuse surface facing it returns, with no pi, so a sun

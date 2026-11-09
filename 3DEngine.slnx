@@ -6,6 +6,18 @@
     <File Path="README.md" />
   </Folder>
   <Project Path="3DEngine/3DEngine.csproj" />
+  <Project Path="3DEngine/Assets/3DEngine.Assets.csproj" />
+  <Project Path="3DEngine/Cli/3DEngine.CliServer.csproj" />
+  <Project Path="3DEngine/Core/3DEngine.Core.csproj" />
+  <Project Path="3DEngine/Diagnostics/3DEngine.Diagnostics.csproj" />
+  <Project Path="3DEngine/Graphics/3DEngine.Graphics.csproj" />
+  <Project Path="3DEngine/Gui/3DEngine.Gui.csproj" />
+  <Project Path="3DEngine/Modeling/3DEngine.Modeling.csproj" />
+  <Project Path="3DEngine/Physics/3DEngine.Physics.csproj" />
+  <Project Path="3DEngine/Platform/3DEngine.Platform.csproj" />
+  <Project Path="3DEngine/Platform/Audio/3DEngine.Audio.csproj" />
+  <Project Path="3DEngine/Rendering/3DEngine.Rendering.csproj" />
+  <Project Path="3DEngine/Scenes/3DEngine.Scenes.csproj" />
   <Project Path="3DEngine.Cli/3DEngine.Cli.csproj" />
   <Project Path="3DEngine.CodeFixes/3DEngine.CodeFixes.csproj" />
   <Project Path="3DEngine.Examples/3DEngine.Examples.csproj" />

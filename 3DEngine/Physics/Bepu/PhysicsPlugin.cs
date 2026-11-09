@@ -7,7 +7,7 @@ namespace Engine;
 /// </summary>
 /// <remarks>
 /// Add explicitly via <c>app.AddPlugin(new PhysicsPlugin())</c>; included in
-/// <see cref="DefaultPlugins"/> so games get rigid-body physics out-of-the-box.
+/// <c>DefaultPlugins</c> so games get rigid-body physics out-of-the-box.
 /// To override <see cref="PhysicsSettings"/>, insert the resource before adding this plugin:
 /// <code>
 /// app.World.InsertResource(new PhysicsSettings { Gravity = new Vector3(0, -20f, 0) });

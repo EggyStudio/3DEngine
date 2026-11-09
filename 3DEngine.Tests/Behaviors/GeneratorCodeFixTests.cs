@@ -20,7 +20,7 @@ public class GeneratorCodeFixTests
         var references = ((string)AppContext.GetData("TRUSTED_PLATFORM_ASSEMBLIES")!)
             .Split(Path.PathSeparator)
             .Select(path => MetadataReference.CreateFromFile(path))
-            .Append(MetadataReference.CreateFromFile(typeof(App).Assembly.Location));
+            .Concat(TestEngine.References());
         var project = workspace.AddProject("Fixed", LanguageNames.CSharp)
             .WithCompilationOptions(new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary))
             .WithMetadataReferences(references);

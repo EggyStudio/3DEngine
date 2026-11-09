@@ -9,7 +9,7 @@ namespace Engine;
 /// <remarks>
 /// <para>
 /// A look with nothing given is the prototype material of the slot's name
-/// (<see cref="E3D.LoadMaterialPrototype(string)"/>), the grid tinted by the name's color, so a level
+/// (<c>E3D.LoadMaterialPrototype(string)</c>), the grid tinted by the name's color, so a level
 /// blocked out reads by color before it has textures. A color alone tints the grid in its place, and
 /// a texture takes the grid's place, tinted by the color where one is given.
 /// </para>

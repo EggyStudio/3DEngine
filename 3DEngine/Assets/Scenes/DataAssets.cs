@@ -6,7 +6,7 @@ using System.Text.Json.Nodes;
 namespace Engine;
 
 /// <summary>
-/// Reads, shares and writes data files, which hold <see cref="DataAssetAttribute"/> types and
+/// Reads, shares and writes data files, which hold <c>DataAssetAttribute</c> types and
 /// <see cref="AnimationStateMachine"/>s, and keeps the table of the ids they were given and where
 /// the files are.
 /// </summary>
@@ -91,7 +91,7 @@ public static class DataAssets
 
     /// <summary>
     /// Registers a data asset type's codec, which the generated code of each assembly does for each
-    /// <see cref="DataAssetAttribute"/> type. Registering the same type again replaces it.
+    /// <c>DataAssetAttribute</c> type. Registering the same type again replaces it.
     /// </summary>
     public static void Add<T>(SceneCodec<T> codec)
     {

@@ -14,7 +14,7 @@ public enum ColliderShape
     /// <summary>
     /// The triangles of the entity's <see cref="Mesh"/> and of its descendants' meshes, as placed
     /// under it, which never moves whatever its <see cref="RigidBody"/> says, as a level's floors
-    /// and walls. A model a <see cref="ModelRef"/> spawns under the entity counts, once it has.
+    /// and walls. A model a <c>ModelRef</c> spawns under the entity counts, once it has.
     /// </summary>
     Mesh,
     /// <summary>

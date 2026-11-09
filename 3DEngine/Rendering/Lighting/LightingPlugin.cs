@@ -3,16 +3,16 @@ namespace Engine;
 /// <summary>
 /// Sets up the lighting. It schedules <see cref="LightSpawnSystem"/> in
 /// <see cref="Stage.PreUpdate"/> (after <c>SceneSpawnSystem</c>) so payloads attached by
-/// <see cref="SceneSpawner"/> become <see cref="Light"/> components on the same frame, as
+/// <c>SceneSpawner</c> become <see cref="Light"/> components on the same frame, as
 /// lights spawned in code are, and registers <see cref="LightExtract"/> with the
 /// <see cref="Renderer"/> so those lights are surfaced to the render world each frame.
 /// </summary>
 /// <remarks>
 /// <para>
 /// <b>Order:</b> consumer-tier (<see cref="PluginOrder.Default"/>); needs
-/// <see cref="ScenesPlugin"/> for the payload contract and the <see cref="Renderer"/>
+/// <c>ScenesPlugin</c> for the payload contract and the <see cref="Renderer"/>
 /// resource (created by <see cref="RenderPlugin"/>) for extract-system registration. Both
-/// will exist by the time this plugin builds when launched via <see cref="DefaultPlugins"/>.
+/// will exist by the time this plugin builds when launched via <c>DefaultPlugins</c>.
 /// </para>
 /// <para>
 /// With no <see cref="Renderer"/>, as in a test of a bare <see cref="App"/>, the extract is not

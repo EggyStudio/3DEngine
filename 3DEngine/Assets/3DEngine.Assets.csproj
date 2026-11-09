@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <AssemblyName>3DEngine.Assets</AssemblyName>
+        <PackageId>3DEngine.Assets</PackageId>
+        <Title>3DEngine.Assets</Title>
+        <Description>The asset server, handles, textures, models and materials, and the scene model the readers make.</Description>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\Core\3DEngine.Core.csproj" />
+        <ProjectReference Include="..\Diagnostics\3DEngine.Diagnostics.csproj" />
+        <ProjectReference Include="..\Graphics\3DEngine.Graphics.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="StbImageSharp" Version="2.30.15" />
+        <PackageReference Include="AssimpNetter" Version="6.0.4" />
+    </ItemGroup>
+
+</Project>

@@ -8,7 +8,7 @@ namespace Engine;
 /// <remarks>
 /// A component is written under its type's name, and under its full name when another registered
 /// type has the same name, so neither is read back as the other whichever registered first. A file
-/// written under a type's former name (<see cref="FormerNameAttribute"/>) is read as that type,
+/// written under a type's former name (<c>FormerNameAttribute</c>) is read as that type,
 /// where no registered type has the name now.
 /// </remarks>
 public static class SceneComponents
@@ -45,7 +45,11 @@ public static class SceneComponents
     /// <summary>Every registered codec.</summary>
     public static IReadOnlyList<ISceneCodec> All
     {
-        get { lock (Gate) return ByFullName.Values.ToArray(); }
+        get
+        {
+            EngineAssemblies.Load();
+            lock (Gate) return ByFullName.Values.ToArray();
+        }
     }
 
     /// <summary>
@@ -56,6 +60,7 @@ public static class SceneComponents
     /// </summary>
     public static ISceneCodec? Find(string key)
     {
+        EngineAssemblies.Load();
         lock (Gate)
         {
             if (ByFullName.TryGetValue(key, out var exact)) return exact;
@@ -93,7 +98,7 @@ public static class SceneComponents
         ISceneCodec? owner = null;
         foreach (var codec in named)
         {
-            if (codec.Type.Assembly != typeof(SceneComponents).Assembly) continue;
+            if (!EngineAssemblies.Holds(codec.Type.Assembly)) continue;
             if (owner is not null) return null;
             owner = codec;
         }

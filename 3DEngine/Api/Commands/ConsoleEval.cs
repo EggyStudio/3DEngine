@@ -137,11 +137,12 @@ internal static class ConsoleEval
     }
 
     // What a fragment compiles against, the platform's assemblies and every other the process has
-    // loaded from a file, the engine and the game among them.
+    // loaded from a file, the engine's every one and the game among them.
     [UnconditionalSuppressMessage("SingleFile", "IL3000", Justification = "An assembly with no file has an empty Location and is left out.")]
     private static List<MetadataReference> References()
     {
         var paths = new HashSet<string>(CompilerReferences.Platform());
+        EngineAssemblies.Load();
         foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
             if (!assembly.IsDynamic && assembly.Location is { Length: > 0 } location)
                 paths.Add(location);

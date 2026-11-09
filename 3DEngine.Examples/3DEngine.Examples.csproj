@@ -1,6 +1,9 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
+        <!-- A program on the package gets every area's package through the engine's, and the
+             projects' references reach this one the same way through the engine's project. -->
+        <DisableTransitiveProjectReferences>false</DisableTransitiveProjectReferences>
         <OutputType>Exe</OutputType>
         <IsPackable>false</IsPackable>
         <RootNamespace>Engine.Examples</RootNamespace>

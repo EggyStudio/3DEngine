@@ -3,7 +3,7 @@ namespace Engine;
 /// <summary>
 /// Convenience helpers that collapse the standard "load a <see cref="TextureAsset"/> through
 /// the <see cref="AssetServer"/>" boilerplate into single calls. Mirrors
-/// <see cref="SceneSpawnExtensions"/>, where the lower-level building blocks remain available
+/// <c>SceneSpawnExtensions</c>, where the lower-level building blocks remain available
 /// for callers who need fine-grained control.
 /// </summary>
 /// <remarks>
@@ -30,7 +30,6 @@ namespace Engine;
 /// </example>
 /// <seealso cref="TextureAsset"/>
 /// <seealso cref="TextureAssetLoader"/>
-/// <seealso cref="SceneSpawnExtensions"/>
 internal static class TextureLoadExtensions
 {
     /// <summary>Loads a <see cref="TextureAsset"/> via the <see cref="AssetServer"/> with no overrides.</summary>

@@ -18,7 +18,7 @@ namespace Engine;
 /// </para>
 /// <para>
 /// <b>Order:</b> add <i>after</i> <see cref="AssetPlugin"/>;
-/// <see cref="DefaultPlugins"/> brings this up automatically. The plugin re-syncs the
+/// <c>DefaultPlugins</c> brings this up automatically. The plugin re-syncs the
 /// shared <see cref="SoundAssetLoader"/> with the <see cref="AssetServer"/> after
 /// every backend has registered its decoders so the loader's
 /// <see cref="SoundAssetLoader.Extensions"/> array reflects every supported format.

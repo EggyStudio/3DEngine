@@ -60,7 +60,7 @@ internal sealed class GlobalIlluminationSettings
     /// <summary>Whether the surfaces the rays meet take none of the indirect light that reached them the frame before, so light makes one bounce, as <c>gi.toggle again off</c> sets it.</summary>
     public bool AgainOff { get; set; }
 
-    /// <summary>What the indirect light reaching the surfaces the rays meet is taken times, 1 unless <see cref="E3D.SetBounceGain"/> set it.</summary>
+    /// <summary>What the indirect light reaching the surfaces the rays meet is taken times, 1 unless <c>E3D.SetBounceGain</c> set it.</summary>
     public float BounceGain { get; set; } = 1;
 
     /// <summary>

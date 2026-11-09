@@ -168,7 +168,7 @@ public class SceneMigrationTests
         ((string)AppContext.GetData("TRUSTED_PLATFORM_ASSEMBLIES")!)
         .Split(Path.PathSeparator)
         .Select(path => MetadataReference.CreateFromFile(path))
-        .Append(MetadataReference.CreateFromFile(typeof(App).Assembly.Location));
+        .Concat(TestEngine.References());
 
     // Runs the scene component generator over the source, emits the result and loads it, running
     // its module initializer, which registers the codecs, into a context that can be let go.

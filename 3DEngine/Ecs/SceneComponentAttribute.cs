@@ -6,7 +6,7 @@ namespace Engine;
 
 /// <summary>
 /// Marks a component struct as one a scene file saves and loads. Its public fields of the types
-/// <see cref="SceneFile"/> knows are written by name, and the rest are left out.
+/// <c>SceneFile</c> knows are written by name, and the rest are left out.
 /// </summary>
 /// <remarks>
 /// The generator writes the code that saves and loads it, so no reflection runs when a scene is

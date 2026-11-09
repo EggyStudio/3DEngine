@@ -206,7 +206,9 @@ build/pack.sh        # Release build, `e3d shaders` into build/shader-cache, the
 
 The package lands in `build/package` and carries:
 
-- the library, with SDL3's native libraries through the `SDL3-CS.Native` dependency;
+- the flat API's library, and as its dependencies a package for each area of the engine at the
+  same version, the platform's bringing SDL3's native libraries through `SDL3-CS.Native` and the
+  renderer's carrying the Sky module beside its library;
 - the built-in shaders, as content files that land in `source/shaders` beside a game's program;
 - those shaders compiled to SPIR-V by `e3d shaders`, landing in `source/.slang-cache`, so a game
   loads them with no `slangc` of its own;
@@ -215,10 +217,10 @@ The package lands in `build/package` and carries:
 
 A game's own shaders still need `slangc` (through `ENGINE_SLANGC` or `PATH`), or a cache it
 compiles the same way with `e3d shaders <folder> <cache>`. A game outside this repository built
-from a local pack points a `nuget.config` at the folder, which maps `3DEngine` to the folder alone
-(`packageSourceMapping`), as the one below and the games' do, so the version on nuget.org is not
-taken in its place, and `dotnet add package` is given the version, since without one it takes the
-newest version nuget.org lists before the mapping applies.
+from a local pack points a `nuget.config` at the folder, which maps `3DEngine` and `3DEngine.*`, the
+areas' packages, to the folder alone (`packageSourceMapping`), as the one below and the games' do,
+so the version on nuget.org is not taken in its place, and `dotnet add package` is given the
+version, since without one it takes the newest version nuget.org lists before the mapping applies.
 
 A release is made by the `pack` workflow (`pack.yml`), run from the Actions tab on GitHub. It runs
 the build workflow (`build.yml`), the one each push runs, with its `pack` input set, which adds to
@@ -226,7 +228,7 @@ what a push runs every example captured for the gallery and measured against ray
 (`captures`), every game played, captured, soaked and resized and the README followed on Linux
 (`games`), every example captured on the macOS runner's GPU (`captures-macos`), and every game
 played on Windows and macOS. Only once every job passes does it pack with `build/pack.sh <version>`
-and keep the package as the run's artifact, and with its "publish" box ticked it pushes both
+and keep the packages as the run's artifact, and with its "publish" box ticked it pushes the
 packages to nuget.org through nuget.org's trusted publishing, with no key stored. A policy on
 nuget.org, owned by the user EggyStudio, names the repository owner EggyStudio, the repository
 3DEngine, the workflow file `pack.yml`, no environment, the push scope and the packages `3DEngine*`,
@@ -259,17 +261,18 @@ by hand, so the job fails with the reason until the one it reads is there.
 
 ### The public surface
 
-`3DEngine/PublicApi.txt` lists every public type of the engine and every member a game can reach,
-a line each, read from the built assembly. The suite fails while the two differ, naming the lines
-added and removed, so a commit that adds, removes or reshapes anything a game calls carries the
-change to that file and is read as one, which the patch number alone does not say. Once a change
-to the surface is meant, `build/api.sh` writes the file again. `3DEngine/Graphics/DeviceSurface.txt`
-lists in the same way every member of the Vulkan device and of its nested types that the rest of
-the engine reaches, which an area's part of the device calls it through, and the script writes it
-too:
+Each project of the engine has a `PublicApi.txt` beside its project file, the flat API's at
+`3DEngine/PublicApi.txt`, which lists every public type of that project and every member a game can
+reach, a line each, read from the built assembly. The suite fails while a listing and its assembly
+differ, naming the lines added and removed, so a commit that adds, removes or reshapes anything a
+game calls carries the change to that file and is read as one, which the patch number alone does
+not say. Once a change to a surface is meant, `build/api.sh` writes the listings again.
+`3DEngine/Graphics/DeviceSurface.txt` lists in the same way every member of the Vulkan device and of
+its nested types that the rest of the engine reaches, which an area's part of the device calls it
+through, and the script writes it too:
 
 ```bash
-build/api.sh         # both listings from the built engine, and what changed in them
+build/api.sh         # every listing from the built engine, and what changed in them
 ```
 
 `CHEATSHEET.md`'s lists of the flat API's functions are written from the source of
@@ -316,6 +319,7 @@ place of the one shown:
   <packageSourceMapping>
     <packageSource key="engine">
       <package pattern="3DEngine" />
+      <package pattern="3DEngine.*" />
     </packageSource>
     <packageSource key="nuget.org">
       <package pattern="*" />

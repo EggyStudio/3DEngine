@@ -26,7 +26,7 @@ namespace Engine;
 ///   </description></item>
 /// </list>
 /// <para>
-/// <b>Order:</b> add <i>after</i> <see cref="AssetPlugin"/>; <see cref="DefaultPlugins"/>
+/// <b>Order:</b> add <i>after</i> <see cref="AssetPlugin"/>; <c>DefaultPlugins</c>
 /// brings this up automatically. The plugin re-registers
 /// <see cref="TextureAssetLoader"/> with the <see cref="AssetServer"/> after the bundled
 /// backends are registered so that the loader's

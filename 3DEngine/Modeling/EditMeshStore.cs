@@ -1,9 +1,9 @@
 namespace Engine;
 
-/// <summary>The edit meshes the flat API made, by id, which a program frees with <see cref="E3D.UnloadEditMesh"/>.</summary>
+/// <summary>The edit meshes the flat API made, by id, which a program frees with <c>E3D.UnloadEditMesh</c>.</summary>
 /// <remarks>
 /// An edit mesh is data on the CPU and needs no window or device, so the store is the process's own
-/// rather than a resource of the app, and a program shapes a mesh before <see cref="E3D.InitWindow"/>
+/// rather than a resource of the app, and a program shapes a mesh before <c>E3D.InitWindow</c>
 /// as well as after it. The lock keeps the ids of two threads apart, since a system may make a mesh
 /// while the program's loop makes another.
 /// </remarks>

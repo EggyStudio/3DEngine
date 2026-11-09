@@ -1,0 +1,135 @@
+delegate void Engine.AudioCallback(Span<float> samples)
+struct Engine.AudioListener
+  float MasterVolume
+  static AudioListener Default { get; }
+sealed class Engine.AudioServer : IDisposable
+  AudioServer()
+  AudioSource Play(Handle<Sound> handle, Assets<Sound> assets, AudioVoiceParams parameters = default)
+  AudioSource Play(Sound sound, AudioVoiceParams parameters = default)
+  IAudioBackend Backend { get; }
+  ISpatialAudioProcessor? Spatial { get; }
+  Quaternion ListenerOrientation { get; set; }
+  Vector3 ListenerPosition { get; set; }
+  const float DefaultFarDistance = 50f
+  const float DefaultNearDistance = 1f
+  const float DefaultReverbDecay = 1.5f
+  const float DefaultReverbSize = 10f
+  float FarDistance { get; set; }
+  float MasterVolume { get; set; }
+  float NearDistance { get; set; }
+  float ReverbDecay { get; set; }
+  float ReverbSize { get; set; }
+  int LiveSourceCount { get; }
+  void Dispose()
+readonly struct Engine.AudioSource : IEquatable<AudioSource>
+  AudioServer? Server { get; }
+  bool Equals(AudioSource other)
+  bool IsPlaying { get; }
+  bool IsValid { get; }
+  int Id { get; }
+  override bool Equals(object? obj)
+  override int GetHashCode()
+  override string ToString()
+  static AudioSource Invalid { get; }
+  static bool op_Equality(AudioSource left, AudioSource right)
+  static bool op_Inequality(AudioSource left, AudioSource right)
+  void SetDirectivity(float dipoleWeight, float dipolePower = 1f)
+  void SetLooping(bool looping)
+  void SetLowPass(float cutoff)
+  void SetOrientation(Quaternion orientation)
+  void SetPan(float pan)
+  void SetPaused(bool paused)
+  void SetPlaybackRate(float rate)
+  void SetPosition(Vector3 position)
+  void SetReverb(float share)
+  void SetVolume(float volume)
+  void Stop()
+readonly struct Engine.AudioVoiceParams : IEquatable<AudioVoiceParams>
+  Quaternion? Orientation { get; init; }
+  Vector3? Position { get; init; }
+  bool Equals(AudioVoiceParams other)
+  bool Looping { get; init; }
+  bool Pannable { get; init; }
+  bool Paused { get; init; }
+  float DipolePower { get; init; }
+  float DipoleWeight { get; init; }
+  float FarDistance { get; init; }
+  float LowPass { get; init; }
+  float NearDistance { get; init; }
+  float Pan { get; init; }
+  float PlaybackRate { get; init; }
+  float Reverb { get; init; }
+  float Volume { get; init; }
+  override bool Equals(object obj)
+  override int GetHashCode()
+  override string ToString()
+  static AudioVoiceParams Default { get; }
+  static bool op_Equality(AudioVoiceParams left, AudioVoiceParams right)
+  static bool op_Inequality(AudioVoiceParams left, AudioVoiceParams right)
+static class Engine.BehaviorSounds
+  static AudioSource PlaySpatialSound(this BehaviorContext ctx, string path, Vector3 position, AudioVoiceParams parameters = default)
+interface Engine.IAudioBackend : IDisposable
+  bool IsInitialized { get; }
+  bool IsVoicePlaying(int voiceId)
+  int CreateStreamVoice(int channels, int sampleRate, in AudioVoiceParams parameters)
+  int CreateVoice(Sound sound, in AudioVoiceParams parameters)
+  int DeviceChannels { get; }
+  int DeviceSampleRate { get; }
+  long QueuedVoiceFrames(int voiceId)
+  string BackendId { get; }
+  void Initialize()
+  void QueueVoiceSamples(int voiceId, ReadOnlySpan<float> samples)
+  void SetListenerPosition(Vector3 position)
+  void SetMixedProcessors(AudioCallback[] processors)
+  void SetReverb(float size, float decay)
+  void SetVoiceLooping(int voiceId, bool looping)
+  void SetVoiceLowPass(int voiceId, float cutoff)
+  void SetVoicePan(int voiceId, float pan)
+  void SetVoicePaused(int voiceId, bool paused)
+  void SetVoicePlaybackRate(int voiceId, float rate)
+  void SetVoicePosition(int voiceId, Vector3 position)
+  void SetVoiceReverb(int voiceId, float share)
+  void SetVoiceVolume(int voiceId, float volume)
+  void StopVoice(int voiceId)
+  void Update()
+interface Engine.ISpatialAudioProcessor : IDisposable
+  SpatialResult Compute(int voiceId, Vector3 sourcePosition, Vector3 listenerPosition, in SpatialContext context)
+  string ProcessorId { get; }
+  void Initialize()
+sealed class Engine.Sound
+  Sound()
+  double DurationSeconds { get; }
+  float[] Samples { get; init; }
+  int Channels { get; init; }
+  int FrameCount { get; }
+  int SampleRate { get; init; }
+  string SourceFormat { get; init; }
+  string SourcePath { get; init; }
+readonly struct Engine.SpatialContext : IEquatable<SpatialContext>
+  Vector3 ListenerForward { get; init; }
+  Vector3 ListenerUp { get; init; }
+  Vector3 SourceForward { get; init; }
+  Vector3 SourceUp { get; init; }
+  bool Equals(SpatialContext other)
+  float DipolePower { get; init; }
+  float DipoleWeight { get; init; }
+  float FarDistance { get; init; }
+  float NearDistance { get; init; }
+  override bool Equals(object obj)
+  override int GetHashCode()
+  override string ToString()
+  static SpatialContext Empty { get; }
+  static bool op_Equality(SpatialContext left, SpatialContext right)
+  static bool op_Inequality(SpatialContext left, SpatialContext right)
+readonly struct Engine.SpatialResult : IEquatable<SpatialResult>
+  bool Equals(SpatialResult other)
+  float DirectivityAttenuation { get; init; }
+  float DistanceAttenuation { get; init; }
+  float Pan { get; init; }
+  float VolumeAttenuation { get; init; }
+  override bool Equals(object obj)
+  override int GetHashCode()
+  override string ToString()
+  static SpatialResult Pass { get; }
+  static bool op_Equality(SpatialResult left, SpatialResult right)
+  static bool op_Inequality(SpatialResult left, SpatialResult right)

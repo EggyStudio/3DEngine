@@ -1,0 +1,25 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <AssemblyName>3DEngine.Gui</AssemblyName>
+        <PackageId>3DEngine.Gui</PackageId>
+        <Title>3DEngine.Gui</Title>
+        <Description>Dear ImGui's context, its input and its Vulkan pass.</Description>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\Core\3DEngine.Core.csproj" />
+        <ProjectReference Include="..\Diagnostics\3DEngine.Diagnostics.csproj" />
+        <ProjectReference Include="..\Graphics\3DEngine.Graphics.csproj" />
+        <ProjectReference Include="..\Platform\3DEngine.Platform.csproj" />
+        <ProjectReference Include="..\Assets\3DEngine.Assets.csproj" />
+        <ProjectReference Include="..\Rendering\3DEngine.Rendering.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Twizzle.ImGui-Bundle.NET" Version="1.91.5.2" />
+        <PackageReference Include="SDL3-CS" Version="3.5.0-preview.20260213-150035" />
+        <PackageReference Include="Vortice.Vulkan" Version="3.2.1" />
+    </ItemGroup>
+
+</Project>

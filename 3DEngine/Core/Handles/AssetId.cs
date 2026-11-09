@@ -5,12 +5,11 @@ namespace Engine;
 /// combined with an internal generation counter for type safety.
 /// </summary>
 /// <remarks>
-/// Asset IDs are assigned by the <see cref="AssetServer"/> when <c>Load</c> is called.
+/// Asset IDs are assigned by the <c>AssetServer</c> when <c>Load</c> is called.
 /// Two handles pointing to the same asset share the same <see cref="AssetId"/>.
 /// The <see cref="Invalid"/> sentinel represents an uninitialized or failed handle.
 /// </remarks>
 /// <seealso cref="Handle{T}"/>
-/// <seealso cref="AssetServer"/>
 public readonly record struct AssetId : IComparable<AssetId>
 {
     private static long _next;

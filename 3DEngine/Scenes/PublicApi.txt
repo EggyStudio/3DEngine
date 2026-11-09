@@ -1,0 +1,49 @@
+sealed class Engine.AssetRelease
+  AssetRelease()
+  double Grace { get; set; }
+  int Held { get; }
+  int Released { get; }
+  static void Run(World world)
+sealed class Engine.DataAssetAttribute : Attribute
+  DataAssetAttribute()
+sealed class Engine.DataVersionAttribute : Attribute
+  DataVersionAttribute(int version)
+  int Version { get; }
+sealed class Engine.FormerNameAttribute : Attribute
+  FormerNameAttribute(string name)
+  string Name { get; }
+struct Engine.ModelRef
+  string Path
+sealed class Engine.Persistent<T>
+  Persistent(string fileName, T? fallback, bool saveOnChange = false)
+  T? Value { get; }
+  bool Changed { get; }
+  string Path { get; }
+  string? Problem { get; }
+  void Reset()
+  void Revert()
+  void Save()
+  void Set(T? value)
+  void Update(Func<T?, T?> change)
+static class Engine.SaveGame
+  const int Version = 1
+  const string Format = "3dengine-save"
+  static IReadOnlyList<string> ScenesOf(World world)
+  static List<int> Load(World world, string path)
+  static List<int> Start(World world, params string[] scenes)
+  static int Save(World world, string path)
+struct Engine.Saved
+struct Engine.SceneRef
+  string Path
+sealed class Engine.SceneSpawnSettings
+  Matrix4x4 Placement { get; init; }
+  SceneCoordinateSystem TargetCoordinateSystem { get; init; }
+  ScenePurposeMask IncludePurposes { get; init; }
+  SceneSpawnSettings()
+  Vector4 DefaultAlbedo { get; init; }
+  bool AttachSceneInstanceMarker { get; init; }
+  double TargetMetersPerUnit { get; init; }
+  static SceneSpawnSettings Default { get; }
+struct Engine.SpawnSceneRequest
+  Handle<SceneAsset> Handle
+  SceneSpawnSettings? Settings

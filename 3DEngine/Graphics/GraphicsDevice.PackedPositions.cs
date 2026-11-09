@@ -43,7 +43,7 @@ internal sealed unsafe partial class GraphicsDevice
 /// <remarks>
 /// The power of two, the quantum, is the smallest whose 32,767 multiples reach every position, so
 /// the integers are the positions themselves divided by it, exactly, and the quantum is folded into
-/// the three columns of each instance's world matrix that turn a position (<see cref="ModelRenderer"/>),
+/// the three columns of each instance's world matrix that turn a position (<c>ModelRenderer</c>),
 /// which a power of two scales exactly. The vertex stage's sum of the integers through those rows
 /// and the translation is then the float the floats would give, bit for bit, so two meshes' shared
 /// corners agree as they did, and no shader changes. A mesh with a position off its grid keeps

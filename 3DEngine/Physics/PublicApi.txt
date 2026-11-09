@@ -1,0 +1,225 @@
+static class Engine.BehaviorContextPhysics
+  static PhysicsWorld get_Physics(BehaviorContext context)
+sealed class Engine.BehaviorContextPhysics.<G>$A7E56A9E186CAC295BECB17AD5EE8022
+  PhysicsWorld Physics { get; }
+static class Engine.BehaviorContextPhysics.<G>$A7E56A9E186CAC295BECB17AD5EE8022.<M>$6650CE80E598B085DF4C1E778BBC5506
+enum Engine.BodyKind : byte
+  Dynamic = 0
+  Kinematic = 1
+  Static = 2
+struct Engine.CharacterController
+  Vector3 Velocity
+  bool Fly
+  bool Grounded
+  float Height
+  float Jump
+  float MaxSlope
+  float StepHeight
+  static CharacterController Default { get; }
+struct Engine.Collider
+  ColliderShape Shape
+  Vector3 Size
+  bool IsTrigger
+  float Height
+  float Radius
+  int Layer
+  static Collider Box(Vector3 size)
+  static Collider Capsule(float radius, float height)
+  static Collider ConvexHull { get; }
+  static Collider Mesh { get; }
+  static Collider Sphere(float radius)
+enum Engine.ColliderShape : int
+  Box = 0
+  Capsule = 2
+  ConvexHull = 4
+  Mesh = 3
+  Sphere = 1
+readonly struct Engine.ContactEnded : IEquatable<ContactEnded>
+  ContactEnded(Entity A, Entity B, PhysicsBody BodyA, PhysicsBody BodyB)
+  Entity A { get; init; }
+  Entity B { get; init; }
+  PhysicsBody BodyA { get; init; }
+  PhysicsBody BodyB { get; init; }
+  bool Equals(ContactEnded other)
+  bool Involves(Entity entity, out Entity other)
+  override bool Equals(object obj)
+  override int GetHashCode()
+  override string ToString()
+  static bool op_Equality(ContactEnded left, ContactEnded right)
+  static bool op_Inequality(ContactEnded left, ContactEnded right)
+  void Deconstruct(out Entity A, out Entity B, out PhysicsBody BodyA, out PhysicsBody BodyB)
+readonly struct Engine.ContactStarted : IEquatable<ContactStarted>
+  ContactStarted(Entity A, Entity B, PhysicsBody BodyA, PhysicsBody BodyB, Vector3 Point = default, Vector3 Normal = default, float Speed = 0f)
+  Entity A { get; init; }
+  Entity B { get; init; }
+  PhysicsBody BodyA { get; init; }
+  PhysicsBody BodyB { get; init; }
+  Vector3 Normal { get; init; }
+  Vector3 NormalToward(Entity entity)
+  Vector3 Point { get; init; }
+  bool Equals(ContactStarted other)
+  bool Involves(Entity entity, out Entity other)
+  float Speed { get; init; }
+  override bool Equals(object obj)
+  override int GetHashCode()
+  override string ToString()
+  static bool op_Equality(ContactStarted left, ContactStarted right)
+  static bool op_Inequality(ContactStarted left, ContactStarted right)
+  void Deconstruct(out Entity A, out Entity B, out PhysicsBody BodyA, out PhysicsBody BodyB, out Vector3 Point, out Vector3 Normal, out float Speed)
+struct Engine.Joint
+  Entity A
+  Entity B
+  JointKind Kind
+  float MaxAngle
+  float MaxDistance
+  float MinAngle
+  float MinDistance
+  float MotorSpeed
+  float MotorTorque
+  float Swing
+  float Twist
+enum Engine.JointKind : int
+  Ball = 0
+  Distance = 3
+  Hinge = 1
+  Slider = 4
+  Weld = 2
+readonly struct Engine.PhysicsBody : IEquatable<PhysicsBody>
+  PhysicsBody(PhysicsWorld world, int handle, BodyKind kind)
+  Quaternion Rotation { get; set; }
+  Vector3 AngularVelocity { get; }
+  Vector3 Position { get; set; }
+  Vector3 Velocity { get; }
+  bool Equals(PhysicsBody other)
+  bool IsAwake { get; }
+  bool IsValid { get; }
+  override bool Equals(object? obj)
+  override int GetHashCode()
+  readonly BodyKind Kind
+  readonly PhysicsWorld? World
+  readonly int Handle
+  static bool op_Equality(PhysicsBody a, PhysicsBody b)
+  static bool op_Inequality(PhysicsBody a, PhysicsBody b)
+  void ApplyAngularImpulse(Vector3 impulse)
+  void ApplyImpulse(Vector3 impulse)
+  void ApplyImpulseAtPoint(Vector3 impulse, Vector3 worldPoint)
+  void Destroy()
+  void SetAngularVelocity(Vector3 velocity)
+  void SetLinearVelocity(Vector3 velocity)
+  void SetPosition(Vector3 position)
+  void SetRotation(Quaternion rotation)
+  void Sleep()
+  void Wake()
+readonly struct Engine.PhysicsContact : IEquatable<PhysicsContact>
+  Entity A { get; init; }
+  Entity B { get; init; }
+  PhysicsBody BodyA { get; init; }
+  PhysicsBody BodyB { get; init; }
+  PhysicsContact(PhysicsBody BodyA, PhysicsBody BodyB, Entity A, Entity B, Vector3 Point = default, Vector3 Normal = default, float Speed = 0f)
+  Vector3 Normal { get; init; }
+  Vector3 Point { get; init; }
+  bool Equals(PhysicsContact other)
+  float Speed { get; init; }
+  override bool Equals(object obj)
+  override int GetHashCode()
+  override string ToString()
+  static bool op_Equality(PhysicsContact left, PhysicsContact right)
+  static bool op_Inequality(PhysicsContact left, PhysicsContact right)
+  void Deconstruct(out PhysicsBody BodyA, out PhysicsBody BodyB, out Entity A, out Entity B, out Vector3 Point, out Vector3 Normal, out float Speed)
+readonly struct Engine.PhysicsJoint : IEquatable<PhysicsJoint>
+  PhysicsJoint(int Handle)
+  bool Equals(PhysicsJoint other)
+  bool IsValid { get; }
+  int Handle { get; init; }
+  override bool Equals(object obj)
+  override int GetHashCode()
+  override string ToString()
+  static PhysicsJoint None { get; }
+  static bool op_Equality(PhysicsJoint left, PhysicsJoint right)
+  static bool op_Inequality(PhysicsJoint left, PhysicsJoint right)
+  void Deconstruct(out int Handle)
+struct Engine.PhysicsMaterial
+  float AngularDamping
+  float Friction
+  float LinearDamping
+  float Restitution
+  static PhysicsMaterial Default { get; }
+struct Engine.PhysicsRayCollision
+  PhysicsBody Body
+  Vector3 Normal
+  Vector3 Point
+  bool Hit
+  float Distance
+  int EntityId
+sealed class Engine.PhysicsSettings
+  PhysicsSettings()
+  Vector3 Gravity { get; set; }
+  bool Interpolate { get; set; }
+  bool Paused { get; set; }
+  bool UseFixedTimestep { get; set; }
+  float FixedTimeStep { get; set; }
+  float PlaceBeyond { get; set; }
+  int SubstepCount { get; set; }
+  int ThreadedAbove { get; set; }
+  int VelocityIterations { get; set; }
+  int WorkerThreads { get; set; }
+sealed class Engine.PhysicsWorld : IDisposable
+  (Vector3, Quaternion) GetPose(PhysicsBody body, float alpha)
+  PhysicsBody CreateBox(Vector3 position, Vector3 halfExtents, float mass = 1f, PhysicsMaterial? material = null, int entityId = 0)
+  PhysicsBody CreateStaticBox(Vector3 position, Vector3 halfExtents, PhysicsMaterial? material = null, int entityId = 0)
+  PhysicsWorld()
+  PhysicsWorld(PhysicsSettings settings)
+  Vector3 GetPosition(PhysicsBody body)
+  Vector3 Gravity { get; set; }
+  bool Exists(PhysicsBody body)
+  void Dispose()
+  void MarkPlaced(Entity entity)
+  void Place(PhysicsBody body, Vector3 position, Quaternion rotation)
+  void SetLinearVelocity(PhysicsBody body, Vector3 velocity)
+  void SetPosition(PhysicsBody body, Vector3 position)
+struct Engine.RigidBody
+  BodyKind Kind
+  bool Continuous
+  float Mass
+  static RigidBody Dynamic(float mass = 1f)
+  static RigidBody Kinematic { get; }
+  static RigidBody Static { get; }
+struct Engine.Vehicle : IEquatable<Vehicle>
+  Vector3[]? Wheels { get; init; }
+  Vehicle()
+  VehicleDrive Drive { get; init; }
+  bool Equals(Vehicle other)
+  float BrakeForce { get; init; }
+  float Damper { get; init; }
+  float Downforce { get; init; }
+  float Drag { get; init; }
+  float EngineForce { get; init; }
+  float Grip { get; init; }
+  float MaxSteer { get; init; }
+  float Spring { get; init; }
+  float SuspensionLength { get; init; }
+  float WheelRadius { get; init; }
+  override bool Equals(object obj)
+  override int GetHashCode()
+  override string ToString()
+  static bool op_Equality(Vehicle left, Vehicle right)
+  static bool op_Inequality(Vehicle left, Vehicle right)
+enum Engine.VehicleDrive : int
+  All = 2
+  Front = 1
+  Rear = 0
+readonly struct Engine.VehicleWheel : IEquatable<VehicleWheel>
+  Vector3 Center { get; init; }
+  Vector3 Contact { get; init; }
+  VehicleWheel(Vector3 Center, Vector3 Contact, bool Grounded, float Slip, float Spin, float Steer)
+  bool Equals(VehicleWheel other)
+  bool Grounded { get; init; }
+  float Slip { get; init; }
+  float Spin { get; init; }
+  float Steer { get; init; }
+  override bool Equals(object obj)
+  override int GetHashCode()
+  override string ToString()
+  static bool op_Equality(VehicleWheel left, VehicleWheel right)
+  static bool op_Inequality(VehicleWheel left, VehicleWheel right)
+  void Deconstruct(out Vector3 Center, out Vector3 Contact, out bool Grounded, out float Slip, out float Spin, out float Steer)

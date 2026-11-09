@@ -1,0 +1,26 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <AssemblyName>3DEngine.Platform</AssemblyName>
+        <PackageId>3DEngine.Platform</PackageId>
+        <Title>3DEngine.Platform</Title>
+        <Description>The window, its input and the main loop over SDL3.</Description>
+    </PropertyGroup>
+
+    <!-- The audio below this folder is a project of its own. -->
+    <PropertyGroup>
+        <DefaultItemExcludes>$(DefaultItemExcludes);Audio\**</DefaultItemExcludes>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\Core\3DEngine.Core.csproj" />
+        <ProjectReference Include="..\Diagnostics\3DEngine.Diagnostics.csproj" />
+        <ProjectReference Include="..\Graphics\3DEngine.Graphics.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="SDL3-CS" Version="3.5.0-preview.20260213-150035" />
+        <PackageReference Include="SDL3-CS.Native" Version="3.5.0-preview.20260205-174353" />
+    </ItemGroup>
+
+</Project>

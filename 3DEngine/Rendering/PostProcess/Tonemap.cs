@@ -54,14 +54,14 @@ public enum Tonemap
     BlenderFilmic,
 
     /// <summary>
-    /// A curve set by four numbers, as BSL's shader draws it, which <see cref="E3D.SetTonemapCurve"/>
+    /// A curve set by four numbers, as BSL's shader draws it, which <c>E3D.SetTonemapCurve</c>
     /// chooses, an exposure of 1.4, a white curve of 2, a lower curve of 1.2 and an upper of 1.5 until
     /// set.
     /// </summary>
     Curve,
 
     /// <summary>
-    /// A table loaded from a file, which <see cref="E3D.SetTonemapLookup"/> loads and chooses, the
+    /// A table loaded from a file, which <c>E3D.SetTonemapLookup</c> loads and chooses, the
     /// light encoded by ARRI's LogC to look it up, the encoding such tables are made for, and cut
     /// at 1 until one is loaded.
     /// </summary>

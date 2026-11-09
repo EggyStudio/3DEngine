@@ -2,7 +2,7 @@ namespace Engine;
 
 /// <summary>
 /// A polygon mesh shaped by primitives and by operations on its selection, by its id. It is made
-/// by <see cref="E3D.LoadEditMesh()"/> and freed by <see cref="E3D.UnloadEditMesh"/>.
+/// by <c>E3D.LoadEditMesh()</c> and freed by <c>E3D.UnloadEditMesh</c>.
 /// </summary>
 /// <remarks>
 /// <para>

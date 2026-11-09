@@ -85,6 +85,7 @@ public sealed partial class App : IDisposable
         FileLoggerProvider.Initialize(logPath);
 
         Log.PrintStartupBanner();
+        EngineAssemblies.Load();
         if (Interlocked.Exchange(ref _exitLogged, 1) == 0)
             AppDomain.CurrentDomain.ProcessExit += (_, _) => Logger.Info($"The process exits with code {Environment.ExitCode}.");
         Logger.Info("Creating App instance...");

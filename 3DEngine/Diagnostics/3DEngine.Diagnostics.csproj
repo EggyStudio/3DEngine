@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <AssemblyName>3DEngine.Diagnostics</AssemblyName>
+        <PackageId>3DEngine.Diagnostics</PackageId>
+        <Title>3DEngine.Diagnostics</Title>
+        <Description>The console, its command catalog and the [Command] attribute, the log ring, the synthetic input the console makes and the readers of animation and GIF files.</Description>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\Core\3DEngine.Core.csproj" />
+    </ItemGroup>
+
+</Project>

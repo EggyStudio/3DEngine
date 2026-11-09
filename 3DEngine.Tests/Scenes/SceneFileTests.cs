@@ -139,7 +139,7 @@ public class SceneFileTests
             """;
         var references = ((string)AppContext.GetData("TRUSTED_PLATFORM_ASSEMBLIES")!)
             .Split(Path.PathSeparator).Select(path => MetadataReference.CreateFromFile(path))
-            .Append(MetadataReference.CreateFromFile(typeof(App).Assembly.Location));
+            .Concat(TestEngine.References());
         var compilation = CSharpCompilation.Create("Scenes", [CSharpSyntaxTree.ParseText(source)], references,
             new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
 

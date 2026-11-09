@@ -7,10 +7,11 @@ using Engine.Tests.Api;
 namespace Engine.Tests.Package;
 
 /// <summary>
-/// The newest engine package in build/package, as <c>build/pack.sh</c> made it, opened and read for
-/// what a game built on it needs, the engine, its generator, its documentation, its compiled
-/// shaders, its readme, license, notices and release notes, and a native library from its
-/// dependencies for each system it runs on. The pack workflow runs these before a package is offered.
+/// The newest engine package in build/package, as <c>build/pack.sh</c> made it, with the packages of
+/// the engine's areas it depends on, opened and read for what a game built on it needs, the flat API
+/// and each area, the generator, the documentation, the compiled shaders, the readme, license,
+/// notices and release notes, and a native library from their dependencies for each system it runs
+/// on. The pack workflow runs these before a package is offered.
 /// </summary>
 public sealed class PackageContentsTests
 {
@@ -20,13 +21,23 @@ public sealed class PackageContentsTests
         using var package = Open();
         Entries(package).Should().Contain(["lib/net10.0/3DEngine.dll", "lib/net10.0/3DEngine.xml",
             "analyzers/dotnet/cs/3DEngine.Generator.dll", "analyzers/dotnet/cs/3DEngine.CodeFixes.dll"]);
-        // The modules under modules/, no packages of their own, carried beside the engine with
-        // their documentation, so a game compiles against the Sky module's types the API takes.
-        Entries(package).Should().Contain(["lib/net10.0/Sky.dll", "lib/net10.0/Sky.xml"]);
-
         // The documentation of the flat API, which a game's editor shows on hovering a call.
         var documentation = Read(package, "lib/net10.0/3DEngine.xml");
         documentation.Should().Contain("M:Engine.E3D.InitWindow(", "the documentation file is the engine's");
+
+        // Each area's package at the same version, its library and its documentation, which the
+        // engine's package names as a dependency, so a game's one reference brings every area.
+        var version = Element(Spec(package), "version")!;
+        foreach (var name in EngineAssemblies.Names.Where(name => name != "3DEngine"))
+        {
+            Dependencies(Spec(package)).Should().Contain((name, version), $"the engine's package depends on {name} at its own version");
+            using var area = OpenArea(name, version);
+            Entries(area).Should().Contain([$"lib/net10.0/{name}.dll", $"lib/net10.0/{name}.xml"]);
+        }
+        // The modules under modules/, no packages of their own, carried beside the renderer with
+        // their documentation, so a game compiles against the Sky module's types the API takes.
+        using var rendering = OpenArea("3DEngine.Rendering", version);
+        Entries(rendering).Should().Contain(["lib/net10.0/Sky.dll", "lib/net10.0/Sky.xml"]);
     }
 
     [NeedsPackageFact]
@@ -80,7 +91,7 @@ public sealed class PackageContentsTests
 
         // Every package the engine depends on is named in the notices with its license.
         var notices = Read(package, "THIRD-PARTY-NOTICES.md");
-        foreach (var (id, _) in Dependencies(spec))
+        foreach (var (id, _) in OutsideDependencies(package))
             notices.Should().Contain(id, $"{id} is a dependency of the package, so the notices name it");
     }
 
@@ -88,7 +99,7 @@ public sealed class PackageContentsTests
     public void Each_System_The_Package_Runs_On_Has_Its_Native_Libraries()
     {
         using var package = Open();
-        var dependencies = Dependencies(Spec(package));
+        var dependencies = OutsideDependencies(package);
         var packages = Environment.GetEnvironmentVariable("NUGET_PACKAGES")
                        ?? Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".nuget", "packages");
 
@@ -128,10 +139,33 @@ public sealed class PackageContentsTests
     {
         var folder = Path.Combine(CheatsheetTests.RepoRoot(), "build", "package");
         if (!Directory.Exists(folder)) return null;
+        // The engine's own package, its version after its name, and not an area's or the templates'.
         return Directory.EnumerateFiles(folder, "3DEngine.*.nupkg")
-            .Where(f => !Path.GetFileName(f).StartsWith("3DEngine.Templates.") && !f.EndsWith(".snupkg"))
+            .Where(f => Regex.IsMatch(Path.GetFileName(f), @"^3DEngine\.\d") && !f.EndsWith(".snupkg"))
             .OrderByDescending(File.GetLastWriteTimeUtc)
             .FirstOrDefault();
+    }
+
+    // The package of an area at the version given, beside the engine's.
+    private static ZipArchive OpenArea(string name, string version)
+    {
+        var path = Path.Combine(CheatsheetTests.RepoRoot(), "build", "package", $"{name}.{version}.nupkg");
+        File.Exists(path).Should().BeTrue($"build/pack.sh packs {name} beside the engine's package at its version");
+        return ZipFile.OpenRead(path);
+    }
+
+    // What the engine's package and its areas' depend on that is not the engine's own.
+    private static List<(string Id, string Version)> OutsideDependencies(ZipArchive package)
+    {
+        var spec = Spec(package);
+        var version = Element(spec, "version")!;
+        var all = Dependencies(spec).ToList();
+        foreach (var name in EngineAssemblies.Names.Where(name => name != "3DEngine"))
+        {
+            using var area = OpenArea(name, version);
+            all.AddRange(Dependencies(Spec(area)));
+        }
+        return [.. all.Where(d => !EngineAssemblies.Names.Contains(d.Id)).Distinct()];
     }
 
     private static ZipArchive Open()
@@ -149,7 +183,8 @@ public sealed class PackageContentsTests
         return reader.ReadToEnd();
     }
 
-    private static XElement Spec(ZipArchive package) => XElement.Parse(Read(package, "3DEngine.nuspec"));
+    private static XElement Spec(ZipArchive package) =>
+        XElement.Parse(Read(package, package.Entries.Single(e => e.FullName.EndsWith(".nuspec", StringComparison.Ordinal) && !e.FullName.Contains('/')).FullName));
 
     private static string? Element(XElement spec, string name) => spec.Descendants().FirstOrDefault(e => e.Name.LocalName == name)?.Value;
 

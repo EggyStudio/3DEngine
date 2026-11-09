@@ -47,6 +47,7 @@ cat > "$work/nuget.config" <<EOF
   <packageSourceMapping>
     <packageSource key="engine">
       <package pattern="3DEngine" />
+      <package pattern="3DEngine.*" />
     </packageSource>
     <packageSource key="nuget.org">
       <package pattern="*" />

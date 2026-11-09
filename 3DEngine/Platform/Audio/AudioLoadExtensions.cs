@@ -6,7 +6,7 @@ namespace Engine;
 /// Convenience helpers that collapse the standard "load a <see cref="Sound"/> through
 /// the <see cref="AssetServer"/> + create a voice on the <see cref="AudioServer"/>"
 /// boilerplate into single calls. Mirrors <see cref="TextureLoadExtensions"/> /
-/// <see cref="SceneSpawnExtensions"/>.
+/// <c>SceneSpawnExtensions</c>.
 /// </summary>
 /// <remarks>
 /// <para>

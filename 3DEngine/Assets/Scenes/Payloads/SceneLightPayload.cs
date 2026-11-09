@@ -4,10 +4,10 @@ namespace Engine;
 
 /// <summary>
 /// A light read from a model or scene file, carried on a <see cref="SceneNode"/> until
-/// <see cref="LightSpawnSystem"/> turns it into a <see cref="Light"/> on the spawned entity.
+/// <c>LightSpawnSystem</c> turns it into a <c>Light</c> on the spawned entity.
 /// </summary>
 /// <remarks>
-/// The same fields as <see cref="Light"/>, which the model pass reads. A reader maps what
+/// The same fields as <c>Light</c>, which the model pass reads. A reader maps what
 /// its format has onto them. Assimp's directional, point, spot and ambient lights map directly, and
 /// an area light becomes a point light, which is the nearest thing the model pass draws.
 /// </remarks>

@@ -1,6 +1,6 @@
 namespace Engine;
 
-/// <summary>Reads a piece of music a piece at a time, for <see cref="Music"/>.</summary>
+/// <summary>Reads a piece of music a piece at a time, for <c>Music</c>.</summary>
 internal interface IMusicDecoder : IDisposable
 {
     int Channels { get; }

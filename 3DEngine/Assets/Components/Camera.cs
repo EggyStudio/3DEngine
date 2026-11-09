@@ -1,7 +1,6 @@
 namespace Engine;
 
 /// <summary>Simple perspective camera component with projection parameters.</summary>
-/// <seealso cref="ExtractedView"/>
 /// <seealso cref="Transform"/>
 [SceneComponent]
 public struct Camera
@@ -27,7 +26,7 @@ public struct Camera
 
     /// <summary>
     /// Whether the mouse picks the mesh entities this camera draws into the window, triggering a
-    /// <see cref="Pointer{TEvent}"/> on the one under it as it moves over, leaves, presses, clicks
+    /// <c>Pointer&lt;TEvent&gt;</c> on the one under it as it moves over, leaves, presses, clicks
     /// and drags.
     /// </summary>
     /// <remarks>

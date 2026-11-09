@@ -2,7 +2,7 @@ namespace Engine;
 
 /// <summary>
 /// What the mouse does to the mesh entities a picking camera draws, triggered on them before the
-/// game's update, on the main thread, since an observer may change anything. <see cref="DefaultPlugins"/>
+/// game's update, on the main thread, since an observer may change anything. <c>DefaultPlugins</c>
 /// adds it between input and the ECS, so its system runs after input's and before the behaviors'.
 /// </summary>
 internal sealed class PickingPlugin : IPlugin

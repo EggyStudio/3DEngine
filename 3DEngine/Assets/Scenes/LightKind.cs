@@ -2,7 +2,7 @@ using System.Numerics;
 
 namespace Engine;
 
-/// <summary>What a <see cref="Light"/> is, which decides what of it the model pass reads.</summary>
+/// <summary>What a <c>Light</c> is, which decides what of it the model pass reads.</summary>
 public enum LightKind
 {
     /// <summary>Light from far away along the entity's forward (-Z), as the sun's, whose position does not matter.</summary>

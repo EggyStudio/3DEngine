@@ -3,10 +3,16 @@ using SDL3;
 
 namespace Engine;
 
-/// <summary>Input the program makes, as the console's, handed to ImGui while it has a context.</summary>
-internal sealed class ImGuiSyntheticInput : IGuiInput
+/// <summary>
+/// ImGui's side of input for the code below the GUI, whether it holds the pointer, and the input the
+/// program makes, as the console's, handed to ImGui while it has a context.
+/// </summary>
+internal sealed class ImGuiInputBridge : IGuiInput
 {
     private static bool HasContext => ImGui.GetCurrentContext() != IntPtr.Zero;
+
+    /// <inheritdoc />
+    public bool HasPointer => HasContext && ImGui.GetIO().WantCaptureMouse;
 
     /// <inheritdoc />
     public void Key(Key key, bool down)

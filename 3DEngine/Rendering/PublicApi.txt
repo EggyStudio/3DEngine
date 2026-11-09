@@ -1,0 +1,226 @@
+readonly struct Engine.Click : IEquatable<Click>, IPointerEvent
+  Click(MouseButton Button, PointerHit Hit)
+  MouseButton Button { get; init; }
+  PointerHit Hit { get; init; }
+  bool Equals(Click other)
+  override bool Equals(object obj)
+  override int GetHashCode()
+  override string ToString()
+  static bool op_Equality(Click left, Click right)
+  static bool op_Inequality(Click left, Click right)
+  void Deconstruct(out MouseButton Button, out PointerHit Hit)
+enum Engine.ContactShadows : int
+  Off = 2
+  On = 0
+  PastShadowMap = 1
+readonly struct Engine.Drag : IEquatable<Drag>, IPointerEvent
+  Drag(MouseButton Button, Vector2 Distance, Vector2 Delta)
+  MouseButton Button { get; init; }
+  Vector2 Delta { get; init; }
+  Vector2 Distance { get; init; }
+  bool Equals(Drag other)
+  override bool Equals(object obj)
+  override int GetHashCode()
+  override string ToString()
+  static bool op_Equality(Drag left, Drag right)
+  static bool op_Inequality(Drag left, Drag right)
+  void Deconstruct(out MouseButton Button, out Vector2 Distance, out Vector2 Delta)
+readonly struct Engine.DragEnd : IEquatable<DragEnd>, IPointerEvent
+  DragEnd(MouseButton Button, Vector2 Distance)
+  MouseButton Button { get; init; }
+  Vector2 Distance { get; init; }
+  bool Equals(DragEnd other)
+  override bool Equals(object obj)
+  override int GetHashCode()
+  override string ToString()
+  static bool op_Equality(DragEnd left, DragEnd right)
+  static bool op_Inequality(DragEnd left, DragEnd right)
+  void Deconstruct(out MouseButton Button, out Vector2 Distance)
+readonly struct Engine.DragStart : IEquatable<DragStart>, IPointerEvent
+  DragStart(MouseButton Button, PointerHit Hit)
+  MouseButton Button { get; init; }
+  PointerHit Hit { get; init; }
+  bool Equals(DragStart other)
+  override bool Equals(object obj)
+  override int GetHashCode()
+  override string ToString()
+  static bool op_Equality(DragStart left, DragStart right)
+  static bool op_Inequality(DragStart left, DragStart right)
+  void Deconstruct(out MouseButton Button, out PointerHit Hit)
+enum Engine.ExposureMetering : int
+  Average = 0
+  CenterWeighted = 1
+interface Engine.IPointerEvent
+struct Engine.Light
+  LightKind Kind
+  Vector3 Color
+  bool CastsShadows
+  float InnerAngle
+  float Intensity
+  float OuterAngle
+  float Range
+  static Light Ambient(Vector3 color, float intensity)
+  static Light Default { get; }
+  static Light Directional(Vector3 color, float intensity)
+  static Light Point(Vector3 color, float intensity, float range = 0f)
+  static Light Spot(Vector3 color, float intensity, float innerAngle, float outerAngle, float range = 0f)
+readonly struct Engine.LightHandle : IEquatable<LightHandle>
+  Entity Entity { get; init; }
+  LightHandle(Entity Entity)
+  bool Equals(LightHandle other)
+  bool IsValid { get; }
+  override bool Equals(object obj)
+  override int GetHashCode()
+  override string ToString()
+  static bool op_Equality(LightHandle left, LightHandle right)
+  static bool op_Inequality(LightHandle left, LightHandle right)
+  void Deconstruct(out Entity Entity)
+readonly struct Engine.Move : IEquatable<Move>, IPointerEvent
+  Move(PointerHit Hit, Vector2 Delta)
+  PointerHit Hit { get; init; }
+  Vector2 Delta { get; init; }
+  bool Equals(Move other)
+  override bool Equals(object obj)
+  override int GetHashCode()
+  override string ToString()
+  static bool op_Equality(Move left, Move right)
+  static bool op_Inequality(Move left, Move right)
+  void Deconstruct(out PointerHit Hit, out Vector2 Delta)
+readonly struct Engine.Out : IEquatable<Out>, IPointerEvent
+  bool Equals(Out other)
+  override bool Equals(object obj)
+  override int GetHashCode()
+  override string ToString()
+  static bool op_Equality(Out left, Out right)
+  static bool op_Inequality(Out left, Out right)
+readonly struct Engine.Over : IEquatable<Over>, IPointerEvent
+  Over(PointerHit Hit)
+  PointerHit Hit { get; init; }
+  bool Equals(Over other)
+  override bool Equals(object obj)
+  override int GetHashCode()
+  override string ToString()
+  static bool op_Equality(Over left, Over right)
+  static bool op_Inequality(Over left, Over right)
+  void Deconstruct(out PointerHit Hit)
+enum Engine.ParticleBlend : int
+  Additive = 0
+  Alpha = 1
+enum Engine.ParticleCollision : int
+  Bounce = 1
+  Die = 2
+  None = 0
+struct Engine.ParticleEmitter
+  Color EndColor
+  Color StartColor
+  ParticleBlend Blend
+  ParticleCollision Collision
+  ParticleFacing Facing
+  Texture2D Texture
+  Vector3 Gravity
+  Vector3 Normal
+  Vector3 Velocity
+  Vector3[]? Points
+  bool BlendFrames
+  bool Emitting
+  bool Lit
+  bool Local
+  float Bounce
+  float Drag
+  float EndSize
+  float Intensity
+  float Life
+  float LifeVariation
+  float Radius
+  float Rate
+  float SpeedVariation
+  float Spread
+  float StartSize
+  int Burst
+  int MaxParticles
+  int TextureColumns
+  int TextureRows
+  static ParticleEmitter Default { get; }
+enum Engine.ParticleFacing : int
+  Camera = 0
+  Normal = 1
+  Velocity = 2
+readonly struct Engine.PointerHit : IEquatable<PointerHit>
+  PointerHit(Vector3 Point, Vector3 Normal, float Distance)
+  Vector3 Normal { get; init; }
+  Vector3 Point { get; init; }
+  bool Equals(PointerHit other)
+  float Distance { get; init; }
+  override bool Equals(object obj)
+  override int GetHashCode()
+  override string ToString()
+  static bool op_Equality(PointerHit left, PointerHit right)
+  static bool op_Inequality(PointerHit left, PointerHit right)
+  void Deconstruct(out Vector3 Point, out Vector3 Normal, out float Distance)
+readonly struct Engine.Pointer<TEvent> : IEntityEvent, IEquatable<Pointer<TEvent>>, IPropagatingEvent where TEvent : struct, IPointerEvent
+  Entity Entity { get; init; }
+  Pointer(Entity Entity, Vector2 Position, TEvent Event)
+  TEvent Event { get; init; }
+  Vector2 Position { get; init; }
+  bool Equals(Pointer<TEvent> other)
+  override bool Equals(object obj)
+  override int GetHashCode()
+  override string ToString()
+  static bool op_Equality(Pointer<TEvent> left, Pointer<TEvent> right)
+  static bool op_Inequality(Pointer<TEvent> left, Pointer<TEvent> right)
+  void Deconstruct(out Entity Entity, out Vector2 Position, out TEvent Event)
+readonly struct Engine.Press : IEquatable<Press>, IPointerEvent
+  MouseButton Button { get; init; }
+  PointerHit Hit { get; init; }
+  Press(MouseButton Button, PointerHit Hit)
+  bool Equals(Press other)
+  override bool Equals(object obj)
+  override int GetHashCode()
+  override string ToString()
+  static bool op_Equality(Press left, Press right)
+  static bool op_Inequality(Press left, Press right)
+  void Deconstruct(out MouseButton Button, out PointerHit Hit)
+struct Engine.ReflectionProbe
+  ReflectionProbe(Vector3 size, float intensity = 1f)
+  Vector3 Size
+  float Intensity
+  float Refresh
+  int Capture
+readonly struct Engine.Release : IEquatable<Release>, IPointerEvent
+  MouseButton Button { get; init; }
+  PointerHit Hit { get; init; }
+  Release(MouseButton Button, PointerHit Hit)
+  bool Equals(Release other)
+  override bool Equals(object obj)
+  override int GetHashCode()
+  override string ToString()
+  static bool op_Equality(Release left, Release right)
+  static bool op_Inequality(Release left, Release right)
+  void Deconstruct(out MouseButton Button, out PointerHit Hit)
+enum Engine.SubsurfaceQuality : int
+  High = 2
+  Low = 0
+  Medium = 1
+enum Engine.TextureFilter : int
+  Bilinear = 1
+  Point = 0
+  Trilinear = 2
+enum Engine.TextureWrap : int
+  Clamp = 1
+  MirrorClamp = 3
+  MirrorRepeat = 2
+  Repeat = 0
+enum Engine.Tonemap : int
+  Aces = 2
+  AcesFitted = 6
+  AgX = 7
+  BlenderFilmic = 10
+  Clamp = 3
+  Curve = 11
+  Engine = 0
+  Lookup = 12
+  None = 4
+  Reinhard = 1
+  ReinhardLuminance = 5
+  SomewhatBoring = 8
+  TonyMcMapface = 9

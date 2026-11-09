@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <AssemblyName>3DEngine.Modeling</AssemblyName>
+        <PackageId>3DEngine.Modeling</PackageId>
+        <Title>3DEngine.Modeling</Title>
+        <Description>The edit meshes the flat API shapes by operations, and their store.</Description>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\Core\3DEngine.Core.csproj" />
+        <ProjectReference Include="..\Graphics\3DEngine.Graphics.csproj" />
+        <ProjectReference Include="..\Assets\3DEngine.Assets.csproj" />
+        <ProjectReference Include="..\Rendering\3DEngine.Rendering.csproj" />
+    </ItemGroup>
+
+</Project>

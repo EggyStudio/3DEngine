@@ -1,0 +1,63 @@
+<Project>
+
+    <!-- What every project of the engine shares, read before each of them, after the repository's own. -->
+    <Import Project="$([MSBuild]::GetPathOfFileAbove('Directory.Build.props', '$(MSBuildThisFileDirectory)../'))" />
+
+    <PropertyGroup>
+        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+        <IsAotCompatible>true</IsAotCompatible>
+        <RootNamespace>Engine</RootNamespace>
+        <!-- A fault in the XML documentation stops the build where it is written, rather than
+             reaching CI as an annotation: malformed or misplaced comments, a param or typeparam
+             for nothing, one missing beside the others, and a cref or paramref that names
+             nothing or more than one thing. -->
+        <!-- And a public member with no documentation at all is an error here, though the
+             repository's Directory.Build.props silences it for the tests, examples and tools, since
+             a game's editor shows the summary of everything public in the engine. -->
+        <NoWarn>$(NoWarn.Replace(';CS1591', ''))</NoWarn>
+        <WarningsAsErrors>$(WarningsAsErrors);CS1591;CS0419;CS1570;CS1571;CS1572;CS1573;CS1574;CS1580;CS1581;CS1584;CS1587;CS1589;CS1590;CS1592;CS1710;CS1711;CS1712;CS1723;CS1734;CS1735</WarningsAsErrors>
+
+        <!-- Every project is packed at the one version, which build/pack.sh passes to each. -->
+        <Version>0.1.0-preview.1</Version>
+        <PackageTags>game-engine;raylib;vulkan;sdl3;imgui;slang;ecs;3d;2d</PackageTags>
+        <PackageProjectUrl>https://github.com/EggyStudio/3DEngine</PackageProjectUrl>
+        <!-- build/pack.sh writes the commits since the version was last raised to a file it names. -->
+        <PackageReleaseNotes Condition="'$(ReleaseNotesFile)' != '' And Exists('$(ReleaseNotesFile)')">$([System.IO.File]::ReadAllText('$(ReleaseNotesFile)'))</PackageReleaseNotes>
+    </PropertyGroup>
+
+    <!-- Each package's icon, readme, license and notices. -->
+    <ItemGroup>
+        <None Include="$(MSBuildThisFileDirectory)..\.github\assets\logo.png" Pack="true" PackagePath="\" Visible="false" />
+        <None Include="$(MSBuildThisFileDirectory)..\README.md" Pack="true" PackagePath="\" Visible="false" />
+        <None Include="$(MSBuildThisFileDirectory)..\LICENSE" Pack="true" PackagePath="\" Visible="false" />
+        <None Include="$(MSBuildThisFileDirectory)..\THIRD-PARTY-NOTICES.md" Pack="true" PackagePath="\" Visible="false" />
+    </ItemGroup>
+
+    <!-- The generator in each project, so each registers its own console commands, behaviors and
+         scene components where it is loaded. -->
+    <ItemGroup>
+        <ProjectReference Include="$(MSBuildThisFileDirectory)..\3DEngine.Generator\3DEngine.Generator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" PrivateAssets="all" />
+    </ItemGroup>
+
+    <!-- The renderer, the device, the platform's backends and the loaders are internal by
+         DESIGN.md's section 11, and each project's code reaches the internals of those below it,
+         as the tests and the e3d client reach every project's. -->
+    <ItemGroup>
+        <InternalsVisibleTo Include="3DEngine" />
+        <InternalsVisibleTo Include="3DEngine.Core" />
+        <InternalsVisibleTo Include="3DEngine.Diagnostics" />
+        <InternalsVisibleTo Include="3DEngine.Graphics" />
+        <InternalsVisibleTo Include="3DEngine.Platform" />
+        <InternalsVisibleTo Include="3DEngine.Assets" />
+        <InternalsVisibleTo Include="3DEngine.CliServer" />
+        <InternalsVisibleTo Include="3DEngine.Audio" />
+        <InternalsVisibleTo Include="3DEngine.Rendering" />
+        <InternalsVisibleTo Include="3DEngine.Physics" />
+        <InternalsVisibleTo Include="3DEngine.Scenes" />
+        <InternalsVisibleTo Include="3DEngine.Modeling" />
+        <InternalsVisibleTo Include="3DEngine.Gui" />
+        <InternalsVisibleTo Include="Engine.Tests" />
+        <InternalsVisibleTo Include="e3d" />
+    </ItemGroup>
+
+</Project>

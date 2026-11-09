@@ -57,8 +57,9 @@ asked for the change, and gives the reason in their place (NORM.md, N 4.7). A me
 instead that it comes out to keep the package small, and `build/pack.sh` leaves a line naming the
 owner, the reviewing session or REVIEW.md out of the notes.
 
-A commit that changes the engine's public surface carries `3DEngine/PublicApi.txt` written again by
-`build/api.sh`, which the suite holds it to, so the change is in the diff where it is read.
+A commit that changes the engine's public surface carries the `PublicApi.txt` of each project it
+changes written again by `build/api.sh`, which the suite holds each to, so the change is in the diff
+where it is read.
 REVIEW.md, SHARED.md and NORM.md are edited in the tree by the reviewing session and committed by
 whichever batch comes next, so the history holds the work rather than a commit for each reading, and
 never in a commit of their own but for one a day at most, at a day's end where no batch carried

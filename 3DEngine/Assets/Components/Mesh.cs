@@ -9,7 +9,7 @@ namespace Engine;
 /// <remarks>
 /// <para>
 /// Drawn with its <see cref="Material"/> through each entity with a <see cref="Camera"/>,
-/// lit and textured the way <c>DrawModel</c> draws a model, by <see cref="MeshEntityDraws"/>.
+/// lit and textured the way <c>DrawModel</c> draws a model, by <c>MeshEntityDraws</c>.
 /// </para>
 /// <para>
 /// The arrays are uploaded once, the first frame the entity is drawn, and kept while an entity's
@@ -24,7 +24,7 @@ namespace Engine;
 /// </para>
 /// <para>
 /// A scene file holds the arrays, so a mesh made in code is saved with its level. A model's meshes
-/// are not, since the model's <see cref="ModelRef"/> brings them back, and neither is an uploaded
+/// are not, since the model's <c>ModelRef</c> brings them back, and neither is an uploaded
 /// mesh, which lives as long as the program keeps it.
 /// </para>
 /// </remarks>

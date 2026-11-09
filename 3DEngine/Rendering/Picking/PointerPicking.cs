@@ -84,7 +84,7 @@ internal sealed class PointerPicking
         _placed = true;
 
         // Over an ImGui window the pointer is ImGui's, and over nothing of the scene.
-        var gui = ImGuiNET.ImGui.GetCurrentContext() != IntPtr.Zero && ImGuiNET.ImGui.GetIO().WantCaptureMouse;
+        var gui = IGuiInput.Current?.HasPointer ?? false;
         var (hit, at) = gui ? (default(Entity), default(PointerHit)) : Cast(world, ecs, cameraEntity, position);
 
         if (hit != _over)

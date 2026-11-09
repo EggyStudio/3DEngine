@@ -10,7 +10,7 @@ public sealed partial class AssetServer
     /// <returns>Whether the server knew the asset.</returns>
     /// <remarks>
     /// Handles to it that remain resolve to nothing, as one still loading does, so it is removed
-    /// once nothing holds a count of it (<see cref="AssetRelease"/>). An asset still loading is
+    /// once nothing holds a count of it (<c>AssetRelease</c>). An asset still loading is
     /// left, since what its load brings back would be stored under an id nothing knows.
     /// </remarks>
     internal bool Unload<T>(World world, AssetId id)

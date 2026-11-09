@@ -13,7 +13,7 @@ namespace Engine;
 /// <c>VulkanImGuiPlugin</c>.
 /// </para>
 /// <para>
-/// Bundled in <see cref="DefaultPlugins"/>; standalone consumers that opt out of
+/// Bundled in <c>DefaultPlugins</c>; standalone consumers that opt out of
 /// <c>DefaultPlugins</c> should add it explicitly:
 /// <code>
 /// app.AddPlugin(new AssetPlugin())
