@@ -26,6 +26,13 @@ internal readonly record struct ShaderParams(Vector4 P0, Vector4 P1, Vector4 P2,
 /// <remarks>Id 0 is never given out, so a default shader handle draws with the engine's own stages.</remarks>
 internal sealed class ShaderStore
 {
+    /// <summary>
+    /// The uniforms and textures a program last set on a shader, which the flat API fills in once it
+    /// keeps values for this store, so the mesh entities drawn with the shader take them, or null
+    /// where no program set any.
+    /// </summary>
+    internal Func<int, (byte[]? Uniforms, int[]? Textures)>? ValuesOf { get; set; }
+
     private readonly object _gate = new();
     private readonly Dictionary<int, ShaderProgram> _live = [];
     private readonly HashSet<int> _keepsPositions = [];

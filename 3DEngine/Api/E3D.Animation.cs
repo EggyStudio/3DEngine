@@ -2,35 +2,10 @@ using System.Numerics;
 
 namespace Engine;
 
-/// <summary>What a mesh needs to be posed, which is its vertices at rest and the bones that move each.</summary>
-/// <param name="Mesh">The index of the mesh in <see cref="Model.Meshes"/>.</param>
-/// <param name="Rest">The mesh's vertices in the model's space, as loaded.</param>
-/// <param name="Joints">Four joint indices per vertex, into <paramref name="BoneOfJoint"/>.</param>
-/// <param name="Weights">Four weights per vertex, summing to one.</param>
-/// <param name="BoneOfJoint">The model bone each of the mesh's joints is.</param>
-/// <param name="FromRest">For each joint, model space at rest to the joint's own space.</param>
-internal sealed record SkinnedMesh(int Mesh, ModelVertex[] Rest, ushort[] Joints, float[] Weights, int[] BoneOfJoint, Matrix4x4[] FromRest)
-{
-    /// <summary>The name of the node the mesh hangs from, which a clip's morph weights name.</summary>
-    public string Node { get; init; } = "";
-
-    /// <summary>The mesh's morph targets' names, empty for a mesh with none.</summary>
-    public string[] MorphNames { get; init; } = [];
-
-    /// <summary>Each morph target's weight now, which clips and <see cref="E3D.SetModelMorphWeight"/> change in place.</summary>
-    public float[] MorphWeights { get; init; } = [];
-
-    /// <summary>How far each target moves each vertex at full weight, in the model's space.</summary>
-    public Vector3[][] MorphPositions { get; init; } = [];
-
-    /// <summary>How each target turns each vertex's normal at full weight, or null for a target with none.</summary>
-    public Vector3[]?[] MorphNormals { get; init; } = [];
-}
-
 public static partial class E3D
 {
     /// <summary>How many frames a second <see cref="LoadModelAnimations"/> samples a clip at.</summary>
-    public const int AnimationFps = 60;
+    public const int AnimationFps = ModelAnimation.SampledFps;
 
     /// <summary>
     /// Loads every clip of a model file (glTF, FBX, COLLADA and the rest Assimp reads), each
@@ -286,59 +261,8 @@ public static partial class E3D
                 continue;
             }
 
-            Meshes.UpdateVertices(mesh.Id, PoseOnCpu(skin, joints));
+            Meshes.UpdateVertices(mesh.Id, Skinning.PoseOnCpu(skin, joints));
         }
-    }
-
-    // A skinned mesh's vertices at rest moved toward its morph targets by their weights now.
-    internal static ModelVertex[] Morphed(SkinnedMesh skin)
-    {
-        if (skin.MorphWeights.Length == 0) return skin.Rest;
-        var moved = (ModelVertex[])skin.Rest.Clone();
-        for (int t = 0; t < skin.MorphWeights.Length; t++)
-        {
-            var weight = skin.MorphWeights[t];
-            if (weight == 0) continue;
-            var normals = skin.MorphNormals[t];
-            for (int v = 0; v < moved.Length; v++)
-                moved[v] = moved[v] with
-                {
-                    Position = moved[v].Position + skin.MorphPositions[t][v] * weight,
-                    Normal = normals is null ? moved[v].Normal : moved[v].Normal + normals[v] * weight,
-                };
-        }
-        return moved;
-    }
-
-    // A model's mesh's vertices as it was last posed. A mesh the GPU poses keeps its vertices at
-    // rest, so they are posed here from the joints it was handed, and any other mesh's are its own.
-    internal static ModelVertex[] Posed(Model model, int index, ModelVertex[] vertices) =>
-        model.GpuPoses.TryGetValue(index, out var joints) && model.Skins.FirstOrDefault(s => s.Mesh == index) is { } skin
-            ? PoseOnCpu(skin, joints)
-            : vertices;
-
-    // A skinned mesh's vertices moved from their rest by its joints, on the CPU.
-    internal static ModelVertex[] PoseOnCpu(SkinnedMesh skin, Matrix4x4[] joints)
-    {
-        var morphed = Morphed(skin);
-        var posed = new ModelVertex[skin.Rest.Length];
-        for (int v = 0; v < posed.Length; v++)
-        {
-            var rest = morphed[v];
-            Vector3 position = Vector3.Zero, normal = Vector3.Zero;
-            for (int k = 0; k < 4; k++)
-            {
-                float weight = skin.Weights[v * 4 + k];
-                if (weight <= 0) continue;
-                ref var m = ref joints[skin.Joints[v * 4 + k]];
-                position += Vector3.Transform(rest.Position, m) * weight;
-                normal += Vector3.TransformNormal(rest.Normal, m) * weight;
-            }
-            // A vertex no bone holds stays where it rests.
-            if (normal == Vector3.Zero) (position, normal) = (rest.Position, rest.Normal);
-            posed[v] = rest with { Position = position, Normal = Vector3.Normalize(normal) };
-        }
-        return posed;
     }
 
     /// <summary>

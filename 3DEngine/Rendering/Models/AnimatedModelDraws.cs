@@ -95,7 +95,7 @@ internal sealed class AnimatedModelDraws
         for (int index = 0; index < model.Meshes.Length; index++)
         {
             if (!meshes.TryGetData(model.Meshes[index].Id, out var vertices, out var indices)) continue;
-            var posed = E3D.Posed(model, index, vertices);
+            var posed = Skinning.Posed(model, index, vertices);
             if (indices.Length == 0)
                 foreach (var vertex in posed) points.Add(Vector3.Transform(vertex.Position, model.Transform));
             else

@@ -14,6 +14,9 @@ namespace Engine;
 /// </remarks>
 public sealed class ModelAnimation
 {
+    /// <summary>The frames a second a clip is sampled into poses at, which the flat API's <c>AnimationFps</c> gives.</summary>
+    internal const int SampledFps = 60;
+
     /// <summary>The clip's name in the file.</summary>
     public string Name { get; init; } = "";
 

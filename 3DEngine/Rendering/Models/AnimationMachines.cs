@@ -62,14 +62,14 @@ internal sealed class AnimationMachines
         var frames = Find(clips, state.Clip)?.KeyframeCount ?? 0;
         bool finished;
         if (state.Loop)
-            finished = frames > 0 && MathF.Abs(animated.Time) >= frames / (float)E3D.AnimationFps;
+            finished = frames > 0 && MathF.Abs(animated.Time) >= frames / (float)ModelAnimation.SampledFps;
         else
         {
             // Finished from the frame after the one that drew the last frame, which is held from
             // the frame the clip would pass it, rather than after, when the pose would already have
             // come round to the start.
             finished = run.Ended;
-            var last = (frames - 1) / (float)E3D.AnimationFps;
+            var last = (frames - 1) / (float)ModelAnimation.SampledFps;
             if (!run.Ended && frames > 0 && MathF.Abs(animated.Time + animated.Speed * dt) >= last)
             {
                 animated.Time = MathF.CopySign(last, state.Speed);

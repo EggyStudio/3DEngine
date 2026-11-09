@@ -83,7 +83,7 @@ internal sealed partial class MeshEntityDraws
     private ModelDraw WithValues(in ModelDraw draw)
     {
         if (draw.Shader == 0 || _shaders is null) return draw;
-        if (!_values.TryGetValue(draw.Shader, out var values)) _values[draw.Shader] = values = E3D.ShaderValuesOf(_shaders, draw.Shader);
+        if (!_values.TryGetValue(draw.Shader, out var values)) _values[draw.Shader] = values = _shaders.ValuesOf?.Invoke(draw.Shader) ?? (null, null);
         return draw with { Uniforms = values.Uniforms, ShaderTextures = values.Textures };
     }
 

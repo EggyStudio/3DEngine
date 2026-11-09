@@ -17,7 +17,12 @@ public static partial class E3D
 
     private static readonly System.Runtime.CompilerServices.ConditionalWeakTable<ShaderStore, ShaderState> ShaderStates = new();
 
-    private static ShaderState ShadersSet => ShaderStates.GetValue(Res<ShaderStore>(), static _ => new ShaderState());
+    // The store's values, made with the first, which hands the store the read its mesh entities take them by.
+    private static ShaderState ShadersSet => ShaderStates.GetValue(Res<ShaderStore>(), static store =>
+    {
+        store.ValuesOf = shader => ShaderValuesOf(store, shader);
+        return new ShaderState();
+    });
 
     private static Dictionary<int, ShaderParams> ShaderValues => ShadersSet.Values;
 

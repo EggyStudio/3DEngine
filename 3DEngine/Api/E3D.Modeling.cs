@@ -653,14 +653,21 @@ public static partial class E3D
     {
         if (Edited(mesh, nameof(LoadModelFromEditMesh)) is not { } data) return new Model();
         var built = EditMeshBuild.Slots(data);
-        return new Model
+        var model = new Model
         {
             Meshes = built.Select(slot => UploadMesh(slot.Vertices, slot.Indices)).ToArray(),
             Materials = Enumerable.Range(0, built.Length).Select(slot => SlotMaterial(data, slot)).ToArray(),
             MeshMaterial = Enumerable.Range(0, built.Length).ToArray(),
-            EditMeshSlots = SlotsOf(data),
         };
+        EditMeshSlotsOf.AddOrUpdate(model, SlotsOf(data));
+        return model;
     }
+
+    // The name and look of each slot of the edit mesh a model was built from, as they were when its
+    // materials were last made, so an update makes again only the material of a slot whose name or
+    // look changed, kept beside the model since the model is the renderer's and the slots the
+    // modeling tools'.
+    private static readonly System.Runtime.CompilerServices.ConditionalWeakTable<Model, (string Name, SlotLook Look)[]> EditMeshSlotsOf = new();
 
     /// <summary>Writes a model built by <see cref="LoadModelFromEditMesh"/> again from the mesh, its meshes in place, after the mesh changed.</summary>
     /// <remarks>
@@ -678,6 +685,7 @@ public static partial class E3D
         var meshes = new ModelMesh[built.Length];
         var materials = model.Materials.ToList();
         var meshMaterial = new int[built.Length];
+        var slots = EditMeshSlotsOf.TryGetValue(model, out var kept) ? kept : [];
         for (int slot = 0; slot < built.Length; slot++)
         {
             var (vertices, indices) = built[slot];
@@ -686,7 +694,7 @@ public static partial class E3D
                 ? new ModelMesh(model.Meshes[slot].Id, vertices.Length, indices.Length / 3, bounds)
                 : UploadMesh(vertices, indices);
 
-            var same = slot < model.EditMeshSlots.Length && model.EditMeshSlots[slot] == (data.Slots[slot], data.LookAt(slot));
+            var same = slot < slots.Length && slots[slot] == (data.Slots[slot], data.LookAt(slot));
             if (slot < model.MeshMaterial.Length && model.MeshMaterial[slot] < materials.Count)
             {
                 meshMaterial[slot] = model.MeshMaterial[slot];
@@ -700,7 +708,7 @@ public static partial class E3D
         }
         for (int slot = built.Length; slot < model.Meshes.Length; slot++) UnloadMesh(model.Meshes[slot]);
         model.Replace(meshes, [.. materials], meshMaterial);
-        model.EditMeshSlots = SlotsOf(data);
+        EditMeshSlotsOf.AddOrUpdate(model, SlotsOf(data));
     }
 
     private static (string Name, SlotLook Look)[] SlotsOf(EditMeshData data) =>

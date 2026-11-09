@@ -11,6 +11,7 @@ of .github/REVIEW.md or .github/REVIEW-ARCHIVE.md and the commit that closed it.
 Done that day
 
 - Item 229 at `f1cc2022`. The reference reads the normal maps.
+- Item 232 at `8dba0d1c`. Three examples drift from raylib's programs.
 
 ## 2026-11-08
 

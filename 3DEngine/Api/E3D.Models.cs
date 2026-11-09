@@ -459,7 +459,7 @@ public static partial class E3D
             var mesh = model.Meshes[index];
             if (!Meshes.TryGetData(mesh.Id, out var vertices, out var indices)) continue;
             // A mesh the GPU poses keeps its vertices at rest, so its wires are posed here.
-            vertices = Posed(model, index, vertices);
+            vertices = Skinning.Posed(model, index, vertices);
             edges.Clear();
             for (int i = 0; i < indices.Length; i += 3)
                 for (int k = 0; k < 3; k++)

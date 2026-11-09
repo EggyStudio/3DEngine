@@ -58,7 +58,7 @@ public static partial class E3D
         {
             if (!Meshes.TryGetData(model.Meshes[index].Id, out var vertices, out var indices)) continue;
             var first = points.Count;
-            foreach (var vertex in Posed(model, index, vertices)) points.Add(Vector3.Transform(vertex.Position, world));
+            foreach (var vertex in Skinning.Posed(model, index, vertices)) points.Add(Vector3.Transform(vertex.Position, world));
             // A model's front faces wind counterclockwise and Bepu's clockwise, so each triangle is
             // turned over. A triangle with no area collides with nothing and has no normal to
             // collide by, as a model built from an edit mesh has for a slot with no faces, so it
@@ -102,7 +102,7 @@ public static partial class E3D
         var points = new HashSet<Vector3>();
         for (int index = 0; index < model.Meshes.Length; index++)
             if (Meshes.TryGetData(model.Meshes[index].Id, out var vertices, out _))
-                foreach (var vertex in Posed(model, index, vertices)) points.Add(Vector3.Transform(vertex.Position, world));
+                foreach (var vertex in Skinning.Posed(model, index, vertices)) points.Add(Vector3.Transform(vertex.Position, world));
         try
         {
             return Physics.CreateConvexHull(position, [.. points], mass);
