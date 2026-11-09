@@ -80,8 +80,11 @@ public sealed partial class BounceRoomsTests : IDisposable
             WritePfm(path, Averaged(light, width, height, 3));
         }
 
+        // The light read at rest, twelve cycles of sixteen frames past the field's settling, since
+        // the light past the first bounce settles a cycle at a time and each whole cycle is eased
+        // into the next across the cycle after it.
         SetGlobalIllumination(quality);
-        Frames(SceneFieldPlan.SettleFrames + 90);
+        Frames(SceneFieldPlan.SettleFrames + 190);
         var renderer = GetApp().World.Resource<Engine.Renderer>();
         var decoded = renderer.RenderWorld.TryGet<BloomRenderer>()!.Decoded!;
         var frame = Averaged(((GraphicsDevice)renderer.Context.Graphics!).ReadFloats(decoded.ColorView.Image), Width, Height, 4);

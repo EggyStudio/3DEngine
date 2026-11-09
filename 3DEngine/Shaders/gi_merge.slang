@@ -99,6 +99,23 @@ Texture3D<float4> skyMarkBefore;
 [[vk::binding(15, 0)]] [format("rgba16f")]
 RWTexture3D<float4> skyMarkNow;
 
+// The whole cycle before the last, its light and its share of the sky, which the light shown eases
+// from to the last whole cycle's across the cycle after it, as the frame before left it and as this
+// frame leaves it.
+[[vk::binding(16, 0)]]
+Texture3D<float4> easedBefore;
+[[vk::binding(17, 0)]] [format("rgba16f")]
+RWTexture3D<float4> easedNow;
+
+// Clears a texel's cycle, where its probe keeps none.
+void forgetCycle(uint3 written)
+{
+    partialNow[written] = float4(0.0);
+    fullNow[written] = float4(0.0);
+    skyMarkNow[written] = float4(0.0);
+    easedNow[written] = float4(0.0);
+}
+
 // The texel of an octahedron of `texels` along each side at t, folded across its edges.
 int2 foldedAt(int2 t, int texels)
 {
@@ -141,7 +158,7 @@ ConstantBuffer<MergePush> push;
 // A carried probe's light, the mean of the cycle of sixteen places its rays move through, as the
 // screen's probes keep theirs (gi_screen_filter.slang), gathered from the cycle's first frame and
 // shown as it grows until a whole cycle has been gathered since the lights or the field changed,
-// then the last whole cycle's. Read from the fixed middles alone, the vault of Sponza's vestibule
+// then eased between the last two whole cycles' means. Read from the fixed middles alone, the vault of Sponza's vestibule
 // took none of the court's sunlit light that a path-traced reference sees past its arch's edges.
 // Its share of the sky and its mark of what the rays met are kept the same way, which the cascade
 // below and the probe's faces read, since taken from each frame's places alone they moved with the
@@ -154,9 +171,7 @@ float3 settled(float3 light, inout float sky, inout float mark, uint3 at, uint2 
         return light;
     if (placeOf(int3(at), c, probes).w < 1.5)
     {
-        partialNow[written] = float4(0.0);
-        fullNow[written] = float4(0.0);
-        skyMarkNow[written] = float4(0.0);
+        forgetCycle(written);
         return light;
     }
     // The cycle as the frame before left it at the probe's place then, begun again where the
@@ -164,7 +179,7 @@ float3 settled(float3 light, inout float sky, inout float mark, uint3 at, uint2 
     // light fell, as its kept share says.
     uint packed = push.counts.y;
     float4 partial = float4(0.0), full = float4(0.0);
-    float4 skyMark = float4(0.0);
+    float4 skyMark = float4(0.0), eased = float4(0.0);
     int3 shift = int3(int(packed << 24u) >> 24, int(packed << 16u) >> 24, int(packed << 8u) >> 24);
     int3 from = int3(at) + shift;
     if ((packed & 0x1000000u) != 0u && all(from >= int3(0)) && all(from < int3(int(probes))))
@@ -173,6 +188,7 @@ float3 settled(float3 light, inout float sky, inout float mark, uint3 at, uint2 
         partial = partialBefore.Load(then);
         full = fullBefore.Load(then);
         skyMark = skyMarkBefore.Load(then);
+        eased = easedBefore.Load(then);
     }
     float4 share = held[int3(2 * int(probes) + int(at.x), int(at.y), int(c * probes) + int(at.z))];
     bool begun = push.counts.z == 0u || share.r >= 0.0 && any(share.rgb < 0.99);
@@ -184,13 +200,24 @@ float3 settled(float3 light, inout float sky, inout float mark, uint3 at, uint2 
     bool whole = !begun && (phase == 0u ? going && count >= 15.5 : full.a > 0.5);
     float3 wholeMean = phase == 0u ? partial.rgb : full.rgb;
     float2 wholeMeans = phase == 0u ? skyMark.xz : skyMark.yw;
+    // The light shown eases from the whole cycle before the last to the last across the cycle after
+    // it, so it reaches each whole cycle's mean as the next is gathered. A light past the first
+    // bounce reads the light shown, and settles a cycle at a time after a cut or a change, so taken
+    // whole at a cycle's first frame the light shown stepped each sixteen frames while it settled.
+    // Where no whole cycle came before, the running mean was shown and ended at the last whole
+    // cycle's, which it eases from. The mark is taken whole, since the cascade below reads it
+    // against a threshold, which an eased mark crosses at one frame as a whole one does.
+    if (phase == 0u)
+        eased = full.a > 0.5 ? float4(full.rgb, skyMark.y) : float4(partial.rgb, skyMark.x);
+    float along = float(phase + 1u) / 16.0;
     partialNow[written] = float4(mean, phase == 0u || !going ? 1.0 : count + 1.0);
     fullNow[written] = whole ? float4(wholeMean, 1.0) : float4(0.0);
+    easedNow[written] = whole ? eased : float4(0.0);
     float2 lastWhole = whole ? wholeMeans : float2(0.0);
     skyMarkNow[written] = float4(means.x, lastWhole.x, means.y, lastWhole.y);
-    sky = whole ? wholeMeans.x : means.x;
+    sky = whole ? lerp(eased.a, wholeMeans.x, along) : means.x;
     mark = whole ? wholeMeans.y : means.y;
-    return whole ? wholeMean : mean;
+    return whole ? lerp(eased.rgb, wholeMean, along) : mean;
 }
 
 // Whether each probe of the group sees each of the eight probes of the cascade above around it, a
@@ -245,11 +272,7 @@ void computeMain(uint3 id : SV_DispatchThreadID, uint3 local : SV_GroupThreadID)
         merged[written] = float4(0.0);
         mergedSky[written] = 0.0;
         if ((push.counts.y & 0x2000000u) != 0u)
-        {
-            partialNow[written] = float4(0.0);
-            fullNow[written] = float4(0.0);
-            skyMarkNow[written] = float4(0.0);
-        }
+            forgetCycle(written);
         return;
     }
     float4 own = radiance[written];
@@ -264,11 +287,7 @@ void computeMain(uint3 id : SV_DispatchThreadID, uint3 local : SV_GroupThreadID)
         merged[written] = float4(0.0, 0.0, 0.0, 1.0);
         mergedSky[written] = 0.0;
         if ((push.counts.y & 0x2000000u) != 0u)
-        {
-            partialNow[written] = float4(0.0);
-            fullNow[written] = float4(0.0);
-            skyMarkNow[written] = float4(0.0);
-        }
+            forgetCycle(written);
         return;
     }
     if (alone > 0u && c + 1u < alone)

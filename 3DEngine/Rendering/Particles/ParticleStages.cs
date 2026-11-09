@@ -250,7 +250,7 @@ internal sealed unsafe class ParticleStages(GraphicsDevice device) : IDisposable
                 stage = new VkPipelineShaderStageCreateInfo { stage = VkShaderStageFlags.Compute, module = module, pName = name },
                 layout = pipelineLayout,
             };
-            pipeline = device.CreateComputePipeline(&info);
+            pipeline = device.CreateComputePipeline(&info, spirv);
             DeviceObjects.Made(DeviceObjects.Kind.Pipeline);
         }
         device.Api.vkDestroyShaderModule(module);

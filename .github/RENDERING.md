@@ -3142,6 +3142,42 @@ where 0.336 and 0.882, that reference traced with the lamps lit, the lion 0.987 
 0.222 ms in the atrium at noon at 1920 by 1080 where 0.210 to 0.218, on powersave-bazzite
 (`gi.compare`, `./e3d command profile`).
 
+**The cycles eased after a cut, read and mended on 2026-11-09.** Sponza drawn offscreen at 1/48 s
+a frame at 7:00, metered, switched from the balcony view to the door view and back a second later,
+darkened the door view from a mean of 70 of 255 to 3 in steps at the 4th, 18th, 34th and 50th
+frames after the switch, 36, 23 and 51% of the pixels moving by more than 24 levels at the first
+three, the last three sixteen frames apart, and stepped the balcony view on its return, with the
+exposure held as well. A carried probe's light (205) and a screen probe's stand-in each showed the
+last whole cycle's mean and took the next whole at a cycle's first frame, and the light past the
+first bounce reads the light shown, so after a cut the light settled a cycle at a time and stepped
+at each. With the screen's probes' history left out the door view settled within 28 frames and
+stepped at none past its twentieth, and with the screen's probes left out the world's probes alone
+stepped at four frames. The builds of a cut, the eye having moved each cascade past a shift, hold no
+changed box and begin no cycle again, and built whole in the cut's frame, Sponza's 4.1 million
+triangles took 132 to 308 ms of the GPU on the RTX 4070, so the field is still built over frames.
+The light shown now eases from the whole cycle before the last to the last across the cycle after
+it, the merge's light with its share of the sky and the screen's filter's stand-in, each keeping
+the cycle it eases from in an image of four half floats a texel (`gi_merge.slang`,
+`gi_screen_filter.slang`), 3.1 MB at Sponza's High. Between the cuts the largest change of the
+frame's mean from one frame to the next is 3.9 levels where 27, the door view falling by about a
+level a frame, and the merge and the filter take as long as before within their readings' spread,
+0.24 to 0.44 ms and 0.03 to 0.10 at 800 by 450 on powersave-bazzite. One drop remains seven frames
+after a cut, 32% of the pixels, the finest cascade arriving at its new place, whose probes hold no
+light from before it to ease from (239). A lamp dimmed by 0.6% a frame in the walk's room, less than
+a change of the lights, dimmed the view by 0.07 levels a frame and by 0.95 at each cycle's first
+frame, and dims it by 0.07 to 0.12 every frame (`GlobalIlluminationTests`). The columns' bands under
+a turn at the atrium lie in the screen's probes' tiles and move with the picture (240). Of the
+pipelines a frame waited on, the log names each by its shaders and its time. Run with an empty user
+cache, Sponza made a pipeline of `model.slang` in 2.1 s at its 238th frame, before any input, and five
+of `model_streams.slang` and `model.slang` in 3.9 to 4.4 s each at its 838th, among the views, the
+hours and the keys the run went through, and a second run reading the pipelines the first wrote made
+none in 1,000 frames. A part of global illumination left out or put back begins the cycles again, as
+a change of the lights does, since eased in it showed over two cycles. The light past the first
+bounce reads the light shown, so a room lit by its bounces settles a cycle later for each, the bounce
+rooms' seventh view at `High` 0.093 of its light from its reference 98 frames after it was built and
+0.041 after 198, where it read within 0.06 at 98 (`./e3d command record`
+every frame, `field.state`, `gi.toggle`, `gi.show filtered`, `./e3d command profile`).
+
 **The vestibule's end wall, read on 2026-11-07.** In the door view at 8:00 at High the wall facing
 the court read 1.55 of a path-traced reference's light, the door in it 2.08 and the side wall facing
 -z 1.35. With the surfaces' reflection of the indirect light left out (`gi.toggle specular off`)

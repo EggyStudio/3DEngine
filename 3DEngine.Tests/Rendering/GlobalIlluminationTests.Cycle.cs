@@ -15,7 +15,7 @@ public sealed partial class GlobalIlluminationTests
     public void A_Carried_Probes_Cycle_Is_Kept_Whole_Only_Where_Its_Rays_Move(GlobalIllumination quality)
     {
         // A carried probe's rays move through sixteen places and meet the meshes at High on a
-        // device that traces rays, its cycle's six images a cascade made whole there in every
+        // device that traces rays, its cycle's eight images a cascade made whole there in every
         // cascade but the last counted and the far, and stand-ins of a texel elsewhere, a mean of
         // one place being that place, so Low, Medium and a device that traces no rays, as lavapipe
         // and MoltenVK, keep none of it. Under a slab two and a half units up
@@ -28,7 +28,7 @@ public sealed partial class GlobalIlluminationTests
         var device = (GraphicsDevice)renderer.Context.Graphics!;
         var moving = quality == GlobalIllumination.High && device.CanQueryRays;
         var carried = GlobalIlluminationStages.Of(device).ReadCarriedMoving(probes);
-        probes.CycleBytes.Should().Be(moving ? probes.Texels.Take(probes.CycleCascades).Sum(n => 6L * 8 * (probes.Probes * n) * (probes.Probes * n) * probes.Probes) : 0,
+        probes.CycleBytes.Should().Be(moving ? probes.Texels.Take(probes.CycleCascades).Sum(n => 8L * 8 * (probes.Probes * n) * (probes.Probes * n) * probes.Probes) : 0,
             $"the cycle is kept whole at {quality} only where the rays move, {(moving ? "here" : "not here")}");
         if (moving)
             carried.Sum().Should().BeGreaterThan(0, "the probes under the slab carry their rays on");

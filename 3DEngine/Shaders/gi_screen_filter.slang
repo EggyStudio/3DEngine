@@ -58,6 +58,15 @@ RWTexture2D<float4> partialNow;
 [[vk::binding(10, 0)]] [format("rgba16f")]
 RWTexture2D<float4> fullNow;
 
+// The light a probe's whole cycle stands in with eases from across the cycle after it, the whole
+// cycle before the last where that stood in and the kept light where it did not, with in a 1 where
+// it holds, the frame before's and this frame's.
+[[vk::binding(11, 0)]]
+Texture2D<float4> lastEased;
+
+[[vk::binding(12, 0)]] [format("rgba16f")]
+RWTexture2D<float4> easedNow;
+
 // x: 0 for the first pass, which keeps each probe's light over the frames, and 1 for the second,
 // which blends it with the probes' around.
 struct FilterPush
@@ -75,6 +84,16 @@ static const float Kept = 16.0;
 // How many of this frame's spreads among the like probes around the frame before's light may lie
 // from their mean.
 static const float Spread = 2.0;
+
+// The light a probe whose whole cycle stands in shows this frame, eased from what it showed at the
+// cycle's first frame to the last whole cycle's across the cycle, so it reaches each whole cycle's
+// mean as the next is gathered. Taken whole at a cycle's first frame, a view's light stepped each
+// sixteen frames while it settled after a cut, the light past the first bounce settling a cycle at
+// a time.
+float3 standIn(int2 at)
+{
+    return lerp(easedNow[at].rgb, fullNow[at].rgb, float((uint(view.jitter.z + 0.5) & 15u) + 1u) / 16.0);
+}
 
 // Whether a light is one a float holds, neither a value that is not a number nor one past the
 // largest. A light that is not is taken as none, by the blend of the probes around and by the frame
@@ -126,7 +145,7 @@ float4 spatial(uint2 id, uint across, uint down, float4 own, float4 surface, out
             float4 light = irradiance.Load(int3(at, 0));
             // In the second pass a neighbor's whole cycle stands in for its light where it holds.
             if (push.pass.x == 1u && fullNow[at].a >= 1.5)
-                light.rgb = fullNow[at].rgb;
+                light.rgb = standIn(at);
             float4 other = geometry.Load(int3(at, 0));
             if (light.a < 0.5 || other.w < 0.0 || !lightHeld(light.rgb))
                 continue;
@@ -223,12 +242,13 @@ void computeMain(uint3 id : SV_DispatchThreadID)
         {
             partialNow[id.xy] = float4(0.0);
             fullNow[id.xy] = float4(0.0);
+            easedNow[id.xy] = float4(0.0);
         }
         return;
     }
     // In the second pass a probe whose last whole cycle stands in for its light lends that.
     if (push.pass.x == 1u && fullNow[id.xy].a >= 1.5)
-        own.rgb = fullNow[id.xy].rgb;
+        own.rgb = standIn(int2(id.xy));
     float3 spread, error;
     uint off = uint(view.grid.w + 0.5);
     float4 now = spatial(id.xy, across, down, own, surface, spread, error);
@@ -276,9 +296,10 @@ void computeMain(uint3 id : SV_DispatchThreadID)
     // blend pulls toward the typical frame, so where rare bright rays come it reads above the
     // running mean.
     uint phase = uint(view.jitter.z + 0.5) & 15u;
-    float gathered = 0.0, whole = 0.0;
+    float gathered = 0.0, whole = 0.0, easedHeld = 0.0;
     float4 partial = (off & 1u) != 0u ? float4(0.0) : earlierIn(lastPartial, id.xy, across, down, surface, gathered);
     float4 full = (off & 1u) != 0u ? float4(0.0) : earlierIn(lastFull, id.xy, across, down, surface, whole);
+    float4 eased = (off & 1u) != 0u ? float4(0.0) : earlierIn(lastEased, id.xy, across, down, surface, easedHeld);
     // Begun again for a cycle after the lights changed or the field was built again (the view's
     // jitter's w), so the first whole cycle gathers the light once it settled.
     bool begun = view.jitter.w > 0.5;
@@ -289,6 +310,12 @@ void computeMain(uint3 id : SV_DispatchThreadID)
     bool wholeNow = !begun && (phase == 0u ? going && count >= 15.5 : full.a > 0.5 && whole >= 0.5 && lightHeld(full.rgb));
     float3 wholeMean = phase == 0u ? partial.rgb : full.rgb;
     bool stands = wholeNow && most <= 4.0;
+    // At a cycle's first frame the stand-in eases from what the probe showed, the last whole cycle
+    // where that stood in and its kept light where it did not, and from then on from what the frame
+    // before eased from.
+    float3 from = phase == 0u ? (full.a > 0.5 && whole >= 1.5 && lightHeld(full.rgb) ? full.rgb : result)
+        : eased.a > 0.5 && easedHeld >= 0.5 ? eased.rgb : wholeMean;
     partialNow[id.xy] = float4(lightHeld(cycleMean) ? cycleMean : float3(0.0), cycleCount);
     fullNow[id.xy] = float4(wholeNow ? wholeMean : float3(0.0), wholeNow ? (stands ? 2.0 : 1.0) : 0.0);
+    easedNow[id.xy] = wholeNow && lightHeld(from) ? float4(from, 1.0) : float4(0.0);
 }

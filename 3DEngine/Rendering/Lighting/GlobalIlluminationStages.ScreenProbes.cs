@@ -49,13 +49,16 @@ internal sealed unsafe partial class GlobalIlluminationStages
         device.Name(glow.Normal, "Screen's glow light's normals");
         device.Name(glow.Far, "Screen's far glow light");
         device.Name(glow.LastFar, "Screen's far glow light, the frame before");
-        IImage[] cycleImages = [.. Enumerable.Range(0, 4).Select(_ => device.CreateImage(desc))];
+        IImage[] cycleImages = [.. Enumerable.Range(0, 6).Select(_ => device.CreateImage(desc))];
         var cycleViews = cycleImages.Select(device.CreateImageView).ToArray();
-        var cycle = new ScreenCycle(cycleImages[0], cycleViews[0], cycleImages[1], cycleViews[1], cycleImages[2], cycleViews[2], cycleImages[3], cycleViews[3]);
+        var cycle = new ScreenCycle(cycleImages[0], cycleViews[0], cycleImages[1], cycleViews[1], cycleImages[2], cycleViews[2], cycleImages[3], cycleViews[3],
+            cycleImages[4], cycleViews[4], cycleImages[5], cycleViews[5]);
         device.Name(cycle.Partial, "Screen probes' light over the places' cycle being gathered");
         device.Name(cycle.LastPartial, "Screen probes' light over the places' cycle being gathered, the frame before");
         device.Name(cycle.Full, "Screen probes' light over the last whole cycle of places");
         device.Name(cycle.LastFull, "Screen probes' light over the last whole cycle of places, the frame before");
+        device.Name(cycle.Eased, "Screen probes' light the last whole cycle eases from");
+        device.Name(cycle.LastEased, "Screen probes' light the last whole cycle eases from, the frame before");
         var sampler = device.CreateSampler(new SamplerDesc(SamplerFilter.Nearest, SamplerFilter.Nearest,
             SamplerAddressMode.ClampToEdge, SamplerAddressMode.ClampToEdge, SamplerAddressMode.ClampToEdge));
 
@@ -179,6 +182,8 @@ internal sealed unsafe partial class GlobalIlluminationStages
                 run.Image(blend, 8, VkDescriptorType.SampledImage, ((VulkanImageView)screen.Cycle.LastFullView).View, null, VkImageLayout.General);
                 run.Image(blend, 9, VkDescriptorType.StorageImage, ((VulkanImageView)screen.Cycle.PartialView).View, null, VkImageLayout.General);
                 run.Image(blend, 10, VkDescriptorType.StorageImage, ((VulkanImageView)screen.Cycle.FullView).View, null, VkImageLayout.General);
+                run.Image(blend, 11, VkDescriptorType.SampledImage, ((VulkanImageView)screen.Cycle.LastEasedView).View, null, VkImageLayout.General);
+                run.Image(blend, 12, VkDescriptorType.StorageImage, ((VulkanImageView)screen.Cycle.EasedView).View, null, VkImageLayout.General);
                 device.Api.vkCmdBindDescriptorSets(cmd, VkPipelineBindPoint.Compute, filterLayout, 0, 1, &blend, 0, null);
                 ReadOnlySpan<uint> which = [pass, 0, 0, 0];
                 fixed (uint* p = which)
@@ -233,6 +238,7 @@ internal sealed unsafe partial class GlobalIlluminationStages
             device.Api.vkCmdCopyImage(cmd, ((VulkanImage)screen.Geometry).Image, VkImageLayout.General, ((VulkanImage)screen.LastGeometry).Image, VkImageLayout.General, 1, &region);
             device.Api.vkCmdCopyImage(cmd, ((VulkanImage)screen.Cycle.Partial).Image, VkImageLayout.General, ((VulkanImage)screen.Cycle.LastPartial).Image, VkImageLayout.General, 1, &region);
             device.Api.vkCmdCopyImage(cmd, ((VulkanImage)screen.Cycle.Full).Image, VkImageLayout.General, ((VulkanImage)screen.Cycle.LastFull).Image, VkImageLayout.General, 1, &region);
+            device.Api.vkCmdCopyImage(cmd, ((VulkanImage)screen.Cycle.Eased).Image, VkImageLayout.General, ((VulkanImage)screen.Cycle.LastEased).Image, VkImageLayout.General, 1, &region);
         }
         region.extent = new VkExtent3D(glowExtent.Width, glowExtent.Height, 1);
         device.Api.vkCmdCopyImage(cmd, ((VulkanImage)glow.Light).Image, VkImageLayout.General, ((VulkanImage)glow.LastLight).Image, VkImageLayout.General, 1, &region);

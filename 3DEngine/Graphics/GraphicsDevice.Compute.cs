@@ -102,7 +102,7 @@ internal sealed unsafe partial class GraphicsDevice
                 stage = new VkPipelineShaderStageCreateInfo { stage = VkShaderStageFlags.Compute, module = module, pName = name },
                 layout = layout,
             };
-            createdPipeline = CreateComputePipeline(&info);
+            createdPipeline = CreateComputePipeline(&info, spirv);
             DeviceObjects.Made(DeviceObjects.Kind.Pipeline);
         }
         var pipeline = createdPipeline;

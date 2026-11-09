@@ -95,7 +95,7 @@ internal static class SceneFieldCommands
         // lights' light on it, six texels of eight bytes, this frame's and the frame before's, and
         // its normal in four.
         static double Megabytes(GpuScreenProbes screen) =>
-            ((9.0 * 8 + GpuScreenProbes.GlowSeenBytes) * screen.Across * screen.Down
+            ((11.0 * 8 + GpuScreenProbes.GlowSeenBytes) * screen.Across * screen.Down
              + (6.0 * 8 + 4) * screen.Glow.Light.Description.Extent.Width * screen.Glow.Light.Description.Extent.Height) / 1024 / 1024;
         // At Low, which leaves them out, probes stand for the glow lights alone while some are lit
         // (GlowOnly), placed and marching to them once a tile with no ray traced.

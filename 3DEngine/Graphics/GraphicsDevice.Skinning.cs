@@ -94,7 +94,7 @@ internal sealed unsafe partial class GraphicsDevice
                 stage = new VkPipelineShaderStageCreateInfo { stage = VkShaderStageFlags.Compute, module = module, pName = name },
                 layout = _skinLayout,
             };
-            pipeline = CreateComputePipeline(&info);
+            pipeline = CreateComputePipeline(&info, spirv);
             DeviceObjects.Made(DeviceObjects.Kind.Pipeline);
         }
         _skinPipeline = pipeline;

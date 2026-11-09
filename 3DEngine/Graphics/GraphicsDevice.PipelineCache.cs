@@ -128,27 +128,46 @@ internal sealed unsafe partial class GraphicsDevice
     }
 
     // How many pipelines the device made and the time the driver took, which the renderer logs for
-    // the first frame and any frame that waits long on them.
+    // the first frame and any frame that waits long on them, and the latest made, each by the
+    // shaders it is made from and the time it took, which the renderer takes each frame.
     private long _pipelinesMade, _pipelineTicks;
+    private readonly System.Collections.Concurrent.ConcurrentQueue<string> _pipelinesNamed = new();
+
+    // As many named pipelines as are kept for a frame that does not take them, as a test's.
+    private const int NamedKept = 64;
 
     /// <summary>How many pipelines the device made and how long the driver took to make them, from the start.</summary>
     internal (long Made, TimeSpan Making) PipelinesMade =>
         (Interlocked.Read(ref _pipelinesMade), Stopwatch.GetElapsedTime(0, Interlocked.Read(ref _pipelineTicks)));
 
-    // A compute pipeline the driver makes through the cache, counted.
-    internal VkPipeline CreateComputePipeline(VkComputePipelineCreateInfo* info)
+    /// <summary>
+    /// The pipelines the device made since this was last asked, each as the shaders it is made from
+    /// and the milliseconds the driver took, the latest 64 at most.
+    /// </summary>
+    internal string[] TakePipelinesNamed()
+    {
+        var named = new List<string>();
+        while (_pipelinesNamed.TryDequeue(out var one)) named.Add(one);
+        return [.. named];
+    }
+
+    // A compute pipeline the driver makes through the cache from the SPIR-V given, counted.
+    internal VkPipeline CreateComputePipeline(VkComputePipelineCreateInfo* info, ReadOnlySpan<byte> spirv)
     {
         var making = Stopwatch.GetTimestamp();
         VkPipeline pipeline;
         _deviceApi.vkCreateComputePipelines(_pipelineCache, 1, info, null, &pipeline).CheckResult();
-        Made(making);
+        Made(making, ShaderNames.Of(spirv));
         return pipeline;
     }
 
-    // Counts a pipeline the driver made since the timestamp given.
-    private void Made(long since)
+    // Counts a pipeline the driver made since the timestamp given, from the shaders named.
+    private void Made(long since, string shaders)
     {
+        var ticks = Stopwatch.GetTimestamp() - since;
         Interlocked.Increment(ref _pipelinesMade);
-        Interlocked.Add(ref _pipelineTicks, Stopwatch.GetTimestamp() - since);
+        Interlocked.Add(ref _pipelineTicks, ticks);
+        _pipelinesNamed.Enqueue($"{shaders} in {Stopwatch.GetElapsedTime(0, ticks).TotalMilliseconds:0} ms");
+        while (_pipelinesNamed.Count > NamedKept && _pipelinesNamed.TryDequeue(out _)) { }
     }
 }

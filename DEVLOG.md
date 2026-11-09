@@ -10,7 +10,7 @@ of .github/REVIEW.md or .github/REVIEW-ARCHIVE.md and the commit that closed it.
 
 Done that day
 
-- Item 226 at `acedb940`. The live path.
+- Item 226 at `50d7b427`. The live path.
 - Item 229 at `f1cc2022`. The reference reads the normal maps.
 - Item 232 at `8dba0d1c`. Three examples drift from raylib's programs.
 - Item 233 at `fae33540`. Comments without readings and costs.

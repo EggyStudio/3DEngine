@@ -21,6 +21,12 @@ internal sealed partial class GlobalIlluminationRenderer
     private bool _lightsChanged;
     private long _changedAt = long.MinValue / 2;
 
+    // The switches global illumination was drawn with the frame before, and whether this frame's
+    // differ, which begins every cycle again as a change of the lights does, so a part left out or
+    // put back shows at once where the cycles would ease into it over two of theirs.
+    private (bool, bool, bool, bool, bool, bool, bool, bool, bool, bool, bool, bool, int, float)? _switchesBefore;
+    private bool _switchesChanged;
+
     // The share of a carried probe's own light this frame takes in the gather's mean, one over the
     // frames since the lights or the field last changed, sixteen at most (gi_ambient.slang).
     private float CarriedShare => 1f / Math.Min(16, _frame - _changedAt + 1);
@@ -36,13 +42,22 @@ internal sealed partial class GlobalIlluminationRenderer
     // Whether the lights or the field changed within the frames a change's light takes to settle.
     private bool Settling => _frame - _changedAt < SettlingFrames;
 
-    // Notes the frame as one the lights or the field changed in, where either did. A build of any
-    // cascade counts wherever it lies, since the last cascade's rays carry a change from past the
-    // screen's probes' reach, as a roof five units over a floor seen through it.
+    // Notes the frame as one the lights, the field or the switches changed in, where any did. A
+    // build of any cascade counts wherever it lies, since the last cascade's rays carry a change from
+    // past the screen's probes' reach, as a roof five units over a floor seen through it.
     private void NoteChanged()
     {
-        if (_lightsChanged || _fieldRebuilt != 0)
+        if (_lightsChanged || _switchesChanged || _fieldRebuilt != 0)
             _changedAt = _frame;
+    }
+
+    // Notes whether a part of global illumination was left out or put back since the frame before.
+    private void NoteSwitches(GlobalIlluminationSettings s)
+    {
+        var now = (s.MergeOff, s.AgainOff, s.FollowOff, s.GlowOff, s.AlbedoOff, s.SpecularOff, s.NormalMapsOff, s.ThroughOff, s.HistoryOff,
+            s.FilterOff, s.ScreenOff, s.MeshesTraced, s.Alone, s.BounceGain);
+        _switchesChanged = _switchesBefore is { } before && before != now;
+        _switchesBefore = now;
     }
 
     // Notes whether the sun, the sky or a light differs from the frame before's by more than a

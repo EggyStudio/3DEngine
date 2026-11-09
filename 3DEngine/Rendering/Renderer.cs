@@ -233,18 +233,19 @@ internal sealed class Renderer : IDisposable
     private static readonly TimeSpan SlowPipelines = TimeSpan.FromMilliseconds(100);
 
     // Says in the log the first frame's time and the pipelines it made, and any later frame's
-    // pipelines where the driver took long over them, as a first frame with a reflection plane can
-    // wait on them.
+    // pipelines where the driver took long over them, each by its shaders and its time, as a first
+    // frame with a reflection plane can wait on them.
     private void LogPipelines(long started)
     {
         if (Context.Graphics is not GraphicsDevice device) return;
         var (made, making) = device.PipelinesMade;
         var (count, time) = (made - _pipelinesBefore.Made, making - _pipelinesBefore.Making);
         _pipelinesBefore = (made, making);
+        var named = device.TakePipelinesNamed();
         if (_frames++ == 0)
             Logger.Info($"The first frame took {Stopwatch.GetElapsedTime(started).TotalMilliseconds:0} ms, {count} pipelines made by the driver in {time.TotalMilliseconds:0} ms.");
         else if (time >= SlowPipelines)
-            Logger.Info($"Frame {_frames} made {count} pipelines in {time.TotalMilliseconds:0} ms.");
+            Logger.Info($"Frame {_frames} made {count} pipelines in {time.TotalMilliseconds:0} ms, {string.Join(", ", named)}.");
     }
 
     // A built-in shader compiled with defines, or none, said in the log with otherwise, where the

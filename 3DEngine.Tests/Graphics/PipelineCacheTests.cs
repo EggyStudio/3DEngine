@@ -67,4 +67,30 @@ public sealed class PipelineCacheTests : IDisposable
         File.GetLastWriteTimeUtc(path).Should().Be(at, "the second run's pipelines were all in the cache it read");
         File.ReadAllBytes(path).Should().Equal(written);
     }
+
+    [NeedsVulkanFact]
+    public void A_Pipeline_The_Device_Makes_Is_Named_By_The_Shader_It_Is_Made_From_With_Its_Time()
+    {
+        var config = Config.Default.WithWindow("pipeline names", 64, 64) with { Headless = true, Offscreen = true, Samples = 1 };
+        UseApp(new App(config).AddPlugin(new DefaultPlugins()));
+        BeginDrawing();
+        ClearBackground(Color.Black);
+        EndDrawing();
+        var device = (GraphicsDevice)GetApp().World.Resource<Engine.Renderer>().Context.Graphics!;
+        device.TakePipelinesNamed();
+
+        var spirv = SlangCompiler.Compile("""
+            RWStructuredBuffer<uint> counts;
+
+            [shader("compute")]
+            [numthreads(1, 1, 1)]
+            void computeMain(uint3 id : SV_DispatchThreadID)
+            {
+                counts[id.x] = id.x;
+            }
+            """, "named.slang", "computeMain", ShaderStage.Compute);
+        using (device.CreateComputePipeline(spirv, 0, [0]))
+            device.TakePipelinesNamed().Should().ContainSingle().Which.Should().MatchRegex(@"^named\.slang's computeMain in \d+ ms$",
+                "the frame's line in the log names each pipeline the driver made by its shaders and its time");
+    }
 }

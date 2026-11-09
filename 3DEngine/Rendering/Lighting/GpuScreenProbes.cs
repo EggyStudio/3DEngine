@@ -149,15 +149,17 @@ internal sealed record ScreenGlow(IImage Light, IImageView LightView, IImage Las
 
 /// <summary>
 /// Each screen probe's light over the cycle of the sixteen places its rays leave from, the
-/// mean of the cycle being gathered with how many frames it holds, and the mean of the last whole
-/// one with whether it stands in for the probe's light, this frame's and the frame before's.
+/// mean of the cycle being gathered with how many frames it holds, the mean of the last whole
+/// one with whether it stands in for the probe's light, and the light that stand-in eases from
+/// across the cycle after it, this frame's and the frame before's.
 /// </summary>
 internal sealed record ScreenCycle(IImage Partial, IImageView PartialView, IImage LastPartial, IImageView LastPartialView,
-    IImage Full, IImageView FullView, IImage LastFull, IImageView LastFullView)
+    IImage Full, IImageView FullView, IImage LastFull, IImageView LastFullView, IImage Eased, IImageView EasedView,
+    IImage LastEased, IImageView LastEasedView)
 {
     /// <summary>The images, in the order the views are made of them.</summary>
-    public IImage[] Images => [Partial, LastPartial, Full, LastFull];
+    public IImage[] Images => [Partial, LastPartial, Full, LastFull, Eased, LastEased];
 
     /// <summary>The views, in the order of <see cref="Images"/>.</summary>
-    public IImageView[] Views => [PartialView, LastPartialView, FullView, LastFullView];
+    public IImageView[] Views => [PartialView, LastPartialView, FullView, LastFullView, EasedView, LastEasedView];
 }

@@ -116,7 +116,9 @@ internal static partial class SlangCompiler
                 var describedFile = Path.ChangeExtension(found, ".uniforms");
                 var described = File.Exists(describedFile) ? File.ReadAllText(describedFile) : "";
                 Interlocked.Increment(ref _read);
-                return new SlangStage(File.ReadAllBytes(found), ReadUniforms(described), ReadTextures(described), ReadBuffers(described), ReadImages(described),
+                var read = File.ReadAllBytes(found);
+                ShaderNames.Note(read, $"{Path.GetFileName(fileName)}'s {entryPoint}");
+                return new SlangStage(read, ReadUniforms(described), ReadTextures(described), ReadBuffers(described), ReadImages(described),
                     ReadBindings(described), ReadInputs(described));
             }
 
@@ -129,6 +131,7 @@ internal static partial class SlangCompiler
         var (bytecode, reflection) = Run(compiler, source, fileName, entryPoint, stage, importDirectory, defines);
         Interlocked.Add(ref _compileTicks, System.Diagnostics.Stopwatch.GetTimestamp() - started);
         Interlocked.Increment(ref _compiled);
+        ShaderNames.Note(bytecode, $"{Path.GetFileName(fileName)}'s {entryPoint}");
         var uniforms = UniformsOf(reflection);
         var textures = TexturesOf(reflection);
         var buffers = BuffersOf(reflection);

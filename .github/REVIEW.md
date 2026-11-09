@@ -1,30 +1,34 @@
 # Review
 
-Reviewed up to `1c3c38d5`, the minor to 6.2 for the split, pushed at 14:00 on 2026-11-09 with
-`1d78c3a9`, `f2b695c9`, `1a11d7bf` and `620cfeb4`, cut eight's last two commits, 225's split into a
-project for each area in layers packed at the one version under the package 3DEngine, and 234, the
-Windows halves at 160 minutes on a push, one run on the last, green at 16:00 with macOS in 45
-minutes, Windows in 75 and 120, Linux in 76 and the examples in 11, both halves within 160, which
-settles Verdict 110; the last tagged `v6.2.0`, and the pack run for 6.2.0 with publish started on it
-at 14:00, its captures and games jobs red at 15:44 and 15:39, the bench script's read of the SDL
+Reviewed up to `500730bf`, 236, the build on a push to a branch alone, pushed at 16:04 on 2026-11-09
+with `fae33540`, `28a95e70` and `1a66d9a6`, 233's comment sweep in 164 files and its two stale
+comments mended, and 226's first commit, a program live where it runs from its own project's build
+folder, one run on the last, green at 17:52 with macOS in 45 minutes, Windows in 75 and 108, Linux
+in 81 and the examples in 11; they keep the form and carry the devlog. After it `f9cfb376`,
+`acedb940`, `50d7b427` and `c23cd2d4`, Verdict 111's mend, the bench script finding the SDL version
+in the library's projects and the first wait after a game opens giving a cold compile ten minutes,
+and 226's second to fourth commits, the shaders compiled again as saved, the textures uploaded again
+and the models and scenes reloaded live with the editing-while-running guide, pushed together at
+17:53 on 2026-11-09 with one run on the last and the pack run for 6.2 with publish started on it at
+17:54, the first pack run carrying the mend and the split's twelve new package names; they keep the
+form, the first and last carrying the review's files. The owner published the release scene-packs
+with intel-sponza.pack at 17:58 on 2026-11-09, the pack made again by review from the bridge's with
+the manifest's hash after the user cache's clearing had deleted the fetched one, so ./e3d scenes
+fetch works and the pack run's macOS captures job drives Sponza from this run on. Before it
+`1c3c38d5`, the minor to 6.2 for the split, pushed at 14:00 on 2026-11-09 with `1d78c3a9`,
+`f2b695c9`, `1a11d7bf` and `620cfeb4`, cut eight's last two commits, 225's split into a project for
+each area in layers packed at the one version under the package 3DEngine, and 234, the Windows
+halves at 160 minutes on a push, one run on the last, green at 16:00 with macOS in 45 minutes,
+Windows in 75 and 120, Linux in 76 and the examples in 11, both halves within 160, which settles
+Verdict 110; the last tagged `v6.2.0`, and the pack run for 6.2.0 with publish started on it at
+14:00, its captures and games jobs red at 15:44 and 15:39, the bench script's read of the SDL
 version from the root project the split emptied and Sumo's wait of 30 seconds timed out again,
 Verdict 111, its suites green and its pack job skipped when the run ended red at 17:00 with its
 first Windows half in 180 minutes of the pack run's 240, so 6.2.0 is not published; they keep the
 form and carry NORM.md's N 1.1 and N 1.6. The tag's push started a build run of its own on the ref
 v6.2.0 beside main's, the workflow running on any push, whose first Windows half failed in a minute
 at 14:01 on a GitHub 500 while downloading Mesa, the host's fault and no verdict; the workflow runs
-on branches alone from item 236. After it `fae33540`, `28a95e70`, `1a66d9a6` and `500730bf`, 233's
-comment sweep in 164 files and its two stale comments mended, 226's first commit, a program live
-where it runs from its own project's build folder with the files the flat API loads by name watched
-and loaded again once quiet, and 236, the build on a push to a branch alone, pushed together at
-16:04 on 2026-11-09 with one run on the last; they keep the form and carry the devlog. After them
-`f9cfb376`, Verdict 111's mend, the bench script finding the SDL version in the library's projects
-and the first wait after a game opens giving a cold compile ten minutes, and `acedb940`, 226's
-second commit, a live program compiling a shader again as its file is saved and drawing with it
-under the same handle, committed at 16:29 on 2026-11-09 and waiting on 500730bf's run; they keep the
-form, the first carrying the review's files. After them `50d7b427`, 226's third commit, a texture
-loaded by name uploaded again as its file is saved, committed at 17:08 on 2026-11-09 and waiting
-with them; it keeps the form. Before it `ef69de7f`, cut eight's second commit, pushed at 11:56 on
+on branches alone from item 236. Before it `ef69de7f`, cut eight's second commit, pushed at 11:56 on
 2026-11-09 with `4de5d9b2` and `94600503`, the particles as one part that ends cut seven's device
 work and the renderer's console commands to Rendering, one run on the last, green at 13:56 with
 macOS in 44 minutes, Windows in 64 and 93, Linux in 112 and the examples in 8; they keep the form.
@@ -248,14 +252,14 @@ words. On 2026-10-30 at 18:0x the owner wrote the README's new words (item 133) 
 radiance cascades (Decision 74), questions asked back, and asked that the sessions spend fewer
 tokens at the same quality, N 7.7.
 
-Next 237, the flicker the owner sees at Sponza's views 6 and 7, before 226's third commit, then
-226's remaining commits, 238, and 235 last, 225's split, 233, 234 and 236 pushed with 226's first
-commit, 232 done on its run, 214, 217, 219, 220, 221, 222, 223 and 224 done on their runs, 227, 218
-and 215 pushed on their run, 228, 230, 216 and 229 pushed on their run, no budget by Decision 94 and
-208 closed, the door at 8:00 the one target by Decision 95; 213 closed at e52877dd with form 2
-parked under 208, 212 recorded with its first part landed and the rest parked, 211 closed at
-d0d391de, 212's first part landed at 1c14b0bf with its pocket mark parked, 210 closed at 3e69ec60,
-200 at 2ceac35a.
+Next 237's commit, then 241, the lamps lighting their surroundings, 240, the bands on thin shafts,
+239, the finest cascade's arrival, 238, and 235 last, 226 done in four commits, 225's split, 233,
+234 and 236 pushed with 226's first commit, 232 done on its run, 214, 217, 219, 220, 221, 222, 223
+and 224 done on their runs, 227, 218 and 215 pushed on their run, 228, 230, 216 and 229 pushed on
+their run, no budget by Decision 94 and 208 closed, the door at 8:00 the one target by Decision 95;
+213 closed at e52877dd with form 2 parked under 208, 212 recorded with its first part landed and the
+rest parked, 211 closed at d0d391de, 212's first part landed at 1c14b0bf with its pocket mark
+parked, 210 closed at 3e69ec60, 200 at 2ceac35a.
 
 Items done and verdicts settled before 2026-10-23 stand in REVIEW-ARCHIVE.md beside this file, their
 numbers kept, moved there at 19:30 on 2026-10-23 so this file holds the current work alone and is
@@ -5118,8 +5122,9 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     fourth, the models and the scenes, is written, the model taking the new file's meshes and
     materials in place with a material's shader the program set kept, the scene spawned again and
     its old entities despawned after the new file reads, with docs/editing-while-running.md, its
-    README row and the live switch's line in command-line.md; it is committed when its suite is
-    through, touching nothing of the renderer, and item 237 goes before anything after it.
+    README row and the live switch's line in command-line.md; committed at `c23cd2d4` at 17:41 on
+    2026-11-09 with ARCHITECTURE's section on the live files, the suite 2,309 in order and shuffled.
+    Done in four commits, pushed with Verdict 111's mend once 500730bf's run is green.
 
 227. **Comments on the code's own terms.** Decision 103 on 2026-11-08. The comment over
     scenes_sponza's grading goes first, in 223's commit, saying that the frame is graded by the AgX
@@ -5351,7 +5356,84 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     flips, with a test that holds a view's mean within a bound frame to frame after a cut, and the
     pair with a difference panel by N 4.9. Before 226's third commit, since the flicker is in the
     target scene and the owner sees it; the two pipeline makes of two seconds mid-run are read with
-    it, which pipelines and why not in the cache.
+    it, which pipelines and why not in the cache. The read, on 2026-11-09 from an offscreen Sponza
+    at 07:00 and a forty-eighth of a second a frame, every frame recorded across view 6, then 7,
+    then 6 again. The owner's pattern reproduces, view 7 opening at a mean of 71 and falling to 3 in
+    steps sixteen frames apart, view 6 opening at 71 and stepping down to 65 where it settles. The
+    exposure is not the cause, the same steps landing on the same frames with the camera held. Two
+    causes. The field's build, which rebuilds cascade by cascade over 47 frames after a cut with the
+    outer cascades at the old view meanwhile, so the vestibule reads light past walls not yet built,
+    and each build frame restarts the carried cycle, so the light shown is the newest frame's places
+    alone. And the swap, a carried probe showing the last whole cycle's mean and swapping it at the
+    cycle's start, so the bounces converge one a sixteen-frame cycle, each a whole-frame step; with
+    the illumination toggled off and on the steps stay fewer and smaller, so both take part. The
+    thin parts move in the first cycle after a cut alone, the shaft's mean the running mean of a few
+    places, then hold within each cycle, so the cycle's restart and gathering cause them and not the
+    screen probes' history, the steps matching the carried phase. The two slow frames in the owner's
+    log come from the renderer's pipeline line, which counts and does not name; the read's run had
+    the warm blob and made none, so the line gains the pipelines' names, entry point and shader, and
+    a cold run finds them. The mend, approved the same day, is the shown light eased from the last
+    whole mean to the new one across the next cycle in the merge, in place of the swap; a change's
+    restart kept for the lights; and for the field's build after a cut, first the whole field built
+    in the cut's frame as it is at startup, which took 34 milliseconds on the owner's GPU, where
+    that costs about one frame, else the new places blended into the shown light rather than one
+    frame's places shown; then the test holding a view's mean frame to frame after a cut and the
+    pair by N 4.9, the after runs reading the pack unpacked into a work folder through E3D_SCENES.
+    Two findings the same evening shape it. The whole field built in a cut's frame costs too much,
+    since the startup line times the GPU resources' creation alone before any splat, and the build
+    itself timed with its budgets lifted is 132 to 308 milliseconds on the RTX 4070 for 4.1 million
+    triangles against the illumination's 3.5 for a whole frame, eight to eighteen frames of hitch,
+    so the build stays spread over frames and the shown light blends the new places in. And the
+    screen probes step too, since with their history off view 7 falls to its settled light in about
+    28 frames with no sixteen-frame steps after the twentieth, and with the screen probes off the
+    world probes alone still step, so both cycles swap a whole mean, the screen filter's stand-in on
+    its sixteen-frame phase and the merge's on the frames since the change, and the ramp goes into
+    both. The pack is unpacked from the review's copy into the tools' work folder, its hash the
+    manifest's, the owner's cache untouched. A third recording from the owner at 18:04,
+    18-04-54-scenes_sponza-recording in the same dump folder, 35 pictures at 15 a second of view 1,
+    the atrium at noon, with the camera turned by the right button, where the columns' thin vertical
+    parts seen at an angle carry bands along their height, vertical stripes of darker and lighter
+    stone that stand out as the view turns, the atrium's left shaft among them. Read with the
+    per-frame capture under a turn for whether the bands stay on the stone as the camera turns, the
+    field's or the probes' cells at a thin shaft, or move with the picture, the screen probes' tiles
+    or their history reprojected at a thin shape; the mend of what they are goes in 237's commit
+    where it is the cycle's or the screen probes', and in an item of its own where it is the field's
+    hold of a thin shaft. The ramp is in and measured the same evening. The merge and the screen
+    filter each keep a new image pair, the whole cycle the shown light eases from, the light going
+    linearly from the last whole mean to the new one across the next cycle, the merge's sky share
+    with it and the mark kept whole since the cascade below reads it against a threshold. Fresh runs
+    of one script before and after, at 07:00 with a forty-eighth of a second a frame from view 6 to
+    7 and back, have the largest frame-to-frame step of the mean between the cuts fall from 27
+    levels to 3.9 and the frames moving more than 5 percent of their pixels from 7 to 4, the cuts
+    and the arrival below; the pair and the plot are in the dump at 18:28. The test dims a lamp by
+    0.6 percent a frame, under the 1 percent that counts as a lights change so the cycles carry on,
+    the old shaders stepping about 0.95 levels every sixteen frames against 0.07 between and
+    failing, the new falling 0.07 to 0.12 every frame and passing, the largest fall bounded at three
+    times the median; a cut into the walk test's room cannot show the swap, its light settling
+    within eight frames under both, so the dimming lamp stands for a cut in the test, said in the
+    Replies. What remains after a cut is one drop seven frames after it, the finest cascade arriving
+    at its new place when its build ends with no light from before to ease from and the screen
+    probes following at once, their kept light clamped to the frame's spread, the clamp being what
+    takes the indirect light away within two frames of a light that went out; it is item 239. The
+    bands of the third recording are the screen probes' and item 240. The slow-frame line names each
+    pipeline by its shaders and time through the shader names, a hash of each module's bytes noted
+    where the compiler gives it, with a test, and a cold run through the views, the hours and the
+    keys names the mid-run makes. The cold run with an empty user cache made one model pipeline in
+    2.1 seconds at frame 238 before any input and, among the views, hours and keys, four
+    model-streams pipelines and one model pipeline at 3.9 to 4.4 seconds each; a second run reading
+    that run's 9 MB blob made its thirty first-frame pipelines in 33 milliseconds and none slow in a
+    thousand frames. So the model pass's pipelines are served once a run has written them, and the
+    blob is written at the device's dispose alone, which is why the owner's two makes of 2.1 seconds
+    came from a blob lacking them, a run before having made them and never written them back; that
+    is 238's. The first suite found two things: a toggle of the illumination's switches is no change
+    of the lights, so the carried cycles eased into it over two cycles and the bounce view's test
+    read 4.3 against its 5, and a change of any of the illumination's switches begins the cycles
+    again as a lights change does, with the test failing without it; and a room lit by its bounces
+    settles about a cycle later per bounce, since the light past the first bounce reads the light
+    shown, so the bounce rooms' reference test waits 190 frames past the field's settling with the
+    reason in a comment, every room within its bound there and most nearer their references than the
+    bounds' readings, the bounds left as they are by N 3.5. The ramp stays sixteen frames, the
+    cycle's length, its cost the slower settling; RENDERING.md has the dated entry.
 
 238. **The caches listed and cleared from e3d.** From the owner's question of 2026-11-09, whether an
     old cache of shaders keeps the picture old. The shader cache is keyed by the source's hash, the
@@ -5362,7 +5444,51 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     pipelines and the scene packs by version, and cache clear that deletes them, the next run
     compiling anew; with it, a read of the pipeline cache's growth, since the examples' blob stands
     at 471 MB on the owner's machine, whether a run merges the driver's cache back whole each time
-    or trims it, and a bound where it grows without one. Small, after 237.
+    or trims it, and a bound where it grows without one. Small, after 237. From 237's cold run on
+    2026-11-09, the blob is written at the device's dispose alone, so a run that ends otherwise
+    leaves its pipelines unwritten and the next run makes them again in seconds mid-frame, as the
+    owner's two did; the read takes in when the blob is written, after a frame that made pipelines
+    or at intervals as well as at dispose, and how a blob reaches 471 MB, whether the driver's cache
+    is merged back whole each run.
+
+239. **The finest cascade's arrival after a cut.** From item 237's measure on 2026-11-09. Seven
+    frames after a cut the finest cascade arrives at its new place as its build ends, and the frame
+    drops, 32 percent of its pixels moving, since the arriving probes have no light from before to
+    ease from and the screen probes follow at once, their kept light clamped to the frame's spread,
+    which is also what takes the indirect light away within two frames of a light that went out and
+    stays. The first lever is the arriving cascade starting from the light the cascade above shows
+    for the same places, which the eased merge holds already, so that the arrival is a refinement
+    and not a step; unclamping the kept light for the frames after an arrival is the second, which
+    fades leaked light rather than removing it and risks ghosting in a turn that moves cascades, so
+    it is taken only where the first does not hold the step under the test's bound. Read on the same
+    script as 237's, the walk-and-turn test holding its settling within five frames. After 240.
+
+240. **Bands on thin shafts from the screen probes.** From the owner's recording of 2026-11-09 at
+    18:04 and item 237's read of it. On the atrium's octagonal shafts the screen probes' 8-pixel
+    tile columns lie across the faces, with dark single probes on the faces and the wall behind, and
+    in a turn the bands move in tile steps with the picture and not with the stone; they stand in a
+    still view too, so they are the probes' placing and upsampling at a shape thinner than a tile
+    and not the cycle's. The mend is spatial, in the screen probes' placing and in the model pass's
+    read of them, a probe placed on a face that fills a part of its tile weighs its light by the
+    surface it lands on, depth and normal, and the read takes the probes whose surface matches the
+    pixel's, leaving a thin shaft's faces to the probes on them and the wall behind to its own; read
+    by the atrium's left shaft at noon in a still view and under a turn against the path-traced
+    reference, with the pair by N 4.9 and a test of a thin column before a wall whose faces' light
+    stays within a bound of the reference's. Right after 237's commit, since the owner sees it.
+
+241. **Sponza's lamps light their surroundings, warm and varied.** Decision 106 on 2026-11-09. The
+    lamps of the galleries and the vestibule, the pack's glowing bulb material turned on with L,
+    bloom as if they lit the place and light nothing around them, so each lamp's emission goes into
+    the scene as the glow lights carry an emitter's light, at a power where the gallery's vault
+    above a lamp and the floor under it read lit in the evening views against the path-traced
+    reference, the emission's scale the example's; the bulbs' one shared color becomes a color a
+    lamp, warm as a flame's, the lamps varying in warmth around it with a few cooler ones, by a
+    material a lamp node or an override a node, seeded so a run draws the same lamps; and the bloom
+    is read on the lit evening views with the metered exposure, since a properly lit surround lowers
+    the exposure and the halo with it, and its intensity and threshold are changed only where the
+    glass's halo still reads as a blot rather than a soft halo once the surround is lit. Read by the
+    vestibule at 20:00 and a gallery view with the lamps on, pairs with their difference panels by N
+    4.9, and the owner shown. After 237's commit, before 240.
 
 ## Verdicts
 
@@ -5818,6 +5944,13 @@ REVIEW-ARCHIVE.md.
     comment carries no reading of before and after, no cost figure and no account of the trials,
     which are the review's records and RENDERING.md's; a number stands in a comment only where the
     code's choice depends on it, with its reason. Item 233.
+
+106. **Sponza's lamps light their surroundings, warm and varied, and the bloom follows the lit
+    surround.** The owner on 2026-11-09, having seen the lamps bloom without lighting anything,
+    asked that the lights in Sponza contribute more light to the environment, that their colors be
+    warm and vary in warmth with some cooler, and that the bloom, which looks too strong against an
+    unlit surround, be judged once the environment is properly lit and the exposure has adjusted,
+    when it would normalize. Item 241.
 
 ## Replies
 
@@ -7746,3 +7879,24 @@ in the README and the live switch's line in command-line.md, and ARCHITECTURE.md
 the live files. Tests save a triangle as a quad and read the new mesh in the model held with its
 shader kept, and save a level with another entity and read the old ones gone and the new one there,
 then save one that is no scene and read the level kept. The suite 2,309 in order and shuffled.
+
+237 written on 2026-11-09, the flicker at Sponza's views 6 and 7. The light a carried probe shows
+and the light a screen probe's whole cycle stands in with each ease from the whole cycle before the
+last to the last across the cycle after it, where each took the next whole at a cycle's first frame
+and so stepped the view each sixteen frames while the light past the first bounce settled after a
+cut. The merge eases the light with its share of the sky and keeps the mark whole, and each keeps
+the cycle it eases from in an image of its own (gi_merge.slang, gi_screen_filter.slang). The test
+dims a lamp in the walk test's room by less a frame than a change of the lights, so the cycles carry
+on, and holds the largest fall of the frame's mean from one frame to the next under three times the
+median fall; it fails on the shaders before and passes on these. It stands in for the item's cut,
+since a cut into that room settles its light within eight frames under both and cannot show the
+swap. A frame that waited long on pipelines names each in the log by the shaders it was made from
+and its time, through a name noted for each SPIR-V module by a hash of its bytes where the compiler
+gives it (ShaderNames), with a test; run with an empty user cache, Sponza named one of model.slang
+in 2.1 s at its 238th frame and five of model_streams.slang and model.slang later, and a run reading
+the pipelines the first wrote made none in 1,000 frames. A part of global illumination left out or
+put back begins the cycles again as a change of the lights does, which BounceViewTests reads at once.
+The light past the first bounce reads the light shown, so a room lit by its bounces settles a cycle
+later for each, and the bounce rooms' reference test reads them 190 frames past the field's settling
+where 90, each within its bound. RENDERING.md has the read and the mend. The suite 2,312 in order and
+shuffled.

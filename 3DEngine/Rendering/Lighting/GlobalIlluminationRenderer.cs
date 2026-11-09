@@ -353,6 +353,7 @@ internal sealed partial class GlobalIlluminationRenderer : IDisposable
         NoteLights(lights);
         _sunBefore = renderWorld.TryGet<FrameShadow>();
         var switches = renderWorld.TryGet<GlobalIlluminationSettings>()!;
+        NoteSwitches(switches);
 
         // Each cascade lying where it lay the frame before, its probes the same, so a probe's own
         // light of the frame before is its own.

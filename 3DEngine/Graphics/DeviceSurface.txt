@@ -76,7 +76,7 @@ sealed class Engine.GraphicsDevice : IDisposable, IGraphicsDevice
   internal VkDescriptorPool MakeDescriptorPool(IEnumerable<(VkDescriptorType[], int)> layouts, VkDescriptorPoolCreateFlags flags = VkDescriptorPoolCreateFlags.None)
   internal VkDeviceApi Api { get; }
   internal VkDeviceMemory AllocateSaying(VkMemoryAllocateInfo* info)
-  internal VkPipeline CreateComputePipeline(VkComputePipelineCreateInfo* info)
+  internal VkPipeline CreateComputePipeline(VkComputePipelineCreateInfo* info, ReadOnlySpan<byte> spirv)
   internal VolumeTexture CreateVolumeTexture(uint size, VkFormat format, ReadOnlySpan<byte> texels)
   internal bool AcquireWindowImage(GraphicsDevice.WindowSurface surface)
   internal bool CopiesOnHost { get; }
@@ -107,6 +107,7 @@ sealed class Engine.GraphicsDevice : IDisposable, IGraphicsDevice
   internal static string? OverLimits(string stage, IEnumerable<DescriptorSetLayoutBinding> read, uint samplers, uint images, string what)
   internal static void RequestWindowCapture(GraphicsDevice.WindowSurface surface, Action<byte[], int, int> onCaptured)
   internal static void ResizeWindowSurface(GraphicsDevice.WindowSurface surface)
+  internal string[] TakePipelinesNamed()
   internal uint FindMemoryType(uint typeFilter, VkMemoryPropertyFlags properties)
   internal ulong? FreeDeviceMemory()
   internal void CheckComputeLimits(IEnumerable<DescriptorType> textures, string what)
