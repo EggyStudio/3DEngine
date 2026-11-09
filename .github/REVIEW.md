@@ -22,20 +22,22 @@ and loaded again once quiet, and 236, the build on a push to a branch alone, pus
 and the first wait after a game opens giving a cold compile ten minutes, and `acedb940`, 226's
 second commit, a live program compiling a shader again as its file is saved and drawing with it
 under the same handle, committed at 16:29 on 2026-11-09 and waiting on 500730bf's run; they keep the
-form, the first carrying the review's files. Before it `ef69de7f`, cut eight's second commit, pushed
-at 11:56 on 2026-11-09 with `4de5d9b2` and `94600503`, the particles as one part that ends cut
-seven's device work and the renderer's console commands to Rendering, one run on the last, green at
-13:56 with macOS in 44 minutes, Windows in 64 and 93, Linux in 112 and the examples in 8; they keep
-the form. Before it `d8eedc29`, cut seven's sixth commit, pushed at 09:33 on 2026-11-09 with
-`a01f88ea` and `989ab124`, the fourth and fifth, the cube filter with the air's sky, the global
-illumination's device work and the scene field's device work as parts the device keeps, one run on
-the last, green at 11:53 with macOS in 46 minutes, Windows in 77 and 83, Linux in 132, the longest
-yet and the shader cache's as item 231 reads it, and the examples in 8; they keep the form, the
-first carrying SHARED.md's row. Before it `a36b8540`, cut seven's third commit, pushed at 07:39 on
-2026-11-09 with `f66c4a54` and `93d96996`, the first and second, the reference, the ray scene and
-the fog as parts over the device's listed surface, one run on the last, green at 09:30 with macOS in
-44 minutes, Linux in 103, Windows in 108 and 111 and the examples in 8; they keep the form and carry
-the review's files. Before it `4fe1bfe4`, 225's sixth cut, pushed at 05:55 on 2026-11-09 with
+form, the first carrying the review's files. After them `50d7b427`, 226's third commit, a texture
+loaded by name uploaded again as its file is saved, committed at 17:08 on 2026-11-09 and waiting
+with them; it keeps the form. Before it `ef69de7f`, cut eight's second commit, pushed at 11:56 on
+2026-11-09 with `4de5d9b2` and `94600503`, the particles as one part that ends cut seven's device
+work and the renderer's console commands to Rendering, one run on the last, green at 13:56 with
+macOS in 44 minutes, Windows in 64 and 93, Linux in 112 and the examples in 8; they keep the form.
+Before it `d8eedc29`, cut seven's sixth commit, pushed at 09:33 on 2026-11-09 with `a01f88ea` and
+`989ab124`, the fourth and fifth, the cube filter with the air's sky, the global illumination's
+device work and the scene field's device work as parts the device keeps, one run on the last, green
+at 11:53 with macOS in 46 minutes, Windows in 77 and 83, Linux in 132, the longest yet and the
+shader cache's as item 231 reads it, and the examples in 8; they keep the form, the first carrying
+SHARED.md's row. Before it `a36b8540`, cut seven's third commit, pushed at 07:39 on 2026-11-09 with
+`f66c4a54` and `93d96996`, the first and second, the reference, the ray scene and the fog as parts
+over the device's listed surface, one run on the last, green at 09:30 with macOS in 44 minutes,
+Linux in 103, Windows in 108 and 111 and the examples in 8; they keep the form and carry the
+review's files. Before it `4fe1bfe4`, 225's sixth cut, pushed at 05:55 on 2026-11-09 with
 `db48a8b5`, `f1422dc2`, `4aff2190` and `723bc098`, the second to fifth, one run on the last, which
 the rerun of 8dba0d1c's Windows half cancelled at once through the workflow's one run a branch and
 which started again at 05:59, green at 07:37 with macOS in 42 minutes, Windows in 71 and 97, Linux
@@ -246,13 +248,14 @@ words. On 2026-10-30 at 18:0x the owner wrote the README's new words (item 133) 
 radiance cascades (Decision 74), questions asked back, and asked that the sessions spend fewer
 tokens at the same quality, N 7.7.
 
-Next 234, then 233, 226, the live path, and 235 last, 225's split committed with its norm test under
-N 1.6 and the version to 6.2 with 234's commit, 232 done on its run, 214, 217, 219, 220, 221, 222,
-223 and 224 done on their runs, 227, 218 and 215 pushed on their run, 228, 230, 216 and 229 pushed
-on their run, no budget by Decision 94 and 208 closed, the door at 8:00 the one target by Decision
-95; 213 closed at e52877dd with form 2 parked under 208, 212 recorded with its first part landed and
-the rest parked, 211 closed at d0d391de, 212's first part landed at 1c14b0bf with its pocket mark
-parked, 210 closed at 3e69ec60, 200 at 2ceac35a.
+Next 237, the flicker the owner sees at Sponza's views 6 and 7, before 226's third commit, then
+226's remaining commits, 238, and 235 last, 225's split, 233, 234 and 236 pushed with 226's first
+commit, 232 done on its run, 214, 217, 219, 220, 221, 222, 223 and 224 done on their runs, 227, 218
+and 215 pushed on their run, 228, 230, 216 and 229 pushed on their run, no budget by Decision 94 and
+208 closed, the door at 8:00 the one target by Decision 95; 213 closed at e52877dd with form 2
+parked under 208, 212 recorded with its first part landed and the rest parked, 211 closed at
+d0d391de, 212's first part landed at 1c14b0bf with its pocket mark parked, 210 closed at 3e69ec60,
+200 at 2ceac35a.
 
 Items done and verdicts settled before 2026-10-23 stand in REVIEW-ARCHIVE.md beside this file, their
 numbers kept, moved there at 19:30 on 2026-10-23 so this file holds the current work alone and is
@@ -5110,7 +5113,13 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     log and the live line; the immediate pass, the model pass and the compute dispatch each remember
     the program they built from and retire as for an unload when it changes, as the tonemap does;
     unloading forgets the file; LiveReloadTests reads both passes red, saved green and read green,
-    then a compile error kept green; the suite 2,306 in order and shuffled. The textures are next.
+    then a compile error kept green; the suite 2,306 in order and shuffled. Third commit done at
+    `50d7b427` at 17:08 on 2026-11-09, the textures, the suite 2,307 in order and shuffled. The
+    fourth, the models and the scenes, is written, the model taking the new file's meshes and
+    materials in place with a material's shader the program set kept, the scene spawned again and
+    its old entities despawned after the new file reads, with docs/editing-while-running.md, its
+    README row and the live switch's line in command-line.md; it is committed when its suite is
+    through, touching nothing of the renderer, and item 237 goes before anything after it.
 
 227. **Comments on the code's own terms.** Decision 103 on 2026-11-08. The comment over
     scenes_sponza's grading goes first, in 223's commit, saying that the frame is graded by the AgX
@@ -5310,6 +5319,50 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     that touches the workflows or on its own before 226's second commit. Done at `500730bf` on
     2026-11-09, build.yml's push naming the branches, pull requests and the pack run's call
     unchanged, a workflow change alone.
+
+237. **Sponza flickers whole frames at views 6 and 7.** From the owner's captures of 2026-11-09 at
+    17:21, in .github/dump/2026-11-09, two recordings of scenes_sponza held on F2 at 15 pictures a
+    second, run from the examples' project on the RTX 4070 with the shader stages read from the
+    cache, none compiled, and two pipelines made by the driver mid-run in 2.1 seconds each at frames
+    408 and 438. The owner's recording is the one of 17:21:25, kept from its twenty-ninth picture,
+    which opens on view 6, the balcony at 07:00 metered with the lamps off, and flickers from its
+    first picture. The thirtieth is the lit courtyard, warm stone and the colonnade's inside lit by
+    the bounce; the thirty-first is cooler and darker in the shaded colonnade, 13 percent of the
+    pixels moved by more than 24 of 255; the thirty-fourth has the arches' insides black and the
+    whole cast blue, the bounce light gone, 25 percent moved; the thirty-ninth and forty-fourth move
+    3 and 4 percent, and the pictures after stand still. The columns' thin parts flicker with it,
+    the owner says, parts of them darker and their colors shifting at the live rate, which fifteen
+    pictures a second cannot hold; in the pictures the center column's shaft goes from a warm 69,
+    62, 56 at the twenty-ninth to 51, 49, 51 at the thirty-first and 43, 44, 49 at the
+    thirty-fourth, and the left capital from 97, 89, 84 to 53, 57, 64, darker and turned from the
+    bounce's warm to the sky's blue, so the thin parts lose the bounce first and most, the read's
+    per-frame capture to show whether they flicker on their own between the whole frame's flips. The
+    recording of 17:21:43, taken as well, opens on view 7, the door, whose third picture is darker
+    whole than its second, the shaded right half black where the second has the lit wall, 23 percent
+    moved; the sixth moves 33 percent, the tenth 9, then the view switches to 6 at the fifteenth,
+    and the sixteenth, twenty-first, twenty-fifth and thirty-first move 10, 29, 3 and 3 percent. A
+    whole frame flips dark and back every three to six captured pictures, the amplitude falling
+    after a switch and the flip dying out within about two seconds, which neither the shader cache,
+    keyed by the source's hash, nor the driver's pipeline cache can cause. First the read, the
+    example run offscreen with the switch to view 6 at 07:00 and every rendered frame captured for
+    its first three seconds, not fifteen a second, and the frames that flip read by pass, the global
+    illumination's cycle phase and its merge, the screen probes' history after the cut, and the
+    metered exposure, which may read a flipped frame and move the whole; then the mend of what
+    flips, with a test that holds a view's mean within a bound frame to frame after a cut, and the
+    pair with a difference panel by N 4.9. Before 226's third commit, since the flicker is in the
+    target scene and the owner sees it; the two pipeline makes of two seconds mid-run are read with
+    it, which pipelines and why not in the cache.
+
+238. **The caches listed and cleared from e3d.** From the owner's question of 2026-11-09, whether an
+    old cache of shaders keeps the picture old. The shader cache is keyed by the source's hash, the
+    entry point, the stage and the compiler's version, so a changed shader is compiled anew, and the
+    driver's pipeline cache is validated by the driver; neither can serve an old shader, which the
+    record says. What the owner lacks is a way to see and empty them, an e3d command, cache, that
+    lists the engine's cache folders under the user's cache with their sizes, the shaders, the
+    pipelines and the scene packs by version, and cache clear that deletes them, the next run
+    compiling anew; with it, a read of the pipeline cache's growth, since the examples' blob stands
+    at 471 MB on the owner's machine, whether a run merges the driver's cache back whole each time
+    or trims it, and a bound where it grows without one. Small, after 237.
 
 ## Verdicts
 
@@ -7681,3 +7734,15 @@ size it was given, which the log says. A save that cannot be decoded keeps the t
 the reason in the log and the live line, and UnloadTexture forgets the file. A test saves a red
 texture green at twice the size, reads the new size in the store and the green in the frame, and
 then saves one that is no picture and reads the green kept. The shaders' reasons are sentences now.
+
+226's fourth commit written on 2026-11-09, the models and the scenes. A model LoadModel read from a
+file is read again as the file is saved into the Model the program holds, its meshes, materials,
+skeleton and skins taken from the new read and the old meshes and textures unloaded, a shader the
+program set on a material kept on it. A scene LoadScene spawned is spawned again, and the entities
+it spawned before are despawned with their children once the new file reads, so a save that cannot
+be read keeps the level, the handles given before refused from then on as the log says. UnloadModel
+forgets the file. docs/editing-while-running.md says the path for a program's author, with its row
+in the README and the live switch's line in command-line.md, and ARCHITECTURE.md has a section on
+the live files. Tests save a triangle as a quad and read the new mesh in the model held with its
+shader kept, and save a level with another entity and read the old ones gone and the new one there,
+then save one that is no scene and read the level kept. The suite 2,309 in order and shuffled.

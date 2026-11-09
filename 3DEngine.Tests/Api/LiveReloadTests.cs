@@ -86,6 +86,68 @@ public sealed class LiveReloadTests : IDisposable
         GraphicsDevice.ValidationErrors.Skip(_validationErrorsBefore).Should().BeEmpty("the validation layer, where it runs, reports nothing wrong with the frames drawn");
     }
 
+    [NeedsVulkanFact]
+    public void A_Model_Saved_While_Live_Is_Read_Again_Into_The_Model_The_Program_Holds()
+    {
+        Open();
+        var file = _folder.File("ramp.obj");
+        File.WriteAllText(file, "v 0 0 0\nv 1 0 0\nv 0 1 0\nf 1 2 3\n");
+        var ramp = LoadModel(file);
+        ramp.Meshes.Should().ContainSingle().Which.TriangleCount.Should().Be(1);
+        var paint = LoadShaderFromMemory(Fragment("1.0, 0.0, 0.0", "modelpass", "ModelVertexOutput"), "paint.slang");
+        ramp.Materials[0].Shader = paint;
+        var meshBefore = ramp.Meshes[0].Id;
+
+        // Saved as a quad, read again into the same model, its mesh made anew and the shader the
+        // program set on its material kept.
+        File.WriteAllText(file, "v 0 0 0\nv 1 0 0\nv 1 1 0\nv 0 1 0\nf 1 2 3\nf 1 3 4\n");
+        FramesUntil(() => Live().Entries.Single(e => e.Kind == "model").Reloads == 1);
+        Live().Entries.Single(e => e.Kind == "model").LastError.Should().BeNull();
+        ramp.Meshes.Should().ContainSingle().Which.TriangleCount.Should().Be(2, "the model the program holds is the file as it is now");
+        ramp.Meshes[0].Id.Should().NotBe(meshBefore);
+        ramp.Materials[0].Shader.Should().Be(paint, "a shader the program set on a material stays on it");
+        GetApp().World.Resource<MeshStore>().Contains(meshBefore).Should().BeFalse("the mesh the file made before is unloaded");
+        Capture(() =>
+        {
+            ClearBackground(Color.Black);
+            BeginMode3D(new Camera3D(new Vector3(0.5f, 0.5f, 2), new Vector3(0.5f, 0.5f, 0), Vector3.UnitY, 45));
+            DrawModel(ramp, Vector3.Zero, 1, Color.White);
+            EndMode3D();
+        });
+
+        UnloadModel(ramp);
+        Live().Entries.Should().NotContain(e => e.Kind == "model", "an unloaded model's file is no longer watched");
+        GraphicsDevice.ValidationErrors.Skip(_validationErrorsBefore).Should().BeEmpty("the validation layer, where it runs, reports nothing wrong with the frames drawn");
+    }
+
+    [NeedsVulkanFact]
+    public void A_Scene_Saved_While_Live_Is_Spawned_Again_And_One_That_Cannot_Be_Read_Keeps_The_Level()
+    {
+        Open();
+        var file = _folder.File("level.json");
+        File.WriteAllText(file, Scene("door", "lamp"));
+        var level = LoadScene(file);
+        var ecs = GetApp().World.Resource<EcsWorld>();
+        level.Should().HaveCount(2).And.OnlyContain(e => ecs.IsAlive(e));
+
+        File.WriteAllText(file, Scene("door", "lamp", "chest"));
+        FramesUntil(() => Live().Entries.Single().Reloads == 1);
+        Live().Entries.Single().LastError.Should().BeNull();
+        level.Should().OnlyContain(e => !ecs.IsAlive(e), "the entities spawned before are despawned once the file is spawned again");
+        ecs.FindByName("chest").Should().NotBe(0, "the file as it is now is in the world");
+
+        // A save that is not a scene file leaves the level as it was.
+        var chest = ecs.FindByName("chest");
+        File.WriteAllText(file, "{ not json");
+        FramesUntil(() => Live().Entries.Single().Reloads == 2);
+        Live().Entries.Single().LastError.Should().NotBeNullOrEmpty();
+        ecs.IsAlive(chest).Should().BeTrue("a scene file that cannot be read keeps the level it spawned");
+    }
+
+    // A scene file of entities with the names given and nothing else.
+    private static string Scene(params string[] names) =>
+        $$"""{ "format": "{{SceneFile.Format}}", "version": {{SceneFile.Version}}, "entities": [{{string.Join(", ", names.Select(n => $"{{ \"name\": \"{n}\" }}"))}}] }""";
+
     // The color a texture shows drawn over the whole window, by its brightest channel.
     private string Shown(Texture2D texture) => Brightest(GetImageColor(Capture(() =>
     {

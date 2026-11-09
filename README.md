@@ -238,6 +238,7 @@ using the engine, a page an area, each built on an example that runs, read in or
 | [Behaviors and the ECS](https://github.com/EggyStudio/3DEngine/blob/main/docs/behaviors-and-the-ecs.md) | Behaviors, stages, spawning entities, filters, and the world from the loop |
 | [States](https://github.com/EggyStudio/3DEngine/blob/main/docs/states.md) | Screens and modes as a state, behaviors that follow it, and states within states |
 | [Scenes](https://github.com/EggyStudio/3DEngine/blob/main/docs/scenes.md) | Saving and loading levels, the file, a program's own components, and scenes inside scenes |
+| [Editing while it runs](https://github.com/EggyStudio/3DEngine/blob/main/docs/editing-while-running.md) | Shaders, textures, models, levels and behaviors saved while the program runs and seen in it at the next frame, where that holds and how `e3d` lists it |
 | [The command line](https://github.com/EggyStudio/3DEngine/blob/main/docs/command-line.md) | Asking a running program about its world, input, captures, the log, commands of its own and C# typed at it |
 | [Shipping a game](https://github.com/EggyStudio/3DEngine/blob/main/docs/shipping-a-game.md) | A game of its own on the package, and one native executable a player runs |
 | [Compared with raylib](https://github.com/EggyStudio/3DEngine/blob/main/docs/compared-with-raylib.md) | What is the same as raylib, what this engine adds, what it costs, and what was measured |

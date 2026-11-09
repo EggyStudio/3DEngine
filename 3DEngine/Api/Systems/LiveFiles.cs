@@ -83,21 +83,22 @@ internal sealed class LiveFiles : IDisposable
 
     /// <summary>
     /// Remembers a file loaded by name into <paramref name="id"/>, from <paramref name="loaded"/>,
-    /// watching its project's copy where there is one, and gives the file watched.
+    /// watching its project's copy where there is one, and gives the file watched. One id may watch
+    /// more than one file, each loaded again by its own reload.
     /// </summary>
     internal string Watch(string kind, int id, string loaded, Func<string, string?> reload)
     {
         var path = Watched(loaded);
         lock (_gate)
         {
-            _entries.RemoveAll(e => e.Kind == kind && e.Id == id);
+            _entries.RemoveAll(e => e.Kind == kind && e.Id == id && Paths.Equals(e.Path, path));
             _entries.Add(new Entry(kind, id, path, reload));
             if (On) WatchFolderOf(path);
         }
         return path;
     }
 
-    /// <summary>Forgets what was loaded into <paramref name="id"/>, as an unload does.</summary>
+    /// <summary>Forgets every file loaded into <paramref name="id"/>, as an unload does.</summary>
     internal void Forget(string kind, int id)
     {
         lock (_gate)

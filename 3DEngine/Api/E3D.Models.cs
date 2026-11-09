@@ -1,5 +1,6 @@
 using System.Numerics;
 using System.Runtime.InteropServices;
+using System.Runtime.CompilerServices;
 using StbImageSharp;
 
 namespace Engine;
@@ -98,9 +99,45 @@ public static partial class E3D
     /// rest are looked for beside the model file. Each gets mip levels, since a model is seen from
     /// any distance. MagicaVoxel's <c>.vox</c> files, Inter-Quake Models (<c>.iqm</c>) and Model 3D
     /// files (<c>.m3d</c>) are read as raylib reads them, an IQM with its skeleton, which Assimp
-    /// leaves out.
+    /// leaves out. Where the program is live (<see cref="Config.Live"/>), the file is read again
+    /// as it is saved into the model the program holds, its meshes, materials and bones the file's
+    /// as it is now and a shader the program set on a material kept where the material is, and a
+    /// texture the file names is read again as its own file is saved, as one LoadTexture read is.
     /// </remarks>
     public static Model LoadModel(string fileName)
+    {
+        var model = ReadModel(fileName);
+        if (model.IsValid && ResolveFile(fileName) is { } path && TryRes<LiveFiles>(out var live))
+        {
+            var id = ++_liveModels;
+            LiveModels.AddOrUpdate(model, new StrongBox<int>(id));
+            live.Watch("model", id, path, file => ReloadModel(model, file));
+        }
+        return model;
+    }
+
+    // The ids the live files know each model loaded by name by, which its unloading forgets.
+    private static readonly ConditionalWeakTable<Model, StrongBox<int>> LiveModels = new();
+    private static int _liveModels;
+
+    // Reads a model's file again into the model the program holds, answering why where it cannot.
+    private static string? ReloadModel(Model model, string path)
+    {
+        var read = ReadModel(path);
+        if (!read.IsValid) return "It holds no mesh that could be read, which the log says more of.";
+        // A shader the program set on a material after the load stays on the material at its place.
+        for (int i = 0; i < Math.Min(model.Materials.Length, read.Materials.Length); i++)
+            if (model.Materials[i].Shader.IsValid && !read.Materials[i].Shader.IsValid)
+                read.Materials[i].Shader = model.Materials[i].Shader;
+        var (meshes, textures) = (model.Meshes, model.OwnedTextures);
+        model.TakeFrom(read);
+        foreach (var mesh in meshes) UnloadMesh(mesh);
+        foreach (var texture in textures) UnloadTexture(texture);
+        return null;
+    }
+
+    // A model file read into a model of its own, its meshes and textures loaded.
+    private static Model ReadModel(string fileName)
     {
         if (ModelFiles.ReadScene(fileName, "LoadModel") is not { } scene) return new Model();
 
@@ -347,6 +384,7 @@ public static partial class E3D
     {
         foreach (var mesh in model.Meshes) UnloadMesh(mesh);
         foreach (var texture in model.OwnedTextures) UnloadTexture(texture);
+        if (LiveModels.TryGetValue(model, out var id) && TryRes<LiveFiles>(out var live)) live.Forget("model", id.Value);
     }
 
     /// <summary>

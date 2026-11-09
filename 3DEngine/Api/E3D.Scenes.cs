@@ -13,6 +13,12 @@ public static partial class E3D
     /// handle to an entity despawned since is refused rather than reaching one that reused its id.
     /// </remarks>
     /// <returns>The entities, or none when the file is missing or not a scene file, with the reason in the log.</returns>
+    /// <remarks>
+    /// Where the program is live (<see cref="Config.Live"/>), the file is spawned again as it is
+    /// saved and the entities it spawned before are despawned with their children once it has, so a
+    /// save that cannot be read keeps the level as it was, and the handles the program was given are
+    /// refused from then on, as any despawned entity's are, which the log says.
+    /// </remarks>
     public static IReadOnlyList<Entity> LoadScene(string fileName)
     {
         var path = ResolveFile(fileName);
@@ -28,13 +34,45 @@ public static partial class E3D
             // The bodies its Colliders and RigidBodies describe, at once rather than next frame.
             PhysicsBodies.Run(World);
             var ecs = Res<EcsWorld>();
-            return spawned.Select(ecs.Handle).ToArray();
+            Entity[] handles = [.. spawned.Select(ecs.Handle)];
+            if (TryRes<LiveFiles>(out var live))
+            {
+                var held = new List<Entity>(handles);
+                live.Watch("scene", ++_liveScenes, path, file => ReloadScene(held, file));
+            }
+            return handles;
         }
         catch (Exception ex) when (ex is InvalidDataException or System.Text.Json.JsonException or IOException)
         {
             ApiLogger.Warn($"LoadScene: '{fileName}' could not be read. {ex.Message}");
             return [];
         }
+    }
+
+    // The ids the live files know each scene loaded by name by.
+    private static int _liveScenes;
+
+    // Spawns a scene's file again and then despawns what it spawned before, with their children,
+    // answering why where the file cannot be read, which leaves the level as it was.
+    private static string? ReloadScene(List<Entity> spawned, string path)
+    {
+        List<int> again;
+        try
+        {
+            again = SceneFile.Load(World, path);
+        }
+        catch (Exception ex) when (ex is InvalidDataException or System.Text.Json.JsonException)
+        {
+            return $"It is not a scene file this engine reads. {ex.Message}";
+        }
+        var ecs = Res<EcsWorld>();
+        foreach (var entity in spawned)
+            if (ecs.IsAlive(entity)) ecs.DespawnRecursive(entity.Index);
+        PhysicsBodies.Run(World);
+        spawned.Clear();
+        spawned.AddRange(again.Select(ecs.Handle));
+        ApiLogger.Info($"{path} spawned again {spawned.Count} entities, and the handles LoadScene gave for it before are refused from now on.");
+        return null;
     }
 
     // Whether nothing a scene places still waits for its file, with no prefab or model an entity

@@ -326,6 +326,20 @@ ends its own frame. An offscreen run is a headless one whose renderer is initial
 its own images in the swapchain's usual format, presents nothing, and captures from it as from a
 swapchain image.
 
+## Live files
+
+A program in development loads again the files it loaded by name as they are saved (`Config.Live`,
+[Editing while it runs](../docs/editing-while-running.md)). `LiveFiles`, a resource of the flat
+API's, remembers each file with its kind, the id it was loaded into and how it is loaded again, and
+watches the folders the files lie in, the project's copy of each where the program runs from its
+build folder. The watch's events only mark a file changed, and a system at `Stage.First` loads a
+file again on the main thread once it has been quiet: a shader compiled again into the shader store
+under its id, whose passes make its stages and pipelines again once they see another program there,
+a texture queued into the texture store at its new size, a model read again into the `Model` the
+program holds, and a scene spawned again before the entities it spawned before are despawned. Where
+the program is live the asset server watches its sources too, and the behaviors' compiler watches
+its scripts' folder in any program.
+
 ## Logging
 
 `Log.Category(name)` returns a logger. Messages go to the console and to `logs/Engine.log` beside

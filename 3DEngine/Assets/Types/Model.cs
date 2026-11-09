@@ -28,6 +28,9 @@ public sealed class Model
     private ModelMesh[] _meshes = [];
     private ModelMaterial[] _materials = [];
     private int[] _meshMaterial = [];
+    private ModelSkeleton _skeleton = new();
+    private SkinnedMesh[] _skins = [];
+    private Texture2D[] _ownedTextures = [];
 
     /// <summary>The model's materials.</summary>
     public ModelMaterial[] Materials { get => _materials; init => _materials = value; }
@@ -39,14 +42,27 @@ public sealed class Model
     internal void Replace(ModelMesh[] meshes, ModelMaterial[] materials, int[] meshMaterial) =>
         (_meshes, _materials, _meshMaterial) = (meshes, materials, meshMaterial);
 
+    /// <summary>
+    /// Takes the meshes, materials, skeleton, skinned meshes and textures of <paramref name="read"/>,
+    /// as a model read again from its file does in place, so the model the program holds draws the
+    /// file as it is now, its pose set again.
+    /// </summary>
+    internal void TakeFrom(Model read)
+    {
+        (_meshes, _materials, _meshMaterial) = (read._meshes, read._materials, read._meshMaterial);
+        (_skeleton, _skins, _ownedTextures) = (read._skeleton, read._skins, read._ownedTextures);
+        LastPose = null;
+        GpuPoses.Clear();
+    }
+
     /// <summary>Applied before the position, rotation and scale a draw call gives.</summary>
     public Matrix4x4 Transform { get; set; } = Matrix4x4.Identity;
 
     /// <summary>The bones of a file's skeletons, which an animation of the same file moves, and their pose at rest.</summary>
-    public ModelSkeleton Skeleton { get; init; } = new();
+    public ModelSkeleton Skeleton { get => _skeleton; init => _skeleton = value; }
 
     /// <summary>The meshes bones move, with their vertices at rest.</summary>
-    internal SkinnedMesh[] Skins { get; init; } = [];
+    internal SkinnedMesh[] Skins { get => _skins; init => _skins = value; }
 
     // The bones' poses as they were last set, which a morph weight set alone poses the model by again.
     internal Transform[]? LastPose { get; set; }
@@ -58,7 +74,7 @@ public sealed class Model
     internal Dictionary<int, Matrix4x4[]> GpuPoses { get; } = [];
 
     /// <summary>Textures the model loaded itself, which <c>E3D.UnloadModel</c> frees.</summary>
-    internal Texture2D[] OwnedTextures { get; init; } = [];
+    internal Texture2D[] OwnedTextures { get => _ownedTextures; init => _ownedTextures = value; }
 
     /// <summary>Whether the model has a mesh to draw.</summary>
     public bool IsValid => Meshes.Length > 0;
