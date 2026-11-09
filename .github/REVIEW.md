@@ -7105,3 +7105,12 @@ three at or near their records, so a device that draws on its CPU takes no sampl
 it traces no rays. TextureFilterTests holds a checker of single pixels drawn at its own size, each
 pixel within 3 levels of black or white, which read 43 off on lavapipe without the mend. The pairs
 are not re-recorded.
+
+225's second cut written on 2026-11-09, the handles and the primitives under every area. AssetId,
+AssetPath and Handle, which Core, the ECS, the device, physics, the platform and the components
+named, move to Core's handles, Transform and the SceneComponent attribute it carries to the ECS
+beside GlobalTransform, and the blend enums and PixelFormat, which the device and the ImGui pass
+named from Api, to Graphics, and ConfigFlags to Core's config. Core and the ECS then name nothing
+above them, and the public listing is unchanged. Their documentation's links to E3D, as the enums'
+to the functions that take them, point up once each lies in a project below Api, so the split writes
+those as code where a project does not reference Api, a step it keeps.
