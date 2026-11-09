@@ -36,7 +36,7 @@ namespace Engine;
 internal sealed partial class GraphicsDevice : IGraphicsDevice
 {
     /// <summary>Maximum number of frames that can be in flight simultaneously (triple buffering).</summary>
-    private const int MaxFramesInFlight = 3;
+    internal const int MaxFramesInFlight = 3;
 
     /// <summary>Maximum byte length for Vulkan physical device name strings.</summary>
     private const int MaxPhysicalDeviceNameSize = 256;
@@ -203,7 +203,6 @@ internal sealed partial class GraphicsDevice : IGraphicsDevice
         DestroyMeshCounts();
         DestroySkinning();
         DisposeParts();
-        DestroyParticles();
         Logger.Debug("Destroying descriptor resources (pool, layouts)...");
         DestroyDescriptorResources();
         DestroyMemoryBlocks();

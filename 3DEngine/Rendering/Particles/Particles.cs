@@ -181,7 +181,7 @@ internal sealed class ParticleRenderer : IDisposable
         RetireOld();
         _drawn.Clear();
         (Stepped, Drawn) = (0, 0);
-        if (renderContext.Device is not GraphicsDevice { CanStepParticles: true } device || renderWorld.TryGet<GpuTextures>() is not { } textures) return;
+        if (renderContext.Device is not GraphicsDevice device || !ParticleStages.Of(device).CanStepParticles || renderWorld.TryGet<GpuTextures>() is not { } textures) return;
         var frame = renderWorld.TryGet<RenderParticles>();
         SetView(renderContext, renderWorld, device, textures,
             frame?.Emitters.Any(e => e.Emitter.Collision != ParticleCollision.None && !e.Emitter.Local) == true);
@@ -240,7 +240,7 @@ internal sealed class ParticleRenderer : IDisposable
             state.Born.SortedFrom = null;
             if (span > 0)
             {
-                device.RecordParticles(renderContext.CommandBuffer, state.Born.Gpu, in step, state.BornBy, FacingOf(emitter), span);
+                ParticleStages.Of(device).RecordParticles(renderContext.CommandBuffer, state.Born.Gpu, in step, state.BornBy, FacingOf(emitter), span);
                 Stepped += span;
                 // Laid over by alpha, they are sorted far to near from the window's camera, which the
                 // draw then reads them in, and again from a render texture's own before it is drawn
@@ -262,7 +262,7 @@ internal sealed class ParticleRenderer : IDisposable
 
     private static ParticleBuffer Made(GraphicsDevice device, int capacity)
     {
-        var gpu = device.CreateParticles(capacity);
+        var gpu = ParticleStages.Of(device).CreateParticles(capacity);
         device.Name(gpu.Buffer, "Particles");
         return new ParticleBuffer(gpu);
     }
@@ -281,7 +281,7 @@ internal sealed class ParticleRenderer : IDisposable
         if (state.Placed is null || state.Points is null || !points.AsSpan().SequenceEqual(state.Points))
         {
             if (state.Placed is not null) _retired.Add((_frame, state.Placed));
-            state.Placed = new ParticleBuffer(device.CreatePlacedParticles(points));
+            state.Placed = new ParticleBuffer(ParticleStages.Of(device).CreatePlacedParticles(points));
             device.Name(state.Placed.Gpu.Buffer, "Placed particles");
             state.Points = [.. points];
         }
@@ -289,14 +289,14 @@ internal sealed class ParticleRenderer : IDisposable
         var count = state.Placed.Gpu.Capacity;
         ReadOnlySpan<Vector4> header = [Linear(emitter.StartColor), Linear(emitter.EndColor), Look(emitter), new Vector4(count, 0, count - 1, 0)];
         (state.Placed.Newest, state.Placed.Span) = (count - 1, count);
-        device.RecordParticleHeader(renderContext.CommandBuffer, state.Placed.Gpu, header, state.World, FacingOf(emitter));
+        ParticleStages.Of(device).RecordParticleHeader(renderContext.CommandBuffer, state.Placed.Gpu, header, state.World, FacingOf(emitter));
         if (emitter.Blend == ParticleBlend.Alpha) Sort(renderContext, device, state.Placed, Within(state.World, eye));
         else state.Placed.SortedFrom = null;
     }
 
     private static void Sort(RenderContext renderContext, GraphicsDevice device, ParticleBuffer buffer, Vector3 eye)
     {
-        device.RecordParticleSort(renderContext.CommandBuffer, buffer.Gpu, eye, buffer.Newest, buffer.Span);
+        ParticleStages.Of(device).RecordParticleSort(renderContext.CommandBuffer, buffer.Gpu, eye, buffer.Newest, buffer.Span);
         buffer.SortedFrom = eye;
     }
 
@@ -463,7 +463,7 @@ internal sealed class ParticleRenderer : IDisposable
                 device.Name(_depth.DepthView.Image, "Particle collision depth");
             }
             models.DrawDepth(renderContext, renderWorld, _depth);
-            device.SetParticleView(_depth.DepthView, _depth.Sampler,
+            ParticleStages.Of(device).SetParticleView(_depth.DepthView, _depth.Sampler,
                 new ParticleView { ViewProjection = view.ViewProjection, InverseViewProjection = inverse, Depth = Vector4.UnitX },
                 renderWorld.TryGet<SceneFieldBinding>()?.Field);
             return;
@@ -475,7 +475,7 @@ internal sealed class ParticleRenderer : IDisposable
             _depth = null;
         }
         var (white, sampler) = textures.ViewFor(device, 0);
-        device.SetParticleView(white, sampler, default, renderWorld.TryGet<SceneFieldBinding>()?.Field);
+        ParticleStages.Of(device).SetParticleView(white, sampler, default, renderWorld.TryGet<SceneFieldBinding>()?.Field);
     }
 
     private static void Release(State state)

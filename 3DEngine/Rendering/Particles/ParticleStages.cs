@@ -1,5 +1,6 @@
 using System.Runtime.InteropServices;
 using Vortice.Vulkan;
+using static Engine.GraphicsDevice;
 
 namespace Engine;
 
@@ -98,8 +99,16 @@ internal struct ParticleView
     public System.Numerics.Vector4 Depth;
 }
 
-internal sealed unsafe partial class GraphicsDevice
+/// <summary>
+/// The particles' pipelines on the device, the step that moves them and the sort that orders them
+/// from the eye, with the view of the scene's depth and field they read, a part the device keeps
+/// (<see cref="GraphicsDevice.Part{T}"/>) and lets go with itself.
+/// </summary>
+internal sealed unsafe class ParticleStages(GraphicsDevice device) : IDisposable
 {
+    /// <summary>The device's particle stages, made the first time they are asked for.</summary>
+    internal static ParticleStages Of(GraphicsDevice device) => device.Part(static device => new ParticleStages(device));
+
     // The particles' view of the scene's depth, a set and a buffer for each frame in flight, so a
     // frame writes its own while the frames before it are still read.
     private VkDescriptorSetLayout _particleViewLayout;
@@ -134,11 +143,11 @@ internal sealed unsafe partial class GraphicsDevice
     /// <summary>Makes the particle pipeline from <c>particle_step.slang</c>'s compute stage, once.</summary>
     public void InitializeParticles(ReadOnlySpan<byte> spirv)
     {
-        if (!IsInitialized || CanStepParticles) return;
+        if (!device.IsInitialized || CanStepParticles) return;
 
         var binding = new VkDescriptorSetLayoutBinding { binding = 0, descriptorType = ParticleDescriptors[0], descriptorCount = 1, stageFlags = VkShaderStageFlags.Compute };
         var setInfo = new VkDescriptorSetLayoutCreateInfo { bindingCount = 1, pBindings = &binding };
-        _deviceApi.vkCreateDescriptorSetLayout(&setInfo, null, out var setLayout).CheckResult();
+        device.Api.vkCreateDescriptorSetLayout(&setInfo, null, out var setLayout).CheckResult();
         _particleSetLayout = setLayout;
 
         // The second set, the scene's depth and the view it was drawn through, and the scene's
@@ -147,23 +156,23 @@ internal sealed unsafe partial class GraphicsDevice
         for (int b = 0; b < ParticleViewDescriptors.Length; b++)
             viewBindings[b] = new VkDescriptorSetLayoutBinding { binding = (uint)b, descriptorType = ParticleViewDescriptors[b], descriptorCount = 1, stageFlags = VkShaderStageFlags.Compute };
         var viewInfo = new VkDescriptorSetLayoutCreateInfo { bindingCount = (uint)ParticleViewDescriptors.Length, pBindings = viewBindings };
-        _deviceApi.vkCreateDescriptorSetLayout(&viewInfo, null, out var viewLayout).CheckResult();
+        device.Api.vkCreateDescriptorSetLayout(&viewInfo, null, out var viewLayout).CheckResult();
         _particleViewLayout = viewLayout;
 
-        _particleViewPool = MakeDescriptorPool([(ParticleViewDescriptors, MaxFramesInFlight)]);
+        _particleViewPool = device.MakeDescriptorPool([(ParticleViewDescriptors, MaxFramesInFlight)]);
         for (int i = 0; i < MaxFramesInFlight; i++)
         {
             var allocInfo = new VkDescriptorSetAllocateInfo { descriptorPool = _particleViewPool, descriptorSetCount = 1, pSetLayouts = &viewLayout };
             VkDescriptorSet viewSet;
-            _deviceApi.vkAllocateDescriptorSets(&allocInfo, &viewSet).CheckResult();
+            device.Api.vkAllocateDescriptorSets(&allocInfo, &viewSet).CheckResult();
             _particleViewSets[i] = viewSet;
-            var buffer = (VulkanBuffer)CreateBuffer(new BufferDesc((ulong)sizeof(ParticleView), BufferUsage.Uniform, CpuAccessMode.Write));
-            Map(buffer).Clear();
-            Unmap(buffer);
+            var buffer = (VulkanBuffer)device.CreateBuffer(new BufferDesc((ulong)sizeof(ParticleView), BufferUsage.Uniform, CpuAccessMode.Write));
+            device.Map(buffer).Clear();
+            device.Unmap(buffer);
             _particleViewBuffers[i] = buffer;
             var bufferInfo = new VkDescriptorBufferInfo { buffer = buffer.Buffer, offset = 0, range = (ulong)sizeof(ParticleView) };
             var write = new VkWriteDescriptorSet { dstSet = viewSet, dstBinding = 1, descriptorCount = 1, descriptorType = VkDescriptorType.UniformBuffer, pBufferInfo = &bufferInfo };
-            _deviceApi.vkUpdateDescriptorSets(1, &write, 0, null);
+            device.Api.vkUpdateDescriptorSets(1, &write, 0, null);
         }
 
         (_particlePipeline, _particleLayout) = ParticleCompute(spirv, (uint)sizeof(ParticleStep), _particleViewLayout);
@@ -181,11 +190,11 @@ internal sealed unsafe partial class GraphicsDevice
     /// </summary>
     public void SetParticleView(IImageView depth, ISampler sampler, in ParticleView view, GpuSceneField? field = null)
     {
-        if (!CanStepParticles || _particleViewBuffers[_currentFrame] is not VulkanBuffer buffer) return;
-        var bytes = Map(buffer);
+        if (!CanStepParticles || _particleViewBuffers[device.FrameInFlight] is not VulkanBuffer buffer) return;
+        var bytes = device.Map(buffer);
         fixed (ParticleView* given = &view)
             new ReadOnlySpan<byte>(given, sizeof(ParticleView)).CopyTo(bytes);
-        Unmap(buffer);
+        device.Unmap(buffer);
 
         var imageInfo = new VkDescriptorImageInfo
         {
@@ -193,7 +202,7 @@ internal sealed unsafe partial class GraphicsDevice
             imageView = ((VulkanImageView)depth).View,
             imageLayout = VkImageLayout.ShaderReadOnlyOptimal,
         };
-        field ??= _noField ??= SceneFieldStages.Of(this).CreateSceneField(1, 1);
+        field ??= _noField ??= SceneFieldStages.Of(device).CreateSceneField(1, 1);
         var fieldImage = new VkDescriptorImageInfo
         {
             sampler = ((VulkanSampler)field.Sampler).Sampler,
@@ -202,10 +211,10 @@ internal sealed unsafe partial class GraphicsDevice
         };
         var fieldInfo = new VkDescriptorBufferInfo { buffer = ((VulkanBuffer)field.Info).Buffer, offset = 0, range = GpuSceneField.InfoBytes };
         var writes = stackalloc VkWriteDescriptorSet[3];
-        writes[0] = new VkWriteDescriptorSet { dstSet = _particleViewSets[_currentFrame], dstBinding = 0, descriptorCount = 1, descriptorType = VkDescriptorType.CombinedImageSampler, pImageInfo = &imageInfo };
-        writes[1] = new VkWriteDescriptorSet { dstSet = _particleViewSets[_currentFrame], dstBinding = 2, descriptorCount = 1, descriptorType = VkDescriptorType.CombinedImageSampler, pImageInfo = &fieldImage };
-        writes[2] = new VkWriteDescriptorSet { dstSet = _particleViewSets[_currentFrame], dstBinding = 3, descriptorCount = 1, descriptorType = VkDescriptorType.UniformBuffer, pBufferInfo = &fieldInfo };
-        _deviceApi.vkUpdateDescriptorSets(3, writes, 0, null);
+        writes[0] = new VkWriteDescriptorSet { dstSet = _particleViewSets[device.FrameInFlight], dstBinding = 0, descriptorCount = 1, descriptorType = VkDescriptorType.CombinedImageSampler, pImageInfo = &imageInfo };
+        writes[1] = new VkWriteDescriptorSet { dstSet = _particleViewSets[device.FrameInFlight], dstBinding = 2, descriptorCount = 1, descriptorType = VkDescriptorType.CombinedImageSampler, pImageInfo = &fieldImage };
+        writes[2] = new VkWriteDescriptorSet { dstSet = _particleViewSets[device.FrameInFlight], dstBinding = 3, descriptorCount = 1, descriptorType = VkDescriptorType.UniformBuffer, pBufferInfo = &fieldInfo };
+        device.Api.vkUpdateDescriptorSets(3, writes, 0, null);
     }
 
     /// <summary>Makes the pipeline that sorts an emitter's particles from <c>particle_sort.slang</c>'s compute stage, once.</summary>
@@ -224,13 +233,13 @@ internal sealed unsafe partial class GraphicsDevice
         setLayouts[1] = second;
         var push = new VkPushConstantRange { stageFlags = VkShaderStageFlags.Compute, offset = 0, size = pushSize };
         var layoutInfo = new VkPipelineLayoutCreateInfo { setLayoutCount = second.Handle != 0 ? 2u : 1u, pSetLayouts = setLayouts, pushConstantRangeCount = 1, pPushConstantRanges = &push };
-        _deviceApi.vkCreatePipelineLayout(&layoutInfo, null, out var pipelineLayout).CheckResult();
+        device.Api.vkCreatePipelineLayout(&layoutInfo, null, out var pipelineLayout).CheckResult();
 
         VkShaderModule module;
         fixed (byte* code = spirv)
         {
             var moduleInfo = new VkShaderModuleCreateInfo { codeSize = (nuint)spirv.Length, pCode = (uint*)code };
-            _deviceApi.vkCreateShaderModule(&moduleInfo, null, out module).CheckResult();
+            device.Api.vkCreateShaderModule(&moduleInfo, null, out module).CheckResult();
         }
         var main = "main"u8;
         VkPipeline pipeline;
@@ -241,10 +250,10 @@ internal sealed unsafe partial class GraphicsDevice
                 stage = new VkPipelineShaderStageCreateInfo { stage = VkShaderStageFlags.Compute, module = module, pName = name },
                 layout = pipelineLayout,
             };
-            pipeline = CreateComputePipeline(&info);
+            pipeline = device.CreateComputePipeline(&info);
             DeviceObjects.Made(DeviceObjects.Kind.Pipeline);
         }
-        _deviceApi.vkDestroyShaderModule(module);
+        device.Api.vkDestroyShaderModule(module);
         return (pipeline, pipelineLayout);
     }
 
@@ -256,22 +265,22 @@ internal sealed unsafe partial class GraphicsDevice
         capacity = Math.Max(1, capacity);
         var keys = (int)System.Numerics.BitOperations.RoundUpToPowerOf2((uint)capacity);
         var bytes = (ulong)(GpuParticles.HeaderBytes + capacity * GpuParticles.ParticleBytes + keys * 16);
-        var buffer = CreateBuffer(new BufferDesc(bytes, BufferUsage.Storage | BufferUsage.TransferDst, CpuAccessMode.Write));
-        Map(buffer).Clear();
+        var buffer = device.CreateBuffer(new BufferDesc(bytes, BufferUsage.Storage | BufferUsage.TransferDst, CpuAccessMode.Write));
+        device.Map(buffer).Clear();
 
-        var pool = MakeDescriptorPool([(ParticleDescriptors, 1)]);
+        var pool = device.MakeDescriptorPool([(ParticleDescriptors, 1)]);
         var layout = _particleSetLayout;
         var allocInfo = new VkDescriptorSetAllocateInfo { descriptorPool = pool, descriptorSetCount = 1, pSetLayouts = &layout };
         VkDescriptorSet set;
-        _deviceApi.vkAllocateDescriptorSets(&allocInfo, &set).CheckResult();
+        device.Api.vkAllocateDescriptorSets(&allocInfo, &set).CheckResult();
         var vk = (VulkanBuffer)buffer;
         var info = new VkDescriptorBufferInfo { buffer = vk.Buffer, offset = 0, range = vk.Description.Size };
         var write = new VkWriteDescriptorSet { dstSet = set, dstBinding = 0, descriptorCount = 1, descriptorType = VkDescriptorType.StorageBuffer, pBufferInfo = &info };
-        _deviceApi.vkUpdateDescriptorSets(1, &write, 0, null);
+        device.Api.vkUpdateDescriptorSets(1, &write, 0, null);
 
         return new GpuParticles(buffer, capacity, set, () =>
         {
-            DestroyDescriptorPool(pool);
+            device.DestroyDescriptorPool(pool);
             buffer.Dispose();
         });
     }
@@ -284,7 +293,7 @@ internal sealed unsafe partial class GraphicsDevice
     public GpuParticles CreatePlacedParticles(ReadOnlySpan<System.Numerics.Vector3> points)
     {
         var particles = CreateParticles(points.Length);
-        var slots = MemoryMarshal.Cast<byte, System.Numerics.Vector4>(Map(particles.Buffer)[GpuParticles.HeaderBytes..]);
+        var slots = MemoryMarshal.Cast<byte, System.Numerics.Vector4>(device.Map(particles.Buffer)[GpuParticles.HeaderBytes..]);
         for (int i = 0; i < points.Length; i++)
         {
             slots[i * 2] = new System.Numerics.Vector4(points[i], 0);
@@ -317,15 +326,15 @@ internal sealed unsafe partial class GraphicsDevice
 
         var sets = stackalloc VkDescriptorSet[2];
         sets[0] = particles.Set;
-        sets[1] = _particleViewSets[_currentFrame];
-        _deviceApi.vkCmdBindPipeline(cmd, VkPipelineBindPoint.Compute, _particlePipeline);
-        _deviceApi.vkCmdBindDescriptorSets(cmd, VkPipelineBindPoint.Compute, _particleLayout, 0, 2, sets, 0, null);
+        sets[1] = _particleViewSets[device.FrameInFlight];
+        device.Api.vkCmdBindPipeline(cmd, VkPipelineBindPoint.Compute, _particlePipeline);
+        device.Api.vkCmdBindDescriptorSets(cmd, VkPipelineBindPoint.Compute, _particleLayout, 0, 2, sets, 0, null);
         fixed (ParticleStep* pushed = &step)
-            _deviceApi.vkCmdPushConstants(cmd, _particleLayout, VkShaderStageFlags.Compute, 0, (uint)sizeof(ParticleStep), pushed);
-        _deviceApi.vkCmdDispatch(cmd, (uint)(Math.Clamp(span, 1, particles.Capacity) + 63) / 64, 1, 1);
+            device.Api.vkCmdPushConstants(cmd, _particleLayout, VkShaderStageFlags.Compute, 0, (uint)sizeof(ParticleStep), pushed);
+        device.Api.vkCmdDispatch(cmd, (uint)(Math.Clamp(span, 1, particles.Capacity) + 63) / 64, 1, 1);
 
         // The draws after it read what it wrote.
-        MemoryBarrier(cmd, VkPipelineStageFlags2.ComputeShader, VkAccessFlags2.ShaderWrite,
+        device.MemoryBarrier(cmd, VkPipelineStageFlags2.ComputeShader, VkAccessFlags2.ShaderWrite,
             VkPipelineStageFlags2.VertexShader | VkPipelineStageFlags2.FragmentShader, VkAccessFlags2.ShaderStorageRead);
     }
 
@@ -360,10 +369,10 @@ internal sealed unsafe partial class GraphicsDevice
     private void WriteHeader(VkCommandBuffer cmd, GpuParticles particles, ReadOnlySpan<System.Numerics.Vector4> values, int first)
     {
         var users = VkPipelineStageFlags2.VertexShader | VkPipelineStageFlags2.FragmentShader | VkPipelineStageFlags2.ComputeShader;
-        MemoryBarrier(cmd, users, VkAccessFlags2.None, VkPipelineStageFlags2.Transfer | VkPipelineStageFlags2.ComputeShader, VkAccessFlags2.None);
+        device.MemoryBarrier(cmd, users, VkAccessFlags2.None, VkPipelineStageFlags2.Transfer | VkPipelineStageFlags2.ComputeShader, VkAccessFlags2.None);
         fixed (System.Numerics.Vector4* data = values)
-            _deviceApi.vkCmdUpdateBuffer(cmd, ((VulkanBuffer)particles.Buffer).Buffer, (ulong)(first * 16), (ulong)(values.Length * 16), data);
-        MemoryBarrier(cmd, VkPipelineStageFlags2.Transfer, VkAccessFlags2.TransferWrite, users,
+            device.Api.vkCmdUpdateBuffer(cmd, ((VulkanBuffer)particles.Buffer).Buffer, (ulong)(first * 16), (ulong)(values.Length * 16), data);
+        device.MemoryBarrier(cmd, VkPipelineStageFlags2.Transfer, VkAccessFlags2.TransferWrite, users,
             VkAccessFlags2.ShaderStorageRead | VkAccessFlags2.ShaderStorageWrite);
     }
 
@@ -384,23 +393,23 @@ internal sealed unsafe partial class GraphicsDevice
         var set = particles.Set;
         span = Math.Clamp(span, 1, particles.Capacity);
         var count = System.Numerics.BitOperations.RoundUpToPowerOf2((uint)span);
-        _deviceApi.vkCmdBindPipeline(cmd, VkPipelineBindPoint.Compute, _sortPipeline);
-        _deviceApi.vkCmdBindDescriptorSets(cmd, VkPipelineBindPoint.Compute, _sortLayout, 0, 1, &set, 0, null);
+        device.Api.vkCmdBindPipeline(cmd, VkPipelineBindPoint.Compute, _sortPipeline);
+        device.Api.vkCmdBindDescriptorSets(cmd, VkPipelineBindPoint.Compute, _sortLayout, 0, 1, &set, 0, null);
 
         // As particle_sort.slang has them, a workgroup's threads and the keys it sorts in shared memory.
         const uint Threads = 256, Block = 512;
         void Dispatch(uint j, uint k, uint mode, uint groups)
         {
             // Each reads what the dispatch before it wrote, the step's particles or the keys.
-            MemoryBarrier(cmd, VkPipelineStageFlags2.ComputeShader, VkAccessFlags2.ShaderWrite,
+            device.MemoryBarrier(cmd, VkPipelineStageFlags2.ComputeShader, VkAccessFlags2.ShaderWrite,
                 VkPipelineStageFlags2.ComputeShader, VkAccessFlags2.ShaderStorageRead | VkAccessFlags2.ShaderStorageWrite);
             var step = new SortStep
             {
                 J = j, K = k, Count = count, Mode = mode, EyeAndCapacity = new System.Numerics.Vector4(eye, particles.Capacity),
                 Newest = (uint)newest, Span = (uint)span,
             };
-            _deviceApi.vkCmdPushConstants(cmd, _sortLayout, VkShaderStageFlags.Compute, 0, (uint)sizeof(SortStep), &step);
-            _deviceApi.vkCmdDispatch(cmd, groups, 1, 1);
+            device.Api.vkCmdPushConstants(cmd, _sortLayout, VkShaderStageFlags.Compute, 0, (uint)sizeof(SortStep), &step);
+            device.Api.vkCmdDispatch(cmd, groups, 1, 1);
         }
         var perKey = (count + Threads - 1) / Threads;
         var blocks = Math.Max(1, count / Block);
@@ -413,30 +422,30 @@ internal sealed unsafe partial class GraphicsDevice
             Dispatch(0, k, 3, blocks);
         }
 
-        MemoryBarrier(cmd, VkPipelineStageFlags2.ComputeShader, VkAccessFlags2.ShaderWrite,
+        device.MemoryBarrier(cmd, VkPipelineStageFlags2.ComputeShader, VkAccessFlags2.ShaderWrite,
             VkPipelineStageFlags2.VertexShader | VkPipelineStageFlags2.FragmentShader, VkAccessFlags2.ShaderStorageRead);
     }
 
-    // Runs before the device goes.
-    private void DestroyParticles()
+    /// <inheritdoc />
+    public void Dispose()
     {
         if (_sortPipeline.Handle != 0)
         {
             DeviceObjects.Gone(DeviceObjects.Kind.Pipeline);
-            _deviceApi.vkDestroyPipeline(_sortPipeline);
+            device.Api.vkDestroyPipeline(_sortPipeline);
         }
-        if (_sortLayout.Handle != 0) _deviceApi.vkDestroyPipelineLayout(_sortLayout);
+        if (_sortLayout.Handle != 0) device.Api.vkDestroyPipelineLayout(_sortLayout);
         _sortPipeline = default;
         _sortLayout = default;
         if (_particlePipeline.Handle != 0)
         {
             DeviceObjects.Gone(DeviceObjects.Kind.Pipeline);
-            _deviceApi.vkDestroyPipeline(_particlePipeline);
+            device.Api.vkDestroyPipeline(_particlePipeline);
         }
-        if (_particleLayout.Handle != 0) _deviceApi.vkDestroyPipelineLayout(_particleLayout);
-        if (_particleSetLayout.Handle != 0) _deviceApi.vkDestroyDescriptorSetLayout(_particleSetLayout);
-        DestroyDescriptorPool(_particleViewPool);
-        if (_particleViewLayout.Handle != 0) _deviceApi.vkDestroyDescriptorSetLayout(_particleViewLayout);
+        if (_particleLayout.Handle != 0) device.Api.vkDestroyPipelineLayout(_particleLayout);
+        if (_particleSetLayout.Handle != 0) device.Api.vkDestroyDescriptorSetLayout(_particleSetLayout);
+        device.DestroyDescriptorPool(_particleViewPool);
+        if (_particleViewLayout.Handle != 0) device.Api.vkDestroyDescriptorSetLayout(_particleViewLayout);
         for (int i = 0; i < MaxFramesInFlight; i++)
         {
             _particleViewBuffers[i]?.Dispose();

@@ -28,6 +28,12 @@ internal sealed partial class GraphicsDevice
     internal VkDeviceApi Api => _deviceApi;
 
     /// <summary>
+    /// Which of the frames in flight the device is recording, by which a part keeps a set or a
+    /// buffer for each frame, so a frame writes its own while the frames before it are read.
+    /// </summary>
+    internal int FrameInFlight => _currentFrame;
+
+    /// <summary>
     /// The Vulkan set behind a descriptor set the device made, which a part writes its own
     /// bindings into, the set's class staying the device's with the pool it goes back to.
     /// </summary>

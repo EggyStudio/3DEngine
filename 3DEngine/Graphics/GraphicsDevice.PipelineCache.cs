@@ -137,7 +137,7 @@ internal sealed unsafe partial class GraphicsDevice
         (Interlocked.Read(ref _pipelinesMade), Stopwatch.GetElapsedTime(0, Interlocked.Read(ref _pipelineTicks)));
 
     // A compute pipeline the driver makes through the cache, counted.
-    private VkPipeline CreateComputePipeline(VkComputePipelineCreateInfo* info)
+    internal VkPipeline CreateComputePipeline(VkComputePipelineCreateInfo* info)
     {
         var making = Stopwatch.GetTimestamp();
         VkPipeline pipeline;

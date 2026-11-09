@@ -94,8 +94,8 @@ internal sealed class Renderer : IDisposable
             device.InitializeSkinning(server.LoadSync<ShaderProgram>("shaders/skin.slang").Compute);
             device.InitializeMeshCounts(server.LoadSync<ShaderProgram>("shaders/mesh_counts.slang").Compute);
             device.InitializeCountedCorners(server.LoadSync<ShaderProgram>("shaders/field_counted.slang").Compute);
-            device.InitializeParticles(server.LoadSync<ShaderProgram>("shaders/particle_step.slang").Compute);
-            device.InitializeParticleSort(server.LoadSync<ShaderProgram>("shaders/particle_sort.slang").Compute);
+            ParticleStages.Of(device).InitializeParticles(server.LoadSync<ShaderProgram>("shaders/particle_step.slang").Compute);
+            ParticleStages.Of(device).InitializeParticleSort(server.LoadSync<ShaderProgram>("shaders/particle_sort.slang").Compute);
             SceneFieldStages.Of(device).InitializeSceneField(server.LoadSync<ShaderProgram>("shaders/field_splat.slang").Compute,
                 server.LoadSync<ShaderProgram>("shaders/field_resolve.slang").Compute,
                 server.LoadSync<ShaderProgram>("shaders/field_stamp.slang").Compute);
