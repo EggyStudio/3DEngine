@@ -13,6 +13,12 @@ scripted with its own Unity-style behaviors. Implementing Radiance Cascades. [e3
 ![Shaders](https://img.shields.io/badge/Shaders-Slang-2E7D32)
 ![Status](https://img.shields.io/badge/Status-Early-yellow)
 
+![Showcase](https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/showcase.webp)
+
+`scenes_sponza`, `./e3d scenes fetch intel-sponza` and `dotnet run --project 3DEngine.Examples -- scenes_sponza`
+
+<sub>Intel Sponza (2022) by Frank Meinl and Anton Kaplanyan, from Intel's Sample Library, under CC BY 4.0.</sub>
+
 </div>
 
 ```csharp

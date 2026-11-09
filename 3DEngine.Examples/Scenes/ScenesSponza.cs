@@ -280,10 +280,13 @@ public static class ScenesSponza
             DrawModelEx(blackout, new Vector3(20.4f, 1.4f, 0.05f), Vector3.UnitY, 0, new Vector3(0.8f, 4.2f, 4), Color.Black);
             EndMode3D();
 
+            // The interface, which F1 hides, as for a picture of the building alone.
+            BeginUi();
             DrawText($"{view + 1}: {Views[view].Name}, {(int)hour:00}:{(int)(hour % 1 * 60):00}, {(metered ? "metered" : "fixed camera")}, {(lampsOn ? "lamps on" : "lamps off")}", 10, 10, 20, Color.RayWhite);
             DrawText("1 to 8 change the view, the left and right arrows the hour, and M meters the exposure or holds the camera at ISO 200, 1/200 s and f/16.", 10, 36, 10, Color.LightGray);
-            DrawText("The right button held looks around with W, A, S and D, E rising and Q sinking, and L turns the lamps on and off.", 10, 50, 10, Color.LightGray);
-            DrawText("Intel Sponza (2022) by Frank Meinl and Anton Kaplanyan, from Intel's Sample Library, under CC BY 4.0.", 10, 432, 10, Color.LightGray);
+            DrawText("The right button held looks around with W, A, S and D, E rising and Q sinking, L turns the lamps on and off, and F1 hides this.", 10, 50, 10, Color.LightGray);
+            DrawText("Intel Sponza (2022) by Frank Meinl and Anton Kaplanyan, from Intel's Sample Library, under CC BY 4.0.", 10, GetScreenHeight() - 18, 10, Color.LightGray);
+            EndUi();
             EndDrawing();
         }
 

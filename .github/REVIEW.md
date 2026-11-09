@@ -7977,3 +7977,14 @@ three times as much of the land, so far from the origin it reads 1,301 black pix
 near it and 4,281 where 3,982 before, the excess the same, and its bound is 600 pixels more, a
 quarter of a percent of the frame, which its share of the black allowed before (N 3.5). RENDERING.md
 has the read. The suite 2,313 in order and shuffled.
+
+243 written on 2026-11-09, Sponza at the top of the README. The README's centered head has under
+its badges .github/assets/showcase.webp, six of scenes_sponza's views at 1,280 by 720 taken on the
+GPU, two seconds each, the balcony at 7:00, the atrium and the look up at noon, the arcades at 16:00
+and the gallery and the door at 20:00 with the lamps on, linked by the raw address, with the line
+naming the example, the fetch and the command under it and the scene's attribution under that. The
+door at 8:00 reads near black at that size, about a third of its reference's light, so the look up
+at noon stands in its place. The example draws its text inside BeginUi, so F1 hides it for such
+pictures, its attribution at the window's bottom at any size, and its capture and the gallery are
+made again. WebP rather than a GIF, as the gallery is, since a GIF's 256 colors band the light. The
+suite 2,313 in order and shuffled.
