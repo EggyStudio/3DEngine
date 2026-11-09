@@ -1,5 +1,4 @@
 using System.Numerics;
-using ImGuiNET;
 
 namespace Engine;
 
@@ -41,16 +40,15 @@ internal sealed class SyntheticInput
     /// <summary>Holds a key for <paramref name="frames"/> frames, starting with the next.</summary>
     public void Key(Input input, Key key, ulong frame, int frames)
     {
-        var imGuiKey = SdlImGuiInput.SdlKeyToImGuiKey((SDL3.SDL.Scancode)(int)key);
         input.Enqueue(i =>
         {
             i.SetKey(key, true);
-            if (imGuiKey != ImGuiKey.None && ImGui.GetCurrentContext() != IntPtr.Zero) ImGui.GetIO().AddKeyEvent(imGuiKey, true);
+            IGuiInput.Current?.Key(key, true);
         });
         _releases.Add((frame + (ulong)Math.Max(1, frames), i =>
         {
             i.SetKey(key, false);
-            if (imGuiKey != ImGuiKey.None && ImGui.GetCurrentContext() != IntPtr.Zero) ImGui.GetIO().AddKeyEvent(imGuiKey, false);
+            IGuiInput.Current?.Key(key, false);
         }));
     }
 
@@ -90,7 +88,7 @@ internal sealed class SyntheticInput
             i.AddMouseDelta(x - i.MouseX, y - i.MouseY);
             i.SetMousePosition(x, y);
         });
-        if (ImGui.GetCurrentContext() != IntPtr.Zero) SdlImGuiInput.AddMousePos(x, y);
+        IGuiInput.Current?.Pointer(x, y);
     }
 
     /// <summary>
@@ -122,7 +120,7 @@ internal sealed class SyntheticInput
             {
                 i.AddMouseDelta(x - i.MouseX, y - i.MouseY);
                 i.SetMousePosition(x, y);
-                if (ImGui.GetCurrentContext() != IntPtr.Zero) SdlImGuiInput.AddMousePos(x, y);
+                IGuiInput.Current?.Pointer(x, y);
             }));
         }
     }
@@ -131,11 +129,11 @@ internal sealed class SyntheticInput
     public void Button(Input input, MouseButton button, ulong frame, int frames)
     {
         input.Enqueue(i => i.SetMouseButton(button, true));
-        if (ImGui.GetCurrentContext() != IntPtr.Zero) ImGui.GetIO().AddMouseButtonEvent(SdlImGuiInput.ImGuiButton(button), true);
+        IGuiInput.Current?.Button(button, true);
         _releases.Add((frame + (ulong)Math.Max(1, frames), i =>
         {
             i.SetMouseButton(button, false);
-            if (ImGui.GetCurrentContext() != IntPtr.Zero) ImGui.GetIO().AddMouseButtonEvent(SdlImGuiInput.ImGuiButton(button), false);
+            IGuiInput.Current?.Button(button, false);
         }));
     }
 
@@ -151,14 +149,14 @@ internal sealed class SyntheticInput
             Action<Input> press = i =>
             {
                 i.SetMouseButton(button, true);
-                if (ImGui.GetCurrentContext() != IntPtr.Zero) ImGui.GetIO().AddMouseButtonEvent(SdlImGuiInput.ImGuiButton(button), true);
+                IGuiInput.Current?.Button(button, true);
             };
             if (n == 0) input.Enqueue(press);
             else _releases.Add((down, press));
             _releases.Add((down + 1, i =>
             {
                 i.SetMouseButton(button, false);
-                if (ImGui.GetCurrentContext() != IntPtr.Zero) ImGui.GetIO().AddMouseButtonEvent(SdlImGuiInput.ImGuiButton(button), false);
+                IGuiInput.Current?.Button(button, false);
             }));
         }
     }
@@ -174,14 +172,14 @@ internal sealed class SyntheticInput
     public static void Type(Input input, string text) => input.Enqueue(i =>
     {
         i.AddText(text);
-        if (ImGui.GetCurrentContext() != IntPtr.Zero) ImGui.GetIO().AddInputCharactersUTF8(text);
+        IGuiInput.Current?.Text(text);
     });
 
     /// <summary>Turns the wheel by <paramref name="amount"/>, positive away from the user.</summary>
     public static void Wheel(Input input, float amount)
     {
         input.Enqueue(i => i.AddWheel(0, amount));
-        if (ImGui.GetCurrentContext() != IntPtr.Zero) ImGui.GetIO().AddMouseWheelEvent(0, amount);
+        IGuiInput.Current?.Wheel(amount);
     }
 }
 

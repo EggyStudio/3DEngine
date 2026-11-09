@@ -56,6 +56,9 @@ internal sealed class SdlImGuiPlugin : IPlugin
                     "Shut that app down (App.Shutdown or CloseWindow) before building another with SdlImGuiPlugin or DefaultPlugins.");
             _holder = app;
         }
+        // Input the console makes reaches ImGui through Core's IGuiInput, as the console names no
+        // GUI, and the one context is the process's, so the forwarding is too.
+        IGuiInput.Current ??= new ImGuiSyntheticInput();
 
         var logger = Log.Category("Engine.ImGui");
         logger.Info("SdlImGuiPlugin: Creating ImGui context...");

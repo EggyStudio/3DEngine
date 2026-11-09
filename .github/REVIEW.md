@@ -11,18 +11,20 @@ the scene field's device work as one part, pushed together at 09:33 on 2026-11-0
 the last, the third pushed on its form and its words before the session's report; they keep the
 form, the first carrying SHARED.md's row. After them `4de5d9b2`, cut seven's seventh commit and the
 end of its device work, the particles as one part in Rendering/Particles, committed at 10:04 on
-2026-11-09 and waiting on d8eedc29's run; it keeps the form. Before it `4fe1bfe4`, 225's sixth cut,
-pushed at 05:55 on 2026-11-09 with `db48a8b5`, `f1422dc2`, `4aff2190` and `723bc098`, the second to
-fifth, one run on the last, which the rerun of 8dba0d1c's Windows half cancelled at once through the
-workflow's one run a branch and which started again at 05:59, green at 07:37 with macOS in 42
-minutes, Windows in 71 and 97, Linux in 72 and the examples in 8; they keep the form and carry the
-review's files. Before it `30a8747f`, 225's first cut, Core naming no area above it, and `8dba0d1c`,
-232, a device drawing on its CPU taking no anisotropic samples, pushed together at 03:25 on
-2026-11-09 with one run on the last and the pack run for 6.1.12 with publish started on it at 03:25,
-since the pack run tests what it packs, green at 06:42 with every job, the captures within their
-rooms after 232 and Sumo's play through, the package published and the commit tagged `v6.1.12` at
-06:45; they keep the form and carry the review's files; the run ended at 05:53 with Linux green in
-137 minutes, macOS in 45, the second Windows half in 77 and the examples in 10, and the first
+2026-11-09 and waiting on d8eedc29's run; it keeps the form. After it `94600503`, cut eight's first
+commit, the renderer's console commands moved from Diagnostics to Rendering as they are, committed
+at 10:43 on 2026-11-09 and waiting with it; it keeps the form. Before it `4fe1bfe4`, 225's sixth
+cut, pushed at 05:55 on 2026-11-09 with `db48a8b5`, `f1422dc2`, `4aff2190` and `723bc098`, the
+second to fifth, one run on the last, which the rerun of 8dba0d1c's Windows half cancelled at once
+through the workflow's one run a branch and which started again at 05:59, green at 07:37 with macOS
+in 42 minutes, Windows in 71 and 97, Linux in 72 and the examples in 8; they keep the form and carry
+the review's files. Before it `30a8747f`, 225's first cut, Core naming no area above it, and
+`8dba0d1c`, 232, a device drawing on its CPU taking no anisotropic samples, pushed together at 03:25
+on 2026-11-09 with one run on the last and the pack run for 6.1.12 with publish started on it at
+03:25, since the pack run tests what it packs, green at 06:42 with every job, the captures within
+their rooms after 232 and Sumo's play through, the package published and the commit tagged `v6.1.12`
+at 06:45; they keep the form and carry the review's files; the run ended at 05:53 with Linux green
+in 137 minutes, macOS in 45, the second Windows half in 77 and the examples in 10, and the first
 Windows half cancelled at its limit of 120 minutes (Verdict 110), rerun at 05:55. Before it
 `9e150e3e`, 225's plan, pushed at 00:47 on 2026-11-09 with `ca037368`, 228 and 230 recorded,
 `c8baed4b`, 216 recorded, `77f45030`, 229's switch, and `f1cc2022`, 229's reference reading the
@@ -7358,3 +7360,12 @@ read the scene field and the global illumination, the models, the frame's pixels
 the offscreen images move from Diagnostics to Rendering's commands folder as they are, each still
 registered by the command generator's initializer in the assembly that holds it. The public
 listing is unchanged.
+
+225's eighth cut's second commit written on 2026-11-09, the GUI's commands. ImGuiCommands moves
+from Diagnostics to Gui. SyntheticInput stays in Diagnostics, since the e3d plugin steps it and the
+flat API's automation reads its pads, and its ImGui half goes behind IGuiInput in Core's input, an
+internal interface of a key, the pointer, a button, text and the wheel, which the GUI's plugin sets
+to ImGuiSyntheticInput in Gui, the one ImGui context being the process's. The calls keep their
+timing, the pointer's move and a button's press handed over at once and the rest from the input's
+queue, and the modeling window's tests, which click and drag through the console into ImGui, hold.
+Diagnostics and Cli then name no ImGui. The public listing is unchanged.
