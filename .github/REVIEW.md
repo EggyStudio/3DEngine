@@ -7382,3 +7382,14 @@ Diagnostics and Cli then name no ImGui. The public listing is unchanged.
 commands, the day sky's and eval, which name the flat API's systems or compile against E3D, move
 from Diagnostics to Api's commands folder as they are. RENDERING.md's section 6 places the frame
 profile in Core's profile folder, where the fifth cut moved it. The public listing is unchanged.
+
+225's eighth cut's fourth commit written on 2026-11-09, the built-in commands that name an area.
+ConsoleBuiltins keeps the commands every app has, for frames and time, the profile, the log, the
+state machines, entities, components, resources and the schedule. app.quit goes to Platform beside
+the app's exit, monitors to Api's commands beside the flat API's displays it reads, shot and the
+four memory commands to Rendering's commands, since they ask the renderer, its device and the asset
+server, and scene.save and scene.load to Assets' scene model, each command as it was. Cli's
+CliSession names no renderer but a field of that name, so nothing of Cli moves. Diagnostics then
+names Core and the ECS alone, and the folders lie in layers, Core with the ECS and the behaviors at
+the bottom, Diagnostics and Graphics on them, Assets, Platform, Rendering, Physics, then Scenes,
+Modeling and Gui, and Api over all. The public listing is unchanged.

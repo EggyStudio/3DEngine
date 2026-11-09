@@ -4,35 +4,16 @@ using System.Text;
 
 namespace Engine;
 
-/// <summary>The console commands every app has, for the app, frames, the log, entities, resources and the schedule.</summary>
+/// <summary>
+/// The console commands every app has, for frames and time, the profile, the log, the state
+/// machines, entities, components, resources and the schedule.
+/// </summary>
 internal static class ConsoleBuiltins
 {
     // Why the console's reading of components by reflection is safe where a build is trimmed (N 2.5).
     private const string ByReflection = "The console knows a component by its name, given at run time, and reads it by reflection as a "
         + "debugging aid. Where a trimmed or native build has cut a type or member the program never uses, the command finds or shows "
         + "less and says what it did not find, and nothing the program runs depends on it.";
-
-    [Command("app.quit", "Asks the app to close, as the window's close button does")]
-    internal static string Quit()
-    {
-        // Logged with the process that asked, since an app closed by a script that meant another
-        // ends as one that closed of its own does.
-        Log.Category("Engine.AppExit").Info($"app.quit was asked by {ConsoleHost.Caller ?? "a caller that did not say which process it is"}, so the app closes.");
-        ConsoleHost.World!.GetOrInsertResource(() => new AppExit()).Requested = true;
-        return "closing";
-    }
-
-    [Command("monitors", "Each monitor, its current mode, and the modes it can be set to in fullscreen")]
-    internal static string Monitors()
-    {
-        var text = new StringBuilder();
-        for (int i = 0; i < E3D.GetMonitorCount(); i++)
-        {
-            text.AppendLine($"{i} {E3D.GetMonitorName(i)}: {E3D.GetMonitorWidth(i)}x{E3D.GetMonitorHeight(i)} at {E3D.GetMonitorRefreshRate(i)} Hz");
-            text.AppendLine("  " + string.Join(", ", E3D.GetMonitorModes(i).Select(m => $"{m.Width}x{m.Height}@{m.RefreshRate}")));
-        }
-        return text.Length == 0 ? "no monitors" : text.ToString().TrimEnd();
-    }
 
     [Command("frames.wait", "Answers once this many more frames have run: frames.wait <count>")]
     internal static string Wait(int count)
@@ -80,30 +61,6 @@ internal static class ConsoleBuiltins
         return text.ToString().TrimEnd();
     }
 
-    [Command("shot", "Writes the frame being drawn to a PNG file and answers once it is written, with the frame's number: shot <path>")]
-    internal static string Shot(string path)
-    {
-        var full = Path.GetFullPath(path);
-        // The frame drawn after this command is the one the time counted at the top of it, so
-        // another program run to that many frames draws the same one.
-        var frame = ConsoleHost.Time.FrameCount;
-        string? outcome = null;
-        var written = false;
-        if (Screenshots.Request(ConsoleHost.World!, full, result => { outcome = result; written = true; }) is { } refusal)
-        {
-            ConsoleHost.Fail("NO_RENDERER", refusal);
-            return refusal;
-        }
-
-        ConsoleHost.Later(() =>
-        {
-            if (!written) return null;
-            if (outcome is not null) ConsoleHost.Fail("NO_CAPTURE", outcome);
-            return outcome ?? $"captured {full} at frame {frame}";
-        });
-        return $"capturing {full}";
-    }
-
     [Command("state.list", "Every state machine, the value it is in and the values it has")]
     internal static string StateList()
     {
@@ -131,89 +88,6 @@ internal static class ConsoleBuiltins
         // caller looks.
         ConsoleHost.Hold(ConsoleHost.Time.FrameCount + 1);
         return $"{state} -> {value}";
-    }
-
-    [Command("scene.save", "Writes every entity not spawned from a model to a scene file: scene.save <path>")]
-    internal static string SceneSave(string path)
-    {
-        var full = Path.GetFullPath(path);
-        SceneFile.Save(ConsoleHost.Ecs, full);
-        return $"saved {full}";
-    }
-
-    [Command("scene.load", "Spawns the entities of a scene file beside what is there: scene.load <path>")]
-    internal static string SceneLoad(string path)
-    {
-        var full = Path.GetFullPath(path);
-        if (!File.Exists(full))
-        {
-            ConsoleHost.Fail("NOT_FOUND", $"There is no file '{full}'.");
-            return "not loaded";
-        }
-        try
-        {
-            return $"spawned {SceneFile.Load(ConsoleHost.World!, full).Count} entities";
-        }
-        catch (Exception ex) when (ex is InvalidDataException or System.Text.Json.JsonException)
-        {
-            ConsoleHost.Fail("BAD_FILE", ex.Message);
-            return "not loaded";
-        }
-    }
-
-    [Command("memory", "What the program holds, as name and number pairs: managed memory, the process's resident memory, entities, the asset server's assets, and the GPU's buffers, images, descriptor sets, pipelines and memory")]
-    internal static string Memory()
-    {
-        // Read as the program left them, without a collection, so a climb shows as it happens and
-        // a reader can force one with its own spacing between reads.
-        var managed = GC.GetTotalMemory(forceFullCollection: false);
-        var heap = GC.GetGCMemoryInfo().HeapSizeBytes;
-        var line = $"managed {managed} heap {heap} gen2 {GC.CollectionCount(2)} resident {Environment.WorkingSet}";
-        if (ConsoleHost.World?.TryGetResource<EcsWorld>(out var ecs) == true)
-            line += $" entities {ecs.EntityCount} entityIds {ecs.EntityIdRange}";
-        // The files the asset server knows, which a level that lets nothing go climbs by as it streams.
-        if (ConsoleHost.World?.TryGetResource<AssetServer>(out var server) == true)
-            line += $" assets {server.TrackedAssetCount}";
-        if (ConsoleHost.World?.TryGetResource<Renderer>(out var renderer) == true && renderer.Context.Graphics is GraphicsDevice device)
-        {
-            var usage = device.Usage;
-            line += $" buffers {usage.Buffers} images {usage.Images} descriptorSets {usage.DescriptorSets} pipelines {usage.Pipelines}"
-                    + $" memoryBlocks {usage.MemoryBlocks} blockBytes {usage.BlockBytes} usedBytes {usage.UsedBytes}";
-        }
-        return line;
-    }
-
-    [Command("memory.buffers", "The GPU's buffers alive by where the engine made each and what it is for, the most first, a line each with how many, their bytes, the file and line and the use: memory.buffers [lines]")]
-    internal static string MemoryBuffers(int lines = 40)
-    {
-        if (ConsoleHost.World?.TryGetResource<Renderer>(out var renderer) != true || renderer.Context.Graphics is not GraphicsDevice device)
-            return "no device";
-        var census = device.BufferCensus();
-        var text = new StringBuilder($"{census.Sum(entry => entry.Count)} buffers from {census.Count} places");
-        foreach (var entry in census.Take(lines))
-            text.Append($"\n{entry.Count} {entry.Bytes} {Path.GetFileName(entry.Maker.File.Replace('\\', '/'))}:{entry.Maker.Line} {entry.Maker.Usage}");
-        return text.ToString();
-    }
-
-    [Command("memory.images", "The GPU's images alive by their size, format, use and levels, the most first, a line each with how many: memory.images [lines]")]
-    internal static string MemoryImages(int lines = 40)
-    {
-        if (ConsoleHost.World?.TryGetResource<Renderer>(out var renderer) != true || renderer.Context.Graphics is not GraphicsDevice device)
-            return "no device";
-        var census = device.ImageCensus();
-        var text = new StringBuilder($"{census.Sum(entry => entry.Count)} images of {census.Count} kinds");
-        foreach (var (description, count) in census.Take(lines))
-            text.Append($"\n{count} {description.Extent.Width}x{description.Extent.Height} {description.Format} {description.Usage} levels {description.MipLevels}");
-        return text.ToString();
-    }
-
-    [Command("memory.collect", "The same as memory, read after a full garbage collection, so what is held shows apart from what is waiting to be collected")]
-    internal static string MemoryCollected()
-    {
-        GC.Collect();
-        GC.WaitForPendingFinalizers();
-        GC.Collect();
-        return Memory();
     }
 
     [Command("entity.count", "How many entities are alive")]
