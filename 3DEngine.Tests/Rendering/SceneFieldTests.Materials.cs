@@ -37,7 +37,7 @@ public sealed partial class SceneFieldTests
         var renderer = GetApp().World.Resource<Engine.Renderer>();
         var fields = renderer.RenderWorld.TryGet<SceneFieldRenderer>()!;
         fields.Drawn.Should().ContainSingle("the floor alone is held, the cube left out").Which.Instance.Mesh.Should().Be(slab.Meshes[0].Id);
-        var distances = ((GraphicsDevice)renderer.Context.Graphics!).ReadSceneField(fields.Field!);
+        var distances = SceneFieldStages.Of((GraphicsDevice)renderer.Context.Graphics!).ReadSceneField(fields.Field!);
         var origin = fields.Plan!.BuiltOrigin(0)!.Value;
         var cell = Vector3.Clamp((new Vector3(0, 1, 0) - origin) / 0.25f, Vector3.Zero, new Vector3(SceneFieldPlan.Resolution - 1));
         distances[((int)cell.Z * SceneFieldPlan.Resolution + (int)cell.Y) * SceneFieldPlan.Resolution + (int)cell.X]

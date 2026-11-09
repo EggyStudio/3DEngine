@@ -141,7 +141,7 @@ internal sealed class VolumetricFogRenderer : IDisposable
         // Where no cascade of probes holds a cell, or light does not bounce, the ambient lights.
         foreach (var light in renderWorld.TryGet<RenderLights>()?.All ?? [])
             if (light.Kind == LightKind.Ambient) uniforms.Ambient += new Vector4(light.EmittedColor, 0);
-        var field = bounced?.Field ?? renderWorld.TryGet<SceneFieldBinding>()?.Field ?? (_noField ??= device.CreateSceneField(1, 1));
+        var field = bounced?.Field ?? renderWorld.TryGet<SceneFieldBinding>()?.Field ?? (_noField ??= SceneFieldStages.Of(device).CreateSceneField(1, 1));
         _retired.Add((_frame, FogStages.Of(device).RecordFog(renderContext.CommandBuffer, sized.Fog, MemoryMarshal.AsBytes(new ReadOnlySpan<Uniforms>(in uniforms)),
             shadowView, shadowSampler, bounced?.Probes, field)));
         _push = new DecodePush { InverseViewProjection = shown, Eye = new Vector4(view.Eye, 1), Slices = new Vector4(start, far, scale.X, scale.Y) };

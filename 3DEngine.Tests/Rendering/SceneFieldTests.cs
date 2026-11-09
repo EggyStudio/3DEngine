@@ -341,7 +341,7 @@ public sealed partial class SceneFieldTests : IDisposable
         }
         var renderer = GetApp().World.Resource<Engine.Renderer>();
         var fields = renderer.RenderWorld.TryGet<SceneFieldRenderer>()!;
-        var distances = ((GraphicsDevice)renderer.Context.Graphics!).ReadSceneField(fields.Field!);
+        var distances = SceneFieldStages.Of((GraphicsDevice)renderer.Context.Graphics!).ReadSceneField(fields.Field!);
         var origin = fields.Plan!.BuiltOrigin(0)!.Value;
         float At(Vector3 point)
         {
@@ -380,7 +380,7 @@ public sealed partial class SceneFieldTests : IDisposable
         var fields = renderer.RenderWorld.TryGet<SceneFieldRenderer>()!;
         fields.Plan!.StillCount.Should().Be(1);
         var device = (GraphicsDevice)renderer.Context.Graphics!;
-        var distances = device.ReadSceneField(fields.Field!);
+        var distances = SceneFieldStages.Of(device).ReadSceneField(fields.Field!);
 
         // Each cell against the distance from its middle to the cube's surface, below zero inside,
         // which is exact within the band and held at the band beyond.
@@ -415,7 +415,7 @@ public sealed partial class SceneFieldTests : IDisposable
 
         // The cells near the cube are painted its gray, decoded to linear, and those past the band
         // are not painted at all.
-        var (albedo, glow) = device.ReadSceneFieldColors(fields.Field!);
+        var (albedo, glow) = SceneFieldStages.Of(device).ReadSceneFieldColors(fields.Field!);
         int painted = 0, bare = 0;
         for (int i = 0; i < distances.Length; i++)
         {
@@ -463,8 +463,8 @@ public sealed partial class SceneFieldTests : IDisposable
         var fields = renderer.RenderWorld.TryGet<SceneFieldRenderer>()!;
         fields.Plan!.StillCount.Should().Be(1);
         var device = (GraphicsDevice)renderer.Context.Graphics!;
-        var distances = device.ReadSceneField(fields.Field!);
-        var (albedo, _) = device.ReadSceneFieldColors(fields.Field!);
+        var distances = SceneFieldStages.Of(device).ReadSceneField(fields.Field!);
+        var (albedo, _) = SceneFieldStages.Of(device).ReadSceneFieldColors(fields.Field!);
 
         // Each cell near the surface by its side, red by the left box and green by the right.
         var origin = fields.Plan.BuiltOrigin(0)!.Value;
@@ -535,7 +535,7 @@ public sealed partial class SceneFieldTests : IDisposable
         }
         var renderer = GetApp().World.Resource<Engine.Renderer>();
         var fields = renderer.RenderWorld.TryGet<SceneFieldRenderer>()!;
-        var distances = ((GraphicsDevice)renderer.Context.Graphics!).ReadSceneField(fields.Field!);
+        var distances = SceneFieldStages.Of((GraphicsDevice)renderer.Context.Graphics!).ReadSceneField(fields.Field!);
         var origin = fields.Plan!.BuiltOrigin(0)!.Value;
         const int size = SceneFieldPlan.Resolution;
         const float cell = 0.15f;
@@ -591,7 +591,7 @@ public sealed partial class SceneFieldTests : IDisposable
         var renderer = GetApp().World.Resource<Engine.Renderer>();
         var fields = renderer.RenderWorld.TryGet<SceneFieldRenderer>()!;
         var device = (GraphicsDevice)renderer.Context.Graphics!;
-        var (_, glow) = device.ReadSceneFieldColors(fields.Field!);
+        var (_, glow) = SceneFieldStages.Of(device).ReadSceneFieldColors(fields.Field!);
         var origin = fields.Plan!.BuiltOrigin(0)!.Value;
         const int size = SceneFieldPlan.Resolution;
         const float cell = 0.15f;
@@ -654,7 +654,7 @@ public sealed partial class SceneFieldTests : IDisposable
         }
         var renderer = GetApp().World.Resource<Engine.Renderer>();
         var fields = renderer.RenderWorld.TryGet<SceneFieldRenderer>()!;
-        var distances = ((GraphicsDevice)renderer.Context.Graphics!).ReadSceneField(fields.Field!);
+        var distances = SceneFieldStages.Of((GraphicsDevice)renderer.Context.Graphics!).ReadSceneField(fields.Field!);
 
         // A cell above every mesh, or past the ground's edge and not below it, is a cell and a
         // half from any surface at least, so none holds less than a third of a cell.
@@ -711,7 +711,7 @@ public sealed partial class SceneFieldTests : IDisposable
         }
         var renderer = GetApp().World.Resource<Engine.Renderer>();
         var fields = renderer.RenderWorld.TryGet<SceneFieldRenderer>()!;
-        var distances = ((GraphicsDevice)renderer.Context.Graphics!).ReadSceneField(fields.Field!);
+        var distances = SceneFieldStages.Of((GraphicsDevice)renderer.Context.Graphics!).ReadSceneField(fields.Field!);
         const int size = SceneFieldPlan.Resolution;
         const float cell = 0.25f;
         var origin = fields.Plan!.BuiltOrigin(0)!.Value;

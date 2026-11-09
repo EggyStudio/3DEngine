@@ -210,13 +210,13 @@ internal sealed partial class SceneFieldRenderer : IDisposable
     public void Draw(RenderContext renderContext, RenderWorld renderWorld)
     {
         Retire();
-        if (renderContext.Device is not GraphicsDevice { CanBuildSceneField: true } device)
+        if (renderContext.Device is not GraphicsDevice device || !SceneFieldStages.Of(device).CanBuildSceneField)
             return;
         var settings = renderWorld.TryGet<SceneFieldSettings>();
         if (settings is not { On: true })
         {
             Release();
-            renderWorld.Set(new SceneFieldBinding(_off ??= device.CreateSceneField(1, 1), false));
+            renderWorld.Set(new SceneFieldBinding(_off ??= SceneFieldStages.Of(device).CreateSceneField(1, 1), false));
             return;
         }
 
@@ -238,7 +238,7 @@ internal sealed partial class SceneFieldRenderer : IDisposable
         // Left off, where its pool did not fit, until the settings change.
         if (_short && _made == wanted)
         {
-            renderWorld.Set(new SceneFieldBinding(_off ??= device.CreateSceneField(1, 1), false));
+            renderWorld.Set(new SceneFieldBinding(_off ??= SceneFieldStages.Of(device).CreateSceneField(1, 1), false));
             return;
         }
         if (_field is null || _made != wanted)
@@ -249,7 +249,7 @@ internal sealed partial class SceneFieldRenderer : IDisposable
             _plan = new SceneFieldPlan(wanted.counted, wanted.CellSize, wanted.Item3, BoundsOf, PartsOf, TintOf, wanted.Item4, TrianglesOf, farCell,
                 instance => Carried(instance, wanted.CellSize));
             var making = Stopwatch.GetTimestamp();
-            _field = device.CreateSceneField(_plan.Cascades, SceneFieldPlan.Resolution);
+            _field = SceneFieldStages.Of(device).CreateSceneField(_plan.Cascades, SceneFieldPlan.Resolution);
             Logger.Info($"The scene's distance field made, {_plan.Cascades} cascades of {SceneFieldPlan.Resolution} cells a side, "
                 + $"{GpuSceneField.MemoryBytes(_plan.Cascades, SceneFieldPlan.Resolution) / 1024.0 / 1024.0:0.0} MB, in {Stopwatch.GetElapsedTime(making).TotalMilliseconds:0} ms.");
         }
@@ -273,7 +273,7 @@ internal sealed partial class SceneFieldRenderer : IDisposable
             var made = _made;
             Release();
             (_short, _made) = (true, made);
-            renderWorld.Set(new SceneFieldBinding(_off ??= device.CreateSceneField(1, 1), false));
+            renderWorld.Set(new SceneFieldBinding(_off ??= SceneFieldStages.Of(device).CreateSceneField(1, 1), false));
         }
     }
 
@@ -286,12 +286,13 @@ internal sealed partial class SceneFieldRenderer : IDisposable
     {
         var field = _field!;
         var repaints = Repaints(plan);
+        var stages = SceneFieldStages.Of(device);
 
         var commands = renderContext.CommandBuffer;
-        device.RecordSceneFieldInfo(commands, field, Info(plan));
+        stages.RecordSceneFieldInfo(commands, field, Info(plan));
         if (plan.Builds.Count == 0 && plan.Bricks.Count == 0 && repaints.Count == 0) return;
 
-        device.RecordSceneFieldOpen(commands, field);
+        stages.RecordSceneFieldOpen(commands, field);
         if (plan.Builds.Count > 0 || repaints.Count > 0)
         {
             var corners = Pool(device, plan.Builds.SelectMany(build => build.Instances).Concat(repaints.SelectMany(repaint => repaint.Instances)), plan.BuildingTriangles);
@@ -317,8 +318,8 @@ internal sealed partial class SceneFieldRenderer : IDisposable
                 // A shift moves the cells its cascade keeps before its build splats the slab it brings
                 // in, which reads as nothing near until the build ends. A region built again where a
                 // mesh came or went keeps its cells as they were until then.
-                if (build.ShiftAxis >= 0) device.RecordSceneFieldShift(commands, field, build.Cascade, build.ShiftAxis, build.ShiftCells);
-                Hold(device.RecordSceneFieldBuild(commands, field, corners, instances, count, triangles,
+                if (build.ShiftAxis >= 0) stages.RecordSceneFieldShift(commands, field, build.Cascade, build.ShiftAxis, build.ShiftCells);
+                Hold(stages.RecordSceneFieldBuild(commands, field, corners, instances, count, triangles,
                     build.Cascade, build.Origin, build.Cell, SceneFieldPlan.Band, thinGlow, build.First, build.Last,
                     lend: build is { First: true, Last: true } ? thinGlow : true, sheet: sheet, cells: build.Cells, empty: build.ShiftAxis >= 0));
             }
@@ -326,7 +327,7 @@ internal sealed partial class SceneFieldRenderer : IDisposable
             {
                 var (instances, count, triangles, _) = Instances(device, [.. painted], cell);
                 Hold(instances);
-                Hold(device.RecordSceneFieldRepaint(commands, field, corners, instances, count, triangles, cascade, origin, cell, SceneFieldPlan.Band));
+                Hold(stages.RecordSceneFieldRepaint(commands, field, corners, instances, count, triangles, cascade, origin, cell, SceneFieldPlan.Band));
             }
         }
         if (plan.Bricks.Count > 0)
@@ -334,9 +335,9 @@ internal sealed partial class SceneFieldRenderer : IDisposable
             var (shapes, bricks) = (Shapes(device, plan.Shapes), Bricks(device, plan));
             Hold(shapes);
             Hold(bricks);
-            Hold(device.RecordSceneFieldStamp(commands, field, bricks, plan.Bricks.Count, shapes, plan.Shapes.Count));
+            Hold(stages.RecordSceneFieldStamp(commands, field, bricks, plan.Bricks.Count, shapes, plan.Shapes.Count));
         }
-        device.RecordSceneFieldClose(commands, field);
+        stages.RecordSceneFieldClose(commands, field);
     }
 
     /// <summary>

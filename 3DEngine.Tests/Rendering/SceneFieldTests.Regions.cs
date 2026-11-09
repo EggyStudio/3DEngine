@@ -73,11 +73,11 @@ public sealed partial class SceneFieldTests
         builds.Should().NotBeEmpty().And.OnlyContain(build => build.Cells != null, "the block replaced is built again where it stands alone");
         var device = (GraphicsDevice)renderer.Context.Graphics!;
         var field = fields()!.Field!;
-        var (distances, (albedo, glow)) = (device.ReadSceneField(field), device.ReadSceneFieldColors(field));
+        var (distances, (albedo, glow)) = (SceneFieldStages.Of(device).ReadSceneField(field), SceneFieldStages.Of(device).ReadSceneFieldColors(field));
 
         fields()!.Plan!.Rebuild(1);
         Draw(after, Color.Blue, 6);
-        var (whole, (wholeAlbedo, wholeGlow)) = (device.ReadSceneField(field), device.ReadSceneFieldColors(field));
+        var (whole, (wholeAlbedo, wholeGlow)) = (SceneFieldStages.Of(device).ReadSceneField(field), SceneFieldStages.Of(device).ReadSceneFieldColors(field));
         var differ = Enumerable.Range(0, distances.Length).Count(i => distances[i] != whole[i]);
         differ.Should().Be(0, "every cell the region's build left or built holds the whole build's distance");
         // The color and the emission of each cell, but where two faces lie as near it and the

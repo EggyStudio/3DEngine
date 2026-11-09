@@ -1,8 +1,9 @@
 using Vortice.Vulkan;
+using static Engine.GraphicsDevice;
 
 namespace Engine;
 
-internal sealed unsafe partial class GraphicsDevice
+internal sealed unsafe partial class SceneFieldStages
 {
     // The buffer a cascade's cells pass through as a shift moves them, made the first time and kept,
     // as large as a cascade of the widest texel, eight bytes.
@@ -29,7 +30,7 @@ internal sealed unsafe partial class GraphicsDevice
         var size = (uint)field.Resolution;
         var moved = (uint)Math.Abs(cells);
         if (moved >= size) return;
-        _fieldShift ??= CreateBuffer(new BufferDesc((ulong)size * size * size * 8, BufferUsage.TransferSrc | BufferUsage.TransferDst));
+        _fieldShift ??= device.CreateBuffer(new BufferDesc((ulong)size * size * size * 8, BufferUsage.TransferSrc | BufferUsage.TransferDst));
         var staging = ((VulkanBuffer)_fieldShift).Buffer;
         var slice = (int)size * cascade;
 
@@ -42,17 +43,17 @@ internal sealed unsafe partial class GraphicsDevice
 
         // What the frame's work wrote before is seen by the copies, and each copy through the
         // buffer is seen by the next before it fills the buffer again.
-        void Settle() => MemoryBarrier(cmd, VkPipelineStageFlags2.ComputeShader | VkPipelineStageFlags2.Transfer,
+        void Settle() => device.MemoryBarrier(cmd, VkPipelineStageFlags2.ComputeShader | VkPipelineStageFlags2.Transfer,
             VkAccessFlags2.ShaderWrite | VkAccessFlags2.TransferWrite | VkAccessFlags2.TransferRead,
             VkPipelineStageFlags2.Transfer, VkAccessFlags2.TransferRead | VkAccessFlags2.TransferWrite);
         Settle();
         foreach (var image in new[] { field.Still, field.StillPaint, field.StillFaces, field.StillGlow, field.SecondImage })
         {
             var outward = new VkBufferImageCopy { bufferOffset = 0, imageSubresource = layers, imageOffset = from, imageExtent = extent };
-            _deviceApi.vkCmdCopyImageToBuffer(cmd, image, VkImageLayout.General, staging, 1, &outward);
+            device.Api.vkCmdCopyImageToBuffer(cmd, image, VkImageLayout.General, staging, 1, &outward);
             Settle();
             var back = outward with { imageOffset = to };
-            _deviceApi.vkCmdCopyBufferToImage(cmd, staging, image, VkImageLayout.General, 1, &back);
+            device.Api.vkCmdCopyBufferToImage(cmd, staging, image, VkImageLayout.General, 1, &back);
             Settle();
         }
 
@@ -63,7 +64,7 @@ internal sealed unsafe partial class GraphicsDevice
             var kept = ((VulkanBuffer)keptCells).Buffer;
             var run = (ulong)size * size * size * 4;
             var whole = new VkBufferCopy { srcOffset = run * (ulong)cascade, dstOffset = 0, size = run };
-            _deviceApi.vkCmdCopyBuffer(cmd, kept, staging, 1, &whole);
+            device.Api.vkCmdCopyBuffer(cmd, kept, staging, 1, &whole);
             Settle();
             var rows = new List<VkBufferCopy>();
             for (uint z = 0; z < extent.depth; z++)
@@ -74,7 +75,7 @@ internal sealed unsafe partial class GraphicsDevice
                 }
             var regions = rows.ToArray();
             fixed (VkBufferCopy* first = regions)
-                _deviceApi.vkCmdCopyBuffer(cmd, staging, kept, (uint)regions.Length, first);
+                device.Api.vkCmdCopyBuffer(cmd, staging, kept, (uint)regions.Length, first);
             Settle();
         }
 
@@ -87,11 +88,11 @@ internal sealed unsafe partial class GraphicsDevice
             dstOffset = new VkOffset3D(0, 0, slice),
             extent = new VkExtent3D(size, size, size),
         };
-        _deviceApi.vkCmdCopyImage(cmd, field.Still, VkImageLayout.General, field.Field, VkImageLayout.General, 1, &cascadeBox);
-        _deviceApi.vkCmdCopyImage(cmd, field.StillPaint, VkImageLayout.General, field.AlbedoImage, VkImageLayout.General, 1, &cascadeBox);
-        _deviceApi.vkCmdCopyImage(cmd, field.StillFaces, VkImageLayout.General, field.FacesImage, VkImageLayout.General, 1, &cascadeBox);
-        _deviceApi.vkCmdCopyImage(cmd, field.StillGlow, VkImageLayout.General, field.GlowImage, VkImageLayout.General, 1, &cascadeBox);
-        MemoryBarrier(cmd, VkPipelineStageFlags2.Transfer, VkAccessFlags2.TransferWrite | VkAccessFlags2.TransferRead,
+        device.Api.vkCmdCopyImage(cmd, field.Still, VkImageLayout.General, field.Field, VkImageLayout.General, 1, &cascadeBox);
+        device.Api.vkCmdCopyImage(cmd, field.StillPaint, VkImageLayout.General, field.AlbedoImage, VkImageLayout.General, 1, &cascadeBox);
+        device.Api.vkCmdCopyImage(cmd, field.StillFaces, VkImageLayout.General, field.FacesImage, VkImageLayout.General, 1, &cascadeBox);
+        device.Api.vkCmdCopyImage(cmd, field.StillGlow, VkImageLayout.General, field.GlowImage, VkImageLayout.General, 1, &cascadeBox);
+        device.MemoryBarrier(cmd, VkPipelineStageFlags2.Transfer, VkAccessFlags2.TransferWrite | VkAccessFlags2.TransferRead,
             VkPipelineStageFlags2.ComputeShader | VkPipelineStageFlags2.Transfer, VkAccessFlags2.ShaderRead | VkAccessFlags2.ShaderWrite | VkAccessFlags2.TransferWrite);
     }
 

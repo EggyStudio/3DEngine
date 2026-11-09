@@ -122,7 +122,7 @@ public sealed partial class SceneFieldTests
         Frames(SceneFieldPlan.MobileSettleFrames + 30);
         plan.BuiltOrigin(far).Should().Be(origin, "the eye stood still, so the far cascade lies where it lay");
 
-        var distances = ((GraphicsDevice)renderer.Context.Graphics!).ReadSceneField(fields.Field!);
+        var distances = SceneFieldStages.Of((GraphicsDevice)renderer.Context.Graphics!).ReadSceneField(fields.Field!);
         var size = SceneFieldPlan.Resolution;
         float At(int x, int y, int z) => distances[((far * size + z) * size + y) * size + x];
         // The row's cells ahead of the eye and beside it, past the counted cascades and over the floor.

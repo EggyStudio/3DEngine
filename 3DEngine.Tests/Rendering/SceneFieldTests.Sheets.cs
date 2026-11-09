@@ -37,7 +37,7 @@ public sealed partial class SceneFieldTests
         var renderer = GetApp().World.Resource<Engine.Renderer>();
         var fields = renderer.RenderWorld.TryGet<SceneFieldRenderer>()!;
         var device = (GraphicsDevice)renderer.Context.Graphics!;
-        var (distances, sheets) = (device.ReadSceneField(fields.Field!), device.ReadSceneFieldSheets(fields.Field!));
+        var (distances, sheets) = (SceneFieldStages.Of(device).ReadSceneField(fields.Field!), SceneFieldStages.Of(device).ReadSceneFieldSheets(fields.Field!));
         const int size = SceneFieldPlan.Resolution;
         const float cell = 0.25f;
         var origin = fields.Plan!.BuiltOrigin(0)!.Value;
@@ -101,7 +101,7 @@ public sealed partial class SceneFieldTests
         var renderer = GetApp().World.Resource<Engine.Renderer>();
         var fields = renderer.RenderWorld.TryGet<SceneFieldRenderer>()!;
         var device = (GraphicsDevice)renderer.Context.Graphics!;
-        var (first, second) = (device.ReadSceneFieldSheets(fields.Field!), device.ReadSceneFieldSheets(fields.Field!, second: true));
+        var (first, second) = (SceneFieldStages.Of(device).ReadSceneFieldSheets(fields.Field!), SceneFieldStages.Of(device).ReadSceneFieldSheets(fields.Field!, second: true));
         const int size = SceneFieldPlan.Resolution;
         const float cell = 0.25f;
         var origin = fields.Plan!.BuiltOrigin(0)!.Value;

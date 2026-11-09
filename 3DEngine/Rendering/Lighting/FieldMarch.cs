@@ -55,7 +55,7 @@ internal sealed class FieldMarch
             if (plan.BuiltOrigin(c) is { } origin)
                 cascades[c] = new Vector4(origin, plan.CellOf(c));
         why = "";
-        return new FieldMarch(device.ReadSceneField(field), device.ReadSceneFieldSheets(field), cascades, SceneFieldPlan.Resolution, plan.Unbuilt);
+        return new FieldMarch(SceneFieldStages.Of(device).ReadSceneField(field), SceneFieldStages.Of(device).ReadSceneFieldSheets(field), cascades, SceneFieldPlan.Resolution, plan.Unbuilt);
     }
 
     /// <summary>

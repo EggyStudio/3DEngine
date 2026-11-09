@@ -244,7 +244,7 @@ internal sealed partial class ModelRenderer
         }
         else
         {
-            var none = _noBounce ??= device.CreateSceneField(1, 1);
+            var none = _noBounce ??= SceneFieldStages.Of(device).CreateSceneField(1, 1);
             field = built ?? none;
             if (_noGiLights is null)
             {

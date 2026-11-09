@@ -99,7 +99,7 @@ public sealed partial class SceneFieldTests
                 if (fields()?.Plan is { Built: true, FramesBuilt: > 4 }) break;
             }
             fields()!.Plan!.Built.Should().BeTrue("the field is built around the eye");
-            return ((GraphicsDevice)renderer.Context.Graphics!).ReadSceneField(fields()!.Field!);
+            return SceneFieldStages.Of((GraphicsDevice)renderer.Context.Graphics!).ReadSceneField(fields()!.Field!);
         }
 
         Settled(new Vector3(0, 1.6f, 4));

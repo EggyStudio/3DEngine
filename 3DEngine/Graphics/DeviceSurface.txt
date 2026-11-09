@@ -6,7 +6,6 @@ sealed class Engine.GraphicsDevice : IDisposable, IGraphicsDevice
   GpuParticles CreatePlacedParticles(ReadOnlySpan<Vector3> points)
   GpuPlanarReflection CreatePlanarReflection(uint width, uint height)
   GpuReflectionHistory CreateReflectionHistory(uint width, uint height)
-  GpuSceneField CreateSceneField(int cascades, int resolution)
   GpuSkin CreateSkin(ReadOnlySpan<ModelVertex> rest, ReadOnlySpan<ushort> joints, ReadOnlySpan<float> weights, int jointCount, int ring, ReadOnlySpan<Vector4> morphs = default, int morphCount = 0)
   GraphicsAdapterInfo AdapterInfo { get; }
   GraphicsDevice()
@@ -17,9 +16,6 @@ sealed class Engine.GraphicsDevice : IDisposable, IGraphicsDevice
   IDescriptorSet CreateDescriptorSet(IDescriptorSetLayout layout)
   IDescriptorSetLayout CreateDescriptorSetLayout(DescriptorSetLayoutBinding[] bindings)
   IDisposable RecordCountedCorners(ICommandBuffer commandBuffer, IBuffer corners, IReadOnlyList<(IBuffer, IBuffer?, int, int, int)> meshes)
-  IDisposable RecordSceneFieldBuild(ICommandBuffer commandBuffer, GpuSceneField field, IBuffer corners, IBuffer instances, int instanceCount, int triangleCount, int cascade, Vector3 origin, float cell, int band, bool thinGlow = false, bool first = true, bool last = true, bool? lend = null, float sheet = 0f, SceneFieldPlan.CellBox? cells = null, bool empty = false)
-  IDisposable RecordSceneFieldRepaint(ICommandBuffer commandBuffer, GpuSceneField field, IBuffer corners, IBuffer instances, int instanceCount, int triangleCount, int cascade, Vector3 origin, float cell, int band)
-  IDisposable RecordSceneFieldStamp(ICommandBuffer commandBuffer, GpuSceneField field, IBuffer bricks, int brickCount, IBuffer shapes, int shapeCount)
   IFrameContext BeginFrame(ClearColor? clearOverride = null)
   IFramebuffer GetSwapchainFramebuffer(uint imageIndex)
   IImage CreateImage(ImageDesc desc)
@@ -42,7 +38,6 @@ sealed class Engine.GraphicsDevice : IDisposable, IGraphicsDevice
   ShadowMap CreateShadowMap(uint size, uint layers = 1u)
   Span<byte> Map(IBuffer buffer)
   bool CanBlendEachAttachment { get; }
-  bool CanBuildSceneField { get; }
   bool CanClampDepth { get; }
   bool CanDrawBresenhamLines { get; }
   bool CanDrawCounted { get; }
@@ -59,7 +54,6 @@ sealed class Engine.GraphicsDevice : IDisposable, IGraphicsDevice
   bool TimestampsSupported { get; }
   bool TransparentWindow { get; set; }
   bool Vsync { get; set; }
-  const float FarFieldDistance = 10000f
   double AcquireMs { get; }
   double FenceWaitMs { get; }
   double MeshCountsCpuMs { get; }
@@ -71,7 +65,6 @@ sealed class Engine.GraphicsDevice : IDisposable, IGraphicsDevice
   internal (IImage, IImageView) CreateStandIn(IImage target)
   internal (IImage, IImageView, IImageView) CreateTextureCube(uint size, ReadOnlySpan<byte> rgba)
   internal (VkImage, VkDeviceMemory, VkImageView) ProbeImage(uint width, uint height, uint depth, VkFormat format = VkFormat.R16G16B16A16Sfloat)
-  internal (float[], float[]) ReadSceneFieldColors(GpuSceneField field)
   internal (long, TimeSpan) PipelinesMade { get; }
   internal (uint, uint) StageLimits { get; }
   internal AddressedBuffer CreateAddressedBuffer(ulong size, VkBufferUsageFlags usage, bool host, bool lasting = false)
@@ -99,8 +92,6 @@ sealed class Engine.GraphicsDevice : IDisposable, IGraphicsDevice
   internal const int ReadbackStagingKept = 4
   internal float AnisotropyLimit { get; set; }
   internal float[] ReadFloats(IImage image)
-  internal float[] ReadSceneField(GpuSceneField field)
-  internal float[] ReadSceneFieldSheets(GpuSceneField field, bool second = false)
   internal int CountedRecords { get; }
   internal int MemoryBlockCount { get; }
   internal int ReadbackStagingCount { get; }
@@ -162,7 +153,6 @@ sealed class Engine.GraphicsDevice : IDisposable, IGraphicsDevice
   void InitializeMeshCounts(ReadOnlySpan<byte> spirv)
   void InitializeParticleSort(ReadOnlySpan<byte> spirv)
   void InitializeParticles(ReadOnlySpan<byte> spirv)
-  void InitializeSceneField(ReadOnlySpan<byte> splat, ReadOnlySpan<byte> resolve, ReadOnlySpan<byte> stamp)
   void InitializeSkinning(ReadOnlySpan<byte> spirv)
   void KeepScreen()
   void OnResize()
@@ -173,10 +163,6 @@ sealed class Engine.GraphicsDevice : IDisposable, IGraphicsDevice
   void RecordParticleSort(ICommandBuffer commands, GpuParticles particles, Vector3 eye, int newest, int span)
   void RecordParticles(ICommandBuffer commands, GpuParticles particles, in ParticleStep step, Matrix4x4 placedBy, Vector4 facing, int span)
   void RecordPlanarReflection(ICommandBuffer commandBuffer, GpuPlanarReflection planar)
-  void RecordSceneFieldClose(ICommandBuffer commandBuffer, GpuSceneField field)
-  void RecordSceneFieldInfo(ICommandBuffer commandBuffer, GpuSceneField field, ReadOnlySpan<byte> info)
-  void RecordSceneFieldOpen(ICommandBuffer commandBuffer, GpuSceneField field)
-  void RecordSceneFieldShift(ICommandBuffer commandBuffer, GpuSceneField field, int cascade, int axis, int cells)
   void RecordSkin(ICommandBuffer commands, GpuSkin skin, ReadOnlySpan<Matrix4x4> joints, ReadOnlySpan<float> morphWeights = default)
   void ReleaseReadback(ShaderReadbackTicket ticket)
   void RequestCapture(Action<byte[], int, int> onCaptured)

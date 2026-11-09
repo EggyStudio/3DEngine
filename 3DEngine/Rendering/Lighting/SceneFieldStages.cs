@@ -1,11 +1,20 @@
 using System.Numerics;
 using System.Runtime.InteropServices;
 using Vortice.Vulkan;
+using static Engine.GraphicsDevice;
 
 namespace Engine;
 
-internal sealed unsafe partial class GraphicsDevice
+/// <summary>
+/// The scene field's compute stages on the device and the passes that build, repaint, stamp and
+/// read it, with the shift of a cascade's cells (SceneFieldStages.Shift.cs), a part the device
+/// keeps (<see cref="GraphicsDevice.Part{T}"/>) and lets go with itself.
+/// </summary>
+internal sealed unsafe partial class SceneFieldStages(GraphicsDevice device) : IDisposable
 {
+    /// <summary>The device's field stages, made the first time they are asked for.</summary>
+    internal static SceneFieldStages Of(GraphicsDevice device) => device.Part(static device => new SceneFieldStages(device));
+
     private const int SplatStage = 0, ResolveStage = 1, StampStage = 2;
     private readonly ComputeStage[] _fieldStages = new ComputeStage[3];
 
@@ -42,16 +51,16 @@ internal sealed unsafe partial class GraphicsDevice
         get
         {
             if (_fieldStages[StampStage].Pipeline.Handle != 0 || _fieldSpirv is not { } spirv) return _fieldStages;
-            _fieldStages[SplatStage] = MakeComputeStage(spirv[0], [VkDescriptorType.StorageBuffer, VkDescriptorType.StorageBuffer,
+            _fieldStages[SplatStage] = device.MakeComputeStage(spirv[0], [VkDescriptorType.StorageBuffer, VkDescriptorType.StorageBuffer,
                 VkDescriptorType.StorageBuffer, VkDescriptorType.StorageBuffer, VkDescriptorType.StorageBuffer, VkDescriptorType.StorageBuffer,
                 VkDescriptorType.StorageBuffer, VkDescriptorType.StorageImage, VkDescriptorType.StorageImage, VkDescriptorType.StorageBuffer,
                 VkDescriptorType.StorageBuffer], (uint)sizeof(SplatPush));
-            _fieldStages[ResolveStage] = MakeComputeStage(spirv[1], [VkDescriptorType.StorageBuffer, VkDescriptorType.StorageImage,
+            _fieldStages[ResolveStage] = device.MakeComputeStage(spirv[1], [VkDescriptorType.StorageBuffer, VkDescriptorType.StorageImage,
                 VkDescriptorType.StorageImage, VkDescriptorType.StorageBuffer, VkDescriptorType.StorageBuffer, VkDescriptorType.StorageImage,
                 VkDescriptorType.StorageImage, VkDescriptorType.StorageBuffer, VkDescriptorType.StorageImage, VkDescriptorType.StorageBuffer,
                 VkDescriptorType.StorageImage, VkDescriptorType.StorageImage, VkDescriptorType.StorageBuffer, VkDescriptorType.StorageImage,
                 VkDescriptorType.StorageBuffer, VkDescriptorType.StorageImage, VkDescriptorType.StorageBuffer], 64);
-            _fieldStages[StampStage] = MakeComputeStage(spirv[2], [VkDescriptorType.StorageBuffer, VkDescriptorType.StorageBuffer,
+            _fieldStages[StampStage] = device.MakeComputeStage(spirv[2], [VkDescriptorType.StorageBuffer, VkDescriptorType.StorageBuffer,
                 VkDescriptorType.StorageImage, VkDescriptorType.StorageImage, VkDescriptorType.UniformBuffer, VkDescriptorType.StorageImage,
                 VkDescriptorType.StorageImage, VkDescriptorType.StorageImage, VkDescriptorType.StorageImage, VkDescriptorType.StorageImage,
                 VkDescriptorType.StorageImage], 16);
@@ -68,7 +77,7 @@ internal sealed unsafe partial class GraphicsDevice
     /// <summary>Makes the field's pipelines from <c>field_splat.slang</c>, <c>field_resolve.slang</c> and <c>field_stamp.slang</c>, once.</summary>
     public void InitializeSceneField(ReadOnlySpan<byte> splat, ReadOnlySpan<byte> resolve, ReadOnlySpan<byte> stamp)
     {
-        if (!IsInitialized || CanBuildSceneField) return;
+        if (!device.IsInitialized || CanBuildSceneField) return;
         _fieldSpirv = [splat.ToArray(), resolve.ToArray(), stamp.ToArray()];
     }
 
@@ -93,22 +102,22 @@ internal sealed unsafe partial class GraphicsDevice
         var (stillFaces, stillFacesMemory, stillFacesView) = FieldImage(size, depth, VkFormat.R32Uint);
         // A second plane where two double-sided faces lie as near a cell, as where two walls cross.
         var (secondImage, secondMemory, secondView) = FieldImage(size, depth, VkFormat.R16G16B16A16Sfloat);
-        var info = CreateBuffer(new BufferDesc(GpuSceneField.InfoBytes, BufferUsage.Uniform | BufferUsage.TransferDst));
-        var cells = CreateBuffer(new BufferDesc((ulong)size * size * size * 4, BufferUsage.Storage | BufferUsage.TransferDst | BufferUsage.TransferSrc));
-        var albedo = CreateBuffer(new BufferDesc((ulong)size * size * size * 4, BufferUsage.Storage | BufferUsage.TransferDst));
-        var glow = CreateBuffer(new BufferDesc((ulong)size * size * size * 8, BufferUsage.Storage | BufferUsage.TransferDst));
-        var behind = CreateBuffer(new BufferDesc((ulong)size * size * size * 4, BufferUsage.Storage | BufferUsage.TransferDst));
-        var second = CreateBuffer(new BufferDesc((ulong)size * size * size * 4, BufferUsage.Storage | BufferUsage.TransferDst));
-        var gloss = CreateBuffer(new BufferDesc((ulong)size * size * size * 4, BufferUsage.Storage | BufferUsage.TransferDst));
+        var info = device.CreateBuffer(new BufferDesc(GpuSceneField.InfoBytes, BufferUsage.Uniform | BufferUsage.TransferDst));
+        var cells = device.CreateBuffer(new BufferDesc((ulong)size * size * size * 4, BufferUsage.Storage | BufferUsage.TransferDst | BufferUsage.TransferSrc));
+        var albedo = device.CreateBuffer(new BufferDesc((ulong)size * size * size * 4, BufferUsage.Storage | BufferUsage.TransferDst));
+        var glow = device.CreateBuffer(new BufferDesc((ulong)size * size * size * 8, BufferUsage.Storage | BufferUsage.TransferDst));
+        var behind = device.CreateBuffer(new BufferDesc((ulong)size * size * size * 4, BufferUsage.Storage | BufferUsage.TransferDst));
+        var second = device.CreateBuffer(new BufferDesc((ulong)size * size * size * 4, BufferUsage.Storage | BufferUsage.TransferDst));
+        var gloss = device.CreateBuffer(new BufferDesc((ulong)size * size * size * 4, BufferUsage.Storage | BufferUsage.TransferDst));
 
         // The distances cleared to far and the colors to none, the still images left in the general
         // layout and the ones the passes read ready to be sampled, and the info zeroed, which
         // reads as no cascade.
-        var cmd = BeginSingleTimeCommands();
+        var cmd = device.BeginSingleTimeCommands();
         var whole = ColorLevels(0, 1);
         VkImage[] read = [field, albedoImage, glowImage, facesImage, secondImage];
         VkImage[] kept = [still, stillPaint, stillFaces, stillGlow];
-        PipelineBarrier(cmd, [
+        device.PipelineBarrier(cmd, [
             .. kept.Select(image => ImageBarrier(image, ColorLevels(0, 1), VkImageLayout.Undefined, VkImageLayout.General, VkPipelineStageFlags2.None,
                 VkAccessFlags2.None, VkPipelineStageFlags2.Transfer, VkAccessFlags2.TransferWrite)),
             .. read.Select(image => ImageBarrier(image, ColorLevels(0, 1), VkImageLayout.Undefined, VkImageLayout.General, VkPipelineStageFlags2.None, VkAccessFlags2.None,
@@ -117,18 +126,18 @@ internal sealed unsafe partial class GraphicsDevice
         // Far from every surface, and no plane of a double-sided face in the other three channels.
         var far = new VkClearColorValue(FarFieldDistance, 0f, 0f, 0f);
         var none = new VkClearColorValue(0f, 0f, 0f, 0f);
-        _deviceApi.vkCmdClearColorImage(cmd, still, VkImageLayout.General, &far, 1, &whole);
-        _deviceApi.vkCmdClearColorImage(cmd, field, VkImageLayout.General, &far, 1, &whole);
-        _deviceApi.vkCmdClearColorImage(cmd, albedoImage, VkImageLayout.General, &none, 1, &whole);
-        _deviceApi.vkCmdClearColorImage(cmd, stillPaint, VkImageLayout.General, &none, 1, &whole);
-        _deviceApi.vkCmdClearColorImage(cmd, glowImage, VkImageLayout.General, &none, 1, &whole);
-        _deviceApi.vkCmdClearColorImage(cmd, stillGlow, VkImageLayout.General, &none, 1, &whole);
-        _deviceApi.vkCmdClearColorImage(cmd, secondImage, VkImageLayout.General, &none, 1, &whole);
+        device.Api.vkCmdClearColorImage(cmd, still, VkImageLayout.General, &far, 1, &whole);
+        device.Api.vkCmdClearColorImage(cmd, field, VkImageLayout.General, &far, 1, &whole);
+        device.Api.vkCmdClearColorImage(cmd, albedoImage, VkImageLayout.General, &none, 1, &whole);
+        device.Api.vkCmdClearColorImage(cmd, stillPaint, VkImageLayout.General, &none, 1, &whole);
+        device.Api.vkCmdClearColorImage(cmd, glowImage, VkImageLayout.General, &none, 1, &whole);
+        device.Api.vkCmdClearColorImage(cmd, stillGlow, VkImageLayout.General, &none, 1, &whole);
+        device.Api.vkCmdClearColorImage(cmd, secondImage, VkImageLayout.General, &none, 1, &whole);
         var noFace = new VkClearColorValue(0u, 0u, 0u, 0u);
-        _deviceApi.vkCmdClearColorImage(cmd, facesImage, VkImageLayout.General, &noFace, 1, &whole);
-        _deviceApi.vkCmdClearColorImage(cmd, stillFaces, VkImageLayout.General, &noFace, 1, &whole);
-        _deviceApi.vkCmdFillBuffer(cmd, ((VulkanBuffer)info).Buffer, 0, Vulkan.VK_WHOLE_SIZE, 0);
-        PipelineBarrier(cmd, [
+        device.Api.vkCmdClearColorImage(cmd, facesImage, VkImageLayout.General, &noFace, 1, &whole);
+        device.Api.vkCmdClearColorImage(cmd, stillFaces, VkImageLayout.General, &noFace, 1, &whole);
+        device.Api.vkCmdFillBuffer(cmd, ((VulkanBuffer)info).Buffer, 0, Vulkan.VK_WHOLE_SIZE, 0);
+        device.PipelineBarrier(cmd, [
             .. kept.Select(image => ImageBarrier(image, ColorLevels(0, 1), VkImageLayout.General, VkImageLayout.General, VkPipelineStageFlags2.Transfer,
                 VkAccessFlags2.TransferWrite, VkPipelineStageFlags2.ComputeShader, VkAccessFlags2.ShaderRead | VkAccessFlags2.ShaderWrite)),
             .. read.Select(image => ImageBarrier(image, ColorLevels(0, 1), VkImageLayout.General, VkImageLayout.ShaderReadOnlyOptimal,
@@ -140,26 +149,26 @@ internal sealed unsafe partial class GraphicsDevice
             dstStageMask = VkPipelineStageFlags2.AllCommands,
             dstAccessMask = VkAccessFlags2.UniformRead,
         });
-        EndSingleTimeCommands(cmd);
+        device.EndSingleTimeCommands(cmd);
 
-        var owner = new VulkanImage(this, field, fieldMemory,
+        var owner = new VulkanImage(device, field, fieldMemory,
             new ImageDesc(new Extent2D(size, depth), ImageFormat.Undefined, ImageUsage.Sampled | ImageUsage.Storage));
-        var sampler = CreateSampler(new SamplerDesc(SamplerFilter.Linear, SamplerFilter.Linear,
+        var sampler = device.CreateSampler(new SamplerDesc(SamplerFilter.Linear, SamplerFilter.Linear,
             SamplerAddressMode.ClampToEdge, SamplerAddressMode.ClampToEdge, SamplerAddressMode.ClampToEdge));
-        Name(owner, "Scene distance field");
-        var albedoOwner = new VulkanImage(this, albedoImage, albedoMemory,
+        device.Name(owner, "Scene distance field");
+        var albedoOwner = new VulkanImage(device, albedoImage, albedoMemory,
             new ImageDesc(new Extent2D(size, depth), ImageFormat.R8G8B8A8_UNorm, ImageUsage.Sampled | ImageUsage.Storage));
-        var glowOwner = new VulkanImage(this, glowImage, glowMemory,
+        var glowOwner = new VulkanImage(device, glowImage, glowMemory,
             new ImageDesc(new Extent2D(size, depth), ImageFormat.R16G16B16A16_Float, ImageUsage.Sampled | ImageUsage.Storage));
-        var facesOwner = new VulkanImage(this, facesImage, facesMemory,
+        var facesOwner = new VulkanImage(device, facesImage, facesMemory,
             new ImageDesc(new Extent2D(size, depth), ImageFormat.Undefined, ImageUsage.Sampled | ImageUsage.Storage));
-        Name(albedoOwner, "Scene distance field colors");
-        Name(glowOwner, "Scene distance field emission");
-        Name(facesOwner, "Scene distance field faces");
-        var secondOwner = new VulkanImage(this, secondImage, secondMemory,
+        device.Name(albedoOwner, "Scene distance field colors");
+        device.Name(glowOwner, "Scene distance field emission");
+        device.Name(facesOwner, "Scene distance field faces");
+        var secondOwner = new VulkanImage(device, secondImage, secondMemory,
             new ImageDesc(new Extent2D(size, depth), ImageFormat.R16G16B16A16_Float, ImageUsage.Sampled | ImageUsage.Storage));
-        Name(secondOwner, "Scene distance field second planes");
-        return new GpuSceneField(cascades, (int)size, new VulkanImageView(this, owner, fieldView), sampler, info, cells,
+        device.Name(secondOwner, "Scene distance field second planes");
+        return new GpuSceneField(cascades, (int)size, new VulkanImageView(device, owner, fieldView), sampler, info, cells,
             still, stillView, field, fieldView, () =>
             {
                 sampler.Dispose();
@@ -170,43 +179,43 @@ internal sealed unsafe partial class GraphicsDevice
                 second.Dispose();
                 gloss.Dispose();
                 info.Dispose();
-                _deviceApi.vkDestroyImageView(secondView);
+                device.Api.vkDestroyImageView(secondView);
                 secondOwner.Dispose();
-                _deviceApi.vkDestroyImageView(fieldView);
+                device.Api.vkDestroyImageView(fieldView);
                 owner.Dispose();
-                _deviceApi.vkDestroyImageView(albedoView);
+                device.Api.vkDestroyImageView(albedoView);
                 albedoOwner.Dispose();
-                _deviceApi.vkDestroyImageView(glowView);
+                device.Api.vkDestroyImageView(glowView);
                 glowOwner.Dispose();
-                _deviceApi.vkDestroyImageView(facesView);
+                device.Api.vkDestroyImageView(facesView);
                 facesOwner.Dispose();
-                _deviceApi.vkDestroyImageView(stillFacesView);
+                device.Api.vkDestroyImageView(stillFacesView);
                 DeviceObjects.Gone(DeviceObjects.Kind.Image);
-                _deviceApi.vkDestroyImage(stillFaces);
+                device.Api.vkDestroyImage(stillFaces);
                 DeviceObjects.Gone(DeviceObjects.Kind.Memory);
-                _deviceApi.vkFreeMemory(stillFacesMemory);
-                _deviceApi.vkDestroyImageView(stillView);
+                device.Api.vkFreeMemory(stillFacesMemory);
+                device.Api.vkDestroyImageView(stillView);
                 DeviceObjects.Gone(DeviceObjects.Kind.Image);
-                _deviceApi.vkDestroyImage(still);
+                device.Api.vkDestroyImage(still);
                 DeviceObjects.Gone(DeviceObjects.Kind.Memory);
-                _deviceApi.vkFreeMemory(stillMemory);
-                _deviceApi.vkDestroyImageView(stillPaintView);
+                device.Api.vkFreeMemory(stillMemory);
+                device.Api.vkDestroyImageView(stillPaintView);
                 DeviceObjects.Gone(DeviceObjects.Kind.Image);
-                _deviceApi.vkDestroyImage(stillPaint);
+                device.Api.vkDestroyImage(stillPaint);
                 DeviceObjects.Gone(DeviceObjects.Kind.Memory);
-                _deviceApi.vkFreeMemory(stillPaintMemory);
-                _deviceApi.vkDestroyImageView(stillGlowView);
+                device.Api.vkFreeMemory(stillPaintMemory);
+                device.Api.vkDestroyImageView(stillGlowView);
                 DeviceObjects.Gone(DeviceObjects.Kind.Image);
-                _deviceApi.vkDestroyImage(stillGlow);
+                device.Api.vkDestroyImage(stillGlow);
                 DeviceObjects.Gone(DeviceObjects.Kind.Memory);
-                _deviceApi.vkFreeMemory(stillGlowMemory);
-            }, albedo, glow, albedoImage, new VulkanImageView(this, albedoOwner, albedoView), glowImage, new VulkanImageView(this, glowOwner, glowView), behind,
-            stillPaint, stillPaintView, facesImage, new VulkanImageView(this, facesOwner, facesView), stillFaces, stillFacesView)
+                device.Api.vkFreeMemory(stillGlowMemory);
+            }, albedo, glow, albedoImage, new VulkanImageView(device, albedoOwner, albedoView), glowImage, new VulkanImageView(device, glowOwner, glowView), behind,
+            stillPaint, stillPaintView, facesImage, new VulkanImageView(device, facesOwner, facesView), stillFaces, stillFacesView)
         {
             Second = second,
             Gloss = gloss,
             SecondImage = secondImage,
-            SecondView = new VulkanImageView(this, secondOwner, secondView),
+            SecondView = new VulkanImageView(device, secondOwner, secondView),
             StillGlow = stillGlow,
             StillGlowView = stillGlowView,
         };
@@ -229,17 +238,17 @@ internal sealed unsafe partial class GraphicsDevice
             sharingMode = VkSharingMode.Exclusive,
             initialLayout = VkImageLayout.Undefined,
         };
-        _deviceApi.vkCreateImage(&info, null, out VkImage image).CheckResult();
+        device.Api.vkCreateImage(&info, null, out VkImage image).CheckResult();
         DeviceObjects.Made(DeviceObjects.Kind.Image);
-        _deviceApi.vkGetImageMemoryRequirements(image, out VkMemoryRequirements requirements);
+        device.Api.vkGetImageMemoryRequirements(image, out VkMemoryRequirements requirements);
         var allocation = new VkMemoryAllocateInfo
         {
             allocationSize = requirements.size,
-            memoryTypeIndex = FindMemoryType(requirements.memoryTypeBits, VkMemoryPropertyFlags.DeviceLocal),
+            memoryTypeIndex = device.FindMemoryType(requirements.memoryTypeBits, VkMemoryPropertyFlags.DeviceLocal),
         };
-        _deviceApi.vkAllocateMemory(&allocation, null, out VkDeviceMemory memory).CheckResult();
+        device.Api.vkAllocateMemory(&allocation, null, out VkDeviceMemory memory).CheckResult();
         DeviceObjects.Made(DeviceObjects.Kind.Memory);
-        _deviceApi.vkBindImageMemory(image, memory, 0).CheckResult();
+        device.Api.vkBindImageMemory(image, memory, 0).CheckResult();
         var viewInfo = new VkImageViewCreateInfo
         {
             image = image,
@@ -248,7 +257,7 @@ internal sealed unsafe partial class GraphicsDevice
             components = VkComponentMapping.Rgba,
             subresourceRange = ColorLevels(0, 1),
         };
-        _deviceApi.vkCreateImageView(&viewInfo, null, out VkImageView view).CheckResult();
+        device.Api.vkCreateImageView(&viewInfo, null, out VkImageView view).CheckResult();
         return (image, memory, view);
     }
 
@@ -261,12 +270,12 @@ internal sealed unsafe partial class GraphicsDevice
         if (commandBuffer is not VulkanCommandBuffer vkCmd) return;
         var cmd = vkCmd.Handle;
         var readers = VkPipelineStageFlags2.VertexShader | VkPipelineStageFlags2.FragmentShader | VkPipelineStageFlags2.ComputeShader;
-        MemoryBarrier(cmd, readers, VkAccessFlags2.UniformRead, VkPipelineStageFlags2.Transfer, VkAccessFlags2.TransferWrite);
+        device.MemoryBarrier(cmd, readers, VkAccessFlags2.UniformRead, VkPipelineStageFlags2.Transfer, VkAccessFlags2.TransferWrite);
         // The update's size is whole words, which the info is.
         var bytes = info[..(Math.Min(info.Length, GpuSceneField.InfoBytes) & ~3)];
         fixed (byte* data = bytes)
-            _deviceApi.vkCmdUpdateBuffer(cmd, ((VulkanBuffer)field.Info).Buffer, 0, (ulong)bytes.Length, data);
-        MemoryBarrier(cmd, VkPipelineStageFlags2.Transfer, VkAccessFlags2.TransferWrite, readers, VkAccessFlags2.UniformRead);
+            device.Api.vkCmdUpdateBuffer(cmd, ((VulkanBuffer)field.Info).Buffer, 0, (ulong)bytes.Length, data);
+        device.MemoryBarrier(cmd, VkPipelineStageFlags2.Transfer, VkAccessFlags2.TransferWrite, readers, VkAccessFlags2.UniformRead);
     }
 
     /// <summary>
@@ -276,7 +285,7 @@ internal sealed unsafe partial class GraphicsDevice
     public void RecordSceneFieldOpen(ICommandBuffer commandBuffer, GpuSceneField field)
     {
         if (commandBuffer is not VulkanCommandBuffer vkCmd) return;
-        PipelineBarrier(vkCmd.Handle, [.. new[] { field.Field, field.AlbedoImage, field.GlowImage, field.FacesImage, field.SecondImage }.Select(image => ImageBarrier(image, ColorLevels(0, 1),
+        device.PipelineBarrier(vkCmd.Handle, [.. new[] { field.Field, field.AlbedoImage, field.GlowImage, field.FacesImage, field.SecondImage }.Select(image => ImageBarrier(image, ColorLevels(0, 1),
             VkImageLayout.ShaderReadOnlyOptimal, VkImageLayout.General,
             VkPipelineStageFlags2.VertexShader | VkPipelineStageFlags2.FragmentShader | VkPipelineStageFlags2.ComputeShader, VkAccessFlags2.ShaderRead,
             VkPipelineStageFlags2.ComputeShader, VkAccessFlags2.ShaderRead | VkAccessFlags2.ShaderWrite))]);
@@ -286,7 +295,7 @@ internal sealed unsafe partial class GraphicsDevice
     public void RecordSceneFieldClose(ICommandBuffer commandBuffer, GpuSceneField field)
     {
         if (commandBuffer is not VulkanCommandBuffer vkCmd) return;
-        PipelineBarrier(vkCmd.Handle, [.. new[] { field.Field, field.AlbedoImage, field.GlowImage, field.FacesImage, field.SecondImage }.Select(image => ImageBarrier(image, ColorLevels(0, 1),
+        device.PipelineBarrier(vkCmd.Handle, [.. new[] { field.Field, field.AlbedoImage, field.GlowImage, field.FacesImage, field.SecondImage }.Select(image => ImageBarrier(image, ColorLevels(0, 1),
             VkImageLayout.General, VkImageLayout.ShaderReadOnlyOptimal,
             VkPipelineStageFlags2.ComputeShader, VkAccessFlags2.ShaderWrite,
             VkPipelineStageFlags2.VertexShader | VkPipelineStageFlags2.FragmentShader | VkPipelineStageFlags2.ComputeShader, VkAccessFlags2.ShaderRead))]);
@@ -346,7 +355,7 @@ internal sealed unsafe partial class GraphicsDevice
         var lent = lend ?? thinGlow;
         var splats = instanceCount > 0 && triangleCount > 0;
         var emptied = first && empty && cells is not null && !last;
-        var run = new FieldRun(this, commandBuffer, (splats, last || emptied) switch
+        var run = new FieldRun(this, device, commandBuffer, (splats, last || emptied) switch
         {
             (true, true) => [SplatStage, ResolveStage],
             (true, false) => [SplatStage],
@@ -357,40 +366,40 @@ internal sealed unsafe partial class GraphicsDevice
         var words = ((VulkanBuffer)field.Cells).Buffer;
         var size = (uint)field.Resolution;
         var kept = (ulong)size * size * size * 4;
-        field.KeptCells ??= CreateBuffer(new BufferDesc(kept * (ulong)field.Cascades, BufferUsage.Storage | BufferUsage.TransferDst | BufferUsage.TransferSrc));
+        field.KeptCells ??= device.CreateBuffer(new BufferDesc(kept * (ulong)field.Cascades, BufferUsage.Storage | BufferUsage.TransferDst | BufferUsage.TransferSrc));
 
         if (first)
         {
             // The words of the build before are read by its resolve before this fills them, and the
             // fill is seen by the splat.
-            MemoryBarrier(cmd, VkPipelineStageFlags2.ComputeShader, VkAccessFlags2.ShaderRead | VkAccessFlags2.ShaderWrite,
+            device.MemoryBarrier(cmd, VkPipelineStageFlags2.ComputeShader, VkAccessFlags2.ShaderRead | VkAccessFlags2.ShaderWrite,
                 VkPipelineStageFlags2.Transfer, VkAccessFlags2.TransferWrite);
             // The code of a cell no triangle comes within the band of, the band's distance in front,
             // in 1024ths of a cell above the bits that say whether a double-sided triangle's nearest
             // point lies on its rim, whether its triangle is double-sided and whether the cell is in
             // front, and eight bits of its face's way.
-            _deviceApi.vkCmdFillBuffer(cmd, words, 0, Vulkan.VK_WHOLE_SIZE, ((uint)band * 1024 << 11) | 1 << 8);
+            device.Api.vkCmdFillBuffer(cmd, words, 0, Vulkan.VK_WHOLE_SIZE, ((uint)band * 1024 << 11) | 1 << 8);
             // No second face as near as the nearest, until the painting pass finds one.
-            _deviceApi.vkCmdFillBuffer(cmd, ((VulkanBuffer)field.Second).Buffer, 0, Vulkan.VK_WHOLE_SIZE, uint.MaxValue);
-            _deviceApi.vkCmdFillBuffer(cmd, ((VulkanBuffer)field.Albedo).Buffer, 0, Vulkan.VK_WHOLE_SIZE, 0);
-            _deviceApi.vkCmdFillBuffer(cmd, ((VulkanBuffer)field.Gloss).Buffer, 0, Vulkan.VK_WHOLE_SIZE, 0);
-            _deviceApi.vkCmdFillBuffer(cmd, ((VulkanBuffer)field.Glow).Buffer, 0, Vulkan.VK_WHOLE_SIZE, 0);
-            _deviceApi.vkCmdFillBuffer(cmd, ((VulkanBuffer)field.Behind).Buffer, 0, Vulkan.VK_WHOLE_SIZE, uint.MaxValue);
+            device.Api.vkCmdFillBuffer(cmd, ((VulkanBuffer)field.Second).Buffer, 0, Vulkan.VK_WHOLE_SIZE, uint.MaxValue);
+            device.Api.vkCmdFillBuffer(cmd, ((VulkanBuffer)field.Albedo).Buffer, 0, Vulkan.VK_WHOLE_SIZE, 0);
+            device.Api.vkCmdFillBuffer(cmd, ((VulkanBuffer)field.Gloss).Buffer, 0, Vulkan.VK_WHOLE_SIZE, 0);
+            device.Api.vkCmdFillBuffer(cmd, ((VulkanBuffer)field.Glow).Buffer, 0, Vulkan.VK_WHOLE_SIZE, 0);
+            device.Api.vkCmdFillBuffer(cmd, ((VulkanBuffer)field.Behind).Buffer, 0, Vulkan.VK_WHOLE_SIZE, uint.MaxValue);
             // The emitters' light cleared, and later read, where a build lends it alone, as clearing
             // and reading it cost a cascade's build some 0.03 ms.
             if (lent)
             {
-                field.Emitted ??= CreateBuffer(new BufferDesc((ulong)size * size * size * 24, BufferUsage.Storage | BufferUsage.TransferDst));
-                _deviceApi.vkCmdFillBuffer(cmd, ((VulkanBuffer)field.Emitted).Buffer, 0, Vulkan.VK_WHOLE_SIZE, 0);
+                field.Emitted ??= device.CreateBuffer(new BufferDesc((ulong)size * size * size * 24, BufferUsage.Storage | BufferUsage.TransferDst));
+                device.Api.vkCmdFillBuffer(cmd, ((VulkanBuffer)field.Emitted).Buffer, 0, Vulkan.VK_WHOLE_SIZE, 0);
             }
-            MemoryBarrier(cmd, VkPipelineStageFlags2.Transfer, VkAccessFlags2.TransferWrite,
+            device.MemoryBarrier(cmd, VkPipelineStageFlags2.Transfer, VkAccessFlags2.TransferWrite,
                 VkPipelineStageFlags2.ComputeShader, VkAccessFlags2.ShaderRead | VkAccessFlags2.ShaderWrite);
             // The cells a shift brought in held as nothing near until the build's last part.
             if (emptied) Resolve(run, field, cascade, cell, band, lent: false, sheet, cells);
         }
         else
             // The part before's splat and paint are seen by this one's, a frame or more later.
-            MemoryBarrier(cmd, VkPipelineStageFlags2.ComputeShader, VkAccessFlags2.ShaderRead | VkAccessFlags2.ShaderWrite,
+            device.MemoryBarrier(cmd, VkPipelineStageFlags2.ComputeShader, VkAccessFlags2.ShaderRead | VkAccessFlags2.ShaderWrite,
                 VkPipelineStageFlags2.ComputeShader, VkAccessFlags2.ShaderRead | VkAccessFlags2.ShaderWrite);
 
         if (splats)
@@ -421,7 +430,7 @@ internal sealed unsafe partial class GraphicsDevice
             push.Clip(size, cells);
             var groupsY = ((uint)triangleCount + groupsX - 1) / groupsX;
             run.Dispatch(SplatStage, splat, MemoryMarshal.AsBytes(new ReadOnlySpan<SplatPush>(in push)), groupsX, groupsY, 1);
-            MemoryBarrier(cmd, VkPipelineStageFlags2.ComputeShader, VkAccessFlags2.ShaderWrite,
+            device.MemoryBarrier(cmd, VkPipelineStageFlags2.ComputeShader, VkAccessFlags2.ShaderWrite,
                 VkPipelineStageFlags2.ComputeShader, VkAccessFlags2.ShaderRead);
             // The same triangles again, each painting the cells whose least word is its own, and once
             // more, an emitter thinner than a cell lending its light to the cells near it.
@@ -432,7 +441,7 @@ internal sealed unsafe partial class GraphicsDevice
                 push.Paint = 2;
                 run.Dispatch(SplatStage, splat, MemoryMarshal.AsBytes(new ReadOnlySpan<SplatPush>(in push)), groupsX, groupsY, 1);
             }
-            MemoryBarrier(cmd, VkPipelineStageFlags2.ComputeShader, VkAccessFlags2.ShaderWrite,
+            device.MemoryBarrier(cmd, VkPipelineStageFlags2.ComputeShader, VkAccessFlags2.ShaderWrite,
                 VkPipelineStageFlags2.ComputeShader, VkAccessFlags2.ShaderRead);
         }
 
@@ -471,7 +480,7 @@ internal sealed unsafe partial class GraphicsDevice
         ReadOnlySpan<Vector4> push = [new Vector4(cascade, size, cell, band), new Vector4(lent ? 1 : 0, sheet > 0 ? sheet : cell * 0.5f, 0, 0), from, to];
         var extent = to - from + Vector4.One;
         run.Dispatch(ResolveStage, resolve, MemoryMarshal.AsBytes(push), ((uint)extent.X + 3) / 4, ((uint)extent.Y + 3) / 4, ((uint)extent.Z + 3) / 4);
-        MemoryBarrier(run.Commands, VkPipelineStageFlags2.ComputeShader, VkAccessFlags2.ShaderWrite,
+        device.MemoryBarrier(run.Commands, VkPipelineStageFlags2.ComputeShader, VkAccessFlags2.ShaderWrite,
             VkPipelineStageFlags2.ComputeShader | VkPipelineStageFlags2.Transfer, VkAccessFlags2.ShaderRead | VkAccessFlags2.ShaderWrite | VkAccessFlags2.TransferRead);
     }
 
@@ -496,8 +505,8 @@ internal sealed unsafe partial class GraphicsDevice
     public IDisposable RecordSceneFieldRepaint(ICommandBuffer commandBuffer, GpuSceneField field, IBuffer corners, IBuffer instances,
         int instanceCount, int triangleCount, int cascade, Vector3 origin, float cell, int band)
     {
-        if (field.KeptCells is not { } kept || instanceCount <= 0 || triangleCount <= 0) return new FieldRun(this, commandBuffer, []);
-        var run = new FieldRun(this, commandBuffer, [SplatStage]);
+        if (field.KeptCells is not { } kept || instanceCount <= 0 || triangleCount <= 0) return new FieldRun(this, device, commandBuffer, []);
+        var run = new FieldRun(this, device, commandBuffer, [SplatStage]);
         var size = (uint)field.Resolution;
         var splat = run.Set(SplatStage);
         run.Buffer(splat, 0, VkDescriptorType.StorageBuffer, corners);
@@ -526,10 +535,10 @@ internal sealed unsafe partial class GraphicsDevice
             Cascade = (uint)cascade,
         };
         push.Clip(size, null);
-        MemoryBarrier(run.Commands, VkPipelineStageFlags2.ComputeShader, VkAccessFlags2.ShaderWrite,
+        device.MemoryBarrier(run.Commands, VkPipelineStageFlags2.ComputeShader, VkAccessFlags2.ShaderWrite,
             VkPipelineStageFlags2.ComputeShader, VkAccessFlags2.ShaderRead | VkAccessFlags2.ShaderWrite);
         run.Dispatch(SplatStage, splat, MemoryMarshal.AsBytes(new ReadOnlySpan<SplatPush>(in push)), groupsX, ((uint)triangleCount + groupsX - 1) / groupsX, 1);
-        MemoryBarrier(run.Commands, VkPipelineStageFlags2.ComputeShader, VkAccessFlags2.ShaderWrite,
+        device.MemoryBarrier(run.Commands, VkPipelineStageFlags2.ComputeShader, VkAccessFlags2.ShaderWrite,
             VkPipelineStageFlags2.ComputeShader, VkAccessFlags2.ShaderRead | VkAccessFlags2.ShaderWrite);
         return run;
     }
@@ -549,7 +558,7 @@ internal sealed unsafe partial class GraphicsDevice
     /// <returns>What the recording holds, to free once no frame in flight reads it.</returns>
     public IDisposable RecordSceneFieldStamp(ICommandBuffer commandBuffer, GpuSceneField field, IBuffer bricks, int brickCount, IBuffer shapes, int shapeCount)
     {
-        var run = new FieldRun(this, commandBuffer, [StampStage]);
+        var run = new FieldRun(this, device, commandBuffer, [StampStage]);
         var set = run.Set(StampStage);
         run.Buffer(set, 0, VkDescriptorType.StorageBuffer, bricks);
         run.Buffer(set, 1, VkDescriptorType.StorageBuffer, shapes);
@@ -564,7 +573,7 @@ internal sealed unsafe partial class GraphicsDevice
         run.Image(set, 10, ((VulkanImageView)field.GlowView).View);
         ReadOnlySpan<uint> counts = [(uint)brickCount, (uint)shapeCount, 0, 0];
         run.Dispatch(StampStage, set, MemoryMarshal.AsBytes(counts), (uint)brickCount, 1, 1);
-        MemoryBarrier(run.Commands, VkPipelineStageFlags2.ComputeShader, VkAccessFlags2.ShaderWrite,
+        device.MemoryBarrier(run.Commands, VkPipelineStageFlags2.ComputeShader, VkAccessFlags2.ShaderWrite,
             VkPipelineStageFlags2.ComputeShader, VkAccessFlags2.ShaderRead | VkAccessFlags2.ShaderWrite);
         return run;
     }
@@ -617,25 +626,25 @@ internal sealed unsafe partial class GraphicsDevice
     {
         var size = (uint)field.Resolution;
         var depth = size * (uint)field.Cascades;
-        FlushUploads();
-        _deviceApi.vkDeviceWaitIdle().CheckResult();
-        var buffer = (VulkanBuffer)CreateBuffer(new BufferDesc((ulong)size * size * depth * (ulong)bytesPerCell, BufferUsage.TransferDst, CpuAccessMode.Read));
+        device.FlushUploads();
+        device.Api.vkDeviceWaitIdle().CheckResult();
+        var buffer = (VulkanBuffer)device.CreateBuffer(new BufferDesc((ulong)size * size * depth * (ulong)bytesPerCell, BufferUsage.TransferDst, CpuAccessMode.Read));
         try
         {
-            var cmd = BeginSingleTimeCommands();
+            var cmd = device.BeginSingleTimeCommands();
             var whole = ColorLevels(0, 1);
-            PipelineBarrier(cmd, ImageBarrier(image, whole, VkImageLayout.ShaderReadOnlyOptimal, VkImageLayout.TransferSrcOptimal,
+            device.PipelineBarrier(cmd, ImageBarrier(image, whole, VkImageLayout.ShaderReadOnlyOptimal, VkImageLayout.TransferSrcOptimal,
                 VkPipelineStageFlags2.AllCommands, VkAccessFlags2.ShaderRead | VkAccessFlags2.ShaderWrite, VkPipelineStageFlags2.Transfer, VkAccessFlags2.TransferRead));
             var region = new VkBufferImageCopy
             {
                 imageSubresource = new VkImageSubresourceLayers(VkImageAspectFlags.Color, 0, 0, 1),
                 imageExtent = new VkExtent3D(size, size, depth),
             };
-            _deviceApi.vkCmdCopyImageToBuffer(cmd, image, VkImageLayout.TransferSrcOptimal, buffer.Buffer, 1, &region);
-            PipelineBarrier(cmd, ImageBarrier(image, whole, VkImageLayout.TransferSrcOptimal, VkImageLayout.ShaderReadOnlyOptimal,
+            device.Api.vkCmdCopyImageToBuffer(cmd, image, VkImageLayout.TransferSrcOptimal, buffer.Buffer, 1, &region);
+            device.PipelineBarrier(cmd, ImageBarrier(image, whole, VkImageLayout.TransferSrcOptimal, VkImageLayout.ShaderReadOnlyOptimal,
                 VkPipelineStageFlags2.Transfer, VkAccessFlags2.TransferRead, VkPipelineStageFlags2.AllCommands, VkAccessFlags2.ShaderRead));
-            EndSingleTimeCommands(cmd);
-            return Map(buffer).ToArray();
+            device.EndSingleTimeCommands(cmd);
+            return device.Map(buffer).ToArray();
         }
         finally
         {
@@ -647,25 +656,26 @@ internal sealed unsafe partial class GraphicsDevice
     // stage it is made for, freed once no frame in flight reads them.
     private sealed class FieldRun : IDisposable
     {
+        private readonly SceneFieldStages _stages;
         private readonly GraphicsDevice _device;
         private readonly VkDescriptorPool _pool;
 
-        public FieldRun(GraphicsDevice device, ICommandBuffer commandBuffer, int[] stages)
+        public FieldRun(SceneFieldStages stages, GraphicsDevice device, ICommandBuffer commandBuffer, int[] used)
         {
             if (commandBuffer is not VulkanCommandBuffer vkCmd) throw new ArgumentException("Command buffer was not created by this device.", nameof(commandBuffer));
-            _device = device;
+            (_stages, _device) = (stages, device);
             Commands = vkCmd.Handle;
-            _pool = device.MakeDescriptorPool(stages.Select(stage => (device.FieldStages[stage].Descriptors, 1)));
+            _pool = device.MakeDescriptorPool(used.Select(stage => (stages.FieldStages[stage].Descriptors, 1)));
         }
 
         public VkCommandBuffer Commands { get; }
 
         public VkDescriptorSet Set(int stage)
         {
-            var layout = _device.FieldStages[stage].SetLayout;
+            var layout = _stages.FieldStages[stage].SetLayout;
             var allocInfo = new VkDescriptorSetAllocateInfo { descriptorPool = _pool, descriptorSetCount = 1, pSetLayouts = &layout };
             VkDescriptorSet set;
-            _device._deviceApi.vkAllocateDescriptorSets(&allocInfo, &set).CheckResult();
+            _device.Api.vkAllocateDescriptorSets(&allocInfo, &set).CheckResult();
             return set;
         }
 
@@ -673,7 +683,7 @@ internal sealed unsafe partial class GraphicsDevice
         {
             var image = new VkDescriptorImageInfo { imageView = view, imageLayout = VkImageLayout.General };
             var write = new VkWriteDescriptorSet { dstSet = set, dstBinding = binding, descriptorCount = 1, descriptorType = VkDescriptorType.StorageImage, pImageInfo = &image };
-            _device._deviceApi.vkUpdateDescriptorSets(1, &write, 0, null);
+            _device.Api.vkUpdateDescriptorSets(1, &write, 0, null);
         }
 
         public void Buffer(VkDescriptorSet set, uint binding, VkDescriptorType type, IBuffer buffer)
@@ -681,31 +691,31 @@ internal sealed unsafe partial class GraphicsDevice
             var vk = (VulkanBuffer)buffer;
             var info = new VkDescriptorBufferInfo { buffer = vk.Buffer, offset = 0, range = vk.Description.Size };
             var write = new VkWriteDescriptorSet { dstSet = set, dstBinding = binding, descriptorCount = 1, descriptorType = type, pBufferInfo = &info };
-            _device._deviceApi.vkUpdateDescriptorSets(1, &write, 0, null);
+            _device.Api.vkUpdateDescriptorSets(1, &write, 0, null);
         }
 
         public void Dispatch(int stage, VkDescriptorSet set, ReadOnlySpan<byte> push, uint x, uint y, uint z)
         {
-            var (pipeline, layout, _) = _device.FieldStages[stage];
-            _device._deviceApi.vkCmdBindPipeline(Commands, VkPipelineBindPoint.Compute, pipeline);
-            _device._deviceApi.vkCmdBindDescriptorSets(Commands, VkPipelineBindPoint.Compute, layout, 0, 1, &set, 0, null);
+            var (pipeline, layout, _) = _stages.FieldStages[stage];
+            _device.Api.vkCmdBindPipeline(Commands, VkPipelineBindPoint.Compute, pipeline);
+            _device.Api.vkCmdBindDescriptorSets(Commands, VkPipelineBindPoint.Compute, layout, 0, 1, &set, 0, null);
             fixed (byte* p = push)
-                _device._deviceApi.vkCmdPushConstants(Commands, layout, VkShaderStageFlags.Compute, 0, (uint)push.Length, p);
-            _device._deviceApi.vkCmdDispatch(Commands, Math.Max(1, x), Math.Max(1, y), Math.Max(1, z));
+                _device.Api.vkCmdPushConstants(Commands, layout, VkShaderStageFlags.Compute, 0, (uint)push.Length, p);
+            _device.Api.vkCmdDispatch(Commands, Math.Max(1, x), Math.Max(1, y), Math.Max(1, z));
         }
 
         public void Dispose() => _device.DestroyDescriptorPool(_pool);
     }
 
-    // Runs before the device goes.
-    private void DestroySceneField()
+    /// <inheritdoc />
+    public void Dispose()
     {
         foreach (var (pipeline, layout, setLayout) in _fieldStages.Where(s => s.Pipeline.Handle != 0))
         {
             DeviceObjects.Gone(DeviceObjects.Kind.Pipeline);
-            _deviceApi.vkDestroyPipeline(pipeline);
-            _deviceApi.vkDestroyPipelineLayout(layout);
-            _deviceApi.vkDestroyDescriptorSetLayout(setLayout);
+            device.Api.vkDestroyPipeline(pipeline);
+            device.Api.vkDestroyPipelineLayout(layout);
+            device.Api.vkDestroyDescriptorSetLayout(setLayout);
         }
         Array.Clear(_fieldStages);
         _fieldSpirv = null;

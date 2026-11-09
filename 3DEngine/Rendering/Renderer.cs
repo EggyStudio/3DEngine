@@ -96,7 +96,7 @@ internal sealed class Renderer : IDisposable
             device.InitializeCountedCorners(server.LoadSync<ShaderProgram>("shaders/field_counted.slang").Compute);
             device.InitializeParticles(server.LoadSync<ShaderProgram>("shaders/particle_step.slang").Compute);
             device.InitializeParticleSort(server.LoadSync<ShaderProgram>("shaders/particle_sort.slang").Compute);
-            device.InitializeSceneField(server.LoadSync<ShaderProgram>("shaders/field_splat.slang").Compute,
+            SceneFieldStages.Of(device).InitializeSceneField(server.LoadSync<ShaderProgram>("shaders/field_splat.slang").Compute,
                 server.LoadSync<ShaderProgram>("shaders/field_resolve.slang").Compute,
                 server.LoadSync<ShaderProgram>("shaders/field_stamp.slang").Compute);
             // The probes' trace and its build for a frame where no surface lets light through,

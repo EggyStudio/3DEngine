@@ -193,7 +193,7 @@ internal sealed unsafe partial class GraphicsDevice
             imageView = ((VulkanImageView)depth).View,
             imageLayout = VkImageLayout.ShaderReadOnlyOptimal,
         };
-        field ??= _noField ??= CreateSceneField(1, 1);
+        field ??= _noField ??= SceneFieldStages.Of(this).CreateSceneField(1, 1);
         var fieldImage = new VkDescriptorImageInfo
         {
             sampler = ((VulkanSampler)field.Sampler).Sampler,
