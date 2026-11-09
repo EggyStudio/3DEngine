@@ -41,6 +41,7 @@ held on the next (REVIEW.md, Verdict 67). --pictures copies both pictures of eve
 folder given, which the captures job keeps with its captures, so a pair's frames are compared
 between two runs.
 """
+import glob
 import importlib.util
 import os
 import re
@@ -73,8 +74,16 @@ def sdl_library():
     against, under its own name and the name a program built against it loads it by, libSDL3.so.0.
     The package brings the first alone, so a program linked to the package's folder loads whatever
     SDL3 the system has, and on a machine with none, as the workflow's runner is, fails to start."""
-    with open(os.path.join(ROOT, "3DEngine", "3DEngine.csproj"), encoding="utf-8") as project:
-        version = re.search(r'Include="SDL3-CS\.Native" Version="([^"]+)"', project.read()).group(1)
+    # The project of the library's that references it, whichever of its areas that is.
+    version = None
+    for project in sorted(glob.glob(os.path.join(ROOT, "3DEngine", "**", "*.csproj"), recursive=True)):
+        with open(project, encoding="utf-8") as file:
+            found = re.search(r'Include="SDL3-CS\.Native" Version="([^"]+)"', file.read())
+        if found:
+            version = found.group(1)
+            break
+    if version is None:
+        sys.exit("no project of the library references SDL3-CS.Native")
     library = os.path.expanduser(f"~/.nuget/packages/sdl3-cs.native/{version.lower()}/runtimes/linux-x64/native/libSDL3.so")
     if not os.path.exists(library):
         sys.exit(f"no {library}; build the solution first")

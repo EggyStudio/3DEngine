@@ -849,7 +849,8 @@ jobs:
     needs: linux
     runs-on: ubuntu-24.04
     # 150 minutes leave the games, the soak, the resizes and the README's walk room for lavapipe
-    # compiling every shader again where Mesa's cache is cold.
+    # compiling every shader again where Mesa's cache is cold, and the first wait after a game
+    # opens has ten minutes for the same, its first frames compiling them past e3d's thirty seconds.
     timeout-minutes: 150
     defaults:
       run:
@@ -941,7 +942,7 @@ jobs:
           dotnet restore games/Summit --force-evaluate
           dotnet build games/Summit --no-restore
           build/open-game.sh games/Summit/bin/Debug/net10.0/Summit --offscreen
-          ./e3d command frames.wait 60 --quiet
+          ./e3d command frames.wait 60 --quiet --timeout 600
           ./e3d command input.key Enter 2 --quiet
           ./e3d command input.key W 120 --quiet
           ./e3d shot captures/summit.png --quiet
@@ -994,7 +995,7 @@ jobs:
           dotnet restore games/Rally --force-evaluate
           dotnet build games/Rally --no-restore
           build/open-game.sh games/Rally/bin/Debug/net10.0/Rally --offscreen
-          ./e3d command frames.wait 60 --quiet
+          ./e3d command frames.wait 60 --quiet --timeout 600
           ./e3d command rally.autopilot true --quiet
           ./e3d command input.key Enter 2 --quiet
           ./e3d command frames.wait 640 --quiet --timeout 600
@@ -1028,7 +1029,7 @@ jobs:
           dotnet build games/Manor --no-restore
           rm -f games/Manor/bin/Debug/net10.0/manor-settings.txt
           build/open-game.sh games/Manor/bin/Debug/net10.0/Manor --offscreen
-          ./e3d command frames.wait 60 --quiet
+          ./e3d command frames.wait 60 --quiet --timeout 600
           # Each press held a frame, since ImGui moves again along a direction held a fifth of a
           # second, which two frames pass on a runner drawing the title under five a second, and a
           # first press so moved twice went past Settings to Quit.
@@ -1077,7 +1078,7 @@ jobs:
           dotnet build games/Tactics --no-restore
           rm -f games/Tactics/bin/Debug/net10.0/tactics-save.json
           build/open-game.sh games/Tactics/bin/Debug/net10.0/Tactics --offscreen
-          ./e3d command frames.wait 30 --quiet
+          ./e3d command frames.wait 30 --quiet --timeout 600
           ./e3d command tactics.new 7 --quiet
           ./e3d command frames.wait 10 --quiet
           click() { read -r x y <<< "$(./e3d command tactics.where "$1" "$2")"; ./e3d command input.click "$x" "$y" --quiet; ./e3d command frames.wait 40 --quiet; }
@@ -1142,7 +1143,7 @@ jobs:
           dotnet build games/Tempo --no-restore
           rm -f games/Tempo/bin/Debug/net10.0/tempo-best.txt games/Tempo/bin/Debug/net10.0/tempo-offset.txt
           build/open-game.sh games/Tempo/bin/Debug/net10.0/Tempo --offscreen
-          ./e3d command frames.wait 30 --quiet
+          ./e3d command frames.wait 30 --quiet --timeout 600
           ./e3d command tempo.autopilot true --quiet
           ./e3d command input.key Enter 2 --quiet
           # Captured eight seconds into the song by the music's time, which no runner's speed moves.
@@ -1179,7 +1180,7 @@ jobs:
           dotnet restore games/Sumo --force-evaluate
           dotnet build games/Sumo --no-restore
           build/open-game.sh games/Sumo/bin/Debug/net10.0/Sumo --offscreen
-          ./e3d command frames.wait 30 --quiet
+          ./e3d command frames.wait 30 --quiet --timeout 600
           ./e3d command input.button 1 RightFaceDown 2 --quiet
           ./e3d command frames.wait 200 --quiet --timeout 600
           before=$(./e3d command sumo.status)
@@ -1325,7 +1326,7 @@ jobs:
           build/drive-game.sh Siege
           build/open-game.sh games/Siege/bin/Debug/net10.0/Siege --offscreen
           ./e3d command time.frame 0.0166667 --quiet
-          ./e3d command frames.wait 30 --quiet
+          ./e3d command frames.wait 30 --quiet --timeout 600
           ./e3d command siege.throw 250 40 bomb --quiet
           ./e3d command frames.wait 300 --quiet --timeout 600
           ./e3d command siege.throw 250 40 bomb --quiet
@@ -1423,7 +1424,7 @@ jobs:
           grep -q "exit code 134" build/sessions/FeatureTest.ended ||
             { echo "::error title=feature test::the program did not end on the exception, $(head -n 1 build/sessions/FeatureTest.ended 2> /dev/null)"; exit 1; }
           build/open-game.sh "$program/FeatureTest" --offscreen
-          ./e3d command frames.wait 5 --quiet
+          ./e3d command frames.wait 5 --quiet --timeout 600
           ./e3d stop --quiet
           grep -q "the last crash is written in $(basename "$crash")" build/sessions/FeatureTest.log ||
             { echo "::error title=feature test::the run after the crash did not name its crash file"; exit 1; }

@@ -10,10 +10,12 @@ of .github/REVIEW.md or .github/REVIEW-ARCHIVE.md and the commit that closed it.
 
 Done that day
 
+- Item 226 at `1a66d9a6`. The live path.
 - Item 229 at `f1cc2022`. The reference reads the normal maps.
 - Item 232 at `8dba0d1c`. Three examples drift from raylib's programs.
 - Item 233 at `fae33540`. Comments without readings and costs.
 - Item 234 at `620cfeb4`. The Windows halves' limit.
+- Item 236 at `500730bf`. The build workflow runs on branch pushes alone.
 
 ## 2026-11-08
 

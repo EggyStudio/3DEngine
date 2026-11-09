@@ -61,7 +61,9 @@ for step in games/FirstGame/steps/*.cs; do
 
   if [ "$shots" = "--shots" ]; then
     ./e3d open "$program" --hidden --quiet
-    ./e3d command frames.wait 30 --quiet
+    # The first frames compile the shaders, which a cache cold on its processor holds past e3d's
+    # thirty seconds.
+    ./e3d command frames.wait 30 --quiet --timeout 600
     # A step where the player walks is shown after a walk to the right, toward the first coin.
     case "$n" in 01|02) ;; *) ./e3d command input.key D 45 --quiet ;; esac
     ./e3d command frames.wait 10 --quiet

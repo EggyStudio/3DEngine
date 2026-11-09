@@ -6859,6 +6859,17 @@ at `36cae0c2`.
     every job at 06:42 on 2026-11-09, the captures' pairs within their rooms on an EPYC 7763 and
     Sumo's play through, 6.1.12 published.
 
+110. **The first Windows half ran out of its 120 minutes.** The build run of `8dba0d1c`, pushed at
+    03:25 on 2026-11-09, ended at 05:53 with every job green but the first Windows half, cancelled
+    at its limit of 120 minutes on a push, where it took 60 to 118 in the day's runs before; Linux
+    took 137, as item 231 read the runner's processors to give. Nothing of the two commits'
+    lengthens the half, and the pack run beside it, whose halves have 240, is still going, so the
+    cause is the runner's speed and the limit, not the engine. The job is rerun at 05:55 for the
+    record, and the limit is the coder's item 234. Written at 05:55. Mended at `620cfeb4` on
+    2026-11-09, item 234, the halves at 160 minutes on a push. Settles on the build run of 620cfeb4
+    or a later commit with both halves green within it. Settled on the build run of 1c3c38d5 on
+    2026-11-09, both halves green within 160 minutes, the first in 120 and the second in 75.
+
 ## Decisions
 
 1. **Commits stay local.** The owner pushes `main` from their own tools, and the working session

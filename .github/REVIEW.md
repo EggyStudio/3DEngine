@@ -1,61 +1,62 @@
 # Review
 
-Reviewed up to `ef69de7f`, cut eight's second commit, pushed at 11:56 on 2026-11-09 with `4de5d9b2`
-and `94600503`, the particles as one part that ends cut seven's device work and the renderer's
-console commands to Rendering, one run on the last, green at 13:56 with macOS in 44 minutes, Windows
-in 64 and 93, Linux in 112 and the examples in 8; they keep the form. After it `1d78c3a9`,
-`f2b695c9`, `1a11d7bf`, `620cfeb4` and `1c3c38d5`, cut eight's last two commits, the flat API's
-console commands to Api and the built-in commands that name an area moved to it, then 225's split,
-the engine a project for each area in layers packed at the one version under the package 3DEngine
-with the norm test of the layers and the listings split by project, then 234, the Windows halves at
-160 minutes on a push with their log naming the runner's processor, and the minor to 6.2 for the
-split, pushed together at 14:00 on 2026-11-09 with one run on the last, the last tagged `v6.2.0` and
-the pack run for 6.2.0 with publish started on it at 14:00, since the pack run tests what it packs
-and the split's twelve packages are new names on nuget.org; they keep the form and carry NORM.md's N
-1.1 and N 1.6. The tag's push started a build run of its own on the ref v6.2.0 beside main's, the
-workflow running on any push, and that run's first Windows half failed in a minute at 14:01 on a
-GitHub 500 while downloading Mesa, the host's fault and no verdict, main's run going; the workflow
-runs on branches alone from item 236. After them `fae33540`, 233, the comments saying the reason
-alone in 164 files with STYLE.md's sentence and search, committed at 14:38 on 2026-11-09 and waiting
-on 1c3c38d5's run; it keeps the form and carries the devlog. After it `28a95e70`, 233's two stale
-comments mended, the glow lights' share and the workflow's count of games, comment lines alone,
-committed at 14:39 on 2026-11-09 and waiting with it; it keeps the form. Before it `d8eedc29`, cut
-seven's sixth commit, pushed at 09:33 on 2026-11-09 with `a01f88ea` and `989ab124`, the fourth and
-fifth, the cube filter with the air's sky, the global illumination's device work and the scene
-field's device work as parts the device keeps, one run on the last, green at 11:53 with macOS in 46
-minutes, Windows in 77 and 83, Linux in 132, the longest yet and the shader cache's as item 231
-reads it, and the examples in 8; they keep the form, the first carrying SHARED.md's row. Before it
-`a36b8540`, cut seven's third commit, pushed at 07:39 on 2026-11-09 with `f66c4a54` and `93d96996`,
-the first and second, the reference, the ray scene and the fog as parts over the device's listed
-surface, one run on the last, green at 09:30 with macOS in 44 minutes, Linux in 103, Windows in 108
-and 111 and the examples in 8; they keep the form and carry the review's files. Before it
-`4fe1bfe4`, 225's sixth cut, pushed at 05:55 on 2026-11-09 with `db48a8b5`, `f1422dc2`, `4aff2190`
-and `723bc098`, the second to fifth, one run on the last, which the rerun of 8dba0d1c's Windows half
-cancelled at once through the workflow's one run a branch and which started again at 05:59, green at
-07:37 with macOS in 42 minutes, Windows in 71 and 97, Linux in 72 and the examples in 8; they keep
-the form and carry the review's files. Before it `30a8747f`, 225's first cut, Core naming no area
-above it, and `8dba0d1c`, 232, a device drawing on its CPU taking no anisotropic samples, pushed
-together at 03:25 on 2026-11-09 with one run on the last and the pack run for 6.1.12 with publish
-started on it at 03:25, since the pack run tests what it packs, green at 06:42 with every job, the
-captures within their rooms after 232 and Sumo's play through, the package published and the commit
-tagged `v6.1.12` at 06:45; they keep the form and carry the review's files; the run ended at 05:53
-with Linux green in 137 minutes, macOS in 45, the second Windows half in 77 and the examples in 10,
-and the first Windows half cancelled at its limit of 120 minutes (Verdict 110), rerun at 05:55.
-Before it `9e150e3e`, 225's plan, pushed at 00:47 on 2026-11-09 with `ca037368`, 228 and 230
-recorded, `c8baed4b`, 216 recorded, `77f45030`, 229's switch, and `f1cc2022`, 229's reference
-reading the textures and the normal maps, one run on the last, green at 02:41 with macOS in 42
-minutes, Windows in 78 and 114, Linux in 79 and the examples in 10; they keep the form and carry the
-review's files. Before it `b3c471d9`, 215 as docs, pushed at 22:23 on 2026-11-08 with `fbf35060`,
-227, the comments on their own terms over 48 files, and `e9462fb1`, 218 as docs, one run on the
-last, green at 00:44 on 2026-11-09 with macOS in 38 minutes, the Windows halves in 60 and 107, Linux
-in 133 for the second time where it took 102 in the morning, and the examples in 8; they keep the
-form and carry the review's files. Behind them `f66c4a54`, `93d96996` and `a36b8540`, cut seven's
-first three commits, the reference, the ray scene and the fog as parts over the device's listed
-surface, committed and waiting on that run. Before it `20acb49e`, 223, the device mapping a memory
-block once a buffer the CPU writes is carved from it, which ends the game's play's exit, with 224's
-dots, the README's first line and scenes_sponza's grading comment on its own terms, pushed at 20:24
-on 2026-11-08, its run green at 22:21 with macOS in 43 minutes, Linux in 78, the Windows halves in
-107 and 118 and the examples in 8; it keeps the form and carries the review's files. Before it
+Reviewed up to `1c3c38d5`, the minor to 6.2 for the split, pushed at 14:00 on 2026-11-09 with
+`1d78c3a9`, `f2b695c9`, `1a11d7bf` and `620cfeb4`, cut eight's last two commits, 225's split into a
+project for each area in layers packed at the one version under the package 3DEngine, and 234, the
+Windows halves at 160 minutes on a push, one run on the last, green at 16:00 with macOS in 45
+minutes, Windows in 75 and 120, Linux in 76 and the examples in 11, both halves within 160, which
+settles Verdict 110; the last tagged `v6.2.0`, and the pack run for 6.2.0 with publish started on it
+at 14:00, its captures and games jobs red at 15:44 and 15:39, the bench script's read of the SDL
+version from the root project the split emptied and Sumo's wait of 30 seconds timed out again,
+Verdict 111, its suites green and its pack job to be skipped, so 6.2.0 is not published; they keep
+the form and carry NORM.md's N 1.1 and N 1.6. The tag's push started a build run of its own on the
+ref v6.2.0 beside main's, the workflow running on any push, whose first Windows half failed in a
+minute at 14:01 on a GitHub 500 while downloading Mesa, the host's fault and no verdict; the
+workflow runs on branches alone from item 236. After it `fae33540`, `28a95e70`, `1a66d9a6` and
+`500730bf`, 233's comment sweep in 164 files and its two stale comments mended, 226's first commit,
+a program live where it runs from its own project's build folder with the files the flat API loads
+by name watched and loaded again once quiet, and 236, the build on a push to a branch alone, pushed
+together at 16:04 on 2026-11-09 with one run on the last; they keep the form and carry the devlog.
+Before it `ef69de7f`, cut eight's second commit, pushed at 11:56 on 2026-11-09 with `4de5d9b2` and
+`94600503`, the particles as one part that ends cut seven's device work and the renderer's console
+commands to Rendering, one run on the last, green at 13:56 with macOS in 44 minutes, Windows in 64
+and 93, Linux in 112 and the examples in 8; they keep the form. Before it `d8eedc29`, cut seven's
+sixth commit, pushed at 09:33 on 2026-11-09 with `a01f88ea` and `989ab124`, the fourth and fifth,
+the cube filter with the air's sky, the global illumination's device work and the scene field's
+device work as parts the device keeps, one run on the last, green at 11:53 with macOS in 46 minutes,
+Windows in 77 and 83, Linux in 132, the longest yet and the shader cache's as item 231 reads it, and
+the examples in 8; they keep the form, the first carrying SHARED.md's row. Before it `a36b8540`, cut
+seven's third commit, pushed at 07:39 on 2026-11-09 with `f66c4a54` and `93d96996`, the first and
+second, the reference, the ray scene and the fog as parts over the device's listed surface, one run
+on the last, green at 09:30 with macOS in 44 minutes, Linux in 103, Windows in 108 and 111 and the
+examples in 8; they keep the form and carry the review's files. Before it `4fe1bfe4`, 225's sixth
+cut, pushed at 05:55 on 2026-11-09 with `db48a8b5`, `f1422dc2`, `4aff2190` and `723bc098`, the
+second to fifth, one run on the last, which the rerun of 8dba0d1c's Windows half cancelled at once
+through the workflow's one run a branch and which started again at 05:59, green at 07:37 with macOS
+in 42 minutes, Windows in 71 and 97, Linux in 72 and the examples in 8; they keep the form and carry
+the review's files. Before it `30a8747f`, 225's first cut, Core naming no area above it, and
+`8dba0d1c`, 232, a device drawing on its CPU taking no anisotropic samples, pushed together at 03:25
+on 2026-11-09 with one run on the last and the pack run for 6.1.12 with publish started on it at
+03:25, since the pack run tests what it packs, green at 06:42 with every job, the captures within
+their rooms after 232 and Sumo's play through, the package published and the commit tagged `v6.1.12`
+at 06:45; they keep the form and carry the review's files; the run ended at 05:53 with Linux green
+in 137 minutes, macOS in 45, the second Windows half in 77 and the examples in 10, and the first
+Windows half cancelled at its limit of 120 minutes (Verdict 110), rerun at 05:55. Before it
+`9e150e3e`, 225's plan, pushed at 00:47 on 2026-11-09 with `ca037368`, 228 and 230 recorded,
+`c8baed4b`, 216 recorded, `77f45030`, 229's switch, and `f1cc2022`, 229's reference reading the
+textures and the normal maps, one run on the last, green at 02:41 with macOS in 42 minutes, Windows
+in 78 and 114, Linux in 79 and the examples in 10; they keep the form and carry the review's files.
+Before it `b3c471d9`, 215 as docs, pushed at 22:23 on 2026-11-08 with `fbf35060`, 227, the comments
+on their own terms over 48 files, and `e9462fb1`, 218 as docs, one run on the last, green at 00:44
+on 2026-11-09 with macOS in 38 minutes, the Windows halves in 60 and 107, Linux in 133 for the
+second time where it took 102 in the morning, and the examples in 8; they keep the form and carry
+the review's files. Behind them `f66c4a54`, `93d96996` and `a36b8540`, cut seven's first three
+commits, the reference, the ray scene and the fog as parts over the device's listed surface,
+committed and waiting on that run. Before it `20acb49e`, 223, the device mapping a memory block once
+a buffer the CPU writes is carved from it, which ends the game's play's exit, with 224's dots, the
+README's first line and scenes_sponza's grading comment on its own terms, pushed at 20:24 on
+2026-11-08, its run green at 22:21 with macOS in 43 minutes, Linux in 78, the Windows halves in 107
+and 118 and the examples in 8; it keeps the form and carries the review's files. Before it
 `eda81295`, 219, the owner's flicker placed in a carried probe's sky share and mark written from
 each frame's places and mended by keeping both over the cycle, pushed at 18:07 on 2026-11-08, its
 run green at 20:22 with macOS in 45 minutes, the Windows halves in 77 and 117, Linux in 124 and the
@@ -5087,7 +5088,19 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     changed in place, and the scenes loaded by name, their entities despawned and the file spawned
     again with the old handles refused as despawned ones are, said in the log. The behaviors and the
     asset server's handles are live already; the engine's own shaders and code stay a restart;
-    Config.Live is the one public change, with the command.
+    Config.Live is the one public change, with the command. First commit done at `1a66d9a6` on
+    2026-11-09: Config.Live is null by default, live where the program runs from its own project's
+    build folder, a project file three folders up named for the program or naming it as the
+    assembly, so the examples and the games are live and a shipped game and the test host are not;
+    the command line's live switches and the E3D_LIVE variable override, and the switch turns on the
+    asset server's watch; LiveFiles in Api/Systems remembers each by-name load with its kind, id and
+    reload and watches the project's copy when running from the build folder, one shared watch a
+    folder; a first-stage system reloads a file once it has been quiet 150 milliseconds and logs it
+    under the live log; e3d's live command lists the files with their last reload and turns the
+    path, E3D.md having the line; the tests' waits on the watch stand on build/norm/3.3.txt with
+    their reason after a first suite caught them; the listing gains Config.Live; the suite 2,305 in
+    order and shuffled. The second, the shaders, is next, the model and immediate passes comparing
+    the program they built from with the store's current one, as the tonemap does.
 
 227. **Comments on the code's own terms.** Decision 103 on 2026-11-08. The comment over
     scenes_sponza's grading goes first, in 223's commit, saying that the frame is graded by the AgX
@@ -5284,21 +5297,30 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     started on the same commit, two runs of one commit, since the workflow runs on any push; a tag
     marks a commit whose push already runs, so the workflow's push trigger names the branches and
     leaves the tags out, the pack workflow unchanged. A workflow change alone, with the next commit
-    that touches the workflows or on its own before 226's second commit.
+    that touches the workflows or on its own before 226's second commit. Done at `500730bf` on
+    2026-11-09, build.yml's push naming the branches, pull requests and the pack run's call
+    unchanged, a workflow change alone.
 
 ## Verdicts
 
-Verdicts 56 to 109 are settled, said under each in REVIEW-ARCHIVE.md; Verdict 110 is open on the Windows half's limit.
+Verdicts 56 to 110 are settled, said under each in REVIEW-ARCHIVE.md; Verdict 111 is open on the pack run for 6.2.0.
 
-110. **The first Windows half ran out of its 120 minutes.** The build run of `8dba0d1c`, pushed at
-    03:25 on 2026-11-09, ended at 05:53 with every job green but the first Windows half, cancelled
-    at its limit of 120 minutes on a push, where it took 60 to 118 in the day's runs before; Linux
-    took 137, as item 231 read the runner's processors to give. Nothing of the two commits'
-    lengthens the half, and the pack run beside it, whose halves have 240, is still going, so the
-    cause is the runner's speed and the limit, not the engine. The job is rerun at 05:55 for the
-    record, and the limit is the coder's item 234. Written at 05:55. Mended at `620cfeb4` on
-    2026-11-09, item 234, the halves at 160 minutes on a push. Settles on the build run of 620cfeb4
-    or a later commit with both halves green within it.
+111. **Two jobs of the pack run for 6.2.0 are red, the bench script and Sumo's wait.** The pack run
+    of `1c3c38d5`, started at 14:00 on 2026-11-09 for the first package of the split, has its
+    captures job red after 27 minutes and its games job red after 22, the three suites and the
+    examples green. The captures job drew all 265 examples on an EPYC 9V45 and then failed before
+    measuring any, build/raylib-bench/compare.py reading the SDL3-CS.Native version from
+    3DEngine/3DEngine.csproj, where the split moved that reference to
+    3DEngine/Platform/3DEngine.Platform.csproj, so the search finds nothing; the split's, item
+    225's. The games job built Sumo from the package on an EPYC 7763, which served after 8 seconds,
+    and the wait for 30 frames timed out at 30 seconds with the process running and the log holding
+    the validation note on an unconsumed vertex attribute alone, as at Verdict 109, which ruled that
+    a second timeout makes the item the coder's with the games step's wait given the cold compile's
+    time. The mend is one commit of the script and the workflow, the script reading the version from
+    the project that holds the reference, found by search over the library's project files rather
+    than named, and the games step's wait on Sumo's first frames long enough for a cold compile,
+    with 226's second commit or before it; the run's pack job is skipped behind the two, so 6.2.0 is
+    not published, and 6.2 publishes from a pack run after the mend. Written at 15:52 on 2026-11-09.
 
 ## Decisions
 
@@ -7616,3 +7638,11 @@ are on N 3.3's list with their reason. The public listing gains Config.Live.
 236 written on 2026-11-09, the build on branches alone. build.yml's push names its branches beside
 its paths, so a tag pushed on a commit a branch's run already builds starts no run of its own, the
 pull requests and the pack run's call as they were. A workflow change alone.
+
+Verdict 111's mend written on 2026-11-09. build/raylib-bench/compare.py finds the version of
+SDL3-CS.Native it links raylib against in whichever of the library's project files references it,
+by a search over them, where it read the root project, which the split left without it. The first
+wait after each game opens in the games job and in build/first-game.sh, Summit's, Rally's, Manor's,
+Tactics', Tempo's, Sumo's, Siege's and the feature test's, has e3d's ten minutes, since its first
+frames compile the shaders where Mesa's cache is cold, past the thirty seconds a command waits
+otherwise, as the job's comment says. A script and workflow change alone.
