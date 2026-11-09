@@ -7612,3 +7612,7 @@ has been quiet a sixth of a second, since an editor saves in more than one write
 under Engine.Live. e3d's live lists the files with their last reload and turns the watch on or off,
 in E3D.md's catalog. The kinds come with the next commits. The tests' waits on the system's watch
 are on N 3.3's list with their reason. The public listing gains Config.Live.
+
+236 written on 2026-11-09, the build on branches alone. build.yml's push names its branches beside
+its paths, so a tag pushed on a commit a branch's run already builds starts no run of its own, the
+pull requests and the pack run's call as they were. A workflow change alone.

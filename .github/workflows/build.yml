@@ -20,9 +20,11 @@ name: build
 
 # Documents and captures are left out, apart from the README and BUILDING.md, whose steps the
 # examples job follows. A later pattern overrides an earlier one, so BUILDING.md comes after the
-# rule leaving out the other Markdown under .github.
+# rule leaving out the other Markdown under .github. A push runs on its branches alone, so a tag
+# set on a commit a branch's run already builds starts no run of its own.
 on:
   push:
+    branches: ['**']
     paths: ['**', '!.github/**.md', '.github/BUILDING.md', '!AGENTS.md', '!games/**.md', '!.github/assets/**']
   pull_request:
     paths: ['**', '!.github/**.md', '.github/BUILDING.md', '!AGENTS.md', '!games/**.md', '!.github/assets/**']
