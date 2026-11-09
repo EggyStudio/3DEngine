@@ -1,4 +1,5 @@
 using Vortice.Vulkan;
+using static Engine.GraphicsDevice;
 
 namespace Engine;
 
@@ -20,7 +21,7 @@ namespace Engine;
 /// sampler, so a frame that makes them again needs no move of their layout.
 /// </para>
 /// </remarks>
-internal sealed unsafe partial class GraphicsDevice
+internal sealed unsafe partial class CubeFilter
 {
     private const int AirTransmittanceStage = 5, AirScatterStage = 6, AirSkyStage = 7;
 
@@ -37,10 +38,10 @@ internal sealed unsafe partial class GraphicsDevice
     /// </summary>
     public void InitializeAtmosphere(ReadOnlySpan<byte> transmittance, ReadOnlySpan<byte> scatter, ReadOnlySpan<byte> sky)
     {
-        if (!IsInitialized || CanDrawAir) return;
-        _filterStages[AirTransmittanceStage] = MakeComputeStage(transmittance, [VkDescriptorType.StorageImage], AirSky.PushSize);
-        _filterStages[AirScatterStage] = MakeComputeStage(scatter, [VkDescriptorType.CombinedImageSampler, VkDescriptorType.StorageImage], AirSky.PushSize);
-        _filterStages[AirSkyStage] = MakeComputeStage(sky,
+        if (!device.IsInitialized || CanDrawAir) return;
+        _filterStages[AirTransmittanceStage] = device.MakeComputeStage(transmittance, [VkDescriptorType.StorageImage], AirSky.PushSize);
+        _filterStages[AirScatterStage] = device.MakeComputeStage(scatter, [VkDescriptorType.CombinedImageSampler, VkDescriptorType.StorageImage], AirSky.PushSize);
+        _filterStages[AirSkyStage] = device.MakeComputeStage(sky,
             [VkDescriptorType.CombinedImageSampler, VkDescriptorType.CombinedImageSampler, VkDescriptorType.StorageImage], AirSky.PushSize);
     }
 
@@ -53,7 +54,7 @@ internal sealed unsafe partial class GraphicsDevice
     private void RecordAirSky(FilterRun run, VkCommandBuffer cmd, IImage image, AirSky air)
     {
         if (!CanDrawAir) throw new InvalidOperationException("The air's shaders have not been given.");
-        var sampler = _filterSampler ??= CreateSampler(new SamplerDesc(SamplerFilter.Linear, SamplerFilter.Linear,
+        var sampler = _filterSampler ??= device.CreateSampler(new SamplerDesc(SamplerFilter.Linear, SamplerFilter.Linear,
             SamplerAddressMode.ClampToEdge, SamplerAddressMode.ClampToEdge, SamplerAddressMode.ClampToEdge));
         var transmittance = _airTransmittance ??= Table(AirSky.TransmittanceAngles, AirSky.TransmittanceHeights, "Air's transmittance");
         var scatter = _airScatter ??= Table(AirSky.ScatterAngles, AirSky.ScatterHeights, "Air's light scattered more than once");
@@ -64,7 +65,7 @@ internal sealed unsafe partial class GraphicsDevice
             // After any frame's reading of the tables, the transmittance and then the scattering
             // read from it.
             var first = _airTabled is null;
-            PipelineBarrier(cmd, [
+            device.PipelineBarrier(cmd, [
                 ImageLayoutBarrier(transmittance.Image, first ? VkImageLayout.Undefined : VkImageLayout.General, VkImageLayout.General,
                     VkPipelineStageFlags2.ComputeShader, VkAccessFlags2.ShaderRead, VkPipelineStageFlags2.ComputeShader, VkAccessFlags2.ShaderWrite),
                 ImageLayoutBarrier(scatter.Image, first ? VkImageLayout.Undefined : VkImageLayout.General, VkImageLayout.General,
@@ -82,30 +83,30 @@ internal sealed unsafe partial class GraphicsDevice
         }
 
         var (width, height) = (image.Description.Extent.Width, image.Description.Extent.Height);
-        var level = CreateFirstLevelView(image);
+        var level = device.CreateFirstLevelView(image);
         run.Holds(level);
-        PipelineBarrier(cmd, ImageLayoutBarrier(image, VkImageLayout.Undefined, VkImageLayout.General,
+        device.PipelineBarrier(cmd, ImageLayoutBarrier(image, VkImageLayout.Undefined, VkImageLayout.General,
             VkPipelineStageFlags2.None, VkAccessFlags2.None, VkPipelineStageFlags2.ComputeShader, VkAccessFlags2.ShaderWrite));
         var set = run.Set(AirSkyStage);
         run.Image(set, 0, VkDescriptorType.CombinedImageSampler, Of(transmittance.View), sampler, VkImageLayout.General);
         run.Image(set, 1, VkDescriptorType.CombinedImageSampler, Of(scatter.View), sampler, VkImageLayout.General);
         run.Image(set, 2, VkDescriptorType.StorageImage, Of(level), null, VkImageLayout.General);
         run.DispatchArea(AirSkyStage, set, air.PushFor(width, height), width, height);
-        PipelineBarrier(cmd, ImageLayoutBarrier(image, VkImageLayout.General, VkImageLayout.TransferDstOptimal,
+        device.PipelineBarrier(cmd, ImageLayoutBarrier(image, VkImageLayout.General, VkImageLayout.TransferDstOptimal,
             VkPipelineStageFlags2.ComputeShader, VkAccessFlags2.ShaderWrite, VkPipelineStageFlags2.Transfer, VkAccessFlags2.TransferRead | VkAccessFlags2.TransferWrite));
-        RecordMipChain(cmd, (VulkanImage)image);
+        device.RecordMipChain(cmd, (VulkanImage)image);
     }
 
     // A table of half floats a pass writes and samples.
     private (IImage Image, IImageView View) Table(uint width, uint height, string name)
     {
-        var image = CreateImage(new ImageDesc(new Extent2D(width, height), ImageFormat.R16G16B16A16_Float, ImageUsage.Sampled | ImageUsage.Storage));
-        Name(image, name);
-        return (image, CreateImageView(image));
+        var image = device.CreateImage(new ImageDesc(new Extent2D(width, height), ImageFormat.R16G16B16A16_Float, ImageUsage.Sampled | ImageUsage.Storage));
+        device.Name(image, name);
+        return (image, device.CreateImageView(image));
     }
 
     // What one dispatch of the air wrote is seen by the next that reads it.
-    private void AirBetween(VkCommandBuffer cmd) => MemoryBarrier(cmd, VkPipelineStageFlags2.ComputeShader, VkAccessFlags2.ShaderWrite,
+    private void AirBetween(VkCommandBuffer cmd) => device.MemoryBarrier(cmd, VkPipelineStageFlags2.ComputeShader, VkAccessFlags2.ShaderWrite,
         VkPipelineStageFlags2.ComputeShader, VkAccessFlags2.ShaderRead);
 
     // Lets the tables go with the device.

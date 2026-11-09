@@ -12,7 +12,7 @@ namespace Engine;
 /// <para>
 /// The image has longitude across and latitude down, its top row straight up, decoded from sRGB or
 /// read as linear light from a Radiance file. The frame that first sees a map uploads the image
-/// with its mips and filters it on the GPU (<see cref="GraphicsDevice.RecordEnvironmentFilter"/>):
+/// with its mips and filters it on the GPU (<see cref="CubeFilter.RecordEnvironmentFilter"/>):
 /// resampled into a cube, mip 0 for a mirror and each mip after it the light as a surface of
 /// roughness <c>mip / (mips - 1)</c> reflects it, by GGX importance sampling around the direction
 /// it is looked up by, as Brian Karis's split sum takes it.

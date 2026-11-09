@@ -330,29 +330,29 @@ internal sealed partial class ModelRenderer
     /// Filters the environment map on the GPU in the frame that first sees it, before any pass
     /// samples it, its image uploaded with its mips, resampled into a cube prefiltered by
     /// roughness with its irradiance, and into the sky's cube
-    /// (<see cref="GraphicsDevice.RecordEnvironmentFilter"/>). The cubes it replaces are kept until
+    /// (<see cref="CubeFilter.RecordEnvironmentFilter"/>). The cubes it replaces are kept until
     /// no frame in flight reads them.
     /// </summary>
     internal void FilterEnvironment(RenderContext renderContext, RenderWorld renderWorld)
     {
-        if (renderContext.Device is not GraphicsDevice { CanFilterProbes: true } device) return;
+        if (renderContext.Device is not GraphicsDevice device || !CubeFilter.Of(device).CanFilterProbes) return;
         if (renderWorld.TryGet<EnvironmentMap>() is not { } environment || ReferenceEquals(environment, _environmentSource)) return;
 
         if (_environment is not null) _retiredCubes.Add((_frames, _environment));
         if (_sky is not null) _retiredCubes.Add((_frames, _sky));
         var (width, height) = ((uint)environment.Width, (uint)environment.Height);
         // An air's map is drawn into its image by the GPU in this frame, and a map of pixels uploaded.
-        var air = environment.Air is not null && device.CanDrawAir ? environment.Air : null;
+        var air = environment.Air is not null && CubeFilter.Of(device).CanDrawAir ? environment.Air : null;
         var image = device.CreateImage(new ImageDesc(new Extent2D(width, height), ImageFormat.R16G16B16A16_Float,
             ImageUsage.Sampled | ImageUsage.TransferDst | ImageUsage.TransferSrc | (air is null ? 0 : ImageUsage.Storage), (uint)Math.Log2(Math.Max(width, height)) + 1));
         if (air is null)
             device.UploadTexture2D(image, System.Runtime.InteropServices.MemoryMarshal.AsBytes(environment.Pixels.AsSpan()), width, height, 8);
         var view = device.CreateImageView(image);
-        _environment = device.CreateFilteredCube((uint)environment.Size, (uint)environment.MipLevels);
-        _sky = device.CreateFilteredCube((uint)environment.SkySize, 1, irradiance: false);
+        _environment = CubeFilter.Of(device).CreateFilteredCube((uint)environment.Size, (uint)environment.MipLevels);
+        _sky = CubeFilter.Of(device).CreateFilteredCube((uint)environment.SkySize, 1, irradiance: false);
         device.Name(_environment.Image, "Environment map");
         device.Name(_sky.Image, "Sky");
-        var filter = device.RecordEnvironmentFilter(renderContext.CommandBuffer, view, height, _environment, _sky, air);
+        var filter = CubeFilter.Of(device).RecordEnvironmentFilter(renderContext.CommandBuffer, view, height, _environment, _sky, air);
         // The image is read by this frame's filter alone.
         _retiredCubes.Add((_frames, filter));
         _retiredCubes.Add((_frames, view));
@@ -388,12 +388,13 @@ internal sealed partial class ModelRenderer
     /// <remarks>
     /// All six faces in one frame cost it 3 to 5 ms while a level streamed rooms in, each bringing
     /// a probe to capture twice, and a face a frame costs a sixth of that. The filter
-    /// (<see cref="GraphicsDevice.RecordProbeFilter"/>) is recorded after the last face, so its cube
+    /// (<see cref="CubeFilter.RecordProbeFilter"/>) is recorded after the last face, so its cube
     /// and irradiance are on the GPU for the frames after, with nothing read back.
     /// </remarks>
     public void CaptureProbes(RenderContext renderContext, RenderWorld renderWorld)
     {
-        if (renderWorld.TryGet<ReflectionProbes>() is not { } probes || renderContext.Device is not GraphicsDevice { CanFilterProbes: true } device) return;
+        if (renderWorld.TryGet<ReflectionProbes>() is not { } probes || renderContext.Device is not GraphicsDevice device
+            || !CubeFilter.Of(device).CanFilterProbes) return;
         if (renderWorld.TryGet<ModelDrawList>() is not { IsEmpty: false } draws) return;
         var source = draws.WindowViewProjection is not null ? 0 : draws.Targets() is [var first, ..] ? first : (int?)null;
         if (source is null) return;
@@ -442,9 +443,9 @@ internal sealed partial class ModelRenderer
 
         // The last face drawn, the probe's map is filtered from all six, and the next probe waits
         // for the next frame.
-        var map = device.CreateFilteredCube(ProbeMapSize);
+        var map = CubeFilter.Of(device).CreateFilteredCube(ProbeMapSize);
         device.Name(map.Image, "Reflection probe");
-        var filter = device.RecordProbeFilter(renderContext.CommandBuffer, [.. _probeFaces.Select(f => f.ColorView)], capture.ViewProjections,
+        var filter = CubeFilter.Of(device).RecordProbeFilter(renderContext.CommandBuffer, [.. _probeFaces.Select(f => f.ColorView)], capture.ViewProjections,
             capture.Wanted.Position, map);
         _retiredCubes.Add((_frames, filter));
         _probeMaps.Add(map);

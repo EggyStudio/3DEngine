@@ -232,7 +232,7 @@ public sealed partial class OffscreenRenderTests
     {
         var map = GetApp().World.Resource<ReflectionProbes>().ByEntity.Values.Single().Map!;
         var device = (GraphicsDevice)GetApp().World.Resource<Engine.Renderer>().Context.Graphics!;
-        return (device.ReadCubeFaces(map), (int)map.Size);
+        return (CubeFilter.Of(device).ReadCubeFaces(map), (int)map.Size);
     }
 
     [NeedsVulkanFact]

@@ -1,31 +1,35 @@
 # Review
 
-Reviewed up to `9e150e3e`, 225's plan, pushed at 00:47 on 2026-11-09 with `ca037368`, 228 and 230
-recorded, `c8baed4b`, 216 recorded, `77f45030`, 229's switch, and `f1cc2022`, 229's reference
-reading the textures and the normal maps, one run on the last, green at 02:41 with macOS in 42
-minutes, Windows in 78 and 114, Linux in 79 and the examples in 10; they keep the form and carry the
-review's files. After it `30a8747f`, 225's first cut, Core naming no area above it, and `8dba0d1c`,
-232, a device drawing on its CPU taking no anisotropic samples, pushed together at 03:25 on
-2026-11-09 with one run on the last and the pack run for 6.1.12 with publish started on it at 03:25,
-since the pack run tests what it packs, green at 06:42 with every job, the captures within their
-rooms after 232 and Sumo's play through, the package published and the commit tagged `v6.1.12` at
-06:45; they keep the form and carry the review's files; the run ended at 05:53 with Linux green in
-137 minutes, macOS in 45, the second Windows half in 77 and the examples in 10, and the first
-Windows half cancelled at its limit of 120 minutes (Verdict 110), rerun at 05:55. After them
-`db48a8b5`, `f1422dc2`, `4aff2190`, `723bc098` and `4fe1bfe4`, 225's second to sixth cuts, pushed
-together at 05:55 with one run on the last, which the rerun of 8dba0d1c's Windows half cancelled at
-once through the workflow's one run a branch, so the run is started again at 05:59 and the half's
-rerun gives way to it; they keep the form and carry the review's files. Before it `b3c471d9`, 215 as
-docs, pushed at 22:23 on 2026-11-08 with `fbf35060`, 227, the comments on their own terms over 48
-files, and `e9462fb1`, 218 as docs, one run on the last, green at 00:44 on 2026-11-09 with macOS in
-38 minutes, the Windows halves in 60 and 107, Linux in 133 for the second time where it took 102 in
-the morning, and the examples in 8; they keep the form and carry the review's files. Behind them
-`f66c4a54`, cut seven's first commit, the reference a part of the device with the device's surface
-listed, committed and waiting on that run. Before it `20acb49e`, 223, the device mapping a memory
-block once a buffer the CPU writes is carved from it, which ends the game's play's exit, with 224's
-dots, the README's first line and scenes_sponza's grading comment on its own terms, pushed at 20:24
-on 2026-11-08, its run green at 22:21 with macOS in 43 minutes, Linux in 78, the Windows halves in
-107 and 118 and the examples in 8; it keeps the form and carries the review's files. Before it
+Reviewed up to `4fe1bfe4`, 225's sixth cut, pushed at 05:55 on 2026-11-09 with `db48a8b5`,
+`f1422dc2`, `4aff2190` and `723bc098`, the second to fifth, one run on the last, which the rerun of
+8dba0d1c's Windows half cancelled at once through the workflow's one run a branch and which started
+again at 05:59, green at 07:37 with macOS in 42 minutes, Windows in 71 and 97, Linux in 72 and the
+examples in 8; they keep the form and carry the review's files. After it `f66c4a54`, `93d96996` and
+`a36b8540`, cut seven's first three commits, the reference, the ray scene and the fog as parts over
+the device's listed surface, pushed together at 07:39 with one run on the last; they keep the form
+and carry the review's files. Before it `30a8747f`, 225's first cut, Core naming no area above it,
+and `8dba0d1c`, 232, a device drawing on its CPU taking no anisotropic samples, pushed together at
+03:25 on 2026-11-09 with one run on the last and the pack run for 6.1.12 with publish started on it
+at 03:25, since the pack run tests what it packs, green at 06:42 with every job, the captures within
+their rooms after 232 and Sumo's play through, the package published and the commit tagged `v6.1.12`
+at 06:45; they keep the form and carry the review's files; the run ended at 05:53 with Linux green
+in 137 minutes, macOS in 45, the second Windows half in 77 and the examples in 10, and the first
+Windows half cancelled at its limit of 120 minutes (Verdict 110), rerun at 05:55. Before it
+`9e150e3e`, 225's plan, pushed at 00:47 on 2026-11-09 with `ca037368`, 228 and 230 recorded,
+`c8baed4b`, 216 recorded, `77f45030`, 229's switch, and `f1cc2022`, 229's reference reading the
+textures and the normal maps, one run on the last, green at 02:41 with macOS in 42 minutes, Windows
+in 78 and 114, Linux in 79 and the examples in 10; they keep the form and carry the review's files.
+Before it `b3c471d9`, 215 as docs, pushed at 22:23 on 2026-11-08 with `fbf35060`, 227, the comments
+on their own terms over 48 files, and `e9462fb1`, 218 as docs, one run on the last, green at 00:44
+on 2026-11-09 with macOS in 38 minutes, the Windows halves in 60 and 107, Linux in 133 for the
+second time where it took 102 in the morning, and the examples in 8; they keep the form and carry
+the review's files. Behind them `f66c4a54`, `93d96996` and `a36b8540`, cut seven's first three
+commits, the reference, the ray scene and the fog as parts over the device's listed surface,
+committed and waiting on that run. Before it `20acb49e`, 223, the device mapping a memory block once
+a buffer the CPU writes is carved from it, which ends the game's play's exit, with 224's dots, the
+README's first line and scenes_sponza's grading comment on its own terms, pushed at 20:24 on
+2026-11-08, its run green at 22:21 with macOS in 43 minutes, Linux in 78, the Windows halves in 107
+and 118 and the examples in 8; it keeps the form and carries the review's files. Before it
 `eda81295`, 219, the owner's flicker placed in a carried probe's sky share and mark written from
 each frame's places and mended by keeping both over the cycle, pushed at 18:07 on 2026-11-08, its
 run green at 20:22 with macOS in 45 minutes, the Windows halves in 77 and 117, Linux in 124 and the
@@ -4953,7 +4957,15 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     compares and build/api.sh writes; the listing unchanged and the suite 2,284 in order and
     shuffled. The ray queries follow as extension members in Rendering, keeping no state on the
     device, then global illumination, the scene field, the fog, the atmosphere and the cube filter
-    as parts. It waits on 4fe1bfe4's run.
+    as parts. It waits on 4fe1bfe4's run. Cut seven's second and third commits, `93d96996` and
+    `a36b8540` by 07:25, move the ray scene and its device code to Rendering as extension members
+    with the call sites unchanged, the addressed buffer staying in Graphics and the listing gaining
+    the set handle, which keeps the descriptor-set class and its pool private, and the command
+    buffer class; and make the fog's stages a part reached through the device, the reference tracer
+    the same, opening the image class and the probe image, which moves to a device file at global
+    illumination's cut. The suite 2,284 in order and shuffled for each. The cube filter with the
+    atmosphere is next, the compute stage to a device file of its own. The three wait on 4fe1bfe4's
+    run.
 
 226. **The live path.** Decision 102 on 2026-11-08. A watcher over a program's shaders, assets,
     scenes and behavior scripts, which recompiles a changed shader through slangc and swaps its
@@ -7271,3 +7283,14 @@ taking the same Of. The listing reads the fog's four members gone from the devic
 class opened, and ProbeImage, the 3D image of half floats the fog and the global illumination both
 make, opened where it stands in the illumination's file, to go to a file of the device's own when
 the illumination's cut moves the rest. The public listing is unchanged.
+
+225's seventh cut's fourth commit written on 2026-11-09, the cube filter with the air. The filter of
+a probe's faces and of an environment's image into a cube prefiltered by roughness with its
+irradiance, and the air's sky drawn into the environment's image ahead of it, which share one array
+of stages, one sampler and one run, move to Rendering's lighting as one part, CubeFilter, over two
+files, CubeFilter.cs and CubeFilter.Atmosphere.cs, with FilteredCube, and the model pass, the
+renderer and the tests that read a cube back ask CubeFilter.Of(device). The compute stage and its making,
+which every part records through, go to a file of the device's own, GraphicsDevice.ComputeStages.cs.
+The listing reads the filter's and the air's members gone from the device and three opened, the
+barrier for one image, the barrier moving an image's every level and the mip chain's recording.
+The public listing is unchanged.

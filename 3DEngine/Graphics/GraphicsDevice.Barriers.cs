@@ -45,7 +45,7 @@ internal sealed unsafe partial class GraphicsDevice
     }
 
     /// <summary>Records one image barrier.</summary>
-    private void PipelineBarrier(VkCommandBuffer cmd, VkImageMemoryBarrier2 image) => PipelineBarrier(cmd, [image]);
+    internal void PipelineBarrier(VkCommandBuffer cmd, VkImageMemoryBarrier2 image) => PipelineBarrier(cmd, [image]);
 
     /// <summary>Records a memory barrier alone, which covers every buffer and image.</summary>
     internal void MemoryBarrier(VkCommandBuffer cmd, VkPipelineStageFlags2 srcStage, VkAccessFlags2 srcAccess,

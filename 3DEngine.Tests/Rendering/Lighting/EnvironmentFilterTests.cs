@@ -37,7 +37,7 @@ public sealed class EnvironmentFilterTests : IDisposable
     // The texel at the middle of a face of a mip.
     private static Vector3 Middle(GraphicsDevice device, FilteredCube cube, int mip, int face)
     {
-        var texels = device.ReadCubeFaces(cube, (uint)mip);
+        var texels = CubeFilter.Of(device).ReadCubeFaces(cube, (uint)mip);
         int s = (int)Math.Max(1, cube.Size >> mip);
         int at = ((face * s + s / 2) * s + s / 2) * 4;
         return new Vector3((float)texels[at], (float)texels[at + 1], (float)texels[at + 2]);
@@ -60,7 +60,7 @@ public sealed class EnvironmentFilterTests : IDisposable
     // The mean light over every direction of a mip, each texel weighted by the solid angle it covers.
     private static float MeanLight(GraphicsDevice device, FilteredCube cube, int mip)
     {
-        var texels = device.ReadCubeFaces(cube, (uint)mip);
+        var texels = CubeFilter.Of(device).ReadCubeFaces(cube, (uint)mip);
         int s = (int)Math.Max(1, cube.Size >> mip);
         double total = 0, weights = 0;
         for (int face = 0; face < 6; face++)
@@ -84,7 +84,7 @@ public sealed class EnvironmentFilterTests : IDisposable
         cube.MipLevels.Should().Be(5);
         for (int mip = 0; mip < cube.MipLevels; mip++)
             Middle(device, cube, mip, 4).Y.Should().BeApproximately(0.5f, 0.01f, "sRGB 188 is half the light, however rough");
-        var irradiance = device.ReadCubeIrradiance(cube);
+        var irradiance = CubeFilter.Of(device).ReadCubeIrradiance(cube);
         foreach (var normal in new[] { Vector3.UnitY, -Vector3.UnitY, Vector3.UnitX, new Vector3(1, 1, -1) })
             IrradianceAt(irradiance, normal).Y.Should().BeApproximately(0.5f, 0.01f, "the whole sky's light, weighted by the cosine and divided by pi, is the sky's own");
     }
@@ -99,7 +99,7 @@ public sealed class EnvironmentFilterTests : IDisposable
         for (int i = 0; i < 64 * 32; i++) data[i * 4 + 3] = 255;
         var (cube, device) = Filtered(EnvironmentMap.FromEquirectangular(new Image(data, 64, 32), faceSize: 16));
 
-        var irradiance = device.ReadCubeIrradiance(cube);
+        var irradiance = CubeFilter.Of(device).ReadCubeIrradiance(cube);
         IrradianceAt(irradiance, Vector3.UnitY).X.Should().BeApproximately(1f, 0.1f);
         IrradianceAt(irradiance, Vector3.UnitZ).X.Should().BeApproximately(0.5f, 0.05f);
         IrradianceAt(irradiance, -Vector3.UnitY).X.Should().BeApproximately(0f, 0.1f);

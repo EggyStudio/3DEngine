@@ -110,12 +110,12 @@ internal sealed class Renderer : IDisposable
                 Build("gi_trace.slang", ["NO_LIGHT_THROUGH"], "The probes' rays cross what lets light through in every frame")?.Compute,
                 device.CanQueryRays ? Build("gi_trace.slang", ["RAY_QUERY", "NO_LIGHT_THROUGH"], "The probes' rays are traced through the field alone")?.Compute : default,
                 device.CanQueryRays ? Build("gi_trace.slang", ["RAY_QUERY"], "The probes' rays cross what lets light through in the field alone")?.Compute : default);
-            device.InitializeProbeFilter(server.LoadSync<ShaderProgram>("shaders/probe_gather.slang").Compute,
+            CubeFilter.Of(device).InitializeProbeFilter(server.LoadSync<ShaderProgram>("shaders/probe_gather.slang").Compute,
                 server.LoadSync<ShaderProgram>("shaders/probe_mips.slang").Compute,
                 server.LoadSync<ShaderProgram>("shaders/probe_prefilter.slang").Compute,
                 server.LoadSync<ShaderProgram>("shaders/probe_irradiance.slang").Compute,
                 server.LoadSync<ShaderProgram>("shaders/env_gather.slang").Compute);
-            device.InitializeAtmosphere(server.LoadSync<ShaderProgram>("shaders/atmosphere_transmittance.slang").Compute,
+            CubeFilter.Of(device).InitializeAtmosphere(server.LoadSync<ShaderProgram>("shaders/atmosphere_transmittance.slang").Compute,
                 server.LoadSync<ShaderProgram>("shaders/atmosphere_scatter.slang").Compute,
                 server.LoadSync<ShaderProgram>("shaders/atmosphere_sky.slang").Compute);
             FogStages.Of(device).InitializeFog(server.LoadSync<ShaderProgram>("shaders/fog_scatter.slang").Compute,

@@ -152,7 +152,7 @@ public sealed class ParticleTests : IDisposable
 
         // The middle of the first mip's +X face, a mirror's view of the cloud.
         var map = GetApp().World.Resource<ReflectionProbes>().ByEntity.Values.Single().Map!;
-        var texels = ((GraphicsDevice)GetApp().World.Resource<Engine.Renderer>().Context.Graphics!).ReadCubeFaces(map);
+        var texels = CubeFilter.Of((GraphicsDevice)GetApp().World.Resource<Engine.Renderer>().Context.Graphics!).ReadCubeFaces(map);
         var at = ((int)map.Size * (int)map.Size / 2 + (int)map.Size / 2) * 4;
         ((float)texels[at]).Should().BeGreaterThan(4 * (float)texels[at + 2], "the probe sees the red cloud between it and the wall");
         UnloadReflectionProbe(probe);

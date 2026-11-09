@@ -592,7 +592,7 @@ internal sealed unsafe partial class GraphicsDevice
     /// with one level is only moved to the sampling layout. R8G8B8A8 is required by Vulkan to
     /// support blits with linear filtering, so the formats textures use need no check.
     /// </remarks>
-    private void RecordMipChain(VkCommandBuffer cmd, VulkanImage image)
+    internal void RecordMipChain(VkCommandBuffer cmd, VulkanImage image)
     {
         var levels = LevelsOf(image);
         int width = (int)image.Description.Extent.Width, height = (int)image.Description.Extent.Height;

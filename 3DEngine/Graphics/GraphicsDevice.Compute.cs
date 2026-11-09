@@ -337,7 +337,7 @@ internal sealed unsafe partial class GraphicsDevice
     }
 
     // A barrier moving every level of a color image from one layout to another.
-    private static VkImageMemoryBarrier2 ImageLayoutBarrier(IImage image, VkImageLayout from, VkImageLayout to,
+    internal static VkImageMemoryBarrier2 ImageLayoutBarrier(IImage image, VkImageLayout from, VkImageLayout to,
         VkPipelineStageFlags2 srcStage, VkAccessFlags2 before, VkPipelineStageFlags2 dstStage, VkAccessFlags2 after) =>
         ImageBarrier(((VulkanImage)image).Image, ColorLevels(0, Math.Max(1, image.Description.MipLevels)), from, to, srcStage, before, dstStage, after);
 

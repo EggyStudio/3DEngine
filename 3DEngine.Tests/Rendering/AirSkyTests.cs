@@ -56,7 +56,7 @@ public sealed class AirSkyTests(ITestOutputHelper output) : IDisposable
 
         var device = (GraphicsDevice)renderer.Context.Graphics!;
         var cube = renderer.RenderWorld.Get<ModelRenderer>().SkyCube!;
-        var faces = device.ReadCubeFaces(cube);
+        var faces = CubeFilter.Of(device).ReadCubeFaces(cube);
         var size = (int)cube.Size;
         var preExposure = GetApp().World.Resource<PhysicalUnits>().PreExposure;
         var sky = new Sky.SkyLight(Earth);
@@ -112,7 +112,7 @@ public sealed class AirSkyTests(ITestOutputHelper output) : IDisposable
         Frames(4, Vector3.UnitY);
 
         var device = (GraphicsDevice)renderer.Context.Graphics!;
-        var irradiance = device.ReadCubeIrradiance(renderer.RenderWorld.Get<ModelRenderer>().Environment!);
+        var irradiance = CubeFilter.Of(device).ReadCubeIrradiance(renderer.RenderWorld.Get<ModelRenderer>().Environment!);
         var preExposure = GetApp().World.Resource<PhysicalUnits>().PreExposure;
         var sky = new Sky.SkyLight(Earth);
         var toSun = DaySky.SunToward(HourAt(54), 0);
