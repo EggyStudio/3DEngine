@@ -1,39 +1,30 @@
 # Review
 
-Reviewed up to `ed469e90`, 237, the illumination's cycles eased in the merge and the screen filter
-with the switch change beginning them, the pipelines named in the slow-frame line, the tests and the
-rooms' wait, pushed at 20:18 on 2026-11-09, its run green at 22:13 with macOS in 45 minutes, Windows
-in 98 and 115, Linux in 104 and the examples in 10; it keeps the form and carries the review's
-files. After it `47a5972b`, 241, a glow light's reach floored at half a probe spacing and Sponza's
-lamps lighting their surroundings, warm and cool, amended at 20:55 with the desert test's bound and
-its readings in its description (N 3.5) and its three comments said as what holds (N 4.11), and
-`86339f72`, 243, Sponza's six views at the top of the README, committed at 20:56; both keep the
-form, the second carries the review's files, and the two push with 242's commit, the pack run with
-publish starting on it. The pack run for 6.2 with publish started on `c23cd2d4` at 17:54 went green
-at 21:08 with its games in 87 minutes and its scenes job skipped, and published 6.2.8, the package
-3DEngine, its twelve areas and the templates, tagged `v6.2.8`, which settles Verdict 111; it holds
-neither 237's mend nor 241, so the package the game pins for the flicker and the lamps comes from
-the pack run started after 242's green run, and no pack run starts between. Before it `c23cd2d4`,
-226's fourth and last commit, pushed at 17:53 on 2026-11-09 with `f9cfb376`, `acedb940` and
-`50d7b427`, Verdict 111's mend and 226's second and third, the live path whole, one run on the last,
-green at 20:15 with macOS in 51 minutes, Windows in 85 and 98, Linux in 132 through GitHub's outage
-of Actions from about 19:16 to 19:47 and the examples in 9; they keep the form, the first and last
-carrying the review's files. The release scene-packs holds intel-sponza.pack since 17:58 on
-2026-11-09, made again by review from the bridge's with the manifest's hash, so ./e3d scenes fetch
-works and the pack run's macOS captures job drives Sponza. nuget.org holds 6.0.11, 6.0.14, 6.0.91,
-6.1.12 and 6.2.8, the game pinned to 6.1.12, tagged `v6.1.12` at `8dba0d1c`; the version stands at
-6.2, tagged `v6.2.0` at `1c3c38d5`. Item 6's three package bumps wait on the owner's word since
-October. Every push and run before `c23cd2d4` since 2026-10-23 stands in REVIEW-ARCHIVE.md under
-Head records.
+Reviewed up to `94097b62`, 242, a ray's hit marching the brightest glow light in reach and gathering
+the rest as one, which brings the screen pass from 2.6 to 2.1 ms with the door and gallery views as
+they read, pushed at 22:41 on 2026-11-09 with `47a5972b`, 241, a glow light's reach floored at half
+a probe spacing and Sponza's lamps lighting their surroundings, warm and cool, and `86339f72`, 243,
+Sponza's six views at the top of the README, one run on the last and the pack run with publish
+started on it at 22:41, since the pack run tests what it packs; they keep the form, the last
+carrying the review's files and the game's two asks. The game pins the package it publishes, the
+first with the flicker mend and the lamps. Before it `ed469e90`, 237, the illumination's cycles
+eased in the merge and the screen filter, pushed at 20:18 on 2026-11-09, its run green at 22:13 with
+macOS in 45 minutes, Windows in 98 and 115, Linux in 104 and the examples in 10; it keeps the form.
+Before it `c23cd2d4`, 226's fourth and last commit, green at 20:15 on 2026-11-09, whose pack run
+published 6.2.8 at 21:08, the package 3DEngine, its twelve areas and the templates, tagged `v6.2.8`,
+which settled Verdict 111. The release scene-packs holds intel-sponza.pack since 17:58 on
+2026-11-09, so ./e3d scenes fetch works. nuget.org holds 6.0.11, 6.0.14, 6.0.91, 6.1.12 and 6.2.8,
+the game pinned to 6.1.12, tagged `v6.1.12` at `8dba0d1c`; the version stands at 6.2, tagged
+`v6.2.0` at `1c3c38d5`. Item 6's three package bumps wait on the owner's word since October. Every
+push and run before `c23cd2d4` since 2026-10-23 stands in REVIEW-ARCHIVE.md under Head records.
 
-Next 242, the lamps a hit marches to, 240, the bands on thin shafts, and 246, a settled view's light
-depending on how the eye came to it, their reads taken together first, 245, the far cascade's move
-stepping the light outside the field, 239, the finest cascade's arrival, 244, the post-processing
+Next 240, the bands on thin shafts, first their crawl in a turn read by a frame against the frame
+before carried to it, then one lever, the silhouette's edge and the shaft's level, 245, the far
+cascade's move stepping the light outside the field, 239, the finest cascade's arrival, 244, the
 settings in the units a person types, 238, the caches from e3d, and 235, the illumination as its own
-project, last; 241 and 243 wait for `ed469e90`'s run and push together with 242; 6 waits on the
-owner's word. The pack run with publish starts with 242's push, since the pack run tests what it
-packs, and the game pins its package. No budget by Decision 94; the door at 8:00 the one target by
-Decision 95; a fault seen in motion is read in motion by Decision 107.
+project, last; 6 waits on the owner's word. The pack run started on `94097b62` at 22:41 publishes
+the package the game pins. No budget by Decision 94; the door at 8:00 the one target by Decision 95;
+a fault seen in motion is read in motion by Decision 107.
 
 REVIEW-ARCHIVE.md beside this file holds, their numbers kept, the items done, the items closed or
 parked, the verdicts settled, Decisions 1 to 93, the Replies before those here and the head records,
@@ -110,8 +101,8 @@ and 177, finer cascades inside a building and a history for the world probes, no
     in a turn the bands move in tile steps with the picture and not with the stone; they stand in a
     still view too. The read by normal and plane is in place already, screenProbesHere weighing each
     of a pixel's four probes by its nearness, the eighth power of the normals' agreement and the
-    probe's distance against the pixel's plane extended to it, so the cause is what that read does
-    where a face narrower than a tile has no probe at all. A probe stands at its tile's middle,
+    probe's distance against the pixel's plane extended to it, so the cause lies in how that read
+    acts where a face narrower than a tile has no probe at all. A probe stands at its tile's middle,
     fixed in the window, so a face none of the middle columns falls on has no probe at any height
     and no wider ring finds one; its pixels take the neighbor face's probe at 45 degrees, a normal
     weight of 0.06, or the wall's behind, the sliver of weight normalized to full light, and under a
@@ -132,7 +123,57 @@ and 177, finer cascades inside a building and a history for the world probes, no
     reference, the pair by N 4.9, and a test of a thin eight-sided column before a wall at a
     different light whose faces hold within a bound of the reference in a still and while the eye
     turns by a fraction of a tile a frame, the faces' light steady as the window's grid slides
-    across (Decision 107). After 242, since the owner sees it.
+    across (Decision 107). After 242, since the owner sees it. Read on 2026-11-09 at the atrium's
+    left shaft at noon, the cause named above does not hold there. Every face of the octagon holds
+    probes; the matched weight's median over the shaft's 13,000 pixels is 0.83, 6.4 percent lie
+    under a quarter and none under a thousandth, the low weights the silhouette's edges and the
+    joins between faces a few pixels wide. Held still against the reference the view reads 1.10, the
+    shaft's faces 1.17 and 1.36, and its columns in rows 270 to 390 stand at 1.5 to 1.9 with bumps
+    of 10 to 25 percent a tile apart, each probe's own estimate differing from its neighbor's on one
+    face; the left silhouette's five pixels read 2.6 to 3.5, the low weight made whole with the
+    light of the probes behind. In a turn of half a tile a frame 11 percent of the frame's probes
+    and 13 to 16 of the shaft's start anew each frame, a probe that crosses onto another face
+    failing the history's test of a like surface, normals 45 degrees apart at a dot of 0.71 against
+    the 0.9 asked, and starting from one frame's estimate. So the bands on a face and their
+    worsening in a turn are 246's matter and go with its mend, and this item keeps two things, the
+    silhouette's edge by the first lever, the matched weight as a confidence easing toward the
+    world's probes, and the shaft's level, 1.5 to 1.9 of the reference in those rows, placed by one
+    read of a face probe's terms before it is mended or recorded. From 246's read, a settled probe's
+    light is the mean of its sixteen places, so the bands held still are one probe's mean differing
+    from its neighbor's a tile apart and time does not average them out. One lever is tried for them
+    under Decision 95 after 246's two parts, the probe's point moved within its tile over the round
+    so that a tile's light is its footprint's mean, or the filter gathering like probes along a
+    face, whichever the shaft's columns read flatter against the reference; with it the silhouette's
+    edge and the shaft's level as above. A frame against its pose held shows a lag or a level and is
+    blind to these bands, which stand in the pose held as they stand in the turn; what the eye takes
+    as noise is a pattern fixed in the window sliding over the stone. So the bands' measure in
+    motion is the difference between a frame and the frame before carried to it by its depth and the
+    two cameras, the strip a turn brings in and what a turn uncovers left out, read by sponza.turn
+    on the atrium's left shaft and on the whole frame with the screen probes on and off, the share
+    past 4 and past 12 levels and its map; that read comes first, and where it finds no more with
+    the probes on than off, the item's bands are recorded and the fault waits on the owner's
+    recording. Then the one lever, judged by that share in the turn and by the shaft's columns
+    against the reference held still. The read in motion at 23:45 on 2026-11-09, by
+    build/flicker.py, which carries each picture into the next by the turn's rotation, the same at
+    any depth for a turn about the eye. The atrium at noon turned half a tile a frame over 40 frames
+    with the exposure held reads 8.7 percent of the frame past 4 levels and 1.47 past 12 with the
+    screen probes on and 5.2 and 1.05 with them off; the left shaft 4.1 percent past 4 on the mean
+    and 16.7 at most with them on, 0.9 and 2.1 off, and the map shows vertical streaks fixed in the
+    window where the stone slides past the tile columns. So the probes add a flicker of 4 to 12
+    levels fixed to the tile grid, a face's light taken at the one point a tile's middle happens to
+    lie on. The filter along a face, the second pass's blend at 7 by 7 with twice the falloff, left
+    the shaft's columns as they were held still, 1.583 of the reference where 1.584 and 1.39 to 1.95
+    from column to column, and read worse in the turn, 5.5 where 4.1, so it is reverted. The one
+    lever is the probe's point moved within its tile over the round, so that a face takes the mean
+    of the points a tile's footprint lays on it and the mean changes smoothly as the stone slides,
+    behind a switch until it is judged. It is judged by the shaft's share in the turn against the
+    0.9 and 2.1 with the probes off, and by the shaft's columns held still against the reference; it
+    must hold a still view's frames within a level from one to the next, 237's walk-and-turn test
+    and the rooms' readings, its cost recorded (Decision 94). Where a tile straddles two faces its
+    point changes face from frame to frame, so the history found on a probe's own face among the
+    twelve around, written and dropped under 246, may be needed with it. Where the lever fails
+    these, it is reverted and the bands recorded as the screen probes' limit at shapes about a tile
+    wide.
 
 241. **Sponza's lamps light their surroundings, warm and varied.** Decision 106 on 2026-11-09. The
     lamps of the galleries and the vestibule, the pack's glowing bulb material turned on with L,
@@ -174,7 +215,8 @@ and 177, finer cascades inside a building and a history for the world probes, no
     the example gives a material a lamp at 300 with the knobs out; a test puts a bulb a tenth of a
     unit across four units over a floor and reads the point under it within 20 percent of the closed
     form, failing at nothing without the floor; RENDERING.md has the entry; the default capture,
-    lamps off at noon, stands. The commit follows the suite.
+    lamps off at noon, stands. The commit follows the suite. Done at `47a5972b`, pushed at 22:41 on
+    2026-11-09.
 
 242. **A probe marches to the brightest few lamps alone.** From item 241's read on 2026-11-09. With
     the reach floored at half a probe spacing, every screen probe marches to all of Sponza's 23
@@ -189,7 +231,13 @@ and 177, finer cascades inside a building and a history for the world probes, no
     turns, read against the cap by the same views. And 241's floor follows the field's first cell,
     MeasuredAt times ProbeSpacing times the first cell over the root of Faint, half of eight cells
     by the cell over 17.3, so a game's Field Cell setting sets how far a torch lights, 8.7 units at
-    a cell of 0.125 and 17 at 0.25, which the guide says beside the setting.
+    a cell of 0.125 and 17 at 0.25, which the guide says beside the setting. Read on 2026-11-09, the
+    cost lay at the hits and not at the probes' faint lamps, every ray's hit marching two lamps and
+    two groups, so neither the cap nor the turns is kept and a hit marches its brightest and one
+    group, the screen pass 2.09 ms where 2.64 with the door at 0.954 and the gallery at 1.316 of
+    their references as before, and the gallery held still with the lamps on moving 0.043 percent of
+    its pixels by 12 levels a frame where 0.044 with two marches. Done at `94097b62`, pushed at
+    22:41 on 2026-11-09.
 
 243. **Sponza shown at the top of the README.** The owner on 2026-11-09, asking that the Sponza
     scene be shown at the top of this README as the modeling is at the top of BevyCSharp's. The
@@ -202,7 +250,8 @@ and 177, finer cascades inside a building and a history for the world probes, no
     them, taken on the GPU at 1,280 by 720, with the line under it naming scenes_sponza, the command
     that runs it from the examples' project and the fetch that comes first; the README's words above
     it stand, and the picture is linked by the raw address as the examples' captures are. One commit
-    after 241's, before 242; the picture's frames into the dump with a captions line by N 4.10.
+    after 241's, before 242; the picture's frames into the dump with a captions line by N 4.10. Done
+    at `86339f72`, pushed at 22:41 on 2026-11-09.
 
 244. **Post-processing settings in the units a person types.** Decision 108 on 2026-11-09.
     scenes_sponza sets its grade, its bloom and its metering through formulas, 2 to a power less 1,
@@ -279,7 +328,45 @@ and 177, finer cascades inside a building and a history for the world probes, no
     of it. The test settles one view three ways and holds the three within a bound of each other and
     of the path-traced reference, and holds the spread falling over the frames held; the cost is
     recorded (Decision 94). Read together with 240's, whose second lever it may be; after 242's
-    commit.
+    commit. From 240's read the same day, the estimate held differs from one probe to the next on a
+    face by 10 to 25 percent held still, and in a turn a probe that crosses onto another face of a
+    thin shape starts anew from one frame's estimate, a sixth of a shaft's probes a frame. So the
+    mend has two more parts for the read to weigh. A probe whose four around the place it came from
+    straddle faces looks for its history on its own face further out before it starts anew. And a
+    probe that starts anew begins from light that is steady, the world's probes' at its point or its
+    like neighbors' in the frame, and moves to its own mean as its frames gather, the same
+    confidence as 240's weight in a pixel, so that motion shows a softer light for some frames where
+    it shows noise today. Read on the head at 23:11 on 2026-11-09, the path's difference does not
+    show there. Sponza's atrium at noon settled eight ways, fresh and by a cut from each of seven
+    views, with the exposure held, spreads no pixel past 6 levels with the screen probes on or off;
+    four walks to one pose and a teleport differ from the cut's arrival by 1 to 6 levels on 1.4 to
+    2.5 percent of the pixels and none past 6; the Ore example by day warped to from four places
+    differs past 12 on none. Held still the rays' places go on through their sixteen and the screen
+    filter's whole cycle stands for a probe's light, the mean of the sixteen gathered afresh each
+    cycle, so a settled view forgets how the eye arrived. The game's 0.35 and 0.69 percent are
+    6.1.12's, which lacks 214 to 237, or the grove's leaves that let light through, which no scene
+    in the tree has; the game repeats its walked-to against teleported-to read at its pin of the
+    package from `94097b62`, and where it still shows, a grove-like scene with such leaves goes into
+    the tree for the read. The item keeps the restarts in motion, 11 percent of the frame's probes a
+    frame in a turn of half a tile, in two parts, a probe finding its history on its own face
+    further out where the four around straddle faces, and a probe that starts anew beginning from
+    steady light and moving to its own mean as its frames gather. The test is a thin eight-sided
+    column in such a turn, the share of its probes starting anew and its pixels' move from frame to
+    frame against the settled poses, each under a bound, the game's sprint read beside it at the
+    pin. The spread maps go into the dump with their captions by N 4.10. The two parts were written
+    and measured at 23:38 on 2026-11-09 and move nothing. A column 0.6 across at 4 units before a
+    lamp-lit wall, turned half a tile a frame, differs from its poses held on 0.00 to 0.01 percent
+    past 12 before and after, the restarts lying on the silhouette and the joins and not showing;
+    Sponza's atrium turned by the example's new sponza.turn differs from its poses held on 11.3
+    percent past 4 levels before and 11.5 after, its screen probes' own light on 38.9 and 39.0 and
+    on 6.0 and 5.9 past 12. What a turn does is a lag and a blur of about 4 levels, the kept light
+    and the cycles resampled between four probes of the frame before each frame, the share of probes
+    holding a whole cycle falling to 58 percent within 20 frames; keeping more of them whole, 94 to
+    98 percent, lies further from the poses held, 44.9 where 38.9, an older mean carried along. So
+    both parts are dropped, their patch in the dump with its caption, the lag recorded and not
+    chased, and reading the history at a probe's own point or by depth texel stays a form for later.
+    Closed as read, but for the game's read at its pin; the motion's fault is looked for under 240
+    by a measure a held pose cannot stand in for.
 
 ## Verdicts
 
@@ -500,7 +587,10 @@ Decisions in REVIEW-ARCHIVE.md.
     pixels moved; a global illumination item's test holds a turn or a walk where its fault showed in
     one; and the review asks the owner for a recording when a fault is named without one. The
     review's rule, told to the owner for approval as Decision 95's precedent allows; items 240 and
-    239 here and the game's 166 go by it.
+    239 here and the game's 166 go by it. A frame set against its own pose held shows a lag or a
+    level and is blind to a pattern fixed in the window that slides over the world, so the measure
+    of motion is a frame against the frame before carried to it by its depth and the two cameras,
+    learned on 2026-11-09 when 246's two parts moved nothing by the first measure.
 
 108. **Post-processing settings in plain numbers.** The owner asked at 21:59 on 2026-11-09, reading
     scenes_sponza's lines for the lift, gamma and gain, the bloom, its scatter and the followed
@@ -558,3 +648,20 @@ gallery held still moving 0.043% of its pixels by 12 levels a frame where 0.044%
 the turns are not kept. Wick reads its light at Low offscreen with four wicks, so no torch-lit cave
 is read here. The guide says beside SetSceneField that the field's cell sets how far a small light
 reaches. RENDERING.md has the read. The suite 2,313 in order and shuffled.
+
+246 written on 2026-11-10, read and closed but for the game's read at its pin. Settled eight ways in
+one session, a cut from each view, four walks stepped a frame at a time and a teleport from 60 units
+off, Sponza's atrium at noon with the exposure held differs by 6 levels at most at any pixel, the
+walks by 1 to 6 on 1.4 to 2.5% of the pixels, and Ore by day warped to from four places by nothing
+past 12, so on the head a settled view holds no estimate of how the eye came to it. Held still, the
+rays' places go on through their sixteen and each probe's whole cycle stands in, the mean of them,
+the same each cycle, which makes the frames the same to the bit and forgets the arrival. The two
+motion parts, the history read from the twelve around and a probe starting anew from its like
+neighbors' blend, moved nothing, Sponza's turn against each pose held reading 11.3% of the pixels
+past 4 levels before and 11.5% with them and the screen probes' light 38.9% and 39.0%, and the
+whole cycles held through a turn kept the stand-in at 94 to 98% where it fell to 58% but read 13.6%
+and 44.9%, so all three are dropped, their patch in the dump. The lag of about 4 levels a turn
+shows against a pose held is recorded. sponza.turn turns the example's camera a set angle a frame
+for a count of frames, a pose a frame, and build/flicker.py --turn carries each picture of such a
+turn into the next by the turn's rotation, the strip it brings in left out, with a mask carried
+along, which item 240's read uses. The suite 2,313 in order and shuffled.

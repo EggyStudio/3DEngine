@@ -14041,15 +14041,15 @@ made by processor. A workflow change alone.
 sources, its tests, its shaders, the examples, the games, the build scripts and the workflows that
 carried a reading before and after, a cost measured in a trial or an account of what was tried is
 rewritten to its reason, a decision keeping the alternative it rejects as a reason without the
-trial's numbers, a test saying what it guards and why its bound is what it is, and a number left
-only where the code's choice depends on it, a size, a count, a threshold or a limit, with its
-reason, the readings left to RENDERING.md and the review. scenes_sponza's far cascade comment says
-that the building's size against the four cascades' reach, ahead of the camera, puts the main door
-past them from the lion's end, where a ray takes the sky, so a far cascade of 100 holds the whole
-building from anywhere in it. STYLE.md's Register gains the sentence and its Checks the search for
-milliseconds, a reading against a reference, where something read and from so much to so much,
-whose hits that remain are units, constants the code uses and the meaning of a read. 167 files,
-comment lines alone, the workflows' YAML the same as before, the suite 2,297 in order and shuffled.
+trial's numbers, a test saying what it guards and the reason for its bound, and a number left only
+where the code's choice depends on it, a size, a count, a threshold or a limit, with its reason, the
+readings left to RENDERING.md and the review. scenes_sponza's far cascade comment says that the
+building's size against the four cascades' reach, ahead of the camera, puts the main door past them
+from the lion's end, where a ray takes the sky, so a far cascade of 100 holds the whole building
+from anywhere in it. STYLE.md's Register gains the sentence and its Checks the search for
+milliseconds, a reading against a reference, where something read and from so much to so much, whose
+hits that remain are units, constants the code uses and the meaning of a read. 167 files, comment
+lines alone, the workflows' YAML the same as before, the suite 2,297 in order and shuffled.
 
 233's two stale comments mended on 2026-11-09. GlowLights says an emitter's light reaches as far as
 a surface there takes a 300th of the light it emits, the share the code lets a light go at, where
@@ -14615,7 +14615,7 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     m cascades at once reads within 0.6% of settled at the first frame with the screen probes off
     and within 0.1% from the third, the sides 3.8% over at the first frame with them on, their
     history reprojected across the jump, which is 174's, and 23 to 32% over with the follow off, so
-    the follow's share is what keeps a shift's probes steady. The number stands.
+    the follow's share keeps a shift's probes steady. The number stands.
 
 196. **A cascade's side on the wall behind the camera.** From BevyCSharp's item 95 on 2026-11-04.
     Its cascades' middles snapped with floor left the side behind the eye 1.6 to 9.6 cells back when
@@ -14805,12 +14805,12 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     grazing floor 0.046 to 0.069 past its 0.06, the carried lamp's 0.077 to 0.086, the Cornell box
     level, and at Low and Medium the corridor nearer (0.253 to 0.224, 0.242 to 0.208) and the
     strip's further; thresholds of 7/8 and 15/16 read the rooms exactly as 75%, so the corridor's
-    probes above meet walls on nearly every way and the lever is what carrying does at High, not the
-    share. The trial's second inlined shading copy took gi_screen from 1.91 to 2.8 to 3.3 ms in the
-    atrium, and the tree's form chooses the normal before one shading call (SPIR-V 638 KB where
-    839), its cost against keeptop read with a per-reading load check. The tests failing without
-    each mend, the wall above a threshold on a thin floor at 2.02 at High and 2.08 at Medium where
-    5.05 and 4.29 without the normal (Low 1.51 either way, bounds 15% over), and a probe in a
+    probes above meet walls on nearly every way and the lever lies in how carrying acts at High, not
+    in the share. The trial's second inlined shading copy took gi_screen from 1.91 to 2.8 to 3.3 ms
+    in the atrium, and the tree's form chooses the normal before one shading call (SPIR-V 638 KB
+    where 839), its cost against keeptop read with a per-reading load check. The tests failing
+    without each mend, the wall above a threshold on a thin floor at 2.02 at High and 2.08 at Medium
+    where 5.05 and 4.29 without the normal (Low 1.51 either way, bounds 15% over), and a probe in a
     passage whose probes above stand in pockets at 1.016 and 0.890 of the reference where 0.277 and
     0.124 without the mark. Decided, the screen normal lands alone first, holding every room within
     0.002 and bringing all four views' pixels nearer, the door 0.813 and 0.394 where 0.923 and 0.433

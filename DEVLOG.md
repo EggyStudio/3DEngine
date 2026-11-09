@@ -22,6 +22,9 @@ Done that day
 - Item 234 at `620cfeb4`. The Windows halves' limit.
 - Item 236 at `500730bf`. The build workflow runs on branch pushes alone.
 - Item 237 at `ed469e90`. Sponza flickers whole frames at views 6 and 7.
+- Item 241 at `47a5972b`. Sponza's lamps light their surroundings, warm and varied.
+- Item 242 at `94097b62`. A probe marches to the brightest few lamps alone.
+- Item 243 at `86339f72`. Sponza shown at the top of the README.
 
 ## 2026-11-08
 

@@ -29,12 +29,20 @@ public static class ScenesSponza
     private static Camera3D? _askedCamera;
     private static bool? _askedMetered;
     private static bool? _askedLamps;
+    private static (float Radians, int Frames) _turning;
 
     [Command("sponza.look", "Puts the camera at a point looking at another, with a field of view in degrees, 60 unless given: sponza.look <x> <y> <z> <tx> <ty> <tz> [fov]")]
     internal static string Look(float x, float y, float z, float tx, float ty, float tz, float fov = 60)
     {
         _askedCamera = new Camera3D(new Vector3(x, y, z), new Vector3(tx, ty, tz), Vector3.UnitY, fov);
         return "looking";
+    }
+
+    [Command("sponza.turn", "Turns the camera about its point by an angle in degrees a frame, to the right where above 0, for a count of frames, a pose a frame, as a scripted turn is read by: sponza.turn <degrees> <frames>")]
+    internal static string Turn(float degrees, int frames)
+    {
+        _turning = (float.DegreesToRadians(degrees), Math.Max(0, frames));
+        return $"turning {degrees} degrees a frame for {_turning.Frames} frames";
     }
 
     [Command("sponza.view", "Moves the camera to a named view of Sponza, by its name or number, or answers the names: sponza.view [name]")]
@@ -231,6 +239,12 @@ public static class ScenesSponza
                 fieldAhead = Ahead(camera);
             }
             if (_askedCamera is { } looked) (camera, fieldAhead, _askedCamera) = (looked, Ahead(looked), null);
+            // A scripted turn about the camera's point, which moves no cascade of the field.
+            if (_turning.Frames > 0)
+            {
+                camera.Target = camera.Position + Vector3.Transform(camera.Target - camera.Position, Matrix4x4.CreateRotationY(-_turning.Radians));
+                _turning.Frames--;
+            }
             // The arrows move the hour, keys every layout has in the same place, and turn the
             // camera while the right button is held.
             var flying = IsMouseButtonDown(MouseButton.Right);
