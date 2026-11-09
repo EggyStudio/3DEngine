@@ -111,7 +111,7 @@ internal sealed unsafe partial class GraphicsDevice
     /// outgrown when a pass is given another binding, and the frames that use it then fail on macOS
     /// alone.
     /// </remarks>
-    private VkDescriptorPool MakeDescriptorPool(IEnumerable<(VkDescriptorType[] Descriptors, int Sets)> layouts,
+    internal VkDescriptorPool MakeDescriptorPool(IEnumerable<(VkDescriptorType[] Descriptors, int Sets)> layouts,
         VkDescriptorPoolCreateFlags flags = VkDescriptorPoolCreateFlags.None)
     {
         var counts = new SortedDictionary<VkDescriptorType, uint>();
@@ -133,7 +133,7 @@ internal sealed unsafe partial class GraphicsDevice
     }
 
     // Destroys a pool MakeDescriptorPool made, where it made one.
-    private void DestroyDescriptorPool(VkDescriptorPool pool)
+    internal void DestroyDescriptorPool(VkDescriptorPool pool)
     {
         if (pool.Handle == 0) return;
         DeviceObjects.Gone(DeviceObjects.Kind.DescriptorPool);

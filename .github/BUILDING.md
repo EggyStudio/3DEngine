@@ -263,10 +263,13 @@ by hand, so the job fails with the reason until the one it reads is there.
 a line each, read from the built assembly. The suite fails while the two differ, naming the lines
 added and removed, so a commit that adds, removes or reshapes anything a game calls carries the
 change to that file and is read as one, which the patch number alone does not say. Once a change
-to the surface is meant, `build/api.sh` writes the file again:
+to the surface is meant, `build/api.sh` writes the file again. `3DEngine/Graphics/DeviceSurface.txt`
+lists in the same way every member of the Vulkan device and of its nested types that the rest of
+the engine reaches, which an area's part of the device calls it through, and the script writes it
+too:
 
 ```bash
-build/api.sh         # 3DEngine/PublicApi.txt from the built engine, and what changed in it
+build/api.sh         # both listings from the built engine, and what changed in them
 ```
 
 `CHEATSHEET.md`'s lists of the flat API's functions are written from the source of

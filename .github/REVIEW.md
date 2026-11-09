@@ -7,14 +7,19 @@ minutes, Windows in 78 and 114, Linux in 79 and the examples in 10; they keep th
 review's files. After it `30a8747f`, 225's first cut, Core naming no area above it, and `8dba0d1c`,
 232, a device drawing on its CPU taking no anisotropic samples, pushed together at 03:25 on
 2026-11-09 with one run on the last and the pack run for 6.1.12 with publish started on it at 03:25,
-since the pack run tests what it packs; they keep the form and carry the review's files. Behind them
-`db48a8b5`, `f1422dc2`, `4aff2190` and `723bc098`, 225's second to fifth cuts, committed and waiting
-on that run. Before it `b3c471d9`, 215 as docs, pushed at 22:23 on 2026-11-08 with `fbf35060`, 227,
-the comments on their own terms over 48 files, and `e9462fb1`, 218 as docs, one run on the last,
-green at 00:44 on 2026-11-09 with macOS in 38 minutes, the Windows halves in 60 and 107, Linux in
-133 for the second time where it took 102 in the morning, and the examples in 8; they keep the form
-and carry the review's files. Before it `20acb49e`, 223, the device mapping a memory block once a
-buffer the CPU writes is carved from it, which ends the game's play's exit, with 224's dots, the
+since the pack run tests what it packs; they keep the form and carry the review's files; the run
+ended at 05:53 with Linux green in 137 minutes, macOS in 45, the second Windows half in 77 and the
+examples in 10, and the first Windows half cancelled at its limit of 120 minutes (Verdict 110),
+rerun at 05:55. After them `db48a8b5`, `f1422dc2`, `4aff2190`, `723bc098` and `4fe1bfe4`, 225's
+second to sixth cuts, pushed together at 05:55 with one run on the last, which the rerun of
+8dba0d1c's Windows half cancelled at once through the workflow's one run a branch, so the run is
+started again at 05:59 and the half's rerun gives way to it; they keep the form and carry the
+review's files. Before it `b3c471d9`, 215 as docs, pushed at 22:23 on 2026-11-08 with `fbf35060`,
+227, the comments on their own terms over 48 files, and `e9462fb1`, 218 as docs, one run on the
+last, green at 00:44 on 2026-11-09 with macOS in 38 minutes, the Windows halves in 60 and 107, Linux
+in 133 for the second time where it took 102 in the morning, and the examples in 8; they keep the
+form and carry the review's files. Before it `20acb49e`, 223, the device mapping a memory block once
+a buffer the CPU writes is carved from it, which ends the game's play's exit, with 224's dots, the
 README's first line and scenes_sponza's grading comment on its own terms, pushed at 20:24 on
 2026-11-08, its run green at 22:21 with macOS in 43 minutes, Linux in 78, the Windows halves in 107
 and 118 and the examples in 8; it keeps the form and carries the review's files. Before it
@@ -4929,7 +4934,17 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     Platform alone, Physics Core, the ECS and Assets; the listing unchanged, the animated-model and
     physics tests 157 of 157 on top of the suite. Cut six is the small edges, Modeling's and audio's
     Api types, Behaviors' compiler and PhysicsWorld, single names of the renderer in Platform and
-    Cli, and a stray word in a moved comment. Cuts two to five wait on 8dba0d1c's run.
+    Cli, and a stray word in a moved comment. Cuts two to five wait on 8dba0d1c's run. Cut six,
+    `4fe1bfe4` at 05:15 on 2026-11-09, the small edges, edit meshes and the model loaders read files
+    through ProgramFiles and ModelFiles in Assets, SelectionMode to Modeling, MaterialMapIndex to
+    Rendering's types, the audio callback and the music decoder to Platform's audio, the runtime
+    assembly compiler to Behaviors, SceneBones to the scene model, and the scene spawner asking a
+    FlatApiWorld in Core in place of the API's own; the one change to the public surface in the
+    cuts, BehaviorContext.Physics as an extension property in Physics since Behaviors goes with Core
+    and cannot name the physics world, the same in source, a game on an earlier package recompiling,
+    which it does at each pin. Core, the ECS and Behaviors name nothing above them, Assets only Core
+    and the ECS. Cut seven, the device's area code, is the slowest and next; cuts two to six wait on
+    8dba0d1c's run.
 
 226. **The live path.** Decision 102 on 2026-11-08. A watcher over a program's shaders, assets,
     scenes and behavior scripts, which recompiles a changed shader through slangc and swaps its
@@ -5078,9 +5093,29 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     mend. Done at `8dba0d1c`, pushed at 03:25 on 2026-11-09 with the first cut, the pack run for
     6.1.12 started on it.
 
+233. **Comments without readings and costs.** Decision 105 on 2026-11-09. A second sweep after the
+    first (item 227), every comment in the sources, shaders, scripts and examples that carries a
+    reading before and after a mend, a figure in milliseconds, seconds or bytes, a count of
+    triangles or frames from a trial, or an account of what was tried, rewritten to the reason alone
+    with the numbers the code's choice depends on, the readings and costs left to RENDERING.md and
+    the review where they stand already; scenes_sponza's far cascade comment first, saying that the
+    building's size against the cascades' reach puts the main door past the near cascades from the
+    lion's end, where a ray took the sky, so a far cascade of 100 holds the whole building from
+    anywhere in it. STYLE.md's Register gains the sentence and its Checks a search for milliseconds,
+    times its reference, where it read and from so much to so much in comments, read rather than
+    counted. One commit, after 225's cuts and before 226, since the cuts move the files.
+
+234. **The Windows halves' limit.** From Verdict 110 on 2026-11-09. On a push each Windows half has
+    120 minutes and the first half took 118 and then past 120 on the day's slower runners, where the
+    two halves were dealt to take 62 to 90 in all when the limit was set. Read the halves' times
+    over the last ten runs by the runner's processor, and either deal the suite to three Windows
+    parts as the two were dealt, or raise the halves' limit on a push to what the slowest processor
+    needs with the room the workflow's comment gives; the pack run's 240 stays. In 233's commit or
+    before it, as a workflow change alone.
+
 ## Verdicts
 
-Verdicts 56 to 108 are settled, said under each in REVIEW-ARCHIVE.md; Verdict 109 is open on the pack run's two red jobs.
+Verdicts 56 to 108 are settled, said under each in REVIEW-ARCHIVE.md; Verdicts 109 and 110 are open, the pack run's red jobs and the Windows half's limit.
 
 109. **Two jobs of the pack run for 6.1.5 are red on a cold processor.** The pack run of `b3c471d9`,
     started at 22:23 on 2026-11-08 for the package that carries the allocator's mend, has its
@@ -5105,6 +5140,14 @@ Verdicts 56 to 108 are settled, said under each in REVIEW-ARCHIVE.md; Verdict 10
     which held this time. The two that repeat to the tenth are a drift of the engine's since the
     last pack run of 2026-11-04 and not the runner's, so the item is the coder's, 232, and 6.1
     publishes from a pack run after it.
+
+110. **The first Windows half ran out of its 120 minutes.** The build run of `8dba0d1c`, pushed at
+    03:25 on 2026-11-09, ended at 05:53 with every job green but the first Windows half, cancelled
+    at its limit of 120 minutes on a push, where it took 60 to 118 in the day's runs before; Linux
+    took 137, as item 231 read the runner's processors to give. Nothing of the two commits'
+    lengthens the half, and the pack run beside it, whose halves have 240, is still going, so the
+    cause is the runner's speed and the limit, not the engine. The job is rerun at 05:55 for the
+    record, and the limit is the coder's item 234. Written at 05:55.
 
 ## Decisions
 
@@ -5526,6 +5569,14 @@ REVIEW-ARCHIVE.md.
     The NaN was the test's, a division by the ways that take the cascade above where a carried probe
     has none. The other forms, 3/4 with the lion at 1.112, 15/16 with the door at 1.174, and marks
     from the third cascade up with the door at 1.156, are recorded in the Replies.
+
+105. **No readings or costs in comments.** The owner wrote at about 05:20 on 2026-11-09, reading
+    scenes_sponza's comment on the far cascade of 100 that carried the lion's end wall's reading
+    from 34.6 to 15.1 times its reference and the mend's 0.6 ms, "I also dont think we need to name
+    the progress and ms count as these are just comments and not protocols". N 4.11 widens so that a
+    comment carries no reading of before and after, no cost figure and no account of the trials,
+    which are the review's records and RENDERING.md's; a number stands in a comment only where the
+    code's choice depends on it, with its reason. Item 233.
 
 ## Replies
 
@@ -7203,3 +7254,15 @@ extension class with the grouping types the compiler makes for it, the one chang
 the cuts, a game recompiled against the package reading it the same. The frame profile's comment
 loses its stray word. Core, the ECS and the behaviors then name nothing above them, Assets Core and
 the ECS alone, and Modeling and Scenes nothing above Rendering.
+
+225's seventh cut begun on 2026-11-09 with the path-traced reference. The device keeps parts, each
+an area's work on it made the first time the area asks for it (GraphicsDevice.Part) and let go where
+the area's partial was let go, after the frames in flight and before the descriptor resources, the
+last made first. The reference's tracer, its compute stage and its passes, is the first part,
+ReferenceTracer in Rendering's lighting, calling the device through the members it needs, which
+open from private to internal, the buffer, image view and sampler classes, the compute stage, the
+barriers, the one-off command buffers, the descriptor pools, the memory type and the allocation,
+and the device's Vulkan calls through Api. DeviceSurface.txt beside the device lists every member of
+it and of its nested types the rest of the engine reaches, 310 lines, and a test fails while the
+build and the listing differ, which build/api.sh writes with the public listing, so each area's cut
+shows what it opened. The public listing is unchanged.

@@ -40,7 +40,7 @@ internal sealed unsafe partial class GraphicsDevice
     /// </remarks>
     // Memory as the info asks, or where the device has none a DeviceMemoryException saying how much
     // was asked and how much is free, which a caller that can take less or go without catches.
-    private VkDeviceMemory AllocateSaying(VkMemoryAllocateInfo* info)
+    internal VkDeviceMemory AllocateSaying(VkMemoryAllocateInfo* info)
     {
         var made = _deviceApi.vkAllocateMemory(info, null, out VkDeviceMemory memory);
         if (made is VkResult.ErrorOutOfDeviceMemory or VkResult.ErrorOutOfHostMemory)

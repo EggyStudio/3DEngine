@@ -8,7 +8,7 @@ internal sealed unsafe partial class GraphicsDevice
     // one structure, where the first form split stages from accesses across the call and the struct.
 
     /// <summary>One image's change of layout over <paramref name="range"/>, waiting on the stages and accesses before it for those after.</summary>
-    private static VkImageMemoryBarrier2 ImageBarrier(VkImage image, VkImageSubresourceRange range, VkImageLayout from, VkImageLayout to,
+    internal static VkImageMemoryBarrier2 ImageBarrier(VkImage image, VkImageSubresourceRange range, VkImageLayout from, VkImageLayout to,
         VkPipelineStageFlags2 srcStage, VkAccessFlags2 srcAccess, VkPipelineStageFlags2 dstStage, VkAccessFlags2 dstAccess) => new()
     {
         srcStageMask = srcStage,
@@ -24,11 +24,11 @@ internal sealed unsafe partial class GraphicsDevice
     };
 
     /// <summary>The color levels of an image, from <paramref name="firstLevel"/>, of its one layer.</summary>
-    private static VkImageSubresourceRange ColorLevels(uint firstLevel, uint levelCount) =>
+    internal static VkImageSubresourceRange ColorLevels(uint firstLevel, uint levelCount) =>
         new(VkImageAspectFlags.Color, firstLevel, levelCount, 0, 1);
 
     /// <summary>Records image barriers, and a memory barrier beside them when there is one.</summary>
-    private void PipelineBarrier(VkCommandBuffer cmd, ReadOnlySpan<VkImageMemoryBarrier2> images, VkMemoryBarrier2? memory = null)
+    internal void PipelineBarrier(VkCommandBuffer cmd, ReadOnlySpan<VkImageMemoryBarrier2> images, VkMemoryBarrier2? memory = null)
     {
         var global = memory.GetValueOrDefault();
         fixed (VkImageMemoryBarrier2* barriers = images)
@@ -48,7 +48,7 @@ internal sealed unsafe partial class GraphicsDevice
     private void PipelineBarrier(VkCommandBuffer cmd, VkImageMemoryBarrier2 image) => PipelineBarrier(cmd, [image]);
 
     /// <summary>Records a memory barrier alone, which covers every buffer and image.</summary>
-    private void MemoryBarrier(VkCommandBuffer cmd, VkPipelineStageFlags2 srcStage, VkAccessFlags2 srcAccess,
+    internal void MemoryBarrier(VkCommandBuffer cmd, VkPipelineStageFlags2 srcStage, VkAccessFlags2 srcAccess,
         VkPipelineStageFlags2 dstStage, VkAccessFlags2 dstAccess) =>
         PipelineBarrier(cmd, [], new VkMemoryBarrier2
         {

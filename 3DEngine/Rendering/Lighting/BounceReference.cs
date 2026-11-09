@@ -7,7 +7,7 @@ namespace Engine;
 
 /// <summary>
 /// The measure of global illumination, a path-traced reference of the window's picture
-/// (<c>gi_reference.slang</c>, <see cref="GraphicsDevice.TraceReference"/>) and the window's own
+/// (<c>gi_reference.slang</c>, <see cref="ReferenceTracer.TraceReference"/>) and the window's own
 /// linear light compared with it over named regions of the view, as <c>gi.reference</c> and
 /// <c>gi.compare</c> run them.
 /// </summary>
@@ -84,9 +84,10 @@ internal static class BounceReference
             using var black = environment is null ? Device.CreateCubeMap(1, 1, new Half[6 * 4]) : null;
             var (cubeView, cubeSampler) = environment is not null ? (environment.View, environment.Sampler) : (black!.View, black.Sampler);
             var (textures, looks) = Looks(Device, Render.TryGet<GpuTextures>()!, Scene.Copies);
+            var tracer = Device.Part(static device => new ReferenceTracer(device));
             // A bounce is a face after the first, so the faces a path meets are one more, 32 at most
             // where Russian roulette ends the path.
-            return Device.TraceReference(Program.Compute, Scene, inverse, width, height, Math.Max(1, samples), Lights(Render, environment is not null),
+            return tracer.TraceReference(Program.Compute, Scene, inverse, width, height, Math.Max(1, samples), Lights(Render, environment is not null),
                 cubeView, cubeSampler, textures, looks, bounces < 0 ? 32 : bounces + 1, probe: probe, gloss: gloss);
         }
     }
@@ -104,17 +105,17 @@ internal static class BounceReference
         {
             if (id == 0) return 0;
             if (slots.TryGetValue((id, srgb), out var slot)) return slot;
-            if (textures.Count >= GraphicsDevice.ReferenceTextures) return 0;
+            if (textures.Count >= ReferenceTracer.ReferenceTextures) return 0;
             slots[(id, srgb)] = slot = (uint)textures.Count;
             textures.Add(gpu.ViewFor(device, id, srgb));
             return slot;
         }
-        var looks = new byte[Math.Max(1, copies.Count) * GraphicsDevice.ReferenceLookBytes];
+        var looks = new byte[Math.Max(1, copies.Count) * ReferenceTracer.ReferenceLookBytes];
         var words = MemoryMarshal.Cast<byte, uint>(looks.AsSpan());
         for (int i = 0; i < copies.Count; i++)
         {
             var copy = copies[i];
-            var at = i * GraphicsDevice.ReferenceLookBytes / 4;
+            var at = i * ReferenceTracer.ReferenceLookBytes / 4;
             words[at] = Slot(copy.Texture, srgb: true);
             words[at + 1] = copy.NormalScale > 0 ? Slot(copy.NormalMap, srgb: false) : 0;
             words[at + 2] = BitConverter.SingleToUInt32Bits(copy.NormalScale);
@@ -633,7 +634,7 @@ internal static class BounceReference
     // ambient lights' sum where there is not; and the point and spot lights, sixteen at most.
     private static byte[] Lights(RenderWorld render, bool environment)
     {
-        var bytes = new byte[GraphicsDevice.ReferenceLightsBytes];
+        var bytes = new byte[ReferenceTracer.ReferenceLightsBytes];
         var floats = MemoryMarshal.Cast<byte, float>(bytes.AsSpan());
         var all = render.TryGet<RenderLights>()?.All ?? [];
         var sun = all.FindIndex(light => light.Kind == LightKind.Directional);

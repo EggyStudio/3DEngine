@@ -102,7 +102,7 @@ internal sealed unsafe partial class GraphicsDevice
     // One compute stage the filter records, its pipeline, layout and the set layout of its
     // bindings, with the type of each binding, one descriptor each, which a pool of its sets is
     // counted from.
-    private readonly record struct ComputeStage(VkPipeline Pipeline, VkPipelineLayout Layout, VkDescriptorSetLayout SetLayout)
+    internal readonly record struct ComputeStage(VkPipeline Pipeline, VkPipelineLayout Layout, VkDescriptorSetLayout SetLayout)
     {
         public VkDescriptorType[] Descriptors { get; init; } = [];
     }
@@ -126,7 +126,7 @@ internal sealed unsafe partial class GraphicsDevice
         _filterStages[EnvironmentStage] = MakeComputeStage(environment, [VkDescriptorType.CombinedImageSampler, VkDescriptorType.StorageImage], 8);
     }
 
-    private ComputeStage MakeComputeStage(ReadOnlySpan<byte> spirv, VkDescriptorType[] types, uint pushSize, uint[]? counts = null)
+    internal ComputeStage MakeComputeStage(ReadOnlySpan<byte> spirv, VkDescriptorType[] types, uint pushSize, uint[]? counts = null)
     {
         var bindings = stackalloc VkDescriptorSetLayoutBinding[types.Length];
         for (int b = 0; b < types.Length; b++)

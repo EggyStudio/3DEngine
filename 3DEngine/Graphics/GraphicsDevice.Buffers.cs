@@ -8,7 +8,7 @@ internal sealed unsafe partial class GraphicsDevice
 {
     /// <summary>Vulkan implementation of <see cref="IBuffer"/> wrapping a <c>VkBuffer</c> and the range of device memory it is bound to.</summary>
     /// <seealso cref="IBuffer"/>
-    private sealed class VulkanBuffer : IBuffer
+    internal sealed class VulkanBuffer : IBuffer
     {
         private readonly GraphicsDevice _device;
 
@@ -372,7 +372,7 @@ internal sealed unsafe partial class GraphicsDevice
 
 
     /// <summary>Allocates and begins a single-use command buffer for one-shot GPU operations.</summary>
-    private VkCommandBuffer BeginSingleTimeCommands()
+    internal VkCommandBuffer BeginSingleTimeCommands()
     {
         VkCommandBufferAllocateInfo allocInfo = new()
         {
@@ -394,7 +394,7 @@ internal sealed unsafe partial class GraphicsDevice
     }
 
     /// <summary>Ends, submits, and waits for a single-use command buffer, then frees it.</summary>
-    private void EndSingleTimeCommands(VkCommandBuffer cmd)
+    internal void EndSingleTimeCommands(VkCommandBuffer cmd)
     {
         _deviceApi.vkEndCommandBuffer(cmd).CheckResult();
 
@@ -428,7 +428,7 @@ internal sealed unsafe partial class GraphicsDevice
 
     /// <summary>Finds a Vulkan memory type index matching the required type filter and property flags.</summary>
     /// <exception cref="InvalidOperationException">Thrown when no suitable memory type exists.</exception>
-    private uint FindMemoryType(uint typeFilter, VkMemoryPropertyFlags properties)
+    internal uint FindMemoryType(uint typeFilter, VkMemoryPropertyFlags properties)
     {
         VkPhysicalDeviceMemoryProperties memProperties;
         _instanceApi.vkGetPhysicalDeviceMemoryProperties(_physicalDevice, out memProperties);

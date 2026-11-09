@@ -263,9 +263,14 @@ comment. The file names of outside assets, another product's profile or process 
 "as X works it out", and the facts of the sessions' work are not written in a comment, since a
 reader of the source has none of them, and a comment that leans on them says nothing to that reader;
 the owner asked for it on 2026-11-08 reading one that graded a scene "as that scene's HDRP profile
-grades it". A comparison test names the reference it compares against, since the comparison is the
-test. By review, and by STYLE.md's search for the products' and the sessions' words in comments,
-read rather than counted.
+grades it". A comment carries no reading of before and after, no cost in milliseconds or bytes and
+no account of the trials that led to the code, since those are the review's records and
+RENDERING.md's and go stale at the first tuning; a number stands in a comment only where the code's
+choice depends on it, a size, a count or a threshold, and then with its reason. The owner asked for
+it on 2026-11-09 reading a comment that carried a wall's reading before and after a mend and the
+mend's milliseconds. A comparison test names the reference it compares against, since the comparison
+is the test. By review, and by STYLE.md's search for the products' and the sessions' words in
+comments, read rather than counted.
 
 ## 5 Examples and games
 

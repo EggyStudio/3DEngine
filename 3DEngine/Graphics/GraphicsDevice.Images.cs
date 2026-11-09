@@ -73,7 +73,7 @@ internal sealed unsafe partial class GraphicsDevice
 
     /// <summary>Wraps a Vulkan image view for a specific <see cref="IImage"/>.</summary>
     /// <seealso cref="IImageView"/>
-    private sealed class VulkanImageView : IImageView
+    internal sealed class VulkanImageView : IImageView
     {
         private readonly GraphicsDevice _device;
 
@@ -107,7 +107,7 @@ internal sealed unsafe partial class GraphicsDevice
 
     /// <summary>Wraps a Vulkan sampler with its creation descriptor.</summary>
     /// <seealso cref="ISampler"/>
-    private sealed class VulkanSampler : ISampler
+    internal sealed class VulkanSampler : ISampler
     {
         private readonly GraphicsDevice _device;
 
@@ -430,7 +430,7 @@ internal sealed unsafe partial class GraphicsDevice
     // submit and every wait for the device calls this first, so the queue runs the uploads before
     // anything submitted after them, as it did when each was submitted on its own, and a frame's
     // draws, whose barriers order them after the uploads, sample what was written.
-    private void FlushUploads()
+    internal void FlushUploads()
     {
         // The readbacks asked since the last submission go after the uploads, so a readback reads
         // what every submission before it wrote, as an upload is ahead of what follows it.

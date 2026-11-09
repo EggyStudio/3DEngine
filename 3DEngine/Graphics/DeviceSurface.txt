@@ -1,0 +1,310 @@
+sealed class Engine.GraphicsDevice : IDisposable, IGraphicsDevice
+  ComputePipeline CreateComputePipeline(ReadOnlySpan<byte> spirv, int uniformSize, IReadOnlyList<int> bufferBindings, IReadOnlyList<int>? imageBindings = null, IReadOnlyList<(int, DescriptorType)>? textureBindings = null)
+  CubeMap CreateCubeMap(uint size, uint mipLevels, ReadOnlySpan<Half> texels)
+  DeviceUsage Usage { get; }
+  FilteredCube CreateFilteredCube(uint size, uint? mipLevels = null, bool irradiance = true)
+  GpuFog CreateFog(uint across, uint down, uint slices)
+  GpuIllumination CreateGlobalIllumination(int probes, int[] texels, bool farCascade = false, bool cycle = false)
+  GpuParticles CreateParticles(int capacity)
+  GpuParticles CreatePlacedParticles(ReadOnlySpan<Vector3> points)
+  GpuPlanarReflection CreatePlanarReflection(uint width, uint height)
+  GpuRayScene CreateRayScene()
+  GpuReflectionHistory CreateReflectionHistory(uint width, uint height)
+  GpuSceneField CreateSceneField(int cascades, int resolution)
+  GpuScreenProbes CreateScreenProbes(uint width, uint height, int tile, float glowTexel = 2f)
+  GpuSkin CreateSkin(ReadOnlySpan<ModelVertex> rest, ReadOnlySpan<ushort> joints, ReadOnlySpan<float> weights, int jointCount, int ring, ReadOnlySpan<Vector4> morphs = default, int morphCount = 0)
+  GraphicsAdapterInfo AdapterInfo { get; }
+  GraphicsDevice()
+  IBuffer CreateBuffer(BufferDesc desc, string maker = "", int line = 0)
+  IBuffer CreateStorageBuffer(int size)
+  ICommandBuffer BeginCommands()
+  IDescriptorSet CreateDescriptorSet()
+  IDescriptorSet CreateDescriptorSet(IDescriptorSetLayout layout)
+  IDescriptorSetLayout CreateDescriptorSetLayout(DescriptorSetLayoutBinding[] bindings)
+  IDisposable RecordCountedCorners(ICommandBuffer commandBuffer, IBuffer corners, IReadOnlyList<(IBuffer, IBuffer?, int, int, int)> meshes)
+  IDisposable RecordEnvironmentFilter(ICommandBuffer commandBuffer, IImageView image, uint imageHeight, FilteredCube target, FilteredCube sky, AirSky? air = null)
+  IDisposable RecordFog(ICommandBuffer commandBuffer, GpuFog fog, ReadOnlySpan<byte> uniforms, IImageView shadowMap, ISampler shadowSampler, GpuIllumination? gi, GpuSceneField field)
+  IDisposable RecordGlobalIllumination(ICommandBuffer commandBuffer, GpuIllumination gi, GpuSceneField field, IImageView environment, ISampler environmentSampler, IImageView sunMap, ISampler sunSampler, ReadOnlySpan<byte> lights, IReadOnlyList<(float, float)> intervals, float spacing, bool mergeOff = false, int alone = -1, bool viewed = false, long frame = 0L, IReadOnlyList<bool>? lying = null, int lastCounted = -1, bool lightThrough = false, bool fieldWhole = false, int farPart = -1, GpuRayScene? rays = null, IReadOnlyList<(int, int, int)?>? shifts = null, float carriedShare = 1f, uint carriedSince = 0u, uint carriedPhase = 0u, uint traceFlags = 0u)
+  IDisposable RecordProbeFilter(ICommandBuffer commandBuffer, IReadOnlyList<IImageView> faces, ReadOnlySpan<Matrix4x4> viewProjections, Vector3 eye, FilteredCube target)
+  IDisposable RecordRayScene(ICommandBuffer commandBuffer, GpuRayScene scene, IReadOnlyList<RayInstance> instances, Func<object, Vector3[]?> cornersOf, Func<object, uint[]?>? colorsOf = null, IEnumerable<object>? recolored = null, Func<object, Vector2[]?>? uvsOf = null)
+  IDisposable RecordSceneFieldBuild(ICommandBuffer commandBuffer, GpuSceneField field, IBuffer corners, IBuffer instances, int instanceCount, int triangleCount, int cascade, Vector3 origin, float cell, int band, bool thinGlow = false, bool first = true, bool last = true, bool? lend = null, float sheet = 0f, SceneFieldPlan.CellBox? cells = null, bool empty = false)
+  IDisposable RecordSceneFieldRepaint(ICommandBuffer commandBuffer, GpuSceneField field, IBuffer corners, IBuffer instances, int instanceCount, int triangleCount, int cascade, Vector3 origin, float cell, int band)
+  IDisposable RecordSceneFieldStamp(ICommandBuffer commandBuffer, GpuSceneField field, IBuffer bricks, int brickCount, IBuffer shapes, int shapeCount)
+  IDisposable RecordScreenProbes(ICommandBuffer commandBuffer, GpuIllumination gi, GpuScreenProbes screen, GpuSceneField field, IImageView depth, ISampler depthSampler, ReadOnlySpan<byte> view, bool glowLights, int loggedProbe = -1, bool glowOnly = false, bool loggedNotANumber = false, bool lightThrough = false)
+  IFrameContext BeginFrame(ClearColor? clearOverride = null)
+  IFramebuffer GetSwapchainFramebuffer(uint imageIndex)
+  IImage CreateImage(ImageDesc desc)
+  IImageView CreateFirstLevelView(IImage image)
+  IImageView CreateImageView(IImage image)
+  IImageView CreateImageView(IImage image, ImageFormat format)
+  IPipeline CreateGraphicsPipeline(GraphicsPipelineDesc desc)
+  IReadOnlyList<(string, double)> BeginTimestamps(ICommandBuffer commandBuffer, int slot)
+  IReadOnlyList<BufferCount> BufferCensus()
+  IReadOnlyList<ImageCount> ImageCensus()
+  IRenderPass SwapchainRenderPass { get; }
+  ISampler CreateSampler(SamplerDesc desc)
+  IShader CreateShader(ShaderDesc desc)
+  ISwapchain Swapchain { get; }
+  RenderTarget CreateRenderTarget(uint width, uint height)
+  RenderTarget CreateRenderTarget(uint width, uint height, ImageFormat format, bool depth = true, bool multisampled = true)
+  RenderTarget CreateRenderTarget(uint width, uint height, ReadOnlySpan<ImageFormat> formats, bool depth = true, bool multisampled = true)
+  ShaderReadbackTicket ReadBack(IBuffer source, int offset, int size)
+  ShadowMap CreateDepthTarget(uint width, uint height)
+  ShadowMap CreateShadowMap(uint size, uint layers = 1u)
+  Span<byte> Map(IBuffer buffer)
+  bool CanBlendEachAttachment { get; }
+  bool CanBounceLight { get; }
+  bool CanBuildSceneField { get; }
+  bool CanClampDepth { get; }
+  bool CanDrawAir { get; }
+  bool CanDrawBresenhamLines { get; }
+  bool CanDrawCounted { get; }
+  bool CanDrawFog { get; }
+  bool CanDrawPoints { get; }
+  bool CanFilterProbes { get; }
+  bool CanIndexTextures { get; }
+  bool CanMirrorClamp { get; }
+  bool CanQueryRays { get; }
+  bool CanSampleBlockCompressed { get; }
+  bool CanSkin { get; }
+  bool CanStepParticles { get; }
+  bool CanWriteImages { get; }
+  bool IsInitialized { get; }
+  bool IsReadbackReady(ShaderReadbackTicket ticket)
+  bool TimestampsSupported { get; }
+  bool TransparentWindow { get; set; }
+  bool Vsync { get; set; }
+  const float FarFieldDistance = 10000f
+  double AcquireMs { get; }
+  double FenceWaitMs { get; }
+  double MeshCountsCpuMs { get; }
+  double MeshCountsGpuMs { get; }
+  double PresentMs { get; }
+  int FramesInFlight { get; }
+  int RequestedSamples { get; set; }
+  int Samples { get; }
+  internal (IImage, IImageView) CreateStandIn(IImage target)
+  internal (IImage, IImageView, IImageView) CreateTextureCube(uint size, ReadOnlySpan<byte> rgba)
+  internal (float[], float[]) ReadSceneFieldColors(GpuSceneField field)
+  internal (long, TimeSpan) PipelinesMade { get; }
+  internal (uint, uint) StageLimits { get; }
+  internal AddressedBuffer CreateAddressedBuffer(ulong size, VkBufferUsageFlags usage, bool host, bool lasting = false)
+  internal GraphicsDevice.ComputeStage MakeComputeStage(ReadOnlySpan<byte> spirv, VkDescriptorType[] types, uint pushSize, uint[]? counts = null)
+  internal GraphicsDevice.WindowSurface CreateWindowSurface(nint window)
+  internal Half[] ReadCubeFaces(FilteredCube cube, uint level = 0u)
+  internal IBuffer CreateFilledBuffer(ReadOnlySpan<byte> data, BufferUsage usage, string maker = "", int line = 0)
+  internal IImage CreateCompressedTexture(ImageFormat format, uint width, uint height, IReadOnlyList<ReadOnlyMemory<byte>> levels)
+  internal RenderTarget CreateRenderTargetOnWindowDepth(ImageFormat format)
+  internal T Part<T>(Func<GraphicsDevice, T> make) where T : class, IDisposable
+  internal Vector3[] ReadCubeIrradiance(FilteredCube cube)
+  internal VertexFormat? PackedPositions { get; }
+  internal VkCommandBuffer BeginSingleTimeCommands()
+  internal VkDescriptorPool MakeDescriptorPool(IEnumerable<(VkDescriptorType[], int)> layouts, VkDescriptorPoolCreateFlags flags = VkDescriptorPoolCreateFlags.None)
+  internal VkDeviceApi Api { get; }
+  internal VkDeviceMemory AllocateSaying(VkMemoryAllocateInfo* info)
+  internal VolumeTexture CreateVolumeTexture(uint size, VkFormat format, ReadOnlySpan<byte> texels)
+  internal bool AcquireWindowImage(GraphicsDevice.WindowSurface surface)
+  internal bool CopiesOnHost { get; }
+  internal bool GlobalIlluminationPassesTimed { get; set; }
+  internal bool HasWindowSurfaces { get; }
+  internal bool ReadCarriedMoving(GpuIllumination gi, int cascade, int x, int y, int z)
+  internal bool SharesMemory { get; }
+  internal bool StagesUploads { get; init; }
+  internal byte[] ReadPixels(IImage image)
+  internal byte[]? DecodedPixels(IImage compressed, uint level = 0u)
+  internal byte[]? ReadKeptScreen(out int width, out int height)
+  internal const int FarParts = 4
+  internal const int IrradianceSize = 16
+  internal const int MaxColorAttachments = 4
+  internal const int ProbeSourceSize = 64
+  internal const int ReadbackStagingKept = 4
+  internal float AnisotropyLimit { get; set; }
+  internal float[] ReadFloats(IImage image)
+  internal float[] ReadIlluminationCubes(GpuIllumination gi)
+  internal float[] ReadIlluminationHeld(GpuIllumination gi)
+  internal float[] ReadMergedSky(GpuIllumination gi, int cascade)
+  internal float[] ReadProbeDistances(GpuIllumination gi, int cascade)
+  internal float[] ReadProbeVolume(GpuIllumination gi, int cascade, bool merged)
+  internal float[] ReadSceneField(GpuSceneField field)
+  internal float[] ReadSceneFieldSheets(GpuSceneField field, bool second = false)
+  internal int CountedRecords { get; }
+  internal int MemoryBlockCount { get; }
+  internal int ReadbackStagingCount { get; }
+  internal int WindowDepthGeneration { get; }
+  internal int[] ReadCarriedMoving(GpuIllumination gi)
+  internal static VkImageMemoryBarrier2 ImageBarrier(VkImage image, VkImageSubresourceRange range, VkImageLayout from, VkImageLayout to, VkPipelineStageFlags2 srcStage, VkAccessFlags2 srcAccess, VkPipelineStageFlags2 dstStage, VkAccessFlags2 dstAccess)
+  internal static VkImageSubresourceRange ColorLevels(uint firstLevel, uint levelCount)
+  internal static bool HoldsBlocks(IImage image)
+  internal static bool LeaveValidationOff { get; set; }
+  internal static string PipelineCachePath { get; }
+  internal static string ProgramPipelineCachePath { get; }
+  internal static string? OverLimits(string stage, IEnumerable<DescriptorSetLayoutBinding> read, uint samplers, uint images, string what)
+  internal static void RequestWindowCapture(GraphicsDevice.WindowSurface surface, Action<byte[], int, int> onCaptured)
+  internal static void ResizeWindowSurface(GraphicsDevice.WindowSurface surface)
+  internal uint FindMemoryType(uint typeFilter, VkMemoryPropertyFlags properties)
+  internal ulong? FreeDeviceMemory()
+  internal void CheckComputeLimits(IEnumerable<DescriptorType> textures, string what)
+  internal void CheckStageLimits(IEnumerable<DescriptorSetLayoutBinding> bindings, string what)
+  internal void DestroyAddressedBuffer(AddressedBuffer buffer)
+  internal void DestroyDescriptorPool(VkDescriptorPool pool)
+  internal void DestroyWindowSurface(GraphicsDevice.WindowSurface surface)
+  internal void EndSingleTimeCommands(VkCommandBuffer cmd)
+  internal void FillBuffer(IBuffer destination, ulong offset, ReadOnlySpan<byte> data, string maker = "", int line = 0)
+  internal void FlushUploads()
+  internal void MarkGlobalIllumination(ICommandBuffer commandBuffer, string label)
+  internal void MemoryBarrier(VkCommandBuffer cmd, VkPipelineStageFlags2 srcStage, VkAccessFlags2 srcAccess, VkPipelineStageFlags2 dstStage, VkAccessFlags2 dstAccess)
+  internal void Name(object resource, string name)
+  internal void PipelineBarrier(VkCommandBuffer cmd, ReadOnlySpan<VkImageMemoryBarrier2> images, VkMemoryBarrier2? memory = null)
+  internal void TransitionImageLayout(IImage image, VkImageLayout oldLayout, VkImageLayout newLayout, VkImageAspectFlags aspect)
+  internal void UpdateDescriptorSet(IDescriptorSet descriptorSet, in UniformBufferBinding? uniformBinding, in CombinedImageSamplerBinding? samplerBinding)
+  internal void UploadTexture2D<TPixel>(IImage image, ReadOnlySpan<TPixel> pixels, uint width, uint height) where TPixel : unmanaged
+  internal void UploadTextureRegion(IImage image, ReadOnlySpan<byte> data, int x, int y, uint width, uint height)
+  internal void WriteTargetsThroughStandIns()
+  static IReadOnlyList<string> ValidationErrors { get; }
+  static bool ValidationActive { get; }
+  void BeginDebugLabel(ICommandBuffer commands, string name)
+  void BindDescriptorSet(ICommandBuffer commandBuffer, IPipeline pipeline, IDescriptorSet descriptorSet)
+  void BindDescriptorSet(ICommandBuffer commandBuffer, IPipeline pipeline, IDescriptorSet descriptorSet, uint index)
+  void BindDescriptorSet(ICommandBuffer commandBuffer, IPipeline pipeline, IDescriptorSet descriptorSet, uint index, ReadOnlySpan<uint> dynamicOffsets)
+  void BindGraphicsPipeline(ICommandBuffer commandBuffer, IPipeline pipeline)
+  void BindIndexBuffer(ICommandBuffer commandBuffer, IBuffer buffer, ulong offset, IndexType indexType)
+  void BindProbeVolume(IDescriptorSet set, uint binding, GpuIllumination gi, int cascade, bool merged)
+  void BindRayScene(IDescriptorSet set, uint first, GpuRayScene scene)
+  void BindVertexBuffers(ICommandBuffer commandBuffer, uint firstBinding, IBuffer[] buffers, ulong[] offsets)
+  void CmdBeginRenderPass(ICommandBuffer commandBuffer, IRenderPass renderPass, IFramebuffer framebuffer, Extent2D extent, ClearColor? clear = null)
+  void CmdEndRenderPass(ICommandBuffer commandBuffer)
+  void CmdPipelineBarrier(ICommandBuffer commandBuffer, IImage image, ImageLayout oldLayout, ImageLayout newLayout)
+  void CopyWithMipmaps(IImage source, IImage destination)
+  void Dispatch(ComputePipeline pipeline, ReadOnlySpan<byte> uniforms, IReadOnlyList<(int, IBuffer)> buffers, uint groupsX, uint groupsY, uint groupsZ, IReadOnlyList<(int, IImage, IImageView, IImage?)>? images = null, IReadOnlyList<(int, IImageView, ISampler)>? textures = null)
+  void Dispose()
+  void Draw(ICommandBuffer commandBuffer, uint vertexCount, uint instanceCount = 1u, uint firstVertex = 0u, uint firstInstance = 0u)
+  void DrawCounted(ICommandBuffer commandBuffer, IBuffer count, uint capacity, uint instanceCount, uint firstInstance, uint firstVertex = 0u, uint countOffset = 0u)
+  void DrawIndexed(ICommandBuffer commandBuffer, uint indexCount, uint instanceCount = 1u, uint firstIndex = 0u, int vertexOffset = 0, uint firstInstance = 0u)
+  void EndDebugLabel(ICommandBuffer commands)
+  void EndFrame(IFrameContext frameContext)
+  void FlushDeferredStagingBuffers(int inFlightIndex)
+  void Initialize(ISurfaceSource surfaceSource, string appName = "3DEngine")
+  void InitializeAtmosphere(ReadOnlySpan<byte> transmittance, ReadOnlySpan<byte> scatter, ReadOnlySpan<byte> sky)
+  void InitializeCountedCorners(ReadOnlySpan<byte> spirv)
+  void InitializeFog(ReadOnlySpan<byte> scatter, ReadOnlySpan<byte> integrate)
+  void InitializeGlobalIllumination(ReadOnlySpan<byte> trace, ReadOnlySpan<byte> merge, ReadOnlySpan<byte> ambient, ReadOnlySpan<byte> screen, ReadOnlySpan<byte> filter, ReadOnlySpan<byte> glow, ReadOnlySpan<byte> solidTrace = default, ReadOnlySpan<byte> rayTrace = default, ReadOnlySpan<byte> rayCross = default)
+  void InitializeMeshCounts(ReadOnlySpan<byte> spirv)
+  void InitializeParticleSort(ReadOnlySpan<byte> spirv)
+  void InitializeParticles(ReadOnlySpan<byte> spirv)
+  void InitializeProbeFilter(ReadOnlySpan<byte> gather, ReadOnlySpan<byte> mips, ReadOnlySpan<byte> prefilter, ReadOnlySpan<byte> irradiance, ReadOnlySpan<byte> environment)
+  void InitializeSceneField(ReadOnlySpan<byte> splat, ReadOnlySpan<byte> resolve, ReadOnlySpan<byte> stamp)
+  void InitializeSkinning(ReadOnlySpan<byte> spirv)
+  void KeepScreen()
+  void OnResize()
+  void PushConstants(ICommandBuffer commandBuffer, IPipeline pipeline, ShaderStageFlags stageFlags, uint offset, ReadOnlySpan<byte> data)
+  void ReadReadback(ShaderReadbackTicket ticket, Span<byte> destination)
+  void RecordKeepFrame(ICommandBuffer commandBuffer, IImageView scene, IImageView depth, GpuReflectionHistory history)
+  void RecordParticleHeader(ICommandBuffer commands, GpuParticles particles, ReadOnlySpan<Vector4> look, Matrix4x4 placedBy, Vector4 facing)
+  void RecordParticleSort(ICommandBuffer commands, GpuParticles particles, Vector3 eye, int newest, int span)
+  void RecordParticles(ICommandBuffer commands, GpuParticles particles, in ParticleStep step, Matrix4x4 placedBy, Vector4 facing, int span)
+  void RecordPlanarReflection(ICommandBuffer commandBuffer, GpuPlanarReflection planar)
+  void RecordSceneFieldClose(ICommandBuffer commandBuffer, GpuSceneField field)
+  void RecordSceneFieldInfo(ICommandBuffer commandBuffer, GpuSceneField field, ReadOnlySpan<byte> info)
+  void RecordSceneFieldOpen(ICommandBuffer commandBuffer, GpuSceneField field)
+  void RecordSceneFieldShift(ICommandBuffer commandBuffer, GpuSceneField field, int cascade, int axis, int cells)
+  void RecordSkin(ICommandBuffer commands, GpuSkin skin, ReadOnlySpan<Matrix4x4> joints, ReadOnlySpan<float> morphWeights = default)
+  void ReleaseReadback(ShaderReadbackTicket ticket)
+  void RequestCapture(Action<byte[], int, int> onCaptured)
+  void SetParticleView(IImageView depth, ISampler sampler, in ParticleView view, GpuSceneField? field = null)
+  void SetScissor(ICommandBuffer commandBuffer, int x, int y, uint width, uint height)
+  void SetViewport(ICommandBuffer commandBuffer, float x, float y, float width, float height, float minDepth, float maxDepth)
+  void SubmitAndWait(ICommandBuffer commandBuffer)
+  void Timestamp(ICommandBuffer commandBuffer, int slot, string label)
+  void Timestamp(ICommandBuffer commandBuffer, string label)
+  void Unmap(IBuffer buffer)
+  void UpdateDescriptorSet(IDescriptorSet descriptorSet, in StorageBufferBinding storageBinding)
+  void Upload<T>(IBuffer destination, ReadOnlySpan<T> data, ulong destinationOffsetBytes = 0UL) where T : unmanaged
+  void Upload<T>(IBuffer destination, T value, ulong destinationOffsetBytes = 0UL) where T : unmanaged
+  void Upload<T>(IBuffer destination, T[] data, ulong destinationOffsetBytes = 0UL) where T : unmanaged
+  void UploadBuffer(IBuffer destination, ReadOnlySpan<byte> data, ulong destinationOffset = 0UL)
+  void UploadTexture2D(IImage image, ReadOnlySpan<byte> data, uint width, uint height, int bytesPerPixel)
+  void UploadTexture2DDeferred(ICommandBuffer commandBuffer, IImage image, ReadOnlySpan<byte> data, uint width, uint height, int bytesPerPixel)
+  void WaitForCompute()
+  void WaitIdle()
+readonly struct Engine.GraphicsDevice.ComputeStage : IEquatable<GraphicsDevice.ComputeStage>
+  ComputeStage(VkPipeline Pipeline, VkPipelineLayout Layout, VkDescriptorSetLayout SetLayout)
+  VkDescriptorSetLayout SetLayout { get; init; }
+  VkDescriptorType[] Descriptors { get; init; }
+  VkPipeline Pipeline { get; init; }
+  VkPipelineLayout Layout { get; init; }
+  bool Equals(GraphicsDevice.ComputeStage other)
+  override bool Equals(object obj)
+  override int GetHashCode()
+  override string ToString()
+  static bool op_Equality(GraphicsDevice.ComputeStage left, GraphicsDevice.ComputeStage right)
+  static bool op_Inequality(GraphicsDevice.ComputeStage left, GraphicsDevice.ComputeStage right)
+  void Deconstruct(out VkPipeline Pipeline, out VkPipelineLayout Layout, out VkDescriptorSetLayout SetLayout)
+struct Engine.GraphicsDevice.IlluminationTrace
+  float BelowEnd
+  float Cascades
+  float Edge
+  float End
+  float Spacing
+  float Start
+  uint Cascade
+  uint First
+  uint Flags
+  uint Kept
+  uint Last
+  uint Parity
+  uint Probes
+  uint Texels
+  uint TexelsAbove
+  uint UnusedW
+readonly struct Engine.GraphicsDevice.MoreFormats : IEquatable<GraphicsDevice.MoreFormats>
+  MoreFormats(VkFormat First = VkFormat.Undefined, VkFormat Second = VkFormat.Undefined, VkFormat Third = VkFormat.Undefined)
+  VkFormat First { get; init; }
+  VkFormat Second { get; init; }
+  VkFormat Third { get; init; }
+  bool Equals(GraphicsDevice.MoreFormats other)
+  internal VkFormat this[int index] { get; }
+  internal int Count { get; }
+  internal static GraphicsDevice.MoreFormats Of(ReadOnlySpan<VkFormat> formats)
+  override bool Equals(object obj)
+  override int GetHashCode()
+  override string ToString()
+  static bool op_Equality(GraphicsDevice.MoreFormats left, GraphicsDevice.MoreFormats right)
+  static bool op_Inequality(GraphicsDevice.MoreFormats left, GraphicsDevice.MoreFormats right)
+  void Deconstruct(out VkFormat First, out VkFormat Second, out VkFormat Third)
+sealed class Engine.GraphicsDevice.VulkanBuffer : IBuffer, IDisposable
+  BufferDesc Description { get; }
+  VulkanBuffer(GraphicsDevice device, VkBuffer buffer, MemorySlice memory, BufferDesc desc, bool hostVisible, BufferMaker made)
+  internal MemorySlice? Memory
+  internal VkBuffer Buffer
+  internal bool IsHostVisible
+  internal nint MappedPtr
+  void Dispose()
+sealed class Engine.GraphicsDevice.VulkanImageView : IDisposable, IImageView
+  IImage Image { get; }
+  VulkanImageView(GraphicsDevice device, IImage image, VkImageView view)
+  internal VkImageView View
+  void Dispose()
+sealed class Engine.GraphicsDevice.VulkanSampler : IDisposable, ISampler
+  SamplerDesc Description { get; }
+  VulkanSampler(GraphicsDevice device, SamplerDesc desc, VkSampler sampler)
+  internal VkSampler Sampler
+  void Dispose()
+sealed class Engine.GraphicsDevice.WindowSurface
+  Extent2D Size { get; }
+  IFramebuffer Framebuffer { get; }
+  IRenderPass Pass { get; }
+  WindowSurface()
+  internal Action<byte[], int, int>? CaptureRequest
+  internal IFramebuffer[] Framebuffers
+  internal VkExtent2D Extent
+  internal VkFormat Format
+  internal VkImageView[] Views
+  internal VkImage[] Images
+  internal VkSemaphore[] Acquired
+  internal VkSemaphore[] Drawn
+  internal VkSurfaceKHR Surface { get; init; }
+  internal VkSwapchainKHR Swapchain
+  internal bool Copyable
+  internal bool Stale
+  internal nint Window { get; init; }
+  internal uint Image

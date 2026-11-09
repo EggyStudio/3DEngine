@@ -1,6 +1,7 @@
 using System.Numerics;
 using System.Runtime.InteropServices;
 using Vortice.Vulkan;
+using static Engine.GraphicsDevice;
 
 namespace Engine;
 
@@ -11,7 +12,11 @@ namespace Engine;
 /// </summary>
 internal sealed record TracedReference(int Width, int Height, float[] Light, uint[] Regions, float[]? Met = null);
 
-internal sealed unsafe partial class GraphicsDevice
+/// <summary>
+/// The path-traced reference on the device, its compute stage and the passes that trace it, a part
+/// the device keeps (<see cref="GraphicsDevice.Part{T}"/>) and lets go with itself.
+/// </summary>
+internal sealed unsafe class ReferenceTracer(GraphicsDevice device) : IDisposable
 {
     private ComputeStage _referenceStage;
 
@@ -61,64 +66,64 @@ internal sealed unsafe partial class GraphicsDevice
         int samples, ReadOnlySpan<byte> lights, IImageView environment, ISampler environmentSampler, IReadOnlyList<(IImageView View, ISampler Sampler)> textures,
         ReadOnlySpan<byte> looks, int bounces = 32, int perSubmission = 4, Vector3? probe = null, ReferenceGloss gloss = ReferenceGloss.None)
     {
-        if (!CanQueryRays) throw new InvalidOperationException("The device traces no rays.");
-        if (!CanIndexTextures) throw new InvalidOperationException("The device indexes no array of textures, which the reference reads its copies' textures through.");
+        if (!device.CanQueryRays) throw new InvalidOperationException("The device traces no rays.");
+        if (!device.CanIndexTextures) throw new InvalidOperationException("The device indexes no array of textures, which the reference reads its copies' textures through.");
         var through = scene.Copies.Any(copy => copy.LightThrough > 0);
         if (_referenceStage.Pipeline.Handle == 0)
-            _referenceStage = MakeComputeStage(spirv, [VkDescriptorType.AccelerationStructureKHR, VkDescriptorType.StorageBuffer,
+            _referenceStage = device.MakeComputeStage(spirv, [VkDescriptorType.AccelerationStructureKHR, VkDescriptorType.StorageBuffer,
                 VkDescriptorType.StorageBuffer, VkDescriptorType.StorageImage, VkDescriptorType.StorageImage, VkDescriptorType.UniformBuffer,
                 VkDescriptorType.CombinedImageSampler, VkDescriptorType.StorageBuffer, VkDescriptorType.StorageBuffer, VkDescriptorType.CombinedImageSampler],
                 (uint)Marshal.SizeOf<ReferencePush>(), [1, 1, 1, 1, 1, 1, 1, 1, 1, ReferenceTextures]);
-        FlushUploads();
-        _deviceApi.vkDeviceWaitIdle().CheckResult();
+        device.FlushUploads();
+        device.Api.vkDeviceWaitIdle().CheckResult();
 
         var (w, h) = ((uint)Math.Max(1, width), (uint)Math.Max(1, height));
         var (sums, sumsMemory, sumsView) = StorageImage2D(w, h, VkFormat.R32G32B32A32Sfloat);
         // Each pixel's region and how far its first sample went before it met it, -1 for nowhere.
         var (regions, regionsMemory, regionsView) = StorageImage2D(w, h, VkFormat.R32G32Uint);
-        var lightBuffer = (VulkanBuffer)CreateBuffer(new BufferDesc(ReferenceLightsBytes, BufferUsage.Uniform, CpuAccessMode.Write));
-        lights[..Math.Min(lights.Length, ReferenceLightsBytes)].CopyTo(Map(lightBuffer));
-        Unmap(lightBuffer);
-        var readSums = (VulkanBuffer)CreateBuffer(new BufferDesc(w * h * 16, BufferUsage.TransferDst, CpuAccessMode.Read));
-        var readRegions = (VulkanBuffer)CreateBuffer(new BufferDesc(w * h * 8, BufferUsage.TransferDst, CpuAccessMode.Read));
-        var lookBuffer = (VulkanBuffer)CreateBuffer(new BufferDesc((ulong)Math.Max(ReferenceLookBytes, looks.Length), BufferUsage.Storage, CpuAccessMode.Write));
-        looks.CopyTo(Map(lookBuffer));
-        Unmap(lookBuffer);
+        var lightBuffer = (VulkanBuffer)device.CreateBuffer(new BufferDesc(ReferenceLightsBytes, BufferUsage.Uniform, CpuAccessMode.Write));
+        lights[..Math.Min(lights.Length, ReferenceLightsBytes)].CopyTo(device.Map(lightBuffer));
+        device.Unmap(lightBuffer);
+        var readSums = (VulkanBuffer)device.CreateBuffer(new BufferDesc(w * h * 16, BufferUsage.TransferDst, CpuAccessMode.Read));
+        var readRegions = (VulkanBuffer)device.CreateBuffer(new BufferDesc(w * h * 8, BufferUsage.TransferDst, CpuAccessMode.Read));
+        var lookBuffer = (VulkanBuffer)device.CreateBuffer(new BufferDesc((ulong)Math.Max(ReferenceLookBytes, looks.Length), BufferUsage.Storage, CpuAccessMode.Write));
+        looks.CopyTo(device.Map(lookBuffer));
+        device.Unmap(lookBuffer);
 
         // The array of textures takes a descriptor of the pool's for each of its slots.
-        var pool = MakeDescriptorPool([([.. _referenceStage.Descriptors, .. Enumerable.Repeat(VkDescriptorType.CombinedImageSampler, ReferenceTextures - 1)], 1)]);
+        var pool = device.MakeDescriptorPool([([.. _referenceStage.Descriptors, .. Enumerable.Repeat(VkDescriptorType.CombinedImageSampler, ReferenceTextures - 1)], 1)]);
         try
         {
             var setLayout = _referenceStage.SetLayout;
             var allocInfo = new VkDescriptorSetAllocateInfo { descriptorPool = pool, descriptorSetCount = 1, pSetLayouts = &setLayout };
             VkDescriptorSet set;
-            _deviceApi.vkAllocateDescriptorSets(&allocInfo, &set).CheckResult();
+            device.Api.vkAllocateDescriptorSets(&allocInfo, &set).CheckResult();
             WriteReferenceSet(set, scene, sumsView, regionsView, lightBuffer, environment, environmentSampler, lookBuffer, textures);
 
             // The sums and the regions cleared, and kept in the general layout the passes and the
             // copy all take.
-            var cmd = BeginSingleTimeCommands();
+            var cmd = device.BeginSingleTimeCommands();
             var whole = ColorLevels(0, 1);
-            PipelineBarrier(cmd, [
+            device.PipelineBarrier(cmd, [
                 ImageBarrier(sums, whole, VkImageLayout.Undefined, VkImageLayout.General, VkPipelineStageFlags2.None, VkAccessFlags2.None,
                     VkPipelineStageFlags2.Transfer, VkAccessFlags2.TransferWrite),
                 ImageBarrier(regions, whole, VkImageLayout.Undefined, VkImageLayout.General, VkPipelineStageFlags2.None, VkAccessFlags2.None,
                     VkPipelineStageFlags2.Transfer, VkAccessFlags2.TransferWrite),
             ]);
             var nothing = new VkClearColorValue(0f, 0f, 0f, 0f);
-            _deviceApi.vkCmdClearColorImage(cmd, sums, VkImageLayout.General, &nothing, 1, &whole);
+            device.Api.vkCmdClearColorImage(cmd, sums, VkImageLayout.General, &nothing, 1, &whole);
             var none = new VkClearColorValue(0u, 0u, 0u, 0u);
-            _deviceApi.vkCmdClearColorImage(cmd, regions, VkImageLayout.General, &none, 1, &whole);
-            MemoryBarrier(cmd, VkPipelineStageFlags2.Transfer, VkAccessFlags2.TransferWrite,
+            device.Api.vkCmdClearColorImage(cmd, regions, VkImageLayout.General, &none, 1, &whole);
+            device.MemoryBarrier(cmd, VkPipelineStageFlags2.Transfer, VkAccessFlags2.TransferWrite,
                 VkPipelineStageFlags2.ComputeShader, VkAccessFlags2.ShaderRead | VkAccessFlags2.ShaderWrite);
-            EndSingleTimeCommands(cmd);
+            device.EndSingleTimeCommands(cmd);
 
             var (pipeline, layout, _) = _referenceStage;
             for (int first = 0; first < samples; first += perSubmission)
             {
-                cmd = BeginSingleTimeCommands();
-                _deviceApi.vkCmdBindPipeline(cmd, VkPipelineBindPoint.Compute, pipeline);
-                _deviceApi.vkCmdBindDescriptorSets(cmd, VkPipelineBindPoint.Compute, layout, 0, 1, &set, 0, null);
+                cmd = device.BeginSingleTimeCommands();
+                device.Api.vkCmdBindPipeline(cmd, VkPipelineBindPoint.Compute, pipeline);
+                device.Api.vkCmdBindDescriptorSets(cmd, VkPipelineBindPoint.Compute, layout, 0, 1, &set, 0, null);
                 var push = new ReferencePush
                 {
                     InverseViewProjection = inverseViewProjection,
@@ -131,24 +136,24 @@ internal sealed unsafe partial class GraphicsDevice
                     Specular = probe is null || gloss == ReferenceGloss.Every ? (uint)gloss : 0u,
                     Probe = new Vector4(probe ?? Vector3.Zero, 0),
                 };
-                _deviceApi.vkCmdPushConstants(cmd, layout, VkShaderStageFlags.Compute, 0, (uint)sizeof(ReferencePush), &push);
-                _deviceApi.vkCmdDispatch(cmd, (w + 7) / 8, (h + 7) / 8, 1);
-                MemoryBarrier(cmd, VkPipelineStageFlags2.ComputeShader, VkAccessFlags2.ShaderWrite,
+                device.Api.vkCmdPushConstants(cmd, layout, VkShaderStageFlags.Compute, 0, (uint)sizeof(ReferencePush), &push);
+                device.Api.vkCmdDispatch(cmd, (w + 7) / 8, (h + 7) / 8, 1);
+                device.MemoryBarrier(cmd, VkPipelineStageFlags2.ComputeShader, VkAccessFlags2.ShaderWrite,
                     VkPipelineStageFlags2.ComputeShader | VkPipelineStageFlags2.Transfer, VkAccessFlags2.ShaderRead | VkAccessFlags2.ShaderWrite | VkAccessFlags2.TransferRead);
-                EndSingleTimeCommands(cmd);
+                device.EndSingleTimeCommands(cmd);
             }
 
-            cmd = BeginSingleTimeCommands();
+            cmd = device.BeginSingleTimeCommands();
             var copy = new VkBufferImageCopy
             {
                 imageSubresource = new VkImageSubresourceLayers(VkImageAspectFlags.Color, 0, 0, 1),
                 imageExtent = new VkExtent3D(w, h, 1),
             };
-            _deviceApi.vkCmdCopyImageToBuffer(cmd, sums, VkImageLayout.General, readSums.Buffer, 1, &copy);
-            _deviceApi.vkCmdCopyImageToBuffer(cmd, regions, VkImageLayout.General, readRegions.Buffer, 1, &copy);
-            EndSingleTimeCommands(cmd);
+            device.Api.vkCmdCopyImageToBuffer(cmd, sums, VkImageLayout.General, readSums.Buffer, 1, &copy);
+            device.Api.vkCmdCopyImageToBuffer(cmd, regions, VkImageLayout.General, readRegions.Buffer, 1, &copy);
+            device.EndSingleTimeCommands(cmd);
 
-            var summed = MemoryMarshal.Cast<byte, Vector4>(Map(readSums));
+            var summed = MemoryMarshal.Cast<byte, Vector4>(device.Map(readSums));
             var light = new float[w * h * 3];
             for (int i = 0; i < summed.Length && i * 3 < light.Length; i++)
             {
@@ -156,23 +161,23 @@ internal sealed unsafe partial class GraphicsDevice
                 var count = Math.Max(s.W, 1);
                 (light[i * 3], light[i * 3 + 1], light[i * 3 + 2]) = (s.X / count, s.Y / count, s.Z / count);
             }
-            var pairs = MemoryMarshal.Cast<byte, uint>(Map(readRegions));
+            var pairs = MemoryMarshal.Cast<byte, uint>(device.Map(readRegions));
             var (regionOf, metAt) = (new uint[w * h], new float[w * h]);
             for (int i = 0; i < regionOf.Length; i++) (regionOf[i], metAt[i]) = (pairs[i * 2], BitConverter.UInt32BitsToSingle(pairs[i * 2 + 1]));
             return new TracedReference((int)w, (int)h, light, regionOf, metAt);
         }
         finally
         {
-            DestroyDescriptorPool(pool);
+            device.DestroyDescriptorPool(pool);
             readSums.Dispose();
             readRegions.Dispose();
             lightBuffer.Dispose();
             lookBuffer.Dispose();
             foreach (var (image, memory, view) in new[] { (sums, sumsMemory, sumsView), (regions, regionsMemory, regionsView) })
             {
-                _deviceApi.vkDestroyImageView(view);
-                _deviceApi.vkDestroyImage(image);
-                _deviceApi.vkFreeMemory(memory);
+                device.Api.vkDestroyImageView(view);
+                device.Api.vkDestroyImage(image);
+                device.Api.vkFreeMemory(memory);
                 DeviceObjects.Gone(DeviceObjects.Kind.Image);
                 DeviceObjects.Gone(DeviceObjects.Kind.Memory);
             }
@@ -210,7 +215,7 @@ internal sealed unsafe partial class GraphicsDevice
         writes[4] = new VkWriteDescriptorSet { dstSet = set, dstBinding = 4, descriptorCount = 1, descriptorType = VkDescriptorType.StorageImage, pImageInfo = &images[1] };
         writes[5] = new VkWriteDescriptorSet { dstSet = set, dstBinding = 5, descriptorCount = 1, descriptorType = VkDescriptorType.UniformBuffer, pBufferInfo = &buffers[2] };
         writes[6] = new VkWriteDescriptorSet { dstSet = set, dstBinding = 6, descriptorCount = 1, descriptorType = VkDescriptorType.CombinedImageSampler, pImageInfo = &images[2] };
-        _deviceApi.vkUpdateDescriptorSets(7, writes, 0, null);
+        device.Api.vkUpdateDescriptorSets(7, writes, 0, null);
 
         var uvs = scene.Uvs ?? surfaces;
         var more = stackalloc VkDescriptorBufferInfo[2];
@@ -234,7 +239,7 @@ internal sealed unsafe partial class GraphicsDevice
         {
             dstSet = set, dstBinding = 9, descriptorCount = ReferenceTextures, descriptorType = VkDescriptorType.CombinedImageSampler, pImageInfo = slots,
         };
-        _deviceApi.vkUpdateDescriptorSets(3, moreWrites, 0, null);
+        device.Api.vkUpdateDescriptorSets(3, moreWrites, 0, null);
     }
 
     // A 2D image of a format a compute shader writes and a copy reads, with its view.
@@ -253,17 +258,17 @@ internal sealed unsafe partial class GraphicsDevice
             sharingMode = VkSharingMode.Exclusive,
             initialLayout = VkImageLayout.Undefined,
         };
-        _deviceApi.vkCreateImage(&info, null, out VkImage image).CheckResult();
+        device.Api.vkCreateImage(&info, null, out VkImage image).CheckResult();
         DeviceObjects.Made(DeviceObjects.Kind.Image);
-        _deviceApi.vkGetImageMemoryRequirements(image, out VkMemoryRequirements requirements);
+        device.Api.vkGetImageMemoryRequirements(image, out VkMemoryRequirements requirements);
         var allocation = new VkMemoryAllocateInfo
         {
             allocationSize = requirements.size,
-            memoryTypeIndex = FindMemoryType(requirements.memoryTypeBits, VkMemoryPropertyFlags.DeviceLocal),
+            memoryTypeIndex = device.FindMemoryType(requirements.memoryTypeBits, VkMemoryPropertyFlags.DeviceLocal),
         };
-        var memory = AllocateSaying(&allocation);
+        var memory = device.AllocateSaying(&allocation);
         DeviceObjects.Made(DeviceObjects.Kind.Memory);
-        _deviceApi.vkBindImageMemory(image, memory, 0).CheckResult();
+        device.Api.vkBindImageMemory(image, memory, 0).CheckResult();
         var viewInfo = new VkImageViewCreateInfo
         {
             image = image,
@@ -272,18 +277,18 @@ internal sealed unsafe partial class GraphicsDevice
             components = VkComponentMapping.Rgba,
             subresourceRange = ColorLevels(0, 1),
         };
-        _deviceApi.vkCreateImageView(&viewInfo, null, out VkImageView view).CheckResult();
+        device.Api.vkCreateImageView(&viewInfo, null, out VkImageView view).CheckResult();
         return (image, memory, view);
     }
 
-    // Runs before the device goes.
-    private void DestroyReference()
+    /// <inheritdoc />
+    public void Dispose()
     {
         if (_referenceStage.Pipeline.Handle == 0) return;
         DeviceObjects.Gone(DeviceObjects.Kind.Pipeline);
-        _deviceApi.vkDestroyPipeline(_referenceStage.Pipeline);
-        _deviceApi.vkDestroyPipelineLayout(_referenceStage.Layout);
-        _deviceApi.vkDestroyDescriptorSetLayout(_referenceStage.SetLayout);
+        device.Api.vkDestroyPipeline(_referenceStage.Pipeline);
+        device.Api.vkDestroyPipelineLayout(_referenceStage.Layout);
+        device.Api.vkDestroyDescriptorSetLayout(_referenceStage.SetLayout);
         _referenceStage = default;
     }
 }

@@ -14,19 +14,23 @@ namespace Engine.Tests.Api;
 /// each with the modifiers, types, names and default values a caller depends on. Types are named
 /// without their namespace inside a signature, since the header line names it once. Protected
 /// members of a type that can be derived from are listed, as a game's subclass reaches them.
-/// Nothing compiler-generated is listed, nor anything private or internal.
+/// Nothing compiler-generated is listed, nor anything private or internal, unless the types are
+/// written with their internal members, which the rest of the assembly reaches, marked as such.
 /// </remarks>
 internal static class PublicSurface
 {
     private const BindingFlags Declared = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static | BindingFlags.DeclaredOnly;
 
-    public static string Write(Assembly assembly)
+    public static string Write(Assembly assembly) => Write(assembly.GetExportedTypes(), internals: false);
+
+    /// <summary>The types given, with their internal members too where <paramref name="internals"/> is set.</summary>
+    public static string Write(IEnumerable<Type> types, bool internals)
     {
         var text = new StringBuilder();
-        foreach (var type in assembly.GetExportedTypes().OrderBy(t => t.FullName, StringComparer.Ordinal))
+        foreach (var type in types.OrderBy(t => t.FullName, StringComparer.Ordinal))
         {
             text.Append(Header(type)).Append('\n');
-            foreach (var member in Members(type).Order(StringComparer.Ordinal)) text.Append("  ").Append(member).Append('\n');
+            foreach (var member in Members(type, internals).Order(StringComparer.Ordinal)) text.Append("  ").Append(member).Append('\n');
         }
         return text.ToString();
     }
@@ -53,7 +57,7 @@ internal static class PublicSurface
         return $"{kind} {name}{(bases.Count > 0 ? " : " + string.Join(", ", bases) : "")}{Constraints(type.IsGenericTypeDefinition ? type.GetGenericArguments() : [])}";
     }
 
-    private static IEnumerable<string> Members(Type type)
+    private static IEnumerable<string> Members(Type type, bool internals)
     {
         if (type.IsEnum)
         {
@@ -67,8 +71,8 @@ internal static class PublicSurface
         var accessors = new HashSet<MethodInfo>();
         foreach (var property in type.GetProperties(Declared))
         {
-            var get = Visible(property.GetMethod) ? property.GetMethod : null;
-            var set = Visible(property.SetMethod) ? property.SetMethod : null;
+            var get = Visible(property.GetMethod, internals) ? property.GetMethod : null;
+            var set = Visible(property.SetMethod, internals) ? property.SetMethod : null;
             if (property.GetMethod is { } g) accessors.Add(g);
             if (property.SetMethod is { } s) accessors.Add(s);
             if ((get ?? set) is not { } any || Generated(property.Name)) continue;
@@ -82,40 +86,44 @@ internal static class PublicSurface
         {
             if (@event.AddMethod is { } add) accessors.Add(add);
             if (@event.RemoveMethod is { } remove) accessors.Add(remove);
-            if (!Visible(@event.AddMethod)) continue;
+            if (!Visible(@event.AddMethod, internals)) continue;
             yield return $"{Modifiers(@event.AddMethod!, type)}event {Name(@event.EventHandlerType!, Nullability.Create(@event))} {@event.Name}";
         }
         foreach (var field in type.GetFields(Declared))
         {
-            if (!(field.IsPublic || field.IsFamily || field.IsFamilyOrAssembly) || Generated(field.Name)) continue;
-            var access = field.IsPublic ? "" : "protected ";
+            if (!(field.IsPublic || field.IsFamily || field.IsFamilyOrAssembly || (internals && field.IsAssembly)) || Generated(field.Name)) continue;
+            var access = field.IsPublic ? "" : field.IsAssembly ? "internal " : "protected ";
             var fieldType = Name(field.FieldType, Nullability.Create(field));
             if (field.IsLiteral) yield return $"{access}const {fieldType} {field.Name} = {Value(field.GetRawConstantValue(), field.FieldType)}";
             else yield return $"{access}{(field.IsStatic ? "static " : "")}{(field.IsInitOnly ? "readonly " : "")}{fieldType} {field.Name}";
         }
         foreach (var constructor in type.GetConstructors(Declared))
         {
-            if (!Visible(constructor) || constructor.IsStatic) continue;
+            if (!Visible(constructor, internals) || constructor.IsStatic) continue;
             yield return $"{Access(constructor)}{Simple(type)}({Parameters(constructor.GetParameters())})";
         }
         foreach (var method in type.GetMethods(Declared))
         {
-            if (!Visible(method) || accessors.Contains(method) || Generated(method.Name)) continue;
+            if (!Visible(method, internals) || accessors.Contains(method) || Generated(method.Name)) continue;
             var generic = method.IsGenericMethodDefinition ? "<" + string.Join(", ", method.GetGenericArguments().Select(a => a.Name)) + ">" : "";
             var constraints = method.IsGenericMethodDefinition ? Constraints(method.GetGenericArguments()) : "";
             yield return $"{Modifiers(method, type)}{Returned(method)} {method.Name}{generic}({Parameters(method.GetParameters(), Extension(method))}){constraints}";
         }
     }
 
-    private static bool Visible(MethodBase? method) => method is not null && (method.IsPublic || method.IsFamily || method.IsFamilyOrAssembly);
+    private static bool Visible(MethodBase? method, bool internals) =>
+        method is not null && (method.IsPublic || method.IsFamily || method.IsFamilyOrAssembly || (internals && method.IsAssembly));
 
     // Names the compiler makes up, such as a record's clone method, which nothing calls by name.
     private static bool Generated(string name) => name.Contains('<');
 
     private static bool Extension(MethodBase method) => method.IsDefined(typeof(ExtensionAttribute));
 
+    // An accessor as reachable as its property is written bare.
     private static string Access(MethodBase method, MethodBase? of = null) =>
-        method.IsPublic || (of is not null && !of.IsPublic) ? "" : "protected ";
+        method.IsPublic || (of is not null && Reach(of) == Reach(method)) ? "" : method.IsAssembly ? "internal " : "protected ";
+
+    private static int Reach(MethodBase method) => method.IsPublic ? 0 : method.IsAssembly ? 1 : 2;
 
     private static string Modifiers(MethodBase method, Type owner)
     {

@@ -17,19 +17,24 @@ public sealed class PublicSurfaceTests
     private static string Listing() => Path.Combine(CheatsheetTests.RepoRoot(), "3DEngine", "PublicApi.txt");
 
     [Fact]
-    public void The_Public_Surface_Is_The_Listing_Checked_In()
-    {
-        var built = PublicSurface.Write(typeof(E3D).Assembly);
-        if (Environment.GetEnvironmentVariable("ENGINE_WRITE_API") == "1") File.WriteAllText(Listing(), built);
+    public void The_Public_Surface_Is_The_Listing_Checked_In() =>
+        IsTheListing(PublicSurface.Write(typeof(E3D).Assembly), Listing(), "the public surface");
 
-        var checkedIn = File.Exists(Listing()) ? File.ReadAllText(Listing()).ReplaceLineEndings("\n") : "";
+    // A surface written from the built assembly against the listing checked in at the path given,
+    // which the listing becomes where ENGINE_WRITE_API is set.
+    internal static void IsTheListing(string built, string listing, string what)
+    {
+        if (Environment.GetEnvironmentVariable("ENGINE_WRITE_API") == "1") File.WriteAllText(listing, built);
+
+        var checkedIn = File.Exists(listing) ? File.ReadAllText(listing).ReplaceLineEndings("\n") : "";
         if (built == checkedIn) return;
 
         // Each line that differs, under the type it belongs to, so the failure says what changed.
         var added = Lines(built).Except(Lines(checkedIn)).ToList();
         var removed = Lines(checkedIn).Except(Lines(built)).ToList();
         var report = string.Join("\n", removed.Select(l => "- " + l).Concat(added.Select(l => "+ " + l)).Take(60));
-        report.Should().BeEmpty("the public surface changed without 3DEngine/PublicApi.txt, which build/api.sh writes again");
+        var file = Path.GetRelativePath(CheatsheetTests.RepoRoot(), listing);
+        report.Should().BeEmpty($"{what} changed without {file}, which build/api.sh writes again");
         built.Should().Be(checkedIn, "the listing holds the same lines in the same order");
     }
 
