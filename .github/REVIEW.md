@@ -8,34 +8,35 @@ package goes with the next pack run, the game taking them in its 167. After it `
 followed exposure's adapted light kept in 32-bit floats so it rests at its meter whatever the
 frames' pace, the night door at 122.77 unpaced and at 30 frames a second, committed at 11:01 on
 2026-11-10, and `32e4407c`, 238, the caches listed and cleared from e3d, the pipelines written while
-a program runs and the shader cache swept of what went unread for 14 days, committed at 11:40; the
-two are pushed once `4fb868ca`'s run has ended; they keep the form. Before it `f68075f1`, 239, every
-cascade built at the most raised budget after a cut, pushed at 07:44 on 2026-11-10 with `9c6c8d0e`,
-245, the far cascade's band weighed around the eye, and `f77e4cf4`, build/flicker.py's three
-options, their run green at 10:13 with macOS in 42 minutes, Windows in 74 and 126, Linux in 135 and
-the examples in 13, their pack run with publish going since the ramp's ended. Before it `e86ca5c3`,
-240's ramp, a pixel whose screen probes stand on a surface like its own for under a quarter of their
-weight taking the world's probes' light by its shortfall, with the march by thin walls, pushed at
-05:41 on 2026-11-10, its run green at 07:43 with macOS in 43 minutes, Windows in 108 and 122, Linux
-in 105 and the examples in 11, its pack run green at 08:57 with its captures in 58 and 72 minutes
-and its games in 70, publishing 6.2.14, tagged `v6.2.14`; the game reads its shaded ground on that
-package and its walk on the next. The working session was ended at 01:15 on 2026-11-10 by the
-kernel, a python3 of its own having read its 4.3 GB transcript whole into 27 GB beside 18 GB of old
-frames in /tmp, and was resumed by the owner at 04:23, its scratch cleared (N 7.10). Before it
-`adb41aa7`, the example's sponza.turn and build/flicker.py, pushed at 01:18 on 2026-11-10, green at
-03:44. Before it `94097b62`, 242, a hit marching its brightest glow light and gathering the rest as
-one, pushed at 22:41 on 2026-11-09 with 241 and 243, green at 00:35, whose pack run published 6.2.12
-at 02:34, tagged `v6.2.12`, which the game pins since its `cfffcb3`. Before it `ed469e90`, 237, the
-illumination's cycles eased in the merge and the screen filter, pushed at 20:18 on 2026-11-09, its
-run green at 22:13 with macOS in 45 minutes, Windows in 98 and 115, Linux in 104 and the examples in
-10; it keeps the form. Before it `c23cd2d4`, 226's fourth and last commit, green at 20:15 on
-2026-11-09, whose pack run published 6.2.8 at 21:08, the package 3DEngine, its twelve areas and the
-templates, tagged `v6.2.8`, which settled Verdict 111. The release scene-packs holds
-intel-sponza.pack since 17:58 on 2026-11-09, so ./e3d scenes fetch works. nuget.org holds 6.0.11,
-6.0.14, 6.0.91, 6.1.12, 6.2.8, 6.2.12 and 6.2.14, the game pinned to 6.1.12, tagged `v6.1.12` at
-`8dba0d1c`; the version stands at 6.2, tagged `v6.2.0` at `1c3c38d5`. Item 6's three package bumps
-wait on the owner's word since October. Every push and run before `c23cd2d4` since 2026-10-23 stands
-in REVIEW-ARCHIVE.md under Head records.
+a program runs and the shader cache swept of what went unread for 14 days, committed at 11:40; and
+`66301da6`, 235's first cut, the illumination's binding and its sizes in a static of their own that
+the rest of the rendering reads, committed at 12:09; the three are pushed once `4fb868ca`'s run has
+ended; they keep the form. Before it `f68075f1`, 239, every cascade built at the most raised budget
+after a cut, pushed at 07:44 on 2026-11-10 with `9c6c8d0e`, 245, the far cascade's band weighed
+around the eye, and `f77e4cf4`, build/flicker.py's three options, their run green at 10:13 with
+macOS in 42 minutes, Windows in 74 and 126, Linux in 135 and the examples in 13, their pack run with
+publish going since the ramp's ended. Before it `e86ca5c3`, 240's ramp, a pixel whose screen probes
+stand on a surface like its own for under a quarter of their weight taking the world's probes' light
+by its shortfall, with the march by thin walls, pushed at 05:41 on 2026-11-10, its run green at
+07:43 with macOS in 43 minutes, Windows in 108 and 122, Linux in 105 and the examples in 11, its
+pack run green at 08:57 with its captures in 58 and 72 minutes and its games in 70, publishing
+6.2.14, tagged `v6.2.14`; the game reads its shaded ground on that package and its walk on the next.
+The working session was ended at 01:15 on 2026-11-10 by the kernel, a python3 of its own having read
+its 4.3 GB transcript whole into 27 GB beside 18 GB of old frames in /tmp, and was resumed by the
+owner at 04:23, its scratch cleared (N 7.10). Before it `adb41aa7`, the example's sponza.turn and
+build/flicker.py, pushed at 01:18 on 2026-11-10, green at 03:44. Before it `94097b62`, 242, a hit
+marching its brightest glow light and gathering the rest as one, pushed at 22:41 on 2026-11-09 with
+241 and 243, green at 00:35, whose pack run published 6.2.12 at 02:34, tagged `v6.2.12`, which the
+game pins since its `cfffcb3`. Before it `ed469e90`, 237, the illumination's cycles eased in the
+merge and the screen filter, pushed at 20:18 on 2026-11-09, its run green at 22:13 with macOS in 45
+minutes, Windows in 98 and 115, Linux in 104 and the examples in 10; it keeps the form. Before it
+`c23cd2d4`, 226's fourth and last commit, green at 20:15 on 2026-11-09, whose pack run published
+6.2.8 at 21:08, the package 3DEngine, its twelve areas and the templates, tagged `v6.2.8`, which
+settled Verdict 111. The release scene-packs holds intel-sponza.pack since 17:58 on 2026-11-09, so
+./e3d scenes fetch works. nuget.org holds 6.0.11, 6.0.14, 6.0.91, 6.1.12, 6.2.8, 6.2.12 and 6.2.14,
+the game pinned to 6.1.12, tagged `v6.1.12` at `8dba0d1c`; the version stands at 6.2, tagged
+`v6.2.0` at `1c3c38d5`. Item 6's three package bumps wait on the owner's word since October. Every
+push and run before `c23cd2d4` since 2026-10-23 stands in REVIEW-ARCHIVE.md under Head records.
 
 Next 235, the illumination as its own project, the last open item; 6 waits on the owner's word. The
 game pins 6.2.14 of `e86ca5c3` and reads its shaded ground on it, and the package of `f68075f1`'s
@@ -84,7 +85,16 @@ reverted as the screen probes' limit at shapes about a tile wide, its patches in
     illumination and the screen probes, the screen glow and the settings, moved down into Rendering;
     the illumination's nodes and renderers registered by a plugin of its own; the model pass reading
     the binding alone; then the project. After 226 and the live path, when the illumination's items
-    rest; each cut its own commit with the suite, the public types' namespace Engine throughout.
+    rest; each cut its own commit with the suite, the public types' namespace Engine throughout. The
+    plan of 2026-11-10 in the Replies is approved, five cuts each with the suite, the binding moved
+    down, the passes through an interface, a plugin of the illumination's own, the model pass on the
+    binding alone, then the project, the flat package depending on it as on the twelve and AGENTS.md
+    gaining only N 1.5's row. The first cut is `66301da6`, IlluminationBinding, TargetIllumination
+    and GpuIllumination in files of their own, the screen probes' making behind
+    GpuScreenProbes.Create, and a static Illumination holding the sizes and tables the ambient
+    occlusion, the bloom, the model pass, the fog and the lighting buffer read; GlowOnly and the
+    history's view go through the second cut's interface and not a frame record, the lighting buffer
+    reading the frame before's as it did; the suite 2,325, the listing unchanged.
 
 238. **The caches listed and cleared from e3d.** From the owner's question of 2026-11-09, whether an
     old cache of shaders keeps the picture old. The shader cache is keyed by the source's hash, the
@@ -601,3 +611,10 @@ and the history's camera, go with the second cut's interface rather than a recor
 lighting buffer reads them in the prepare stage before the illumination's node runs, as it does now,
 the frame before's. GlobalIlluminationSettings and GlowLights were apart already and stay in
 Rendering. Nothing is public, so the listing is unchanged.
+
+Item 235's second cut. IIlluminationPasses in Rendering is what the frame's passes ask of the
+illumination while it runs, whether the screen's probes stand for the glow lights alone, the
+history's camera, whether the window's meshes are built for the device's ray tracing, keeping the
+frame and drawing a render target's probes; the renderer implements it and is set in the render world
+under it beside its own type. HdrNodes, TargetsNode and LightingUboPrepare find it there, and none of
+them names the renderer. The fog took the binding alone after the first cut.

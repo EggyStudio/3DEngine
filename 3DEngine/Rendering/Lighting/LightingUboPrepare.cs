@@ -94,7 +94,7 @@ internal sealed class LightingUboPrepare : IPrepareSystem
             var quality = renderWorld.TryGet<GlobalIlluminationSettings>()!.Quality;
             var settings = renderWorld.TryGet<GlobalIlluminationSettings>()!;
             // z: 1 at Low, where the screen's probes stand for the glow lights alone, whose texels are read.
-            var glowOnly = renderWorld.TryGet<GlobalIlluminationRenderer>()?.GlowOnly(renderWorld) == true;
+            var glowOnly = renderWorld.TryGet<IIlluminationPasses>()?.GlowOnly(renderWorld) == true;
             var tall = renderWorld.TryGet<SwapchainTarget>()?.Extent.Height ?? 1080;
             windowUbo.Screen = new System.Numerics.Vector4(Illumination.TileAt(quality, tall),
                 Illumination.ScreenProbesOn(renderWorld) ? 1 : 0, glowOnly ? 1 : 0, (settings.AlbedoOff ? 1 : 0) + (settings.SpecularOff ? 2 : 0));
@@ -104,7 +104,7 @@ internal sealed class LightingUboPrepare : IPrepareSystem
             // Both through the camera without temporal antialiasing's move, as the window's depth
             // and the frame kept are.
             if (renderWorld.TryGet<WindowView>() is { } view && System.Numerics.Matrix4x4.Invert(view.Unjittered, out var inverse)
-                && renderWorld.TryGet<GlobalIlluminationRenderer>() is { } gi)
+                && renderWorld.TryGet<IIlluminationPasses>() is { } gi)
             {
                 var (steps, reach) = Illumination.ReflectionStepsAt(quality);
                 windowUbo.ReflectViewProjection = view.Unjittered;
@@ -113,7 +113,7 @@ internal sealed class LightingUboPrepare : IPrepareSystem
                 windowUbo.ReflectLastInverseViewProjection = System.Numerics.Matrix4x4.Invert(windowUbo.ReflectLastViewProjection, out var lastInverse)
                     ? lastInverse : inverse;
                 windowUbo.Reflection = new System.Numerics.Vector4(1, Illumination.GlossyRoughness, steps, gi.HistoryViewProjection is null ? 0 : 1);
-                windowUbo.ReflectionReach = new System.Numerics.Vector4(reach, gi.Rays is null ? 0 : 1, 0, 0);
+                windowUbo.ReflectionReach = new System.Numerics.Vector4(reach, gi.TracesRays ? 1 : 0, 0, 0);
             }
         }
         // And the materials' normal maps left out for a reading, with global illumination on or off.

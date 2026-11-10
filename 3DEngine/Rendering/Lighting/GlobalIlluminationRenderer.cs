@@ -30,7 +30,7 @@ namespace Engine;
 /// lights' where there is none.
 /// </para>
 /// </remarks>
-internal sealed partial class GlobalIlluminationRenderer : IDisposable
+internal sealed partial class GlobalIlluminationRenderer : IIlluminationPasses, IDisposable
 {
     private static readonly ILogger Logger = Log.Category("Engine.GlobalIllumination");
 
@@ -98,13 +98,16 @@ internal sealed partial class GlobalIlluminationRenderer : IDisposable
     /// The window's camera the frame <see cref="KeepFrame"/> last kept the scene of, which a
     /// reflection looks a surface up in that picture by, or null where none is kept.
     /// </summary>
-    internal Matrix4x4? HistoryViewProjection { get; private set; }
+    public Matrix4x4? HistoryViewProjection { get; private set; }
 
     /// <summary>
     /// The window's meshes for the device's ray tracing, built each frame at the top quality where
     /// the device and the model pass trace rays, or null where none are.
     /// </summary>
     internal GpuRayScene? Rays => _rays;
+
+    /// <inheritdoc />
+    public bool TracesRays => _rays is not null;
 
     /// <summary>
     /// Whether the screen's probes stand for the glow lights alone this frame, which they do at
@@ -117,7 +120,7 @@ internal sealed partial class GlobalIlluminationRenderer : IDisposable
     /// there are. Left out for debugging (<see cref="GlobalIlluminationSettings.ScreenOff"/>), they
     /// stand for nothing, and each pixel marches.
     /// </remarks>
-    internal bool GlowOnly(RenderWorld renderWorld) =>
+    public bool GlowOnly(RenderWorld renderWorld) =>
         _glowCount > 0 && renderWorld.TryGet<GlobalIlluminationSettings>() is { ScreenOff: false, Quality: GlobalIllumination.Low };
 
     /// <summary>Traces, merges and gathers the frame's probes, binding them for the model pass, or lets them go where light does not bounce.</summary>

@@ -16,7 +16,7 @@ namespace Engine;
 /// its size and its ambient occlusion are worked out before it as the window's are
 /// (<see cref="AmbientOcclusionRenderer.DrawTarget"/>), and where global illumination is on its
 /// screen probes are traced on that depth, after the frame's world probes
-/// (<see cref="GlobalIlluminationRenderer.DrawTarget"/>), and its particles laid over by alpha are
+/// (<see cref="IIlluminationPasses.DrawTarget"/>), and its particles laid over by alpha are
 /// sorted from its camera (<see cref="ParticleRenderer.SortFor"/>).
 /// </remarks>
 internal sealed class TargetsNode : INode
@@ -40,7 +40,7 @@ internal sealed class TargetsNode : INode
             if (models is not null && renderWorld.TryGet<ModelDrawList>()?.ViewProjectionOf(id) is { } camera)
             {
                 renderWorld.TryGet<AmbientOcclusionRenderer>()?.DrawTarget(renderContext, renderWorld, id, target.Extent, camera);
-                renderWorld.TryGet<GlobalIlluminationRenderer>()?.DrawTarget(renderContext, renderWorld, id, target.Extent, camera);
+                renderWorld.TryGet<IIlluminationPasses>()?.DrawTarget(renderContext, renderWorld, id, target.Extent, camera);
             }
             renderWorld.TryGet<ParticleRenderer>()?.SortFor(renderContext, renderWorld, id);
 

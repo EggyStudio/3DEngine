@@ -44,7 +44,7 @@ internal sealed class HdrSceneNode : INode
         {
             temporal?.Resolve(renderContext, renderWorld, bloom.Decoded, renderWorld.TryGet<WindowView>(),
                 bloom.AdaptedBefore(renderWorld.TryGet<FrameEffects>()));
-            renderWorld.TryGet<GlobalIlluminationRenderer>()?.KeepFrame(renderContext, renderWorld, light, swapchain.Extent);
+            renderWorld.TryGet<IIlluminationPasses>()?.KeepFrame(renderContext, renderWorld, light, swapchain.Extent);
         }
         else
         {

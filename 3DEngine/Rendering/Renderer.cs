@@ -137,7 +137,9 @@ internal sealed class Renderer : IDisposable
         RenderWorld.Set(new TemporalRenderer(server.LoadSync<ShaderProgram>("shaders/taa.slang")));
         RenderWorld.Set(new VolumetricFogRenderer(server.LoadSync<ShaderProgram>("shaders/decode.slang")));
         RenderWorld.Set(new SceneFieldRenderer());
-        RenderWorld.Set(new GlobalIlluminationRenderer());
+        var illumination = new GlobalIlluminationRenderer();
+        RenderWorld.Set(illumination);
+        RenderWorld.Set<IIlluminationPasses>(illumination);
         RenderWorld.Set(new MirrorRenderer());
         RenderWorld.Set(new SceneFieldViewRenderer(server.LoadSync<ShaderProgram>("shaders/field_view.slang")));
         RenderWorld.Set(new BounceViewRenderer(server.LoadSync<ShaderProgram>("shaders/gi_view.slang"),
