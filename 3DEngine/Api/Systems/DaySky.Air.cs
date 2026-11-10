@@ -33,7 +33,7 @@ internal sealed partial class DaySky
         if (hour != _litHour || tilt != _litTilt || Light != _litLight)
         {
             (_litHour, _litTilt, _litLight) = (hour, tilt, Light);
-            var (direction, light) = AirLightAt(air, Outside(), hour, tilt, Days);
+            var (direction, light) = AirLightAt(air, Outside(hour, tilt), hour, tilt, Days);
             var lux = Sky.Colorimetry.Luminance(light);
             var most = MathF.Max(light.X, MathF.Max(light.Y, light.Z));
             var color = lux > 0 ? ColorOf(Encode(light / most) * 255) : Color.White;
@@ -41,7 +41,7 @@ internal sealed partial class DaySky
             var intensity = lux > 0 ? units.IntensityOf(LightKind.Directional, lux, PhysicalQuantity.Illuminance, 0, Sky.Colorimetry.Luminance(hue)) : 0;
             E3D.SetLightDirection(Light, direction);
             E3D.SetLightColor(Light, color, intensity);
-            SunDisc = DiscAt(air, Outside(), hour, tilt, units.PreExposure);
+            SunDisc = DiscAt(air, Outside(hour, tilt), hour, tilt, units.PreExposure);
             MoonDisc = MoonDiscAt(air, hour, tilt, units.PreExposure);
         }
 
@@ -55,7 +55,7 @@ internal sealed partial class DaySky
         var byMoon = SunToward(hour, tilt).Y < MathF.Sin(float.DegreesToRadians(-12));
         var (toward, outside) = byMoon
             ? (toMoon, Sky.Sun.Outside / Sky.Sun.OutsideIlluminance * Sky.Moon.OutsideIlluminance(phaseAngle))
-            : (SunToward(hour, tilt), Outside());
+            : (SunToward(hour, tilt), Outside(hour, tilt));
         world.InsertResource(EnvironmentMap.FromAir(new AirSky(air, toward, outside * units.PreExposure, Sky.Night.SkyLuminance * units.PreExposure), AirWidth, AirHeight));
         world.RemoveResource<SkyHorizon>();
     }
@@ -73,11 +73,16 @@ internal sealed partial class DaySky
         return (toSun, outside * air.Transmittance(0, toSun.Y) / solidAngle * preExposure);
     }
 
+    // The share of the sun's strength a low sun keeps at least where it is scaled by its height
+    // (SkyDay.SunByHeight), which lights the twilight's air after sunset.
+    private const float LeastHeightShare = 1 / 24f;
+
     // The sun's light outside the air in linear light, its luminance in lux, the program's where it
-    // set one and the module's otherwise.
-    private Vector3 Outside()
+    // set one and the module's otherwise, by the sun's height at the hour where the day asks.
+    private Vector3 Outside(float hour, float tilt)
     {
         var lux = Day.SunIlluminance > 0 ? Day.SunIlluminance : Sky.Sun.OutsideIlluminance;
+        if (Day.SunByHeight) lux *= MathF.Max(LeastHeightShare, SunToward(hour, tilt).Y);
         if (Day.SunColor.A == 0) return Sky.Sun.Outside / Sky.Sun.OutsideIlluminance * lux;
         var hue = E3D.Linear(Day.SunColor with { A = 255 });
         return hue / MathF.Max(Sky.Colorimetry.Luminance(hue), 1e-6f) * lux;

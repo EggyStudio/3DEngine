@@ -379,7 +379,10 @@ Given air, `SkyDay.Atmosphere`, such as the Sky module's `Sky.Atmosphere.Earth`,
 physical. The sun's light outside the air, `SkyDay.SunIlluminance` and `SkyDay.SunColor` or the
 module's 128,000 lux at 5,772 K where they are unset, reaches the world through the air at the
 sun's height, 110,000 lux at 5,026 K with the sun 54 degrees high and 84,000 at 4,128 K at 16.5,
-fading as its disc sets, and by night the moon's by the same air. The sky is the air's, the sun's
+fading as its disc sets, and by night the moon's by the same air. `SkyDay.SunByHeight` scales the
+sun's strength outside the air by the sine of its height as well, no less than a twenty-fourth of
+it, for a scene graded against a sun that weakens sooner as it sinks, as `scenes_sponza` sets
+120,000 lux and the hour alone. The sky is the air's, the sun's
 light the air scatters toward the eye drawn on the GPU from the same model, blue overhead, pale and
 bright toward the horizon and reddening as the sun sets, with the ground below the horizon lit
 through the air and the sun's disc drawn by its luminance. It lights the world from all around and

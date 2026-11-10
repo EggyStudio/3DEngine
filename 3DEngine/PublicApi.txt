@@ -1247,6 +1247,7 @@ readonly struct Engine.SkyDay : IEquatable<SkyDay>
   LightHandle Light { get; init; }
   SkyDay()
   bool Equals(SkyDay other)
+  bool SunByHeight { get; init; }
   float Minutes { get; init; }
   float SkyIlluminance { get; init; }
   float SunIlluminance { get; init; }

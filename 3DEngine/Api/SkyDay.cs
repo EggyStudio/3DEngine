@@ -44,6 +44,19 @@ public readonly record struct SkyDay
     public float SunIlluminance { get; init; }
 
     /// <summary>
+    /// Whether the sun's strength through the air is scaled by its height, the sine of its angle
+    /// over the horizon on the path the day takes it, so <see cref="SunIlluminance"/> gives the
+    /// sun's lux overhead and a low sun gives a share of it, no less than a twenty-fourth.
+    /// </summary>
+    /// <remarks>
+    /// The air dims and warms a low sun by the length of air its light crosses, and a scene graded
+    /// against a sun that weakens sooner as it sinks takes its height as well. Past sunset the twilight's air is lit by the sun under the
+    /// horizon until it is twelve degrees down, so the share keeps its twenty-fourth there rather
+    /// than none. Without air the sky's own curve falls with the sun, and this does nothing.
+    /// </remarks>
+    public bool SunByHeight { get; init; }
+
+    /// <summary>
     /// The lux the sky gives a level floor at noon apart from the sun, seen through the camera as
     /// <see cref="SunIlluminance"/> is, which scales the light of the sky the environment map holds
     /// and the sky <see cref="E3D.DrawSkybox()"/> draws, or 0 for the sky's own plain strength. A

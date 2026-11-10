@@ -108,5 +108,36 @@ public sealed class DaySkyAirTests : IDisposable
         GetApp().World.Resource<DaySky>().SunDisc.Should().NotBeNull("the sun is up");
     }
 
+    [Fact]
+    [Trait("Category", "Unit")]
+    public void A_Sun_Scaled_By_Its_Height_Lights_As_The_Strength_Times_The_Height_Set_Each_Hour_Did()
+    {
+        // scenes_sponza's sun, 120,000 lux outside the air on a path leaning 6 degrees, which it set
+        // each hour as 120,000 times the sine of its height, 5,000 at least, and sets once now with
+        // the day scaling it.
+        float LightAt(SkyDay day, float hour)
+        {
+            UseApp(new App(Config.Default with { Headless = true, HeadlessFps = 1000, FrameSeconds = 1.0 / 60 }).AddPlugin(new DefaultPlugins()));
+            SetSkyDay(day);
+            SetSkyTime(hour);
+            BeginDrawing();
+            EndDrawing();
+            var ecs = GetApp().World.Resource<EcsWorld>();
+            ecs.TryResolve(GetSkyLightHandle().Entity, out var entity).Should().BeTrue();
+            var light = ecs.GetReadOnly<Light>(entity);
+            var lit = light.Intensity * Sky.Colorimetry.Luminance(light.Color);
+            CloseWindow();
+            UseApp(null);
+            return lit;
+        }
+        foreach (var hour in new[] { 8f, 12f, 16f, 6.2f, 17.9f })
+        {
+            var height = MathF.Cos(float.DegreesToRadians(6)) * MathF.Sin(float.DegreesToRadians((hour - 6) * 15));
+            var set = LightAt(new SkyDay { Minutes = 0, Tilt = 6, Atmosphere = Earth, SunIlluminance = MathF.Max(5_000, 120_000 * height) }, hour);
+            var scaled = LightAt(new SkyDay { Minutes = 0, Tilt = 6, Atmosphere = Earth, SunIlluminance = 120_000, SunByHeight = true }, hour);
+            scaled.Should().BeApproximately(set, set * 1e-4f, $"at {hour} the day scales the sun as the example did");
+        }
+    }
+
     private static LightHandle GetSkyLightHandle() => GetApp().World.Resource<DaySky>().Light;
 }

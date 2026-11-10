@@ -146,16 +146,11 @@ public static class ScenesSponza
         // though it had no indirect light, so the example starts metered and M holds the camera at
         // those values.
         var air = Sky.Atmosphere.Earth with { AerosolExtinction = 1e-6f, AerosolScaleHeight = 12_000, GroundAlbedo = Vector3.One };
-        void SetHour(float at)
+        SetSkyDay(new SkyDay
         {
-            // The sun's height on the path the day sky gives it, leaning 6 degrees.
-            var height = MathF.Cos(float.DegreesToRadians(6)) * MathF.Sin(float.DegreesToRadians((at - 6) * 15));
-            SetSkyDay(new SkyDay
-            {
-                Minutes = 0, Tilt = 6, Atmosphere = air, SunIlluminance = MathF.Max(5_000, 120_000 * height), SunColor = ColorFromTemperature(5633),
-            });
-            SetSkyTime(at);
-        }
+            Minutes = 0, Tilt = 6, Atmosphere = air, SunIlluminance = 120_000, SunByHeight = true, SunColor = ColorFromTemperature(5633),
+        });
+        void SetHour(float at) => SetSkyTime(at);
         SetHour(hour);
         SetShadowDistance(40);
         SetCameraExposure(200, 1 / 200f, 16);
