@@ -4,46 +4,50 @@ Reviewed up to `dd0adff0`, 235's second cut, the passes the frame and the target
 illumination through an interface, pushed at 12:48 on 2026-11-10 with `ae62fa22`, 247, the followed
 exposure's adapted light in 32-bit floats so it rests at its meter whatever the frames' pace,
 `32e4407c`, 238, the caches listed and cleared from e3d, and `66301da6`, 235's first cut, one run on
-the last and a pack run with publish started on it at 12:48; they keep the form and carry the
-review's files. After it `c53bcc2c`, 235's third cut, the illumination's plugin adding a renderer
-part that loads its shaders and nodes, committed at 13:23 on 2026-11-10, and `0747c6ca`, its fifth
-and last, the project 3DEngine.GlobalIllumination above Rendering with the flat package depending on
-it, committed at 14:14; the two are pushed once `dd0adff0`'s run has ended, with a pack run that
-publishes the new package's id for the first time; they keep the form. Before it `4fb868ca`, 244's
-fourth and last commit, pushed at 10:14 on 2026-11-10 with its three before it, their run green at
-12:44 with macOS in 46 minutes, Windows in 63 and 96, Linux in 141 and the examples in 9; their
-package comes from the pack run above, the game taking them in its 167. Before it `f68075f1`, 239
-with 245 and build/flicker.py's options, pushed at 07:44, green at 10:13, whose pack run went green
-at 12:41 with its captures in 58 and 71 minutes and its games in 53, publishing 6.2.17, tagged
-`v6.2.17`, which the game pins for the clouds and the cuts. Before it `e86ca5c3`, 240's ramp, a
-pixel whose screen probes stand on a surface like its own for under a quarter of their weight taking
-the world's probes' light by its shortfall, with the march by thin walls, pushed at 05:41 on
-2026-11-10, its run green at 07:43 with macOS in 43 minutes, Windows in 108 and 122, Linux in 105
-and the examples in 11, its pack run green at 08:57 with its captures in 58 and 72 minutes and its
-games in 70, publishing 6.2.14, tagged `v6.2.14`; the game reads its shaded ground on that package
-and its walk on the next. The working session was ended at 01:15 on 2026-11-10 by the kernel, a
-python3 of its own having read its 4.3 GB transcript whole into 27 GB beside 18 GB of old frames in
-/tmp, and was resumed by the owner at 04:23, its scratch cleared (N 7.10). Before it `adb41aa7`, the
-example's sponza.turn and build/flicker.py, pushed at 01:18 on 2026-11-10, green at 03:44. Before it
-`94097b62`, 242, a hit marching its brightest glow light and gathering the rest as one, pushed at
-22:41 on 2026-11-09 with 241 and 243, green at 00:35, whose pack run published 6.2.12 at 02:34,
-tagged `v6.2.12`, which the game pins since its `cfffcb3`. Before it `ed469e90`, 237, the
-illumination's cycles eased in the merge and the screen filter, pushed at 20:18 on 2026-11-09, its
-run green at 22:13 with macOS in 45 minutes, Windows in 98 and 115, Linux in 104 and the examples in
-10; it keeps the form. Before it `c23cd2d4`, 226's fourth and last commit, green at 20:15 on
-2026-11-09, whose pack run published 6.2.8 at 21:08, the package 3DEngine, its twelve areas and the
-templates, tagged `v6.2.8`, which settled Verdict 111. The release scene-packs holds
-intel-sponza.pack since 17:58 on 2026-11-09, so ./e3d scenes fetch works. nuget.org holds 6.0.11,
-6.0.14, 6.0.91, 6.1.12, 6.2.8, 6.2.12, 6.2.14 and 6.2.17, the game pinned to 6.1.12, tagged
-`v6.1.12` at `8dba0d1c`; the version stands at 6.2, tagged `v6.2.0` at `1c3c38d5`. Item 6's three
-package bumps wait on the owner's word since October. Every push and run before `c23cd2d4` since
-2026-10-23 stands in REVIEW-ARCHIVE.md under Head records.
+the last and a pack run with publish started on it at 12:48, the run ended at 15:25 red in its first
+Windows half alone, by 238's pipeline test, Verdict 112, with macOS in 47 minutes, the second half
+in 115 and Linux green in 147 of its 150, so the pack run publishes nothing; they keep the form and
+carry the review's files. After it `c53bcc2c`, 235's third cut, the illumination's plugin adding a
+renderer part that loads its shaders and nodes, committed at 13:23 on 2026-11-10, and `0747c6ca`,
+its fifth and last, the project 3DEngine.GlobalIllumination above Rendering with the flat package
+depending on it, committed at 14:14; and `26ba652f`, 249, the Linux job as two legs at once, the
+suite in order and the suite shuffled, each held to 120 minutes, committed at 14:19; the three are
+pushed once `dd0adff0`'s run has ended, with a pack run that publishes the new package's id for the
+first time; they keep the form. Before it `4fb868ca`, 244's fourth and last commit, pushed at 10:14
+on 2026-11-10 with its three before it, their run green at 12:44 with macOS in 46 minutes, Windows
+in 63 and 96, Linux in 141 and the examples in 9; their package comes from the pack run above, the
+game taking them in its 167. Before it `f68075f1`, 239 with 245 and build/flicker.py's options,
+pushed at 07:44, green at 10:13, whose pack run went green at 12:41 with its captures in 58 and 71
+minutes and its games in 53, publishing 6.2.17, tagged `v6.2.17`, which the game pins for the clouds
+and the cuts. Before it `e86ca5c3`, 240's ramp, a pixel whose screen probes stand on a surface like
+its own for under a quarter of their weight taking the world's probes' light by its shortfall, with
+the march by thin walls, pushed at 05:41 on 2026-11-10, its run green at 07:43 with macOS in 43
+minutes, Windows in 108 and 122, Linux in 105 and the examples in 11, its pack run green at 08:57
+with its captures in 58 and 72 minutes and its games in 70, publishing 6.2.14, tagged `v6.2.14`; the
+game reads its shaded ground on that package and its walk on the next. The working session was ended
+at 01:15 on 2026-11-10 by the kernel, a python3 of its own having read its 4.3 GB transcript whole
+into 27 GB beside 18 GB of old frames in /tmp, and was resumed by the owner at 04:23, its scratch
+cleared (N 7.10). Before it `adb41aa7`, the example's sponza.turn and build/flicker.py, pushed at
+01:18 on 2026-11-10, green at 03:44. Before it `94097b62`, 242, a hit marching its brightest glow
+light and gathering the rest as one, pushed at 22:41 on 2026-11-09 with 241 and 243, green at 00:35,
+whose pack run published 6.2.12 at 02:34, tagged `v6.2.12`, which the game pins since its `cfffcb3`.
+Before it `ed469e90`, 237, the illumination's cycles eased in the merge and the screen filter,
+pushed at 20:18 on 2026-11-09, its run green at 22:13 with macOS in 45 minutes, Windows in 98 and
+115, Linux in 104 and the examples in 10; it keeps the form. Before it `c23cd2d4`, 226's fourth and
+last commit, green at 20:15 on 2026-11-09, whose pack run published 6.2.8 at 21:08, the package
+3DEngine, its twelve areas and the templates, tagged `v6.2.8`, which settled Verdict 111. The
+release scene-packs holds intel-sponza.pack since 17:58 on 2026-11-09, so ./e3d scenes fetch works.
+nuget.org holds 6.0.11, 6.0.14, 6.0.91, 6.1.12, 6.2.8, 6.2.12, 6.2.14 and 6.2.17, the game pinned to
+6.1.12, tagged `v6.1.12` at `8dba0d1c`; the version stands at 6.2, tagged `v6.2.0` at `1c3c38d5`.
+Item 6's three package bumps wait on the owner's word since October. Every push and run before
+`c23cd2d4` since 2026-10-23 stands in REVIEW-ARCHIVE.md under Head records.
 
-Next 249, the Linux job at 141 of its 150 minutes, then the game's ask on the field's build after a
-cut once it is written, and 250, the illumination's cost in the game read by pass and cut; 6 waits
-on the owner's word. The game is on 6.2.14 and pins 6.2.17 of `f68075f1` for the clouds and the
-cuts, then the package of `dd0adff0`'s pack run with its 167. No budget by Decision 94; the door at
-8:00 the one target by Decision 95; a fault seen in motion is read in motion by Decision 107.
+Next Verdict 112, 238's pipeline test red on the runner's Windows, then 250, the illumination's cost
+in the game read by pass and cut, the game's ask on the field's build after a cut coming before its
+cuts once it is written; 6 waits on the owner's word. The game is on 6.2.14 and pins 6.2.17 of
+`f68075f1` for the clouds and the cuts, then the package of `dd0adff0`'s pack run with its 167. No
+budget by Decision 94; the door at 8:00 the one target by Decision 95; a fault seen in motion is
+read in motion by Decision 107.
 
 REVIEW-ARCHIVE.md beside this file holds, their numbers kept, the items done, the items closed or
 parked, the verdicts settled, Decisions 1 to 93, the Replies before those here and the head records,
@@ -189,7 +193,15 @@ reverted as the screen probes' limit at shapes about a tile wide, its patches in
     from the digest and the job's steps, then the split the Windows job has since 183 and 234, two
     halves by the tests' folders with a limit each from the measurement in the commit's description
     (N 3.5), or the largest step cut where the read finds one. A workflow change with its reading,
-    before anything else.
+    before anything else. Read and cut at `26ba652f` on 2026-11-10. Of the 140.8 minutes of
+    `4fb868ca`'s Linux job 1.4 are the build and 138.6 the tests, the suite run twice, in order in
+    71 minutes and shuffled in 67, the second after the first passed. The job is a matrix of two
+    legs running at once, the order's and the shuffled's, neither ending the other, each held to 120
+    minutes against some 75 with its setup, build/test.py keeping its suite's 90 minutes and gaining
+    a shuffled-only pass that refuses without a seed; each leg uploads its own digest and results
+    and the jobs that needed the one wait on both. The shuffled run no longer waits for the suite in
+    order to pass, each failure reported by its own leg. The first push shows each leg's time. Done
+    at `26ba652f`.
 
 250. **The illumination's cost in the voxel game, read by pass, and the largest cut that holds the
     readings.** From the game's item 166 on 2026-11-10 and Decision 94, the cost recorded and cut
@@ -205,7 +217,30 @@ reverted as the screen probes' limit at shapes about a tile wide, its patches in
 
 ## Verdicts
 
-Verdicts 56 to 111 are settled, said under each in REVIEW-ARCHIVE.md; none is open.
+Verdicts 56 to 111 are settled, said under each in REVIEW-ARCHIVE.md; Verdict 112 is open.
+
+112. **The Windows half 1 of `dd0adff0` is red by 238's pipeline test, the file not written after
+    the quiet frames.** The build run 42810415005, pushed at 12:48 on 2026-11-10, has its first
+    Windows half red after 96 minutes with 268 passed, 1 failed and 13 skipped, macOS and the second
+    half green and Linux still going at 14:59. The one failure is PipelineCacheTests' test that the
+    pipelines are written once 120 frames after those that made them made none, its file not there
+    at line 64, on the runner's lavapipe under the validation layer; it passed on this machine in
+    the suite, and once failed here in a filtered run beside the Slang compiler's tests, which the
+    session was watching. The pack run started on the same commit runs the same half, so it turns
+    red too and publishes nothing. The mend comes before 250. First the cause from the job's output
+    for the Graphics part, whether the device there makes a cache of no bytes, which the write
+    skips, or the frames that made pipelines run on past the test's 130 on a device that compiles
+    for seconds, or the write failed; then the test holding on what the device does, waiting on the
+    condition and not on a count of frames where the device is slow, or the write made where the
+    cache is empty too, with a line logged saying which. One commit; `c53bcc2c`, `0747c6ca` and
+    `26ba652f` wait for it and go out with it, and the pack run follows that push. Written at 14:59
+    on 2026-11-10. The cause is read on 2026-11-10, lavapipe keeping nothing past the header in a
+    Vulkan pipeline cache, which the write rightly skips under 32 bytes, the test failing the same
+    way on lavapipe here; the engine was sound. The device says whether its cache holds anything,
+    the skip is logged once, and the test draws until the file is written or 130 frames have made no
+    pipeline and then holds the file there where the cache holds pipelines and absent where it holds
+    none. The run's Linux leg passed the test, its lavapipe keeping a cache, in 147 minutes of its
+    150, which 249's two legs answer.
 
 ## Decisions
 
@@ -619,3 +654,15 @@ test-digest-linux, the shuffled one test-digest-linux-shuffled, as the digest jo
 each its own results where it fails. The shuffled run no longer waits for the run in order to pass,
 so a failure of each is said by its own job. The script's test runs the shuffled run alone, no suite
 in order, and refuses it without a seed; BUILDING.md says it.
+
+Verdict 112, on 2026-11-10. The test 238 added, the pipelines' file written after quiet frames,
+found no file on the first Windows half's lavapipe. Run here on lavapipe (VK_DRIVER_FILES naming its
+manifest), the test as committed fails the same way with Mesa's shader cache on and off, so the cause
+is the first named: lavapipe keeps no pipelines in a Vulkan pipeline cache, which gives its header or
+less, and the write skips a cache of under 32 bytes, as the class's older test already allows; frames
+running on past 130 were not it. The device now says once in the log that its driver's cache holds
+nothing past its header and no pipelines are written (`PipelineCacheHolds`), and the test draws until
+the file is written or 130 frames have made no pipeline on a driver whose cache holds nothing, at most
+1,000, and then asks the device which: where it holds pipelines the file must be there and the bound
+is read, and where it holds none no file must be. The class passes on the RTX 4070 and on lavapipe,
+with Mesa's cache on and off.

@@ -41,9 +41,10 @@ public sealed class PipelineCacheTests : IDisposable
     [NeedsVulkanFact]
     public void The_Pipelines_Are_Written_Once_The_Frames_After_Those_That_Made_Them_Made_None_And_A_File_Past_The_Bound_Is_Read_As_Empty()
     {
-        // In a cache folder of the test's own, a lit cube's pipelines made in the first frames and
-        // the file read after 130 frames that made none, the program still running, as a run that
-        // is killed then keeps them.
+        // In a cache folder of the test's own, a lit cube drawn until the file is written, the
+        // program still running, as a run that is killed then keeps them, or until 120 frames have
+        // made no pipeline on a driver that keeps none in the cache. Drawn for a set count of frames,
+        // the file was not there on a runner's lavapipe, which keeps none.
         using var folder = new TestFolder("engine-pipelines-");
         UserCache.Folder = folder.Path;
         try
@@ -51,8 +52,10 @@ public sealed class PipelineCacheTests : IDisposable
             var path = GraphicsDevice.PipelineCachePath;
             var config = Config.Default.WithWindow("pipeline cache", 64, 64) with { Headless = true, Offscreen = true, Samples = 1 };
             UseApp(new App(config).AddPlugin(new DefaultPlugins()));
+            var device = (GraphicsDevice)GetApp().World.Resource<Engine.Renderer>().Context.Graphics!;
             var camera = new Camera3D(new Vector3(2, 2, 2), Vector3.Zero, Vector3.UnitY, 45);
-            for (int frame = 0; frame < 130; frame++)
+            var (made, quiet) = (-1L, 0);
+            for (int frame = 0; frame < 1000 && !File.Exists(path) && !(quiet > 130 && !device.PipelineCacheHolds); frame++)
             {
                 BeginDrawing();
                 ClearBackground(Color.Black);
@@ -60,6 +63,16 @@ public sealed class PipelineCacheTests : IDisposable
                 DrawCube(Vector3.Zero, 1, 1, 1, Color.White);
                 EndMode3D();
                 EndDrawing();
+                var now = device.PipelinesMade.Made;
+                (made, quiet) = now == made ? (made, quiet + 1) : (now, 0);
+            }
+            // A driver that keeps no pipelines in the cache, as lavapipe with Mesa's own shader cache
+            // off, gives nothing past the header to write, and the device says so in place of
+            // writing a file, which leaves the bound nothing to read either.
+            if (!device.PipelineCacheHolds)
+            {
+                File.Exists(path).Should().BeFalse("a cache that holds nothing past its header is not written");
+                return;
             }
             File.Exists(path).Should().BeTrue("the pipelines are written once 120 frames after those that made them made none");
             CloseWindow();

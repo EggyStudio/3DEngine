@@ -16,6 +16,7 @@ Done that day
 - Item 244 at `4fb868ca`. Post-processing settings in the units a person types.
 - Item 245 at `9c6c8d0e`. The far cascade's move steps the light of what stands outside the field.
 - Item 247 at `ae62fa22`. The night door's picture differs between two runs of one build.
+- Item 249 at `26ba652f`. The Linux job at 141 of its 150 minutes.
 
 ## 2026-11-09
 

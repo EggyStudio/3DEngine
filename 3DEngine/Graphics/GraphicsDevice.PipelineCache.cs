@@ -106,6 +106,22 @@ internal sealed unsafe partial class GraphicsDevice
     // read from it are not written back when the device is let go.
     private bool _pipelineCacheDropped;
 
+    // Whether the device said its driver's cache holds nothing to write.
+    private bool _saidNothingToWrite;
+
+    /// <summary>
+    /// Whether the driver's cache holds data past the header Vulkan gives it, which a driver that
+    /// keeps no pipelines in it, as lavapipe with Mesa's own shader cache off, does not.
+    /// </summary>
+    internal bool PipelineCacheHolds
+    {
+        get
+        {
+            nuint size;
+            return !_pipelineCache.IsNull && _deviceApi.vkGetPipelineCacheData(_pipelineCache, &size, null) == VkResult.Success && size > 32;
+        }
+    }
+
     /// <summary>Has the device write none of its pipelines back to <see cref="PipelineCachePath"/> this run, its file cleared while it runs.</summary>
     internal void DropPipelineCache() => _pipelineCacheDropped = true;
 
@@ -125,7 +141,18 @@ internal sealed unsafe partial class GraphicsDevice
     /// </summary>
     internal void SavePipelineCache()
     {
-        if (_pipelineCache.IsNull || _pipelineCacheDropped || PipelineCacheData() is not { } data) return;
+        if (_pipelineCache.IsNull || _pipelineCacheDropped) return;
+        if (PipelineCacheData() is not { } data)
+        {
+            // Said once, since a driver that keeps no pipelines in the cache, as lavapipe with Mesa's
+            // own shader cache off, gives the header alone or less every time it is asked.
+            if (!PipelineCacheHolds && !_saidNothingToWrite)
+            {
+                _saidNothingToWrite = true;
+                Logger.Info($"The driver's pipeline cache holds nothing past its header, so no pipelines are written to {PipelineCachePath}.");
+            }
+            return;
+        }
         try
         {
             Directory.CreateDirectory(Path.GetDirectoryName(PipelineCachePath)!);
