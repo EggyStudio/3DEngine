@@ -208,6 +208,18 @@ still view that moves is measured the same way each time:
 python3 build/flicker.py still.png --map where.png
 ```
 
+A camera turned about its point is read the same way with `--turn` and the first picture's camera,
+each picture carried into the next by the turn, and its map carried back into the first picture's
+camera, so a place that flickers stays one place on it. `--against` reads a second recording of the
+same turn pair by pair beside the first and counts only the pixels that move in the first and not in
+the second, so one part's flicker is read apart from what both runs share. `--blur` blurs both
+pictures of a pair first, so the hard edges of pixel textures read still and the light's blocks stay:
+
+```bash
+python3 build/flicker.py on.png --turn 0.75 --eye 0,0,0 --target 0,0,-1 --fov 70 --levels 4,12 \
+    --against off.png --blur 3 --map where.png
+```
+
 ## The log
 
 `./e3d logs -n 50` gives the program's last fifty lines, from its own log, so a shader that did not

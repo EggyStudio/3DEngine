@@ -1,41 +1,36 @@
 # Review
 
-Reviewed up to `94097b62`, 242, a ray's hit marching the brightest glow light in reach and gathering
-the rest as one, which brings the screen pass from 2.6 to 2.1 ms with the door and gallery views as
-they read, pushed at 22:41 on 2026-11-09 with `47a5972b`, 241, a glow light's reach floored at half
-a probe spacing and Sponza's lamps lighting their surroundings, warm and cool, and `86339f72`, 243,
-Sponza's six views at the top of the README, one run on the last, green at 00:35 on 2026-11-10 with
-macOS in 48 minutes, Windows in 86 and 95, Linux in 106 and the examples in 9, and the pack run with
-publish started on it at 22:41, since the pack run tests what it packs, green at 02:34 on 2026-11-10
-with its captures in 68 and 72 minutes and its games in 87, publishing 6.2.12, tagged `v6.2.12`;
-they keep the form, the last carrying the review's files and the game's two asks. After it
-`adb41aa7`, the example's sponza.turn and build/flicker.py, the tool of 240's read in motion,
-committed at 00:05 on 2026-11-10 and pushed at 01:18, its run green at 03:44 with macOS in 44
-minutes, Windows in 94 and 110, Linux in 137 and the examples in 10; it keeps the form and carries
-the review's files. The working session ended at 01:15 on 2026-11-10, when the kernel killed a
-python3 of its own that held 28 GB and systemd stopped its terminal's scope with it, the bridge's
-suite stopped by its guard in the same minute; it is resumed by the owner. Its tree holds 240's ramp
-uncommitted, modelpass.slang and the bounce rooms' bounds, its guards' suite cut short, a copy of
-the diff kept outside the tree, and its scratch of done items stands at 17 GB in the RAM-backed
-/tmp, to clear first on resuming, every later script that loads frames run in a scope with a memory
-bound as the suite is. The game pins 6.2.12, the first package with the flicker mend and the lamps.
-Before it `ed469e90`, 237, the illumination's cycles eased in the merge and the screen filter,
-pushed at 20:18 on 2026-11-09, its run green at 22:13 with macOS in 45 minutes, Windows in 98 and
-115, Linux in 104 and the examples in 10; it keeps the form. Before it `c23cd2d4`, 226's fourth and
-last commit, green at 20:15 on 2026-11-09, whose pack run published 6.2.8 at 21:08, the package
-3DEngine, its twelve areas and the templates, tagged `v6.2.8`, which settled Verdict 111. The
-release scene-packs holds intel-sponza.pack since 17:58 on 2026-11-09, so ./e3d scenes fetch works.
-nuget.org holds 6.0.11, 6.0.14, 6.0.91, 6.1.12, 6.2.8 and 6.2.12, the game pinned to 6.1.12, tagged
-`v6.1.12` at `8dba0d1c`; the version stands at 6.2, tagged `v6.2.0` at `1c3c38d5`. Item 6's three
-package bumps wait on the owner's word since October. Every push and run before `c23cd2d4` since
-2026-10-23 stands in REVIEW-ARCHIVE.md under Head records.
+Reviewed up to `e86ca5c3`, 240's ramp, a pixel whose screen probes stand on a surface like its own
+for under a quarter of their weight taking the world's probes' light by its shortfall, with the
+march by thin walls, the shaft in the turn at 2.6 and 5.6 percent past 4 where 4.5 and 18.8 and the
+main pass at 6.7 ms where 5.7, the bounce rooms' bounds tightened to its readings, pushed at 05:41
+on 2026-11-10 with a run on it and a pack run with publish started on it at 05:41; it keeps the
+form, its description carrying the bounds' readings, and carries the review's files, the game's
+three entries in ASKS.md and N 7.9 and N 7.10. The game reads its shaded ground again on that
+package. The working session was ended at 01:15 on 2026-11-10 by the kernel, a python3 of its own
+having read its 4.3 GB transcript whole into 27 GB beside 18 GB of old frames in /tmp, and was
+resumed by the owner at 04:23, its scratch cleared (N 7.10). Before it `adb41aa7`, the example's
+sponza.turn and build/flicker.py, pushed at 01:18 on 2026-11-10, green at 03:44. Before it
+`94097b62`, 242, a hit marching its brightest glow light and gathering the rest as one, pushed at
+22:41 on 2026-11-09 with 241 and 243, green at 00:35, whose pack run published 6.2.12 at 02:34,
+tagged `v6.2.12`, which the game pins since its `cfffcb3`. Before it `ed469e90`, 237, the
+illumination's cycles eased in the merge and the screen filter, pushed at 20:18 on 2026-11-09, its
+run green at 22:13 with macOS in 45 minutes, Windows in 98 and 115, Linux in 104 and the examples in
+10; it keeps the form. Before it `c23cd2d4`, 226's fourth and last commit, green at 20:15 on
+2026-11-09, whose pack run published 6.2.8 at 21:08, the package 3DEngine, its twelve areas and the
+templates, tagged `v6.2.8`, which settled Verdict 111. The release scene-packs holds
+intel-sponza.pack since 17:58 on 2026-11-09, so ./e3d scenes fetch works. nuget.org holds 6.0.11,
+6.0.14, 6.0.91, 6.1.12, 6.2.8 and 6.2.12, the game pinned to 6.1.12, tagged `v6.1.12` at `8dba0d1c`;
+the version stands at 6.2, tagged `v6.2.0` at `1c3c38d5`. Item 6's three package bumps wait on the
+owner's word since October. Every push and run before `c23cd2d4` since 2026-10-23 stands in
+REVIEW-ARCHIVE.md under Head records.
 
-Next 240, the edge's ramp as its mend with its guards, then the shaft's level by one read, 245, the
-far cascade's move stepping the light outside the field, 239, the finest cascade's arrival, 244, the
-settings in the units a person types, 238, the caches from e3d, and 235, the illumination as its own
-project, last; 6 waits on the owner's word. The game pins 6.2.12 of `94097b62`; the next pack run
-starts with the push of 240's ramp. No budget by Decision 94; the door at 8:00 the one target by
-Decision 95; a fault seen in motion is read in motion by Decision 107.
+Next 240's remainder, the shaft's level by one read, and build/flicker.py's three options from the
+game's ask, 245, the far cascade's move stepping the light outside the field, 239, the finest
+cascade's arrival, 244, the settings in the units a person types, 238, the caches from e3d, and 235,
+the illumination as its own project, last; 6 waits on the owner's word. The game pins the package of
+`e86ca5c3`'s pack run and reads its shaded ground on it. No budget by Decision 94; the door at 8:00
+the one target by Decision 95; a fault seen in motion is read in motion by Decision 107.
 
 REVIEW-ARCHIVE.md beside this file holds, their numbers kept, the items done, the items closed or
 parked, the verdicts settled, Decisions 1 to 93, the Replies before those here and the head records,
@@ -229,7 +224,10 @@ and 177, finer cascades inside a building and a history for the world probes, no
     owner's eye alone but where that mask on the package carrying the ramp still reads well over its
     floor, and the game's ask in ASKS.md of 2026-11-10 for build/flicker.py, two recordings compared
     pair by pair, a blur of a tile's radius and a map carried back to the first picture, goes in
-    with the ramp's commit or the one after.
+    with the ramp's commit or the one after. The ramp landed at `e86ca5c3` on 2026-11-10, pushed at
+    05:41 with a pack run, in the form with the march by thin walls, 6.80 and 6.58 ms against 5.67
+    and 5.81 in Sponza's main pass, the form without the march 5.97 and 6.44 with the shaft at 3.4
+    and 8.3 kept as a patch in the dump for a cut where the game's cost reads too high.
 
 244. **Post-processing settings in the units a person types.** Decision 108 on 2026-11-09.
     scenes_sponza sets its grade, its bloom and its metering through formulas, 2 to a power less 1,
@@ -558,3 +556,18 @@ profile steps 1.10 between neighbors against 0.58 with the probes off and 1.17 b
 stays written in the item as the form to take up where the grove's masked read on the package
 carrying the ramp still stands well over its floor. The game's ask for build/flicker.py's three
 options goes in the commit after this one.
+
+Item 240's shaft level, read on 2026-11-10 at the atrium's left shaft at noon held still against the
+path-traced reference. In rows 270 to 390 the shaft reads 1.465 of the reference with the screen's
+probes on, its inner columns 1.26 to 1.77, and 1.299 with them off (`gi.toggle screen off`), its
+inner columns 1.14 to 1.62. So most of the level is the world's probes', which the screen's probes'
+rays take beyond their reach, 13 of each probe's 16 there, and the screen's probes add a sixth on
+top. Two probes on the faces at 45 degrees, under pixels 160 and 180 of row 330, read over sixteen
+frames, a round of their places, hold 0.0669 and 0.0722 where the reference over the hemisphere at
+256 paths a way reads 0.0584 and 0.0629, 15% over, while the reference at 64 paths a way reads 17%
+under the one at 256, so the reference's own spread is of that size. One frame's rays
+read 0.0855 and 0.0966, from 0% to 34% over the reference along their own ways, the rays beyond
+their reach carrying the excess. The level is recorded as the world's finest cascade's at a shaft
+narrower than its probes' spacing, 1.30 of the reference, and the screen's probes' 15% over it as
+within what a round of sixteen ways reads. No mend is made here. A mend would start from `gi.probe` at
+the finest cascade's probes around the shaft, as a new item if the owner sees the shaft too bright.
