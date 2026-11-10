@@ -3242,6 +3242,23 @@ the shaft to 3.4% and 8.3%. What still moves in a turn lies along the far arcade
 vertical streaks fixed in the window (`./e3d command record` every frame, `gi.reference`,
 `gi.compare`, `./e3d command profile`).
 
+**The far cascade's band as a walk moves it, read and mended on 2026-11-10.** The voxel game's
+clouds, drawn over its grove with no field cells of their own, lost about 15 levels in the frame a
+walk moved the far cascade, and settled at a light that depended on where the cascade lay. A
+surface past the counted cascades takes the far cascade's probes' light blended toward the light
+past them across the far cascade's outer band of eight cells, and that band was weighed in the
+cascade's own grid, whose corner moves a snap of eight cells at once (`SceneFieldPlan.SnapCells`).
+A block over open ground 46 units ahead along a walk, inside that band, took 0.50 more light in the
+frame the far cascade moved and kept it, and blocks 30 to 58 units ahead took 7% to 50%; above the
+band's reach none. The far cascade's band is now weighed around the eye, its outer side half a snap
+inside the cascade from the eye, which the cascade's middle stands no further from, and a cell's
+width at the cascade's sides holds it to the cascade while one waits to follow the eye
+(`farHold` in `cascades.slang`). The same blocks step 1% to 4% at the move and follow the walk
+smoothly (`GlobalIlluminationTests`). What remains is the far cascade's probes' own light after a
+move, every probe traced again in that frame. A block inside the far cascade, past its band, rises
+5% for three frames after the move and settles 7% under where it stood, and one in its upper band
+dips 1.8% for two frames, which an ease from the light the cascade held before would reach.
+
 **The vestibule's end wall, read on 2026-11-07.** In the door view at 8:00 at High the wall facing
 the court read 1.55 of a path-traced reference's light, the door in it 2.08 and the side wall facing
 -z 1.35. With the surfaces' reflection of the indirect light left out (`gi.toggle specular off`)

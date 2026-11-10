@@ -118,6 +118,10 @@ public int cascadesOf(SceneFieldInfo info, int probes = 0)
 // distances fades to what it gives where the field holds nothing (fieldHold).
 public static const float FieldBand = 8.0;
 
+// The cells a cascade's corner moves by at once, along each axis it moves on, as
+// SceneFieldPlan.SnapCells snaps it, so the eye stands no further than half of them from its middle.
+public static const float SnapCells = 8.0;
+
 // The cells an outer band ends short of the eye on a side the eye stands near (bandHold), the half
 // of a probes' spacing a surface facing the eye is leaned toward it by as the probes are read for
 // it, four cells, and two more.

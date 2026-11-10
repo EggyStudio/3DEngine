@@ -56,7 +56,25 @@ public float probesHold(SceneFieldInfo info, float3 p, float3 n, float spacing, 
         return 0.0;
     float4 oc = cascadeAt(info, c, probes);
     float3 cell = (p - oc.xyz) / oc.w;
+    if (info.counts.w > 0.5 && probes > 0 && c == probes - 1)
+        return max(farHold(info, oc, cell + n * (Lean * spacing)), farHold(info, oc, cell));
     return max(bandHold(info, c, cell + n * (Lean * spacing), CascadeBand, 0.0, probes), bandHold(info, c, cell, CascadeBand, 0.0, probes));
+}
+
+// How much of the light from all around a point `cell` the far cascade's probes give rather than
+// what lies past them, in its cells, across a band of CascadeBand cells whose outer side lies half
+// a snap (SnapCells) inside the cascade from the eye, which the cascade's middle stands no further
+// from. Weighed in the cascade's grid, as the cascades below are, the band moved with the cascade's
+// corner by a snap at once, as wide as the band, so a cloud over a game's walk took the probes' light
+// in one frame and the light past them in the next. Weighed around the eye, the band follows a walk
+// as smoothly as the eye moves. A cell's width at the cascade's sides holds it to the cascade as it
+// is built, for the frames a cascade waits to follow an eye gone past its snap.
+public float farHold(SceneFieldInfo info, float4 oc, float3 cell)
+{
+    float3 eye = (info.eye.xyz - oc.xyz) / oc.w;
+    float3 around = saturate((info.counts.y * 0.5 - SnapCells * 0.5 - abs(cell - eye)) / CascadeBand);
+    float3 inside = saturate(min(cell, info.counts.y - cell));
+    return min(min(around.x, around.y), around.z) * min(min(inside.x, inside.y), inside.z);
 }
 
 // How much of the light from all around a surface at p facing n the probes give rather than what

@@ -6,7 +6,10 @@ march by thin walls, the shaft in the turn at 2.6 and 5.6 percent past 4 where 4
 main pass at 6.7 ms where 5.7, the bounce rooms' bounds tightened to its readings, pushed at 05:41
 on 2026-11-10 with a run on it and a pack run with publish started on it at 05:41; it keeps the
 form, its description carrying the bounds' readings, and carries the review's files, the game's
-three entries in ASKS.md and N 7.9 and N 7.10. The game reads its shaded ground again on that
+three entries in ASKS.md and N 7.9 and N 7.10. After it `f77e4cf4`, build/flicker.py's three options
+from the game's ask, two recordings compared pair by pair, a blur and a map carried back to the
+first picture, with the shaft's level recorded, committed at 05:47 on 2026-11-10 and pushed once
+`e86ca5c3`'s run has ended; it keeps the form. The game reads its shaded ground again on that
 package. The working session was ended at 01:15 on 2026-11-10 by the kernel, a python3 of its own
 having read its 4.3 GB transcript whole into 27 GB beside 18 GB of old frames in /tmp, and was
 resumed by the owner at 04:23, its scratch cleared (N 7.10). Before it `adb41aa7`, the example's
@@ -25,10 +28,9 @@ the version stands at 6.2, tagged `v6.2.0` at `1c3c38d5`. Item 6's three package
 owner's word since October. Every push and run before `c23cd2d4` since 2026-10-23 stands in
 REVIEW-ARCHIVE.md under Head records.
 
-Next 240's remainder, the shaft's level by one read, and build/flicker.py's three options from the
-game's ask, 245, the far cascade's move stepping the light outside the field, 239, the finest
-cascade's arrival, 244, the settings in the units a person types, 238, the caches from e3d, and 235,
-the illumination as its own project, last; 6 waits on the owner's word. The game pins the package of
+Next 245, the far cascade's move stepping the light outside the field, 239, the finest cascade's
+arrival, 244, the settings in the units a person types, 238, the caches from e3d, and 235, the
+illumination as its own project, last; 6 waits on the owner's word. The game pins the package of
 `e86ca5c3`'s pack run and reads its shaded ground on it. No budget by Decision 94; the door at 8:00
 the one target by Decision 95; a fault seen in motion is read in motion by Decision 107.
 
@@ -227,7 +229,13 @@ and 177, finer cascades inside a building and a history for the world probes, no
     with the ramp's commit or the one after. The ramp landed at `e86ca5c3` on 2026-11-10, pushed at
     05:41 with a pack run, in the form with the march by thin walls, 6.80 and 6.58 ms against 5.67
     and 5.81 in Sponza's main pass, the form without the march 5.97 and 6.44 with the shaft at 3.4
-    and 8.3 kept as a patch in the dump for a cut where the game's cost reads too high.
+    and 8.3 kept as a patch in the dump for a cut where the game's cost reads too high. The shaft's
+    level read on 2026-11-10 and recorded with no mend, 1.465 of the reference held still with the
+    screen probes and 1.299 without, the world's finest cascade at a shaft narrower than its
+    spacing, two face probes 15 percent over a reference whose own spread between 64 and 256 paths
+    is 17; a mend would start at the cascade's probes around the shaft, as a new item if the owner
+    sees the shafts too bright. Item 240 done by the ramp at `e86ca5c3`, the tool's options at
+    `f77e4cf4`.
 
 244. **Post-processing settings in the units a person types.** Decision 108 on 2026-11-09.
     scenes_sponza sets its grade, its bloom and its metering through formulas, 2 to a power less 1,
@@ -571,3 +579,18 @@ their reach carrying the excess. The level is recorded as the world's finest cas
 narrower than its probes' spacing, 1.30 of the reference, and the screen's probes' 15% over it as
 within what a round of sixteen ways reads. No mend is made here. A mend would start from `gi.probe` at
 the finest cascade's probes around the shaft, as a new item if the owner sees the shaft too bright.
+
+Item 245, read and mended on 2026-11-10. The step is the far cascade's band toward the light past
+the probes moving with the cascade. That band, eight cells wide, was weighed in the far cascade's
+grid, whose corner moves a snap of eight cells at once, so a surface in it went from one side of the
+blend to the other in the frame of a move and stayed. A block 46 units ahead along a walk, past the
+counted cascades and inside the band, read 0.50 more light in that frame and kept it, and blocks 30 to
+58 ahead 7% to 50%; one above the far cascade's reach did not step. The band is now weighed around
+the eye, its outer side half a snap inside the cascade from the eye, held to the cascade's sides by
+a cell while it waits to follow the eye (`farHold` in `cascades.slang`), and those blocks step 1% to
+4% at the move and follow the walk smoothly. The test is the block at 46 units, its light within a
+tenth over the move's frame and the two after it, which reads 0.50 without the mend. What remains is
+the far cascade's probes' own light after a move, every probe traced again, a block inside the far
+cascade rising 5% for three frames and settling 7% under, and one in its upper band dipping 1.8% for
+two frames; an ease from the light the moved cascade held before would reach it, which 239's lever
+does not, since no cascade lies above the far one. The game's walk is recorded again at the next pin.
