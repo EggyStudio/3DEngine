@@ -36,32 +36,37 @@ public static partial class E3D
         TryRes<BloomSettings>(out var bloom) ? (bloom.Intensity, bloom.Threshold) : (0, 1);
 
     /// <summary>
-    /// Spreads the bloom by laying each level of the chain over the wider one below it, each giving
-    /// <paramref name="scatter"/> of its place to it, from 0.05 for a tight glow to 0.95 for a wide
-    /// haze, or adds every level alike again with 0, the engine's bloom and the default.
+    /// Chooses the bloom drawn, the engine's, which adds every level of the chain alike and is the
+    /// default, or the scattered one, which lays each level over the wider one below it by
+    /// <see cref="SetBloomScatter"/>.
     /// </summary>
     /// <remarks>
-    /// <para>
-    /// With a scatter, the threshold <see cref="SetBloom"/> sets is measured on the light after the
-    /// exposure, the one that follows the scene too, easing in over half of it, and the chain
-    /// halves the window to the log2 of its longer side less 2 levels, its widest level four pixels
-    /// along that side, so the haze can reach across the whole window. The intensity is the share
-    /// of the light past the threshold that the spread light takes the place of, so the frame keeps
-    /// the light it had where the engine's bloom adds to it.
-    /// </para>
-    /// <para>
-    /// Settings given as an intensity <c>i</c> on a scale of powers of 2, a threshold in sRGB and a
-    /// scatter <c>s</c> from 0 to 1 are 2 to the <c>i</c> less 1, the threshold decoded from sRGB,
-    /// and 0.05 plus 0.9 times <c>s</c> here, so 0.25, 0.333 and 0.7 are
-    /// <c>SetBloom(0.189f, 0.0907f)</c> and <c>SetBloomScatter(0.68f)</c>, as the guide to
-    /// materials, light and shadows works through.
-    /// </para>
+    /// Scattered, the threshold <see cref="SetBloom"/> sets is measured on the light after the
+    /// exposure, the one that follows the scene too, easing in over half of it, and the chain halves
+    /// the window to the log2 of its longer side less 2 levels, its widest level four pixels along
+    /// that side, so the haze can reach across the whole window. The intensity is the share of the
+    /// light past the threshold that the spread light takes the place of, so the frame keeps the
+    /// light it had where the engine's bloom adds to it.
+    /// </remarks>
+    public static void SetBloomKind(BloomKind kind) =>
+        World.GetOrInsertResource(() => new BloomSettings()).Kind = kind;
+
+    /// <summary>The bloom <see cref="SetBloomKind"/> chose, the engine's added one unless set.</summary>
+    public static BloomKind GetBloomKind() => TryRes<BloomSettings>(out var bloom) ? bloom.Kind : BloomKind.Added;
+
+    /// <summary>
+    /// Sets how far the scattered bloom spreads, from 0 for a tight glow about what blooms to 1 for
+    /// a wide haze across the window, 0.5 unless set.
+    /// </summary>
+    /// <remarks>
+    /// Each level of the chain gives the wider one below it a share of its place running from 0.05
+    /// at 0 to 0.95 at 1. The engine's bloom (<see cref="SetBloomKind"/>) does not read it.
     /// </remarks>
     public static void SetBloomScatter(float scatter) =>
-        World.GetOrInsertResource(() => new BloomSettings()).Scatter = Math.Clamp(scatter, 0, 1);
+        World.GetOrInsertResource(() => new BloomSettings()).Spread = float.IsFinite(scatter) ? Math.Clamp(scatter, 0, 1) : 0.5f;
 
-    /// <summary>The share <see cref="SetBloomScatter"/> left, 0 for the engine's bloom unless set.</summary>
-    public static float GetBloomScatter() => TryRes<BloomSettings>(out var bloom) ? bloom.Scatter : 0;
+    /// <summary>How far the scattered bloom spreads, as <see cref="SetBloomScatter"/> left it, 0.5 unless set.</summary>
+    public static float GetBloomScatter() => TryRes<BloomSettings>(out var bloom) ? bloom.Spread : 0.5f;
 
     private static FrameEffects Effects => World.GetOrInsertResource(static () => new FrameEffects());
 
@@ -102,6 +107,7 @@ public static partial class E3D
         var units = World.GetOrInsertResource(static () => new PhysicalUnits());
         units.Ev100 = PhysicalUnits.Ev100Of(iso, shutterSeconds, aperture);
         ApplyPhysicalLights(units);
+        BoundExposureByEv100(Effects, units.Ev100);
         if (TryRes<DaySky>(out var sky)) sky.Changed();
     }
 
@@ -130,7 +136,46 @@ public static partial class E3D
         effects.AutoExposure = enabled;
         effects.AutoExposureMin = Math.Max(1e-3f, Math.Min(min, max));
         effects.AutoExposureMax = Math.Max(1e-3f, Math.Max(min, max));
+        effects.AutoExposureEv100 = null;
         effects.AutoExposureSpeed = effects.AutoExposureDarkeningSpeed = Math.Max(0, speed);
+    }
+
+    /// <summary>
+    /// Bounds the exposure that follows the scene by the scenes it meters, from the darkest at an
+    /// exposure value of <paramref name="lowest"/> at ISO 100 to the brightest at
+    /// <paramref name="highest"/>, in place of <see cref="SetAutoExposure"/>'s multipliers, which a
+    /// program that sets no camera exposure keeps.
+    /// </summary>
+    /// <remarks>
+    /// A scene at the camera's own exposure value (<see cref="GetCameraEv100"/>) is shown as the
+    /// camera shows it, one a stop darker twice as bright, so the bounds are the multipliers 2 to the
+    /// camera's less <paramref name="highest"/> and 2 to the camera's less
+    /// <paramref name="lowest"/>, worked out again when the camera changes. A camera's meter covers
+    /// about -1 to 14, a dim room by night to a sunlit field. <see cref="SetAutoExposure"/> called
+    /// after gives the bounds as multipliers again.
+    /// </remarks>
+    public static void SetAutoExposureEv100(float lowest, float highest)
+    {
+        if (!float.IsFinite(lowest) || !float.IsFinite(highest)) return;
+        var effects = Effects;
+        effects.AutoExposureEv100 = (Math.Min(lowest, highest), Math.Max(lowest, highest));
+        BoundExposureByEv100(effects, GetCameraEv100());
+    }
+
+    /// <summary>
+    /// The exposure values at ISO 100 <see cref="SetAutoExposureEv100"/> bounds the exposure that
+    /// follows the scene by, or null where <see cref="SetAutoExposure"/>'s multipliers bound it, as
+    /// they do unless set.
+    /// </summary>
+    public static (float Lowest, float Highest)? GetAutoExposureEv100() => Effects.AutoExposureEv100;
+
+    // The multipliers the exposure that follows the scene is bounded by, from the exposure values
+    // it meters between against the camera's, where they were given.
+    private static void BoundExposureByEv100(FrameEffects effects, float cameraEv100)
+    {
+        if (effects.AutoExposureEv100 is not { } ev) return;
+        effects.AutoExposureMin = MathF.Pow(2, cameraEv100 - ev.Highest);
+        effects.AutoExposureMax = MathF.Pow(2, cameraEv100 - ev.Lowest);
     }
 
     /// <summary>
@@ -304,7 +349,7 @@ public static partial class E3D
     /// The file is a KTX2 file holding one level of a cube of texels in half-float RGBA or RGB9E5,
     /// as it is or with zlib's supercompression, which <c>build/unity-lut.py</c> writes from a
     /// table drawn as a strip of squares. The light, after the exposure and
-    /// <see cref="SetLiftGammaGain"/>, is looked up as ARRI's LogC encodes it for an exposure index
+    /// <see cref="SetLiftGammaGain(Vector4, Vector4, Vector4)"/>, is looked up as ARRI's LogC encodes it for an exposure index
     /// of 1000, the encoding such tables are made for, which takes 0 to about 55 into the table,
     /// and the table gives linear light, which <see cref="SetColorGrading"/> and the vignette then
     /// take as they take every curve's.
@@ -416,7 +461,15 @@ public static partial class E3D
         (effects.Lift, effects.Gamma, effects.Gain) = (lift, gamma, gain);
     }
 
-    /// <summary>The lift, gamma and gain <see cref="SetLiftGammaGain"/> left, each white and 0 unless set.</summary>
+    /// <summary>
+    /// Moves the scene's shadows, middle and highlights brighter by <paramref name="lift"/>,
+    /// <paramref name="gamma"/> and <paramref name="gain"/> with no hue, 0 for none and below 0
+    /// darker, as the w of <see cref="SetLiftGammaGain(Vector4, Vector4, Vector4)"/>'s white colors.
+    /// </summary>
+    public static void SetLiftGammaGain(float lift, float gamma, float gain) =>
+        SetLiftGammaGain(new Vector4(1, 1, 1, lift), new Vector4(1, 1, 1, gamma), new Vector4(1, 1, 1, gain));
+
+    /// <summary>The lift, gamma and gain <see cref="SetLiftGammaGain(Vector4, Vector4, Vector4)"/> left, each white and 0 unless set.</summary>
     public static (Vector4 Lift, Vector4 Gamma, Vector4 Gain) GetLiftGammaGain()
     {
         var effects = Effects;
@@ -659,8 +712,10 @@ public static partial class E3D
             var changed = ImGuiNET.ImGui.SliderFloat("Intensity, 0 for none", ref intensity, 0, 2);
             changed |= ImGuiNET.ImGui.SliderFloat("Threshold", ref threshold, 0, 4);
             if (changed) SetBloom(intensity, threshold);
+            var scattered = GetBloomKind() == BloomKind.Scattered;
+            if (ImGuiNET.ImGui.Checkbox("Scattered", ref scattered)) SetBloomKind(scattered ? BloomKind.Scattered : BloomKind.Added);
             var scatter = GetBloomScatter();
-            if (ImGuiNET.ImGui.SliderFloat("Scatter, 0 for the engine's", ref scatter, 0, 0.95f)) SetBloomScatter(scatter);
+            if (ImGuiNET.ImGui.SliderFloat("Scatter", ref scatter, 0, 1)) SetBloomScatter(scatter);
         }
         ImGuiNET.ImGui.End();
     }

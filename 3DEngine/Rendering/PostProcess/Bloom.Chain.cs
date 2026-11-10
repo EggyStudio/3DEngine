@@ -19,7 +19,7 @@ internal sealed partial class BloomRenderer
     {
         if (_sized is not { Linear: not null, First: { } first } sized || _down is null || _up is null || _scatterUp is null) return;
         var levels = sized.Levels;
-        var scattered = bloom.Scatter > 0;
+        var scattered = bloom.Scattered;
         var count = scattered ? levels.Length : sized.EngineLevels;
         var (threshold, knee, adapted, white) = (bloom.Threshold, 0.1f, 0f, 0f);
         if (scattered)

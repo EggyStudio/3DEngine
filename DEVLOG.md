@@ -10,6 +10,8 @@ of .github/REVIEW.md or .github/REVIEW-ARCHIVE.md and the commit that closed it.
 
 Done that day
 
+- Item 239 at `f68075f1`. The finest cascade's arrival after a cut.
+- Item 240 at `f77e4cf4`. Bands on thin shafts from the screen probes.
 - Item 245 at `9c6c8d0e`. The far cascade's move steps the light of what stands outside the field.
 
 ## 2026-11-09

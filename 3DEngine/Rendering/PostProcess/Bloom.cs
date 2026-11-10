@@ -15,11 +15,21 @@ internal sealed class BloomSettings
     /// </summary>
     public float Threshold { get; set; } = 1;
 
+    /// <summary>Which bloom is drawn, the engine's added one unless set.</summary>
+    public BloomKind Kind { get; set; }
+
+    /// <summary>How far a scattered bloom spreads, from 0 for a tight glow to 1 for a wide haze, 0.5 unless set.</summary>
+    public float Spread { get; set; } = 0.5f;
+
     /// <summary>
-    /// The share of each level of the chain the wider level below it takes the place of, for a haze
-    /// that spreads by its scatter, or 0 for the engine's bloom, which adds every level alike.
+    /// The share of each level of the chain the wider level below it takes the place of, the spread
+    /// laid over the chain's range from 0.05 to 0.95, past which a level keeps none of its own place
+    /// or gives none to the next.
     /// </summary>
-    public float Scatter { get; set; }
+    public float Scatter => 0.05f + 0.9f * Spread;
+
+    /// <summary>Whether the bloom drawn is the scattered one.</summary>
+    public bool Scattered => Kind == BloomKind.Scattered;
 
     /// <summary>Whether the bloom chain runs this frame.</summary>
     public bool On => Intensity > 0;
@@ -401,7 +411,7 @@ internal sealed partial class BloomRenderer : IDisposable
         // The engine's bloom is added, its levels' sum divided by their number, and a scattered
         // one is mixed past its threshold by its intensity.
         var blooms = bloom is { On: true } && _shownLinear;
-        var scattered = blooms && bloom!.Scatter > 0;
+        var scattered = blooms && bloom!.Scattered;
         var (lift, gamma, gain) = effects.LiftGammaGain();
         var push = new CompositePush
         {

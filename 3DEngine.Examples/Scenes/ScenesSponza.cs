@@ -161,15 +161,14 @@ public static class ScenesSponza
         SetCameraExposure(200, 1 / 200f, 16);
         // The frame graded by the AgX lookup at resources/agx_powerful.ktx2, which bends the light
         // past white into the highlights rather than clipping it, with the middle tones the lookup
-        // darkens lifted by a gamma of 0.225, and bloomed at an intensity of 0.25, a threshold of
-        // 0.333 and a scatter of 0.7, so the sun's disc and a lit lamp's glass take a soft halo past
-        // their edges and the stone under the threshold none. The intensity is 2 to that power less
-        // 1, the threshold is decoded from sRGB to be measured on linear light, and the scatter is
-        // laid over the chain's range from 0.05 to 0.95.
+        // darkens lifted by a gamma of 0.225, and bloomed scattered at an intensity of 0.189, a
+        // threshold of 0.0907 in linear light and a scatter of 0.7, so the sun's disc and a lit
+        // lamp's glass take a soft halo past their edges and the stone under the threshold none.
         SetTonemapLookup("resources/agx_powerful.ktx2");
-        SetLiftGammaGain(new Vector4(1, 1, 1, 0), new Vector4(1, 1, 1, 0.225f), new Vector4(1, 1, 1, 0));
-        SetBloom(MathF.Pow(2, 0.25f) - 1, MathF.Pow((0.333f + 0.055f) / 1.055f, 2.4f));
-        SetBloomScatter(0.05f + 0.9f * 0.7f);
+        SetLiftGammaGain(0, 0.225f, 0);
+        SetBloom(0.189f, 0.0907f);
+        SetBloomKind(BloomKind.Scattered);
+        SetBloomScatter(0.7f);
         var sponza = LoadModel(file);
         // A black box outside the main door, which stands a little apart from its frame, so the sky
         // shows through no gap around it and the vestibule takes its light from the court alone.
@@ -262,16 +261,16 @@ public static class ScenesSponza
                 (hour, _askedHour) = (at, null);
                 SetHour(hour);
             }
-            // Metered between EV -1 and 14 about the camera's EV, center-weighted, its mean brought
-            // to 12.5 / 120 by a light meter's calibration of 12.5, 0.79 stops under a mid gray, so
-            // the sunlit stone keeps its texture where a view holds both sun and shade, and faster
-            // to light than to dark, as an eye adapts.
+            // Metered between EV -1 and 14, center-weighted, 0.79 stops under a mid gray as a light
+            // meter's calibration of 12.5 brings it, so the sunlit stone keeps its texture where a
+            // view holds both sun and shade, and faster to light than to dark, as an eye adapts.
             if (_askedMetered is { } meter)
             {
                 (metered, _askedMetered) = (meter, null);
-                SetAutoExposure(metered, MathF.Pow(2, GetCameraEv100() - 14), MathF.Pow(2, GetCameraEv100() + 1));
+                SetAutoExposure(metered);
+                SetAutoExposureEv100(-1, 14);
                 SetAutoExposureSpeeds(3, 1);
-                SetAutoExposureMetering(ExposureMetering.CenterWeighted, MathF.Log2(12.5f / 120 / 0.18f));
+                SetAutoExposureMetering(ExposureMetering.CenterWeighted, -0.79f);
             }
             if (flying)
             {

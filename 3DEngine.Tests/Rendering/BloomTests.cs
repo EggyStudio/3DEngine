@@ -90,6 +90,7 @@ public sealed class BloomTests : IDisposable
         // Reinhard's curve, which brings the sphere's middle under white, so a change in it shows.
         SetTonemap(Tonemap.Reinhard);
         SetBloom(0.5f, 0.1f);
+        SetBloomKind(BloomKind.Scattered);
         SetBloomScatter(0.7f);
 
         // The same light after the exposure, four times as bright at a quarter of the exposure.
@@ -114,6 +115,7 @@ public sealed class BloomTests : IDisposable
         var sphere = LoadModelFromMesh(GenMeshSphere(0.6f, 24, 24));
         SetTonemap(Tonemap.Reinhard);
         SetBloom(0.5f, 0.1f);
+        SetBloomKind(BloomKind.Scattered);
         SetBloomScatter(0.7f);
 
         // The same light after the exposure, 64 times white, at 1,024 before an exposure of a

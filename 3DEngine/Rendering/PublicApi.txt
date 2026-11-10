@@ -1,3 +1,6 @@
+enum Engine.BloomKind : int
+  Added = 0
+  Scattered = 1
 readonly struct Engine.Click : IEquatable<Click>, IPointerEvent
   Click(MouseButton Button, PointerHit Hit)
   MouseButton Button { get; init; }

@@ -1032,13 +1032,17 @@ void SetAmbientLight(Color color, float intensity);      // Sets the light from 
 
 void SetBloom(float intensity, float threshold = 1);     // Spreads light brighter than threshold into the pixels around it, as a bright light spreads through a lens, adding intensity of it to the frame, or turns bloom off with an intensity of 0, which it is by default
 (float Intensity, float Threshold) GetBloom();           // The bloom's intensity and threshold as SetBloom left them, 0 and 1 unless set
-void SetBloomScatter(float scatter);                     // Spreads the bloom by laying each level of the chain over the wider one below it, each giving scatter of its place to it, from 0.05 for a tight glow to 0.95 for a wide haze, or adds every level alike again with 0, the engine's bloom and the default
-float GetBloomScatter();                                 // The share SetBloomScatter left, 0 for the engine's bloom unless set
+void SetBloomKind(BloomKind kind);                       // Chooses the bloom drawn, the engine's, which adds every level of the chain alike and is the default, or the scattered one, which lays each level over the wider one below it by SetBloomScatter
+BloomKind GetBloomKind();                                // The bloom SetBloomKind chose, the engine's added one unless set
+void SetBloomScatter(float scatter);                     // Sets how far the scattered bloom spreads, from 0 for a tight glow about what blooms to 1 for a wide haze across the window, 0.5 unless set
+float GetBloomScatter();                                 // How far the scattered bloom spreads, as SetBloomScatter left it, 0.5 unless set
 void SetExposure(float exposure);                        // Multiplies the scene's light by exposure before it is brought under 1, so 2 brightens a dark scene and 0.5 dims a bright one, 1 being as it is and the default
 float GetExposure();                                     // What the scene's light is multiplied by before its curve, as SetExposure left it, 1 unless set
 void SetCameraExposure(float iso, float shutterSeconds, float aperture);  // Sets the camera the lights and the sky given in physical units are seen through, by its sensor's iso, its shutter's time in seconds and its aperture's f-number, as a photographer's camera is set, ISO 100 at 1/125 s and f/16 for a sunny day
 float GetCameraEv100();                                  // The exposure value at ISO 100 of the camera SetCameraExposure set, 15, a sunny day's, unless set
 void SetAutoExposure(bool enabled, float min = 0.25f, float max = 4, float speed = 2);  // Makes the exposure follow the scene, as an eye adapts, brightening a dark room and dimming a sunlit field, between min and max, or turns it off
+void SetAutoExposureEv100(float lowest, float highest);  // Bounds the exposure that follows the scene by the scenes it meters, from the darkest at an exposure value of lowest at ISO 100 to the brightest at highest, in place of SetAutoExposure's multipliers, which a program that sets no camera exposure keeps
+(float Lowest, float Highest)? GetAutoExposureEv100();   // The exposure values at ISO 100 SetAutoExposureEv100 bounds the exposure that follows the scene by, or null where SetAutoExposure's multipliers bound it, as they do unless set
 void SetAutoExposureSpeeds(float brightening, float darkening);  // Sets how quickly the exposure that follows the scene moves where the scene brightens and where it darkens, apart, as SetAutoExposure's speed counts them, which that sets alike
 (float Brightening, float Darkening) GetAutoExposureSpeeds();  // How quickly the exposure that follows the scene moves where the scene brightens and where it darkens, as SetAutoExposureSpeeds or SetAutoExposure left them, 2 and 2 unless set
 void SetAutoExposureHistogram(float low, float high);    // Sets the part of the picture the exposure that follows the scene measures by its brightness, from the share low of its weighted light, counted from the darkest, to the share high, the whole picture with 0 and 1, which it measures unless set
@@ -1059,6 +1063,7 @@ Shader GetTonemapShader();                               // The shader SetTonema
 void SetColorGrading(float contrast, float saturation, Color tint);  // Grades the scene's color
 (float Contrast, float Saturation, Color Tint) GetColorGrading();  // The contrast, saturation and tint SetColorGrading left, 1, 1 and white unless set
 void SetLiftGammaGain(Vector4 lift, Vector4 gamma, Vector4 gain);  // Lifts the scene's shadows, bends its middle and gains its highlights before the curve
+void SetLiftGammaGain(float lift, float gamma, float gain);  // Moves the scene's shadows, middle and highlights brighter by lift, gamma and gain with no hue, 0 for none and below 0 darker, as the w of SetLiftGammaGain's white colors
 (Vector4 Lift, Vector4 Gamma, Vector4 Gain) GetLiftGammaGain();  // The lift, gamma and gain SetLiftGammaGain left, each white and 0 unless set
 void SetVignette(float intensity, float radius = 0.5f);  // Darkens the scene toward its corners by intensity, 0 for none and 1 to black, from radius of the way from the middle to a corner
 (float Intensity, float Radius) GetVignette();           // How much the corners darken and from how far out, as SetVignette left them, 0 and 0.5 unless set

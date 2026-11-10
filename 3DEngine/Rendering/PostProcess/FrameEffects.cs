@@ -28,6 +28,13 @@ internal sealed class FrameEffects
     /// <summary>The highest exposure the one that follows the scene goes to, in the darkest scene.</summary>
     public float AutoExposureMax { get; set; } = 4;
 
+    /// <summary>
+    /// The scenes' exposure values at ISO 100 the exposure that follows the scene meters between, the
+    /// darkest and the brightest, which give <see cref="AutoExposureMin"/> and
+    /// <see cref="AutoExposureMax"/> against the camera's, or null where those were given themselves.
+    /// </summary>
+    public (float Lowest, float Highest)? AutoExposureEv100 { get; set; }
+
     /// <summary>How quickly the exposure follows a scene that brightens, the share of the way it moves in a second being 1 less e to the minus this.</summary>
     public float AutoExposureSpeed { get; set; } = 2;
 

@@ -9500,6 +9500,140 @@ batch.
     after 241's, before 242; the picture's frames into the dump with a captions line by N 4.10. Done
     at `86339f72`, pushed at 22:41 on 2026-11-09.
 
+240. **Bands on thin shafts from the screen probes.** From the owner's recording of 2026-11-09 at
+    18:04 and item 237's read of it. On the atrium's octagonal shafts the screen probes' 8-pixel
+    tile columns lie across the faces, with dark single probes on the faces and the wall behind, and
+    in a turn the bands move in tile steps with the picture and not with the stone; they stand in a
+    still view too. The read by normal and plane is in place already, screenProbesHere weighing each
+    of a pixel's four probes by its nearness, the eighth power of the normals' agreement and the
+    probe's distance against the pixel's plane extended to it, so the cause lies in how that read
+    acts where a face narrower than a tile has no probe at all. A probe stands at its tile's middle,
+    fixed in the window, so a face none of the middle columns falls on has no probe at any height
+    and no wider ring finds one; its pixels take the neighbor face's probe at 45 degrees, a normal
+    weight of 0.06, or the wall's behind, the sliver of weight normalized to full light, and under a
+    thousandth the pass switches whole to the world's probes. In a turn the middle columns sweep
+    across the faces, the face holding probes changes in tile steps and the kept light starts anew,
+    and the 5 by 5 filter finds a thin face's like probes in one column alone, so the kept light's
+    clamp to the frame's spread may bite as well. One bounded read first, by Decision 95, on the
+    atrium's left shaft at noon, still and in a turn, the matched weight's map with the share of
+    shaft pixels under a quarter and under a thousandth, the faces with no probe, the probes' own
+    light on the faces against the reference at their points, and in the turn the share of shaft
+    probes starting anew a frame. The first lever is in the read, the matched weight taken as a
+    confidence, a ramp toward the world's probes in place of a sliver normalized to full and a hard
+    threshold, which is anchored in the world and does not move with the grid, its cost recorded
+    under Decision 94; the second is structural, the probe's point moved within its tile from frame
+    to frame over a round, or the bounced light kept per depth texel as gi_screen_glow.slang keeps
+    the glow lights', which a turn moves with the world and not with the window's grid, taken only
+    where the first does not hold the bound. Read by the shaft at noon against the path-traced
+    reference, the pair by N 4.9, and a test of a thin eight-sided column before a wall at a
+    different light whose faces hold within a bound of the reference in a still and while the eye
+    turns by a fraction of a tile a frame, the faces' light steady as the window's grid slides
+    across (Decision 107). After 242, since the owner sees it. Read on 2026-11-09 at the atrium's
+    left shaft at noon, the cause named above does not hold there. Every face of the octagon holds
+    probes; the matched weight's median over the shaft's 13,000 pixels is 0.83, 6.4 percent lie
+    under a quarter and none under a thousandth, the low weights the silhouette's edges and the
+    joins between faces a few pixels wide. Held still against the reference the view reads 1.10, the
+    shaft's faces 1.17 and 1.36, and its columns in rows 270 to 390 stand at 1.5 to 1.9 with bumps
+    of 10 to 25 percent a tile apart, each probe's own estimate differing from its neighbor's on one
+    face; the left silhouette's five pixels read 2.6 to 3.5, the low weight made whole with the
+    light of the probes behind. In a turn of half a tile a frame 11 percent of the frame's probes
+    and 13 to 16 of the shaft's start anew each frame, a probe that crosses onto another face
+    failing the history's test of a like surface, normals 45 degrees apart at a dot of 0.71 against
+    the 0.9 asked, and starting from one frame's estimate. So the bands on a face and their
+    worsening in a turn are 246's matter and go with its mend, and this item keeps two things, the
+    silhouette's edge by the first lever, the matched weight as a confidence easing toward the
+    world's probes, and the shaft's level, 1.5 to 1.9 of the reference in those rows, placed by one
+    read of a face probe's terms before it is mended or recorded. From 246's read, a settled probe's
+    light is the mean of its sixteen places, so the bands held still are one probe's mean differing
+    from its neighbor's a tile apart and time does not average them out. One lever is tried for them
+    under Decision 95 after 246's two parts, the probe's point moved within its tile over the round
+    so that a tile's light is its footprint's mean, or the filter gathering like probes along a
+    face, whichever the shaft's columns read flatter against the reference; with it the silhouette's
+    edge and the shaft's level as above. A frame against its pose held shows a lag or a level and is
+    blind to these bands, which stand in the pose held as they stand in the turn; what the eye takes
+    as noise is a pattern fixed in the window sliding over the stone. So the bands' measure in
+    motion is the difference between a frame and the frame before carried to it by its depth and the
+    two cameras, the strip a turn brings in and what a turn uncovers left out, read by sponza.turn
+    on the atrium's left shaft and on the whole frame with the screen probes on and off, the share
+    past 4 and past 12 levels and its map; that read comes first, and where it finds no more with
+    the probes on than off, the item's bands are recorded and the fault waits on the owner's
+    recording. Then the one lever, judged by that share in the turn and by the shaft's columns
+    against the reference held still. The read in motion at 23:45 on 2026-11-09, by
+    build/flicker.py, which carries each picture into the next by the turn's rotation, the same at
+    any depth for a turn about the eye. The atrium at noon turned half a tile a frame over 40 frames
+    with the exposure held reads 8.7 percent of the frame past 4 levels and 1.47 past 12 with the
+    screen probes on and 5.2 and 1.05 with them off; the left shaft 4.1 percent past 4 on the mean
+    and 16.7 at most with them on, 0.9 and 2.1 off, and the map shows vertical streaks fixed in the
+    window where the stone slides past the tile columns. So the probes add a flicker of 4 to 12
+    levels fixed to the tile grid, a face's light taken at the one point a tile's middle happens to
+    lie on. The filter along a face, the second pass's blend at 7 by 7 with twice the falloff, left
+    the shaft's columns as they were held still, 1.583 of the reference where 1.584 and 1.39 to 1.95
+    from column to column, and read worse in the turn, 5.5 where 4.1, so it is reverted. The one
+    lever is the probe's point moved within its tile over the round, so that a face takes the mean
+    of the points a tile's footprint lays on it and the mean changes smoothly as the stone slides,
+    behind a switch until it is judged. It is judged by the shaft's share in the turn against the
+    0.9 and 2.1 with the probes off, and by the shaft's columns held still against the reference; it
+    must hold a still view's frames within a level from one to the next, 237's walk-and-turn test
+    and the rooms' readings, its cost recorded (Decision 94). Where a tile straddles two faces its
+    point changes face from frame to frame, so the history found on a probe's own face among the
+    twelve around, written and dropped under 246, may be needed with it. Where the lever fails
+    these, it is reverted and the bands recorded as the screen probes' limit at shapes about a tile
+    wide. The lever read at 00:15 on 2026-11-10 in two forms, both reverted. With the probe standing
+    at the frame's cell of its tile and the placing, the filter, the history, the glow lookup and
+    the model pass following, the shaft in the turn reads 3.5 percent past 4 on the mean and 7.5 at
+    most where 4.8 and 20.8, the frame 8.4 where 9.1, and held still the picture shimmers, 56
+    percent of its pixels moving a level a frame, 15 two and 4.6 four where 2.6, none and none,
+    since a pixel's blend of its four probes moves with their places every frame though their light
+    is steady. With the rays' start alone moved, the still view is steady and the turn gains
+    nothing, 4.7 and 22.9 where 4.5 and 18.8. The first form's gain in the turn is real and its
+    shimmer is the one gi_screen_glow.slang was written against, which keeps the glow lights' light
+    by depth texel, each texel blending what its four probes give from their moved points with what
+    it held the frame before where its surface was, so a round's mean stands in each texel and a
+    turn moves it with the world. So one step more, the last for the bands, since they are the
+    owner's recording in a view the owner looks at, is the first form with the bounced light kept by
+    depth texel in that pass's way and read there by the model pass. The guards stand as above, a
+    still view's frames within a level of each other, the shaft's share in the turn against the
+    probes off, the columns held still against the reference, 237's walk-and-turn test with a light
+    that goes out fading within its bound, the rooms' readings, the cost recorded. Where it fails
+    them the bands are recorded as the screen probes' limit at shapes about a tile wide and the item
+    goes on to the silhouette's edge and the shaft's level. Before that step the edge's ramp was
+    read alone at 00:17 on 2026-11-10 and does more than the moved point did. In the model pass
+    alone, screenHold's nearness times the matched weight over a quarter, held to 1, so a pixel
+    whose four probes are like its surface for under a quarter of their weight takes the world's
+    probes' light by what it falls short, the probes staying at their middles. The shaft in the turn
+    reads 2.6 percent past 4 on the mean and 5.6 at most where 4.5 and 18.8, the frame 7.9 where
+    9.0; a still view is as steady as before; held still the left edge's columns read 1.9 to 2.3 of
+    the reference where 2.6 to 3.5 and the inner columns 1.40 to 1.76 where 1.40 to 1.93. So most of
+    the shaft's flicker in a turn was the low-weight pixels at the silhouette and the joins taking
+    the light of unlike probes behind. The ramp is the item's mend, with its guards, 237's
+    walk-and-turn test, a light that goes out, the rooms' readings and the cost with more pixels
+    reading the world's probes, in one commit with build/flicker.py and the example's sponza.turn.
+    The moved point with the bounced light kept by depth texel is held back, written here as the
+    form to take up where the owner still sees the bands on the package that carries the ramp. What
+    remains is recorded, the shaft at 2.6 and 5.6 against 0.9 and 2.1 with the probes off, the frame
+    at 7.9 against 5.2 with its map, and the inner columns' steps; the shaft's level follows by its
+    one read. The voxel game's grove on 6.2.12 shows the same kind at 03:29 on 2026-11-10, read by
+    build/flicker.py in a turn of 0.75 degrees a frame, blocks of one or two tiles on the shaded
+    ground under the canopies and along their shaded edges, the screen probes doubling the turn's
+    flicker past 4 and multiplying it by eight past 12 once the pixel textures' carried floor is
+    blurred away; the game reads it again on the package that carries the ramp. On a mask of the
+    grove's shaded ground at 03:43 the game reads 15.1 percent of the ground past 4 levels and 1.43
+    past 12 moving in the turn with the screen probes and not without them, the same on 6.1.12 and
+    6.2.12, the ground's own floor 6.0 and 0.012. So the form held back is taken up not on the
+    owner's eye alone but where that mask on the package carrying the ramp still reads well over its
+    floor, and the game's ask in ASKS.md of 2026-11-10 for build/flicker.py, two recordings compared
+    pair by pair, a blur of a tile's radius and a map carried back to the first picture, goes in
+    with the ramp's commit or the one after. The ramp landed at `e86ca5c3` on 2026-11-10, pushed at
+    05:41 with a pack run, in the form with the march by thin walls, 6.80 and 6.58 ms against 5.67
+    and 5.81 in Sponza's main pass, the form without the march 5.97 and 6.44 with the shaft at 3.4
+    and 8.3 kept as a patch in the dump for a cut where the game's cost reads too high. The shaft's
+    level read on 2026-11-10 and recorded with no mend, 1.465 of the reference held still with the
+    screen probes and 1.299 without, the world's finest cascade at a shaft narrower than its
+    spacing, two face probes 15 percent over a reference whose own spread between 64 and 256 paths
+    is 17; a mend would start at the cascade's probes around the shaft, as a new item if the owner
+    sees the shafts too bright. Item 240 done by the ramp at `e86ca5c3`, the tool's options at
+    `f77e4cf4`.
+
 ## Verdicts settled
 
 Verdicts 1 to 55 are settled, the last two, the drawing leak test's resident bound and the Windows
@@ -14305,6 +14439,54 @@ shows against a pose held is recorded. sponza.turn turns the example's camera a 
 for a count of frames, a pose a frame, and build/flicker.py --turn carries each picture of such a
 turn into the next by the turn's rotation, the strip it brings in left out, with a mask carried
 along, which item 240's read uses. The suite 2,313 in order and shuffled.
+
+Item 240's edge ramp is committed as its mend. A pixel whose four screen probes stand on a surface
+like its own for under a quarter of their weight takes the world's probes' light by as much as it
+falls short (`modelpass.slang`), and one by a wall thinner than a cell reads the world's probes it
+sees through the field (bouncedSeen), as one with no like probe did, since the thin rooms' corner
+read the lamp beyond the wall otherwise. The world's probes are read only where the hold falls under
+1, behind a branch, and the march through the field at those pixels by a thin wall carries most of
+the cost. Under the GPU's lock (N 7.9), the GPU alone by pmon at each run, on powersave-bazzite, the
+atrium at noon at 800 by 450 took 6.80 and 6.58 ms in `hdr_scene` against 5.67 and 5.81 at HEAD,
+5.82 and 5.92 with neither the march nor the thin wall's keeping, which fails the corner, and 5.97
+and 6.44 against 5.65 and 5.80 with the thin wall's pixels keeping the screen's light unramped and
+unmarched. That cut reads the left shaft in a half-tile turn at 3.4% past 4 on the mean and 8.3% at
+most where 2.6% and 5.6% committed, so it is kept in the dump as the cut to return to if the game's
+cost on the next package reads too high (`.github/dump/2026-11-10/05-01-item-240-ramp-thin-wall-kept.patch`).
+The earlier pair, 5.73 and 6.65, ran beside the game outside the lock. As committed, the left shaft
+in the turn moves past 4 levels on 2.6% of its pixels on the mean and 5.6% at most, against 4.5% and
+18.8% at HEAD and 0.9% and 2.1% with the screen probes off, and the frame on 7.9% against 9.0% and
+5.2%. A still view is as steady as before. Held still the left edge's columns read 1.9 to 2.3 of the
+reference where 2.6 to 3.5. The suite passed 2,313 under the validation layer. Of the bounce rooms'
+27 readings, nine came nearer their references and none went further, the seventh view at `High`
+0.031 where 0.041 and at `Medium` 0.034 where 0.041, the eighth 0.067 and 0.073 where 0.076 and
+0.085, the third 0.142 and 0.263 where 0.154 and 0.271, the fourth 0.092 and 0.103 where 0.100 and
+0.110, and the first at `Medium` 0.085 where 0.094. The nine bounds stand 15% over those readings,
+so without the ramp the seventh view at `High` and `Medium` and the eighth at `Medium` fail (N 3.1,
+N 3.5). What remains. The shaft in the turn at 2.6% and 5.6% against 0.9% and 2.1% with the probes
+off, and the frame at 7.9% against 5.2%, whose map still shows vertical streaks along the far
+arcade's ground floor in the middle half of the frame, rows 250 to 330 of 450, where its column
+profile steps 1.10 between neighbors against 0.58 with the probes off and 1.17 before the ramp
+(`.github/dump/2026-11-10/04-28-item-240-ramp-maps.png`). The shaft's inner columns still step from
+1.40 to 1.76 of the reference held still. The moved point with the bounced light kept by depth texel
+stays written in the item as the form to take up where the grove's masked read on the package
+carrying the ramp still stands well over its floor. The game's ask for build/flicker.py's three
+options goes in the commit after this one.
+
+Item 240's shaft level, read on 2026-11-10 at the atrium's left shaft at noon held still against the
+path-traced reference. In rows 270 to 390 the shaft reads 1.465 of the reference with the screen's
+probes on, its inner columns 1.26 to 1.77, and 1.299 with them off (`gi.toggle screen off`), its
+inner columns 1.14 to 1.62. So most of the level is the world's probes', which the screen's probes'
+rays take beyond their reach, 13 of each probe's 16 there, and the screen's probes add a sixth on
+top. Two probes on the faces at 45 degrees, under pixels 160 and 180 of row 330, read over sixteen
+frames, a round of their places, hold 0.0669 and 0.0722 where the reference over the hemisphere at
+256 paths a way reads 0.0584 and 0.0629, 15% over, while the reference at 64 paths a way reads 17%
+under the one at 256, so the reference's own spread is of that size. One frame's rays
+read 0.0855 and 0.0966, from 0% to 34% over the reference along their own ways, the rays beyond
+their reach carrying the excess. The level is recorded as the world's finest cascade's at a shaft
+narrower than its probes' spacing, 1.30 of the reference, and the screen's probes' 15% over it as
+within what a round of sixteen ways reads. No mend is made here. A mend would start from `gi.probe` at
+the finest cascade's probes around the shaft, as a new item if the owner sees the shaft too bright.
 
 ## Items closed, parked or shortened
 
