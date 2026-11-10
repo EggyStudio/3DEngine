@@ -3218,6 +3218,30 @@ before, so which lamp is brightest at a hit does not move the picture (`gi.passe
 profile`, `gi.reference`, `gi.compare`, `./e3d command record` every frame). Wick's house reads its light at `Low` offscreen and four wicks, so it stands for no
 torch-lit cave, and the voxel game's lies outside this repository.
 
+**The screen's probes at a thin shaft's edges, read and mended on 2026-11-10.** At the atrium's left
+shaft at noon every face of the octagon holds probes, and of the shaft's 13,000 pixels 6.4% have
+four probes like their surface for under a quarter of their weight, the silhouette's edges and the
+joins between faces, which the read normalized to the whole and so lit with the wall's light behind,
+the silhouette reading 2.6 to 3.5 of a path-traced reference. Turned half a tile a frame about the
+eye (`sponza.turn`), a frame carried into the next by the turn (`build/flicker.py --turn`), the shaft
+moved past 4 levels on 4.5% of its pixels on the mean and 18.8% at most, against 0.9% and 2.1% with
+the screen's probes off. Probes standing at a cell of their tile that moves from frame to frame
+brought the turn to 3.5% but moved a still view's pixels a level a frame on 56% of them, and a
+probe's rays alone leaving from the moving cell gained nothing, so neither stands. A pixel now takes
+the world's probes' light by as much as its like probes fall short of a quarter of the weight
+(`modelpass.slang`), and one by a wall thinner than a cell reads the world's probes it sees through
+the field, as one with no like probe does, since the reach takes the world's probes beyond such a
+wall for seen and a thin room's corner read the lamp outside. The shaft moves on 2.6% and 5.6%, the
+frame on 7.9% where 9.0% against 5.2% with the probes off, a still view as steady as before, and held
+still the silhouette reads 1.9 to 2.3 of the reference and the inner columns 1.40 to 1.76 where 1.40
+to 1.93. The bounce rooms' views at `Medium` and `High` read as near their references or nearer, the
+seventh at `High` 0.031 where 0.041. The model pass takes 6.80 and 6.58 ms where 5.67 and 5.81 at
+800 by 450, the GPU alone, on powersave-bazzite, most of it the march at the pixels by a thin wall.
+Those pixels keeping the screen's light instead take it to 5.97 and 6.44 where 5.65 and 5.80, and
+the shaft to 3.4% and 8.3%. What still moves in a turn lies along the far arcade's ground floor, as
+vertical streaks fixed in the window (`./e3d command record` every frame, `gi.reference`,
+`gi.compare`, `./e3d command profile`).
+
 **The vestibule's end wall, read on 2026-11-07.** In the door view at 8:00 at High the wall facing
 the court read 1.55 of a path-traced reference's light, the door in it 2.08 and the side wall facing
 -z 1.35. With the surfaces' reflection of the indirect light left out (`gi.toggle specular off`)

@@ -1474,3 +1474,51 @@ The game does nothing about it meanwhile.
 
 The frames are in the game's `.github/dump/2026-11-09`, which git ignores, under `item-166-path-`:
 the place walked to and teleported to, both settled, and their difference eight times over.
+
+Corrected on 2026-11-10 on the 6.2.12 package. The difference was the eye's place and not its path.
+The walk adds its step in floats each frame and ends at -739.33984, -972.4695, and the teleport went
+to that place rounded to a hundredth, half a millimeter off, while the other run's place, -739.3403,
+-972.4664, was worked out in doubles, 3.6 millimeters off. Teleported to the walk's own end, the
+place walked to and the place teleported to differ on none of the window past 12 levels, at a mean
+of 0.012 of 255, and two runs teleported to one place differ on 0.002 to 0.003 percent, on 6.1.12
+and 6.2.12 alike. Half a millimeter moves 0.34 percent of the window past 12, 0.17 of it with the
+illumination off, where the sun's shadow edges move by a texel of its map as a cascade's middle
+snaps to whole texels, and the rest in the screen probes' light. So the entry asks for nothing, and
+the walk's and the sprint's 0.55 to 1.0 percent are read again against poses placed as the game's
+floats place them. The pictures are in the game's `.github/dump/2026-11-10` under `item-166-pose`.
+
+### 2026-11-10, the voxel game in `Voxel-Sandbox`, `build/flicker.py`'s carried turn reads a floor ten times Sponza's in a game of pixel textures
+
+Read on the 3DEngine 6.2.12 and 6.1.12 packages for the game's item 166, Debug, offscreen at 1280 by
+720, the RTX 4070 Laptop GPU on tuned's power-saving profile, at the game's settings. Seed 1's
+cherry grove at hour 16 with the clock held, the eye at -736, 79, -960 pitched -12, turned in place
+by the game's `voxel.flicker` at 0.75 degrees a frame to the right over 120 frames and recorded
+every frame by `./e3d record`, once with the screen probes on, once with them off (`gi.toggle screen
+off`) and once with the illumination off. `build/flicker.py --turn 0.75 --eye 0,0,0 --target <the
+look> --fov 70 --levels 4,12` read 116 pairs inside each turn, and a sweep of the field of view from
+60 to 78, the pitch from -11 to -13 and the rate from 0.73 to 0.77 found the least change at the
+game's own 70, -12 and 0.75.
+
+Over the window the pairs moved 10.86 percent past 4 and 4.06 past 12 with the probes on, 9.86 and
+3.81 with them off, and 9.83 and 4.09 with the illumination off, where Sponza's atrium reads 0.9
+past 4 with the probes off. The floor is the carry's own. The game's textures are pixel art drawn
+with their texels' hard edges and its blocks' edges are aliased, and a turn's shift of a fraction of
+a pixel resampled bilinearly changes every such edge by more than 4 levels. Masked to the shaded
+ground under the trees, about 8 percent of the first picture, the floor is 24 percent past 4 and 13
+past 12, and the probes' 37 and 17 percent stand on it.
+
+The engine lacks three options of the tool, which the read made by hand in a script beside the game.
+First, two recordings of one turn compared pair by pair at the same heading, counting the pixels a
+pair moves past a level in the first and not in the second, so one part's flicker is read against
+the floor both share. The probes on against off moved 1.32 percent of the window past 4 and 15
+percent of the masked ground after the blur below, where the runs with the probes off and the
+illumination off moved 0.54 and 0.65 against each other. Second, a blur over about a probe's tile, a
+Gaussian of radius 3 on both pictures of a pair, which takes the window's floor from 9.8 to 0.95
+percent past 4 and from 4.1 to 0.010 past 12 and keeps the probes' blocks, the probes then reading
+1.96 and 0.089. Third, a map that follows the turn, each pair's moved pixels carried back into the
+first picture's camera as the mask is carried forward, so a place that flickers stays one place on
+the map. The map as it stands adds up the screen's pixels over the turn and smears them along it
+into curved bands, the same with the probes on and off over 87 degrees.
+
+The pictures are in the game's `.github/dump/2026-11-10` under `item-166-carried-turn` and
+`item-166-carried-masked`.

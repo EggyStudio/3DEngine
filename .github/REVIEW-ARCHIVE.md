@@ -9422,6 +9422,84 @@ batch.
     rooms' wait and RENDERING.md's entry; the suite 2,312 in order and shuffled; SHARED.md's row
     goes with the next commit. Items 239, 240 and 241 carry what remains.
 
+241. **Sponza's lamps light their surroundings, warm and varied.** Decision 106 on 2026-11-09. The
+    lamps of the galleries and the vestibule, the pack's glowing bulb material turned on with L,
+    bloom as if they lit the place and light nothing around them, so each lamp's emission goes into
+    the scene as the glow lights carry an emitter's light, at a power where the gallery's vault
+    above a lamp and the floor under it read lit in the evening views against the path-traced
+    reference, the emission's scale the example's; the bulbs' one shared color becomes a color a
+    lamp, warm as a flame's, the lamps varying in warmth around it with a few cooler ones, by a
+    material a lamp node or an override a node, seeded so a run draws the same lamps; and the bloom
+    is read on the lit evening views with the metered exposure, since a properly lit surround lowers
+    the exposure and the halo with it, and its intensity and threshold are changed only where the
+    glass's halo still reads as a blot rather than a soft halo once the surround is lit. Read by the
+    vestibule at 20:00 and a gallery view with the lamps on, pairs with their difference panels by N
+    4.9, and the owner shown. After 237's commit, before 240. The read on 2026-11-09 changes the
+    item, since the power is not the cause but the glow lights' reach. A glow light reaches where a
+    surface takes a three-hundredth of what it emits, so the reach scales with the emitter's size,
+    and Sponza's bulbs, 0.07 to 0.09 units across, reach about 2.7 units and fade before that while
+    the vestibule's lamp hangs 3.3 over the floor; against references at 16,384 paths the frame
+    carries 0.03 of the reference's lamp light in the door and gallery views at 20:00, the bulbs'
+    own pixels agreeing, so the emission is counted alike and goes nowhere. The mend, approved the
+    same evening, is a floor on a light's reach, where its light falls to a three-hundredth of what
+    it gives at half a probe spacing of the first cascade, which floors a small emitter's reach at
+    8.7 units in Sponza and leaves a wider light its own; at an intensity of 300 the frame comes to
+    0.95 of the reference in the door view and 1.31 in the gallery, nearer than a whole spacing's
+    1.10 and 1.49. Its cost is the screen pass from 1.3 to 2.7 milliseconds at 800 by 450, every
+    probe marching to all 23 lamps, and in a voxel game a floor of about 17 blocks for a torch; a
+    cap on the lamps a probe marches to is item 242, right after. The look, the coder's
+    recommendation to the owner and the review's choice until the owner says otherwise, is 2,400 to
+    3,000 K with three lamps cooler at an intensity of 300, since under the meter the intensity
+    matters little once the reach is right, the pools of light the owner liked at 3,000 under the
+    old reach being the cut-off's, and a night view metered lower changing the frame little; the
+    sheets are in the dump at 19:38 and 19:40. The temporary knobs in the tree come out before the
+    commit. The owner's word the same evening, to the coder's session, was to take the reach fix
+    with the bulbs at 300 and the 2,400 to 3,000 K colors, and make it cooler too, not only warm. So
+    a third of the lamps, 7 of 23, lie between 4,000 and 5,500 K and the rest between 2,400 and
+    3,000, seeded, the owner shown the pair at 19:44 in the dump with difference panels of the door
+    and gallery at 20:00. The engine's reach is the greater of a light's own and the floor measured
+    at half a probe spacing of the first cascade, said in the remarks and the illumination guide;
+    the example gives a material a lamp at 300 with the knobs out; a test puts a bulb a tenth of a
+    unit across four units over a floor and reads the point under it within 20 percent of the closed
+    form, failing at nothing without the floor; RENDERING.md has the entry; the default capture,
+    lamps off at noon, stands. The commit follows the suite. Done at `47a5972b`, pushed at 22:41 on
+    2026-11-09.
+
+242. **A probe marches to the brightest few lamps alone.** From item 241's read on 2026-11-09. With
+    the reach floored at half a probe spacing, every screen probe marches to all of Sponza's 23
+    lamps and the screen pass doubles, from 1.3 to 2.7 milliseconds at 800 by 450, and a voxel
+    game's torches at a floor of about 17 blocks would cost the same way. A probe marches to the few
+    lamps that give it the most light at its place, the rest left out or taken as their mean, with
+    the count read against the reference in the door and gallery views at 20:00 and in the voxel
+    game's torch-lit cave; where the frame holds within the bound of 241's reading, it stands, and
+    the cost comes back toward the old. Right after 241, before 240. Beside the cap, an unbiased
+    form, the fainter lamps marched in turns by tile and frame as the rays' places are, scaled so
+    that a round's mean is every lamp's light, the kept light and the window's filter averaging the
+    turns, read against the cap by the same views. And 241's floor follows the field's first cell,
+    MeasuredAt times ProbeSpacing times the first cell over the root of Faint, half of eight cells
+    by the cell over 17.3, so a game's Field Cell setting sets how far a torch lights, 8.7 units at
+    a cell of 0.125 and 17 at 0.25, which the guide says beside the setting. Read on 2026-11-09, the
+    cost lay at the hits and not at the probes' faint lamps, every ray's hit marching two lamps and
+    two groups, so neither the cap nor the turns is kept and a hit marches its brightest and one
+    group, the screen pass 2.09 ms where 2.64 with the door at 0.954 and the gallery at 1.316 of
+    their references as before, and the gallery held still with the lamps on moving 0.043 percent of
+    its pixels by 12 levels a frame where 0.044 with two marches. Done at `94097b62`, pushed at
+    22:41 on 2026-11-09.
+
+243. **Sponza shown at the top of the README.** The owner on 2026-11-09, asking that the Sponza
+    scene be shown at the top of this README as the modeling is at the top of BevyCSharp's. The
+    bridge's README has, inside its centered head under the badges, one animated picture,
+    .github/assets/showcase_3.gif, and under it a line naming the program and the command that runs
+    it; this README gets the same in the same place, an animated picture of scenes_sponza under
+    .github/assets in the bridge's form, which is six still views two seconds each at 1,280 by 720
+    in 2.4 MB, here six of the example's views at hours that show the engine, the atrium at noon,
+    the door at 8:00, a gallery and the vestibule at 20:00 with the lamps on after item 241 among
+    them, taken on the GPU at 1,280 by 720, with the line under it naming scenes_sponza, the command
+    that runs it from the examples' project and the fetch that comes first; the README's words above
+    it stand, and the picture is linked by the raw address as the examples' captures are. One commit
+    after 241's, before 242; the picture's frames into the dump with a captions line by N 4.10. Done
+    at `86339f72`, pushed at 22:41 on 2026-11-09.
+
 ## Verdicts settled
 
 Verdicts 1 to 55 are settled, the last two, the drawing leak test's resident bound and the Windows
@@ -14171,6 +14249,63 @@ later for each, and the bounce rooms' reference test reads them 190 frames past 
 where 90, each within its bound. RENDERING.md has the read and the mend. The suite 2,312 in order and
 shuffled.
 
+241 written on 2026-11-09, Sponza's lamps. The lamps lit nothing around them because a glow light's
+reach lay where a surface takes a 300th of the light it emits, a few of a bulb's widths, short of
+the floor under a lamp hung higher. A glow light now reaches at least as far as a surface takes a
+300th of what one half the first cascade's probe spacing from it takes (GlowLights), which brings
+the door and gallery views at 20:00 to 0.95 and 1.31 of a path-traced reference's light where 0.03.
+The example gives each lamp's bulb a material of its own at 300 times the pack's emission, two
+thirds of them warm between 2,400 and 3,000 K and a third cool between 4,000 and 5,500 K, seeded,
+as the owner chose, and keeps the meter and the bloom, the halo soft once the walls are lit. A test
+hangs a bulb a tenth of a unit across four units over a floor and reads the point under it within a
+fifth of its lower face's closed form, which reads nothing without the floor. The example's first
+view, lamps off at noon, draws as before, so its capture stands. The voxel desert's torches light
+three times as much of the land, so far from the origin it reads 1,301 black pixels where 1,036
+near it and 4,281 where 3,982 before, the excess the same, and its bound is 600 pixels more, a
+quarter of a percent of the frame, which its share of the black allowed before (N 3.5). RENDERING.md
+has the read. The suite 2,313 in order and shuffled.
+
+243 written on 2026-11-09, Sponza at the top of the README. The README's centered head has under
+its badges .github/assets/showcase.webp, six of scenes_sponza's views at 1,280 by 720 taken on the
+GPU, two seconds each, the balcony at 7:00, the atrium and the look up at noon, the arcades at 16:00
+and the gallery and the door at 20:00 with the lamps on, linked by the raw address, with the line
+naming the example, the fetch and the command under it and the scene's attribution under that. The
+door at 8:00 reads near black at that size, about a third of its reference's light, so the look up
+at noon stands in its place. The example draws its text inside BeginUi, so F1 hides it for such
+pictures, its attribution at the window's bottom at any size, and its capture and the gallery are
+made again. WebP rather than a GIF, as the gallery is, since a GIF's 256 colors band the light. The
+suite 2,313 in order and shuffled.
+
+242 written on 2026-11-09, the cost of 241's floor. The time lay at the probes' rays' hits, not at a
+probe's fainter lamps: a probe marching only those over a share of its glow light, or marching them
+in turns by tile and frame, cost what marching every one costs and read the same against fresh
+references, while every hit marched its two brightest lamps and two groups of the rest once every
+lamp reached it. A hit now marches its brightest lamp and the rest as one group (probelight.slang),
+which under the GPU's lock takes the screen's probes in Sponza's gallery at 20:00 to 2.09 ms where
+2.64 and the first three traces to 2.32 where 2.79, and Ore's screen's probes at night to 3.50 where
+4.27, with the door, the gallery and Ore at night reading their references as before, and the
+gallery held still moving 0.043% of its pixels by 12 levels a frame where 0.044%. The cap and
+the turns are not kept. Wick reads its light at Low offscreen with four wicks, so no torch-lit cave
+is read here. The guide says beside SetSceneField that the field's cell sets how far a small light
+reaches. RENDERING.md has the read. The suite 2,313 in order and shuffled.
+
+246 written on 2026-11-10, read and closed but for the game's read at its pin. Settled eight ways in
+one session, a cut from each view, four walks stepped a frame at a time and a teleport from 60 units
+off, Sponza's atrium at noon with the exposure held differs by 6 levels at most at any pixel, the
+walks by 1 to 6 on 1.4 to 2.5% of the pixels, and Ore by day warped to from four places by nothing
+past 12, so on the head a settled view holds no estimate of how the eye came to it. Held still, the
+rays' places go on through their sixteen and each probe's whole cycle stands in, the mean of them,
+the same each cycle, which makes the frames the same to the bit and forgets the arrival. The two
+motion parts, the history read from the twelve around and a probe starting anew from its like
+neighbors' blend, moved nothing, Sponza's turn against each pose held reading 11.3% of the pixels
+past 4 levels before and 11.5% with them and the screen probes' light 38.9% and 39.0%, and the
+whole cycles held through a turn kept the stand-in at 94 to 98% where it fell to 58% but read 13.6%
+and 44.9%, so all three are dropped, their patch in the dump. The lag of about 4 levels a turn
+shows against a pose held is recorded. sponza.turn turns the example's camera a set angle a frame
+for a count of frames, a pose a frame, and build/flicker.py --turn carries each picture of such a
+turn into the next by the turn's rotation, the strip it brings in left out, with a mask carried
+along, which item 240's read uses. The suite 2,313 in order and shuffled.
+
 ## Items closed, parked or shortened
 
 Items closed without a mend, recorded or parked, and the standing items' texts as they stood before
@@ -14990,6 +15125,74 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     restores its own last cache and compiles every shader changed since its last run. The digests
     carry whole-suite times alone, the night sky was in the fast runs already, and the reference's
     image array does not run on lavapipe where ray queries are off.
+
+246. **A settled view's indirect light depends on how the eye came to it.** From the voxel game's
+    second ask of 2026-11-09 in ASKS.md, read for its item 166 on 6.1.12. In the game's grove one
+    place settled after a walk and settled again after a teleport differs on 0.35 percent of the
+    window past 12 levels, and settled in another run on 0.69 percent and 0.25 past 25, in the
+    screen probes' 8-pixel tiles, while a settled view's frames are the same to the bit, so each
+    arrival holds one estimate of the light and keeps it. A turn made from a settled place matches
+    its settled poses within 0.06 percent at 0.75 and 3 degrees a frame, so nothing lags, and what a
+    walk shows is one held estimate after another. Noise standing in tiles that changes whenever the
+    eye moves is the likeliest reading of the owner's words that the game's illumination has looked
+    noisy the same way for weeks (Decision 107). One bounded read first, on the head with 237's
+    mend, in scenes_sponza's atrium and in one open example, a view settled eight times by different
+    ways, the spread of each pixel across the eight as a map with the share past 6, 12 and 25
+    levels, the same with the screen probes off, and which state holds the estimate, the kept light
+    and its weight once a view is still, the frame's clamp, the rays' places stopping or repeating,
+    or the field's build order. The mend follows the read toward one settled light for a view
+    whatever came before, the error averaging out over the frames a view is held, the rays' places
+    going on while it is still and the kept light a mean over them whose weight falls as frames
+    gather up to a bound, so the tiles' spread shrinks with every frame held and a walk shows less
+    of it. The test settles one view three ways and holds the three within a bound of each other and
+    of the path-traced reference, and holds the spread falling over the frames held; the cost is
+    recorded (Decision 94). Read together with 240's, whose second lever it may be; after 242's
+    commit. From 240's read the same day, the estimate held differs from one probe to the next on a
+    face by 10 to 25 percent held still, and in a turn a probe that crosses onto another face of a
+    thin shape starts anew from one frame's estimate, a sixth of a shaft's probes a frame. So the
+    mend has two more parts for the read to weigh. A probe whose four around the place it came from
+    straddle faces looks for its history on its own face further out before it starts anew. And a
+    probe that starts anew begins from light that is steady, the world's probes' at its point or its
+    like neighbors' in the frame, and moves to its own mean as its frames gather, the same
+    confidence as 240's weight in a pixel, so that motion shows a softer light for some frames where
+    it shows noise today. Read on the head at 23:11 on 2026-11-09, the path's difference does not
+    show there. Sponza's atrium at noon settled eight ways, fresh and by a cut from each of seven
+    views, with the exposure held, spreads no pixel past 6 levels with the screen probes on or off;
+    four walks to one pose and a teleport differ from the cut's arrival by 1 to 6 levels on 1.4 to
+    2.5 percent of the pixels and none past 6; the Ore example by day warped to from four places
+    differs past 12 on none. Held still the rays' places go on through their sixteen and the screen
+    filter's whole cycle stands for a probe's light, the mean of the sixteen gathered afresh each
+    cycle, so a settled view forgets how the eye arrived. The game's 0.35 and 0.69 percent are
+    6.1.12's, which lacks 214 to 237, or the grove's leaves that let light through, which no scene
+    in the tree has; the game repeats its walked-to against teleported-to read at its pin of the
+    package from `94097b62`, and where it still shows, a grove-like scene with such leaves goes into
+    the tree for the read. The item keeps the restarts in motion, 11 percent of the frame's probes a
+    frame in a turn of half a tile, in two parts, a probe finding its history on its own face
+    further out where the four around straddle faces, and a probe that starts anew beginning from
+    steady light and moving to its own mean as its frames gather. The test is a thin eight-sided
+    column in such a turn, the share of its probes starting anew and its pixels' move from frame to
+    frame against the settled poses, each under a bound, the game's sprint read beside it at the
+    pin. The spread maps go into the dump with their captions by N 4.10. The two parts were written
+    and measured at 23:38 on 2026-11-09 and move nothing. A column 0.6 across at 4 units before a
+    lamp-lit wall, turned half a tile a frame, differs from its poses held on 0.00 to 0.01 percent
+    past 12 before and after, the restarts lying on the silhouette and the joins and not showing;
+    Sponza's atrium turned by the example's new sponza.turn differs from its poses held on 11.3
+    percent past 4 levels before and 11.5 after, its screen probes' own light on 38.9 and 39.0 and
+    on 6.0 and 5.9 past 12. What a turn does is a lag and a blur of about 4 levels, the kept light
+    and the cycles resampled between four probes of the frame before each frame, the share of probes
+    holding a whole cycle falling to 58 percent within 20 frames; keeping more of them whole, 94 to
+    98 percent, lies further from the poses held, 44.9 where 38.9, an older mean carried along. So
+    both parts are dropped, their patch in the dump with its caption, the lag recorded and not
+    chased, and reading the history at a probe's own point or by depth texel stays a form for later.
+    Closed as read, but for the game's read at its pin; the motion's fault is looked for under 240
+    by a measure a held pose cannot stand in for. Withdrawn at 03:11 on 2026-11-10. The game's read
+    on 6.1.12 and on 6.2.12 finds no path difference on either, one place teleported to twice and in
+    two runs within 0.006 percent, and its 0.35 and 0.69 percent were its script's own poses, half a
+    millimeter and 3.6 mm apart, a walk's end summed in floats set against a teleport rounded to a
+    hundredth; the game's entry in ASKS.md says so and asks for nothing. Half a millimeter of the
+    eye moves 0.34 percent of the window past 12 levels, about half of it the sun's shadow edges a
+    texel on and the rest the screen probes' light, so a pose held is placed by the program's own
+    float operations or is not compared.
 
 ## Head records
 

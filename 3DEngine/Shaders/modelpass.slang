@@ -180,6 +180,13 @@ public ScreenProbesHere screenProbesHere(ModelVertexOutput input, float3 n)
     return probes;
 }
 
+// How much of a pixel's four screen probes stand on a surface like its own, their weights summed,
+// from none to the whole of their nearness.
+public float screenMatched(ScreenProbesHere probes)
+{
+    return probes.bounced[0] + probes.bounced[1] + probes.bounced[2] + probes.bounced[3];
+}
+
 // The indirect light reaching the pixel a fragment is at, irradiance over pi, blended between the
 // four screen probes around it that stand on a surface like its own. Or -1 where none does.
 public float3 screenBounced(ScreenProbesHere probes)
@@ -561,16 +568,22 @@ public LitLight litLight(float3 albedo, ModelVertexOutput input, float shadow = 
         // The screen's probes reach as far as the world's last cascade, across whose outer band
         // their light fades to the world's probes', which read alone past it. Switched there, a
         // canyon's floor showed a step in its light.
-        float near = bouncedHere.x >= 0.0 ? screenHold(input.world, n) : 0.0;
+        // And a pixel whose four probes stand on a surface like its own for under a quarter of their
+        // weight, as along a thin column's silhouette, takes the world's probes' light by as much as
+        // it falls short, since the few like probes it has, normalized to the whole, lent it the
+        // light of the wall behind.
+        float matched = screenMatched(probes);
+        float near = bouncedHere.x >= 0.0 ? screenHold(input.world, n) * saturate(matched / 0.25) : 0.0;
         if (near < 1.0)
         {
-            // A pixel the screen's probes stand around on no surface like its own, as at a corner,
-            // reads the world's probes it sees through the field (bouncedSeen) where it lies by a
-            // wall thinner than a cell, whose probes beyond the reach takes for seen (byThinWall),
+            // A pixel the screen's probes stand around on no surface like its own, or on one for
+            // under a quarter of their weight, as at a corner, reads the world's probes it sees
+            // through the field (bouncedSeen) where it lies by a wall thinner than a cell, whose
+            // probes beyond the reach takes for seen (byThinWall),
             // and so does one where no screen probe stands, as at Low. It is not marched at every
             // such pixel, since a world of blocks holds many, its leaves, grass and far blocks, and
             // has no wall that thin.
-            bool edge = screen && bouncedHere.x < 0.0 && probes.near[0] + probes.near[1] + probes.near[2] + probes.near[3] > 0.0
+            bool edge = screen && (bouncedHere.x < 0.0 || matched < 0.25) && probes.near[0] + probes.near[1] + probes.near[2] + probes.near[3] > 0.0
                 && byThinWall(input.world, n);
             float3 world = edge || (!screen && byThinWall(input.world, n)) ? bouncedSeen(input.world, n)
                 : bouncedAndSky(input.world, n, reflect(-v, n), skyHere);
