@@ -412,6 +412,7 @@ SetCameraExposure(100, 1 / 125f, 16);
 | `SetSkyDay(new SkyDay { Atmosphere = Sky.Atmosphere.Earth })` | The air the day sky's sun and moon come through, as the Sky module models it, their lux and color at the ground by their height and the sky's lux the air's |
 | `SetCameraExposure(iso, shutterSeconds, aperture)` | The camera they are seen through, EV 15, a sunny day's, until set |
 | `ColorFromTemperature(kelvin)` | A light's color from its temperature, 2,700 a lamp's warm white and 5,600 the sun's at midday |
+| `SrgbToLinear(value)`, `LinearToSrgb(value)` | A channel between sRGB, as a color's channel over 255 is stored, and its light, by the sRGB curve, and `ColorToLinear(color)` and `ColorFromLinear(light)` the same for a color, its alpha as it is, so a threshold given in sRGB is decoded once rather than by a gamma of 2.2 |
 
 The camera's exposure value at ISO 100 is log2 of the f-number squared over the shutter's time,
 less log2 of the ISO over 100, and a white surface reads 1 at 1.2 times 2 to that many candelas a

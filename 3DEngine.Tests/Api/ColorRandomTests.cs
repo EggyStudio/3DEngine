@@ -14,6 +14,29 @@ namespace Engine.Tests.Api;
 public class ColorRandomTests
 {
     [Fact]
+    public void The_Srgb_Curve_Gives_Its_Known_Values_And_Every_Level_Comes_Back()
+    {
+        // The curve's ends, its join between the line and the power, a mid gray's 0.5 and the
+        // 0.18 of light a mid gray reflects.
+        SrgbToLinear(0).Should().Be(0);
+        SrgbToLinear(1).Should().BeApproximately(1, 1e-6f);
+        SrgbToLinear(0.04045f).Should().BeApproximately(0.0031308f, 1e-6f);
+        SrgbToLinear(0.5f).Should().BeApproximately(0.21404f, 1e-5f);
+        LinearToSrgb(0.18f).Should().BeApproximately(0.46135f, 1e-5f);
+        LinearToSrgb(0.0031308f).Should().BeApproximately(0.04045f, 1e-5f);
+        LinearToSrgb(1).Should().BeApproximately(1, 1e-6f);
+
+        for (int level = 0; level < 256; level++)
+        {
+            var color = new Color((byte)level, (byte)(255 - level), (byte)(level / 2), (byte)level);
+            ColorFromLinear(ColorToLinear(color)).Should().Be(color, $"the level {level} comes back from its light");
+            LinearToSrgb(SrgbToLinear(level / 255f)).Should().BeApproximately(level / 255f, 1e-5f);
+        }
+        ColorToLinear(new Color(255, 128, 0, 128)).Should().Be(new Vector4(1, SrgbToLinear(128 / 255f), 0, 128 / 255f), "alpha is no light and keeps its share");
+        ColorFromLinear(new Vector4(2, -1, 0.5f, 1)).Should().Be(new Color(255, 0, 188), "light past 1 and under 0 is held to the bytes' ends");
+    }
+
+    [Fact]
     public void Hsv_Goes_Round_The_Hue_Circle_As_Raylib_Does()
     {
         ColorFromHSV(0, 1, 1).Should().Be(new Color(255, 0, 0));

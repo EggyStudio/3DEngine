@@ -29,6 +29,35 @@ public static partial class E3D
     public static Color ColorFromNormalized(Vector4 normalized) =>
         new((byte)(normalized.X * 255f), (byte)(normalized.Y * 255f), (byte)(normalized.Z * 255f), (byte)(normalized.W * 255f));
 
+    /// <summary>
+    /// The light of a channel stored as sRGB, as a color's channel over 255 or a picture's is, from
+    /// 0 to 1, by the sRGB curve.
+    /// </summary>
+    /// <remarks>
+    /// Light adds and scales as numbers do, where sRGB, which spends more of its levels on the
+    /// dark, does not, so a color is decoded before it is mixed, lit or compared by brightness and
+    /// encoded again to be shown (<see cref="LinearToSrgb"/>). A gamma of 2.2 lies near the curve
+    /// but not on it, darker in the shadows.
+    /// </remarks>
+    public static float SrgbToLinear(float value) => Srgb.Decode(value);
+
+    /// <summary>A channel's light as sRGB stores it, from 0 to 1 for light from 0 to 1, by the sRGB curve.</summary>
+    public static float LinearToSrgb(float value) => Srgb.Encode(value);
+
+    /// <summary>
+    /// The color's light, its red, green and blue decoded from sRGB (<see cref="SrgbToLinear"/>),
+    /// with its alpha from 0 to 1 as it is, since alpha is no light.
+    /// </summary>
+    public static Vector4 ColorToLinear(Color color) =>
+        new(Srgb.Decode(color.R), Srgb.Decode(color.G), Srgb.Decode(color.B), color.A / 255f);
+
+    /// <summary>
+    /// The color of a light, its red, green and blue encoded to sRGB (<see cref="LinearToSrgb"/>)
+    /// and rounded, with its alpha from 0 to 1 as it is, each held to 0 and 255.
+    /// </summary>
+    public static Color ColorFromLinear(Vector4 linear) => new(Srgb.EncodeByte(linear.X), Srgb.EncodeByte(linear.Y), Srgb.EncodeByte(linear.Z),
+        (byte)Math.Clamp(MathF.Round(linear.W * 255), 0, 255));
+
     /// <summary>The color's hue in degrees from 0 to 360, and its saturation and value from 0 to 1.</summary>
     /// <remarks>A gray, black included, has no hue, and is given 0 where raylib gives black NaN.</remarks>
     public static Vector3 ColorToHSV(Color color)
@@ -84,8 +113,7 @@ public static partial class E3D
             -0.9689f * cx + 1.8758f + 0.0415f * cz,
             0.0557f * cx - 0.2040f + 1.0570f * cz));
         linear /= MathF.Max(linear.X, MathF.Max(linear.Y, linear.Z));
-        static byte Encode(float c) => (byte)Math.Clamp(MathF.Round((c <= 0.0031308f ? 12.92f * c : 1.055f * MathF.Pow(c, 1 / 2.4f) - 0.055f) * 255), 0, 255);
-        return new Color(Encode(linear.X), Encode(linear.Y), Encode(linear.Z));
+        return new Color(Srgb.EncodeByte(linear.X), Srgb.EncodeByte(linear.Y), Srgb.EncodeByte(linear.Z));
     }
 
     /// <summary>The color multiplied by <paramref name="tint"/>, channel by channel.</summary>

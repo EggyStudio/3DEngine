@@ -1374,6 +1374,10 @@ int ColorToInt(Color color);                             // The color as a numbe
 Color GetColor(uint hexValue);                           // The color of a number written as 0xRRGGBBAA, as ColorToInt gives
 Vector4 ColorNormalize(Color color);                     // The color as four floats from 0 to 1
 Color ColorFromNormalized(Vector4 normalized);           // The color of four floats from 0 to 1
+float SrgbToLinear(float value);                         // The light of a channel stored as sRGB, as a color's channel over 255 or a picture's is, from 0 to 1, by the sRGB curve
+float LinearToSrgb(float value);                         // A channel's light as sRGB stores it, from 0 to 1 for light from 0 to 1, by the sRGB curve
+Vector4 ColorToLinear(Color color);                      // The color's light, its red, green and blue decoded from sRGB (SrgbToLinear), with its alpha from 0 to 1 as it is, since alpha is no light
+Color ColorFromLinear(Vector4 linear);                   // The color of a light, its red, green and blue encoded to sRGB (LinearToSrgb) and rounded, with its alpha from 0 to 1 as it is, each held to 0 and 255
 Vector3 ColorToHSV(Color color);                         // The color's hue in degrees from 0 to 360, and its saturation and value from 0 to 1
 Color ColorFromHSV(float hue, float saturation, float value);  // The opaque color of a hue in degrees, and a saturation and value from 0 to 1
 Color ColorFromTemperature(float kelvin);                // The opaque color of the light a black body gives at kelvin, from 1,000 to 15,000, the brightest of its channels at 255, so 2,700 is a lamp's warm white, 5,600 the sun's at midday and 9,000 a blue sky's

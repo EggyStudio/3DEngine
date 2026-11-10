@@ -114,8 +114,7 @@ internal sealed partial class MeshEntityDraws
         return _colors[albedo] = new Color((byte)c.X, (byte)c.Y, (byte)c.Z, (byte)c.W);
     }
 
-    private static float LinearToSrgb(float c) =>
-        c <= 0.0031308f ? c * 12.92f : 1.055f * MathF.Pow(c, 1 / 2.4f) - 0.055f;
+    private static float LinearToSrgb(float c) => Srgb.Encode(c);
 
     private int TextureFor(Handle<TextureAsset> handle, Assets<TextureAsset>? assets, TextureStore textures)
     {

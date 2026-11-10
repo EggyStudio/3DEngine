@@ -124,9 +124,8 @@ public static partial class E3D
         var (name, look) = (data.Slots[slot], data.LookAt(slot));
         var prototype = GetPrototypeColor(name);
         var srgb = look.Color ?? (look.Texture is null ? new Vector4(prototype.R, prototype.G, prototype.B, 255) / 255 : Vector4.One);
-        static float Decode(float c) => c <= 0.04045f ? c / 12.92f : MathF.Pow((c + 0.055f) / 1.055f, 2.4f);
         static string? Found(string? path) => path is null ? null : ResolveFile(path) is { } found ? Path.GetFullPath(found) : path;
-        return new GltfWriter.Primitive(name, new Vector4(Decode(srgb.X), Decode(srgb.Y), Decode(srgb.Z), srgb.W), vertices, indices)
+        return new GltfWriter.Primitive(name, new Vector4(Srgb.Decode(srgb.X), Srgb.Decode(srgb.Y), Srgb.Decode(srgb.Z), srgb.W), vertices, indices)
         {
             Metallic = look.Metallic ?? 0,
             Roughness = look.Roughness ?? 0.85f,

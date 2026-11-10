@@ -745,9 +745,7 @@ internal static class BounceReference
         {
             for (int c = 0; c < 3; c++)
             {
-                var linear = Math.Clamp(traced.Light[i * 3 + c], 0, 1);
-                var encoded = linear <= 0.0031308f ? linear * 12.92f : 1.055f * MathF.Pow(linear, 1 / 2.4f) - 0.055f;
-                rgba[i * 4 + c] = (byte)MathF.Round(encoded * 255);
+                rgba[i * 4 + c] = Srgb.EncodeByte(Math.Clamp(traced.Light[i * 3 + c], 0, 1));
             }
             rgba[i * 4 + 3] = 255;
         }

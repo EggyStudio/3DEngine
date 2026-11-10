@@ -162,13 +162,7 @@ public struct Material : IEquatable<Material>
     public static Material Default => new(Vector4.One);
 
     /// <summary>A material of a color as raylib's colors and image pixels are, sRGB-encoded, decoded into the linear <see cref="Albedo"/>.</summary>
-    public Material(Color color) : this(new Vector4(Decode(color.R), Decode(color.G), Decode(color.B), color.A / 255f)) { }
-
-    private static float Decode(byte value)
-    {
-        var c = value / 255f;
-        return c <= 0.04045f ? c / 12.92f : MathF.Pow((c + 0.055f) / 1.055f, 2.4f);
-    }
+    public Material(Color color) : this(new Vector4(Srgb.Decode(color.R), Srgb.Decode(color.G), Srgb.Decode(color.B), color.A / 255f)) { }
 
     /// <summary>
     /// Creates a material with only the albedo factor set, every other field as a

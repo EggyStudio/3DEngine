@@ -187,11 +187,7 @@ internal sealed class EnvironmentMap
         return (half, w, h);
     }
 
-    private static float Decode(byte value)
-    {
-        var c = value / 255f;
-        return c <= 0.04045f ? c / 12.92f : MathF.Pow((c + 0.055f) / 1.055f, 2.4f);
-    }
+    private static float Decode(byte value) => Srgb.Decode(value);
 }
 
 /// <summary>Render graph node that filters a new environment map on the GPU before any pass samples it.</summary>

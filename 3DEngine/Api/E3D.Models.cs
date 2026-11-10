@@ -657,22 +657,13 @@ public static partial class E3D
         DrawCubeWiresV((box.Min + box.Max) / 2, box.Max - box.Min, color);
 
     // An sRGB color's light, which a draw's emission is given in.
-    internal static Vector3 Linear(Color color)
-    {
-        static float Decode(byte value)
-        {
-            var c = value / 255f;
-            return c <= 0.04045f ? c / 12.92f : MathF.Pow((c + 0.055f) / 1.055f, 2.4f);
-        }
-        return new Vector3(Decode(color.R), Decode(color.G), Decode(color.B));
-    }
+    internal static Vector3 Linear(Color color) => new(Srgb.Decode(color.R), Srgb.Decode(color.G), Srgb.Decode(color.B));
 
     // A linear color as sRGB bytes and the intensity that takes it past 1, which a file's
     // emission can need.
     private static (Color Color, float Intensity) Emissive(Vector3 linear)
     {
-        static byte Encode(float c) =>
-            (byte)MathF.Round(255 * (c <= 0.0031308f ? c * 12.92f : 1.055f * MathF.Pow(c, 1 / 2.4f) - 0.055f));
+        static byte Encode(float c) => Srgb.EncodeByte(c);
         var peak = MathF.Max(1, MathF.Max(linear.X, MathF.Max(linear.Y, linear.Z)));
         var c = Vector3.Clamp(linear / peak, Vector3.Zero, Vector3.One);
         return (new Color(Encode(c.X), Encode(c.Y), Encode(c.Z)), peak);

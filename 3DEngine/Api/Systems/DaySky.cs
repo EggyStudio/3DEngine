@@ -243,13 +243,12 @@ internal sealed partial class DaySky
     internal static float FloorLight(float hour, float tilt)
     {
         var (zenith, horizon) = ColorsAt(hour, tilt);
-        static float Decode(float level) => level / 255 <= 0.04045f ? level / 255 / 12.92f : MathF.Pow((level / 255 + 0.055f) / 1.055f, 2.4f);
         float sum = 0;
         for (int row = 0; row < Height / 2; row++)
         {
             var theta = (row + 0.5f) / Height * MathF.PI;
             var color = RowColor(zenith, horizon, row);
-            var luminance = 0.2126f * Decode(Level(color.X)) + 0.7152f * Decode(Level(color.Y)) + 0.0722f * Decode(Level(color.Z));
+            var luminance = 0.2126f * Srgb.Decode(Level(color.X) / 255) + 0.7152f * Srgb.Decode(Level(color.Y) / 255) + 0.0722f * Srgb.Decode(Level(color.Z) / 255);
             sum += 2 * luminance * MathF.Cos(theta) * MathF.Sin(theta) * MathF.PI / Height;
         }
         return MathF.Max(sum, 1e-4f);
@@ -264,18 +263,13 @@ internal sealed partial class DaySky
     // A sky's color in sRGB levels tinted by the night's tint as far as the day's light is gone.
     private static Vector3 AtNight(Vector3 color, float day)
     {
-        static float Decode(float c) => c <= 0.04045f ? c / 12.92f : MathF.Pow((c + 0.055f) / 1.055f, 2.4f);
         var tint = Vector3.Lerp(NightTint, Vector3.One, day);
-        var linear = new Vector3(Decode(color.X / 255), Decode(color.Y / 255), Decode(color.Z / 255)) * tint;
+        var linear = new Vector3(Srgb.Decode(color.X / 255), Srgb.Decode(color.Y / 255), Srgb.Decode(color.Z / 255)) * tint;
         return Encode(Vector3.Min(linear, Vector3.One)) * 255;
     }
 
     // Linear light to sRGB levels from 0 to 1.
-    private static Vector3 Encode(Vector3 linear)
-    {
-        static float One(float c) => c <= 0.0031308f ? 12.92f * c : 1.055f * MathF.Pow(c, 1 / 2.4f) - 0.055f;
-        return new Vector3(One(linear.X), One(linear.Y), One(linear.Z));
-    }
+    private static Vector3 Encode(Vector3 linear) => new(Srgb.Encode(linear.X), Srgb.Encode(linear.Y), Srgb.Encode(linear.Z));
 
     internal static float SmoothStep(float from, float to, float x)
     {

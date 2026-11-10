@@ -470,11 +470,7 @@ internal sealed class TextureStore
         return weight > 0 ? sum / weight : System.Numerics.Vector3.One;
     }
 
-    private static float Linear(byte value)
-    {
-        var c = value / 255f;
-        return c <= 0.04045f ? c / 12.92f : MathF.Pow((c + 0.055f) / 1.055f, 2.4f);
-    }
+    private static float Linear(byte value) => Srgb.Decode(value);
 
     private static bool HasPartialAlpha(byte[] rgba)
     {
