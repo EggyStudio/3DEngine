@@ -2,6 +2,7 @@ using System.Globalization;
 using System.Numerics;
 using System.Runtime.InteropServices;
 using System.Text;
+using static Engine.Illumination;
 
 namespace Engine;
 
@@ -276,7 +277,7 @@ internal static class BounceReference
         }
 
         var (p, n) = (gi.Probes, gi.Texels[c]);
-        var spacing = plan.CellOf(standing) * GlobalIlluminationRenderer.ProbeSpacing;
+        var spacing = plan.CellOf(standing) * Illumination.ProbeSpacing;
         var at = Vector3.Clamp(new Vector3(MathF.Floor((point.X - origin.X) / spacing), MathF.Floor((point.Y - origin.Y) / spacing),
             MathF.Floor((point.Z - origin.Z) / spacing)), Vector3.Zero, new Vector3(p - 1));
         var middle = origin + (at + new Vector3(0.5f)) * spacing;

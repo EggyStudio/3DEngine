@@ -105,7 +105,7 @@ public struct GiLight
 };
 
 // The most cascades of probes, the four High traces and the far cascade's, as
-// GlobalIlluminationRenderer.MostCascades.
+// Illumination.MostCascades.
 public static const int MostProbeCascades = 5;
 
 public struct GiLights
@@ -350,7 +350,7 @@ public float3 directLight<V : IVolume, Sun : ISunShadow>(V field, SceneFieldInfo
 
 // The sixteen places in a texel a moving ray leaves from, in the order the frames take them, each
 // four in a row spread over the texel, as the glow lights' points are
-// (GlobalIlluminationRenderer.JitterAt), which a carried probe's rays (gi_trace.slang) and the
+// (Illumination.JitterAt), which a carried probe's rays (gi_trace.slang) and the
 // screen's probes' (gi_screen.slang) take.
 public static const uint TracePlaces[16] = { 0, 10, 2, 8, 5, 15, 7, 13, 1, 11, 3, 9, 4, 14, 6, 12 };
 

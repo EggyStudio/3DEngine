@@ -101,7 +101,7 @@ internal static class SceneFieldCommands
         // (GlowOnly), placed and marching to them once a tile with no ray traced.
         if (renderer.RenderWorld.TryGet<GlobalIlluminationSettings>() is { ScreenOff: true })
             lines.Add("no screen probes, which gi.toggle screen left out, the cascades' light read alone and each pixel marching to the glow lights");
-        else if (!GlobalIlluminationRenderer.ScreenProbesAt(quality))
+        else if (!Illumination.ScreenProbesAt(quality))
             lines.Add(gi.Screen is { } alone
                 ? $"no screen probes at {quality}, the cascades' light read alone, and probes every {alone.Tile} pixels, {alone.Across} by {alone.Down}, "
                   + $"standing for the glow lights alone, {Megabytes(alone):0.00} MB"
@@ -109,12 +109,12 @@ internal static class SceneFieldCommands
         else if (gi.Screen is { } screen)
             lines.Add($"screen probes every {screen.Tile} pixels, {screen.Across} by {screen.Down}, {screen.Across * screen.Down * 16} rays a frame, "
                       + $"{Megabytes(screen):0.00} MB");
-        var (steps, reach) = GlobalIlluminationRenderer.ReflectionStepsAt(quality);
+        var (steps, reach) = Illumination.ReflectionStepsAt(quality);
         // The frame before at half the window's size in half floats, its mips a third more, and its
         // depth beside it in floats.
         var history = gi.HistoryViewProjection is null || renderer.RenderWorld.TryGet<SwapchainTarget>() is not { } window ? 0
             : (window.Extent.Width / 2) * (window.Extent.Height / 2) * (8 * 4 / 3.0 + 4) / 1024 / 1024;
-        lines.Add($"reflections below roughness {GlobalIlluminationRenderer.GlossyRoughness} in {steps} steps through the depth across {reach} units, "
+        lines.Add($"reflections below roughness {Illumination.GlossyRoughness} in {steps} steps through the depth across {reach} units, "
                   + $"then the field, the frame before kept in {history:0.00} MB");
         if (gi.Rays is { } traced)
             lines.Add($"what the field misses through the device's rays, {traced.Count} copies of {traced.Meshes.Count} meshes in {traced.Bytes / 1024.0 / 1024.0:0.00} MB");

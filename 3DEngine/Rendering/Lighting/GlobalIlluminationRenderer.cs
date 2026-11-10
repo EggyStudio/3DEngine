@@ -1,30 +1,9 @@
 using System.Diagnostics;
 using System.Numerics;
 using System.Runtime.InteropServices;
+using static Engine.Illumination;
 
 namespace Engine;
-
-/// <summary>
-/// The probes the model pass reads the window's indirect light from this frame, over the field they
-/// were traced through, and the screen's probes, which it reads first where one stands near, with
-/// what a glossy surface traces its reflection through, the window's depth, its scene the frame
-/// before where one was kept, its meshes for the device's ray tracing where it traces rays, and how
-/// many glow lights the frame's lights hold, without which the model pass draws with its build that
-/// leaves them out.
-/// </summary>
-internal sealed record IlluminationBinding(GpuIllumination Probes, GpuSceneField Field, GpuScreenProbes? Screen,
-    WindowDepth? Depth = null, GpuReflectionHistory? History = null, GpuRayScene? Rays = null, int GlowLights = 0);
-
-/// <summary>
-/// What the model pass reads each render target's indirect light from this frame, by the target's
-/// texture id, the world's probes with the target's own screen probes, stood on its own depth,
-/// where it draws meshes through a camera of its own.
-/// </summary>
-internal sealed class TargetIllumination
-{
-    /// <summary>Each target's binding, set as the target's probes are traced ahead of its pass.</summary>
-    public Dictionary<int, IlluminationBinding> ByTarget { get; } = [];
-}
 
 /// <summary>
 /// Global illumination, as cascades of light probes over the scene's distance field (Radiance
@@ -54,18 +33,6 @@ internal sealed class TargetIllumination
 internal sealed partial class GlobalIlluminationRenderer : IDisposable
 {
     private static readonly ILogger Logger = Log.Category("Engine.GlobalIllumination");
-
-    /// <summary>How many cells of their field cascade the probes lie apart.</summary>
-    public const int ProbeSpacing = 8;
-
-    /// <summary>The most cascades of probes, the four High traces and the far cascade's.</summary>
-    public const int MostCascades = 5;
-
-    /// <summary>
-    /// The roughness from which a surface traces no reflection, the probes and the environment
-    /// reflecting alone, its traced reflection fading out from half of it.
-    /// </summary>
-    public const float GlossyRoughness = 0.5f;
 
     private GpuIllumination? _gi;
     private GpuScreenProbes? _screen;
@@ -139,64 +106,6 @@ internal sealed partial class GlobalIlluminationRenderer : IDisposable
     /// </summary>
     internal GpuRayScene? Rays => _rays;
 
-    /// <summary>Each cascade's octahedron's texels along each side at a quality, before the field's cascades cut them short.</summary>
-    internal static int[] TexelsAt(GlobalIllumination quality) => quality switch
-    {
-        // Low's third cascade of 8 a side, so a surface past its second, 16 units across in
-        // Sponza's field of 0.125, takes probes rather than the sky over a ground from beyond them,
-        // which lit the atrium's far half at noon as though it stood outdoors.
-        GlobalIllumination.Low => [8, 8, 8],
-        GlobalIllumination.Medium => [8, 8, 16],
-        // High's second cascade of 8 a side as Low's and Medium's, four rays a texel, where of 16 a
-        // side, one ray from each texel's middle, its probes under a slab read the sky past its
-        // edge along the level ways brighter than a path-traced reference takes it, the floor over
-        // both Low's and the reference's. Four rays a texel of 16 a side read it right, at four
-        // times the rays.
-        GlobalIllumination.High => [8, 8, 16, 16],
-        _ => [],
-    };
-
-    /// <summary>The steps a reflection is traced through the window's depth in, and how far, at a quality.</summary>
-    internal static (int Steps, float Reach) ReflectionStepsAt(GlobalIllumination quality) => quality switch
-    {
-        GlobalIllumination.Low => (12, 8),
-        GlobalIllumination.Medium => (16, 12),
-        _ => (24, 16),
-    };
-
-    /// <summary>
-    /// How far from its tile's middle each screen probe marches to the glow lights from in frame
-    /// <paramref name="frame"/>, in pixels, the same for every probe, the middles of the tile's four
-    /// by four cells in the order of Bayer's matrix, sixteen frames a round, so a round visits each
-    /// cell once and each frame's cell lies far from the last.
-    /// </summary>
-    /// <remarks>
-    /// At the window's half-sized depth a tile of eight pixels holds four by four of its texels,
-    /// which a probe's point falls on, so a round marches from each texel once. The Halton points
-    /// of bases 2 and 3 fell on one row of those texels five times a round and on another three, so
-    /// the floor along a lamp's penumbra moved more with turns of one to eight pixels than it does
-    /// with these.
-    /// </remarks>
-    internal static Vector2 JitterAt(long frame, int tile)
-    {
-        ReadOnlySpan<byte> cells = [0, 10, 2, 8, 5, 15, 7, 13, 1, 11, 3, 9, 4, 14, 6, 12];
-        var cell = cells[(int)(frame % 16)];
-        return new Vector2(((cell & 3) + 0.5f) / 4 - 0.5f, ((cell >> 2) + 0.5f) / 4 - 0.5f) * tile;
-    }
-
-    /// <summary>
-    /// Whether a quality stands probes on the view's surfaces every few pixels, beside the cascades
-    /// of probes through the scene, which <see cref="GlobalIllumination.Medium"/> and
-    /// <see cref="GlobalIllumination.High"/> do and <see cref="GlobalIllumination.Low"/> leaves
-    /// out, every surface there reading the cascades' light alone, so a weak GPU has the cheaper
-    /// path with no switch of its own.
-    /// </summary>
-    internal static bool ScreenProbesAt(GlobalIllumination quality) => quality is GlobalIllumination.Medium or GlobalIllumination.High;
-
-    /// <summary>Whether the views have screen probes this frame, at a quality that has them and not left out for debugging (<see cref="GlobalIlluminationSettings.ScreenOff"/>).</summary>
-    internal static bool ScreenProbesOn(RenderWorld renderWorld) =>
-        renderWorld.TryGet<GlobalIlluminationSettings>() is { ScreenOff: false } settings && ScreenProbesAt(settings.Quality);
-
     /// <summary>
     /// Whether the screen's probes stand for the glow lights alone this frame, which they do at
     /// <see cref="GlobalIllumination.Low"/>, which leaves them out, while some glow light is lit.
@@ -210,55 +119,6 @@ internal sealed partial class GlobalIlluminationRenderer : IDisposable
     /// </remarks>
     internal bool GlowOnly(RenderWorld renderWorld) =>
         _glowCount > 0 && renderWorld.TryGet<GlobalIlluminationSettings>() is { ScreenOff: false, Quality: GlobalIllumination.Low };
-
-    /// <summary>
-    /// The pixels along each side of the tile a screen probe stands in, at a quality, for a window
-    /// <paramref name="height"/> pixels high, the same up to 1080 and growing with the height past
-    /// it, so a probe stands for about the same share of the picture on any screen.
-    /// </summary>
-    /// <remarks>
-    /// The probes' cost grows with how many there are, which at the same spacing on every screen
-    /// grows with the window's pixels, so the spacing grows with the height past 1080. A render
-    /// texture's probes take the window's tile, so a view of a split screen reads the window's
-    /// spacing.
-    /// </remarks>
-    internal static int TileAt(GlobalIllumination quality, uint height = 1080)
-    {
-        var at1080 = quality switch
-        {
-            GlobalIllumination.Low => 16,
-            GlobalIllumination.Medium => 12,
-            _ => 8,
-        };
-        return Math.Max(at1080, (int)MathF.Round(at1080 * height / 1080f));
-    }
-
-    /// <summary>
-    /// How many cascades of probes global illumination traces for the window this frame, which the
-    /// window's lighting buffer tells the model pass, 0 where global illumination is off.
-    /// </summary>
-    /// <remarks>
-    /// The field's far cascade, where it has one, has a cascade of probes of its own after those the
-    /// quality traces, which stand in the field's first cascades.
-    /// </remarks>
-    internal static int CascadesIn(RenderWorld renderWorld) =>
-        renderWorld.TryGet<GlobalIlluminationSettings>() is { Quality: not GlobalIllumination.Off } settings
-        && renderWorld.TryGet<SceneFieldSettings>() is { On: true } field
-            ? Math.Min(TexelsAt(settings.Quality).Length, Math.Clamp(field.Cascades, 1, 8)) + (FarIn(renderWorld) ? 1 : 0)
-            : 0;
-
-    // Whether the field the probes stand in has a far cascade this frame.
-    private static bool FarIn(RenderWorld renderWorld) => renderWorld.TryGet<SceneFieldRenderer>()?.Plan is { HasFar: true };
-
-    /// <summary>
-    /// Each of <paramref name="cascades"/> cascades' octahedron's texels at a quality, the far
-    /// cascade's, the last where <paramref name="far"/>, as many as the cascade before it.
-    /// </summary>
-    internal static int[] TexelsFor(GlobalIllumination quality, int cascades, bool far)
-    {
-        var texels = TexelsAt(quality);
-        return far ? [.. texels[..(cascades - 1)], texels[cascades - 2 < 0 ? 0 : cascades - 2]] : texels[..cascades];
-    }
 
     /// <summary>Traces, merges and gathers the frame's probes, binding them for the model pass, or lets them go where light does not bounce.</summary>
     public void Draw(RenderContext renderContext, RenderWorld renderWorld)
@@ -411,7 +271,7 @@ internal sealed partial class GlobalIlluminationRenderer : IDisposable
                 || _screenGlowOnly != glowOnly || _screen.GlowTexel != glowTexel)
             {
                 if (_screen is not null) _retired.Add((_frame, _screen));
-                _screen = GlobalIlluminationStages.Of(device).CreateScreenProbes(width, height, tile, glowTexel);
+                _screen = GpuScreenProbes.Create(device, width, height, tile, glowTexel);
                 _screenGlowOnly = glowOnly;
                 _lastScreen = null;
             }
@@ -467,7 +327,7 @@ internal sealed partial class GlobalIlluminationRenderer : IDisposable
             || state.Screen.Across != (size.Width + tile - 1) / tile || state.Screen.Down != (size.Height + tile - 1) / tile)
         {
             if (state is not null) _retired.Add((_frame, state));
-            state = _targets[id] = new TargetScreen(GlobalIlluminationStages.Of(device).CreateScreenProbes(size.Width, size.Height, tile, glowTexel)) { GlowOnly = glowOnly };
+            state = _targets[id] = new TargetScreen(GpuScreenProbes.Create(device, size.Width, size.Height, tile, glowTexel)) { GlowOnly = glowOnly };
         }
         state.Drawn = _frame;
         var eye = Vector4.Transform(new Vector4(0, 0, 0, 1), inverse);

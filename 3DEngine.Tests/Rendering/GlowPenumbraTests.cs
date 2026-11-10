@@ -23,7 +23,7 @@ public sealed class GlowPenumbraTests : IDisposable
     private const int Width = 320, Height = 180;
 
     // The frames an app is drawn before its first line is read, and a round of the probes' points
-    // (GlobalIlluminationRenderer.JitterAt), which a line is read over.
+    // (Illumination.JitterAt), which a line is read over.
     private const int Warm = 48, Round = 16;
 
     [NeedsVulkanFact]

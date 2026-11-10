@@ -37,7 +37,7 @@ internal sealed class GlobalIlluminationSettings
     /// </summary>
     /// <remarks>
     /// A debugging switch alone, which no program's call reaches. A program leaves the screen's
-    /// probes out by <see cref="GlobalIllumination.Low"/> (<see cref="GlobalIlluminationRenderer.ScreenProbesAt"/>).
+    /// probes out by <see cref="GlobalIllumination.Low"/> (<see cref="Illumination.ScreenProbesAt"/>).
     /// Each pixel's march costs the model pass in step with the glow lights in view.
     /// </remarks>
     public bool ScreenOff { get; set; }

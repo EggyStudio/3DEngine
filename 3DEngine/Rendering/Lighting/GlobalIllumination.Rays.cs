@@ -1,3 +1,5 @@
+using static Engine.Illumination;
+
 namespace Engine;
 
 internal sealed partial class GlobalIlluminationRenderer

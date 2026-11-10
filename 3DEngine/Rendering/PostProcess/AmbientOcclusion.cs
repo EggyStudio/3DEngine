@@ -182,7 +182,7 @@ internal sealed class AmbientOcclusionRenderer : IDisposable
         }
         var settings = renderWorld.TryGet<AmbientOcclusionSettings>();
         var sun = ContactShadows(renderWorld);
-        var bounces = GlobalIlluminationRenderer.CascadesIn(renderWorld) > 0;
+        var bounces = Illumination.CascadesIn(renderWorld) > 0;
         // A render target's images are let go only where all of it is off, since a program may draw
         // its scene into render textures alone and the window in 2D.
         var wanted = settings is { On: true } || sun is not null || bounces;
@@ -221,7 +221,7 @@ internal sealed class AmbientOcclusionRenderer : IDisposable
             return;
         }
         Occlude(renderContext, window.Sized, window.Inverse, window.Eye, window.Window, window.Settings, window.Sun,
-            GlobalIlluminationRenderer.CascadesIn(renderWorld) > 0);
+            Illumination.CascadesIn(renderWorld) > 0);
         renderWorld.Set(new AmbientOcclusionImage(window.Sized.Occlusion.ColorView, _sampler!));
     }
 
@@ -235,7 +235,7 @@ internal sealed class AmbientOcclusionRenderer : IDisposable
     {
         var settings = renderWorld.TryGet<AmbientOcclusionSettings>();
         var sun = ContactShadows(renderWorld);
-        var bounces = GlobalIlluminationRenderer.CascadesIn(renderWorld) > 0;
+        var bounces = Illumination.CascadesIn(renderWorld) > 0;
         if (settings is not { On: true } && sun is null && !bounces || renderContext.Device is not GraphicsDevice device
             || renderWorld.TryGet<ModelRenderer>() is not { } models || renderWorld.TryGet<SceneFieldBinding>() is not { } field
             || !Matrix4x4.Invert(camera, out var inverse) || LightingUboPrepare.EyeOf(camera) is not { } eye)

@@ -290,7 +290,7 @@ internal sealed partial class BloomRenderer : IDisposable
     public static bool ReadsLight(RenderWorld renderWorld) =>
         renderWorld.TryGet<BloomSettings>() is { On: true } || renderWorld.TryGet<ParticleRenderer>()?.DrawsInWindow(renderWorld) == true
         || renderWorld.TryGet<FrameEffects>() is { AutoExposure: true } or { FocusBlur: > 0 } or { MotionBlur: > 0 } or { Temporal: true }
-        || renderWorld.TryGet<VolumetricFogSettings>() is { On: true } || GlobalIlluminationRenderer.CascadesIn(renderWorld) > 0
+        || renderWorld.TryGet<VolumetricFogSettings>() is { On: true } || Illumination.CascadesIn(renderWorld) > 0
         || ModelRenderer.ScattersInWindow(renderWorld);
 
     /// <summary>
@@ -302,7 +302,7 @@ internal sealed partial class BloomRenderer : IDisposable
     /// </summary>
     public static bool Bends(RenderWorld renderWorld) =>
         renderWorld.TryGet<RenderLights>() is { All.Count: > 0 } || renderWorld.TryGet<EnvironmentMap>() is not null
-        || renderWorld.TryGet<BoundProbes>() is { Slots.Count: > 0 } || GlobalIlluminationRenderer.CascadesIn(renderWorld) > 0
+        || renderWorld.TryGet<BoundProbes>() is { Slots.Count: > 0 } || Illumination.CascadesIn(renderWorld) > 0
         || renderWorld.TryGet<ParticleRenderer>()?.DrawsInWindow(renderWorld) == true
         || renderWorld.TryGet<BloomSettings>() is { On: true } || renderWorld.TryGet<VolumetricFogSettings>() is { On: true }
         || renderWorld.TryGet<FrameEffects>() is { AutoExposure: true } or { Exposure: not 1 };

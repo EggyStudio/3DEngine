@@ -27,27 +27,27 @@ public sealed partial class GlobalIlluminationTests : IDisposable
     [Trait("Category", "Unit")]
     public void Each_Quality_Traces_More_Directions_Than_The_One_Below_In_The_Cascades_The_Field_Allows()
     {
-        GlobalIlluminationRenderer.TexelsAt(GlobalIllumination.Off).Should().BeEmpty();
-        GlobalIlluminationRenderer.TexelsAt(GlobalIllumination.Low).Should().Equal(8, 8, 8);
-        GlobalIlluminationRenderer.TexelsAt(GlobalIllumination.Medium).Should().Equal(8, 8, 16);
-        GlobalIlluminationRenderer.TexelsAt(GlobalIllumination.High).Should().Equal(8, 8, 16, 16);
-        GlobalIlluminationRenderer.TileAt(GlobalIllumination.Low).Should().BeGreaterThan(GlobalIlluminationRenderer.TileAt(GlobalIllumination.High));
+        Illumination.TexelsAt(GlobalIllumination.Off).Should().BeEmpty();
+        Illumination.TexelsAt(GlobalIllumination.Low).Should().Equal(8, 8, 8);
+        Illumination.TexelsAt(GlobalIllumination.Medium).Should().Equal(8, 8, 16);
+        Illumination.TexelsAt(GlobalIllumination.High).Should().Equal(8, 8, 16, 16);
+        Illumination.TileAt(GlobalIllumination.Low).Should().BeGreaterThan(Illumination.TileAt(GlobalIllumination.High));
         // The screen's probes' spacing holds up to 1080 pixels high and grows with the height past it.
-        new[] { 450u, 720u, 1080u, 1440u, 2160u }.Select(h => GlobalIlluminationRenderer.TileAt(GlobalIllumination.High, h)).Should().Equal(8, 8, 8, 11, 16);
-        GlobalIlluminationRenderer.TileAt(GlobalIllumination.Medium, 2160).Should().Be(24);
+        new[] { 450u, 720u, 1080u, 1440u, 2160u }.Select(h => Illumination.TileAt(GlobalIllumination.High, h)).Should().Equal(8, 8, 8, 11, 16);
+        Illumination.TileAt(GlobalIllumination.Medium, 2160).Should().Be(24);
         // Low leaves the screen's probes out, so a slow GPU has the cheaper path with no switch of its own.
-        GlobalIlluminationRenderer.ScreenProbesAt(GlobalIllumination.Low).Should().BeFalse();
-        GlobalIlluminationRenderer.ScreenProbesAt(GlobalIllumination.Medium).Should().BeTrue();
-        GlobalIlluminationRenderer.ScreenProbesAt(GlobalIllumination.High).Should().BeTrue();
+        Illumination.ScreenProbesAt(GlobalIllumination.Low).Should().BeFalse();
+        Illumination.ScreenProbesAt(GlobalIllumination.Medium).Should().BeTrue();
+        Illumination.ScreenProbesAt(GlobalIllumination.High).Should().BeTrue();
 
         var world = new RenderWorld();
-        GlobalIlluminationRenderer.CascadesIn(world).Should().Be(0, "nothing asked for global illumination");
+        Illumination.CascadesIn(world).Should().Be(0, "nothing asked for global illumination");
         world.Set(new GlobalIlluminationSettings { Quality = GlobalIllumination.High });
-        GlobalIlluminationRenderer.CascadesIn(world).Should().Be(0, "and there is no field to trace it through");
+        Illumination.CascadesIn(world).Should().Be(0, "and there is no field to trace it through");
         world.Set(new SceneFieldSettings { Cascades = 3 });
-        GlobalIlluminationRenderer.CascadesIn(world).Should().Be(3, "the field's three cascades cut the four High has short");
+        Illumination.CascadesIn(world).Should().Be(3, "the field's three cascades cut the four High has short");
         world.Set(new GlobalIlluminationSettings { Quality = GlobalIllumination.Low });
-        GlobalIlluminationRenderer.CascadesIn(world).Should().Be(3, "Low's three cascades as the field holds three");
+        Illumination.CascadesIn(world).Should().Be(3, "Low's three cascades as the field holds three");
     }
 
     [Fact]
@@ -379,7 +379,7 @@ public sealed partial class GlobalIlluminationTests : IDisposable
         var cubes = GlobalIlluminationStages.Of((GraphicsDevice)renderer.Context.Graphics!).ReadIlluminationCubes(gi);
         var origin = renderer.RenderWorld.TryGet<SceneFieldRenderer>()!.Plan!.BuiltOrigin(0)!.Value;
         var p = gi.Probes;
-        const float spacing = 0.15f * GlobalIlluminationRenderer.ProbeSpacing;
+        const float spacing = 0.15f * Illumination.ProbeSpacing;
         // A face's alpha, 0 where the probe holds no light and two more than its move along the
         // face's axis in its spacing where it does.
         float Alpha(int x, int y, int z, int face) => cubes[(((z * p + y) * 6 * p) + face * p + x) * 4 + 3];

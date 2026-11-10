@@ -1,6 +1,7 @@
 using System.Runtime.InteropServices;
 using Vortice.Vulkan;
 using static Engine.GraphicsDevice;
+using static Engine.Illumination;
 
 namespace Engine;
 

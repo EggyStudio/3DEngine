@@ -5,7 +5,7 @@ namespace Engine;
 /// and distance from the eye, an image of each, a texel a probe, and the buffer of the view they
 /// were placed through.
 /// </summary>
-internal sealed class GpuScreenProbes : IDisposable
+internal sealed partial class GpuScreenProbes : IDisposable
 {
     private readonly Action _dispose;
 

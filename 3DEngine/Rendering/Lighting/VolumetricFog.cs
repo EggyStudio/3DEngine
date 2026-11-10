@@ -136,7 +136,7 @@ internal sealed class VolumetricFogRenderer : IDisposable
         {
             uniforms.Ambient.W = 1;
             uniforms.Grid.W = bounced.Probes.Probes;
-            (uniforms.Probes.X, uniforms.Probes.Y) = (GlobalIlluminationRenderer.ProbeSpacing, bounced.Probes.Cascades);
+            (uniforms.Probes.X, uniforms.Probes.Y) = (Illumination.ProbeSpacing, bounced.Probes.Cascades);
         }
         // Where no cascade of probes holds a cell, or light does not bounce, the ambient lights.
         foreach (var light in renderWorld.TryGet<RenderLights>()?.All ?? [])

@@ -421,7 +421,7 @@ internal sealed partial class ModelRenderer : IDisposable
         // illumination is off, which every view's lighting then says (LightingUboPrepare), and the
         // glow lights' marches where it is on with a count of none. The window and every target
         // read the frame's one set of lights, so the window's count holds for each.
-        var build = GlobalIlluminationRenderer.CascadesIn(renderWorld) == 0 ? ModelBuild.Unbounced
+        var build = Illumination.CascadesIn(renderWorld) == 0 ? ModelBuild.Unbounced
             : renderWorld.TryGet<IlluminationBinding>() is { GlowLights: > 0 } ? ModelBuild.Whole : ModelBuild.Lampless;
         Drew = _fragmentSpvs[(int)build] is null ? ModelBuild.Whole : build;
 

@@ -48,7 +48,7 @@ public sealed partial class GlobalIlluminationTests
         var gi = renderer.RenderWorld.TryGet<GlobalIlluminationRenderer>()!.Probes!;
         var plan = renderer.RenderWorld.TryGet<SceneFieldRenderer>()!.Plan!;
         var origin = plan.BuiltOrigin(0)!.Value;
-        var spacing = plan.CellOf(0) * GlobalIlluminationRenderer.ProbeSpacing;
+        var spacing = plan.CellOf(0) * Illumination.ProbeSpacing;
         var corner = new Vector3(1, 1, -1);
         var at = (corner - origin) / spacing - new Vector3(0.5f);
         at.Should().Be(new Vector3(MathF.Round(at.X), MathF.Round(at.Y), MathF.Round(at.Z)), "the corner is a probe's spot, as the game's corners of blocks are");

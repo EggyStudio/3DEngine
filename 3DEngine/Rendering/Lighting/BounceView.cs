@@ -1,5 +1,6 @@
 using System.Numerics;
 using System.Runtime.InteropServices;
+using static Engine.Illumination;
 
 namespace Engine;
 
@@ -187,7 +188,7 @@ internal sealed class BounceViewRenderer : IDisposable
         {
             ViewProjection = view.ViewProjection,
             Cascade = (uint)Math.Clamp(settings.ShownCascade, 0, binding.Probes.Cascades - 1), Probes = (uint)p, Cascades = (uint)binding.Probes.Cascades,
-            Size = new Vector4(GlobalIlluminationRenderer.ProbeSpacing, CubeSize, 0, 0),
+            Size = new Vector4(Illumination.ProbeSpacing, CubeSize, 0, 0),
         };
         pass.SetPipeline(_probesPipeline);
         pass.SetBindGroup(_probesPipeline, _probesSet.Value.Set);

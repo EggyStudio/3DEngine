@@ -87,17 +87,17 @@ internal sealed class LightingUboPrepare : IPrepareSystem
             windowUbo.AmbientOcclusion.W = moved.Jitter.M42 * shown.Extent.Height / 2;
         }
         // And its light from all around the indirect light the probes hold.
-        if (GlobalIlluminationRenderer.CascadesIn(renderWorld) is > 0 and var cascades)
+        if (Illumination.CascadesIn(renderWorld) is > 0 and var cascades)
         {
-            windowUbo.Indirect = new System.Numerics.Vector4(1, GlobalIlluminationRenderer.ProbeSpacing,
-                SceneFieldPlan.Resolution / GlobalIlluminationRenderer.ProbeSpacing, cascades);
+            windowUbo.Indirect = new System.Numerics.Vector4(1, Illumination.ProbeSpacing,
+                SceneFieldPlan.Resolution / Illumination.ProbeSpacing, cascades);
             var quality = renderWorld.TryGet<GlobalIlluminationSettings>()!.Quality;
             var settings = renderWorld.TryGet<GlobalIlluminationSettings>()!;
             // z: 1 at Low, where the screen's probes stand for the glow lights alone, whose texels are read.
             var glowOnly = renderWorld.TryGet<GlobalIlluminationRenderer>()?.GlowOnly(renderWorld) == true;
             var tall = renderWorld.TryGet<SwapchainTarget>()?.Extent.Height ?? 1080;
-            windowUbo.Screen = new System.Numerics.Vector4(GlobalIlluminationRenderer.TileAt(quality, tall),
-                GlobalIlluminationRenderer.ScreenProbesOn(renderWorld) ? 1 : 0, glowOnly ? 1 : 0, (settings.AlbedoOff ? 1 : 0) + (settings.SpecularOff ? 2 : 0));
+            windowUbo.Screen = new System.Numerics.Vector4(Illumination.TileAt(quality, tall),
+                Illumination.ScreenProbesOn(renderWorld) ? 1 : 0, glowOnly ? 1 : 0, (settings.AlbedoOff ? 1 : 0) + (settings.SpecularOff ? 2 : 0));
             windowUbo.ScreenGlow = new System.Numerics.Vector4(GpuScreenProbes.GlowTexelAt(tall), 0, 0, 0);
             // And a glossy surface's reflection traced through its depth and the field, looked up
             // in the frame before's picture where the renderer kept it.
@@ -106,13 +106,13 @@ internal sealed class LightingUboPrepare : IPrepareSystem
             if (renderWorld.TryGet<WindowView>() is { } view && System.Numerics.Matrix4x4.Invert(view.Unjittered, out var inverse)
                 && renderWorld.TryGet<GlobalIlluminationRenderer>() is { } gi)
             {
-                var (steps, reach) = GlobalIlluminationRenderer.ReflectionStepsAt(quality);
+                var (steps, reach) = Illumination.ReflectionStepsAt(quality);
                 windowUbo.ReflectViewProjection = view.Unjittered;
                 windowUbo.ReflectInverseViewProjection = inverse;
                 windowUbo.ReflectLastViewProjection = gi.HistoryViewProjection ?? view.Unjittered;
                 windowUbo.ReflectLastInverseViewProjection = System.Numerics.Matrix4x4.Invert(windowUbo.ReflectLastViewProjection, out var lastInverse)
                     ? lastInverse : inverse;
-                windowUbo.Reflection = new System.Numerics.Vector4(1, GlobalIlluminationRenderer.GlossyRoughness, steps, gi.HistoryViewProjection is null ? 0 : 1);
+                windowUbo.Reflection = new System.Numerics.Vector4(1, Illumination.GlossyRoughness, steps, gi.HistoryViewProjection is null ? 0 : 1);
                 windowUbo.ReflectionReach = new System.Numerics.Vector4(reach, gi.Rays is null ? 0 : 1, 0, 0);
             }
         }

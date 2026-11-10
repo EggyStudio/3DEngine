@@ -53,7 +53,7 @@ internal static class GlowLights
     public const int Bytes = 80;
 
     /// <summary>Where the lights start in the lights of global illumination, after the sun, the sky, the lamps and the cascades' corners, their count first.</summary>
-    public const int Offset = 64 + 16 * 64 + GlobalIlluminationRenderer.MostCascades * 16;
+    public const int Offset = 64 + 16 * 64 + Illumination.MostCascades * 16;
 
     /// <summary>
     /// The bytes ahead of the lights, the count and the least corner of the box every light's
@@ -201,7 +201,7 @@ internal static class GlowLights
         var size = box.Max - box.Min;
         var longest = MathF.Max(size.X * new Vector3(world.M11, world.M12, world.M13).Length(),
             MathF.Max(size.Y * new Vector3(world.M21, world.M22, world.M23).Length(), size.Z * new Vector3(world.M31, world.M32, world.M33).Length()));
-        return longest <= 2 * GlobalIlluminationRenderer.ProbeSpacing * firstCell;
+        return longest <= 2 * Illumination.ProbeSpacing * firstCell;
     }
 
     /// <summary>A light as it is written, the middle of its box, half its side along each of the box's axes, its light and its surface over its box's.</summary>
@@ -248,7 +248,7 @@ internal static class GlowLights
             if (places is null) placeOf[n] = n;
             var (middle, x, y, z, glow, share, faces) = lights[n];
             var surface = 4 * FacesSurface(new Vector3(x.Length(), y.Length(), z.Length()), faces == 0 ? All : faces) * share;
-            var reach = MathF.Max(MathF.Sqrt(surface / (4 * Faint)), MeasuredAt * GlobalIlluminationRenderer.ProbeSpacing * firstCell / MathF.Sqrt(Faint));
+            var reach = MathF.Max(MathF.Sqrt(surface / (4 * Faint)), MeasuredAt * Illumination.ProbeSpacing * firstCell / MathF.Sqrt(Faint));
             var light = floats.Slice(Head / 4 + placeOf[n] * Bytes / 4, Bytes / 4);
             (light[0], light[1], light[2], light[3]) = (middle.X, middle.Y, middle.Z, reach);
             (low, high) = (Vector3.Min(low, middle - new Vector3(reach)), Vector3.Max(high, middle + new Vector3(reach)));

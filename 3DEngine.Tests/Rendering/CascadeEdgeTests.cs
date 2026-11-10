@@ -315,7 +315,7 @@ public sealed partial class CascadeEdgeTests : IDisposable
         var rays = GlobalIlluminationStages.Of(device).ReadProbeVolume(gi, last, merged: false);
         var origin = renderer.RenderWorld.TryGet<SceneFieldRenderer>()!.Plan!.BuiltOrigin(last)!.Value;
         var (p, n) = (gi.Probes, gi.Texels[last]);
-        var spacing = 0.15f * (1 << last) * GlobalIlluminationRenderer.ProbeSpacing;
+        var spacing = 0.15f * (1 << last) * Illumination.ProbeSpacing;
         // Each texel's alpha says what its rays met, 0 a surface, a half a surface before their
         // interval, a quarter the sky and 1 nothing, moved a sixteenth on for each that met
         // nothing (texelMark in gi.slang), so a texel within a tenth of a quarter or of 1 met the sky.
