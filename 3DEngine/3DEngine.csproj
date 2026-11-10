@@ -52,6 +52,7 @@
         <ProjectReference Include="Cli\3DEngine.CliServer.csproj" />
         <ProjectReference Include="Platform\Audio\3DEngine.Audio.csproj" />
         <ProjectReference Include="Rendering\3DEngine.Rendering.csproj" />
+        <ProjectReference Include="GlobalIllumination\3DEngine.GlobalIllumination.csproj" />
         <ProjectReference Include="Physics\3DEngine.Physics.csproj" />
         <ProjectReference Include="Scenes\3DEngine.Scenes.csproj" />
         <ProjectReference Include="Modeling\3DEngine.Modeling.csproj" />

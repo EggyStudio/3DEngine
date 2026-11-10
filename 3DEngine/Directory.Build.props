@@ -52,6 +52,7 @@
         <InternalsVisibleTo Include="3DEngine.CliServer" />
         <InternalsVisibleTo Include="3DEngine.Audio" />
         <InternalsVisibleTo Include="3DEngine.Rendering" />
+        <InternalsVisibleTo Include="3DEngine.GlobalIllumination" />
         <InternalsVisibleTo Include="3DEngine.Physics" />
         <InternalsVisibleTo Include="3DEngine.Scenes" />
         <InternalsVisibleTo Include="3DEngine.Modeling" />

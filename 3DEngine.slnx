@@ -13,6 +13,7 @@
   <Project Path="3DEngine/Graphics/3DEngine.Graphics.csproj" />
   <Project Path="3DEngine/Gui/3DEngine.Gui.csproj" />
   <Project Path="3DEngine/Modeling/3DEngine.Modeling.csproj" />
+  <Project Path="3DEngine/GlobalIllumination/3DEngine.GlobalIllumination.csproj" />
   <Project Path="3DEngine/Physics/3DEngine.Physics.csproj" />
   <Project Path="3DEngine/Platform/3DEngine.Platform.csproj" />
   <Project Path="3DEngine/Platform/Audio/3DEngine.Audio.csproj" />

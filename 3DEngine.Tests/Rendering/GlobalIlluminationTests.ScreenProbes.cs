@@ -36,7 +36,7 @@ public sealed partial class GlobalIlluminationTests
         SetGlobalIllumination(GlobalIllumination.Low);
         var left = Capture(Draw);
         renderer.RenderWorld.TryGet<GlobalIlluminationRenderer>()!.Screen.Should().BeNull("Low leaves the screen's probes out");
-        SceneFieldCommands.IlluminationState(GetApp().World).Should().Contain("no screen probes at Low, the cascades' light read alone");
+        GlobalIlluminationCommands.IlluminationState(GetApp().World).Should().Contain("no screen probes at Low, the cascades' light read alone");
         SetGlobalIllumination(GlobalIllumination.Off);
         var still = Capture(Draw);
 
@@ -86,7 +86,7 @@ public sealed partial class GlobalIlluminationTests
         var read = Capture(Room, camera);
         gi.GlowOnly(renderer.RenderWorld).Should().BeTrue("the strip is carried as a glow light");
         gi.Screen.Should().NotBeNull("probes stand for the glow lights alone");
-        SceneFieldCommands.IlluminationState(GetApp().World).Should().Contain("standing for the glow lights alone");
+        GlobalIlluminationCommands.IlluminationState(GetApp().World).Should().Contain("standing for the glow lights alone");
 
         var (byMarching, byReading) = (Mean(marched, 0, 60, 160, 36), Mean(read, 0, 60, 160, 36));
         byReading.X.Should().BeGreaterThan(40, $"the strip lights the floor, {byReading}");
@@ -95,7 +95,7 @@ public sealed partial class GlobalIlluminationTests
         settings.GlowOff = true;
         Capture(Room, camera);
         gi.Screen.Should().BeNull("with no glow light the screen's probes left out are not made at all");
-        SceneFieldCommands.IlluminationState(GetApp().World).Should().NotContain("standing for the glow lights");
+        GlobalIlluminationCommands.IlluminationState(GetApp().World).Should().NotContain("standing for the glow lights");
         UnloadModel(slab);
         UnloadModel(strip);
     }

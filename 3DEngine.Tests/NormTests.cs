@@ -119,7 +119,7 @@ public sealed partial class NormTests
             ["3DEngine.Diagnostics", "3DEngine.Graphics"],
             ["3DEngine.Platform", "3DEngine.Assets", "3DEngine.CliServer"],
             ["3DEngine.Audio", "3DEngine.Rendering", "3DEngine.Physics"],
-            ["3DEngine.Scenes", "3DEngine.Modeling", "3DEngine.Gui"],
+            ["3DEngine.Scenes", "3DEngine.Modeling", "3DEngine.Gui", "3DEngine.GlobalIllumination"],
             ["3DEngine"],
         ];
         var layerOf = layers.SelectMany((names, layer) => names.Select(name => (name, layer))).ToDictionary(p => p.name, p => p.layer);

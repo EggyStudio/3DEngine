@@ -129,4 +129,16 @@ internal static class Illumination
         var texels = TexelsAt(quality);
         return far ? [.. texels[..(cascades - 1)], texels[cascades - 2 < 0 ? 0 : cascades - 2]] : texels[..cascades];
     }
+
+    /// <summary>
+    /// The index among the render world's lights of the sun the probes are lit by, the directional
+    /// light the frame's shadow is drawn for or the first directional light, or -1 where there is none.
+    /// </summary>
+    internal static int SunOf(RenderWorld renderWorld)
+    {
+        var all = renderWorld.TryGet<RenderLights>()?.All ?? [];
+        var shadowed = renderWorld.TryGet<FrameShadow>()?.Light ?? -1;
+        return shadowed >= 0 && shadowed < all.Count && all[shadowed].Kind == LightKind.Directional
+            ? shadowed : all.FindIndex(light => light.Kind == LightKind.Directional);
+    }
 }

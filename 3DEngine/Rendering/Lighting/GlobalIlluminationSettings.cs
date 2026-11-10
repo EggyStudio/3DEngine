@@ -115,7 +115,7 @@ internal sealed class GlobalIlluminationSettings
     /// </summary>
     public bool ThroughOff { get; set; }
 
-    /// <summary>What <see cref="BounceViewRenderer"/> draws over the window, as <c>gi.show</c> sets it.</summary>
+    /// <summary>What <c>BounceViewRenderer</c> draws over the window, as <c>gi.show</c> sets it.</summary>
     public BounceView Shown { get; set; }
 
     /// <summary>The cascade a view of one shows.</summary>

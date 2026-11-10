@@ -200,7 +200,7 @@ public static partial class E3D
             return;
         }
         ImGuiNET.ImGui.PushTextWrapPos(0);
-        ImGuiNET.ImGui.TextUnformatted(SceneFieldCommands.IlluminationState(World));
+        ImGuiNET.ImGui.TextUnformatted(GlobalIlluminationCommands.IlluminationState(World));
         ImGuiNET.ImGui.Separator();
 
         var names = Enum.GetNames<BounceView>();
@@ -209,7 +209,7 @@ public static partial class E3D
         var cascades = TryRes<Renderer>(out var renderer) && renderer.RenderWorld.TryGet<GlobalIlluminationRenderer>()?.Probes is { } probes ? probes.Cascades : 0;
         var cascade = Math.Min(settings.ShownCascade, Math.Max(cascades - 1, 0));
         if (cascades > 1 && ImGuiNET.ImGui.SliderInt("Cascade", ref cascade, 0, cascades - 1)) settings.ShownCascade = cascade;
-        ImGuiNET.ImGui.TextUnformatted(SceneFieldCommands.Shown(settings));
+        ImGuiNET.ImGui.TextUnformatted(GlobalIlluminationCommands.Shown(settings));
 
         // Each part on while it is ticked, and the cascade chosen alone while that is.
         var history = !settings.HistoryOff;
@@ -248,7 +248,7 @@ public static partial class E3D
         ImGuiNET.ImGui.SameLine();
         if (ImGuiNET.ImGui.Button("Show the difference"))
         {
-            _bounceSaid = SceneFieldCommands.GiveReference(settings, _bouncePath);
+            _bounceSaid = GlobalIlluminationCommands.GiveReference(settings, _bouncePath);
             if (_bounceSaid is null) settings.Shown = BounceView.Difference;
         }
         if (_bounceSaid is not null) ImGuiNET.ImGui.TextUnformatted(_bounceSaid);

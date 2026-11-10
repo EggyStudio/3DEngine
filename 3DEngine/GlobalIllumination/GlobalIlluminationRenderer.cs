@@ -413,18 +413,6 @@ internal sealed partial class GlobalIlluminationRenderer : IIlluminationPasses, 
         return (white, whiteSampler, null);
     }
 
-    /// <summary>
-    /// The index among the render world's lights of the sun the probes are lit by, the directional
-    /// light the frame's shadow is drawn for or the first directional light, or -1 where there is none.
-    /// </summary>
-    internal static int SunOf(RenderWorld renderWorld)
-    {
-        var all = renderWorld.TryGet<RenderLights>()?.All ?? [];
-        var shadowed = renderWorld.TryGet<FrameShadow>()?.Light ?? -1;
-        return shadowed >= 0 && shadowed < all.Count && all[shadowed].Kind == LightKind.Directional
-            ? shadowed : all.FindIndex(light => light.Kind == LightKind.Directional);
-    }
-
     // The lights as gi.slang's GiLights, the sun, the first directional light, the shadowed one
     // where it is one; the light from all around a ray meets where it meets nothing; the point
     // and spot lights, sixteen at most; and the counted cascades of the sun's shadow the frame

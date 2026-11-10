@@ -35,7 +35,7 @@ public sealed partial class GlobalIlluminationTests
         for (int c = 0; c < probes.Cascades; c++)
             if (carried[c] > 0)
                 c.Should().BeLessThan(probes.CycleCascades, $"cascade {c} carries {carried[c]} probes with their rays moving, so its cycle is whole");
-        SceneFieldCommands.IlluminationState(GetApp().World).Should().Contain("world probes");
+        GlobalIlluminationCommands.IlluminationState(GetApp().World).Should().Contain("world probes");
         UnloadModel(block);
     }
 

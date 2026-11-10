@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <AssemblyName>3DEngine.GlobalIllumination</AssemblyName>
+        <PackageId>3DEngine.GlobalIllumination</PackageId>
+        <Title>3DEngine.GlobalIllumination</Title>
+        <Description>Global illumination, cascades of light probes over the scene's distance field and probes on the window's surfaces, traced, merged and gathered on the GPU, with its path-traced reference.</Description>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\Core\3DEngine.Core.csproj" />
+        <ProjectReference Include="..\Diagnostics\3DEngine.Diagnostics.csproj" />
+        <ProjectReference Include="..\Graphics\3DEngine.Graphics.csproj" />
+        <ProjectReference Include="..\Assets\3DEngine.Assets.csproj" />
+        <ProjectReference Include="..\Rendering\3DEngine.Rendering.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Vortice.Vulkan" Version="3.2.1" />
+    </ItemGroup>
+
+</Project>

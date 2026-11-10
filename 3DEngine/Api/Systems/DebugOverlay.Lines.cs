@@ -212,7 +212,7 @@ internal sealed partial class DebugOverlay
             ? Say($"Shadows {shadow.Cascades.Count} cascades{(shadow.Fill is null ? "" : " and a fill")} of {shadow.TileSize} texels, {shadow.SpotLights?.Count ?? 0} spot and {shadow.PointLights?.Count ?? 0} point lights mapped")
             : "Shadows none");
 
-        var illumination = SceneFieldCommands.IlluminationState(world).Split('\n')[0];
+        var illumination = GlobalIlluminationCommands.IlluminationState(world).Split('\n')[0];
         lines.Add(illumination.StartsWith("global illumination is off", StringComparison.Ordinal) ? "Global illumination off" : $"Global illumination {illumination}");
         return lines;
     }
