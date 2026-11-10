@@ -7,6 +7,7 @@
     build/test.py --parts --split Rendering=2+Glow/2   # or in two, its methods dealt between them
     build/test.py --parts --only Core --only Graphics  # of those parts, these alone, or --except them
     build/test.py --shuffle-seed N                     # and the suite once more, shuffled by a seed
+    build/test.py --shuffle-seed N --shuffled-only     # the suite shuffled by a seed alone
     build/test.py --read DIR                           # the page of results already in a folder
     build/test.py --digest DIR ...                     # one page from several systems' digests
 
@@ -933,6 +934,8 @@ def main():
     parser.add_argument("--memory-mb", type=int, default=4096)
     parser.add_argument("--shuffle-seed", type=int, metavar="N",
                         help="after a suite that passed, run it whole once more with each stage's systems shuffled by N")
+    parser.add_argument("--shuffled-only", action="store_true",
+                        help="with --shuffle-seed, run the shuffled suite alone, as a job of its own beside the one in order")
     args = parser.parse_args()
     # A Windows console's code page may lack what the page writes, so the log is UTF-8 everywhere.
     if hasattr(sys.stdout, "reconfigure"):
@@ -969,6 +972,13 @@ def main():
     if args.system:
         global SYSTEM
         SYSTEM = args.system
+    # The shuffled run alone, which Linux runs in a job beside the one in order rather than after
+    # it, since the two in one job took twice a suite's time and came near the job's limit.
+    if args.shuffled_only:
+        if args.shuffle_seed is None:
+            print("--shuffled-only runs the suite shuffled by --shuffle-seed, which it needs.", flush=True)
+            return 2
+        return 0 if shuffled(dotnet, args, results, args.shuffle_seed) else 1
     splits = dict(given.split("=", 1) for given in args.split)
     started = time.monotonic()
     processes, listed = [], []

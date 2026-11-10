@@ -278,6 +278,22 @@ public sealed class TestScriptTests : IDisposable
     }
 
     [NeedsPythonFact]
+    public void The_Shuffled_Run_Alone_Runs_No_Suite_In_Order_And_Needs_Its_Seed()
+    {
+        // As the Linux job shuffled by the day's seed runs it, beside the job in order.
+        var (exit, _) = Script(new Dictionary<string, string>(),
+            "shuffle-fails", "--dotnet", $"{Probes.Python.Value} 3DEngine.Tests/Scripts/dotnet_standin.py", "--results", _folder.Path, "--shuffle-seed", "20261020", "--shuffled-only");
+        exit.Should().Be(1, "the shuffled run failed a test");
+        File.Exists(_folder.File("digest.md")).Should().BeFalse("no suite ran in the order systems were added");
+        File.ReadAllLines(Path.Combine(_folder.Path, "shuffled", "digest.md"))[0].Should().Contain("shuffled by the seed 20261020").And.Contain("79 passed, 1 failed");
+
+        var (refused, log) = Script(new Dictionary<string, string>(),
+            "shuffle-fails", "--dotnet", $"{Probes.Python.Value} 3DEngine.Tests/Scripts/dotnet_standin.py", "--results", _folder.Path, "--shuffled-only");
+        refused.Should().Be(2, "the shuffled run alone needs a seed");
+        log.Should().Contain("--shuffled-only runs the suite shuffled by --shuffle-seed");
+    }
+
+    [NeedsPythonFact]
     public void A_Seed_From_Outside_Leaves_The_Plain_Run_Plain_And_The_Flag_s_Seed_Shuffles_The_Second()
     {
         // As the shuffled run of the suite runs this test, under a seed of its own in the environment,

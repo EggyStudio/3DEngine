@@ -53,10 +53,17 @@ jobs:
     # moving to a new release would change it under the tests with no commit to show for it. Moving
     # to the next release is a commit of its own.
     runs-on: ubuntu-24.04
-    # The suite runs twice, the second time shuffled, and a run on a slow runner can pass
+    # The suite in order and the suite shuffled by the day's date as a seed, each a job of its own
+    # at once, since run one after the other in one job they took 71 and 67 minutes, 141 with the
+    # build, and came within nine of the job's limit of 150. A run on a slow runner can pass
     # build/test.py's own limit of 40 minutes, where the script ends it and runs its parts for as
-    # long again, so each run is held to 90 here, and the job to 150.
-    timeout-minutes: 150
+    # long again, so each run is held to 90 here, and each job to 120.
+    strategy:
+      fail-fast: false
+      matrix:
+        pass: [order, shuffled]
+    name: linux (${{ matrix.pass }})
+    timeout-minutes: 120
     steps:
       - uses: actions/checkout@v7
         with:
@@ -112,18 +119,24 @@ jobs:
       # process is lost, and ends the log with a page of what failed, which is the job's summary and
       # its annotations. glibc is held to two arenas, since each device lavapipe opens starts threads
       # that glibc gives arenas of their own, and what is freed in an arena stays the test host's
-      # over the drawing tests. A suite that passed runs whole once more with each stage's systems
-      # shuffled by the day's date as a seed, so a system leaning on an order nothing asks for meets
-      # a new order each day, and a failure names the seed that runs it again.
-      - run: python3 build/test.py --no-build --timeout-minutes 90 --shuffle-seed "$(date -u +%Y%m%d)"
+      # over the drawing tests. The shuffled job runs the suite with each stage's systems shuffled by
+      # the day's date as a seed, so a system leaning on an order nothing asks for meets a new order
+      # each day, and a failure names the seed that runs it again.
+      - run: |
+          if [ "${{ matrix.pass }}" = shuffled ]; then
+            python3 build/test.py --no-build --timeout-minutes 90 --shuffle-seed "$(date -u +%Y%m%d)" --shuffled-only
+          else
+            python3 build/test.py --no-build --timeout-minutes 90
+          fi
         env:
           E3D_REQUIRE_VALIDATION: '1'
           E3D_REQUIRE_VULKAN: '1'
           MALLOC_ARENA_MAX: '2'
 
-      # The shaders the suite compiled, kept whether it passed or not.
+      # The shaders the suite compiled, kept whether it passed or not, by the job in order alone, so
+      # the two do not both save the one key.
       - uses: actions/cache/save@v6
-        if: always()
+        if: always() && matrix.pass == 'order'
         with:
           path: build/mesa-cache
           key: mesa-${{ runner.os }}-${{ env.PROCESSOR }}-${{ hashFiles('3DEngine/Shaders/**') }}
@@ -131,7 +144,7 @@ jobs:
 
       # The page, from every run, for the digest job below.
       - uses: actions/upload-artifact@v7
-        if: always()
+        if: always() && matrix.pass == 'order'
         with:
           name: test-digest-linux
           path: |
@@ -141,7 +154,7 @@ jobs:
 
       # The shuffled run's page, which the digest job reads beside the systems' own.
       - uses: actions/upload-artifact@v7
-        if: always()
+        if: always() && matrix.pass == 'shuffled'
         with:
           name: test-digest-linux-shuffled
           path: |
@@ -153,7 +166,7 @@ jobs:
         # Kept for a job canceled as well as one that failed, since a cut-short run is the one to read.
         if: failure() || cancelled()
         with:
-          name: test-results-linux
+          name: test-results-linux-${{ matrix.pass }}
           path: 3DEngine.Tests/TestResults/
 
   windows:

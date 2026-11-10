@@ -59,10 +59,12 @@ reading what another changes without declaring it, which passes while a light ba
 order added, meets the other order. The same seed and systems give the same order. `build/test.py
 --shuffle-seed N` runs a suite that passed whole once more with the seed set, its results and page
 in `TestResults/shuffled`, and a failure there names the command that runs it in the same order
-again. The Linux job runs that pass with the day's date as the seed:
+again, and with `--shuffled-only` runs that pass alone. The Linux job runs the suite in order and
+the suite shuffled with the day's date as the seed in two jobs at once, each its own runner:
 
 ```bash
-python3 build/test.py --shuffle-seed 20261020   # and the suite once more, each stage shuffled by the seed
+python3 build/test.py --shuffle-seed 20261020                   # and the suite once more, each stage shuffled by the seed
+python3 build/test.py --shuffle-seed 20261020 --shuffled-only   # the shuffled suite alone
 ```
 
 On an NVIDIA GPU the script gives the suite a cache of the driver's own compiled pipelines in

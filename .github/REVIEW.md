@@ -6,40 +6,44 @@ exposure's adapted light in 32-bit floats so it rests at its meter whatever the 
 `32e4407c`, 238, the caches listed and cleared from e3d, and `66301da6`, 235's first cut, one run on
 the last and a pack run with publish started on it at 12:48; they keep the form and carry the
 review's files. After it `c53bcc2c`, 235's third cut, the illumination's plugin adding a renderer
-part that loads its shaders and nodes, committed at 13:23 on 2026-11-10 and pushed once `dd0adff0`'s
-run has ended; it keeps the form. Before it `4fb868ca`, 244's fourth and last commit, pushed at
-10:14 on 2026-11-10 with its three before it, their run green at 12:44 with macOS in 46 minutes,
-Windows in 63 and 96, Linux in 141 and the examples in 9; their package comes from the pack run
-above, the game taking them in its 167. Before it `f68075f1`, 239 with 245 and build/flicker.py's
-options, pushed at 07:44, green at 10:13, whose pack run went green at 12:41 with its captures in 58
-and 71 minutes and its games in 53, publishing 6.2.17, tagged `v6.2.17`, which the game pins for the
-clouds and the cuts. Before it `e86ca5c3`, 240's ramp, a pixel whose screen probes stand on a
-surface like its own for under a quarter of their weight taking the world's probes' light by its
-shortfall, with the march by thin walls, pushed at 05:41 on 2026-11-10, its run green at 07:43 with
-macOS in 43 minutes, Windows in 108 and 122, Linux in 105 and the examples in 11, its pack run green
-at 08:57 with its captures in 58 and 72 minutes and its games in 70, publishing 6.2.14, tagged
-`v6.2.14`; the game reads its shaded ground on that package and its walk on the next. The working
-session was ended at 01:15 on 2026-11-10 by the kernel, a python3 of its own having read its 4.3 GB
-transcript whole into 27 GB beside 18 GB of old frames in /tmp, and was resumed by the owner at
-04:23, its scratch cleared (N 7.10). Before it `adb41aa7`, the example's sponza.turn and
-build/flicker.py, pushed at 01:18 on 2026-11-10, green at 03:44. Before it `94097b62`, 242, a hit
-marching its brightest glow light and gathering the rest as one, pushed at 22:41 on 2026-11-09 with
-241 and 243, green at 00:35, whose pack run published 6.2.12 at 02:34, tagged `v6.2.12`, which the
-game pins since its `cfffcb3`. Before it `ed469e90`, 237, the illumination's cycles eased in the
-merge and the screen filter, pushed at 20:18 on 2026-11-09, its run green at 22:13 with macOS in 45
-minutes, Windows in 98 and 115, Linux in 104 and the examples in 10; it keeps the form. Before it
-`c23cd2d4`, 226's fourth and last commit, green at 20:15 on 2026-11-09, whose pack run published
-6.2.8 at 21:08, the package 3DEngine, its twelve areas and the templates, tagged `v6.2.8`, which
-settled Verdict 111. The release scene-packs holds intel-sponza.pack since 17:58 on 2026-11-09, so
-./e3d scenes fetch works. nuget.org holds 6.0.11, 6.0.14, 6.0.91, 6.1.12, 6.2.8, 6.2.12, 6.2.14 and
-6.2.17, the game pinned to 6.1.12, tagged `v6.1.12` at `8dba0d1c`; the version stands at 6.2, tagged
-`v6.2.0` at `1c3c38d5`. Item 6's three package bumps wait on the owner's word since October. Every
-push and run before `c23cd2d4` since 2026-10-23 stands in REVIEW-ARCHIVE.md under Head records.
+part that loads its shaders and nodes, committed at 13:23 on 2026-11-10, and `0747c6ca`, its fifth
+and last, the project 3DEngine.GlobalIllumination above Rendering with the flat package depending on
+it, committed at 14:14; the two are pushed once `dd0adff0`'s run has ended, with a pack run that
+publishes the new package's id for the first time; they keep the form. Before it `4fb868ca`, 244's
+fourth and last commit, pushed at 10:14 on 2026-11-10 with its three before it, their run green at
+12:44 with macOS in 46 minutes, Windows in 63 and 96, Linux in 141 and the examples in 9; their
+package comes from the pack run above, the game taking them in its 167. Before it `f68075f1`, 239
+with 245 and build/flicker.py's options, pushed at 07:44, green at 10:13, whose pack run went green
+at 12:41 with its captures in 58 and 71 minutes and its games in 53, publishing 6.2.17, tagged
+`v6.2.17`, which the game pins for the clouds and the cuts. Before it `e86ca5c3`, 240's ramp, a
+pixel whose screen probes stand on a surface like its own for under a quarter of their weight taking
+the world's probes' light by its shortfall, with the march by thin walls, pushed at 05:41 on
+2026-11-10, its run green at 07:43 with macOS in 43 minutes, Windows in 108 and 122, Linux in 105
+and the examples in 11, its pack run green at 08:57 with its captures in 58 and 72 minutes and its
+games in 70, publishing 6.2.14, tagged `v6.2.14`; the game reads its shaded ground on that package
+and its walk on the next. The working session was ended at 01:15 on 2026-11-10 by the kernel, a
+python3 of its own having read its 4.3 GB transcript whole into 27 GB beside 18 GB of old frames in
+/tmp, and was resumed by the owner at 04:23, its scratch cleared (N 7.10). Before it `adb41aa7`, the
+example's sponza.turn and build/flicker.py, pushed at 01:18 on 2026-11-10, green at 03:44. Before it
+`94097b62`, 242, a hit marching its brightest glow light and gathering the rest as one, pushed at
+22:41 on 2026-11-09 with 241 and 243, green at 00:35, whose pack run published 6.2.12 at 02:34,
+tagged `v6.2.12`, which the game pins since its `cfffcb3`. Before it `ed469e90`, 237, the
+illumination's cycles eased in the merge and the screen filter, pushed at 20:18 on 2026-11-09, its
+run green at 22:13 with macOS in 45 minutes, Windows in 98 and 115, Linux in 104 and the examples in
+10; it keeps the form. Before it `c23cd2d4`, 226's fourth and last commit, green at 20:15 on
+2026-11-09, whose pack run published 6.2.8 at 21:08, the package 3DEngine, its twelve areas and the
+templates, tagged `v6.2.8`, which settled Verdict 111. The release scene-packs holds
+intel-sponza.pack since 17:58 on 2026-11-09, so ./e3d scenes fetch works. nuget.org holds 6.0.11,
+6.0.14, 6.0.91, 6.1.12, 6.2.8, 6.2.12, 6.2.14 and 6.2.17, the game pinned to 6.1.12, tagged
+`v6.1.12` at `8dba0d1c`; the version stands at 6.2, tagged `v6.2.0` at `1c3c38d5`. Item 6's three
+package bumps wait on the owner's word since October. Every push and run before `c23cd2d4` since
+2026-10-23 stands in REVIEW-ARCHIVE.md under Head records.
 
-Next 235, the illumination as its own project, the last open item; 6 waits on the owner's word. The
-game is on 6.2.14 and pins 6.2.17 of `f68075f1` for the clouds and the cuts, then the package of
-`dd0adff0`'s pack run with its 167. No budget by Decision 94; the door at 8:00 the one target by
-Decision 95; a fault seen in motion is read in motion by Decision 107.
+Next 249, the Linux job at 141 of its 150 minutes, then the game's ask on the field's build after a
+cut once it is written, and 250, the illumination's cost in the game read by pass and cut; 6 waits
+on the owner's word. The game is on 6.2.14 and pins 6.2.17 of `f68075f1` for the clouds and the
+cuts, then the package of `dd0adff0`'s pack run with its 167. No budget by Decision 94; the door at
+8:00 the one target by Decision 95; a fault seen in motion is read in motion by Decision 107.
 
 REVIEW-ARCHIVE.md beside this file holds, their numbers kept, the items done, the items closed or
 parked, the verdicts settled, Decisions 1 to 93, the Replies before those here and the head records,
@@ -106,7 +110,18 @@ reverted as the screen probes' limit at shapes about a tile wide, its patches in
     before the part is added; AddPart starts a part at once where the renderer has started, and the
     plugin's test, which had held only that no plugin draws as the illumination off, holds too that
     the default plugins at High have the node, trace probes and draw another frame; the suite 2,326
-    on its second run.
+    on its second run. The fourth cut needed no code, a search of every project for the renderer,
+    the stages, the reference, the trace, the node and the bounce view's renderer finding them
+    outside the illumination's files in the root's E3D.GlobalIllumination.cs alone, the model pass
+    on the binding since the first cut. The fifth is `0747c6ca`, the project
+    3DEngine.GlobalIllumination on Core, Diagnostics, Graphics, Assets and Rendering, holding the
+    renderer, its parts and node, the stages, the reference, the plugin, the bounce view's renderer
+    and node and the gi commands split from the scene field's, the BounceView type staying in
+    Rendering for the settings and the shaders where they are staged; the root references it, so the
+    flat package depends on it, a local pack carrying it and naming it as a dependency, the pack
+    script taking every project by search; its public listing is empty, the norm places it in the
+    layer above Rendering, and AGENTS.md has N 1.5's row alone; the suite 2,327. Done in four
+    commits, `66301da6`, `dd0adff0`, `c53bcc2c` and `0747c6ca`.
 
 238. **The caches listed and cleared from e3d.** From the owner's question of 2026-11-09, whether an
     old cache of shaders keeps the picture old. The shader cache is keyed by the source's hash, the
@@ -166,6 +181,27 @@ reverted as the screen probes' limit at shapes about a tile wide, its patches in
     reads 5.2 levels brighter on the mean, its two captures and the gallery taken again; the
     README's showcase of 243 stays as it is, 5 levels under, until a change that moves Sponza's look
     by more. Done at `ae62fa22`.
+
+249. **The Linux job at 141 of its 150 minutes.** From 235's fifth cut on 2026-11-10. The push run's
+    Linux job took 104, 105, 135, 137 and 141 minutes over the day's runs against a limit of 150,
+    nine minutes of room on runners whose processors differ by a third, and a job that meets its
+    limit turns every push red with nothing wrong in the code. One read of where the minutes go,
+    from the digest and the job's steps, then the split the Windows job has since 183 and 234, two
+    halves by the tests' folders with a limit each from the measurement in the commit's description
+    (N 3.5), or the largest step cut where the read finds one. A workflow change with its reading,
+    before anything else.
+
+250. **The illumination's cost in the voxel game, read by pass, and the largest cut that holds the
+    readings.** From the game's item 166 on 2026-11-10 and Decision 94, the cost recorded and cut
+    after. At the game's spawn at 1280 by 720 on the RTX 4070 laptop GPU the frame takes 13.3 ms at
+    High, the illumination's pass 8.4 of them and the lit scene's 3.5, and 2.6 with the illumination
+    off, so the illumination is two thirds of the frame, and item 140's read of 2026-11-03 put it at
+    8.05 ms at 1080p. One read by pass in a scene of the engine's own that draws as the game does,
+    the Ore example by day or the game's build through the profile, the field's builds, each
+    cascade's trace, the merge, the screen probes' trace, their filter and the glow, at Low, Medium
+    and High. Then cuts one at a time, the largest first, each landing where the views' readings,
+    the rooms and the turn's flicker by build/flicker.py hold within their bounds and recorded where
+    it costs one (Decision 95). After 249 and the game's ask on the field after a cut.
 
 ## Verdicts
 
@@ -570,3 +606,16 @@ above Rendering beside Scenes, Modeling and Gui, and EngineAssemblies names it t
 and the package's tests read the newest package in build/package, packed before the cut, without
 the new area, which a pack by build/pack.sh at 0.1.0-preview.20261110125146 carries, the engine's
 package naming 3DEngine.GlobalIllumination as a dependency at its own version.
+
+Item 249, read on 2026-11-10. The Linux job of 4fb868ca's run took 140.8 minutes, 1.4 of them the
+build and 138.6 the test step, which ran the suite whole twice: in order, 71 minutes 26 seconds, and,
+once that passed, shuffled by the day's seed, 67 minutes 8 seconds; the runs of f68075f1 and
+e86ca5c3 took 135.2 and 105.2, 133.3 and 103.3 of them the test step. So the largest step is the
+second whole suite, and the cut is the two runs in two jobs at once, a matrix of linux (order) and
+linux (shuffled), each held to 120 minutes against a run of about 75, build and setup with it, and
+build/test.py's 90 for the suite as before. build/test.py takes --shuffled-only, the shuffled run
+alone, which the shuffled job runs; the order's job saves the mesa cache and uploads
+test-digest-linux, the shuffled one test-digest-linux-shuffled, as the digest job reads them, and
+each its own results where it fails. The shuffled run no longer waits for the run in order to pass,
+so a failure of each is said by its own job. The script's test runs the shuffled run alone, no suite
+in order, and refuses it without a seed; BUILDING.md says it.
