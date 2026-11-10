@@ -9634,6 +9634,91 @@ batch.
     sees the shafts too bright. Item 240 done by the ramp at `e86ca5c3`, the tool's options at
     `f77e4cf4`.
 
+239. **The finest cascade's arrival after a cut.** From item 237's measure on 2026-11-09. Seven
+    frames after a cut the finest cascade arrives at its new place as its build ends, and the frame
+    drops, 32 percent of its pixels moving, since the arriving probes have no light from before to
+    ease from and the screen probes follow at once, their kept light clamped to the frame's spread,
+    which is also what takes the indirect light away within two frames of a light that went out and
+    stays. The first lever is the arriving cascade starting from the light the cascade above shows
+    for the same places, which the eased merge holds already, so that the arrival is a refinement
+    and not a step; unclamping the kept light for the frames after an arrival is the second, which
+    fades leaked light rather than removing it and risks ghosting in a turn that moves cascades, so
+    it is taken only where the first does not hold the step under the test's bound. Read on the same
+    script as 237's, the walk-and-turn test holding its settling within five frames. After 240. Read
+    at 06:24 on 2026-11-10, a cut in Sponza from the atrium to the door at noon with the exposure
+    held, every frame of 400, and the read turns the first lever around. The door's mean stands at
+    8.8 of 255 for the five frames before the finest cascade arrives, some 70 times its settled
+    0.13, falls to 3.75 as it arrives with 63 percent of the pixels moving by 4 or more, to 2.5 at
+    the twelfth frame and 0.23 at the twenty-eighth, rises to 0.70 at the forty-fourth and is
+    settled from the sixtieth. So the arrival is a correction, the vestibule lying before it in the
+    coarser cascades, which take the court's sky, and to start the finest cascade from the light of
+    the cascade above would hold the wrong, bright light a cycle longer. The longer fault is the
+    fall over sixty frames, the light past the first bounce reading the shown light and the eased
+    cycles carrying the bright ones on bounce by bounce. So the lever taken first is a cascade that
+    arrives or moves past its whole box counted as a change for its probes, their cycles beginning
+    with no ease from a whole cycle before, so the shown light and the bounces follow the new probes
+    within a cycle a bounce; it touches no cascade that moves by cells in a walk, so 237's mend
+    stands. It is judged by the frames to settle after this cut, 237's walk-and-turn test, and a
+    turn in the atrium by build/flicker.py reading no worse. Where the five frames before the
+    arrival still flash, the finest cascade is built first after a cut, the second lever. 245's
+    remainder, the far probes' light after a move, is read by the same measure. The second read at
+    06:38, the same cut with parts turned off before it, sets the lever above aside, every cascade's
+    build counting as a change already so that nothing eases from a cycle before the cut. Two parts
+    show. With the screen probes off the door holds 5.5 flat until the twenty-second frame and steps
+    to 0.12 at the twenty-fourth, so the world's probes hold the wrong bright light for some 22
+    frames, the field's builds and the probes' first cycle, and then step right. With the screen
+    probes on and their history off it settles at the twenty-fourth with no rise, so the rise to 1.0
+    at the fortieth and the fall by the fifty-sixth are the screen probes' history easing in a cycle
+    gathered while the world's probes were wrong. Three trials are reverted, the merge's cycle begun
+    again at the settling frames, settled at the seventy-seventh, a settling window of 32 frames for
+    the screen probes, no change, and the screen filter's first whole cycle easing from itself,
+    settled at the seventy-second; the arrival itself varies from the fifth to the tenth frame from
+    run to run. By Decision 95 two reads are in, so one mend is tried and the rest recorded. The
+    mend is the first part's, the cascades a cut needs built sooner, the finest first and the
+    builds' budget lifted for the frames until it stands, judged by the frame at which the world's
+    probes step right, 22 today, and by the door's curve after it, with one line a frame logged for
+    the builds and the cycles' phases as part of that measure. Where the rise from the screen
+    probes' history still stands after it, their kept light dropped at the frame the world's probes
+    step is tried once; what then remains is recorded with these figures, and 244 follows. Mended at
+    `f68075f1` on 2026-11-10 by the first part's lever. While a cascade the eye went past by its
+    whole box waits for its build, each frame takes every cascade at the base triangle budget times
+    its most raise, so the door reads 2.6 in the cut's frame where 8.8 for five frames and is
+    settled from the fourth frame where the sixtieth, the screen history's rise gone with it and its
+    kept light left as it was. The test cuts 40 units over 500 sections under a budget of 16,384 and
+    holds the first two cascades built in the cut's frame, eight frames on the head, a walk after it
+    keeping the budget. The slowest of the 40 frames after a cut takes 25 to 40 ms where 15 to 18,
+    the field's build up to 22 ms of the GPU, in those frames alone; turns, walks and the far
+    cascade's snap are untouched. Done at `f68075f1`.
+
+245. **The far cascade's move steps the light of what stands outside the field.** From the voxel
+    game's ask of 2026-11-09 in ASKS.md, read for its item 166. In the game's grove a walk moves the
+    far cascade a cell and the near clouds, drawn at a height of 120 with no shadow and lit through
+    the model pass, lose about 15 levels in that one frame; settled, the same patch reads 158, 178,
+    205 and 144, 161, 184 at two poses 2.3 blocks apart and 164, 184, 210 and 169, 185, 209 with the
+    far cascade off, so the light there depends on where the far cascade lies and not on the place
+    alone. One bounded read first, by Decision 95, at the cloud patch's world point before and after
+    the move, the terms the model pass adds and, of the far cascade, the probes it blends, their
+    weights and the border band's share, to say whether the step is the band's blend toward the
+    light past the field moving with the cascade, the probes' own light changing with their new
+    places in open air, or the hold across the last cascade's band. The mend follows the read, the
+    light at a world point continuous as the cascade moves a cell, by a band or a blend anchored in
+    the world and not in the cascade's grid, or by the moved cascade's light eased from what it held
+    there before, which 239's lever does not reach since no cascade lies above the far one. The test
+    is a surface outside the field above open land with the far cascade on, its light steady within
+    a bound across a move of a cell and the frame after it (Decision 107), and the game's walk
+    recorded again at the next pin. After 240, before 239. Read and mended at `9c6c8d0e` on
+    2026-11-10. The far cascade's band of eight cells toward the light past the probes was weighed
+    in its grid, whose corner snaps eight cells at once, so a surface in the band crossed the whole
+    blend in one frame and stayed there, a block 46 units ahead along a walk reading half its light
+    more at the move and blocks 30 to 58 ahead 7 to 50 percent, nothing above the cascade. farHold
+    in cascades.slang weighs the band around the eye, its outer side half a snap inside the cascade
+    and held to the cascade's sides by a cell while it waits to follow, and those blocks step 1 to 4
+    percent at the move and follow the walk; the test holds a surface in the band within 0.1 across
+    a move where the head's shaders read 0.50. What remains is the far probes' own light after a
+    move, every probe traced anew, a block inside the cascade rising 5 percent for three frames and
+    settling 2 under where it stood, recorded, which an ease from the cascade's former light would
+    reach under 239. The game records its walk again at the pin that carries it. Done at `9c6c8d0e`.
+
 ## Verdicts settled
 
 Verdicts 1 to 55 are settled, the last two, the drawing leak test's resident bound and the Windows
@@ -14488,6 +14573,88 @@ narrower than its probes' spacing, 1.30 of the reference, and the screen's probe
 within what a round of sixteen ways reads. No mend is made here. A mend would start from `gi.probe` at
 the finest cascade's probes around the shaft, as a new item if the owner sees the shaft too bright.
 
+Item 245, read and mended on 2026-11-10. The step is the far cascade's band toward the light past
+the probes moving with the cascade. That band, eight cells wide, was weighed in the far cascade's
+grid, whose corner moves a snap of eight cells at once, so a surface in it went from one side of the
+blend to the other in the frame of a move and stayed. A block 46 units ahead along a walk, past the
+counted cascades and inside the band, read 0.50 more light in that frame and kept it, and blocks 30 to
+58 ahead 7% to 50%; one above the far cascade's reach did not step. The band is now weighed around
+the eye, its outer side half a snap inside the cascade from the eye, held to the cascade's sides by
+a cell while it waits to follow the eye (`farHold` in `cascades.slang`), and those blocks step 1% to
+4% at the move and follow the walk smoothly. The test is the block at 46 units, its light within a
+tenth over the move's frame and the two after it, which reads 0.50 without the mend. What remains is
+the far cascade's probes' own light after a move, every probe traced again, a block inside the far
+cascade rising 5% for three frames and falling back to 2% under, and one in its upper band dipping 1.8% for
+two frames; an ease from the light the moved cascade held before would reach it, which 239's lever
+does not, since no cascade lies above the far one. The game's walk is recorded again at the next pin.
+
+Item 239, read and mended on 2026-11-10. A cut from the atrium to the door at noon, the exposure
+held, read the door at a mean of 8.8 for the five frames before the finest cascade it went past
+arrived, about 70 times the 0.13 it settles at, 2.4 to the twentieth frame, a step to the right
+light, then a rise to 1.0 at the fortieth and back by the sixtieth. With the screen's probes off
+the world's probes stood at 5.5 to the twenty-second frame and then settled, and with the screen's
+kept light off the rise was gone. Every cascade build counts as a change already, so no cascade's
+cycle eased from one before, and (b) as agreed did not apply; three trials were reverted, the
+merge's cycle begun again once the settling frames end (settled at the seventy-seventh frame), a
+settling of two cycles for the screen's probes (no change) and the screen's first whole cycle
+eased from itself (the seventy-second). The mend is (a): while a cascade the eye went past by its
+whole box waits for its build, each frame takes every cascade and the triangle budget at its most
+raise (`SceneFieldPlan.Builds.cs`). The door reads 2.6 in the cut's frame and its settled light
+from the fourth frame on, with no rise, so the screen's kept light needed no change
+(`.github/dump/2026-11-10/06-49-item-239-cut-settling.png`). The test is a plan of 500 sections
+under a budget of 16,384 cut 40 units along, the first two cascades built in the cut's frame where
+in eight, and a walk of a snap after it under the budget. Under the GPU's lock on powersave-bazzite,
+Sponza's slowest frame in the 40 after a cut takes 25 to 40 ms where 15 to 18, the field's build up
+to 22 ms of the GPU, for the frames the build lasts. A turn and a walk move no cascade past its
+box and are untouched, and so is the far cascade's snap, whose probes' own light after a move
+stands as 245 recorded it. The field's whole-field test moved its eye 30 units, past the finer
+cascades' boxes, to see the field stay whole while the move's builds ran over frames, which the
+lift now builds in one, so it moves the eye 12 units, a shift, whose builds still run over frames.
+
+Item 248, tried on 2026-11-10 and reverted, recorded as the screen probes' limit at shapes about a
+tile wide. Behind `gi.toggle moved`, each screen probe stood at the frame's cell of its tile, the cell
+table JitterAt uses, its placing, the filter's points and the glow pass's likeness following, the
+probe's own frame-before light left out, and gi_screen_glow.slang kept the light the four probes
+around each depth texel bounce, weighed by their nearness and likeness, blended with what the texel
+held the frame before where its surface was, at least a thirty-second a frame held still and an
+eighth moving, begun again while the light settles after a change; the model pass read it from the
+four texels around a pixel weighed as the glow light's are, with the texels' kept likeness in place
+of the probes' matched weight for the ramp. In the atrium at noon, half a tile a frame, the left
+shaft moved past 4 levels on 1.1% of its pixels on the mean and 3.4% at most over the 28 pairs it
+stood whole in view, where 2.5% and 4.3% with the ramp and 0.9% and 2.1% with the probes off, the
+frame on 5.5% where 7.9% and 5.2% off. Held still, 7.4% of the pixels moved a level a frame where
+2.7%, 0.010% two where 0.003%, none four. The shaft's columns held still read 1.25 to 1.93 of the
+reference where 1.26 to 1.77, those by the left edge brighter, 1.73 to 1.93 where 1.46 to 1.72, the
+half-sized texels straddling the silhouette. On by default under the validation layer it failed 13
+of the 170 tests of the illumination, the strip room's still view among them, 122 of 57,600 pixels
+spreading past a fiftieth of their light over 48 frames held still where its bound is 80 and the
+running mean alone leaves about 1,600; the walk-and-turn test and the dimming lamp passed. The
+others were the bounce rooms' seventh view at `High` and `Medium` and eighth at `Medium` (0.046
+where 0.031), the cascades' edges stepping 0.112 where the bound is 0.06, a room drawn into a render
+texture, which keeps no texels of its own, reading apart from the window by 17 levels, the lamp
+placed straying 0.131 where 0.12, the far land's glow lights, a probe's rays past their reach, and
+the per-probe history test this form leaves out by design. As the item says, the still view failed,
+so the form is reverted and no further one tried; the patch is in the dump
+(`.github/dump/2026-11-10/10-12-item-248-moved-kept-by-texel.patch`) for the owner's eye, the frame's
+turn and the shaft's what it gives.
+
+Item 248's second and last pass, on 2026-11-10, reverted and recorded as the screen probes' limit at
+shapes about a tile wide. On the first pass's form, render targets were sent down the per-probe path,
+their probes at their tiles' middles and their light buffer reading the probes, which brought the
+render texture within its bound; a pixel's likeness for the ramp was eased by how much of its four
+texels' nearness lies on its own surface past a half, for the silhouette; and the kept bounced light
+held still took a sixty-fourth a frame where a thirty-second. With it on by default 12 of the 41 tests
+that had failed or touch them still failed. The strip room's still view read 116 pixels past a
+fiftieth of their light where its bound is 80, so a longer exponential mean barely moves it and the
+texels would need the whole round's mean the probes keep, a form of its own. The cascades' edges
+stepped 0.112 and 0.036 where 0.06 and 0.01, unchanged by the silhouette's ease, rooms 7 and 8 read
+0.045 to 0.087 of their light from their references where 0.031 to 0.073, the placed lamp strayed
+0.129 where 0.12, and the far land's glow lights, a probe's rays past their reach and the per-probe
+history test failed as before. Both passes' patches are in the dump,
+`.github/dump/2026-11-10/10-12-item-248-moved-kept-by-texel.patch` and
+`.github/dump/2026-11-10/10-18-item-248-second-pass.patch`; the turn's figures they give stand in
+the first pass's record. 247's mend is next.
+
 ## Items closed, parked or shortened
 
 Items closed without a mend, recorded or parked, and the standing items' texts as they stood before
@@ -15375,6 +15542,59 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     eye moves 0.34 percent of the window past 12 levels, about half of it the sun's shadow edges a
     texel on and the rest the screen probes' light, so a pose held is placed by the program's own
     float operations or is not compared.
+
+248. **The bounced light kept by depth texel, the probe's point moving within its tile.** From 240's
+    held form and the voxel game's read of 6.2.14 on 2026-11-10. With the ramp the grove's shaded
+    ground reads 12.2 percent past 4 levels and 0.24 past 12 in a turn with the screen probes on,
+    where 20.2 and 1.44 before it and 5.97 and 0.012 with them off, so the ramp took half of the
+    probes' share and five sixths of what shows past 12, and the rest stands in tiles on the grass
+    under the trees at twice the ground's floor; in Sponza the shaft stands at 2.6 and 5.6 against
+    0.9 and 2.1. The form is the one 240 wrote down and held back. A probe stands at the frame's
+    cell of its tile, the cell table JitterAt uses, its placing, filter, history and glow lookup
+    following, as 240's first form had it, which took the shaft's worst frame from 20.8 to 7.5 and
+    made a still view shimmer because a pixel's blend moved with its four probes' places. And the
+    bounced light is kept by depth texel as gi_screen_glow.slang keeps the glow lights', each texel
+    blending what its four probes give from their moved points with what it held the frame before
+    where its surface was, read there by the model pass, the ramp's ease to the world's probes kept
+    for the texels whose probes are unlike them. Behind a switch until it is judged. It is judged by
+    a still view's frames within a level of each other, the shaft's share in the turn against the
+    probes off, the shaft's columns held still against the reference, 1.40 to 1.76 with the ramp,
+    237's walk-and-turn test with a light that goes out fading within its bound, the rooms' readings
+    and the cost, and by the game's mask at the pin that carries it against its floor. Where it
+    fails the still view or the fade it is reverted and the remainder recorded as the screen probes'
+    limit at shapes about a tile wide, and no further form is tried. Before 247. Tried at 10:13 on
+    2026-11-10 behind gi.toggle moved and reverted, its patch in the dump as
+    10-12-item-248-moved-kept-by-texel.patch. In the atrium's turn the shaft reads 1.1 percent on
+    the mean and 3.4 at most where the ramp's 2.5 and 4.3 and 0.9 and 2.1 with the probes off, the
+    frame 5.5 where 7.9 and 5.2, so in motion the form reaches the floor, and the walk-and-turn and
+    the dimming tests pass, so the fade holds. Held still 7.4 percent of the atrium's pixels move a
+    level from frame to frame where 2.7, a hundredth of a percent two and none four, which is within
+    the guard. What fails is 13 of the 170 illumination tests with it on by default, the strip
+    room's still view at 122 pixels past a fiftieth where 80 are allowed, the seventh and eighth
+    rooms at 0.046 where 0.031, the cascade's edge step at 0.112 where 0.06, the placed lamp at
+    0.131 where 0.12, a render texture 17 levels apart since targets keep no texels, the far land's
+    glow and the rays past their reach, and the per-probe history's own test, out by design; the
+    shaft's left columns read brighter, the half-size texels straddling the silhouette. These are
+    the form's unfinished edges and not the shimmer or the lag the rule feared, so the rule above is
+    amended by the review, said to the owner, to one more pass on this same form and no other. The
+    pass makes the kept light the window's size or reads it aware of the silhouette, so the edges
+    and the rooms read as with the ramp; gives a render texture its texels or sends it cleanly down
+    the per-probe path; brings the strip room's still view, the cascade's edge and the placed lamp
+    inside their bounds, no bound moved but by N 3.5; replaces the per-probe history's test by one
+    of the texels' history; and records the cost. It lands where the illumination's tests pass with
+    it on by default and the turn's figures hold; where they do not after this pass, it is reverted
+    and recorded as the limit, and that is final. The second pass at 10:19 did not land and the form
+    is reverted for good, both patches in the dump, 10-12 and 10-18. Render targets went down the
+    per-probe path, a pixel's likeness was eased at a silhouette by the share of its texels'
+    nearness on its own surface, and the kept light held still blended at a sixty-fourth; with the
+    form on by default 12 of the 41 tests it touches still fail, the strip room's still view at 116
+    pixels where 80 are allowed, which a mean over a whole round a texel would need, a new form, the
+    cascade's edges at 0.112 and 0.036 where 0.06 and 0.01, the seventh and eighth rooms at 0.045 to
+    0.087 where 0.031 to 0.073, the placed lamp at 0.129 where 0.12, the far land's glow, the rays
+    past their reach and the per-probe history's test. Closed as the screen probes' limit at shapes
+    about a tile wide. The ramp of 240 stands as the mend, the shaft at 2.5 and 4.3 percent in the
+    turn against 0.9 and 2.1 with the probes off and the game's shaded ground at 12.2 and 0.24
+    against 5.97 and 0.012, and the form is taken up again only on the owner's word.
 
 ## Head records
 

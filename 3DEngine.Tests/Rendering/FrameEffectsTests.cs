@@ -102,6 +102,40 @@ public sealed class FrameEffectsTests : IDisposable
     }
 
     [NeedsVulkanFact]
+    public void The_Exposure_That_Follows_The_Scene_Comes_To_Rest_At_One_Point_Whatever_The_Frames_Pace()
+    {
+        // A night's dark scene, its log2 luminance near -10, where a half float's steps are a 128th,
+        // followed from a bright one at a speed of 3 for three seconds of the clock, which takes it
+        // all but a ten-thousandth of its way, unpaced and at 30 frames a second.
+        // Held in a half float, a frame's step under half of one rounded back, so the faster run's
+        // smaller steps came to rest further short of the scene, Sponza's door by night 6.9 levels
+        // darker unpaced than at 30 frames a second.
+        byte Settled(int pause)
+        {
+            Open();
+            SetAutoExposure(true, min: 1f / 4096, max: 4096);
+            SetAutoExposureSpeeds(3, 3);
+            Capture(Cube(Color.White, Color.Gray));
+            var dark = Cube(new Color(4, 4, 4), new Color(2, 2, 2));
+            var clock = System.Diagnostics.Stopwatch.StartNew();
+            while (clock.Elapsed.TotalSeconds < 3)
+            {
+                BeginDrawing();
+                dark();
+                EndDrawing();
+                if (pause > 0) Thread.Sleep(pause);
+            }
+            var settled = GetImageColor(Capture(dark), 80, 60).R;
+            CloseWindow();
+            UseApp(null);
+            return settled;
+        }
+        var unpaced = Settled(0);
+        var paced = Settled(33);
+        ((int)unpaced).Should().BeCloseTo(paced, 1, "the exposure comes to rest at the same point unpaced and at 30 frames a second");
+    }
+
+    [NeedsVulkanFact]
     public void The_Exposure_That_Follows_The_Scene_Moves_At_Its_Speed()
     {
         Open();

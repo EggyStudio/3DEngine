@@ -131,7 +131,7 @@ internal sealed partial class BloomRenderer : IDisposable
     private readonly DescriptorSetLayoutBinding[] _bloomBindings, _compositeBindings, _fxaaBindings, _exposureBindings;
     private IDescriptorSetLayout? _oneTexture, _twoTextures, _fxaaLayout, _exposureLayout;
     private ISampler? _sampler, _depthSampler;
-    private IPipeline? _down, _up, _scatterUp, _measure, _dof, _blur;
+    private IPipeline? _down, _up, _scatterUp, _measure, _adapt, _dof, _blur;
     // The depth of field's and the motion blur's passes, which read the scene and its depth.
     private readonly ReadOnlyMemory<byte> _dofVertexSpv, _dofFragmentSpv, _blurVertexSpv, _blurFragmentSpv;
     private readonly DescriptorSetLayoutBinding[] _lensBindings;
@@ -726,6 +726,7 @@ internal sealed partial class BloomRenderer : IDisposable
         _up?.Dispose();
         _scatterUp?.Dispose();
         _measure?.Dispose();
+        _adapt?.Dispose();
         _dof?.Dispose();
         _blur?.Dispose();
         _dofVertex?.Dispose();

@@ -39,21 +39,24 @@ internal sealed partial class BloomRenderer
         var adapting = effects.AutoExposureMetering == ExposureMetering.CenterWeighted ? 2 : 1;
         Pass(renderContext, _measured, LoadOp.Clear, _measure, measured, push);
         var next = 1 - _adaptedLast;
-        Pass(renderContext, _adapted[next], LoadOp.Clear, _measure, _adaptSets[next], push with { Mode = adapting });
+        Pass(renderContext, _adapted[next], LoadOp.Clear, _adapt!, _adaptSets[next], push with { Mode = adapting });
         _adaptedLast = next;
         _adaptedFrame = _frame;
     }
 
     // The measured frame and the two adapted texels, made once whatever the window's size, and
     // cleared, so the composite can bind them in the layout a texture is sampled in before the
-    // exposure first follows the scene.
+    // exposure first follows the scene. The adapted texels hold floats of four bytes, since the
+    // adapted log2 luminance moves by a share of its way a frame, and in a half float, whose steps
+    // are a 128th near the night's -9, a step of a frame under half of one rounded back where it
+    // stood, so the exposure came to rest further short of the scene the faster the frames came.
     private RenderTarget[] Adapted(GraphicsDevice device, RenderContext renderContext)
     {
         if (_adapted is not null) return _adapted;
         _exposureVertex ??= device.CreateShader(new ShaderDesc(ShaderStage.Vertex, _exposureVertexSpv));
         _exposureFragment ??= device.CreateShader(new ShaderDesc(ShaderStage.Fragment, _exposureFragmentSpv));
         _measured = device.CreateRenderTarget(MeasuredSize, MeasuredSize, ImageFormat.R16G16B16A16_Float, depth: false, multisampled: false);
-        _adapted = [.. Enumerable.Range(0, 2).Select(_ => device.CreateRenderTarget(1, 1, ImageFormat.R16G16B16A16_Float, depth: false, multisampled: false))];
+        _adapted = [.. Enumerable.Range(0, 2).Select(_ => device.CreateRenderTarget(1, 1, ImageFormat.R32G32B32A32_Float, depth: false, multisampled: false))];
         foreach (var target in (RenderTarget[])[_measured, .. _adapted])
         {
             using var pass = renderContext.BeginTrackedRenderPass(new RenderPassDescriptor(
@@ -67,6 +70,7 @@ internal sealed partial class BloomRenderer
             return set;
         })];
         _measure = Pipeline(device, _measured.RenderPass, _exposureVertex, _exposureFragment, _exposureLayout!, blend: null, Marshal.SizeOf<ExposurePush>());
+        _adapt = Pipeline(device, _adapted[0].RenderPass, _exposureVertex, _exposureFragment, _exposureLayout!, blend: null, Marshal.SizeOf<ExposurePush>());
         return _adapted;
     }
 }

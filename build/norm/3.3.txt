@@ -12,6 +12,8 @@
 3DEngine.Tests/Platform/Audio/Sdl/SdlAudioBackendTests.cs Thread.Sleep	SDL's dummy driver takes samples on its own thread at the rate they play
 3DEngine.Tests/Platform/Audio/Sdl/VoiceEffectsTests.cs Stopwatch	a voice on SDL's dummy driver timed against its room's tail
 3DEngine.Tests/Platform/Audio/Sdl/VoiceEffectsTests.cs Thread.Sleep	SDL's dummy driver mixes the voices on its own thread at the rate they play
+3DEngine.Tests/Rendering/FrameEffectsTests.cs Stopwatch	the exposure that follows the scene adapts by the time between frames on the clock, read unpaced and at 30 frames a second
+3DEngine.Tests/Rendering/FrameEffectsTests.cs Thread.Sleep	the frames paced at 30 a second on the clock, which the exposure that follows the scene adapts by
 3DEngine.Tests/Scenes/AssetReleaseTests.cs Stopwatch	a model and its texture read on the asset server's worker, waited on for up to thirty seconds
 3DEngine.Tests/Scenes/AssetReleaseTests.cs Thread.Sleep	the asset server reads a file on its worker, outside the frame loop
 3DEngine.Tests/Scenes/SceneRefTests.cs DateTime.UtcNow	a file's write time set ahead, so the scene reads as changed
