@@ -122,6 +122,38 @@ public sealed class CliTests : IDisposable
     }
 
     [Fact]
+    public void A_Look_That_Finds_No_Session_Says_Each_File_It_Passed_Over_And_Why()
+    {
+        // The sessions folder holds a file of a pid that does not run, one that cannot be read, one
+        // of this process that runs and is not the one asked for, and one being written.
+        var previous = CliSessionFile.Directory;
+        CliSessionFile.Directory = _folder.Path;
+        var pause = CliSessionFile.Pause;
+        CliSessionFile.Pause = static () => { };
+        try
+        {
+            CliSessionFile.Account().Should().Be($"The sessions folder {_folder.Path} holds no file.");
+            CliSessionFile.Write(new CliSession(int.MaxValue, 1, "t", "", "Gone", "Gone", "headless", Stamp, false, "ready", 0, Stamp));
+            CliSessionFile.Write(new CliSession(Environment.ProcessId, 2, "t", "", "Other", "Other game", "headless", Stamp, false, "ready", 0, Stamp));
+            File.WriteAllText(Path.Combine(_folder.Path, "7.json"), "{ half");
+            File.WriteAllText(Path.Combine(_folder.Path, "8.json.tmp"), "");
+
+            var account = CliSessionFile.Account(s => s.Name == "Siege");
+            account.Should().StartWith($"The sessions folder {_folder.Path} holds ")
+                .And.Contain($"{int.MaxValue}.json, pid {int.MaxValue}, Gone titled Gone").And.Contain("passed over since that pid does not run")
+                .And.Contain($"{Environment.ProcessId}.json, pid {Environment.ProcessId}, Other titled Other game").And.Contain("passed over since it runs and is not the one asked for")
+                .And.Contain("7.json, which could not be read")
+                .And.Contain("8.json.tmp, a file being written")
+                .And.NotContain("\n", "the account is one line, as the drive script quotes the error's first");
+        }
+        finally
+        {
+            CliSessionFile.Pause = pause;
+            CliSessionFile.Directory = previous;
+        }
+    }
+
+    [Fact]
     public void A_Served_Program_That_Closes_Before_It_Is_Ready_Says_So_At_Warning()
     {
         // A program that ends of its own in its startup, as one whose loop ends at once does, which

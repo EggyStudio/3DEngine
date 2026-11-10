@@ -160,6 +160,16 @@ whereabouts() {
   [ -n "$pid" ] || { echo "its process not known"; return; }
   if ended; then how; else echo "its process $pid still runs, so it stopped serving"; fi
 }
+# The folder session files are written to, E3D_SESSIONS or the user's local application data as .NET
+# names it on each system, under 3DEngine/sessions.
+sessions_folder() {
+  if [ -n "${E3D_SESSIONS:-}" ]; then printf '%s' "$E3D_SESSIONS"; return; fi
+  case "$system" in
+    Windows) printf '%s/3DEngine/sessions' "$(cygpath -u "$LOCALAPPDATA" 2> /dev/null || printf '%s' "$LOCALAPPDATA")" ;;
+    macOS) printf '%s/Library/Application Support/3DEngine/sessions' "$HOME" ;;
+    *) printf '%s/3DEngine/sessions' "${XDG_DATA_HOME:-$HOME/.local/share}" ;;
+  esac
+}
 # Lines as one workflow command carries them, each percent sign and line's end escaped.
 escaped() { printf '%s\n' "$1" | sed 's/%/%25/g' | awk 'NR > 1 { printf "%%0A" } { printf "%s", $0 }'; }
 
@@ -178,6 +188,13 @@ fail() {
   if grep -qE 'NO_SESSION|SESSION_UNREACHABLE' "$said" 2> /dev/null; then
     gone=$(whereabouts)
     if [ -n "$pid" ] && ended; then died=yes; fi
+    # The sessions folder as it stands, each file's size and time, beside the log's last lines,
+    # since Siege once stopped serving on the runner with its process alive and nothing in its log
+    # that it closed, the only way it removes its file. e3d's error names each file it passed over.
+    local listing
+    listing=$(ls -la "$(sessions_folder)" 2>&1 || true)
+    printf 'The sessions folder %s:\n%s\n' "$(sessions_folder)" "$listing" >&3
+    more="$more%0A%0AThe sessions folder $(sessions_folder):%0A$(escaped "$listing")"
   fi
   # A game that died on Linux adds what gdb read from the core it left, the kernel's last lines,
   # which name what the out-of-memory killer chose or a fault the kernel saw, and the processes
@@ -188,7 +205,7 @@ fail() {
     kernel=$( { sudo -n dmesg 2> /dev/null || dmesg 2> /dev/null || true; } | tail -n 30)
     [ -n "$kernel" ] || kernel="(none, since dmesg could not be read)"
     memory=$(ps -eo pid,rss,etime,args --sort=-rss 2> /dev/null | head | cut -c1-200 || true)
-    if [ -n "$core" ]; then printf '%s\n' "$core" >&3; more="%0A%0A$(escaped "$core")"; fi
+    if [ -n "$core" ]; then printf '%s\n' "$core" >&3; more="$more%0A%0A$(escaped "$core")"; fi
     printf "The kernel's last lines:\n%s\nThe processes holding the most memory, in kilobytes:\n%s\n" "$kernel" "$memory" >&3
     more="$more%0A%0AThe kernel's last lines:%0A$(escaped "$kernel")%0A%0AThe processes holding the most memory, in kilobytes:%0A$(escaped "$memory")"
   fi

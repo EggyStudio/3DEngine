@@ -64,6 +64,7 @@ sealed class Engine.GraphicsDevice : IDisposable, IGraphicsDevice
   internal (VkImage, VkDeviceMemory, VkImageView) ProbeImage(uint width, uint height, uint depth, VkFormat format = VkFormat.R16G16B16A16Sfloat)
   internal (long, TimeSpan) PipelinesMade { get; }
   internal (uint, uint) StageLimits { get; }
+  internal Action? WhileMakingPipeline { get; set; }
   internal AddressedBuffer CreateAddressedBuffer(ulong size, VkBufferUsageFlags usage, bool host, bool lasting = false)
   internal GraphicsDevice.ComputeStage MakeComputeStage(ReadOnlySpan<byte> spirv, VkDescriptorType[] types, uint pushSize, uint[]? counts = null)
   internal GraphicsDevice.WindowSurface CreateWindowSurface(nint window)

@@ -15,9 +15,10 @@ internal static class Sessions
     {
         refusal = string.Empty;
         var name = options.Name is { Length: > 0 } named ? named : null;
-        var candidates = options.Pid is null && name is null ? Live()
-            : CliSessionFile.Matching(s => (options.Pid is not { } pid || s.Pid == pid)
-                && (name is null || s.Name.Contains(name, StringComparison.OrdinalIgnoreCase) || s.Title.Contains(name, StringComparison.OrdinalIgnoreCase)));
+        Func<CliSession, bool>? asked = options.Pid is null && name is null ? null
+            : s => (options.Pid is not { } pid || s.Pid == pid)
+                && (name is null || s.Name.Contains(name, StringComparison.OrdinalIgnoreCase) || s.Title.Contains(name, StringComparison.OrdinalIgnoreCase));
+        var candidates = asked is null ? Live() : CliSessionFile.Matching(asked);
 
         // A stale one is only chosen when it is the only one, so a session that is busy loading is
         // still reachable while a livelier one is preferred.
@@ -28,9 +29,9 @@ internal static class Sessions
             case 1:
                 return candidates[0];
             case 0:
-                refusal = CliJson.Fail(command, "NO_SESSION", options.Pid is null && options.Name is null
-                    ? "No app is serving. Start one with 'e3d open <example>', or run a program with --serve."
-                    : "No serving app matches that. Run 'e3d status' to see what is serving.");
+                refusal = CliJson.Fail(command, "NO_SESSION", (asked is null
+                    ? "No app is serving. Start one with 'e3d open <example>', or run a program with --serve. "
+                    : "No serving app matches that. Run 'e3d status' to see what is serving. ") + CliSessionFile.Account(asked));
                 return null;
             default:
                 refusal = CliJson.Envelope(command, success: false,

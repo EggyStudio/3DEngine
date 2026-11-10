@@ -1,53 +1,52 @@
 # Review
 
-Reviewed up to `dd0adff0`, 235's second cut, the passes the frame and the targets ask of the
-illumination through an interface, pushed at 12:48 on 2026-11-10 with `ae62fa22`, 247, the followed
-exposure's adapted light in 32-bit floats so it rests at its meter whatever the frames' pace,
-`32e4407c`, 238, the caches listed and cleared from e3d, and `66301da6`, 235's first cut, one run on
-the last and a pack run with publish started on it at 12:48, the run ended at 15:25 red in its first
-Windows half alone, by 238's pipeline test, Verdict 112, with macOS in 47 minutes, the second half
-in 115 and Linux green in 147 of its 150, so the pack run publishes nothing; they keep the form and
-carry the review's files. After it `c53bcc2c`, 235's third cut, the illumination's plugin adding a
-renderer part that loads its shaders and nodes, committed at 13:23 on 2026-11-10, and `0747c6ca`,
-its fifth and last, the project 3DEngine.GlobalIllumination above Rendering with the flat package
-depending on it, committed at 14:14; and `26ba652f`, 249, the Linux job as two legs at once, the
-suite in order and the suite shuffled, each held to 120 minutes, committed at 14:19; the three are
-pushed once `dd0adff0`'s run has ended, with a pack run that publishes the new package's id for the
-first time; they keep the form. Before it `4fb868ca`, 244's fourth and last commit, pushed at 10:14
-on 2026-11-10 with its three before it, their run green at 12:44 with macOS in 46 minutes, Windows
-in 63 and 96, Linux in 141 and the examples in 9; their package comes from the pack run above, the
-game taking them in its 167. Before it `f68075f1`, 239 with 245 and build/flicker.py's options,
-pushed at 07:44, green at 10:13, whose pack run went green at 12:41 with its captures in 58 and 71
-minutes and its games in 53, publishing 6.2.17, tagged `v6.2.17`, which the game pins for the clouds
-and the cuts. Before it `e86ca5c3`, 240's ramp, a pixel whose screen probes stand on a surface like
-its own for under a quarter of their weight taking the world's probes' light by its shortfall, with
-the march by thin walls, pushed at 05:41 on 2026-11-10, its run green at 07:43 with macOS in 43
-minutes, Windows in 108 and 122, Linux in 105 and the examples in 11, its pack run green at 08:57
-with its captures in 58 and 72 minutes and its games in 70, publishing 6.2.14, tagged `v6.2.14`; the
-game reads its shaded ground on that package and its walk on the next. The working session was ended
-at 01:15 on 2026-11-10 by the kernel, a python3 of its own having read its 4.3 GB transcript whole
-into 27 GB beside 18 GB of old frames in /tmp, and was resumed by the owner at 04:23, its scratch
-cleared (N 7.10). Before it `adb41aa7`, the example's sponza.turn and build/flicker.py, pushed at
-01:18 on 2026-11-10, green at 03:44. Before it `94097b62`, 242, a hit marching its brightest glow
-light and gathering the rest as one, pushed at 22:41 on 2026-11-09 with 241 and 243, green at 00:35,
-whose pack run published 6.2.12 at 02:34, tagged `v6.2.12`, which the game pins since its `cfffcb3`.
-Before it `ed469e90`, 237, the illumination's cycles eased in the merge and the screen filter,
-pushed at 20:18 on 2026-11-09, its run green at 22:13 with macOS in 45 minutes, Windows in 98 and
-115, Linux in 104 and the examples in 10; it keeps the form. Before it `c23cd2d4`, 226's fourth and
-last commit, green at 20:15 on 2026-11-09, whose pack run published 6.2.8 at 21:08, the package
-3DEngine, its twelve areas and the templates, tagged `v6.2.8`, which settled Verdict 111. The
-release scene-packs holds intel-sponza.pack since 17:58 on 2026-11-09, so ./e3d scenes fetch works.
-nuget.org holds 6.0.11, 6.0.14, 6.0.91, 6.1.12, 6.2.8, 6.2.12, 6.2.14 and 6.2.17, the game pinned to
-6.1.12, tagged `v6.1.12` at `8dba0d1c`; the version stands at 6.2, tagged `v6.2.0` at `1c3c38d5`.
-Item 6's three package bumps wait on the owner's word since October. Every push and run before
-`c23cd2d4` since 2026-10-23 stands in REVIEW-ARCHIVE.md under Head records.
+Reviewed up to `40c00405`, Verdict 112's mend, the pipelines' test asking the device whether its
+driver's cache holds pipelines, pushed at 15:36 on 2026-11-10 with `c53bcc2c` and `0747c6ca`, 235's
+third and fifth cuts, the illumination's plugin and its project 3DEngine.GlobalIllumination, and
+`26ba652f`, 249, the Linux job as two legs at once, one run on the last, its two Linux legs red at
+16:33 and 16:53 by the mended pipeline test's other case, the file written where the device says its
+cache holds nothing, Verdict 112 still, the legs taking 57 and 77 minutes where the one job took
+147, the run ended at 17:30 with macOS in 45 minutes and the Windows halves green in 89 and 113, the
+first half passing the test it failed before; they keep the form and carry the review's files. No
+pack run goes with them, the pack run of `dd0adff0` being red in its games job too, Siege no longer
+answering, Verdict 113. Before it `dd0adff0`, 235's second cut, pushed at 12:48 on 2026-11-10 with
+247, 238 and 235's first cut, its run red at 15:25 in the first Windows half alone, Verdict 112,
+with macOS in 47 minutes, the second half in 115 and Linux in 147 of its 150. Before it `4fb868ca`,
+244's fourth and last commit, pushed at 10:14 on 2026-11-10 with its three before it, their run
+green at 12:44 with macOS in 46 minutes, Windows in 63 and 96, Linux in 141 and the examples in 9;
+their package comes from the pack run above, the game taking them in its 167. Before it `f68075f1`,
+239 with 245 and build/flicker.py's options, pushed at 07:44, green at 10:13, whose pack run went
+green at 12:41 with its captures in 58 and 71 minutes and its games in 53, publishing 6.2.17, tagged
+`v6.2.17`, which the game pins for the clouds and the cuts. Before it `e86ca5c3`, 240's ramp, a
+pixel whose screen probes stand on a surface like its own for under a quarter of their weight taking
+the world's probes' light by its shortfall, with the march by thin walls, pushed at 05:41 on
+2026-11-10, its run green at 07:43 with macOS in 43 minutes, Windows in 108 and 122, Linux in 105
+and the examples in 11, its pack run green at 08:57 with its captures in 58 and 72 minutes and its
+games in 70, publishing 6.2.14, tagged `v6.2.14`; the game reads its shaded ground on that package
+and its walk on the next. The working session was ended at 01:15 on 2026-11-10 by the kernel, a
+python3 of its own having read its 4.3 GB transcript whole into 27 GB beside 18 GB of old frames in
+/tmp, and was resumed by the owner at 04:23, its scratch cleared (N 7.10). Before it `adb41aa7`, the
+example's sponza.turn and build/flicker.py, pushed at 01:18 on 2026-11-10, green at 03:44. Before it
+`94097b62`, 242, a hit marching its brightest glow light and gathering the rest as one, pushed at
+22:41 on 2026-11-09 with 241 and 243, green at 00:35, whose pack run published 6.2.12 at 02:34,
+tagged `v6.2.12`, which the game pins since its `cfffcb3`. Before it `ed469e90`, 237, the
+illumination's cycles eased in the merge and the screen filter, pushed at 20:18 on 2026-11-09, its
+run green at 22:13 with macOS in 45 minutes, Windows in 98 and 115, Linux in 104 and the examples in
+10; it keeps the form. Before it `c23cd2d4`, 226's fourth and last commit, green at 20:15 on
+2026-11-09, whose pack run published 6.2.8 at 21:08, the package 3DEngine, its twelve areas and the
+templates, tagged `v6.2.8`, which settled Verdict 111. The release scene-packs holds
+intel-sponza.pack since 17:58 on 2026-11-09, so ./e3d scenes fetch works. nuget.org holds 6.0.11,
+6.0.14, 6.0.91, 6.1.12, 6.2.8, 6.2.12, 6.2.14 and 6.2.17, the game pinned to 6.1.12, tagged
+`v6.1.12` at `8dba0d1c`; the version stands at 6.2, tagged `v6.2.0` at `1c3c38d5`. Item 6's three
+package bumps wait on the owner's word since October. Every push and run before `c23cd2d4` since
+2026-10-23 stands in REVIEW-ARCHIVE.md under Head records.
 
-Next Verdict 112, 238's pipeline test red on the runner's Windows, then 250, the illumination's cost
-in the game read by pass and cut, the game's ask on the field's build after a cut coming before its
-cuts once it is written; 6 waits on the owner's word. The game is on 6.2.14 and pins 6.2.17 of
-`f68075f1` for the clouds and the cuts, then the package of `dd0adff0`'s pack run with its 167. No
-budget by Decision 94; the door at 8:00 the one target by Decision 95; a fault seen in motion is
-read in motion by Decision 107.
+Next Verdict 113, Siege no longer answering in the pack run's games job, then 250, the
+illumination's cost in the game read by pass and cut, and 251, the lift after a cut held while a
+program's meshes still arrive, before 250's cuts; 6 waits on the owner's word. The game is on 6.2.14
+and pins 6.2.17 of `f68075f1` for the clouds and the cuts, then the package of `dd0adff0`'s pack run
+with its 167. No budget by Decision 94; the door at 8:00 the one target by Decision 95; a fault seen
+in motion is read in motion by Decision 107.
 
 REVIEW-ARCHIVE.md beside this file holds, their numbers kept, the items done, the items closed or
 parked, the verdicts settled, Decisions 1 to 93, the Replies before those here and the head records,
@@ -215,9 +214,26 @@ reverted as the screen probes' limit at shapes about a tile wide, its patches in
     the rooms and the turn's flicker by build/flicker.py hold within their bounds and recorded where
     it costs one (Decision 95). After 249 and the game's ask on the field after a cut.
 
+251. **After a cut the raised budget holds while a program's meshes still arrive.** From the voxel
+    game's ask of 2026-11-10 in ASKS.md, read on 6.2.17 for its item 166. After a teleport of 150
+    blocks into the game's grove 22 to 26 percent of the window lies past 12 levels from the settled
+    view, the shaded ground lit as if open, until it falls in one frame at the 35th to the 77th
+    frame over five runs. The engine lifts every cascade and 16 times the triangles a frame after a
+    cut until the cascades the eye went past are built, and the sections the game meshes as the view
+    comes in arrive after that, as changes under the base budget, 1.31 million triangles being 40
+    frames of it. Held at four times the base the mean lies within 2 levels from the seventh frame,
+    at 1.41 ms of the field's pass against 1.01 over the frames after the cut; a game cannot raise
+    the budget for a second alone, a changed budget making the field again. So the lift holds for a
+    time after a cut while changes still arrive in the near cascades, or until a frame brings none,
+    and a budget changed through SetSceneField no longer makes the field again where the cascades
+    and the cell stand as they were. The test cuts into a place whose meshes arrive over the frames
+    after and holds the settled light within a bound by the tenth frame, and holds a changed budget
+    keeping the field. A respawn in the game is sound already, its sections meshed before the move.
+    After 250's read.
+
 ## Verdicts
 
-Verdicts 56 to 111 are settled, said under each in REVIEW-ARCHIVE.md; Verdict 112 is open.
+Verdicts 56 to 111 are settled, said under each in REVIEW-ARCHIVE.md; Verdicts 112 and 113 are open.
 
 112. **The Windows half 1 of `dd0adff0` is red by 238's pipeline test, the file not written after
     the quiet frames.** The build run 42810415005, pushed at 12:48 on 2026-11-10, has its first
@@ -240,7 +256,32 @@ Verdicts 56 to 111 are settled, said under each in REVIEW-ARCHIVE.md; Verdict 11
     the skip is logged once, and the test draws until the file is written or 130 frames have made no
     pipeline and then holds the file there where the cache holds pipelines and absent where it holds
     none. The run's Linux leg passed the test, its lavapipe keeping a cache, in 147 minutes of its
-    150, which 249's two legs answer.
+    150, which 249's two legs answer. Mended at `40c00405`, pushed at 15:36 on 2026-11-10 with the
+    three that waited; settles when that push's first Windows half is green. The mend's own test is
+    red on both Linux legs of `40c00405`'s run, read at 16:57, 2,242 passed and 1 failed in each, in
+    54 and 75 minutes, macOS green and the Windows halves going. There the device answers that its
+    cache holds nothing past its header and the file is there all the same, line 74, so the rule the
+    write goes by and the answer the device gives part at a cache the size of its header or near it,
+    which Linux's lavapipe has. One rule for both, the write made where the device says the cache
+    holds pipelines and nowhere else, with the test's two cases reading the same answer; it goes in
+    the commit of Verdict 113's hardening.
+
+113. **The pack run of `dd0adff0` is red in its games job too, Siege no longer answering while its
+    process runs.** In the pack run 42810414816 the games job failed after 40 minutes at the step
+    that builds and plays Siege from the package, on a Xeon Platinum 8573C drawing by lavapipe.
+    Siege served after a second, took its clock and its first throw, and then `siege.status` found
+    no serving app while process 15000 still ran, its log ending 15.6 seconds in with the screen's
+    state gone from Aim to Swing to Flight; a program that runs and no longer answers has stopped
+    its frames or its command server. The games before it in the job passed. The commits this run
+    packs for the first time are 244's bloom kind and exposure bounds, 247's adapted texels, 238's
+    pipelines written while a program runs and 235's first two cuts, and of these 238's write stands
+    nearest, made after 120 quiet frames on a device whose cache holds bytes, which Linux's lavapipe
+    does where Windows' does not, so the write happens there in the middle of a served run. One read
+    first, Siege built from a local package and driven by build/drive-game.sh under lavapipe on this
+    machine, to see whether it stops answering and in which call it stands, the pipelines' write, a
+    lock held across it or another of the four; then the mend with a test that a served program
+    answers a command in the frame after its pipelines were written. No pack run is started before
+    it. Written at 15:36 on 2026-11-10.
 
 ## Decisions
 
@@ -666,3 +707,50 @@ the file is written or 130 frames have made no pipeline on a driver whose cache 
 1,000, and then asks the device which: where it holds pipelines the file must be there and the bound
 is read, and where it holds none no file must be. The class passes on the RTX 4070 and on lavapipe,
 with Mesa's cache on and off.
+
+Verdict 113, on 2026-11-10. Siege from the package of dd0adff0's tree, 0.1.0-preview.20261110125146
+of 0747c6ca, driven by build/drive-game.sh on lavapipe here (VK_DRIVER_FILES naming its manifest,
+the validation layer, cold Mesa and engine caches of the run's own), played through and won in four
+throws, and three times more held to four cores, as the runner is; it never stopped answering. The
+runner's log, in its game-captures, ends at Swing to Flight at 15.58 seconds, with neither the
+Cleanup stage's line nor the line of the process's exit after it, so the program neither closed nor
+exited, the only two ways it removes its session file, and nothing else in the package deletes in
+the sessions folder; the shaders' sweep and the pipelines' bound keep to their own folders. Siege had
+not stopped serving in a pack run before, back to 2026-10-26. The cause is inferred and not seen:
+the nearest call the package first carried is the driver's cache read for its write while a worker
+makes a pipeline through it. A frozen program still leaves its last session file, which e3d chooses
+where it is the only one, so a freeze alone does not account for the runner's NO_SESSION either, and
+the next run's log is what says it. The device now holds a lock of its own over every use of the
+driver's cache, each graphics and compute pipeline made through it on any thread, the data read for
+the write, and its release, so the write never runs beside a compile, though Vulkan lets a cache made
+without its externally synchronized flag be used from several threads; and the write logs a line as
+it begins and one as it ends with its bytes and milliseconds. The test holds a compute pipeline in
+the driver on a worker of a served program, has the write wait for it and the program then answer a
+command in the frames after; without the lock around the read, the write ran beside the compile and
+the test fails. So the next run says which it was, e3d's error where it finds no session names the
+sessions folder and each file in it, with its pid, its program, its heartbeat's age, whether that
+pid runs and why it was passed over, on the one line the drive script quotes, and
+build/drive-game.sh lists the folder beside the log's last lines where a command ends that way.
+
+Verdict 112 again, on 2026-11-10. On 40c00405's run both Linux legs failed the mended test's other
+case, the device saying its cache held nothing and the file there all the same. The write took the
+cache's data where the driver gave 32 bytes or more and it differed from what was read, and
+PipelineCacheHolds answered by more than 32, so a cache of the header alone, as the runner's
+lavapipe gives, was written while the device said it held nothing. Both now go by one rule, the
+driver's size of the data asked once under the cache's lock: the cache holds pipelines past its
+header of 32 bytes, and the write is made where it does and nowhere else, its data taken only where
+what the driver filled still holds more than the header. The class's second test reads the same
+answer, from the run before it closes, in place of the file being as it was. Here lavapipe fills
+fewer than 32 of the bytes it asks for, so the rule as it was passes here; the runner's two legs are
+the case it failed.
+
+Item 250, read on 2026-11-10. Ore by day at 1280 by 720, offscreen and unpaced, on the RTX 4070
+alone under the lock held exclusively, each reading the mean of 600 frames after 200 to settle. At
+High the frame takes 8.91 ms: gi_screen 3.50, gi_trace0 1.58, hdr_scene 1.36, trace1 0.94, trace2
+0.38, trace3 0.23, gather 0.23, merge 0.21, glow 0.19, filter 0.07; Medium 7.41, gi_screen 3.38;
+Low 5.41, gi_screen 1.30, its glow lights alone; Off 0.39. Each part left out at High in turn: the
+glow lights off, the frame takes 3.33 ms, gi_screen 0.83 and trace0 0.37, so the 69 small emitters
+carried as lights, the 64 nearest lit, are most of the screen probes' cost and much of the first
+cascade's; the screen probes off, 21.77 ms, hdr_scene 17.92, the model pass's own way without them dearer,
+why not yet read; the filter off, 8.96 ms, no saving. The cuts go one at a time from
+the screen probes' glow lights, each held to its reading.

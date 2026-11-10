@@ -18,6 +18,18 @@ internal sealed unsafe partial class GraphicsDevice
 {
     private VkPipelineCache _pipelineCache;
 
+    // Held over every use of the driver's cache, each pipeline made through it on any thread, its
+    // data read for the write and its release, so the write never runs beside a compile a worker
+    // makes ahead, though Vulkan lets a cache made without the externally synchronized flag be
+    // used from several threads, since a driver that fails that freezes the frame that writes.
+    private readonly Lock _pipelineCacheUse = new();
+
+    /// <summary>
+    /// Called while a pipeline is made through the driver's cache, the cache held, which a test
+    /// sets to hold a compile in flight.
+    /// </summary>
+    internal Action? WhileMakingPipeline { get; set; }
+
     /// <summary>The most bytes of compiled pipelines a file is read with, past which the cache starts empty.</summary>
     internal const int PipelineCacheBound = 256 * 1024 * 1024;
 
@@ -117,9 +129,19 @@ internal sealed unsafe partial class GraphicsDevice
     {
         get
         {
-            nuint size;
-            return !_pipelineCache.IsNull && _deviceApi.vkGetPipelineCacheData(_pipelineCache, &size, null) == VkResult.Success && size > 32;
+            lock (_pipelineCacheUse)
+                return PipelineCacheSize() > PipelineCacheHeader;
         }
+    }
+
+    // The bytes of the header Vulkan gives a cache's data, past which it holds pipelines.
+    private const int PipelineCacheHeader = 32;
+
+    // The bytes the driver says the cache's data takes, or none where it cannot say, the cache held.
+    private nuint PipelineCacheSize()
+    {
+        nuint size;
+        return !_pipelineCache.IsNull && _deviceApi.vkGetPipelineCacheData(_pipelineCache, &size, null) == VkResult.Success ? size : 0;
     }
 
     /// <summary>Has the device write none of its pipelines back to <see cref="PipelineCachePath"/> this run, its file cleared while it runs.</summary>
@@ -128,10 +150,13 @@ internal sealed unsafe partial class GraphicsDevice
     // Writes the cache back where it changed since it was read, and lets it go.
     private void DestroyPipelineCache()
     {
-        if (_pipelineCache.IsNull) return;
         SavePipelineCache();
-        _deviceApi.vkDestroyPipelineCache(_pipelineCache, null);
-        _pipelineCache = default;
+        lock (_pipelineCacheUse)
+        {
+            if (_pipelineCache.IsNull) return;
+            _deviceApi.vkDestroyPipelineCache(_pipelineCache, null);
+            _pipelineCache = default;
+        }
     }
 
     /// <summary>
@@ -141,8 +166,18 @@ internal sealed unsafe partial class GraphicsDevice
     /// </summary>
     internal void SavePipelineCache()
     {
-        if (_pipelineCache.IsNull || _pipelineCacheDropped) return;
-        if (PipelineCacheData() is not { } data)
+        byte[]? data;
+        // The data read with the cache held, after any pipeline a worker is making through it, and
+        // the line before and after it, so a log that stops between them names the read.
+        lock (_pipelineCacheUse)
+        {
+            if (_pipelineCache.IsNull || _pipelineCacheDropped) return;
+            Logger.Info("The driver's compiled pipelines are read to be written...");
+            var reading = Stopwatch.GetTimestamp();
+            data = PipelineCacheData();
+            Logger.Info($"The driver's compiled pipelines read, {data?.Length ?? 0} bytes to write, in {Stopwatch.GetElapsedTime(reading).TotalMilliseconds:0} ms.");
+        }
+        if (data is null)
         {
             // Said once, since a driver that keeps no pipelines in the cache, as lavapipe with Mesa's
             // own shader cache off, gives the header alone or less every time it is asked.
@@ -160,6 +195,7 @@ internal sealed unsafe partial class GraphicsDevice
             File.WriteAllBytes(written, data);
             File.Move(written, PipelineCachePath, overwrite: true);
             _pipelineCacheRead = (nuint)data.Length;
+            Logger.Info($"The driver's compiled pipelines written to {PipelineCachePath}, {data.Length / 1024} KB.");
         }
         catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
         {
@@ -167,18 +203,20 @@ internal sealed unsafe partial class GraphicsDevice
         }
     }
 
-    // The cache's data where it changed since it was read and holds the whole header it names, or
-    // none, as lavapipe asked for 32 bytes and filled 20 of them.
+    // The cache's data where it holds pipelines by the rule PipelineCacheHolds answers by, more than
+    // its header, and changed since it was read, or none, the cache held. The data is asked for
+    // again by the size given, and taken only where what was filled still holds more than the
+    // header and the whole header it names, as lavapipe asked for 32 bytes and filled 20 of them.
     private byte[]? PipelineCacheData()
     {
-        nuint size;
-        if (_deviceApi.vkGetPipelineCacheData(_pipelineCache, &size, null) != VkResult.Success || size < 32 || size == _pipelineCacheRead)
+        var size = PipelineCacheSize();
+        if (size <= PipelineCacheHeader || size == _pipelineCacheRead)
             return null;
         var data = new byte[(int)size];
         fixed (byte* bytes = data)
             if (_deviceApi.vkGetPipelineCacheData(_pipelineCache, &size, bytes) != VkResult.Success)
                 return null;
-        return size >= 32 && BinaryPrimitives.ReadUInt32LittleEndian(data) <= size ? data[..(int)size] : null;
+        return size > PipelineCacheHeader && BinaryPrimitives.ReadUInt32LittleEndian(data) <= size ? data[..(int)size] : null;
     }
 
     // How many pipelines the device made and the time the driver took, which the renderer logs for
@@ -210,7 +248,11 @@ internal sealed unsafe partial class GraphicsDevice
     {
         var making = Stopwatch.GetTimestamp();
         VkPipeline pipeline;
-        _deviceApi.vkCreateComputePipelines(_pipelineCache, 1, info, null, &pipeline).CheckResult();
+        lock (_pipelineCacheUse)
+        {
+            WhileMakingPipeline?.Invoke();
+            _deviceApi.vkCreateComputePipelines(_pipelineCache, 1, info, null, &pipeline).CheckResult();
+        }
         Made(making, ShaderNames.Of(spirv));
         return pipeline;
     }

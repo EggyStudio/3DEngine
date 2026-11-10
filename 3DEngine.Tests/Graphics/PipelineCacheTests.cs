@@ -19,8 +19,9 @@ public sealed class PipelineCacheTests : IDisposable
         UseApp(null);
     }
 
-    // Opens a window, draws a lit cube for a few frames and closes it, as a run of a program does.
-    private static void Run()
+    // Opens a window, draws a lit cube for a few frames and closes it, as a run of a program does,
+    // and answers whether the device said its driver's cache held pipelines past its header.
+    private static bool Run()
     {
         var config = Config.Default.WithWindow("pipeline cache", 64, 64) with { Headless = true, Offscreen = true, Samples = 1 };
         UseApp(new App(config).AddPlugin(new DefaultPlugins()));
@@ -34,8 +35,10 @@ public sealed class PipelineCacheTests : IDisposable
             EndMode3D();
             EndDrawing();
         }
+        var holds = ((GraphicsDevice)GetApp().World.Resource<Engine.Renderer>().Context.Graphics!).PipelineCacheHolds;
         CloseWindow();
         UseApp(null);
+        return holds;
     }
 
     [NeedsVulkanFact]
@@ -103,14 +106,18 @@ public sealed class PipelineCacheTests : IDisposable
         BinaryPrimitives.WriteUInt32LittleEndian(foreign.AsSpan(8), 0xFFFF);
         File.WriteAllBytes(path, foreign);
 
-        Run();
+        var holds = Run();
         var written = File.ReadAllBytes(path);
-        // A driver that keeps no pipelines in the cache, as lavapipe with Mesa's own shader cache
-        // off, writes nothing over it.
-        if (written.SequenceEqual(foreign)) return;
-        // The run's cache is written over the one it could not read, its header naming this device,
-        // and on a lavapipe that keeps no pipelines in it the header is all of it, 32 bytes.
-        written.Length.Should().BeGreaterThanOrEqualTo(32, "the run's cache is written over the one it could not read, its header at least");
+        // A driver whose cache the device says holds nothing past its header, as lavapipe's,
+        // writes nothing over it, by the one rule the write and the device's answer share.
+        if (!holds)
+        {
+            written.Should().Equal(foreign, "a cache that holds nothing past its header is not written");
+            return;
+        }
+        // The run's cache is written over the one it could not read, its header naming this device
+        // and pipelines past it.
+        written.Length.Should().BeGreaterThan(32, "the run's cache is written over the one it could not read, pipelines past its header");
         BinaryPrimitives.ReadUInt32LittleEndian(written).Should().Be(32u, "the header says its own size");
         BinaryPrimitives.ReadUInt32LittleEndian(written.AsSpan(8)).Should().NotBe(0xFFFFu, "the header names the device that wrote it");
 
@@ -119,6 +126,86 @@ public sealed class PipelineCacheTests : IDisposable
         Run();
         File.GetLastWriteTimeUtc(path).Should().Be(at, "the second run's pipelines were all in the cache it read");
         File.ReadAllBytes(path).Should().Equal(written);
+    }
+
+    [NeedsVulkanFact]
+    public void The_Write_Waits_For_A_Compile_In_Flight_And_A_Served_Program_Answers_In_The_Frame_After()
+    {
+        // A served program's renderer writes the driver's cache on the main thread while a worker
+        // makes a pipeline through it, held in the driver by the test. The write reads the cache
+        // only once the compile has let it go, and a command sent then is answered in the frames
+        // after, as a game driven through e3d is.
+        using var sessions = new TestFolder("engine-sessions-");
+        using var cache = new TestFolder("engine-pipelines-");
+        var previous = CliSessionFile.Directory;
+        CliSessionFile.Directory = sessions.Path;
+        UserCache.Folder = cache.Path;
+        try
+        {
+            var config = Config.Default.WithWindow("pipeline write", 64, 64) with { Headless = true, Offscreen = true, Samples = 1, Serve = true };
+            UseApp(new App(config).AddPlugin(new DefaultPlugins()));
+            var camera = new Camera3D(new Vector3(2, 2, 2), Vector3.Zero, Vector3.UnitY, 45);
+            void Frame()
+            {
+                BeginDrawing();
+                ClearBackground(Color.Black);
+                BeginMode3D(camera);
+                DrawCube(Vector3.Zero, 1, 1, 1, Color.White);
+                EndMode3D();
+                EndDrawing();
+            }
+            Frame();
+            var device = (GraphicsDevice)GetApp().World.Resource<Engine.Renderer>().Context.Graphics!;
+            var spirv = SlangCompiler.Compile("""
+                RWStructuredBuffer<uint> counts;
+
+                [shader("compute")]
+                [numthreads(1, 1, 1)]
+                void computeMain(uint3 id : SV_DispatchThreadID)
+                {
+                    counts[id.x] = id.x;
+                }
+                """, "in-flight.slang", "computeMain", ShaderStage.Compute);
+
+            using var inside = new ManualResetEventSlim();
+            using var gate = new ManualResetEventSlim();
+            var released = 0;
+            device.WhileMakingPipeline = () =>
+            {
+                inside.Set();
+                gate.Wait();
+            };
+            var compile = Task.Run(() => device.CreateComputePipeline(spirv, 0, [0]));
+            inside.Wait(TimeSpan.FromSeconds(60)).Should().BeTrue("the worker's compile reached the driver");
+            device.WhileMakingPipeline = null;
+            // The compile let go a while after the write was asked for, the release marked first.
+            var release = Task.Run(() =>
+            {
+                Thread.Sleep(300);
+                Volatile.Write(ref released, 1);
+                gate.Set();
+            });
+            device.SavePipelineCache();
+            Volatile.Read(ref released).Should().Be(1, "the write read the driver's cache only after the compile in flight let it go");
+            release.Wait();
+            using (compile.Result) { }
+
+            var session = CliSessionFile.Read(CliSessionFile.PathFor(Environment.ProcessId));
+            session.Should().NotBeNull("the served program has its session file");
+            var answer = Task.Run(() => CliClient.Send(session!, "run", "frames.wait 1", 60));
+            for (int frame = 0; frame < 2000 && !answer.IsCompleted; frame++)
+                Frame();
+            answer.IsCompleted.Should().BeTrue("the program answers a command in the frames after the write");
+            using var said = System.Text.Json.JsonDocument.Parse(answer.Result);
+            said.RootElement.GetProperty("success").GetBoolean().Should().BeTrue(answer.Result);
+        }
+        finally
+        {
+            CloseWindow();
+            UseApp(null);
+            CliSessionFile.Directory = previous;
+            UserCache.Folder = null!;
+        }
     }
 
     [NeedsVulkanFact]

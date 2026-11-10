@@ -1522,3 +1522,57 @@ into curved bands, the same with the probes on and off over 87 degrees.
 
 The pictures are in the game's `.github/dump/2026-11-10` under `item-166-carried-turn` and
 `item-166-carried-masked`.
+
+### 2026-11-10, the voxel game in `Voxel-Sandbox`, after a cut the scene field builds what the game meshes under its base triangle budget, and a grove's shaded ground reads open for 35 to 77 frames
+
+Read on the 3DEngine 6.2.17 package for the game's item 166, Debug, offscreen at 1280 by 720, the
+RTX 4070 Laptop GPU on tuned's power-saving profile, at the game's settings of four cascades of 0.25
+with two built a frame, the far cascade to 192 and the engine's default of 32,768 triangles a frame.
+Seed 1 at hour 16 with the clock held and each frame's time fixed at a 60th of a second. The eye was
+teleported by `voxel.tp` 150 blocks, from -736, 79, -810 into the cherry grove at -736, 79, -960
+pitched -12, and `./e3d record` took every frame for 400 frames, each compared with the view's
+settled shot. The cost is `./e3d command profile` over the 84 to 103 frames from the cut.
+
+In the cut's first frame 26 percent of the window lies past 12 levels from the settled view, the
+shaded ground under the trees lit as if open. From the frame after, 22 to 24 percent stays past 12
+until it falls in one frame, at frames 35, 42, 54, 58 and 77 over five runs. With the illumination
+off the cut lies under 0.1 percent past 12 from frame 28, and with the game's culling off, which
+meshes every section in reach, the hold lasts 105 frames. The engine lifts every cascade and 16
+times the triangles a frame after a cut, 524,288, until the cascades the eye went past are built
+(`SceneFieldPlan.Splat`). The sections the game meshes as the new view comes in arrive after that,
+as changes built under the base budget, each region read as it was last built until its build ends,
+and the 1.31 million triangles the game draws there are 40 frames of that budget. The frame has no
+room under its pacing in these runs, `wait` 0.003 ms, so the engine's raise of the budget by the
+frame's room stays at the base.
+
+Held at four times the default by `SetSceneField(4, 0.25f, 2, 131072, 192)` before the cut, fewer
+triangles than the lift allows, so that what it changes comes after the lift, the share past 12
+falls to 5.8 percent in frame 1 and 2.9 in frame 2. The mean lies within 2 levels from frame 7 in
+both runs, and the last 0.8 to 2 percent past 12 goes under 0.1 by frames 50 and 55. Held at 32
+times, the mean lies within 2 levels from frame 6 and the share past 12 under 0.1 percent from frame
+46. Eight cascades a frame in place of two change nothing, 42 frames. Over the frames from the cut
+the budget held at four times costs the field's GPU pass 1.41 ms a frame against 1.01, and the
+frame's work reads 39.3 ms against 42.2 with every frame recorded.
+
+A game cannot raise the budget for the second after a cut alone. `SetSceneField` with a budget
+changed makes the field again, since `SceneField` releases a field whose settings differ from those
+it was made with, so a raise lights the view from nothing in the frame it lands and the return to
+the base does so again. Raised to four times in the frame after the cut and put back 60 frames on,
+the grove lies under 0.1 percent past 12 from frame 42 and goes back to 27 percent at frame 90,
+under 0.1 percent again only from frame 132. After a respawn each remake changes 99.9 percent of the
+window for a frame.
+
+A death and respawn at the wooded spawn, from 150 blocks off and facing the woods at heading 270,
+lies under 0.1 percent past 12 three frames after the new view comes in, plain and with the budget
+held at four times. The game's respawn loads and meshes the sections around the spawn before it
+moves the player (`Streamer.LoadNow`), so the lift after the cut builds them. Facing a leaf at
+heading 90, the window one face, the face reads 6 levels light for 30 frames after the view comes
+in, for 1 with the budget held at 32 times and for 56 with eight cascades a frame.
+
+The engine lacks a lift that lasts while what a cut brings in still arrives. It could hold its
+lifted triangle budget while meshes still come into the near cascades after a cut, so a game need
+not know of the cut, or keep the field when a budget alone changes, so a game could raise it for a
+while. The game keeps the default budget meanwhile.
+
+The pictures are in the game's `.github/dump/2026-11-10` under `item-166-levers`,
+`item-166-respawn-leaf`, `item-166-respawn-views` and `item-166-cuts`.

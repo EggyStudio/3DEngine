@@ -146,6 +146,35 @@ internal static class CliSessionFile
         }
     }
 
+    /// <summary>
+    /// What a look that found no session saw, on one line: the folder, and each file in it with the
+    /// pid it names, whether that pid runs, and why it was passed over, by <paramref name="match"/>
+    /// where a pid or a name was given.
+    /// </summary>
+    /// <remarks>
+    /// A game the runner drove once stopped serving with its process alive and no line in its log
+    /// that it closed or exited, the only ways it removes its file, so the error says what was
+    /// there to be found.
+    /// </remarks>
+    public static string Account(Func<CliSession, bool>? match = null)
+    {
+        if (!System.IO.Directory.Exists(Directory)) return $"The sessions folder {Directory} does not exist.";
+        var files = System.IO.Directory.GetFiles(Directory).Order(StringComparer.Ordinal).ToList();
+        if (files.Count == 0) return $"The sessions folder {Directory} holds no file.";
+        string Seen(string file)
+        {
+            var name = Path.GetFileName(file);
+            if (name.EndsWith(".json.tmp", StringComparison.Ordinal)) return $"{name}, a file being written";
+            if (!name.EndsWith(".json", StringComparison.Ordinal)) return $"{name}, not a session file";
+            if (ReadAgain(file) is not { } session) return $"{name}, which could not be read";
+            var who = $"{name}, pid {session.Pid}, {session.Name} titled {session.Title}, its heartbeat {(DateTimeOffset.UtcNow - session.Heartbeat).TotalSeconds:0.0} s old";
+            if (!session.Running) return $"{who}, passed over since that pid does not run";
+            if (match is not null && !match(session)) return $"{who}, passed over since it runs and is not the one asked for";
+            return $"{who}, which runs and matches, written after the look";
+        }
+        return $"The sessions folder {Directory} holds {string.Join("; ", files.Select(Seen))}.";
+    }
+
     /// <summary>The wait between looks for a session that matches, which a test makes the moment it writes one.</summary>
     internal static Action LookAgain { get; set; } = static () => Thread.Sleep(200);
 
