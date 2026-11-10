@@ -31,6 +31,9 @@ internal sealed partial class SceneFieldPlan
         public Box? Changed;
         public bool Started, Restart;
         public long Gathered;
+        // The meshes that settled after the gather and were taken into Left, built into the cascade
+        // when the build ends though they came after the frame it gathered in.
+        public readonly List<Instance> Took = [];
     }
 
     private Job? _job;
@@ -108,12 +111,15 @@ internal sealed partial class SceneFieldPlan
     // frame builds every cascade and the most triangles the budget is raised to, since until then
     // the view lies in coarser cascades that hold none of its rooms' walls, through which Sponza's
     // vestibule took the court's sky after a cut to its door, and the screen's probes gathered a
-    // cycle of that light and eased it in once the right light came.
+    // cycle of that light and eased it in once the right light came. The lift holds on after them
+    // while what the cut brought in still arrives, since a game meshes its sections as the new view
+    // comes in, after those cascades are built, and its grove's shaded ground read open until they
+    // were built in under the base budget.
     private bool[] Splat(Vector3 eye)
     {
         (Splatted, Spent) = (0, 0);
         var rebuilt = new bool[Cascades];
-        var lifted = Array.IndexOf(_jumped, true) >= 0;
+        var lifted = Array.IndexOf(_jumped, true) >= 0 || _afterCut >= 0;
         var (cascades, triangles) = lifted ? (Cascades, Math.Max(TriangleBudget, BaseTriangleBudget * MostRaise)) : (Budget, TriangleBudget);
         while (cascades > 0 && triangles > 0)
         {
@@ -173,6 +179,8 @@ internal sealed partial class SceneFieldPlan
             if (!last) break;
             if (job.Cells is null) (_built[c], _builtFrame[c], rebuilt[c], _jumped[c]) = (job.Origin, _frame, true, false);
             else if (!job.Shifting) _builtFrame[c] = Math.Max(_builtFrame[c], job.Gathered);
+            foreach (var took in job.Took)
+                if (_pending.Contains(took)) _builtIn[took] = _builtIn.GetValueOrDefault(took) | 1 << c;
             _job = null;
         }
         return rebuilt;
@@ -188,6 +196,7 @@ internal sealed partial class SceneFieldPlan
         job.Triangles = 0;
         foreach (var (_, instance) in job.Left) job.Triangles += _triangles(instance.Vertices);
         (job.Next, job.Started, job.Restart, job.Gathered) = (0, false, false, _frame);
+        job.Took.Clear();
     }
 
     // How far a mesh's bounds' middle is from the eye, squared, which orders the meshes a build splats.
@@ -217,6 +226,7 @@ internal sealed partial class SceneFieldPlan
             var place = job.Next;
             while (place < job.Left.Count && job.Left[place].Distance <= distance) place++;
             job.Left.Insert(place, (distance, instance));
+            job.Took.Add(instance);
         }
         else if (at >= job.Next) job.Left.RemoveAt(at);
         else if (at >= 0) job.Restart = true;

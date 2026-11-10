@@ -253,6 +253,13 @@ internal sealed partial class SceneFieldRenderer : IDisposable
             renderWorld.Set(new SceneFieldBinding(_off ??= SceneFieldStages.Of(device).CreateSceneField(1, 1), false));
             return;
         }
+        // The field is made again where its cascades, its cell or its far cascade change, and kept
+        // where a budget alone does, which the plan takes as it stands.
+        if (_field is not null && _made != wanted && (_made.Cascades, _made.CellSize, _made.FarCell) == (wanted.counted, wanted.CellSize, wanted.farCell))
+        {
+            _plan!.SetBudgets(wanted.Item3, wanted.Item4);
+            _made = wanted;
+        }
         if (_field is null || _made != wanted)
         {
             _short = false;

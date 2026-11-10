@@ -293,7 +293,7 @@ internal sealed partial class SceneFieldPlan
     public float CellSize { get; }
 
     /// <summary>How many cascades are built a frame at most.</summary>
-    public int Budget { get; }
+    public int Budget { get; private set; }
 
     /// <summary>How many triangles the builds splat a frame at most, a mesh at least, raised where the frame has room (<see cref="Raise"/>).</summary>
     public int TriangleBudget { get; private set; }
@@ -538,7 +538,7 @@ internal sealed partial class SceneFieldPlan
             if (_built[c] == around) continue;
             _dirty[c] = true;
             if (_built[c] is { } built && Vector3.Abs(around - built) is var apart && MathF.Max(apart.X, MathF.Max(apart.Y, apart.Z)) >= Resolution * CellOf(c))
-                _jumped[c] = true;
+                (_jumped[c], _afterCut, _quietAfterCut) = (true, 0, 0);
         }
         var rebuilt = Splat(eye);
         _mostSplatted = Math.Max(_mostSplatted, Splatted);
@@ -550,7 +550,8 @@ internal sealed partial class SceneFieldPlan
             var (bounds, added) = _still[instance];
             var waiting = false;
             for (int c = 0; c < Cascades && !waiting; c++)
-                waiting = _built[c] is { } origin && _builtFrame[c] < added && bounds.Overlaps(CascadeBox(c, origin).Grown(Band * CellOf(c)));
+                waiting = _built[c] is { } origin && _builtFrame[c] < added && (_builtIn.GetValueOrDefault(instance) & 1 << c) == 0
+                    && bounds.Overlaps(CascadeBox(c, origin).Grown(Band * CellOf(c)));
             if (waiting)
             {
                 if (_movedIn.Contains(instance)) moving.Add(instance);
@@ -560,9 +561,11 @@ internal sealed partial class SceneFieldPlan
                 _pending.Remove(instance);
                 _replacing.Remove(instance);
                 _movedIn.Remove(instance);
+                _builtIn.Remove(instance);
             }
         }
         FramesBuilt = Built ? FramesBuilt + 1 : 0;
+        EndLift();
 
         // The nearest meshes' shapes, a box for each part of each, posed, to as many as a frame
         // stamps, and the bricks they come within the band of in each built cascade.
@@ -676,6 +679,7 @@ internal sealed partial class SceneFieldPlan
         _pending.Remove(instance);
         _replacing.Remove(instance);
         _movedIn.Remove(instance);
+        _builtIn.Remove(instance);
     }
 
     // Whether a mesh of other vertices drawn through a still mesh's matrix, unsettled, lies where it was.
@@ -710,6 +714,7 @@ internal sealed partial class SceneFieldPlan
         var bounds = _bounds(instance.Vertices).Transformed(instance.World);
         _still[instance] = (bounds, _frame);
         _pending.Add(instance);
+        _builtIn.Remove(instance);
         if (moved) _movedIn.Add(instance);
         MarkAround(bounds, Follow(instance, bounds, came: true));
     }

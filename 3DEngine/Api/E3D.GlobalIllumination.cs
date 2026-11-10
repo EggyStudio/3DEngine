@@ -49,7 +49,14 @@ public static partial class E3D
     /// than stalling one, and a scene of fewer triangles builds as many cascades a frame as
     /// <paramref name="updateBudget"/> says. Where the frame waits for its target frame rate, the
     /// triangle budget is raised so the builds take half the wait, up to sixteen times what is
-    /// given, and it falls back where the frame waits none, which <c>field.state</c> says.
+    /// given, and it falls back where the frame waits none, which <c>field.state</c> says. After a
+    /// cut, the eye gone past a cascade's whole box, every cascade is built a frame at sixteen times
+    /// the triangles, and the lift holds while the meshes the new view brings still arrive and are
+    /// built in, as a game meshes its sections over the frames after a teleport, until 30 frames
+    /// running bring none and leave nothing to build, or 300 frames after the cut. Called again with
+    /// the same cascades, cell and far cascade and other budgets, it keeps the field and what it
+    /// holds and builds by the new budgets from the next frame, so a program can raise them for a
+    /// while and put them back.
     /// </para>
     /// <para>
     /// A <paramref name="farCascade"/> distance past the others' reach adds a far cascade, which

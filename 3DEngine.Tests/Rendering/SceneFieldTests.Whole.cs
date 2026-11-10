@@ -60,4 +60,29 @@ public sealed partial class SceneFieldTests
         for (frame = 0; frame < 400 && !plan.Whole; frame++) plan.Update(eye, drawn);
         plan.Whole.Should().BeTrue("the section that came settled and was built in");
     }
+    [Fact]
+    [Trait("Category", "Unit")]
+    public void Meshes_That_Settle_While_A_Regions_Build_Runs_Are_Built_In_And_The_Field_Is_Whole_With_The_Eye_Still()
+    {
+        // An empty field built, then 50 sections a frame for ten frames into it, the eye still,
+        // under a budget of four sections a frame, so each region's build runs over frames while
+        // later sections settle and are taken into it. A section taken in was built into the
+        // cascade by the build's end and waited for that cascade without end all the same, its
+        // built frame the one the build gathered in, so the field was never whole.
+        var plan = new SceneFieldPlan(4, 0.25f, 2, triangleBudget: 4 * SectionTriangles, triangles: _ => SectionTriangles);
+        var eye = new Vector3(0, 2, 0);
+        for (int frame = 0; frame < 60; frame++) plan.Update(eye, []);
+        var drawn = new List<(SceneFieldPlan.Instance, bool)>();
+        int after;
+        for (after = 1; after < 2000; after++)
+        {
+            if (after <= 10)
+                for (int i = (after - 1) * 50; i < after * 50; i++)
+                    drawn.Add((new SceneFieldPlan.Instance(1, Section, Matrix4x4.CreateTranslation(SectionAt(i)), false), false));
+            plan.Update(eye, drawn);
+            if (after > 10 && plan.Whole && plan.Built) break;
+        }
+        plan.Whole.Should().BeTrue($"every section that came was built in, {plan.Unsettled.Waiting} waiting for cascades {string.Join(" ", plan.Unsettled.Cascades)}");
+        plan.Built.Should().BeTrue();
+    }
 }
