@@ -114,7 +114,7 @@ public float3 glowLightIrradiance(GlowLight light, float3 x, float3 n, float mar
     float3 middle = light.middleAndReach.xyz;
     float4 halves[3] = { light.halfX, light.halfY, light.halfZ };
     float3 offset = x - middle;
-    bool near = dot(offset, offset) < 16.0 * (halves[0].w * halves[0].w + halves[1].w * halves[1].w + halves[2].w * halves[2].w);
+    bool near = glowLightClose(light, x);
     uint faces = glowFaces(light);
     float sum = 0.0;
     [loop]
@@ -154,6 +154,52 @@ public float3 glowLightIrradiance(GlowLight light, float3 x, float3 n, float mar
                     sum += area * abs(dot(way, h)) / halves[k].w * max(dot(way, n), 0.0) / distance2;
                 }
         }
+    }
+    return light.glowAndShare.rgb * (sum * glowShare(light));
+}
+
+// Whether x lies within four of a glow light's box's half diagonals of its middle, where its light
+// is taken in closed form, past which its faces are taken as points (glowLightIrradiance).
+public bool glowLightClose(GlowLight light, float3 x)
+{
+    float3 offset = x - light.middleAndReach.xyz;
+    return dot(offset, offset) < 16.0 * (light.halfX.w * light.halfX.w + light.halfY.w * light.halfY.w + light.halfZ.w * light.halfZ.w);
+}
+
+// Whether x lies past eight of a glow light's box's half diagonals of its middle, where a probe's
+// ray's hit takes each face as one point (glowLightFaces, glowLightsAt).
+public bool glowLightFar(GlowLight light, float3 x)
+{
+    float3 offset = x - light.middleAndReach.xyz;
+    return dot(offset, offset) >= 64.0 * (light.halfX.w * light.halfX.w + light.halfY.w * light.halfY.w + light.halfZ.w * light.halfZ.w);
+}
+
+// The light reaching x facing n from a glow light, unhidden, each face of its box that x lies
+// before and that emits taken as one point at its middle, its area by the two cosines over the
+// square of its distance, as glowLightIrradiance's pieces are, one piece a face. None where x lies
+// on the light's own surface.
+public float3 glowLightFaces(GlowLight light, float3 x, float3 n, float margin)
+{
+    if (glowLightOn(light, x, n, margin))
+        return float3(0.0);
+    float3 middle = light.middleAndReach.xyz;
+    float4 halves[3] = { light.halfX, light.halfY, light.halfZ };
+    float3 offset = x - middle;
+    uint faces = glowFaces(light);
+    float sum = 0.0;
+    [unroll]
+    for (int k = 0; k < 3; k++)
+    {
+        float3 h = halves[k].xyz;
+        float side = dot(offset, h);
+        float squared = halves[k].w * halves[k].w;
+        if (squared < 1e-12 || abs(side) <= squared || (faces & (1u << uint(2 * k + (side > 0.0 ? 1 : 0)))) == 0u)
+            continue;
+        float3 toward = middle + (side > 0.0 ? h : -h) - x;
+        float distance2 = dot(toward, toward);
+        float3 way = toward * rsqrt(distance2);
+        float area = 4.0 * halves[(k + 1) % 3].w * halves[(k + 2) % 3].w;
+        sum += area * abs(dot(way, h)) / halves[k].w * max(dot(way, n), 0.0) / distance2;
     }
     return light.glowAndShare.rgb * (sum * glowShare(light));
 }

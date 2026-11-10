@@ -615,10 +615,11 @@ public float3 hiddenLampReflected<V : IVolume>(V field, SceneFieldInfo info, GiL
 // and one closed form of it, since a second way for few lights would stand in each of the model
 // pass's two shadings of a reflection's hit and lengthen its compile for every app. A light gives
 // nothing to its own surface, which a hit finds within half a cell of its box (glowLightOn). Where
-// the field does not hold p, every light unhidden.
+// the field does not hold p, every light unhidden. This is the model pass's at a pixel, each light
+// in closed form or by its pieces, which meet with no step on the floor.
 public float3 glowLightsAt<V : IVolume>(V field, SceneFieldInfo info, GiLights lights, float3 p, float3 n, int marches, bool halves)
 {
-    return glowLightsAt(field, info, lights, p, n, marches, halves, float3(0.0));
+    return glowLightsFrom(field, info, lights, p, n, marches, halves, float3(0.0), false);
 }
 
 // The same at a probe's ray's hit, the ray along `way`, a light the ray passed through right before
@@ -627,8 +628,19 @@ public float3 glowLightsAt<V : IVolume>(V field, SceneFieldInfo info, GiLights l
 // the middles of the square's four quarters, since a light thinner than a cell lights the wall it
 // stands against within a few hundredths of a block of its box, a patch one probe's ray meets and
 // the next probe's misses. Taken at a cell's distance from the box instead, the hit would lose the
-// strip's light on its own wall, which is light a path-traced reference has.
+// strip's light on its own wall, which is light a path-traced reference has. A hit's way of none,
+// as a reflection's hit shaded by shadeHit gives, takes none of that. At a hit, a light farther
+// than eight of its box's half diagonals takes each face it lights the hit from as one point
+// (glowLightFaces), where the pieces are up to twelve, since every probe's ray takes every light
+// at its hit. Its rough form is the model pass's scale for a share, not a value, so a hit does not
+// take it.
 public float3 glowLightsAt<V : IVolume>(V field, SceneFieldInfo info, GiLights lights, float3 p, float3 n, int marches, bool halves, float3 way)
+{
+    return glowLightsFrom(field, info, lights, p, n, marches, halves, way, true);
+}
+
+// The glow lights' light at p for glowLightsAt, the far ones by one point a face where `hit` says.
+float3 glowLightsFrom<V : IVolume>(V field, SceneFieldInfo info, GiLights lights, float3 p, float3 n, int marches, bool halves, float3 way, bool hit)
 {
     // A point past every light's reach takes none of their light, found before the loop over them,
     // which would otherwise run at each pixel of the far land and the clouds, whose surfaces are
@@ -665,6 +677,8 @@ public float3 glowLightsAt<V : IVolume>(V field, SceneFieldInfo info, GiLights l
             arrived = (glowLightIrradiance(light, p + (along + across) * q, n, margin) + glowLightIrradiance(light, p + (along - across) * q, n, margin)
                 + glowLightIrradiance(light, p - (along + across) * q, n, margin) + glowLightIrradiance(light, p - (along - across) * q, n, margin)) * (0.25 * faded);
         }
+        else if (hit && glowLightFar(light, p))
+            arrived = glowLightFaces(light, p, n, margin) * faded;
         else
             arrived = glowLightIrradiance(light, p, n, margin) * faded;
         unhidden += arrived;

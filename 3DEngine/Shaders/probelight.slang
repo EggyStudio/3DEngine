@@ -566,6 +566,6 @@ public float3 shadeHit<V : IVolume, let Glowing : bool>(V field, SceneFieldInfo 
     float3 arrived = (directLight(field, info, lights, p, n) - hiddenLampLight(field, info, lights, p, n)) * Pi
         + bouncedAt(cubes, skies, reach, info, p, n, probes, spacing, cascades) * lights.counts.z;
     if (Glowing)
-        arrived += glowLightsAt(field, info, lights, p, n, 1, false);
+        arrived += glowLightsAt(field, info, lights, p, n, 1, false, float3(0.0));
     return color / Pi * arrived + surfaceGlow(glow, albedo, info, p);
 }
