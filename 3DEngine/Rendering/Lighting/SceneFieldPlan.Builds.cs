@@ -104,11 +104,17 @@ internal sealed partial class SceneFieldPlan
     // the triangles leave unfinished goes on the frame after, its cascade keeping the place and the
     // meshes it was last built with until the build ends, and the still meshes it has not splatted
     // are stamped as boxes meanwhile, as any mesh that settled into a cascade not built since is.
+    // While a cascade the eye went past by its whole box waits for its build, as after a cut, the
+    // frame builds every cascade and the most triangles the budget is raised to, since until then
+    // the view lies in coarser cascades that hold none of its rooms' walls, through which Sponza's
+    // vestibule took the court's sky after a cut to its door, and the screen's probes gathered a
+    // cycle of that light and eased it in once the right light came.
     private bool[] Splat(Vector3 eye)
     {
         (Splatted, Spent) = (0, 0);
         var rebuilt = new bool[Cascades];
-        var (cascades, triangles) = (Budget, TriangleBudget);
+        var lifted = Array.IndexOf(_jumped, true) >= 0;
+        var (cascades, triangles) = lifted ? (Cascades, Math.Max(TriangleBudget, BaseTriangleBudget * MostRaise)) : (Budget, TriangleBudget);
         while (cascades > 0 && triangles > 0)
         {
             // A finer cascade gone dirty or changed comes first, as the cascades always come, and the
@@ -165,7 +171,7 @@ internal sealed partial class SceneFieldPlan
             job.Started = true;
             if (job.Cells is null) cascades--;
             if (!last) break;
-            if (job.Cells is null) (_built[c], _builtFrame[c], rebuilt[c]) = (job.Origin, _frame, true);
+            if (job.Cells is null) (_built[c], _builtFrame[c], rebuilt[c], _jumped[c]) = (job.Origin, _frame, true, false);
             else if (!job.Shifting) _builtFrame[c] = Math.Max(_builtFrame[c], job.Gathered);
             _job = null;
         }

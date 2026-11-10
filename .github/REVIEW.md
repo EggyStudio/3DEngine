@@ -8,31 +8,33 @@ on 2026-11-10 with a run on it and a pack run with publish started on it at 05:4
 form, its description carrying the bounds' readings, and carries the review's files, the game's
 three entries in ASKS.md and N 7.9 and N 7.10. After it `f77e4cf4`, build/flicker.py's three options
 from the game's ask, two recordings compared pair by pair, a blur and a map carried back to the
-first picture, with the shaft's level recorded, committed at 05:47 on 2026-11-10 and pushed once
-`e86ca5c3`'s run has ended; it keeps the form. The game reads its shaded ground again on that
-package. The working session was ended at 01:15 on 2026-11-10 by the kernel, a python3 of its own
-having read its 4.3 GB transcript whole into 27 GB beside 18 GB of old frames in /tmp, and was
-resumed by the owner at 04:23, its scratch cleared (N 7.10). Before it `adb41aa7`, the example's
-sponza.turn and build/flicker.py, pushed at 01:18 on 2026-11-10, green at 03:44. Before it
-`94097b62`, 242, a hit marching its brightest glow light and gathering the rest as one, pushed at
-22:41 on 2026-11-09 with 241 and 243, green at 00:35, whose pack run published 6.2.12 at 02:34,
-tagged `v6.2.12`, which the game pins since its `cfffcb3`. Before it `ed469e90`, 237, the
-illumination's cycles eased in the merge and the screen filter, pushed at 20:18 on 2026-11-09, its
-run green at 22:13 with macOS in 45 minutes, Windows in 98 and 115, Linux in 104 and the examples in
-10; it keeps the form. Before it `c23cd2d4`, 226's fourth and last commit, green at 20:15 on
-2026-11-09, whose pack run published 6.2.8 at 21:08, the package 3DEngine, its twelve areas and the
-templates, tagged `v6.2.8`, which settled Verdict 111. The release scene-packs holds
-intel-sponza.pack since 17:58 on 2026-11-09, so ./e3d scenes fetch works. nuget.org holds 6.0.11,
-6.0.14, 6.0.91, 6.1.12, 6.2.8 and 6.2.12, the game pinned to 6.1.12, tagged `v6.1.12` at `8dba0d1c`;
-the version stands at 6.2, tagged `v6.2.0` at `1c3c38d5`. Item 6's three package bumps wait on the
-owner's word since October. Every push and run before `c23cd2d4` since 2026-10-23 stands in
-REVIEW-ARCHIVE.md under Head records.
+first picture, with the shaft's level recorded, committed at 05:47 on 2026-11-10 and on it
+`9c6c8d0e`, 245, the far cascade's band toward the light past the probes weighed around the eye and
+no longer in the cascade's grid, a block in the band stepping 1 to 4 percent at a move where 50,
+committed at 06:15; the two are pushed together once `e86ca5c3`'s run has ended, with a pack run of
+their own; they keep the form. The game reads its shaded ground again on that package. The working
+session was ended at 01:15 on 2026-11-10 by the kernel, a python3 of its own having read its 4.3 GB
+transcript whole into 27 GB beside 18 GB of old frames in /tmp, and was resumed by the owner at
+04:23, its scratch cleared (N 7.10). Before it `adb41aa7`, the example's sponza.turn and
+build/flicker.py, pushed at 01:18 on 2026-11-10, green at 03:44. Before it `94097b62`, 242, a hit
+marching its brightest glow light and gathering the rest as one, pushed at 22:41 on 2026-11-09 with
+241 and 243, green at 00:35, whose pack run published 6.2.12 at 02:34, tagged `v6.2.12`, which the
+game pins since its `cfffcb3`. Before it `ed469e90`, 237, the illumination's cycles eased in the
+merge and the screen filter, pushed at 20:18 on 2026-11-09, its run green at 22:13 with macOS in 45
+minutes, Windows in 98 and 115, Linux in 104 and the examples in 10; it keeps the form. Before it
+`c23cd2d4`, 226's fourth and last commit, green at 20:15 on 2026-11-09, whose pack run published
+6.2.8 at 21:08, the package 3DEngine, its twelve areas and the templates, tagged `v6.2.8`, which
+settled Verdict 111. The release scene-packs holds intel-sponza.pack since 17:58 on 2026-11-09, so
+./e3d scenes fetch works. nuget.org holds 6.0.11, 6.0.14, 6.0.91, 6.1.12, 6.2.8 and 6.2.12, the game
+pinned to 6.1.12, tagged `v6.1.12` at `8dba0d1c`; the version stands at 6.2, tagged `v6.2.0` at
+`1c3c38d5`. Item 6's three package bumps wait on the owner's word since October. Every push and run
+before `c23cd2d4` since 2026-10-23 stands in REVIEW-ARCHIVE.md under Head records.
 
-Next 245, the far cascade's move stepping the light outside the field, 239, the finest cascade's
-arrival, 244, the settings in the units a person types, 238, the caches from e3d, and 235, the
-illumination as its own project, last; 6 waits on the owner's word. The game pins the package of
-`e86ca5c3`'s pack run and reads its shaded ground on it. No budget by Decision 94; the door at 8:00
-the one target by Decision 95; a fault seen in motion is read in motion by Decision 107.
+Next 239, the finest cascade's arrival, 244, the settings in the units a person types, 238, the
+caches from e3d, and 235, the illumination as its own project, last; 6 waits on the owner's word.
+The game pins the package of `e86ca5c3`'s pack run and reads its shaded ground on it. No budget by
+Decision 94; the door at 8:00 the one target by Decision 95; a fault seen in motion is read in
+motion by Decision 107.
 
 REVIEW-ARCHIVE.md beside this file holds, their numbers kept, the items done, the items closed or
 parked, the verdicts settled, Decisions 1 to 93, the Replies before those here and the head records,
@@ -101,7 +103,42 @@ and 177, finer cascades inside a building and a history for the world probes, no
     and not a step; unclamping the kept light for the frames after an arrival is the second, which
     fades leaked light rather than removing it and risks ghosting in a turn that moves cascades, so
     it is taken only where the first does not hold the step under the test's bound. Read on the same
-    script as 237's, the walk-and-turn test holding its settling within five frames. After 240.
+    script as 237's, the walk-and-turn test holding its settling within five frames. After 240. Read
+    at 06:24 on 2026-11-10, a cut in Sponza from the atrium to the door at noon with the exposure
+    held, every frame of 400, and the read turns the first lever around. The door's mean stands at
+    8.8 of 255 for the five frames before the finest cascade arrives, some 70 times its settled
+    0.13, falls to 3.75 as it arrives with 63 percent of the pixels moving by 4 or more, to 2.5 at
+    the twelfth frame and 0.23 at the twenty-eighth, rises to 0.70 at the forty-fourth and is
+    settled from the sixtieth. So the arrival is a correction, the vestibule lying before it in the
+    coarser cascades, which take the court's sky, and to start the finest cascade from the light of
+    the cascade above would hold the wrong, bright light a cycle longer. The longer fault is the
+    fall over sixty frames, the light past the first bounce reading the shown light and the eased
+    cycles carrying the bright ones on bounce by bounce. So the lever taken first is a cascade that
+    arrives or moves past its whole box counted as a change for its probes, their cycles beginning
+    with no ease from a whole cycle before, so the shown light and the bounces follow the new probes
+    within a cycle a bounce; it touches no cascade that moves by cells in a walk, so 237's mend
+    stands. It is judged by the frames to settle after this cut, 237's walk-and-turn test, and a
+    turn in the atrium by build/flicker.py reading no worse. Where the five frames before the
+    arrival still flash, the finest cascade is built first after a cut, the second lever. 245's
+    remainder, the far probes' light after a move, is read by the same measure. The second read at
+    06:38, the same cut with parts turned off before it, sets the lever above aside, every cascade's
+    build counting as a change already so that nothing eases from a cycle before the cut. Two parts
+    show. With the screen probes off the door holds 5.5 flat until the twenty-second frame and steps
+    to 0.12 at the twenty-fourth, so the world's probes hold the wrong bright light for some 22
+    frames, the field's builds and the probes' first cycle, and then step right. With the screen
+    probes on and their history off it settles at the twenty-fourth with no rise, so the rise to 1.0
+    at the fortieth and the fall by the fifty-sixth are the screen probes' history easing in a cycle
+    gathered while the world's probes were wrong. Three trials are reverted, the merge's cycle begun
+    again at the settling frames, settled at the seventy-seventh, a settling window of 32 frames for
+    the screen probes, no change, and the screen filter's first whole cycle easing from itself,
+    settled at the seventy-second; the arrival itself varies from the fifth to the tenth frame from
+    run to run. By Decision 95 two reads are in, so one mend is tried and the rest recorded. The
+    mend is the first part's, the cascades a cut needs built sooner, the finest first and the
+    builds' budget lifted for the frames until it stands, judged by the frame at which the world's
+    probes step right, 22 today, and by the door's curve after it, with one line a frame logged for
+    the builds and the cycles' phases as part of that measure. Where the rise from the screen
+    probes' history still stands after it, their kept light dropped at the frame the world's probes
+    step is tried once; what then remains is recorded with these figures, and 244 follows.
 
 240. **Bands on thin shafts from the screen probes.** From the owner's recording of 2026-11-09 at
     18:04 and item 237's read of it. On the atrium's octagonal shafts the screen probes' 8-pixel
@@ -289,7 +326,18 @@ and 177, finer cascades inside a building and a history for the world probes, no
     there before, which 239's lever does not reach since no cascade lies above the far one. The test
     is a surface outside the field above open land with the far cascade on, its light steady within
     a bound across a move of a cell and the frame after it (Decision 107), and the game's walk
-    recorded again at the next pin. After 240, before 239.
+    recorded again at the next pin. After 240, before 239. Read and mended at `9c6c8d0e` on
+    2026-11-10. The far cascade's band of eight cells toward the light past the probes was weighed
+    in its grid, whose corner snaps eight cells at once, so a surface in the band crossed the whole
+    blend in one frame and stayed there, a block 46 units ahead along a walk reading half its light
+    more at the move and blocks 30 to 58 ahead 7 to 50 percent, nothing above the cascade. farHold
+    in cascades.slang weighs the band around the eye, its outer side half a snap inside the cascade
+    and held to the cascade's sides by a cell while it waits to follow, and those blocks step 1 to 4
+    percent at the move and follow the walk; the test holds a surface in the band within 0.1 across
+    a move where the head's shaders read 0.50. What remains is the far probes' own light after a
+    move, every probe traced anew, a block inside the cascade rising 5 percent for three frames and
+    settling 2 under where it stood, recorded, which an ease from the cascade's former light would
+    reach under 239. The game records its walk again at the pin that carries it. Done at `9c6c8d0e`.
 
 ## Verdicts
 
@@ -591,6 +639,29 @@ a cell while it waits to follow the eye (`farHold` in `cascades.slang`), and tho
 4% at the move and follow the walk smoothly. The test is the block at 46 units, its light within a
 tenth over the move's frame and the two after it, which reads 0.50 without the mend. What remains is
 the far cascade's probes' own light after a move, every probe traced again, a block inside the far
-cascade rising 5% for three frames and settling 7% under, and one in its upper band dipping 1.8% for
+cascade rising 5% for three frames and falling back to 2% under, and one in its upper band dipping 1.8% for
 two frames; an ease from the light the moved cascade held before would reach it, which 239's lever
 does not, since no cascade lies above the far one. The game's walk is recorded again at the next pin.
+
+Item 239, read and mended on 2026-11-10. A cut from the atrium to the door at noon, the exposure
+held, read the door at a mean of 8.8 for the five frames before the finest cascade it went past
+arrived, about 70 times the 0.13 it settles at, 2.4 to the twentieth frame, a step to the right
+light, then a rise to 1.0 at the fortieth and back by the sixtieth. With the screen's probes off
+the world's probes stood at 5.5 to the twenty-second frame and then settled, and with the screen's
+kept light off the rise was gone. Every cascade build counts as a change already, so no cascade's
+cycle eased from one before, and (b) as agreed did not apply; three trials were reverted, the
+merge's cycle begun again once the settling frames end (settled at the seventy-seventh frame), a
+settling of two cycles for the screen's probes (no change) and the screen's first whole cycle
+eased from itself (the seventy-second). The mend is (a): while a cascade the eye went past by its
+whole box waits for its build, each frame takes every cascade and the triangle budget at its most
+raise (`SceneFieldPlan.Builds.cs`). The door reads 2.6 in the cut's frame and its settled light
+from the fourth frame on, with no rise, so the screen's kept light needed no change
+(`.github/dump/2026-11-10/10-40-item-239-cut-settling.png`). The test is a plan of 500 sections
+under a budget of 16,384 cut 40 units along, the first two cascades built in the cut's frame where
+in eight, and a walk of a snap after it under the budget. Under the GPU's lock on powersave-bazzite,
+Sponza's slowest frame in the 40 after a cut takes 25 to 40 ms where 15 to 18, the field's build up
+to 22 ms of the GPU, for the frames the build lasts. A turn and a walk move no cascade past its
+box and are untouched, and so is the far cascade's snap, whose probes' own light after a move
+stands as 245 recorded it. The field's whole-field test moved its eye 30 units, past the finer
+cascades' boxes, to see the field stay whole while the move's builds ran over frames, which the
+lift now builds in one, so it moves the eye 12 units, a shift, whose builds still run over frames.

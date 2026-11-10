@@ -249,4 +249,41 @@ public sealed partial class SceneFieldTests
         }
         plan.TriangleBudget.Should().Be(budget);
     }
+
+    [Fact]
+    [Trait("Category", "Unit")]
+    public void A_Cut_Past_The_Finer_Cascades_Boxes_Builds_Them_At_Once_And_A_Walk_Keeps_The_Budget()
+    {
+        // The sections built under a small budget, then the eye cut 40 units along, past the first
+        // two cascades' boxes of 16 and 32 units. Built under the budget, the cut's view lay in the
+        // coarser cascades over the frames the finer ones took, which hold none of a room's walls,
+        // as Sponza's vestibule took the court's sky after a cut to its door. A walk of a snap after
+        // it keeps each frame under the budget.
+        const int budget = 16_384;
+        var plan = new SceneFieldPlan(4, 0.25f, 4, triangleBudget: budget, triangles: _ => SectionTriangles);
+        var eye = new Vector3(0, 2, 0);
+        var drawn = AllSections();
+        for (int frame = 0; frame < 400 && !plan.Built; frame++)
+            plan.Update(eye, drawn);
+        plan.Built.Should().BeTrue("the sections are built before the cut");
+
+        eye += new Vector3(40, 0, 0);
+        var frames = 0;
+        do
+        {
+            plan.Update(eye, drawn);
+            frames++;
+        }
+        while (frames < 50 && (plan.BuiltOrigin(0) != plan.OriginAround(0, eye) || plan.BuiltOrigin(1) != plan.OriginAround(1, eye)));
+        frames.Should().Be(1, "the cascades the cut went past are built in its frame");
+
+        for (int frame = 0; frame < 400 && !plan.Built; frame++)
+            plan.Update(eye, drawn);
+        for (int step = 0; step < 8; step++)
+        {
+            eye += new Vector3(0.5f, 0, 0);
+            plan.Update(eye, drawn);
+            plan.Spent.Should().BeLessThanOrEqualTo(budget, "a walk's shifts keep the budget");
+        }
+    }
 }

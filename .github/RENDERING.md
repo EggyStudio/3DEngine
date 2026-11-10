@@ -3256,8 +3256,28 @@ width at the cascade's sides holds it to the cascade while one waits to follow t
 (`farHold` in `cascades.slang`). The same blocks step 1% to 4% at the move and follow the walk
 smoothly (`GlobalIlluminationTests`). What remains is the far cascade's probes' own light after a
 move, every probe traced again in that frame. A block inside the far cascade, past its band, rises
-5% for three frames after the move and settles 7% under where it stood, and one in its upper band
+5% for three frames after the move and falls back to 2% under where it stood, and one in its upper band
 dips 1.8% for two frames, which an ease from the light the cascade held before would reach.
+
+**A cut's builds, read and mended on 2026-11-10.** A cut from Sponza's atrium to its door at noon,
+the exposure held, read the door's frame at a mean of 8.8 for the five frames before the finest
+cascade it moved past arrived, about 70 times the 0.13 it settles at, then 2.4 until the twentieth
+frame, and after a step to the right light it rose to 1.0 at the fortieth and fell back by the
+sixtieth. The cascades the cut went past were built under the triangle budget over frames, the
+view lying meanwhile in coarser cascades that hold none of the vestibule's walls and give it the
+court's sky. With the screen's probes left out the world's probes stood at 5.5 until the
+twenty-second frame and then at the light settled, and with the screen's probes' kept light left
+out the rise was gone, their first whole cycle gathered from the frames before the world's probes
+stepped right and eased in. The carried probes' cycle begun again once the settling frames end
+took the door to its settled light at the seventy-seventh frame, a settling of two cycles for the
+screen's probes changed nothing, and the screen's first whole cycle eased from itself took it to the
+seventy-second. Each frame now takes every cascade and
+the triangle budget at its most raise while a cascade the eye went past by its whole box waits for
+its build (`SceneFieldPlan.Builds.cs`), and the door reads 2.6 in the cut's frame and its settled
+light from the fourth on, with no rise. Sponza's slowest frame in the 40 after a cut takes 25 to 40
+ms where 15 to 18, the field's build up to 22 ms of the GPU on the RTX 4070 on powersave-bazzite,
+for the frames the build lasts; a walk's shifts keep the budget (`SceneFieldTests`). A far cascade
+moved by a snap keeps the budget too, so its probes' own light after the move stands as 245 left it.
 
 **The vestibule's end wall, read on 2026-11-07.** In the door view at 8:00 at High the wall facing
 the court read 1.55 of a path-traced reference's light, the door in it 2.08 and the side wall facing

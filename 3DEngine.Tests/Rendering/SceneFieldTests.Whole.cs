@@ -33,8 +33,9 @@ public sealed partial class SceneFieldTests
         plan.Whole.Should().BeTrue("the sections are built into every cascade");
         building.Should().BeGreaterThan(1, "the budget spread the first build over frames, the field not whole through them");
 
-        // The eye carried past the cascades, which are built again around it over frames.
-        eye = new Vector3(30, 2, 0);
+        // The eye carried along by less than the finest cascade's box, so the cascades shift and are
+        // built again around it over frames, where a cut past a box builds them at once.
+        eye = new Vector3(12, 2, 0);
         var again = 0;
         for (int moved = 0; moved < 400 && (moved == 0 || plan.Waiting > 0 || plan.Builds.Count > 0); moved++)
         {

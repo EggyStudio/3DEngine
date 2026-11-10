@@ -209,6 +209,9 @@ internal sealed partial class SceneFieldPlan
     private readonly Vector3?[] _built;
     private readonly long[] _builtFrame;
     private readonly bool[] _dirty;
+    // The cascades the eye has gone past by their whole box since they were last built, as a cut
+    // takes it, each until its whole build ends, which the builds' budgets are lifted for (Splat).
+    private readonly bool[] _jumped;
     // The box around the meshes that came or went within each cascade since it was last built.
     private readonly Box?[] _changed;
     // How many shapes come within each brick of each cascade this frame and the frame before, the
@@ -269,6 +272,7 @@ internal sealed partial class SceneFieldPlan
         _built = new Vector3?[Cascades];
         _builtFrame = new long[Cascades];
         _dirty = Enumerable.Repeat(true, Cascades).ToArray();
+        _jumped = new bool[Cascades];
         _changed = new Box?[Cascades];
         _regions = new Box?[Cascades];
     }
@@ -529,7 +533,13 @@ internal sealed partial class SceneFieldPlan
             Array.Fill(_dirty, true);
         }
         for (int c = 0; c < Cascades; c++)
-            if (_built[c] != OriginAround(c, eye)) _dirty[c] = true;
+        {
+            var around = OriginAround(c, eye);
+            if (_built[c] == around) continue;
+            _dirty[c] = true;
+            if (_built[c] is { } built && Vector3.Abs(around - built) is var apart && MathF.Max(apart.X, MathF.Max(apart.Y, apart.Z)) >= Resolution * CellOf(c))
+                _jumped[c] = true;
+        }
         var rebuilt = Splat(eye);
         _mostSplatted = Math.Max(_mostSplatted, Splatted);
 
