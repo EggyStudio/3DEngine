@@ -411,8 +411,12 @@ a quarter of an hour and keep the lock's descriptor, as 14 of them held it for 1
 2026-11-10. A look at `nvidia-smi` is no turn, since another session's program can start a second
 after it, and three readings were spoiled so within an hour on 2026-11-09. A program served for a
 reading is stopped as soon as its pictures and numbers are taken, and the files are read with it
-stopped. A session whose wait grows long tells the reviewing session in a line, which gives the
-order, an engine's illumination read first. By review.
+stopped. A script stopped under the lock ends its programs too, since a program left running keeps
+the lock it inherited, as a served example held it for 70 minutes after its trial was stopped on
+2026-11-10 with its own session's suite waiting behind it; after stopping one, `lslocks` is read,
+and a run that has not started within a few minutes is looked into and not waited on. A session
+whose wait grows long tells the reviewing session in a line, which gives the order, an engine's
+illumination read first. By review.
 
 **N 7.10 A session leaves the machine its memory.** The machine's memory ran out three times, the
 last on 2026-11-10, when one line of Python read a session's transcript of 4 GB whole and grew to 27

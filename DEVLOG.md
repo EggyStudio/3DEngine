@@ -10,6 +10,7 @@ of .github/REVIEW.md or .github/REVIEW-ARCHIVE.md and the commit that closed it.
 
 Done that day
 
+- Item 235 at `0747c6ca`. The global illumination as its own project.
 - Item 238 at `32e4407c`. The caches listed and cleared from e3d.
 - Item 239 at `f68075f1`. The finest cascade's arrival after a cut.
 - Item 240 at `f77e4cf4`. Bands on thin shafts from the screen probes.
@@ -17,6 +18,7 @@ Done that day
 - Item 245 at `9c6c8d0e`. The far cascade's move steps the light of what stands outside the field.
 - Item 247 at `ae62fa22`. The night door's picture differs between two runs of one build.
 - Item 249 at `26ba652f`. The Linux job at 141 of its 150 minutes.
+- Item 251 at `1aa4c5d8`. After a cut the raised budget holds while a program's meshes still arrive.
 
 ## 2026-11-09
 

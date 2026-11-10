@@ -440,7 +440,9 @@ void computeMain(uint3 id : SV_DispatchThreadID)
             float3 arrived = glowLightIrradiance(light, p, gn, glowMargin) * faded;
             if (luminance(arrived) * 8.0 >= glowTotal)
                 levels |= uint(glowLightShown(sceneField, fieldInfo, light, q, gn, glowCell) * 255.0 + 0.5) << uint(j * 8);
-            else
+            // A faint light that sends nothing to the probe is not marched to, since what it sends
+            // is the march's weight.
+            else if (any(arrived > 0.0))
                 faint += arrived * glowLightSeen(sceneField, fieldInfo, light, q, gn, glowCell);
         }
         glowSeen[first + uint(word)] = levels;

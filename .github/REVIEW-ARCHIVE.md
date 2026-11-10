@@ -9778,6 +9778,154 @@ batch.
     voxel game's product becomes SetSceneFieldAhead(0.5f) at its next pin; the suite 2,321. Done in
     four commits, `c9e39823`, `bfffbbc4`, `d622ea09` and `4fb868ca`.
 
+235. **The global illumination as its own project.** From item 225's split on 2026-11-09. The plan
+    names Engine.Rendering.GlobalIllumination as a project on Rendering, and at the split the
+    illumination stays in Engine.Rendering, since the model pass, the renderer's registration, the
+    fog, the lighting buffer, the glow lights, the ambient occlusion, the bloom, the HDR and target
+    nodes, the render plugin and the scene field's commands bind its types. The cut series that
+    frees it begins with the binding types, the illumination binding, the read side of the GPU
+    illumination and the screen probes, the screen glow and the settings, moved down into Rendering;
+    the illumination's nodes and renderers registered by a plugin of its own; the model pass reading
+    the binding alone; then the project. After 226 and the live path, when the illumination's items
+    rest; each cut its own commit with the suite, the public types' namespace Engine throughout. The
+    plan of 2026-11-10 in the Replies is approved, five cuts each with the suite, the binding moved
+    down, the passes through an interface, a plugin of the illumination's own, the model pass on the
+    binding alone, then the project, the flat package depending on it as on the twelve and AGENTS.md
+    gaining only N 1.5's row. The first cut is `66301da6`, IlluminationBinding, TargetIllumination
+    and GpuIllumination in files of their own, the screen probes' making behind
+    GpuScreenProbes.Create, and a static Illumination holding the sizes and tables the ambient
+    occlusion, the bloom, the model pass, the fog and the lighting buffer read; GlowOnly and the
+    history's view go through the second cut's interface and not a frame record, the lighting buffer
+    reading the frame before's as it did; the suite 2,325, the listing unchanged. The second cut is
+    `dd0adff0`, IIlluminationPasses in Rendering carrying GlowOnly, the history's view, TracesRays,
+    KeepFrame and DrawTarget, the renderer set under it in the render world, so the HDR nodes, the
+    targets' node and the lighting buffer name no renderer; the suite 2,325. The third cut's shape
+    is agreed, a renderer part a plugin adds before the renderer starts, which the renderer calls to
+    load its shaders, add its nodes and dispose, since the renderer starts after the plugins build.
+    The third cut is `c53bcc2c`, IRendererPart with the renderer's AddPart, GlobalIlluminationPlugin
+    with the settings from config, their extract and the part, listed after RenderPlugin, the part
+    loading the gi shaders and setting the renderer, the passes, the bounce view and a probes' view
+    the bloom draws through, its node placed by edges. Its first suite failed 165 tests, no probe
+    traced offscreen, since an offscreen run's renderer starts inside RenderPlugin's own build,
+    before the part is added; AddPart starts a part at once where the renderer has started, and the
+    plugin's test, which had held only that no plugin draws as the illumination off, holds too that
+    the default plugins at High have the node, trace probes and draw another frame; the suite 2,326
+    on its second run. The fourth cut needed no code, a search of every project for the renderer,
+    the stages, the reference, the trace, the node and the bounce view's renderer finding them
+    outside the illumination's files in the root's E3D.GlobalIllumination.cs alone, the model pass
+    on the binding since the first cut. The fifth is `0747c6ca`, the project
+    3DEngine.GlobalIllumination on Core, Diagnostics, Graphics, Assets and Rendering, holding the
+    renderer, its parts and node, the stages, the reference, the plugin, the bounce view's renderer
+    and node and the gi commands split from the scene field's, the BounceView type staying in
+    Rendering for the settings and the shaders where they are staged; the root references it, so the
+    flat package depends on it, a local pack carrying it and naming it as a dependency, the pack
+    script taking every project by search; its public listing is empty, the norm places it in the
+    layer above Rendering, and AGENTS.md has N 1.5's row alone; the suite 2,327. Done in four
+    commits, `66301da6`, `dd0adff0`, `c53bcc2c` and `0747c6ca`.
+
+238. **The caches listed and cleared from e3d.** From the owner's question of 2026-11-09, whether an
+    old cache of shaders keeps the picture old. The shader cache is keyed by the source's hash, the
+    entry point, the stage and the compiler's version, so a changed shader is compiled anew, and the
+    driver's pipeline cache is validated by the driver; neither can serve an old shader, which the
+    record says. What the owner lacks is a way to see and empty them, an e3d command, cache, that
+    lists the engine's cache folders under the user's cache with their sizes, the shaders, the
+    pipelines and the scene packs by version, and cache clear that deletes them, the next run
+    compiling anew; with it, a read of the pipeline cache's growth, since the examples' blob stands
+    at 471 MB on the owner's machine, whether a run merges the driver's cache back whole each time
+    or trims it, and a bound where it grows without one. Small, after 237. From 237's cold run on
+    2026-11-09, the blob is written at the device's dispose alone, so a run that ends otherwise
+    leaves its pipelines unwritten and the next run makes them again in seconds mid-frame, as the
+    owner's two did; the read takes in when the blob is written, after a frame that made pipelines
+    or at intervals as well as at dispose, and how a blob reaches 471 MB, whether the driver's cache
+    is merged back whole each run. Read and done at `32e4407c` on 2026-11-10. In a cold cache each
+    version of a shader adds about 1.9 MB of pipelines and 3.8 MB of compiled shaders and nothing
+    was ever removed, a second run leaving both as they were, the owner's examples holding 63 MB of
+    pipelines and 120 MB of shaders since the evening before; the pipeline file was written at
+    dispose alone. The command cache lists the shaders and the pipelines by version and program and
+    the scene packs, with sizes; cache clear removes the shaders and the pipelines, said as what a
+    run compiles again, and each alone by name; cache clear scenes deletes the fetched packs and
+    says that e3d scenes fetch downloads them again, with their size; clear all is refused, so no
+    general clear takes a download with it. The pipelines are written after 120 quiet frames that
+    follow frames that made some, as well as at dispose; a shader read from the cache is touched and
+    a run's first compile sweeps the entries untouched for 14 days from the engine's own folder
+    alone; a pipeline file over 256 MB is read as empty and logged. The pipeline test of a second
+    run leaving the file as it was failed once in a filtered run beside the Slang compiler's tests
+    and passed since, watched. Done at `32e4407c`.
+
+247. **The night door's picture differs between two runs of one build.** From 244's first commit on
+    2026-11-10. scenes_sponza's door at 20:00 with the lamps on reads 2.98 levels on the mean
+    between two runs of the same build, where the head against the new build reads 0.87 and the noon
+    view 0.38, so a mend's reading there is under the run's own spread and a capture of it compares
+    poorly. One bounded read of where the spread lies, the lamps' pools, the bloom or the metered
+    exposure, and which state differs between the runs, the frames to the capture, the field's
+    builds or the exposure's history, with the pair and its difference by N 4.9. Where one state
+    carries it the mend makes the picture the same from run to run within a level; where it is the
+    metered exposure settling, the capture's wait is the mend. After 244's parts, before 238. Read
+    at 09:45 on 2026-11-10. The spread is the meter's and not the light's. Held at a set exposure
+    the frame reads the same to a hundredth of a level whether the run is unpaced or at 30 frames a
+    second, 183.79; metered, the exposure adapts by the time between frames and comes to rest at a
+    point that moves with it, 109.6 unpaced and 116.5 at 30 frames a second after 2,400 frames, and
+    110.6 against 116.5 with the two speeds alike, so the speeds' difference is not the cause. The
+    likely one, untested, is the histogram's bins of half a stop leaving a band the exposure may
+    rest anywhere in. So the mend, after 248, is the followed exposure coming to rest at one point
+    whatever the frames' pace, the bins read between or the target sought without a band of rest,
+    with a test that an unpaced run and one at 30 frames a second settle within a level of each
+    other. Mended at `ae62fa22` on 2026-11-10, and the bins were not the cause, Sponza using no
+    histogram. The adapted log of the luminance lived in a half float, a step of 1/128 between 8 and
+    16 stops, so a frame's step toward the meter under half that step rounded back and the exposure
+    rested short of its meter, the further the faster the frames, the door by night at -8.72 to
+    -8.75 unpaced and -8.93 at 30 frames a second. The two adapted texels are 32-bit floats with a
+    pipeline of their own, and the door reads 122.77 at 2,400 frames at both paces, 0.08 apart. The
+    test follows a dark scene from a bright one for three seconds unpaced and at 30 frames a second
+    within a level, the half float reading 142 against 146. Metered Sponza, which had rested short,
+    reads 5.2 levels brighter on the mean, its two captures and the gallery taken again; the
+    README's showcase of 243 stays as it is, 5 levels under, until a change that moves Sponza's look
+    by more. Done at `ae62fa22`.
+
+249. **The Linux job at 141 of its 150 minutes.** From 235's fifth cut on 2026-11-10. The push run's
+    Linux job took 104, 105, 135, 137 and 141 minutes over the day's runs against a limit of 150,
+    nine minutes of room on runners whose processors differ by a third, and a job that meets its
+    limit turns every push red with nothing wrong in the code. One read of where the minutes go,
+    from the digest and the job's steps, then the split the Windows job has since 183 and 234, two
+    halves by the tests' folders with a limit each from the measurement in the commit's description
+    (N 3.5), or the largest step cut where the read finds one. A workflow change with its reading,
+    before anything else. Read and cut at `26ba652f` on 2026-11-10. Of the 140.8 minutes of
+    `4fb868ca`'s Linux job 1.4 are the build and 138.6 the tests, the suite run twice, in order in
+    71 minutes and shuffled in 67, the second after the first passed. The job is a matrix of two
+    legs running at once, the order's and the shuffled's, neither ending the other, each held to 120
+    minutes against some 75 with its setup, build/test.py keeping its suite's 90 minutes and gaining
+    a shuffled-only pass that refuses without a seed; each leg uploads its own digest and results
+    and the jobs that needed the one wait on both. The shuffled run no longer waits for the suite in
+    order to pass, each failure reported by its own leg. The first push shows each leg's time. Done
+    at `26ba652f`.
+
+251. **After a cut the raised budget holds while a program's meshes still arrive.** From the voxel
+    game's ask of 2026-11-10 in ASKS.md, read on 6.2.17 for its item 166. After a teleport of 150
+    blocks into the game's grove 22 to 26 percent of the window lies past 12 levels from the settled
+    view, the shaded ground lit as if open, until it falls in one frame at the 35th to the 77th
+    frame over five runs. The engine lifts every cascade and 16 times the triangles a frame after a
+    cut until the cascades the eye went past are built, and the sections the game meshes as the view
+    comes in arrive after that, as changes under the base budget, 1.31 million triangles being 40
+    frames of it. Held at four times the base the mean lies within 2 levels from the seventh frame,
+    at 1.41 ms of the field's pass against 1.01 over the frames after the cut; a game cannot raise
+    the budget for a second alone, a changed budget making the field again. So the lift holds for a
+    time after a cut while changes still arrive in the near cascades, or until a frame brings none,
+    and a budget changed through SetSceneField no longer makes the field again where the cascades
+    and the cell stand as they were. The test cuts into a place whose meshes arrive over the frames
+    after and holds the settled light within a bound by the tenth frame, and holds a changed budget
+    keeping the field. A respawn in the game is sound already, its sections meshed before the move.
+    After 250's read. Done at `1aa4c5d8` on 2026-11-10 in three parts, each with a test that fails
+    without it. The lift after a cut holds until 30 frames in a row bring no mesh and leave nothing
+    to build, 300 at most, 500 sections arriving over ten frames after a cut built within the settle
+    of the last. SetSceneField with the budgets alone changed keeps the plan and the field on the
+    device, a changed cell making it again as before. And a fault the test laid bare, older than the
+    item, a mesh that settled while a region's build ran being taken into the build while the
+    cascade's built frame stayed at the gather's, so that with the eye still it stayed pending for
+    good and the field never counted as whole, which field.wait and the carried rays go by; the
+    cascades each pending mesh was built into are recorded. The test reads the plan's builds and not
+    the light, so the grove's light after a teleport is read by the game on the package that carries
+    it. The suite 2,333 in order and shuffled; SceneFieldPlan.cs stands at 800 lines.
+
 ## Verdicts settled
 
 Verdicts 1 to 55 are settled, the last two, the drawing leak test's resident bound and the Windows
@@ -11590,6 +11738,72 @@ at `36cae0c2`.
     games job's header saying why. Settles on the pack run of a commit carrying it with its captures
     and games jobs green and the package published. Settled on the pack run of `c23cd2d4`, green at
     21:08 on 2026-11-09 with its captures and its games jobs green and 6.2.8 published.
+
+112. **The Windows half 1 of `dd0adff0` is red by 238's pipeline test, the file not written after
+    the quiet frames.** The build run 42810415005, pushed at 12:48 on 2026-11-10, has its first
+    Windows half red after 96 minutes with 268 passed, 1 failed and 13 skipped, macOS and the second
+    half green and Linux still going at 14:59. The one failure is PipelineCacheTests' test that the
+    pipelines are written once 120 frames after those that made them made none, its file not there
+    at line 64, on the runner's lavapipe under the validation layer; it passed on this machine in
+    the suite, and once failed here in a filtered run beside the Slang compiler's tests, which the
+    session was watching. The pack run started on the same commit runs the same half, so it turns
+    red too and publishes nothing. The mend comes before 250. First the cause from the job's output
+    for the Graphics part, whether the device there makes a cache of no bytes, which the write
+    skips, or the frames that made pipelines run on past the test's 130 on a device that compiles
+    for seconds, or the write failed; then the test holding on what the device does, waiting on the
+    condition and not on a count of frames where the device is slow, or the write made where the
+    cache is empty too, with a line logged saying which. One commit; `c53bcc2c`, `0747c6ca` and
+    `26ba652f` wait for it and go out with it, and the pack run follows that push. Written at 14:59
+    on 2026-11-10. The cause is read on 2026-11-10, lavapipe keeping nothing past the header in a
+    Vulkan pipeline cache, which the write rightly skips under 32 bytes, the test failing the same
+    way on lavapipe here; the engine was sound. The device says whether its cache holds anything,
+    the skip is logged once, and the test draws until the file is written or 130 frames have made no
+    pipeline and then holds the file there where the cache holds pipelines and absent where it holds
+    none. The run's Linux leg passed the test, its lavapipe keeping a cache, in 147 minutes of its
+    150, which 249's two legs answer. Mended at `40c00405`, pushed at 15:36 on 2026-11-10 with the
+    three that waited; settles when that push's first Windows half is green. The mend's own test is
+    red on both Linux legs of `40c00405`'s run, read at 16:57, 2,242 passed and 1 failed in each, in
+    54 and 75 minutes, macOS green and the Windows halves going. There the device answers that its
+    cache holds nothing past its header and the file is there all the same, line 74, so the rule the
+    write goes by and the answer the device gives part at a cache the size of its header or near it,
+    which Linux's lavapipe has. One rule for both, the write made where the device says the cache
+    holds pipelines and nowhere else, with the test's two cases reading the same answer; it goes in
+    the commit of Verdict 113's hardening. The one rule is in at `8da28e48`, pushed at 18:17, the
+    size read under the cache's lock, the cache holding pipelines where it is past the header's 32
+    bytes and written then alone; settles where that push's Linux legs and its first Windows half
+    are green. Settled at 19:45 on 2026-11-10, both Linux legs and both Windows halves of
+    `8da28e48`'s run green.
+
+113. **The pack run of `dd0adff0` is red in its games job too, Siege no longer answering while its
+    process runs.** In the pack run 42810414816 the games job failed after 40 minutes at the step
+    that builds and plays Siege from the package, on a Xeon Platinum 8573C drawing by lavapipe.
+    Siege served after a second, took its clock and its first throw, and then `siege.status` found
+    no serving app while process 15000 still ran, its log ending 15.6 seconds in with the screen's
+    state gone from Aim to Swing to Flight; a program that runs and no longer answers has stopped
+    its frames or its command server. The games before it in the job passed. The commits this run
+    packs for the first time are 244's bloom kind and exposure bounds, 247's adapted texels, 238's
+    pipelines written while a program runs and 235's first two cuts, and of these 238's write stands
+    nearest, made after 120 quiet frames on a device whose cache holds bytes, which Linux's lavapipe
+    does where Windows' does not, so the write happens there in the middle of a served run. One read
+    first, Siege built from a local package and driven by build/drive-game.sh under lavapipe on this
+    machine, to see whether it stops answering and in which call it stands, the pipelines' write, a
+    lock held across it or another of the four; then the mend with a test that a served program
+    answers a command in the frame after its pipelines were written. No pack run is started before
+    it. Written at 15:36 on 2026-11-10. Read on 2026-11-10, Siege from a local package driven on
+    lavapipe four times, three of them on four cores with cold caches, played through and won each
+    time, so the fault is not reproduced; and a frozen program leaves its session file, which e3d
+    would take, so a freeze alone does not explain the missing session. Hardened at `8da28e48` with
+    the cause inferred and not seen, one lock of the device's over every use of the driver's cache,
+    creation and the read for the write alike, two lines logged as the write begins and ends, a test
+    that the write waits for a compile in flight and a served program answers in the frame after,
+    and e3d's error naming the sessions folder and each file it passed over with its pid, its
+    heartbeat's age and why, the driving script listing the folder beside it. Settles where the pack
+    run started on it at 18:17 plays its games through; where a game stops answering again, that
+    run's page says which file it saw. Settled on 2026-11-10. The pack run 42863432544 on `8da28e48`
+    ended green at 21:30, its games job in 56 minutes with Siege played through and the first
+    Windows half playing every game from the package; 6.2.30 is published and tagged `v6.2.30`. The
+    cause stays inferred and not seen, and where a game stops answering again the fuller account of
+    the sessions folder says which file the driver saw.
 
 ## Decisions
 
@@ -14763,6 +14977,269 @@ around the camera as by default, where `SetSceneFieldCenter` gives no point, a g
 first; `GetSceneFieldAhead` follows. The voxel game's `64 * CellSize / 2` is `SetSceneFieldAhead(0.5f)`
 at its next pin (its item 167). The test holds the field's point after a frame at 0.5 within a
 thousandth of the eye plus the way ahead times 64 cells of 0.15 over 2, and a given center first.
+
+Verdict 112, on 2026-11-10. The test 238 added, the pipelines' file written after quiet frames,
+found no file on the first Windows half's lavapipe. Run here on lavapipe (VK_DRIVER_FILES naming its
+manifest), the test as committed fails the same way with Mesa's shader cache on and off, so the cause
+is the first named: lavapipe keeps no pipelines in a Vulkan pipeline cache, which gives its header or
+less, and the write skips a cache of under 32 bytes, as the class's older test already allows; frames
+running on past 130 were not it. The device now says once in the log that its driver's cache holds
+nothing past its header and no pipelines are written (`PipelineCacheHolds`), and the test draws until
+the file is written or 130 frames have made no pipeline on a driver whose cache holds nothing, at most
+1,000, and then asks the device which: where it holds pipelines the file must be there and the bound
+is read, and where it holds none no file must be. The class passes on the RTX 4070 and on lavapipe,
+with Mesa's cache on and off.
+
+Verdict 112 again, on 2026-11-10. On 40c00405's run both Linux legs failed the mended test's other
+case, the device saying its cache held nothing and the file there all the same. The write took the
+cache's data where the driver gave 32 bytes or more and it differed from what was read, and
+PipelineCacheHolds answered by more than 32, so a cache of the header alone, as the runner's
+lavapipe gives, was written while the device said it held nothing. Both now go by one rule, the
+driver's size of the data asked once under the cache's lock: the cache holds pipelines past its
+header of 32 bytes, and the write is made where it does and nowhere else, its data taken only where
+what the driver filled still holds more than the header. The class's second test reads the same
+answer, from the run before it closes, in place of the file being as it was. Here lavapipe fills
+fewer than 32 of the bytes it asks for, so the rule as it was passes here; the runner's two legs are
+the case it failed.
+
+Item 247, read on 2026-11-10. The night door's spread between two runs of one build is the meter's
+and not the light's. The two shots differ by one scale over the whole frame, the second 3% darker
+in the dark tones and 1.7% in the bright, the curve bending it. Held at a fixed exposure
+(`sponza.metered off`, `SetExposure(256)`), runs unpaced and at 30 frames a second read the same
+frame to the hundredth, 183.79 on the mean at 2,400 frames. Metered, the exposure adapts by the
+wall clock's time between frames (`Bloom.Exposure.cs`), so after 400 frames a run drawn in 6.9 s and
+one in 10.6 s stood 113.5 and 119.7, and it settles at a point that depends on that time too:
+unpaced 109.6 and at 30 frames a second 116.5 after 2,400 frames, and with the speeds made even,
+1 and 1, 110.6 and 116.5, so the asymmetry of brightening and darkening is not the cause. A meter
+whose resting point moves with the frame's time a twelfth of a stop is what reads as the spread; a
+mend would find whether the histogram's half-stop bins leave the adapted exposure a band to rest
+anywhere in, approached at a step its time sets. Parked behind 248 as asked, with the figures here.
+
+Item 247's mend, on 2026-11-10. The exposure that follows the scene kept its adapted log2 luminance
+in a half float, whose steps are a 128th of a stop between 8 and 16 stops from 1, and moves it a
+share of its way to what it measures each frame by the time between frames. Where a frame's step
+came under half a step of the half float it rounded back where it stood, so the exposure came to
+rest short of the scene by up to the step over twice the frame's share, further the faster the
+frames came: read back, Sponza's door by night rested at -8.72 to -8.75 unpaced, still creeping,
+and at -8.93 at 30 frames a second. The two adapted texels now hold floats of four bytes, drawn by a
+pipeline of their own (`Bloom.Exposure.cs`). The door by night then reads 122.77 on the mean at
+2,400 frames unpaced and at 30 frames a second alike, 0.08 levels apart, where 109.6 and 116.5, and
+alike at 400 frames, 122.04 and 122.06. The test (`FrameEffectsTests`) follows a dark scene near -10
+from a bright one at a speed of 3 for three seconds of the clock unpaced and at 30 frames a second,
+the two within a level, where with the half float they read 142 and 146; its clock and sleep are in
+build/norm/3.3.txt. Sponza metered, which rested short of its meter before, reads brighter by 5.2
+levels on the mean, so its capture and shaders_auto_exposure's are taken again and the gallery made
+again (`.github/dump/2026-11-10/10-41-item-247-exposure-at-rest.png`); the README's showcase, six of
+Sponza's metered views put together by hand in 243, is as it was, for you to say whether it is made
+again.
+
+Item 238, on 2026-11-10. Read in a cold cache of the session's own, Sponza opened, settled and
+closed: the first run left 5.66 MB of pipelines and 7.15 MB of shaders in 166 files, and a second the
+same, the pipelines' file not written where it holds what it was read with. The model pass changed by
+a comment alone added 44 shader files, 3.8 MB, the pipelines the same since the SPIR-V was; changed
+by a number, each version added about 1.9 MB of pipelines and 3.8 MB of shaders, and going back to
+the first added nothing and removed nothing, both versions' kept. The version folder is the engine's,
+0.1.0-preview.1 for every build in development, so nothing is ever let go; the owner's cache, read
+alone, holds 63 MB of the examples' pipelines since 17:47 on 2026-11-09 and 120 MB of shaders. The
+pipelines' file was written only when the device is let go. Now `cache` lists the compiled shaders
+and the pipelines by version and program and the scene packs, each with its size; `cache clear`
+clears the shaders and the pipelines, which a run compiles again by itself, saying so with their
+sizes, `cache clear shaders` and `cache clear pipelines` each alone, and `cache clear scenes` the
+fetched packs, saying they are fetched again by ./e3d scenes fetch, with no word that clears them
+with the rest; clearing the pipelines has the running device write none back. The pipelines' file is
+written as well once 120 frames after those that made some have made none, a compiled shader read
+from the cache is touched, a run's first compile sweeps those untouched for 14 days from the engine's
+own shaders folder alone, and a pipelines' file past 256 MB is read as empty and logged, the run's own
+written in its place. The tests list and clear in a cache folder of their own and refuse a clear of
+all, sweep a shader set 15 days back and keep one 13, and on the device find the file written after
+130 frames with the program running and a file grown to 300 MB read as empty and written under the
+bound. E3D.md says it beside the scene packs.
+
+Item 235's plan, on 2026-11-10, five cuts, each a commit with the suite, the public types' namespace
+Engine throughout. A survey of the tree finds the illumination and the rest of Rendering calling
+each other both ways: the model pass and ModelNode, LightingUboPrepare, the ambient occlusion,
+bloom, HdrNodes' KeepFrame, TargetsNode's DrawTarget, VolumetricFog and FogStages, LightExtract,
+RenderPlugin and Renderer reach GlobalIlluminationRenderer, its settings, IlluminationBinding,
+GpuIllumination, GpuScreenProbes and GlobalIlluminationStages; and the illumination reaches
+SceneField, GpuSceneField, SceneFieldPlan, GpuRayScene, the reference tracer, ModelRenderer,
+WindowView, RenderWorld and INode. SceneField reaches GlowLights, and E3D.GlobalIllumination.cs and
+SceneFieldCommands hold the illumination's API, window and gi.* commands beside the field's.
+1. The binding moved down. What the rest reads stays in Rendering as the illumination's binding:
+IlluminationBinding and TargetIllumination, the read side of GpuIllumination (the probes' views,
+sampler and lights' buffer), GpuScreenProbes with ScreenGlow and ScreenCycle and the creation of an
+empty one, GlobalIlluminationSettings, GlowLights with GlowPlaces, which the field splits its
+emitters by, and a record the illumination's renderer sets in the render world each frame,
+IlluminationFrame, of what is now asked of the renderer itself: the cascades in the field, the probes'
+spacing, the screen's tile, whether the screen's probes are on and stand for the glow lights alone,
+the reflection's steps and roughness and the history's camera, with the static sizes (TileAt,
+GlowTexelAt, ReflectionStepsAt) beside it. Every reader outside the illumination takes these in
+place of GlobalIlluminationRenderer and GlobalIlluminationStages.
+2. The frame's hooks. HdrNodes' KeepFrame and TargetsNode's DrawTarget call the illumination through
+an interface in Rendering the illumination's renderer sets in the render world, IIlluminationPasses,
+none where it is off, and VolumetricFog and FogStages take the binding alone.
+3. A plugin of its own. GlobalIlluminationPlugin, still in Rendering, registers what RenderPlugin,
+Renderer and LightExtract register now: the settings from the config, their extract, the shaders'
+loading into the stages, the renderer and its node in the graph, and its disposal; DefaultPlugins
+adds it after RenderPlugin.
+4. The model pass reading the binding alone. ModelRenderer.Lighting and ModelNode take the binding
+and IlluminationFrame and nothing of the renderer or the stages, the empty screen probes and lights'
+buffer from the binding's side. After this cut nothing outside the illumination's files names its
+renderer, stages, trace or reference.
+5. The project. Engine.GlobalIllumination, 3DEngine/GlobalIllumination with its csproj on Rendering,
+takes GlobalIlluminationRenderer and its parts and node, GlobalIlluminationStages and its parts,
+GpuIllumination's making, BounceReference, BounceView, the gi.* commands split out of
+SceneFieldCommands into GlobalIlluminationCommands, the plugin, and the gi_*.slang shaders' staging
+if they need moving, with its PublicApi.txt, its line in Directory.Build.props' InternalsVisibleTo,
+the root project's reference, the package's areas and the templates, the tests moved to a
+GlobalIllumination folder by N 1.4, and the row N 1.5 asks for in AGENTS.md's table.
+The public enum GlobalIllumination stays in Core with Config, and E3D.GlobalIllumination.cs in the
+root project, which references the new one. Starting with the first cut.
+
+Item 235's first cut. The binding stands apart in Rendering: IlluminationBinding and
+TargetIllumination in IlluminationBinding.cs, GpuIllumination in its own file, the screen probes'
+making as GpuScreenProbes.Create (GpuScreenProbes.Making.cs), which the model pass takes its empty
+one from where it took it from the stages, and what the illumination works out from the quality and
+the field alone in a static Illumination: the probes' spacing, the most cascades, the glossy
+roughness, each cascade's texels, the reflection's steps, the jitter, whether the screen's probes
+are on, the tile and the cascades in the field. The occlusion, the bloom, ModelNode, the model pass,
+the fog and the lighting buffer read those from Illumination in place of the renderer. The two
+things they ask that the renderer holds, whether the screen's probes stand for the glow lights alone
+and the history's camera, go with the second cut's interface rather than a record, since the
+lighting buffer reads them in the prepare stage before the illumination's node runs, as it does now,
+the frame before's. GlobalIlluminationSettings and GlowLights were apart already and stay in
+Rendering. Nothing is public, so the listing is unchanged.
+
+Item 235's second cut. IIlluminationPasses in Rendering is what the frame's passes ask of the
+illumination while it runs, whether the screen's probes stand for the glow lights alone, the
+history's camera, whether the window's meshes are built for the device's ray tracing, keeping the
+frame and drawing a render target's probes; the renderer implements it and is set in the render world
+under it beside its own type. HdrNodes, TargetsNode and LightingUboPrepare find it there, and none of
+them names the renderer. The fog took the binding alone after the first cut.
+
+Item 235's third cut. The renderer takes parts a plugin adds before it starts, IRendererPart, each
+called as the renderer starts to load its shaders on the device and set its renderers, after the
+renderer's own nodes to add its own by edges, and when the renderer is let go. GlobalIlluminationPlugin,
+still in Rendering and listed by DefaultPlugins after RenderPlugin, puts the settings the config
+names in the world, adds their extract, and adds the part, which loads the gi_* shaders into the
+stages, sets the illumination's renderer under its own type and IIlluminationPasses, sets the view of
+what it holds (BounceViewRenderer, which gi.show draws) under its own type and IProbesView, through
+which the bloom draws the probes as cubes, and adds the probes' node between the window's occlusion
+and the render targets and the view's node after the field's; the renderer keeps its own edge from the
+occlusion to the targets. RenderPlugin, LightExtract and the renderer name the illumination no more,
+but for the gi_trace builds among the shaders compiled ahead. The test builds a program from the
+default plugins without the illumination's, asks for High and finds no probes' node, renderer or
+settings in the render world and a frame of lit models equal to one drawn with the default plugins at
+Off, and with the default plugins at High the probes' node and traced probes and a frame that differs.
+A part added once the renderer has started is started at once, since an offscreen run's renderer
+starts in RenderPlugin's own build before the plugins after it add their parts; the first suite of
+this cut, without it, failed 165 tests in which no probes were traced, which the test's own frames,
+compared with the illumination off alone, did not catch, so it holds the default plugins' case too.
+
+Item 235's fourth cut needed no code. A search of every engine project, outside the illumination's own
+files and SceneFieldCommands' gi.* commands, for GlobalIlluminationRenderer, GlobalIlluminationStages,
+BounceReference, IlluminationTrace, GlobalIlluminationNode, BounceViewRenderer and BounceViewNode found
+the root project's E3D.GlobalIllumination.cs alone, its window's trace and measure and the probes'
+cascades it counts, which the root reaches through its reference to the new project; ModelRenderer
+and ModelNode read the binding, Illumination, GpuScreenProbes.Create and GpuIllumination.LightsBytes
+since the first cut.
+
+Item 235's fifth cut, the project. 3DEngine/GlobalIllumination/3DEngine.GlobalIllumination.csproj, on
+Core, Diagnostics, Graphics, Assets and Rendering, takes GlobalIlluminationRenderer and its parts and
+node, GlobalIlluminationStages and its parts, BounceReference, the plugin, BounceViewRenderer and its
+node, split from BounceView.cs, whose BounceView stays in Rendering since GlobalIlluminationSettings
+holds it, and GlobalIlluminationCommands, the gi.* commands split from SceneFieldCommands, which keeps
+the field's. SunOf, which the field's march asks, moved to Illumination. The shaders stay in
+3DEngine/Shaders, staged as before. The root project references it, as it does the twelve, so a game
+naming 3DEngine alone restores it as before; Directory.Build.props shows it the internals of the
+projects below, EngineAssemblies names it after Rendering, the solution holds it, and its PublicApi.txt
+is empty, nothing in it public. build/pack.sh packs 3DEngine/3DEngine.csproj and every csproj under
+3DEngine by find, sorted, so it lists 3DEngine.GlobalIllumination among the areas with no change, and
+pack.yml pushes build/package/*.nupkg. The tests stay in 3DEngine.Tests/Rendering, which N 1.4
+allows, since build.yml splits the Linux job's test parts by those folder and class names
+(Rendering=3+GlobalIlluminationTests/2+SceneFieldTests) and moving them would redraw that split;
+the Linux job's limit is 150 minutes, against 141 on the last run and 104 to 135 before, and the cut
+adds a project to build and no test. AGENTS.md gains the one row N 1.5 asks for.
+The first suite of the cut failed four: N 1.6 found the project in no layer, so it stands in the layer
+above Rendering beside Scenes, Modeling and Gui, and EngineAssemblies names it there, lowest first;
+and the package's tests read the newest package in build/package, packed before the cut, without
+the new area, which a pack by build/pack.sh at 0.1.0-preview.20261110125146 carries, the engine's
+package naming 3DEngine.GlobalIllumination as a dependency at its own version.
+
+Item 249, read on 2026-11-10. The Linux job of 4fb868ca's run took 140.8 minutes, 1.4 of them the
+build and 138.6 the test step, which ran the suite whole twice: in order, 71 minutes 26 seconds, and,
+once that passed, shuffled by the day's seed, 67 minutes 8 seconds; the runs of f68075f1 and
+e86ca5c3 took 135.2 and 105.2, 133.3 and 103.3 of them the test step. So the largest step is the
+second whole suite, and the cut is the two runs in two jobs at once, a matrix of linux (order) and
+linux (shuffled), each held to 120 minutes against a run of about 75, build and setup with it, and
+build/test.py's 90 for the suite as before. build/test.py takes --shuffled-only, the shuffled run
+alone, which the shuffled job runs; the order's job saves the mesa cache and uploads
+test-digest-linux, the shuffled one test-digest-linux-shuffled, as the digest job reads them, and
+each its own results where it fails. The shuffled run no longer waits for the run in order to pass,
+so a failure of each is said by its own job. The script's test runs the shuffled run alone, no suite
+in order, and refuses it without a seed; BUILDING.md says it.
+
+Item 251, on 2026-11-10. The lift a cut gives the builds, every cascade a frame and sixteen times
+the base triangles, held while the cascades the eye went past waited, and the voxel game's sections
+for the new view came after those were built, empty, in the frame of the cut. The lift now holds on
+after them until 30 frames running bring no mesh and leave nothing to build, or 300 frames after the
+cut, so what a program meshes as the view comes in is built under the lift, and a game that streams
+without end builds under its own budget after. The plan's test cuts 4,000 units off into nothing at a
+budget of four sections a frame and brings 500 sections in over the fifth to the fourteenth frames
+after: built in within the settling frames and ten more of the last coming, the frames lifted, and a
+section brought once 30 quiet frames have passed built under the base; held only while the cascades
+the eye went past waited, no frame after the cut was lifted and the test fails. It reads the plan's
+builds, not the light; the grove's light is the game's to read again on a package with this.
+
+Reading it found a fault older than the lift: a mesh that settled while a region's build ran was
+taken into that build and built in by its end, and the cascade's built frame stayed the frame the
+build gathered in, so the mesh waited for that cascade for as long as the eye stood still and the
+field was never whole, which field.wait and the probes' carried rays go by. A build now notes the
+meshes it took in after its gather and counts each built into its cascade when it ends. The test
+brings 50 sections a frame for ten frames into a built field, the eye still, under four sections a
+frame; without the note six sections waited for no cascade without end.
+
+SetSceneField called again with the same cascades, cell and far cascade and other budgets keeps the
+field, its plan and its cascades on the device, and the plan builds by the new budgets from the next
+frame, the raised budget held between the new base and sixteen times it; a changed cell makes it
+again. The test raises both budgets four times and puts them back with the field kept and built, and
+fails without it, the field made again.
+
+What leaned on field.wait, read on 2026-11-10 from the session logs kept here. The engine's callers
+are build/capture-example.sh, build/drive-sponza.sh and build/bounce-rooms.sh, each waiting up to
+1,800 frames, and FieldWaitTests; their meshes come at a scene's load and are built by whole
+cascades' builds, which count every mesh by the frame they end in, and the 57 logs here of their
+runs all say the field was built and its light run, none that the wait ran out. The CI's captures
+keep no session logs, so its runs cannot be read for it. Every wait that ran out here was the voxel
+game's, whose sections stream into built cascades: 13 of them over six of its logs, in vs-196,
+vs-198, i166's builds 6112, 6214 and 6217 and build/sessions/VoxelSandbox.log, each saying the field
+was still building after 1,800 frames with 0 triangles waiting and 0 meshes arriving, the fault's
+mark, nothing left to build and the field never whole. So the game's pictures taken after a
+field.wait waited out its limit, 30 seconds at 60 frames, and were taken on a field that held every
+section all the same; its timings that took the wait as the field's build time read the limit.
+
+Verdict 113, on 2026-11-10. Siege from the package of dd0adff0's tree, 0.1.0-preview.20261110125146
+of 0747c6ca, driven by build/drive-game.sh on lavapipe here (VK_DRIVER_FILES naming its manifest,
+the validation layer, cold Mesa and engine caches of the run's own), played through and won in four
+throws, and three times more held to four cores, as the runner is; it never stopped answering. The
+runner's log, in its game-captures, ends at Swing to Flight at 15.58 seconds, with neither the
+Cleanup stage's line nor the line of the process's exit after it, so the program neither closed nor
+exited, the only two ways it removes its session file, and nothing else in the package deletes in
+the sessions folder; the shaders' sweep and the pipelines' bound keep to their own folders. Siege had
+not stopped serving in a pack run before, back to 2026-10-26. The cause is inferred and not seen:
+the nearest call the package first carried is the driver's cache read for its write while a worker
+makes a pipeline through it. A frozen program still leaves its last session file, which e3d chooses
+where it is the only one, so a freeze alone does not account for the runner's NO_SESSION either, and
+the next run's log is what says it. The device now holds a lock of its own over every use of the
+driver's cache, each graphics and compute pipeline made through it on any thread, the data read for
+the write, and its release, so the write never runs beside a compile, though Vulkan lets a cache made
+without its externally synchronized flag be used from several threads; and the write logs a line as
+it begins and one as it ends with its bytes and milliseconds. The test holds a compute pipeline in
+the driver on a worker of a served program, has the write wait for it and the program then answer a
+command in the frames after; without the lock around the read, the write ran beside the compile and
+the test fails. So the next run says which it was, e3d's error where it finds no session names the
+sessions folder and each file in it, with its pid, its program, its heartbeat's age, whether that
+pid runs and why it was passed over, on the one line the drive script quotes, and
+build/drive-game.sh lists the folder beside the log's last lines where a command ends that way.
 
 ## Items closed, parked or shortened
 
