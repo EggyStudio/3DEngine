@@ -96,7 +96,9 @@ at, so its third cascade holds the part of the building the view shows and a tur
 game seen from above gives its player's place each frame, as `games/Wick` does, so the finest
 cascades hold the rooms about the player rather than the air under the camera. A free camera in an
 open world gives nothing, and a building wider than its third cascade has its far rooms held by the
-fourth's coarser probes. A cascade that point has gone past the grid of keeps the cells it holds,
+fourth's coarser probes, or `SetSceneFieldAhead(0.5f)` holds the field ahead of the camera along its
+view by half its finest cascade's width, so that cascade lies before the eye rather than half of it
+behind, as the voxel game's does. A cascade that point has gone past the grid of keeps the cells it holds,
 moved on the GPU, and builds the slab of cells the move brings in alone, as a clipmap does, so a
 walk splats a fraction of what building each cascade again did. One the point went half its width
 past or more is built again whole, as many cascades a frame as the budget says, the finest first,

@@ -11,16 +11,18 @@ first commit, the followed exposure's bounds in EV at ISO 100, the bloom's kind 
 scatter of 0 to 1, lift, gamma and gain in three numbers and scenes_sponza's look written as
 numbers, committed at 08:00 on 2026-11-10, and `bfffbbc4`, its second, SrgbToLinear, LinearToSrgb,
 ColorToLinear and ColorFromLinear over one curve in Core that the engine's eleven hand-written
-copies call, committed at 08:43; the two are pushed once `f68075f1`'s run has ended; they keep the
-form. Before it `e86ca5c3`, 240's ramp, a pixel whose screen probes stand on a surface like its own
-for under a quarter of their weight taking the world's probes' light by its shortfall, with the
-march by thin walls, pushed at 05:41 on 2026-11-10, its run green at 07:43 with macOS in 43 minutes,
-Windows in 108 and 122, Linux in 105 and the examples in 11, its pack run green at 08:57 with its
-captures in 58 and 72 minutes and its games in 70, publishing 6.2.14, tagged `v6.2.14`; the game
-reads its shaded ground on that package and its walk on the next. The working session was ended at
-01:15 on 2026-11-10 by the kernel, a python3 of its own having read its 4.3 GB transcript whole into
-27 GB beside 18 GB of old frames in /tmp, and was resumed by the owner at 04:23, its scratch cleared
-(N 7.10). Before it `adb41aa7`, the example's sponza.turn and build/flicker.py, pushed at 01:18 on
+copies call, committed at 08:43; and `d622ea09`, its third, SkyDay.SunByHeight scaling the sun's
+strength outside the air by the sine of its height with a floor of a twenty-fourth, committed at
+09:05; the three are pushed once `f68075f1`'s run has ended; they keep the form. Before it
+`e86ca5c3`, 240's ramp, a pixel whose screen probes stand on a surface like its own for under a
+quarter of their weight taking the world's probes' light by its shortfall, with the march by thin
+walls, pushed at 05:41 on 2026-11-10, its run green at 07:43 with macOS in 43 minutes, Windows in
+108 and 122, Linux in 105 and the examples in 11, its pack run green at 08:57 with its captures in
+58 and 72 minutes and its games in 70, publishing 6.2.14, tagged `v6.2.14`; the game reads its
+shaded ground on that package and its walk on the next. The working session was ended at 01:15 on
+2026-11-10 by the kernel, a python3 of its own having read its 4.3 GB transcript whole into 27 GB
+beside 18 GB of old frames in /tmp, and was resumed by the owner at 04:23, its scratch cleared (N
+7.10). Before it `adb41aa7`, the example's sponza.turn and build/flicker.py, pushed at 01:18 on
 2026-11-10, green at 03:44. Before it `94097b62`, 242, a hit marching its brightest glow light and
 gathering the rest as one, pushed at 22:41 on 2026-11-09 with 241 and 243, green at 00:35, whose
 pack run published 6.2.12 at 02:34, tagged `v6.2.12`, which the game pins since its `cfffcb3`.
@@ -35,12 +37,11 @@ tagged `v6.1.12` at `8dba0d1c`; the version stands at 6.2, tagged `v6.2.0` at `1
 three package bumps wait on the owner's word since October. Every push and run before `c23cd2d4`
 since 2026-10-23 stands in REVIEW-ARCHIVE.md under Head records.
 
-Next 244's two further parts, the sun's strength by its height and the field's center ahead, 247,
-the night door's spread from run to run, 238, the caches from e3d, and 235, the illumination as its
-own project, last; 6 waits on the owner's word. The game pins 6.2.14 of `e86ca5c3` and reads its
-shaded ground on it, and the package of `f68075f1`'s for the clouds and the cuts. No budget by
-Decision 94; the door at 8:00 the one target by Decision 95; a fault seen in motion is read in
-motion by Decision 107.
+Next 244's last part, the field's center ahead of a camera, 247, the night door's spread from run to
+run, 238, the caches from e3d, and 235, the illumination as its own project, last; 6 waits on the
+owner's word. The game pins 6.2.14 of `e86ca5c3` and reads its shaded ground on it, and the package
+of `f68075f1`'s for the clouds and the cuts. No budget by Decision 94; the door at 8:00 the one
+target by Decision 95; a fault seen in motion is read in motion by Decision 107.
 
 REVIEW-ARCHIVE.md beside this file holds, their numbers kept, the items done, the items closed or
 parked, the verdicts settled, Decisions 1 to 93, the Replies before those here and the head records,
@@ -203,7 +204,12 @@ and 177, finer cascades inside a building and a history for the world probes, no
     over one curve in Core that the engine's eleven hand-written copies call; the shader library
     held srgbToLinear and linearToSrgb in color.slang already, and the examples' 2.2 stands in nine
     shaders that are raylib's ports and keep it, so no example changes; the suite 2,319 in order and
-    shuffled. The game takes the pair in its 167.
+    shuffled. The game takes the pair in its 167. The third commit is `d622ea09`,
+    SkyDay.SunByHeight, the sun's strength outside the air scaled by the sine of its height on the
+    day's path with a floor of a twenty-fourth, the example's 5,000 of 120,000, which keeps the
+    twilight's air lit to 12 degrees under the horizon, and nothing without air; scenes_sponza sets
+    its day once and the hour after, its sun at 8:00, noon, 16:00, 6:12 and 17:54 within 1e-4 of its
+    old formula; the suite 2,320.
 
 245. **The far cascade's move steps the light of what stands outside the field.** From the voxel
     game's ask of 2026-11-09 in ASKS.md, read for its item 166. In the game's grove a walk moves the
@@ -564,3 +570,11 @@ does nothing without air, whose sky's own curve falls with the sun. scenes_sponz
 sine worked out by hand. The test holds the sun's light at 8:00, noon, 16:00, 6:12 and 17:54 with
 the option against the strength set each hour by the example's formula, within a ten-thousandth, so
 the frames at those hours are the same.
+
+Item 244's fourth commit, the field held ahead of a camera. `SetSceneFieldAhead(cascades)` has the
+field lie ahead of the camera along its view, the way through the window's middle, by that many
+widths of its finest cascade, the cascade's cells times the cell size `SetSceneField` gives, 0 for
+around the camera as by default, where `SetSceneFieldCenter` gives no point, a given point coming
+first; `GetSceneFieldAhead` follows. The voxel game's `64 * CellSize / 2` is `SetSceneFieldAhead(0.5f)`
+at its next pin (its item 167). The test holds the field's point after a frame at 0.5 within a
+thousandth of the eye plus the way ahead times 64 cells of 0.15 over 2, and a given center first.

@@ -25,6 +25,9 @@ internal sealed class SceneFieldSettings
     /// <summary>The point the cascades lie around, as the program gives it, or null for the window's eye.</summary>
     public Vector3? Center { get; set; }
 
+    /// <summary>How far ahead of the window's eye along its view the cascades lie where no center is given, in widths of the finest cascade, 0 unless set.</summary>
+    public float Ahead { get; set; }
+
     /// <summary>The milliseconds a frame waited for the target frame rate, averaged, which the triangle budget is raised by.</summary>
     internal double RoomMs { get; set; }
 
@@ -196,6 +199,16 @@ internal sealed partial class SceneFieldRenderer : IDisposable
     /// </summary>
     internal Vector3? Eye { get; private set; }
 
+    // The point a share of the finest cascade's width ahead of the eye along the window's view, the
+    // way through the window's middle, or the eye where the share is 0.
+    private static Vector3 AheadOf(WindowView view, float ahead, float cellSize)
+    {
+        if (!(ahead > 0) || !Matrix4x4.Invert(view.Unjittered, out var inverse)) return view.Eye;
+        var middle = Vector4.Transform(new Vector4(0, 0, 0.5f, 1), inverse);
+        var way = new Vector3(middle.X, middle.Y, middle.Z) / middle.W - view.Eye;
+        return way.LengthSquared() > 0 ? view.Eye + Vector3.Normalize(way) * (ahead * SceneFieldPlan.Resolution * cellSize) : view.Eye;
+    }
+
     /// <summary>The plan of the field being built, or null where none is.</summary>
     internal SceneFieldPlan? Plan => _plan;
 
@@ -259,7 +272,7 @@ internal sealed partial class SceneFieldRenderer : IDisposable
         Gather(renderWorld, windowDraws, device);
         var plan = _plan!;
         plan.Raise(settings?.RoomMs ?? 0, settings?.FieldMs ?? 0);
-        plan.Update(settings?.Center ?? view.Eye, _drawn);
+        plan.Update(settings?.Center ?? AheadOf(view, settings?.Ahead ?? 0, plan.CellSize), _drawn);
         try
         {
             Record(renderContext, device, plan);

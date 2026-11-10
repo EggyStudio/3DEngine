@@ -96,6 +96,23 @@ public static partial class E3D
     public static Vector3? GetSceneFieldCenter() => TryRes<SceneFieldSettings>(out var field) ? field.Center : null;
 
     /// <summary>
+    /// Has the scene's distance field lie ahead of the camera along its view by
+    /// <paramref name="cascades"/> widths of its finest cascade, or around the camera with 0, which
+    /// it does by default, where <see cref="SetSceneFieldCenter"/> gives no point.
+    /// </summary>
+    /// <remarks>
+    /// Around the eye, half the finest cascade lies behind it, holding what the camera does not
+    /// see, so a game seen from its player's eyes holds the finest cascade before them with 0.5,
+    /// at the same cost to global illumination. The width is the cascade's cells times the cell
+    /// size <see cref="SetSceneField"/> gives, so a program need not count the cells.
+    /// </remarks>
+    public static void SetSceneFieldAhead(float cascades) =>
+        World.GetOrInsertResource(static () => new SceneFieldSettings()).Ahead = float.IsFinite(cascades) ? Math.Max(0, cascades) : 0;
+
+    /// <summary>How far ahead of the camera <see cref="SetSceneFieldAhead"/> left the field, in widths of its finest cascade, 0 unless set.</summary>
+    public static float GetSceneFieldAhead() => TryRes<SceneFieldSettings>(out var field) ? field.Ahead : 0;
+
+    /// <summary>
     /// Works out global illumination in the window's scene at <paramref name="quality"/>, or none
     /// with <see cref="GlobalIllumination.Off"/>, which it is by default, the light a
     /// surface sends on lighting the surfaces around it, so a red wall tints the floor beside it and
