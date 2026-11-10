@@ -39,6 +39,46 @@ public sealed class PipelineCacheTests : IDisposable
     }
 
     [NeedsVulkanFact]
+    public void The_Pipelines_Are_Written_Once_The_Frames_After_Those_That_Made_Them_Made_None_And_A_File_Past_The_Bound_Is_Read_As_Empty()
+    {
+        // In a cache folder of the test's own, a lit cube's pipelines made in the first frames and
+        // the file read after 130 frames that made none, the program still running, as a run that
+        // is killed then keeps them.
+        using var folder = new TestFolder("engine-pipelines-");
+        UserCache.Folder = folder.Path;
+        try
+        {
+            var path = GraphicsDevice.PipelineCachePath;
+            var config = Config.Default.WithWindow("pipeline cache", 64, 64) with { Headless = true, Offscreen = true, Samples = 1 };
+            UseApp(new App(config).AddPlugin(new DefaultPlugins()));
+            var camera = new Camera3D(new Vector3(2, 2, 2), Vector3.Zero, Vector3.UnitY, 45);
+            for (int frame = 0; frame < 130; frame++)
+            {
+                BeginDrawing();
+                ClearBackground(Color.Black);
+                BeginMode3D(camera);
+                DrawCube(Vector3.Zero, 1, 1, 1, Color.White);
+                EndMode3D();
+                EndDrawing();
+            }
+            File.Exists(path).Should().BeTrue("the pipelines are written once 120 frames after those that made them made none");
+            CloseWindow();
+            UseApp(null);
+
+            // A file past the bound, 300 MB of it, starts the cache empty, and the run's own are
+            // written in its place.
+            using (var grown = new FileStream(path, FileMode.Open))
+                grown.SetLength(300L * 1024 * 1024);
+            Run();
+            new FileInfo(path).Length.Should().BeLessThan(GraphicsDevice.PipelineCacheBound, "a file past the bound was read as empty and the run's pipelines written in its place");
+        }
+        finally
+        {
+            UserCache.Folder = null!;
+        }
+    }
+
+    [NeedsVulkanFact]
     public void A_Run_Writes_The_Pipelines_It_Compiled_And_A_Cache_Another_Device_Wrote_Is_Read_As_Empty()
     {
         var path = GraphicsDevice.PipelineCachePath;

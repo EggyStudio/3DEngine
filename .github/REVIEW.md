@@ -4,7 +4,10 @@ Reviewed up to `4fb868ca`, 244's fourth and last commit, SetSceneFieldAhead, pus
 2026-11-10 with `c9e39823`, `bfffbbc4` and `d622ea09`, the followed exposure's bounds in EV with the
 bloom's kind and the three-number grade, the pair between sRGB and linear light, and
 SkyDay.SunByHeight, one run on the last; they keep the form and carry the review's files. Their
-package goes with the next pack run, the game taking them in its 167. Before it `f68075f1`, 239,
+package goes with the next pack run, the game taking them in its 167. After it `ae62fa22`, 247, the
+followed exposure's adapted light kept in 32-bit floats so it rests at its meter whatever the
+frames' pace, the night door at 122.77 unpaced and at 30 frames a second, committed at 11:01 on
+2026-11-10 and pushed once `4fb868ca`'s run has ended; it keeps the form. Before it `f68075f1`, 239,
 every cascade built at the most raised budget after a cut, pushed at 07:44 on 2026-11-10 with
 `9c6c8d0e`, 245, the far cascade's band weighed around the eye, and `f77e4cf4`, build/flicker.py's
 three options, their run green at 10:13 with macOS in 42 minutes, Windows in 74 and 126, Linux in
@@ -32,12 +35,10 @@ tagged `v6.1.12` at `8dba0d1c`; the version stands at 6.2, tagged `v6.2.0` at `1
 three package bumps wait on the owner's word since October. Every push and run before `c23cd2d4`
 since 2026-10-23 stands in REVIEW-ARCHIVE.md under Head records.
 
-Next 247's mend, the followed exposure resting at one point whatever the frames' pace, the night
-door's spread from run to run, 238, the caches from e3d, and 235, the illumination as its own
-project, last; 6 waits on the owner's word. The game pins 6.2.14 of `e86ca5c3` and reads its shaded
-ground on it, and the package of `f68075f1`'s for the clouds and the cuts. No budget by Decision 94;
-the door at 8:00 the one target by Decision 95; a fault seen in motion is read in motion by Decision
-107.
+Next 238, the caches from e3d, and 235, the illumination as its own project, last; 6 waits on the
+owner's word. The game pins 6.2.14 of `e86ca5c3` and reads its shaded ground on it, and the package
+of `f68075f1`'s for the clouds and the cuts. No budget by Decision 94; the door at 8:00 the one
+target by Decision 95; a fault seen in motion is read in motion by Decision 107.
 
 REVIEW-ARCHIVE.md beside this file holds, their numbers kept, the items done, the items closed or
 parked, the verdicts settled, Decisions 1 to 93, the Replies before those here and the head records,
@@ -176,7 +177,17 @@ reverted as the screen probes' limit at shapes about a tile wide, its patches in
     rest anywhere in. So the mend, after 248, is the followed exposure coming to rest at one point
     whatever the frames' pace, the bins read between or the target sought without a band of rest,
     with a test that an unpaced run and one at 30 frames a second settle within a level of each
-    other.
+    other. Mended at `ae62fa22` on 2026-11-10, and the bins were not the cause, Sponza using no
+    histogram. The adapted log of the luminance lived in a half float, a step of 1/128 between 8 and
+    16 stops, so a frame's step toward the meter under half that step rounded back and the exposure
+    rested short of its meter, the further the faster the frames, the door by night at -8.72 to
+    -8.75 unpaced and -8.93 at 30 frames a second. The two adapted texels are 32-bit floats with a
+    pipeline of their own, and the door reads 122.77 at 2,400 frames at both paces, 0.08 apart. The
+    test follows a dark scene from a bright one for three seconds unpaced and at 30 frames a second
+    within a level, the half float reading 142 against 146. Metered Sponza, which had rested short,
+    reads 5.2 levels brighter on the mean, its two captures and the gallery taken again; the
+    README's showcase of 243 stays as it is, 5 levels under, until a change that moves Sponza's look
+    by more. Done at `ae62fa22`.
 
 ## Verdicts
 
@@ -499,3 +510,25 @@ levels on the mean, so its capture and shaders_auto_exposure's are taken again a
 again (`.github/dump/2026-11-10/10-41-item-247-exposure-at-rest.png`); the README's showcase, six of
 Sponza's metered views put together by hand in 243, is as it was, for you to say whether it is made
 again.
+
+Item 238, on 2026-11-10. Read in a cold cache of the session's own, Sponza opened, settled and
+closed: the first run left 5.66 MB of pipelines and 7.15 MB of shaders in 166 files, and a second the
+same, the pipelines' file not written where it holds what it was read with. The model pass changed by
+a comment alone added 44 shader files, 3.8 MB, the pipelines the same since the SPIR-V was; changed
+by a number, each version added about 1.9 MB of pipelines and 3.8 MB of shaders, and going back to
+the first added nothing and removed nothing, both versions' kept. The version folder is the engine's,
+0.1.0-preview.1 for every build in development, so nothing is ever let go; the owner's cache, read
+alone, holds 63 MB of the examples' pipelines since 17:47 on 2026-11-09 and 120 MB of shaders. The
+pipelines' file was written only when the device is let go. Now `cache` lists the compiled shaders
+and the pipelines by version and program and the scene packs, each with its size; `cache clear`
+clears the shaders and the pipelines, which a run compiles again by itself, saying so with their
+sizes, `cache clear shaders` and `cache clear pipelines` each alone, and `cache clear scenes` the
+fetched packs, saying they are fetched again by ./e3d scenes fetch, with no word that clears them
+with the rest; clearing the pipelines has the running device write none back. The pipelines' file is
+written as well once 120 frames after those that made some have made none, a compiled shader read
+from the cache is touched, a run's first compile sweeps those untouched for 14 days from the engine's
+own shaders folder alone, and a pipelines' file past 256 MB is read as empty and logged, the run's own
+written in its place. The tests list and clear in a cache folder of their own and refuse a clear of
+all, sweep a shader set 15 days back and keep one 13, and on the device find the file written after
+130 frames with the program running and a file grown to 300 MB read as empty and written under the
+bound. E3D.md says it beside the scene packs.

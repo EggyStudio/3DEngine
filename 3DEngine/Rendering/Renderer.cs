@@ -235,6 +235,13 @@ internal sealed class Renderer : IDisposable
     // Says in the log the first frame's time and the pipelines it made, and any later frame's
     // pipelines where the driver took long over them, each by its shaders and its time, as a first
     // frame with a reflection plane can wait on them.
+    // The frames after the last that made pipelines after which the driver's pipelines are written.
+    private const int QuietFrames = 120;
+
+    // The frames since one made pipelines, and whether pipelines were made since they were written.
+    private int _framesQuiet;
+    private bool _pipelinesUnsaved;
+
     private void LogPipelines(long started)
     {
         if (Context.Graphics is not GraphicsDevice device) return;
@@ -242,6 +249,17 @@ internal sealed class Renderer : IDisposable
         var (count, time) = (made - _pipelinesBefore.Made, making - _pipelinesBefore.Making);
         _pipelinesBefore = (made, making);
         var named = device.TakePipelinesNamed();
+        // The driver's pipelines written to their file once the frames that made some have been
+        // followed by QuietFrames that made none, as well as when the device is let go, since a run
+        // that ends otherwise, killed or crashed, wrote none, and the next made them again in
+        // seconds mid-frame.
+        _framesQuiet = count > 0 ? 0 : _framesQuiet + 1;
+        if (count > 0) _pipelinesUnsaved = true;
+        if (_pipelinesUnsaved && _framesQuiet >= QuietFrames)
+        {
+            _pipelinesUnsaved = false;
+            device.SavePipelineCache();
+        }
         if (_frames++ == 0)
             Logger.Info($"The first frame took {Stopwatch.GetElapsedTime(started).TotalMilliseconds:0} ms, {count} pipelines made by the driver in {time.TotalMilliseconds:0} ms.");
         else if (time >= SlowPipelines)

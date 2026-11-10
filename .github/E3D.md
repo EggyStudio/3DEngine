@@ -170,6 +170,21 @@ hash leaves nothing new, and the pack is let go once unpacked. Each is made from
 BevyCSharp publishes by `build/make-scene-pack.py`, which undoes the zstd of its textures, in the
 pack run's job its `scenes` input asks for.
 
+The caches a program keeps in that folder are listed and cleared through it while it runs:
+
+```bash
+./e3d command cache               # the compiled shaders and pipelines by version and program, and the packs, with sizes
+./e3d command cache clear         # the shaders and the pipelines, which the next run compiles again by itself
+./e3d command cache clear scenes  # the fetched packs, which ./e3d scenes fetch downloads again
+```
+
+Neither cache can serve an old shader, the shaders being kept by their source's hash and the
+pipelines checked by the driver, but each keeps every version of a shader compiled under the
+engine's version. A shader no run has read for two weeks is swept at a run's first compile, and a
+pipelines file past 256 MB is read as empty, the run's own written in its place. The pipelines are
+written once 120 frames after those that made some have made none, as well as when the program
+closes, so a run that is killed keeps them.
+
 ## Building and testing
 
 ```bash

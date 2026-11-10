@@ -18,8 +18,11 @@ internal sealed unsafe partial class GraphicsDevice
 {
     private VkPipelineCache _pipelineCache;
 
-    // The bytes the cache was read with, written back only where it holds more or less, a run that
-    // made no pipeline the file lacked leaving it as it was.
+    /// <summary>The most bytes of compiled pipelines a file is read with, past which the cache starts empty.</summary>
+    internal const int PipelineCacheBound = 256 * 1024 * 1024;
+
+    // The bytes the cache was read with or last written, written again only where it holds more or
+    // less, a run that made no pipeline the file lacked leaving it as it was.
     private nuint _pipelineCacheRead;
 
     /// <summary>
@@ -37,6 +40,15 @@ internal sealed unsafe partial class GraphicsDevice
     private void CreatePipelineCache()
     {
         var data = ReadPipelineCache(PipelineCachePath);
+        // A file past the bound starts the cache empty, since the driver's data cannot be pruned one
+        // pipeline at a time and every version of a shader a run compiled stays in it, about 1.9 MB
+        // of Sponza's pipelines a version of the model pass, so a program in development grows its
+        // file without end.
+        if (data.Length > PipelineCacheBound)
+        {
+            Logger.Info($"The driver's compiled pipelines at {PipelineCachePath} hold {data.Length / 1048576} MB, past {PipelineCacheBound / 1048576} MB, so the cache starts empty and this run's are written in their place.");
+            data = [];
+        }
         var cache = MakePipelineCache(data);
         _pipelineCache = cache.Cache;
         _pipelineCacheRead = cache.Read;
@@ -90,27 +102,42 @@ internal sealed unsafe partial class GraphicsDevice
         return data;
     }
 
-    // Writes the cache back where it changed since it was read, through a file of its own moved over
-    // the old one, so a program started beside it never reads half of it.
+    // Whether the cache's file was cleared while the program runs (cache clear), so the pipelines
+    // read from it are not written back when the device is let go.
+    private bool _pipelineCacheDropped;
+
+    /// <summary>Has the device write none of its pipelines back to <see cref="PipelineCachePath"/> this run, its file cleared while it runs.</summary>
+    internal void DropPipelineCache() => _pipelineCacheDropped = true;
+
+    // Writes the cache back where it changed since it was read, and lets it go.
     private void DestroyPipelineCache()
     {
         if (_pipelineCache.IsNull) return;
-        if (PipelineCacheData() is { } data)
-        {
-            try
-            {
-                Directory.CreateDirectory(Path.GetDirectoryName(PipelineCachePath)!);
-                var written = $"{PipelineCachePath}.{Environment.ProcessId}";
-                File.WriteAllBytes(written, data);
-                File.Move(written, PipelineCachePath, overwrite: true);
-            }
-            catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
-            {
-                Logger.Warn($"The pipeline cache could not be written to {PipelineCachePath}, so the next run compiles its pipelines again: {ex.Message}");
-            }
-        }
+        SavePipelineCache();
         _deviceApi.vkDestroyPipelineCache(_pipelineCache, null);
         _pipelineCache = default;
+    }
+
+    /// <summary>
+    /// Writes the cache to <see cref="PipelineCachePath"/> where it changed since it was read or
+    /// last written, through a file of its own moved over the old one, so a program started beside
+    /// it never reads half of it, and none where its file was cleared while the program runs.
+    /// </summary>
+    internal void SavePipelineCache()
+    {
+        if (_pipelineCache.IsNull || _pipelineCacheDropped || PipelineCacheData() is not { } data) return;
+        try
+        {
+            Directory.CreateDirectory(Path.GetDirectoryName(PipelineCachePath)!);
+            var written = $"{PipelineCachePath}.{Environment.ProcessId}";
+            File.WriteAllBytes(written, data);
+            File.Move(written, PipelineCachePath, overwrite: true);
+            _pipelineCacheRead = (nuint)data.Length;
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+        {
+            Logger.Warn($"The pipeline cache could not be written to {PipelineCachePath}, so the next run compiles its pipelines again: {ex.Message}");
+        }
     }
 
     // The cache's data where it changed since it was read and holds the whole header it names, or

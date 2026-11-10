@@ -88,6 +88,7 @@ sealed class Engine.GraphicsDevice : IDisposable, IGraphicsDevice
   internal byte[]? ReadKeptScreen(out int width, out int height)
   internal const int MaxColorAttachments = 4
   internal const int MaxFramesInFlight = 3
+  internal const int PipelineCacheBound = 268435456
   internal const int ReadbackStagingKept = 4
   internal float AnisotropyLimit { get; set; }
   internal float[] ReadFloats(IImage image)
@@ -115,6 +116,7 @@ sealed class Engine.GraphicsDevice : IDisposable, IGraphicsDevice
   internal void DestroyAddressedBuffer(AddressedBuffer buffer)
   internal void DestroyDescriptorPool(VkDescriptorPool pool)
   internal void DestroyWindowSurface(GraphicsDevice.WindowSurface surface)
+  internal void DropPipelineCache()
   internal void EndSingleTimeCommands(VkCommandBuffer cmd)
   internal void FillBuffer(IBuffer destination, ulong offset, ReadOnlySpan<byte> data, string maker = "", int line = 0)
   internal void FlushUploads()
@@ -123,6 +125,7 @@ sealed class Engine.GraphicsDevice : IDisposable, IGraphicsDevice
   internal void PipelineBarrier(VkCommandBuffer cmd, ReadOnlySpan<VkImageMemoryBarrier2> images, VkMemoryBarrier2? memory = null)
   internal void PipelineBarrier(VkCommandBuffer cmd, VkImageMemoryBarrier2 image)
   internal void RecordMipChain(VkCommandBuffer cmd, GraphicsDevice.VulkanImage image)
+  internal void SavePipelineCache()
   internal void TransitionImageLayout(IImage image, VkImageLayout oldLayout, VkImageLayout newLayout, VkImageAspectFlags aspect)
   internal void UpdateDescriptorSet(IDescriptorSet descriptorSet, in UniformBufferBinding? uniformBinding, in CombinedImageSamplerBinding? samplerBinding)
   internal void UploadTexture2D<TPixel>(IImage image, ReadOnlySpan<TPixel> pixels, uint width, uint height) where TPixel : unmanaged

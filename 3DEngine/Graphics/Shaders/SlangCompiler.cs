@@ -109,6 +109,12 @@ internal static partial class SlangCompiler
         var name = $"{Path.GetFileNameWithoutExtension(fileName)}.{entryPoint}.{key}.spv";
         var cached = cacheDirectory is null ? null : Path.Combine(cacheDirectory, name);
         var uniformsFile = cached is null ? null : Path.ChangeExtension(cached, ".uniforms");
+        // Swept only where it is the engine's own folder in the user's cache, never a folder a
+        // program or a test named, whose other files are none of the cache's.
+        var shaders = Path.Combine(UserCache.Folder, "shaders");
+        if (cacheDirectory is not null && Path.GetDirectoryName(Path.GetFullPath(cacheDirectory)) == Path.GetFullPath(shaders)
+            && Interlocked.Exchange(ref _swept, 1) == 0)
+            Sweep(shaders);
 
         foreach (var found in (string?[])[readFirst is null ? null : Path.Combine(readFirst, name), cached])
             if (found is not null && File.Exists(found))
@@ -117,6 +123,8 @@ internal static partial class SlangCompiler
                 var described = File.Exists(describedFile) ? File.ReadAllText(describedFile) : "";
                 Interlocked.Increment(ref _read);
                 var read = File.ReadAllBytes(found);
+                if (found == cached)
+                    Touch(found, describedFile);
                 ShaderNames.Note(read, $"{Path.GetFileName(fileName)}'s {entryPoint}");
                 return new SlangStage(read, ReadUniforms(described), ReadTextures(described), ReadBuffers(described), ReadImages(described),
                     ReadBindings(described), ReadInputs(described));
@@ -151,6 +159,45 @@ internal static partial class SlangCompiler
         }
 
         return new SlangStage(bytecode, uniforms, textures, buffers, images, bindings, inputs);
+    }
+
+    // Whether this process swept the cache of entries no run has read for SweptAfter.
+    private static int _swept;
+
+    /// <summary>
+    /// How long a cache entry no run has read or written is kept, past which a run's first compile
+    /// deletes it, since every version of a shader a program in development compiled is kept under
+    /// the engine's one version, about 3.8 MB of them a version of the model pass, and the cache
+    /// grew without end.
+    /// </summary>
+    internal static readonly TimeSpan SweptAfter = TimeSpan.FromDays(14);
+
+    // Marks an entry and its uniforms as read now, which the sweep keeps it by.
+    private static void Touch(params string[] files)
+    {
+        foreach (var file in files)
+            try
+            {
+                if (File.Exists(file)) File.SetLastWriteTimeUtc(file, DateTime.UtcNow);
+            }
+            catch (Exception error) when (error is IOException or UnauthorizedAccessException)
+            {
+            }
+    }
+
+    /// <summary>Deletes the entries under the shaders' cache folder, every version's, that no run read or wrote for <see cref="SweptAfter"/>.</summary>
+    internal static void Sweep(string shaders)
+    {
+        if (!Directory.Exists(shaders)) return;
+        var before = DateTime.UtcNow - SweptAfter;
+        foreach (var file in Directory.EnumerateFiles(shaders, "*", SearchOption.AllDirectories).ToArray())
+            try
+            {
+                if (File.GetLastWriteTimeUtc(file) < before) File.Delete(file);
+            }
+            catch (Exception error) when (error is IOException or UnauthorizedAccessException)
+            {
+            }
     }
 
     // Writes a cache file beside its path under a name of this writer's own, then moves it into
