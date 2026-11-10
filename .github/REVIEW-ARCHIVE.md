@@ -9719,6 +9719,65 @@ batch.
     settling 2 under where it stood, recorded, which an ease from the cascade's former light would
     reach under 239. The game records its walk again at the pin that carries it. Done at `9c6c8d0e`.
 
+244. **Post-processing settings in the units a person types.** Decision 108 on 2026-11-09.
+    scenes_sponza sets its grade, its bloom and its metering through formulas, 2 to a power less 1,
+    a decode from sRGB, 0.05 plus 0.9 times a share, 2 to the camera's EV less 14 and the log of a
+    meter's constant, which a reader should not need to set a look. Three are constants and are
+    written as their numbers, the bloom's intensity of 0.19 and threshold of 0.09 and the metering's
+    compensation of -0.79, their derivation in the guide alone. Three are the surface's. The
+    exposure that follows the scene takes its limits in EV at ISO 100 beside the multipliers, in a
+    function of its own named as the session finds best, so the example says -1 and 14, the
+    multipliers kept for a program that sets no camera exposure. The scatter runs from 0 to 1 over
+    the range it spreads, a tight glow to a wide haze, and which bloom is drawn, the added one or
+    the scattered, is chosen by an argument or a function of its own and no longer by a scatter of
+    0, the getters following. SetLiftGammaGain gains a form of three numbers, how far the shadows,
+    the middle and the highlights move brighter with no hue, beside the three vectors. The bloom's
+    threshold stays in linear light, 1 for white, as the owner confirmed. One function a setting and
+    one unit, a short form only where it is a part of the long one in the same unit; the surface
+    changes outright, nothing kept for upgrading before a release, with the public listing, the
+    cheat sheet, the guide's section and its worked numbers and every example that calls them, no
+    capture changing since each new form sets what the old form's formula set. A test holds that,
+    the EV limits against the multipliers at two camera exposures, the scatter at its ends and its
+    middle, and the three numbers against the vectors. Three more places of the same kind, on the
+    owner's second yes at about 22:11 on 2026-11-09, each a commit of its own after the first. The
+    sRGB curve is written out by hand in scenes_sponza and twice in the voxel game, and a gamma of
+    2.2 stands for it in five more examples, where the engine has a color from a temperature and
+    nothing between linear light and sRGB; a pair of functions decodes an sRGB value to linear light
+    and encodes it back, for a channel and for a color, named as the session finds best, and the
+    examples that mean the curve call it, a port of a raylib program keeping what raylib's has.
+    scenes_sponza works the sun's height out again from the day sky's own path, a cosine and a sine,
+    to scale the sun's illuminance by it with a floor; the day sky takes one strength and scales it
+    by the sun's height itself, as an option of SkyDay, so the example states a strength and an
+    hour, its frames at 8:00, noon and 16:00 unchanged. The voxel game places the scene field half
+    the finest cascade ahead of its eye by the engine's 64 cells times its own cell size; the engine
+    gains the option, the field's center held that far ahead of a camera, so no program writes the
+    engine's cell count out, the game taking it at its next pin (its item 167). A test for each, the
+    pair against the curve's known values and round trips, the sun's light by hour against the
+    example's formula, the center against the product. SHARED.md has the row. After 239, before 238.
+    The first commit is `c9e39823` on 2026-11-10. SetAutoExposureEv100 takes the lowest and the
+    highest EV at ISO 100, SetCameraExposure working the multipliers out again and SetAutoExposure
+    keeping the multipliers and clearing the bounds; BloomKind, Added or Scattered, is set by
+    SetBloomKind and SetBloomScatter runs from 0 to 1 over the chain's range, a half unless set;
+    SetLiftGammaGain takes three numbers beside the vectors. scenes_sponza writes 0.189 and 0.0907,
+    Scattered at 0.7, -1 and 14, -0.79 and a gamma of 0.225, its noon view within 0.38 levels of the
+    head's on the mean; PostProcessUnitsTests hold each new form to the old one's formula. The three
+    further parts follow, the sRGB pair with a form in the shader library beside the C# functions,
+    since the examples' 2.2 stands in their shaders. The second commit is `bfffbbc4`, SrgbToLinear
+    and LinearToSrgb for a channel and ColorToLinear and ColorFromLinear for a color, alpha kept,
+    over one curve in Core that the engine's eleven hand-written copies call; the shader library
+    held srgbToLinear and linearToSrgb in color.slang already, and the examples' 2.2 stands in nine
+    shaders that are raylib's ports and keep it, so no example changes; the suite 2,319 in order and
+    shuffled. The game takes the pair in its 167. The third commit is `d622ea09`,
+    SkyDay.SunByHeight, the sun's strength outside the air scaled by the sine of its height on the
+    day's path with a floor of a twenty-fourth, the example's 5,000 of 120,000, which keeps the
+    twilight's air lit to 12 degrees under the horizon, and nothing without air; scenes_sponza sets
+    its day once and the hour after, its sun at 8:00, noon, 16:00, 6:12 and 17:54 within 1e-4 of its
+    old formula; the suite 2,320. The fourth and last commit is `4fb868ca`, SetSceneFieldAhead and
+    GetSceneFieldAhead, the field held ahead of the camera along its view by that many widths of the
+    finest cascade, a center given by SetSceneFieldCenter coming first and 0 the default, so the
+    voxel game's product becomes SetSceneFieldAhead(0.5f) at its next pin; the suite 2,321. Done in
+    four commits, `c9e39823`, `bfffbbc4`, `d622ea09` and `4fb868ca`.
+
 ## Verdicts settled
 
 Verdicts 1 to 55 are settled, the last two, the drawing leak test's resident bound and the Windows
@@ -14654,6 +14713,56 @@ history test failed as before. Both passes' patches are in the dump,
 `.github/dump/2026-11-10/10-12-item-248-moved-kept-by-texel.patch` and
 `.github/dump/2026-11-10/10-18-item-248-second-pass.patch`; the turn's figures they give stand in
 the first pass's record. 247's mend is next.
+
+Item 244's first commit, the post-processing settings in the units a person types. The exposure that
+follows the scene takes its bounds in EV at ISO 100 by `SetAutoExposureEv100(lowest, highest)`, the
+multipliers worked out against the camera's EV and again when `SetCameraExposure` changes it, and
+`SetAutoExposure`'s multipliers kept for a program that sets no camera, giving the bounds as
+multipliers again when called after; `GetAutoExposureEv100` answers the bounds or null. The bloom
+drawn is chosen by `SetBloomKind(BloomKind.Added | BloomKind.Scattered)`, the engine's added one
+unless set, and `SetBloomScatter` runs from 0 for a tight glow to 1 for a wide haze, laid over the
+chain's 0.05 to 0.95, 0.5 unless set; `GetBloomKind` and `GetBloomScatter` follow. `SetLiftGammaGain`
+takes three numbers beside the three colors. scenes_sponza writes its constants as numbers,
+`SetBloom(0.189f, 0.0907f)`, `SetBloomScatter(0.7f)` and a compensation of -0.79, its metering
+`SetAutoExposureEv100(-1, 14)` and its grade `SetLiftGammaGain(0, 0.225f, 0)`, the derivations in
+the guide. The test holds the EV bounds against the multipliers at two cameras, the scatter at 0,
+0.5, 1 and 0.7, and the three numbers against the colors. The bloom tests choose the scattered
+bloom by its kind at a scatter of 0.7. Held at noon, the first view shot with HEAD and with these
+forms differs by 0.38 levels on the mean and on 0.001% of the pixels past 2, as two runs of one
+build do; the door at 20:00 with the lamps differs less between HEAD and these forms, 0.87 on the
+mean, than between two runs of the same build, 2.98, so no capture changes. The sRGB pair, the day
+sky's strength by the sun's height and the field's center ahead of a camera follow, a commit each.
+
+Item 244's second commit, the sRGB pair. The flat API has `SrgbToLinear(value)` and
+`LinearToSrgb(value)` for a channel and `ColorToLinear(color)` and `ColorFromLinear(light)` for a
+color, its alpha as it is, over one internal curve in Core (`Srgb`), which the eleven places of the
+engine that wrote the curve by hand now call, the color by temperature, the modeling slots' glTF
+colors, the day sky's floor light and night tint, the models' emission both ways, the material from
+a color, the environment map, the texture store, the reference's PNG, the mesh entities' looks, the
+model draws' table and the bloom's threshold, each as it computed before. The shader library had the
+pair already, `srgbToLinear` and `linearToSrgb` in `color.slang`. The examples' 2.2 stands in nine
+shaders, each a port of raylib's own (lighting, lighting_instancing, fog, normalmap, shadowmap, pbr,
+skybox, voxel_lighting and raymarching's 0.4545), which keep what raylib's has, and scenes_sponza's
+decode left with the first commit, so no example changes. The test holds the curve's ends, its join,
+0.5 to 0.21404 and 0.18 to 0.46135, every level's round trip for a color and a channel, alpha kept
+and light past the ends held.
+
+Item 244's third commit, the sun's strength by its height. `SkyDay.SunByHeight` scales the sun's
+strength outside the air by the sine of its height on the day's path, no less than a twenty-fourth
+of it, which keeps the twilight's air lit after sunset until the sun is twelve degrees down, and
+does nothing without air, whose sky's own curve falls with the sun. scenes_sponza sets its day once,
+120,000 lux and the option, and an hour alone after, where it set the day again each hour with the
+sine worked out by hand. The test holds the sun's light at 8:00, noon, 16:00, 6:12 and 17:54 with
+the option against the strength set each hour by the example's formula, within a ten-thousandth, so
+the frames at those hours are the same.
+
+Item 244's fourth commit, the field held ahead of a camera. `SetSceneFieldAhead(cascades)` has the
+field lie ahead of the camera along its view, the way through the window's middle, by that many
+widths of its finest cascade, the cascade's cells times the cell size `SetSceneField` gives, 0 for
+around the camera as by default, where `SetSceneFieldCenter` gives no point, a given point coming
+first; `GetSceneFieldAhead` follows. The voxel game's `64 * CellSize / 2` is `SetSceneFieldAhead(0.5f)`
+at its next pin (its item 167). The test holds the field's point after a frame at 0.5 within a
+thousandth of the eye plus the way ahead times 64 cells of 0.15 over 2, and a given center first.
 
 ## Items closed, parked or shortened
 

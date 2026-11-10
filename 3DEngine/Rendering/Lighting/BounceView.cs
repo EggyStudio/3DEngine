@@ -55,7 +55,7 @@ internal enum BounceView
 /// frame in flight still reads.
 /// </para>
 /// </remarks>
-internal sealed class BounceViewRenderer : IDisposable
+internal sealed class BounceViewRenderer : IProbesView, IDisposable
 {
     [StructLayout(LayoutKind.Sequential)]
     private struct ViewPush

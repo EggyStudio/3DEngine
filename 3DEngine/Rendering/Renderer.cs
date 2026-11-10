@@ -50,6 +50,7 @@ internal sealed class Renderer : IDisposable
     public void Initialize(World world)
     {
         if (_initialized) return;
+        _world = world;
         Logger.Info("Initializing the renderer, its diagnostics and its render graph...");
         var sw = Stopwatch.StartNew();
         var shaders = SlangCompiler.Counts;
@@ -99,17 +100,6 @@ internal sealed class Renderer : IDisposable
             SceneFieldStages.Of(device).InitializeSceneField(server.LoadSync<ShaderProgram>("shaders/field_splat.slang").Compute,
                 server.LoadSync<ShaderProgram>("shaders/field_resolve.slang").Compute,
                 server.LoadSync<ShaderProgram>("shaders/field_stamp.slang").Compute);
-            // The probes' trace and its build for a frame where no surface lets light through,
-            // which leaves the crossing of such a surface out.
-            GlobalIlluminationStages.Of(device).InitializeGlobalIllumination(server.LoadSync<ShaderProgram>("shaders/gi_trace.slang").Compute,
-                server.LoadSync<ShaderProgram>("shaders/gi_merge.slang").Compute,
-                server.LoadSync<ShaderProgram>("shaders/gi_ambient.slang").Compute,
-                server.LoadSync<ShaderProgram>("shaders/gi_screen.slang").Compute,
-                server.LoadSync<ShaderProgram>("shaders/gi_screen_filter.slang").Compute,
-                server.LoadSync<ShaderProgram>("shaders/gi_screen_glow.slang").Compute,
-                Build("gi_trace.slang", ["NO_LIGHT_THROUGH"], "The probes' rays cross what lets light through in every frame")?.Compute,
-                device.CanQueryRays ? Build("gi_trace.slang", ["RAY_QUERY", "NO_LIGHT_THROUGH"], "The probes' rays are traced through the field alone")?.Compute : default,
-                device.CanQueryRays ? Build("gi_trace.slang", ["RAY_QUERY"], "The probes' rays cross what lets light through in the field alone")?.Compute : default);
             CubeFilter.Of(device).InitializeProbeFilter(server.LoadSync<ShaderProgram>("shaders/probe_gather.slang").Compute,
                 server.LoadSync<ShaderProgram>("shaders/probe_mips.slang").Compute,
                 server.LoadSync<ShaderProgram>("shaders/probe_prefilter.slang").Compute,
@@ -137,14 +127,13 @@ internal sealed class Renderer : IDisposable
         RenderWorld.Set(new TemporalRenderer(server.LoadSync<ShaderProgram>("shaders/taa.slang")));
         RenderWorld.Set(new VolumetricFogRenderer(server.LoadSync<ShaderProgram>("shaders/decode.slang")));
         RenderWorld.Set(new SceneFieldRenderer());
-        var illumination = new GlobalIlluminationRenderer();
-        RenderWorld.Set(illumination);
-        RenderWorld.Set<IIlluminationPasses>(illumination);
         RenderWorld.Set(new MirrorRenderer());
         RenderWorld.Set(new SceneFieldViewRenderer(server.LoadSync<ShaderProgram>("shaders/field_view.slang")));
-        RenderWorld.Set(new BounceViewRenderer(server.LoadSync<ShaderProgram>("shaders/gi_view.slang"),
-            server.LoadSync<ShaderProgram>("shaders/gi_probes.slang")));
         AddPrepareSystem(new ImmediateUploadPrepare());
+        // The parts plugins added, global illumination's among them, their shaders loaded and their
+        // renderers set beside the renderer's own.
+        foreach (var part in _parts)
+            part.Initialize(this, Context.Graphics as GraphicsDevice, server);
 
         // Skinned meshes posed before anything draws them, then the scene's field, the window's
         // occlusion and global illumination, then render targets, each drawing the shadow map for
@@ -173,12 +162,10 @@ internal sealed class Renderer : IDisposable
         Graph.AddNodeEdge("model_batches", "window_depth");
         Graph.AddNode("ambient_occlusion", new AmbientOcclusionNode());
         Graph.AddNodeEdge("window_depth", "ambient_occlusion");
-        // Global illumination, traced through the field before every pass that lights a view, the
-        // render targets' screen probes with each target after it.
-        Graph.AddNode("global_illumination", new GlobalIlluminationNode());
-        Graph.AddNodeEdge("ambient_occlusion", "global_illumination");
+        // The render targets after the window's occlusion, and after global illumination's probes
+        // where its part adds them between.
         Graph.AddNode("targets", new TargetsNode());
-        Graph.AddNodeEdge("global_illumination", "targets");
+        Graph.AddNodeEdge("ambient_occlusion", "targets");
         Graph.AddNode("shadows", new ShadowNode());
         Graph.AddNodeEdge("targets", "shadows");
         Graph.AddNode("probes", new ProbeNode());
@@ -204,9 +191,8 @@ internal sealed class Renderer : IDisposable
         // A cascade of the scene's distance field drawn over the window, where a command asks.
         Graph.AddNode("scene_field_view", new SceneFieldViewNode());
         Graph.AddNodeEdge("immediate", "scene_field_view");
-        // And what global illumination holds, where a command or its window asks.
-        Graph.AddNode("bounce_view", new BounceViewNode());
-        Graph.AddNodeEdge("scene_field_view", "bounce_view");
+        foreach (var part in _parts)
+            part.AddNodes(Graph);
         Logger.Debug("Default MainPassNode added to render graph.");
 
         // Pipeline cache deduplicates compiled pipelines across nodes.
@@ -270,7 +256,7 @@ internal sealed class Renderer : IDisposable
 
     // A built-in shader compiled with defines, or none, said in the log with otherwise, where the
     // build is not in the cache and there is no compiler to make it.
-    private static ShaderProgram? Build(string file, string[] defines, string otherwise)
+    internal static ShaderProgram? Build(string file, string[] defines, string otherwise)
     {
         try
         {
@@ -287,6 +273,25 @@ internal sealed class Renderer : IDisposable
     /// <summary>Registers an extract system that copies game-world data into the <see cref="RenderWorld"/> each frame.</summary>
     /// <param name="sys">The extract system to add.</param>
     public void AddExtractSystem(IExtractSystem sys) => _extractSystems.Add(sys);
+
+    // The parts plugins added, started with the renderer, their nodes added after its own.
+    private readonly List<IRendererPart> _parts = [];
+
+    // The world the renderer started in, which a part added after it started loads its shaders from.
+    private World? _world;
+
+    /// <summary>
+    /// Adds a part a plugin brings, started as the renderer starts and let go with it, or at once
+    /// where the renderer has started, as an offscreen run's does in RenderPlugin's own build,
+    /// before the plugins after it add their parts.
+    /// </summary>
+    internal void AddPart(IRendererPart part)
+    {
+        _parts.Add(part);
+        if (!_initialized || _world is not { } world) return;
+        part.Initialize(this, Context.Graphics as GraphicsDevice, world.Resource<AssetServer>());
+        part.AddNodes(Graph);
+    }
 
     /// <summary>Registers a prepare system that runs before graph execution each frame.</summary>
     /// <param name="sys">The prepare system to add.</param>
@@ -495,10 +500,10 @@ internal sealed class Renderer : IDisposable
         RenderWorld.TryGet<VolumetricFogRenderer>()?.Dispose();
         RenderWorld.TryGet<SubsurfaceRenderer>()?.Dispose();
         RenderWorld.TryGet<SceneFieldRenderer>()?.Dispose();
-        RenderWorld.TryGet<GlobalIlluminationRenderer>()?.Dispose();
+        foreach (var part in _parts)
+            part.Dispose();
         RenderWorld.TryGet<MirrorRenderer>()?.Dispose();
         RenderWorld.TryGet<SceneFieldViewRenderer>()?.Dispose();
-        RenderWorld.TryGet<BounceViewRenderer>()?.Dispose();
         Logger.Debug("Render graph nodes disposed.");
 
         // Pipeline cache must be disposed before the graphics device.

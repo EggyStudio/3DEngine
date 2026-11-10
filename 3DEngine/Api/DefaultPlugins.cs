@@ -40,6 +40,7 @@ public sealed class DefaultPlugins : IPluginGroup, IPlugin
         new AppWindowPlugin(),
         new AppExitPlugin(),
         new RenderPlugin(),
+        new GlobalIlluminationPlugin(),
         new FlatApiPlugin(),
         new AssetPlugin(),
         new ScenesPlugin(),

@@ -42,8 +42,6 @@ internal sealed class LightExtract : IExtractSystem
             renderWorld.Set(field);
         }
         else renderWorld.Remove<SceneFieldSettings>();
-        if (world.TryGetResource<GlobalIlluminationSettings>(out var bounce)) renderWorld.Set(bounce);
-        else renderWorld.Remove<GlobalIlluminationSettings>();
         if (world.TryGetResource<SubsurfaceSettings>(out var subsurface)) renderWorld.Set(subsurface);
         else renderWorld.Remove<SubsurfaceSettings>();
 

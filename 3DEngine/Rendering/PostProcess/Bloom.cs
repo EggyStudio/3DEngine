@@ -331,7 +331,7 @@ internal sealed partial class BloomRenderer : IDisposable
         pass.SetScissor(0, 0, target.Extent.Width, target.Extent.Height);
         renderWorld.TryGet<ModelRenderer>()?.Draw(pass, target.RenderPass, renderContext, renderWorld, target: 0, held: true);
         // A cascade of the probes of global illumination, where a command asks, hidden by the meshes as one is.
-        renderWorld.TryGet<BounceViewRenderer>()?.DrawProbes(pass, target.RenderPass, renderContext, renderWorld);
+        renderWorld.TryGet<IProbesView>()?.DrawProbes(pass, target.RenderPass, renderContext, renderWorld);
         renderWorld.TryGet<ImmediateRenderer>()?.Draw(pass, target.RenderPass, renderContext, renderWorld, target: 0, end: split, held: true);
         return true;
     }

@@ -105,8 +105,6 @@ internal sealed class RenderPlugin : IPlugin
                 TriangleBudget = cfg.SceneField.TriangleBudget,
                 FarCascade = cfg.SceneField.FarCascade,
             });
-        if (cfg.GlobalIllumination != GlobalIllumination.Off)
-            app.World.InsertResource(new GlobalIlluminationSettings { Quality = cfg.GlobalIllumination });
         app.World.InitResource<TextureStore>();
         app.World.InitResource<MeshStore>();
         app.World.InitResource<ShaderStore>();

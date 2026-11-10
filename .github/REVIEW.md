@@ -1,47 +1,43 @@
 # Review
 
-Reviewed up to `4fb868ca`, 244's fourth and last commit, SetSceneFieldAhead, pushed at 10:14 on
-2026-11-10 with `c9e39823`, `bfffbbc4` and `d622ea09`, the followed exposure's bounds in EV with the
-bloom's kind and the three-number grade, the pair between sRGB and linear light, and
-SkyDay.SunByHeight, one run on the last; they keep the form and carry the review's files. Their
-package goes with the next pack run, the game taking them in its 167. After it `ae62fa22`, 247, the
-followed exposure's adapted light kept in 32-bit floats so it rests at its meter whatever the
-frames' pace, the night door at 122.77 unpaced and at 30 frames a second, committed at 11:01 on
-2026-11-10, and `32e4407c`, 238, the caches listed and cleared from e3d, the pipelines written while
-a program runs and the shader cache swept of what went unread for 14 days, committed at 11:40; and
-`66301da6`, 235's first cut, the illumination's binding and its sizes in a static of their own that
-the rest of the rendering reads, committed at 12:09; the three are pushed once `4fb868ca`'s run has
-ended; they keep the form. Before it `f68075f1`, 239, every cascade built at the most raised budget
-after a cut, pushed at 07:44 on 2026-11-10 with `9c6c8d0e`, 245, the far cascade's band weighed
-around the eye, and `f77e4cf4`, build/flicker.py's three options, their run green at 10:13 with
-macOS in 42 minutes, Windows in 74 and 126, Linux in 135 and the examples in 13, their pack run with
-publish going since the ramp's ended. Before it `e86ca5c3`, 240's ramp, a pixel whose screen probes
-stand on a surface like its own for under a quarter of their weight taking the world's probes' light
-by its shortfall, with the march by thin walls, pushed at 05:41 on 2026-11-10, its run green at
-07:43 with macOS in 43 minutes, Windows in 108 and 122, Linux in 105 and the examples in 11, its
-pack run green at 08:57 with its captures in 58 and 72 minutes and its games in 70, publishing
-6.2.14, tagged `v6.2.14`; the game reads its shaded ground on that package and its walk on the next.
-The working session was ended at 01:15 on 2026-11-10 by the kernel, a python3 of its own having read
-its 4.3 GB transcript whole into 27 GB beside 18 GB of old frames in /tmp, and was resumed by the
-owner at 04:23, its scratch cleared (N 7.10). Before it `adb41aa7`, the example's sponza.turn and
-build/flicker.py, pushed at 01:18 on 2026-11-10, green at 03:44. Before it `94097b62`, 242, a hit
-marching its brightest glow light and gathering the rest as one, pushed at 22:41 on 2026-11-09 with
-241 and 243, green at 00:35, whose pack run published 6.2.12 at 02:34, tagged `v6.2.12`, which the
-game pins since its `cfffcb3`. Before it `ed469e90`, 237, the illumination's cycles eased in the
-merge and the screen filter, pushed at 20:18 on 2026-11-09, its run green at 22:13 with macOS in 45
-minutes, Windows in 98 and 115, Linux in 104 and the examples in 10; it keeps the form. Before it
-`c23cd2d4`, 226's fourth and last commit, green at 20:15 on 2026-11-09, whose pack run published
-6.2.8 at 21:08, the package 3DEngine, its twelve areas and the templates, tagged `v6.2.8`, which
-settled Verdict 111. The release scene-packs holds intel-sponza.pack since 17:58 on 2026-11-09, so
-./e3d scenes fetch works. nuget.org holds 6.0.11, 6.0.14, 6.0.91, 6.1.12, 6.2.8, 6.2.12 and 6.2.14,
-the game pinned to 6.1.12, tagged `v6.1.12` at `8dba0d1c`; the version stands at 6.2, tagged
-`v6.2.0` at `1c3c38d5`. Item 6's three package bumps wait on the owner's word since October. Every
-push and run before `c23cd2d4` since 2026-10-23 stands in REVIEW-ARCHIVE.md under Head records.
+Reviewed up to `dd0adff0`, 235's second cut, the passes the frame and the targets ask of the
+illumination through an interface, pushed at 12:48 on 2026-11-10 with `ae62fa22`, 247, the followed
+exposure's adapted light in 32-bit floats so it rests at its meter whatever the frames' pace,
+`32e4407c`, 238, the caches listed and cleared from e3d, and `66301da6`, 235's first cut, one run on
+the last and a pack run with publish started on it at 12:48; they keep the form and carry the
+review's files. Before it `4fb868ca`, 244's fourth and last commit, pushed at 10:14 on 2026-11-10
+with its three before it, their run green at 12:44 with macOS in 46 minutes, Windows in 63 and 96,
+Linux in 141 and the examples in 9; their package comes from the pack run above, the game taking
+them in its 167. Before it `f68075f1`, 239 with 245 and build/flicker.py's options, pushed at 07:44,
+green at 10:13, whose pack run went green at 12:41 with its captures in 58 and 71 minutes and its
+games in 53, publishing 6.2.17, tagged `v6.2.17`, which the game pins for the clouds and the cuts.
+Before it `e86ca5c3`, 240's ramp, a pixel whose screen probes stand on a surface like its own for
+under a quarter of their weight taking the world's probes' light by its shortfall, with the march by
+thin walls, pushed at 05:41 on 2026-11-10, its run green at 07:43 with macOS in 43 minutes, Windows
+in 108 and 122, Linux in 105 and the examples in 11, its pack run green at 08:57 with its captures
+in 58 and 72 minutes and its games in 70, publishing 6.2.14, tagged `v6.2.14`; the game reads its
+shaded ground on that package and its walk on the next. The working session was ended at 01:15 on
+2026-11-10 by the kernel, a python3 of its own having read its 4.3 GB transcript whole into 27 GB
+beside 18 GB of old frames in /tmp, and was resumed by the owner at 04:23, its scratch cleared (N
+7.10). Before it `adb41aa7`, the example's sponza.turn and build/flicker.py, pushed at 01:18 on
+2026-11-10, green at 03:44. Before it `94097b62`, 242, a hit marching its brightest glow light and
+gathering the rest as one, pushed at 22:41 on 2026-11-09 with 241 and 243, green at 00:35, whose
+pack run published 6.2.12 at 02:34, tagged `v6.2.12`, which the game pins since its `cfffcb3`.
+Before it `ed469e90`, 237, the illumination's cycles eased in the merge and the screen filter,
+pushed at 20:18 on 2026-11-09, its run green at 22:13 with macOS in 45 minutes, Windows in 98 and
+115, Linux in 104 and the examples in 10; it keeps the form. Before it `c23cd2d4`, 226's fourth and
+last commit, green at 20:15 on 2026-11-09, whose pack run published 6.2.8 at 21:08, the package
+3DEngine, its twelve areas and the templates, tagged `v6.2.8`, which settled Verdict 111. The
+release scene-packs holds intel-sponza.pack since 17:58 on 2026-11-09, so ./e3d scenes fetch works.
+nuget.org holds 6.0.11, 6.0.14, 6.0.91, 6.1.12, 6.2.8, 6.2.12, 6.2.14 and 6.2.17, the game pinned to
+6.1.12, tagged `v6.1.12` at `8dba0d1c`; the version stands at 6.2, tagged `v6.2.0` at `1c3c38d5`.
+Item 6's three package bumps wait on the owner's word since October. Every push and run before
+`c23cd2d4` since 2026-10-23 stands in REVIEW-ARCHIVE.md under Head records.
 
 Next 235, the illumination as its own project, the last open item; 6 waits on the owner's word. The
-game pins 6.2.14 of `e86ca5c3` and reads its shaded ground on it, and the package of `f68075f1`'s
-for the clouds and the cuts. No budget by Decision 94; the door at 8:00 the one target by Decision
-95; a fault seen in motion is read in motion by Decision 107.
+game is on 6.2.14 and pins 6.2.17 of `f68075f1` for the clouds and the cuts, then the package of
+`dd0adff0`'s pack run with its 167. No budget by Decision 94; the door at 8:00 the one target by
+Decision 95; a fault seen in motion is read in motion by Decision 107.
 
 REVIEW-ARCHIVE.md beside this file holds, their numbers kept, the items done, the items closed or
 parked, the verdicts settled, Decisions 1 to 93, the Replies before those here and the head records,
@@ -94,7 +90,12 @@ reverted as the screen probes' limit at shapes about a tile wide, its patches in
     GpuScreenProbes.Create, and a static Illumination holding the sizes and tables the ambient
     occlusion, the bloom, the model pass, the fog and the lighting buffer read; GlowOnly and the
     history's view go through the second cut's interface and not a frame record, the lighting buffer
-    reading the frame before's as it did; the suite 2,325, the listing unchanged.
+    reading the frame before's as it did; the suite 2,325, the listing unchanged. The second cut is
+    `dd0adff0`, IIlluminationPasses in Rendering carrying GlowOnly, the history's view, TracesRays,
+    KeepFrame and DrawTarget, the renderer set under it in the render world, so the HDR nodes, the
+    targets' node and the lighting buffer name no renderer; the suite 2,325. The third cut's shape
+    is agreed, a renderer part a plugin adds before the renderer starts, which the renderer calls to
+    load its shaders, add its nodes and dispose, since the renderer starts after the plugins build.
 
 238. **The caches listed and cleared from e3d.** From the owner's question of 2026-11-09, whether an
     old cache of shaders keeps the picture old. The shader cache is keyed by the source's hash, the
@@ -124,65 +125,6 @@ reverted as the screen probes' limit at shapes about a tile wide, its patches in
     alone; a pipeline file over 256 MB is read as empty and logged. The pipeline test of a second
     run leaving the file as it was failed once in a filtered run beside the Slang compiler's tests
     and passed since, watched. Done at `32e4407c`.
-
-244. **Post-processing settings in the units a person types.** Decision 108 on 2026-11-09.
-    scenes_sponza sets its grade, its bloom and its metering through formulas, 2 to a power less 1,
-    a decode from sRGB, 0.05 plus 0.9 times a share, 2 to the camera's EV less 14 and the log of a
-    meter's constant, which a reader should not need to set a look. Three are constants and are
-    written as their numbers, the bloom's intensity of 0.19 and threshold of 0.09 and the metering's
-    compensation of -0.79, their derivation in the guide alone. Three are the surface's. The
-    exposure that follows the scene takes its limits in EV at ISO 100 beside the multipliers, in a
-    function of its own named as the session finds best, so the example says -1 and 14, the
-    multipliers kept for a program that sets no camera exposure. The scatter runs from 0 to 1 over
-    the range it spreads, a tight glow to a wide haze, and which bloom is drawn, the added one or
-    the scattered, is chosen by an argument or a function of its own and no longer by a scatter of
-    0, the getters following. SetLiftGammaGain gains a form of three numbers, how far the shadows,
-    the middle and the highlights move brighter with no hue, beside the three vectors. The bloom's
-    threshold stays in linear light, 1 for white, as the owner confirmed. One function a setting and
-    one unit, a short form only where it is a part of the long one in the same unit; the surface
-    changes outright, nothing kept for upgrading before a release, with the public listing, the
-    cheat sheet, the guide's section and its worked numbers and every example that calls them, no
-    capture changing since each new form sets what the old form's formula set. A test holds that,
-    the EV limits against the multipliers at two camera exposures, the scatter at its ends and its
-    middle, and the three numbers against the vectors. Three more places of the same kind, on the
-    owner's second yes at about 22:11 on 2026-11-09, each a commit of its own after the first. The
-    sRGB curve is written out by hand in scenes_sponza and twice in the voxel game, and a gamma of
-    2.2 stands for it in five more examples, where the engine has a color from a temperature and
-    nothing between linear light and sRGB; a pair of functions decodes an sRGB value to linear light
-    and encodes it back, for a channel and for a color, named as the session finds best, and the
-    examples that mean the curve call it, a port of a raylib program keeping what raylib's has.
-    scenes_sponza works the sun's height out again from the day sky's own path, a cosine and a sine,
-    to scale the sun's illuminance by it with a floor; the day sky takes one strength and scales it
-    by the sun's height itself, as an option of SkyDay, so the example states a strength and an
-    hour, its frames at 8:00, noon and 16:00 unchanged. The voxel game places the scene field half
-    the finest cascade ahead of its eye by the engine's 64 cells times its own cell size; the engine
-    gains the option, the field's center held that far ahead of a camera, so no program writes the
-    engine's cell count out, the game taking it at its next pin (its item 167). A test for each, the
-    pair against the curve's known values and round trips, the sun's light by hour against the
-    example's formula, the center against the product. SHARED.md has the row. After 239, before 238.
-    The first commit is `c9e39823` on 2026-11-10. SetAutoExposureEv100 takes the lowest and the
-    highest EV at ISO 100, SetCameraExposure working the multipliers out again and SetAutoExposure
-    keeping the multipliers and clearing the bounds; BloomKind, Added or Scattered, is set by
-    SetBloomKind and SetBloomScatter runs from 0 to 1 over the chain's range, a half unless set;
-    SetLiftGammaGain takes three numbers beside the vectors. scenes_sponza writes 0.189 and 0.0907,
-    Scattered at 0.7, -1 and 14, -0.79 and a gamma of 0.225, its noon view within 0.38 levels of the
-    head's on the mean; PostProcessUnitsTests hold each new form to the old one's formula. The three
-    further parts follow, the sRGB pair with a form in the shader library beside the C# functions,
-    since the examples' 2.2 stands in their shaders. The second commit is `bfffbbc4`, SrgbToLinear
-    and LinearToSrgb for a channel and ColorToLinear and ColorFromLinear for a color, alpha kept,
-    over one curve in Core that the engine's eleven hand-written copies call; the shader library
-    held srgbToLinear and linearToSrgb in color.slang already, and the examples' 2.2 stands in nine
-    shaders that are raylib's ports and keep it, so no example changes; the suite 2,319 in order and
-    shuffled. The game takes the pair in its 167. The third commit is `d622ea09`,
-    SkyDay.SunByHeight, the sun's strength outside the air scaled by the sine of its height on the
-    day's path with a floor of a twenty-fourth, the example's 5,000 of 120,000, which keeps the
-    twilight's air lit to 12 degrees under the horizon, and nothing without air; scenes_sponza sets
-    its day once and the hour after, its sun at 8:00, noon, 16:00, 6:12 and 17:54 within 1e-4 of its
-    old formula; the suite 2,320. The fourth and last commit is `4fb868ca`, SetSceneFieldAhead and
-    GetSceneFieldAhead, the field held ahead of the camera along its view by that many widths of the
-    finest cascade, a center given by SetSceneFieldCenter coming first and 0 the default, so the
-    voxel game's product becomes SetSceneFieldAhead(0.5f) at its next pin; the suite 2,321. Done in
-    four commits, `c9e39823`, `bfffbbc4`, `d622ea09` and `4fb868ca`.
 
 247. **The night door's picture differs between two runs of one build.** From 244's first commit on
     2026-11-10. scenes_sponza's door at 20:00 with the lamps on reads 2.98 levels on the mean
@@ -455,56 +397,6 @@ Decisions in REVIEW-ARCHIVE.md.
 
 ## Replies
 
-Item 244's first commit, the post-processing settings in the units a person types. The exposure that
-follows the scene takes its bounds in EV at ISO 100 by `SetAutoExposureEv100(lowest, highest)`, the
-multipliers worked out against the camera's EV and again when `SetCameraExposure` changes it, and
-`SetAutoExposure`'s multipliers kept for a program that sets no camera, giving the bounds as
-multipliers again when called after; `GetAutoExposureEv100` answers the bounds or null. The bloom
-drawn is chosen by `SetBloomKind(BloomKind.Added | BloomKind.Scattered)`, the engine's added one
-unless set, and `SetBloomScatter` runs from 0 for a tight glow to 1 for a wide haze, laid over the
-chain's 0.05 to 0.95, 0.5 unless set; `GetBloomKind` and `GetBloomScatter` follow. `SetLiftGammaGain`
-takes three numbers beside the three colors. scenes_sponza writes its constants as numbers,
-`SetBloom(0.189f, 0.0907f)`, `SetBloomScatter(0.7f)` and a compensation of -0.79, its metering
-`SetAutoExposureEv100(-1, 14)` and its grade `SetLiftGammaGain(0, 0.225f, 0)`, the derivations in
-the guide. The test holds the EV bounds against the multipliers at two cameras, the scatter at 0,
-0.5, 1 and 0.7, and the three numbers against the colors. The bloom tests choose the scattered
-bloom by its kind at a scatter of 0.7. Held at noon, the first view shot with HEAD and with these
-forms differs by 0.38 levels on the mean and on 0.001% of the pixels past 2, as two runs of one
-build do; the door at 20:00 with the lamps differs less between HEAD and these forms, 0.87 on the
-mean, than between two runs of the same build, 2.98, so no capture changes. The sRGB pair, the day
-sky's strength by the sun's height and the field's center ahead of a camera follow, a commit each.
-
-Item 244's second commit, the sRGB pair. The flat API has `SrgbToLinear(value)` and
-`LinearToSrgb(value)` for a channel and `ColorToLinear(color)` and `ColorFromLinear(light)` for a
-color, its alpha as it is, over one internal curve in Core (`Srgb`), which the eleven places of the
-engine that wrote the curve by hand now call, the color by temperature, the modeling slots' glTF
-colors, the day sky's floor light and night tint, the models' emission both ways, the material from
-a color, the environment map, the texture store, the reference's PNG, the mesh entities' looks, the
-model draws' table and the bloom's threshold, each as it computed before. The shader library had the
-pair already, `srgbToLinear` and `linearToSrgb` in `color.slang`. The examples' 2.2 stands in nine
-shaders, each a port of raylib's own (lighting, lighting_instancing, fog, normalmap, shadowmap, pbr,
-skybox, voxel_lighting and raymarching's 0.4545), which keep what raylib's has, and scenes_sponza's
-decode left with the first commit, so no example changes. The test holds the curve's ends, its join,
-0.5 to 0.21404 and 0.18 to 0.46135, every level's round trip for a color and a channel, alpha kept
-and light past the ends held.
-
-Item 244's third commit, the sun's strength by its height. `SkyDay.SunByHeight` scales the sun's
-strength outside the air by the sine of its height on the day's path, no less than a twenty-fourth
-of it, which keeps the twilight's air lit after sunset until the sun is twelve degrees down, and
-does nothing without air, whose sky's own curve falls with the sun. scenes_sponza sets its day once,
-120,000 lux and the option, and an hour alone after, where it set the day again each hour with the
-sine worked out by hand. The test holds the sun's light at 8:00, noon, 16:00, 6:12 and 17:54 with
-the option against the strength set each hour by the example's formula, within a ten-thousandth, so
-the frames at those hours are the same.
-
-Item 244's fourth commit, the field held ahead of a camera. `SetSceneFieldAhead(cascades)` has the
-field lie ahead of the camera along its view, the way through the window's middle, by that many
-widths of its finest cascade, the cascade's cells times the cell size `SetSceneField` gives, 0 for
-around the camera as by default, where `SetSceneFieldCenter` gives no point, a given point coming
-first; `GetSceneFieldAhead` follows. The voxel game's `64 * CellSize / 2` is `SetSceneFieldAhead(0.5f)`
-at its next pin (its item 167). The test holds the field's point after a frame at 0.5 within a
-thousandth of the eye plus the way ahead times 64 cells of 0.15 over 2, and a given center first.
-
 Item 247, read on 2026-11-10. The night door's spread between two runs of one build is the meter's
 and not the light's. The two shots differ by one scale over the whole frame, the second 3% darker
 in the dark tones and 1.7% in the bright, the curve bending it. Held at a fixed exposure
@@ -618,3 +510,22 @@ history's camera, whether the window's meshes are built for the device's ray tra
 frame and drawing a render target's probes; the renderer implements it and is set in the render world
 under it beside its own type. HdrNodes, TargetsNode and LightingUboPrepare find it there, and none of
 them names the renderer. The fog took the binding alone after the first cut.
+
+Item 235's third cut. The renderer takes parts a plugin adds before it starts, IRendererPart, each
+called as the renderer starts to load its shaders on the device and set its renderers, after the
+renderer's own nodes to add its own by edges, and when the renderer is let go. GlobalIlluminationPlugin,
+still in Rendering and listed by DefaultPlugins after RenderPlugin, puts the settings the config
+names in the world, adds their extract, and adds the part, which loads the gi_* shaders into the
+stages, sets the illumination's renderer under its own type and IIlluminationPasses, sets the view of
+what it holds (BounceViewRenderer, which gi.show draws) under its own type and IProbesView, through
+which the bloom draws the probes as cubes, and adds the probes' node between the window's occlusion
+and the render targets and the view's node after the field's; the renderer keeps its own edge from the
+occlusion to the targets. RenderPlugin, LightExtract and the renderer name the illumination no more,
+but for the gi_trace builds among the shaders compiled ahead. The test builds a program from the
+default plugins without the illumination's, asks for High and finds no probes' node, renderer or
+settings in the render world and a frame of lit models equal to one drawn with the default plugins at
+Off, and with the default plugins at High the probes' node and traced probes and a frame that differs.
+A part added once the renderer has started is started at once, since an offscreen run's renderer
+starts in RenderPlugin's own build before the plugins after it add their parts; the first suite of
+this cut, without it, failed 165 tests in which no probes were traced, which the test's own frames,
+compared with the illumination off alone, did not catch, so it holds the default plugins' case too.
