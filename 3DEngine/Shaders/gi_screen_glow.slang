@@ -108,10 +108,21 @@ float3 fromEyeAt(float2 uv, float d)
     return way.xyz / way.w;
 }
 
+// The middle of the depth's texel that uv falls in. A point is found there with that texel's depth,
+// so it lies on the surface the depth holds. Where a texel of the glow lights' images spans a part
+// of the depth's texels, as two and two thirds at 1,440 rows, a point found at the texel's own
+// middle with the depth of the texel beside it stood off a surface seen at a slant by an amount
+// that came round every third row, the ways to the texels ahead and behind took two slopes, and
+// where the nearer of them changed along a row the ceiling's light ran in a line across it.
+float2 depthMiddle(float2 uv)
+{
+    return (floor(uv * view.sizes.xy) + 0.5) / view.sizes.xy;
+}
+
 // The point of the depth's texel `step` texels from uv along an axis, as its way from the eye.
 float3 pointAt(float2 uv, float2 step)
 {
-    float2 at = uv + step;
+    float2 at = depthMiddle(uv + step);
     return fromEyeAt(at, depth.SampleLevel(at, 0).r);
 }
 
@@ -272,7 +283,7 @@ void computeMain(uint3 id : SV_DispatchThreadID)
     if (id.x >= width || id.y >= height)
         return;
     float2 uv = (float2(id.xy) + 0.5) / float2(width, height);
-    float d = depth.SampleLevel(uv, 0).r;
+    float d = depth.SampleLevel(depthMiddle(uv), 0).r;
     if (d >= 1.0)
     {
         glowLight[id.xy] = float4(0.0, 0.0, 0.0, -1.0);
@@ -282,7 +293,7 @@ void computeMain(uint3 id : SV_DispatchThreadID)
         return;
     }
     // The surface's normal from its way along each axis, toward the eye.
-    float3 fromEye = fromEyeAt(uv, d);
+    float3 fromEye = fromEyeAt(depthMiddle(uv), d);
     float3 p = view.eye.xyz + fromEye;
     float2 texel = 1.0 / float2(width, height);
     float3 n = surfaceNormal(cross(wayAlong(uv, fromEye, float2(texel.x, 0.0)), wayAlong(uv, fromEye, float2(0.0, texel.y))), -fromEye);

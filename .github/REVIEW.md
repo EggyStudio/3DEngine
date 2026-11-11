@@ -1,6 +1,17 @@
 # Review
 
-Reviewed up to `c1243335`, 255's first mend, the probes' kernels made together on workers at the
+Reviewed up to `0527285a`, item 257, the owner's noise mended, each depth point of the glow texels',
+the screen probes' and the filter's passes kept as its offset from the eye through inverseFromEye
+worked out in doubles, the model pass's slopes taken from the way to the eye, a test of the room at
+the origin and at 4447, 24, 596 reading alike at Low and High, the probe of the rays past their
+reach moved by a rule to one no ray of which passes a slab's edge within a cell, and a uint no
+longer called a word, pushed at 23:23 on 2026-11-11, the push ending the rerun of the commit before
+it; the suite passed both legs, 2,346; on the owner's room at 2560 by 1440 the steps over 3 levels a
+row fall from 9 to 22 on the published package to 2 or 3, Ore at High costs nothing measurable, 7.41
+and 7.38 ms against 7.41 and 7.52, and sixteen times further out the room reads 0.49 at Low and 0.70
+at High against 0.34 and 0.31 at the origin, said and not asserted; packed unpublished as
+6.2.41-local.257 in build/package for the game's check; it keeps the form and carries the review's
+files. Before it `c1243335`, 255's first mend, the probes' kernels made together on workers at the
 first frame that traces them, the frame waiting for all, the bounce rooms' cold first frame in 12.3
 and 12.1 s where 28.6 and 30.1, with the guide's sentences on calling lit once and the game's ask of
 the engine's item 257, pushed at 19:59 on 2026-11-11 once the run before it had ended, its run green
@@ -24,14 +35,13 @@ second Windows half alone, the hall's new test hanging on that system's device, 
 the Linux legs and the first Windows half green. The pushes before these stand in
 REVIEW-ARCHIVE.md's head records.
 
-Next 257's commit, the stripes in a glow light's light on a wall, the owner's noise, found on the
-case as float precision far from the origin and mended there, the depth's points kept as offsets
-from the eye, with its test and its unpublished package for the game's check of the owner's view;
-then 261, a dither before the 8-bit write, asked by the owner of the coder the same evening; then
-259, the bright pixel at a silhouette's edge that bloom spreads into the blobs the owner saw in the
-distance, with 260, one pixel's light read by its terms; then 258, the same fault in the other
-passes, the reprojections, the model pass's slopes and the vertices first; then 256, the engine as
-one package by Decision 109, and the pack run with publish; then 255's remaining steps, the other
+Next the mend of the ceiling's line at 2560 by 1440, a glow texel's point taken at the middle of the
+depth texel whose depth it takes, its own commit; then 261, a dither before the 8-bit write, asked
+by the owner of the coder the same evening; then 256, the engine as one package by Decision 109, and
+the pack run with publish, so the owner's game gets 257 and the dither without waiting for the rest;
+then 259, the bright pixel at a silhouette's edge that bloom spreads into the blobs the owner saw in
+the distance, with 260, one pixel's light read by its terms; then 258, the same fault in the other
+passes, the shadows, the reprojections and the vertices first; then 255's remaining steps, the other
 first-frame pipelines made together on the workers and the trial of the lighting kept as functions,
 its first mend, the probes' kernels made together, at `c1243335`. The game is on 6.2.41 of
 `894542da` since its `068fd5f`. After them 250's further cuts, the hits' glow at 1.41 ms of the
@@ -249,7 +259,19 @@ reverted as the screen probes' limit at shapes about a tile wide, its patches in
     0.32 against 0.34, 0.29 and 0.31 at the origin. To come, the owner's room at Medium and High,
     the test of the room at the origin and far out, the crawl with the eye stepped, the glow rooms
     and the suite, the timing, the commit with the renames of a uint called a word, and the
-    unpublished package. The same fault in the other passes is item 258.
+    unpublished package. The same fault in the other passes is item 258. The game's check on the
+    package 6.2.41-local.257, recorded at 23:32, the game of `6b0043b` built on each package from a
+    fresh copy of the data, 8 rows across the east wall of 161 samples each. At 1280 by 720 the
+    published package has 0 to 29 steps over 3 levels a row and the mend none in any row at any
+    quality; at 2560 by 1440 the package has 2 to 16 and the mend none. The mean step falls from
+    0.29 to 1.31 to 0.18 to 0.36, the rows' means rise 1 to 2 levels where the dark stripes were,
+    and outside the corner the roughness from pixel to pixel is lower on the mend everywhere, by
+    half or more at Medium and High. One thing reads worse, at 2560 by 1440 alone and at each
+    quality, a straight line along the screen across the ceiling at rows 173 to 175, 3.4 levels over
+    its neighbors, beside the tile row at 176, which the published package does not have; and the
+    frame's top rows 3 to 5 stand out by 6 levels on the mend against 4.8. The sheet,
+    23-50-item-173-mend.png in the game's dump, went to the owner. The line is read by the engine's
+    coder before 261.
 
 258. **A point taken from the depth far from the origin, in the passes 257 did not touch.** From
     257's cause on 2026-11-11. Every scene the suite and the examples read stands at the origin, and
@@ -305,7 +327,14 @@ reverted as the screen probes' limit at shapes about a tile wide, its patches in
     before's light and the glow lights off leave the places as they are. Three asks stand in ASKS.md
     for this item, and the sheet is 23-30-item-174-places.png in the game's dump. The scene stays in
     the game's work folder i174 as the check of each mend, the screen's probes read first on 257's
-    package.
+    package. The game's later reads, recorded at 23:47. On the package 6.2.41-local.257 the screen's
+    probes read alike at the two places, the west wall's mean step 0.34, 0.35 and 0.37 near against
+    0.36, 0.37 and 0.39 to 0.40 at 4432, with ambient occlusion and the sun's shadow as before, so
+    the first of the three asks is answered by 257 and two stand. From its item 175, the same scene
+    further out, the land's faces part in a lattice of cracks with the sky through them from 284,688
+    blocks and the scene's faces tear into strips at 1,139,984, the game handing each section a
+    float matrix and the engine placing every vertex in world floats, the map's fourth entry, which
+    comes as a fourth ask.
 
 259. **A pixel at a silhouette's edge takes far more light than the surfaces it covers, and bloom
     spreads it into a blob.** From the owner on 2026-11-11, to the game's coder, "At distance there
@@ -353,8 +382,8 @@ reverted as the screen probes' limit at shapes about a tile wide, its patches in
 ## Verdicts
 
 Verdicts 56 to 116 are settled, said under each in REVIEW-ARCHIVE.md; Verdict 117 is open, the run
-of `c1243335` red by an outage of GitHub's Actions, its failed jobs run again when the service
-answers.
+of `c1243335` red by an outage of GitHub's Actions, settling on the run of `0527285a`, whose push at
+23:23 ended the rerun.
 
 117. **The run of `c1243335` is red in both Windows halves and the examples at the step that keeps
     an artifact, GitHub's own service failing.** In run 43082922479 the two Windows halves failed
@@ -800,3 +829,39 @@ the mend twice: the frame 7.41 and 7.52 ms against 7.41 and 7.38, gi_screen 3.06
 further out, at 71152, 384, 9536, the same room mended steps 0.49 at Low and 0.70 at High against
 0.34 and 0.31 at the origin, so the next limit stands between there and the owner's place, which
 item 258's list reads; the test asserts the owner's place alone.
+
+Item 257, the line across the ceiling at 2560 by 1440, read on the copy of the owner's room at its
+saved view. Rows 172 to 176 over x 1000 to 1240 read 26.3 against 23.0 about them, the line running
+from x 880 to 2100, and the frame's top rows 3 and 4 stand 1.5 over their neighbors against 0.5 on
+the package. Each of the mend's parts left out in turn. The mend before the slopes from toEye draws
+it alike, so the model pass does not. The screen pass's points from the eye put back, it stands 2.3
+over as mended, and the filter's put back, alike. The glow pass put back, it is gone, the package's
+noise back with it. So the glow pass draws it. At 1,440 rows a glow texel spans two and two thirds
+of the window's pixels, and each texel's point was found at the texel's own middle with the depth of
+the pixel under it, up to half a pixel away. On a ceiling seen at a slant that stood the point off
+the surface by an amount that comes round every third row, so the ways to the texels ahead and
+behind took two slopes, and the pick of the one that runs on in a line changes along a row there,
+and at the top rows, where the pick is held to the texel ahead. At 720 rows a texel spans two whole
+pixels, every point off by the same half pixel, and none shows. The mend finds each point at the
+middle of the depth's texel whose depth it takes, depthMiddle in the texel's point and in pointAt.
+
+On the room at 2560 by 1440 mended, rows 170 to 180 stand within 0.05 of their neighbors, the top
+rows' line is gone, and the east wall reads 3 and 2 steps over 3 levels a row as before. The
+ceiling's upper middle is brighter by up to 4.3 levels. Its mean in four regions reads 24.5, 27.3,
+39.2 and 18.0 against 24.4, 27.2, 39.0 and 18.1 for the same view at 1280 by 720, where at 2560 by
+1440 the mend read 20.7, 23.0, 36.2 and 16.4 and the package 21.9, 25.1, 37.1 and 16.9, so both drew
+that ceiling darker at 1,440 rows, and the mend brings it to what 720 rows draw. At 1280 by 720 the
+mend moves the frame by 0.001 of a level on the mean, 212 of its 921,600 pixels past 2 levels, the
+wall's rows alike.
+
+It is in the published package too, at the same place, hidden. The package's row 174 stands up to
+1.4 over its neighbors between x 1200 and 1680 under its noise, and the new test's room at the
+origin, where nothing is far, fails on the glow pass before 257 as on 257's, so 257 took away the
+noise that hid it and moved nothing.
+
+The test reads GlowFarFromOriginTests' lantern room's ceiling at the origin at 640 by 1440 against
+480 by 1080, at Low and High, each row's mean level over the middle half of the width in the top
+fifth. Mended no row stands more than 0.07 from the mean of the rows two either side, and the two
+sizes agree within 0.01, against bounds of 0.3 and 0.2. On 257's glow pass a row stands 0.92 and
+0.90 out and the taller window reads 0.68 and 0.67 darker, failing; on the pass before 257, 0.86 and
+0.84, and 0.68 and 0.67.

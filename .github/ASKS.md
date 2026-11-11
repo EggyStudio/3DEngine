@@ -1854,3 +1854,32 @@ for a point within 0.0005 of an eighth's edge. The mean step reads alike, 1.10 t
 to 1.12.
 
 The engine lacks a sun's shadow that steps the same far from the origin as near it.
+
+### 2026-11-11, the voxel game in `Voxel-Sandbox`, the land cracks from 284,688 blocks out and a built scene's faces tear at 1,139,984, every vertex placed in world floats
+
+For the engine's item 258. Read on the 3DEngine 6.2.41 package with the game at `6b0043b`, Debug, offscreen at 1280 by 720, on
+the RTX 4070 Laptop GPU with driver 615.78.08 on tuned's power-saving profile, from a copy of a
+player's data folder, the illumination at Low, the hour held at 13.35. The scene of the entry on the
+screen's probes above, with four spruce logs on snow and a pool, is built block for block with its
+corner at 16, 4,432, 17,808, 70,992, 284,688 and 1,139,984 blocks out along x, z 592, the offset a
+multiple of 64, and read from the same eye against each. The game gives each section of 16 blocks
+the float matrix of its corner's translation, and the engine places every vertex in world floats.
+
+Near the origin and out to 70,992 the land and the scene draw whole. At 284,688, where a float steps
+by 0.03, the land below the scene parts in a lattice of cracks along its faces' edges with the sky
+through them, near and far, while the scene stands whole. At 1,139,984, where a float steps by
+0.125, the scene's faces tear into strips and gaps, a pig on its floor is warped and the shadows'
+edges are ragged.
+
+The game's side of a mend is named too. It hands the engine each section as a float matrix of its
+corner's translation, `Matrix4x4.CreateTranslation(key.Origin)` in its ChunkRenderer, the corner a
+whole number of blocks far past what a float holds to a block's part. Its sections are kept as whole
+coordinates, a column's x and z and a section's y in ints, and their vertices as offsets within the
+section, so where the engine asked for it the game would hand over each section's place as its
+column and an offset, or as its corner in doubles, and keep its own vertices as they are.
+
+The engine lacks a way to draw a world whose places lie a million blocks from the origin, as by
+placing vertices against the eye from places given as a whole part and an offset, or in doubles.
+
+The sheet is in the game's `.github/dump/2026-11-11` under `item-175-far`, and the reads in
+`~/.cache/3dengine-tools/work/i175`.

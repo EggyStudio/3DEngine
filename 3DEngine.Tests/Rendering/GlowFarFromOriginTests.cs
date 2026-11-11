@@ -6,7 +6,8 @@ namespace Engine.Tests.Rendering;
 
 /// <summary>
 /// A glow light's light on a wall beside it far from the world's origin, as a voxel game's world
-/// stands, read as the same room reads at the origin.
+/// stands, read as the same room reads at the origin, and on the room's ceiling in a window whose
+/// glow texels span a part of its pixels, read as in one whose texels span two.
 /// </summary>
 [Collection("E3D")]
 [Trait("Category", "Render")]
@@ -52,11 +53,11 @@ public sealed class GlowFarFromOriginTests : IDisposable
         }
     }
 
-    // The mean step in levels between points 1/32 apart along rows of the east wall over the pocket,
-    // the room standing at origin, settled at the quality given.
-    private static double WallStep(Vector3 origin, GlobalIllumination quality)
+    // The room standing at origin in a window of the size given, settled at the quality given, its
+    // view and the level of each pixel of the frame in sRGB's 255ths.
+    private static (Camera3D View, float[] Levels) Drawn(Vector3 origin, GlobalIllumination quality, int width, int height)
     {
-        var config = Config.Default.WithWindow("far from origin", Width, Height) with { Headless = true, Offscreen = true, Samples = 1 };
+        var config = Config.Default.WithWindow("far from origin", width, height) with { Headless = true, Offscreen = true, Samples = 1 };
         UseApp(new App(config).AddPlugin(new DefaultPlugins()));
         SetSceneField(4, 0.25f);
         SetGlobalIllumination(quality);
@@ -88,12 +89,25 @@ public sealed class GlowFarFromOriginTests : IDisposable
         }
         var renderer = GetApp().World.Resource<Engine.Renderer>();
         var linear = ((GraphicsDevice)renderer.Context.Graphics!).ReadFloats(renderer.RenderWorld.TryGet<BloomRenderer>()!.Decoded!.ColorView.Image);
-        float Level(int x, int y)
+        var levels = new float[width * height];
+        for (int i = 0; i < levels.Length; i++)
         {
-            var i = (y * Width + x) * 4;
-            var l = 0.2126f * linear[i] + 0.7152f * linear[i + 1] + 0.0722f * linear[i + 2];
-            return 255 * Math.Clamp(l <= 0.0031308f ? 12.92f * l : 1.055f * MathF.Pow(l, 1 / 2.4f) - 0.055f, 0, 1);
+            var l = 0.2126f * linear[i * 4] + 0.7152f * linear[i * 4 + 1] + 0.0722f * linear[i * 4 + 2];
+            levels[i] = 255 * Math.Clamp(l <= 0.0031308f ? 12.92f * l : 1.055f * MathF.Pow(l, 1 / 2.4f) - 0.055f, 0, 1);
         }
+        UnloadModel(block);
+        UnloadModel(lantern);
+        CloseWindow();
+        UseApp(null);
+        return (view, levels);
+    }
+
+    // The mean step in levels between points 1/32 apart along rows of the east wall over the pocket,
+    // the room standing at origin, settled at the quality given.
+    private static double WallStep(Vector3 origin, GlobalIllumination quality)
+    {
+        var (view, levels) = Drawn(origin, quality, Width, Height);
+        float Level(int x, int y) => levels[y * Width + x];
         var (steps, count) = (0.0, 0);
         for (int row = 0; row < 16; row++)
         {
@@ -108,11 +122,21 @@ public sealed class GlowFarFromOriginTests : IDisposable
                 before = level;
             }
         }
-        UnloadModel(block);
-        UnloadModel(lantern);
-        CloseWindow();
-        UseApp(null);
         return steps / Math.Max(count, 1);
+    }
+
+    // The mean level of each row of the window's top fifth, where the ceiling shows, over the middle
+    // half of its width.
+    private static double[] CeilingRows(GlobalIllumination quality, int width, int height)
+    {
+        var (_, levels) = Drawn(Vector3.Zero, quality, width, height);
+        var rows = new double[height / 5];
+        for (int y = 0; y < rows.Length; y++)
+        {
+            for (int x = width / 4; x < width * 3 / 4; x++) rows[y] += levels[y * width + x];
+            rows[y] /= width / 2;
+        }
+        return rows;
     }
 
     [NeedsVulkanTheory]
@@ -127,5 +151,22 @@ public sealed class GlowFarFromOriginTests : IDisposable
         var near = WallStep(Vector3.Zero, quality);
         var far = WallStep(new Vector3(4447, 24, 596), quality);
         far.Should().BeLessThan(near * 1.5 + 0.1, $"at {quality} the wall far from the origin steps {far:0.00} levels between points 1/32 apart, as the same wall at the origin does, {near:0.00}");
+    }
+
+    [NeedsVulkanTheory]
+    [InlineData(GlobalIllumination.Low)]
+    [InlineData(GlobalIllumination.High)]
+    public void A_Glow_Lights_Light_On_A_Ceiling_Is_As_Even_Where_Its_Texels_Span_A_Part_Of_The_Pixels(GlobalIllumination quality)
+    {
+        // The ceiling seen at a slant from below, lit by the lantern, in a window of 1,440 rows,
+        // whose glow texels are two and two thirds of its pixels, and of 1,080, whose are two. A
+        // texel's point found at its own middle with the depth of the pixel under it stood off the
+        // ceiling by an amount that came round every third row, and the ceiling's light ran darker
+        // with a line across it where the texels' slopes changed.
+        var parted = CeilingRows(quality, 640, 1440);
+        var whole = CeilingRows(quality, 480, 1080);
+        var stands = Enumerable.Range(2, parted.Length - 4).Max(y => Math.Abs(parted[y] - (parted[y - 2] + parted[y + 2]) / 2));
+        stands.Should().BeLessThan(0.3, $"at {quality} no row of the ceiling stands out from the rows two either side of it");
+        parted.Average().Should().BeApproximately(whole.Average(), 0.2, $"at {quality} the ceiling takes the same light whatever part of a pixel its glow texels span");
     }
 }
