@@ -227,6 +227,17 @@ illumination window leave them out whole at any quality, those standing for the 
 `Low` with them, neither made nor traced, for the window and a render texture, so what they cost and
 give can be read, and each pixel then marches to the glow lights itself.
 
+A probe's ray that meets a surface takes the light of every glow light in its reach there, about
+thirty at a hit in Ore's lit caves, of which the brightest four give nine tenths. A light giving
+the hit under a 32nd of the largest of the lights before it is taken as one point at its box's
+middle, by the faces' own formula with one distance for every face and each face's slant toward
+the hit taken from the face, and the rest by their own forms, so the many faint lights cost one
+point each where their faces were up to three, and what they give is kept: in a hall lit by a grid
+of glowing blocks alone the picture moved by under a third of a level on the mean at `Low` and
+`High`, a level where the faint lights are left out, and Ore's frame at `High` at 1280 by 720 went
+from 7.86 to 7.36 ms on an RTX 4070, the first cascade's trace from 1.59 to 1.32 ms. `gi.toggle
+points off` takes every light by its own form, and `gi.state` says which.
+
 Past 1080 pixels high the probes stand further apart as the window is higher, every 11 pixels at
 `High` at 2560 by 1440 and every 16 at 3840 by 2160, so each stands for about the same share of the
 picture on any screen and their cost holds near 1080p's. In the voxel game's room of forty

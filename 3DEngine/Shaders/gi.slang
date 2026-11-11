@@ -118,7 +118,8 @@ public struct GiLights
     // environment map is multiplied by, its intensity, where the map stands in for it.
     public float4 sky;
     // x: how many lights. y: the frame's number. z: how strongly the indirect light of the frame
-    // before is added. w: unused.
+    // before is added. w: 1 where a probe's ray's hit takes every glow light by its own form, none
+    // as one point (gi.toggle points).
     public float4 counts;
     public GiLight lights[16];
     // xyz: the corner each cascade of probes lay at the frame before, where the faces the probes'
@@ -659,6 +660,14 @@ float3 glowLightsFrom<V : IVolume>(V field, SceneFieldInfo info, GiLights lights
     int most = min(marches, 4);
     float3 tangent = normalize(abs(n.y) < 0.9 ? cross(n, float3(0.0, 1.0, 0.0)) : cross(n, float3(1.0, 0.0, 0.0)));
     float3 bitangent = cross(n, tangent);
+    // At a hit, each light taken as one point (glowLightPoint), kept so where it gives under a 32nd
+    // of the largest such point of the lights before it, and otherwise taken by its own form. A
+    // hit in a voxel game's lit cave takes many lights, the brightest few of them most of its
+    // light, so the many faint ones take one point where their faces were up to three. Measured
+    // against the largest so far, a light kept as a point gives under a 32nd of the largest of all,
+    // and a light read before the largest takes its own form at worst, a second pass to find the
+    // largest first costing more than the points save.
+    float largest = 0.0;
     [loop]
     for (int i = 0; i < count; i++)
     {
@@ -667,7 +676,12 @@ float3 glowLightsFrom<V : IVolume>(V field, SceneFieldInfo info, GiLights lights
         if (faded <= 0.0 || (dot(way, way) > 0.0 && glowLightPassed(light, p, way, 2.0 * margin)))
             continue;
         float3 arrived;
-        if (dot(way, way) > 0.0 && cell > 0.0 && glowLightDistance(light, p) < cell)
+        float3 point = hit ? glowLightPoint(light, p, n, margin) * faded : float3(0.0);
+        float pointed = luminance(point);
+        largest = max(largest, pointed);
+        if (hit && pointed * 32.0 <= largest && lights.counts.w < 0.5)
+            arrived = point;
+        else if (dot(way, way) > 0.0 && cell > 0.0 && glowLightDistance(light, p) < cell)
         {
             if (glowLightOn(light, p, n, margin))
                 continue;

@@ -204,6 +204,37 @@ public float3 glowLightFaces(GlowLight light, float3 x, float3 n, float margin)
     return light.glowAndShare.rgb * (sum * glowShare(light));
 }
 
+// The light reaching x facing n from a glow light, unhidden, by glowLightFaces' formula with one
+// distance and one way for every face, its box's middle's, each face that x lies before and that
+// emits by its area, the cosine at the face and the cosine at x toward the face's own middle, since
+// a light standing on the surface x lies on lights it at a grazing angle, which the middle, lower
+// than the top face, would halve. A probe's ray's hit takes the lights that give it little this
+// way (glowLightsAt). None where x lies on the light's own surface.
+public float3 glowLightPoint(GlowLight light, float3 x, float3 n, float margin)
+{
+    if (glowLightOn(light, x, n, margin))
+        return float3(0.0);
+    float3 middle = light.middleAndReach.xyz;
+    float4 halves[3] = { light.halfX, light.halfY, light.halfZ };
+    float3 toward = middle - x;
+    float distance2 = max(dot(toward, toward), 1e-12);
+    float inverse = rsqrt(distance2);
+    uint faces = glowFaces(light);
+    float sum = 0.0;
+    [unroll]
+    for (int k = 0; k < 3; k++)
+    {
+        float3 h = halves[k].xyz;
+        float side = -dot(toward, h);
+        float squared = halves[k].w * halves[k].w;
+        if (squared < 1e-12 || abs(side) <= squared || (faces & (1u << uint(2 * k + (side > 0.0 ? 1 : 0)))) == 0u)
+            continue;
+        float3 face = toward + (side > 0.0 ? h : -h);
+        sum += 4.0 * halves[(k + 1) % 3].w * halves[(k + 2) % 3].w * abs(dot(toward, h)) / halves[k].w * max(dot(face, n), 0.0);
+    }
+    return light.glowAndShare.rgb * (sum * inverse * inverse / distance2 * glowShare(light));
+}
+
 // The rough unhidden light reaching p facing n from a glow light, half the surface of its box's
 // faces that emit over the square of p's distance from the box's nearest point, softened by twice
 // its thinnest half side, by how far its middle rises above p's plane. The window's glow light is

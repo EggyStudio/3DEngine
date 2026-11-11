@@ -11805,6 +11805,26 @@ at `36cae0c2`.
     cause stays inferred and not seen, and where a game stops answering again the fuller account of
     the sessions folder says which file the driver saw.
 
+114. **The runs of `f91440e5` are red on macOS, the log line's test asking of MoltenVK a hit it does
+    not report.** In the push run 42978968681 and the pack run 42978968240, both started at 08:21 on
+    2026-11-11, the macOS job failed after 40 minutes, 2,229 passed and 1 failed,
+    PipelineCacheTests' test of a pipeline named with its time, its second line reading
+    named.slang's computeMain in 1 ms, compiled, stages e5eb271b where the test asks it to contain
+    from the cache; the Linux legs and the Windows halves are going. So on MoltenVK the driver's
+    feedback is valid, the cache holds bytes by the device's own test and the second creation is
+    still reported compiled, the gate of `f91440e5` on the cache holding bytes not being the rule
+    for a driver's word on a hit. The review saw the first form would fail on a runner and accepted
+    that gate without a device to try it on. The mend is the test asking the form and the one hash
+    on every device and the hit of none, the driver's word being what the line reports and no
+    promise of the engine's; where a hit is worth a test, it is one of the engine's own cache over
+    two runs, as the two-run trial read it. The pack run cannot publish with this job red, so the
+    mend goes up at once, alone, without the spread, and a new pack run with publish is started on
+    it. Written at 09:06 on 2026-11-11. Mended at `894542da`, pushed at 09:16, the test's file
+    alone, the cache's tests and the norm's passing on the GPU with validation and on lavapipe; the
+    pack run with publish 42985743208 started on it and the old one canceled. Settles where the
+    macOS job of its run is green. Settled on 2026-11-11. The push run of `894542da` has its macOS
+    job green at 10:06 in 49 minutes with the test asking no hit of the driver's.
+
 ## Decisions
 
 1. **Commits stay local.** The owner pushes `main` from their own tools, and the working session
@@ -16213,6 +16233,263 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     terrain shader; all three trees fail alike from that folder and every build from the game's main
     checkout is sound. The engine's read stands as the proof that a center set each frame builds and
     lights as the option does. What it leaves is the game's, its item 169.
+
+250. **The illumination's cost in the voxel game, read by pass, and the largest cut that holds the
+    readings.** From the game's item 166 on 2026-11-10 and Decision 94, the cost recorded and cut
+    after. At the game's spawn at 1280 by 720 on the RTX 4070 laptop GPU the frame takes 13.3 ms at
+    High, the illumination's pass 8.4 of them and the lit scene's 3.5, and 2.6 with the illumination
+    off, so the illumination is two thirds of the frame, and item 140's read of 2026-11-03 put it at
+    8.05 ms at 1080p. One read by pass in a scene of the engine's own that draws as the game does,
+    the Ore example by day or the game's build through the profile, the field's builds, each
+    cascade's trace, the merge, the screen probes' trace, their filter and the glow, at Low, Medium
+    and High. Then cuts one at a time, the largest first, each landing where the views' readings,
+    the rooms and the turn's flicker by build/flicker.py hold within their bounds and recorded where
+    it costs one (Decision 95). After 249 and the game's ask on the field after a cut. The glow
+    lights' trials at 20:28 on 2026-11-10, Ore by day at High at 1280 by 720, the frame 8.89 ms and
+    the screen probes' pass 3.48. The probes' marches to the faint lights are 0.80 ms and to the
+    bright lights' faces 0.18; every light's rough form at a probe's ray's hit takes 1.17 ms off the
+    frame and moves 8.5 percent of the pixels past 6 levels, too visible; the rough form past four
+    of a light's half diagonals alone takes 0.36 ms off, the frame 8.53, and moves 0.02 percent past
+    6 with a mean of 0.32 levels, and is the first cut. Two conditions of the review before its
+    commit. The branch stands in glowLightsAt for every caller, so a pixel the model pass shades
+    itself through glowLights takes the rough form too, where the pieces kept the floor free of a
+    step at four half diagonals; the rough form is kept to the hits, or a lamp's floor with the
+    screen's glow off shows no step, and the still is read at Low as well. The walk's 21.4 percent
+    past 12 is the walk's own change, so the cut's walk is read against the base's frame by frame
+    beside a second base walk, or by the carried turn. Two exact candidates from the review's read
+    of the code after it, the screen probes' march to a faint light that gives the probe nothing,
+    and squareIrradiance's corners normalized twice with a clip a face wholly above the plane does
+    not need. Both conditions met at 21:27. The rough form stands at the hits alone, the model
+    pass's pixels keeping the closed form and the pieces, High at 8.47 ms and Low at 5.17 where
+    5.24, the stills 0.01 percent past 6 at both; Ore's walk does not repeat by frame count, two
+    base walks 10 percent apart, so a still under the probes' jitter over 90 frames stood for the
+    motion, the cut against the base 0.000 percent past 6 frame by frame as a second base is. The
+    march to a faint light that gives the probe nothing, skipped, brings High to 8.17 with the
+    picture at the noise and is the second cut, a commit of its own; the corners normalized once
+    gained nothing and are dropped. Before a cut that changes the picture Ore gets a turn of fixed
+    steps as Sponza has, which build/flicker.py carries. For the near form at hits two trials, the
+    rough form from three half diagonals and the pieces between two and four, and where neither
+    holds the still, the screen probes' pass is read by part and the next cut picked by its size.
+    Corrected at 22:06. The rough form at hits fails the suite and is not committed, the room lit by
+    one block of GlowLightsTests reading 1.673 of its path-traced reference where 0.1 either way is
+    allowed, the block 0.3 units so that most of the room's hits lie past four half diagonals;
+    glowLightRough is a scale for a pixel's share with no cosine at the face and holds no sum, which
+    Ore's stills could not show and the review's acceptance on them missed. The rough form is out at
+    hits at any distance, its two further trials stopped unread, and the reference rooms are the
+    first gate for a change of a form before Ore's frame is read. The march to a faint light that
+    gives nothing goes first, alone. The next form tried is each emitting face as one point at its
+    middle past eight half diagonals at hits, the pieces' own formula, the pieces from four to eight
+    and the closed form inside four; where the rooms hold, one point a face from four for a face
+    about square is tried after it. The first cut landed at `cfcfda02`, pushed at 23:51, the march
+    to a faint light that sends the probe nothing left out, one line of gi_screen.slang, 8.47 to
+    8.17 ms and the screen probes' pass 3.33 to 3.01 as read on the withdrawn cut, its reading on
+    the head to follow. The faces as points past eight half diagonals pass the glow lights' 15 tests
+    with the reference rooms and stand as a patch for Ore's frame and still, the four quarters as
+    one point from four after them. The trial's script ends its example as it exits. Read on the
+    head at 00:06 on 2026-11-11. The first cut takes the frame from 8.88 and 8.89 ms to 8.56 to
+    8.59, the screen probes' pass from 3.48 to 3.17 to 3.20. The faces as points past eight half
+    diagonals take it to 8.47 twice, the still at the noise against a second base, and are the
+    second cut once the suite passes; one point a face from four adds nothing at 8.49 and is
+    dropped. The glow lights' forms are done with that, 8.89 to 8.47. What is left is read by part
+    and the next cut picked by its size, the screen probes' 3.1 ms, the finest cascade's trace at
+    1.6, the lit scene's 1.4 and the two coarser cascades' 1.3 together, each pass with how many
+    probes and rays it traces a frame against how many it holds and which parts are spread over
+    frames; a cut that spreads work over frames is read by Ore's turn of fixed steps and by the
+    rooms. The second cut is `b7f176d9`, committed at 00:51 on 2026-11-11 and held until
+    `cfcfda02`'s run ends, a probe's ray's hit taking each face of a light past eight half diagonals
+    as one point, the suite 2,333 on both legs. By pass, Ore's four cascades each trace all 512
+    probes by 256 rays a frame, none spread, at 1.59, 0.91, 0.36 and 0.23 ms from the finest, and
+    the screen's probes all 14,400 by 16 rays with the glow's marches. Next the three coarser
+    cascades spread over frames as the far cascade's quarters are, by halves first. A turn does not
+    move the world's probes, so the spread is read against the unspread run at the same frame by a
+    walk of fixed steps long enough for each spread cascade to move a cell several times, by a cut
+    with 251's lift and by a light's change, with the rooms; a lag past the floor between two runs
+    is a cost recorded and no pass. Ore's turn, its walk and the eye in its status land as a commit
+    of their own before the trial. Both pushed at 01:45, the second cut and the reads' commands at
+    `56d77a29`, ore.turn, ore.walk and the eye and the point it looks at in ore.status, two runs
+    alike to the thousandth. The spread's walk is the land's diagonal there and back, four passes of
+    155 frames at 0.4 a frame, the cascades snapping every 4, 8, 16 and 32 units and the three
+    coarser moving 24, 12 and 4 times along it. The spread waits behind 252 and 253. The spread's
+    first trial read at 08:46 on 2026-11-11, not in the tree. The cascades past the first trace half
+    their probes a frame, by a checker against the frame's parity, only while the cascade lies
+    still, the probes carried moving always traced and the far cascade keeping its quarters; an
+    untraced probe keeps its radiance and the merge and the gather stay whole. Ore at High reads
+    7.89 ms twice against 8.54 and 8.56 unspread, 0.66 ms, the screen probes', the finest cascade's
+    and the lit scene's passes unchanged; a still view is the same to the pixel. The reads through
+    e3d cannot judge it, two unspread runs differing by 1.9 percent past 6 in a turn and 2.3 in a
+    walk as a command's start shifts by a frame. So an in-process trial steps a path frame by frame,
+    spread against unspread at the same frame, and reads first a light's change, the sun stepped and
+    a lamp switched, the frames to arrival in each cascade and whether the probes not yet traced
+    show as a checker; then the diagonal walk with the share of frames each cascade was spread, the
+    cut with 251's lift, the turn, the still and the rooms. The spread read in process by 09:02 and
+    approved to land. In the rooms at High at 320 by 180, halves against whole at the same frame
+    with a second whole as the floor, the floor 0.000 in every phase, the cascades spread in 1599,
+    1614 and 1631 of 1638 frames. A still view and a turn are identical. A lamp switched on differs
+    at most 0.109 percent past 6 in one frame and arrives in 3 frames where 2, switched off in 5 and
+    5; the sun stepped off over the open court differs 40.6 percent past 6 in the first frame after
+    it, the old indirect light staying a frame, and arrives in 2 frames where 1, stepped on 3.9
+    percent and 1 where 0; a cut with 251's lift 0.873 percent at most and 111 frames where 110; the
+    diagonal walk of four passes 0.030 percent at most. No checker shows in the worst frames' maps,
+    the difference broad and smooth. Its costs by Decision 95, one frame more for a sun's step and
+    up to one for a lamp's, against 0.66 ms of Ore's 8.55 at rest and in motion. It lands as the
+    engine's way with gi.toggle spread, gi.state's line and a test of a still view identical and the
+    arrival within twice whole's frames and one, a commit of its own after `f91440e5`'s run and not
+    in the package the game reads the mirror on. After it the screen probes' pass is read by part.
+    The suite found a fault the reads missed, by 09:52, and the form changed. At Low an emissive
+    panel gone dark left its room at 70.7 where under 20 is asked, the mean falling 171.6, 6.1, 5.9,
+    3.9 and on to 0.6 at the twelfth frame in halves where 0 from the second traced whole, the half
+    that kept its light handing it back to the traced half through the bounces past the first; at
+    High both fall at once, and the reads were at High alone. So the spread waits for a still light,
+    halving only when nothing of the lights, the field or the switches has changed for 16 frames.
+    With it the panel's room falls the frame after, every frame after a sun's step is the whole
+    trace's to the pixel, held by a test, and no cost of arrival is left to record. Ore at High
+    reads 7.90 and 7.91 ms against 8.53 and 8.54, 0.63 ms, the cascades halved in 100 of 100 samples
+    standing and 87 of 100 on its walk, the whole ones after sections were built. Its reach is a
+    program whose lights and field stand still, a sun stepped every 83 frames tracing whole for 16
+    of them. A trial of a change in the trace is read at each quality from here on. The spread is
+    `765ca949`, committed at 10:38 on 2026-11-11 and pushed at 11:03, the coarser cascades tracing
+    half their probes a frame once the lights and the field have kept still for the frames a change
+    takes to settle, with gi.toggle spread, gi.state's line, the guide's paragraph and
+    BounceRoomsTests.Spread; the suite 2,338 on both legs. Next the screen probes' pass by part, the
+    glow off, the rays left out and the bright and the faint lights' marches left out. The screen
+    probes' pass read by part at 10:46 on 2026-11-11, Ore at High with the spread, the frame 7.93
+    ms, the pass 3.17 and the finest cascade's trace 1.61. With the glow lights off the pass is
+    0.83, with its 16 rays left out 0.94, so the rays' march and shading alone are 1.67; the probe's
+    own marches to the bright lights' faces are 0.24 and to the faint lights 0.53; a hit taking no
+    glow light brings the frame to 4.77, the pass to 1.67, the finest trace to 0.33 and the second
+    to 0.22 where 0.51; the hits' two marches are about 0.5 and 0.3, and the loop's reach checks
+    cost nothing measurable. So the glow lights' forms at the rays' hits are the largest cost left,
+    about 3.1 of 7.9 ms. The next cut is fewer lights in closed form at a hit, every light in reach
+    by its faces, which ranks them, and the closed form or the pieces for the brightest few alone;
+    before it, a count at the hits of the lights in reach, the forms they take and the share of the
+    light the brightest 1, 2, 4 and 8 give, the screen's probes and the first cascade apart. The
+    estimate is the faces form and never the rough one; it is read by the glow rooms at Low and at
+    High, Ore's frame and still, and the turn. The count at the hits by 10:50. In Ore a hit has 29
+    to 36 lights in reach, of which 26 to 29 take the faces already, 2 to 5 the pieces, 1 to 2 the
+    closed form and a tenth the mean within a cell; the brightest four give 87 to 93 percent of a
+    hit's light and the brightest eight 97 to 99, the other twenty-odd 1 to 3 percent between them,
+    standing and after 200 frames of the walk, in the screen's probes and the first cascade alike.
+    So the review's form, the faces for all and the closed form for a few, removes almost nothing,
+    and the saving is in the tail. Approved in its place, the head keeping its present forms and the
+    tail taking one point at the box's middle by the faces' formula, the sum kept. The head is found
+    by size and not by order where that holds, a first pass of one point a light keeping the largest
+    and a second in which a light over a fraction of the largest takes its form, the count saying
+    how many stand over a 16th, a 32nd and a 64th; both ways timed if close. The tail's form read by
+    11:24 and approved. Over a 32nd of a hit's largest light stand 4.9 to 6.8 lights, the rest
+    giving 1.6 to 2.7 percent, so the cut is by size at a 32nd. The review's two passes read slower,
+    8.25 ms where 7.91, a second loop weighing more than the point saved. One pass lands it, a light
+    keeping its one point where that is under a 32nd of the largest point of the lights before it
+    and taking its present form otherwise, a light read before the largest taking its form at worst.
+    Ore at High reads 7.25 and 7.22 ms, the screen probes' pass 3.04, the finest trace 1.22 where
+    1.61 and the second 0.41 where 0.50, 0.68 ms. The point is the faces' formula with the box as
+    one point at its middle. The rooms of several glow lights, the Cornell box's glow, the strip and
+    five lamps, read 0.000 percent past 6 against the head at Low and at High, the worst pixel one
+    level; Ore's still 0.001 percent, its turn at the floor and its walk the same from the 31st
+    frame. It lands with a switch beside the spread's and a test in a room of many lamps that the
+    picture is the same with the tail on its point and off, and that some lights take their point,
+    the suite's rooms holding one light each. The test found a fault in the point at 12:27. In a
+    closed hall lit by 49 small glowing blocks the tail as one point gave about half the tail's
+    light, a floor's hit taking a block at a grazing angle where the cosine toward the box's middle
+    is half the cosine toward the top face's; the point keeps one distance and takes each face's
+    cosine from that face's own middle, the hall then within 0.24 to 0.41 of a level at Low and at
+    High where 0.91 to 1.02 with the tail lost. Ore reads 7.36 ms where 7.86, 0.50 ms where the
+    first form saved 0.68. The switch is gi.toggle points with its line in gi.state, and the test
+    holds the hall within 0.6 of a level with something moved. As it stood on 2026-11-11 at 13:08,
+    shortened in REVIEW.md.
+
+253. **A reflection whose pipeline is made late shows no mirror for 32 frames or more.** From the
+    game's pin of 6.2.32 on 2026-11-11. The game's check of its water's mirror failed two runs of
+    three on 6.2.32, each time with terrain.slang's pipeline made in the middle of a frame in about
+    1.65 s during that step, and only while the shaders' cache was warm and the package's pipeline
+    file not yet written; with the file written it passes, and with an empty cache both 6.2.17 and
+    6.2.32 pass, every pipeline made at the open. So a frame waits for the pipeline and the
+    reflection it was made for is still missing 32 frames on, the state a player meets on the first
+    run after a package's update. One read, a reflecting plane in an example with the pipelines'
+    file removed and the shaders' cache kept, the frames from the reflection's first use to its
+    first picture and what holds it back, the pipeline's arrival, the reflection's history or a wait
+    of 238's; then the mend, the reflection drawn in the frame after its pipeline is made, with a
+    test. After 252. A lead at 01:45, to be read. Since `8da28e48` every creation of a pipeline runs
+    inside the one lock over the driver's cache, Verdict 113's hardening, so the mirror's pipeline,
+    made on a worker, waits behind terrain.slang's 1.65 s on the frame's thread and then takes its
+    own, where the two overlapped on 6.2.17. The read first, then a reader-writer lock, creations
+    shared and the cache data's read and the destroy exclusive, with a test that a worker's compile
+    is not held behind another thread's, the Reply saying what the specification allows a cache made
+    without the externally synchronized flag. From the game at 02:00, its cause was too narrow. One
+    more play made terrain.slang's pipeline in play in 1.15 s and failed the mirror though the
+    package's pipelines file had been written an hour before, so the file being there does not keep
+    the pipeline from being made in play, and the read says why a pipeline the file should hold is
+    made again. The lock read and mended at 02:00, to be committed when its suite passes. With every
+    pipeline taking the driver a second by the test's hook, two compiles on workers and one on the
+    frame's thread ran one after another on the head, the first frame 3,040 ms, and with creations
+    sharing the lock all three start within 38 ms, the frame 1,057 ms; a test of a compile on one
+    thread not held behind one in flight on another fails on the one lock and passes, and
+    `8da28e48`'s tests pass. The second half from the game's two plays from one file at 01:43 and
+    01:55 on 2026-11-11. Both read the file at the open, 92,146 KB, both made the same pipelines in
+    play, terrain.slang's in 1.1 to 2.4 s at about the same frames, and all seven writes of each
+    said nothing to write with the file keeping its time, so what a run makes in play is never kept
+    and the next run compiles it again. The mend is a second commit with a test that a pipeline made
+    in play is in the file a second run reads and no full compile there. The game is pinned to
+    6.2.32 since its `e3dea22`. The lock's mend is `21122dcd`, committed at 03:26 on 2026-11-11 and
+    pushed at 03:49, pipelines made on several threads sharing the driver's cache and the write
+    alone holding it, the suite 2,334 on both legs from a fresh strict build. The second half's
+    cause from the logs, the write skipped where the driver's size equals the size read at the open,
+    which this driver hands back unchanged after new pipelines, so the size is no test of them; the
+    mend approved, the write made where the device made a pipeline since the last read or write,
+    with the frames around one write read and what the 92 MB are said. The two-run trials at 04:05
+    do not bear the counted write out, and it is held. A cube's shader's pipeline is written by the
+    second run, 325 to 337 KB, and takes 0.95 ms in the third where 12.4; over 160 versions of the
+    lit model's shader the driver's data grows about 640 KB a pipeline to about 37 MB and about 22
+    KB a pipeline after, every run that missed changed the size and was written, and pipelines added
+    past 37 MB hit in the next run, 6 to 8 ms where about 3,700 compiled. So a miss with no change
+    of size, which the game's log shows, did not happen up to 39 MB. Each write took 63 to 67 ms on
+    the calling thread for 39 MB, so the write moves off the frame's thread first, with its test.
+    The 92 MB are the game's own pipelines as the driver keeps them, where the examples' file is 64
+    MB. To settle the game's case, the path that prints the line naming SPIR-V the compiler did not
+    give and a test that the bytes handed the driver for one program are the same in two processes,
+    since bytes that move from run to run are held by no cache; the log line of a pipeline made
+    gains the driver's word on whether it came from the cache and a short hash of its stages; and
+    where the bytes are stable, a run at the game's 92 MB from a copy of the game's own work cache.
+    From the game by 04:06, one more face of the one lock on 6.2.32, a cold play's fifth frame
+    making 22 pipelines in 47 s, one after another. A pack run with publish is started once the
+    write off the frame's thread and the log line are on main, so the game reads the mirror on one
+    package that carries the item's mends. The cause of the second half found by 04:14 on
+    2026-11-11. The bytes handed the driver are stable, terrain.slang compiled twice in two folders
+    giving the same 10,248 and 1,280,560 bytes, so the review's guess fell. The pipelines' folder is
+    named 0.1.0-preview.1 on every package, since build/pack.sh builds with no version and packs
+    with one without building, so each published assembly carries the version of
+    Directory.Build.props and UserCache.Version reads it from the assembly; every package run on an
+    account writes into one file a program, the game's 94 MB the pile of them where one package cold
+    leaves 10 to 21 MB, past where the driver's size stops moving. The mend, approved, a commit of
+    its own after the write off the frame's thread, the version worked out first and the build made
+    with it, pack.sh failing where the packed 3DEngine.Core.dll's informational version is not the
+    package's; with it, what else reads that version, a client's against a served program's above
+    all, and whether 238's sweep takes other versions' folders by their last use. The review told
+    the coder to copy the 94 MB file out of the account's cache for a trial; the coder refused by
+    the owner's rule on that folder, rightly, the instruction is withdrawn and the trial at that
+    size waits on the owner's word. Then the log line, then a pack run with publish. The write off
+    the frame's thread is `80bc4b05`, committed at 05:26 on 2026-11-11 and pushed at 05:42, the
+    quiet write made on a worker, each write after the one before and the cache's release waiting
+    for one still going, with a test of 240 frames drawn while a worker's compile is held and no
+    file written until it ends; the suite 2,335 on both legs, run from a cache folder of the coder's
+    own. Nothing in the client, the server or the session files compares a version, so a client of
+    the checkout's version plays a package's game as before; the pipelines' folders had no sweep and
+    gain one at the cache's open, other versions' folders by their newest file past 14 days. The
+    coder's suites before N 7.11 wrote the test host's pipelines into the account's cache, said to
+    the owner. The version and the sweep are `803dfdb5`, committed at 06:24 on 2026-11-11 and held
+    until `80bc4b05`'s run ends. build/pack.sh works the version out first and builds with it, and
+    fails where the packed 3DEngine.Core.dll does not carry it, read by hand on the core's package
+    alone in the coder's work folder, a build at no version packed at 6.2.98 failing and one built
+    and packed at 6.2.99 passing; UserCache.SweepVersions runs at the pipelines' cache's open and
+    after the shaders' sweep, with a test of folders made by hand and a device's test that fails
+    with the sweep left out; the suite 2,337 on both legs. The log line follows. The log line is
+    `e4a14ec5`, each line of a pipeline made ending with compiled, from the cache or the driver
+    saying not where from, by the driver's creation feedback, and the first eight hex digits of a
+    hash of its stages' bytes; its test asks the hit only where the device's cache keeps pipelines,
+    `f91440e5`, the review having seen the first form would fail on a runner's device that keeps
+    none. The three went up at 08:21 on 2026-11-11 with the pack run with publish 42978968240, whose
+    pack job is the first to run the version's check on the runner. Item 253's code is done; the
+    game reads the mirror on that package, cold and warm. As it stood on 2026-11-11 at 13:08,
+    shortened in REVIEW.md.
 
 ## Head records
 

@@ -112,6 +112,13 @@ internal sealed class GlobalIlluminationSettings
     /// </summary>
     public bool SpreadOff { get; set; }
 
+    /// <summary>
+    /// Whether a probe's ray's hit takes every glow light by its own form, as <c>gi.toggle points
+    /// off</c> sets it, where a light giving the hit under a 32nd of the largest before it is
+    /// otherwise taken as one point, so the light of the full forms can be read beside it.
+    /// </summary>
+    public bool PointsOff { get; set; }
+
     /// <summary>The one cascade whose rays' light alone reaches the pixels, or -1 for every cascade, as <c>gi.toggle cascade</c> sets it.</summary>
     public int Alone { get; set; } = -1;
 

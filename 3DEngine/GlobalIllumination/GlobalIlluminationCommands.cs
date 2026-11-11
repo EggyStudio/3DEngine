@@ -50,6 +50,9 @@ internal static class GlobalIlluminationCommands
         var halved = gi.Halved.Select((h, c) => (h, c)).Where(x => x.h).Select(x => x.c.ToString(CultureInfo.InvariantCulture)).ToArray();
         lines.Add(halved.Length > 0 ? $"cascades {string.Join(", ", halved)} trace half their probes a frame while they lie still"
             : "every cascade traces all its probes each frame");
+        lines.Add(renderer.RenderWorld.TryGet<GlobalIlluminationSettings>() is { PointsOff: true }
+            ? "a probe's ray's hit takes every glow light by its own form"
+            : "a probe's ray's hit takes a glow light giving it under a 32nd of the largest before it as one point");
         // A screen probe's nine texels of eight bytes, its light, surface, blend and the frame
         // before's two, and its places' cycle's four, and its words of the glow lights; and for
         // each texel of the depth the glow
@@ -197,7 +200,7 @@ internal static class GlobalIlluminationCommands
             : "global illumination is timed whole in the profile";
     }
 
-    [Command("gi.toggle", "Leaves a part of global illumination out, to see what it gives, among the frame before's light in the screen's probes, their filter, the screen's probes, neither traced nor read, the merge of the cascades, the light past the first bounce from the frame before's probes, indirect light following a light that goes out, the small emissive surfaces carried as lights, the crossing of surfaces that let light through, the surfaces' colors, every surface drawn white, the surfaces' reflection of the indirect light, the surfaces' normal maps, or every cascade but one, or with meshes on traces the probes' rays through the device's rays at High in place of the field, or with spread off traces every probe of the coarser cascades each frame where they trace half a frame lying still: gi.toggle <history|filter|screen|merge|again|follow|glow|through|albedo|specular|normals|cascade|meshes|spread> <on|off|cascade>")]
+    [Command("gi.toggle", "Leaves a part of global illumination out, to see what it gives, among the frame before's light in the screen's probes, their filter, the screen's probes, neither traced nor read, the merge of the cascades, the light past the first bounce from the frame before's probes, indirect light following a light that goes out, the small emissive surfaces carried as lights, the crossing of surfaces that let light through, the surfaces' colors, every surface drawn white, the surfaces' reflection of the indirect light, the surfaces' normal maps, or every cascade but one, or with meshes on traces the probes' rays through the device's rays at High in place of the field, or with spread off traces every probe of the coarser cascades each frame where they trace half a frame lying still, or with points off takes every glow light at a hit by its own form where the faint ones take one point: gi.toggle <history|filter|screen|merge|again|follow|glow|through|albedo|specular|normals|cascade|meshes|spread|points> <on|off|cascade>")]
     internal static string ToggleBounce(string part, string state)
     {
         if (!ConsoleHost.World!.TryGetResource<GlobalIlluminationSettings>(out var settings))
@@ -218,10 +221,11 @@ internal static class GlobalIlluminationCommands
             case "normals": settings.NormalMapsOff = !on; break;
             case "meshes": settings.MeshesTraced = on; break;
             case "spread": settings.SpreadOff = !on; break;
+            case "points": settings.PointsOff = !on; break;
             case "cascade":
                 settings.Alone = int.TryParse(state, System.Globalization.CultureInfo.InvariantCulture, out var alone) ? Math.Max(alone, -1) : -1;
                 break;
-            default: return $"no part {part}, which is one of history, filter, screen, merge, again, follow, glow, through, albedo, specular, cascade, meshes and spread";
+            default: return $"no part {part}, which is one of history, filter, screen, merge, again, follow, glow, through, albedo, specular, cascade, meshes, spread and points";
         }
         return Switches(settings);
     }
@@ -243,6 +247,7 @@ internal static class GlobalIlluminationCommands
         if (settings.NormalMapsOff) off.Add("the surfaces' normal maps");
         if (settings.Alone >= 0) off.Add($"every cascade but {settings.Alone}");
         if (settings.SpreadOff) off.Add("the coarser cascades' trace in halves");
+        if (settings.PointsOff) off.Add("the faint glow lights at a hit taken as one point");
         var said = off.Count == 0 ? "every part of global illumination is on" : $"{string.Join(", ", off)} left out";
         return settings.MeshesTraced ? $"{said}, the probes' rays traced through the meshes" : said;
     }

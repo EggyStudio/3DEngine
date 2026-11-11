@@ -493,6 +493,10 @@ internal sealed partial class GlobalIlluminationRenderer : IIlluminationPasses, 
             _glowPlaces.Forget();
             (_glowCount, _glowFound) = (0, 0);
         }
+        // 1 in the counts' w where a probe's ray's hit takes every glow light by its own form
+        // (gi.toggle points), a word the lights' signature leaves out, so the switch is no change
+        // of the lights that would begin the carried probes' cycles again.
+        MemoryMarshal.Cast<byte, float>(bytes.AsSpan(0, 64))[15] = (renderWorld.TryGet<GlobalIlluminationSettings>() is { PointsOff: true }) ? 1 : 0;
         return bytes;
     }
 
