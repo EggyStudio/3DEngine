@@ -15,12 +15,26 @@ internal sealed record CliSession(
     public bool Stale => DateTimeOffset.UtcNow - Heartbeat > Patience;
 
     /// <summary>Whether the process is alive.</summary>
-    public bool Running
+    public bool Running => RunningOrWhy(out _);
+
+    /// <summary>Whether the process is alive, and where it is not, why, the exception's own words where asking it threw.</summary>
+    public bool RunningOrWhy(out string? why)
     {
-        get
+        try
         {
-            try { return !Process.GetProcessById(Pid).HasExited; }
-            catch (Exception error) when (error is ArgumentException or InvalidOperationException) { return false; }
+            var exited = Process.GetProcessById(Pid).HasExited;
+            why = exited ? "its process has exited" : null;
+            return !exited;
+        }
+        catch (ArgumentException)
+        {
+            why = "no process runs with that pid";
+            return false;
+        }
+        catch (InvalidOperationException error)
+        {
+            why = $"its process could not be asked, {error.GetType().Name}: {error.Message}";
+            return false;
         }
     }
 
@@ -84,8 +98,12 @@ internal static class CliSessionFile
     }
 
     /// <summary>Reads a session file, or returns <c>null</c> when it cannot be read.</summary>
-    public static CliSession? Read(string path)
+    public static CliSession? Read(string path) => Read(path, out _);
+
+    /// <summary>Reads a session file, or returns <c>null</c> with why, the exception's type and words, when it cannot be read.</summary>
+    public static CliSession? Read(string path, out string? why)
     {
+        why = null;
         try
         {
             using var document = JsonDocument.Parse(File.ReadAllBytes(path));
@@ -103,6 +121,7 @@ internal static class CliSessionFile
         catch (Exception error) when (error is IOException or JsonException or KeyNotFoundException
                                           or InvalidOperationException or FormatException or UnauthorizedAccessException)
         {
+            why = $"{error.GetType().Name}: {error.Message}";
             return null;
         }
     }
@@ -119,10 +138,7 @@ internal static class CliSessionFile
     public static IReadOnlyList<CliSession> All()
     {
         if (!System.IO.Directory.Exists(Directory)) return [];
-        static IEnumerable<string> Names() => System.IO.Directory.GetFiles(Directory, "*.json*")
-            .Select(name => name.EndsWith(".json.tmp", StringComparison.Ordinal) ? name[..^".tmp".Length] : name)
-            .Where(name => name.EndsWith(".json", StringComparison.Ordinal));
-        var found = Names().Union(Names()).Select(ReadAgain).OfType<CliSession>().ToList();
+        var found = ListedNames().Union(ListedNames()).Select(path => ReadAgain(path, out _)).OfType<CliSession>().ToList();
         found.Sort((left, right) => right.Started.CompareTo(left.Started));
         return found;
     }
@@ -136,15 +152,85 @@ internal static class CliSessionFile
     /// before and after it, where several games run at once on a machine of few cores, so a named
     /// app is looked for for a second before it is taken as gone.
     /// </remarks>
-    public static IReadOnlyList<CliSession> Matching(Func<CliSession, bool> match, int looks = 5)
+    public static IReadOnlyList<CliSession> Matching(Func<CliSession, bool> match, int looks = 5) => Matching(match, out _, looks);
+
+    /// <summary>
+    /// The same, with what the first look that found none saw of each file in the folder, or null
+    /// where the first look found one.
+    /// </summary>
+    /// <remarks>
+    /// The account of a look that failed, read again after the looks, describes another moment
+    /// than the one that failed, and a game's storm on the runner once found no session for a
+    /// game whose file the later read found running and matching. Each look keeps what it saw, so
+    /// a read that threw or a process that could not be asked, which a look passes over, is said.
+    /// </remarks>
+    public static IReadOnlyList<CliSession> Matching(Func<CliSession, bool> match, out string? firstMiss, int looks = 5)
     {
+        firstMiss = null;
         for (int look = 1; ; look++)
         {
-            var found = All().Where(session => session.Running && match(session)).ToList();
+            var (found, seen) = Look(match);
             if (found.Count > 0 || look >= looks) return found;
+            firstMiss ??= seen;
             LookAgain();
         }
     }
+
+    /// <summary>
+    /// The sessions of running processes a client may talk to, those <paramref name="asked"/> takes
+    /// or every one where it is null, looked for again as <see cref="Matching(Func{CliSession, bool}, out string?, int)"/>
+    /// looks, with what the first look that found none saw.
+    /// </summary>
+    /// <remarks>
+    /// A storm's look that named no session once found none for a game that served before and
+    /// after it, a named look being looked for again and an unnamed one not.
+    /// </remarks>
+    public static IReadOnlyList<CliSession> Serving(Func<CliSession, bool>? asked, out string? firstMiss) =>
+        Matching(asked ?? (static _ => true), out firstMiss);
+
+    // One look at the folder: the sessions of running processes that match, and what the look saw
+    // of each file, whether it was read, why not where it threw, and whether its process runs.
+    private static (List<CliSession> Found, string Seen) Look(Func<CliSession, bool> match)
+    {
+        if (!System.IO.Directory.Exists(Directory)) return ([], $"the sessions folder {Directory} did not exist");
+        string[] names;
+        try
+        {
+            names = [.. ListedNames().Union(ListedNames())];
+        }
+        catch (Exception error) when (error is IOException or UnauthorizedAccessException)
+        {
+            return ([], $"the sessions folder {Directory} could not be listed, {error.GetType().Name}: {error.Message}");
+        }
+        var found = new List<CliSession>();
+        var seen = new List<string>();
+        foreach (var path in names)
+        {
+            var name = Path.GetFileName(path);
+            if (ReadAgain(path, out var unread) is not { } session)
+            {
+                seen.Add($"{name} not read, {unread ?? "it was gone"}");
+                continue;
+            }
+            if (!session.RunningOrWhy(out var gone))
+                seen.Add($"{name} read, pid {session.Pid}, passed over since {gone}");
+            else if (!match(session))
+                seen.Add($"{name} read, pid {session.Pid}, which runs and is not the one asked for");
+            else
+            {
+                seen.Add($"{name} read, pid {session.Pid}, which runs and matches");
+                found.Add(session);
+            }
+        }
+        return (found, seen.Count == 0 ? $"the sessions folder {Directory} held no session file"
+            : $"the sessions folder {Directory} held {string.Join("; ", seen)}");
+    }
+
+    // The session files in the folder, a file still being written counted under the name it is
+    // moved to.
+    private static IEnumerable<string> ListedNames() => System.IO.Directory.GetFiles(Directory, "*.json*")
+        .Select(name => name.EndsWith(".json.tmp", StringComparison.Ordinal) ? name[..^".tmp".Length] : name)
+        .Where(name => name.EndsWith(".json", StringComparison.Ordinal));
 
     /// <summary>
     /// What a look that found no session saw, on one line: the folder, and each file in it with the
@@ -166,11 +252,11 @@ internal static class CliSessionFile
             var name = Path.GetFileName(file);
             if (name.EndsWith(".json.tmp", StringComparison.Ordinal)) return $"{name}, a file being written";
             if (!name.EndsWith(".json", StringComparison.Ordinal)) return $"{name}, not a session file";
-            if (ReadAgain(file) is not { } session) return $"{name}, which could not be read";
+            if (ReadAgain(file, out var unread) is not { } session) return $"{name}, which could not be read, {unread ?? "it was gone"}";
             var who = $"{name}, pid {session.Pid}, {session.Name} titled {session.Title}, its heartbeat {(DateTimeOffset.UtcNow - session.Heartbeat).TotalSeconds:0.0} s old";
             if (!session.Running) return $"{who}, passed over since that pid does not run";
             if (match is not null && !match(session)) return $"{who}, passed over since it runs and is not the one asked for";
-            return $"{who}, which runs and matches, written after the look";
+            return $"{who}, which runs and matches, found when the folder was read again after the looks";
         }
         return $"The sessions folder {Directory} holds {string.Join("; ", files.Select(Seen))}.";
     }
@@ -183,11 +269,11 @@ internal static class CliSessionFile
 
     // A session file read, and read again a few times 10 ms apart where it cannot be read, as a file
     // being moved over cannot on Windows for a moment.
-    private static CliSession? ReadAgain(string path)
+    private static CliSession? ReadAgain(string path, out string? why)
     {
         for (int attempt = 0; ; attempt++)
         {
-            var session = Read(path);
+            var session = Read(path, out why);
             if (session is not null || attempt == 4) return session;
             Pause();
         }

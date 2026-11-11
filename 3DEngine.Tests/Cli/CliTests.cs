@@ -122,6 +122,63 @@ public sealed class CliTests : IDisposable
     }
 
     [Fact]
+    public void A_Session_Missing_At_An_Unnamed_First_Look_Is_Found_At_A_Later_One()
+    {
+        // A storm, which names no session, once found none for a game that served before and after
+        // it, a named look being looked for again and an unnamed one looked for once. The file
+        // appears here in the wait after the first look.
+        var (previous, again) = (CliSessionFile.Directory, CliSessionFile.LookAgain);
+        CliSessionFile.Directory = _folder.Path;
+        try
+        {
+            var session = new CliSession(Environment.ProcessId, 4343, "token", "/project", "Game", "Title", "hidden",
+                Stamp, true, "ready", 12, Stamp);
+            var looks = 0;
+            CliSessionFile.LookAgain = () =>
+            {
+                if (looks++ == 0) CliSessionFile.Write(session);
+            };
+            CliSessionFile.Serving(null, out var firstMiss).Should().ContainSingle("the file written after the first look is found at the second")
+                .Which.Port.Should().Be(4343);
+            firstMiss.Should().Be($"the sessions folder {_folder.Path} held no session file", "the error carries what the first look saw");
+            CliSessionFile.Remove(session.Pid);
+        }
+        finally
+        {
+            (CliSessionFile.Directory, CliSessionFile.LookAgain) = (previous, again);
+        }
+    }
+
+    [Fact]
+    public void A_Look_That_Finds_No_Session_Keeps_What_It_Saw_Of_Each_File_With_The_Words_Of_A_Read_That_Threw()
+    {
+        // The account read again after the looks describes another moment than the one that
+        // failed, so each look keeps what it saw: a file of this process that runs and is not the
+        // one asked for, one of a pid that does not run, and one whose read threw, with the
+        // exception's own words, which a look passes over.
+        var (previous, again, pause) = (CliSessionFile.Directory, CliSessionFile.LookAgain, CliSessionFile.Pause);
+        CliSessionFile.Directory = _folder.Path;
+        CliSessionFile.LookAgain = static () => { };
+        CliSessionFile.Pause = static () => { };
+        try
+        {
+            CliSessionFile.Write(new CliSession(Environment.ProcessId, 2, "t", "", "Other", "Other game", "headless", Stamp, false, "ready", 0, Stamp));
+            CliSessionFile.Write(new CliSession(int.MaxValue, 1, "t", "", "Gone", "Gone", "headless", Stamp, false, "ready", 0, Stamp));
+            File.WriteAllText(Path.Combine(_folder.Path, "7.json"), "{ half");
+            CliSessionFile.Serving(s => s.Name == "Siege", out var firstMiss).Should().BeEmpty();
+            firstMiss.Should().StartWith($"the sessions folder {_folder.Path} held ")
+                .And.Contain($"{Environment.ProcessId}.json read, pid {Environment.ProcessId}, which runs and is not the one asked for")
+                .And.Contain($"{int.MaxValue}.json read, pid {int.MaxValue}, passed over since no process runs with that pid")
+                .And.Contain("7.json not read, Json", "a read that threw is said with its words, not hidden as a file passed over").And.Contain("invalid start of a property name")
+                .And.NotContain("\n");
+        }
+        finally
+        {
+            (CliSessionFile.Directory, CliSessionFile.LookAgain, CliSessionFile.Pause) = (previous, again, pause);
+        }
+    }
+
+    [Fact]
     public void A_Look_That_Finds_No_Session_Says_Each_File_It_Passed_Over_And_Why()
     {
         // The sessions folder holds a file of a pid that does not run, one that cannot be read, one

@@ -1,84 +1,88 @@
 # Review
 
-Reviewed up to `765ca949`, 250's spread, the coarser cascades tracing half their probes a frame once
-the lights and the field have kept still, pushed at 11:03 on 2026-11-11, green at 13:09 with macOS
-in 55 minutes, the Linux legs in 44 each and the Windows halves in 127 and 100. Before it
-`894542da`, Verdict 114's mend, the test of a pipeline's line asking its form and its one hash on
-every device and no hit of the driver's, pushed at 09:16 on 2026-11-11, its run green at 11:01 with
-macOS in 49 minutes, which settled Verdict 114, the Linux legs in 83 and 78 and the Windows halves
-in 67 and 104, its pack run with publish, 42985743208, red in its games job at 11:57 by Manor's
-storm finding no session, Verdict 115, its suites and captures green, its first Windows half green
-in 184 minutes, the run ended at 12:21 and its failed job started again at 12:23 as a second
-attempt; the cache's tests pass on the GPU and on lavapipe here; it keeps the form. Before it
-`f91440e5`, the test of the log line asking the cache's hit only of a device whose cache keeps
-pipelines, pushed at 08:21 on 2026-11-11 with `803dfdb5`, each package built at its own version with
-other versions' cache folders swept, and `e4a14ec5`, each pipeline made said in the log with the
-driver's word on the cache and a hash of its stages, the run on the last and the pack run with
-publish, 42978968240, both red on macOS at 09:02 by the log line's test, Verdict 114, the pack run
-canceled at 09:16 since it could no longer publish and the push run ended by the next push; the
-suite passed both legs on each, 2,337; they keep the form and carry the review's files. Before them
-`80bc4b05`, 253's write of the pipelines on a worker, the frames going on while it waits and reads,
-pushed at 05:42 on 2026-11-11, green at 07:40 with macOS in 47 minutes, the Linux legs in 45 and 46
-and the Windows halves in 117 and 112; Before it `21122dcd`, 253's first half, pipelines made on
-several threads sharing the driver's cache and the write alone holding it, pushed at 03:49 on
-2026-11-11, green at 05:41 with macOS in 50 minutes, the Linux legs in 78 each and the Windows
-halves in 112 each. Before it `56d77a29`, Ore's turn and walk by fixed steps and its eye in its
-status, pushed at 01:45 on 2026-11-11 with `b7f176d9`, 250's second cut, a probe's ray's hit taking
-each face of a far glow light as one point, the run on the last green at 03:45 with macOS in 50
-minutes, the Linux legs in 59 each and the Windows halves in 92 and 119. Before them `cfcfda02`,
-250's first cut, a screen probe no longer marching to a faint glow light that sends it nothing,
-exact, pushed at 23:51 on 2026-11-10, green at 01:42 on 2026-11-11 with macOS in 49 minutes, the
-Linux legs in 76 and 57 and the Windows halves in 91 and 111. Before it `02c3a743`, the Replies'
-reading of which waits ran out by the field's fault, documents alone, pushed at 19:46 on 2026-11-10
-with `1aa4c5d8`, 251, the lift after a cut held until 30 frames in a row bring no mesh, a changed
-budget keeping the field, and a mesh that settled during a region's build no longer left pending for
-good, the run on the last green at 21:52 with macOS in 51 minutes, the Linux legs in 77 and 75 and
-the Windows halves in 126 and 100, and its pack run with publish green at 00:38 on 2026-11-11, every
-job green, 6.2.32 published and tagged `v6.2.32`, its fifteen packages listed on nuget.org by 00:45,
-the game told at 01:00; they keep the form and carry the review's files. Before it `8da28e48`, the
-mend of Verdicts 112 and 113, pushed at 18:17 on 2026-11-10, its run green at 19:45 with macOS in 49
-minutes, the Linux legs in 57 and 77 and the Windows halves in 77 and 87, which settles Verdict 112;
-its pack run with publish of 18:17 green at 21:30, its games job in 56 minutes with Siege played
-through, which settles Verdict 113, 6.2.30 published and tagged `v6.2.30`, the first to carry the
-illumination's project as a package of its own, its fifteen packages listed on nuget.org at 22:08,
-38 minutes after their push; the game does not pin it. Before it `40c00405`, Verdict 112's first
-mend, pushed at 15:36 on 2026-11-10 with 235's third and fifth cuts and 249's two Linux legs, its
-run ended at 17:30 red in both Linux legs by the mended test's other case and green on macOS in 45
-minutes and the Windows halves in 89 and 113, the legs in 57 and 77 minutes where the one job took
-147. Before it `dd0adff0`, 235's second cut, pushed at 12:48 on 2026-11-10 with 247, 238 and 235's
-first cut, its run red at 15:25 in the first Windows half alone, Verdict 112, with macOS in 47
-minutes, the second half in 115 and Linux in 147 of its 150. Before it `4fb868ca`, 244's fourth and
-last commit, pushed at 10:14 on 2026-11-10 with its three before it, their run green at 12:44 with
-macOS in 46 minutes, Windows in 63 and 96, Linux in 141 and the examples in 9; their package comes
-from the pack run above, the game taking them in its 167. Before it `f68075f1`, 239 with 245 and
-build/flicker.py's options, pushed at 07:44, green at 10:13, whose pack run went green at 12:41 with
-its captures in 58 and 71 minutes and its games in 53, publishing 6.2.17, tagged `v6.2.17`, which
-the game pins for the clouds and the cuts. Before it `e86ca5c3`, 240's ramp, a pixel whose screen
-probes stand on a surface like its own for under a quarter of their weight taking the world's
-probes' light by its shortfall, with the march by thin walls, pushed at 05:41 on 2026-11-10, its run
-green at 07:43 with macOS in 43 minutes, Windows in 108 and 122, Linux in 105 and the examples in
-11, its pack run green at 08:57 with its captures in 58 and 72 minutes and its games in 70,
-publishing 6.2.14, tagged `v6.2.14`; the game reads its shaded ground on that package and its walk
-on the next. The working session was ended at 01:15 on 2026-11-10 by the kernel, a python3 of its
-own having read its 4.3 GB transcript whole into 27 GB beside 18 GB of old frames in /tmp, and was
-resumed by the owner at 04:23, its scratch cleared (N 7.10). Before it `adb41aa7`, the example's
-sponza.turn and build/flicker.py, pushed at 01:18 on 2026-11-10, green at 03:44. Before it
-`94097b62`, 242, a hit marching its brightest glow light and gathering the rest as one, pushed at
-22:41 on 2026-11-09 with 241 and 243, green at 00:35, whose pack run published 6.2.12 at 02:34,
-tagged `v6.2.12`, which the game pins since its `cfffcb3`. Before it `ed469e90`, 237, the
-illumination's cycles eased in the merge and the screen filter, pushed at 20:18 on 2026-11-09, its
-run green at 22:13 with macOS in 45 minutes, Windows in 98 and 115, Linux in 104 and the examples in
-10; it keeps the form. Before it `c23cd2d4`, 226's fourth and last commit, green at 20:15 on
-2026-11-09, whose pack run published 6.2.8 at 21:08, the package 3DEngine, its twelve areas and the
-templates, tagged `v6.2.8`, which settled Verdict 111. The release scene-packs holds
-intel-sponza.pack since 17:58 on 2026-11-09, so ./e3d scenes fetch works. nuget.org holds 6.0.11,
-6.0.14, 6.0.91, 6.1.12, 6.2.8, 6.2.12, 6.2.14 and 6.2.17, the game pinned to 6.1.12, tagged
-`v6.1.12` at `8dba0d1c`; the version stands at 6.2, tagged `v6.2.0` at `1c3c38d5`. Item 6's three
-package bumps wait on the owner's word since October. Every push and run before `c23cd2d4` since
-2026-10-23 stands in REVIEW-ARCHIVE.md under Head records.
+Reviewed up to `afd5640f`, 250's faint lights, a glow light giving a ray's hit under a 32nd of the
+largest before it taken as one point, pushed at 13:19 on 2026-11-11 with a run on it; the suite
+passed both legs on it, 2,340; it keeps the form and carries the review's files. Before it
+`765ca949`, 250's spread, the coarser cascades tracing half their probes a frame once the lights and
+the field have kept still, pushed at 11:03 on 2026-11-11, green at 13:09 with macOS in 55 minutes,
+the Linux legs in 44 each and the Windows halves in 127 and 100. Before it `894542da`, Verdict 114's
+mend, the test of a pipeline's line asking its form and its one hash on every device and no hit of
+the driver's, pushed at 09:16 on 2026-11-11, its run green at 11:01 with macOS in 49 minutes, which
+settled Verdict 114, the Linux legs in 83 and 78 and the Windows halves in 67 and 104, its pack run
+with publish, 42985743208, red in its games job at 11:57 by Manor's storm finding no session,
+Verdict 115, its suites and captures green, its first Windows half green in 184 minutes, the run
+ended at 12:21, its games job green on a second attempt in 87 minutes and its pack job green at
+13:54 with the version's check, 6.2.41 published and tagged `v6.2.41`, the first package whose
+assemblies carry its version, its fifteen ids not yet listed on nuget.org at 14:07; the cache's
+tests pass on the GPU and on lavapipe here; it keeps the form. Before it `f91440e5`, the test of the
+log line asking the cache's hit only of a device whose cache keeps pipelines, pushed at 08:21 on
+2026-11-11 with `803dfdb5`, each package built at its own version with other versions' cache folders
+swept, and `e4a14ec5`, each pipeline made said in the log with the driver's word on the cache and a
+hash of its stages, the run on the last and the pack run with publish, 42978968240, both red on
+macOS at 09:02 by the log line's test, Verdict 114, the pack run canceled at 09:16 since it could no
+longer publish and the push run ended by the next push; the suite passed both legs on each, 2,337;
+they keep the form and carry the review's files. Before them `80bc4b05`, 253's write of the
+pipelines on a worker, the frames going on while it waits and reads, pushed at 05:42 on 2026-11-11,
+green at 07:40 with macOS in 47 minutes, the Linux legs in 45 and 46 and the Windows halves in 117
+and 112; Before it `21122dcd`, 253's first half, pipelines made on several threads sharing the
+driver's cache and the write alone holding it, pushed at 03:49 on 2026-11-11, green at 05:41 with
+macOS in 50 minutes, the Linux legs in 78 each and the Windows halves in 112 each. Before it
+`56d77a29`, Ore's turn and walk by fixed steps and its eye in its status, pushed at 01:45 on
+2026-11-11 with `b7f176d9`, 250's second cut, a probe's ray's hit taking each face of a far glow
+light as one point, the run on the last green at 03:45 with macOS in 50 minutes, the Linux legs in
+59 each and the Windows halves in 92 and 119. Before them `cfcfda02`, 250's first cut, a screen
+probe no longer marching to a faint glow light that sends it nothing, exact, pushed at 23:51 on
+2026-11-10, green at 01:42 on 2026-11-11 with macOS in 49 minutes, the Linux legs in 76 and 57 and
+the Windows halves in 91 and 111. Before it `02c3a743`, the Replies' reading of which waits ran out
+by the field's fault, documents alone, pushed at 19:46 on 2026-11-10 with `1aa4c5d8`, 251, the lift
+after a cut held until 30 frames in a row bring no mesh, a changed budget keeping the field, and a
+mesh that settled during a region's build no longer left pending for good, the run on the last green
+at 21:52 with macOS in 51 minutes, the Linux legs in 77 and 75 and the Windows halves in 126 and
+100, and its pack run with publish green at 00:38 on 2026-11-11, every job green, 6.2.32 published
+and tagged `v6.2.32`, its fifteen packages listed on nuget.org by 00:45, the game told at 01:00;
+they keep the form and carry the review's files. Before it `8da28e48`, the mend of Verdicts 112 and
+113, pushed at 18:17 on 2026-11-10, its run green at 19:45 with macOS in 49 minutes, the Linux legs
+in 57 and 77 and the Windows halves in 77 and 87, which settles Verdict 112; its pack run with
+publish of 18:17 green at 21:30, its games job in 56 minutes with Siege played through, which
+settles Verdict 113, 6.2.30 published and tagged `v6.2.30`, the first to carry the illumination's
+project as a package of its own, its fifteen packages listed on nuget.org at 22:08, 38 minutes after
+their push; the game does not pin it. Before it `40c00405`, Verdict 112's first mend, pushed at
+15:36 on 2026-11-10 with 235's third and fifth cuts and 249's two Linux legs, its run ended at 17:30
+red in both Linux legs by the mended test's other case and green on macOS in 45 minutes and the
+Windows halves in 89 and 113, the legs in 57 and 77 minutes where the one job took 147. Before it
+`dd0adff0`, 235's second cut, pushed at 12:48 on 2026-11-10 with 247, 238 and 235's first cut, its
+run red at 15:25 in the first Windows half alone, Verdict 112, with macOS in 47 minutes, the second
+half in 115 and Linux in 147 of its 150. Before it `4fb868ca`, 244's fourth and last commit, pushed
+at 10:14 on 2026-11-10 with its three before it, their run green at 12:44 with macOS in 46 minutes,
+Windows in 63 and 96, Linux in 141 and the examples in 9; their package comes from the pack run
+above, the game taking them in its 167. Before it `f68075f1`, 239 with 245 and build/flicker.py's
+options, pushed at 07:44, green at 10:13, whose pack run went green at 12:41 with its captures in 58
+and 71 minutes and its games in 53, publishing 6.2.17, tagged `v6.2.17`, which the game pins for the
+clouds and the cuts. Before it `e86ca5c3`, 240's ramp, a pixel whose screen probes stand on a
+surface like its own for under a quarter of their weight taking the world's probes' light by its
+shortfall, with the march by thin walls, pushed at 05:41 on 2026-11-10, its run green at 07:43 with
+macOS in 43 minutes, Windows in 108 and 122, Linux in 105 and the examples in 11, its pack run green
+at 08:57 with its captures in 58 and 72 minutes and its games in 70, publishing 6.2.14, tagged
+`v6.2.14`; the game reads its shaded ground on that package and its walk on the next. The working
+session was ended at 01:15 on 2026-11-10 by the kernel, a python3 of its own having read its 4.3 GB
+transcript whole into 27 GB beside 18 GB of old frames in /tmp, and was resumed by the owner at
+04:23, its scratch cleared (N 7.10). Before it `adb41aa7`, the example's sponza.turn and
+build/flicker.py, pushed at 01:18 on 2026-11-10, green at 03:44. Before it `94097b62`, 242, a hit
+marching its brightest glow light and gathering the rest as one, pushed at 22:41 on 2026-11-09 with
+241 and 243, green at 00:35, whose pack run published 6.2.12 at 02:34, tagged `v6.2.12`, which the
+game pins since its `cfffcb3`. Before it `ed469e90`, 237, the illumination's cycles eased in the
+merge and the screen filter, pushed at 20:18 on 2026-11-09, its run green at 22:13 with macOS in 45
+minutes, Windows in 98 and 115, Linux in 104 and the examples in 10; it keeps the form. Before it
+`c23cd2d4`, 226's fourth and last commit, green at 20:15 on 2026-11-09, whose pack run published
+6.2.8 at 21:08, the package 3DEngine, its twelve areas and the templates, tagged `v6.2.8`, which
+settled Verdict 111. The release scene-packs holds intel-sponza.pack since 17:58 on 2026-11-09, so
+./e3d scenes fetch works. nuget.org holds 6.0.11, 6.0.14, 6.0.91, 6.1.12, 6.2.8, 6.2.12, 6.2.14 and
+6.2.17, the game pinned to 6.1.12, tagged `v6.1.12` at `8dba0d1c`; the version stands at 6.2, tagged
+`v6.2.0` at `1c3c38d5`. Item 6's three package bumps wait on the owner's word since October. Every
+push and run before `c23cd2d4` since 2026-10-23 stands in REVIEW-ARCHIVE.md under Head records.
 
-Next 250's tail at the hits, in work, then Verdict 115, the session file's race, before any further
-cut; the game's package comes of the pack run on `894542da`, its games job run again. Then 250's
+Next Verdict 115, the look that found no session, in work, before any further cut; the game's
+package is 6.2.41 of `894542da`, told to the game a quarter of an hour after it lists. Then 250's
 further cuts, the three coarser cascades spread over frames first, 253 done in code and read by the
 game on the package of `f91440e5`; the screen probes' glow lights first, the illumination's cost in
 the game read by pass and cut, its read by pass done in the Ore example; 6 waits on the owner's
@@ -126,16 +130,17 @@ reverted as the screen probes' limit at shapes about a tile wide, its patches in
     ms; `b7f176d9`, a ray's hit taking each face of a light past eight half diagonals as one point,
     0.11 ms; `56d77a29`, Ore's turn and walk by fixed steps; `765ca949`, the coarser cascades
     tracing half their probes a frame once the lights and the field have kept still for 16 frames,
-    0.63 ms, the frame at 7.90. In work, to be committed, the faint lights at a hit taken as one
-    point, each face's cosine from its own middle, where under a 32nd of the largest before them,
-    0.50 ms, with gi.toggle points and a test in a hall of 49 lamps. What is left by the read of
-    2026-11-11, the rays' march and shading in the screen probes' pass at 1.67 ms and the marches at
-    the hits and at the probes at about 0.8 each. The rules the item made. A form that holds no sum
-    is never taken at a hit, the reference rooms the first gate, at Low and at High; a change of
-    what is traced is read in process against the whole trace at the same frame, a light's change
-    first; a turn or a walk played through e3d cannot judge under 2 percent. The trials and readings
-    as they stood on 2026-11-11 at 13:08 stand in REVIEW-ARCHIVE.md under Items closed, parked or
-    shortened. Next Verdict 115, then the read of what is left before another cut.
+    0.63 ms, the frame at 7.90. `afd5640f`, pushed at 13:19 on 2026-11-11, the faint lights at a hit
+    taken as one point, each face's cosine from its own middle, where under a 32nd of the largest
+    before them, 0.50 ms, the frame at 7.36, with gi.toggle points and a test in a hall of 49 lamps.
+    What is left by the read of 2026-11-11, the rays' march and shading in the screen probes' pass
+    at 1.67 ms and the marches at the hits and at the probes at about 0.8 each. The rules the item
+    made. A form that holds no sum is never taken at a hit, the reference rooms the first gate, at
+    Low and at High; a change of what is traced is read in process against the whole trace at the
+    same frame, a light's change first; a turn or a walk played through e3d cannot judge under 2
+    percent. The trials and readings as they stood on 2026-11-11 at 13:08 stand in REVIEW-ARCHIVE.md
+    under Items closed, parked or shortened. Next Verdict 115, then the read of what is left before
+    another cut.
 
 253. **A reflection whose pipeline is made late shows no mirror for 32 frames or more.** From the
     game's pin of 6.2.32 on 2026-11-11, done in code. `21122dcd`, pipelines made on several threads
@@ -588,3 +593,22 @@ settles a closed hall lit by a 7 by 7 grid of small glowing blocks at Low and at
 points on and off: the mean apart 0.30 and 0.41 levels at Low, 0.24 and 0.27 at High, where the
 faint lights given nothing lie 1.02 and 0.91 apart and fail its bound of 0.6, and none taken as a
 point moves nothing and fails its other half.
+
+Verdict 115, read. The served program writes its session's file whole as {pid}.json.tmp and moves
+it over the old with File.Move and overwrite, a rename on Linux, so a reader finds the old or the
+new and never neither; a trial here rewrote one 28,659 times while 20,000 looks that named no
+session listed the folder, and none found no session. The heartbeat is written every 30 frames by
+the served program's Stage.First on the frame's thread, so a frame of seconds in a storm on
+lavapipe leaves it as old, which Manor's 5.0 s is; but no look asks its age: Running is the
+process alive and nothing more, and a lone stale session is still chosen, so the age explains the
+5.0 s and not the miss. What did differ is that a storm names no session, and an unnamed look was
+made once where a named one is made five times a fifth of a second apart. The cause on the runner
+stays unseen. The client's look now goes through CliSessionFile.Serving, every serving app or
+those asked for, looked for again as a named one is. Each look keeps what it saw of each file, read
+or not with the words of the exception where its read threw, its pid and whether its process runs
+or why not, where asking it threw with its words, and the error carries the first failed look's
+record before the folder read again after the looks, whose label now says it was found then, where
+it said written after the look, which it does not know. Read and Running caught their exceptions
+and turned them into a file passed over and a process taken as gone, unsaid; the record says them.
+The tests find a session written after an unnamed first look at the second, which a single look
+does not, and a look's record saying a read that threw with its words.
