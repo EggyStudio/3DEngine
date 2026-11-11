@@ -10,8 +10,10 @@ of .github/REVIEW.md or .github/REVIEW-ARCHIVE.md and the commit that closed it.
 
 Done that day
 
+- Item 6 at `466e4315`. Three packages bumped, after 5.2 is packed (Decision 20).
 - Item 253 at `894542da`. A reflection whose pipeline is made late shows no mirror for 32 frames or
   more.
+- Item 254 at `d276e419`. A command that returns once no pipeline is being made.
 
 ## 2026-11-10
 

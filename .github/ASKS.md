@@ -1610,6 +1610,16 @@ The engine lacks a field that lights a view alike whether its center is given ea
 
 The pictures are in the game's `.github/dump/2026-11-11` under `item-167-room`.
 
+Withdrawn by the game on 2026-11-11. The failing build was made in a git worktree reached through
+`/home`, a link to `/var/home`, and there MSBuild copied the game's `resources` flat beside the
+program, so `ChunkRenderer` found no `resources/shaders/terrain.slang` and the run drew without the
+game's terrain shader. The passing build came from the checkout with the folder in place. Built in
+such a worktree, the pin alone, the pin with only the center swapped for `SetSceneFieldAhead` and
+item 167's tree with the center each frame put back each read the lantern's pool from 133.2 to 91.1
+in all eight runs that reached it, and built through `/var/home` the same three trees read it from
+249.2 to 90.6 to 90.9 in 3 runs of 3 each, so the fault followed the build's folder and not the
+center.
+
 ### 2026-11-11, the voxel game in `Voxel-Sandbox`, a reflection whose terrain pipeline the driver makes in a frame of play shows no mirror 32 frames on
 
 Read on the 3DEngine 6.2.32 package with the game's item 167, as the entry above. The run fills a
@@ -1619,20 +1629,95 @@ frames, reads a pixel, waits 2 and reads the water where the wall's mirror image
 red 163, green 181, blue 210 with the reflection on and off alike, the sky's color and no wall, and
 the run failed there. The game's log at each failure ended with `made 1 pipelines in 1649 ms,
 terrain.slang's vertexMain with terrain.slang's fragmentMain`, 1665 ms in the other run, a
-model.slang pipeline made in 437 and 441 ms a second before. In the third run no frame after
-the first made a pipeline and the water read red 171, green 148, blue 167, the wall's red, as on
-6.2.17.
+model.slang pipeline made in 437 and 441 ms a second before. In the third run the water read red
+171, green 148, blue 167, the wall's red, as on 6.2.17.
 
-Those runs found the user's caches as the game's runs on 6.2.17 had left them. Every package keeps
-them under the one folder `0.1.0-preview.1` (`UserCache.Version`), since 6.2.32's informational
-version reads `0.1.0-preview.1+02c3a743`, so `pipelines/0.1.0-preview.1/VoxelSandbox.bin` held the
-pipelines of 6.2.17's shaders and not those of 6.2.32's terrain and model passes. The third run
-came after a run on 6.2.32 had written them. With `XDG_CACHE_HOME` naming an empty folder, the open
-took 84 s on 6.2.32 and 91 s on 6.2.17, no frame after it made a pipeline, and the whole run passed
-on both, the water reading red 171. So the mirror is missing where a pipeline it needs is made in a
-frame of play, as a player meets after a game moves to a new package with its pipelines kept from
-the last.
+Every package keeps the user's caches under the one folder `0.1.0-preview.1`
+(`UserCache.Version`), since 6.2.32's informational version reads `0.1.0-preview.1+02c3a743`. The
+first two runs found `pipelines/0.1.0-preview.1/VoxelSandbox.bin` as the game's runs on 6.2.17 had
+left it, and the third came after a run on 6.2.32 had written it at 01:05. Two later runs from that
+file, at 01:43 and 01:55, failed the same way. Each read the file at the open, `The driver's
+compiled pipelines read from ~/.cache/3DEngine/pipelines/0.1.0-preview.1/VoxelSandbox.bin, 92146
+KB.`, and each made the same pipelines in play at nearly the same frames, the 01:43 run's first.
+
+- Frames 217 and 219, model.slang with model.slang in 420 and 412 ms, and mob.slang with
+  model_streams.slang in 390 and 389 ms
+- Frames 218 and 220, particles.slang in 418 and 445 ms
+- Frames 532 and 531, terrain.slang's vertexMain with `SPIR-V the compiler did not give`, in 1138
+  and 1107 ms
+- Frames 1635 and 1629, the same, in 1118 and 1094 ms
+- Frames 1703 and 1702, terrain.slang's vertexMain with its fragmentMain, in 1143 and 1211 ms
+- Frames 1771 and 1773, the same, in 2282 and 2407 ms
+- Frames 3114 and 3156, the same at the pool, in 1145 and 1552 ms, with model.slang's at frames
+  3140 and 3088 in 1569 and 423 ms
+
+Each of the seven writes in each run said `The driver's compiled pipelines read, 0 bytes to write`,
+and the file kept its time of 01:05, so what a run makes in play is not kept for the next. The game's
+logs of the two runs are `~/.cache/3dengine-tools/work/i167/logs/play-0143-Engine.log` and
+`play-second-Engine.log` beside it. Of six runs on 6.2.32 with the shaders cached that reached the
+pool, four failed there. With `XDG_CACHE_HOME` naming an empty folder the open took 84 s on 6.2.32
+and 91 s on 6.2.17, and the whole run passed on both, the water reading red 171. From an empty
+folder 6.2.32 passed twice more and then failed twice running, at 03:51 and 03:55, each reading the
+file at 0 KB and its 149 shader stages from the program's own folder. In the first, frame 5 made 22
+pipelines in 48.0 s, frame 1768 two of terrain.slang's in 13.6 and 27.1 s, and frame 3167, at the
+pool, terrain.slang's in 1574 ms, and the second made them alike, at the pool at frame 3181 in 1660
+ms. Their logs are `play-cold-0351-session.log` and `play-cold-0355-session.log` beside the others.
+So an empty cache does not keep the mirror whole either, and the mirror is missing where a pipeline
+it needs is made in a frame of play.
 
 The engine lacks a reflection that shows in the frames after the one that waited on its pipeline,
-or the pipelines of a new package's passes made at the open where the kept ones are those of
-another.
+or the pipelines a reflection needs made at the open.
+
+Read again on 6.2.41 on 2026-11-11, each run's caches in a folder of its own, three runs from an
+empty folder and each followed by one from the cache it left. The water read red 171, green 148,
+blue 167 in all six, and every run passed. From an empty folder the file grew at each write, from
+8.8 MB after frame 5 to 21.8 MB, and the pool's frame made three of terrain.slang's pipelines with
+its fragmentMain, stages 7e3b6259, compiled in 14.3 to 19.0 s each, all three within the 15.0, 17.3
+and 19.1 s since the log's line before. From the cache they left, read at 21265 KB, every pipeline
+made said `from the cache` with the stages' hash the empty run gave, and terrain.slang's three at
+the pool took 1.17 to 1.37 s each. No run's log says `the driver saying not where from`. Frame 5
+made its 22 pipelines in 49.7, 61.3 and 62.3 s of the driver's time from an empty folder, and 54.4,
+66.2 and 67.6 s passed from the probes made to it, so they were made one after another. From the
+cache it took 4.4, 4.4 and 4.6 s. The logs are in `~/.cache/3dengine-tools/work/voxel-6241/logs`.
+
+### 2026-11-11, the voxel game in `Voxel-Sandbox`, a sea lantern's light on the wall beside it is drawn in stripes of small squares
+
+Read on the 3DEngine 6.2.41 package with the game at `1f1e955`, Debug, offscreen at 1280 by 720, on
+the RTX 4070 Laptop GPU with driver 615.78.08 on tuned's power-saving profile, from a copy of a
+player's data folder, a saved world of seed 1 with its options, the illumination at Low and the
+scene field at 4 cascades with cells of 0.25. The world opens with the eye at 4448.4, 25.6, 599.8
+facing 48 degrees east of north in a closed room of white concrete whose inside is x 4447 to 4454,
+y 24 to 27 and z 596 to 600, as its save's region files hold it. The field's finest cascade, 0.25 a
+cell from 4446, 18, 586, holds the room.
+
+The one glow light in reach is a sea lantern at 4452, 24, 595, set in the north wall at the floor
+with only its face toward +z open, on the plane z = 596. That face lies in a pocket three blocks
+wide, one deep and two high, closed by red concrete at 4450, 24 to 25, 596, at 4451 to 4453, 24 to
+25, 597 and at 4454, 24 to 25, 596, so its light leaves the pocket upward past y = 26. The east
+wall's face, the plane x = 4455 facing -x, stands 2 blocks from the lantern's box and 2.5 from its
+middle. Fourteen magma blocks lie 8 to 18 blocks off, outside the room past its south wall, reached
+through a door and a tunnel. `gi.state` says 28 small emitters are carried as lights.
+
+Rows read across the east wall's face by `voxel.line` at a 32nd of a block show the stripes at y
+26.9 to 27.9 and z 596.0 to 598.3, over the red concrete at 4454, 24 to 25, 596. Each of those rows
+has 5 to 25 steps of over 3 levels between neighbors, the largest 8 to 11.5, where the rows at y
+26.4 to 26.6 below them have none over 3 and the largest 2.7. With the lantern made white concrete
+every row reads 0, and with the 14 magma blocks made stone the rows read as before within a level,
+so the lantern's light alone draws the stripes.
+
+`field.march` was run from a striped texel at 4455, 27.625, 597.564, a dark one 0.094 beside it and
+a smooth one a block below. From a tenth of a cell off the wall, where `glowLightShown` starts,
+toward the open face's halves at 4452.75 and 4452.25, 24.5, 596 and toward the box's middle, each
+met a surface 0 along in 1 step, at its start in cascade 0's cell, its normal -1, 0, 0. All 17
+texels of a row across three stripes, bright and dark, did the same. From a cell and a half off
+toward the box's middle, the two striped texels passed over the pocket's rim and met the north wall
+at 4453.0, 25.3, 596.0, 3.2 and 3.3 along in 10 steps. The smooth one met the top of the red
+concrete at 4454.0, 26.0, 596.9, 1.1 along in 5 steps. So `field.march`, a ray, meets the wall at
+once from a tenth of a cell off at the striped texels and the smooth one alike, and does not tell
+them apart where the glow lights' marches start at Low.
+
+The engine lacks a glow light whose light falls smoothly over a wall it strikes at a low angle from
+beside it.
+
+The pictures are in the game's `.github/dump/2026-11-11` under `item-173-room`, and the readings,
+with both copies of the data, in `~/.cache/3dengine-tools/work/i173`.

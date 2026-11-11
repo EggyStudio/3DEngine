@@ -11846,6 +11846,27 @@ at `36cae0c2`.
     macOS job of its run is green. Settled on 2026-11-11. The push run of `894542da` has its macOS
     job green at 10:06 in 49 minutes with the test asking no hit of the driver's.
 
+116. **The push run of `afd5640f` is red in the second Windows half, the hall's new test too slow
+    for that system's device.** In run 43019338182 the second Windows half failed after 122 minutes,
+    1,964 passed and 9 without a result, its third part of the rendering tests lost to a test that
+    hung after 59 minutes 50 seconds; macOS, both Linux legs and the first Windows half are green.
+    The test is BounceRoomsTests' hall of 49 lamps, the faint lights taken as one point read within
+    a level of their own forms, which `afd5640f` added. Its case at Low ended in 8 minutes 26
+    seconds there, the slowest test of the part, and its case at High had drawn its first frame in
+    4.3 s when the host was ended for hanging, that system drawing on its CPU. So the hall is too
+    heavy for a device without a GPU, two settled readings of 49 lamps at two qualities, and the
+    run's limit for a test that says nothing took it. The mend is the test bounded for such a
+    device, a hall of fewer lamps that still leaves a tail under a 32nd of the largest, or fewer
+    frames to settle, held to a minute or two on lavapipe here, where the same weight shows; it is
+    not skipped there, the cut's sum being what it guards. It goes up with `d6a009d1`, one run for
+    both. Written at 15:31 on 2026-11-11. Mended at `4d9227d0`, pushed at 15:49 on 2026-11-11. The
+    hall is 8 by 8 with 25 blocks 1.6 apart, one view, settled 40 frames past the bound; it takes 47
+    s at Low and 28 s at High on lavapipe here and 6 and 4 s on the GPU, the picture within 0.05 and
+    0.06 of a level of the lights' own forms and 0.81 with the tail dropped, over its bound of 0.6.
+    Settles where the second Windows half of its run is green. Settled on 2026-11-11. The run of
+    `4d9227d0` has its second Windows half green at 17:34 in 105 minutes with the smaller hall, the
+    first in 115 and macOS in 42.
+
 ## Decisions
 
 1. **Commits stay local.** The owner pushes `main` from their own tools, and the working session
@@ -15332,6 +15353,18 @@ stages' bytes, the same in every process, so the game's next plays say which pip
 whether their bytes moved between runs. The test makes one compute pipeline twice from the one
 SPIR-V and finds both lines in that form with one hash, and the second from the cache; on the head
 the lines lack both and the test fails.
+
+Verdict 116, read. The hall of 49 glowing blocks at 160 by 90, settled for SettleFrames and 120 more
+in two views at each quality, took the Windows runner's software device eight and a half minutes at
+Low and was ended at High. The hall is now 8 by 8 with a 5 by 5 grid of blocks 1.6 apart, one view,
+SettleFrames and 40 more: on lavapipe here 47 s at Low and 28 s at High, on the GPU 6 and 4 s. A
+hit beside one block still has blocks over five times as far, so a tail under a 32nd of the largest
+stands: the mean apart with the faint lights as one point 0.045 and 0.063 levels on lavapipe and
+0.046 and 0.063 on the GPU, and with them given nothing 0.82 and 0.81 on the GPU, which fail the
+bound of 0.6. BounceRoomsTests and the norm pass, 62 on the GPU, 25 with 11 skipped on lavapipe.
+The shipping guide says what the layer costs at a first sight, the voxel game's terrain 1.27 s
+compiled and 1.23 s from the cache with it and 0.09 s without, and that the package turns it on by
+ENGINE_VULKAN_VALIDATION=1.
 
 ## Items closed, parked or shortened
 

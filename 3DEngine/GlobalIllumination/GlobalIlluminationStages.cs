@@ -52,6 +52,9 @@ internal sealed unsafe partial class GlobalIlluminationStages(GraphicsDevice dev
     /// <summary>Whether the probes' shaders have been given, so light can bounce.</summary>
     public bool CanBounceLight => _giSpirv is not null;
 
+    /// <summary>Whether the probes' pipelines are made together on workers, as they are, or one after another, as a test makes them to compare.</summary>
+    internal static bool MadeTogether { get; set; } = true;
+
     // The probes' kernels as InitializeGlobalIllumination was given them, made into pipelines the
     // first time a frame traces the probes, so an app whose light never bounces compiles none.
     private byte[][]? _giSpirv;
@@ -62,44 +65,56 @@ internal sealed unsafe partial class GlobalIlluminationStages(GraphicsDevice dev
         {
             if (_giStages[GlowStage].Pipeline.Handle != 0 || _giSpirv is not { } spirv) return _giStages;
             var (trace, merge, ambient, screen, filter, glow) = (spirv[0], spirv[1], spirv[2], spirv[3], spirv[4], spirv[5]);
-            _giStages[GlowStage] = device.MakeComputeStage(glow, [VkDescriptorType.CombinedImageSampler, VkDescriptorType.SampledImage,
+            // Made together on workers and kept once all are, the frame waiting for them, since made
+            // one after another on the frame's thread the first frame waited for the sum of the
+            // driver's compiles, the trace's builds and the screen's probes' longest among them.
+            var made = new List<(int Stage, Func<ComputeStage> Make)>();
+            made.Add((GlowStage, () => device.MakeComputeStage(glow, [VkDescriptorType.CombinedImageSampler, VkDescriptorType.SampledImage,
                 VkDescriptorType.UniformBuffer, VkDescriptorType.UniformBuffer, VkDescriptorType.UniformBuffer, VkDescriptorType.StorageBuffer,
                 VkDescriptorType.StorageImage, VkDescriptorType.SampledImage, VkDescriptorType.StorageImage, VkDescriptorType.SampledImage,
-                VkDescriptorType.StorageImage, VkDescriptorType.StorageImage, VkDescriptorType.SampledImage], 16);
-            _giStages[FilterStage] = device.MakeComputeStage(filter, [VkDescriptorType.SampledImage, VkDescriptorType.SampledImage, VkDescriptorType.StorageImage,
+                VkDescriptorType.StorageImage, VkDescriptorType.StorageImage, VkDescriptorType.SampledImage], 16)));
+            made.Add((FilterStage, () => device.MakeComputeStage(filter, [VkDescriptorType.SampledImage, VkDescriptorType.SampledImage, VkDescriptorType.StorageImage,
                 VkDescriptorType.SampledImage, VkDescriptorType.SampledImage, VkDescriptorType.UniformBuffer, VkDescriptorType.CombinedImageSampler,
                 VkDescriptorType.SampledImage, VkDescriptorType.SampledImage, VkDescriptorType.StorageImage, VkDescriptorType.StorageImage,
-                VkDescriptorType.SampledImage, VkDescriptorType.StorageImage], 16);
-            _giStages[ScreenStage] = device.MakeComputeStage(screen, [VkDescriptorType.CombinedImageSampler, VkDescriptorType.CombinedImageSampler,
+                VkDescriptorType.SampledImage, VkDescriptorType.StorageImage], 16)));
+            made.Add((ScreenStage, () => device.MakeComputeStage(screen, [VkDescriptorType.CombinedImageSampler, VkDescriptorType.CombinedImageSampler,
                 VkDescriptorType.UniformBuffer, VkDescriptorType.CombinedImageSampler, VkDescriptorType.CombinedImageSampler, VkDescriptorType.UniformBuffer,
                 VkDescriptorType.CombinedImageSampler, VkDescriptorType.SampledImage, VkDescriptorType.StorageImage, VkDescriptorType.StorageImage,
                 VkDescriptorType.UniformBuffer, VkDescriptorType.CombinedImageSampler, VkDescriptorType.SampledImage, VkDescriptorType.StorageBuffer,
                 VkDescriptorType.StorageBuffer, VkDescriptorType.SampledImage, VkDescriptorType.SampledImage, VkDescriptorType.SampledImage,
-                VkDescriptorType.SampledImage, VkDescriptorType.SampledImage, VkDescriptorType.CombinedImageSampler], 32);
+                VkDescriptorType.SampledImage, VkDescriptorType.SampledImage, VkDescriptorType.CombinedImageSampler], 32)));
             VkDescriptorType[] traced = [VkDescriptorType.CombinedImageSampler, VkDescriptorType.UniformBuffer,
                 VkDescriptorType.CombinedImageSampler, VkDescriptorType.CombinedImageSampler, VkDescriptorType.UniformBuffer,
                 VkDescriptorType.StorageImage, VkDescriptorType.CombinedImageSampler, VkDescriptorType.CombinedImageSampler,
                 VkDescriptorType.StorageImage, VkDescriptorType.StorageImage, VkDescriptorType.StorageImage, VkDescriptorType.SampledImage,
                 VkDescriptorType.SampledImage, VkDescriptorType.CombinedImageSampler, VkDescriptorType.SampledImage, VkDescriptorType.CombinedImageSampler,
                 VkDescriptorType.StorageImage, VkDescriptorType.StorageImage];
-            _giStages[TraceStage] = device.MakeComputeStage(trace, traced, (uint)sizeof(IlluminationTrace));
-            _giStages[SolidTraceStage] = device.MakeComputeStage(spirv[6], traced, (uint)sizeof(IlluminationTrace));
+            made.Add((TraceStage, () => device.MakeComputeStage(trace, traced, (uint)sizeof(IlluminationTrace))));
+            made.Add((SolidTraceStage, () => device.MakeComputeStage(spirv[6], traced, (uint)sizeof(IlluminationTrace))));
             // The builds that trace the meshes through the device's rays, without and with the
             // crossing of what lets light through, the ray scene bound after the field's images,
             // where the device traces rays and the builds were given.
             for (int k = 7; k <= 8; k++)
-                if (spirv[k].Length > 0 && device.CanQueryRays)
-                    _giStages[k == 7 ? RayTraceStage : RayCrossStage] = device.MakeComputeStage(spirv[k], [.. traced, VkDescriptorType.AccelerationStructureKHR,
-                        VkDescriptorType.StorageBuffer, VkDescriptorType.StorageBuffer], (uint)sizeof(IlluminationTrace));
-            _giStages[MergeStage] = device.MakeComputeStage(merge, [VkDescriptorType.SampledImage, VkDescriptorType.SampledImage, VkDescriptorType.StorageImage,
+            {
+                var build = spirv[k];
+                if (build.Length > 0 && device.CanQueryRays)
+                    made.Add((k == 7 ? RayTraceStage : RayCrossStage, () => device.MakeComputeStage(build, [.. traced, VkDescriptorType.AccelerationStructureKHR,
+                        VkDescriptorType.StorageBuffer, VkDescriptorType.StorageBuffer], (uint)sizeof(IlluminationTrace))));
+            }
+            made.Add((MergeStage, () => device.MakeComputeStage(merge, [VkDescriptorType.SampledImage, VkDescriptorType.SampledImage, VkDescriptorType.StorageImage,
                 VkDescriptorType.UniformBuffer, VkDescriptorType.CombinedImageSampler, VkDescriptorType.StorageImage, VkDescriptorType.StorageImage,
                 VkDescriptorType.SampledImage, VkDescriptorType.SampledImage, VkDescriptorType.CombinedImageSampler, VkDescriptorType.SampledImage,
                 VkDescriptorType.SampledImage, VkDescriptorType.StorageImage, VkDescriptorType.StorageImage, VkDescriptorType.SampledImage,
-                VkDescriptorType.StorageImage, VkDescriptorType.SampledImage, VkDescriptorType.StorageImage], 48);
-            _giStages[AmbientStage] = device.MakeComputeStage(ambient, [VkDescriptorType.SampledImage, VkDescriptorType.StorageImage,
+                VkDescriptorType.StorageImage, VkDescriptorType.SampledImage, VkDescriptorType.StorageImage], 48)));
+            made.Add((AmbientStage, () => device.MakeComputeStage(ambient, [VkDescriptorType.SampledImage, VkDescriptorType.StorageImage,
                 VkDescriptorType.SampledImage, VkDescriptorType.StorageImage, VkDescriptorType.SampledImage, VkDescriptorType.StorageImage,
                 VkDescriptorType.SampledImage, VkDescriptorType.StorageImage, VkDescriptorType.StorageImage, VkDescriptorType.StorageImage,
-                VkDescriptorType.SampledImage, VkDescriptorType.SampledImage], 32);
+                VkDescriptorType.SampledImage, VkDescriptorType.SampledImage], 32)));
+            var stages = new ComputeStage[made.Count];
+            if (MadeTogether) Parallel.For(0, made.Count, i => stages[i] = made[i].Make());
+            else for (int i = 0; i < made.Count; i++) stages[i] = made[i].Make();
+            for (int i = 0; i < made.Count; i++)
+                _giStages[made[i].Stage] = stages[i];
             return _giStages;
         }
     }
