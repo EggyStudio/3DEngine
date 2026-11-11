@@ -139,8 +139,9 @@ struct TracePush
     // x: the cascade above's octahedron's texels along each side, 0 for the last. y: the first
     // probe the dispatch traces, past 0 where it traces a part of the cascade's probes (the far
     // cascade's, a part a frame). z: 1 where a carried probe's rays move within their texels and meet
-    // the meshes through the device's rays, 2 where every ray meets them (gi.toggle meshes). w:
-    // unused.
+    // the meshes through the device's rays, 2 where every ray meets them (gi.toggle meshes). w: 1
+    // where the cascade traces half its probes this frame, with the half's parity in its second
+    // bit (GlobalIlluminationStages.Halved).
     uint4 above;
 };
 
@@ -402,6 +403,13 @@ void computeMain(uint3 id : SV_DispatchThreadID, uint lane : SV_GroupIndex)
     // A carried probe whose rays move marked in its place's w, 2, for the merge and the gather to
     // keep its cycle, a probe walled in keeping its 0.
     bool moving = carried && place.w > 0.5 && !walledIn && (push.above.z & 1u) != 0u;
+    // A cascade traced in halves, the probes whose coordinates' sum has the frame's parity this
+    // frame and the rest the next, those of the other half keep their rays' light of the frame
+    // before, as the far cascade's parts do; a probe carried with its rays moving traces each
+    // frame, its cycle taking one spot a frame. The whole group leaves together, after the place it
+    // stood at and the probes above it sees are written for the merge and the gather.
+    if ((push.above.w & 1u) != 0u && !moving && ((at.x + at.y + at.z) & 1u) != ((push.above.w >> 1) & 1u))
+        return;
     float widen = moving ? 0.0 : texelWidening(texels);
     if (lane == 0u && moving)
         held[int3(3 * int(probes) + int(at.x), int(at.y), int(push.cascade.x) * int(probes) + int(at.z))] = float4(place.xyz, 2.0);

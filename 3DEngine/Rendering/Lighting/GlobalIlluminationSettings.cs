@@ -105,6 +105,13 @@ internal sealed class GlobalIlluminationSettings
     /// </summary>
     public bool PassesTimed { get; set; }
 
+    /// <summary>
+    /// Whether every cascade's probes trace their rays every frame, as <c>gi.toggle spread off</c>
+    /// sets it, where the cascades past the first otherwise trace half their probes a frame while
+    /// they lie still, so the light of the whole trace can be read beside the spread one.
+    /// </summary>
+    public bool SpreadOff { get; set; }
+
     /// <summary>The one cascade whose rays' light alone reaches the pixels, or -1 for every cascade, as <c>gi.toggle cascade</c> sets it.</summary>
     public int Alone { get; set; } = -1;
 

@@ -132,8 +132,9 @@ so light bounces once, `follow` the probes taking the indirect light at the shar
 kept, so the indirect light of a light switched off fades over the frames each bounce takes, `glow`
 the small emissive surfaces carried as lights, whose light the rays leave out all the same, so what
 they give can be seen and timed, `specular` the surfaces' reflection of the indirect light, so the
-diffuse light is read apart from it, `gi.toggle cascade 2` keeps the third cascade's light alone, and
-`on` or `-1` puts each back. `gi.toggle meshes on` traces the world's probes' rays through the GPU's
+diffuse light is read apart from it, `spread` the coarser cascades' trace of half their probes a
+frame, so each traces all of them every frame, `gi.toggle cascade 2` keeps the third cascade's light
+alone, and `on` or `-1` puts each back. `gi.toggle meshes on` traces the world's probes' rays through the GPU's
 own rays at `High` in place of the field, crossing what lets light through as the field does, a step
 that stays off until it reads every view at least as near a path-traced reference as the field, and
 `off` puts the field back.

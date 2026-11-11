@@ -150,6 +150,18 @@ in the counted cascades alone, so a surface past them takes the far cascade's pr
 surface does at `Low`. It takes 5.5 MB of the GPU's memory beside the 27 of four cascades, and its
 probes 2.6 MB at High, as `field.state` and `gi.state` say.
 
+The cascades past the first, the far cascade aside, trace half their probes a frame while they lie
+where they lay the frame before, those whose places' coordinates add up to the frame's parity, each
+keeping its rays' light of the frame before until its turn, and a probe whose rays move in their
+cycle traces every frame. They trace whole for the 16 frames after the lights or the field change,
+since a half keeping the light of before a light went out handed it back through the light past the
+first bounce, so a change of light arrives as fast as traced whole and reads the same frame by
+frame. The coarser cascades' light changes slowest, and each traces as many rays as the first, so in
+halves they cost about half: Ore's frame at High at 1280 by 720 on an RTX 4070 went from 8.53 to
+7.90 ms standing, and its cascades traced in halves in 87 of 100 samples of a walk, the rest the
+frames after a section was built. `gi.toggle spread off` traces every probe each frame, and
+`gi.state` says which cascades trace in halves.
+
 Each cascade lies mostly ahead of the eye, its middle 0.35 of its width in front, so its side behind
 the eye is between 1.6 and 9.6 of its cells back. What stands behind the camera farther than that is
 held by the coarser cascades alone. `./e3d command field.show 0` draws the first cascade over the

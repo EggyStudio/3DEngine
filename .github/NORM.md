@@ -88,7 +88,8 @@ project's. A test compares the table with the folders.
 layers below it alone, the layers listed in the norm test.** A reference upward or across a layer is
 a cycle in the making, and the compiler holds what the project files say, so the test reads the
 project files' references against the list and fails one that points up or sideways. A repository of
-one project keeps its folders in the same layers by review until its split.
+one project keeps its areas in the same layers until its split by a test that reads from the built
+library what each file names of another, each file placed in its area by a list.
 
 ## 2 The public surface
 
@@ -449,7 +450,7 @@ not the code keeps the rule. `by review` is held by the reviewing session.
 | N 1.3 | checked, `NormTests` | listed 4, `NormTests`, 2 of them in the bridge |
 | N 1.4 | checked, `NormTests`, 14 left out | listed 73, `NormTests`, 28 left out |
 | N 1.5 | checked, `NormTests` | checked, `NormTests` |
-| N 1.6 | checked, `NormTests` | to take, at item 119 |
+| N 1.6 | checked, `NormTests` | checked, `NormTests.N_1_6` over the built library by the areas' list, until item 119's split sets the projects |
 | N 2.1 | checked, `PublicSurfaceTests` and `PublicApi.txt` | checked, `PublicSurfaceTests` and `PublicApi.txt` |
 | N 2.2 | checked, CS1591 an error in `3DEngine.csproj` | checked, CS1591 and the doc faults errors in `BevyCSharp.csproj` |
 | N 2.3 | checked, `CheatsheetTests` | checked, `CheatsheetTests` |

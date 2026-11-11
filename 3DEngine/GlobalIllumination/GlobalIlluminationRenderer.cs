@@ -91,6 +91,10 @@ internal sealed partial class GlobalIlluminationRenderer : IIlluminationPasses, 
     /// <summary>The probes being traced, or null where light does not bounce.</summary>
     internal GpuIllumination? Probes => _gi;
 
+    /// <summary>Whether each cascade traced half its probes the last frame (<see cref="GlobalIlluminationStages.Halved"/>), which gi.state says.</summary>
+    internal IReadOnlyList<bool> Halved => _halved;
+    private bool[] _halved = [];
+
     /// <summary>The screen's probes being placed, or null where none are.</summary>
     internal GpuScreenProbes? Screen => _screen;
 
@@ -254,10 +258,17 @@ internal sealed partial class GlobalIlluminationRenderer : IIlluminationPasses, 
         // rays at High where it traces them, the field's finest cells missing an arch's edge thinner
         // than they are, which the moving rays passed beside, and elsewhere keep their middles.
         var moving = _gi.CycleOn && _rays is not null && !_lightThrough;
+        // The coarser cascades trace in halves once a change of the lights or the field has
+        // settled, and whole until then, since a half keeping its light of before a light went out
+        // handed it back to the traced half through the light past the first bounce, and a room
+        // whose panel went dark at Low kept a tenth of its light ten frames on.
+        var spread = !switches.SpreadOff && !Settling;
+        _halved = [.. Enumerable.Range(0, cascades).Select(c => GlobalIlluminationStages.Halved(c, cascades, far ? cascades - 2 : -1,
+            switches.FollowOff ? null : lying, spread))];
         _retired.Add((_frame, GlobalIlluminationStages.Of(device).RecordGlobalIllumination(renderContext.CommandBuffer, _gi, field.Field, view, sampler, sunMap, sunSampler, lights, intervals, ProbeSpacing,
             switches.MergeOff, switches.Alone, switches.Shown is BounceView.Rays or BounceView.Merged, _frame, switches.FollowOff ? null : lying,
             far ? cascades - 2 : -1, _lightThrough, plan is { Whole: true }, farPart, switches.MeshesTraced || moving ? _rays : null, shifts, CarriedShare, CarriedSince, CarriedPhase,
-            (moving ? 1u : 0) | (switches.MeshesTraced ? 2u : 0))));
+            (moving ? 1u : 0) | (switches.MeshesTraced ? 2u : 0), spread)));
 
         // The screen's probes, where the window has a depth to stand them on, the first interval
         // theirs. At Low, which leaves them out, they stand for the glow lights alone while some

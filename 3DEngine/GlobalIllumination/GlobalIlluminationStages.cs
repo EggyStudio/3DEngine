@@ -30,8 +30,21 @@ internal sealed unsafe partial class GlobalIlluminationStages(GraphicsDevice dev
         public float Edge;
         public uint Parity;
         public float BelowEnd;
-        public uint TexelsAbove, First, Flags, UnusedW;
+        public uint TexelsAbove, First, Flags, Half;
     }
+
+    /// <summary>
+    /// Whether cascade <paramref name="c"/> traces half its probes this frame, those whose
+    /// coordinates' sum has the frame's parity, each keeping its rays' light of the frame before
+    /// until its turn. A cascade past the first does so while it lies where it lay the frame before,
+    /// the far cascade keeping its own parts, where the renderer asks it once a change of the lights
+    /// or the field has settled, and a probe carried with its rays moving traces every frame all the
+    /// same, its cycle of sixteen spots being one a frame (gi_trace.slang). The coarser cascades'
+    /// light changes slowest, and they trace as many rays a frame as the first, so in halves a frame
+    /// they cost about half.
+    /// </summary>
+    internal static bool Halved(int c, int cascades, int lastCounted, IReadOnlyList<bool>? lying, bool spread) =>
+        spread && c >= 1 && !(lastCounted >= 0 && c == cascades - 1) && lying is not null && lying[c];
 
     /// <summary>The parts the far cascade's probes are traced in, one a frame (<see cref="RecordGlobalIllumination"/>).</summary>
     internal const int FarParts = 4;
@@ -273,12 +286,13 @@ internal sealed unsafe partial class GlobalIlluminationStages(GraphicsDevice dev
     /// <param name="carriedShare">The share of a carried probe's own light this frame takes in its mean.</param>
     /// <param name="carriedSince">The frames since the lights or the field last changed, which begins a carried probe's cycle again at 0.</param>
     /// <param name="traceFlags">1 where a carried probe's rays move within their texels and are traced through <paramref name="rays"/>, 2 where every ray is.</param>
+    /// <param name="spread">Whether the cascades past the first trace half their probes a frame while they lie still (<see cref="Halved"/>).</param>
     /// <param name="carriedPhase">Where a carried probe's cycle of sixteen frames stands, counted from the last change, so the first whole cycle is gathered in the sixteen frames after it.</param>
     /// <returns>What the recording holds, to free once no frame in flight reads it.</returns>
     public IDisposable RecordGlobalIllumination(ICommandBuffer commandBuffer, GpuIllumination gi, GpuSceneField field, IImageView environment,
         ISampler environmentSampler, IImageView sunMap, ISampler sunSampler, ReadOnlySpan<byte> lights, IReadOnlyList<(float Start, float End)> intervals, float spacing,
         bool mergeOff = false, int alone = -1, bool viewed = false, long frame = 0, IReadOnlyList<bool>? lying = null, int lastCounted = -1, bool lightThrough = false,
-        bool fieldWhole = false, int farPart = -1, GpuRayScene? rays = null, IReadOnlyList<(int X, int Y, int Z)?>? shifts = null, float carriedShare = 1, uint carriedSince = 0, uint carriedPhase = 0, uint traceFlags = 0)
+        bool fieldWhole = false, int farPart = -1, GpuRayScene? rays = null, IReadOnlyList<(int X, int Y, int Z)?>? shifts = null, float carriedShare = 1, uint carriedSince = 0, uint carriedPhase = 0, uint traceFlags = 0, bool spread = false)
     {
         // Traced through the meshes where asked and the build for the frame was made, crossing what
         // lets light through where the frame holds any.
@@ -352,6 +366,8 @@ internal sealed unsafe partial class GlobalIlluminationStages(GraphicsDevice dev
                 count = Math.Min(part, count - first);
             }
             push.First = first;
+            if (Halved(c, gi.Cascades, lastCounted, lying, spread))
+                push.Half = 1u | (uint)(frame & 1) << 1;
             run.Dispatch(trace, set, MemoryMarshal.AsBytes(new ReadOnlySpan<IlluminationTrace>(in push)),
                 (count * n * n * (uint)gi.RaysAt(c) + 63) / 64);
             MarkGlobalIllumination(commandBuffer, $"gi_trace{c}");
