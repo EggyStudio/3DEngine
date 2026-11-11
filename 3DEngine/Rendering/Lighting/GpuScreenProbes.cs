@@ -87,7 +87,7 @@ internal sealed partial class GpuScreenProbes : IDisposable
 
     /// <summary>
     /// How much of each glow light each probe's surface sees past what the field holds between, a
-    /// byte a light in the places the lights of global illumination are written in, sixteen words
+    /// byte a light in the places the lights of global illumination are written in, sixteen uints
     /// of them, and three of the light of those too faint to be marched to by their faces, which
     /// <c>gi_screen_glow.slang</c> takes each point's from the probes around it.
     /// </summary>
@@ -111,7 +111,7 @@ internal sealed partial class GpuScreenProbes : IDisposable
     /// to the glow lights from, the glow lights' count and the places kept, and the field's cascades
     /// built as meshes came or went within them with the box around those meshes.
     /// </summary>
-    public const int ViewBytes = 3 * 64 + 9 * 16;
+    public const int ViewBytes = 4 * 64 + 9 * 16;
 
     /// <summary>
     /// The rays of the one probe <c>gi.screenprobe</c> asks about, as <c>gi_screen.slang</c>'s
@@ -122,7 +122,7 @@ internal sealed partial class GpuScreenProbes : IDisposable
     /// <summary>The bytes of <see cref="RayLog"/>, four float4 values and then four for each of the sixteen rays.</summary>
     public const int RayLogBytes = (4 + 16 * 4) * 16;
 
-    /// <summary>The bytes of <see cref="GlowSeen"/> each probe holds, twenty words (GlowSeenWords in glow.slang).</summary>
+    /// <summary>The bytes of <see cref="GlowSeen"/> each probe holds, twenty uints (GlowSeenUints in glow.slang).</summary>
     public const int GlowSeenBytes = 20 * 4;
 
     /// <inheritdoc />

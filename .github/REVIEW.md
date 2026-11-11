@@ -1,107 +1,42 @@
 # Review
 
-Reviewed up to `466e4315`, item 6, Vortice.Vulkan at 3.3.0, AssimpNetter at 6.0.5 and StbImageSharp
-at 2.30.16 on the owner's word of 2026-11-11, pushed at 18:03 with `d276e419`, item 254,
-pipelines.wait, one run on the last; the suite passed both legs on each, 2,343; they keep the form
-and carry the review's files. Before them `4d9227d0`, Verdict 116's mend, the hall the faint lights'
-test reads made small enough for a device that draws on its CPU, pushed at 15:49 on 2026-11-11 with
-`d6a009d1`, Verdict 115's mend, a client that names no session looking again and saying what its
-first look saw, the run on the last ended at 17:45 with macOS in 42 minutes and the Windows halves
-in 115 and 105 green, which settles Verdict 116, and both Linux legs red at the runners' package
-mirror, which answered again at 17:54 after two hours and a quarter. Before them `afd5640f`, 250's
-faint lights, a glow light giving a ray's hit under a 32nd of the largest before it taken as one
-point, pushed at 13:19 on 2026-11-11, its run red at 15:27 in the second Windows half alone, the
-hall's new test hanging on that system's device, Verdict 116, macOS, the Linux legs and the first
-Windows half green; Before it `765ca949`, 250's spread, the coarser cascades tracing half their
-probes a frame once the lights and the field have kept still, pushed at 11:03 on 2026-11-11, green
-at 13:09 with macOS in 55 minutes, the Linux legs in 44 each and the Windows halves in 127 and 100.
-Before it `894542da`, Verdict 114's mend, the test of a pipeline's line asking its form and its one
-hash on every device and no hit of the driver's, pushed at 09:16 on 2026-11-11, its run green at
-11:01 with macOS in 49 minutes, which settled Verdict 114, the Linux legs in 83 and 78 and the
-Windows halves in 67 and 104, its pack run with publish, 42985743208, red in its games job at 11:57
-by Manor's storm finding no session, Verdict 115, its suites and captures green, its first Windows
-half green in 184 minutes, the run ended at 12:21, its games job green on a second attempt in 87
-minutes and its pack job green at 13:54 with the version's check, 6.2.41 published and tagged
-`v6.2.41`, the first package whose assemblies carry its version, the packed 3DEngine.Core.dll
-reading 6.2.41 with the commit and no older version, its fifteen ids listed on nuget.org at 14:36,
-42 minutes after their push, the game told a quarter of an hour after; the cache's tests pass on the
-GPU and on lavapipe here; it keeps the form. Before it `f91440e5`, the test of the log line asking
-the cache's hit only of a device whose cache keeps pipelines, pushed at 08:21 on 2026-11-11 with
-`803dfdb5`, each package built at its own version with other versions' cache folders swept, and
-`e4a14ec5`, each pipeline made said in the log with the driver's word on the cache and a hash of its
-stages, the run on the last and the pack run with publish, 42978968240, both red on macOS at 09:02
-by the log line's test, Verdict 114, the pack run canceled at 09:16 since it could no longer publish
-and the push run ended by the next push; the suite passed both legs on each, 2,337; they keep the
-form and carry the review's files. Before them `80bc4b05`, 253's write of the pipelines on a worker,
-the frames going on while it waits and reads, pushed at 05:42 on 2026-11-11, green at 07:40 with
-macOS in 47 minutes, the Linux legs in 45 and 46 and the Windows halves in 117 and 112; Before it
-`21122dcd`, 253's first half, pipelines made on several threads sharing the driver's cache and the
-write alone holding it, pushed at 03:49 on 2026-11-11, green at 05:41 with macOS in 50 minutes, the
-Linux legs in 78 each and the Windows halves in 112 each. Before it `56d77a29`, Ore's turn and walk
-by fixed steps and its eye in its status, pushed at 01:45 on 2026-11-11 with `b7f176d9`, 250's
-second cut, a probe's ray's hit taking each face of a far glow light as one point, the run on the
-last green at 03:45 with macOS in 50 minutes, the Linux legs in 59 each and the Windows halves in 92
-and 119. Before them `cfcfda02`, 250's first cut, a screen probe no longer marching to a faint glow
-light that sends it nothing, exact, pushed at 23:51 on 2026-11-10, green at 01:42 on 2026-11-11 with
-macOS in 49 minutes, the Linux legs in 76 and 57 and the Windows halves in 91 and 111. Before it
-`02c3a743`, the Replies' reading of which waits ran out by the field's fault, documents alone,
-pushed at 19:46 on 2026-11-10 with `1aa4c5d8`, 251, the lift after a cut held until 30 frames in a
-row bring no mesh, a changed budget keeping the field, and a mesh that settled during a region's
-build no longer left pending for good, the run on the last green at 21:52 with macOS in 51 minutes,
-the Linux legs in 77 and 75 and the Windows halves in 126 and 100, and its pack run with publish
-green at 00:38 on 2026-11-11, every job green, 6.2.32 published and tagged `v6.2.32`, its fifteen
-packages listed on nuget.org by 00:45, the game told at 01:00; they keep the form and carry the
-review's files. Before it `8da28e48`, the mend of Verdicts 112 and 113, pushed at 18:17 on
-2026-11-10, its run green at 19:45 with macOS in 49 minutes, the Linux legs in 57 and 77 and the
-Windows halves in 77 and 87, which settles Verdict 112; its pack run with publish of 18:17 green at
-21:30, its games job in 56 minutes with Siege played through, which settles Verdict 113, 6.2.30
-published and tagged `v6.2.30`, the first to carry the illumination's project as a package of its
-own, its fifteen packages listed on nuget.org at 22:08, 38 minutes after their push; the game does
-not pin it. Before it `40c00405`, Verdict 112's first mend, pushed at 15:36 on 2026-11-10 with 235's
-third and fifth cuts and 249's two Linux legs, its run ended at 17:30 red in both Linux legs by the
-mended test's other case and green on macOS in 45 minutes and the Windows halves in 89 and 113, the
-legs in 57 and 77 minutes where the one job took 147. Before it `dd0adff0`, 235's second cut, pushed
-at 12:48 on 2026-11-10 with 247, 238 and 235's first cut, its run red at 15:25 in the first Windows
-half alone, Verdict 112, with macOS in 47 minutes, the second half in 115 and Linux in 147 of its
-150. Before it `4fb868ca`, 244's fourth and last commit, pushed at 10:14 on 2026-11-10 with its
-three before it, their run green at 12:44 with macOS in 46 minutes, Windows in 63 and 96, Linux in
-141 and the examples in 9; their package comes from the pack run above, the game taking them in its
-167. Before it `f68075f1`, 239 with 245 and build/flicker.py's options, pushed at 07:44, green at
-10:13, whose pack run went green at 12:41 with its captures in 58 and 71 minutes and its games in
-53, publishing 6.2.17, tagged `v6.2.17`, which the game pins for the clouds and the cuts. Before it
-`e86ca5c3`, 240's ramp, a pixel whose screen probes stand on a surface like its own for under a
-quarter of their weight taking the world's probes' light by its shortfall, with the march by thin
-walls, pushed at 05:41 on 2026-11-10, its run green at 07:43 with macOS in 43 minutes, Windows in
-108 and 122, Linux in 105 and the examples in 11, its pack run green at 08:57 with its captures in
-58 and 72 minutes and its games in 70, publishing 6.2.14, tagged `v6.2.14`; the game reads its
-shaded ground on that package and its walk on the next. The working session was ended at 01:15 on
-2026-11-10 by the kernel, a python3 of its own having read its 4.3 GB transcript whole into 27 GB
-beside 18 GB of old frames in /tmp, and was resumed by the owner at 04:23, its scratch cleared (N
-7.10). Before it `adb41aa7`, the example's sponza.turn and build/flicker.py, pushed at 01:18 on
-2026-11-10, green at 03:44. Before it `94097b62`, 242, a hit marching its brightest glow light and
-gathering the rest as one, pushed at 22:41 on 2026-11-09 with 241 and 243, green at 00:35, whose
-pack run published 6.2.12 at 02:34, tagged `v6.2.12`, which the game pins since its `cfffcb3`.
-Before it `ed469e90`, 237, the illumination's cycles eased in the merge and the screen filter,
-pushed at 20:18 on 2026-11-09, its run green at 22:13 with macOS in 45 minutes, Windows in 98 and
-115, Linux in 104 and the examples in 10; it keeps the form. Before it `c23cd2d4`, 226's fourth and
-last commit, green at 20:15 on 2026-11-09, whose pack run published 6.2.8 at 21:08, the package
-3DEngine, its twelve areas and the templates, tagged `v6.2.8`, which settled Verdict 111. The
-release scene-packs holds intel-sponza.pack since 17:58 on 2026-11-09, so ./e3d scenes fetch works.
-nuget.org holds 6.0.11, 6.0.14, 6.0.91, 6.1.12, 6.2.8, 6.2.12, 6.2.14 and 6.2.17, the game pinned to
-6.1.12, tagged `v6.1.12` at `8dba0d1c`; the version stands at 6.2, tagged `v6.2.0` at `1c3c38d5`.
-Item 6's three package bumps wait on the owner's word since October. Every push and run before
-`c23cd2d4` since 2026-10-23 stands in REVIEW-ARCHIVE.md under Head records.
+Reviewed up to `c1243335`, 255's first mend, the probes' kernels made together on workers at the
+first frame that traces them, the frame waiting for all, the bounce rooms' cold first frame in 12.3
+and 12.1 s where 28.6 and 30.1, with the guide's sentences on calling lit once and the game's ask of
+the engine's item 257, pushed at 19:59 on 2026-11-11 once the run before it had ended, its run green
+on macOS in 55 minutes and the Linux legs in 46 and 76 and red in the Windows halves and the
+examples at the step that keeps an artifact, Verdict 117; the suite passed both legs, 2,344; it
+keeps the form and carries the review's files. Two things for its next commit, the guide's colon
+inside a running sentence and the test's count of two at once made to hold however the threads
+start. Before it `466e4315`, item 6, Vortice.Vulkan at 3.3.0, AssimpNetter at 6.0.5 and
+StbImageSharp at 2.30.16 on the owner's word of 2026-11-11, pushed at 18:03 with `d276e419`, item
+254, pipelines.wait, one run on the last, green at 19:58 with macOS in 47 minutes, the Linux legs in
+59 and 80 and the Windows halves in 115 and 58, which settles Verdict 115; the suite passed both
+legs on each, 2,343; they keep the form and carry the review's files. Before them `4d9227d0`,
+Verdict 116's mend, the hall the faint lights' test reads made small enough for a device that draws
+on its CPU, pushed at 15:49 on 2026-11-11 with `d6a009d1`, Verdict 115's mend, a client that names
+no session looking again and saying what its first look saw, the run on the last ended at 17:45 with
+macOS in 42 minutes and the Windows halves in 115 and 105 green, which settles Verdict 116, and both
+Linux legs red at the runners' package mirror, which answered again at 17:54 after two hours and a
+quarter. Before them `afd5640f`, 250's faint lights, a glow light giving a ray's hit under a 32nd of
+the largest before it taken as one point, pushed at 13:19 on 2026-11-11, its run red at 15:27 in the
+second Windows half alone, the hall's new test hanging on that system's device, Verdict 116, macOS,
+the Linux legs and the first Windows half green. The pushes before these stand in
+REVIEW-ARCHIVE.md's head records.
 
-Next 257, the stripes in a glow light's light on a wall, the owner's noise seen in the owner's own
-scene, before all else; then 255, the guide's sentences, the first frame's pipelines made together
-on the workers and the trial of the lighting kept as functions, then 256, the engine as one package
-by Decision 109; Verdicts 115 and 116 settle on the run of `4d9227d0`; the game is on 6.2.41 of
-`894542da` since its `068fd5f`. Then 250's further cuts, the three coarser cascades spread over
-frames first, 253 done in code and read by the game on the package of `f91440e5`; the screen probes'
-glow lights first, the illumination's cost in the game read by pass and cut, its read by pass done
-in the Ore example; The game is on 6.2.32 since its `e3dea22`, with 251's lift and its own 167. No
-budget by Decision 94; the door at 8:00 the one target by Decision 95; a fault seen in motion is
-read in motion by Decision 107.
+Next 257's commit, the stripes in a glow light's light on a wall, the owner's noise, found on the
+case as float precision far from the origin and mended there, the depth's points kept as offsets
+from the eye, with its test and its unpublished package for the game's check of the owner's view;
+then 261, a dither before the 8-bit write, asked by the owner of the coder the same evening; then
+259, the bright pixel at a silhouette's edge that bloom spreads into the blobs the owner saw in the
+distance, with 260, one pixel's light read by its terms; then 258, the same fault in the other
+passes, the reprojections, the model pass's slopes and the vertices first; then 256, the engine as
+one package by Decision 109, and the pack run with publish; then 255's remaining steps, the other
+first-frame pipelines made together on the workers and the trial of the lighting kept as functions,
+its first mend, the probes' kernels made together, at `c1243335`. The game is on 6.2.41 of
+`894542da` since its `068fd5f`. After them 250's further cuts, the hits' glow at 1.41 ms of the
+screen pass's 3.04 in the Ore example. No budget by Decision 94; the door at 8:00 the one target by
+Decision 95; a fault seen in motion is read in motion by Decision 107.
 
 REVIEW-ARCHIVE.md beside this file holds, their numbers kept, the items done, the items closed or
 parked, the verdicts settled, Decisions 1 to 93, the Replies before those here and the head records,
@@ -131,16 +66,6 @@ settled view's light by how the eye came to it, withdrawn as the game's script's
 bounced light kept by depth texel with the probe's point moving in its tile, tried in two passes and
 reverted as the screen probes' limit at shapes about a tile wide, its patches in the dump.
 
-6. **Three packages bumped, after 5.2 is packed (Decision 20).** Vortice.Vulkan 3.2.1 to 3.3.0,
-   AssimpNetter 6.0.4 to 6.0.5 and StbImageSharp 2.30.15 to 2.30.16, in one commit with the suite
-   run and the notices written again, on the owner's word typed into this session once the package
-   is out, as AGENTS.md has it for a version; SDL3-CS stays on its preview and NVorbis on 0.10.5.
-   The owner's word given on 2026-11-11, bump all three, in the review's session and again in the
-   coder's; one commit with the notices and the whole suite, after Verdicts 115 and 116 settle. Done
-   at `466e4315`, pushed at 18:03 on 2026-11-11, the three packages bumped in six project files, the
-   notices naming StbImageSharp's licence as it declares it, the Unlicense or MIT; the suite 2,343
-   on both legs with no warning.
-
 250. **The illumination's cost in the voxel game, read by pass, and the largest cut that holds the
     readings.** From the game's item 166 on 2026-11-10 and Decision 94, the cost recorded and cut
     after. Ore by day at High at 1280 by 720 is the scene, 8.89 ms a frame at the start. Landed.
@@ -163,18 +88,6 @@ reverted as the screen probes' limit at shapes about a tile wide, its patches in
     the screen's 0.59, past the reach 0.25, the screen's march itself 0.17; the probes read without
     their marches 0.04, the hidden lamps 0.04, the lamps and the sun 0.29. So what is left of weight
     is the head's own forms at the hits; no cut is picked, 254 and 255 coming first.
-
-254. **A command that returns once no pipeline is being made.** From the game's reads on 6.2.41 on
-    2026-11-11. A scripted check that reads a pixel a set count of frames after a first sight races
-    the pipelines that sight asks for, as the game's check of its water's mirror did on 6.2.32 and
-    under the validation layer, where each pipeline of a large shader takes over a second. e3d waits
-    for frames and for the field and has no wait for the pipelines. One command, pipelines.wait as
-    the sibling names its own, that answers once the device has no pipeline asked for and not yet
-    made, the workers' among them, with a bound in seconds and a test that it holds while a worker's
-    compile is held and returns when it ends; the guide's list of commands gains it. Small, after
-    Verdict 116. Done at `d276e419`, pushed at 18:03 on 2026-11-11, pipelines.wait answering once no
-    pipeline is being made on the workers or in the driver, with its tests and its line in the
-    guide's commands; the suite 2,343 on both legs.
 
 255. **A program's first run stands most of a minute at its fifth frame, its pipelines compiled one
     after another.** From the game's item 171 on 2026-11-11, read at 15:48. With the validation
@@ -276,60 +189,183 @@ reverted as the screen probes' limit at shapes about a tile wide, its patches in
     is the last entry of ASKS.md, uncommitted, and goes with the engine's next commit. To the owner
     the mend goes first as a package in the coder's own feed, unpublished, the game's coder
     capturing the owner's first view against it from its copy, before and after on one sheet. Then
-    256, then the pack run with publish.
+    256, then the pack run with publish. Recorded at 19:49. The engine's coder's room, the inside 8
+    by 4 by 5 with the lantern flush at the north wall's floor and the pocket before it, reads
+    smooth at Low, Medium and High, a step of 0.29 to 0.34 levels, its east wall barely lit where
+    the owner's reads bluish, so the room does not hold what matters yet. It found that the engine
+    carries the game's lantern as one flat square on z=596 facing +z, the game's mesh holding the
+    open face alone and a part's box being its triangles' bounds, so no march goes to a middle
+    behind the wall and the review's second reading fell as its first did. The coder reads the case
+    itself next, the game of `1f1e955` as its coder built it on 6.2.41 with the tree's assemblies
+    and shaders swapped in, opened offscreen on a copy of the review's copy of the data in its work
+    folder, the owner's own folders untouched, the copy kept out of every repository, dump and test
+    and deleted when the item closes. The engine's room follows once the mechanism is seen. Recorded
+    at 20:30, the coder's read on the case. The stripes come where each pixel takes a glow light's
+    share from the screen's probes around it, and from no march. The game's build copied into the
+    coder's work folder, the room from the review's copy, offscreen at the saved view at Low, the
+    tree's engine built at 6.2.41 in a folder of its own and swapped in; the stripes show unswapped
+    and swapped alike. Rows of 161 points along the east wall at y 26.125 to 27.875, the mean step
+    in levels between neighbors over a whole row, smaller than the game's coder's count for being a
+    mean. The package as published 0.92 at a mean of 10.4, the tree's engine 0.95 at 10.4, every
+    bright light's march taken as seen 6.04 at 35.1 and still striped, every faint light's march
+    taken as seen 0.97 at 30.2 and still striped, and with gi.toggle screen off, each pixel marching
+    to the light itself, 0.37 at 10.6, smooth at the same mean. So the review's sentence above, that
+    neither the screen's probes nor the quality draw them, was wrong in its first half, the review
+    having left out the filter and the frame before's light and never the screen's probes. On a wall
+    that sees the lantern only past the opening's edge the probes beside each other disagree about
+    the light, and the pattern is how a pixel picks and weighs them, finer than the tiles. Next the
+    pick and the weights read, a mend tried on the case, then the engine's own room that shows it.
+    Recorded at 20:45, the coder's trials on the case, no mend yet, by the game's coder's count, the
+    steps over 3 levels in the striped rows y 26.875 to 27.625. The head 23 to 30, the screen off 2.
+    The dominant light's share alone at the pixel 2 and the far light alone 22 to 28, so the stripes
+    ride in the far light. glowLightNear lets a light be a texel's dominant one only within twice
+    its box's half diagonal, 1.4 units for the lantern's square, and the wall is 2 to 3 off, so all
+    of the lantern goes to the far light, kept absolute at each texel's point. The brightest light
+    in reach made dominant at any distance 12 to 21, better and still striped. The review's
+    candidate, a texel marching itself where its four probes disagree by more than a quarter, fires
+    in patches and leaves 19 to 35, the four agreeing inside the striped patch, so it fell. Every
+    light taken as bright at the probes 9 to 31, with the lantern dominant too 8 to 25, and both
+    marches taken as seen with the lantern not dominant 66 to 93, the wall brighter. The coder reads
+    two things meeting, the probes' differing views of the lantern near its face's plane and the
+    texel's mix of four probes by weights that jump from texel to texel at that angle, and runs the
+    two trials that split them. Recorded at 21:05, found and mended on the case. The cause is float
+    precision far from the origin in the depth's reconstruction. Each glow texel and each screen
+    probe takes its point and its normal from the half-size depth through the inverse
+    view-projection in world numbers, and the owner's room stands at x 4,455, where a float steps by
+    about 0.0005 while neighboring texels on that wall lie about a hundredth apart, so the
+    differences that make the normal lose several percent, more at a slant. A map of each texel's
+    normal error on the wall shows the stripes' own diagonal pattern, and normals snapped to the
+    axes cleared the upper rows. The lantern's light arrives nearly along the wall, so a small tilt
+    swings it hard, it goes into the far light at each texel, and a pixel takes it from four texels;
+    with the screen off a pixel uses the mesh's own normal, so that read smooth. The coder's room
+    moved from the origin to 4447, 24, 596 tripled its step at each quality, 0.34, 0.29 and 0.31
+    becoming 0.89, 0.91 and 1.06, so it read smooth where it was built. The mend keeps each depth
+    point as its offset from the eye. ScreenView gains inverseFromEye, clip space back to the way
+    from the eye, and gi_screen_glow and gi_screen take their points, ways, normals, the probes'
+    plane tests and the geometry's range from it, the world point the eye plus the offset only where
+    a light or a march needs it; the view's block grows by 64 bytes. On the owner's room at Low 23
+    to 30 steps over 3 levels a row become 1 to 2, the mean step 0.95 becomes 0.39 against 0.37 with
+    the screen off, the mean 10.4 becomes 11.0, and the coder's room far out reads 0.32, 0.30 and
+    0.32 against 0.34, 0.29 and 0.31 at the origin. To come, the owner's room at Medium and High,
+    the test of the room at the origin and far out, the crawl with the eye stepped, the glow rooms
+    and the suite, the timing, the commit with the renames of a uint called a word, and the
+    unpublished package. The same fault in the other passes is item 258.
+
+258. **A point taken from the depth far from the origin, in the passes 257 did not touch.** From
+    257's cause on 2026-11-11. Every scene the suite and the examples read stands at the origin, and
+    the owner's world stands 4,450 units out, where a float steps by 0.0005 and the differences
+    between neighboring depth points that make a normal lose several percent, so no pass was ever
+    read where the owner plays. The shaders that take a point from the depth through the inverse
+    view-projection in world numbers are ao, screenmarch, fog, fog_scatter, dof, subsurface_blur,
+    lights and lightset, decode, particle_step, field_view and gi_reference, with gi_screen_filter
+    if 257's commit leaves it. Each is read at the owner's place against the same scene at the
+    origin, ao and screenmarch first, a normal or a march from depth differences on every frame;
+    each that differs is mended as 257 was, the point kept as its offset from the eye, with a test
+    of a scene moved far out reading as at the origin. The owner's other complaint, the shaded
+    ground looking noisy in play, is unexplained since 2026-11-10 and is read with ao on and off at
+    the owner's place, a thing to read and no finding. What the same scenes read sixteen times
+    further out is said and not asserted. The game's own shaders' world numbers are the game's to
+    read after it. After 257's commit and its unpublished package, before 256 and 255's remaining
+    steps. The game's item 174 gives the controlled case, one scene built of blocks twice, near the
+    origin and beside the owner's room, read stage by stage at each quality on 6.2.41, each stage
+    that differs coming as an ask under this item. The owner's options have ambient occlusion at 0,
+    as the game's coder read them on 2026-11-11, so ao is not what the owner sees and comes after
+    screenmarch and the filter in the order of reading. The review's read of the same evening,
+    nothing built or run, every figure reasoned from a float's step and the near plane at 0.05,
+    ranks what loses most at 4,450 units. First the matrices from this frame's clip space to the
+    frame before's, an inverse times the last view-projection, in AmbientOcclusion.cs,
+    TemporalAntialiasing.cs and Bloom.cs for the motion blur, terms near 150,000 that must cancel,
+    reasoned at 10 to 30 pixels off, the ambient occlusion's history even standing still and the
+    antialiasing's while moving. Second modelpass.slang's ddx and ddy of the world point at 163, 233
+    and 468, the plane's slope a pixel takes to the probes and the glow texels and the normal map's
+    frame, 8 to 15 percent off 3 units from the eye and the same over each 2 by 2 pixels, which may
+    be the squares two pixels wide; the derivatives of the way to the eye are exact. Third
+    ao.slang's normals from neighbors and its horizons. Fourth the vertices, the world point in
+    floats then a view-projection whose translation cancels against it, a third of a pixel at 3
+    units and 3 pixels a third of a unit from the eye, the mend the eye taken from each instance's
+    place on the CPU. Fifth screenmarch.slang, the reflections' and the screen probes' march. Sixth
+    the shadows' slices, their corners through the float inverse, the radius and the snap, edges
+    crawling up to a texel in motion. Then the ray from a screen point in E3D.Physics.cs, 0.8 to 3
+    percent off, fog_scatter and field_view, the particles' step, the subsurface's thickness, the
+    far reach of the field, the reference's and the mesh rays' offsets of 1e-3, with dof, decode and
+    penumbra's hash fine at 4,450. Judged safe, the field's origin snap, the field's and the world
+    probes' lookups, the cascades' depth compare, skinning, the sky, the pointer's picking, the
+    jitter and the glow lights' keys. The list with files and lines went to the coder at 21:27. The
+    controlled case, the game's item 174, read on 6.2.41 and recorded at 22:59. Two sessions at one
+    place read alike to a hundredth of a level in most rows, and three stages differ between the
+    places by a real size. The screen's probes, on the wall beside the lantern set in it, a mean
+    step of 0.34, 0.35 and 0.37 near the origin at Low, Medium and High against 0.45 to 0.47, 0.52
+    and 0.52 to 0.53 at 4432, the wall mottled in squares at Medium and High in the difference's
+    picture, the log's faces up to 10 levels apart between the places and none between sessions;
+    with the screen off the places read 0.34 to 0.36 against 0.36 to 0.37. Ambient occlusion at 1,
+    the north wall 7 to 7.5 levels darker at 4432 where at 0 the places read within 0.3, the west
+    wall's mean step 0.35 to 0.38 against 0.56 to 0.67, the whole scene mottled in the sheet. The
+    sun's shadow, the floor under the roof's edge at 26 to 27 steps over 3 levels near the origin
+    and 22 to 23 at 4432 in both sessions, 8 at both with the shadows off. The filter, the frame
+    before's light and the glow lights off leave the places as they are. Three asks stand in ASKS.md
+    for this item, and the sheet is 23-30-item-174-places.png in the game's dump. The scene stays in
+    the game's work folder i174 as the check of each mend, the screen's probes read first on 257's
+    package.
+
+259. **A pixel at a silhouette's edge takes far more light than the surfaces it covers, and bloom
+    spreads it into a blob.** From the owner on 2026-11-11, to the game's coder, "At distance there
+    are these colored bloomed blobs in the background", the game's item 176 and its ask of the same
+    day in ASKS.md. One pixel at a spruce trunk's edge against snow two blocks behind it, 138 blocks
+    from the eye and near the world's origin, reads 255, 209, 199 with bloom at 0, the trunk beside
+    it 55, 46, 42, the log's albedo under about ten times its light, the same in five reads 7 frames
+    apart, and clears with the eye moved a quarter block or turned 0.05 degrees. Every part
+    gi.toggle leaves out, each cascade alone, the three qualities, the sun's shadows off and the
+    hour leave it, and only the illumination off clears it, so the light comes of a term no toggle
+    reaches. The game draws at 4 samples a pixel, and modelpass.slang reads the normal at the
+    centroid and the world point and the way to the eye at the pixel's middle, which at a trunk's
+    corner lies off the trunk's face; a lead and no finding. First the read, the game's pixel
+    through the model pass term by term, and which term a point off the face takes too much of; then
+    a scene of the engine's own, a thin post before a bright lit wall at 4 samples a pixel, counted
+    for pixels brighter than both surfaces they cover; then the mend, held by that count at zero at
+    each quality. After 257's commit and its package, ahead of 258's list. The game's splits,
+    recorded at 22:45. At 1 sample a pixel the pixel is gone, nothing at the trunk's foot reading 30
+    levels more red than blue with a channel at 240, the 64 by 64 about it 181, 187, 185 with bloom
+    against 202, 186, 182 at the default 4. At 4 samples with the temporal antialiasing on it dims
+    to 247, 221, 211 with no blob, and at 4 samples and 2560 by 1440 it is still one pixel, 252,
+    231, 178, with no blob. So it is the edge's and comes of shading at 4 samples a pixel. From 133
+    blocks off with the eye stepped 0.05 twenty times, near the origin 27 lone bright pixels and 7
+    steps where bloom adds over 20 levels, the largest 142 levels over 1,532 pixels from one white
+    pixel on snowy steps 140 off, the kind a player sees; beside the owner's room 8 and 2; a second
+    session at each place repeats the counts. All lie in the land behind and none on the built logs,
+    so the counts follow the land and do not compare the places. The sheet is
+    22-40-item-176-samples.png in the game's dump.
+
+260. **One pixel's light read by its terms.** From the game's second ask of 2026-11-11. The game
+    could not say which term drew 257's stripes or 259's pixel, gi.show drawing the probes' data and
+    no pixel's resolved light. A command that gives, for a pixel of the window, each term of its
+    light in linear numbers, the sun's and the lamps', the sky's, the world probes', the screen
+    probes', the glow lights' near and far, the specular, and their sum against what was drawn, with
+    its test. Made with 259's read where it serves it, or after it.
+
+261. **A dither before the 8-bit write.** From the owner on 2026-11-11, to the engine's coder, of
+    hard bands in dark gradients in a crop of the coder's test room. The engine dithers nowhere, and
+    the composite writes 8-bit sRGB through frame.slang's frameShown, so a dark gradient steps by
+    whole levels. A dither of under a level added before that write, the same pattern for the same
+    pixel every frame unless the temporal antialiasing is on, with a test that a dark ramp's steps
+    of a level are broken up and its mean kept, and a picture of the crop before and after for the
+    owner. A small commit, right after 257's.
 
 ## Verdicts
 
-Verdicts 56 to 114 and 116 are settled, said under each in REVIEW-ARCHIVE.md; Verdict 115 is open,
-mended and settling on the Linux legs of the run of `466e4315`.
+Verdicts 56 to 116 are settled, said under each in REVIEW-ARCHIVE.md; Verdict 117 is open, the run
+of `c1243335` red by an outage of GitHub's Actions, its failed jobs run again when the service
+answers.
 
-115. **The pack run of `894542da` is red in its games job, e3d finding no session for a game that
-    serves, its session's file written after the look.** In the pack run with publish 42985743208,
-    started at 09:16 on 2026-11-11, the games job failed after 85 minutes at the step that resizes
-    each game while it draws, Manor's storm ending with NO_SESSION two seconds after Manor served as
-    pid 32988; every game before it and after it passed its storm, and the suites, the captures on
-    Linux and macOS and the examples are green, the first Windows half going. The error's account,
-    added at `8da28e48` for Verdict 113, names the cause that verdict could only infer. The sessions
-    folder holds 32988.json, pid 32988, Manor, its heartbeat 5.0 s old, which runs and matches,
-    written after the look. So the client looked while the served program was writing its session's
-    file again and found none to take, a race between the heartbeat's write and the client's read,
-    and Siege's stop in Verdict 113 reads as the same race. The mend is on both sides, the served
-    program writing its session's file whole beside the old one and renaming it over, so a reader
-    finds the old or the new and never neither, and the client looking again for a short while
-    before it says no session where the folder holds a file of a running program; with a test that a
-    client looking while a program writes its heartbeat many times over never reports no session.
-    After the tail's commit in work, before any further cut of 250. The failed job is run again when
-    the run ends, the fault being one of timing, so the package for the game comes of this commit.
-    Written at 12:07 on 2026-11-11. Corrected at 12:27 by the coder's read. The served program
-    already writes its session's file whole and renames it over, the heartbeat was 5.0 s old and so
-    not being written at the look, and written after the look is the label the account gives any
-    matching file found after a look that failed, so the review read a label as a cause and the race
-    it named is not shown; 20,000 looks against 28,659 rewrites here found no miss. What is seen is
-    that a look naming no session looks once where a named one looks five times over a second. The
-    datum left is the heartbeat's age, 5.0 s in a game two seconds into serving at the start of a
-    storm on lavapipe; so before the mend, what a look asks of a heartbeat's age and how often and
-    from which thread the heartbeat is written, since a frame of several seconds would leave it old
-    and a look asking a fresh one would find no session while the program runs, as Siege was found.
-    The mend follows that read, the session live by its process with the age said and not asked or
-    the heartbeat written off the frame's thread, or else the looks made five with the cause unseen
-    and the label made true. The two reads by 12:27. A look asks nothing of a heartbeat's age, a
-    session being live where its process runs, and a lone session past the 5 s of patience is still
-    chosen; the heartbeat is written every 30 frames by the frame's thread, which explains the 5.0 s
-    at the start of a storm on lavapipe and nothing else. So the cause stays unseen. The mend,
-    approved, the unnamed look made as the named one, five looks over a second, with its test and
-    the account's label made true; and with it each look keeps what it itself saw, the error
-    carrying the first failed look's own record, each file whether read, parsed and its process
-    found, with any exception's text, and a read or a process's check that throws is said and not
-    turned into a file passed over, so a next time names itself. Mended at `d6a009d1`, committed at
-    14:14 on 2026-11-11 and pushed at 15:49 with Verdict 116's. A look goes through
-    CliSessionFile.Serving, five looks over a second named or not, each keeping for every file
-    whether it was read, with the exception's words, its pid and whether its process runs or why
-    not; the error carries the first look's record before the folder read again, whose label reads
-    found when the folder was read again after the looks; the read and the process's check hand out
-    the words they swallowed. Two tests, an unnamed first look that misses a file written after it
-    finding it at the second, and a look's record saying a read that threw. The suite 2,342 on both
-    legs. The games job passed on its second attempt and 6.2.41 was published at 13:54. Settles on
-    its push run, the cause unseen.
+117. **The run of `c1243335` is red in both Windows halves and the examples at the step that keeps
+    an artifact, GitHub's own service failing.** In run 43082922479 the two Windows halves failed
+    after 110 and 118 minutes and the examples job after 20, each at actions/upload-artifact, the
+    artifact not made after five attempts, the service answering a page of HTML where JSON was due;
+    macOS and both Linux legs are green. GitHub's status page reports a major outage of Actions, its
+    incident updated at 21:59 on 2026-11-11, the first of these jobs having failed at 21:35, and in
+    the same minutes the bridge's two runs failed by it and the game's stood queued. Nothing of the
+    commit's failed, so it is no fault of the commit's. The failed jobs are run again when the
+    status page says Actions works, and the verdict settles where they pass. Written at 22:07 on
+    2026-11-11.
 
 ## Decisions
 
@@ -690,46 +726,6 @@ points on and off: the mean apart 0.30 and 0.41 levels at Low, 0.24 and 0.27 at 
 faint lights given nothing lie 1.02 and 0.91 apart and fail its bound of 0.6, and none taken as a
 point moves nothing and fails its other half.
 
-Verdict 115, read. The served program writes its session's file whole as {pid}.json.tmp and moves
-it over the old with File.Move and overwrite, a rename on Linux, so a reader finds the old or the
-new and never neither; a trial here rewrote one 28,659 times while 20,000 looks that named no
-session listed the folder, and none found no session. The heartbeat is written every 30 frames by
-the served program's Stage.First on the frame's thread, so a frame of seconds in a storm on
-lavapipe leaves it as old, which Manor's 5.0 s is; but no look asks its age: Running is the
-process alive and nothing more, and a lone stale session is still chosen, so the age explains the
-5.0 s and not the miss. What did differ is that a storm names no session, and an unnamed look was
-made once where a named one is made five times a fifth of a second apart. The cause on the runner
-stays unseen. The client's look now goes through CliSessionFile.Serving, every serving app or
-those asked for, looked for again as a named one is. Each look keeps what it saw of each file, read
-or not with the words of the exception where its read threw, its pid and whether its process runs
-or why not, where asking it threw with its words, and the error carries the first failed look's
-record before the folder read again after the looks, whose label now says it was found then, where
-it said written after the look, which it does not know. Read and Running caught their exceptions
-and turned them into a file passed over and a process taken as gone, unsaid; the record says them.
-The tests find a session written after an unnamed first look at the second, which a single look
-does not, and a look's record saying a read that threw with its words.
-
-Item 254, pipelines.wait. A command that answers once no pipeline is being made: none asked of the
-pipelines' cache's workers and not yet made, those queued and not begun among them
-(PipelineCache.StillMaking), and none in the driver on any thread (GraphicsDevice.PipelinesInFlight,
-counted from before the cache's lock to after the driver's call, for compute and graphics alike).
-Read between frames, after the frame that asked, it answers with the frames and the seconds it
-waited, or after the seconds given, 60 unless given, says how many were still asked and in the
-driver, at warning. The frames it is given are a thousand a second of the wait and more, since the
-queue releases a request at its frame and the count, and a bound past the largest frame wrapped to
-none. The test holds a worker's compile in the driver, asks the wait, finds it unanswered in the 30
-frames drawn while held, and answered in the frame after the compile ends; with the driver's count
-left out of the wait, it answered in the first frame and the test fails. E3D.md's table and the
-command line guide list it.
-
-Item 6, the bumps, on the owner's word in this session at about 16:45 on 2026-11-11. Vortice.Vulkan
-3.2.1 to 3.3.0 in Graphics, Gui, Rendering and GlobalIllumination, AssimpNetter 6.0.4 to 6.0.5 in
-Assets, StbImageSharp 2.30.15 to 2.30.16 in the engine's project, Assets and Rendering; SDL3-CS and
-NVorbis as they were. The strict build has no warning. Vortice.Vulkan's license stays MIT and
-AssimpNetter's license file is the same byte for byte; StbImageSharp 2.30.16 declares Unlicense OR
-MIT where 2.30.15 declared none, so the notices name it so where they said public domain or MIT.
-The suite 2,343 on both legs.
-
 Item 255, read and the first of its mends. The driver's own cache stands under XDG_CACHE_HOME, so
 an empty one is a player's first run: there the voxel game's terrain pipeline took 12,099 ms to
 compile without the layer, and with that folder's driver cache warm and the engine's file missing
@@ -746,3 +742,61 @@ driver's time 30.9 s spread across them. The test draws the Cornell box's first 
 kernels made one after another and together, finds one compile in the driver at a time the first
 way and two at once the second, a first compile on a worker waiting for a second to reach it, and
 the two frames the same.
+
+Item 257, read on the owner's room and mended. The game's build of 1f1e955 on 6.2.41, copied with
+a copy of the owner's room into this session's work folder on the owner's word in this session,
+opened offscreen at its saved view at Low and read along the east wall's rows at y 26.875 to 27.625
+by voxel.line, the steps over 3 levels a row as the game's coder counts them. The package read 18 to
+30 a row, my tree as it stood 21 to 30; with gi.toggle screen off, each pixel marching to the lights
+itself, 2 a row at the same mean, so the screen's probes' glow path draws the stripes. Taking each
+march as seen, the bright, the faint and both, every light as bright at the probes, the brightest
+light in reach as each texel's dominant one, the four probes' agreement as a reason for a texel to
+march itself, and the probes' likeness without each of its plane tests in turn each left the
+stripes, 8 to 93 a row. Every light bright with every march seen, so the far light is the closed
+form at each texel's own point and normal with no mix of probes at all, striped most, 57 to 92: the
+stripes are in the texel's point and normal. A map of each texel's normal off its axis showed the
+stripes' own pattern, and the normals snapped to the axes took the striped rows to 2 to 7. The
+owner's room stands at x 4,455, where a float's step is about 0.0005, and the glow texels and the
+screen's probes took their points from the window's depth through the inverse view-projection into
+the world's numbers, so the ways between neighboring texels a hundredth apart along the wall lost
+their last bits and the normals tilted from texel to texel; the lantern's light comes in nearly
+along the wall, so the tilt swung it. The same room of the engine's own geometry, a lamp's one face
+flush in a wall at the floor in a pocket open upward, read along its east wall, stepped 0.34, 0.29
+and 0.31 levels between points 1/32 apart at Low, Medium and High at the origin and 0.89, 0.91 and
+1.06 moved to 4447, 24, 596. The mend: ScreenView gains inverseFromEye, clip space back to the way
+from the eye, worked out in doubles on the CPU; gi_screen_glow, gi_screen and gi_screen_filter take
+each point of the depth as its way from the eye for the normals, the plane tests and the distances
+between probes, the world point being the eye plus that where the lights and the marches need it;
+and the model pass's slopes a pixel takes the probes and the texels by, and its normal map's frame,
+are the steps of its way to the eye, the world point's own only where an orthographic camera leaves
+that way the same at every pixel (entry 2 of the review's map). The owner's room, the steps over 3
+levels a row: at 1280 by 720 the package 18 to 30, the mend 1 to 2, the screen off 2; at 2560 by
+1440 the package 8 to 22, the mend 2 to 3, the mend with the slopes from the eye 2 to 4. The room
+moved out reads 0.32, 0.30 and 0.32 mended. The test reads that room at the origin and at 4447, 24,
+596 at 960 by 540 at Low and High and finds the far wall within half again and a tenth of a level of
+the near one's step: mended 0.32 against 0.34 and 0.32 against 0.31, 41 and 34 s on lavapipe; on the
+head 0.90 against a bound of 0.61 and 1.11 against 0.56, failing.
+
+The probe of BounceRoomsTests' rays past their reach moved by a rule. On the mend the row read
+-0.587 where the head passes. The probe stood in the same place to six places, 0.819573, 0.704603,
+1.377471; its normal on the head was -0.308167, -0.002291, 0.951330 and on the mend -0.309009,
+0.001688, 0.951057, where the small block's face turned 18 degrees faces -0.309017, 0, 0.951057, so
+the head's was a thousandth off at the origin and the mend's is the face's own. Its seventh ray,
+-0.0827, -0.4787, 0.8741 on the head, met the floor 1.49 along at z 2.75, within a cell of the
+floor's front edge at 2.8, reading 0.372 against the reference's 0.382; on the mend, -0.0841,
+-0.4753, 0.8758, it passed the field's rounded corner, went past its reach to a point under the
+floor and read 0 against 0.378, which alone took the row from -0.25 to -0.59. The probe as a whole
+read -3 percent over its sixteen ways on the mend against +19 on the head. The head's point moved a
+millionth does not flip it, its normal does. The row now reads the probe one tile up, at 468, 356,
+the first in reading order of the four nearest whose sixteen rays each meet or miss the same
+surface within a cell on the head, on the mend and with the normal tilted 0.002 along each axis
+either way, 39 of the face's 49 probes so; the bound stays 0.4, it passes on the head and on the
+mend, and the test's comment says the rule. The field's limit at a slab's edge: a ray within a cell
+of a slab's corner meets it or passes by the last bits of its way, and one that passes reads what
+lies past its reach, here under the floor; known, and no item of this commit.
+The cost, Ore at High at 1280 by 720 under the lock held alone, 600 frames each, the head against
+the mend twice: the frame 7.41 and 7.52 ms against 7.41 and 7.38, gi_screen 3.06 and 3.08 against
+3.07 and 3.08, gi_glow 0.16 and 0.17 against 0.16 and 0.16, nothing measurable. Sixteen times
+further out, at 71152, 384, 9536, the same room mended steps 0.49 at Low and 0.70 at High against
+0.34 and 0.31 at the origin, so the next limit stands between there and the owner's place, which
+item 258's list reads; the test asserts the owner's place alone.

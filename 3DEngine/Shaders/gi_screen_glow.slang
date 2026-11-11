@@ -1,5 +1,5 @@
 // The glow lights' light on the window's surfaces, a thread a texel of the window's depth, which
-// the model pass reads in place of the screen probes' words. Each texel's point takes how much of
+// the model pass reads in place of the screen probes' uints. Each texel's point takes how much of
 // each glow light it sees from the four screen probes around it, each probe's share marched from a
 // point of its tile that moves from frame to frame (gi_screen.slang, JitterAt), and the light each
 // sends the point in closed form, and blends that with what the texel held the frame before where
@@ -27,7 +27,7 @@ ConstantBuffer<GiLights> lights;
 ConstantBuffer<SceneFieldInfo> fieldInfo;
 
 // How much of each glow light each probe sees, and the fainter lights' light, as gi_screen.slang
-// left them (GlowSeenWords).
+// left them (GlowSeenUints).
 [[vk::binding(5, 0)]]
 StructuredBuffer<uint> glowSeen;
 
@@ -98,17 +98,21 @@ static const float GlowLetGo = 1.0 / 64.0;
 // from a depth that wavers near a surface's edge, lost the frame before's light on one surface too.
 static const float GlowSameSurface = 0.5;
 
-float3 worldAt(float2 uv, float d)
+// The point at uv of the depth d, as its way from the eye. A point far from the world's origin, as
+// a voxel game's world stands, found in the world's own numbers, lost its last bits to their size,
+// so the ways between neighboring texels along a wall seen at a slant tilted from texel to texel
+// and the light the wall took from a lamp beside it ran in stripes.
+float3 fromEyeAt(float2 uv, float d)
 {
-    float4 world = mul(view.inverseViewProjection, float4(uv * 2.0 - 1.0, d, 1.0));
-    return world.xyz / world.w;
+    float4 way = mul(view.inverseFromEye, float4(uv * 2.0 - 1.0, d, 1.0));
+    return way.xyz / way.w;
 }
 
-// The point of the depth's texel `step` texels from uv along an axis.
+// The point of the depth's texel `step` texels from uv along an axis, as its way from the eye.
 float3 pointAt(float2 uv, float2 step)
 {
     float2 at = uv + step;
-    return worldAt(at, depth.SampleLevel(at, 0).r);
+    return fromEyeAt(at, depth.SampleLevel(at, 0).r);
 }
 
 // The way the surface at p runs along an axis of the depth, `texel` long, toward the side whose
@@ -140,11 +144,11 @@ float2 marchedFrom(int2 probe)
 // `alike`, and how near p's plane the depth lies a third and two thirds of the way to where it
 // marched from, so a probe on the floor past a wall, on the floor's plane and seen over the wall's
 // top, does not lend the floor before the wall the light it sees. None for a probe off the grid or
-// on no surface; and in first the probe's first word of the glow lights.
-float probeLike(int2 at, float2 uv, float3 p, float3 n, float alike, out int first)
+// on no surface; and in first the probe's first uint of the glow lights.
+float probeLike(int2 at, float2 uv, float3 fromEye, float3 n, float alike, out int first)
 {
     int2 grid = int2(int(view.grid.y), int(view.grid.z));
-    first = (clamp(at.y, 0, grid.y - 1) * grid.x + clamp(at.x, 0, grid.x - 1)) * GlowSeenWords;
+    first = (clamp(at.y, 0, grid.y - 1) * grid.x + clamp(at.x, 0, grid.x - 1)) * GlowSeenUints;
     if (any(at < int2(0)) || any(at >= grid))
         return 0.0;
     float4 surface = geometry.Load(int3(at, 0));
@@ -152,13 +156,13 @@ float probeLike(int2 at, float2 uv, float3 p, float3 n, float alike, out int fir
         return 0.0;
     float2 pixel = min((float2(at) + 0.5) * view.grid.x, view.sizes.zw - 0.5);
     float2 probeUv = (floor(pixel / view.sizes.zw * view.sizes.xy) + 0.5) / view.sizes.xy;
-    float3 way = normalize(worldAt(probeUv, 1.0) - view.eye.xyz);
+    float3 way = normalize(fromEyeAt(probeUv, 1.0));
     float facing = dot(way, n);
-    float expected = facing < -1e-4 ? dot(p - view.eye.xyz, n) / facing : 1e20;
+    float expected = facing < -1e-4 ? dot(fromEye, n) / facing : 1e20;
     float off = (surface.w - expected) / alike;
     float2 marched = marchedFrom(at);
-    float between = max(abs(dot(pointAt(lerp(uv, marched, 1.0 / 3.0), float2(0.0)) - p, n)),
-                        abs(dot(pointAt(lerp(uv, marched, 2.0 / 3.0), float2(0.0)) - p, n))) / alike;
+    float between = max(abs(dot(pointAt(lerp(uv, marched, 1.0 / 3.0), float2(0.0)) - fromEye, n)),
+                        abs(dot(pointAt(lerp(uv, marched, 2.0 / 3.0), float2(0.0)) - fromEye, n))) / alike;
     return pow(saturate(dot(n, surface.xyz)), 8.0) * exp(-off * off - between * between);
 }
 
@@ -180,26 +184,26 @@ float3 glowFromProbes(float3 p, float3 n, int4 first, float4 weight, float total
             if (all(abs(fainter) < 1e30))
                 far += fainter * (weight[corner] / total);
         }
-    // Each probe's word of four lights is read from the buffer once for its four, rather than kept
+    // Each probe's uint of four lights is read from the buffer once for its four, rather than kept
     // in an array indexed by the light, which lavapipe keeps in memory of its own and crashed on.
     [loop]
-    for (int word = 0; word * 4 < count; word++)
+    for (int packed = 0; packed * 4 < count; packed++)
     {
-        uint4 levels = uint4(glowSeen[first.x + word], glowSeen[first.y + word], glowSeen[first.z + word], glowSeen[first.w + word]);
+        uint4 levels = uint4(glowSeen[first.x + packed], glowSeen[first.y + packed], glowSeen[first.z + packed], glowSeen[first.w + packed]);
         if (all(levels == uint4(0u)))
             continue;
         [loop]
-        for (int j = 0; j < 4 && word * 4 + j < count; j++)
+        for (int j = 0; j < 4 && packed * 4 + j < count; j++)
         {
             float shown = dot(weight, float4((levels >> uint(j * 8)) & 255u));
             if (shown <= 0.0)
                 continue;
-            GlowLight light = lights.glows[min(word * 4 + j, count - 1)];
+            GlowLight light = lights.glows[min(packed * 4 + j, count - 1)];
             float faded = glowLightFade(light, p, n);
             if (faded <= 0.0)
                 continue;
             float3 arrived = glowLightIrradiance(light, p, n, margin) * (faded * shown / (255.0 * total));
-            float near = word * 4 + j == dominant ? glowLightNear(light, p) : 0.0;
+            float near = packed * 4 + j == dominant ? glowLightNear(light, p) : 0.0;
             sum += arrived * near;
             far += arrived * (1.0 - near);
         }
@@ -278,12 +282,13 @@ void computeMain(uint3 id : SV_DispatchThreadID)
         return;
     }
     // The surface's normal from its way along each axis, toward the eye.
-    float3 p = worldAt(uv, d);
+    float3 fromEye = fromEyeAt(uv, d);
+    float3 p = view.eye.xyz + fromEye;
     float2 texel = 1.0 / float2(width, height);
-    float3 n = surfaceNormal(cross(wayAlong(uv, p, float2(texel.x, 0.0)), wayAlong(uv, p, float2(0.0, texel.y))), view.eye.xyz - p);
-    if (dot(n, view.eye.xyz - p) < 0.0)
+    float3 n = surfaceNormal(cross(wayAlong(uv, fromEye, float2(texel.x, 0.0)), wayAlong(uv, fromEye, float2(0.0, texel.y))), -fromEye);
+    if (dot(n, -fromEye) < 0.0)
         n = -n;
-    float range = length(view.eye.xyz - p);
+    float range = length(fromEye);
     float alike = 0.02 * range + 0.05;
 
     // The four probes around the point, where they marched from this frame, the depth's texels the
@@ -303,7 +308,7 @@ void computeMain(uint3 id : SV_DispatchThreadID)
     {
         int2 offset = int2(corner & 1, corner >> 1);
         float2 lerps = lerp(1.0 - f, f, float2(offset));
-        weight[corner] = lerps.x * lerps.y * probeLike(base + offset, uv, p, n, alike, first[corner]);
+        weight[corner] = lerps.x * lerps.y * probeLike(base + offset, uv, fromEye, n, alike, first[corner]);
     }
     float total = weight.x + weight.y + weight.z + weight.w;
     // Where none of the four is, as on the floor behind a lamp whose probes stand on the lamp, the
@@ -319,8 +324,8 @@ void computeMain(uint3 id : SV_DispatchThreadID)
             float2 apart = abs(g - float2(at));
             float near = max(2.0 - apart.x, 0.0) * max(2.0 - apart.y, 0.0) * 0.25;
             int place = 0;
-            float w = near > 0.0 ? near * probeLike(at, uv, p, n, alike, place) : 0.0;
-            // Kept in place of the least of the four, a word at a time, since lavapipe keeps an
+            float w = near > 0.0 ? near * probeLike(at, uv, fromEye, n, alike, place) : 0.0;
+            // Kept in place of the least of the four, one at a time, since lavapipe keeps an
             // array indexed by a variable in memory of its own.
             float least = min(min(weight.x, weight.y), min(weight.z, weight.w));
             if (w <= least)

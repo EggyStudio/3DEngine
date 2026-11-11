@@ -82,6 +82,10 @@ public struct ScreenView
     // xyz: the corners of the box around the meshes that came or went within those cascades.
     public float4 changedMin;
     public float4 changedMax;
+    // Clip space back to the way from the eye, the eye at the origin, so a point of the depth is
+    // found as its offset from the eye in numbers as small as the view, and the ways between
+    // neighboring texels keep their precision far from the world's origin.
+    public float4x4 inverseFromEye;
 };
 
 // A camera's matrices and eye, which a ray is traced through its depth with.

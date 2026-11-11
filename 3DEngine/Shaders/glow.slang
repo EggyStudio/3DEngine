@@ -11,10 +11,10 @@ import scenefield;
 // nearest the eye, as many as a screen probe keeps a bit of each for (GlowLights.Most).
 public static const int MostGlowLights = 64;
 
-// The words each screen probe keeps of the glow lights, sixteen of a byte a light, how much of each
+// The uints each screen probe keeps of the glow lights, sixteen of a byte a light, how much of each
 // it sees that gives it an eighth of their light or more, three of the light of the fainter ones,
 // summed by how much of each it sees, and one spare (gi_screen.slang, GpuScreenProbes.GlowSeenBytes).
-public static const int GlowSeenWords = 20;
+public static const int GlowSeenUints = 20;
 
 // The kinds of texel of the window's glow light past the lights the share is of, in 255ths of its
 // normal's w, one on a glow light's own surface, which takes no other light's, and one no screen

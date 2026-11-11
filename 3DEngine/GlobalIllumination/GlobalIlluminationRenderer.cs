@@ -385,11 +385,52 @@ internal sealed partial class GlobalIlluminationRenderer : IIlluminationPasses, 
             (floats[64], floats[65], floats[66], floats[67]) = (then.Eye.X, then.Eye.Y, then.Eye.Z, still ? 2 : 1);
         }
         floats[72] = _glowCount;
-        var words = MemoryMarshal.Cast<byte, uint>(bytes.AsSpan());
-        (words[73], words[74], words[75]) = (_glowPlaces.Kept.Low, _glowPlaces.Kept.High, _fieldRebuilt);
+        var uints = MemoryMarshal.Cast<byte, uint>(bytes.AsSpan());
+        (uints[73], uints[74], uints[75]) = (_glowPlaces.Kept.Low, _glowPlaces.Kept.High, _fieldRebuilt);
         (floats[76], floats[77], floats[78]) = (_fieldChanged.Min.X, _fieldChanged.Min.Y, _fieldChanged.Min.Z);
         (floats[80], floats[81], floats[82]) = (_fieldChanged.Max.X, _fieldChanged.Max.Y, _fieldChanged.Max.Z);
+        // Clip space back to the way from the eye, worked out in doubles, so the eye's place
+        // cancels out of the translation with nothing of the float's rounding left in it.
+        if (InverseFromEye(viewProjection, eye) is { } fromEye)
+            MemoryMarshal.Write(bytes.AsSpan(336), fromEye);
         return bytes;
+    }
+
+    // The inverse of the eye's translation times the view-projection, in doubles, or none where it
+    // has none: clip space back to a point's way from the eye.
+    internal static Matrix4x4? InverseFromEye(Matrix4x4 viewProjection, Vector3 eye)
+    {
+        var m = new double[4, 8];
+        for (int r = 0; r < 4; r++)
+            for (int c = 0; c < 4; c++)
+                m[r, c] = viewProjection[r, c];
+        // A row vector times the translation adds the eye times the vector's w to its xyz, so the
+        // product's last row is the view-projection's last row plus the eye's rows weighed by it.
+        for (int c = 0; c < 4; c++)
+            m[3, c] += eye.X * m[0, c] + eye.Y * m[1, c] + eye.Z * m[2, c];
+        for (int r = 0; r < 4; r++) m[r, 4 + r] = 1;
+        for (int col = 0; col < 4; col++)
+        {
+            var pivot = col;
+            for (int r = col + 1; r < 4; r++)
+                if (Math.Abs(m[r, col]) > Math.Abs(m[pivot, col])) pivot = r;
+            if (Math.Abs(m[pivot, col]) < 1e-300) return null;
+            if (pivot != col)
+                for (int c = 0; c < 8; c++) (m[col, c], m[pivot, c]) = (m[pivot, c], m[col, c]);
+            var scale = 1 / m[col, col];
+            for (int c = 0; c < 8; c++) m[col, c] *= scale;
+            for (int r = 0; r < 4; r++)
+            {
+                if (r == col || m[r, col] == 0) continue;
+                var factor = m[r, col];
+                for (int c = 0; c < 8; c++) m[r, c] -= factor * m[col, c];
+            }
+        }
+        var inverse = new Matrix4x4();
+        for (int r = 0; r < 4; r++)
+            for (int c = 0; c < 4; c++)
+                inverse[r, c] = (float)m[r, 4 + c];
+        return inverse;
     }
 
     /// <summary>
@@ -494,7 +535,7 @@ internal sealed partial class GlobalIlluminationRenderer : IIlluminationPasses, 
             (_glowCount, _glowFound) = (0, 0);
         }
         // 1 in the counts' w where a probe's ray's hit takes every glow light by its own form
-        // (gi.toggle points), a word the lights' signature leaves out, so the switch is no change
+        // (gi.toggle points), a value the lights' signature leaves out, so the switch is no change
         // of the lights that would begin the carried probes' cycles again.
         MemoryMarshal.Cast<byte, float>(bytes.AsSpan(0, 64))[15] = (renderWorld.TryGet<GlobalIlluminationSettings>() is { PointsOff: true }) ? 1 : 0;
         return bytes;

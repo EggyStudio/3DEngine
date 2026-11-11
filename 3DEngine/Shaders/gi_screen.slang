@@ -72,8 +72,8 @@ RWTexture2D<float4> geometry;
 ConstantBuffer<ScreenView> view;
 
 // How much of each glow light each probe's surface sees, a byte a light from none to all of it, four
-// lights a word, and the light of those too faint to be marched to by their faces, in the probe's
-// twenty words (GlowSeenWords), which gi_screen_glow.slang takes the window's light from the probes
+// lights a uint, and the light of those too faint to be marched to by their faces, in the probe's
+// twenty uints (GlowSeenUints), which gi_screen_glow.slang takes the window's light from the probes
 // around each of its points by, so the model pass marches to no light itself where a probe stands.
 [[vk::binding(13, 0)]]
 RWStructuredBuffer<uint> glowSeen;
@@ -136,17 +136,27 @@ float3 worldAt(float2 uv, float d)
     return screenWorld(camera(), uv, d);
 }
 
-// The normal of the surface the depth holds at uv, where its point is p, from the nearer of the
-// texels on either side along each axis, toward the eye.
-float3 depthNormal(float2 uv, float3 p)
+// The point at uv of the depth d as its way from the eye, in numbers as small as the view, which
+// the ways between neighboring texels are taken from, since in the world's own numbers far from
+// its origin they lost their last bits and a wall's normal tilted from texel to texel
+// (gi_screen_glow.slang's fromEyeAt).
+float3 fromEyeAt(float2 uv, float d)
+{
+    float4 way = mul(view.inverseFromEye, float4(uv * 2.0 - 1.0, d, 1.0));
+    return way.xyz / way.w;
+}
+
+// The normal of the surface the depth holds at uv, where its point lies `fromEye` from the eye,
+// from the nearer of the texels on either side along each axis, toward the eye.
+float3 depthNormal(float2 uv, float3 fromEye)
 {
     float2 texel = 1.0 / view.sizes.xy;
-    float3 right = worldAt(uv + float2(texel.x, 0), depth.SampleLevel(uv + float2(texel.x, 0), 0).r) - p;
-    float3 left = p - worldAt(uv - float2(texel.x, 0), depth.SampleLevel(uv - float2(texel.x, 0), 0).r);
-    float3 down = worldAt(uv + float2(0, texel.y), depth.SampleLevel(uv + float2(0, texel.y), 0).r) - p;
-    float3 up = p - worldAt(uv - float2(0, texel.y), depth.SampleLevel(uv - float2(0, texel.y), 0).r);
-    float3 n = surfaceNormal(cross(dot(right, right) < dot(left, left) ? right : left, dot(down, down) < dot(up, up) ? down : up), view.eye.xyz - p);
-    return dot(n, view.eye.xyz - p) < 0.0 ? -n : n;
+    float3 right = fromEyeAt(uv + float2(texel.x, 0), depth.SampleLevel(uv + float2(texel.x, 0), 0).r) - fromEye;
+    float3 left = fromEye - fromEyeAt(uv - float2(texel.x, 0), depth.SampleLevel(uv - float2(texel.x, 0), 0).r);
+    float3 down = fromEyeAt(uv + float2(0, texel.y), depth.SampleLevel(uv + float2(0, texel.y), 0).r) - fromEye;
+    float3 up = fromEye - fromEyeAt(uv - float2(0, texel.y), depth.SampleLevel(uv - float2(0, texel.y), 0).r);
+    float3 n = surfaceNormal(cross(dot(right, right) < dot(left, left) ? right : left, dot(down, down) < dot(up, up) ? down : up), -fromEye);
+    return dot(n, -fromEye) < 0.0 ? -n : n;
 }
 
 // The same at the middle of the depth's texel a point on screen falls in.
@@ -154,7 +164,7 @@ float3 depthNormalAt(float3 q)
 {
     float4 clip = mul(view.viewProjection, float4(q, 1.0));
     float2 uv = (floor(((clip.xy / clip.w) * 0.5 + 0.5) * view.sizes.xy) + 0.5) / view.sizes.xy;
-    return depthNormal(uv, worldAt(uv, depth.SampleLevel(uv, 0).r));
+    return depthNormal(uv, fromEyeAt(uv, depth.SampleLevel(uv, 0).r));
 }
 
 // The way the surface at p runs along an axis of the depth, `texel` long, toward the side whose
@@ -164,10 +174,10 @@ float3 depthNormalAt(float3 q)
 // the floor does not.
 float3 wayAlong(float2 uv, float3 p, float2 texel)
 {
-    float3 ahead = worldAt(uv + texel, depth.SampleLevel(uv + texel, 0).r);
-    float3 further = worldAt(uv + texel * 2.0, depth.SampleLevel(uv + texel * 2.0, 0).r);
-    float3 behind = worldAt(uv - texel, depth.SampleLevel(uv - texel, 0).r);
-    float3 beyond = worldAt(uv - texel * 2.0, depth.SampleLevel(uv - texel * 2.0, 0).r);
+    float3 ahead = fromEyeAt(uv + texel, depth.SampleLevel(uv + texel, 0).r);
+    float3 further = fromEyeAt(uv + texel * 2.0, depth.SampleLevel(uv + texel * 2.0, 0).r);
+    float3 behind = fromEyeAt(uv - texel, depth.SampleLevel(uv - texel, 0).r);
+    float3 beyond = fromEyeAt(uv - texel * 2.0, depth.SampleLevel(uv - texel * 2.0, 0).r);
     float3 aheadMiss = 2.0 * ahead - further - p, behindMiss = 2.0 * behind - beyond - p;
     bool aheadIn = all(uv + texel * 2.0 < float2(1.0)), behindIn = all(uv - texel * 2.0 > float2(0.0));
     return aheadIn && (!behindIn || dot(aheadMiss, aheadMiss) <= dot(behindMiss, behindMiss)) ? ahead - p : p - behind;
@@ -368,20 +378,21 @@ void computeMain(uint3 id : SV_DispatchThreadID)
     int glows = min(int(lights.glowCounts.x), MostGlowLights);
     if (d >= 1.0)
     {
-        for (int word = 0; word < GlowSeenWords; word++)
-            glowSeen[probe * uint(GlowSeenWords) + uint(word)] = 0u;
+        for (int packed = 0; packed < GlowSeenUints; packed++)
+            glowSeen[probe * uint(GlowSeenUints) + uint(packed)] = 0u;
         irradiance[id.xy] = float4(0.0);
         geometry[id.xy] = float4(0.0, 0.0, 0.0, -1.0);
         return;
     }
 
+    float3 fromEye = fromEyeAt(uv, d);
     float3 p = worldAt(uv, d);
     float2 texel = 1.0 / view.sizes.xy;
-    float3 n = depthNormal(uv, p);
-    geometry[id.xy] = float4(n, distance(view.eye.xyz, p));
-    // How much of each glow light in reach the surface sees, a word of four lights at a time, each
+    float3 n = depthNormal(uv, fromEye);
+    geometry[id.xy] = float4(n, length(fromEye));
+    // How much of each glow light in reach the surface sees, a uint of four lights at a time, each
     // put in the buffer as it is made, since lavapipe keeps an array indexed by the light in memory
-    // of its own and crashed on the one the words were gathered in. A light that gives the surface
+    // of its own and crashed on the one the uints were gathered in. A light that gives the surface
     // an eighth of the glow lights' light or more is marched to by the halves of its faces, and its
     // byte says how much of it the surface sees. A fainter one is marched to at its middle alone,
     // as a ray's hit is, its light added to the fainter ones' at the probe and its byte left none,
@@ -397,8 +408,8 @@ void computeMain(uint3 id : SV_DispatchThreadID)
     // probe's normal on the floor beside it saw a lamp past the wall that the floor does not.
     // Global illumination keeps the nearer texel's, which holds the thin room nearer its
     // path-traced reference.
-    float3 gn = surfaceNormal(cross(wayAlong(uv, p, float2(texel.x, 0.0)), wayAlong(uv, p, float2(0.0, texel.y))), view.eye.xyz - p);
-    if (dot(gn, view.eye.xyz - p) < 0.0)
+    float3 gn = surfaceNormal(cross(wayAlong(uv, fromEye, float2(texel.x, 0.0)), wayAlong(uv, fromEye, float2(0.0, texel.y))), -fromEye);
+    if (dot(gn, -fromEye) < 0.0)
         gn = -gn;
     float glowCell = fieldCell(fieldInfo, p);
     float glowMargin = glowCell * 0.5;
@@ -427,13 +438,13 @@ void computeMain(uint3 id : SV_DispatchThreadID)
     if (abs(dot(q - p, gn)) > plane || abs(dot(middle - p, gn)) > plane)
         q = p;
     float3 faint = float3(0.0);
-    uint first = probe * uint(GlowSeenWords);
-    for (int word = 0; word * 4 < glows; word++)
+    uint first = probe * uint(GlowSeenUints);
+    for (int packed = 0; packed * 4 < glows; packed++)
     {
         uint levels = 0u;
-        for (int j = 0; j < 4 && word * 4 + j < glows; j++)
+        for (int j = 0; j < 4 && packed * 4 + j < glows; j++)
         {
-            GlowLight light = lights.glows[word * 4 + j];
+            GlowLight light = lights.glows[packed * 4 + j];
             float faded = glowLightFade(light, p, gn);
             if (faded <= 0.0)
                 continue;
@@ -445,7 +456,7 @@ void computeMain(uint3 id : SV_DispatchThreadID)
             else if (any(arrived > 0.0))
                 faint += arrived * glowLightSeen(sceneField, fieldInfo, light, q, gn, glowCell);
         }
-        glowSeen[first + uint(word)] = levels;
+        glowSeen[first + uint(packed)] = levels;
     }
     // A probe a test feeds a value that is not a number writes one as its fainter lights' light
     // and as its own (ScreenPush's w).

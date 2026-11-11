@@ -106,13 +106,20 @@ bool lightHeld(float3 light)
 }
 
 // The point a probe stands on, from the depth's texel under its tile's middle, as gi_screen.slang
-// placed it.
-float3 standsOn(int2 id)
+// placed it, as its way from the eye, in numbers as small as the view, which the planes between
+// probes are measured in far from the world's origin (gi_screen.slang's fromEyeAt).
+float3 standsOnFromEye(int2 id)
 {
     float2 pixel = min((float2(id) + 0.5) * view.grid.x, view.sizes.zw - 0.5);
     float2 uv = (floor(pixel / view.sizes.zw * view.sizes.xy) + 0.5) / view.sizes.xy;
-    float4 world = mul(view.inverseViewProjection, float4(uv * 2.0 - 1.0, depth.SampleLevel(uv, 0).r, 1.0));
-    return world.xyz / world.w;
+    float4 way = mul(view.inverseFromEye, float4(uv * 2.0 - 1.0, depth.SampleLevel(uv, 0).r, 1.0));
+    return way.xyz / way.w;
+}
+
+// The same in the world.
+float3 standsOn(int2 id)
+{
+    return view.eye.xyz + standsOnFromEye(id);
 }
 
 // The window's pixel a probe stands on, the middle of the depth's texel under its tile's middle, as
@@ -137,7 +144,7 @@ float4 spatial(uint2 id, uint across, uint down, float4 own, float4 surface, out
     float4 sum = float4(0.0);
     float3 squares = float3(0.0);
     float weightSquares = 0.0;
-    float3 here = standsOn(int2(id));
+    float3 here = standsOnFromEye(int2(id));
     for (int y = -2; y <= 2; y++)
         for (int x = -2; x <= 2; x++)
         {
@@ -149,7 +156,7 @@ float4 spatial(uint2 id, uint across, uint down, float4 own, float4 surface, out
             float4 other = geometry.Load(int3(at, 0));
             if (light.a < 0.5 || other.w < 0.0 || !lightHeld(light.rgb))
                 continue;
-            float off = abs(dot(standsOn(at) - here, surface.xyz));
+            float off = abs(dot(standsOnFromEye(at) - here, surface.xyz));
             float weight = exp(-float(x * x + y * y) / 4.0) * pow(saturate(dot(surface.xyz, other.xyz)), 16.0)
                          * exp(-off / (0.02 * surface.w + 0.05));
             sum += float4(light.rgb, 1.0) * weight;

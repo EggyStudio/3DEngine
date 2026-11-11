@@ -160,7 +160,7 @@ public ScreenProbesHere screenProbesHere(ModelVertexOutput input, float3 n)
     int2 base = int2(floor(g));
     float2 f = g - float2(base);
     float distance = length(input.toEye);
-    float3 acrossOne = ddx(input.world), downOne = ddy(input.world);
+    float3 acrossOne = worldAcross(input), downOne = worldDown(input);
     [unroll]
     for (int corner = 0; corner < 4; corner++)
     {
@@ -230,7 +230,7 @@ public float3 glowLightsHere(ModelVertexOutput input, float3 n, bool screen)
         int2 base = int2(floor(g));
         float2 f = g - float2(base);
         float distance = length(input.toEye);
-        float3 acrossOne = ddx(input.world), downOne = ddy(input.world);
+        float3 acrossOne = worldAcross(input), downOne = worldDown(input);
         float3 facing = normalize(input.normal);
         float margin = max(fieldCell(bouncedField, input.world), 0.0) * 0.5;
         float3 alike = float3(0.0), anywhere = float3(0.0);
@@ -379,6 +379,24 @@ public ModelStreamsOutput transformModelVertex(float3 position, float3 normal, f
     return output;
 }
 
+// How far the surface's point moves across a pixel to the right and down, taken from the way to
+// the eye, whose numbers are as small as the view, so the step keeps its precision far from the
+// world's origin, where the world's own numbers lose their last bits to their size and the probes
+// and glow texels a pixel takes its light from were judged by a slope off by as much. Under
+// an orthographic camera the way to the eye is the same at every pixel and its step is none, so
+// the world point's own is taken there.
+public float3 worldAcross(ModelVertexOutput input)
+{
+    float3 step = -ddx(input.toEye);
+    return dot(step, step) > 0.0 ? step : ddx(input.world);
+}
+
+public float3 worldDown(ModelVertexOutput input)
+{
+    float3 step = -ddy(input.toEye);
+    return dot(step, step) > 0.0 ? step : ddy(input.world);
+}
+
 // The vertex stage every model shader uses unless it writes its own.
 public ModelVertexOutput transformModelVertex(float3 position, float3 normal, float2 uv, ModelInstance instance)
 {
@@ -465,8 +483,8 @@ public float3 surfaceNormal(ModelVertexOutput input)
     if (strength <= 0.0 || (uint(lighting.screen.w + 0.5) & 4u) != 0u)
         return n;
 
-    float3 dp1 = ddx(input.world);
-    float3 dp2 = ddy(input.world);
+    float3 dp1 = worldAcross(input);
+    float3 dp2 = worldDown(input);
     float2 duv1 = ddx(input.uv);
     float2 duv2 = ddy(input.uv);
     float3 dp2perp = cross(dp2, n);

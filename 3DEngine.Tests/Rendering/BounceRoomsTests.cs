@@ -190,8 +190,14 @@ public sealed partial class BounceRoomsTests : IDisposable
     // met before their interval began, so they read under, and the probe as a whole is held below.
     // With each tile's rays at one of sixteen places in their texels, a ray stands for its texel
     // from one place of it, so the bound leaves room for the difference that makes across a texel.
+    // The probe is one none of whose rays passes a slab's edge within a field cell: each of its
+    // sixteen rays meets or misses the same surface, within a cell, whether its normal is worked
+    // out from the depth in the world's numbers or from the eye, and with it tilted a five
+    // hundredth along each axis either way, the first such probe in reading order of those nearest
+    // the one first read here. That one's seventh ray met the floor within a cell of its front edge,
+    // where the field rounds the slab's corner, and met or passed it by the last bits of its normal.
     [NeedsRayQueryTheory]
-    [InlineData(1, 468, 364, 0.4)]
+    [InlineData(1, 468, 356, 0.4)]
     public void A_Screen_Probes_Rays_Past_Their_Reach_Read_The_Light_The_Reference_Holds_Over_Their_Ways(int view, int x, int y, double bound)
     {
         var probe = ReadScreenProbe(view - 1, x, y, out var report);

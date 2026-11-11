@@ -1721,3 +1721,136 @@ beside it.
 
 The pictures are in the game's `.github/dump/2026-11-11` under `item-173-room`, and the readings,
 with both copies of the data, in `~/.cache/3dengine-tools/work/i173`.
+
+### 2026-11-11, the voxel game in `Voxel-Sandbox`, one pixel at a trunk's edge against snow takes about ten times the trunk's light, and bloom spreads it into a red blob
+
+Read on the 3DEngine 6.2.41 package with the game at `1f1e955`, Debug, offscreen at 1280 by 720, on
+the RTX 4070 Laptop GPU with driver 615.78.08 on tuned's power-saving profile, from a copy of a
+player's data folder, a saved world of seed 1 with its options, the illumination at Low, the hour
+held at 13.35, the weather clear and the clouds hidden. The player names the fault as colored blobs
+under bloom in the distance during play.
+
+From the eye at 37.5, 123.1, 37.5 facing 315 degrees and pitched 12 degrees down, one stands over a
+spruce 134 blocks off. With the options' bloom at 0 it is one pixel, at 272, 352, reading 255, 209,
+199 in sRGB levels. The pixel to its left is the trunk, the log at -98, 105, 39, reading 55, 46, 42.
+`voxel.depth` puts the pixel itself on the snow two blocks behind the trunk, at -100, 104, 39, 138
+blocks off. It is the trunk's lower right corner against the snow beyond it. With bloom at the
+options' 0.1, the 64 by 64 pixels about it read a mean of 202, 186, 182, and 179, 182, 175 with the
+illumination off.
+
+The pixel reads the same in five reads 7 frames apart, and in each of these, after 30 to 60 frames.
+- Each part `gi.toggle` names left out in turn: history, filter, screen, merge, again, follow, glow,
+  through, specular and normals.
+- Each of the 4 cascades alone, and Medium and High.
+- The sun's shadows left out by `SetLightCastsShadows`.
+- The game's terms in terrain.slang: its sky floor at 0, its light levels off, Unshaded turned.
+- Noon, 255, 211, 201.
+- The snow block under the pixel made stone, snow or grass.
+
+With every surface drawn white by `gi.toggle albedo off`, it reads 255, 255, 255. At dusk it reads
+174, 137, 122 beside the snow's 212, 175, 159. With the illumination off it reads 221, 215, 205, as
+the snow beside it does. With the eye moved a quarter block north it reads 245, 241, 234, and with
+the view turned 0.05 degrees it reads the same.
+
+So the color is the trunk's under about ten times the trunk's light, on a pixel the trunk covers only
+in part. Only the illumination off clears it, and no part `gi.toggle` names. The frame is drawn with
+the engine's 4 samples a pixel, `Config.Samples`, and FXAA and temporal antialiasing are off.
+ModelVertexOutput reads the normal at the samples the triangle covers but the world point and the
+way to the eye at the pixel's middle, which at the trunk's corner lies off the trunk's face.
+
+The engine lacks a lit pixel at a silhouette's edge whose light stays within the light of the
+surfaces it covers.
+
+With one sample a pixel (`E3D_SAMPLES=1`) the pixel is gone, nothing about the trunk's foot reading
+more red than blue by 30 levels with a channel at 240, and the 64 by 64 about it reads 181, 187, 185
+with bloom. At 4 samples with temporal antialiasing on, the pixel reads 247, 221, 211 and the 64 by
+64 reads 182, 188, 185. At 4 samples and 2560 by 1440 it stays one pixel, at 544, 703, reading 252,
+231, 178, and the 128 by 128 about it reads 182, 188, 185. So the fault is the edge's and not the
+place's, and lies in how a pixel a surface covers in part is shaded.
+
+It is common in the distance. From 133 blocks off with the eye stepped a twentieth of a block 20
+times, the frames near the origin held 27 such lone bright pixels over the 20 steps, and bloom
+added over 20 levels about one of them in 7 steps, up to 142 levels over 1,532 pixels from one
+white pixel on snowy steps 140 blocks off. Beside 4432, 120, 592 they held 8, with 2 such steps. A
+second session at each place read the same counts. Four spruce logs on snow built block for block
+at both places, in the middle of those frames, made none at either, so the counts follow the land
+behind them and do not compare the two places.
+
+A spruce trunk's foot from 15 blocks reads orange with blue at 0, which is the dirt under it seen
+where the snowy ground steps down, its own color under the frame's grading, and not this fault. The
+sheets are in the game's `.github/dump/2026-11-11` under `red-blob` and `item-176-samples`, and the
+readings in `~/.cache/3dengine-tools/work/i176`.
+
+### 2026-11-11, the voxel game in `Voxel-Sandbox`, the light a pixel takes cannot be read by its terms
+
+Two reads of the game's this day ended where the game could not say which of the engine's terms
+lights a pixel. In the sea lantern's stripes above, `gi.show` drew the screen's probes as tiles,
+and their light and its filtered form drew black at Low, where no screen probes are traced. At the
+trunk's edge above, every part `gi.toggle` names left the pixel as it was, and only the illumination
+off changed it, so the term that makes it was found by none of them. `gi.show` draws the probes' data
+over the window, and `voxel.pixel` and `voxel.color` give the frame's color after the tonemap and
+the grading. The game could not find out, at one pixel of the frame, the light the model pass gives
+it from each of its terms before they are summed, the sun's direct light and its shadow, the sky's
+light, the world probes' light, the screen probes' light, the glow lights' near and far light and
+the specular, nor the world point, the normal and the samples it was shaded with.
+
+The engine lacks a way to read one pixel's light by its terms in linear light.
+
+### 2026-11-11, the voxel game in `Voxel-Sandbox`, the screen's probes mottle a wall a glow light lights at 4,432 blocks from the origin, where the same wall near the origin is smooth
+
+For the engine's item 258. Read on the 3DEngine 6.2.41 package with the game at `1f1e955`, Debug,
+offscreen at 1280 by 720, on the RTX 4070 Laptop GPU with driver 615.78.08 on tuned's power-saving
+profile, from a copy of a player's data folder with its options, ambient occlusion at 0, bloom set
+to 0 for the reads, the hour held at 13.35, the weather clear, the clouds hidden. One scene is built
+twice block for block on a platform in the air, its corner at 16, 120, 16 and at 4432, 120, 592,
+the offset a multiple of 64 on both axes, and the 836 blocks of the two read the same from the save.
+It is a floor of light gray terracotta 16 by 16, a west and a north wall of white concrete five high,
+a roof over the west half, a pillar, a sea lantern set in the west wall at the floor and one standing
+on the floor under the roof. Each place is read from the same eye against its scene, 17.5, 3.1, 17.5
+blocks from the corner, facing 315 degrees and pitched 12 down, in two sessions, by five rows of
+`voxel.line` at a 31st of a block, at Low, Medium and High, with every stage as the game draws it and
+with each stage changed in turn. The two sessions at one place read alike to a hundredth of a level
+in most rows.
+
+Along the west wall's face at the lantern's height and a half, 1.005, 2.5, from 1 to 16 blocks along
+z, the mean step between neighbors is 0.34, 0.35 and 0.37 near the origin and 0.45 to 0.47, 0.52 and
+0.52 to 0.53 at 4432, at Low, Medium and High. The difference of the two places' captures shows the
+wall mottled in squares at Medium and High. With the screen's probes left out by `gi.toggle screen
+off` the two places read 0.34 to 0.36 against 0.36 to 0.37. With the glow lights left out they read
+0.37 to 0.39 against 0.39 to 0.44. With the filter, the frame before's light or the sun's shadows left
+out the difference stays as it was, 0.11 to 0.19. The faces of spruce logs on snow built beside each
+scene differ by up to 10 levels between the places at Medium and High, and by 0 between sessions.
+
+The engine lacks screen probes whose glow light falls on a wall as smoothly far from the origin as
+near it.
+
+The sheet is in the game's `.github/dump/2026-11-11` under `item-174-places`, and the rows, the
+captures and the table in `~/.cache/3dengine-tools/work/i174`.
+
+### 2026-11-11, the voxel game in `Voxel-Sandbox`, ambient occlusion darkens and mottles a scene at 4,432 blocks from the origin more than the same scene near it
+
+For the engine's item 258, read in the scene of the entry above, with `SetAmbientOcclusion` at 1 in
+place of the player's 0. The north wall's face at 2.5 high reads a mean of 175.6, 175.7 and 174.9
+near the origin and 168.0, 168.8 and 167.5 at 4432, at Low, Medium and High, 7 to 7.5 levels darker,
+where with it at 0 the two read within 0.3. Its mean step is 0.47 to 0.49 against 0.55 to 0.59. Across
+the floor at the roof's shadow the mean is 3 levels lower and the mean step 0.68 to 0.72 against 0.80
+to 0.84, and along the west wall 0.35 to 0.38 against 0.56 to 0.67. The two sessions at one place read
+within 0.5 of a level. The difference of the captures at Medium shows the walls and the roof's
+underside mottled at 4432.
+
+The engine lacks an ambient occlusion that closes a surface off as much far from the origin as near
+it.
+
+### 2026-11-11, the voxel game in `Voxel-Sandbox`, the sun's stepped shadow under a roof steps differently at 4,432 blocks from the origin
+
+For the engine's item 258, read in the scene of the first entry above. Along the floor under the
+roof at 2.5 blocks from the west wall, where the sun reaches under the roof's edge, 27, 26 and 26
+steps between neighbors exceed 3 levels near the origin, and 23, 22 and 23 at 4432, at Low, Medium
+and High, in both sessions. With the sun's shadows left out by `SetLightCastsShadows` both read 8. The
+game takes the shadow at the middle of an eighth of a block of the face, terrain.slang's
+`pixelMiddle`, and hands it to the engine's `litLight`. At 4432 a float steps by 0.0005, so the
+game's middles move by no more than that against an eighth of a block, and a step could change only
+for a point within 0.0005 of an eighth's edge. The mean step reads alike, 1.10 to 1.13 against 1.07
+to 1.12.
+
+The engine lacks a sun's shadow that steps the same far from the origin as near it.
