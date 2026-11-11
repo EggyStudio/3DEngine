@@ -54,6 +54,9 @@ internal sealed unsafe partial class GraphicsDevice
     // merges into it the one the program's folder holds.
     private void CreatePipelineCache()
     {
+        // Other packages' files, each in its version's folder, left once no run of theirs wrote
+        // one for as long as the shaders' cache keeps an entry no run read.
+        UserCache.SweepVersions("pipelines", SlangCompiler.SweptAfter);
         var data = ReadPipelineCache(PipelineCachePath);
         // A file past the bound starts the cache empty, since the driver's data cannot be pruned one
         // pipeline at a time and every version of a shader a run compiled stays in it, about 1.9 MB

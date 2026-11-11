@@ -1,61 +1,64 @@
 # Review
 
-Reviewed up to `21122dcd`, 253's first half, pipelines made on several threads sharing the driver's
-cache and the write alone holding it, pushed at 03:49 on 2026-11-11 with a run on it; the suite
-passed both legs on it, 2,334; it keeps the form and carries the review's files. Before it
-`56d77a29`, Ore's turn and walk by fixed steps and its eye in its status, pushed at 01:45 on
-2026-11-11 with `b7f176d9`, 250's second cut, a probe's ray's hit taking each face of a far glow
-light as one point, the run on the last green at 03:45 with macOS in 50 minutes, the Linux legs in
-59 each and the Windows halves in 92 and 119. Before them `cfcfda02`, 250's first cut, a screen
-probe no longer marching to a faint glow light that sends it nothing, exact, pushed at 23:51 on
-2026-11-10, green at 01:42 on 2026-11-11 with macOS in 49 minutes, the Linux legs in 76 and 57 and
-the Windows halves in 91 and 111. Before it `02c3a743`, the Replies' reading of which waits ran out
-by the field's fault, documents alone, pushed at 19:46 on 2026-11-10 with `1aa4c5d8`, 251, the lift
-after a cut held until 30 frames in a row bring no mesh, a changed budget keeping the field, and a
-mesh that settled during a region's build no longer left pending for good, the run on the last green
-at 21:52 with macOS in 51 minutes, the Linux legs in 77 and 75 and the Windows halves in 126 and
-100, and its pack run with publish green at 00:38 on 2026-11-11, every job green, 6.2.32 published
-and tagged `v6.2.32`, its fifteen packages listed on nuget.org by 00:45, the game told at 01:00;
-they keep the form and carry the review's files. Before it `8da28e48`, the mend of Verdicts 112 and
-113, pushed at 18:17 on 2026-11-10, its run green at 19:45 with macOS in 49 minutes, the Linux legs
-in 57 and 77 and the Windows halves in 77 and 87, which settles Verdict 112; its pack run with
-publish of 18:17 green at 21:30, its games job in 56 minutes with Siege played through, which
-settles Verdict 113, 6.2.30 published and tagged `v6.2.30`, the first to carry the illumination's
-project as a package of its own, its fifteen packages listed on nuget.org at 22:08, 38 minutes after
-their push; the game does not pin it. Before it `40c00405`, Verdict 112's first mend, pushed at
-15:36 on 2026-11-10 with 235's third and fifth cuts and 249's two Linux legs, its run ended at 17:30
-red in both Linux legs by the mended test's other case and green on macOS in 45 minutes and the
-Windows halves in 89 and 113, the legs in 57 and 77 minutes where the one job took 147. Before it
-`dd0adff0`, 235's second cut, pushed at 12:48 on 2026-11-10 with 247, 238 and 235's first cut, its
-run red at 15:25 in the first Windows half alone, Verdict 112, with macOS in 47 minutes, the second
-half in 115 and Linux in 147 of its 150. Before it `4fb868ca`, 244's fourth and last commit, pushed
-at 10:14 on 2026-11-10 with its three before it, their run green at 12:44 with macOS in 46 minutes,
-Windows in 63 and 96, Linux in 141 and the examples in 9; their package comes from the pack run
-above, the game taking them in its 167. Before it `f68075f1`, 239 with 245 and build/flicker.py's
-options, pushed at 07:44, green at 10:13, whose pack run went green at 12:41 with its captures in 58
-and 71 minutes and its games in 53, publishing 6.2.17, tagged `v6.2.17`, which the game pins for the
-clouds and the cuts. Before it `e86ca5c3`, 240's ramp, a pixel whose screen probes stand on a
-surface like its own for under a quarter of their weight taking the world's probes' light by its
-shortfall, with the march by thin walls, pushed at 05:41 on 2026-11-10, its run green at 07:43 with
-macOS in 43 minutes, Windows in 108 and 122, Linux in 105 and the examples in 11, its pack run green
-at 08:57 with its captures in 58 and 72 minutes and its games in 70, publishing 6.2.14, tagged
-`v6.2.14`; the game reads its shaded ground on that package and its walk on the next. The working
-session was ended at 01:15 on 2026-11-10 by the kernel, a python3 of its own having read its 4.3 GB
-transcript whole into 27 GB beside 18 GB of old frames in /tmp, and was resumed by the owner at
-04:23, its scratch cleared (N 7.10). Before it `adb41aa7`, the example's sponza.turn and
-build/flicker.py, pushed at 01:18 on 2026-11-10, green at 03:44. Before it `94097b62`, 242, a hit
-marching its brightest glow light and gathering the rest as one, pushed at 22:41 on 2026-11-09 with
-241 and 243, green at 00:35, whose pack run published 6.2.12 at 02:34, tagged `v6.2.12`, which the
-game pins since its `cfffcb3`. Before it `ed469e90`, 237, the illumination's cycles eased in the
-merge and the screen filter, pushed at 20:18 on 2026-11-09, its run green at 22:13 with macOS in 45
-minutes, Windows in 98 and 115, Linux in 104 and the examples in 10; it keeps the form. Before it
-`c23cd2d4`, 226's fourth and last commit, green at 20:15 on 2026-11-09, whose pack run published
-6.2.8 at 21:08, the package 3DEngine, its twelve areas and the templates, tagged `v6.2.8`, which
-settled Verdict 111. The release scene-packs holds intel-sponza.pack since 17:58 on 2026-11-09, so
-./e3d scenes fetch works. nuget.org holds 6.0.11, 6.0.14, 6.0.91, 6.1.12, 6.2.8, 6.2.12, 6.2.14 and
-6.2.17, the game pinned to 6.1.12, tagged `v6.1.12` at `8dba0d1c`; the version stands at 6.2, tagged
-`v6.2.0` at `1c3c38d5`. Item 6's three package bumps wait on the owner's word since October. Every
-push and run before `c23cd2d4` since 2026-10-23 stands in REVIEW-ARCHIVE.md under Head records.
+Reviewed up to `80bc4b05`, 253's write of the pipelines on a worker, the frames going on while it
+waits and reads, pushed at 05:42 on 2026-11-11 with a run on it; the suite passed both legs on it,
+2,335; it keeps the form and carries the review's files. Before it `21122dcd`, 253's first half,
+pipelines made on several threads sharing the driver's cache and the write alone holding it, pushed
+at 03:49 on 2026-11-11, green at 05:41 with macOS in 50 minutes, the Linux legs in 78 each and the
+Windows halves in 112 each. Before it `56d77a29`, Ore's turn and walk by fixed steps and its eye in
+its status, pushed at 01:45 on 2026-11-11 with `b7f176d9`, 250's second cut, a probe's ray's hit
+taking each face of a far glow light as one point, the run on the last green at 03:45 with macOS in
+50 minutes, the Linux legs in 59 each and the Windows halves in 92 and 119. Before them `cfcfda02`,
+250's first cut, a screen probe no longer marching to a faint glow light that sends it nothing,
+exact, pushed at 23:51 on 2026-11-10, green at 01:42 on 2026-11-11 with macOS in 49 minutes, the
+Linux legs in 76 and 57 and the Windows halves in 91 and 111. Before it `02c3a743`, the Replies'
+reading of which waits ran out by the field's fault, documents alone, pushed at 19:46 on 2026-11-10
+with `1aa4c5d8`, 251, the lift after a cut held until 30 frames in a row bring no mesh, a changed
+budget keeping the field, and a mesh that settled during a region's build no longer left pending for
+good, the run on the last green at 21:52 with macOS in 51 minutes, the Linux legs in 77 and 75 and
+the Windows halves in 126 and 100, and its pack run with publish green at 00:38 on 2026-11-11, every
+job green, 6.2.32 published and tagged `v6.2.32`, its fifteen packages listed on nuget.org by 00:45,
+the game told at 01:00; they keep the form and carry the review's files. Before it `8da28e48`, the
+mend of Verdicts 112 and 113, pushed at 18:17 on 2026-11-10, its run green at 19:45 with macOS in 49
+minutes, the Linux legs in 57 and 77 and the Windows halves in 77 and 87, which settles Verdict 112;
+its pack run with publish of 18:17 green at 21:30, its games job in 56 minutes with Siege played
+through, which settles Verdict 113, 6.2.30 published and tagged `v6.2.30`, the first to carry the
+illumination's project as a package of its own, its fifteen packages listed on nuget.org at 22:08,
+38 minutes after their push; the game does not pin it. Before it `40c00405`, Verdict 112's first
+mend, pushed at 15:36 on 2026-11-10 with 235's third and fifth cuts and 249's two Linux legs, its
+run ended at 17:30 red in both Linux legs by the mended test's other case and green on macOS in 45
+minutes and the Windows halves in 89 and 113, the legs in 57 and 77 minutes where the one job took
+147. Before it `dd0adff0`, 235's second cut, pushed at 12:48 on 2026-11-10 with 247, 238 and 235's
+first cut, its run red at 15:25 in the first Windows half alone, Verdict 112, with macOS in 47
+minutes, the second half in 115 and Linux in 147 of its 150. Before it `4fb868ca`, 244's fourth and
+last commit, pushed at 10:14 on 2026-11-10 with its three before it, their run green at 12:44 with
+macOS in 46 minutes, Windows in 63 and 96, Linux in 141 and the examples in 9; their package comes
+from the pack run above, the game taking them in its 167. Before it `f68075f1`, 239 with 245 and
+build/flicker.py's options, pushed at 07:44, green at 10:13, whose pack run went green at 12:41 with
+its captures in 58 and 71 minutes and its games in 53, publishing 6.2.17, tagged `v6.2.17`, which
+the game pins for the clouds and the cuts. Before it `e86ca5c3`, 240's ramp, a pixel whose screen
+probes stand on a surface like its own for under a quarter of their weight taking the world's
+probes' light by its shortfall, with the march by thin walls, pushed at 05:41 on 2026-11-10, its run
+green at 07:43 with macOS in 43 minutes, Windows in 108 and 122, Linux in 105 and the examples in
+11, its pack run green at 08:57 with its captures in 58 and 72 minutes and its games in 70,
+publishing 6.2.14, tagged `v6.2.14`; the game reads its shaded ground on that package and its walk
+on the next. The working session was ended at 01:15 on 2026-11-10 by the kernel, a python3 of its
+own having read its 4.3 GB transcript whole into 27 GB beside 18 GB of old frames in /tmp, and was
+resumed by the owner at 04:23, its scratch cleared (N 7.10). Before it `adb41aa7`, the example's
+sponza.turn and build/flicker.py, pushed at 01:18 on 2026-11-10, green at 03:44. Before it
+`94097b62`, 242, a hit marching its brightest glow light and gathering the rest as one, pushed at
+22:41 on 2026-11-09 with 241 and 243, green at 00:35, whose pack run published 6.2.12 at 02:34,
+tagged `v6.2.12`, which the game pins since its `cfffcb3`. Before it `ed469e90`, 237, the
+illumination's cycles eased in the merge and the screen filter, pushed at 20:18 on 2026-11-09, its
+run green at 22:13 with macOS in 45 minutes, Windows in 98 and 115, Linux in 104 and the examples in
+10; it keeps the form. Before it `c23cd2d4`, 226's fourth and last commit, green at 20:15 on
+2026-11-09, whose pack run published 6.2.8 at 21:08, the package 3DEngine, its twelve areas and the
+templates, tagged `v6.2.8`, which settled Verdict 111. The release scene-packs holds
+intel-sponza.pack since 17:58 on 2026-11-09, so ./e3d scenes fetch works. nuget.org holds 6.0.11,
+6.0.14, 6.0.91, 6.1.12, 6.2.8, 6.2.12, 6.2.14 and 6.2.17, the game pinned to 6.1.12, tagged
+`v6.1.12` at `8dba0d1c`; the version stands at 6.2, tagged `v6.2.0` at `1c3c38d5`. Item 6's three
+package bumps wait on the owner's word since October. Every push and run before `c23cd2d4` since
+2026-10-23 stands in REVIEW-ARCHIVE.md under Head records.
 
 Next 253, the reflection whose pipeline is made late, found by the game's pin of 6.2.32, then 250's
 cuts, the screen probes' glow lights first, the illumination's cost in the game read by pass and
@@ -242,7 +245,16 @@ reverted as the screen probes' limit at shapes about a tile wide, its patches in
     all, and whether 238's sweep takes other versions' folders by their last use. The review told
     the coder to copy the 94 MB file out of the account's cache for a trial; the coder refused by
     the owner's rule on that folder, rightly, the instruction is withdrawn and the trial at that
-    size waits on the owner's word. Then the log line, then a pack run with publish.
+    size waits on the owner's word. Then the log line, then a pack run with publish. The write off
+    the frame's thread is `80bc4b05`, committed at 05:26 on 2026-11-11 and pushed at 05:42, the
+    quiet write made on a worker, each write after the one before and the cache's release waiting
+    for one still going, with a test of 240 frames drawn while a worker's compile is held and no
+    file written until it ends; the suite 2,335 on both legs, run from a cache folder of the coder's
+    own. Nothing in the client, the server or the session files compares a version, so a client of
+    the checkout's version plays a package's game as before; the pipelines' folders had no sweep and
+    gain one at the cache's open, other versions' folders by their newest file past 14 days. The
+    coder's suites before N 7.11 wrote the test host's pipelines into the account's cache, said to
+    the owner.
 
 ## Verdicts
 
@@ -561,3 +573,21 @@ waits for one still going before its own. A test holds a worker's compile in the
 240 frames, and finds them drawn with no file yet, and the file written once the compile lets the
 cache go; with the write on the frame's thread the frames stopped at the first quiet stretch's
 end until the test's 60 s gate gave way, and the test failed. PipelineCacheTests' six pass.
+
+Item 253, the version the caches are kept under. build/pack.sh built the engine with no version
+and packed it with --no-build at the package's, so the assemblies of every package carried
+Directory.Build.props' 0.1.0-preview.1, and UserCache.Version, read from the core assembly's
+informational version, put every package's shaders and pipelines in one folder of that name. The
+game's pipelines' file in the account's cache, 92 MB, is then many packages' pipelines in one,
+against 10 to 21 MB for one package from cold. The version is now worked out first and the build
+made with it, and the pack fails where the packed 3DEngine.Core.dll does not carry it: a Core
+built with no version and packed at 6.2.98 failed that check, one built at 6.2.99 and packed so
+passed. Nothing else compares the version, by a search for InformationalVersion and
+UserCache.Version over the engine, the client and the tests: the debug overlay shows it and the
+cache command says it, and 3DEngine/Cli and 3DEngine.Cli carry none, so a client built at
+0.1.0-preview.1 drives a game on another package as before, and there is no comparison for a test
+of one. With a folder a package, the cache's open now deletes the pipelines' folders of other
+versions whose newest file no run wrote for SweptAfter, 14 days, and those holding none, never
+the running version's; the shaders' sweep, which took every version's entries one by one, now
+also leaves no emptied version folder. A test of the folders by hand, and one of a device opened
+over another version's file from long ago, which fails with the sweep left out of the open.

@@ -6,14 +6,17 @@
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
-dotnet build 3DEngine.slnx -c Release
-rm -rf build/shader-cache
-./e3d shaders 3DEngine/Shaders build/shader-cache
 # A release passes its version, which build/version.sh works out, as the pack workflow does. A pack
 # without one is a version of its own, stamped with the time, since NuGet keeps the first package of
 # a version it sees and never reads it again, and a game asks for the newest with a floating
 # version such as 0.1.0-*.
 version="${1:-0.1.0-preview.$(date -u +%Y%m%d%H%M%S)}"
+# Built at the package's version, since the packs below take the assemblies as built, and the
+# engine keeps what its user's cache holds under the version its assemblies carry, so a package
+# built at the default one shared one folder of pipelines with every package before it.
+dotnet build 3DEngine.slnx -c Release -p:Version="$version"
+rm -rf build/shader-cache
+./e3d shaders 3DEngine/Shaders build/shader-cache
 # The release notes, the commits since the last package of this minor on nuget.org was built
 # (build/release-notes.sh), whose first line, the commit they start after, the run's summary shows.
 notes="$PWD/build/artifacts/release-notes.txt"
@@ -30,6 +33,14 @@ fi
 for project in 3DEngine/3DEngine.csproj $(find 3DEngine -mindepth 2 -name '*.csproj' -not -path '*/obj/*' | sort); do
   dotnet pack "$project" -c Release --no-build -o build/package -p:Version="$version" -p:ReleaseNotesFile="$notes"
 done
+# The version the packed assemblies carry, the one the engine names its cache folders by, read from
+# the core area's package, which every other area depends on.
+core="build/package/3DEngine.Core.$version.nupkg"
+carried="$(unzip -p "$core" 'lib/*/3DEngine.Core.dll' | grep -aoE "$(printf '%s' "$version" | sed 's/[.]/[.]/g')(\+[0-9a-f]+)?" | head -1 || true)"
+if [ "${carried%%+*}" != "$version" ]; then
+  echo "the packed 3DEngine.Core.dll does not carry the version $version, so the package's caches would share another version's folders" >&2
+  exit 1
+fi
 # The templates, of the same version, from a copy with that version written in as the one a new
 # project asks for, so a project made from them builds against the engine packed with them.
 rm -rf build/templates

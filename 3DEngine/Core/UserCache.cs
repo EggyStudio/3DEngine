@@ -34,6 +34,30 @@ internal static class UserCache
     /// <summary>The folder of <paramref name="kind"/> for this version of the engine, as <c>shaders/5.2.326</c>.</summary>
     public static string Versioned(string kind) => Path.Combine(Folder, kind, Version);
 
+    /// <summary>
+    /// Deletes the folders of <paramref name="kind"/> kept for versions of the engine other than
+    /// this one whose newest file no run wrote or read for <paramref name="after"/>, and those that
+    /// hold no file, since each package of the engine keeps its own and a program run on one
+    /// package after another left the folders of every one before it.
+    /// </summary>
+    internal static void SweepVersions(string kind, TimeSpan after)
+    {
+        var folder = Path.Combine(Folder, kind);
+        if (!Directory.Exists(folder)) return;
+        var before = DateTime.UtcNow - after;
+        foreach (var version in Directory.EnumerateDirectories(folder).ToArray())
+            try
+            {
+                if (Path.GetFileName(version) == Version) continue;
+                var files = Directory.EnumerateFiles(version, "*", SearchOption.AllDirectories).ToArray();
+                if (files.Length == 0 || files.Max(File.GetLastWriteTimeUtc) < before)
+                    Directory.Delete(version, recursive: true);
+            }
+            catch (Exception error) when (error is IOException or UnauthorizedAccessException)
+            {
+            }
+    }
+
     private static string OwnFolder()
     {
         if (OperatingSystem.IsWindows())

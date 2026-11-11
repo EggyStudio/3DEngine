@@ -95,6 +95,28 @@ public sealed class PipelineCacheTests : IDisposable
     }
 
     [NeedsVulkanFact]
+    public void The_Device_Sweeps_The_Pipelines_Of_Other_Versions_No_Run_Wrote_Lately()
+    {
+        // A file another package of the engine wrote long ago, in its version's folder, which
+        // the device's cache, opened under this version, leaves no more.
+        using var cache = new TestFolder("engine-pipelines-");
+        UserCache.Folder = cache.Path;
+        try
+        {
+            var old = Path.Combine(cache.Path, "pipelines", "6.2.17", "testhost.bin");
+            Directory.CreateDirectory(Path.GetDirectoryName(old)!);
+            File.WriteAllBytes(old, [1, 2, 3]);
+            File.SetLastWriteTimeUtc(old, new DateTime(2000, 1, 1, 0, 0, 0, DateTimeKind.Utc));
+            Run();
+            Directory.Exists(Path.GetDirectoryName(old)).Should().BeFalse("another version's pipelines no run wrote lately are swept when the cache is opened");
+        }
+        finally
+        {
+            UserCache.Folder = null!;
+        }
+    }
+
+    [NeedsVulkanFact]
     public void A_Run_Writes_The_Pipelines_It_Compiled_And_A_Cache_Another_Device_Wrote_Is_Read_As_Empty()
     {
         var path = GraphicsDevice.PipelineCachePath;

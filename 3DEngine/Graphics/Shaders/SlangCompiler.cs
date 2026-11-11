@@ -114,7 +114,10 @@ internal static partial class SlangCompiler
         var shaders = Path.Combine(UserCache.Folder, "shaders");
         if (cacheDirectory is not null && Path.GetDirectoryName(Path.GetFullPath(cacheDirectory)) == Path.GetFullPath(shaders)
             && Interlocked.Exchange(ref _swept, 1) == 0)
+        {
             Sweep(shaders);
+            UserCache.SweepVersions("shaders", SweptAfter);
+        }
 
         foreach (var found in (string?[])[readFirst is null ? null : Path.Combine(readFirst, name), cached])
             if (found is not null && File.Exists(found))
