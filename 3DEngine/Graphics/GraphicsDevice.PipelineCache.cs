@@ -157,9 +157,11 @@ internal sealed unsafe partial class GraphicsDevice
     /// <summary>Has the device write none of its pipelines back to <see cref="PipelineCachePath"/> this run, its file cleared while it runs.</summary>
     internal void DropPipelineCache() => _pipelineCacheDropped = true;
 
-    // Writes the cache back where it changed since it was read, and lets it go.
+    // Writes the cache back where it changed since it was read, after a write on a worker still
+    // going, and lets it go.
     private void DestroyPipelineCache()
     {
+        _pipelineCacheWriting?.GetAwaiter().GetResult();
         SavePipelineCache();
         _pipelineCacheUse.EnterWriteLock();
         try
@@ -173,6 +175,17 @@ internal sealed unsafe partial class GraphicsDevice
             _pipelineCacheUse.ExitWriteLock();
         }
     }
+
+    // The write a worker makes for the frames, each after the one before it.
+    private Task? _pipelineCacheWriting;
+
+    /// <summary>
+    /// Writes the cache as <see cref="SavePipelineCache"/> does on a worker, after any write asked
+    /// before it, so the frame that asks it goes on while the data is read, which waits for every
+    /// compile in flight, and while the file is written.
+    /// </summary>
+    internal void SavePipelineCacheAside() =>
+        _pipelineCacheWriting = (_pipelineCacheWriting ?? Task.CompletedTask).ContinueWith(_ => SavePipelineCache(), TaskScheduler.Default);
 
     /// <summary>
     /// Writes the cache to <see cref="PipelineCachePath"/> where it changed since it was read or

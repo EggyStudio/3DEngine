@@ -427,6 +427,15 @@ memory bound, as the suites do. Frames, recordings and builds are written to dis
 folder under the home's cache, and not to /tmp, and a done item's scratch is deleted when the item
 closes. By review, the reviewing session reading the memory and each session's scratch at its watch.
 
+**N 7.11 A session's programs keep their caches in a folder of the session's own.** The engine's
+caches of shaders, pipelines and scene packs stand in the account's cache folder, which the owner's
+own programs read and write, and a session's plays on 2026-11-11 read and wrote the game's
+pipelines' file there, 94 MB piled up from every package run on the account, so that a reading of a
+warm cache stood on what other runs had left. A program a session starts runs with XDG_CACHE_HOME
+naming a folder under the session's work folder in the home's cache; a warm cache is made there by a
+first run; and a session leaves the account's own cache alone, neither reading its files into a
+trial nor copying, writing or clearing them, unless the owner says so for that file. By review.
+
 ## Conformance
 
 `checked` names what checks the rule. `listed` is checked with that many places to mend on the
@@ -490,6 +499,7 @@ not the code keeps the rule. `by review` is held by the reviewing session.
 | N 7.8 | by review | by review |
 | N 7.9 | by review | by review |
 | N 7.10 | by review | by review |
+| N 7.11 | by review | by review |
 | B 1 | | checked, `NativeLoader` at load |
 | B 2 | | by review |
 | B 3 | | checked, `NormTests`, 15 left out |

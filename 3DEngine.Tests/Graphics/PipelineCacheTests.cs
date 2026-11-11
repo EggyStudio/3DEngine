@@ -209,6 +209,74 @@ public sealed class PipelineCacheTests : IDisposable
     }
 
     [NeedsVulkanFact]
+    public void The_Frames_Go_On_While_Their_Write_Waits_For_A_Compile_In_Flight()
+    {
+        // The write the frames ask for once QuietFrames have made no pipeline waits for a worker's
+        // compile, held in the driver by the test, and the frames after it are drawn meanwhile, the
+        // file written once the compile lets the cache go.
+        using var cache = new TestFolder("engine-pipelines-");
+        UserCache.Folder = cache.Path;
+        using var gate = new ManualResetEventSlim();
+        Task<ComputePipeline>? compile = null;
+        try
+        {
+            var config = Config.Default.WithWindow("pipeline write aside", 64, 64) with { Headless = true, Offscreen = true, Samples = 1 };
+            UseApp(new App(config).AddPlugin(new DefaultPlugins()));
+            var camera = new Camera3D(new Vector3(2, 2, 2), Vector3.Zero, Vector3.UnitY, 45);
+            void Frame()
+            {
+                BeginDrawing();
+                ClearBackground(Color.Black);
+                BeginMode3D(camera);
+                DrawCube(Vector3.Zero, 1, 1, 1, Color.White);
+                EndMode3D();
+                EndDrawing();
+            }
+            Frame();
+            var device = (GraphicsDevice)GetApp().World.Resource<Engine.Renderer>().Context.Graphics!;
+            if (!device.PipelineCacheHolds) return;
+            var spirv = SlangCompiler.Compile("""
+                RWStructuredBuffer<uint> counts;
+
+                [shader("compute")]
+                [numthreads(1, 1, 1)]
+                void computeMain(uint3 id : SV_DispatchThreadID)
+                {
+                    counts[id.x] = id.x + 2;
+                }
+                """, "aside.slang", "computeMain", ShaderStage.Compute);
+            using var inside = new ManualResetEventSlim();
+            device.WhileMakingPipeline = () =>
+            {
+                inside.Set();
+                gate.Wait(TimeSpan.FromSeconds(60));
+            };
+            compile = Task.Run(() => device.CreateComputePipeline(spirv, 0, [0]));
+            inside.Wait(TimeSpan.FromSeconds(60)).Should().BeTrue("the worker's compile reached the driver");
+            device.WhileMakingPipeline = null;
+
+            // Twice QuietFrames drawn with the compile held, which a write on the frame's thread
+            // stops at the first quiet stretch's end until the gate gives way, the file then
+            // written before the frames go on.
+            for (int frame = 0; frame < 240; frame++)
+                Frame();
+            File.Exists(GraphicsDevice.PipelineCachePath).Should().BeFalse("the frames were drawn while the write waited for the compile in flight");
+            gate.Set();
+            for (int frame = 0; frame < 2000 && !File.Exists(GraphicsDevice.PipelineCachePath); frame++)
+                Frame();
+            File.Exists(GraphicsDevice.PipelineCachePath).Should().BeTrue("the write went on once the compile let the cache go");
+        }
+        finally
+        {
+            gate.Set();
+            if (compile is not null) using (compile.Result) { }
+            CloseWindow();
+            UseApp(null);
+            UserCache.Folder = null!;
+        }
+    }
+
+    [NeedsVulkanFact]
     public void A_Compile_On_One_Thread_Is_Not_Held_Behind_One_In_Flight_On_Another()
     {
         // A game's mirror asks its pipelines of workers while the frame's own thread makes a
