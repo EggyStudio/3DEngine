@@ -9926,6 +9926,27 @@ batch.
     the light, so the grove's light after a teleport is read by the game on the package that carries
     it. The suite 2,333 in order and shuffled; SceneFieldPlan.cs stands at 800 lines.
 
+253. **A reflection whose pipeline is made late shows no mirror for 32 frames or more.** From the
+    game's pin of 6.2.32 on 2026-11-11, done in code. `21122dcd`, pipelines made on several threads
+    sharing the driver's cache, the one lock of `8da28e48` having run the compiles one after
+    another; `80bc4b05`, the pipelines' file written on a worker; `803dfdb5`, each package built at
+    its own version, every package before it having carried 0.1.0-preview.1 and so shared one folder
+    of caches, with other versions' folders swept; `e4a14ec5` with `f91440e5` and `894542da`, each
+    pipeline made said in the log with the driver's word on the cache and a hash of its stages.
+    Open, the game reading its water's mirror on the package of `894542da`, from a cold cache and a
+    warm one, three plays each with the session's log kept at the pool; and a trial at the size of
+    the account's 94 MB file, which waits on the owner's word in the coder's session. The item as it
+    stood on 2026-11-11 at 13:08 stands in REVIEW-ARCHIVE.md under Items closed, parked or
+    shortened. Done as read on 2026-11-11 at 15:32 on 6.2.41, the game's pin `068fd5f`. The mirror
+    passes six plays of six, three from an empty cache and three from a warm one; cold, the
+    pipelines' file grows at each write to 21.8 MB, and warm, every pipeline made in play says from
+    the cache with the cold run's hash. A hit still took 1.17 to 1.37 s there, which the coder's
+    trial on terrain.slang puts on the validation layer, 1,274 ms compiled and 1,229 ms from the
+    cache with it, 94 ms and under 100 ms without, the fragment's rewrite 10 ms and outside the
+    timed call; so the stall is the layer's, which the game's play turns on and a Release build
+    leaves off, and the trial at the 94 MB file is not needed. The guide says it where validation is
+    described.
+
 ## Verdicts settled
 
 Verdicts 1 to 55 are settled, the last two, the drawing leak test's resident bound and the Windows
@@ -15260,6 +15281,57 @@ the test fails. So the next run says which it was, e3d's error where it finds no
 sessions folder and each file in it, with its pid, its program, its heartbeat's age, whether that
 pid runs and why it was passed over, on the one line the drive script quotes, and
 build/drive-game.sh lists the folder beside the log's last lines where a command ends that way.
+
+Item 253, the lock. Since 8da28e48 every pipeline made through the driver's cache waited for the
+one lock, so a compile on the frame's thread and a mirror's on a worker ran one after the other.
+A trial with a mirror plane, a shader of the program's own drawn in the mirror and the window from
+the frame the plane is set, and every pipeline held a second in the driver by the test's hook: on
+the head the two compiles on workers and the window's on the frame's thread began at 11, 1,011 and
+2,030 ms and the first frame took 3,040 ms; with the compiles sharing the lock they began within
+38 ms and the frame took 1,057 ms. As the specification reads, a cache made without
+VK_PIPELINE_CACHE_CREATE_EXTERNALLY_SYNCHRONIZED_BIT asks no external synchronization of
+vkCreateGraphicsPipelines, vkCreateComputePipelines or vkGetPipelineCacheData, and asks it of
+vkMergePipelineCaches' destination and of vkDestroyPipelineCache. So the compiles now share the
+lock, and the read of the cache's data for the write and the cache's release hold it alone. The
+write held alone beside the compiles is kept because it is cheap, as Verdict 113 asked, and was
+never shown needed, since that stop was never seen again. A test holds one compile in the driver
+and finds another thread's finished beside it, which on the single lock waited past 15 s;
+8da28e48's test that the write waits for a compile in flight passes as it did.
+
+Item 253, the write off the frame's thread. The frames' write once 120 frames made no pipeline
+ran on the frame's thread, the cache's data read with the cache held alone and the file written
+after, 63 to 67 ms for 39 MB in the two-run trial and a 92 MB file alone 20 to 126 ms on this
+disk. It now runs on a worker, each write after the one asked before it, and the device's release
+waits for one still going before its own. A test holds a worker's compile in the driver, draws
+240 frames, and finds them drawn with no file yet, and the file written once the compile lets the
+cache go; with the write on the frame's thread the frames stopped at the first quiet stretch's
+end until the test's 60 s gate gave way, and the test failed. PipelineCacheTests' six pass.
+
+Item 253, the version the caches are kept under. build/pack.sh built the engine with no version
+and packed it with --no-build at the package's, so the assemblies of every package carried
+Directory.Build.props' 0.1.0-preview.1, and UserCache.Version, read from the core assembly's
+informational version, put every package's shaders and pipelines in one folder of that name. The
+game's pipelines' file in the account's cache, 92 MB, is then many packages' pipelines in one,
+against 10 to 21 MB for one package from cold. The version is now worked out first and the build
+made with it, and the pack fails where the packed 3DEngine.Core.dll does not carry it: a Core
+built with no version and packed at 6.2.98 failed that check, one built at 6.2.99 and packed so
+passed. Nothing else compares the version, by a search for InformationalVersion and
+UserCache.Version over the engine, the client and the tests: the debug overlay shows it and the
+cache command says it, and 3DEngine/Cli and 3DEngine.Cli carry none, so a client built at
+0.1.0-preview.1 drives a game on another package as before, and there is no comparison for a test
+of one. With a folder a package, the cache's open now deletes the pipelines' folders of other
+versions whose newest file no run wrote for SweptAfter, 14 days, and those holding none, never
+the running version's; the shaders' sweep, which took every version's entries one by one, now
+also leaves no emptied version folder. A test of the folders by hand, and one of a device opened
+over another version's file from long ago, which fails with the sweep left out of the open.
+
+Item 253, the line of a pipeline made. Each pipeline the device makes is now said with what the
+driver's creation feedback says of it, compiled, from the cache, or the driver saying not where
+from where it marks the feedback not valid, and the first eight hex digits of a SHA-256 of its
+stages' bytes, the same in every process, so the game's next plays say which pipelines miss and
+whether their bytes moved between runs. The test makes one compute pipeline twice from the one
+SPIR-V and finds both lines in that form with one hash, and the second from the cache; on the head
+the lines lack both and the test fails.
 
 ## Items closed, parked or shortened
 

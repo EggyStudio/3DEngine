@@ -84,6 +84,9 @@ internal sealed class PipelineCache : IDisposable
     /// <summary>How many pipelines worker threads are making.</summary>
     public int Making => _making.Count;
 
+    /// <summary>How many pipelines asked of worker threads are not made yet, those queued and not begun among them.</summary>
+    public int StillMaking => _making.Values.Count(making => !making.IsCompleted);
+
     /// <summary>
     /// Waits for every pipeline worker threads are making and keeps each, so the shaders and
     /// layouts they are made from may be let go after.

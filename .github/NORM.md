@@ -409,15 +409,20 @@ held until the program has ended, so a launcher that returns while its program k
 `e3d open` does, is wrapped together with the script that stops the program. A build under the lock
 runs with MSBuild's node reuse off, MSBUILDDISABLENODEREUSE=1, since its nodes outlive the build by
 a quarter of an hour and keep the lock's descriptor, as 14 of them held it for 14 minutes on
-2026-11-10. A look at `nvidia-smi` is no turn, since another session's program can start a second
-after it, and three readings were spoiled so within an hour on 2026-11-09. A program served for a
-reading is stopped as soon as its pictures and numbers are taken, and the files are read with it
-stopped. A script stopped under the lock ends its programs too, since a program left running keeps
-the lock it inherited, as a served example held it for 70 minutes after its trial was stopped on
-2026-11-10 with its own session's suite waiting behind it; after stopping one, `lslocks` is read,
-and a run that has not started within a few minutes is looked into and not waited on. A session
-whose wait grows long tells the reviewing session in a line, which gives the order, an engine's
-illumination read first. By review.
+2026-11-10, and with the compiler's server off, -p:UseSharedCompilation=false, since Roslyn's server
+outlives a build the same way and held the lock before a waiting timing on 2026-11-11. A look at
+`nvidia-smi` is no turn, since another session's program can start a second after it, and three
+readings were spoiled so within an hour on 2026-11-09. A program served for a reading is stopped as
+soon as its pictures and numbers are taken, and the files are read with it stopped. A script stopped
+under the lock ends its programs too, since a program left running keeps the lock it inherited, as a
+served example held it for 70 minutes after its trial was stopped on 2026-11-10 with its own
+session's suite waiting behind it; after stopping one, `lslocks` is read, and a run that has not
+started within a few minutes is looked into and not waited on. The lock gives a waiting timing no
+place before a suite that asks after it, so a session reads `lslocks` before it takes the shared
+lock and waits where an exclusive one stands, held or waiting, and a script of several runs takes
+the lock a run at a time, since a timing waited 35 minutes on 2026-11-11 while a second shared
+holder joined the first. A session whose wait grows long tells the reviewing session in a line,
+which gives the order, an engine's illumination read first. By review.
 
 **N 7.10 A session leaves the machine its memory.** The machine's memory ran out three times, the
 last on 2026-11-10, when one line of Python read a session's transcript of 4 GB whole and grew to 27

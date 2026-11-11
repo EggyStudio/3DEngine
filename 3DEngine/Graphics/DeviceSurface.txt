@@ -97,6 +97,7 @@ sealed class Engine.GraphicsDevice : IDisposable, IGraphicsDevice
   internal int CountedRecords { get; }
   internal int FrameInFlight { get; }
   internal int MemoryBlockCount { get; }
+  internal int PipelinesInFlight { get; }
   internal int ReadbackStagingCount { get; }
   internal int WindowDepthGeneration { get; }
   internal static VkDescriptorSet SetHandle(IDescriptorSet set)

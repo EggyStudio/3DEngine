@@ -369,6 +369,7 @@ internal sealed unsafe partial class GraphicsDevice
 
         VkPipeline pipeline;
         var making = Stopwatch.GetTimestamp();
+        Interlocked.Increment(ref _pipelinesInFlight);
         _pipelineCacheUse.EnterReadLock();
         try
         {
@@ -378,6 +379,7 @@ internal sealed unsafe partial class GraphicsDevice
         finally
         {
             _pipelineCacheUse.ExitReadLock();
+            Interlocked.Decrement(ref _pipelinesInFlight);
         }
         var vertexBytes = desc.VertexShader.Description.Bytecode.Span;
         var fragmentBytes = fs is null ? [] : desc.FragmentShader!.Description.Bytecode.Span;

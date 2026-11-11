@@ -45,6 +45,7 @@ Any program built on the engine takes the same flags (`--serve`, `--headless`, `
 |---|---|
 | `app.quit` | closes the app, as its close button does (`./e3d stop` does this and waits) |
 | `frames.wait <n>` | answers once n more frames have run |
+| `pipelines.wait [<seconds>]` | answers once no pipeline is being made, none asked of the workers and not yet made and none in the driver, or once the seconds given have passed, 60 unless given, saying which, so a script reads a pixel after the pipelines a first sight asks for |
 | `field.wait [<frames>]` | answers once the scene's distance field is built and its light has run 60 frames on it, or once the frames given have run without it, 1,800 unless given, saying which, and at once where no field is drawn, so a picture of a scene whose field builds over frames, as Sponza's does, is taken after it (`build/capture-example.sh` waits so) |
 | `shot <path>` | writes the frame being drawn to a PNG and answers once it is written, with the frame's number (`./e3d shot <path>`) |
 | `frame.read [<x> <y> <w> <h>]` | reads a rectangle of the next frame drawn, in window pixels from the top left, or the whole frame, and answers its mean sRGB color, the largest step between neighboring pixels along its middle row and column with the pixel it starts at, and the frame's number, as `mean 81 137 218 step 0 at 0 0 frame 94` |

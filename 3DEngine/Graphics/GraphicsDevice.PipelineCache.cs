@@ -280,10 +280,17 @@ internal sealed unsafe partial class GraphicsDevice
         return [.. named];
     }
 
+    // The pipelines the driver is making on any thread at this moment.
+    private int _pipelinesInFlight;
+
+    /// <summary>How many pipelines the driver is making at this moment, on any thread, which pipelines.wait waits for.</summary>
+    internal int PipelinesInFlight => Volatile.Read(ref _pipelinesInFlight);
+
     // A compute pipeline the driver makes through the cache from the SPIR-V given, counted.
     internal VkPipeline CreateComputePipeline(VkComputePipelineCreateInfo* info, ReadOnlySpan<byte> spirv)
     {
         var making = Stopwatch.GetTimestamp();
+        Interlocked.Increment(ref _pipelinesInFlight);
         VkPipeline pipeline;
         VkPipelineCreationFeedback feedback = default;
         var feedbackInfo = new VkPipelineCreationFeedbackCreateInfo { pNext = info->pNext, pPipelineCreationFeedback = &feedback };
@@ -299,6 +306,7 @@ internal sealed unsafe partial class GraphicsDevice
         {
             _pipelineCacheUse.ExitReadLock();
             info->pNext = given;
+            Interlocked.Decrement(ref _pipelinesInFlight);
         }
         Made(making, ShaderNames.Of(spirv), feedback.flags, StagesHash(spirv, []));
         return pipeline;

@@ -98,7 +98,9 @@ meshes are in it, how many triangles the frame's builds splatted and left waitin
 raised where the frame has room, and the frames and the triangles the field took to hold its last
 change, from a block broken to the field holding it, or what it still waits for,
 `field.wait` answers once it is built and its light has run 60 frames on it, as a picture of the
-scene waits before it is taken, and
+scene waits before it is taken, `pipelines.wait` answers once no pipeline is being made, on the
+workers or in the driver, so a check that reads a pixel after the first sight of a material reads
+it after its pipelines, and
 `field.rebuild 400` builds a cascade every frame for four hundred frames,
 so `profile` gives what a build costs, and `field.march 17 1 1 -0.86 0.51 0 sun` marches the field
 from a point along a way as global illumination's passes march it, answering where it met a surface,
