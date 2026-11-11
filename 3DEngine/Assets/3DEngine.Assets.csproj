@@ -14,8 +14,8 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="StbImageSharp" Version="2.30.15" />
-        <PackageReference Include="AssimpNetter" Version="6.0.4" />
+        <PackageReference Include="StbImageSharp" Version="2.30.16" />
+        <PackageReference Include="AssimpNetter" Version="6.0.5" />
     </ItemGroup>
 
 </Project>

@@ -15,7 +15,7 @@ with their licenses, so a game shipped on the engine can say what it carries.
 | AssimpNetter | Models read from files | MIT | https://github.com/Saalvage/AssimpNetter |
 | Assimp, inside AssimpNetter | The same, natively | BSD 3-Clause | https://github.com/assimp/assimp |
 | BepuPhysics and BepuUtilities | Rigid bodies, characters and vehicles | Apache 2.0 | https://github.com/bepu/bepuphysics2 |
-| StbImageSharp | Images read from files | Public domain or MIT | https://github.com/StbSharp/StbImageSharp |
+| StbImageSharp | Images read from files | The Unlicense or MIT | https://github.com/StbSharp/StbImageSharp |
 | NVorbis | Ogg Vorbis sound read from files | MIT | https://github.com/NVorbis/NVorbis |
 | NLayer | MP3 sound read from files | MIT | https://github.com/naudio/NLayer |
 | Microsoft.CodeAnalysis.CSharp | Behavior scripts compiled while a game runs | MIT | https://github.com/dotnet/roslyn |

@@ -667,3 +667,11 @@ none. The test holds a worker's compile in the driver, asks the wait, finds it u
 frames drawn while held, and answered in the frame after the compile ends; with the driver's count
 left out of the wait, it answered in the first frame and the test fails. E3D.md's table and the
 command line guide list it.
+
+Item 6, the bumps, on the owner's word in this session at about 16:45 on 2026-11-11. Vortice.Vulkan
+3.2.1 to 3.3.0 in Graphics, Gui, Rendering and GlobalIllumination, AssimpNetter 6.0.4 to 6.0.5 in
+Assets, StbImageSharp 2.30.15 to 2.30.16 in the engine's project, Assets and Rendering; SDL3-CS and
+NVorbis as they were. The strict build has no warning. Vortice.Vulkan's license stays MIT and
+AssimpNetter's license file is the same byte for byte; StbImageSharp 2.30.16 declares Unlicense OR
+MIT where 2.30.15 declared none, so the notices name it so where they said public domain or MIT.
+The suite 2,343 on both legs.

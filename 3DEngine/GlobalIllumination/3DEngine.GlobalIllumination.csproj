@@ -16,7 +16,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="Vortice.Vulkan" Version="3.2.1" />
+        <PackageReference Include="Vortice.Vulkan" Version="3.3.0" />
     </ItemGroup>
 
 </Project>
