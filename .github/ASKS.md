@@ -1576,3 +1576,63 @@ while. The game keeps the default budget meanwhile.
 
 The pictures are in the game's `.github/dump/2026-11-10` under `item-166-levers`,
 `item-166-respawn-leaf`, `item-166-respawn-views` and `item-166-cuts`.
+
+### 2026-11-11, the voxel game in `Voxel-Sandbox`, the scene field placed by `SetSceneFieldCenter` each frame lights a closed room wrong, where `SetSceneFieldAhead` at the same point lights it as 6.2.17 did
+
+Read on the 3DEngine 6.2.32 package at the game's pin of it, Debug, through the game's scripted run
+`build/play.sh` with the validation layer, offscreen at 1280 by 720 in a flat world, on the RTX 4070
+Laptop GPU with driver 615.78.08 on tuned's power-saving profile. Before the pin the game laid the
+scene field half its finest cascade ahead of the eye by calling
+`SetSceneFieldCenter(camera.Position + GetCameraForward(camera) * (64 * CellSize / 2))` before
+`BeginDrawing` each frame, eight blocks at cells of 0.25. The run was taken with that and with
+`SetSceneFieldAhead(0.5f)` in its place, called once with the field's other settings, which the
+engine works out as the same point.
+
+The run closes a stone room 12 blocks across with one glowstone at 16, 5, -16, stands the player at
+its south wall at night facing the lamp and waits 30 frames. It then closes a room of white concrete
+with a lantern at 54, 5, -20, stands the player over it looking down at 40 degrees, waits 32 frames
+and reads the light at 33 points along a line across the floor from the lantern (`voxel.line`). With
+the center set each frame the lantern's pool read from 133.2 to 91.1 levels with a largest step of
+34.5, 0.82 of the fall, in 3 runs of 3, the same to the tenth each time, and the run failed there.
+With `SetSceneFieldAhead(0.5f)` it read from 249.2 to 90.6 or 90.7 with a largest step of 8.3 or
+8.4 in 4 runs of 4, as 6.2.17 reads with the center set each frame. The glowstone room's capture
+with the center set each frame shows the floor dark in a ring about the lamp and the walls lit a
+bright yellow, 73 percent of the window past 24 levels from the capture with the engine's option,
+which looks as 6.2.17's does.
+
+`SceneField` takes both points down the same call, `plan.Update(settings?.Center ?? AheadOf(...))`,
+so the difference lies in the call made each frame or in the point it gives, which these runs do not
+tell apart. The game calls `SetSceneFieldAhead` from its pin of 6.2.32 on, and a program that sets
+the center each frame, as the function's remarks advise for a view about its player, still meets it.
+
+The engine lacks a field that lights a view alike whether its center is given each frame by
+`SetSceneFieldCenter` or worked out by `SetSceneFieldAhead`.
+
+The pictures are in the game's `.github/dump/2026-11-11` under `item-167-room`.
+
+### 2026-11-11, the voxel game in `Voxel-Sandbox`, a reflection whose terrain pipeline the driver makes in a frame of play shows no mirror 32 frames on
+
+Read on the 3DEngine 6.2.32 package with the game's item 167, as the entry above. The run fills a
+pool of water beside a wall of red concrete at noon, stands the player looking across it, waits 30
+frames, reads a pixel, waits 2 and reads the water where the wall's mirror image lies
+(`voxel.pixel`), then again with the game's Water Reflections off. In 2 runs of 3 the water read
+red 163, green 181, blue 210 with the reflection on and off alike, the sky's color and no wall, and
+the run failed there. The game's log at each failure ended with `made 1 pipelines in 1649 ms,
+terrain.slang's vertexMain with terrain.slang's fragmentMain`, 1665 ms in the other run, a
+model.slang pipeline made in 437 and 441 ms a second before. In the third run no frame after
+the first made a pipeline and the water read red 171, green 148, blue 167, the wall's red, as on
+6.2.17.
+
+Those runs found the user's caches as the game's runs on 6.2.17 had left them. Every package keeps
+them under the one folder `0.1.0-preview.1` (`UserCache.Version`), since 6.2.32's informational
+version reads `0.1.0-preview.1+02c3a743`, so `pipelines/0.1.0-preview.1/VoxelSandbox.bin` held the
+pipelines of 6.2.17's shaders and not those of 6.2.32's terrain and model passes. The third run
+came after a run on 6.2.32 had written them. With `XDG_CACHE_HOME` naming an empty folder, the open
+took 84 s on 6.2.32 and 91 s on 6.2.17, no frame after it made a pipeline, and the whole run passed
+on both, the water reading red 171. So the mirror is missing where a pipeline it needs is made in a
+frame of play, as a player meets after a game moves to a new package with its pipelines kept from
+the last.
+
+The engine lacks a reflection that shows in the frames after the one that waited on its pipeline,
+or the pipelines of a new package's passes made at the open where the kept ones are those of
+another.

@@ -66,6 +66,16 @@ while (!WindowShouldClose())
         (OreCommands.Warp, screen) = (null, screen == Screen.Title ? Screen.Play : screen);
     }
     var playing = screen == Screen.Play;
+    if (playing && OreCommands.Walking.Frames > 0)
+    {
+        // A step the way the player faces, set on the column's top rather than walked, so the
+        // eye's path is the same in each run whatever the frame's time.
+        var at = GetPhysicsBodyPosition(player) + new Vector3(-MathF.Sin(yaw), 0, -MathF.Cos(yaw)) * OreCommands.Walking.Step;
+        var top = Land.Top(heights, (int)MathF.Floor(at.X), (int)MathF.Floor(at.Z));
+        SetPhysicsBodyPosition(player, new Vector3(at.X, top.Y + Height / 2, at.Z));
+        SetPhysicsBodyVelocity(player, Vector3.Zero);
+        OreCommands.Walking.Frames--;
+    }
     SetPhysicsPaused(!playing);
     if (playing && !IsCursorHidden()) DisableCursor();
     if (!playing && IsCursorHidden()) EnableCursor();
@@ -82,6 +92,11 @@ while (!WindowShouldClose())
             move += new Vector2(GetGamepadAxisMovement(0, GamepadAxis.LeftX), GetGamepadAxisMovement(0, GamepadAxis.LeftY));
         }
         yaw -= look.X;
+        if (OreCommands.Turning.Frames > 0)
+        {
+            yaw -= OreCommands.Turning.Radians;
+            OreCommands.Turning.Frames--;
+        }
         pitch = Math.Clamp(pitch - look.Y, -1.4f, 1.4f);
         if (IsKeyDown(Key.W)) move.Y -= 1;
         if (IsKeyDown(Key.S)) move.Y += 1;
@@ -123,7 +138,10 @@ while (!WindowShouldClose())
     var eye = feet + new Vector3(0, Height - 0.15f, 0);
     var camera = new Camera3D(eye, eye + new Vector3(MathF.Cos(pitch) * forward.X, MathF.Sin(pitch), MathF.Cos(pitch) * forward.Z), Vector3.UnitY, 70);
     OreCommands.Status = $"{screen} at {feet.X:0.00} {feet.Y:0.00} {feet.Z:0.00} {(IsPhysicsCharacterGrounded(player) ? "grounded" : "in the air")} " +
-                         $"jumps {jumps} rise {rise:0.00} light {quality} {(shownNight ? "night" : "day")}";
+                         $"jumps {jumps} rise {rise:0.00} light {quality} {(shownNight ? "night" : "day")} " +
+                         // Written in the invariant culture, so the commas only part x, y and z.
+                         string.Create(System.Globalization.CultureInfo.InvariantCulture,
+                             $"eye {eye.X:0.000},{eye.Y:0.000},{eye.Z:0.000} target {camera.Target.X:0.000},{camera.Target.Y:0.000},{camera.Target.Z:0.000}");
 
     BeginDrawing();
     ClearBackground(shownNight ? new Color(8, 10, 20) : new Color(150, 195, 240));

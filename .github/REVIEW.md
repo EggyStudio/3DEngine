@@ -51,11 +51,12 @@ intel-sponza.pack since 17:58 on 2026-11-09, so ./e3d scenes fetch works. nuget.
 package bumps wait on the owner's word since October. Every push and run before `c23cd2d4` since
 2026-10-23 stands in REVIEW-ARCHIVE.md under Head records.
 
-Next 250's cuts, the screen probes' glow lights first, the illumination's cost in the game read by
-pass and cut, its read by pass done in the Ore example; 6 waits on the owner's word. The game is on
-6.2.17 and pins 6.2.32, the package of `02c3a743`, with 251's lift and its own 167. No budget by
-Decision 94; the door at 8:00 the one target by Decision 95; a fault seen in motion is read in
-motion by Decision 107.
+Next 252, the field's center set each frame, a fault in the published 6.2.32 found by the game's
+pin, then 253, the reflection whose pipeline is made late, then 250's cuts, the screen probes' glow
+lights first, the illumination's cost in the game read by pass and cut, its read by pass done in the
+Ore example; 6 waits on the owner's word. The game is on 6.2.17 and pins 6.2.32, the package of
+`02c3a743`, with 251's lift and its own 167. No budget by Decision 94; the door at 8:00 the one
+target by Decision 95; a fault seen in motion is read in motion by Decision 107.
 
 REVIEW-ARCHIVE.md beside this file holds, their numbers kept, the items done, the items closed or
 parked, the verdicts settled, Decisions 1 to 93, the Replies before those here and the head records,
@@ -151,7 +152,47 @@ reverted as the screen probes' limit at shapes about a tile wide, its patches in
     1.6, the lit scene's 1.4 and the two coarser cascades' 1.3 together, each pass with how many
     probes and rays it traces a frame against how many it holds and which parts are spread over
     frames; a cut that spreads work over frames is read by Ore's turn of fixed steps and by the
-    rooms.
+    rooms. The second cut is `b7f176d9`, committed at 00:51 on 2026-11-11 and held until
+    `cfcfda02`'s run ends, a probe's ray's hit taking each face of a light past eight half diagonals
+    as one point, the suite 2,333 on both legs. By pass, Ore's four cascades each trace all 512
+    probes by 256 rays a frame, none spread, at 1.59, 0.91, 0.36 and 0.23 ms from the finest, and
+    the screen's probes all 14,400 by 16 rays with the glow's marches. Next the three coarser
+    cascades spread over frames as the far cascade's quarters are, by halves first. A turn does not
+    move the world's probes, so the spread is read against the unspread run at the same frame by a
+    walk of fixed steps long enough for each spread cascade to move a cell several times, by a cut
+    with 251's lift and by a light's change, with the rooms; a lag past the floor between two runs
+    is a cost recorded and no pass. Ore's turn, its walk and the eye in its status land as a commit
+    of their own before the trial.
+
+252. **The field's center set each frame breaks the field on 6.2.32.** From the game's pin of 6.2.32
+    on 2026-11-11. With SetSceneFieldCenter called each frame, as its document tells a program whose
+    view is about a point to do, the game's play fails its lantern's pool three runs of three with
+    one reading, from 133.2 to 91.1 with a step of 34.5 where 6.2.17 reads from 249.2 to 90.7, and
+    the glowstone room before it shows a dark ring on the floor around the lamp with the walls lit
+    too bright, the game's sheet 01-27-item-167-room in its dump of 2026-11-11. With
+    SetSceneFieldAhead(0.5f) in its place, the same point worked out by the engine and set once, the
+    lantern passes three of three and the room matches 6.2.17. Both ways reach the plan by one line
+    of SceneField.cs, so what differs is the point the game gives or the setting written each frame,
+    and the commits between the two packages that touch the field are 244's option, 239's builds at
+    the raised budget and 251's lift, its changed budget and its pending meshes. One read first, a
+    room of the engine's own with a glow light, the center set each frame to the point the option
+    gives and then to a point a hair off it, on `f68075f1` and on the head, to say whether the write
+    or the point breaks it and in which commit; then the mend with a test that a center set each
+    frame leaves the field's builds and the room's light as a center set once does. A fault in a
+    published package's documented call, so it comes before 250's spread.
+
+253. **A reflection whose pipeline is made late shows no mirror for 32 frames or more.** From the
+    game's pin of 6.2.32 on 2026-11-11. The game's check of its water's mirror failed two runs of
+    three on 6.2.32, each time with terrain.slang's pipeline made in the middle of a frame in about
+    1.65 s during that step, and only while the shaders' cache was warm and the package's pipeline
+    file not yet written; with the file written it passes, and with an empty cache both 6.2.17 and
+    6.2.32 pass, every pipeline made at the open. So a frame waits for the pipeline and the
+    reflection it was made for is still missing 32 frames on, the state a player meets on the first
+    run after a package's update. One read, a reflecting plane in an example with the pipelines'
+    file removed and the shaders' cache kept, the frames from the reflection's first use to its
+    first picture and what holds it back, the pipeline's arrival, the reflection's history or a wait
+    of 238's; then the mend, the reflection drawn in the frame after its pipeline is made, with a
+    test. After 252.
 
 ## Verdicts
 
@@ -438,3 +479,10 @@ count. The coarser cascades, 1 to 3 at 1.5 ms together, trace whole every frame 
 light changes slowest; the far cascade's quarters a frame are the way already in the engine to
 spread them. That cut changes what moves, so it waits on ore.turn and is read by the turn and the
 rooms.
+
+Item 250, the reads' commands. Ore takes ore.turn, a turn by degrees a frame for a count of
+frames, and ore.walk, a step the way the player faces a frame for a count of frames, each column's
+top stood on rather than walked, and ore.status gives the eye and the point it looks at in the
+invariant culture. Two runs at a fixed frame time read alike to the thousandth: a degree a frame
+for 90 frames turned the view from facing -z to +x, and 0.1 a frame for 120 frames went from 24.50
+to 36.73, the 0.23 past twelve the step down the columns from 9 to 5, alike in each run.
