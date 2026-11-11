@@ -1,33 +1,36 @@
 # Review
 
 Reviewed up to `afd5640f`, 250's faint lights, a glow light giving a ray's hit under a 32nd of the
-largest before it taken as one point, pushed at 13:19 on 2026-11-11 with a run on it; the suite
-passed both legs on it, 2,340; it keeps the form and carries the review's files. Before it
-`765ca949`, 250's spread, the coarser cascades tracing half their probes a frame once the lights and
-the field have kept still, pushed at 11:03 on 2026-11-11, green at 13:09 with macOS in 55 minutes,
-the Linux legs in 44 each and the Windows halves in 127 and 100. Before it `894542da`, Verdict 114's
-mend, the test of a pipeline's line asking its form and its one hash on every device and no hit of
-the driver's, pushed at 09:16 on 2026-11-11, its run green at 11:01 with macOS in 49 minutes, which
-settled Verdict 114, the Linux legs in 83 and 78 and the Windows halves in 67 and 104, its pack run
-with publish, 42985743208, red in its games job at 11:57 by Manor's storm finding no session,
-Verdict 115, its suites and captures green, its first Windows half green in 184 minutes, the run
-ended at 12:21, its games job green on a second attempt in 87 minutes and its pack job green at
-13:54 with the version's check, 6.2.41 published and tagged `v6.2.41`, the first package whose
-assemblies carry its version, its fifteen ids not yet listed on nuget.org at 14:07; the cache's
-tests pass on the GPU and on lavapipe here; it keeps the form. Before it `f91440e5`, the test of the
-log line asking the cache's hit only of a device whose cache keeps pipelines, pushed at 08:21 on
-2026-11-11 with `803dfdb5`, each package built at its own version with other versions' cache folders
-swept, and `e4a14ec5`, each pipeline made said in the log with the driver's word on the cache and a
-hash of its stages, the run on the last and the pack run with publish, 42978968240, both red on
-macOS at 09:02 by the log line's test, Verdict 114, the pack run canceled at 09:16 since it could no
-longer publish and the push run ended by the next push; the suite passed both legs on each, 2,337;
-they keep the form and carry the review's files. Before them `80bc4b05`, 253's write of the
-pipelines on a worker, the frames going on while it waits and reads, pushed at 05:42 on 2026-11-11,
-green at 07:40 with macOS in 47 minutes, the Linux legs in 45 and 46 and the Windows halves in 117
-and 112; Before it `21122dcd`, 253's first half, pipelines made on several threads sharing the
-driver's cache and the write alone holding it, pushed at 03:49 on 2026-11-11, green at 05:41 with
-macOS in 50 minutes, the Linux legs in 78 each and the Windows halves in 112 each. Before it
-`56d77a29`, Ore's turn and walk by fixed steps and its eye in its status, pushed at 01:45 on
+largest before it taken as one point, pushed at 13:19 on 2026-11-11, its run red at 15:27 in the
+second Windows half alone, the hall's new test hanging on that system's device, Verdict 116, macOS,
+the Linux legs and the first Windows half green; `d6a009d1`, Verdict 115's mend, stands committed
+behind it and goes up with Verdict 116's. Before it `765ca949`, 250's spread, the coarser cascades
+tracing half their probes a frame once the lights and the field have kept still, pushed at 11:03 on
+2026-11-11, green at 13:09 with macOS in 55 minutes, the Linux legs in 44 each and the Windows
+halves in 127 and 100. Before it `894542da`, Verdict 114's mend, the test of a pipeline's line
+asking its form and its one hash on every device and no hit of the driver's, pushed at 09:16 on
+2026-11-11, its run green at 11:01 with macOS in 49 minutes, which settled Verdict 114, the Linux
+legs in 83 and 78 and the Windows halves in 67 and 104, its pack run with publish, 42985743208, red
+in its games job at 11:57 by Manor's storm finding no session, Verdict 115, its suites and captures
+green, its first Windows half green in 184 minutes, the run ended at 12:21, its games job green on a
+second attempt in 87 minutes and its pack job green at 13:54 with the version's check, 6.2.41
+published and tagged `v6.2.41`, the first package whose assemblies carry its version, the packed
+3DEngine.Core.dll reading 6.2.41 with the commit and no older version, its fifteen ids listed on
+nuget.org at 14:36, 42 minutes after their push, the game told a quarter of an hour after; the
+cache's tests pass on the GPU and on lavapipe here; it keeps the form. Before it `f91440e5`, the
+test of the log line asking the cache's hit only of a device whose cache keeps pipelines, pushed at
+08:21 on 2026-11-11 with `803dfdb5`, each package built at its own version with other versions'
+cache folders swept, and `e4a14ec5`, each pipeline made said in the log with the driver's word on
+the cache and a hash of its stages, the run on the last and the pack run with publish, 42978968240,
+both red on macOS at 09:02 by the log line's test, Verdict 114, the pack run canceled at 09:16 since
+it could no longer publish and the push run ended by the next push; the suite passed both legs on
+each, 2,337; they keep the form and carry the review's files. Before them `80bc4b05`, 253's write of
+the pipelines on a worker, the frames going on while it waits and reads, pushed at 05:42 on
+2026-11-11, green at 07:40 with macOS in 47 minutes, the Linux legs in 45 and 46 and the Windows
+halves in 117 and 112; Before it `21122dcd`, 253's first half, pipelines made on several threads
+sharing the driver's cache and the write alone holding it, pushed at 03:49 on 2026-11-11, green at
+05:41 with macOS in 50 minutes, the Linux legs in 78 each and the Windows halves in 112 each. Before
+it `56d77a29`, Ore's turn and walk by fixed steps and its eye in its status, pushed at 01:45 on
 2026-11-11 with `b7f176d9`, 250's second cut, a probe's ray's hit taking each face of a far glow
 light as one point, the run on the last green at 03:45 with macOS in 50 minutes, the Linux legs in
 59 each and the Windows halves in 92 and 119. Before them `cfcfda02`, 250's first cut, a screen
@@ -81,8 +84,8 @@ settled Verdict 111. The release scene-packs holds intel-sponza.pack since 17:58
 `v6.2.0` at `1c3c38d5`. Item 6's three package bumps wait on the owner's word since October. Every
 push and run before `c23cd2d4` since 2026-10-23 stands in REVIEW-ARCHIVE.md under Head records.
 
-Next Verdict 115, the look that found no session, in work, before any further cut; the game's
-package is 6.2.41 of `894542da`, told to the game a quarter of an hour after it lists. Then 250's
+Next Verdict 116, the hall's test bounded for a device without a GPU, pushed with Verdict 115's
+mend, before any further cut; the game is on 6.2.41 of `894542da` since its `068fd5f`. Then 250's
 further cuts, the three coarser cascades spread over frames first, 253 done in code and read by the
 game on the package of `f91440e5`; the screen probes' glow lights first, the illumination's cost in
 the game read by pass and cut, its read by pass done in the Ore example; 6 waits on the owner's
@@ -142,23 +145,35 @@ reverted as the screen probes' limit at shapes about a tile wide, its patches in
     under Items closed, parked or shortened. Next Verdict 115, then the read of what is left before
     another cut.
 
-253. **A reflection whose pipeline is made late shows no mirror for 32 frames or more.** From the
-    game's pin of 6.2.32 on 2026-11-11, done in code. `21122dcd`, pipelines made on several threads
-    sharing the driver's cache, the one lock of `8da28e48` having run the compiles one after
-    another; `80bc4b05`, the pipelines' file written on a worker; `803dfdb5`, each package built at
-    its own version, every package before it having carried 0.1.0-preview.1 and so shared one folder
-    of caches, with other versions' folders swept; `e4a14ec5` with `f91440e5` and `894542da`, each
-    pipeline made said in the log with the driver's word on the cache and a hash of its stages.
-    Open, the game reading its water's mirror on the package of `894542da`, from a cold cache and a
-    warm one, three plays each with the session's log kept at the pool; and a trial at the size of
-    the account's 94 MB file, which waits on the owner's word in the coder's session. The item as it
-    stood on 2026-11-11 at 13:08 stands in REVIEW-ARCHIVE.md under Items closed, parked or
-    shortened.
+254. **A command that returns once no pipeline is being made.** From the game's reads on 6.2.41 on
+    2026-11-11. A scripted check that reads a pixel a set count of frames after a first sight races
+    the pipelines that sight asks for, as the game's check of its water's mirror did on 6.2.32 and
+    under the validation layer, where each pipeline of a large shader takes over a second. e3d waits
+    for frames and for the field and has no wait for the pipelines. One command, pipelines.wait as
+    the sibling names its own, that answers once the device has no pipeline asked for and not yet
+    made, the workers' among them, with a bound in seconds and a test that it holds while a worker's
+    compile is held and returns when it ends; the guide's list of commands gains it. Small, after
+    Verdict 116.
+
+255. **A program's first run stands most of a minute at its fifth frame, its pipelines compiled one
+    after another.** From the game's item 171 on 2026-11-11, read at 15:48. With the validation
+    layer off and from a warm cache the game makes no pipeline over 100 ms after its first frame,
+    314 ms; from an empty cache folder, which empties the driver's own cache under it too, its fifth
+    frame makes 22 pipelines in 49.0 s of the driver's time, one after another, terrain.slang's
+    depth pipelines in 14.9 and 12.1 s and mob.slang's in 19.1 s, and at the pool four terrain.slang
+    pipelines compile in 15.5 to 15.7 s each, where the engine's trial with the driver's cache warm
+    read 94 ms. So the layer explains the warm seconds and not the cold ones, and a player's first
+    run, and each after a driver's update, has them. One read first, the trial of terrain.slang
+    without the layer from an empty cache folder, to confirm the driver's first compile is the cost.
+    Then the first frame's pipelines made at once on the workers with the frame waiting for them
+    together, 49 s against the longest one's 19; and a read of the fragment's 1.3 MB of SPIR-V by
+    function, the engine's shared lighting inlined into a program's own shader, to say what costs
+    the driver a quarter minute before any cut. After Verdict 116 and 254.
 
 ## Verdicts
 
-Verdicts 56 to 114 are settled, said under each in REVIEW-ARCHIVE.md; Verdict 115 is open on the
-pack run of `894542da`.
+Verdicts 56 to 114 are settled, said under each in REVIEW-ARCHIVE.md; Verdict 115 is open, mended
+and waiting on its push run, and Verdict 116 on the push run of `afd5640f`.
 
 115. **The pack run of `894542da` is red in its games job, e3d finding no session for a game that
     serves, its session's file written after the look.** In the pack run with publish 42985743208,
@@ -197,7 +212,31 @@ pack run of `894542da`.
     the account's label made true; and with it each look keeps what it itself saw, the error
     carrying the first failed look's own record, each file whether read, parsed and its process
     found, with any exception's text, and a read or a process's check that throws is said and not
-    turned into a file passed over, so a next time names itself.
+    turned into a file passed over, so a next time names itself. Mended at `d6a009d1`, committed at
+    14:14 on 2026-11-11 and held at 14:14 until `afd5640f`'s run ends. A look goes through
+    CliSessionFile.Serving, five looks over a second named or not, each keeping for every file
+    whether it was read, with the exception's words, its pid and whether its process runs or why
+    not; the error carries the first look's record before the folder read again, whose label reads
+    found when the folder was read again after the looks; the read and the process's check hand out
+    the words they swallowed. Two tests, an unnamed first look that misses a file written after it
+    finding it at the second, and a look's record saying a read that threw. The suite 2,342 on both
+    legs. The games job passed on its second attempt and 6.2.41 was published at 13:54. Settles on
+    its push run, the cause unseen.
+
+116. **The push run of `afd5640f` is red in the second Windows half, the hall's new test too slow
+    for that system's device.** In run 43019338182 the second Windows half failed after 122 minutes,
+    1,964 passed and 9 without a result, its third part of the rendering tests lost to a test that
+    hung after 59 minutes 50 seconds; macOS, both Linux legs and the first Windows half are green.
+    The test is BounceRoomsTests' hall of 49 lamps, the faint lights taken as one point read within
+    a level of their own forms, which `afd5640f` added. Its case at Low ended in 8 minutes 26
+    seconds there, the slowest test of the part, and its case at High had drawn its first frame in
+    4.3 s when the host was ended for hanging, that system drawing on its CPU. So the hall is too
+    heavy for a device without a GPU, two settled readings of 49 lamps at two qualities, and the
+    run's limit for a test that says nothing took it. The mend is the test bounded for such a
+    device, a hall of fewer lamps that still leaves a tail under a 32nd of the largest, or fewer
+    frames to settle, held to a minute or two on lavapipe here, where the same weight shows; it is
+    not skipped there, the cut's sum being what it guards. It goes up with `d6a009d1`, one run for
+    both. Written at 15:31 on 2026-11-11.
 
 ## Decisions
 
@@ -488,57 +527,6 @@ invariant culture. Two runs at a fixed frame time read alike to the thousandth: 
 for 90 frames turned the view from facing -z to +x, and 0.1 a frame for 120 frames went from 24.50
 to 36.73, the 0.23 past twelve the step down the columns from 9 to 5, alike in each run.
 
-Item 253, the lock. Since 8da28e48 every pipeline made through the driver's cache waited for the
-one lock, so a compile on the frame's thread and a mirror's on a worker ran one after the other.
-A trial with a mirror plane, a shader of the program's own drawn in the mirror and the window from
-the frame the plane is set, and every pipeline held a second in the driver by the test's hook: on
-the head the two compiles on workers and the window's on the frame's thread began at 11, 1,011 and
-2,030 ms and the first frame took 3,040 ms; with the compiles sharing the lock they began within
-38 ms and the frame took 1,057 ms. As the specification reads, a cache made without
-VK_PIPELINE_CACHE_CREATE_EXTERNALLY_SYNCHRONIZED_BIT asks no external synchronization of
-vkCreateGraphicsPipelines, vkCreateComputePipelines or vkGetPipelineCacheData, and asks it of
-vkMergePipelineCaches' destination and of vkDestroyPipelineCache. So the compiles now share the
-lock, and the read of the cache's data for the write and the cache's release hold it alone. The
-write held alone beside the compiles is kept because it is cheap, as Verdict 113 asked, and was
-never shown needed, since that stop was never seen again. A test holds one compile in the driver
-and finds another thread's finished beside it, which on the single lock waited past 15 s;
-8da28e48's test that the write waits for a compile in flight passes as it did.
-
-Item 253, the write off the frame's thread. The frames' write once 120 frames made no pipeline
-ran on the frame's thread, the cache's data read with the cache held alone and the file written
-after, 63 to 67 ms for 39 MB in the two-run trial and a 92 MB file alone 20 to 126 ms on this
-disk. It now runs on a worker, each write after the one asked before it, and the device's release
-waits for one still going before its own. A test holds a worker's compile in the driver, draws
-240 frames, and finds them drawn with no file yet, and the file written once the compile lets the
-cache go; with the write on the frame's thread the frames stopped at the first quiet stretch's
-end until the test's 60 s gate gave way, and the test failed. PipelineCacheTests' six pass.
-
-Item 253, the version the caches are kept under. build/pack.sh built the engine with no version
-and packed it with --no-build at the package's, so the assemblies of every package carried
-Directory.Build.props' 0.1.0-preview.1, and UserCache.Version, read from the core assembly's
-informational version, put every package's shaders and pipelines in one folder of that name. The
-game's pipelines' file in the account's cache, 92 MB, is then many packages' pipelines in one,
-against 10 to 21 MB for one package from cold. The version is now worked out first and the build
-made with it, and the pack fails where the packed 3DEngine.Core.dll does not carry it: a Core
-built with no version and packed at 6.2.98 failed that check, one built at 6.2.99 and packed so
-passed. Nothing else compares the version, by a search for InformationalVersion and
-UserCache.Version over the engine, the client and the tests: the debug overlay shows it and the
-cache command says it, and 3DEngine/Cli and 3DEngine.Cli carry none, so a client built at
-0.1.0-preview.1 drives a game on another package as before, and there is no comparison for a test
-of one. With a folder a package, the cache's open now deletes the pipelines' folders of other
-versions whose newest file no run wrote for SweptAfter, 14 days, and those holding none, never
-the running version's; the shaders' sweep, which took every version's entries one by one, now
-also leaves no emptied version folder. A test of the folders by hand, and one of a device opened
-over another version's file from long ago, which fails with the sweep left out of the open.
-
-Item 253, the line of a pipeline made. Each pipeline the device makes is now said with what the
-driver's creation feedback says of it, compiled, from the cache, or the driver saying not where
-from where it marks the feedback not valid, and the first eight hex digits of a SHA-256 of its
-stages' bytes, the same in every process, so the game's next plays say which pipelines miss and
-whether their bytes moved between runs. The test makes one compute pipeline twice from the one
-SPIR-V and finds both lines in that form with one hash, and the second from the cache; on the head
-the lines lack both and the test fails.
-
 Item 250, the coarser cascades in halves. The cascades past the first, the far cascade aside, now
 trace half their probes a frame while they lie where they lay the frame before and no change of the
 lights or the field lies within the 16 frames a change takes to settle, those whose coordinates add
@@ -612,3 +600,15 @@ it said written after the look, which it does not know. Read and Running caught 
 and turned them into a file passed over and a process taken as gone, unsaid; the record says them.
 The tests find a session written after an unnamed first look at the second, which a single look
 does not, and a look's record saying a read that threw with its words.
+
+Verdict 116, read. The hall of 49 glowing blocks at 160 by 90, settled for SettleFrames and 120 more
+in two views at each quality, took the Windows runner's software device eight and a half minutes at
+Low and was ended at High. The hall is now 8 by 8 with a 5 by 5 grid of blocks 1.6 apart, one view,
+SettleFrames and 40 more: on lavapipe here 47 s at Low and 28 s at High, on the GPU 6 and 4 s. A
+hit beside one block still has blocks over five times as far, so a tail under a 32nd of the largest
+stands: the mean apart with the faint lights as one point 0.045 and 0.063 levels on lavapipe and
+0.046 and 0.063 on the GPU, and with them given nothing 0.82 and 0.81 on the GPU, which fail the
+bound of 0.6. BounceRoomsTests and the norm pass, 62 on the GPU, 25 with 11 skipped on lavapipe.
+The shipping guide says what the layer costs at a first sight, the voxel game's terrain 1.27 s
+compiled and 1.23 s from the cache with it and 0.09 s without, and that the package turns it on by
+ENGINE_VULKAN_VALIDATION=1.

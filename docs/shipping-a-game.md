@@ -55,6 +55,13 @@ exits, `~/.cache/3DEngine` on Linux, so a player's second run compiles none of t
 voxel game's first sight of its water from 26 seconds to one. Where that folder cannot be written,
 each run compiles them again.
 
+Under the validation layer, which a Debug build of the engine turns on and `ENGINE_VULKAN_VALIDATION=1`
+turns on in the package's, each pipeline of a large shader takes over a second at its first sight
+whether or not the driver finds it in its cache: the voxel game's terrain, a fragment of 1.3 MB,
+took 1.27 s compiled and 1.23 s from the cache on an RTX 4070, where without the layer it took
+0.09 s compiled and less from the cache. So a stall a player would meet is read with the layer off,
+and the layer's runs are kept for the errors it finds.
+
 ## Before shipping
 
 `./e3d open` runs the published executable as it runs an example, so a game is controlled and

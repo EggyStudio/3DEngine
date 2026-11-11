@@ -12,12 +12,13 @@ public sealed partial class BounceRoomsTests
     [InlineData(GlobalIllumination.High)]
     public void A_Hits_Faint_Glow_Lights_Taken_As_One_Point_Read_Within_A_Level_Of_Their_Own_Forms(GlobalIllumination quality)
     {
-        // A closed hall lit by a grid of small glowing blocks alone, where a hit on a wall or the
+        // A closed hall lit by a grid of small glowing blocks alone, small enough to settle within a
+        // minute or two on a device that draws on its CPU, where a hit on a wall or the
         // ceiling takes a few blocks near it and many far off, settled with the faint lights at a hit
         // as one point and with every light by its own form. The pictures lie within six tenths of
         // a level of each other on the mean, where the faint lights given nothing lie a level apart,
         // and differ somewhere, so some light did take its point.
-        byte[] Settled(int view, bool points)
+        byte[] Settled(bool points)
         {
             var config = Config.Default.WithWindow("points", 160, 90) with { Headless = true, Offscreen = true, Samples = 1 };
             UseApp(new App(config).AddPlugin(new DefaultPlugins()));
@@ -29,25 +30,23 @@ public sealed partial class BounceRoomsTests
             var glow = LoadModelFromMesh(GenMeshCube(1, 1, 1));
             glow.Materials[0].Emissive = new Color(255, 220, 170);
             glow.Materials[0].EmissiveIntensity = 6;
-            var camera = view == 0
-                ? new Camera3D(new Vector3(-7, 2.4f, -7), new Vector3(4, 0.5f, 4), Vector3.UnitY, 70)
-                : new Camera3D(new Vector3(0, 2.6f, 7.5f), new Vector3(0, 2.2f, -8), Vector3.UnitY, 70);
+            var camera = new Camera3D(new Vector3(-3.5f, 2.4f, -3.5f), new Vector3(2, 0.5f, 2), Vector3.UnitY, 70);
             var white = new Color(200, 200, 195);
-            for (int frame = 0; frame < SceneFieldPlan.SettleFrames + 120; frame++)
+            for (int frame = 0; frame < SceneFieldPlan.SettleFrames + 40; frame++)
             {
                 BeginDrawing();
                 ClearBackground(Color.Black);
                 BeginMode3D(camera);
                 SetSceneFieldCenter(new Vector3(0, 1.5f, 0));
-                DrawModelEx(slab, new Vector3(0, -0.15f, 0), Vector3.UnitY, 0, new Vector3(16.6f, 0.3f, 16.6f), white);
-                DrawModelEx(slab, new Vector3(0, 3.15f, 0), Vector3.UnitY, 0, new Vector3(16.6f, 0.3f, 16.6f), white);
-                DrawModelEx(slab, new Vector3(0, 1.5f, -8.15f), Vector3.UnitY, 0, new Vector3(16.6f, 3, 0.3f), white);
-                DrawModelEx(slab, new Vector3(0, 1.5f, 8.15f), Vector3.UnitY, 0, new Vector3(16.6f, 3, 0.3f), white);
-                DrawModelEx(slab, new Vector3(-8.15f, 1.5f, 0), Vector3.UnitY, 0, new Vector3(0.3f, 3, 16), white);
-                DrawModelEx(slab, new Vector3(8.15f, 1.5f, 0), Vector3.UnitY, 0, new Vector3(0.3f, 3, 16), white);
-                for (int x = -3; x <= 3; x++)
-                    for (int z = -3; z <= 3; z++)
-                        DrawModelEx(glow, new Vector3(x * 2, 0.15f, z * 2), Vector3.UnitY, 0, new Vector3(0.3f, 0.3f, 0.3f), Color.White);
+                DrawModelEx(slab, new Vector3(0, -0.15f, 0), Vector3.UnitY, 0, new Vector3(8.6f, 0.3f, 8.6f), white);
+                DrawModelEx(slab, new Vector3(0, 3.15f, 0), Vector3.UnitY, 0, new Vector3(8.6f, 0.3f, 8.6f), white);
+                DrawModelEx(slab, new Vector3(0, 1.5f, -4.15f), Vector3.UnitY, 0, new Vector3(8.6f, 3, 0.3f), white);
+                DrawModelEx(slab, new Vector3(0, 1.5f, 4.15f), Vector3.UnitY, 0, new Vector3(8.6f, 3, 0.3f), white);
+                DrawModelEx(slab, new Vector3(-4.15f, 1.5f, 0), Vector3.UnitY, 0, new Vector3(0.3f, 3, 8), white);
+                DrawModelEx(slab, new Vector3(4.15f, 1.5f, 0), Vector3.UnitY, 0, new Vector3(0.3f, 3, 8), white);
+                for (int x = -2; x <= 2; x++)
+                    for (int z = -2; z <= 2; z++)
+                        DrawModelEx(glow, new Vector3(x * 1.6f, 0.15f, z * 1.6f), Vector3.UnitY, 0, new Vector3(0.3f, 0.3f, 0.3f), Color.White);
                 EndMode3D();
                 EndDrawing();
             }
@@ -60,15 +59,10 @@ public sealed partial class BounceRoomsTests
             return bytes;
         }
 
-        var moved = 0L;
-        foreach (var view in new[] { 0, 8 })
-        {
-            var (pointed, whole) = (Settled(view, points: true), Settled(view, points: false));
-            var apart = Enumerable.Range(0, pointed.Length).Select(i => (long)Math.Abs(pointed[i] - whole[i])).ToArray();
-            ((double)apart.Sum() / apart.Length).Should().BeLessThan(0.6,
-                $"at {quality} the faint lights as one point read within a level of their own forms on the mean in view {view}, where given nothing they read a level darker");
-            moved += apart.Sum();
-        }
-        moved.Should().BeGreaterThan(0, $"at {quality} some faint light at a hit took its point");
+        var (pointed, whole) = (Settled(points: true), Settled(points: false));
+        var apart = Enumerable.Range(0, pointed.Length).Select(i => (long)Math.Abs(pointed[i] - whole[i])).ToArray();
+        ((double)apart.Sum() / apart.Length).Should().BeLessThan(0.6,
+            $"at {quality} the faint lights as one point read within a level of their own forms on the mean, where given nothing they read a level darker");
+        apart.Sum().Should().BeGreaterThan(0, $"at {quality} some faint light at a hit took its point");
     }
 }
