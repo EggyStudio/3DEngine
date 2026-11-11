@@ -209,6 +209,59 @@ public sealed class PipelineCacheTests : IDisposable
     }
 
     [NeedsVulkanFact]
+    public void A_Compile_On_One_Thread_Is_Not_Held_Behind_One_In_Flight_On_Another()
+    {
+        // A game's mirror asks its pipelines of workers while the frame's own thread makes a
+        // shader's that takes the driver a second and more, and the mirror showed nothing until
+        // both were made one after the other. The driver's cache takes compiles at once from any
+        // thread, so one held in the driver by the test leaves another to finish beside it.
+        var config = Config.Default.WithWindow("pipelines at once", 64, 64) with { Headless = true, Offscreen = true, Samples = 1 };
+        UseApp(new App(config).AddPlugin(new DefaultPlugins()));
+        BeginDrawing();
+        ClearBackground(Color.Black);
+        EndDrawing();
+        var device = (GraphicsDevice)GetApp().World.Resource<Engine.Renderer>().Context.Graphics!;
+        var spirv = SlangCompiler.Compile("""
+            RWStructuredBuffer<uint> counts;
+
+            [shader("compute")]
+            [numthreads(1, 1, 1)]
+            void computeMain(uint3 id : SV_DispatchThreadID)
+            {
+                counts[id.x] = id.x + 1;
+            }
+            """, "at-once.slang", "computeMain", ShaderStage.Compute);
+
+        using var inside = new ManualResetEventSlim();
+        using var gate = new ManualResetEventSlim();
+        var heldThread = 0;
+        device.WhileMakingPipeline = () =>
+        {
+            if (Interlocked.CompareExchange(ref heldThread, Environment.CurrentManagedThreadId, 0) != 0) return;
+            inside.Set();
+            gate.Wait(TimeSpan.FromSeconds(30));
+        };
+        var held = Task.Run(() => device.CreateComputePipeline(spirv, 0, [0]));
+        bool finished;
+        try
+        {
+            inside.Wait(TimeSpan.FromSeconds(60)).Should().BeTrue("the first compile reached the driver");
+            var other = Task.Run(() => device.CreateComputePipeline(spirv, 0, [0]));
+            finished = other.Wait(TimeSpan.FromSeconds(15));
+            gate.Set();
+            other.Wait();
+            using (other.Result) { }
+        }
+        finally
+        {
+            gate.Set();
+            device.WhileMakingPipeline = null;
+            using (held.Result) { }
+        }
+        finished.Should().BeTrue("the second compile finished while the first was held in the driver");
+    }
+
+    [NeedsVulkanFact]
     public void A_Pipeline_The_Device_Makes_Is_Named_By_The_Shader_It_Is_Made_From_With_Its_Time()
     {
         var config = Config.Default.WithWindow("pipeline names", 64, 64) with { Headless = true, Offscreen = true, Samples = 1 };

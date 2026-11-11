@@ -18,15 +18,18 @@ internal sealed unsafe partial class GraphicsDevice
 {
     private VkPipelineCache _pipelineCache;
 
-    // Held over every use of the driver's cache, each pipeline made through it on any thread, its
+    // Shared by each pipeline made through the driver's cache on any thread, which Vulkan lets a
+    // cache made without the externally synchronized flag take at once, and held alone over its
     // data read for the write and its release, so the write never runs beside a compile a worker
-    // makes ahead, though Vulkan lets a cache made without the externally synchronized flag be
-    // used from several threads, since a driver that fails that freezes the frame that writes.
-    private readonly Lock _pipelineCacheUse = new();
+    // makes ahead, since a driver that fails that freezes the frame that writes. Held alone by
+    // every compile, a worker's waited behind one the frame's thread made, as a mirror's behind
+    // a shader's that took the driver over a second.
+    private readonly ReaderWriterLockSlim _pipelineCacheUse = new();
+
 
     /// <summary>
-    /// Called while a pipeline is made through the driver's cache, the cache held, which a test
-    /// sets to hold a compile in flight.
+    /// Called while a pipeline is made through the driver's cache, the cache shared by the
+    /// compiles, which a test sets to hold a compile in flight.
     /// </summary>
     internal Action? WhileMakingPipeline { get; set; }
 
@@ -129,8 +132,15 @@ internal sealed unsafe partial class GraphicsDevice
     {
         get
         {
-            lock (_pipelineCacheUse)
+            _pipelineCacheUse.EnterWriteLock();
+            try
+            {
                 return PipelineCacheSize() > PipelineCacheHeader;
+            }
+            finally
+            {
+                _pipelineCacheUse.ExitWriteLock();
+            }
         }
     }
 
@@ -151,11 +161,16 @@ internal sealed unsafe partial class GraphicsDevice
     private void DestroyPipelineCache()
     {
         SavePipelineCache();
-        lock (_pipelineCacheUse)
+        _pipelineCacheUse.EnterWriteLock();
+        try
         {
             if (_pipelineCache.IsNull) return;
             _deviceApi.vkDestroyPipelineCache(_pipelineCache, null);
             _pipelineCache = default;
+        }
+        finally
+        {
+            _pipelineCacheUse.ExitWriteLock();
         }
     }
 
@@ -169,13 +184,18 @@ internal sealed unsafe partial class GraphicsDevice
         byte[]? data;
         // The data read with the cache held, after any pipeline a worker is making through it, and
         // the line before and after it, so a log that stops between them names the read.
-        lock (_pipelineCacheUse)
+        _pipelineCacheUse.EnterWriteLock();
+        try
         {
             if (_pipelineCache.IsNull || _pipelineCacheDropped) return;
             Logger.Info("The driver's compiled pipelines are read to be written...");
             var reading = Stopwatch.GetTimestamp();
             data = PipelineCacheData();
             Logger.Info($"The driver's compiled pipelines read, {data?.Length ?? 0} bytes to write, in {Stopwatch.GetElapsedTime(reading).TotalMilliseconds:0} ms.");
+        }
+        finally
+        {
+            _pipelineCacheUse.ExitWriteLock();
         }
         if (data is null)
         {
@@ -248,10 +268,15 @@ internal sealed unsafe partial class GraphicsDevice
     {
         var making = Stopwatch.GetTimestamp();
         VkPipeline pipeline;
-        lock (_pipelineCacheUse)
+        _pipelineCacheUse.EnterReadLock();
+        try
         {
             WhileMakingPipeline?.Invoke();
             _deviceApi.vkCreateComputePipelines(_pipelineCache, 1, info, null, &pipeline).CheckResult();
+        }
+        finally
+        {
+            _pipelineCacheUse.ExitReadLock();
         }
         Made(making, ShaderNames.Of(spirv));
         return pipeline;

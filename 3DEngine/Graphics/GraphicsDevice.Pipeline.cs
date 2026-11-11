@@ -367,10 +367,15 @@ internal sealed unsafe partial class GraphicsDevice
 
         VkPipeline pipeline;
         var making = Stopwatch.GetTimestamp();
-        lock (_pipelineCacheUse)
+        _pipelineCacheUse.EnterReadLock();
+        try
         {
             WhileMakingPipeline?.Invoke();
             _deviceApi.vkCreateGraphicsPipelines(_pipelineCache, 1, &pipelineInfo, null, &pipeline).CheckResult();
+        }
+        finally
+        {
+            _pipelineCacheUse.ExitReadLock();
         }
         Made(making, fs is null ? ShaderNames.Of(desc.VertexShader.Description.Bytecode.Span)
             : $"{ShaderNames.Of(desc.VertexShader.Description.Bytecode.Span)} with {ShaderNames.Of(desc.FragmentShader!.Description.Bytecode.Span)}");

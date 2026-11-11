@@ -16182,6 +16182,38 @@ window, then subsurface scattering and what follows it, and item 7 for a wait.
     turn against 0.9 and 2.1 with the probes off and the game's shaded ground at 12.2 and 0.24
     against 5.97 and 0.012, and the form is taken up again only on the owner's word.
 
+252. **The field's center set each frame breaks the field on 6.2.32.** From the game's pin of 6.2.32
+    on 2026-11-11. With SetSceneFieldCenter called each frame, as its document tells a program whose
+    view is about a point to do, the game's play fails its lantern's pool three runs of three with
+    one reading, from 133.2 to 91.1 with a step of 34.5 where 6.2.17 reads from 249.2 to 90.7, and
+    the glowstone room before it shows a dark ring on the floor around the lamp with the walls lit
+    too bright, the game's sheet 01-27-item-167-room in its dump of 2026-11-11. With
+    SetSceneFieldAhead(0.5f) in its place, the same point worked out by the engine and set once, the
+    lantern passes three of three and the room matches 6.2.17. Both ways reach the plan by one line
+    of SceneField.cs, so what differs is the point the game gives or the setting written each frame,
+    and the commits between the two packages that touch the field are 244's option, 239's builds at
+    the raised budget and 251's lift, its changed budget and its pending meshes. One read first, a
+    room of the engine's own with a glow light, the center set each frame to the point the option
+    gives and then to a point a hair off it, on `f68075f1` and on the head, to say whether the write
+    or the point breaks it and in which commit; then the mend with a test that a center set each
+    frame leaves the field's builds and the room's light as a center set once does. A fault in a
+    published package's documented call, so it comes before 250's spread. Read on the head at 01:40
+    and not reproduced. A lamp block on a floor, the eye turning for 60 frames and then still, 300
+    frames, five ways, the option, a center each frame at the option's point, that point a hair off,
+    the point a frame late and the game's own formula of LightSettings.CenterField set before
+    BeginDrawing, with the game's field settings too; the plan's point matches to 1e-5, its builds
+    alike, whole by the 20th frame with no lift, and the floor's five rings alike to four places,
+    the trial kept in the dump as 01-44-item-252-center-trial.cs. The tree the game's passing run
+    came from differs from its `cb071a9` in more than the center, so the game reads three trees on
+    6.2.32 three runs each, `cb071a9` as committed, `cb071a9` with the center's call alone swapped
+    for the option, and its 167 tree with the center each frame put back; the item waits on that.
+    Withdrawn at 02:00 on 2026-11-11, no fault of the engine's. The game's failing build was made in
+    a worktree reached through /home, a link to /var/home, where MSBuild copied the game's resources
+    flat beside the program and not under resources/shaders, so the game drew without its own
+    terrain shader; all three trees fail alike from that folder and every build from the game's main
+    checkout is sound. The engine's read stands as the proof that a center set each frame builds and
+    lights as the option does. What it leaves is the game's, its item 169.
+
 ## Head records
 
 The head paragraph of REVIEW.md as it stood when it was shortened, with the order line where it had
