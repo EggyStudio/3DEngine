@@ -349,9 +349,11 @@ internal sealed unsafe partial class GraphicsDevice
             pColorAttachmentFormats = colorCount > 0 ? colorFormats : null,
             depthAttachmentFormat = pass.DepthFormat,
         };
+        VkPipelineCreationFeedback feedback = default;
+        var feedbackInfo = new VkPipelineCreationFeedbackCreateInfo { pNext = &rendering, pPipelineCreationFeedback = &feedback };
         VkGraphicsPipelineCreateInfo pipelineInfo = new()
         {
-            pNext = &rendering,
+            pNext = &feedbackInfo,
             stageCount = fs is null ? 1u : 2u,
             pStages = stages,
             pVertexInputState = &vertexInput,
@@ -377,8 +379,10 @@ internal sealed unsafe partial class GraphicsDevice
         {
             _pipelineCacheUse.ExitReadLock();
         }
-        Made(making, fs is null ? ShaderNames.Of(desc.VertexShader.Description.Bytecode.Span)
-            : $"{ShaderNames.Of(desc.VertexShader.Description.Bytecode.Span)} with {ShaderNames.Of(desc.FragmentShader!.Description.Bytecode.Span)}");
+        var vertexBytes = desc.VertexShader.Description.Bytecode.Span;
+        var fragmentBytes = fs is null ? [] : desc.FragmentShader!.Description.Bytecode.Span;
+        Made(making, fs is null ? ShaderNames.Of(vertexBytes) : $"{ShaderNames.Of(vertexBytes)} with {ShaderNames.Of(fragmentBytes)}",
+            feedback.flags, StagesHash(vertexBytes, fragmentBytes));
         DeviceObjects.Made(DeviceObjects.Kind.Pipeline);
         return new VulkanGraphicsPipeline(this, pipeline, layout);
     }

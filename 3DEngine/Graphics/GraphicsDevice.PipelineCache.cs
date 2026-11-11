@@ -269,8 +269,9 @@ internal sealed unsafe partial class GraphicsDevice
         (Interlocked.Read(ref _pipelinesMade), Stopwatch.GetElapsedTime(0, Interlocked.Read(ref _pipelineTicks)));
 
     /// <summary>
-    /// The pipelines the device made since this was last asked, each as the shaders it is made from
-    /// and the milliseconds the driver took, the latest 64 at most.
+    /// The pipelines the device made since this was last asked, each as the shaders it is made from,
+    /// the milliseconds the driver took, whether it said it came from the cache, and a hash of the
+    /// stages' bytes, the latest 64 at most.
     /// </summary>
     internal string[] TakePipelinesNamed()
     {
@@ -284,6 +285,10 @@ internal sealed unsafe partial class GraphicsDevice
     {
         var making = Stopwatch.GetTimestamp();
         VkPipeline pipeline;
+        VkPipelineCreationFeedback feedback = default;
+        var feedbackInfo = new VkPipelineCreationFeedbackCreateInfo { pNext = info->pNext, pPipelineCreationFeedback = &feedback };
+        var given = info->pNext;
+        info->pNext = &feedbackInfo;
         _pipelineCacheUse.EnterReadLock();
         try
         {
@@ -293,18 +298,33 @@ internal sealed unsafe partial class GraphicsDevice
         finally
         {
             _pipelineCacheUse.ExitReadLock();
+            info->pNext = given;
         }
-        Made(making, ShaderNames.Of(spirv));
+        Made(making, ShaderNames.Of(spirv), feedback.flags, StagesHash(spirv, []));
         return pipeline;
     }
 
-    // Counts a pipeline the driver made since the timestamp given, from the shaders named.
-    private void Made(long since, string shaders)
+    // The first eight hex digits of a SHA-256 of the stages' bytes, the same in every process, so
+    // the logs of two runs say whether a pipeline made again was made from the same bytes.
+    private static string StagesHash(ReadOnlySpan<byte> first, ReadOnlySpan<byte> second)
+    {
+        using var hash = System.Security.Cryptography.IncrementalHash.CreateHash(System.Security.Cryptography.HashAlgorithmName.SHA256);
+        hash.AppendData(first);
+        hash.AppendData(second);
+        return Convert.ToHexString(hash.GetHashAndReset(), 0, 4).ToLowerInvariant();
+    }
+
+    // Counts a pipeline the driver made since the timestamp given, from the shaders named, with
+    // whether the driver said it came from the cache and its stages' hash, so a log says which
+    // pipelines a run compiled that the file it read should have held.
+    private void Made(long since, string shaders, VkPipelineCreationFeedbackFlags feedback, string stages)
     {
         var ticks = Stopwatch.GetTimestamp() - since;
         Interlocked.Increment(ref _pipelinesMade);
         Interlocked.Add(ref _pipelineTicks, ticks);
-        _pipelinesNamed.Enqueue($"{shaders} in {Stopwatch.GetElapsedTime(0, ticks).TotalMilliseconds:0} ms");
+        var from = (feedback & VkPipelineCreationFeedbackFlags.Valid) == 0 ? "the driver saying not where from"
+            : (feedback & VkPipelineCreationFeedbackFlags.ApplicationPipelineCacheHit) != 0 ? "from the cache" : "compiled";
+        _pipelinesNamed.Enqueue($"{shaders} in {Stopwatch.GetElapsedTime(0, ticks).TotalMilliseconds:0} ms, {from}, stages {stages}");
         while (_pipelinesNamed.Count > NamedKept && _pipelinesNamed.TryDequeue(out _)) { }
     }
 }

@@ -254,7 +254,13 @@ reverted as the screen probes' limit at shapes about a tile wide, its patches in
     the checkout's version plays a package's game as before; the pipelines' folders had no sweep and
     gain one at the cache's open, other versions' folders by their newest file past 14 days. The
     coder's suites before N 7.11 wrote the test host's pipelines into the account's cache, said to
-    the owner.
+    the owner. The version and the sweep are `803dfdb5`, committed at 06:24 on 2026-11-11 and held
+    until `80bc4b05`'s run ends. build/pack.sh works the version out first and builds with it, and
+    fails where the packed 3DEngine.Core.dll does not carry it, read by hand on the core's package
+    alone in the coder's work folder, a build at no version packed at 6.2.98 failing and one built
+    and packed at 6.2.99 passing; UserCache.SweepVersions runs at the pipelines' cache's open and
+    after the shaders' sweep, with a test of folders made by hand and a device's test that fails
+    with the sweep left out; the suite 2,337 on both legs. The log line follows.
 
 ## Verdicts
 
@@ -591,3 +597,11 @@ versions whose newest file no run wrote for SweptAfter, 14 days, and those holdi
 the running version's; the shaders' sweep, which took every version's entries one by one, now
 also leaves no emptied version folder. A test of the folders by hand, and one of a device opened
 over another version's file from long ago, which fails with the sweep left out of the open.
+
+Item 253, the line of a pipeline made. Each pipeline the device makes is now said with what the
+driver's creation feedback says of it, compiled, from the cache, or the driver saying not where
+from where it marks the feedback not valid, and the first eight hex digits of a SHA-256 of its
+stages' bytes, the same in every process, so the game's next plays say which pipelines miss and
+whether their bytes moved between runs. The test makes one compute pipeline twice from the one
+SPIR-V and finds both lines in that form with one hash, and the second from the cache; on the head
+the lines lack both and the test fails.
