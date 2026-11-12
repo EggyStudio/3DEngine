@@ -123,7 +123,10 @@ examples in a project of their own on the packed package.
 
 **N 2.8 Every package the library references is in the engine's list of packages with what it is
 used for, and adding one is the owner's.** A dependency is surface the engine answers for. A test
-compares the project file with the list its annex names.
+compares the project file with the list its annex names. Where the library's areas are projects
+packed as one package, the project that is packed names each package from outside that an area
+builds on, at the version the area names, since a package depends on what its own project names, and
+a test holds the two alike.
 
 **N 2.9 A loader keeps no file open once a load returns.** A file the engine still holds cannot
 be written by the tool that made it, and on Windows cannot be removed, which ended a run of

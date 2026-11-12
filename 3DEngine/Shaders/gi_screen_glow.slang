@@ -295,6 +295,9 @@ void computeMain(uint3 id : SV_DispatchThreadID)
     // The surface's normal from its way along each axis, toward the eye.
     float3 fromEye = fromEyeAt(depthMiddle(uv), d);
     float3 p = view.eye.xyz + fromEye;
+    // How far the point's depth texel's middle lies from the texel's own, in texels, which the
+    // frame before is looked up less, so a still view finds its texel's own place there.
+    float2 sampled = (depthMiddle(uv) - uv) * float2(width, height);
     float2 texel = 1.0 / float2(width, height);
     float3 n = surfaceNormal(cross(wayAlong(uv, fromEye, float2(texel.x, 0.0)), wayAlong(uv, fromEye, float2(0.0, texel.y))), -fromEye);
     if (dot(n, -fromEye) < 0.0)
@@ -377,7 +380,11 @@ void computeMain(uint3 id : SV_DispatchThreadID)
         float4 clip = mul(view.lastViewProjection, float4(p, 1.0));
         if (clip.w > 1e-5)
         {
-            float2 then = (clip.xy / clip.w * 0.5 + 0.5) * float2(width, height) - 0.5;
+            // Less the point's offset from its texel's middle (sampled). Where a texel spans a part
+            // of the depth's texels, as at 1,440 rows, a still view's point fell between four
+            // texels of the frame before, each given a share, so it never read as still and its
+            // blend held a frame and a half's light where it holds 32.
+            float2 then = (clip.xy / clip.w * 0.5 + 0.5) * float2(width, height) - 0.5 - sampled;
             int2 from = int2(floor(then));
             float2 part = then - float2(from);
             float expected = distance(p, view.last.xyz);

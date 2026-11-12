@@ -24,7 +24,7 @@ public sealed class GlowFarFromOriginTests : IDisposable
     // The room's blocks by their least corners: a floor, a ceiling and four walls about an inside 8
     // wide, 4 high and 5 deep, and a pocket before the lantern's place in the north wall at the
     // floor, closed at its sides and in front and open upward from 2.
-    private static IEnumerable<Vector3> Blocks()
+    internal static IEnumerable<Vector3> Blocks()
     {
         for (int x = -1; x <= 8; x++)
             for (int z = -1; z <= 5; z++)

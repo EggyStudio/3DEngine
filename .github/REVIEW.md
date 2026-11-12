@@ -48,16 +48,17 @@ on 2026-11-11, its run red at 15:27 in the second Windows half alone, the hall's
 that system's device, Verdict 116, macOS, the Linux legs and the first Windows half green. The
 pushes before these stand in REVIEW-ARCHIVE.md's head records.
 
-Next 256, the engine as one package by Decision 109, and the pack run with publish, so the owner's
-game gets 257 and the dither without waiting for the rest; then 259, the bright pixel at a
-silhouette's edge that bloom spreads into the blobs the owner saw in the distance, with 260, one
-pixel's light read by its terms; then 258, the same fault in the other passes, the shadows, the
-reprojections and the vertices first; then 255's remaining steps, the other first-frame pipelines
-made together on the workers and the trial of the lighting kept as functions, its first mend, the
-probes' kernels made together, at `c1243335`. The game is on 6.2.41 of `894542da` since its
-`068fd5f`. After them 250's further cuts, the hits' glow at 1.41 ms of the screen pass's 3.04 in the
-Ore example. No budget by Decision 94; the door at 8:00 the one target by Decision 95; a fault seen
-in motion is read in motion by Decision 107.
+Next the push of `91ec6329`, 256, the engine as one package by Decision 109, read and accepted, and
+the pack run with publish on it, so the owner's game gets 257 and the dither; then 262, whether the
+glow lights' history finds its own texel in a still view, a read from the sibling's mend; then 259,
+the bright pixel at a silhouette's edge that bloom spreads into the blobs the owner saw in the
+distance, with 260, one pixel's light read by its terms; then 258, the same fault in the other
+passes, the shadows, the reprojections and the vertices first; then 255's remaining steps, the other
+first-frame pipelines made together on the workers and the trial of the lighting kept as functions,
+its first mend, the probes' kernels made together, at `c1243335`. The game is on 6.2.41 of
+`894542da` since its `068fd5f`. After them 250's further cuts, the hits' glow at 1.41 ms of the
+screen pass's 3.04 in the Ore example. No budget by Decision 94; the door at 8:00 the one target by
+Decision 95; a fault seen in motion is read in motion by Decision 107.
 
 REVIEW-ARCHIVE.md beside this file holds, their numbers kept, the items done, the items closed or
 parked, the verdicts settled, Decisions 1 to 93, the Replies before those here and the head records,
@@ -255,6 +256,21 @@ reverted as the screen probes' limit at shapes about a tile wide, its patches in
     pixel every frame unless the temporal antialiasing is on, with a test that a dark ramp's steps
     of a level are broken up and its mean kept, and a picture of the crop before and after for the
     owner. A small commit, right after 257's.
+
+262. **Whether the glow lights' history finds its own texel in a still view.** From the sibling's
+    `fdf68d62` on 2026-11-12. There a glow texel's point is its pixel's middle, a quarter of a texel
+    off the texel's own, and the frame before's light was looked up at that point, so a still view
+    shared its texel with three others, read as still for 0.56 and steady for 0.13, and kept a
+    frame's light and a seventh where 32 is meant; looked up less the texel's own sample part, a
+    still view's change between frames fell from 0.289 levels to 0.023. gi_screen_glow.slang here
+    keeps the same still, steady and frames and looks the frame before up at the point's place in
+    the image, line 380, and since `2e870eb6` a texel's point is the middle of the depth texel whose
+    depth it takes, which is the texel's own middle only where a texel is a whole count of pixels.
+    One read first, a still view of a wall lit by a glow light alone, what still, steady and frames
+    come to at 1280 by 720 and at 2560 by 1440 and the mean change between two frames; then, where
+    still is under 1, the lookup less the texel's own sample part with a test that a still view
+    holds its light under a tenth of a level from frame to frame. Before 259, being a read of an
+    hour and every glow light's light resting on it.
 
 ## Verdicts
 
@@ -721,3 +737,16 @@ The suite passed in order, 2,352 in 39 minutes, while the machine carried anothe
 and a load near 10. The shuffled leg then reached its 40 minutes at AppLeakTests' app 77 of 100 with
 2,334 passed, which test.py counts as passing, a loss to the time limit alone; 18 tests had not run,
 so the shuffled leg alone ran again once the load fell, 2,352 passed in 24 minutes.
+
+Item 262, read and mended. GlowFarFromOriginTests' lantern room at the origin, lit by its glow light
+alone, held still, settled and drawn 120 frames on. At 1280 by 720 the glow texels' blend holds
+31.96 frames at Low and 31.99 at High of its 32, a still view read as still, since a glow texel
+there spans a whole count of the depth's texels. At 2560 by 1440 it held 1.57 at both, a steady of
+about 0.36 by the blend's own count: since 2e870eb6 the texel's point lies at the middle of the
+depth texel it takes its depth from, and the frame before was looked up at that point, off the
+texel's own place and between four texels. The mean change of the frame between two frames read
+0.0006 and 0.0062 levels at 720 rows, and 0.0059 and 0.0084 at 1,440, small in this room either way.
+The lookup is now less the point's offset from its texel's middle. At 1,440 rows the blend holds
+31.95 and 31.99 frames and the change reads 0.0007 and 0.0061; 720 rows are as they were.
+GlowStillTests holds a still view at both sizes and both qualities to more than 30 frames held and
+a change under a tenth of a level; on the head's shader it reads 1.57 frames and fails.
