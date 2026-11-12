@@ -61,9 +61,9 @@ internal sealed partial class AssimpModelReader
             var opacity = readsOpacity && m.HasOpacity ? m.Opacity : 1f;
             diffuse.W = opacity * diffuse.W;
 
-            // A format that does not say, as OBJ, draws both sides, as the engine always did. The
-            // flag is read from its bytes, since glTF's importer stores it in a width IsTwoSided
-            // misreads as false.
+            // A format that does not say, as OBJ, draws both sides, so a face of such a file seen
+            // from behind is drawn rather than culled. The flag is read from its bytes, since
+            // glTF's importer stores it in a width IsTwoSided misreads as false.
             bool doubleSided = m.GetNonTextureProperty("$mat.twosided") is not { } twoSided
                                || twoSided.RawData is not { } raw || raw.Any(b => b != 0);
 

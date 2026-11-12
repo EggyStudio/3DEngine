@@ -92,16 +92,14 @@ public static partial class E3D
     /// </summary>
     /// <remarks>
     /// <para>
-    /// The grid of the prototype textures of the engines of the 2000s, which tells a reader of a
-    /// level blocked out in it how big each thing is, as an edit mesh's faces carry their texture
-    /// coordinates in meters. A meter's line is a 128th of the cell wide, two pixels at least, half
-    /// on each edge of the cell, so cells tiled side by side make it whole, the half's line a 256th
-    /// and a quarter's a 512th, a pixel at least, each centered on its place. The steps are a level
-    /// editor's, as Source's measuring textures step 16, 64 and 128 units, so at TrenchBroom's 32
-    /// units a meter a brush snapped to its 8, 16 or 32 unit grid ends on a line, and the corner of
-    /// each cell reads <c>1m</c>, as those textures print their sizes, where the cell has 128 pixels
-    /// or more, in letters of five by seven squares each a 128th of the cell, two squares in from
-    /// the cell's top left inside its line. The same grid as BevyCSharp's.
+    /// The grid tells a reader of a level blocked out in it how big each thing is, since an edit
+    /// mesh's faces carry their texture coordinates in meters. A meter's line is a 128th of the
+    /// cell wide, two pixels at least, half on each edge of the cell, so cells tiled side by side
+    /// make it whole, the half's line a 256th and a quarter's a 512th, a pixel at least, each
+    /// centered on its place. The lines fall at each quarter, half and whole meter, so a face
+    /// snapped to a grid of a quarter, a half or a whole meter ends on a line, and the corner of
+    /// each cell reads <c>1m</c>, where the cell has 128 pixels or more, in letters of five by seven
+    /// squares each a 128th of the cell, two squares in from the cell's top left inside its line.
     /// </para>
     /// <para>
     /// A pixel on a meter's or the half's line or on the mark is <paramref name="line"/>, else one
@@ -369,17 +367,16 @@ public static partial class E3D
     /// and a draw list's <c>AddImage</c>, or none for a texture that is not loaded.
     /// </summary>
     /// <remarks>
-    /// ImGui draws it as <c>DrawTexture</c> does, its part from the coordinates given, and a texture
-    /// unloaded while ImGui still draws it draws white. Behaviors ask for it as the rest of the flat
-    /// API is asked, and the id holds for the texture's life.
+    /// ImGui draws the part of it the coordinates given select, and a texture unloaded while ImGui
+    /// still draws it draws white. Behaviors ask for it as the rest of the flat API is asked, and the
+    /// id holds for the texture's life.
     /// </remarks>
     public static IntPtr GetImGuiTextureId(Texture2D texture) => ImGuiTextures.IdOf(texture);
 
     /// <summary>Replaces a texture's pixels with an image of the same size.</summary>
     /// <returns>Whether the texture is loaded and the sizes matched.</returns>
     /// <remarks>
-    /// A render texture's pixels are written in the order of the drawing into it, as
-    /// <see cref="UpdateTextureRec"/> writes them.
+    /// A render texture's pixels are written in the order of the drawing into it.
     /// </remarks>
     public static bool UpdateTexture(Texture2D texture, Image image) =>
         texture.IsValid && image.Width == texture.Width && image.Height == texture.Height &&

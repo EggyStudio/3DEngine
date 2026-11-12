@@ -83,22 +83,23 @@ float lampThickness(float4x4 viewProjection, float3 lamp, float3 world, float de
 // holds nearest the lamp, its spot slot or point slot given, -1 for none. For a lamp with no map
 // the scene's distance field says it, where its finest cascade holds the point and its cells are
 // half the reach or less, fine enough to tell the thicknesses the light comes through; a march
-// through cells as wide as skin's reach drew the light in scallops along a sphere's terminator.
+// through cells as wide as skin's reach would draw the light in scallops along a sphere's
+// terminator.
 float thicknessToward(float3 world, float3 n, float3 l, bool sun, float reach, float3 lamp = float3(0.0), int spot = -1, int point = -1)
 {
     // A light with a shadow map measures through it, which holds the surface nearest the light in
-    // its own texels, where the field's march decided by a cell whether a part was a sheet, and
+    // its own texels, where the field's march decides by a cell whether a part is a sheet, and
     // pixels either side of that decision, one measured by the march and the next by the map,
-    // dashed a line of light across a marble sphere's shadowed side.
+    // would dash a line of light across a sphere's shadowed side.
     bool mapped = sun || spot >= 0 || point >= 0;
     if (!mapped && fieldCascade(bouncedField, world, 1.0) == 0 && fieldCell(bouncedField, world) * 2.0 <= reach)
     {
         // The march finds first where it enters the mesh as the field holds it, within a cell of
         // the surface drawn, whose faces the field's cells lie a little off, then where it leaves.
-        // Begun at the drawn surface alone, a point where the field's surface lay inside the
-        // drawn one leaves at once, and a sphere's shadowed side, a unit through, let the sun's
-        // light through in bands. A mesh the field holds nothing of within the cell is thinner
-        // than its cells, and lets the light through whole.
+        // Begun at the drawn surface alone, a point where the field's surface lies inside the drawn
+        // one would leave at once, and a sphere's shadowed side, a unit through, would let the
+        // sun's light through in bands. A mesh the field holds nothing of within the cell is
+        // thinner than its cells, and lets the light through whole.
         float cell = fieldCell(bouncedField, world);
         float t = 0.0, entered = -1.0;
         float last = 0.0, inside = 0.0;
@@ -217,8 +218,8 @@ float3 lightThrough(ModelVertexOutput base, float3 albedo, float4 profile, float
         // Faded out between half the reach and the reach, where the march stops and the light is a
         // twentieth of what it was, smoothly in the thickness so a thickness that wavers about the
         // reach draws no ragged edge; held at the reach's twentieth past it, the far side of a
-        // sphere a unit through took the light through brighter the farther from the light it
-        // faced, a dark band between.
+        // sphere a unit through would take the light through brighter the farther from the light
+        // it faces, a dark band between.
         sum += arrived * exp(-thickness * thickness / (2.0 * widths * widths)) * (1.0 - smoothstep(0.5 * reach, reach, thickness));
     }
     return sum * albedo;

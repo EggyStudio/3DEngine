@@ -7,7 +7,7 @@ namespace Engine;
 /// </summary>
 /// <remarks>
 /// <para>
-/// <b>Scope:</b> only the uncompressed formats the engine actually decodes today are
+/// <b>Scope:</b> only the uncompressed four-channel formats are
 /// supported (<see cref="TextureFormat.Rgba8"/>, <see cref="TextureFormat.Rgba16F"/>,
 /// <see cref="TextureFormat.Rgba32F"/>). Block-compressed inputs throw
 /// <see cref="NotSupportedException"/>, since such a texture comes with its mips.
@@ -19,10 +19,9 @@ namespace Engine;
 /// </para>
 /// <para>
 /// <b>Color space:</b> the stored values are filtered as they are, so an sRGB texture is
-/// averaged in non-linear space, which suits diffuse textures, as most engines average
-/// by default.
-/// HDR floats filter naturally in linear space. A future linear-aware path can branch
-/// on <see cref="TextureAsset.ColorSpace"/> if banding becomes visible.
+/// averaged in non-linear space, which suits diffuse textures. HDR floats filter naturally in
+/// linear space. A future linear-aware path can branch on <see cref="TextureAsset.ColorSpace"/>
+/// if banding becomes visible.
 /// </para>
 /// </remarks>
 /// <seealso cref="TextureAsset"/>

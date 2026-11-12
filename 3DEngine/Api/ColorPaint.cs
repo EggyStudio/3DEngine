@@ -11,20 +11,20 @@ namespace Engine;
 /// </summary>
 /// <remarks>
 /// <para>
-/// Noto Color Emoji is built this way, and so are the color fonts Google Fonts serves, which a
-/// renderer of COLR version 0's layers alone draws in one color. Variations are read at the font's
+/// A font whose color glyphs are given as paints alone is drawn in one color where only COLR
+/// version 0's layers are read, so the paints are read here. Variations are read at the font's
 /// default, so a variable font's color glyphs are drawn as its default instance. A paint's colors
 /// are CPAL's first palette's, a color of index 0xFFFF the text's, drawn white for the text's color
-/// to tint, as COLR version 0's are.
+/// to tint.
 /// </para>
 /// <para>
 /// A paint is drawn into a layer of premultiplied color the size of the glyph's clip box, or of the
 /// em where the font gives none, and an outline into a mask of coverage that the paint under it is
-/// multiplied by, its contours rasterized as <see cref="TrueTypeFont.Rasterize"/> rasterizes them.
-/// Gradients are interpolated in premultiplied color between their stops, padded, repeated or
-/// reflected past them as their color line says. The Porter and Duff modes and the separable blend
-/// modes are composited as the specification gives them, and the four that work on hue,
-/// saturation, color and luminosity lay the source over the backdrop.
+/// multiplied by, its contours rasterized by the signed area each edge covers in each pixel,
+/// summed along the rows. Gradients are interpolated in premultiplied color between their stops,
+/// padded, repeated or reflected past them as their color line says. The Porter and Duff modes and
+/// the separable blend modes are composited as the specification gives them, and the four that
+/// work on hue, saturation, color and luminosity lay the source over the backdrop.
 /// </para>
 /// </remarks>
 internal sealed class ColorPaint

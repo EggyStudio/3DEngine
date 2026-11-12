@@ -83,7 +83,7 @@ internal sealed unsafe partial class GraphicsDevice
     /// </summary>
     /// <remarks>
     /// The blit and the copy into a buffer the CPU reads go in one submission, which waits for the
-    /// uploads before it as <see cref="ReadPixels"/> does.
+    /// uploads before it.
     /// </remarks>
     internal byte[]? DecodedPixels(IImage compressed, uint level = 0)
     {

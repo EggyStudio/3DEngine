@@ -307,9 +307,8 @@ public static partial class E3D
     /// it pays for the copy, which a program that never asks does not.
     /// </para>
     /// <para>
-    /// The call waits for the frames in flight to finish, as <see cref="LoadImageFromTexture"/>
-    /// does. raylib's reads OpenGL's back buffer, which after a swap holds what the driver left
-    /// there.
+    /// The call waits for the frames in flight to finish. raylib's reads OpenGL's back buffer,
+    /// which after a swap holds what the driver left there.
     /// </para>
     /// </remarks>
     public static Image LoadImageFromScreen()

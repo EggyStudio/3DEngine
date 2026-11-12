@@ -58,8 +58,8 @@ internal static class ModelRefSystem
     /// <summary>
     /// A model's path as the asset server takes it, from the program's <c>source</c> folder. A path
     /// that names no file there is looked for as a <see cref="SceneRef"/>'s is, beside the program
-    /// or from the working directory, so a level names its models and its prefabs alike, and a file
-    /// written with paths from the asset folder loads as it did.
+    /// or from the working directory, so a level names its models and its prefabs alike, and a path
+    /// from the asset folder is taken from there first.
     /// </summary>
     internal static string AssetPath(string path)
     {

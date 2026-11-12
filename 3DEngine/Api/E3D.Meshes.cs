@@ -48,7 +48,7 @@ public static partial class E3D
     /// <summary>
     /// Uploads a mesh of positions alone, twelve bytes a vertex or six where they lie on a grid,
     /// with a stream of the program's own and a color at each vertex where given, for a mesh whose
-    /// normal and texture coordinates its stream packs, as a voxel world's chunks are.
+    /// stream packs its normal and texture coordinates.
     /// </summary>
     /// <remarks>
     /// The GPU is given the positions alone, and a vertex stage reads the normal and texture
@@ -61,7 +61,7 @@ public static partial class E3D
     /// <c>TEXCOORD1</c> on such a mesh reads white and zero. Its positions are written in place by
     /// <see cref="UpdateMeshBuffer{T}"/> at 0, it takes no skin, and the pass that scatters light
     /// under a surface leaves it out. Positions that are each a whole multiple of one power of two
-    /// within 32,767 of it, as a voxel world's sixteenths of a block are, go to the GPU as three
+    /// within 32,767 of it, a grid of sixteenths of a unit among them, go to the GPU as three
     /// 16-bit integers of it, or four on a device that reads no three as a vertex's, which the
     /// vertex stage turns into the positions the floats give, bit for bit. The power is folded into
     /// the three columns of <c>ModelInstance</c>'s rows that turn a position, so a vertex stage that
@@ -106,17 +106,17 @@ public static partial class E3D
     /// </summary>
     /// <remarks>
     /// A mesh keeps its position, normal and texture coordinate together in one vertex, which the
-    /// write changes in place, keeping the bounds it was made with, as <see cref="UpdateMeshVertices"/>
-    /// does. Writing colors or second texture coordinates to a mesh without them gives it both, the
-    /// rest of each white or zero, where raylib's mesh has no buffer to write into until rlgl loads
-    /// one, as its lightmap example does. Tangents (4) and the indices (6) are not kept, so a write
-    /// to either is left out with a warning, and bytes past the array's end are left out. The
-    /// stream of the program's own is written into the next of a ring of buffers and nothing else
-    /// of the mesh is uploaded again; a mesh made without one is left as it is with a warning,
-    /// since the write does not say the stream's format. A ring is given back for one buffer once
-    /// a few frames pass with no write. Colors written to a mesh uploaded from its positions alone
-    /// are kept for the light field and the glow lights, the GPU holding none of them, so its
-    /// buffers stay as they are and a relight of its stream and colors writes the stream alone.
+    /// write changes in place, keeping the bounds it was made with. Writing colors or second texture
+    /// coordinates to a mesh without them gives it both, the rest of each white or zero, where
+    /// raylib's mesh has no buffer to write into until rlgl loads one, as its lightmap example does.
+    /// Tangents (4) and the indices (6) are not kept, so a write to either is left out with a
+    /// warning, and bytes past the array's end are left out. The stream of the program's own is
+    /// written into the next of a ring of buffers and nothing else of the mesh is uploaded again; a
+    /// mesh made without one is left as it is with a warning, since the write does not say the
+    /// stream's format. A ring is given back for one buffer once a few frames pass with no write.
+    /// Colors written to a mesh uploaded from its positions alone are kept for the light field and
+    /// the glow lights, the GPU holding none of them, so its buffers stay as they are and a relight
+    /// of its stream and colors writes the stream alone.
     /// </remarks>
     public static void UpdateMeshBuffer<T>(ModelMesh mesh, int index, ReadOnlySpan<T> data, int offset) where T : unmanaged
     {
@@ -197,8 +197,7 @@ public static partial class E3D
     /// an indirect draw's arguments by the GPU before the frame draws, so a mesher in compute puts a
     /// mesh on the screen with nothing read back. The mesh is drawn by <see cref="DrawMesh"/>, its
     /// shadow cast and its depth drawn as any mesh's, and lit by the model pass's own shader by a zero
-    /// normal, as a mesh uploaded from its positions alone is, so a shader of the program's own
-    /// unpacks its normal from the stream.
+    /// normal, so a shader of the program's own unpacks its normal from the stream.
     /// </para>
     /// <para>
     /// It is culled by the box <see cref="SetMeshBoundingBox"/> gives it, and drawn wherever it is
@@ -237,9 +236,8 @@ public static partial class E3D
     /// count its faces, and drawing and the scene's field read each range alone.
     /// </para>
     /// <para>
-    /// A mesh whose stream is a program's own, as a voxel game's two uints a vertex its terrain
-    /// shader unpacks, gives the field no color, every surface of it the material's, unless its
-    /// colors are given, as a mesh uploaded from its positions with its colors gives them.
+    /// A mesh whose stream is a program's own, such as two uints a vertex that its shader unpacks,
+    /// gives the field no color, every surface of it the material's, unless its colors are given.
     /// </para>
     /// </remarks>
     public static ModelMesh LoadMeshFromShaderBuffers(ShaderBuffer positions, ShaderBuffer stream, MeshStreamFormat format, ShaderBuffer colors,

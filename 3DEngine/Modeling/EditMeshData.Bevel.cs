@@ -10,8 +10,8 @@ internal sealed partial class EditMeshData
     /// <para>
     /// An edge is beveled where both its ends are selected and two faces run along it in opposite
     /// directions. Each face beside a beveled edge is cut back by the width from it, a corner between
-    /// two beveled edges moving in from both as an inset's does, and an edge that is not beveled at
-    /// a corner that is gives up the end of it the bevel needs, its far end where it was.
+    /// two beveled edges moving in by the width from both, and an edge that is not beveled at a
+    /// corner that is gives up the end of it the bevel needs, its far end where it was.
     /// </para>
     /// <para>
     /// Across each edge the band follows the arc tangent to both faces at the width from the edge,
@@ -125,7 +125,7 @@ internal sealed partial class EditMeshData
                 var (inBeveled, outBeveled) = (IsBeveled(before, at), IsBeveled(at, after));
                 if (inBeveled && outBeveled)
                 {
-                    // In from both edges by the width, as an inset's corner moves.
+                    // In from both edges by the width, where the lines that far in from each cross.
                     var fromBefore = Unit(Vector3.Cross(normal, _positions[at] - _positions[before]));
                     var fromAfter = Unit(Vector3.Cross(normal, _positions[after] - _positions[at]));
                     var meet = 1 + Vector3.Dot(fromBefore, fromAfter);

@@ -65,8 +65,8 @@ public static partial class E3D
     /// sets, or a sunny day's of EV 15 where none is set, so a white surface in a noon sun reads
     /// about white, and its color is taken for its hue alone, the lux carrying its luminance. The
     /// intensity <see cref="SetLightColor"/> gives a light afterwards is a plain one again, which
-    /// the camera does not see, so a scene of plain lights and <see cref="SetExposure"/> looks as it
-    /// did.
+    /// the camera does not see, so a scene of plain lights and <see cref="SetExposure"/> is drawn
+    /// alike whatever camera is set.
     /// </remarks>
     public static void SetLightIlluminance(LightHandle light, float lux) => SetPhysical(light, lux, PhysicalQuantity.Illuminance);
 

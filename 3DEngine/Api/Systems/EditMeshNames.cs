@@ -117,7 +117,7 @@ internal sealed class EditMeshNames
     /// <summary>
     /// The system, for <see cref="Stage.Render"/>, in <paramref name="app"/>, which draws each shown
     /// mesh at its entity, the flat API made to run against the app while it records where it runs
-    /// against another or none, as <see cref="AnimatedModelDraws"/> does.
+    /// against another or none, so the models are drawn into this app's frame.
     /// </summary>
     public static void Draw(World world, App app)
     {

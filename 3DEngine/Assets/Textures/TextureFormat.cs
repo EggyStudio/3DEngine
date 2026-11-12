@@ -1,9 +1,9 @@
 namespace Engine;
 
 /// <summary>
-/// The pixel formats a texture may hold, LDR, HDR and block-compressed. Only the uncompressed
-/// ones are produced, by <see cref="StbTextureDecoder"/>, and the BC entries wait for a decoder
-/// of KTX2 or DDS files.
+/// The pixel formats a texture may hold, LDR, HDR and block-compressed. The uncompressed ones are
+/// produced by <see cref="StbTextureDecoder"/> and BC1, BC5 and BC7 by the KTX2 decoder, and no
+/// decoder produces BC3, BC4 or BC6H.
 /// </summary>
 public enum TextureFormat
 {

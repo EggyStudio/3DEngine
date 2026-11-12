@@ -4,7 +4,7 @@ namespace Engine;
 
 /// <summary>World-space transform component (position, rotation, scale).</summary>
 /// <remarks>
-/// A scene file holds it as it holds a <c>[SceneComponent]</c>, registered by the scene model's
+/// A scene file saves and loads it as a <c>[SceneComponent]</c>, registered by the scene model's
 /// assembly, which names it in a <c>SceneComponentOf</c>, since the ECS lies below the registry.
 /// </remarks>
 public struct Transform

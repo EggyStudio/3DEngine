@@ -137,8 +137,8 @@ public struct ScreenProbesHere
 // Each probe weighed by how near it is, how alike its normal is to the fragment's, and how near its
 // distance from the eye is to the distance the fragment's own plane lies at under the probe's tile
 // middle, found from how the fragment's point moves from pixel to pixel, so a floor seen at a slant
-// takes the probes up and down its slope as well as those beside it. Found once for the light that
-// bounced and the glow lights, which found them apart.
+// takes the probes up and down its slope as well as those beside it. Found once for both the light
+// that bounced and the glow lights.
 public ScreenProbesHere screenProbesHere(ModelVertexOutput input, float3 n)
 {
     ScreenProbesHere probes;
@@ -207,12 +207,12 @@ public float3 screenBounced(ScreenProbesHere probes)
 // and how near its point's distance from the eye is to the distance the fragment's own plane lies
 // at there, found from how the fragment's point moves from pixel to pixel, as screenProbesHere
 // weighs the probes. Weighed by the distance alone, the floor's texels at a lamp's foot, as far
-// from the eye as the lamp's face, lent the face the floor's light. A pixel whose like texels no
+// from the eye as the lamp's face, lend the face the floor's light. A pixel whose like texels no
 // probe around holds, as a sliver of floor seen between two lamps, marches to the lights' middles
 // itself, and one where the screen's probes are not read to their faces' halves, as a probe does
-// (glowLights), since marched to the halves the slivers above the near lamps held up the groups of
-// pixels they ran in. A pixel no texel around holds a point like its own, as along a thin mesh the
-// half-sized depth missed, takes the texels around on any surface by how near each is rather than
+// (glowLights), since marched to the halves the slivers above the near lamps hold up the groups of
+// pixels they run in. A pixel no texel around holds a point like its own, as along a thin mesh the
+// half-sized depth misses, takes the texels around on any surface by how near each is rather than
 // marching from those few pixels, as from a pixel at an edge no probe around holds, since each
 // group of pixels the GPU runs together waits on its slowest.
 public float3 glowLightsHere(ModelVertexOutput input, float3 n, bool screen)
@@ -386,7 +386,7 @@ public ModelStreamsOutput transformModelVertex(float3 position, float3 normal, f
 // How far the surface's point moves across a pixel to the right and down, taken from the way to
 // the eye, whose numbers are as small as the view, so the step keeps its precision far from the
 // world's origin, where the world's own numbers lose their last bits to their size and the probes
-// and glow texels a pixel takes its light from were judged by a slope off by as much. Under
+// and glow texels a pixel takes its light from are judged by a slope off by as much. Under
 // an orthographic camera the way to the eye is the same at every pixel and its step is none, so
 // the world point's own is taken there.
 public float3 worldAcross(ModelVertexOutput input)
@@ -442,7 +442,7 @@ public const bool solidMaterial = false;
 
 // Set by a pipeline that draws faces' backs, a double-sided material's, a pass that culls nothing
 // and an outline drawn from inside, where surfaceNormal turns a normal facing away from the eye
-// toward it. True unless set, as a pass that sets nothing turned it before.
+// toward it. True unless set, so a pass that sets nothing turns it.
 [vk::constant_id(1)]
 public const bool drawsBacks = true;
 
@@ -593,8 +593,8 @@ public LitLight litLight(float3 albedo, ModelVertexOutput input, float shadow = 
     // the world probes' gather where the pixel reads them, or -1 where it does not.
     float skyHere = -1.0;
     bool screen = Bouncing && lighting.indirect.x > 0.0 && lighting.screen.y > 0.0;
-    // Looked up along the normal turned to the eye as the shading's is, so the back of a two-sided
-    // face takes the screen's probes standing on it, where along its front's normal it took none.
+    // Looked up along the normal turned to the eye, which the shading takes too, so the back of a
+    // two-sided face takes the screen's probes standing on it, where its front's normal finds none.
     float3 facingEye = normalize(input.normal);
     if (drawsBacks && dot(facingEye, input.toEye) < 0.0)
         facingEye = -facingEye;
@@ -605,10 +605,10 @@ public LitLight litLight(float3 albedo, ModelVertexOutput input, float shadow = 
             bouncedHere = screenBounced(probes);
         // The screen's probes reach as far as the world's last cascade, across whose outer band
         // their light fades to the world's probes', which read alone past it. Switched there, a
-        // canyon's floor showed a step in its light.
+        // floor shows a step in its light.
         // And a pixel whose four probes stand on a surface like its own for under a quarter of their
         // weight, as along a thin column's silhouette, takes the world's probes' light by as much as
-        // it falls short, since the few like probes it has, normalized to the whole, lent it the
+        // it falls short, since the few like probes it has, normalized to the whole, lend it the
         // light of the wall behind.
         float matched = screenMatched(probes);
         float near = bouncedHere.x >= 0.0 ? screenHold(input.world, n) * saturate(matched / 0.25) : 0.0;
@@ -619,8 +619,8 @@ public LitLight litLight(float3 albedo, ModelVertexOutput input, float shadow = 
             // through the field (bouncedSeen) where it lies by a wall thinner than a cell, whose
             // probes beyond the reach takes for seen (byThinWall),
             // and so does one where no screen probe stands, as at Low. It is not marched at every
-            // such pixel, since a world of blocks holds many, its leaves, grass and far blocks, and
-            // has no wall that thin.
+            // such pixel, since leaves, grass and far surfaces make many, most of them by no wall
+            // that thin.
             bool edge = screen && (bouncedHere.x < 0.0 || matched < 0.25) && probes.near[0] + probes.near[1] + probes.near[2] + probes.near[3] > 0.0
                 && byThinWall(input.world, n);
             float3 world = edge || (!screen && byThinWall(input.world, n)) ? bouncedSeen(input.world, n)
@@ -640,7 +640,7 @@ public LitLight litLight(float3 albedo, ModelVertexOutput input, float shadow = 
     if (bounces)
         light.diffuse += termTaken(only, 1u) * occlusion * diffuseColor * bouncedHere * held;
     // The glow lights' light straight to the surface, taken here at each pixel rather than at the
-    // screen's probes, whose filter spread a small bright strip's light near it over five tiles
+    // screen's probes, whose filter spreads a small bright strip's light near it over five tiles
     // (glowLightsAt). The build for a frame with no glow lights leaves it out (Glowing in lights).
     // At Low, which leaves the screen's probes out, they stand for the glow lights alone, so a
     // pixel reads their texels as it does with the whole probes, at a cost that does not grow with
@@ -666,8 +666,8 @@ public LitLight litLight(float3 albedo, ModelVertexOutput input, float shadow = 
     // the light they hold along its mirror way blended by its roughness (probesReflected), which
     // takes the place of the environment's and the ambient lights' reflection as the surface grows
     // rough past what the trace keeps, from a roughness of 0.25 to 0.5, so stone and wood reflect
-    // the room around them, where they reflected the sky the probes around them saw along the
-    // mirror way. A glossier surface keeps the environment's reflection, which holds the sky's
+    // the room around them rather than the sky the probes around them see along the mirror
+    // way. A glossier surface keeps the environment's reflection, which holds the sky's
     // detail that the probes' eight by eight directions blur, and a reflection probe's box keeps
     // its capture.
     float3 mirror = reflect(-v, n);
@@ -712,11 +712,11 @@ public LitLight litLight(float3 albedo, ModelVertexOutput input, float shadow = 
             float3 reflected = environmentMap.SampleLevel(lightLinear, mirror, roughness * lastMip).rgb;
             // Where global illumination is on, by the share of the sky the probes around the
             // surface see along its mirror direction, so a room sealed from the sky reflects none
-            // of it, where the occlusion alone left a rough wall in a sealed cave a blue sheen. The
-            // share is read against an open plain's, whose probes' faces see the whole sky up, half
-            // of it level and none down, so a floor in the open reflects the sky toward its horizon
-            // whole inside the field as past it, where read as it was a canyon's floor stepped
-            // where the field ended.
+            // of it, where the occlusion alone leaves a rough wall in a sealed cave a blue sheen.
+            // The share is read against an open plain's, whose probes' faces see the whole sky up,
+            // half of it level and none down, so a floor in the open reflects the sky toward its
+            // horizon whole inside the field as past it, where read as it is a floor steps where
+            // the field ends.
             float open = (mirror.y > 0.0 ? mirror.y * mirror.y : 0.0) + 0.5 * (mirror.x * mirror.x + mirror.z * mirror.z);
             float seen = skyHere >= 0.0 ? skyHere : skySeen(input.world, n, mirror);
             float sky = bounces ? lerp(1.0, saturate(seen / max(open, 0.05)), held) : 1.0;
@@ -732,12 +732,12 @@ public LitLight litLight(float3 albedo, ModelVertexOutput input, float shadow = 
         {
             // Its reflection as far as the indirect light reaching the surface, the probes' where
             // they hold it, holds this light's own, so a floor under a roof reflects as little of
-            // it as the roof lets reach it, where taken whole a floor under a solid slab took more
-            // from the reflection alone than a path-traced reference gives it in all. Held against
-            // the light the face takes in the open instead, the sky above it and below it a ground
-            // of its own color, a dark face turned down took more than that from the floor under
-            // the slab and reflected this light whole, and the slab's underside read far over the
-            // reference, which reflects no indirect light.
+            // it as the roof lets reach it, where taken whole a floor under a solid slab takes more
+            // from the reflection alone than the light that reaches it in all. Held against the
+            // light the face takes in the open instead, the sky above it and below it a ground of
+            // its own color, a dark face turned down takes more than that from the floor under the
+            // slab and reflects this light whole, and the slab's underside reads far brighter than
+            // the light that reaches it.
             float3 inOpen = distant ? distantAround(arrived, n, diffuseColor) : arrived;
             float reaches = bounces ? lerp(1.0, saturate(luminance(bouncedHere) / max(luminance(arrived), 1e-5)), held) : 1.0;
             light.diffuse += termTaken(only, 9u) * inOpen * occlusion * diffuseColor * (1.0 - held);

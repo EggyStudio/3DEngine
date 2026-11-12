@@ -28,7 +28,7 @@ public static partial class E3D
     /// A box that never moves and stops nothing, which reports what enters it as contacts that
     /// start and end, as a goal, a pickup or a door's sensor does.
     /// </summary>
-    /// <remarks>It sees bodies that fall and are pushed, and characters, as a static body does.</remarks>
+    /// <remarks>It is a static body, so it sees bodies that fall and are pushed, and characters.</remarks>
     public static PhysicsBody CreatePhysicsTrigger(Vector3 position, Vector3 size)
     {
         var body = Physics.CreateStaticBox(position, size / 2);
@@ -92,8 +92,8 @@ public static partial class E3D
     /// center of mass. A hollow in the model is filled, so a cup holds nothing. A skinned model is
     /// shaped as it was last posed and drawn. The model's <c>Transform</c> is not read, since a
     /// program sets it to a body's transform to draw the body, and a hull made from the model after
-    /// stood where that body was drawn, as a catapult's second stone did 30 meters from its cup. A
-    /// scale of the model's own is given by <paramref name="scale"/>.
+    /// would stand where that body was drawn. A scale of the model's own is given by
+    /// <paramref name="scale"/>.
     /// </remarks>
     /// <returns>The body, or an invalid one when the model's vertices hold nothing, with the reason in the log.</returns>
     public static PhysicsBody CreatePhysicsConvexHull(Model model, Vector3 position, float mass = 1, float scale = 1)
@@ -221,7 +221,7 @@ public static partial class E3D
         Physics.SetMaterial(body, PhysicsMaterial.Default with { Friction = friction, Restitution = bounce });
 
     /// <summary>Makes a body a trigger, which reports what it touches and stops nothing, or a solid body again.</summary>
-    /// <remarks>A change wakes the body, or what rests on it when it is static, as a change of layer does.</remarks>
+    /// <remarks>A change wakes the body, or what rests on it when it is static, whose contacts are then tested again.</remarks>
     public static void SetPhysicsBodyTrigger(PhysicsBody body, bool trigger) => Physics.SetTrigger(body, trigger);
 
     /// <summary>A box moved only by the program, through <see cref="SetPhysicsBodyPosition"/> or <see cref="SetPhysicsBodyVelocity"/>, which pushes what it meets.</summary>
@@ -277,9 +277,9 @@ public static partial class E3D
     }
 
     /// <summary>
-    /// Makes a character fly, as a creative mode or a spectator does, or walk again. Flying, it
-    /// goes at the velocity <see cref="MovePhysicsCharacter"/> gives it up and down as well as
-    /// along, with gravity held off and walls, floors and ceilings still stopping it.
+    /// Makes a character fly, or walk again. Flying, it goes at the velocity
+    /// <see cref="MovePhysicsCharacter"/> gives it up and down as well as along, with gravity held
+    /// off and walls, floors and ceilings still stopping it.
     /// </summary>
     /// <remarks>
     /// It hovers where asked for nothing and does not jump. <see cref="IsPhysicsCharacterGrounded"/>
@@ -406,7 +406,7 @@ public static partial class E3D
         ray.Direction != Vector3.Zero && Physics.Raycast(ray.Position, Vector3.Normalize(ray.Direction), maxDistance, ignore, out var hit) ? hit : default;
 
     /// <summary>The first body a ray meets within <paramref name="maxDistance"/>, with where and at what face, its <see cref="PhysicsRayCollision.Hit"/> false for none.</summary>
-    /// <remarks>A ray goes through a trigger, which stops nothing, as a body does. It answers as raylib's <c>GetRayCollision</c> functions do, with the collision rather than a flag beside it.</remarks>
+    /// <remarks>A ray goes through a trigger, which stops nothing. It answers as raylib's <c>GetRayCollision</c> functions do, with the collision rather than a flag beside it.</remarks>
     public static PhysicsRayCollision GetRayCollisionPhysics(Ray ray, float maxDistance) =>
         ray.Direction != Vector3.Zero && Physics.Raycast(ray.Position, Vector3.Normalize(ray.Direction), maxDistance, out var hit) ? hit : default;
 
@@ -418,7 +418,7 @@ public static partial class E3D
     /// <remarks>
     /// The distance is how far the ball's middle moved, the point where the ball touched and the
     /// normal the way the surface faces there. A ball that starts inside a body meets it at 0,
-    /// facing back along the ray. It goes through triggers as a ray does.
+    /// facing back along the ray. It goes through triggers, which stop nothing.
     /// </remarks>
     public static PhysicsRayCollision GetSphereCastPhysics(Ray ray, float radius, float maxDistance) =>
         Physics.SphereCast(ray.Position, radius, ray.Direction, maxDistance, default, out var hit) ? hit : default;
@@ -429,7 +429,7 @@ public static partial class E3D
 
     /// <summary>
     /// Every body a sphere overlaps or touches, each once, as what an explosion reaches. Triggers
-    /// are left out, as rays pass through them.
+    /// are left out, since a trigger stops nothing.
     /// </summary>
     public static PhysicsBody[] GetPhysicsBodiesInSphere(Vector3 center, float radius) => [.. Physics.Overlap(center, radius)];
 
@@ -452,9 +452,9 @@ public static partial class E3D
     /// thrown crate needs, so it does not cross a thin wall within one step, or stops sweeping it.
     /// </summary>
     /// <remarks>
-    /// Without it a ball of 20 units a second crossed a wall a fifth of a unit thick. With it a body
-    /// stops at a wall of any thickness at 50 units a second, at a fifth of a unit's at 100 and at
-    /// half a unit's at 300, since a contact stops a body over a step rather than at once. A shot
+    /// Without it a body that moves farther in a step than a wall is thick crosses the wall. With it
+    /// the body stops at the wall it would meet, though a contact stops a body over a step rather
+    /// than at once, so the faster a body moves, the thicker a wall must be to stop it. A shot
     /// faster than that is a ray or a ball cast each frame, as <see cref="GetSphereCastPhysics"/>
     /// makes, rather than a body. A swept body costs a sweep test for each body it nears.
     /// </remarks>
@@ -521,8 +521,8 @@ public static partial class E3D
         if (!Matrix4x4.Invert(camera.View * camera.ProjectionMatrix((float)width / height), out var inverse))
             return new Ray(camera.Position, Vector3.Normalize(camera.Target - camera.Position));
 
-        // Normalized device coordinates, which run down the screen as pixels do, since the
-        // projection is flipped for Vulkan.
+        // Normalized device coordinates, whose Y grows down the screen since the projection is
+        // flipped for Vulkan, so a pixel's Y maps to it unnegated.
         var x = position.X / width * 2 - 1;
         var y = position.Y / height * 2 - 1;
         var near = Vector4.Transform(new Vector4(x, y, 0, 1), inverse);

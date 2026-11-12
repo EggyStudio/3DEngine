@@ -26,7 +26,7 @@ internal static class FaceMerge
     /// <summary>A face made, its corners as indices of the welded points, and what it came from.</summary>
     internal readonly record struct Made(int[] Corners, Csg.Source Source);
 
-    /// <summary>Welds, mends, joins and tidies the pieces into faces.</summary>
+    /// <summary>Welds the points, cuts the edges at their T-junctions, and joins and tidies the pieces into faces.</summary>
     /// <param name="pieces">The convex pieces a boolean left.</param>
     /// <param name="weld">How near two points are to be one, and a point an edge to lie on it.</param>
     public static (List<Csg.Point> Points, List<Made> Faces) Faces(List<Csg.Polygon> pieces, double weld)

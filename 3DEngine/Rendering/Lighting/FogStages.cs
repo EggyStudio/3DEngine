@@ -11,7 +11,7 @@ namespace Engine;
 /// <remarks>
 /// The cells' light is kept in the general layout, written and read by the two passes alone. The
 /// summed light is read by the window's decode pass, so it is moved to the general layout for the
-/// pass that writes it and back after, as the screen's probes' images are.
+/// pass that writes it and back after.
 /// </remarks>
 internal sealed class GpuFog : IDisposable
 {

@@ -17,8 +17,9 @@ namespace Engine;
 /// where the built-in shaders are staged.
 /// </para>
 /// <para>
-/// Kept beside the program, the compiled shaders went with every build the program's folder was
-/// deleted before, and the first start after one compiled every stage again through slangc.
+/// The cache is kept apart from the program, since a build that deletes the program's folder would
+/// delete the compiled shaders with it, and the first start after it would compile every stage
+/// again through slangc.
 /// </para>
 /// </remarks>
 /// <example>
@@ -181,7 +182,7 @@ internal sealed partial class SlangLoader : IAssetLoader<ShaderProgram>
     /// read them. A stage that fails to compile is left for its load to say why.
     /// </summary>
     /// <remarks>
-    /// Compiled one after another as each was loaded, a first start with no cache waited on every
+    /// Compiled one after another as each is loaded, a first start with no cache would wait on every
     /// stage in turn, where the machine's cores can compile them together.
     /// </remarks>
     /// <param name="wanted">Whether the build of a shader of the file's name with the names given is loaded, the plain build's none.</param>

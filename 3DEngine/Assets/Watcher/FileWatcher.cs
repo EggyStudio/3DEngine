@@ -20,8 +20,8 @@ internal readonly record struct FileChangedEvent(
 /// </summary>
 /// <remarks>
 /// <para>
-/// Extracted from <c>RuntimeShellCompiler.FileWatcher</c> as a reusable utility. Multiple parts of the
-/// engine and editor can share this instead of duplicating <see cref="FileSystemWatcher"/> boilerplate.
+/// The parts of the engine and editor that watch files share it, so each sets its filters and its
+/// debounce here rather than handling a <see cref="FileSystemWatcher"/>'s events itself.
 /// </para>
 /// <para>
 /// Changes are coalesced over a configurable debounce window (default 300ms). When the debounce

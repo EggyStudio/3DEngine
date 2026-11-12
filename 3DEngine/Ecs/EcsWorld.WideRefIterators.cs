@@ -1,7 +1,7 @@
 namespace Engine;
 
-// The by-reference queries of four to six components, written as the three-component one beside
-// the smaller ones, in a file of their own since together they passed the length a file keeps to.
+// The by-reference queries of four to six components, in a file of their own since with the
+// smaller ones they pass the length a file keeps to.
 public sealed partial class EcsWorld
 {
     /// <summary>Zero-allocation ref wrapper for four components on the same entity.</summary>
@@ -42,7 +42,7 @@ public sealed partial class EcsWorld
     /// <summary>
     /// A <c>foreach</c>-able view of the entities that have all four component types, by
     /// reference, narrowed by <see cref="With{TWith}"/>, <see cref="Without{TWithout}"/> and
-    /// <see cref="Changed{TChanged}"/> as the smaller queries are.
+    /// <see cref="Changed{TChanged}"/>.
     /// </summary>
     /// <remarks>
     /// Walks the store with the fewest components and probes the others, so its cost follows the
@@ -212,7 +212,7 @@ public sealed partial class EcsWorld
     /// <summary>
     /// A <c>foreach</c>-able view of the entities that have all five component types, by
     /// reference, narrowed by <see cref="With{TWith}"/>, <see cref="Without{TWithout}"/> and
-    /// <see cref="Changed{TChanged}"/> as the smaller queries are.
+    /// <see cref="Changed{TChanged}"/>.
     /// </summary>
     /// <remarks>
     /// Walks the store with the fewest components and probes the others, so its cost follows the
@@ -393,7 +393,7 @@ public sealed partial class EcsWorld
     /// <summary>
     /// A <c>foreach</c>-able view of the entities that have all six component types, by
     /// reference, narrowed by <see cref="With{TWith}"/>, <see cref="Without{TWithout}"/> and
-    /// <see cref="Changed{TChanged}"/> as the smaller queries are.
+    /// <see cref="Changed{TChanged}"/>.
     /// </summary>
     /// <remarks>
     /// Walks the store with the fewest components and probes the others, so its cost follows the

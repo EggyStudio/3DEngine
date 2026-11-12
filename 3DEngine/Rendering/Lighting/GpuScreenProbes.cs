@@ -50,8 +50,8 @@ internal sealed partial class GpuScreenProbes : IDisposable
 
     /// <summary>
     /// The window's pixels along each side of a texel of the glow lights' images, two up to 1,080
-    /// rows and as many as hold the images at 540 rows past that, as the screen probes' tile grows,
-    /// so the glow lights' pass, which works out each texel's light, costs at 4K what it does at 1080p.
+    /// rows and as many as hold the images at 540 rows past that, so the glow lights' pass, which
+    /// works out each texel's light, works out no more texels at 4K than at 1080p.
     /// </summary>
     public static float GlowTexelAt(uint height) => 2 * Math.Max(1f, height / 1080f);
 

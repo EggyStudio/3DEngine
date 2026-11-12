@@ -41,8 +41,8 @@ public enum Stage
     /// for every whole step of <see cref="FixedTime"/> that has accumulated.
     /// </summary>
     /// <remarks>
-    /// The last value of the enum so the values of the others are unchanged. Execution order is
-    /// <see cref="StageOrder"/>'s, not the enum's.
+    /// The last value of the enum, so every other stage keeps the number a program compiled against
+    /// the engine holds for it. Execution order is <see cref="StageOrder"/>'s, not the enum's.
     /// </remarks>
     FixedUpdate,
 }

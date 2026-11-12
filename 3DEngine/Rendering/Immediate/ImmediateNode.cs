@@ -385,8 +385,8 @@ internal sealed class ImmediateRenderer : IDisposable
 
     // An unloaded shader's stages and pipelines may still be in use by a frame in flight, so they
     // are destroyed GpuTextures.RetireFrames frames after the shader is unloaded. A shader loaded
-    // again holds another program under the same id, so what was made from the one before goes as
-    // an unloaded shader's does and is made again at the shader's next draw.
+    // again holds another program under the same id, so what was made from the program it replaces
+    // is retired the same number of frames later and made again at the shader's next draw.
     private void RetireUnloadedShaders(ShaderStore? store)
     {
         _frame++;

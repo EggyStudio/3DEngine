@@ -3,7 +3,7 @@ namespace Engine;
 /// <summary>
 /// CPU-side texture asset. Holds decoded pixel bytes plus the metadata needed to upload
 /// them to a GPU texture later. It is produced by any <see cref="ITextureDecoder"/>
-/// (StbImageSharp is the one there is) and consumed by the renderer when material payloads come
+/// (StbImageSharp's or the KTX2 one) and consumed by the renderer when material payloads come
 /// up for binding.
 /// </summary>
 /// <remarks>

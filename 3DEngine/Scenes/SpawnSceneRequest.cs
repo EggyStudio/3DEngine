@@ -17,7 +17,7 @@ namespace Engine;
 /// // with placement
 /// ctx.SpawnScene("scenes/teapot.usdz", SceneSpawn.At(new Vector3(0, 1, 0)));
 /// </code>
-/// The verbose form is still supported when callers need full control:
+/// The verbose form gives callers full control:
 /// <code>
 /// var handle = server.Load&lt;SceneAsset&gt;("scenes/teapot.usdz");
 /// ctx.Cmd.Spawn((id, ecs) =&gt; ecs.Add(id, new SpawnSceneRequest { Handle = handle }));

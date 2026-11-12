@@ -15,7 +15,7 @@ public static class PluginOrder
 
     /// <summary>
     /// Foundational subsystems other plugins implicitly depend on
-    /// (e.g. <c>AssetPlugin</c>, future <c>JobSystemPlugin</c>).
+    /// (e.g. <c>AssetPlugin</c>).
     /// </summary>
     public const int Foundation = -1000;
 

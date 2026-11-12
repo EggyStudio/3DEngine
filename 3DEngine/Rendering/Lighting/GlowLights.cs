@@ -12,36 +12,35 @@ namespace Engine;
 /// <para>
 /// A probe's rays meet a small emitter seldom and take it for a whole texel of the sky where they
 /// do, and the world's probes stand above a floor at their spacing, so the faces a floor reads see
-/// none of a lamp lying on it. An emissive block on a floor lit the floor beside it through the
-/// screen probes' sixteen rays alone, in eight lobes where some rays met it, to the two blocks
-/// they reach, and from no farther. Carried as a light, its light reaches a surface in closed form
-/// from the faces of its box, which a path-traced floor beside a block agrees with.
+/// none of a lamp lying on it, and the screen probes' sixteen rays alone would light the floor
+/// beside it in lobes where some rays meet it, and no farther than those rays reach. Carried as a
+/// light, its light reaches a surface in closed form from the faces of its box.
 /// </para>
 /// <para>
 /// Each pixel takes it in the model pass as the screen probes around the pixel saw it, each of
 /// which marches the field to the halves of each face of each light in reach and keeps sixteen
 /// levels of how much of it it sees, a soft shadow from the field's distances; a pixel no screen
-/// probe stands on a surface like its own marches to the four brightest itself, once each, as do
-/// the pixels past the screen's probes. A probe's ray's hit takes the brightest and the rest as one
+/// probe stands on a surface like its own, and a pixel past the screen's probes, marches to the
+/// four brightest itself, once each. A probe's ray's hit takes the brightest and the rest as one
 /// group shadowed as its brightest is, so the walls a lamp lights reflect its light on, at two
 /// marches a hit, since every lamp in reach of a hit is weighed and marched to at every ray of every
-/// probe, and its light reaches the window only after the bounce. Emitters square to the axes that touch and emit the same light
-/// are one light, so a stack of emissive blocks is not four lights each hidden by the others. The
-/// field marks the cells such an emitter paints, so a ray that meets it does not take its light a
-/// second time; a reflection keeps it.
+/// probe, and its light reaches the window only after the bounce. Emitters square to the axes that
+/// touch and emit the same light are one light, so a stack of emissive blocks is not four lights
+/// each hidden by the others. The field marks the cells such an emitter paints, so a ray that meets
+/// it does not take its light a second time; a reflection keeps it.
 /// </para>
 /// <para>
 /// An emitter is carried where its box's longest side in the world is no more than twice the first
 /// cascade's probe spacing, which does not change while it stands still, so the field's mark holds
-/// between its builds. A mesh of many emitters, as a voxel game draws its blocks of a kind, is cut
-/// into its parts, its triangles joined where they share a corner, and is carried where each part
-/// is, each a light of its own (<see cref="PartsOf"/>). Its light reaches as far as a surface there
-/// takes a 300th of the light it emits, the share below, or a 300th of what a surface takes half
-/// the first cascade's probe spacing from it where that is further, as for a lamp's small bulb. The <see cref="Most"/> carried
-/// emitters nearest the eye are lights each frame; one past them lights nothing a probe carries to
-/// a floor, its cells marked all the same, so a level of more lamps than that lights only the
-/// nearest. The field marks a mesh whole, so a mesh of many parts past the nearest lights none of
-/// the ground around those parts, where taken whole it lit it through the probes' rays.
+/// between its builds. A mesh of many separate emitters is cut into its parts, its triangles joined
+/// where they share a corner, and is carried where each part is, each a light of its own
+/// (<see cref="PartsOf"/>). Its light reaches as far as a surface there takes a 300th of the light
+/// it emits, the share below, or a 300th of what a surface takes half the first cascade's probe
+/// spacing from it where that is further, as for a lamp's small bulb. The <see cref="Most"/>
+/// carried emitters nearest the eye are lights each frame; one past them lights nothing a probe
+/// carries to a floor, its cells marked all the same, so a level of more lamps than that lights
+/// only the nearest. The field marks a mesh whole, so a mesh of many parts past the nearest lights
+/// none of the ground around those parts.
 /// </para>
 /// </remarks>
 internal static class GlowLights
@@ -66,11 +65,10 @@ internal static class GlowLights
 
     // The light a surface at the reach takes from one, a 300th of the light it emits, past which
     // the light is let go, over a quarter of the box's surface as the box's mean face seen from
-    // afar. A share of its own, so every light keeps the same share of its light whatever its
-    // brightness, where let go at a fiftieth of a unit a dim light reached less far than a bright
-    // one of its size, and six emitters of a sixth of one's light each less far still, so a closed
-    // room lit by six took far less of a path-traced reference's light than one lit by one
-    // (GlowLightsTests). A 300th keeps the reach of the bounce rooms' box lamp, whose light is 6.
+    // afar. A share of its own light, so every light keeps the same share of its light whatever its
+    // brightness, where a light let go at a fixed level reaches less far the dimmer it is, and six
+    // emitters of a sixth of one's light each less far still, so a closed room lit by six takes
+    // far less light than one lit by one (GlowLightsTests).
     private const float Faint = 1f / 300;
 
     // How far from an emitter, in the first cascade's probe spacings, a surface's light is the one
@@ -105,10 +103,10 @@ internal static class GlowLights
     /// <paramref name="share"/>, where its triangles are all joined or it has none.
     /// </summary>
     /// <remarks>
-    /// A voxel game draws all its blocks of a kind as one mesh, as Ore draws its ore, whose box is
-    /// the land's, so taken whole no such emitter was carried and the ground beside each block took
+    /// A mesh may hold many small emitters apart from one another in a box as wide as the land,
+    /// which taken whole is too large to be carried, so the ground beside each emitter would take
     /// its light through the screen probes' sixteen rays alone, in patches. Cut into parts, each
-    /// block, or each group of blocks that share a corner, is an emitter of its own.
+    /// group of triangles that share a corner is an emitter of its own.
     /// </remarks>
     public static Part[] PartsOf(Vector3[]? corners, SceneFieldPlan.Box box, float share)
     {
@@ -208,9 +206,9 @@ internal static class GlowLights
     /// <remarks>
     /// <see cref="Faces"/> names which faces of its box emit, a bit a face, two an axis of
     /// <see cref="X"/>, <see cref="Y"/> and <see cref="Z"/>, the side the axis points to the higher,
-    /// or 0 for every face, its surface spread over them by <see cref="Share"/>. A block of a voxel
-    /// game showing a top and one side lit the ground before its side by a third of the side's light
-    /// spread over six faces.
+    /// or 0 for every face, its surface spread over them by <see cref="Share"/>, so a box that emits
+    /// from its top and one side lights the ground before that side by the whole of the side's
+    /// light, where its surface spread over all six faces would give the ground a third of it.
     /// </remarks>
     internal readonly record struct Light(Vector3 Middle, Vector3 X, Vector3 Y, Vector3 Z, Vector3 Glow, float Share, int Faces = 0);
 
@@ -271,9 +269,10 @@ internal static class GlowLights
     /// other covers.
     /// </summary>
     /// <remarks>
-    /// Four emissive blocks stacked two by two were four lights, each marched to through the others
-    /// and each emitting from the faces the others cover, so the stack threw a ring of light that
-    /// came and went around it. As one light of a box two blocks wide its light is the stack's.
+    /// Four emissive blocks stacked two by two would otherwise be four lights, each marched to
+    /// through the others and each emitting from the faces the others cover, so the stack would
+    /// throw a ring of light that comes and goes around it. As one light of a box two blocks wide
+    /// its light is the stack's.
     /// </remarks>
     internal static List<Light> Gather(IReadOnlyList<(SceneFieldPlan.Instance Instance, bool Skinned)> drawn, float firstCell,
         Func<ModelVertex[], SceneFieldPlan.Box> boxOf, Func<ModelVertex[], float> shareOf, Func<ModelVertex[], IReadOnlyList<Part>>? partsOf = null)
@@ -282,11 +281,11 @@ internal static class GlowLights
         var square = new List<(SceneFieldPlan.Box Box, Vector3 Glow, float Surface, float Share, int Faces)>();
         void Add(SceneFieldPlan.Box box, Matrix4x4 w, Vector3 glow, float share, int faces = 0)
         {
-            // A flat emitter, as a block's one face showing above the ground around it, is a box a
+            // A flat emitter, such as a single face showing above the ground around it, is a box a
             // hundredth of its size thick about its face, which lights each side by the face's
-            // whole surface. Flat, its faces along its thin side were left out of its light and its
-            // surface counted on both sides at half, and the model pass drew the face itself dark
-            // where the screen's probes read it.
+            // whole surface. A box of no thickness would leave its faces along its thin side out of
+            // its light and count its surface on both sides at half, and the model pass would draw
+            // the face itself dark where the screen's probes read it.
             var size = box.Max - box.Min;
             var largest = MathF.Max(size.X, MathF.Max(size.Y, size.Z));
             var least = 0.01f * largest;
@@ -500,7 +499,7 @@ internal sealed class GlowPlaces
         return used;
     }
 
-    /// <summary>Lets every place go, as a frame that writes no glow light does.</summary>
+    /// <summary>Lets every place go, for a frame that writes no glow light.</summary>
     public void Forget()
     {
         _before.Clear();

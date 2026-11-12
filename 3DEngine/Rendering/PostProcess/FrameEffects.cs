@@ -73,7 +73,7 @@ internal sealed class FrameEffects
 
     /// <summary>
     /// The numbers of <see cref="Tonemap.Curve"/>, its exposure, white curve, lower curve and upper
-    /// curve, BSL's shader's defaults until set.
+    /// curve, 1.4, 2, 1.2 and 1.5 until <c>E3D.SetTonemapCurve</c> sets them.
     /// </summary>
     public Vector4 Curve { get; set; } = new(1.4f, 2, 1.2f, 1.5f);
 

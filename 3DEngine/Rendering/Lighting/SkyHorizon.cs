@@ -6,9 +6,9 @@ namespace Engine;
 /// <c>E3D.SetSkyHorizon</c> sets and a clear color takes away.
 /// </summary>
 /// <remarks>
-/// A resource of its own rather than the map's, as <see cref="EnvironmentLight"/> is, so the horizon
-/// a program set stays through a change of map. It is the drawn sky's alone, and the map lights the
-/// scene from below as before.
+/// A resource of its own rather than the map's, so the horizon a program set stays through a change
+/// of map. It is the drawn sky's alone, and the map's image lights the scene from below whatever
+/// the horizon.
 /// </remarks>
 internal sealed class SkyHorizon
 {

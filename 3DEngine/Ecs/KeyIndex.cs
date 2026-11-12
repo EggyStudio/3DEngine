@@ -15,9 +15,8 @@ internal interface IKeyIndexOf<T>
 /// </summary>
 /// <remarks>
 /// <para>
-/// A game that finds an entity by where it is, as the voxel game finds the fire burning in a cell,
-/// walked every one of them into a set of its own each frame it asked. A lookup here is a
-/// dictionary's, and allocates nothing.
+/// A lookup is a dictionary's, so finding an entity by its key, as by the cell it stands in, walks
+/// no store and allocates nothing.
 /// </para>
 /// <para>
 /// A key names one entity, and a second given the same key takes its place, the first found by it

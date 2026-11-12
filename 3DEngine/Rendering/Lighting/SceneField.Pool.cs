@@ -8,9 +8,9 @@ internal sealed partial class SceneFieldRenderer
 {
     // The buffer of triangles holding every mesh the frame's builds read, made again larger with
     // those meshes where they do not fit, large enough for the triangles of the build in progress
-    // (building) its later parts are added from. Made for one frame's part, the next part's meshes
-    // overflowed it and it was made again over and over, every mesh's corners written again each
-    // time.
+    // (building) its later parts are added from, since one made for a frame's part alone would
+    // overflow with the next part's meshes and be made again at each part, every mesh's corners
+    // written again each time.
     private IBuffer Pool(GraphicsDevice device, IEnumerable<SceneFieldPlan.Instance> needed, int building)
     {
         // A mesh by its vertices, with the id of one draw of it, whose vertices' colors it is pooled with.
@@ -29,9 +29,9 @@ internal sealed partial class SceneFieldRenderer
             var free = device.FreeDeviceMemory();
             var asked = PoolCapacity(wanted, frame, null);
             var capacity = Math.Max(frame, Math.Min(PoolCapacity(wanted, frame, free), _poolCeiling));
-            // Halved until it fits where the driver's budget said more was free than could be had,
-            // as it did beside a program holding half the GPU, and kept under that until the field
-            // is made again, so a remake does not try the size that failed each frame.
+            // Halved until it fits where the driver's budget says more is free than can be had, as
+            // beside another program holding much of the GPU's memory, and kept under that until the
+            // field is made again, so a remake does not try the size that failed each frame.
             while (true)
             {
                 try
@@ -70,10 +70,10 @@ internal sealed partial class SceneFieldRenderer
             }
             if (!_indices.TryGetValue(vertices, out var indices)) continue;
             var count = indices.Length / 3;
-            // Each corner's place, and in w its vertex's color, three sRGB bytes, white for a mesh
-            // with none, as the model pass reads it, and above them a bit set where the edge from
-            // it to the triangle's next corner is open, no other triangle's, which
-            // field_splat.slang reads to keep a cell beyond the edge in front.
+            // Each corner's place, and in w its vertex's color, three sRGB bytes, red lowest, white
+            // for a mesh with none, and above them a bit set where the edge from it to the
+            // triangle's next corner is open, no other triangle's, which field_splat.slang reads to
+            // keep a cell beyond the edge in front.
             var open = OpenEdgesOf(vertices, indices);
             var colors = _store?.StreamsOf(mesh)?.Colors is { } given && given.Length == vertices.Length ? given : null;
             for (int i = 0; i < count * 3; i++)
@@ -222,8 +222,8 @@ internal sealed partial class SceneFieldRenderer
 
     // The triangles sorted by their middles along an axis, those as far along in the order given,
     // as a stable sort leaves them, each keyed by its middle's bits made to order as the floats do
-    // above its place, rather than by LINQ's OrderBy, which was slow to cut the voxel game's
-    // sections that came back into the field at a crossing.
+    // above its place, rather than by LINQ's OrderBy, which is too slow to cut the many meshes that
+    // come back into the field in one frame, as a streamed world's sections do at a crossing.
     private static int[] SortedAlong(int[] triangles, Vector3[] middles, int axis)
     {
         var keyed = new ulong[triangles.Length];

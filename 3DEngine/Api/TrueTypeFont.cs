@@ -12,17 +12,15 @@ namespace Engine;
 /// <para>
 /// It reads what an outline needs and nothing more, the character map (format 12, which reaches
 /// every plane, or format 4), the glyphs' quadratic contours, simple or made of other glyphs, and
-/// their advances. An OpenType font of cubic outlines (CFF) has none of these, and
-/// <see cref="Read"/> answers null for it.
+/// their advances. An OpenType font's cubic outlines (CFF) are read by
+/// <see cref="CompactFontOutlines"/>.
 /// </para>
 /// <para>
-/// A color glyph is read from the font's bitmaps (CBDT and CBLC, PNG images at a size or a few,
-/// as Noto Color Emoji and most color emoji fonts hold them), scaled from the size nearest above,
-/// or from Apple's bitmaps (sbix, as Apple Color Emoji holds them), or from its layers (COLR version
-/// 0 with CPAL's first palette, as Segoe UI Emoji holds them),
-/// outlines of the font's own each filled in a color, a layer in the text's color drawn white so
-/// the text's color tints it, or from its paints (COLR version 1, as Noto Color Emoji holds them),
-/// gradients and transforms among them, which <see cref="ColorPaint"/> draws.
+/// A color glyph is read from the font's bitmaps (CBDT and CBLC, PNG images at a size or a few),
+/// scaled from the size nearest above, or from Apple's bitmaps (sbix), or from its layers (COLR
+/// version 0 with CPAL's first palette), outlines of the font's own each filled in a color, a layer
+/// in the text's color drawn white so the text's color tints it, or from its paints (COLR version
+/// 1), gradients and transforms among them, which <see cref="ColorPaint"/> draws.
 /// </para>
 /// <para>
 /// A sequence the font joins into one glyph, as a family of emoji or a flag, is read from its GSUB

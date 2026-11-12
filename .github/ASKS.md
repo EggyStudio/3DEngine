@@ -201,15 +201,15 @@ the field repainting its cells' colors and the ray scene its corners in the fram
 8.
 
 Review: the engine's vertex stream of the program's own, item 20 of REVIEW.md, done at `3ec1fdb3` on
-2026-10-11, is the game's to take as its first user, which the owner asked for at 20:05 and refined
-at 22:55: a section's mesh becomes positions alone and four or eight packed bytes a vertex,
+2026-10-11, is the game's to take as its first user, asked for at 20:05 and refined at 22:55, so
+that a section's mesh becomes positions alone and four or eight packed bytes a vertex,
 `UploadMesh(positions, indices, MeshStream.From(format, packed), colors)`, twelve bytes of position
 on the GPU and the packed bytes beside, where a vertex costs 44 today. The packed bytes hold the
 face at 3 bits, the corner at 2, the shade at 8 and the tint, a `UInt2` keeping the tint at 8 bits a
 channel with room to spare, 20 bytes a vertex, and a `UInt` holding it at 6 bits a channel, 16
-bytes, which may band in a biome's gradient, the choice the owner's eye's (Decision 27), `UInt2`
-unless the look is the same; the position stays a `Vector3`, so wheat, the lantern and water keep
-their shapes. `terrain.slang`'s stage takes `float3 position : POSITION, uint2 packed : CUSTOM0,
+bytes, which may band in a biome's gradient, the choice made by eye (Decision 27), `UInt2` unless
+the look is the same; the position stays a `Vector3`, so wheat, the lantern and water keep their
+shapes. `terrain.slang`'s stage takes `float3 position : POSITION, uint2 packed : CUSTOM0,
 ModelInstance instance`, unpacks the normal from a six-entry table and the coordinate from a
 four-entry one, the color from the tint and the shade, and calls the streams overload of
 `transformModelVertex` with a zero `uv2`; a relight is `UpdateMeshBuffer(mesh, MeshStreamBuffer,
@@ -431,8 +431,8 @@ with an example `shaders_compute_mesh`; taken after item 68, a package due after
 
 ### 2026-10-21, the voxel game in `Voxel-Sandbox`, global illumination leaks through an edge, steps at its edges, and costs the model pass more without the screen's probes
 
-The owner judges the screen's probes pixelated and the cascades without them the better look for
-the game, and sees a light block's light leak through the gap where two columns meet at a corner,
+The screen's probes read as pixelated and the cascades without them as the better look for the
+game, and a light block's light shows leaking through the gap where two columns meet at a corner,
 penumbrae on the ground with zig-zags, the screen's probes shifting as the eye moves, points where
 the light and the blocks' faces fight, and noise in the engine's bounce rooms 3 to 6. Each was read
 at the game's `28eb41c` on the 3DEngine 5.2.190 package, built from `b3922179`, with `voxel.gi
@@ -471,13 +471,13 @@ most, and nothing without. Put half a block over at once, the frame after and th
 differ by a level at most with the screen's probes and by none without. Over seed 1's spawn at noon,
 flying at 96 looking east over the forest, two blocks east over 60 frames changed each frame by 0.51
 levels with the screen's probes and 0.49 without, and nothing after either way. So in these scenes
-the screen's probes move the light by little that a frame's change shows, and the owner sees the
-shift in play.
+the screen's probes move the light by little that a frame's change shows, and the shift shows in
+play.
 
 **Points where the light and the faces fight, and noise.** Neither was seen in the scenes above.
 In the lamp room, still for 150 frames, each frame changed from the one before by 0.0002 levels on
-the mean with the screen's probes and by none without, no pixel by more than 8. The owner saw the
-noise in the engine's own bounce rooms 3 to 6.
+the mean with the screen's probes and by none without, no pixel by more than 8. The noise shows in
+the engine's own bounce rooms 3 to 6.
 
 **The model pass's cost without the screen's probes.** A closed room of stone, `voxel.room 0 4 -30
 22 11 -16 stone`, forty glowstones on its floor two blocks apart in five rows of eight, x 5 to 19
@@ -506,7 +506,7 @@ the rule that no view's distance to its reference widens, or named where the met
 
 ### 2026-10-21, the voxel game in `Voxel-Sandbox`, a lantern's or a torch's light lies in blotches
 
-The owner sees what read as fireflies in the game's captures of a room lit at night, soft round
+What read as fireflies shows in the game's captures of a room lit at night, soft round
 blotches of light about 40 pixels across standing still on the ceiling and the walls. Each was read
 at the game's `6845654` on the 3DEngine 5.2.190 package, with `voxel.gi high`, the game's default,
 offscreen at 1280 by 720 on the RTX 4070 Laptop GPU, on seed 1 opened by `./e3d open
@@ -556,7 +556,7 @@ reference widens, or named where the method stops; after item 70.
 
 ### 2026-10-21, the voxel game in `Voxel-Sandbox`, a masked surface drawn through a program's shader casts a whole quad's shadow
 
-The owner asks for the plants' shadows, the grass's blades and the flowers stepping with the pixels
+The game asks for the plants' shadows, the grass's blades and the flowers stepping with the pixels
 of the sun's map, which fit the game's look. The game's plants are a mesh of flat walls drawn
 through its own shader, `VoxelSandbox/resources/shaders/terrain.slang`, with a `ModelMaterial` of
 `AlphaMode` Mask and `BouncesLight` off, its fragment stage cutting each blade out by its tile's
@@ -591,8 +591,8 @@ wall's shadow by its tile's alpha, at 2.3 ms of GPU a frame on the development m
 
 ### 2026-10-21, the voxel game in `Voxel-Sandbox`, the sky's light on the scene cannot be set apart from the sky drawn
 
-The owner asks for the game's light to look as the owner's modpack's shader, Aurora's Shaders after
-Complementary, draws its light with the owner's settings. Its ambient light is the sky's color to
+The game asks for its light to look as a modpack's shader, Aurora's Shaders after Complementary,
+draws its light with a player's settings. Its ambient light is the sky's color to
 the power of 0.65 times 0.85, whitened, and its AMBIENT_MULT of 50 against a default of 150 leaves a
 surface in full shade at noon 0.55 of that and the default 1.45. Read at the game's `fa7fba0` on the
 3DEngine 5.2.190 package, offscreen at 1280 by 720 on the RTX 4070 Laptop GPU, with the default
@@ -621,14 +621,14 @@ Review: item 81 of REVIEW.md, 2026-10-21; `SetEnvironmentLight(intensity, tint)`
 tint of the environment map's light on the scene with the drawn sky unchanged, read by the model
 pass and the global illumination's sky term alike; after item 80.
 
-### 2026-10-21, the voxel game in `Voxel-Sandbox`, the frame's curve cannot be the one the owner's modpack's shader draws
+### 2026-10-21, the voxel game in `Voxel-Sandbox`, the frame's curve cannot be the one a modpack's shader draws
 
-The owner asks for the game's frame to be graded as the owner's modpack's shader, Aurora's Shaders
-after Complementary, grades it with the owner's settings. Its BSL tonemap, read as numbers, takes a
+The game asks for its frame to be graded as a modpack's shader, Aurora's Shaders after
+Complementary, grades it with a player's settings. Its BSL tonemap, read as numbers, takes a
 light c times its exposure, then c / (c^w + 1)^(1/w) with w its white curve, then c to the power of
 its lower curve in the darks to its upper in the lights, mixed by the square root of c, then gamma
 1/2.2, then each channel times its saturation less the channels' mean times the saturation less 1.
-The owner's settings are an exposure of 0.90, a white curve of 1.3, a lower curve of 1.05, an upper
+Those settings are an exposure of 0.90, a white curve of 1.3, a lower curve of 1.05, an upper
 curve of 1.00 and a saturation of 1.05, against the shader's defaults of 1.40, 2.0, 1.20, 1.50 and
 1.55. In sRGB levels at lights of 0.05, 0.1, 0.25, 0.5, 1, 2 and 4, the curve reads 0.230, 0.317,
 0.475, 0.620, 0.763, 0.874 and 0.941. The nearest of the engine's curves, each at its best exposure,
@@ -689,7 +689,7 @@ hand.
 
 ### 2026-10-24, the voxel game in `Voxel-Sandbox`, the scene pass spends a third of its time reading global illumination's cascades per pixel
 
-The game's frame at the owner's settings, render distance 12, global illumination High, the three
+The game's frame at a player's settings, render distance 12, global illumination High, the three
 default packs and the screen's probes off, is bound by the GPU, and the scene pass is most of it.
 Read with `./e3d command profile` over 300 frames at an unlimited rate, the Release build at
 `2263618` on the 5.2.215 package, offscreen on the development machine's RTX 4070 Laptop GPU, seed 1's
@@ -746,7 +746,7 @@ light at the camera's point; after item 89.
 ### 2026-10-24, the voxel game in `Voxel-Sandbox`, the sun's shadow cannot be read at a point of the program's choosing within `litLight`
 
 The game's terrain shader steps the sun's shadow along an eight-by-eight grid on each face, as the
-owner's modpack's shader does, by taking `litLight` and then replacing its sun's share with the
+modpack's shader does, by taking `litLight` and then replacing its sun's share with the
 sun's light read at the middle of the step (`litStepped` in `resources/shaders/terrain.slang`). So
 it reads the sun's shadow three times a pixel within the map, once inside `litLight`, once at the
 point to take that share back out, and once at the step's middle. Read with `./e3d command profile`
@@ -1918,3 +1918,30 @@ where one crossing nothing waited 81.
 The engine lacks a way to be told that the world moved by a whole offset, so what it keeps by
 place, the scene field's cascades and their still meshes, the probes, the screen's and the frames'
 histories and the glow lights' keys, moves with it and nothing is built again.
+
+### 2026-11-12, the voxel game in `Voxel-Sandbox`, ambient occlusion lights one scene by where it stands in the world
+
+For the engine's item 264. Read on the 3DEngine 6.2.56 package with the game at `4d96da7`, Debug,
+offscreen at 1280 by 720 on the RTX 4070 Laptop GPU with driver 615.78.08, the dither off by
+`SetDither`, bloom at 0 and the hour held at 13.35, in item 174's built scene of the entries above,
+a closed room of white concrete with sea lanterns, built alike at two places from a copy of a
+player's data folder, by the origin with its corner at 16, 120, 16 and at 4432, 120, 592. The game's
+origin stands at 0 for the first and at 4096, 1024 for the second, so the engine is handed the scene
+within 450 blocks of its zero at both. The land about the scene differs between the two places. The
+eye stands at 17.5, 1.5, 17.5 from the corner, heading 315 and pitched 12 down, and each row is read
+by `voxel.line` at 481 samples.
+
+With ambient occlusion at 1, at Low, Medium and High, the west wall's face at 2.5 high reads a mean
+of 101.1, 101.1 and 98.5 by the origin and 118.1, 117.4 and 114.3 at 4432, the north wall's 166.3,
+166.7 and 165.7 against 173.1, 173.3 and 172.4, and the floor along its middle 129.8, 131.7 and
+129.6 against 132.2, 133.8 and 131.7. With it at 0 the same rows read within 0.6 of each other at
+the two places, the west wall 125.2, 125.3 and 122.0 against 125.8, 125.1 and 121.8 and the north
+wall 176.8, 177.4 and 176.6 against 176.8, 176.9 and 176.0. So at 1 the west wall is 24 levels
+darker than at 0 by the origin and 8 darker at 4432, and the north wall 10.5 against 3.7. The west
+wall's mean step with it at 1 reads 0.45 to 0.46 by the origin and 0.37 to 0.39 at 4432, and its
+steps over 3 levels 4 at both. On the 6.2.41 package, with no origin of the game's and the scene at
+4432 from the engine's zero, the far place read 7 to 7.5 levels darker on the north wall than the
+near one, the entry above. The sheet is `14-40-ambient-occlusion-by-place.png` in the game's dump of
+2026-11-12, the two places at Low with it at 1 and at 0.
+
+The engine lacks an ambient occlusion that closes one surface off alike wherever the scene stands.

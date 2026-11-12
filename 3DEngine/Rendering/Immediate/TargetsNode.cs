@@ -8,13 +8,12 @@ namespace Engine;
 /// A target is drawn only in a frame that sends something to it. It is cleared first to the color
 /// <c>ClearBackground</c> set inside its <c>BeginTextureMode</c>, and where nothing cleared it, it
 /// keeps what it held, as raylib's does, the first pass of a new target clearing it to transparent
-/// black. Then its
-/// models, the particles through the camera its models were drawn with, and its immediate shapes
-/// are drawn, in that order, as the window's are. A target that
-/// draws models through a camera of its own has the shadow map drawn for that camera before it
-/// (<see cref="TargetShadows"/>), and the window's is drawn after every target. Its depth at half
-/// its size and its ambient occlusion are worked out before it as the window's are
-/// (<see cref="AmbientOcclusionRenderer.DrawTarget"/>), and where global illumination is on its
+/// black. Then its models, the particles through the camera its models were drawn with, and its
+/// immediate shapes are drawn, in that order. A target that draws models through a camera of its
+/// own has the shadow map drawn for that camera before it (<see cref="TargetShadows"/>), and the
+/// window's is drawn after every target. Its depth at half its size and its ambient occlusion are
+/// worked out before it (<see cref="AmbientOcclusionRenderer.DrawTarget"/>), and where global
+/// illumination is on its
 /// screen probes are traced on that depth, after the frame's world probes
 /// (<see cref="IIlluminationPasses.DrawTarget"/>), and its particles laid over by alpha are
 /// sorted from its camera (<see cref="ParticleRenderer.SortFor"/>).

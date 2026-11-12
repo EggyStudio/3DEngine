@@ -40,7 +40,7 @@ FullscreenOutput vertexMain(uint id : SV_VertexID)
 // the edge of a thing, which multisampling gave part of the thing's color and the depth of what is
 // behind it, counts as the thing and does not spread its color as the background would. Two
 // gathers on the corners of the texel at uv cover the texels on every side of it, where gathers
-// at uv itself leaned toward one side and missed a thing below an edge.
+// at uv itself would lean toward one side and miss a thing below an edge.
 float distanceAt(float2 uv)
 {
     float2 size = float2(push.lens.z * push.lens.w, push.lens.w);

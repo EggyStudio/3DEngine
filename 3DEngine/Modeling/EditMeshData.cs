@@ -27,7 +27,8 @@ namespace Engine;
 /// <para>
 /// Measures are taken as given. The grid step is where <see cref="Snap"/> puts the selection, so a
 /// typed measure is never rounded away, as a move of a fifth of a meter on a one meter grid would be.
-/// One program shapes a mesh at a time, and nothing here locks, as a list does not.
+/// One program shapes a mesh at a time, and nothing here locks, so a mesh is changed from one
+/// thread at a time.
 /// </para>
 /// </remarks>
 internal sealed partial class EditMeshData
@@ -48,7 +49,7 @@ internal sealed partial class EditMeshData
     private readonly HashSet<int> _selectedFaces = [];
 
     // The edges as the faces have them, read again after a change rather than kept in step, since
-    // every operation that moves a corner between faces would otherwise have to mend them.
+    // every operation that moves a corner between faces would otherwise have to keep them in step.
     private Dictionary<(int Low, int High), EdgeUse>? _edges;
 
     /// <summary>A face, its corners in order round it, its slot, the angle it is smoothed across and its own texture coordinates.</summary>

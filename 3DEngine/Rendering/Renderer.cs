@@ -239,10 +239,10 @@ internal sealed class Renderer : IDisposable
         var named = device.TakePipelinesNamed();
         // The driver's pipelines written to their file once the frames that made some have been
         // followed by QuietFrames that made none, as well as when the device is let go, since a run
-        // that ends otherwise, killed or crashed, wrote none, and the next made them again in
-        // seconds mid-frame. The write runs on a worker, since a program's pipelines fill a file of
-        // tens of MB, which took the frame's thread several frames to read and write, and its read
-        // waits for any compile in flight on a worker.
+        // that ends otherwise, killed or crashed, writes none, and the next run makes them again
+        // mid-frame. The write runs on a worker, since a program's pipelines fill a file that holds
+        // the frame's thread for several frames to read and write, and its read waits for any
+        // compile in flight on a worker.
         _framesQuiet = count > 0 ? 0 : _framesQuiet + 1;
         if (count > 0) _pipelinesUnsaved = true;
         if (_pipelinesUnsaved && _framesQuiet >= QuietFrames)

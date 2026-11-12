@@ -18,8 +18,8 @@ namespace Engine;
 /// </para>
 /// <para>
 /// A mesh the program uploaded with <c>UploadMesh</c>, set as <see cref="Uploaded"/>, is drawn
-/// with its own streams and indices as <c>DrawMesh</c> draws it, so a voxel game's section, its
-/// light packed into a stream its shader reads, is an entity. The program frees it with
+/// with its own streams and indices as <c>DrawMesh</c> draws it, so a mesh with a stream of the
+/// program's own, which the program's shader reads, is an entity. The program frees it with
 /// <c>UnloadMesh</c> once no entity holds it.
 /// </para>
 /// <para>

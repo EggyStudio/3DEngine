@@ -276,7 +276,7 @@ internal sealed class SparseSet<T>
     /// <param name="denseIndex">Zero-based index into the dense array.</param>
     public void MarkChangedByDenseIndexThreadSafe(int denseIndex) => Stamp(denseIndex);
 
-    /// <summary>Stamps every component as changed, with the writer's tick, as handing out a writable span of them does.</summary>
+    /// <summary>Stamps every component as changed, with the writer's tick, where a writable span of them is handed out, since any may be written through it.</summary>
     public void StampAll()
     {
         for (int i = 0; i < _count; i++) Stamp(i);

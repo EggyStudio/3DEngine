@@ -149,8 +149,8 @@ internal static class SdlImGuiInput
         }
         io.BackendFlags |= ImGuiBackendFlags.HasGamepad;
         // ImGui hides its cursor until a key or button moves it, and a first press of the button that
-        // picks only shows it, so a menu opened with the pad in hand took two presses to choose its
-        // first item. A pad's press shows the cursor before ImGui reads it, so that press acts. A
+        // picks only shows it, so a menu opened with the pad in hand would take two presses to choose
+        // its first item. A pad's press shows the cursor before ImGui reads it, so that press acts. A
         // pad that does not move through ImGui leaves its cursor as the keyboard left it.
         if ((io.ConfigFlags & ImGuiConfigFlags.NavEnableGamepad) != 0)
             foreach (var (button, _) in PadButtons)

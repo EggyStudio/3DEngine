@@ -22,7 +22,7 @@ public sealed partial class EcsWorld : IDisposable
         internal static ComponentStore<T>?[] Stores = Array.Empty<ComponentStore<T>?>();
         internal static readonly object SyncRoot = new();
 
-        // Drops one world's store, so the static array no longer keeps it reachable.
+        // Drops one world's store from the static array, so the array does not keep it reachable.
         internal static void Release(int worldId)
         {
             lock (SyncRoot)
@@ -31,9 +31,9 @@ public sealed partial class EcsWorld : IDisposable
     }
 
     // One release per component type this world made a store for, run when it is disposed or
-    // collected. The cache arrays are static and outlive every world, so without this each world
-    // made in a process kept all its component data alive for good. Keyed by the type, so a store
-    // forgotten while the world runs gives up its release too, which names the type.
+    // collected. The cache arrays are static and outlive every world, so without it each world
+    // made in a process would keep all its component data alive for good. Keyed by the type, so a
+    // store forgotten while the world runs gives up its release too, which names the type.
     private readonly Dictionary<Type, Action<int>> _cacheReleases = [];
     private int _released;
 
@@ -92,9 +92,9 @@ public sealed partial class EcsWorld : IDisposable
     private ComponentStore<T> GetOrCreateStoreSlow<T>()
     {
         // Locked, because systems in a parallel batch reach here together the first time they
-        // touch a type. Unlocked, two of them each made a store, one landed in the cache the
-        // systems read and the other in the dictionary the console reads, and the dictionary
-        // itself could be corrupted by the concurrent writes.
+        // touch a type. Unlocked, two of them would each make a store, one landing in the cache the
+        // systems read and the other in the dictionary the console reads, and the concurrent writes
+        // could corrupt the dictionary itself.
         // A disposed world has released its stores and registers no release for new ones, so a
         // store made now would stay in the static cache for good.
         ObjectDisposedException.ThrowIf(Volatile.Read(ref _released) == 1, this);

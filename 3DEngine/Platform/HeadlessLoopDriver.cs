@@ -29,7 +29,7 @@ internal sealed class HeadlessLoopDriver(World world, double fps) : IMainLoopDri
     /// <inheritdoc />
     public bool PumpEvents()
     {
-        // There are no platform events, but input the console queued arrives here, as a window's would.
+        // There are no platform events, so the input the console queued is applied here, once a frame.
         if (world.TryGetResource<Input>(out var input)) input.ApplyQueued();
         return !(world.TryGetResource<AppExit>(out var exit) && exit.Requested);
     }

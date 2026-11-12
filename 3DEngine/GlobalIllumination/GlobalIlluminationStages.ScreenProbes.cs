@@ -111,7 +111,7 @@ internal sealed unsafe partial class GlobalIlluminationStages
         // The glow lights' light on each texel of the view's depth, from the probes around it and
         // the frame before's, beside the blend, which writes none of what it reads. A frame with no
         // glow lights skips it, the model pass reading none of it then, since run with its threads
-        // leaving at once it still cost lavapipe a share of each frame.
+        // leaving at once it still costs lavapipe a share of each frame.
         var glowExtent = glow.Light.Description.Extent;
         if (glowLights)
         {

@@ -294,8 +294,8 @@ void computeMain(uint3 group : SV_GroupID, uint lane : SV_GroupIndex)
     float3 face = cross(b - a, c - a);
     // A triangle of next to no area beside its longest side, as a sphere's last row has at a pole
     // whose corners the rounding of sin(pi) leaves apart, has a face turned whichever way
-    // that rounding took it, which, at a distance the triangles around it share, said cells
-    // outside lay behind it and turned them inside. It holds no surface its neighbors do not, and
+    // that rounding took it, which, at a distance the triangles around it share, would say cells
+    // outside lie behind it and turn them inside. It holds no surface its neighbors do not, and
     // is passed over.
     float longest = max(dot(b - a, b - a), max(dot(c - b, c - b), dot(a - c, a - c)));
     if (dot(face, face) <= 1e-8 * longest * longest)
@@ -391,11 +391,12 @@ void computeMain(uint3 group : SV_GroupID, uint lane : SV_GroupIndex)
             // Straight behind, its nearest point inside the face and not on an edge, as a wall's
             // far face lies behind a cell by its near one, where a cell beside a box's edge lies 45
             // degrees behind the face round it. Taken within 25 degrees, a wall thinner than a cell
-            // standing on a floor had its bottom face, buried against the floor's top, nearer the
+            // standing on a floor has its bottom face, buried against the floor's top, nearer the
             // cells along its foot than its far face, its edge 22 degrees off straight back from
-            // them, so the resolve found no face behind them looking against the one in front, held
-            // none of them, and a probe's ray passed under the wall, a lamp outside a closed room of
-            // walls 0.3 thick in cells of 0.5 lighting its floor along a wall's foot inside.
+            // them, so the resolve would find no face behind them looking against the one in front
+            // and hold none of them, and a probe's ray would pass under the wall, a lamp outside a
+            // closed room of walls 0.3 thick in cells of 0.5 lighting its floor along a wall's foot
+            // inside.
             if (sided && front == 0u && dot(p - q, face) < -0.999 * d * faceLength)
                 InterlockedMin(behind[index], (uint(d / cell * 1024.0) << 8) | way);
         }
@@ -403,8 +404,9 @@ void computeMain(uint3 group : SV_GroupID, uint lane : SV_GroupIndex)
         {
             // A second double-sided face of another way passing through or beside the cell, as
             // where two walls cross on a cell's side and the four cells about it lie as near both,
-            // each keeping one, so the other was held there by the cells' blend alone and the
-            // world's probes standing among them read dark round patches at the walls' feet.
+            // each keeping one, so the other would be held there by the cells' blend alone and
+            // the world's probes standing among them would read dark round patches at the walls'
+            // feet.
             uint kept = cells[index];
             if ((kept & 0x600u) == 0x200u && (kept & 255u) != way)
                 InterlockedMin(second[index], code);

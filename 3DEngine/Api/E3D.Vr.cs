@@ -18,7 +18,7 @@ public static partial class E3D
     /// </summary>
     /// <remarks>
     /// The projections are of the field of view the lenses widen the display to, with depth from 0
-    /// to 1 and down the screen, as the engine's are, at the near and far distances
+    /// to 1 and down the screen, at the near and far distances
     /// <see cref="Camera3D.ProjectionMatrix"/> takes.
     /// </remarks>
     public static VrStereoConfig LoadVrStereoConfig(VrDeviceInfo device)
@@ -67,7 +67,7 @@ public static partial class E3D
     /// </summary>
     /// <remarks>
     /// The shapes, lines, text and models drawn in 3D are drawn for both eyes. The mesh entities of
-    /// the ECS and particles are drawn once, through the camera, as they are without it.
+    /// the ECS and particles are drawn once, through the camera, and not for each eye.
     /// </remarks>
     public static void BeginVrStereoMode(VrStereoConfig config) => _stereo = config;
 

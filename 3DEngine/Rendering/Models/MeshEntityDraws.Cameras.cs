@@ -37,8 +37,8 @@ internal sealed partial class MeshEntityDraws
 
     // A camera entity's view-projection and eye. The shape is its render texture's, or the
     // window's, or with no window (an offscreen run) the size the config asked for, at which
-    // the frames are drawn. Assuming square there stretched every mesh entity in an offscreen
-    // capture while the 2D drawing beside it was right.
+    // the frames are drawn, since a square one there stretches every mesh entity of an offscreen
+    // capture against the 2D drawing beside it.
     private static (Matrix4x4 ViewProjection, Vector3 Eye) Through(World world, EcsWorld ecs, int entity, in Camera camera)
     {
         var (width, height) = camera.Target.IsValid ? (camera.Target.Texture.Width, camera.Target.Texture.Height)

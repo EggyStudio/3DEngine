@@ -37,7 +37,7 @@ namespace Engine;
 /// none, as raylib's goes to miniaudio's null device, so sounds end,
 /// music moves on and streams ask for more as they do with a device. Where even that fails,
 /// <see cref="Initialize"/> logs and leaves <see cref="IsInitialized"/> <c>false</c>, and every
-/// call after is a no-op, as <see cref="NullAudioBackend"/>'s are.
+/// call after is a no-op.
 /// </para>
 /// <para>
 /// <b>No window:</b> a run that shows no window, hidden, offscreen or headless, as a test, a soak
@@ -249,8 +249,8 @@ internal sealed partial class SdlAudioBackend : IAudioBackend
     {
         if (!_initialized || channels <= 0 || sampleRate <= 0) return 0;
         var srcSpec = new SDL.AudioSpec { Format = SDL.AudioFormat.AudioF32LE, Channels = channels, Freq = sampleRate };
-        // A pannable voice is two streams fed the same samples, one to each channel, as a
-        // positional voice is.
+        // A pannable voice is two streams fed the same samples, one to each channel, so its
+        // balance is set by the gain of each.
         var dstSpec = parameters.Pannable
             ? new SDL.AudioSpec { Format = SDL.AudioFormat.AudioF32LE, Channels = 2, Freq = _deviceSpec.Freq }
             : _deviceSpec;
@@ -421,7 +421,8 @@ internal sealed partial class SdlAudioBackend : IAudioBackend
     /// <inheritdoc />
     public void SetListenerPosition(Vector3 position)
     {
-        // Same rationale as SetVoicePosition, since SDL audio has no built-in 3D.
+        // SDL has no built-in spatial audio, so the listener reaches a voice only through the pan
+        // and the attenuation the audio server's spatial processor computes, and this is a no-op.
     }
 
     /// <inheritdoc />

@@ -30,10 +30,10 @@ public sealed record SceneFieldConfig(int Cascades = 0, float CellSize = SceneFi
 
     /// <summary>How many triangles the builds splat a frame unless a number is given.</summary>
     /// <remarks>
-    /// The least power of two above the triangles a voxel game's field splats in a frame at its
-    /// budget of two cascades, so such a game's changes build in the frame they arrive, where 500
-    /// sections of 1,024 triangles arriving in one frame, 512,000 at once, are built over sixteen
-    /// frames or more.
+    /// The least power of two above the triangles a field of two cascades splats in a frame where
+    /// a scene built of many small meshes changes some of them as it plays, so those changes build in
+    /// the frame they arrive, while 500 meshes of 1,024 triangles arriving in one frame, 512,000 at
+    /// once, are built over sixteen frames or more.
     /// </remarks>
     public const int DefaultTriangleBudget = 32_768;
 }

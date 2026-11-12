@@ -25,8 +25,8 @@ namespace Engine;
 /// The eye so stands 28 to 36 cells from each side of each cascade, past the outer bands the passes
 /// fade across, from a cascade to the next and from the last to what lies past the field
 /// (<c>scenefield.slang</c>'s <c>bandHold</c>). A cascade lying a share of its width ahead of the
-/// eye the way it looks crosses to the other side with a turn and is built again whole, Sponza's
-/// 3.75 million triangles over frames at the default budget, what stood behind lying outside the
+/// eye the way it looks would cross to the other side with a turn and be built again whole, a large
+/// scene's triangles over many frames at the default budget, what stands behind lying outside the
 /// fine cascades meanwhile. A program whose camera looks on the scene from afar gives the point the
 /// field lies around in the eye's place (<c>SetSceneFieldCenter</c>).
 /// </para>
@@ -65,9 +65,7 @@ internal sealed partial class SceneFieldPlan
     /// A mesh that settles marks the cascades around it to be built again, and one that leaves
     /// marks them again, a build on the GPU each time, where stamping its box costs far less a
     /// frame, so a figure that stopped after walking is stamped on until it has stood this long.
-    /// The voxel game's animals stand one to eight seconds between walks, up to 960 frames at 120 a
-    /// second, so a count past that leaves the cascades built again for the figures that stood from
-    /// the first frame, settled and then walked, and not for each stand.
+    /// The count is past eight seconds at 120 frames a second.
     /// </remarks>
     public const int MobileSettleFrames = 1024;
 
@@ -196,15 +194,15 @@ internal sealed partial class SceneFieldPlan
     // Still meshes that left, kept in the field for the meshes replacing them, by the frame they left.
     private readonly Dictionary<Instance, long> _kept = new(Keys.Shared);
     // Still meshes that replaced a kept one in place and wait for cascades built since, which still
-    // hold the one they replaced and so are not stamped. Stamped as its boxes, a voxel game's
-    // section of ground filled the air above it in the cascades a budget of two left for the next
-    // frame, and the room's indirect light went for that frame and came back.
+    // hold the one they replaced and so are not stamped. Stamped as boxes, a section of ground with
+    // air above it would fill that air in the cascades the budget leaves for a later frame, and the
+    // indirect light around it would go out for that frame and come back.
     private readonly HashSet<Instance> _replacing = new(Keys.Shared);
     // Still meshes that waited for their cascades having moved before they settled, which are
     // stamped meanwhile as they were while they moved. One that never moved, as a scene's meshes on
     // its first load or a world's sections streamed in, is not, since a box stands in for a mesh
-    // badly where it is larger than what it holds, as while Intel's Sponza was built the box of its
-    // outer walls filled the building and the sun's contact shadows darkened every room.
+    // badly where it is larger than what it holds, and the box around a building's outer walls
+    // fills the building, which the sun's contact shadows then darken in every room.
     private readonly HashSet<Instance> _movedIn = new(Keys.Shared);
     private readonly Vector3?[] _built;
     private readonly long[] _builtFrame;
@@ -216,8 +214,8 @@ internal sealed partial class SceneFieldPlan
     private readonly Box?[] _changed;
     // How many shapes come within each brick of each cascade this frame and the frame before, the
     // cascades one after another, which a figure of many boxes that come within the same bricks
-    // counts at the cost of an add each, where a set of the bricks cost a hash each, and the bricks
-    // each shape comes within in each cascade, its first and last along each axis.
+    // counts at the cost of an add each, where a set of the bricks would cost a hash each, and the
+    // bricks each shape comes within in each cascade, its first and last along each axis.
     private int[] _stamped = [], _stampedBefore = [];
     // The bricks stamped this frame and the frame before, each by its place in those counts, so a
     // frame reads and clears the bricks it stamped rather than every brick of every cascade.
@@ -341,10 +339,10 @@ internal sealed partial class SceneFieldPlan
     /// <paramref name="cellSize"/>, or 0 for a reach of none or past every finite distance.
     /// </summary>
     /// <remarks>
-    /// The cascade's cells keep the width they took while its middle lay 0.35 of its width ahead of
-    /// the eye and its side reached that far, so the scene is held as finely as then. Lying around the
-    /// eye, its sides lie 28 to 36 of its cells off, about half the reach, past which the passes take
-    /// the light from beyond the field.
+    /// The cascade is the reach over 0.85 wide. Lying around the eye, its sides lie 28 to 36 of its
+    /// cells off, about half the reach, past which the passes take the light from beyond the field,
+    /// and a cascade wide enough to hold the whole reach around the eye would hold the scene in
+    /// cells nearly twice as wide.
     /// </remarks>
     /// <remarks>
     /// It is rounded up to a sixteenth of twice the last's cell, so a reach read from a camera's far
@@ -468,7 +466,7 @@ internal sealed partial class SceneFieldPlan
             }
             // This frame's meshes, and the vertices of those drawn the frame before and not now, so
             // a mesh drawn now and not before of vertices one gone had is taken as that one moved,
-            // as a place read by place finds.
+            // whichever way the frame is read.
             const int unread = int.MinValue;
             var seen = new Dictionary<Instance, int>(drawn.Count, Keys.Shared);
             foreach (var (instance, _) in drawn) seen.TryAdd(instance, unread);
@@ -500,9 +498,9 @@ internal sealed partial class SceneFieldPlan
             _seen = seen;
 
             // Still meshes that came or went make the cascades around them dirty. One replaced in
-            // place, by a mesh of other vertices drawn through the same matrix where it was, as a
-            // section of a game's world edited, stays in the field as it was until the one replacing
-            // it is still, where the boxes that one would be stamped as stood in for it badly.
+            // place, by a mesh of other vertices drawn through the same matrix where it was, as an
+            // edited section of a world, stays in the field as it was until the one replacing it is
+            // still, since the boxes that one would be stamped as stand in for it badly.
             foreach (var (instance, frames) in seen)
                 if (frames >= Settled && !_still.ContainsKey(instance)) Settle(instance, moved: _movedNow.ContainsKey(instance));
             foreach (var instance in _kept.Keys.Where(seen.ContainsKey).ToArray()) _kept.Remove(instance);

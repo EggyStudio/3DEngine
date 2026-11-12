@@ -10,9 +10,9 @@ namespace Engine;
 /// is made and written back when it is let go, so a run compiles no pipeline a run before it
 /// compiled, since the driver's own cache, shared by every program, can serve none of a program's
 /// runs, and a frame that first draws a pass, as a reflection plane's mirrored one, waits on the
-/// driver compiling its pipelines. Kept in the program's folder, the file went with every build
-/// that folder was deleted before, so it is kept in the user's cache folder under the program's
-/// name, and one the program's folder holds is read into it.
+/// driver compiling its pipelines. The file is kept in the user's cache folder under the program's
+/// name, since one in the program's folder goes with every build that deletes that folder, and one
+/// the program's folder holds is read into it.
 /// </remarks>
 internal sealed unsafe partial class GraphicsDevice
 {
@@ -21,9 +21,9 @@ internal sealed unsafe partial class GraphicsDevice
     // Shared by each pipeline made through the driver's cache on any thread, which Vulkan lets a
     // cache made without the externally synchronized flag take at once, and held alone over its
     // data read for the write and its release, so the write never runs beside a compile a worker
-    // makes ahead, since a driver that fails that freezes the frame that writes. Held alone by
-    // every compile, a worker's waited behind one the frame's thread made, as a mirror's behind
-    // a shader's that took the driver over a second.
+    // makes ahead, since a driver that fails that freezes the frame that writes. A compile shares
+    // it rather than holding it alone, so a worker's compile never waits behind a long one the
+    // frame's thread makes.
     private readonly ReaderWriterLockSlim _pipelineCacheUse = new();
 
 
@@ -59,9 +59,8 @@ internal sealed unsafe partial class GraphicsDevice
         UserCache.SweepVersions("pipelines", SlangCompiler.SweptAfter);
         var data = ReadPipelineCache(PipelineCachePath);
         // A file past the bound starts the cache empty, since the driver's data cannot be pruned one
-        // pipeline at a time and every version of a shader a run compiled stays in it, about 1.9 MB
-        // of Sponza's pipelines a version of the model pass, so a program in development grows its
-        // file without end.
+        // pipeline at a time and every version of a shader a run compiled stays in it, so a program
+        // in development grows its file without end.
         if (data.Length > PipelineCacheBound)
         {
             Logger.Info($"The driver's compiled pipelines at {PipelineCachePath} hold {data.Length / 1048576} MB, past {PipelineCacheBound / 1048576} MB, so the cache starts empty and this run's are written in their place.");
@@ -242,7 +241,7 @@ internal sealed unsafe partial class GraphicsDevice
     // The cache's data where it holds pipelines by the rule PipelineCacheHolds answers by, more than
     // its header, and changed since it was read, or none, the cache held. The data is asked for
     // again by the size given, and taken only where what was filled still holds more than the
-    // header and the whole header it names, as lavapipe asked for 32 bytes and filled 20 of them.
+    // header and the whole header it names, since a driver may fill less than the size it gave.
     private byte[]? PipelineCacheData()
     {
         var size = PipelineCacheSize();

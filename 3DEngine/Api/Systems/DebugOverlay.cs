@@ -22,8 +22,7 @@ namespace Engine;
 /// </para>
 /// <para>
 /// Shift held as F3 is let go turns the profiler's pass timings over, under the right column, and
-/// shows the overlay with them, as Minecraft's Shift+F3 opens its debug screen with its chart. F3
-/// alone hiding the overlay hides the profiler with it.
+/// shows the overlay with them. F3 alone hiding the overlay hides the profiler with it.
 /// </para>
 /// </remarks>
 internal sealed partial class DebugOverlay
@@ -37,7 +36,7 @@ internal sealed partial class DebugOverlay
     /// <summary>Whether the profiler's pass timings show under the overlay's right column.</summary>
     public bool ProfilerShown { get; set; }
 
-    /// <summary>The frames the strip holds, four seconds at sixty a second, as Minecraft's graph holds.</summary>
+    /// <summary>The frames the strip holds, four seconds at sixty a second.</summary>
     internal const int StripFrames = 240;
 
     // The last frames' times in milliseconds, a ring, and how many it holds.
@@ -84,7 +83,7 @@ internal sealed partial class DebugOverlay
     /// <summary>
     /// The key let go alone, which shows or hides the overlay, or with Shift the profiler, showing the
     /// overlay with it. The key alone hides the profiler with the overlay, so the overlay shown again
-    /// by it alone comes back without it, as Minecraft's does.
+    /// by it alone comes back without it.
     /// </summary>
     private void Turn(bool shift)
     {
@@ -120,7 +119,7 @@ internal sealed partial class DebugOverlay
     /// </summary>
     /// <remarks>
     /// The slowest hundredth is at least one frame, so 240 frames give the slowest three, and their
-    /// times are averaged before the rate is taken, as the common tools take it.
+    /// times are averaged before the rate is taken.
     /// </remarks>
     internal static (float Now, float Average, float LowFps) Stats(ReadOnlySpan<float> times)
     {

@@ -222,7 +222,8 @@ internal static class IqmModelReader
                         Rotation = Quaternion.Normalize(new Quaternion(values[3], values[4], values[5], values[6])),
                         Scale = new Vector3(values[7], values[8], values[9]),
                     };
-                    // The pose in the model's space, the parent's taken as the bind pose's is.
+                    // The pose in the model's space, the local pose composed with the parent's in the
+                    // same frame, a root's standing alone.
                     var parent = bones[p].Parent;
                     worlds[p] = TransformPropagation.ToMatrix(local) * (parent >= 0 ? worlds[parent] : Matrix4x4.Identity);
                     if (!Matrix4x4.Decompose(worlds[p], out var scale, out var rotation, out var position))

@@ -8,12 +8,12 @@ namespace Engine;
 /// </summary>
 /// <remarks>
 /// <para>
-/// A plan's lookups are applied in the order the table lists them, each over the whole run, as
-/// <see cref="GlyphSubstitution"/>'s are, single and pair adjustments, a pair's in both its formats,
-/// and marks put on a base, on a ligature's component and on another mark, and the contextual and
-/// chained contextual positionings, reached directly or through an extension. A value record's
-/// placements and its horizontal advance are taken and its device tables left aside, so a font of
-/// variations is positioned as its default instance is drawn.
+/// A plan's lookups are applied in the order the table lists them, each over the whole run,
+/// single and pair adjustments, a pair's in both its formats, and marks put on a base, on a
+/// ligature's component and on another mark, and the contextual and chained contextual
+/// positionings, reached directly or through an extension. A value record's placements and its
+/// horizontal advance are taken and its device tables left aside, so a font of variations is
+/// positioned as its default instance is drawn.
 /// </para>
 /// <para>
 /// A cursive attachment joins a letter's exit to the entry of the next one the lookup does not pass

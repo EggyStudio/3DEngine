@@ -9,8 +9,8 @@ namespace Engine;
 /// world resource.
 /// </summary>
 /// <remarks>
-/// F1, F2 and F3 are Minecraft's keys for the three, so a player of games made on the engine finds
-/// them where that game put them. A press reaches the program as well, which reads it as any key.
+/// F1, F2 and F3 are the keys other games commonly give the three, so a player finds them where
+/// they look first. A press reaches the program as well, which reads it as any key.
 /// </remarks>
 internal sealed class DebugKeys
 {
@@ -39,8 +39,8 @@ internal sealed class DebugKeys
     public const int RecordedPerSecond = 15;
 
     /// <summary>
-    /// The most pictures one recording takes, ten seconds, a few hundred megabytes of PNGs at 1280
-    /// by 720 or 1920 by 1080, as a day's folder of pictures holds.
+    /// The most pictures one recording takes, ten seconds, so a key held long does not fill the
+    /// folder with pictures.
     /// </summary>
     public int MostRecorded { get; set; } = 150;
 
@@ -71,8 +71,8 @@ internal sealed class DebugKeys
 
     /// <summary>
     /// The path the next screenshot taken at <paramref name="now"/> goes to, named by the time, the
-    /// second in the same second <c>_2</c> and the third <c>_3</c>, as Minecraft names its own,
-    /// past any of those names already given this run or standing in the folder.
+    /// second in the same second <c>_2</c> and the third <c>_3</c>, past any of those names
+    /// already given this run or standing in the folder.
     /// </summary>
     public string Next(DateTime now) => Named(now, ".png");
 

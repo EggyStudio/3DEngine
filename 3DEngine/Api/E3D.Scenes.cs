@@ -3,8 +3,8 @@ namespace Engine;
 public static partial class E3D
 {
     /// <summary>
-    /// Loads a scene file into the ECS, found as models and sounds are, beside the program or in the
-    /// working directory, and returns the entities it spawned.
+    /// Loads a scene file into the ECS, found beside the program or in the working directory, and
+    /// returns the entities it spawned.
     /// </summary>
     /// <remarks>
     /// A scene file is JSON of entities and their components by name (ARCHITECTURE.md). A program's

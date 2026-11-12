@@ -11,9 +11,9 @@ namespace Engine;
 /// </summary>
 /// <remarks>
 /// <para>
-/// <c>slangc</c> is a tool rather than a linked library. Linking Slang would put tens of megabytes
-/// of native code into every game for the sake of compiling while it runs, and a process does the
-/// same with nothing shipped. <c>build/fetch-slang.sh</c> downloads a pinned release into
+/// <c>slangc</c> is a tool rather than a linked library. Linking Slang would put its whole native
+/// compiler into every game for the sake of compiling while it runs, and a process does the same
+/// with nothing shipped. <c>build/fetch-slang.sh</c> downloads a pinned release into
 /// <c>build/tools/slang</c>.
 /// </para>
 /// <para>
@@ -83,7 +83,7 @@ internal static partial class SlangCompiler
     /// </summary>
     /// <remarks>
     /// The uniforms come from <c>slangc -reflection-json</c> and are cached beside the SPIR-V as a
-    /// <c>.uniforms</c> file. An entry cached before uniforms were kept has none.
+    /// <c>.uniforms</c> file. An entry with no such file has none.
     /// </remarks>
     /// <exception cref="InvalidOperationException">
     /// The cache has no entry for this source and there is no compiler, or the compiler reported an error.
@@ -169,9 +169,8 @@ internal static partial class SlangCompiler
 
     /// <summary>
     /// How long a cache entry no run has read or written is kept, past which a run's first compile
-    /// deletes it, since every version of a shader a program in development compiled is kept under
-    /// the engine's one version, about 3.8 MB of them a version of the model pass, and the cache
-    /// grew without end.
+    /// deletes it, since every version of a shader a program in development compiles is kept under
+    /// the engine's one version, and the cache would otherwise grow without end.
     /// </summary>
     internal static readonly TimeSpan SweptAfter = TimeSpan.FromDays(14);
 
@@ -369,7 +368,7 @@ internal static partial class SlangCompiler
     /// </summary>
     /// <remarks>
     /// Empty for a stage of another kind, and where an input has no semantic, so a pass feeds that
-    /// stage by the engine's fixed locations, as it fed every stage before.
+    /// stage by the engine's fixed locations.
     /// </remarks>
     internal static IReadOnlyList<ShaderInput> InputsOf(string? reflectionJson)
     {
@@ -475,8 +474,7 @@ internal static partial class SlangCompiler
         string.Concat(uniforms.Select(u => $"{u.Name} {u.Offset} {u.Size}\n"));
 
     // A texture's line carries how it is declared after its binding, where one combined with its
-    // sampler, all a cache written before samplers apart has, has nothing there, and a cube says so
-    // after that, which a cache written before cubes has nowhere.
+    // sampler has nothing there, and a cube says so after that.
     private static string WriteTextures(IReadOnlyList<ShaderTexture> textures) =>
         string.Concat(textures.Select(t => t.Cube ? $"texture {t.Name} {t.Binding} {t.Type} Cube\n"
             : t.Type == DescriptorType.CombinedImageSampler ? $"texture {t.Name} {t.Binding}\n"
@@ -577,11 +575,11 @@ internal static partial class SlangCompiler
     private static string CacheKey(string source, string entryPoint, ShaderStage stage, string? importDirectory, IReadOnlyList<string> defines)
     {
         using var hash = IncrementalHash.CreateHash(HashAlgorithmName.SHA256);
-        // The version names what an entry holds, so entries from before uniforms, then textures,
-        // then every binding, then each element and field of a uniform, then whether a texture is
-        // a cube were cached beside the SPIR-V are compiled again rather than read without them.
+        // The version names what an entry holds beside the SPIR-V, its uniforms with each element
+        // and field of one, its textures with whether each is a cube, and every binding, so an entry
+        // that holds less is compiled again rather than read without them.
         hash.AppendData(Encoding.UTF8.GetBytes($"entries 6\n{Arguments}\n{entryPoint}\n{stage}\n"));
-        // A build with defines is another entry, and one with none keeps the key it had.
+        // A build with defines is another entry, and one with none adds nothing to the key.
         if (defines.Count > 0) hash.AppendData(Encoding.UTF8.GetBytes($"defines {string.Join(' ', defines)}\n"));
         hash.AppendData(Encoding.UTF8.GetBytes(source));
 
@@ -630,8 +628,8 @@ internal static partial class SlangCompiler
 
     // The names in `import module.name;`, `__exported import module.name;`, `import "file.slang";`
     // and `#include "file.slang"`, the module names as the relative paths Slang looks for them at.
-    // A module imported again for the importer's importers was left out of the key, so a change to
-    // glow.slang alone, which gi.slang exports, left every shader importing gi on its old SPIR-V.
+    // An exported import counts as well, since the module it names is part of every shader that
+    // imports the module exporting it, and a change to that module alone must change their keys.
     private static IEnumerable<string> ImportedNames(string source)
     {
         foreach (Match match in ImportPattern().Matches(source))

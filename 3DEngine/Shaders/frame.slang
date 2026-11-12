@@ -114,7 +114,7 @@ public float3 frameLight(float2 uv)
 
 // What is shown at a window's pixel, encoded, with a little noise in it before the window's eight
 // bits take it, so a slow gradient in the dark, a few levels across many pixels, falls in a fine
-// grain the eye takes as smooth where it fell in hard steps a level apart. It is drawn from a table
+// grain the eye takes as smooth rather than in hard steps a level apart. It is drawn from a table
 // of blue noise tiled across the window, whose texels near each other hold values far apart, so the
 // grain has no clumps the eye picks out, and is none where a channel is black or white, which stay
 // so. At a strength of a half, the default, the noise is even across a level, the calmest grain

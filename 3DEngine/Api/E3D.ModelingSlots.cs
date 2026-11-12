@@ -139,7 +139,7 @@ public static partial class E3D
     }
 
     // A slot's texture, loaded once for each file in the app, repeating with its mip levels and
-    // filtered as the grid is, or none where the file is missing, said once and looked for again at
+    // filtered trilinearly, or none where the file is missing, said once and looked for again at
     // the next build, so a texture added while a level is blocked out from the terminal is taken.
     private static Texture2D SlotTexture(string fileName)
     {

@@ -34,7 +34,7 @@ internal static class SceneSpawnSystem
         if (!world.TryGetResource<EcsWorld>(out var ecs)) return;
         if (!world.TryGetResource<Assets<SceneAsset>>(out var assets)) return;
         var tracking = world.GetOrInsertResource(() => new SpawnedScenes());
-        // AssetServer is optional from the spawner's perspective (legacy / test path),
+        // AssetServer is optional from the spawner's perspective, as a test's spawn has none,
         // but in the system path it's always present once AssetPlugin has been added.
         world.TryGetResource<AssetServer>(out var assetServer);
         // MaterialLibrary is added by MaterialPlugin (a transitive dependency of
@@ -88,7 +88,8 @@ internal static class SceneSpawnSystem
                 release?.HoldTextures(entities.Select(ecs.Handle).ToArray(), textures);
 
                 // The scene hangs under the entity that asked for it, so that entity's Transform
-                // places it. One with no Transform composes as identity, as before.
+                // places it. One with no Transform composes as identity, so the scene stands where
+                // its spawn settings place it.
                 foreach (var spawned in entities)
                     if (ecs.ParentOf(spawned) == 0 && spawned != entity)
                         ecs.SetParent(spawned, entity);
@@ -108,9 +109,9 @@ internal static class SceneSpawnSystem
         if (spawnedUnder is not null) RecaptureProbes(ecs, assetServer, spawnedUnder);
     }
 
-    // A probe placed with its room, as a prefab places a room's models beside it, was captured in
-    // the frame it appeared, before the models had loaded, and reflected the sky where the walls
-    // now stand. Once nothing under a root waits for its model, the probes under it capture again.
+    // A probe placed with its room, as a prefab places a room's models beside it, is captured in
+    // the frame it appears, before the models have loaded, and so reflects the sky where the walls
+    // will stand. Once nothing under a root waits for its model, the probes under it capture again.
     private static void RecaptureProbes(EcsWorld ecs, AssetServer? server, HashSet<int> roots)
     {
         foreach (var (entity, request) in ecs.Query<SpawnSceneRequest>())

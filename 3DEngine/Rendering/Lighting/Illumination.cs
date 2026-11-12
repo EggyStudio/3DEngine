@@ -26,16 +26,13 @@ internal static class Illumination
     /// <summary>Each cascade's octahedron's texels along each side at a quality, before the field's cascades cut them short.</summary>
     internal static int[] TexelsAt(GlobalIllumination quality) => quality switch
     {
-        // Low's third cascade of 8 a side, so a surface past its second, 16 units across in
-        // Sponza's field of 0.125, takes probes rather than the sky over a ground from beyond them,
-        // which lit the atrium's far half at noon as though it stood outdoors.
+        // Low's third cascade of 8 a side, so a surface past its second, 16 units across where the
+        // first cascade's cells are 0.125 wide, takes probes rather than the sky over a ground from
+        // beyond them, which would light a closed room's far half as though it stood outdoors.
         GlobalIllumination.Low => [8, 8, 8],
         GlobalIllumination.Medium => [8, 8, 16],
-        // High's second cascade of 8 a side as Low's and Medium's, four rays a texel, where of 16 a
-        // side, one ray from each texel's middle, its probes under a slab read the sky past its
-        // edge along the level ways brighter than a path-traced reference takes it, the floor over
-        // both Low's and the reference's. Four rays a texel of 16 a side read it right, at four
-        // times the rays.
+        // High's second cascade of 8 a side, four rays a texel, where 16 a side with four rays a
+        // texel traces four times the rays.
         GlobalIllumination.High => [8, 8, 16, 16],
         _ => [],
     };
@@ -57,9 +54,8 @@ internal static class Illumination
     /// <remarks>
     /// At the window's half-sized depth a tile of eight pixels holds four by four of its texels,
     /// which a probe's point falls on, so a round marches from each texel once. The Halton points
-    /// of bases 2 and 3 fell on one row of those texels five times a round and on another three, so
-    /// the floor along a lamp's penumbra moved more with turns of one to eight pixels than it does
-    /// with these.
+    /// of bases 2 and 3 fall on one row of those texels five times a round and on another three, so
+    /// with them the floor along a lamp's penumbra moves as the view turns by a few pixels.
     /// </remarks>
     internal static Vector2 JitterAt(long frame, int tile)
     {

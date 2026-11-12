@@ -9,7 +9,7 @@ namespace Engine.Files.Compiler;
 /// Reusable abstract base for runtime Roslyn compilers that watch a directory tree, recompile on
 /// change with debounce, load the result into an isolated collectible <see cref="AssemblyLoadContext"/>,
 /// and hand the freshly loaded assembly off to a domain-specific specialization
-/// (e.g. shell discovery, behavior generator-driven registration).
+/// (e.g. behavior generator-driven registration).
 /// </summary>
 /// <remarks>
 /// <para>
@@ -95,7 +95,7 @@ internal abstract partial class RuntimeAssemblyCompiler<TResult> : IDisposable
     /// <summary>
     /// Hook invoked when no source files are present in any watched directory. Default behavior
     /// marks the result as a successful no-op. Override to clear any prior dynamic registrations
-    /// (e.g. unregister all hot-reloaded behaviors / shells when scripts are deleted).
+    /// (e.g. unregister all hot-reloaded behaviors when scripts are deleted).
     /// </summary>
     /// <param name="result">Result instance to populate.</param>
     protected virtual void OnNoSourceFiles(TResult result)

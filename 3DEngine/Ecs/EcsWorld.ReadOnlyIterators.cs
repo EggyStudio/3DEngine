@@ -43,7 +43,7 @@ public sealed partial class EcsWorld
         /// <summary>The enumerator <c>foreach</c> uses.</summary>
         public Enumerator GetEnumerator() => new(_inner.GetEnumerator());
 
-        /// <summary>Walks the store as the by-reference query does, marking nothing.</summary>
+        /// <summary>Walks the store's dense array, skipping entities the filter refuses, and marks nothing.</summary>
         public ref struct Enumerator
         {
             private RefEnumerable<T>.RefEnumerator _inner;
@@ -75,7 +75,7 @@ public sealed partial class EcsWorld
         public ref readonly T2 C2 => ref _inner.C2;
     }
 
-    /// <summary>The entities with both types by read-only reference, marking nothing, as <see cref="ReadOnlyEnumerable{T}"/> is for one.</summary>
+    /// <summary>The entities with both types by read-only reference, which marks nothing changed.</summary>
     public readonly ref struct ReadOnlyEnumerable<T1, T2>
     {
         private readonly RefEnumerable<T1, T2> _inner;
@@ -97,7 +97,7 @@ public sealed partial class EcsWorld
         /// <summary>The enumerator <c>foreach</c> uses.</summary>
         public Enumerator GetEnumerator() => new(_inner.GetEnumerator());
 
-        /// <summary>Walks the smaller store as the by-reference query does, marking nothing.</summary>
+        /// <summary>Walks the smaller store, skipping entities without the other type or refused by the filter, and marks nothing.</summary>
         public ref struct Enumerator
         {
             private RefEnumerable<T1, T2>.RefEnumerator _inner;
@@ -132,7 +132,7 @@ public sealed partial class EcsWorld
         public ref readonly T3 C3 => ref _inner.C3;
     }
 
-    /// <summary>The entities with all three types by read-only reference, marking nothing, as <see cref="ReadOnlyEnumerable{T}"/> is for one.</summary>
+    /// <summary>The entities with all three types by read-only reference, which marks nothing changed.</summary>
     public readonly ref struct ReadOnlyEnumerable<T1, T2, T3>
     {
         private readonly RefEnumerable<T1, T2, T3> _inner;
@@ -154,7 +154,7 @@ public sealed partial class EcsWorld
         /// <summary>The enumerator <c>foreach</c> uses.</summary>
         public Enumerator GetEnumerator() => new(_inner.GetEnumerator());
 
-        /// <summary>Walks the smallest store as the by-reference query does, marking nothing.</summary>
+        /// <summary>Walks the smallest store, skipping entities missing another type or refused by the filter, and marks nothing.</summary>
         public ref struct Enumerator
         {
             private RefEnumerable<T1, T2, T3>.RefEnumerator _inner;
@@ -192,7 +192,7 @@ public sealed partial class EcsWorld
         public ref readonly T4 C4 => ref _inner.C4;
     }
 
-    /// <summary>The entities with all four types by read-only reference, marking nothing, as <see cref="ReadOnlyEnumerable{T}"/> is for one.</summary>
+    /// <summary>The entities with all four types by read-only reference, which marks nothing changed.</summary>
     public readonly ref struct ReadOnlyEnumerable<T1, T2, T3, T4>
     {
         private readonly RefEnumerable<T1, T2, T3, T4> _inner;
@@ -214,7 +214,7 @@ public sealed partial class EcsWorld
         /// <summary>The enumerator <c>foreach</c> uses.</summary>
         public Enumerator GetEnumerator() => new(_inner.GetEnumerator());
 
-        /// <summary>Walks the smallest store as the by-reference query does, marking nothing.</summary>
+        /// <summary>Walks the smallest store, skipping entities missing another type or refused by the filter, and marks nothing.</summary>
         public ref struct Enumerator
         {
             private RefEnumerable<T1, T2, T3, T4>.RefEnumerator _inner;
@@ -255,7 +255,7 @@ public sealed partial class EcsWorld
         public ref readonly T5 C5 => ref _inner.C5;
     }
 
-    /// <summary>The entities with all five types by read-only reference, marking nothing, as <see cref="ReadOnlyEnumerable{T}"/> is for one.</summary>
+    /// <summary>The entities with all five types by read-only reference, which marks nothing changed.</summary>
     public readonly ref struct ReadOnlyEnumerable<T1, T2, T3, T4, T5>
     {
         private readonly RefEnumerable<T1, T2, T3, T4, T5> _inner;
@@ -277,7 +277,7 @@ public sealed partial class EcsWorld
         /// <summary>The enumerator <c>foreach</c> uses.</summary>
         public Enumerator GetEnumerator() => new(_inner.GetEnumerator());
 
-        /// <summary>Walks the smallest store as the by-reference query does, marking nothing.</summary>
+        /// <summary>Walks the smallest store, skipping entities missing another type or refused by the filter, and marks nothing.</summary>
         public ref struct Enumerator
         {
             private RefEnumerable<T1, T2, T3, T4, T5>.RefEnumerator _inner;
@@ -321,7 +321,7 @@ public sealed partial class EcsWorld
         public ref readonly T6 C6 => ref _inner.C6;
     }
 
-    /// <summary>The entities with all six types by read-only reference, marking nothing, as <see cref="ReadOnlyEnumerable{T}"/> is for one.</summary>
+    /// <summary>The entities with all six types by read-only reference, which marks nothing changed.</summary>
     public readonly ref struct ReadOnlyEnumerable<T1, T2, T3, T4, T5, T6>
     {
         private readonly RefEnumerable<T1, T2, T3, T4, T5, T6> _inner;
@@ -343,7 +343,7 @@ public sealed partial class EcsWorld
         /// <summary>The enumerator <c>foreach</c> uses.</summary>
         public Enumerator GetEnumerator() => new(_inner.GetEnumerator());
 
-        /// <summary>Walks the smallest store as the by-reference query does, marking nothing.</summary>
+        /// <summary>Walks the smallest store, skipping entities missing another type or refused by the filter, and marks nothing.</summary>
         public ref struct Enumerator
         {
             private RefEnumerable<T1, T2, T3, T4, T5, T6>.RefEnumerator _inner;

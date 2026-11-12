@@ -53,7 +53,7 @@ internal sealed partial class ModelRenderer : IDisposable
     /// </summary>
     /// <remarks>
     /// It holds nothing of the camera, which the batch pushes, so it is the same through every
-    /// camera and light, and the frame writes and copies 96 bytes for each in place of 160.
+    /// camera and light, and the frame writes and copies no view-projection for each.
     /// </remarks>
     [StructLayout(LayoutKind.Sequential)]
     internal struct Instance
@@ -69,7 +69,7 @@ internal sealed partial class ModelRenderer : IDisposable
         /// <summary>Metallic, roughness, normal scale and occlusion strength.</summary>
         public Vector4 Factors;
 
-        // Each sRGB byte's linear value, since three powers a draw cost more than the rest of it.
+        // Each sRGB byte's linear value, so decoding a draw's color takes lookups, not powers.
         internal static readonly float[] Linear = Enumerable.Range(0, 256).Select(value => Srgb.Decode((byte)value)).ToArray();
 
         /// <summary>A draw's instance, its color decoded from sRGB to linear.</summary>

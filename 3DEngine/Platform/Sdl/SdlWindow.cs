@@ -57,9 +57,10 @@ internal sealed class SdlWindow
     /// rounded, its bottom ones square and its shadow its own, unlike the frames the desktop draws
     /// for its other windows. Through X11, under XWayland, the desktop draws the frame. A user who
     /// wants Wayland names it in <c>SDL_VIDEO_DRIVER</c>, and a session without XWayland, where X11
-    /// cannot start, starts on what SDL finds. A test that named SDL's offscreen driver through the
-    /// hint had it overwritten by the ask, and on a runner with no display, where X11 does not
-    /// start, the hint cleared after it named no driver at all, so SDL found none.
+    /// cannot start, starts on what SDL finds. A driver already named, as SDL's offscreen driver
+    /// named through the hint for a test, is started with nothing asked, since asking for X11
+    /// overwrites the name, and on a machine with no display, where X11 does not start, clearing
+    /// the hint then leaves no driver named, so SDL finds none.
     /// </remarks>
     internal static bool StartVideo(bool linux, string? named, Action<string> hint, Action clear, Func<bool> start, out bool fellBack)
     {

@@ -4,7 +4,7 @@ namespace Engine;
 
 // A cascade the eye moved by whole cells along one axis shifted as a clipmap is, the cells it keeps
 // moved on the GPU and the slab of cells it brings in built alone from the still meshes within the
-// band of them, where the whole cascade was built again from every still mesh within its band.
+// band of them, rather than the whole cascade built again from every still mesh within its band.
 internal sealed partial class SceneFieldPlan
 {
     /// <summary>The cells of a cascade from the first to the last along each axis, both within.</summary>
@@ -65,8 +65,8 @@ internal sealed partial class SceneFieldPlan
     // What a mesh a build of cells splats costs of a frame's triangle budget, its triangles times
     // the share of its bounds within the build's reach, and an eighth of them at least, since a
     // triangle whose band misses the cells is passed over at the start, at a small share of the
-    // cost of one splatted, and a wall of Sponza crossing a slab whole was counted whole for the
-    // few of its triangles within it.
+    // cost of one splatted, and a large mesh crossing a slab whole, counted whole, would spend the
+    // budget on the few of its triangles within it.
     private int Cost(Instance instance, Job job)
     {
         var triangles = _triangles(instance.Vertices);

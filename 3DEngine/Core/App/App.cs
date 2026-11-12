@@ -121,9 +121,10 @@ public sealed partial class App : IDisposable
     /// call multiple times; subsequent calls are no-ops.
     /// </summary>
     /// <remarks>
-    /// Disposing the world alone left the plugins' teardown in <see cref="Stage.Cleanup"/> unrun, so
-    /// an app built with no window and disposed by a test had its renderer, never initialized,
-    /// disposed as if it were, and the engine logged an error.
+    /// The plugins' teardown in <see cref="Stage.Cleanup"/> runs before the world is disposed, since
+    /// it knows what each plugin made. Disposing the world alone leaves it unrun, and an app built
+    /// with no window then has its renderer, never initialized, disposed as if it were, which logs
+    /// an error.
     /// </remarks>
     public void Dispose()
     {

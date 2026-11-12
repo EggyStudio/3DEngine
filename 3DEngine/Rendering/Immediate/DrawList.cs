@@ -51,16 +51,16 @@ internal readonly record struct ScissorRect(int X, int Y, int Width, int Height)
 /// <para>
 /// Recording takes a lock while a stage runs systems on several threads, since a system calling a
 /// <c>Draw</c> function may then run on a worker, and the order of two systems' shapes within the
-/// stage is not fixed. Outside one no lock is taken, as it was half of what recording a sprite
-/// cost, so a program drawing from a thread of its own, outside the schedule, is not covered,
-/// as raylib's drawing is not.
+/// stage is not fixed. Outside one no lock is taken, since a lock is a large share of the work of
+/// recording a sprite, so a program drawing from a thread of its own, outside the schedule, is not
+/// covered, as raylib's drawing is not.
 /// </para>
 /// </remarks>
 internal sealed class DrawList
 {
     /// <summary>
     /// The blend pixels written into a render target are drawn with, which replaces what is there,
-    /// alpha and all, as an upload does. It is none of raylib's modes, so the API does not offer it.
+    /// alpha and all. It is none of raylib's modes, so the API does not offer it.
     /// </summary>
     public const BlendMode Replace = (BlendMode)(-1);
 
@@ -92,9 +92,9 @@ internal sealed class DrawList
 
     // The last batch while calls keep extending it. Its topology, texture and index count are kept
     // here, and the count is written into the list only when another batch opens or the batches
-    // are read. Comparing a
-    // whole DrawBatch and copying it back on every shape cost most of a sprite's recording. Any
-    // change of transform, target, shader, blend mode or scissor closes it.
+    // are read, since comparing a whole DrawBatch and copying it back on every shape would be most
+    // of the work of recording a sprite. Any change of transform, target, shader, blend mode or
+    // scissor closes it.
     private bool _open;
     private PrimitiveTopology _openTopology;
     private int _openTexture;
@@ -265,7 +265,7 @@ internal sealed class DrawList
 
     /// <summary>
     /// Forgets every shape recorded since <paramref name="here"/>, the transform, target and the rest
-    /// of the state they were recorded with kept, as the interface F1 hides drops its draws.
+    /// of the state they were recorded with kept, which drops the draws of the interface F1 hides.
     /// </summary>
     /// <remarks>
     /// The last batch at <paramref name="here"/> may have been extended by a shape recorded after it,

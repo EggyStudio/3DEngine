@@ -7,13 +7,12 @@ namespace Engine;
 /// <remarks>
 /// A mesh whose vertices are replaced, as an animated one is each frame, moves into a ring of
 /// <see cref="GpuTextures.RetireFrames"/> and one vertex buffers kept mapped, more than there are
-/// frames in flight, and each update is written into the next, where creating a buffer for each
-/// update put the driver's allocation in every update (RENDERING.md §6). A stream written in place
-/// moves into a ring of its own the same way. Once RetireFrames frames pass with no write, a ring
-/// is given back for one buffer in the device's own memory holding its last write, so a mesh
-/// written now and then, as a voxel game's section relit while the land around it arrives, holds
-/// one copy rather than a ring's in the memory the CPU sees, which every pass that draws it reads
-/// across the bus.
+/// frames in flight, and each update is written into the next, since creating a buffer for each
+/// update would put the driver's allocation in every update (RENDERING.md §6). A stream written in
+/// place moves into a ring of its own the same way. Once RetireFrames frames pass with no write, a
+/// ring is given back for one buffer in the device's own memory holding its last write, so a mesh
+/// written now and then holds one copy rather than a ring's in the memory the CPU sees, which
+/// every pass that draws it reads across the bus.
 /// </remarks>
 internal sealed class GpuMeshes : IDisposable
 {
@@ -47,7 +46,7 @@ internal sealed class GpuMeshes : IDisposable
         /// <summary>Its stream of the program's own and the stream's format, or null for a mesh without one.</summary>
         internal (IBuffer Buffer, MeshStreamFormat Format)? Custom { get; init; }
 
-        // The ring the stream moves through once it is written in place, as the vertices' does.
+        // The ring the stream moves through once it is written in place.
         internal IBuffer[]? CustomRing { get; init; }
         internal int CustomSlot { get; init; }
 
@@ -142,10 +141,9 @@ internal sealed class GpuMeshes : IDisposable
                 }
 
                 if (_entries.Remove(upload.Id, out var replaced)) Retire(replaced, vertices: true);
-                // Two bytes an index where every index a mesh has fits in them, half the bytes a draw
-                // reads and the upload carries, as a voxel game's sections of fewer than 65,536
-                // vertices each are, the CPU keeping its four-byte ones for picking, bodies and the
-                // scene's field.
+                // Two bytes an index where every index a mesh has fits in them, a mesh of 65,536
+                // vertices or fewer, so a draw reads and the upload carries half the bytes, the CPU
+                // keeping its four-byte ones for picking, bodies and the scene's field.
                 var (indices, indexType) = upload.Vertices.Length <= 65536
                     ? (Buffer(gfx, MemoryMarshal.AsBytes(Narrowed(upload.Indices).AsSpan()), BufferUsage.Index), IndexType.UInt16)
                     : (Buffer(gfx, MemoryMarshal.AsBytes(upload.Indices.AsSpan()), BufferUsage.Index), IndexType.UInt32);
@@ -200,9 +198,9 @@ internal sealed class GpuMeshes : IDisposable
     }
 
     // Gives a mesh's rings back for one buffer each holding their last write, once RetireFrames
-    // frames pass with no write, the ring's buffers retired as an unloaded mesh's are, since a
-    // frame in flight may still read the last. A write after makes the ring again, which takes its
-    // buffers from the memory blocks the device already holds.
+    // frames pass with no write, the ring's buffers handed to the retired list, since a frame in
+    // flight may still read the last. A write after makes the ring again, which takes its buffers
+    // from the memory blocks the device already holds.
     private bool GaveBack(IGraphicsDevice gfx, int id, Entry entry)
     {
         if (_frame - entry.Written <= GpuTextures.RetireFrames) return false;

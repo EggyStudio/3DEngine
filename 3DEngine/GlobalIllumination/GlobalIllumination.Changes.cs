@@ -12,7 +12,7 @@ internal sealed partial class GlobalIlluminationRenderer
     // As many frames after a change as its light takes to settle, the light bounced off the walls
     // the frame before falling to a share of itself each frame, so a cycle gathered over them reads
     // part of the light before. A closed room built about an eye under the open sky, its first
-    // whole cycle gathered from the build on, read the open floor's light in its walls, which a
+    // whole cycle gathered from the build on, reads the open floor's light in its walls, which a
     // cycle gathered after these frames leaves out.
     private const int SettlingFrames = 16;
 
@@ -74,7 +74,7 @@ internal sealed partial class GlobalIlluminationRenderer
     // The sun's way and light, the sky's, the count of lights and the gain, each point and spot
     // light, and the small emitters carried as lights with their box (GlowLights), from the lights'
     // buffer, leaving out the frame's number and the sun's map, which move with the frames and the
-    // camera. Without the emitters, a panel turned dark kept a carried probe's cycle of the light
+    // camera. Without the emitters, a panel turned dark keeps a carried probe's cycle of the light
     // it gave, the room it lit still reading its light.
     private static float[] LightSignature(byte[] lights)
     {

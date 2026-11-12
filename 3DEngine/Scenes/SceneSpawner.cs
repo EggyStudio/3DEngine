@@ -28,12 +28,11 @@ namespace Engine;
 /// uniform scale of <c>sourceMetersPerUnit / targetMetersPerUnit</c>.
 /// </para>
 /// <para>
-/// <b>v1 mesh contract:</b> the runtime <see cref="Mesh"/> still consumes a flat
-/// <see cref="Vector3"/> array; the spawner de-indexes
-/// <see cref="SceneMeshPayload.Indices"/> into a flat positions array of size
-/// <c>Indices.Length</c> at spawn time, matching the documented v1 contract on
-/// <see cref="SceneMeshPayload"/>. Richer fields (normals / UVs / tangents) ride along on
-/// the payload for the future renderer-side upgrade.
+/// <b>Mesh layout:</b> the runtime <see cref="Mesh"/> holds three vertices a triangle, so the
+/// spawner de-indexes <see cref="SceneMeshPayload.Indices"/> at spawn time into a positions array
+/// of <c>Indices.Length</c>, with the normals and first texture coordinates beside it where the
+/// file has them. The payload's tangents, second texture coordinates and colors stay on the
+/// payload and are not carried onto the entity.
 /// </para>
 /// </remarks>
 internal static class SceneSpawner
@@ -229,9 +228,8 @@ internal static class SceneSpawner
 
     private static bool HasSpawnablePayload(SceneNode node)
     {
-        // A node without any payload is a hierarchy-only group; the v1 spawner doesn't
-        // create empty entities for it. (The accumulated transform is still composed for
-        // descendants through parentWorld, and no entity is made for it.)
+        // A node without any payload is a hierarchy-only group, which gets no entity of its own.
+        // Its transform is composed into its descendants' through parentWorld.
         foreach (var c in node.Components)
             if (c is SceneMeshPayload or SceneCameraPayload or SceneLightPayload or SceneMaterialPayload)
                 return true;
@@ -303,10 +301,10 @@ internal static class SceneSpawner
     }
 
     // Each mesh of a loaded scene de-indexed once, so every entity spawned from it shares its arrays
-    // and the renderer, which keeps a mesh's buffers by its positions array, uploads it once. Made
-    // again at each spawn, every cell of a level that placed a model held buffers of its own, which
-    // climbed with each cell a walk entered. A scene loaded again is a new payload and is
-    // de-indexed again, and the arrays go with the payload.
+    // and the renderer, which keeps a mesh's buffers by its positions array, uploads it once.
+    // Arrays made again at each spawn would give every copy of a model a level places buffers of
+    // its own, and the GPU's memory would grow with each copy streamed in. A scene loaded again is
+    // a new payload and is de-indexed again, and the arrays go with the payload.
     private static readonly ConditionalWeakTable<SceneMeshPayload, Deindexed> s_deindexed = new();
 
     private sealed class Deindexed(Mesh mesh)
@@ -383,7 +381,7 @@ internal static class SceneSpawner
         // Register the payload with the central MaterialLibrary so the renderer
         // can key per-material GPU resources (pipelines,
         // descriptor sets, uniform buffers) by a stable handle. Falls back to a
-        // default handle when no library was supplied (test / legacy paths).
+        // default handle when no library was supplied, as in a test's spawn.
         if (ctx.Materials is not null)
             runtime.Handle = ctx.Materials.CreateOrGet(ToDescription(material));
 

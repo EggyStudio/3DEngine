@@ -77,13 +77,11 @@ internal static class AudioLoadExtensions
         return server.PlaySpatial(handle, assets, position, parameters);
     }
 
-    // -- AudioServer-level convenience for the user-illustrated CreateSpatialSource / CreateSource shape
+    // -- AudioServer-level sources created from a path
 
     /// <summary>
-    /// Creates a 3D voice at the world origin from <paramref name="path"/>. Matches the
-    /// shape of the user's <c>ctx.Audio.CreateSpatialSource("foo.wav")</c> illustration:
-    /// the source is created spatial-by-default, ready for a follow-up
-    /// <see cref="AudioSource.SetPosition"/>.
+    /// Creates a 3D voice at the world origin from <paramref name="path"/>, spatial by default,
+    /// so a following <see cref="AudioSource.SetPosition"/> places it.
     /// </summary>
     public static AudioSource CreateSpatialSource(this AudioServer server, World world, string path, AudioVoiceParams parameters = default)
     {

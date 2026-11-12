@@ -159,7 +159,7 @@ internal sealed partial class SceneFieldRenderer : IDisposable
 
     /// <summary>
     /// The colors of a mesh's corners drawn this frame, as <see cref="CornersOf"/> lays them out, three
-    /// sRGB bytes a corner as the model pass reads them, or null for a mesh with no colors of its own.
+    /// sRGB bytes a corner, red lowest, or null for a mesh with no colors of its own.
     /// </summary>
     internal uint[]? CornerColorsOf(ModelVertex[] vertices)
     {
@@ -232,9 +232,9 @@ internal sealed partial class SceneFieldRenderer : IDisposable
             return;
         }
 
-        // Around the window's camera, or where the window draws no mesh, as a game that draws its
-        // scene into a render texture and shows the texture, the first target's that does, whose
-        // meshes the field then holds.
+        // Around the window's camera, or where the window draws no mesh, as a program that draws
+        // its scene into a render texture and shows the texture, the first target's that does,
+        // whose meshes the field then holds.
         var draws = renderWorld.TryGet<ModelDrawList>();
         var windowDraws = draws?.WindowViewProjection is not null;
         var view = windowDraws || draws?.Targets() is not [var first, ..] ? renderWorld.TryGet<WindowView>()
@@ -329,10 +329,10 @@ internal sealed partial class SceneFieldRenderer : IDisposable
                 Hold(instances);
                 // A build in parts lends the cells the light of thin emitters whatever its first part
                 // holds, since a later part may hold one, and that light is cleared at its start.
-                // The far cascade holds a sheet thinner than its cell as thin as the last counted cascade
-                // holds one, where half its own cell, 37 blocks at the voxel game's far plane, held the
-                // flat world's ground four blocks thick as a slab rising past the eye, which the rays
-                // leaving the counted cascades met in place of the sky.
+                // The far cascade holds a sheet thinner than its cell at half the last counted
+                // cascade's cell, since at half its own, wide where the far plane lies far off, a
+                // ground thinner than that is held as a slab rising past the eye, which the rays
+                // leaving the counted cascades meet in place of the sky.
                 var sheet = plan.HasFar && build.Cascade >= plan.Counted ? plan.CellOf(plan.Counted - 1) * 0.5f : 0;
                 // A shift moves the cells its cascade keeps before its build splats the slab it brings
                 // in, which reads as nothing near until the build ends. A region built again where a
@@ -368,10 +368,10 @@ internal sealed partial class SceneFieldRenderer : IDisposable
 
     // Each built cascade not built whole again this frame and the still copies within its reach of
     // the meshes whose colors were written in place, which are pooled again with their colors as
-    // they now are and paint again the cells they are nearest, as a voxel game's section lit again
-    // by its light levels is, where the field kept the colors of the mesh's last upload and the
-    // indirect light in a relit room took its walls as dark as they had been. A cascade whose region
-    // alone is built paints them again after the region's build has kept its cells.
+    // they now are and paint again the cells they are nearest, since the field otherwise keeps the
+    // colors of the mesh's last upload and the indirect light near a mesh lit again in place takes
+    // its old colors. A cascade whose region alone is built paints them again after the region's
+    // build has kept its cells.
     private List<(int Cascade, Vector3 Origin, float Cell, List<SceneFieldPlan.Instance> Instances)> Repaints(SceneFieldPlan plan)
     {
         _recolored.Clear();
@@ -423,10 +423,9 @@ internal sealed partial class SceneFieldRenderer : IDisposable
         // A surface's color, its material's times its texture's average where it has one.
         Vector3 Textured(Vector3 color, int texture) => texture != 0 && textures?.AverageColor(texture) is { } average ? color * average : color;
         // Its roughness and metallic, its material's times its map's average where it has one,
-        // green the roughness and blue the metal as the model pass reads the map. Taken from the
-        // material alone, Intel's Sponza, whose materials say 1 and leave the metal to the map, was
-        // metal to the path-traced reference, which took no light off its stone past the first
-        // face, the shade under its arcades black where the frame's was not.
+        // green the roughness and blue the metal as a glTF metallic-roughness map holds them. A
+        // material that says 1 and leaves the metal to its map is otherwise full metal to the
+        // path-traced reference, which then takes no light off it past the first face.
         (float Roughness, float Metallic) Surfaced(float roughness, float metallic, int map) =>
             map != 0 && textures?.AverageLevels(map) is { } levels ? (roughness * levels.Y, metallic * levels.Z) : (roughness, metallic);
         foreach (ref readonly var draw in draws.Span)
@@ -494,9 +493,8 @@ internal sealed partial class SceneFieldRenderer : IDisposable
 
     // Whether the model pass blends a draw at less than half of it, as a decal or a pane of tinted
     // glass, which stands in the field as nothing rather than as a solid of its color, since the
-    // surface it lies on shows through it. Intel's Sponza lays a dirt decal blended at 0.35 over
-    // its court's walls, which the field and the path-traced reference held solid, the reference
-    // reading those walls far darker in the sun than the frame.
+    // surface it lies on shows through it, and held solid a decal would darken the wall under it
+    // in the field and the path-traced reference where the frame shows the wall.
     private static bool SeeThrough(MaterialAlphaMode mode, float alpha) => mode == MaterialAlphaMode.Blend && alpha < 0.5f;
 
     // How far the window's camera's far plane lies from its eye, at its middle, or no finite
@@ -679,8 +677,8 @@ internal sealed partial class SceneFieldRenderer : IDisposable
 
     // Each brick as field_stamp.slang reads it, its cascade, its place packed a byte an axis, and
     // where its run of shapes begins and how long it is, then the runs, a shape's place each, made
-    // up to a whole element of four, since the shader reads four places at a time and read the last
-    // of a run past the buffer's end, which the validation layer's GPU-assisted checks found.
+    // up to a whole element of four, since the shader reads four places at a time and would read
+    // the last of a run past the buffer's end.
     private static IBuffer Bricks(GraphicsDevice device, SceneFieldPlan plan)
     {
         var (bricks, ranges, shapes) = (plan.Bricks, plan.BrickRanges, plan.BrickShapes);

@@ -302,9 +302,9 @@ internal sealed partial class ModelRenderer
     // What the particle pass borrows of this one, whose lighting it shares, the two layouts, a
     // material whose base color is a texture, white for none, and the lights of the window or of a
     // render target. A material is found by its texture's id within a frame, so the frame's sets
-    // are begun here as the model pass begins them, since in a frame that draws particles and no
-    // model a texture unloaded under a living emitter was still bound through the set naming its
-    // view after the view was destroyed.
+    // are begun here too, since in a frame that draws particles and no model a set kept from an
+    // earlier frame may name the view of a texture unloaded under a living emitter, which is
+    // destroyed.
     internal IDescriptorSetLayout MaterialSetLayout(IGraphicsDevice gfx) => MaterialLayout(gfx);
     internal IDescriptorSetLayout LightsSetLayout(IGraphicsDevice gfx) => LightsLayout(gfx);
     internal IDescriptorSet TexturedMaterial(RenderContext renderContext, GpuTextures textures, int texture)
@@ -386,8 +386,8 @@ internal sealed partial class ModelRenderer
     /// first bound, so the metal in its room reflects the room in the capture rather than the sky.
     /// </summary>
     /// <remarks>
-    /// A face a frame spreads a capture's draws over six frames, where all six in one frame weighed
-    /// on each frame a level streamed rooms in, each bringing a probe to capture twice. The filter
+    /// A face a frame spreads a capture's draws over six frames, so a frame of a level streaming in
+    /// rooms, each bringing a probe to capture twice, draws one face rather than six. The filter
     /// (<see cref="CubeFilter.RecordProbeFilter"/>) is recorded after the last face, so its cube
     /// and irradiance are on the GPU for the frames after, with nothing read back.
     /// </remarks>
@@ -422,7 +422,8 @@ internal sealed partial class ModelRenderer
             _probeFaces = [.. Enumerable.Range(0, 6).Select(_ => device.CreateRenderTarget(ProbeFaceSize, ProbeFaceSize, ImageFormat.R16G16B16A16_Float))];
             for (int f = 0; f < 6; f++) device.Name(_probeFaces[f].ColorView.Image, $"Reflection probe face {f}");
         }
-        // Cleared as the window is, in linear light, so an opening shows what the window shows past the room.
+        // Cleared to the window's clear color in linear light, so an opening shows what the window
+        // shows past the room.
         var clear = renderWorld.TryGet<ClearColor>() is { } windowClear
             ? new ClearColor(BloomRenderer.SrgbToLinear(windowClear.R), BloomRenderer.SrgbToLinear(windowClear.G), BloomRenderer.SrgbToLinear(windowClear.B), 1)
             : ClearColor.Black;
@@ -435,7 +436,8 @@ internal sealed partial class ModelRenderer
         pass.SetViewport(0, 0, target.Extent.Width, target.Extent.Height, 0, 1);
         pass.SetScissor(0, 0, target.Extent.Width, target.Extent.Height);
         Draw(pass, target.RenderPass, renderContext, renderWorld, source.Value, capture.ViewProjections[face], ProbeCaptureLights);
-        // The particles over the meshes, through the face from the probe's middle, lit as the meshes are.
+        // The particles over the meshes, through the face from the probe's middle, by the capture's
+        // lights.
         renderWorld.TryGet<ParticleRenderer>()?.Draw(pass, target.RenderPass, renderContext, renderWorld, ProbeCaptureLights,
             capture.ViewProjections[face], capture.Wanted.Position);
         pass.EndRenderPass();

@@ -78,7 +78,7 @@ internal struct LightingUbo
     /// <summary>The reflection probes bound this frame, by the slot their cube is bound at.</summary>
     public ProbeUboArray Probes;
 
-    /// <summary>x: 1 when the model pass leaves the view's light linear, a reflection probe's faces. y: 1 when it leaves it encoded on past 1 with no tonemap, the window's, which the pass after the scene bends. After the probes, so the fields before keep their offsets.</summary>
+    /// <summary>x: 1 when the model pass leaves the view's light linear, a reflection probe's faces. y: 1 when it leaves it encoded on past 1 with no tonemap, the window's, which the pass after the scene bends.</summary>
     public Vector4 Output;
 
     /// <summary>x: 1 when the view's ambient light is darkened by the occlusion bound beside the buffer, the window's or a render target's drawn through a camera. y: 1 when the shadowed directional light is darkened by its green channel. zw: the pixels temporal antialiasing moved the window's frame by, which a pixel's place in the screen's images is taken back by.</summary>
@@ -150,7 +150,7 @@ internal struct LightingUbo
     /// <summary>xy: one over the window's width and height, which a pixel's place in the mirrored picture is read by.</summary>
     public Vector4 MirrorScreen;
 
-    /// <summary>x: the window's pixels along each side of a texel of the glow lights' images (<see cref="GpuScreenProbes.GlowTexelAt"/>). Last, so the fields before keep their offsets.</summary>
+    /// <summary>x: the window's pixels along each side of a texel of the glow lights' images (<see cref="GpuScreenProbes.GlowTexelAt"/>).</summary>
     public Vector4 ScreenGlow;
 }
 
@@ -222,8 +222,8 @@ internal static class LightingUboPacker
     /// <summary>
     /// Hard cap on the number of analytic lights the lighting UBO carries per frame.
     /// Matches the array size compiled into the engine-side struct, and shaders should
-    /// declare a matching constant. Picked to fit comfortably within a single 16 KiB
-    /// uniform buffer (16 lights of 64 bytes and a 304-byte header, about 1.3 KiB).
+    /// declare a matching constant. Picked so the whole buffer fits within a single 16 KiB
+    /// uniform buffer.
     /// </summary>
     public const int MaxLights = 16;
 

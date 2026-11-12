@@ -76,7 +76,7 @@ public static partial class E3D
                 return;
             }
             // A glyph that is a character's own is drawn as that character, and one the substitutions
-            // made as the glyph baked under its key, as a joined emoji's is.
+            // made is drawn as the glyph baked under its joined key.
             var characterOf = new Dictionary<int, int>();
             for (int i = 0; i < codepoints.Length; i++)
                 if (reader.GlyphIndex(codepoints[i]) is var g and not 0) characterOf.TryAdd(g, codepoints[i]);
@@ -126,8 +126,8 @@ public static partial class E3D
 
     // Where each glyph of a shaped run is drawn from the run's left edge, in pixels of the font's
     // bake, and how far it moves the pen, by the font's positions. A glyph advances by its own
-    // advance and what positioning added to it, and a mark by none, as a shaper takes a mark's
-    // away. The glyphs are laid from the right in a run read that way, each moved by its
+    // advance and what positioning added to it, and a mark by none, so the pen stays where its
+    // base leaves it. The glyphs are laid from the right in a run read that way, each moved by its
     // placement, and a mark attached is put where its base is drawn and moved from there by its
     // anchor. A glyph a cursive attachment joined is moved up or down with the glyph it is joined
     // to, through the chain to the one that stays on the baseline. Null where the table points past

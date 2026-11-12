@@ -10,6 +10,7 @@ of .github/REVIEW.md or .github/REVIEW-ARCHIVE.md and the commit that closed it.
 
 Done that day
 
+- Item 256 at `91ec6329`. 3DEngine as one package.
 - Item 262 at `2e870eb6`. Whether the glow lights' history finds its own texel in a still view.
 - Item 263 at `8561816b`. The dither's grain not seen.
 
@@ -1060,7 +1061,7 @@ Done that day
 
 - Item 131 at `b16f26b5`. A thin two-sided face holds a narrower band in the scene field.
 - Item 132 at `df856af8`. A pass records two thousand unmoving draws for well under a millisecond.
-- Item 133 at `00c6809a`. The README's words under the header, as given.
+- Item 133 at `00c6809a`. The README's words under the header are replaced.
 - Item 136 at `19658e55`. The path-traced reference knows light through.
 - Item 137 at `95e088b7`. A vertical face in a narrow canopy pocket takes the light that reaches it.
 - Item 146 at `10295556`. The field follows the eye without a whole cascade's CPU work in one frame.
@@ -1678,7 +1679,8 @@ its far grass and hills up to 59 levels apart. (`522c662a`)
 
 Done that day
 
-- Item 63 at `b6d822ee`. A game that is a level blocked out with the tools, Blockout (Decision 51).
+- Item 63 at `b6d822ee`. A game that is a level blocked out with the tools, Blockout unless named
+  otherwise (Decision 51).
 - Item 72 at `14338c8f`. The sun's shadows and the scene field reach the far plane through a fill
   cascade each, not counted, with a distant ambient past the field's edge (Decision 55).
 - Item 74 at `4c629a7c`. The scene field's builds are budgeted in triangles a frame, so many meshes
@@ -1942,8 +1944,7 @@ Done that day
 
 Done that day
 
-- Item 2 at `c54d64eb`. Four things seen in the voxel game on 2026-10-10 (Decision 27), before item
-  3's remainder.
+- Item 2 at `c54d64eb`. What was seen on 2026-10-10 (Decision 27), before item 3's remainder.
 - Item 3 at `42b3e9ce`. Subsurface scattering, the first of Decision 16's spectral experiments
   (Decision 18), in three batches, each measured, what of its first batch stands alone committed
   before item 2 begins.

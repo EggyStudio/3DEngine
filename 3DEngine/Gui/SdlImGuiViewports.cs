@@ -91,8 +91,8 @@ internal static unsafe class SdlImGuiViewports
         platform.Renderer_DestroyWindow = (nint)(delegate* unmanaged[Cdecl]<ImGuiViewport*, void>)&DestroySurface;
         platform.Renderer_SetWindowSize = (nint)(delegate* unmanaged[Cdecl]<ImGuiViewport*, Vector2, void>)&ResizeSurface;
         UpdateMonitors();
-        // A click on a viewport's window that is not focused acts as well as focusing it, as one on
-        // the main window does.
+        // A click on a viewport's window that is not focused both focuses it and reaches the widget
+        // under the pointer, so a button there is pressed with one click.
         SDL.SetHint(SDL.Hints.MouseFocusClickthrough, "1");
         Logger.Info($"ImGui viewports are offered on SDL's {driver} driver, off until ImGuiConfigFlags.ViewportsEnable is set.");
     }

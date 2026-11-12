@@ -428,12 +428,12 @@ internal sealed unsafe partial class GraphicsDevice
 
     // Submits the uploads recorded since the last submit, without waiting for them. Every other
     // submit and every wait for the device calls this first, so the queue runs the uploads before
-    // anything submitted after them, as it did when each was submitted on its own, and a frame's
-    // draws, whose barriers order them after the uploads, sample what was written.
+    // anything submitted after them, and a frame's draws, whose barriers order them after the
+    // uploads, sample what was written.
     internal void FlushUploads()
     {
         // The readbacks asked since the last submission go after the uploads, so a readback reads
-        // what every submission before it wrote, as an upload is ahead of what follows it.
+        // what every submission before it wrote, the uploads included.
         try
         {
             FlushUploadBatch();

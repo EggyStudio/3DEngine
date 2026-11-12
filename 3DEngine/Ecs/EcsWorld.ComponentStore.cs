@@ -110,7 +110,7 @@ public sealed partial class EcsWorld
         /// </summary>
         internal bool ChangedAfter(int entity, long since) => _set.ChangedSince(entity, since);
 
-        /// <summary>Whether <paramref name="entity"/> got the component after <paramref name="since"/>, as <see cref="ChangedAfter"/> asks of a change.</summary>
+        /// <summary>Whether <paramref name="entity"/> got the component after <paramref name="since"/>, a tick the caller took, not having had one before.</summary>
         internal bool AddedAfter(int entity, long since) => _set.AddedSince(entity, since);
 
         /// <summary>

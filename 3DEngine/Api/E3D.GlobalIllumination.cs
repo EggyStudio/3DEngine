@@ -15,9 +15,9 @@ public static partial class E3D
     /// The field holds how far each cell of a cascade is from the nearest surface of the meshes
     /// drawn into the window that cast shadows. Each cascade is 64 cells a side, twice as coarse
     /// and as wide as the one before, so the default of 0.25 reaches 16 units across in the first
-    /// and 128 in the fourth. A closed wall thinner than a cell is held half a cell thick on either
-    /// side of its middle, as a double-sided mesh is, so a ray between the cells on either side of
-    /// it still meets it.
+    /// and 128 in the fourth. A double-sided mesh and a closed wall thinner than a cell are each
+    /// held half a cell thick on either side of their middle, so a ray between the cells on either
+    /// side of one still meets it.
     /// </para>
     /// <para>
     /// A mesh drawn in the same place for eight frames is built into the cascades around it from
@@ -33,9 +33,9 @@ public static partial class E3D
     /// again where that point has gone past its grid,
     /// <paramref name="updateBudget"/> a frame at most, the finest first, so a game sets a larger
     /// budget for a scene that changes and a smaller one for a slow GPU. The frame profile names
-    /// its cost as <c>scene_field</c>. Where a still mesh came or went, as a world's section meshed
-    /// again when a block breaks, the cells within its band are built again from the still meshes
-    /// near them alone, in every cascade it lies in, and the rest of each cascade stays as it was.
+    /// its cost as <c>scene_field</c>. Where a still mesh came or went, as one a program builds
+    /// again after an edit, the cells within its band are built again from the still meshes near
+    /// them alone, in every cascade it lies in, and the rest of each cascade stays as it was.
     /// </para>
     /// <para>
     /// A frame's builds splat <paramref name="triangleBudget"/> triangles at most, a mesh at least,
@@ -51,12 +51,11 @@ public static partial class E3D
     /// triangle budget is raised so the builds take half the wait, up to sixteen times what is
     /// given, and it falls back where the frame waits none, which <c>field.state</c> says. After a
     /// cut, the eye gone past a cascade's whole box, every cascade is built a frame at sixteen times
-    /// the triangles, and the lift holds while the meshes the new view brings still arrive and are
-    /// built in, as a game meshes its sections over the frames after a teleport, until 30 frames
-    /// running bring none and leave nothing to build, or 300 frames after the cut. Called again with
-    /// the same cascades, cell and far cascade and other budgets, it keeps the field and what it
-    /// holds and builds by the new budgets from the next frame, so a program can raise them for a
-    /// while and put them back.
+    /// the triangles, and the lift holds while the meshes the new view brings still arrive over the
+    /// frames after it and are built in, until 30 frames running bring none and leave nothing to
+    /// build, or 300 frames after the cut. Called again with the same cascades, cell and far
+    /// cascade and other budgets, it keeps the field and what it holds and builds by the new
+    /// budgets from the next frame, so a program can raise them for a while and put them back.
     /// </para>
     /// <para>
     /// A <paramref name="farCascade"/> distance past the others' reach adds a far cascade, which
@@ -165,10 +164,10 @@ public static partial class E3D
     /// </summary>
     /// <remarks>
     /// <para>
-    /// At 1 a surface sends on its color times the light reaching it, as a path-traced reference
-    /// has it, and at 0 the light makes one bounce, the sun's and the lights' sent on once by the
-    /// surfaces they light and the sky's reaching a surface only where the surface sees it. The
-    /// light a surface sends on from the sun and the lights straight is not taken times the gain,
+    /// At 1 a surface sends on its color times the light reaching it, the light a surface of that
+    /// color reflects, and at 0 the light makes one bounce, the sun's and the lights' sent on once
+    /// by the surfaces they light and the sky's reaching a surface only where the surface sees it.
+    /// The light a surface sends on from the sun and the lights straight is not taken times the gain,
     /// so a sunlit court keeps its first bounce as it is, and the bounces after it take the gain,
     /// the second once and the third twice over. A gain below 0 is taken as 0.
     /// </para>

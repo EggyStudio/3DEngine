@@ -102,7 +102,7 @@ public static partial class E3D
     /// leaves out. Where the program is live (<see cref="Config.Live"/>), the file is read again
     /// as it is saved into the model the program holds, its meshes, materials and bones the file's
     /// as it is now and a shader the program set on a material kept where the material is, and a
-    /// texture the file names is read again as its own file is saved, as one LoadTexture read is.
+    /// texture the file names is read again as its own file is saved.
     /// </remarks>
     public static Model LoadModel(string fileName)
     {
@@ -246,8 +246,8 @@ public static partial class E3D
 
         foreach (var root in scene.Roots) Visit(root, Matrix4x4.Identity);
 
-        // A mesh with morph targets is posed as a skinned mesh is, by one joint that never moves
-        // when no skeleton holds it, its targets moving its vertices before any joint does.
+        // A mesh with morph targets is posed through a skin, by one joint that never moves when no
+        // skeleton holds it, its targets moving its vertices before any joint does.
         foreach (var (index, payload, world, node) in morphed)
         {
             var at = skins.FindIndex(s => s.Mesh == index);
@@ -294,14 +294,15 @@ public static partial class E3D
         return new SkinnedMesh(index, rest, new ushort[rest.Length * 4], weights, [], []);
     }
 
-    // A skin with a mesh's morph targets, moved into the model's space by the node's transform as
-    // its vertices were, a delta turned and scaled but not moved.
+    // A skin with a mesh's morph targets, each delta turned and scaled by the node's transform but
+    // not moved, so it lies in the model's space with the vertices it moves.
     private static SkinnedMesh WithMorphs(SkinnedMesh skin, SceneMeshPayload payload, Matrix4x4 world, string node)
     {
         var targets = payload.Morphs;
         var positions = new Vector3[targets.Count][];
         var normals = new Vector3[]?[targets.Count];
-        // A normal's delta turns as the normals did, by the inverse of the transform turned over.
+        // A normal's delta turns by the inverse of the transform turned over, which keeps it across
+        // the surface where the node scales it more one way than another.
         var normalMatrix = Matrix4x4.Invert(world, out var inverse) ? Matrix4x4.Transpose(inverse) : world;
         for (int t = 0; t < targets.Count; t++)
         {

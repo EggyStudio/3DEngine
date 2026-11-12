@@ -27,7 +27,7 @@ public static partial class E3D
 
         _app = new App(ConfigFor(width, height, title)).AddPlugin(new DefaultPlugins());
         FlatApiWorld.Current = _app.World;
-        // A window never shown is left its size, as fullscreen is.
+        // A window never shown keeps the size asked for, and is not made to cover its monitor.
         if (_configFlags.HasFlag(ConfigFlags.BorderlessWindowedMode) && !IsWindowHidden()) ToggleBorderlessWindowed();
         _shouldClose = false;
         _eventsPumped = false;
@@ -157,7 +157,7 @@ public static partial class E3D
 
     /// <summary>
     /// Sets the key that writes a screenshot in every program, and records while held, F2 until
-    /// moved, as Minecraft takes one, or turns it off with <see cref="Key.Null"/>.
+    /// moved, or turns it off with <see cref="Key.Null"/>.
     /// </summary>
     /// <remarks>
     /// The key writes the frame being drawn as a PNG into a <c>screenshots</c> folder beside the
@@ -177,8 +177,8 @@ public static partial class E3D
     /// folder once its last picture is, for the window open and those opened after.
     /// </summary>
     /// <remarks>
-    /// A program that keeps its pictures elsewhere, as a repository keeps a folder a day with a
-    /// line written for each picture, points the key there and names and notes each as it lands.
+    /// A program that keeps its pictures elsewhere, as a folder a day with a line written for each
+    /// picture, points the key there and names and notes each as it lands.
     /// The call comes on a thread of the engine's, the render thread or a worker, so what it does
     /// there holds no lock the program's frame takes. Called before <see cref="InitWindow"/>, it
     /// holds for the window that call opens.

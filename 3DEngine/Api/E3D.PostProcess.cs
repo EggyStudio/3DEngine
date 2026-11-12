@@ -294,10 +294,10 @@ public static partial class E3D
     /// </summary>
     /// <remarks>
     /// The engine's curve, <see cref="Tonemap.Engine"/>, bends the brightest channel past 0.9 and
-    /// scales the other two with it, so a bright orange lamp stays orange where a path-traced
-    /// reference, clipping each channel at white, shows it white. A color whose channels all lie
-    /// under the knee is shown as it was. The window's frame and a render texture take it alike,
-    /// and the other curves, which bend their highlights as their makers chose, take none of it.
+    /// scales the other two with it, so a bright orange lamp stays orange where a curve clipping
+    /// each channel at white shows it white. A color whose channels all lie under the knee is
+    /// shown as it is. The window's frame and a render texture take it alike, and the other
+    /// curves, which bend their highlights as their makers chose, take none of it.
     /// </remarks>
     public static void SetHighlightKnee(float knee, float strength = 1)
     {
@@ -397,9 +397,9 @@ public static partial class E3D
     /// The shader imports the engine's <c>frame</c> module and draws over a triangle that covers the
     /// window, taking a <c>FullscreenOutput</c>. <c>frameLight(uv)</c> is its input, the scene's
     /// linear light with the bloom added and times the exposure, and <c>frameShown(color, uv)</c> its
-    /// output, which grades, encodes and vignettes a linear color under 1 as every curve's is. Its
-    /// own uniforms and textures are set as any shader's, and the values set reach the frames drawn
-    /// after.
+    /// output, which grades, encodes and vignettes a linear color under 1 by the steps that follow
+    /// every curve. Its own uniforms and textures are set as any shader's, and the values set reach
+    /// the frames drawn after.
     /// </para>
     /// <para>
     /// A vertex stage of the shader's own is not used. A shader with no fragment stage leaves the

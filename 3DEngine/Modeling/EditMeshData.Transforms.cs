@@ -5,7 +5,7 @@ namespace Engine;
 // What moves the selection, the grid it lands on, and the slot and the smoothing of its faces.
 internal sealed partial class EditMeshData
 {
-    /// <summary>The angle a face is smoothed across when none is named, thirty degrees, as Blender's is.</summary>
+    /// <summary>The angle a face is smoothed across when none is named, thirty degrees, so a cylinder of twelve sides or more is drawn round and a box's edges stay sharp.</summary>
     public const float DefaultSmoothAngle = 30f;
 
     public void Move(Vector3 by)
@@ -42,8 +42,8 @@ internal sealed partial class EditMeshData
     /// <remarks>
     /// A negative factor mirrors the selection, which would leave a face turned inside out, so a face
     /// whose every corner was scaled is wound the other way when the factors' product is negative,
-    /// and faces out as it did. A factor of zero flattens the selection onto a plane, which faces
-    /// with no area are left of, as a modeling program leaves them.
+    /// and faces out as it did. A factor of zero flattens the selection onto a plane, and the faces
+    /// it leaves with no area are kept.
     /// </remarks>
     public void Scale(Vector3 factor, Vector3? pivot)
     {

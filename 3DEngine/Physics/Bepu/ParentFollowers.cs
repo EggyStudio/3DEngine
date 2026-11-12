@@ -9,24 +9,24 @@ namespace Engine;
 /// <remarks>
 /// <para>
 /// A parent the program moves in its update moves once a frame, and a frame holds as many steps as
-/// its time comes to, none, one or several. Aiming each step at the parent's place gave the body
-/// the whole frame's distance in the first step and nothing in the rest, so a crate on a platform
-/// rode slower or faster than the platform as the frame rate changed. Instead, the parent's
-/// place is observed once the frame's update has moved it, its velocity is that move over the
-/// frame's time, and each step aims at the observed place moved on by that velocity for the time
-/// from the observation to the end of the step. The steps run behind the frame's clock by what the
-/// fixed step has not yet stepped through, so that time starts below zero, and a step that ends
-/// before the moment observed aims behind the place observed, which keeps the body at the parent's
-/// speed through every step however the frames fall. A parent that stops is reached in the next
-/// step.
+/// its time comes to, none, one or several. Aiming each step at the parent's place would give the
+/// body the whole frame's distance in the first step and nothing in the rest, so a crate on a
+/// platform would ride slower or faster than the platform as the frame rate changes. So the
+/// parent's place is observed once the frame's update has moved it, its velocity is that move over
+/// the frame's time, and each step aims at the observed place moved on by that velocity for the
+/// time from the observation to the end of the step. The steps run behind the frame's clock by
+/// what the fixed step has not yet stepped through, so that time starts below zero, and a step
+/// that ends before the moment observed aims behind the place observed, which keeps the body at
+/// the parent's speed through every step however the frames fall. A parent that stops is reached
+/// in the next step.
 /// </para>
 /// <para>
 /// A parent moved in the steps themselves, by an <c>[OnFixedUpdate]</c> behavior, has not moved
-/// since the last step when the frame ends, and is followed as before, each step aiming at its
-/// place, which such a parent moves a step's distance a step. A parent the program says it placed
-/// with <see cref="PhysicsWorld.MarkPlaced"/>, as when a level starts again, or one that jumps more
-/// than <see cref="PhysicsSettings.PlaceBeyond"/> in a frame, is placing its body, which is put
-/// there rather than flung there through whatever is between.
+/// since the last step when the frame ends, so each step aims at its place, which such a parent
+/// moves a step's distance a step. A parent the program says it placed with
+/// <see cref="PhysicsWorld.MarkPlaced"/>, as when a level starts again, or one that jumps more than
+/// <see cref="PhysicsSettings.PlaceBeyond"/> in a frame, is placing its body, which is put there
+/// rather than flung there through whatever is between.
 /// </para>
 /// </remarks>
 internal sealed class ParentFollowers

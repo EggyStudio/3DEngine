@@ -9,9 +9,9 @@ namespace Engine;
 
 /// <summary>A well-known scene kept as a pack fetched on demand, as its manifest names it.</summary>
 /// <remarks>
-/// A scene such as Intel's Sponza is hundreds of megabytes with its textures made small, too much
-/// for a repository to hold, so a manifest of JSON holding these fields is kept in the repository's
-/// <c>scenes</c> folder in its place, written as BevyCSharp's are. Its fields are settable, since a
+/// A detailed scene's files, even with its textures made small, are too large for a repository to
+/// hold, so a manifest of JSON holding these fields is kept in the repository's <c>scenes</c>
+/// folder in its place, written as BevyCSharp's are. Its fields are settable, since a
 /// source-generated reader gives a field a manifest leaves out the value it starts with.
 /// </remarks>
 internal sealed record ScenePack
@@ -40,7 +40,7 @@ internal sealed record ScenePack
     /// <summary>The pack's SHA-256 in lowercase hexadecimal, which a fetched copy must have.</summary>
     public string Sha256 { get; set; } = "";
 
-    /// <summary>The model to load from the pack's files, by its path among them, such as <c>sponza.gltf</c>.</summary>
+    /// <summary>The model to load from the pack's files, by its path among them, such as <c>scene.gltf</c>.</summary>
     public string Model { get; set; } = "";
 }
 

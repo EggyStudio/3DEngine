@@ -138,9 +138,9 @@ internal sealed class GpuIllumination : IDisposable
 
     // The same cycle's share of the sky and mark of what the rays met, the merged light's alpha,
     // the mean gathered so far and the last whole cycle's of each, as the frame before left them
-    // and as this frame's merge writes them, since taken from each frame's places the share and the
-    // mark a carried probe passed down and to its faces moved with its rays, and every probe whose
-    // hits read them flickered with them, as along the edges of Sponza's balcony.
+    // and as this frame's merge writes them, since a share and a mark taken from each frame's places
+    // alone, which a carried probe passes down and to its faces, would move with its rays, and
+    // every probe whose hits read them would flicker with them.
     internal (VkImage Image, VkImageView View)[] CycleSkyMarkBefore { get; init; } = [];
     internal (VkImage Image, VkImageView View)[] CycleSkyMark { get; init; } = [];
 

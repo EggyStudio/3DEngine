@@ -62,8 +62,8 @@ public uint RaysAt(uint texels)
 // A surface's normal from the cross of its ways along two axes of the window's depth, or facing
 // the eye along `toEye` where the cross has no length or none a float holds. Far from the world's
 // origin, a far texel's neighbor read back from the depth falls on the same point, and the normal
-// made from it was a value that is not a number, which the glow lights' light at the screen's
-// probes carried and their history spread over the land.
+// made from it is a value that is not a number, which the glow lights' light at the screen's
+// probes would carry and their history spread over the land.
 public float3 surfaceNormal(float3 crossed, float3 toEye)
 {
     float length2 = dot(crossed, crossed);
@@ -163,8 +163,8 @@ public struct FieldSun : ISunShadow
 // moved off its surface along n by a texel and a half of that cascade and toward the sun by a cell
 // of the field, since the field's surface lies within half a cell of the mesh's, and nine depths
 // around it compared and averaged. The map is drawn from the meshes themselves, where the field
-// holds them at its cells, and through the field alone the probes' hits in the vestibule of
-// Sponza's main door see none of the sun a path-traced reference sees there. Moved toward the sun,
+// holds them at its cells, and through the field alone a probe's hit by a gap narrower than a
+// cell, such as a doorway's, sees none of the sun that reaches it there. Moved toward the sun,
 // the point is read at the same place in the map and only nearer the sun, where moved a cell and a
 // half along n a floor's hit in cells of half a unit stands 0.75 over the floor, which under a sun
 // 20 degrees up shortens every shadow a low wall casts on it by 2.1 units. Moved by the texel
@@ -426,7 +426,7 @@ public float3 directReflected<V : IVolume, Sun : ISunShadow>(V field, SceneField
 }
 
 // How much a probe at probe counts toward the light at a surface at p facing n, besides how near
-// it is, more the more squarely it stands in front of the surface, as DDGI weighs its probes.
+// it is, more the more squarely it stands in front of the surface.
 public float probeFacing(float3 p, float3 n, float3 probe)
 {
     float3 toward = probe - p;
@@ -456,8 +456,8 @@ public static const int ReachTexels = 16;
 
 // How near a surface a probe may stand, and the most it is moved from its spot in the grid to stand
 // so far off one or out of a mesh, in its spacing, so a probe in the plane of a wall or a ceiling
-// stands in the room before it rather than inside it, as DDGI moves its probes. A probe moved stays
-// within half the spacing of its spot, so the probes keep their order.
+// stands in the room before it rather than inside it. A probe moved stays within half the spacing
+// of its spot, so the probes keep their order.
 public static const float Clearance = 0.1;
 public static const float MostMoved = 0.45;
 
@@ -509,12 +509,12 @@ public static const float OwnShare = 0.25;
 // How much the probe of cascade c at `at`, standing at probe, sees of a surface at p facing n, 1
 // where p, taken three tenths of the probes' spacing off the surface along n, lies nearer the probe
 // than its rays reached that way the frame before, falling to 0 over an eighth of the spacing past
-// it, a cell of the probes' cascade, as DDGI weighs its probes by the distances they traced. Taken
-// off the surface, the point comes nearer a probe on its own side and goes further from one past
-// it, so a probe under a floor or beyond a wall, whose rays stop at the floor's or the wall's far
-// face, lends a surface on this side none of the light it sees there. Falling over half the
-// spacing, a probe 0.55 beyond a wall 0.1 thick, whose rays reach the wall's far face, would read
-// as seeing the screen's probes' hits on this side and lend them the light it sees.
+// it, a cell of the probes' cascade. Taken off the surface, the point comes nearer a probe on its
+// own side and goes further from one past it, so a probe under a floor or beyond a wall, whose rays
+// stop at the floor's or the wall's far face, lends a surface on this side none of the light it
+// sees there. Falling over half the spacing, a probe 0.55 beyond a wall 0.1 thick, whose rays reach
+// the wall's far face, would read as seeing the screen's probes' hits on this side and lend them
+// the light it sees.
 public float probeSees<V : IVolume>(V reach, float3 p, float3 n, float3 probe, int3 at, int c, float probes, float apart)
 {
     float3 toward = p + n * (0.3 * apart) - probe;
@@ -627,9 +627,9 @@ public float3 glowLightsAt<V : IVolume>(V field, SceneFieldInfo info, GiLights l
 // it met the field giving the hit none of its light (glowLightPassed). A hit within a cell of a
 // light's box takes the light as its mean over a square a cell wide about the hit on its plane, at
 // the middles of the square's four quarters, since a light thinner than a cell lights the wall it
-// stands against within a few hundredths of a block of its box, a patch one probe's ray meets and
+// stands against within a few hundredths of a unit of its box, a patch one probe's ray meets and
 // the next probe's misses. Taken at a cell's distance from the box instead, the hit would lose the
-// strip's light on its own wall, which is light a path-traced reference has. A hit's way of none,
+// strip's light on its own wall, which is light the wall receives. A hit's way of none,
 // as a reflection's hit shaded by shadeHit gives, takes none of that. At a hit, a light farther
 // than eight of its box's half diagonals takes each face it lights the hit from as one point
 // (glowLightFaces), where the pieces are up to twelve, since every probe's ray takes every light
@@ -644,8 +644,8 @@ public float3 glowLightsAt<V : IVolume>(V field, SceneFieldInfo info, GiLights l
 float3 glowLightsFrom<V : IVolume>(V field, SceneFieldInfo info, GiLights lights, float3 p, float3 n, int marches, bool halves, float3 way, bool hit)
 {
     // A point past every light's reach takes none of their light, found before the loop over them,
-    // which would otherwise run at each pixel of the far land and the clouds, whose surfaces are
-    // blended and so missing from the window's depth the screen's texels are taken from.
+    // which would otherwise run at each pixel of a far surface and of a blended one, which is
+    // missing from the window's depth the screen's texels are taken from.
     if (any(p < lights.glowCounts.yzw) || any(p > lights.glowHigh.xyz))
         return float3(0.0);
     int count = min(int(lights.glowCounts.x), MostGlowLights);
@@ -661,9 +661,9 @@ float3 glowLightsFrom<V : IVolume>(V field, SceneFieldInfo info, GiLights lights
     float3 tangent = normalize(abs(n.y) < 0.9 ? cross(n, float3(0.0, 1.0, 0.0)) : cross(n, float3(1.0, 0.0, 0.0)));
     float3 bitangent = cross(n, tangent);
     // At a hit, each light taken as one point (glowLightPoint), kept so where it gives under a 32nd
-    // of the largest such point of the lights before it, and otherwise taken by its own form. A
-    // hit in a voxel game's lit cave takes many lights, the brightest few of them most of its
-    // light, so the many faint ones take one point where their faces were up to three. Measured
+    // of the largest such point of the lights before it, and otherwise taken by its own form. A hit
+    // in a cave lit by many lamps takes many lights, the brightest few of them most of its light,
+    // so the many faint ones take one point each in place of up to three for their faces. Measured
     // against the largest so far, a light kept as a point gives under a 32nd of the largest of all,
     // and a light read before the largest takes its own form at worst, a second pass to find the
     // largest first costing more than the points save.

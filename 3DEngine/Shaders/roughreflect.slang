@@ -5,15 +5,14 @@ import gi;
 import scenefield;
 
 // The texels along each side of a probe's block of its light by way, eight by eight directions with
-// a texel's border about them, each border texel the one across the octahedron's edge from it, as
-// DDGI borders its probes, so a filtered read across a fold of the octahedron blends the directions
-// on either side of it.
+// a texel's border about them, each border texel the one across the octahedron's edge from it, so a
+// filtered read across a fold of the octahedron blends the directions on either side of it.
 public static const int WaysTexels = 10;
 
 // How much of a probe at probe a surface at p facing n sees, as probeSees gives it, its reach read
 // filtered between the four directions about the way to p within the probe's block, so the share
-// changes smoothly from one direction to the next, where read at the nearest the reflection of a
-// Cornell box's wall showed the octahedron's facets.
+// changes smoothly from one direction to the next, where read at the nearest a wall's reflection
+// would show the octahedron's facets.
 public float probeSeesBlended<V : IVolume>(V reach, float3 p, float3 n, float3 probe, int3 at, int c, float probes, float apart, int cascades)
 {
     float3 toward = p + n * (0.3 * apart) - probe;
@@ -51,13 +50,13 @@ public float4 reflectedAt<V : IVolume>(V cubes, V ways, V reach, SceneFieldInfo 
 // roughness from 0.5 to 1. The directions are sampled within each probe's block, its border holding
 // the directions across each fold, and at its slice's middle, so no probe lends its neighbor's
 // light, in one filtered read. Clamped to the block's own texels, a way level with the eye in the
-// octahedron's folded half read the texels on either side of the edge far apart, and the Cornell
-// box's walls showed a seam at the eye's height and shards along the folds. A probe the surface
-// does not see is left out, since along a mirror way it lends the light of that one way, and a
-// probe under the floor at the foot of a wall reads the ground the sky holds below the scene, in
-// the sun. Kept at the twentieth of its weight bouncedIn keeps, even less the share of the sky its
-// faces saw, as bouncedIn takes it, such a probe lit the foot of a wall far brighter than the wall
-// above it, the face spreading a hemisphere the floor above closes half of.
+// octahedron's folded half would read the texels on either side of the edge far apart, and walls
+// would show a seam at the eye's height and shards along the folds. A probe the surface does not
+// see is left out, since along a mirror way it lends the light of that one way, and a probe under
+// the floor at the foot of a wall reads the ground the sky holds below the scene, in the sun. Kept
+// at the twentieth of its weight bouncedIn keeps, even less the share of the sky its faces saw, as
+// bouncedIn takes it, such a probe would light the foot of a wall far brighter than the wall above
+// it, the face spreading a hemisphere the floor above closes half of.
 float4 reflectedIn<V : IVolume>(V cubes, V ways, V reach, SceneFieldInfo info, float3 p, float3 n, float3 r, float roughness, float probes, float spacing,
     int c, int cascades)
 {

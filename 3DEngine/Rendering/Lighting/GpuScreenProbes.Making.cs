@@ -37,8 +37,8 @@ internal sealed unsafe partial class GpuScreenProbes
         var glowSeen = device.CreateBuffer(new BufferDesc((ulong)(across * down) * GpuScreenProbes.GlowSeenBytes, BufferUsage.Storage | BufferUsage.TransferDst));
         var rayLog = device.CreateBuffer(new BufferDesc(GpuScreenProbes.RayLogBytes, BufferUsage.Storage, CpuAccessMode.Read));
         device.Name(rayLog, "Screen probe's rays, as gi.screenprobe asks for them");
-        // The glow lights' light a texel each of glowTexel pixels a side, half the view's size as
-        // AmbientOcclusionRenderer draws its depth up to 1,080 rows (GpuScreenProbes.GlowTexelAt).
+        // The glow lights' light a texel each of glowTexel pixels a side, a texel of the half-sized
+        // depth AmbientOcclusionRenderer draws up to 1,080 rows (GpuScreenProbes.GlowTexelAt).
         var glowDesc = desc with { Extent = new Extent2D(Math.Max(1, (uint)MathF.Ceiling(width / glowTexel)), Math.Max(1, (uint)MathF.Ceiling(height / glowTexel))) };
         IImage[] glowImages = [.. Enumerable.Range(0, 4).Select(_ => device.CreateImage(glowDesc)), device.CreateImage(glowDesc with { Format = ImageFormat.R8G8B8A8_UNorm }),
             device.CreateImage(glowDesc), device.CreateImage(glowDesc)];

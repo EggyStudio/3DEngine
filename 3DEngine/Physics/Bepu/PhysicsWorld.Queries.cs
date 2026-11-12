@@ -166,8 +166,8 @@ public sealed partial class PhysicsWorld
         public CollidableReference Collidable;
         public bool Skips;
         public CollidableReference Skip;
-        // A trigger stops nothing, so a ray goes through it as a body does. A car's wheel or a
-        // character's feet that met a gate's sensor stood on the air inside it.
+        // A trigger stops nothing, so a ray goes through it, or a car's wheel or a character's
+        // feet would stand on the air inside a gate's sensor.
         public TriggerFlags Triggers;
         // A ray cast past a body sees what that body's layer collides with, so a character stands
         // only on what it would land on, or every layer from -1.

@@ -2,11 +2,11 @@ namespace Engine;
 
 /// <summary>
 /// The pixel art the day sky draws the sun and the moon with, each a square body with its glow
-/// around it, as RGBA bytes a row at a time from the top, a clear pixel's alpha 0, the voxel game's.
+/// around it, as RGBA bytes a row at a time from the top, a clear pixel's alpha 0.
 /// </summary>
 /// <remarks>
-/// A body is 8 pixels across at the middle of a picture 32 across, as Minecraft's sun and moon are,
-/// with a faint glow falling from the body's edge to nothing before the picture's edge. Each pixel is
+/// A body is 8 pixels across at the middle of a picture 32 across, with a faint glow falling from
+/// the body's edge to nothing before the picture's edge. Each pixel is
 /// painted as <see cref="Fine"/> texels a side, so the body keeps its square pixels and the glow
 /// falls smoothly. The pictures are added to the sky, each texel's color by its alpha, so the glow
 /// brightens the sky behind it. The moon's phases are one sheet four across and two down, phase 0

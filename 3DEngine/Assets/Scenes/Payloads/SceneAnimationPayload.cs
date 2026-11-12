@@ -87,8 +87,8 @@ internal enum SceneAnimationInterpolation
     Linear,
 
     /// <summary>
-    /// Cubic spline as authored by the source format (currently treated as Linear by
-    /// consumers that don't support tangents; data is preserved for future use).
+    /// Cubic spline as authored by the source format. The engine's bone sampling reads no
+    /// tangents and interpolates it as <see cref="Linear"/>.
     /// </summary>
     CubicSpline,
 }

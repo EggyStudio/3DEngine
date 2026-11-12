@@ -254,8 +254,7 @@ public sealed partial class EcsWorld
     /// Zero-allocation ref-based enumerable for iterating entities that match both
     /// <typeparamref name="T1"/> and <typeparamref name="T2"/>, providing direct mutable access to both.
     /// Returned by <see cref="EcsWorld.QueryRef{T1,T2}"/>, and narrowed by
-    /// <see cref="With{TWith}"/>, <see cref="Without{TWithout}"/> and <see cref="Changed{TChanged}"/>
-    /// as the single-component query is.
+    /// <see cref="With{TWith}"/>, <see cref="Without{TWithout}"/> and <see cref="Changed{TChanged}"/>.
     /// </summary>
     /// <typeparam name="T1">The first component type.</typeparam>
     /// <typeparam name="T2">The second component type.</typeparam>
@@ -436,7 +435,7 @@ public sealed partial class EcsWorld
     /// <summary>
     /// A <c>foreach</c>-able view of the entities that have all three component types, by reference,
     /// narrowed by <see cref="With{TWith}"/>, <see cref="Without{TWithout}"/> and
-    /// <see cref="Changed{TChanged}"/> as the smaller queries are. Returned by
+    /// <see cref="Changed{TChanged}"/>. Returned by
     /// <see cref="EcsWorld.QueryRef{T1,T2,T3}"/>.
     /// </summary>
     /// <remarks>

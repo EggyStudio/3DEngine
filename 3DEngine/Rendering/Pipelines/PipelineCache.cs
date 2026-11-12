@@ -62,10 +62,10 @@ internal sealed class PipelineCache : IDisposable
     /// makes it, which this sets going where none has.
     /// </summary>
     /// <remarks>
-    /// A pass a program turns on in play draws with what is made and leaves out the rest until it
-    /// is, as the window's view mirrored in a plane does. Made on the thread that records the
-    /// frame, the mirrored pass's pipelines held the first frame with a reflection plane until the
-    /// driver had compiled them all.
+    /// A pass a program turns on in play, such as the window's view mirrored in a plane, draws with
+    /// what is made and leaves out the rest until it is. Made on the thread that records the frame,
+    /// a pass's pipelines would hold the first frame that draws it until the driver has compiled
+    /// them all.
     /// </remarks>
     public IPipeline? GetOrBegin(GraphicsPipelineDesc desc)
     {

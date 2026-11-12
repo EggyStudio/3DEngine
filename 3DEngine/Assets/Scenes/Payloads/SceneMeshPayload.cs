@@ -26,15 +26,16 @@ namespace Engine;
 /// authored basis and units. The reader does <i>not</i> normalize them, and <c>SceneSpawnSystem</c>
 /// applies a single root-level basis/unit matrix derived from
 /// <see cref="Scene.SourceCoordinateSystem"/> and <see cref="Scene.SourceMetersPerUnit"/>
-/// instead, to keep the read/write round-trip byte-stable (cf. Plan §B).
+/// instead, to keep the read/write round-trip byte-stable.
 /// </para>
 /// <para>
 /// <b>Threading:</b> instances are immutable by convention once attached to a published
 /// <see cref="SceneAsset"/>; arrays are shared, never copied. Do not mutate them.
 /// </para>
 /// <para>
-/// TODO: <c>SceneSkinningPayload</c> (joints/weights) and <c>SceneAnimationPayload</c>
-/// (sampled time-varying attribute curves) ship as separate payloads in a follow-up ticket.
+/// <b>Skinning and animation:</b> a skinned mesh's joints and weights are a
+/// <see cref="SceneSkinPayload"/> beside it, and sampled clips a
+/// <see cref="SceneAnimationPayload"/>, payloads of their own.
 /// </para>
 /// </remarks>
 /// <seealso cref="SceneMeshSubset"/>

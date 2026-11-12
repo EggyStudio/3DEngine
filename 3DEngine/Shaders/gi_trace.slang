@@ -10,8 +10,8 @@
 // cascade, where it brings back the light from all around. A probe inside a mesh sends nothing,
 // which the merge reads as a probe to pass over.
 //
-// A ray is marched from its probe, since one marched from where its interval begins started under
-// a floor its probe stood a little above and brought back the light under it. One that meets a
+// A ray is marched from its probe, since one marched from where its interval begins starts under a
+// floor its probe stands a little above and brings back the light under it. One that meets a
 // surface before its interval begins brings back that surface's light, marked apart, alpha a half,
 // which the probe's own faces take and the merge of the cascade below reads as dark. Blocked dark
 // here too, this cascade's faces would lack every surface nearer its probes than the interval's
@@ -19,9 +19,9 @@
 // indirect light reaching it.
 //
 // A probe nearer a surface than a tenth of its spacing, or inside a mesh, is moved off it along the
-// field's normal before its rays leave, as DDGI moves its probes, so the probes in the plane of a
-// wall or a ceiling stand in the room before it, and where it stands is left for the merge and the
-// gather, which writes it into the probe's faces for every pass that reads them.
+// field's normal before its rays leave, so the probes in the plane of a wall or a ceiling stand in
+// the room before it, and where it stands is left for the merge and the gather, which writes it
+// into the probe's faces for every pass that reads them.
 //
 // A probe takes the indirect light reaching the surfaces its rays meet at the share the gather left
 // it, other than the whole the frame after the light its rays bring straight from the sun, the
@@ -163,9 +163,9 @@ groupshared float4 aboveAround[8];
 
 // The field's layout with each cascade at the corner it lay at the frame before, where the faces of
 // the indirect light, which the rays read, were gathered. Read at this frame's corners, a
-// cascade that moved with the eye read each probe's faces from the probe a step or more beside it,
-// and the light past the first bounce, fed from those faces each frame, took many frames to find
-// itself again after a turn moved every cascade.
+// cascade that moves with the eye reads each probe's faces from the probe a step or more beside
+// it, and the light past the first bounce, fed from those faces each frame, takes many frames to
+// find itself again after a turn moves every cascade.
 SceneFieldInfo gatheredAt()
 {
     int cascades = int(push.interval.w);
@@ -185,12 +185,12 @@ SceneFieldInfo gatheredAt()
 // its move in its spacing, with w 1 where it then stands outside every mesh. Above the first
 // cascade, a spot in or beside a wall between a space narrower than the spacing and a wider one
 // goes into the narrow one, through the wall's farther face, since the wider holds the probes
-// beside it and the narrow one would hold none. A corridor two units wide and two and a half high
-// in walls 0.3 thick held no probe of the cascades spaced 2.4 and more where the spots of the
-// second in its walls moved out through their nearer faces, so the walls by its open end, past the
-// first cascade's reach, took no light past the first bounce. The first cascade's probes are not
-// moved so, and a space narrow along one axis alone does not draw a probe in (narrowAt), since
-// either took a room's view further from its path-traced reference.
+// beside it and the narrow one would hold none. Moved out through their nearer faces, the spots in
+// the walls of a corridor narrower than the spacing leave it no probe of the cascades above the
+// first, and the walls by its open end, past the first cascade's reach, take no light past the
+// first bounce. The first cascade's probes are not moved so, and a space narrow along one axis
+// alone does not draw a probe in (narrowAt), since either moves a room's light further from the
+// light it receives.
 float4 placed(float3 at, float apart)
 {
     SheetVolume sheets = SheetVolume(sceneField, fieldSecond);
@@ -294,14 +294,13 @@ groupshared float rayEarly[64];
 
 // Whether a ray that met nothing within its interval reaches the sky past the probes of the cascade
 // above, which see none of it along its way, as probes under the roofs of a court narrower than
-// their spacing do where the ray goes up through the court's opening: traced on from its
+// their spacing do where the ray goes up through the court's opening. Traced on from its
 // interval's end to the field's edge, it meets nothing there, once the field holds every mesh in
 // reach. Where it meets any surface past its interval, as a closed room's wall or a canopy's
-// leaves, the merge gives what lies past it as before. The probes above are those this probe sees,
-// weighed as the merge weighs them (aboveAround). Read from those probes alone, the floor of
-// Sponza's atrium took too little of the light from above, and warm where a path-traced
-// reference's is the sky's blue, the coarsest cascade's probes eight units apart standing under the
-// galleries on either side of an opening 5.6 units wide.
+// leaves, the merge gives what lies past it as for any other ray. The probes above are those this
+// probe sees, weighed as the merge weighs them (aboveAround). Read from those probes alone, the
+// floor of such a court takes too little of the light from above, and that of the color of the
+// roofs the probes stand under rather than the sky's.
 bool skyPastAbove(float3 way, float3 origin, int3 baseAbove, uint probes)
 {
     if (push.cascade.w != 0u || push.above.x == 0u || (push.follow.z & 2u) == 0u)
@@ -369,8 +368,8 @@ void computeMain(uint3 id : SV_DispatchThreadID, uint lane : SV_GroupIndex)
     // A probe below the last cascade that sees none of the probes above it standing outside every
     // mesh has no probe to give it what lies past its interval, so its rays go on to the field's
     // edge and bring the light of what they meet there. One that meets nothing brings nothing, its
-    // reach its interval's end, since bringing the sky as the last cascade's rays do lit a closed
-    // room's floor in its first frames through the cascades not yet built, brighter than it
+    // reach its interval's end, since bringing the sky as the last cascade's rays do lights a
+    // closed room's floor in its first frames through the cascades not yet built, brighter than it
     // settles (CascadeEdgeTests).
     if (lane < 8u && push.cascade.w == 0u && oc.w > 0.0 && place.w > 0.5)
     {
@@ -393,12 +392,12 @@ void computeMain(uint3 id : SV_DispatchThreadID, uint lane : SV_GroupIndex)
     float4 around = aboveAround[0] + aboveAround[1] + aboveAround[2] + aboveAround[3] + aboveAround[4] + aboveAround[5] + aboveAround[6] + aboveAround[7];
     float3 aboveMean = around.w > 1e-4 ? around.xyz / around.w : origin;
     // A probe that sees the probes above it standing outside every mesh for under a quarter of
-    // their weight is carried as well, as one under the vault of Sponza's vestibule is, a passage
-    // narrower than the spacing of the cascades above, whose probes stand in its stone, since
-    // uncarried its rays toward the atrium take the light past their interval from the few probes
-    // above it sees. A carried ray's one traced sample stands where the merge averaged the probes
-    // above, so carrying every probe that sees under half their weight, in place of a quarter,
-    // lands the light in the wrong places.
+    // their weight is carried as well, as one under the vault of a passage narrower than the
+    // spacing of the cascades above is, whose probes stand in its stone, since uncarried its rays
+    // toward the passage's open end take the light past their interval from the few probes above
+    // it sees. A carried ray's one traced sample stands where the merge averages the probes above,
+    // so carrying every probe that sees under half their weight, in place of a quarter, lands the
+    // light in the wrong places.
     bool carried = push.cascade.w == 0u && (seesAbove == 0u || around.w < 0.25);
     // A carried probe whose rays move marked in its place's w, 2, for the merge and the gather to
     // keep its cycle, a probe walled in keeping its 0.
@@ -415,12 +414,11 @@ void computeMain(uint3 id : SV_DispatchThreadID, uint lane : SV_GroupIndex)
         held[int3(3 * int(probes) + int(at.x), int(at.y), int(push.cascade.x) * int(probes) + int(at.z))] = float4(place.xyz, 2.0);
     // A ray carried on that meets nothing to the field's edge brings the sky as the last cascade's
     // do, once the field holds every mesh in reach, and nothing before, a build the eye's move
-    // started leaving its cascade as last built, every mesh in it. Under a slab two and a half
-    // units up in a field of four cascades, whose last's probes stood 9.6 apart above the slab and
-    // under the ground, the cascades' rays out through the slab's open sides were carried, and
-    // bringing nothing there left the floor under it near black where a path-traced reference
-    // lights it. Bringing it before then lit the closed room of CascadeEdgeTests through the
-    // cascades not yet built in its first frames, brighter than its floor settles.
+    // started leaving its cascade as last built, every mesh in it. Where such a ray brings
+    // nothing then, a floor under a low slab whose last cascade's probes stand above the slab and
+    // under the ground, lit by rays carried out through the slab's open sides, is left near black.
+    // Where it brings the sky before then, a closed room's floor in its first frames is lit through
+    // the cascades not yet built, brighter than it settles (CascadeEdgeTests).
     bool skyPast = push.cascade.w != 0u || carried && (push.follow.z & 2u) != 0u;
     float end = carried ? asfloat(push.follow.y) : push.interval.y;
     float4 acAbove = cascadeAt(fieldInfo, push.cascade.x + 1u, int(push.interval.w));
@@ -443,20 +441,19 @@ void computeMain(uint3 id : SV_DispatchThreadID, uint lane : SV_GroupIndex)
     else
     {
         // A cascade of 8 texels a side sends a ray from the middle of each quarter of its texel,
-        // and the texel takes their light together (below). One from the texel's middle took a
-        // lamp's bright spot under a ceiling for the whole texel, which in a Cornell box's pocket
-        // between the floor and a block held a sixty-fourth of the sphere, and the first cascade's
-        // probe there read its upward face and the block's front far over a path-traced reference.
-        // Every quality's second cascade has 8 a side as well, and with one ray a texel the
-        // screen's probes in a room twelve units wide read the light beyond their reach from it
-        // under the reference along some ways and over it along others.
+        // and the texel takes their light together (below). One from the texel's middle alone
+        // takes a lamp's bright spot under a ceiling for the whole texel, a sixty-fourth of the
+        // sphere, and a probe in a pocket between the floor and a block reads its upward face and
+        // the block's front far brighter than they are lit. Every quality's second cascade has 8 a
+        // side as well, which the screen's probes read the light beyond their reach from, and with
+        // one ray a texel they read it too dark along some ways and too bright along others.
         // A carried probe's ray moved within its quarter, or its texel where it has one ray, to the
         // next of sixteen places each frame, as the screen's probes move theirs, the sequence begun
         // apart for each texel and probe, so a patch narrower than a texel that no middle meets, as
         // the sunlit court past a vault's arch, is met over the cycle the merge keeps (settled in
         // gi_merge.slang). Where the device traces no rays the rays keep their quarters' middles,
-        // since through the field alone the moving rays passed beside an arch's edge thinner than
-        // the finest cells, which the meshes hold, and lit the vault far over its reference.
+        // since through the field alone the moving rays pass beside an arch's edge thinner than
+        // the finest cells, which the meshes hold, and light the vault far brighter than it is.
         // Every other probe's rays keep their middles, so the reach and the faces the gather reads
         // stay on fixed ways.
         uint place = TracePlaces[(uint(lights.counts.y) + texel.x * 5u + texel.y * 3u + probe * 7u) & 15u];
@@ -527,11 +524,11 @@ void computeMain(uint3 id : SV_DispatchThreadID, uint lane : SV_GroupIndex)
         // interval ends is that cascade's, whose ray takes this one's light from where it left it,
         // so it takes nothing of the light and keeps its share for the probe's own faces alone. The
         // intervals overlap, the first cascade's reaching twice as far as the second's begins, and
-        // where the first took the part of a slab within its own and handed on what it kept to the
-        // second, which crossed the slab whole again, the floor under a slab letting half the light
-        // through a unit took too little of the sky's light the solid one held back. Taken off the
-        // light, the floor under such a slab read the sky's light twice halved, once below and once
-        // above, and dark where the merge read such a ray as one that met a surface early. The
+        // where the first takes the part of a slab within its own and hands on what it kept to the
+        // second, which crosses the slab whole again, the floor under a slab letting half the light
+        // through a unit takes too little of the sky's light. Taken off the light, the share kept
+        // halves the sky's light under such a slab twice, once below and once above, and leaves it
+        // dark where the merge reads such a ray as one that met a surface early. The
         // first surface letting light through that the ray meets stands for every one it crosses,
         // as a canopy's leaves a block apart take much the same light, shaded once after the march
         // for the share of the ray's light they take together, and the surface it stops at for the
@@ -690,8 +687,8 @@ void computeMain(uint3 id : SV_DispatchThreadID, uint lane : SV_GroupIndex)
             // Marked as the sky where the ray kept half its light or more across what it crossed,
             // so the merge counts the sky its probe sees past a canopy letting light through in
             // the share of the sky the model pass reflects it by, where marked as a surface a
-            // floor under a slab letting all the light through reflected less of the sky than the
-            // slab let through.
+            // floor under a slab letting all the light through reflects less of the sky than the
+            // slab lets through.
             light = float4(crossed + through * sky, firstAt >= 0.0 && through < 0.5 ? mark : 0.25);
             own = crossedOwn + through * sky;
             through = 0.0;

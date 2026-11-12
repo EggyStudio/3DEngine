@@ -191,7 +191,8 @@ public sealed partial class PhysicsWorld
     /// </summary>
     /// <remarks>
     /// A trigger reports the dynamic bodies that meet it, as a static or kinematic body sees no
-    /// other. A change wakes the body, or what rests within a static's bounds, as a layer's does.
+    /// other. A change wakes the body, or what rests within a static's bounds, since a pair that
+    /// sleeps is not tested again until something wakes it.
     /// </remarks>
     internal void SetTrigger(PhysicsBody body, bool trigger)
     {
@@ -260,11 +261,11 @@ public sealed partial class PhysicsWorld
     /// It says how hard a pair presses as well as how hard it met, as a stack's weight on what holds
     /// it, where a contact's speed says only how fast they closed. Divided by the step it is the
     /// force between them, at any number of substeps, since the solver keeps the push of the step's
-    /// last substep alone, which is multiplied by their count, as the joint's force is. A sleeping
-    /// pair's contact is kept with its island rather than in the narrow phase's map, and nothing
-    /// between them changes while it sleeps, so a pair asked about before it slept is answered with
-    /// what it was then. One asked about first while asleep is woken by the question and answered
-    /// from its next step.
+    /// last substep alone, which is multiplied by their count. A sleeping pair's contact is kept
+    /// with its island rather than in the narrow phase's map, and nothing between them changes
+    /// while it sleeps, so a pair asked about before it slept is answered with what it was then.
+    /// One asked about first while asleep is woken by the question and answered from its next
+    /// step.
     /// </remarks>
     internal float GetContactImpulse(PhysicsBody a, PhysicsBody b)
     {

@@ -5,8 +5,8 @@ namespace Engine;
 /// write and drawing shaders read.
 /// </summary>
 /// <remarks>
-/// Handed to the render world as it is, as <see cref="ShaderStore"/> is, so a draw resolves the
-/// buffers its shader was given when it was recorded. A lock guards it, since systems on several
+/// Handed to the render world itself and not as a copy, so a draw resolves the buffers its shader
+/// was given when it was recorded. A lock guards it, since systems on several
 /// threads may load and free buffers while the frame is recorded.
 /// </remarks>
 internal sealed class ShaderBufferStore

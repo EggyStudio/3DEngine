@@ -100,7 +100,7 @@ public static partial class E3D
     public static void EditMeshEpsilon(EditMesh mesh, float distance) => Edited(mesh, nameof(EditMeshEpsilon))?.Epsilon(distance);
 
     // A boolean with a file or a primitive's line, answered false with a warning where the file or
-    // the line cannot be read, as a loader answers a bad file.
+    // the line cannot be read, so a bad file is found in the log and the frame goes on.
     private static bool Boolean(EditMesh mesh, string call, Action<EditMeshData> run, string fileOrPrimitive)
     {
         if (Edited(mesh, call) is not { } data) return false;

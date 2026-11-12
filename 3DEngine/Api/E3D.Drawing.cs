@@ -98,8 +98,8 @@ public static partial class E3D
     /// can be sent to, with its depth to sample as <see cref="RenderTexture2D.Depth"/>.
     /// </summary>
     /// <remarks>
-    /// It is drawn at the window's samples and resolved into its image, so its edges are smoothed as
-    /// the window's are, where raylib's has one sample. <see cref="LoadRenderTextureEx(int, int, PixelFormat, int)"/>
+    /// It is drawn at the window's samples and resolved into its image, so its edges are smoothed,
+    /// where raylib's has one sample. <see cref="LoadRenderTextureEx(int, int, PixelFormat, int)"/>
     /// with one sample makes one with hard edges.
     /// </remarks>
     public static RenderTexture2D LoadRenderTexture(int width, int height)
@@ -166,10 +166,9 @@ public static partial class E3D
     /// have and any other for the window's.
     /// </summary>
     /// <remarks>
-    /// A render texture is drawn at the window's samples and resolved into its image, so a scene
-    /// drawn into one is edged as the same scene drawn to the window is. One sample suits pixel art
-    /// drawn small and scaled up, and an image of ids or positions a shader reads, which resolving
-    /// would mix where two meet.
+    /// A render texture is drawn at the window's samples and resolved into its image, which smooths
+    /// the edges of a scene drawn into it. One sample suits pixel art drawn small and scaled up,
+    /// and an image of ids or positions a shader reads, which resolving would mix where two meet.
     /// </remarks>
     public static RenderTexture2D LoadRenderTextureEx(int width, int height, PixelFormat format, int samples) =>
         LoadRenderTexture(width, height, [format], multisampled: samples != 1);

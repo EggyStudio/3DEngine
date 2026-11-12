@@ -48,8 +48,8 @@ internal sealed partial class BloomRenderer
     // cleared, so the composite can bind them in the layout a texture is sampled in before the
     // exposure first follows the scene. The adapted texels hold floats of four bytes, since the
     // adapted log2 luminance moves by a share of its way a frame, and in a half float, whose steps
-    // are a 128th near the night's -9, a step of a frame under half of one rounded back where it
-    // stood, so the exposure came to rest further short of the scene the faster the frames came.
+    // are a 128th near the night's -9, a frame's step under half of one rounds back where it
+    // stands, so the exposure comes to rest further short of the scene the faster the frames come.
     private RenderTarget[] Adapted(GraphicsDevice device, RenderContext renderContext)
     {
         if (_adapted is not null) return _adapted;

@@ -82,10 +82,9 @@ internal sealed partial class SceneFieldPlan
     /// A build in progress, as the eye's move starts one, leaves the passes reading its cascade as
     /// it was last built, which holds the meshes it held. A shift of the last cascade holds the
     /// slab it brings in empty until its build ends, and the field is not whole until then, the
-    /// slab lying at the field's edge. Taken as a field not whole, as it was while every cascade
-    /// was built and none waited, the probes' carried rays brought no sky through Sponza's court
-    /// for as long as its cascades took to build again after the eye moved, and the gallery's view
-    /// read redder than at rest.
+    /// slab lying at the field's edge. Any other build in progress leaves the field whole, since a
+    /// ray carried to the edge of a field not whole brings no sky, and the view would lose the sky's
+    /// light for as long as the cascades take to build again after the eye moves.
     /// </remarks>
     public bool Whole => Arriving == 0 && _pending.Count == 0 && Array.TrueForAll(_built, origin => origin is not null)
         && !(_job is { Cells: not null } shifting && shifting.Cascade == Cascades - 1);
@@ -109,12 +108,12 @@ internal sealed partial class SceneFieldPlan
     // are stamped as boxes meanwhile, as any mesh that settled into a cascade not built since is.
     // While a cascade the eye went past by its whole box waits for its build, as after a cut, the
     // frame builds every cascade and the most triangles the budget is raised to, since until then
-    // the view lies in coarser cascades that hold none of its rooms' walls, through which Sponza's
-    // vestibule took the court's sky after a cut to its door, and the screen's probes gathered a
-    // cycle of that light and eased it in once the right light came. The lift holds on after them
-    // while what the cut brought in still arrives, since a game meshes its sections as the new view
-    // comes in, after those cascades are built, and its grove's shaded ground read open until they
-    // were built in under the base budget.
+    // the view lies in coarser cascades that hold none of the walls around it, the sky reaches it
+    // through them, and the screen's probes gather that light and ease the right light in over a
+    // cycle once it comes. The lift holds on after them while what the cut brought in still
+    // arrives, since a program may mesh its world's sections as the new view comes in, after those
+    // cascades are built, and the ground they shade reads unshaded until they are built in, which
+    // under the base budget takes many frames.
     private bool[] Splat(Vector3 eye)
     {
         (Splatted, Spent) = (0, 0);
@@ -123,10 +122,10 @@ internal sealed partial class SceneFieldPlan
         var (cascades, triangles) = lifted ? (Cascades, Math.Max(TriangleBudget, BaseTriangleBudget * MostRaise)) : (Budget, TriangleBudget);
         while (cascades > 0 && triangles > 0)
         {
-            // A finer cascade gone dirty or changed comes first, as the cascades always come, and the
-            // coarser build in progress starts again after it, what changed within it kept for that
-            // build, as a region's build does where the eye has moved its cascade, but for a shift's,
-            // whose cascade has moved and holds the slab it brings in empty.
+            // A finer cascade gone dirty or changed comes first, and the coarser build in progress
+            // starts again after it, what changed within it kept for that build. A region's build
+            // whose cascade the eye has moved is put off too, for the cascade's whole build. A
+            // shift's goes on, since its cascade has moved and holds the slab it brings in empty.
             if (_job is { Shifting: false } running && (NextCascade() is >= 0 and var finer && finer < running.Cascade || running.Cells is not null && _dirty[running.Cascade]))
             {
                 Shelve(running);

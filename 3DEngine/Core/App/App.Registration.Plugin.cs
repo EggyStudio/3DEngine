@@ -14,8 +14,8 @@ public sealed partial class App
     /// with the same plugin type is a no-op. The plugin's <see cref="IPlugin.Build"/> method is
     /// invoked during this call, not later. Public so a game's test builds the app its behaviors
     /// run in, with <c>DefaultPlugins</c> and a config with no window, and steps it with
-    /// <see cref="Frame"/>, where the voxel game's tests stepped a bare ECS world through copies
-    /// of their systems that took the world as an argument.
+    /// <see cref="Frame"/>, so the test runs the behaviors themselves and not copies of their
+    /// systems stepped over a bare ECS world.
     /// </remarks>
     /// <example>
     /// <code>
@@ -88,9 +88,9 @@ public sealed partial class App
     /// <param name="group">The plugin group to register.</param>
     /// <returns>This <see cref="App"/> instance for fluent chaining.</returns>
     /// <remarks>
-    /// This is the recommended entry point for bundles like <c>DefaultPlugins</c>: foundational
-    /// plugins (<see cref="PluginOrder.Foundation"/>) automatically build before their consumers,
-    /// so consumers no longer need to declare them in <see cref="IPlugin.Dependencies"/>.
+    /// This is the recommended entry point for bundles like <c>DefaultPlugins</c>. Foundational
+    /// plugins (<see cref="PluginOrder.Foundation"/>) build before their consumers, so consumers
+    /// need not declare them in <see cref="IPlugin.Dependencies"/>.
     /// </remarks>
     /// <example>
     /// <code>

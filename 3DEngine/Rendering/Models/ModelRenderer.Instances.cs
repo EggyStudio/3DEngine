@@ -64,8 +64,9 @@ internal sealed partial class ModelRenderer
     private Block[] _blocks = new Block[64];
     private int _blockCount;
 
-    // Past this many instances the segments are copied on several threads, since one thread
-    // writing tens of megabytes into mapped memory took most of the shadow pass's recording.
+    // Past this many instances the segments are copied on several threads, since every pass that
+    // draws them waits for the copy, and one thread writing so many into mapped memory holds up the
+    // shadow pass's recording.
     private const int ParallelCopyInstances = 16384;
 
     /// <summary>
@@ -84,7 +85,7 @@ internal sealed partial class ModelRenderer
     // Writes each batched draw's instance into this frame's region of the ring, a batch's
     // instances together, and gives each batch the first of them, counted from the returned offset
     // in bytes. A group's batch is its instances, copied as they are. A batch of draws is in
-    // blocks as a group is, each block around its draws' boxes, so every pass leaves out the draws
+    // blocks of BlockSize, each block around its draws' boxes, so every pass leaves out the draws
     // it cannot see, unless the batch's shader is the program's own, which may move its vertices
     // past the mesh's box, or the mesh's box is not known, as a skin the GPU poses is not.
     private (IBuffer Ring, ulong Offset) WriteInstances(IGraphicsDevice gfx, ReadOnlySpan<ModelDraw> draws, InstanceOf<Instance> instanceOf,

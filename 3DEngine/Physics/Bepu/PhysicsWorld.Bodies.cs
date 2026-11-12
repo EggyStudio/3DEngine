@@ -196,12 +196,12 @@ public sealed partial class PhysicsWorld
     /// </summary>
     /// <remarks>
     /// A body otherwise meets what is within a tenth of a unit of it at the start of a step, so a
-    /// ball of 20 units a second crossed a wall a fifth of a unit thick. A swept body's contacts
+    /// ball at 20 units a second crosses a wall a fifth of a unit thick. A swept body's contacts
     /// reach as far as it moves, which costs a sweep test for each pair it nears, so it is for the
     /// few bodies a game knows are fast. A contact stops a body over a step rather than at once,
-    /// its spring the stiffest a step of a sixtieth of a second solves, so one at 100 units a
-    /// second needs a wall a fifth of a unit thick and one at 300 half a unit, measured with a ball
-    /// of a tenth of a unit across.
+    /// its spring the stiffest a step of a sixtieth of a second solves, so a swept ball a tenth of
+    /// a unit across needs a wall a fifth of a unit thick at 100 units a second and half a unit at
+    /// 300.
     /// </remarks>
     internal void SetContinuous(PhysicsBody body, bool continuous)
     {

@@ -27,7 +27,7 @@
 // its rays and the merge of the cascades above should bring it. The emission of a glow light global
 // illumination carries is left out where such a path first meets it, as the probe's rays leave it
 // out, since it reaches a surface as a light rather than through the probes, and counted, the rays
-// of the probes around emissive blocks read far under it at one bounce.
+// of the probes around an emissive block would read far under it at one bounce.
 
 import color;
 
@@ -493,11 +493,11 @@ float3 trace(float3 origin, float3 way, bool fromProbe, inout uint state, out ui
         float roughness = clamp(asfloat(surface.corners.y), 0.045, 1.0);
         float metallic = saturate(asfloat(surface.corners.z));
         // The copy's color times its mesh's vertices' colors at the hit, blended as the model pass
-        // blends them, so a mesh of many colors, as a voxel game's section, is traced in them. A
-        // copy with a texture takes its color before the texture times the texture's at the hit's
-        // texture coordinates, where its color alone holds the texture's average over the whole
-        // image, which a face showing a darker or a lighter part of the image than the whole read
-        // as a shortfall or an excess of light.
+        // blends them, so a mesh of many colors is traced in them. A copy with a texture takes its
+        // color before the texture times the texture's at the hit's texture coordinates, where its
+        // color alone holds the texture's average over the whole image, which a face showing a
+        // darker or a lighter part of the image than the whole would read as a shortfall or an
+        // excess of light.
         float2 between = hit.between;
         float3 weights = float3(1.0 - between.x - between.y, between.x, between.y);
         float3 painted = cornerColor(corners[corner]) * weights.x + cornerColor(corners[corner + 1u]) * weights.y + cornerColor(corners[corner + 2u]) * weights.z;

@@ -20,7 +20,7 @@ namespace Engine;
 /// <see cref="E3D.SetEditMeshName"/>, so a game's level answers to them, and they last while the app
 /// runs (<see cref="EditMeshNames"/>). <c>model.show</c> draws one in its slots' prototype
 /// materials and keeps drawing it as the commands change it. Paths are read from the app's working
-/// directory, as the console's other files are.
+/// directory.
 /// </para>
 /// </remarks>
 internal static class EditMeshCommands

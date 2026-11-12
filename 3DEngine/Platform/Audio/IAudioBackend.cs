@@ -56,7 +56,7 @@ public interface IAudioBackend : IDisposable
     /// <summary>
     /// Optional stereo balance hint in <c>[-1, +1]</c> (-1 = full left, +1 = full
     /// right). Backends that don't implement panning should leave this as a no-op.
-    /// Default implementation is a no-op so existing backends don't have to change.
+    /// The default implementation is a no-op, so a backend implements it only where it pans.
     /// </summary>
     void SetVoicePan(int voiceId, float pan) { }
 

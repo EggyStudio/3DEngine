@@ -105,7 +105,7 @@ internal sealed partial class MeshEntityDraws
     private static GroupKey KeyOf(in ModelDraw draw) => new(draw.Mesh, draw.Texture, draw.NormalMap, draw.MetallicRoughnessMap, draw.EmissiveMap,
         draw.OcclusionMap, draw.DoubleSided, draw.AlphaMode, draw.Subsurface, draw.ShadowOnly, draw.CastsShadow, draw.BouncesLight);
 
-    // Albedo is linear, and a draw's color is sRGB-encoded bytes, as the flat API's are.
+    // Albedo is linear, and a draw's color is a Color of sRGB-encoded bytes.
     private Color Encoded(Vector4 albedo)
     {
         if (_colors.TryGetValue(albedo, out var known)) return known;

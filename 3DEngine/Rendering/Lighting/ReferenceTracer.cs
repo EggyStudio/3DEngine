@@ -56,11 +56,10 @@ internal sealed unsafe class ReferenceTracer(GraphicsDevice device) : IDisposabl
     /// <paramref name="width"/> by <paramref name="height"/> image a texel of a probe's octahedron,
     /// and every face they meet is lit as global illumination lights one, which gives the light
     /// arriving at a probe from each way. A path crosses a copy that lets light through by its
-    /// share where the scene holds one, and a scene that holds none is traced as it was before.
-    /// <paramref name="gloss"/> says which faces of a camera's path reflect the indirect light by
-    /// their specular share too, a way drawn about its mirror way by GGX's visible normals, and of a
-    /// probe's paths every face where it asks for every face, as the probes' rays light what they
-    /// meet by its gloss, and none otherwise. Each copy's <paramref name="looks"/>, in the order of
+    /// share where the scene holds one. <paramref name="gloss"/> says which faces of a camera's path
+    /// reflect the indirect light by their specular share too, a way drawn about its mirror way by
+    /// GGX's visible normals, and of a probe's paths every face where it asks for every face, and
+    /// none otherwise. Each copy's <paramref name="looks"/>, in the order of
     /// the scene's copies, name its textures' slots in <paramref name="textures"/>, the white one
     /// first and in every slot past them, which a path reads at each point it meets.
     /// </remarks>

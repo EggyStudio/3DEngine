@@ -12,7 +12,7 @@ namespace Engine;
 /// <param name="Emission">Its emission, linear.</param>
 /// <param name="Roughness">Its material's roughness, which a path traced reference lights its face by.</param>
 /// <param name="Metallic">Its material's metallic.</param>
-/// <param name="Carried">Whether global illumination carries it as a glow light, whose light a probe's rays leave out where they meet it, as a probe's reference does.</param>
+/// <param name="Carried">Whether global illumination carries it as a glow light, whose light a probe's rays and a probe's path traced reference leave out where they meet it.</param>
 /// <param name="LightThrough">The share of light that passes a unit of its depth (<see cref="ModelMaterial.LightThrough"/>), which a path traced reference crosses it by.</param>
 /// <param name="Texture">Its color texture's <see cref="TextureStore"/> id, or 0 for none, which a path traced reference reads at each point it meets in place of <paramref name="Color"/>.</param>
 /// <param name="NormalMap">Its tangent-space normal map's id, or 0 for none, which a path traced reference bends each face it meets by.</param>
@@ -189,8 +189,8 @@ internal static unsafe class GpuRayScenes
         // fit, and gives where the first lies. Each corner's color rides in the w its structure's build
         // leaves unread, three sRGB bytes under a bit that keeps the uint a whole float rather than one
         // a GPU may read as nothing, so the reference and a ray's reflection take a mesh's vertices'
-        // colors as the model pass and the field do. Each corner's texture coordinates go at the same
-        // place in the buffer beside, (0, 0) where it has none.
+        // colors. Each corner's texture coordinates go at the same place in the buffer beside,
+        // (0, 0) where it has none.
         private int AddCorners(GpuRayScene scene, Vector3[] corners, uint[]? colors, Vector2[]? uvs, Retired retired)
         {
             var needed = scene.CornerCount + corners.Length;

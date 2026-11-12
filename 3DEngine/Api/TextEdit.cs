@@ -7,10 +7,9 @@ namespace Engine;
 /// </summary>
 /// <remarks>
 /// An edit is a value rather than a widget the engine keeps, so a program holds as many as it has
-/// fields, as it holds cameras. <see cref="Caret"/> and <see cref="Anchor"/> count the text's C#
-/// <c>char</c>s before them, and editing moves them a character a reader sees at a time, so neither
-/// lands between the two halves of a character past U+FFFF or between a letter and a mark set on
-/// it.
+/// fields. <see cref="Caret"/> and <see cref="Anchor"/> count the text's C# <c>char</c>s before
+/// them, and editing moves them a character a reader sees at a time, so neither lands between the
+/// two halves of a character past U+FFFF or between a letter and a mark set on it.
 /// </remarks>
 public struct TextEdit
 {

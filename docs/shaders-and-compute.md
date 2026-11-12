@@ -201,9 +201,9 @@ float4 fragmentMain(ModelVertexOutput input) : SV_Target
 on a branch that draws without light, as `drawnUnlit(input)` says, calls `unlit(albedo +
 emitted(input))` rather than `lit`. Slang inlines every call into the stage, and the driver
 compiles each copy whether or not a branch can reach it, so a second call doubles what it compiles.
-The voxel game's terrain called `lit` on its unlit branch beside `litLight`, a fragment of 1.3 MB
-whose pipeline took the driver over 12 s to compile on a first run, where with `unlit` there it was
-0.7 MB and took 5.
+A shader that calls `lit` on its unlit branch beside `litLight` carries the lighting twice, and its
+fragment stage and the driver's first compile of its pipeline come to about twice their size and
+time.
 
 ## Moving vertices
 
@@ -533,7 +533,7 @@ hundred meshes of 1,024 triangles took 500 dispatches and 2.6 to 3.4 ms of the G
 they were taken in, once, and 48 MB of the field's buffer, where keeping room for each one's
 capacity of 24,000 vertices would have held 192 MB.
 
-A mesh whose stream is the program's own, as a voxel game's two uints a vertex, gives the field no
+A mesh whose stream is the program's own, two uints a vertex for instance, gives the field no
 color, and every surface of it bounces its material's. The overload that takes `colors`, four bytes
 a vertex red lowest, gives each vertex its color, which the model pass multiplies the material by
 and the field reads as it reads an uploaded mesh's colors. The same overload takes a range of the

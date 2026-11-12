@@ -23,9 +23,9 @@ internal static class SceneBones
     /// is taken, or the first node when each has one.
     /// </summary>
     /// <remarks>
-    /// Bones are known by name alone, and Blender's exports give a part's mesh its bone's name, as
-    /// raylib's robot names a mesh and a bone each <c>Head</c>. The bone is the node without a mesh,
-    /// wherever the two come in the file.
+    /// Bones are known by name alone, and Blender's exports give a part's mesh its bone's name, a
+    /// mesh and a bone each called <c>Head</c>. The bone is the node without a mesh, wherever the
+    /// two come in the file.
     /// </remarks>
     public static Dictionary<string, (SceneNode Node, SceneNode? Parent)> NodesByName(Scene scene)
     {

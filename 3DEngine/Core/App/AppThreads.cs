@@ -6,9 +6,9 @@ namespace Engine;
 /// </summary>
 /// <remarks>
 /// A thread that outlives its app keeps the app's objects it reached, its context and its statics
-/// until it ends, which a system that lets threads end late, as macOS may, shows as memory a
-/// hundred closed apps still hold. A part stops its threads first, as the console's server closes
-/// its listener and its connections, and the join then waits for them to finish.
+/// until it ends, so on a system that lets threads end late, as macOS may, a closed app's memory
+/// stays held for as long as its threads run. A part stops its threads first, as the console's
+/// server closes its listener and its connections, and the join then waits for them to finish.
 /// </remarks>
 internal sealed class AppThreads
 {

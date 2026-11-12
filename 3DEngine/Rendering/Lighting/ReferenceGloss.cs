@@ -11,8 +11,8 @@ internal enum ReferenceGloss
 
     /// <summary>
     /// The first face the camera sees goes on by its specular share too, a way drawn about its
-    /// mirror way by GGX's visible normals, so it reflects the indirect light as the model pass does,
-    /// and every face after it as global illumination lights one. Global illumination's tests read
+    /// mirror way by GGX's visible normals, so it reflects the indirect light by its gloss, and
+    /// every face after it as global illumination lights one. Global illumination's tests read
     /// against this.
     /// </summary>
     First,
@@ -20,9 +20,8 @@ internal enum ReferenceGloss
     /// <summary>
     /// Every face a path meets, a camera's or a probe's, is lit and goes on as the first is, its
     /// metal reflecting and its lights' specular share reflected, so the gloss of what a path meets
-    /// carries light between bounces, as the probes' rays carry it, each face after the first
-    /// sending on its diffuse share of what its gloss leaves, as a probe's ray's hit does, so the
-    /// reference sends on no more than reaches a face.
+    /// carries light between bounces, each face after the first sending on its diffuse share of what
+    /// its gloss leaves, so the reference sends on no more than reaches a face.
     /// </summary>
     Every,
 }

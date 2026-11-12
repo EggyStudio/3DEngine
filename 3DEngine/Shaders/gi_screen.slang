@@ -138,7 +138,7 @@ float3 worldAt(float2 uv, float d)
 
 // The point at uv of the depth d as its way from the eye, in numbers as small as the view, which
 // the ways between neighboring texels are taken from, since in the world's own numbers far from
-// its origin they lost their last bits and a wall's normal tilted from texel to texel
+// its origin they lose their last bits and a wall's normal tilts from texel to texel
 // (gi_screen_glow.slang's fromEyeAt).
 float3 fromEyeAt(float2 uv, float d)
 {
@@ -169,9 +169,9 @@ float3 depthNormalAt(float3 q)
 
 // The way the surface at p runs along an axis of the depth, `texel` long, toward the side whose
 // next two texels go on in a line from p, so a probe at the foot of a wall takes its floor's way
-// and not the way up the wall, and away from the depth's edge. Toward the nearer texel, a floor
-// seen at a slant took the wall's, and its probe, its normal tilted, saw a lamp past the wall that
-// the floor does not.
+// and not the way up the wall, and away from the depth's edge. Taken toward the nearer texel, a
+// floor seen at a slant takes the wall's way, and its probe, its normal tilted, sees a lamp past
+// the wall that the floor does not.
 float3 wayAlong(float2 uv, float3 p, float2 texel)
 {
     float3 ahead = fromEyeAt(uv + texel, depth.SampleLevel(uv + texel, 0).r);
@@ -290,20 +290,16 @@ float probeReaches(float3 q, float3 probe, int3 at, uint c, float apart)
 // by whether its rays reached the point the ray passed half their spacing before its end the frame
 // before (probeReaches), a probe inside a mesh passed over and one that reaches it not kept only
 // where none does, or blended around the point the ray left from where its end lies past both
-// cascades. Read around the point on the surface the ray left from, the probes there stood 1.2
-// units off, or 2.4 in the second cascade, and saw along the ray's way what the ray itself passed
-// by, so in a Cornell box the rays of a probe on the small block's front that met nothing in reach
-// read far more light than the reference across the ways they stand for. A probe beyond a wall that
-// reaches the point by the slack probeSees allows a surface lent its dark to rays ending inside a
-// closed emissive box, and kept at a twentieth of its weight where unseen, the sky to a pillar's
-// face in a closed room. A texel of the second cascade whose ray met a surface before its interval
-// began holds that surface's light, alpha a half, which here is the light along way from that
-// probe, taken as any other. Each probe's light along way is blended between the four texels of its
-// octahedron around it, as near as way lies to each. Read from the texel way falls in, a ray on the
-// border between two flipped from one to the other as the normal rebuilt from the window's depth
-// wavered by a degree or two, and on a wall square to the world's axes half the sixteen rays lie on
-// such borders, so a probe's light changed as the camera moved, which the frame before's light
-// averaged while it moved and drifted from after it stopped (GlobalIlluminationTests).
+// cascades. Read around the point on the surface the ray left from, the probes there stand as far
+// off as their spacing and see along the ray's way what the ray itself passes by, so rays that meet
+// nothing in reach read far more light than the ways they stand for bring. A texel
+// of the second cascade whose ray met a surface before its interval began holds that surface's
+// light, alpha a half, which here is the light along way from that probe, taken as any other. Each
+// probe's light along way is blended between the four texels of its octahedron around it, as near
+// as way lies to each. Read from the texel way falls in, a ray on the border between two flips from
+// one to the other as the normal rebuilt from the window's depth wavers by a degree or two, and on
+// a wall square to the world's axes half the sixteen rays lie on such borders, so a probe's light
+// changes as the camera moves (GlobalIlluminationTests).
 float3 beyond(float3 start, float3 normal, float3 way, float reached, uint around, out bool holds)
 {
     float3 end = start + way * reached;
@@ -392,22 +388,21 @@ void computeMain(uint3 id : SV_DispatchThreadID)
     geometry[id.xy] = float4(n, length(fromEye));
     // How much of each glow light in reach the surface sees, a uint of four lights at a time, each
     // put in the buffer as it is made, since lavapipe keeps an array indexed by the light in memory
-    // of its own and crashed on the one the uints were gathered in. A light that gives the surface
-    // an eighth of the glow lights' light or more is marched to by the halves of its faces, and its
+    // of its own and crashes on one the uints are gathered in. A light that gives the surface an
+    // eighth of the glow lights' light or more is marched to by the halves of its faces, and its
     // byte says how much of it the surface sees. A fainter one is marched to at its middle alone,
     // as a ray's hit is, its light added to the fainter ones' at the probe and its byte left none,
-    // so the model pass reads the light of at most eight at a probe. Every light marched to by its
-    // faces and read at each pixel, global illumination and the model pass in a room of many lamps
-    // took far longer, and past a sixteenth rather than an eighth global illumination took longer
-    // too. A light falls to the probes' sum at one probe and not the next where it is far from
-    // being the brightest, where its light changes little from probe to probe. Split by the light's
-    // distance from the probe instead, two of a block's half diagonals, the floor beside a lamp
-    // darkened where the split fell, a probe's own light standing in for the pixel's on the far
-    // side alone. The glow lights take the surface's normal from its way along each axis of the
-    // depth, which holds at a wall's foot where the nearer texel's does not. Tilted up the wall, a
-    // probe's normal on the floor beside it saw a lamp past the wall that the floor does not.
-    // Global illumination keeps the nearer texel's, which holds the thin room nearer its
-    // path-traced reference.
+    // so the model pass reads the light of at most eight at a probe. With every light marched to by
+    // its faces and read at each pixel, global illumination and the model pass in a room of many
+    // lamps are far slower, and with a sixteenth in place of the eighth global illumination is
+    // slower too. A light falls to the probes' sum at one probe and not the next where it is far
+    // from being the brightest, where its light changes little from probe to probe. Split by the
+    // light's distance from the probe instead, the floor beside a lamp darkens where the split
+    // falls, a probe's own light standing in for the pixel's on the far side alone. The glow lights
+    // take the surface's normal from its way along each axis of the depth, which holds at a wall's
+    // foot where the nearer texel's does not. Tilted up the wall, a probe's normal on the floor
+    // beside it sees a lamp past the wall that the floor does not. Global illumination keeps the
+    // nearer texel's.
     float3 gn = surfaceNormal(cross(wayAlong(uv, fromEye, float2(texel.x, 0.0)), wayAlong(uv, fromEye, float2(0.0, texel.y))), -fromEye);
     if (dot(gn, -fromEye) < 0.0)
         gn = -gn;
@@ -424,7 +419,7 @@ void computeMain(uint3 id : SV_DispatchThreadID)
     // from frame to frame, the light's tier from the probe's own, so the window's light that
     // gi_screen_glow.slang takes from the probes around a point, held over the frames, is the same
     // wherever the window's grid lies over the surface. Marched to from the tile's middle alone, a
-    // turn of a few pixels moved the floor's light across a glow light's penumbra as the grid moved
+    // turn of a few pixels moves the floor's light across a glow light's penumbra as the grid moves
     // over the floor.
     float2 moved = clamp(pixel + view.jitter.xy, 0.5, view.sizes.zw - 0.5);
     float2 movedUv = (floor(moved / view.sizes.zw * view.sizes.xy) + 0.5) / view.sizes.xy;
@@ -473,11 +468,10 @@ void computeMain(uint3 id : SV_DispatchThreadID)
     }
     // The finest of the world's cascades that holds the probe gives the light from beyond its rays,
     // so the screen's probes reach as far as the world's counted cascades do. Ending at the first,
-    // a surface past it took the world's probes alone, and a step showed along that edge, as a
-    // slanted ceiling drew it in stairs. Ending at the second, a far surface in a recess took the
-    // probes standing in the open before it, 4 to 8 units apart, which see what the recess does
-    // not, and the lion's niche at the end of Sponza's atrium at 8:00 held light where a
-    // path-traced reference of one bounce is black.
+    // a surface past it takes the world's probes alone, and a step shows along that edge, a slanted
+    // ceiling drawn in stairs. Ending at the second, a far surface in a recess takes the probes
+    // standing in the open before it, 4 to 8 units apart, which see what the recess does not, and
+    // the recess holds light it does not receive.
     //
     // A surface past the counted cascades takes the far cascade's world probes alone in the model
     // pass, as every surface does at Low. The screen's probes do not stand there, since each would
@@ -496,19 +490,17 @@ void computeMain(uint3 id : SV_DispatchThreadID)
     float cell = max(fieldCell(fieldInfo, p), 1e-3);
     float3 start = p + n * (cell * 0.5);
     // How far each ray goes before the light beyond it is read, twice as far as the world's first
-    // cascade's probes are apart wherever it ends. Half as far past the first cascade, a probe in
-    // the second cascade, whose probes stand 2.4 units apart and mark what they meet nearer than
-    // that as met before their interval began, read the light beyond 1.2 units out, from the probe
-    // over the Cornell box's tall block for the back corner's rays, its lamp-lit top among it, and
-    // the corner's screen probe read far over the reference across its hemisphere. A closed room
-    // near the field's side behind the eye keeps the sky's light out at this length too, since the
-    // light beyond is read where a ray ends (CascadeEdgeTests).
+    // cascade's probes are apart within the first two cascades. No shorter in the second, whose
+    // probes stand twice as far apart and mark what they meet nearer than that as met before their
+    // interval began, since a ray ending half as far out reads the light beyond from a probe that
+    // sees what lies around it rather than along the ray, a lamp-lit top beside the surface among
+    // it, and the surface reads far more light than it receives. A closed room near the field's side
+    // behind the eye keeps the sky's light out at this length too, since the light beyond is read
+    // where a ray ends (CascadeEdgeTests).
     // Past the second cascade as far as the probes of the cascade holding the surface are apart, so
     // a far surface's rays leave a recess before the probes there lend them the light beyond.
-    // Reaching twice as far as the first cascade's probes are apart there too, the niche's rays met
-    // nothing 2 units out and read the probes 4 apart along their way from where those stood, which
-    // see past the floor the ray would meet, and its probe read light where the reference reads
-    // none.
+    // Ending nearer, a recess's rays meet nothing in reach and read the probes along their way,
+    // which see past the floor the ray would meet, and the recess reads light it does not receive.
     float length = view.trace.x * float(1u << (max(around, 1u) - 1u));
     float3 sum = float3(0.0);
     float weights = 0.0;
@@ -522,12 +514,11 @@ void computeMain(uint3 id : SV_DispatchThreadID)
     // every four tiles by four holding each place once, so the window's filter blends the ways of
     // every place across the tiles around a pixel, and the place moves on each frame, so a probe
     // that keeps its light over sixteen frames has sent its rays from every place (the view's
-    // jitter's z). Sent from their texels' middles alone, every probe on a surface sent the same
-    // sixteen ways, which read too little of the hemisphere's light, on the voxel game's birch
-    // trunk in patches many tiles wide that stood still. The rays' own reads lie over the reference
-    // along their ways, from the merge's parallax and the walls thinner than a cell. Held at one
-    // place a tile, a patch narrower than a texel that one probe's ray met lit that probe alone,
-    // frame after frame, and the window's filter spread it into a round spot that stood still.
+    // jitter's z). Sent from their texels' middles alone, every probe on a surface sends the same
+    // sixteen ways, which miss the light between them in patches many tiles wide that stand still.
+    // Held at one place a tile, a patch narrower than a texel that one probe's ray meets lights that
+    // probe alone, frame after frame, and the window's filter spreads it into a round spot that
+    // stands still.
     uint place = TracePlaces[((id.x & 3u) + 4u * (id.y & 3u) + uint(view.jitter.z + 0.5)) & 15u];
     float2 within = (float2(place & 3u, place >> 2u) + 0.5) / 4.0;
     for (uint v = 0u; v < Rays; v++)
@@ -559,8 +550,7 @@ void computeMain(uint3 id : SV_DispatchThreadID)
             // and none in the march. One entered within the ray's reach is crossed whole, past the
             // reach, and the light from beyond taken from where the ray left it, so the world's
             // probes there lend the light past it rather than lending it again from under it, which
-            // let the floor under a canopy of leaf blocks two deep take too much of the sky's
-            // light.
+            // gives the floor under a canopy two leaves deep too much of the sky's light.
             float handed = length;
             float3 crossed = float3(0.0);
             float through = 1.0;
@@ -611,13 +601,10 @@ void computeMain(uint3 id : SV_DispatchThreadID)
                 float3 itsOwn;
                 float weight = shaded == 0 ? leafShare : stopShare;
                 // A stop on a surface the window's depth holds is lit by the normal the depth gives
-                // there, as the probe takes its own. The field turned the normal down on the
-                // threshold of Sponza's main door, a block 0.1 high and thinner than the finest
-                // cells, so a hit there took its indirect light from the probes under the floor,
-                // which see the ground in the open below the building, and the screen's probes at
-                // the door's foot read it back up the wall. Lit by the field's normal, a wall above
-                // such a threshold on a floor 0.1 thick over a lamp took the lamp's light from
-                // under the floor (GlobalIlluminationTests).
+                // there, as the probe takes its own, since the field's normal on a step thinner
+                // than its finest cells may face down, and a hit there then takes its indirect
+                // light from the probes under the floor, which see what lies below it, and lends it
+                // back up the wall above the step (GlobalIlluminationTests).
                 float3 hitAt = shaded == 0 ? leafAt : stopAt;
                 float3 hitNormal = stopNormal;
                 if (shaded == 0 || !stopShown)
@@ -640,13 +627,14 @@ void computeMain(uint3 id : SV_DispatchThreadID)
                 // corridor 2 wide in walls 0.3 thick holds no probe of the second cascade or above,
                 // their spots in its walls moved out through the faces nearer them, so its first
                 // cascade's probes take nothing along it past their interval and its screen probes'
-                // rays nothing past their reach. Marched on to the field's edge rather than four
-                // times the reach, the corridor took little more light and global illumination took
-                // longer. Into the coarser cascades the march passed walls 1 thick in cells of 2,
-                // and a closed room at the field's side took the sky's light (CascadeEdgeTests).
-                // Where the probes hold light along its way and it is dark, as in a cave the far
-                // cascade keeps the sky out of, the ray takes their dark, since marching every such
-                // ray made the screen probes of the voxel game's deep cave slower.
+                // rays nothing past their reach. Four times the reach and no further, since marching
+                // on to the field's edge gives such a corridor little more light and makes global
+                // illumination slower. The next coarser cascade and no further, since in coarser
+                // cells the march passes walls 1 thick in cells 2 wide, and a closed room at the
+                // field's side takes the sky's light (CascadeEdgeTests). Where the probes hold light
+                // along its way and it is dark, as in a cave the far cascade keeps the sky out of,
+                // the ray takes their dark, since marching every such ray makes the screen probes in
+                // a deep cave slower.
                 if (luminance(past) <= 1e-6 && !holds)
                 {
                     float far = traceFieldWithinSheets(SheetVolume(sceneField, fieldSecond), fieldInfo, start, way, handed, 4.0 * length, fieldCascade(fieldInfo, start, 1.0) + 1);

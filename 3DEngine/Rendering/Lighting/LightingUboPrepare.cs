@@ -24,8 +24,8 @@ internal sealed class LightingUboPrepare : IPrepareSystem
         // Always upload (even with zero lights) so the shader can rely on the binding
         // existing, since the shader iterates against the count.
         var ubo = LightingUboPacker.Pack(lights?.All ?? (IReadOnlyList<RenderLight>)System.Array.Empty<RenderLight>());
-        // A render texture's light is bent and encoded by the model pass, its highlights as the
-        // window's composite bends them.
+        // A render texture's light is bent and encoded by the model pass, its highlights by the
+        // frame effects' highlight knee and strength.
         var effects = renderWorld.TryGet<FrameEffects>() ?? new FrameEffects();
         ubo.Output = new System.Numerics.Vector4(0, 0, effects.HighlightKnee, effects.HighlightStrength);
         // How wide the sun's shadow's edge spreads per unit of a caster's height over a point.
@@ -72,11 +72,10 @@ internal sealed class LightingUboPrepare : IPrepareSystem
         // the pass after the scene to bend.
         var windowUbo = ubo;
         windowUbo.Output.Y = 1;
-        // The window's view is darkened by its occlusion, as a render target drawing meshes through
-        // a camera is by its own.
+        // The window's view is darkened by its occlusion.
         if (renderWorld.TryGet<AmbientOcclusionSettings>() is { On: true }) windowUbo.AmbientOcclusion.X = 1;
         // And the sun's contact shadows through the scene's distance field, which that pass traces,
-        // 2 where they are kept past the shadow map's reach alone, as they are where nothing set them.
+        // 2 where they are kept past the shadow map's reach alone, the default.
         if (AmbientOcclusionRenderer.ContactShadows(renderWorld) is not null)
             windowUbo.AmbientOcclusion.Y = (renderWorld.TryGet<ShadowSettings>()?.Contact ?? ContactShadows.PastShadowMap) == ContactShadows.PastShadowMap ? 2 : 1;
         // And the pixels temporal antialiasing moved the frame by, as the occlusion, the screen's
@@ -101,8 +100,8 @@ internal sealed class LightingUboPrepare : IPrepareSystem
             windowUbo.ScreenGlow = new System.Numerics.Vector4(GpuScreenProbes.GlowTexelAt(tall), 0, 0, 0);
             // And a glossy surface's reflection traced through its depth and the field, looked up
             // in the frame before's picture where the renderer kept it.
-            // Both through the camera without temporal antialiasing's move, as the window's depth
-            // and the frame kept are.
+            // Both through the camera without temporal antialiasing's move, the camera the window's
+            // depth and the frame kept are taken through.
             if (renderWorld.TryGet<WindowView>() is { } view && System.Numerics.Matrix4x4.Invert(view.Unjittered, out var inverse)
                 && renderWorld.TryGet<IIlluminationPasses>() is { } gi)
             {
@@ -137,7 +136,7 @@ internal sealed class LightingUboPrepare : IPrepareSystem
         // reflection, and a probe's second pass carries on the light of its first.
         var capture = ubo;
         capture.Output.X = 1;
-        // A probe's faces take the indirect light from the world's probes, as a render target does.
+        // A probe's faces take the indirect light from the world's probes.
         capture.Indirect = windowUbo.Indirect;
         if (renderWorld.TryGet<BoundProbes>() is { } boundForCapture)
             for (int i = 0; i < boundForCapture.Slots.Count; i++)
@@ -157,10 +156,9 @@ internal sealed class LightingUboPrepare : IPrepareSystem
                 var own = shared.GetValueOrDefault(target);
                 var targetUbo = unshadowed;
                 if (own is not null) Apply(ref targetUbo, own);
-                // And the indirect light, read from screen probes of the target's own where it
-                // draws through a camera of its own, as the window's, and its glossy surfaces
-                // reflecting the probes and the environment alone, since a reflection is traced
-                // through the window's depth.
+                // And the indirect light, read from the target's own screen probes where it draws
+                // through a camera of its own, and its glossy surfaces reflecting the probes and the
+                // environment alone, since a reflection is traced through the window's depth.
                 targetUbo.Indirect = windowUbo.Indirect;
                 if (windowUbo.Indirect.X > 0 && draws.ViewProjectionOf(target) is not null)
                 {
@@ -232,7 +230,7 @@ internal sealed class LightingUboPrepare : IPrepareSystem
         ubo.ShadowTexels = new System.Numerics.Vector4(texels[0], texels[1], texels[2], texels[3]);
 
         // A shadowed spot light names its slot, counted from one, in its cone's third
-        // component, as a point light does.
+        // component, which a light with no shadow leaves at zero.
         var spots = shadow.SpotLights ?? [];
         ubo.SpotShadowCount = spots.Count;
         for (int s = 0; s < spots.Count; s++)
@@ -393,8 +391,8 @@ internal sealed class LightingUboPrepare : IPrepareSystem
     /// </summary>
     /// <remarks>
     /// A dim candle by the camera thus gives way to a lamp of forty times its light a few units
-    /// on, where reach alone gave the candle the slot. A stable sort keeps the order lights were
-    /// made in among equals.
+    /// on, where a ranking by reach alone would give the candle the slot. A stable sort keeps the
+    /// order lights were made in among equals.
     /// </remarks>
     internal static IEnumerable<int> Rank(IReadOnlyList<RenderLight> lights, IEnumerable<int> candidates, System.Numerics.Vector3? eye,
         System.Numerics.Matrix4x4? camera, float distance) =>

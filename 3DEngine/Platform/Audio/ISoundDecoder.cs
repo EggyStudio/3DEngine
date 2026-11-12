@@ -26,8 +26,8 @@ internal interface ISoundDecoder
 /// <see cref="TextureDecoderRegistry"/>.
 /// </summary>
 /// <remarks>
-/// Inserted into the <see cref="World"/> by <see cref="SoundsPlugin"/>. Backend plugins
-/// (built-in <c>WavSoundDecoder</c>; future Vorbis / Opus ones) call
+/// Inserted into the <see cref="World"/> by <see cref="SoundsPlugin"/>, which registers the
+/// built-in WAV, Ogg Vorbis, MP3 and FLAC decoders, and a backend plugin calls
 /// <see cref="RegisterDecoder"/> during <see cref="IPlugin.Build"/>. Last-write wins
 /// per extension so a more capable backend can override a generic one for shared
 /// extensions.

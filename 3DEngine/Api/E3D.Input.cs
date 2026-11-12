@@ -424,9 +424,9 @@ public static partial class E3D
     /// </summary>
     /// <remarks>
     /// It is off until a program turns it on, as Dear ImGui and rlImGui leave it, since a pad
-    /// moving through ImGui presses the focused ImGui widget with its lower face button, and a game
-    /// played by the pad with a tool window open had the window's widget pressed by each press
-    /// meant for the game. The pad reaches the game either way. It is ImGui's own
+    /// moving through ImGui presses the focused ImGui widget with its lower face button, so a game
+    /// played by the pad with a tool window open would have the window's widget pressed by each
+    /// press meant for the game. The pad reaches the game either way. It is ImGui's own
     /// <c>ImGuiConfigFlags.NavEnableGamepad</c>, which a program may set instead, and is ImGui's
     /// for the window that is open, so a window opened again starts with it off.
     /// </remarks>

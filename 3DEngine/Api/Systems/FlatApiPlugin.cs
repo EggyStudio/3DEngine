@@ -2,9 +2,9 @@ namespace Engine;
 
 /// <summary>
 /// The systems that run against the flat API, the recorder, the debug keys and overlay, the day sky,
-/// the animated models and the edit meshes the commands show, each under the name the render plugin
-/// gave it, so the order the stages hold them in is the same. <see cref="DefaultPlugins"/> adds it
-/// after the render plugin, whose meshes and renderer it reads.
+/// the animated models and the edit meshes the commands show, each named under <c>RenderPlugin</c>,
+/// by which a system ordered before or after one of them names it. <see cref="DefaultPlugins"/>
+/// adds it after the render plugin, whose meshes and renderer it reads.
 /// </summary>
 internal sealed class FlatApiPlugin : IPlugin
 {

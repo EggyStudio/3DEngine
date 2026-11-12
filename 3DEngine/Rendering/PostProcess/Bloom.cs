@@ -330,7 +330,8 @@ internal sealed partial class BloomRenderer : IDisposable
         pass.SetViewport(0, 0, target.Extent.Width, target.Extent.Height, 0, 1);
         pass.SetScissor(0, 0, target.Extent.Width, target.Extent.Height);
         renderWorld.TryGet<ModelRenderer>()?.Draw(pass, target.RenderPass, renderContext, renderWorld, target: 0, held: true);
-        // A cascade of the probes of global illumination, where a command asks, hidden by the meshes as one is.
+        // A cascade of the probes of global illumination, where a command asks, hidden where a mesh
+        // is in front.
         renderWorld.TryGet<IProbesView>()?.DrawProbes(pass, target.RenderPass, renderContext, renderWorld);
         renderWorld.TryGet<ImmediateRenderer>()?.Draw(pass, target.RenderPass, renderContext, renderWorld, target: 0, end: split, held: true);
         return true;
@@ -573,7 +574,7 @@ internal sealed partial class BloomRenderer : IDisposable
     // The set a lens pass reads an image through, with the scene's depth beside it. Depth is read
     // as it is, since filtering it across an edge gives a distance between the two sides that
     // neither has, and the depth of field reads color as it is too, since a tap whose depth is the
-    // background's and whose filtered color takes in a sharp thing beside it spread that thing in
+    // background's and whose filtered color takes in a sharp thing beside it spreads that thing in
     // faint copies round itself.
     // The moving entities' movement is read at binding 2 once it has been drawn, and the image read
     // in its place before then, which the blur is told not to read.

@@ -116,19 +116,18 @@ float resolvedAt(uint3 c, uint size)
     // a cell beyond it, lies against a wall thinner than a cell, which is held as a double-sided
     // sheet is, half a cell thick on either side of the wall's middle, so a ray between the cells
     // on either side still meets it, where the faces of a box's edge, which meet square, do not make
-    // one. Held so only below half a cell, a wall of two thirds of a cell lay between two cells'
-    // middles, each a sixth of a cell outside it, which a trace stepped over, and the lamp outside
-    // a room of such walls lit its floor through them.
+    // one. Held so only below half a cell, a wall of two thirds of a cell would lie between two
+    // cells' middles, each a sixth of a cell outside it, which a trace steps over, and a lamp
+    // outside a room of such walls would light its floor through them.
     uint hidden = behind[(c.z * size + c.y) * size + c.x];
     float beyond = float(hidden >> 8) / 1024.0 * push.cascade.z;
     bool thin = (code & 0x300u) == 0x100u && hidden != 0xFFFFFFFFu && beyond - d < push.cascade.z
         && dot(way(code), way(hidden)) < -0.7;
     // A double-sided face is held at its distance, its plane kept beside it (sheetAt). Held below
     // zero within half a cell either side, a sheet lying midway between two cells' middles crosses
-    // zero between them, but two sheets two cells apart, as the voxel game's crops stand, hold
-    // every cell between them below zero, and a screen probe there meets its own wall at its rays'
-    // start. Held within less, a sheet midway lies further than the march's tenth of a cell from
-    // both middles and a ray passes it.
+    // zero between them, but two sheets two cells apart hold every cell between them below zero,
+    // and a screen probe there meets its own wall at its rays' start. Held within less, a sheet
+    // midway lies further than the march's tenth of a cell from both middles and a ray passes it.
     if ((code & 0x200u) != 0u)
         return d;
     if (thin)
@@ -199,9 +198,9 @@ void computeMain(uint3 thread : SV_DispatchThreadID)
     kept[uint(push.cascade.x) * size * size * size + (id.z * size + id.y) * size + id.x] = code;
     // Such a cell is held inside at its distance, so a march through the edge between the two
     // blocks meets the field there, where between the four cells about the edge the distance never
-    // fell below zero, and a march from the floor east of a wall whose halves met along one edge
-    // saw half of a glowstone west of it and lit the floor about the edge, which a path-traced
-    // reference leaves dark (GlobalIlluminationTests).
+    // falls below zero, and a march from the floor on one side of a wall whose halves meet along one
+    // edge would see part of a lamp on the other side and light the floor about the edge, which no
+    // light reaches (GlobalIlluminationTests).
     float d = resolvedAt(id, size);
     if (d > 0.0 && pinched(id, size))
         d = -d;

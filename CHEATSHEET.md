@@ -28,7 +28,7 @@ int GetScreenHeight();                                   // The window's height,
 void TakeScreenshot(string fileName);                    // Writes the frame being drawn to a PNG file, once it is presented at EndDrawing
 void StartRecording(string fileName, int intervalMs = 100, float scale = 1);  // Starts recording what the window shows as an animated GIF or PNG, by the extension of fileName, a picture every intervalMs milliseconds of the app's clock, until StopRecording, as raylib's examples record a GIF
 void StopRecording();                                    // Stops the recording StartRecording started, whose file is written once its last pictures are back
-void SetScreenshotKey(Key key);                          // Sets the key that writes a screenshot in every program, and records while held, F2 until moved, as Minecraft takes one, or turns it off with Key.Null
+void SetScreenshotKey(Key key);                          // Sets the key that writes a screenshot in every program, and records while held, F2 until moved, or turns it off with Key.Null
 void SetScreenshotFolder(string folder, Action<string>? written = null);  // Sets the folder the screenshot key writes into, screenshots beside the program until set, and what is called with each screenshot's path once it is written and each recording's folder once its last picture is, for the window open and those opened after
 
 void SetTargetFPS(int fps);                              // Caps the frame rate
@@ -41,8 +41,8 @@ void SwapScreenBuffer();                                 // Shows the frame draw
 bool BeginUi();                                          // Opens the scope of the program's interface, which F1 hides, and answers whether it is drawn this frame, false while it is hidden
 void EndUi();                                            // Closes the scope BeginUi opened, dropping what was drawn inside it while the interface is hidden
 bool IsUiHidden();                                       // Whether F1 has hidden the interface drawn inside BeginUi
-void SetUiHiddenKey(Key key);                            // Sets the key that hides and shows the program's interface, F1 until moved, as Minecraft hides its HUD, or turns it off with Key.Null
-void SetDebugOverlayKey(Key key);                        // Sets the key that shows and hides the engine's debug overlay, F3 until moved, as Minecraft's debug screen, or turns it off with Key.Null
+void SetUiHiddenKey(Key key);                            // Sets the key that hides and shows the program's interface, F1 until moved, or turns it off with Key.Null
+void SetDebugOverlayKey(Key key);                        // Sets the key that shows and hides the engine's debug overlay, F3 until moved, or turns it off with Key.Null
 void AddDebugOverlaySection(string name, Func<IEnumerable<string>> lines);  // Adds a section of the program's own to the debug overlay's left column, under the engine's lines and any section added before, in place of one of the same name
 bool RemoveDebugOverlaySection(string name);             // Takes a section of the debug overlay away by its name, and says whether there was one
 
@@ -573,7 +573,7 @@ invalid texture draws nothing. `CloseWindow` logs how many textures were still l
 Shader LoadShader(string fileName);                      // Loads and compiles a Slang shader file
 Shader LoadShaderFromMemory(string code, string name = "shader.slang");  // Compiles Slang source held in memory as a shader
 bool IsShaderValid(Shader shader);                       // Whether shader is loaded
-void SetShaderKeepsPositions(Shader shader, bool keepsPositions);  // Says whether a model shader's vertex stage keeps its mesh's positions where the instance places them, so a mesh drawn with it is left out of each pass that cannot see the mesh's box, as a mesh drawn with the model pass's own shader is
+void SetShaderKeepsPositions(Shader shader, bool keepsPositions);  // Says whether a model shader's vertex stage keeps its mesh's positions where the instance places them, so a mesh drawn with it is left out of each pass that cannot see the mesh's box
 void UnloadShader(Shader shader);                        // Frees a shader
 void BeginShaderMode(Shader shader);                     // Draws the following shapes, textures and text with shader until EndShaderMode
 void EndShaderMode();                                    // Returns to the engine's own shader
@@ -722,7 +722,7 @@ bool ExportMesh(ModelMesh mesh, string fileName);        // Writes a mesh as a W
 ModelMesh UploadMesh(ModelVertex[] vertices, uint[] indices);  // Uploads vertices and triangle indices as a mesh
 ModelMesh UploadMesh(ModelVertex[] vertices, uint[] indices, Color[]? colors, Vector2[]? texcoords2);  // Uploads vertices and triangle indices as a mesh, with a color at each vertex and a second texture coordinate at each, either of which may be null, as raylib's mesh has its colors and texcoords2
 ModelMesh UploadMesh(ModelVertex[] vertices, uint[] indices, Color[]? colors, Vector2[]? texcoords2, MeshStream? stream);  // Uploads vertices and triangle indices as a mesh, with its colors and second texture coordinates where given, and a stream of the program's own, a value each vertex carries that a vertex stage of the program's own reads as CUSTOM0
-ModelMesh UploadMesh(Vector3[] positions, uint[] indices, MeshStream? stream, Color[]? colors);  // Uploads a mesh of positions alone, twelve bytes a vertex or six where they lie on a grid, with a stream of the program's own and a color at each vertex where given, for a mesh whose normal and texture coordinates its stream packs, as a voxel world's chunks are
+ModelMesh UploadMesh(Vector3[] positions, uint[] indices, MeshStream? stream, Color[]? colors);  // Uploads a mesh of positions alone, twelve bytes a vertex or six where they lie on a grid, with a stream of the program's own and a color at each vertex where given, for a mesh whose stream packs its normal and texture coordinates
 void UpdateMeshVertices(ModelMesh mesh, ModelVertex[] vertices);  // Replaces a mesh's vertices with as many new ones, keeping its triangles, as raylib's UpdateMeshBuffer does for the vertex arrays
 void UpdateMeshBuffer<T>(ModelMesh mesh, int index, ReadOnlySpan<T> data, int offset);  // Writes data into one of a mesh's arrays, starting offset bytes in, by raylib's index for it, 0 its positions, 1 its texture coordinates and 2 its normals, as floats, 3 its colors, four bytes each, and 5 its second texture coordinates, or at MeshStreamBuffer its stream of the program's own, in the stream's format
 ModelMesh LoadMeshFromShaderBuffers(ShaderBuffer positions, ShaderBuffer stream, MeshStreamFormat format, ShaderBuffer count, int capacity);  // Makes a mesh of the vertices compute shaders write into storage buffers, drawn as many as a shader wrote into the first four bytes of count, at most capacity, with no copy through the CPU and no wait
@@ -983,7 +983,7 @@ behavior's method asks the same with `[After(typeof(Spin), nameof(Spin.Turn))]` 
 
 <!-- written by build/cheatsheet.sh from E3D.Scenes.cs -->
 ```csharp
-IReadOnlyList<Entity> LoadScene(string fileName);        // Loads a scene file into the ECS, found as models and sounds are, beside the program or in the working directory, and returns the entities it spawned
+IReadOnlyList<Entity> LoadScene(string fileName);        // Loads a scene file into the ECS, found beside the program or in the working directory, and returns the entities it spawned
 void SaveScene(string fileName, IEnumerable<Entity>? entities = null);  // Saves every entity of the ECS that a scene did not spawn, or only entities, to a scene file
 ```
 
@@ -1174,7 +1174,7 @@ VehicleWheel[] GetPhysicsVehicleWheels(PhysicsBody vehicle);  // A vehicle's whe
 PhysicsBody CreatePhysicsCharacter(Vector3 feet, float radius, float height, float mass = 80);  // A character controller's body with its feet at feet, an upright capsule walked by MovePhysicsCharacter that walls stop, that slides along them, rides over a low edge and holds still on a slope (PhysicsWorld.CreateCharacter says how)
 void MovePhysicsCharacter(PhysicsBody body, Vector3 velocity);  // The velocity a character walks at along the ground, until it is given another, whose vertical part carries it up and down only while it flies
 void JumpPhysicsCharacter(PhysicsBody body, float speed);  // Makes a character on the ground jump, leaving it upward at speed
-void SetPhysicsCharacterFly(PhysicsBody body, bool fly);  // Makes a character fly, as a creative mode or a spectator does, or walk again
+void SetPhysicsCharacterFly(PhysicsBody body, bool fly);  // Makes a character fly, or walk again
 bool IsPhysicsCharacterGrounded(PhysicsBody body);       // Whether a character stands on ground it can walk on
 void SetPhysicsCharacterMaxSlope(PhysicsBody body, float degrees);  // The steepest ground, in degrees, a character walks on, 45 to begin with
 void DestroyPhysicsBody(PhysicsBody body);               // Removes a body from the simulation
@@ -1317,7 +1317,7 @@ void DrawFPS(int x, int y);                              // Draws the frame rate
 Font GetFontDefault();                                   // The engine's default font, ProggyClean at 13 pixels, point filtered so it scales as pixels
 Font GetFontDefault(int size);                           // The default font baked at size pixels, kept for later calls at the same size
 Font LoadFont(string fileName);                          // Loads a TrueType or OpenType font at 32 pixels, a font drawn as an image, a PNG whose glyphs are separated by magenta from the space on, or a BMFont .fnt file with the images of its pages beside it, as raylib's LoadFont reads each
-Font LoadFontFromImage(Image image, Color key, int firstChar);  // Makes a font from an image of its glyphs, as a pixel-art game draws one, each glyph a run of pixels on a row, separated from the next and from the rows above and below by key, the first glyph firstChar and each after the next character
+Font LoadFontFromImage(Image image, Color key, int firstChar);  // Makes a font from an image of its glyphs, each glyph a run of pixels on a row, separated from the next and from the rows above and below by key, the first glyph firstChar and each after the next character
 Font LoadFontEx(string fileName, int fontSize);          // Loads a TrueType or OpenType font baked at fontSize pixels, with the Latin-1 characters
 Font LoadFontEx(string fileName, int fontSize, int[] codepoints);  // Loads a TrueType or OpenType font baked at fontSize pixels, with exactly the characters in codepoints, as raylib's does
 Font LoadFontEx(string fileName, int fontSize, int[]? codepoints, FontType type);  // Loads a TrueType or OpenType font baked at fontSize pixels as type, with the characters in codepoints, or the Latin-1 ones when it is null

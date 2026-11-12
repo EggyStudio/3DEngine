@@ -22,7 +22,7 @@ public static partial class E3D
         DefaultFontSizes.Clear();
         if (_defaultFont is { } fallback && IsTextureValid(fallback.Texture)) UnloadTexture(fallback.Texture);
         _defaultFont = null;
-        // The shader went with the window's shader store.
+        // The shader is freed with the window's shader store, so only its handle is cleared here.
         _sdfShader = default;
         _sdfShaderFailed = false;
     }
@@ -180,11 +180,11 @@ public static partial class E3D
     private static partial System.Text.RegularExpressions.Regex BMFontField();
 
     /// <summary>
-    /// Makes a font from an image of its glyphs, as a pixel-art game draws one, each glyph a run of
-    /// pixels on a row, separated from the next and from the rows above and below by
-    /// <paramref name="key"/>, the first glyph <paramref name="firstChar"/> and each after the next
-    /// character. raylib's rule finds the gaps, the key's width before the first glyph being the space
-    /// between glyphs and its height above the first row the space between rows.
+    /// Makes a font from an image of its glyphs, each glyph a run of pixels on a row, separated
+    /// from the next and from the rows above and below by <paramref name="key"/>, the first glyph
+    /// <paramref name="firstChar"/> and each after the next character. raylib's rule finds the
+    /// gaps, the key's width before the first glyph being the space between glyphs and its height
+    /// above the first row the space between rows.
     /// </summary>
     /// <remarks>The key's pixels become clear, and the atlas is point filtered, so the glyphs scale as pixels.</remarks>
     /// <returns>The font, or the default font when the image holds no glyphs, with the reason in the log.</returns>
@@ -322,8 +322,8 @@ public static partial class E3D
 
         // The atlas builder stops the program on a font in which it finds none of the characters it
         // is given, so a font whose reader draws every character asked for and which has no space
-        // is baked by the reader alone, as a font of color bitmaps is, and one with none of the
-        // characters asked for is given the first it has.
+        // is baked by the reader alone, and one with none of the characters asked for is given the
+        // first it has.
         var builderFinds = TrueTypeFont.Mapped(data, asked.Except(own).Append(' ')).Length > 0;
         if (!builderFinds && outlines is null)
         {
@@ -407,13 +407,12 @@ public static partial class E3D
     /// </para>
     /// <para>
     /// A color font's colored characters, emoji, are drawn by the reader in their colors, whichever
-    /// plane they are in, from its bitmaps, as Twemoji holds them, scaled from the size nearest
-    /// above, from its layers, as Segoe UI Emoji holds them, or from its paints of gradients and
-    /// transforms, as Noto Color Emoji holds them. A font of bitmaps alone, or one with none of the
-    /// other characters asked for, is baked by the reader whole. Text drawn in white shows them as
-    /// they are, and another color tints them. A sequence the font joins into one picture, a family,
-    /// a flag or a skin tone, is drawn as that picture, and the pictures the characters asked for
-    /// can be joined into are baked with them.
+    /// plane they are in, from its bitmaps (CBDT or sbix), scaled from the size nearest above, from
+    /// its layers (COLR version 0), or from its paints of gradients and transforms (COLR version 1).
+    /// A font of bitmaps alone, or one with none of the other characters asked for, is baked by the
+    /// reader whole. Text drawn in white shows them as they are, and another color tints them. A
+    /// sequence the font joins into one picture, a family, a flag or a skin tone, is drawn as that
+    /// picture, and the pictures the characters asked for can be joined into are baked with them.
     /// </para>
     /// </remarks>
     /// <returns>The font, or the default font when the file cannot be read, with the reason in the log.</returns>

@@ -233,16 +233,16 @@ public sealed partial class Schedule
         Diagnostics.RecordSystem(stage, desc.Name, sw.Elapsed);
     }
 
-    // How often each system has thrown each type of exception in each stage. A system that throws
-    // in every frame wrote its trace sixty times a second, into a player's log file as into a
-    // test's, so the first of each is logged whole and the rest are counted. The type is held by its
-    // name, since a type a script defines would keep the script's load context from unloading.
+    // How often each system has thrown each type of exception in each stage. The first of each is
+    // logged whole and the rest are counted, since a system that throws in every frame would write
+    // its trace sixty times a second, into a player's log file as into a test's. The type is held by
+    // its name, since a type a script defines would keep the script's load context from unloading.
     private readonly Dictionary<(Stage Stage, string System, string Exception), long> _thrown = [];
 
     // Logs an exception a system threw, whole the first time that system throws that type in that
     // stage, and after that a line at the 10th, the 100th, the 1,000th and so on. The whole line
-    // names the assembly the system's code is in, so a system that reached an app it was not
-    // written for, as a probe one test compiled once did, says where it came from.
+    // names the assembly the system's code is in, so a system that reaches an app it was not
+    // written for, as one another test in the same process compiled, says where it came from.
     private void ReportThrown(Stage stage, SystemDescriptor desc, Exception ex)
     {
         var system = desc.Name;

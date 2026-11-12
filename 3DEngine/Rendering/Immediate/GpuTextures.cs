@@ -33,7 +33,7 @@ internal sealed class GpuTextures : IDisposable
 
         // The image a compute shader writes in place of a render target's that the device cannot
         // store to, copied into it after each dispatch, made when one first does. A copy made for
-        // a new sampler shares it, as it shares the first level.
+        // a new sampler shares it, since the image is the same.
         public (IImage Image, IImageView View)? StandIn { get; set; }
 
         private IDisposable[] StandInParts => StandIn is { } standIn ? [standIn.View, standIn.Image] : [];
@@ -260,7 +260,8 @@ internal sealed class GpuTextures : IDisposable
         var sampler = CreateSampler(gfx, upload.Filter, upload.Wrap);
         // BC7's alpha may be anywhere from clear to solid, so its first level is read whole, where
         // BC1's is one or the other and BC5 has none, so their average is read from a level of 64
-        // texels a side or fewer, a few thousand bytes where the first of 1,024 is 4 MB.
+        // texels a side or fewer, since the average takes no more than 64 texels along each row and
+        // column, and the first level of a large texture is not read back whole.
         var level = blocks.Format == TextureFormat.Bc7 ? 0
             : Math.Clamp(System.Numerics.BitOperations.Log2((uint)Math.Max(blocks.Width, blocks.Height)) - 6, 0, blocks.MipCount - 1);
         if (device.DecodedPixels(image, (uint)level) is { } pixels) store.Decoded(upload.Id, pixels, Math.Max(1, blocks.Width >> level));

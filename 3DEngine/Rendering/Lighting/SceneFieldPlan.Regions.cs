@@ -3,8 +3,8 @@ using System.Numerics;
 namespace Engine;
 
 // The regions of the built cascades that still meshes came or went within, each built again alone,
-// its cells within the band of what changed splatted from the still meshes near them, where the
-// whole cascade was built again from every still mesh within its band, and how many frames and
+// its cells within the band of what changed splatted from the still meshes near them, rather than
+// the whole cascade built again from every still mesh within its band, and how many frames and
 // triangles the field took to hold a change.
 internal sealed partial class SceneFieldPlan
 {
@@ -76,7 +76,7 @@ internal sealed partial class SceneFieldPlan
 
     private static Box? With(Box? a, Box? b) => a is { } one && b is { } other ? one.With(other) : a ?? b;
 
-    // The cells of a cascade within the band of a box, as a triangle within the box splats them.
+    // The cells of a cascade within the band of a box, every cell a triangle within the box splats.
     private CellBox CellsAround(int cascade, Vector3 origin, Box box)
     {
         var cell = CellOf(cascade);

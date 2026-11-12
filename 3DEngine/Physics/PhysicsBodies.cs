@@ -165,8 +165,8 @@ internal static class PhysicsBodies
     }
 
     // An entity drawn by its AnimatedModel alone whose file gave no meshes, so the triangles a mesh
-    // or a hull collider waits for never come. It is refused once with the reason, where it waited
-    // unsaid. One whose file is not loaded yet waits, as a model loading under an entity does.
+    // or a hull collider waits for never come. It is refused once with the reason in the log, rather
+    // than left waiting for them without a word. One whose file is not loaded yet waits for it.
     private static void NoneComing(World world, EcsWorld ecs, int entity, Collider collider)
     {
         if (!ecs.Has<AnimatedModel>(entity) || ecs.ChildrenOf(entity).Count > 0) return;

@@ -300,8 +300,8 @@ internal struct BepuNarrowPhaseCallbacks : INarrowPhaseCallbacks
         var frictionA = Materials?.Of(pair.A, Friction, Restitution).Friction ?? Friction;
         var frictionB = Materials?.Of(pair.B, Friction, Restitution).Friction ?? Friction;
         // Bepu shares a convex manifold's friction among its contacts, so a box resting on four
-        // corners slid as if a quarter as rough, and the coefficient is scaled by the count to
-        // hold back the weight times the friction, as the coefficient means.
+        // corners would slide as if a quarter as rough. The coefficient is scaled by the count, so
+        // the contacts together hold back the weight times the friction, as the coefficient means.
         var contacts = manifold.Convex ? Math.Max(1, manifold.Count) : 1;
         pairMaterial.FrictionCoefficient = Characters is not null && (Characters.Is(pair.A) || Characters.Is(pair.B)) ? 0
             : MathF.Sqrt(frictionA * frictionB) * contacts;

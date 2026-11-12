@@ -28,9 +28,9 @@ internal sealed partial class SceneFieldPlan
     /// <see cref="MostRaise"/> times it.
     /// </summary>
     /// <remarks>
-    /// A game raises the budget for a while after a cut of its own and puts it back. Made again for
-    /// a budget alone, the field lit the view from nothing in the frame the raise landed and again
-    /// in the frame it went back.
+    /// A program may raise the budget for a while after a cut of its own and put it back, and a
+    /// field made again for a budget alone would light the view from nothing in the frame the raise
+    /// lands and again in the frame it goes back.
     /// </remarks>
     public void SetBudgets(int cascades, int triangles)
     {
@@ -45,13 +45,13 @@ internal sealed partial class SceneFieldPlan
 
     // The frames since a cut lifted the builds' budgets, held on after the cascades it went past are
     // built while the meshes a program brings in for the new view still arrive and are built in, as
-    // a game meshes its sections over the frames after a teleport, and the frames running that have
+    // sections of a world meshed over the frames after a teleport, and the frames running that have
     // brought none and left nothing to build, or -1 where no cut holds the lift (Splat).
     private int _afterCut = -1, _quietAfterCut;
     // The cascades, a bit each, a pending mesh was built into by a build that took it in after the
     // frame it gathered in, which that cascade's built frame does not count. Without it a mesh that
-    // settled while a region's build ran waited for that cascade for as long as the eye stood still,
-    // and the field was never whole.
+    // settles while a region's build runs waits for that cascade for as long as the eye stands
+    // still, and the field is never whole.
     private readonly Dictionary<Instance, int> _builtIn = new(Keys.Shared);
 
     // Ends the lift after a cut once CutQuietFrames running bring no mesh and leave nothing to build,

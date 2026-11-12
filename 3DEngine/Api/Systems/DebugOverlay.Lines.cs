@@ -121,7 +121,8 @@ internal sealed partial class DebugOverlay
     }
 
     // Where the window's camera stands and faces, a camera entity's or the frame's first
-    // BeginMode3D's, in Minecraft's words, its north minus Z as the engine's forward is.
+    // BeginMode3D's, by its place, the compass point and the axis it faces, its heading and its
+    // pitch, north being minus Z, the engine's forward.
     private static IEnumerable<string> CameraLines(World world)
     {
         if (Camera(world) is not var (position, forward, fieldOfView)) return ["No camera"];
@@ -275,7 +276,7 @@ internal sealed partial class DebugOverlay
     internal static string Compass(float heading) =>
         new[] { "north", "northeast", "east", "southeast", "south", "southwest", "west", "northwest" }[(int)MathF.Round(heading / 45f) % 8];
 
-    /// <summary>The axis and its sign a heading faces nearest along the ground, as Minecraft names it.</summary>
+    /// <summary>The axis and its sign a heading faces nearest along the ground, as <c>positive X</c>.</summary>
     private static string Towards(Vector3 forward) =>
         MathF.Abs(forward.X) > MathF.Abs(forward.Z) ? (forward.X > 0f ? "positive X" : "negative X") : (forward.Z > 0f ? "positive Z" : "negative Z");
 

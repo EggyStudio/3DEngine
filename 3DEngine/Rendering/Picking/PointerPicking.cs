@@ -19,7 +19,8 @@ namespace Engine;
 /// <para>
 /// One instance is the world's resource, made by <see cref="EcsPlugin"/>, holding what the mouse
 /// was over and what each button went down on. A world with no camera asking casts nothing and
-/// reads the cameras alone. The mouse over an ImGui window picks nothing, as it moves no camera.
+/// reads the cameras alone. The mouse over an ImGui window picks nothing, since the pointer there
+/// is ImGui's.
 /// </para>
 /// </remarks>
 internal sealed class PointerPicking

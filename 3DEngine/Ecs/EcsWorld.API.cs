@@ -529,8 +529,7 @@ public sealed partial class EcsWorld
     /// <returns>A <see cref="ComponentSpan{T}"/> containing parallel entity ID and component spans.</returns>
     /// <remarks>
     /// Every component in it is stamped as changed when it is handed out, since any may be written
-    /// through it, as <c>QueryRef</c> stamps each it visits. Code that only reads takes
-    /// <see cref="GetReadOnlySpan{T}"/>, which stamps nothing.
+    /// through it. Code that only reads takes <see cref="GetReadOnlySpan{T}"/>, which stamps nothing.
     /// </remarks>
     internal ComponentSpan<T> GetSpan<T>()
     {

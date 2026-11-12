@@ -289,7 +289,7 @@ internal static class Recorder
         }
 
         // Due once the clock has reached the next step from the start, a millionth of a second
-        // early allowed for, since a set clock's frames add up to a step a hair short of it.
+        // early allowed for, since a set clock's frames add up to a step slightly short of it.
         var step = request.Step;
         var due = step.InFrames
             ? frames >= session.StartedFrame + (ulong)Math.Round(session.Taken * step.Value)

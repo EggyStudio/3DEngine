@@ -179,9 +179,9 @@ internal sealed class ModelDrawList
 /// </summary>
 /// <remarks>
 /// <para>
-/// Mesh entities are recorded this way, tens of thousands a frame, where a <see cref="ModelDraw"/>
-/// of about 200 bytes each, sorted into batches again by the pass, cost more than the rest of
-/// their frame (RENDERING.md section 6). A group is kept by its recorder from frame to frame and
+/// Mesh entities are recorded this way, tens of thousands a frame, so the pass copies their
+/// instances as they are rather than sorting a <see cref="ModelDraw"/> for each into batches
+/// again (RENDERING.md section 6). A group is kept by its recorder from frame to frame and
 /// filled again each frame, and the draw list holds it until the list is cleared.
 /// </para>
 /// <para>

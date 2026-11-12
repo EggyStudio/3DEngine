@@ -12,17 +12,17 @@ namespace Engine;
 /// cube, the first frame it sees the probe and again whenever the probe moves, changes size or
 /// <see cref="Capture"/> changes, a light that reaches its box is added, removed or changed past
 /// a threshold, or <see cref="Refresh"/> seconds have passed since the last capture, and prefilters
-/// it on the GPU as the environment map is prefiltered. A surface
-/// inside the box then reflects the cube, looked up where the reflected ray leaves the box, so
-/// the walls hold still as the camera moves, and takes its diffuse light from it, where it would
-/// take them from the environment map. A surface in no box keeps the environment map.
+/// it by roughness down its mips on the GPU. A surface inside the box then reflects the cube, looked
+/// up where the reflected ray leaves the box, so the walls hold still as the camera moves, and takes
+/// its diffuse light from it, where it would take them from the environment map. A surface in no
+/// box keeps the environment map.
 /// </para>
 /// <para>
-/// A probe captures what the window draws in the frame of the capture, lit as the window is,
-/// so a probe is captured once its room is in the frame. A probe spawned with a scene captures
-/// again once every model under the same root entity has spawned, as a room's prefab streamed in
-/// brings its probe at once and its models a few frames later. Four probes are bound at once, those
-/// nearest the camera, and where boxes overlap the smallest that holds a point wins.
+/// A probe captures what the window draws in the frame of the capture, lit by the window's lights
+/// and shadow maps, so a probe is captured once its room is in the frame. A probe spawned with a
+/// scene captures again once every model under the same root entity has spawned, as a room's prefab
+/// streamed in brings its probe at once and its models a few frames later. Four probes are bound at
+/// once, those nearest the camera, and where boxes overlap the smallest that holds a point wins.
 /// </para>
 /// <para>
 /// A component made with <c>default</c> has no size and an intensity of 0, so

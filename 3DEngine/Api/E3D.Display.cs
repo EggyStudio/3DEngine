@@ -278,7 +278,8 @@ public static partial class E3D
         if (WindowHandle is not (not 0 and var w) || !image.IsValid) return;
         fixed (byte* pixels = image.Data)
         {
-            // ABGR8888 is the bytes R, G, B and A in order on a little-endian machine, as an image holds them.
+            // ABGR8888 is the bytes R, G, B and A in order on a little-endian machine, the order of an
+            // image's data, so the pixels are handed over unconverted.
             var surface = SDL.CreateSurfaceFrom(image.Width, image.Height, SDL.PixelFormat.ABGR8888, (IntPtr)pixels, image.Width * 4);
             if (surface == IntPtr.Zero)
             {

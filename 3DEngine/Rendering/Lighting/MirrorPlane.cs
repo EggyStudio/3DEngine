@@ -23,15 +23,14 @@ internal sealed class ReflectionPlane
 /// <remarks>
 /// The window's batches are drawn again through its view-projection mirrored in the plane, turned
 /// upside down so the mirror keeps each face's order of corners and the faces turned from the eye
-/// are left out as they are, with its near plane laid along the plane, so what lies under a water's
+/// are still left out, with its near plane laid along the plane, so what lies under a water's
 /// surface is cut away rather than mirrored up through it (Lengyel's oblique depth projection, read
-/// straight off the view-projection, whose depth row it replaces). They are lit as a reflection
-/// probe's faces are, by the window's lights and its shadow maps, with no screen's probes, ambient
-/// occlusion or traced reflection, none of which the mirrored view has, its light kept linear, and
-/// the particles drawn over them; the shapes drawn by calls in the frame are not. A batch wholly
-/// under the plane, as a voxel world's sections under its sea are, is passed over before it is
-/// drawn, the near plane culling as it clips. The picture is
-/// copied into an image with its mips, which a rough surface reads a blurred level of.
+/// straight off the view-projection, whose depth row it replaces). They are lit by the window's
+/// lights and its shadow maps, with no screen's probes, ambient occlusion or traced reflection,
+/// none of which the mirrored view has, its light kept linear, and the particles drawn over them;
+/// the shapes drawn by calls in the frame are not. A batch wholly under the plane is passed over
+/// before it is drawn, the near plane culling as it clips. The picture is copied into an image
+/// with its mips, which a rough surface reads a blurred level of.
 /// </remarks>
 internal sealed class MirrorRenderer : IDisposable
 {
@@ -107,7 +106,8 @@ internal sealed class MirrorRenderer : IDisposable
 
         var viewProjection = Mirrored(view.ViewProjection, plane.Normal, plane.Height);
         var eye = Vector3.Transform(view.Eye, Matrix4x4.CreateReflection(new Plane(plane.Normal, -plane.Height)));
-        // Cleared as the window is, in linear light, so what no mesh covers shows what the window shows.
+        // Cleared to the window's clear color, in linear light, so what no mesh covers shows what
+        // the window shows.
         var clear = renderWorld.TryGet<ClearColor>() is { } windowClear
             ? new ClearColor(BloomRenderer.SrgbToLinear(windowClear.R), BloomRenderer.SrgbToLinear(windowClear.G), BloomRenderer.SrgbToLinear(windowClear.B), 1)
             : ClearColor.Black;

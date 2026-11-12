@@ -8,34 +8,33 @@
 // other's is 1. A ray of the cascade above that met a surface before its interval began keeps that
 // surface's light for its own probe's faces, its alpha a half, and the blend reads it as dark,
 // since the surface lies nearer that probe than this one's ray reaches, so the light it sees there
-// is not the light along this ray, and taken it read a ceiling beside a lamp for one two units off
-// in a Cornell box. Each probe above is read toward the point of this probe's ray nearest where its
-// own ray along the way met a surface the frame before (its reach), and not along the same way, so
-// a probe above standing elsewhere lends the light of what this ray would meet and not of what it
-// sees from where it stands, the merge's parallax. Read along the same way, the first cascade's
-// probe in a Cornell box's pocket between the floor and the small block took for its upward face
-// the ceiling nearer the lamp that the probe above meets. A trace from this ray toward each probe
-// above, the bilinear fix, mends that less than the parallax and costs a trace for each.
+// is not the light along this ray, and taken it would read a ceiling beside a lamp for one two
+// units off. Each probe above is read toward the point of this probe's ray nearest where its own
+// ray along the way met a surface the frame before (its reach), and not along the same way, so a
+// probe above standing elsewhere lends the light of what this ray would meet and not of what it
+// sees from where it stands, the merge's parallax. Read along the same way, a probe of the first
+// cascade in a pocket between the floor and a block would take for its upward face the ceiling
+// nearer the lamp that the probe above meets. A trace from this ray toward each probe above, the
+// bilinear fix, mends that less than the parallax and costs a trace for each.
 //
-// A probe above stands a spacing from this one and may see past what this ray would meet beyond
-// its interval, or meet what this ray passes. Where the cascade above's interval ends at twice this
-// one's, this ray is marched on past its interval to that end through the field, across surfaces
-// that let light through, and each probe above whose own hit along the way lies off where the march
-// met a surface, by two of its cells or a quarter of the way, or that met one where the march met
-// none, is passed over, those that agree taken alone, and where none agrees and the march met a
-// surface, the light from beyond is none. A probe above that is carried past its interval with its
-// rays moving through their sixteen places is read by its texels' middle ways' hits, which the
-// trace keeps for it (gi_trace.slang), since its rays' own met a surface in some frames and saw
-// past the end in others, and passed over in some frames and not others, a probe below it by the
-// door view's end wall flickered with the view held. In Sponza's door view the probes above the
-// vestibule saw the sky and the court past its arch along ways whose rays meet its underside, and
-// in the lion view the probes above under the arcade met its arch along a way the probe below sees
-// the sky along. The cascade whose above is the last counted is not marched, since its march runs
-// to the field's edge, where nearly every way that takes the cascade above has a probe above that
-// sees past it, so the march changes little there for its cost. The probes above that met a
-// surface before their interval are read as dark and not passed over, since read as dark they stand
-// in for this ray's own meeting with the roof, and passed over without the march they lit the floor
-// under a solid canopy from the probes at its edge.
+// A probe above stands a spacing from this one and may see past what this ray would meet beyond its
+// interval, or meet what this ray passes, as probes above a vault see the sky past its arch along
+// ways whose rays meet its underside, and probes above an arcade meet its arch along a way the
+// probe below sees the sky along. Where the cascade above's interval ends at twice this one's, this
+// ray is marched on past its interval to that end through the field, across surfaces that let light
+// through, and each probe above whose own hit along the way lies off where the march met a surface,
+// by two of its cells or a quarter of the way, or that met one where the march met none, is passed
+// over, those that agree taken alone, and where none agrees and the march met a surface, the light
+// from beyond is none. A probe above that is carried past its interval with its rays moving through
+// their sixteen places is read by its texels' middle ways' hits, which the trace keeps for it
+// (gi_trace.slang), since its rays' own meet a surface in some frames and see past the end in
+// others, and a probe above passed over in some frames and not others makes the probe below it
+// flicker with the view held. The cascade whose above is the last counted is not marched, since its
+// march runs to the field's edge, where nearly every way that takes the cascade above has a probe
+// above that sees past it, so the march changes little there for its cost. The probes above that
+// met a surface before their interval are read as dark and not passed over, since read as dark they
+// stand in for this ray's own meeting with the roof, and passed over without the march they would
+// light the floor under a solid canopy from the probes at its edge.
 import gi;
 import scenefield;
 import lightthrough;
@@ -158,12 +157,12 @@ ConstantBuffer<MergePush> push;
 // A carried probe's light, the mean of the cycle of sixteen places its rays move through, as the
 // screen's probes keep theirs (gi_screen_filter.slang), gathered from the cycle's first frame and
 // shown as it grows until a whole cycle has been gathered since the lights or the field changed,
-// then eased between the last two whole cycles' means. Read from the fixed middles alone, the vault of Sponza's vestibule
-// took none of the court's sunlit light that a path-traced reference sees past its arch's edges.
-// Its share of the sky and its mark of what the rays met are kept the same way, which the cascade
-// below and the probe's faces read, since taken from each frame's places alone they moved with the
-// rays, and every probe whose hits read them flickered with them, as the edges of Sponza's balcony
-// did, and a probe below took the sky through a texel above in some frames and not others.
+// then eased between the last two whole cycles' means. Read from the fixed middles alone, a vault
+// takes none of the sunlit light that reaches it past its arch's edges. Its share of the sky and
+// its mark of what the rays met are kept the same way, which the cascade below and the probe's
+// faces read, since taken from each frame's places alone they move with the rays, every probe whose
+// hits read them flickers with them, and a probe below takes the sky through a texel above in some
+// frames and not others.
 float3 settled(float3 light, inout float sky, inout float mark, uint3 at, uint2 texel, uint probes, uint texels, uint c)
 {
     uint3 written = uint3(at.xy * texels + texel, at.z);
@@ -203,10 +202,11 @@ float3 settled(float3 light, inout float sky, inout float mark, uint3 at, uint2 
     // The light shown eases from the whole cycle before the last to the last across the cycle after
     // it, so it reaches each whole cycle's mean as the next is gathered. A light past the first
     // bounce reads the light shown, and settles a cycle at a time after a cut or a change, so taken
-    // whole at a cycle's first frame the light shown stepped each sixteen frames while it settled.
-    // Where no whole cycle came before, the running mean was shown and ended at the last whole
-    // cycle's, which it eases from. The mark is taken whole, since the cascade below reads it
-    // against a threshold, which an eased mark crosses at one frame as a whole one does.
+    // whole at a cycle's first frame the light shown would step each sixteen frames while it
+    // settles. Where no whole cycle came before, the running mean is shown, which ends at the last
+    // whole cycle's, the one the light shown then eases from. The mark is taken whole, since the
+    // cascade below reads it against a threshold, which an eased mark crosses at one frame as a
+    // whole one does.
     if (phase == 0u)
         eased = full.a > 0.5 ? float4(full.rgb, skyMark.y) : float4(partial.rgb, skyMark.x);
     float along = float(phase + 1u) / 16.0;
@@ -329,8 +329,8 @@ void computeMain(uint3 id : SV_DispatchThreadID, uint3 local : SV_GroupThreadID)
         float3 upperAt = ac.xyz + (float3(neighbor) + 0.5 + placeOf(neighbor, upperCascade, probes).xyz) * (ac.w * push.spacing.x);
         // Its reach along this texel's middle way, which lies on the corner its rays' cells meet at
         // where its cascade sends four rays a texel, read as the mean of the four. Read from the
-        // one cell past the corner, the probe in the lintel's hall of GlobalIlluminationTests read
-        // its face toward the opening well under a path-traced reference.
+        // one cell past the corner, a probe in a hall under a lintel reads its face toward the
+        // opening far too dark (GlobalIlluminationTests).
         uint cells = max(uint(ReachTexels) / upper, 1u);
         int2 rt = min(int2(octahedron(d) * float(ReachTexels / int(cells))), int2(ReachTexels / int(cells) - 1)) * int(cells);
         float r = 0.0;

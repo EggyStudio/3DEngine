@@ -65,16 +65,16 @@ Texture2D<float4> lastGlowFar;
 // surface, 1 for one whose share is of no light, 2 and on for the glow light the share is of, counted
 // from 2, GlowOnLight for one on a glow light's own surface, and GlowAsk for one no probe around
 // holds. The model pass weighs the texels around a pixel by the normal, since at a wall's foot the
-// floor's texels lie as far from the eye as the wall's and the floor beside a lamp lent the lamp's
-// face its light.
+// floor's texels lie as far from the eye as the wall's, and by distance alone the floor beside a
+// lamp lends the lamp's face its light.
 [[vk::binding(11, 0)]] [format("rgba8")]
 RWTexture2D<float4> glowNormal;
 
 // The frames of a round of the probes' points (JitterAt), after which the blend counts every
 // frame's light alike and may be dropped. The least share of this frame's light in the blend after
-// a round where the view holds still, a thirty-second, since at a sixty-fourth what the first
-// frames of an app saw before the field held the wall stayed in the blend under its shadow twice as
-// long, and a turn moved the floor's light further along the penumbra. And where the view moves,
+// a round where the view holds still, a thirty-second, since the smaller the share the longer what
+// the first frames of an app saw before the field held a wall stays in the blend under its shadow,
+// and the further a turn moves the floor's light along a penumbra. And where the view moves,
 // when each frame's blend is read between four texels of the frame before's and spreads a little
 // further over the surface.
 static const float GlowRound = 16.0;
@@ -84,24 +84,23 @@ static const float GlowMoving = 1.0 / 8.0;
 // How far this frame's light may lie from the blend before the blend is dropped, a share past the
 // furthest the frames' light has lain from it, and a share of the light past that. The furthest is
 // let go by GlowLetGo a frame, three quarters of it held over a round, so the furthest a round's
-// points lie, met once a round, stays within GlowDeviations of it. Let go by a thirty-second a
-// frame, six tenths held, the one point of a round that saw a lamp past a wall's foot dropped the
-// blend each round, and a wall taken away was followed at a tenth a frame where the blend held too
-// few frames to be dropped.
+// points lie, met once a round, stays within GlowDeviations of it. Let go faster, the one point of
+// a round that sees a lamp past a wall's foot drops the blend each round, and a blend that never
+// holds a round's frames cannot be dropped and follows a wall taken away only by its share.
 static const float GlowDeviations = 1.5;
 static const float GlowMargin = 0.03;
 static const float GlowLetGo = 1.0 / 64.0;
 
 // The least cosine between a point's normal and the normal of a texel of the frame before that the
 // point takes the texel's light from, 60 degrees, so the two sides of a right-angled corner part.
-// At 25 degrees the texels of the ninth room at 160 by 90, two pixels wide and their normals taken
-// from a depth that wavers near a surface's edge, lost the frame before's light on one surface too.
+// No tighter, since in a small window a texel spans several pixels and its normal, taken from a
+// depth that wavers near a surface's edge, parts from its neighbors' on one surface too.
 static const float GlowSameSurface = 0.5;
 
-// The point at uv of the depth d, as its way from the eye. A point far from the world's origin, as
-// a voxel game's world stands, found in the world's own numbers, lost its last bits to their size,
-// so the ways between neighboring texels along a wall seen at a slant tilted from texel to texel
-// and the light the wall took from a lamp beside it ran in stripes.
+// The point at uv of the depth d, as its way from the eye, so it keeps its last bits however far
+// from the world's origin it lies. Found in the world's own numbers, a far point loses them to the
+// numbers' size, and the ways between neighboring texels along a wall seen at a slant tilt from
+// texel to texel.
 float3 fromEyeAt(float2 uv, float d)
 {
     float4 way = mul(view.inverseFromEye, float4(uv * 2.0 - 1.0, d, 1.0));
@@ -109,11 +108,10 @@ float3 fromEyeAt(float2 uv, float d)
 }
 
 // The middle of the depth's texel that uv falls in. A point is found there with that texel's depth,
-// so it lies on the surface the depth holds. Where a texel of the glow lights' images spans a part
-// of the depth's texels, as two and two thirds at 1,440 rows, a point found at the texel's own
-// middle with the depth of the texel beside it stood off a surface seen at a slant by an amount
-// that came round every third row, the ways to the texels ahead and behind took two slopes, and
-// where the nearer of them changed along a row the ceiling's light ran in a line across it.
+// so it lies on the surface the depth holds where a texel of the glow lights' images spans a part
+// of the depth's texels. Found at the image's texel's own middle with the depth of a depth texel
+// off it, a point stands off a surface seen at a slant by an amount that changes from row to row,
+// and the ways to the texels ahead of it and behind it take two slopes.
 float2 depthMiddle(float2 uv)
 {
     return (floor(uv * view.sizes.xy) + 0.5) / view.sizes.xy;
@@ -128,10 +126,9 @@ float3 pointAt(float2 uv, float2 step)
 
 // The way the surface at p runs along an axis of the depth, `texel` long, toward the side whose
 // next two texels go on in a line from p, so a texel at the foot of a wall takes its floor's way and
-// not the way up the wall, and away from the depth's edge. Toward the nearer texel, as
-// gi_screen.slang found a probe's, a floor seen at a slant took the wall's, and its texels along a
-// wall's foot, their normal tilted, found no probe on a like surface and took the light the wall's
-// top saw.
+// not the way up the wall, and away from the depth's edge. Taken toward the nearer texel, a floor
+// seen at a slant takes the wall's way, and its texels along a wall's foot, their normal tilted,
+// find no probe on a like surface and take the light the wall's top sees.
 float3 wayAlong(float2 uv, float3 p, float2 texel)
 {
     float3 ahead = pointAt(uv, texel), further = pointAt(uv, texel * 2.0);
@@ -196,7 +193,7 @@ float3 glowFromProbes(float3 p, float3 n, int4 first, float4 weight, float total
                 far += fainter * (weight[corner] / total);
         }
     // Each probe's uint of four lights is read from the buffer once for its four, rather than kept
-    // in an array indexed by the light, which lavapipe keeps in memory of its own and crashed on.
+    // in an array indexed by the light, which lavapipe keeps in memory of its own and crashes on.
     [loop]
     for (int packed = 0; packed * 4 < count; packed++)
     {
@@ -310,8 +307,8 @@ void computeMain(uint3 id : SV_DispatchThreadID)
     // point's (probeLike). Where none of the four by four around stands on a surface like the
     // point's, the point is marked for the model pass's pixels on it to march to the lights' faces'
     // halves themselves, as a probe does. Taken from the probes on any surface by how near each is,
-    // the floor along a wall's foot took the light its top saw, and marched from here, the march's
-    // code made this pass slower, few as its texels are.
+    // the floor along a wall's foot takes the light the wall's top sees, and the march is left to
+    // the model pass since its code makes this pass slower for every texel, few as those marked are.
     float2 g = (uv - marchedFrom(int2(0))) * view.sizes.zw / view.grid.x;
     int2 base = int2(floor(g));
     float2 f = g - float2(base);
@@ -371,8 +368,8 @@ void computeMain(uint3 id : SV_DispatchThreadID)
     // lay as far from the frame before's eye as this one does on a surface facing as this one's
     // does. A texel holds its light as a share of its own surface's rough light, and at a corner
     // the other surface's texels lie as far from the eye, so taken by their distance alone the
-    // floor along the walls of shaders_bounce_rooms' ninth room took the walls' shares times its
-    // own rough light, a line of light a texel apart along each corner.
+    // floor along a wall takes the wall's shares times its own rough light, a line of light a texel
+    // wide along each corner.
     float3 before = float3(0.0), farBefore = float3(0.0);
     float furthest = 0.0, held = 0.0, still = 0.0, frames = 1.0 / GlowStill;
     if (view.last.w > 0.5 && (uint(view.grid.w + 0.5) & 1u) == 0u)
@@ -429,12 +426,12 @@ void computeMain(uint3 id : SV_DispatchThreadID)
     float apart = abs(lit - litBefore);
     // A blend still in its first round is dropped too where the field's cascade under the point was
     // built this frame as meshes came or went around the point, or for the first time, since what
-    // the probes saw before the field held what stands between is no part of what they see. Held
-    // whole, the frames of an app before the field built its meshes in place of their boxes lay in
-    // the blend under a wall's shadow, and the floor across a lamp's penumbra strayed from where it
-    // settles for rounds after the app began. Dropped wherever the cascade was built, the blends
-    // begun the frame a lamp was placed began again when its own mesh was built frames later, and
-    // the penumbra had not settled a round after the lamp.
+    // the probes saw before the field held what stands between is no part of what they see. Kept,
+    // the frames an app draws before the field builds its meshes in place of their boxes stay in
+    // the blend under a wall's shadow, and the floor across a lamp's penumbra strays from where it
+    // settles for rounds. Dropped in any round, a blend begun the frame a lamp is placed begins
+    // again when the lamp's own mesh is built frames later, and the penumbra does not settle within
+    // a round of the lamp.
     int under = fieldCascade(fieldInfo, p, 1.0);
     bool rebuilt = under >= 0 && ((asuint(view.glows.w) >> uint(under)) & 1u) != 0u
         && all(p >= view.changedMin.xyz) && all(p <= view.changedMax.xyz);
@@ -446,9 +443,9 @@ void computeMain(uint3 id : SV_DispatchThreadID)
     // as the view moves and four share it, and where they cover the place in part, as at the edge
     // of what the frame before showed, this frame's light counts for the rest. A moving view's
     // blend counts as one frame's light, so where the view stops the frames after it make the mean
-    // anew and reach a round's within a round. Counted as all the frames it held, the blend the
-    // moving view had spread over the surface was slow to leave, and a turn's pixels went on
-    // changing after the stop.
+    // anew and reach a round's within a round. Counted as all the frames it holds, the blend a
+    // moving view spreads over the surface is slow to leave, and a turn's pixels go on changing
+    // after the stop.
     float steady = saturate(2.0 * still - 1.0);
     float least = lerp(GlowMoving, GlowStill, steady);
     float fresh = dropped ? 1.0 : lerp(1.0, max(1.0 / (frames + 1.0), least), saturate(held));

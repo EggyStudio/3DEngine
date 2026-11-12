@@ -20,7 +20,7 @@ public sealed class SceneAsset
     /// <summary>The immutable, normalized scene tree.</summary>
     public required Scene Scene { get; init; }
 
-    /// <summary>Source asset path the scene was loaded from (e.g. <c>"scenes/sponza.usda"</c>), or <c>null</c> for in-memory scenes.</summary>
+    /// <summary>Source asset path the scene was loaded from (e.g. <c>"scenes/level.usda"</c>), or <c>null</c> for in-memory scenes.</summary>
     public string? SourcePath { get; init; }
 
     /// <summary>

@@ -2,12 +2,12 @@ using NLayer;
 
 namespace Engine;
 
-/// <summary><see cref="ISoundDecoder"/> for MP3 files, through NLayer, in managed code as NVorbis decodes Ogg.</summary>
+/// <summary><see cref="ISoundDecoder"/> for MP3 files, through NLayer, in managed code.</summary>
 /// <remarks>
-/// The whole file is decoded into memory, as <see cref="OggSoundDecoder"/> does. Music played
-/// through <c>LoadMusicStream</c> is decoded from its file as it plays instead, by
-/// <c>Mp3MusicDecoder</c>. An encoder pads the start of a file with a few milliseconds of silence,
-/// which is kept, so a sound starts that much late.
+/// The whole file is decoded into memory, so a long piece of music costs its full length in
+/// samples. Music played through <c>LoadMusicStream</c> is decoded from its file as it plays
+/// instead, by <c>Mp3MusicDecoder</c>. An encoder pads the start of a file with a few
+/// milliseconds of silence, which is kept, so a sound starts that much late.
 /// </remarks>
 internal sealed class Mp3SoundDecoder : ISoundDecoder
 {

@@ -95,7 +95,7 @@ public static partial class E3D
     /// <paramref name="fromSeconds"/> and <paramref name="to"/> at <paramref name="toSeconds"/>,
     /// <paramref name="weight"/> of the way from the first to the second, as a walk turning into a run.
     /// </summary>
-    /// <remarks>Both clips move the model's bones, and each is sampled as <see cref="UpdateModelAnimationAt"/> does.</remarks>
+    /// <remarks>Both clips move the model's bones, each sampled between the two frames either side of its time.</remarks>
     public static void UpdateModelAnimationBlend(Model model, ModelAnimation from, float fromSeconds, ModelAnimation to, float toSeconds, float weight)
     {
         if (from.KeyframeCount == 0 || to.KeyframeCount == 0 || !IsModelAnimationValid(model, from) || !IsModelAnimationValid(model, to)) return;

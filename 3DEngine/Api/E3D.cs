@@ -42,9 +42,9 @@ public static partial class E3D
     private static DrawList DrawList => Res<DrawList>();
 
     // A resource as the flat API reads it, kept from the last lookup until the world or its
-    // resources change. A function like GetScreenWidth or DrawTexture is called thousands of times
-    // a frame in ordinary code, where a lookup each call cost a measurable part of the frame
-    // (RENDERING.md section 6). The flat API is called from the program's thread, as raylib's is.
+    // resources change, since a function like GetScreenWidth or DrawTexture is called thousands of
+    // times a frame in ordinary code, and a lookup in the world's resources on every call is made
+    // as many times. The flat API is called from the program's thread, as raylib's is.
     private static class Cached<T> where T : notnull
     {
         public static World? World;

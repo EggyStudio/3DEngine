@@ -48,8 +48,8 @@ internal sealed partial class GlyphSubstitution : GlyphLayout
         }
         catch (ArgumentOutOfRangeException)
         {
-            // A table pointing past the file's end is one to leave unread, as the reader leaves a
-            // glyph whose outline does.
+            // A table pointing past the file's end is left unread, and the font is shaped without
+            // its substitutions.
             return null;
         }
     }

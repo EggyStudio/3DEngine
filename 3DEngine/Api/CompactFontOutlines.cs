@@ -4,9 +4,8 @@ using System.Numerics;
 namespace Engine;
 
 /// <summary>
-/// A font's outlines in CFF, as an OpenType font of PostScript outlines holds them (Noto Sans CJK,
-/// Source Han, the OpenType builds of many fonts), read from their Type 2 charstrings as contours
-/// of straight segments, each cubic curve cut in eight.
+/// A font's outlines in CFF, as an OpenType font of PostScript outlines holds them, read from their
+/// Type 2 charstrings as contours of straight segments, each cubic curve cut in eight.
 /// </summary>
 /// <remarks>
 /// A charstring's subroutines, local and global, its hints, which are skipped, and its flex curves

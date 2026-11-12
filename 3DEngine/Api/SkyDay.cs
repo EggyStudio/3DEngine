@@ -6,8 +6,8 @@ namespace Engine;
 /// </summary>
 /// <remarks>
 /// <c>new SkyDay()</c> is the day the sky runs unless set, twenty minutes long with the sun's path
-/// leaning 16.7 degrees, as the voxel game's does, and a light of the sky's own. The sky's east is
-/// +X, its south +Z and its up +Y.
+/// leaning 16.7 degrees, and a light of the sky's own. The sky's east is +X, its south +Z and its
+/// up +Y.
 /// </remarks>
 public readonly record struct SkyDay
 {
@@ -57,10 +57,10 @@ public readonly record struct SkyDay
     public bool SunByHeight { get; init; }
 
     /// <summary>
-    /// The lux the sky gives a level floor at noon apart from the sun, seen through the camera as
-    /// <see cref="SunIlluminance"/> is, which scales the light of the sky the environment map holds
-    /// and the sky <see cref="E3D.DrawSkybox()"/> draws, or 0 for the sky's own plain strength. A
-    /// clear sky gives 15,000 to 25,000, an overcast one 1,000 to 10,000.
+    /// The lux the sky gives a level floor at noon apart from the sun, which scales the light of the
+    /// sky the environment map holds and the sky <see cref="E3D.DrawSkybox()"/> draws, seen through
+    /// the camera <see cref="E3D.SetCameraExposure"/> sets, or 0 for the sky's own plain strength.
+    /// A clear sky gives 15,000 to 25,000, an overcast one 1,000 to 10,000.
     /// </summary>
     public float SkyIlluminance { get; init; }
 

@@ -87,9 +87,9 @@ static const float Spread = 2.0;
 
 // The light a probe whose whole cycle stands in shows this frame, eased from what it showed at the
 // cycle's first frame to the last whole cycle's across the cycle, so it reaches each whole cycle's
-// mean as the next is gathered. Taken whole at a cycle's first frame, a view's light stepped each
-// sixteen frames while it settled after a cut, the light past the first bounce settling a cycle at
-// a time.
+// mean as the next is gathered. Taken whole at a cycle's first frame, a view's light would step
+// each sixteen frames while it settles after a cut, the light past the first bounce settling a
+// cycle at a time.
 float3 standIn(int2 at)
 {
     return lerp(easedNow[at].rgb, fullNow[at].rgb, float((uint(view.jitter.z + 0.5) & 15u) + 1u) / 16.0);
@@ -98,8 +98,7 @@ float3 standIn(int2 at)
 // Whether a light is one a float holds, neither a value that is not a number nor one past the
 // largest. A light that is not is taken as none, by the blend of the probes around and by the frame
 // before's, and written as none, so a fault anywhere that gives one darkens a probe for a frame
-// where the blends had carried it to every probe around and every frame after. A non-number at the
-// glow lights' light turned the voxel game's desert village black, spreading over the frames after.
+// where the blends would carry it to every probe around and every frame after.
 bool lightHeld(float3 light)
 {
     return all(abs(light) < 1e30);
@@ -136,9 +135,9 @@ float2 probePixel(int2 id)
 // deviation by the same weights, and in error how far the blend itself may lie from the light it
 // stands for, the spread over the root of the neighbors the weights count. A neighbor counts by how
 // near the plane of the probe's surface its own point lies, so a floor seen at a slant blends along
-// its slope. Weighed instead by how alike their distances from the eye were, the probes in rows 8
-// pixels apart on such a floor lay further apart than the 2% allowed, each row kept its own noise,
-// and the floor showed bands.
+// its slope. Weighed instead by how alike their distances from the eye are, the probes in rows 8
+// pixels apart on such a floor lie further apart than the 2% allowed, each row keeps its own noise,
+// and the floor shows bands.
 float4 spatial(uint2 id, uint across, uint down, float4 own, float4 surface, out float3 spread, out float3 error)
 {
     float4 sum = float4(0.0);
@@ -185,11 +184,10 @@ float4 earlierIn(Texture2D<float4> source, uint2 id, uint across, uint down, flo
         return float4(0.0);
     float3 p = standsOn(int2(id));
 
-    // A view the frame before's takes each probe where it stands. Ten thousand units from the
-    // world's origin, the point a probe stands on, put back through the frame before's matrices,
-    // came off its place, which the history's clamp to each frame's blend hid. The cycle's means,
-    // read again so each frame, went off their probes, and a house's shadow in the desert village
-    // of GlobalIlluminationTests went black.
+    // A view the frame before's takes each probe where it stands, since ten thousand units from the
+    // world's origin the point a probe stands on, put back through the frame before's matrices,
+    // comes off its place, and the cycle's means, read again so each frame, go off their probes and
+    // turn a shadow there black (GlobalIlluminationTests).
     float2 then = probePixel(int2(id));
     if (view.last.w < 1.5)
     {
@@ -199,9 +197,9 @@ float4 earlierIn(Texture2D<float4> source, uint2 id, uint across, uint down, flo
         then = (clip.xy / clip.w * 0.5 + 0.5) * view.sizes.zw;
     }
     // The four probes around the point's pixel in the frame before, blended by where they stand
-    // rather than by their tiles' middles, since read by the middles a still view's blend took the
-    // next probe along each axis by a pixel's share, a sixteenth of a tile at Low and an eighth at
-    // High, every frame.
+    // rather than by their tiles' middles, since read by the middles a still view's blend would
+    // take the next probe along each axis by a pixel's share, a sixteenth of a tile at Low and an
+    // eighth at High, every frame.
     int2 base = int2(floor(then / view.grid.x - 0.5));
     base -= select(then < probePixel(base), int2(1), int2(0));
     float2 low = probePixel(base);
@@ -269,7 +267,7 @@ void computeMain(uint3 id : SV_DispatchThreadID)
     }
     // Where the frame before's probes cover the place in part, as at the edge of what it showed,
     // the frames they kept count for that part, none where the frame before is left out, which left
-    // unset took whatever the GPU held there and darkened Sponza's lookup at 8:00.
+    // unset would take whatever the GPU holds there.
     float frames = 0.0;
     float4 before = (off & 1u) != 0u ? float4(0.0) : earlier(id.xy, across, down, surface, frames);
     float3 held = clamp(before.rgb, now.rgb - Spread * spread, now.rgb + Spread * spread);
@@ -277,10 +275,10 @@ void computeMain(uint3 id : SV_DispatchThreadID)
     // the blend's own error, the light changed rather than the rays, and the probe keeps fewer
     // frames, a quarter as many at twice that, so it follows a change within the spread, as a roof
     // of leaves made to let light through, where the noise of its rays and a light that falls off
-    // evenly across its neighbors leave it all sixteen. Keeping sixteen whatever the light did, the
-    // floor under such a roof lagged behind the light the roof let through, and at twice the error
-    // a camera sliding through a Cornell box read the change as the light's and added to the
-    // picture's change from frame to frame.
+    // evenly across its neighbors leave it all sixteen. Keeping sixteen whatever the light does,
+    // the floor under such a roof lags behind the light the roof lets through, and at twice the
+    // error a moving camera's change reads as a change of the light and adds to the picture's
+    // change from frame to frame.
     float3 apart = abs(held - now.rgb) / max(error * 3.0, 1e-4 + now.rgb * 0.01);
     float most = max(apart.r, max(apart.g, apart.b));
     float allowed = Kept * min(1.0, 1.0 / max(most * most, 1e-4));
@@ -292,16 +290,15 @@ void computeMain(uint3 id : SV_DispatchThreadID)
     // frame on, and the last whole cycle's mean, which stands in for the probe's light while the
     // kept light holds within four times what the change rule allows, the places' cycle cancelling
     // there where the running mean leaves a ripple of about a sixth of how far the places' light
-    // differs. At the edges of Sponza's atrium seen at a slant, the arches' undersides, the
-    // columns' sides and the window reveals, the places' light lies far apart, and the pixels of a
-    // view held still changed from frame to frame there unless the whole cycle stood in. The rule
-    // as the running mean takes it fell back there on this frame's noisy blend, and held loose it
-    // kept a moved lamp's old light long after the lamp moved, so cycles begin again through the
-    // sixteen frames after the window's lights differ from the frame before's or the field is built
-    // again as meshes come or go, and the running mean shows until a cycle gathered wholly after
-    // them. The whole cycle is the rays' own mean, which the running mean's clamp to each frame's
-    // blend pulls toward the typical frame, so where rare bright rays come it reads above the
-    // running mean.
+    // differs. At edges seen at a slant, an arch's underside, a column's side or a window's reveal,
+    // the places' light lies far apart, and the pixels of a view held still change from frame to
+    // frame there unless the whole cycle stands in. The rule as the running mean takes it falls
+    // back there on this frame's noisy blend, and held loose it keeps a moved lamp's old light long
+    // after the lamp moved, so cycles begin again through the sixteen frames after the window's
+    // lights differ from the frame before's or the field is built again as meshes come or go, and
+    // the running mean shows until a cycle gathered wholly after them. The whole cycle is the rays'
+    // own mean, which the running mean's clamp to each frame's blend pulls toward the typical
+    // frame, so where rare bright rays come it reads above the running mean.
     uint phase = uint(view.jitter.z + 0.5) & 15u;
     float gathered = 0.0, whole = 0.0, easedHeld = 0.0;
     float4 partial = (off & 1u) != 0u ? float4(0.0) : earlierIn(lastPartial, id.xy, across, down, surface, gathered);

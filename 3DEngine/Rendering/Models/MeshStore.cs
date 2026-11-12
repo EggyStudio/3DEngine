@@ -8,7 +8,7 @@ namespace Engine;
 /// what has been unloaded, until <see cref="GpuMeshesPrepare"/> takes them on the render thread.
 /// </summary>
 /// <remarks>
-/// The same queue as <see cref="TextureStore"/>, for vertex and index buffers. Id 0 is never given
+/// Uploads and removals wait in a queue the render thread empties each frame. Id 0 is never given
 /// out, so a default <see cref="ModelMesh"/> is recognizably not loaded. Each mesh's vertices and
 /// indices stay here while it is loaded, as raylib keeps a mesh's arrays beside its buffers, so a
 /// mesh can be read back and drawn as wires.
@@ -428,9 +428,9 @@ internal sealed class MeshStore
             // where it is off.
             if (_recolored.Count > 65536) _recolored.Clear();
             _recolored.Add(id);
-            // A write of the stream queued this frame stays a write in place, as a voxel game's
-            // section relit by its stream and its colors is, where uploading it again whole took
-            // its positions, indices and stream to the GPU each time.
+            // A mesh of positions alone keeps its colors here alone, so a write of its stream queued
+            // this frame stays a write in place, where uploading the mesh again whole would take its
+            // positions, indices and stream to the GPU each time its colors are set.
             if (_positionsOnly.Contains(id)) return true;
             _uploads.RemoveAll(u => u.Id == id);
             _uploads.Add(new Upload(id, data.Vertices, data.Indices, Skin: _skins.GetValueOrDefault(id), Streams: streams, Custom: _custom.GetValueOrDefault(id)));
@@ -494,7 +494,7 @@ internal sealed class MeshStore
             // A mesh of positions alone reaches the GPU as its positions and its own stream, its
             // colors kept here for the readers of the CPU's copy, since its shader unpacks its color
             // from the stream, and a buffer of them and one of zero second texture coordinates
-            // beside it took a section of the voxel game's 32 bytes a vertex where 20 were meant.
+            // beside it would have each draw read both for nothing.
             var taken = (_uploads.Select(u => _positionsOnly.Contains(u.Id) ? u with { PositionsOnly = true, Streams = null } : u).ToArray(), _removals.ToArray());
             _uploads.Clear();
             _removals.Clear();

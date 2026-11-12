@@ -60,8 +60,8 @@ internal sealed class SyntheticInput
 
     /// <summary>
     /// The gamepad at <paramref name="index"/>, with console pads made up to it where fewer are
-    /// connected, so a second player's pad is controlled as the first's is, or null past the
-    /// fourth.
+    /// connected, so the console's commands control a second player's pad with no real one, or
+    /// null past the fourth.
     /// </summary>
     public static GamepadState? Pad(Input input, int index)
     {

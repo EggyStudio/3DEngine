@@ -190,8 +190,8 @@ internal static class BounceReference
     /// surface, so 0 lights that surface alone, as the probes' hits are lit with the light past the
     /// first bounce left out (<c>gi.toggle again off</c>), where a reference of the window's
     /// picture (<see cref="Trace"/>) counts from the face the eye sees, and its 1 is the one that
-    /// frame is read against. Read against 1, a probe took the walls' light reflected once more and
-    /// read under the reference at one bounce in the bounce rooms. A glow light's own light reaches
+    /// frame is read against. Read against 1, the reference holds the walls' light reflected once
+    /// more than the probe takes, and the probe reads under it. A glow light's own light reaches
     /// a hit only along a path's next segment in the reference, whose lights are the sun and the
     /// lamps, so a probe lit by a glow light with the light past the first bounce left out is read
     /// against 1.
@@ -235,8 +235,8 @@ internal static class BounceReference
 
         // The ways that carry most of the face whose light lies furthest from the reference's, each
         // way's part of the face weighed as the gather weighs it, by its cosine and its texel's
-        // share. Taken by its share of the reference's light, a face the reference holds dark won
-        // over one many times as bright that read far under it, so the face is the one furthest in
+        // share. Taken by its share of the reference's light, a face the reference holds dark wins
+        // over one many times as bright that reads far under it, so the face is the one furthest in
         // light.
         var furthest = Enumerable.Range(0, 6).MaxBy(f => MathF.Abs(Luminance(probe.FacesMerged[f]) - Luminance(probe.FacesReference[f])));
         var weights = probe.Each.Sum(way => Math.Max(Vector3.Dot(way.Way, axes[furthest]), 0) * way.Share);
@@ -622,7 +622,7 @@ internal static class BounceReference
     private static float Luminance(Vector3 c) => 0.2126f * c.X + 0.7152f * c.Y + 0.0722f * c.Z;
 
     // A light to three significant figures, so the light of a scene in physical units, a
-    // ten-thousandth or less in Sponza's shade, reads where three decimals printed it as nothing.
+    // ten-thousandth or less in shade, reads where three decimals would print it as nothing.
     private static string Figures(float v)
     {
         if (v == 0 || !float.IsFinite(v)) return v.ToString(CultureInfo.InvariantCulture);

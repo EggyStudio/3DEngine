@@ -168,7 +168,7 @@ internal sealed partial class AssimpModelReader : ISceneReader
 
         // The materials are converted first, so each mesh binding looks up the same shared payload.
         // An OBJ's dissolve (d) is left unread, as raylib's loader leaves it, so a file whose
-        // material says d 0, as raylib's character.obj does, draws as it does in raylib.
+        // material says d 0 draws opaque, as it does in raylib.
         var readsOpacity = !string.Equals(System.IO.Path.GetExtension(context.Path.Path), ".obj", StringComparison.OrdinalIgnoreCase);
         var materials = settings.LoadPayloads.HasFlag(LoadPayloads.Materials)
             ? BuildMaterials(aScene, readsOpacity)
@@ -397,7 +397,8 @@ internal sealed partial class AssimpModelReader : ISceneReader
 
     // AssimpNetter hands over Assimp's matrices as they are, which act on column vectors with the
     // translation in the last column. System.Numerics acts on row vectors with it in the last row,
-    // so each is transposed once here. Read as they came, every node's translation was zero.
+    // so each is transposed once here. Read without it, a node's translation sits where
+    // System.Numerics reads none, and every node stands at its parent's origin.
     private static Matrix4x4 FromAssimp(Matrix4x4 m) => Matrix4x4.Transpose(m);
 
     private static Transform DecomposeMatrix(Matrix4x4 m)

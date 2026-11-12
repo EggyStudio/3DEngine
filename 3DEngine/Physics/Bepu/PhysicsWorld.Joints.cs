@@ -91,7 +91,8 @@ public sealed partial class PhysicsWorld
             });
         if (maximumTwist < MathF.PI)
         {
-            // Frames with their Z along the axis, the same in the world as the bodies are, as a hinge's.
+            // Frames with their Z along the axis, the same in the world as the bodies are when the
+            // limit is set, so the twist starts at zero there.
             var basisA = FromTo(Vector3.UnitZ, localAxisA);
             parts.Twist = Simulation.Solver.Add(parts.A, parts.B, new TwistLimit
             {
@@ -412,10 +413,9 @@ public sealed partial class PhysicsWorld
     /// </summary>
     /// <remarks>
     /// The turning part is left out. A weld holds its second body's center where it was put
-    /// against the first, so the moment it holds is taken about that center, and a box welded
-    /// beside a kinematic anchor read its weight alone given second and its weight with the moment
-    /// given first, 98 newtons against 404 with the box 4 meters out, where the force is the same
-    /// in either order.
+    /// against the first, so the moment it holds is taken about that center, and with the turning
+    /// part a box welded beside a kinematic anchor would give its weight alone as the second body
+    /// and its weight with the moment as the first, where the force is the same in either order.
     /// </remarks>
     internal float GetJointForce(PhysicsJoint joint)
     {

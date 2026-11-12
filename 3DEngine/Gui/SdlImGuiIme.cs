@@ -40,7 +40,7 @@ internal static unsafe class SdlImGuiIme
     }
 
     // Called from ImGui's native code, where an exception would end the process. A text box whose
-    // input area could not be set types as before, only without the candidate list beside it.
+    // input area cannot be set still takes what is typed, without the candidate list beside it.
     [UnmanagedCallersOnly(CallConvs = [typeof(CallConvCdecl)])]
     private static void SetImeData(nint context, nint viewport, ImeData* data)
     {

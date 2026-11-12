@@ -50,6 +50,11 @@ public struct Collider
     public static Collider Mesh => new() { Shape = ColliderShape.Mesh };
 
     /// <summary>The convex hull of the meshes the entity and its descendants show.</summary>
-    /// <remarks>An entity an <see cref="AnimatedModel"/> draws gives its model's meshes as they were last posed, as for <see cref="Mesh"/>.</remarks>
+    /// <remarks>
+    /// An entity an <see cref="AnimatedModel"/> draws gives its model's meshes as they were last
+    /// posed, once its file has loaded, and the body keeps that shape until its
+    /// <see cref="PhysicsBody"/> is removed and it is made again. A file that gives no meshes is
+    /// refused, with a warning.
+    /// </remarks>
     public static Collider ConvexHull => new() { Shape = ColliderShape.ConvexHull };
 }

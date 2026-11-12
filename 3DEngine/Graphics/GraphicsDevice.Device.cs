@@ -47,7 +47,7 @@ internal sealed unsafe partial class GraphicsDevice
     /// </summary>
     public bool CanBlendEachAttachment { get; private set; }
 
-    /// <summary>Required Vulkan device extensions (currently just <c>VK_KHR_swapchain</c>).</summary>
+    /// <summary>The Vulkan device extensions a device that presents must have, <c>VK_KHR_swapchain</c> alone.</summary>
     private static readonly string[] DeviceExtensions =
     {
         Utf8(VK_KHR_SWAPCHAIN_EXTENSION_NAME)
@@ -151,9 +151,8 @@ internal sealed unsafe partial class GraphicsDevice
         // Vulkan 1.4's host image copy, which 1.4 leaves optional (ChooseHostCopy).
         ChooseHostCopy(vulkan14.hostImageCopy);
         ChoosePackedPositions();
-        // Left off on a device that draws on its CPU: lavapipe of Mesa 25.2 crashes in the model
-        // pass's fragment stage at its first ray query, any-hit alone included, where the same
-        // structures, which it builds without a word from the validation layer, trace on a GPU.
+        // Left off on a device that draws on its CPU, since lavapipe of Mesa 25.2 crashes in the
+        // model pass's fragment stage at its first ray query into structures a GPU traces.
         _instanceApi.vkGetPhysicalDeviceProperties(_physicalDevice, out var device);
         var onCpu = device.deviceType == VkPhysicalDeviceType.Cpu;
         // No samples along a slant on a device that draws on its CPU, since lavapipe's sixteen blur
@@ -202,9 +201,8 @@ internal sealed unsafe partial class GraphicsDevice
             pEnabledFeatures = &features
         };
 
-        // No device layers. They have been ignored since Vulkan 1.0.13, the instance's layers cover
-        // the device, and the array once named here was freed before vkCreateDevice read it, which
-        // crashed every run that had the validation layer installed.
+        // No device layers, since Vulkan ignores them from 1.0.13 on and the instance's layers cover
+        // the device.
 
         Logger.Debug("Calling vkCreateDevice...");
         _instanceApi.vkCreateDevice(_physicalDevice, &createInfo, null, out _device).CheckResult();

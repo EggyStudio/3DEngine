@@ -83,7 +83,7 @@ public sealed partial class EcsWorld
     /// <summary>
     /// The entities with both a <typeparamref name="T1"/> and a <typeparamref name="T2"/>, with a copy
     /// of each, from <see cref="EcsWorld.Query{T1,T2}"/>. It walks the smaller store and probes the
-    /// other, and is filtered and enumerated as <see cref="CopyQuery{T}"/> is.
+    /// other, and is a struct, so a <c>foreach</c> over it allocates nothing.
     /// </summary>
     public readonly struct CopyQuery<T1, T2> : IEnumerable<(int Entity, T1 C1, T2 C2)>
     {
@@ -166,8 +166,8 @@ public sealed partial class EcsWorld
     /// <summary>
     /// The entities with a <typeparamref name="T1"/>, a <typeparamref name="T2"/> and a
     /// <typeparamref name="T3"/>, with a copy of each, from <see cref="EcsWorld.Query{T1,T2,T3}"/>.
-    /// It walks the smallest store and probes the others, and is filtered and enumerated as
-    /// <see cref="CopyQuery{T}"/> is.
+    /// It walks the smallest store and probes the others, and is a struct, so a <c>foreach</c> over
+    /// it allocates nothing.
     /// </summary>
     public readonly struct CopyQuery<T1, T2, T3> : IEnumerable<(int Entity, T1 C1, T2 C2, T3 C3)>
     {
@@ -257,7 +257,7 @@ public sealed partial class EcsWorld
     /// <summary>
     /// The entities with every one of its four component types, with a copy of each, from
     /// <see cref="EcsWorld.Query{T1,T2,T3,T4}"/>. It walks the smallest store and probes the others,
-    /// and is filtered and enumerated as <see cref="CopyQuery{T}"/> is.
+    /// and is a struct, so a <c>foreach</c> over it allocates nothing.
     /// </summary>
     public readonly struct CopyQuery<T1, T2, T3, T4> : IEnumerable<(int Entity, T1 C1, T2 C2, T3 C3, T4 C4)>
     {
@@ -353,7 +353,7 @@ public sealed partial class EcsWorld
     /// <summary>
     /// The entities with every one of its five component types, with a copy of each, from
     /// <see cref="EcsWorld.Query{T1,T2,T3,T4,T5}"/>. It walks the smallest store and probes the others,
-    /// and is filtered and enumerated as <see cref="CopyQuery{T}"/> is.
+    /// and is a struct, so a <c>foreach</c> over it allocates nothing.
     /// </summary>
     public readonly struct CopyQuery<T1, T2, T3, T4, T5> : IEnumerable<(int Entity, T1 C1, T2 C2, T3 C3, T4 C4, T5 C5)>
     {
@@ -452,7 +452,7 @@ public sealed partial class EcsWorld
     /// <summary>
     /// The entities with every one of its six component types, with a copy of each, from
     /// <see cref="EcsWorld.Query{T1,T2,T3,T4,T5,T6}"/>. It walks the smallest store and probes the others,
-    /// and is filtered and enumerated as <see cref="CopyQuery{T}"/> is.
+    /// and is a struct, so a <c>foreach</c> over it allocates nothing.
     /// </summary>
     public readonly struct CopyQuery<T1, T2, T3, T4, T5, T6> : IEnumerable<(int Entity, T1 C1, T2 C2, T3 C3, T4 C4, T5 C5, T6 C6)>
     {
@@ -551,8 +551,8 @@ public sealed partial class EcsWorld
         }
     }
 
-    // Where the smallest of the counts stands, counted from 1, the first among those alike, which a
-    // query of four to six types walks as the smaller queries walk the smallest of theirs.
+    // Where the smallest of the counts stands, counted from 1, the first among those alike, so a
+    // query of four to six types walks its smallest store.
     private static int Smallest(ReadOnlySpan<int> counts)
     {
         int at = 0;

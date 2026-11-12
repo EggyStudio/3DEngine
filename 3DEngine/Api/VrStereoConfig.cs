@@ -8,9 +8,9 @@ namespace Engine;
 /// <c>VrStereoConfig</c>.
 /// </summary>
 /// <remarks>
-/// The projections are the engine's own, depth from 0 to 1 and down the screen, as
-/// <see cref="Camera3D.ProjectionMatrix"/> makes one, each for its half of the target. The lens
-/// parameters are fractions of the whole target, as raylib's distortion shader reads them.
+/// The projections are the engine's own, depth from 0 to 1 and down the screen, each for its half
+/// of the target. The lens parameters are fractions of the whole target, as raylib's distortion
+/// shader reads them.
 /// </remarks>
 public struct VrStereoConfig
 {

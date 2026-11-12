@@ -5,10 +5,10 @@ using System.Runtime.CompilerServices;
 namespace Engine;
 
 /// <summary>
-/// Which build of the model pass draws a frame, each leaving out what a frame may not hold, which
-/// lavapipe compiles as it first draws with each pipeline, the whole, the one without the glow
-/// lights' marches, half the fragment stage, and the one without global illumination and the
-/// traced reflection besides, a fifth of it.
+/// Which build of the model pass draws a frame, each leaving out what a frame may not hold, so a
+/// device that compiles a pipeline as it first draws with it, as lavapipe does, compiles no more
+/// than the frame shades with. They are the whole, the one without the glow lights' marches, and
+/// the one without global illumination and the traced reflection besides.
 /// </summary>
 internal enum ModelBuild
 {
@@ -54,7 +54,7 @@ internal sealed partial class ModelRenderer
         return made;
     }
 
-    // A material's own shader's pipeline, which leaves faces out as the model pass's own does, its
+    // A material's own shader's pipeline, which leaves out the faces FacesOf names for the draw, its
     // color held to an eight-bit frame's where it draws into the HDR frame, and CUSTOM0 fed as the
     // mesh gives it.
     private IPipeline? CustomPipeline(IGraphicsDevice gfx, IRenderPass renderPass, RenderWorld renderWorld, int id, ShaderProgram program,
@@ -245,11 +245,10 @@ internal sealed partial class ModelRenderer
 
     // This frame's sets of the draws with a shader of their own, by the shader, the values and the
     // shader's own textures the draw was given and its five maps, so the draws of one look share a
-    // set across the frame's passes. Made and written whole for each draw in each pass, the voxel
-    // game's sections, every one holding the same values, took a set each in each of the four
-    // passes, all of them written on the main thread. An entity's values are one copy a frame for
-    // every entity drawn with the shader and a call's a copy of its own, so the copies themselves
-    // tell the values apart.
+    // set across the frame's passes, rather than each draw taking a set of its own in each pass,
+    // written on the main thread. An entity's values are one copy a frame for every entity drawn
+    // with the shader and a call's a copy of its own, so the copies themselves tell the values
+    // apart.
     private readonly Dictionary<(int Shader, byte[]? Values, int[]? Own, (int, int, int, int, int) Maps), IDescriptorSet> _drawSetsByLook = [];
 
     /// <summary>How many sets this frame's draws with a shader of their own were written into, one a look.</summary>

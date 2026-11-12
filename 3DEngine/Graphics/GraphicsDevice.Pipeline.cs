@@ -118,9 +118,9 @@ internal sealed unsafe partial class GraphicsDevice
         bool depthOnly = pass.DepthOnly;
 
         // The entry point's name, null-terminated on the stack, which no collection moves before the
-        // driver reads it. Read through a pointer into an array of its bytes, the name was wherever
-        // the array had been when a collection moved it before the pipeline was made, and the
-        // validation layer saw an empty name and the pipeline drew nothing, on one run in many.
+        // driver reads it. A pointer into a managed array of its bytes points where the array lay
+        // before a collection moves it, so the driver can read an empty name and make a pipeline
+        // that draws nothing.
         var entryPoint = desc.VertexShader.Description.EntryPoint;
         var entryLength = Encoding.UTF8.GetByteCount(entryPoint);
         byte* entryName = stackalloc byte[entryLength + 1];

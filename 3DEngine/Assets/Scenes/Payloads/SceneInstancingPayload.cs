@@ -6,8 +6,8 @@ namespace Engine;
 /// Backend-agnostic point-instancer payload mirroring <c>UsdGeomPointInstancer</c>:
 /// a set of prototypes (referenced by sub-tree path) plus per-instance prototype indices
 /// and pre-composed local-to-parent matrices. Carried lazily on a <see cref="SceneNode"/>
-/// so consumers can decide whether to materialize one ECS entity per instance, hand the
-/// data off to a future GPU instancing path, or skip entirely.
+/// so a consumer decides whether to make one ECS entity per instance, hand the data to GPU
+/// instancing, or skip it.
 /// </summary>
 /// <remarks>
 /// <para>
@@ -17,9 +17,9 @@ namespace Engine;
 /// (basis change happens at the parent's transform). The reader composes once.
 /// </para>
 /// <para>
-/// <b>v1 behavior:</b> the spawn system logs and skips this payload (no entities spawned).
-/// Expanding into either per-instance ECS entities or a GPU instance buffer is a follow-up
-/// ticket; carrying the data losslessly here keeps that work decoupled from the reader.
+/// <b>Use:</b> no reader of the engine fills this payload and the spawn system reads none, so
+/// an instancer spawns no entities. The payload carries the data whole, so a consumer that
+/// expands it into entities or a GPU instance buffer needs nothing more from the reader.
 /// </para>
 /// </remarks>
 internal sealed class SceneInstancingPayload

@@ -177,7 +177,8 @@ public static partial class E3D
                 if (imGui) ImGui.GetIO().AddMouseWheelEvent(p0, p1);
                 break;
             case AutomationEventType.InputGamepadConnect:
-                // A pad played into where none is connected is made, as the console makes one.
+                // A pad played into where none is connected is made with no device handle, which
+                // marks it as played in.
                 if (input.Gamepad(p0) is null && p0 == input.Gamepads.Count)
                     input.ConnectGamepad(SyntheticInput.ConsolePadId + (uint)p0, "Automation gamepad", 0);
                 break;

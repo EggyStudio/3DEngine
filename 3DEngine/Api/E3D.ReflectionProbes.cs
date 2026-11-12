@@ -4,7 +4,7 @@ namespace Engine;
 
 public static partial class E3D
 {
-    // -- Reflection probes, which are ReflectionProbe entities in the ECS, as lights are.
+    // -- Reflection probes, which are ReflectionProbe entities in the ECS.
 
     /// <summary>
     /// A box of <paramref name="size"/> around <paramref name="position"/> whose surfaces reflect
@@ -63,7 +63,8 @@ public static partial class E3D
             || !probes.ByEntity.TryGetValue(entity, out var known) || known.Map is null || known.Captured is not { } captured) return false;
         // Against the component as it is now, which the renderer takes up at the end of the frame.
         // What was captured counts the captures a change in the lights asked for beside the
-        // component's own, so a probe relit was never ready again while the two were compared bare.
+        // component's own, so those are added to the component's count, without which a probe
+        // relit never reads as ready.
         var wanted = Ecs.GetReadOnly<ReflectionProbe>(entity);
         return captured.Size == wanted.Size && captured.Capture == wanted.Capture + known.Relit && captured == known.Wanted
             && known.Passes >= ReflectionProbes.Passes;

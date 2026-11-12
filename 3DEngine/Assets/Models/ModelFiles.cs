@@ -3,7 +3,8 @@ namespace Engine;
 /// <summary>A model file read by the reader its extension names, which the flat API's models and animations and the edit meshes' import take.</summary>
 internal static class ModelFiles
 {
-    // The flat API's category, which these lines were written under before they moved here.
+    // The flat API's category, since the flat API's model and animation functions read their
+    // files through here.
     private static readonly ILogger Logger = Log.Category("Engine.Api");
 
     // A model file as Assimp reads it, or null with the reason logged. MagicaVoxel's files,

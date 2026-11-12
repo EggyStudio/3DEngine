@@ -13,9 +13,8 @@ internal sealed partial class ModelRenderer
     /// <remarks>
     /// Each view drawing its own shadow draws it into the same map before its pass, so a
     /// render target's cascades follow its camera, and views that share a shadow and are drawn one
-    /// after another draw it once, by the first of them, with that view's meshes, as the point
-    /// lights' faces, which look the same from every camera, are drawn once a frame by the first
-    /// view.
+    /// after another draw it once, by the first of them, with that view's meshes. The point lights'
+    /// faces, which look the same from every camera, are drawn once a frame by the first view.
     /// </remarks>
     public void DrawShadow(RenderContext renderContext, RenderWorld renderWorld, FrameShadow shadow, int target = 0)
     {
@@ -176,9 +175,9 @@ internal sealed partial class ModelRenderer
     }
 
     // How a masked surface drawn through a program's shader casts its shadow, where the program has
-    // a vertex stage of its own, which may give the coordinate the texture is cut at as the voxel
-    // game's plants' does from a packed stream, or a shadowMain, which cuts it as the program
-    // likes. The program's vertex stage is drawn with the light's view-projection pushed in the
+    // a vertex stage of its own, which may give the coordinate the texture is cut at, unpacking it
+    // from a stream of its own, or a shadowMain, which cuts it as the program likes. The program's
+    // vertex stage is drawn with the light's view-projection pushed in the
     // camera's place, and its shadowMain or shadow.slang's cut after it. Null for a program with
     // neither, whose shadow the pass's own stages draw.
     private OwnShadow? OwnShadowOf(GraphicsDevice device, ShaderStore? store, in ModelDraw draw, GpuMeshes.Entry mesh)
@@ -205,16 +204,16 @@ internal sealed partial class ModelRenderer
         var fragment = program.ShadowFragment is not { } spv ? _shadowMaskShader
             : _shadowFragments.TryGetValue(own.Shader, out var made) ? made
             : _shadowFragments[own.Shader] = device.CreateShader(new ShaderDesc(ShaderStage.Fragment, spv));
-        // The instance's every row, which the program's stage takes as the model pass gives it.
+        // The instance's every row, any of which the program's vertex stage may read.
         return _ownShadowPipelines[key] = MakePipeline(device, depthOnly, renderWorld, modules.Vertex, fragment,
             material: program.OwnTextures(PassTextures).Count > 0 || program.Buffers.Count > 0 ? SetsFor(device, own.Shader, program).Layout : null,
             streams: own.Streams, inputs: hasVertex ? ShaderProgram.InputLocationSet(vertex!) : null, named: hasVertex ? program.VertexInputs : [],
             shaderName: program.Name, feed: own.Feed, positions: own.Positions, clamp: clamp)!;
     }
 
-    // A batch's mesh and instances for a shadow or a depth, with the streams and CUSTOM0 a program's
-    // vertex stage reads bound as the model pass binds them, and the zeros a mesh of positions
-    // alone reads as its normal and texture coordinate.
+    // A batch's mesh and instances for a shadow or a depth, with the colors and second texture
+    // coordinates a program's vertex stage reads at bindings 2 and 3, its CUSTOM0 at 5, and the
+    // zeros a mesh of positions alone reads as its normal and texture coordinate at 6.
     private void BindShadowVertices(TrackedRenderPass pass, IGraphicsDevice gfx, in Batch batch, OwnShadow? own, IBuffer ring, ulong offset)
     {
         var streams = own?.Streams ?? Streams.None;

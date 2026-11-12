@@ -37,10 +37,10 @@ public float3 tonemap(float3 color)
     return max(color, 0.0) * (bent / peak);
 }
 
-// The engine's curve with its highlights' hue let go by strength, each channel past knee bent toward
-// 1 on its own along the curve tonemap bends the brightest by, so a light bright in all three goes
-// toward white as a camera's film and the path-traced reference's clip at white take it, where
-// tonemap keeps its hue and shows cream a lamp the reference shows white.
+// The engine's curve with its highlights' hue let go by strength, each channel past knee bent
+// toward 1 on its own along the curve tonemap bends the brightest by, so a light bright in all
+// three goes toward white as a camera's film takes it, where tonemap keeps its hue and shows a
+// white lamp cream.
 // A light with every channel under the knee is as it was, and strength 0 is tonemap alone.
 public float3 tonemapKnee(float3 color, float knee, float strength)
 {

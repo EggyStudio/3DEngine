@@ -139,7 +139,8 @@ internal sealed partial class GlobalIlluminationRenderer : IIlluminationPasses, 
             }
         renderWorld.TryGet<TargetIllumination>()?.ByTarget.Clear();
         _switches = renderWorld.TryGet<GlobalIlluminationSettings>();
-        // A target's probes not drawn the frame before are let go, its history no longer the frame before's.
+        // A target's probes not drawn the frame before are let go, since its history is not the
+        // frame before's.
         foreach (var (id, state) in _targets.Where(entry => entry.Value.Drawn < _frame - 1).ToList())
         {
             _retired.Add((_frame, state));
@@ -170,15 +171,16 @@ internal sealed partial class GlobalIlluminationRenderer : IIlluminationPasses, 
 
         // Each cascade's interval, from its probes' spacing to four times that, the first's from
         // the probe, so a ray reaches as far again as the next cascade's begin. Ending at twice the
-        // spacing, where the next cascade's begin, a ray met nothing short of a surface that the
-        // probes of the next cascade nearer it met before their own interval began, which the merge
-        // takes as dark, and the room lost part of the light the sun's patch on its floor gave it.
+        // spacing, where the next cascade's begin, a ray meets nothing short of a surface that the
+        // probes of the next cascade nearer it meet before their own interval begins, which the
+        // merge takes as dark, and the room loses part of the light the sun's patch on its floor
+        // gives it.
         //
         // The last cascade's interval ends at the field's edge, the diagonal of its coarsest
         // cascade, since past it no cascade takes over. Ending at four times its spacing, a ray
-        // across a room wider than that ended in mid-air and brought nothing, and at Low, whose
-        // last cascade reached 9.6 units, the probe at the far wall of a room 12 wide read its face
-        // toward the room dimmer than High's, with a third cascade past it, did. Its rays go on
+        // across a room wider than that ends in mid-air and brings nothing, and at Low, whose last
+        // cascade reaches 9.6 units, a probe at the far wall of a room 12 wide reads its face toward
+        // the room dimmer than at High, which has a third cascade past it. Its rays go on
         // until they meet a surface or leave the field, and read the sky there as a ray leaving the
         // field does.
         //
@@ -188,8 +190,8 @@ internal sealed partial class GlobalIlluminationRenderer : IIlluminationPasses, 
         // far cascade's cells only once its ray has left the counted ones, and bringing the sky
         // where it meets nothing, so it takes no light from the far cascade's probes. Those stand
         // eight of its cells apart, in cells that hold the ground near them as a slab, and merged
-        // into the cascade before at four times its spacing they drew the blue out of the voxel
-        // game's glass frame and of a red wall. The far cascade's probes give their light to the
+        // into the cascade before at four times its spacing they would draw the color out of a pane
+        // of colored glass and of a red wall. The far cascade's probes give their light to the
         // pixels past the counted cascades alone.
         var fieldEdge = SceneFieldPlan.Resolution * (plan?.CellOf(plan.Cascades - 1)
             ?? fieldSettings.CellSize * (1 << (Math.Clamp(fieldSettings.Cascades, 1, 8) - 1))) * MathF.Sqrt(3);
@@ -203,10 +205,10 @@ internal sealed partial class GlobalIlluminationRenderer : IIlluminationPasses, 
         // The screen's probes' rays reach twice as far as the world's probes are apart before they
         // take the light from beyond from them, where they end in the finest cascade
         // (gi_screen.slang), so a wall two units before a pillar sees the pillar and the floor lit
-        // around it itself where those probes, standing at the pillar's dark face, saw the face
-        // alone. Reaching as far as the probes are apart, the wall behind a pillar beside a lamp
-        // read darker than a path-traced reference, and three and four times as far read the wall
-        // past the pillar brighter than it.
+        // around it itself where those probes, standing at the pillar's dark face, see the face
+        // alone. Reaching as far as the probes are apart, the rays leave the wall behind a pillar
+        // beside a lamp too dark, and three and four times as far leave the wall past the pillar
+        // too bright.
         _screenReach = 2 * ProbeSpacing * fieldSettings.CellSize;
 
         var environment = renderWorld.TryGet<EnvironmentMap>() is not null ? renderWorld.TryGet<ModelRenderer>()?.Environment : null;
@@ -256,12 +258,13 @@ internal sealed partial class GlobalIlluminationRenderer : IIlluminationPasses, 
         RecordRays(renderContext, renderWorld, device, plan);
         // A carried probe's rays move within their texels and meet the meshes through the device's
         // rays at High where it traces them, the field's finest cells missing an arch's edge thinner
-        // than they are, which the moving rays passed beside, and elsewhere keep their middles.
+        // than they are, which moving rays traced through the field alone pass beside, and
+        // elsewhere keep their middles.
         var moving = _gi.CycleOn && _rays is not null && !_lightThrough;
         // The coarser cascades trace in halves once a change of the lights or the field has
         // settled, and whole until then, since a half keeping its light of before a light went out
-        // handed it back to the traced half through the light past the first bounce, and a room
-        // whose panel went dark at Low kept a tenth of its light ten frames on.
+        // hands it back to the traced half through the light past the first bounce, and a room
+        // whose panel goes dark at Low keeps a tenth of its light ten frames on.
         var spread = !switches.SpreadOff && !Settling;
         _halved = [.. Enumerable.Range(0, cascades).Select(c => GlobalIlluminationStages.Halved(c, cascades, far ? cascades - 2 : -1,
             switches.FollowOff ? null : lying, spread))];

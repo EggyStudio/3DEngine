@@ -256,10 +256,10 @@ public static partial class E3D
 
     /// <summary>Turns the selected vertices about an axis by a number of degrees, through a pivot or the middle of the box holding them.</summary>
     /// <remarks>
-    /// Counter-clockwise looking back along the axis, as every turn the engine makes is. The middle
-    /// of the box holding the selection, where no pivot is given, keeps a part turned a quarter in
-    /// place on the grid it stood on. The recipe's line is <c>rotate y 90</c>, or the axis's three
-    /// numbers, ending in <c>at X Y Z</c> where a pivot is given.
+    /// Counter-clockwise looking back along the axis, by the right-hand rule. The middle of the box
+    /// holding the selection, where no pivot is given, keeps a part turned a quarter in place on the
+    /// grid it stood on. The recipe's line is <c>rotate y 90</c>, or the axis's three numbers,
+    /// ending in <c>at X Y Z</c> where a pivot is given.
     /// </remarks>
     /// <exception cref="ArgumentException">The axis is zero.</exception>
     public static void EditMeshRotate(EditMesh mesh, Vector3 axis, float degrees, Vector3? pivot = null) =>
@@ -532,8 +532,8 @@ public static partial class E3D
 
     /// <summary>Does a modifier to the mesh itself, as though it were first in the stack, and takes it out of the stack.</summary>
     /// <remarks>
-    /// What the modifier made is shaped from then on as any of the mesh is, and nothing is selected
-    /// after. The recipe's line is <c>modifier apply 0</c>.
+    /// What the modifier made is part of the mesh from then on, and nothing is selected after. The
+    /// recipe's line is <c>modifier apply 0</c>.
     /// </remarks>
     /// <exception cref="ArgumentOutOfRangeException">The stack has no such modifier.</exception>
     public static void EditMeshModifierApply(EditMesh mesh, int index) => Edited(mesh, nameof(EditMeshModifierApply))?.ModifierApply(index);
@@ -637,7 +637,7 @@ public static partial class E3D
     /// none named <c>floor</c>, <c>wall</c>, <c>ceiling</c>, <c>stairs</c>, <c>door</c>,
     /// <c>window</c> or <c>hazard</c> shows the grid of a meter in that part's color
     /// (<see cref="LoadMaterialPrototype(string)"/>), and any other the grid's own gray, so a level
-    /// blocked out reads by color. The materials are the program's to change, as any model's are.
+    /// blocked out reads by color. The materials are the program's to change.
     /// </para>
     /// <para>
     /// <c>CreatePhysicsStaticModel(model, position)</c> makes the collider from the built model. A

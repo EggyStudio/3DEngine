@@ -2,8 +2,9 @@ namespace Engine;
 
 /// <summary><see cref="ISoundDecoder"/> for FLAC files, decoded in managed code by <see cref="FlacReader"/>.</summary>
 /// <remarks>
-/// The whole file is decoded into memory, as <see cref="OggSoundDecoder"/> does. Music played
-/// through <c>LoadMusicStream</c> is decoded from its file as it plays instead.
+/// The whole file is decoded into memory, so a long piece of music costs its full length in
+/// samples. Music played through <c>LoadMusicStream</c> is decoded from its file as it plays
+/// instead.
 /// </remarks>
 internal sealed class FlacSoundDecoder : ISoundDecoder
 {

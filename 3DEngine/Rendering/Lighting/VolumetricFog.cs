@@ -147,9 +147,9 @@ internal sealed class VolumetricFogRenderer : IDisposable
         _push = new DecodePush { InverseViewProjection = shown, Eye = new Vector4(view.Eye, 1), Slices = new Vector4(start, far, scale.X, scale.Y) };
     }
 
-    // The sun, the shadowed light where it is directional or the first directional one, as global
-    // illumination finds it, with its cascades where the window's shadow pass drew its map this
-    // frame, and the map or a white texture standing in where there is none.
+    // The sun, the shadowed light where it is directional or the first directional one, so the fog
+    // takes the sun the world's probes take, with its cascades where the window's shadow pass drew
+    // its map this frame, and the map or a white texture standing in where there is none.
     private static (IImageView View, ISampler Sampler) Sun(RenderWorld renderWorld, GraphicsDevice device, VolumetricFogSettings settings, ref Uniforms uniforms)
     {
         var all = renderWorld.TryGet<RenderLights>()?.All ?? [];

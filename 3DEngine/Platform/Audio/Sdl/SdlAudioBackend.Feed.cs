@@ -9,7 +9,7 @@ namespace Engine;
 internal sealed partial class SdlAudioBackend
 {
     // SDL3-CS takes the callback as a delegate it marshals each call, so it is set here with a
-    // function pointer, as the postmix callback is.
+    // function pointer, which SDL calls on its audio thread with nothing marshaled.
     [LibraryImport("SDL3", EntryPoint = "SDL_SetAudioStreamGetCallback")]
     [return: MarshalAs(UnmanagedType.U1)]
     private static unsafe partial bool SetAudioStreamGetCallback(IntPtr stream, delegate* unmanaged[Cdecl]<IntPtr, IntPtr, int, int, void> callback, IntPtr userdata);

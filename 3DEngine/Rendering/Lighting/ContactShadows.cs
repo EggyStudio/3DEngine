@@ -11,10 +11,9 @@ public enum ContactShadows
     /// ground beyond the map is still shadowed, the default.
     /// </summary>
     /// <remarks>
-    /// Within the map's reach the map holds the sun's light, and a contact shadow there darkened
-    /// sunlit surfaces it did not reach, its ray passing near the field's surfaces, which stand up
-    /// to a cell outside the meshes, as Sponza's gallery at noon read its sunlit parapet and column
-    /// base far darker than a path-traced reference.
+    /// Within the map's reach the map holds the sun's light, and a contact shadow there would darken
+    /// sunlit surfaces the map leaves lit, its ray passing near the field's surfaces, which stand up
+    /// to a cell outside the meshes.
     /// </remarks>
     PastShadowMap,
 

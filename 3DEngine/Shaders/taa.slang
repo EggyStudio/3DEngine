@@ -12,7 +12,7 @@
 // outweigh. A point the frame before did not see, as something nearer stood in front of it there,
 // starts its history again, as a box over a grille in front of a bright wall holds both and would
 // keep the grille's ghost. The copy pass then draws the blended frame back into the decoded
-// frame, which bloom, the exposure and the lens read as before.
+// frame, which bloom, the exposure and the lens then read.
 import fullscreen;
 
 struct TaaPush

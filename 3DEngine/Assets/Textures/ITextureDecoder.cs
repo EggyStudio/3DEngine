@@ -72,8 +72,8 @@ internal sealed class TextureLoadSettings
 /// <see cref="SceneReaderRegistry"/>.
 /// </summary>
 /// <remarks>
-/// Inserted into the <see cref="World"/> by <see cref="TexturesPlugin"/>. Backend plugins
-/// (<see cref="StbTexturesPlugin"/>, future Ktx2 / Dds / Exr ones) call
+/// Inserted into the <see cref="World"/> by <see cref="TexturesPlugin"/>, which registers the
+/// KTX2 decoder itself. Backend plugins, such as <see cref="StbTexturesPlugin"/>, call
 /// <see cref="RegisterDecoder"/> during <see cref="IPlugin.Build"/>.
 /// </remarks>
 internal sealed class TextureDecoderRegistry

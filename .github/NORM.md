@@ -204,20 +204,21 @@ written in two places comes to say two things. By review.
 
 **N 4.7 A document or a comment a game's author or a contributor reads, the release notes among
 them, gives a rule with its reason and names no one who decided it.** A reader of the package or of
-the source has no owner, reviewer or session to follow, and a reason stands on its own where a name
-does not. Who chose what, and when, belongs to REVIEW.md's Decisions, and a commit's message, from
-which release notes are made, says what changed and why without it. The sessions' own documents,
-REVIEW.md, SHARED.md, NORM.md, AGENTS.md, COMMITS.md and ASKS.md, which the sessions making games
-write, name them, and nothing else does; they name a role and say what was decided in plain general
-words, quoting no one's own words and carrying nothing personal, since they are published with the
-source. `NormTests` over every Markdown file but those six, over the comments of every source,
-shader, script, manifest and workflow, and the pack workflow's step that writes the release notes,
-for the owner or a session named as the one who chose, decided, asked, allowed, admitted, wants,
-sets, files or publishes, and for `REVIEW.md` in a page a game's author reads; a word that means a
-thing's owner in the code, a widget's or a handle's, is not a name.
+the source has no person or session of the project to follow, and a reason stands on its own where a
+name does not. Who chose what, and when, belongs to REVIEW.md's Decisions, and a commit's message,
+from which release notes are made, says what changed and why without it. The sessions' own
+documents, REVIEW.md, SHARED.md, NORM.md, AGENTS.md, COMMITS.md and ASKS.md, which the sessions
+making games write, name them, and nothing else does; they say what was decided in plain general
+words and seldom who, a role named only where a sentence must say who holds a decision, quoting no
+one's own words and carrying nothing personal, since they are published with the source. `NormTests`
+over every Markdown file but those six, over the comments of every source, shader, script, manifest
+and workflow, and the pack workflow's step that writes the release notes, for a person or a session
+named as the one who chose, decided, asked, allowed, admitted, wants, sets, files or publishes, and
+for `REVIEW.md` in a page a game's author reads; a word that means a thing's owner in the code, a
+widget's or a handle's, is not a name.
 
 **N 4.8 A picture a session makes while it works, a reading, a pair before and after a mend or a
-capture sent to the owner, is saved in the repository in the commit of the work it belongs to.** The
+capture sent for a look, is saved in the repository in the commit of the work it belongs to.** The
 pictures are the devlog's substance, and one left in a session's scratch space is gone with the
 session, as a day's radiance cascade captures were. Each is a WebP under `.github/assets/readings/`,
 named by the date and the item, as `2026-10-24-item-51-emitters.webp`, and its caption in DEVLOG.md,
@@ -243,11 +244,11 @@ against the turn in BevyCSharp's item 82, goes where it says more than the frame
 panel keeps the same view and exposure. A pair before and after a mend carries a third panel on its
 right, the after's luminance less the before's at a gain the caption names, brighter in orange and
 darker in blue on the panel's own black ground, so the reader sees the change the pair claims where
-the eye finds none in the two frames, as the owner found none in the meadow's pairs on 2026-11-08
-and asked for the difference beside them; the panel is left out only where the caption says the two
+the eye finds none in the two frames, as none was found in the meadow's pairs on 2026-11-08, when
+the difference was asked beside them; the panel is left out only where the caption says the two
 frames differ to the eye. The ground stays white, with labels in dark text, the difference panel's
-own apart. The owner, shown the kinds on 2026-10-31, keeps the plain form as it was and asks that a
-sheet's parts come from its reading and not from a list. By review.
+own apart. By the decision of 2026-10-31 the plain form stays as it was, and a sheet's parts come
+from its reading and not from a list. By review.
 
 **N 4.10 Every picture a session makes is kept in the repository's dump folder, apart from the
 devlog's chosen few.** N 4.8 keeps the pictures chosen for the devlog; the rest, every shot,
@@ -256,18 +257,18 @@ session. Each goes as it is made, as captured, into `.github/dump/<date>/` under
 named by the time, the item and a word, as `09-41-item-83-meadow-before.png`, with a line in that
 day's `captions.md`, the file's name then a bar then one sentence, written as the shot is taken. A
 picture's labels, its file name and its captions line name no person and no session, as the
-documents do not (N 4.7), a picture the owner sent is a screenshot, their reference picture the
-reference or the HDRP reference, and a sheet beside it the reference sheet; the dump's names and
-captions of 2026-10-31 to 11-03 were reworded so on the owner's word of 2026-11-03. The folder is in
-`.gitignore` and never committed; the owner reads it and prunes it by day. A recording's frames and
-any set of pictures past a few hundred megabytes go there as well, under a folder of their own, and
-never into a session's scratch space, which is RAM-backed and held 8.8 GB of one recording's frames
-on 2026-10-31 until the machine ran short and another session broke; a finished experiment's frames
-are deleted at once. A session takes its shots there directly rather than copying them after, so
-nothing is lost when a session ends or the machine restarts. Every picture a session reads or
-compares is also shown to the owner in the session as it is made, with its sentence, since the owner
-follows the work by its pictures and a capture compared behind the scenes and never shown is work
-the owner cannot see. By review, the reviewer reading a day's folder against the items worked.
+documents do not (N 4.7), a picture sent in is a screenshot, a reference picture the reference or
+the HDRP reference, and a sheet beside it the reference sheet; the dump's names and captions of
+2026-10-31 to 11-03 were reworded so by the decision of 2026-11-03. The folder is in `.gitignore`
+and never committed; it is read and pruned by day, by hand. A recording's frames and any set of
+pictures past a few hundred megabytes go there as well, under a folder of their own, and never into
+a session's scratch space, which is RAM-backed and held 8.8 GB of one recording's frames on
+2026-10-31 until the machine ran short and another session broke; a finished experiment's frames are
+deleted at once. A session takes its shots there directly rather than copying them after, so nothing
+is lost when a session ends or the machine restarts. Every picture a session reads or compares is
+also shown in the session as it is made, with its sentence, since the work is followed by its
+pictures and a capture compared behind the scenes and never shown is work that cannot be seen. By
+review, the reviewer reading a day's folder against the items worked.
 
 **N 4.11 A comment stands on the code's own terms.** It says what the code does and why in the
 engine's words, and a number taken from elsewhere stands with the reason it is right here, what it
@@ -317,9 +318,9 @@ validation layer finds what a forgiving driver lets pass. The build workflow.
 version marks the commit a package was published from and the commit that raises the major or the
 minor, and no other.** A working session or the reviewer raises the major or the minor in a commit
 that changes `build/version.txt` alone, when a step is done and the changes behind it are
-meaningful, the major at a step the size of a release, and no commit message decides a release. The
-owner asked on 2026-11-08 for tags that mark releases time apart with meaningful changes and not
-commits apart, and gave the sessions the minor and the major. The reviewer sets the tag, lightweight
+meaningful, the major at a step the size of a release, and no commit message decides a release. Tags
+mark releases time apart with meaningful changes and not commits apart, and the minor and the major
+are the sessions' to raise, by the decision of 2026-11-08. The reviewer sets the tag, lightweight
 with no message, as it pushes the version's commit and once a pack run has published, and pushes the
 tag by itself. The pack workflow and `build/version.sh`, the tags by review.
 
@@ -357,16 +358,16 @@ and one that dies.
 ## 7 Working
 
 **N 7.1 Commits are made on `main`, and the reviewing session pushes them once the previous build
-run of the repository has ended.** The owner gave the pushes to the reviewing session on 2026-10-19,
-so a coder never pushes and no run is cancelled midway by a push. By review.
+run of the repository has ended.** The pushes are the reviewing session's by the decision of
+2026-10-19, so a coder never pushes and no run is cancelled midway by a push. By review.
 
 **N 7.2 A commit is one finished batch, and its message has the form COMMITS.md gives.** The history
 is read by its descriptions, and release notes are written from them. A test reads the messages
 back, from the commit that adds the test on. A commit that changes `build/version.txt` alone is the
-setting of the version, the owner's or a session's, and is left out, whatever its message, and any other commit of the
-owner's is left out on the rule's list with that reason, as is a commit of a working session's
-pushed before its fault was seen, with the fault as its reason, since a pushed commit is not
-amended; the subject is pasted from COMMITS.md and not typed, which BUILDING.md says.
+setting of the version, by hand or by a session, and is left out, whatever its message, and any
+other commit made by hand is left out on the rule's list with that reason, as is a commit of a
+working session's pushed before its fault was seen, with the fault as its reason, since a pushed
+commit is not amended; the subject is pasted from COMMITS.md and not typed, which BUILDING.md says.
 
 **N 7.3 REVIEW.md, SHARED.md and this file have one writer, the reviewing session, and the working
 session writes under Replies.** Two sessions editing one file write over each other. By review.
@@ -378,16 +379,15 @@ asks for.** Every session reads it first. By review.
 second session writes to the repository.** A session with `main` to itself commits on `main`. A
 second writer, a cloud session among them, works on a branch such as `modeling`; the local session
 cherry-picks its commits onto `main` with the repository's author and without a trailer, and the
-reviewing session deletes the branch once its commits are on `main`. The owner asked for it on
-2026-10-23. By review.
+reviewing session deletes the branch once its commits are on `main`. Decided on 2026-10-23. By
+review.
 
 **N 7.6 Every commit's author and committer are the owner's identity, on every branch.** A session
-sets `user.name` and `user.email` to the owner's before its first commit, a cloud session among
+sets `user.name` and `user.email` to that identity before its first commit, a cloud session among
 them, and a commit with any other identity is pushed nowhere; one that was is rewritten before it
-goes anywhere, and a branch that carried one is deleted with its workflow runs. The owner asked for
-it on 2026-10-23, having seen the cloud sessions' branches name another author as their sole
-contributor. By review, the reviewing session reading the author of every commit it pushes or has
-cherry-picked.
+goes anywhere, and a branch that carried one is deleted with its workflow runs. Decided on
+2026-10-23, after the cloud sessions' branches named another author as their sole contributor. By
+review, the reviewing session reading the author of every commit it pushes or has cherry-picked.
 
 **N 7.7 A session spends tokens on what changes the work.** The weekly usage ran out in three days
 twice, in October 2026, with four sessions working around the clock. A report to the reviewing
@@ -402,8 +402,8 @@ the commit, and its watch wakes once an hour, the runs' ends reported by waits. 
 reviewer reading each report's and each record's length.
 
 **N 7.8 A session runs a program offscreen or headless, and opens a window only to read what a
-window alone shows.** The owner's word of 2026-10-30. A test, a reading, a capture and a drive run
-offscreen or headless as they do; a window is opened on the owner's machine for the window's own
+window alone shows.** Decided on 2026-10-30. A test, a reading, a capture and a drive run offscreen
+or headless as they do; a window is opened on the development machine for the window's own
 questions, the swapchain and its format, the modes and sizes, a screenshot read against an offscreen
 capture, and closed when read. By review.
 
@@ -440,8 +440,8 @@ folder under the home's cache, and not to /tmp, and a done item's scratch is del
 closes. By review, the reviewing session reading the memory and each session's scratch at its watch.
 
 **N 7.11 A session's programs keep their caches in a folder of the session's own.** The engine's
-caches of shaders, pipelines and scene packs stand in the account's cache folder, which the owner's
-own programs read and write, and a session's plays on 2026-11-11 read and wrote the game's
+caches of shaders, pipelines and scene packs stand in the account's cache folder, which the
+account's own programs read and write, and a session's plays on 2026-11-11 read and wrote the game's
 pipelines' file there, 94 MB piled up from every package run on the account, so that a reading of a
 warm cache stood on what other runs had left. A program a session starts runs with XDG_CACHE_HOME
 naming a folder under the session's work folder in the home's cache; a warm cache is made there by a
@@ -519,11 +519,11 @@ not the code keeps the rule. `by review` is held by the reviewing session.
 
 ## How the norm changes
 
-The owner decided this on 2026-10-05. The reviewing session adds a rule alone when the rule comes
-with its check and no existing code breaks it. A rule that existing code breaks, or that touches
-what is the owner's (dependencies, versions, AGENTS.md, what is published), waits for the owner's
-word. A rule that existing code breaks comes with its list, and no code is rearranged to meet a
-rule on the day it is written.
+Decided on 2026-10-05. The reviewing session adds a rule alone when the rule comes with its check
+and no existing code breaks it. A rule that existing code breaks, or that touches what is the
+owner's (dependencies, versions, AGENTS.md, what is published), waits on a decision. A rule that
+existing code breaks comes with its list, and no code is rearranged to meet a rule on the day it is
+written.
 
 A working session that finds a rule wrong, or a fault of a kind no rule names, says so with a line
 under Replies in REVIEW.md beginning `Rule:`.

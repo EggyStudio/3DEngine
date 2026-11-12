@@ -79,7 +79,8 @@ public static partial class E3D
     /// <remarks>
     /// <paramref name="lockView"/> stops it a thousandth short of straight up or down, so it never
     /// turns over, <paramref name="rotateAroundTarget"/> turns it about its target rather than
-    /// itself, and <paramref name="rotateUp"/> tips its up with it, as a free camera's is.
+    /// itself, and <paramref name="rotateUp"/> tips its up by the same turn, so its up keeps its
+    /// angle to the way it looks.
     /// </remarks>
     public static void CameraPitch(ref Camera3D camera, float angle, bool lockView, bool rotateAroundTarget, bool rotateUp)
     {

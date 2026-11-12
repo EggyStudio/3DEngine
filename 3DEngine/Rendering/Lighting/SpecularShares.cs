@@ -12,14 +12,14 @@ namespace Engine;
 /// <para>
 /// Each texel integrates GGX's lobe at its middle's cosine and roughness by importance sampling, as
 /// Karis gives it for the split sum, the half ways drawn by GGX's distribution over a Hammersley
-/// set and each weighed by Smith's shadowing for the two ways taken together as the model pass's
-/// direct light has it, height-correlated, times the cosine between the eye and the half way over
-/// that of the normal and the half way, Schlick's Fresnel apart into the scale and the bias.
+/// set and each weighed by Smith's height-correlated shadowing for the two ways taken together,
+/// times the cosine between the eye and the half way over that of the normal and the half way,
+/// Schlick's Fresnel apart into the scale and the bias.
 /// </para>
 /// <para>
-/// It takes the place of Karis's fit for mobile, which in a box of emissive metal gave a wall seen
-/// square on less of the light around it than GGX's lobe gives at a roughness of 0.6, and more at a
-/// roughness of 1 (<c>RoughReflectionTests</c>).
+/// A table rather than Karis's fit for mobile, which gives a surface seen square on less of the
+/// light around it than GGX's lobe gives at a roughness of 0.6, and more at a roughness of 1
+/// (<c>RoughReflectionTests</c>).
 /// </para>
 /// </remarks>
 internal static class SpecularShares

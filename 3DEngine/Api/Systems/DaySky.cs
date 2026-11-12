@@ -9,11 +9,11 @@ namespace Engine;
 /// </summary>
 /// <remarks>
 /// <para>
-/// The numbers are the voxel game's. The sun rises in the east at 6, passes south of the zenith at
-/// noon by the day's lean and sets in the west at 18, the sky turning about its axis from north to
-/// south, and the moon stands opposite it. The light is the sun's until the sun's height, the sine
-/// of its angle over the horizon, falls below -0.05, and the moon's after, each faded out where the
-/// light turns from one to the other, so the shadows do not jump.
+/// The sun rises in the east at 6, passes south of the zenith at noon by the day's lean and sets in
+/// the west at 18, the sky turning about its axis from north to south, and the moon stands opposite
+/// it. The light is the sun's until the sun's height, the sine of its angle over the horizon, falls
+/// below -0.05, and the moon's after, each faded out where the light turns from one to the other,
+/// so the shadows do not jump.
 /// </para>
 /// <para>
 /// The map is a gradient from the horizon to the zenith colored by the hour, a dusk color mixed into
@@ -36,7 +36,7 @@ internal sealed partial class DaySky
     /// <summary>The least time of the program's between two paintings, so a short day filters at most four maps a second.</summary>
     internal const double RepaintSeconds = 0.25;
 
-    /// <summary>The degrees above the horizon over which the drawn sky blends into the horizon's color, the band the voxel game fades its fog over.</summary>
+    /// <summary>The degrees above the horizon over which the drawn sky blends into the horizon's color, so the two meet with no edge.</summary>
     internal const float HorizonBlendDegrees = 6;
 
     // The sky's colors in sRGB levels, the zenith's and the horizon's by night and by day and the

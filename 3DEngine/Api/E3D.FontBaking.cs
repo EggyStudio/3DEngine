@@ -137,7 +137,7 @@ public static partial class E3D
         var scale = size / (float)(outlines.Ascent - outlines.Descent);
         var baseline = MathF.Round(MathF.Floor(outlines.Ascent * scale + 1));
         // Each glyph's pixels, its own colors where it has them, and its outline's coverage in white
-        // otherwise, which the text's color tints as it does the atlas builder's glyphs.
+        // otherwise, so the text's color tints it.
         var drawn = new List<(int Codepoint, byte[] Rgba, int Width, int Height, int Left, int Top, float Advance)>();
         foreach (var (codepoint, glyph) in wanted)
         {

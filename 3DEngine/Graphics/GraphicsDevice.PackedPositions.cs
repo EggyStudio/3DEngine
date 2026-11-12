@@ -38,7 +38,7 @@ internal sealed unsafe partial class GraphicsDevice
 
 /// <summary>
 /// The positions of a mesh uploaded from them alone, as 16-bit integers times a power of two, where
-/// every one of them is a whole multiple of it, as a voxel game's sections' sixteenths of a block are.
+/// every one of them is a whole multiple of it.
 /// </summary>
 /// <remarks>
 /// The power of two, the quantum, is the smallest whose 32,767 multiples reach every position, so
@@ -46,7 +46,7 @@ internal sealed unsafe partial class GraphicsDevice
 /// the three columns of each instance's world matrix that turn a position (<c>ModelRenderer</c>),
 /// which a power of two scales exactly. The vertex stage's sum of the integers through those rows
 /// and the translation is then the float the floats would give, bit for bit, so two meshes' shared
-/// corners agree as they did, and no shader changes. A mesh with a position off its grid keeps
+/// corners agree, and the same vertex stage reads either. A mesh with a position off its grid keeps
 /// three floats a vertex.
 /// </remarks>
 internal static class PositionPacking

@@ -284,7 +284,7 @@ internal static class AnimationReader
         return pixels;
     }
 
-    /// <summary>A GIF frame's codes read back into its indices, the table grown and started again as the writer did.</summary>
+    /// <summary>A GIF frame's codes read back into its indices, the table grown and started again at each clear code.</summary>
     private static byte[] Lzw(byte[] data, int least, int count)
     {
         var start = 1 << least;

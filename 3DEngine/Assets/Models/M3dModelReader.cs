@@ -158,7 +158,8 @@ internal static class M3dModelReader
         return [.. clips];
     }
 
-    // A bone's transform from its parent's, its position scaled as the mesh's are.
+    // A bone's transform from its parent's, its position scaled by the file's scale, so a bone
+    // stands among the scaled vertices it holds.
     private static Transform Local(File3D file, int position, int orientation)
     {
         var p = Value(file, position);

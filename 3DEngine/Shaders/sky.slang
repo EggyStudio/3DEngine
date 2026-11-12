@@ -58,7 +58,7 @@ int starCell(float3 e, int cells, out int face, out int2 at)
 // is 0.8 of the pixel's angle across, holding the star's illuminance over the steradians it covers.
 // Read at each pixel's middle, its brightest pixel holds a quarter of its light with the star on
 // that middle and a sixth with it on a corner, so a star the sky turns across the pixels keeps
-// within a factor of 1.5, where at half a pixel it swung by 2.7.
+// within a factor of 1.5, where at half a pixel it would swing by 2.7.
 float3 starLight(float3 e, float pixel, int cells, uint count)
 {
     int face;
@@ -85,7 +85,7 @@ float3 starLight(float3 e, float pixel, int cells, uint count)
                 uint base = uint(head) + k * 8u;
                 float3 way = float3(asfloat(stars[base]), asfloat(stars[base + 1u]), asfloat(stars[base + 2u]));
                 // The chord between the two ways stands for their angle, near the star the same,
-                // where acos of their dot gave it in steps of 3.5e-4 radians, a float's last bit
+                // where acos of their dot gives it in steps of 3.5e-4 radians, a float's last bit
                 // short of 1, a third of a pixel in a frame 4 degrees high.
                 float3 apart = way - e;
                 float spread = exp(-0.5 * dot(apart, apart) / (sigma * sigma)) / (6.28318531 * sigma * sigma);
@@ -129,7 +129,7 @@ float4 fragmentMain(ModelVertexOutput input) : SV_Target
     {
         // The image's share rises smoothly from none at the horizon to all of it at the blend's
         // top, so neither end shows as an edge, and below the horizon the color stands alone. The
-        // two are mixed as light, as the program's fog mixes the land into the color.
+        // two are mixed as light.
         float above = degrees(asin(clamp(look.y, -1.0, 1.0)));
         float share = horizonBlend.x > 0.0 ? smoothstep(0.0, horizonBlend.x, above) : step(0.0, above);
         sky = lerp(srgbToLinear(horizonColor.rgb), sky, share);
@@ -168,7 +168,7 @@ float4 fragmentMain(ModelVertexOutput input) : SV_Target
         float3 e = toStars(look, nightSky.x, nightSky.y);
         // The pixel's angle across, the longer of its two steps. The length of fwidth adds both
         // steps in each of the way's components, 1.4 to 1.9 pixels by how the view turns, and
-        // spread a star over two to nearly four times the pixels it was given.
+        // would spread a star over two to nearly four times the pixels it is given.
         float pixel = max(length(ddx(look)), length(ddy(look)));
         float3 night = starLight(e, pixel, int(nightSky.w), uint(nightAir.w)) + galaxyLight(e);
         sky = min(sky + night * through * nightSky.z * input.color.rgb, 60000.0);

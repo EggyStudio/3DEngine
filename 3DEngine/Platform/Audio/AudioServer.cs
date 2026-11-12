@@ -426,9 +426,9 @@ public sealed class AudioServer : IDisposable
     /// <para>
     /// A voice played once that the backend has played out is let go first, its ticket with it, so
     /// its <see cref="AudioSource"/> reads as stopped and the ticks after walk the voices still
-    /// playing alone. A game playing each footstep and never stopping it kept every one, 34 steps
-    /// leaving 36 voices for each tick to walk. A looping, paused or streamed voice is kept until
-    /// it is stopped.
+    /// playing alone, and the voices a tick walks do not grow with every sound played once and
+    /// never stopped, as a footstep is. A looping, paused or streamed voice is kept until it is
+    /// stopped.
     /// </para>
     /// </summary>
     internal void Tick()
@@ -438,9 +438,9 @@ public sealed class AudioServer : IDisposable
             float master = _masterVolume;
             ISpatialAudioProcessor? sp = _spatial;
 
-            // Pre-compute listener basis once per tick. Engine convention (matches
-            // Matrix4x4.CreateLookAt usage in Engine.Renderer.Extracts):
-            //   forward = rotated -Z, up = rotated +Y.
+            // Pre-compute listener basis once per tick. By the engine's convention, a view made
+            // by Matrix4x4.CreateLookAt(eye, target, +Y), forward is the rotated -Z and up the
+            // rotated +Y.
             Vector3 listenerForward = Vector3.Transform(-Vector3.UnitZ, _listenerOrientation);
             Vector3 listenerUp      = Vector3.Transform( Vector3.UnitY, _listenerOrientation);
 

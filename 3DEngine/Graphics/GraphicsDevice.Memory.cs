@@ -121,9 +121,8 @@ internal sealed unsafe partial class GraphicsDevice
                     // Where the device's own memory is the memory the CPU sees, as on lavapipe,
                     // one type serves both and a block made for a buffer of the device's own, left
                     // unmapped, holds the next of either kind that fits it. One the CPU writes is
-                    // mapped there, which left out gave it a null pointer, and a voxel game's scene
-                    // field pool, carved there after the field was made again, took its first
-                    // write through it and ended the game.
+                    // mapped there, since a slice of an unmapped block has a null pointer, and the
+                    // first write through it ends the program.
                     if (!hostVisible || block.Mapped != 0) return slice;
                     MapBlock(block);
                     return slice with { Mapped = block.Mapped + (nint)slice.Offset };

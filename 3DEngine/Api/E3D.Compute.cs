@@ -182,8 +182,8 @@ public static partial class E3D
 
     /// <summary>Copies a readback's bytes into <paramref name="destination"/>, as many as it holds.</summary>
     /// <remarks>
-    /// A readback not yet ready is sent to the GPU and waited for, as <see cref="ReadShaderBuffer{T}"/>
-    /// waits, so one read in the frame it was asked in holds the program as that does.
+    /// A readback not yet ready is sent to the GPU and waited for, so one read in the frame it was
+    /// asked in holds the program until the GPU has caught up.
     /// </remarks>
     public static void GetShaderReadback<T>(ShaderReadback readback, Span<T> destination) where T : unmanaged
     {
@@ -261,8 +261,8 @@ public static partial class E3D
                 ApiLogger.Warn($"ComputeShaderDispatch: '{program.Name}' writes a texture, which this GPU cannot do without its format named.");
                 return;
             }
-            // Before the first frame no texture has reached the GPU, so the dispatch waits for a
-            // frame, as one writing a texture loaded this frame does.
+            // Before the first frame no texture has reached the GPU, and a texture reaches it in the
+            // frame after it is loaded, so the dispatch is left out until then.
             if (gpuTextures is null)
             {
                 ApiLogger.Warn($"ComputeShaderDispatch: '{program.Name}' writes a texture, and no texture reaches the GPU before the first frame.");

@@ -8,10 +8,10 @@ using Microsoft.CodeAnalysis.CSharp;
 namespace Engine;
 
 /// <summary>
-/// Runtime Roslyn compiler for hot-reloadable <c>[Behavior]</c> structs. Mirrors the shell hot-reload
-/// pipeline, which watches a directory tree, recompiles on change, loads the result into an
-/// isolated collectible <see cref="System.Runtime.Loader.AssemblyLoadContext"/>, and registers the
-/// behaviors into the live <see cref="App"/>.
+/// Runtime Roslyn compiler for hot-reloadable <c>[Behavior]</c> structs, which watches a directory
+/// tree, recompiles on change, loads the result into an isolated collectible
+/// <see cref="System.Runtime.Loader.AssemblyLoadContext"/>, and registers the behaviors into the
+/// live <see cref="App"/>.
 /// </summary>
 /// <remarks>
 /// <para>

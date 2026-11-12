@@ -15,9 +15,9 @@ namespace Engine;
 /// </para>
 /// <para>
 /// Each material is named as its slot is, with its base color, metalness, roughness and emission,
-/// and its textures as images the file names by their paths from its folder, so the file and the
-/// pictures beside the program open together in Blender. An emission past one is written with
-/// <c>KHR_materials_emissive_strength</c>, which glTF's own factor cannot hold.
+/// and its textures as images the file names by their paths from its folder, so a program that
+/// opens the file finds the pictures beside the program with it. An emission past one is written
+/// with <c>KHR_materials_emissive_strength</c>, which glTF's own factor cannot hold.
 /// </para>
 /// </remarks>
 internal static class GltfWriter

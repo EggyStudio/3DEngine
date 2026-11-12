@@ -52,7 +52,7 @@ internal sealed partial class EditMeshData
         Did($"cylinder {F(radius)} {F(height)} {sides}{Placement(at, centered)}");
     }
 
-    /// <summary>Adds a cone standing along Y, its point at the top over the middle of its base, whose corners stand as a cylinder's do.</summary>
+    /// <summary>Adds a cone standing along Y, its point at the top over the middle of its base, whose corners stand half a side round from the axes.</summary>
     public void Cone(float radius, float height, int sides, Vector3 at, bool centered)
     {
         Positive(radius, nameof(radius));

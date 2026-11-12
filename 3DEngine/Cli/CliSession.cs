@@ -160,9 +160,9 @@ internal static class CliSessionFile
     /// </summary>
     /// <remarks>
     /// The account of a look that failed, read again after the looks, describes another moment
-    /// than the one that failed, and a game's storm on the runner once found no session for a
-    /// game whose file the later read found running and matching. Each look keeps what it saw, so
-    /// a read that threw or a process that could not be asked, which a look passes over, is said.
+    /// than the one that failed, and can find running and matching the file of an app the failed
+    /// look found no session for. Each look keeps what it saw, so a read that threw or a process
+    /// that could not be asked, which a look passes over, is said.
     /// </remarks>
     public static IReadOnlyList<CliSession> Matching(Func<CliSession, bool> match, out string? firstMiss, int looks = 5)
     {
@@ -182,8 +182,9 @@ internal static class CliSessionFile
     /// looks, with what the first look that found none saw.
     /// </summary>
     /// <remarks>
-    /// A storm's look that named no session once found none for a game that served before and
-    /// after it, a named look being looked for again and an unnamed one not.
+    /// A look that names no session can find none while an app serves and answers the commands
+    /// before and after it, where several run at once on a machine of few cores, so it is looked
+    /// for again too.
     /// </remarks>
     public static IReadOnlyList<CliSession> Serving(Func<CliSession, bool>? asked, out string? firstMiss) =>
         Matching(asked ?? (static _ => true), out firstMiss);
@@ -238,9 +239,8 @@ internal static class CliSessionFile
     /// where a pid or a name was given.
     /// </summary>
     /// <remarks>
-    /// A game the runner drove once stopped serving with its process alive and no line in its log
-    /// that it closed or exited, the only ways it removes its file, so the error says what was
-    /// there to be found.
+    /// An app can stop serving with its process alive and no line in its log that it closed or
+    /// exited, the only ways it removes its file, so the error says what was there to be found.
     /// </remarks>
     public static string Account(Func<CliSession, bool>? match = null)
     {

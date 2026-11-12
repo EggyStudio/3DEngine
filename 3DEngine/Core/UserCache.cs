@@ -38,7 +38,7 @@ internal static class UserCache
     /// Deletes the folders of <paramref name="kind"/> kept for versions of the engine other than
     /// this one whose newest file no run wrote or read for <paramref name="after"/>, and those that
     /// hold no file, since each package of the engine keeps its own and a program run on one
-    /// package after another left the folders of every one before it.
+    /// package after another leaves the folders of every one before it.
     /// </summary>
     internal static void SweepVersions(string kind, TimeSpan after)
     {

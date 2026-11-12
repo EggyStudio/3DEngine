@@ -13,14 +13,14 @@ public static partial class E3D
     /// <param name="position">Where the program draws the mesh's model, unturned and unscaled, which the pointer's ray is taken to.</param>
     /// <remarks>
     /// <para>
-    /// Called between <c>BeginDrawing</c> and <c>EndDrawing</c> after the frame's first
-    /// <c>BeginMode3D</c>, whose camera the pointer's ray is cast through, as any ImGui window is
-    /// drawn. The window lists the recipe with buttons to undo and redo its lines, says the
+    /// Called between <c>BeginDrawing</c> and <c>EndDrawing</c>, where the frame's ImGui windows
+    /// are drawn, after the frame's first <c>BeginMode3D</c>, whose camera the pointer's ray is cast
+    /// through. The window lists the recipe with buttons to undo and redo its lines, says the
     /// selection's counts and offers each operation with its measures as fields and a button, a
     /// slot's look and the selection's texture coordinates among them, the coordinates drawn over the
-    /// texture of the first selected face's slot. Each
-    /// button runs the operation's line of the recipe, so the window writes the lines the calls and
-    /// the model commands write, and a line the mesh refuses is shown with the reason.
+    /// texture of the first selected face's slot. Each button runs the operation's line of the
+    /// recipe, so the window writes the lines the calls and the model commands write, and a line the
+    /// mesh refuses is shown with the reason.
     /// </para>
     /// <para>
     /// A click over the 3D view selects the face under the pointer, found by testing the ray against

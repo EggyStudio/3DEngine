@@ -59,14 +59,13 @@ public record struct ModelMaterial(Color Color, Texture2D Texture = default)
     /// false unless set, as a game draws what its view leaves out between that view and a light.
     /// </summary>
     /// <remarks>
-    /// A game that draws only what its eye can see, as the voxel game leaves out the rock over a
-    /// cave, leaves it out of the sun's shadow maps too, and the sun reached a cave's floor through
-    /// seventy blocks of rock. Drawn through a material with this set, a mesh casts its shadow and
-    /// is drawn into nothing else, not the view, a render texture or a probe's faces, nor the
-    /// window's depth that occlusion and global illumination read. The scene's field holds it as
-    /// any other, since rock blocks light whether it is drawn or not, so global illumination keeps
-    /// the sky's light off the cave as the shadows keep the sun off it. With
-    /// <see cref="CastsShadows"/> false as well it draws nothing.
+    /// A mesh a game leaves undrawn because its eye cannot see it is left out of the sun's shadow
+    /// maps too, and the sun then reaches a cave's floor through the rock over it. Drawn through a
+    /// material with this set, a mesh casts its shadow and is drawn into nothing else, not the
+    /// view, a render texture or a probe's faces, nor the window's depth that occlusion and global
+    /// illumination read. The scene's field holds it as any other, since rock blocks light whether
+    /// it is drawn or not, so global illumination keeps the sky's light off the cave and the shadow
+    /// maps keep the sun's off it. With <see cref="CastsShadows"/> false as well it draws nothing.
     /// </remarks>
     public bool ShadowOnly { get; set; }
 
@@ -77,10 +76,10 @@ public record struct ModelMaterial(Color Color, Texture2D Texture = default)
     /// </summary>
     /// <remarks>
     /// The scene's field stamps a mesh again in each frame it moves, a cost to the CPU and the GPU
-    /// that a voxel game's walking animal pays for each of its pieces. A mesh with this false casts
-    /// its shadows and is lit as any other, and the field, the glow lights and the path-traced
-    /// reference of global illumination leave it out, so it reflects no indirect light and holds
-    /// none back. A surface that casts no shadow is left out of them already.
+    /// paid for each piece of a walking animal. A mesh with this false casts its shadows and is lit
+    /// as any other, and the field, the glow lights and the path-traced reference of global
+    /// illumination leave it out, so it reflects no indirect light and holds none back. A surface
+    /// that casts no shadow is left out of them already.
     /// </remarks>
     public bool BouncesLight { get; set; } = true;
 
@@ -140,8 +139,8 @@ public record struct ModelMaterial(Color Color, Texture2D Texture = default)
     /// The scene's distance field holds a surface's cells as solid, so the rays of the cascades of
     /// probes stop at a canopy and the floor under it takes none of the sky's light. A ray that
     /// meets a surface with a share set crosses the cells it fills and keeps that share of its light
-    /// for each unit of the surface's depth, the rest taking the surface's color as a solid's would.
-    /// The sun's shadow, through the shadow map, falls as before.
+    /// for each unit of the surface's depth, the rest taking the surface's color. The share leaves
+    /// the sun's shadow map alone, so the surface casts its whole shadow of the sun.
     /// </remarks>
     public float LightThrough { get; set; }
 

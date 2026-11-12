@@ -196,7 +196,7 @@ internal static class ConsoleEval
     }
 
     // An answer as text, a collection by its first items and a value with no text of its own by
-    // its fields, as entity.get shows a component.
+    // its fields, through ConsoleBuiltins.Describe, which entity.get shows a component with.
     private static string Describe(object? answer)
     {
         const int Shown = 50;

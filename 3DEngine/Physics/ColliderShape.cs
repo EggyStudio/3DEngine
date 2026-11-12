@@ -18,8 +18,8 @@ public enum ColliderShape
     /// </summary>
     Mesh,
     /// <summary>
-    /// The convex hull of the entity's meshes and its descendants', as the mesh is, the smallest
-    /// shape without hollows that holds them, which falls, is pushed or is moved as its
+    /// The convex hull of the entity's meshes and its descendants', as placed under it, the
+    /// smallest shape without hollows that holds them, which falls, is pushed or is moved as its
     /// <see cref="RigidBody"/> says, as a rock or a barrel of a model's shape.
     /// </summary>
     ConvexHull,

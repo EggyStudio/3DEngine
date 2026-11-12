@@ -1,6 +1,6 @@
 // The fog's light and the share of the scene's light through it from the eye to the far edge of
 // each slice of its volume, a thread a column of cells, each slice's light summed as it fades
-// through the slice, the share through it gone, as Hillaire sums Frostbite's, so a thick slice
+// through the slice, the share through it gone, as Hillaire's integration sums it, so a thick slice
 // gives no more light than its fog can scatter.
 import fog;
 

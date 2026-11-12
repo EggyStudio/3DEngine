@@ -103,8 +103,7 @@ internal sealed class GpuSceneField : IDisposable
 
     internal VkImage FacesImage { get; }
 
-    // The faces the still meshes leave, which a stamp starts each cell of its bricks from, as it
-    // does the still meshes' colors.
+    // The faces the still meshes leave, which a stamp starts each cell of its bricks from.
     internal VkImage StillFaces { get; }
     internal VkImageView StillFacesView { get; }
 
@@ -120,7 +119,7 @@ internal sealed class GpuSceneField : IDisposable
     internal IBuffer Behind { get; }
 
     // What the emitters thinner than a cell lend the cells they lie near, six words a cell, made
-    // the first time a build has such an emitter, so a scene with none holds none of its 6 MB.
+    // the first time a build has such an emitter, so a scene with none holds none of it.
     internal IBuffer? Emitted { get; set; }
 
     // Each cascade's words as its last build left them, cascade after cascade, made with the first
@@ -134,8 +133,8 @@ internal sealed class GpuSceneField : IDisposable
     internal VkImage StillPaint { get; }
     internal VkImageView StillPaintView { get; }
 
-    // The emission the still meshes give, which a stamp starts each cell of its bricks from, as it
-    // does their colors, so a moving emitter's box gives its light where it stands each frame.
+    // The emission the still meshes give, which a stamp starts each cell of its bricks from, so a
+    // moving emitter's box gives its light where it stands each frame.
     internal VkImage StillGlow { get; init; }
     internal VkImageView StillGlowView { get; init; }
     internal VkImage Field { get; }

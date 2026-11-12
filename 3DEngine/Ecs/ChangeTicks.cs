@@ -16,7 +16,7 @@ namespace Engine;
 /// Outside a system, as in a program's own code between <c>BeginDrawing</c> and
 /// <c>EndDrawing</c>, a test or a console command, a write is stamped with the tick after the
 /// latest, so every system that has run sees it at its next run, and a <c>Changed</c> filter sees
-/// what changed since <see cref="EcsWorld.BeginFrame"/>, as it did when changes lasted one frame.
+/// what changed since <see cref="EcsWorld.BeginFrame"/>.
 /// </para>
 /// <para>
 /// The clock is one for the process, since ticks only order writes against runs, and two worlds

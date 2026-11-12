@@ -36,24 +36,24 @@ namespace Engine;
 /// to the nearest, which the model pass keeps.
 /// </para>
 /// <para>
-/// An entity whose material names a program's shader is recorded as a draw of its own, as
-/// <c>DrawMesh</c> records one, with the shader's values as the program last set them, copied once
-/// a frame for every entity drawn with it. One whose <see cref="Visible"/> is false is drawn nowhere
-/// and keeps its mesh, and one whose <see cref="ShadowOnly"/> is true is drawn into the shadow maps
-/// alone, each a bool the entity's chunk is gathered again for when it changes. A material whose
+/// An entity whose material names a program's shader is recorded as a draw of its own, with the
+/// shader's values as the program last set them, copied once a frame for every entity drawn with
+/// it. One whose <see cref="Visible"/> is false is drawn nowhere and keeps its mesh, and one whose
+/// <see cref="ShadowOnly"/> is true is drawn into the shadow maps alone, each a bool the entity's
+/// chunk is gathered again for when it changes. A material whose
 /// <see cref="Material.CastsShadows"/> or <see cref="Material.BouncesLight"/> is false leaves the
-/// entity out of the shadow maps and the scene's field, or the field alone, as a
-/// <see cref="ModelMaterial"/>'s do a mesh drawn by a call. The entities
+/// entity out of the shadow maps and the scene's field, or out of the field alone. The entities
 /// recorded in a frame are the frame profile's <c>entities.drawn</c>, before each camera's frustum
 /// leaves out those it cannot see.
 /// </para>
 /// <para>
 /// Each entity's draw is kept from frame to frame and built again only when its mesh or material
 /// differs from what it was built from, a texture it names was still loading, or a texture was
-/// replaced. A mesh no entity holds lets go of its own looks and groups alone, so a voxel game's
-/// section built again as a block changes leaves the other entities' looks and chunks as they were. An opaque entity's instance is then written straight into the
-/// <see cref="InstanceGroup"/> of its mesh and maps, from the kept instance with the frame's
-/// world matrix, and the model pass copies each group as it is and draws it as one batch
+/// replaced. A mesh no entity holds lets go of its own looks and groups alone, so an entity whose
+/// mesh is built again leaves the other entities' looks and chunks as they were. An opaque
+/// entity's instance is then written straight into the <see cref="InstanceGroup"/> of its mesh
+/// and maps, from the kept instance with the frame's world matrix, and the model pass copies each
+/// group as it is and draws it as one batch
 /// (RENDERING.md section 6). An instance holds nothing of the camera, so the entities are gathered
 /// once a frame, and each camera's groups hold the same instances.
 /// </para>
@@ -78,8 +78,9 @@ internal sealed partial class MeshEntityDraws
     // The frame's translucent draws in order, farthest first, handed to the draw list under one lock.
     private readonly List<ModelDraw> _sorted = [];
 
-    // Each albedo's sRGB bytes, since entities share a few materials and three powers an entity
-    // cost a measurable part of the frame (RENDERING.md section 6). Forgotten past a few thousand.
+    // Each albedo's sRGB bytes, since entities share a few materials, so the three powers of the
+    // encoding are taken once a material rather than once an entity each frame. Forgotten past a
+    // few thousand.
     private readonly Dictionary<Vector4, Color> _colors = [];
 
     // Each entity's look as last found, by entity id, with the stamp its slot had then. A kept look
@@ -115,7 +116,7 @@ internal sealed partial class MeshEntityDraws
     // Each mesh and material entities are drawn with, built once, the draw with the world matrix
     // and camera left to the frame, the instance with the material's factors, and the group it is
     // written into. Entities share a few, so the comparison each makes a frame reads one already in
-    // the cache, where a draw and a material kept for each entity cost a frame several misses each.
+    // the cache, where a draw and a material kept for each entity would miss it several times each.
     private Look[] _looks = new Look[16];
     private int _lookCount;
     private readonly Dictionary<(int Mesh, Material Material, bool ShadowOnly), int> _lookOf = [];
@@ -309,9 +310,9 @@ internal sealed partial class MeshEntityDraws
 
     // Frees the arrays' meshes no entity holds any longer, despawned or replaced, whose ids may be
     // given out again, and lets go of the looks and groups of every mesh no entity holds, those
-    // freed and those the program uploaded that no entity names, so a voxel game's section built
-    // again as a block changes leaves no look behind. Forgetting every look, as a freed mesh did,
-    // built every entity's again on the main thread the next frame.
+    // freed and those the program uploaded that no entity names, so a mesh built again leaves no
+    // look behind. The other meshes' looks are kept, since forgetting every look would build every
+    // entity's again on the main thread the next frame.
     private void Release(MeshStore meshes)
     {
         var dropped = false;
@@ -654,7 +655,7 @@ internal sealed partial class MeshEntityDraws
             return true;
         }
 
-        // As ModelRenderer.Instance.Of writes them, the factors kept.
+        // The look's instance with its factors, given the world matrix's first three columns.
         ref var instance = ref state.Next(look.Group);
         instance = look.Instance;
         instance.WorldX = new Vector4(placed.M11, placed.M21, placed.M31, placed.M41);

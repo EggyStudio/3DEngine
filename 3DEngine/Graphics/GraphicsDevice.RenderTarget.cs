@@ -100,7 +100,7 @@ internal sealed unsafe partial class GraphicsDevice
     /// <summary>
     /// Creates a target of the window's size in <paramref name="format"/> at the window's samples
     /// that draws into the window's own multisampled depth, resolving it into a depth of its own
-    /// that is sampled, as the HDR frame does, so a frame holds one multisampled depth and not two.
+    /// that is sampled, so a frame holds one multisampled depth and not two.
     /// With one sample the target has a depth of its own, the window's not being one to sample.
     /// </summary>
     /// <remarks>
@@ -144,8 +144,8 @@ internal sealed unsafe partial class GraphicsDevice
             : depth ? TargetImage(VkFormat.D32Sfloat, width, height, VkImageUsageFlags.DepthStencilAttachment | (msaa ? 0 : VkImageUsageFlags.Sampled), samples: samples)
             : default;
         var depthView = lent ? _depthImageView : depth ? TargetView(depthImage, VkFormat.D32Sfloat, VkImageAspectFlags.Depth) : default;
-        // The multisampled color is kept from pass to pass, as the depth is, since a target that
-        // nothing clears in a frame keeps what was drawn into it, as raylib's does.
+        // The multisampled color is kept from pass to pass, since a target that nothing clears in a
+        // frame keeps what was drawn into it, as raylib's does.
         var (msaaColor, msaaMemory) = msaa
             ? TargetImage(vkFormat, width, height, VkImageUsageFlags.ColorAttachment, samples: samples)
             : default;

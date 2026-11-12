@@ -8,9 +8,8 @@ namespace Engine;
 /// use the audio API with no null checks, its calls making no sound.
 /// </summary>
 /// <remarks>
-/// Mirrors the engine's pattern of failing soft when an optional native dependency is
-/// missing. The renderer logs and skips a frame, and this backend logs once and absorbs every
-/// call.
+/// A missing optional native dependency fails soft, so this backend logs once and absorbs every
+/// call, and the program runs on without sound.
 /// </remarks>
 internal sealed class NullAudioBackend : IAudioBackend
 {

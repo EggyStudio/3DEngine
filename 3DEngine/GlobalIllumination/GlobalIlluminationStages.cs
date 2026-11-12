@@ -66,7 +66,7 @@ internal sealed unsafe partial class GlobalIlluminationStages(GraphicsDevice dev
             if (_giStages[GlowStage].Pipeline.Handle != 0 || _giSpirv is not { } spirv) return _giStages;
             var (trace, merge, ambient, screen, filter, glow) = (spirv[0], spirv[1], spirv[2], spirv[3], spirv[4], spirv[5]);
             // Made together on workers and kept once all are, the frame waiting for them, since made
-            // one after another on the frame's thread the first frame waited for the sum of the
+            // one after another on the frame's thread the first frame waits for the sum of the
             // driver's compiles, the trace's builds and the screen's probes' longest among them.
             var made = new List<(int Stage, Func<ComputeStage> Make)>();
             made.Add((GlowStage, () => device.MakeComputeStage(glow, [VkDescriptorType.CombinedImageSampler, VkDescriptorType.SampledImage,
@@ -197,7 +197,7 @@ internal sealed unsafe partial class GlobalIlluminationStages(GraphicsDevice dev
         var none = new VkClearColorValue(0f, 0f, 0f, 0f);
         foreach (var image in all.Where(image => image != reach && image != rayReach.Item1 && image != held && image != skies)) device.Api.vkCmdClearColorImage(cmd, image, VkImageLayout.General, &none, 1, &whole);
         // Every face sees the whole sky until its rays have first been traced, so the environment's
-        // reflection shows as it did before the probes know better.
+        // reflection shows whole until the probes know better.
         var open = new VkClearColorValue(1f, 0f, 0f, 0f);
         device.Api.vkCmdClearColorImage(cmd, skies, VkImageLayout.General, &open, 1, &whole);
         // No probe's own light known yet, and every probe taking the whole of the indirect light.
@@ -439,7 +439,8 @@ internal sealed unsafe partial class GlobalIlluminationStages(GraphicsDevice dev
             // The last cascade and the one before the far cascade's probes merge nothing from above,
             // since their rays went on to the field's edge and brought the sky where they met nothing.
             // Merged from the far cascade's probes, whose cells hold the ground as a slab, the one
-            // before took their light over its own sky and their share of the sky in place of its own.
+            // before would take their light over its own sky and their share of the sky in place of
+            // its own.
             var top = c == gi.Cascades - 1 || c == lastCounted;
             ReadOnlySpan<uint> push = [(uint)c, p, n, top ? 0u : (uint)gi.Texels[c + 1], BitConverter.SingleToUInt32Bits(spacing),
                 BitConverter.SingleToUInt32Bits(mergeOff ? 1 : 0), BitConverter.SingleToUInt32Bits(alone + 1),

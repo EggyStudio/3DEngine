@@ -25,8 +25,9 @@ public static partial class E3D
     /// </code>
     /// <para>
     /// What is drawn outside the scope stays whatever F1 says, as a pause screen, a menu or an
-    /// inventory a game shows over its world, as Minecraft hides its HUD and never its screens. The
-    /// world draws on, and the debug overlay stays. <see cref="SetUiHiddenKey"/> moves the key.
+    /// inventory a game shows over its world, so F1 hides the HUD and never a screen the player
+    /// opened. The world draws on, and the debug overlay stays. <see cref="SetUiHiddenKey"/> moves
+    /// the key.
     /// </para>
     /// </remarks>
     public static bool BeginUi()
@@ -49,8 +50,8 @@ public static partial class E3D
     public static bool IsUiHidden() => TryRes<DebugOverlay>(out var overlay) && overlay.UiHidden;
 
     /// <summary>
-    /// Sets the key that hides and shows the program's interface, F1 until moved, as Minecraft hides
-    /// its HUD, or turns it off with <see cref="Key.Null"/>.
+    /// Sets the key that hides and shows the program's interface, F1 until moved, or turns it off
+    /// with <see cref="Key.Null"/>.
     /// </summary>
     /// <remarks>
     /// The key is not taken while a field of an ImGui window has the caret, and the program sees the
@@ -59,8 +60,8 @@ public static partial class E3D
     public static void SetUiHiddenKey(Key key) => World.GetOrInsertResource(static () => new DebugKeys()).HideUi = key;
 
     /// <summary>
-    /// Sets the key that shows and hides the engine's debug overlay, F3 until moved, as Minecraft's
-    /// debug screen, or turns it off with <see cref="Key.Null"/>.
+    /// Sets the key that shows and hides the engine's debug overlay, F3 until moved, or turns it
+    /// off with <see cref="Key.Null"/>.
     /// </summary>
     /// <remarks>
     /// <para>
@@ -71,18 +72,17 @@ public static partial class E3D
     /// renderer's passes, draw calls, triangles, lights, shadows, global illumination and GPU time.
     /// </para>
     /// <para>
-    /// A strip of the last 240 frames' times stands under the frame rate, as the RivaTuner overlay
-    /// draws its graph, each frame a bar green to 60 frames a second, yellow to 30 and red past it,
-    /// with the last frame's time, the average and the one percent low beside it, and the GPU's time
-    /// a frame under them. A program's sections (<see cref="AddDebugOverlaySection"/>) follow the
-    /// engine's lines on the left.
+    /// A strip of the last 240 frames' times stands under the frame rate, each frame a bar green to
+    /// 60 frames a second, yellow to 30 and red past it, with the last frame's time, the average and
+    /// the one percent low beside it, and the GPU's time a frame under them. A program's sections
+    /// (<see cref="AddDebugOverlaySection"/>) follow the engine's lines on the left.
     /// </para>
     /// <para>
     /// The key is taken as it is let go, where no other key went down while it was held, so a
     /// program's own chords on it stand and never open the overlay, and the program sees the press
     /// as any key. Shift held with it shows the profiler's pass timings under the right column, the
-    /// slowest first, and the overlay with them, as Minecraft's Shift+F3 does. The overlay is drawn
-    /// over everything else the frame draws in 2D, and F1 leaves it.
+    /// slowest first, and the overlay with them. The overlay is drawn over everything else the frame
+    /// draws in 2D, and F1 leaves it.
     /// </para>
     /// </remarks>
     public static void SetDebugOverlayKey(Key key) => World.GetOrInsertResource(static () => new DebugKeys()).Overlay = key;
@@ -94,13 +94,13 @@ public static partial class E3D
     /// <param name="name">The section's heading, which it is taken away by.</param>
     /// <param name="lines">What it says, asked four times a second while the overlay shows.</param>
     /// <remarks>
-    /// A world generator's seed and the chunk the player stands in, or an enemy count, read as the
-    /// engine's own lines are. A section whose lines throw says why in a line of its own rather than
-    /// stopping the overlay. The sections last while the app runs.
+    /// A section holds what only the program knows, as the seed its world was generated from or an
+    /// enemy count, drawn in the overlay's look. A section whose lines throw says why in a line of
+    /// its own rather than stopping the overlay. The sections last while the app runs.
     /// </remarks>
     /// <example>
     /// <code>
-    /// AddDebugOverlaySection("World", () => [$"Seed {seed}", $"Chunk {chunk.X} {chunk.Y}"]);
+    /// AddDebugOverlaySection("World", () => [$"Seed {seed}", $"Enemies {enemies.Count}"]);
     /// </code>
     /// </example>
     /// <exception cref="ArgumentException">The name is empty.</exception>
@@ -119,8 +119,8 @@ public static partial class E3D
     [ThreadStatic]
     private static Stack<(bool Hidden, (int Vertices, int Indices, int Batches, int LastCount) Here)>? _uiScopes;
 
-    // The overlay's look, Minecraft's, light gray text on black at half, a line's backing three
-    // pixels wider than its text on each side, the columns two pixels in from the window's edges.
+    // The overlay's look, light gray text on black at half, a line's backing three pixels wider
+    // than its text on each side, the columns two pixels in from the window's edges.
     private const int OverlayText = 16, OverlayLine = OverlayText + 2, OverlayPad = 3, OverlayMargin = 2;
     private static readonly Color OverlayInk = new(224, 224, 224, 255), OverlayBacking = new(0, 0, 0, 128);
 
@@ -159,8 +159,8 @@ public static partial class E3D
     }
 
     // The frames' times as bars, a column a frame with the newest at the right, on black at half with
-    // faint rows at 60 and 30 frames a second, as the RivaTuner overlay draws its graph. The strip
-    // holds no frame yet at its left until four seconds have run.
+    // faint rows at 60 and 30 frames a second. The strip holds no frame yet at its left until four
+    // seconds have run.
     private static void DrawStrip(int x, int y, ReadOnlySpan<float> times)
     {
         DrawRectangle(x, y, DebugOverlay.StripFrames, StripHeight, OverlayBacking);

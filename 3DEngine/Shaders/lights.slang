@@ -75,10 +75,9 @@ public float3 arriving(Light light, float3 world, float3 n)
 // the four by four texels around it are compared and weighed bilinearly by where the point lies
 // among them, three texels' worth, so the comparison ramps across each texel rather than standing
 // still across it and stepping at its side. Taken at the nine nearest depths, on a face the sun
-// grazes, as the arches of Sponza's atrium at noon, where a texel spans some seven pixels, the
-// edge stood in stairs that changed their pattern as the face passed from one cascade to the next
-// in flight, and a shadow's edge on a floor under texels of eight pixels stepped by as much as
-// ShadowEdgeTests reads. A point a little inside a tile's edge counts as outside, so the sixteen
+// grazes, where a texel spans some seven pixels, the edge stands in stairs that change their
+// pattern as the face passes from one cascade to the next in flight, and a shadow's edge on a
+// floor under texels of eight pixels steps by as much as ShadowEdgeTests reads. A point a little inside a tile's edge counts as outside, so the sixteen
 // never reach into a neighboring tile. edge says how far toward the
 // tile's edge the point is, from 0 in its middle to 1 at that border. Where the sun is given a
 // width (SetShadowSoftness) the edge softens with the caster's height over the point instead
@@ -128,9 +127,8 @@ public float cascadeReached(int c, float3 world, float3 n, float2 texel, out flo
 // The normal n of a face turned to the side toward a light, toward being the way to it, which a
 // shadow's point is moved along before it is compared. A two-sided face lit from its back, as a
 // plant's thin wall is, has its normal facing away from the light, and moved along it the point
-// goes behind the face as the light sees it, so the face shadows itself, and in a field of wheat's
-// walls the walls lit from their backs read in speckles and stripes where a path-traced reference
-// reads every wall even.
+// goes behind the face as the light sees it, so the face shadows itself, and in a field of such
+// walls those lit from their backs read in speckles and stripes where every wall is lit evenly.
 public float3 litSide(float3 n, float3 toward)
 {
     return dot(n, toward) < 0.0 ? -n : n;
@@ -207,14 +205,14 @@ public float4 mirrored(float4 position, float3 world, float3 n, float roughness)
     return float4(mirrorMap.SampleLevel(lightLinear, uv, saturate(roughness * 2.0) * min(lighting.mirror.y, 6.0)).rgb, hold);
 }
 
-// The light from all around a surface facing n that global illumination's probes leave to what
-// lies past them, past the field's cascades, as a sky over a ground, the sky's light from above,
-// `sky`, on the share of the sphere above the surface's horizon, (1 + n.y) / 2 of it, and below its
+// The light from all around a surface facing n that global illumination's probes leave to what lies
+// past them, past the field's cascades, as a sky over a ground, the sky's light from above, `sky`,
+// on the share of the sphere above the surface's horizon, (1 + n.y) / 2 of it, and below its
 // horizon the light the ground sends back, the ground's color times the sky's light on it, the
 // ground's color taken as the surface's own (`ground`). The directional lights add their share of
 // the ground's light (distantSun). Taken as the environment's irradiance along n, a wall past the
-// field took the map's light below its horizon whole, and as the ambient lights' whole, all of it,
-// where global illumination inside the field gives it half the sky and the ground's light.
+// field would take the map's light below its horizon whole, and as the ambient lights' whole, all
+// of it, where global illumination inside the field gives it half the sky and the ground's light.
 public float3 distantAround(float3 sky, float3 n, float3 ground)
 {
     float above = saturate(n.y * 0.5 + 0.5);
@@ -232,9 +230,9 @@ public float3 distantSun(Light lamp, float3 n, float3 ground, float reached)
 // How much of the shadowed light reaches the ground a surface at p facing n looks at, read where
 // the point moved along n by a cell of the field's coarsest built cascade lies, as a floor. Read at
 // the point itself, a face turned from the sun lies behind its own mesh as the sun sees it and is
-// always in shadow, so a wall with the sun behind it took none of the sunlit ground before it,
-// which global illumination inside the field gives it; read there, it takes the ground lit where
-// its own shadow ends short of the point and shadowed where the shadow reaches past it, as a
+// always in shadow, so a wall with the sun behind it would take none of the sunlit ground before
+// it, which global illumination inside the field gives it; read there, it takes the ground lit
+// where its own shadow ends short of the point and shadowed where the shadow reaches past it, as a
 // hill's shaded side in its own long shadow at a low sun.
 public float groundReached(float3 p, float3 n)
 {
@@ -359,10 +357,10 @@ static const float PI = 3.14159265;
 // distribution and Smith's height-correlated shadowing have it, with Schlick's Fresnel. Times pi,
 // since a light here is given as the light a white diffuse surface facing it returns, so the
 // diffuse term is the albedo itself rather than the albedo over pi. Fresnel's base is held to 0 to
-// 1, since with the light at the eye, as a game's held light is, the half vector is the view's and
-// their dot rounds a little over 1, and the fifth power of a base a little under 0 is no number on
-// a device that takes a power as exp2 of a logarithm, as lavapipe does, which leaves pixels black
-// in a room lit by a light at its camera.
+// 1, since with the light at the eye, as a lamp carried with the camera is, the half vector is the
+// view's and their dot rounds a little over 1, and the fifth power of a base a little under 0 is no
+// number on a device that takes a power as exp2 of a logarithm, as lavapipe does, which leaves
+// pixels black in a room lit by a light at its camera.
 public float3 specularReflected(float3 n, float3 v, float3 l, float3 f0, float alpha, out float3 fresnel)
 {
     float3 h = normalize(v + l);
@@ -463,7 +461,7 @@ public float3 environmentIrradiance(float3 n)
 // the split sum takes it apart from the light, GGX's lobe integrated for each cosine to the eye and
 // roughness (SpecularShares), so a smooth or metal surface under an ambient light is not black.
 // Karis's fit for mobile, the alternative, gives a rough metal wall seen square on less of the
-// light around it than the lobe and a path-traced reference give.
+// light around it than the lobe gives.
 public float3 ambientReflected(float3 f0, float roughness, float nv)
 {
     float2 ab = specularShares.SampleLevel(lightLinear, float2(saturate(nv), saturate(roughness)), 0).rg;
@@ -507,20 +505,20 @@ public float3 bouncedAndSky(float3 p, float3 n, float3 r, out float sky)
 // reach takes for seen (probeSees), so the world's probes are read through the field there
 // (bouncedSeen) where no screen probe stands. The reach is judged from 0.3 of the probes' spacing
 // off the surface, and by a wall's foot that point lies within the wall's cells, as far from a
-// probe beyond the wall as the probe's rays reached, so at Low the lamp outside a room of walls a
-// tenth of a unit thick lit the floor and the walls along each foot in triangles. Where another
-// surface lies nearer that point than the pixel's own, the field a cell through that surface tells
-// a thin wall, outside it again, from a solid one, inside, so a voxel world's blocks leave their
-// corners to the reach, and the pixels by a thin wall march rather than every pixel another surface
-// stands by.
+// probe beyond the wall as the probe's rays reached, so read from the reach alone, a lamp outside a
+// room of walls a tenth of a unit thick lights the floor and the walls along each foot in
+// triangles. Where another surface lies nearer that point than the pixel's own, the field a cell
+// through that surface tells a thin wall, outside it again, from a solid one, inside, so solid
+// blocks leave their corners to the reach, and the pixels by a thin wall march rather than every
+// pixel another surface stands by.
 public bool byThinWall(float3 p, float3 n)
 {
     float cell = fieldCell(bouncedField, p);
     if (cell <= 0.0)
         return false;
-    // Not in the far cascade, whose cells, as wide as its reach makes them, are wider than every
-    // wall of a world of blocks, so the judgment there would read the field at each far pixel and
-    // march to the probes at most of them.
+    // Not in the far cascade, whose cells, as wide as its reach makes them, are wider than most
+    // walls, so the judgment there would read the field at each far pixel and march to the probes
+    // at most of them.
     if (bouncedField.counts.w > 0.5 && fieldCascade(bouncedField, p, 1.0) == int(bouncedField.counts.w))
         return false;
     float judged = 0.3 * cell * lighting.indirect.y;
@@ -705,7 +703,7 @@ float4 rayReflection(float3 p, float3 way)
     // The lamps, falling off as directLight has them, each that casts shadows hidden where a ray
     // toward it meets a mesh short of it. The loop is its own here rather than a function
     // directLight calls too, since the model pass reshaped by that, with no ray query in it,
-    // crashed lavapipe at its reflections (build/mesa).
+    // crashes lavapipe at its reflections (build/mesa).
     float3 arrived = float3(0.0);
     for (int i = 0; i < min(int(reflectLights.counts.x), 16); i++)
     {

@@ -327,7 +327,7 @@ internal static class ShadowFit
 
 /// <summary>
 /// Render graph node that captures a reflection probe whose capture is out of date, after the
-/// window's shadow map is drawn, so the probe sees the room lit as the window does.
+/// window's shadow map is drawn, which the probe's faces are shadowed by.
 /// </summary>
 internal sealed class ProbeNode : INode
 {

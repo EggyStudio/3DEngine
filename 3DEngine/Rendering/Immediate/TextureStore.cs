@@ -443,10 +443,10 @@ internal sealed class TextureStore
     }
 
     // At most 64 pixels along each of the image's rows and columns, each in the middle of its
-    // share, so a large texture costs no more than a small one. Stepped through the pixels as they
-    // lie row after row, a step that divides the width read the same few columns in every row, and
-    // the tiles of Sponza's floor, 1,024 wide, were read down their grout, so global illumination
-    // and its path-traced reference took the floor darker than the window drew it.
+    // share, so a large texture costs no more than a small one. A step through the pixels as they
+    // lie row after row reads the same few columns in every row where the step divides the width,
+    // so a texture of tiles averages to whatever those columns cross, such as the grout between the
+    // tiles, and global illumination takes the surface darker or lighter than the window draws it.
     private static IEnumerable<int> Spread(int pixels, int width)
     {
         width = Math.Max(1, width);

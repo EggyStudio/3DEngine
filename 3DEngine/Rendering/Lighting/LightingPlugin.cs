@@ -3,8 +3,8 @@ namespace Engine;
 /// <summary>
 /// Sets up the lighting. It schedules <see cref="LightSpawnSystem"/> in
 /// <see cref="Stage.PreUpdate"/> (after <c>SceneSpawnSystem</c>) so payloads attached by
-/// <c>SceneSpawner</c> become <see cref="Light"/> components on the same frame, as
-/// lights spawned in code are, and registers <see cref="LightExtract"/> with the
+/// <c>SceneSpawner</c> become <see cref="Light"/> components in the frame they are spawned
+/// in, and registers <see cref="LightExtract"/> with the
 /// <see cref="Renderer"/> so those lights are surfaced to the render world each frame.
 /// </summary>
 /// <remarks>
@@ -17,7 +17,7 @@ namespace Engine;
 /// <para>
 /// With no <see cref="Renderer"/>, as in a test of a bare <see cref="App"/>, the extract is not
 /// registered, which the debug log says, and the spawn system still runs, so turning payloads into
-/// components is tested with no graphics device, as <see cref="MaterialPlugin"/> is.
+/// components is tested with no graphics device.
 /// </para>
 /// </remarks>
 /// <seealso cref="Light"/>
@@ -33,7 +33,7 @@ internal sealed class LightingPlugin : IPlugin
         // Turns SceneLightPayloads into Lights. PreUpdate matches SceneSpawnSystem; ordering inside the stage is
         // registration order, and ScenesPlugin (which registers SceneSpawnSystem) runs
         // earlier because of its lower Order, so this descriptor lands after it.
-        // It adds components, which the main thread does, as the scene systems it follows.
+        // It adds components, which the main thread does.
         app.AddSystem(Stage.PreUpdate, new SystemDescriptor(LightSpawnSystem.Run, "LightSpawnSystem").MainThreadOnly());
         Logger.Debug("LightingPlugin: LightSpawnSystem scheduled in Stage.PreUpdate.");
 

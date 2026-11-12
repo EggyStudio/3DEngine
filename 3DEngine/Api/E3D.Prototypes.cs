@@ -15,10 +15,10 @@ public static partial class E3D
     /// <remarks>
     /// Unreal's level prototyping palette, a floor a dark gray, a wall a light gray, a ceiling a
     /// lighter one and stairs, ramps and the parts that move the prototyping orange, with a door
-    /// green, a window blue and a hazard red, as the prototype textures of the engines of the 2000s
-    /// told a reader of a level what each surface was for, and the same in BevyCSharp. The names are
-    /// <c>floor</c>, <c>wall</c>, <c>ceiling</c>, <c>stairs</c>, <c>door</c>, <c>window</c> and
-    /// <c>hazard</c>, and any other name is white, which shows the grid's own gray.
+    /// green, a window blue and a hazard red, so a reader of a level tells by its color what each
+    /// surface is for. The names are <c>floor</c>, <c>wall</c>, <c>ceiling</c>, <c>stairs</c>,
+    /// <c>door</c>, <c>window</c> and <c>hazard</c>, and any other name is white, which shows the
+    /// grid's own gray.
     /// </remarks>
     public static Color GetPrototypeColor(string name) => name switch
     {

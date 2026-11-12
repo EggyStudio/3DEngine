@@ -94,7 +94,7 @@ internal sealed unsafe partial class GraphicsDevice
         var bytes = (ulong)size * size * 6 * 4;
         if ((ulong)rgba.Length < bytes)
             throw new ArgumentException($"A cube of {size} takes {bytes} bytes, not {rgba.Length}.", nameof(rgba));
-        // Mutable, so the sRGB view can read the same bytes, as a 2D texture's does.
+        // Mutable, so the sRGB view can read the same bytes.
         var handle = CubeImage(size, 1, VkFormat.R8G8B8A8Unorm, VkImageCreateFlags.MutableFormat, rgba[..(int)bytes], 4, out var memory);
         var image = new VulkanImage(this, handle, memory,
             new ImageDesc(new Extent2D(size, size), ImageFormat.R8G8B8A8_UNorm, ImageUsage.Sampled | ImageUsage.TransferDst));

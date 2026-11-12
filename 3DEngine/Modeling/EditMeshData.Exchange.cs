@@ -12,9 +12,9 @@ internal sealed partial class EditMeshData
     /// A file's meshes are placed as its nodes place them, as a loaded model's are. Their vertices
     /// in one place are joined, since a file splits a vertex where its faces' normals or texture
     /// coordinates differ, and triangles in one plane and one material that share an edge are joined
-    /// back into one face round them, so a box from Blender is six faces again. A material is a
-    /// slot of its name, the words of a name joined by hyphens, and a mesh with none is in the first
-    /// slot.
+    /// back into one face round them, so a box a file holds as twelve triangles is six faces. A
+    /// material is a slot of its name, the words of a name joined by hyphens, and a mesh with none is
+    /// in the first slot.
     /// </para>
     /// <para>
     /// The recipe keeps the file's path, so the mesh is read again from the file each time the recipe

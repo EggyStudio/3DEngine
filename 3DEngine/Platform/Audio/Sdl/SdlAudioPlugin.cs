@@ -7,15 +7,14 @@ namespace Engine;
 /// </summary>
 /// <remarks>
 /// <para>
-/// Pulled in automatically by <see cref="SoundsPlugin"/> when this module is part of
-/// the build (the parent plugin probes for the type by name); standalone consumers
-/// can also add it directly.
+/// Added by <see cref="SoundsPlugin"/>, which names the type rather than looking it up so
+/// trimming keeps it, and a standalone consumer can also add it directly.
 /// </para>
 /// <para>
 /// <b>Failure mode:</b> if the SDL audio subsystem cannot be initialized (no audio
 /// device, headless CI), the backend stays uninitialized, and <see cref="AudioServer"/>
 /// still has a real <see cref="IAudioBackend"/> reference but every method becomes a
-/// no-op (matches <see cref="NullAudioBackend"/> semantics). Audio is never a hard
+/// no-op. Audio is never a hard
 /// dependency for headless / editor scenarios.
 /// </para>
 /// </remarks>

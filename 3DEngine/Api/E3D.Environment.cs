@@ -137,8 +137,8 @@ public static partial class E3D
         else SetShaderValue(shader, GetShaderLocation(shader, "nightSky"), Vector4.Zero);
         Res<ModelDrawList>().Add(new ModelDraw(_skyMesh.Id, world, DrawList.Transform, tint, 0, DrawList.Target, shader.Id,
             UniformSnapshot(shader), AlphaMode: MaterialAlphaMode.Opaque, ShaderTextures: TextureSnapshot(shader), CastsShadow: false));
-        // A sky with air draws its night by luminance above, and one without the voxel game's
-        // sun, moon and stars as pictures.
+        // A sky with air draws its night by luminance above, and one without draws its sun, moon
+        // and stars as pictures.
         if (TryRes<DaySky>(out var day) && day.Day.Atmosphere is null) DrawSkyBodies(day, camera.Position, horizon?.BlendDegrees ?? 0);
     }
 
@@ -236,8 +236,9 @@ public static partial class E3D
     /// illumination of the screen's, ambient occlusion or traced reflection, and the shapes drawn
     /// by calls such as <see cref="DrawCube(System.Numerics.Vector3, float, float, float, Color)"/>
     /// are not in it. The pipelines the mirrored view draws with are made on worker threads the
-    /// first time it asks for them, the surfaces reflecting as they do without a plane until a
-    /// frame draws the view whole, so the frame a plane is first set in waits for no compile.
+    /// first time it asks for them, the surfaces keeping the reflection probe's, the environment's
+    /// and the traced reflection until a frame draws the view whole, so the frame a plane is first
+    /// set in waits for no compile.
     /// </remarks>
     public static void SetReflectionPlane(float height, System.Numerics.Vector3 normal)
     {

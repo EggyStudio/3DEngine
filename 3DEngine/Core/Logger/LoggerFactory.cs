@@ -5,9 +5,10 @@ namespace Engine;
 /// <summary>Creates and caches <see cref="Logger"/> instances by category name.</summary>
 /// <remarks>
 /// Safe on any number of threads at once. Loggers are made in static initializers, which run on
-/// whichever thread first touches a type, and xUnit runs test classes side by side. The cache was a
-/// plain dictionary until a run corrupted it from two such initializers at once, which threw from
-/// <c>World</c>'s initializer and so failed every test after it that made an <c>App</c>.
+/// whichever thread first touches a type, and xUnit runs test classes side by side, so two
+/// initializers can ask for a logger at once. A plain dictionary written from both can corrupt and
+/// throw from a type's initializer, as <c>World</c>'s, which leaves the type unusable for the rest
+/// of the process, so every later test that makes an <c>App</c> fails.
 /// </remarks>
 public sealed class LoggerFactory
 {

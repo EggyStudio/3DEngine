@@ -8,8 +8,7 @@ public enum BloomKind
 
     /// <summary>
     /// Each level of the chain laid over the wider one below it by the scatter
-    /// (<c>E3D.SetBloomScatter</c>), as Unity's HDRP spreads its bloom, the threshold measured
-    /// after the exposure.
+    /// (<c>E3D.SetBloomScatter</c>), the threshold measured after the exposure.
     /// </summary>
     Scattered,
 }

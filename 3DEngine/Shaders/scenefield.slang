@@ -183,10 +183,10 @@ public bool fieldWaits(SceneFieldInfo info, float3 cell, float margin)
 
 // The finest built cascade p lies in, at least margin cells inside its sides, or -1 for none. A
 // point among the cells a shift brought into a cascade is read in the next one out, which holds
-// the meshes there, where read in the cascade those cells held nothing near, so the rays through
-// them went on past the walls they stand for. As the field followed the eye down Sponza's atrium,
-// the arches at its far end flashed lit while each slab of the second cascade built. Probes are
-// found by where their cascade lies, whose rays read the field so.
+// the meshes there, since in that cascade those cells hold nothing near, the rays through them
+// would go on past the walls they stand for, and far surfaces would flash lit while each slab of a
+// cascade builds as the field follows the eye. Probes are found by where their cascade lies, whose
+// rays read the field so.
 public int fieldCascade(SceneFieldInfo info, float3 p, float margin, int probes = 0)
 {
     int count = cascadesOf(info, probes);
@@ -236,9 +236,9 @@ public float fieldDistanceIn<V : IVolume>(V field, SceneFieldInfo info, int i, f
 // blend or p's distance from the plane of a double-sided face the cell it lies in keeps, held a
 // quarter of a cell either side, where nearer. So a ray meets a sheet thinner than a cell at its
 // plane from either side wherever it lies between the cells' middles, where the cells' blend holds
-// it no nearer than half a cell, and two sheets two cells apart, as the voxel game's crops stand,
-// leave the cells between them open, where held within half a cell either side every cell between
-// them read a surface and a screen probe there met its own wall at its rays' start. The probes'
+// it no nearer than half a cell, and two sheets two cells apart leave the cells between them open,
+// where held within half a cell either side every cell between them would read a surface and a
+// screen probe there would meet its own wall at its rays' start. The probes'
 // rays alone take it, since where each sample reads the plane the model pass's march costs more
 // even with no sheet near. A cell where a second double-sided face of another way passes near, as
 // where two walls cross, keeps its plane too.
@@ -324,10 +324,9 @@ public float3 fieldNormal<V : IVolume>(V field, SceneFieldInfo info, float3 p)
 // The way out from the nearest surface at p as the probes' rays take the field
 // (fieldDistanceSheetIn). Where the nearest is a double-sided face whose plane p's cell keeps, it
 // is the plane's way toward the side p lies on, its own way on the plane, since across a sheet the
-// gradient of its distance cancels, and a world probe standing on a sheet of the voxel game's grid,
-// as a sheet on a cell's side does, was moved off it no way in particular, its rays seeing both
-// sides, so a closed room of such sheets on the grid took in the sky's light where one off the grid
-// does not.
+// gradient of its distance cancels, and a world probe standing on a sheet that lies on a cell's
+// side would be moved off it no way in particular, its rays seeing both sides, so a closed room of
+// such sheets on the grid would take in the sky's light where one off the grid does not.
 public float3 fieldNormalSheet<S : ISheetVolume>(S field, SceneFieldInfo info, float3 p)
 {
     int i = fieldCascade(info, p, 1.5);

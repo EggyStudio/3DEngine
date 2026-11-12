@@ -23,10 +23,10 @@ public static partial class E3D
     /// <param name="mesh">The mesh.</param>
     /// <param name="facing">The way the projection looks back along, from the faces toward its plane, as up for a floor, or the way back toward a camera for its view.</param>
     /// <remarks>
-    /// In meters, as the default is, the picture's first coordinate running to the right seen from
-    /// that side and its second down, the world's up being up in the picture where the direction is
-    /// not straight up or down, so a projection along an axis gives a face facing that axis its
-    /// default coordinates. The recipe's line is <c>uv planar +z</c>, or three numbers.
+    /// In meters, the picture's first coordinate running to the right seen from that side and its
+    /// second down, the world's up being up in the picture where the direction is not straight up
+    /// or down, so a projection along an axis gives a face facing that axis its default
+    /// coordinates. The recipe's line is <c>uv planar +z</c>, or three numbers.
     /// </remarks>
     /// <exception cref="ArgumentException">The direction is zero or not finite.</exception>
     public static void EditMeshUvPlanar(EditMesh mesh, Vector3 facing) => Edited(mesh, nameof(EditMeshUvPlanar))?.UvPlanar(facing);

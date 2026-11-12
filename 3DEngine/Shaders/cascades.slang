@@ -5,13 +5,13 @@ module cascades;
 
 import scenefield;
 
-// How far off a surface along its normal the blend toward the light past the probes is weighed
-// from (probesHold), in the probes' spacing. The probes themselves are read at the surface
-// (bouncedAt), since a probe in the plane of a room's wall, which would stand inside it and hold
-// nothing, is moved into the room before the wall (gi_trace.slang), and leaned half a spacing off
-// they would be read standing where more light arrives than at the surface, as at the grazing
-// floor's room's far wall. The blend keeps the lean, since with none a wall in the outer band of
-// Low's last cascade takes the ambient light a closed room holds out.
+// How far off a surface along its normal the blend toward the light past the probes is weighed from
+// (probesHold), in the probes' spacing. The probes themselves are read at the surface (bouncedAt),
+// since a probe in the plane of a room's wall, which would stand inside it and hold nothing, is
+// moved into the room before the wall (gi_trace.slang), and leaned half a spacing off they would be
+// read standing where more light arrives than at the surface, as at a room's far wall. The blend
+// keeps the lean, since with none a wall in the outer band of Low's last cascade takes the ambient
+// light a closed room holds out.
 public static const float Lean = 0.5;
 
 // The cells of a cascade's outer band, a probes' spacing, across which the indirect light fades
@@ -64,9 +64,9 @@ public float probesHold(SceneFieldInfo info, float3 p, float3 n, float spacing, 
 // How much of the light from all around a point `cell` the far cascade's probes give rather than
 // what lies past them, in its cells, across a band of CascadeBand cells whose outer side lies half
 // a snap (SnapCells) inside the cascade from the eye, which the cascade's middle stands no further
-// from. Weighed in the cascade's grid, as the cascades below are, the band moved with the cascade's
-// corner by a snap at once, as wide as the band, so a cloud over a game's walk took the probes' light
-// in one frame and the light past them in the next. Weighed around the eye, the band follows a walk
+// from. Weighed in the cascade's grid, as the cascades below are, the band would move with the
+// cascade's corner by a snap at once, as wide as the band, so a cloud over a walk would take the
+// probes' light in one frame and the light past them in the next. Weighed around the eye, the band follows a walk
 // as smoothly as the eye moves. A cell's width at the cascade's sides holds it to the cascade as it
 // is built, for the frames a cascade waits to follow an eye gone past its snap.
 public float farHold(SceneFieldInfo info, float4 oc, float3 cell)

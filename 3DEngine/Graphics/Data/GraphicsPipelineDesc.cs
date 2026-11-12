@@ -33,7 +33,7 @@ internal enum CompareOp
 /// <param name="DescriptorSetLayouts">Optional custom descriptor set layouts. When provided, these replace the global camera layout in the pipeline layout.</param>
 /// <param name="PremultipliedAlpha">When <c>true</c> and <paramref name="BlendEnabled"/> is <c>true</c>,
 /// uses <c>srcColor=One</c> instead of <c>srcColor=SrcAlpha</c> for pre-multiplied alpha compositing.</param>
-/// <param name="DepthTestEnabled">Whether depth testing is enabled. Defaults to <c>false</c> for backward compatibility with overlay pipelines.</param>
+/// <param name="DepthTestEnabled">Whether depth testing is enabled. Defaults to <c>false</c>, so an overlay pipeline that sets none draws over what is there.</param>
 /// <param name="DepthWriteEnabled">Whether depth writes are enabled. Only meaningful when <paramref name="DepthTestEnabled"/> is <c>true</c>.</param>
 /// <param name="DepthCompareOp">The comparison function for depth testing. Defaults to <see cref="CompareOp.Less"/>.</param>
 /// <param name="Topology">How vertices are assembled into primitives. Defaults to <see cref="PrimitiveTopology.TriangleList"/>.</param>

@@ -9,10 +9,10 @@ namespace Engine;
 /// </summary>
 /// <remarks>
 /// <para>
-/// <see cref="KeyIndex{T,TKey}"/> keeps one entity to a key, as a fire to a cell. A key that names
-/// many, as the mobs standing in a voxel game's column, was walked over every mob to find a column's.
-/// Here each key holds a list of its entities, an entity's place in it kept so it leaves the list in
-/// constant time, and <see cref="Members"/> hands the list out as a span, which allocates nothing.
+/// <see cref="KeyIndex{T,TKey}"/> keeps one entity to a key, and here a key names many, so finding
+/// them takes no walk over every entity with the component. Each key holds a list of its entities,
+/// an entity's place in it kept so it leaves the list in constant time, and <see cref="Members"/>
+/// hands the list out as a span, which allocates nothing.
 /// </para>
 /// <para>
 /// The key is read as the component is added or replaced through the world, by

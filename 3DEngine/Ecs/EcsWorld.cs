@@ -70,7 +70,7 @@ public sealed partial class EcsWorld
         object? GetBoxed(int entity);
         /// <summary>Replaces the component of <paramref name="entity"/> with a boxed value, marking it changed.</summary>
         bool SetBoxed(int entity, object value);
-        /// <summary>Adds a boxed value of the store's type to <paramref name="entity"/> through <paramref name="world"/>'s typed Add, as a system adds one.</summary>
+        /// <summary>Adds a boxed value of the store's type to <paramref name="entity"/> through <paramref name="world"/>'s typed Add, so it is marked added and its observers are told.</summary>
         void AddTo(EcsWorld world, int entity, object value);
         /// <summary>
         /// What tells the observers of this component leaving <paramref name="entity"/>, run once it has

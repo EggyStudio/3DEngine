@@ -5,8 +5,7 @@ namespace Engine;
 /// <summary>A quad or a line the day sky records, as <see cref="DrawList.Primitive"/> takes it.</summary>
 internal delegate void SkyQuad(ReadOnlySpan<ImmediateVertex> corners, int texture);
 
-// The sun, the moon and the stars, fixed on the sky and turned with it about the eye, the voxel
-// game's numbers.
+// The sun, the moon and the stars, fixed on the sky and turned with it about the eye.
 internal sealed partial class DaySky
 {
     /// <summary>How far out the sun and the moon are drawn, inside the camera's far plane of 4000.</summary>
@@ -21,8 +20,8 @@ internal sealed partial class DaySky
     /// <summary>How many degrees each star's square is across.</summary>
     public const float StarDegrees = 0.28f;
 
-    // The sun's and the moon's bodies are as wide as Minecraft's against their distance, its sun's
-    // body 15 units across at 100, about 8.6 degrees, and its moon's 10, about 5.7.
+    // The sun's and the moon's bodies across as a share of their distance, the sun 15 units across
+    // at 100, about 8.6 degrees, and the moon 10, about 5.7.
     private const float SunAcross = 0.15f, MoonAcross = 0.10f;
 
     /// <summary>
@@ -159,7 +158,7 @@ internal sealed partial class DaySky
             for (int column = 0; column < SkyArt.Across; column++)
             {
                 // From the top left down and round against the clock as the middle of the sky sees
-                // it, as Corners lays a quad.
+                // it, the face a shape drawn in 3D shows.
                 ReadOnlySpan<(int Down, int Across)> order = [(0, 0), (1, 0), (1, 1), (0, 1)];
                 var clear = false;
                 for (int i = 0; i < 4; i++)
@@ -190,10 +189,10 @@ internal sealed partial class DaySky
     // horizon.
     private static float Setting(Vector3 toward) => SmoothStep(-0.12f, 0.02f, toward.Y);
 
-    // The stars, spread evenly over the sky from a fixed hash, so each run has the same ones, as the
-    // voxel game draws its own after Aurora's Shaders, squares of StarDegrees, each as bright as 40
-    // times the square of how far the product of three noises passes 0.7, the product drawn until it
-    // passes, so most are faint and a few bright, in a cool white, the light taken to sRGB levels.
+    // The stars, spread evenly over the sky from a fixed hash, so each run has the same ones,
+    // squares of StarDegrees, each as bright as 40 times the square of how far the product of three
+    // noises passes 0.7, the product drawn until it passes, so most are faint and a few bright, in a
+    // cool white, the light taken to sRGB levels.
     private static (Vector3, Vector3, Vector3, Vector3)[] PlaceStars()
     {
         var half = StarDistance * MathF.Tan(float.DegreesToRadians(StarDegrees)) / 2;
@@ -214,7 +213,7 @@ internal sealed partial class DaySky
         return stars;
     }
 
-    // The voxel game's hash of three integers, its places' and its stars'.
+    // A hash of three integers, which places the stars and sets their brightness.
     private static uint Hash(int x, int z, int seed)
     {
         unchecked
