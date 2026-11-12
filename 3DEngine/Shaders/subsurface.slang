@@ -62,18 +62,18 @@ float nearestDepth(float2 uv, float2 texel, float2 low, float2 high, int layer, 
     return count > 0.0 ? nearest / count : depth;
 }
 
-// How far a lamp's light crosses a mesh to reach world from behind, from the depth of the face its
+// How far a lamp's light crosses a mesh to reach place from behind, from the depth of the face its
 // map holds nearest the lamp along the way from it, through the face's view-projection. From the
 // lamp a point's clip coordinates are the lamp's plus its distance times the way's, so the depth
 // read gives the distance at which the way met the face in one division, whatever the near and
 // far planes the face was drawn with.
-float lampThickness(float4x4 viewProjection, float3 lamp, float3 world, float depth)
+float lampThickness(float4x4 viewProjection, float3 lamp, float3 place, float depth)
 {
-    float3 way = normalize(world - lamp);
+    float3 way = normalize(place - lamp);
     float4 from = mul(viewProjection, float4(lamp, 1.0));
     float4 along = mul(viewProjection, float4(way, 0.0));
     float met = (from.z - depth * from.w) / (depth * along.w - along.z);
-    return max(distance(world, lamp) - met, 0.0);
+    return max(distance(place, lamp) - met, 0.0);
 }
 
 // How thick the mesh is from a point on its surface facing n toward a light along l, the way the
@@ -85,14 +85,14 @@ float lampThickness(float4x4 viewProjection, float3 lamp, float3 world, float de
 // half the reach or less, fine enough to tell the thicknesses the light comes through; a march
 // through cells as wide as skin's reach would draw the light in scallops along a sphere's
 // terminator.
-float thicknessToward(float3 world, float3 n, float3 l, bool sun, float reach, float3 lamp = float3(0.0), int spot = -1, int point = -1)
+float thicknessToward(float3 place, float3 n, float3 l, bool sun, float reach, float3 lamp = float3(0.0), int spot = -1, int point = -1)
 {
     // A light with a shadow map measures through it, which holds the surface nearest the light in
     // its own texels, where the field's march decides by a cell whether a part is a sheet, and
     // pixels either side of that decision, one measured by the march and the next by the map,
     // would dash a line of light across a sphere's shadowed side.
     bool mapped = sun || spot >= 0 || point >= 0;
-    if (!mapped && fieldCascade(bouncedField, world, 1.0) == 0 && fieldCell(bouncedField, world) * 2.0 <= reach)
+    if (!mapped && fieldCascade(bouncedField, place, 1.0) == 0 && fieldCell(bouncedField, place) * 2.0 <= reach)
     {
         // The march finds first where it enters the mesh as the field holds it, within a cell of
         // the surface drawn, whose faces the field's cells lie a little off, then where it leaves.
@@ -100,13 +100,13 @@ float thicknessToward(float3 world, float3 n, float3 l, bool sun, float reach, f
         // one would leave at once, and a sphere's shadowed side, a unit through, would let the
         // sun's light through in bands. A mesh the field holds nothing of within the cell is
         // thinner than its cells, and lets the light through whole.
-        float cell = fieldCell(bouncedField, world);
+        float cell = fieldCell(bouncedField, place);
         float t = 0.0, entered = -1.0;
         float last = 0.0, inside = 0.0;
         bool thinner = false;
         for (int step = 0; step < 40 && t - max(entered, 0.0) < reach; step++)
         {
-            float d = fieldDistance(SplitVolume(reflectField, lightLinear), bouncedField, world + l * t);
+            float d = fieldDistance(SplitVolume(reflectField, lightLinear), bouncedField, place + l * t);
             if (entered < 0.0)
             {
                 if (d < 0.0)
@@ -148,11 +148,11 @@ float thicknessToward(float3 world, float3 n, float3 l, bool sun, float reach, f
         }
         else
         {
-            int face = pointFace(world - lamp, point, layer, origin, size);
+            int face = pointFace(place - lamp, point, layer, origin, size);
             viewProjection = lighting.pointShadowFaces[point * 6 + face];
             pointShadowMap.GetDimensions(width, height, layers);
         }
-        float4 clip = mul(viewProjection, float4(world, 1.0));
+        float4 clip = mul(viewProjection, float4(place, 1.0));
         if (clip.w <= 0.0)
             return -1.0;
         float3 p = clip.xyz / clip.w;
@@ -160,7 +160,7 @@ float thicknessToward(float3 world, float3 n, float3 l, bool sun, float reach, f
             return -1.0;
         float2 texel = 1.0 / float2(width, height);
         float depth = nearestDepth(origin + (p.xy * 0.5 + 0.5) * size, texel, origin + texel, origin + size - texel, layer, p.z);
-        return lampThickness(viewProjection, lamp, world, depth);
+        return lampThickness(viewProjection, lamp, place, depth);
     }
     if (!sun)
         return -1.0;
@@ -168,7 +168,7 @@ float thicknessToward(float3 world, float3 n, float3 l, bool sun, float reach, f
     shadowMap.GetDimensions(width, height);
     for (int c = 0; c < lighting.cascadeCount; c++)
     {
-        float4 clip = mul(lighting.shadowCascades[c], float4(world, 1.0));
+        float4 clip = mul(lighting.shadowCascades[c], float4(place, 1.0));
         float3 p = clip.xyz / clip.w;
         if (any(abs(p.xy) > 0.995) || p.z > 1.0)
             continue;
@@ -201,12 +201,12 @@ float3 lightThrough(ModelVertexOutput base, float3 albedo, float4 profile, float
         int kind = int(lamp.positionAndKind.w);
         if (kind == Ambient)
             continue;
-        float3 arrived = arriving(lamp, base.world, -n);
+        float3 arrived = arriving(lamp, base.place, -n);
         if (all(arrived <= float3(0.0)))
             continue;
         // A shadowed lamp's slot, its spot light's or its point light's, as the model pass reads it.
         int slot = int(lamp.cone.z) - 1;
-        float thickness = thicknessToward(base.world, n, -fromLight(lamp, base.world), i == lighting.shadowLight && kind == Directional, reach,
+        float thickness = thicknessToward(base.place, n, -fromLight(lamp, base.place), i == lighting.shadowLight && kind == Directional, reach,
             lamp.positionAndKind.xyz, slot >= 0 && kind == Spot ? slot : -1, slot >= 0 && kind != Spot && kind != Directional ? slot : -1);
         // The material's own thickness caps what was measured, as a leaf drawn as one sheet the
         // field holds a cell thick, and stands in where nothing was, as toward a lamp where the

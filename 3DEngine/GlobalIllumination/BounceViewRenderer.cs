@@ -155,7 +155,9 @@ internal sealed class BounceViewRenderer : IProbesView, IDisposable
         var p = binding.Probes.Probes;
         var push = new ProbesPush
         {
-            ViewProjection = view.ViewProjection,
+            // From a place against the frame's origin, as the probes' middles are found from the
+            // field's corners.
+            ViewProjection = renderWorld.TryGet<RenderOrigin>().Taking(view.ViewProjection),
             Cascade = (uint)Math.Clamp(settings.ShownCascade, 0, binding.Probes.Cascades - 1), Probes = (uint)p, Cascades = (uint)binding.Probes.Cascades,
             Size = new Vector4(Illumination.ProbeSpacing, CubeSize, 0, 0),
         };

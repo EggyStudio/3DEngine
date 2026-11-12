@@ -282,7 +282,7 @@ internal sealed partial class SceneFieldRenderer : IDisposable
         plan.Update(settings?.Center ?? AheadOf(view, settings?.Ahead ?? 0, plan.CellSize), _drawn);
         try
         {
-            Record(renderContext, device, plan);
+            Record(renderContext, device, plan, renderWorld.TryGet<RenderOrigin>());
         }
         catch (DeviceMemoryException e)
         {
@@ -300,15 +300,16 @@ internal sealed partial class SceneFieldRenderer : IDisposable
     // field off until the settings change.
     private bool _short;
 
-    // The frame's builds, repaints and stamps.
-    private void Record(RenderContext renderContext, GraphicsDevice device, SceneFieldPlan plan)
+    // The frame's builds, repaints and stamps, the info and the stamps' shapes handed against the
+    // frame's origin, which the builds' meshes and corners never meet, being their own.
+    private void Record(RenderContext renderContext, GraphicsDevice device, SceneFieldPlan plan, RenderOrigin renderOrigin)
     {
         var field = _field!;
         var repaints = Repaints(plan);
         var stages = SceneFieldStages.Of(device);
 
         var commands = renderContext.CommandBuffer;
-        stages.RecordSceneFieldInfo(commands, field, Info(plan));
+        stages.RecordSceneFieldInfo(commands, field, Info(plan, renderOrigin));
         if (plan.Builds.Count == 0 && plan.Bricks.Count == 0 && repaints.Count == 0) return;
 
         stages.RecordSceneFieldOpen(commands, field);
@@ -351,7 +352,7 @@ internal sealed partial class SceneFieldRenderer : IDisposable
         }
         if (plan.Bricks.Count > 0)
         {
-            var (shapes, bricks) = (Shapes(device, plan.Shapes), Bricks(device, plan));
+            var (shapes, bricks) = (Shapes(device, plan.Shapes, renderOrigin), Bricks(device, plan));
             Hold(shapes);
             Hold(bricks);
             Hold(stages.RecordSceneFieldStamp(commands, field, bricks, plan.Bricks.Count, shapes, plan.Shapes.Count));
@@ -584,18 +585,19 @@ internal sealed partial class SceneFieldRenderer : IDisposable
         return _tints[instance.Vertices] = tint;
     }
 
-    // Where each cascade lies as it was last built and the cells a shift brought in that wait, as
-    // scenefield.slang's SceneFieldInfo.
-    private static byte[] Info(SceneFieldPlan plan)
+    // Where each cascade lies as it was last built, its corner and the eye against the frame's
+    // origin, and the cells a shift brought in that wait, as scenefield.slang's SceneFieldInfo.
+    private static byte[] Info(SceneFieldPlan plan, RenderOrigin against)
     {
         var values = new float[GpuSceneField.InfoBytes / 4];
         // w: the far cascade's place, the last, or 0 where there is none.
         (values[0], values[1], values[2], values[3]) = (plan.Cascades, SceneFieldPlan.Resolution, SceneFieldPlan.Band, plan.HasFar ? plan.Cascades - 1 : 0);
         for (int c = 0; c < plan.Cascades; c++)
-            if (plan.BuiltOrigin(c) is { } origin)
+            if (plan.BuiltOrigin(c) is { } corner && against.Against(corner) is var origin)
                 (values[4 + c * 4], values[5 + c * 4], values[6 + c * 4], values[7 + c * 4]) = (origin.X, origin.Y, origin.Z, plan.CellOf(c));
         var eyeAt = 4 + GpuSceneField.MaxCascades * 4;
-        (values[eyeAt], values[eyeAt + 1], values[eyeAt + 2]) = (plan.Eye.X, plan.Eye.Y, plan.Eye.Z);
+        var eye = against.Against(plan.Eye);
+        (values[eyeAt], values[eyeAt + 1], values[eyeAt + 2]) = (eye.X, eye.Y, eye.Z);
         // The cells a shift brought in that wait for its build's last part, with one more than
         // their cascade, which the passes read in the next cascade out until then.
         if (plan.Unbuilt is (var cascade, var cells))
@@ -659,14 +661,16 @@ internal sealed partial class SceneFieldRenderer : IDisposable
         return Math.Max(Math.Min(x, Math.Min(y, z)), 1e-4f);
     }
 
-    // The frame's shapes as field_stamp.slang's FieldShape reads them, one at least.
-    private static IBuffer Shapes(GraphicsDevice device, List<SceneFieldPlan.Shape> shapes)
+    // The frame's shapes as field_stamp.slang's FieldShape reads them, one at least, each one's rows
+    // taking a place against the frame's origin into its box, as the info's corners are handed.
+    private static IBuffer Shapes(GraphicsDevice device, List<SceneFieldPlan.Shape> shapes, RenderOrigin origin)
     {
         var buffer = device.CreateBuffer(new BufferDesc((ulong)Math.Max(1, shapes.Count) * 112, BufferUsage.Storage, CpuAccessMode.Write));
         var mapped = MemoryMarshal.Cast<byte, float>(device.Map(buffer));
         for (int s = 0; s < shapes.Count; s++)
         {
-            var (m, center, extents, scale, color, through, emission) = shapes[s];
+            var (toOwn, center, extents, scale, color, through, emission) = shapes[s];
+            var m = origin.Taking(toOwn);
             ReadOnlySpan<float> values = [m.M11, m.M21, m.M31, m.M41, m.M12, m.M22, m.M32, m.M42, m.M13, m.M23, m.M33, m.M43,
                 center.X, center.Y, center.Z, scale, extents.X, extents.Y, extents.Z, 0, color.X, color.Y, color.Z, through, emission.X, emission.Y, emission.Z, 0];
             values.CopyTo(mapped[(s * 28)..]);

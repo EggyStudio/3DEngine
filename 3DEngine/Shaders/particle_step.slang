@@ -41,6 +41,8 @@ struct StepPush
 };
 
 // The view the scene's depth was drawn through, and whether one is bound this frame, in depth.x.
+// depth.yzw: the frame's render origin, which a particle, kept in world numbers, is taken against
+// where it meets the scene's distance field, whose corners are handed against it.
 struct ParticleView
 {
     float4x4 viewProjection;
@@ -235,8 +237,9 @@ void computeMain(uint3 id : SV_DispatchThreadID)
     float3 surface = now, normal = float3(0, 1, 0);
     float behind = 0.0;
     bool met = false;
-    if (collision != 0u && fieldOn(fieldInfo) && fieldCascade(fieldInfo, now, 1.0) >= 0)
-        met = meetsField(positionAge.xyz, now, surface, normal, behind);
+    float3 origin = view.depth.yzw;
+    if (collision != 0u && fieldOn(fieldInfo) && fieldCascade(fieldInfo, now - origin, 1.0) >= 0)
+        met = meetsField(positionAge.xyz - origin, now - origin, surface, normal, behind);
     else if (collision != 0u && view.depth.x > 0.5)
         met = meets(positionAge.xyz, now, surface, normal, behind);
     if (met)

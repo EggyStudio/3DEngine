@@ -108,6 +108,8 @@ public struct GiLight
 // Illumination.MostCascades.
 public static const int MostProbeCascades = 5;
 
+// Every place in it, the lamps', the corners', the glow lights' and the sun's cascades', against
+// the frame's origin (RenderOrigin), the frame before's corners against this frame's.
 public struct GiLights
 {
     // xyz: the way toward the sun. w: 1 where there is a sun.

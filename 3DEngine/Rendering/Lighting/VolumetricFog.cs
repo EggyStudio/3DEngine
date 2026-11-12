@@ -142,9 +142,25 @@ internal sealed class VolumetricFogRenderer : IDisposable
         foreach (var light in renderWorld.TryGet<RenderLights>()?.All ?? [])
             if (light.Kind == LightKind.Ambient) uniforms.Ambient += new Vector4(light.EmittedColor, 0);
         var field = bounced?.Field ?? renderWorld.TryGet<SceneFieldBinding>()?.Field ?? (_noField ??= SceneFieldStages.Of(device).CreateSceneField(1, 1));
+        uniforms = Placed(uniforms, renderWorld.TryGet<RenderOrigin>());
         _retired.Add((_frame, FogStages.Of(device).RecordFog(renderContext.CommandBuffer, sized.Fog, MemoryMarshal.AsBytes(new ReadOnlySpan<Uniforms>(in uniforms)),
             shadowView, shadowSampler, bounced?.Probes, field)));
         _push = new DecodePush { InverseViewProjection = shown, Eye = new Vector4(view.Eye, 1), Slices = new Vector4(start, far, scale.X, scale.Y) };
+    }
+
+    // The uniforms worked out in world numbers with their places taken against the frame's origin,
+    // as the field's corners are handed, the camera's inverse, its eye, the height the fog thins
+    // from and the sun's counted cascades.
+    private static Uniforms Placed(Uniforms uniforms, RenderOrigin origin)
+    {
+        uniforms.InverseViewProjection = origin.Inverse(uniforms.InverseViewProjection);
+        uniforms.Eye = origin.Against(uniforms.Eye);
+        uniforms.Density.Y = (float)(uniforms.Density.Y - origin.Y);
+        if (uniforms.SunMap.X > 0) uniforms.Cascade0 = origin.Taking(uniforms.Cascade0);
+        if (uniforms.SunMap.X > 1) uniforms.Cascade1 = origin.Taking(uniforms.Cascade1);
+        if (uniforms.SunMap.X > 2) uniforms.Cascade2 = origin.Taking(uniforms.Cascade2);
+        if (uniforms.SunMap.X > 3) uniforms.Cascade3 = origin.Taking(uniforms.Cascade3);
+        return uniforms;
     }
 
     // The sun, the shadowed light where it is directional or the first directional one, so the fog

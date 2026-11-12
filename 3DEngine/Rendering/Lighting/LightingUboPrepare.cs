@@ -18,6 +18,7 @@ internal sealed class LightingUboPrepare : IPrepareSystem
     {
         var lights = renderWorld.TryGet<RenderLights>();
         var allocator = renderContext.DynamicAllocator;
+        var origin = renderWorld.TryGet<RenderOrigin>();
         if (allocator is null)
             return;
 
@@ -127,7 +128,7 @@ internal sealed class LightingUboPrepare : IPrepareSystem
             windowUbo.Mirror = new System.Numerics.Vector4(1, ImageDesc.FullMipChain(half.Width, half.Height) - 1, MirrorRenderer.Reach, 0);
             windowUbo.MirrorScreen = new System.Numerics.Vector4(1f / swapchain.Extent.Width, 1f / swapchain.Extent.Height, 0, 0);
         }
-        var binding = Upload(allocator, in windowUbo);
+        var binding = Upload(allocator, in windowUbo, origin);
         renderWorld.Set(new FrameLightingBinding(binding, ubo.LightCount, environment is not null));
 
         // The window's light left linear, as a reflection probe's half-float faces hold it. A probe
@@ -141,7 +142,7 @@ internal sealed class LightingUboPrepare : IPrepareSystem
         if (renderWorld.TryGet<BoundProbes>() is { } boundForCapture)
             for (int i = 0; i < boundForCapture.Slots.Count; i++)
                 if (boundForCapture.Slots[i].Captured != boundForCapture.Slots[i].Wanted) capture.Probes[i].CenterAndIntensity.W = 0;
-        renderWorld.TryGet<BoundProbes>()!.CaptureBinding = Upload(allocator, in capture);
+        renderWorld.TryGet<BoundProbes>()!.CaptureBinding = Upload(allocator, in capture, origin);
 
         // A render target drawing meshes through a camera of its own has its cascades fitted to
         // that camera, shared with the views near it, in a buffer of its own, since the window's
@@ -168,7 +169,7 @@ internal sealed class LightingUboPrepare : IPrepareSystem
                 // And its occlusion and the sun's contact shadows, worked out from its own depth.
                 if (draws.ViewProjectionOf(target) is not null)
                     targetUbo.AmbientOcclusion = windowUbo.AmbientOcclusion with { Z = 0, W = 0 };
-                targets.ByTarget[target] = (own, Upload(allocator, in targetUbo));
+                targets.ByTarget[target] = (own, Upload(allocator, in targetUbo, origin));
             }
 
         Logger.FrameTrace($"LightingUboPrepare: uploaded {ubo.LightCount} light(s) into a {LightingUboPacker.SizeBytes}-byte UBO.");
@@ -199,14 +200,46 @@ internal sealed class LightingUboPrepare : IPrepareSystem
         }
     }
 
-    private static UniformBufferBinding Upload(DynamicBufferAllocator allocator, in LightingUbo ubo)
+    // The buffer worked out in world numbers written with its places against the frame's origin.
+    private static UniformBufferBinding Upload(DynamicBufferAllocator allocator, in LightingUbo ubo, RenderOrigin origin)
     {
+        var placed = Placed(ubo, origin);
         var sizeBytes = (ulong)LightingUboPacker.SizeBytes;
         var alloc = allocator.Allocate(sizeBytes, BufferUsage.Uniform);
         var span = allocator.Map(alloc);
-        MemoryMarshal.Write(span, in ubo);
+        MemoryMarshal.Write(span, in placed);
         allocator.Unmap(alloc);
         return new UniformBufferBinding(alloc.Buffer, Binding: 0, alloc.Offset, sizeBytes);
+    }
+
+    /// <summary>
+    /// A lighting buffer with every place in it taken against <paramref name="origin"/> in doubles
+    /// (RenderOrigin), the lights' and the probes' places, the shadows' and the reflections'
+    /// matrices and the mirror's plane, and the origin beside the shadow's softness, which the
+    /// penumbra adds back for the world point its grain is turned by.
+    /// </summary>
+    internal static LightingUbo Placed(LightingUbo ubo, RenderOrigin origin)
+    {
+        for (int i = 0; i < ubo.LightCount; i++)
+        {
+            ref var light = ref ubo.Lights[i];
+            light.PositionAndKind = origin.Against(light.PositionAndKind);
+        }
+        for (int i = 0; i < LightingUboPacker.MaxCascades; i++) ubo.ShadowCascades[i] = origin.Taking(ubo.ShadowCascades[i]);
+        for (int i = 0; i < ubo.SpotShadowCount; i++) ubo.SpotShadows[i] = origin.Taking(ubo.SpotShadows[i]);
+        for (int i = 0; i < (int)ubo.PointShadow.Y * 6; i++) ubo.PointShadowFaces[i] = origin.Taking(ubo.PointShadowFaces[i]);
+        for (int i = 0; i < (int)ubo.ProbeCount.X; i++)
+        {
+            ref var probe = ref ubo.Probes[i];
+            probe.CenterAndIntensity = origin.Against(probe.CenterAndIntensity);
+        }
+        ubo.ReflectViewProjection = origin.Taking(ubo.ReflectViewProjection);
+        ubo.ReflectInverseViewProjection = origin.Inverse(ubo.ReflectInverseViewProjection);
+        ubo.ReflectLastViewProjection = origin.Taking(ubo.ReflectLastViewProjection);
+        ubo.ReflectLastInverseViewProjection = origin.Inverse(ubo.ReflectLastInverseViewProjection);
+        ubo.MirrorPlane = origin.Plane(ubo.MirrorPlane);
+        ubo.ShadowSoftness = new System.Numerics.Vector4(ubo.ShadowSoftness.X, (float)origin.X, (float)origin.Y, (float)origin.Z);
+        return ubo;
     }
 
     // Writes a view's shadow into its lighting buffer.

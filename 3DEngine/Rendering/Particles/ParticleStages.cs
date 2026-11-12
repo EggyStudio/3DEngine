@@ -95,7 +95,11 @@ internal struct ParticleView
     public System.Numerics.Matrix4x4 ViewProjection;
     /// <summary>Clip space back to world space, which finds the surface a depth texel holds.</summary>
     public System.Numerics.Matrix4x4 InverseViewProjection;
-    /// <summary>1 in x when a depth is bound to collide with, 0 when nothing collides this frame.</summary>
+    /// <summary>
+    /// 1 in x when a depth is bound to collide with, 0 when nothing collides this frame. yzw: the
+    /// frame's render origin, which a particle's place in the world, as the particles are kept, is
+    /// taken against where it meets the scene's distance field, whose corners are handed so.
+    /// </summary>
     public System.Numerics.Vector4 Depth;
 }
 

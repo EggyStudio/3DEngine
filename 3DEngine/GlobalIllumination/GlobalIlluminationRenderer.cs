@@ -157,6 +157,7 @@ internal sealed partial class GlobalIlluminationRenderer : IIlluminationPasses, 
 
         var wanted = renderWorld.TryGet<GlobalIlluminationSettings>()!.Quality;
         var plan = renderWorld.TryGet<SceneFieldRenderer>()?.Plan;
+        var origin = renderWorld.TryGet<RenderOrigin>();
         var far = FarIn(renderWorld);
         if (_gi is null || !ReferenceEquals(_made.Field, field.Field) || _made.Quality != wanted || _made.Cascades != cascades)
         {
@@ -268,6 +269,7 @@ internal sealed partial class GlobalIlluminationRenderer : IIlluminationPasses, 
         var spread = !switches.SpreadOff && !Settling;
         _halved = [.. Enumerable.Range(0, cascades).Select(c => GlobalIlluminationStages.Halved(c, cascades, far ? cascades - 2 : -1,
             switches.FollowOff ? null : lying, spread))];
+        PlaceLights(lights, origin);
         _retired.Add((_frame, GlobalIlluminationStages.Of(device).RecordGlobalIllumination(renderContext.CommandBuffer, _gi, field.Field, view, sampler, sunMap, sunSampler, lights, intervals, ProbeSpacing,
             switches.MergeOff, switches.Alone, switches.Shown is BounceView.Rays or BounceView.Merged, _frame, switches.FollowOff ? null : lying,
             far ? cascades - 2 : -1, _lightThrough, plan is { Whole: true }, farPart, switches.MeshesTraced || moving ? _rays : null, shifts, CarriedShare, CarriedSince, CarriedPhase,
@@ -293,7 +295,7 @@ internal sealed partial class GlobalIlluminationRenderer : IIlluminationPasses, 
                 _lastScreen = null;
             }
             var jitter = JitterAt(_frame, tile);
-            var bytes = ViewBytes(window.Unjittered, inverse, window.Eye, _screen, depth.Extent, swapchain.Extent, jitter, _lastScreen);
+            var bytes = ViewBytes(window.Unjittered, inverse, window.Eye, _screen, depth.Extent, swapchain.Extent, jitter, _lastScreen, origin);
             _retired.Add((_frame, GlobalIlluminationStages.Of(device).RecordScreenProbes(renderContext.CommandBuffer, _gi, _screen, field.Field, depth.View, depth.Sampler, bytes, _glowCount > 0,
                 renderWorld.TryGet<GlobalIlluminationSettings>()?.LoggedScreenProbe ?? -1, glowOnly,
                 renderWorld.TryGet<GlobalIlluminationSettings>()?.LoggedScreenProbeNotANumber ?? false, _lightThrough)));
@@ -350,7 +352,7 @@ internal sealed partial class GlobalIlluminationRenderer : IIlluminationPasses, 
         var eye = Vector4.Transform(new Vector4(0, 0, 0, 1), inverse);
         var at = new Vector3(eye.X, eye.Y, eye.Z) / eye.W;
         var jitter = JitterAt(_frame, tile);
-        var bytes = ViewBytes(camera, inverse, at, state.Screen, depth.Extent, size, jitter, state.Last);
+        var bytes = ViewBytes(camera, inverse, at, state.Screen, depth.Extent, size, jitter, state.Last, renderWorld.TryGet<RenderOrigin>());
         _retired.Add((_frame, GlobalIlluminationStages.Of(device).RecordScreenProbes(renderContext.CommandBuffer, _gi, state.Screen, field.Field, depth.View, depth.Sampler, bytes, _glowCount > 0,
             glowOnly: glowOnly, lightThrough: _lightThrough)));
         state.Last = (camera, at);
@@ -365,14 +367,17 @@ internal sealed partial class GlobalIlluminationRenderer : IIlluminationPasses, 
     // places whose light the frame before had there, and the field's cascades built this frame as
     // meshes came or went within them with the box around those meshes. The matrices lie as they do
     // in memory, which the shaders, reading them column-major, multiply a point by as the CPU does.
+    // Each place and matrix is handed against the frame's origin, the frame before's against this
+    // frame's, since the passes read them with this frame's places.
     private byte[] ViewBytes(Matrix4x4 viewProjection, Matrix4x4 inverse, Vector3 eye, GpuScreenProbes screen, Extent2D depth, Extent2D size,
-        Vector2 jitter, (Matrix4x4 ViewProjection, Vector3 Eye)? last)
+        Vector2 jitter, (Matrix4x4 ViewProjection, Vector3 Eye)? last, RenderOrigin origin)
     {
         var bytes = new byte[GpuScreenProbes.ViewBytes];
-        MemoryMarshal.Write(bytes, viewProjection);
-        MemoryMarshal.Write(bytes.AsSpan(64), inverse);
+        MemoryMarshal.Write(bytes, origin.Taking(viewProjection));
+        MemoryMarshal.Write(bytes.AsSpan(64), origin.Inverse(inverse));
         var floats = MemoryMarshal.Cast<byte, float>(bytes.AsSpan());
-        (floats[32], floats[33], floats[34]) = (eye.X, eye.Y, eye.Z);
+        var placed = origin.Against(eye);
+        (floats[32], floats[33], floats[34]) = (placed.X, placed.Y, placed.Z);
         (floats[36], floats[37], floats[38]) = (screen.Tile, screen.Across, screen.Down);
         // What of the screen's blend is left out, the frame before's light and the neighbors'.
         floats[39] = _switches is { } off ? (off.HistoryOff ? 1 : 0) + (off.FilterOff ? 2 : 0) : 0;
@@ -381,17 +386,19 @@ internal sealed partial class GlobalIlluminationRenderer : IIlluminationPasses, 
         (floats[68], floats[69], floats[70], floats[71]) = (jitter.X, jitter.Y, _frame % 16, Settling ? 1 : 0);
         if (last is { } then)
         {
-            MemoryMarshal.Write(bytes.AsSpan(192), then.ViewProjection);
+            MemoryMarshal.Write(bytes.AsSpan(192), origin.Taking(then.ViewProjection));
             // 2 where the view is the frame before's, which the filter reads each probe where it
             // stands by, as the frame before's matrices put it back off its place far from the origin.
             var still = then.ViewProjection == viewProjection && then.Eye == eye;
-            (floats[64], floats[65], floats[66], floats[67]) = (then.Eye.X, then.Eye.Y, then.Eye.Z, still ? 2 : 1);
+            var thenPlaced = origin.Against(then.Eye);
+            (floats[64], floats[65], floats[66], floats[67]) = (thenPlaced.X, thenPlaced.Y, thenPlaced.Z, still ? 2 : 1);
         }
         floats[72] = _glowCount;
         var uints = MemoryMarshal.Cast<byte, uint>(bytes.AsSpan());
         (uints[73], uints[74], uints[75]) = (_glowPlaces.Kept.Low, _glowPlaces.Kept.High, _fieldRebuilt);
-        (floats[76], floats[77], floats[78]) = (_fieldChanged.Min.X, _fieldChanged.Min.Y, _fieldChanged.Min.Z);
-        (floats[80], floats[81], floats[82]) = (_fieldChanged.Max.X, _fieldChanged.Max.Y, _fieldChanged.Max.Z);
+        var (changedLow, changedHigh) = (origin.Against(_fieldChanged.Min), origin.Against(_fieldChanged.Max));
+        (floats[76], floats[77], floats[78]) = (changedLow.X, changedLow.Y, changedLow.Z);
+        (floats[80], floats[81], floats[82]) = (changedHigh.X, changedHigh.Y, changedHigh.Z);
         // Clip space back to the way from the eye, worked out in doubles, so the eye's place
         // cancels out of the translation with nothing of the float's rounding left in it. It is
         // always found here, since both callers write a view only once its floats' inverse is, and
@@ -468,6 +475,24 @@ internal sealed partial class GlobalIlluminationRenderer : IIlluminationPasses, 
             return (map.DepthView, map.Sampler, before);
         var (white, whiteSampler) = renderWorld.TryGet<GpuTextures>()!.ViewFor(device, 0);
         return (white, whiteSampler, null);
+    }
+
+    // The lights' places taken against the frame's origin as the passes read them, written in world
+    // numbers to be compared with the frame before's (NoteLights): the point and spot lights', the
+    // corners the cascades lay at the frame before, the sun's cascades and the glow lights'.
+    private static void PlaceLights(byte[] lights, RenderOrigin origin)
+    {
+        var floats = MemoryMarshal.Cast<byte, float>(lights.AsSpan());
+        var entries = MemoryMarshal.Cast<byte, LightUboEntry>(lights.AsSpan(64, 16 * 64));
+        for (int i = 0; i < (int)floats[12]; i++)
+            entries[i].PositionAndKind = origin.Against(entries[i].PositionAndKind);
+        var corners = MemoryMarshal.Cast<byte, Vector4>(lights.AsSpan(64 + 16 * 64, MostCascades * 16));
+        for (int c = 0; c < corners.Length; c++) corners[c] = origin.Against(corners[c]);
+        var sun = lights.AsSpan(GpuIllumination.SunMapOffset, GpuIllumination.SunMapBytes);
+        var counted = (int)MemoryMarshal.Cast<byte, float>(sun)[68];
+        for (int c = 0; c < counted; c++)
+            MemoryMarshal.Write(sun[(c * 64)..], origin.Taking(MemoryMarshal.Read<Matrix4x4>(sun[(c * 64)..])));
+        GlowLights.Place(lights.AsSpan(GlowLights.Offset, GlowLights.Size), origin);
     }
 
     // The lights as gi.slang's GiLights, the sun, the first directional light, the shadowed one

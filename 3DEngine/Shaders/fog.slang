@@ -11,17 +11,18 @@ public static const uint FogSlices = 64;
 // fog_integrate.slang read them.
 public struct FogUniforms
 {
-    // The window's clip space to the world, through its camera without temporal antialiasing's move.
+    // The window's clip space to a place against the frame's origin, through its camera without
+    // temporal antialiasing's move.
     public float4x4 inverseViewProjection;
-    // The sun's cascades, each a quarter of its shadow map, as the window's shadow pass drew it this
-    // frame.
+    // The sun's cascades from a place, each a quarter of its shadow map, as the window's shadow
+    // pass drew it this frame.
     public float4x4 sunCascades[4];
     // Each of those cascades' texel, in world units.
     public float4 sunTexels;
     // x: how many of sunCascades hold a cascade. y: a texel of the map, in uv. zw: unused.
     public float4 sunMap;
-    // xyz: the eye. w: the distance the slices grow from, where the eye's edge would lie if the
-    // first slice grew as the rest do.
+    // xyz: the eye's place. w: the distance the slices grow from, where the eye's edge would lie if
+    // the first slice grew as the rest do.
     public float4 eye;
     // xyz: toward the sun. w: 1 where there is a sun.
     public float4 toSun;
@@ -30,8 +31,8 @@ public struct FogUniforms
     // rgb: the light from all around where no cascade of the world's probes holds a cell. a: 1
     // where the world's probes are read.
     public float4 ambient;
-    // x: the fog's extinction per unit at and under y, the height it thins above by e every one
-    // over z units. w: how far the last slice ends.
+    // x: the fog's extinction per unit at and under y, the height against the frame's origin it
+    // thins above by e every one over z units. w: how far the last slice ends.
     public float4 density;
     // xy: the cells across and down. z: the frame. w: the world's probes along each side of a
     // cascade.

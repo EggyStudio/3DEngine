@@ -51,6 +51,9 @@ internal sealed class GpuRayScene : IDisposable
     // The copies' records the top level was last built from, and how many builds it has had.
     internal byte[]? Built;
     internal int TopBuilds;
+
+    // The origin the top level's copies are placed against, the frame's it was last built in.
+    internal RenderOrigin Origin;
     internal Action? Destroy;
 
     /// <summary>How many copies the frame's top-level structure holds.</summary>
@@ -123,7 +126,7 @@ internal static unsafe class GpuRayScenes
                 scene.Uvs?.Dispose();
             };
             var cmd = device.BeginSingleTimeCommands();
-            var held = device.BuildTop(cmd, scene, []);
+            var held = device.BuildTop(cmd, scene, [], default);
             device.EndSingleTimeCommands(cmd);
             held.Dispose();
             return scene;
@@ -155,7 +158,7 @@ internal static unsafe class GpuRayScenes
         /// <returns>What the builds read, to be let go once no frame in flight reads it.</returns>
         public IDisposable RecordRayScene(ICommandBuffer commandBuffer, GpuRayScene scene, IReadOnlyList<RayInstance> instances,
             Func<object, Vector3[]?> cornersOf, Func<object, uint[]?>? colorsOf = null, IEnumerable<object>? recolored = null,
-            Func<object, Vector2[]?>? uvsOf = null)
+            Func<object, Vector2[]?>? uvsOf = null, RenderOrigin origin = default)
         {
             if (commandBuffer is not VulkanCommandBuffer vkCmd) throw new ArgumentException("Command buffer was not created by this device.", nameof(commandBuffer));
             var cmd = vkCmd.Handle;
@@ -181,7 +184,7 @@ internal static unsafe class GpuRayScenes
             if (built)
                 device.MemoryBarrier(cmd, VkPipelineStageFlags2.AccelerationStructureBuildKHR, VkAccessFlags2.AccelerationStructureWriteKHR,
                     VkPipelineStageFlags2.AccelerationStructureBuildKHR, VkAccessFlags2.AccelerationStructureReadKHR);
-            retired.Add(device.BuildTop(cmd, scene, instances));
+            retired.Add(device.BuildTop(cmd, scene, instances, origin));
             return retired;
         }
 
@@ -253,8 +256,9 @@ internal static unsafe class GpuRayScenes
         }
 
         // Records the top-level structure of the frame's copies, made again larger where they do not
-        // fit, with their colors in this frame's buffer of the ring.
-        private Retired BuildTop(VkCommandBuffer cmd, GpuRayScene scene, IReadOnlyList<RayInstance> instances)
+        // fit, with their colors in this frame's buffer of the ring, each copy's translation taken
+        // against the frame's origin, as the places the rays leave from are.
+        private Retired BuildTop(VkCommandBuffer cmd, GpuRayScene scene, IReadOnlyList<RayInstance> instances, RenderOrigin origin)
         {
             var retired = new Retired();
             scene.Slot = (scene.Slot + 1) % scene.Instances.Length;
@@ -286,11 +290,12 @@ internal static unsafe class GpuRayScenes
                 // The world's matrix, a point a row as System.Numerics has it, as three rows of a
                 // matrix a point is a column of.
                 var m = instance.World;
+                var moved = origin.Against(m.Translation);
                 written[i] = new InstanceRecord
                 {
-                    Row0 = new Vector4(m.M11, m.M21, m.M31, m.M41),
-                    Row1 = new Vector4(m.M12, m.M22, m.M32, m.M42),
-                    Row2 = new Vector4(m.M13, m.M23, m.M33, m.M43),
+                    Row0 = new Vector4(m.M11, m.M21, m.M31, moved.X),
+                    Row1 = new Vector4(m.M12, m.M22, m.M32, moved.Y),
+                    Row2 = new Vector4(m.M13, m.M23, m.M33, moved.Z),
                     IndexAndMask = (uint)i | (0xFFu << 24),
                     OffsetAndFlags = CullDisableAndOpaque << 24,
                     Structure = mesh.Address,
@@ -309,6 +314,7 @@ internal static unsafe class GpuRayScenes
             }
             scene.Count = count;
             scene.Copies = copies;
+            scene.Origin = origin;
 
             // A structure too small for the copies is made again, the old one let go once no frame
             // reads it.

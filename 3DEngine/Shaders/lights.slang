@@ -38,7 +38,7 @@ public static const int Ambient = 3;
 // Light arriving at a point with a normal from one light, by Lambert's cosine, divided by the
 // square of the distance for a point or a spot, brought smoothly to nothing at its range, and cut
 // to a spot's cone.
-public float3 arriving(Light light, float3 world, float3 n)
+public float3 arriving(Light light, float3 place, float3 n)
 {
     int kind = int(light.positionAndKind.w);
     float3 color = light.colorAndShadow.xyz;
@@ -47,7 +47,7 @@ public float3 arriving(Light light, float3 world, float3 n)
     if (kind == Directional)
         return color * max(dot(n, -light.directionAndRange.xyz), 0.0);
 
-    float3 toLight = light.positionAndKind.xyz - world;
+    float3 toLight = light.positionAndKind.xyz - place;
     float distanceSquared = max(dot(toLight, toLight), 1e-4);
     float3 l = toLight * rsqrt(distanceSquared);
     float result = max(dot(n, l), 0.0) / distanceSquared;
@@ -82,11 +82,11 @@ public float3 arriving(Light light, float3 world, float3 n)
 // tile's edge the point is, from 0 in its middle to 1 at that border. Where the sun is given a
 // width (SetShadowSoftness) the edge softens with the caster's height over the point instead
 // (cascadeSoftly), its taps held a texel and a half inside the tile.
-public float cascadeReached(int c, float3 world, float3 n, float2 texel, out float edge)
+public float cascadeReached(int c, float3 place, float3 n, float2 texel, out float edge)
 {
     edge = 1.0;
     float3 off = litSide(n, -lighting.lights[max(lighting.shadowLight, 0)].directionAndRange.xyz);
-    float4 clip = mul(lighting.shadowCascades[c], float4(world + off * lighting.shadowTexels[c] * 1.5, 1.0));
+    float4 clip = mul(lighting.shadowCascades[c], float4(place + off * lighting.shadowTexels[c] * 1.5, 1.0));
     float3 p = clip.xyz / clip.w;
     if (any(abs(p.xy) > 0.995) || p.z > 1.0 || p.z < 0.0)
         return -1.0;
@@ -104,7 +104,7 @@ public float cascadeReached(int c, float3 world, float3 n, float2 texel, out flo
     {
         float2 corner = fill ? float2(0.0) : float2(c % 2, c / 2) * 0.5;
         float2 across = fill ? float2(1.0) : float2(0.5);
-        return cascadeSoftly(c, p, uv, texel, corner + texel * 1.5, corner + across - texel * 1.5, fill, n, world);
+        return cascadeSoftly(c, p, uv, texel, corner + texel * 1.5, corner + across - texel * 1.5, fill, n, place);
     }
     float2 st = uv / texel - 0.5;
     float2 base = floor(st);
@@ -147,16 +147,16 @@ public int shadowCascadesRead()
 // where one cascade gives way to the next the shadow's softness changes over a band rather than in
 // a step, the last counted cascade giving way to the fill where there is one, and past the last
 // cascade's band the shadow fades out rather than stopping at a line.
-public float lightReaching(float3 world, float3 n)
+public float lightReaching(float3 place, float3 n)
 {
     float held;
-    return lightReaching(world, n, held);
+    return lightReaching(place, n, held);
 }
 
 // The same, with how much of the point the counted cascades hold, 1 within them, falling to 0
 // across the last one's edge as its shadow is let go there, and 0 past it, the fill's coarse
 // texels holding none, so the contact shadows kept past the map's reach go on over the fill's.
-public float lightReaching(float3 world, float3 n, out float held)
+public float lightReaching(float3 place, float3 n, out float held)
 {
     held = 0.0;
     uint width, height;
@@ -167,7 +167,7 @@ public float lightReaching(float3 world, float3 n, out float held)
     for (int c = 0; c < cascades; c++)
     {
         float edge;
-        float reached = cascadeReached(c, world, n, texel, edge);
+        float reached = cascadeReached(c, place, n, texel, edge);
         if (reached < 0.0)
             continue;
 
@@ -176,7 +176,7 @@ public float lightReaching(float3 world, float3 n, out float held)
         if (blend <= 0.0)
             return reached;
         float nextEdge;
-        float next = c + 1 < cascades ? cascadeReached(c + 1, world, n, texel, nextEdge) : -1.0;
+        float next = c + 1 < cascades ? cascadeReached(c + 1, place, n, texel, nextEdge) : -1.0;
         if (c < counted && (next < 0.0 || c + 1 == counted))
             held = 1.0 - blend;
         return lerp(reached, next < 0.0 ? 1.0 : next, blend);
@@ -184,7 +184,7 @@ public float lightReaching(float3 world, float3 n, out float held)
     return 1.0;
 }
 
-// The light the plane a program set (SetReflectionPlane) mirrors onto a surface at `world` facing
+// The light the plane a program set (SetReflectionPlane) mirrors onto a surface at `place` facing
 // n, whose pixel is at `position` in the window (SV_Position), read at that pixel's place in the
 // mirrored picture, blurred down its mips as roughness rises to a half, in a, how much of it holds:
 // all of it on the plane, none as far off it as lighting.mirror.z or as n turns more than 25
@@ -192,11 +192,11 @@ public float lightReaching(float3 world, float3 n, out float held)
 // probe's faces or the mirrored view's own. Each pixel of a surface lying in the plane looks at
 // the plane's mirror image of what it would see through the plane, which the camera mirrored in
 // the plane sees at the same place in its picture, turned upside down to keep the faces' order.
-public float4 mirrored(float4 position, float3 world, float3 n, float roughness)
+public float4 mirrored(float4 position, float3 place, float3 n, float roughness)
 {
     if (lighting.mirror.x <= 0.0)
         return float4(0.0);
-    float off = abs(dot(lighting.mirrorPlane.xyz, world) - lighting.mirrorPlane.w);
+    float off = abs(dot(lighting.mirrorPlane.xyz, place) - lighting.mirrorPlane.w);
     float hold = saturate(1.0 - off / lighting.mirror.z) * smoothstep(0.9, 0.97, dot(n, lighting.mirrorPlane.xyz));
     if (hold <= 0.0)
         return float4(0.0);
@@ -290,10 +290,10 @@ public int pointFace(float3 away, int slot, out int layer, out float2 origin, ou
 // point, from 0 to 1, from its square of the map's last tile, compared as the cascades are. Its
 // texels widen with distance from the light, so the offset along the normal, turned to the light's
 // side (litSide), does too.
-public float spotLightReaching(float3 world, float3 n, float3 lightPosition, int slot)
+public float spotLightReaching(float3 place, float3 n, float3 lightPosition, int slot)
 {
-    float offset = lighting.spotShadowTexels[slot / 4][slot % 4] * distance(world, lightPosition) * 1.5;
-    float4 clip = mul(lighting.spotShadows[slot], float4(world + litSide(n, lightPosition - world) * offset, 1.0));
+    float offset = lighting.spotShadowTexels[slot / 4][slot % 4] * distance(place, lightPosition) * 1.5;
+    float4 clip = mul(lighting.spotShadows[slot], float4(place + litSide(n, lightPosition - place) * offset, 1.0));
     if (clip.w <= 0.0)
         return 1.0;
     float3 p = clip.xyz / clip.w;
@@ -318,15 +318,15 @@ public float spotLightReaching(float3 world, float3 n, float3 lightPosition, int
 // How much of the shadowed point light in slot (counted from 0) at lightPosition reaches this
 // point, from 0 to 1, from the face of its six that the point lies furthest along the axis of,
 // compared as the cascades are. Its texels widen with distance from the light, as a spot light's.
-public float pointLightReaching(float3 world, float3 n, float3 lightPosition, int slot)
+public float pointLightReaching(float3 place, float3 n, float3 lightPosition, int slot)
 {
-    float3 away = world - lightPosition;
+    float3 away = place - lightPosition;
     int layer;
     float2 origin;
     float scale;
     int face = pointFace(away, slot, layer, origin, scale);
     float offset = lighting.pointShadow.x / scale * length(away) * 1.5;
-    float4 clip = mul(lighting.pointShadowFaces[slot * 6 + face], float4(world + litSide(n, -away) * offset, 1.0));
+    float4 clip = mul(lighting.pointShadowFaces[slot * 6 + face], float4(place + litSide(n, -away) * offset, 1.0));
     if (clip.w <= 0.0)
         return 1.0;
     float3 p = clip.xyz / clip.w;
@@ -345,10 +345,10 @@ public float pointLightReaching(float3 world, float3 n, float3 lightPosition, in
 }
 
 // The way light comes from one light to a point, for specular.
-public float3 fromLight(Light light, float3 world)
+public float3 fromLight(Light light, float3 place)
 {
     int kind = int(light.positionAndKind.w);
-    return kind == Directional ? light.directionAndRange.xyz : normalize(world - light.positionAndKind.xyz);
+    return kind == Directional ? light.directionAndRange.xyz : normalize(place - light.positionAndKind.xyz);
 }
 
 static const float PI = 3.14159265;

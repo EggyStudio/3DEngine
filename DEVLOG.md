@@ -1984,9 +1984,9 @@ a young glow blend where the field was built again under it. (`64fd2f14`)
 
 ![](.github/assets/asks/voxel-penumbra-blotches.webp)
 ![](.github/assets/asks/voxel-penumbra-edge.webp)
+![](.github/assets/asks/voxel-penumbra-redwall.webp)
 ![](.github/assets/asks/voxel-penumbra-seam-parts.webp)
 ![](.github/assets/asks/voxel-penumbra-seam.webp)
-![](.github/assets/asks/voxel-penumbra-redwall.webp)
 Lights the floor under a block floating below a row of joined lamps by halving a level face along
 its longer side where neither side rises from the surface, and by stepping out of a surface across
 the march as well as along the surface's normal. (`56db892b`)
@@ -2318,7 +2318,7 @@ rlgl draws it, and core_vr_simulator is written with raylib's distortion shader 
 ![](.github/assets/examples/core_drop_files.webp)
 ![](.github/assets/examples/core_input_gamepad.webp)
 ![](.github/assets/examples/core_input_gestures.webp)
-![](.github/assets/examples/core_window_flags.webp)
+![](.github/assets/examples/core_window_toggles.webp)
 ![](.github/assets/examples/ecs_animated_models.webp)
 ![](.github/assets/examples/ecs_behaviors.webp)
 ![](.github/assets/examples/ecs_mesh_entities.webp)

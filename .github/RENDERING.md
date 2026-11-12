@@ -495,6 +495,16 @@ lights, so a fire in a room shows in its metal.
 
 ## 4. Lights and shadows
 
+Every place the frame hands the GPU is taken against one render origin a frame (`RenderOrigin`),
+worked in doubles on the CPU, among them the instances' translations, the lights', the reflection
+probes' and the glow lights' places, the field's corners and eye, the screen probes' eye, the ray
+scene's copies and the fog's eye and height. A matrix from a place to clip space is handed as the
+origin's translation times the world's, and one back from clip space as the world's times the
+translation back, so the shaders work on places, the world's points less the origin, and find a
+world point where they need one as the origin plus the place, as the penumbra's grain and a
+program's `world` do. The renderer holds the origin at the world's own, and a test sets another
+(`RenderOrigin.Override`) to read a scene alike against both.
+
 `LightExtract` copies every `Light` entity into the render world, and `LightingUboPrepare` packs up
 to 16 into one uniform buffer per frame, which `ModelRenderer` binds as a second descriptor set from
 a ring of one per frame in flight. The set's images, seventeen of them, are bound apart from two

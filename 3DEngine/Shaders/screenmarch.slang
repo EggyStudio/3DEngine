@@ -44,7 +44,8 @@ public struct SplitPicture : IPicture
 }
 
 // The view the screen's probes are placed through, which gi_screen.slang traces them through and
-// gi_screen_filter.slang blends them through.
+// gi_screen_filter.slang blends them through, every place and matrix in it against the frame's
+// origin (RenderOrigin), the frame before's against this frame's.
 public struct ScreenView
 {
     // World to clip space, and back, as the window's camera has it this frame.

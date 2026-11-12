@@ -67,7 +67,9 @@ internal sealed class SceneFieldViewRenderer : IDisposable
         }
 
         var pass = active.Pass;
-        var push = new Push { InverseViewProjection = inverse, EyeAndCascade = new Vector4(view.Eye, settings.Shown) };
+        // Against the frame's origin, as the field's corners are handed.
+        var origin = renderWorld.TryGet<RenderOrigin>();
+        var push = new Push { InverseViewProjection = origin.Inverse(inverse), EyeAndCascade = new Vector4(origin.Against(view.Eye), settings.Shown) };
         pass.SetViewport(0, 0, active.Extent.Width, active.Extent.Height, 0, 1);
         pass.SetScissor(0, 0, active.Extent.Width, active.Extent.Height);
         pass.SetPipeline(_pipeline);

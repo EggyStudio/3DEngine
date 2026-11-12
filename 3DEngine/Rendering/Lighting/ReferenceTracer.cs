@@ -83,8 +83,15 @@ internal sealed unsafe class ReferenceTracer(GraphicsDevice device) : IDisposabl
         var (sums, sumsMemory, sumsView) = StorageImage2D(w, h, VkFormat.R32G32B32A32Sfloat);
         // Each pixel's region and how far its first sample went before it met it, -1 for nowhere.
         var (regions, regionsMemory, regionsView) = StorageImage2D(w, h, VkFormat.R32G32Uint);
+        // The lamps, the camera and the probe given in world numbers taken against the origin the
+        // scene's copies were placed against.
+        var origin = scene.Origin;
         var lightBuffer = (VulkanBuffer)device.CreateBuffer(new BufferDesc(ReferenceLightsBytes, BufferUsage.Uniform, CpuAccessMode.Write));
-        lights[..Math.Min(lights.Length, ReferenceLightsBytes)].CopyTo(device.Map(lightBuffer));
+        var placed = device.Map(lightBuffer);
+        lights[..Math.Min(lights.Length, ReferenceLightsBytes)].CopyTo(placed);
+        var lamps = MemoryMarshal.Cast<byte, LightUboEntry>(placed[64..ReferenceLightsBytes]);
+        for (int i = 0; i < (int)MemoryMarshal.Cast<byte, float>(placed)[12]; i++)
+            lamps[i].PositionAndKind = origin.Against(lamps[i].PositionAndKind);
         device.Unmap(lightBuffer);
         var readSums = (VulkanBuffer)device.CreateBuffer(new BufferDesc(w * h * 16, BufferUsage.TransferDst, CpuAccessMode.Read));
         var readRegions = (VulkanBuffer)device.CreateBuffer(new BufferDesc(w * h * 8, BufferUsage.TransferDst, CpuAccessMode.Read));
@@ -128,7 +135,7 @@ internal sealed unsafe class ReferenceTracer(GraphicsDevice device) : IDisposabl
                 device.Api.vkCmdBindDescriptorSets(cmd, VkPipelineBindPoint.Compute, layout, 0, 1, &set, 0, null);
                 var push = new ReferencePush
                 {
-                    InverseViewProjection = inverseViewProjection,
+                    InverseViewProjection = probe is null ? origin.Inverse(inverseViewProjection) : inverseViewProjection,
                     Width = w, Height = h,
                     Samples = (uint)Math.Min(perSubmission, samples - first),
                     Bounces = (uint)Math.Max(1, bounces),
@@ -136,7 +143,7 @@ internal sealed unsafe class ReferenceTracer(GraphicsDevice device) : IDisposabl
                     FromProbe = probe is null ? 0u : 1u,
                     Through = through ? 1u : 0u,
                     Specular = probe is null || gloss == ReferenceGloss.Every ? (uint)gloss : 0u,
-                    Probe = new Vector4(probe ?? Vector3.Zero, 0),
+                    Probe = new Vector4(probe is { } from ? origin.Against(from) : Vector3.Zero, 0),
                 };
                 device.Api.vkCmdPushConstants(cmd, layout, VkShaderStageFlags.Compute, 0, (uint)sizeof(ReferencePush), &push);
                 device.Api.vkCmdDispatch(cmd, (w + 7) / 8, (h + 7) / 8, 1);

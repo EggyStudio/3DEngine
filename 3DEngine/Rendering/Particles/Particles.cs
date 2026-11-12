@@ -450,9 +450,11 @@ internal sealed class ParticleRenderer : IDisposable
 
     // Draws the depth colliding particles meet and hands the step the view it was drawn through,
     // or, with none colliding or no window view, the white texture and collision off, so the step's
-    // set always holds an image it can sample.
+    // set always holds an image it can sample, and with either the frame's origin, which the step
+    // takes a particle against where it meets the field.
     private void SetView(RenderContext renderContext, RenderWorld renderWorld, GraphicsDevice device, GpuTextures textures, bool colliding)
     {
+        var origin = renderWorld.TryGet<RenderOrigin>().AsVector3;
         if (colliding && renderWorld.TryGet<WindowView>() is { } view && renderWorld.TryGet<SwapchainTarget>() is { } swapchain
             && renderWorld.TryGet<ModelRenderer>() is { } models && Matrix4x4.Invert(view.ViewProjection, out var inverse))
         {
@@ -465,7 +467,7 @@ internal sealed class ParticleRenderer : IDisposable
             }
             models.DrawDepth(renderContext, renderWorld, _depth);
             ParticleStages.Of(device).SetParticleView(_depth.DepthView, _depth.Sampler,
-                new ParticleView { ViewProjection = view.ViewProjection, InverseViewProjection = inverse, Depth = Vector4.UnitX },
+                new ParticleView { ViewProjection = view.ViewProjection, InverseViewProjection = inverse, Depth = new Vector4(1, origin.X, origin.Y, origin.Z) },
                 renderWorld.TryGet<SceneFieldBinding>()?.Field);
             return;
         }
@@ -476,7 +478,8 @@ internal sealed class ParticleRenderer : IDisposable
             _depth = null;
         }
         var (white, sampler) = textures.ViewFor(device, 0);
-        ParticleStages.Of(device).SetParticleView(white, sampler, default, renderWorld.TryGet<SceneFieldBinding>()?.Field);
+        ParticleStages.Of(device).SetParticleView(white, sampler, new ParticleView { Depth = new Vector4(0, origin.X, origin.Y, origin.Z) },
+            renderWorld.TryGet<SceneFieldBinding>()?.Field);
     }
 
     private static void Release(State state)

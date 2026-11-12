@@ -221,7 +221,7 @@ internal sealed class AmbientOcclusionRenderer : IDisposable
             return;
         }
         Occlude(renderContext, window.Sized, window.Inverse, window.Eye, window.Window, window.Settings, window.Sun,
-            Illumination.CascadesIn(renderWorld) > 0);
+            Illumination.CascadesIn(renderWorld) > 0, renderWorld.TryGet<RenderOrigin>());
         renderWorld.Set(new AmbientOcclusionImage(window.Sized.Occlusion.ColorView, _sampler!));
     }
 
@@ -249,21 +249,23 @@ internal sealed class AmbientOcclusionRenderer : IDisposable
         if (targets is null) renderWorld.Set(targets = new TargetOcclusion());
         targets.Depths[id] = new WindowDepth(sized.Depth.DepthView, sized.Depth.Sampler, extent);
         if (settings is not { On: true } && sun is null) return;
-        Occlude(renderContext, sized, inverse, eye, size, settings, sun, bounces);
+        Occlude(renderContext, sized, inverse, eye, size, settings, sun, bounces, renderWorld.TryGet<RenderOrigin>());
         targets.Images[id] = new AmbientOcclusionImage(sized.Occlusion.ColorView, _sampler!);
     }
 
     // The occlusion of a view of size, through the inverse of its camera from its eye, worked out
     // into its images from the depth drawn into them, blended with its history, and blurred across
     // and down. Where light bounces, the cascades hold what the field's occlusion would close off.
+    // The passes take the depth's points against the frame's origin, as the field's corners are
+    // handed, and the history its way from clip space to the frame before's, which no origin moves.
     private void Occlude(RenderContext renderContext, Sized sized, Matrix4x4 inverse, Vector3 eye, Extent2D size,
-        AmbientOcclusionSettings? settings, (Vector3 TowardSun, float Reach)? sun, bool bounces)
+        AmbientOcclusionSettings? settings, (Vector3 TowardSun, float Reach)? sun, bool bounces, RenderOrigin origin)
     {
         var on = settings is { On: true };
         var push = new Push
         {
-            InverseViewProjection = inverse,
-            EyeAndRadius = new Vector4(eye, on ? settings!.Radius : 1),
+            InverseViewProjection = origin.Inverse(inverse),
+            EyeAndRadius = new Vector4(origin.Against(eye), on ? settings!.Radius : 1),
             TexelAndStrength = new Vector4(1f / sized.Extent.Width, 1f / sized.Extent.Height, on ? settings!.Intensity : 0, HeightPerUnit(inverse)),
             Mode = new Vector4(0, (float)size.Width / Math.Max(1, size.Height), on ? bounces ? 2 : 1 : 0, _frame % 4096),
             SunAndReach = sun is var (toward, reach) ? new Vector4(toward, reach) : Vector4.Zero,

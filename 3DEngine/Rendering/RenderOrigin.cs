@@ -35,19 +35,27 @@ internal readonly record struct RenderOrigin(double X, double Y, double Z)
     internal static RenderOrigin? Override { get; set; }
 
     /// <summary>The origin as floats, which a vertex stage adds back to a place for the world place it hands on.</summary>
-    public Vector4 AsVector4 => new((float)X, (float)Y, (float)Z, 0);
+    public Vector3 AsVector3 => new((float)X, (float)Y, (float)Z);
 
     /// <summary>The place given less the origin, worked in doubles.</summary>
     public Vector3 Against(Vector3 place) => new((float)(place.X - X), (float)(place.Y - Y), (float)(place.Z - Z));
 
+    /// <summary>The place in xyz less the origin, worked in doubles, and w as it is.</summary>
+    public Vector4 Against(Vector4 place) => new((float)(place.X - X), (float)(place.Y - Y), (float)(place.Z - Z), place.W);
+
+    /// <summary>The world place of a place against the origin, the two added in doubles.</summary>
+    public Vector3 World(Vector3 place) => new((float)(place.X + X), (float)(place.Y + Y), (float)(place.Z + Z));
+
     /// <summary>
-    /// A view-projection that takes a place against the origin to the clip space the one given
-    /// takes the world place to, the origin's translation times it, worked in doubles, its first
-    /// three rows as they are and its fourth the origin's weighing of them added to it.
+    /// A matrix that takes a place against the origin where the one given takes the world place,
+    /// a view-projection to clip space or a box's world to its own space, the origin's translation
+    /// times it, worked in doubles, its first three rows as they are and its fourth the origin's
+    /// weighing of them added to it. At the world's origin, the matrix given.
     /// </summary>
-    public Matrix4x4 ViewProjection(Matrix4x4 viewProjection)
+    public Matrix4x4 Taking(Matrix4x4 matrix)
     {
-        var m = viewProjection;
+        if (this == Zero) return matrix;
+        var m = matrix;
         m.M41 = (float)(X * m.M11 + Y * m.M21 + Z * m.M31 + m.M41);
         m.M42 = (float)(X * m.M12 + Y * m.M22 + Z * m.M32 + m.M42);
         m.M43 = (float)(X * m.M13 + Y * m.M23 + Z * m.M33 + m.M43);
@@ -55,8 +63,32 @@ internal readonly record struct RenderOrigin(double X, double Y, double Z)
         return m;
     }
 
+    /// <summary>
+    /// A matrix that takes what the one given takes to a world place, clip space for an inverse
+    /// view-projection, to the place against the origin, it times the translation back, worked in
+    /// doubles, each of its first three columns less the origin's weighing of its fourth. At the
+    /// world's origin, the matrix given.
+    /// </summary>
+    public Matrix4x4 Inverse(Matrix4x4 inverse)
+    {
+        if (this == Zero) return inverse;
+        var m = inverse;
+        (m.M11, m.M12, m.M13) = ((float)(m.M11 - X * m.M14), (float)(m.M12 - Y * m.M14), (float)(m.M13 - Z * m.M14));
+        (m.M21, m.M22, m.M23) = ((float)(m.M21 - X * m.M24), (float)(m.M22 - Y * m.M24), (float)(m.M23 - Z * m.M24));
+        (m.M31, m.M32, m.M33) = ((float)(m.M31 - X * m.M34), (float)(m.M32 - Y * m.M34), (float)(m.M33 - Z * m.M34));
+        (m.M41, m.M42, m.M43) = ((float)(m.M41 - X * m.M44), (float)(m.M42 - Y * m.M44), (float)(m.M43 - Z * m.M44));
+        return m;
+    }
+
+    /// <summary>
+    /// A plane given by its normal in xyz and how far along it it lies in w, the points whose dot
+    /// with the normal is w, as it lies among places against the origin, worked in doubles.
+    /// </summary>
+    public Vector4 Plane(Vector4 plane) =>
+        plane with { W = (float)(plane.W - (plane.X * X + plane.Y * Y + plane.Z * Z)) };
+
     /// <summary>A view's push to a vertex stage that reads modelpass.slang's ModelPush, through this origin.</summary>
-    public ViewPush Push(Matrix4x4 viewProjection) => new() { ViewProjection = ViewProjection(viewProjection), Origin = AsVector4 };
+    public ViewPush Push(Matrix4x4 viewProjection) => new() { ViewProjection = Taking(viewProjection), Origin = new Vector4(AsVector3, 0) };
 }
 
 /// <summary>

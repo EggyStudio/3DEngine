@@ -65,8 +65,8 @@ public struct SheetVolume : ISheetVolume
 
 public struct FieldCascade
 {
-    // xyz: the world position of the cascade's corner, its first cell's least corner. w: the
-    // width of a cell, or 0 for a cascade not yet built.
+    // xyz: the place of the cascade's corner against the frame's origin (RenderOrigin), its first
+    // cell's least corner. w: the width of a cell, or 0 for a cascade not yet built.
     public float4 originAndCell;
 };
 

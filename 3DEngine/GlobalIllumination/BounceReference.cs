@@ -436,7 +436,11 @@ internal static class BounceReference
         tracer.Device.WaitIdle();
         var log = MemoryMarshal.Cast<byte, Vector4>(tracer.Device.Map(screen.RayLog)).ToArray();
         static Vector3 Xyz(Vector4 v) => new(v.X, v.Y, v.Z);
+        // The probe's point and where its rays start, logged against the frame's origin, in world
+        // numbers.
+        var origin = tracer.Render.TryGet<RenderOrigin>();
         var (p, n, start, sum) = (log[0], log[1], log[2], log[3]);
+        (p, start) = (new Vector4(origin.World(Xyz(p)), p.W), new Vector4(origin.World(Xyz(start)), start.W));
         if (sum.W <= 0)
         {
             why = "the screen probe sent no rays, standing on no surface or outside the world's cascades";

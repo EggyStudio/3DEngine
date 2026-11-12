@@ -233,7 +233,7 @@ public float3 glowLightsHere(ModelVertexOutput input, float3 n, bool screen)
         float distance = length(input.toEye);
         float3 acrossOne = worldAcross(input), downOne = worldDown(input);
         float3 facing = normalize(input.normal);
-        float margin = max(fieldCell(bouncedField, input.world), 0.0) * 0.5;
+        float margin = max(fieldCell(bouncedField, input.place), 0.0) * 0.5;
         float3 alike = float3(0.0), anywhere = float3(0.0);
         float alikeWeight = 0.0, anywhereWeight = 0.0, askWeight = 0.0;
         bool onLight = false;
@@ -265,8 +265,8 @@ public float3 glowLightsHere(ModelVertexOutput input, float3 n, bool screen)
             if (dominant >= 0 && dominant != named)
             {
                 GlowLight light = reflectLights.glows[min(dominant, count - 1)];
-                float faded = glowLightFade(light, input.world, n);
-                rough = faded > 0.0 ? glowLightRough(light, input.world, n, margin) * (faded * glowLightNear(light, input.world)) : float3(0.0);
+                float faded = glowLightFade(light, input.place, n);
+                rough = faded > 0.0 ? glowLightRough(light, input.place, n, margin) * (faded * glowLightNear(light, input.place)) : float3(0.0);
                 named = dominant;
             }
             float3 lit = (dominant >= 0 ? held.rgb * rough : float3(0.0)) + screenGlowFar.Load(texel).rgb;
@@ -287,10 +287,10 @@ public float3 glowLightsHere(ModelVertexOutput input, float3 n, bool screen)
         // pixels they run in.
         [loop]
         for (int i = 0; i < count; i++)
-            if (glowLightNear(reflectLights.glows[i], input.world) > 0.0 && glowLightOn(reflectLights.glows[i], input.world, n, margin))
+            if (glowLightNear(reflectLights.glows[i], input.place) > 0.0 && glowLightOn(reflectLights.glows[i], input.place, n, margin))
                 return float3(0.0);
     }
-    return glowLights(input.world, n, !screen);
+    return glowLights(input.place, n, !screen);
 }
 
 // The share of the light from all around that reaches the pixel a fragment is at, 1 where the view
@@ -326,7 +326,8 @@ public struct ModelVertexOutput
     // there lies far outside its corners'.
     public centroid float3 normal : NORMAL;
     public centroid float3 world : POSITION1;
-    // The world point less the frame's origin, in numbers as small as its distance from the eye.
+    // The world point less the frame's origin (RenderOrigin), which the engine's lighting reads,
+    // where a program's shader reads world.
     public centroid float3 place : POSITION2;
     // Read at the pixel's middle, where their slopes across the screen choose a texture's level and
     // give the surface's way across the pixel (worldAcross). Past a triangle's edge a texture gives
@@ -571,7 +572,7 @@ public LitLight litLight(float3 albedo, ModelVertexOutput input, float shadow = 
         albedo = float3(1.0);
     float reflects = (switches & 2u) != 0u ? 0.0 : 1.0;
     float3 n = surfaceNormal(input);
-    int probe = probeAt(input.world);
+    int probe = probeAt(input.place);
     bool environment = lighting.environment.z > 0.0 || probe >= 0;
 
     float4 packed = metallicRoughnessMap.Sample(input.uv);
@@ -613,7 +614,7 @@ public LitLight litLight(float3 albedo, ModelVertexOutput input, float shadow = 
         // it falls short, since the few like probes it has, normalized to the whole, lend it the
         // light of the wall behind.
         float matched = screenMatched(probes);
-        float near = bouncedHere.x >= 0.0 ? screenHold(input.world, n) * saturate(matched / 0.25) : 0.0;
+        float near = bouncedHere.x >= 0.0 ? screenHold(input.place, n) * saturate(matched / 0.25) : 0.0;
         if (near < 1.0)
         {
             // A pixel the screen's probes stand around on no surface like its own, or on one for
@@ -624,9 +625,9 @@ public LitLight litLight(float3 albedo, ModelVertexOutput input, float shadow = 
             // such pixel, since leaves, grass and far surfaces make many, most of them by no wall
             // that thin.
             bool edge = screen && (bouncedHere.x < 0.0 || matched < 0.25) && probes.near[0] + probes.near[1] + probes.near[2] + probes.near[3] > 0.0
-                && byThinWall(input.world, n);
-            float3 world = edge || (!screen && byThinWall(input.world, n)) ? bouncedSeen(input.world, n)
-                : bouncedAndSky(input.world, n, reflect(-v, n), skyHere);
+                && byThinWall(input.place, n);
+            float3 world = edge || (!screen && byThinWall(input.place, n)) ? bouncedSeen(input.place, n)
+                : bouncedAndSky(input.place, n, reflect(-v, n), skyHere);
             if (world.x >= 0.0)
                 bouncedHere = bouncedHere.x >= 0.0 ? lerp(world, bouncedHere, near) : world;
         }
@@ -638,7 +639,7 @@ public LitLight litLight(float3 albedo, ModelVertexOutput input, float shadow = 
     // light is a sky over a ground (distantAround), the environment's and the ambient lights' light
     // from above and the ground's under it, which the directional lights add their share of.
     bool distant = Bouncing && lighting.indirect.x > 0.0;
-    float held = bounces ? bouncedHold(bouncedField, input.world, n, lighting.indirect.y, lighting.indirect.w) : 0.0;
+    float held = bounces ? bouncedHold(bouncedField, input.place, n, lighting.indirect.y, lighting.indirect.w) : 0.0;
     if (bounces)
         light.diffuse += termTaken(only, 1u) * occlusion * diffuseColor * bouncedHere * held;
     // The glow lights' light straight to the surface, taken here at each pixel rather than at the
@@ -653,13 +654,13 @@ public LitLight litLight(float3 albedo, ModelVertexOutput input, float shadow = 
     // A glossy surface's reflection traced through the scene where global illumination is on, which
     // takes the place of the probe's and the environment's as far as it met a surface and fades
     // back to them as the surface grows rough.
-    float4 traced = tracedReflection(input.world, n, reflect(-v, n), roughness, input.world + input.toEye);
+    float4 traced = tracedReflection(input.place, n, reflect(-v, n), roughness, input.place + input.toEye);
     float gloss = traced.a * (1.0 - smoothstep(lighting.reflection.y * 0.5, lighting.reflection.y, roughness));
     float3 specularShare = ambientReflected(f0, roughness, nv);
     // A surface lying in the plane a program set mirrors the scene drawn from the camera mirrored in
     // it (mirrored), over the trace and the probe's and the environment's as far as it holds and
     // the surface is glossy, with or without global illumination.
-    float4 plane = mirrored(input.position, input.world, n, roughness);
+    float4 plane = mirrored(input.position, input.place, n, roughness);
     float planeShare = plane.a * (1.0 - smoothstep(0.25, 0.5, roughness));
     light.specular += termTaken(only, 3u) * reflects * occlusion * (traced.rgb * gloss * (1.0 - planeShare) + plane.rgb * planeShare) * specularShare;
     gloss += planeShare * (1.0 - gloss);
@@ -678,7 +679,7 @@ public LitLight litLight(float3 albedo, ModelVertexOutput input, float shadow = 
     {
         // Where the surface sees few of the probes around it, as at a wall's foot whose point off
         // the wall lies in the floor's cells, the light reaching the surface stands in for theirs.
-        float4 along = probesReflected(input.world, n, mirror, roughness);
+        float4 along = probesReflected(input.place, n, mirror, roughness);
         if (along.x >= 0.0)
             light.specular += termTaken(only, 4u) * reflects * occlusion * lerp(bouncedHere, along.rgb, along.a) * specularShare * (1.0 - gloss) * waysShare;
         else
@@ -693,7 +694,7 @@ public LitLight litLight(float3 albedo, ModelVertexOutput input, float shadow = 
     if (probe >= 0)
     {
         float lastMip = lighting.probes[probe].halfSizeAndMip.w;
-        float3 reflected = probeSample(probe, boxProjected(probe, input.world, reflect(-v, n)), roughness * lastMip);
+        float3 reflected = probeSample(probe, boxProjected(probe, input.place, reflect(-v, n)), roughness * lastMip);
         float3 around = probeIrradiance(probe, n) * (1.0 - held);
         float strength = lighting.probes[probe].centerAndIntensity.w * occlusion;
         light.diffuse += termTaken(only, 5u) * strength * diffuseColor * around;
@@ -720,7 +721,7 @@ public LitLight litLight(float3 albedo, ModelVertexOutput input, float shadow = 
             // horizon whole inside the field as past it, where read as it is a floor steps where
             // the field ends.
             float open = (mirror.y > 0.0 ? mirror.y * mirror.y : 0.0) + 0.5 * (mirror.x * mirror.x + mirror.z * mirror.z);
-            float seen = skyHere >= 0.0 ? skyHere : skySeen(input.world, n, mirror);
+            float seen = skyHere >= 0.0 ? skyHere : skySeen(input.place, n, mirror);
             float sky = bounces ? lerp(1.0, saturate(seen / max(open, 0.05)), held) : 1.0;
             light.specular += termTaken(only, 8u) * reflects * strength * reflected * specularShare * (1.0 - gloss) * sky * (1.0 - waysShare);
         }
@@ -729,7 +730,7 @@ public LitLight litLight(float3 albedo, ModelVertexOutput input, float shadow = 
     for (int i = 0; i < min(lighting.count, 16); i++)
     {
         Light lamp = lighting.lights[i];
-        float3 arrived = arriving(lamp, input.world, n);
+        float3 arrived = arriving(lamp, input.place, n);
         if (int(lamp.positionAndKind.w) == Ambient)
         {
             // Its reflection as far as the indirect light reaching the surface, the probes' where
@@ -752,7 +753,7 @@ public LitLight litLight(float3 albedo, ModelVertexOutput input, float shadow = 
         // that sees no ground, so a floor takes no second read of the map.
         if (distant && held < 1.0 && n.y < 1.0 && int(lamp.positionAndKind.w) == Directional)
         {
-            float reached = i == lighting.shadowLight ? groundReached(input.world, n) : 1.0;
+            float reached = i == lighting.shadowLight ? groundReached(input.place, n) : 1.0;
             light.diffuse += termTaken(only, 11u) * distantSun(lamp, n, diffuseColor, reached) * occlusion * diffuseColor * (1.0 - held);
         }
 
@@ -762,14 +763,14 @@ public LitLight litLight(float3 albedo, ModelVertexOutput input, float shadow = 
             if (shadow >= 0.0)
                 arrived *= shadow;
             else
-                arrived *= lightReaching(input.world, normalize(input.normal), held);
+                arrived *= lightReaching(input.place, normalize(input.normal), held);
             arrived *= sunContact(input, held);
         }
         else if (lamp.cone.z > 0.0 && int(lamp.positionAndKind.w) == Spot)
-            arrived *= spotLightReaching(input.world, normalize(input.normal), lamp.positionAndKind.xyz, int(lamp.cone.z) - 1);
+            arrived *= spotLightReaching(input.place, normalize(input.normal), lamp.positionAndKind.xyz, int(lamp.cone.z) - 1);
         else if (lamp.cone.z > 0.0)
-            arrived *= pointLightReaching(input.world, normalize(input.normal), lamp.positionAndKind.xyz, int(lamp.cone.z) - 1);
-        float3 l = -fromLight(lamp, input.world);
+            arrived *= pointLightReaching(input.place, normalize(input.normal), lamp.positionAndKind.xyz, int(lamp.cone.z) - 1);
+        float3 l = -fromLight(lamp, input.place);
         float3 fresnel;
         float3 specular = specularReflected(n, v, l, f0, alpha, fresnel);
         // What the surface reflects at its face is not there to scatter diffusely.
@@ -783,7 +784,7 @@ public LitLight litLight(float3 albedo, ModelVertexOutput input, float shadow = 
 // light, no environment, no probe and no global illumination.
 public bool drawnUnlit(ModelVertexOutput input)
 {
-    return lighting.count == 0 && lighting.environment.z <= 0.0 && lighting.indirect.x <= 0.0 && probeAt(input.world) < 0;
+    return lighting.count == 0 && lighting.environment.z <= 0.0 && lighting.indirect.x <= 0.0 && probeAt(input.place) < 0;
 }
 
 // A linear color lit at this point, given sRGB-encoded for the frame, its two shares of light

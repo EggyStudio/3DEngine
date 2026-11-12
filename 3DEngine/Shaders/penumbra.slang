@@ -57,15 +57,16 @@ float depthAt(float2 at, bool fill)
 
 // How much of the shadowed light reaches a point at p, in cascade c's clip space after the
 // divide, its depth in the map at uv between lo and hi, the tile's texels short of its edges, on a
-// surface facing n at world. The search reads over the width a caster at the cascade's near plane
+// surface facing n at place. The search reads over the width a caster at the cascade's near plane
 // would spread the sun to, held to MostTexels either side, and where it finds nothing in front of
 // the point the point is lit; where it does, the filter reads over the width the casters it found,
 // at their mean depth, spread the sun to, a texel either side at least, so the edge is sharp where a
 // caster meets the ground and widens with its height over it, by the sun's width across at a
 // caster's height over the point. Read over twice that width, the edge near a pole's foot would be
-// soft where a hard one is sharp. The taps turn by a hash of the point, which leaves a grain in a
-// wide edge where a fixed disc would leave rings.
-public float cascadeSoftly(int c, float3 p, float2 uv, float2 texel, float2 lo, float2 hi, bool fill, float3 n, float3 world)
+// soft where a hard one is sharp. The taps turn by a hash of the world point, the place given plus
+// the frame's origin, which leaves a grain held to the surface in a wide edge where a fixed disc
+// would leave rings.
+public float cascadeSoftly(int c, float3 p, float2 uv, float2 texel, float2 lo, float2 hi, bool fill, float3 n, float3 place)
 {
     float spread = lighting.shadowSoftness.x;
     float4x4 m = lighting.shadowCascades[c];
@@ -73,7 +74,7 @@ public float cascadeSoftly(int c, float3 p, float2 uv, float2 texel, float2 lo, 
     float texelWorld = lighting.shadowTexels[c];
     float ndcPerTexel = (fill ? 2.0 : 4.0) * texel.x;
     float2 slope = receiverSlope(m, n, ndcPerTexel, 5.67 * texelWorld * zPerWorld);
-    float turn = frac(sin(dot(world, float3(12.9898, 78.233, 37.719))) * 43758.5453) * 6.2831853;
+    float turn = frac(sin(dot(place + lighting.shadowSoftness.yzw, float3(12.9898, 78.233, 37.719))) * 43758.5453) * 6.2831853;
 
     float reach = clamp(0.5 * spread * (p.z / zPerWorld) / texelWorld, 1.0, MostTexels);
     float blockers = 0.0;

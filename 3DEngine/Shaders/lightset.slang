@@ -26,8 +26,9 @@ public struct Probe
     public float4 halfSizeAndMip;
 };
 
-// Laid out as LightingUbo is. The count, the shadowed light's index or -1, how many cascades it
-// has and the shadowed spot light's index or -1 come first, then the world width of a texel of each cascade, the cascades'
+// Laid out as LightingUbo is, every place in it against the frame's origin (RenderOrigin). The
+// count, the shadowed light's index or -1, how many cascades it has and the shadowed spot light's
+// index or -1 come first, then the world width of a texel of each cascade, the cascades'
 // transforms nearest first, and the lights.
 public struct Lighting
 {
@@ -48,12 +49,12 @@ public struct Lighting
     // The width of a point light's shadow texel per unit of distance from it, in x, how many are
     // shadowed in y, and in z how many of them have a layer to each face.
     public float4 pointShadow;
-    // World space to each face's clip space for each shadowed point light, six to a light in the
+    // A place to each face's clip space for each shadowed point light, six to a light in the
     // order +X, -X, +Y, -Y, +Z, -Z.
     public float4x4 pointShadowFaces[72];
     // The width of each shadowed spot light's texel per unit of distance from it, by slot.
     public float4 spotShadowTexels[3];
-    // World space to each shadowed spot light's clip space, by slot.
+    // A place to each shadowed spot light's clip space, by slot.
     public float4x4 spotShadows[10];
     // How many probes are bound, in x, and the probes by the slot their cube is bound at.
     public float4 probeCount;
@@ -81,7 +82,7 @@ public struct Lighting
     // and 4 where the materials' normal maps are, the faces lit by their own normals (gi.toggle
     // normals off), set with global illumination off as well.
     public float4 screen;
-    // The window's camera this frame, world to clip space and back, and the frame before's, both
+    // The window's camera this frame, a place to clip space and back, and the frame before's, both
     // ways, which a glossy surface's reflection is traced through the window's depth with and
     // looked up in the frame before's picture by.
     public float4x4 reflectViewProjection;
@@ -99,7 +100,8 @@ public struct Lighting
     // the program set, linear, apart from the sky the map draws, which reads environment.x alone.
     public float4 environmentLight;
     // x: how wide the sun's shadow's edge spreads per unit of a caster's height over the point it
-    // shades, 0 for an edge as sharp everywhere (cascadeSoftly).
+    // shades, 0 for an edge as sharp everywhere (cascadeSoftly). yzw: the frame's render origin,
+    // which a place is added to for the world point the edge's grain is turned by.
     public float4 shadowSoftness;
     // The plane a program set for the window's glossy surfaces lying in it to mirror the scene in
     // (SetReflectionPlane), its normal toward the side the camera stands on in xyz and how far

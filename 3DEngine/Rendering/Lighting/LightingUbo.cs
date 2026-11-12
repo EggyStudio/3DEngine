@@ -24,7 +24,8 @@ internal struct LightUboEntry
 /// <summary>
 /// CPU mirror of the lighting UBO the model pass reads (<c>modelpass.slang</c>), a count, the
 /// shadowed light and its cascades' world to map transforms, then a fixed-size array of
-/// <see cref="LightUboEntry"/>.
+/// <see cref="LightUboEntry"/>, worked out in world numbers and uploaded with every place in it
+/// against the frame's origin (<c>LightingUboPrepare.Placed</c>).
 /// </summary>
 [StructLayout(LayoutKind.Sequential)]
 internal struct LightingUbo
@@ -131,7 +132,7 @@ internal struct LightingUbo
     /// <summary>
     /// x: how wide the sun's shadow's edge spreads per unit of a caster's height over the point it
     /// shades, twice the tangent of half the sun's width across (<c>E3D.SetShadowSoftness</c>),
-    /// 0 for an edge as sharp everywhere.
+    /// 0 for an edge as sharp everywhere. yzw: the frame's render origin (RenderOrigin).
     /// </summary>
     public Vector4 ShadowSoftness;
 

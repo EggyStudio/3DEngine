@@ -263,6 +263,26 @@ internal static class GlowLights
     }
 
     /// <summary>
+    /// The lights <see cref="Write"/> wrote with their middles and the box about their reach taken
+    /// against <paramref name="origin"/> (RenderOrigin), a place no light holds left empty.
+    /// </summary>
+    public static void Place(Span<byte> bytes, RenderOrigin origin)
+    {
+        var floats = MemoryMarshal.Cast<byte, float>(bytes);
+        if (floats[0] <= 0) return;
+        for (int n = 0; n < (int)floats[0]; n++)
+        {
+            var light = floats.Slice(Head / 4 + n * Bytes / 4, Bytes / 4);
+            if (light[3] <= 0) continue;
+            var middle = origin.Against(new Vector3(light[0], light[1], light[2]));
+            (light[0], light[1], light[2]) = (middle.X, middle.Y, middle.Z);
+        }
+        var (low, high) = (origin.Against(new Vector3(floats[1], floats[2], floats[3])), origin.Against(new Vector3(floats[4], floats[5], floats[6])));
+        (floats[1], floats[2], floats[3]) = (low.X, low.Y, low.Z);
+        (floats[4], floats[5], floats[6]) = (high.X, high.Y, high.Z);
+    }
+
+    /// <summary>
     /// The lights the carried emitters among <paramref name="drawn"/> make, one for each, or, for
     /// each group of boxes square to the world's axes that touch and emit the same light, one
     /// for the group, its box around them all and its share of that box's surface what of theirs no
