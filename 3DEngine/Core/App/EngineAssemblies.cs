@@ -48,7 +48,7 @@ internal static class EngineAssemblies
                 }
                 catch (Exception e) when (e is FileNotFoundException or FileLoadException or BadImageFormatException)
                 {
-                    // A program built on some of the areas' packages and not the rest has fewer.
+                    // A program built on some of the areas' projects and not the rest has fewer.
                 }
             }
         }

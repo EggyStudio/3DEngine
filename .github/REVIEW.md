@@ -1,57 +1,63 @@
 # Review
 
-Reviewed up to `2e870eb6`, a line across a ceiling at 2560 by 1440 that 257's mend uncovered, a glow
-texel's point found at its own middle with the depth of the pixel under it where a texel is no whole
-count of pixels, mended by finding each point at the middle of the depth texel whose depth it takes,
-with a test at two sizes, pushed at 00:59 on 2026-11-12 once the run before it had ended; the suite
-passed both legs, 2,348; packed unpublished as 6.2.41-local.257.1, on which the game's coder reads
-the owner's room at 1440p as at 720p, the line gone and nothing worse; it keeps the form and carries
-the review's files. Before it `0527285a`, item 257, the owner's noise mended, each depth point of
-the glow texels', the screen probes' and the filter's passes kept as its offset from the eye through
-inverseFromEye worked out in doubles, the model pass's slopes taken from the way to the eye, a test
-of the room at the origin and at 4447, 24, 596 reading alike at Low and High, the probe of the rays
-past their reach moved by a rule to one no ray of which passes a slab's edge within a cell, and a
-uint no longer called a word, pushed at 23:23 on 2026-11-11, the push ending the rerun of the commit
-before it, its run green at 00:56 on every system, which settles Verdict 117; the suite passed both
-legs, 2,346; on the owner's room at 2560 by 1440 the steps over 3 levels a row fall from 9 to 22 on
-the published package to 2 or 3, Ore at High costs nothing measurable, 7.41 and 7.38 ms against 7.41
-and 7.52, and sixteen times further out the room reads 0.49 at Low and 0.70 at High against 0.34 and
-0.31 at the origin, said and not asserted; packed unpublished as 6.2.41-local.257 in build/package
-for the game's check; it keeps the form and carries the review's files. Before it `c1243335`, 255's
-first mend, the probes' kernels made together on workers at the first frame that traces them, the
-frame waiting for all, the bounce rooms' cold first frame in 12.3 and 12.1 s where 28.6 and 30.1,
-with the guide's sentences on calling lit once and the game's ask of the engine's item 257, pushed
-at 19:59 on 2026-11-11 once the run before it had ended, its run green on macOS in 55 minutes and
-the Linux legs in 46 and 76 and red in the Windows halves and the examples at the step that keeps an
-artifact, Verdict 117; the suite passed both legs, 2,344; it keeps the form and carries the review's
-files. Two things for its next commit, the guide's colon inside a running sentence and the test's
-count of two at once made to hold however the threads start. Before it `466e4315`, item 6,
-Vortice.Vulkan at 3.3.0, AssimpNetter at 6.0.5 and StbImageSharp at 2.30.16 on the owner's word of
-2026-11-11, pushed at 18:03 with `d276e419`, item 254, pipelines.wait, one run on the last, green at
-19:58 with macOS in 47 minutes, the Linux legs in 59 and 80 and the Windows halves in 115 and 58,
-which settles Verdict 115; the suite passed both legs on each, 2,343; they keep the form and carry
-the review's files. Before them `4d9227d0`, Verdict 116's mend, the hall the faint lights' test
-reads made small enough for a device that draws on its CPU, pushed at 15:49 on 2026-11-11 with
-`d6a009d1`, Verdict 115's mend, a client that names no session looking again and saying what its
-first look saw, the run on the last ended at 17:45 with macOS in 42 minutes and the Windows halves
-in 115 and 105 green, which settles Verdict 116, and both Linux legs red at the runners' package
-mirror, which answered again at 17:54 after two hours and a quarter. Before them `afd5640f`, 250's
-faint lights, a glow light giving a ray's hit under a 32nd of the largest before it taken as one
-point, pushed at 13:19 on 2026-11-11, its run red at 15:27 in the second Windows half alone, the
-hall's new test hanging on that system's device, Verdict 116, macOS, the Linux legs and the first
-Windows half green. The pushes before these stand in REVIEW-ARCHIVE.md's head records.
+Reviewed up to `2b4b3285`, item 261, a dither before the 8-bit write, a grain of up to a level drawn
+from an interleaved gradient and shaped as the sum of two even draws, none at black or white, still
+at a pixel from frame to frame and moving only where the temporal antialiasing blends the frames,
+with SetDither and IsDitherEnabled, on unless set, eight tests that read a capture exactly turning
+it off, pushed at 03:08 on 2026-11-12 once the run before it had ended; the suite passed both legs,
+2,350; it keeps the form and carries the review's files. Before it `2e870eb6`, a line across a
+ceiling at 2560 by 1440 that 257's mend uncovered, a glow texel's point found at its own middle with
+the depth of the pixel under it where a texel is no whole count of pixels, mended by finding each
+point at the middle of the depth texel whose depth it takes, with a test at two sizes, pushed at
+00:59 on 2026-11-12 once the run before it had ended, green at 03:05 with macOS in 61 minutes, the
+Linux legs in 62 and 80 and the Windows halves in 101 and 126; the suite passed both legs, 2,348;
+packed unpublished as 6.2.41-local.257.1, on which the game's coder reads the owner's room at 1440p
+as at 720p, the line gone and nothing worse; it keeps the form and carries the review's files.
+Before it `0527285a`, item 257, the owner's noise mended, each depth point of the glow texels', the
+screen probes' and the filter's passes kept as its offset from the eye through inverseFromEye worked
+out in doubles, the model pass's slopes taken from the way to the eye, a test of the room at the
+origin and at 4447, 24, 596 reading alike at Low and High, the probe of the rays past their reach
+moved by a rule to one no ray of which passes a slab's edge within a cell, and a uint no longer
+called a word, pushed at 23:23 on 2026-11-11, the push ending the rerun of the commit before it, its
+run green at 00:56 on every system, which settles Verdict 117; the suite passed both legs, 2,346; on
+the owner's room at 2560 by 1440 the steps over 3 levels a row fall from 9 to 22 on the published
+package to 2 or 3, Ore at High costs nothing measurable, 7.41 and 7.38 ms against 7.41 and 7.52, and
+sixteen times further out the room reads 0.49 at Low and 0.70 at High against 0.34 and 0.31 at the
+origin, said and not asserted; packed unpublished as 6.2.41-local.257 in build/package for the
+game's check; it keeps the form and carries the review's files. Before it `c1243335`, 255's first
+mend, the probes' kernels made together on workers at the first frame that traces them, the frame
+waiting for all, the bounce rooms' cold first frame in 12.3 and 12.1 s where 28.6 and 30.1, with the
+guide's sentences on calling lit once and the game's ask of the engine's item 257, pushed at 19:59
+on 2026-11-11 once the run before it had ended, its run green on macOS in 55 minutes and the Linux
+legs in 46 and 76 and red in the Windows halves and the examples at the step that keeps an artifact,
+Verdict 117; the suite passed both legs, 2,344; it keeps the form and carries the review's files.
+Two things for its next commit, the guide's colon inside a running sentence and the test's count of
+two at once made to hold however the threads start. Before it `466e4315`, item 6, Vortice.Vulkan at
+3.3.0, AssimpNetter at 6.0.5 and StbImageSharp at 2.30.16 on the owner's word of 2026-11-11, pushed
+at 18:03 with `d276e419`, item 254, pipelines.wait, one run on the last, green at 19:58 with macOS
+in 47 minutes, the Linux legs in 59 and 80 and the Windows halves in 115 and 58, which settles
+Verdict 115; the suite passed both legs on each, 2,343; they keep the form and carry the review's
+files. Before them `4d9227d0`, Verdict 116's mend, the hall the faint lights' test reads made small
+enough for a device that draws on its CPU, pushed at 15:49 on 2026-11-11 with `d6a009d1`, Verdict
+115's mend, a client that names no session looking again and saying what its first look saw, the run
+on the last ended at 17:45 with macOS in 42 minutes and the Windows halves in 115 and 105 green,
+which settles Verdict 116, and both Linux legs red at the runners' package mirror, which answered
+again at 17:54 after two hours and a quarter. Before them `afd5640f`, 250's faint lights, a glow
+light giving a ray's hit under a 32nd of the largest before it taken as one point, pushed at 13:19
+on 2026-11-11, its run red at 15:27 in the second Windows half alone, the hall's new test hanging on
+that system's device, Verdict 116, macOS, the Linux legs and the first Windows half green. The
+pushes before these stand in REVIEW-ARCHIVE.md's head records.
 
-Next 261, a dither before the 8-bit write, asked by the owner of the coder the same evening; then
-256, the engine as one package by Decision 109, and the pack run with publish, so the owner's game
-gets 257 and the dither without waiting for the rest; then 259, the bright pixel at a silhouette's
-edge that bloom spreads into the blobs the owner saw in the distance, with 260, one pixel's light
-read by its terms; then 258, the same fault in the other passes, the shadows, the reprojections and
-the vertices first; then 255's remaining steps, the other first-frame pipelines made together on the
-workers and the trial of the lighting kept as functions, its first mend, the probes' kernels made
-together, at `c1243335`. The game is on 6.2.41 of `894542da` since its `068fd5f`. After them 250's
-further cuts, the hits' glow at 1.41 ms of the screen pass's 3.04 in the Ore example. No budget by
-Decision 94; the door at 8:00 the one target by Decision 95; a fault seen in motion is read in
-motion by Decision 107.
+Next 256, the engine as one package by Decision 109, and the pack run with publish, so the owner's
+game gets 257 and the dither without waiting for the rest; then 259, the bright pixel at a
+silhouette's edge that bloom spreads into the blobs the owner saw in the distance, with 260, one
+pixel's light read by its terms; then 258, the same fault in the other passes, the shadows, the
+reprojections and the vertices first; then 255's remaining steps, the other first-frame pipelines
+made together on the workers and the trial of the lighting kept as functions, its first mend, the
+probes' kernels made together, at `c1243335`. The game is on 6.2.41 of `894542da` since its
+`068fd5f`. After them 250's further cuts, the hits' glow at 1.41 ms of the screen pass's 3.04 in the
+Ore example. No budget by Decision 94; the door at 8:00 the one target by Decision 95; a fault seen
+in motion is read in motion by Decision 107.
 
 REVIEW-ARCHIVE.md beside this file holds, their numbers kept, the items done, the items closed or
 parked, the verdicts settled, Decisions 1 to 93, the Replies before those here and the head records,
@@ -664,3 +670,54 @@ having its own. The guide's sentence on calling lit once is two sentences. The t
 kernels made together has a kernel on the frame's thread wait for a second compile as a worker's
 does, told apart by the task the parallel loop runs it in, so the count of two at once holds
 however the workers start.
+
+Item 256, the engine as one package, after the sibling's 77941f42. The areas' projects are not
+packable, 3DEngine/Directory.Build.props saying so for all, and the flat project packs. While
+packing its project references are private, so the nuspec names no area. A target carries each
+project reference's dll and xml from ReferencePath into lib, the 13 areas' and the Sky module's, and
+a second carries their pdbs into the symbols package, where each area's own symbols package held
+them before. The outside packages the areas build on are named again in the flat project, seven
+added (SDL3-CS.Native, Vortice.Vulkan, AssimpNetter, NVorbis, NLayer, BepuPhysics, BepuUtilities),
+and N 2.8's test now also holds each to the version every area naming it names; N 2.8's text in
+NORM.md is yours to widen to it. The renderer's target that carried Sky is gone, the flat project
+carrying it. No area packed natives of its own or checked anything before its nuspec; SDL3's,
+cimgui's and assimp's come from outside packages, which the natives' test reads from the one
+package's dependencies.
+
+pack.sh packs the one project with its restore and build. A pack with no build after the release
+build left the 13 areas as dependencies, since NuGet takes a reference's privacy from the restore
+and only the pack's own restore is marked as packing; the build finds the assemblies already built.
+Its version check reads 3DEngine.Core.dll inside the one package. build/package-size.py, the
+sibling's, says each package against nuget.org's size, and the pack job runs it right after the
+pack, before the contents are checked or anything kept or pushed, with PackageSizeTests on a limit of
+a few kilobytes, listed under N 1.4 as the other script tests are. The workflows call pack.sh and
+packed no area by name, so they keep their steps; the push's glob finds 3DEngine and the templates
+alone, so the 13 area ids get no further version. The 21 games' nuget.config files, the 2
+templates', BUILDING.md's example, examples-on-package.sh and docs-on-package.py map 3DEngine alone,
+and BUILDING.md, DESIGN.md §9 and three project comments say one package. 3DEngine.Templates stays
+its own package, its projects naming 3DEngine alone. AGENTS.md's modules row says the package
+carries them, which stays true, so AGENTS.md is unchanged.
+
+The local package 6.2.41-local.256, 6,641,343 bytes, 97.47 percent of nuget.org's size left,
+against 4,965,314 for 257.1's flat package and 7,011,723 for its fourteen. It holds lib/net10.0 with
+the dll and xml of 3DEngine, of the 13 areas and of Sky, 30 entries; analyzers/dotnet/cs with the
+generator and its code fixes; README.md, LICENSE, THIRD-PARTY-NOTICES.md and logo.png; 316 content
+files, the shaders and their compiled cache; and its nuspec, whose 11 dependencies are the outside
+packages and none of the engine's. Its symbols package holds the 15 pdbs. Every example of
+3DEngine.Examples, copied outside the repository as examples-on-package.sh copies them, restored
+3DEngine 6.2.41-local.256 alone and built with warnings as errors, and no area package of that
+version was restored. PackageContentsTests read the package and pass, the areas in its lib and none
+a dependency.
+
+The pack run compares no capture by its bytes. compare.py counts a pixel apart past 24 of 255 and
+holds each example to the share it recorded within a point, and captures.tsv's hashes are of the
+captures kept in .github/assets/examples, so the gallery is made again only when they are taken
+and kept again. The sibling draws through its own renderer and its pictures do not move. The game
+draws through this engine's composite with a curve of its own choosing and no temporal
+antialiasing, so its pictures move by up to a level wherever a channel is neither black nor white,
+the grain still from frame to frame, and none of its tests reads a capture's colors.
+
+The suite passed in order, 2,352 in 39 minutes, while the machine carried another session's game
+and a load near 10. The shuffled leg then reached its 40 minutes at AppLeakTests' app 77 of 100 with
+2,334 passed, which test.py counts as passing, a loss to the time limit alone; 18 tests had not run,
+so the shuffled leg alone ran again once the load fell, 2,352 passed in 24 minutes.

@@ -8,22 +8,10 @@
     </PropertyGroup>
 
     <!-- The Sky module, a repository of its own under modules/ and no package, whose assembly and
-         documentation this package carries in its lib folder beside the renderer's, since a
-         package cannot name a project. -->
+         documentation the engine's package carries beside the areas'. -->
     <ItemGroup>
         <ProjectReference Include="..\..\modules\Sky\Sky\Sky.csproj" PrivateAssets="all" />
     </ItemGroup>
-    <PropertyGroup>
-        <TargetsForTfmSpecificBuildOutput>$(TargetsForTfmSpecificBuildOutput);E3DPackModules</TargetsForTfmSpecificBuildOutput>
-    </PropertyGroup>
-    <!-- From the project's own output, where the build copies the module beside the renderer,
-         since the package is packed with no build and resolving the reference again would build
-         the generator. -->
-    <Target Name="E3DPackModules">
-        <ItemGroup>
-            <BuildOutputInPackage Include="$(OutDir)Sky.dll;$(OutDir)Sky.xml" />
-        </ItemGroup>
-    </Target>
 
     <ItemGroup>
         <ProjectReference Include="..\Core\3DEngine.Core.csproj" />

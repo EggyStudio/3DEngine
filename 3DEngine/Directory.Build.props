@@ -17,15 +17,18 @@
         <NoWarn>$(NoWarn.Replace(';CS1591', ''))</NoWarn>
         <WarningsAsErrors>$(WarningsAsErrors);CS1591;CS0419;CS1570;CS1571;CS1572;CS1573;CS1574;CS1580;CS1581;CS1584;CS1587;CS1589;CS1590;CS1592;CS1710;CS1711;CS1712;CS1723;CS1734;CS1735</WarningsAsErrors>
 
-        <!-- Every project is packed at the one version, which build/pack.sh passes to each. -->
+        <!-- The one version, which build/pack.sh passes to the build and the pack. -->
         <Version>0.1.0-preview.1</Version>
+        <!-- An area's project is not packed on its own. The flat project's package carries every
+             area's assembly, so a game names one package and nuget.org holds no id of an area's. -->
+        <IsPackable>false</IsPackable>
         <PackageTags>game-engine;raylib;vulkan;sdl3;imgui;slang;ecs;3d;2d</PackageTags>
         <PackageProjectUrl>https://github.com/EggyStudio/3DEngine</PackageProjectUrl>
         <!-- build/pack.sh writes the commits since the version was last raised to a file it names. -->
         <PackageReleaseNotes Condition="'$(ReleaseNotesFile)' != '' And Exists('$(ReleaseNotesFile)')">$([System.IO.File]::ReadAllText('$(ReleaseNotesFile)'))</PackageReleaseNotes>
     </PropertyGroup>
 
-    <!-- Each package's icon, readme, license and notices. -->
+    <!-- The package's icon, readme, license and notices. -->
     <ItemGroup>
         <None Include="$(MSBuildThisFileDirectory)..\.github\assets\logo.png" Pack="true" PackagePath="\" Visible="false" />
         <None Include="$(MSBuildThisFileDirectory)..\README.md" Pack="true" PackagePath="\" Visible="false" />

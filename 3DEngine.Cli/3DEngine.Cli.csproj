@@ -1,8 +1,8 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <!-- A program on the package gets every area's package through the engine's, and the
-             projects' references reach this one the same way through the engine's project. -->
+        <!-- A program on the package gets every area's assembly in the engine's one package, and
+             the projects' references reach this one through the engine's project. -->
         <DisableTransitiveProjectReferences>false</DisableTransitiveProjectReferences>
         <OutputType>Exe</OutputType>
         <RootNamespace>Engine.Cli</RootNamespace>

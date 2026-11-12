@@ -279,7 +279,7 @@ those of the layers below it:
 
 Each sits in the lowest layer its references allow, and the norm test of the layers fails a
 reference sideways or up (NORM.md, N 1.6). A game references the package `3DEngine` alone, which
-brings each area's package at its version. Every public type keeps the namespace `Engine`, which
+carries every area's assembly. Every public type keeps the namespace `Engine`, which
 §11 promises, so no program sees which project holds a type, and the internals one project reaches
 in another's go through `InternalsVisibleTo` among the engine's projects. Beside the projects are
 the generator, the tests and the examples. The engine's own code lies in no module repository, so a

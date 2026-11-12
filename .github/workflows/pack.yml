@@ -118,6 +118,12 @@ jobs:
 
       - run: build/pack.sh "${{ steps.version.outputs.version }}"
 
+      # Each package against the size nuget.org takes, before any is kept or pushed, so a package
+      # over it fails the run here and not at the push, with each one's size and room in the run's
+      # summary (build/package-size.py).
+      - name: Check each package against nuget.org's size
+        run: python3 build/package-size.py "${{ steps.version.outputs.version }}"
+
       # What the package holds, read from the .nupkg before it is offered, the engine, its
       # generator, documentation, compiled shaders, readme, license, notices and release notes,
       # and its dependencies' native libraries for each system BUILDING.md claims.

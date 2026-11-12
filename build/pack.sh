@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Builds the engine in Release, compiles its shaders into a cache with `e3d shaders`, and packs
-# the library, its areas, the shaders and that cache into build/package, with the `dotnet new`
-# templates beside it. A game built from the package then loads the built-in shaders with no
+# the library, every area's assembly within it, the shaders and that cache into build/package, one
+# package, with the `dotnet new` templates beside it. A game built from the package then loads the built-in shaders with no
 # slangc of its own.
 set -euo pipefail
 cd "$(dirname "$0")/.."
@@ -28,15 +28,16 @@ fi
 if [ ! -s "$notes" ]; then
   echo "No commits since the package before $version." > "$notes"
 fi
-# The engine's package, the flat API's, and a package for each area it depends on, all of the one
-# version, so a game's one reference to 3DEngine brings every area at that version.
-for project in 3DEngine/3DEngine.csproj $(find 3DEngine -mindepth 2 -name '*.csproj' -not -path '*/obj/*' | sort); do
-  dotnet pack "$project" -c Release --no-build -o build/package -p:Version="$version" -p:ReleaseNotesFile="$notes"
-done
+# The engine's one package, the flat API's, carrying every area's assembly and documentation and
+# the Sky module's, so a game's one reference to 3DEngine brings every area at that version. Packed
+# with its restore and build, which dotnet pack marks as packing, so the restore holds the areas'
+# references private and the package names none of them as a dependency; the build finds the
+# assemblies built above as they are.
+dotnet pack 3DEngine/3DEngine.csproj -c Release -o build/package -p:Version="$version" -p:ReleaseNotesFile="$notes"
 # The version the packed assemblies carry, the one the engine names its cache folders by, read from
-# the core area's package, which every other area depends on.
-core="build/package/3DEngine.Core.$version.nupkg"
-carried="$(unzip -p "$core" 'lib/*/3DEngine.Core.dll' | grep -aoE "$(printf '%s' "$version" | sed 's/[.]/[.]/g')(\+[0-9a-f]+)?" | head -1 || true)"
+# the core area's assembly in the package, which every other area builds on.
+package="build/package/3DEngine.$version.nupkg"
+carried="$(unzip -p "$package" 'lib/*/3DEngine.Core.dll' | grep -aoE "$(printf '%s' "$version" | sed 's/[.]/[.]/g')(\+[0-9a-f]+)?" | head -1 || true)"
 if [ "${carried%%+*}" != "$version" ]; then
   echo "the packed 3DEngine.Core.dll does not carry the version $version, so the package's caches would share another version's folders" >&2
   exit 1
@@ -52,4 +53,4 @@ for template in build/templates/content/*/.template.config/template.json; do
   mv "$template.packed" "$template"
 done
 dotnet pack build/templates/3DEngine.Templates.csproj -c Release -o build/package -p:Version="$version"
-echo "packed 3DEngine, its areas and 3DEngine.Templates $version into build/package, with $(wc -l < "$notes") lines of release notes"
+echo "packed 3DEngine and 3DEngine.Templates $version into build/package, with $(wc -l < "$notes") lines of release notes"

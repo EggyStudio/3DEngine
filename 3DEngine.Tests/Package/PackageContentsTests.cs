@@ -7,11 +7,11 @@ using Engine.Tests.Api;
 namespace Engine.Tests.Package;
 
 /// <summary>
-/// The newest engine package in build/package, as <c>build/pack.sh</c> made it, with the packages of
-/// the engine's areas it depends on, opened and read for what a game built on it needs, the flat API
-/// and each area, the generator, the documentation, the compiled shaders, the readme, license,
-/// notices and release notes, and a native library from their dependencies for each system it runs
-/// on. The pack workflow runs these before a package is offered.
+/// The newest engine package in build/package, as <c>build/pack.sh</c> made it, one package carrying
+/// every area, opened and read for what a game built on it needs, the flat API and each area, the
+/// generator, the documentation, the compiled shaders, the readme, license, notices and release
+/// notes, and a native library from its dependencies for each system it runs on. The pack workflow
+/// runs these before a package is offered.
 /// </summary>
 public sealed class PackageContentsTests
 {
@@ -25,19 +25,16 @@ public sealed class PackageContentsTests
         var documentation = Read(package, "lib/net10.0/3DEngine.xml");
         documentation.Should().Contain("M:Engine.E3D.InitWindow(", "the documentation file is the engine's");
 
-        // Each area's package at the same version, its library and its documentation, which the
-        // engine's package names as a dependency, so a game's one reference brings every area.
-        var version = Element(Spec(package), "version")!;
+        // Each area's library and its documentation in the package's own lib folder, so a game's
+        // one reference brings every area, and no area named as a package to depend on.
         foreach (var name in EngineAssemblies.Names.Where(name => name != "3DEngine"))
         {
-            Dependencies(Spec(package)).Should().Contain((name, version), $"the engine's package depends on {name} at its own version");
-            using var area = OpenArea(name, version);
-            Entries(area).Should().Contain([$"lib/net10.0/{name}.dll", $"lib/net10.0/{name}.xml"]);
+            Entries(package).Should().Contain([$"lib/net10.0/{name}.dll", $"lib/net10.0/{name}.xml"], $"the package carries {name}");
+            Dependencies(Spec(package)).Should().NotContain(d => d.Id == name, $"{name} is carried in the package and is no package of its own");
         }
-        // The modules under modules/, no packages of their own, carried beside the renderer with
+        // The modules under modules/, no packages of their own, carried beside the areas with
         // their documentation, so a game compiles against the Sky module's types the API takes.
-        using var rendering = OpenArea("3DEngine.Rendering", version);
-        Entries(rendering).Should().Contain(["lib/net10.0/Sky.dll", "lib/net10.0/Sky.xml"]);
+        Entries(package).Should().Contain(["lib/net10.0/Sky.dll", "lib/net10.0/Sky.xml"]);
     }
 
     [NeedsPackageFact]
@@ -146,27 +143,9 @@ public sealed class PackageContentsTests
             .FirstOrDefault();
     }
 
-    // The package of an area at the version given, beside the engine's.
-    private static ZipArchive OpenArea(string name, string version)
-    {
-        var path = Path.Combine(CheatsheetTests.RepoRoot(), "build", "package", $"{name}.{version}.nupkg");
-        File.Exists(path).Should().BeTrue($"build/pack.sh packs {name} beside the engine's package at its version");
-        return ZipFile.OpenRead(path);
-    }
-
-    // What the engine's package and its areas' depend on that is not the engine's own.
-    private static List<(string Id, string Version)> OutsideDependencies(ZipArchive package)
-    {
-        var spec = Spec(package);
-        var version = Element(spec, "version")!;
-        var all = Dependencies(spec).ToList();
-        foreach (var name in EngineAssemblies.Names.Where(name => name != "3DEngine"))
-        {
-            using var area = OpenArea(name, version);
-            all.AddRange(Dependencies(Spec(area)));
-        }
-        return [.. all.Where(d => !EngineAssemblies.Names.Contains(d.Id)).Distinct()];
-    }
+    // What the engine's package depends on, every one a package from outside.
+    private static List<(string Id, string Version)> OutsideDependencies(ZipArchive package) =>
+        [.. Dependencies(Spec(package)).Where(d => !EngineAssemblies.Names.Contains(d.Id))];
 
     private static ZipArchive Open()
     {

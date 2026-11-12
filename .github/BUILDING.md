@@ -208,9 +208,9 @@ build/pack.sh        # Release build, `e3d shaders` into build/shader-cache, the
 
 The package lands in `build/package` and carries:
 
-- the flat API's library, and as its dependencies a package for each area of the engine at the
-  same version, the platform's bringing SDL3's native libraries through `SDL3-CS.Native` and the
-  renderer's carrying the Sky module beside its library;
+- the flat API's library with every area's library and documentation beside it and the Sky
+  module's, one package, its dependencies the packages from outside the areas build on, as
+  `SDL3-CS.Native`, which brings SDL3's native libraries;
 - the built-in shaders, as content files that land in `source/shaders` beside a game's program;
 - those shaders compiled to SPIR-V by `e3d shaders`, landing in `source/.slang-cache`, so a game
   loads them with no `slangc` of its own;
@@ -219,8 +219,8 @@ The package lands in `build/package` and carries:
 
 A game's own shaders still need `slangc` (through `ENGINE_SLANGC` or `PATH`), or a cache it
 compiles the same way with `e3d shaders <folder> <cache>`. A game outside this repository built
-from a local pack points a `nuget.config` at the folder, which maps `3DEngine` and `3DEngine.*`, the
-areas' packages, to the folder alone (`packageSourceMapping`), as the one below and the games' do,
+from a local pack points a `nuget.config` at the folder, which maps `3DEngine` to the folder alone
+(`packageSourceMapping`), as the one below and the games' do,
 so the version on nuget.org is not taken in its place, and `dotnet add package` is given the
 version, since without one it takes the newest version nuget.org lists before the mapping applies.
 
@@ -321,7 +321,6 @@ place of the one shown:
   <packageSourceMapping>
     <packageSource key="engine">
       <package pattern="3DEngine" />
-      <package pattern="3DEngine.*" />
     </packageSource>
     <packageSource key="nuget.org">
       <package pattern="*" />

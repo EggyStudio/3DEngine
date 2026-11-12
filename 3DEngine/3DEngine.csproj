@@ -1,12 +1,14 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-    <!-- The flat API over every area, the package a game references, which brings the areas'
-         packages with it. The projects of the areas lie in the folders below this one, each with
-         its own project file, so this one compiles the API's folder alone. -->
+    <!-- The flat API over every area, the package a game references, which carries every area's
+         assembly in its lib folder beside its own. The projects of the areas lie in the folders
+         below this one, each with its own project file, so this one compiles the API's folder
+         alone. -->
     <PropertyGroup>
         <AssemblyName>3DEngine</AssemblyName>
         <EnableDefaultItems>false</EnableDefaultItems>
         <PackageId>3DEngine</PackageId>
+        <IsPackable>true</IsPackable>
         <Title>3DEngine</Title>
         <Description>A C# game engine in which a program opens a window, draws each frame with plain static calls named as raylib's functions are, and draws Dear ImGui in the same frame, over SDL3, Vulkan and Slang, with an ECS and source-generated behaviors underneath.</Description>
     </PropertyGroup>
@@ -43,6 +45,16 @@
         </Content>
     </ItemGroup>
 
+    <!-- Every area's project. The package carries each one's assembly and documentation, and none
+         of them is a dependency of the package. NuGet writes a dependency for each project
+         reference the restore does not hold private, so while packing, which dotnet pack marks with
+         _IsPacking for its restore and its pack alike, every reference is private, and otherwise
+         each project of the repository referencing this one sees every area through it. -->
+    <ItemDefinitionGroup Condition="'$(_IsPacking)' == 'true'">
+        <ProjectReference>
+            <PrivateAssets>all</PrivateAssets>
+        </ProjectReference>
+    </ItemDefinitionGroup>
     <ItemGroup>
         <ProjectReference Include="Core\3DEngine.Core.csproj" />
         <ProjectReference Include="Diagnostics\3DEngine.Diagnostics.csproj" />
@@ -57,15 +69,54 @@
         <ProjectReference Include="Scenes\3DEngine.Scenes.csproj" />
         <ProjectReference Include="Modeling\3DEngine.Modeling.csproj" />
         <ProjectReference Include="Gui\3DEngine.Gui.csproj" />
-        <!-- The Sky module's types, which the day sky names, carried by the renderer's package. -->
+        <!-- The Sky module's types, which the day sky names, a repository of its own under modules/
+             and no package, whose assembly the package carries beside the areas'. -->
         <ProjectReference Include="..\modules\Sky\Sky\Sky.csproj" PrivateAssets="all" />
     </ItemGroup>
 
+    <!-- The packages from outside that the areas build on, named again here, since a package
+         depends on what its own project names and the areas are not packages. NormTests' N 2.8
+         holds each to the version its areas name. -->
     <ItemGroup>
         <PackageReference Include="SDL3-CS" Version="3.5.0-preview.20260213-150035" />
+        <PackageReference Include="SDL3-CS.Native" Version="3.5.0-preview.20260205-174353" />
+        <PackageReference Include="Vortice.Vulkan" Version="3.3.0" />
         <PackageReference Include="Twizzle.ImGui-Bundle.NET" Version="1.91.5.2" />
         <PackageReference Include="StbImageSharp" Version="2.30.16" />
+        <PackageReference Include="AssimpNetter" Version="6.0.5" />
+        <PackageReference Include="NVorbis" Version="0.10.5" />
+        <PackageReference Include="NLayer" Version="3.0.0" />
+        <PackageReference Include="BepuPhysics" Version="2.5.0-beta.29" />
+        <PackageReference Include="BepuUtilities" Version="2.5.0-beta.29" />
         <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="5.3.0" />
     </ItemGroup>
+
+    <!-- Each project reference's assembly and documentation, the areas' and the Sky module's, in
+         the package's lib folder beside this project's, from the paths the references resolved
+         to, and each one's symbols in the symbols package beside this project's. build/pack.sh
+         packs with the build, so the references resolve as the build resolves them. The generator
+         is referenced as an analyzer alone and the package carries it in its analyzers folder. -->
+    <PropertyGroup>
+        <TargetsForTfmSpecificBuildOutput>$(TargetsForTfmSpecificBuildOutput);E3DCarryProjects</TargetsForTfmSpecificBuildOutput>
+        <TargetsForTfmSpecificDebugSymbolsInPackage>$(TargetsForTfmSpecificDebugSymbolsInPackage);E3DCarryProjectSymbols</TargetsForTfmSpecificDebugSymbolsInPackage>
+    </PropertyGroup>
+    <Target Name="E3DCarryProjects" DependsOnTargets="ResolveReferences">
+        <ItemGroup>
+            <_E3DCarried Include="@(ReferencePath)" Condition="'%(ReferencePath.ReferenceSourceTarget)' == 'ProjectReference'" />
+            <BuildOutputInPackage Include="@(_E3DCarried)" />
+            <BuildOutputInPackage Include="@(_E3DCarried->'%(RootDir)%(Directory)%(Filename).xml')"
+                                  Condition="Exists('%(RootDir)%(Directory)%(Filename).xml')" />
+        </ItemGroup>
+    </Target>
+    <Target Name="E3DCarryProjectSymbols" DependsOnTargets="ResolveReferences">
+        <ItemGroup>
+            <_E3DCarriedReferences Include="@(ReferencePath)" Condition="'%(ReferencePath.ReferenceSourceTarget)' == 'ProjectReference'" />
+            <_E3DCarriedSymbols Include="@(_E3DCarriedReferences->'%(RootDir)%(Directory)%(Filename).pdb')" />
+            <TfmSpecificDebugSymbolsFile Include="@(_E3DCarriedSymbols)" Condition="Exists('%(FullPath)')">
+                <TargetFramework>$(TargetFramework)</TargetFramework>
+                <TargetPath>%(Filename)%(Extension)</TargetPath>
+            </TfmSpecificDebugSymbolsFile>
+        </ItemGroup>
+    </Target>
 
 </Project>

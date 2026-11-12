@@ -165,6 +165,20 @@ public sealed partial class NormTests
             .Select(m => m.Groups["name"].Value).Where(name => !named.Contains(name));
 
         Hold("2.8", found, "a package the library references that D 8's table does not list");
+
+        // The one package depends on what its own project names, so the flat project names every
+        // package from outside an area builds on, each at the version every area naming it names.
+        static IEnumerable<(string Name, string Version)> Packages(string project) =>
+            Regex.Matches(project, @"<PackageReference Include=""(?<name>[^""]+)"" Version=""(?<version>[^""]+)""")
+                .Select(m => (m.Groups["name"].Value, m.Groups["version"].Value));
+        var flat = Packages(Read("3DEngine/3DEngine.csproj")).ToDictionary(p => p.Name, p => p.Version);
+        var areas = Directory.EnumerateFiles(Path.Combine(Root, "3DEngine"), "*.csproj", SearchOption.AllDirectories)
+            .Where(f => Path.GetDirectoryName(f) != Path.Combine(Root, "3DEngine") && !f.Contains($"{Path.DirectorySeparatorChar}obj{Path.DirectorySeparatorChar}"))
+            .SelectMany(f => Packages(File.ReadAllText(f)).Select(p => (Area: Path.GetFileNameWithoutExtension(f), p.Name, p.Version)));
+        var apart = areas.Where(a => !flat.TryGetValue(a.Name, out var version) || version != a.Version)
+            .Select(a => $"{a.Area} names {a.Name} {a.Version}, the flat project {(flat.TryGetValue(a.Name, out var version) ? version : "not at all")}");
+
+        Hold("2.8", apart, "a package an area builds on that the flat project does not name at the same version");
     }
 
     [Fact]
