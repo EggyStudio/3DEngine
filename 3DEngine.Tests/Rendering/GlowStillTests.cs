@@ -19,9 +19,10 @@ public sealed class GlowStillTests : IDisposable
     }
 
     // GlowFarFromOriginTests' lantern room at the origin, its lantern the one light, held still in a
-    // window of the size given at the quality given, settled and then drawn on. The mean over the
-    // room's glow texels of the frames each blend holds, at most 32, and the mean change of the
-    // frame's level in sRGB's 255ths between two frames after.
+    // window of the size given at the quality given, settled and then drawn on for as many frames as
+    // a still view's blend takes to hold its 32 and a few more. The mean over the room's glow texels
+    // of the frames each blend holds, and the mean change of the frame's level in sRGB's 255ths
+    // between the last two frames.
     private static (double Frames, double Change) Still(GlobalIllumination quality, int width, int height)
     {
         var config = Config.Default.WithWindow("glow still", width, height) with { Headless = true, Offscreen = true, Samples = 1 };
@@ -40,7 +41,8 @@ public sealed class GlowStillTests : IDisposable
         var device = (GraphicsDevice)renderer.Context.Graphics!;
         float[] Frame() => device.ReadFloats(renderer.RenderWorld.TryGet<BloomRenderer>()!.Decoded!.ColorView.Image);
         float[]? first = null, second = null;
-        for (int frame = 0; frame < SceneFieldPlan.SettleFrames + 120; frame++)
+        const int Frames = SceneFieldPlan.SettleFrames + 80;
+        for (int frame = 0; frame < Frames; frame++)
         {
             BeginDrawing();
             ClearBackground(Color.Black);
@@ -51,8 +53,8 @@ public sealed class GlowStillTests : IDisposable
             DrawModel(lantern, Vector3.Zero, 1, Color.White);
             EndMode3D();
             EndDrawing();
-            if (frame == SceneFieldPlan.SettleFrames + 118) first = Frame();
-            if (frame == SceneFieldPlan.SettleFrames + 119) second = Frame();
+            if (frame == Frames - 2) first = Frame();
+            if (frame == Frames - 1) second = Frame();
         }
         var state = device.ReadFloats(renderer.RenderWorld.TryGet<GlobalIlluminationRenderer>()!.Screen!.Glow.State);
         var held = Enumerable.Range(0, state.Length / 4).Select(i => state[i * 4 + 1]).Where(f => f > 0).ToList();
@@ -74,8 +76,10 @@ public sealed class GlowStillTests : IDisposable
         // At 1,440 rows a glow texel spans a part of the depth's texels, and its point, found at the
         // middle of the depth texel it takes its depth from, was looked up in the frame before off
         // its texel's own place, between four texels, so the view never read as still and the blend
-        // held a frame and a half's light; at 720 rows a texel is a whole count of them.
-        foreach (var (width, height) in new[] { (1280, 720), (2560, 1440) })
+        // held a frame and a half's light; at 720 rows a texel is a whole count of them. The rows
+        // alone set that, so each window is a strip a few tens of pixels wide, which a device that
+        // draws on its CPU draws in the time a test has.
+        foreach (var (width, height) in new[] { (48, 720), (48, 1440) })
         {
             var (frames, change) = Still(quality, width, height);
             frames.Should().BeGreaterThan(30, $"at {quality} and {height} rows a still view's glow texels hold their blend's 32 frames");

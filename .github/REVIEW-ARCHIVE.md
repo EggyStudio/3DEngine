@@ -10112,6 +10112,29 @@ batch.
     ceiling's line at `2e870eb6`. It reaches the owner's game with the next published package, the
     one package of 256.
 
+261. **A dither before the 8-bit write.** From the owner on 2026-11-11, to the engine's coder, of
+    hard bands in dark gradients in a crop of the coder's test room. The engine dithers nowhere, and
+    the composite writes 8-bit sRGB through frame.slang's frameShown, so a dark gradient steps by
+    whole levels. A dither of under a level added before that write, the same pattern for the same
+    pixel every frame unless the temporal antialiasing is on, with a test that a dark ramp's steps
+    of a level are broken up and its mean kept, and a picture of the crop before and after for the
+    owner. A small commit, right after 257's.
+
+262. **Whether the glow lights' history finds its own texel in a still view.** From the sibling's
+    `fdf68d62` on 2026-11-12. There a glow texel's point is its pixel's middle, a quarter of a texel
+    off the texel's own, and the frame before's light was looked up at that point, so a still view
+    shared its texel with three others, read as still for 0.56 and steady for 0.13, and kept a
+    frame's light and a seventh where 32 is meant; looked up less the texel's own sample part, a
+    still view's change between frames fell from 0.289 levels to 0.023. gi_screen_glow.slang here
+    keeps the same still, steady and frames and looks the frame before up at the point's place in
+    the image, line 380, and since `2e870eb6` a texel's point is the middle of the depth texel whose
+    depth it takes, which is the texel's own middle only where a texel is a whole count of pixels.
+    One read first, a still view of a wall lit by a glow light alone, what still, steady and frames
+    come to at 1280 by 720 and at 2560 by 1440 and the mean change between two frames; then, where
+    still is under 1, the lookup less the texel's own sample part with a test that a still view
+    holds its light under a tenth of a level from frame to frame. Before 259, being a read of an
+    hour and every glow light's light resting on it.
+
 ## Verdicts settled
 
 Verdicts 1 to 55 are settled, the last two, the drawing leak test's resident bound and the Windows
@@ -15727,6 +15750,60 @@ fifth. Mended no row stands more than 0.07 from the mean of the rows two either 
 sizes agree within 0.01, against bounds of 0.3 and 0.2. On 257's glow pass a row stands 0.92 and
 0.90 out and the taller window reads 0.68 and 0.67 darker, failing; on the pass before 257, 0.86 and
 0.84, and 0.68 and 0.67.
+
+Item 261, the dither. The composite adds to each pixel, after the frame is encoded and before the
+window's eight bits take it, a noise of up to a level either way, likelier small than large as the
+sum of two even draws is, drawn from one interleaved gradient through the inverse of that shape, and
+none where a channel is black or white (frame.slang's frameDither, which a curve of the program's
+own may call too). It holds still at a pixel from frame to frame, the frame's number moving it only
+where temporal antialiasing blends the frames, which reads it away. On unless set, by SetDither and
+IsDitherEnabled, FrameEffects.Dither and a box in the effects' window. A first form summed two draws
+of the gradient, the second the first moved by a fixed offset, so a function of it, and the sum
+came near an even noise of one level; a ramp's neighbors differed 0.27 of the time with it, and it
+was replaced.
+
+DitherTests draws a ramp from 0.03 to 0.09 across 240 pixels after 16 of black, about fifteen
+levels. With the dither 0.654 of the ramp's neighbors differ against 0.063 without, the bounds 0.3
+and 0.1; the mean level reads 15.266 against 15.271, the bound 0.1; the black stays 0. Two captures
+of a still view without temporal antialiasing differ in none of their 2,048 pixels; with it, 871
+differ from one frame to the next, the bound a tenth. On the owner's room at 1280 by 720, the crop
+the owner was shown, 0.894 of neighbors differ against 0.372 and the mean is 18.80 both, the wall's
+rows are as before, and the owner has the crop before and after; it stays in the work folder with
+the room's copy. Eight tests read a window's capture
+exactly or to a level, and failed twelve times on the first suite with the dither on: the
+subsurface terminator's two by a level, the two stereo halves, the stream's quad, the sky's horizon,
+bloom's two shapes, and temporal antialiasing's trail, which read the grain moving each frame as
+what was left behind, 0.0067 against 0.005. Each now turns the dither off, with a line saying it
+reads the colors as the curve gives them, and their classes pass, 159. compare.py counts a pixel
+apart past 24 of 255, and the dither moves a channel a level at most. The examples' captures kept in
+.github/assets/examples change in their bytes when taken again, each drawn through a lit scene's
+composite, and the gallery is made again from them then, as captures.tsv says.
+
+With it the three lines asked before. InverseFromEye's comment says why it is always found where
+it is written, both callers having found the view's floats' inverse and the eye's translation
+having its own. The guide's sentence on calling lit once is two sentences. The test of the probes'
+kernels made together has a kernel on the frame's thread wait for a second compile as a worker's
+does, told apart by the task the parallel loop runs it in, so the count of two at once holds
+however the workers start.
+
+Item 262, read and mended. GlowFarFromOriginTests' lantern room at the origin, lit by its glow light
+alone, held still, settled and drawn 120 frames on. At 1280 by 720 the glow texels' blend holds
+31.96 frames at Low and 31.99 at High of its 32, a still view read as still, since a glow texel
+there spans a whole count of the depth's texels. At 2560 by 1440 it held 1.57 at both, a steady of
+about 0.36 by the blend's own count: since 2e870eb6 the texel's point lies at the middle of the
+depth texel it takes its depth from, and the frame before was looked up at that point, off the
+texel's own place and between four texels. The mean change of the frame between two frames read
+0.0006 and 0.0062 levels at 720 rows, and 0.0059 and 0.0084 at 1,440, small in this room either way.
+The lookup is now less the point's offset from its texel's middle. At 1,440 rows the blend holds
+31.95 and 31.99 frames and the change reads 0.0007 and 0.0061; 720 rows are as they were.
+GlowStillTests holds a still view at both sizes and both qualities to more than 30 frames held and
+a change under a tenth of a level; on the head's shader it reads 1.57 frames and fails.
+
+Item 261, the dither off unless set, on the owner's word that its grain shows on the screen. Effects'
+Dither is false until SetDither(true); SetDither's remarks, IsDitherEnabled's summary, the cheat
+sheet and the guide's row say off unless set; DitherTests reads it off at first and turns it on for
+itself. The eight tests' lines that turn it off are left, doing nothing now and holding them if the
+default turns again. The published package draws as 6.2.41 does in the dark until 263's grain is in.
 
 ## Items closed, parked or shortened
 

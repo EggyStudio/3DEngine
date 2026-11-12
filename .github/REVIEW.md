@@ -1,67 +1,78 @@
 # Review
 
-Reviewed up to `2b4b3285`, item 261, a dither before the 8-bit write, a grain of up to a level drawn
-from an interleaved gradient and shaped as the sum of two even draws, none at black or white, still
-at a pixel from frame to frame and moving only where the temporal antialiasing blends the frames,
-with SetDither and IsDitherEnabled, on unless set, eight tests that read a capture exactly turning
-it off, pushed at 03:08 on 2026-11-12 once the run before it had ended; the suite passed both legs,
-2,350; it keeps the form and carries the review's files. Before it `2e870eb6`, a line across a
-ceiling at 2560 by 1440 that 257's mend uncovered, a glow texel's point found at its own middle with
-the depth of the pixel under it where a texel is no whole count of pixels, mended by finding each
-point at the middle of the depth texel whose depth it takes, with a test at two sizes, pushed at
-00:59 on 2026-11-12 once the run before it had ended, green at 03:05 with macOS in 61 minutes, the
-Linux legs in 62 and 80 and the Windows halves in 101 and 126; the suite passed both legs, 2,348;
-packed unpublished as 6.2.41-local.257.1, on which the game's coder reads the owner's room at 1440p
-as at 720p, the line gone and nothing worse; it keeps the form and carries the review's files.
-Before it `0527285a`, item 257, the owner's noise mended, each depth point of the glow texels', the
-screen probes' and the filter's passes kept as its offset from the eye through inverseFromEye worked
-out in doubles, the model pass's slopes taken from the way to the eye, a test of the room at the
-origin and at 4447, 24, 596 reading alike at Low and High, the probe of the rays past their reach
-moved by a rule to one no ray of which passes a slab's edge within a cell, and a uint no longer
-called a word, pushed at 23:23 on 2026-11-11, the push ending the rerun of the commit before it, its
-run green at 00:56 on every system, which settles Verdict 117; the suite passed both legs, 2,346; on
-the owner's room at 2560 by 1440 the steps over 3 levels a row fall from 9 to 22 on the published
-package to 2 or 3, Ore at High costs nothing measurable, 7.41 and 7.38 ms against 7.41 and 7.52, and
-sixteen times further out the room reads 0.49 at Low and 0.70 at High against 0.34 and 0.31 at the
-origin, said and not asserted; packed unpublished as 6.2.41-local.257 in build/package for the
-game's check; it keeps the form and carries the review's files. Before it `c1243335`, 255's first
-mend, the probes' kernels made together on workers at the first frame that traces them, the frame
-waiting for all, the bounce rooms' cold first frame in 12.3 and 12.1 s where 28.6 and 30.1, with the
-guide's sentences on calling lit once and the game's ask of the engine's item 257, pushed at 19:59
-on 2026-11-11 once the run before it had ended, its run green on macOS in 55 minutes and the Linux
-legs in 46 and 76 and red in the Windows halves and the examples at the step that keeps an artifact,
-Verdict 117; the suite passed both legs, 2,344; it keeps the form and carries the review's files.
-Two things for its next commit, the guide's colon inside a running sentence and the test's count of
-two at once made to hold however the threads start. Before it `466e4315`, item 6, Vortice.Vulkan at
-3.3.0, AssimpNetter at 6.0.5 and StbImageSharp at 2.30.16 on the owner's word of 2026-11-11, pushed
-at 18:03 with `d276e419`, item 254, pipelines.wait, one run on the last, green at 19:58 with macOS
-in 47 minutes, the Linux legs in 59 and 80 and the Windows halves in 115 and 58, which settles
-Verdict 115; the suite passed both legs on each, 2,343; they keep the form and carry the review's
-files. Before them `4d9227d0`, Verdict 116's mend, the hall the faint lights' test reads made small
-enough for a device that draws on its CPU, pushed at 15:49 on 2026-11-11 with `d6a009d1`, Verdict
-115's mend, a client that names no session looking again and saying what its first look saw, the run
-on the last ended at 17:45 with macOS in 42 minutes and the Windows halves in 115 and 105 green,
-which settles Verdict 116, and both Linux legs red at the runners' package mirror, which answered
-again at 17:54 after two hours and a quarter. Before them `afd5640f`, 250's faint lights, a glow
-light giving a ray's hit under a 32nd of the largest before it taken as one point, pushed at 13:19
-on 2026-11-11, its run red at 15:27 in the second Windows half alone, the hall's new test hanging on
-that system's device, Verdict 116, macOS, the Linux legs and the first Windows half green. The
-pushes before these stand in REVIEW-ARCHIVE.md's head records.
+Reviewed up to `8453c44d`, the dither off unless a program turns it on, the owner having seen its
+grain, pushed at 06:01 on 2026-11-12 with `a64815c7`, item 262, the glow lights' history looked up
+less the point's offset from its texel's middle, 31.95 frames held at 2560 by 1440 where 1.57 since
+`2e870eb6`, with a test at both sizes, and `91ec6329`, item 256, the engine as one package by
+Decision 109, the areas' projects no longer packed, the flat project's package carrying every area's
+assembly and Sky's with their documentation and symbols and naming eleven packages from outside and
+none of the engine's, 6,641,343 bytes read by the review from the local package; one run on the
+last, and the pack run with publish, 43158615597, started on it at 06:01, both red on the Linux legs
+by 07:10, Verdict 118, the pack run canceled and nothing published, the build run's macOS in 57
+minutes and Windows halves in 93 and 119 green; the suite passed both legs, 2,354; they keep the
+form and carry the review's files. Before them `2b4b3285`, item 261, a dither before the 8-bit
+write, a grain of up to a level drawn from an interleaved gradient and shaped as the sum of two even
+draws, none at black or white, still at a pixel from frame to frame and moving only where the
+temporal antialiasing blends the frames, with SetDither and IsDitherEnabled, on unless set, eight
+tests that read a capture exactly turning it off, pushed at 03:08 on 2026-11-12 once the run before
+it had ended, green at 05:33 with macOS in 49 minutes, the Linux legs in 44 and 80 and the Windows
+halves in 137 and 144; the suite passed both legs, 2,350; it keeps the form and carries the review's
+files. Before it `2e870eb6`, a line across a ceiling at 2560 by 1440 that 257's mend uncovered, a
+glow texel's point found at its own middle with the depth of the pixel under it where a texel is no
+whole count of pixels, mended by finding each point at the middle of the depth texel whose depth it
+takes, with a test at two sizes, pushed at 00:59 on 2026-11-12 once the run before it had ended,
+green at 03:05 with macOS in 61 minutes, the Linux legs in 62 and 80 and the Windows halves in 101
+and 126; the suite passed both legs, 2,348; packed unpublished as 6.2.41-local.257.1, on which the
+game's coder reads the owner's room at 1440p as at 720p, the line gone and nothing worse; it keeps
+the form and carries the review's files. Before it `0527285a`, item 257, the owner's noise mended,
+each depth point of the glow texels', the screen probes' and the filter's passes kept as its offset
+from the eye through inverseFromEye worked out in doubles, the model pass's slopes taken from the
+way to the eye, a test of the room at the origin and at 4447, 24, 596 reading alike at Low and High,
+the probe of the rays past their reach moved by a rule to one no ray of which passes a slab's edge
+within a cell, and a uint no longer called a word, pushed at 23:23 on 2026-11-11, the push ending
+the rerun of the commit before it, its run green at 00:56 on every system, which settles Verdict
+117; the suite passed both legs, 2,346; on the owner's room at 2560 by 1440 the steps over 3 levels
+a row fall from 9 to 22 on the published package to 2 or 3, Ore at High costs nothing measurable,
+7.41 and 7.38 ms against 7.41 and 7.52, and sixteen times further out the room reads 0.49 at Low and
+0.70 at High against 0.34 and 0.31 at the origin, said and not asserted; packed unpublished as
+6.2.41-local.257 in build/package for the game's check; it keeps the form and carries the review's
+files. Before it `c1243335`, 255's first mend, the probes' kernels made together on workers at the
+first frame that traces them, the frame waiting for all, the bounce rooms' cold first frame in 12.3
+and 12.1 s where 28.6 and 30.1, with the guide's sentences on calling lit once and the game's ask of
+the engine's item 257, pushed at 19:59 on 2026-11-11 once the run before it had ended, its run green
+on macOS in 55 minutes and the Linux legs in 46 and 76 and red in the Windows halves and the
+examples at the step that keeps an artifact, Verdict 117; the suite passed both legs, 2,344; it
+keeps the form and carries the review's files. Two things for its next commit, the guide's colon
+inside a running sentence and the test's count of two at once made to hold however the threads
+start. Before it `466e4315`, item 6, Vortice.Vulkan at 3.3.0, AssimpNetter at 6.0.5 and
+StbImageSharp at 2.30.16 on the owner's word of 2026-11-11, pushed at 18:03 with `d276e419`, item
+254, pipelines.wait, one run on the last, green at 19:58 with macOS in 47 minutes, the Linux legs in
+59 and 80 and the Windows halves in 115 and 58, which settles Verdict 115; the suite passed both
+legs on each, 2,343; they keep the form and carry the review's files. Before them `4d9227d0`,
+Verdict 116's mend, the hall the faint lights' test reads made small enough for a device that draws
+on its CPU, pushed at 15:49 on 2026-11-11 with `d6a009d1`, Verdict 115's mend, a client that names
+no session looking again and saying what its first look saw, the run on the last ended at 17:45 with
+macOS in 42 minutes and the Windows halves in 115 and 105 green, which settles Verdict 116, and both
+Linux legs red at the runners' package mirror, which answered again at 17:54 after two hours and a
+quarter. Before them `afd5640f`, 250's faint lights, a glow light giving a ray's hit under a 32nd of
+the largest before it taken as one point, pushed at 13:19 on 2026-11-11, its run red at 15:27 in the
+second Windows half alone, the hall's new test hanging on that system's device, Verdict 116, macOS,
+the Linux legs and the first Windows half green. The pushes before these stand in
+REVIEW-ARCHIVE.md's head records.
 
-Next a small commit that leaves the dither off unless a program turns it on, the owner having seen
-its grain, then the push of it with `91ec6329`, 256, the engine as one package by Decision 109, and
-`a64815c7`, 262, the glow lights' history at 2560 by 1440, and the pack run with publish on the
-last, so the owner's game gets 257; then 263, the dither's grain not seen, in the owner's steps;
-then 259, the bright pixel at a silhouette's edge that bloom spreads into the blobs the owner saw in
-the distance, with 260, one pixel's light read by its terms; then by Decision 113 the three the
-owner chose on 2026-11-12, 264, the engine drawing against the eye with a call for a moved world,
-258's list its map, then 265, the lighting's kernels written once in the RadianceCascades module,
-then 255's trial of the lighting kept as functions, with 255's other step, the other first-frame
-pipelines made together on the workers and the trial of the lighting kept as functions, its first
-mend, the probes' kernels made together, at `c1243335`. The game is on 6.2.41 of `894542da` since
-its `068fd5f`. After them 250's further cuts, the hits' glow at 1.41 ms of the screen pass's 3.04 in
-the Ore example. No budget by Decision 94; the door at 8:00 the one target by Decision 95; a fault
-seen in motion is read in motion by Decision 107.
+Next Verdict 118's mend, the glow lights' history test made small enough for a device that draws on
+its CPU, and the pack run with publish started again on it, read, tagged and told to the game's
+coder; then 263, the dither's grain not seen, in the owner's steps; then 259, the bright pixel at a
+silhouette's edge that bloom spreads into the blobs the owner saw in the distance, with 260, one
+pixel's light read by its terms; then by Decision 113 the three the owner chose on 2026-11-12, 264,
+the engine drawing against the eye with a call for a moved world, 258's list its map, then 265, the
+lighting's kernels written once in the RadianceCascades module, then 255's trial of the lighting
+kept as functions, with 255's other step, the other first-frame pipelines made together on the
+workers and the trial of the lighting kept as functions, its first mend, the probes' kernels made
+together, at `c1243335`. The game is on 6.2.41 of `894542da` since its `068fd5f`. After them 250's
+further cuts, the hits' glow at 1.41 ms of the screen pass's 3.04 in the Ore example. No budget by
+Decision 94; the door at 8:00 the one target by Decision 95; a fault seen in motion is read in
+motion by Decision 107.
 
 REVIEW-ARCHIVE.md beside this file holds, their numbers kept, the items done, the items closed or
 parked, the verdicts settled, Decisions 1 to 93, the Replies before those here and the head records,
@@ -252,29 +263,6 @@ reverted as the screen probes' limit at shapes about a tile wide, its patches in
     probes', the glow lights' near and far, the specular, and their sum against what was drawn, with
     its test. Made with 259's read where it serves it, or after it.
 
-261. **A dither before the 8-bit write.** From the owner on 2026-11-11, to the engine's coder, of
-    hard bands in dark gradients in a crop of the coder's test room. The engine dithers nowhere, and
-    the composite writes 8-bit sRGB through frame.slang's frameShown, so a dark gradient steps by
-    whole levels. A dither of under a level added before that write, the same pattern for the same
-    pixel every frame unless the temporal antialiasing is on, with a test that a dark ramp's steps
-    of a level are broken up and its mean kept, and a picture of the crop before and after for the
-    owner. A small commit, right after 257's.
-
-262. **Whether the glow lights' history finds its own texel in a still view.** From the sibling's
-    `fdf68d62` on 2026-11-12. There a glow texel's point is its pixel's middle, a quarter of a texel
-    off the texel's own, and the frame before's light was looked up at that point, so a still view
-    shared its texel with three others, read as still for 0.56 and steady for 0.13, and kept a
-    frame's light and a seventh where 32 is meant; looked up less the texel's own sample part, a
-    still view's change between frames fell from 0.289 levels to 0.023. gi_screen_glow.slang here
-    keeps the same still, steady and frames and looks the frame before up at the point's place in
-    the image, line 380, and since `2e870eb6` a texel's point is the middle of the depth texel whose
-    depth it takes, which is the texel's own middle only where a texel is a whole count of pixels.
-    One read first, a still view of a wall lit by a glow light alone, what still, steady and frames
-    come to at 1280 by 720 and at 2560 by 1440 and the mean change between two frames; then, where
-    still is under 1, the lookup less the texel's own sample part with a test that a still view
-    holds its light under a tenth of a level from frame to frame. Before 259, being a read of an
-    hour and every glow light's light resting on it.
-
 263. **The dither's grain not seen.** From the owner on 2026-11-12, to the engine's coder, on the
     sheet of 261, "dithering fixed the banding but now noise is visible on screen. Isn't there a way
     to make it so that the noise from the dithering is not visible?" The sheet showed its crop three
@@ -295,7 +283,17 @@ reverted as the screen probes' limit at shapes about a tile wide, its patches in
     holds still unless the temporal antialiasing blends the frames, so that rule changes only on the
     owner's word, which the sheet puts to them, and a capture a test compares keeps a still grain or
     none. Then the 10-bit swapchain as its own step, the capture's path, the window's targets and
-    the GUI taking 8-bit BGRA today.
+    the GUI taking 8-bit BGRA today. The owner's word to the coder on the four pictures and two
+    sheets, recorded at 07:36 on 2026-11-12, "Both blue noises look great", and asked which, "Keep
+    options to have bands no blue noise and then blue noise with strength so that it can be set in
+    code with the api"; on by default, yes; the 10-bit step, yes, later. So the dither is the still
+    blue-noise table, on unless a program turns it off, SetDither(false) giving the bands, and a new
+    SetDitherStrength from 0 to 1, a half the even grain a level wide and the default, 1 the
+    triangle two levels wide, the two blended between, and under a half a grain narrower than a
+    level with the bands coming back, which the guide says. The grain holds still, the moving tile
+    and the table over time not being needed by the owner's word. The 10-bit swapchain is a step of
+    its own later. After Verdict 118's mend, and the package goes out with it where its commit comes
+    within about two hours of that mend's push.
 
 264. **The engine draws against the eye, and can be told the world moved.** Decision 110 on
     2026-11-12. The float API stays. Inside, a place is taken against the eye before it becomes a
@@ -326,7 +324,23 @@ reverted as the screen probes' limit at shapes about a tile wide, its patches in
 
 ## Verdicts
 
-No verdict is open. Verdicts 56 to 117 are settled, said under each in REVIEW-ARCHIVE.md.
+Verdicts 56 to 117 are settled, said under each in REVIEW-ARCHIVE.md; Verdict 118 is open, the runs
+of `8453c44d` red on Linux by a test hanging on a device that draws on its CPU, nothing published.
+
+118. **The runs of `8453c44d` are red on both Linux legs, a test of the glow lights' history hanging
+    on a device that draws on its CPU, and nothing is published.** In the build run 43158588845 and
+    the pack run with publish 43158615597, both started at 06:01 on 2026-11-12, each Linux leg loses
+    the suite to a test that hung, after 17 m 35 s in order and 21 m 16 s shuffled, 2,045 passed,
+    none failed, 12 skipped and 234 without a result,
+    GlowStillTests.A_Still_View_Holds_Its_Glow_Lights_Light_From_Frame_To_Frame, from `a64815c7`,
+    which hung again after 5 m 2 s run alone; macOS passed in 57 minutes and the Windows halves were
+    still going. The test settles and reads a still view over 120 frames at 1280 by 720 and at 2560
+    by 1440 at two qualities, which the runner's CPU device does not finish within the hang's limit,
+    the shape of Verdict 116 again, and the review accepted it without asking what it costs there.
+    The mend, the test at the two heights it needs in a strip a few tens of pixels wide and as few
+    frames as show the history whole, its time on a CPU device said before it goes up, with the far
+    room's and the ceiling's tests looked at for the same cost. The pack run is canceled, being
+    unable to publish, and is started again on the mend. Written at 07:12 on 2026-11-12.
 
 ## Decisions
 
@@ -751,41 +765,6 @@ kernels made one after another and together, finds one compile in the driver at 
 way and two at once the second, a first compile on a worker waiting for a second to reach it, and
 the two frames the same.
 
-Item 261, the dither. The composite adds to each pixel, after the frame is encoded and before the
-window's eight bits take it, a noise of up to a level either way, likelier small than large as the
-sum of two even draws is, drawn from one interleaved gradient through the inverse of that shape, and
-none where a channel is black or white (frame.slang's frameDither, which a curve of the program's
-own may call too). It holds still at a pixel from frame to frame, the frame's number moving it only
-where temporal antialiasing blends the frames, which reads it away. On unless set, by SetDither and
-IsDitherEnabled, FrameEffects.Dither and a box in the effects' window. A first form summed two draws
-of the gradient, the second the first moved by a fixed offset, so a function of it, and the sum
-came near an even noise of one level; a ramp's neighbors differed 0.27 of the time with it, and it
-was replaced.
-
-DitherTests draws a ramp from 0.03 to 0.09 across 240 pixels after 16 of black, about fifteen
-levels. With the dither 0.654 of the ramp's neighbors differ against 0.063 without, the bounds 0.3
-and 0.1; the mean level reads 15.266 against 15.271, the bound 0.1; the black stays 0. Two captures
-of a still view without temporal antialiasing differ in none of their 2,048 pixels; with it, 871
-differ from one frame to the next, the bound a tenth. On the owner's room at 1280 by 720, the crop
-the owner was shown, 0.894 of neighbors differ against 0.372 and the mean is 18.80 both, the wall's
-rows are as before, and the owner has the crop before and after; it stays in the work folder with
-the room's copy. Eight tests read a window's capture
-exactly or to a level, and failed twelve times on the first suite with the dither on: the
-subsurface terminator's two by a level, the two stereo halves, the stream's quad, the sky's horizon,
-bloom's two shapes, and temporal antialiasing's trail, which read the grain moving each frame as
-what was left behind, 0.0067 against 0.005. Each now turns the dither off, with a line saying it
-reads the colors as the curve gives them, and their classes pass, 159. compare.py counts a pixel
-apart past 24 of 255, and the dither moves a channel a level at most. The examples' captures kept in
-.github/assets/examples change in their bytes when taken again, each drawn through a lit scene's
-composite, and the gallery is made again from them then, as captures.tsv says.
-
-With it the three lines asked before. InverseFromEye's comment says why it is always found where
-it is written, both callers having found the view's floats' inverse and the eye's translation
-having its own. The guide's sentence on calling lit once is two sentences. The test of the probes'
-kernels made together has a kernel on the frame's thread wait for a second compile as a worker's
-does, told apart by the task the parallel loop runs it in, so the count of two at once holds
-however the workers start.
-
 Item 256, the engine as one package, after the sibling's 77941f42. The areas' projects are not
 packable, 3DEngine/Directory.Build.props saying so for all, and the flat project packs. While
 packing its project references are private, so the nuspec names no area. A target carries each
@@ -837,21 +816,16 @@ and a load near 10. The shuffled leg then reached its 40 minutes at AppLeakTests
 2,334 passed, which test.py counts as passing, a loss to the time limit alone; 18 tests had not run,
 so the shuffled leg alone ran again once the load fell, 2,352 passed in 24 minutes.
 
-Item 262, read and mended. GlowFarFromOriginTests' lantern room at the origin, lit by its glow light
-alone, held still, settled and drawn 120 frames on. At 1280 by 720 the glow texels' blend holds
-31.96 frames at Low and 31.99 at High of its 32, a still view read as still, since a glow texel
-there spans a whole count of the depth's texels. At 2560 by 1440 it held 1.57 at both, a steady of
-about 0.36 by the blend's own count: since 2e870eb6 the texel's point lies at the middle of the
-depth texel it takes its depth from, and the frame before was looked up at that point, off the
-texel's own place and between four texels. The mean change of the frame between two frames read
-0.0006 and 0.0062 levels at 720 rows, and 0.0059 and 0.0084 at 1,440, small in this room either way.
-The lookup is now less the point's offset from its texel's middle. At 1,440 rows the blend holds
-31.95 and 31.99 frames and the change reads 0.0007 and 0.0061; 720 rows are as they were.
-GlowStillTests holds a still view at both sizes and both qualities to more than 30 frames held and
-a change under a tenth of a level; on the head's shader it reads 1.57 frames and fails.
-
-Item 261, the dither off unless set, on the owner's word that its grain shows on the screen. Effects'
-Dither is false until SetDither(true); SetDither's remarks, IsDitherEnabled's summary, the cheat
-sheet and the guide's row say off unless set; DitherTests reads it off at first and turns it on for
-itself. The eight tests' lines that turn it off are left, doing nothing now and holding them if the
-default turns again. The published package draws as 6.2.41 does in the dark until 263's grain is in.
+Verdict 118, GlowStillTests hanging on lavapipe. It drew the lantern room 128 frames in windows of
+1280 by 720 and 2560 by 1440 at two qualities. Now each window is a strip 48 pixels wide at 720 and at
+1,440 rows, the rows alone setting how a glow texel spans the depth's texels, drawn 88 frames, the
+eight the field settles in and 80 more, by which the blend holds its 32 and the light at High has
+settled from frame to frame. On the GPU the strips hold 31.79 to 31.97 frames and change 0.0017 to
+0.0121 levels between the last two; on the head's shader before a64815c7 both cases fail. On
+lavapipe here, Mesa's CPU device held to four threads and four cores, the cases took 59 s at Low and
+1 min 12 s at High, holding 31.81 to 32.00 frames and changing 0.0009 to 0.0020; drawn 48 frames,
+High had changed 0.095 at 1,440 rows there and 0.103 on the GPU, so 80. The ceiling's test took
+1 min 23 s and 1 min 39 s on lavapipe at 640 and 480 wide; at 160 and 120 wide, the same rows, it
+takes 52 s and 1 min 4 s, passes here, and fails on the glow pass of 0527285a with a row 0.98 out. The
+far wall's test takes 1 min 11 s and 1 min 17 s on lavapipe and is left as it is, its points along
+the wall placed across the whole window.

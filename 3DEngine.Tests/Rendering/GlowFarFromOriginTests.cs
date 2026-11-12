@@ -163,8 +163,10 @@ public sealed class GlowFarFromOriginTests : IDisposable
         // texel's point found at its own middle with the depth of the pixel under it stood off the
         // ceiling by an amount that came round every third row, and the ceiling's light ran darker
         // with a line across it where the texels' slopes changed.
-        var parted = CeilingRows(quality, 640, 1440);
-        var whole = CeilingRows(quality, 480, 1080);
+        // The rows set the texels' span, so each window is narrow, which a device that draws on its
+        // CPU draws in the time a test has.
+        var parted = CeilingRows(quality, 160, 1440);
+        var whole = CeilingRows(quality, 120, 1080);
         var stands = Enumerable.Range(2, parted.Length - 4).Max(y => Math.Abs(parted[y] - (parted[y - 2] + parted[y + 2]) / 2));
         stands.Should().BeLessThan(0.3, $"at {quality} no row of the ceiling stands out from the rows two either side of it");
         parted.Average().Should().BeApproximately(whole.Average(), 0.2, $"at {quality} the ceiling takes the same light whatever part of a pixel its glow texels span");
