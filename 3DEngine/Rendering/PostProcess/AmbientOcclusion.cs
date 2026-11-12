@@ -238,7 +238,7 @@ internal sealed class AmbientOcclusionRenderer : IDisposable
         var bounces = Illumination.CascadesIn(renderWorld) > 0;
         if (settings is not { On: true } && sun is null && !bounces || renderContext.Device is not GraphicsDevice device
             || renderWorld.TryGet<ModelRenderer>() is not { } models || renderWorld.TryGet<SceneFieldBinding>() is not { } field
-            || !Matrix4x4.Invert(camera, out var inverse) || LightingUboPrepare.EyeOf(camera) is not { } eye)
+            || !Matrix4x4.Invert(camera, out var inverse) || LightingUboPrepare.EyeOf(camera, renderWorld.TryGet<ModelDrawList>()) is not { } eye)
             return;
 
         var extent = new Extent2D(Math.Max(1, size.Width / 2), Math.Max(1, size.Height / 2));

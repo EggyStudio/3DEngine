@@ -94,18 +94,17 @@ at 15:27 in the second Windows half alone, the hall's new test hanging on that s
 Verdict 116, macOS, the Linux legs and the first Windows half green. The pushes before these stand
 in REVIEW-ARCHIVE.md's head records.
 
-The package stands at 6.2.56 from `8561816b`, one package with its templates, published at 12:31 on
-2026-11-12 and tagged v6.2.56, carrying 257, the ceiling's line, the glow lights' history at 1,440
-rows and the dither. Next the pack run with publish of `baa21ff4`, 43243318284, read, tagged and
-told to the game's coder for 176's pinned check; then by Decision 113 the three chosen on
-2026-11-12, 264, the engine drawing against the eye with a call for a moved world, 258's list its
-map, then 265, the lighting's kernels written once in the RadianceCascades module, then 255's trial
-of the lighting kept as functions, with 255's other step, the other first-frame pipelines made
-together on the workers and the trial of the lighting kept as functions, its first mend, the probes'
-kernels made together, at `c1243335`. The game is on 6.2.41 of `894542da` since its `068fd5f`. After
-them 250's further cuts, the hits' glow at 1.41 ms of the screen pass's 3.04 in the Ore example. No
-budget by Decision 94; the door at 8:00 the one target by Decision 95; a fault seen in motion is
-read in motion by Decision 107.
+The package stands at 6.2.60 from `baa21ff4`, one package with its templates, published at 18:58 on
+2026-11-12 by the pack run 43243318284 and tagged v6.2.60, carrying 259's two commits beside what
+6.2.56 of `8561816b` carried, 257, the ceiling's line, the glow lights' history at 1,440 rows and
+the dither. Next by Decision 113 the three chosen on 2026-11-12, 264, the engine drawing against the
+eye with a call for a moved world, 258's list its map, then 265, the lighting's kernels written once
+in the RadianceCascades module, then 255's trial of the lighting kept as functions, with 255's other
+step, the other first-frame pipelines made together on the workers and the trial of the lighting
+kept as functions, its first mend, the probes' kernels made together, at `c1243335`. The game is on
+6.2.41 of `894542da` since its `068fd5f`. After them 250's further cuts, the hits' glow at 1.41 ms
+of the screen pass's 3.04 in the Ore example. No budget by Decision 94; the door at 8:00 the one
+target by Decision 95; a fault seen in motion is read in motion by Decision 107.
 
 REVIEW-ARCHIVE.md beside this file holds, their numbers kept, the items done, the items closed or
 parked, the verdicts settled, Decisions 1 to 93, the Replies before those here and the head records,
@@ -798,3 +797,53 @@ test would not have caught it. Its times on lavapipe here held to four cores are
 s at High with the pipelines made cold and 17 and 22 s with them kept; the Windows runner's come
 from the run after the push. The suite passed both legs, 2,359. 3405714a's test is in its run,
 43266966531, still going, and its Windows time comes in the next Reply.
+
+Item 264, part 2, the origin at the eye. The renderer stands the render origin at the window
+camera's eye rounded to a whole count of 16 units along each axis (RenderOrigin.Near), where the
+plan said the eye as given, for two reasons. A whole origin leaves a place far out exactly the float
+the program gave, the difference of two floats of the same step, and the ray scene's top level,
+built again whenever its copies' records change, is built as the eye crosses a step and not each
+frame the camera moves, a build that waits on every pass before it. A place near the eye stays under
+14 units, so the precision near it is a float's at that size. Each camera's eye is noted with its
+view-projection where BeginMode3D or a camera entity makes it (ModelDrawList.NoteEye), with the
+view-projection made with the eye at nothing, and every view of a noted camera is pushed as that
+times the way from the origin to the eye, worked in doubles (RenderOrigin.Seen), since the
+view-projection made in floats far out carries the rounding of its translation, which no origin
+taken after it takes back. The rest of the part's list. The culling's boxes are found from the
+instances against the origin and its planes from the pushed view, and the translucent order reads
+the same. The immediate pass's 3D shapes of the engine's own shader, drawn through a noted camera,
+are uploaded against the origin and pushed from the eye; a shader of the program's own keeps the
+world numbers it was given, as a model shader's world does. The moving entities' rows now and the
+frame before are taken against the origin and their two views pushed from their eyes, the frame
+before's without its jitter. The particles' placing rows are handed against the origin, so a
+particle in its emitter's space is placed in small numbers, and the eye they are sorted from in that
+space is found with the emitter's matrix against the origin. The eye is handed where the frame noted
+one in place of inverting a view-projection. The ECS chunks need nothing more, being copied into the
+ring and rebased there with the rest. The sky's cube is an instance and follows. The guide's section
+on moving vertices says how a stage of a program's own places a vertex and that world is the place
+plus modelPush.origin. Left to the later parts as planned are the shadows' cascades fitted in world
+floats (3), whose sun shadows are the one difference left in a trial room with them, the frame
+before (4) and the points from the depth (5); a probe's faces and the mirror's view are pushed from
+their float matrices without an eye, as is a matrix a program sets through rlgl. RenderOriginTests
+adds a room drawn at 4,096, 71,680 and 1,140,736 units out with the origin at the eye, its floor,
+wall and blocks, a mesh entity, a lamp, the sun, the immediate pass's cubes and line and particles
+in their emitter's space on eighths of a unit, the lights without shadows and global illumination at
+Low, and reads it against the room at the world's origin within a tenth of a level at every pixel.
+It reads 0.000 at all three on the RTX 4070 and on lavapipe, every pixel the same, since every place
+handed is the float the room at the origin hands. With each view pushed from its float matrix, the
+eyes set aside, it reads 0.14, 175 and 180 levels apart. Its places are whole counts of 1,024 so the
+field's cascades and the probes lie alike about it; at 4,450 and 1,112.5, off the field's snap, a
+trial room's white block read about 4 levels apart on its face from the room at the origin, the
+field's grid falling at another phase against the room, which is part 8's question and the sibling's
+item 137. In a trial room with the sun's shadows at 320 by 180, the room at 1,140,736 read a mean of
+7.3 levels apart with 4,205 pixels past 16 with the origin held at the world's own, and 0.028 with
+30 past 16 with it at the eye, all 30 in the sun's shadows. Ore at High costs nothing measurable,
+its frame 7.42 and 7.39 ms on a0af50a3's local package against 7.41 and 7.41 on this one's, run in
+turn on the GPU held alone. The test's times on lavapipe here held to four cores are 26 s at 4,096
+with the pipelines made cold, 12 and 13 s at the others. The suite passed both legs, 2,362. Packed
+unpublished as 6.2.56-local.264.2 in build/package, from this commit, for the game's reading at
+4,432, 71,000 and 1,140,000 with its own origin off; a0af50a3's as 6.2.56-local.264.1 in my work
+folder for the cost alone. In 3405714a's run, 43266966531, the second and third Windows jobs were
+green in 84 and 67 minutes, the Rendering part's six processes in 40, 26, 9, 9, 42 and 11, the first
+and fifth the long ones; the digests name no RenderOriginTests among the slowest, and its own time
+comes from the logs once the first job has ended.

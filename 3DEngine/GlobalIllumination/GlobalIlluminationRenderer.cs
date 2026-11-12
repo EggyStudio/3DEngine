@@ -349,8 +349,9 @@ internal sealed partial class GlobalIlluminationRenderer : IIlluminationPasses, 
             state = _targets[id] = new TargetScreen(GpuScreenProbes.Create(device, size.Width, size.Height, tile, glowTexel)) { GlowOnly = glowOnly };
         }
         state.Drawn = _frame;
+        // The eye the frame noted the camera with, or the middle of its near plane.
         var eye = Vector4.Transform(new Vector4(0, 0, 0, 1), inverse);
-        var at = new Vector3(eye.X, eye.Y, eye.Z) / eye.W;
+        var at = renderWorld.TryGet<ModelDrawList>()?.EyeOf(camera)?.Eye ?? new Vector3(eye.X, eye.Y, eye.Z) / eye.W;
         var jitter = JitterAt(_frame, tile);
         var bytes = ViewBytes(camera, inverse, at, state.Screen, depth.Extent, size, jitter, state.Last, renderWorld.TryGet<RenderOrigin>());
         _retired.Add((_frame, GlobalIlluminationStages.Of(device).RecordScreenProbes(renderContext.CommandBuffer, _gi, state.Screen, field.Field, depth.View, depth.Sampler, bytes, _glowCount > 0,

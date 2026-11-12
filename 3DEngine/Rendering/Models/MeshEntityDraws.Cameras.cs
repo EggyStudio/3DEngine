@@ -38,7 +38,9 @@ internal sealed partial class MeshEntityDraws
     // A camera entity's view-projection and eye. The shape is its render texture's, or the
     // window's, or with no window (an offscreen run) the size the config asked for, at which
     // the frames are drawn, since a square one there stretches every mesh entity of an offscreen
-    // capture against the 2D drawing beside it.
+    // capture against the 2D drawing beside it. The eye and the view-projection with the eye at
+    // nothing are noted with the frame's draws, which the passes push the view from against the
+    // frame's origin.
     private static (Matrix4x4 ViewProjection, Vector3 Eye) Through(World world, EcsWorld ecs, int entity, in Camera camera)
     {
         var (width, height) = camera.Target.IsValid ? (camera.Target.Texture.Width, camera.Target.Texture.Height)
@@ -46,7 +48,7 @@ internal sealed partial class MeshEntityDraws
             : world.TryGetResource<OffscreenSurface>(out var surface) ? ((int)surface.Size.Width, (int)surface.Size.Height)
             : world.TryGetResource<Config>(out var config) ? (config.WindowData.Width, config.WindowData.Height) : (1, 1);
         var aspect = height > 0 ? (float)width / height : 1f;
-        var (view, projection) = CameraExtract.Matrices(ecs, entity, camera, aspect);
+        var (view, projection, turn) = CameraExtract.Turned(ecs, entity, camera, aspect);
         // The window's, moved by its part of a pixel this frame where temporal antialiasing is on.
         if (!camera.Target.IsValid)
         {
@@ -54,7 +56,9 @@ internal sealed partial class MeshEntityDraws
             if (!shift.IsIdentity) TemporalJitter.Moved(world, shift);
             projection *= shift;
         }
-        return (view * projection, TransformPropagation.WorldMatrix(ecs, entity).Translation);
+        var (viewProjection, eye) = (view * projection, TransformPropagation.WorldMatrix(ecs, entity).Translation);
+        if (world.TryGetResource<ModelDrawList>(out var draws)) draws.NoteEye(viewProjection, new ViewEye(eye, turn * projection));
+        return (viewProjection, eye);
     }
 
     /// <summary>

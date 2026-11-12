@@ -44,7 +44,7 @@ internal sealed class LightingUboPrepare : IPrepareSystem
         // fitted to, so they hold still under it.
         var windowCamera = draws?.WindowViewProjection * (renderWorld.TryGet<WindowView>()?.Back ?? System.Numerics.Matrix4x4.Identity);
         var first = windowCamera ?? (draws?.Targets() is [var t, ..] ? draws!.ViewProjectionOf(t) : null);
-        var eye = first is { } camera0 ? EyeOf(camera0) : null;
+        var eye = first is { } camera0 ? EyeOf(camera0, draws) : null;
         BindProbes(renderWorld, ref ubo, eye);
 
         // The lights without their shadows, which each view's buffer starts from. The spot and
@@ -52,9 +52,9 @@ internal sealed class LightingUboPrepare : IPrepareSystem
         // the window's and each render target's, since their maps serve all of them.
         var unshadowed = ubo;
         var views = new List<(System.Numerics.Vector3? Eye, System.Numerics.Matrix4x4? Camera)>();
-        if (windowCamera is { } seen) views.Add((EyeOf(seen), seen));
+        if (windowCamera is { } seen) views.Add((EyeOf(seen, draws), seen));
         foreach (var target in draws?.Targets() ?? [])
-            if (draws!.ViewProjectionOf(target) is { } targetCamera) views.Add((EyeOf(targetCamera), targetCamera));
+            if (draws!.ViewProjectionOf(target) is { } targetCamera) views.Add((EyeOf(targetCamera, draws), targetCamera));
         var casters = Casters(renderWorld, lights, ubo.LightCount, views);
         // Each view's shadow, shared by views near enough to read one set of cascades alike.
         var cameras = new List<(int View, System.Numerics.Matrix4x4 Camera)>();
@@ -367,9 +367,11 @@ internal sealed class LightingUboPrepare : IPrepareSystem
         return true;
     }
 
-    // Where a camera is, near enough, the middle of its near plane.
-    internal static System.Numerics.Vector3? EyeOf(System.Numerics.Matrix4x4 viewProjection)
+    // Where a camera is, as the frame noted it with the view-projection where it did, or near
+    // enough, the middle of its near plane.
+    internal static System.Numerics.Vector3? EyeOf(System.Numerics.Matrix4x4 viewProjection, ModelDrawList? draws = null)
     {
+        if (draws?.EyeOf(viewProjection) is { } noted) return noted.Eye;
         if (!System.Numerics.Matrix4x4.Invert(viewProjection, out var inverse)) return null;
         var near = System.Numerics.Vector4.Transform(new System.Numerics.Vector4(0, 0, 0, 1), inverse);
         return near.W == 0 ? null : new System.Numerics.Vector3(near.X, near.Y, near.Z) / near.W;

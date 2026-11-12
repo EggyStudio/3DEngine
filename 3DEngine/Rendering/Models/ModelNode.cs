@@ -434,7 +434,7 @@ internal sealed partial class ModelRenderer : IDisposable
             ref readonly var batch = ref span[b];
             if (IsAlone(batch.Shadow)) continue;
             var through = viewProjection ?? batch.ViewProjection;
-            if (culledThrough != through) (frustum, culledThrough) = (new Frustum(through, depth), through);
+            if (culledThrough != through) (frustum, culledThrough) = (new Frustum(Placed(through), depth), through);
             if (!frustum.SeesAny(batch, blocks)) continue;
             var draw = batch.Custom >= 0 ? draws.Draws[batch.Custom] : default;
             // A shader unloaded after the draw was recorded draws with the model pass's own.
@@ -473,7 +473,7 @@ internal sealed partial class ModelRenderer : IDisposable
         {
             ref readonly var batch = ref span[planned.Batch];
             var through = viewProjection ?? batch.ViewProjection;
-            if (culledThrough != through) (frustum, culledThrough) = (new Frustum(through, depth), through);
+            if (culledThrough != through) (frustum, culledThrough) = (new Frustum(Placed(through), depth), through);
             var keptTo = viewProjection is null ? batch.Scissor : null;
             if (keptTo != scissored)
             {
@@ -527,7 +527,7 @@ internal sealed partial class ModelRenderer : IDisposable
     private View ViewBatches(int target, IGraphicsDevice gfx, ModelDrawList draws, GpuMeshes meshes, GpuTextures textures, ShaderStore? store,
         RenderOrigin origin)
     {
-        _origin = origin;
+        (_origin, _draws) = (origin, draws);
         if (!_views.TryGetValue(target, out var view))
         {
             // The views of render targets no longer drawn into are let go before another is added.

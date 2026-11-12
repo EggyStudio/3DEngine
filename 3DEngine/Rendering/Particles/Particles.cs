@@ -164,13 +164,14 @@ internal sealed class ParticleRenderer : IDisposable
         if (_drawn.Count == 0 || renderContext.Device is not GraphicsDevice device || renderWorld.TryGet<RenderParticles>() is not { } frame) return;
         Vector3? eye = target == 0 ? frame.ViewProjection is null ? null : frame.Eye
             : frame.Targets.TryGetValue(target, out var flat) ? flat.Eye
-            : renderWorld.TryGet<ModelDrawList>()?.ViewProjectionOf(target) is { } own ? EyeOf(own) : null;
+            : renderWorld.TryGet<ModelDrawList>() is { } draws && draws.ViewProjectionOf(target) is { } own ? draws.EyeOf(own)?.Eye ?? EyeOf(own) : null;
         if (eye is not { } from) return;
         foreach (var state in _drawn)
         {
             if (state.Emitter.Blend != ParticleBlend.Alpha) continue;
-            if (state.Born.Span > 0 && Within(state.BornBy, from) is var born && state.Born.SortedFrom != born) Sort(renderContext, device, state.Born, born);
-            if (state.Placed is { } placed && Within(state.World, from) is var placedFrom && placed.SortedFrom != placedFrom) Sort(renderContext, device, placed, placedFrom);
+            var origin = renderWorld.TryGet<RenderOrigin>();
+            if (state.Born.Span > 0 && Within(state.BornBy, from, origin) is var born && state.Born.SortedFrom != born) Sort(renderContext, device, state.Born, born);
+            if (state.Placed is { } placed && Within(state.World, from, origin) is var placedFrom && placed.SortedFrom != placedFrom) Sort(renderContext, device, placed, placedFrom);
         }
     }
 
@@ -240,14 +241,16 @@ internal sealed class ParticleRenderer : IDisposable
             state.Born.SortedFrom = null;
             if (span > 0)
             {
-                ParticleStages.Of(device).RecordParticles(renderContext.CommandBuffer, state.Born.Gpu, in step, state.BornBy, FacingOf(emitter), span);
+                // The rows the draw places them by, their translation against the frame's origin.
+                ParticleStages.Of(device).RecordParticles(renderContext.CommandBuffer, state.Born.Gpu, in step, renderWorld.TryGet<RenderOrigin>().Against(state.BornBy),
+                    FacingOf(emitter), span);
                 Stepped += span;
                 // Laid over by alpha, they are sorted far to near from the window's camera, which the
                 // draw then reads them in, and again from a render texture's own before it is drawn
                 // (SortFor), each from the eye in the space the particles are kept in.
-                if (emitter.Blend == ParticleBlend.Alpha) Sort(renderContext, device, state.Born, Within(state.BornBy, frame.Eye));
+                if (emitter.Blend == ParticleBlend.Alpha) Sort(renderContext, device, state.Born, Within(state.BornBy, frame.Eye, renderWorld.TryGet<RenderOrigin>()));
             }
-            Place(renderContext, device, state, frame.Eye);
+            Place(renderContext, device, state, frame.Eye, renderWorld.TryGet<RenderOrigin>());
             if (span > 0 || state.Placed is not null) _drawn.Add(state);
         }
 
@@ -268,8 +271,9 @@ internal sealed class ParticleRenderer : IDisposable
     }
 
     // The particles the program placed at the emitter's points, made again where the points
-    // changed, their header written for this frame, and sorted where they are laid over by alpha.
-    private void Place(RenderContext renderContext, GraphicsDevice device, State state, Vector3 eye)
+    // changed, their header written for this frame with the rows that place them against the
+    // frame's origin, and sorted where they are laid over by alpha.
+    private void Place(RenderContext renderContext, GraphicsDevice device, State state, Vector3 eye, RenderOrigin origin)
     {
         var emitter = state.Emitter;
         if (emitter.Points is not { Length: > 0 } points)
@@ -289,8 +293,8 @@ internal sealed class ParticleRenderer : IDisposable
         var count = state.Placed.Gpu.Capacity;
         ReadOnlySpan<Vector4> header = [Linear(emitter.StartColor), Linear(emitter.EndColor), Look(emitter), new Vector4(count, 0, count - 1, 0)];
         (state.Placed.Newest, state.Placed.Span) = (count - 1, count);
-        ParticleStages.Of(device).RecordParticleHeader(renderContext.CommandBuffer, state.Placed.Gpu, header, state.World, FacingOf(emitter));
-        if (emitter.Blend == ParticleBlend.Alpha) Sort(renderContext, device, state.Placed, Within(state.World, eye));
+        ParticleStages.Of(device).RecordParticleHeader(renderContext.CommandBuffer, state.Placed.Gpu, header, origin.Against(state.World), FacingOf(emitter));
+        if (emitter.Blend == ParticleBlend.Alpha) Sort(renderContext, device, state.Placed, Within(state.World, eye, origin));
         else state.Placed.SortedFrom = null;
     }
 
@@ -305,9 +309,11 @@ internal sealed class ParticleRenderer : IDisposable
     private static double LongestLife(in ParticleEmitter emitter) =>
         Math.Max(0.01, emitter.Life) * (1 + Math.Clamp(emitter.LifeVariation, 0, 1)) * 1.01 + 1e-3;
 
-    // The eye in the space particles placed by placedBy are kept in, which they are sorted from.
-    private static Vector3 Within(Matrix4x4 placedBy, Vector3 eye) =>
-        placedBy.IsIdentity || !Matrix4x4.Invert(placedBy, out var inverse) ? eye : Vector3.Transform(eye, inverse);
+    // The eye in the space particles placed by placedBy are kept in, which they are sorted from, the
+    // matrix and the eye both taken against the frame's origin first, so neither carries a float of
+    // the world's size into the inverse.
+    private static Vector3 Within(Matrix4x4 placedBy, Vector3 eye, RenderOrigin origin) =>
+        placedBy.IsIdentity || !Matrix4x4.Invert(origin.Against(placedBy), out var inverse) ? eye : Vector3.Transform(origin.Against(eye), inverse);
 
     // Which way an emitter's particles face, as the header's last value holds it, the normal in xyz,
     // up where it is zero, and the facing in w.
@@ -372,7 +378,8 @@ internal sealed class ParticleRenderer : IDisposable
         var (camera, from) = through is not null ? (through, eye)
             : target == 0 ? (frame.ViewProjection, frame.Eye)
             : frame.Targets.TryGetValue(target, out var flat) ? (flat.ViewProjection, flat.Eye)
-            : renderWorld.TryGet<ModelDrawList>()?.ViewProjectionOf(target) is { } own ? (own, EyeOf(own)) : ((Matrix4x4?)null, Vector3.Zero);
+            : renderWorld.TryGet<ModelDrawList>() is { } draws && draws.ViewProjectionOf(target) is { } own ? (own, draws.EyeOf(own)?.Eye ?? EyeOf(own))
+            : ((Matrix4x4?)null, Vector3.Zero);
         eye = from;
         if (camera is not { } viewProjection) return;
         var gfx = renderContext.Device;
@@ -380,7 +387,7 @@ internal sealed class ParticleRenderer : IDisposable
         _fragment ??= gfx.CreateShader(new ShaderDesc(ShaderStage.Fragment, _fragmentSpv));
         _particleLayout ??= gfx.CreateDescriptorSetLayout(_particleBindings);
         var lights = models.LightsFor(gfx, renderWorld, textures, target);
-        var push = renderWorld.TryGet<RenderOrigin>().Push(viewProjection);
+        var push = renderWorld.TryGet<RenderOrigin>().Push(viewProjection, renderWorld.TryGet<ModelDrawList>()?.EyeOf(viewProjection));
 
         _drawn.Sort((a, b) => a.Emitter.Blend != b.Emitter.Blend
             ? a.Emitter.Blend == ParticleBlend.Additive ? -1 : 1

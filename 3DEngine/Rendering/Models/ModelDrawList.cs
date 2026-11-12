@@ -72,6 +72,7 @@ internal sealed class ModelDrawList
     private readonly object _gate = new();
     private readonly List<ModelDraw> _draws = [];
     private readonly List<InstanceGroup> _groups = [];
+    private readonly Dictionary<Matrix4x4, ViewEye> _eyes = [];
 
     /// <summary>The meshes recorded this frame, in recording order.</summary>
     public IReadOnlyList<ModelDraw> Draws => _draws;
@@ -116,6 +117,22 @@ internal sealed class ModelDrawList
         foreach (var group in _groups)
             if (group.Count > 0 && group.Template.Target != 0 && !targets.Contains(group.Template.Target)) targets.Add(group.Template.Target);
         return targets;
+    }
+
+    /// <summary>
+    /// Records where the camera of a view-projection the frame draws through stood and its
+    /// view-projection with the eye at nothing, which the passes push it from against the frame's
+    /// origin (<see cref="RenderOrigin.Seen"/>).
+    /// </summary>
+    internal void NoteEye(Matrix4x4 viewProjection, ViewEye eye)
+    {
+        lock (_gate) _eyes[viewProjection] = eye;
+    }
+
+    /// <summary>The eye a view-projection was noted with this frame, or null for one made without a camera, as a light's.</summary>
+    internal ViewEye? EyeOf(Matrix4x4 viewProjection)
+    {
+        lock (_gate) return _eyes.TryGetValue(viewProjection, out var eye) ? eye : null;
     }
 
     /// <summary>Records a group of instances for the frame, drawn as one batch of the group's mesh and maps.</summary>
@@ -168,6 +185,7 @@ internal sealed class ModelDrawList
         {
             _draws.Clear();
             _groups.Clear();
+            _eyes.Clear();
             Moving.Clear();
         }
     }
@@ -343,6 +361,15 @@ internal struct MovingInstance
     {
         (NowX, NowY, NowZ) = (new(now.M11, now.M21, now.M31, now.M41), new(now.M12, now.M22, now.M32, now.M42), new(now.M13, now.M23, now.M33, now.M43));
         (ThenX, ThenY, ThenZ) = (new(then.M11, then.M21, then.M31, then.M41), new(then.M12, then.M22, then.M32, then.M42), new(then.M13, then.M23, then.M33, then.M43));
+    }
+
+    /// <summary>The same with its translations now and the frame before taken against the frame's origin, worked in doubles.</summary>
+    public readonly MovingInstance Against(RenderOrigin origin)
+    {
+        var placed = this;
+        (placed.NowX.W, placed.NowY.W, placed.NowZ.W) = ((float)(NowX.W - origin.X), (float)(NowY.W - origin.Y), (float)(NowZ.W - origin.Z));
+        (placed.ThenX.W, placed.ThenY.W, placed.ThenZ.W) = ((float)(ThenX.W - origin.X), (float)(ThenY.W - origin.Y), (float)(ThenZ.W - origin.Z));
+        return placed;
     }
 
     /// <summary>The same with the rows that turn a position, now and the frame before, scaled by a packed mesh's quantum (<see cref="PositionPacking"/>).</summary>

@@ -98,6 +98,82 @@ public sealed class RenderOriginTests : IDisposable
         return levels;
     }
 
+    // A room standing at a place in the world, drawn with the origin the renderer stands at the
+    // window camera's eye, the level of each pixel's light in sRGB's 255ths, bent as the scene's
+    // above. Its floor, wall and blocks, a mesh entity, a lamp, the sun, cubes and lines of the
+    // immediate pass and particles kept in their emitter's space lie on eighths of a unit, a float's
+    // step at 1,140,000, so the room is the same room wherever it stands, and the field's cascades
+    // and the probes lie alike about it where it stands at a whole count of 1,024 units. The lights
+    // cast no shadows, whose cascades are fitted in world numbers.
+    private static float[] Standing(Vector3 at)
+    {
+        var config = Config.Default.WithWindow("render origin", Width, Height) with
+        {
+            Headless = true, Offscreen = true, Samples = 1, FrameSeconds = 1.0 / 60,
+        };
+        UseApp(new App(config).AddPlugin(new DefaultPlugins()));
+        SetSceneField(2, 0.25f);
+        SetGlobalIllumination(GlobalIllumination.Low);
+        CreateDirectionalLight(Vector3.Normalize(new Vector3(-0.4f, -1, -0.3f)), Color.White, 1.5f);
+        CreatePointLight(at + new Vector3(1.5f, 1.25f, 1.25f), new Color(255, 200, 150), 4, range: 6);
+        CreateParticleEmitter(at + new Vector3(0.25f, 1.5f, 0.5f), ParticleEmitter.Default with
+        {
+            MaxParticles = 40, Emitting = false, Burst = 40, Life = 60, Velocity = Vector3.Zero, Gravity = Vector3.Zero, Local = true,
+            Radius = 0.375f, StartSize = 0.25f, EndSize = 0.25f, StartColor = new Color(220, 220, 230), EndColor = new Color(220, 220, 230),
+        });
+        var block = LoadModelFromMesh(GenMeshCube(1, 1, 1));
+        var ecs = GetApp().World.Resource<EcsWorld>();
+        var entity = ecs.Spawn();
+        ecs.Add(entity, new Mesh(block.Meshes[0]));
+        ecs.Add(entity, new Material(new Vector4(0.4f, 0.8f, 0.5f, 1)));
+        ecs.Add(entity, new Transform(at + new Vector3(0.5f, 0.5f, 1)));
+        var view = new Camera3D(at + new Vector3(0, 2.5f, 5.5f), at + new Vector3(0, 0.5f, 0), Vector3.UnitY, 60);
+        for (int frame = 0; frame < SceneFieldPlan.SettleFrames + 4; frame++)
+        {
+            BeginDrawing();
+            ClearBackground(Color.Black);
+            BeginMode3D(view);
+            SetSceneFieldCenter(at);
+            DrawModelEx(block, at + new Vector3(0, -0.5f, 0), Vector3.UnitY, 0, new Vector3(8, 1, 8), new Color(200, 190, 170));
+            DrawModelEx(block, at + new Vector3(0, 1.5f, -2.5f), Vector3.UnitY, 0, new Vector3(8, 4, 1), new Color(180, 120, 90));
+            DrawModelEx(block, at + new Vector3(-1.25f, 0.5f, 0.25f), Vector3.UnitY, 0, Vector3.One, Color.White);
+            DrawModelEx(block, at + new Vector3(1.25f, 0.25f, -0.5f), Vector3.UnitY, 0, new Vector3(0.5f), new Color(120, 160, 220));
+            DrawCube(at + new Vector3(-2, 0.25f, 1.25f), 0.5f, 0.5f, 0.5f, new Color(230, 90, 60));
+            DrawCubeWires(at + new Vector3(-2, 0.25f, 1.25f), 0.75f, 0.75f, 0.75f, Color.Black);
+            DrawLine3D(at + new Vector3(-3, 0.125f, 2), at + new Vector3(3, 0.125f, 2), Color.Black);
+            EndMode3D();
+            EndDrawing();
+        }
+        var renderer = GetApp().World.Resource<Engine.Renderer>();
+        var linear = ((GraphicsDevice)renderer.Context.Graphics!).ReadFloats(renderer.RenderWorld.TryGet<BloomRenderer>()!.Decoded!.ColorView.Image);
+        var levels = new float[Width * Height];
+        for (int i = 0; i < levels.Length; i++)
+        {
+            var l = 0.2126f * linear[i * 4] + 0.7152f * linear[i * 4 + 1] + 0.0722f * linear[i * 4 + 2];
+            l /= 1 + l;
+            levels[i] = 255 * Math.Clamp(l <= 0.0031308f ? 12.92f * l : 1.055f * MathF.Pow(l, 1 / 2.4f) - 0.055f, 0, 1);
+        }
+        UnloadModel(block);
+        CloseWindow();
+        UseApp(null);
+        return levels;
+    }
+
+    [NeedsVulkanTheory]
+    [InlineData(4096f, 1024f)]
+    [InlineData(71680f, 17408f)]
+    [InlineData(1140736f, 285696f)]
+    public void A_Room_Far_From_The_Worlds_Origin_Reads_As_The_Room_At_It(float x, float z)
+    {
+        var home = Standing(Vector3.Zero);
+        var far = Standing(new Vector3(x, 0, z));
+        home.Count(level => level > 8).Should().BeGreaterThan(Width * Height / 2, "the room is lit across most of the window");
+        var largest = home.Zip(far, (a, b) => Math.Abs(a - b)).Max();
+        // A tenth of a level, short of what a view pushed from its own matrix in floats moves the
+        // room by, where the eye it was made from is set aside (RenderOrigin.Seen).
+        largest.Should().BeLessThan(0.1f, "the room far out is handed to the GPU in the numbers the room at the origin is");
+    }
+
     [NeedsVulkanTheory]
     [InlineData(GlobalIllumination.Low)]
     [InlineData(GlobalIllumination.High)]

@@ -156,6 +156,7 @@ internal sealed partial class BloomRenderer : IDisposable
     private readonly Dictionary<Tonemap, VolumeTexture> _tables = [];
     private VolumeTexture? _noTable, _blueNoise;
     private Matrix4x4? _lastViewProjection;
+    private ViewEye? _lastEye;
     private long _lastViewFrame = -2;
     // The exposure that follows the scene. The measured log luminance of the frame, the two texels
     // the adapted value goes back and forth between, one written each frame from the other, and
@@ -515,7 +516,11 @@ internal sealed partial class BloomRenderer : IDisposable
         // others drawn without the HDR frame does not blur by a movement long past. Both without
         // temporal antialiasing's move, so a still camera does not blur by it.
         Matrix4x4? last = _lastViewFrame == _frame - 1 ? _lastViewProjection : null;
-        (_lastViewProjection, _lastViewFrame) = (view?.Unjittered, _frame);
+        var lastEye = _lastEye;
+        // The eye this frame's camera was made from where the frame noted one, which the moving
+        // entities' velocity is drawn through, kept without the move as well for the next frame.
+        var eye = view is null ? null : renderWorld.TryGet<ModelDrawList>()?.EyeOf(view.ViewProjection);
+        (_lastViewProjection, _lastEye, _lastViewFrame) = (view?.Unjittered, eye is { } seen ? seen with { Turned = seen.Turned * view!.Back } : null, _frame);
         if (_sized is not { Linear: { } linear } sized || !_shownLinear || view is null || renderContext.Device is not GraphicsDevice device) return;
         var focus = effects.FocusBlur > 0;
         var blur = effects.MotionBlur > 0 && last is not null;
@@ -546,7 +551,9 @@ internal sealed partial class BloomRenderer : IDisposable
                 && renderWorld.TryGet<GpuMeshes>() is { } meshes)
             {
                 EnsureVelocity(device, sized);
-                _velocity.Draw(renderContext, device, sized.Velocity!, sized.VelocityDepth!, meshes, models.Moving, view.ViewProjection, last!.Value);
+                var origin = renderWorld.TryGet<RenderOrigin>();
+                _velocity.Draw(renderContext, device, sized.Velocity!, sized.VelocityDepth!, meshes, models.Moving,
+                    origin.Seen(view.ViewProjection, eye), origin.Seen(last!.Value, lastEye), origin);
                 own = true;
             }
             var push = new BlurPush { Reprojection = inverse * last!.Value, Amount = new Vector4(effects.MotionBlur, 0.1f, own ? 1 : 0, 0) };

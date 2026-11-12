@@ -7,8 +7,10 @@ namespace Engine;
 internal sealed partial class ModelRenderer
 {
     // The boxes of a segment's blocks, each around the spheres its instances' meshes fill, the
-    // mesh's sphere moved by the world matrix and its radius grown by the matrix's largest scale.
-    private static void Bound(Instance[] items, int count, int at, (Vector3 Center, float Radius) sphere, Block[] blocks, int firstBlock)
+    // mesh's sphere moved by the world matrix and its radius grown by the matrix's largest scale,
+    // against the frame's origin, as the passes' planes are found.
+    private static void Bound(Instance[] items, int count, int at, (Vector3 Center, float Radius) sphere, Block[] blocks, int firstBlock,
+        RenderOrigin origin)
     {
         for (int start = 0, b = firstBlock; start < count; start += BlockSize, b++)
         {
@@ -20,7 +22,7 @@ internal sealed partial class ModelRenderer
             else
                 for (int i = start; i < end; i++)
                 {
-                    ref readonly var instance = ref items[i];
+                    var instance = Against(items[i], origin);
                     var c = new Vector4(sphere.Center, 1);
                     var center = new Vector3(Vector4.Dot(instance.WorldX, c), Vector4.Dot(instance.WorldY, c), Vector4.Dot(instance.WorldZ, c));
                     // The length of each of the mesh's axes once placed, the largest of which grows the sphere.

@@ -316,9 +316,11 @@ internal sealed class Renderer : IDisposable
 
         Logger.FrameTrace("RenderFrame: Beginning frame...");
         var (renderCtx, frameCtx, imageIndex) = Context.BeginFrame(RenderWorld);
-        // The place every place the frame hands the GPU is taken against (RenderOrigin), set again
-        // where it moves.
-        var origin = RenderOrigin.Override ?? RenderOrigin.Zero;
+        // The place every place the frame hands the GPU is taken against (RenderOrigin), the window
+        // camera's eye rounded to a step, or the world's own where the window draws through no
+        // camera, set again where it moves.
+        var origin = RenderOrigin.Override
+            ?? (RenderWorld.TryGet<WindowView>() is { } window ? RenderOrigin.Near(window.Eye) : RenderOrigin.Zero);
         if (!RenderWorld.Contains<RenderOrigin>() || RenderWorld.Get<RenderOrigin>() != origin)
             RenderWorld.Set(origin);
         SyncSurfaceInfo(frameCtx.Extent);

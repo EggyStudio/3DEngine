@@ -13,7 +13,8 @@ import modelpass;
 // the keys particle_sort.slang sorts an emitter laid over by alpha by, which the header's fourth
 // value marks in y, beside the slots in x and the newest particle's slot in z, which an instance
 // counts back from, as many as the slots that may hold a live particle. The header's next three values are the rows of the matrix a particle is placed
-// by, the identity for particles in the world and the emitter's world matrix for those in its space.
+// by, the identity for particles in the world and the emitter's world matrix for those in its space,
+// their translation less the frame's origin, so a particle is placed against it.
 [[vk::binding(0, 2)]]
 StructuredBuffer<float4> slots;
 
@@ -66,8 +67,8 @@ ParticleOutput vertexMain(uint vertex : SV_VertexID, uint instance : SV_Instance
     float4x4 viewProjection = modelPush.viewProjection;
     float4 eye = eyeInWorld(viewProjection);
     float4 placed = float4(positionAge.xyz, 1.0);
-    // The particle's middle less the frame's origin.
-    float3 center = float3(dot(slots[4], placed), dot(slots[5], placed), dot(slots[6], placed)) - modelPush.origin.xyz;
+    // The particle's middle less the frame's origin, the rows handed so.
+    float3 center = float3(dot(slots[4], placed), dot(slots[5], placed), dot(slots[6], placed));
     float3 toward = normalize(eye.w == 0.0 ? eye.xyz : eye.xyz - center);
     // The way the square faces, the camera's, or the emitter's normal or the particle's velocity in
     // the space the particles are kept in, turned as they are placed, as the header's eighth value

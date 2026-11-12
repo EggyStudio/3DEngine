@@ -81,7 +81,7 @@ internal sealed partial class ModelRenderer
         foreach (ref readonly var batch in CollectionsMarshal.AsSpan(view.Batches))
         {
             if (!Scatters(batch)) continue;
-            if (culledThrough != batch.ViewProjection) (frustum, culledThrough) = (new Frustum(batch.ViewProjection, depth: false), batch.ViewProjection);
+            if (culledThrough != batch.ViewProjection) (frustum, culledThrough) = (new Frustum(Placed(batch.ViewProjection), depth: false), batch.ViewProjection);
             // A batch passed over keeps its profile's place.
             if (!frustum.SeesAny(batch, view.Blocks))
             {

@@ -502,8 +502,18 @@ scene's copies and the fog's eye and height. A matrix from a place to clip space
 origin's translation times the world's, and one back from clip space as the world's times the
 translation back, so the shaders work on places, the world's points less the origin, and find a
 world point where they need one as the origin plus the place, as the penumbra's grain and a
-program's `world` do. The renderer holds the origin at the world's own, and a test sets another
-(`RenderOrigin.Override`) to read a scene alike against both.
+program's `world` do. The renderer stands the origin at the window camera's eye rounded to a whole
+count of 16 units along each axis (`RenderOrigin.Near`), so a place near the eye is small and a
+whole place far out stays whole against it, and the ray scene's top level, built again as the
+origin moves, is built as the eye crosses a step. Each camera's eye is noted with its
+view-projection where `BeginMode3D` or a camera entity makes it (`ModelDrawList.NoteEye`), with the
+view-projection made with the eye at nothing, and a view is pushed as that times the way from the
+origin to the eye, worked in doubles (`RenderOrigin.Seen`), since a view-projection made in floats
+far out carries the rounding of its translation, which no origin taken after takes back. The
+culling's boxes and planes, the immediate pass's 3D shapes of the engine's own shader, the moving
+entities' velocity and the particles' placing rows are taken against the origin the same way. A
+test sets another origin (`RenderOrigin.Override`) to read a scene alike against both, and reads a
+room at 4,096, 71,680 and 1,140,736 units out as the room at the world's origin.
 
 `LightExtract` copies every `Light` entity into the render world, and `LightingUboPrepare` packs up
 to 16 into one uniform buffer per frame, which `ModelRenderer` binds as a second descriptor set from

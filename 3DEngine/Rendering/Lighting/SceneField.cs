@@ -238,7 +238,7 @@ internal sealed partial class SceneFieldRenderer : IDisposable
         var draws = renderWorld.TryGet<ModelDrawList>();
         var windowDraws = draws?.WindowViewProjection is not null;
         var view = windowDraws || draws?.Targets() is not [var first, ..] ? renderWorld.TryGet<WindowView>()
-            : draws.ViewProjectionOf(first) is { } camera && LightingUboPrepare.EyeOf(camera) is { } eye ? new WindowView(camera, eye) : null;
+            : draws.ViewProjectionOf(first) is { } camera && LightingUboPrepare.EyeOf(camera, draws) is { } eye ? new WindowView(camera, eye) : null;
 
         // The far cascade's cells from its reach, held to the camera's far plane, and kept as they
         // were in a frame with no camera to read the plane from.

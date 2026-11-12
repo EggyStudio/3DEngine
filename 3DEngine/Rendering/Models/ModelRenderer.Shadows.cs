@@ -263,7 +263,7 @@ internal sealed partial class ModelRenderer
             ref readonly var batch = ref batches[i];
             // A mesh drawn into the shadow maps alone is seen nowhere, so the view's depth holds none.
             if (IsAlone(batch.Shadow)) continue;
-            if (culledThrough != batch.ViewProjection) (frustum, culledThrough) = (new Frustum(batch.ViewProjection, depth: false), batch.ViewProjection);
+            if (culledThrough != batch.ViewProjection) (frustum, culledThrough) = (new Frustum(Placed(batch.ViewProjection), depth: false), batch.ViewProjection);
             if (!frustum.SeesAny(batch, view.Blocks)) continue;
             var own = _ownShadows[i];
             var pipeline = ShadowPipeline(batch, own, clamp: false);
@@ -275,8 +275,7 @@ internal sealed partial class ModelRenderer
             if (pushed != batch.ViewProjection)
             {
                 // Without temporal antialiasing's move where back takes it out.
-                var viewProjection = back is { } taken ? batch.ViewProjection * taken : batch.ViewProjection;
-                PushView(pass, pipeline, viewProjection);
+                PushView(pass, pipeline, batch.ViewProjection, back);
                 pushed = batch.ViewProjection;
             }
             if (IsMasked(batch.Shadow)) pass.SetBindGroup(pipeline, batch.Set!);
@@ -295,7 +294,7 @@ internal sealed partial class ModelRenderer
         IPipeline? bound = null;
         // A caster before the light's near plane is drawn onto it where the device clamps depth.
         var clamp = _shadowMaking!.Value.Device.CanClampDepth;
-        var frustum = new Frustum(lightViewProjection, depth: true, clipsNear: !clamp);
+        var frustum = new Frustum(Placed(lightViewProjection), depth: true, clipsNear: !clamp);
         var batches = CollectionsMarshal.AsSpan(_shadowBatches);
         for (int i = 0; i < batches.Length; i++)
         {

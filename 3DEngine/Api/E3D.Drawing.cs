@@ -265,6 +265,10 @@ public static partial class E3D
             projection *= shift;
         }
         var viewProjection = camera.View * projection;
+        // The eye and the view-projection with the eye at nothing, which the passes push the view
+        // from against the frame's origin, the turn the view's own.
+        if (TryRes<ModelDrawList>(out var draws))
+            draws.NoteEye(viewProjection, new ViewEye(camera.Position, Matrix4x4.CreateLookAt(Vector3.Zero, camera.Target - camera.Position, camera.Up) * projection));
         SetRlCamera(camera.View, projection, depthTest: true);
         if (_stereo is { } stereo) BeginStereo(camera, stereo);
         ResetRlglUnlessPushed();

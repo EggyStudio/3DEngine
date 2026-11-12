@@ -86,11 +86,12 @@ internal sealed partial class ModelRenderer
     }
 
     // How far along the view the middle of a batch's nearest block lies, or minus infinity for a
-    // batch with no blocks, which comes first among its pipeline's in its recorded place.
-    private static float Nearest(in Batch batch, Block[] blocks, Matrix4x4? viewProjection)
+    // batch with no blocks, which comes first among its pipeline's in its recorded place, the
+    // blocks and the view both against the frame's origin.
+    private float Nearest(in Batch batch, Block[] blocks, Matrix4x4? viewProjection)
     {
         if (batch.BlockCount == 0) return float.NegativeInfinity;
-        var through = viewProjection ?? batch.ViewProjection;
+        var through = Placed(viewProjection ?? batch.ViewProjection);
         var w = new Vector3(through.M14, through.M24, through.M34);
         var near = float.PositiveInfinity;
         for (int i = batch.BlockStart; i < batch.BlockStart + batch.BlockCount; i++)

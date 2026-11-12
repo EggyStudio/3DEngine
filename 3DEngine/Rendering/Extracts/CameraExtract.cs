@@ -54,12 +54,23 @@ internal sealed class CameraExtract : IExtractSystem
     /// <remarks>The position and orientation are in world space, composed through parents when it has one.</remarks>
     public static (Matrix4x4 View, Matrix4x4 Projection) Matrices(EcsWorld ecs, int entity, in global::Engine.Camera cam, float aspect)
     {
+        var (view, projection, _) = Turned(ecs, entity, cam, aspect);
+        return (view, projection);
+    }
+
+    /// <summary>
+    /// A camera entity's view and projection, and its turn alone, the view with the eye at the
+    /// world's origin, which the view is the eye's translation times.
+    /// </summary>
+    public static (Matrix4x4 View, Matrix4x4 Projection, Matrix4x4 Turn) Turned(EcsWorld ecs, int entity, in global::Engine.Camera cam, float aspect)
+    {
         Matrix4x4.Decompose(TransformPropagation.WorldMatrix(ecs, entity), out _, out var rotation, out var position);
-        var view = Matrix4x4.CreateTranslation(-position) * Matrix4x4.CreateFromQuaternion(Quaternion.Inverse(rotation));
+        var turn = Matrix4x4.CreateFromQuaternion(Quaternion.Inverse(rotation));
+        var view = Matrix4x4.CreateTranslation(-position) * turn;
         var proj = Matrix4x4.CreatePerspectiveFieldOfView(cam.FovY, aspect, cam.Near, cam.Far);
         // Flip Y for Vulkan NDC (Y points downward), preserving CCW front-face winding.
         proj.M22 = -proj.M22;
-        return (view, proj);
+        return (view, proj, turn);
     }
 }
 

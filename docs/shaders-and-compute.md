@@ -215,6 +215,14 @@ before the instance, which then gives back a `ModelStreamsOutput`. Each input is
 semantic, `POSITION`, `NORMAL`, `TEXCOORD0`, `COLOR0` and `TEXCOORD1`, so a stage may take them in
 any order, and one that takes an input no stream gives is named in a warning. With `DrawMeshInstanced`, `SV_InstanceID` tells the copies apart, counted
 from 0.
+
+The engine places every vertex against a render origin near the camera, so a point far from the
+world's origin keeps the precision a point near it has. The instance's rows take a vertex to its
+place, the world point less that origin, `modelPush.viewProjection` takes a place to clip space,
+and `modelPush.origin` is the origin itself. `transformModelVertex` gives back both, the place
+in `place` and the world point in `world`, the place plus the origin, so a stage that moves a
+vertex moves both, and one that sets the position itself sets it from the place, as
+`output.position = mul(modelPush.viewProjection, float4(output.place, 1.0))` does.
 The `instancing.slang` of the `shaders_instance_hues` example gives each of ten thousand cubes
 its own hue:
 

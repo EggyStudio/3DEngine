@@ -136,7 +136,7 @@ internal sealed partial class ModelRenderer
             var slot = _filled[b]++;
             instances[(int)slot] = Folded(instanceOf(in draws[i]), _batches[b].Mesh.Quantum);
             var (block, from, min, max) = _drawBlocks[b];
-            if (block >= 0) Enclose(ref _blocks[block + (int)((slot - from) / BlockSize)], draws[i].World, min, max);
+            if (block >= 0) Enclose(ref _blocks[block + (int)((slot - from) / BlockSize)], _origin.Against(draws[i].World), min, max);
         }
         _copies.Clear();
         _copyBlocks.Clear();
@@ -165,16 +165,17 @@ internal sealed partial class ModelRenderer
             if (batch.Group >= 0 && batch.Mesh.Quantum != 1)
                 foreach (ref var instance in instances.Slice((int)batch.First, groups[batch.Group].Count))
                     instance = Folded(instance, batch.Mesh.Quantum);
-        // Each instance's place against the frame's origin, after its block's box was found from it
-        // in world numbers, where the culling's planes are found.
+        // Each instance's place against the frame's origin, as its block's box was found.
         if (_origin != RenderOrigin.Zero)
             foreach (ref var instance in instances[..slots])
                 instance = Against(instance, _origin);
         return (_instanceRing!, offset);
     }
 
-    // The place the frame's instances and views are taken against (RenderOrigin).
+    // The place the frame's instances and views are taken against (RenderOrigin), and the frame's
+    // draws, which hold the eyes its views were made from.
     private RenderOrigin _origin;
+    private ModelDrawList? _draws;
 
     // An instance whose translation is taken against the origin, worked in doubles.
     internal static Instance Against(Instance instance, RenderOrigin origin)
@@ -185,10 +186,15 @@ internal sealed partial class ModelRenderer
         return instance;
     }
 
-    // Pushes a view's view-projection against the frame's origin, with the origin.
-    private void PushView(TrackedRenderPass pass, IPipeline pipeline, in Matrix4x4 viewProjection)
+    // A view's view-projection against the frame's origin, from its eye where the frame noted one,
+    // which the passes push and find the planes they leave blocks out by from.
+    private Matrix4x4 Placed(in Matrix4x4 viewProjection) => _origin.Seen(viewProjection, _draws?.EyeOf(viewProjection));
+
+    // Pushes a view's view-projection against the frame's origin, from its eye where the frame
+    // noted one, with a move of clip space after it where one is given, and the origin.
+    private void PushView(TrackedRenderPass pass, IPipeline pipeline, in Matrix4x4 viewProjection, Matrix4x4? after = null)
     {
-        var push = _origin.Push(viewProjection);
+        var push = _origin.Push(viewProjection, _draws?.EyeOf(viewProjection), after);
         pass.PushConstants(pipeline, ShaderStageFlags.Vertex, 0, MemoryMarshal.AsBytes(new ReadOnlySpan<ViewPush>(in push)));
     }
 
@@ -214,7 +220,7 @@ internal sealed partial class ModelRenderer
             {
                 var (items, n, at, group) = _copies[i];
                 items.AsSpan(0, n).CopyTo(instances[at..]);
-                Bound(items, n, at, group.Sphere, _blocks, _copyBlocks[i]);
+                Bound(items, n, at, group.Sphere, _blocks, _copyBlocks[i], _origin);
             }
             return;
         }
@@ -222,12 +228,12 @@ internal sealed partial class ModelRenderer
         // The ring is mapped memory, which does not move, so its address outlives the span.
         var ring = (nint)Unsafe.AsPointer(ref MemoryMarshal.GetReference(instances));
         var length = instances.Length;
-        var blocks = _blocks;
+        var (blocks, origin) = (_blocks, _origin);
         Parallel.For(0, _copies.Count, i =>
         {
             var (items, n, at, group) = _copies[i];
             items.AsSpan(0, n).CopyTo(new Span<Instance>((Instance*)ring + at, length - at));
-            Bound(items, n, at, group.Sphere, blocks, _copyBlocks[i]);
+            Bound(items, n, at, group.Sphere, blocks, _copyBlocks[i], origin);
         });
     }
 

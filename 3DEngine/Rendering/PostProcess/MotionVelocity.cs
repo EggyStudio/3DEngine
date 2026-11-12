@@ -46,10 +46,12 @@ internal sealed class MotionVelocity : IDisposable
 
     /// <summary>
     /// Clears <paramref name="target"/> and draws each of <paramref name="moving"/> into it, through
-    /// <paramref name="viewProjection"/> now and <paramref name="lastViewProjection"/> the frame before.
+    /// <paramref name="viewProjection"/> now and <paramref name="lastViewProjection"/> the frame before,
+    /// both taking a place against <paramref name="origin"/>, which each entity's places now and the
+    /// frame before are taken against.
     /// </summary>
     public void Draw(RenderContext renderContext, GraphicsDevice device, RenderTarget target, IDescriptorSet depth, GpuMeshes meshes,
-        MovingDraws moving, Matrix4x4 viewProjection, Matrix4x4 lastViewProjection)
+        MovingDraws moving, Matrix4x4 viewProjection, Matrix4x4 lastViewProjection, RenderOrigin origin)
     {
         _vertex ??= device.CreateShader(new ShaderDesc(ShaderStage.Vertex, _vertexSpv));
         _fragment ??= device.CreateShader(new ShaderDesc(ShaderStage.Fragment, _fragmentSpv));
@@ -85,6 +87,8 @@ internal sealed class MotionVelocity : IDisposable
                 CollectionsMarshal.AsSpan(list).CopyTo(written[next..]);
                 next += list.Count;
             }
+            foreach (ref var instance in written.Slice(first, next - first))
+                instance = instance.Against(origin);
             runs.Add((mesh, first, next - first));
             // A packed mesh's rows now and the frame before scaled by the same quantum, the mesh's
             // as its vertices hold them this frame, so a re-packed mesh shows no motion it did not make.
