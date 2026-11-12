@@ -125,6 +125,8 @@ public sealed class SkyHorizonTests : IDisposable
     public void Read_Down_Across_The_Horizon_The_Sky_Meets_The_Color_With_No_Edge_Where_The_Image_Steps()
     {
         Open(48, 96);
+        // The rows read exactly, without the dither's grain.
+        SetDither(false);
         SetEnvironmentMap(Sky());
         // Looking level, so the horizon crosses the middle of the frame, sixty degrees high over 96
         // pixels, so a pixel is five eighths of a degree.

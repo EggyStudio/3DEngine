@@ -42,6 +42,9 @@ public sealed partial class OffscreenRenderTests
     public void Stereo_Mode_Draws_The_3D_Once_In_Each_Half_Through_Each_Eye()
     {
         Open(160, 80, samples: 1);
+        // The halves compared pixel for pixel, without the dither's grain, which differs between
+        // the pixels the same point falls on in each.
+        SetDither(false);
         var camera = new Camera3D(new Vector3(0, 0, 5), Vector3.Zero, Vector3.UnitY, 45);
         var config = LoadVrStereoConfig(Rift);
         void Cube() => DrawCube(Vector3.Zero, 1, 1, 1, Color.Red);
@@ -78,6 +81,8 @@ public sealed partial class OffscreenRenderTests
     public void A_Model_In_Stereo_Mode_Is_Drawn_Through_Each_Eye_In_Its_Half()
     {
         Open(160, 80, samples: 1);
+        // Each half's pixels read as the model's color, without the dither's grain.
+        SetDither(false);
         var camera = new Camera3D(new Vector3(0, 0, 5), Vector3.Zero, Vector3.UnitY, 45);
         var config = LoadVrStereoConfig(Rift);
         var cube = LoadModelFromMesh(GenMeshCube(1, 1, 1));

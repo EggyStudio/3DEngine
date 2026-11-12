@@ -14,6 +14,8 @@ Done that day
 - Item 253 at `894542da`. A reflection whose pipeline is made late shows no mirror for 32 frames or
   more.
 - Item 254 at `d276e419`. A command that returns once no pipeline is being made.
+- Item 257 at `0527285a`. A glow light's light on a wall beside it is drawn in stripes of small
+  squares far from the world's origin.
 
 ## 2026-11-10
 

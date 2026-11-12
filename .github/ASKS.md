@@ -1883,3 +1883,38 @@ placing vertices against the eye from places given as a whole part and an offset
 
 The sheet is in the game's `.github/dump/2026-11-11` under `item-175-far`, and the reads in
 `~/.cache/3dengine-tools/work/i175`.
+
+### 2026-11-12, the voxel game in `Voxel-Sandbox`, a world moved by a whole offset is built again as if every mesh had moved
+
+For the engine's item 258. The game keeps its places against an origin near the player, a multiple
+of 1,024 blocks, and moves the origin by 1,024 once the player is 1,024 from it, so the engine is
+handed places within about a thousand of zero, where the losses of the entries above do not show.
+Read on the 3DEngine 6.2.41 package with the game's working tree on 2026-11-12, Debug, offscreen at
+1280 by 720, on the RTX 4070 Laptop GPU with driver 615.78.08 on tuned's power-saving profile, from
+a copy of a player's data folder, the illumination at Low and at High, the hour held.
+
+At a move every mesh the game draws and the camera move by the same whole offset, and nothing in
+the picture should change. The game first set each section's transform anew. The scene field knows
+a mesh by its vertices, so it took every section for a figure that walked, stamped each as a box
+until it had stood for 1,024 frames (`MobileSettleFrames`). `field.state` read 906 meshes still
+before the move and none after, 256 stamped into 5,639 bricks. The scene of the entries above read
+at Low a mean of 153.9 before the move, 145.8 two frames after and 64 frames after, and 153.9 again
+1,120 frames after, when 905 read still. The game now uploads each mesh again at a move, which the
+field takes for one that came and builds at once. The darkening is gone, but the frame of the move
+and the one after it take 342 and 579 ms at Low and 603 and 601 ms at High, where a frame reads 163
+to 183 ms through `./e3d`, and 321 meshes the game keeps as they were, its lamps, stand stamped for
+the 1,024 frames.
+
+What the player sees at a move with the meshes uploaded again, the player still before the scene:
+the scene's mean red reads 153.9 before, 158.6 the frame after and 153.9 two frames on at Low, and
+152.2 before, 159.5 the frame after, 152.9 two on and 152.4 from sixteen on at High. In a flight of
+16 blocks over 100 frames across a move, the frame of the move changes from the one before by 1.58
+levels with 10.3 percent of pixels past 8 at Low, where the flight crossing nothing changes by 0.82,
+and by 1.77 with 11.4 percent at High, where 0.30, and the 50 frames after it change by a mean of
+0.93 at Low against 0.82 and of 1.22 at High against 0.30, the light the probes and the frames
+before held settling again. A teleport of 7 blocks across a move waited 131 frames in `field.wait`
+where one crossing nothing waited 81.
+
+The engine lacks a way to be told that the world moved by a whole offset, so what it keeps by
+place, the scene field's cascades and their still meshes, the probes, the screen's and the frames'
+histories and the glow lights' keys, moves with it and nothing is built again.

@@ -200,8 +200,8 @@ float4 fragmentMain(ModelVertexOutput input) : SV_Target
 `lit` and `litLight` each carry the engine's whole lighting, so a shader calls one of them once, and
 on a branch that draws without light, as `drawnUnlit(input)` says, calls `unlit(albedo +
 emitted(input))` rather than `lit`. Slang inlines every call into the stage, and the driver
-compiles each copy whether or not a branch can reach it, so a second call doubles what it compiles:
-the voxel game's terrain called `lit` on its unlit branch beside `litLight`, a fragment of 1.3 MB
+compiles each copy whether or not a branch can reach it, so a second call doubles what it compiles.
+The voxel game's terrain called `lit` on its unlit branch beside `litLight`, a fragment of 1.3 MB
 whose pipeline took the driver over 12 s to compile on a first run, where with `unlit` there it was
 0.7 MB and took 5.
 

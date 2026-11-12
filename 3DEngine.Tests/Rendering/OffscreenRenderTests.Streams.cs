@@ -58,8 +58,10 @@ public sealed partial class OffscreenRenderTests
         // A quad of positions alone, its color packed in four bytes a vertex, floating over a white
         // floor under a light from the side, seen from above. The quad shows its packed color, the
         // floor under its shadow is darker than beside it, so its shadow is drawn from twelve bytes
-        // a vertex, and the GPU holds no more of it than those.
+        // a vertex, and the GPU holds no more of it than those. The quad's color is read exactly,
+        // without the dither's grain.
         Open(64, 32);
+        SetDither(false);
         var shader = LoadShaderFromMemory("""
             import modelpass;
 

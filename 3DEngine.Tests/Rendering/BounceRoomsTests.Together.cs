@@ -10,9 +10,9 @@ public sealed partial class BounceRoomsTests
     public void The_Probes_Pipelines_Are_Made_Together_And_The_First_Frame_Is_Drawn_As_When_Made_One_After_Another()
     {
         // The Cornell box's first frame at High, its probes' pipelines made one after another and
-        // then together. The first wait in the driver lets go once a second compile reaches it, so
-        // made together at least two are in the driver at once, and the frame drawn from them is the
-        // frame drawn from those made one after another.
+        // then together. A kernel made together waits in the driver until a second compile reaches
+        // it, so at least two are in the driver at once however the workers start, and the frame
+        // drawn from them is the frame drawn from those made one after another.
         (byte[] Frame, int MostAtOnce) First(bool together)
         {
             GlobalIlluminationStages.MadeTogether = together;
@@ -23,16 +23,18 @@ public sealed partial class BounceRoomsTests
             var rooms = new Rooms();
             var renderer = GetApp().World.Resource<Engine.Renderer>();
             var device = (GraphicsDevice)renderer.Context.Graphics!;
-            var (inside, most, frames) = (0, 0, Environment.CurrentManagedThreadId);
+            var (inside, most, frames, outside) = (0, 0, Environment.CurrentManagedThreadId, Task.CurrentId);
             using var second = new ManualResetEventSlim();
-            // A compile on a worker waits for a second to reach the driver beside it, and one on the
-            // frame's thread, as every other pass's first pipelines are made, waits for none.
+            // A compile on a worker waits for a second to reach the driver beside it, and so does
+            // one the parallel loop runs on the frame's thread, inside a task of the loop's, since
+            // the loop may take every kernel there before a worker starts. One on the frame's thread
+            // outside it, as every other pass's first pipelines are made, waits for none.
             device.WhileMakingPipeline = () =>
             {
                 var now = Interlocked.Increment(ref inside);
                 InterlockedMost(ref most, now);
                 if (now >= 2) second.Set();
-                else if (Environment.CurrentManagedThreadId != frames) second.Wait(TimeSpan.FromSeconds(30));
+                else if (Environment.CurrentManagedThreadId != frames || Task.CurrentId != outside) second.Wait(TimeSpan.FromSeconds(30));
                 Interlocked.Decrement(ref inside);
             };
             var camera = Rooms.Views[0];

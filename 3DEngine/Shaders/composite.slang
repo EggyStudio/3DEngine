@@ -139,5 +139,6 @@ float3 curve(float3 c, int which)
 [shader("fragment")]
 float4 fragmentMain(FullscreenOutput input) : SV_Target
 {
-    return frameShown(curve(frameLight(input.uv), int(framePush.grade.z)), input.uv);
+    float4 shown = frameShown(curve(frameLight(input.uv), int(framePush.grade.z)), input.uv);
+    return float4(frameDither(shown.rgb, input.position.xy), shown.a);
 }

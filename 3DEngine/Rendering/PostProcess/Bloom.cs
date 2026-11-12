@@ -428,8 +428,10 @@ internal sealed partial class BloomRenderer : IDisposable
                 _ => new Vector4(effects.HighlightKnee, effects.HighlightStrength, 0, 0),
             },
             Lift = new Vector4(lift, effects.Grades ? 1 : 0),
-            Gamma = new Vector4(gamma, 0),
-            Gain = new Vector4(gain, 0),
+            // The dither on, and its pattern moved each frame only where temporal antialiasing
+            // blends the frames, so a still view's pictures are alike otherwise.
+            Gamma = new Vector4(gamma, effects.Dither ? 1 : 0),
+            Gain = new Vector4(gain, effects.Temporal ? _frame % 64 : 0),
         };
         if (program is { } own)
         {

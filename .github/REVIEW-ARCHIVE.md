@@ -9969,6 +9969,149 @@ batch.
     pipeline is being made on the workers or in the driver, with its tests and its line in the
     guide's commands; the suite 2,343 on both legs.
 
+257. **A glow light's light on a wall beside it is drawn in stripes of small squares far from the
+    world's origin.** From the owner on 2026-11-11 at about 18:35, who wrote that a screenshot of
+    the scene they built shows the noise and asked the review to start the game there and see. The
+    owner's four screenshots of 18:29 to 18:32, at 2560 by 1440 with the game's illumination at Low,
+    show a dark closed room, a block in its middle, and on the back and the left walls bright and
+    dark squares about two pixels wide in streaks inside the bluish light, the patch ending along a
+    straight slanted line. The review started the game's built program offscreen on a copy of the
+    owner's data folder, the owner's world and options and none of their files written, on the
+    pinned 6.2.41 at 1280 by 720, and the first view shows the same on the back wall. It stands
+    still, three captures up to 100 frames apart differing in 0.02 percent of the pixels, so it is a
+    pattern fixed to the wall that crawls as the eye moves, and no flicker; with the glow lights
+    left out by gi.toggle the wall is black, so the light is a glow light's whole; the stripes are
+    the same at Low, Medium and High and with the filter and the frame before's light left out, so
+    neither the screen's probes nor the quality draw them. That leaves how much of a glow light a
+    surface sees, the march from a texel of the window's glow light toward the light through a field
+    of 0.25 cells, on a wall the light strikes at a low angle or stands close beside. Every reading
+    of the illumination's noise since 2026-10-24 was of the screen's probes in a turn, in a grove or
+    in Sponza, and none of a lamp's light on a wall beside it, which this is. First the read, in the
+    game's scene with the game's coder, the blocks that glow there and where they stand against the
+    wall, gi.show and field.march along a striped texel's way to the light and a smooth one's, to
+    say what the march meets; then a room of the engine's own that shows it, a lamp beside a wall at
+    a 0.25 cell, with a path-traced reference; then the mend, held by that room as a test at each
+    quality and by the owner's view taken again. The captures are under
+    ~/.cache/claude-reviewer/owner-view/shots, sheet-parts.png the wall at Low, without the glow
+    lights, at Medium and High; the copy of the owner's data is beside them under data. Before 255's
+    remaining steps and 256. The room's facts from the game's coder at 18:59, its item 173. One
+    light matters, a sea lantern of one block at 4452, 24, 595 set into the north wall at the floor,
+    only its face on the plane z=596 open, in a pocket 3 wide, 1 deep and 2 high that opens upward
+    alone, through y=26; the striped wall is the east one, the plane x=4455, and the stripes lie at
+    y 26.9 to 27.9 and z 596.0 to 598.3 above a pillar whose top is y=26, the rows below smooth, the
+    patch's lower edge the pillar's shadow line; the first cascade holds the room at 0.25 a cell.
+    From a tenth of a cell off the wall every march meets a surface at once, bright, dark and smooth
+    texels alike. From a cell and a half off toward the box's middle a striped bright texel and a
+    dark one 0.094 beside it both stop on the north wall beside the open face, 3.23 and 3.30 along,
+    within 0.03 of the box's corner, and a smooth one a block below on the pocket's rim. So the
+    review's first reading, a march along the wall it starts on, does not hold. The light is a block
+    flush in a wall, seen over a pocket's rim at a low angle, its middle half a block behind the
+    wall's plane, so a march to it is decided where it crosses that plane, a hair past the open
+    face's edge for these texels. That is the room to build. The marches stand whole in the game's
+    work folder i173. Recorded at 19:06, the engine's coder's reading and the game's coder's
+    removals. The engine's coder agrees and reads the stripes as the edge of the lantern's light
+    through the pocket's opening, taken in the field's cells and the march's steps. glowLightShown
+    marches to the open face's two halves from a tenth of a cell off and grades each by the field's
+    distance against a cone, so through an opening one block deep texels 0.094 apart fall on either
+    side of a rim's cell and read seen or hidden. Whether the grading or the targets, two halves of
+    a face seen through an opening narrower than it, is at fault the room says. The room is closed
+    and dark, a glowing cube flush in one wall with its front face alone open, a pocket before it 1
+    deep and 3 wide open upward, a wall at a right angle beside it, cells of 0.25, read at Low,
+    Medium and High against a path-traced reference of the same view. The mend is judged by the step
+    between texels a 32nd apart along the wall falling to the reference's there at each quality, the
+    region's means within the glow rooms' bounds, and the glow tests' rooms and the hall holding,
+    the room read standing and with the eye stepped along the wall. A cost in the glow's pass is
+    said and paid. The game's coder took the glowing blocks away in turn on a second copy. With the
+    lantern made white concrete every row of the wall reads 0, and with the 14 magma blocks outside
+    made stone the rows read as before within a level, so the lantern alone draws the stripes. Its
+    sheet, 19-00-item-173-room.png in the game's dump of 2026-11-11, has the wall under gi.show
+    tiles, where the squares lie several to a tile, finer than the tiles' 16 pixels. Its ask is the
+    last entry of ASKS.md, uncommitted, and goes with the engine's next commit. To the owner the
+    mend goes first as a package in the coder's own feed, unpublished, the game's coder capturing
+    the owner's first view against it from its copy, before and after on one sheet. Then 256, then
+    the pack run with publish. Recorded at 19:49. The engine's coder's room, the inside 8 by 4 by 5
+    with the lantern flush at the north wall's floor and the pocket before it, reads smooth at Low,
+    Medium and High, a step of 0.29 to 0.34 levels, its east wall barely lit where the owner's reads
+    bluish, so the room does not hold what matters yet. It found that the engine carries the game's
+    lantern as one flat square on z=596 facing +z, the game's mesh holding the open face alone and a
+    part's box being its triangles' bounds, so no march goes to a middle behind the wall and the
+    review's second reading fell as its first did. The coder reads the case itself next, the game of
+    `1f1e955` as its coder built it on 6.2.41 with the tree's assemblies and shaders swapped in,
+    opened offscreen on a copy of the review's copy of the data in its work folder, the owner's own
+    folders untouched, the copy kept out of every repository, dump and test and deleted when the
+    item closes. The engine's room follows once the mechanism is seen. Recorded at 20:30, the
+    coder's read on the case. The stripes come where each pixel takes a glow light's share from the
+    screen's probes around it, and from no march. The game's build copied into the coder's work
+    folder, the room from the review's copy, offscreen at the saved view at Low, the tree's engine
+    built at 6.2.41 in a folder of its own and swapped in; the stripes show unswapped and swapped
+    alike. Rows of 161 points along the east wall at y 26.125 to 27.875, the mean step in levels
+    between neighbors over a whole row, smaller than the game's coder's count for being a mean. The
+    package as published 0.92 at a mean of 10.4, the tree's engine 0.95 at 10.4, every bright
+    light's march taken as seen 6.04 at 35.1 and still striped, every faint light's march taken as
+    seen 0.97 at 30.2 and still striped, and with gi.toggle screen off, each pixel marching to the
+    light itself, 0.37 at 10.6, smooth at the same mean. So the review's sentence above, that
+    neither the screen's probes nor the quality draw them, was wrong in its first half, the review
+    having left out the filter and the frame before's light and never the screen's probes. On a wall
+    that sees the lantern only past the opening's edge the probes beside each other disagree about
+    the light, and the pattern is how a pixel picks and weighs them, finer than the tiles. Next the
+    pick and the weights read, a mend tried on the case, then the engine's own room that shows it.
+    Recorded at 20:45, the coder's trials on the case, no mend yet, by the game's coder's count, the
+    steps over 3 levels in the striped rows y 26.875 to 27.625. The head 23 to 30, the screen off 2.
+    The dominant light's share alone at the pixel 2 and the far light alone 22 to 28, so the stripes
+    ride in the far light. glowLightNear lets a light be a texel's dominant one only within twice
+    its box's half diagonal, 1.4 units for the lantern's square, and the wall is 2 to 3 off, so all
+    of the lantern goes to the far light, kept absolute at each texel's point. The brightest light
+    in reach made dominant at any distance 12 to 21, better and still striped. The review's
+    candidate, a texel marching itself where its four probes disagree by more than a quarter, fires
+    in patches and leaves 19 to 35, the four agreeing inside the striped patch, so it fell. Every
+    light taken as bright at the probes 9 to 31, with the lantern dominant too 8 to 25, and both
+    marches taken as seen with the lantern not dominant 66 to 93, the wall brighter. The coder reads
+    two things meeting, the probes' differing views of the lantern near its face's plane and the
+    texel's mix of four probes by weights that jump from texel to texel at that angle, and runs the
+    two trials that split them. Recorded at 21:05, found and mended on the case. The cause is float
+    precision far from the origin in the depth's reconstruction. Each glow texel and each screen
+    probe takes its point and its normal from the half-size depth through the inverse
+    view-projection in world numbers, and the owner's room stands at x 4,455, where a float steps by
+    about 0.0005 while neighboring texels on that wall lie about a hundredth apart, so the
+    differences that make the normal lose several percent, more at a slant. A map of each texel's
+    normal error on the wall shows the stripes' own diagonal pattern, and normals snapped to the
+    axes cleared the upper rows. The lantern's light arrives nearly along the wall, so a small tilt
+    swings it hard, it goes into the far light at each texel, and a pixel takes it from four texels;
+    with the screen off a pixel uses the mesh's own normal, so that read smooth. The coder's room
+    moved from the origin to 4447, 24, 596 tripled its step at each quality, 0.34, 0.29 and 0.31
+    becoming 0.89, 0.91 and 1.06, so it read smooth where it was built. The mend keeps each depth
+    point as its offset from the eye. ScreenView gains inverseFromEye, clip space back to the way
+    from the eye, and gi_screen_glow and gi_screen take their points, ways, normals, the probes'
+    plane tests and the geometry's range from it, the world point the eye plus the offset only where
+    a light or a march needs it; the view's block grows by 64 bytes. On the owner's room at Low 23
+    to 30 steps over 3 levels a row become 1 to 2, the mean step 0.95 becomes 0.39 against 0.37 with
+    the screen off, the mean 10.4 becomes 11.0, and the coder's room far out reads 0.32, 0.30 and
+    0.32 against 0.34, 0.29 and 0.31 at the origin. To come, the owner's room at Medium and High,
+    the test of the room at the origin and far out, the crawl with the eye stepped, the glow rooms
+    and the suite, the timing, the commit with the renames of a uint called a word, and the
+    unpublished package. The same fault in the other passes is item 258. The game's check on the
+    package 6.2.41-local.257, recorded at 23:32, the game of `6b0043b` built on each package from a
+    fresh copy of the data, 8 rows across the east wall of 161 samples each. At 1280 by 720 the
+    published package has 0 to 29 steps over 3 levels a row and the mend none in any row at any
+    quality; at 2560 by 1440 the package has 2 to 16 and the mend none. The mean step falls from
+    0.29 to 1.31 to 0.18 to 0.36, the rows' means rise 1 to 2 levels where the dark stripes were,
+    and outside the corner the roughness from pixel to pixel is lower on the mend everywhere, by
+    half or more at Medium and High. One thing reads worse, at 2560 by 1440 alone and at each
+    quality, a straight line along the screen across the ceiling at rows 173 to 175, 3.4 levels over
+    its neighbors, beside the tile row at 176, which the published package does not have; and the
+    frame's top rows 3 to 5 stand out by 6 levels on the mend against 4.8. The sheet,
+    23-50-item-173-mend.png in the game's dump, went to the owner. The line is read by the engine's
+    coder before 261. The line's mend, `2e870eb6`, packed as 6.2.41-local.257.1 and read by the
+    game's coder, recorded at 00:40 on 2026-11-12, both builds the game without its origin. At 2560
+    by 1440 no row between x 1,000 and 1,240 stands 1.5 levels over its neighbors at any quality
+    where rows 173 to 175 stood 1.6 to 3.5 over, the frame's top rows 3 to 5 no longer stand out,
+    rows 160 to 190 come up 1.9 to 2.1 levels, the eight wall rows have no step over 3 on either and
+    their means come to within 0.1 of what 1280 by 720 reads, and 1280 by 720 is unmoved, 0.00
+    percent of pixels. Nothing reads worse. So at 1440p the room reads as at 720p, the line gone and
+    the wall smooth. Done at `0527285a`, green at 00:56 on 2026-11-12 on every system, with the
+    ceiling's line at `2e870eb6`. It reaches the owner's game with the next published package, the
+    one package of 256.
+
 ## Verdicts settled
 
 Verdicts 1 to 55 are settled, the last two, the drawing leak test's resident bound and the Windows
@@ -11938,6 +12081,19 @@ at `36cae0c2`.
     its push run, the cause unseen. Both Linux legs of the run of `466e4315`, which holds the mend,
     passed at 19:02 and 19:22 on 2026-11-11 and the run was green at 19:58, so the verdict is
     settled with the cause unseen, a next no session naming itself by the first look's record.
+
+117. **The run of `c1243335` is red in both Windows halves and the examples at the step that keeps
+    an artifact, GitHub's own service failing.** In run 43082922479 the two Windows halves failed
+    after 110 and 118 minutes and the examples job after 20, each at actions/upload-artifact, the
+    artifact not made after five attempts, the service answering a page of HTML where JSON was due;
+    macOS and both Linux legs are green. GitHub's status page reports a major outage of Actions, its
+    incident updated at 21:59 on 2026-11-11, the first of these jobs having failed at 21:35, and in
+    the same minutes the bridge's two runs failed by it and the game's stood queued. Nothing of the
+    commit's failed, so it is no fault of the commit's. The failed jobs are run again when the
+    status page says Actions works, and the verdict settles where they pass. Written at 22:07 on
+    2026-11-11. The run of `0527285a`, the commit after it, was green at 00:56 on 2026-11-12 on
+    every system, macOS in 50 minutes, the Linux legs in 48 and 71 and the Windows halves in 91 and
+    92, with `c1243335` in it, which settles this.
 
 ## Decisions
 
@@ -15477,6 +15633,100 @@ NVorbis as they were. The strict build has no warning. Vortice.Vulkan's license 
 AssimpNetter's license file is the same byte for byte; StbImageSharp 2.30.16 declares Unlicense OR
 MIT where 2.30.15 declared none, so the notices name it so where they said public domain or MIT.
 The suite 2,343 on both legs.
+
+Item 257, read on the owner's room and mended. The game's build of 1f1e955 on 6.2.41, copied with
+a copy of the owner's room into this session's work folder on the owner's word in this session,
+opened offscreen at its saved view at Low and read along the east wall's rows at y 26.875 to 27.625
+by voxel.line, the steps over 3 levels a row as the game's coder counts them. The package read 18 to
+30 a row, my tree as it stood 21 to 30; with gi.toggle screen off, each pixel marching to the lights
+itself, 2 a row at the same mean, so the screen's probes' glow path draws the stripes. Taking each
+march as seen, the bright, the faint and both, every light as bright at the probes, the brightest
+light in reach as each texel's dominant one, the four probes' agreement as a reason for a texel to
+march itself, and the probes' likeness without each of its plane tests in turn each left the
+stripes, 8 to 93 a row. Every light bright with every march seen, so the far light is the closed
+form at each texel's own point and normal with no mix of probes at all, striped most, 57 to 92: the
+stripes are in the texel's point and normal. A map of each texel's normal off its axis showed the
+stripes' own pattern, and the normals snapped to the axes took the striped rows to 2 to 7. The
+owner's room stands at x 4,455, where a float's step is about 0.0005, and the glow texels and the
+screen's probes took their points from the window's depth through the inverse view-projection into
+the world's numbers, so the ways between neighboring texels a hundredth apart along the wall lost
+their last bits and the normals tilted from texel to texel; the lantern's light comes in nearly
+along the wall, so the tilt swung it. The same room of the engine's own geometry, a lamp's one face
+flush in a wall at the floor in a pocket open upward, read along its east wall, stepped 0.34, 0.29
+and 0.31 levels between points 1/32 apart at Low, Medium and High at the origin and 0.89, 0.91 and
+1.06 moved to 4447, 24, 596. The mend: ScreenView gains inverseFromEye, clip space back to the way
+from the eye, worked out in doubles on the CPU; gi_screen_glow, gi_screen and gi_screen_filter take
+each point of the depth as its way from the eye for the normals, the plane tests and the distances
+between probes, the world point being the eye plus that where the lights and the marches need it;
+and the model pass's slopes a pixel takes the probes and the texels by, and its normal map's frame,
+are the steps of its way to the eye, the world point's own only where an orthographic camera leaves
+that way the same at every pixel (entry 2 of the review's map). The owner's room, the steps over 3
+levels a row: at 1280 by 720 the package 18 to 30, the mend 1 to 2, the screen off 2; at 2560 by
+1440 the package 8 to 22, the mend 2 to 3, the mend with the slopes from the eye 2 to 4. The room
+moved out reads 0.32, 0.30 and 0.32 mended. The test reads that room at the origin and at 4447, 24,
+596 at 960 by 540 at Low and High and finds the far wall within half again and a tenth of a level of
+the near one's step: mended 0.32 against 0.34 and 0.32 against 0.31, 41 and 34 s on lavapipe; on the
+head 0.90 against a bound of 0.61 and 1.11 against 0.56, failing.
+
+The probe of BounceRoomsTests' rays past their reach moved by a rule. On the mend the row read
+-0.587 where the head passes. The probe stood in the same place to six places, 0.819573, 0.704603,
+1.377471; its normal on the head was -0.308167, -0.002291, 0.951330 and on the mend -0.309009,
+0.001688, 0.951057, where the small block's face turned 18 degrees faces -0.309017, 0, 0.951057, so
+the head's was a thousandth off at the origin and the mend's is the face's own. Its seventh ray,
+-0.0827, -0.4787, 0.8741 on the head, met the floor 1.49 along at z 2.75, within a cell of the
+floor's front edge at 2.8, reading 0.372 against the reference's 0.382; on the mend, -0.0841,
+-0.4753, 0.8758, it passed the field's rounded corner, went past its reach to a point under the
+floor and read 0 against 0.378, which alone took the row from -0.25 to -0.59. The probe as a whole
+read -3 percent over its sixteen ways on the mend against +19 on the head. The head's point moved a
+millionth does not flip it, its normal does. The row now reads the probe one tile up, at 468, 356,
+the first in reading order of the four nearest whose sixteen rays each meet or miss the same
+surface within a cell on the head, on the mend and with the normal tilted 0.002 along each axis
+either way, 39 of the face's 49 probes so; the bound stays 0.4, it passes on the head and on the
+mend, and the test's comment says the rule. The field's limit at a slab's edge: a ray within a cell
+of a slab's corner meets it or passes by the last bits of its way, and one that passes reads what
+lies past its reach, here under the floor; known, and no item of this commit.
+The cost, Ore at High at 1280 by 720 under the lock held alone, 600 frames each, the head against
+the mend twice: the frame 7.41 and 7.52 ms against 7.41 and 7.38, gi_screen 3.06 and 3.08 against
+3.07 and 3.08, gi_glow 0.16 and 0.17 against 0.16 and 0.16, nothing measurable. Sixteen times
+further out, at 71152, 384, 9536, the same room mended steps 0.49 at Low and 0.70 at High against
+0.34 and 0.31 at the origin, so the next limit stands between there and the owner's place, which
+item 258's list reads; the test asserts the owner's place alone.
+
+Item 257, the line across the ceiling at 2560 by 1440, read on the copy of the owner's room at its
+saved view. Rows 172 to 176 over x 1000 to 1240 read 26.3 against 23.0 about them, the line running
+from x 880 to 2100, and the frame's top rows 3 and 4 stand 1.5 over their neighbors against 0.5 on
+the package. Each of the mend's parts left out in turn. The mend before the slopes from toEye draws
+it alike, so the model pass does not. The screen pass's points from the eye put back, it stands 2.3
+over as mended, and the filter's put back, alike. The glow pass put back, it is gone, the package's
+noise back with it. So the glow pass draws it. At 1,440 rows a glow texel spans two and two thirds
+of the window's pixels, and each texel's point was found at the texel's own middle with the depth of
+the pixel under it, up to half a pixel away. On a ceiling seen at a slant that stood the point off
+the surface by an amount that comes round every third row, so the ways to the texels ahead and
+behind took two slopes, and the pick of the one that runs on in a line changes along a row there,
+and at the top rows, where the pick is held to the texel ahead. At 720 rows a texel spans two whole
+pixels, every point off by the same half pixel, and none shows. The mend finds each point at the
+middle of the depth's texel whose depth it takes, depthMiddle in the texel's point and in pointAt.
+
+On the room at 2560 by 1440 mended, rows 170 to 180 stand within 0.05 of their neighbors, the top
+rows' line is gone, and the east wall reads 3 and 2 steps over 3 levels a row as before. The
+ceiling's upper middle is brighter by up to 4.3 levels. Its mean in four regions reads 24.5, 27.3,
+39.2 and 18.0 against 24.4, 27.2, 39.0 and 18.1 for the same view at 1280 by 720, where at 2560 by
+1440 the mend read 20.7, 23.0, 36.2 and 16.4 and the package 21.9, 25.1, 37.1 and 16.9, so both drew
+that ceiling darker at 1,440 rows, and the mend brings it to what 720 rows draw. At 1280 by 720 the
+mend moves the frame by 0.001 of a level on the mean, 212 of its 921,600 pixels past 2 levels, the
+wall's rows alike.
+
+It is in the published package too, at the same place, hidden. The package's row 174 stands up to
+1.4 over its neighbors between x 1200 and 1680 under its noise, and the new test's room at the
+origin, where nothing is far, fails on the glow pass before 257 as on 257's, so 257 took away the
+noise that hid it and moved nothing.
+
+The test reads GlowFarFromOriginTests' lantern room's ceiling at the origin at 640 by 1440 against
+480 by 1080, at Low and High, each row's mean level over the middle half of the width in the top
+fifth. Mended no row stands more than 0.07 from the mean of the rows two either side, and the two
+sizes agree within 0.01, against bounds of 0.3 and 0.2. On 257's glow pass a row stands 0.92 and
+0.90 out and the taller window reads 0.68 and 0.67 darker, failing; on the pass before 257, 0.86 and
+0.84, and 0.68 and 0.67.
 
 ## Items closed, parked or shortened
 

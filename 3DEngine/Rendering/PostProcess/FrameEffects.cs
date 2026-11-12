@@ -7,7 +7,7 @@ namespace Engine;
 /// the flat API's <c>SetExposure</c>, <c>SetAutoExposure</c>, <c>SetTonemap</c>,
 /// <c>SetTonemapCurve</c>, <c>SetTonemapLookup</c>, <c>SetTonemapShader</c>, <c>SetLiftGammaGain</c>,
 /// <c>SetColorGrading</c>, <c>SetVignette</c>, <c>SetFxaa</c>, <c>SetTemporalAntialiasing</c>,
-/// <c>SetDepthOfField</c> and <c>SetMotionBlur</c> set.
+/// <c>SetDither</c>, <c>SetDepthOfField</c> and <c>SetMotionBlur</c> set.
 /// </summary>
 /// <remarks>
 /// Each is applied in the pass that brings the HDR frame into the window, which the window's scene
@@ -145,6 +145,12 @@ internal sealed class FrameEffects
 
     /// <summary>Whether FXAA smooths the edges multisampling leaves, those inside a surface and of thin lines.</summary>
     public bool Fxaa { get; set; }
+
+    /// <summary>
+    /// Whether what the window shows is dithered before its eight bits take it, so a slow gradient
+    /// in the dark falls in a fine grain rather than in steps a level apart; on unless set.
+    /// </summary>
+    public bool Dither { get; set; } = true;
 
     /// <summary>
     /// Whether the window's camera is moved by a part of a pixel each frame and each frame's light

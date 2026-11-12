@@ -153,6 +153,8 @@ public sealed class BloomTests : IDisposable
     public void A_Shape_In_3D_Keeps_Its_Color_Below_The_Threshold()
     {
         Open();
+        // The shape's color read exactly, without the dither's grain.
+        SetDither(false);
         void Cube()
         {
             ClearBackground(Color.Black);
@@ -197,8 +199,10 @@ public sealed class BloomTests : IDisposable
     {
         // A model and shapes drawn with depth in one scene, at four samples, so the HDR frame draws
         // into the window's own multisampled depth, a bar behind the model hidden where the model
-        // stands before it and seen past its sides, and a cube before the model covering it.
+        // stands before it and seen past its sides, and a cube before the model covering it. Each
+        // color read exactly, without the dither's grain.
         Open();
+        SetDither(false);
         var block = LoadModelFromMesh(GenMeshCube(2, 2, 2));
         var frame = Capture(() =>
         {

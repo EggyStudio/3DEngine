@@ -390,7 +390,9 @@ internal sealed partial class GlobalIlluminationRenderer : IIlluminationPasses, 
         (floats[76], floats[77], floats[78]) = (_fieldChanged.Min.X, _fieldChanged.Min.Y, _fieldChanged.Min.Z);
         (floats[80], floats[81], floats[82]) = (_fieldChanged.Max.X, _fieldChanged.Max.Y, _fieldChanged.Max.Z);
         // Clip space back to the way from the eye, worked out in doubles, so the eye's place
-        // cancels out of the translation with nothing of the float's rounding left in it.
+        // cancels out of the translation with nothing of the float's rounding left in it. It is
+        // always found here, since both callers write a view only once its floats' inverse is, and
+        // the eye's translation has an inverse of its own, so the block is never left at zeros.
         if (InverseFromEye(viewProjection, eye) is { } fromEye)
             MemoryMarshal.Write(bytes.AsSpan(336), fromEye);
         return bytes;

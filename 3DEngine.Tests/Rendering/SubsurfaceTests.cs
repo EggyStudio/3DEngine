@@ -248,6 +248,8 @@ public sealed class SubsurfaceTests : IDisposable
     {
         var config = Config.Default.WithWindow("subsurface terminator", 640, 480) with { Headless = true, Offscreen = true, Samples = 4 };
         UseApp(new App(config).AddPlugin(new DefaultPlugins()));
+        // The light's fall read a level at a time, without the dither's grain of a level.
+        SetDither(false);
         if (field) SetSceneField(2, 0.15f, 2);
         CreateDirectionalLight(-toLight, Color.White, 1.5f, castsShadows: true);
         SetAmbientLight(Color.White, 0.02f);

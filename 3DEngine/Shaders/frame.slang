@@ -11,7 +11,8 @@
 //     float4 fragmentMain(FullscreenOutput input) : SV_Target
 //     {
 //         float3 light = frameLight(input.uv);
-//         return frameShown(light / (1.0 + light) * warmth, input.uv);
+//         float4 shown = frameShown(light / (1.0 + light) * warmth, input.uv);
+//         return float4(frameDither(shown.rgb, input.position.xy), shown.a);
 //     }
 module frame;
 
@@ -39,9 +40,11 @@ public struct FramePush
     public float4 curve;
     // rgb: the lift, added to the light after the gain. w: 1 when lift, gamma and gain are set.
     public float4 lift;
-    // rgb: the power the lifted light is raised to, one over the gamma.
+    // rgb: the power the lifted light is raised to, one over the gamma. w: 1 where what is shown is
+    // dithered before the window's eight bits take it (frameDither).
     public float4 gamma;
-    // rgb: the gain, the light is multiplied by.
+    // rgb: the gain, the light is multiplied by. w: how far the dither's pattern moves this frame,
+    // the frame's number where temporal antialiasing blends the frames and 0 where nothing does.
     public float4 gain;
 };
 
@@ -101,6 +104,26 @@ public float3 frameLight(float2 uv)
     if (framePush.lift.w > 0.0)
         light = pow(max(light * framePush.gain.rgb + framePush.lift.rgb, 0.0), framePush.gamma.rgb);
     return light;
+}
+
+// What is shown at a window's pixel, encoded, with a little noise in it before the window's eight
+// bits take it, so a slow gradient in the dark, a few levels across many pixels, falls in a fine
+// grain the eye takes as smooth where it fell in hard steps a level apart. The noise is up to a
+// level either way, likelier small than large as the sum of two even draws is, which keeps both the
+// shown light's mean and how much its grain strays the same at every level. It is drawn from an
+// interleaved gradient, which makes no pattern of its own, and is none where a channel is black or
+// white, which stay so. It holds still at a pixel from frame to frame, so two pictures of a still
+// view are alike, and moves each frame only where temporal antialiasing blends the frames, which
+// then take it away.
+public float3 frameDither(float3 shown, float2 pixel)
+{
+    if (framePush.gamma.w <= 0.0)
+        return shown;
+    float2 at = pixel + framePush.gain.w * 5.588238;
+    float even = frac(52.9829189 * frac(dot(at, float2(0.06711056, 0.00583715))));
+    float noise = even < 0.5 ? sqrt(2.0 * even) - 1.0 : 1.0 - sqrt(2.0 - 2.0 * even);
+    float3 room = saturate(min(shown, 1.0 - shown) * 255.0);
+    return shown + noise / 255.0 * room;
 }
 
 // A linear color under 1 as the window shows it at uv, with saturation and tint in linear light,

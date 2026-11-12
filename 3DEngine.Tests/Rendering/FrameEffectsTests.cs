@@ -496,6 +496,9 @@ public sealed class FrameEffectsTests : IDisposable
         var gray = new Color(120, 120, 120);
         Open(samples: 1);
         SetTemporalAntialiasing(true);
+        // Without the dither, whose grain moves each frame under temporal antialiasing and would be
+        // read as what the triangle left.
+        SetDither(false);
         CaptureAfter(24, Slanted(-1.5f, gray));
         var moved = Capture(Slanted(1.5f, gray));
         var settled = CaptureAfter(24, Slanted(1.5f, gray));
