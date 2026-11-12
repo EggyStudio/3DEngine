@@ -11,6 +11,7 @@ of .github/REVIEW.md or .github/REVIEW-ARCHIVE.md and the commit that closed it.
 Done that day
 
 - Item 262 at `2e870eb6`. Whether the glow lights' history finds its own texel in a still view.
+- Item 263 at `8561816b`. The dither's grain not seen.
 
 ## 2026-11-11
 

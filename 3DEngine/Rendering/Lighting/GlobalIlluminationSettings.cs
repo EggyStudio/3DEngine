@@ -119,6 +119,12 @@ internal sealed class GlobalIlluminationSettings
     /// </summary>
     public bool PointsOff { get; set; }
 
+    /// <summary>
+    /// The one term of the model pass's light drawn, numbered as modelpass.slang's termTaken lists
+    /// them, or 0 for all, which light.terms sets in turn to read a pixel's light by its terms.
+    /// </summary>
+    public int Term { get; set; }
+
     /// <summary>The one cascade whose rays' light alone reaches the pixels, or -1 for every cascade, as <c>gi.toggle cascade</c> sets it.</summary>
     public int Alone { get; set; } = -1;
 

@@ -124,7 +124,12 @@ interval with its rays moving, and `gi.screenprobe 400 300 256` reads the screen
 pixel, each of its sixteen rays where it was met, on the screen, in the field or past its reach,
 against the reference's light along the same way, both printing light to three significant
 figures, so a scene lit in physical units, whose shade holds a ten-thousandth of a unit of light
-or less, reads. `gi.show` draws what the light holds over the
+or less, reads. `light.terms 400 300` reads a pixel's linear light by the model pass's terms,
+each drawn alone in turn, the probes' indirect light, the glow lights', the reflections, the
+environment's, the ambient lights', the lights' own and what the surface gives off, less what the
+frame holds there with none of them, as a fog's light past the surface, beside their sum and the
+light drawn with every term, so a pixel brighter than its surfaces shows which term carries it.
+`gi.show` draws what the light holds over the
 window, `tiles`, `light`, `filtered` and `history` the screen's probes, `rays 1`, `merged 1` and
 `probes 1` the second cascade's, `difference ref.png` the frame against a reference, and `none` the
 window again. `gi.toggle merge off` leaves the merge of the cascades out, as `history` and `filter`
