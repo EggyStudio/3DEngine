@@ -527,11 +527,12 @@ public static partial class E3D
     /// </summary>
     /// <remarks>
     /// The grain holds still from frame to frame, and moves only where temporal antialiasing
-    /// blends the frames, which then reads it away. Black and white are left as they are.
+    /// blends the frames, which then reads it away. Black and white are left as they are. Off
+    /// unless a program turns it on.
     /// </remarks>
     public static void SetDither(bool enabled) => Effects.Dither = enabled;
 
-    /// <summary>Whether the window's frames are dithered, as <see cref="SetDither"/> left it, on unless set.</summary>
+    /// <summary>Whether the window's frames are dithered, as <see cref="SetDither"/> left it, off unless set.</summary>
     public static bool IsDitherEnabled() => Effects.Dither;
 
     /// <summary>

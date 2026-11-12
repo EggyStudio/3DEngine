@@ -148,9 +148,9 @@ internal sealed class FrameEffects
 
     /// <summary>
     /// Whether what the window shows is dithered before its eight bits take it, so a slow gradient
-    /// in the dark falls in a fine grain rather than in steps a level apart; on unless set.
+    /// in the dark falls in a fine grain rather than in steps a level apart; off unless set.
     /// </summary>
-    public bool Dither { get; set; } = true;
+    public bool Dither { get; set; }
 
     /// <summary>
     /// Whether the window's camera is moved by a part of a pixel each frame and each frame's light

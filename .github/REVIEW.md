@@ -48,17 +48,20 @@ on 2026-11-11, its run red at 15:27 in the second Windows half alone, the hall's
 that system's device, Verdict 116, macOS, the Linux legs and the first Windows half green. The
 pushes before these stand in REVIEW-ARCHIVE.md's head records.
 
-Next the push of `91ec6329`, 256, the engine as one package by Decision 109, read and accepted, and
-the pack run with publish on it, so the owner's game gets 257 and the dither; then 262, whether the
-glow lights' history finds its own texel in a still view, a read from the sibling's mend; then 259,
-the bright pixel at a silhouette's edge that bloom spreads into the blobs the owner saw in the
-distance, with 260, one pixel's light read by its terms; then 258, the same fault in the other
-passes, the shadows, the reprojections and the vertices first; then 255's remaining steps, the other
-first-frame pipelines made together on the workers and the trial of the lighting kept as functions,
-its first mend, the probes' kernels made together, at `c1243335`. The game is on 6.2.41 of
-`894542da` since its `068fd5f`. After them 250's further cuts, the hits' glow at 1.41 ms of the
-screen pass's 3.04 in the Ore example. No budget by Decision 94; the door at 8:00 the one target by
-Decision 95; a fault seen in motion is read in motion by Decision 107.
+Next a small commit that leaves the dither off unless a program turns it on, the owner having seen
+its grain, then the push of it with `91ec6329`, 256, the engine as one package by Decision 109, and
+`a64815c7`, 262, the glow lights' history at 2560 by 1440, and the pack run with publish on the
+last, so the owner's game gets 257; then 263, the dither's grain not seen, in the owner's steps;
+then 259, the bright pixel at a silhouette's edge that bloom spreads into the blobs the owner saw in
+the distance, with 260, one pixel's light read by its terms; then by Decision 113 the three the
+owner chose on 2026-11-12, 264, the engine drawing against the eye with a call for a moved world,
+258's list its map, then 265, the lighting's kernels written once in the RadianceCascades module,
+then 255's trial of the lighting kept as functions, with 255's other step, the other first-frame
+pipelines made together on the workers and the trial of the lighting kept as functions, its first
+mend, the probes' kernels made together, at `c1243335`. The game is on 6.2.41 of `894542da` since
+its `068fd5f`. After them 250's further cuts, the hits' glow at 1.41 ms of the screen pass's 3.04 in
+the Ore example. No budget by Decision 94; the door at 8:00 the one target by Decision 95; a fault
+seen in motion is read in motion by Decision 107.
 
 REVIEW-ARCHIVE.md beside this file holds, their numbers kept, the items done, the items closed or
 parked, the verdicts settled, Decisions 1 to 93, the Replies before those here and the head records,
@@ -271,6 +274,55 @@ reverted as the screen probes' limit at shapes about a tile wide, its patches in
     still is under 1, the lookup less the texel's own sample part with a test that a still view
     holds its light under a tenth of a level from frame to frame. Before 259, being a read of an
     hour and every glow light's light resting on it.
+
+263. **The dither's grain not seen.** From the owner on 2026-11-12, to the engine's coder, on the
+    sheet of 261, "dithering fixed the banding but now noise is visible on screen. Isn't there a way
+    to make it so that the noise from the dithering is not visible?" The sheet showed its crop three
+    times as large and its lower row three times in level, so larger and stronger than a screen
+    does, but the word stands. Decided by the review the same hour, the package goes out with the
+    dither off unless a program turns it on, so the dark draws as 6.2.41 drew it until a grain the
+    owner accepts is in. Then the grain. A blue-noise pattern in place of the interleaved gradient
+    at the same strength, its energy at the finest scale, which the eye blends; a 10-bit swapchain
+    where the display path takes one, the dither kept for 8-bit paths; a sheet for the owner at one
+    to one, a screen's own pixels with nothing magnified, the banding, the present grain and the new
+    one side by side; and on by default again only on the owner's word. Ahead of 259 unless the
+    owner said otherwise to the coder. The owner again to the coder, recorded at 05:14 on
+    2026-11-12, "And when blue noise also isn't sufficient enough look into Spatiotemporal Blue
+    Noise (STBN)". So in steps, each read on the sheet at one to one beside the others. First a
+    still blue-noise table, 64 by 64 by void and cluster. If the owner still sees it, the same tile
+    shifted by the golden ratio each frame, then a true table of 64 by 64 by 64 over space and time.
+    A grain that moves makes a still capture differ from frame to frame, against 261's rule that it
+    holds still unless the temporal antialiasing blends the frames, so that rule changes only on the
+    owner's word, which the sheet puts to them, and a capture a test compares keeps a still grain or
+    none. Then the 10-bit swapchain as its own step, the capture's path, the window's targets and
+    the GUI taking 8-bit BGRA today.
+
+264. **The engine draws against the eye, and can be told the world moved.** Decision 110 on
+    2026-11-12. The float API stays. Inside, a place is taken against the eye before it becomes a
+    float the GPU sees. The eye is taken from each instance's place on the CPU and the
+    view-projection pushed with the eye at nothing, so a vertex is placed in numbers as small as the
+    view; the shadows' slices are made from the eye and the camera's axes; the matrices from this
+    frame's clip space to the frame before's are made of eye-relative parts and the eye's move, for
+    the temporal antialiasing, the motion blur and the ambient occlusion; every point from the depth
+    is an offset from the eye, as 257 made the screen probes' and the glow lights'; the ray from a
+    screen point is made in view space. 258's ranked list is the map and each of its entries is
+    closed here or said left. A call beside it, the world moved by a whole offset, which shifts what
+    the engine keeps by place, the scene field's cascades and their still meshes, the probes, the
+    histories and the glow lights' keys, so a game that moves its origin has nothing built again,
+    the voxel game's ask of 2026-11-12, and a mesh set at a new matrix by such a move is no mover.
+    Held by a scene of each kind drawn at the origin and 4,450, 71,000 and 1,140,000 units out
+    reading alike within a margin said for each, and by the voxel game's built scene on the package.
+    A plan first as a Reply, the parts and their order, since it touches every pass. After 263, 259
+    and the publish.
+
+265. **The lighting's kernels written once.** Decision 112 on 2026-11-12. The radiance cascades'
+    kernels, the trace, the merge, the ambient, the screen probes, their filter and the glow lights,
+    go into the RadianceCascades module as Slang written once, each engine giving its bindings, its
+    view's block and its field's lookups through a small interface the module names. First a read
+    with the sibling's coder, as a Reply in both files, of where the two copies differ today and
+    why, what is one engine's own and stays, and what the interface is. Then the move, a kernel at a
+    time, each engine's tests and reference rooms holding before and after, the two engines'
+    pictures of one room compared. After 264.
 
 ## Verdicts
 
@@ -526,6 +578,53 @@ Decisions in REVIEW-ARCHIVE.md.
     further version, the owner unlisting them. Decision 85's packages at one version, as 235 and the
     split made them, give way to this. Item 256.
 
+110. **Places far from the origin, the engine draws against the eye and can be told the world
+    moved.** The owner chose on 2026-11-12 at about 05:40, asked by the review after item 257, among
+    positions in doubles throughout, a call for the origin alone, and this, the engine keeping its
+    float API, drawing everything against the eye inside, and giving a game a call that moves the
+    world's origin by a whole offset with nothing of the light built again. The review's ground.
+    What 257 found was no one pass's fault, every vertex, shadow, lookup of a frame before and point
+    from the depth standing in world floats, and a rule at the core costs less than a mend a pass,
+    with no break of the API where doubles would change every call that takes a place. Item 264 does
+    it, and 258's list is its map.
+
+111. **The lighting kept as functions, measured first.** The owner chose on 2026-11-12, among this,
+    a deferred lighting pass, and keeping the lighting inlined behind caches and workers. Every
+    model shader carries the whole lighting today, 1.3 MB of fragment and 12 s of a first compile in
+    the voxel game's terrain before its second copy went, and each feature of the light adds to
+    every shader. The forward pass stays, the lighting compiled as functions a shader calls and not
+    as a copy in each, 255's trial, measured by the compile's time and the frame's; a deferred pass
+    is taken up only if that is not enough.
+
+112. **The lighting's kernels written once.** The owner chose on 2026-11-12, among this, two copies
+    with a check of their parity, and one engine's lighting alone. The kernels of the radiance
+    cascades stand twice, here and in the sibling, ported by hand, and two faults of one night were
+    found and mended in both. They go into the RadianceCascades module, written once in Slang, each
+    engine giving its own bindings, so a mend lands in both. Item 265 here and the sibling's item
+    138.
+
+113. **The order of the three.** The owner chose on 2026-11-12 to take them after the dither's grain
+    and the blobs in the distance, the two things before the owner's eye, and the publish, and not
+    beside them nor parked. Then 264, the places, then 265, the kernels written once, then 255's
+    trial for 111.
+
+114. **An editor as a module both engines use, later.** The owner wrote on 2026-11-12 that the
+    editor is no focus yet and will be, and what they aim for, "a full framework that you can build
+    imgui frames for editor tools easily and have helpers to implement their data like ecs and
+    assets in diagnostics windows and a way for a shell to have a surfsce to have a editor layout",
+    "a module used by both engines", made in ImGui as the sibling's is, giving an engine the
+    functions to build an editor on or a way to show its data in one. The owner thinks further
+    before it is taken up, so no item is made and nothing is built. It refines the split's "no
+    editor", none inside the engine and one beside both. Until then the two engines stay on one
+    ImGui binding at one version, and the engine's ImGui area and its console stay as they are. The
+    owner the same morning, of how it sits and of what there is, "The editor module would provide
+    finctions and drawer calls that the engine then uses in there imgui scope. The process is the
+    same just imgui calls", and "Bevycsharps editor is great progress, but fundamentally crook and
+    for the module I want it sound but that will be explained further down the line". So the engine
+    hosts, the module owning no window, no ImGui context and no process, and the sibling's editor is
+    progress to learn from and no model to lift as it stands; what is crooked in it and what sound
+    is are the owner's to say.
+
 ## Replies
 
 Item 250, read on 2026-11-10. Ore by day at 1280 by 720, offscreen and unpaced, on the RTX 4070
@@ -750,3 +849,9 @@ The lookup is now less the point's offset from its texel's middle. At 1,440 rows
 31.95 and 31.99 frames and the change reads 0.0007 and 0.0061; 720 rows are as they were.
 GlowStillTests holds a still view at both sizes and both qualities to more than 30 frames held and
 a change under a tenth of a level; on the head's shader it reads 1.57 frames and fails.
+
+Item 261, the dither off unless set, on the owner's word that its grain shows on the screen. Effects'
+Dither is false until SetDither(true); SetDither's remarks, IsDitherEnabled's summary, the cheat
+sheet and the guide's row say off unless set; DitherTests reads it off at first and turns it on for
+itself. The eight tests' lines that turn it off are left, doing nothing now and holding them if the
+default turns again. The published package draws as 6.2.41 does in the dark until 263's grain is in.

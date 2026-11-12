@@ -104,7 +104,8 @@ public sealed class DitherTests : IDisposable
     public void A_Slow_Dark_Ramp_Falls_In_A_Fine_Grain_That_Keeps_Its_Light_And_Its_Black()
     {
         Open();
-        IsDitherEnabled().Should().BeTrue("the dither is on unless set");
+        IsDitherEnabled().Should().BeFalse("the dither is off unless set");
+        SetDither(true);
         var on = Ramp(0);
         SetDither(false);
         var off = Ramp(0);
@@ -121,6 +122,7 @@ public sealed class DitherTests : IDisposable
     public void The_Grain_Holds_Still_And_Moves_From_Frame_To_Frame_Only_With_Temporal_Antialiasing()
     {
         Open();
+        SetDither(true);
         var first = Ramp(0);
         var later = Ramp(1);
         Differing(first, later).Should().Be(0, "without temporal antialiasing a still view's frames are alike");
