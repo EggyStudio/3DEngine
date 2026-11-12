@@ -1984,8 +1984,8 @@ a young glow blend where the field was built again under it. (`64fd2f14`)
 
 ![](.github/assets/asks/voxel-penumbra-blotches.webp)
 ![](.github/assets/asks/voxel-penumbra-edge.webp)
-![](.github/assets/asks/voxel-penumbra-owner-seam-parts.webp)
-![](.github/assets/asks/voxel-penumbra-owner-seam.webp)
+![](.github/assets/asks/voxel-penumbra-seam-parts.webp)
+![](.github/assets/asks/voxel-penumbra-seam.webp)
 ![](.github/assets/asks/voxel-penumbra-redwall.webp)
 Lights the floor under a block floating below a row of joined lamps by halving a level face along
 its longer side where neither side rises from the surface, and by stepping out of a surface across

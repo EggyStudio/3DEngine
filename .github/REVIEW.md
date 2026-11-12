@@ -4,93 +4,97 @@ Reviewed up to `aa0f1be7`, items 259 and 260, the blobs reported in the distance
 and uv2 read at the centroid where a pixel's middle outside a triangle seen nearly edge on gave the
 surface's color a half float's most at 4 samples a pixel, with light.terms, a pixel's light read a
 term at a time, and a test of walls a hair beside the eye, 31 white pixels before and none after,
-pushed at 11:37 on 2026-11-12 once the run before it had ended; the suite passed both legs, 2,356;
-on its local package the game's sweep reads bloom's most by the origin at 13 levels where 142 and no
-step with a blob where 7; it keeps the form and carries the review's files. Before it `8561816b`,
-item 263, the dither as chosen, a still table of blue noise 64 by 64 made by build/blue-noise.py, on
-unless turned off, SetDither(false) leaving the bands and SetDitherStrength from 0 to 1 with a half
-the default, an even grain a level wide, and 1 the triangle two levels wide, pushed at 09:21 on
-2026-11-12, published as 6.2.56 by the pack run 43182275644, green at 12:31, the push ending the run
-before it with its macOS and its Linux leg in order green, its own run green at 11:31 with macOS in
-57 minutes, the Linux legs in 61 each and the Windows halves in 130 and 82, its Linux legs settling
-Verdict 118, and the pack run with publish, 43182275644, started on it the same minute; the suite
-passed both legs, 2,354, its dither tests 1 and 2 s on a device that draws on its CPU; it keeps the
-form and carries the review's files. Before it `3ceb21e7`, Verdict 118's mend, the glow lights'
-history test on strips 48 pixels wide at 720 and 1,440 rows for 80 frames past settling, 59 s and 72
-s on a device that draws on its CPU, and the ceiling's test narrowed to 160 and 120 wide, 52 s and
-64 s there, each still failing on the shader before its mend, pushed at 08:18 on 2026-11-12; the
-suite passed both legs, 2,354; it keeps the form and carries the review's files. Before it
-`8453c44d`, the dither off unless a program turns it on, its grain having been seen, pushed at 06:01
-on 2026-11-12 with `a64815c7`, item 262, the glow lights' history looked up less the point's offset
-from its texel's middle, 31.95 frames held at 2560 by 1440 where 1.57 since `2e870eb6`, with a test
-at both sizes, and `91ec6329`, item 256, the engine as one package by Decision 109, the areas'
-projects no longer packed, the flat project's package carrying every area's assembly and Sky's with
-their documentation and symbols and naming eleven packages from outside and none of the engine's,
-6,641,343 bytes read by the review from the local package; one run on the last, and the pack run
-with publish, 43158615597, started on it at 06:01, both red on the Linux legs by 07:10, Verdict 118,
-the pack run canceled and nothing published, the build run's macOS in 57 minutes and Windows halves
-in 93 and 119 green; the suite passed both legs, 2,354; they keep the form and carry the review's
-files. Before them `2b4b3285`, item 261, a dither before the 8-bit write, a grain of up to a level
-drawn from an interleaved gradient and shaped as the sum of two even draws, none at black or white,
-still at a pixel from frame to frame and moving only where the temporal antialiasing blends the
-frames, with SetDither and IsDitherEnabled, on unless set, eight tests that read a capture exactly
-turning it off, pushed at 03:08 on 2026-11-12 once the run before it had ended, green at 05:33 with
-macOS in 49 minutes, the Linux legs in 44 and 80 and the Windows halves in 137 and 144; the suite
-passed both legs, 2,350; it keeps the form and carries the review's files. Before it `2e870eb6`, a
-line across a ceiling at 2560 by 1440 that 257's mend uncovered, a glow texel's point found at its
-own middle with the depth of the pixel under it where a texel is no whole count of pixels, mended by
-finding each point at the middle of the depth texel whose depth it takes, with a test at two sizes,
-pushed at 00:59 on 2026-11-12 once the run before it had ended, green at 03:05 with macOS in 61
-minutes, the Linux legs in 62 and 80 and the Windows halves in 101 and 126; the suite passed both
-legs, 2,348; packed unpublished as 6.2.41-local.257.1, on which the game's coder reads the built
-room at 1440p as at 720p, the line gone and nothing worse; it keeps the form and carries the
-review's files. Before it `0527285a`, item 257, the reported noise mended, each depth point of the
-glow texels', the screen probes' and the filter's passes kept as its offset from the eye through
-inverseFromEye worked out in doubles, the model pass's slopes taken from the way to the eye, a test
-of the room at the origin and at 4447, 24, 596 reading alike at Low and High, the probe of the rays
-past their reach moved by a rule to one no ray of which passes a slab's edge within a cell, and a
-uint no longer called a word, pushed at 23:23 on 2026-11-11, the push ending the rerun of the commit
-before it, its run green at 00:56 on every system, which settles Verdict 117; the suite passed both
-legs, 2,346; on the built room at 2560 by 1440 the steps over 3 levels a row fall from 9 to 22 on
-the published package to 2 or 3, Ore at High costs nothing measurable, 7.41 and 7.38 ms against 7.41
-and 7.52, and sixteen times further out the room reads 0.49 at Low and 0.70 at High against 0.34 and
-0.31 at the origin, said and not asserted; packed unpublished as 6.2.41-local.257 in build/package
-for the game's check; it keeps the form and carries the review's files. Before it `c1243335`, 255's
-first mend, the probes' kernels made together on workers at the first frame that traces them, the
-frame waiting for all, the bounce rooms' cold first frame in 12.3 and 12.1 s where 28.6 and 30.1,
-with the guide's sentences on calling lit once and the game's ask of the engine's item 257, pushed
-at 19:59 on 2026-11-11 once the run before it had ended, its run green on macOS in 55 minutes and
-the Linux legs in 46 and 76 and red in the Windows halves and the examples at the step that keeps an
-artifact, Verdict 117; the suite passed both legs, 2,344; it keeps the form and carries the review's
-files. Two things for its next commit, the guide's colon inside a running sentence and the test's
-count of two at once made to hold however the threads start. Before it `466e4315`, item 6,
-Vortice.Vulkan at 3.3.0, AssimpNetter at 6.0.5 and StbImageSharp at 2.30.16 by the decision of
-2026-11-11, pushed at 18:03 with `d276e419`, item 254, pipelines.wait, one run on the last, green at
-19:58 with macOS in 47 minutes, the Linux legs in 59 and 80 and the Windows halves in 115 and 58,
-which settles Verdict 115; the suite passed both legs on each, 2,343; they keep the form and carry
-the review's files. Before them `4d9227d0`, Verdict 116's mend, the hall the faint lights' test
-reads made small enough for a device that draws on its CPU, pushed at 15:49 on 2026-11-11 with
-`d6a009d1`, Verdict 115's mend, a client that names no session looking again and saying what its
-first look saw, the run on the last ended at 17:45 with macOS in 42 minutes and the Windows halves
-in 115 and 105 green, which settles Verdict 116, and both Linux legs red at the runners' package
-mirror, which answered again at 17:54 after two hours and a quarter. Before them `afd5640f`, 250's
-faint lights, a glow light giving a ray's hit under a 32nd of the largest before it taken as one
-point, pushed at 13:19 on 2026-11-11, its run red at 15:27 in the second Windows half alone, the
-hall's new test hanging on that system's device, Verdict 116, macOS, the Linux legs and the first
-Windows half green. The pushes before these stand in REVIEW-ARCHIVE.md's head records.
+pushed at 11:37 on 2026-11-12 once the run before it had ended, its run red at 14:09 in the second
+Windows half alone, a part of the suite ending at its time limit, Verdict 119, macOS in 55 minutes,
+the Linux legs in 66 and 83 and the first Windows half in 130 green; the suite passed both legs,
+2,356; on its local package the game's sweep reads bloom's most by the origin at 13 levels where 142
+and no step with a blob where 7; it keeps the form and carries the review's files. Before it
+`8561816b`, item 263, the dither as chosen, a still table of blue noise 64 by 64 made by
+build/blue-noise.py, on unless turned off, SetDither(false) leaving the bands and SetDitherStrength
+from 0 to 1 with a half the default, an even grain a level wide, and 1 the triangle two levels wide,
+pushed at 09:21 on 2026-11-12, published as 6.2.56 by the pack run 43182275644, green at 12:31, the
+push ending the run before it with its macOS and its Linux leg in order green, its own run green at
+11:31 with macOS in 57 minutes, the Linux legs in 61 each and the Windows halves in 130 and 82, its
+Linux legs settling Verdict 118, and the pack run with publish, 43182275644, started on it the same
+minute; the suite passed both legs, 2,354, its dither tests 1 and 2 s on a device that draws on its
+CPU; it keeps the form and carries the review's files. Before it `3ceb21e7`, Verdict 118's mend, the
+glow lights' history test on strips 48 pixels wide at 720 and 1,440 rows for 80 frames past
+settling, 59 s and 72 s on a device that draws on its CPU, and the ceiling's test narrowed to 160
+and 120 wide, 52 s and 64 s there, each still failing on the shader before its mend, pushed at 08:18
+on 2026-11-12; the suite passed both legs, 2,354; it keeps the form and carries the review's files.
+Before it `8453c44d`, the dither off unless a program turns it on, its grain having been seen,
+pushed at 06:01 on 2026-11-12 with `a64815c7`, item 262, the glow lights' history looked up less the
+point's offset from its texel's middle, 31.95 frames held at 2560 by 1440 where 1.57 since
+`2e870eb6`, with a test at both sizes, and `91ec6329`, item 256, the engine as one package by
+Decision 109, the areas' projects no longer packed, the flat project's package carrying every area's
+assembly and Sky's with their documentation and symbols and naming eleven packages from outside and
+none of the engine's, 6,641,343 bytes read by the review from the local package; one run on the
+last, and the pack run with publish, 43158615597, started on it at 06:01, both red on the Linux legs
+by 07:10, Verdict 118, the pack run canceled and nothing published, the build run's macOS in 57
+minutes and Windows halves in 93 and 119 green; the suite passed both legs, 2,354; they keep the
+form and carry the review's files. Before them `2b4b3285`, item 261, a dither before the 8-bit
+write, a grain of up to a level drawn from an interleaved gradient and shaped as the sum of two even
+draws, none at black or white, still at a pixel from frame to frame and moving only where the
+temporal antialiasing blends the frames, with SetDither and IsDitherEnabled, on unless set, eight
+tests that read a capture exactly turning it off, pushed at 03:08 on 2026-11-12 once the run before
+it had ended, green at 05:33 with macOS in 49 minutes, the Linux legs in 44 and 80 and the Windows
+halves in 137 and 144; the suite passed both legs, 2,350; it keeps the form and carries the review's
+files. Before it `2e870eb6`, a line across a ceiling at 2560 by 1440 that 257's mend uncovered, a
+glow texel's point found at its own middle with the depth of the pixel under it where a texel is no
+whole count of pixels, mended by finding each point at the middle of the depth texel whose depth it
+takes, with a test at two sizes, pushed at 00:59 on 2026-11-12 once the run before it had ended,
+green at 03:05 with macOS in 61 minutes, the Linux legs in 62 and 80 and the Windows halves in 101
+and 126; the suite passed both legs, 2,348; packed unpublished as 6.2.41-local.257.1, on which the
+game's coder reads the built room at 1440p as at 720p, the line gone and nothing worse; it keeps the
+form and carries the review's files. Before it `0527285a`, item 257, the reported noise mended, each
+depth point of the glow texels', the screen probes' and the filter's passes kept as its offset from
+the eye through inverseFromEye worked out in doubles, the model pass's slopes taken from the way to
+the eye, a test of the room at the origin and at 4447, 24, 596 reading alike at Low and High, the
+probe of the rays past their reach moved by a rule to one no ray of which passes a slab's edge
+within a cell, and a uint no longer called a word, pushed at 23:23 on 2026-11-11, the push ending
+the rerun of the commit before it, its run green at 00:56 on every system, which settles Verdict
+117; the suite passed both legs, 2,346; on the built room at 2560 by 1440 the steps over 3 levels a
+row fall from 9 to 22 on the published package to 2 or 3, Ore at High costs nothing measurable, 7.41
+and 7.38 ms against 7.41 and 7.52, and sixteen times further out the room reads 0.49 at Low and 0.70
+at High against 0.34 and 0.31 at the origin, said and not asserted; packed unpublished as
+6.2.41-local.257 in build/package for the game's check; it keeps the form and carries the review's
+files. Before it `c1243335`, 255's first mend, the probes' kernels made together on workers at the
+first frame that traces them, the frame waiting for all, the bounce rooms' cold first frame in 12.3
+and 12.1 s where 28.6 and 30.1, with the guide's sentences on calling lit once and the game's ask of
+the engine's item 257, pushed at 19:59 on 2026-11-11 once the run before it had ended, its run green
+on macOS in 55 minutes and the Linux legs in 46 and 76 and red in the Windows halves and the
+examples at the step that keeps an artifact, Verdict 117; the suite passed both legs, 2,344; it
+keeps the form and carries the review's files. Two things for its next commit, the guide's colon
+inside a running sentence and the test's count of two at once made to hold however the threads
+start. Before it `466e4315`, item 6, Vortice.Vulkan at 3.3.0, AssimpNetter at 6.0.5 and
+StbImageSharp at 2.30.16 by the decision of 2026-11-11, pushed at 18:03 with `d276e419`, item 254,
+pipelines.wait, one run on the last, green at 19:58 with macOS in 47 minutes, the Linux legs in 59
+and 80 and the Windows halves in 115 and 58, which settles Verdict 115; the suite passed both legs
+on each, 2,343; they keep the form and carry the review's files. Before them `4d9227d0`, Verdict
+116's mend, the hall the faint lights' test reads made small enough for a device that draws on its
+CPU, pushed at 15:49 on 2026-11-11 with `d6a009d1`, Verdict 115's mend, a client that names no
+session looking again and saying what its first look saw, the run on the last ended at 17:45 with
+macOS in 42 minutes and the Windows halves in 115 and 105 green, which settles Verdict 116, and both
+Linux legs red at the runners' package mirror, which answered again at 17:54 after two hours and a
+quarter. Before them `afd5640f`, 250's faint lights, a glow light giving a ray's hit under a 32nd of
+the largest before it taken as one point, pushed at 13:19 on 2026-11-11, its run red at 15:27 in the
+second Windows half alone, the hall's new test hanging on that system's device, Verdict 116, macOS,
+the Linux legs and the first Windows half green. The pushes before these stand in
+REVIEW-ARCHIVE.md's head records.
 
 The package stands at 6.2.56 from `8561816b`, one package with its templates, published at 12:31 on
 2026-11-12 and tagged v6.2.56, carrying 257, the ceiling's line, the glow lights' history at 1,440
-rows and the dither. Next 259's second commit, the surface's point at the centroid too, held for two
-comments rewritten by N 4.11 as widened; then 266, the comments swept for the same; then by Decision
-113 the three chosen on 2026-11-12, 264, the engine drawing against the eye with a call for a moved
-world, 258's list its map, then 265, the lighting's kernels written once in the RadianceCascades
-module, then 255's trial of the lighting kept as functions, with 255's other step, the other
-first-frame pipelines made together on the workers and the trial of the lighting kept as functions,
-its first mend, the probes' kernels made together, at `c1243335`. The game is on 6.2.41 of
-`894542da` since its `068fd5f`. After them 250's further cuts, the hits' glow at 1.41 ms of the
-screen pass's 3.04 in the Ore example. No budget by Decision 94; the door at 8:00 the one target by
-Decision 95; a fault seen in motion is read in motion by Decision 107.
+rows and the dither. Next Verdict 119's mend, the second Windows half's parts kept under their
+limit, with `8513f710`, 259's second commit, and `63b47a49`, 266's comments, held behind it, the
+three under one run and the pack run with publish for 259 on the last; then by Decision 113 the
+three chosen on 2026-11-12, 264, the engine drawing against the eye with a call for a moved world,
+258's list its map, then 265, the lighting's kernels written once in the RadianceCascades module,
+then 255's trial of the lighting kept as functions, with 255's other step, the other first-frame
+pipelines made together on the workers and the trial of the lighting kept as functions, its first
+mend, the probes' kernels made together, at `c1243335`. The game is on 6.2.41 of `894542da` since
+its `068fd5f`. After them 250's further cuts, the hits' glow at 1.41 ms of the screen pass's 3.04 in
+the Ore example. No budget by Decision 94; the door at 8:00 the one target by Decision 95; a fault
+seen in motion is read in motion by Decision 107.
 
 REVIEW-ARCHIVE.md beside this file holds, their numbers kept, the items done, the items closed or
 parked, the verdicts settled, Decisions 1 to 93, the Replies before those here and the head records,
@@ -170,69 +174,6 @@ reverted as the screen probes' limit at shapes about a tile wide, its patches in
     carry the whole lighting; the first frame's pipelines made together on the workers with a test;
     and a trial of litLight and the reflection's trace kept as functions in the SPIR-V, read by the
     module's size, the driver's cold compile, the frame and the picture.
-
-258. **A point taken from the depth far from the origin, in the passes 257 did not touch.** From
-    257's cause on 2026-11-11. Every scene the suite and the examples read stands at the origin, and
-    a player's saved world stands 4,450 units out, where a float steps by 0.0005 and the differences
-    between neighboring depth points that make a normal lose several percent, so no pass was ever
-    read where that world is played. The shaders that take a point from the depth through the
-    inverse view-projection in world numbers are ao, screenmarch, fog, fog_scatter, dof,
-    subsurface_blur, lights and lightset, decode, particle_step, field_view and gi_reference, with
-    gi_screen_filter if 257's commit leaves it. Each is read at the saved world's place against the
-    same scene at the origin, ao and screenmarch first, a normal or a march from depth differences
-    on every frame; each that differs is mended as 257 was, the point kept as its offset from the
-    eye, with a test of a scene moved far out reading as at the origin. The other report, the shaded
-    ground looking noisy in play, is unexplained since 2026-11-10 and is read with ao on and off at
-    the saved world's place, a thing to read and no finding. What the same scenes read sixteen times
-    further out is said and not asserted. The game's own shaders' world numbers are the game's to
-    read after it. After 257's commit and its unpublished package, before 256 and 255's remaining
-    steps. The game's item 174 gives the controlled case, one scene built of blocks twice, near the
-    origin and beside the built room, read stage by stage at each quality on 6.2.41, each stage that
-    differs coming as an ask under this item. The saved options have ambient occlusion at 0, as the
-    game's coder read them on 2026-11-11, so ao has no part in the picture reported and comes after
-    screenmarch and the filter in the order of reading. The review's read of the same evening,
-    nothing built or run, every figure reasoned from a float's step and the near plane at 0.05,
-    ranks what loses most at 4,450 units. First the matrices from this frame's clip space to the
-    frame before's, an inverse times the last view-projection, in AmbientOcclusion.cs,
-    TemporalAntialiasing.cs and Bloom.cs for the motion blur, terms near 150,000 that must cancel,
-    reasoned at 10 to 30 pixels off, the ambient occlusion's history even standing still and the
-    antialiasing's while moving. Second modelpass.slang's ddx and ddy of the world point at 163, 233
-    and 468, the plane's slope a pixel takes to the probes and the glow texels and the normal map's
-    frame, 8 to 15 percent off 3 units from the eye and the same over each 2 by 2 pixels, which may
-    be the squares two pixels wide; the derivatives of the way to the eye are exact. Third
-    ao.slang's normals from neighbors and its horizons. Fourth the vertices, the world point in
-    floats then a view-projection whose translation cancels against it, a third of a pixel at 3
-    units and 3 pixels a third of a unit from the eye, the mend the eye taken from each instance's
-    place on the CPU. Fifth screenmarch.slang, the reflections' and the screen probes' march. Sixth
-    the shadows' slices, their corners through the float inverse, the radius and the snap, edges
-    crawling up to a texel in motion. Then the ray from a screen point in E3D.Physics.cs, 0.8 to 3
-    percent off, fog_scatter and field_view, the particles' step, the subsurface's thickness, the
-    far reach of the field, the reference's and the mesh rays' offsets of 1e-3, with dof, decode and
-    penumbra's hash fine at 4,450. Judged safe, the field's origin snap, the field's and the world
-    probes' lookups, the cascades' depth compare, skinning, the sky, the pointer's picking, the
-    jitter and the glow lights' keys. The list with files and lines went to the coder at 21:27. The
-    controlled case, the game's item 174, read on 6.2.41 and recorded at 22:59. Two sessions at one
-    place read alike to a hundredth of a level in most rows, and three stages differ between the
-    places by a real size. The screen's probes, on the wall beside the lantern set in it, a mean
-    step of 0.34, 0.35 and 0.37 near the origin at Low, Medium and High against 0.45 to 0.47, 0.52
-    and 0.52 to 0.53 at 4432, the wall mottled in squares at Medium and High in the difference's
-    picture, the log's faces up to 10 levels apart between the places and none between sessions;
-    with the screen off the places read 0.34 to 0.36 against 0.36 to 0.37. Ambient occlusion at 1,
-    the north wall 7 to 7.5 levels darker at 4432 where at 0 the places read within 0.3, the west
-    wall's mean step 0.35 to 0.38 against 0.56 to 0.67, the whole scene mottled in the sheet. The
-    sun's shadow, the floor under the roof's edge at 26 to 27 steps over 3 levels near the origin
-    and 22 to 23 at 4432 in both sessions, 8 at both with the shadows off. The filter, the frame
-    before's light and the glow lights off leave the places as they are. Three asks stand in ASKS.md
-    for this item, and the sheet is 23-30-item-174-places.png in the game's dump. The scene stays in
-    the game's work folder i174 as the check of each mend, the screen's probes read first on 257's
-    package. The game's later reads, recorded at 23:47. On the package 6.2.41-local.257 the screen's
-    probes read alike at the two places, the west wall's mean step 0.34, 0.35 and 0.37 near against
-    0.36, 0.37 and 0.39 to 0.40 at 4432, with ambient occlusion and the sun's shadow as before, so
-    the first of the three asks is answered by 257 and two stand. From its item 175, the same scene
-    further out, the land's faces part in a lattice of cracks with the sky through them from 284,688
-    blocks and the scene's faces tear into strips at 1,139,984, the game handing each section a
-    float matrix and the engine placing every vertex in world floats, the map's fourth entry, which
-    comes as a fourth ask.
 
 259. **A pixel at a silhouette's edge takes far more light than the surfaces it covers, and bloom
     spreads it into a blob.** Reported to the game's coder on 2026-11-11, colored blobs of bloom in
@@ -331,9 +272,35 @@ reverted as the screen probes' limit at shapes about a tile wide, its patches in
     Each rewritten to say what stands, the story going to nothing or to the Reply. A commit of
     comments alone, with the norm's search added to STYLE.md's so it is found again.
 
+267. **A pixel on the picture's edge takes its normal from the neighbor inside.** From the sibling's
+    `18364420` on 2026-11-12. There a neighbor clamped onto the pixel itself gave a step of nothing,
+    taken as the nearer, and the surface's facing and every weight resting on it turned with a
+    float's rounding along the picture's edge rows. Here depthNormal in gi_screen.slang and
+    gi_screen_glow.slang takes the nearer of the texels on either side, sampled with the depth
+    clamped at the edge. One read, the edge rows and columns of a view of the bounce rooms with the
+    camera moved by a few float steps, and the mend where they move, the neighbor past the edge
+    taken as missing, with the sibling's test. Small, with Verdict 119's mend or after it.
+
 ## Verdicts
 
-No verdict is open. Verdicts 56 to 118 are settled, said under each in REVIEW-ARCHIVE.md.
+Verdicts 56 to 118 are settled, said under each in REVIEW-ARCHIVE.md; Verdict 119 is open, the run
+of `aa0f1be7` red in the second Windows half by a part of the suite ending at its time limit with
+nothing failed.
+
+119. **The run of `aa0f1be7` is red in the second Windows half, one part of the suite ended at its
+    70 minutes with nothing failed.** In run 43202082169 the half took 151 minutes and its part
+    Rendering 2 ran out its limit, 243 passed, none failed, 12 skipped, 262 of the half without a
+    result; the first Windows half, macOS and both Linux legs are green. The part's slowest tests
+    that ended are an emissive block shut in a room at 8 m 5 s, the coarser cascades in halves at 6
+    m 26 s, the glow lights' still view at 4 m 14 s at High and 3 m 8 s at Low, and four joined
+    lamps past a pillar at 4 m 11 s; the still view's two cases take 59 and 72 s on the Linux device
+    that draws on its CPU and were timed there alone. So the part stood near its limit, the
+    workflow's own comment saying so, and this week's tests carried it over on the slower device.
+    The mend, the half's parts made so none passes about 50 minutes on the slowest run of the last
+    five, by another part or by the heaviest tests drawn smaller or for fewer frames there, each new
+    test that draws timed on both devices that draw on their CPU, and the times of each part said in
+    the workflow beside its limit. The two commits after it and the next pack run wait for it, a
+    pack run's Windows halves running the same parts. Written at 14:13 on 2026-11-12.
 
 ## Decisions
 
@@ -848,3 +815,104 @@ The guide's two lines that named a voxel game, docs/shaders-and-compute.md 204 a
 generally, a shader calling lit on a branch drawn unlit carrying the lighting twice and its fragment
 and first compile about twice their size and time, and a stream of the program's own, two uints a
 vertex for instance.
+
+Item 264, the plan. Every place in world floats meets one of two hubs, the instance ring written
+once a frame and shared by every view (ModelNode.cs 55), and the view-projection pushed with each
+batch (ModelNode.cs 250 and 669). So the frame has one render origin, the window camera's eye as
+given, and every place is taken against it on the CPU in doubles, where the difference of two floats
+is exact. Each view pushes its view-projection times the origin's translation, worked in doubles,
+so a vertex is placed in numbers as small as the view, and every place a pass reads in a uniform is
+handed against the origin the same way: the lights' positions (LightingUbo.cs 268,
+GlobalIlluminationRenderer.cs 507), the probes' middles (LightingUboPrepare.cs 197), the field's
+origins and eye (SceneField.cs 589), the glow lights' middles (GlowLights.cs 250) and the
+reflection probes'. A grid kept in world numbers, the field's cells and the shadows' texels, is
+handed as the origin's place within its own cell, worked in doubles, so its snap holds as the eye
+moves.
+
+One question is the programs' and so not mine to settle. ModelVertexOutput.world is a program
+shader's world point, which a shader of its own may map a texture by. Kept as it is, the vertex
+stage hands it as the origin plus the point against it, in floats as now, and the engine's own
+passes read the point against the origin, which toEye holds exactly once the instance is against the
+origin. Turned into the point against the origin, every program shader that reads world as a world
+place changes. I would keep it, the documents saying its precision is a float's at its distance and
+that a program far out keeps its own origin. Decided on 2026-11-12 in my session: world stays the
+absolute world point, so no program shader changes.
+
+The parts, each its own commit with its test, in this order.
+1. The origin with nothing moved. The rebasing is laid through the CPU and the shaders with the
+origin held at zero, every place, uniform, cull box and view-projection taking it, and every
+reference frame and test reading bit for bit as before. This carries the most files and changes no
+picture, so a fault in it shows as a frame that moved.
+2. The origin at the eye. The instance ring and the ECS chunks' copies (ModelRenderer.Instances.cs
+90, MeshEntityDraws.cs 648, rebased at the copy so a reused chunk stays right), the immediate
+vertices (DrawList.cs 378), the particles (particles.slang 66), the sky's translation to nothing
+(E3D.Environment.cs 107), the culling's boxes and planes (ModelRenderer.Culling.cs 20 to 92), the
+per object velocity's two rows (ModelDrawList.cs 338), and the eye handed where EyeOf now inverts a
+view-projection to find it (LightingUboPrepare.cs 336 and its callers). Skinning poses in a model's
+space and needs nothing.
+3. The shadows. The cascades fit against the origin and snapped against the world's lattice by the
+origin's place within a texel in light space (Shadows.cs 121 to 196), the spot and point lights from
+their place against it (Shadows.cs 249 and 304), each light's view-projection pushed times the
+origin.
+4. The frame before. The temporal antialiasing (TemporalAntialiasing.cs 162), the motion blur
+(Bloom.cs 517), the ambient occlusion's history (AmbientOcclusion.cs 273), the reflections' history
+(LightingUboPrepare.cs 105) and the screen probes' and glow texels' lookups (gi_screen_filter.slang
+119, gi_screen_glow.slang 294) take this frame's inverse against the origin times the move of the
+origin since the frame before times that frame's view-projection against its own origin, small
+numbers that need not cancel, and keep the point and the last eye against the origin.
+5. The points from the depth. ao.slang 83 and its normals and horizons, screenmarch.slang 101 and
+its march, gi_screen.slang's worldAt where 257 left it, fog_scatter.slang 114, particle_step.slang
+95, the reflections' ScreenCamera (lights.slang 607), and the eye's distance in decode, dof and
+subsurface_blur through inverseFromEye; gi_reference.slang 599 and the debug views alike.
+6. The rays from the screen on the CPU. GetScreenToWorldRayEx (E3D.Physics.cs 517) and
+Vector3Unproject (E3D.RayMath.cs 198) take their way from the rotation alone and leave from the
+camera's place, and GetWorldToScreenEx (E3D.Camera3D.cs 23) takes the point less the camera's place.
+7. The world moved. A call, MoveWorld(offset), that a program makes in the frame it moves every
+place it hands the engine by the same whole offset. It shifts what the engine keeps by place: the
+field's plan, its built and changed regions, its jobs and every set that knows a mesh by its matrix,
+rekeyed by the matrix plus the offset (SceneFieldPlan.cs 94 and 184 to 237, SceneField.cs 84 and
+89), so a mesh at its new matrix is the same still mesh and none is taken for a mover for
+MobileSettleFrames, the game's lead; the world probes' origins (GlobalIlluminationRenderer.cs 88),
+the glow lights' places rekeyed (GlowLights.cs 451), the reflection probes' places, the histories
+of 4 shifted by the offset, the particles' positions on the GPU by a pass, the physics' poses and
+the frames before them (PhysicsWorld.cs 28 and 70), and the audio's voices. The field's texels hold
+only where the offset is a whole count of every cascade's cell, the far one's among them; another
+offset marks the field to be built again, which the call's documents say. Since a rekeyed mesh must
+match to the bit the matrix the program hands next frame, the offset is a whole number of units
+and is added in doubles, and the test moves a world of a thousand meshes and reads the field's
+still count and its builds through the move.
+8. The ambient occlusion by place, the game's second ask, which is no precision since the scene was
+handed within 450 units of zero at both places. Its likeliest cause to read first is the field's
+grid, the room's walls falling at another phase of the cells at each place; the same room is drawn
+at fractions of a cell apart and read, and if its occlusion follows the phase the term is mended to
+read alike at every phase, with that test. It can go before 1, standing apart from the rest.
+
+The test of each part draws a scene of its kind at the origin and at 4,450, 71,000 and 1,140,000
+units out and reads it alike within a margin said for each: a lit room under the sun's shadows, the
+glow-lit wall, a mirror's march, the ambient occlusion, a camera turning under temporal
+antialiasing, particles and fog, and a picked point; at 1,140,000 a float steps by an eighth, so the
+places handed are a whole number of units there. The cost is read on Ore at High before and after 2,
+the instance ring and the chunks being rebased each frame on the CPU. Each part's account goes in
+its own Reply.
+
+Verdict 119, the second Windows half of aa0f1be7's run out of its time. The half ran on an AMD
+EPYC 7763, where 8561816b's green half ran on an EPYC 9V45; the first halves, both on the 7763, took
+115 and 117 minutes, so the code did not slow the device, and the second half's suite came to 79.6
+minutes on the 9V45 and past 147.8 on the 7763. Its three Rendering processes read on the 7763 in
+2b4b3285's run 54.5, 44.8 and 37.3 minutes and in this run 47.0, past 70 and 26.8, the classes
+dealt by their sorted names, so each class added moves the deal, and this one gave the second process
+505 tests where 8561816b's gave it 128. The rest of the Rendering part is near 150 minutes on that
+runner, more than one job's 160 holds with its other parts, so the Windows suite now runs in three
+jobs: the first as before, global illumination's two processes, the scene field's, Core and
+Graphics, 117 minutes on the 7763; the second the Rendering part's first three of six processes and
+every part the others leave; the third its last three. Six processes deal the near 150 minutes at
+about 25 each on the slowest runner, the deal by names leaving them uneven, none near 50 by that
+sum. The workflow's comment gives each part's time on the 7763 beside its limit, and the first run's
+page gives the six new ones.
+
+The drawing tests added since 3ceb21e7, their times on the 7763 in this run: GlowStillTests 4 m 14 s
+at High and 3 m 8 s at Low, against 72 and 59 s on lavapipe here held to four cores; the ceiling's
+test 3 m 45 s at High and 3 m 7 s at Low, against 64 and 52 s; LightTermsTests 41 s, against 18 s;
+EdgeLightTests' first test 8 s, its second added after this run; DitherTests ran in the lost part,
+whose results the run did not keep, at 2 s and 1 s on lavapipe here. The Windows lavapipe reads
+three to four times this machine's for them.

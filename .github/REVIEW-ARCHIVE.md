@@ -17146,6 +17146,71 @@ scattering and what follows it, and item 7 for a wait.
     mirror on that package, cold and warm. As it stood on 2026-11-11 at 13:08, shortened in
     REVIEW.md.
 
+258. **A point taken from the depth far from the origin, in the passes 257 did not touch.** From
+    257's cause on 2026-11-11. Every scene the suite and the examples read stands at the origin, and
+    a player's saved world stands 4,450 units out, where a float steps by 0.0005 and the differences
+    between neighboring depth points that make a normal lose several percent, so no pass was ever
+    read where that world is played. The shaders that take a point from the depth through the
+    inverse view-projection in world numbers are ao, screenmarch, fog, fog_scatter, dof,
+    subsurface_blur, lights and lightset, decode, particle_step, field_view and gi_reference, with
+    gi_screen_filter if 257's commit leaves it. Each is read at the saved world's place against the
+    same scene at the origin, ao and screenmarch first, a normal or a march from depth differences
+    on every frame; each that differs is mended as 257 was, the point kept as its offset from the
+    eye, with a test of a scene moved far out reading as at the origin. The other report, the shaded
+    ground looking noisy in play, is unexplained since 2026-11-10 and is read with ao on and off at
+    the saved world's place, a thing to read and no finding. What the same scenes read sixteen times
+    further out is said and not asserted. The game's own shaders' world numbers are the game's to
+    read after it. After 257's commit and its unpublished package, before 256 and 255's remaining
+    steps. The game's item 174 gives the controlled case, one scene built of blocks twice, near the
+    origin and beside the built room, read stage by stage at each quality on 6.2.41, each stage that
+    differs coming as an ask under this item. The saved options have ambient occlusion at 0, as the
+    game's coder read them on 2026-11-11, so ao has no part in the picture reported and comes after
+    screenmarch and the filter in the order of reading. The review's read of the same evening,
+    nothing built or run, every figure reasoned from a float's step and the near plane at 0.05,
+    ranks what loses most at 4,450 units. First the matrices from this frame's clip space to the
+    frame before's, an inverse times the last view-projection, in AmbientOcclusion.cs,
+    TemporalAntialiasing.cs and Bloom.cs for the motion blur, terms near 150,000 that must cancel,
+    reasoned at 10 to 30 pixels off, the ambient occlusion's history even standing still and the
+    antialiasing's while moving. Second modelpass.slang's ddx and ddy of the world point at 163, 233
+    and 468, the plane's slope a pixel takes to the probes and the glow texels and the normal map's
+    frame, 8 to 15 percent off 3 units from the eye and the same over each 2 by 2 pixels, which may
+    be the squares two pixels wide; the derivatives of the way to the eye are exact. Third
+    ao.slang's normals from neighbors and its horizons. Fourth the vertices, the world point in
+    floats then a view-projection whose translation cancels against it, a third of a pixel at 3
+    units and 3 pixels a third of a unit from the eye, the mend the eye taken from each instance's
+    place on the CPU. Fifth screenmarch.slang, the reflections' and the screen probes' march. Sixth
+    the shadows' slices, their corners through the float inverse, the radius and the snap, edges
+    crawling up to a texel in motion. Then the ray from a screen point in E3D.Physics.cs, 0.8 to 3
+    percent off, fog_scatter and field_view, the particles' step, the subsurface's thickness, the
+    far reach of the field, the reference's and the mesh rays' offsets of 1e-3, with dof, decode and
+    penumbra's hash fine at 4,450. Judged safe, the field's origin snap, the field's and the world
+    probes' lookups, the cascades' depth compare, skinning, the sky, the pointer's picking, the
+    jitter and the glow lights' keys. The list with files and lines went to the coder at 21:27. The
+    controlled case, the game's item 174, read on 6.2.41 and recorded at 22:59. Two sessions at one
+    place read alike to a hundredth of a level in most rows, and three stages differ between the
+    places by a real size. The screen's probes, on the wall beside the lantern set in it, a mean
+    step of 0.34, 0.35 and 0.37 near the origin at Low, Medium and High against 0.45 to 0.47, 0.52
+    and 0.52 to 0.53 at 4432, the wall mottled in squares at Medium and High in the difference's
+    picture, the log's faces up to 10 levels apart between the places and none between sessions;
+    with the screen off the places read 0.34 to 0.36 against 0.36 to 0.37. Ambient occlusion at 1,
+    the north wall 7 to 7.5 levels darker at 4432 where at 0 the places read within 0.3, the west
+    wall's mean step 0.35 to 0.38 against 0.56 to 0.67, the whole scene mottled in the sheet. The
+    sun's shadow, the floor under the roof's edge at 26 to 27 steps over 3 levels near the origin
+    and 22 to 23 at 4432 in both sessions, 8 at both with the shadows off. The filter, the frame
+    before's light and the glow lights off leave the places as they are. Three asks stand in ASKS.md
+    for this item, and the sheet is 23-30-item-174-places.png in the game's dump. The scene stays in
+    the game's work folder i174 as the check of each mend, the screen's probes read first on 257's
+    package. The game's later reads, recorded at 23:47. On the package 6.2.41-local.257 the screen's
+    probes read alike at the two places, the west wall's mean step 0.34, 0.35 and 0.37 near against
+    0.36, 0.37 and 0.39 to 0.40 at 4432, with ambient occlusion and the sun's shadow as before, so
+    the first of the three asks is answered by 257 and two stand. From its item 175, the same scene
+    further out, the land's faces part in a lattice of cracks with the sky through them from 284,688
+    blocks and the scene's faces tear into strips at 1,139,984, the game handing each section a
+    float matrix and the engine placing every vertex in world floats, the map's fourth entry, which
+    comes as a fourth ask. Folded into 264 by Decision 110 on 2026-11-12, the engine drawing against
+    the eye, this item's ranked list being that item's map and its asks read there; kept in the
+    archive with its record.
+
 ## Head records
 
 The head paragraph of REVIEW.md as it stood when it was shortened, with the order line where it had

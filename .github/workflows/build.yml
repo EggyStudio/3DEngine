@@ -172,17 +172,21 @@ jobs:
   windows:
     runs-on: windows-latest
     # The suite's parts run one after another, and their sum follows the runner, so the suite is
-    # dealt to two runners, each half a job of its own with its own limit and its own lines on the
-    # page. The first half takes global illumination's class, the scene field's, Core and Graphics
-    # and plays the games after its suite, and the second takes every other part, as the suite's
-    # step below deals them. Each has 160 on a push, the slowest half's 118 minutes on the slowest
-    # runner yet read with a third again for a slower one, and the first 240 in the pack run, which
-    # plays every game at the step's own 110 after its suite. The suite's parts are held to 70 each
-    # below.
+    # dealt to three runners, each a job of its own with its own limit and its own lines on the
+    # page. The first takes global illumination's class, the scene field's, Core and Graphics and
+    # plays the games after its suite, the second the Rendering part's first three processes and
+    # every part the others leave, and the third the Rendering part's last three, as the suite's
+    # step below deals them. Each has 160 on a push and the first 240 in the pack run, which plays
+    # every game at the step's own 110 after its suite. The suite's parts are held to 70 each below.
+    # On the slowest runner read, an EPYC 7763, the first's parts took 48.8 and 46.6 minutes for
+    # global illumination's two, 9.6 for the scene field's, 9.1 for Core and 2.9 for Graphics, 117
+    # together; the rest of the Rendering part took 54.5, 44.8 and 37.3 in three processes in one
+    # run and 47.0, past 70 and 26.8 in the next, near 150 together, which six processes deal at
+    # about 25 each; the other parts take under 4 together.
     strategy:
       fail-fast: false
       matrix:
-        half: [1, 2]
+        half: [1, 2, 3]
     timeout-minutes: ${{ inputs.pack && matrix.half == 1 && 240 || 160 }}
     defaults:
       run:
@@ -271,18 +275,22 @@ jobs:
       # processes by its classes, since whole it runs out its 70 minutes on a slow runner. Global
       # illumination's class takes most of the time of a process holding it, which no deal of the
       # classes by their names keeps apart, and alone it comes near its 70 minutes, so it runs in
-      # two processes of its own, its methods dealt between them, in the first half, since the
-      # second has no room for any of it. The slowest class, the glow lights', has no room in the
-      # first half either, so the scene field's, which balances the two halves, runs there in a
-      # process of its own, and the rest of the part runs in three in the second. The first half
-      # runs these classes, Core and Graphics alone, and the second every part but those, so a part
+      # two processes of its own, its methods dealt between them, in the first job. The slowest
+      # class, the glow lights', has no room there, so the scene field's runs there in a process of
+      # its own, and the rest of the part runs in six, three in the second job and three in the
+      # third, since three in one job came to near 150 minutes on the slowest runner. The first job
+      # runs these classes, Core and Graphics alone, the third the Rendering part's last three
+      # processes, and the second every part but those, so a part
       # added later runs there.
       - run: |
           first=(--only "Rendering GlobalIlluminationTests" --only "Rendering SceneFieldTests" --only Core --only Graphics)
-          second=(--except "Rendering GlobalIlluminationTests" --except "Rendering SceneFieldTests" --except Core --except Graphics)
+          third=(--only "Rendering 4" --only "Rendering 5" --only "Rendering 6")
+          second=(--except "Rendering GlobalIlluminationTests" --except "Rendering SceneFieldTests" --except Core --except Graphics
+            --except "Rendering 4" --except "Rendering 5" --except "Rendering 6")
           share=("${second[@]}")
           if [ "${{ matrix.half }}" = 1 ]; then share=("${first[@]}"); fi
-          python build/test.py --no-build --parts --split Rendering=3+GlobalIlluminationTests/2+SceneFieldTests "${share[@]}" \
+          if [ "${{ matrix.half }}" = 3 ]; then share=("${third[@]}"); fi
+          python build/test.py --no-build --parts --split Rendering=6+GlobalIlluminationTests/2+SceneFieldTests "${share[@]}" \
             --system "Windows, half ${{ matrix.half }}" --timeout-minutes 70 --hang-minutes 10
         env:
           E3D_REQUIRE_VALIDATION: '1'

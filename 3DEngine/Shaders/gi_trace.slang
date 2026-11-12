@@ -530,10 +530,11 @@ void computeMain(uint3 id : SV_DispatchThreadID, uint lane : SV_GroupIndex)
         // halves the sky's light under such a slab twice, once below and once above, and leaves it
         // dark where the merge reads such a ray as one that met a surface early. The
         // first surface letting light through that the ray meets stands for every one it crosses,
-        // as a canopy's leaves a block apart take much the same light, shaded once after the march
-        // for the share of the ray's light they take together, and the surface it stops at for the
-        // share that reaches it, so the build holds one copy of the shading and none in the march,
-        // and a ray through a canopy is shaded twice at most in place of once for each leaf.
+        // since surfaces near each other along a ray take about the same light, shaded once after
+        // the march for the share of the ray's light they take together, and the surface it stops
+        // at for the share that reaches it, so the build holds one copy of the shading and none in
+        // the march, and a ray through many such surfaces is shaded twice at most in place of once
+        // for each.
         float firstAt = -1.0;
         float leafAt = -1.0, leafShare = 0.0, stopAt = -1.0, stopShare = 0.0;
         // Where along the way a surface letting light through stops being this cascade's to cross
