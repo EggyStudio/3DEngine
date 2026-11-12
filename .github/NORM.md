@@ -208,12 +208,13 @@ the source has no owner, reviewer or session to follow, and a reason stands on i
 does not. Who chose what, and when, belongs to REVIEW.md's Decisions, and a commit's message, from
 which release notes are made, says what changed and why without it. The sessions' own documents,
 REVIEW.md, SHARED.md, NORM.md, AGENTS.md, COMMITS.md and ASKS.md, which the sessions making games
-write, name them, and nothing else does. `NormTests` over every Markdown file but those six, over
-the comments of every source, shader, script, manifest and workflow, and the pack workflow's step
-that writes the release notes, for the owner or a session named as the one who chose, decided,
-asked, allowed, admitted, wants, sets, files or publishes, and for `REVIEW.md` in a page a game's
-author reads; a word that means a thing's owner in the code, a widget's or a handle's, is not a
-name.
+write, name them, and nothing else does; they name a role and say what was decided in plain general
+words, quoting no one's own words and carrying nothing personal, since they are published with the
+source. `NormTests` over every Markdown file but those six, over the comments of every source,
+shader, script, manifest and workflow, and the pack workflow's step that writes the release notes,
+for the owner or a session named as the one who chose, decided, asked, allowed, admitted, wants,
+sets, files or publishes, and for `REVIEW.md` in a page a game's author reads; a word that means a
+thing's owner in the code, a widget's or a handle's, is not a name.
 
 **N 4.8 A picture a session makes while it works, a reading, a pair before and after a mend or a
 capture sent to the owner, is saved in the repository in the commit of the work it belongs to.** The
@@ -273,16 +274,18 @@ engine's words, and a number taken from elsewhere stands with the reason it is r
 makes the frame or the program do, the source named once in the documents' references and not in the
 comment. The file names of outside assets, another product's profile or process as the explanation,
 "as X works it out", and the facts of the sessions' work are not written in a comment, since a
-reader of the source has none of them, and a comment that leans on them says nothing to that reader;
-the owner asked for it on 2026-11-08 reading one that graded a scene "as that scene's HDRP profile
-grades it". A comment carries no reading of before and after, no cost in milliseconds or bytes and
+reader of the source has none of them, and a comment that leans on them says nothing to that reader.
+A comment says what the code is as it stands. It does not tell what the code was before, what a mend
+changed or which fault led to it, and it does not explain one thing by likening it to another, "as
+the normal is", "as before", "no longer"; it gives the reason in the code's own terms, what the
+value must be and what goes wrong where it is not. It names no program built on the engine, a game
+or a kind of game, as its example, since the engine's source is read by those who have never seen
+that program. A comment carries no reading of before and after, no cost in milliseconds or bytes and
 no account of the trials that led to the code, since those are the review's records and
 RENDERING.md's and go stale at the first tuning; a number stands in a comment only where the code's
-choice depends on it, a size, a count or a threshold, and then with its reason. The owner asked for
-it on 2026-11-09 reading a comment that carried a wall's reading before and after a mend and the
-mend's milliseconds. A comparison test names the reference it compares against, since the comparison
-is the test. By review, and by STYLE.md's search for the products' and the sessions' words in
-comments, read rather than counted.
+choice depends on it, a size, a count or a threshold, and then with its reason. A comparison test
+names the reference it compares against, since the comparison is the test. By review, and by
+STYLE.md's search for the products' and the sessions' words in comments, read rather than counted.
 
 ## 5 Examples and games
 

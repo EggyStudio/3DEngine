@@ -10135,6 +10135,39 @@ batch.
     holds its light under a tenth of a level from frame to frame. Before 259, being a read of an
     hour and every glow light's light resting on it.
 
+263. **The dither's grain not seen.** From the owner on 2026-11-12, to the engine's coder, on the
+    sheet of 261, "dithering fixed the banding but now noise is visible on screen. Isn't there a way
+    to make it so that the noise from the dithering is not visible?" The sheet showed its crop three
+    times as large and its lower row three times in level, so larger and stronger than a screen
+    does, but the word stands. Decided by the review the same hour, the package goes out with the
+    dither off unless a program turns it on, so the dark draws as 6.2.41 drew it until a grain the
+    owner accepts is in. Then the grain. A blue-noise pattern in place of the interleaved gradient
+    at the same strength, its energy at the finest scale, which the eye blends; a 10-bit swapchain
+    where the display path takes one, the dither kept for 8-bit paths; a sheet for the owner at one
+    to one, a screen's own pixels with nothing magnified, the banding, the present grain and the new
+    one side by side; and on by default again only on the owner's word. Ahead of 259 unless the
+    owner said otherwise to the coder. The owner again to the coder, recorded at 05:14 on
+    2026-11-12, "And when blue noise also isn't sufficient enough look into Spatiotemporal Blue
+    Noise (STBN)". So in steps, each read on the sheet at one to one beside the others. First a
+    still blue-noise table, 64 by 64 by void and cluster. If the owner still sees it, the same tile
+    shifted by the golden ratio each frame, then a true table of 64 by 64 by 64 over space and time.
+    A grain that moves makes a still capture differ from frame to frame, against 261's rule that it
+    holds still unless the temporal antialiasing blends the frames, so that rule changes only on the
+    owner's word, which the sheet puts to them, and a capture a test compares keeps a still grain or
+    none. Then the 10-bit swapchain as its own step, the capture's path, the window's targets and
+    the GUI taking 8-bit BGRA today. The owner's word to the coder on the four pictures and two
+    sheets, recorded at 07:36 on 2026-11-12, "Both blue noises look great", and asked which, "Keep
+    options to have bands no blue noise and then blue noise with strength so that it can be set in
+    code with the api"; on by default, yes; the 10-bit step, yes, later. So the dither is the still
+    blue-noise table, on unless a program turns it off, SetDither(false) giving the bands, and a new
+    SetDitherStrength from 0 to 1, a half the even grain a level wide and the default, 1 the
+    triangle two levels wide, the two blended between, and under a half a grain narrower than a
+    level with the bands coming back, which the guide says. The grain holds still, the moving tile
+    and the table over time not being needed by the owner's word. The 10-bit swapchain is a step of
+    its own later. After Verdict 118's mend, and the package goes out with it where its commit comes
+    within about two hours of that mend's push. Done at `8561816b`, pushed at 09:21 on 2026-11-12,
+    the 10-bit swapchain left as a step of its own for a later item.
+
 ## Verdicts settled
 
 Verdicts 1 to 55 are settled, the last two, the drawing leak test's resident bound and the Windows
@@ -12117,6 +12150,25 @@ at `36cae0c2`.
     2026-11-11. The run of `0527285a`, the commit after it, was green at 00:56 on 2026-11-12 on
     every system, macOS in 50 minutes, the Linux legs in 48 and 71 and the Windows halves in 91 and
     92, with `c1243335` in it, which settles this.
+
+118. **The runs of `8453c44d` are red on both Linux legs, a test of the glow lights' history hanging
+    on a device that draws on its CPU, and nothing is published.** In the build run 43158588845 and
+    the pack run with publish 43158615597, both started at 06:01 on 2026-11-12, each Linux leg loses
+    the suite to a test that hung, after 17 m 35 s in order and 21 m 16 s shuffled, 2,045 passed,
+    none failed, 12 skipped and 234 without a result,
+    GlowStillTests.A_Still_View_Holds_Its_Glow_Lights_Light_From_Frame_To_Frame, from `a64815c7`,
+    which hung again after 5 m 2 s run alone; macOS passed in 57 minutes and the Windows halves were
+    still going. The test settles and reads a still view over 120 frames at 1280 by 720 and at 2560
+    by 1440 at two qualities, which the runner's CPU device does not finish within the hang's limit,
+    the shape of Verdict 116 again, and the review accepted it without asking what it costs there.
+    The mend, the test at the two heights it needs in a strip a few tens of pixels wide and as few
+    frames as show the history whole, its time on a CPU device said before it goes up, with the far
+    room's and the ceiling's tests looked at for the same cost. The pack run is canceled, being
+    unable to publish, and is started again on the mend. Written at 07:12 on 2026-11-12. Mended at
+    `3ceb21e7`, the test on strips 48 pixels wide at 720 and 1,440 rows, 59 s and 72 s on a device
+    that draws on its CPU. Both Linux legs of the build run of `8561816b`, the commit after it,
+    passed by 10:48 on 2026-11-12, as the Linux leg in order of the mend's own run had, which
+    settles this; the pack run with publish was started again on `8561816b`.
 
 ## Decisions
 
@@ -15804,6 +15856,45 @@ Dither is false until SetDither(true); SetDither's remarks, IsDitherEnabled's su
 sheet and the guide's row say off unless set; DitherTests reads it off at first and turns it on for
 itself. The eight tests' lines that turn it off are left, doing nothing now and holding them if the
 default turns again. The published package draws as 6.2.41 does in the dark until 263's grain is in.
+
+Verdict 118, GlowStillTests hanging on lavapipe. It drew the lantern room 128 frames in windows of
+1280 by 720 and 2560 by 1440 at two qualities. Now each window is a strip 48 pixels wide at 720 and at
+1,440 rows, the rows alone setting how a glow texel spans the depth's texels, drawn 88 frames, the
+eight the field settles in and 80 more, by which the blend holds its 32 and the light at High has
+settled from frame to frame. On the GPU the strips hold 31.79 to 31.97 frames and change 0.0017 to
+0.0121 levels between the last two; on the head's shader before a64815c7 both cases fail. On
+lavapipe here, Mesa's CPU device held to four threads and four cores, the cases took 59 s at Low and
+1 min 12 s at High, holding 31.81 to 32.00 frames and changing 0.0009 to 0.0020; drawn 48 frames,
+High had changed 0.095 at 1,440 rows there and 0.103 on the GPU, so 80. The ceiling's test took
+1 min 23 s and 1 min 39 s on lavapipe at 640 and 480 wide; at 160 and 120 wide, the same rows, it
+takes 52 s and 1 min 4 s, passes here, and fails on the glow pass of 0527285a with a row 0.98 out. The
+far wall's test takes 1 min 11 s and 1 min 17 s on lavapipe and is left as it is, its points along
+the wall placed across the whole window.
+
+Item 263, the dither's grain as the owner chose it. build/blue-noise.py writes
+3DEngine/Shaders/dither/blue_noise.bin, 64 by 64 texels of rank by Ulichney's void-and-cluster
+method with a Gaussian of 1.2 texels and a fixed seed, a byte a texel; at a tenth of the table no
+two texels touch, where at 1.5 eight pairs did. The composite loads it once into the 64 slices of a
+cube at binding 4 of its set, and frameDither reads a texel by its pixel, still from frame to frame,
+moved by the golden ratio each frame only under temporal antialiasing. The dither is on unless
+SetDither(false), which leaves the bands, and SetDitherStrength sets its grain from 0 to 1, a half
+unless set: at a half even across a level, the owner's fourth picture; at 1 the triangle across
+two levels, the third; between, their quantiles blended; under a half even across less than a level,
+the bands coming back toward none at 0. GetDitherStrength, the listing, the cheat sheet, the guide's
+rows and a slider in the effects' window carry it.
+
+DitherTests' window is 64 rows. On the ramp the default changes 0.431 of neighbors, strength 1
+0.562, off 0.063; the means 15.264, 15.263 and 15.271; a column of one light takes 2 levels at a
+half and 3 at 1, held so; each four by four block's mean lies 0.0510 and 0.0562 levels from its
+column's, against 0.071 for the interleaved gradient's grain in the same bin, the bound 0.065; black
+stays black. On lavapipe here, four threads on four cores, its tests take 2 s and 1 s. The eight
+tests that read a capture exactly hold again with the default on, their 191 neighbors passing; no
+play compares a picture, and compare.py counts a pixel apart past 24 of 255, so none else was
+touched. Rounded to whole levels the triangle's blue noise clumps a fifth less than the gradient's
+at most levels and alike at a half level, while the even grain keeps the table's spread best,
+which is why the owner saw the half the calmest. The owner chose, on four pictures at 2560 by 1440
+of the lantern room and sheets of one patch at four times, both blue grains, the strength in code,
+the dither on, the grain still, no table over time, and the 10-bit swapchain later.
 
 ## Items closed, parked or shortened
 

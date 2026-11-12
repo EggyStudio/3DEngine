@@ -319,14 +319,15 @@ public float sunContact(ModelVertexOutput input, float held = 0.0)
 public struct ModelVertexOutput
 {
     public float4 position : SV_Position;
-    // Read where the samples the triangle covers lie, not at the pixel's middle, which at a
-    // triangle's edge lies past it, where the normal went on turning as its vertices' turn. Along
-    // the foot of Sponza's doors, whose bevels turn down, global illumination read light there for
-    // a surface facing the floor, a row of white pixels along each foot that a path-traced
-    // reference does not hold, which reading the normal so thins. The point, the way to the eye and
-    // the coordinates read so as well took few more of the row away.
+    // Read at the centroid of the samples the triangle covers, so each stays within its corners'
+    // where a triangle covers a sample and not the pixel's middle. Past a triangle seen nearly edge
+    // on the perspective's interpolation divides by nearly nothing, and a value read at the middle
+    // there lies far outside its corners'.
     public centroid float3 normal : NORMAL;
-    public float3 world : POSITION1;
+    public centroid float3 world : POSITION1;
+    // Read at the pixel's middle, where their slopes across the screen choose a texture's level and
+    // give the surface's way across the pixel (worldAcross). Past a triangle's edge a texture gives
+    // one of its own texels and only the way's direction is lit, so neither leaves its range.
     public float2 uv : TEXCOORD0;
     // From the surface toward the camera, unnormalized, for specular light.
     public float3 toEye : TEXCOORD1;
@@ -344,11 +345,9 @@ public struct ModelVertexOutput
 public struct ModelStreamsOutput
 {
     public ModelVertexOutput base;
-    // Both read where the samples the triangle covers lie, as the normal is. At four samples a
-    // pixel a triangle seen nearly edge on covers a sample while the pixel's middle lies far past
-    // it, where the colors at its corners, dark at one and light at another as a voxel game shades
-    // them, ran on to many times their own, and the pixel took the light of a surface far brighter
-    // than any, a white pixel at a terrain's edge that bloom spread into a blob.
+    // Read at the centroid of the samples the triangle covers, so a color or coordinate stays
+    // within its corners' where a triangle covers a sample and not the pixel's middle, past which
+    // the perspective's interpolation of a triangle seen nearly edge on divides by nearly nothing.
     public centroid float4 vertexColor : COLOR3;
     public centroid float2 uv2 : TEXCOORD3;
 };
@@ -536,7 +535,7 @@ public float3 unlit(float3 albedo)
 // the environment's, 9 and 10 the ambient lights', 11 a directional light's share of the ground's
 // light past the probes' reach, 12 and 13 each light's own scattered and reflected, 14 what the
 // surface itself gives off. A number past those draws none, which reads what lies over the surface,
-// as a fog's light.
+// a fog's light among it.
 public float termTaken(uint only, uint k)
 {
     return only == 0u || only == k ? 1.0 : 0.0;

@@ -73,12 +73,11 @@ public sealed class GlowStillTests : IDisposable
     [InlineData(GlobalIllumination.High)]
     public void A_Still_View_Holds_Its_Glow_Lights_Light_From_Frame_To_Frame(GlobalIllumination quality)
     {
-        // At 1,440 rows a glow texel spans a part of the depth's texels, and its point, found at the
-        // middle of the depth texel it takes its depth from, was looked up in the frame before off
-        // its texel's own place, between four texels, so the view never read as still and the blend
-        // held a frame and a half's light; at 720 rows a texel is a whole count of them. The rows
-        // alone set that, so each window is a strip a few tens of pixels wide, which a device that
-        // draws on its CPU draws in the time a test has.
+        // At 1,440 rows a glow texel spans a part of the depth's texels, so its point lies off its
+        // texel's middle, and a still view reads as still where the frame before is looked up at
+        // the texel's own place; at 720 rows a texel is a whole count of them. The rows alone set
+        // that, so each window is a strip a few tens of pixels wide, which a device that draws on
+        // its CPU draws in the time a test has.
         foreach (var (width, height) in new[] { (48, 720), (48, 1440) })
         {
             var (frames, change) = Still(quality, width, height);

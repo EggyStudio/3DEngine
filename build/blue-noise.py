@@ -8,7 +8,7 @@ Each texel's byte is its rank among the table's 4,096 by Ulichney's void-and-clu
 sixteenth of it, so thresholding the table at any level leaves its texels spread as evenly as they
 can be, with no clumps the eye picks out, wrapping at its edges so the tiles meet without a seam.
 The energy is a Gaussian of 1.2 texels, whose tenth of the table has no two texels side by side,
-where at 1.5 eight pairs touched, and the seed is fixed, so the file is made again the same.
+and the seed is fixed, so the file is made again the same.
 """
 
 import math

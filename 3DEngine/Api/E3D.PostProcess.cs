@@ -543,7 +543,7 @@ public static partial class E3D
     /// </summary>
     /// <remarks>
     /// Under a half the grain spans less than a level, so the bands begin to come back, and at 0
-    /// there is none, as with <see cref="SetDither"/> off. A value past 0 to 1 is held to it.
+    /// there is none. A value past 0 to 1 is held to it.
     /// </remarks>
     public static void SetDitherStrength(float strength) => Effects.DitherStrength = Math.Clamp(strength, 0, 1);
 

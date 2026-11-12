@@ -380,10 +380,9 @@ void computeMain(uint3 id : SV_DispatchThreadID)
         float4 clip = mul(view.lastViewProjection, float4(p, 1.0));
         if (clip.w > 1e-5)
         {
-            // Less the point's offset from its texel's middle (sampled). Where a texel spans a part
-            // of the depth's texels, as at 1,440 rows, a still view's point fell between four
-            // texels of the frame before, each given a share, so it never read as still and its
-            // blend held a frame and a half's light where it holds 32.
+            // Less the point's offset from its texel's middle (sampled), so a still view's point is
+            // looked up at its texel's own place in the frame before, and not between four of its
+            // texels, where a texel spans a part of the depth's texels.
             float2 then = (clip.xy / clip.w * 0.5 + 0.5) * float2(width, height) - 0.5 - sampled;
             int2 from = int2(floor(then));
             float2 part = then - float2(from);

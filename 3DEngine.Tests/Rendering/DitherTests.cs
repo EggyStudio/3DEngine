@@ -149,8 +149,8 @@ public sealed class DitherTests : IDisposable
         {
             Changes(grain).Should().BeGreaterThan(0.3, $"at a strength of {strength} the dither breaks the bands into a grain");
             Mean(grain).Should().BeApproximately(Mean(off), 0.1, $"at a strength of {strength} the grain adds no light and takes none");
-            // An interleaved gradient's grain, as even at each pixel, leaves clumps of a few pixels
-            // the eye picks out, which blue noise spreads apart.
+            // Blue noise spreads its grain so no clump of a few pixels stands out, which this bound on
+            // blocks of four by four holds.
             BlockError(grain).Should().BeLessThan(0.065, $"at a strength of {strength} the grain is blue noise, its blocks of four by four as near their light as can be");
             for (int y = 0; y < Height; y++)
             for (int x = 0; x < Black; x++)

@@ -235,6 +235,14 @@ float4 fragmentMain(ModelVertexOutput input) : SV_Target
 }
 ```
 
+A value of the program's own that a vertex stage hands the fragment stage in a struct of its own,
+a shade given at a face's corners or a level of light, and that must stay within what the corners
+give, is declared `centroid`. At four samples a pixel a triangle seen nearly edge on covers a sample
+while the pixel's middle lies past it, where the perspective's interpolation divides by nearly
+nothing and a value read at the middle lies far outside its corners'. A value whose slopes the
+fragment stage takes with `ddx` or `ddy`, a coordinate a texture's level is chosen by, is read at
+the middle, where its slopes are even.
+
 A vertex stage that moves vertices, as grass in the wind does, casts the shadow of its mesh as it
 was before the stage moved it, unless its material is masked. A masked surface drawn with a shader
 of the program's own that has a vertex stage, or a fragment stage named `shadowMain`, is drawn into

@@ -118,8 +118,8 @@ public float3 frameLight(float2 uv)
 // of blue noise tiled across the window, whose texels near each other hold values far apart, so the
 // grain has no clumps the eye picks out, and is none where a channel is black or white, which stay
 // so. At a strength of a half, the default, the noise is even across a level, the calmest grain
-// that leaves no step; at 1 it is up to a level either way, likelier small than large as the sum of
-// two even draws is, which keeps how much the grain strays the same at every level; between, the
+// that leaves no step; at 1 it is up to a level either way in a triangle's shape, likelier small
+// than large, which keeps how much the grain strays the same at every level; between, the
 // two are blended; under a half it is even across less than a level, and the steps come back as
 // it nears none. Each keeps the shown light's mean. It holds still at a pixel from frame to frame,
 // so two pictures of a still view are alike, and moves each frame by the golden ratio only where
