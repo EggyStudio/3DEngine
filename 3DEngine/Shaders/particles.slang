@@ -66,7 +66,8 @@ ParticleOutput vertexMain(uint vertex : SV_VertexID, uint instance : SV_Instance
     float4x4 viewProjection = modelPush.viewProjection;
     float4 eye = eyeInWorld(viewProjection);
     float4 placed = float4(positionAge.xyz, 1.0);
-    float3 center = float3(dot(slots[4], placed), dot(slots[5], placed), dot(slots[6], placed));
+    // The particle's middle less the frame's origin.
+    float3 center = float3(dot(slots[4], placed), dot(slots[5], placed), dot(slots[6], placed)) - modelPush.origin.xyz;
     float3 toward = normalize(eye.w == 0.0 ? eye.xyz : eye.xyz - center);
     // The way the square faces, the camera's, or the emitter's normal or the particle's velocity in
     // the space the particles are kept in, turned as they are placed, as the header's eighth value
@@ -81,8 +82,9 @@ ParticleOutput vertexMain(uint vertex : SV_VertexID, uint instance : SV_Instance
     float3 up = cross(facing, right);
 
     float2 corner = corners[vertex % 6];
-    output.world = center + (right * corner.x + up * corner.y) * (size * 0.5);
-    output.position = mul(viewProjection, float4(output.world, 1.0));
+    output.place = center + (right * corner.x + up * corner.y) * (size * 0.5);
+    output.world = output.place + modelPush.origin.xyz;
+    output.position = mul(viewProjection, float4(output.place, 1.0));
     // Lit from either side, as a surface drawn with both its faces is.
     output.normal = dot(facing, toward) < 0.0 ? -facing : facing;
     // A texture's first row is its top. On a sheet the frame is the share of the life gone, left
@@ -100,7 +102,7 @@ ParticleOutput vertexMain(uint vertex : SV_VertexID, uint instance : SV_Instance
         particleOutput.nextUv = frameUv(min(frame + 1u, count - 1u), frames, corner01);
         particleOutput.blend = blendsFrames(look) ? saturate(played - float(frame)) : 0.0;
     }
-    output.toEye = eye.w == 0.0 ? eye.xyz : eye.xyz - output.world;
+    output.toEye = eye.w == 0.0 ? eye.xyz : eye.xyz - output.place;
     output.color = lerp(slots[0], slots[1], t);
     // Not metallic, wholly rough, with no normal map or occlusion.
     output.factors = float4(0, 1, 0, 0);

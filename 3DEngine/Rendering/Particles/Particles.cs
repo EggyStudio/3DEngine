@@ -380,6 +380,7 @@ internal sealed class ParticleRenderer : IDisposable
         _fragment ??= gfx.CreateShader(new ShaderDesc(ShaderStage.Fragment, _fragmentSpv));
         _particleLayout ??= gfx.CreateDescriptorSetLayout(_particleBindings);
         var lights = models.LightsFor(gfx, renderWorld, textures, target);
+        var push = renderWorld.TryGet<RenderOrigin>().Push(viewProjection);
 
         _drawn.Sort((a, b) => a.Emitter.Blend != b.Emitter.Blend
             ? a.Emitter.Blend == ParticleBlend.Additive ? -1 : 1
@@ -394,7 +395,7 @@ internal sealed class ParticleRenderer : IDisposable
                     renderPass, _vertex, _fragment,
                     BlendEnabled: true,
                     Cull: CullMode.None,
-                    PushConstantRanges: [new PushConstantRange(ShaderStageFlags.Vertex, 0, 64)],
+                    PushConstantRanges: [new PushConstantRange(ShaderStageFlags.Vertex, 0, ViewPush.Size)],
                     DescriptorSetLayouts: [models.MaterialSetLayout(gfx), models.LightsSetLayout(gfx), _particleLayout],
                     DepthTestEnabled: true,
                     DepthWriteEnabled: false,
@@ -404,7 +405,7 @@ internal sealed class ParticleRenderer : IDisposable
             // The emitter's texture as the material's base color, which the shader samples in place of the dot.
             pass.SetBindGroup(pipeline, models.TexturedMaterial(renderContext, textures, state.Emitter.Texture.Id), 0);
             pass.SetBindGroup(pipeline, lights, 1);
-            pass.PushConstants(pipeline, ShaderStageFlags.Vertex, 0, MemoryMarshal.AsBytes(new ReadOnlySpan<Matrix4x4>(in viewProjection)));
+            pass.PushConstants(pipeline, ShaderStageFlags.Vertex, 0, MemoryMarshal.AsBytes(new ReadOnlySpan<ViewPush>(in push)));
             if (state.Born.Span > 0) DrawBuffer(pass, pipeline, gfx, state.Born);
             if (state.Placed is { } placed) DrawBuffer(pass, pipeline, gfx, placed);
         }

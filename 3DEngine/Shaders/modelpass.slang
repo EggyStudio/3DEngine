@@ -41,7 +41,7 @@ import gi;
 public struct ModelInstance
 {
     // The world matrix as three rows of a 3x4: the 3x3 turns normals into world space and the
-    // fourth column is the translation, for the world position point lights need.
+    // fourth column is the translation, less the frame's origin (RenderOrigin).
     public float4 worldX : INSTANCE_WORLDX;
     public float4 worldY : INSTANCE_WORLDY;
     public float4 worldZ : INSTANCE_WORLDZ;
@@ -53,11 +53,12 @@ public struct ModelInstance
     public float4 factors : INSTANCE_FACTORS;
 };
 
-// What a call is drawn through, world to clip space, as System.Numerics lays it out, the camera's
-// in the model pass and the light's in the shadow pass.
+// What a call is drawn through, as System.Numerics lays it out, the camera's or a light's
+// view-projection taking a place against the frame's origin to clip space, and that origin.
 public struct ModelPush
 {
     public float4x4 viewProjection;
+    public float4 origin;
 };
 
 [[vk::push_constant]]
@@ -325,6 +326,8 @@ public struct ModelVertexOutput
     // there lies far outside its corners'.
     public centroid float3 normal : NORMAL;
     public centroid float3 world : POSITION1;
+    // The world point less the frame's origin, in numbers as small as its distance from the eye.
+    public centroid float3 place : POSITION2;
     // Read at the pixel's middle, where their slopes across the screen choose a texture's level and
     // give the surface's way across the pixel (worldAcross). Past a triangle's edge a texture gives
     // one of its own texels and only the way's direction is lit, so neither leaves its range.
@@ -385,20 +388,18 @@ public ModelStreamsOutput transformModelVertex(float3 position, float3 normal, f
 
 // How far the surface's point moves across a pixel to the right and down, taken from the way to
 // the eye, whose numbers are as small as the view, so the step keeps its precision far from the
-// world's origin, where the world's own numbers lose their last bits to their size and the probes
-// and glow texels a pixel takes its light from are judged by a slope off by as much. Under
-// an orthographic camera the way to the eye is the same at every pixel and its step is none, so
-// the world point's own is taken there.
+// world's origin. Under an orthographic camera the way to the eye is the same at every pixel and
+// its step is none, so the place's own is taken there.
 public float3 worldAcross(ModelVertexOutput input)
 {
     float3 step = -ddx(input.toEye);
-    return dot(step, step) > 0.0 ? step : ddx(input.world);
+    return dot(step, step) > 0.0 ? step : ddx(input.place);
 }
 
 public float3 worldDown(ModelVertexOutput input)
 {
     float3 step = -ddy(input.toEye);
-    return dot(step, step) > 0.0 ? step : ddy(input.world);
+    return dot(step, step) > 0.0 ? step : ddy(input.place);
 }
 
 // The vertex stage every model shader uses unless it writes its own.
@@ -408,13 +409,14 @@ public ModelVertexOutput transformModelVertex(float3 position, float3 normal, fl
     // columns of what mul takes, as the shadow stage reads it.
     float4x4 viewProjection = modelPush.viewProjection;
     ModelVertexOutput output;
-    output.world = float3(dot(instance.worldX, float4(position, 1.0)), dot(instance.worldY, float4(position, 1.0)), dot(instance.worldZ, float4(position, 1.0)));
-    output.position = mul(viewProjection, float4(output.world, 1.0));
+    output.place = float3(dot(instance.worldX, float4(position, 1.0)), dot(instance.worldY, float4(position, 1.0)), dot(instance.worldZ, float4(position, 1.0)));
+    output.world = output.place + modelPush.origin.xyz;
+    output.position = mul(viewProjection, float4(output.place, 1.0));
     output.normal = float3(dot(instance.worldX.xyz, normal), dot(instance.worldY.xyz, normal), dot(instance.worldZ.xyz, normal));
     output.uv = uv;
 
     float4 eye = eyeInWorld(viewProjection);
-    output.toEye = eye.w == 0.0 ? eye.xyz : eye.xyz - output.world;
+    output.toEye = eye.w == 0.0 ? eye.xyz : eye.xyz - output.place;
     output.color = instance.color;
     output.emission = instance.emission;
     output.factors = instance.factors;

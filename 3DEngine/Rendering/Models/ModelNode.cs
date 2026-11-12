@@ -413,7 +413,7 @@ internal sealed partial class ModelRenderer : IDisposable
         BeginFrameOfSets(renderContext);
         RetireUnloadedShaders(store, renderWorld);
 
-        var view = ViewBatches(target, gfx, draws, meshes, textures, store);
+        var view = ViewBatches(target, gfx, draws, meshes, textures, store, renderWorld.TryGet<RenderOrigin>());
         var (batches, ring, offset, blocks) = (view.Batches, view.Ring, view.Offset, view.Blocks);
 
         // A frame draws with the build that leaves out what it does not hold, which shades it as
@@ -492,7 +492,7 @@ internal sealed partial class ModelRenderer : IDisposable
             }
             if (pushed != through)
             {
-                pass.PushConstants(pipeline, ShaderStageFlags.Vertex, 0, MemoryMarshal.AsBytes(new ReadOnlySpan<Matrix4x4>(in through)));
+                PushView(pass, pipeline, through);
                 pushed = through;
             }
 
@@ -524,8 +524,10 @@ internal sealed partial class ModelRenderer : IDisposable
             : (Kind.Batched, MaterialSet(gfx, textures, draw)), keepOrderOfTranslucent: true, cullBackFaces: true, shadowKinds);
 
     // A view's batches and their instances, gathered and written on the first call of a frame.
-    private View ViewBatches(int target, IGraphicsDevice gfx, ModelDrawList draws, GpuMeshes meshes, GpuTextures textures, ShaderStore? store)
+    private View ViewBatches(int target, IGraphicsDevice gfx, ModelDrawList draws, GpuMeshes meshes, GpuTextures textures, ShaderStore? store,
+        RenderOrigin origin)
     {
+        _origin = origin;
         if (!_views.TryGetValue(target, out var view))
         {
             // The views of render targets no longer drawn into are let go before another is added.

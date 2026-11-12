@@ -79,7 +79,7 @@ internal sealed partial class ModelRenderer
             || renderWorld.TryGet<GpuTextures>() is not { } textures)
             return;
         BeginFrameOfSets(renderContext);
-        ViewBatches(0, renderContext.Device, draws, meshes, textures, renderWorld.TryGet<ShaderStore>());
+        ViewBatches(0, renderContext.Device, draws, meshes, textures, renderWorld.TryGet<ShaderStore>(), renderWorld.TryGet<RenderOrigin>());
     }
 
     // Writes each batched draw's instance into this frame's region of the ring, a batch's
@@ -165,7 +165,31 @@ internal sealed partial class ModelRenderer
             if (batch.Group >= 0 && batch.Mesh.Quantum != 1)
                 foreach (ref var instance in instances.Slice((int)batch.First, groups[batch.Group].Count))
                     instance = Folded(instance, batch.Mesh.Quantum);
+        // Each instance's place against the frame's origin, after its block's box was found from it
+        // in world numbers, where the culling's planes are found.
+        if (_origin != RenderOrigin.Zero)
+            foreach (ref var instance in instances[..slots])
+                instance = Against(instance, _origin);
         return (_instanceRing!, offset);
+    }
+
+    // The place the frame's instances and views are taken against (RenderOrigin).
+    private RenderOrigin _origin;
+
+    // An instance whose translation is taken against the origin, worked in doubles.
+    internal static Instance Against(Instance instance, RenderOrigin origin)
+    {
+        instance.WorldX.W = (float)(instance.WorldX.W - origin.X);
+        instance.WorldY.W = (float)(instance.WorldY.W - origin.Y);
+        instance.WorldZ.W = (float)(instance.WorldZ.W - origin.Z);
+        return instance;
+    }
+
+    // Pushes a view's view-projection against the frame's origin, with the origin.
+    private void PushView(TrackedRenderPass pass, IPipeline pipeline, in Matrix4x4 viewProjection)
+    {
+        var push = _origin.Push(viewProjection);
+        pass.PushConstants(pipeline, ShaderStageFlags.Vertex, 0, MemoryMarshal.AsBytes(new ReadOnlySpan<ViewPush>(in push)));
     }
 
     // An instance of a mesh whose positions are packed integers (PositionPacking), the rows that

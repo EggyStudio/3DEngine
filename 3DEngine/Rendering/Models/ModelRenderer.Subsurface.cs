@@ -52,7 +52,7 @@ internal sealed partial class ModelRenderer
 
         var gfx = renderContext.Device;
         BeginFrameOfSets(renderContext);
-        var view = ViewBatches(0, gfx, draws, meshes, textures, renderWorld.TryGet<ShaderStore>());
+        var view = ViewBatches(0, gfx, draws, meshes, textures, renderWorld.TryGet<ShaderStore>(), renderWorld.TryGet<RenderOrigin>());
         // A mesh of positions alone is left out, the pass shading with the engine's own normal.
         static bool Scatters(in Batch batch) => batch.Subsurface.W > 0 && batch.Custom < 0 && !batch.Points && !batch.Mesh.PositionsOnly && !IsAlone(batch.Shadow);
         var marked = 0;
@@ -100,7 +100,7 @@ internal sealed partial class ModelRenderer
             }
             if (pushed != batch.ViewProjection)
             {
-                pass.PushConstants(pipeline, ShaderStageFlags.Vertex, 0, MemoryMarshal.AsBytes(new ReadOnlySpan<Matrix4x4>(in batch.ViewProjection)));
+                PushView(pass, pipeline, batch.ViewProjection);
                 pushed = batch.ViewProjection;
             }
             pass.SetBindGroup(pipeline, batch.Set ?? MaterialSet(gfx, textures, default));
@@ -153,7 +153,7 @@ internal sealed partial class ModelRenderer
             ],
             VertexAttributes: [.. Placed(6, streams, [], null, null), new VertexInputAttributeDesc(11, 4, VertexFormat.Float4, 0),
                 new VertexInputAttributeDesc(12, 4, VertexFormat.Float4, 16)],
-            PushConstantRanges: [new PushConstantRange(ShaderStageFlags.Vertex, 0, 64)],
+            PushConstantRanges: [new PushConstantRange(ShaderStageFlags.Vertex, 0, ViewPush.Size)],
             DescriptorSetLayouts: [MaterialLayout(gfx), LightsLayout(gfx), _subsurfaceDepthLayout],
             DepthTestEnabled: false,
             DepthWriteEnabled: false);

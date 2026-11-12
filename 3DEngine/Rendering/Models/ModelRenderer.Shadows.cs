@@ -157,7 +157,7 @@ internal sealed partial class ModelRenderer
     {
         BeginFrameOfSets(renderContext);
         var store = renderWorld.TryGet<ShaderStore>();
-        var view = ViewBatches(target, device, draws, meshes, textures, store);
+        var view = ViewBatches(target, device, draws, meshes, textures, store, renderWorld.TryGet<RenderOrigin>());
         _shadowBatches.Clear();
         _ownShadows.Clear();
         foreach (ref readonly var batch in CollectionsMarshal.AsSpan(view.Batches))
@@ -276,7 +276,7 @@ internal sealed partial class ModelRenderer
             {
                 // Without temporal antialiasing's move where back takes it out.
                 var viewProjection = back is { } taken ? batch.ViewProjection * taken : batch.ViewProjection;
-                pass.PushConstants(pipeline, ShaderStageFlags.Vertex, 0, MemoryMarshal.AsBytes(new ReadOnlySpan<Matrix4x4>(in viewProjection)));
+                PushView(pass, pipeline, viewProjection);
                 pushed = batch.ViewProjection;
             }
             if (IsMasked(batch.Shadow)) pass.SetBindGroup(pipeline, batch.Set!);
@@ -292,7 +292,6 @@ internal sealed partial class ModelRenderer
     {
         var calls = 0;
         var (ring, offset) = (view.Ring!, view.Offset);
-        var push = MemoryMarshal.AsBytes(new ReadOnlySpan<Matrix4x4>(in lightViewProjection));
         IPipeline? bound = null;
         // A caster before the light's near plane is drawn onto it where the device clamps depth.
         var clamp = _shadowMaking!.Value.Device.CanClampDepth;
@@ -307,7 +306,7 @@ internal sealed partial class ModelRenderer
             if (!ReferenceEquals(pipeline, bound))
             {
                 pass.SetPipeline(pipeline);
-                pass.PushConstants(pipeline, ShaderStageFlags.Vertex, 0, push);
+                PushView(pass, pipeline, lightViewProjection);
                 bound = pipeline;
             }
             if (IsMasked(batch.Shadow)) pass.SetBindGroup(pipeline, batch.Set!);

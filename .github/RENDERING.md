@@ -228,8 +228,9 @@ each frame. Draws of the model pass's own shader that share a mesh and its five 
 instanced draw, in the order each such batch first appears. Each draw is an instance of 96 bytes
 in a second vertex buffer stepped per instance (`ModelRenderer.Instance`, `ModelInstance` in the
 shader), holding the world matrix as three rows of a 3x4 (the rotation for normals and the
-translation for world positions) and the material's factors. The camera's view-projection is a
-push constant for the batch (`modelPush`), as a light's is in the shadow pass, so draws recorded
+translation less the frame's origin, `RenderOrigin`) and the material's factors. The camera's
+view-projection, taking a place against that origin to clip space, and the origin are a push
+constant for the batch (`modelPush`), as a light's are in the shadow pass, so draws recorded
 through two cameras are batched apart. A mesh's colors and second texture coordinates are vertex
 buffers at bindings 2 and 3 where it has them, and its stream of the program's own (`MeshStream`)
 one at binding 5, past the subsurface pass's binding 4, read as `CUSTOM0` by a vertex stage of the
