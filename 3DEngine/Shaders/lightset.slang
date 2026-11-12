@@ -100,8 +100,7 @@ public struct Lighting
     // the program set, linear, apart from the sky the map draws, which reads environment.x alone.
     public float4 environmentLight;
     // x: how wide the sun's shadow's edge spreads per unit of a caster's height over the point it
-    // shades, 0 for an edge as sharp everywhere (cascadeSoftly). yzw: the frame's render origin,
-    // which a place is added to for the world point the edge's grain is turned by.
+    // shades, 0 for an edge as sharp everywhere (cascadeSoftly).
     public float4 shadowSoftness;
     // The plane a program set for the window's glossy surfaces lying in it to mirror the scene in
     // (SetReflectionPlane), its normal toward the side the camera stands on in xyz and how far
@@ -115,7 +114,17 @@ public struct Lighting
     // x: the window's pixels along each side of a texel of screenGlow, two up to 1,080 rows and more
     // past them (GpuScreenProbes.GlowTexelAt).
     public float4 screenGlow;
+    // xyz: the frame's render origin, which every place here is against, a world point being the
+    // place plus it (placeOf).
+    public float4 origin;
 };
+
+// A world point as a place against the frame's origin, which the functions of lights ending in
+// Placed take, for a point a program's shader holds in world numbers.
+public float3 placeOf(float3 world)
+{
+    return world - lighting.origin.xyz;
+}
 
 [[vk::binding(0, 1)]]
 public ConstantBuffer<Lighting> lighting;

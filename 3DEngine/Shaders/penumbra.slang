@@ -74,7 +74,7 @@ public float cascadeSoftly(int c, float3 p, float2 uv, float2 texel, float2 lo, 
     float texelWorld = lighting.shadowTexels[c];
     float ndcPerTexel = (fill ? 2.0 : 4.0) * texel.x;
     float2 slope = receiverSlope(m, n, ndcPerTexel, 5.67 * texelWorld * zPerWorld);
-    float turn = frac(sin(dot(place + lighting.shadowSoftness.yzw, float3(12.9898, 78.233, 37.719))) * 43758.5453) * 6.2831853;
+    float turn = frac(sin(dot(place + lighting.origin.xyz, float3(12.9898, 78.233, 37.719))) * 43758.5453) * 6.2831853;
 
     float reach = clamp(0.5 * spread * (p.z / zPerWorld) / texelWorld, 1.0, MostTexels);
     float blockers = 0.0;

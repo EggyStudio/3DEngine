@@ -410,7 +410,7 @@ internal sealed partial class ModelRenderer
                 .. positions is not null ? [new VertexInputBindingDesc(6, 0)] : Array.Empty<VertexInputBindingDesc>(),
             ],
             VertexAttributes: Placed(rows, streams, named ?? [], inputs, shaderName, feed, positions),
-            PushConstantRanges: [new PushConstantRange(ShaderStageFlags.Vertex, 0, ViewPush.Size)],
+            PushConstantRanges: [new PushConstantRange(ShaderStageFlags.Vertex | ShaderStageFlags.Fragment, 0, ViewPush.Size)],
             // The material's set, with uniforms at binding 0 and its five maps after, then the
             // frame's lights at binding 0 of the second and the shadow map at binding 1.
             DescriptorSetLayouts: [material ?? MaterialLayout(gfx), LightsLayout(gfx)],

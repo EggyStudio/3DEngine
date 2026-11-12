@@ -219,10 +219,21 @@ from 0.
 The engine places every vertex against a render origin near the camera, so a point far from the
 world's origin keeps the precision a point near it has. The instance's rows take a vertex to its
 place, the world point less that origin, `modelPush.viewProjection` takes a place to clip space,
-and `modelPush.origin` is the origin itself. `transformModelVertex` gives back both, the place
-in `place` and the world point in `world`, the place plus the origin, so a stage that moves a
-vertex moves both, and one that sets the position itself sets it from the place, as
+and `modelPush.origin` is the origin itself. `transformModelVertex` gives back the place in
+`place`, and `world` reads as the world point, the place plus the origin. Setting `world` moves the
+place with it, so a fragment stage that moves the point it hands `lit` or `litLight`, as one lit a
+sixteenth of a unit out from its face does, lights the point it moved it to, as before. A stage that
+sets the position itself sets it from the place, as
 `output.position = mul(modelPush.viewProjection, float4(output.place, 1.0))` does.
+
+A shader hands the functions of `lights` a point in world numbers, as `input.world` and points made
+from it, `lightReaching(input.world, n, held)` among them, and each takes the origin off before it
+reads the lighting. Their twins ending in `Placed`, which the engine's own lighting calls, take a
+place, which `placeOf(world)` gives. The lighting buffer's places and matrices, a light's place, a
+reflection probe's middle, the shadows' and the reflections' views and the mirror's plane, are
+against the origin, `lighting.origin`, and so is the data the functions of `scenefield`, `gi`,
+`glow` and `probelight` read beside a point, the field's corners and the glow lights' middles, so a
+shader hands those a place, `input.place` or `placeOf(world)`.
 The `instancing.slang` of the `shaders_instance_hues` example gives each of ten thousand cubes
 its own hue:
 

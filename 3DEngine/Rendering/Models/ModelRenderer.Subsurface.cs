@@ -153,7 +153,7 @@ internal sealed partial class ModelRenderer
             ],
             VertexAttributes: [.. Placed(6, streams, [], null, null), new VertexInputAttributeDesc(11, 4, VertexFormat.Float4, 0),
                 new VertexInputAttributeDesc(12, 4, VertexFormat.Float4, 16)],
-            PushConstantRanges: [new PushConstantRange(ShaderStageFlags.Vertex, 0, ViewPush.Size)],
+            PushConstantRanges: [new PushConstantRange(ShaderStageFlags.Vertex | ShaderStageFlags.Fragment, 0, ViewPush.Size)],
             DescriptorSetLayouts: [MaterialLayout(gfx), LightsLayout(gfx), _subsurfaceDepthLayout],
             DepthTestEnabled: false,
             DepthWriteEnabled: false);

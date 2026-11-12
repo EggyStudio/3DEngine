@@ -513,7 +513,12 @@ far out carries the rounding of its translation, which no origin taken after tak
 culling's boxes and planes, the immediate pass's 3D shapes of the engine's own shader, the moving
 entities' velocity and the particles' placing rows are taken against the origin the same way. A
 test sets another origin (`RenderOrigin.Override`) to read a scene alike against both, and reads a
-room at 4,096, 71,680 and 1,140,736 units out as the room at the world's origin.
+room at 4,096, 71,680 and 1,140,736 units out as the room at the world's origin. A program's
+shader keeps the world numbers it had. `ModelVertexOutput.world` is a property, the place plus the
+origin, which set moves the place, so `lit` and `litLight` light the point a program's shader moved
+it to; the lighting's functions a shader calls with a point, as `lightReaching`, take a world point
+and take the origin off first (`placeOf`), and the engine's own lighting calls the ones ending in
+`Placed`, which take places. The push is read by both stages, since `world` adds `modelPush.origin`.
 
 `LightExtract` copies every `Light` entity into the render world, and `LightingUboPrepare` packs up
 to 16 into one uniform buffer per frame, which `ModelRenderer` binds as a second descriptor set from

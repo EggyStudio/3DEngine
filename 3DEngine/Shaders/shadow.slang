@@ -29,7 +29,6 @@ ModelVertexOutput vertexMain(float3 position : POSITION, float3 normal : NORMAL,
     float4 p = float4(position, 1.0);
     ModelVertexOutput output;
     output.place = float3(dot(instance.worldX, p), dot(instance.worldY, p), dot(instance.worldZ, p));
-    output.world = output.place + modelPush.origin.xyz;
     output.position = mul(modelPush.viewProjection, float4(output.place, 1.0));
     output.normal = float3(dot(instance.worldX.xyz, normal), dot(instance.worldY.xyz, normal), dot(instance.worldZ.xyz, normal));
     output.uv = uv;

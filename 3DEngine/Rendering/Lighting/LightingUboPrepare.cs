@@ -215,8 +215,8 @@ internal sealed class LightingUboPrepare : IPrepareSystem
     /// <summary>
     /// A lighting buffer with every place in it taken against <paramref name="origin"/> in doubles
     /// (RenderOrigin), the lights' and the probes' places, the shadows' and the reflections'
-    /// matrices and the mirror's plane, and the origin beside the shadow's softness, which the
-    /// penumbra adds back for the world point its grain is turned by.
+    /// matrices and the mirror's plane, and the origin itself, which a shader adds back to a place
+    /// for its world point, as the penumbra's grain and a program's world are found.
     /// </summary>
     internal static LightingUbo Placed(LightingUbo ubo, RenderOrigin origin)
     {
@@ -238,7 +238,7 @@ internal sealed class LightingUboPrepare : IPrepareSystem
         ubo.ReflectLastViewProjection = origin.Taking(ubo.ReflectLastViewProjection);
         ubo.ReflectLastInverseViewProjection = origin.Inverse(ubo.ReflectLastInverseViewProjection);
         ubo.MirrorPlane = origin.Plane(ubo.MirrorPlane);
-        ubo.ShadowSoftness = new System.Numerics.Vector4(ubo.ShadowSoftness.X, (float)origin.X, (float)origin.Y, (float)origin.Z);
+        ubo.Origin = new System.Numerics.Vector4((float)origin.X, (float)origin.Y, (float)origin.Z, 0);
         return ubo;
     }
 

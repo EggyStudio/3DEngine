@@ -74,8 +74,9 @@ public class LightingUniformPackingTests
         Marshal.OffsetOf<LightingUbo>(nameof(LightingUbo.ShadowSoftness)).Should().Be(afterProbes + 64 + 4 * 64 + 48);
         Marshal.OffsetOf<LightingUbo>(nameof(LightingUbo.MirrorPlane)).Should().Be(afterProbes + 64 + 4 * 64 + 64);
         Marshal.OffsetOf<LightingUbo>(nameof(LightingUbo.ScreenGlow)).Should().Be(afterProbes + 64 + 4 * 64 + 112);
-        LightingUboPacker.SizeBytes.Should().Be(afterProbes + 64 + 4 * 64 + 128,
-            "the output flag, the occlusion flag, global illumination, the cameras a reflection is traced through, the environment's light on the scene, the sun's width, the mirror plane and the glow lights' texel come last");
+        Marshal.OffsetOf<LightingUbo>(nameof(LightingUbo.Origin)).Should().Be(afterProbes + 64 + 4 * 64 + 128);
+        LightingUboPacker.SizeBytes.Should().Be(afterProbes + 64 + 4 * 64 + 144,
+            "the output flag, the occlusion flag, global illumination, the cameras a reflection is traced through, the environment's light on the scene, the sun's width, the mirror plane, the glow lights' texel and the render origin come last");
     }
 
     [Fact]

@@ -446,7 +446,10 @@ pipelines' file there, 94 MB piled up from every package run on the account, so 
 warm cache stood on what other runs had left. A program a session starts runs with XDG_CACHE_HOME
 naming a folder under the session's work folder in the home's cache; a warm cache is made there by a
 first run; and a session leaves the account's own cache alone, neither reading its files into a
-trial nor copying, writing or clearing them, unless the owner says so for that file. By review.
+trial nor copying, writing or clearing them, unless the owner says so for that file. A session's
+work folder under the shared work directory carries its repository's name before the item's number,
+as 3dengine-i264 or voxel-i264, so two sessions on one item do not share one, and a session neither
+writes into nor clears a folder it did not make. By review.
 
 ## Conformance
 

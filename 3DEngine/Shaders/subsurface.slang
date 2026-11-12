@@ -201,12 +201,12 @@ float3 lightThrough(ModelVertexOutput base, float3 albedo, float4 profile, float
         int kind = int(lamp.positionAndKind.w);
         if (kind == Ambient)
             continue;
-        float3 arrived = arriving(lamp, base.place, -n);
+        float3 arrived = arrivingPlaced(lamp, base.place, -n);
         if (all(arrived <= float3(0.0)))
             continue;
         // A shadowed lamp's slot, its spot light's or its point light's, as the model pass reads it.
         int slot = int(lamp.cone.z) - 1;
-        float thickness = thicknessToward(base.place, n, -fromLight(lamp, base.place), i == lighting.shadowLight && kind == Directional, reach,
+        float thickness = thicknessToward(base.place, n, -fromLightPlaced(lamp, base.place), i == lighting.shadowLight && kind == Directional, reach,
             lamp.positionAndKind.xyz, slot >= 0 && kind == Spot ? slot : -1, slot >= 0 && kind != Spot && kind != Directional ? slot : -1);
         // The material's own thickness caps what was measured, as a leaf drawn as one sheet the
         // field holds a cell thick, and stands in where nothing was, as toward a lamp where the

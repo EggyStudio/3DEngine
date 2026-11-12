@@ -84,7 +84,6 @@ ParticleOutput vertexMain(uint vertex : SV_VertexID, uint instance : SV_Instance
 
     float2 corner = corners[vertex % 6];
     output.place = center + (right * corner.x + up * corner.y) * (size * 0.5);
-    output.world = output.place + modelPush.origin.xyz;
     output.position = mul(viewProjection, float4(output.place, 1.0));
     // Lit from either side, as a surface drawn with both its faces is.
     output.normal = dot(facing, toward) < 0.0 ? -facing : facing;

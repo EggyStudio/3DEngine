@@ -38,7 +38,7 @@ public static const int Ambient = 3;
 // Light arriving at a point with a normal from one light, by Lambert's cosine, divided by the
 // square of the distance for a point or a spot, brought smoothly to nothing at its range, and cut
 // to a spot's cone.
-public float3 arriving(Light light, float3 place, float3 n)
+public float3 arrivingPlaced(Light light, float3 place, float3 n)
 {
     int kind = int(light.positionAndKind.w);
     float3 color = light.colorAndShadow.xyz;
@@ -82,7 +82,7 @@ public float3 arriving(Light light, float3 place, float3 n)
 // tile's edge the point is, from 0 in its middle to 1 at that border. Where the sun is given a
 // width (SetShadowSoftness) the edge softens with the caster's height over the point instead
 // (cascadeSoftly), its taps held a texel and a half inside the tile.
-public float cascadeReached(int c, float3 place, float3 n, float2 texel, out float edge)
+public float cascadeReachedPlaced(int c, float3 place, float3 n, float2 texel, out float edge)
 {
     edge = 1.0;
     float3 off = litSide(n, -lighting.lights[max(lighting.shadowLight, 0)].directionAndRange.xyz);
@@ -147,16 +147,16 @@ public int shadowCascadesRead()
 // where one cascade gives way to the next the shadow's softness changes over a band rather than in
 // a step, the last counted cascade giving way to the fill where there is one, and past the last
 // cascade's band the shadow fades out rather than stopping at a line.
-public float lightReaching(float3 place, float3 n)
+public float lightReachingPlaced(float3 place, float3 n)
 {
     float held;
-    return lightReaching(place, n, held);
+    return lightReachingPlaced(place, n, held);
 }
 
 // The same, with how much of the point the counted cascades hold, 1 within them, falling to 0
 // across the last one's edge as its shadow is let go there, and 0 past it, the fill's coarse
 // texels holding none, so the contact shadows kept past the map's reach go on over the fill's.
-public float lightReaching(float3 place, float3 n, out float held)
+public float lightReachingPlaced(float3 place, float3 n, out float held)
 {
     held = 0.0;
     uint width, height;
@@ -167,7 +167,7 @@ public float lightReaching(float3 place, float3 n, out float held)
     for (int c = 0; c < cascades; c++)
     {
         float edge;
-        float reached = cascadeReached(c, place, n, texel, edge);
+        float reached = cascadeReachedPlaced(c, place, n, texel, edge);
         if (reached < 0.0)
             continue;
 
@@ -176,7 +176,7 @@ public float lightReaching(float3 place, float3 n, out float held)
         if (blend <= 0.0)
             return reached;
         float nextEdge;
-        float next = c + 1 < cascades ? cascadeReached(c + 1, place, n, texel, nextEdge) : -1.0;
+        float next = c + 1 < cascades ? cascadeReachedPlaced(c + 1, place, n, texel, nextEdge) : -1.0;
         if (c < counted && (next < 0.0 || c + 1 == counted))
             held = 1.0 - blend;
         return lerp(reached, next < 0.0 ? 1.0 : next, blend);
@@ -192,7 +192,7 @@ public float lightReaching(float3 place, float3 n, out float held)
 // probe's faces or the mirrored view's own. Each pixel of a surface lying in the plane looks at
 // the plane's mirror image of what it would see through the plane, which the camera mirrored in
 // the plane sees at the same place in its picture, turned upside down to keep the faces' order.
-public float4 mirrored(float4 position, float3 place, float3 n, float roughness)
+public float4 mirroredPlaced(float4 position, float3 place, float3 n, float roughness)
 {
     if (lighting.mirror.x <= 0.0)
         return float4(0.0);
@@ -224,7 +224,7 @@ public float3 distantAround(float3 sky, float3 n, float3 ground)
 // share of the sphere below the surface's horizon (distantAround).
 public float3 distantSun(Light lamp, float3 n, float3 ground, float reached)
 {
-    return ground * arriving(lamp, float3(0.0), float3(0.0, 1.0, 0.0)) * (reached * saturate(0.5 - n.y * 0.5));
+    return ground * arrivingPlaced(lamp, float3(0.0), float3(0.0, 1.0, 0.0)) * (reached * saturate(0.5 - n.y * 0.5));
 }
 
 // How much of the shadowed light reaches the ground a surface at p facing n looks at, read where
@@ -234,11 +234,11 @@ public float3 distantSun(Light lamp, float3 n, float3 ground, float reached)
 // it, which global illumination inside the field gives it; read there, it takes the ground lit
 // where its own shadow ends short of the point and shadowed where the shadow reaches past it, as a
 // hill's shaded side in its own long shadow at a low sun.
-public float groundReached(float3 p, float3 n)
+public float groundReachedPlaced(float3 p, float3 n)
 {
     int c = fieldCoarsestBuilt(bouncedField, int(bouncedField.counts.x) - 1);
     float cell = c < 0 ? 0.0 : bouncedField.cascades[c].originAndCell.w;
-    return lightReaching(p + n * cell, float3(0.0, 1.0, 0.0));
+    return lightReachingPlaced(p + n * cell, float3(0.0, 1.0, 0.0));
 }
 
 // Where the shadowed spot light in slot (counted from 0) lies in the map. The last tile is the
@@ -290,7 +290,7 @@ public int pointFace(float3 away, int slot, out int layer, out float2 origin, ou
 // point, from 0 to 1, from its square of the map's last tile, compared as the cascades are. Its
 // texels widen with distance from the light, so the offset along the normal, turned to the light's
 // side (litSide), does too.
-public float spotLightReaching(float3 place, float3 n, float3 lightPosition, int slot)
+public float spotLightReachingPlaced(float3 place, float3 n, float3 lightPosition, int slot)
 {
     float offset = lighting.spotShadowTexels[slot / 4][slot % 4] * distance(place, lightPosition) * 1.5;
     float4 clip = mul(lighting.spotShadows[slot], float4(place + litSide(n, lightPosition - place) * offset, 1.0));
@@ -318,7 +318,7 @@ public float spotLightReaching(float3 place, float3 n, float3 lightPosition, int
 // How much of the shadowed point light in slot (counted from 0) at lightPosition reaches this
 // point, from 0 to 1, from the face of its six that the point lies furthest along the axis of,
 // compared as the cascades are. Its texels widen with distance from the light, as a spot light's.
-public float pointLightReaching(float3 place, float3 n, float3 lightPosition, int slot)
+public float pointLightReachingPlaced(float3 place, float3 n, float3 lightPosition, int slot)
 {
     float3 away = place - lightPosition;
     int layer;
@@ -345,7 +345,7 @@ public float pointLightReaching(float3 place, float3 n, float3 lightPosition, in
 }
 
 // The way light comes from one light to a point, for specular.
-public float3 fromLight(Light light, float3 place)
+public float3 fromLightPlaced(Light light, float3 place)
 {
     int kind = int(light.positionAndKind.w);
     return kind == Directional ? light.directionAndRange.xyz : normalize(place - light.positionAndKind.xyz);
@@ -408,7 +408,7 @@ public float3 probeIrradiance(int i, float3 n)
 // The bound probe whose box holds a point, the smallest where boxes overlap, or -1. A point a
 // hundredth past a wall of the box still counts, so a room's wall built on the box's wall is in it
 // everywhere rather than in it and out of it pixel by pixel.
-public int probeAt(float3 p)
+public int probeAtPlaced(float3 p)
 {
     int found = -1;
     float smallest = 1e30;
@@ -437,7 +437,7 @@ public float3 probeSample(int i, float3 direction, float mip)
 
 // The way into a probe's cube that a ray from p along r meets the box's wall, from the middle the
 // probe was captured at, so a reflection lands where the room's wall is rather than at infinity.
-public float3 boxProjected(int i, float3 p, float3 r)
+public float3 boxProjectedPlaced(int i, float3 p, float3 r)
 {
     float3 center = lighting.probes[i].centerAndIntensity.xyz;
     float3 h = lighting.probes[i].halfSizeAndMip.xyz;
@@ -472,7 +472,7 @@ public float3 ambientReflected(float3 f0, float roughness, float nv)
 // than the world's, which they take the light from beyond their rays from, all of it inside the
 // world's last counted cascade, falling to none across its outer band (CascadeBand in gi.slang),
 // since the screen's probes do not stand in the far cascade (gi_screen.slang).
-public float screenHold(float3 p, float3 n)
+public float screenHoldPlaced(float3 p, float3 n)
 {
     int cascades = int(lighting.indirect.w);
     return probesHold(bouncedField, p, n, lighting.indirect.y, cascades - (bouncedField.counts.w > 0.5 ? 2 : 1), cascades);
@@ -480,7 +480,7 @@ public float screenHold(float3 p, float3 n)
 
 // The indirect light reaching a surface at p facing n, irradiance over pi, from the world's probes
 // around it as gi.slang blends them, or -1 where no cascade of probes holds p.
-public float3 bounced(float3 p, float3 n)
+public float3 bouncedPlaced(float3 p, float3 n)
 {
     int c = fieldCascade(bouncedField, p, 1.0, int(lighting.indirect.w));
     if (c < 0 || c >= int(lighting.indirect.w))
@@ -491,7 +491,7 @@ public float3 bounced(float3 p, float3 n)
 // The light bounced gives with the share of the sky the surface sees along r as skySeen gives it,
 // from one gather of the probes (bouncedAndSkyAt in probelight.slang), or -1 and the whole sky
 // where no cascade of probes holds p.
-public float3 bouncedAndSky(float3 p, float3 n, float3 r, out float sky)
+public float3 bouncedAndSkyPlaced(float3 p, float3 n, float3 r, out float sky)
 {
     sky = 1.0;
     int c = fieldCascade(bouncedField, p, 1.0, int(lighting.indirect.w));
@@ -511,7 +511,7 @@ public float3 bouncedAndSky(float3 p, float3 n, float3 r, out float sky)
 // through that surface tells a thin wall, outside it again, from a solid one, inside, so solid
 // blocks leave their corners to the reach, and the pixels by a thin wall march rather than every
 // pixel another surface stands by.
-public bool byThinWall(float3 p, float3 n)
+public bool byThinWallPlaced(float3 p, float3 n)
 {
     float cell = fieldCell(bouncedField, p);
     if (cell <= 0.0)
@@ -538,7 +538,7 @@ public bool byThinWall(float3 p, float3 n)
 // point it judges from lies in the other wall's cells, and lends the thin room's corner the lamp's
 // light outside. Marched to its probes, faded across a cascade's outer band as bounced fades, it
 // costs the groups of those few pixels alone.
-public float3 bouncedSeen(float3 p, float3 n)
+public float3 bouncedSeenPlaced(float3 p, float3 n)
 {
     int cascades = int(lighting.indirect.w);
     int c = fieldCascade(bouncedField, p, 1.0, cascades);
@@ -558,7 +558,7 @@ public float3 bouncedSeen(float3 p, float3 n)
         float4 seen = bouncedSeenSum(SplitVolume(reflectField, lightLinear), bouncedField, bouncedField, SplitVolume(bouncedLight, lightNearest), p, n,
             lighting.indirect.z, lighting.indirect.y, c + k, cascades);
         if (seen.w <= 1e-5)
-            return bounced(p, n);
+            return bouncedPlaced(p, n);
         light += seen.rgb / seen.w * share;
     }
     return light / 3.14159265;
@@ -568,14 +568,14 @@ public float3 bouncedSeen(float3 p, float3 n)
 // probe above a floor holds of a lamp lying on it, the four brightest at p marched to, with halves
 // by their faces' halves as the screen's probes march, or else to their middles (glowLightsAt in
 // gi.slang).
-public float3 glowLights(float3 p, float3 n, bool halves)
+public float3 glowLightsPlaced(float3 p, float3 n, bool halves)
 {
     return glowLightsAt(SplitVolume(reflectField, lightLinear), bouncedField, reflectLights, p, n, 4, halves) / 3.14159265;
 }
 
 // The share of the sky a surface at p facing n sees along r, as the probes around it saw it, or the
 // whole sky where no cascade of probes holds p.
-public float skySeen(float3 p, float3 n, float3 r)
+public float skySeenPlaced(float3 p, float3 n, float3 r)
 {
     return skyAt(SplitVolume(bouncedLight, lightNearest), SplitVolume(bouncedSky, lightNearest), SplitVolume(bouncedReach, lightNearest), bouncedField,
         p, n, r, lighting.indirect.z, lighting.indirect.y, lighting.indirect.w);
@@ -584,7 +584,7 @@ public float skySeen(float3 p, float3 n, float3 r)
 // The light a rough surface at p facing n reflects along r, radiance, from the world's probes around
 // it that it sees as reflectedAt in roughreflect.slang blends them by its roughness, with the share
 // of it those probes hold, or -1 where no cascade of probes holds p.
-public float4 probesReflected(float3 p, float3 n, float3 r, float roughness)
+public float4 probesReflectedPlaced(float3 p, float3 n, float3 r, float roughness)
 {
     return reflectedAt(SplitVolume(bouncedLight, lightNearest), SplitVolume(bouncedWays, lightLinear), SplitVolume(bouncedReach, lightLinear),
         bouncedField, p, n, r, roughness, lighting.indirect.z, lighting.indirect.y, lighting.indirect.w);
@@ -597,7 +597,7 @@ public float4 probesReflected(float3 p, float3 n, float3 r, float roughness)
 // environment reflect alone. A surface met on the screen reflects the light the frame before
 // showed where it was, and one past the picture or hidden from it its color times the light
 // reaching it, as global illumination shades a hit.
-public float4 tracedReflection(float3 p, float3 n, float3 r, float roughness, float3 eye)
+public float4 tracedReflectionPlaced(float3 p, float3 n, float3 r, float roughness, float3 eye)
 {
     if (!Bouncing || lighting.reflection.x <= 0.0 || roughness >= lighting.reflection.y)
         return float4(0.0);
@@ -743,3 +743,36 @@ float4 rayReflection(float3 p, float3 way)
     return float4(color / Pi * arrived + surface.emission.rgb, 1.0);
 }
 #endif
+
+// The same for a point in world numbers, as a program's shader holds input.world and the points it
+// makes from it, each point taken against the frame's origin first (placeOf), with the precision a
+// float has at its size. The engine's own lighting hands its places to the ones above.
+public float3 arriving(Light light, float3 world, float3 n) { return arrivingPlaced(light, placeOf(world), n); }
+public float cascadeReached(int c, float3 world, float3 n, float2 texel, out float edge) { return cascadeReachedPlaced(c, placeOf(world), n, texel, edge); }
+public float lightReaching(float3 world, float3 n) { return lightReachingPlaced(placeOf(world), n); }
+public float lightReaching(float3 world, float3 n, out float held) { return lightReachingPlaced(placeOf(world), n, held); }
+public float4 mirrored(float4 position, float3 world, float3 n, float roughness) { return mirroredPlaced(position, placeOf(world), n, roughness); }
+public float groundReached(float3 world, float3 n) { return groundReachedPlaced(placeOf(world), n); }
+public float spotLightReaching(float3 world, float3 n, float3 lightPosition, int slot)
+{
+    return spotLightReachingPlaced(placeOf(world), n, lightPosition, slot);
+}
+public float pointLightReaching(float3 world, float3 n, float3 lightPosition, int slot)
+{
+    return pointLightReachingPlaced(placeOf(world), n, lightPosition, slot);
+}
+public float3 fromLight(Light light, float3 world) { return fromLightPlaced(light, placeOf(world)); }
+public int probeAt(float3 world) { return probeAtPlaced(placeOf(world)); }
+public float3 boxProjected(int i, float3 world, float3 r) { return boxProjectedPlaced(i, placeOf(world), r); }
+public float screenHold(float3 world, float3 n) { return screenHoldPlaced(placeOf(world), n); }
+public float3 bounced(float3 world, float3 n) { return bouncedPlaced(placeOf(world), n); }
+public float3 bouncedAndSky(float3 world, float3 n, float3 r, out float sky) { return bouncedAndSkyPlaced(placeOf(world), n, r, sky); }
+public bool byThinWall(float3 world, float3 n) { return byThinWallPlaced(placeOf(world), n); }
+public float3 bouncedSeen(float3 world, float3 n) { return bouncedSeenPlaced(placeOf(world), n); }
+public float3 glowLights(float3 world, float3 n, bool halves) { return glowLightsPlaced(placeOf(world), n, halves); }
+public float skySeen(float3 world, float3 n, float3 r) { return skySeenPlaced(placeOf(world), n, r); }
+public float4 probesReflected(float3 world, float3 n, float3 r, float roughness) { return probesReflectedPlaced(placeOf(world), n, r, roughness); }
+public float4 tracedReflection(float3 world, float3 n, float3 r, float roughness, float3 eye)
+{
+    return tracedReflectionPlaced(placeOf(world), n, r, roughness, placeOf(eye));
+}

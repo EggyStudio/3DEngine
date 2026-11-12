@@ -402,7 +402,7 @@ internal sealed class ParticleRenderer : IDisposable
                     renderPass, _vertex, _fragment,
                     BlendEnabled: true,
                     Cull: CullMode.None,
-                    PushConstantRanges: [new PushConstantRange(ShaderStageFlags.Vertex, 0, ViewPush.Size)],
+                    PushConstantRanges: [new PushConstantRange(ShaderStageFlags.Vertex | ShaderStageFlags.Fragment, 0, ViewPush.Size)],
                     DescriptorSetLayouts: [models.MaterialSetLayout(gfx), models.LightsSetLayout(gfx), _particleLayout],
                     DepthTestEnabled: true,
                     DepthWriteEnabled: false,
@@ -412,7 +412,7 @@ internal sealed class ParticleRenderer : IDisposable
             // The emitter's texture as the material's base color, which the shader samples in place of the dot.
             pass.SetBindGroup(pipeline, models.TexturedMaterial(renderContext, textures, state.Emitter.Texture.Id), 0);
             pass.SetBindGroup(pipeline, lights, 1);
-            pass.PushConstants(pipeline, ShaderStageFlags.Vertex, 0, MemoryMarshal.AsBytes(new ReadOnlySpan<ViewPush>(in push)));
+            pass.PushConstants(pipeline, ShaderStageFlags.Vertex | ShaderStageFlags.Fragment, 0, MemoryMarshal.AsBytes(new ReadOnlySpan<ViewPush>(in push)));
             if (state.Born.Span > 0) DrawBuffer(pass, pipeline, gfx, state.Born);
             if (state.Placed is { } placed) DrawBuffer(pass, pipeline, gfx, placed);
         }

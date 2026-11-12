@@ -174,6 +174,112 @@ public sealed class RenderOriginTests : IDisposable
         largest.Should().BeLessThan(0.1f, "the room far out is handed to the GPU in the numbers the room at the origin is");
     }
 
+    // A floor's shader of the program's own that reads the sun's shadow at its world point, as a
+    // voxel game's terrain does, and lights the floor with it.
+    private const string HandedShader = """
+        import modelpass;
+        import lights;
+
+        [shader("fragment")]
+        float4 fragmentMain(ModelVertexOutput input) : SV_Target
+        {
+            float4 color = baseColor(input);
+            float held = 0.0;
+            float shadow = lightReaching(input.world, normalize(input.normal), held);
+            LitLight light = litLight(color.rgb, input, shadow, held);
+            return float4(toDisplay(light.diffuse + light.specular), color.a);
+        }
+        """;
+
+    // One that lights each point of the floor as the point a unit toward -z, its world moved before
+    // it is handed to litLight, as a game lights a mob's face at a point off it.
+    private const string MovedShader = """
+        import modelpass;
+
+        [shader("fragment")]
+        float4 fragmentMain(ModelVertexOutput input) : SV_Target
+        {
+            float4 color = baseColor(input);
+            ModelVertexOutput moved = input;
+            moved.world = input.world - float3(0.0, 0.0, 1.0);
+            LitLight light = litLight(color.rgb, moved);
+            return float4(toDisplay(light.diffuse + light.specular), color.a);
+        }
+        """;
+
+    // A post and a block on a floor drawn with the shader given, at a place in the world, the sun's
+    // light travelling toward -x and down, the camera standing or, with crossing, moving three units
+    // along x from 6.5 to 9.5 once the field settles, past 8, where the origin steps; the level of
+    // the floor's light where the post's shadow falls and a unit to its side.
+    private static (float Shadowed, float Beside) Posted(Vector3 at, string shader, bool crossing)
+    {
+        var config = Config.Default.WithWindow("render origin", Width, Height) with
+        {
+            Headless = true, Offscreen = true, Samples = 1, FrameSeconds = 1.0 / 60,
+        };
+        UseApp(new App(config).AddPlugin(new DefaultPlugins()));
+        SetSceneField(2, 0.25f);
+        SetGlobalIllumination(GlobalIllumination.Low);
+        CreateDirectionalLight(Vector3.Normalize(new Vector3(-1, -1, 0)), Color.White, 1, castsShadows: true);
+        SetAmbientLight(Color.White, 0.1f);
+        var block = LoadModelFromMesh(GenMeshCube(1, 1, 1));
+        var floor = LoadModelFromMesh(GenMeshCube(1, 1, 1));
+        floor.Materials[0].Shader = LoadShaderFromMemory(shader);
+        var view = new Camera3D();
+        for (int frame = 0; frame < SceneFieldPlan.SettleFrames + 4; frame++)
+        {
+            var moved = crossing ? Math.Max(0, frame - SceneFieldPlan.SettleFrames + 1) * 0.75f : 0;
+            view = new Camera3D(at + new Vector3(6.5f + moved, 3, 8), at + new Vector3(moved, 0.5f, 0), Vector3.UnitY, 60);
+            BeginDrawing();
+            ClearBackground(Color.Black);
+            BeginMode3D(view);
+            SetSceneFieldCenter(at);
+            DrawModelEx(floor, at + new Vector3(0, -0.5f, 0), Vector3.UnitY, 0, new Vector3(16, 1, 12), new Color(200, 200, 200));
+            DrawModelEx(block, at + new Vector3(0, 1.5f, 0), Vector3.UnitY, 0, new Vector3(0.5f, 3, 0.5f), new Color(200, 200, 200));
+            DrawModelEx(block, at + new Vector3(-2, 0.5f, 2.5f), Vector3.UnitY, 0, Vector3.One, new Color(200, 200, 200));
+            EndMode3D();
+            EndDrawing();
+        }
+        var renderer = GetApp().World.Resource<Engine.Renderer>();
+        var linear = ((GraphicsDevice)renderer.Context.Graphics!).ReadFloats(renderer.RenderWorld.TryGet<BloomRenderer>()!.Decoded!.ColorView.Image);
+        float Level(Vector3 point)
+        {
+            var pixel = GetWorldToScreenEx(point, view, Width, Height);
+            var i = (int)pixel.Y * Width + (int)pixel.X;
+            var l = 0.2126f * linear[i * 4] + 0.7152f * linear[i * 4 + 1] + 0.0722f * linear[i * 4 + 2];
+            l /= 1 + l;
+            return 255 * Math.Clamp(l <= 0.0031308f ? 12.92f * l : 1.055f * MathF.Pow(l, 1 / 2.4f) - 0.055f, 0, 1);
+        }
+        var (shadowed, beside) = (Level(at + new Vector3(-1.5f, 0, 0)), Level(at + new Vector3(-1.5f, 0, 1)));
+        UnloadModel(block);
+        UnloadModel(floor);
+        CloseWindow();
+        UseApp(null);
+        return (shadowed, beside);
+    }
+
+    [NeedsVulkanTheory]
+    [InlineData(0f, false, false)]
+    [InlineData(8f, false, false)]
+    [InlineData(24f, false, false)]
+    [InlineData(300f, false, false)]
+    [InlineData(0f, false, true)]
+    [InlineData(8f, true, false)]
+    [InlineData(300f, true, false)]
+    public void A_Posts_Shadow_Stands_Where_A_Programs_Shader_Reads_It(float x, bool moved, bool crossing)
+    {
+        // A shader of the program's own hands the lighting world points, as input.world, and moves
+        // world on a copy of its input before it is lit, both as before the engine drew against an
+        // origin, with the eye at the world's origin, 8, 24 and 300 units off, and moving across a
+        // step of the origin.
+        var (shadowed, beside) = Posted(new Vector3(x, 0, 0), moved ? MovedShader : HandedShader, crossing);
+        // The floor in the post's shadow under three fifths of the floor beside it, and for the shader
+        // that lights each point as the point a unit off, the other way about, its point beside the
+        // shadow lit as a point in it.
+        if (moved) beside.Should().BeLessThan(0.6f * shadowed, "the point a program's shader moved world to is the one lit");
+        else shadowed.Should().BeLessThan(0.6f * beside, "the post's shadow falls where a program's shader reads it");
+    }
+
     [NeedsVulkanTheory]
     [InlineData(GlobalIllumination.Low)]
     [InlineData(GlobalIllumination.High)]

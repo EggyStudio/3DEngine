@@ -51,7 +51,7 @@ internal readonly record struct RenderOrigin(double X, double Y, double Z)
     public static RenderOrigin Near(Vector3 eye) =>
         new(Math.Floor(eye.X / Step + 0.5) * Step, Math.Floor(eye.Y / Step + 0.5) * Step, Math.Floor(eye.Z / Step + 0.5) * Step);
 
-    /// <summary>The origin as floats, which a vertex stage adds back to a place for the world place it hands on.</summary>
+    /// <summary>The origin as floats, which a shader adds back to a place for its world point.</summary>
     public Vector3 AsVector3 => new((float)X, (float)Y, (float)Z);
 
     /// <summary>The place given less the origin, worked in doubles.</summary>
@@ -140,9 +140,9 @@ internal readonly record struct RenderOrigin(double X, double Y, double Z)
 internal readonly record struct ViewEye(Vector3 Eye, Matrix4x4 Turned);
 
 /// <summary>
-/// modelpass.slang's ModelPush, as the model pass, the shadow pass and the particles push it, a
-/// view's view-projection taking a place against the frame's origin to clip space, and the origin,
-/// which the vertex stage adds back to a place for the world place it hands on.
+/// modelpass.slang's ModelPush, as the model pass, the shadow pass and the particles push it to
+/// both stages, a view's view-projection taking a place against the frame's origin to clip space,
+/// and the origin, which a shader adds back to a place for its world point (ModelVertexOutput.world).
 /// </summary>
 [StructLayout(LayoutKind.Sequential)]
 internal struct ViewPush

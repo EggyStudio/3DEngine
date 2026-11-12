@@ -195,7 +195,7 @@ internal sealed partial class ModelRenderer
     private void PushView(TrackedRenderPass pass, IPipeline pipeline, in Matrix4x4 viewProjection, Matrix4x4? after = null)
     {
         var push = _origin.Push(viewProjection, _draws?.EyeOf(viewProjection), after);
-        pass.PushConstants(pipeline, ShaderStageFlags.Vertex, 0, MemoryMarshal.AsBytes(new ReadOnlySpan<ViewPush>(in push)));
+        pass.PushConstants(pipeline, ShaderStageFlags.Vertex | ShaderStageFlags.Fragment, 0, MemoryMarshal.AsBytes(new ReadOnlySpan<ViewPush>(in push)));
     }
 
     // An instance of a mesh whose positions are packed integers (PositionPacking), the rows that

@@ -132,7 +132,7 @@ internal struct LightingUbo
     /// <summary>
     /// x: how wide the sun's shadow's edge spreads per unit of a caster's height over the point it
     /// shades, twice the tangent of half the sun's width across (<c>E3D.SetShadowSoftness</c>),
-    /// 0 for an edge as sharp everywhere. yzw: the frame's render origin (RenderOrigin).
+    /// 0 for an edge as sharp everywhere.
     /// </summary>
     public Vector4 ShadowSoftness;
 
@@ -153,6 +153,9 @@ internal struct LightingUbo
 
     /// <summary>x: the window's pixels along each side of a texel of the glow lights' images (<see cref="GpuScreenProbes.GlowTexelAt"/>).</summary>
     public Vector4 ScreenGlow;
+
+    /// <summary>xyz: the frame's render origin (RenderOrigin), which every place in the buffer is against.</summary>
+    public Vector4 Origin;
 }
 
 /// <summary>One reflection probe as the model pass reads it.</summary>
