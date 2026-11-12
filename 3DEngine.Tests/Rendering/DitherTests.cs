@@ -13,7 +13,7 @@ namespace Engine.Tests.Rendering;
 public sealed class DitherTests : IDisposable
 {
     private const int Width = 256;
-    private const int Height = 8;
+    private const int Height = 64;
     private const int Black = 16;
     private readonly TestFolder _folder = new("engine-dither-");
     private int _captures;
@@ -79,6 +79,39 @@ public sealed class DitherTests : IDisposable
         return (double)changes / pairs;
     }
 
+    // How far each four by four block's mean level lies from the mean of its column of blocks down
+    // the window, where the ramp's light is the same, as a root mean square: the grain's part the
+    // eye takes in at a few pixels rather than one.
+    private static double BlockError(Image frame)
+    {
+        double sum = 0;
+        int blocks = 0;
+        for (int bx = Black; bx + 4 <= Width; bx += 4)
+        {
+            var means = new List<double>();
+            for (int by = 0; by + 4 <= Height; by += 4)
+            {
+                double drawn = 0;
+                for (int y = by; y < by + 4; y++)
+                for (int x = bx; x < bx + 4; x++)
+                    drawn += GetImageColor(frame, x, y).G;
+                means.Add(drawn / 16);
+            }
+            var column = means.Average();
+            foreach (var mean in means) { sum += (mean - column) * (mean - column); blocks++; }
+        }
+        return Math.Sqrt(sum / blocks);
+    }
+
+    // The most levels any column of the ramp takes down the window, where its light is the same.
+    private static int MostLevels(Image frame)
+    {
+        var most = 0;
+        for (int x = Black; x < Width; x++)
+            most = Math.Max(most, Enumerable.Range(0, Height).Select(y => GetImageColor(frame, x, y).G).Distinct().Count());
+        return most;
+    }
+
     // The mean level of the ramp's pixels.
     private static double Mean(Image frame)
     {
@@ -104,25 +137,33 @@ public sealed class DitherTests : IDisposable
     public void A_Slow_Dark_Ramp_Falls_In_A_Fine_Grain_That_Keeps_Its_Light_And_Its_Black()
     {
         Open();
-        IsDitherEnabled().Should().BeFalse("the dither is off unless set");
-        SetDither(true);
+        IsDitherEnabled().Should().BeTrue("the dither is on unless set");
+        GetDitherStrength().Should().Be(0.5f, "its strength is a half unless set");
         var on = Ramp(0);
+        SetDitherStrength(1);
+        var full = Ramp(0);
         SetDither(false);
         var off = Ramp(0);
-
         Changes(off).Should().BeLessThan(0.1, "fifteen levels across the ramp leave it in bands about sixteen pixels wide");
-        Changes(on).Should().BeGreaterThan(0.3, "the dither breaks the bands into a grain");
-        Mean(on).Should().BeApproximately(Mean(off), 0.1, "the grain adds no light and takes none");
-        for (int y = 0; y < Height; y++)
-        for (int x = 0; x < Black; x++)
-            GetImageColor(on, x, y).G.Should().Be(0, "black is left as it is");
+        foreach (var (grain, strength) in new[] { (on, "a half"), (full, "1") })
+        {
+            Changes(grain).Should().BeGreaterThan(0.3, $"at a strength of {strength} the dither breaks the bands into a grain");
+            Mean(grain).Should().BeApproximately(Mean(off), 0.1, $"at a strength of {strength} the grain adds no light and takes none");
+            // An interleaved gradient's grain, as even at each pixel, leaves clumps of a few pixels
+            // the eye picks out, which blue noise spreads apart.
+            BlockError(grain).Should().BeLessThan(0.065, $"at a strength of {strength} the grain is blue noise, its blocks of four by four as near their light as can be");
+            for (int y = 0; y < Height; y++)
+            for (int x = 0; x < Black; x++)
+                GetImageColor(grain, x, y).G.Should().Be(0, "black is left as it is");
+        }
+        MostLevels(on).Should().Be(2, "at a half the grain is even across a level, so a column of one light takes the two levels about it");
+        MostLevels(full).Should().Be(3, "at 1 the grain spans two levels, so a column of one light takes three");
     }
 
     [NeedsVulkanFact]
     public void The_Grain_Holds_Still_And_Moves_From_Frame_To_Frame_Only_With_Temporal_Antialiasing()
     {
         Open();
-        SetDither(true);
         var first = Ramp(0);
         var later = Ramp(1);
         Differing(first, later).Should().Be(0, "without temporal antialiasing a still view's frames are alike");

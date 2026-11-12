@@ -521,19 +521,34 @@ public static partial class E3D
     public static bool IsTemporalAntialiasingEnabled() => Effects.Temporal;
 
     /// <summary>
-    /// Turns the dither on or off, which adds to each pixel a grain of less than a level of the
-    /// window's eight bits before they take it, so a slow gradient in the dark, as a lamp's light
-    /// fading across a wall, falls in a fine grain rather than in bands a level apart.
+    /// Turns the dither on or off, which adds to each pixel a grain of blue noise of about a level
+    /// of the window's eight bits before they take it, so a slow gradient in the dark, as a lamp's
+    /// light fading across a wall, falls in a fine grain rather than in bands a level apart.
     /// </summary>
     /// <remarks>
     /// The grain holds still from frame to frame, and moves only where temporal antialiasing
-    /// blends the frames, which then reads it away. Black and white are left as they are. Off
-    /// unless a program turns it on.
+    /// blends the frames, which then reads it away. Black and white are left as they are. On
+    /// unless a program turns it off, which leaves the bands; <see cref="SetDitherStrength"/> sets
+    /// how strong it is.
     /// </remarks>
     public static void SetDither(bool enabled) => Effects.Dither = enabled;
 
-    /// <summary>Whether the window's frames are dithered, as <see cref="SetDither"/> left it, off unless set.</summary>
+    /// <summary>Whether the window's frames are dithered, as <see cref="SetDither"/> left it, on unless set.</summary>
     public static bool IsDitherEnabled() => Effects.Dither;
+
+    /// <summary>
+    /// Sets how strong the dither's grain is, from 0 to 1, a half unless set. At a half the grain is
+    /// even across a level, the calmest that leaves no band, at 1 it spans two levels, likelier small
+    /// than large, and strays as much at every level of light, and between the two are blended.
+    /// </summary>
+    /// <remarks>
+    /// Under a half the grain spans less than a level, so the bands begin to come back, and at 0
+    /// there is none, as with <see cref="SetDither"/> off. A value past 0 to 1 is held to it.
+    /// </remarks>
+    public static void SetDitherStrength(float strength) => Effects.DitherStrength = Math.Clamp(strength, 0, 1);
+
+    /// <summary>How strong the dither's grain is, as <see cref="SetDitherStrength"/> left it, a half unless set.</summary>
+    public static float GetDitherStrength() => Effects.DitherStrength;
 
     /// <summary>
     /// Blurs what is nearer or farther than <paramref name="focusDistance"/> from the camera, as a
@@ -685,6 +700,8 @@ public static partial class E3D
             if (ImGuiNET.ImGui.Checkbox("Temporal antialiasing", ref temporal)) SetTemporalAntialiasing(temporal);
             var dither = IsDitherEnabled();
             if (ImGuiNET.ImGui.Checkbox("Dither", ref dither)) SetDither(dither);
+            var strength = GetDitherStrength();
+            if (ImGuiNET.ImGui.SliderFloat("Dither's strength", ref strength, 0, 1)) SetDitherStrength(strength);
         }
 
         if (ImGuiNET.ImGui.CollapsingHeader("Lift, gamma and gain"))

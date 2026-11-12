@@ -40,8 +40,9 @@ public struct FramePush
     public float4 curve;
     // rgb: the lift, added to the light after the gain. w: 1 when lift, gamma and gain are set.
     public float4 lift;
-    // rgb: the power the lifted light is raised to, one over the gamma. w: 1 where what is shown is
-    // dithered before the window's eight bits take it (frameDither).
+    // rgb: the power the lifted light is raised to, one over the gamma. w: the dither's strength
+    // from 0 to 1, 0 where what is shown is not dithered before the window's eight bits take it
+    // (frameDither).
     public float4 gamma;
     // rgb: the gain, the light is multiplied by. w: how far the dither's pattern moves this frame,
     // the frame's number where temporal antialiasing blends the frames and 0 where nothing does.
@@ -65,6 +66,11 @@ public Sampler2D frameAdapted;
 // a texel standing in where the curve is worked out without one.
 [[vk::binding(3, 1)]]
 public Sampler3D frameTable;
+
+// The blue noise the dither draws its grain from, build/blue-noise.py's table of 64 by 64 texels in
+// each slice of a cube, each texel its rank among them.
+[[vk::binding(4, 1)]]
+public Sampler3D frameBlueNoise;
 
 public float luminance(float3 c)
 {
@@ -108,20 +114,25 @@ public float3 frameLight(float2 uv)
 
 // What is shown at a window's pixel, encoded, with a little noise in it before the window's eight
 // bits take it, so a slow gradient in the dark, a few levels across many pixels, falls in a fine
-// grain the eye takes as smooth where it fell in hard steps a level apart. The noise is up to a
-// level either way, likelier small than large as the sum of two even draws is, which keeps both the
-// shown light's mean and how much its grain strays the same at every level. It is drawn from an
-// interleaved gradient, which makes no pattern of its own, and is none where a channel is black or
-// white, which stay so. It holds still at a pixel from frame to frame, so two pictures of a still
-// view are alike, and moves each frame only where temporal antialiasing blends the frames, which
-// then take it away.
+// grain the eye takes as smooth where it fell in hard steps a level apart. It is drawn from a table
+// of blue noise tiled across the window, whose texels near each other hold values far apart, so the
+// grain has no clumps the eye picks out, and is none where a channel is black or white, which stay
+// so. At a strength of a half, the default, the noise is even across a level, the calmest grain
+// that leaves no step; at 1 it is up to a level either way, likelier small than large as the sum of
+// two even draws is, which keeps how much the grain strays the same at every level; between, the
+// two are blended; under a half it is even across less than a level, and the steps come back as
+// it nears none. Each keeps the shown light's mean. It holds still at a pixel from frame to frame,
+// so two pictures of a still view are alike, and moves each frame by the golden ratio only where
+// temporal antialiasing blends the frames, which then take it away.
 public float3 frameDither(float3 shown, float2 pixel)
 {
-    if (framePush.gamma.w <= 0.0)
+    float strength = framePush.gamma.w;
+    if (strength <= 0.0)
         return shown;
-    float2 at = pixel + framePush.gain.w * 5.588238;
-    float even = frac(52.9829189 * frac(dot(at, float2(0.06711056, 0.00583715))));
-    float noise = even < 0.5 ? sqrt(2.0 * even) - 1.0 : 1.0 - sqrt(2.0 - 2.0 * even);
+    float ranked = frameBlueNoise.Load(int4(int2(pixel) & 63, 0, 0)).r;
+    float even = frac((ranked * 255.0 + 0.5) / 256.0 + framePush.gain.w * 0.618034);
+    float triangle = even < 0.5 ? sqrt(2.0 * even) - 1.0 : 1.0 - sqrt(2.0 - 2.0 * even);
+    float noise = strength <= 0.5 ? (even - 0.5) * 2.0 * strength : lerp(even - 0.5, triangle, saturate(strength * 2.0 - 1.0));
     float3 room = saturate(min(shown, 1.0 - shown) * 255.0);
     return shown + noise / 255.0 * room;
 }

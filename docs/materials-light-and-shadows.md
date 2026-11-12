@@ -193,7 +193,8 @@ frame of 2D alone, as `textures_bunnymark` draws, draws none of it.
 | `SetVignette(0.4f)` | Darkens toward the corners, from half the way out unless a radius is given |
 | `SetFxaa(true)` | Smooths the jagged edges multisampling leaves, inside a surface and of thin lines |
 | `SetTemporalAntialiasing(true)` | Moves the camera by a part of a pixel each frame and blends the frames, which smooths edges, highlights and the noise of global illumination, a little softer where the picture moves |
-| `SetDither(true)` | Adds a fine grain that keeps a slow gradient in the dark from falling in bands a level apart, off unless set |
+| `SetDither(false)` | Turns off the fine grain of blue noise that keeps a slow gradient in the dark from falling in bands a level apart, which leaves the bands; on unless set |
+| `SetDitherStrength(1)` | How strong that grain is, from 0 to 1, a half unless set. A half is the calmest grain that leaves no band, 1 a grain two levels wide that strays as much at every level, and under a half the bands begin to come back, none at 0 |
 | `SetDepthOfField(8, 2, 0.02f)` | Keeps what is 8 units from the camera sharp and blurs what is nearer or farther, to its widest 2 units either side |
 | `SetMotionBlur(0.5f)` | Smears the picture along the way the camera moved since the frame before, as a film camera's shutter does |
 

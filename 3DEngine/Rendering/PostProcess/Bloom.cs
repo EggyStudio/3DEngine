@@ -154,7 +154,7 @@ internal sealed partial class BloomRenderer : IDisposable
     // The tables by the curve that looks light up in each, read the first time it is chosen, and
     // the texel bound in their place for the other curves.
     private readonly Dictionary<Tonemap, VolumeTexture> _tables = [];
-    private VolumeTexture? _noTable;
+    private VolumeTexture? _noTable, _blueNoise;
     private Matrix4x4? _lastViewProjection;
     private long _lastViewFrame = -2;
     // The exposure that follows the scene. The measured log luminance of the frame, the two texels
@@ -428,9 +428,9 @@ internal sealed partial class BloomRenderer : IDisposable
                 _ => new Vector4(effects.HighlightKnee, effects.HighlightStrength, 0, 0),
             },
             Lift = new Vector4(lift, effects.Grades ? 1 : 0),
-            // The dither on, and its pattern moved each frame only where temporal antialiasing
-            // blends the frames, so a still view's pictures are alike otherwise.
-            Gamma = new Vector4(gamma, effects.Dither ? 1 : 0),
+            // The dither's strength where it is on, and its pattern moved each frame only where
+            // temporal antialiasing blends the frames, so a still view's pictures are alike otherwise.
+            Gamma = new Vector4(gamma, effects.Dither ? Math.Clamp(effects.DitherStrength, 0, 1) : 0),
             Gain = new Vector4(gain, effects.Temporal ? _frame % 64 : 0),
         };
         if (program is { } own)
@@ -440,7 +440,7 @@ internal sealed partial class BloomRenderer : IDisposable
             pass.SetBindGroup(pipeline, own.Set, 0);
         }
         else pass.SetPipeline(pipeline);
-        pass.SetBindGroup(pipeline, CompositeSets(device, sized, _shown ?? sized.Scene.ColorView, TableFor(device, curve, effects))[_adaptedLast], 1);
+        pass.SetBindGroup(pipeline, CompositeSets(device, sized, _shown ?? sized.Scene.ColorView, TableFor(device, curve, effects), BlueNoise(device))[_adaptedLast], 1);
         pass.PushConstants(pipeline, ShaderStageFlags.Fragment, 0, MemoryMarshal.AsBytes(new ReadOnlySpan<CompositePush>(in push)));
         pass.Draw(3);
     }
@@ -603,8 +603,9 @@ internal sealed partial class BloomRenderer : IDisposable
         device.UpdateDescriptorSet(sized.VelocityDepth, null, new CombinedImageSamplerBinding(sized.Scene.DepthView!, _depthSampler, 0));
     }
 
-    // The composite's sets reading an image and a curve's table, one for each of the two adapted exposures.
-    private IDescriptorSet[] CompositeSets(IGraphicsDevice gfx, Sized sized, IImageView source, VolumeTexture table)
+    // The composite's sets reading an image, a curve's table and the dither's blue noise, one for
+    // each of the two adapted exposures.
+    private IDescriptorSet[] CompositeSets(IGraphicsDevice gfx, Sized sized, IImageView source, VolumeTexture table, VolumeTexture noise)
     {
         if (sized.CompositeFrom.TryGetValue((source, table.View), out var sets)) return sets;
         return sized.CompositeFrom[(source, table.View)] = [.. _adapted!.Select(exposure =>
@@ -614,6 +615,7 @@ internal sealed partial class BloomRenderer : IDisposable
             gfx.UpdateDescriptorSet(set, null, new CombinedImageSamplerBinding(sized.Levels[0].ColorView, _sampler!, 1));
             gfx.UpdateDescriptorSet(set, null, new CombinedImageSamplerBinding(exposure.ColorView, _sampler!, 2));
             gfx.UpdateDescriptorSet(set, null, new CombinedImageSamplerBinding(table.View, table.Sampler, 3));
+            gfx.UpdateDescriptorSet(set, null, new CombinedImageSamplerBinding(noise.View, noise.Sampler, 4));
             return set;
         })];
     }
@@ -757,6 +759,7 @@ internal sealed partial class BloomRenderer : IDisposable
         _fxaaLayout?.Dispose();
         foreach (var table in _tables.Values) table.Dispose();
         _noTable?.Dispose();
+        _blueNoise?.Dispose();
         _lookup?.Texture.Dispose();
         _decode?.Dispose();
         _decodeVertex?.Dispose();

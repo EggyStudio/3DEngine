@@ -7,7 +7,7 @@ namespace Engine;
 /// the flat API's <c>SetExposure</c>, <c>SetAutoExposure</c>, <c>SetTonemap</c>,
 /// <c>SetTonemapCurve</c>, <c>SetTonemapLookup</c>, <c>SetTonemapShader</c>, <c>SetLiftGammaGain</c>,
 /// <c>SetColorGrading</c>, <c>SetVignette</c>, <c>SetFxaa</c>, <c>SetTemporalAntialiasing</c>,
-/// <c>SetDither</c>, <c>SetDepthOfField</c> and <c>SetMotionBlur</c> set.
+/// <c>SetDither</c>, <c>SetDitherStrength</c>, <c>SetDepthOfField</c> and <c>SetMotionBlur</c> set.
 /// </summary>
 /// <remarks>
 /// Each is applied in the pass that brings the HDR frame into the window, which the window's scene
@@ -148,9 +148,12 @@ internal sealed class FrameEffects
 
     /// <summary>
     /// Whether what the window shows is dithered before its eight bits take it, so a slow gradient
-    /// in the dark falls in a fine grain rather than in steps a level apart; off unless set.
+    /// in the dark falls in a fine grain rather than in steps a level apart; on unless set.
     /// </summary>
-    public bool Dither { get; set; }
+    public bool Dither { get; set; } = true;
+
+    /// <summary>How strong the dither's grain is, from 0 to 1, a half unless set (<c>SetDitherStrength</c>).</summary>
+    public float DitherStrength { get; set; } = 0.5f;
 
     /// <summary>
     /// Whether the window's camera is moved by a part of a pixel each frame and each frame's light

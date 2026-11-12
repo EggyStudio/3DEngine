@@ -123,6 +123,18 @@ internal sealed partial class BloomRenderer
         return _tables[curve] = device.CreateVolumeTexture(read.Size, read.Format, read.Texels);
     }
 
+    // The blue noise the dither draws its grain from (frame.slang's frameDither), the 64 by 64 table
+    // build/blue-noise.py writes, made once, in each of a cube's 64 slices, so a table that changes
+    // over the frames as well takes the same binding.
+    private VolumeTexture BlueNoise(GraphicsDevice device)
+    {
+        if (_blueNoise is { } made) return made;
+        var table = File.ReadAllBytes(Path.Combine(AppContext.BaseDirectory, "source", "shaders", "dither", "blue_noise.bin"));
+        var cube = new byte[table.Length * 64];
+        for (int slice = 0; slice < 64; slice++) table.CopyTo(cube, slice * table.Length);
+        return _blueNoise = device.CreateVolumeTexture(64, Vortice.Vulkan.VkFormat.R8Unorm, cube);
+    }
+
     private void DisposeTonemapPrograms()
     {
         foreach (var made in _tonemapPrograms.Values) made.Dispose();
