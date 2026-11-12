@@ -149,17 +149,13 @@ internal sealed class VolumetricFogRenderer : IDisposable
     }
 
     // The uniforms worked out in world numbers with their places taken against the frame's origin,
-    // as the field's corners are handed, the camera's inverse, its eye, the height the fog thins
-    // from and the sun's counted cascades.
+    // as the field's corners are handed, the camera's inverse, its eye and the height the fog thins
+    // from. The sun's cascades are fitted against it already (FrameShadow.Origin).
     private static Uniforms Placed(Uniforms uniforms, RenderOrigin origin)
     {
         uniforms.InverseViewProjection = origin.Inverse(uniforms.InverseViewProjection);
         uniforms.Eye = origin.Against(uniforms.Eye);
         uniforms.Density.Y = (float)(uniforms.Density.Y - origin.Y);
-        if (uniforms.SunMap.X > 0) uniforms.Cascade0 = origin.Taking(uniforms.Cascade0);
-        if (uniforms.SunMap.X > 1) uniforms.Cascade1 = origin.Taking(uniforms.Cascade1);
-        if (uniforms.SunMap.X > 2) uniforms.Cascade2 = origin.Taking(uniforms.Cascade2);
-        if (uniforms.SunMap.X > 3) uniforms.Cascade3 = origin.Taking(uniforms.Cascade3);
         return uniforms;
     }
 

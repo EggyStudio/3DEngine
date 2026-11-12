@@ -24,11 +24,15 @@ namespace Engine;
 /// The fill cascade from the last cascade's end to the camera's far plane, drawn into a map of its
 /// own at the tile's size, or null where it is off or the far plane comes first.
 /// </param>
+/// <param name="Origin">
+/// The frame's render origin, which every view and projection here takes a place against
+/// (<see cref="RenderOrigin"/>), fitted in places from the first.
+/// </param>
 internal sealed record FrameShadow(int Light, IReadOnlyList<(Matrix4x4 ViewProjection, float Texel)> Cascades,
     IReadOnlyList<(int Light, Matrix4x4 ViewProjection, float TexelPerUnit)>? SpotLights = null,
     IReadOnlyList<(int Light, Matrix4x4[] Faces)>? PointLights = null,
     int TileSize = ShadowFit.TileSize, int PointFaceSize = ShadowFit.PointFaceSize,
-    (Matrix4x4 ViewProjection, float Texel)? Fill = null);
+    (Matrix4x4 ViewProjection, float Texel)? Fill = null, RenderOrigin Origin = default);
 
 /// <summary>How far shadows reach, a world resource the renderer reads each frame.</summary>
 internal sealed class ShadowSettings
@@ -116,10 +120,12 @@ internal static class ShadowFit
     /// The light's view and projection for a light pointing along <paramref name="direction"/> over
     /// what every one of <paramref name="cameras"/> sees from <paramref name="from"/> to
     /// <paramref name="to"/> units past its near plane, one cascade for views that share it, or
-    /// <c>false</c> when a camera's matrix cannot be inverted.
+    /// <c>false</c> when a camera's matrix cannot be inverted. The cameras take a place against
+    /// <paramref name="origin"/> to clip space, and so does the light's view and projection, its
+    /// middle snapped to the texels of a lattice that lies in world numbers (<see cref="RenderOrigin.Phase"/>).
     /// </summary>
     public static bool TryFit(ReadOnlySpan<Matrix4x4> cameras, Vector3 direction, float from, float to,
-        out Matrix4x4 viewProjection, out float texel, int tileSize = TileSize)
+        out Matrix4x4 viewProjection, out float texel, int tileSize = TileSize, RenderOrigin origin = default)
     {
         viewProjection = Matrix4x4.Identity;
         texel = 0;
@@ -159,11 +165,13 @@ internal static class ShadowFit
         var up = MathF.Abs(direction.Y) > 0.99f ? Vector3.UnitZ : Vector3.UnitY;
         var view = Matrix4x4.CreateLookAt(Vector3.Zero, direction, up);
 
-        // The middle of the cascade in the light's view, moved to a whole texel.
+        // The middle of the cascade in the light's view, moved to a whole texel of the world's
+        // lattice, the origin's place within a texel added before the snap and taken after.
         texel = 2 * radius / tileSize;
         var middle = Vector3.Transform(center, view);
-        middle.X = MathF.Floor(middle.X / texel) * texel;
-        middle.Y = MathF.Floor(middle.Y / texel) * texel;
+        var (phaseX, phaseY) = origin.Phase(view, texel);
+        middle.X = MathF.Floor((middle.X + phaseX) / texel) * texel - phaseX;
+        middle.Y = MathF.Floor((middle.Y + phaseY) / texel) * texel - phaseY;
 
         // The view looks down -Z, so the near plane is the larger distance along it.
         var projection = Matrix4x4.CreateOrthographicOffCenter(
@@ -181,16 +189,19 @@ internal static class ShadowFit
         int tileSize = TileSize) =>
         FitCascades([cameraViewProjection], direction, distance, tileSize);
 
-    /// <summary>The cascades fitted to every one of <paramref name="cameras"/> at once, for views that share them.</summary>
+    /// <summary>
+    /// The cascades fitted to every one of <paramref name="cameras"/> at once, for views that share
+    /// them, cameras and cascades taking places against <paramref name="origin"/>.
+    /// </summary>
     public static (Matrix4x4 ViewProjection, float Texel)[] FitCascades(ReadOnlySpan<Matrix4x4> cameras, Vector3 direction, float distance = Distance,
-        int tileSize = TileSize)
+        int tileSize = TileSize, RenderOrigin origin = default)
     {
         var splits = SplitsFor(distance);
         var cascades = new (Matrix4x4, float)[splits.Length];
         float from = 0;
         for (int i = 0; i < splits.Length; i++)
         {
-            if (!TryFit(cameras, direction, from, splits[i], out var viewProjection, out var texel, tileSize)) return [];
+            if (!TryFit(cameras, direction, from, splits[i], out var viewProjection, out var texel, tileSize, origin)) return [];
             cascades[i] = (viewProjection, texel);
             from = splits[i];
         }
@@ -201,10 +212,11 @@ internal static class ShadowFit
     /// The fill cascade of a light pointing along <paramref name="direction"/>, over what every one
     /// of <paramref name="cameras"/> sees from <paramref name="from"/> units past its near plane to
     /// its far plane, or <c>false</c> where every camera's far plane comes before
-    /// <paramref name="from"/> or a camera's matrix cannot be inverted.
+    /// <paramref name="from"/> or a camera's matrix cannot be inverted, cameras and fill taking
+    /// places against <paramref name="origin"/>.
     /// </summary>
     public static bool TryFitFill(ReadOnlySpan<Matrix4x4> cameras, Vector3 direction, float from,
-        out Matrix4x4 viewProjection, out float texel, int tileSize = TileSize)
+        out Matrix4x4 viewProjection, out float texel, int tileSize = TileSize, RenderOrigin origin = default)
     {
         (viewProjection, texel) = (Matrix4x4.Identity, 0);
         var beyond = false;
@@ -214,7 +226,7 @@ internal static class ShadowFit
                     for (int x = -1; x <= 1; x += 2)
                         beyond |= Vector3.Distance(Unproject(inverse, x, y, 0), Unproject(inverse, x, y, 1)) > from;
         // A projection with no far plane leaves its far corners at no finite place, so it is fitted no fill.
-        return beyond && TryFit(cameras, direction, from, float.PositiveInfinity, out viewProjection, out texel, tileSize);
+        return beyond && TryFit(cameras, direction, from, float.PositiveInfinity, out viewProjection, out texel, tileSize, origin);
     }
 
     /// <summary>The tile spot lights' shadows are drawn into, after the cascades.</summary>

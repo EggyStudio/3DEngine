@@ -218,8 +218,11 @@ from 0.
 
 The engine places every vertex against a render origin near the camera, so a point far from the
 world's origin keeps the precision a point near it has. The instance's rows take a vertex to its
-place, the world point less that origin, `modelPush.viewProjection` takes a place to clip space,
-and `modelPush.origin` is the origin itself. `transformModelVertex` gives back the place in
+place, the world point less that origin, their translation the instance's place, so a stage that
+reads the translation as a point in the world adds the origin to it, as
+`float3(instance.worldX.w, instance.worldY.w, instance.worldZ.w) + modelPush.origin.xyz`.
+`modelPush.viewProjection` takes a place to clip space, and `modelPush.origin` is the origin
+itself. `transformModelVertex` gives back the place in
 `place`, and `world` reads as the world point, the place plus the origin. Setting `world` moves the
 place with it, so a fragment stage that moves the point it hands `lit` or `litLight`, as one lit a
 sixteenth of a unit out from its face does, lights the point it moved it to, as before. A stage that

@@ -103,9 +103,9 @@ public sealed class RenderOriginTests : IDisposable
     // above. Its floor, wall and blocks, a mesh entity, a lamp, the sun, cubes and lines of the
     // immediate pass and particles kept in their emitter's space lie on eighths of a unit, a float's
     // step at 1,140,000, so the room is the same room wherever it stands, and the field's cascades
-    // and the probes lie alike about it where it stands at a whole count of 1,024 units. The lights
-    // cast no shadows, whose cascades are fitted in world numbers.
-    private static float[] Standing(Vector3 at)
+    // and the probes lie alike about it where it stands at a whole count of 1,024 units. With
+    // shadows, the sun and the lamp cast them.
+    private static float[] Standing(Vector3 at, bool shadows = false)
     {
         var config = Config.Default.WithWindow("render origin", Width, Height) with
         {
@@ -114,8 +114,8 @@ public sealed class RenderOriginTests : IDisposable
         UseApp(new App(config).AddPlugin(new DefaultPlugins()));
         SetSceneField(2, 0.25f);
         SetGlobalIllumination(GlobalIllumination.Low);
-        CreateDirectionalLight(Vector3.Normalize(new Vector3(-0.4f, -1, -0.3f)), Color.White, 1.5f);
-        CreatePointLight(at + new Vector3(1.5f, 1.25f, 1.25f), new Color(255, 200, 150), 4, range: 6);
+        CreateDirectionalLight(Vector3.Normalize(new Vector3(-0.4f, -1, -0.3f)), Color.White, 1.5f, castsShadows: shadows);
+        CreatePointLight(at + new Vector3(1.5f, 1.25f, 1.25f), new Color(255, 200, 150), 4, range: 6, castsShadows: shadows);
         CreateParticleEmitter(at + new Vector3(0.25f, 1.5f, 0.5f), ParticleEmitter.Default with
         {
             MaxParticles = 40, Emitting = false, Burst = 40, Life = 60, Velocity = Vector3.Zero, Gravity = Vector3.Zero, Local = true,
@@ -278,6 +278,95 @@ public sealed class RenderOriginTests : IDisposable
         // shadow lit as a point in it.
         if (moved) beside.Should().BeLessThan(0.6f * shadowed, "the point a program's shader moved world to is the one lit");
         else shadowed.Should().BeLessThan(0.6f * beside, "the post's shadow falls where a program's shader reads it");
+    }
+
+    [NeedsVulkanTheory]
+    [InlineData(4096f, 1024f)]
+    [InlineData(71680f, 17408f)]
+    [InlineData(1140736f, 285696f)]
+    public void A_Shadowed_Room_Far_From_The_Worlds_Origin_Reads_As_The_Room_At_It(float x, float z)
+    {
+        var home = Standing(Vector3.Zero, shadows: true);
+        var far = Standing(new Vector3(x, 0, z), shadows: true);
+        var differences = home.Zip(far, (a, b) => Math.Abs(a - b)).ToArray();
+        // The room far out stands at another phase of the shadow maps' texels, which lie in world
+        // numbers and divide no whole count of 1,024 units, so an edge moves by a part of a texel,
+        // past a level at a few pixels. A map fitted in world numbers far out moves as a whole.
+        differences.Max().Should().BeLessThan(24, "the shadows far out fall within a texel of where they fall at the origin");
+        differences.Count(d => d > 4).Should().BeLessThanOrEqualTo(16, "only a few pixels at the shadows' edges read apart");
+    }
+
+    // The room at the world's origin with its shadows at High, the camera standing while the field settles
+    // and then moving a quarter of a unit across it each frame for eight frames, from 6.75 to 8.5
+    // units along x, with temporal antialiasing and still particles, and the origin the renderer
+    // stands at the eye or the one given held, the level of each pixel's light of the last frame
+    // and the origin it was drawn against.
+    private static (float[] Levels, RenderOrigin Origin) Crossing(RenderOrigin? held)
+    {
+        RenderOrigin.Override = held;
+        var config = Config.Default.WithWindow("render origin", Width, Height) with
+        {
+            Headless = true, Offscreen = true, Samples = 1, FrameSeconds = 1.0 / 60,
+        };
+        UseApp(new App(config).AddPlugin(new DefaultPlugins()));
+        SetSceneField(2, 0.25f);
+        SetGlobalIllumination(GlobalIllumination.High);
+        SetTemporalAntialiasing(true);
+        CreateDirectionalLight(Vector3.Normalize(new Vector3(-0.4f, -1, -0.3f)), Color.White, 1.5f, castsShadows: true);
+        CreatePointLight(new Vector3(1.5f, 1.25f, 1.25f), new Color(255, 200, 150), 4, range: 6, castsShadows: true);
+        CreateParticleEmitter(new Vector3(0.25f, 1.5f, 0.5f), ParticleEmitter.Default with
+        {
+            MaxParticles = 40, Emitting = false, Burst = 40, Life = 60, Velocity = Vector3.Zero, Gravity = Vector3.Zero,
+            Radius = 0.375f, StartSize = 0.25f, EndSize = 0.25f, StartColor = new Color(220, 220, 230), EndColor = new Color(220, 220, 230),
+            Lit = true, Blend = ParticleBlend.Alpha,
+        });
+        var block = LoadModelFromMesh(GenMeshCube(1, 1, 1));
+        for (int frame = 0; frame < SceneFieldPlan.SettleFrames + 8; frame++)
+        {
+            var moved = Math.Max(0, frame - SceneFieldPlan.SettleFrames + 1) * 0.25f;
+            var view = new Camera3D(new Vector3(6.5f + moved, 2.5f, 5.5f), new Vector3(moved, 0.5f, 0), Vector3.UnitY, 60);
+            BeginDrawing();
+            ClearBackground(Color.Black);
+            BeginMode3D(view);
+            SetSceneFieldCenter(Vector3.Zero);
+            DrawModelEx(block, new Vector3(0, -0.5f, 0), Vector3.UnitY, 0, new Vector3(16, 1, 8), new Color(200, 190, 170));
+            DrawModelEx(block, new Vector3(0, 1.5f, -2.5f), Vector3.UnitY, 0, new Vector3(16, 4, 1), new Color(180, 120, 90));
+            DrawModelEx(block, new Vector3(-1.25f, 0.5f, 0.25f), Vector3.UnitY, 0, Vector3.One, Color.White);
+            DrawModelEx(block, new Vector3(2.25f, 0.25f, -0.5f), Vector3.UnitY, 0, new Vector3(0.5f), new Color(120, 160, 220));
+            EndMode3D();
+            EndDrawing();
+        }
+        var renderer = GetApp().World.Resource<Engine.Renderer>();
+        var origin = renderer.RenderWorld.TryGet<RenderOrigin>();
+        var linear = ((GraphicsDevice)renderer.Context.Graphics!).ReadFloats(renderer.RenderWorld.TryGet<BloomRenderer>()!.Decoded!.ColorView.Image);
+        var levels = new float[Width * Height];
+        for (int i = 0; i < levels.Length; i++)
+        {
+            var l = 0.2126f * linear[i * 4] + 0.7152f * linear[i * 4 + 1] + 0.0722f * linear[i * 4 + 2];
+            l /= 1 + l;
+            levels[i] = 255 * Math.Clamp(l <= 0.0031308f ? 12.92f * l : 1.055f * MathF.Pow(l, 1 / 2.4f) - 0.055f, 0, 1);
+        }
+        UnloadModel(block);
+        CloseWindow();
+        UseApp(null);
+        return (levels, origin);
+    }
+
+    [NeedsVulkanFact]
+    public void A_Camera_Crossing_A_Step_Of_The_Origin_Draws_As_With_The_Origin_Held_Where_It_Began()
+    {
+        // What a pass keeps from one frame to the next, the antialiasing's history, the screen's and
+        // the world's probes, the shadows' cascades and the particles, is read in the frame after the
+        // step against the origin it stepped to.
+        var (stepping, steppedTo) = Crossing(null);
+        var (held, _) = Crossing(RenderOrigin.Zero);
+        steppedTo.Should().Be(new RenderOrigin(16, 0, 0), "the eye passed 8 units along x, where the origin steps to 16");
+        var differences = stepping.Zip(held, (a, b) => Math.Abs(a - b)).ToArray();
+        // Within a level but at a few pixels of an edge that falls the other way as the places round
+        // against the other origin, where the screen's probes' frame before read against the origin
+        // it was drawn against moves hundreds of them.
+        differences.Count(d => d > 1).Should().BeLessThanOrEqualTo(32, "the frame after the step reads as the frame with the origin held");
+        differences.Max().Should().BeLessThan(32, "no pixel reads another surface's light");
     }
 
     [NeedsVulkanTheory]

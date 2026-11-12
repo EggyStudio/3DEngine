@@ -85,6 +85,48 @@ public sealed class ShadowFitTests
         }
     }
 
+    [Theory]
+    [InlineData(4096f)]
+    [InlineData(1140736f)]
+    public void Far_From_The_Worlds_Origin_The_Map_Moves_With_The_Camera_In_Whole_Texels_Across_The_Origins_Steps(float far)
+    {
+        // A camera far out stepping across the light by three eighths of a unit, a float's step
+        // there being an eighth, its view pushed from its eye against the render origin the renderer
+        // stands at it, which steps by 16 units as the eye passes 8 on the way, and the cascades
+        // fitted against that origin. Each cascade's texel is the one the same camera has at the
+        // world's origin, and a world point by the camera lands on the same place in a texel of the
+        // first at every step, as at the world's origin.
+        var sun = Vector3.Normalize(new Vector3(0.3f, -1, -0.5f));
+        var projection = Matrix4x4.CreatePerspectiveFieldOfView(float.DegreesToRadians(60), 16f / 9f, 0.1f, 1000f);
+        projection.M22 = -projection.M22;
+        var at = new Vector3(far, 0, far / 4);
+        float? start = null, startY = null;
+        var origins = new HashSet<RenderOrigin>();
+        for (int i = 0; i <= 12; i++)
+        {
+            var eye = at + new Vector3(6 + 0.375f * i, 4, 10);
+            var target = at + new Vector3(0.375f * i, 0, 0);
+            var origin = RenderOrigin.Near(eye);
+            origins.Add(origin);
+            var seen = origin.Seen(Matrix4x4.CreateLookAt(eye, target, Vector3.UnitY) * projection,
+                new ViewEye(eye, Matrix4x4.CreateLookAt(Vector3.Zero, target - eye, Vector3.UnitY) * projection));
+            for (int c = 0; c < ShadowFit.Splits.Length; c++)
+            {
+                var (from, to) = (c == 0 ? 0 : ShadowFit.Splits[c - 1], ShadowFit.Splits[c]);
+                var home = Matrix4x4.CreateLookAt(eye - at, target - at, Vector3.UnitY) * projection;
+                ShadowFit.TryFit([home], sun, from, to, out _, out var homeTexel).Should().BeTrue();
+                ShadowFit.TryFit([seen], sun, from, to, out _, out var texel, origin: origin).Should().BeTrue();
+                texel.Should().Be(homeTexel, $"cascade {c}'s texel at step {i} is the one the camera has at the world's origin");
+            }
+            ShadowFit.TryFit([seen], sun, 0, ShadowFit.Splits[0], out var cascade, out _, origin: origin).Should().BeTrue();
+            var landed = Project(origin.Against(at), cascade) * (ShadowFit.TileSize / 2f);
+            (start, startY) = (start ?? landed.X, startY ?? landed.Y);
+            (landed.X - start.Value).Should().BeApproximately(MathF.Round(landed.X - start.Value), 0.05f, $"the point lands on the same place in a texel at step {i}");
+            (landed.Y - startY.Value).Should().BeApproximately(MathF.Round(landed.Y - startY.Value), 0.05f, $"the point lands on the same place in a texel at step {i}");
+        }
+        origins.Should().HaveCount(2, "the camera's path crosses one of the origin's steps");
+    }
+
     [Fact]
     public void A_Camera_That_Cannot_Be_Inverted_Fits_No_Map()
     {

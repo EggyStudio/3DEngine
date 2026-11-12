@@ -286,7 +286,9 @@ internal sealed partial class ModelRenderer
 
     // The view's batches that cast a shadow, gathered into _shadowBatches, drawn as a light sees
     // them through lightViewProjection, answering how many calls they took. A solid shadow reads
-    // the world matrix alone, and a masked one its color and cutoff too.
+    // the world matrix alone, and a masked one its color and cutoff too. The light's view and
+    // projection takes a place against the frame's origin as fitted (FrameShadow.Origin), and is
+    // pushed and read as it is.
     private int DrawShadowBatches(TrackedRenderPass pass, View view, Matrix4x4 lightViewProjection)
     {
         var calls = 0;
@@ -294,7 +296,7 @@ internal sealed partial class ModelRenderer
         IPipeline? bound = null;
         // A caster before the light's near plane is drawn onto it where the device clamps depth.
         var clamp = _shadowMaking!.Value.Device.CanClampDepth;
-        var frustum = new Frustum(Placed(lightViewProjection), depth: true, clipsNear: !clamp);
+        var frustum = new Frustum(lightViewProjection, depth: true, clipsNear: !clamp);
         var batches = CollectionsMarshal.AsSpan(_shadowBatches);
         for (int i = 0; i < batches.Length; i++)
         {
@@ -305,7 +307,7 @@ internal sealed partial class ModelRenderer
             if (!ReferenceEquals(pipeline, bound))
             {
                 pass.SetPipeline(pipeline);
-                PushView(pass, pipeline, lightViewProjection);
+                PushPlaced(pass, pipeline, lightViewProjection);
                 bound = pipeline;
             }
             if (IsMasked(batch.Shadow)) pass.SetBindGroup(pipeline, batch.Set!);

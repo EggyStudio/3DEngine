@@ -514,8 +514,9 @@ culling's boxes and planes, the immediate pass's 3D shapes of the engine's own s
 entities' velocity and the particles' placing rows are taken against the origin the same way. A
 test sets another origin (`RenderOrigin.Override`) to read a scene alike against both, and reads a
 room at 4,096, 71,680 and 1,140,736 units out as the room at the world's origin. A program's
-shader keeps the world numbers it had. `ModelVertexOutput.world` is a property, the place plus the
-origin, which set moves the place, so `lit` and `litLight` light the point a program's shader moved
+shader keeps the world numbers it had but for the instance's rows, whose translation is a place, the
+precision coming of it, and which a shader reading it as a world point adds `modelPush.origin` to.
+`ModelVertexOutput.world` is a property, the place plus the origin, which set moves the place, so `lit` and `litLight` light the point a program's shader moved
 it to; the lighting's functions a shader calls with a point, as `lightReaching`, take a world point
 and take the origin off first (`placeOf`), and the engine's own lighting calls the ones ending in
 `Placed`, which take places. The push is read by both stages, since `world` adds `modelPush.origin`.
@@ -722,7 +723,13 @@ out to the distance `SetShadowDistance` puts in `ShadowSettings` in the same pro
 tile of a depth map two tiles on a side, 2048 texels a tile unless `SetShadowMapSize` puts another
 size in `ShadowSettings`, to the sphere around each, so the near slice spends its texels on a few
 units and the far one on many. Each is moved in whole texels so the edges of shadows hold still as
-the camera moves, and reaches four radii further toward the light for casters above the view. Ten
+the camera moves, and reaches four radii further toward the light for casters above the view. The
+cascades are fitted in places, to each camera's view as it is pushed from its eye against the
+frame's origin, and the texels they are moved in lie in world numbers, the origin's place within a
+texel in the light's view added before the snap and taken after (`RenderOrigin.Phase`), so a
+cascade far out has the texel it has at the world's origin and holds still as the origin steps; the
+spot and point lights are fitted from their places, and every shadow's view and projection takes a
+place against the origin as fitted (`FrameShadow.Origin`), pushed and read as it is. Ten
 spot lights with `CastsShadows` set draw into the fourth tile, ranked by what they matter to every
 camera the frame draws meshes through, the window's and each render target's. Those whose reach
 (their range around them, or the shadow distance for one with none) a camera's frustum holds come

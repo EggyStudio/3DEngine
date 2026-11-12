@@ -190,6 +190,14 @@ internal sealed partial class ModelRenderer
     // which the passes push and find the planes they leave blocks out by from.
     private Matrix4x4 Placed(in Matrix4x4 viewProjection) => _origin.Seen(viewProjection, _draws?.EyeOf(viewProjection));
 
+    // Pushes a view-projection that takes a place against the frame's origin already, a light's
+    // fitted against it, as it is, with the origin.
+    private void PushPlaced(TrackedRenderPass pass, IPipeline pipeline, in Matrix4x4 viewProjection)
+    {
+        var push = new ViewPush { ViewProjection = viewProjection, Origin = new Vector4(_origin.AsVector3, 0) };
+        pass.PushConstants(pipeline, ShaderStageFlags.Vertex | ShaderStageFlags.Fragment, 0, MemoryMarshal.AsBytes(new ReadOnlySpan<ViewPush>(in push)));
+    }
+
     // Pushes a view's view-projection against the frame's origin, from its eye where the frame
     // noted one, with a move of clip space after it where one is given, and the origin.
     private void PushView(TrackedRenderPass pass, IPipeline pipeline, in Matrix4x4 viewProjection, Matrix4x4? after = null)

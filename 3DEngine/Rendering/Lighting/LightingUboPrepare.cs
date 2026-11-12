@@ -44,7 +44,7 @@ internal sealed class LightingUboPrepare : IPrepareSystem
         // fitted to, so they hold still under it.
         var windowCamera = draws?.WindowViewProjection * (renderWorld.TryGet<WindowView>()?.Back ?? System.Numerics.Matrix4x4.Identity);
         var first = windowCamera ?? (draws?.Targets() is [var t, ..] ? draws!.ViewProjectionOf(t) : null);
-        var eye = first is { } camera0 ? EyeOf(camera0, draws) : null;
+        var eye = draws?.WindowViewProjection is { } windowed0 ? EyeOf(windowed0, draws) : first is { } camera0 ? EyeOf(camera0, draws) : null;
         BindProbes(renderWorld, ref ubo, eye);
 
         // The lights without their shadows, which each view's buffer starts from. The spot and
@@ -52,15 +52,18 @@ internal sealed class LightingUboPrepare : IPrepareSystem
         // the window's and each render target's, since their maps serve all of them.
         var unshadowed = ubo;
         var views = new List<(System.Numerics.Vector3? Eye, System.Numerics.Matrix4x4? Camera)>();
-        if (windowCamera is { } seen) views.Add((EyeOf(seen, draws), seen));
+        if (windowCamera is { } seen) views.Add((EyeOf(draws!.WindowViewProjection!.Value, draws), seen));
         foreach (var target in draws?.Targets() ?? [])
             if (draws!.ViewProjectionOf(target) is { } targetCamera) views.Add((EyeOf(targetCamera, draws), targetCamera));
-        var casters = Casters(renderWorld, lights, ubo.LightCount, views);
-        // Each view's shadow, shared by views near enough to read one set of cascades alike.
+        var casters = Casters(renderWorld, lights, ubo.LightCount, views, origin);
+        // Each view's shadow, shared by views near enough to read one set of cascades alike, fitted
+        // to each camera as it is pushed, taking a place against the frame's origin, from its eye
+        // where the frame noted one.
         var cameras = new List<(int View, System.Numerics.Matrix4x4 Camera)>();
-        if (windowCamera is { } window) cameras.Add((0, window));
+        if (draws?.WindowViewProjection is { } windowed)
+            cameras.Add((0, origin.Seen(windowed, draws.EyeOf(windowed)) * (renderWorld.TryGet<WindowView>()?.Back ?? System.Numerics.Matrix4x4.Identity)));
         foreach (var target in draws?.Targets() ?? [])
-            if (draws!.ViewProjectionOf(target) is { } targetCamera) cameras.Add((target, targetCamera));
+            if (draws!.ViewProjectionOf(target) is { } targetCamera) cameras.Add((target, origin.Seen(targetCamera, draws.EyeOf(targetCamera))));
         var shared = casters is null ? [] : SharedShadows(casters, cameras);
         var shadow = shared.GetValueOrDefault(0);
         if (shadow is null) renderWorld.Remove<FrameShadow>();
@@ -214,9 +217,10 @@ internal sealed class LightingUboPrepare : IPrepareSystem
 
     /// <summary>
     /// A lighting buffer with every place in it taken against <paramref name="origin"/> in doubles
-    /// (RenderOrigin), the lights' and the probes' places, the shadows' and the reflections'
-    /// matrices and the mirror's plane, and the origin itself, which a shader adds back to a place
-    /// for its world point, as the penumbra's grain and a program's world are found.
+    /// (RenderOrigin), the lights' and the probes' places, the reflections' matrices and the
+    /// mirror's plane, and the origin itself, which a shader adds back to a place for its world
+    /// point, as the penumbra's grain and a program's world are found. The shadows' matrices are
+    /// fitted against the origin (FrameShadow.Origin) and written as they are.
     /// </summary>
     internal static LightingUbo Placed(LightingUbo ubo, RenderOrigin origin)
     {
@@ -225,9 +229,6 @@ internal sealed class LightingUboPrepare : IPrepareSystem
             ref var light = ref ubo.Lights[i];
             light.PositionAndKind = origin.Against(light.PositionAndKind);
         }
-        for (int i = 0; i < LightingUboPacker.MaxCascades; i++) ubo.ShadowCascades[i] = origin.Taking(ubo.ShadowCascades[i]);
-        for (int i = 0; i < ubo.SpotShadowCount; i++) ubo.SpotShadows[i] = origin.Taking(ubo.SpotShadows[i]);
-        for (int i = 0; i < (int)ubo.PointShadow.Y * 6; i++) ubo.PointShadowFaces[i] = origin.Taking(ubo.PointShadowFaces[i]);
         for (int i = 0; i < (int)ubo.ProbeCount.X; i++)
         {
             ref var probe = ref ubo.Probes[i];
@@ -292,26 +293,28 @@ internal sealed class LightingUboPrepare : IPrepareSystem
     }
 
     // The lights that cast shadows this frame, the first directional one and the first spot and
-    // point lights, the spots fitted already, since only the cascades depend on a camera.
+    // point lights, the spots fitted already, since only the cascades depend on a camera, every
+    // view and projection taking a place against the frame's origin.
     private sealed record ShadowCasters(System.Numerics.Vector3? Sun, int SunIndex, float Distance, int TileSize,
-        List<(int, System.Numerics.Matrix4x4, float)> Spots, List<(int, System.Numerics.Matrix4x4[])> Points, bool Fill)
+        List<(int, System.Numerics.Matrix4x4, float)> Spots, List<(int, System.Numerics.Matrix4x4[])> Points, bool Fill, RenderOrigin Origin)
     {
         // The frame's shadow as views through cameras see it, one set of cascades fitted to every
-        // one of them with the fill past them where it is on, or null when nothing casts one.
+        // one of them with the fill past them where it is on, or null when nothing casts one, the
+        // cameras taking a place against the origin to clip space.
         public FrameShadow? For(ReadOnlySpan<System.Numerics.Matrix4x4> cameras)
         {
-            (System.Numerics.Matrix4x4, float)[] cascades = Sun is { } direction ? ShadowFit.FitCascades(cameras, direction, Distance, TileSize) : [];
+            (System.Numerics.Matrix4x4, float)[] cascades = Sun is { } direction ? ShadowFit.FitCascades(cameras, direction, Distance, TileSize, Origin) : [];
             var sun = cascades.Length == 0 ? -1 : SunIndex;
             (System.Numerics.Matrix4x4, float)? fill = sun >= 0 && Fill
-                && ShadowFit.TryFitFill(cameras, Sun!.Value, Distance, out var viewProjection, out var texel, TileSize) ? (viewProjection, texel) : null;
-            return sun < 0 && Spots.Count == 0 && Points.Count == 0 ? null : new FrameShadow(sun, cascades, Spots, Points, TileSize, TileSize / 4, fill);
+                && ShadowFit.TryFitFill(cameras, Sun!.Value, Distance, out var viewProjection, out var texel, TileSize, Origin) ? (viewProjection, texel) : null;
+            return sun < 0 && Spots.Count == 0 && Points.Count == 0 ? null : new FrameShadow(sun, cascades, Spots, Points, TileSize, TileSize / 4, fill, Origin);
         }
 
         // The width of a texel of the first cascade fitted to every one of cameras, 0 with no sun,
         // whose cascades alone depend on a camera.
         public float FirstTexel(ReadOnlySpan<System.Numerics.Matrix4x4> cameras) =>
             Sun is not { } direction ? 0
-            : ShadowFit.TryFit(cameras, direction, 0, ShadowFit.SplitsFor(Distance)[0], out _, out var texel, TileSize) ? texel : float.MaxValue;
+            : ShadowFit.TryFit(cameras, direction, 0, ShadowFit.SplitsFor(Distance)[0], out _, out var texel, TileSize, Origin) ? texel : float.MaxValue;
     }
 
     /// <summary>
@@ -382,7 +385,7 @@ internal sealed class LightingUboPrepare : IPrepareSystem
     // (Rank), so a level of many torches shadows those in front of a camera, the brightest there
     // with the most texels.
     private static ShadowCasters? Casters(RenderWorld renderWorld, RenderLights? lights, int count,
-        IReadOnlyList<(System.Numerics.Vector3? Eye, System.Numerics.Matrix4x4? Camera)> views)
+        IReadOnlyList<(System.Numerics.Vector3? Eye, System.Numerics.Matrix4x4? Camera)> views, RenderOrigin origin)
     {
         if (lights is null || renderWorld.TryGet<ModelDrawList>() is not { IsEmpty: false }) return null;
 
@@ -403,19 +406,20 @@ internal sealed class LightingUboPrepare : IPrepareSystem
 
         var spotLights = Rank(lights.All, spotCandidates, views, distance).Take(ShadowFit.MaxSpotLights).ToList();
         var points = Rank(lights.All, pointCandidates, views, distance).Take(ShadowFit.MaxPointLights)
-            .Select(i => (i, ShadowFit.FitPoint(lights.All[i].Position, lights.All[i].Range, distance))).ToList();
+            .Select(i => (i, ShadowFit.FitPoint(origin.Against(lights.All[i].Position), lights.All[i].Range, distance))).ToList();
         if (sun < 0 && spotLights.Count == 0 && points.Count == 0) return null;
 
-        // The spot lights share the spot tile by rank, so each one's texels are as wide as its share of it.
+        // The spot lights share the spot tile by rank, so each one's texels are as wide as its share
+        // of it, each fitted from its place against the frame's origin, as the point lights are.
         var spots = new List<(int, System.Numerics.Matrix4x4, float)>();
         foreach (var i in spotLights)
         {
             var light = lights.All[i];
             var size = ShadowFit.SpotTileArea(spots.Count, spotLights.Count, tileSize).Size;
-            if (ShadowFit.TryFitSpot(light.Position, light.Direction, light.CosOuter, light.Range, out var viewProjection, out var texel, distance, size))
+            if (ShadowFit.TryFitSpot(origin.Against(light.Position), light.Direction, light.CosOuter, light.Range, out var viewProjection, out var texel, distance, size))
                 spots.Add((i, viewProjection, texel));
         }
-        return new ShadowCasters(sun >= 0 ? lights.All[sun].Direction : null, sun, distance, tileSize, spots, points, settings?.Fill ?? true);
+        return new ShadowCasters(sun >= 0 ? lights.All[sun].Direction : null, sun, distance, tileSize, spots, points, settings?.Fill ?? true, origin);
     }
 
     /// <summary>

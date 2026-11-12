@@ -269,7 +269,7 @@ internal sealed partial class GlobalIlluminationRenderer : IIlluminationPasses, 
         var spread = !switches.SpreadOff && !Settling;
         _halved = [.. Enumerable.Range(0, cascades).Select(c => GlobalIlluminationStages.Halved(c, cascades, far ? cascades - 2 : -1,
             switches.FollowOff ? null : lying, spread))];
-        PlaceLights(lights, origin);
+        PlaceLights(lights, origin, sunShadow?.Origin ?? origin);
         _retired.Add((_frame, GlobalIlluminationStages.Of(device).RecordGlobalIllumination(renderContext.CommandBuffer, _gi, field.Field, view, sampler, sunMap, sunSampler, lights, intervals, ProbeSpacing,
             switches.MergeOff, switches.Alone, switches.Shown is BounceView.Rays or BounceView.Merged, _frame, switches.FollowOff ? null : lying,
             far ? cascades - 2 : -1, _lightThrough, plan is { Whole: true }, farPart, switches.MeshesTraced || moving ? _rays : null, shifts, CarriedShare, CarriedSince, CarriedPhase,
@@ -480,8 +480,9 @@ internal sealed partial class GlobalIlluminationRenderer : IIlluminationPasses, 
 
     // The lights' places taken against the frame's origin as the passes read them, written in world
     // numbers to be compared with the frame before's (NoteLights): the point and spot lights', the
-    // corners the cascades lay at the frame before, the sun's cascades and the glow lights'.
-    private static void PlaceLights(byte[] lights, RenderOrigin origin)
+    // corners the cascades lay at the frame before and the glow lights'. The sun's cascades, fitted
+    // the frame before against that frame's origin (shadowOrigin), are moved to this frame's.
+    private static void PlaceLights(byte[] lights, RenderOrigin origin, RenderOrigin shadowOrigin)
     {
         var floats = MemoryMarshal.Cast<byte, float>(lights.AsSpan());
         var entries = MemoryMarshal.Cast<byte, LightUboEntry>(lights.AsSpan(64, 16 * 64));
@@ -492,7 +493,7 @@ internal sealed partial class GlobalIlluminationRenderer : IIlluminationPasses, 
         var sun = lights.AsSpan(GpuIllumination.SunMapOffset, GpuIllumination.SunMapBytes);
         var counted = (int)MemoryMarshal.Cast<byte, float>(sun)[68];
         for (int c = 0; c < counted; c++)
-            MemoryMarshal.Write(sun[(c * 64)..], origin.Taking(MemoryMarshal.Read<Matrix4x4>(sun[(c * 64)..])));
+            MemoryMarshal.Write(sun[(c * 64)..], origin.Moved(MemoryMarshal.Read<Matrix4x4>(sun[(c * 64)..]), shadowOrigin));
         GlowLights.Place(lights.AsSpan(GlowLights.Offset, GlowLights.Size), origin);
     }
 

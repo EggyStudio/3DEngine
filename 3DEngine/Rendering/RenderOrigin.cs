@@ -87,6 +87,26 @@ internal readonly record struct RenderOrigin(double X, double Y, double Z)
     }
 
     /// <summary>
+    /// A matrix that takes a place against this origin where the one given takes a place against
+    /// <paramref name="from"/>, the translation from the one origin to the other times it, worked in
+    /// doubles, as a matrix fitted in a frame before is read in this one.
+    /// </summary>
+    public Matrix4x4 Moved(Matrix4x4 matrix, RenderOrigin from) => new RenderOrigin(X - from.X, Y - from.Y, Z - from.Z).Taking(matrix);
+
+    /// <summary>
+    /// The origin's place within a cell of a lattice of cells <paramref name="cell"/> wide along the
+    /// x and y of a turned frame (<paramref name="turn"/>, a rotation, as a light's view), from 0 to
+    /// the cell, worked in doubles. A place in that frame is moved by it before it is snapped to the
+    /// lattice and back after, so the lattice lies in world numbers whatever the origin.
+    /// </summary>
+    public (float X, float Y) Phase(Matrix4x4 turn, float cell)
+    {
+        var x = X * turn.M11 + Y * turn.M21 + Z * turn.M31;
+        var y = X * turn.M12 + Y * turn.M22 + Z * turn.M32;
+        return ((float)(x - Math.Floor(x / cell) * cell), (float)(y - Math.Floor(y / cell) * cell));
+    }
+
+    /// <summary>
     /// A matrix that takes what the one given takes to a world place, clip space for an inverse
     /// view-projection, to the place against the origin, it times the translation back, worked in
     /// doubles, each of its first three columns less the origin's weighing of its fourth. At the

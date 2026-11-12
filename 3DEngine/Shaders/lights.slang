@@ -753,6 +753,8 @@ public float lightReaching(float3 world, float3 n) { return lightReachingPlaced(
 public float lightReaching(float3 world, float3 n, out float held) { return lightReachingPlaced(placeOf(world), n, held); }
 public float4 mirrored(float4 position, float3 world, float3 n, float roughness) { return mirroredPlaced(position, placeOf(world), n, roughness); }
 public float groundReached(float3 world, float3 n) { return groundReachedPlaced(placeOf(world), n); }
+// lightPosition here and below is the light's place as the lighting buffer holds it, against the
+// origin, beside a point in world numbers.
 public float spotLightReaching(float3 world, float3 n, float3 lightPosition, int slot)
 {
     return spotLightReachingPlaced(placeOf(world), n, lightPosition, slot);
