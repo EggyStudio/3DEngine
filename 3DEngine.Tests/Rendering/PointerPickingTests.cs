@@ -16,7 +16,8 @@ namespace Engine.Tests.Rendering;
 public class PointerPickingTests
 {
     // A window of 600 by 400 with a camera at z 10 looking down -z, its middle at (300, 200), and a
-    // box two units wide at the origin, whose face toward the camera is at z 1.
+    // box two units wide at the origin, whose face toward the camera is at z 1, or both moved by at
+    // and the box turned about y by turn.
     private sealed class Scene : IDisposable
     {
         public readonly App App = new(Config.Default);
@@ -25,19 +26,19 @@ public class PointerPickingTests
         public readonly int Camera, Box, Holder;
         public readonly List<string> Told = [];
 
-        public Scene(bool picking = true)
+        public Scene(bool picking = true, Vector3 at = default, float turn = 0)
         {
             App.AddPlugin(new InputPlugin()).AddPlugin(new PickingPlugin()).AddPlugin(new EcsPlugin());
             Ecs = App.World.Resource<EcsWorld>();
             Input = App.World.Resource<Input>();
             Camera = Ecs.Spawn();
             Ecs.Add(Camera, new Camera(60) { Picking = picking });
-            Ecs.Add(Camera, new Transform(new Vector3(0, 0, 10)));
+            Ecs.Add(Camera, new Transform(at + new Vector3(0, 0, 10)));
             Holder = Ecs.Spawn();
             Ecs.Add(Holder, Transform.Identity);
             Box = Ecs.Spawn();
             Ecs.Add(Box, Cube());
-            Ecs.Add(Box, Transform.Identity);
+            Ecs.Add(Box, new Transform(at, Quaternion.CreateFromAxisAngle(Vector3.UnitY, turn), Vector3.One));
             Ecs.SetParent(Box, Holder);
         }
 
@@ -114,6 +115,35 @@ public class PointerPickingTests
             "box release Left",
             "box click Left at 0.05,0,1 facing 1 from 9",
             "box out");
+    }
+
+    [Theory]
+    [InlineData(4096f, 1024f)]
+    [InlineData(71680f, 17408f)]
+    [InlineData(1140736f, 285696f)]
+    public void A_Turned_Box_Far_From_The_Worlds_Origin_Is_Met_Where_It_Is_Met_At_It(float x, float z)
+    {
+        // The box turned half a radian under a pointer off the middle, and the box and the camera
+        // moved by a whole offset, on a float's step at 1,140,736, an eighth.
+        static PointerHit Met(Vector3 at)
+        {
+            using var scene = new Scene(at: at, turn: 0.5f);
+            PointerHit? met = null;
+            scene.Ecs.Observe<Pointer<Over>>(scene.Ecs.Handle(scene.Box), on => met = on.Event.Event.Hit);
+            scene.Frame(10, 10);
+            scene.Frame(330, 190);
+            met.Should().NotBeNull("the pointer is over the box");
+            return met!.Value;
+        }
+        var at = new Vector3(x, 0, z);
+        var step = MathF.BitIncrement(x) - x;
+        var (home, far) = (Met(Vector3.Zero), Met(at));
+        // Taken into the box's own space from the ray's place less the box's translation, the ray
+        // meets it as far along as at the origin; through the box's inverse in world floats the
+        // ray's place far out is off by the rounding of that inverse's translation.
+        far.Distance.Should().BeApproximately(home.Distance, 1e-5f, "the box is met as far along the ray as at the origin");
+        Vector3.Distance(far.Point - at, home.Point).Should().BeLessThan(step, "the point met is where it is met at the origin, within a float's step there");
+        far.Normal.Should().Be(home.Normal, "the face met is the one met at the origin");
     }
 
     [Fact]

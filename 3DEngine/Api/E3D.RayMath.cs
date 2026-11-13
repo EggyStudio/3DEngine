@@ -197,9 +197,46 @@ public static partial class E3D
     /// </remarks>
     public static Vector3 Vector3Unproject(Vector3 source, Matrix4x4 projection, Matrix4x4 view)
     {
-        Matrix4x4.Invert(view*projection, out var inverse);
-        var transformed = Vector4.Transform(new Vector4(source, 1.0f), inverse);
-        return new Vector3(transformed.X, transformed.Y, transformed.Z)/transformed.W;
+        // Back through the projection alone, then through the view's inverse worked in doubles, so
+        // a view far from the world's origin, its translation of the world's size, is not inverted
+        // in floats with the projection.
+        Matrix4x4.Invert(projection, out var unprojected);
+        var p = Vector4.Transform(new Vector4(source, 1.0f), unprojected);
+        return InDoublesBack(view, p);
+    }
+
+    // The point p carried back through view, as a row vector times its inverse, the inverse and
+    // the product worked in doubles, divided by its w, or nothing where view has no inverse.
+    private static Vector3 InDoublesBack(Matrix4x4 view, Vector4 p)
+    {
+        var m = new double[4, 8];
+        for (int r = 0; r < 4; r++)
+        {
+            for (int c = 0; c < 4; c++) m[r, c] = view[r, c];
+            m[r, 4 + r] = 1;
+        }
+        for (int col = 0; col < 4; col++)
+        {
+            var pivot = col;
+            for (int r = col + 1; r < 4; r++)
+                if (Math.Abs(m[r, col]) > Math.Abs(m[pivot, col])) pivot = r;
+            if (Math.Abs(m[pivot, col]) < 1e-300) return Vector3.Zero;
+            if (pivot != col)
+                for (int c = 0; c < 8; c++) (m[col, c], m[pivot, c]) = (m[pivot, c], m[col, c]);
+            var scale = 1 / m[col, col];
+            for (int c = 0; c < 8; c++) m[col, c] *= scale;
+            for (int r = 0; r < 4; r++)
+            {
+                if (r == col || m[r, col] == 0) continue;
+                var factor = m[r, col];
+                for (int c = 0; c < 8; c++) m[r, c] -= factor * m[col, c];
+            }
+        }
+        Span<double> row = [p.X, p.Y, p.Z, p.W];
+        Span<double> back = [0, 0, 0, 0];
+        for (int c = 0; c < 4; c++)
+            for (int r = 0; r < 4; r++) back[c] += row[r] * m[r, 4 + c];
+        return new Vector3((float)(back[0] / back[3]), (float)(back[1] / back[3]), (float)(back[2] / back[3]));
     }
 
     /// <summary>A vector with its length held between <paramref name="min"/> and <paramref name="max"/>, its direction kept.</summary>

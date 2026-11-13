@@ -3,17 +3,18 @@
 Reviewed up to `68e7085f`, 264's part 4, each pass that reads its frame before taking the way
 between the two frames from the cameras' eyes, a camera turning a million units out reading as at
 the world's origin, with each process's slowest tests kept on a green run, pushed at 21:27 on
-2026-11-13 once the run before it had ended, run 43501785641; RenderOriginTests passes whole on the
-three devices, 19 of 19, and the suite passed both legs, 2,379; it keeps the form and carries the
-review's files. Before it `bca57e93`, Verdict 120's mend, the render origin's three tests that
-compare a pixel's light against another origin held by a count of pixels past a small level and a
-loose largest, read on the RTX and on Mesa 26.2.4 and 25.2.8, with `ed3cd9ca`, 264's part 3, the
-shadows fitted in places with their texels' lattice kept in world numbers, pushed together at 19:11
-on 2026-11-13, one run on the last, 43480215485, green at 21:26 with macOS in 51 minutes, the Linux
-legs in 83 and 89 and the Windows jobs in 135, 85 and 64, which settles Verdict 120;
-RenderOriginTests passes whole on the three devices, 16 of 16, and the suite passed both legs on
-part 3, 2,375; they keep the form and carry the review's files. Before them `54792d7e`, 264's mend
-for a program's shader, world a property over the place and the origin and the lighting's
+2026-11-13 once the run before it had ended, run 43501785641, red in the third Windows job at 23:02,
+its part Rendering 5 ended at its time limit with no test failed, Verdict 121; RenderOriginTests
+passes whole on the three devices, 19 of 19, and the suite passed both legs, 2,379; it keeps the
+form and carries the review's files. Before it `bca57e93`, Verdict 120's mend, the render origin's
+three tests that compare a pixel's light against another origin held by a count of pixels past a
+small level and a loose largest, read on the RTX and on Mesa 26.2.4 and 25.2.8, with `ed3cd9ca`,
+264's part 3, the shadows fitted in places with their texels' lattice kept in world numbers, pushed
+together at 19:11 on 2026-11-13, one run on the last, 43480215485, green at 21:26 with macOS in 51
+minutes, the Linux legs in 83 and 89 and the Windows jobs in 135, 85 and 64, which settles Verdict
+120; RenderOriginTests passes whole on the three devices, 16 of 16, and the suite passed both legs
+on part 3, 2,375; they keep the form and carry the review's files. Before them `54792d7e`, 264's
+mend for a program's shader, world a property over the place and the origin and the lighting's
 point-taking functions taking world points beside their Placed twins, with `80fe61d2`, part 2, the
 origin at the eye, and `a0af50a3`, part 1's second commit, every place a pass reads in a buffer
 taken against the origin, the three held until the game's play on the local package
@@ -300,7 +301,17 @@ reverted as the screen probes' limit at shapes about a tile wide, its patches in
     eye and a way to look would be a sixth Camera3D field and about twenty reads in five files; it
     mends the turn alone, a program far out that does not move its world still handing its eye and
     its instances on the float's grid, so it stays out and Camera3D keeps its fields, put before the
-    owner with that recommendation.
+    owner with that recommendation. Part 5 read at 21:59 on 2026-11-13, `6cfda4dd` on `68e7085f`,
+    held until the run on `68e7085f` has ended. The fog and its decode, the scattering's blur and
+    the depth of field take each pixel's distance from the eye back from the depth through the
+    camera against the frame's origin from its eye; a room in fog through a lens with a scattering
+    block reads under a tenth of a level at the three distances on the three devices where part 4
+    read 0.78, 17.2 and 40.3, each piece put back alone failing it, and RenderOriginTests passes
+    whole, 22 of 22. Accepted. A ball in the block's place read 48 levels by the field's splat in
+    world floats and goes to part 8, whose test puts it back; the particles' collision against depth
+    stays with moving the world. The plain room's one pixel differs by 0.04 from run to run since
+    part 4, at the origin as far out, accepted at that size, the coder to say from reading what in
+    the frame may differ between two runs.
 
 265. **The lighting's kernels written once.** Decision 112 on 2026-11-12. The radiance cascades'
     kernels, the trace, the merge, the ambient, the screen probes, their filter and the glow lights,
@@ -327,7 +338,27 @@ reverted as the screen probes' limit at shapes about a tile wide, its patches in
 
 ## Verdicts
 
-No verdict is open. Verdicts 56 to 120 are settled, said under each in REVIEW-ARCHIVE.md.
+Verdict 121 is open, the run of `68e7085f` red in the third Windows job, one part of the suite ended
+at its time limit. Verdicts 56 to 120 are settled, said under each in REVIEW-ARCHIVE.md.
+
+121. **The run of `68e7085f` is red in the third Windows job, one part of the suite ended at its
+    time limit.** Run 43501785641, pushed at 21:27 on 2026-11-13. The third Windows job ended at
+    23:02 after 94 minutes, its part Rendering 5 cut at 70 m 1 s with 208 passed, none failed and
+    220 tests left without a result; macOS, both Linux legs, the examples and the second Windows job
+    are green, the first still going when this was written. No test failed. The same part took 46 m
+    3 s with 206 passed in the run of `bca57e93` and 42 m 10 s in the run of `3405714a`. This runner
+    was slower throughout, Rendering 4 in 9 m 33 s where 6 m 17 s and Rendering 6 in 11 m 20 s where
+    8 m 51 s, a half more, and part 4 added the turning room's three cases to the part, so a part
+    that stood at two thirds of its limit passed it on a slow runner. The slowest that ended were
+    the coarser cascades in halves at 6 m 57 s, the still glow lights at 4 m 21 s and 3 m 19 s, and
+    the scene against the other origin at High at 3 m 2 s. It is Verdict 119's kind again, the
+    part's room and not a test's fault. Asked, a mend that goes up at once with `6cfda4dd` under it.
+    RenderOriginTests becomes a part of its own, as the illumination's and the field's tests are,
+    and the parts are dealt among the Windows jobs so that no part stands over 45 minutes on the
+    slowest run read, a half under its limit for a runner's spread, and no job over two thirds of
+    its own limit; the Reply says each part's time from this run's and the last run's digests and
+    where each part goes. From here a commit that adds a drawing test says which part it joins and
+    that part's time on the slowest Windows run read, beside its time on lavapipe.
 
 ## Decisions
 
@@ -667,57 +698,6 @@ places handed are a whole number of units there. The cost is read on Ore at High
 the instance ring and the chunks being rebased each frame on the CPU. Each part's account goes in
 its own Reply.
 
-Item 264, part 3, the shadows. The cascades are fitted in places, to each camera's view as it is
-pushed from its eye against the frame's origin, so their corners, middle and radius are as precise
-far out as at the world's origin, and the middle is snapped to texels that lie in world numbers, the
-origin's place within a texel in the light's view, worked in doubles, added before the snap and
-taken after (RenderOrigin.Phase). The spot and point lights are fitted from their places, and every
-shadow's view and projection takes a place against the frame's origin as fitted
-(FrameShadow.Origin), so the shadow pass pushes it and the lighting buffer and the fog write it as
-it is, and global illumination reads the frame before's sun cascades moved from that frame's origin
-to this one's (RenderOrigin.Moved). Fitted in world floats far out, a cascade's texel changed with
-the camera's every step, 138, 200, 124 and 161 sixteen-thousandths of a unit at 1,140,736 over four
-steps of three eighths where the camera at the origin has 161 at each; fitted in places it is 161 at
-every step. ShadowFitTests adds a camera at 4,096 and at 1,140,736 stepping across the light by
-three eighths of a unit and across a step of the origin, which reads each cascade's texel as the
-camera's at the world's origin and a world point by the camera landing on the same place in a texel
-at every step; fitted in world numbers it fails at both, and with the origin's place left out of the
-snap the point jumps by 0.19 of a texel at the step. RenderOriginTests adds the room far out with
-the sun and the lamp casting shadows, within 24 levels at every pixel and no more than 16 pixels
-past 4, the room falling at another phase of the texels, which lie in world numbers and divide no
-whole count of 1,024 units; it reads 7.7, 7.7 and 10.7 levels at the most on the RTX 4070 and 7.8,
-7.8 and 11.3 on lavapipe at 4,096, 71,680 and 1,140,736, against 7.6, 17.2 and 87.5 with 363 pixels
-past 4 at the last on part 2's fit.
-
-What keeps a place from one frame to the next when the origin steps by 16, as the review asked. The
-antialiasing's, the occlusion's and the motion blur's histories are reprojected from clip space to
-clip space and need no origin. The screen probes' frame before, its view and eye, and the
-reflections' history view are kept in world numbers and handed against this frame's origin. The
-world's probes stand in the field's cascades, whose corners are handed each frame, and keep their
-light by their index; the glow lights keep theirs by their world middles; the particles are kept in
-world numbers and placed by rows handed each frame; and the sun's cascades of the frame before are
-moved from that frame's origin. RenderOriginTests adds a camera at High crossing a step, the origin
-going from 0 to 16 two frames before the last, under temporal antialiasing with the shadows, still
-particles and global illumination keeping their frames, against the same frames with the origin held
-at the world's; it reads within a level at all but a few pixels, 0.073 at the most on the RTX 4070
-and 8 pixels past a level on lavapipe at the floor's edge by the frame's side, where the places
-round against the other origin, 13.2 at the most, the same frames with the origin held in both
-reading 0.000 there. With the screen probes' frame before handed against the world's origin it reads
-3.7 with 556 pixels past a level, so it is held to 32 pixels past a level and none past 32. No test
-before it crossed a step. Its times and the shadowed room's on lavapipe here held to four cores are
-15 s and 12 to 13 s each. The suite passed both legs, 2,375.
-
-Beside them, lights.slang says over spotLightReaching and pointLightReaching that their light's
-position is the buffer's place beside a world point, and the guide and RENDERING.md say the
-instance's rows are places, their translation a world point once modelPush.origin is added, which
-the game's bits.slang reads, a surface the survey of 54792d7e passed over, having looked at the
-functions and the lighting buffer and not at what a vertex stage is handed.
-
-On the Windows times the review asks for, 3405714a's run kept none, its digests listing a process's
-slowest tests only where it ran out of time and its logs naming no test's time. A line in test.py
-keeping each process's slowest tests in its digest whatever the result would give them; it is the
-review's to choose.
-
 Item 264, part 4, the frame before. A pass that reads its frame before keeps that frame's camera as
 the frame noted it, its eye and its view-projection made with the eye at nothing
 (`WindowView.Turned`). The antialiasing's, the occlusion's and the motion blur's ways from this
@@ -876,3 +856,63 @@ The post's shadow reads alike on the three, as in the mend's Reply.
 
 The guide's last sentence ends at a program keeping its numbers small by moving its own world as
 it goes. The suite passed both legs, 2,382.
+
+Item 264, part 6, the rays from the screen on the CPU. `GetWorldToScreenEx` takes a point less the
+camera's position through the camera turned alone (`Camera3D.TurnedView`, the view made with the eye
+at nothing, which `BeginMode3D` notes the camera by too), and `GetScreenToWorldRayEx` takes its way
+from the inverse of that camera and leaves from the camera's position plus the near point less it,
+where both went through the camera's view in world floats, its translation the world's size.
+`Vector3Unproject`, which is handed a view and a projection, goes back through the projection alone
+and then through the view's inverse worked in doubles, where the product of the two was inverted in
+floats. The picking took a ray into a mesh's own space through the inverse of the mesh's world
+matrix in floats, whose translation far out was rounded before the ray's place was taken off; it
+takes the ray's place less the matrix's translation turned back instead. Its ray already took its
+way from the camera's rotation and left from its place.
+
+Collision3DTests adds a camera at 4,096, 71,680 and 1,140,736 looking at four points, all on a
+float's step at the last, against the same camera at the world's origin: each point shows within a
+thousandth of a pixel of where it shows at the origin, the ray through that pixel has its way
+within a millionth and leaves within a float's step, and the point unprojected through the camera's
+own view and projection comes back within a float's step. On part 5's functions the pixel is off by
+0.015, 0.61 and 7.7, the ray's way by 0.005, 0.17 and 0.79, about 46 degrees at the last, and the
+point unprojected by 43, 223 and 89 of the float's steps there, 11 units at the last; on part 6 the
+pixel and the way read 0.000, the ray's place 0.17 to 0.45 of a step and the point 0.04 to 0.26.
+PointerPickingTests adds a box turned half a radian far out under a pointer off the middle, met as
+far along the ray as at the origin within a hundred thousandth, at its point within a float's step
+and on the same face; part 5's picking meets it 6.4e-5, 0.0018 and 0.044 further or nearer, and
+part 6's at the same distance. The box takes its place and turn on itself, since the picking's
+stage runs no propagation and a parent's transform does not reach a child there.
+
+The guide's 3D page says both take a point less the camera's position through the camera's turn
+alone and that `Vector3Unproject` works the view's inverse in doubles.
+
+What in the standing room's frame may differ between two runs, from reading. The field's color pass
+(field_splat.slang 414 to 433) writes a cell's albedo, gloss and glow from every triangle whose
+distance code equals the cell's least, and the code holds the distance in 1,024ths of a cell, the
+rim, the side and the way, not the triangle, so where two faces stand at one distance from a cell,
+as where the floor meets the wall, each writes and the last to run sets the cell, which a CPU
+device's threads order otherwise from run to run. The rest of that frame reads no clock and sums
+nothing out of order. The field's triangle budget is raised only by a frame's wait for a target
+rate, which the tests set none of; the exposure that follows the scene by the clock is off; the
+model pass waits for its pipelines but in the mirror's pass; the splat's sums are of integers; the
+particles' seeds are the frame's count and the entity's; and the one readback taken whenever it is
+ready is a counted mesh's, of which the room has none.
+
+RenderOriginTests whole on the three devices.
+
+| Case | RTX 4070 | Mesa 26.2.4 | Mesa 25.2.8 |
+|---|---|---|---|
+| Scene at Low, past 1 | 0.088, 0 | 0.393, 0 | 1.480, 1 |
+| Scene at High, past 1 | 0.246, 0 | 0.367, 0 | 1.424, 2 |
+| Shadowed room at 4,096, past 4 | 7.72, 2 | 7.83, 2 | 5.26, 2 |
+| Shadowed room at 71,680, past 4 | 7.72, 1 | 7.83, 1 | 25.43, 5 |
+| Shadowed room at 1,140,736, past 4 | 10.73, 2 | 11.34, 1 | 20.96, 4 |
+| Crossing, past 1 | 0.089, 0 | 13.21, 8 | 29.97, 14 |
+| Turning room at each distance | 0.000 | 0.000 | 0.000 |
+| Room in fog at each distance | 0.000 | 0.000 | 0.000 |
+| Room at each distance | 0.000 | 0.000 | 0.000 |
+
+The post's shadow reads alike on the three.
+
+The suite passed both legs, 2,388. Part 6 adds no drawing test, its two far cases running on the
+CPU, the rays in Collision3DTests in the Api part and the box in PointerPickingTests with no device.

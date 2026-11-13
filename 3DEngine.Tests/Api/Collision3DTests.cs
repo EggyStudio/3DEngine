@@ -106,6 +106,37 @@ public class Collision3DTests
         GetCameraMatrix(camera).Should().Be(camera.View);
     }
 
+    [Theory]
+    [InlineData(4096f, 1024f)]
+    [InlineData(71680f, 17408f)]
+    [InlineData(1140736f, 285696f)]
+    public void A_Camera_Far_From_The_Worlds_Origin_Places_Points_And_Casts_Rays_As_At_It(float x, float z)
+    {
+        // The camera and the points on a float's step at 1,140,736, an eighth, so far out they are
+        // the camera and the points at the origin moved by a whole offset.
+        var at = new Vector3(x, 0, z);
+        var step = MathF.BitIncrement(x) - x;
+        var home = new Camera3D(new Vector3(0, 2.5f, 5.5f), new Vector3(0.375f, 0.5f, 0), Vector3.UnitY, 60);
+        var far = new Camera3D(at + home.Position, at + home.Target, Vector3.UnitY, 60);
+        var projection = home.ProjectionMatrix(800f / 450);
+        foreach (var p in new Vector3[] { new(-1.25f, 0.5f, 0.25f), new(1.5f, 1.25f, 1.25f), new(0, 0, -2.5f), new(2, -0.5f, 1) })
+        {
+            // Turned alone, the camera far out takes a point less its place as the camera at the
+            // origin takes the point; through its view in world floats the pixel is off by the
+            // rounding of the view's translation.
+            var pixel = GetWorldToScreenEx(p, home, 800, 450);
+            Vector2.Distance(GetWorldToScreenEx(at + p, far, 800, 450), pixel).Should().BeLessThan(1e-3f, "the point shows where it shows at the origin");
+            var (rayFar, rayHome) = (GetScreenToWorldRayEx(pixel, far, 800, 450), GetScreenToWorldRayEx(pixel, home, 800, 450));
+            Vector3.Distance(rayFar.Direction, rayHome.Direction).Should().BeLessThan(1e-6f, "the ray's way is the camera's turn's alone");
+            Vector3.Distance(rayFar.Position - at, rayHome.Position).Should().BeLessThan(step, "the ray leaves from the camera's place, within a float's step there");
+            // Back through the projection alone and the view's inverse in doubles, a point comes
+            // back within a float's step of where it is.
+            var clip = Vector4.Transform(new Vector4(p, 1), home.View * projection);
+            Vector3.Distance(Vector3Unproject(new Vector3(clip.X, clip.Y, clip.Z) / clip.W, projection, far.View) - at, p)
+                .Should().BeLessThan(step, "the point unprojected far out is where it is, within a float's step there");
+        }
+    }
+
     [Fact]
     public void A_Camera_Moved_By_Amounts_Walks_Level_Turns_About_Itself_And_Zooms_Out()
     {

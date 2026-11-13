@@ -170,8 +170,10 @@ internal sealed class PointerPicking
 
             // Then its triangles in its own space, where the ray's parameter is still the world's
             // distance, since its direction is carried over and not made of length one again.
+            // The ray's place less the matrix's translation turned back, so a mesh far from the
+            // world's origin is not met through a translation of the world's size in floats.
             if (!Matrix4x4.Invert(matrix, out var inverse)) continue;
-            var from = Vector3.Transform(origin, inverse);
+            var from = Vector3.TransformNormal(origin - matrix.Translation, inverse);
             var along = Vector3.TransformNormal(direction, inverse);
             if (!MeetsBox(from, along, bounds.Min, bounds.Max, best)) continue;
             var indices = row.Component.Indices;

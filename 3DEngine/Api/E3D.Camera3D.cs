@@ -20,7 +20,9 @@ public static partial class E3D
     {
         width = Math.Max(1, width);
         height = Math.Max(1, height);
-        var clip = Vector4.Transform(new Vector4(position, 1), camera.View * camera.ProjectionMatrix((float)width / height));
+        // The point less the camera's place through the camera turned alone, so a point far from
+        // the world's origin is not taken through a translation of the world's size.
+        var clip = Vector4.Transform(new Vector4(position - camera.Position, 1), camera.TurnedView * camera.ProjectionMatrix((float)width / height));
         var w = MathF.Abs(clip.W) < 1e-6f ? 1e-6f : clip.W;
         // Normalized device coordinates run down the screen as pixels do, since the projection is
         // flipped for Vulkan.

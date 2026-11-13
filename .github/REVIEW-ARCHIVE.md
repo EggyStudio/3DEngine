@@ -16514,6 +16514,57 @@ as follows.
 The post's shadow reads alike on the three, 74.38 in it against 153.11 beside it at 0, 8, 24 and
 300, 75.61 against 153.40 crossing, and 153.25 against 73.76 for the shader that moves its point.
 
+Item 264, part 3, the shadows. The cascades are fitted in places, to each camera's view as it is
+pushed from its eye against the frame's origin, so their corners, middle and radius are as precise
+far out as at the world's origin, and the middle is snapped to texels that lie in world numbers, the
+origin's place within a texel in the light's view, worked in doubles, added before the snap and
+taken after (RenderOrigin.Phase). The spot and point lights are fitted from their places, and every
+shadow's view and projection takes a place against the frame's origin as fitted
+(FrameShadow.Origin), so the shadow pass pushes it and the lighting buffer and the fog write it as
+it is, and global illumination reads the frame before's sun cascades moved from that frame's origin
+to this one's (RenderOrigin.Moved). Fitted in world floats far out, a cascade's texel changed with
+the camera's every step, 138, 200, 124 and 161 sixteen-thousandths of a unit at 1,140,736 over four
+steps of three eighths where the camera at the origin has 161 at each; fitted in places it is 161 at
+every step. ShadowFitTests adds a camera at 4,096 and at 1,140,736 stepping across the light by
+three eighths of a unit and across a step of the origin, which reads each cascade's texel as the
+camera's at the world's origin and a world point by the camera landing on the same place in a texel
+at every step; fitted in world numbers it fails at both, and with the origin's place left out of the
+snap the point jumps by 0.19 of a texel at the step. RenderOriginTests adds the room far out with
+the sun and the lamp casting shadows, within 24 levels at every pixel and no more than 16 pixels
+past 4, the room falling at another phase of the texels, which lie in world numbers and divide no
+whole count of 1,024 units; it reads 7.7, 7.7 and 10.7 levels at the most on the RTX 4070 and 7.8,
+7.8 and 11.3 on lavapipe at 4,096, 71,680 and 1,140,736, against 7.6, 17.2 and 87.5 with 363 pixels
+past 4 at the last on part 2's fit.
+
+What keeps a place from one frame to the next when the origin steps by 16, as the review asked. The
+antialiasing's, the occlusion's and the motion blur's histories are reprojected from clip space to
+clip space and need no origin. The screen probes' frame before, its view and eye, and the
+reflections' history view are kept in world numbers and handed against this frame's origin. The
+world's probes stand in the field's cascades, whose corners are handed each frame, and keep their
+light by their index; the glow lights keep theirs by their world middles; the particles are kept in
+world numbers and placed by rows handed each frame; and the sun's cascades of the frame before are
+moved from that frame's origin. RenderOriginTests adds a camera at High crossing a step, the origin
+going from 0 to 16 two frames before the last, under temporal antialiasing with the shadows, still
+particles and global illumination keeping their frames, against the same frames with the origin held
+at the world's; it reads within a level at all but a few pixels, 0.073 at the most on the RTX 4070
+and 8 pixels past a level on lavapipe at the floor's edge by the frame's side, where the places
+round against the other origin, 13.2 at the most, the same frames with the origin held in both
+reading 0.000 there. With the screen probes' frame before handed against the world's origin it reads
+3.7 with 556 pixels past a level, so it is held to 32 pixels past a level and none past 32. No test
+before it crossed a step. Its times and the shadowed room's on lavapipe here held to four cores are
+15 s and 12 to 13 s each. The suite passed both legs, 2,375.
+
+Beside them, lights.slang says over spotLightReaching and pointLightReaching that their light's
+position is the buffer's place beside a world point, and the guide and RENDERING.md say the
+instance's rows are places, their translation a world point once modelPush.origin is added, which
+the game's bits.slang reads, a surface the survey of 54792d7e passed over, having looked at the
+functions and the lighting buffer and not at what a vertex stage is handed.
+
+On the Windows times the review asks for, 3405714a's run kept none, its digests listing a process's
+slowest tests only where it ran out of time and its logs naming no test's time. A line in test.py
+keeping each process's slowest tests in its digest whatever the result would give them; it is the
+review's to choose.
+
 ## Items closed, parked or shortened
 
 Items closed without a mend, recorded or parked, and the standing items' texts as they stood before

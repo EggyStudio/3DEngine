@@ -38,6 +38,13 @@ public struct Camera3D
     /// <summary>The world to view transform.</summary>
     public readonly Matrix4x4 View => Matrix4x4.CreateLookAt(Position, Target, Up);
 
+    /// <summary>
+    /// The world to view transform with the eye at nothing, the view's turn alone, which takes a
+    /// point less <see cref="Position"/>, so a camera far from the world's origin is turned without
+    /// a translation of the world's size.
+    /// </summary>
+    internal readonly Matrix4x4 TurnedView => Matrix4x4.CreateLookAt(Vector3.Zero, Target - Position, Up);
+
     /// <summary>The view to clip transform for a target of the given aspect ratio.</summary>
     /// <remarks>
     /// Y is flipped for Vulkan, whose clip space points down where <c>System.Numerics</c> assumes

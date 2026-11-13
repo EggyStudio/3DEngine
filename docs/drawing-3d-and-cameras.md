@@ -140,7 +140,10 @@ if (IsPointInFrontOfCamera(enemy, camera)) DrawText("Enemy", (int)above.X - 20, 
 
 Going the other way, `GetScreenToWorldRay(GetMousePosition(), camera)` gives the ray under the
 mouse, which `GetRayCollisionBox`, `GetRayCollisionSphere` and `GetRayCollisionMesh` test against
-the world, as picking a thing with the mouse needs.
+the world, as picking a thing with the mouse needs. Both take a point less the camera's position
+through the camera's turn alone, so far from the world's origin a point shows and a ray leaves as
+they do near it, the ray from the camera's position, and `Vector3Unproject` carries a point back
+through the view's inverse worked in doubles.
 
 ## Drawing into a texture
 

@@ -518,7 +518,9 @@ public static partial class E3D
     {
         width = Math.Max(1, width);
         height = Math.Max(1, height);
-        if (!Matrix4x4.Invert(camera.View * camera.ProjectionMatrix((float)width / height), out var inverse))
+        // The camera turned alone, whose inverse gives a point of the view less the camera's place,
+        // so the ray's way holds no float of the world's size and it leaves from the camera's place.
+        if (!Matrix4x4.Invert(camera.TurnedView * camera.ProjectionMatrix((float)width / height), out var inverse))
             return new Ray(camera.Position, Vector3.Normalize(camera.Target - camera.Position));
 
         // Normalized device coordinates, whose Y grows down the screen since the projection is
@@ -529,6 +531,6 @@ public static partial class E3D
         var far = Vector4.Transform(new Vector4(x, y, 1, 1), inverse);
         var from = new Vector3(near.X, near.Y, near.Z) / near.W;
         var to = new Vector3(far.X, far.Y, far.Z) / far.W;
-        return new Ray(from, Vector3.Normalize(to - from));
+        return new Ray(camera.Position + from, Vector3.Normalize(to - from));
     }
 }
