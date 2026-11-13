@@ -5,31 +5,32 @@ the origin and the lighting's point-taking functions taking world points beside 
 with `80fe61d2`, part 2, the origin at the eye, and `a0af50a3`, part 1's second commit, every place
 a pass reads in a buffer taken against the origin, the three held until the game's play on the local
 package 6.2.60-local.264.3 read the four breaks of 264.2 gone and pushed together at 22:38 on
-2026-11-12, one run on the last, 43312321044; the suite passed both legs on the last, 2,369; they
-keep the form and carry the review's files. Before them `3405714a`, 264's first part begun, the
-render origin laid through the vertex stages of the model pass, the shadows and the particles and
-held at zero, with a test at 160 by 90 that reads every pixel within a level against an origin moved
-64, -32, 128, pushed at 18:12 on 2026-11-12 once the run before it had ended, green at 20:22 with
-macOS in 51 minutes, the Linux legs in 65 and 83 and the Windows jobs in 129, 84 and 67; the suite
-passed both legs, 2,358; it keeps the form and carries the review's files. Before it `baa21ff4`,
-Verdict 119's mend, the Windows suite dealt to three jobs with the rest of the Rendering part in six
-processes of about 25 minutes each on the slowest runner read, pushed at 16:01 on 2026-11-12 with
-`63b47a49`, item 266, the comments of 239 files swept by N 4.11 as widened with no line but a
-comment changed, and `8513f710`, 259's second commit, the surface's point read at the centroid with
-its test, one run on the last, green at 18:07 with macOS in 49 minutes, the Linux legs in 51 and 64
-and the Windows jobs in 126, 54 and 72, which settles Verdict 119, and the pack run with publish for
-259, 43243318284, started on it; the suite passed both legs on the second and third, 2,357, the last
-changing no code; they keep the form and carry the review's files. Before them `aa0f1be7`, items 259
-and 260, the blobs reported in the distance, the vertex color and uv2 read at the centroid where a
-pixel's middle outside a triangle seen nearly edge on gave the surface's color a half float's most
-at 4 samples a pixel, with light.terms, a pixel's light read a term at a time, and a test of walls a
-hair beside the eye, 31 white pixels before and none after, pushed at 11:37 on 2026-11-12 once the
-run before it had ended, its run red at 14:09 in the second Windows half alone, a part of the suite
-ending at its time limit, Verdict 119, macOS in 55 minutes, the Linux legs in 66 and 83 and the
-first Windows half in 130 green; the suite passed both legs, 2,356; on its local package the game's
-sweep reads bloom's most by the origin at 13 levels where 142 and no step with a blob where 7; it
-keeps the form and carries the review's files. The pushes before these stand in REVIEW-ARCHIVE.md's
-head records.
+2026-11-12, one run on the last, 43312321044, red at 00:49 on 2026-11-13 in both Linux legs at one
+test of the render origin, Verdict 120, macOS in 56 minutes and the Windows jobs in 130, 59 and 86
+green; the suite passed both legs on the last here, 2,369; they keep the form and carry the review's
+files. Before them `3405714a`, 264's first part begun, the render origin laid through the vertex
+stages of the model pass, the shadows and the particles and held at zero, with a test at 160 by 90
+that reads every pixel within a level against an origin moved 64, -32, 128, pushed at 18:12 on
+2026-11-12 once the run before it had ended, green at 20:22 with macOS in 51 minutes, the Linux legs
+in 65 and 83 and the Windows jobs in 129, 84 and 67; the suite passed both legs, 2,358; it keeps the
+form and carries the review's files. Before it `baa21ff4`, Verdict 119's mend, the Windows suite
+dealt to three jobs with the rest of the Rendering part in six processes of about 25 minutes each on
+the slowest runner read, pushed at 16:01 on 2026-11-12 with `63b47a49`, item 266, the comments of
+239 files swept by N 4.11 as widened with no line but a comment changed, and `8513f710`, 259's
+second commit, the surface's point read at the centroid with its test, one run on the last, green at
+18:07 with macOS in 49 minutes, the Linux legs in 51 and 64 and the Windows jobs in 126, 54 and 72,
+which settles Verdict 119, and the pack run with publish for 259, 43243318284, started on it; the
+suite passed both legs on the second and third, 2,357, the last changing no code; they keep the form
+and carry the review's files. Before them `aa0f1be7`, items 259 and 260, the blobs reported in the
+distance, the vertex color and uv2 read at the centroid where a pixel's middle outside a triangle
+seen nearly edge on gave the surface's color a half float's most at 4 samples a pixel, with
+light.terms, a pixel's light read a term at a time, and a test of walls a hair beside the eye, 31
+white pixels before and none after, pushed at 11:37 on 2026-11-12 once the run before it had ended,
+its run red at 14:09 in the second Windows half alone, a part of the suite ending at its time limit,
+Verdict 119, macOS in 55 minutes, the Linux legs in 66 and 83 and the first Windows half in 130
+green; the suite passed both legs, 2,356; on its local package the game's sweep reads bloom's most
+by the origin at 13 levels where 142 and no step with a blob where 7; it keeps the form and carries
+the review's files. The pushes before these stand in REVIEW-ARCHIVE.md's head records.
 
 The package stands at 6.2.60 from `baa21ff4`, one package with its templates, published at 18:58 on
 2026-11-12 by the pack run 43243318284 and tagged v6.2.60, carrying 259's two commits beside what
@@ -238,7 +239,41 @@ reverted as the screen probes' limit at shapes about a tile wide, its patches in
     instance's translation plus the push's origin every check of the play passes, the tunnel's bits
     28, 28, 28, 27, 27 and the sunlit bits as on 6.2.60, 1,319 pixels over 8 levels apart where
     20,524. The dark villager was another variant of its clothes; with one variant the mobs read
-    alike on 6.2.60 and 264.3, so the game's mob.slang reads right.
+    alike on 6.2.60 and 264.3, so the game's mob.slang reads right. Part 3 read at 23:07 on
+    2026-11-12, `ed3cd9ca`, held until the run on `54792d7e` has ended. The cascades are fitted in
+    places with the texels' lattice kept in world numbers by the origin's phase, a cascade's texel
+    161 at every step at 1,140,736 where 138, 200, 124 and 161 fitted in world floats; the shadowed
+    room far out reads 11.3 levels at the most on lavapipe within its 24, and a camera crossing a
+    step of the origin reads 8 pixels past a level on lavapipe within its 32 where 556 with the
+    screen probes' frame before left unmoved, the first test to cross a step. Accepted with its
+    bounds. Asked beside it, each process's five slowest tests kept in its digest whatever the
+    result, in part 4's commit, and the commit packed unpublished as 6.2.60-local.264.4 for the
+    game's read of the shadow's edge at 1,140,000. The game's read of 6.2.60-local.264.4, recorded
+    at 23:25 on 2026-11-12. Every check of its play passes with the bits' edit, 302 s cold and 218 s
+    warm, and with the game's origin on it reads as 264.3 at every place. The roof's shadow edge at
+    1,140,000 with the game's origin off is as on 264.3, the band's crop 45.98 percent of pixels
+    over 8 levels apart from the origin-on edge on both, and at 71,000 and 284,688 it stands where
+    that edge does; part 3 moves 0.04, 0.08 and 0.29 percent of pixels there. So the world point's
+    grid is left as the cause, an eighth of a unit at that distance, and the game tries its
+    terrain's two shadow reads on input.place with the Placed twin; when that reads alike the
+    guide's sentence goes into part 4's commit. The game's trial at 23:29, its terrain's two shadow
+    reads on input.place with lightReachingPlaced on 264.4, origin off. At 1,140,000 the fine
+    stripes and the dark marks are gone and the band steps by eighths as with the origin on, the
+    band's crop 27.43 percent where 45.98 at the world point, so the world point's grid is confirmed
+    for them. What is left reads as the picture moved by a few pixels, the striped band as tall as
+    with the origin on, the camera's position being a float on a grid of an eighth there; the game
+    confirms with the eye put on whole eighths. The guide then says both, a program far out hands
+    input.place to the Placed twins, and what it hands the engine in floats, its camera and its
+    instances' places, carries the float's grid, which moving its world keeps small. The game's last
+    read of the far edge at 23:35. The eye is exact in both runs; the camera's target, the game's
+    eye plus look in floats, rounds 1,140,000 out and turns the view, and with the look chosen so
+    the target lies on the grid the band's crop falls from 27.43 to 7.32 percent at 1,140,000 and
+    from 20.62 to 7.06 at 284,688, the most 17 and 25 levels. The rest does not grow with distance
+    and is under the origin-on build against itself across the two places, 9.5 percent, edge pixels
+    by where the scene falls against the shadows' texels and the field's cells, which lie in world
+    numbers, read with the indirect light after part 8. So nothing of the shadows is open far out.
+    The guide's two sentences go into part 4's commit, the second naming the camera's target, and
+    the coder says in its Reply what a camera given as an eye and a way to look would take.
 
 265. **The lighting's kernels written once.** Decision 112 on 2026-11-12. The radiance cascades'
     kernels, the trace, the merge, the ambient, the screen probes, their filter and the glow lights,
@@ -247,7 +282,12 @@ reverted as the screen probes' limit at shapes about a tile wide, its patches in
     with the sibling's coder, as a Reply in both files, of where the two copies differ today and
     why, what is one engine's own and stays, and what the interface is. Then the move, a kernel at a
     time, each engine's tests and reference rooms holding before and after, the two engines'
-    pictures of one room compared. After 264.
+    pictures of one room compared. After 264. The read takes the bridge's item 137 with it, recorded
+    at 23:15 on 2026-11-12, a closed room's near wall stepped against the grids reading 0.57 to 1.02
+    of its reference there by where the third cascade's probes fall behind the eye, and says whether
+    a hit across a cascade's band here takes the next cascade's probes where none of them sees the
+    point. The mend, the bridge's item 141, is written once in the module after the move, the room's
+    test held in both engines.
 
 267. **A pixel on the picture's edge takes its normal from the neighbor inside.** From the sibling's
     `18364420` on 2026-11-12. There a neighbor clamped onto the pixel itself gave a step of nothing,
@@ -260,7 +300,46 @@ reverted as the screen probes' limit at shapes about a tile wide, its patches in
 
 ## Verdicts
 
-No verdict is open. Verdicts 56 to 119 are settled, said under each in REVIEW-ARCHIVE.md.
+Verdict 120 is open, the run of `54792d7e` red in both Linux legs at one test of the render origin.
+Verdicts 56 to 119 are settled, said under each in REVIEW-ARCHIVE.md.
+
+120. **The run of `54792d7e` is red in both Linux legs at one test of the render origin.** Run
+     43312321044, pushed at 22:38 on 2026-11-12 with `a0af50a3` and `80fe61d2`, ended at 00:49 on
+     2026-11-13, macOS green in 56 minutes and the three Windows jobs green in 130, 59 and 86, the
+     Linux legs red in 85 and 51 with 2,282 passed, 2 failed and 51 skipped in each.
+     RenderOriginTests'
+     A_Scene_Drawn_Against_An_Origin_Away_From_The_Worlds_Reads_As_Against_The_Worlds fails at Low
+     and at High, the scene against an origin of 64, -32, 128 reading 1.4242401 levels at the most
+     from the scene against the world's where under 1 is asked, the same number in both legs and
+     both cases, so lavapipe on the runner gives it every time. The test is `3405714a`'s and was
+     green in that commit's run on the same runner, so one of the three commits after it moves a
+     pixel there by more, and the suite here did not show it, the legs run on the GPU. Asked, the
+     test run on lavapipe here at `3405714a`, `a0af50a3`, `80fe61d2`, `54792d7e` and `ed3cd9ca`,
+     which commit brings the 1.42, at which pixel and in which pass's light, by light.terms or the
+     passes left out one at a time; then the mend where a place is still read against the other
+     origin, or the bound said anew with its reason where the pixel is an edge that rounds by a
+     float's step. The mend goes up at once with `ed3cd9ca` under it. From here a commit that
+     touches what a pass reads against the origin has RenderOriginTests run on lavapipe before it is
+     reported, its largest figures said in the Reply. The coder's first read at 18:28 on 2026-11-13.
+     On lavapipe here, Mesa 26.2.4, the test reads 0.3928 at Low and 0.3667 at High at pixel 82, 47
+     at each of the four later commits, none past 0.5, so the 1.42 does not show; the runner
+     installs Mesa 25.2.8, and the five commits are run on an image carrying that package. Read by
+     the coder at 18:59 on an image of the runner's Mesa, the .NET SDK's noble image with
+     mesa-vulkan-drivers 25.2.8. There `3405714a` reads 0.126 and each of `a0af50a3`, `80fe61d2`,
+     `54792d7e` and `ed3cd9ca` reads 1.4801 at Low and 1.4242401 at High at pixel 103, 48, one pixel
+     past 1, its neighbors within 0.05; with the point light or the shadows left out it is gone.
+     `a0af50a3` looks the point light's shadow up from the place, and against 64, -32, 128 a place
+     rounds at about 4e-6, so one tap of the filter at the ball's edge falls the other side of the
+     map's depth; a place read against the other origin would move the whole shadow by tens of
+     units. So it is rounding at one edge pixel and no fault of the origin. On the same image part
+     3's shadowed room reads 25.43 at 71,680 past its 24, with 5 pixels past 4, and the crossing
+     29.97 within its 32. Decided by the review for the three tests by one rule, the count of pixels
+     past a small level tells a fault and one edge pixel's largest reading tells little, so each
+     count keeps at least twice the largest reading of the RTX, Mesa 26.2.4 and Mesa 25.2.8 and each
+     largest about twice. The scene against the other origin, at most 4 pixels past 1 level and none
+     past 4; the shadowed room, at most 16 pixels past 4 and none past 48; the crossing, at most 32
+     pixels past 1 and none past 64. The mend carries the three on `ed3cd9ca` and the two go up
+     together.
 
 ## Decisions
 
@@ -330,170 +409,13 @@ model is a module, the drawing stays in each engine; 86 Vulkan 1.4; 87 The look 
 visible error, not by matching the sections; 88 The example's fog comes off until it is dark where
 it should be; 89 Stability in flight before the fog; 90 No one is named in a picture; 91 Anisotropic
 filtering at 16 everywhere; 92 The play of scenes_sponza on 2026-11-04; 93 Each README
-cross-references the other engine, each in full under Decisions in REVIEW-ARCHIVE.md.
-
-94. **No millisecond budget.** Decided on 2026-11-08 at 08:50. There is no millisecond budget. A
-   feature is first made to work and to perform well, and its numbers are worked on after or along
-   the way as much as possible. So the GI budgets of Decision 84 and item 208's 4 ms at High are no
-   gate, and a mend that brings a view to its reference lands by its figures, its cost measured and
-   recorded beside them and cut after or along the way where a cut holds the readings, the quality
-   levels keeping their names and not their milliseconds. Item 208 closes; the parked forms of items
-   213 and 212 are read again by their figures alone, item 217.
-
-95. **A stop rule, one target and one lever.** On 2026-11-08 at 08:5x, on the question why the light
-   leaking had moved little in days, the direction was that the review does what it thinks right and
-   reports it for approval. Approved at 08:49 on 2026-11-08, so three things hold for the GI work. A
-   view inside its band lands and a figure that remains is recorded and not chased, unless it lies
-   in a scene that is looked at, Sponza's named views here and the meadow in the bridge; one bounded
-   read places a cause, and a second is the last before a mend is tried or the figure recorded. The
-   vestibule's door at 8:00 is the engine's one target scene until it is in its band, the rest of
-   Sponza within its bands already. And one structural lever is read before more patches, the
-   probes' texels at 16 by 16 in the near cascades, since the carried probes' sliver, the corridor's
-   over-read, the side wall's echo and the door's pocket parts all trace to an 8 by 8 texel, item
-   218.
-
-96. **The flicker recordings.** Two F2 recordings and three screenshots of scenes_sponza's balcony
-   view came into the dump of 2026-11-08 at 11:08 to 11:09 with the report that it flickers still, a
-   basic flicker through the first 76 pictures, the hour switched forth and back from 77 to 85, and
-   then a flicker right after movement or a light recalculation that settles after a time, more
-   visible at steep angles and thin surfaces. Measured here picture to picture, the idle 76 pictures
-   move 1.3% of the pixels by 12 levels or more at some time and 0.36 by 25, along the right wall's
-   steep edge, the arches' edges and undersides, the columns and the far windows; after the hour's
-   change 6.4 and 1.4% move over the next 24 pictures, settling in about a second and a half; the
-   second recording's largest step moves 0.6% at the same places. So the flicker reported is small
-   in pixels and lies where the readings of 205 and 210 did not look, the steep-angle edges a held
-   view's whole-frame figure averages out. Item 219, first in the order since it is in the scene
-   that is looked at.
-
-97. **Sponza's lamps.** Reported on 2026-11-08 at 11:17, the lamps in scenes_sponza do not work
-   properly, since the light housing should be transparent and let the light through and does not,
-   and in the corner of the room there is a light spot that looks bad. Asked with it, that the
-   housing be fixed so the light shines through it, the lights off by default with a key toggling
-   them on and off, so that in the dark the corner's wooden door area reads pure dark in the tests.
-   Item 220, first in the order as a direct ask in the scene that is looked at.
-
-98. **The night sky.** Reported on 2026-11-08 at 11:20, the night sky looks bad, never updated from
-   the voxel game's sky that was taken over, while the day with its sun disc looks very good, with
-   screenshots of the lamp and the night sky from a build put in the dump (11-15-26 and 11-18-18,
-   the balcony at 02:00). The night sky there is a field of large white blobs over the whole sky
-   with a glowing white disc many times the moon's size. Item 221, after 220.
-
-99. **The difference beside a pair.** Reported to the BevyCSharp session at about 13:50 on
-    2026-11-08, on item 116's meadow pair, no change was visible in the comparison, as in the times
-    before, and the ask was that where there is a difference a third image to the right show it.
-    From here a reading's pair in this engine too carries a third panel, the after's luminance less
-    the before's at a gain the caption names, brighter in orange and darker in blue on black (N 4.9,
-    BevyCSharp Decision 82), from item 221's pairs on; a pair whose two frames differ to the eye
-    says so in its caption and may leave it. The earlier readings stand as they are.
-
-100. **Version tags.** Decided at about 14:00 on 2026-11-08, after every commit of the Unity
-    Essentials repositories was tagged as `v2.0.30` and the like, the three projects take tags too,
-    with the review's questions answered at 14:1x. The form is `v6.0.91`, the letter v before
-    `build/version.sh`'s number. Tags go on each major or minor change and on the commits packages
-    were built from, since a tag on every commit clutters the list and is unnecessary, the tags
-    marking releases some time apart with meaningful changes and not commits apart. The major and
-    the minor are the sessions' to raise, each session working on the project deciding when the time
-    is right to raise the minor or the major, every commit counting as a patch, with full liberty
-    once a step is done and meaningful changes were made. N 6.3 holds the rule and the reviewer sets
-    the tags as it pushes. `v6.0.0` marks the commit that set 6.0 and `v6.0.91` the commit
-    `f14a9530` the package of 6.0.91 was published from on 2026-11-04, both set at 14:2x.
-
-101. **No middle dot.** Decided at 17:57 and 18:00 on 2026-11-08, the middle dot is not used, the
-    README's top links separated by a space alone and the dot nowhere else; the reviewer changed the
-    README's first line in the tree on that decision, for the next commit to carry, and every other
-    middle dot in the repository is item 224's. The rule goes into STYLE.md's Punctuation as the
-    shared text has it everywhere.
-
-102. **One repository, many projects.** The engines' future was thought through with the review at
-    about 18:20 on 2026-11-08, after Unity Essentials, where every feature is a repository of its
-    own. The points made were that the engines are somewhat cluttered and should be modular,
-    extendable, stable and easy to use, that splitting everything into repositories adds clutter and
-    makes commits awkward, that the shared modules' repositories are right, that the engine's own
-    content could be made modular the same way inside its repository, and that one running process,
-    edited and seen as it changes, is worth thinking about; the review's recommendation was approved
-    at 18:30. The direction is that each engine stays one repository and becomes one solution of
-    many projects, each an area with its own public surface and its own plugin, packed as its own
-    package at one version for all, as Bevy's crates are in Bevy's one repository; the dependency
-    direction is held by project references and a norm test over them; the flat API stays unchanged
-    on top and a game names the packages it needs; the names are dotted .NET names and not com.;
-    there is no editor, and the live path is a watcher that recompiles a changed shader, reloads a
-    changed asset or scene and recompiles a changed behavior into the running process, the engine's
-    own code by restart. It is scheduled after the current items and done as one mechanical batch
-    per engine with the public API held identical before and after and the documents' tables
-    redrawn. Items 225 and 226, BevyCSharp Decision 85.
-
-103. **Comments on the code's own terms.** A comment of scenes_sponza was read at about 19:00 on
-    2026-11-08, "The frame graded as that scene's HDRP profile grades it, by the look of its AgX -
-    Powerful.exr, a lookup build/unity-lut.py writes from that strip, a gamma of w 0.225, and a
-    bloom of intensity 0.25, threshold 0.333 and scatter 0.7, worked out as HDRP works them out",
-    and found to read badly, to read as an em dash does, and to lean too far on outside knowledge
-    and on the sessions' knowledge of work in progress, in scenes_sponza explicitly and probably
-    everywhere else. The rule from it, in STYLE.md's Register and as N 4.11, is that a comment
-    stands on the code's own terms. It says what the code does and why in the engine's words; a
-    number taken from elsewhere stands with the reason it is right here, what it makes the frame or
-    the program do, and the source is named once in the documents' references and not in the
-    comment; the file names of outside assets, another product's profile or process as the
-    explanation, "as X works it out", and the facts of the sessions' work are not written in a
-    comment. Item 227, BevyCSharp Decision 86.
-
-104. **The door lands at the price of a synthetic bound.** At 22:06 on 2026-11-08 the review told
-    the session to land item 228's form, the pocket mark at 7/8 on 16 by 16 texels with the fully
-    enclosed probes unmarked, which puts the door at 8:00 at 1.050 and the lion at 1.044 of the
-    every-face reference, the door at noon at 1.013 and the lion at 0.985, the rooms back in their
-    bounds and the corridor at 0.156 against 0.18, the first form to land the target scene of
-    Decision 95; the price is the grazing floor's synthetic room at 0.063 against its bound of 0.06,
-    0.003 past, where 16 by 16 alone reads 0.059, and the bound moves to 0.065 with its reason in
-    the test, since the direction of that morning put the work first and the figures recorded. The
-    NaN was the test's, a division by the ways that take the cascade above where a carried probe has
-    none. The other forms, 3/4 with the lion at 1.112, 15/16 with the door at 1.174, and marks from
-    the third cascade up with the door at 1.156, are recorded in the Replies.
-
-105. **No readings or costs in comments.** Decided at about 05:20 on 2026-11-09, on scenes_sponza's
-    comment on the far cascade of 100 that carried the lion's end wall's reading from 34.6 to 15.1
-    times its reference and the mend's 0.6 ms, a comment need not name the progress or the
-    millisecond count, a comment being no protocol. N 4.11 widens so that a comment carries no
-    reading of before and after, no cost figure and no account of the trials, which are the review's
-    records and RENDERING.md's; a number stands in a comment only where the code's choice depends on
-    it, with its reason. Item 233.
-
-106. **Sponza's lamps light their surroundings, warm and varied, and the bloom follows the lit
-    surround.** Asked on 2026-11-09, the lamps having bloomed without lighting anything, that the
-    lights in Sponza contribute more light to the environment, that their colors be warm and vary in
-    warmth with some cooler, and that the bloom, which looks too strong against an unlit surround,
-    be judged once the environment is properly lit and the exposure has adjusted, when it would
-    normalize. Item 241. Later that evening the look was chosen with the coder's session, the reach
-    fix with the bulbs at 300 and colors of 2,400 to 3,000 K, and cooler lamps as well, not warm
-    alone, which became a third of the lamps between 4,000 and 5,500 K.
-
-107. **A fault seen in motion is read in motion.** Reported at 17:25 on 2026-11-09, the voxel game's
-    illumination has looked noisy the same way for weeks. The review's readings since 2026-10-24
-    were settled stills against references, which a fault in motion passes, and the recordings of
-    Sponza handed in on 2026-11-08 and 2026-11-09 placed 219's and 237's faults within hours. So a
-    fault named while moving is read from a recording, one handed in where there is one and a
-    scripted walk and turn offscreen where not, picture to picture, the standing, the walking, the
-    turning and the two seconds after a stop each given their share of pixels moved; a global
-    illumination item's test holds a turn or a walk where its fault showed in one; and the review
-    asks for a recording when a fault is named without one. The review's rule, put up for approval
-    as Decision 95's precedent allows; items 240 and 239 here and the game's 166 go by it. A frame
-    set against its own pose held shows a lag or a level and is blind to a pattern fixed in the
-    window that slides over the world, so the measure of motion is a frame against the frame before
-    carried to it by its depth and the two cameras, learned on 2026-11-09 when 246's two parts moved
-    nothing by the first measure. Approved on 2026-11-11, asked by the review with N 7.9, N 7.10 and
-    N 7.11.
-
-108. **Post-processing settings in plain numbers.** Asked at 21:59 on 2026-11-09, on scenes_sponza's
-    lines for the lift, gamma and gain, the bloom, its scatter and the followed exposure, whether
-    the public API could be set with real numbers in place of formulas with the extended forms kept,
-    and whether that is good or bad. The review answered that it is good as a change of units and
-    not as a second easy function beside each, since two functions for one setting are two truths
-    with one getter, that three of the six formulas are constants to write as numbers, that the
-    followed exposure's limits belong in EV, the scatter on 0 to 1 with the bloom's kind chosen
-    apart, and lift, gamma and gain in three numbers beside the vectors, and that the threshold
-    stays in linear light. The answer at about 22:03 was yes, to be done as the review described and
-    preferred. Item 244, after the illumination items by Decision 75. The answer was yes again at
-    about 22:11 to three more places of the same kind the review found, the color curves written by
-    hand, the sun's strength by its height and the field's center ahead of the camera; a fourth, a
-    function for easing toward a target, was named as the owner's call and is left out until asked.
+cross-references the other engine; 94 No millisecond budget; 95 A stop rule, one target and one
+lever; 96 The flicker recordings; 97 Sponza's lamps; 98 The night sky; 99 The difference beside a
+pair; 100 Version tags; 101 No middle dot; 102 One repository, many projects; 103 Comments on the
+code's own terms; 104 The door lands at the price of a synthetic bound; 105 No readings or costs in
+comments; 106 Sponza's lamps light their surroundings, warm and varied, and the bloom follows the
+lit surround; 107 A fault seen in motion is read in motion; 108 Post-processing settings in plain
+numbers, each in full under Decisions in REVIEW-ARCHIVE.md.
 
 109. **One package on nuget.org, and Templates.** On 2026-11-11 at about 16:30, after one package
     was chosen for the sibling, the several packages were not favored in 3DEngine either, acceptable
@@ -960,3 +882,42 @@ On the Windows times the review asks for, 3405714a's run kept none, its digests 
 slowest tests only where it ran out of time and its logs naming no test's time. A line in test.py
 keeping each process's slowest tests in its digest whatever the result would give them; it is the
 review's to choose.
+
+Verdict 120, the mend. The runner's Mesa, 25.2.8 of Ubuntu 24.04, is made again here in an image of
+the session's own, `mcr.microsoft.com/dotnet/sdk:10.0-noble` with `mesa-vulkan-drivers`
+25.2.8-0ubuntu0.24.04.4 and `libvulkan1` 1.3.275.0-1build1, the tests built on the host and run in
+it with `dotnet test --no-build`, the checkout at its own path, the NuGet folder read only at
+/home/user/.nuget/packages, the container's labels off (`--security-opt label=disable`),
+`VK_DRIVER_FILES=/usr/share/vulkan/icd.d/lvp_icd.json` and `LP_NUM_THREADS=4`. On it the scene
+against the other origin reads 0.126 at 3405714a and 1.4801 at Low and 1.4242401 at High at
+a0af50a3, 80fe61d2, 54792d7e and ed3cd9ca, at one pixel by the ball's edge, 214.058 against the
+world's origin and 215.538 against the other at Low, 211.267 and 212.691 at High, its neighbors
+within 0.05, where Mesa 26.2.4 here reads 0.39 at every commit. a0af50a3's engine under
+3405714a's test reads 1.17 and 3405714a's under a0af50a3's 0.92, so the engine brings it and not
+the test's bend. Left out at a0af50a3 in turn, the shadows take it to 0.06, the point light to
+0.41, the ball to 0.33, and the spot, the particles and the scattering leave it at 1.48. It is the
+point light's shadow beside the ball, which a0af50a3 looks up from the place against the buffer's
+faces taken against the origin in doubles, where 3405714a looked it up from the world point; a
+place as 1.3 less 64 rounds at four millionths of a unit, and one tap of the filter at the ball's
+edge falls the other side of the map's depth. A place read against the other origin would move the
+whole shadow. The same image reads part 3's shadowed room 25.4 at 71,680, past its 24, and the
+crossing 30.0, near its 32. The three take the bounds the review set, a count of pixels past a
+small level, which tells a fault, and a largest about twice the most read on the three devices,
+each assertion's words saying its reason. The scene takes at most 4 pixels past a level and none
+past 4, the shadowed room at most 16 past 4 and none past 48, and the crossing at most 32 past a
+level and none past 64. On ed3cd9ca with them RenderOriginTests passes whole on the RTX 4070, on
+Mesa 26.2.4 and on 25.2.8, each case's largest and its pixels past the level its count is held at
+as follows.
+
+| Case | RTX 4070 | Mesa 26.2.4 | Mesa 25.2.8 |
+|---|---|---|---|
+| Scene at Low, past 1 | 0.088, 0 | 0.393, 0 | 1.480, 1 |
+| Scene at High, past 1 | 0.424, 0 | 0.367, 0 | 1.424, 1 |
+| Shadowed room at 4,096, past 4 | 7.72, 2 | 7.83, 2 | 5.26, 2 |
+| Shadowed room at 71,680, past 4 | 7.72, 1 | 7.83, 1 | 25.43, 5 |
+| Shadowed room at 1,140,736, past 4 | 10.73, 2 | 11.34, 1 | 20.96, 4 |
+| Crossing, past 1 | 0.073, 0 | 13.21, 8 | 29.97, 14 |
+| Room at each distance | 0.000 | 0.000 | 0.000 |
+
+The post's shadow reads alike on the three, 74.38 in it against 153.11 beside it at 0, 8, 24 and
+300, 75.61 against 153.40 crossing, and 153.25 against 73.76 for the shader that moves its point.

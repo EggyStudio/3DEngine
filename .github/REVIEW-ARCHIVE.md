@@ -13072,6 +13072,169 @@ at `36cae0c2`.
    engine's name linked to its repository, BevyCSharp's with 3DEngine and 3DEngine's with
    BevyCSharp, as the game's row ends with 3DEngine. Item 209.
 
+94. **No millisecond budget.** Decided on 2026-11-08 at 08:50. There is no millisecond budget. A
+   feature is first made to work and to perform well, and its numbers are worked on after or along
+   the way as much as possible. So the GI budgets of Decision 84 and item 208's 4 ms at High are no
+   gate, and a mend that brings a view to its reference lands by its figures, its cost measured and
+   recorded beside them and cut after or along the way where a cut holds the readings, the quality
+   levels keeping their names and not their milliseconds. Item 208 closes; the parked forms of items
+   213 and 212 are read again by their figures alone, item 217.
+
+95. **A stop rule, one target and one lever.** On 2026-11-08 at 08:5x, on the question why the light
+   leaking had moved little in days, the direction was that the review does what it thinks right and
+   reports it for approval. Approved at 08:49 on 2026-11-08, so three things hold for the GI work. A
+   view inside its band lands and a figure that remains is recorded and not chased, unless it lies
+   in a scene that is looked at, Sponza's named views here and the meadow in the bridge; one bounded
+   read places a cause, and a second is the last before a mend is tried or the figure recorded. The
+   vestibule's door at 8:00 is the engine's one target scene until it is in its band, the rest of
+   Sponza within its bands already. And one structural lever is read before more patches, the
+   probes' texels at 16 by 16 in the near cascades, since the carried probes' sliver, the corridor's
+   over-read, the side wall's echo and the door's pocket parts all trace to an 8 by 8 texel, item
+   218.
+
+96. **The flicker recordings.** Two F2 recordings and three screenshots of scenes_sponza's balcony
+   view came into the dump of 2026-11-08 at 11:08 to 11:09 with the report that it flickers still, a
+   basic flicker through the first 76 pictures, the hour switched forth and back from 77 to 85, and
+   then a flicker right after movement or a light recalculation that settles after a time, more
+   visible at steep angles and thin surfaces. Measured here picture to picture, the idle 76 pictures
+   move 1.3% of the pixels by 12 levels or more at some time and 0.36 by 25, along the right wall's
+   steep edge, the arches' edges and undersides, the columns and the far windows; after the hour's
+   change 6.4 and 1.4% move over the next 24 pictures, settling in about a second and a half; the
+   second recording's largest step moves 0.6% at the same places. So the flicker reported is small
+   in pixels and lies where the readings of 205 and 210 did not look, the steep-angle edges a held
+   view's whole-frame figure averages out. Item 219, first in the order since it is in the scene
+   that is looked at.
+
+97. **Sponza's lamps.** Reported on 2026-11-08 at 11:17, the lamps in scenes_sponza do not work
+   properly, since the light housing should be transparent and let the light through and does not,
+   and in the corner of the room there is a light spot that looks bad. Asked with it, that the
+   housing be fixed so the light shines through it, the lights off by default with a key toggling
+   them on and off, so that in the dark the corner's wooden door area reads pure dark in the tests.
+   Item 220, first in the order as a direct ask in the scene that is looked at.
+
+98. **The night sky.** Reported on 2026-11-08 at 11:20, the night sky looks bad, never updated from
+   the voxel game's sky that was taken over, while the day with its sun disc looks very good, with
+   screenshots of the lamp and the night sky from a build put in the dump (11-15-26 and 11-18-18,
+   the balcony at 02:00). The night sky there is a field of large white blobs over the whole sky
+   with a glowing white disc many times the moon's size. Item 221, after 220.
+
+99. **The difference beside a pair.** Reported to the BevyCSharp session at about 13:50 on
+    2026-11-08, on item 116's meadow pair, no change was visible in the comparison, as in the times
+    before, and the ask was that where there is a difference a third image to the right show it.
+    From here a reading's pair in this engine too carries a third panel, the after's luminance less
+    the before's at a gain the caption names, brighter in orange and darker in blue on black (N 4.9,
+    BevyCSharp Decision 82), from item 221's pairs on; a pair whose two frames differ to the eye
+    says so in its caption and may leave it. The earlier readings stand as they are.
+
+100. **Version tags.** Decided at about 14:00 on 2026-11-08, after every commit of the Unity
+    Essentials repositories was tagged as `v2.0.30` and the like, the three projects take tags too,
+    with the review's questions answered at 14:1x. The form is `v6.0.91`, the letter v before
+    `build/version.sh`'s number. Tags go on each major or minor change and on the commits packages
+    were built from, since a tag on every commit clutters the list and is unnecessary, the tags
+    marking releases some time apart with meaningful changes and not commits apart. The major and
+    the minor are the sessions' to raise, each session working on the project deciding when the time
+    is right to raise the minor or the major, every commit counting as a patch, with full liberty
+    once a step is done and meaningful changes were made. N 6.3 holds the rule and the reviewer sets
+    the tags as it pushes. `v6.0.0` marks the commit that set 6.0 and `v6.0.91` the commit
+    `f14a9530` the package of 6.0.91 was published from on 2026-11-04, both set at 14:2x.
+
+101. **No middle dot.** Decided at 17:57 and 18:00 on 2026-11-08, the middle dot is not used, the
+    README's top links separated by a space alone and the dot nowhere else; the reviewer changed the
+    README's first line in the tree on that decision, for the next commit to carry, and every other
+    middle dot in the repository is item 224's. The rule goes into STYLE.md's Punctuation as the
+    shared text has it everywhere.
+
+102. **One repository, many projects.** The engines' future was thought through with the review at
+    about 18:20 on 2026-11-08, after Unity Essentials, where every feature is a repository of its
+    own. The points made were that the engines are somewhat cluttered and should be modular,
+    extendable, stable and easy to use, that splitting everything into repositories adds clutter and
+    makes commits awkward, that the shared modules' repositories are right, that the engine's own
+    content could be made modular the same way inside its repository, and that one running process,
+    edited and seen as it changes, is worth thinking about; the review's recommendation was approved
+    at 18:30. The direction is that each engine stays one repository and becomes one solution of
+    many projects, each an area with its own public surface and its own plugin, packed as its own
+    package at one version for all, as Bevy's crates are in Bevy's one repository; the dependency
+    direction is held by project references and a norm test over them; the flat API stays unchanged
+    on top and a game names the packages it needs; the names are dotted .NET names and not com.;
+    there is no editor, and the live path is a watcher that recompiles a changed shader, reloads a
+    changed asset or scene and recompiles a changed behavior into the running process, the engine's
+    own code by restart. It is scheduled after the current items and done as one mechanical batch
+    per engine with the public API held identical before and after and the documents' tables
+    redrawn. Items 225 and 226, BevyCSharp Decision 85.
+
+103. **Comments on the code's own terms.** A comment of scenes_sponza was read at about 19:00 on
+    2026-11-08, "The frame graded as that scene's HDRP profile grades it, by the look of its AgX -
+    Powerful.exr, a lookup build/unity-lut.py writes from that strip, a gamma of w 0.225, and a
+    bloom of intensity 0.25, threshold 0.333 and scatter 0.7, worked out as HDRP works them out",
+    and found to read badly, to read as an em dash does, and to lean too far on outside knowledge
+    and on the sessions' knowledge of work in progress, in scenes_sponza explicitly and probably
+    everywhere else. The rule from it, in STYLE.md's Register and as N 4.11, is that a comment
+    stands on the code's own terms. It says what the code does and why in the engine's words; a
+    number taken from elsewhere stands with the reason it is right here, what it makes the frame or
+    the program do, and the source is named once in the documents' references and not in the
+    comment; the file names of outside assets, another product's profile or process as the
+    explanation, "as X works it out", and the facts of the sessions' work are not written in a
+    comment. Item 227, BevyCSharp Decision 86.
+
+104. **The door lands at the price of a synthetic bound.** At 22:06 on 2026-11-08 the review told
+    the session to land item 228's form, the pocket mark at 7/8 on 16 by 16 texels with the fully
+    enclosed probes unmarked, which puts the door at 8:00 at 1.050 and the lion at 1.044 of the
+    every-face reference, the door at noon at 1.013 and the lion at 0.985, the rooms back in their
+    bounds and the corridor at 0.156 against 0.18, the first form to land the target scene of
+    Decision 95; the price is the grazing floor's synthetic room at 0.063 against its bound of 0.06,
+    0.003 past, where 16 by 16 alone reads 0.059, and the bound moves to 0.065 with its reason in
+    the test, since the direction of that morning put the work first and the figures recorded. The
+    NaN was the test's, a division by the ways that take the cascade above where a carried probe has
+    none. The other forms, 3/4 with the lion at 1.112, 15/16 with the door at 1.174, and marks from
+    the third cascade up with the door at 1.156, are recorded in the Replies.
+
+105. **No readings or costs in comments.** Decided at about 05:20 on 2026-11-09, on scenes_sponza's
+    comment on the far cascade of 100 that carried the lion's end wall's reading from 34.6 to 15.1
+    times its reference and the mend's 0.6 ms, a comment need not name the progress or the
+    millisecond count, a comment being no protocol. N 4.11 widens so that a comment carries no
+    reading of before and after, no cost figure and no account of the trials, which are the review's
+    records and RENDERING.md's; a number stands in a comment only where the code's choice depends on
+    it, with its reason. Item 233.
+
+106. **Sponza's lamps light their surroundings, warm and varied, and the bloom follows the lit
+    surround.** Asked on 2026-11-09, the lamps having bloomed without lighting anything, that the
+    lights in Sponza contribute more light to the environment, that their colors be warm and vary in
+    warmth with some cooler, and that the bloom, which looks too strong against an unlit surround,
+    be judged once the environment is properly lit and the exposure has adjusted, when it would
+    normalize. Item 241. Later that evening the look was chosen with the coder's session, the reach
+    fix with the bulbs at 300 and colors of 2,400 to 3,000 K, and cooler lamps as well, not warm
+    alone, which became a third of the lamps between 4,000 and 5,500 K.
+
+107. **A fault seen in motion is read in motion.** Reported at 17:25 on 2026-11-09, the voxel game's
+    illumination has looked noisy the same way for weeks. The review's readings since 2026-10-24
+    were settled stills against references, which a fault in motion passes, and the recordings of
+    Sponza handed in on 2026-11-08 and 2026-11-09 placed 219's and 237's faults within hours. So a
+    fault named while moving is read from a recording, one handed in where there is one and a
+    scripted walk and turn offscreen where not, picture to picture, the standing, the walking, the
+    turning and the two seconds after a stop each given their share of pixels moved; a global
+    illumination item's test holds a turn or a walk where its fault showed in one; and the review
+    asks for a recording when a fault is named without one. The review's rule, put up for approval
+    as Decision 95's precedent allows; items 240 and 239 here and the game's 166 go by it. A frame
+    set against its own pose held shows a lag or a level and is blind to a pattern fixed in the
+    window that slides over the world, so the measure of motion is a frame against the frame before
+    carried to it by its depth and the two cameras, learned on 2026-11-09 when 246's two parts moved
+    nothing by the first measure. Approved on 2026-11-11, asked by the review with N 7.9, N 7.10 and
+    N 7.11.
+
+108. **Post-processing settings in plain numbers.** Asked at 21:59 on 2026-11-09, on scenes_sponza's
+    lines for the lift, gamma and gain, the bloom, its scatter and the followed exposure, whether
+    the public API could be set with real numbers in place of formulas with the extended forms kept,
+    and whether that is good or bad. The review answered that it is good as a change of units and
+    not as a second easy function beside each, since two functions for one setting are two truths
+    with one getter, that three of the six formulas are constants to write as numbers, that the
+    followed exposure's limits belong in EV, the scatter on 0 to 1 with the bloom's kind chosen
+    apart, and lift, gamma and gain in three numbers beside the vectors, and that the threshold
+    stays in linear light. The answer at about 22:03 was yes, to be done as the review described and
+    preferred. Item 244, after the illumination items by Decision 75. The answer was yes again at
+    about 22:11 to three more places of the same kind the review found, the color curves written by
+    hand, the sun's strength by its height and the field's center ahead of the camera; a fourth, a
+    function for easing toward a target, was named as the owner's call and is left out until asked.
+
 ## Replies archived
 
 Shared: a scene component or one of its fields keeps its saved levels across a rename by
