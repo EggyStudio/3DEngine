@@ -28,8 +28,10 @@ and so do the render tests without a Vulkan device, each with its reason in the 
 
 `build/test.py` runs the suite as one process held to 40 minutes and 4 GB. The Windows jobs run it
 in its parts from the start, each held to 70 minutes (`--parts --timeout-minutes 70`), the parts
-dealt to two runners, one taking the parts `--only` names and the other every part but those
-(`--except`), each with its own limit and its own lines on the page (`--system`). Mesa's
+dealt to four runners, three taking the parts `--only` names and the fourth every part but those
+(`--except`), each with its own limit and its own lines on the page (`--system`), the Rendering
+part's slowest classes each in a process of its own (`--split`), so no part stands near its limit
+on a slow runner. Mesa's
 Windows builds carry no disk cache, neither the MSVC nor the MinGW one, so lavapipe there compiles
 the shaders each app draws with on every run, which takes some 56% of the Rendering and Core parts'
 time on lavapipe, and on an EPYC 7763 a whole run ran out its hour before its last third where the

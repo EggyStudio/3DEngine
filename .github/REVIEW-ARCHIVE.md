@@ -16565,6 +16565,96 @@ slowest tests only where it ran out of time and its logs naming no test's time. 
 keeping each process's slowest tests in its digest whatever the result would give them; it is the
 review's to choose.
 
+Item 264, part 4, the frame before. A pass that reads its frame before keeps that frame's camera as
+the frame noted it, its eye and its view-projection made with the eye at nothing
+(`WindowView.Turned`). The antialiasing's, the occlusion's and the motion blur's ways from this
+frame's clip space to the frame before's are the inverse of this camera made with its eye at
+nothing, times the way from this eye to the other worked in doubles, times the other camera made so
+(`RenderOrigin.Reprojection`), which holds no float of the world's size and reads the same against
+any origin, and whether the camera moved is asked of the two eyes and turns (`WindowView.Same`),
+where it was asked of the view-projections in world floats, whose numbers far out are wider than
+the comparison's tolerance. The screen probes' frame before and the reflections' history view are
+read against this frame's origin from their eyes (`WindowView.UnjitteredAgainst`,
+`RenderOrigin.Seen`). Three reads of the frame's own camera that the new test found go with them.
+The screen probes' way from clip space back to a point's way from the eye is the inverse of the
+camera made with the eye at nothing, where it was worked in doubles from the view-projection in
+world floats, its translation rounded before the doubles took the eye out. The occlusion's scale of
+a unit against the picture's height (`HeightPerUnit`) and its history's depth along the view are
+read off the inverse of its view against the origin, where they were read off the inverse in world
+floats, an eye and a point about a unit apart each rounded to an eighth.
+
+RenderOriginTests adds a camera turning across a room at High under temporal antialiasing and
+motion blur, with the occlusion and a floor of roughness an eighth reflecting the frame kept the
+frame before, its target stepping an eighth of a unit a frame for eight frames once the field
+settles, a float's step at 1,140,736, and reads the last frame after the motion blur
+(`BloomRenderer.Blurred`), since the decoded scene the other tests read is the frame before the
+lens passes, under a tenth of a level at every pixel at 4,096, 71,680 and 1,140,736 against the
+same frames at the world's origin. It reads 0.000 at all three on the RTX 4070 and on Mesa 25.2.8 and 0.022 at the most on 26.2.4, and
+on part 3's engine 40.8, 123.9 and 118.4 levels at the most on the RTX 4070. Each piece put back
+alone fails it at one distance at least.
+
+| Put back alone | 4,096 | 71,680 | 1,140,736 |
+|---|---|---|---|
+| The antialiasing's reprojection from the view-projections in world floats | 35.8 | 101.9 | 37.7 |
+| The motion blur's | 8.60 | 99.6 | 116.7 |
+| The occlusion's history's | 0.94 | 3.62 | 1.88 |
+| The occlusion's history's depth from the inverse in world floats | 0.000 | 0.055 | 1.52 |
+| The occlusion's height of a unit from the inverse in world floats | 0.052 | 0.123 | 0.795 |
+| The reflections' history view in world floats | 0.30 | 1.97 | 5.98 |
+| The screen probes' views taken from the view-projections in world floats | 0.85 | 1.47 | 23.8 |
+| The screen probes' way back worked from the view-projection in world floats | 0.33 | 1.86 | 13.6 |
+| Part 3 whole | 40.8 | 123.9 | 118.4 |
+
+The test takes 10.4 to 10.7 s a case on lavapipe here held to four cores.
+
+The class run on Mesa 26.2.4 found this part's first form wrong. Its reprojection was the inverse
+of this camera against the origin times the other against the origin, the same map as part 3's
+within the fifth decimal, but it rounded otherwise as the origin stepped. The antialiasing lets a
+pixel's history go where the depths the frame before saw around it stand nearer than its own, a
+comparison the sky's depth makes within the reprojection's rounding, so the crossing lost the
+wall's top edge against the sky, 50.2 levels at the most with 178 pixels past a level on the RTX
+4070 against the frames with the origin held. Part 3's product of the two world matrices was the
+same bits in both runs. From the eyes it reads 0.089 and none past a level.
+
+RenderOriginTests whole on the three devices, each case's largest and its pixels past the level its
+count is held at, the turning room's past a level.
+
+| Case | RTX 4070 | Mesa 26.2.4 | Mesa 25.2.8 |
+|---|---|---|---|
+| Scene at Low, past 1 | 0.088, 0 | 0.393, 0 | 1.480, 1 |
+| Scene at High, past 1 | 0.246, 0 | 0.367, 0 | 1.424, 2 |
+| Shadowed room at 4,096, past 4 | 7.72, 2 | 7.83, 2 | 5.26, 2 |
+| Shadowed room at 71,680, past 4 | 7.72, 1 | 7.83, 1 | 25.43, 5 |
+| Shadowed room at 1,140,736, past 4 | 10.73, 2 | 11.34, 1 | 20.96, 4 |
+| Crossing, past 1 | 0.089, 0 | 13.21, 8 | 29.97, 14 |
+| Turning room at 4,096, past 1 | 0.000, 0 | 0.022, 0 | 0.000, 0 |
+| Turning room at 71,680, past 1 | 0.000, 0 | 0.000, 0 | 0.000, 0 |
+| Turning room at 1,140,736, past 1 | 0.000, 0 | 0.000, 0 | 0.000, 0 |
+| Room at each distance | 0.000 | 0.041 | 0.041 |
+
+The post's shadow reads alike on the three, as in the mend's Reply.
+
+Beside them, the guide takes the review's two sentences, a program whose world numbers grow large
+handing `input.place` to the `Placed` twins, and what a program hands the engine in floats, its
+camera's position and target and its instances' places, carrying the float's grid, a target far out
+being the eye plus the look in floats. test.py keeps each process's five slowest tests in its
+digest whatever the result, read from its trx, with a script test that a run that passes keeps
+them. The suite passed both legs, 2,379, and its digests kept each process's slowest tests, the
+slowest 1 m 36 s.
+
+What a camera given as an eye and a way to look would take, as the review asked. A `Camera3D` has
+raylib's fields, a position and a target, and `BeginMode3D` notes the camera made with the eye at
+nothing from the target less the position, which is the look as the program gave it only where the
+program gave the target; a target made far out as the eye plus a look has rounded the look. Camera
+entities take their view from the transform's rotation and have no target. A sixth field,
+`Camera3D.Look`, a way read in place of the target where it is set, would take `View` made with
+`CreateLookTo(Position, Look, Up)` and `BeginMode3D` noting `CreateLookTo(0, Look, Up)`, and the
+reads of the target less the position, the fourteen in E3D.Cameras, `GetCameraForward` and the
+camera modes that move the target with the position among them, the screen's ray in E3D.Physics
+and the in-view check in E3D.Camera3D, would read one property, the look where set and the target
+less the position otherwise. A test would turn a camera far out by a look given and read it as the camera at
+the world's origin. About twenty reads in five files, and raylib's struct one field longer.
+
 ## Items closed, parked or shortened
 
 Items closed without a mend, recorded or parked, and the standing items' texts as they stood before
@@ -17859,6 +17949,211 @@ scattering and what follows it, and item 7 for a wait.
     comes as a fourth ask. Folded into 264 by Decision 110 on 2026-11-12, the engine drawing against
     the eye, this item's ranked list being that item's map and its asks read there; kept in the
     archive with its record.
+
+264. **The engine draws against the eye, and can be told the world moved.** Decision 110 on
+    2026-11-12. The float API stays. Inside, a place is taken against the eye before it becomes a
+    float the GPU sees. The eye is taken from each instance's place on the CPU and the
+    view-projection pushed with the eye at nothing, so a vertex is placed in numbers as small as the
+    view; the shadows' slices are made from the eye and the camera's axes; the matrices from this
+    frame's clip space to the frame before's are made of eye-relative parts and the eye's move, for
+    the temporal antialiasing, the motion blur and the ambient occlusion; every point from the depth
+    is an offset from the eye, as 257 made the screen probes' and the glow lights'; the ray from a
+    screen point is made in view space. 258's ranked list is the map and each of its entries is
+    closed here or said left. A call beside it, the world moved by a whole offset, which shifts what
+    the engine keeps by place, the scene field's cascades and their still meshes, the probes, the
+    histories and the glow lights' keys, so a game that moves its origin has nothing built again,
+    the voxel game's ask of 2026-11-12, and a mesh set at a new matrix by such a move is no mover.
+    Held by a scene of each kind drawn at the origin and 4,450, 71,000 and 1,140,000 units out
+    reading alike within a margin said for each, and by the voxel game's built scene on the package.
+    A plan first as a Reply, the parts and their order, since it touches every pass. After 263, 259
+    and the publish. An ask of the game's of 2026-11-12 belongs here, read on 6.2.56. Ambient
+    occlusion at 1 lights one built scene by where it stands, the scene handed to the engine within
+    450 units of its zero at both places by the game's own origin, the west wall 101 by the origin
+    against 118 at the far place and the north wall 166 against 173, where at 0 the same rows read
+    within 0.6; the land about the scene differs between the places, said as a condition, and no
+    cause is given. Read with the ambient occlusion's entry of 258's list. The plan, accepted at
+    16:02 on 2026-11-12. One render origin a frame, the window camera's eye, every place taken
+    against it on the CPU in doubles, the view-projection pushed times the origin's translation,
+    each grid kept in world numbers handed as the origin's place within its own cell. A model
+    shader's world stays the world's own point, decided the same day, the engine's passes reading
+    the point against the origin. Eight parts, each a commit with its test. The origin laid through
+    with nothing moved, reading bit for bit; the origin at the eye, the instances, the immediate
+    vertices, the particles, the culling and the eye handed; the shadows; the frame before's
+    lookups; the points from the depth; the rays from the screen on the CPU; MoveWorld, a call that
+    shifts what the engine keeps by place so a mesh at its new matrix is the same still mesh; and
+    the ambient occlusion by place, likely the field's grid's phase and the sibling's item 137. The
+    review's additions, every drawing test timed on both devices that draw on their CPU, the second
+    part's cost read on Ore and in the voxel game from a local package, MoveWorld's documents
+    listing what the program moves and what the call moves, and the origin's convention named for
+    265's kernels. Its first two parts, recorded at 19:51 on 2026-11-12. The origin laid through
+    with nothing moved at `3405714a` and `a0af50a3`, every pixel within half a level against an
+    origin moved 64, -32, 128, 30 to 249 levels apart where one buffer or push is left against the
+    world. The origin at the eye at `80fe61d2`, rounded to whole steps of 16 so a far place stays
+    the program's float and the ray scene's top level is built again only as the eye crosses a step;
+    a room at 4,096, 71,680 and 1,140,736 units reads the same as at the origin at every pixel on
+    the GPU and on the device that draws on its CPU, 175 and 180 levels apart with the eyes set
+    aside, and Ore at High costs the same, 7.41 ms. Packed locally as 6.2.56-local.264.2 for the
+    game's read with its own origin off. The game's read of the local package 6.2.56-local.264.2,
+    recorded at 20:14, finds a fault in the second part before it is pushed. The sun casts no shadow
+    where the eye stands near the zero the engine is handed. The game's play stops at its check of a
+    pillar's shadow, the line across it a flat 151.1 where 6.2.60 steps 46 levels; its built scene's
+    shaded floor reads 8 steps over 3 levels, the figure with the shadows off, wherever the scene
+    stands 16 blocks from the origin in use, and 26 to 28 where it stands about 300 off; and at
+    1,140,000 with the game's own origin off a large shadow lies across a lit face. The engine's
+    room test reads the far rooms against the origin's and would not see a shadow missing at both.
+    `a0af50a3` and `80fe61d2` are held, the coder to say which brings it, mend it there and add a
+    test of a post's shadow with the eye at the origin, near it, 300 off and across a step of the
+    origin, a new local package after. The game's whole read of 6.2.56-local.264.2, recorded at
+    20:43, main's game on 6.2.60 and on the package with its own origin off, and on the package with
+    it on, the built scene at 16, 4,432, 71,000, 284,688 and 1,140,000. Mended by the render origin,
+    the package against 6.2.60 with the game's origin off. The torn faces at 1,140,000 are whole,
+    the land's spikes into the sky at 284,688 and 1,140,000 and the seams across the water at 71,000
+    are gone, the walls' mottle at 71,000 is gone, and ambient occlusion at 1 reads every row as at
+    0 at every place where 6.2.60 steps 1.58 to 2.38 on the west wall from 71,000 out. Broken by it,
+    each the same in a cold and a warm play. The pillar's sun shadow, a flat 151.1; a creeper's
+    front bands, a step of 5.9 where flat; a zombie's face stepping 8.6 levels in light at the eye's
+    height where 0.2; and the water far darker, mirrored 115, 91, 126 where 171, 149, 168. Apart
+    from the sun's shadow, the package with the game's origin off against on at one place differs in
+    0.4 to 0.7 percent of the scene's pixels by over 8 levels at 4,432, 9.6 at 71,000, 10.1 at
+    284,688 and about 26 at 1,140,000, in the walls' and the base's indirect light, a pixel along
+    every edge and the foliage's light, no cause read. The play takes 308 s cold and 213 warm
+    against 296 to 298 and 208 to 215. All of it is read again on the package of the mend that gives
+    a program's shader its world points back. The mend read at 22:06 on 2026-11-12, `54792d7e` on
+    `80fe61d2`, held with the two before it. ModelVertexOutput.world is a property over the place
+    and the push's origin that moves the place when set, the push read by both stages; lights'
+    twenty point-taking functions take a world point and take the origin off by placeOf, the origin
+    a field of the lighting buffer of its own, which grows to 7,248 bytes, and the engine's own
+    lighting calls their twins ending in Placed. The game's four shaders read against it, they hand
+    world points to lightReaching, arriving and mirrored, move world on a copy in bits.slang and
+    mob.slang, read no place from the buffer and import none of the modules whose functions take
+    places, so they stand unchanged. The test of a post's shadow read by a program's shader, seven
+    cases at 160 by 90, takes about 80 s on lavapipe, and the Windows parts of the run on `3405714a`
+    had 23 minutes or more under their 70 each, the longest 47 m 22 s. Two things asked. A line over
+    the world-taking spotLightReaching and pointLightReaching saying the light's position beside the
+    point is the buffer's own place, in part 3's commit. And of the game on the local package
+    6.2.60-local.264.3, besides the four breaks and the indirect light's difference, the sun
+    shadow's edge on terrain at 71,000, 284,688 and 1,140,000 blocks with the game's origin off,
+    where a world point's float has a grid of 1/128, 1/32 and 1/8 of a unit that placeOf carries and
+    a place does not; if the edge steps, the guide tells a program that goes far to hand input.place
+    to the Placed twins, the surface unchanged. The game's read of 6.2.60-local.264.3, recorded at
+    22:39 on 2026-11-12, the game of `f201940` with its own origin on and off. The four breaks of
+    264.2 are gone, each as on 6.2.60, the pillar's shadow a step of 47.3 where 46.0, the creeper's
+    front 0.1, the zombie's face 0.2, the water mirrored 171, 149, 168 and plain 163, 181, 211; the
+    play takes 309 s cold and 205 s warm where 296 to 298 and 208 to 215. On that the three commits
+    went up. One check of the play fails on 264.3 alone, a broken block's bits by a tunnel's wall
+    reading 85, 79, 85, 78, 85 where 28, and a sunlit block's bits are drawn dark. The cause is read
+    in the game's bits.slang, which carries a bit's middle as the instance's translation and sets
+    world to it, the instance's rows being places since `a0af50a3`, so the bit is lit the origin
+    away. Decided by the review, the rows stay places, the precision far out coming of them, the
+    game adds the push's origin there at the pin of the package that carries 264, and the guide and
+    RENDERING.md say the instance's rows are against the origin, in part 3's commit. A villager
+    drawn dark in the game's sheet 23-40 is most likely another variant of its clothes, the spawn
+    command choosing at random, checked by the game's coder with a fixed variant. With the sun's
+    shadows off the game's origin off against on differs as on 264.2 to the hundredth, 0.42, 9.59,
+    10.14 and 25.55 percent of pixels over 8 levels at 4,432, 71,000, 284,688 and 1,140,000 blocks.
+    The roof's shadow edge on terrain with the game's origin off stands as with it on at 71,000 and
+    284,688 and at 1,140,000 stands higher with finer, irregular stripes, the sheets 23-45 and
+    23-50. The coder to say which part to come changes each of the last two, the game reading each
+    again after it, and the guide's sentence on world points far out written then. Answered by the
+    coder at 22:40. The indirect light's difference is read again after part 8, which takes two
+    things the plan left in world floats, the field's and the probes' grids falling at another phase
+    against the scene and the field's build, field_splat taking each mesh's rows and the cascade's
+    corner in world floats and SceneFieldPlan.OriginAround snapping in floats, both handed in
+    doubles there. The shadow's edge at 1,140,000 is read again after part 3, which changes the
+    cascades' fit; what stands higher after it is the world point's own grid, and the guide's
+    sentence goes into the next part's commit. No function for an instance's world point, the guide
+    giving the sum. The game's trial at 22:53 on 264.3 in a work copy. With bits.slang carrying the
+    instance's translation plus the push's origin every check of the play passes, the tunnel's bits
+    28, 28, 28, 27, 27 and the sunlit bits as on 6.2.60, 1,319 pixels over 8 levels apart where
+    20,524. The dark villager was another variant of its clothes; with one variant the mobs read
+    alike on 6.2.60 and 264.3, so the game's mob.slang reads right. Part 3 read at 23:07 on
+    2026-11-12, `ed3cd9ca`, held until the run on `54792d7e` has ended. The cascades are fitted in
+    places with the texels' lattice kept in world numbers by the origin's phase, a cascade's texel
+    161 at every step at 1,140,736 where 138, 200, 124 and 161 fitted in world floats; the shadowed
+    room far out reads 11.3 levels at the most on lavapipe within its 24, and a camera crossing a
+    step of the origin reads 8 pixels past a level on lavapipe within its 32 where 556 with the
+    screen probes' frame before left unmoved, the first test to cross a step. Accepted with its
+    bounds. Asked beside it, each process's five slowest tests kept in its digest whatever the
+    result, in part 4's commit, and the commit packed unpublished as 6.2.60-local.264.4 for the
+    game's read of the shadow's edge at 1,140,000. The game's read of 6.2.60-local.264.4, recorded
+    at 23:25 on 2026-11-12. Every check of its play passes with the bits' edit, 302 s cold and 218 s
+    warm, and with the game's origin on it reads as 264.3 at every place. The roof's shadow edge at
+    1,140,000 with the game's origin off is as on 264.3, the band's crop 45.98 percent of pixels
+    over 8 levels apart from the origin-on edge on both, and at 71,000 and 284,688 it stands where
+    that edge does; part 3 moves 0.04, 0.08 and 0.29 percent of pixels there. So the world point's
+    grid is left as the cause, an eighth of a unit at that distance, and the game tries its
+    terrain's two shadow reads on input.place with the Placed twin; when that reads alike the
+    guide's sentence goes into part 4's commit. The game's trial at 23:29, its terrain's two shadow
+    reads on input.place with lightReachingPlaced on 264.4, origin off. At 1,140,000 the fine
+    stripes and the dark marks are gone and the band steps by eighths as with the origin on, the
+    band's crop 27.43 percent where 45.98 at the world point, so the world point's grid is confirmed
+    for them. What is left reads as the picture moved by a few pixels, the striped band as tall as
+    with the origin on, the camera's position being a float on a grid of an eighth there; the game
+    confirms with the eye put on whole eighths. The guide then says both, a program far out hands
+    input.place to the Placed twins, and what it hands the engine in floats, its camera and its
+    instances' places, carries the float's grid, which moving its world keeps small. The game's last
+    read of the far edge at 23:35. The eye is exact in both runs; the camera's target, the game's
+    eye plus look in floats, rounds 1,140,000 out and turns the view, and with the look chosen so
+    the target lies on the grid the band's crop falls from 27.43 to 7.32 percent at 1,140,000 and
+    from 20.62 to 7.06 at 284,688, the most 17 and 25 levels. The rest does not grow with distance
+    and is under the origin-on build against itself across the two places, 9.5 percent, edge pixels
+    by where the scene falls against the shadows' texels and the field's cells, which lie in world
+    numbers, read with the indirect light after part 8. So nothing of the shadows is open far out.
+    The guide's two sentences go into part 4's commit, the second naming the camera's target, and
+    the coder says in its Reply what a camera given as an eye and a way to look would take. Part 4
+    read at 20:27 on 2026-11-13, `68e7085f` on `bca57e93`, held until the run on `bca57e93` has
+    ended. Each pass that reads its frame before takes the way between the two frames' clip spaces
+    from the two cameras' eyes, holding no float of the world's size, and the frame before's views
+    against this frame's origin from their eyes; a camera turning across a room reads under a tenth
+    of a level at 4,096, 71,680 and 1,140,736 on the RTX and both Mesa versions where part 3 read
+    40.8, 123.9 and 118.4, each of eight pieces put back alone failing it. RenderOriginTests passes
+    whole on the three devices within Verdict 120's bounds, and test.py keeps each process's five
+    slowest tests on a green run. Accepted. Asked for part 5's commit, the guide's last sentence
+    ending without an item's number and without a call to come, the review's own slip in the words
+    it gave, and which piece moves the plain room from 0.000 to 0.041 on Mesa. A camera given as an
+    eye and a way to look would be a sixth Camera3D field and about twenty reads in five files; it
+    mends the turn alone, a program far out that does not move its world still handing its eye and
+    its instances on the float's grid, so it stays out and Camera3D keeps its fields, put before the
+    owner with that recommendation. Part 5 read at 21:59 on 2026-11-13, `6cfda4dd` on `68e7085f`,
+    held until the run on `68e7085f` has ended. The fog and its decode, the scattering's blur and
+    the depth of field take each pixel's distance from the eye back from the depth through the
+    camera against the frame's origin from its eye; a room in fog through a lens with a scattering
+    block reads under a tenth of a level at the three distances on the three devices where part 4
+    read 0.78, 17.2 and 40.3, each piece put back alone failing it, and RenderOriginTests passes
+    whole, 22 of 22. Accepted. A ball in the block's place read 48 levels by the field's splat in
+    world floats and goes to part 8, whose test puts it back; the particles' collision against depth
+    stays with moving the world. The plain room's one pixel differs by 0.04 from run to run since
+    part 4, at the origin as far out, accepted at that size, the coder to say from reading what in
+    the frame may differ between two runs. Part 6 read at 23:20 on 2026-11-13, `3768c988` on
+    `6cfda4dd`, held with part 5 under Verdict 121's mend. The points and rays from the screen on
+    the CPU take a point less the camera's position through the camera's turn alone,
+    Vector3Unproject works the view's inverse in doubles and the picking takes its ray into a mesh's
+    space from its place less the mesh's translation; at 1,140,736 part 5's functions were off by
+    7.7 pixels and a way of 46 degrees and part 6's read as at the origin, both far tests on the
+    CPU, no drawing test added, the suite 2,388 on both legs. Accepted. The plain room's pixel that
+    differs from run to run is read to the field's color pass, a cell whose least distance two
+    triangles tie taking its albedo from whichever thread ran last; part 8 takes it, the tie broken
+    by a rule no thread's order touches, with a test that two runs read alike. An independent read
+    of the engine at `3768c988` for world-size floats beyond what parts 7 and 8 name, recorded at
+    00:09 on 2026-11-14, its list at
+    ~/.cache/claude-reviewer/audits-2026-11-13/engine-origin-gaps.md, 17 findings with file and
+    line. Four checked by the review against the code hold. The field's way ahead is a point a tenth
+    of a unit off taken through the world view-projection's inverse (SceneField.cs 204), rounding at
+    1,140,000 wherever the field is set ahead. A frame with no window camera keeps the origin at the
+    world's (Renderer.cs 322). The penumbra's grain hashes the place plus the origin, square patches
+    far out (penumbra.slang 77). An immediate shape's corners are built around a world position in
+    floats (E3D.Shapes3D.cs 246, the billboards). Named beside, the mirrored view of the reflection
+    plane made from the world view-projection, the reflection probes' gather, moving meshes' stamps,
+    the far cascade's size from a far plane, stereo eyes never noted, the lights' change signature,
+    the casters' ranking, GetRayCollisionMesh, the glow lights' boxes and the same-camera test's
+    fallback. The far tests missed them, standing on eighths with the field's middle set by hand and
+    no plane, probe, softness or parent. Asked, a Reply saying of each whether it holds, what is the
+    field's going into part 8 and the rest a part 9, each mend with a test that fails first, one far
+    scene at 1,140,736 plus 0.3 with a parented pair, a mirror plane, a reflection probe, shadow
+    softness, the field ahead and a moving lamp read against the same at the origin, and the
+    standing far tests moved off the eighths. The camera helpers that store a target as position
+    plus view and parents composed with children in floats are a program's own floats and get the
+    guide's words.
 
 ## Head records
 

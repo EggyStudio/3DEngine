@@ -172,21 +172,15 @@ jobs:
   windows:
     runs-on: windows-latest
     # The suite's parts run one after another, and their sum follows the runner, so the suite is
-    # dealt to three runners, each a job of its own with its own limit and its own lines on the
-    # page. The first takes global illumination's class, the scene field's, Core and Graphics and
-    # plays the games after its suite, the second the Rendering part's first three processes and
-    # every part the others leave, and the third the Rendering part's last three, as the suite's
-    # step below deals them. Each has 160 on a push and the first 240 in the pack run, which plays
-    # every game at the step's own 110 after its suite. The suite's parts are held to 70 each below.
-    # On the slowest runner read, an EPYC 7763, the first's parts took 48.8 and 46.6 minutes for
-    # global illumination's two, 9.6 for the scene field's, 9.1 for Core and 2.9 for Graphics, 117
-    # together; the rest of the Rendering part took 54.5, 44.8 and 37.3 in three processes in one
-    # run and 47.0, past 70 and 26.8 in the next, near 150 together, which six processes deal at
-    # about 25 each; the other parts take under 4 together.
+    # dealt to four runners, each a job of its own with its own limit and its own lines on the page,
+    # as the suite's step below deals them, each part under 45 minutes and each job's parts under
+    # two thirds of its limit on the slowest runner read. The first plays the games after its suite.
+    # Each has 160 on a push and the first 240 in the pack run, which plays every game at the step's
+    # own 110 after its suite. The suite's parts are held to 70 each below.
     strategy:
       fail-fast: false
       matrix:
-        half: [1, 2, 3]
+        half: [1, 2, 3, 4]
     timeout-minutes: ${{ inputs.pack && matrix.half == 1 && 240 || 160 }}
     defaults:
       run:
@@ -272,25 +266,31 @@ jobs:
       # without a result here where five elsewhere, since the glowstone shut in a room draws its 360
       # frames, the exposure the device fault it guards needs, in close to five minutes on this
       # lavapipe, and the limit is there to find a hang. The Rendering part runs in several
-      # processes by its classes, since whole it runs out its 70 minutes on a slow runner. Global
-      # illumination's class takes most of the time of a process holding it, which no deal of the
-      # classes by their names keeps apart, and alone it comes near its 70 minutes, so it runs in
-      # two processes of its own, its methods dealt between them, in the first job. The slowest
-      # class, the glow lights', has no room there, so the scene field's runs there in a process of
-      # its own, and the rest of the part runs in six, three in the second job and three in the
-      # third, since three in one job came to near 150 minutes on the slowest runner. The first job
-      # runs these classes, Core and Graphics alone, the third the Rendering part's last three
-      # processes, and the second every part but those, so a part
-      # added later runs there.
+      # processes by its classes, since whole it runs out its 70 minutes on a slow runner, and its
+      # classes are dealt by their names, which keeps no two slow classes apart. Global
+      # illumination's class runs in four processes of its own, its methods dealt between them, and
+      # the scene field's, the render origin's, the bounce rooms' and the glow lights' each in one of
+      # its own, the slowest of the rest, and the rest of the part runs in seven. The first job runs
+      # two of global illumination's, the scene field's, Core and Graphics, the third the render
+      # origin's, the bounce rooms' and the Rendering part's first two, the fourth the glow lights'
+      # and the Rendering part's third and its last three, and the second every part but those, two
+      # of global illumination's and the Rendering part's fourth among them, so a part added later
+      # runs there.
       - run: |
-          first=(--only "Rendering GlobalIlluminationTests" --only "Rendering SceneFieldTests" --only Core --only Graphics)
-          third=(--only "Rendering 4" --only "Rendering 5" --only "Rendering 6")
-          second=(--except "Rendering GlobalIlluminationTests" --except "Rendering SceneFieldTests" --except Core --except Graphics
-            --except "Rendering 4" --except "Rendering 5" --except "Rendering 6")
+          first=(--only "Rendering GlobalIlluminationTests 1" --only "Rendering GlobalIlluminationTests 4" --only "Rendering SceneFieldTests"
+            --only Core --only Graphics)
+          third=(--only "Rendering RenderOriginTests" --only "Rendering BounceRoomsTests" --only "Rendering 1" --only "Rendering 2")
+          fourth=(--only "Rendering GlowLightsTests" --only "Rendering 3" --only "Rendering 5" --only "Rendering 6" --only "Rendering 7")
+          second=()
+          for given in "${first[@]}" "${third[@]}" "${fourth[@]}"; do
+            [ "$given" = --only ] && second+=(--except) || second+=("$given")
+          done
           share=("${second[@]}")
           if [ "${{ matrix.half }}" = 1 ]; then share=("${first[@]}"); fi
           if [ "${{ matrix.half }}" = 3 ]; then share=("${third[@]}"); fi
-          python build/test.py --no-build --parts --split Rendering=6+GlobalIlluminationTests/2+SceneFieldTests "${share[@]}" \
+          if [ "${{ matrix.half }}" = 4 ]; then share=("${fourth[@]}"); fi
+          python build/test.py --no-build --parts \
+            --split Rendering=7+GlobalIlluminationTests/4+SceneFieldTests+RenderOriginTests+BounceRoomsTests+GlowLightsTests "${share[@]}" \
             --system "Windows, half ${{ matrix.half }}" --timeout-minutes 70 --hang-minutes 10
         env:
           E3D_REQUIRE_VALIDATION: '1'

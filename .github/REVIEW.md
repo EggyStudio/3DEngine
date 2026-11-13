@@ -138,180 +138,39 @@ reverted as the screen probes' limit at shapes about a tile wide, its patches in
     module's size, the driver's cold compile, the frame and the picture.
 
 264. **The engine draws against the eye, and can be told the world moved.** Decision 110 on
-    2026-11-12. The float API stays. Inside, a place is taken against the eye before it becomes a
-    float the GPU sees. The eye is taken from each instance's place on the CPU and the
-    view-projection pushed with the eye at nothing, so a vertex is placed in numbers as small as the
-    view; the shadows' slices are made from the eye and the camera's axes; the matrices from this
-    frame's clip space to the frame before's are made of eye-relative parts and the eye's move, for
-    the temporal antialiasing, the motion blur and the ambient occlusion; every point from the depth
-    is an offset from the eye, as 257 made the screen probes' and the glow lights'; the ray from a
-    screen point is made in view space. 258's ranked list is the map and each of its entries is
-    closed here or said left. A call beside it, the world moved by a whole offset, which shifts what
-    the engine keeps by place, the scene field's cascades and their still meshes, the probes, the
-    histories and the glow lights' keys, so a game that moves its origin has nothing built again,
-    the voxel game's ask of 2026-11-12, and a mesh set at a new matrix by such a move is no mover.
-    Held by a scene of each kind drawn at the origin and 4,450, 71,000 and 1,140,000 units out
-    reading alike within a margin said for each, and by the voxel game's built scene on the package.
-    A plan first as a Reply, the parts and their order, since it touches every pass. After 263, 259
-    and the publish. An ask of the game's of 2026-11-12 belongs here, read on 6.2.56. Ambient
-    occlusion at 1 lights one built scene by where it stands, the scene handed to the engine within
-    450 units of its zero at both places by the game's own origin, the west wall 101 by the origin
-    against 118 at the far place and the north wall 166 against 173, where at 0 the same rows read
-    within 0.6; the land about the scene differs between the places, said as a condition, and no
-    cause is given. Read with the ambient occlusion's entry of 258's list. The plan, accepted at
-    16:02 on 2026-11-12. One render origin a frame, the window camera's eye, every place taken
-    against it on the CPU in doubles, the view-projection pushed times the origin's translation,
-    each grid kept in world numbers handed as the origin's place within its own cell. A model
-    shader's world stays the world's own point, decided the same day, the engine's passes reading
-    the point against the origin. Eight parts, each a commit with its test. The origin laid through
-    with nothing moved, reading bit for bit; the origin at the eye, the instances, the immediate
-    vertices, the particles, the culling and the eye handed; the shadows; the frame before's
-    lookups; the points from the depth; the rays from the screen on the CPU; MoveWorld, a call that
-    shifts what the engine keeps by place so a mesh at its new matrix is the same still mesh; and
-    the ambient occlusion by place, likely the field's grid's phase and the sibling's item 137. The
-    review's additions, every drawing test timed on both devices that draw on their CPU, the second
-    part's cost read on Ore and in the voxel game from a local package, MoveWorld's documents
-    listing what the program moves and what the call moves, and the origin's convention named for
-    265's kernels. Its first two parts, recorded at 19:51 on 2026-11-12. The origin laid through
-    with nothing moved at `3405714a` and `a0af50a3`, every pixel within half a level against an
-    origin moved 64, -32, 128, 30 to 249 levels apart where one buffer or push is left against the
-    world. The origin at the eye at `80fe61d2`, rounded to whole steps of 16 so a far place stays
-    the program's float and the ray scene's top level is built again only as the eye crosses a step;
-    a room at 4,096, 71,680 and 1,140,736 units reads the same as at the origin at every pixel on
-    the GPU and on the device that draws on its CPU, 175 and 180 levels apart with the eyes set
-    aside, and Ore at High costs the same, 7.41 ms. Packed locally as 6.2.56-local.264.2 for the
-    game's read with its own origin off. The game's read of the local package 6.2.56-local.264.2,
-    recorded at 20:14, finds a fault in the second part before it is pushed. The sun casts no shadow
-    where the eye stands near the zero the engine is handed. The game's play stops at its check of a
-    pillar's shadow, the line across it a flat 151.1 where 6.2.60 steps 46 levels; its built scene's
-    shaded floor reads 8 steps over 3 levels, the figure with the shadows off, wherever the scene
-    stands 16 blocks from the origin in use, and 26 to 28 where it stands about 300 off; and at
-    1,140,000 with the game's own origin off a large shadow lies across a lit face. The engine's
-    room test reads the far rooms against the origin's and would not see a shadow missing at both.
-    `a0af50a3` and `80fe61d2` are held, the coder to say which brings it, mend it there and add a
-    test of a post's shadow with the eye at the origin, near it, 300 off and across a step of the
-    origin, a new local package after. The game's whole read of 6.2.56-local.264.2, recorded at
-    20:43, main's game on 6.2.60 and on the package with its own origin off, and on the package with
-    it on, the built scene at 16, 4,432, 71,000, 284,688 and 1,140,000. Mended by the render origin,
-    the package against 6.2.60 with the game's origin off. The torn faces at 1,140,000 are whole,
-    the land's spikes into the sky at 284,688 and 1,140,000 and the seams across the water at 71,000
-    are gone, the walls' mottle at 71,000 is gone, and ambient occlusion at 1 reads every row as at
-    0 at every place where 6.2.60 steps 1.58 to 2.38 on the west wall from 71,000 out. Broken by it,
-    each the same in a cold and a warm play. The pillar's sun shadow, a flat 151.1; a creeper's
-    front bands, a step of 5.9 where flat; a zombie's face stepping 8.6 levels in light at the eye's
-    height where 0.2; and the water far darker, mirrored 115, 91, 126 where 171, 149, 168. Apart
-    from the sun's shadow, the package with the game's origin off against on at one place differs in
-    0.4 to 0.7 percent of the scene's pixels by over 8 levels at 4,432, 9.6 at 71,000, 10.1 at
-    284,688 and about 26 at 1,140,000, in the walls' and the base's indirect light, a pixel along
-    every edge and the foliage's light, no cause read. The play takes 308 s cold and 213 warm
-    against 296 to 298 and 208 to 215. All of it is read again on the package of the mend that gives
-    a program's shader its world points back. The mend read at 22:06 on 2026-11-12, `54792d7e` on
-    `80fe61d2`, held with the two before it. ModelVertexOutput.world is a property over the place
-    and the push's origin that moves the place when set, the push read by both stages; lights'
-    twenty point-taking functions take a world point and take the origin off by placeOf, the origin
-    a field of the lighting buffer of its own, which grows to 7,248 bytes, and the engine's own
-    lighting calls their twins ending in Placed. The game's four shaders read against it, they hand
-    world points to lightReaching, arriving and mirrored, move world on a copy in bits.slang and
-    mob.slang, read no place from the buffer and import none of the modules whose functions take
-    places, so they stand unchanged. The test of a post's shadow read by a program's shader, seven
-    cases at 160 by 90, takes about 80 s on lavapipe, and the Windows parts of the run on `3405714a`
-    had 23 minutes or more under their 70 each, the longest 47 m 22 s. Two things asked. A line over
-    the world-taking spotLightReaching and pointLightReaching saying the light's position beside the
-    point is the buffer's own place, in part 3's commit. And of the game on the local package
-    6.2.60-local.264.3, besides the four breaks and the indirect light's difference, the sun
-    shadow's edge on terrain at 71,000, 284,688 and 1,140,000 blocks with the game's origin off,
-    where a world point's float has a grid of 1/128, 1/32 and 1/8 of a unit that placeOf carries and
-    a place does not; if the edge steps, the guide tells a program that goes far to hand input.place
-    to the Placed twins, the surface unchanged. The game's read of 6.2.60-local.264.3, recorded at
-    22:39 on 2026-11-12, the game of `f201940` with its own origin on and off. The four breaks of
-    264.2 are gone, each as on 6.2.60, the pillar's shadow a step of 47.3 where 46.0, the creeper's
-    front 0.1, the zombie's face 0.2, the water mirrored 171, 149, 168 and plain 163, 181, 211; the
-    play takes 309 s cold and 205 s warm where 296 to 298 and 208 to 215. On that the three commits
-    went up. One check of the play fails on 264.3 alone, a broken block's bits by a tunnel's wall
-    reading 85, 79, 85, 78, 85 where 28, and a sunlit block's bits are drawn dark. The cause is read
-    in the game's bits.slang, which carries a bit's middle as the instance's translation and sets
-    world to it, the instance's rows being places since `a0af50a3`, so the bit is lit the origin
-    away. Decided by the review, the rows stay places, the precision far out coming of them, the
-    game adds the push's origin there at the pin of the package that carries 264, and the guide and
-    RENDERING.md say the instance's rows are against the origin, in part 3's commit. A villager
-    drawn dark in the game's sheet 23-40 is most likely another variant of its clothes, the spawn
-    command choosing at random, checked by the game's coder with a fixed variant. With the sun's
-    shadows off the game's origin off against on differs as on 264.2 to the hundredth, 0.42, 9.59,
-    10.14 and 25.55 percent of pixels over 8 levels at 4,432, 71,000, 284,688 and 1,140,000 blocks.
-    The roof's shadow edge on terrain with the game's origin off stands as with it on at 71,000 and
-    284,688 and at 1,140,000 stands higher with finer, irregular stripes, the sheets 23-45 and
-    23-50. The coder to say which part to come changes each of the last two, the game reading each
-    again after it, and the guide's sentence on world points far out written then. Answered by the
-    coder at 22:40. The indirect light's difference is read again after part 8, which takes two
-    things the plan left in world floats, the field's and the probes' grids falling at another phase
-    against the scene and the field's build, field_splat taking each mesh's rows and the cascade's
-    corner in world floats and SceneFieldPlan.OriginAround snapping in floats, both handed in
-    doubles there. The shadow's edge at 1,140,000 is read again after part 3, which changes the
-    cascades' fit; what stands higher after it is the world point's own grid, and the guide's
-    sentence goes into the next part's commit. No function for an instance's world point, the guide
-    giving the sum. The game's trial at 22:53 on 264.3 in a work copy. With bits.slang carrying the
-    instance's translation plus the push's origin every check of the play passes, the tunnel's bits
-    28, 28, 28, 27, 27 and the sunlit bits as on 6.2.60, 1,319 pixels over 8 levels apart where
-    20,524. The dark villager was another variant of its clothes; with one variant the mobs read
-    alike on 6.2.60 and 264.3, so the game's mob.slang reads right. Part 3 read at 23:07 on
-    2026-11-12, `ed3cd9ca`, held until the run on `54792d7e` has ended. The cascades are fitted in
-    places with the texels' lattice kept in world numbers by the origin's phase, a cascade's texel
-    161 at every step at 1,140,736 where 138, 200, 124 and 161 fitted in world floats; the shadowed
-    room far out reads 11.3 levels at the most on lavapipe within its 24, and a camera crossing a
-    step of the origin reads 8 pixels past a level on lavapipe within its 32 where 556 with the
-    screen probes' frame before left unmoved, the first test to cross a step. Accepted with its
-    bounds. Asked beside it, each process's five slowest tests kept in its digest whatever the
-    result, in part 4's commit, and the commit packed unpublished as 6.2.60-local.264.4 for the
-    game's read of the shadow's edge at 1,140,000. The game's read of 6.2.60-local.264.4, recorded
-    at 23:25 on 2026-11-12. Every check of its play passes with the bits' edit, 302 s cold and 218 s
-    warm, and with the game's origin on it reads as 264.3 at every place. The roof's shadow edge at
-    1,140,000 with the game's origin off is as on 264.3, the band's crop 45.98 percent of pixels
-    over 8 levels apart from the origin-on edge on both, and at 71,000 and 284,688 it stands where
-    that edge does; part 3 moves 0.04, 0.08 and 0.29 percent of pixels there. So the world point's
-    grid is left as the cause, an eighth of a unit at that distance, and the game tries its
-    terrain's two shadow reads on input.place with the Placed twin; when that reads alike the
-    guide's sentence goes into part 4's commit. The game's trial at 23:29, its terrain's two shadow
-    reads on input.place with lightReachingPlaced on 264.4, origin off. At 1,140,000 the fine
-    stripes and the dark marks are gone and the band steps by eighths as with the origin on, the
-    band's crop 27.43 percent where 45.98 at the world point, so the world point's grid is confirmed
-    for them. What is left reads as the picture moved by a few pixels, the striped band as tall as
-    with the origin on, the camera's position being a float on a grid of an eighth there; the game
-    confirms with the eye put on whole eighths. The guide then says both, a program far out hands
-    input.place to the Placed twins, and what it hands the engine in floats, its camera and its
-    instances' places, carries the float's grid, which moving its world keeps small. The game's last
-    read of the far edge at 23:35. The eye is exact in both runs; the camera's target, the game's
-    eye plus look in floats, rounds 1,140,000 out and turns the view, and with the look chosen so
-    the target lies on the grid the band's crop falls from 27.43 to 7.32 percent at 1,140,000 and
-    from 20.62 to 7.06 at 284,688, the most 17 and 25 levels. The rest does not grow with distance
-    and is under the origin-on build against itself across the two places, 9.5 percent, edge pixels
-    by where the scene falls against the shadows' texels and the field's cells, which lie in world
-    numbers, read with the indirect light after part 8. So nothing of the shadows is open far out.
-    The guide's two sentences go into part 4's commit, the second naming the camera's target, and
-    the coder says in its Reply what a camera given as an eye and a way to look would take. Part 4
-    read at 20:27 on 2026-11-13, `68e7085f` on `bca57e93`, held until the run on `bca57e93` has
-    ended. Each pass that reads its frame before takes the way between the two frames' clip spaces
-    from the two cameras' eyes, holding no float of the world's size, and the frame before's views
-    against this frame's origin from their eyes; a camera turning across a room reads under a tenth
-    of a level at 4,096, 71,680 and 1,140,736 on the RTX and both Mesa versions where part 3 read
-    40.8, 123.9 and 118.4, each of eight pieces put back alone failing it. RenderOriginTests passes
-    whole on the three devices within Verdict 120's bounds, and test.py keeps each process's five
-    slowest tests on a green run. Accepted. Asked for part 5's commit, the guide's last sentence
-    ending without an item's number and without a call to come, the review's own slip in the words
-    it gave, and which piece moves the plain room from 0.000 to 0.041 on Mesa. A camera given as an
-    eye and a way to look would be a sixth Camera3D field and about twenty reads in five files; it
-    mends the turn alone, a program far out that does not move its world still handing its eye and
-    its instances on the float's grid, so it stays out and Camera3D keeps its fields, put before the
-    owner with that recommendation. Part 5 read at 21:59 on 2026-11-13, `6cfda4dd` on `68e7085f`,
-    held until the run on `68e7085f` has ended. The fog and its decode, the scattering's blur and
-    the depth of field take each pixel's distance from the eye back from the depth through the
-    camera against the frame's origin from its eye; a room in fog through a lens with a scattering
-    block reads under a tenth of a level at the three distances on the three devices where part 4
-    read 0.78, 17.2 and 40.3, each piece put back alone failing it, and RenderOriginTests passes
-    whole, 22 of 22. Accepted. A ball in the block's place read 48 levels by the field's splat in
-    world floats and goes to part 8, whose test puts it back; the particles' collision against depth
-    stays with moving the world. The plain room's one pixel differs by 0.04 from run to run since
-    part 4, at the origin as far out, accepted at that size, the coder to say from reading what in
-    the frame may differ between two runs.
+    2026-11-12. One render origin a frame, the window camera's eye rounded to 16 units, every place
+    taken against it on the CPU in doubles; the plan and its parts stand under Replies, and the item
+    as it stood until 00:15 on 2026-11-14, with every read of the game's on the local packages, is
+    in REVIEW-ARCHIVE.md under Items closed, parked or shortened. Done and on main, parts 1 to 4,
+    `3405714a`, `a0af50a3`, `80fe61d2`, the mend for a program's shader `54792d7e`, the shadows
+    `ed3cd9ca`, the tests' bounds `bca57e93` and the frame before `68e7085f`. Done and held under
+    Verdict 121's mend, part 5, the points from the depth, `6cfda4dd`, and part 6, the rays from the
+    screen on the CPU, `3768c988`. What was decided on the way. A model shader's world stays the
+    world's point, a property over the place and the origin, and lights' point-taking functions take
+    world points beside their Placed twins; the instance's rows are places and a shader that reads a
+    translation as a world point adds the push's origin, which the game's bits.slang does at its
+    pin; a camera keeps its fields, no eye and way to look, a program far out keeping its numbers
+    small by moving its world, which the guide says; a test that compares two pictures holds a count
+    of pixels past a small level and a loose largest, read on the RTX, Mesa 26.2.4 and the runner's
+    Mesa 25.2.8. To come. Part 7, MoveWorld. Part 8, the ambient occlusion by place, with the
+    field's build in doubles, the splat's rows against the cascade's corner and the plan's snap, the
+    grids' phase, the ball put back in the fog room, a tied cell of the field's color pass broken by
+    a rule with a test that two runs read alike, and what the independent read names of the field.
+    Part 9, the rest of that read, ~/.cache/claude-reviewer/audits-2026-11-13/engine-origin-gaps.md,
+    17 findings, four checked by the review, the field's way ahead taken through a world-size
+    inverse, a frame with no window camera keeping the origin at the world's, the penumbra's grain
+    hashing a world point, an immediate shape's corners built in world floats, with the mirrored
+    view, the reflection probes' gather and the others it names; first a Reply saying of each
+    whether it holds, each mend with a test that fails first, one far scene at 1,140,736 plus 0.3
+    with a parented pair, a mirror plane, a reflection probe, shadow softness, the field ahead and a
+    moving lamp, and the standing far tests moved off the eighths. The game reads again after part
+    8, the indirect light with its origin off against on, 0.42 to 25.55 percent of pixels at 4,432
+    to 1,140,000 on 264.3, and rehearsed its pin on 6.2.60-local.264.6 at 00:33 on 2026-11-14, the
+    play, the built room at three qualities and two sizes, the picking and the lens passes, with the
+    game's origin on nothing past the sun's shadow edges, 0.28 percent of pixels at the most, and
+    with it off at 1,140,000 the mottle, the streaked fog and the banded blur of 6.2.60 gone. Each
+    part is reported with RenderOriginTests on the three devices and the Windows part its tests
+    join.
 
 265. **The lighting's kernels written once.** Decision 112 on 2026-11-12. The radiance cascades'
     kernels, the trace, the merge, the ambient, the screen probes, their filter and the glow lights,
@@ -325,7 +184,12 @@ reverted as the screen probes' limit at shapes about a tile wide, its patches in
     of its reference there by where the third cascade's probes fall behind the eye, and says whether
     a hit across a cascade's band here takes the next cascade's probes where none of them sees the
     point. The mend, the bridge's item 141, is written once in the module after the move, the room's
-    test held in both engines.
+    test held in both engines. The two copies are read side by side in the RadianceCascades module's
+    .github/KERNELS.md, pushed at 00:10 on 2026-11-14, the starting point here, read and corrected
+    in this item's Reply. It shows the band's read alike in both engines, probelight's
+    bouncedSeenAtBoth reading 0 past a cascade's band where none of the next cascade's probes sees
+    the point, and leaves one lead open, a sky texel of four rays marked early in the trace by
+    whether through carries a nothing share.
 
 267. **A pixel on the picture's edge takes its normal from the neighbor inside.** From the sibling's
     `18364420` on 2026-11-12. There a neighbor clamped onto the pixel itself gave a step of nothing,
@@ -336,29 +200,57 @@ reverted as the screen probes' limit at shapes about a tile wide, its patches in
     camera moved by a few float steps, and the mend where they move, the neighbor past the edge
     taken as missing, with the sibling's test. Small, with Verdict 119's mend or after it.
 
+268. **The documents and scripts name no item, verdict or decision of the review by number.** From a
+    sweep of 2026-11-13 by N 4.11 as widened that day, its list at
+    ~/.cache/claude-reviewer/audits-2026-11-13/docs-item-references.md, lines 30 to 90 for this
+    repository. RENDERING.md carries 33 such numbers, ten of them bare, a reading told as what an
+    item left or what stood before an item; three scripts' words and one data file's comment cite a
+    verdict; a line of RENDERING.md names another session's tests on the GPU and a comment of
+    .gitignore says who reads and prunes the dump; a test's string holds three middle dots where its
+    twin in the sibling writes escapes. Each is written to say what stands, a reading keeping its
+    date and figures, a decision told by what was decided, no line but a document's or a comment's
+    words changed and the test's string kept the same characters. The words "the review's records"
+    for the files under .github stay. One commit, after 264's last part and before 265.
+
+269. **The depth of field draws a small bright emitter's blur as a sparse grid of texels.** From the
+    game's rehearsal on 2026-11-14, alike on 6.2.60 and on the local package of `3768c988`, so no
+    part of 264. Sea lanterns out of focus under SetDepthOfField 12, 3, 0.6 show as grids of white
+    texels with dark between, where a blurred light is a soft disk; the sheet is
+    00-33-item-264-6-rehearsal.png in the game's dump of that day, the third column. One read, which
+    of the gather's taps or its half-size image leaves the gaps, then the mend with a test of a
+    small emitter out of focus reading as a filled disk. After 264 and 268.
+
 ## Verdicts
 
 Verdict 121 is open, the run of `68e7085f` red in the third Windows job, one part of the suite ended
 at its time limit. Verdicts 56 to 120 are settled, said under each in REVIEW-ARCHIVE.md.
 
 121. **The run of `68e7085f` is red in the third Windows job, one part of the suite ended at its
-    time limit.** Run 43501785641, pushed at 21:27 on 2026-11-13. The third Windows job ended at
-    23:02 after 94 minutes, its part Rendering 5 cut at 70 m 1 s with 208 passed, none failed and
-    220 tests left without a result; macOS, both Linux legs, the examples and the second Windows job
-    are green, the first still going when this was written. No test failed. The same part took 46 m
-    3 s with 206 passed in the run of `bca57e93` and 42 m 10 s in the run of `3405714a`. This runner
-    was slower throughout, Rendering 4 in 9 m 33 s where 6 m 17 s and Rendering 6 in 11 m 20 s where
-    8 m 51 s, a half more, and part 4 added the turning room's three cases to the part, so a part
-    that stood at two thirds of its limit passed it on a slow runner. The slowest that ended were
-    the coarser cascades in halves at 6 m 57 s, the still glow lights at 4 m 21 s and 3 m 19 s, and
-    the scene against the other origin at High at 3 m 2 s. It is Verdict 119's kind again, the
-    part's room and not a test's fault. Asked, a mend that goes up at once with `6cfda4dd` under it.
-    RenderOriginTests becomes a part of its own, as the illumination's and the field's tests are,
-    and the parts are dealt among the Windows jobs so that no part stands over 45 minutes on the
-    slowest run read, a half under its limit for a runner's spread, and no job over two thirds of
-    its own limit; the Reply says each part's time from this run's and the last run's digests and
-    where each part goes. From here a commit that adds a drawing test says which part it joins and
-    that part's time on the slowest Windows run read, beside its time on lavapipe.
+     time limit.** Run 43501785641, pushed at 21:27 on 2026-11-13. The third Windows job ended at
+     23:02 after 94 minutes, its part Rendering 5 cut at 70 m 1 s with 208 passed, none failed and
+     220 tests left without a result; macOS, both Linux legs, the examples and the second Windows
+     job are green, the first still going when this was written. No test failed. The same part took
+     46 m 3 s with 206 passed in the run of `bca57e93` and 42 m 10 s in the run of `3405714a`. This
+     runner was slower throughout, Rendering 4 in 9 m 33 s where 6 m 17 s and Rendering 6 in 11 m 20
+     s where 8 m 51 s, a half more, and part 4 added the turning room's three cases to the part, so
+     a part that stood at two thirds of its limit passed it on a slow runner. The slowest that ended
+     were the coarser cascades in halves at 6 m 57 s, the still glow lights at 4 m 21 s and 3 m 19
+     s, and the scene against the other origin at High at 3 m 2 s. It is Verdict 119's kind again,
+     the part's room and not a test's fault. Asked, a mend that goes up at once with `6cfda4dd`
+     under it. RenderOriginTests becomes a part of its own, as the illumination's and the field's
+     tests are, and the parts are dealt among the Windows jobs so that no part stands over 45
+     minutes on the slowest run read, a half under its limit for a runner's spread, and no job over
+     two thirds of its own limit; the Reply says each part's time from this run's and the last run's
+     digests and where each part goes. From here a commit that adds a drawing test says which part
+     it joins and that part's time on the slowest Windows run read, beside its time on lavapipe. The
+     run ended at 23:40 on 2026-11-13 with the first Windows job green in 133 minutes, macOS in 57,
+     the Linux legs in 65 and 68 and the second Windows job in 60, the third alone red. Read by the
+     coder from the job's digest, RenderOriginTests took 27.3 minutes of the part and
+     BounceRoomsTests 24.4, dealt together by their names; the illumination's class stands at about
+     49 minutes a part and the first job at 134 of its 160. So the mend deals the whole Windows side
+     anew over four jobs, the illumination's class in three or four parts and the heavy Rendering
+     classes alone, each part's time estimated from lavapipe scaled by the classes Windows timed and
+     checked against the mend's first run.
 
 ## Decisions
 
@@ -698,96 +590,6 @@ places handed are a whole number of units there. The cost is read on Ore at High
 the instance ring and the chunks being rebased each frame on the CPU. Each part's account goes in
 its own Reply.
 
-Item 264, part 4, the frame before. A pass that reads its frame before keeps that frame's camera as
-the frame noted it, its eye and its view-projection made with the eye at nothing
-(`WindowView.Turned`). The antialiasing's, the occlusion's and the motion blur's ways from this
-frame's clip space to the frame before's are the inverse of this camera made with its eye at
-nothing, times the way from this eye to the other worked in doubles, times the other camera made so
-(`RenderOrigin.Reprojection`), which holds no float of the world's size and reads the same against
-any origin, and whether the camera moved is asked of the two eyes and turns (`WindowView.Same`),
-where it was asked of the view-projections in world floats, whose numbers far out are wider than
-the comparison's tolerance. The screen probes' frame before and the reflections' history view are
-read against this frame's origin from their eyes (`WindowView.UnjitteredAgainst`,
-`RenderOrigin.Seen`). Three reads of the frame's own camera that the new test found go with them.
-The screen probes' way from clip space back to a point's way from the eye is the inverse of the
-camera made with the eye at nothing, where it was worked in doubles from the view-projection in
-world floats, its translation rounded before the doubles took the eye out. The occlusion's scale of
-a unit against the picture's height (`HeightPerUnit`) and its history's depth along the view are
-read off the inverse of its view against the origin, where they were read off the inverse in world
-floats, an eye and a point about a unit apart each rounded to an eighth.
-
-RenderOriginTests adds a camera turning across a room at High under temporal antialiasing and
-motion blur, with the occlusion and a floor of roughness an eighth reflecting the frame kept the
-frame before, its target stepping an eighth of a unit a frame for eight frames once the field
-settles, a float's step at 1,140,736, and reads the last frame after the motion blur
-(`BloomRenderer.Blurred`), since the decoded scene the other tests read is the frame before the
-lens passes, under a tenth of a level at every pixel at 4,096, 71,680 and 1,140,736 against the
-same frames at the world's origin. It reads 0.000 at all three on the RTX 4070 and on Mesa 25.2.8 and 0.022 at the most on 26.2.4, and
-on part 3's engine 40.8, 123.9 and 118.4 levels at the most on the RTX 4070. Each piece put back
-alone fails it at one distance at least.
-
-| Put back alone | 4,096 | 71,680 | 1,140,736 |
-|---|---|---|---|
-| The antialiasing's reprojection from the view-projections in world floats | 35.8 | 101.9 | 37.7 |
-| The motion blur's | 8.60 | 99.6 | 116.7 |
-| The occlusion's history's | 0.94 | 3.62 | 1.88 |
-| The occlusion's history's depth from the inverse in world floats | 0.000 | 0.055 | 1.52 |
-| The occlusion's height of a unit from the inverse in world floats | 0.052 | 0.123 | 0.795 |
-| The reflections' history view in world floats | 0.30 | 1.97 | 5.98 |
-| The screen probes' views taken from the view-projections in world floats | 0.85 | 1.47 | 23.8 |
-| The screen probes' way back worked from the view-projection in world floats | 0.33 | 1.86 | 13.6 |
-| Part 3 whole | 40.8 | 123.9 | 118.4 |
-
-The test takes 10.4 to 10.7 s a case on lavapipe here held to four cores.
-
-The class run on Mesa 26.2.4 found this part's first form wrong. Its reprojection was the inverse
-of this camera against the origin times the other against the origin, the same map as part 3's
-within the fifth decimal, but it rounded otherwise as the origin stepped. The antialiasing lets a
-pixel's history go where the depths the frame before saw around it stand nearer than its own, a
-comparison the sky's depth makes within the reprojection's rounding, so the crossing lost the
-wall's top edge against the sky, 50.2 levels at the most with 178 pixels past a level on the RTX
-4070 against the frames with the origin held. Part 3's product of the two world matrices was the
-same bits in both runs. From the eyes it reads 0.089 and none past a level.
-
-RenderOriginTests whole on the three devices, each case's largest and its pixels past the level its
-count is held at, the turning room's past a level.
-
-| Case | RTX 4070 | Mesa 26.2.4 | Mesa 25.2.8 |
-|---|---|---|---|
-| Scene at Low, past 1 | 0.088, 0 | 0.393, 0 | 1.480, 1 |
-| Scene at High, past 1 | 0.246, 0 | 0.367, 0 | 1.424, 2 |
-| Shadowed room at 4,096, past 4 | 7.72, 2 | 7.83, 2 | 5.26, 2 |
-| Shadowed room at 71,680, past 4 | 7.72, 1 | 7.83, 1 | 25.43, 5 |
-| Shadowed room at 1,140,736, past 4 | 10.73, 2 | 11.34, 1 | 20.96, 4 |
-| Crossing, past 1 | 0.089, 0 | 13.21, 8 | 29.97, 14 |
-| Turning room at 4,096, past 1 | 0.000, 0 | 0.022, 0 | 0.000, 0 |
-| Turning room at 71,680, past 1 | 0.000, 0 | 0.000, 0 | 0.000, 0 |
-| Turning room at 1,140,736, past 1 | 0.000, 0 | 0.000, 0 | 0.000, 0 |
-| Room at each distance | 0.000 | 0.041 | 0.041 |
-
-The post's shadow reads alike on the three, as in the mend's Reply.
-
-Beside them, the guide takes the review's two sentences, a program whose world numbers grow large
-handing `input.place` to the `Placed` twins, and what a program hands the engine in floats, its
-camera's position and target and its instances' places, carrying the float's grid, a target far out
-being the eye plus the look in floats. test.py keeps each process's five slowest tests in its
-digest whatever the result, read from its trx, with a script test that a run that passes keeps
-them. The suite passed both legs, 2,379, and its digests kept each process's slowest tests, the
-slowest 1 m 36 s.
-
-What a camera given as an eye and a way to look would take, as the review asked. A `Camera3D` has
-raylib's fields, a position and a target, and `BeginMode3D` notes the camera made with the eye at
-nothing from the target less the position, which is the look as the program gave it only where the
-program gave the target; a target made far out as the eye plus a look has rounded the look. Camera
-entities take their view from the transform's rotation and have no target. A sixth field,
-`Camera3D.Look`, a way read in place of the target where it is set, would take `View` made with
-`CreateLookTo(Position, Look, Up)` and `BeginMode3D` noting `CreateLookTo(0, Look, Up)`, and the
-reads of the target less the position, the fourteen in E3D.Cameras, `GetCameraForward` and the
-camera modes that move the target with the position among them, the screen's ray in E3D.Physics
-and the in-view check in E3D.Camera3D, would read one property, the look where set and the target
-less the position otherwise. A test would turn a camera far out by a look given and read it as the camera at
-the world's origin. About twenty reads in five files, and raylib's struct one field longer.
-
 Item 264, part 5, points from depth. The fog and its decode, the scattering's blur and the depth of
 field read each pixel's distance from the eye from the depth. Each takes the depth's points back
 through the camera against the frame's origin from its eye, the inverse of `WindowView.Against`
@@ -916,3 +718,71 @@ The post's shadow reads alike on the three.
 
 The suite passed both legs, 2,388. Part 6 adds no drawing test, its two far cases running on the
 CPU, the rays in Collision3DTests in the Api part and the box in PointerPickingTests with no device.
+
+Verdict 121, the mend. The Windows suite is dealt to four jobs, the Rendering part split as
+`7+GlobalIlluminationTests/4+SceneFieldTests+RenderOriginTests+BounceRoomsTests+GlowLightsTests`,
+global illumination's class in four processes by its methods, the scene field's, the render
+origin's, the bounce rooms' and the glow lights' each in one of its own, and the rest of the part in
+seven by name. The first job runs two of global illumination's, the scene field's, Core and Graphics
+and plays the games after; the third the render origin's, the bounce rooms' and the Rendering part's
+first two; the fourth the glow lights' and its third and last three; and the second every part but
+those, two of global illumination's and the Rendering part's fourth among them, its `--except` made
+from the others' `--only`, so a part added later runs there. BUILDING.md says four runners. A check
+over the suite's list of tests through test.py's own dealing finds every label named and each part
+in one job alone, and the script tests pass against the workflow.
+
+What the parts read, at `bca57e93` in run 43480215485 and at `68e7085f` in run 43501785641, in
+minutes. The first job's whole took 134 and 132 of its 160, its suite 121.7 and 119.5.
+
+| Part as dealt until now | bca57e93 | 68e7085f | Job |
+|---|---|---|---|
+| Global illumination's class, two processes | 98.0 | 96.2 | 1 |
+| The scene field's | 11.3 | 11.1 | 1 |
+| Core | 9.4 | 9.3 | 1 |
+| Graphics | 2.9 | 2.9 | 1 |
+| Rendering 1 | 40.7 | 28.6 | 2 |
+| Rendering 2 | 27.6 | 18.6 | 2 |
+| Rendering 3 | 8.9 | 6.4 | 2 |
+| The other parts together | 4.1 | 3.6 | 2 |
+| Rendering 4 | 6.3 | 9.6 | 3 |
+| Rendering 5 | 46.0 | 70.0, cut | 3 |
+| Rendering 6 | 8.8 | 11.3 | 3 |
+
+How each part of the new deal is estimated. Windows read each class's time only in the third job of
+`68e7085f`, the slowest runner read, Rendering 4 to 6 there, so those classes take that time; the
+bounce rooms' class, cut with about six minutes of its part left, takes 30.0, its part's 46.0 at
+`bca57e93` at that runner's half again pace and the turning room's cases less what ended; and the
+render origin's 27.3 for its 19 cases at part 4 grows by part 5's three by their share of its time
+on lavapipe, to 32.4. The classes of Rendering 1 to 3 take their process's slowest read, at
+`bca57e93`, shared among them by each class's time on lavapipe, and global illumination's 98.0 is
+shared among its four processes by its methods' times on lavapipe. The whole Rendering part took 78.4
+minutes on lavapipe here held to four cores. No one scale holds, the slow runner taking 2.3 to 8 times
+a class's lavapipe time, the most where a class starts many apps, since Windows keeps no shader
+cache and each app compiles every shader it draws with.
+
+| Part in the new deal | Estimate | Its slowest classes | Job |
+|---|---|---|---|
+| Global illumination's 1 | 28.4 | | 1 |
+| Global illumination's 4 | 16.6 | | 1 |
+| The scene field's | 11.3 | | 1 |
+| Core | 9.4 | | 1 |
+| Graphics | 2.9 | | 1 |
+| Global illumination's 2 | 31.1 | | 2 |
+| Global illumination's 3 | 21.9 | | 2 |
+| Rendering 4 | 24.4 | GlowFarFromOriginTests 16.6, ParticleTests 7.5 | 2 |
+| The other parts together | 4.1 | | 2 |
+| The render origin's | 32.4 | | 3 |
+| The bounce rooms' | 30.0 | | 3 |
+| Rendering 1 | 8.2 | ReferenceFrameTests 5.3, ModelShadowTests 2.4 | 3 |
+| Rendering 2 | 3.2 | SubsurfaceTests 2.4 | 3 |
+| The glow lights' | 24.0 | | 4 |
+| Rendering 3 | 7.5 | OffscreenRenderTests 4.7, GlobalIlluminationPluginTests 1.3 | 4 |
+| Rendering 5 | 12.0 | GlowPenumbraTests 8.1, DescriptorPoolTests 1.8 | 4 |
+| Rendering 6 | 24.7 | CascadeEdgeTests 18.9, GlowPillarTests 3.4 | 4 |
+| Rendering 7 | 9.1 | GlowStillTests 7.7 | 4 |
+
+No part comes past 32.4, and the jobs' suites to 68.6, 81.5, 73.8 and 77.3 against a limit of 160,
+the first's games and the setup about 16 more. Part 5's three cases of the fog room are in the
+render origin's 32.4, and part 6's two far cases run on the CPU, the rays in the Api part in the
+second job and the picked box in PointerPickingTests, dealt to Rendering 7, with no device. After the
+mend's first run each part's time goes beside its estimate in the next Reply.

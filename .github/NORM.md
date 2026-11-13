@@ -285,8 +285,11 @@ that program. A comment carries no reading of before and after, no cost in milli
 no account of the trials that led to the code, since those are the review's records and
 RENDERING.md's and go stale at the first tuning; a number stands in a comment only where the code's
 choice depends on it, a size, a count or a threshold, and then with its reason. A comparison test
-names the reference it compares against, since the comparison is the test. By review, and by
-STYLE.md's search for the products' and the sessions' words in comments, read rather than counted.
+names the reference it compares against, since the comparison is the test. A document outside the
+review's own files, a guide, RENDERING.md or a script's words, names no item, verdict or decision of
+the review by number either; a reading keeps its date and its figures, a decision is told by what
+was decided, and the norm's own numbers are named freely. By review, and by STYLE.md's search for
+the products' and the sessions' words in comments, read rather than counted.
 
 ## 5 Examples and games
 
