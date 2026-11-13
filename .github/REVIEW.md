@@ -1,10 +1,16 @@
 # Review
 
-Reviewed up to `54792d7e`, 264's mend for a program's shader, world a property over the place and
-the origin and the lighting's point-taking functions taking world points beside their Placed twins,
-with `80fe61d2`, part 2, the origin at the eye, and `a0af50a3`, part 1's second commit, every place
-a pass reads in a buffer taken against the origin, the three held until the game's play on the local
-package 6.2.60-local.264.3 read the four breaks of 264.2 gone and pushed together at 22:38 on
+Reviewed up to `bca57e93`, Verdict 120's mend, the render origin's three tests that compare a
+pixel's light against another origin held by a count of pixels past a small level and a loose
+largest, read on the RTX and on Mesa 26.2.4 and 25.2.8, with `ed3cd9ca`, 264's part 3, the shadows
+fitted in places with their texels' lattice kept in world numbers, pushed together at 19:11 on
+2026-11-13, one run on the last, 43480215485; RenderOriginTests passes whole on the three devices,
+16 of 16, and the suite passed both legs on part 3, 2,375; they keep the form and carry the review's
+files. Before them `54792d7e`, 264's mend for a program's shader, world a property over the place
+and the origin and the lighting's point-taking functions taking world points beside their Placed
+twins, with `80fe61d2`, part 2, the origin at the eye, and `a0af50a3`, part 1's second commit, every
+place a pass reads in a buffer taken against the origin, the three held until the game's play on the
+local package 6.2.60-local.264.3 read the four breaks of 264.2 gone and pushed together at 22:38 on
 2026-11-12, one run on the last, 43312321044, red at 00:49 on 2026-11-13 in both Linux legs at one
 test of the render origin, Verdict 120, macOS in 56 minutes and the Windows jobs in 130, 59 and 86
 green; the suite passed both legs on the last here, 2,369; they keep the form and carry the review's
@@ -679,159 +685,6 @@ places handed are a whole number of units there. The cost is read on Ore at High
 the instance ring and the chunks being rebased each frame on the CPU. Each part's account goes in
 its own Reply.
 
-Item 264, part 1, its first commit, the render origin laid through the vertex stages with nothing
-moved. RenderOrigin is one a frame, set by the renderer as the frame begins and held at the world's
-own origin; a test sets another through RenderOrigin.Override. The instance ring's translations are
-taken against it in doubles once each instance's block is culled in world numbers, and every
-view-projection pushed to the model, shadow, subsurface and particle stages is pushed times the
-origin's translation, worked in doubles, with the origin beside it, 80 bytes where 64 (ViewPush).
-The vertex stages hand a new varying, place, the point against the origin, and world as the origin
-plus it, so a program's shader reads world as before; the way to the eye is taken from place, and
-the slopes under an orthographic camera too. At the origin zero every value is the one before, an
-instance less zero and a fourth row plus zero being themselves and world being place plus zero.
-RenderOriginTests draws a scene at 160 by 90 against the world's origin and against 64, -32, 128,
-a floor, a wall, a block, a ball whose light scatters under its surface, still lit particles, and a
-sun, a lamp and a spot light casting shadows, and reads every pixel within a level; the largest
-difference is 0.10 of a level on the RTX 4070 and 0.13 on lavapipe. With the shadow pass's push
-left against the world's origin it reads 249 levels apart at the most and 294 pixels past 4, and
-with the particle stage's middle left so, 114 and 79. It takes 48 s on lavapipe here held to four
-cores with its pipelines made cold and 16 s with them kept; the Windows runner's time comes from
-this push's run in the next Reply. Part 1 comes in two commits, this one and the next, which hands
-every place a pass reads in a uniform against the origin, the lights, the shadows' matrices, the
-probes, the field, the glow lights, the reflections' matrices and the ray scene, with the passes
-reading place, and names the convention for 265 in its message; RenderOrigin's remarks hold it now.
-The guide's lines on a program's own vertex stage, which hands place beside world, come with part 2,
-where the origin first moves. The suite passed both legs, 2,358.
-
-Item 264, part 1, its second commit, every place a pass reads in a buffer taken against the render
-origin, held still at the world's own. Each buffer is worked out in world numbers as before and
-taken against the origin in doubles where it is written. The lighting buffer at its upload
-(LightingUboPrepare.Placed), its lamps' and probes' places, the shadows' matrices, the reflections'
-four and the mirror's plane. The field's corners and eye, and the stamps' boxes, whose rows take a
-place into each box. Global illumination's lamps, the corners its cascades lay at the frame before,
-the sun's cascades and the glow lights' middles and box, once they are compared with the frame
-before's in world numbers. The screen probes' view, the frame before's against this frame's origin.
-The ray scene's copies, against whose origin the reference tracer takes its camera, lamps and probe.
-The occlusion's and the fog's inverse and eye, the fog's height, and the field's and probes' views.
-The model, subsurface and particle passes read place, and the points lights.slang and
-subsurface.slang take are named so. Two things keep world numbers and meet places. The penumbra's
-grain is turned by the place plus the origin, handed beside the shadow's softness, so it holds to
-the surface. The particles, kept in world numbers on the GPU, are taken against the origin, handed
-in the step's view, where they meet the field. The convention for 265, named in the commit, is that
-a place a kernel reads is the world point less RenderOrigin, every point and matrix handed so, a
-matrix to clip space as the origin's translation times the world's; a kernel may take its places as
-small and finds a world point as the origin plus the place, the origin handed where it needs one.
-RenderOriginTests runs at Low and at High. The High scene adds fog, the occlusion, the floor glossy
-and mirrored in its plane, a reflection probe, a lantern carried as a glow light and the probes'
-rays traced through the device's rays, and each pixel's light is bent as l / (1 + l) before its
-level, so the floor's light past 1 is read. Every pixel reads within a level, the largest difference
-0.21 at Low and 0.42 at High on the RTX 4070 and 0.39 and 0.37 on lavapipe; drawn twice at the
-world's origin, the High scene read 0.05 apart on the RTX with its light clamped at 1. Left against
-the world's origin, global illumination's lights read 30 and 69 levels apart at Low and High, the
-lighting buffer 111 and 187, the fog 47 at High, and the ray scene's copies 3.8 at High with 901
-pixels past a level. Particles thrown onto the floor were taken out of the test. A particle bounces
-where the field reads within a hundredth of a unit of the surface, which the origin's rounding can
-move by a frame, and they read 6.8 levels apart on a few pixels where they bounced; and a step left
-without the origin misses the field and bounces off the depth, which holds in world numbers, so the
-test would not have caught it. Its times on lavapipe here held to four cores are 41 s at Low and 31
-s at High with the pipelines made cold and 17 and 22 s with them kept; the Windows runner's come
-from the run after the push. The suite passed both legs, 2,359. 3405714a's test is in its run,
-43266966531, still going, and its Windows time comes in the next Reply.
-
-Item 264, part 2, the origin at the eye. The renderer stands the render origin at the window
-camera's eye rounded to a whole count of 16 units along each axis (RenderOrigin.Near), where the
-plan said the eye as given, for two reasons. A whole origin leaves a place far out exactly the float
-the program gave, the difference of two floats of the same step, and the ray scene's top level,
-built again whenever its copies' records change, is built as the eye crosses a step and not each
-frame the camera moves, a build that waits on every pass before it. A place near the eye stays under
-14 units, so the precision near it is a float's at that size. Each camera's eye is noted with its
-view-projection where BeginMode3D or a camera entity makes it (ModelDrawList.NoteEye), with the
-view-projection made with the eye at nothing, and every view of a noted camera is pushed as that
-times the way from the origin to the eye, worked in doubles (RenderOrigin.Seen), since the
-view-projection made in floats far out carries the rounding of its translation, which no origin
-taken after it takes back. The rest of the part's list. The culling's boxes are found from the
-instances against the origin and its planes from the pushed view, and the translucent order reads
-the same. The immediate pass's 3D shapes of the engine's own shader, drawn through a noted camera,
-are uploaded against the origin and pushed from the eye; a shader of the program's own keeps the
-world numbers it was given, as a model shader's world does. The moving entities' rows now and the
-frame before are taken against the origin and their two views pushed from their eyes, the frame
-before's without its jitter. The particles' placing rows are handed against the origin, so a
-particle in its emitter's space is placed in small numbers, and the eye they are sorted from in that
-space is found with the emitter's matrix against the origin. The eye is handed where the frame noted
-one in place of inverting a view-projection. The ECS chunks need nothing more, being copied into the
-ring and rebased there with the rest. The sky's cube is an instance and follows. The guide's section
-on moving vertices says how a stage of a program's own places a vertex and that world is the place
-plus modelPush.origin. Left to the later parts as planned are the shadows' cascades fitted in world
-floats (3), whose sun shadows are the one difference left in a trial room with them, the frame
-before (4) and the points from the depth (5); a probe's faces and the mirror's view are pushed from
-their float matrices without an eye, as is a matrix a program sets through rlgl. RenderOriginTests
-adds a room drawn at 4,096, 71,680 and 1,140,736 units out with the origin at the eye, its floor,
-wall and blocks, a mesh entity, a lamp, the sun, the immediate pass's cubes and line and particles
-in their emitter's space on eighths of a unit, the lights without shadows and global illumination at
-Low, and reads it against the room at the world's origin within a tenth of a level at every pixel.
-It reads 0.000 at all three on the RTX 4070 and on lavapipe, every pixel the same, since every place
-handed is the float the room at the origin hands. With each view pushed from its float matrix, the
-eyes set aside, it reads 0.14, 175 and 180 levels apart. Its places are whole counts of 1,024 so the
-field's cascades and the probes lie alike about it; at 4,450 and 1,112.5, off the field's snap, a
-trial room's white block read about 4 levels apart on its face from the room at the origin, the
-field's grid falling at another phase against the room, which is part 8's question and the sibling's
-item 137. In a trial room with the sun's shadows at 320 by 180, the room at 1,140,736 read a mean of
-7.3 levels apart with 4,205 pixels past 16 with the origin held at the world's own, and 0.028 with
-30 past 16 with it at the eye, all 30 in the sun's shadows. Ore at High costs nothing measurable,
-its frame 7.42 and 7.39 ms on a0af50a3's local package against 7.41 and 7.41 on this one's, run in
-turn on the GPU held alone. The test's times on lavapipe here held to four cores are 26 s at 4,096
-with the pipelines made cold, 12 and 13 s at the others. The suite passed both legs, 2,362. Packed
-unpublished as 6.2.56-local.264.2 in build/package, from this commit, for the game's reading at
-4,432, 71,000 and 1,140,000 with its own origin off; a0af50a3's as 6.2.56-local.264.1 in my work
-folder for the cost alone. In 3405714a's run, 43266966531, the second and third Windows jobs were
-green in 84 and 67 minutes, the Rendering part's six processes in 40, 26, 9, 9, 42 and 11, the first
-and fifth the long ones; the digests name no RenderOriginTests among the slowest, and its own time
-comes from the logs once the first job has ended.
-
-Item 264, the sun's shadow the game lost on 6.2.56-local.264.2, found and mended in a commit after
-80fe61d2. The game's own shaders hand the engine's lighting functions points in world numbers,
-terrain.slang lightReaching at its pixel's middle made from input.world, mob.slang arriving and
-lightReaching at input.world and terrain.slang mirrored at it, and move world on a copy of their
-input before it is lit, bits.slang to an item's middle and mob.slang to a point an eighth of a block
-out. Since a0af50a3 those functions took places and litLight and lit read place, matching the
-lighting buffer handed against the origin. With the origin held at the world's own at a0af50a3 a
-world point and a place were the same numbers, so the handed points read right and a world moved on
-a copy was passed over, the item and the mob lit at their own faces; with it at the eye at 80fe61d2
-the shadow was read the origin away from the point, 16 units near the engine's zero, where it fell
-on nothing, and 300 units out, where it fell as a wrong patch. A floor drawn with a shader built as
-the terrain's reads 153 levels where the post's shadow falls against 153 beside it at 0, 8 and 24
-units and across a step of the origin, and 119 against 149 at 300, on 80fe61d2; on a0af50a3, run in
-a clone of it, the handed points read the shadow at 74 against 153 and the moved world is passed
-over. The engine's own shader read the shadow throughout, which the room tests drew with. The mend
-keeps what a program's shader had. ModelVertexOutput.world is a property, the place plus
-modelPush.origin, which set moves the place, so lit and litLight light the point a program moved it
-to, and the push is read by both stages. lights.slang's twenty functions that take a point take one
-in world numbers again and take the origin off first (placeOf, the origin a field of the lighting
-buffer of its own), and the engine's own lighting calls their twins ending in Placed, which take
-places. They are arriving, cascadeReached, lightReaching in its two forms, mirrored, groundReached,
-spotLightReaching, pointLightReaching, fromLight, probeAt, boxProjected, screenHold, bounced,
-bouncedAndSky, byThinWall, bouncedSeen, glowLights, skySeen, probesReflected and tracedReflection,
-whose eye is a point too, each beside arrivingPlaced and the rest. A look for the same break
-elsewhere finds the functions of scenefield, gi, glow, probelight, roughreflect, lightthrough and
-cascades, about sixty, which take their data beside the point, the field's info, a glow light or
-global illumination's lights, against the origin as the model pass binds it, and the lighting
-buffer's places and matrices themselves, a light's place among them; a program's shader reaches
-those by importing their modules or reading the buffer, no shader of a program here or of the game
-calls or reads one, and twins of them would run through every kernel, so the guide says they take
-places, input.place or placeOf(world). The fog's are its kernels' own. The guide and RENDERING.md
-say what a program's shader hands each. RenderOriginTests adds a post and a block on a floor drawn
-with a shader of the program's own, the eye at the world's origin, 8, 24 and 300 units off and
-moving across a step, one shader handing the lighting input.world for the sun's shadow and one
-lighting each point as the point a unit off, its world moved; the floor in the post's shadow reads
-under three fifths of the floor beside it, and for the moved world the other way about. With the
-mend it reads 74 against 153 at every place and across the step, and the moved world 74 and 153
-swapped; on 80fe61d2 it fails as above, and its moved cases fail on a0af50a3. Its times on lavapipe
-here held to four cores are 32 s for its first case with the pipelines made cold, 16 s for the first
-with the moved world's shader made cold, and 6 to 7 s for each other; the Windows runner's come from
-the run after the push. The lighting buffer grows by the origin's 16 bytes to 7,248, which its
-packing test names. The suite passed both legs, 2,369. Packed unpublished as 6.2.60-local.264.3 in
-build/package from this commit for the game's play.
-
 Item 264, part 3, the shadows. The cascades are fitted in places, to each camera's view as it is
 pushed from its eye against the frame's origin, so their corners, middle and radius are as precise
 far out as at the world's origin, and the middle is snapped to texels that lie in world numbers, the
@@ -921,3 +774,93 @@ as follows.
 
 The post's shadow reads alike on the three, 74.38 in it against 153.11 beside it at 0, 8, 24 and
 300, 75.61 against 153.40 crossing, and 153.25 against 73.76 for the shader that moves its point.
+
+Item 264, part 4, the frame before. A pass that reads its frame before keeps that frame's camera as
+the frame noted it, its eye and its view-projection made with the eye at nothing
+(`WindowView.Turned`). The antialiasing's, the occlusion's and the motion blur's ways from this
+frame's clip space to the frame before's are the inverse of this camera made with its eye at
+nothing, times the way from this eye to the other worked in doubles, times the other camera made so
+(`RenderOrigin.Reprojection`), which holds no float of the world's size and reads the same against
+any origin, and whether the camera moved is asked of the two eyes and turns (`WindowView.Same`),
+where it was asked of the view-projections in world floats, whose numbers far out are wider than
+the comparison's tolerance. The screen probes' frame before and the reflections' history view are
+read against this frame's origin from their eyes (`WindowView.UnjitteredAgainst`,
+`RenderOrigin.Seen`). Three reads of the frame's own camera that the new test found go with them.
+The screen probes' way from clip space back to a point's way from the eye is the inverse of the
+camera made with the eye at nothing, where it was worked in doubles from the view-projection in
+world floats, its translation rounded before the doubles took the eye out. The occlusion's scale of
+a unit against the picture's height (`HeightPerUnit`) and its history's depth along the view are
+read off the inverse of its view against the origin, where they were read off the inverse in world
+floats, an eye and a point about a unit apart each rounded to an eighth.
+
+RenderOriginTests adds a camera turning across a room at High under temporal antialiasing and
+motion blur, with the occlusion and a floor of roughness an eighth reflecting the frame kept the
+frame before, its target stepping an eighth of a unit a frame for eight frames once the field
+settles, a float's step at 1,140,736, and reads the last frame after the motion blur
+(`BloomRenderer.Blurred`), since the decoded scene the other tests read is the frame before the
+lens passes, under a tenth of a level at every pixel at 4,096, 71,680 and 1,140,736 against the
+same frames at the world's origin. It reads 0.000 at all three on the RTX 4070 and on Mesa 25.2.8 and 0.022 at the most on 26.2.4, and
+on part 3's engine 40.8, 123.9 and 118.4 levels at the most on the RTX 4070. Each piece put back
+alone fails it at one distance at least.
+
+| Put back alone | 4,096 | 71,680 | 1,140,736 |
+|---|---|---|---|
+| The antialiasing's reprojection from the view-projections in world floats | 35.8 | 101.9 | 37.7 |
+| The motion blur's | 8.60 | 99.6 | 116.7 |
+| The occlusion's history's | 0.94 | 3.62 | 1.88 |
+| The occlusion's history's depth from the inverse in world floats | 0.000 | 0.055 | 1.52 |
+| The occlusion's height of a unit from the inverse in world floats | 0.052 | 0.123 | 0.795 |
+| The reflections' history view in world floats | 0.30 | 1.97 | 5.98 |
+| The screen probes' views taken from the view-projections in world floats | 0.85 | 1.47 | 23.8 |
+| The screen probes' way back worked from the view-projection in world floats | 0.33 | 1.86 | 13.6 |
+| Part 3 whole | 40.8 | 123.9 | 118.4 |
+
+The test takes 10.4 to 10.7 s a case on lavapipe here held to four cores.
+
+The class run on Mesa 26.2.4 found this part's first form wrong. Its reprojection was the inverse
+of this camera against the origin times the other against the origin, the same map as part 3's
+within the fifth decimal, but it rounded otherwise as the origin stepped. The antialiasing lets a
+pixel's history go where the depths the frame before saw around it stand nearer than its own, a
+comparison the sky's depth makes within the reprojection's rounding, so the crossing lost the
+wall's top edge against the sky, 50.2 levels at the most with 178 pixels past a level on the RTX
+4070 against the frames with the origin held. Part 3's product of the two world matrices was the
+same bits in both runs. From the eyes it reads 0.089 and none past a level.
+
+RenderOriginTests whole on the three devices, each case's largest and its pixels past the level its
+count is held at, the turning room's past a level.
+
+| Case | RTX 4070 | Mesa 26.2.4 | Mesa 25.2.8 |
+|---|---|---|---|
+| Scene at Low, past 1 | 0.088, 0 | 0.393, 0 | 1.480, 1 |
+| Scene at High, past 1 | 0.246, 0 | 0.367, 0 | 1.424, 2 |
+| Shadowed room at 4,096, past 4 | 7.72, 2 | 7.83, 2 | 5.26, 2 |
+| Shadowed room at 71,680, past 4 | 7.72, 1 | 7.83, 1 | 25.43, 5 |
+| Shadowed room at 1,140,736, past 4 | 10.73, 2 | 11.34, 1 | 20.96, 4 |
+| Crossing, past 1 | 0.089, 0 | 13.21, 8 | 29.97, 14 |
+| Turning room at 4,096, past 1 | 0.000, 0 | 0.022, 0 | 0.000, 0 |
+| Turning room at 71,680, past 1 | 0.000, 0 | 0.000, 0 | 0.000, 0 |
+| Turning room at 1,140,736, past 1 | 0.000, 0 | 0.000, 0 | 0.000, 0 |
+| Room at each distance | 0.000 | 0.041 | 0.041 |
+
+The post's shadow reads alike on the three, as in the mend's Reply.
+
+Beside them, the guide takes the review's two sentences, a program whose world numbers grow large
+handing `input.place` to the `Placed` twins, and what a program hands the engine in floats, its
+camera's position and target and its instances' places, carrying the float's grid, a target far out
+being the eye plus the look in floats. test.py keeps each process's five slowest tests in its
+digest whatever the result, read from its trx, with a script test that a run that passes keeps
+them. The suite passed both legs, 2,379, and its digests kept each process's slowest tests, the
+slowest 1 m 36 s.
+
+What a camera given as an eye and a way to look would take, as the review asked. A `Camera3D` has
+raylib's fields, a position and a target, and `BeginMode3D` notes the camera made with the eye at
+nothing from the target less the position, which is the look as the program gave it only where the
+program gave the target; a target made far out as the eye plus a look has rounded the look. Camera
+entities take their view from the transform's rotation and have no target. A sixth field,
+`Camera3D.Look`, a way read in place of the target where it is set, would take `View` made with
+`CreateLookTo(Position, Look, Up)` and `BeginMode3D` noting `CreateLookTo(0, Look, Up)`, and the
+reads of the target less the position, the fourteen in E3D.Cameras, `GetCameraForward` and the
+camera modes that move the target with the position among them, the screen's ray in E3D.Physics
+and the in-view check in E3D.Camera3D, would read one property, the look where set and the target
+less the position otherwise. A test would turn a camera far out by a look given and read it as the camera at
+the world's origin. About twenty reads in five files, and raylib's struct one field longer.

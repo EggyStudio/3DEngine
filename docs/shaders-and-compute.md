@@ -236,7 +236,12 @@ place, which `placeOf(world)` gives. The lighting buffer's places and matrices, 
 reflection probe's middle, the shadows' and the reflections' views and the mirror's plane, are
 against the origin, `lighting.origin`, and so is the data the functions of `scenefield`, `gi`,
 `glow` and `probelight` read beside a point, the field's corners and the glow lights' middles, so a
-shader hands those a place, `input.place` or `placeOf(world)`.
+shader hands those a place, `input.place` or `placeOf(world)`. A program whose world numbers grow
+large hands `input.place` to the `Placed` twins, a world point carrying its float's grid into the
+lighting. What a program hands the engine in floats, its camera's position and target and its
+instances' places, carries that grid too, which no origin taken after restores, a target far out
+being the eye plus the look in floats, which rounds the look's turn, so a program that goes far
+keeps its numbers small by moving its world, the call the last part of 264 adds.
 The `instancing.slang` of the `shaders_instance_hues` example gives each of ten thousand cubes
 its own hue:
 

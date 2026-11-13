@@ -307,6 +307,23 @@ public sealed class TestScriptTests : IDisposable
         Lines(log).Should().Contain(line => line.Contains("seed 7 broke it", StringComparison.Ordinal) || line.Contains("--shuffle-seed 7", StringComparison.Ordinal));
     }
 
+    /// <summary>
+    /// A run that passes keeps each process's slowest tests in its digest, read from its results
+    /// file, so a test's time on a system is read from a run that went green.
+    /// </summary>
+    [NeedsPythonFact]
+    public void A_Run_That_Passes_Keeps_Each_Process_s_Slowest_Tests_In_Its_Digest()
+    {
+        var (exit, _) = Script("pass", "--dotnet", $"{Probes.Python.Value} 3DEngine.Tests/Scripts/dotnet_standin.py", "--results", _folder.Path);
+
+        exit.Should().Be(0, "every test passed");
+        var process = JsonDocument.Parse(File.ReadAllText(_folder.File("digest.json"))).RootElement.GetProperty("processes").EnumerateArray().Single();
+        process.GetProperty("slowest").EnumerateArray().Select(test => test.GetString()).Should().Equal(
+            ["`Engine.Tests.NormTests.N_1_4` 9 m 13 s", "`Engine.Tests.NormTests.N_1_3` 9 m 6 s", "`Engine.Tests.NormTests.N_1_2` 8 m 59 s",
+             "`Engine.Tests.NormTests.N_1_1` 8 m 52 s", "`Engine.Tests.NormTests.N_1_0` 8 m 45 s"],
+            "the stand-in gives each test seven seconds for each place it stands at in its list");
+    }
+
     [NeedsPythonFact]
     public void A_Suite_That_Failed_In_The_Order_Added_Is_Not_Run_Again_Shuffled()
     {

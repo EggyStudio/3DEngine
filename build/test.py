@@ -184,6 +184,10 @@ def run(dotnet, process, args, results, seed=None):
         elif "Test Run Aborted" in text or "test run was aborted" in text or not os.path.exists(os.path.join(results, process.name + ".trx")):
             process.lost = "crash"
     process.counts = Counter(outcome for outcome, _, _ in read_results(os.path.join(results, process.name + ".trx")).values())
+    # Its slowest tests from its results file, whatever its result, so a test's time on a system
+    # is read from a run that passed as from one cut short, which reads them from its output.
+    process.times = durations_of(os.path.join(results, process.name + ".trx"))
+    process.slowest = slowest_of(process.times)
     if process.lost:
         process.finished, times = ended_in(text)
         process.counts = Counter(outcome for outcome, _, _ in process.finished.values())
@@ -630,6 +634,20 @@ def read_results(path):
             key = f"{name} [{len([k for k in results if k == name or k.startswith(name + ' [')]) + 1}]"
         results[key] = (result.get("outcome", ""), message, stack)
     return results
+
+
+def durations_of(path):
+    """Each test in a results file that holds its time, by name, as its time in seconds."""
+    try:
+        run_ = ET.parse(path).getroot()
+    except (OSError, ET.ParseError):
+        return {}
+    times = {}
+    for result in run_.iterfind("t:Results/t:UnitTestResult", NS):
+        match = re.fullmatch(r"(\d+):(\d+):(\d+(?:\.\d+)?)", result.get("duration", ""))
+        if match:
+            times[result.get("testName", "?")] = int(match.group(1)) * 3600 + int(match.group(2)) * 60 + float(match.group(3))
+    return times
 
 
 def first_line(text):

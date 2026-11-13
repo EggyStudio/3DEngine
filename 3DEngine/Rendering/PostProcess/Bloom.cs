@@ -155,8 +155,7 @@ internal sealed partial class BloomRenderer : IDisposable
     // the texel bound in their place for the other curves.
     private readonly Dictionary<Tonemap, VolumeTexture> _tables = [];
     private VolumeTexture? _noTable, _blueNoise;
-    private Matrix4x4? _lastViewProjection;
-    private ViewEye? _lastEye;
+    private WindowView? _lastView;
     private long _lastViewFrame = -2;
     // The exposure that follows the scene. The measured log luminance of the frame, the two texels
     // the adapted value goes back and forth between, one written each frame from the other, and
@@ -266,6 +265,12 @@ internal sealed partial class BloomRenderer : IDisposable
     /// where none has, which a measure of global illumination reads back.
     /// </summary>
     internal RenderTarget? Decoded => _sized?.Linear;
+
+    /// <summary>
+    /// The target the motion blur writes the window's scene into, or null where no lens pass has
+    /// run, which holds the last frame's blurred scene where that frame blurred it.
+    /// </summary>
+    internal RenderTarget? Blurred => _sized?.Lens is { } lens ? lens[1] : null;
 
     /// <summary>
     /// Whether the window shows a scene this frame, a mesh, a particle or a shape drawn with depth
@@ -515,12 +520,8 @@ internal sealed partial class BloomRenderer : IDisposable
         // The camera of the frame before, kept only from the frame before this one, so a frame after
         // others drawn without the HDR frame does not blur by a movement long past. Both without
         // temporal antialiasing's move, so a still camera does not blur by it.
-        Matrix4x4? last = _lastViewFrame == _frame - 1 ? _lastViewProjection : null;
-        var lastEye = _lastEye;
-        // The eye this frame's camera was made from where the frame noted one, which the moving
-        // entities' velocity is drawn through, kept without the move as well for the next frame.
-        var eye = view is null ? null : renderWorld.TryGet<ModelDrawList>()?.EyeOf(view.ViewProjection);
-        (_lastViewProjection, _lastEye, _lastViewFrame) = (view?.Unjittered, eye is { } seen ? seen with { Turned = seen.Turned * view!.Back } : null, _frame);
+        var last = _lastViewFrame == _frame - 1 ? _lastView : null;
+        (_lastView, _lastViewFrame) = (view, _frame);
         if (_sized is not { Linear: { } linear } sized || !_shownLinear || view is null || renderContext.Device is not GraphicsDevice device) return;
         var focus = effects.FocusBlur > 0;
         var blur = effects.MotionBlur > 0 && last is not null;
@@ -543,20 +544,21 @@ internal sealed partial class BloomRenderer : IDisposable
         }
         if (blur)
         {
-            // This frame's clip space to the world and on through the camera of the frame before,
-            // as System.Numerics multiplies a row vector.
             // The mesh entities that moved, each drawn as its own movement, where per-object blur is on.
             var own = false;
             if (effects.MotionBlurObjects && renderWorld.TryGet<ModelDrawList>() is { Moving.Count: > 0 } models
                 && renderWorld.TryGet<GpuMeshes>() is { } meshes)
             {
                 EnsureVelocity(device, sized);
+                // Through this frame's camera and the frame before's against this frame's origin from their eyes.
                 var origin = renderWorld.TryGet<RenderOrigin>();
                 _velocity.Draw(renderContext, device, sized.Velocity!, sized.VelocityDepth!, meshes, models.Moving,
-                    origin.Seen(view.ViewProjection, eye), origin.Seen(last!.Value, lastEye), origin);
+                    view.Against(origin), last!.UnjitteredAgainst(origin), origin);
                 own = true;
             }
-            var push = new BlurPush { Reprojection = inverse * last!.Value, Amount = new Vector4(effects.MotionBlur, 0.1f, own ? 1 : 0, 0) };
+            // This frame's clip space to the frame before's, as System.Numerics multiplies a row
+            // vector, from both cameras' eyes, so the product holds no float of the world's size.
+            var push = new BlurPush { Reprojection = view.To(last!) ?? Matrix4x4.Identity, Amount = new Vector4(effects.MotionBlur, 0.1f, own ? 1 : 0, 0) };
             Pass(renderContext, lens[1], LoadOp.Clear, _blur!, LensSet(device, sized, source, exact: false), push);
             source = lens[1].ColorView;
         }

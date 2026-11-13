@@ -114,7 +114,8 @@ internal sealed class TemporalRenderer : IDisposable
     private readonly List<(long Frame, IDisposable Disposable)> _retired = [];
     private long _frame;
     private long _resolved = long.MinValue;
-    private Matrix4x4 _viewProjection;
+    // The window's camera the frame before was resolved through.
+    private WindowView? _last;
 
     // The histories for one decoded frame, and the sets each pass reads through.
     private sealed class Sized(RenderTarget frame, RenderTarget[] histories, IDescriptorSet[] resolve, IDescriptorSet first,
@@ -159,13 +160,16 @@ internal sealed class TemporalRenderer : IDisposable
             return;
         }
         var sized = _sized = Ensure(device, frame, _sized);
-        var held = Matrix4x4.Invert(view.Unjittered, out var inverse) && _resolved == _frame - 1;
+        // This frame's clip space to the frame before's, from both cameras' eyes, so the product
+        // holds no float of the world's size and reads the same against any origin.
+        var reprojection = _last is not null && _resolved == _frame - 1 ? view.To(_last) : null;
+        var held = reprojection is not null;
         var next = 1 - sized.Written;
         var push = new Push
         {
             // None where the camera has not moved, which the product of the two would give only
             // within its rounding, and a still pixel would read as moved.
-            Reprojection = held && !Same(view.Unjittered, _viewProjection) ? inverse * _viewProjection : Matrix4x4.Identity,
+            Reprojection = held && !view.Same(_last!) ? reprojection!.Value : Matrix4x4.Identity,
             TexelAndBlend = new Vector4(1f / frame.Extent.Width, 1f / frame.Extent.Height, Still, held ? 1 : 0),
             // The camera's move this frame in pixels, from clip space's two units across the frame.
             Mode = new Vector4(0, Moving, view.Jitter.M41 * frame.Extent.Width / 2, view.Jitter.M42 * frame.Extent.Height / 2),
@@ -176,16 +180,7 @@ internal sealed class TemporalRenderer : IDisposable
         push.Mode.X = 1;
         // Drawn back over the decoded frame's light, its depth kept.
         Pass(renderContext, _copy!, sized.Frame, sized.Copy[next], exposure, push, LoadOp.Load);
-        (sized.Written, _resolved, _viewProjection) = (next, _frame, view.Unjittered);
-    }
-
-    // Whether two cameras are one within the rounding of taking the camera's move back out of each.
-    private static bool Same(Matrix4x4 a, Matrix4x4 b)
-    {
-        for (int row = 0; row < 4; row++)
-            for (int column = 0; column < 4; column++)
-                if (Math.Abs(a[row, column] - b[row, column]) > 1e-6f + 1e-5f * Math.Abs(a[row, column])) return false;
-        return true;
+        (sized.Written, _resolved, _last) = (next, _frame, view);
     }
 
     // The set reading the adapted exposure, or the white texel where none is given, which the

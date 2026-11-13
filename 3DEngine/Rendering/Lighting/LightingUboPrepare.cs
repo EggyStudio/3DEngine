@@ -105,14 +105,15 @@ internal sealed class LightingUboPrepare : IPrepareSystem
             // And a glossy surface's reflection traced through its depth and the field, looked up
             // in the frame before's picture where the renderer kept it.
             // Both through the camera without temporal antialiasing's move, the camera the window's
-            // depth and the frame kept are taken through.
-            if (renderWorld.TryGet<WindowView>() is { } view && System.Numerics.Matrix4x4.Invert(view.Unjittered, out var inverse)
+            // depth and the frame kept are taken through, and both against the frame's origin from
+            // their eyes, the frame before's as this frame's.
+            if (renderWorld.TryGet<WindowView>() is { } view && System.Numerics.Matrix4x4.Invert(view.UnjitteredAgainst(origin), out var inverse)
                 && renderWorld.TryGet<IIlluminationPasses>() is { } gi)
             {
                 var (steps, reach) = Illumination.ReflectionStepsAt(quality);
-                windowUbo.ReflectViewProjection = view.Unjittered;
+                windowUbo.ReflectViewProjection = view.UnjitteredAgainst(origin);
                 windowUbo.ReflectInverseViewProjection = inverse;
-                windowUbo.ReflectLastViewProjection = gi.HistoryViewProjection ?? view.Unjittered;
+                windowUbo.ReflectLastViewProjection = (gi.HistoryView ?? view).UnjitteredAgainst(origin);
                 windowUbo.ReflectLastInverseViewProjection = System.Numerics.Matrix4x4.Invert(windowUbo.ReflectLastViewProjection, out var lastInverse)
                     ? lastInverse : inverse;
                 windowUbo.Reflection = new System.Numerics.Vector4(1, Illumination.GlossyRoughness, steps, gi.HistoryViewProjection is null ? 0 : 1);
@@ -217,10 +218,11 @@ internal sealed class LightingUboPrepare : IPrepareSystem
 
     /// <summary>
     /// A lighting buffer with every place in it taken against <paramref name="origin"/> in doubles
-    /// (RenderOrigin), the lights' and the probes' places, the reflections' matrices and the
-    /// mirror's plane, and the origin itself, which a shader adds back to a place for its world
-    /// point, as the penumbra's grain and a program's world are found. The shadows' matrices are
-    /// fitted against the origin (FrameShadow.Origin) and written as they are.
+    /// (RenderOrigin), the lights' and the probes' places and the mirror's plane, and the origin
+    /// itself, which a shader adds back to a place for its world point, as the penumbra's grain and
+    /// a program's world are found. The shadows' matrices are fitted against the origin
+    /// (FrameShadow.Origin) and the reflections' made against it from their eyes, and both are
+    /// written as they are.
     /// </summary>
     internal static LightingUbo Placed(LightingUbo ubo, RenderOrigin origin)
     {
@@ -234,10 +236,6 @@ internal sealed class LightingUboPrepare : IPrepareSystem
             ref var probe = ref ubo.Probes[i];
             probe.CenterAndIntensity = origin.Against(probe.CenterAndIntensity);
         }
-        ubo.ReflectViewProjection = origin.Taking(ubo.ReflectViewProjection);
-        ubo.ReflectInverseViewProjection = origin.Inverse(ubo.ReflectInverseViewProjection);
-        ubo.ReflectLastViewProjection = origin.Taking(ubo.ReflectLastViewProjection);
-        ubo.ReflectLastInverseViewProjection = origin.Inverse(ubo.ReflectLastInverseViewProjection);
         ubo.MirrorPlane = origin.Plane(ubo.MirrorPlane);
         ubo.Origin = new System.Numerics.Vector4((float)origin.X, (float)origin.Y, (float)origin.Z, 0);
         return ubo;

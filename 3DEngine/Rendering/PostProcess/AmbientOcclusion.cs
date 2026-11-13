@@ -122,10 +122,11 @@ internal sealed class AmbientOcclusionRenderer : IDisposable
         public IDescriptorSet[] Remember { get; } = remember;
         public IDescriptorSet RememberFirst { get; } = rememberFirst;
         public IDescriptorSet[] BlurRemembered { get; } = blurRemembered;
-        // The history written last, the frame it was written in, and the view-projection then.
+        // The history written last, the frame it was written in, and the camera then, with its eye
+        // where the frame noted it.
         public int Written { get; set; }
         public long WrittenIn { get; set; } = long.MinValue;
-        public Matrix4x4 ViewProjection { get; set; }
+        public (Matrix4x4 ViewProjection, ViewEye? Eye) View { get; set; }
 
         public void Dispose()
         {
@@ -161,7 +162,8 @@ internal sealed class AmbientOcclusionRenderer : IDisposable
 
     // What the window's depth was drawn with this frame, for its occlusion to be worked out from,
     // or null where it was not drawn.
-    private (Sized Sized, Matrix4x4 Inverse, Vector3 Eye, Extent2D Window, AmbientOcclusionSettings? Settings, (Vector3 TowardSun, float Reach)? Sun)? _window;
+    private (Sized Sized, Matrix4x4 Inverse, Vector3 Eye, Extent2D Window, AmbientOcclusionSettings? Settings, (Vector3 TowardSun, float Reach)? Sun,
+        (Matrix4x4 ViewProjection, ViewEye? Eye) View)? _window;
 
     /// <summary>
     /// Draws the window's depth where its occlusion, the sun's contact shadows or the light that
@@ -204,7 +206,8 @@ internal sealed class AmbientOcclusionRenderer : IDisposable
         // probes and the reflections that read this depth hold still under it.
         models.DrawDepth(renderContext, renderWorld, sized.Depth, back: view.Back);
         renderWorld.Set(new WindowDepth(sized.Depth.DepthView, sized.Depth.Sampler, extent));
-        _window = (sized, inverse, view.Eye, swapchain.Extent, settings, sun);
+        _window = (sized, inverse, view.Eye, swapchain.Extent, settings, sun,
+            (view.Unjittered, view.Turned is { } turned ? new ViewEye(view.Eye, turned * view.Back) : null));
     }
 
     /// <summary>
@@ -221,7 +224,7 @@ internal sealed class AmbientOcclusionRenderer : IDisposable
             return;
         }
         Occlude(renderContext, window.Sized, window.Inverse, window.Eye, window.Window, window.Settings, window.Sun,
-            Illumination.CascadesIn(renderWorld) > 0, renderWorld.TryGet<RenderOrigin>());
+            Illumination.CascadesIn(renderWorld) > 0, renderWorld.TryGet<RenderOrigin>(), window.View);
         renderWorld.Set(new AmbientOcclusionImage(window.Sized.Occlusion.ColorView, _sampler!));
     }
 
@@ -249,7 +252,8 @@ internal sealed class AmbientOcclusionRenderer : IDisposable
         if (targets is null) renderWorld.Set(targets = new TargetOcclusion());
         targets.Depths[id] = new WindowDepth(sized.Depth.DepthView, sized.Depth.Sampler, extent);
         if (settings is not { On: true } && sun is null) return;
-        Occlude(renderContext, sized, inverse, eye, size, settings, sun, bounces, renderWorld.TryGet<RenderOrigin>());
+        Occlude(renderContext, sized, inverse, eye, size, settings, sun, bounces, renderWorld.TryGet<RenderOrigin>(),
+            (camera, renderWorld.TryGet<ModelDrawList>()?.EyeOf(camera)));
         targets.Images[id] = new AmbientOcclusionImage(sized.Occlusion.ColorView, _sampler!);
     }
 
@@ -257,35 +261,44 @@ internal sealed class AmbientOcclusionRenderer : IDisposable
     // into its images from the depth drawn into them, blended with its history, and blurred across
     // and down. Where light bounces, the cascades hold what the field's occlusion would close off.
     // The passes take the depth's points against the frame's origin, as the field's corners are
-    // handed, and the history its way from clip space to the frame before's, which no origin moves.
+    // handed, and the history its way from clip space to the frame before's from the camera (view)
+    // and the frame before's eyes (RenderOrigin.Reprojection).
     private void Occlude(RenderContext renderContext, Sized sized, Matrix4x4 inverse, Vector3 eye, Extent2D size,
-        AmbientOcclusionSettings? settings, (Vector3 TowardSun, float Reach)? sun, bool bounces, RenderOrigin origin)
+        AmbientOcclusionSettings? settings, (Vector3 TowardSun, float Reach)? sun, bool bounces, RenderOrigin origin,
+        (Matrix4x4 ViewProjection, ViewEye? Eye) view)
     {
         var on = settings is { On: true };
+        // The camera against the origin from its eye, whose inverse takes the depth's points to
+        // places with no float of the world's size in it.
+        var placed = origin.Seen(view.ViewProjection, view.Eye);
+        var inverted = Matrix4x4.Invert(placed, out var placedInverse);
+        if (!inverted) placedInverse = origin.Inverse(inverse);
         var push = new Push
         {
-            InverseViewProjection = origin.Inverse(inverse),
+            InverseViewProjection = placedInverse,
             EyeAndRadius = new Vector4(origin.Against(eye), on ? settings!.Radius : 1),
-            TexelAndStrength = new Vector4(1f / sized.Extent.Width, 1f / sized.Extent.Height, on ? settings!.Intensity : 0, HeightPerUnit(inverse)),
+            TexelAndStrength = new Vector4(1f / sized.Extent.Width, 1f / sized.Extent.Height, on ? settings!.Intensity : 0, HeightPerUnit(placedInverse)),
             Mode = new Vector4(0, (float)size.Width / Math.Max(1, size.Height), on ? bounces ? 2 : 1 : 0, _frame % 4096),
             SunAndReach = sun is var (toward, reach) ? new Vector4(toward, reach) : Vector4.Zero,
         };
         Pass(renderContext, _pipeline!, sized.Occlusion, sized.Occlude, push);
         var blurAcross = sized.BlurAcross;
-        if (on && Matrix4x4.Invert(inverse, out var viewProjection))
+        if (on && inverted)
         {
             // The frame before's history is read where it was written the frame before, through
             // the way from this frame's clip space to that frame's.
-            var held = sized.WrittenIn == _frame - 1;
+            var back = sized.WrittenIn == _frame - 1
+                ? RenderOrigin.Reprojection(view.ViewProjection, view.Eye, sized.View.ViewProjection, sized.View.Eye) : null;
+            var held = back is not null;
             var next = 1 - sized.Written;
             var remember = push with
             {
-                InverseViewProjection = held ? inverse * sized.ViewProjection : Matrix4x4.Identity,
-                SunAndReach = new Vector4(inverse.M14, inverse.M24, inverse.M34, inverse.M44),
+                InverseViewProjection = back ?? Matrix4x4.Identity,
+                SunAndReach = new Vector4(placedInverse.M14, placedInverse.M24, placedInverse.M34, placedInverse.M44),
                 Mode = push.Mode with { X = 3, Z = held ? 1 : 0 },
             };
             Pass(renderContext, _rememberPipeline!, sized.Histories[next], held ? sized.Remember[next] : sized.RememberFirst, remember);
-            (sized.Written, sized.WrittenIn, sized.ViewProjection) = (next, _frame, viewProjection);
+            (sized.Written, sized.WrittenIn, sized.View) = (next, _frame, view);
             blurAcross = sized.BlurRemembered[next];
         }
         push.Mode.X = 1;

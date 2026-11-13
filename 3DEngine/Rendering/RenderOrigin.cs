@@ -140,6 +140,23 @@ internal readonly record struct RenderOrigin(double X, double Y, double Z)
         eye is { } seen ? new RenderOrigin(X - seen.Eye.X, Y - seen.Eye.Y, Z - seen.Eye.Z).Taking(seen.Turned) : Taking(viewProjection);
 
     /// <summary>
+    /// The way from the clip space of <paramref name="now"/> to that of <paramref name="before"/>,
+    /// as System.Numerics multiplies a row vector, or null where <paramref name="now"/> has no
+    /// inverse. Where both eyes were noted, it is the inverse of this camera made with its eye at
+    /// nothing times the way from this eye to the other, worked in doubles, times the other camera
+    /// made with its eye at nothing, so it holds no float of the world's size and reads the same
+    /// against any origin; otherwise the inverse of one view times the other.
+    /// </summary>
+    public static Matrix4x4? Reprojection(Matrix4x4 now, ViewEye? nowEye, Matrix4x4 before, ViewEye? beforeEye)
+    {
+        if (nowEye is { } here && beforeEye is { } then)
+            return Matrix4x4.Invert(here.Turned, out var turnedInverse)
+                ? turnedInverse * new RenderOrigin((double)here.Eye.X - then.Eye.X, (double)here.Eye.Y - then.Eye.Y, (double)here.Eye.Z - then.Eye.Z).Taking(then.Turned)
+                : null;
+        return Matrix4x4.Invert(now, out var inverse) ? inverse * before : null;
+    }
+
+    /// <summary>
     /// A view's push to a vertex stage that reads modelpass.slang's ModelPush, through this origin
     /// (<see cref="Seen"/>), with a move of clip space after it where one is given.
     /// </summary>

@@ -19,6 +19,7 @@ internal sealed class CameraExtract : IExtractSystem
             {
                 Jitter = world.TryGetResource<WindowJitter>(out var jitter) && world.TryGetResource<Time>(out var time)
                     ? jitter.In(time.FrameCount) : System.Numerics.Matrix4x4.Identity,
+                Turned = world.TryGetResource<ModelDrawList>(out var draws) ? draws.EyeOf(window.ViewProjection)?.Turned : null,
             });
         else renderWorld.Remove<WindowView>();
         if (ecs is null) return;
@@ -98,4 +99,51 @@ internal sealed record WindowView(System.Numerics.Matrix4x4 ViewProjection, Syst
     /// through, so they hold still where the camera does.
     /// </summary>
     public System.Numerics.Matrix4x4 Unjittered => ViewProjection * Back;
+
+    /// <summary>
+    /// Its view and projection made with the eye at nothing, where the frame noted the camera's eye
+    /// (<see cref="ViewEye"/>), or null for a camera made without one.
+    /// </summary>
+    public System.Numerics.Matrix4x4? Turned { get; init; }
+
+    /// <summary>
+    /// Its view and projection taking a place against <paramref name="origin"/> to clip space, from
+    /// its eye where the frame noted it (<see cref="RenderOrigin.Seen"/>), so a view of a frame
+    /// before is read against this frame's origin with no float of the world's size in it.
+    /// </summary>
+    public System.Numerics.Matrix4x4 Against(RenderOrigin origin) =>
+        origin.Seen(ViewProjection, Turned is { } turned ? new ViewEye(Eye, turned) : null);
+
+    /// <summary>The same without <see cref="Jitter"/>, as <see cref="Unjittered"/> is.</summary>
+    public System.Numerics.Matrix4x4 UnjitteredAgainst(RenderOrigin origin) => Against(origin) * Back;
+
+    /// <summary>
+    /// Its eye and its view and projection made with the eye at nothing without <see cref="Jitter"/>,
+    /// where the frame noted the camera's eye, or null.
+    /// </summary>
+    public ViewEye? UnjitteredEye => Turned is { } turned ? new ViewEye(Eye, turned * Back) : null;
+
+    /// <summary>
+    /// The way from its clip space without <see cref="Jitter"/> to <paramref name="before"/>'s, the
+    /// frame before's (<see cref="RenderOrigin.Reprojection"/>), or null where it has no inverse.
+    /// </summary>
+    public System.Numerics.Matrix4x4? To(WindowView before) =>
+        RenderOrigin.Reprojection(Unjittered, UnjitteredEye, before.Unjittered, before.UnjitteredEye);
+
+    /// <summary>
+    /// Whether it is the camera <paramref name="other"/> is, its jitter aside, by the same eye and
+    /// the same view and projection made with the eye at nothing where both eyes were noted, and by
+    /// the same view-projection within the rounding of taking the jitter back out of each otherwise.
+    /// </summary>
+    public bool Same(WindowView other) => UnjitteredEye is { } here && other.UnjitteredEye is { } then
+        ? here.Eye == then.Eye && Alike(here.Turned, then.Turned)
+        : Alike(Unjittered, other.Unjittered);
+
+    private static bool Alike(System.Numerics.Matrix4x4 a, System.Numerics.Matrix4x4 b)
+    {
+        for (int row = 0; row < 4; row++)
+            for (int column = 0; column < 4; column++)
+                if (Math.Abs(a[row, column] - b[row, column]) > 1e-6f + 1e-5f * Math.Abs(a[row, column])) return false;
+        return true;
+    }
 }

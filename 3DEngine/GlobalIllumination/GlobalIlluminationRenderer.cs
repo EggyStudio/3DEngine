@@ -41,7 +41,7 @@ internal sealed partial class GlobalIlluminationRenderer : IIlluminationPasses, 
 
     // The window's camera the screen's probes were last placed through, which their blend finds a
     // probe's place in the frame before by, or null where the probes were laid out again since.
-    private (Matrix4x4 ViewProjection, Vector3 Eye)? _lastScreen;
+    private (Matrix4x4 ViewProjection, Vector3 Eye, ViewEye? Seen)? _lastScreen;
     // The places the glow lights were written in, kept from frame to frame, and how many there were.
     private readonly GlowPlaces _glowPlaces = new();
     private int _glowCount;
@@ -70,7 +70,7 @@ internal sealed partial class GlobalIlluminationRenderer : IIlluminationPasses, 
     private sealed class TargetScreen(GpuScreenProbes screen) : IDisposable
     {
         public GpuScreenProbes Screen { get; } = screen;
-        public (Matrix4x4 ViewProjection, Vector3 Eye)? Last { get; set; }
+        public (Matrix4x4 ViewProjection, Vector3 Eye, ViewEye? Seen)? Last { get; set; }
         public long Drawn { get; set; }
         public bool GlowOnly { get; init; }
 
@@ -102,7 +102,10 @@ internal sealed partial class GlobalIlluminationRenderer : IIlluminationPasses, 
     /// The window's camera the frame <see cref="KeepFrame"/> last kept the scene of, which a
     /// reflection looks a surface up in that picture by, or null where none is kept.
     /// </summary>
-    public Matrix4x4? HistoryViewProjection { get; private set; }
+    public Matrix4x4? HistoryViewProjection => HistoryView?.Unjittered;
+
+    /// <inheritdoc />
+    public WindowView? HistoryView { get; private set; }
 
     /// <summary>
     /// The window's meshes for the device's ray tracing, built each frame at the top quality where
@@ -295,11 +298,13 @@ internal sealed partial class GlobalIlluminationRenderer : IIlluminationPasses, 
                 _lastScreen = null;
             }
             var jitter = JitterAt(_frame, tile);
-            var bytes = ViewBytes(window.Unjittered, inverse, window.Eye, _screen, depth.Extent, swapchain.Extent, jitter, _lastScreen, origin);
+            // The window's camera without its move, with its eye where the frame noted it.
+            var seen = window.Turned is { } turned ? new ViewEye(window.Eye, turned * window.Back) : (ViewEye?)null;
+            var bytes = ViewBytes(window.Unjittered, inverse, window.Eye, seen, _screen, depth.Extent, swapchain.Extent, jitter, _lastScreen, origin);
             _retired.Add((_frame, GlobalIlluminationStages.Of(device).RecordScreenProbes(renderContext.CommandBuffer, _gi, _screen, field.Field, depth.View, depth.Sampler, bytes, _glowCount > 0,
                 renderWorld.TryGet<GlobalIlluminationSettings>()?.LoggedScreenProbe ?? -1, glowOnly,
                 renderWorld.TryGet<GlobalIlluminationSettings>()?.LoggedScreenProbeNotANumber ?? false, _lightThrough)));
-            _lastScreen = (window.Unjittered, window.Eye);
+            _lastScreen = (window.Unjittered, window.Eye, seen);
         }
         else if (_screen is not null)
         {
@@ -351,12 +356,13 @@ internal sealed partial class GlobalIlluminationRenderer : IIlluminationPasses, 
         state.Drawn = _frame;
         // The eye the frame noted the camera with, or the middle of its near plane.
         var eye = Vector4.Transform(new Vector4(0, 0, 0, 1), inverse);
-        var at = renderWorld.TryGet<ModelDrawList>()?.EyeOf(camera)?.Eye ?? new Vector3(eye.X, eye.Y, eye.Z) / eye.W;
+        var seen = renderWorld.TryGet<ModelDrawList>()?.EyeOf(camera);
+        var at = seen?.Eye ?? new Vector3(eye.X, eye.Y, eye.Z) / eye.W;
         var jitter = JitterAt(_frame, tile);
-        var bytes = ViewBytes(camera, inverse, at, state.Screen, depth.Extent, size, jitter, state.Last, renderWorld.TryGet<RenderOrigin>());
+        var bytes = ViewBytes(camera, inverse, at, seen, state.Screen, depth.Extent, size, jitter, state.Last, renderWorld.TryGet<RenderOrigin>());
         _retired.Add((_frame, GlobalIlluminationStages.Of(device).RecordScreenProbes(renderContext.CommandBuffer, _gi, state.Screen, field.Field, depth.View, depth.Sampler, bytes, _glowCount > 0,
             glowOnly: glowOnly, lightThrough: _lightThrough)));
-        state.Last = (camera, at);
+        state.Last = (camera, at, seen);
         targets.ByTarget[id] = new IlluminationBinding(_gi, field.Field, state.Screen, depth, GlowLights: _glowCount);
     }
 
@@ -369,13 +375,15 @@ internal sealed partial class GlobalIlluminationRenderer : IIlluminationPasses, 
     // meshes came or went within them with the box around those meshes. The matrices lie as they do
     // in memory, which the shaders, reading them column-major, multiply a point by as the CPU does.
     // Each place and matrix is handed against the frame's origin, the frame before's against this
-    // frame's, since the passes read them with this frame's places.
-    private byte[] ViewBytes(Matrix4x4 viewProjection, Matrix4x4 inverse, Vector3 eye, GpuScreenProbes screen, Extent2D depth, Extent2D size,
-        Vector2 jitter, (Matrix4x4 ViewProjection, Vector3 Eye)? last, RenderOrigin origin)
+    // frame's, since the passes read them with this frame's places, and a camera whose eye the frame
+    // noted (seen) from its eye, so no float of the world's size is in it.
+    private byte[] ViewBytes(Matrix4x4 viewProjection, Matrix4x4 inverse, Vector3 eye, ViewEye? seen, GpuScreenProbes screen, Extent2D depth,
+        Extent2D size, Vector2 jitter, (Matrix4x4 ViewProjection, Vector3 Eye, ViewEye? Seen)? last, RenderOrigin origin)
     {
         var bytes = new byte[GpuScreenProbes.ViewBytes];
-        MemoryMarshal.Write(bytes, origin.Taking(viewProjection));
-        MemoryMarshal.Write(bytes.AsSpan(64), origin.Inverse(inverse));
+        var placedView = origin.Seen(viewProjection, seen);
+        MemoryMarshal.Write(bytes, placedView);
+        MemoryMarshal.Write(bytes.AsSpan(64), Matrix4x4.Invert(placedView, out var placedInverse) ? placedInverse : origin.Inverse(inverse));
         var floats = MemoryMarshal.Cast<byte, float>(bytes.AsSpan());
         var placed = origin.Against(eye);
         (floats[32], floats[33], floats[34]) = (placed.X, placed.Y, placed.Z);
@@ -387,7 +395,7 @@ internal sealed partial class GlobalIlluminationRenderer : IIlluminationPasses, 
         (floats[68], floats[69], floats[70], floats[71]) = (jitter.X, jitter.Y, _frame % 16, Settling ? 1 : 0);
         if (last is { } then)
         {
-            MemoryMarshal.Write(bytes.AsSpan(192), origin.Taking(then.ViewProjection));
+            MemoryMarshal.Write(bytes.AsSpan(192), origin.Seen(then.ViewProjection, then.Seen));
             // 2 where the view is the frame before's, which the filter reads each probe where it
             // stands by, as the frame before's matrices put it back off its place far from the origin.
             var still = then.ViewProjection == viewProjection && then.Eye == eye;
@@ -400,11 +408,14 @@ internal sealed partial class GlobalIlluminationRenderer : IIlluminationPasses, 
         var (changedLow, changedHigh) = (origin.Against(_fieldChanged.Min), origin.Against(_fieldChanged.Max));
         (floats[76], floats[77], floats[78]) = (changedLow.X, changedLow.Y, changedLow.Z);
         (floats[80], floats[81], floats[82]) = (changedHigh.X, changedHigh.Y, changedHigh.Z);
-        // Clip space back to the way from the eye, worked out in doubles, so the eye's place
-        // cancels out of the translation with nothing of the float's rounding left in it. It is
-        // always found here, since both callers write a view only once its floats' inverse is, and
-        // the eye's translation has an inverse of its own, so the block is never left at zeros.
-        if (InverseFromEye(viewProjection, eye) is { } fromEye)
+        // Clip space back to the way from the eye, the inverse of the camera made at the world's
+        // origin where the frame noted it, else worked out in doubles, so the eye's place cancels
+        // out of the translation. It is always found here, since both callers write a view only
+        // once its floats' inverse is, and the eye's translation has an inverse of its own, so the
+        // block is never left at zeros.
+        if (seen is { } noted && Matrix4x4.Invert(noted.Turned, out var turnedInverse))
+            MemoryMarshal.Write(bytes.AsSpan(336), turnedInverse);
+        else if (InverseFromEye(viewProjection, eye) is { } fromEye)
             MemoryMarshal.Write(bytes.AsSpan(336), fromEye);
         return bytes;
     }
@@ -462,7 +473,7 @@ internal sealed partial class GlobalIlluminationRenderer : IIlluminationPasses, 
             _history = device.CreateReflectionHistory(extent.Width, extent.Height);
         }
         device.RecordKeepFrame(renderContext.CommandBuffer, scene, depth.View, _history);
-        HistoryViewProjection = window.Unjittered;
+        HistoryView = window;
     }
 
     // The window's shadow map as the frame before's shadow pass drew it and the shadow it drew it
@@ -584,7 +595,7 @@ internal sealed partial class GlobalIlluminationRenderer : IIlluminationPasses, 
         _targets.Clear();
         (_gi, _screen, _history, _rays, _lastScreen) = (null, null, null, null, null);
         _origins = [];
-        HistoryViewProjection = null;
+        HistoryView = null;
     }
 
     /// <inheritdoc />

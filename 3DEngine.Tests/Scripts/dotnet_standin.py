@@ -2,7 +2,8 @@
 """Stands for dotnet in the tests of build/test.py, so they need no dotnet and no suite.
 
 Its tests are 40 under Rendering, 30 of the class Drawing and 5 each of Lighting and Shadows, 35
-under Api and 5 of NormTests. Asked for them with
+under Api and 5 of NormTests, each passing test's results giving it seven seconds for each place it
+stands at in the list. Asked for them with
 --list-tests it lists them. Asked to run them with no filter, as the suite whole, it does what
 E3D_STANDIN says: hang, grow until it is ended, or die with exit code 134, leaving a minidump where
 the runtime is asked to and saying, as createdump does, the thread it crashed on and its signal, or
@@ -25,6 +26,12 @@ TESTS = ([f"Engine.Tests.Rendering.Drawing.Draws_{i}" for i in range(30)]
          + [f"Engine.Tests.Rendering.Shadows.Falls_{i}" for i in range(5)]
          + [f"Engine.Tests.Api.Calls.Answers_{i}" for i in range(35)]
          + [f"Engine.Tests.NormTests.N_1_{i}" for i in range(5)])
+
+
+def duration_of(name):
+    """A test's time as a results file holds it, seven seconds for each place it stands at in the list."""
+    seconds = TESTS.index(name) * 7
+    return f"00:{seconds // 60:02}:{seconds % 60:02}.0000000"
 
 
 def value(flag):
@@ -110,7 +117,7 @@ def main():
     rows = "".join(
         f'<UnitTestResult testName="{name}" outcome="Failed"><Output><ErrorInfo><Message>Expected the order to hold, '
         f'but seed {shuffled} broke it.</Message><StackTrace>   at Engine.Tests.NormTests.N_1_3()</StackTrace></ErrorInfo></Output></UnitTestResult>'
-        if shuffled and name.endswith("N_1_3") else f'<UnitTestResult testName="{name}" outcome="Passed" />'
+        if shuffled and name.endswith("N_1_3") else f'<UnitTestResult testName="{name}" outcome="Passed" duration="{duration_of(name)}" />'
         for name in names)
     with open(path, "w", encoding="utf-8") as f:
         f.write('<?xml version="1.0" encoding="utf-8"?><TestRun xmlns="http://microsoft.com/schemas/VisualStudio/TeamTest/2010">'

@@ -369,6 +369,74 @@ public sealed class RenderOriginTests : IDisposable
         differences.Max().Should().BeLessThan(64, "an edge's pixel falls the other way by the places' rounding, no further");
     }
 
+    // The room at a place in the world at High under temporal antialiasing and motion blur, with
+    // the occlusion and a glossy floor reflecting the frame kept the frame before, the camera standing
+    // while the field settles and then turning across the room by an eighth of a unit a frame, a
+    // float's step at 1,140,736, for eight frames, each pass reading its frame before through its
+    // history; the level of each pixel's light in the last frame as the motion blur leaves it. The
+    // lights cast no shadows, whose texels fall at another phase against a room moved.
+    private static float[] Turning(Vector3 at)
+    {
+        var config = Config.Default.WithWindow("render origin", Width, Height) with
+        {
+            Headless = true, Offscreen = true, Samples = 1, FrameSeconds = 1.0 / 60,
+        };
+        UseApp(new App(config).AddPlugin(new DefaultPlugins()));
+        SetSceneField(2, 0.25f);
+        SetGlobalIllumination(GlobalIllumination.High);
+        SetTemporalAntialiasing(true);
+        SetMotionBlur(1);
+        SetAmbientOcclusion(1, 1);
+        CreateDirectionalLight(Vector3.Normalize(new Vector3(-0.4f, -1, -0.3f)), Color.White, 1.5f);
+        CreatePointLight(at + new Vector3(1.5f, 1.25f, 1.25f), new Color(255, 200, 150), 4, range: 6);
+        var block = LoadModelFromMesh(GenMeshCube(1, 1, 1));
+        var floor = block.Materials[0] with { Roughness = 0.125f, Color = new Color(200, 190, 170) };
+        for (int frame = 0; frame < SceneFieldPlan.SettleFrames + 8; frame++)
+        {
+            var turned = Math.Max(0, frame - SceneFieldPlan.SettleFrames + 1) * 0.125f;
+            var view = new Camera3D(at + new Vector3(0, 2.5f, 5.5f), at + new Vector3(turned, 0.5f, 0), Vector3.UnitY, 60);
+            BeginDrawing();
+            ClearBackground(Color.Black);
+            BeginMode3D(view);
+            SetSceneFieldCenter(at);
+            DrawMesh(block.Meshes[0], floor, Matrix4x4.CreateScale(8, 1, 8) * Matrix4x4.CreateTranslation(at + new Vector3(0, -0.5f, 0)));
+            DrawModelEx(block, at + new Vector3(0, 1.5f, -2.5f), Vector3.UnitY, 0, new Vector3(8, 4, 1), new Color(180, 120, 90));
+            DrawModelEx(block, at + new Vector3(-1.25f, 0.5f, 0.25f), Vector3.UnitY, 0, Vector3.One, Color.White);
+            DrawModelEx(block, at + new Vector3(1.25f, 0.25f, -0.5f), Vector3.UnitY, 0, new Vector3(0.5f), new Color(120, 160, 220));
+            EndMode3D();
+            EndDrawing();
+        }
+        var renderer = GetApp().World.Resource<Engine.Renderer>();
+        var linear = ((GraphicsDevice)renderer.Context.Graphics!).ReadFloats(renderer.RenderWorld.TryGet<BloomRenderer>()!.Blurred!.ColorView.Image);
+        var levels = new float[Width * Height];
+        for (int i = 0; i < levels.Length; i++)
+        {
+            var l = 0.2126f * linear[i * 4] + 0.7152f * linear[i * 4 + 1] + 0.0722f * linear[i * 4 + 2];
+            l /= 1 + l;
+            levels[i] = 255 * Math.Clamp(l <= 0.0031308f ? 12.92f * l : 1.055f * MathF.Pow(l, 1 / 2.4f) - 0.055f, 0, 1);
+        }
+        UnloadModel(block);
+        CloseWindow();
+        UseApp(null);
+        return levels;
+    }
+
+    [NeedsVulkanTheory]
+    [InlineData(4096f, 1024f)]
+    [InlineData(71680f, 17408f)]
+    [InlineData(1140736f, 285696f)]
+    public void A_Camera_Turning_Far_From_The_Worlds_Origin_Reads_As_At_It(float x, float z)
+    {
+        var home = Turning(Vector3.Zero);
+        var far = Turning(new Vector3(x, 0, z));
+        var largest = home.Zip(far, (a, b) => Math.Abs(a - b)).Max();
+        // Each pass reads its frame before from the two cameras' eyes, against this frame's origin
+        // where it reads a place, so the frames far out are handed to the GPU in the numbers the
+        // frames at the origin are. A history reprojected through views in world numbers moves its
+        // pixels far out.
+        largest.Should().BeLessThan(0.1f, "every frame before is read in the numbers the frames at the origin are");
+    }
+
     [NeedsVulkanTheory]
     [InlineData(GlobalIllumination.Low)]
     [InlineData(GlobalIllumination.High)]

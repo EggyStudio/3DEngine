@@ -15,6 +15,12 @@ internal interface IIlluminationPasses
     /// <summary>The window's camera the frame <see cref="KeepFrame"/> last kept the scene of, or null where none is kept.</summary>
     Matrix4x4? HistoryViewProjection { get; }
 
+    /// <summary>
+    /// The window's view of that frame, its eye and turn with it, which a reflection reads the kept
+    /// scene through against this frame's origin (<see cref="WindowView.UnjitteredAgainst"/>).
+    /// </summary>
+    WindowView? HistoryView { get; }
+
     /// <summary>Whether the window's meshes are built for the device's ray tracing this frame.</summary>
     bool TracesRays { get; }
 

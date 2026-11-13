@@ -521,6 +521,25 @@ it to; the lighting's functions a shader calls with a point, as `lightReaching`,
 and take the origin off first (`placeOf`), and the engine's own lighting calls the ones ending in
 `Placed`, which take places. The push is read by both stages, since `world` adds `modelPush.origin`.
 
+A pass that reads its frame before keeps that frame's camera as the frame noted it, its eye and its
+view-projection made with the eye at nothing. The antialiasing's, the occlusion's and the motion
+blur's ways from this frame's clip space to the frame before's are the inverse of this camera made
+with its eye at nothing, times the way from this eye to the other worked in doubles, times the
+other camera made so (`RenderOrigin.Reprojection`), which holds no float of the world's size and
+reads the same against any origin. The antialiasing lets a pixel's history go where the depths the
+frame before saw around it stand nearer than the pixel's own, a comparison the sky's depth makes
+within the reprojection's rounding, so the same product taken against the origin lost the wall's
+top edge against the sky as the origin stepped, 50 levels apart where the origin was held. The
+screen probes' frame before and the reflections' history view are read against this frame's origin
+from their eyes (`WindowView.UnjitteredAgainst`, `RenderOrigin.Seen`). The screen probes' way from
+clip space back to a point's way from the eye is the inverse of the camera made with the eye at
+nothing, and the occlusion's scale of a unit against the picture's height and its history's depth
+along the view are read off the inverse of its view against the origin. A test turns the camera
+across a room at High under temporal antialiasing and motion blur, with the occlusion and a glossy
+floor reflecting the frame before, and reads the last frame after the blur as the same frames at
+the world's origin, alike at every pixel at 4,096, 71,680 and 1,140,736 units, where histories
+reprojected through views in world numbers read 71, 133 and 70 levels apart at the most.
+
 `LightExtract` copies every `Light` entity into the render world, and `LightingUboPrepare` packs up
 to 16 into one uniform buffer per frame, which `ModelRenderer` binds as a second descriptor set from
 a ring of one per frame in flight. The set's images, seventeen of them, are bound apart from two
