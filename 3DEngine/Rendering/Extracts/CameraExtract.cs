@@ -118,6 +118,18 @@ internal sealed record WindowView(System.Numerics.Matrix4x4 ViewProjection, Syst
     public System.Numerics.Matrix4x4 UnjitteredAgainst(RenderOrigin origin) => Against(origin) * Back;
 
     /// <summary>
+    /// The inverse of <see cref="Against"/>, clip space back to a place against
+    /// <paramref name="origin"/>, which takes a point of the depth drawn through it to a place with
+    /// no float of the world's size in it, or null where it has none.
+    /// </summary>
+    public System.Numerics.Matrix4x4? InverseAgainst(RenderOrigin origin) =>
+        System.Numerics.Matrix4x4.Invert(Against(origin), out var inverse) ? inverse : null;
+
+    /// <summary>The inverse of <see cref="UnjitteredAgainst"/>, or null where it has none.</summary>
+    public System.Numerics.Matrix4x4? UnjitteredInverseAgainst(RenderOrigin origin) =>
+        System.Numerics.Matrix4x4.Invert(UnjitteredAgainst(origin), out var inverse) ? inverse : null;
+
+    /// <summary>
     /// Its eye and its view and projection made with the eye at nothing without <see cref="Jitter"/>,
     /// where the frame noted the camera's eye, or null.
     /// </summary>

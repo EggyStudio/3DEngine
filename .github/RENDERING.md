@@ -540,6 +540,18 @@ floor reflecting the frame before, and reads the last frame after the blur as th
 the world's origin, alike at every pixel at 4,096, 71,680 and 1,140,736 units, where histories
 reprojected through views in world numbers read 71, 133 and 70 levels apart at the most.
 
+The passes that read a pixel's distance from the eye from the depth, the fog and its decode, the
+scattering's blur and the depth of field, take the depth's points back through the camera against
+the frame's origin from its eye (`WindowView.InverseAgainst`, `WindowView.UnjitteredInverseAgainst`)
+and the eye's place against it, so a distance holds no float of the world's size; through the
+camera in world numbers a point far out comes back rounded to the float's step at the eye. A test
+stands the camera in fog that thins upward, through the depth of field's blur, by a block whose
+light scatters under its surface, and reads the frame the lens passes leave far out as the same
+frames at the world's origin, alike at every pixel at 4,096, 71,680 and 1,140,736 units, where the
+camera in world numbers reads 0.78, 17 and 40 levels apart at the most. The particles meet the
+depth through the camera in world numbers, as they are kept in world numbers, and the field's
+cascades lying ahead of the eye take their middle in world numbers.
+
 `LightExtract` copies every `Light` entity into the render world, and `LightingUboPrepare` packs up
 to 16 into one uniform buffer per frame, which `ModelRenderer` binds as a second descriptor set from
 a ring of one per frame in flight. The set's images, seventeen of them, are bound apart from two

@@ -104,7 +104,8 @@ internal sealed class VolumetricFogRenderer : IDisposable
         _push = default;
         if (renderWorld.TryGet<VolumetricFogSettings>() is not { On: true } settings || renderWorld.TryGet<WindowView>() is not { } view
             || renderWorld.TryGet<SwapchainTarget>() is not { } swapchain || renderContext.Device is not GraphicsDevice device || !FogStages.Of(device).CanDrawFog
-            || !Matrix4x4.Invert(view.Unjittered, out var inverse) || !Matrix4x4.Invert(view.ViewProjection, out var shown))
+            || view.UnjitteredInverseAgainst(renderWorld.TryGet<RenderOrigin>()) is not { } inverse
+            || view.InverseAgainst(renderWorld.TryGet<RenderOrigin>()) is not { } shown)
         {
             if (_sized is { } made) _retired.Add((_frame, Disposing(made)));
             _sized = null;
@@ -119,13 +120,16 @@ internal sealed class VolumetricFogRenderer : IDisposable
             _sized = sized = Made(device, across, down, Slices);
         }
 
-        var far = MathF.Min(FarPlane(inverse, view.Eye), Reach);
+        // The camera from its eye against the frame's origin, which takes the depth's points to
+        // places with no float of the world's size in them, and the eye there.
+        var eye = renderWorld.TryGet<RenderOrigin>().Against(view.Eye);
+        var far = MathF.Min(FarPlane(inverse, eye), Reach);
         var start = far / 1024;
         var scale = new Vector2((float)width / (across * Tile), (float)height / (down * Tile));
         var uniforms = new Uniforms
         {
             InverseViewProjection = inverse,
-            Eye = new Vector4(view.Eye, start),
+            Eye = new Vector4(eye, start),
             Density = new Vector4(settings.Density, settings.Height, MathF.Max(0, settings.Falloff), far),
             Grid = new Vector4(across, down, _frame % 4096, 0),
             Probes = new Vector4(0, 0, scale.X, scale.Y),
@@ -145,16 +149,14 @@ internal sealed class VolumetricFogRenderer : IDisposable
         uniforms = Placed(uniforms, renderWorld.TryGet<RenderOrigin>());
         _retired.Add((_frame, FogStages.Of(device).RecordFog(renderContext.CommandBuffer, sized.Fog, MemoryMarshal.AsBytes(new ReadOnlySpan<Uniforms>(in uniforms)),
             shadowView, shadowSampler, bounced?.Probes, field)));
-        _push = new DecodePush { InverseViewProjection = shown, Eye = new Vector4(view.Eye, 1), Slices = new Vector4(start, far, scale.X, scale.Y) };
+        _push = new DecodePush { InverseViewProjection = shown, Eye = new Vector4(eye, 1), Slices = new Vector4(start, far, scale.X, scale.Y) };
     }
 
-    // The uniforms worked out in world numbers with their places taken against the frame's origin,
-    // as the field's corners are handed, the camera's inverse, its eye and the height the fog thins
-    // from. The sun's cascades are fitted against it already (FrameShadow.Origin).
+    // The uniforms with the height the fog thins from taken against the frame's origin, as the
+    // field's corners are handed. The camera and its eye are taken against it as they are made, and
+    // the sun's cascades are fitted against it (FrameShadow.Origin).
     private static Uniforms Placed(Uniforms uniforms, RenderOrigin origin)
     {
-        uniforms.InverseViewProjection = origin.Inverse(uniforms.InverseViewProjection);
-        uniforms.Eye = origin.Against(uniforms.Eye);
         uniforms.Density.Y = (float)(uniforms.Density.Y - origin.Y);
         return uniforms;
     }

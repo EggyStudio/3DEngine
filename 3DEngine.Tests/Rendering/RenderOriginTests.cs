@@ -437,6 +437,73 @@ public sealed class RenderOriginTests : IDisposable
         largest.Should().BeLessThan(0.1f, "every frame before is read in the numbers the frames at the origin are");
     }
 
+    // The room at a place in the world standing in fog that thins upward, lit by the sun and the
+    // lamp, through the depth of field's blur, with a block whose light scatters under its surface,
+    // the camera standing; the level of each pixel's light in the last frame as the lens passes
+    // leave it. The passes read each pixel's distance from the eye from the depth. Every corner lies
+    // on a float's step at 1,140,736, as the scene field splats meshes in world numbers.
+    private static float[] Hazy(Vector3 at)
+    {
+        var config = Config.Default.WithWindow("render origin", Width, Height) with
+        {
+            Headless = true, Offscreen = true, Samples = 1, FrameSeconds = 1.0 / 60,
+        };
+        UseApp(new App(config).AddPlugin(new DefaultPlugins()));
+        SetSceneField(2, 0.25f);
+        SetGlobalIllumination(GlobalIllumination.Low);
+        SetSubsurfaceQuality(SubsurfaceQuality.High);
+        SetVolumetricFog(0.06f, 1, 0.5f);
+        SetDepthOfField(5, 1, 0.01f);
+        SetMotionBlur(1);
+        CreateDirectionalLight(Vector3.Normalize(new Vector3(-0.4f, -1, -0.3f)), Color.White, 1.5f);
+        CreatePointLight(at + new Vector3(1.5f, 1.25f, 1.25f), new Color(255, 200, 150), 4, range: 6);
+        var block = LoadModelFromMesh(GenMeshCube(1, 1, 1));
+        var scattering = block.Materials[0] with { SubsurfaceRadius = 0.3f, SubsurfaceColor = new Color(255, 90, 60) };
+        var view = new Camera3D(at + new Vector3(0, 2.5f, 5.5f), at + new Vector3(0, 0.5f, 0), Vector3.UnitY, 60);
+        for (int frame = 0; frame < SceneFieldPlan.SettleFrames + 4; frame++)
+        {
+            BeginDrawing();
+            ClearBackground(Color.Black);
+            BeginMode3D(view);
+            SetSceneFieldCenter(at);
+            DrawModelEx(block, at + new Vector3(0, -0.5f, 0), Vector3.UnitY, 0, new Vector3(8, 1, 8), new Color(200, 190, 170));
+            DrawModelEx(block, at + new Vector3(0, 1.5f, -2.5f), Vector3.UnitY, 0, new Vector3(8, 4, 1), new Color(180, 120, 90));
+            DrawModelEx(block, at + new Vector3(-1.25f, 0.5f, 0.25f), Vector3.UnitY, 0, Vector3.One, Color.White);
+            DrawMesh(block.Meshes[0], scattering, Matrix4x4.CreateScale(0.75f) * Matrix4x4.CreateTranslation(at + new Vector3(1.25f, 0.375f, 0.5f)));
+            EndMode3D();
+            EndDrawing();
+        }
+        var renderer = GetApp().World.Resource<Engine.Renderer>();
+        var linear = ((GraphicsDevice)renderer.Context.Graphics!).ReadFloats(renderer.RenderWorld.TryGet<BloomRenderer>()!.Blurred!.ColorView.Image);
+        var levels = new float[Width * Height];
+        for (int i = 0; i < levels.Length; i++)
+        {
+            var l = 0.2126f * linear[i * 4] + 0.7152f * linear[i * 4 + 1] + 0.0722f * linear[i * 4 + 2];
+            l /= 1 + l;
+            levels[i] = 255 * Math.Clamp(l <= 0.0031308f ? 12.92f * l : 1.055f * MathF.Pow(l, 1 / 2.4f) - 0.055f, 0, 1);
+        }
+        UnloadModel(block);
+        CloseWindow();
+        UseApp(null);
+        return levels;
+    }
+
+    [NeedsVulkanTheory]
+    [InlineData(4096f, 1024f)]
+    [InlineData(71680f, 17408f)]
+    [InlineData(1140736f, 285696f)]
+    public void A_Room_In_Fog_Through_A_Lens_Far_From_The_Worlds_Origin_Reads_As_At_It(float x, float z)
+    {
+        var home = Hazy(Vector3.Zero);
+        var far = Hazy(new Vector3(x, 0, z));
+        var largest = home.Zip(far, (a, b) => Math.Abs(a - b)).Max();
+        // The fog, the scattering's blur and the depth of field take each pixel's distance from the
+        // eye from the depth through the camera against the frame's origin from its eye, so the room
+        // far out is handed to the GPU in the numbers the room at the origin is. Through the camera in
+        // world numbers a distance far out is rounded to the float's step at the eye.
+        largest.Should().BeLessThan(0.1f, "every distance from the eye is read in the numbers the room at the origin is");
+    }
+
     [NeedsVulkanTheory]
     [InlineData(GlobalIllumination.Low)]
     [InlineData(GlobalIllumination.High)]

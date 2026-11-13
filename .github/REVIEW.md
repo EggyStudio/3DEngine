@@ -1,33 +1,40 @@
 # Review
 
-Reviewed up to `bca57e93`, Verdict 120's mend, the render origin's three tests that compare a
-pixel's light against another origin held by a count of pixels past a small level and a loose
-largest, read on the RTX and on Mesa 26.2.4 and 25.2.8, with `ed3cd9ca`, 264's part 3, the shadows
-fitted in places with their texels' lattice kept in world numbers, pushed together at 19:11 on
-2026-11-13, one run on the last, 43480215485; RenderOriginTests passes whole on the three devices,
-16 of 16, and the suite passed both legs on part 3, 2,375; they keep the form and carry the review's
-files. Before them `54792d7e`, 264's mend for a program's shader, world a property over the place
-and the origin and the lighting's point-taking functions taking world points beside their Placed
-twins, with `80fe61d2`, part 2, the origin at the eye, and `a0af50a3`, part 1's second commit, every
-place a pass reads in a buffer taken against the origin, the three held until the game's play on the
-local package 6.2.60-local.264.3 read the four breaks of 264.2 gone and pushed together at 22:38 on
-2026-11-12, one run on the last, 43312321044, red at 00:49 on 2026-11-13 in both Linux legs at one
-test of the render origin, Verdict 120, macOS in 56 minutes and the Windows jobs in 130, 59 and 86
-green; the suite passed both legs on the last here, 2,369; they keep the form and carry the review's
-files. Before them `3405714a`, 264's first part begun, the render origin laid through the vertex
-stages of the model pass, the shadows and the particles and held at zero, with a test at 160 by 90
-that reads every pixel within a level against an origin moved 64, -32, 128, pushed at 18:12 on
-2026-11-12 once the run before it had ended, green at 20:22 with macOS in 51 minutes, the Linux legs
-in 65 and 83 and the Windows jobs in 129, 84 and 67; the suite passed both legs, 2,358; it keeps the
-form and carries the review's files. Before it `baa21ff4`, Verdict 119's mend, the Windows suite
-dealt to three jobs with the rest of the Rendering part in six processes of about 25 minutes each on
-the slowest runner read, pushed at 16:01 on 2026-11-12 with `63b47a49`, item 266, the comments of
-239 files swept by N 4.11 as widened with no line but a comment changed, and `8513f710`, 259's
-second commit, the surface's point read at the centroid with its test, one run on the last, green at
-18:07 with macOS in 49 minutes, the Linux legs in 51 and 64 and the Windows jobs in 126, 54 and 72,
-which settles Verdict 119, and the pack run with publish for 259, 43243318284, started on it; the
-suite passed both legs on the second and third, 2,357, the last changing no code; they keep the form
-and carry the review's files. Before them `aa0f1be7`, items 259 and 260, the blobs reported in the
+Reviewed up to `68e7085f`, 264's part 4, each pass that reads its frame before taking the way
+between the two frames from the cameras' eyes, a camera turning a million units out reading as at
+the world's origin, with each process's slowest tests kept on a green run, pushed at 21:27 on
+2026-11-13 once the run before it had ended, run 43501785641; RenderOriginTests passes whole on the
+three devices, 19 of 19, and the suite passed both legs, 2,379; it keeps the form and carries the
+review's files. Before it `bca57e93`, Verdict 120's mend, the render origin's three tests that
+compare a pixel's light against another origin held by a count of pixels past a small level and a
+loose largest, read on the RTX and on Mesa 26.2.4 and 25.2.8, with `ed3cd9ca`, 264's part 3, the
+shadows fitted in places with their texels' lattice kept in world numbers, pushed together at 19:11
+on 2026-11-13, one run on the last, 43480215485, green at 21:26 with macOS in 51 minutes, the Linux
+legs in 83 and 89 and the Windows jobs in 135, 85 and 64, which settles Verdict 120;
+RenderOriginTests passes whole on the three devices, 16 of 16, and the suite passed both legs on
+part 3, 2,375; they keep the form and carry the review's files. Before them `54792d7e`, 264's mend
+for a program's shader, world a property over the place and the origin and the lighting's
+point-taking functions taking world points beside their Placed twins, with `80fe61d2`, part 2, the
+origin at the eye, and `a0af50a3`, part 1's second commit, every place a pass reads in a buffer
+taken against the origin, the three held until the game's play on the local package
+6.2.60-local.264.3 read the four breaks of 264.2 gone and pushed together at 22:38 on 2026-11-12,
+one run on the last, 43312321044, red at 00:49 on 2026-11-13 in both Linux legs at one test of the
+render origin, Verdict 120, macOS in 56 minutes and the Windows jobs in 130, 59 and 86 green; the
+suite passed both legs on the last here, 2,369; they keep the form and carry the review's files.
+Before them `3405714a`, 264's first part begun, the render origin laid through the vertex stages of
+the model pass, the shadows and the particles and held at zero, with a test at 160 by 90 that reads
+every pixel within a level against an origin moved 64, -32, 128, pushed at 18:12 on 2026-11-12 once
+the run before it had ended, green at 20:22 with macOS in 51 minutes, the Linux legs in 65 and 83
+and the Windows jobs in 129, 84 and 67; the suite passed both legs, 2,358; it keeps the form and
+carries the review's files. Before it `baa21ff4`, Verdict 119's mend, the Windows suite dealt to
+three jobs with the rest of the Rendering part in six processes of about 25 minutes each on the
+slowest runner read, pushed at 16:01 on 2026-11-12 with `63b47a49`, item 266, the comments of 239
+files swept by N 4.11 as widened with no line but a comment changed, and `8513f710`, 259's second
+commit, the surface's point read at the centroid with its test, one run on the last, green at 18:07
+with macOS in 49 minutes, the Linux legs in 51 and 64 and the Windows jobs in 126, 54 and 72, which
+settles Verdict 119, and the pack run with publish for 259, 43243318284, started on it; the suite
+passed both legs on the second and third, 2,357, the last changing no code; they keep the form and
+carry the review's files. Before them `aa0f1be7`, items 259 and 260, the blobs reported in the
 distance, the vertex color and uv2 read at the centroid where a pixel's middle outside a triangle
 seen nearly edge on gave the surface's color a half float's most at 4 samples a pixel, with
 light.terms, a pixel's light read a term at a time, and a test of walls a hair beside the eye, 31
@@ -279,7 +286,21 @@ reverted as the screen probes' limit at shapes about a tile wide, its patches in
     by where the scene falls against the shadows' texels and the field's cells, which lie in world
     numbers, read with the indirect light after part 8. So nothing of the shadows is open far out.
     The guide's two sentences go into part 4's commit, the second naming the camera's target, and
-    the coder says in its Reply what a camera given as an eye and a way to look would take.
+    the coder says in its Reply what a camera given as an eye and a way to look would take. Part 4
+    read at 20:27 on 2026-11-13, `68e7085f` on `bca57e93`, held until the run on `bca57e93` has
+    ended. Each pass that reads its frame before takes the way between the two frames' clip spaces
+    from the two cameras' eyes, holding no float of the world's size, and the frame before's views
+    against this frame's origin from their eyes; a camera turning across a room reads under a tenth
+    of a level at 4,096, 71,680 and 1,140,736 on the RTX and both Mesa versions where part 3 read
+    40.8, 123.9 and 118.4, each of eight pieces put back alone failing it. RenderOriginTests passes
+    whole on the three devices within Verdict 120's bounds, and test.py keeps each process's five
+    slowest tests on a green run. Accepted. Asked for part 5's commit, the guide's last sentence
+    ending without an item's number and without a call to come, the review's own slip in the words
+    it gave, and which piece moves the plain room from 0.000 to 0.041 on Mesa. A camera given as an
+    eye and a way to look would be a sixth Camera3D field and about twenty reads in five files; it
+    mends the turn alone, a program far out that does not move its world still handing its eye and
+    its instances on the float's grid, so it stays out and Camera3D keeps its fields, put before the
+    owner with that recommendation.
 
 265. **The lighting's kernels written once.** Decision 112 on 2026-11-12. The radiance cascades'
     kernels, the trace, the merge, the ambient, the screen probes, their filter and the glow lights,
@@ -306,46 +327,7 @@ reverted as the screen probes' limit at shapes about a tile wide, its patches in
 
 ## Verdicts
 
-Verdict 120 is open, the run of `54792d7e` red in both Linux legs at one test of the render origin.
-Verdicts 56 to 119 are settled, said under each in REVIEW-ARCHIVE.md.
-
-120. **The run of `54792d7e` is red in both Linux legs at one test of the render origin.** Run
-     43312321044, pushed at 22:38 on 2026-11-12 with `a0af50a3` and `80fe61d2`, ended at 00:49 on
-     2026-11-13, macOS green in 56 minutes and the three Windows jobs green in 130, 59 and 86, the
-     Linux legs red in 85 and 51 with 2,282 passed, 2 failed and 51 skipped in each.
-     RenderOriginTests'
-     A_Scene_Drawn_Against_An_Origin_Away_From_The_Worlds_Reads_As_Against_The_Worlds fails at Low
-     and at High, the scene against an origin of 64, -32, 128 reading 1.4242401 levels at the most
-     from the scene against the world's where under 1 is asked, the same number in both legs and
-     both cases, so lavapipe on the runner gives it every time. The test is `3405714a`'s and was
-     green in that commit's run on the same runner, so one of the three commits after it moves a
-     pixel there by more, and the suite here did not show it, the legs run on the GPU. Asked, the
-     test run on lavapipe here at `3405714a`, `a0af50a3`, `80fe61d2`, `54792d7e` and `ed3cd9ca`,
-     which commit brings the 1.42, at which pixel and in which pass's light, by light.terms or the
-     passes left out one at a time; then the mend where a place is still read against the other
-     origin, or the bound said anew with its reason where the pixel is an edge that rounds by a
-     float's step. The mend goes up at once with `ed3cd9ca` under it. From here a commit that
-     touches what a pass reads against the origin has RenderOriginTests run on lavapipe before it is
-     reported, its largest figures said in the Reply. The coder's first read at 18:28 on 2026-11-13.
-     On lavapipe here, Mesa 26.2.4, the test reads 0.3928 at Low and 0.3667 at High at pixel 82, 47
-     at each of the four later commits, none past 0.5, so the 1.42 does not show; the runner
-     installs Mesa 25.2.8, and the five commits are run on an image carrying that package. Read by
-     the coder at 18:59 on an image of the runner's Mesa, the .NET SDK's noble image with
-     mesa-vulkan-drivers 25.2.8. There `3405714a` reads 0.126 and each of `a0af50a3`, `80fe61d2`,
-     `54792d7e` and `ed3cd9ca` reads 1.4801 at Low and 1.4242401 at High at pixel 103, 48, one pixel
-     past 1, its neighbors within 0.05; with the point light or the shadows left out it is gone.
-     `a0af50a3` looks the point light's shadow up from the place, and against 64, -32, 128 a place
-     rounds at about 4e-6, so one tap of the filter at the ball's edge falls the other side of the
-     map's depth; a place read against the other origin would move the whole shadow by tens of
-     units. So it is rounding at one edge pixel and no fault of the origin. On the same image part
-     3's shadowed room reads 25.43 at 71,680 past its 24, with 5 pixels past 4, and the crossing
-     29.97 within its 32. Decided by the review for the three tests by one rule, the count of pixels
-     past a small level tells a fault and one edge pixel's largest reading tells little, so each
-     count keeps at least twice the largest reading of the RTX, Mesa 26.2.4 and Mesa 25.2.8 and each
-     largest about twice. The scene against the other origin, at most 4 pixels past 1 level and none
-     past 4; the shadowed room, at most 16 pixels past 4 and none past 48; the crossing, at most 32
-     pixels past 1 and none past 64. The mend carries the three on `ed3cd9ca` and the two go up
-     together.
+No verdict is open. Verdicts 56 to 120 are settled, said under each in REVIEW-ARCHIVE.md.
 
 ## Decisions
 
@@ -736,45 +718,6 @@ slowest tests only where it ran out of time and its logs naming no test's time. 
 keeping each process's slowest tests in its digest whatever the result would give them; it is the
 review's to choose.
 
-Verdict 120, the mend. The runner's Mesa, 25.2.8 of Ubuntu 24.04, is made again here in an image of
-the session's own, `mcr.microsoft.com/dotnet/sdk:10.0-noble` with `mesa-vulkan-drivers`
-25.2.8-0ubuntu0.24.04.4 and `libvulkan1` 1.3.275.0-1build1, the tests built on the host and run in
-it with `dotnet test --no-build`, the checkout at its own path, the NuGet folder read only at
-/home/user/.nuget/packages, the container's labels off (`--security-opt label=disable`),
-`VK_DRIVER_FILES=/usr/share/vulkan/icd.d/lvp_icd.json` and `LP_NUM_THREADS=4`. On it the scene
-against the other origin reads 0.126 at 3405714a and 1.4801 at Low and 1.4242401 at High at
-a0af50a3, 80fe61d2, 54792d7e and ed3cd9ca, at one pixel by the ball's edge, 214.058 against the
-world's origin and 215.538 against the other at Low, 211.267 and 212.691 at High, its neighbors
-within 0.05, where Mesa 26.2.4 here reads 0.39 at every commit. a0af50a3's engine under
-3405714a's test reads 1.17 and 3405714a's under a0af50a3's 0.92, so the engine brings it and not
-the test's bend. Left out at a0af50a3 in turn, the shadows take it to 0.06, the point light to
-0.41, the ball to 0.33, and the spot, the particles and the scattering leave it at 1.48. It is the
-point light's shadow beside the ball, which a0af50a3 looks up from the place against the buffer's
-faces taken against the origin in doubles, where 3405714a looked it up from the world point; a
-place as 1.3 less 64 rounds at four millionths of a unit, and one tap of the filter at the ball's
-edge falls the other side of the map's depth. A place read against the other origin would move the
-whole shadow. The same image reads part 3's shadowed room 25.4 at 71,680, past its 24, and the
-crossing 30.0, near its 32. The three take the bounds the review set, a count of pixels past a
-small level, which tells a fault, and a largest about twice the most read on the three devices,
-each assertion's words saying its reason. The scene takes at most 4 pixels past a level and none
-past 4, the shadowed room at most 16 past 4 and none past 48, and the crossing at most 32 past a
-level and none past 64. On ed3cd9ca with them RenderOriginTests passes whole on the RTX 4070, on
-Mesa 26.2.4 and on 25.2.8, each case's largest and its pixels past the level its count is held at
-as follows.
-
-| Case | RTX 4070 | Mesa 26.2.4 | Mesa 25.2.8 |
-|---|---|---|---|
-| Scene at Low, past 1 | 0.088, 0 | 0.393, 0 | 1.480, 1 |
-| Scene at High, past 1 | 0.424, 0 | 0.367, 0 | 1.424, 1 |
-| Shadowed room at 4,096, past 4 | 7.72, 2 | 7.83, 2 | 5.26, 2 |
-| Shadowed room at 71,680, past 4 | 7.72, 1 | 7.83, 1 | 25.43, 5 |
-| Shadowed room at 1,140,736, past 4 | 10.73, 2 | 11.34, 1 | 20.96, 4 |
-| Crossing, past 1 | 0.073, 0 | 13.21, 8 | 29.97, 14 |
-| Room at each distance | 0.000 | 0.000 | 0.000 |
-
-The post's shadow reads alike on the three, 74.38 in it against 153.11 beside it at 0, 8, 24 and
-300, 75.61 against 153.40 crossing, and 153.25 against 73.76 for the shader that moves its point.
-
 Item 264, part 4, the frame before. A pass that reads its frame before keeps that frame's camera as
 the frame noted it, its eye and its view-projection made with the eye at nothing
 (`WindowView.Turned`). The antialiasing's, the occlusion's and the motion blur's ways from this
@@ -864,3 +807,72 @@ camera modes that move the target with the position among them, the screen's ray
 and the in-view check in E3D.Camera3D, would read one property, the look where set and the target
 less the position otherwise. A test would turn a camera far out by a look given and read it as the camera at
 the world's origin. About twenty reads in five files, and raylib's struct one field longer.
+
+Item 264, part 5, points from depth. The fog and its decode, the scattering's blur and the depth of
+field read each pixel's distance from the eye from the depth. Each takes the depth's points back
+through the camera against the frame's origin from its eye, the inverse of `WindowView.Against`
+(`InverseAgainst`, and `UnjitteredInverseAgainst` for the passes that read the depth drawn without
+the antialiasing's move), and the eye's place against that origin, where each took them through the
+inverse of the camera in world floats with the eye in world numbers. The fog's inverse was moved
+after by the origin in doubles, which took the origin back out and not the rounding the
+view-projection's translation had in floats. The screen probes and the occlusion read theirs so
+since part 4.
+
+RenderOriginTests adds a room standing in fog that thins upward, lit by the sun and the lamp,
+through the depth of field's blur, with a block whose light scatters under its surface, read in the
+frame the lens passes leave, under a tenth of a level at every pixel at 4,096, 71,680 and 1,140,736
+against the same frames at the world's origin. It reads 0.000 at all three on the RTX 4070 and on
+Mesa 25.2.8 and 0.058 at one pixel at 71,680 on 26.2.4, and on part 4's engine 0.78, 17.2 and 40.3
+levels at the most on the RTX 4070, 13,307 pixels past a level at the last. Each piece put back
+alone fails it.
+
+| Put back alone | 4,096 | 71,680 | 1,140,736 |
+|---|---|---|---|
+| The fog and its decode through the camera in world floats | 0.45 | 2.13 | 41.3 |
+| The scattering's blur | 0.70 | 14.6 | 4.98 |
+| The depth of field | 0.77 | 17.0 | 40.8 |
+| Part 4 whole | 0.78 | 17.2 | 40.3 |
+
+Its cases take 12.0 to 13.9 s each on lavapipe here held to four cores.
+
+The test's scattering mesh is a block, every corner on a float's step at 1,140,736. A ball read 48
+levels apart there with the scattering and 7.0 with the fog, the focus and the scattering all left
+out, as the scene field splats a mesh's triangles in world numbers, so its distances near the ball
+are rounded to an eighth there, and the scattering's thickness and the probes read them. That is the
+field's splat against the cascade's corner in doubles, with part 8.
+
+Left as they stand. The particles meet the depth through the camera in world numbers, as they are
+kept in world numbers themselves, on the eighth's grid at 1,140,736 whatever the view, so a test of
+their meeting far out against at the origin reads their own rounding; they go with moving the
+world. The field's cascades lying ahead of the eye (`SceneField.AheadOf`, `FarPlane`) take their
+middle in world numbers and snap it to the cells, which goes with part 8's snap in doubles. The
+reference tracer and the field's debug view read the camera in world numbers.
+
+The standing room's 0.041 on both Mesa versions is one pixel, 143,60, which reads 176.220 or 176.260
+from run to run in the room at the origin and in the room far out alike, so it falls on whichever
+distance's run took the other value. Each of part 4's pieces left out once, it went with the
+antialiasing's, the occlusion's history's, the screen probes' views' and the occlusion's scale's
+left out and stayed with the blur's, the reflections', the screen probes' way back's and the
+occlusion's height's, the blur and the occlusion drawing nothing in that room, so one trial each
+does not tell the piece; it showed in five runs of five on part 4 and in none of three on part 3.
+
+RenderOriginTests whole on the three devices, each case's largest and its pixels past the level its
+count is held at.
+
+| Case | RTX 4070 | Mesa 26.2.4 | Mesa 25.2.8 |
+|---|---|---|---|
+| Scene at Low, past 1 | 0.088, 0 | 0.393, 0 | 1.480, 1 |
+| Scene at High, past 1 | 0.246, 0 | 0.367, 0 | 1.424, 2 |
+| Shadowed room at 4,096, past 4 | 7.72, 2 | 7.83, 2 | 5.26, 2 |
+| Shadowed room at 71,680, past 4 | 7.72, 1 | 7.83, 1 | 25.43, 5 |
+| Shadowed room at 1,140,736, past 4 | 10.73, 2 | 11.34, 1 | 20.96, 4 |
+| Crossing, past 1 | 0.089, 0 | 13.21, 8 | 29.97, 14 |
+| Turning room at each distance | 0.000 | 0.000 | 0.000 |
+| Room in fog at 4,096 and 1,140,736 | 0.000 | 0.000 | 0.000 |
+| Room in fog at 71,680 | 0.000 | 0.058 | 0.000 |
+| Room at each distance | 0.000 | 0.000 | 0.041 at 71,680 |
+
+The post's shadow reads alike on the three, as in the mend's Reply.
+
+The guide's last sentence ends at a program keeping its numbers small by moving its own world as
+it goes. The suite passed both legs, 2,382.

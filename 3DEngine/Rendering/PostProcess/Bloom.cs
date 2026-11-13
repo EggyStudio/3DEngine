@@ -528,15 +528,17 @@ internal sealed partial class BloomRenderer : IDisposable
         if (!focus && !blur) return;
 
         EnsureLens(device, sized);
-        Matrix4x4.Invert(view.Unjittered, out var inverse);
         var lens = sized.Lens!;
         var source = linear.ColorView;
         if (focus)
         {
+            // The camera from its eye against the frame's origin, which takes the depth's points to
+            // places with no float of the world's size in them, and the eye there.
+            var origin = renderWorld.TryGet<RenderOrigin>();
             var push = new DofPush
             {
-                InverseViewProjection = inverse,
-                EyeAndFocus = new Vector4(view.Eye, effects.FocusDistance),
+                InverseViewProjection = view.UnjitteredInverseAgainst(origin) ?? Matrix4x4.Identity,
+                EyeAndFocus = new Vector4(origin.Against(view.Eye), effects.FocusDistance),
                 Lens = new Vector4(effects.FocusRange, effects.FocusBlur, (float)sized.Extent.Width / sized.Extent.Height, sized.Extent.Height),
             };
             Pass(renderContext, lens[0], LoadOp.Clear, _dof!, LensSet(device, sized, source, exact: true), push);

@@ -12236,6 +12236,45 @@ at `36cae0c2`.
     names having put 505 tests in one part. Its run was green at 18:07 on 2026-11-12 on every
     system, the Windows jobs in 126, 54 and 72 minutes, which settles this.
 
+120. **The run of `54792d7e` is red in both Linux legs at one test of the render origin.** Run
+    43312321044, pushed at 22:38 on 2026-11-12 with `a0af50a3` and `80fe61d2`, ended at 00:49 on
+    2026-11-13, macOS green in 56 minutes and the three Windows jobs green in 130, 59 and 86, the
+    Linux legs red in 85 and 51 with 2,282 passed, 2 failed and 51 skipped in each.
+    RenderOriginTests'
+    A_Scene_Drawn_Against_An_Origin_Away_From_The_Worlds_Reads_As_Against_The_Worlds fails at Low
+    and at High, the scene against an origin of 64, -32, 128 reading 1.4242401 levels at the most
+    from the scene against the world's where under 1 is asked, the same number in both legs and both
+    cases, so lavapipe on the runner gives it every time. The test is `3405714a`'s and was green in
+    that commit's run on the same runner, so one of the three commits after it moves a pixel there
+    by more, and the suite here did not show it, the legs run on the GPU. Asked, the test run on
+    lavapipe here at `3405714a`, `a0af50a3`, `80fe61d2`, `54792d7e` and `ed3cd9ca`, which commit
+    brings the 1.42, at which pixel and in which pass's light, by light.terms or the passes left out
+    one at a time; then the mend where a place is still read against the other origin, or the bound
+    said anew with its reason where the pixel is an edge that rounds by a float's step. The mend
+    goes up at once with `ed3cd9ca` under it. From here a commit that touches what a pass reads
+    against the origin has RenderOriginTests run on lavapipe before it is reported, its largest
+    figures said in the Reply. The coder's first read at 18:28 on 2026-11-13. On lavapipe here, Mesa
+    26.2.4, the test reads 0.3928 at Low and 0.3667 at High at pixel 82, 47 at each of the four
+    later commits, none past 0.5, so the 1.42 does not show; the runner installs Mesa 25.2.8, and
+    the five commits are run on an image carrying that package. Read by the coder at 18:59 on an
+    image of the runner's Mesa, the .NET SDK's noble image with mesa-vulkan-drivers 25.2.8. There
+    `3405714a` reads 0.126 and each of `a0af50a3`, `80fe61d2`, `54792d7e` and `ed3cd9ca` reads
+    1.4801 at Low and 1.4242401 at High at pixel 103, 48, one pixel past 1, its neighbors within
+    0.05; with the point light or the shadows left out it is gone. `a0af50a3` looks the point
+    light's shadow up from the place, and against 64, -32, 128 a place rounds at about 4e-6, so one
+    tap of the filter at the ball's edge falls the other side of the map's depth; a place read
+    against the other origin would move the whole shadow by tens of units. So it is rounding at one
+    edge pixel and no fault of the origin. On the same image part 3's shadowed room reads 25.43 at
+    71,680 past its 24, with 5 pixels past 4, and the crossing 29.97 within its 32. Decided by the
+    review for the three tests by one rule, the count of pixels past a small level tells a fault and
+    one edge pixel's largest reading tells little, so each count keeps at least twice the largest
+    reading of the RTX, Mesa 26.2.4 and Mesa 25.2.8 and each largest about twice. The scene against
+    the other origin, at most 4 pixels past 1 level and none past 4; the shadowed room, at most 16
+    pixels past 4 and none past 48; the crossing, at most 32 pixels past 1 and none past 64. The
+    mend carries the three on `ed3cd9ca` and the two go up together. Settled by the run of
+    `bca57e93`, 43480215485, green at 21:26 on 2026-11-13 on every system, both Linux legs among
+    them, macOS in 51 minutes, the Linux legs in 83 and 89 and the Windows jobs in 135, 85 and 64.
+
 ## Decisions
 
 1. **Commits stay local.** The owner pushes `main` by hand, and the working session commits and does
@@ -16435,6 +16474,45 @@ with the moved world's shader made cold, and 6 to 7 s for each other; the Window
 the run after the push. The lighting buffer grows by the origin's 16 bytes to 7,248, which its
 packing test names. The suite passed both legs, 2,369. Packed unpublished as 6.2.60-local.264.3 in
 build/package from this commit for the game's play.
+
+Verdict 120, the mend. The runner's Mesa, 25.2.8 of Ubuntu 24.04, is made again here in an image of
+the session's own, `mcr.microsoft.com/dotnet/sdk:10.0-noble` with `mesa-vulkan-drivers`
+25.2.8-0ubuntu0.24.04.4 and `libvulkan1` 1.3.275.0-1build1, the tests built on the host and run in
+it with `dotnet test --no-build`, the checkout at its own path, the NuGet folder read only at
+/home/user/.nuget/packages, the container's labels off (`--security-opt label=disable`),
+`VK_DRIVER_FILES=/usr/share/vulkan/icd.d/lvp_icd.json` and `LP_NUM_THREADS=4`. On it the scene
+against the other origin reads 0.126 at 3405714a and 1.4801 at Low and 1.4242401 at High at
+a0af50a3, 80fe61d2, 54792d7e and ed3cd9ca, at one pixel by the ball's edge, 214.058 against the
+world's origin and 215.538 against the other at Low, 211.267 and 212.691 at High, its neighbors
+within 0.05, where Mesa 26.2.4 here reads 0.39 at every commit. a0af50a3's engine under
+3405714a's test reads 1.17 and 3405714a's under a0af50a3's 0.92, so the engine brings it and not
+the test's bend. Left out at a0af50a3 in turn, the shadows take it to 0.06, the point light to
+0.41, the ball to 0.33, and the spot, the particles and the scattering leave it at 1.48. It is the
+point light's shadow beside the ball, which a0af50a3 looks up from the place against the buffer's
+faces taken against the origin in doubles, where 3405714a looked it up from the world point; a
+place as 1.3 less 64 rounds at four millionths of a unit, and one tap of the filter at the ball's
+edge falls the other side of the map's depth. A place read against the other origin would move the
+whole shadow. The same image reads part 3's shadowed room 25.4 at 71,680, past its 24, and the
+crossing 30.0, near its 32. The three take the bounds the review set, a count of pixels past a
+small level, which tells a fault, and a largest about twice the most read on the three devices,
+each assertion's words saying its reason. The scene takes at most 4 pixels past a level and none
+past 4, the shadowed room at most 16 past 4 and none past 48, and the crossing at most 32 past a
+level and none past 64. On ed3cd9ca with them RenderOriginTests passes whole on the RTX 4070, on
+Mesa 26.2.4 and on 25.2.8, each case's largest and its pixels past the level its count is held at
+as follows.
+
+| Case | RTX 4070 | Mesa 26.2.4 | Mesa 25.2.8 |
+|---|---|---|---|
+| Scene at Low, past 1 | 0.088, 0 | 0.393, 0 | 1.480, 1 |
+| Scene at High, past 1 | 0.424, 0 | 0.367, 0 | 1.424, 1 |
+| Shadowed room at 4,096, past 4 | 7.72, 2 | 7.83, 2 | 5.26, 2 |
+| Shadowed room at 71,680, past 4 | 7.72, 1 | 7.83, 1 | 25.43, 5 |
+| Shadowed room at 1,140,736, past 4 | 10.73, 2 | 11.34, 1 | 20.96, 4 |
+| Crossing, past 1 | 0.073, 0 | 13.21, 8 | 29.97, 14 |
+| Room at each distance | 0.000 | 0.000 | 0.000 |
+
+The post's shadow reads alike on the three, 74.38 in it against 153.11 beside it at 0, 8, 24 and
+300, 75.61 against 153.40 crossing, and 153.25 against 73.76 for the shader that moves its point.
 
 ## Items closed, parked or shortened
 

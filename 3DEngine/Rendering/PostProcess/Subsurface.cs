@@ -86,7 +86,7 @@ internal sealed class SubsurfaceRenderer : IDisposable
         Retire();
         if (!ModelRenderer.ScattersInWindow(renderWorld) || renderContext.Device is not GraphicsDevice device
             || renderWorld.TryGet<ModelRenderer>() is not { } models || renderWorld.TryGet<WindowView>() is not { } view
-            || !Matrix4x4.Invert(view.ViewProjection, out var inverse))
+            || view.InverseAgainst(renderWorld.TryGet<RenderOrigin>()) is not { } inverse)
         {
             Release();
             return;
@@ -108,10 +108,12 @@ internal sealed class SubsurfaceRenderer : IDisposable
         }
         if (drawn == 0) return;
 
+        // The camera from its eye against the frame's origin, which takes the depth's points to
+        // places with no float of the world's size in them, and the eye there.
         var push = new Push
         {
             InverseViewProjection = inverse,
-            EyeAndHeight = new Vector4(view.Eye, AmbientOcclusionRenderer.HeightPerUnit(inverse)),
+            EyeAndHeight = new Vector4(renderWorld.TryGet<RenderOrigin>().Against(view.Eye), AmbientOcclusionRenderer.HeightPerUnit(inverse)),
             TexelAndWay = new Vector4(1f / marked.Extent.Width, 1f / marked.Extent.Height, 1, 0),
             Mode = new Vector4(0, quality == SubsurfaceQuality.High ? 17 : 9, 0, 0),
         };
