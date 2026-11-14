@@ -74,7 +74,7 @@ internal sealed class MotionVelocity : IDisposable
             DescriptorSetLayouts: [Layout(device)]));
         _pipeline ??= Made((uint)Marshal.SizeOf<ModelVertex>());
 
-        // Each mesh's entities, gathered by mesh already, copied whole as one run of instances.
+        // Each mesh's entities, gathered by mesh already, written as one run of instances.
         var buffer = Instances(device, moving.Count);
         var written = MemoryMarshal.Cast<byte, MovingInstance>(device.Map(buffer));
         var runs = new List<(int Mesh, int First, int Count)>();
@@ -82,19 +82,18 @@ internal sealed class MotionVelocity : IDisposable
         foreach (var (mesh, lists) in moving.ByMesh())
         {
             var first = next;
-            foreach (var list in lists)
-            {
-                CollectionsMarshal.AsSpan(list).CopyTo(written[next..]);
-                next += list.Count;
-            }
-            foreach (ref var instance in written.Slice(first, next - first))
-                instance = instance.Against(origin);
-            runs.Add((mesh, first, next - first));
             // A packed mesh's rows now and the frame before scaled by the same quantum, the mesh's
-            // as its vertices hold them this frame, so a re-packed mesh shows no motion it did not make.
-            if (meshes.Get(mesh) is { Quantum: not 1 and var quantum })
-                foreach (ref var instance in written.Slice(first, next - first))
-                    instance = instance.Folded(quantum);
+            // as its vertices hold them this frame, so a re-packed mesh shows no motion it did not
+            // make, and each taken against the origin, as it is written into the mapped buffer,
+            // which is never read back.
+            var quantum = meshes.Get(mesh) is { Quantum: not 1 and var packed } ? packed : 1;
+            foreach (var list in lists)
+                foreach (var instance in list)
+                {
+                    var placed = instance.Against(origin);
+                    written[next++] = quantum == 1 ? placed : placed.Folded(quantum);
+                }
+            runs.Add((mesh, first, next - first));
         }
         device.Unmap(buffer);
 

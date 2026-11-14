@@ -24,11 +24,12 @@ internal readonly record struct ImmediateVertex(Vector3 Position, Vector2 Uv, Co
 /// <param name="Cull">Which faces of the run's triangles are left out by their winding.</param>
 /// <param name="Factors">The factors a custom <paramref name="Blend"/> combines by, and default for the other modes.</param>
 /// <param name="DepthMask">Whether a depth tested run writes the depth it passes with.</param>
+/// <param name="Anchor">The place the run's positions were recorded against, a world point being the anchor plus the position, or the world's origin for positions in world numbers.</param>
 internal readonly record struct DrawBatch(
     PrimitiveTopology Topology, Matrix4x4 Transform, bool DepthTest, int FirstIndex, int IndexCount,
     int Texture = 0, int Target = 0, int Shader = 0, ShaderParams Params = default, byte[]? Uniforms = null, int[]? Textures = null,
     BlendMode Blend = BlendMode.Alpha, ScissorRect? Scissor = null, CullMode Cull = CullMode.None, BlendFactors Factors = default,
-    bool DepthMask = true);
+    bool DepthMask = true, RenderOrigin Anchor = default);
 
 /// <summary>A rectangle of a target's pixels, from its top left.</summary>
 internal readonly record struct ScissorRect(int X, int Y, int Width, int Height);
@@ -182,6 +183,7 @@ internal sealed class DrawList
             Uniforms = uniforms;
             Textures = textures;
             Close();
+            Anchored();
         }
     }
 
@@ -312,6 +314,7 @@ internal sealed class DrawList
             Transform = transform;
             DepthTest = depthTest;
             Close();
+            Anchored();
         }
     }
 
@@ -360,6 +363,35 @@ internal sealed class DrawList
     private Matrix4x4 _model = Matrix4x4.Identity;
     private bool _hasModel;
 
+    // The place the following shapes are recorded against, set where a 3D camera begins with the
+    // transform it set, and the one the next batch takes, none where the engine's own shader does
+    // not draw it, since a program's shader reads its positions in world numbers, or where another
+    // transform takes points of a space of its own, as the sky's pictures are drawn. With the model
+    // transform, the model transform less that place, its translation worked in doubles.
+    private RenderOrigin _anchor;
+    private Matrix4x4 _anchorTransform;
+    private RenderOrigin _recordAnchor;
+    private Matrix4x4 _anchoredModel = Matrix4x4.Identity;
+
+    /// <summary>
+    /// The place the following shapes are recorded against while the transform is the one set now, a
+    /// 3D camera's eye rounded as the frame's origin is (<see cref="RenderOrigin.Near"/>), or the
+    /// world's origin.
+    /// </summary>
+    /// <remarks>
+    /// A position is taken against it as it is recorded, in doubles, so a shape far from the world's
+    /// origin holds no float of the world's size, and the pass draws each run through its camera
+    /// against the place the run was recorded against, with nothing to move as it uploads.
+    /// </remarks>
+    public void SetAnchor(RenderOrigin anchor)
+    {
+        using (Enter())
+        {
+            (_anchor, _anchorTransform) = (anchor, Transform);
+            Anchored();
+        }
+    }
+
     /// <summary>
     /// Moves the positions of the following shapes by <paramref name="model"/> as they are
     /// recorded, before the batch's transform, as rlgl's matrix stack moves each vertex.
@@ -370,27 +402,62 @@ internal sealed class DrawList
         {
             _model = model;
             _hasModel = !model.IsIdentity;
+            Anchored();
         }
     }
 
-    // Moves the positions of the count vertices from at by the model transform. Called inside
-    // Enter, after the vertices are written.
-    private void Place(int at, int count)
+    // The anchor the next batch takes and the model transform against it. Called inside Enter.
+    private void Anchored()
     {
-        if (!_hasModel) return;
-        for (int i = at; i < at + count; i++)
-            _vertices[i] = _vertices[i] with { Position = Vector3.Transform(_vertices[i].Position, _model) };
+        var anchor = Shader == 0 && Transform == _anchorTransform ? _anchor : RenderOrigin.Zero;
+        if (anchor != _recordAnchor) Close();
+        _recordAnchor = anchor;
+        _anchoredModel = _model;
+        if (_hasModel && anchor != RenderOrigin.Zero)
+            (_anchoredModel.M41, _anchoredModel.M42, _anchoredModel.M43) =
+                ((float)(_model.M41 - anchor.X), (float)(_model.M42 - anchor.Y), (float)(_model.M43 - anchor.Z));
     }
 
-    /// <summary>Records a line.</summary>
-    public void Line(Vector3 from, Vector3 to, Color color)
+    /// <summary>
+    /// A point as the next shapes are recorded, moved by the model transform and taken against the
+    /// anchor in doubles, which a shape built about its middle starts from (<see cref="Way"/>).
+    /// </summary>
+    public Vector3 At(Vector3 point)
+    {
+        using (Enter()) return Placed(point);
+    }
+
+    /// <summary>A way, from a point to another, as the next shapes are recorded, turned and scaled by the model transform.</summary>
+    public Vector3 Way(Vector3 way)
+    {
+        using (Enter()) return _hasModel ? Vector3.TransformNormal(way, _model) : way;
+    }
+
+    // A point moved by the model transform and taken against the anchor. Called inside Enter.
+    private Vector3 Placed(Vector3 point) =>
+        _hasModel ? Vector3.Transform(point, _anchoredModel)
+        : _recordAnchor == RenderOrigin.Zero ? point
+        : new Vector3((float)(point.X - _recordAnchor.X), (float)(point.Y - _recordAnchor.Y), (float)(point.Z - _recordAnchor.Z));
+
+    // Moves the positions of the count vertices from at by the model transform and takes them
+    // against the anchor, unless they were given as recorded (At and Way). Called inside Enter,
+    // after the vertices are written.
+    private void Place(int at, int count, bool placed)
+    {
+        if (placed || !_hasModel && _recordAnchor == RenderOrigin.Zero) return;
+        for (int i = at; i < at + count; i++)
+            _vertices[i] = _vertices[i] with { Position = Placed(_vertices[i].Position) };
+    }
+
+    /// <summary>Records a line, its ends given as recorded where <paramref name="placed"/> (<see cref="At"/>).</summary>
+    public void Line(Vector3 from, Vector3 to, Color color, bool placed = false)
     {
         using (Enter())
         {
             var at = Reserve(PrimitiveTopology.LineList, 2, 0);
             _vertices[at] = new ImmediateVertex(from, default, color);
             _vertices[at + 1] = new ImmediateVertex(to, default, color);
-            Place(at, 2);
+            Place(at, 2, placed);
             Index(at, 0, 1);
         }
     }
@@ -400,14 +467,17 @@ internal sealed class DrawList
     /// edge, by how many corners there are, each corner with its own texture coordinate and color,
     /// sampling <paramref name="texture"/>, as rlgl's vertices are given one at a time.
     /// </summary>
-    public void Primitive(ReadOnlySpan<ImmediateVertex> corners, int texture)
+    public void Primitive(ReadOnlySpan<ImmediateVertex> corners, int texture) => Primitive(corners, texture, placed: false);
+
+    /// <summary>The same, its corners given as recorded where <paramref name="placed"/> (<see cref="At"/>).</summary>
+    public void Primitive(ReadOnlySpan<ImmediateVertex> corners, int texture, bool placed)
     {
         if (corners.Length is < 2 or > 4) throw new ArgumentOutOfRangeException(nameof(corners), "A primitive has two, three or four corners.");
         using (Enter())
         {
             var at = Reserve(corners.Length == 2 ? PrimitiveTopology.LineList : PrimitiveTopology.TriangleList, corners.Length, texture);
             corners.CopyTo(_vertices.AsSpan(at));
-            Place(at, corners.Length);
+            Place(at, corners.Length, placed);
             if (corners.Length == 2) Index(at, 0, 1);
             else if (corners.Length == 3) Index(at, 0, 1, 2);
             else QuadIndices(at);
@@ -418,7 +488,7 @@ internal sealed class DrawList
     /// Records a triangle, whose front face is the one its corners go counterclockwise around on
     /// the screen, as raylib's are, for when <see cref="Cull"/> leaves out back or front faces.
     /// </summary>
-    public void Triangle(Vector3 a, Vector3 b, Vector3 c, Color color)
+    public void Triangle(Vector3 a, Vector3 b, Vector3 c, Color color, bool placed = false)
     {
         using (Enter())
         {
@@ -426,13 +496,13 @@ internal sealed class DrawList
             _vertices[at] = new ImmediateVertex(a, default, color);
             _vertices[at + 1] = new ImmediateVertex(b, default, color);
             _vertices[at + 2] = new ImmediateVertex(c, default, color);
-            Place(at, 3);
+            Place(at, 3, placed);
             Index(at, 0, 1, 2);
         }
     }
 
     /// <summary>Records a triangle with a color at each corner, blended across it, as a gradient is drawn.</summary>
-    public void Triangle(Vector3 a, Color colorA, Vector3 b, Color colorB, Vector3 c, Color colorC)
+    public void Triangle(Vector3 a, Color colorA, Vector3 b, Color colorB, Vector3 c, Color colorC, bool placed = false)
     {
         using (Enter())
         {
@@ -440,13 +510,13 @@ internal sealed class DrawList
             _vertices[at] = new ImmediateVertex(a, default, colorA);
             _vertices[at + 1] = new ImmediateVertex(b, default, colorB);
             _vertices[at + 2] = new ImmediateVertex(c, default, colorC);
-            Place(at, 3);
+            Place(at, 3, placed);
             Index(at, 0, 1, 2);
         }
     }
 
     /// <summary>Records a quad as two triangles over its four corners, given in order around its edge.</summary>
-    public void Quad(Vector3 a, Vector3 b, Vector3 c, Vector3 d, Color color)
+    public void Quad(Vector3 a, Vector3 b, Vector3 c, Vector3 d, Color color, bool placed = false)
     {
         using (Enter())
         {
@@ -456,7 +526,7 @@ internal sealed class DrawList
             corners[1] = new ImmediateVertex(b, default, color);
             corners[2] = new ImmediateVertex(c, default, color);
             corners[3] = new ImmediateVertex(d, default, color);
-            Place(at, 4);
+            Place(at, 4, placed);
             QuadIndices(at);
         }
     }
@@ -466,7 +536,7 @@ internal sealed class DrawList
     /// around its edge, each corner with its texture coordinate.
     /// </summary>
     public void TexturedQuad(Vector3 a, Vector3 b, Vector3 c, Vector3 d,
-        Vector2 uvA, Vector2 uvB, Vector2 uvC, Vector2 uvD, Color tint, int texture)
+        Vector2 uvA, Vector2 uvB, Vector2 uvC, Vector2 uvD, Color tint, int texture, bool placed = false)
     {
         using (Enter())
         {
@@ -476,7 +546,7 @@ internal sealed class DrawList
             corners[1] = new ImmediateVertex(b, uvB, tint);
             corners[2] = new ImmediateVertex(c, uvC, tint);
             corners[3] = new ImmediateVertex(d, uvD, tint);
-            Place(at, 4);
+            Place(at, 4, placed);
             QuadIndices(at);
         }
     }
@@ -504,6 +574,7 @@ internal sealed class DrawList
             Scissor = null;
             Cull = CullMode.None;
             (_model, _hasModel) = (Matrix4x4.Identity, false);
+            (_anchor, _anchorTransform, _recordAnchor, _anchoredModel) = (RenderOrigin.Zero, Matrix4x4.Identity, RenderOrigin.Zero, Matrix4x4.Identity);
             _targetClears.Clear();
         }
     }
@@ -575,14 +646,15 @@ internal sealed class DrawList
                 && last.Texture == texture && last.Target == Target && last.Shader == Shader && last.Params == Params
                 && ReferenceEquals(last.Uniforms, Uniforms) && ReferenceEquals(last.Textures, Textures) && last.Blend == blend
                 && last.Factors == Factors && last.DepthMask == DepthMask && last.Scissor == Scissor && last.Cull == Cull
-                && last.FirstIndex + last.IndexCount == first)
+                && last.Anchor == _recordAnchor && last.FirstIndex + last.IndexCount == first)
             {
                 Open(topology, texture, last.IndexCount + count);
                 return;
             }
         }
 
-        _batches.Add(new DrawBatch(topology, Transform, DepthTest, first, count, texture, Target, Shader, Params, Uniforms, Textures, blend, Scissor, Cull, Factors, DepthMask));
+        _batches.Add(new DrawBatch(topology, Transform, DepthTest, first, count, texture, Target, Shader, Params, Uniforms, Textures, blend, Scissor, Cull, Factors, DepthMask,
+            _recordAnchor));
         Open(topology, texture, count);
     }
 

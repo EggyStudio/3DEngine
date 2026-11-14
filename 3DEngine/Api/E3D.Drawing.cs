@@ -271,6 +271,9 @@ public static partial class E3D
             draws.NoteEye(viewProjection, new ViewEye(camera.Position, camera.TurnedView * projection));
         SetRlCamera(camera.View, projection, depthTest: true);
         if (_stereo is { } stereo) BeginStereo(camera, stereo);
+        // The shapes drawn through the camera recorded against its eye rounded as the frame's origin
+        // is, so a shape far from the world's origin holds no float of the world's size.
+        DrawList.SetAnchor(RenderOrigin.Near(camera.Position));
         ResetRlglUnlessPushed();
         _camera3D = camera;
         var mode3D = World.GetOrInsertResource(static () => new Mode3DCamera());
@@ -286,6 +289,7 @@ public static partial class E3D
     {
         EndStereo();
         _camera3D = null;
+        DrawList.SetAnchor(RenderOrigin.Zero);
         SetRlCamera(Matrix4x4.Identity, ScreenTransform(), depthTest: false);
         ResetRlglUnlessPushed();
     }

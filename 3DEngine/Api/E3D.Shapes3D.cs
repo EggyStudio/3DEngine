@@ -20,14 +20,14 @@ public static partial class E3D
     public static void DrawCubeV(Vector3 position, Vector3 size, Color color)
     {
         Span<Vector3> c = stackalloc Vector3[8];
-        CubeCorners(position, size, c);
+        CubeCorners(FrameAt(position), Vector3.Zero, size / 2, c);
         // Each face counterclockwise seen from outside, as raylib's are, so culling leaves the inside out.
-        DrawList.Quad(c[0], c[3], c[2], c[1], color); // -Z
-        DrawList.Quad(c[4], c[5], c[6], c[7], color); // +Z
-        DrawList.Quad(c[0], c[1], c[5], c[4], color); // -Y
-        DrawList.Quad(c[3], c[7], c[6], c[2], color); // +Y
-        DrawList.Quad(c[0], c[4], c[7], c[3], color); // -X
-        DrawList.Quad(c[1], c[2], c[6], c[5], color); // +X
+        DrawList.Quad(c[0], c[3], c[2], c[1], color, placed: true); // -Z
+        DrawList.Quad(c[4], c[5], c[6], c[7], color, placed: true); // +Z
+        DrawList.Quad(c[0], c[1], c[5], c[4], color, placed: true); // -Y
+        DrawList.Quad(c[3], c[7], c[6], c[2], color, placed: true); // +Y
+        DrawList.Quad(c[0], c[4], c[7], c[3], color, placed: true); // -X
+        DrawList.Quad(c[1], c[2], c[6], c[5], color, placed: true); // +X
     }
 
     /// <summary>Draws a box's edges.</summary>
@@ -38,12 +38,18 @@ public static partial class E3D
     public static void DrawCubeWiresV(Vector3 position, Vector3 size, Color color)
     {
         Span<Vector3> c = stackalloc Vector3[8];
-        CubeCorners(position, size, c);
+        CubeCorners(FrameAt(position), Vector3.Zero, size / 2, c);
+        CubeWires(c, color);
+    }
+
+    // A box's twelve edges between its corners as recorded (CubeCorners).
+    private static void CubeWires(ReadOnlySpan<Vector3> c, Color color)
+    {
         for (int i = 0; i < 4; i++)
         {
-            DrawList.Line(c[i], c[(i + 1) % 4], color);
-            DrawList.Line(c[i + 4], c[(i + 1) % 4 + 4], color);
-            DrawList.Line(c[i], c[i + 4], color);
+            DrawList.Line(c[i], c[(i + 1) % 4], color, placed: true);
+            DrawList.Line(c[i + 4], c[(i + 1) % 4 + 4], color, placed: true);
+            DrawList.Line(c[i], c[i + 4], color, placed: true);
         }
     }
 
@@ -55,14 +61,15 @@ public static partial class E3D
     {
         rings = Math.Max(2, rings);
         slices = Math.Max(3, slices);
+        var frame = FrameAt(center);
         for (int r = 0; r < rings; r++)
         for (int s = 0; s < slices; s++)
         {
-            var a = SpherePoint(center, radius, r, s, rings, slices);
-            var b = SpherePoint(center, radius, r + 1, s, rings, slices);
-            var c = SpherePoint(center, radius, r + 1, s + 1, rings, slices);
-            var d = SpherePoint(center, radius, r, s + 1, rings, slices);
-            DrawList.Quad(a, d, c, b, color);
+            var a = SpherePoint(frame, radius, r, s, rings, slices);
+            var b = SpherePoint(frame, radius, r + 1, s, rings, slices);
+            var c = SpherePoint(frame, radius, r + 1, s + 1, rings, slices);
+            var d = SpherePoint(frame, radius, r, s + 1, rings, slices);
+            DrawList.Quad(a, d, c, b, color, placed: true);
         }
     }
 
@@ -71,25 +78,30 @@ public static partial class E3D
     {
         rings = Math.Max(2, rings);
         slices = Math.Max(3, slices);
+        var frame = FrameAt(center);
         for (int r = 0; r < rings; r++)
         for (int s = 0; s < slices; s++)
         {
-            var a = SpherePoint(center, radius, r, s, rings, slices);
-            DrawList.Line(a, SpherePoint(center, radius, r + 1, s, rings, slices), color);
-            DrawList.Line(a, SpherePoint(center, radius, r, s + 1, rings, slices), color);
-            DrawList.Line(a, SpherePoint(center, radius, r + 1, s + 1, rings, slices), color);
+            var a = SpherePoint(frame, radius, r, s, rings, slices);
+            DrawList.Line(a, SpherePoint(frame, radius, r + 1, s, rings, slices), color, placed: true);
+            DrawList.Line(a, SpherePoint(frame, radius, r, s + 1, rings, slices), color, placed: true);
+            DrawList.Line(a, SpherePoint(frame, radius, r + 1, s + 1, rings, slices), color, placed: true);
         }
     }
 
     /// <summary>Draws a point, as raylib's does, a line from it a tenth of a unit along z, since a line of no length draws nothing.</summary>
-    public static void DrawPoint3D(Vector3 position, Color color) =>
-        DrawList.Line(position, position + new Vector3(0, 0, 0.1f), color);
+    public static void DrawPoint3D(Vector3 position, Color color)
+    {
+        var frame = FrameAt(position);
+        DrawList.Line(frame.Middle, frame.Point(new Vector3(0, 0, 0.1f)), color, placed: true);
+    }
 
     /// <summary>Draws a ray as a line from where it starts, a hundred units along it.</summary>
     public static void DrawRay(Ray ray, Color color)
     {
         var direction = ray.Direction.LengthSquared() > 0 ? Vector3.Normalize(ray.Direction) : Vector3.UnitZ;
-        DrawList.Line(ray.Position, ray.Position + direction * 100, color);
+        var frame = FrameAt(ray.Position);
+        DrawList.Line(frame.Middle, frame.Point(direction * 100), color, placed: true);
     }
 
     /// <summary>Draws a circle's outline on the XY plane, turned <paramref name="rotationAngle"/> degrees about <paramref name="rotationAxis"/>.</summary>
@@ -99,8 +111,9 @@ public static partial class E3D
             ? Quaternion.CreateFromAxisAngle(Vector3.Normalize(rotationAxis), float.DegreesToRadians(rotationAngle))
             : Quaternion.Identity;
         const int Segments = 36;
-        Vector3 Point(int i) => center + Vector3.Transform(new Vector3(MathF.Cos(MathF.Tau * i / Segments), MathF.Sin(MathF.Tau * i / Segments), 0) * radius, turn);
-        for (int i = 0; i < Segments; i++) DrawList.Line(Point(i), Point(i + 1), color);
+        var frame = FrameAt(center);
+        Vector3 Point(int i) => frame.Point(Vector3.Transform(new Vector3(MathF.Cos(MathF.Tau * i / Segments), MathF.Sin(MathF.Tau * i / Segments), 0) * radius, turn));
+        for (int i = 0; i < Segments; i++) DrawList.Line(Point(i), Point(i + 1), color, placed: true);
     }
 
     /// <summary>
@@ -126,13 +139,13 @@ public static partial class E3D
     /// <summary>Draws a cylinder or cone from <paramref name="startPos"/> to <paramref name="endPos"/>, with its caps.</summary>
     public static void DrawCylinderEx(Vector3 startPos, Vector3 endPos, float startRadius, float endRadius, int sides, Color color)
     {
-        var (bottom, top) = CylinderRims(startPos, endPos, startRadius, endRadius, sides);
+        var (bottom, top, start, end) = CylinderRims(startPos, endPos, startRadius, endRadius, sides);
         for (int i = 0; i < bottom.Length; i++)
         {
             var next = (i + 1) % bottom.Length;
-            DrawList.Quad(bottom[i], bottom[next], top[next], top[i], color);
-            if (startRadius > 0) DrawList.Triangle(startPos, bottom[next], bottom[i], color);
-            if (endRadius > 0) DrawList.Triangle(endPos, top[i], top[next], color);
+            DrawList.Quad(bottom[i], bottom[next], top[next], top[i], color, placed: true);
+            if (startRadius > 0) DrawList.Triangle(start, bottom[next], bottom[i], color, placed: true);
+            if (endRadius > 0) DrawList.Triangle(end, top[i], top[next], color, placed: true);
         }
     }
 
@@ -143,31 +156,34 @@ public static partial class E3D
     /// <summary>Draws a cylinder's or cone's edges as lines, from <paramref name="startPos"/> to <paramref name="endPos"/>.</summary>
     public static void DrawCylinderWiresEx(Vector3 startPos, Vector3 endPos, float startRadius, float endRadius, int sides, Color color)
     {
-        var (bottom, top) = CylinderRims(startPos, endPos, startRadius, endRadius, sides);
+        var (bottom, top, _, _) = CylinderRims(startPos, endPos, startRadius, endRadius, sides);
         for (int i = 0; i < bottom.Length; i++)
         {
             var next = (i + 1) % bottom.Length;
-            DrawList.Line(bottom[i], bottom[next], color);
-            DrawList.Line(top[i], top[next], color);
-            DrawList.Line(bottom[i], top[i], color);
+            DrawList.Line(bottom[i], bottom[next], color, placed: true);
+            DrawList.Line(top[i], top[next], color, placed: true);
+            DrawList.Line(bottom[i], top[i], color, placed: true);
         }
     }
 
-    // The two rims of a cylinder from start to end, each a ring of points around the axis.
-    private static (Vector3[] Bottom, Vector3[] Top) CylinderRims(Vector3 start, Vector3 end, float startRadius, float endRadius, int sides)
+    // The two rims of a cylinder from start to end, each a ring of points around the axis, and its
+    // two ends, all as recorded (FrameAt).
+    private static (Vector3[] Bottom, Vector3[] Top, Vector3 Start, Vector3 End) CylinderRims(Vector3 start, Vector3 end, float startRadius, float endRadius,
+        int sides)
     {
         sides = Math.Max(3, sides);
         var (u, v) = Perpendiculars(end - start);
+        var (from, to) = (FrameAt(start), FrameAt(end));
         var bottom = new Vector3[sides];
         var top = new Vector3[sides];
         for (int i = 0; i < sides; i++)
         {
             var angle = MathF.Tau * i / sides;
             var around = u * MathF.Cos(angle) + v * MathF.Sin(angle);
-            bottom[i] = start + around * startRadius;
-            top[i] = end + around * endRadius;
+            bottom[i] = from.Point(around * startRadius);
+            top[i] = to.Point(around * endRadius);
         }
-        return (bottom, top);
+        return (bottom, top, from.Middle, to.Middle);
     }
 
     // Two unit directions square to each other and to axis.
@@ -182,7 +198,7 @@ public static partial class E3D
     /// <summary>Draws a capsule, a cylinder from <paramref name="startPos"/> to <paramref name="endPos"/> with a half sphere on each end.</summary>
     public static void DrawCapsule(Vector3 startPos, Vector3 endPos, float radius, int rings, int slices, Color color)
     {
-        foreach (var (a, b, c, d) in CapsuleQuads(startPos, endPos, radius, slices, rings)) DrawList.Quad(a, b, c, d, color);
+        foreach (var (a, b, c, d) in CapsuleQuads(startPos, endPos, radius, slices, rings)) DrawList.Quad(a, b, c, d, color, placed: true);
     }
 
     /// <summary>Draws a capsule's edges as lines.</summary>
@@ -190,12 +206,13 @@ public static partial class E3D
     {
         foreach (var (a, b, _, d) in CapsuleQuads(startPos, endPos, radius, slices, rings))
         {
-            DrawList.Line(a, b, color);
-            DrawList.Line(a, d, color);
+            DrawList.Line(a, b, color, placed: true);
+            DrawList.Line(a, d, color, placed: true);
         }
     }
 
-    // The capsule's surface as quads, the half sphere at each end in rings and the side between.
+    // The capsule's surface as quads, the half sphere at each end in rings and the side between, as
+    // recorded (FrameAt).
     private static IEnumerable<(Vector3, Vector3, Vector3, Vector3)> CapsuleQuads(Vector3 start, Vector3 end, float radius, int slices, int rings)
     {
         slices = Math.Max(3, slices);
@@ -203,6 +220,7 @@ public static partial class E3D
         var axis = end - start;
         var a = axis.LengthSquared() > 1e-12f ? Vector3.Normalize(axis) : Vector3.UnitY;
         var (u, v) = Perpendiculars(a);
+        var (from, to) = (FrameAt(start), FrameAt(end));
         // A point on the surface by its ring, from the start's pole (0) through the middle to the end's pole (2 rings + 1), and its slice.
         Vector3 Point(int ring, int slice)
         {
@@ -211,10 +229,10 @@ public static partial class E3D
             if (ring <= rings)
             {
                 var polar = MathF.PI / 2 * ring / rings;
-                return start - a * MathF.Cos(polar) * radius + around * MathF.Sin(polar) * radius;
+                return from.Point(-a * MathF.Cos(polar) * radius + around * MathF.Sin(polar) * radius);
             }
             var up = MathF.PI / 2 * (ring - rings - 1) / rings;
-            return end + a * MathF.Sin(up) * radius + around * MathF.Cos(up) * radius;
+            return to.Point(a * MathF.Sin(up) * radius + around * MathF.Cos(up) * radius);
         }
         for (int r = 0; r <= 2 * rings; r++)
             for (int s = 0; s < slices; s++)
@@ -225,8 +243,9 @@ public static partial class E3D
     public static void DrawPlane(Vector3 center, Vector2 size, Color color)
     {
         var (hx, hz) = (size.X / 2, size.Y / 2);
-        DrawList.Quad(center + new Vector3(-hx, 0, -hz), center + new Vector3(-hx, 0, hz),
-            center + new Vector3(hx, 0, hz), center + new Vector3(hx, 0, -hz), color);
+        var frame = FrameAt(center);
+        DrawList.Quad(frame.Point(new Vector3(-hx, 0, -hz)), frame.Point(new Vector3(-hx, 0, hz)),
+            frame.Point(new Vector3(hx, 0, hz)), frame.Point(new Vector3(hx, 0, -hz)), color, placed: true);
     }
 
     /// <summary>Draws a grid on the XZ plane centered on the origin, <paramref name="slices"/> cells across.</summary>
@@ -242,24 +261,36 @@ public static partial class E3D
         }
     }
 
-    // Corners 0 to 3 are the -Z face counterclockwise from (-x, -y), and 4 to 7 the same on +Z.
-    private static void CubeCorners(Vector3 position, Vector3 size, Span<Vector3> corners)
+    // A shape's middle as it is recorded, moved by the model transform and taken against the anchor,
+    // and the three axes the model transform turns and scales, so a corner is the middle plus an
+    // offset along them and none is a float of the world's size (DrawList.At, DrawList.Way).
+    private readonly record struct ShapeFrame(Vector3 Middle, Vector3 X, Vector3 Y, Vector3 Z)
     {
-        var h = size / 2;
-        corners[0] = position + new Vector3(-h.X, -h.Y, -h.Z);
-        corners[1] = position + new Vector3(h.X, -h.Y, -h.Z);
-        corners[2] = position + new Vector3(h.X, h.Y, -h.Z);
-        corners[3] = position + new Vector3(-h.X, h.Y, -h.Z);
-        corners[4] = position + new Vector3(-h.X, -h.Y, h.Z);
-        corners[5] = position + new Vector3(h.X, -h.Y, h.Z);
-        corners[6] = position + new Vector3(h.X, h.Y, h.Z);
-        corners[7] = position + new Vector3(-h.X, h.Y, h.Z);
+        public Vector3 Point(Vector3 offset) => Middle + X * offset.X + Y * offset.Y + Z * offset.Z;
     }
 
-    private static Vector3 SpherePoint(Vector3 center, float radius, int ring, int slice, int rings, int slices)
+    private static ShapeFrame FrameAt(Vector3 middle) =>
+        new(DrawList.At(middle), DrawList.Way(Vector3.UnitX), DrawList.Way(Vector3.UnitY), DrawList.Way(Vector3.UnitZ));
+
+    // Corners 0 to 3 are the -Z face counterclockwise from (-x, -y), and 4 to 7 the same on +Z, of
+    // a box whose middle lies middle along the frame's axes and whose half sides are h, as recorded
+    // (FrameAt).
+    private static void CubeCorners(ShapeFrame frame, Vector3 middle, Vector3 h, Span<Vector3> corners)
+    {
+        corners[0] = frame.Point(middle + new Vector3(-h.X, -h.Y, -h.Z));
+        corners[1] = frame.Point(middle + new Vector3(h.X, -h.Y, -h.Z));
+        corners[2] = frame.Point(middle + new Vector3(h.X, h.Y, -h.Z));
+        corners[3] = frame.Point(middle + new Vector3(-h.X, h.Y, -h.Z));
+        corners[4] = frame.Point(middle + new Vector3(-h.X, -h.Y, h.Z));
+        corners[5] = frame.Point(middle + new Vector3(h.X, -h.Y, h.Z));
+        corners[6] = frame.Point(middle + new Vector3(h.X, h.Y, h.Z));
+        corners[7] = frame.Point(middle + new Vector3(-h.X, h.Y, h.Z));
+    }
+
+    private static Vector3 SpherePoint(ShapeFrame frame, float radius, int ring, int slice, int rings, int slices)
     {
         var polar = MathF.PI * ring / rings;
         var azimuth = MathF.Tau * slice / slices;
-        return center + radius * new Vector3(MathF.Sin(polar) * MathF.Cos(azimuth), MathF.Cos(polar), MathF.Sin(polar) * MathF.Sin(azimuth));
+        return frame.Point(radius * new Vector3(MathF.Sin(polar) * MathF.Cos(azimuth), MathF.Cos(polar), MathF.Sin(polar) * MathF.Sin(azimuth)));
     }
 }

@@ -488,9 +488,9 @@ public static partial class E3D
     public static void DrawModelWiresEx(Model model, Vector3 position, Vector3 rotationAxis, float rotationAngle, Vector3 scale, Color tint)
     {
         var axis = rotationAxis == Vector3.Zero ? Vector3.UnitY : Vector3.Normalize(rotationAxis);
-        var world = model.Transform * Matrix4x4.CreateScale(scale)
-                    * Matrix4x4.CreateFromAxisAngle(axis, float.DegreesToRadians(rotationAngle))
-                    * Matrix4x4.CreateTranslation(position);
+        // The model about its position as recorded, so no vertex far out is a float of the world's size.
+        var local = model.Transform * Matrix4x4.CreateScale(scale) * Matrix4x4.CreateFromAxisAngle(axis, float.DegreesToRadians(rotationAngle));
+        var frame = FrameAt(position);
 
         var edges = new HashSet<(uint, uint)>();
         for (int index = 0; index < model.Meshes.Length; index++)
@@ -505,7 +505,8 @@ public static partial class E3D
                 {
                     uint a = indices[i + k], b = indices[i + (k + 1) % 3];
                     if (edges.Add(a < b ? (a, b) : (b, a)))
-                        DrawLine3D(Vector3.Transform(vertices[a].Position, world), Vector3.Transform(vertices[b].Position, world), tint);
+                        DrawList.Line(frame.Point(Vector3.Transform(vertices[a].Position, local)),
+                            frame.Point(Vector3.Transform(vertices[b].Position, local)), tint, placed: true);
                 }
         }
     }
@@ -654,8 +655,15 @@ public static partial class E3D
     }
 
     /// <summary>Draws a box's edges.</summary>
-    public static void DrawBoundingBox(BoundingBox box, Color color) =>
-        DrawCubeWiresV((box.Min + box.Max) / 2, box.Max - box.Min, color);
+    public static void DrawBoundingBox(BoundingBox box, Color color)
+    {
+        // Its corners from its least one and its size, which a box far out holds exactly where its
+        // middle would not.
+        var half = (box.Max - box.Min) / 2;
+        Span<Vector3> c = stackalloc Vector3[8];
+        CubeCorners(FrameAt(box.Min), half, half, c);
+        CubeWires(c, color);
+    }
 
     // An sRGB color's light, which a draw's emission is given in.
     internal static Vector3 Linear(Color color) => new(Srgb.Decode(color.R), Srgb.Decode(color.G), Srgb.Decode(color.B));

@@ -288,8 +288,10 @@ choice depends on it, a size, a count or a threshold, and then with its reason. 
 names the reference it compares against, since the comparison is the test. A document outside the
 review's own files, a guide, RENDERING.md or a script's words, names no item, verdict or decision of
 the review by number either; a reading keeps its date and its figures, a decision is told by what
-was decided, and the norm's own numbers are named freely. By review, and by STYLE.md's search for
-the products' and the sessions' words in comments, read rather than counted.
+was decided, and the norm's own numbers are named freely. A commit's sentence names none either, nor
+an audit or which commit of several it is, since the release notes are made of the messages. By
+review, and by STYLE.md's search for the products' and the sessions' words in comments, read rather
+than counted.
 
 ## 5 Examples and games
 

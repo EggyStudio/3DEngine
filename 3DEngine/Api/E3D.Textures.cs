@@ -610,10 +610,11 @@ public static partial class E3D
         var right = new Vector3(view.M11, view.M21, view.M31) * (size * texture.Width / texture.Height / 2);
         var up = new Vector3(view.M12, view.M22, view.M32) * (size / 2);
 
+        var frame = FrameAt(position);
         DrawList.TexturedQuad(
-            position - right + up, position - right - up, position + right - up, position + right + up,
+            frame.Point(up - right), frame.Point(-right - up), frame.Point(right - up), frame.Point(right + up),
             new Vector2(0, 0), new Vector2(0, 1), new Vector2(1, 1), new Vector2(1, 0),
-            tint, texture.Id);
+            tint, texture.Id, placed: true);
     }
 
     /// <summary>
@@ -657,14 +658,15 @@ public static partial class E3D
         var pivot = SafeNormalize(right) * origin.X + SafeNormalize(up) * origin.Y;
         var turn = rotation == 0 ? Quaternion.Identity
             : Quaternion.CreateFromAxisAngle(SafeNormalize(Vector3.Cross(right, up)), float.DegreesToRadians(rotation));
-        Vector3 Corner(Vector3 offset) => Vector3.Transform(offset - pivot, turn) + position;
+        var frame = FrameAt(position);
+        Vector3 Corner(Vector3 offset) => frame.Point(Vector3.Transform(offset - pivot, turn));
 
         float u0 = source.X / texture.Width, u1 = (source.X + source.Width) / texture.Width;
         float vTop = source.Y / texture.Height, vBottom = (source.Y + source.Height) / texture.Height;
         DrawList.TexturedQuad(
             Corner(up), Corner(Vector3.Zero), Corner(right), Corner(up + right),
             new Vector2(u0, vTop), new Vector2(u0, vBottom), new Vector2(u1, vBottom), new Vector2(u1, vTop),
-            tint, texture.Id);
+            tint, texture.Id, placed: true);
     }
 
     private static Vector3 SafeNormalize(Vector3 v) => v.LengthSquared() > 0 ? Vector3.Normalize(v) : Vector3.Zero;

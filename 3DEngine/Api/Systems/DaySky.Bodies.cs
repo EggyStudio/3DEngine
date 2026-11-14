@@ -2,7 +2,7 @@ using System.Numerics;
 
 namespace Engine;
 
-/// <summary>A quad or a line the day sky records, as <see cref="DrawList.Primitive"/> takes it.</summary>
+/// <summary>A quad or a line the day sky records, as <see cref="DrawList.Primitive(ReadOnlySpan{ImmediateVertex}, int)"/> takes it.</summary>
 internal delegate void SkyQuad(ReadOnlySpan<ImmediateVertex> corners, int texture);
 
 // The sun, the moon and the stars, fixed on the sky and turned with it about the eye.

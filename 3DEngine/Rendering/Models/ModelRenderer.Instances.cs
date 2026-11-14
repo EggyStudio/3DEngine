@@ -16,9 +16,10 @@ internal sealed partial class ModelRenderer
     private readonly List<(long Frame, IBuffer Buffer)> _retiredBuffers = [];
 
     // The frame's group segments to copy into the ring, each with where its first instance goes,
-    // and where its first block goes in _blocks.
+    // where its first block goes in _blocks, and the quantum of its mesh's packed positions.
     private readonly List<(Instance[] Items, int Count, int At, InstanceGroup Group)> _copies = [];
     private readonly List<int> _copyBlocks = [];
+    private readonly List<float> _copyQuanta = [];
 
     // Each batch of draws' first block and first instance and its mesh's box, or a block of -1 for
     // a batch whose draws are not in blocks.
@@ -134,12 +135,13 @@ internal sealed partial class ModelRenderer
             var b = _drawBatch[i];
             if (b < 0) continue;
             var slot = _filled[b]++;
-            instances[(int)slot] = Folded(instanceOf(in draws[i]), _batches[b].Mesh.Quantum);
+            instances[(int)slot] = Placed(Folded(instanceOf(in draws[i]), _batches[b].Mesh.Quantum));
             var (block, from, min, max) = _drawBlocks[b];
             if (block >= 0) Enclose(ref _blocks[block + (int)((slot - from) / BlockSize)], _origin.Against(draws[i].World), min, max);
         }
         _copies.Clear();
         _copyBlocks.Clear();
+        _copyQuanta.Clear();
         var copied = 0;
         for (int b = 0; b < _batches.Count; b++)
         {
@@ -152,6 +154,7 @@ internal sealed partial class ModelRenderer
             for (int c = firstCopy; c < _copies.Count; c++)
             {
                 _copyBlocks.Add(_blockCount);
+                _copyQuanta.Add(batch.Mesh.Quantum);
                 _blockCount += (_copies[c].Count + BlockSize - 1) / BlockSize;
             }
             batch.BlockCount = _blockCount - batch.BlockStart;
@@ -159,16 +162,6 @@ internal sealed partial class ModelRenderer
         }
         if (_blocks.Length < _blockCount) Array.Resize(ref _blocks, Math.Max(_blockCount, _blocks.Length * 2));
         CopySegments(instances, copied);
-        // A group's instances of a packed mesh are scaled once in the ring, after their blocks'
-        // boxes were found from them as they were.
-        foreach (var batch in _batches)
-            if (batch.Group >= 0 && batch.Mesh.Quantum != 1)
-                foreach (ref var instance in instances.Slice((int)batch.First, groups[batch.Group].Count))
-                    instance = Folded(instance, batch.Mesh.Quantum);
-        // Each instance's place against the frame's origin, as its block's box was found.
-        if (_origin != RenderOrigin.Zero)
-            foreach (ref var instance in instances[..slots])
-                instance = Against(instance, _origin);
         return (_instanceRing!, offset);
     }
 
@@ -176,6 +169,10 @@ internal sealed partial class ModelRenderer
     // draws, which hold the eyes its views were made from.
     private RenderOrigin _origin;
     private ModelDrawList? _draws;
+
+    // An instance taken against the frame's origin as it is written into the ring, which is mapped
+    // memory the GPU reads and is never read back.
+    private Instance Placed(Instance instance) => _origin == RenderOrigin.Zero ? instance : Against(instance, _origin);
 
     // An instance whose translation is taken against the origin, worked in doubles.
     internal static Instance Against(Instance instance, RenderOrigin origin)
@@ -186,9 +183,19 @@ internal sealed partial class ModelRenderer
         return instance;
     }
 
+    // The views worked against the frame's origin this frame, by their view-projection and by that
+    // with the move of clip space after it as pushed, each worked once a frame.
+    private readonly Dictionary<Matrix4x4, Matrix4x4> _placedViews = [];
+    private readonly Dictionary<(Matrix4x4 ViewProjection, Matrix4x4? After), ViewPush> _pushes = [];
+
     // A view's view-projection against the frame's origin, from its eye where the frame noted one,
     // which the passes push and find the planes they leave blocks out by from.
-    private Matrix4x4 Placed(in Matrix4x4 viewProjection) => _origin.Seen(viewProjection, _draws?.EyeOf(viewProjection));
+    private Matrix4x4 Placed(in Matrix4x4 viewProjection)
+    {
+        if (!_placedViews.TryGetValue(viewProjection, out var placed))
+            _placedViews[viewProjection] = placed = _origin.Seen(viewProjection, _draws?.EyeOf(viewProjection));
+        return placed;
+    }
 
     // Pushes a view-projection that takes a place against the frame's origin already, a light's
     // fitted against it, as it is, with the origin.
@@ -202,7 +209,8 @@ internal sealed partial class ModelRenderer
     // noted one, with a move of clip space after it where one is given, and the origin.
     private void PushView(TrackedRenderPass pass, IPipeline pipeline, in Matrix4x4 viewProjection, Matrix4x4? after = null)
     {
-        var push = _origin.Push(viewProjection, _draws?.EyeOf(viewProjection), after);
+        if (!_pushes.TryGetValue((viewProjection, after), out var push))
+            _pushes[(viewProjection, after)] = push = _origin.Push(viewProjection, _draws?.EyeOf(viewProjection), after);
         pass.PushConstants(pipeline, ShaderStageFlags.Vertex | ShaderStageFlags.Fragment, 0, MemoryMarshal.AsBytes(new ReadOnlySpan<ViewPush>(in push)));
     }
 
@@ -227,7 +235,7 @@ internal sealed partial class ModelRenderer
             for (int i = 0; i < _copies.Count; i++)
             {
                 var (items, n, at, group) = _copies[i];
-                items.AsSpan(0, n).CopyTo(instances[at..]);
+                Write(items.AsSpan(0, n), instances[at..], _copyQuanta[i], _origin);
                 Bound(items, n, at, group.Sphere, _blocks, _copyBlocks[i], _origin);
             }
             return;
@@ -240,9 +248,26 @@ internal sealed partial class ModelRenderer
         Parallel.For(0, _copies.Count, i =>
         {
             var (items, n, at, group) = _copies[i];
-            items.AsSpan(0, n).CopyTo(new Span<Instance>((Instance*)ring + at, length - at));
+            Write(items.AsSpan(0, n), new Span<Instance>((Instance*)ring + at, length - at), _copyQuanta[i], origin);
             Bound(items, n, at, group.Sphere, blocks, _copyBlocks[i], origin);
         });
+    }
+
+    // A group's instances written into the ring, each of a packed mesh scaled and each taken against
+    // the origin as it is written, after their blocks' boxes were found from them as they were, and
+    // copied whole where neither changes them, the ring never read back.
+    private static void Write(ReadOnlySpan<Instance> items, Span<Instance> ring, float quantum, RenderOrigin origin)
+    {
+        if (quantum == 1 && origin == RenderOrigin.Zero)
+        {
+            items.CopyTo(ring);
+            return;
+        }
+        for (int k = 0; k < items.Length; k++)
+        {
+            var instance = quantum == 1 ? items[k] : Folded(items[k], quantum);
+            ring[k] = origin == RenderOrigin.Zero ? instance : Against(instance, origin);
+        }
     }
 
     // The ring of instances, with room for a region per frame slot of at least this call's

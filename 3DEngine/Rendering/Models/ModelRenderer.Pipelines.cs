@@ -140,6 +140,8 @@ internal sealed partial class ModelRenderer
         DrawCalls = 0;
         PipelinesBound = 0;
         _callsByPass.Clear();
+        _placedViews.Clear();
+        _pushes.Clear();
         _setByIds.Clear();
         _drawSetsByLook.Clear();
         DrawSetsWritten = 0;

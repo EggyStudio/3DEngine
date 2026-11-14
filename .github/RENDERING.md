@@ -565,6 +565,18 @@ told within a hundredth of themselves. A test reads a room with a mirror's plane
 probe, a softened sun and a parented block far out as at the world's origin, but at the sun's
 shadow edges, and another a room drawn into a render texture alone.
 
+Every place the frame writes into memory the GPU reads is taken against the origin as it is first
+written there, and that memory is never read back, since mapped memory a driver may write in order
+reads back slowly. The immediate pass records each run of shapes against an anchor, the eye of the
+3D camera it is drawn through rounded as the frame's origin is (`DrawList.SetAnchor`), while the
+transform is that camera's, so its vertices are copied as they are and each run is drawn through its
+camera against its own anchor from the eye. A shape is built about its middle taken against the
+anchor in doubles with its offsets along the model transform's axes (`DrawList.At`, `DrawList.Way`),
+so a box, a sphere or a billboard far out keeps its size, and a point a program gives is taken
+against the anchor as it is recorded. The model pass writes each instance against the origin as it
+goes into the ring, a group's copies and a packed mesh's scale with it, and works each view's push
+once a frame; the moving instances' velocity is written so too.
+
 `LightExtract` copies every `Light` entity into the render world, and `LightingUboPrepare` packs up
 to 16 into one uniform buffer per frame, which `ModelRenderer` binds as a second descriptor set from
 a ring of one per frame in flight. The set's images, seventeen of them, are bound apart from two

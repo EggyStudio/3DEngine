@@ -58,11 +58,10 @@ internal sealed class ImmediateRenderer : IDisposable
     private long _frame;
     private DynamicAllocation? _vertices;
     private DynamicAllocation? _indices;
-    // The frame's origin, and by batch the eye of the camera a batch of the engine's own shader was
-    // drawn through, whose vertices were uploaded against the origin, or null for a batch whose
-    // vertices stand in world numbers, as a shader of the program's own reads them as recorded.
-    private RenderOrigin _origin;
-    private readonly List<ViewEye?> _placed = [];
+    // By batch the transform it is drawn through, its camera against the anchor its vertices were
+    // recorded against, or the transform as it is for a batch recorded in world numbers, as a shader
+    // of the program's own reads them.
+    private readonly List<Matrix4x4> _placed = [];
 
     // Sets of batches with uniforms of their own, a list per frame slot, handed out in order each
     // frame and reused when the slot comes round, once the GPU is done with that frame. A shader
@@ -110,34 +109,15 @@ internal sealed class ImmediateRenderer : IDisposable
         _placed.Clear();
         if (drawList is null || drawList.Vertices.IsEmpty || renderContext.DynamicAllocator is not { } allocator) return;
 
+        // The vertices as they were recorded, against their batches' anchors, so the upload writes
+        // them once and reads nothing back.
         _vertices = Copy(allocator, MemoryMarshal.AsBytes(drawList.Vertices), BufferUsage.Vertex);
         _indices = Copy(allocator, MemoryMarshal.AsBytes(drawList.Indices), BufferUsage.Index);
-        Place(allocator, drawList, renderWorld.TryGet<RenderOrigin>(), renderWorld.TryGet<ModelDrawList>());
-    }
-
-    // Takes the vertices of each batch the engine's own shader draws through a camera whose eye the
-    // frame noted against the frame's origin in the upload, each vertex once, worked in doubles.
-    private void Place(DynamicBufferAllocator allocator, DrawList drawList, RenderOrigin origin, ModelDrawList? eyes)
-    {
-        _origin = origin;
-        var batches = drawList.Batches;
-        for (int i = 0; i < batches.Count; i++)
-            _placed.Add(batches[i].Shader == 0 ? eyes?.EyeOf(batches[i].Transform) : null);
-        if (origin == RenderOrigin.Zero || !_placed.Any(eye => eye is not null)) return;
-        var vertices = MemoryMarshal.Cast<byte, ImmediateVertex>(allocator.Map(_vertices!.Value));
-        var indices = drawList.Indices;
-        var moved = new bool[vertices.Length];
-        for (int i = 0; i < batches.Count; i++)
-        {
-            if (_placed[i] is null) continue;
-            foreach (var index in indices.Slice(batches[i].FirstIndex, batches[i].IndexCount))
-                if (!moved[index])
-                {
-                    moved[index] = true;
-                    vertices[(int)index] = vertices[(int)index] with { Position = origin.Against(vertices[(int)index].Position) };
-                }
-        }
-        allocator.Unmap(_vertices!.Value);
+        // Each batch's camera against the anchor its vertices were recorded against, from the eye
+        // the frame noted the camera with, worked once for the frame.
+        var eyes = renderWorld.TryGet<ModelDrawList>();
+        foreach (var batch in drawList.Batches)
+            _placed.Add(batch.Anchor == RenderOrigin.Zero ? batch.Transform : batch.Anchor.Seen(batch.Transform, eyes?.EyeOf(batch.Transform)));
     }
 
     private static DynamicAllocation Copy(DynamicBufferAllocator allocator, ReadOnlySpan<byte> bytes, BufferUsage usage)
@@ -189,9 +169,7 @@ internal sealed class ImmediateRenderer : IDisposable
 
             // The engine's own shader is told whether it draws in 3D, where it discards clear texels.
             var parameters = batch.Shader == 0 ? default(ShaderParams).With(0, batch.DepthTest ? Vector4.UnitX : Vector4.Zero) : batch.Params;
-            // A batch whose vertices were uploaded against the frame's origin is drawn through its
-            // camera against it, from the camera's eye.
-            var through = i < _placed.Count && _placed[i] is { } eye ? _origin.Seen(batch.Transform, eye) : batch.Transform;
+            var through = i < _placed.Count ? _placed[i] : batch.Transform;
             var transform = batch.Texture == 0 ? through * RowNudge(pass.Extent.Height) : through;
             var push = new Push { Transform = transform, Params = parameters };
             pass.PushConstants(pipeline, ShaderStageFlags.All, 0, MemoryMarshal.AsBytes(new ReadOnlySpan<Push>(in push)));
