@@ -1,35 +1,42 @@
 # Review
 
-Reviewed up to `5b6696b2`, 264's part 9, its first commit, five findings of the independent read,
-the mirrored view and the reflection probes' faces noted by their eyes, the origin from the first
-render target's eye where no window camera stands, the soft shadow's grain by whole cells and the
-lamps' places told apart within a hundredth of a unit, four tests each failing without its mend,
-pushed at 03:25 on 2026-11-14 once the run before it had ended, green at 04:43 with the four Windows
-jobs in 69, 40, 57 and 37 minutes, macOS in 53 and the Linux legs in 67 and 66; RenderOriginTests
-passes whole on the three devices, 30 of 30, and the suite passed both legs, 2,396; it keeps the
-form and carries the review's files. Before it `d102cd72`, Verdict 121's mend, the Windows suite
-dealt to four jobs with global illumination's class in four processes and the render origin's, the
-bounce rooms' and the glow lights' each in one, no part estimated over 33 minutes on the slowest
-runner read, with `3768c988`, 264's part 6, the rays from the screen on the CPU, and `6cfda4dd`,
-part 5, the points from the depth, pushed together at 00:44 on 2026-11-14, one run on the last,
-43529308891, green at 02:02 with the four Windows jobs in 78, 53, 59 and 37 minutes, macOS in 54 and
-the Linux legs in 65 and 53, which settles Verdict 121; the suite passed both legs on part 6, 2,388,
-and RenderOriginTests whole on the three devices, 22 of 22; they keep the form and carry the
-review's files. Before them `68e7085f`, 264's part 4, each pass that reads its frame before taking
-the way between the two frames from the cameras' eyes, a camera turning a million units out reading
-as at the world's origin, with each process's slowest tests kept on a green run, pushed at 21:27 on
-2026-11-13 once the run before it had ended, run 43501785641, red in the third Windows job at 23:02,
-its part Rendering 5 ended at its time limit with no test failed, Verdict 121; RenderOriginTests
-passes whole on the three devices, 19 of 19, and the suite passed both legs, 2,379; it keeps the
-form and carries the review's files. Before it `bca57e93`, Verdict 120's mend, the render origin's
-three tests that compare a pixel's light against another origin held by a count of pixels past a
-small level and a loose largest, read on the RTX and on Mesa 26.2.4 and 25.2.8, with `ed3cd9ca`,
-264's part 3, the shadows fitted in places with their texels' lattice kept in world numbers, pushed
-together at 19:11 on 2026-11-13, one run on the last, 43480215485, green at 21:26 with macOS in 51
-minutes, the Linux legs in 83 and 89 and the Windows jobs in 135, 85 and 64, which settles Verdict
-120; RenderOriginTests passes whole on the three devices, 16 of 16, and the suite passed both legs
-on part 3, 2,375; they keep the form and carry the review's files. Before them `54792d7e`, 264's
-mend for a program's shader, world a property over the place and the origin and the lighting's
+Reviewed up to `010671f7`, the cost of the origin mended, the immediate pass recording its shapes
+against the eye of the camera it draws through and the model pass writing each instance against the
+origin as it goes into the ring, no frame reading mapped memory back, the immediate upload 0.2 to
+0.4 ms where 61 to 68 on a room of 4,000 immediate cubes, with the first of the independent read's
+findings, a shape built about its middle, pushed at 05:01 on 2026-11-14 once the run before it had
+ended; RenderOriginTests passes whole on the three devices, 30 of 30, and the suite passed both
+legs, 2,399; it keeps the form and carries the review's files. Before it `5b6696b2`, 264's part 9,
+its first commit, five findings of the independent read, the mirrored view and the reflection
+probes' faces noted by their eyes, the origin from the first render target's eye where no window
+camera stands, the soft shadow's grain by whole cells and the lamps' places told apart within a
+hundredth of a unit, four tests each failing without its mend, pushed at 03:25 on 2026-11-14 once
+the run before it had ended, green at 04:43 with the four Windows jobs in 69, 40, 57 and 37 minutes,
+macOS in 53 and the Linux legs in 67 and 66; RenderOriginTests passes whole on the three devices, 30
+of 30, and the suite passed both legs, 2,396; it keeps the form and carries the review's files.
+Before it `d102cd72`, Verdict 121's mend, the Windows suite dealt to four jobs with global
+illumination's class in four processes and the render origin's, the bounce rooms' and the glow
+lights' each in one, no part estimated over 33 minutes on the slowest runner read, with `3768c988`,
+264's part 6, the rays from the screen on the CPU, and `6cfda4dd`, part 5, the points from the
+depth, pushed together at 00:44 on 2026-11-14, one run on the last, 43529308891, green at 02:02 with
+the four Windows jobs in 78, 53, 59 and 37 minutes, macOS in 54 and the Linux legs in 65 and 53,
+which settles Verdict 121; the suite passed both legs on part 6, 2,388, and RenderOriginTests whole
+on the three devices, 22 of 22; they keep the form and carry the review's files. Before them
+`68e7085f`, 264's part 4, each pass that reads its frame before taking the way between the two
+frames from the cameras' eyes, a camera turning a million units out reading as at the world's
+origin, with each process's slowest tests kept on a green run, pushed at 21:27 on 2026-11-13 once
+the run before it had ended, run 43501785641, red in the third Windows job at 23:02, its part
+Rendering 5 ended at its time limit with no test failed, Verdict 121; RenderOriginTests passes whole
+on the three devices, 19 of 19, and the suite passed both legs, 2,379; it keeps the form and carries
+the review's files. Before it `bca57e93`, Verdict 120's mend, the render origin's three tests that
+compare a pixel's light against another origin held by a count of pixels past a small level and a
+loose largest, read on the RTX and on Mesa 26.2.4 and 25.2.8, with `ed3cd9ca`, 264's part 3, the
+shadows fitted in places with their texels' lattice kept in world numbers, pushed together at 19:11
+on 2026-11-13, one run on the last, 43480215485, green at 21:26 with macOS in 51 minutes, the Linux
+legs in 83 and 89 and the Windows jobs in 135, 85 and 64, which settles Verdict 120;
+RenderOriginTests passes whole on the three devices, 16 of 16, and the suite passed both legs on
+part 3, 2,375; they keep the form and carry the review's files. Before them `54792d7e`, 264's mend
+for a program's shader, world a property over the place and the origin and the lighting's
 point-taking functions taking world points beside their Placed twins, with `80fe61d2`, part 2, the
 origin at the eye, and `a0af50a3`, part 1's second commit, every place a pass reads in a buffer
 taken against the origin, the three held until the game's play on the local package
@@ -889,3 +896,25 @@ Every case reads as it did at 5b6696b2, all 30 passing on each.
 Each row's most over its distances, the post's shadow alike on the three.
 
 The suite passed both legs, 2,399, and the strict build is clean.
+
+Item 270, global illumination's lamps held to the sixteen its kernels' array holds. The lamps are
+written into a span of sixteen entries after the sun and the sky (`GlobalIlluminationRenderer.WriteLamps`),
+where the span ran over the rest of the lights from byte 64 and a seventeenth lamp went over the frame
+before's corners at byte 1,088 and the glow lights after them. Those kept are the point and spot
+lights among the first sixteen lights, the ones the model pass lights (`LightingUboPacker.Pack`),
+in the order of the lights, so a lamp the model pass leaves unlit bounces no light either, where
+the first sixteen point and spot lights of all the lights were taken. GlobalIlluminationLampsTests,
+on the CPU, writes twenty lamps and reads every byte as sixteen leave it, the count sixteen, and a
+sun, the sky and eighteen lamps keep the fourteen among the first sixteen in their order; the span
+over the rest of the lights writes twenty and fails it. The strict build is clean
+and the suite passed both legs, 2,401.
+
+On the guard the review weighs for the ring and the immediate list. Of the forty maps of GPU memory
+in the engine, eight read what the GPU wrote on purpose, the compute buffers' read, the probes'
+filter's readbacks, the field's and global illumination's readbacks and the reference tracer's sums
+and log, and the rest write by an index, a copy into, a value written, a cast, a clear or a fill.
+A write-only span, a ref struct over the mapped bytes with a setter, a slice, a cast to another
+element, a write of a value, a copy from a span and a clear and a fill and no getter, handed out
+by the map the uploads use, with the readbacks given a map of their own that reads, makes reading
+mapped memory back fail to compile. It is about thirty call sites changed as they stand, each a
+write already, and the type with a test of its own; small, and it goes into part 9b.

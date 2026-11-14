@@ -512,6 +512,33 @@ internal sealed partial class GlobalIlluminationRenderer : IIlluminationPasses, 
     // where it is one; the light from all around a ray meets where it meets nothing; the point
     // and spot lights, sixteen at most; and the counted cascades of the sun's shadow the frame
     // before drew its map for, where there is one.
+    /// <summary>
+    /// Writes the lamps of <paramref name="all"/> into global illumination's lights after the sun and
+    /// the sky, the point and spot lights among the first sixteen lights, which the model pass
+    /// lights (<see cref="LightingUboPacker.MaxLights"/>), into the sixteen entries the kernels' array
+    /// holds, and says how many, so a lamp past them bounces no light it does not give and no entry
+    /// is written over the corners and the glow lights after them.
+    /// </summary>
+    internal static int WriteLamps(Span<byte> bytes, IReadOnlyList<RenderLight> all)
+    {
+        var entries = MemoryMarshal.Cast<byte, LightUboEntry>(bytes.Slice(64, LightingUboPacker.MaxLights * Marshal.SizeOf<LightUboEntry>()));
+        var count = 0;
+        for (int i = 0; i < Math.Min(all.Count, LightingUboPacker.MaxLights); i++)
+        {
+            var light = all[i];
+            if (light.Kind is not (LightKind.Point or LightKind.Spot)) continue;
+            entries[count++] = new LightUboEntry
+            {
+                PositionAndKind = new Vector4(light.Position, (int)light.Kind),
+                DirectionAndRange = new Vector4(light.Direction, light.Range),
+                // w: 1 for a light that casts shadows, which the probes' rays march toward.
+                ColorAndShadow = new Vector4(light.EmittedColor, light.CastsShadows ? 1 : 0),
+                Cone = new Vector4(light.CosInner, light.CosOuter, 0, 0),
+            };
+        }
+        return count;
+    }
+
     private byte[] Lights(RenderWorld renderWorld, bool environment, FrameShadow? sunShadow)
     {
         var bytes = new byte[GpuIllumination.LightsBytes];
@@ -535,20 +562,7 @@ internal sealed partial class GlobalIlluminationRenderer : IIlluminationPasses, 
             foreach (var light in all.Where(light => light.Kind == LightKind.Ambient)) sky += light.EmittedColor;
         (floats[8], floats[9], floats[10]) = (sky.X, sky.Y, sky.Z);
 
-        var entries = MemoryMarshal.Cast<byte, LightUboEntry>(bytes.AsSpan(64));
-        var count = 0;
-        foreach (var light in all)
-        {
-            if (light.Kind is not (LightKind.Point or LightKind.Spot) || count == entries.Length) continue;
-            entries[count++] = new LightUboEntry
-            {
-                PositionAndKind = new Vector4(light.Position, (int)light.Kind),
-                DirectionAndRange = new Vector4(light.Direction, light.Range),
-                // w: 1 for a light that casts shadows, which the probes' rays march toward.
-                ColorAndShadow = new Vector4(light.EmittedColor, light.CastsShadows ? 1 : 0),
-                Cone = new Vector4(light.CosInner, light.CosOuter, 0, 0),
-            };
-        }
+        var count = WriteLamps(bytes, all);
         var settings = renderWorld.TryGet<GlobalIlluminationSettings>();
         (floats[12], floats[13], floats[14]) = (count, _frame, settings is null ? 1 : settings.AgainOff ? 0 : settings.BounceGain);
         // The sun's map is read for its own light alone, so a shadow drawn for another light is not.
