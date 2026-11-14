@@ -62,28 +62,60 @@ internal sealed partial class GlobalIlluminationRenderer
     }
 
     // Notes whether the sun, the sky or a light differs from the frame before's by more than a
-    // hundredth, of its value or of a unit where that is smaller.
+    // hundredth, of its value or of a unit where that is smaller, and a light's place by more than
+    // a hundredth of a unit, since a place far from the world's origin is large and a hundredth of
+    // it spans rooms.
     private void NoteLights(byte[] lights)
     {
-        var signature = LightSignature(lights);
-        _lightsChanged = _lightSignature is not { } was || was.Length != signature.Length
-            || !was.AsSpan().SequenceEqual(signature) && Enumerable.Range(0, was.Length).Any(i => MathF.Abs(was[i] - signature[i]) > 0.01f * MathF.Max(1, MathF.Max(MathF.Abs(was[i]), MathF.Abs(signature[i]))));
+        var (signature, places) = LightSignature(lights);
+        _lightsChanged = _lightSignature is not { } was || Differ(was, signature, places);
         _lightSignature = signature;
     }
+
+    /// <summary>Whether the lights of <paramref name="after"/> differ from those of <paramref name="before"/> as a frame's are told to (NoteLights).</summary>
+    internal static bool LightsDiffer(byte[] before, byte[] after)
+    {
+        var (was, _) = LightSignature(before);
+        var (now, places) = LightSignature(after);
+        return Differ(was, now, places);
+    }
+
+    private static bool Differ(float[] was, float[] now, bool[] places) =>
+        was.Length != now.Length || !was.AsSpan().SequenceEqual(now) && Enumerable.Range(0, was.Length).Any(i => MathF.Abs(was[i] - now[i])
+            > (places[i] ? 0.01f : 0.01f * MathF.Max(1, MathF.Max(MathF.Abs(was[i]), MathF.Abs(now[i])))));
 
     // The sun's way and light, the sky's, the count of lights and the gain, each point and spot
     // light, and the small emitters carried as lights with their box (GlowLights), from the lights'
     // buffer, leaving out the frame's number and the sun's map, which move with the frames and the
     // camera. Without the emitters, a panel turned dark keeps a carried probe's cycle of the light
     // it gave, the room it lit still reading its light.
-    private static float[] LightSignature(byte[] lights)
+    // Beside it, which of its values are places in the world, each lamp's and each emitter's and
+    // the corners of the box the emitters reach.
+    private static (float[] Signature, bool[] Places) LightSignature(byte[] lights)
     {
         var floats = MemoryMarshal.Cast<byte, float>(lights.AsSpan());
         var count = (int)floats[12];
         var size = Marshal.SizeOf<LightUboEntry>() / 4;
         var glows = GlowLights.Offset / 4;
-        var glowFloats = GlowLights.Head / 4 + (int)floats[glows] * GlowLights.Bytes / 4;
-        return [.. floats[..13], floats[14], .. floats.Slice(16, Math.Min(count * size, floats.Length - 16)), .. floats.Slice(glows, Math.Min(glowFloats, floats.Length - glows))];
+        var lamps = Math.Min(count * size, floats.Length - 16);
+        var glowFloats = Math.Min(GlowLights.Head / 4 + (int)floats[glows] * GlowLights.Bytes / 4, floats.Length - glows);
+        float[] signature = [.. floats[..13], floats[14], .. floats.Slice(16, lamps), .. floats.Slice(glows, glowFloats)];
+        var places = new bool[signature.Length];
+        void Place(int at)
+        {
+            for (int k = at; k < at + 3 && k < places.Length; k++) places[k] = true;
+        }
+        // Each lamp's place is the first three of its values, after the head's fourteen.
+        for (int at = 14; at < 14 + lamps; at += size) Place(at);
+        // The emitters' box corners after their count, and each emitter's middle first among its values.
+        var glow = 14 + lamps;
+        if (glowFloats > 0)
+        {
+            Place(glow + 1);
+            Place(glow + 4);
+            for (int at = glow + GlowLights.Head / 4; at < glow + glowFloats; at += GlowLights.Bytes / 4) Place(at);
+        }
+        return (signature, places);
     }
 
     // How far each cascade's probes moved since the frame before, in probes, where it lay somewhere

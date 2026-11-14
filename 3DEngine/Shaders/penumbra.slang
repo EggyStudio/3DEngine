@@ -5,6 +5,7 @@
 module penumbra;
 
 import lightset;
+import grain;
 
 // The most texels of a cascade the search and the filter reach out from the point, past which a
 // cascade's shadow is as soft as it gets.
@@ -63,9 +64,9 @@ float depthAt(float2 at, bool fill)
 // at their mean depth, spread the sun to, a texel either side at least, so the edge is sharp where a
 // caster meets the ground and widens with its height over it, by the sun's width across at a
 // caster's height over the point. Read over twice that width, the edge near a pole's foot would be
-// soft where a hard one is sharp. The taps turn by a hash of the world point, the place given plus
-// the frame's origin, which leaves a grain held to the surface in a wide edge where a fixed disc
-// would leave rings.
+// soft where a hard one is sharp. The taps turn by a hash of the point's cell in the world
+// (grain.slang), which leaves a grain held to the surface in a wide edge where a fixed disc would
+// leave rings.
 public float cascadeSoftly(int c, float3 p, float2 uv, float2 texel, float2 lo, float2 hi, bool fill, float3 n, float3 place)
 {
     float spread = lighting.shadowSoftness.x;
@@ -74,7 +75,7 @@ public float cascadeSoftly(int c, float3 p, float2 uv, float2 texel, float2 lo, 
     float texelWorld = lighting.shadowTexels[c];
     float ndcPerTexel = (fill ? 2.0 : 4.0) * texel.x;
     float2 slope = receiverSlope(m, n, ndcPerTexel, 5.67 * texelWorld * zPerWorld);
-    float turn = frac(sin(dot(place + lighting.origin.xyz, float3(12.9898, 78.233, 37.719))) * 43758.5453) * 6.2831853;
+    float turn = grainTurn(place, lighting.origin.xyz);
 
     float reach = clamp(0.5 * spread * (p.z / zPerWorld) / texelWorld, 1.0, MostTexels);
     float blockers = 0.0;

@@ -504,6 +504,227 @@ public sealed class RenderOriginTests : IDisposable
         largest.Should().BeLessThan(0.1f, "every distance from the eye is read in the numbers the room at the origin is");
     }
 
+    // The room at a place in the world with its floor a mirror's plane under a reflection probe's
+    // box, the sun's shadow softened and a block held by another as its parent, drawn until the
+    // mirrored view is whole and then as the field settles, the lamp carried a unit and a half
+    // across the room two frames before the last; the level of each pixel's light in the last frame.
+    private static float[] Mirrored(Vector3 at)
+    {
+        var config = Config.Default.WithWindow("render origin", Width, Height) with
+        {
+            Headless = true, Offscreen = true, Samples = 1, FrameSeconds = 1.0 / 60,
+        };
+        UseApp(new App(config).AddPlugin(new DefaultPlugins()));
+        SetSceneField(2, 0.25f);
+        SetGlobalIllumination(GlobalIllumination.Low);
+        CreateDirectionalLight(Vector3.Normalize(new Vector3(-0.4f, -1, -0.3f)), Color.White, 1.5f, castsShadows: true);
+        SetShadowSoftness(0.5f);
+        var lamp = CreatePointLight(at + new Vector3(1.5f, 1.25f, 1.25f), new Color(255, 200, 150), 4, range: 6);
+        SetReflectionPlane(0, Vector3.UnitY);
+        CreateReflectionProbe(at + new Vector3(0, 1.5f, 0), new Vector3(8, 4, 8));
+        var block = LoadModelFromMesh(GenMeshCube(1, 1, 1));
+        var floor = block.Materials[0] with { Roughness = 0.125f, Color = new Color(200, 190, 170) };
+        var ecs = GetApp().World.Resource<EcsWorld>();
+        var holder = ecs.Spawn();
+        ecs.Add(holder, new Mesh(block.Meshes[0]));
+        ecs.Add(holder, new Material(new Vector4(0.4f, 0.8f, 0.5f, 1)));
+        ecs.Add(holder, new Transform(at + new Vector3(0.5f, 0.5f, 1)));
+        var held = ecs.Spawn();
+        ecs.Add(held, new Mesh(block.Meshes[0]));
+        ecs.Add(held, new Material(new Vector4(0.9f, 0.6f, 0.3f, 1)));
+        ecs.Add(held, new Transform(new Vector3(0, 1, 0), new Vector3(0.5f)));
+        ecs.SetParent(held, holder);
+        var view = new Camera3D(at + new Vector3(0, 2.5f, 5.5f), at + new Vector3(0, 0.5f, 0), Vector3.UnitY, 60);
+        var render = GetApp().World.Resource<Engine.Renderer>().RenderWorld;
+        void Frame()
+        {
+            BeginDrawing();
+            ClearBackground(Color.Black);
+            BeginMode3D(view);
+            SetSceneFieldCenter(at);
+            DrawMesh(block.Meshes[0], floor, Matrix4x4.CreateScale(8, 1, 8) * Matrix4x4.CreateTranslation(at + new Vector3(0, -0.5f, 0)));
+            DrawModelEx(block, at + new Vector3(0, 1.5f, -2.5f), Vector3.UnitY, 0, new Vector3(8, 4, 1), new Color(180, 120, 90));
+            DrawModelEx(block, at + new Vector3(-1.25f, 0.5f, 0.25f), Vector3.UnitY, 0, Vector3.One, Color.White);
+            EndMode3D();
+            EndDrawing();
+        }
+        for (int frame = 0; frame < 600 && render.TryGet<MirrorRenderer>() is not { Whole: true }; frame++) Frame();
+        for (int frame = 0; frame < SceneFieldPlan.SettleFrames + 4; frame++)
+        {
+            if (frame == SceneFieldPlan.SettleFrames + 2) SetLightPosition(lamp, at + new Vector3(0, 1.25f, 1.25f));
+            Frame();
+        }
+        var renderer = GetApp().World.Resource<Engine.Renderer>();
+        var linear = ((GraphicsDevice)renderer.Context.Graphics!).ReadFloats(renderer.RenderWorld.TryGet<BloomRenderer>()!.Decoded!.ColorView.Image);
+        var levels = new float[Width * Height];
+        for (int i = 0; i < levels.Length; i++)
+        {
+            var l = 0.2126f * linear[i * 4] + 0.7152f * linear[i * 4 + 1] + 0.0722f * linear[i * 4 + 2];
+            l /= 1 + l;
+            levels[i] = 255 * Math.Clamp(l <= 0.0031308f ? 12.92f * l : 1.055f * MathF.Pow(l, 1 / 2.4f) - 0.055f, 0, 1);
+        }
+        UnloadModel(block);
+        CloseWindow();
+        UseApp(null);
+        return levels;
+    }
+
+    [NeedsVulkanTheory]
+    [InlineData(4096f, 1024f)]
+    [InlineData(71680f, 17408f)]
+    [InlineData(1140736f, 285696f)]
+    public void A_Room_With_A_Mirror_A_Probe_And_Soft_Shadows_Far_From_The_Worlds_Origin_Reads_As_At_It(float x, float z)
+    {
+        var home = Mirrored(Vector3.Zero);
+        var far = Mirrored(new Vector3(x, 0, z));
+        var differences = home.Zip(far, (a, b) => Math.Abs(a - b)).ToArray();
+        // The mirrored view is pushed from its eye mirrored in the plane, the probe's faces are
+        // gathered through their turns alone and the soft shadow's grain is turned by whole cells,
+        // so the room far out reads as at the origin but at the sun's shadow edges, whose texels
+        // lie in world numbers at another phase there.
+        differences.Count(d => d > 1).Should().BeLessThanOrEqualTo(16, "only the sun's shadow edges move, by a part of a texel at the maps' other phase");
+        differences.Max().Should().BeLessThan(24, "an edge's pixel reads a part of a texel off, the map's texels at another phase");
+    }
+
+    // The soft shadow's turn at each of count places spaced along a line, against an origin.
+    private const string Grains = """
+        import grain;
+        uniform float3 from;
+        uniform float3 apart;
+        uniform float3 origin;
+        uniform uint count;
+        RWStructuredBuffer<float> turns;
+
+        [shader("compute")]
+        [numthreads(64, 1, 1)]
+        void computeMain(uint3 id : SV_DispatchThreadID)
+        {
+            if (id.x < count)
+                turns[id.x] = grainTurn(from + apart * float(id.x), origin);
+        }
+        """;
+
+    [NeedsVulkanFact]
+    public void A_Soft_Shadows_Grain_Far_From_The_Worlds_Origin_Turns_As_At_It()
+    {
+        var config = Config.Default.WithWindow("render origin", 32, 32) with { Headless = true, Offscreen = true };
+        UseApp(new App(config).AddPlugin(new DefaultPlugins()));
+        var shader = LoadComputeShaderFromMemory(Grains, "grains.slang");
+        shader.IsValid.Should().BeTrue();
+        const int Count = 256;
+        var turns = LoadShaderBuffer<float>(new float[Count]);
+        // A line of places a 512th of a unit apart, from a place off any whole number, against the
+        // world's origin and against origins far out, each a whole count of 256 units.
+        float[] Turns(Vector3 origin)
+        {
+            SetShaderValue(shader, GetShaderLocation(shader, "from"), new Vector3(0.3f, 0.7f, -1.1f));
+            SetShaderValue(shader, GetShaderLocation(shader, "apart"), new Vector3(1f / 512, 0, 1f / 512));
+            SetShaderValue(shader, GetShaderLocation(shader, "origin"), origin);
+            SetShaderValue(shader, GetShaderLocation(shader, "count"), Count);
+            SetShaderValueBuffer(shader, GetShaderLocation(shader, "turns"), turns);
+            ComputeShaderDispatch(shader, (Count + 63) / 64, 1, 1);
+            var read = new float[Count];
+            ReadShaderBuffer<float>(turns, read);
+            return read;
+        }
+        var home = Turns(Vector3.Zero);
+        home.Distinct().Count().Should().BeGreaterThan(Count / 4, "the turn changes from one 256th of a unit to the next");
+        foreach (var origin in new Vector3[] { new(4096, 0, 1024), new(71680, 0, 17408), new(1140736, 0, 285696) })
+        {
+            // A world point far out is the place against the origin there plus the origin, which
+            // a float of the world's size rounds to its step, and its cell is counted in whole
+            // numbers, so the turns are the turns at the world's origin.
+            Turns(origin).Should().Equal(home, $"the grain {origin.X} units out turns as at the world's origin");
+        }
+        UnloadShaderBuffer(turns);
+        UnloadShader(shader);
+        CloseWindow();
+        UseApp(null);
+    }
+
+    [Fact]
+    public void A_Lamp_Carried_Across_A_Room_Far_From_The_Worlds_Origin_Changes_The_Lights_As_At_It()
+    {
+        // Global illumination's lights with one lamp, a point light of the color and place given.
+        static byte[] Lights(Vector3 lamp, float intensity = 4)
+        {
+            var bytes = new byte[GpuIllumination.LightsBytes];
+            var floats = System.Runtime.InteropServices.MemoryMarshal.Cast<byte, float>(bytes.AsSpan());
+            floats[12] = 1;
+            (floats[16], floats[17], floats[18], floats[19]) = (lamp.X, lamp.Y, lamp.Z, (float)LightKind.Point);
+            (floats[24], floats[25], floats[26]) = (intensity, intensity * 0.8f, intensity * 0.6f);
+            return bytes;
+        }
+        foreach (var at in new Vector3[] { Vector3.Zero, new(4096, 0, 1024), new(71680, 0, 17408), new(1140736, 0, 285696) })
+        {
+            var lamp = at + new Vector3(1.5f, 1.25f, 1.25f);
+            // A place is told apart within a hundredth of a unit, so a lamp carried across a room
+            // far out begins the probes' cycles again as one near the world's origin does.
+            GlobalIlluminationRenderer.LightsDiffer(Lights(lamp), Lights(at + new Vector3(0, 1.25f, 1.25f)))
+                .Should().BeTrue($"a lamp carried a unit and a half {at.X} units out is a change of the lights");
+            GlobalIlluminationRenderer.LightsDiffer(Lights(lamp), Lights(lamp, 4.02f))
+                .Should().BeFalse($"a lamp brighter by a two hundredth {at.X} units out is the same light");
+        }
+    }
+
+    // The room at a place in the world drawn into a render texture alone, the window showing the
+    // texture in 2D and drawing through no camera of its own, lit by the sun and the lamp with global
+    // illumination off; the level of each texel's light in the texture after the last frame, from
+    // its 8 bits a channel.
+    private static float[] Targeted(Vector3 at)
+    {
+        var config = Config.Default.WithWindow("render origin", Width, Height) with
+        {
+            Headless = true, Offscreen = true, Samples = 1, FrameSeconds = 1.0 / 60,
+        };
+        UseApp(new App(config).AddPlugin(new DefaultPlugins()));
+        SetSceneField(2, 0.25f);
+        SetGlobalIllumination(GlobalIllumination.Off);
+        CreateDirectionalLight(Vector3.Normalize(new Vector3(-0.4f, -1, -0.3f)), Color.White, 1.5f);
+        CreatePointLight(at + new Vector3(1.5f, 1.25f, 1.25f), new Color(255, 200, 150), 4, range: 6);
+        var target = LoadRenderTexture(Width, Height);
+        var block = LoadModelFromMesh(GenMeshCube(1, 1, 1));
+        var view = new Camera3D(at + new Vector3(0, 2.5f, 5.5f), at + new Vector3(0, 0.5f, 0), Vector3.UnitY, 60);
+        for (int frame = 0; frame < SceneFieldPlan.SettleFrames + 4; frame++)
+        {
+            BeginTextureMode(target);
+            ClearBackground(Color.Black);
+            BeginMode3D(view);
+            SetSceneFieldCenter(at);
+            DrawModelEx(block, at + new Vector3(0, -0.5f, 0), Vector3.UnitY, 0, new Vector3(8, 1, 8), new Color(200, 190, 170));
+            DrawModelEx(block, at + new Vector3(0, 1.5f, -2.5f), Vector3.UnitY, 0, new Vector3(8, 4, 1), new Color(180, 120, 90));
+            DrawModelEx(block, at + new Vector3(-1.25f, 0.5f, 0.25f), Vector3.UnitY, 30, Vector3.One, Color.White);
+            DrawModelEx(block, at + new Vector3(1.25f, 0.25f, -0.5f), Vector3.UnitY, 0, new Vector3(0.5f), new Color(120, 160, 220));
+            EndMode3D();
+            EndTextureMode();
+            BeginDrawing();
+            ClearBackground(Color.Black);
+            DrawTexture(target.Texture, 0, 0, Color.White);
+            EndDrawing();
+        }
+        var colors = LoadImageColors(LoadImageFromTexture(target.Texture));
+        var levels = colors.Select(c => 0.2126f * c.R + 0.7152f * c.G + 0.0722f * c.B).ToArray();
+        UnloadModel(block);
+        UnloadRenderTexture(target);
+        CloseWindow();
+        UseApp(null);
+        return levels;
+    }
+
+    [NeedsVulkanTheory]
+    [InlineData(4096f, 1024f)]
+    [InlineData(71680f, 17408f)]
+    [InlineData(1140736f, 285696f)]
+    public void A_Room_Drawn_Into_A_Texture_Alone_Far_From_The_Worlds_Origin_Reads_As_At_It(float x, float z)
+    {
+        var home = Targeted(Vector3.Zero);
+        var far = Targeted(new Vector3(x, 0, z));
+        // With no window camera the origin stands at the render target's eye, so the room far out
+        // is handed to the GPU in the numbers the room at the origin is; against the world's
+        // origin every place far out is a float of the world's size.
+        home.Zip(far, (a, b) => Math.Abs(a - b)).Max().Should().BeLessThan(1.5f, "a texel far out differs from the texel at the origin by its 8 bits' rounding at most");
+    }
+
     [NeedsVulkanTheory]
     [InlineData(GlobalIllumination.Low)]
     [InlineData(GlobalIllumination.High)]

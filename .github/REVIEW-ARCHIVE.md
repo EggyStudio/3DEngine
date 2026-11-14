@@ -12275,6 +12275,35 @@ at `36cae0c2`.
     `bca57e93`, 43480215485, green at 21:26 on 2026-11-13 on every system, both Linux legs among
     them, macOS in 51 minutes, the Linux legs in 83 and 89 and the Windows jobs in 135, 85 and 64.
 
+121. **The run of `68e7085f` is red in the third Windows job, one part of the suite ended at its
+    time limit.** Run 43501785641, pushed at 21:27 on 2026-11-13. The third Windows job ended at
+    23:02 after 94 minutes, its part Rendering 5 cut at 70 m 1 s with 208 passed, none failed and
+    220 tests left without a result; macOS, both Linux legs, the examples and the second Windows job
+    are green, the first still going when this was written. No test failed. The same part took 46 m
+    3 s with 206 passed in the run of `bca57e93` and 42 m 10 s in the run of `3405714a`. This runner
+    was slower throughout, Rendering 4 in 9 m 33 s where 6 m 17 s and Rendering 6 in 11 m 20 s where
+    8 m 51 s, a half more, and part 4 added the turning room's three cases to the part, so a part
+    that stood at two thirds of its limit passed it on a slow runner. The slowest that ended were
+    the coarser cascades in halves at 6 m 57 s, the still glow lights at 4 m 21 s and 3 m 19 s, and
+    the scene against the other origin at High at 3 m 2 s. It is Verdict 119's kind again, the
+    part's room and not a test's fault. Asked, a mend that goes up at once with `6cfda4dd` under it.
+    RenderOriginTests becomes a part of its own, as the illumination's and the field's tests are,
+    and the parts are dealt among the Windows jobs so that no part stands over 45 minutes on the
+    slowest run read, a half under its limit for a runner's spread, and no job over two thirds of
+    its own limit; the Reply says each part's time from this run's and the last run's digests and
+    where each part goes. From here a commit that adds a drawing test says which part it joins and
+    that part's time on the slowest Windows run read, beside its time on lavapipe. The run ended at
+    23:40 on 2026-11-13 with the first Windows job green in 133 minutes, macOS in 57, the Linux legs
+    in 65 and 68 and the second Windows job in 60, the third alone red. Read by the coder from the
+    job's digest, RenderOriginTests took 27.3 minutes of the part and BounceRoomsTests 24.4, dealt
+    together by their names; the illumination's class stands at about 49 minutes a part and the
+    first job at 134 of its 160. So the mend deals the whole Windows side anew over four jobs, the
+    illumination's class in three or four parts and the heavy Rendering classes alone, each part's
+    time estimated from lavapipe scaled by the classes Windows timed and checked against the mend's
+    first run. Settled by the run of `d102cd72`, 43529308891, green at 02:02 on 2026-11-14 on every
+    system, the four Windows jobs in 78, 53, 59 and 37 minutes where three had taken 133, 60 and 94,
+    macOS in 54 and the Linux legs in 65 and 53.
+
 ## Decisions
 
 1. **Commits stay local.** The owner pushes `main` by hand, and the working session commits and does
@@ -16654,6 +16683,203 @@ camera modes that move the target with the position among them, the screen's ray
 and the in-view check in E3D.Camera3D, would read one property, the look where set and the target
 less the position otherwise. A test would turn a camera far out by a look given and read it as the camera at
 the world's origin. About twenty reads in five files, and raylib's struct one field longer.
+
+Item 264, part 5, points from depth. The fog and its decode, the scattering's blur and the depth of
+field read each pixel's distance from the eye from the depth. Each takes the depth's points back
+through the camera against the frame's origin from its eye, the inverse of `WindowView.Against`
+(`InverseAgainst`, and `UnjitteredInverseAgainst` for the passes that read the depth drawn without
+the antialiasing's move), and the eye's place against that origin, where each took them through the
+inverse of the camera in world floats with the eye in world numbers. The fog's inverse was moved
+after by the origin in doubles, which took the origin back out and not the rounding the
+view-projection's translation had in floats. The screen probes and the occlusion read theirs so
+since part 4.
+
+RenderOriginTests adds a room standing in fog that thins upward, lit by the sun and the lamp,
+through the depth of field's blur, with a block whose light scatters under its surface, read in the
+frame the lens passes leave, under a tenth of a level at every pixel at 4,096, 71,680 and 1,140,736
+against the same frames at the world's origin. It reads 0.000 at all three on the RTX 4070 and on
+Mesa 25.2.8 and 0.058 at one pixel at 71,680 on 26.2.4, and on part 4's engine 0.78, 17.2 and 40.3
+levels at the most on the RTX 4070, 13,307 pixels past a level at the last. Each piece put back
+alone fails it.
+
+| Put back alone | 4,096 | 71,680 | 1,140,736 |
+|---|---|---|---|
+| The fog and its decode through the camera in world floats | 0.45 | 2.13 | 41.3 |
+| The scattering's blur | 0.70 | 14.6 | 4.98 |
+| The depth of field | 0.77 | 17.0 | 40.8 |
+| Part 4 whole | 0.78 | 17.2 | 40.3 |
+
+Its cases take 12.0 to 13.9 s each on lavapipe here held to four cores.
+
+The test's scattering mesh is a block, every corner on a float's step at 1,140,736. A ball read 48
+levels apart there with the scattering and 7.0 with the fog, the focus and the scattering all left
+out, as the scene field splats a mesh's triangles in world numbers, so its distances near the ball
+are rounded to an eighth there, and the scattering's thickness and the probes read them. That is the
+field's splat against the cascade's corner in doubles, with part 8.
+
+Left as they stand. The particles meet the depth through the camera in world numbers, as they are
+kept in world numbers themselves, on the eighth's grid at 1,140,736 whatever the view, so a test of
+their meeting far out against at the origin reads their own rounding; they go with moving the
+world. The field's cascades lying ahead of the eye (`SceneField.AheadOf`, `FarPlane`) take their
+middle in world numbers and snap it to the cells, which goes with part 8's snap in doubles. The
+reference tracer and the field's debug view read the camera in world numbers.
+
+The standing room's 0.041 on both Mesa versions is one pixel, 143,60, which reads 176.220 or 176.260
+from run to run in the room at the origin and in the room far out alike, so it falls on whichever
+distance's run took the other value. Each of part 4's pieces left out once, it went with the
+antialiasing's, the occlusion's history's, the screen probes' views' and the occlusion's scale's
+left out and stayed with the blur's, the reflections', the screen probes' way back's and the
+occlusion's height's, the blur and the occlusion drawing nothing in that room, so one trial each
+does not tell the piece; it showed in five runs of five on part 4 and in none of three on part 3.
+
+RenderOriginTests whole on the three devices, each case's largest and its pixels past the level its
+count is held at.
+
+| Case | RTX 4070 | Mesa 26.2.4 | Mesa 25.2.8 |
+|---|---|---|---|
+| Scene at Low, past 1 | 0.088, 0 | 0.393, 0 | 1.480, 1 |
+| Scene at High, past 1 | 0.246, 0 | 0.367, 0 | 1.424, 2 |
+| Shadowed room at 4,096, past 4 | 7.72, 2 | 7.83, 2 | 5.26, 2 |
+| Shadowed room at 71,680, past 4 | 7.72, 1 | 7.83, 1 | 25.43, 5 |
+| Shadowed room at 1,140,736, past 4 | 10.73, 2 | 11.34, 1 | 20.96, 4 |
+| Crossing, past 1 | 0.089, 0 | 13.21, 8 | 29.97, 14 |
+| Turning room at each distance | 0.000 | 0.000 | 0.000 |
+| Room in fog at 4,096 and 1,140,736 | 0.000 | 0.000 | 0.000 |
+| Room in fog at 71,680 | 0.000 | 0.058 | 0.000 |
+| Room at each distance | 0.000 | 0.000 | 0.041 at 71,680 |
+
+The post's shadow reads alike on the three, as in the mend's Reply.
+
+The guide's last sentence ends at a program keeping its numbers small by moving its own world as
+it goes. The suite passed both legs, 2,382.
+
+Item 264, part 6, the rays from the screen on the CPU. `GetWorldToScreenEx` takes a point less the
+camera's position through the camera turned alone (`Camera3D.TurnedView`, the view made with the eye
+at nothing, which `BeginMode3D` notes the camera by too), and `GetScreenToWorldRayEx` takes its way
+from the inverse of that camera and leaves from the camera's position plus the near point less it,
+where both went through the camera's view in world floats, its translation the world's size.
+`Vector3Unproject`, which is handed a view and a projection, goes back through the projection alone
+and then through the view's inverse worked in doubles, where the product of the two was inverted in
+floats. The picking took a ray into a mesh's own space through the inverse of the mesh's world
+matrix in floats, whose translation far out was rounded before the ray's place was taken off; it
+takes the ray's place less the matrix's translation turned back instead. Its ray already took its
+way from the camera's rotation and left from its place.
+
+Collision3DTests adds a camera at 4,096, 71,680 and 1,140,736 looking at four points, all on a
+float's step at the last, against the same camera at the world's origin: each point shows within a
+thousandth of a pixel of where it shows at the origin, the ray through that pixel has its way
+within a millionth and leaves within a float's step, and the point unprojected through the camera's
+own view and projection comes back within a float's step. On part 5's functions the pixel is off by
+0.015, 0.61 and 7.7, the ray's way by 0.005, 0.17 and 0.79, about 46 degrees at the last, and the
+point unprojected by 43, 223 and 89 of the float's steps there, 11 units at the last; on part 6 the
+pixel and the way read 0.000, the ray's place 0.17 to 0.45 of a step and the point 0.04 to 0.26.
+PointerPickingTests adds a box turned half a radian far out under a pointer off the middle, met as
+far along the ray as at the origin within a hundred thousandth, at its point within a float's step
+and on the same face; part 5's picking meets it 6.4e-5, 0.0018 and 0.044 further or nearer, and
+part 6's at the same distance. The box takes its place and turn on itself, since the picking's
+stage runs no propagation and a parent's transform does not reach a child there.
+
+The guide's 3D page says both take a point less the camera's position through the camera's turn
+alone and that `Vector3Unproject` works the view's inverse in doubles.
+
+What in the standing room's frame may differ between two runs, from reading. The field's color pass
+(field_splat.slang 414 to 433) writes a cell's albedo, gloss and glow from every triangle whose
+distance code equals the cell's least, and the code holds the distance in 1,024ths of a cell, the
+rim, the side and the way, not the triangle, so where two faces stand at one distance from a cell,
+as where the floor meets the wall, each writes and the last to run sets the cell, which a CPU
+device's threads order otherwise from run to run. The rest of that frame reads no clock and sums
+nothing out of order. The field's triangle budget is raised only by a frame's wait for a target
+rate, which the tests set none of; the exposure that follows the scene by the clock is off; the
+model pass waits for its pipelines but in the mirror's pass; the splat's sums are of integers; the
+particles' seeds are the frame's count and the entity's; and the one readback taken whenever it is
+ready is a counted mesh's, of which the room has none.
+
+RenderOriginTests whole on the three devices.
+
+| Case | RTX 4070 | Mesa 26.2.4 | Mesa 25.2.8 |
+|---|---|---|---|
+| Scene at Low, past 1 | 0.088, 0 | 0.393, 0 | 1.480, 1 |
+| Scene at High, past 1 | 0.246, 0 | 0.367, 0 | 1.424, 2 |
+| Shadowed room at 4,096, past 4 | 7.72, 2 | 7.83, 2 | 5.26, 2 |
+| Shadowed room at 71,680, past 4 | 7.72, 1 | 7.83, 1 | 25.43, 5 |
+| Shadowed room at 1,140,736, past 4 | 10.73, 2 | 11.34, 1 | 20.96, 4 |
+| Crossing, past 1 | 0.089, 0 | 13.21, 8 | 29.97, 14 |
+| Turning room at each distance | 0.000 | 0.000 | 0.000 |
+| Room in fog at each distance | 0.000 | 0.000 | 0.000 |
+| Room at each distance | 0.000 | 0.000 | 0.000 |
+
+The post's shadow reads alike on the three.
+
+The suite passed both legs, 2,388. Part 6 adds no drawing test, its two far cases running on the
+CPU, the rays in Collision3DTests in the Api part and the box in PointerPickingTests with no device.
+
+Verdict 121, the mend. The Windows suite is dealt to four jobs, the Rendering part split as
+`7+GlobalIlluminationTests/4+SceneFieldTests+RenderOriginTests+BounceRoomsTests+GlowLightsTests`,
+global illumination's class in four processes by its methods, the scene field's, the render
+origin's, the bounce rooms' and the glow lights' each in one of its own, and the rest of the part in
+seven by name. The first job runs two of global illumination's, the scene field's, Core and Graphics
+and plays the games after; the third the render origin's, the bounce rooms' and the Rendering part's
+first two; the fourth the glow lights' and its third and last three; and the second every part but
+those, two of global illumination's and the Rendering part's fourth among them, its `--except` made
+from the others' `--only`, so a part added later runs there. BUILDING.md says four runners. A check
+over the suite's list of tests through test.py's own dealing finds every label named and each part
+in one job alone, and the script tests pass against the workflow.
+
+What the parts read, at `bca57e93` in run 43480215485 and at `68e7085f` in run 43501785641, in
+minutes. The first job's whole took 134 and 132 of its 160, its suite 121.7 and 119.5.
+
+| Part as dealt until now | bca57e93 | 68e7085f | Job |
+|---|---|---|---|
+| Global illumination's class, two processes | 98.0 | 96.2 | 1 |
+| The scene field's | 11.3 | 11.1 | 1 |
+| Core | 9.4 | 9.3 | 1 |
+| Graphics | 2.9 | 2.9 | 1 |
+| Rendering 1 | 40.7 | 28.6 | 2 |
+| Rendering 2 | 27.6 | 18.6 | 2 |
+| Rendering 3 | 8.9 | 6.4 | 2 |
+| The other parts together | 4.1 | 3.6 | 2 |
+| Rendering 4 | 6.3 | 9.6 | 3 |
+| Rendering 5 | 46.0 | 70.0, cut | 3 |
+| Rendering 6 | 8.8 | 11.3 | 3 |
+
+How each part of the new deal is estimated. Windows read each class's time only in the third job of
+`68e7085f`, the slowest runner read, Rendering 4 to 6 there, so those classes take that time; the
+bounce rooms' class, cut with about six minutes of its part left, takes 30.0, its part's 46.0 at
+`bca57e93` at that runner's half again pace and the turning room's cases less what ended; and the
+render origin's 27.3 for its 19 cases at part 4 grows by part 5's three by their share of its time
+on lavapipe, to 32.4. The classes of Rendering 1 to 3 take their process's slowest read, at
+`bca57e93`, shared among them by each class's time on lavapipe, and global illumination's 98.0 is
+shared among its four processes by its methods' times on lavapipe. The whole Rendering part took 78.4
+minutes on lavapipe here held to four cores. No one scale holds, the slow runner taking 2.3 to 8 times
+a class's lavapipe time, the most where a class starts many apps, since Windows keeps no shader
+cache and each app compiles every shader it draws with.
+
+| Part in the new deal | Estimate | Its slowest classes | Job |
+|---|---|---|---|
+| Global illumination's 1 | 28.4 | | 1 |
+| Global illumination's 4 | 16.6 | | 1 |
+| The scene field's | 11.3 | | 1 |
+| Core | 9.4 | | 1 |
+| Graphics | 2.9 | | 1 |
+| Global illumination's 2 | 31.1 | | 2 |
+| Global illumination's 3 | 21.9 | | 2 |
+| Rendering 4 | 24.4 | GlowFarFromOriginTests 16.6, ParticleTests 7.5 | 2 |
+| The other parts together | 4.1 | | 2 |
+| The render origin's | 32.4 | | 3 |
+| The bounce rooms' | 30.0 | | 3 |
+| Rendering 1 | 8.2 | ReferenceFrameTests 5.3, ModelShadowTests 2.4 | 3 |
+| Rendering 2 | 3.2 | SubsurfaceTests 2.4 | 3 |
+| The glow lights' | 24.0 | | 4 |
+| Rendering 3 | 7.5 | OffscreenRenderTests 4.7, GlobalIlluminationPluginTests 1.3 | 4 |
+| Rendering 5 | 12.0 | GlowPenumbraTests 8.1, DescriptorPoolTests 1.8 | 4 |
+| Rendering 6 | 24.7 | CascadeEdgeTests 18.9, GlowPillarTests 3.4 | 4 |
+| Rendering 7 | 9.1 | GlowStillTests 7.7 | 4 |
+
+No part comes past 32.4, and the jobs' suites to 68.6, 81.5, 73.8 and 77.3 against a limit of 160,
+the first's games and the setup about 16 more. Part 5's three cases of the fog room are in the
+render origin's 32.4, and part 6's two far cases run on the CPU, the rays in the Api part in the
+second job and the picked box in PointerPickingTests, dealt to Rendering 7, with no device. After the
+mend's first run each part's time goes beside its estimate in the next Reply.
 
 ## Items closed, parked or shortened
 

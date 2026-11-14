@@ -71,14 +71,34 @@ internal sealed class MirrorRenderer : IDisposable
     /// The window's view-projection mirrored in the plane of <paramref name="normal"/> lying
     /// <paramref name="height"/> along it, turned upside down, its near plane the plane itself.
     /// </summary>
-    internal static Matrix4x4 Mirrored(Matrix4x4 viewProjection, Vector3 normal, float height)
+    internal static Matrix4x4 Mirrored(Matrix4x4 viewProjection, Vector3 normal, float height) =>
+        Oblique(Matrix4x4.CreateReflection(new Plane(normal, -height)) * viewProjection * Matrix4x4.CreateScale(1, -1, 1), new Vector4(normal, -height));
+
+    /// <summary>
+    /// The mirrored view of a camera given by its eye and its view-projection with the eye at
+    /// nothing (<paramref name="eye"/>), as an eye and a view-projection with that eye at nothing:
+    /// the eye mirrored in the plane, worked in doubles, and the turn mirrored in the plane through
+    /// the world's origin, its near plane the plane laid against the mirrored eye, so the mirrored
+    /// view holds no float of the world's size and is pushed from its eye as the window's is.
+    /// </summary>
+    internal static ViewEye Mirrored(ViewEye eye, Vector3 normal, float height)
     {
-        var mirrored = Matrix4x4.CreateReflection(new Plane(normal, -height)) * viewProjection * Matrix4x4.CreateScale(1, -1, 1);
+        // How far the eye stands along the normal past the plane, which the mirrored eye stands as
+        // far before it, and the plane stands along the normal from the mirrored eye.
+        var along = (double)normal.X * eye.Eye.X + (double)normal.Y * eye.Eye.Y + (double)normal.Z * eye.Eye.Z - height;
+        var mirroredEye = new Vector3((float)(eye.Eye.X - 2 * along * normal.X), (float)(eye.Eye.Y - 2 * along * normal.Y),
+            (float)(eye.Eye.Z - 2 * along * normal.Z));
+        var turned = Matrix4x4.CreateReflection(new Plane(normal, 0)) * eye.Turned * Matrix4x4.CreateScale(1, -1, 1);
+        return new ViewEye(mirroredEye, Oblique(turned, new Vector4(normal, -(float)along)));
+    }
+
+    // The mirrored view with its depth row made the plane given in the space it takes points from:
+    // the plane in clip space gives the corner of the frustum furthest from it, and the depth row
+    // becomes the plane scaled to put that corner on the far plane, so depth runs from 0 on the
+    // plane to 1 there and a point under the plane falls before the near plane.
+    private static Matrix4x4 Oblique(Matrix4x4 mirrored, Vector4 plane)
+    {
         if (!Matrix4x4.Invert(mirrored, out var inverse)) return mirrored;
-        // The plane in clip space gives the corner of the frustum furthest from it, and the depth
-        // row becomes the plane scaled to put that corner on the far plane, so depth runs from 0
-        // on the plane to 1 there and a point under the plane falls before the near plane.
-        var plane = new Vector4(normal, -height);
         var inClip = Vector4.Transform(plane, Matrix4x4.Transpose(inverse));
         var corner = Vector4.Transform(new Vector4(MathF.Sign(inClip.X), MathF.Sign(inClip.Y), 1, 1), inverse);
         var depth = plane / Vector4.Dot(plane, corner);
@@ -105,6 +125,10 @@ internal sealed class MirrorRenderer : IDisposable
         }
 
         var viewProjection = Mirrored(view.ViewProjection, plane.Normal, plane.Height);
+        // The mirrored view's eye and turn from the window's, where the frame noted them, so the
+        // passes push it from its eye against the frame's origin.
+        if (view.Turned is { } turned)
+            renderWorld.TryGet<ModelDrawList>()?.NoteEye(viewProjection, Mirrored(new ViewEye(view.Eye, turned), plane.Normal, plane.Height));
         var eye = Vector3.Transform(view.Eye, Matrix4x4.CreateReflection(new Plane(plane.Normal, -plane.Height)));
         // Cleared to the window's clear color, in linear light, so what no mesh covers shows what
         // the window shows.

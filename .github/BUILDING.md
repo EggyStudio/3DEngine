@@ -31,7 +31,9 @@ in its parts from the start, each held to 70 minutes (`--parts --timeout-minutes
 dealt to four runners, three taking the parts `--only` names and the fourth every part but those
 (`--except`), each with its own limit and its own lines on the page (`--system`), the Rendering
 part's slowest classes each in a process of its own (`--split`), so no part stands near its limit
-on a slow runner. Mesa's
+on a slow runner. A class's time there follows the apps it starts more than its time on lavapipe
+here, since each app compiles every shader it draws with on a system with no shader cache, so a
+drawing test says how many apps its cases start beside its time on lavapipe. Mesa's
 Windows builds carry no disk cache, neither the MSVC nor the MinGW one, so lavapipe there compiles
 the shaders each app draws with on every run, which takes some 56% of the Rendering and Core parts'
 time on lavapipe, and on an EPYC 7763 a whole run ran out its hour before its last third where the

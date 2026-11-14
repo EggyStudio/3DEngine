@@ -410,10 +410,16 @@ internal sealed partial class ModelRenderer
             var wanted = next.Wanted;
             var projection = Matrix4x4.CreatePerspectiveFieldOfView(MathF.PI / 2, 1, 0.05f, 1000);
             projection.M22 = -projection.M22;
+            // Each face's view-projection, and the same made with the eye at nothing, which the face
+            // is noted by and the filter's gather reads a way through.
             var viewProjections = new Matrix4x4[6];
+            var turned = new Matrix4x4[6];
             for (int f = 0; f < 6; f++)
+            {
                 viewProjections[f] = Matrix4x4.CreateLookAt(wanted.Position, wanted.Position + ProbeFaceAxes[f].Forward, ProbeFaceAxes[f].Up) * projection;
-            _capture = new ProbeCapture(next, wanted, viewProjections);
+                turned[f] = Matrix4x4.CreateLookAt(Vector3.Zero, ProbeFaceAxes[f].Forward, ProbeFaceAxes[f].Up) * projection;
+            }
+            _capture = new ProbeCapture(next, wanted, viewProjections, turned);
         }
 
         if (_probeFaces is null)
@@ -435,6 +441,9 @@ internal sealed partial class ModelRenderer
             target.RenderPass, target.Framebuffer, target.Extent, LoadOp.Clear, StoreOp.Store, clear));
         pass.SetViewport(0, 0, target.Extent.Width, target.Extent.Height, 0, 1);
         pass.SetScissor(0, 0, target.Extent.Width, target.Extent.Height);
+        // The face from the probe's middle, noted by its eye so the pass pushes it against the
+        // frame's origin from there.
+        draws.NoteEye(capture.ViewProjections[face], new ViewEye(capture.Wanted.Position, capture.Turned[face]));
         Draw(pass, target.RenderPass, renderContext, renderWorld, source.Value, capture.ViewProjections[face], ProbeCaptureLights);
         // The particles over the meshes, through the face from the probe's middle, by the capture's
         // lights.
@@ -447,8 +456,7 @@ internal sealed partial class ModelRenderer
         // for the next frame.
         var map = CubeFilter.Of(device).CreateFilteredCube(ProbeMapSize);
         device.Name(map.Image, "Reflection probe");
-        var filter = CubeFilter.Of(device).RecordProbeFilter(renderContext.CommandBuffer, [.. _probeFaces.Select(f => f.ColorView)], capture.ViewProjections,
-            capture.Wanted.Position, map);
+        var filter = CubeFilter.Of(device).RecordProbeFilter(renderContext.CommandBuffer, [.. _probeFaces.Select(f => f.ColorView)], capture.Turned, map);
         _retiredCubes.Add((_frames, filter));
         _probeMaps.Add(map);
         capture.Probe.Done = new ReflectionProbes.Capture(map, capture.Wanted);
@@ -459,11 +467,13 @@ internal sealed partial class ModelRenderer
     internal const int ProbeMapSize = 32;
 
     // A probe's capture under way, its faces drawn so far, a face a frame.
-    private sealed class ProbeCapture(ReflectionProbes.Probe probe, (Vector3 Position, Vector3 Size, int Capture) wanted, Matrix4x4[] viewProjections)
+    private sealed class ProbeCapture(ReflectionProbes.Probe probe, (Vector3 Position, Vector3 Size, int Capture) wanted, Matrix4x4[] viewProjections,
+        Matrix4x4[] turned)
     {
         public ReflectionProbes.Probe Probe { get; } = probe;
         public (Vector3 Position, Vector3 Size, int Capture) Wanted { get; } = wanted;
         public Matrix4x4[] ViewProjections { get; } = viewProjections;
+        public Matrix4x4[] Turned { get; } = turned;
         public int Next;
     }
 

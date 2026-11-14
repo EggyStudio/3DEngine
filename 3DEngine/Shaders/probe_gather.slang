@@ -10,13 +10,12 @@ import probecube;
 [[vk::binding(4, 0)]] Sampler2D face4;
 [[vk::binding(5, 0)]] Sampler2D face5;
 
-// Each face's view-projection, as System.Numerics lays it out, the way each looks, and the
-// probe's middle in xyz.
+// Each face's view-projection made with the eye at nothing, as System.Numerics lays it out, and the
+// way each looks.
 struct Views
 {
     float4x4 viewProjection[6];
     float4 forward[6];
-    float4 eye;
 };
 
 [[vk::binding(6, 0)]] ConstantBuffer<Views> views;
@@ -55,7 +54,7 @@ void computeMain(uint3 id : SV_DispatchThreadID)
     for (uint f = 1; f < 6; f++)
         if (dot(views.forward[f].xyz, d) > dot(views.forward[best].xyz, d))
             best = f;
-    float4 clip = mul(views.viewProjection[best], float4(views.eye.xyz + d, 1.0));
+    float4 clip = mul(views.viewProjection[best], float4(d, 1.0));
     float2 uv = (clip.xy / clip.w + 1.0) * 0.5;
 
     // A surface lit past what a half float holds comes back as infinity, kept finite so the

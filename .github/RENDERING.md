@@ -552,6 +552,19 @@ camera in world numbers reads 0.78, 17 and 40 levels apart at the most. The part
 depth through the camera in world numbers, as they are kept in world numbers, and the field's
 cascades lying ahead of the eye take their middle in world numbers.
 
+A view drawn for the frame is noted by its eye wherever the renderer makes one. The mirrored view of
+a program's plane is the window's eye mirrored in the plane, worked in doubles, with the window's
+turn mirrored in the plane through the world's origin and its near plane laid against the mirrored
+eye (`MirrorPlane.Mirrored`), and each face of a reflection probe's capture is the probe's middle
+with the face's turn, which the filter's gather reads a way through alone. With no window camera
+the origin stands at the first render target's eye. The soft shadow's grain turns its taps by a
+point's cell of a 256th of a unit counted from the origin plus the origin's cells, both whole and
+mixed as integers (`grain.slang`), so one world point turns alike against any origin, and global
+illumination tells a light's place apart within a hundredth of a unit, where its other values are
+told within a hundredth of themselves. A test reads a room with a mirror's plane, a reflection
+probe, a softened sun and a parented block far out as at the world's origin, but at the sun's
+shadow edges, and another a room drawn into a render texture alone.
+
 `LightExtract` copies every `Light` entity into the render world, and `LightingUboPrepare` packs up
 to 16 into one uniform buffer per frame, which `ModelRenderer` binds as a second descriptor set from
 a ring of one per frame in flight. The set's images, seventeen of them, are bound apart from two

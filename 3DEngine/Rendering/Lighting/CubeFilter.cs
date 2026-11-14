@@ -198,36 +198,36 @@ internal sealed unsafe partial class CubeFilter(GraphicsDevice device) : IDispos
     }
 
     /// <summary>
-    /// Records into the frame the filtering of a probe's six faces, drawn through
-    /// <paramref name="viewProjections"/> from <paramref name="eye"/> and left ready to sample,
-    /// into <paramref name="target"/>'s cube and irradiance, which the frames after sample.
+    /// Records into the frame the filtering of a probe's six faces, drawn through the
+    /// view-projections <paramref name="turned"/> gives made with the eye at nothing and left ready
+    /// to sample, into <paramref name="target"/>'s cube and irradiance, which the frames after sample.
     /// </summary>
     /// <returns>What the recording holds, its descriptor sets and the faces' views, to free once no frame in flight reads them.</returns>
     /// <exception cref="InvalidOperationException">The filter's shaders have not been given.</exception>
-    public IDisposable RecordProbeFilter(ICommandBuffer commandBuffer, IReadOnlyList<IImageView> faces, ReadOnlySpan<Matrix4x4> viewProjections,
-        Vector3 eye, FilteredCube target)
+    public IDisposable RecordProbeFilter(ICommandBuffer commandBuffer, IReadOnlyList<IImageView> faces, ReadOnlySpan<Matrix4x4> turned,
+        FilteredCube target)
     {
         var source = Source(ProbeSourceSize);
         var run = new FilterRun(this, device, commandBuffer, [(GatherStage, 1), .. FilterRun.Sets(source, target)]);
 
-        // The faces' view-projections, the way each looks, the point in the middle of its far plane
-        // less the eye, and the eye, as probe_gather.slang's Views lays them out.
-        var views = device.CreateBuffer(new BufferDesc(6 * 64 + 6 * 16 + 16, BufferUsage.Uniform, CpuAccessMode.Write));
+        // The faces' view-projections with the eye at nothing and the way each looks, the point in
+        // the middle of its far plane, as probe_gather.slang's Views lays them out, so the gather
+        // takes a way through a face with no float of the world's size.
+        var views = device.CreateBuffer(new BufferDesc(6 * 64 + 6 * 16, BufferUsage.Uniform, CpuAccessMode.Write));
         run.Holds(views);
         var mapped = System.Runtime.InteropServices.MemoryMarshal.Cast<byte, float>(device.Map(views));
         for (int f = 0; f < 6; f++)
         {
-            var m = viewProjections[f];
+            var m = turned[f];
             ReadOnlySpan<float> values = [m.M11, m.M12, m.M13, m.M14, m.M21, m.M22, m.M23, m.M24, m.M31, m.M32, m.M33, m.M34, m.M41, m.M42, m.M43, m.M44];
             values.CopyTo(mapped[(f * 16)..]);
             Matrix4x4.Invert(m, out var inverse);
             var far = Vector4.Transform(new Vector4(0, 0, 1, 1), inverse);
-            var forward = Vector3.Normalize(new Vector3(far.X, far.Y, far.Z) / far.W - eye);
+            var forward = Vector3.Normalize(new Vector3(far.X, far.Y, far.Z) / far.W);
             mapped[96 + f * 4] = forward.X;
             mapped[96 + f * 4 + 1] = forward.Y;
             mapped[96 + f * 4 + 2] = forward.Z;
         }
-        (mapped[120], mapped[121], mapped[122]) = (eye.X, eye.Y, eye.Z);
         device.Unmap(views);
 
         // After the faces' passes, which leave them ready to sample.

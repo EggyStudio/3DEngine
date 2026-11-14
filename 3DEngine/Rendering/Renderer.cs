@@ -317,10 +317,12 @@ internal sealed class Renderer : IDisposable
         Logger.FrameTrace("RenderFrame: Beginning frame...");
         var (renderCtx, frameCtx, imageIndex) = Context.BeginFrame(RenderWorld);
         // The place every place the frame hands the GPU is taken against (RenderOrigin), the window
-        // camera's eye rounded to a step, or the world's own where the window draws through no
-        // camera, set again where it moves.
+        // camera's eye rounded to a step, or where the window draws through no camera the eye of
+        // the first render target's camera, as the scene field takes it, or the world's own where
+        // none is, set again where it moves.
         var origin = RenderOrigin.Override
-            ?? (RenderWorld.TryGet<WindowView>() is { } window ? RenderOrigin.Near(window.Eye) : RenderOrigin.Zero);
+            ?? (RenderWorld.TryGet<WindowView>() is { } window ? RenderOrigin.Near(window.Eye)
+                : FirstTargetEye(RenderWorld) is { } eye ? RenderOrigin.Near(eye) : RenderOrigin.Zero);
         if (!RenderWorld.Contains<RenderOrigin>() || RenderWorld.Get<RenderOrigin>() != origin)
             RenderWorld.Set(origin);
         SyncSurfaceInfo(frameCtx.Extent);
@@ -455,6 +457,11 @@ internal sealed class Renderer : IDisposable
     }
 
     /// <summary>Syncs the render surface dimensions from the current swapchain extent.</summary>
+    // The eye the frame noted for the first render target's camera, or none.
+    private static System.Numerics.Vector3? FirstTargetEye(RenderWorld renderWorld) =>
+        renderWorld.TryGet<ModelDrawList>() is { } draws && draws.Targets() is [var first, ..] && draws.ViewProjectionOf(first) is { } camera
+            ? draws.EyeOf(camera)?.Eye : null;
+
     private void SyncSurfaceInfo(Extent2D extent)
     {
         var surface = RenderWorld.TryGet<RenderSurfaceInfo>();
