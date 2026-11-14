@@ -50,7 +50,7 @@ internal sealed unsafe partial class GraphicsDevice
         var staging = (VulkanBuffer)CreateBuffer(new BufferDesc(Math.Max(16, size), BufferUsage.TransferSrc, CpuAccessMode.Write));
         var bytes = Map(staging);
         for (int i = 0; i < levels.Count; i++)
-            levels[i].Span.CopyTo(bytes[(int)offsets[i]..]);
+            bytes[(int)offsets[i]..].CopyFrom(levels[i].Span);
         Unmap(staging);
 
         var cmd = UploadCommands();
@@ -122,7 +122,7 @@ internal sealed unsafe partial class GraphicsDevice
             _deviceApi.vkCmdCopyImageToBuffer(cmd, target.Image, VkImageLayout.TransferSrcOptimal, buffer.Buffer, 1, &region);
             EndSingleTimeCommands(cmd);
             source.Layout = VkImageLayout.ShaderReadOnlyOptimal;
-            return Map(buffer).ToArray();
+            return Read(buffer).ToArray();
         }
         finally
         {

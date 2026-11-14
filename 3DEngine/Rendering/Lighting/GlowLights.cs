@@ -210,7 +210,16 @@ internal static class GlowLights
     /// from its top and one side lights the ground before that side by the whole of the side's
     /// light, where its surface spread over all six faces would give the ground a third of it.
     /// </remarks>
-    internal readonly record struct Light(Vector3 Middle, Vector3 X, Vector3 Y, Vector3 Z, Vector3 Glow, float Share, int Faces = 0);
+    internal readonly record struct Light(Vector3 Middle, Vector3 X, Vector3 Y, Vector3 Z, Vector3 Glow, float Share, int Faces = 0)
+    {
+        /// <summary>
+        /// Its middle in world numbers, in floats, worked from the world matrices as they are, which
+        /// the lights are known by from frame to frame (<see cref="GlowPlaces"/>) and written with
+        /// for the lights' signature, the same wherever the frame's origin stands, where
+        /// <see cref="Middle"/> takes a place against the origin the lights were gathered against.
+        /// </summary>
+        public Vector3 Key { get; init; } = Middle;
+    }
 
     /// <summary>
     /// Writes the lights the carried emitters among <paramref name="drawn"/> make, those nearest
@@ -228,12 +237,17 @@ internal static class GlowLights
     /// again, or null to write them in order of their distance from the eye.
     /// </param>
     /// <param name="partsOf">The parts a mesh is cut into (<see cref="PartsOf"/>), or null to take every mesh whole.</param>
+    /// <param name="origin">
+    /// The frame's origin, which the lights' boxes are gathered against (<see cref="Gather"/>), their
+    /// middles kept in <paramref name="places"/> for <see cref="Place"/>, those written being in
+    /// world numbers.
+    /// </param>
     public static int Write(Span<byte> bytes, IReadOnlyList<(SceneFieldPlan.Instance Instance, bool Skinned)> drawn, Vector3 eye, float firstCell,
         Func<ModelVertex[], SceneFieldPlan.Box> boxOf, Func<ModelVertex[], float> shareOf, GlowPlaces? places = null,
-        Func<ModelVertex[], IReadOnlyList<Part>>? partsOf = null)
+        Func<ModelVertex[], IReadOnlyList<Part>>? partsOf = null, RenderOrigin origin = default)
     {
-        var lights = Gather(drawn, firstCell, boxOf, shareOf, partsOf);
-        lights.Sort((a, b) => Vector3.DistanceSquared(a.Middle, eye).CompareTo(Vector3.DistanceSquared(b.Middle, eye)));
+        var lights = Gather(drawn, firstCell, boxOf, shareOf, partsOf, origin);
+        lights.Sort((a, b) => Vector3.DistanceSquared(a.Key, eye).CompareTo(Vector3.DistanceSquared(b.Key, eye)));
         var floats = MemoryMarshal.Cast<byte, float>(bytes);
         var count = Math.Min(lights.Count, Most);
         Span<int> placeOf = stackalloc int[Most];
@@ -244,7 +258,9 @@ internal static class GlowLights
         for (int n = 0; n < count; n++)
         {
             if (places is null) placeOf[n] = n;
-            var (middle, x, y, z, glow, share, faces) = lights[n];
+            var (_, x, y, z, glow, share, faces) = lights[n];
+            var middle = lights[n].Key;
+            places?.Note(placeOf[n], lights[n].Middle, origin);
             var surface = 4 * FacesSurface(new Vector3(x.Length(), y.Length(), z.Length()), faces == 0 ? All : faces) * share;
             var reach = MathF.Max(MathF.Sqrt(surface / (4 * Faint)), MeasuredAt * Illumination.ProbeSpacing * firstCell / MathF.Sqrt(Faint));
             var light = floats.Slice(Head / 4 + placeOf[n] * Bytes / 4, Bytes / 4);
@@ -264,20 +280,26 @@ internal static class GlowLights
 
     /// <summary>
     /// The lights <see cref="Write"/> wrote with their middles and the box about their reach taken
-    /// against <paramref name="origin"/> (RenderOrigin), a place no light holds left empty.
+    /// against <paramref name="origin"/> (RenderOrigin), a place no light holds left empty. The
+    /// middles are those <paramref name="places"/> kept as they were gathered against the origin,
+    /// where it kept them against this one, and the box is found again about them, so a light far
+    /// from the world's origin is not moved by its middle rounded to the step there.
     /// </summary>
-    public static void Place(Span<byte> bytes, RenderOrigin origin)
+    public static void Place(Span<byte> bytes, RenderOrigin origin, GlowPlaces? places = null)
     {
         var floats = MemoryMarshal.Cast<byte, float>(bytes);
         if (floats[0] <= 0) return;
+        var kept = places?.Against == origin;
+        var (low, high) = (new Vector3(float.MaxValue), new Vector3(float.MinValue));
         for (int n = 0; n < (int)floats[0]; n++)
         {
             var light = floats.Slice(Head / 4 + n * Bytes / 4, Bytes / 4);
             if (light[3] <= 0) continue;
-            var middle = origin.Against(new Vector3(light[0], light[1], light[2]));
+            var middle = kept ? places!.Placed[n] : origin.Against(new Vector3(light[0], light[1], light[2]));
             (light[0], light[1], light[2]) = (middle.X, middle.Y, middle.Z);
+            (low, high) = (Vector3.Min(low, middle - new Vector3(light[3])), Vector3.Max(high, middle + new Vector3(light[3])));
         }
-        var (low, high) = (origin.Against(new Vector3(floats[1], floats[2], floats[3])), origin.Against(new Vector3(floats[4], floats[5], floats[6])));
+        if (!kept) (low, high) = (origin.Against(new Vector3(floats[1], floats[2], floats[3])), origin.Against(new Vector3(floats[4], floats[5], floats[6])));
         (floats[1], floats[2], floats[3]) = (low.X, low.Y, low.Z);
         (floats[4], floats[5], floats[6]) = (high.X, high.Y, high.Z);
     }
@@ -293,12 +315,19 @@ internal static class GlowLights
     /// through the others and each emitting from the faces the others cover, so the stack would
     /// throw a ring of light that comes and goes around it. As one light of a box two blocks wide
     /// its light is the stack's.
+    /// <para>
+    /// The boxes are moved by each world matrix with its translation taken against
+    /// <paramref name="origin"/> in doubles, so a box far from the world's origin keeps its size and
+    /// its touching, where its two corners moved into the world in floats each round to the step
+    /// there. Each light's <see cref="Light.Key"/> is its middle from the world matrices as they are.
+    /// </para>
     /// </remarks>
     internal static List<Light> Gather(IReadOnlyList<(SceneFieldPlan.Instance Instance, bool Skinned)> drawn, float firstCell,
-        Func<ModelVertex[], SceneFieldPlan.Box> boxOf, Func<ModelVertex[], float> shareOf, Func<ModelVertex[], IReadOnlyList<Part>>? partsOf = null)
+        Func<ModelVertex[], SceneFieldPlan.Box> boxOf, Func<ModelVertex[], float> shareOf, Func<ModelVertex[], IReadOnlyList<Part>>? partsOf = null,
+        RenderOrigin origin = default)
     {
         var lights = new List<Light>();
-        var square = new List<(SceneFieldPlan.Box Box, Vector3 Glow, float Surface, float Share, int Faces)>();
+        var square = new List<(SceneFieldPlan.Box Box, SceneFieldPlan.Box World, Vector3 Glow, float Surface, float Share, int Faces)>();
         void Add(SceneFieldPlan.Box box, Matrix4x4 w, Vector3 glow, float share, int faces = 0)
         {
             // A flat emitter, such as a single face showing above the ground around it, is a box a
@@ -315,19 +344,20 @@ internal static class GlowLights
                 box = new SceneFieldPlan.Box(box.Min - grow, box.Max + grow);
                 if (faces == 0) share = MathF.Min(1, share * 2);
             }
+            var placed = origin == RenderOrigin.Zero ? w : origin.Against(w);
             if (Square(w))
             {
-                var world = box.Transformed(w);
+                var (moved, world) = (box.Transformed(placed), box.Transformed(w));
                 // A side of the box a negative scale turns to the other way names the other face.
                 for (int k = 0; k < 3; k++)
                     if ((k == 0 ? w.M11 : k == 1 ? w.M22 : w.M33) < 0 && faces != 0)
                         faces = (faces & ~(3 << (2 * k))) | (((faces >> (2 * k)) & 1) << (2 * k + 1)) | (((faces >> (2 * k + 1)) & 1) << (2 * k));
-                square.Add((world, glow, FacesSurface(world.Max - world.Min, faces == 0 ? All : faces) * share, share, faces));
+                square.Add((moved, world, glow, FacesSurface(moved.Max - moved.Min, faces == 0 ? All : faces) * share, share, faces));
                 return;
             }
-            var half = (box.Max - box.Min) / 2;
-            lights.Add(new Light(Vector3.Transform((box.Min + box.Max) / 2, w), new Vector3(w.M11, w.M12, w.M13) * half.X,
-                new Vector3(w.M21, w.M22, w.M23) * half.Y, new Vector3(w.M31, w.M32, w.M33) * half.Z, glow, share, faces));
+            var (half, middle) = ((box.Max - box.Min) / 2, (box.Min + box.Max) / 2);
+            lights.Add(new Light(Vector3.Transform(middle, placed), new Vector3(w.M11, w.M12, w.M13) * half.X,
+                new Vector3(w.M21, w.M22, w.M23) * half.Y, new Vector3(w.M31, w.M32, w.M33) * half.Z, glow, share, faces) { Key = Vector3.Transform(middle, w) });
         }
         foreach (var (instance, _) in drawn)
         {
@@ -397,20 +427,23 @@ internal static class GlowLights
             {
                 var halves = (one.Box.Max - one.Box.Min) / 2;
                 lights.Add(new Light((one.Box.Min + one.Box.Max) / 2, new Vector3(halves.X, 0, 0), new Vector3(0, halves.Y, 0), new Vector3(0, 0, halves.Z),
-                    one.Glow, one.Share, one.Faces));
+                    one.Glow, one.Share, one.Faces) { Key = (one.World.Min + one.World.Max) / 2 });
                 continue;
             }
             var (min, max) = (new Vector3(float.MaxValue), new Vector3(float.MinValue));
+            var (worldMin, worldMax) = (min, max);
             float surface = 0;
             foreach (var i in group)
             {
                 (min, max) = (Vector3.Min(min, square[i].Box.Min), Vector3.Max(max, square[i].Box.Max));
+                (worldMin, worldMax) = (Vector3.Min(worldMin, square[i].World.Min), Vector3.Max(worldMax, square[i].World.Max));
                 surface += square[i].Surface;
             }
             var union = new SceneFieldPlan.Box(min, max);
             var share = Math.Clamp((surface - covered.GetValueOrDefault(group.Key)) / Math.Max(SurfaceOf(union), 1e-8f), 0.05f, 1);
             var half = (max - min) / 2;
-            lights.Add(new Light((min + max) / 2, new Vector3(half.X, 0, 0), new Vector3(0, half.Y, 0), new Vector3(0, 0, half.Z), square[group.Key].Glow, share));
+            lights.Add(new Light((min + max) / 2, new Vector3(half.X, 0, 0), new Vector3(0, half.Y, 0), new Vector3(0, 0, half.Z), square[group.Key].Glow, share)
+                { Key = (worldMin + worldMax) / 2 });
         }
         return lights;
     }
@@ -473,12 +506,22 @@ internal sealed class GlowPlaces
     private readonly Dictionary<Vector3, int> _before = [];
     private readonly Dictionary<Vector3, int> _now = [];
 
+    /// <summary>Each place's light's middle as it was gathered against <see cref="Against"/>, which <see cref="GlowLights.Place"/> writes.</summary>
+    public Vector3[] Placed { get; } = new Vector3[GlowLights.Most];
+
+    /// <summary>The origin <see cref="Placed"/> was noted against, the last frame's that wrote its lights.</summary>
+    public RenderOrigin? Against { get; private set; }
+
+    /// <summary>Notes the middle of the light in <paramref name="place"/> as it was gathered against <paramref name="origin"/>.</summary>
+    public void Note(int place, Vector3 middle, RenderOrigin origin) => (Placed[place], Against) = (middle, origin);
+
     /// <summary>The places whose light is the one the frame before had there, a bit a place, the first 32 in the low word.</summary>
     public (uint Low, uint High) Kept { get; private set; }
 
     /// <summary>
     /// Places the first <paramref name="count"/> of <paramref name="lights"/>, each known by its
-    /// middle, in <paramref name="placeOf"/>, and gives how many places are taken up to the last.
+    /// middle in world numbers (<see cref="GlowLights.Light.Key"/>), in <paramref name="placeOf"/>,
+    /// and gives how many places are taken up to the last.
     /// </summary>
     public int Place(List<GlowLights.Light> lights, int count, Span<int> placeOf)
     {
@@ -488,7 +531,7 @@ internal sealed class GlowPlaces
         for (int n = 0; n < count; n++)
         {
             placeOf[n] = -1;
-            if (_before.TryGetValue(lights[n].Middle, out var place) && !taken[place])
+            if (_before.TryGetValue(lights[n].Key, out var place) && !taken[place])
             {
                 (placeOf[n], taken[place]) = (place, true);
                 if (place < 32) low |= 1u << place;
@@ -503,7 +546,7 @@ internal sealed class GlowPlaces
                 while (taken[free]) free++;
                 (placeOf[n], taken[free]) = (free, true);
             }
-            _now[lights[n].Middle] = placeOf[n];
+            _now[lights[n].Key] = placeOf[n];
             used = Math.Max(used, placeOf[n] + 1);
         }
         // A place no light took holds nothing new.
@@ -523,6 +566,6 @@ internal sealed class GlowPlaces
     public void Forget()
     {
         _before.Clear();
-        Kept = (0, 0);
+        (Kept, Against) = ((0, 0), null);
     }
 }

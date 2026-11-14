@@ -145,11 +145,13 @@ internal sealed record WindowView(System.Numerics.Matrix4x4 ViewProjection, Syst
     /// <summary>
     /// Whether it is the camera <paramref name="other"/> is, its jitter aside, by the same eye and
     /// the same view and projection made with the eye at nothing where both eyes were noted, and by
-    /// the same view-projection within the rounding of taking the jitter back out of each otherwise.
+    /// the same eye and the same view-projection within the rounding of taking the jitter back out
+    /// of each otherwise, the eye compared as it is since an entry of the world's size holds a move
+    /// of the eye inside that rounding.
     /// </summary>
     public bool Same(WindowView other) => UnjitteredEye is { } here && other.UnjitteredEye is { } then
         ? here.Eye == then.Eye && Alike(here.Turned, then.Turned)
-        : Alike(Unjittered, other.Unjittered);
+        : Eye == other.Eye && Alike(Unjittered, other.Unjittered);
 
     private static bool Alike(System.Numerics.Matrix4x4 a, System.Numerics.Matrix4x4 b)
     {

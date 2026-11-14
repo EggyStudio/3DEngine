@@ -182,10 +182,10 @@ internal sealed unsafe partial class GraphicsDevice
         skin.Slot = (skin.Slot + 1) % skin.Rows.Length;
         var rows = Map(skin.Rows[skin.Slot]);
         var bytes = MemoryMarshal.AsBytes(joints);
-        bytes[..Math.Min(bytes.Length, rows.Length)].CopyTo(rows);
+        rows.CopyFrom(bytes[..Math.Min(bytes.Length, rows.Length)]);
         var weightsAt = Math.Max(1, skin.JointCount) * 64;
         var weightBytes = MemoryMarshal.AsBytes(morphWeights);
-        if (skin.MorphCount > 0 && weightsAt + weightBytes.Length <= rows.Length) weightBytes.CopyTo(rows[weightsAt..]);
+        if (skin.MorphCount > 0 && weightsAt + weightBytes.Length <= rows.Length) rows[weightsAt..].CopyFrom(weightBytes);
 
         // Earlier frames have finished drawing the vertices about to be replaced.
         MemoryBarrier(cmd, VkPipelineStageFlags2.VertexInput | VkPipelineStageFlags2.ComputeShader, VkAccessFlags2.None,

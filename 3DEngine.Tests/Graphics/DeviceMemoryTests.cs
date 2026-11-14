@@ -25,7 +25,7 @@ public sealed class DeviceMemoryTests
         // Each buffer's mapped range is its own, so what one holds survives the others' writes.
         for (int i = 0; i < buffers.Count; i++) device.Map(buffers[i]).Fill((byte)i);
         for (int i = 0; i < buffers.Count; i++)
-            device.Map(buffers[i]).ToArray().Should().OnlyContain(b => b == (byte)i, $"buffer {i} keeps its own bytes");
+            device.Read(buffers[i]).ToArray().Should().OnlyContain(b => b == (byte)i, $"buffer {i} keeps its own bytes");
 
         // Freed ranges are taken again, so the blocks do not grow as buffers come and go.
         var before = device.MemoryBlockCount;
@@ -60,7 +60,7 @@ public sealed class DeviceMemoryTests
                 own.Add(device.CreateBuffer(new BufferDesc(30UL << 20, BufferUsage.Storage, CpuAccessMode.None)));
             own.Add(device.CreateBuffer(new BufferDesc(32UL << 20, BufferUsage.Storage, CpuAccessMode.Write)));
             device.Map(own[^1]).Fill(7);
-            device.Map(own[^1])[^1].Should().Be(7, "the buffer the CPU writes is mapped wherever its range was carved");
+            device.Read(own[^1])[^1].Should().Be(7, "the buffer the CPU writes is mapped wherever its range was carved");
         }
         finally
         {

@@ -89,11 +89,17 @@ public static partial class E3D
         // and kept to that half's pixels, as rlgl sets a viewport of half the target for each eye.
         Matrix4x4 Projection(int eye) => stereo.Projection[eye] * Matrix4x4.CreateScale(0.5f, 1, 1) * Matrix4x4.CreateTranslation(eye == 0 ? -0.5f : 0.5f, 0, 0);
         var leftView = camera.View * stereo.ViewOffset[0];
+        var (left, right) = (leftView * Projection(0), camera.View * stereo.ViewOffset[1] * Projection(1));
+        // Each eye's view-projection noted with the camera's place and its view with that place at
+        // nothing, the eye's offset taken with its turn, so each eye is pushed against the frame's
+        // origin from there and its offset is not lost in a translation of the world's size.
+        var draws = Res<ModelDrawList>();
+        draws.NoteEye(left, new ViewEye(camera.Position, camera.TurnedView * stereo.ViewOffset[0] * Projection(0)));
+        draws.NoteEye(right, new ViewEye(camera.Position, camera.TurnedView * stereo.ViewOffset[1] * Projection(1)));
         SetRlCamera(leftView, Projection(0), depthTest: true);
         var before = DrawList.Scissor;
         DrawList.SetScissor(PixelsOf(0, 0, half, height));
-        _stereo3D = (DrawList.Mark(), Res<ModelDrawList>().Mark(), leftView * Projection(0), camera.View * stereo.ViewOffset[1] * Projection(1),
-            PixelsOf(half, 0, width - half, height), before);
+        _stereo3D = (DrawList.Mark(), draws.Mark(), left, right, PixelsOf(half, 0, width - half, height), before);
     }
 
     // Draws the 3D recorded since BeginStereo again through the right eye, and puts the scissor back.

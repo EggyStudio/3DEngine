@@ -139,9 +139,9 @@ internal sealed partial class ModelRenderer
         _lastContext = renderContext;
         DrawCalls = 0;
         PipelinesBound = 0;
+        ViewsPushed = 0;
         _callsByPass.Clear();
-        _placedViews.Clear();
-        _pushes.Clear();
+        _seen.Forget();
         _setByIds.Clear();
         _drawSetsByLook.Clear();
         DrawSetsWritten = 0;
@@ -291,7 +291,7 @@ internal sealed partial class ModelRenderer
             var allocation = allocator.Allocate(size, BufferUsage.Uniform);
             var bytes = allocator.Map(allocation);
             bytes.Clear();
-            draw.Uniforms?.AsSpan(0, Math.Min(draw.Uniforms.Length, bytes.Length)).CopyTo(bytes);
+            if (draw.Uniforms is { } given) bytes.CopyFrom(given.AsSpan(0, Math.Min(given.Length, bytes.Length)));
             allocator.Unmap(allocation);
             uniforms = new UniformBufferBinding(allocation.Buffer, 0, allocation.Offset, size);
         }

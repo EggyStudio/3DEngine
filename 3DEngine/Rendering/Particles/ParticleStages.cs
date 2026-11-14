@@ -195,9 +195,7 @@ internal sealed unsafe class ParticleStages(GraphicsDevice device) : IDisposable
     public void SetParticleView(IImageView depth, ISampler sampler, in ParticleView view, GpuSceneField? field = null)
     {
         if (!CanStepParticles || _particleViewBuffers[device.FrameInFlight] is not VulkanBuffer buffer) return;
-        var bytes = device.Map(buffer);
-        fixed (ParticleView* given = &view)
-            new ReadOnlySpan<byte>(given, sizeof(ParticleView)).CopyTo(bytes);
+        device.Map(buffer).Write(in view);
         device.Unmap(buffer);
 
         var imageInfo = new VkDescriptorImageInfo
@@ -297,7 +295,7 @@ internal sealed unsafe class ParticleStages(GraphicsDevice device) : IDisposable
     public GpuParticles CreatePlacedParticles(ReadOnlySpan<System.Numerics.Vector3> points)
     {
         var particles = CreateParticles(points.Length);
-        var slots = MemoryMarshal.Cast<byte, System.Numerics.Vector4>(device.Map(particles.Buffer)[GpuParticles.HeaderBytes..]);
+        var slots = device.Map(particles.Buffer).Slice(GpuParticles.HeaderBytes).Cast<System.Numerics.Vector4>();
         for (int i = 0; i < points.Length; i++)
         {
             slots[i * 2] = new System.Numerics.Vector4(points[i], 0);

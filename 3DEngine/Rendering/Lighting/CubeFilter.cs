@@ -215,12 +215,12 @@ internal sealed unsafe partial class CubeFilter(GraphicsDevice device) : IDispos
         // takes a way through a face with no float of the world's size.
         var views = device.CreateBuffer(new BufferDesc(6 * 64 + 6 * 16, BufferUsage.Uniform, CpuAccessMode.Write));
         run.Holds(views);
-        var mapped = System.Runtime.InteropServices.MemoryMarshal.Cast<byte, float>(device.Map(views));
+        var mapped = device.Map(views).Cast<float>();
         for (int f = 0; f < 6; f++)
         {
             var m = turned[f];
             ReadOnlySpan<float> values = [m.M11, m.M12, m.M13, m.M14, m.M21, m.M22, m.M23, m.M24, m.M31, m.M32, m.M33, m.M34, m.M41, m.M42, m.M43, m.M44];
-            values.CopyTo(mapped[(f * 16)..]);
+            mapped.Slice(f * 16).CopyFrom(values);
             Matrix4x4.Invert(m, out var inverse);
             var far = Vector4.Transform(new Vector4(0, 0, 1, 1), inverse);
             var forward = Vector3.Normalize(new Vector3(far.X, far.Y, far.Z) / far.W);
@@ -475,7 +475,7 @@ internal sealed unsafe partial class CubeFilter(GraphicsDevice device) : IDispos
             device.PipelineBarrier(cmd, ImageBarrier(image, range, VkImageLayout.TransferSrcOptimal, VkImageLayout.ShaderReadOnlyOptimal,
                 VkPipelineStageFlags2.Transfer, VkAccessFlags2.TransferRead, VkPipelineStageFlags2.AllCommands, VkAccessFlags2.ShaderRead));
             device.EndSingleTimeCommands(cmd);
-            return System.Runtime.InteropServices.MemoryMarshal.Cast<byte, Half>(device.Map(buffer)).ToArray();
+            return System.Runtime.InteropServices.MemoryMarshal.Cast<byte, Half>(device.Read(buffer)).ToArray();
         }
         finally
         {
@@ -496,7 +496,7 @@ internal sealed unsafe partial class CubeFilter(GraphicsDevice device) : IDispos
             var copy = new VkBufferCopy { size = 9 * 16 };
             device.Api.vkCmdCopyBuffer(cmd, irradiance.Buffer, buffer.Buffer, 1, &copy);
             device.EndSingleTimeCommands(cmd);
-            var floats = System.Runtime.InteropServices.MemoryMarshal.Cast<byte, float>(device.Map(buffer));
+            var floats = System.Runtime.InteropServices.MemoryMarshal.Cast<byte, float>(device.Read(buffer));
             var coefficients = new Vector3[9];
             for (int i = 0; i < 9; i++) coefficients[i] = new Vector3(floats[i * 4], floats[i * 4 + 1], floats[i * 4 + 2]);
             return coefficients;

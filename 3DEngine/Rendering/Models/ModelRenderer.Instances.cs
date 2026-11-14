@@ -1,6 +1,5 @@
 using System.Numerics;
 using System.Runtime.InteropServices;
-using System.Runtime.CompilerServices;
 
 namespace Engine;
 
@@ -129,7 +128,7 @@ internal sealed partial class ModelRenderer
                 _blocks[k] = new Block { First = at, Count = Math.Min(BlockSize, end - at), Min = new Vector3(float.MaxValue), Max = new Vector3(float.MinValue) };
         }
 
-        var instances = MemoryMarshal.Cast<byte, Instance>(gfx.Map(_instanceRing!)[(int)offset..]);
+        var instances = Ring(gfx, _instanceRing!, (int)offset);
         for (int i = 0; i < _drawBatch.Count; i++)
         {
             var b = _drawBatch[i];
@@ -161,14 +160,12 @@ internal sealed partial class ModelRenderer
             _batches[b] = batch;
         }
         if (_blocks.Length < _blockCount) Array.Resize(ref _blocks, Math.Max(_blockCount, _blocks.Length * 2));
-        CopySegments(instances, copied);
+        CopySegments(gfx, (int)offset, copied);
         return (_instanceRing!, offset);
     }
 
-    // The place the frame's instances and views are taken against (RenderOrigin), and the frame's
-    // draws, which hold the eyes its views were made from.
+    // The place the frame's instances and views are taken against (RenderOrigin).
     private RenderOrigin _origin;
-    private ModelDrawList? _draws;
 
     // An instance taken against the frame's origin as it is written into the ring, which is mapped
     // memory the GPU reads and is never read back.
@@ -183,36 +180,38 @@ internal sealed partial class ModelRenderer
         return instance;
     }
 
-    // The views worked against the frame's origin this frame, by their view-projection and by that
-    // with the move of clip space after it as pushed, each worked once a frame.
-    private readonly Dictionary<Matrix4x4, Matrix4x4> _placedViews = [];
-    private readonly Dictionary<(Matrix4x4 ViewProjection, Matrix4x4? After), ViewPush> _pushes = [];
+    // The views worked against the frame's origin this frame and the pushes made of them.
+    private readonly ViewMemo _seen = new();
+
+    /// <summary>How many times the model passes of the frame looked for a view worked against its origin or its push among those kept.</summary>
+    internal int ViewLookups => _seen.Lookups;
 
     // A view's view-projection against the frame's origin, from its eye where the frame noted one,
     // which the passes push and find the planes they leave blocks out by from.
-    private Matrix4x4 Placed(in Matrix4x4 viewProjection)
-    {
-        if (!_placedViews.TryGetValue(viewProjection, out var placed))
-            _placedViews[viewProjection] = placed = _origin.Seen(viewProjection, _draws?.EyeOf(viewProjection));
-        return placed;
-    }
+    private Matrix4x4 Placed(in Matrix4x4 viewProjection) => _seen.Placed(viewProjection);
 
-    // Pushes a view-projection that takes a place against the frame's origin already, a light's
-    // fitted against it, as it is, with the origin.
-    private void PushPlaced(TrackedRenderPass pass, IPipeline pipeline, in Matrix4x4 viewProjection)
+    // A view-projection that takes a place against the frame's origin already, a light's fitted
+    // against it, as it is pushed, with the origin.
+    private ViewPush Pushed(in Matrix4x4 viewProjection) => _seen.Pushed(viewProjection);
+
+    /// <summary>
+    /// How many times the model passes of the frame pushed a view, once a pass for each view it
+    /// draws through, since every pipeline of the model passes takes the push in one range, which a
+    /// push made with one leaves set for the others bound after it.
+    /// </summary>
+    internal int ViewsPushed { get; private set; }
+
+    // Pushes a push made for the pass.
+    private void Push(TrackedRenderPass pass, IPipeline pipeline, in ViewPush push)
     {
-        var push = new ViewPush { ViewProjection = viewProjection, Origin = new Vector4(_origin.AsVector3, 0) };
+        ViewsPushed++;
         pass.PushConstants(pipeline, ShaderStageFlags.Vertex | ShaderStageFlags.Fragment, 0, MemoryMarshal.AsBytes(new ReadOnlySpan<ViewPush>(in push)));
     }
 
     // Pushes a view's view-projection against the frame's origin, from its eye where the frame
     // noted one, with a move of clip space after it where one is given, and the origin.
-    private void PushView(TrackedRenderPass pass, IPipeline pipeline, in Matrix4x4 viewProjection, Matrix4x4? after = null)
-    {
-        if (!_pushes.TryGetValue((viewProjection, after), out var push))
-            _pushes[(viewProjection, after)] = push = _origin.Push(viewProjection, _draws?.EyeOf(viewProjection), after);
-        pass.PushConstants(pipeline, ShaderStageFlags.Vertex | ShaderStageFlags.Fragment, 0, MemoryMarshal.AsBytes(new ReadOnlySpan<ViewPush>(in push)));
-    }
+    private void PushView(TrackedRenderPass pass, IPipeline pipeline, in Matrix4x4 viewProjection, Matrix4x4? after = null) =>
+        Push(pass, pipeline, in _seen.Push(viewProjection, after));
 
     // An instance of a mesh whose positions are packed integers (PositionPacking), the rows that
     // turn its position scaled by the integers' quantum, a power of two, and its translation as it
@@ -226,29 +225,33 @@ internal sealed partial class ModelRenderer
         return instance;
     }
 
-    // Copies the frame's group segments into the ring, each into its own range, and finds the
-    // box around each block of each, on several threads when there are many instances.
-    private unsafe void CopySegments(Span<Instance> instances, int count)
+    // The ring's instances from the frame's region at offset bytes on, as mapped memory the
+    // GPU reads, written and not read.
+    private static WriteOnlySpan<Instance> Ring(IGraphicsDevice gfx, IBuffer ring, int offset) => gfx.Map(ring).Slice(offset).Cast<Instance>();
+
+    // Copies the frame's group segments into the ring from the frame's region at offset bytes,
+    // each into its own range, and finds the box around each block of each, on several threads
+    // when there are many instances, each thread mapping the ring for itself.
+    private void CopySegments(IGraphicsDevice gfx, int offset, int count)
     {
+        var ring = _instanceRing!;
         if (count < ParallelCopyInstances || _copies.Count < 2)
         {
+            var instances = Ring(gfx, ring, offset);
             for (int i = 0; i < _copies.Count; i++)
             {
                 var (items, n, at, group) = _copies[i];
-                Write(items.AsSpan(0, n), instances[at..], _copyQuanta[i], _origin);
+                Write(items.AsSpan(0, n), instances.Slice(at), _copyQuanta[i], _origin);
                 Bound(items, n, at, group.Sphere, _blocks, _copyBlocks[i], _origin);
             }
             return;
         }
 
-        // The ring is mapped memory, which does not move, so its address outlives the span.
-        var ring = (nint)Unsafe.AsPointer(ref MemoryMarshal.GetReference(instances));
-        var length = instances.Length;
         var (blocks, origin) = (_blocks, _origin);
         Parallel.For(0, _copies.Count, i =>
         {
             var (items, n, at, group) = _copies[i];
-            Write(items.AsSpan(0, n), new Span<Instance>((Instance*)ring + at, length - at), _copyQuanta[i], origin);
+            Write(items.AsSpan(0, n), Ring(gfx, ring, offset).Slice(at), _copyQuanta[i], origin);
             Bound(items, n, at, group.Sphere, blocks, _copyBlocks[i], origin);
         });
     }
@@ -256,11 +259,11 @@ internal sealed partial class ModelRenderer
     // A group's instances written into the ring, each of a packed mesh scaled and each taken against
     // the origin as it is written, after their blocks' boxes were found from them as they were, and
     // copied whole where neither changes them, the ring never read back.
-    private static void Write(ReadOnlySpan<Instance> items, Span<Instance> ring, float quantum, RenderOrigin origin)
+    private static void Write(ReadOnlySpan<Instance> items, WriteOnlySpan<Instance> ring, float quantum, RenderOrigin origin)
     {
         if (quantum == 1 && origin == RenderOrigin.Zero)
         {
-            items.CopyTo(ring);
+            ring.CopyFrom(items);
             return;
         }
         for (int k = 0; k < items.Length; k++)

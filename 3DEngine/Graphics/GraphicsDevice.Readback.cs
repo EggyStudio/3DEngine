@@ -136,7 +136,7 @@ internal sealed unsafe partial class GraphicsDevice
             lock (_readbackGate)
                 if (!batch.Done) RetireReadbacks(wait: true, until: batch);
         }
-        Map(ticket.Staging)[..Math.Min(ticket.Size, destination.Length)].CopyTo(destination);
+        Read(ticket.Staging)[..Math.Min(ticket.Size, destination.Length)].CopyTo(destination);
     }
 
     /// <summary>

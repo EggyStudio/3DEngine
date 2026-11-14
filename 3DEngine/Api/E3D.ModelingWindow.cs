@@ -173,25 +173,35 @@ public static partial class E3D
 
     // The selection outlined, moved along the drag where one is held, and the face under the
     // pointer, each lifted a millimeter off its face so it is drawn over the model, through the
-    // camera the pointer's ray was cast through and back to what was drawn through before.
+    // camera the pointer's ray was cast through and back to what was drawn through before. The
+    // camera's eye is noted with its view-projection and the outlines are recorded against the eye
+    // rounded as the frame's origin is, the mesh's place a move of their own, so an outline far
+    // from the world's origin holds no float of the world's size and keeps its millimeter.
     private static void ModelingOutlines(ModelingPanel panel, EditMeshData data, Vector3 position, Camera3D camera)
     {
-        var (view, projection, depth) = (_rlView, _rlProjection, _rl3D);
+        var (view, projection, depth, transform, anchoring) = (_rlView, _rlProjection, _rl3D, _rlTransform, DrawList.Anchoring);
         var (width, height) = DrawingSize();
-        SetRlCamera(camera.View, camera.ProjectionMatrix((float)width / Math.Max(1, height)), depthTest: true);
+        var through = camera.ProjectionMatrix((float)width / Math.Max(1, height));
+        SetRlCamera(camera.View, through, depthTest: true);
+        if (TryRes<ModelDrawList>(out var draws)) draws.NoteEye(camera.View * through, new ViewEye(camera.Position, camera.TurnedView * through));
+        DrawList.SetAnchor(RenderOrigin.Near(camera.Position));
+        SetRlTransform(Matrix4x4.CreateTranslation(position) * transform);
 
         var shift = panel.Drag is { Moved: true } drag ? drag.Normal * (drag.Steps * panel.Grid) : Vector3.Zero;
         for (int face = 0; face < data.FaceCount; face++)
-            if (data.IsFaceSelected(face)) ModelingOutline(data, face, position + shift, shift == Vector3.Zero ? ModelingSelected : ModelingDragged);
-        if (panel.Hovered >= 0 && panel.Drag is null) ModelingOutline(data, panel.Hovered, position, ModelingHovered);
+            if (data.IsFaceSelected(face)) ModelingOutline(data, face, shift, shift == Vector3.Zero ? ModelingSelected : ModelingDragged);
+        if (panel.Hovered >= 0 && panel.Drag is null) ModelingOutline(data, panel.Hovered, Vector3.Zero, ModelingHovered);
 
+        SetRlTransform(transform);
         SetRlCamera(view, projection, depth);
+        DrawList.SetAnchor(anchoring.Anchor, anchoring.Transform);
     }
 
-    private static void ModelingOutline(EditMeshData data, int face, Vector3 position, Color color)
+    // A face's outline in the mesh's own space, moved by shift.
+    private static void ModelingOutline(EditMeshData data, int face, Vector3 shift, Color color)
     {
         var corners = data.Corners(face);
-        var lift = position + data.Normal(face) * 0.001f;
+        var lift = shift + data.Normal(face) * 0.001f;
         for (int i = 0; i < corners.Length; i++)
             DrawLine3D(data.Position(corners[i]) + lift, data.Position(corners[(i + 1) % corners.Length]) + lift, color);
     }

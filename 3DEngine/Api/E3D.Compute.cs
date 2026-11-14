@@ -112,7 +112,7 @@ public static partial class E3D
         var target = device.Map(gpu);
         var bytes = MemoryMarshal.AsBytes(data);
         if (offset < 0 || offset >= target.Length) return;
-        bytes[..Math.Min(bytes.Length, target.Length - offset)].CopyTo(target[offset..]);
+        target.Slice(offset).CopyFrom(bytes[..Math.Min(bytes.Length, target.Length - offset)]);
     }
 
     /// <summary>Reads a storage buffer into <paramref name="destination"/>, starting <paramref name="offset"/> bytes in.</summary>
@@ -124,7 +124,7 @@ public static partial class E3D
     {
         if (ShaderBuffers.Get(buffer.Id) is not { } gpu || ComputeDevice is not { } device) return;
         device.WaitForCompute();
-        var source = device.Map(gpu);
+        var source = device.Read(gpu);
         var bytes = MemoryMarshal.AsBytes(destination);
         if (offset < 0 || offset >= source.Length) return;
         source.Slice(offset, Math.Min(bytes.Length, source.Length - offset)).CopyTo(bytes);

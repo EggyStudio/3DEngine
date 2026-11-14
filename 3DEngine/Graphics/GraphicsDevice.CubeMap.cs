@@ -151,7 +151,7 @@ internal sealed unsafe partial class GraphicsDevice
         var staging = (VulkanBuffer)CreateBuffer(new BufferDesc((ulong)bytes.Length, BufferUsage.TransferSrc, CpuAccessMode.Write));
         try
         {
-            bytes.CopyTo(Map(staging));
+            Map(staging).CopyFrom(bytes);
             Unmap(staging);
 
             var everything = new VkImageSubresourceRange(VkImageAspectFlags.Color, 0, mipLevels, 0, 6);

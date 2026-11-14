@@ -88,7 +88,7 @@ internal sealed partial class BloomRenderer
             var allocation = allocator.Allocate(size, BufferUsage.Uniform);
             var bytes = allocator.Map(allocation);
             bytes.Clear();
-            uniforms?.AsSpan(0, Math.Min(uniforms.Length, bytes.Length)).CopyTo(bytes);
+            if (uniforms is { } given) bytes.CopyFrom(given.AsSpan(0, Math.Min(given.Length, bytes.Length)));
             allocator.Unmap(allocation);
             device.UpdateDescriptorSet(set, new UniformBufferBinding(allocation.Buffer, 0, allocation.Offset, size), null);
         }

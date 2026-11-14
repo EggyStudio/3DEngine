@@ -575,7 +575,32 @@ anchor in doubles with its offsets along the model transform's axes (`DrawList.A
 so a box, a sphere or a billboard far out keeps its size, and a point a program gives is taken
 against the anchor as it is recorded. The model pass writes each instance against the origin as it
 goes into the ring, a group's copies and a packed mesh's scale with it, and works each view's push
-once a frame; the moving instances' velocity is written so too.
+once a frame; the moving instances' velocity is written so too. A pass pushes each view it draws
+through once, since every pipeline of the model passes takes the push in one range, which stays set
+across the pipelines bound after it, and a batch drawn through the view of the batch before finds
+it by comparing the matrices (`ViewMemo`), so a frame of many batches of a program's shader, solid
+and cut out by turns, pushes and finds its views as often as one of few (`ModelOrderTests`). The
+maps the uploads write through,
+`IGraphicsDevice.Map` and `DynamicBufferAllocator.Map`, hand out a `WriteOnlySpan`, which can be
+set, sliced, cast, written a value into, copied into, cleared and filled and has no member that
+reads, so a read of mapped memory does not compile, and the buffers whose GPU results are read, a
+compute buffer's, the probes' filter's, the field's and global illumination's readbacks and the
+reference tracer's, have a map of their own that reads (`IGraphicsDevice.Read`). A test reads the
+type's members and finds none that hands the memory back (`WriteOnlySpanTests`).
+
+The views the flat API draws through note the camera's eye with them, each eye of a stereo frame
+with its offset taken with the camera's turn, a projection set through rlgl inside the camera's 3D
+and the modeling window's outlines, whose shapes are recorded against the eye with the mesh's place
+a move of their own, so they keep their millimeter off the face (`NotedEyeTests`, the outline test
+of `ModelingWindowTests`). Two cameras whose view-projections are one matrix keep neither eye. The
+shadowed lights are ranked through each view's camera against the origin with their places against
+it (`LightingUboPrepare.PlacedViews`), the bounce view's probes are drawn through the window's camera
+from its eye, and the window's camera is the same camera as the frame before's only with the same
+eye where no eye was noted. `GetRayCollisionMesh` and the pointer's picking take the ray into a
+mesh's own space, the sphere round a mesh too, and the glow lights' boxes are gathered against the
+origin, each light known from frame to frame by its middle in world numbers (`GlowLights.Light.Key`)
+and placed from its middle as gathered. Shapes drawn inside `BeginShaderMode` in 3D keep world
+numbers, since a program's immediate shader is handed its `POSITION` in them.
 
 `LightExtract` copies every `Light` entity into the render world, and `LightingUboPrepare` packs up
 to 16 into one uniform buffer per frame, which `ModelRenderer` binds as a second descriptor set from

@@ -644,7 +644,7 @@ internal sealed unsafe partial class SceneFieldStages(GraphicsDevice device) : I
             device.PipelineBarrier(cmd, ImageBarrier(image, whole, VkImageLayout.TransferSrcOptimal, VkImageLayout.ShaderReadOnlyOptimal,
                 VkPipelineStageFlags2.Transfer, VkAccessFlags2.TransferRead, VkPipelineStageFlags2.AllCommands, VkAccessFlags2.ShaderRead));
             device.EndSingleTimeCommands(cmd);
-            return device.Map(buffer).ToArray();
+            return device.Read(buffer).ToArray();
         }
         finally
         {

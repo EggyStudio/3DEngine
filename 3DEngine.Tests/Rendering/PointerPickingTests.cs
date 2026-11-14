@@ -17,7 +17,7 @@ public class PointerPickingTests
 {
     // A window of 600 by 400 with a camera at z 10 looking down -z, its middle at (300, 200), and a
     // box two units wide at the origin, whose face toward the camera is at z 1, or both moved by at
-    // and the box turned about y by turn.
+    // and the box turned about y by turn, or a mesh of its own in the box's place.
     private sealed class Scene : IDisposable
     {
         public readonly App App = new(Config.Default);
@@ -26,7 +26,7 @@ public class PointerPickingTests
         public readonly int Camera, Box, Holder;
         public readonly List<string> Told = [];
 
-        public Scene(bool picking = true, Vector3 at = default, float turn = 0)
+        public Scene(bool picking = true, Vector3 at = default, float turn = 0, Mesh? mesh = null)
         {
             App.AddPlugin(new InputPlugin()).AddPlugin(new PickingPlugin()).AddPlugin(new EcsPlugin());
             Ecs = App.World.Resource<EcsWorld>();
@@ -37,7 +37,7 @@ public class PointerPickingTests
             Holder = Ecs.Spawn();
             Ecs.Add(Holder, Transform.Identity);
             Box = Ecs.Spawn();
-            Ecs.Add(Box, Cube());
+            Ecs.Add(Box, mesh ?? Cube());
             Ecs.Add(Box, new Transform(at, Quaternion.CreateFromAxisAngle(Vector3.UnitY, turn), Vector3.One));
             Ecs.SetParent(Box, Holder);
         }
@@ -144,6 +144,30 @@ public class PointerPickingTests
         far.Distance.Should().BeApproximately(home.Distance, 1e-5f, "the box is met as far along the ray as at the origin");
         Vector3.Distance(far.Point - at, home.Point).Should().BeLessThan(step, "the point met is where it is met at the origin, within a float's step there");
         far.Normal.Should().Be(home.Normal, "the face met is the one met at the origin");
+    }
+
+    [Theory]
+    [InlineData(71680f, 17408f)]
+    [InlineData(1140736f, 285696f)]
+    public void A_Small_Mesh_Off_Its_Own_Middle_Far_From_The_Worlds_Origin_Is_Met_As_At_It(float x, float z)
+    {
+        // A cube 0.06 across whose middle lies 0.0576 along x from its place, under the pointer two
+        // pixels right of the window's middle. Far out that middle lies off the step of the world's
+        // floats, 0.125 at 1,140,736, by nearly half of it, more than the sphere round the cube.
+        static PointerHit? Met(Vector3 at)
+        {
+            var cube = Cube();
+            using var scene = new Scene(at: at, mesh: new Mesh([.. cube.Positions!.Select(p => p * 0.03f + new Vector3(0.0576f, 0, 0))]));
+            PointerHit? met = null;
+            scene.Ecs.Observe<Pointer<Over>>(scene.Ecs.Handle(scene.Box), on => met = on.Event.Event.Hit);
+            scene.Frame(10, 10);
+            scene.Frame(302, 200);
+            return met;
+        }
+        var (home, far) = (Met(Vector3.Zero), Met(new Vector3(x, 0, z)));
+        home.Should().NotBeNull("the pointer is over the cube");
+        far.Should().NotBeNull("the pointer is over the cube far out too, the sphere round it not moved by its middle's rounding");
+        far!.Value.Distance.Should().BeApproximately(home!.Value.Distance, 1e-5f);
     }
 
     [Fact]

@@ -103,6 +103,14 @@ for a camera a program moves by amounts it works out. `CameraMoveForward`, `Came
 `CameraPitch` and `CameraRoll` turn it by radians, about itself or about its target.
 `UpdateCameraPro` does several at once from amounts in degrees.
 
+Each of them keeps where the camera looks as its `Target`, a point in the world. A turn takes the
+way from `Position` to `Target`, turns it and adds it back, and a move adds the same step to both.
+Far from the world's origin a point is rounded to a float's step there, an eighth of a unit at
+1,140,000, so a target a unit ahead turns in steps of seven degrees and a smaller turn is lost. A
+camera that goes far keeps its look as a way of its own and sets the target far along it, as
+`camera.Target = camera.Position + look * 4096`, or the program moves its own world as it goes, as
+[shaders and compute](shaders-and-compute.md) says.
+
 A game that moves its camera itself sets `camera.Position` and `camera.Target` each frame and
 skips `UpdateCamera`. The `core_3d_camera_free` example looks back at the origin when Z is pressed
 by setting the target:
@@ -143,7 +151,9 @@ mouse, which `GetRayCollisionBox`, `GetRayCollisionSphere` and `GetRayCollisionM
 the world, as picking a thing with the mouse needs. Both take a point less the camera's position
 through the camera's turn alone, so far from the world's origin a point shows and a ray leaves as
 they do near it, the ray from the camera's position, and `Vector3Unproject` carries a point back
-through the view's inverse worked in doubles.
+through the view's inverse worked in doubles. `GetRayCollisionMesh` meets a mesh's triangles in its
+own space, the ray's place less the mesh's translation turned back, so a mesh far out is met as it
+is near the world's origin.
 
 ## Drawing into a texture
 

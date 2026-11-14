@@ -142,4 +142,45 @@ public sealed class ModelingWindowTests : IDisposable
         LastLine.Should().Be($"extrude {(steps * 0.25f).ToString(CultureInfo.InvariantCulture)}");
         GetEditMeshInfo(_box).Bounds.Max.Y.Should().BeApproximately(2 + steps * 0.25f, Close);
     }
+
+    // The outlines of the box's selection drawn at a place through the camera moved there, their
+    // points as recorded and the views they are pushed through against the place each run was
+    // recorded against, from the eye noted with it.
+    private (Vector3[] Points, Matrix4x4[] Views) Outlines(Vector3 at)
+    {
+        var camera = Camera;
+        (camera.Position, camera.Target) = (Camera.Position + at, Camera.Target + at);
+        var world = GetApp().World;
+        world.TryGetResource<ModelDrawList>(out var draws).Should().BeTrue();
+        var list = world.Resource<DrawList>();
+        BeginDrawing();
+        BeginMode3D(camera);
+        EndMode3D();
+        var (vertices, _, batches, _) = list.Here();
+        DrawModelingWindow(_box, at);
+        var points = list.Vertices[vertices..].ToArray().Select(v => v.Position).ToArray();
+        var views = list.Batches.Skip(batches).Select(b => b.Anchor.Seen(b.Transform, draws!.EyeOf(b.Transform))).ToArray();
+        EndDrawing();
+        return (points, views);
+    }
+
+    [Theory]
+    [InlineData(71680f, 17408f)]
+    [InlineData(1140736f, 285696f)]
+    public void The_Outlines_Far_From_The_Worlds_Origin_Are_Drawn_Through_The_Camera_As_At_It(float x, float z)
+    {
+        EditMeshSelectAll(_box);
+        var (homePoints, homeViews) = Outlines(Vector3.Zero);
+        var (farPoints, farViews) = Outlines(new Vector3(x, 0, z));
+        homePoints.Should().NotBeEmpty("the six faces selected are outlined");
+        // Each outline is lifted a millimeter off its face, which a point of the world's size
+        // loses, and is drawn through the camera's eye, where the world's view-projection holds the
+        // eye's place rounded to the step there.
+        farPoints.Should().Equal(homePoints, $"the outlines {x} units out are recorded as at the world's origin");
+        farViews.Should().HaveSameCount(homeViews);
+        for (int i = 0; i < homeViews.Length; i++)
+            for (int row = 0; row < 4; row++)
+                for (int column = 0; column < 4; column++)
+                    farViews[i][row, column].Should().BeApproximately(homeViews[i][row, column], 1e-5f, "the outlines are pushed from the camera's eye");
+    }
 }

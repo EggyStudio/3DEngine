@@ -72,7 +72,7 @@ internal sealed class ModelDrawList
     private readonly object _gate = new();
     private readonly List<ModelDraw> _draws = [];
     private readonly List<InstanceGroup> _groups = [];
-    private readonly Dictionary<Matrix4x4, ViewEye> _eyes = [];
+    private readonly Dictionary<Matrix4x4, ViewEye?> _eyes = [];
 
     /// <summary>The meshes recorded this frame, in recording order.</summary>
     public IReadOnlyList<ModelDraw> Draws => _draws;
@@ -124,15 +124,20 @@ internal sealed class ModelDrawList
     /// view-projection with the eye at nothing, which the passes push it from against the frame's
     /// origin (<see cref="RenderOrigin.Seen"/>).
     /// </summary>
+    /// <remarks>
+    /// Two cameras whose view-projections are one matrix, their eyes apart by less than a float's
+    /// step there, keep neither eye, since either would serve the other's draws, and the passes
+    /// take the matrix as it is.
+    /// </remarks>
     internal void NoteEye(Matrix4x4 viewProjection, ViewEye eye)
     {
-        lock (_gate) _eyes[viewProjection] = eye;
+        lock (_gate) _eyes[viewProjection] = _eyes.TryGetValue(viewProjection, out var noted) && noted != eye ? null : eye;
     }
 
-    /// <summary>The eye a view-projection was noted with this frame, or null for one made without a camera, as a light's.</summary>
+    /// <summary>The eye a view-projection was noted with this frame, or null for one made without a camera, as a light's, or by two cameras.</summary>
     internal ViewEye? EyeOf(Matrix4x4 viewProjection)
     {
-        lock (_gate) return _eyes.TryGetValue(viewProjection, out var eye) ? eye : null;
+        lock (_gate) return _eyes.GetValueOrDefault(viewProjection);
     }
 
     /// <summary>Records a group of instances for the frame, drawn as one batch of the group's mesh and maps.</summary>

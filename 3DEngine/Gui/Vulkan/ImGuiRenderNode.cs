@@ -132,10 +132,8 @@ internal sealed class ImGuiRenderNode : INode, IDisposable
                 int vtxBytes = cmdList.VtxBuffer.Size * sizeof(ImDrawVert);
                 int idxBytes = cmdList.IdxBuffer.Size * sizeof(ushort);
 
-                new Span<byte>((void*)cmdList.VtxBuffer.Data, vtxBytes)
-                    .CopyTo(vtxSpan.Slice(vtxOffset, vtxBytes));
-                new Span<byte>((void*)cmdList.IdxBuffer.Data, idxBytes)
-                    .CopyTo(idxSpan.Slice(idxOffset, idxBytes));
+                vtxSpan.Slice(vtxOffset, vtxBytes).CopyFrom(new ReadOnlySpan<byte>((void*)cmdList.VtxBuffer.Data, vtxBytes));
+                idxSpan.Slice(idxOffset, idxBytes).CopyFrom(new ReadOnlySpan<byte>((void*)cmdList.IdxBuffer.Data, idxBytes));
 
                 vtxOffset += vtxBytes;
                 idxOffset += idxBytes;

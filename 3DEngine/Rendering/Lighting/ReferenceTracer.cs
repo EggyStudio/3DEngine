@@ -87,16 +87,17 @@ internal sealed unsafe class ReferenceTracer(GraphicsDevice device) : IDisposabl
         // scene's copies were placed against.
         var origin = scene.Origin;
         var lightBuffer = (VulkanBuffer)device.CreateBuffer(new BufferDesc(ReferenceLightsBytes, BufferUsage.Uniform, CpuAccessMode.Write));
-        var placed = device.Map(lightBuffer);
+        var placed = new byte[ReferenceLightsBytes];
         lights[..Math.Min(lights.Length, ReferenceLightsBytes)].CopyTo(placed);
-        var lamps = MemoryMarshal.Cast<byte, LightUboEntry>(placed[64..ReferenceLightsBytes]);
-        for (int i = 0; i < (int)MemoryMarshal.Cast<byte, float>(placed)[12]; i++)
+        var lamps = MemoryMarshal.Cast<byte, LightUboEntry>(placed.AsSpan(64));
+        for (int i = 0; i < (int)MemoryMarshal.Cast<byte, float>(placed.AsSpan())[12]; i++)
             lamps[i].PositionAndKind = origin.Against(lamps[i].PositionAndKind);
+        device.Map(lightBuffer).CopyFrom(placed);
         device.Unmap(lightBuffer);
         var readSums = (VulkanBuffer)device.CreateBuffer(new BufferDesc(w * h * 16, BufferUsage.TransferDst, CpuAccessMode.Read));
         var readRegions = (VulkanBuffer)device.CreateBuffer(new BufferDesc(w * h * 8, BufferUsage.TransferDst, CpuAccessMode.Read));
         var lookBuffer = (VulkanBuffer)device.CreateBuffer(new BufferDesc((ulong)Math.Max(ReferenceLookBytes, looks.Length), BufferUsage.Storage, CpuAccessMode.Write));
-        looks.CopyTo(device.Map(lookBuffer));
+        device.Map(lookBuffer).CopyFrom(looks);
         device.Unmap(lookBuffer);
 
         // The array of textures takes a descriptor of the pool's for each of its slots.
@@ -162,7 +163,7 @@ internal sealed unsafe class ReferenceTracer(GraphicsDevice device) : IDisposabl
             device.Api.vkCmdCopyImageToBuffer(cmd, regions, VkImageLayout.General, readRegions.Buffer, 1, &copy);
             device.EndSingleTimeCommands(cmd);
 
-            var summed = MemoryMarshal.Cast<byte, Vector4>(device.Map(readSums));
+            var summed = MemoryMarshal.Cast<byte, Vector4>(device.Read(readSums));
             var light = new float[w * h * 3];
             for (int i = 0; i < summed.Length && i * 3 < light.Length; i++)
             {
@@ -170,7 +171,7 @@ internal sealed unsafe class ReferenceTracer(GraphicsDevice device) : IDisposabl
                 var count = Math.Max(s.W, 1);
                 (light[i * 3], light[i * 3 + 1], light[i * 3 + 2]) = (s.X / count, s.Y / count, s.Z / count);
             }
-            var pairs = MemoryMarshal.Cast<byte, uint>(device.Map(readRegions));
+            var pairs = MemoryMarshal.Cast<byte, uint>(device.Read(readRegions));
             var (regionOf, metAt) = (new uint[w * h], new float[w * h]);
             for (int i = 0; i < regionOf.Length; i++) (regionOf[i], metAt[i]) = (pairs[i * 2], BitConverter.UInt32BitsToSingle(pairs[i * 2 + 1]));
             return new TracedReference((int)w, (int)h, light, regionOf, metAt);

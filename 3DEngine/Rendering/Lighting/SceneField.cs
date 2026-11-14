@@ -618,7 +618,7 @@ internal sealed partial class SceneFieldRenderer : IDisposable
     {
         var thinGlow = false;
         var buffer = device.CreateBuffer(new BufferDesc((ulong)Math.Max(1, instances.Length) * 96, BufferUsage.Storage, CpuAccessMode.Write));
-        var mapped = MemoryMarshal.Cast<byte, uint>(device.Map(buffer));
+        var mapped = device.Map(buffer).Cast<uint>();
         int written = 0, triangles = 0;
         foreach (var instance in instances)
         {
@@ -626,7 +626,7 @@ internal sealed partial class SceneFieldRenderer : IDisposable
             var record = mapped.Slice(written * 24, 24);
             var (w, c, e) = (instance.World, instance.Color, instance.Emission);
             ReadOnlySpan<float> rows = [w.M11, w.M21, w.M31, w.M41, w.M12, w.M22, w.M32, w.M42, w.M13, w.M23, w.M33, w.M43];
-            MemoryMarshal.Cast<float, uint>(rows).CopyTo(record);
+            record.CopyFrom(MemoryMarshal.Cast<float, uint>(rows));
             (record[12], record[13], record[14], record[15]) = ((uint)pooled.First, (uint)pooled.Count,
                 (instance.DoubleSided ? 1u : 0u) | Byte(instance.LightThrough) << 8 | Byte(instance.Roughness) << 16 | Byte(instance.Metallic) << 24, (uint)triangles);
             var thinnest = Thinnest(instance);
@@ -635,7 +635,7 @@ internal sealed partial class SceneFieldRenderer : IDisposable
             var carried = Carried(instance, _plan!.CellSize);
             thinGlow |= !carried && thinnest > 0 && thinnest < cell;
             ReadOnlySpan<float> colors = [c.X, c.Y, c.Z, carried ? 2 : 1, e.X, e.Y, e.Z, thinnest];
-            MemoryMarshal.Cast<float, uint>(colors).CopyTo(record[16..]);
+            record.Slice(16).CopyFrom(MemoryMarshal.Cast<float, uint>(colors));
             triangles += pooled.Count;
             written++;
         }
@@ -666,14 +666,14 @@ internal sealed partial class SceneFieldRenderer : IDisposable
     private static IBuffer Shapes(GraphicsDevice device, List<SceneFieldPlan.Shape> shapes, RenderOrigin origin)
     {
         var buffer = device.CreateBuffer(new BufferDesc((ulong)Math.Max(1, shapes.Count) * 112, BufferUsage.Storage, CpuAccessMode.Write));
-        var mapped = MemoryMarshal.Cast<byte, float>(device.Map(buffer));
+        var mapped = device.Map(buffer).Cast<float>();
         for (int s = 0; s < shapes.Count; s++)
         {
             var (toOwn, center, extents, scale, color, through, emission) = shapes[s];
             var m = origin.Taking(toOwn);
             ReadOnlySpan<float> values = [m.M11, m.M21, m.M31, m.M41, m.M12, m.M22, m.M32, m.M42, m.M13, m.M23, m.M33, m.M43,
                 center.X, center.Y, center.Z, scale, extents.X, extents.Y, extents.Z, 0, color.X, color.Y, color.Z, through, emission.X, emission.Y, emission.Z, 0];
-            values.CopyTo(mapped[(s * 28)..]);
+            mapped.Slice(s * 28).CopyFrom(values);
         }
         device.Unmap(buffer);
         return buffer;
@@ -687,11 +687,11 @@ internal sealed partial class SceneFieldRenderer : IDisposable
     {
         var (bricks, ranges, shapes) = (plan.Bricks, plan.BrickRanges, plan.BrickShapes);
         var buffer = device.CreateBuffer(new BufferDesc((ulong)(Math.Max(1, bricks.Count) * 4 + (shapes.Count + 3) / 4 * 4) * 4, BufferUsage.Storage, CpuAccessMode.Write));
-        var mapped = MemoryMarshal.Cast<byte, uint>(device.Map(buffer));
+        var mapped = device.Map(buffer).Cast<uint>();
         for (int b = 0; b < bricks.Count; b++)
             (mapped[b * 4], mapped[b * 4 + 1], mapped[b * 4 + 2], mapped[b * 4 + 3]) =
                 ((uint)bricks[b].Cascade, (uint)(bricks[b].X | bricks[b].Y << 8 | bricks[b].Z << 16), (uint)ranges[b].First, (uint)ranges[b].Count);
-        MemoryMarshal.Cast<int, uint>(CollectionsMarshal.AsSpan(shapes)).CopyTo(mapped[(bricks.Count * 4)..]);
+        mapped.Slice(bricks.Count * 4).CopyFrom(MemoryMarshal.Cast<int, uint>(CollectionsMarshal.AsSpan(shapes)));
         device.Unmap(buffer);
         return buffer;
     }

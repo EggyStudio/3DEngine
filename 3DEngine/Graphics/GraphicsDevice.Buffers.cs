@@ -71,7 +71,9 @@ internal sealed unsafe partial class GraphicsDevice
     }
 
     IBuffer IGraphicsDevice.CreateBuffer(BufferDesc desc, string maker, int line) => CreateBuffer(desc, maker, line);
-    Span<byte> IGraphicsDevice.Map(IBuffer buffer) => Map(buffer);
+    WriteOnlySpan<byte> IGraphicsDevice.Map(IBuffer buffer) => Map(buffer);
+
+    ReadOnlySpan<byte> IGraphicsDevice.Read(IBuffer buffer) => Read(buffer);
     void IGraphicsDevice.Unmap(IBuffer buffer) => Unmap(buffer);
 
     /// <summary>Creates a GPU buffer backed by Vulkan device memory with the specified descriptor.</summary>
@@ -150,7 +152,7 @@ internal sealed unsafe partial class GraphicsDevice
         if (_sharesMemory)
         {
             var shared = CreateBuffer(new BufferDesc((ulong)Math.Max(16, data.Length), usage, CpuAccessMode.Write), maker, line);
-            data.CopyTo(Map(shared));
+            Map(shared).CopyFrom(data);
             Unmap(shared);
             return shared;
         }
@@ -176,12 +178,12 @@ internal sealed unsafe partial class GraphicsDevice
         // written in place.
         if (destination is VulkanBuffer { IsHostVisible: true } seen)
         {
-            data.CopyTo(Map(seen)[(int)offset..]);
+            Map(seen)[(int)offset..].CopyFrom(data);
             Unmap(seen);
             return;
         }
         var staging = (VulkanBuffer)CreateBuffer(new BufferDesc((ulong)Math.Max(16, data.Length), BufferUsage.TransferSrc, CpuAccessMode.Write), maker, line);
-        data.CopyTo(Map(staging));
+        Map(staging).CopyFrom(data);
         Unmap(staging);
         var cmd = UploadCommands();
         var region = new VkBufferCopy { dstOffset = offset, size = (ulong)data.Length };
@@ -246,10 +248,17 @@ internal sealed unsafe partial class GraphicsDevice
         Logger.Info($"Memory types: {string.Join("; ", types)}{(_sharesMemory ? ", the device's own memory the CPU's too" : "")}. The CPU {(_seesDeviceWhole ? "sees" : "does not see")} the device's own memory whole.");
     }
 
-    /// <summary>Maps a host-visible buffer's memory for CPU access and returns a writable byte span.</summary>
+    /// <summary>Maps a host-visible buffer's memory for the CPU to write, as a span that is not read (<see cref="WriteOnlySpan{T}"/>).</summary>
     /// <param name="buffer">The buffer to map (must have been created with <see cref="CpuAccessMode"/> other than <see cref="CpuAccessMode.None"/>).</param>
-    /// <returns>A <see cref="Span{T}"/> of bytes over the mapped memory region.</returns>
-    public Span<byte> Map(IBuffer buffer)
+    /// <returns>A <see cref="WriteOnlySpan{T}"/> of bytes over the mapped memory region.</returns>
+    public WriteOnlySpan<byte> Map(IBuffer buffer) => new(Mapped(buffer));
+
+    /// <summary>Maps a host-visible buffer the GPU wrote, a readback's, for the CPU to read.</summary>
+    /// <param name="buffer">The buffer to read.</param>
+    /// <returns>A <see cref="ReadOnlySpan{T}"/> of bytes over the mapped memory region.</returns>
+    public ReadOnlySpan<byte> Read(IBuffer buffer) => Mapped(buffer);
+
+    private Span<byte> Mapped(IBuffer buffer)
     {
         if (buffer is not VulkanBuffer vkBuffer)
             throw new ArgumentException("Buffer was not created by this device.", nameof(buffer));
@@ -286,7 +295,7 @@ internal sealed unsafe partial class GraphicsDevice
         if (dst.IsHostVisible)
         {
             var span = Map(dst);
-            data.CopyTo(span.Slice((int)destinationOffset));
+            span.Slice((int)destinationOffset).CopyFrom(data);
             Unmap(dst);
             return;
         }
@@ -297,7 +306,7 @@ internal sealed unsafe partial class GraphicsDevice
         try
         {
             var stagingSpan = Map(staging);
-            data.CopyTo(stagingSpan);
+            stagingSpan.CopyFrom(data);
             Unmap(staging);
 
             VkBufferCopy copyRegion = new()

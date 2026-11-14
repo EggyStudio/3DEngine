@@ -10215,6 +10215,20 @@ here, and the copy of the player's save is let go, made again on request. The lo
     Each rewritten to say what stands, the story going to nothing or to the Reply. A commit of
     comments alone, with the norm's search added to STYLE.md's so it is found again.
 
+270. **More than sixteen point and spot lights write past the lamps in the illumination's lights
+    buffer.** Found on 2026-11-14 while the two engines' kernels were read side by side, and checked
+    by the review at `d102cd72`. GlobalIlluminationRenderer.cs 538 casts the lamps' entries over the
+    rest of the whole lights buffer from byte 64, so the loop's stop at the entries' length comes at
+    about 102 and not at the 16 the kernel's array holds; with 17 lamps or more the entries past the
+    sixteenth are written over the frame before's corners and the glow lights' head and first
+    lights, the count says them all, and placing the lights against the origin then moves those
+    bytes as lamps. The kernels clamp the count at 16, so the harm is to the corners and the glow
+    lights. LightExtract caps nothing. The mend bounds the entries at the array's sixteen, the
+    brightest or nearest kept by a rule said in the code, with a test of 20 point lights that the
+    corners and the glow lights' bytes stand as with 16. A small commit of its own, after the cost's
+    mend. Done at `6075d306`, pushed at 06:23 on 2026-11-14, the lamps kept as the model pass keeps
+    them, so a lamp left unlit there bounces nothing.
+
 ## Verdicts settled
 
 Verdicts 1 to 55 are settled, the last two, the drawing leak test's resident bound and the Windows
@@ -16881,6 +16895,28 @@ render origin's 32.4, and part 6's two far cases run on the CPU, the rays in the
 second job and the picked box in PointerPickingTests, dealt to Rendering 7, with no device. After the
 mend's first run each part's time goes beside its estimate in the next Reply.
 
+Item 270, global illumination's lamps held to the sixteen its kernels' array holds. The lamps are
+written into a span of sixteen entries after the sun and the sky (`GlobalIlluminationRenderer.WriteLamps`),
+where the span ran over the rest of the lights from byte 64 and a seventeenth lamp went over the frame
+before's corners at byte 1,088 and the glow lights after them. Those kept are the point and spot
+lights among the first sixteen lights, the ones the model pass lights (`LightingUboPacker.Pack`),
+in the order of the lights, so a lamp the model pass leaves unlit bounces no light either, where
+the first sixteen point and spot lights of all the lights were taken. GlobalIlluminationLampsTests,
+on the CPU, writes twenty lamps and reads every byte as sixteen leave it, the count sixteen, and a
+sun, the sky and eighteen lamps keep the fourteen among the first sixteen in their order; the span
+over the rest of the lights writes twenty and fails it. The strict build is clean
+and the suite passed both legs, 2,401.
+
+On the guard the review weighs for the ring and the immediate list. Of the forty maps of GPU memory
+in the engine, eight read what the GPU wrote on purpose, the compute buffers' read, the probes'
+filter's readbacks, the field's and global illumination's readbacks and the reference tracer's sums
+and log, and the rest write by an index, a copy into, a value written, a cast, a clear or a fill.
+A write-only span, a ref struct over the mapped bytes with a setter, a slice, a cast to another
+element, a write of a value, a copy from a span and a clear and a fill and no getter, handed out
+by the map the uploads use, with the readbacks given a map of their own that reads, makes reading
+mapped memory back fail to compile. It is about thirty call sites changed as they stand, each a
+write already, and the type with a test of its own; small, and it goes into part 9b.
+
 ## Items closed, parked or shortened
 
 Items closed without a mend, recorded or parked, and the standing items' texts as they stood before
@@ -18851,3 +18887,76 @@ hours and a quarter. Before them `afd5640f`, 250's faint lights, a glow light gi
 under a 32nd of the largest before it taken as one point, pushed at 13:19 on 2026-11-11, its run red
 at 15:27 in the second Windows half alone, the hall's new test hanging on that system's device,
 Verdict 116, macOS, the Linux legs and the first Windows half green.
+
+Reviewed up to `6075d306`, item 270, global illumination's lamps written into the sixteen entries
+its kernels' array holds, the lights the model pass lights, with a test of twenty lamps leaving
+every byte as sixteen do, pushed at 06:23 on 2026-11-14 once the run before it had ended, run
+43561315739; the suite passed both legs, 2,401; it keeps the form and carries the review's files.
+Before it `010671f7`, the cost of the origin mended, the immediate pass recording its shapes against
+the eye of the camera it draws through and the model pass writing each instance against the origin
+as it goes into the ring, no frame reading mapped memory back, the immediate upload 0.2 to 0.4 ms
+where 61 to 68 on a room of 4,000 immediate cubes, with the first of the independent read's
+findings, a shape built about its middle, pushed at 05:01 on 2026-11-14 once the run before it had
+ended, green at 06:23 with the four Windows jobs in 44, 57, 42 and 36 minutes, macOS in 59 and the
+Linux legs in 65 and 71; RenderOriginTests passes whole on the three devices, 30 of 30, and the
+suite passed both legs, 2,399; it keeps the form and carries the review's files. Before it
+`5b6696b2`, 264's part 9, its first commit, five findings of the independent read, the mirrored view
+and the reflection probes' faces noted by their eyes, the origin from the first render target's eye
+where no window camera stands, the soft shadow's grain by whole cells and the lamps' places told
+apart within a hundredth of a unit, four tests each failing without its mend, pushed at 03:25 on
+2026-11-14 once the run before it had ended, green at 04:43 with the four Windows jobs in 69, 40, 57
+and 37 minutes, macOS in 53 and the Linux legs in 67 and 66; RenderOriginTests passes whole on the
+three devices, 30 of 30, and the suite passed both legs, 2,396; it keeps the form and carries the
+review's files. Before it `d102cd72`, Verdict 121's mend, the Windows suite dealt to four jobs with
+global illumination's class in four processes and the render origin's, the bounce rooms' and the
+glow lights' each in one, no part estimated over 33 minutes on the slowest runner read, with
+`3768c988`, 264's part 6, the rays from the screen on the CPU, and `6cfda4dd`, part 5, the points
+from the depth, pushed together at 00:44 on 2026-11-14, one run on the last, 43529308891, green at
+02:02 with the four Windows jobs in 78, 53, 59 and 37 minutes, macOS in 54 and the Linux legs in 65
+and 53, which settles Verdict 121; the suite passed both legs on part 6, 2,388, and
+RenderOriginTests whole on the three devices, 22 of 22; they keep the form and carry the review's
+files. Before them `68e7085f`, 264's part 4, each pass that reads its frame before taking the way
+between the two frames from the cameras' eyes, a camera turning a million units out reading as at
+the world's origin, with each process's slowest tests kept on a green run, pushed at 21:27 on
+2026-11-13 once the run before it had ended, run 43501785641, red in the third Windows job at 23:02,
+its part Rendering 5 ended at its time limit with no test failed, Verdict 121; RenderOriginTests
+passes whole on the three devices, 19 of 19, and the suite passed both legs, 2,379; it keeps the
+form and carries the review's files. Before it `bca57e93`, Verdict 120's mend, the render origin's
+three tests that compare a pixel's light against another origin held by a count of pixels past a
+small level and a loose largest, read on the RTX and on Mesa 26.2.4 and 25.2.8, with `ed3cd9ca`,
+264's part 3, the shadows fitted in places with their texels' lattice kept in world numbers, pushed
+together at 19:11 on 2026-11-13, one run on the last, 43480215485, green at 21:26 with macOS in 51
+minutes, the Linux legs in 83 and 89 and the Windows jobs in 135, 85 and 64, which settles Verdict
+120; RenderOriginTests passes whole on the three devices, 16 of 16, and the suite passed both legs
+on part 3, 2,375; they keep the form and carry the review's files. Before them `54792d7e`, 264's
+mend for a program's shader, world a property over the place and the origin and the lighting's
+point-taking functions taking world points beside their Placed twins, with `80fe61d2`, part 2, the
+origin at the eye, and `a0af50a3`, part 1's second commit, every place a pass reads in a buffer
+taken against the origin, the three held until the game's play on the local package
+6.2.60-local.264.3 read the four breaks of 264.2 gone and pushed together at 22:38 on 2026-11-12,
+one run on the last, 43312321044, red at 00:49 on 2026-11-13 in both Linux legs at one test of the
+render origin, Verdict 120, macOS in 56 minutes and the Windows jobs in 130, 59 and 86 green; the
+suite passed both legs on the last here, 2,369; they keep the form and carry the review's files.
+Before them `3405714a`, 264's first part begun, the render origin laid through the vertex stages of
+the model pass, the shadows and the particles and held at zero, with a test at 160 by 90 that reads
+every pixel within a level against an origin moved 64, -32, 128, pushed at 18:12 on 2026-11-12 once
+the run before it had ended, green at 20:22 with macOS in 51 minutes, the Linux legs in 65 and 83
+and the Windows jobs in 129, 84 and 67; the suite passed both legs, 2,358; it keeps the form and
+carries the review's files. Before it `baa21ff4`, Verdict 119's mend, the Windows suite dealt to
+three jobs with the rest of the Rendering part in six processes of about 25 minutes each on the
+slowest runner read, pushed at 16:01 on 2026-11-12 with `63b47a49`, item 266, the comments of 239
+files swept by N 4.11 as widened with no line but a comment changed, and `8513f710`, 259's second
+commit, the surface's point read at the centroid with its test, one run on the last, green at 18:07
+with macOS in 49 minutes, the Linux legs in 51 and 64 and the Windows jobs in 126, 54 and 72, which
+settles Verdict 119, and the pack run with publish for 259, 43243318284, started on it; the suite
+passed both legs on the second and third, 2,357, the last changing no code; they keep the form and
+carry the review's files. Before them `aa0f1be7`, items 259 and 260, the blobs reported in the
+distance, the vertex color and uv2 read at the centroid where a pixel's middle outside a triangle
+seen nearly edge on gave the surface's color a half float's most at 4 samples a pixel, with
+light.terms, a pixel's light read a term at a time, and a test of walls a hair beside the eye, 31
+white pixels before and none after, pushed at 11:37 on 2026-11-12 once the run before it had ended,
+its run red at 14:09 in the second Windows half alone, a part of the suite ending at its time limit,
+Verdict 119, macOS in 55 minutes, the Linux legs in 66 and 83 and the first Windows half in 130
+green; the suite passed both legs, 2,356; on its local package the game's sweep reads bloom's most
+by the origin at 13 levels where 142 and no step with a blob where 7; it keeps the form and carries
+the review's files.

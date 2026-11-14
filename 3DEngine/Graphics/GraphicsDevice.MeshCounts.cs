@@ -134,7 +134,7 @@ internal sealed unsafe partial class GraphicsDevice
                 slot.Chunks.Add(CreateBuffer(new BufferDesc(CountChunk * CountRecordBytes, BufferUsage.Storage | BufferUsage.Indirect, CpuAccessMode.Write)));
             (chunk, record) = (slot.Chunks[slot.Records / CountChunk], slot.Records % CountChunk);
             slot.Records++;
-            var fields = System.Runtime.InteropServices.MemoryMarshal.Cast<byte, uint>(Map(chunk).Slice(record * CountRecordBytes, CountRecordBytes));
+            var fields = Map(chunk).Slice(record * CountRecordBytes, CountRecordBytes).Cast<uint>();
             fields[0] = 0;
             fields[1] = instanceCount;
             fields[2] = firstVertex;

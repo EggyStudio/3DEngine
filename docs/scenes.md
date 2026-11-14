@@ -203,7 +203,10 @@ for (int i = 0; i < 3; i++)
 
 A `ModelRef` names a model file in place of the meshes and materials in it. The engine loads the
 file and spawns its meshes under the entity, which places them with its `Transform`, each mesh with
-its own material. A program on the flat API sees them through the camera its `BeginMode3D` uses. The spawned
+its own material. A child's place in the world is its own `Transform` times its parent's, worked in
+floats, so far from the world's origin each child's place rounds to a float's step there on its
+own, and the pieces of one model can sit up to half a step off against each other. A program that
+goes far moves its own world as it goes, which keeps its parents' numbers small. A program on the flat API sees them through the camera its `BeginMode3D` uses. The spawned
 meshes are left out of the file, since the model brings them back. A file with animation clips, a
 character, plays its first clip on a loop instead, through an `AnimatedModel` on a child of the
 entity, which is left out of the file the same way. An entity given its own `AnimatedModel` in

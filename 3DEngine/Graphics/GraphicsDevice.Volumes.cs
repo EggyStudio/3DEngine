@@ -51,7 +51,7 @@ internal sealed unsafe partial class GraphicsDevice
         var owner = new VulkanImage(this, image, memory, new ImageDesc(new Extent2D(size, size), ImageFormat.Undefined, ImageUsage.Sampled | ImageUsage.TransferDst));
 
         var staging = (VulkanBuffer)CreateBuffer(new BufferDesc((ulong)texels.Length, BufferUsage.TransferSrc, CpuAccessMode.Write));
-        texels.CopyTo(Map(staging));
+        Map(staging).CopyFrom(texels);
         Unmap(staging);
         var cmd = UploadCommands();
         PipelineBarrier(cmd, ImageBarrier(image, ColorLevels(0, 1), VkImageLayout.Undefined, VkImageLayout.TransferDstOptimal,

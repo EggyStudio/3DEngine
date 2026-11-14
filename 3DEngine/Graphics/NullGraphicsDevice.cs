@@ -74,7 +74,10 @@ internal sealed class NullGraphicsDevice : IGraphicsDevice
     /// <inheritdoc />
     public IBuffer CreateBuffer(BufferDesc desc, string maker = "", int line = 0) => throw new NotSupportedException("NullGraphicsDevice does not support buffer creation.");
     /// <inheritdoc />
-    public Span<byte> Map(IBuffer buffer) => throw new NotSupportedException("NullGraphicsDevice does not support buffer mapping.");
+    public WriteOnlySpan<byte> Map(IBuffer buffer) => throw new NotSupportedException("NullGraphicsDevice does not support buffer mapping.");
+
+    /// <inheritdoc />
+    public ReadOnlySpan<byte> Read(IBuffer buffer) => throw new NotSupportedException("NullGraphicsDevice does not support buffer mapping.");
     /// <inheritdoc />
     public void Unmap(IBuffer buffer) { }
 

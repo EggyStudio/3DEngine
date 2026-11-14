@@ -187,17 +187,29 @@ public static partial class E3D
     }
 
     /// <summary>Where a ray first meets a mesh placed by <paramref name="transform"/>, testing each of its triangles.</summary>
+    /// <remarks>
+    /// The ray is taken into the mesh's own space, its place less the transform's translation turned
+    /// back, and the triangles are met there, so a mesh far from the world's origin is met as it is
+    /// near it, with its distance, point and normal worked back out to the world.
+    /// </remarks>
     public static RayCollision GetRayCollisionMesh(Ray ray, ModelMesh mesh, Matrix4x4 transform)
     {
-        if (!Meshes.TryGetData(mesh.Id, out var vertices, out var indices)) return default;
+        if (!Meshes.TryGetData(mesh.Id, out var vertices, out var indices) || !Matrix4x4.Invert(transform, out var inverse)) return default;
+        var direction = Vector3.Normalize(ray.Direction);
+        var local = new Ray(Vector3.TransformNormal(ray.Position - transform.Translation, inverse), Vector3.TransformNormal(direction, inverse));
+        // A face's normal turned out by the inverse's transpose, the way round a mirroring transform
+        // turns its triangles' corners.
+        var (normals, turned) = (Matrix4x4.Transpose(inverse), transform.GetDeterminant() < 0 ? -1f : 1f);
         var nearest = default(RayCollision);
         for (int i = 0; i + 2 < indices.Length; i += 3)
         {
-            var hit = GetRayCollisionTriangle(ray,
-                Vector3.Transform(vertices[indices[i]].Position, transform),
-                Vector3.Transform(vertices[indices[i + 1]].Position, transform),
-                Vector3.Transform(vertices[indices[i + 2]].Position, transform));
-            if (hit.Hit && (!nearest.Hit || hit.Distance < nearest.Distance)) nearest = hit;
+            var hit = GetRayCollisionTriangle(local, vertices[indices[i]].Position, vertices[indices[i + 1]].Position, vertices[indices[i + 2]].Position);
+            if (!hit.Hit) continue;
+            // The way from the ray's start to the point met turned out to the world, whose length is
+            // the distance there.
+            var distance = Vector3.TransformNormal(hit.Point - local.Position, transform).Length();
+            if (nearest.Hit && distance >= nearest.Distance) continue;
+            nearest = new RayCollision(true, distance, ray.Position + direction * distance, Vector3.Normalize(Vector3.TransformNormal(hit.Normal, normals)) * turned);
         }
         return nearest;
     }

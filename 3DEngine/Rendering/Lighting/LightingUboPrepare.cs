@@ -49,22 +49,13 @@ internal sealed class LightingUboPrepare : IPrepareSystem
 
         // The lights without their shadows, which each view's buffer starts from. The spot and
         // point lights that cast them are ranked for every view the frame draws meshes through,
-        // the window's and each render target's, since their maps serve all of them.
+        // the window's and each render target's, since their maps serve all of them, and each
+        // view's shadow, shared by views near enough to read one set of cascades alike, is fitted
+        // to its camera as it is pushed.
         var unshadowed = ubo;
-        var views = new List<(System.Numerics.Vector3? Eye, System.Numerics.Matrix4x4? Camera)>();
-        if (windowCamera is { } seen) views.Add((EyeOf(draws!.WindowViewProjection!.Value, draws), seen));
-        foreach (var target in draws?.Targets() ?? [])
-            if (draws!.ViewProjectionOf(target) is { } targetCamera) views.Add((EyeOf(targetCamera, draws), targetCamera));
-        var casters = Casters(renderWorld, lights, ubo.LightCount, views, origin);
-        // Each view's shadow, shared by views near enough to read one set of cascades alike, fitted
-        // to each camera as it is pushed, taking a place against the frame's origin, from its eye
-        // where the frame noted one.
-        var cameras = new List<(int View, System.Numerics.Matrix4x4 Camera)>();
-        if (draws?.WindowViewProjection is { } windowed)
-            cameras.Add((0, origin.Seen(windowed, draws.EyeOf(windowed)) * (renderWorld.TryGet<WindowView>()?.Back ?? System.Numerics.Matrix4x4.Identity)));
-        foreach (var target in draws?.Targets() ?? [])
-            if (draws!.ViewProjectionOf(target) is { } targetCamera) cameras.Add((target, origin.Seen(targetCamera, draws.EyeOf(targetCamera))));
-        var shared = casters is null ? [] : SharedShadows(casters, cameras);
+        var placed = PlacedViews(draws, renderWorld.TryGet<WindowView>()?.Back ?? System.Numerics.Matrix4x4.Identity, origin);
+        var casters = Casters(renderWorld, lights, ubo.LightCount, [.. placed.Select(view => (view.Eye, (System.Numerics.Matrix4x4?)view.Camera))], origin);
+        var shared = casters is null ? [] : SharedShadows(casters, [.. placed.Select(view => (view.View, view.Camera))]);
         var shadow = shared.GetValueOrDefault(0);
         if (shadow is null) renderWorld.Remove<FrameShadow>();
         else
@@ -211,7 +202,7 @@ internal sealed class LightingUboPrepare : IPrepareSystem
         var sizeBytes = (ulong)LightingUboPacker.SizeBytes;
         var alloc = allocator.Allocate(sizeBytes, BufferUsage.Uniform);
         var span = allocator.Map(alloc);
-        MemoryMarshal.Write(span, in placed);
+        span.Write(in placed);
         allocator.Unmap(alloc);
         return new UniformBufferBinding(alloc.Buffer, Binding: 0, alloc.Offset, sizeBytes);
     }
@@ -346,6 +337,26 @@ internal sealed class LightingUboPrepare : IPrepareSystem
         return shadows;
     }
 
+    /// <summary>
+    /// Each view the frame draws meshes through, the window's at 0 and each render target's by its
+    /// id, with its eye and its camera taking a place against <paramref name="origin"/>, from the
+    /// eye where the frame noted one, the window's without temporal antialiasing's move
+    /// (<paramref name="back"/>), which the shadowed lights are ranked through and each view's
+    /// shadow is fitted to.
+    /// </summary>
+    internal static List<(int View, System.Numerics.Vector3? Eye, System.Numerics.Matrix4x4 Camera)> PlacedViews(ModelDrawList? draws,
+        System.Numerics.Matrix4x4 back, RenderOrigin origin)
+    {
+        var views = new List<(int View, System.Numerics.Vector3? Eye, System.Numerics.Matrix4x4 Camera)>();
+        if (draws is null) return views;
+        if (draws.WindowViewProjection is { } windowed) views.Add((0, EyeAt(EyeOf(windowed, draws)), origin.Seen(windowed, draws.EyeOf(windowed)) * back));
+        foreach (var target in draws.Targets())
+            if (draws.ViewProjectionOf(target) is { } camera) views.Add((target, EyeAt(EyeOf(camera, draws)), origin.Seen(camera, draws.EyeOf(camera))));
+        return views;
+
+        System.Numerics.Vector3? EyeAt(System.Numerics.Vector3? eye) => eye is { } at ? origin.Against(at) : null;
+    }
+
     // Whether a sphere is at least partly inside the view, by the six planes of its view and
     // projection, depth running 0 to 1 as Vulkan's does.
     internal static bool InView(System.Numerics.Matrix4x4 m, System.Numerics.Vector3 center, float radius)
@@ -402,8 +413,8 @@ internal sealed class LightingUboPrepare : IPrepareSystem
             if (light.Kind == LightKind.Point) pointCandidates.Add(i);
         }
 
-        var spotLights = Rank(lights.All, spotCandidates, views, distance).Take(ShadowFit.MaxSpotLights).ToList();
-        var points = Rank(lights.All, pointCandidates, views, distance).Take(ShadowFit.MaxPointLights)
+        var spotLights = Rank(lights.All, spotCandidates, views, distance, origin).Take(ShadowFit.MaxSpotLights).ToList();
+        var points = Rank(lights.All, pointCandidates, views, distance, origin).Take(ShadowFit.MaxPointLights)
             .Select(i => (i, ShadowFit.FitPoint(origin.Against(lights.All[i].Position), lights.All[i].Range, distance))).ToList();
         if (sun < 0 && spotLights.Count == 0 && points.Count == 0) return null;
 
@@ -445,17 +456,21 @@ internal sealed class LightingUboPrepare : IPrepareSystem
     /// <remarks>
     /// The share weighs a lamp lighting a wall across the view above a brighter one lighting a
     /// corner of it, so the light that lights most of the picture keeps its shadows (<see cref="Share"/>).
+    /// The views' eyes and cameras take a place against <paramref name="origin"/>, as
+    /// <see cref="PlacedViews"/> gives them, and each light's place is taken against it too, in
+    /// doubles, so lights far from the world's origin rank as they would at it.
     /// </remarks>
     internal static IEnumerable<int> Rank(IReadOnlyList<RenderLight> lights, IEnumerable<int> candidates,
-        IReadOnlyList<(System.Numerics.Vector3? Eye, System.Numerics.Matrix4x4? Camera)> views, float distance)
+        IReadOnlyList<(System.Numerics.Vector3? Eye, System.Numerics.Matrix4x4? Camera)> views, float distance, RenderOrigin origin = default)
     {
+        System.Numerics.Vector3 Place(int i) => origin.Against(lights[i].Position);
         // How far a light's reach is from an eye, 0 inside it, and the distance itself for a light
         // with no range, the nearest of the views' eyes.
         float ReachFrom(int i, System.Numerics.Vector3? eye)
         {
             var light = lights[i];
             if (eye is not { } at) return 0;
-            var away = System.Numerics.Vector3.Distance(light.Position, at);
+            var away = System.Numerics.Vector3.Distance(Place(i), at);
             return light.Range > 0 ? MathF.Max(0, away - light.Range) : away;
         }
         float Reach(int i) => views.Count == 0 ? 0 : views.Min(view => ReachFrom(i, view.Eye));
@@ -471,11 +486,11 @@ internal sealed class LightingUboPrepare : IPrepareSystem
             return views.Max(view =>
             {
                 var reach = ReachFrom(i, view.Eye);
-                return brightness / (1 + reach * reach) * (view.Camera is { } camera ? Share(camera, light.Position, radius) : 1);
+                return brightness / (1 + reach * reach) * (view.Camera is { } camera ? Share(camera, Place(i), radius) : 1);
             });
         }
         bool Seen(int i) => views.Count == 0 || views.Any(view => view.Camera is not { } camera
-            || InView(camera, lights[i].Position, lights[i].Range > 0 ? lights[i].Range : distance));
+            || InView(camera, Place(i), lights[i].Range > 0 ? lights[i].Range : distance));
         return candidates.OrderBy(i => Seen(i) ? 0 : 1).ThenByDescending(Reaching).ThenBy(Reach);
     }
 

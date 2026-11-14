@@ -204,8 +204,7 @@ internal sealed class RendererContext : IDisposable
     /// <param name="camera">The camera uniform data to upload.</param>
     private void UploadCameraUniform(IBuffer buffer, in CameraUniform camera)
     {
-        var span = _graphics!.Map(buffer);
-        System.Runtime.InteropServices.MemoryMarshal.Write(span, in camera);
+        _graphics!.Map(buffer).Write(in camera);
         _graphics.Unmap(buffer);
     }
 

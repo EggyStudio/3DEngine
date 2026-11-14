@@ -137,7 +137,7 @@ internal sealed unsafe partial class GraphicsDevice
         {
             try
             {
-                var pixels = Map(capture.Buffer).ToArray();
+                var pixels = Read(capture.Buffer).ToArray();
                 Unmap(capture.Buffer);
                 ToRgba(pixels, capture.Format);
                 capture.Callback(pixels, capture.Width, capture.Height);

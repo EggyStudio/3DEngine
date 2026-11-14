@@ -73,7 +73,7 @@ internal sealed partial class DynamicBufferAllocator : IDisposable
 
     /// <summary>Maps the backing buffer of <paramref name="alloc"/> and returns a span
     /// covering exactly the allocation's region.</summary>
-    public Span<byte> Map(DynamicAllocation alloc)
+    public WriteOnlySpan<byte> Map(DynamicAllocation alloc)
     {
         ObjectDisposedException.ThrowIf(_disposed, this);
         var full = _gfx.Map(alloc.Buffer);

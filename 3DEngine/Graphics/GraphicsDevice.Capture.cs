@@ -98,7 +98,7 @@ internal sealed unsafe partial class GraphicsDevice
         (width, height) = ((int)_keptScreenExtent.width, (int)_keptScreenExtent.height);
         if (!_screenKept || _keptScreen is not { } buffer) return null;
         _deviceApi.vkDeviceWaitIdle().CheckResult();
-        var pixels = Map(buffer).ToArray();
+        var pixels = Read(buffer).ToArray();
         Unmap(buffer);
         ToRgba(pixels);
         return pixels;
@@ -151,7 +151,7 @@ internal sealed unsafe partial class GraphicsDevice
         _deviceApi.vkWaitForFences(fence, true, ulong.MaxValue).CheckResult();
         try
         {
-            var pixels = Map(capture.Buffer).ToArray();
+            var pixels = Read(capture.Buffer).ToArray();
             Unmap(capture.Buffer);
             ToRgba(pixels);
 
@@ -232,7 +232,7 @@ internal sealed unsafe partial class GraphicsDevice
             Barrier(cmd, vkImage, 0, 1, VkImageLayout.TransferSrcOptimal, VkImageLayout.ShaderReadOnlyOptimal,
                 VkAccessFlags2.TransferRead, VkAccessFlags2.ShaderRead, VkPipelineStageFlags2.Transfer, VkPipelineStageFlags2.AllCommands);
             EndSingleTimeCommands(cmd);
-            return (Map(buffer).ToArray(), bytesPerPixel);
+            return (Read(buffer).ToArray(), bytesPerPixel);
         }
         finally
         {

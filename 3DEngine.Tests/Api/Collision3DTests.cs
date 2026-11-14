@@ -56,6 +56,33 @@ public class Collision3DTests
         }
     }
 
+    [Theory]
+    [InlineData(71680f, 17408f)]
+    [InlineData(1140736f, 285696f)]
+    public void A_Ray_Meets_A_Mesh_Far_From_The_Worlds_Origin_As_At_It(float x, float z)
+    {
+        var app = new App();
+        app.World.InitResource<TextureStore>();
+        app.World.InitResource<MeshStore>();
+        UseApp(app);
+        try
+        {
+            // A cube 0.3 across, whose corners off its middle are off the step of the world's floats
+            // far out, 0.125 at 1,140,736, met by a ray five units before it.
+            var cube = GenMeshCube(0.3f, 0.3f, 0.3f);
+            RayCollision Met(Vector3 at) => GetRayCollisionMesh(new Ray(at + new Vector3(0.125f, 0.0625f, 5), -Vector3.UnitZ), cube, Matrix4x4.CreateTranslation(at));
+            var (home, far) = (Met(Vector3.Zero), Met(new Vector3(x, 0, z)));
+            (home.Hit, far.Hit).Should().Be((true, true));
+            home.Distance.Should().BeApproximately(4.85f, 1e-5f);
+            far.Distance.Should().BeApproximately(home.Distance, 1e-5f, $"the cube {x} units out is met as at the world's origin");
+            far.Normal.Should().Be(home.Normal);
+        }
+        finally
+        {
+            UseApp(null);
+        }
+    }
+
     [Fact]
     public void Spheres_And_Boxes_Overlap_Or_Not()
     {

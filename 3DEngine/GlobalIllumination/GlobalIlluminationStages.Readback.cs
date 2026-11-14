@@ -127,7 +127,7 @@ internal sealed unsafe partial class GlobalIlluminationStages
     // A buffer of half floats read as floats.
     private float[] Halves(VulkanBuffer buffer)
     {
-        var halves = MemoryMarshal.Cast<byte, Half>(device.Map(buffer));
+        var halves = MemoryMarshal.Cast<byte, Half>(device.Read(buffer));
         var values = new float[halves.Length];
         for (int i = 0; i < halves.Length; i++) values[i] = (float)halves[i];
         return values;

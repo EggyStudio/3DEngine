@@ -127,4 +127,40 @@ public class ShadowLayoutTests
 
     private static bool Overlap((int X, int Y, int Size) a, (int X, int Y, int Size) b) =>
         a.X < b.X + b.Size && b.X < a.X + a.Size && a.Y < b.Y + b.Size && b.Y < a.Y + a.Size;
+
+    // The window's camera through a frame at a place, looking down at a point before it, noted with
+    // its eye, as the lights are ranked through it, and the origin its eye rounds to.
+    private static (List<(Vector3? Eye, Matrix4x4? Camera)> Views, RenderOrigin Origin) Window(Vector3 at)
+    {
+        var camera = new Camera3D(at + new Vector3(0, 2.5f, 5.5f), at + new Vector3(0, 0.5f, 0), Vector3.UnitY, 60);
+        var projection = camera.ProjectionMatrix(16f / 9);
+        var viewProjection = camera.View * projection;
+        var draws = new ModelDrawList();
+        draws.Add(new ModelDraw(0, Matrix4x4.Identity, viewProjection, Color.White, 0));
+        draws.NoteEye(viewProjection, new ViewEye(camera.Position, camera.TurnedView * projection));
+        var origin = RenderOrigin.Near(camera.Position);
+        return ([.. LightingUboPrepare.PlacedViews(draws, Matrix4x4.Identity, origin).Select(view => (view.Eye, (Matrix4x4?)view.Camera))], origin);
+    }
+
+    [Theory]
+    [InlineData(71680f, 17408f)]
+    [InlineData(1140736f, 285696f)]
+    public void Shadowed_Lights_Far_From_The_Worlds_Origin_Are_Ranked_Through_The_Views_As_At_It(float x, float z)
+    {
+        var at = new Vector3(x, 0, z);
+        var (home, homeOrigin) = Window(Vector3.Zero);
+        var (far, farOrigin) = Window(at);
+        // The planes and the clip space a light's reach is put through hold no float of the
+        // world's size, where those of the world's view-projection cancel numbers of the eye's.
+        far.Should().ContainSingle();
+        far[0].Eye.Should().Be(home[0].Eye);
+        for (int row = 0; row < 4; row++)
+            for (int column = 0; column < 4; column++)
+                far[0].Camera!.Value[row, column].Should().BeApproximately(home[0].Camera!.Value[row, column], 1e-5f,
+                    "the window's camera is taken against the origin from its eye");
+        // Lamps alike around the room, one just inside the view's edge, ranked as at the world's origin.
+        RenderLight[] Lamps(Vector3 from) => [.. Enumerable.Range(0, 8).Select(i => Spot(from + new Vector3(i * 1.375f - 5, 1.25f, i % 3 - 1.5f), 1 + i % 2 * 0.001f))];
+        LightingUboPrepare.Rank(Lamps(at), Enumerable.Range(0, 8), far, 150, farOrigin)
+            .Should().Equal(LightingUboPrepare.Rank(Lamps(Vector3.Zero), Enumerable.Range(0, 8), home, 150, homeOrigin));
+    }
 }

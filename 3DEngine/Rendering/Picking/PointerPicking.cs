@@ -162,11 +162,13 @@ internal sealed class PointerPicking
             var bounds = _lastBounds!;
             var matrix = ecs.TryGet<GlobalTransform>(entity, out var global) ? global.Matrix : TransformPropagation.WorldMatrix(ecs, entity);
 
-            // The sphere round it first, scaled by the matrix's largest scale.
-            var center = Vector3.Transform(bounds.Center, matrix);
+            // The sphere round it first, scaled by the matrix's largest scale, its middle and the
+            // ray's place both less the matrix's translation, so a small mesh far from the world's
+            // origin is not left out by its middle rounded to the world's step.
+            var center = Vector3.TransformNormal(bounds.Center, matrix);
             var scale = MathF.Sqrt(MathF.Max(new Vector3(matrix.M11, matrix.M12, matrix.M13).LengthSquared(),
                 MathF.Max(new Vector3(matrix.M21, matrix.M22, matrix.M23).LengthSquared(), new Vector3(matrix.M31, matrix.M32, matrix.M33).LengthSquared())));
-            if (!Reaches(origin, direction, center, bounds.Radius * scale, best)) continue;
+            if (!Reaches(origin - matrix.Translation, direction, center, bounds.Radius * scale, best)) continue;
 
             // Then its triangles in its own space, where the ray's parameter is still the world's
             // distance, since its direction is carried over and not made of length one again.

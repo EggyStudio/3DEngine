@@ -434,7 +434,7 @@ internal static class BounceReference
     {
         if (Prepare(world, out why) is not { } tracer) return null;
         tracer.Device.WaitIdle();
-        var log = MemoryMarshal.Cast<byte, Vector4>(tracer.Device.Map(screen.RayLog)).ToArray();
+        var log = MemoryMarshal.Cast<byte, Vector4>(tracer.Device.Read(screen.RayLog)).ToArray();
         static Vector3 Xyz(Vector4 v) => new(v.X, v.Y, v.Z);
         // The probe's point and where its rays start, logged against the frame's origin, in world
         // numbers.

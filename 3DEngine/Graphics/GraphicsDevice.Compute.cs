@@ -192,7 +192,7 @@ internal sealed unsafe partial class GraphicsDevice
                 uniformBuffer = CreateBuffer(new BufferDesc((ulong)pipeline.UniformSize, BufferUsage.Uniform, CpuAccessMode.Write));
                 var mapped = Map(uniformBuffer);
                 mapped.Clear();
-                uniforms[..Math.Min(uniforms.Length, mapped.Length)].CopyTo(mapped);
+                mapped.CopyFrom(uniforms[..Math.Min(uniforms.Length, mapped.Length)]);
                 infos[w] = new VkDescriptorBufferInfo { buffer = ((VulkanBuffer)uniformBuffer).Buffer, offset = 0, range = (ulong)pipeline.UniformSize };
                 writes[w] = new VkWriteDescriptorSet { dstSet = set, dstBinding = 0, descriptorCount = 1, descriptorType = VkDescriptorType.UniformBuffer, pBufferInfo = &infos[w] };
                 w++;

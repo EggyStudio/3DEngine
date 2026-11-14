@@ -61,10 +61,17 @@ internal interface IGraphicsDevice : IDisposable
     /// <returns>A new <see cref="IBuffer"/> handle.</returns>
     IBuffer CreateBuffer(BufferDesc desc, [CallerFilePath] string maker = "", [CallerLineNumber] int line = 0);
 
-    /// <summary>Maps a buffer's memory for CPU access and returns a writable span.</summary>
+    /// <summary>Maps a buffer's memory for the CPU to write and returns a span that writes and is not read.</summary>
     /// <param name="buffer">The buffer to map.</param>
-    /// <returns>A <see cref="Span{T}"/> of bytes over the mapped memory.</returns>
-    Span<byte> Map(IBuffer buffer);
+    /// <returns>A <see cref="WriteOnlySpan{T}"/> of bytes over the mapped memory.</returns>
+    WriteOnlySpan<byte> Map(IBuffer buffer);
+
+    /// <summary>
+    /// Maps a buffer whose memory the GPU wrote for the CPU to read, a readback's, and returns its bytes.
+    /// </summary>
+    /// <param name="buffer">The buffer to read.</param>
+    /// <returns>A <see cref="ReadOnlySpan{T}"/> of bytes over the mapped memory.</returns>
+    ReadOnlySpan<byte> Read(IBuffer buffer);
 
     /// <summary>Unmaps a previously mapped buffer.</summary>
     /// <param name="buffer">The buffer to unmap.</param>

@@ -76,7 +76,7 @@ internal sealed class MotionVelocity : IDisposable
 
         // Each mesh's entities, gathered by mesh already, written as one run of instances.
         var buffer = Instances(device, moving.Count);
-        var written = MemoryMarshal.Cast<byte, MovingInstance>(device.Map(buffer));
+        var written = device.Map(buffer).Cast<MovingInstance>();
         var runs = new List<(int Mesh, int First, int Count)>();
         var next = 0;
         foreach (var (mesh, lists) in moving.ByMesh())

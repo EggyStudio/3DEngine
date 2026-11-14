@@ -392,6 +392,28 @@ internal sealed class DrawList
         }
     }
 
+    /// <summary>The place set with <see cref="SetAnchor(RenderOrigin)"/> and the transform it was set with.</summary>
+    public (RenderOrigin Anchor, Matrix4x4 Transform) Anchoring
+    {
+        get
+        {
+            using (Enter()) return (_anchor, _anchorTransform);
+        }
+    }
+
+    /// <summary>
+    /// Sets the place the following shapes are recorded against while the transform is
+    /// <paramref name="transform"/>, as one <see cref="Anchoring"/> gave puts it back.
+    /// </summary>
+    public void SetAnchor(RenderOrigin anchor, Matrix4x4 transform)
+    {
+        using (Enter())
+        {
+            (_anchor, _anchorTransform) = (anchor, transform);
+            Anchored();
+        }
+    }
+
     /// <summary>
     /// Moves the positions of the following shapes by <paramref name="model"/> as they are
     /// recorded, before the batch's transform, as rlgl's matrix stack moves each vertex.

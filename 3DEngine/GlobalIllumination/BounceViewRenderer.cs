@@ -155,9 +155,7 @@ internal sealed class BounceViewRenderer : IProbesView, IDisposable
         var p = binding.Probes.Probes;
         var push = new ProbesPush
         {
-            // From a place against the frame's origin, as the probes' middles are found from the
-            // field's corners.
-            ViewProjection = renderWorld.TryGet<RenderOrigin>().Taking(view.ViewProjection),
+            ViewProjection = ProbesThrough(view, renderWorld.TryGet<RenderOrigin>()),
             Cascade = (uint)Math.Clamp(settings.ShownCascade, 0, binding.Probes.Cascades - 1), Probes = (uint)p, Cascades = (uint)binding.Probes.Cascades,
             Size = new Vector4(Illumination.ProbeSpacing, CubeSize, 0, 0),
         };
@@ -166,6 +164,11 @@ internal sealed class BounceViewRenderer : IProbesView, IDisposable
         pass.PushConstants(_probesPipeline, ShaderStageFlags.Vertex, 0, MemoryMarshal.AsBytes(new ReadOnlySpan<ProbesPush>(in push)));
         pass.Draw(36, (uint)(p * p * p));
     }
+
+    // The window's camera the probes are drawn through, from a place against the frame's origin, as
+    // the probes' middles are found from the field's corners, worked from its eye where the frame
+    // noted it.
+    internal static Matrix4x4 ProbesThrough(WindowView view, RenderOrigin origin) => view.Against(origin);
 
     // The reference's light as an image, uploaded again when another is given, or null where none
     // is given or its size is not the window's.

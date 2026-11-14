@@ -133,6 +133,12 @@ public class NullGraphicsDeviceTests
     }
 
     [Fact]
+    public void Read_Throws_NotSupportedException()
+    {
+        Assert.Throws<NotSupportedException>(() => _device.Read(null!).Length);
+    }
+
+    [Fact]
     public void CreateImage_Throws_NotSupportedException()
     {
         var act = () => _device.CreateImage(default);

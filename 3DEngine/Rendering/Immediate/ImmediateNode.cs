@@ -123,7 +123,7 @@ internal sealed class ImmediateRenderer : IDisposable
     private static DynamicAllocation Copy(DynamicBufferAllocator allocator, ReadOnlySpan<byte> bytes, BufferUsage usage)
     {
         var allocation = allocator.Allocate((ulong)bytes.Length, usage);
-        bytes.CopyTo(allocator.Map(allocation));
+        allocator.Map(allocation).CopyFrom(bytes);
         allocator.Unmap(allocation);
         return allocation;
     }
@@ -241,7 +241,7 @@ internal sealed class ImmediateRenderer : IDisposable
             var allocation = allocator.Allocate(size, BufferUsage.Uniform);
             var bytes = allocator.Map(allocation);
             bytes.Clear();
-            batch.Uniforms?.AsSpan(0, Math.Min(batch.Uniforms.Length, bytes.Length)).CopyTo(bytes);
+            if (batch.Uniforms is { } given) bytes.CopyFrom(given.AsSpan(0, Math.Min(given.Length, bytes.Length)));
             allocator.Unmap(allocation);
             uniforms = new UniformBufferBinding(allocation.Buffer, 0, allocation.Offset, size);
         }

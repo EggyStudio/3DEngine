@@ -378,7 +378,7 @@ internal sealed unsafe partial class GraphicsDevice
         try
         {
             var stagingSpan = Map(staging);
-            data.Slice(0, (int)expectedSize).CopyTo(stagingSpan);
+            stagingSpan.CopyFrom(data.Slice(0, (int)expectedSize));
             Unmap(staging);
 
             var cmd = UploadCommands();
@@ -514,7 +514,7 @@ internal sealed unsafe partial class GraphicsDevice
         var staging = (VulkanBuffer)CreateBuffer(stagingDesc);
 
         var stagingSpan = Map(staging);
-        data.Slice(0, (int)expectedSize).CopyTo(stagingSpan);
+        stagingSpan.CopyFrom(data.Slice(0, (int)expectedSize));
         Unmap(staging);
 
         var cmd = vkCmd.Handle;

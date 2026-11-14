@@ -162,6 +162,13 @@ public static partial class E3D
     {
         _rlProjection = projection;
         DrawList.SetTransform(_rlView * projection, DrawList.DepthTest);
+        // Through the 3D camera's own view, the eye noted with the view-projection and the shapes
+        // after it recorded against that eye, as BeginMode3D notes and anchors the camera's.
+        if (_camera3D is { } camera && _rlView == camera.View)
+        {
+            if (TryRes<ModelDrawList>(out var draws)) draws.NoteEye(_rlView * projection, new ViewEye(camera.Position, camera.TurnedView * projection));
+            DrawList.SetAnchor(RenderOrigin.Near(camera.Position));
+        }
     }
 
     /// <summary>Starts giving vertices one at a time, joined as <paramref name="mode"/> says, until <see cref="rlEnd"/>.</summary>

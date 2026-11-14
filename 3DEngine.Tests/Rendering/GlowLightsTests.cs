@@ -85,6 +85,49 @@ public sealed class GlowLightsTests : IDisposable
         lights.Should().Contain(l => l.Middle == new Vector3(6.5f, 0.5f, 0.5f), "and so does one that touches none");
     }
 
+    // A lamp 0.3 wide, and two pieces 0.3 wide stacked, each emitting the same light, their middles
+    // on a float's step at 1,140,736 and their sides off it, at a place in the world.
+    private static List<(SceneFieldPlan.Instance, bool)> Lamps(Vector3 at)
+    {
+        var vertices = new ModelVertex[] { new() { Position = new Vector3(-0.15f) }, new() { Position = new Vector3(0.15f) } };
+        Vector3[] middles = [new(0.5f, 0.15f, 0.5f), new(3, 0.15f, 0.5f), new(3, 0.45f, 0.5f)];
+        return [.. middles.Select(m => (new SceneFieldPlan.Instance(1, vertices, Matrix4x4.CreateTranslation(at + m), false, Vector3.One, new Vector3(4, 2, 1)), false))];
+    }
+
+    [Theory]
+    [Trait("Category", "Unit")]
+    [InlineData(71680f, 17408f)]
+    [InlineData(1140736f, 285696f)]
+    public void Emitters_Far_From_The_Worlds_Origin_Are_Carried_As_At_It(float x, float z)
+    {
+        var at = new Vector3(x, 0, z);
+        var home = GlowLights.Gather(Lamps(Vector3.Zero), 0.25f, SceneFieldPlan.Box.Of, _ => 1);
+        var far = GlowLights.Gather(Lamps(at), 0.25f, SceneFieldPlan.Box.Of, _ => 1, origin: RenderOrigin.Near(at));
+        home.Should().HaveCount(2, "the lamp and the stack of two");
+        far.Should().HaveCount(2, "the two pieces far out touch and are one light");
+        // A box moved into the world in floats has its two sides each rounded to the step there,
+        // so a lamp 0.3 wide is carried as 0.25 or 0.375 wide.
+        static float Apart(Vector3 a, Vector3 b) => (a - b).Length();
+        for (int i = 0; i < 2; i++)
+        {
+            (Apart(far[i].X, home[i].X) + Apart(far[i].Y, home[i].Y) + Apart(far[i].Z, home[i].Z)).Should().BeLessThan(1e-5f, "each light is as large as at the world's origin");
+            Apart(far[i].Middle, home[i].Middle).Should().BeLessThan(1e-5f, "each light's middle is taken against the origin as at the world's");
+            far[i].Share.Should().BeApproximately(home[i].Share, 1e-5f);
+        }
+
+        // Written with their middles in world numbers, which the lights are known by from frame to
+        // frame, and placed against the origin from their middles as they were gathered.
+        float[] Placed(Vector3 place)
+        {
+            var (bytes, places, origin) = (new byte[GlowLights.Size], new GlowPlaces(), RenderOrigin.Near(place));
+            GlowLights.Write(bytes, Lamps(place), place + new Vector3(0, 2, 6), 0.25f, SceneFieldPlan.Box.Of, _ => 1, places, origin: origin);
+            GlowLights.Place(bytes, origin, places);
+            return MemoryMarshal.Cast<byte, float>(bytes.AsSpan()).ToArray();
+        }
+        var (placedHome, placedFar) = (Placed(Vector3.Zero), Placed(at));
+        placedFar.Zip(placedHome, (f, h) => MathF.Abs(f - h)).Max().Should().BeLessThan(1e-5f, "the lights are written against the origin as at the world's");
+    }
+
     [Fact]
     [Trait("Category", "Unit")]
     public void A_Mesh_Of_Many_Blocks_Is_Cut_Into_Its_Parts_With_The_Faces_They_Show()

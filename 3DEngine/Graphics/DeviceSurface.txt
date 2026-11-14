@@ -28,13 +28,14 @@ sealed class Engine.GraphicsDevice : IDisposable, IGraphicsDevice
   ISampler CreateSampler(SamplerDesc desc)
   IShader CreateShader(ShaderDesc desc)
   ISwapchain Swapchain { get; }
+  ReadOnlySpan<byte> Read(IBuffer buffer)
   RenderTarget CreateRenderTarget(uint width, uint height)
   RenderTarget CreateRenderTarget(uint width, uint height, ImageFormat format, bool depth = true, bool multisampled = true)
   RenderTarget CreateRenderTarget(uint width, uint height, ReadOnlySpan<ImageFormat> formats, bool depth = true, bool multisampled = true)
   ShaderReadbackTicket ReadBack(IBuffer source, int offset, int size)
   ShadowMap CreateDepthTarget(uint width, uint height)
   ShadowMap CreateShadowMap(uint size, uint layers = 1u)
-  Span<byte> Map(IBuffer buffer)
+  WriteOnlySpan<byte> Map(IBuffer buffer)
   bool CanBlendEachAttachment { get; }
   bool CanClampDepth { get; }
   bool CanDrawBresenhamLines { get; }

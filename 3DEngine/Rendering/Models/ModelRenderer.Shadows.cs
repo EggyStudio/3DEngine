@@ -270,8 +270,10 @@ internal sealed partial class ModelRenderer
             if (!ReferenceEquals(pipeline, bound))
             {
                 pass.SetPipeline(pipeline);
-                (bound, pushed) = (pipeline, null);
+                bound = pipeline;
             }
+            // Every pipeline of the pass takes the push in one range, so a view pushed with one is
+            // kept for the next and pushed again only where the view changes.
             if (pushed != batch.ViewProjection)
             {
                 // Without temporal antialiasing's move where back takes it out.
@@ -297,6 +299,7 @@ internal sealed partial class ModelRenderer
         // A caster before the light's near plane is drawn onto it where the device clamps depth.
         var clamp = _shadowMaking!.Value.Device.CanClampDepth;
         var frustum = new Frustum(lightViewProjection, depth: true, clipsNear: !clamp);
+        var push = Pushed(lightViewProjection);
         var batches = CollectionsMarshal.AsSpan(_shadowBatches);
         for (int i = 0; i < batches.Length; i++)
         {
@@ -307,7 +310,9 @@ internal sealed partial class ModelRenderer
             if (!ReferenceEquals(pipeline, bound))
             {
                 pass.SetPipeline(pipeline);
-                PushPlaced(pass, pipeline, lightViewProjection);
+                // Pushed with the first pipeline and kept for those after it, which take the push
+                // in the same range.
+                if (bound is null) Push(pass, pipeline, in push);
                 bound = pipeline;
             }
             if (IsMasked(batch.Shadow)) pass.SetBindGroup(pipeline, batch.Set!);

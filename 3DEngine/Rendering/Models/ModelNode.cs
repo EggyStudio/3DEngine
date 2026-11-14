@@ -488,8 +488,9 @@ internal sealed partial class ModelRenderer : IDisposable
                 PipelinesBound++;
                 pass.SetPipeline(pipeline);
                 pass.SetBindGroup(pipeline, LightsSet(gfx, renderWorld, textures, lights ?? target), index: 1);
-                pushed = null;
             }
+            // Every pipeline of the pass takes the push in one range, so a view pushed with one is
+            // kept for the next and pushed again only where the view changes.
             if (pushed != through)
             {
                 PushView(pass, pipeline, through);
@@ -527,7 +528,8 @@ internal sealed partial class ModelRenderer : IDisposable
     private View ViewBatches(int target, IGraphicsDevice gfx, ModelDrawList draws, GpuMeshes meshes, GpuTextures textures, ShaderStore? store,
         RenderOrigin origin)
     {
-        (_origin, _draws) = (origin, draws);
+        _origin = origin;
+        _seen.Use(origin, draws);
         if (!_views.TryGetValue(target, out var view))
         {
             // The views of render targets no longer drawn into are let go before another is added.

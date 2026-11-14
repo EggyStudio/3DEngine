@@ -493,7 +493,7 @@ internal sealed partial class GlobalIlluminationRenderer : IIlluminationPasses, 
     // numbers to be compared with the frame before's (NoteLights): the point and spot lights', the
     // corners the cascades lay at the frame before and the glow lights'. The sun's cascades, fitted
     // the frame before against that frame's origin (shadowOrigin), are moved to this frame's.
-    private static void PlaceLights(byte[] lights, RenderOrigin origin, RenderOrigin shadowOrigin)
+    private void PlaceLights(byte[] lights, RenderOrigin origin, RenderOrigin shadowOrigin)
     {
         var floats = MemoryMarshal.Cast<byte, float>(lights.AsSpan());
         var entries = MemoryMarshal.Cast<byte, LightUboEntry>(lights.AsSpan(64, 16 * 64));
@@ -505,7 +505,7 @@ internal sealed partial class GlobalIlluminationRenderer : IIlluminationPasses, 
         var counted = (int)MemoryMarshal.Cast<byte, float>(sun)[68];
         for (int c = 0; c < counted; c++)
             MemoryMarshal.Write(sun[(c * 64)..], origin.Moved(MemoryMarshal.Read<Matrix4x4>(sun[(c * 64)..]), shadowOrigin));
-        GlowLights.Place(lights.AsSpan(GlowLights.Offset, GlowLights.Size), origin);
+        GlowLights.Place(lights.AsSpan(GlowLights.Offset, GlowLights.Size), origin, _glowPlaces);
     }
 
     // The lights as gi.slang's GiLights, the sun, the first directional light, the shadowed one
@@ -583,7 +583,7 @@ internal sealed partial class GlobalIlluminationRenderer : IIlluminationPasses, 
             && renderWorld.TryGet<SceneFieldRenderer>() is { Plan: { } plan, Eye: { } eye } field)
         {
             _glowFound = GlowLights.Write(bytes.AsSpan(GlowLights.Offset, GlowLights.Size), field.Drawn, eye, plan.CellSize, field.BoundsOf, field.ShareOf,
-                _glowPlaces, field.GlowPartsOf);
+                _glowPlaces, field.GlowPartsOf, renderWorld.TryGet<RenderOrigin>());
             _glowCount = (int)MemoryMarshal.Cast<byte, float>(bytes.AsSpan(GlowLights.Offset, 4))[0];
         }
         else

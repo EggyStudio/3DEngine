@@ -243,7 +243,7 @@ internal sealed class GpuMeshes : IDisposable
         }
 
         slot = (slot + 1) % ring.Length;
-        data.CopyTo(gfx.Map(ring[slot]));
+        gfx.Map(ring[slot]).CopyFrom(data);
         return (ring, slot);
     }
 
@@ -323,7 +323,7 @@ internal sealed class GpuMeshes : IDisposable
     {
         if (gfx is GraphicsDevice device) return device.CreateFilledBuffer(data, usage);
         var buffer = gfx.CreateBuffer(new BufferDesc((ulong)data.Length, usage, CpuAccessMode.Write));
-        data.CopyTo(gfx.Map(buffer));
+        gfx.Map(buffer).CopyFrom(data);
         gfx.Unmap(buffer);
         return buffer;
     }

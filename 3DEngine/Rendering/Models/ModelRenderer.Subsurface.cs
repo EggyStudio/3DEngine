@@ -62,7 +62,7 @@ internal sealed partial class ModelRenderer
 
         // Each batch's profile, then its parts' thickness, 32 bytes a batch.
         var profiles = allocator.Allocate((ulong)(marked * 32), BufferUsage.Vertex);
-        var written = MemoryMarshal.Cast<byte, Vector4>(allocator.Map(profiles));
+        var written = allocator.Map(profiles).Cast<Vector4>();
         var index = 0;
         foreach (ref readonly var batch in CollectionsMarshal.AsSpan(view.Batches))
             if (Scatters(batch))
@@ -96,7 +96,6 @@ internal sealed partial class ModelRenderer
                 pass.SetPipeline(pipeline);
                 pass.SetBindGroup(pipeline, LightsSet(gfx, renderWorld, textures, 0), index: 1);
                 pass.SetBindGroup(pipeline, depth, index: 2);
-                pushed = null;
             }
             if (pushed != batch.ViewProjection)
             {
