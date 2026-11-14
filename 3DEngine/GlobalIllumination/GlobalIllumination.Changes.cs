@@ -19,6 +19,7 @@ internal sealed partial class GlobalIlluminationRenderer
     // The frame before's lights, whether this frame's differ, and the last frame the lights or the
     // field changed.
     private float[]? _lightSignature;
+    private bool[]? _lightPlaces;
     private bool _lightsChanged;
     private long _changedAt = long.MinValue / 2;
 
@@ -69,7 +70,24 @@ internal sealed partial class GlobalIlluminationRenderer
     {
         var (signature, places) = LightSignature(lights);
         _lightsChanged = _lightSignature is not { } was || Differ(was, signature, places);
-        _lightSignature = signature;
+        (_lightSignature, _lightPlaces) = (signature, places);
+    }
+
+    // The frame before's lights read in a world a program moved by a whole step, each place in them
+    // moved, so the step is no change of the lights. The places come three to a place, x, y and z,
+    // and lie in runs of whole places.
+    private void MoveLightSignature(WorldStep step)
+    {
+        if (_lightSignature is not { } signature || _lightPlaces is not { } places) return;
+        for (int i = 0, run = 0; i < signature.Length; i++)
+        {
+            if (!places[i])
+            {
+                run = i + 1;
+                continue;
+            }
+            signature[i] = (float)(signature[i] + ((i - run) % 3) switch { 0 => step.X, 1 => step.Y, _ => step.Z });
+        }
     }
 
     /// <summary>Whether the lights of <paramref name="after"/> differ from those of <paramref name="before"/> as a frame's are told to (NoteLights).</summary>

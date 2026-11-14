@@ -12,6 +12,12 @@ internal interface IIlluminationPasses
     /// <summary>Whether the screen's probes stand for the glow lights alone this frame, as at <see cref="GlobalIllumination.Low"/> while some glow light is lit.</summary>
     bool GlowOnly(RenderWorld renderWorld);
 
+    /// <summary>
+    /// Moves what global illumination keeps by place by a whole step a program moved its world by,
+    /// so the light it gathered holds through the move.
+    /// </summary>
+    void Move(WorldStep step);
+
     /// <summary>The window's camera the frame <see cref="KeepFrame"/> last kept the scene of, or null where none is kept.</summary>
     Matrix4x4? HistoryViewProjection { get; }
 

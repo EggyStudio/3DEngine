@@ -341,6 +341,40 @@ internal sealed unsafe class ParticleStages(GraphicsDevice device) : IDisposable
     }
 
     /// <summary>
+    /// Records into <paramref name="commands"/>, outside any render pass, the dispatch that moves
+    /// the place of each of the <paramref name="span"/> slots back from the slot before
+    /// <paramref name="next"/> of <paramref name="particles"/> by <paramref name="step"/>, a whole
+    /// step a program moved its world by, before the frame's step reads them, their ages, speeds
+    /// and the header as they are.
+    /// </summary>
+    public void RecordParticlesMoved(ICommandBuffer commands, GpuParticles particles, int next, System.Numerics.Vector3 step, int span)
+    {
+        if (commands is not VulkanCommandBuffer vkCommands || !CanStepParticles || span <= 0) return;
+        var cmd = vkCommands.Handle;
+        // Earlier frames have finished drawing and stepping the particles about to be moved.
+        device.MemoryBarrier(cmd, VkPipelineStageFlags2.VertexShader | VkPipelineStageFlags2.FragmentShader | VkPipelineStageFlags2.ComputeShader,
+            VkAccessFlags2.ShaderStorageRead | VkAccessFlags2.ShaderStorageWrite, VkPipelineStageFlags2.ComputeShader,
+            VkAccessFlags2.ShaderStorageRead | VkAccessFlags2.ShaderStorageWrite);
+        var sets = stackalloc VkDescriptorSet[2];
+        sets[0] = particles.Set;
+        sets[1] = _particleViewSets[device.FrameInFlight];
+        device.Api.vkCmdBindPipeline(cmd, VkPipelineBindPoint.Compute, _particlePipeline);
+        device.Api.vkCmdBindDescriptorSets(cmd, VkPipelineBindPoint.Compute, _particleLayout, 0, 2, sets, 0, null);
+        // The step's move, bit 31 of the capacity, which particle_step.slang takes to move each slot alone.
+        var moved = new ParticleStep
+        {
+            OriginAndSeconds = new System.Numerics.Vector4(step, 0),
+            First = (uint)next,
+            Capacity = (uint)particles.Capacity | 1u << 31,
+        };
+        device.Api.vkCmdPushConstants(cmd, _particleLayout, VkShaderStageFlags.Compute, 0, (uint)sizeof(ParticleStep), &moved);
+        device.Api.vkCmdDispatch(cmd, (uint)(Math.Clamp(span, 1, particles.Capacity) + 63) / 64, 1, 1);
+        // The frame's step after it reads and writes what it moved.
+        device.MemoryBarrier(cmd, VkPipelineStageFlags2.ComputeShader, VkAccessFlags2.ShaderWrite,
+            VkPipelineStageFlags2.ComputeShader | VkPipelineStageFlags2.Transfer, VkAccessFlags2.ShaderStorageRead | VkAccessFlags2.ShaderStorageWrite | VkAccessFlags2.TransferWrite);
+    }
+
+    /// <summary>
     /// Records into <paramref name="commands"/>, outside any render pass, the header of
     /// <paramref name="particles"/> that no dispatch steps, the particles a program placed, as the
     /// step writes an emitter's own, its first four values and then the rows of the matrix the draw

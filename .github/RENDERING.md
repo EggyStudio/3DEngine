@@ -602,6 +602,24 @@ origin, each light known from frame to frame by its middle in world numbers (`Gl
 and placed from its middle as gathered. Shapes drawn inside `BeginShaderMode` in 3D keep world
 numbers, since a program's immediate shader is handed its `POSITION` in them.
 
+A program that moves its world back near the origin by a whole step says so with `MoveWorld`
+(`WorldMove`, handed to the render world as `WorldMoved` for the frame drawn next), and what the
+engine keeps by place moves with it. The field's plan knows every mesh by its matrix moved, its
+cascades' corners and boxes moved and their cells kept where the step is a whole count of a
+cascade's cell (`SceneFieldPlan.Move`). Global illumination moves its probes' corners, the box of
+what changed, the lights' places the frame before and the glow lights' keys
+(`GlobalIlluminationRenderer.Move`), and the passes read the cameras their histories were made
+through moved (`WindowView.Moved`), the temporal resolve's, the motion blur's, the occlusion's, the
+screen probes' and the reflections'. The reflection probes' places and captures move, the particles
+alive in the world's space move by the step shader's move (bit 31 of its counts), the mesh
+entities' places the frame before move, and the shadows' texels' lattice lies in the numbers of the
+world before every step (`RenderOrigin.Less`). The physics moves every body and static with its pose
+before the step, and the audio every spatial voice. The soft shadow's grain repeats every 256 units,
+so a step of a multiple of 256 leaves it as it was. `WorldMoveTests` moves a thousand blocks,
+sixty-four mesh entities, a lamp, a reflection probe and a burst of particles by 4,096 at Low and
+High, the field's still meshes kept and none built again, and the frame after reads as the frame
+before.
+
 `LightExtract` copies every `Light` entity into the render world, and `LightingUboPrepare` packs up
 to 16 into one uniform buffer per frame, which `ModelRenderer` binds as a second descriptor set from
 a ring of one per frame in flight. The set's images, seventeen of them, are bound apart from two

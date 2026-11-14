@@ -808,6 +808,7 @@ static class Engine.E3D
   static void MaximizeWindow()
   static void MinimizeWindow()
   static void MovePhysicsCharacter(PhysicsBody body, Vector3 velocity)
+  static void MoveWorld(Vector3 offset)
   static void OpenURL(string url)
   static void PauseAudioStream(AudioStream stream)
   static void PauseMusicStream(Music music)

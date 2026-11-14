@@ -182,6 +182,17 @@ void computeMain(uint3 id : SV_DispatchThreadID)
 {
     uint capacity = push.counts.z & 0x1FFFFFu;
     uint newest = (push.counts.x + push.counts.y + capacity - 1u) % capacity;
+    // A world the program moved by a whole step, bit 31 set: each slot back from the newest moved
+    // by it, the header, ages and speeds as they are.
+    if ((push.counts.z >> 31u) != 0u)
+    {
+        if (id.x < capacity)
+        {
+            uint moved = Header + ((newest + capacity - id.x) % capacity) * 2;
+            slots[moved] = float4(slots[moved].xyz + push.originAndSeconds.xyz, slots[moved].w);
+        }
+        return;
+    }
     if (id.x == 0)
     {
         slots[0] = push.startColor;

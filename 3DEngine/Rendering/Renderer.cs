@@ -312,6 +312,8 @@ internal sealed class Renderer : IDisposable
         RenderWorld.ClearEntities();
         foreach (var sys in _extractSystems)
             sys.Run(world, RenderWorld);
+        // The step the world moved by, which each extract system read, let go once all have.
+        if (world.TryGetResource<WorldMove>(out var move)) move.Taken();
         Timings.ExtractMs = Lap(ref mark);
 
         Logger.FrameTrace("RenderFrame: Beginning frame...");
@@ -325,6 +327,16 @@ internal sealed class Renderer : IDisposable
                 : FirstTargetEye(RenderWorld) is { } eye ? RenderOrigin.Near(eye) : RenderOrigin.Zero);
         if (!RenderWorld.Contains<RenderOrigin>() || RenderWorld.Get<RenderOrigin>() != origin)
             RenderWorld.Set(origin);
+        // A world the program moved by a whole step (WorldMove) moves what the passes keep by place,
+        // the cameras their histories were made through and the light global illumination
+        // gathered, before any of them runs, and the scene's field moves its plan as it prepares.
+        if (RenderWorld.TryGet<WorldMoved>() is { Step: { } step })
+        {
+            RenderWorld.TryGet<TemporalRenderer>()?.Move(step);
+            RenderWorld.TryGet<BloomRenderer>()?.Move(step);
+            RenderWorld.TryGet<AmbientOcclusionRenderer>()?.Move(step);
+            RenderWorld.TryGet<IIlluminationPasses>()?.Move(step);
+        }
         SyncSurfaceInfo(frameCtx.Extent);
         UpdateDiagnostics(frameCtx.Extent);
         Timings.BeginFrameMs = Lap(ref mark);

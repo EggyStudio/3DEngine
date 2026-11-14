@@ -562,6 +562,18 @@ internal sealed class GlowPlaces
         return used;
     }
 
+    /// <summary>
+    /// Knows every light by its middle moved by a whole step a program moved its world by, so each
+    /// light keeps its place through the move.
+    /// </summary>
+    public void Move(WorldStep step)
+    {
+        var before = _before.ToArray();
+        _before.Clear();
+        foreach (var (middle, place) in before) _before[step.Moved(middle)] = place;
+        Against = null;
+    }
+
     /// <summary>Lets every place go, for a frame that writes no glow light.</summary>
     public void Forget()
     {

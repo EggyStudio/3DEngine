@@ -118,6 +118,24 @@ internal sealed class ReflectionProbes
     public sealed record Capture(FilteredCube Map, (Vector3 Position, Vector3 Size, int Capture) As);
 
     /// <summary>
+    /// Moves every probe by a whole step a program moved its world by, its place, what it was asked
+    /// to be captured as and what it was captured as, the one in flight among them, and the places
+    /// of the lights that reached it, so a probe moved with the world is no change to capture again.
+    /// </summary>
+    public void Move(WorldStep step)
+    {
+        foreach (var probe in ByEntity.Values)
+        {
+            probe.Position = step.Moved(probe.Position);
+            probe.Wanted = probe.Wanted with { Position = step.Moved(probe.Wanted.Position) };
+            if (probe.Captured is { } captured) probe.Captured = captured with { Position = step.Moved(captured.Position) };
+            if (probe.Done is { } done) probe.Done = done with { As = done.As with { Position = step.Moved(done.As.Position) } };
+            if (probe.Lights is { } lights)
+                for (int i = 0; i < lights.Count; i++) lights[i] = lights[i] with { Position = step.Moved(lights[i].Position) };
+        }
+    }
+
+    /// <summary>
     /// Takes the probes the ECS holds, adding new ones and forgetting those gone, and the captures
     /// finished since the last frame, at <paramref name="now"/> seconds into the program.
     /// </summary>

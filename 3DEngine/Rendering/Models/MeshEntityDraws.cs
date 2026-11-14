@@ -265,6 +265,10 @@ internal sealed partial class MeshEntityDraws
         ForgetReloadedTextures(world, textures);
 
         _frame++;
+        // Each entity's place the frame before read in a world a program moved by a whole step, so
+        // an entity moved with it is no movement to blur.
+        if (world.TryGetResource<WorldMove>(out var move) && move.Pending is { } step)
+            for (int entity = 0; entity < _placed.Length; entity++) _placed[entity] = step.Moved(_placed[entity]);
         _seen.Clear();
         _uploadedSeen.Clear();
         _translucent.Clear();

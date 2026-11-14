@@ -490,6 +490,25 @@ public sealed class AudioServer : IDisposable
         }
     }
 
+    /// <summary>
+    /// Moves every spatial voice's place by a whole step a program moved its world by, so a sound
+    /// placed before the move is heard from where it was, the listener moving with the program's
+    /// own places.
+    /// </summary>
+    internal void Move(Vector3 step)
+    {
+        lock (_lock)
+        {
+            foreach (var ticket in _voices.Keys.ToArray())
+            {
+                var rec = _voices[ticket];
+                if (!rec.IsSpatial) continue;
+                _voices[ticket] = rec = rec with { Position = rec.Position + step };
+                if (rec.VoiceId != 0) _backend.SetVoicePosition(rec.VoiceId, rec.Position);
+            }
+        }
+    }
+
     // -- Internal calls invoked by AudioSource
 
     internal void SetPosition(int ticket, Vector3 position)

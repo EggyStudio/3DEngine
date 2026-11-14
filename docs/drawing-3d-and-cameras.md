@@ -109,7 +109,41 @@ Far from the world's origin a point is rounded to a float's step there, an eight
 1,140,000, so a target a unit ahead turns in steps of seven degrees and a smaller turn is lost. A
 camera that goes far keeps its look as a way of its own and sets the target far along it, as
 `camera.Target = camera.Position + look * 4096`, or the program moves its own world as it goes, as
-[shaders and compute](shaders-and-compute.md) says.
+below.
+
+## Far from the world's origin
+
+The engine draws every place against an origin near the camera, so a scene far from the world's
+origin is drawn as one near it, but what a program works out in floats carries the float's grid
+there, an eighth of a unit at 1,140,000. A game that goes far moves its own world back near the
+origin from time to time, every place it keeps by the same whole step, and says so with `MoveWorld`
+in the frame it moves, before it draws:
+
+<!-- compiled with:
+Camera3D camera = default;
+Vector3 player = default;
+-->
+```csharp
+if (MathF.Abs(player.X) > 4096)
+{
+    var step = new Vector3(-4096 * MathF.Sign(player.X), 0, 0);
+    player += step;
+    camera.Position += step;
+    camera.Target += step;
+    MoveWorld(step);
+}
+```
+
+The program moves every place it hands the engine, its entities' transforms, the matrices it draws
+meshes through, its cameras, lights, emitters and reflection probes, and the engine moves what it
+keeps by place with them, the scene's distance field and the meshes it knows by their matrices, global
+illumination's probes and their light, the frames before the passes' histories, the shadows' texels,
+the reflection probes' captures, the particles alive in the world's space, the bodies the physics
+simulates, which write their entities' transforms, and the sounds playing. The frame after the move
+then draws, lights and simulates as the frame before did, and costs what any other does. The step is
+a whole number of units, and the field's cells hold where it is a whole count of each cascade's
+cell, as a step of 1,024 is of cells of powers of two; a cascade whose cell it is not is built
+again.
 
 A game that moves its camera itself sets `camera.Position` and `camera.Target` each frame and
 skips `UpdateCamera`. The `core_3d_camera_free` example looks back at the origin when Z is pressed

@@ -199,6 +199,9 @@ internal sealed partial class SceneFieldRenderer : IDisposable
     /// </summary>
     internal Vector3? Eye { get; private set; }
 
+    /// <summary>How many cascades a move of the world built again, its step no whole count of their cells, since the field was made.</summary>
+    internal int MovedCascades { get; private set; }
+
     // The point a share of the finest cascade's width ahead of the eye along the window's view, the
     // way through the window's middle, or the eye where the share is 0.
     private static Vector3 AheadOf(WindowView view, float ahead, float cellSize)
@@ -273,6 +276,9 @@ internal sealed partial class SceneFieldRenderer : IDisposable
                 + $"{GpuSceneField.MemoryBytes(_plan.Cascades, SceneFieldPlan.Resolution) / 1024.0 / 1024.0:0.0} MB, in {Stopwatch.GetElapsedTime(making).TotalMilliseconds:0} ms.");
         }
         renderWorld.Set(new SceneFieldBinding(_field, true));
+        // A world moved by a whole step (E3D.MoveWorld) moves the plan's places with it, so the
+        // meshes gathered at their matrices moved are the same still meshes.
+        if (renderWorld.TryGet<WorldMoved>() is { Step: { } step }) MovedCascades += _plan!.Move(step.X, step.Y, step.Z);
         if (view is null) return;
         Eye = view.Eye;
 

@@ -61,6 +61,21 @@ internal sealed class RenderPlugin : IPlugin
         }
     }
 
+    /// <summary>
+    /// Extract system that hands the render world the step the program moved its world by since
+    /// the last frame drawn and every step in all (<see cref="WorldMove"/>), as
+    /// <see cref="WorldMoved"/>, the step let go once every extract system has run.
+    /// </summary>
+    private sealed class WorldMoveExtract : IExtractSystem
+    {
+        /// <inheritdoc />
+        public void Run(World world, RenderWorld renderWorld)
+        {
+            if (world.TryGetResource<WorldMove>(out var move)) renderWorld.Set(new WorldMoved(move.Pending, move.Total));
+            else renderWorld.Remove<WorldMoved>();
+        }
+    }
+
     // The frame's draws let go once it is rendered, or would have been, rather than as the next
     // begins, so what a program draws between frames, into a render texture before BeginDrawing as
     // raylib's examples do, is drawn in the next frame.
@@ -68,6 +83,7 @@ internal sealed class RenderPlugin : IPlugin
     {
         world.Resource<DrawList>().Clear();
         world.Resource<ModelDrawList>().Clear();
+        if (world.TryGetResource<WorldMove>(out var move)) move.Taken();
     }
 
     /// <inheritdoc />
@@ -86,6 +102,7 @@ internal sealed class RenderPlugin : IPlugin
         renderer.AddExtractSystem(new DrawListExtract());
         renderer.AddExtractSystem(new CameraExtract());
         renderer.AddExtractSystem(new ParticleExtract());
+        renderer.AddExtractSystem(new WorldMoveExtract());
         renderer.AddPrepareSystem(new GpuTexturesPrepare());
         renderer.AddPrepareSystem(new GpuMeshesPrepare());
         app.World.InsertResource(renderer);

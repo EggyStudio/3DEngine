@@ -112,6 +112,22 @@ public class AudioServerTests
     }
 
     [Fact]
+    public void A_World_Moved_By_A_Whole_Step_Moves_Each_Spatial_Voice_And_No_Other()
+    {
+        using var server = new AudioServer();
+        var backend = new RecordingBackend();
+        server.SetBackend(backend);
+        server.PlaySpatial(MakeSound("near.wav"), new Vector3(8195, 1, -4090));
+        server.Play(MakeSound("music.wav"));
+        backend.Calls.Clear();
+
+        // A sound placed before the move is heard from where it was, the listener moving with the
+        // program's places.
+        server.Move(new Vector3(-4096, 0, 0));
+        backend.Calls.Should().Equal($"Pos(100,{new Vector3(4099, 1, -4090)})");
+    }
+
+    [Fact]
     public void Stop_Removes_Voice_And_Forwards_To_Backend()
     {
         using var server = new AudioServer();

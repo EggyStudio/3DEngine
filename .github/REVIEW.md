@@ -1,26 +1,35 @@
 # Review
 
-Reviewed up to `6075d306`, item 270, global illumination's lamps written into the sixteen entries
-its kernels' array holds, the lights the model pass lights, with a test of twenty lamps leaving
-every byte as sixteen do, pushed at 06:23 on 2026-11-14 once the run before it had ended, green at
-07:46 with the four Windows jobs in 83, 52, 45 and 77 minutes on slower runners, macOS in 55 and the
-Linux legs in 51 and 66; the suite passed both legs, 2,401; it keeps the form and carries the
-review's files. Before it `010671f7`, the cost of the origin mended, the immediate pass recording
-its shapes against the eye of the camera it draws through and the model pass writing each instance
-against the origin as it goes into the ring, no frame reading mapped memory back, the immediate
-upload 0.2 to 0.4 ms where 61 to 68 on a room of 4,000 immediate cubes, with the first of the
-independent read's findings, a shape built about its middle, pushed at 05:01 on 2026-11-14 once the
-run before it had ended, green at 06:23 with the four Windows jobs in 44, 57, 42 and 36 minutes,
-macOS in 59 and the Linux legs in 65 and 71; RenderOriginTests passes whole on the three devices, 30
-of 30, and the suite passed both legs, 2,399; it keeps the form and carries the review's files.
-Before it `5b6696b2`, 264's part 9, its first commit, five findings of the independent read, the
-mirrored view and the reflection probes' faces noted by their eyes, the origin from the first render
-target's eye where no window camera stands, the soft shadow's grain by whole cells and the lamps'
-places told apart within a hundredth of a unit, four tests each failing without its mend, pushed at
-03:25 on 2026-11-14 once the run before it had ended, green at 04:43 with the four Windows jobs in
-69, 40, 57 and 37 minutes, macOS in 53 and the Linux legs in 67 and 66; RenderOriginTests passes
-whole on the three devices, 30 of 30, and the suite passed both legs, 2,396; it keeps the form and
-carries the review's files. The pushes before these stand in REVIEW-ARCHIVE.md's head records.
+Reviewed up to `0567d8f4`, the rest of the independent read's findings and the last of the origin's
+cost, mapped memory handed out as a span that can be written and not read, each view pushed and
+found once a pass with a test that counts the pushes, stereo eyes, projections set through rlgl, the
+modeling window's outlines, the casters' ranking, rays against meshes, the picking and the glow
+lights' boxes far from the origin, each with a test failing first, pushed at 09:59 on 2026-11-14
+once the run before it had ended, its message written again before the push to name no item, green
+at 11:40 with the four Windows jobs in 49, 50, 57 and 63 minutes, macOS in 56 and the Linux legs in
+89 and 64; RenderOriginTests passes whole on the three devices, 30 of 30, and the suite passed both
+legs, 2,425; it keeps the form and carries the review's files. Before it `6075d306`, item 270,
+global illumination's lamps written into the sixteen entries its kernels' array holds, the lights
+the model pass lights, with a test of twenty lamps leaving every byte as sixteen do, pushed at 06:23
+on 2026-11-14 once the run before it had ended, green at 07:46 with the four Windows jobs in 83, 52,
+45 and 77 minutes on slower runners, macOS in 55 and the Linux legs in 51 and 66; the suite passed
+both legs, 2,401; it keeps the form and carries the review's files. Before it `010671f7`, the cost
+of the origin mended, the immediate pass recording its shapes against the eye of the camera it draws
+through and the model pass writing each instance against the origin as it goes into the ring, no
+frame reading mapped memory back, the immediate upload 0.2 to 0.4 ms where 61 to 68 on a room of
+4,000 immediate cubes, with the first of the independent read's findings, a shape built about its
+middle, pushed at 05:01 on 2026-11-14 once the run before it had ended, green at 06:23 with the four
+Windows jobs in 44, 57, 42 and 36 minutes, macOS in 59 and the Linux legs in 65 and 71;
+RenderOriginTests passes whole on the three devices, 30 of 30, and the suite passed both legs,
+2,399; it keeps the form and carries the review's files. Before it `5b6696b2`, 264's part 9, its
+first commit, five findings of the independent read, the mirrored view and the reflection probes'
+faces noted by their eyes, the origin from the first render target's eye where no window camera
+stands, the soft shadow's grain by whole cells and the lamps' places told apart within a hundredth
+of a unit, four tests each failing without its mend, pushed at 03:25 on 2026-11-14 once the run
+before it had ended, green at 04:43 with the four Windows jobs in 69, 40, 57 and 37 minutes, macOS
+in 53 and the Linux legs in 67 and 66; RenderOriginTests passes whole on the three devices, 30 of
+30, and the suite passed both legs, 2,396; it keeps the form and carries the review's files. The
+pushes before these stand in REVIEW-ARCHIVE.md's head records.
 
 The package stands at 6.2.60 from `baa21ff4`, one package with its templates, published at 18:58 on
 2026-11-12 by the pack run 43243318284 and tagged v6.2.60, carrying 259's two commits beside what
@@ -126,27 +135,29 @@ reverted as the screen probes' limit at shapes about a tile wide, its patches in
     in REVIEW-ARCHIVE.md under Items closed, parked or shortened. Done and on main, parts 1 to 4,
     `3405714a`, `a0af50a3`, `80fe61d2`, the mend for a program's shader `54792d7e`, the shadows
     `ed3cd9ca`, the tests' bounds `bca57e93` and the frame before `68e7085f`. Done and pushed at
-    03:25 on 2026-11-14, part 9's first commit `5b6696b2`, findings 2, 4, 7, 8 and 13 of the
-    independent read. Done and pushed at 00:44 on 2026-11-14 under Verdict 121's mend `d102cd72`,
-    part 5, the points from the depth, `6cfda4dd`, and part 6, the rays from the screen on the CPU,
-    `3768c988`. What was decided on the way. A model shader's world stays the world's point, a
-    property over the place and the origin, and lights' point-taking functions take world points
-    beside their Placed twins; the instance's rows are places and a shader that reads a translation
-    as a world point adds the push's origin, which the game's bits.slang does at its pin; a camera
-    keeps its fields, no eye and way to look, a program far out keeping its numbers small by moving
-    its world, which the guide says; a test that compares two pictures holds a count of pixels past
-    a small level and a loose largest, read on the RTX, Mesa 26.2.4 and the runner's Mesa 25.2.8. To
-    come, in the order 9, 7, 8, all seventeen findings of the independent read confirmed by the
-    coder at d102cd72. Part 7, MoveWorld, against the game's figures on 6.2.60 recorded at 03:03 on
-    2026-11-14, the frame of a step of the game's origin at 228 to 250 ms where a flight crossing
-    none peaks near 40, every section's mesh uploaded again, the field holding again after 14 to 26
-    frames, and its contract, the call made with the step before anything moves, every mesh at its
-    matrix plus the step the same still mesh, so the step's frame costs what any other does and the
-    field and the light change by nothing. Part 8, the ambient occlusion by place, with the field's
-    build in doubles, the splat's rows against the cascade's corner and the plan's snap, the grids'
-    phase, the ball put back in the fog room, a tied cell of the field's color pass broken by a rule
-    with a test that two runs read alike, and what the independent read names of the field, its way
-    ahead, moving meshes' stamps and the far cascade's size. Part 9, the rest of that read,
+    09:59 on 2026-11-14, part 9's second commit `0567d8f4`, the rest of the independent read's
+    findings, a write-only span for mapped memory and each view pushed once a pass; at 05:01 the
+    cost's mend `010671f7` with the read's first finding; at 03:25 part 9's first commit `5b6696b2`,
+    findings 2, 4, 7, 8 and 13. Done and pushed at 00:44 on 2026-11-14 under Verdict 121's mend
+    `d102cd72`, part 5, the points from the depth, `6cfda4dd`, and part 6, the rays from the screen
+    on the CPU, `3768c988`. What was decided on the way. A model shader's world stays the world's
+    point, a property over the place and the origin, and lights' point-taking functions take world
+    points beside their Placed twins; the instance's rows are places and a shader that reads a
+    translation as a world point adds the push's origin, which the game's bits.slang does at its
+    pin; a camera keeps its fields, no eye and way to look, a program far out keeping its numbers
+    small by moving its world, which the guide says; a test that compares two pictures holds a count
+    of pixels past a small level and a loose largest, read on the RTX, Mesa 26.2.4 and the runner's
+    Mesa 25.2.8. To come, parts 7 and 8, part 9 being in. Part 7, MoveWorld, against the game's
+    figures on 6.2.60 recorded at 03:03 on 2026-11-14, the frame of a step of the game's origin at
+    228 to 250 ms where a flight crossing none peaks near 40, every section's mesh uploaded again,
+    the field holding again after 14 to 26 frames, and its contract, the call made with the step
+    before anything moves, every mesh at its matrix plus the step the same still mesh, so the step's
+    frame costs what any other does and the field and the light change by nothing. Part 8, the
+    ambient occlusion by place, with the field's build in doubles, the splat's rows against the
+    cascade's corner and the plan's snap, the grids' phase, the ball put back in the fog room, a
+    tied cell of the field's color pass broken by a rule with a test that two runs read alike, and
+    what the independent read names of the field, its way ahead, moving meshes' stamps and the far
+    cascade's size. Part 9, the rest of that read,
     ~/.cache/claude-reviewer/audits-2026-11-13/engine-origin-gaps.md, 17 findings, four checked by
     the review, the field's way ahead taken through a world-size inverse, a frame with no window
     camera keeping the origin at the world's, the penumbra's grain hashing a world point, an
@@ -170,11 +181,12 @@ reverted as the screen probes' limit at shapes about a tile wide, its patches in
     median and the flights about 8 ms on their 99th part, High in the room unchanged. Mended at
     `010671f7`, no frame reading mapped memory back, and read again by the game on
     6.2.60-local.264.8 at 06:14, the immediate upload and the model batches at 6.2.60's figures and
-    the built room's median at Low 5.99 to 6.01 against 6.00 to 6.02. The scene's CPU stays +0.23 to
-    +0.30 ms, the window's depth +0.1 and the graph +0.25 to +0.56, asked of part 9b with a
-    write-only type for mapped memory, the game reading the table once more on its package. Each
-    part is reported with RenderOriginTests on the three devices and the Windows part its tests
-    join.
+    the built room's median at Low 5.99 to 6.01 against 6.00 to 6.02. Read once more on
+    6.2.60-local.264.9 at 11:08, the frames level with 6.2.60 or under it and the window's depth and
+    the shadows within 0.02 ms; the scene's CPU stage stays +0.26 to +0.31 ms in the game where the
+    engine's probe reads level, the GPU taking it up, and the game's coder samples the process on
+    both builds to name it. Each part is reported with RenderOriginTests on the three devices and
+    the Windows part its tests join.
 
 265. **The lighting's kernels written once.** Decision 112 on 2026-11-12. The radiance cascades'
     kernels, the trace, the merge, the ambient, the screen probes, their filter and the glow lights,
@@ -223,6 +235,22 @@ reverted as the screen probes' limit at shapes about a tile wide, its patches in
     00-33-item-264-6-rehearsal.png in the game's dump of that day, the third column. One read, which
     of the gather's taps or its half-size image leaves the gaps, then the mend with a test of a
     small emitter out of focus reading as a filled disk. After 264 and 268.
+
+271. **The cascades' rays traced by the device, as a backend beside the field.** Decision 115 on
+    2026-11-14. What stands, at High where the device has ray queries a probe's ray can be traced
+    through the meshes in place of the field behind a switch, a reflection the field misses is
+    traced there, and the reference traces through the same structures. To do, after 265, in the
+    shared kernels. One interface a ray is traced through, a way and a reach in and the meeting's
+    distance, surface, color and emission out, with two forms, the field's march and the device's
+    ray query, the cascades, the merge and the gather knowing neither. A setting chooses the form at
+    every quality, the device's ability its limit, the field the form on a device that draws on its
+    CPU. The field stays where the contact shadow, the light through a surface and the rough
+    reflection read it, each said whether it could take the device's rays as well. First a read as a
+    Reply, each form's cost by cascade on Sponza, the bounce rooms and a scene of many moving
+    meshes, the structures' upkeep counted, and each against the traced reference, so the default is
+    chosen on figures; the voxel game's reading of the switch as it stands today is the first of
+    them. Its tests hold the two forms within a bound of each other in the rooms and run the
+    device's form where the device has it, the field's on the runners.
 
 ## Verdicts
 
@@ -360,6 +388,16 @@ numbers, each in full under Decisions in REVIEW-ARCHIVE.md.
     the module owning no window, no ImGui context and no process. The sibling's editor is not taken
     as the module's design; it is progress to learn from, and the module's own design is set out
     when the module is taken up.
+
+115. **Hardware ray tracing is a backend of the radiance cascades, chosen by what the device can
+    do.** Decided on 2026-11-14. The engine stands on SDL3 and Vulkan for modern hardware and
+    techniques, so a device that traces rays is used for it. The cascades' rays are traced through
+    the meshes' acceleration structures where the device has ray queries and that way is chosen, the
+    better picture, and through the scene's distance field elsewhere, on a device that draws on its
+    CPU and on the runners among them. The field stays beside the hardware way wherever another part
+    of the lighting needs it. Which way a program takes is its choice by a setting, with the
+    device's ability as the limit. What each way costs is measured before the default is set. It is
+    written once in the shared kernels, after they have moved. Item 271, BevyCSharp Decision 92.
 
 ## Replies
 
@@ -566,281 +604,6 @@ places handed are a whole number of units there. The cost is read on Ore at High
 the instance ring and the chunks being rebased each frame on the CPU. Each part's account goes in
 its own Reply.
 
-Item 264, the review's read of where a float of the world's size still crosses, each finding read
-against the code at `d102cd72`. All seventeen hold.
-
-1. Immediate shapes. Holds. `CubeCorners` and `SpherePoint` (E3D.Shapes3D.cs 246 to 263) add each
-   offset to the position in floats, `DrawList.Place` (DrawList.cs 378 to 382) moves recorded
-   vertices by the rlgl model matrix in floats, and `ImmediateNode.Place` (ImmediateNode.cs 120 to
-   141) takes the origin off each recorded world vertex in doubles, which keeps the rounding the
-   corner already had. The billboards, `DrawModelWiresEx` and `DrawBoundingBox` record the same way.
-2. The mirrored view. Holds. `MirrorPlane.Mirrored` (MirrorPlane.cs 74 to 87) reflects the window's
-   view-projection in world floats and finds the far corner through its float inverse, and the view
-   goes to `ModelRenderer.Draw` noted by no eye, so `Placed` (ModelRenderer.Instances.cs 191) pushes
-   it through `Taking`, while the window's pass that reads the mirrored picture is pushed from its
-   eye.
-3. The field's way ahead. Holds. `AheadOf` (SceneField.cs 204 to 210) takes the point at clip depth
-   0.5 through the inverse of the world view-projection less the eye.
-4. No window camera. Holds. Renderer.cs 321 to 322 takes `RenderOrigin.Zero` where no `WindowView`
-   is, where the field (SceneField.cs 240 to 242) takes the first render target's camera.
-5. The camera helpers. Holds, a program's own floats. `CameraYaw` and its kin (E3D.Cameras.cs)
-   store the target as the position plus the turned way in floats.
-6. Parents. Holds, a program's own floats. `TransformPropagation.Compose` (TransformPropagation.cs
-   101) multiplies the local matrix by the parent's world matrix in floats.
-7. The penumbra's grain. Holds. penumbra.slang 77 hashes `place + lighting.origin.xyz`, a world
-   point in floats, through a sine of a dot near 1e8.
-8. The probes' gather. Holds. probe_gather.slang 58 adds a unit way to the probe's world eye and
-   takes it through the faces' world view-projections, uploaded as they are (CubeFilter.cs 219 to
-   230).
-9. Stamps of moving meshes. Holds. SceneFieldPlan.cs 603 to 606 inverts `pose * instance.World` in
-   floats, and SceneField.cs 673 takes the inverse against the origin after.
-10. The far cascade's reach. Holds. `FarPlane` (SceneField.cs 503 to 508) unprojects clip depth 1
-    through the float inverse of the world view-projection, and a changed far cell makes the field
-    again (SceneField.cs 263 to 270).
-11. Stereo. Holds. `BeginStereo` (E3D.Vr.cs 91 to 96) sets each eye's view through `SetRlCamera`
-    and the repeat with no eye noted.
-12. Transforms with no eye. Holds for each path named. A batch with a program's shader is not placed
-    (ImmediateNode.cs 125, 194), `SetRlProjection` (E3D.Rlgl.cs 161 to 165) sets the draw list's
-    transform anew with no eye, the modeling window sets its camera with none (E3D.ModelingWindow.cs
-    181), and the bounce view takes `Taking` of the world view-projection (BounceViewRenderer.cs
-    160).
-13. The lights' signature. Holds. `NoteLights` (GlobalIllumination.Changes.cs 66 to 72) compares
-    within a hundredth of each value, and it reads the lights before `PlaceLights` takes them
-    against the origin (GlobalIlluminationRenderer.cs 226 and 275), so their positions are in
-    world numbers.
-14. The casters' ranking. Holds. `Casters` ranks through the window's and targets' world
-    view-projections (LightingUboPrepare.cs 45 to 57) and `InView` (351 to 369) dots world centers
-    with their planes.
-15. GetRayCollisionMesh. Holds. E3D.Collision.cs 190 to 203 moves each corner into the world in
-    floats.
-16. The glow lights' boxes. Holds. `box.Transformed(w)` (GlowLights.cs 320) moves an emitter's box
-    into the world in floats before `Place`.
-17. The same-camera fallback. Holds and is latent, as said. `WindowView.Same` falls back to my
-    `Alike` on the world view-projections where an eye was not noted, and both window cameras are
-    noted.
-
-Of the smaller items, the picking's sphere about a mesh is found in world floats, a pretest that
-can turn away a ray grazing a very small mesh; the eyes are kept by the world view-projection as
-their key, two cameras whose eyes lie within a float's step sharing one; and the eye of a camera
-not noted is read off the float inverse in two places. Each holds. The sun's and moon's pictures
-are sound in effect, the camera buffer no shader binds has no effect, and the physics simulates in
-world floats, a program's own numbers until the world moves.
-
-Where each goes. Part 8 takes what is the field's: 3, 9 and 10 beside what it carries. Part 9 takes
-the rest that the engine rounds, 1, 2, 4, 7, 8, 11 to 17 and the three smaller items that hold,
-each with a test that fails first. 5 and 6 get words in the guide where it says a program far out
-moves its world, the camera helpers storing the target as the position plus the way and parents
-composed with children in floats. Part 9 goes before part 7. Its files are the renderer's and the
-API's and stand apart from the field's that 7 and 8 share, the scene field's plan rekeyed by the
-world's move and its build worked in doubles, and the world moved under a camera in 7 is read best
-against a renderer that holds a shape, a mirror, a probe and a softened shadow far out as near.
-Part 9's test is the scene the review names, at 1,140,736 plus 0.3 with a parented pair, a mirror
-plane, a reflection probe, shadow softness and a moving lamp, read against the same at the origin,
-the field ahead at 0.5 joining it in part 8, and the standing far tests move off the eighths there.
-
-Item 264, what three stages do each frame since `a0af50a3` that they did not before, read from the
-code ahead of the mend the game's costs ask for.
-- `prepare.ImmediateUploadPrepare`. After copying the draw list's vertices and indices into the
-  frame's dynamic buffer, as it always did, `ImmediateRenderer.Place` (ImmediateNode.cs 120 to 141)
-  looks up the eye of every batch, allocates a flag for every vertex, and for every index of every
-  batch drawn through a noted camera reads the vertex back out of the buffer it was written to,
-  takes its position against the origin in doubles and writes it again. The buffer is the dynamic
-  allocator's, mapped for good in memory the GPU reads, which a driver may give pages that are
-  written in order and read back slowly; the copy only writes. That reading back is the likely
-  part of 0.015 ms becoming 2.8 to 3.5, which the mend's own reading says. It does all this in
-  every frame, whether the origin stepped or not.
-- `cpu.model_batches`. Since `3405714a` the instances are written to the mapped instance ring as
-  before and then read back out of it in a second pass and written again against the origin
-  (ModelRenderer.Instances.cs 169 to 171), the same reading back of mapped memory, every instance
-  every frame; and each draw's world matrix is taken against the origin whole, in doubles, for its
-  block's box (line 139), where the box took the matrix as it was.
-- `cpu.hdr_scene`. Each push of a view works the view against the origin from its eye in doubles
-  again (`RenderOrigin.Push` through `Seen`, ModelRenderer.Instances.cs 201 to 206), with a lookup of
-  the eye by the view-projection, for every batch of every pass, where the push was the matrix as it
-  was; the scene field's stamps and info take their places against the origin in doubles each
-  frame likewise, which the field's figures in flight follow.
-The mend writes each place against the origin as it is first written, never reading mapped memory
-back: the immediate vertices are recorded against an anchor at the camera's eye as they are made,
-which is finding 1's mend too and leaves the upload nothing to do while the origin is the anchor;
-the instances are taken against the origin as they are written into the ring; and a view's push is
-worked once a frame. Its test counts the vertices and instances placed by reading back and the
-views worked in a still frame, on the CPU, and holds them at nothing.
-
-Item 264, part 9, its first commit, the views that went un-noted and the lighting's world numbers,
-findings 2, 4, 7, 8 and 13 of the review's read.
-- The mirrored view (2). `MirrorPlane.Mirrored` makes from the window's noted eye and turn a
-  mirrored camera of its own, the eye mirrored in the plane in doubles and the turn mirrored in the
-  plane through the world's origin, its near plane the plane laid against the mirrored eye, and the
-  frame notes it, so the mirrored pass is pushed from its eye against the origin as the window's
-  is, where it went through `Taking` of a view in world floats.
-- The probes' gather (8). The capture keeps each face's view-projection made with the eye at
-  nothing beside the one it draws through, notes each face by the probe's middle, and the filter
-  gathers through the turns alone, `probe_gather.slang` reading a way through a face where it
-  added the way to the probe's world middle.
-- A frame with no window camera (4). The origin stands at the first render target's noted eye, as
-  the scene field's view does, where it stood at the world's.
-- The soft shadow's grain (7). `grain.slang` turns the taps by the place's cell of a 256th of a
-  unit plus the origin's cells, both whole, wrapped to 65,536 cells a side, mixed as integers,
-  where it took the sine of a dot of the place plus the origin in floats; one world point turns
-  alike against any origin, and the grain repeats every 256 units.
-- The lights' signature (13). A lamp's place, an emitter's middle and the emitters' box are told
-  apart within a hundredth of a unit, the rest within a hundredth of its value, where every value
-  was within a hundredth of itself, which far out spans rooms.
-
-RenderOriginTests adds four, each failing without its mend.
-- A room with its floor a mirror's plane under a reflection probe's box, the sun's shadow
-  softened, a block held by another as its parent, the lamp carried a unit and a half two frames
-  before the last, drawn until the mirrored view is whole, at most 16 pixels past a level and none
-  past 24 against the same at the world's origin, the sun's shadow edges at another phase of its
-  texels allowed as in the shadowed room. On the code before it read 6.3, 5.8 and 9.2 levels at the
-  most at 4,096, 71,680 and 1,140,736 on the RTX 4070, 2,171 pixels past a level at the last; with
-  the mends 5.6, 4.4 and 7.3 with 4, 6 and 4 past a level. Put back alone at 1,140,736, the
-  probes' gather reads 2,146 pixels past a level, the mirrored view 28 and 73 past half a level,
-  the grain 7 against 4, and the lamp's signature none, which its own test holds.
-- A room drawn into a render texture alone, the window drawing it in 2D through no camera,
-  global illumination off, within its 8 bits' rounding at every texel. Before the mend it reads
-  222 and 232 levels at the most at 71,680 and 1,140,736 on the RTX 4070, 4,096 within its
-  rounding, and 0.000 with it on the three devices. With global illumination at Low a render target far out still reads
-  4 levels at 686 of its texels at 1,140,736 and within a level nearer, global illumination off
-  taking it to nothing and the window's room under the same light reading nothing; the target's
-  share of global illumination I have not found, and it stands open with these figures.
-- The soft shadow's grain, `grainTurn` dispatched over 256 places a 512th of a unit apart against
-  the world's origin and against origins of 4,096, 71,680 and 1,140,736 units, each a whole count
-  of 256, alike bit for bit, and changing from one 256th of a unit to the next; the sine of the
-  summed float fails it at each origin.
-- A lamp carried a unit and a half at the origin and at the three distances a change of the lights,
-  and one brighter by a two hundredth no change (`GlobalIlluminationRenderer.LightsDiffer`); the
-  hundredth of each value fails it from 4,096 out.
-
-What each new case starts and costs. The mirror room and the texture room start two apps a case,
-six each, the grain one and the lamp none; on lavapipe here held to four cores the mirror room takes
-10.6 to 11.8 s a case, the texture room 1.7 to 3.5, the grain 0.7. They join the render origin's
-part in the third Windows job, which took 26.7 minutes in run 43529308891 against an estimate of
-32.4, so it comes to about 31 with them on that runner.
-
-RenderOriginTests whole on the three devices.
-
-| Case | RTX 4070 | Mesa 26.2.4 | Mesa 25.2.8 |
-|---|---|---|---|
-| Scene at Low, past 1 | 0.088, 0 | 0.393, 0 | 1.480, 1 |
-| Scene at High, past 1 | 0.246, 0 | 0.367, 0 | 1.424, 2 |
-| Shadowed room at 4,096, past 4 | 7.72, 2 | 7.83, 2 | 5.26, 2 |
-| Shadowed room at 71,680, past 4 | 7.72, 1 | 7.83, 1 | 25.43, 5 |
-| Shadowed room at 1,140,736, past 4 | 10.73, 2 | 11.34, 1 | 20.96, 4 |
-| Crossing, past 1 | 0.089, 0 | 13.21, 8 | 29.97, 14 |
-| Mirror room at 4,096, past 1 | 5.64, 4 | 5.77, 4 | 5.75, 5 |
-| Mirror room at 71,680, past 1 | 4.41, 6 | 5.80, 4 | 8.88, 6 |
-| Mirror room at 1,140,736, past 1 | 7.29, 4 | 7.18, 4 | 5.54, 3 |
-| Texture room at each distance | 0.000 | 0.000 | 0.000 |
-| Turning room at each distance | 0.000 | 0.022 at most | 0.000 |
-| Room in fog at each distance | 0.000 | 0.000 | 0.066 at most |
-| Room at each distance | 0.000 | 0.000 | 0.000 |
-
-The post's shadow reads alike on the three, and the grain and the lamp pass on each.
-
-The mend of Verdict 121 read in its first run, 43529308891, each part's minutes beside its
-estimate. Its runners were quicker than the slowest the estimates were made for; no part came past
-30.1 and no job past 77 of its 160.
-
-| Part | Estimate | Read | Job |
-|---|---|---|---|
-| Global illumination's 1 and 4 | 45.0 | 43.6 | 1 |
-| The scene field's | 11.3 | 9.1 | 1 |
-| Core | 9.4 | 8.9 | 1 |
-| Graphics | 2.9 | 2.8 | 1 |
-| Global illumination's 2 and 3 | 53.0 | 30.1 | 2 |
-| Rendering 4 | 24.4 | 16.5 | 2 |
-| The other parts | 4.1 | 3.4 | 2 |
-| The render origin's | 32.4 | 26.7 | 3 |
-| The bounce rooms' | 30.0 | 17.9 | 3 |
-| Rendering 1 | 8.2 | 6.1 | 3 |
-| Rendering 2 | 3.2 | 5.3 | 3 |
-| The glow lights' | 24.0 | 10.6 | 4 |
-| Rendering 3 | 7.5 | 4.7 | 4 |
-| Rendering 5 | 12.0 | 5.9 | 4 |
-| Rendering 6 | 24.7 | 9.5 | 4 |
-| Rendering 7 | 9.1 | 3.8 | 4 |
-
-The jobs took 77, 52, 59 and 37 minutes. Rendering 2 came over its estimate, SubsurfaceTests and
-FrameEffectsTests apart from the classes Windows timed, and the classes that start fewest apps came
-furthest under, as the scale that follows the apps says.
-
-BUILDING.md says a Windows class's time follows the apps it starts and a drawing test says how many.
-The rest of the review's read goes in part 9's second commit, after the cost of the immediate
-upload. The suite's ordered leg passed but for PackageContentsTests, which reads the newest
-package in build/package and found the new `grain.slang` missing from 6.2.60-local.264.6, packed
-before it; 6.2.60-local.264.7 is packed from this commit and the package's tests and the shuffled
-leg run on it.
-
-Item 264, the cost of the immediate upload, the model pass's instances and its pushes, mended.
-Each place the frame writes into mapped memory is taken against the origin as it is first written,
-and that memory is never read back.
-- The immediate pass records each run of shapes against an anchor, the eye of the 3D camera it is
-  drawn through rounded as the frame's origin is (`DrawList.SetAnchor`, set by `BeginMode3D`), while
-  the transform is that camera's, so the sky's pictures drawn through a transform of their own keep
-  their space, and a run drawn with a program's shader keeps world numbers, as its shader reads them.
-  A point a program gives is taken against the anchor in doubles as it is recorded; a box, a sphere,
-  a cylinder, a capsule, a plane, a circle, a billboard, a model's wires and a bounding box are built
-  about their middle taken against the anchor with their offsets along the model transform's axes
-  (`DrawList.At`, `DrawList.Way`), which is the review's finding 1 mended, a corner far out never a
-  float of the world's size. The upload copies the vertices as they are, and each run is drawn
-  through its camera against its own anchor from its eye, worked once at the upload; the frame's
-  origin moving changes nothing recorded, so its step costs nothing there.
-- The model pass writes each instance against the origin as it goes into the ring, a group's
-  copies with a packed mesh's scale folded in as they go, where it wrote them and read the whole ring
-  back to take them against the origin and the packed groups back again to scale them; and it works
-  each view's push and each view against the origin once a frame.
-- The moving instances' velocity is written placed and folded as it goes in, where it was copied
-  and read back twice.
-
-Read on the RTX 4070 under the lock held alone, no validation layer, a room 71,680 units out at 1280
-by 720 with 700 model draws and 4,000 immediate cubes, 96,000 vertices, each figure the profile's
-average after 120 frames to settle and then over three runs of 120.
-
-| Stage | 5b6696b2 | This commit |
-|---|---|---|
-| prepare.ImmediateUploadPrepare | 61.6, 61.4, 68.4 ms | 0.43, 0.26, 0.23 ms |
-| cpu.model_batches | 1.75, 1.18, 1.18 ms | 1.67, 0.79, 0.67 ms |
-| cpu.hdr_scene | 4.46, 0.74, 0.25 ms | 4.50, 0.75, 0.24 ms |
-
-The upload's figure was the reading back, about 260 times what the copy alone takes; the model batches
-come down by a third; the pushes were a small share of this scene's pass, whose first figures are
-its pipelines being made. The game's table is the second reading, on 6.2.60-local.264.8 packed from
-this commit.
-
-ImmediateAnchorTests, on the CPU with no device, draws a room's shapes through a camera at the
-world's origin and at 4,096, 71,680 and 1,140,736, a box, its wires 1.004 across, a sphere, a cone, a
-plane, a bounding box, a line of the program's and a box under an rlgl translation, and reads the
-positions recorded bit for bit alike, each run's anchor the offset apart; with the anchor held at the
-world's origin it fails at each distance. What a still frame's upload places is nothing by
-construction, since the upload writes the draw list as recorded and holds no step that moves a
-vertex.
-
-The writes into mapped memory searched. The lights' buffer is written whole and placed once
-(`LightingUboPrepare.Upload`); global illumination's lights and the glow lights are written and
-placed in an array of the CPU's and copied once; the field's stamps, its instances and its bricks
-(SceneField.cs 618 to 700), the scattering's profiles and the particles' placed points are written and
-never read; the moving instances' velocity read back as the instances did and is mended here. The
-maps that read are the readbacks, the probes' filter, the field's and global illumination's
-readbacks and the reference tracer's sums, which read what the GPU wrote, as they are meant to.
-
-RenderOriginTests whole on the three devices.
-
-Every case reads as it did at 5b6696b2, all 30 passing on each.
-
-| Case | RTX 4070 | Mesa 26.2.4 | Mesa 25.2.8 |
-|---|---|---|---|
-| Scene at Low and High, past 1 | 0.246, 0 | 0.393, 0 | 1.480, 2 |
-| Shadowed room, past 4 | 10.73, 2 | 11.34, 2 | 25.43, 5 |
-| Crossing, past 1 | 0.089, 0 | 13.21, 8 | 29.97, 14 |
-| Mirror room, past 1 | 7.29, 6 | 7.18, 4 | 8.88, 6 |
-| Texture room, turning room, room | 0.000 | 0.000 | 0.000 |
-| Room in fog | 0.000 | 0.058 | 0.066 |
-
-Each row's most over its distances, the post's shadow alike on the three.
-
-The suite passed both legs, 2,399, and the strict build is clean.
-
 Item 264, part 9b, the rest of the independent read, the write-only type for mapped memory and the
 scene's cost the game's table names.
 
@@ -975,3 +738,77 @@ to Rendering 2 in the third.
 The device's listing carries Map's WriteOnlySpan and Read (DeviceSurface.txt), which the suite's
 first run of both legs found unwritten, its one failure. The strict build is clean and the suite
 passed both legs, 2,425. The package is 6.2.60-local.264.9.
+
+Item 264, part 7, the world moved. `MoveWorld(offset)` says that every place the program hands the
+engine moved by a whole step, called in the frame it moves before anything is drawn, and refuses a
+step that is not a whole number of units along each axis. The step waits in a world resource
+(`WorldMove`) for the frame drawn next, which the render world is handed it in (`WorldMoved`, with
+every step added up), and what the engine keeps by place moves with it.
+- The field's plan knows every mesh by its matrix moved, worked in doubles, in every set that knew it
+  by its matrix, the seen, the moved, the still with their boxes, the pending, the kept, the
+  replacing, those that moved in, the built and the build in progress's, the order and the nearest,
+  and the matrices of those gone; its cascades' corners and the boxes of what changed and of the
+  regions move, and the cells hold where the step is a whole count of a cascade's cell, a cascade
+  whose cell it is not built again (`SceneFieldPlan.Move`). The cells are laid from each cascade's
+  corner, so a corner moved keeps them.
+- Global illumination moves its probes' corners with the field's, so the probes and their light are
+  kept, the box of what changed, the lights' places in the frame before's signature, so the step is
+  no change of the lights and begins no cycle, the glow lights' keys, the cameras the screen's probes
+  and the reflections' history were made through, and the sun's map of the frame before
+  (`GlobalIlluminationRenderer.Move`).
+- The temporal resolve, the motion blur and the occlusion read the cameras their histories were
+  made through moved (`WindowView.Moved`), the view-projection taking a place of the world moved
+  and the eye moved; the mesh entities' places the frame before move, so per-object blur sees no
+  movement.
+- The shadows' texels lie on a lattice in the numbers of the world before every step
+  (`RenderOrigin.Less`, the fit's lattice), which without it shifted under the scene by the step and
+  moved every shadow's edge, 104 levels on 517 pixels. The soft shadow's grain repeats every 256
+  units, so a step of a multiple of 256 leaves it as it was.
+- The reflection probes move their places, what they were asked to be captured as and captured as,
+  and the lights that reached them, so none is captured again. The particles alive in the world's
+  space move on the GPU by the step shader's move, bit 31 of its counts, before the frame's step.
+- The physics moves every body of every set and every static, with each body's pose before the last
+  step, so a body drawn between steps is blended from where it was; the audio moves every spatial
+  voice.
+
+WorldMoveTests moves a world of a thousand blocks over a floor, sixty-four mesh entities, a sun and a
+lamp casting shadows, a reflection probe and a burst of particles standing in the world's space,
+8,192 out, back by 4,096, at Low and at High. The field is the one made before the move, its 1,065
+still meshes stay still and no frame after splats a triangle, the probe is not captured again, and
+the frame after the move reads as the frame before. Told nothing, the still meshes go to none, the
+probe is captured again and the frame moves 8,486 pixels by up to 209 levels.
+
+PhysicsMoveTests steps a box falling on a floor, one sliding over it and one resting, a world moved
+halfway against one not, every body where the unmoved one's is moved by the step and as fast, which
+with the bodies left where they were ends 4,096 off. AudioServerTests moves a spatial voice and
+leaves the music.
+
+Read on the three devices, the most of either quality and the pixels past a level, the bound 1.5.
+
+| Quality | RTX 4070 | Mesa 26.2.4 | Mesa 25.2.8 |
+|---|---|---|---|
+| Low | 0.000, 0 | 0.000, 0 | 0.000, 0 |
+| High | 0.213, 0 | 0.000, 0 | 0.000, 0 |
+
+Read once with a clock the test does not keep (N 3.3), the frame after the move took no longer than
+the frame before it, captured the same way, 36 and 16 ms on
+the RTX at High and Low where the frame before took 63 and 19, 434 and 452 ms on Mesa 25.2.8 where it
+took 860 and 744. RenderOriginTests whole on the three devices, all 30 passing on each, every case as
+at 0567d8f4.
+
+The wide-panel test goes in with it, GlobalIlluminationTests' room of 8 m with a panel of 4.4 m, too
+wide to be carried as a glow light at the field's first cell of 0.15, read the frames after the panel
+goes dark. The room reads 0.00 from the second frame on on the three devices; with follow()'s sum of
+a probe's rays taken back to its texels alone it reads 6.26 at Low and 5.27 at High two frames on,
+where the 4 m room's test passes both ways, its panel carried as a glow light.
+
+WorldMoveTests starts two apps, 47 and 44 seconds on lavapipe, and joins Rendering 4 in the second
+Windows half; PhysicsMoveTests joins Physics in the second, a CPU test, and AudioServerTests' case
+the Audio part there too. The wide-panel test starts two apps, 16.8 and 9.8 seconds on lavapipe, and
+joins GlobalIlluminationTests' first process in the first half, seven methods after it in name moving
+one process along, four of them between the first and second halves and three within them.
+
+The cheat sheet has the call's line among the drawing's and the cameras'. The guide tells the call
+where a game goes far (drawing-3d-and-cameras.md, "Far from the world's origin"), with a program's
+way out, and RENDERING.md what moves. The strict build is clean and the suite passed both legs,
+2,431, in 25 m 43 s and 26 m 1 s. The package is 6.2.60-local.264.10.

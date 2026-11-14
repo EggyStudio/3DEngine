@@ -285,17 +285,17 @@ internal sealed class LightingUboPrepare : IPrepareSystem
     // point lights, the spots fitted already, since only the cascades depend on a camera, every
     // view and projection taking a place against the frame's origin.
     private sealed record ShadowCasters(System.Numerics.Vector3? Sun, int SunIndex, float Distance, int TileSize,
-        List<(int, System.Numerics.Matrix4x4, float)> Spots, List<(int, System.Numerics.Matrix4x4[])> Points, bool Fill, RenderOrigin Origin)
+        List<(int, System.Numerics.Matrix4x4, float)> Spots, List<(int, System.Numerics.Matrix4x4[])> Points, bool Fill, RenderOrigin Origin, RenderOrigin Lattice)
     {
         // The frame's shadow as views through cameras see it, one set of cascades fitted to every
         // one of them with the fill past them where it is on, or null when nothing casts one, the
         // cameras taking a place against the origin to clip space.
         public FrameShadow? For(ReadOnlySpan<System.Numerics.Matrix4x4> cameras)
         {
-            (System.Numerics.Matrix4x4, float)[] cascades = Sun is { } direction ? ShadowFit.FitCascades(cameras, direction, Distance, TileSize, Origin) : [];
+            (System.Numerics.Matrix4x4, float)[] cascades = Sun is { } direction ? ShadowFit.FitCascades(cameras, direction, Distance, TileSize, Origin, Lattice) : [];
             var sun = cascades.Length == 0 ? -1 : SunIndex;
             (System.Numerics.Matrix4x4, float)? fill = sun >= 0 && Fill
-                && ShadowFit.TryFitFill(cameras, Sun!.Value, Distance, out var viewProjection, out var texel, TileSize, Origin) ? (viewProjection, texel) : null;
+                && ShadowFit.TryFitFill(cameras, Sun!.Value, Distance, out var viewProjection, out var texel, TileSize, Origin, Lattice) ? (viewProjection, texel) : null;
             return sun < 0 && Spots.Count == 0 && Points.Count == 0 ? null : new FrameShadow(sun, cascades, Spots, Points, TileSize, TileSize / 4, fill, Origin);
         }
 
@@ -303,7 +303,7 @@ internal sealed class LightingUboPrepare : IPrepareSystem
         // whose cascades alone depend on a camera.
         public float FirstTexel(ReadOnlySpan<System.Numerics.Matrix4x4> cameras) =>
             Sun is not { } direction ? 0
-            : ShadowFit.TryFit(cameras, direction, 0, ShadowFit.SplitsFor(Distance)[0], out _, out var texel, TileSize, Origin) ? texel : float.MaxValue;
+            : ShadowFit.TryFit(cameras, direction, 0, ShadowFit.SplitsFor(Distance)[0], out _, out var texel, TileSize, Origin, Lattice) ? texel : float.MaxValue;
     }
 
     /// <summary>
@@ -428,7 +428,10 @@ internal sealed class LightingUboPrepare : IPrepareSystem
             if (ShadowFit.TryFitSpot(origin.Against(light.Position), light.Direction, light.CosOuter, light.Range, out var viewProjection, out var texel, distance, size))
                 spots.Add((i, viewProjection, texel));
         }
-        return new ShadowCasters(sun >= 0 ? lights.All[sun].Direction : null, sun, distance, tileSize, spots, points, settings?.Fill ?? true, origin);
+        // The texels' lattice lies in the numbers of the world before every step a program moved
+        // it by (WorldMoved), so a moved world's shadows fall on its texels as before.
+        var lattice = renderWorld.TryGet<WorldMoved>() is { Total: var total } ? origin.Less(total) : origin;
+        return new ShadowCasters(sun >= 0 ? lights.All[sun].Direction : null, sun, distance, tileSize, spots, points, settings?.Fill ?? true, origin, lattice);
     }
 
     /// <summary>

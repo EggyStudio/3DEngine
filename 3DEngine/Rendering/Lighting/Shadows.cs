@@ -122,10 +122,12 @@ internal static class ShadowFit
     /// <paramref name="to"/> units past its near plane, one cascade for views that share it, or
     /// <c>false</c> when a camera's matrix cannot be inverted. The cameras take a place against
     /// <paramref name="origin"/> to clip space, and so does the light's view and projection, its
-    /// middle snapped to the texels of a lattice that lies in world numbers (<see cref="RenderOrigin.Phase"/>).
+    /// middle snapped to the texels of a lattice that lies in world numbers (<see cref="RenderOrigin.Phase"/>),
+    /// or in those of the world before every step a program moved it by where <paramref name="lattice"/>
+    /// is that origin less the steps, so a moved world's shadows fall on its texels as before.
     /// </summary>
     public static bool TryFit(ReadOnlySpan<Matrix4x4> cameras, Vector3 direction, float from, float to,
-        out Matrix4x4 viewProjection, out float texel, int tileSize = TileSize, RenderOrigin origin = default)
+        out Matrix4x4 viewProjection, out float texel, int tileSize = TileSize, RenderOrigin origin = default, RenderOrigin? lattice = null)
     {
         viewProjection = Matrix4x4.Identity;
         texel = 0;
@@ -169,7 +171,7 @@ internal static class ShadowFit
         // lattice, the origin's place within a texel added before the snap and taken after.
         texel = 2 * radius / tileSize;
         var middle = Vector3.Transform(center, view);
-        var (phaseX, phaseY) = origin.Phase(view, texel);
+        var (phaseX, phaseY) = (lattice ?? origin).Phase(view, texel);
         middle.X = MathF.Floor((middle.X + phaseX) / texel) * texel - phaseX;
         middle.Y = MathF.Floor((middle.Y + phaseY) / texel) * texel - phaseY;
 
@@ -194,14 +196,14 @@ internal static class ShadowFit
     /// them, cameras and cascades taking places against <paramref name="origin"/>.
     /// </summary>
     public static (Matrix4x4 ViewProjection, float Texel)[] FitCascades(ReadOnlySpan<Matrix4x4> cameras, Vector3 direction, float distance = Distance,
-        int tileSize = TileSize, RenderOrigin origin = default)
+        int tileSize = TileSize, RenderOrigin origin = default, RenderOrigin? lattice = null)
     {
         var splits = SplitsFor(distance);
         var cascades = new (Matrix4x4, float)[splits.Length];
         float from = 0;
         for (int i = 0; i < splits.Length; i++)
         {
-            if (!TryFit(cameras, direction, from, splits[i], out var viewProjection, out var texel, tileSize, origin)) return [];
+            if (!TryFit(cameras, direction, from, splits[i], out var viewProjection, out var texel, tileSize, origin, lattice)) return [];
             cascades[i] = (viewProjection, texel);
             from = splits[i];
         }
@@ -216,7 +218,7 @@ internal static class ShadowFit
     /// places against <paramref name="origin"/>.
     /// </summary>
     public static bool TryFitFill(ReadOnlySpan<Matrix4x4> cameras, Vector3 direction, float from,
-        out Matrix4x4 viewProjection, out float texel, int tileSize = TileSize, RenderOrigin origin = default)
+        out Matrix4x4 viewProjection, out float texel, int tileSize = TileSize, RenderOrigin origin = default, RenderOrigin? lattice = null)
     {
         (viewProjection, texel) = (Matrix4x4.Identity, 0);
         var beyond = false;
@@ -226,7 +228,7 @@ internal static class ShadowFit
                     for (int x = -1; x <= 1; x += 2)
                         beyond |= Vector3.Distance(Unproject(inverse, x, y, 0), Unproject(inverse, x, y, 1)) > from;
         // A projection with no far plane leaves its far corners at no finite place, so it is fitted no fill.
-        return beyond && TryFit(cameras, direction, from, float.PositiveInfinity, out viewProjection, out texel, tileSize, origin);
+        return beyond && TryFit(cameras, direction, from, float.PositiveInfinity, out viewProjection, out texel, tileSize, origin, lattice);
     }
 
     /// <summary>The tile spot lights' shadows are drawn into, after the cascades.</summary>

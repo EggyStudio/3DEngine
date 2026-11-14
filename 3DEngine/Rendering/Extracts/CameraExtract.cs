@@ -143,6 +143,13 @@ internal sealed record WindowView(System.Numerics.Matrix4x4 ViewProjection, Syst
         RenderOrigin.Reprojection(Unjittered, UnjitteredEye, before.Unjittered, before.UnjitteredEye);
 
     /// <summary>
+    /// The camera a frame before a program moved its world by <paramref name="step"/> read in the
+    /// world moved, its view-projection taking a place of it and its eye moved, its view with the
+    /// eye at nothing as it was.
+    /// </summary>
+    public WindowView Moved(WorldStep step) => this with { ViewProjection = step.MovedView(ViewProjection), Eye = step.Moved(Eye) };
+
+    /// <summary>
     /// Whether it is the camera <paramref name="other"/> is, its jitter aside, by the same eye and
     /// the same view and projection made with the eye at nothing where both eyes were noted, and by
     /// the same eye and the same view-projection within the rounding of taking the jitter back out

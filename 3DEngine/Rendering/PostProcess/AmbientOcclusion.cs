@@ -98,6 +98,18 @@ internal sealed class AmbientOcclusionRenderer : IDisposable
     private Sized? _sized;
     // Each render target's images and the frame it was last drawn in.
     private readonly Dictionary<int, (Sized Sized, long Drawn)> _targets = [];
+
+    /// <summary>
+    /// Reads the cameras each history was written through in a world a program moved by a whole
+    /// step, so the frame after the move blends with its history as before.
+    /// </summary>
+    public void Move(WorldStep step)
+    {
+        static void Moved(Sized sized, WorldStep step) =>
+            sized.View = (step.MovedView(sized.View.ViewProjection), sized.View.Eye is { } eye ? step.Moved(eye) : null);
+        if (_sized is { } window) Moved(window, step);
+        foreach (var (sized, _) in _targets.Values) Moved(sized, step);
+    }
     private readonly List<(long Frame, IDisposable Disposable)> _retired = [];
     private long _frame;
 

@@ -67,6 +67,61 @@ public sealed partial class GlobalIlluminationTests
     [Trait("Category", "Render")]
     [InlineData(GlobalIllumination.Low)]
     [InlineData(GlobalIllumination.High)]
+    public void The_Indirect_Light_Of_A_Panel_No_Glow_Light_Carries_Goes_Within_Two_Frames_Of_It(GlobalIllumination quality)
+    {
+        // The room of the test above twice as wide and deep, its panel 4.4 units across, past the
+        // 2.4 a glow light carries at the field's first cell of 0.15, so the probes' rays alone
+        // carry its light and the probes' own light, which the ambient keeps a share of, follows
+        // it. That own light is the sum of every ray each probe's rays sent, four from each texel
+        // of a cascade of 8 a side, which counted by its texels alone was the first sixteen's.
+        Open();
+        SetGlobalIllumination(quality);
+        var slab = LoadModelFromMesh(GenMeshCube(1, 1, 1));
+        var panel = LoadModelFromMesh(GenMeshCube(1, 1, 1));
+        panel.Materials[0].Emissive = Color.White;
+        var target = LoadRenderTexture(160, 96);
+        float Drawn(float glow, int frames)
+        {
+            panel.Materials[0].EmissiveIntensity = glow;
+            for (int frame = 0; frame < frames; frame++)
+            {
+                BeginDrawing();
+                BeginTextureMode(target);
+                ClearBackground(Color.Black);
+                BeginMode3D(new Camera3D(new Vector3(0, 1.5f, 9), new Vector3(0, 1.2f, 0), Vector3.UnitY, 50));
+                DrawModelEx(slab, new Vector3(0, -0.15f, 0), Vector3.UnitY, 0, new Vector3(8, 0.3f, 8), Color.White);
+                DrawModelEx(slab, new Vector3(0, 3.15f, 0), Vector3.UnitY, 0, new Vector3(8, 0.3f, 8), Color.White);
+                DrawModelEx(slab, new Vector3(0, 1.5f, -3.85f), Vector3.UnitY, 0, new Vector3(8, 3, 0.3f), Color.White);
+                DrawModelEx(slab, new Vector3(-3.85f, 1.5f, 0), Vector3.UnitY, 0, new Vector3(0.3f, 3, 8), Color.White);
+                DrawModelEx(slab, new Vector3(3.85f, 1.5f, 0), Vector3.UnitY, 0, new Vector3(0.3f, 3, 8), Color.White);
+                DrawModelEx(panel, new Vector3(0, 2.97f, 0), Vector3.UnitY, 0, new Vector3(4.4f, 0.06f, 4.4f), Color.White);
+                EndMode3D();
+                EndTextureMode();
+                ClearBackground(Color.Black);
+                DrawTexture(target.Texture, 0, 0, Color.White);
+                EndDrawing();
+            }
+            return Mean(LoadImageFromTexture(target.Texture), 0, 0, 160, 96).X;
+        }
+
+        GlowLights.Carries(Vector3.One, new SceneFieldPlan.Box(new Vector3(-0.5f), new Vector3(0.5f)), Matrix4x4.CreateScale(4.4f, 0.06f, 4.4f), 0.15f)
+            .Should().BeFalse("the panel is wider than a glow light carries");
+        var emitting = Drawn(8, SceneFieldPlan.SettleFrames + 30);
+        var after = Enumerable.Range(0, 4).Select(_ => Drawn(0, 1)).ToList();
+        emitting.Should().BeGreaterThan(80, "the panel lights its room through indirect light");
+        // Its light goes the frame after its own light of the probes falls, where by the sixteen
+        // texels' sum it came back up to 5 levels two frames on.
+        after.Skip(1).Max().Should().BeLessThan(1,
+            $"the indirect light goes with the panel, the room reading {string.Join(", ", after.Select(level => $"{level:0.00}"))} the frames after");
+        UnloadRenderTexture(target);
+        UnloadModel(slab);
+        UnloadModel(panel);
+    }
+
+    [NeedsVulkanTheory]
+    [Trait("Category", "Render")]
+    [InlineData(GlobalIllumination.Low)]
+    [InlineData(GlobalIllumination.High)]
     public void A_Lamp_Put_Out_In_A_Room_Apart_Leaves_A_Corridor_Lit_By_Indirect_Light_Alone_As_It_Was(GlobalIllumination quality)
     {
         // A lit room with a corridor out of it that turns a corner, the camera down the turned leg,

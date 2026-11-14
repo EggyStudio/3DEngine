@@ -117,6 +117,9 @@ internal sealed class TemporalRenderer : IDisposable
     // The window's camera the frame before was resolved through.
     private WindowView? _last;
 
+    /// <summary>Reads the frame before's camera in a world a program moved by a whole step, so its history is reprojected as before.</summary>
+    public void Move(WorldStep step) => _last = _last?.Moved(step);
+
     // The histories for one decoded frame, and the sets each pass reads through.
     private sealed class Sized(RenderTarget frame, RenderTarget[] histories, IDescriptorSet[] resolve, IDescriptorSet first,
         IDescriptorSet[] copy) : IDisposable

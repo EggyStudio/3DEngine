@@ -93,6 +93,9 @@ internal readonly record struct RenderOrigin(double X, double Y, double Z)
     /// </summary>
     public Matrix4x4 Moved(Matrix4x4 matrix, RenderOrigin from) => new RenderOrigin(X - from.X, Y - from.Y, Z - from.Z).Taking(matrix);
 
+    /// <summary>The origin less every step a program moved its world by, a place in the numbers of the world before them.</summary>
+    internal RenderOrigin Less(WorldStep total) => new(X - total.X, Y - total.Y, Z - total.Z);
+
     /// <summary>
     /// The origin's place within a cell of a lattice of cells <paramref name="cell"/> wide along the
     /// x and y of a turned frame (<paramref name="turn"/>, a rotation, as a light's view), from 0 to

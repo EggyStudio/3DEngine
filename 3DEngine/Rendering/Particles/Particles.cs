@@ -200,6 +200,11 @@ internal sealed class ParticleRenderer : IDisposable
             state.Seen = _frame;
             state.Emitter = emitter;
             state.World = world;
+            // A world the program moved by a whole step moves the particles alive in the world's
+            // space with it before they are stepped, those in the entity's space moving with it.
+            if (renderWorld.TryGet<WorldMoved>() is { Step: { } moved } && !emitter.Local && state.Born.Span > 0)
+                ParticleStages.Of(device).RecordParticlesMoved(renderContext.CommandBuffer, state.Born.Gpu, state.Next,
+                    new Vector3((float)moved.X, (float)moved.Y, (float)moved.Z), state.Born.Span);
 
             // This frame's share of the rate, the fraction left owed to the next.
             var seconds = frame!.Seconds;

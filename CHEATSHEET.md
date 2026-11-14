@@ -102,7 +102,7 @@ int[] LoadRandomSequence(int count, int min, int max);   // count different whol
 
 ## Frame and cameras
 
-<!-- written by build/cheatsheet.sh from E3D.Drawing.cs, E3D.Vr.cs, E3D.Cameras.cs, E3D.Camera2D.cs, E3D.Camera3D.cs -->
+<!-- written by build/cheatsheet.sh from E3D.Drawing.cs, E3D.Vr.cs, E3D.Cameras.cs, E3D.Camera2D.cs, E3D.Camera3D.cs, E3D.MoveWorld.cs -->
 ```csharp
 void BeginDrawing();                                     // Starts a frame
 void EndDrawing();                                       // Ends the frame
@@ -155,6 +155,8 @@ Matrix4x4 GetCameraMatrix(Camera3D camera);              // The camera's world t
 Vector2 GetWorldToScreen(Vector3 position, Camera3D camera);  // Where a world point appears in the window through a 3D camera, in pixels from the top left
 Vector2 GetWorldToScreenEx(Vector3 position, Camera3D camera, int width, int height);  // Where a world point appears in a view width by height pixels through a 3D camera
 bool IsPointInFrontOfCamera(Vector3 position, Camera3D camera);  // Whether a world point is in front of a camera, so that GetWorldToScreen places it where it shows
+
+void MoveWorld(Vector3 offset);                          // Says that every place the program hands the engine moved by offset, a whole number of units along each axis, as a game far from the world's origin moves its own world back near it, so the engine moves what it keeps by place with it and the frame after the move draws, lights and simulates as the frame before did
 ```
 
 Inside texture mode, `ClearBackground` clears the target, 2D drawing is in its pixels and cameras

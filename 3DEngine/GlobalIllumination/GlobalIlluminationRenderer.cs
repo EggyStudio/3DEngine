@@ -366,6 +366,28 @@ internal sealed partial class GlobalIlluminationRenderer : IIlluminationPasses, 
         targets.ByTarget[id] = new IlluminationBinding(_gi, field.Field, state.Screen, depth, GlowLights: _glowCount);
     }
 
+    /// <summary>
+    /// Moves what global illumination keeps by place by a whole step a program moved its world by:
+    /// the world probes' corners with the field's cascades, so the probes and their light are kept,
+    /// the box of what changed in the field, the lights' places the frame before, so the step is no
+    /// change of the lights, the glow lights' places, the cameras the screen's probes and the
+    /// reflections' history were made through, and the sun's map the frame before.
+    /// </summary>
+    public void Move(WorldStep step)
+    {
+        for (int c = 0; c < _origins.Length; c++)
+            if (_origins[c] is { } corner) _origins[c] = step.Moved(corner);
+        _fieldChanged = new SceneFieldPlan.Box(step.Moved(_fieldChanged.Min), step.Moved(_fieldChanged.Max));
+        MoveLightSignature(step);
+        _glowPlaces.Move(step);
+        static (Matrix4x4, Vector3, ViewEye?)? Moved((Matrix4x4 ViewProjection, Vector3 Eye, ViewEye? Seen)? last, WorldStep step) =>
+            last is var (viewProjection, eye, seen) ? (step.MovedView(viewProjection), step.Moved(eye), seen is { } noted ? step.Moved(noted) : null) : null;
+        _lastScreen = Moved(_lastScreen, step);
+        foreach (var state in _targets.Values) state.Last = Moved(state.Last, step);
+        HistoryView = HistoryView?.Moved(step);
+        if (_sunBefore is { } sun) _sunBefore = sun with { Origin = new RenderOrigin(sun.Origin.X + step.X, sun.Origin.Y + step.Y, sun.Origin.Z + step.Z) };
+    }
+
     // A view's buffer for the screen's probes, as gi_screen.slang reads it, with its camera both
     // ways and its eye, the probes' tile and how many lie across and down, the first interval's
     // half, the world's probes, their spacing and cascades, the depth's size and the view's, its

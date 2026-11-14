@@ -50,6 +50,9 @@ internal sealed class LightExtract : IExtractSystem
         // The probes and their captures are one object for both worlds, since extraction and the
         // passes run on the same thread.
         var probes = world.GetOrInsertResource(static () => new ReflectionProbes());
+        // A world the program moved by a whole step moves the probes with it before they are
+        // taken, so a probe moved with it is not captured again.
+        if (world.TryGetResource<WorldMove>(out var move) && move.Pending is { } step) probes.Move(step);
         probes.Sync(ecs, world.TryGetResource<Time>(out var time) ? time.ElapsedSeconds : 0);
         renderWorld.Set(probes);
 

@@ -241,7 +241,7 @@ large hands `input.place` to the `Placed` twins, a world point carrying its floa
 lighting. What a program hands the engine in floats, its camera's position and target and its
 instances' places, carries that grid too, which no origin taken after restores, a target far out
 being the eye plus the look in floats, which rounds the look's turn, so a program that goes far
-keeps its numbers small by moving its own world as it goes.
+keeps its numbers small by moving its own world as it goes, which `MoveWorld` tells the engine of.
 The `instancing.slang` of the `shaders_instance_hues` example gives each of ten thousand cubes
 its own hue:
 

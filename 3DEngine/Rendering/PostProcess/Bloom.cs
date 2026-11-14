@@ -157,6 +157,9 @@ internal sealed partial class BloomRenderer : IDisposable
     private VolumeTexture? _noTable, _blueNoise;
     private WindowView? _lastView;
     private long _lastViewFrame = -2;
+
+    /// <summary>Reads the frame before's camera in a world a program moved by a whole step, so motion blur blurs by no movement it did not make.</summary>
+    public void Move(WorldStep step) => _lastView = _lastView?.Moved(step);
     // The exposure that follows the scene. The measured log luminance of the frame, the two texels
     // the adapted value goes back and forth between, one written each frame from the other, and
     // which was written last.
