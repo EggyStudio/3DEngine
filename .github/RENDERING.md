@@ -545,12 +545,22 @@ scattering's blur and the depth of field, take the depth's points back through t
 the frame's origin from its eye (`WindowView.InverseAgainst`, `WindowView.UnjitteredInverseAgainst`)
 and the eye's place against it, so a distance holds no float of the world's size; through the
 camera in world numbers a point far out comes back rounded to the float's step at the eye. A test
-stands the camera in fog that thins upward, through the depth of field's blur, by a block whose
+stands the camera in fog that thins upward, through the depth of field's blur, by a ball whose
 light scatters under its surface, and reads the frame the lens passes leave far out as the same
 frames at the world's origin, alike at every pixel at 4,096, 71,680 and 1,140,736 units, where the
 camera in world numbers reads 0.78, 17 and 40 levels apart at the most. The particles meet the
-depth through the camera in world numbers, as they are kept in world numbers, and the field's
-cascades lying ahead of the eye take their middle in world numbers.
+depth through the camera in world numbers, as they are kept in world numbers.
+
+The field's build hands the splat each mesh's rows with their translation taken against the
+cascade's corner in doubles, and the corner as nothing (`SceneFieldRenderer.Instances`), so a mesh
+far out and turned is put in the cells as at the origin. A moving mesh's stamp keeps its world
+matrix and inverts it taken against the frame's origin (`SceneFieldRenderer.StampRows`). The
+cascades lying ahead of the eye take their way from the view made with the eye at nothing, added to
+the eye once (`SceneFieldRenderer.AheadOf`), and the far cascade's cell follows the far distance
+the camera gives where its projection is made, carried with its eye (`ViewEye.Far`), since a far
+plane read back from a float projection holds only within a hundredth at any distance. A test draws
+a room with a turned block into a render texture at Low and reads it far out as at the origin,
+where placed in world floats it read 4 levels apart at 686 texels at 1,140,736.
 
 A view drawn for the frame is noted by its eye wherever the renderer makes one. The mirrored view of
 a program's plane is the window's eye mirrored in the plane, worked in doubles, with the window's
@@ -1146,9 +1156,16 @@ build clears a uint a cell to the band, then a workgroup a triangle puts the tri
 and takes, for each cell within the band of its bounds, the distance to it in 1024ths of a cell
 above a bit set where a double-sided triangle's nearest point to the cell lies on its rim, a bit set
 where the triangle is double-sided, a bit set where the cell is in front of the face, which for a
-double-sided one is the side of its plane the cell lies on, and the way the face looks in eight
-bits, keeping the least by an atomic minimum (`field_splat.slang`). Of two triangles as near, as a
-crate on the ground, the one the cell lies behind wins, the cell being inside some mesh, and a cell
+double-sided one is the side of its plane the cell lies on, the way the face looks in eight bits,
+and seven bits of the mesh's own last, from its matrix's turn and scale, its color and its
+triangles (`SceneFieldRenderer.Tie`), keeping the least by an atomic minimum (`field_splat.slang`).
+Of two triangles as near, as a crate on the ground, the one the cell lies behind wins, the cell
+being inside some mesh, and of two meshes' faces alike in all but the mesh, as two boxes' sides in
+one plane, the mesh's bits say which paints the cell, where the thread that wrote last did, which a
+CPU device orders otherwise from run to run; a test draws such faces twice and reads the two runs
+alike at every pixel, where Mesa 26.2.4 read 1,841 and 10,900 pixels apart in two runs of three
+without the bits. The bits leave the translation out, so a mesh moved with the world keeps them and
+a repaint after the move matches the words its build kept. A cell
 is behind a face only within 60 degrees of straight back from it, so where an edge or a corner is
 nearest, as above a pillar's rim, a face the way runs along does not put the cell inside. A cell
 whose nearest point is on an edge no other triangle shares by the places of its ends

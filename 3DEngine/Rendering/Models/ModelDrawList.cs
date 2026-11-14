@@ -127,11 +127,13 @@ internal sealed class ModelDrawList
     /// <remarks>
     /// Two cameras whose view-projections are one matrix, their eyes apart by less than a float's
     /// step there, keep neither eye, since either would serve the other's draws, and the passes
-    /// take the matrix as it is.
+    /// take the matrix as it is. The same eye noted twice keeps the far distance either gave.
     /// </remarks>
     internal void NoteEye(Matrix4x4 viewProjection, ViewEye eye)
     {
-        lock (_gate) _eyes[viewProjection] = _eyes.TryGetValue(viewProjection, out var noted) && noted != eye ? null : eye;
+        lock (_gate)
+            _eyes[viewProjection] = !_eyes.TryGetValue(viewProjection, out var noted) ? eye
+                : noted is { } known && known.Eye == eye.Eye && known.Turned == eye.Turned ? known with { Far = MathF.Max(known.Far, eye.Far) } : null;
     }
 
     /// <summary>The eye a view-projection was noted with this frame, or null for one made without a camera, as a light's, or by two cameras.</summary>

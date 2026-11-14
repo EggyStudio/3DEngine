@@ -57,7 +57,7 @@ internal sealed partial class MeshEntityDraws
             projection *= shift;
         }
         var (viewProjection, eye) = (view * projection, TransformPropagation.WorldMatrix(ecs, entity).Translation);
-        if (world.TryGetResource<ModelDrawList>(out var draws)) draws.NoteEye(viewProjection, new ViewEye(eye, turn * projection));
+        if (world.TryGetResource<ModelDrawList>(out var draws)) draws.NoteEye(viewProjection, new ViewEye(eye, turn * projection, camera.Far));
         return (viewProjection, eye);
     }
 

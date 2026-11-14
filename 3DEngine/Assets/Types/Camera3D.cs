@@ -45,6 +45,9 @@ public struct Camera3D
     /// </summary>
     internal readonly Matrix4x4 TurnedView => Matrix4x4.CreateLookAt(Vector3.Zero, Target - Position, Up);
 
+    /// <summary>How far from the camera <see cref="ProjectionMatrix"/> clips.</summary>
+    internal const float FarDistance = 4000f;
+
     /// <summary>The view to clip transform for a target of the given aspect ratio.</summary>
     /// <remarks>
     /// Y is flipped for Vulkan, whose clip space points down where <c>System.Numerics</c> assumes
@@ -53,7 +56,7 @@ public struct Camera3D
     /// </remarks>
     public readonly Matrix4x4 ProjectionMatrix(float aspect)
     {
-        const float near = 0.05f, far = 4000f;
+        const float near = 0.05f, far = FarDistance;
         var projection = Projection == CameraProjection.Perspective
             ? Matrix4x4.CreatePerspectiveFieldOfView(float.DegreesToRadians(FovY), aspect, near, far)
             : Matrix4x4.CreateOrthographic(FovY * aspect, FovY, near, far);

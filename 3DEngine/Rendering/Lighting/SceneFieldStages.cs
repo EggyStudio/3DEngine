@@ -315,7 +315,7 @@ internal sealed unsafe partial class SceneFieldStages(GraphicsDevice device) : I
     /// <param name="instanceCount">How many instances.</param>
     /// <param name="triangleCount">How many triangles they have in all.</param>
     /// <param name="cascade">The cascade built.</param>
-    /// <param name="origin">The cascade's corner.</param>
+    /// <param name="origin">The cascade's corner, in the numbers the instances' rows place their meshes in, nothing where the rows take a place against the corner.</param>
     /// <param name="cell">The width of its cells.</param>
     /// <param name="band">How many cells from a surface the distances are exact.</param>
     /// <param name="thinGlow">Whether an instance is emissive and thinner than a cell, whose light the cells near it are lent.</param>
@@ -378,7 +378,7 @@ internal sealed unsafe partial class SceneFieldStages(GraphicsDevice device) : I
             // in 1024ths of a cell above the bits that say whether a double-sided triangle's nearest
             // point lies on its rim, whether its triangle is double-sided and whether the cell is in
             // front, and eight bits of its face's way.
-            device.Api.vkCmdFillBuffer(cmd, words, 0, Vulkan.VK_WHOLE_SIZE, ((uint)band * 1024 << 11) | 1 << 8);
+            device.Api.vkCmdFillBuffer(cmd, words, 0, Vulkan.VK_WHOLE_SIZE, ((uint)band * 1024 << 19) | 1 << 16);
             // No second face as near as the nearest, until the painting pass finds one.
             device.Api.vkCmdFillBuffer(cmd, ((VulkanBuffer)field.Second).Buffer, 0, Vulkan.VK_WHOLE_SIZE, uint.MaxValue);
             device.Api.vkCmdFillBuffer(cmd, ((VulkanBuffer)field.Albedo).Buffer, 0, Vulkan.VK_WHOLE_SIZE, 0);
@@ -498,7 +498,7 @@ internal sealed unsafe partial class SceneFieldStages(GraphicsDevice device) : I
     /// <param name="instanceCount">How many instances.</param>
     /// <param name="triangleCount">How many triangles they have in all.</param>
     /// <param name="cascade">The cascade.</param>
-    /// <param name="origin">Its corner as its last build had it.</param>
+    /// <param name="origin">Its corner as its last build had it, in the numbers the instances' rows place their meshes in, nothing where the rows take a place against the corner.</param>
     /// <param name="cell">The width of its cells.</param>
     /// <param name="band">How many cells from a surface the distances are exact.</param>
     /// <returns>What the recording holds, to free once no frame in flight reads it.</returns>

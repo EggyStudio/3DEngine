@@ -177,7 +177,12 @@ internal readonly record struct RenderOrigin(double X, double Y, double Z)
 /// </summary>
 /// <param name="Eye">The camera's place in the world.</param>
 /// <param name="Turned">The view-projection as made with the eye at the world's origin.</param>
-internal readonly record struct ViewEye(Vector3 Eye, Matrix4x4 Turned);
+/// <param name="Far">
+/// How far from the eye its projection clips, as the projection was made with it, or 0 where it
+/// was not given, which a far plane read back from a float projection holds only within a
+/// hundredth.
+/// </param>
+internal readonly record struct ViewEye(Vector3 Eye, Matrix4x4 Turned, float Far = 0);
 
 /// <summary>
 /// modelpass.slang's ModelPush, as the model pass, the shadow pass and the particles push it to

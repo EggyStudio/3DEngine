@@ -5,9 +5,10 @@
 // by an atomic minimum of a word that holds the distance in 1024ths of a cell above a bit set where
 // a double-sided triangle's nearest point to the cell is off its plane's inside, on its rim, a bit
 // set where the triangle is double-sided, a bit set where the cell lies in front of the triangle's
-// face, and the way the face looks in eight bits. Of two triangles as near to that 1024th, as where
-// a crate stands on the ground, one behind whose face the cell lies wins, the cell being inside
-// some mesh. A double-sided triangle has no inside, and its front bit says which side of its plane
+// face, the way the face looks in eight bits, and seven bits of its instance last. Of two
+// triangles as near to that 1024th, as where a crate stands on the ground, one behind whose face
+// the cell lies wins, the cell being inside some mesh, and of two meshes' faces alike in all but
+// the instance, the instance's bits say which, so no thread's order does. A double-sided triangle has no inside, and its front bit says which side of its plane
 // the cell lies on, so the resolve keeps the plane in the cell where the nearest point lies on the
 // face's inside, and a ray traced through the field meets a sheet thinner than a cell, as a wall or
 // a floor of a mesh imported double-sided, at its plane from either side wherever it lies between
@@ -36,8 +37,9 @@ struct FieldInstance
     float4 row1;
     float4 row2;
     // x: its mesh's first triangle in the pool. y: how many it has. z: 1 in its lowest bit when the
-    // mesh has no inside, as a double-sided one, whose cells are all in front, and in its second
-    // byte the share of light that passes a unit of its depth in 255ths (lightThroughPaint). w: the
+    // mesh has no inside, as a double-sided one, whose cells are all in front, the seven bits after
+    // it the instance's own that end its words, and in its second byte the share of light that
+    // passes a unit of its depth in 255ths (lightThroughPaint). w: the
     // first of its triangles counted over every instance before it. z's third byte holds its
     // roughness and its fourth its metallic share, in 255ths.
     uint4 triangles;
@@ -383,7 +385,10 @@ void computeMain(uint3 group : SV_GroupID, uint lane : SV_GroupIndex)
         // or a corner of it nearest, where the plane would stand past the face.
         uint front = sided ? (!open && dot(p - q, face) < -0.5 * d * faceLength ? 0u : 1u) : (dot(p - a, face) >= 0.0 ? 1u : 0u);
         uint rim = !sided && abs(dot(p - q, face)) < 0.999 * d * faceLength ? 1u : 0u;
-        uint code = (uint(d / cell * 1024.0) << 11) | (rim << 10) | (sided ? 0u : 512u) | (front << 8) | way;
+        // The instance's seven bits last, below the way, so of two meshes' faces as near a cell
+        // to the 1024th and looking the same way, as two boxes' sides in one plane, the same one
+        // keeps the cell in every run, whichever thread writes first.
+        uint code = (uint(d / cell * 1024.0) << 19) | (rim << 18) | (sided ? 0u : 0x20000u) | (front << 16) | (way << 8) | ((instance.triangles.z >> 1u) & 127u);
         uint index = (at.z * size + at.y) * size + at.x;
         if (push.groups.y == 0u)
         {
@@ -408,7 +413,7 @@ void computeMain(uint3 group : SV_GroupID, uint lane : SV_GroupIndex)
             // the world's probes standing among them would read dark round patches at the walls'
             // feet.
             uint kept = cells[index];
-            if ((kept & 0x600u) == 0x200u && (kept & 255u) != way)
+            if ((kept & 0x60000u) == 0x20000u && ((kept >> 8u) & 255u) != way)
                 InterlockedMin(second[index], code);
         }
         else if (cells[push.groups.y == 3u ? push.groups.z + index : index] == code)

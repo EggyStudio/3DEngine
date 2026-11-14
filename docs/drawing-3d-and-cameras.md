@@ -140,10 +140,13 @@ keeps by place with them, the scene's distance field and the meshes it knows by 
 illumination's probes and their light, the frames before the passes' histories, the shadows' texels,
 the reflection probes' captures, the particles alive in the world's space, the bodies the physics
 simulates, which write their entities' transforms, and the sounds playing. The frame after the move
-then draws, lights and simulates as the frame before did, and costs what any other does. The step is
-a whole number of units, and the field's cells hold where it is a whole count of each cascade's
-cell, as a step of 1,024 is of cells of powers of two; a cascade whose cell it is not is built
-again.
+then draws, lights and simulates as the frame before did, and costs what any other does. The meshes
+known by their matrices are all the frame draws, mesh entities and those of `DrawMesh` and
+`DrawMeshInstanced` alike. The bodies and the sounds move in the call itself, so a program that
+sets their places itself in that frame calls `MoveWorld` first. The step is a whole number of
+units, any such step, a teleport's of thousands of units as well, and the field's cells hold where
+it is a whole count of each cascade's cell, as a step of 1,024 is of cells of powers of two; a
+cascade whose cell it is not is built again.
 
 A game that moves its camera itself sets `camera.Position` and `camera.Target` each frame and
 skips `UpdateCamera`. The `core_3d_camera_free` example looks back at the origin when Z is pressed

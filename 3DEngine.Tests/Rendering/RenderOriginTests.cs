@@ -438,10 +438,9 @@ public sealed class RenderOriginTests : IDisposable
     }
 
     // The room at a place in the world standing in fog that thins upward, lit by the sun and the
-    // lamp, through the depth of field's blur, with a block whose light scatters under its surface,
+    // lamp, through the depth of field's blur, with a ball whose light scatters under its surface,
     // the camera standing; the level of each pixel's light in the last frame as the lens passes
-    // leave it. The passes read each pixel's distance from the eye from the depth. Every corner lies
-    // on a float's step at 1,140,736, as the scene field splats meshes in world numbers.
+    // leave it. The passes read each pixel's distance from the eye from the depth.
     private static float[] Hazy(Vector3 at)
     {
         var config = Config.Default.WithWindow("render origin", Width, Height) with
@@ -458,7 +457,8 @@ public sealed class RenderOriginTests : IDisposable
         CreateDirectionalLight(Vector3.Normalize(new Vector3(-0.4f, -1, -0.3f)), Color.White, 1.5f);
         CreatePointLight(at + new Vector3(1.5f, 1.25f, 1.25f), new Color(255, 200, 150), 4, range: 6);
         var block = LoadModelFromMesh(GenMeshCube(1, 1, 1));
-        var scattering = block.Materials[0] with { SubsurfaceRadius = 0.3f, SubsurfaceColor = new Color(255, 90, 60) };
+        var ball = LoadModelFromMesh(GenMeshSphere(0.5f, 16, 16));
+        var scattering = ball.Materials[0] with { SubsurfaceRadius = 0.3f, SubsurfaceColor = new Color(255, 90, 60) };
         var view = new Camera3D(at + new Vector3(0, 2.5f, 5.5f), at + new Vector3(0, 0.5f, 0), Vector3.UnitY, 60);
         for (int frame = 0; frame < SceneFieldPlan.SettleFrames + 4; frame++)
         {
@@ -469,7 +469,7 @@ public sealed class RenderOriginTests : IDisposable
             DrawModelEx(block, at + new Vector3(0, -0.5f, 0), Vector3.UnitY, 0, new Vector3(8, 1, 8), new Color(200, 190, 170));
             DrawModelEx(block, at + new Vector3(0, 1.5f, -2.5f), Vector3.UnitY, 0, new Vector3(8, 4, 1), new Color(180, 120, 90));
             DrawModelEx(block, at + new Vector3(-1.25f, 0.5f, 0.25f), Vector3.UnitY, 0, Vector3.One, Color.White);
-            DrawMesh(block.Meshes[0], scattering, Matrix4x4.CreateScale(0.75f) * Matrix4x4.CreateTranslation(at + new Vector3(1.25f, 0.375f, 0.5f)));
+            DrawMesh(ball.Meshes[0], scattering, Matrix4x4.CreateTranslation(at + new Vector3(1.25f, 0.5f, 0.5f)));
             EndMode3D();
             EndDrawing();
         }
@@ -482,6 +482,7 @@ public sealed class RenderOriginTests : IDisposable
             l /= 1 + l;
             levels[i] = 255 * Math.Clamp(l <= 0.0031308f ? 12.92f * l : 1.055f * MathF.Pow(l, 1 / 2.4f) - 0.055f, 0, 1);
         }
+        UnloadModel(ball);
         UnloadModel(block);
         CloseWindow();
         UseApp(null);
@@ -668,10 +669,11 @@ public sealed class RenderOriginTests : IDisposable
     }
 
     // The room at a place in the world drawn into a render texture alone, the window showing the
-    // texture in 2D and drawing through no camera of its own, lit by the sun and the lamp with global
-    // illumination off; the level of each texel's light in the texture after the last frame, from
-    // its 8 bits a channel.
-    private static float[] Targeted(Vector3 at)
+    // texture in 2D and drawing through no camera of its own, lit by the sun and the lamp, the field
+    // built of the room's meshes with a block turned among them, which global illumination's light
+    // reads where it is on; the level of each texel's light in the texture after the last frame,
+    // from its 8 bits a channel.
+    private static float[] Targeted(Vector3 at, GlobalIllumination quality)
     {
         var config = Config.Default.WithWindow("render origin", Width, Height) with
         {
@@ -679,7 +681,7 @@ public sealed class RenderOriginTests : IDisposable
         };
         UseApp(new App(config).AddPlugin(new DefaultPlugins()));
         SetSceneField(2, 0.25f);
-        SetGlobalIllumination(GlobalIllumination.Off);
+        SetGlobalIllumination(quality);
         CreateDirectionalLight(Vector3.Normalize(new Vector3(-0.4f, -1, -0.3f)), Color.White, 1.5f);
         CreatePointLight(at + new Vector3(1.5f, 1.25f, 1.25f), new Color(255, 200, 150), 4, range: 6);
         var target = LoadRenderTexture(Width, Height);
@@ -712,16 +714,20 @@ public sealed class RenderOriginTests : IDisposable
     }
 
     [NeedsVulkanTheory]
-    [InlineData(4096f, 1024f)]
-    [InlineData(71680f, 17408f)]
-    [InlineData(1140736f, 285696f)]
-    public void A_Room_Drawn_Into_A_Texture_Alone_Far_From_The_Worlds_Origin_Reads_As_At_It(float x, float z)
+    [InlineData(4096f, 1024f, GlobalIllumination.Off)]
+    [InlineData(71680f, 17408f, GlobalIllumination.Off)]
+    [InlineData(1140736f, 285696f, GlobalIllumination.Off)]
+    [InlineData(1140736f, 285696f, GlobalIllumination.Low)]
+    public void A_Room_Drawn_Into_A_Texture_Alone_Far_From_The_Worlds_Origin_Reads_As_At_It(float x, float z, GlobalIllumination quality)
     {
-        var home = Targeted(Vector3.Zero);
-        var far = Targeted(new Vector3(x, 0, z));
+        var home = Targeted(Vector3.Zero, quality);
+        var far = Targeted(new Vector3(x, 0, z), quality);
         // With no window camera the origin stands at the render target's eye, so the room far out
         // is handed to the GPU in the numbers the room at the origin is; against the world's
-        // origin every place far out is a float of the world's size.
+        // origin every place far out is a float of the world's size. At Low the light reads the
+        // field, whose build takes each mesh's rows against its cascade's corner, so the turned
+        // block is put in its cells as at the origin, where placed in world floats its corners
+        // round to the step there.
         home.Zip(far, (a, b) => Math.Abs(a - b)).Max().Should().BeLessThan(1.5f, "a texel far out differs from the texel at the origin by its 8 bits' rounding at most");
     }
 

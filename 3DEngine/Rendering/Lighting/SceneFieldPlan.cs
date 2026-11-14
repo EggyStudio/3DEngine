@@ -168,14 +168,6 @@ internal sealed partial class SceneFieldPlan
     internal sealed record Build(int Cascade, Vector3 Origin, float Cell, Instance[] Instances, Box? Changed = null, bool First = true, bool Last = true,
         CellBox? Cells = null, int ShiftAxis = -1, int ShiftCells = 0);
 
-    /// <summary>
-    /// A mesh stamped as a box, from the world into its own space, the box's middle and half
-    /// extents there, the least scale from there to the world, the mesh's color in linear light, and
-    /// its emission, linear, none where global illumination carries it as a glow light.
-    /// </summary>
-    internal readonly record struct Shape(Matrix4x4 ToOwn, Vector3 Center, Vector3 Extents, float Scale, Vector3 Color = default, float LightThrough = 0,
-        Vector3 Emission = default);
-
     private readonly Func<ModelVertex[], Box> _bounds;
     private readonly Func<ModelVertex[], int> _triangles;
     private readonly Func<ModelVertex[], Part[]?> _parts;
@@ -601,9 +593,9 @@ internal sealed partial class SceneFieldPlan
             foreach (var (own, pose) in PartsWithin(instance, MaxShapes - Shapes.Count - (count - n - 1)))
             {
                 var w = pose * instance.World;
-                if (!Matrix4x4.Invert(w, out var toOwn)) continue;
+                if (!Shape.Turns(w)) continue;
                 var scale = MathF.Min(new Vector3(w.M11, w.M12, w.M13).Length(), MathF.Min(new Vector3(w.M21, w.M22, w.M23).Length(), new Vector3(w.M31, w.M32, w.M33).Length()));
-                Shapes.Add(new Shape(toOwn, (own.Min + own.Max) / 2, (own.Max - own.Min) / 2, scale, tint, instance.LightThrough, emission));
+                Shapes.Add(new Shape(w, (own.Min + own.Max) / 2, (own.Max - own.Min) / 2, scale, tint, instance.LightThrough, emission));
                 var (min, max) = own.Transformed(w);
                 for (int c = 0; c < Cascades; c++)
                 {
@@ -781,18 +773,4 @@ internal sealed partial class SceneFieldPlan
             _orderMovedAt[i] = _movedNow.Count > 0 && _movedNow.TryGetValue(instance, out var movedAt) ? movedAt : Never;
         }
     }
-
-    // The parts a mesh is stamped as where there are no more than room for, which leaves a box
-    // each for the meshes farther from the eye, and the box around all of it where there are, so a
-    // crowd of figures past what a frame stamps is stamped as figures near the eye and boxes beyond.
-    private Part[] PartsWithin(Instance instance, int room)
-    {
-        if ((instance.Parts ?? _parts(instance.Vertices)) is { } parts && parts.Length <= room) return parts;
-        if (_whole.TryGetValue(instance.Vertices, out var whole)) return whole;
-        if (_whole.Count > 4096) _whole.Clear();
-        return _whole[instance.Vertices] = [new Part(_bounds(instance.Vertices), Matrix4x4.Identity)];
-    }
-
-    // The box around all of each mesh as its one part, kept for its vertices.
-    private readonly Dictionary<ModelVertex[], Part[]> _whole = new(ReferenceEqualityComparer.Instance);
 }

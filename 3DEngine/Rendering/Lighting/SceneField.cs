@@ -202,13 +202,17 @@ internal sealed partial class SceneFieldRenderer : IDisposable
     /// <summary>How many cascades a move of the world built again, its step no whole count of their cells, since the field was made.</summary>
     internal int MovedCascades { get; private set; }
 
-    // The point a share of the finest cascade's width ahead of the eye along the window's view, the
-    // way through the window's middle, or the eye where the share is 0.
-    private static Vector3 AheadOf(WindowView view, float ahead, float cellSize)
+    /// <summary>
+    /// The point a share of the finest cascade's width ahead of the eye along the window's view, the
+    /// way through the window's middle, or the eye where the share is 0. The way is found through
+    /// the view made with the eye at nothing where the frame noted it, whose inverse holds no float
+    /// of the world's size, and added to the eye once.
+    /// </summary>
+    internal static Vector3 AheadOf(WindowView view, float ahead, float cellSize)
     {
-        if (!(ahead > 0) || !Matrix4x4.Invert(view.Unjittered, out var inverse)) return view.Eye;
+        if (!(ahead > 0) || !Matrix4x4.Invert(view.UnjitteredEye?.Turned ?? view.Unjittered, out var inverse)) return view.Eye;
         var middle = Vector4.Transform(new Vector4(0, 0, 0.5f, 1), inverse);
-        var way = new Vector3(middle.X, middle.Y, middle.Z) / middle.W - view.Eye;
+        var way = new Vector3(middle.X, middle.Y, middle.Z) / middle.W - (view.Turned is null ? view.Eye : Vector3.Zero);
         return way.LengthSquared() > 0 ? view.Eye + Vector3.Normalize(way) * (ahead * SceneFieldPlan.Resolution * cellSize) : view.Eye;
     }
 
@@ -332,7 +336,7 @@ internal sealed partial class SceneFieldRenderer : IDisposable
             }
             foreach (var build in plan.Builds)
             {
-                var (instances, count, triangles, thinGlow) = Instances(device, build.Instances, build.Cell);
+                var (instances, count, triangles, thinGlow) = Instances(device, build.Instances, build.Cell, build.Origin);
                 Hold(instances);
                 // A build in parts lends the cells the light of thin emitters whatever its first part
                 // holds, since a later part may hold one, and that light is cleared at its start.
@@ -346,14 +350,14 @@ internal sealed partial class SceneFieldRenderer : IDisposable
                 // mesh came or went keeps its cells as they were until then.
                 if (build.ShiftAxis >= 0) stages.RecordSceneFieldShift(commands, field, build.Cascade, build.ShiftAxis, build.ShiftCells);
                 Hold(stages.RecordSceneFieldBuild(commands, field, corners, instances, count, triangles,
-                    build.Cascade, build.Origin, build.Cell, SceneFieldPlan.Band, thinGlow, build.First, build.Last,
+                    build.Cascade, Vector3.Zero, build.Cell, SceneFieldPlan.Band, thinGlow, build.First, build.Last,
                     lend: build is { First: true, Last: true } ? thinGlow : true, sheet: sheet, cells: build.Cells, empty: build.ShiftAxis >= 0));
             }
             foreach (var (cascade, origin, cell, painted) in repaints)
             {
-                var (instances, count, triangles, _) = Instances(device, [.. painted], cell);
+                var (instances, count, triangles, _) = Instances(device, [.. painted], cell, origin);
                 Hold(instances);
-                Hold(stages.RecordSceneFieldRepaint(commands, field, corners, instances, count, triangles, cascade, origin, cell, SceneFieldPlan.Band));
+                Hold(stages.RecordSceneFieldRepaint(commands, field, corners, instances, count, triangles, cascade, Vector3.Zero, cell, SceneFieldPlan.Band));
             }
         }
         if (plan.Bricks.Count > 0)
@@ -504,13 +508,19 @@ internal sealed partial class SceneFieldRenderer : IDisposable
     // in the field and the path-traced reference where the frame shows the wall.
     private static bool SeeThrough(MaterialAlphaMode mode, float alpha) => mode == MaterialAlphaMode.Blend && alpha < 0.5f;
 
-    // How far the window's camera's far plane lies from its eye, at its middle, or no finite
-    // distance where the camera has none or it cannot be told.
-    private static float FarPlane(WindowView view)
+    /// <summary>
+    /// How far the window's camera's far plane lies from its eye, as the camera gave it where it
+    /// did, or else at its middle through the view made with the eye at nothing where the frame
+    /// noted it, whose inverse holds no float of the world's size, or no finite distance where the
+    /// camera has none or it cannot be told.
+    /// </summary>
+    internal static float FarPlane(WindowView view)
     {
-        if (!Matrix4x4.Invert(view.ViewProjection, out var inverse)) return float.PositiveInfinity;
+        if (view.Far > 0) return view.Far;
+        if (!Matrix4x4.Invert(view.Turned ?? view.ViewProjection, out var inverse)) return float.PositiveInfinity;
         var far = Vector4.Transform(new Vector4(0, 0, 1, 1), inverse);
-        return MathF.Abs(far.W) < 1e-12f ? float.PositiveInfinity : Vector3.Distance(new Vector3(far.X, far.Y, far.Z) / far.W, view.Eye);
+        var eye = view.Turned is null ? view.Eye : Vector3.Zero;
+        return MathF.Abs(far.W) < 1e-12f ? float.PositiveInfinity : Vector3.Distance(new Vector3(far.X, far.Y, far.Z) / far.W, eye);
     }
 
     /// <summary>The box around a mesh's vertices in its own space, kept while the mesh is drawn.</summary>
@@ -615,58 +625,6 @@ internal sealed partial class SceneFieldRenderer : IDisposable
         return MemoryMarshal.AsBytes(values.AsSpan()).ToArray();
     }
 
-    // A build's instances as field_splat.slang's FieldInstance reads them, 96 bytes each, whether
-    // one has an inside, the share of light it lets through, its roughness and its metallic share
-    // in its third count, with how many
-    // there are, how many triangles they have in all, and whether one is emissive and thinner than a
-    // cell of the build, which field_splat.slang lends the light of.
-    private (IBuffer Buffer, int Count, int Triangles, bool ThinGlow) Instances(GraphicsDevice device, SceneFieldPlan.Instance[] instances, float cell)
-    {
-        var thinGlow = false;
-        var buffer = device.CreateBuffer(new BufferDesc((ulong)Math.Max(1, instances.Length) * 96, BufferUsage.Storage, CpuAccessMode.Write));
-        var mapped = device.Map(buffer).Cast<uint>();
-        int written = 0, triangles = 0;
-        foreach (var instance in instances)
-        {
-            if (!_pooled.TryGetValue(instance.Vertices, out var pooled) || pooled.Count == 0) continue;
-            var record = mapped.Slice(written * 24, 24);
-            var (w, c, e) = (instance.World, instance.Color, instance.Emission);
-            ReadOnlySpan<float> rows = [w.M11, w.M21, w.M31, w.M41, w.M12, w.M22, w.M32, w.M42, w.M13, w.M23, w.M33, w.M43];
-            record.CopyFrom(MemoryMarshal.Cast<float, uint>(rows));
-            (record[12], record[13], record[14], record[15]) = ((uint)pooled.First, (uint)pooled.Count,
-                (instance.DoubleSided ? 1u : 0u) | Byte(instance.LightThrough) << 8 | Byte(instance.Roughness) << 16 | Byte(instance.Metallic) << 24, (uint)triangles);
-            var thinnest = Thinnest(instance);
-            // An emitter global illumination carries as a glow light marks its cells and lends
-            // none.
-            var carried = Carried(instance, _plan!.CellSize);
-            thinGlow |= !carried && thinnest > 0 && thinnest < cell;
-            ReadOnlySpan<float> colors = [c.X, c.Y, c.Z, carried ? 2 : 1, e.X, e.Y, e.Z, thinnest];
-            record.Slice(16).CopyFrom(MemoryMarshal.Cast<float, uint>(colors));
-            triangles += pooled.Count;
-            written++;
-        }
-        device.Unmap(buffer);
-        return (buffer, written, triangles, thinGlow);
-    }
-
-    // A share from 0 to 1 in 255ths.
-    private static uint Byte(float share) => (uint)MathF.Round(Math.Clamp(share, 0, 1) * 255);
-
-    // How thin an emissive instance is, its mesh's bounds along each of its own axes
-    // scaled by its world matrix, the least of them, which field_splat.slang lends the light of
-    // where it is under a cell, or 0 for one that emits nothing.
-    private float Thinnest(SceneFieldPlan.Instance instance)
-    {
-        if (instance.Emission is { X: <= 0, Y: <= 0, Z: <= 0 }) return 0;
-        if (!_bounds.TryGetValue(instance.Vertices, out var box)) _bounds[instance.Vertices] = box = SceneFieldPlan.Box.Of(instance.Vertices);
-        var w = instance.World;
-        var size = box.Max - box.Min;
-        var x = size.X * new Vector3(w.M11, w.M12, w.M13).Length();
-        var y = size.Y * new Vector3(w.M21, w.M22, w.M23).Length();
-        var z = size.Z * new Vector3(w.M31, w.M32, w.M33).Length();
-        return Math.Max(Math.Min(x, Math.Min(y, z)), 1e-4f);
-    }
-
     // The frame's shapes as field_stamp.slang's FieldShape reads them, one at least, each one's rows
     // taking a place against the frame's origin into its box, as the info's corners are handed.
     private static IBuffer Shapes(GraphicsDevice device, List<SceneFieldPlan.Shape> shapes, RenderOrigin origin)
@@ -675,8 +633,8 @@ internal sealed partial class SceneFieldRenderer : IDisposable
         var mapped = device.Map(buffer).Cast<float>();
         for (int s = 0; s < shapes.Count; s++)
         {
-            var (toOwn, center, extents, scale, color, through, emission) = shapes[s];
-            var m = origin.Taking(toOwn);
+            var (_, center, extents, scale, color, through, emission) = shapes[s];
+            var m = StampRows(shapes[s], origin);
             ReadOnlySpan<float> values = [m.M11, m.M21, m.M31, m.M41, m.M12, m.M22, m.M32, m.M42, m.M13, m.M23, m.M33, m.M43,
                 center.X, center.Y, center.Z, scale, extents.X, extents.Y, extents.Z, 0, color.X, color.Y, color.Z, through, emission.X, emission.Y, emission.Z, 0];
             mapped.Slice(s * 28).CopyFrom(values);
@@ -684,6 +642,15 @@ internal sealed partial class SceneFieldRenderer : IDisposable
         device.Unmap(buffer);
         return buffer;
     }
+
+    /// <summary>
+    /// A shape's rows as field_stamp.slang reads them, from a place against
+    /// <paramref name="origin"/> into the shape's own space, the inverse of its matrix taken
+    /// against the origin in doubles first, so the inverse holds no float of the world's size, or
+    /// nothing where it has none.
+    /// </summary>
+    internal static Matrix4x4 StampRows(SceneFieldPlan.Shape shape, RenderOrigin origin) =>
+        Matrix4x4.Invert(origin.Against(shape.World), out var toOwn) ? toOwn : default;
 
     // Each brick as field_stamp.slang reads it, its cascade, its place packed a byte an axis, and
     // where its run of shapes begins and how long it is, then the runs, a shape's place each, made

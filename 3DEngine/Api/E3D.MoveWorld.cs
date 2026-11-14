@@ -22,9 +22,17 @@ public static partial class E3D
     /// the passes read their history from, the shadows' texels, the reflection probes and what
     /// they captured, the particles alive in the world's space, the poses of the bodies the physics
     /// simulates, which write their entities' transforms, and the places of the sounds playing. A
-    /// mesh known by its matrix must be handed next at its matrix moved by the step to the bit,
-    /// which a whole step added to a place of a float keeps where the place is not far out, so the
-    /// step is a whole number of units, and a step that is not is refused.
+    /// mesh known by its matrix is any the frame draws, a mesh entity's, one drawn by
+    /// <see cref="DrawMesh"/> and each of <see cref="DrawMeshInstanced"/>'s alike, and it must be
+    /// handed next at its matrix moved by the step to the bit, which a whole
+    /// step added to a place of a float keeps where the place is not far out, so the step is a
+    /// whole number of units, and a step that is not is refused. Any whole step is taken, a
+    /// teleport's of thousands of units as well as a step back near the origin.
+    /// </para>
+    /// <para>
+    /// The bodies and the sounds move in the call itself, so a program that sets its sounds' or
+    /// bodies' places itself in the frame of the move calls this first and then sets them where
+    /// they are after the step.
     /// </para>
     /// <para>
     /// The distance field's cells keep what they hold where the step is a whole count of every

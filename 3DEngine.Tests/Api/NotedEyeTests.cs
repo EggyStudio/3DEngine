@@ -108,4 +108,39 @@ public sealed class NotedEyeTests : IDisposable
         Entries(farViews[0]).Zip(Entries(homeViews[0]), (f, h) => MathF.Abs(f - h)).Max()
             .Should().BeLessThan(1e-5f, "the narrowed view is pushed from the camera's eye");
     }
+
+    [Theory]
+    [InlineData(0f, 0f)]
+    [InlineData(71680f, 17408f)]
+    [InlineData(1140736f, 285696f)]
+    public void The_Window_View_Carries_The_Far_Plane_Its_Camera_Clips_At_However_Far_Out(float x, float z)
+    {
+        var at = new Vector3(x + 0.375f, 2, z - 0.625f);
+        BeginMode3D(new Camera3D(at, at + new Vector3(3, -1, -10), Vector3.UnitY, 70));
+        EndMode3D();
+        var renderWorld = new RenderWorld();
+        new CameraExtract().Run(_app.World, renderWorld);
+        // A far plane read back from the float projection holds within a hundredth at best, which
+        // turns with the camera across the far cascade's sizes and makes the field again.
+        var view = renderWorld.TryGet<WindowView>();
+        view.Should().NotBeNull("BeginMode3D drew into the window");
+        SceneFieldRenderer.FarPlane(view!).Should().Be(4000, "the camera clips at 4000 units, which the far cascade's cell follows");
+    }
+
+    [Fact]
+    public void An_Eye_Noted_With_And_Without_Its_Far_Plane_Keeps_The_Eye_And_The_Far_Plane()
+    {
+        // BeginMode3D notes the window's eye with the far plane it clips at, and the modeling
+        // window notes the same eye through the same view-projection without it.
+        var at = new Vector3(1140736.375f, 2, 285695.375f);
+        var camera = new Camera3D(at, at + new Vector3(3, -1, -10), Vector3.UnitY, 70);
+        var projection = camera.ProjectionMatrix(16f / 9);
+        var (viewProjection, turned) = (camera.View * projection, camera.TurnedView * projection);
+        var draws = new ModelDrawList();
+        draws.NoteEye(viewProjection, new ViewEye(at, turned, Camera3D.FarDistance));
+        draws.NoteEye(viewProjection, new ViewEye(at, turned));
+        draws.EyeOf(viewProjection).Should().Be(new ViewEye(at, turned, Camera3D.FarDistance), "both noted the one eye, one with its far plane");
+        draws.NoteEye(viewProjection, new ViewEye(at + Vector3.UnitX, turned));
+        draws.EyeOf(viewProjection).Should().BeNull("a second camera through the same matrix leaves neither eye");
+    }
 }

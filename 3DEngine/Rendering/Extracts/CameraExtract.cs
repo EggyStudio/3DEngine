@@ -15,12 +15,16 @@ internal sealed class CameraExtract : IExtractSystem
     {
         world.TryGetResource<EcsWorld>(out var ecs);
         if (MeshEntityDraws.WindowCamera(world, ecs) is { } window)
+        {
+            var noted = world.TryGetResource<ModelDrawList>(out var draws) ? draws.EyeOf(window.ViewProjection) : null;
             renderWorld.Set(new WindowView(window.ViewProjection, window.Eye)
             {
                 Jitter = world.TryGetResource<WindowJitter>(out var jitter) && world.TryGetResource<Time>(out var time)
                     ? jitter.In(time.FrameCount) : System.Numerics.Matrix4x4.Identity,
-                Turned = world.TryGetResource<ModelDrawList>(out var draws) ? draws.EyeOf(window.ViewProjection)?.Turned : null,
+                Turned = noted?.Turned,
+                Far = noted?.Far ?? 0,
             });
+        }
         else renderWorld.Remove<WindowView>();
         if (ecs is null) return;
 
@@ -105,6 +109,12 @@ internal sealed record WindowView(System.Numerics.Matrix4x4 ViewProjection, Syst
     /// (<see cref="ViewEye"/>), or null for a camera made without one.
     /// </summary>
     public System.Numerics.Matrix4x4? Turned { get; init; }
+
+    /// <summary>
+    /// How far from its eye its projection clips, as the camera that made it gave it, or 0 where
+    /// it was not given.
+    /// </summary>
+    public float Far { get; init; }
 
     /// <summary>
     /// Its view and projection taking a place against <paramref name="origin"/> to clip space, from

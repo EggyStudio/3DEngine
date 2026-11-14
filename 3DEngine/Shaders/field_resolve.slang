@@ -111,7 +111,7 @@ float3 way(uint bits)
 float resolvedAt(uint3 c, uint size)
 {
     uint code = cells[(c.z * size + c.y) * size + c.x];
-    float d = min(float(code >> 11) / 1024.0, push.cascade.w) * push.cascade.z;
+    float d = min(float(code >> 19) / 1024.0, push.cascade.w) * push.cascade.z;
     // A cell in front of one face and straight behind another that looks the other way, less than
     // a cell beyond it, lies against a wall thinner than a cell, which is held as a double-sided
     // sheet is, half a cell thick on either side of the wall's middle, so a ray between the cells
@@ -121,18 +121,18 @@ float resolvedAt(uint3 c, uint size)
     // outside a room of such walls would light its floor through them.
     uint hidden = behind[(c.z * size + c.y) * size + c.x];
     float beyond = float(hidden >> 8) / 1024.0 * push.cascade.z;
-    bool thin = (code & 0x300u) == 0x100u && hidden != 0xFFFFFFFFu && beyond - d < push.cascade.z
-        && dot(way(code), way(hidden)) < -0.7;
+    bool thin = (code & 0x30000u) == 0x10000u && hidden != 0xFFFFFFFFu && beyond - d < push.cascade.z
+        && dot(way(code >> 8u), way(hidden)) < -0.7;
     // A double-sided face is held at its distance, its plane kept beside it (sheetAt). Held below
     // zero within half a cell either side, a sheet lying midway between two cells' middles crosses
     // zero between them, but two sheets two cells apart hold every cell between them below zero,
     // and a screen probe there meets its own wall at its rays' start. Held within less, a sheet
     // midway lies further than the march's tenth of a cell from both middles and a ray passes it.
-    if ((code & 0x200u) != 0u)
+    if ((code & 0x20000u) != 0u)
         return d;
     if (thin)
         d = (d + beyond) * 0.5 - push.lent.y;
-    else if ((code & 0x100u) == 0u)
+    else if ((code & 0x10000u) == 0u)
         d = -d;
     return d;
 }
@@ -156,10 +156,10 @@ float3 sheetAt(uint3 c, uint size)
 // The plane a word gives, as sheetAt keeps it, or nothing.
 float3 sheetOf(uint code)
 {
-    float offset = float(code >> 11) / 1024.0;
-    if ((code & 0x600u) != 0x200u || offset >= 1.0)
+    float offset = float(code >> 19) / 1024.0;
+    if ((code & 0x60000u) != 0x20000u || offset >= 1.0)
         return float3(0.0);
-    return way(code) * (((code & 0x100u) != 0u ? -offset : offset) + SheetLength);
+    return way(code >> 8u) * (((code & 0x10000u) != 0u ? -offset : offset) + SheetLength);
 }
 
 // Whether a cell outside every surface lies between two cells beside it along two axes that lie
@@ -214,7 +214,7 @@ void computeMain(uint3 thread : SV_DispatchThreadID)
     float4 paint = float4(float(color & 255u), float((color >> 8) & 255u), float((color >> 16) & 255u), float(color >> 24)) / 255.0;
     stillPaint[at] = paint;
     albedoField[at] = paint;
-    uint face = (code & 255u) | gloss[(id.z * size + id.y) * size + id.x];
+    uint face = ((code >> 8u) & 255u) | gloss[(id.z * size + id.y) * size + id.x];
     stillFaces[at] = face;
     faceField[at] = face;
     uint index = (id.z * size + id.y) * size + id.x;

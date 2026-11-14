@@ -268,7 +268,7 @@ public static partial class E3D
         // The eye and the view-projection with the eye at nothing, which the passes push the view
         // from against the frame's origin, the turn the view's own.
         if (TryRes<ModelDrawList>(out var draws))
-            draws.NoteEye(viewProjection, new ViewEye(camera.Position, camera.TurnedView * projection));
+            draws.NoteEye(viewProjection, new ViewEye(camera.Position, camera.TurnedView * projection, Camera3D.FarDistance));
         SetRlCamera(camera.View, projection, depthTest: true);
         if (_stereo is { } stereo) BeginStereo(camera, stereo);
         // The shapes drawn through the camera recorded against its eye rounded as the frame's origin
