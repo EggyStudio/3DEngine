@@ -159,6 +159,31 @@ public sealed class SoakCheckTests : IDisposable
     }
 
     [NeedsPythonFact]
+    public void Swarms_Entities_Within_A_Turns_Fights_Are_Bounded_By_What_A_Whole_Turn_Holds()
+    {
+        // A pack run's readings of Swarm, two turns in the soak's two minutes, the second half's
+        // five all within fights, so the least of its entities went from 33 to 66 with nothing
+        // leaking, its ids, the most alive at once, steady at 130. They pass under the 160 a whole
+        // turn holds at once, and a second half whose least is past it fails.
+        int[] seconds = [12, 23, 34, 45, 57, 68, 81, 92, 104, 115, 126, 202];
+        int[] entities = [28, 74, 33, 95, 77, 40, 33, 119, 98, 84, 66, 108];
+        int[] ids = [41, 93, 93, 99, 104, 104, 104, 121, 130, 130, 130, 130];
+        string Turns(int more)
+        {
+            var path = _folder.File("swarm.csv");
+            File.WriteAllLines(path, seconds.Select((at, i) =>
+                $"{at} managed {14 << 20} heap {21 << 20} gen2 {2 * i + 7} resident {490L << 20} entities {entities[i] + (i >= 7 ? more : 0)} " +
+                $"entityIds {ids[i] + (i >= 7 ? more : 0)} assets 46 buffers 53 images 53 descriptorSets 29 pipelines 11"));
+            return path;
+        }
+
+        Check(Turns(0)).Exit.Should().Be(0, "a turn's fights hold more alive than its reset, and its last creature leaves as few as the first turn's");
+        var (exit, log) = Check(Turns(130));
+        exit.Should().Be(1, "past what a whole turn holds at once");
+        log.Should().Contain("swarm: entities climbed from 33 to 196 at its least");
+    }
+
+    [NeedsPythonFact]
     public void Manors_Entities_Are_Bounded_By_What_A_Whole_Walk_Holds_And_A_Climb_Says_Where_The_Walk_Stood()
     {
         // The least of each half on a pack run, Manor's entities from 374 to 422 with

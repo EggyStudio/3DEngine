@@ -1,9 +1,13 @@
 # Review
 
-Reviewed up to `254e5935`, the mend of the macOS captures leg, one sampler for each set of settings
-shared among all that ask and the close waiting for the frames in flight before a program's buffers
-go, pushed at 14:00 on 2026-11-15, its build run 43716715286 and its pack run with publish
-43716715283 started, the form kept and the message free of numbers, build run 43705246863 on the
+Reviewed up to `1c1e07e9`, item 277, Sponza's scene offering a button that fetches its pack with a
+bar of its progress and a cancel, the fetch public as ScenePacks, pushed at 16:45 on 2026-11-15, its
+build run 43731698709 started, the form kept and the message free of numbers. Before it `254e5935`,
+the mend of the macOS captures leg, one sampler for each set of settings shared among all that ask
+and the close waiting for the frames in flight before a program's buffers go, pushed at 14:00 on
+2026-11-15, its build run 43716715286 green at 15:43, every leg, and its pack run with publish
+43716715283 red at 16:45 in the games leg's soak alone (Verdict 124), both captures legs green, no
+package published, the form kept and the message free of numbers, build run 43705246863 on the
 commit before it green at 14:00. Before it `42483382`, Verdict 122's mend, the loops reading their
 draws by reference and the guard reading the code compiled for AVX2 and AVX-512 beside the machine's
 own, pushed at 11:40 on 2026-11-15, its build run started, the form kept and the message free of
@@ -421,45 +425,27 @@ reverted as the screen probes' limit at shapes about a tile wide, its patches in
 
 ## Verdicts
 
-Verdict 122 is open, written at 10:03 on 2026-11-15. Build run 43691963837 on `4a6e708b` is red in
-the Linux order leg at the step that runs `build/wide-registers.py`, 45 seconds in, every other step
-of the leg green, ended red at 10:22 with the other legs green. The pack run 43691963557 on the same
-head passed the same step on its own runner, read at 11:02, so the guard reads by the runner's
-processor and 6.2.82 may still publish. The guard names two of the four loops. In
-`ModelRenderer.Draw(Engine.TrackedRenderPass` the group G_M000_IG42 holds `vxorps ymm0, ymm0, ymm0`,
-and it reaches eight calls of the device, BindDescriptorSet, four of BindVertexBuffers,
-BindIndexBuffer and two of SetScissor. In `ModelRenderer.DrawSubsurface` the group G_M000_IG29 holds
-the same instruction and reaches BindDescriptorSet, BindVertexBuffers, BindIndexBuffer and
-BindGraphicsPipeline. DrawDepth and DrawShadowBatches read clean. The runner is an AMD EPYC 9V45
-with AVX-512, and the machine the guard was written on has none, so the script's sentence that a
-machine of AVX-512 reads alike was not measured. The instruction is a clearing of a register inside
-the loop, most likely a local of 32 bytes or more zeroed there, which the compiler does through a
-256-bit register where the machine prefers it. Asked. Reproduce the runner's code here if the
-compiler can be told to (the runtime's settings for the enabled extensions and the preferred vector
-width are the places to look, and whether they can raise as well as lower is to be read, not
-assumed), or else read the two listings from a run's artifact. Then either move the zeroed local out
-of the loop's path to the device as the copies were moved, or, if a cleared register of this kind is
-shown harmless to the driver's code by a timing, say so in the script and stop counting it, the
-timing given. The guard should pass on both kinds of machine, and the leg should upload the listings
-when it fails so the next red run reads without a rerun. The package waits on this. Verdict 123 is
-open, written at 11:37 on 2026-11-15. The pack run 43691963557 on `4a6e708b` ended red at 11:36 in
-the macOS captures leg alone, at the step that drives Sponza through its views, so the pack job was
-skipped and 6.2.82 is not published. Every view was driven and timed, and the step failed on the
-validation layer's errors in the scene's log, which the mended validation line lets the step see for
-the first time, so the faults are older than this head. Two are named. The first is vkCreateSampler
-past the device's limit, "Number of currently valid sampler objects (96) is not less than the
-maximum allowed (96)", seven times from 13.8 s as the scene loads, counts 96 to 102, and again at
-240 s and 415 s, where the layer stopped repeating it. The device under MoltenVK on the runner
-allows 96 samplers and Sponza's materials make more. The second is one line at 545.6 s,
-vkDestroyBuffer on a buffer still in use by a descriptor set that a command buffer in flight holds.
-Asked, after Verdict 122's mend and before item 274. For the samplers, one sampler for each distinct
-set of sampler settings, shared by every texture that asks for the same, with the count read against
-the device's maxSamplerAllocationCount, and a test that loads more textures than the limit with few
-distinct settings. For the buffer, find which buffer is freed while its frame is still recording,
-most likely one a view or a light gives up at a change of the hour or the lamps near the drive's
-end, and free it after the frames that hold it. Say for each whether the Linux and Windows legs can
-meet it, and why their drives did not report it. Verdicts 56 to 121 are settled, said under each in
-REVIEW-ARCHIVE.md.
+Verdict 124 is open, written at 16:48 on 2026-11-15. The pack run with publish 43716715283 on
+`254e5935` ended red at 16:45 in the games leg alone, so the pack job was skipped and no package is
+published, nuget's latest still 6.2.60. All 21 games built and played from the package, and the step
+that plays each game a while and checks that nothing it holds grows failed on one line, "swarm:
+entities climbed from 33 to 66 at its least, past its bound of 46". Every other value of Swarm
+passed, its entity ids 99 then 121 under their bound of 177, its buffers 51 then 53, its resident
+memory 480 MB then 481, and the other 19 programs read clean. Swarm played 2 turns in the 120
+seconds with 12 readings, so each half of the check holds about four readings and the second half
+can lie wholly inside one fought wave, where 66 entities are alive at every reading. The check's
+whole-turn bound for Swarm covers its entity ids alone, 152, and its entities are bounded by the
+first half's least. This reads as the check on a slow runner and not as a leak, but that is not
+shown. Asked, before the cost read. Show which it is, by the readings of `build/soak/swarm.csv` from
+the run's artifact if the leg uploads them, or by a soak here with every frame counting the quarter
+second, and say whether the close's wait or the shared samplers of `254e5935` slowed Swarm's turns
+against earlier runs. If it is the check, bound Swarm's entities by the most a whole turn holds as
+its ids are, the number measured, and have the leg upload the soak's readings when the step fails.
+If entities do stay alive past a turn's reset, mend the game. The package waits on this. Verdicts
+122 and 123 are settled. The register guard passed on both kinds of machine in build runs
+43705246863 and 43716715286 after `42483382`, and the macOS captures leg passed in pack run
+43716715283 after `254e5935`, its Sponza drive free of the sampler and buffer errors. Verdicts 56 to
+121 are settled, said under each in REVIEW-ARCHIVE.md.
 
 ## Decisions
 
@@ -904,3 +890,23 @@ The test and the examples' table now take the file named for the class, and the 
 pack's, the listings' and the norm's, 52 of 52. docs/scenes.md's blocks and every example build on a
 package packed at the tree, 0.1.0-preview.20261115142417, so the example reaches the fetch through
 the public surface alone. The three new tests of `ScenePackTests` stay in the Windows part Scenes.
+
+Verdict 124, Swarm's entities in the pack run's soak.
+
+The check, and no leak. The run's game-captures artifact holds swarm.csv, which the leg copies there
+before the check and uploads however the step ends, so the leg is left as it is. Its readings ten
+seconds apart give entities 28, 74, 33, 95, 77, 40, 33, 119, 98, 84, 66 and 108 over two turns of a
+minute each, two of the first half's falling on a turn's reset at 33 and none of the second's, whose
+five lie within fights, its ids, the most alive at once, steady at 130. Played here from a package
+of the tree, thirty of the soak's own turns with every frame counting a quarter second, a turn's
+last creature left 29 entities, or 34 with the player's shots in the air, from the third turn to the
+thirtieth, and the most alive at once was 160. The close's wait and the shared samplers did not slow
+its turns. The run played 2 turns in 120 s with 12 readings as the run on `4a6e708b` did, which
+passed with a reading of 29 in its second half, the runs on `baa21ff4` and `8561816b` played 1, and
+the soak closes no window between turns.
+
+The mend. Swarm's entities are bounded as its ids are, by the most thirty turns hold, 160 alive at
+once, which the ids' bound takes as well in place of 152 (`build/soak-check.py`). `SoakCheckTests`
+holds the run's readings, failing without the mend as the run did and passing with it, and the same
+second half 130 higher fails. The strict build is clean, and the soak check's and the norm's tests
+pass, 26 of 26.

@@ -73,11 +73,14 @@ SLACK = {
 # nothing alive past the next one's reset, but a frame on a slower device counts more of the game's
 # time, up to the quarter second Time clamps it to, so a turn of 300 frames reaches later waves
 # there and holds more entities at once, and their ids, which count the most ever alive at once,
-# climb with it. Its bound is the most thirty turns hold with every frame counting that quarter
-# second (`time.frame 0.25`).
+# climb with it. A turn there is a minute and more of the soak's two, so the readings ten seconds
+# apart of a whole half can all fall within its fights, the least of its entities one of a fight's.
+# Its entities and their ids are bounded by the most thirty turns hold with every frame counting
+# that quarter second (`time.frame 0.25`), 160 alive at once, where a turn's last creature leaves 29
+# entities, or 34 with the player's shots in the air, at every turn of the thirty.
 WHOLE = {
     "manor": {"buffers": 162, "images": 104, "descriptorSets": 95, "entities": 539, "entityIds": 539, "assets": 96},
-    "swarm": {"entityIds": 152},
+    "swarm": {"entities": 160, "entityIds": 160},
 }
 
 
