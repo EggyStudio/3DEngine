@@ -10229,6 +10229,94 @@ here, and the copy of the player's save is let go, made again on request. The lo
     mend. Done at `6075d306`, pushed at 06:23 on 2026-11-14, the lamps kept as the model pass keeps
     them, so a lamp left unlit there bounces nothing.
 
+273. **A glow light taken at a probe's hit reads several times the traced reference's first
+    bounce.** From the voxel game's read of its built room on 2026-11-14, at High on the local
+    package of `f4b1bdd9`, the sheet 14-02-built-room-light-by-cascade.png in the game's dump. The
+    room, lit by a sea lantern set into its wall and a little sky down a passage, reads 2.2 times
+    the reference's light, and 1.29 times with a glowstone set into its ceiling. The excess is the
+    probes' indirect light, 1.4 to 2.3 times the reference's rest at four points, where the glow
+    lights' direct term at a surface reads 1.1 to 1.3. Cascade 0 carries it, cascade 0 alone reading
+    2.09 where each coarser one alone reads 0.95 to 1.21. A probe of cascade 0 at the room's middle
+    meets a surface where the reference's path does in 58 of 64 ways and reads 257 percent over at
+    one bounce, the glow light taken at its rays' hits; other probes read 188 to 605 percent over,
+    2.9 to 7 times, and the bounces past the first add to it, the room falling to 1.49 with them
+    off. With the glow lights off both the probes' first bounce and the reference's are nothing. It
+    does not follow the probes' places, the room built again in rock a block and four blocks off
+    reading 2.24 and 2.17. Not the screen's probes, the filter, the history, the specular or the
+    merge, each left out changing it by under a tenth. To do, first a read as a Reply, what a glow
+    light sends to a hit, its form, its faces and its power against the emitter's as the reference
+    traces it, in a room with an emitter set flush into a wall, one standing free and one hung in
+    the air, the game's coder testing the same in its rooms; whether an emitter with faces buried in
+    what stands around it sends as the whole of it would. Then the mend with those three rooms held
+    to the reference at one bounce within a bound said there, and the direct term's 1.1 to 1.3 read
+    beside it. After part 8, ahead of 272 and 265, the kernels taking the mended form with them. The
+    cause confirmed by the game's test at 14:29 on 2026-11-14, the room built in rock with the
+    lantern at four places, each against its own reference at one bounce. A probe's first bounce
+    reads 252 percent over with one face of the lantern showing, 84 with two, 1 under with five and
+    6 over with six, the whole frame 116, 26, 1 and 2 percent over. Where every face of an emitter
+    shows the cascades read the reference within a few percent, and the whole excess is the light of
+    faces that lie against what stands around them. The direct term at a surface over-reads less,
+    1.14 to 1.35 with one face. The game hands each lamp as a whole cube of six faces and tries
+    handing the faces that show; the mend here takes no light from a face that cannot send it,
+    whatever a program hands, and the two must not take the light off twice. The coder's read from
+    the code and the mend's shape, accepted the same afternoon, and the game's trial recorded at
+    15:10 on 2026-11-14. A hit makes one march toward where its way enters the emitter's box and
+    then sums every face it lies before, the buried sides among them; a surface halves each face and
+    marches to each half but stops a cell short. The mend, a hit taking each face under its own
+    march to that face's middle and the surface's halves stopping at the face, up to three marches
+    where one for the brightest light at a hit, its cost read. The bar for it, from the game handing
+    a lamp's showing faces alone on 6.2.60-local.264.10, the sheet 15-09-lamps-by-their-faces.png,
+    the rock room 7 percent over its reference where 116, the built room 1.19 where 2.21 and 1.04
+    where 1.29 lit; a lamp showing two faces reads 14 percent dark there, touching boxes of one
+    light being joined at a share of their surface, so the mend's rooms say what a program's mesh of
+    one, two and three faces of a box reads. The game keeps whole cubes and leaves undrawn only a
+    lamp that shows no face. The game's last read of its room, recorded at 15:59 on 2026-11-14, the
+    sheet 15-59-built-room-light-not-the-lantern.png. The room walled up reads exactly nothing at
+    every pixel at High and at Low, so nothing comes through the rock. With the lantern out and the
+    passage open the room's light is the game's own floor of the sky's light by sky level, every
+    term of the model pass nothing there. So with the lamps mended the built room should read about
+    1.2 of its reference with the game's floor and 1.08 without, the bar its package is read
+    against. The review's design read of the twelve kernel questions, at
+    ~/.cache/claude-reviewer/audits-2026-11-14/kernels-design-and-research.md and done at 20:09 on
+    2026-11-14, gives this mend's form in its part 11, the field read at cell middles, faces decided
+    again only on the field's change near the light, a cleared face's light absorbed and not moved;
+    its plan's Reply says what it takes and what it leaves, the read at `c6bac6dc` and three of its
+    claims checked by the review. Taken by the coder at 20:11 in place of the marches a hit makes,
+    the light kept at 80 bytes, one pass on the GPU reading each light's faces from the field at
+    cell middles and taking the open ones into the mask every reader decodes, a light with none open
+    given no reach, faces decided again only on a light's events and the stored mask applied each
+    frame, joined groups keeping their members' faces on the union's at a share of surface, and the
+    tests building the closed layout the game's mesher makes and the culled one, the half-sunk
+    lamp's reading recorded as it falls.
+
+276. **The CPU's wide registers are left dirty before the driver's calls.** From 264's read of the
+    scene pass's cost on 2026-11-14, the session of five rounds ended at 23:04, the game's room at
+    Low capped at 100 and pinned to the P-cores, medians in ms. On 6.2.60 the scene pass, the
+    shadows and the window's depth read 0.447, 0.613 and 0.452 and every CPU pass summed 2.470; with
+    DOTNET_EnableAVX=0 0.434, 0.448, 0.354 and 2.145. On 264.9 0.755, 0.619, 0.457 and 2.779; with
+    it off 0.426, 0.425, 0.347 and 2.166. So the upper halves of the wide registers are left dirty
+    before the driver's SSE code on the render thread, which taxed the depth and the shadows' calls
+    before the origin and the scene pass's since `80fe61d2`. First the compiled code of the draw,
+    the shadows', the depth's and the view's paths and of the device's wrappers on both builds,
+    naming the instruction that dirties the state and the call it reaches with no vzeroupper
+    between. Then the mend leaving no dirty state before any driver call with the wide registers on,
+    the 64-byte structs passed by ref or in and the instance rows written in place, every CPU pass
+    summed reading about 2.15 to 2.2 on the game, read on the whole frame against 6.2.60 and 264.9;
+    a setting that takes the wide registers from every program is not the mend. A test holds it
+    where one can, and the Reply says so where none can. After 275's three high ones, beside 273.
+    Read in the compiled code by 23:30 on .NET 10.0.12 with tiered compilation off, the runtime puts
+    a vzeroupper only in the epilog of a method that uses the wide registers and none before a call,
+    and the device's wrappers use none, so the state a caller leaves is the state the driver runs
+    in. Two sites. The scene pass since `80fe61d2`, ModelRenderer.Draw copying the 64-byte view
+    through the wide registers into a temporary each batch, since the place and the view's push take
+    it by address, and again before the push, then reaching the scissor, the pipeline, the set
+    binds, the pushes, the vertex binds and the draws. The depth and the shadows on both builds,
+    each batch copying its own shadow's entry by value and clearing a 32-byte temporary to pass it
+    to the pipeline's and the vertices' calls. The mends, the entry read by ref and passed in, the
+    view taken by ref with no copy a batch, a copy the compiler still makes put in a helper whose
+    epilog clears the state before the call, each read in the mend's compiled code with no wide move
+    in a loop that calls the driver.
+
 ## Verdicts settled
 
 Verdicts 1 to 55 are settled, the last two, the drawing leak test's resident bound and the Windows
@@ -17607,6 +17695,130 @@ units as well as a step back near the origin.
 The strict build is clean and the suite passed both legs, 2,443, in 25 m 25 s and 25 m 5 s,
 the first run of both read before the noted eye's mend 2,440 and the two cases of the modeling
 window's outlines far out. The package is 6.2.60-local.264.11.
+
+Item 273, a glow light's faces read in the field.
+
+The mend is the form taken at 20:11. A pass of its own on the GPU (`glow_faces.slang`) reads which
+of each glow light's faces send, a workgroup a light and four points a face at the middles of its
+quarters, each marched out along the face's normal a cell at a time and read at the middle of the
+cell it lies in. Three points buried of four close a face, two open keep it, and otherwise it keeps
+what it was. The faces closed come out of the mask the light carries (`glowFaces`), which every
+closed form reads and the screen probes' share now reads too (`glowLightShown`), so a probe's hit
+and a surface alike take no light from the faces of a lamp set into a wall, and a light with no face
+open lights nothing. A light's faces are decided again only where its place is new or undecided, a
+build of the frame changed the field within its reach, a finer cascade holds it than decided it, or
+its box changed size, and kept in a uint a place between, so a still room's lamps keep their faces
+frame to frame and through a shift of the field, and the light stays at 80 bytes. On the CPU a mesh
+of one part with depth names the faces its triangles lie on as a mesh of many parts does, a flat one
+both its sides, as the reference takes a triangle's emission from either side, and blocks that touch
+and emit alike join into a light that sends from each member's face lying on the union's side, its
+power over those faces' surface. The pass is timed apart as `gi_glow_faces` where `gi.passes on`
+asks.
+
+The readings. A probe in a closed room of blocks at High, its hits held against the path-traced
+reference at one bounce past them (`BounceReference.MeasureProbe`), reads a lamp flush in a wall
+0.940 of the reference, one standing on the floor 1.058 and one hung in the air 1.046, each held
+between 0.9 and 1.1 (`GlobalIlluminationTests`); the fourth room, a probe's hits on a table top
+beside a lamp taller than it, reads 1.048, 0.2812 of 0.2684. The voxel game's built room read 2.2
+times its reference by a lamp set in its wall. The reference counts one bounce, since a lamp's light
+at a hit is the emitter the path's next step meets, and at none it reads nothing. The direct term at
+a surface reads the same mask, so a buried face's share leaves it as it leaves the probes' hits; its
+read against the reference beside them is not made here, and the game's read of its rooms on the
+package, the bar of 1.2 with its floor and 1.08 without, gives it.
+
+The tests. `GlobalIlluminationTests.GlowFaces` builds the closed layout the game's mesher makes and
+the culled one, a lamp flush in a wall, in a wall a block thick, in a ledge's inner corner, on the
+floor, hung in the air and three joined in a ceiling, and holds the faces against the blocks closed
+and the rest kept, the flush one with the field shifted a tenth of a cell too; a lamp flush in a
+wall sends from its face toward the room whole, its share 1, whether handed as a cube, as the faces
+that show or as quads; two lamps of different light side by side close the faces they press
+together; a lamp hung two cells from a wall and the roof keeps all six faces, and one a cell from
+them closes the two toward them, the error the cells' size leaves; a lamp half sunk in the floor
+keeps its sides whole; a lamp decided in the second cascade is decided again alike once the first
+holds it; and a still room's lamps keep their faces frame after frame and through a shift.
+`GlowLightsTests` holds a mesh of one, two and three faces of a block to those faces at their whole
+surface, a single face from both its sides, and an emitter recorded twice, as a stereo pair's second
+eye records it, to one light. Without the mend 24 of them fail.
+
+Three of the deep audit's findings come with it. The screen probes' share weighing faces a light
+does not emit from is mended by the mask above, and an emitter recorded twice gathered as two lights
+by the one light above. A probe's hit keeping a light's point of nothing (`gi.slang`) is left as it
+is, since no reading fails on it; the table top, the room where the point lies under the top's
+plane, reads 1.048 without a change and 1.085 with one.
+
+The runs. With 276 beside it, the global illumination's, the glow lights', the models', the
+shadows', the subsurface pass's and the ambient occlusion's tests pass on the RTX, 220 of 220 in 4 m
+15 s, and on Mesa 26.2.4 and Mesa 25.2.8, 214 of 218 in 22 m 22 s and 22 m 42 s, the four left out
+there tracing the device's rays, the probe's hits against the reference among them. The new cases of
+`GlobalIlluminationTests`, 21 of eight tests, each open a room in the flat API's window as the
+class's others do, about 11 s each on Mesa 26.2.4 and the still room's 24.7 s, 220 s for the 19 that
+run there; the four of `GlowLightsTests` start no app and use no device, under a hundredth of a
+second each. They join their classes' own parts, the four of `GlobalIlluminationTests` in the first
+and second Windows halves and `GlowLightsTests` in the fourth, as before, so no class moves.
+
+Item 276, the wide registers clear before the driver's calls.
+
+The mends. The frustum a pass culls by is a class made where the view changes and keyed by the view
+as the batches carry it (`Frustum.IsOf`), its constructor a call of its own, so the loops hold it by
+reference and copy none of its planes between the driver's calls. The scene pass takes its view by
+reference, the camera's where it is given and the batch's otherwise
+(`Nullable.GetValueRefOrDefaultRef`), with no copy a batch. The push of a view is a call of its own
+(`PushView`) that compares the view with the one the pass pushed last, pushes it where it differs
+and keeps it, so its comparison and its copies end in its own code's clearing of the upper halves;
+the view pushed last is the renderer's, which each pass forgets as it begins, since a pass holding
+one of its own cleared the 68 bytes through the wide registers before its first call of the device.
+The depth's and the shadows' loops read each batch's own shadow by reference and pass it in
+(`ShadowPipeline`, `BindShadowVertices`), and the view memo takes the move after a view in. The
+scene pass's plan of each batch reads a program's stages only where the batch has one, where it
+cleared a tuple of 48 bytes for the batches without, and adds the plan in a call of its own
+(`Plan`).
+
+The timing, the game's room at Low capped at 100 and pinned to the P-cores, five rounds each under
+the exclusive lock, medians in ms of the scene pass, the shadows, the window's depth and every CPU
+pass summed. In the first session, 6.2.60 read 0.437, 0.594, 0.434 and 2.409, 264.9 0.732, 0.593,
+0.457 and 2.716, the head 0.771, 0.607, 0.464 and 2.790, the head with the first site mends 0.428,
+0.394, 0.315 and 2.090, and the head with a clearing call before each of the driver's calls instead
+0.545, 0.520, 0.388 and 2.399, where the item's read with the wide registers off gave 2.145 and
+2.166. In the second, the head 0.759, 0.617, 0.467 and 2.796, the first site mends 0.437, 0.407,
+0.330 and 2.124, and the mends as committed 0.440, 0.423, 0.341 and 2.123. The head in both is
+`96358279`, the base every mend was built on. So the mends bring the sum to 2.090 and 2.123, under
+the target of 2.15 to 2.2 and under 6.2.60's own 2.409, and the backstop, which read 2.399, is left
+out.
+
+The sweep. Read over the game's whole compiled code at the end of a run, the head has 2,663 methods
+compiled, 438 of them with an instruction of 256 bits, and 142 reaching a call toward the device
+with the upper halves in use; with the first site mends 2,668, 439 and 139. It cannot tell how often
+a method runs, and most of the 142 run once or seldom, the render plugin's build, a pipeline's
+making, a particle system's placing; it reads each method's code in order rather than by its paths;
+and it took a call whose name holds brackets, a generic's or an array's, for one that leaves the
+state as it was. So it lists where to look and does not measure, and the four loops are what the
+timing above reads.
+
+The guard. `build/wide-registers.py` builds the tests as a game's release build is and runs
+`MeshEntityDrawsTests`'s test that compiles the four record loops, the scene's draws, the window's
+depth, the shadows' batches and the subsurface pass, with every other method of the renderer's and
+its view memo's, with tiered compilation off and the compiler's listing on, and reads each loop by
+its paths, jump by jump, for a write of a wide register that reaches a call of the device's with no
+vzeroupper and no call of a method whose every return clears the upper halves between. A machine of
+AVX-512 copying through its widest registers is read alike, and one that is not x86-64 passes. On
+the mended tree it passes; at the head the scene's draws have 23 write sites reaching 10 of the
+device's calls, the depth 14 reaching 3, the shadows' batches 2 reaching 2 and the subsurface pass
+12 reaching 4. It read the same twice, and takes about a minute from a clean build, so the build
+workflow's Linux job in order runs it after the suite, whether the suite passed or not. It is steady
+for a runtime; a new runtime's compiler may place a copy elsewhere, which it then names. A read in
+order rather than by paths passed the scene's draws while the plan's two copies reached the first
+batch's calls by a path the read in order took as cleared, so it reads by paths.
+
+The runs. The strict build is clean, and the suite on both legs, 2,475 with 273 beside it, passed in
+27 m 23 s and 25 m 42 s but for one test, the package's shaders folder held against the repository's
+(`PackageContentsTests`), which reads the newest package built, 6.2.60-local.275.1, made before
+`glow_faces.slang`. The new test of `MeshEntityDrawsTests` starts no app and uses no device,
+compiling the renderer's methods in 0.08 s on Mesa 26.2.4, and joins its class's part, Rendering 5,
+the fourth Windows half, so no class moves. The models', the shadows', the subsurface pass's and the
+ambient occlusion's tests pass on the three devices with 273's above, and RenderOriginTests passes
+whole on the RTX, Mesa 26.2.4 and Mesa 25.2.8, 31 of 31, in 1 m 20 s, 4 m 48 s and 5 m 6 s. The
+package made at `40c2f712` is 6.2.60-local.276.1, and the package's five tests pass on it, the
+shaders folder's among them.
 
 ## Items closed, parked or shortened
 

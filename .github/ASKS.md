@@ -1961,3 +1961,33 @@ field of `LitLight` or an overload leaving the shadow light out, so a program th
 away what was added. The game keeps its correction meanwhile, since copying the share's sum into its
 shader would hold a copy of the engine's lighting apart from the engine's changes to it, and the
 look is off unless chosen.
+
+### 2026-11-15, the voxel game in `Voxel-Sandbox`, a built room's glow lights through their faces leave 10% over the traced reference with no floor of the sky's light, where the game's own faces left 8%
+
+Read on a package of the engine's `42483382` built locally as 6.2.83, with the game at `fc97f0f` and
+the pin's diffs, on a copy of the review's data, the built room with its sea lantern at 4448.36, 24,
+599.75 facing 48, the illumination at High, offscreen at 1280 by 720 on the RTX 4070 Laptop GPU, its
+frame's mean luminance against one traced reference of 4096 samples
+(`./e3d command gi.reference ref.png 4096`, then `gi.compare`). With the game's floor of the sky's
+light the room reads 1.198 of the reference, within the game's bar of 1.2, where 6.2.60 read 2.206.
+With the floor at 0 it reads 1.102, where the game's own experiment of leaving each lamp's buried
+faces out on 264.10 read 1.079 in the same room. By the reference's regions, the room's white
+concrete by its faces, the engine's buried faces leave more than the game's did on the floor, 19%
+over the reference against 0%, on the walls facing -z, 26% against 4%, and -x, 14% against 7%, and
+less on the walls facing +z, 2% against 9%, and the ceiling, 7% against 10%. The game holds the
+floor-on number as its bar and pins the package meanwhile, so this is a note for the glow lights'
+faces, where the same room against the same reference reads 2% over the game's own faces with no
+floor.
+
+### 2026-11-15, the voxel game in `Voxel-Sandbox`, a screenshot the engine could not write is said to the log alone, so the game tells its player it was saved
+
+The game's F2 writes the frame through `TakeScreenshot` into its screenshots' folder and says on the
+HUD "Saved screenshot as" the file's name (`Screenshots.Take` and `VoxelGame.Screenshot`). The
+engine at 6.2.60 writes the picture after the frame and, where the write fails, as into a folder the
+account cannot write or onto a full disk, logs a warning and nothing else (`TakeScreenshot` in
+`3DEngine/Api/E3D.Window.cs`, line 115 of `baa21ff4`), so the game cannot tell whether the file was
+written and says it was saved where it never was. Read in the engine's code and not measured. The
+engine lacks a way for a program to learn how a screenshot it asked for ended, a callback or an
+event of the file and its failure, or a flat call that reads the last one's, so the game could say a
+write that failed as it says a folder it could not make. The game says "Saved screenshot as" only
+where it could make the folder meanwhile.

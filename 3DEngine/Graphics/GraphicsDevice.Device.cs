@@ -158,6 +158,7 @@ internal sealed unsafe partial class GraphicsDevice
         // No samples along a slant on a device that draws on its CPU, since lavapipe's sixteen blur
         // a texture drawn at its own size, which a GPU's leave whole.
         _maxAnisotropy = onCpu ? 1 : Math.Max(1, device.limits.maxSamplerAnisotropy);
+        _samplerLimit = Math.Max(1, device.limits.maxSamplerAllocationCount);
         CanQueryRays = hasRayExtensions && structures.accelerationStructure && rayQuery.rayQuery && vulkan12.bufferDeviceAddress && !onCpu;
         if (CanQueryRays) extensionNames.AddRange(rayExtensions);
         var enabledRayQuery = new VkPhysicalDeviceRayQueryFeaturesKHR { rayQuery = true };

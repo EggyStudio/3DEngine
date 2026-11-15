@@ -12,6 +12,8 @@ Done that day
 
 - Item 270 at `6075d306`. More than sixteen point and spot lights write past the lamps in the
   illumination's lights buffer.
+- Item 273 at `c6bac6dc`. A glow light taken at a probe's hit reads several times the traced
+  reference's first bounce.
 
 ## 2026-11-12
 
@@ -20,6 +22,7 @@ Done that day
 - Item 256 at `91ec6329`. 3DEngine as one package.
 - Item 262 at `2e870eb6`. Whether the glow lights' history finds its own texel in a still view.
 - Item 263 at `8561816b`. The dither's grain not seen.
+- Item 276 at `80fe61d2`. The CPU's wide registers are left dirty before the driver's calls.
 
 ## 2026-11-11
 

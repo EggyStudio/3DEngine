@@ -105,40 +105,6 @@ internal sealed unsafe partial class GraphicsDevice
         }
     }
 
-    /// <summary>Wraps a Vulkan sampler with its creation descriptor.</summary>
-    /// <seealso cref="ISampler"/>
-    internal sealed class VulkanSampler : ISampler
-    {
-        private readonly GraphicsDevice _device;
-
-        /// <inheritdoc />
-        public SamplerDesc Description { get; }
-
-        /// <summary>The underlying Vulkan sampler handle.</summary>
-        internal VkSampler Sampler;
-
-        /// <summary>Creates a new Vulkan sampler wrapper.</summary>
-        /// <param name="device">The owning graphics device.</param>
-        /// <param name="desc">The sampler creation descriptor.</param>
-        /// <param name="sampler">The Vulkan sampler handle.</param>
-        public VulkanSampler(GraphicsDevice device, SamplerDesc desc, VkSampler sampler)
-        {
-            _device = device;
-            Description = desc;
-            Sampler = sampler;
-        }
-
-        /// <inheritdoc />
-        public void Dispose()
-        {
-            if (Sampler.Handle != 0)
-            {
-                _device._deviceApi.vkDestroySampler(Sampler);
-                Sampler = default;
-            }
-        }
-    }
-
     /// <summary>Creates a device-local GPU image (texture or render target) backed by Vulkan memory.</summary>
     /// <param name="desc">Image creation descriptor (extent, format, usage).</param>
     /// <returns>A new <see cref="IImage"/> handle.</returns>
@@ -235,49 +201,6 @@ internal sealed unsafe partial class GraphicsDevice
         get => _maxAnisotropy;
         set => _maxAnisotropy = Math.Max(1, value);
     }
-
-    /// <summary>Creates a Vulkan texture sampler with the specified filtering and addressing modes.</summary>
-    /// <param name="desc">Sampler creation descriptor.</param>
-    /// <returns>A new <see cref="ISampler"/> handle.</returns>
-    public ISampler CreateSampler(SamplerDesc desc)
-    {
-        var anisotropy = Math.Clamp(desc.MaxAnisotropy, 1, _maxAnisotropy);
-
-        VkSamplerCreateInfo info = new()
-        {
-            magFilter = desc.MagFilter == SamplerFilter.Linear ? VkFilter.Linear : VkFilter.Nearest,
-            minFilter = desc.MinFilter == SamplerFilter.Linear ? VkFilter.Linear : VkFilter.Nearest,
-            addressModeU = ToVkAddressMode(desc.AddressU),
-            addressModeV = ToVkAddressMode(desc.AddressV),
-            addressModeW = ToVkAddressMode(desc.AddressW),
-            anisotropyEnable = anisotropy > 1,
-            maxAnisotropy = anisotropy,
-            borderColor = VkBorderColor.IntOpaqueBlack,
-            unnormalizedCoordinates = false,
-            compareEnable = false,
-            compareOp = VkCompareOp.Always,
-            // Blends between mip levels when the texture is smoothed and picks the nearest level
-            // when it is not, unless the description says which, and lets an image with mip levels
-            // use all of them. An image without them has one level, which the bound leaves alone.
-            mipmapMode = (desc.MipFilter ?? desc.MinFilter) == SamplerFilter.Linear ? VkSamplerMipmapMode.Linear : VkSamplerMipmapMode.Nearest,
-            minLod = 0,
-            maxLod = Vulkan.VK_LOD_CLAMP_NONE,
-        };
-
-        _deviceApi.vkCreateSampler(&info, null, out VkSampler sampler).CheckResult();
-        return new VulkanSampler(this, desc, sampler);
-    }
-
-    /// <summary>Maps an engine <see cref="SamplerAddressMode"/> to the Vulkan equivalent.</summary>
-    private VkSamplerAddressMode ToVkAddressMode(SamplerAddressMode mode) => mode switch
-    {
-        SamplerAddressMode.ClampToEdge => VkSamplerAddressMode.ClampToEdge,
-        SamplerAddressMode.MirrorRepeat => VkSamplerAddressMode.MirroredRepeat,
-        // A device without the feature clamps at the edge, the nearest of the modes it has.
-        SamplerAddressMode.MirrorClampToEdge => CanMirrorClamp ? VkSamplerAddressMode.MirrorClampToEdge : VkSamplerAddressMode.ClampToEdge,
-        SamplerAddressMode.Repeat => VkSamplerAddressMode.Repeat,
-        _ => VkSamplerAddressMode.ClampToEdge
-    };
 
     /// <summary>Maps an engine <see cref="ImageFormat"/> to the Vulkan <c>VkFormat</c> equivalent.</summary>
     private static VkFormat ToVkFormat(ImageFormat format) => format switch

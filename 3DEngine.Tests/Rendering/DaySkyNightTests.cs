@@ -79,6 +79,15 @@ public sealed class DaySkyNightTests : IDisposable
     // multiplied by.
     private static float[] Night(float hours, Vector3 toward, float fovy, int width, int height, out float preExposure)
     {
+        DrawNight(hours, toward, fovy, width, height);
+        preExposure = GetApp().World.Resource<PhysicalUnits>().PreExposure;
+        var renderer = GetApp().World.Resource<Engine.Renderer>();
+        return ((GraphicsDevice)renderer.Context.Graphics!).ReadFloats(renderer.RenderWorld.TryGet<BloomRenderer>()!.Decoded!.ColorView.Image);
+    }
+
+    // Eight frames of the window drawing the night, the last of them left on the device.
+    private static void DrawNight(float hours, Vector3 toward, float fovy, int width, int height)
+    {
         var config = Config.Default.WithWindow("night", width, height) with { Headless = true, Offscreen = true, Samples = 1 };
         UseApp(new App(config).AddPlugin(new DefaultPlugins()));
         SetSkyDay(new SkyDay { Minutes = 0, Tilt = 0, Atmosphere = Earth });
@@ -96,9 +105,6 @@ public sealed class DaySkyNightTests : IDisposable
             EndMode3D();
             EndDrawing();
         }
-        preExposure = GetApp().World.Resource<PhysicalUnits>().PreExposure;
-        var renderer = GetApp().World.Resource<Engine.Renderer>();
-        return ((GraphicsDevice)renderer.Context.Graphics!).ReadFloats(renderer.RenderWorld.TryGet<BloomRenderer>()!.Decoded!.ColorView.Image);
     }
 
     private static float Luminance(float[] light, int width, int x, int y) =>
@@ -152,5 +158,17 @@ public sealed class DaySkyNightTests : IDisposable
         var across = Enumerable.Range(0, Width).Count(x => Luminance(light, Width, x, Height / 2) > middle * 0.5f);
         var expected = Sky.Moon.AngularDiameter / Fovy * Height;
         across.Should().BeInRange((int)(expected * 0.9f), (int)(expected * 1.1f) + 1, "the disc spans the moon's half degree");
+    }
+
+    [NeedsVulkanFact]
+    [Trait("Category", "Render")]
+    public void The_Window_Closed_Under_The_Night_Sky_Frees_Its_Stars_Once_The_Last_Frame_Has_Finished()
+    {
+        // The stars are a buffer the sky's draw reads, which closing the window freed with the
+        // buffers a program loads while the frame that drew them was still on the device.
+        var before = GraphicsDevice.ValidationErrors.Count;
+        DrawNight(21, Vector3.Normalize(new Vector3(0, 1, -1)), 60, 32, 32);
+        CloseWindow();
+        GraphicsDevice.ValidationErrors.Skip(before).Should().BeEmpty("the window waits for the frame drawing the stars before it frees their buffer");
     }
 }

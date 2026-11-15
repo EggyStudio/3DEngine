@@ -214,7 +214,10 @@ Textures loaded through the flat API go into `TextureStore`, and `GpuTexturesPre
 before the graph runs, keeps one image, view, sampler and descriptor set per texture for every pass
 that samples them, and destroys an unloaded or replaced texture's objects four frames later, once
 no frame in flight can read them. A texture's filter and wrap are its sampler's, so changing either
-replaces the sampler and set and keeps the image.
+replaces the sampler and set and keeps the image. The device makes one sampler for each distinct
+set of settings, which every sampler asking for the same shares and the last let go destroys, since
+a device allows only so many at once (96 under MoltenVK on a Mac, where a scene of many textures
+passed it at one a texture), and it logs an error where a new set of settings would pass its limit.
 
 ## 3. Meshes and materials
 

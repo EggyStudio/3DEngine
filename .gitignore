@@ -83,3 +83,5 @@ imgui.ini
 /Voxel-Sandbox
 # Every picture a session makes while it works, which the owner reads and prunes by day (N 4.10).
 /.github/dump/
+# The bytecode Python writes beside the build's scripts it runs.
+__pycache__/

@@ -317,12 +317,17 @@ public static partial class E3D
         if (ComputePipelines.Remove(id, out var pipeline)) pipeline.Dispose();
     }
 
-    // Frees the buffers and pipelines a program left loaded, before the device they belong to goes.
+    // Frees the buffers and pipelines a program left loaded, before the device they belong to goes,
+    // once the frames that drew with them have finished, as the night sky's draw reads its stars.
     private static void ForgetCompute()
     {
         foreach (var ticket in Readbacks.Values) ComputeDevice?.ReleaseReadback(ticket);
         Readbacks.Clear();
-        ComputeDevice?.WaitForCompute();
+        if (ComputeDevice is { } device)
+        {
+            device.WaitForCompute();
+            device.WaitIdle();
+        }
         if (TryRes<ShaderBufferStore>(out var buffers))
             foreach (var buffer in buffers.TakeAll()) buffer.Dispose();
         foreach (var pipeline in ComputePipelines.Values) pipeline.Dispose();
