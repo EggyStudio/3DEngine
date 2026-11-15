@@ -68,8 +68,9 @@ internal sealed class EcsPlugin : IPlugin
         Logger.Info("EcsPlugin: ECS command flush system registered to PostUpdate stage.");
 
         // In Render, which runs on one thread after PostUpdate (where commands land and physics
-        // writes its bodies) and before Last (where the renderer reads transforms). Writes made
-        // after it, in Render or Last, carry later ticks and reach it the next frame.
+        // writes its bodies) and before Last (where the renderer reads transforms), ahead of the
+        // draws Render gathers, which name it to run after it. Writes made after it, in Render or
+        // Last, carry later ticks and reach it the next frame.
         app.AddSystem(Stage.Render, new SystemDescriptor(TransformPropagation.Run, "EcsPlugin.TransformPropagation")
             .Write<EcsWorld>());
 

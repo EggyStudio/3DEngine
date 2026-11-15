@@ -28,10 +28,13 @@ internal sealed class FlatApiPlugin : IPlugin
         // The day sky moves its hour, its light and its map after the program's frame, so an hour the
         // program set in it is drawn in it.
         app.AddSystem(Stage.PostUpdate, new SystemDescriptor(world => DaySky.Run(world, app), "RenderPlugin.DaySky").MainThreadOnly());
-        // After the mesh entities, which the render plugin records first.
-        app.AddSystem(Stage.Render, new SystemDescriptor(world => AnimatedModelDraws.Run(world, app), "RenderPlugin.AnimatedModelDraws").MainThreadOnly());
+        // After the mesh entities, which the render plugin records first, each once the frame's
+        // transforms are carried down the tree.
+        app.AddSystem(Stage.Render, new SystemDescriptor(world => AnimatedModelDraws.Run(world, app), "RenderPlugin.AnimatedModelDraws")
+            .After("EcsPlugin.TransformPropagation").MainThreadOnly());
         // The edit meshes model.show put in the world, built again as the commands change them.
-        app.AddSystem(Stage.Render, new SystemDescriptor(world => EditMeshNames.Draw(world, app), "RenderPlugin.EditMeshDraws").MainThreadOnly());
+        app.AddSystem(Stage.Render, new SystemDescriptor(world => EditMeshNames.Draw(world, app), "RenderPlugin.EditMeshDraws")
+            .After("EcsPlugin.TransformPropagation").MainThreadOnly());
         // The overlay is drawn over everything else in 2D, after the frame's systems, before the frame
         // is rendered where a window or an offscreen run renders it, and before the draws are let go
         // where nothing does.

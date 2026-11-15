@@ -12,7 +12,7 @@ namespace Engine.Tests.Rendering.Models;
 /// </remarks>
 [Collection("E3D")]
 [Trait("Category", "Unit")]
-public sealed class MeshEntityShaderTests : IDisposable
+public sealed partial class MeshEntityShaderTests : IDisposable
 {
     private readonly App _app = new();
 

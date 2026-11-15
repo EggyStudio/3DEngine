@@ -126,8 +126,10 @@ internal sealed class RenderPlugin : IPlugin
         app.World.InitResource<MeshStore>();
         app.World.InitResource<ShaderStore>();
         app.World.InitResource<ShaderBufferStore>();
-        // The mesh entities, recorded first in Render, the flat API's systems after them (FlatApiPlugin).
-        app.AddSystem(Stage.Render, new SystemDescriptor(MeshEntityDraws.Run, "RenderPlugin.MeshEntityDraws").MainThreadOnly());
+        // The mesh entities, recorded in Render once the frame's transforms are carried down the tree,
+        // the flat API's systems after them (FlatApiPlugin).
+        app.AddSystem(Stage.Render, new SystemDescriptor(MeshEntityDraws.Run, "RenderPlugin.MeshEntityDraws")
+            .After("EcsPlugin.TransformPropagation").MainThreadOnly());
 
         // An offscreen run has no window either, and renders into the device's own images.
         if (cfg.Offscreen && !app.World.ContainsResource<AppWindow>() && cfg.Graphics == GraphicsBackend.Vulkan)
