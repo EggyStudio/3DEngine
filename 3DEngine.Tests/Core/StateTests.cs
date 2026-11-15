@@ -233,6 +233,69 @@ public class StateTests
         app.World.ContainsResource<State<InGame>>().Should().BeFalse();
     }
 
+    private enum Mode { Creative, Survival, Hardcore }
+    private enum Living { Yes, Hard }
+
+    [Fact]
+    public void A_Computed_State_Made_Before_Its_Source_Is_Entered_And_Moved_Before_Its_InState_Systems_See_It()
+    {
+        // Its enter and exit systems and an InState system registered before its source is added,
+        // as a behavior's are when it is found first, so its machine is made before the source's.
+        var app = new App();
+        var log = new List<string>();
+        app.OnEnter(Living.Yes, _ => log.Add("enter Yes"))
+            .OnExit(Living.Yes, _ => log.Add("exit Yes"))
+            .OnEnter(Living.Hard, _ => log.Add("enter Hard"))
+            .AddSystem(Stage.Update, new SystemDescriptor(_ => log.Add("update Yes"), "Vitals").RunIf(BehaviorConditions.InState(Living.Yes)).MainThreadOnly());
+        app.AddState(Mode.Survival)
+            .AddComputedState<Living, Mode>(mode => mode switch { Mode.Survival => Living.Yes, Mode.Hardcore => Living.Hard, _ => null });
+
+        app.Frame();
+        log.Should().Equal(["enter Yes", "update Yes"], "the first value is entered at the first transition point, before Update");
+        log.Clear();
+
+        app.World.Resource<NextState<Mode>>().Set(Mode.Creative);
+        app.Frame();
+        log.Should().Equal(["exit Yes"], "the way to none leaves the value in the source's move");
+        app.World.ContainsResource<State<Living>>().Should().BeFalse();
+        log.Clear();
+
+        app.World.Resource<NextState<Mode>>().Set(Mode.Survival);
+        app.Frame();
+        log.Should().Equal(["enter Yes", "update Yes"], "a state come back from none is entered in the move that brings it back");
+        log.Clear();
+
+        app.World.Resource<NextState<Mode>>().Set(Mode.Hardcore);
+        app.Frame();
+        log.Should().Equal(["exit Yes", "enter Hard"], "a move of the computed value is made in its source's transition point");
+        app.World.Resource<State<Living>>().Current.Should().Be(Living.Hard);
+    }
+
+    [Fact]
+    public void A_Sub_State_Made_Before_Its_Parent_Is_Entered_Before_Its_InState_Systems_See_It()
+    {
+        var app = new App();
+        var log = new List<string>();
+        app.OnEnter(Pause.Running, _ => log.Add("enter Running"))
+            .OnExit(Pause.Running, _ => log.Add("exit Running"))
+            .AddSystem(Stage.Update, new SystemDescriptor(_ => log.Add("update Running"), "Running").RunIf(BehaviorConditions.InState(Pause.Running)).MainThreadOnly());
+        app.AddState(Screen.Playing)
+            .AddSubState(Screen.Playing, Pause.Running);
+
+        app.Frame();
+        log.Should().Equal(["enter Running", "update Running"], "the parent's first value brings the sub-state in at the same transition point");
+        log.Clear();
+
+        app.World.Resource<NextState<Screen>>().Set(Screen.Menu);
+        app.Frame();
+        log.Should().Equal(["exit Running"]);
+        log.Clear();
+
+        app.World.Resource<NextState<Screen>>().Set(Screen.Playing);
+        app.Frame();
+        log.Should().Equal(["enter Running", "update Running"], "the sub-state is entered in the move that brings it back");
+    }
+
     [Fact]
     public void An_Entity_Tied_To_A_Value_Goes_With_Its_Children_When_The_State_Leaves_It()
     {

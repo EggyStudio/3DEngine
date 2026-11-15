@@ -1,57 +1,61 @@
 # Review
 
-Reviewed up to `c53719f5`, item 278, a quality of global illumination that names no value refused
-with an error naming it and the quality kept, its test drawing the frames after, with a scene pack's
-remarks saying what its manifest holds and the cost read's Reply, pushed at 21:03 on 2026-11-15, its
-build run 43755793467 green at 22:43, the form kept and the message free of numbers. One comment in
-its test tells what the code did before the mend and is asked reworded in the next commit. Before it
-`c54a38c6`, Verdict 124's mend, the soak check bounding Swarm's entities by the 160 a whole turn
-holds at once as its ids are, a test holding the red run's readings, pushed at 18:20 on 2026-11-15,
-its build run 43740523923 green by 20:02, every leg, and its pack run with publish 43740524413 green
-at 20:45, the soak passing in its games leg, with 6.2.86 of the package and its templates pushed to
-nuget and the tag v6.2.86 set on it, the form kept and the message free of numbers. Before it
-`1c1e07e9`, item 277, Sponza's scene offering a button that fetches its pack with a bar of its
-progress and a cancel, the fetch public as ScenePacks, pushed at 16:45 on 2026-11-15, its build run
-43731698709 green at 18:20, the form kept and the message free of numbers. Before it `254e5935`, the
-mend of the macOS captures leg, one sampler for each set of settings shared among all that ask and
-the close waiting for the frames in flight before a program's buffers go, pushed at 14:00 on
-2026-11-15, its build run 43716715286 green at 15:43, every leg, and its pack run with publish
-43716715283 red at 16:45 in the games leg's soak alone (Verdict 124), both captures legs green, no
-package published, the form kept and the message free of numbers, build run 43705246863 on the
-commit before it green at 14:00. Before it `42483382`, Verdict 122's mend, the loops reading their
-draws by reference and the guard reading the code compiled for AVX2 and AVX-512 beside the machine's
-own, pushed at 11:40 on 2026-11-15, its build run started, the form kept and the message free of
-numbers. Before it `4a6e708b`, with `40c2f712`, item 276's mend, the model passes' record loops
-copying no view or shadow entry through the CPU's wide registers before the driver's calls, every
-CPU pass summed at 2.123 ms against the head's 2.796, a script reading their compiled code for it in
-the Linux job, and `ba117e9f`, item 273, a glow light sending from the faces the scene field finds
-open, the probe's hits at 0.94 to 1.06 of the traced reference, pushed at 08:53 on 2026-11-15 once
-the run before them had ended, their build run 43691963837 red in the Linux order leg's register
-guard alone at 10:22 (Verdict 122) and the pack run with publish 43691963557 on the same head red at
-11:36 in the macOS captures leg's Sponza drive alone (Verdict 123), its pack job skipped, no package
-published, 6.2.82 by the version script; they keep the form and carry the review's files. Before
-them `4b621af2`, with `9954c125` and `488e7483`, item 275's three high findings, the validation
-layer's errors logged with the words a run's checks look for and a warning keeping its own, the
-draws Render gathers running after the transforms are carried down the tree, and every body blended
-between its last two steps whether an entity holds it or not, each with tests that failed without
-its mend, both suite legs at 2,449 passed, pushed at 04:59 on 2026-11-15 once the run before them
-had ended, their build run 43674781156 green on the three systems at 06:33; they keep the form and
-carry the review's files. Before them `96358279`, 264's part 8, the field far out reading as at the
-origin and alike from run to run, each mesh's rows taken against its cascade's corner, its way ahead
-and far cascade from the camera's eye and far distance, a moving mesh's stamp against the frame's
-origin and a tie of two meshes near a cell broken by bits of the mesh's own, the fog room's ball and
-MoveWorld's words, the noted eye keeping the far distance a camera gave, pushed at 21:20 on
-2026-11-14 once the run before it had ended, its build run 43636980622 green at 22:52 on the three
-systems; the strict build is clean, the suite passes both legs at 2,443 in 25 m 25 s and 25 m 5 s,
-RenderOriginTests 31 of 31 on the RTX, Mesa 26.2.4 and Mesa 25.2.8, the render-texture room's case
-at Low reading 4.00 without the rows against its bound of 1.5 and 9.0 s on lavapipe, the tie's test
-18.8 s there, no Windows part moving; it keeps the form and carries the review's files. Before it
-`c6bac6dc`, 264's part 7, MoveWorld, a program that moves its world by a whole step saying so and
-the engine moving its field, its probes and their light, its histories, its shadows' texels, the
-reflection probes, the particles, the physics' bodies and the sounds with it, a mesh at its matrix
-plus the step the same still mesh, with the ambient's test of a panel too wide to be carried, pushed
-at 13:06 on 2026-11-14 once the run before it had ended, green at 14:44 with the four Windows jobs
-in 82, 47, 59 and 91 minutes, macOS in 55 and the Linux legs in 88 and 65; WorldMoveTests reads
+Reviewed up to `2ceadfd1`, item 279, the window's ambient occlusion worked out by circular occluders
+as a second method beside the horizons, which stay the default, with its settable figures, its
+commands, its tests on three devices and CORTAO's notice, pushed at 23:19 on 2026-11-15, its build
+run 43768674338 started, the form kept. One comment of its tests names a game as its example and is
+asked reworded in the next commit. Before it `c53719f5`, item 278, a quality of global illumination
+that names no value refused with an error naming it and the quality kept, its test drawing the
+frames after, with a scene pack's remarks saying what its manifest holds and the cost read's Reply,
+pushed at 21:03 on 2026-11-15, its build run 43755793467 green at 22:43, the form kept and the
+message free of numbers. One comment in its test tells what the code did before the mend and is
+asked reworded in the next commit. Before it `c54a38c6`, Verdict 124's mend, the soak check bounding
+Swarm's entities by the 160 a whole turn holds at once as its ids are, a test holding the red run's
+readings, pushed at 18:20 on 2026-11-15, its build run 43740523923 green by 20:02, every leg, and
+its pack run with publish 43740524413 green at 20:45, the soak passing in its games leg, with 6.2.86
+of the package and its templates pushed to nuget and the tag v6.2.86 set on it, the form kept and
+the message free of numbers. Before it `1c1e07e9`, item 277, Sponza's scene offering a button that
+fetches its pack with a bar of its progress and a cancel, the fetch public as ScenePacks, pushed at
+16:45 on 2026-11-15, its build run 43731698709 green at 18:20, the form kept and the message free of
+numbers. Before it `254e5935`, the mend of the macOS captures leg, one sampler for each set of
+settings shared among all that ask and the close waiting for the frames in flight before a program's
+buffers go, pushed at 14:00 on 2026-11-15, its build run 43716715286 green at 15:43, every leg, and
+its pack run with publish 43716715283 red at 16:45 in the games leg's soak alone (Verdict 124), both
+captures legs green, no package published, the form kept and the message free of numbers, build run
+43705246863 on the commit before it green at 14:00. Before it `42483382`, Verdict 122's mend, the
+loops reading their draws by reference and the guard reading the code compiled for AVX2 and AVX-512
+beside the machine's own, pushed at 11:40 on 2026-11-15, its build run started, the form kept and
+the message free of numbers. Before it `4a6e708b`, with `40c2f712`, item 276's mend, the model
+passes' record loops copying no view or shadow entry through the CPU's wide registers before the
+driver's calls, every CPU pass summed at 2.123 ms against the head's 2.796, a script reading their
+compiled code for it in the Linux job, and `ba117e9f`, item 273, a glow light sending from the faces
+the scene field finds open, the probe's hits at 0.94 to 1.06 of the traced reference, pushed at
+08:53 on 2026-11-15 once the run before them had ended, their build run 43691963837 red in the Linux
+order leg's register guard alone at 10:22 (Verdict 122) and the pack run with publish 43691963557 on
+the same head red at 11:36 in the macOS captures leg's Sponza drive alone (Verdict 123), its pack
+job skipped, no package published, 6.2.82 by the version script; they keep the form and carry the
+review's files. Before them `4b621af2`, with `9954c125` and `488e7483`, item 275's three high
+findings, the validation layer's errors logged with the words a run's checks look for and a warning
+keeping its own, the draws Render gathers running after the transforms are carried down the tree,
+and every body blended between its last two steps whether an entity holds it or not, each with tests
+that failed without its mend, both suite legs at 2,449 passed, pushed at 04:59 on 2026-11-15 once
+the run before them had ended, their build run 43674781156 green on the three systems at 06:33; they
+keep the form and carry the review's files. Before them `96358279`, 264's part 8, the field far out
+reading as at the origin and alike from run to run, each mesh's rows taken against its cascade's
+corner, its way ahead and far cascade from the camera's eye and far distance, a moving mesh's stamp
+against the frame's origin and a tie of two meshes near a cell broken by bits of the mesh's own, the
+fog room's ball and MoveWorld's words, the noted eye keeping the far distance a camera gave, pushed
+at 21:20 on 2026-11-14 once the run before it had ended, its build run 43636980622 green at 22:52 on
+the three systems; the strict build is clean, the suite passes both legs at 2,443 in 25 m 25 s and
+25 m 5 s, RenderOriginTests 31 of 31 on the RTX, Mesa 26.2.4 and Mesa 25.2.8, the render-texture
+room's case at Low reading 4.00 without the rows against its bound of 1.5 and 9.0 s on lavapipe, the
+tie's test 18.8 s there, no Windows part moving; it keeps the form and carries the review's files.
+Before it `c6bac6dc`, 264's part 7, MoveWorld, a program that moves its world by a whole step saying
+so and the engine moving its field, its probes and their light, its histories, its shadows' texels,
+the reflection probes, the particles, the physics' bodies and the sounds with it, a mesh at its
+matrix plus the step the same still mesh, with the ambient's test of a panel too wide to be carried,
+pushed at 13:06 on 2026-11-14 once the run before it had ended, green at 14:44 with the four Windows
+jobs in 82, 47, 59 and 91 minutes, macOS in 55 and the Linux legs in 88 and 65; WorldMoveTests reads
 0.000 at Low on the three devices and 0.213 at the most at High on the RTX, RenderOriginTests passes
 whole, 30 of 30, and the suite passed both legs, 2,431; it keeps the form and carries the review's
 files. Before it `0567d8f4`, the rest of the independent read's findings and the last of the
@@ -456,6 +460,31 @@ reverted as the screen probes' limit at shapes about a tile wide, its patches in
     state, at the activating transition point. The same is checked for a sub state and for the first
     entry at startup, and for `OnExit` on the way to none. It follows item 279's commit and goes
     before 280, being small. DESIGN.md's words on states say the order if they do not.
+
+282. **The circular occluders' glue, a second reader's seven findings.** Read on `2ceadfd1` at 23:35
+    on 2026-11-15, by the code alone, the first checked by the review too. One, the main pass is
+    compiled with `CORTAO_SAMPLE_COUNT=8` and `=16` in `AmbientOcclusion.Circular`, defines the
+    shipped cache is not built for, since it holds the plain build and `SlangLoader.Variants` alone,
+    so a packaged program without slangc falls back to the horizons with one warning and the method
+    never works there, the gravest. The cache is built for both counts, or the count becomes a
+    figure the pass reads, and a test of the shipped cache asks for every build the engine asks for.
+    Two, `CircularOccluders.Retire` runs only inside `Record`, so after the method is switched away
+    the images `Release` queued stay until the method is chosen again, and with the occlusion and
+    the sun both off `Draw` returns before `Release` is called at all. Three, the fallback catches
+    three kinds of exception, and a device error from making a compute stage or a failure to start
+    the compiler passes it with the failure not marked, while `Ready` reads the filter alone, so a
+    second `Initialize` would make the earlier stages again over the first. Four, the window's sets
+    for the circular occluders' views grow by one each time the method goes off and on, the earlier
+    ones naming views that are gone, until a resize. Five, a slope compensation of positive infinity
+    passes `Math.Max(1, value)` in the call and in `ao.set` and gives the shader a zero to take an
+    inverse root of, so the figure is held finite. Six, `ao.save filtered` with `ao.filter off`
+    saves an image no pass wrote. Seven, `ao.reference` takes a radius that is not a number, and
+    `OcclusionReference` makes its sums image, its buffer and its pool before its `try`, so a throw
+    after them leaks them. Each is checked against the code first and answered in the Reply, mended
+    or refuted with the lines, with a test where one can fail on the head. The reader found the
+    layouts, the sets' counts, the table's length, the resize, the barriers, the projection and the
+    unchanged default sound. It goes first, before 281, since the first finding holds the method
+    back in every packaged program.
 
 ## Verdicts
 
@@ -1033,3 +1062,41 @@ and after the strict build again the shader compiler's 29 tests pass. On Windows
 `CircularOccludersTests` joins Rendering 1, in the third half, and `CircularOccludersRenderTests`
 Rendering 7, in the fourth, and the 62 Rendering classes after them by name each move two parts on,
 44 of them to another half.
+
+Item 281, a computed state or a sub state entered at the transition point that brings it in.
+
+The cause. `StateTransitions.Apply` ran its machines in the order they were made, and a machine is
+made by whichever comes first, its `AddState`, `AddSubState` or `AddComputedState`, or a transition
+system registered for it, as a behavior's `[OnEnter]` is when it is found. A computed state whose
+`[OnEnter]` was found before its source was added came before the source, so the source's move ran
+`Activate`, which leaves the entering to the machine's own `Apply`, after that machine had already
+been passed for the frame. Its `InState` systems then ran in `Update` with the state current, and
+its enter systems a frame later. The same held for a computed state moving between two values, whose
+`NextState` the source's move set after the machine was passed, and for a sub state whose parent
+came after it, at the first entry at startup as at every later one. `OnExit` on the way to none was
+already right, since `Deactivate` runs the exit systems in the source's move.
+
+The mend. Each machine worked out from another, a computed state from its source and a sub state
+from its parent, is linked to it (`StateTransitions.Follows`), and `Apply` runs the machines in the
+order they were made with each moved after those it is worked out from, whichever was made first, so
+a state its source brings in, takes away or moves is entered, left or moved at the same transition
+point, before `Update`. The remark of `AddComputedState`, ARCHITECTURE.md's paragraph on states and
+the states guide say the order. DESIGN.md has no paragraph on states, so it is said where the states
+are described.
+
+The tests.
+`StateTests.A_Computed_State_Made_Before_Its_Source_Is_Entered_And_Moved_Before_Its_InState_Systems_See_It`
+registers the enter and exit systems and an `InState` system of a computed state before its source
+is added, then reads the first entry at startup, the way to none, the way back and a move between
+two of its values, each frame's systems in order.
+`StateTests.A_Sub_State_Made_Before_Its_Parent_Is_Entered_Before_Its_InState_Systems_See_It` reads
+the same of a sub state over its parent's first entry, its leaving and its coming back. On the head
+both fail at the first frame, the log holding the `InState` system alone.
+
+The runs. The strict build is clean and the focused tests pass 140, the state and behavior tests
+among them. Both legs of the suite pass, 2,491, in 28 m 17 s and 27 m 33 s, at 2,993 and 2,534 MB at
+most, the second shuffled by the seed 20261023. On Windows the two tests join `Core.StateTests` in
+the Core part, the first half, and no class moves.
+
+The comment item 279's review asked for is carried here, `CircularOccludersRenderTests` saying the
+room far from the origin is read against the same room at it.

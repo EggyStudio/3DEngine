@@ -107,11 +107,13 @@ holds one value. It is created and entered when the parent enters the value, in 
 point, and its exit systems run and it goes away when the parent leaves, before the parent's own
 exit systems. `app.AddComputedState<InGame, Screen>(compute)` adds a state worked out from another
 after each of its moves, with no state where `compute` gives null, and moves it with its own exit
-and enter systems only when its value changes. Either may have no `State<T>`, which `InState` reads
-as false. Either can be declared instead of added. `[SubStateOf(Screen.Playing)]` on an enum makes
-it a sub-state entered at its first member or at `Initial`, and `[ComputedState]` on a static method
-from the source enum to the computed one, nullable, makes the method its `compute`. The generated
-registration adds them before the behaviors.
+and enter systems only when its value changes. Each is applied after the state it comes from at
+every transition point, whichever was made first, so its `InState` systems see a value only once its
+enter systems have run. Either may have no `State<T>`, which `InState` reads as false. Either can be
+declared instead of added. `[SubStateOf(Screen.Playing)]` on an enum makes it a sub-state entered at
+its first member or at `Initial`, and `[ComputedState]` on a static method from the source enum to
+the computed one, nullable, makes the method its `compute`. The generated registration adds them
+before the behaviors.
 
 `ecs.DespawnOnExit(entity, Screen.Playing)` gives an entity a `DespawnOnExit<Screen>` component, and
 when the state leaves that value, by a move or by a sub-state ending with its parent's value, the

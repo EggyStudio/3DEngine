@@ -168,6 +168,9 @@ public enum InGame { Yes }
 public static InGame? FromScreen(Screen screen) => screen is Screen.Playing ? InGame.Yes : null;
 ```
 
+Either is entered at the same transition point as the move that brings it in, before `Update`, so
+its `[InState]` methods see a value only once its `[OnEnter]` methods have run.
+
 ## See also
 
 - Examples: [`ecs_states`](../3DEngine.Examples/Ecs/EcsStates.cs)

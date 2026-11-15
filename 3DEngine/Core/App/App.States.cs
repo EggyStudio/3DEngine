@@ -54,6 +54,7 @@ public sealed partial class App
     {
         var parent = Transitions().Machine<TParent>();
         var sub = Transitions().Machine<TSub>();
+        Transitions().Follows(sub, parent);
         parent.OnEnter(whileIn, new SystemDescriptor(world => sub.Activate(world, initial), $"{typeof(TSub).Name}.Create"));
         // Ahead of the parent's own exit systems, so the sub-state leaves first.
         parent.OnExitFirst(whileIn, new SystemDescriptor(world => sub.Deactivate(world), $"{typeof(TSub).Name}.Remove"));
@@ -72,10 +73,11 @@ public sealed partial class App
     /// state at all where it gives null.
     /// </summary>
     /// <remarks>
-    /// The computed state moves in the same transition point as its source, running its own exit
-    /// and enter systems. Its <see cref="NextState{TState}"/> is the source's to set, not the
-    /// program's. Bevy's computed states are the model, such as an <c>InGame</c> that holds for each of
-    /// several playing screens.
+    /// The computed state moves in the same transition point as its source and after it, whichever
+    /// was made first, running its own exit and enter systems, so its <c>InState</c> systems see a
+    /// value only once it is entered. Its <see cref="NextState{TState}"/> is the source's to set,
+    /// not the program's. Bevy's computed states are the model, such as an <c>InGame</c> that holds
+    /// for each of several playing screens.
     /// </remarks>
     /// <returns>This <see cref="App"/> for chaining.</returns>
     public App AddComputedState<TComputed, TSource>(Func<TSource, TComputed?> compute)
@@ -83,6 +85,7 @@ public sealed partial class App
     {
         var source = Transitions().Machine<TSource>();
         var computed = Transitions().Machine<TComputed>();
+        Transitions().Follows(computed, source);
         source.OnMoved((world, value) =>
         {
             var next = value is { } v ? compute(v) : null;

@@ -13,6 +13,11 @@ internal sealed class StateTransitions
 {
     private readonly List<IStateMachine> _order = [];
     private readonly Dictionary<Type, IStateMachine> _byType = [];
+    // Each machine worked out from others, as a computed state from its source and a sub-state from
+    // its parent, with the machines it is worked out from.
+    private readonly Dictionary<IStateMachine, List<IStateMachine>> _from = [];
+    // The machines in the order a transition point applies them, made again when one is added.
+    private IStateMachine[]? _applied;
 
     private readonly HashSet<Type> _clearing = [];
 
@@ -20,7 +25,7 @@ internal sealed class StateTransitions
     internal bool ClearsEventsOf(Type state) => _clearing.Add(state);
 
     /// <summary>The enums that have a machine, in the order transitions are applied.</summary>
-    public IEnumerable<Type> StateTypes => _order.Select(m => m.StateType);
+    public IEnumerable<Type> StateTypes => Applied().Select(m => m.StateType);
 
     internal StateMachine<TState> Machine<TState>() where TState : struct, Enum
     {
@@ -29,7 +34,37 @@ internal sealed class StateTransitions
         var machine = new StateMachine<TState>();
         _byType[typeof(TState)] = machine;
         _order.Add(machine);
+        _applied = null;
         return machine;
+    }
+
+    /// <summary>
+    /// Applies <paramref name="derived"/> after <paramref name="source"/> at every transition
+    /// point, whichever was made first, as a state worked out from another is.
+    /// </summary>
+    internal void Follows(IStateMachine derived, IStateMachine source)
+    {
+        if (!_from.TryGetValue(derived, out var sources)) _from[derived] = sources = [];
+        if (!sources.Contains(source)) sources.Add(source);
+        _applied = null;
+    }
+
+    // The machines in the order they were made, each moved after those it is worked out from, so a
+    // state its source brings in or moves is entered or moved at the same transition point.
+    private IStateMachine[] Applied()
+    {
+        if (_applied is not null) return _applied;
+        var ordered = new List<IStateMachine>(_order.Count);
+        var placing = new HashSet<IStateMachine>();
+        void Place(IStateMachine machine)
+        {
+            if (!placing.Add(machine)) return;
+            if (_from.TryGetValue(machine, out var sources))
+                foreach (var source in sources) Place(source);
+            ordered.Add(machine);
+        }
+        foreach (var machine in _order) Place(machine);
+        return _applied = [.. ordered];
     }
 
     /// <summary>Each machine's enum name, the value it is in (null when never added) and the values it has.</summary>
@@ -60,7 +95,7 @@ internal sealed class StateTransitions
     public bool Apply(World world)
     {
         var moved = false;
-        foreach (var machine in _order)
+        foreach (var machine in Applied())
             moved |= machine.Apply(world);
 
         if (moved && world.TryGetResource<EcsCommands>(out var cmd) && world.TryGetResource<EcsWorld>(out var ecs))

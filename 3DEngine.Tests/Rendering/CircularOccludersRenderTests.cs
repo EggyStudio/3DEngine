@@ -18,10 +18,9 @@ public sealed class CircularOccludersRenderTests : IDisposable
     [NeedsVulkanFact]
     public void A_Room_Far_From_The_Origin_Is_Occluded_As_The_Same_Room_At_It()
     {
-        // The room a voxel game builds 4448 blocks out, where a normal taken from the depth showed
-        // grain, read against the same room at the origin through the same frames: the circular
-        // occluders' own result and the occlusion after the history and the blurs alike texel for
-        // texel, since each pass works against the frame's origin and the eye.
+        // A room far from the origin read against the same room at it through the same frames, the
+        // circular occluders' own result and the occlusion after the history and the blurs alike
+        // texel for texel, since each pass works against the frame's origin and the eye.
         var (nearRaw, nearFinal) = Occlusion(Vector3.Zero);
         var (farRaw, farFinal) = Occlusion(new Vector3(4448, 24, 600));
 
