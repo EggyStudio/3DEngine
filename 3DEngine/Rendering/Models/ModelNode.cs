@@ -436,7 +436,7 @@ internal sealed partial class ModelRenderer : IDisposable
             ref readonly var through = ref viewProjection.HasValue ? ref Nullable.GetValueRefOrDefaultRef(in viewProjection) : ref batch.ViewProjection;
             if (frustum is null || !frustum.IsOf(through)) frustum = new Frustum(Placed(through), through, depth);
             if (!frustum.SeesAny(batch, blocks)) continue;
-            var draw = batch.Custom >= 0 ? draws.Draws[batch.Custom] : default;
+            ref readonly var draw = ref batch.Custom >= 0 ? ref draws.Span[batch.Custom] : ref NoDraw;
             // A shader unloaded after the draw was recorded draws with the model pass's own.
             var program = batch.Custom >= 0 ? store?.Get(draw.Shader) : null;
             var meshStreams = batch.Mesh.Colors is null ? Streams.Default : Streams.PerVertex;
@@ -499,7 +499,7 @@ internal sealed partial class ModelRenderer : IDisposable
             // kept for the next and pushed again only where the view changes.
             PushView(pass, pipeline, through);
 
-            var draw = batch.Custom >= 0 ? draws.Draws[batch.Custom] : default;
+            ref readonly var draw = ref batch.Custom >= 0 ? ref draws.Span[batch.Custom] : ref NoDraw;
             pass.SetBindGroup(pipeline, program is null ? batch.Set ?? MaterialSet(gfx, textures, draw) : DrawSet(gfx, renderContext, renderWorld, textures, draw, program));
             if (streams == Streams.None)
                 pass.SetVertexBuffer(0, [batch.Mesh.Vertices, ring!], [0, offset]);

@@ -1945,3 +1945,19 @@ near one, the entry above. The sheet is `14-40-ambient-occlusion-by-place.png` i
 2026-11-12, the two places at Low with it at 1 and at 0.
 
 The engine lacks an ambient occlusion that closes one surface off alike wherever the scene stands.
+
+### 2026-11-15, the voxel game in `Voxel-Sandbox`, the sun's share of a face's light cannot be read, so a look that replaces it takes away a share the engine did not add
+
+The game's Unshaded look gives every open face the sun's light that reaches the air half a block
+out, as one facing the sun takes it, by taking `litLight` and replacing the sun's share
+(`resources/shaders/terrain.slang:287-295`). It takes that share away as the sun's light times
+`shadow * NdotL`, where the engine at 6.2.60 adds the light arrived times the diffuse color, one
+less the fresnel, the sun's contact and, past the map, the distant sun's term (`litLight` in
+`modelpass.slang`, lines 750 to 775 of 6.2.60). Read in the two shaders and not measured, it takes
+away about 4% more than the engine added on a face seen head on, the fresnel's share there, so a
+face toward the sun reads about that much darker than one turned from it, where the look holds them
+alike. The engine lacks a way to read the shadow light's diffuse share as `litLight` added it, a
+field of `LitLight` or an overload leaving the shadow light out, so a program that replaces it takes
+away what was added. The game keeps its correction meanwhile, since copying the share's sum into its
+shader would hold a copy of the engine's lighting apart from the engine's changes to it, and the
+look is off unless chosen.

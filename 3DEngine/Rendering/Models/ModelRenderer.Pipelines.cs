@@ -185,6 +185,11 @@ internal sealed partial class ModelRenderer
             }
     }
 
+    // The draw a batch of the pass's own shader is read with, which holds no draw of its own, taken
+    // by reference so a loop clears no draw of 272 bytes, which a machine of AVX-512 clears through
+    // the wide registers.
+    private static readonly ModelDraw NoDraw;
+
     // The set of a draw with the model pass's own shader, made once per combination of maps. Within
     // a frame the same five texture ids give the same views, so most draws find their set by the
     // ids without looking the views up.
@@ -258,7 +263,7 @@ internal sealed partial class ModelRenderer
 
     // A descriptor set for the draws with a shader of their own of one look, its uniform values in
     // this frame's buffer at binding 0 and its texture at binding 1.
-    private IDescriptorSet DrawSet(IGraphicsDevice gfx, RenderContext renderContext, RenderWorld renderWorld, GpuTextures textures, ModelDraw draw, ShaderProgram program)
+    private IDescriptorSet DrawSet(IGraphicsDevice gfx, RenderContext renderContext, RenderWorld renderWorld, GpuTextures textures, in ModelDraw draw, ShaderProgram program)
     {
         var look = (draw.Shader, draw.Uniforms, draw.ShaderTextures, (draw.Texture, draw.NormalMap, draw.MetallicRoughnessMap, draw.EmissiveMap, draw.OcclusionMap));
         if (_drawSetsByLook.TryGetValue(look, out var shared)) return shared;

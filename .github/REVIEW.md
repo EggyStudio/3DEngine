@@ -1,16 +1,25 @@
 # Review
 
-Reviewed up to `4b621af2`, with `9954c125` and `488e7483`, item 275's three high findings, the
-validation layer's errors logged with the words a run's checks look for and a warning keeping its
-own, the draws Render gathers running after the transforms are carried down the tree, and every body
-blended between its last two steps whether an entity holds it or not, each with tests that failed
-without its mend, both suite legs at 2,449 passed, pushed at 04:59 on 2026-11-15 once the run before
-them had ended, their build run 43674781156 green on the three systems at 06:33; they keep the form
-and carry the review's files. Before them `96358279`, 264's part 8, the field far out reading as at
-the origin and alike from run to run, each mesh's rows taken against its cascade's corner, its way
-ahead and far cascade from the camera's eye and far distance, a moving mesh's stamp against the
-frame's origin and a tie of two meshes near a cell broken by bits of the mesh's own, the fog room's
-ball and MoveWorld's words, the noted eye keeping the far distance a camera gave, pushed at 21:20 on
+Reviewed up to `4a6e708b`, with `40c2f712`, item 276's mend, the model passes' record loops copying
+no view or shadow entry through the CPU's wide registers before the driver's calls, every CPU pass
+summed at 2.123 ms against the head's 2.796, a script reading their compiled code for it in the
+Linux job, and `ba117e9f`, item 273, a glow light sending from the faces the scene field finds open,
+the probe's hits at 0.94 to 1.06 of the traced reference, pushed at 08:53 on 2026-11-15 once the run
+before them had ended, their build run 43691963837 red in the Linux order leg's register guard alone
+at 10:22 (Verdict 122) and the pack run with publish 43691963557 on the same head red at 11:36 in
+the macOS captures leg's Sponza drive alone (Verdict 123), its pack job skipped, no package
+published, 6.2.82 by the version script; they keep the form and carry the review's files. Before
+them `4b621af2`, with `9954c125` and `488e7483`, item 275's three high findings, the validation
+layer's errors logged with the words a run's checks look for and a warning keeping its own, the
+draws Render gathers running after the transforms are carried down the tree, and every body blended
+between its last two steps whether an entity holds it or not, each with tests that failed without
+its mend, both suite legs at 2,449 passed, pushed at 04:59 on 2026-11-15 once the run before them
+had ended, their build run 43674781156 green on the three systems at 06:33; they keep the form and
+carry the review's files. Before them `96358279`, 264's part 8, the field far out reading as at the
+origin and alike from run to run, each mesh's rows taken against its cascade's corner, its way ahead
+and far cascade from the camera's eye and far distance, a moving mesh's stamp against the frame's
+origin and a tie of two meshes near a cell broken by bits of the mesh's own, the fog room's ball and
+MoveWorld's words, the noted eye keeping the far distance a camera gave, pushed at 21:20 on
 2026-11-14 once the run before it had ended, its build run 43636980622 green at 22:52 on the three
 systems; the strict build is clean, the suite passes both legs at 2,443 in 25 m 25 s and 25 m 5 s,
 RenderOriginTests 31 of 31 on the RTX, Mesa 26.2.4 and Mesa 25.2.8, the render-texture room's case
@@ -475,7 +484,45 @@ reverted as the screen probes' limit at shapes about a tile wide, its patches in
 
 ## Verdicts
 
-No verdict is open. Verdicts 56 to 121 are settled, said under each in REVIEW-ARCHIVE.md.
+Verdict 122 is open, written at 10:03 on 2026-11-15. Build run 43691963837 on `4a6e708b` is red in
+the Linux order leg at the step that runs `build/wide-registers.py`, 45 seconds in, every other step
+of the leg green, ended red at 10:22 with the other legs green. The pack run 43691963557 on the same
+head passed the same step on its own runner, read at 11:02, so the guard reads by the runner's
+processor and 6.2.82 may still publish. The guard names two of the four loops. In
+`ModelRenderer.Draw(Engine.TrackedRenderPass` the group G_M000_IG42 holds `vxorps ymm0, ymm0, ymm0`,
+and it reaches eight calls of the device, BindDescriptorSet, four of BindVertexBuffers,
+BindIndexBuffer and two of SetScissor. In `ModelRenderer.DrawSubsurface` the group G_M000_IG29 holds
+the same instruction and reaches BindDescriptorSet, BindVertexBuffers, BindIndexBuffer and
+BindGraphicsPipeline. DrawDepth and DrawShadowBatches read clean. The runner is an AMD EPYC 9V45
+with AVX-512, and the machine the guard was written on has none, so the script's sentence that a
+machine of AVX-512 reads alike was not measured. The instruction is a clearing of a register inside
+the loop, most likely a local of 32 bytes or more zeroed there, which the compiler does through a
+256-bit register where the machine prefers it. Asked. Reproduce the runner's code here if the
+compiler can be told to (the runtime's settings for the enabled extensions and the preferred vector
+width are the places to look, and whether they can raise as well as lower is to be read, not
+assumed), or else read the two listings from a run's artifact. Then either move the zeroed local out
+of the loop's path to the device as the copies were moved, or, if a cleared register of this kind is
+shown harmless to the driver's code by a timing, say so in the script and stop counting it, the
+timing given. The guard should pass on both kinds of machine, and the leg should upload the listings
+when it fails so the next red run reads without a rerun. The package waits on this. Verdict 123 is
+open, written at 11:37 on 2026-11-15. The pack run 43691963557 on `4a6e708b` ended red at 11:36 in
+the macOS captures leg alone, at the step that drives Sponza through its views, so the pack job was
+skipped and 6.2.82 is not published. Every view was driven and timed, and the step failed on the
+validation layer's errors in the scene's log, which the mended validation line lets the step see for
+the first time, so the faults are older than this head. Two are named. The first is vkCreateSampler
+past the device's limit, "Number of currently valid sampler objects (96) is not less than the
+maximum allowed (96)", seven times from 13.8 s as the scene loads, counts 96 to 102, and again at
+240 s and 415 s, where the layer stopped repeating it. The device under MoltenVK on the runner
+allows 96 samplers and Sponza's materials make more. The second is one line at 545.6 s,
+vkDestroyBuffer on a buffer still in use by a descriptor set that a command buffer in flight holds.
+Asked, after Verdict 122's mend and before item 274. For the samplers, one sampler for each distinct
+set of sampler settings, shared by every texture that asks for the same, with the count read against
+the device's maxSamplerAllocationCount, and a test that loads more textures than the limit with few
+distinct settings. For the buffer, find which buffer is freed while its frame is still recording,
+most likely one a view or a light gives up at a change of the hour or the lamps near the drive's
+end, and free it after the frames that hold it. Say for each whether the Linux and Windows legs can
+meet it, and why their drives did not report it. Verdicts 56 to 121 are settled, said under each in
+REVIEW-ARCHIVE.md.
 
 ## Decisions
 
@@ -943,3 +990,46 @@ ambient occlusion's tests pass on the three devices with 273's above, and Render
 whole on the RTX, Mesa 26.2.4 and Mesa 25.2.8, 31 of 31, in 1 m 20 s, 4 m 48 s and 5 m 6 s. The
 package made at `40c2f712` is 6.2.60-local.276.1, and the package's five tests pass on it, the
 shaders folder's among them.
+
+Verdict 122, the record loops read for a machine of AVX-512.
+
+The runner's code is made here. The runtime's settings take the machine's own instruction sets and
+can leave one out, and add none. With DOTNET_EnableAVX512F, EnableAVX512 and EnableAVX10v1 at 1 and
+DOTNET_PreferredVectorBitWidth at 512 this machine's compiler emits for X64 with VEX and no zmm
+register, and with DOTNET_EnableAVX at 0 for X64 without VEX. crossgen2 of the runtime's own
+version, 10.0.12, compiles the renderer ahead for x86-64-v4 with the compiler's listing on, and read
+at `4a6e708b` it names what the runner named, the scene's draws' clearing reaching
+BindDescriptorSet, four BindVertexBuffers, BindIndexBuffer and two SetScissor, the subsurface pass's
+reaching BindDescriptorSet, BindVertexBuffers, BindIndexBuffer and BindGraphicsPipeline, and the
+depth and the shadows' batches clean; for x86-64-v3 it names nothing.
+
+The clearing is a draw of 272 bytes made empty in the loop for a batch that holds none of its own,
+the scene's plan and its record taking `default` for a batch of the pass's own shader and the
+subsurface pass handing one to its material's set, which a machine of AVX-512 clears with a 256-bit
+xor before its 512-bit stores and one of AVX2 through the narrow registers. Each loop now reads its
+draw by reference, the draw list's own or one empty draw the renderer keeps
+(`ModelRenderer.NoDraw`), and the draw's set takes it in, so no timing of a cleared register was
+needed.
+
+The guard reads three listings, the machine's own and crossgen2's for x86-64-v3 and x86-64-v4, the
+assemblies one bubble so it inlines across them as the run's compiler does, on one thread so no two
+methods' listings are written into each other, crossgen2 restored into the NuGet folder where it is
+not there. On the mended tree all three read clean, in 77 s with the build, and at `4a6e708b` the
+x86-64-v4 listing fails as the runner's did. It keeps the listings in
+`build/artifacts/wide-registers`, which the order leg uploads as wide-registers-linux where the step
+fails. The sentence that a machine of AVX-512 read alike, which was not measured, gives way to what
+is read.
+
+The restore, where crossgen2 is not in the NuGet folder, needs nuget.org reachable and the folder
+writable, which the script's head says, and a restore that fails names its package and version, the
+folder and what the restore said, so a red step there reads as that and not as a listing. The pack
+run's own Linux order leg passed the guard at `4a6e708b` on a runner of another processor, so what
+the guard finds goes by the runner's processor, as crossgen2's two listings show.
+
+The runs. The strict build is clean, and the suite on both legs passed, 2,475 each, in 25 m 59 s and
+26 m 0 s. The guard passes on the mended tree, all three listings read. The models', the shadows',
+the subsurface pass's and the ambient occlusion's tests pass on the RTX, Mesa 26.2.4 and Mesa
+25.2.8, 173 with one left out on each Mesa as before, in 1 m 43 s, 5 m 10 s and 5 m 25 s, and
+RenderOriginTests passes whole on the three, 31 of 31, in 1 m 19 s, 4 m 43 s and 4 m 53 s. No test
+is added, so no Windows part moves. The package's five tests pass in the suite on
+6.2.60-local.276.1, made at `40c2f712`.

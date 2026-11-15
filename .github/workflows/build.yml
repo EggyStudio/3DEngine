@@ -135,11 +135,21 @@ jobs:
 
       # The model passes' record loops read in a release build's compiled code for a write of a wide
       # register that reaches a call of the device's with nothing clearing their upper halves, which
-      # hands the driver's code a state that slows it (build/wide-registers.py). It builds the tests
-      # and compiles the renderer in about a minute, so the job in order alone runs it, whether the
-      # suite passed or not.
-      - if: ${{ !cancelled() && matrix.pass == 'order' }}
+      # hands the driver's code a state that slows it (build/wide-registers.py), the runner's own code
+      # and the renderer compiled ahead for AVX2 and for AVX-512. It builds the tests and compiles the
+      # renderer three times in about a minute and a half, so the job in order alone runs it, whether
+      # the suite passed or not.
+      - id: wide
+        if: ${{ !cancelled() && matrix.pass == 'order' }}
         run: python3 build/wide-registers.py
+
+      # The listings the read took, where it failed, to read the code that failed it.
+      - uses: actions/upload-artifact@v7
+        if: ${{ !cancelled() && steps.wide.outcome == 'failure' }}
+        with:
+          name: wide-registers-linux
+          path: build/artifacts/wide-registers/
+          if-no-files-found: ignore
 
       # The shaders the suite compiled, kept whether it passed or not, by the job in order alone, so
       # the two do not both save the one key.

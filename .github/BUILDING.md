@@ -208,8 +208,13 @@ The model passes' record loops are read in the compiled code of a release build 
 the CPU's 256-bit registers that reaches a call of the device's with their upper halves in use,
 which slows every instruction of the driver's code that follows until something clears them. .NET
 clears them only where a method that wrote one returns, so a loop keeps its copies of views and
-other structs of 32 bytes or more in calls of its own. The script names the write and the call it
-reaches, and the build workflow's Linux job runs it:
+other structs of 32 bytes or more in calls of its own and reads its draws by reference. The script
+reads the code this machine's compiler makes and the code crossgen2 of the same runtime compiles
+ahead for a machine of AVX2 and one of AVX-512, since the compiler takes only the instruction sets of
+the machine it runs on, and a machine of AVX-512 clears a struct of 64 bytes or more with a 256-bit
+xor where one of AVX2 uses the narrow registers. It names the write and the call it reaches and
+keeps every listing in `build/artifacts/wide-registers`, and the build workflow's Linux job runs it
+and keeps the listings where it fails:
 
 ```bash
 build/wide-registers.py  # the record loops read for a wide register in use at a device's call

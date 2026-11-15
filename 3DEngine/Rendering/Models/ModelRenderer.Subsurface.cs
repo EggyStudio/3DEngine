@@ -99,7 +99,7 @@ internal sealed partial class ModelRenderer
                 pass.SetBindGroup(pipeline, depth, index: 2);
             }
             PushView(pass, pipeline, batch.ViewProjection);
-            pass.SetBindGroup(pipeline, batch.Set ?? MaterialSet(gfx, textures, default));
+            pass.SetBindGroup(pipeline, batch.Set ?? MaterialSet(gfx, textures, NoDraw));
             var (colors, texcoords2) = streams == Streams.PerVertex ? (batch.Mesh.Colors!, batch.Mesh.Texcoords2!) : DefaultStreams(gfx);
             pass.SetVertexBuffer(0, [batch.Mesh.Vertices, view.Ring!, colors, texcoords2, profiles.Buffer],
                 [0, view.Offset, 0, 0, profiles.Offset + (ulong)(index++ * 32)]);
