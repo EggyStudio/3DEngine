@@ -1,28 +1,38 @@
 # Review
 
-Reviewed up to `c6bac6dc`, 264's part 7, MoveWorld, a program that moves its world by a whole step
-saying so and the engine moving its field, its probes and their light, its histories, its shadows'
-texels, the reflection probes, the particles, the physics' bodies and the sounds with it, a mesh at
-its matrix plus the step the same still mesh, with the ambient's test of a panel too wide to be
-carried, pushed at 13:06 on 2026-11-14 once the run before it had ended, green at 14:44 with the
-four Windows jobs in 82, 47, 59 and 91 minutes, macOS in 55 and the Linux legs in 88 and 65;
-WorldMoveTests reads 0.000 at Low on the three devices and 0.213 at the most at High on the RTX,
-RenderOriginTests passes whole, 30 of 30, and the suite passed both legs, 2,431; it keeps the form
-and carries the review's files. Before it `0567d8f4`, the rest of the independent read's findings
-and the last of the origin's cost, mapped memory handed out as a span that can be written and not
-read, each view pushed and found once a pass with a test that counts the pushes, stereo eyes,
-projections set through rlgl, the modeling window's outlines, the casters' ranking, rays against
-meshes, the picking and the glow lights' boxes far from the origin, each with a test failing first,
-pushed at 09:59 on 2026-11-14 once the run before it had ended, its message written again before the
-push to name no item, green at 11:40 with the four Windows jobs in 49, 50, 57 and 63 minutes, macOS
-in 56 and the Linux legs in 89 and 64; RenderOriginTests passes whole on the three devices, 30 of
-30, and the suite passed both legs, 2,425; it keeps the form and carries the review's files. Before
-it `6075d306`, item 270, global illumination's lamps written into the sixteen entries its kernels'
-array holds, the lights the model pass lights, with a test of twenty lamps leaving every byte as
-sixteen do, pushed at 06:23 on 2026-11-14 once the run before it had ended, green at 07:46 with the
-four Windows jobs in 83, 52, 45 and 77 minutes on slower runners, macOS in 55 and the Linux legs in
-51 and 66; the suite passed both legs, 2,401; it keeps the form and carries the review's files. The
-pushes before these stand in REVIEW-ARCHIVE.md's head records.
+Reviewed up to `96358279`, 264's part 8, the field far out reading as at the origin and alike from
+run to run, each mesh's rows taken against its cascade's corner, its way ahead and far cascade from
+the camera's eye and far distance, a moving mesh's stamp against the frame's origin and a tie of two
+meshes near a cell broken by bits of the mesh's own, the fog room's ball and MoveWorld's words, the
+noted eye keeping the far distance a camera gave, pushed at 21:20 on 2026-11-14 once the run before
+it had ended, its build run 43636980622 green at 22:52 on the three systems; the strict build is
+clean, the suite passes both legs at 2,443 in 25 m 25 s and 25 m 5 s, RenderOriginTests 31 of 31 on
+the RTX, Mesa 26.2.4 and Mesa 25.2.8, the render-texture room's case at Low reading 4.00 without the
+rows against its bound of 1.5 and 9.0 s on lavapipe, the tie's test 18.8 s there, no Windows part
+moving; it keeps the form and carries the review's files. Before it `c6bac6dc`, 264's part 7,
+MoveWorld, a program that moves its world by a whole step saying so and the engine moving its field,
+its probes and their light, its histories, its shadows' texels, the reflection probes, the
+particles, the physics' bodies and the sounds with it, a mesh at its matrix plus the step the same
+still mesh, with the ambient's test of a panel too wide to be carried, pushed at 13:06 on 2026-11-14
+once the run before it had ended, green at 14:44 with the four Windows jobs in 82, 47, 59 and 91
+minutes, macOS in 55 and the Linux legs in 88 and 65; WorldMoveTests reads 0.000 at Low on the three
+devices and 0.213 at the most at High on the RTX, RenderOriginTests passes whole, 30 of 30, and the
+suite passed both legs, 2,431; it keeps the form and carries the review's files. Before it
+`0567d8f4`, the rest of the independent read's findings and the last of the origin's cost, mapped
+memory handed out as a span that can be written and not read, each view pushed and found once a pass
+with a test that counts the pushes, stereo eyes, projections set through rlgl, the modeling window's
+outlines, the casters' ranking, rays against meshes, the picking and the glow lights' boxes far from
+the origin, each with a test failing first, pushed at 09:59 on 2026-11-14 once the run before it had
+ended, its message written again before the push to name no item, green at 11:40 with the four
+Windows jobs in 49, 50, 57 and 63 minutes, macOS in 56 and the Linux legs in 89 and 64;
+RenderOriginTests passes whole on the three devices, 30 of 30, and the suite passed both legs,
+2,425; it keeps the form and carries the review's files. Before it `6075d306`, item 270, global
+illumination's lamps written into the sixteen entries its kernels' array holds, the lights the model
+pass lights, with a test of twenty lamps leaving every byte as sixteen do, pushed at 06:23 on
+2026-11-14 once the run before it had ended, green at 07:46 with the four Windows jobs in 83, 52, 45
+and 77 minutes on slower runners, macOS in 55 and the Linux legs in 51 and 66; the suite passed both
+legs, 2,401; it keeps the form and carries the review's files. The pushes before these stand in
+REVIEW-ARCHIVE.md's head records.
 
 The package stands at 6.2.60 from `baa21ff4`, one package with its templates, published at 18:58 on
 2026-11-12 by the pack run 43243318284 and tagged v6.2.60, carrying 259's two commits beside what
@@ -123,36 +133,40 @@ reverted as the screen probes' limit at shapes about a tile wide, its patches in
 
 264. **The engine draws against the eye, and can be told the world moved.** Decision 110 on
     2026-11-12. One render origin a frame, the window camera's eye rounded to 16 units, every place
-    taken against it on the CPU in doubles; the plan and its parts stand under Replies, and the item
-    as it stood until 00:15 on 2026-11-14, with every read of the game's on the local packages, is
-    in REVIEW-ARCHIVE.md under Items closed, parked or shortened. Done and on main, parts 1 to 4,
-    `3405714a`, `a0af50a3`, `80fe61d2`, the mend for a program's shader `54792d7e`, the shadows
-    `ed3cd9ca`, the tests' bounds `bca57e93` and the frame before `68e7085f`. Done and pushed at
-    09:59 on 2026-11-14, part 9's second commit `0567d8f4`, the rest of the independent read's
-    findings, a write-only span for mapped memory and each view pushed once a pass; at 05:01 the
-    cost's mend `010671f7` with the read's first finding; at 03:25 part 9's first commit `5b6696b2`,
-    findings 2, 4, 7, 8 and 13. Done and pushed at 00:44 on 2026-11-14 under Verdict 121's mend
-    `d102cd72`, part 5, the points from the depth, `6cfda4dd`, and part 6, the rays from the screen
-    on the CPU, `3768c988`. What was decided on the way. A model shader's world stays the world's
-    point, a property over the place and the origin, and lights' point-taking functions take world
-    points beside their Placed twins; the instance's rows are places and a shader that reads a
-    translation as a world point adds the push's origin, which the game's bits.slang does at its
-    pin; a camera keeps its fields, no eye and way to look, a program far out keeping its numbers
-    small by moving its world, which the guide says; a test that compares two pictures holds a count
-    of pixels past a small level and a loose largest, read on the RTX, Mesa 26.2.4 and the runner's
-    Mesa 25.2.8. Done and pushed at 13:06 on 2026-11-14, part 7, MoveWorld, `c6bac6dc`, read by the
-    game on 6.2.60-local.264.10 at 13:43 with its origin's step written against the call, the step's
-    frame 35 to 44 ms at Low, a flight's own level, where 228 to 242, and 61 to 74 at High where the
-    cap of 250, the light unchanged after it, the device's rays staying on through three steps,
-    about 25 ms of the field's and the illumination's CPU left in the step's frame at High. Traced
-    by the engine's coder and reported at 18:39 on the game's 264.10 build at High, two flights
-    across the step at 8,192 and two across none, the step frame's illumination call takes 13.0 and
-    8.3 ms, its ray recording 8.8 and 5.9 of that, the device rays' scene making its buffers again
-    larger 6.4 and 3.6, and the glow lights' joining grid 3.1 and 1.2. The same buffer making recurs
-    through the flights, 29 and 24 calls against 6 and 9 in the flights across none, so that part is
-    item 272's growth of the ray scene with the land met, the step only meeting it, and the field's
-    10.6 to 15.8 ms is part 8's Move, 4.0 ms for 3,000 still meshes and 12.8 for 6,000 in the
-    coder's probe. To come, part 8, and what a draw of the game's sections pays since the origin,
+    taken against it on the CPU in doubles; the plan and its parts, with part 8's Reply, stand in
+    REVIEW-ARCHIVE.md under Items closed, parked or shortened, and the item as it stood until 00:15
+    on 2026-11-14, with every read of the game's on the local packages, is in REVIEW-ARCHIVE.md
+    under Items closed, parked or shortened. Done and on main, parts 1 to 4, `3405714a`, `a0af50a3`,
+    `80fe61d2`, the mend for a program's shader `54792d7e`, the shadows `ed3cd9ca`, the tests'
+    bounds `bca57e93` and the frame before `68e7085f`. Done and pushed at 09:59 on 2026-11-14, part
+    9's second commit `0567d8f4`, the rest of the independent read's findings, a write-only span for
+    mapped memory and each view pushed once a pass; at 05:01 the cost's mend `010671f7` with the
+    read's first finding; at 03:25 part 9's first commit `5b6696b2`, findings 2, 4, 7, 8 and 13.
+    Done and pushed at 00:44 on 2026-11-14 under Verdict 121's mend `d102cd72`, part 5, the points
+    from the depth, `6cfda4dd`, and part 6, the rays from the screen on the CPU, `3768c988`. What
+    was decided on the way. A model shader's world stays the world's point, a property over the
+    place and the origin, and lights' point-taking functions take world points beside their Placed
+    twins; the instance's rows are places and a shader that reads a translation as a world point
+    adds the push's origin, which the game's bits.slang does at its pin; a camera keeps its fields,
+    no eye and way to look, a program far out keeping its numbers small by moving its world, which
+    the guide says; a test that compares two pictures holds a count of pixels past a small level and
+    a loose largest, read on the RTX, Mesa 26.2.4 and the runner's Mesa 25.2.8. Done and pushed at
+    21:20 on 2026-11-14, part 8, `96358279`, green at 22:52, the field far out reading as at the
+    origin and alike from run to run, the splat's rows against the cascade's corner, the tie broken
+    by the mesh's own bits, the way ahead and far cascade from the camera's eye and far distance and
+    the fog room's ball. Done and pushed at 13:06 on 2026-11-14, part 7, MoveWorld, `c6bac6dc`, read
+    by the game on 6.2.60-local.264.10 at 13:43 with its origin's step written against the call, the
+    step's frame 35 to 44 ms at Low, a flight's own level, where 228 to 242, and 61 to 74 at High
+    where the cap of 250, the light unchanged after it, the device's rays staying on through three
+    steps, about 25 ms of the field's and the illumination's CPU left in the step's frame at High.
+    Traced by the engine's coder and reported at 18:39 on the game's 264.10 build at High, two
+    flights across the step at 8,192 and two across none, the step frame's illumination call takes
+    13.0 and 8.3 ms, its ray recording 8.8 and 5.9 of that, the device rays' scene making its
+    buffers again larger 6.4 and 3.6, and the glow lights' joining grid 3.1 and 1.2. The same buffer
+    making recurs through the flights, 29 and 24 calls against 6 and 9 in the flights across none,
+    so that part is item 272's growth of the ray scene with the land met, the step only meeting it,
+    and the field's 10.6 to 15.8 ms is part 8's Move, 4.0 ms for 3,000 still meshes and 12.8 for
+    6,000 in the coder's probe. To come, what a draw of the game's sections pays since the origin,
     which the game's sampled profile put under ModelRenderer.Draw as binding, 0.25 ms on its 659
     draws, the sections being mesh entities each of its own mesh with a shader that keeps positions;
     two probes of the engine's read level, so it is found on a probe built as that room is or in the
@@ -216,8 +230,17 @@ reverted as the screen probes' limit at shapes about a tile wide, its patches in
     arguments but for the low bits of the pushed view; so that build read with the override, every
     timing pinned to the P-cores' threads 0 to 15 of the i9-14900HX, both builds with
     DOTNET_EnableAVX=0 for the wide registers left dirty at the driver's entry, and the draw loop's
-    compiled code compared, five runs each by turns on builds without counters. Each part is
-    reported with RenderOriginTests on the three devices and the Windows part its tests join.
+    compiled code compared, five runs each by turns on builds without counters. Two rounds read by
+    22:24 in the game's room at Low, capped at 100 and pinned to the P-cores, cpu.hdr_scene 0.420
+    and 0.458 ms on 6.2.60 and 0.761 and 0.790 on 264.9 with the wide registers, 0.444 and 0.434
+    against 0.426 and 0.434 with DOTNET_EnableAVX=0, `80fe61d2` 0.715 and 0.803 with the override at
+    zero. So the cost is the CPU's state around the driver's calls and no call or argument, the wide
+    registers' upper halves left dirty on the render thread before the driver's SSE code with no
+    vzeroupper between, by the coder's reading the 64-byte structs copied by value per instance and
+    per batch since part 3. The session's five rounds, ended at 23:04, find the same dirty state
+    taxing the depth and the shadows on 6.2.60 itself, every CPU pass summed 2.470 ms there and
+    2.145 with the wide registers off; its mend is item 276. Each part is reported with
+    RenderOriginTests on the three devices and the Windows part its tests join.
 
 265. **The lighting's kernels written once.** Decision 112 on 2026-11-12. The radiance cascades'
     kernels, the trace, the merge, the ambient, the screen probes, their filter and the glow lights,
@@ -388,7 +411,14 @@ reverted as the screen probes' limit at shapes about a tile wide, its patches in
     lock while it waits and for what. Then the mend the read names, the lookup taken once a batch
     where it is taken a draw, or a read that takes no lock against a table the writers replace
     whole, with a test that a shader registered while another thread draws is found and none is
-    lost, and the game's cpu.hdr_scene read before and after. After 273, before 272.
+    lost, and the game's cpu.hdr_scene read before and after. After 273, before 272. Read by the
+    coder at 21:59 from a trace of the game at about 170 frames a second with tiered compilation
+    off, one thread alone ever holds the store, the render thread recording the depth, shadow and
+    scene passes, so the cost is the count of lookups and no wait, Get 1.79 s of 20 s from its
+    shadow's own, the draw, the gathering and the casting batches, 555, 505, 430 and 195 ms, and
+    whether a shader keeps positions 359 ms more, every terrain draw a batch of its own; two forms
+    measured, a read that takes no lock and the draw's program found once when it is gathered and
+    carried on the draw.
 
 275. **The deep audit's findings.** From the review's read-only audit of 2026-11-14 at `c6bac6dc`,
     ~/.cache/claude-reviewer/audits-2026-11-14/3DEngine-deep-audit.md, sixteen areas each read by a
@@ -408,6 +438,34 @@ reverted as the screen probes' limit at shapes about a tile wide, its patches in
     the lighting and the field taken with the items they touch, glowLightShown's face mask with 273;
     a finding that does not hold says why. The three high ones after part 8's commit, beside the
     binds' session; the medium ones after 272 and ahead of 265, the low ones after 265.
+
+276. **The CPU's wide registers are left dirty before the driver's calls.** From 264's read of the
+    scene pass's cost on 2026-11-14, the session of five rounds ended at 23:04, the game's room at
+    Low capped at 100 and pinned to the P-cores, medians in ms. On 6.2.60 the scene pass, the
+    shadows and the window's depth read 0.447, 0.613 and 0.452 and every CPU pass summed 2.470; with
+    DOTNET_EnableAVX=0 0.434, 0.448, 0.354 and 2.145. On 264.9 0.755, 0.619, 0.457 and 2.779; with
+    it off 0.426, 0.425, 0.347 and 2.166. So the upper halves of the wide registers are left dirty
+    before the driver's SSE code on the render thread, which taxed the depth and the shadows' calls
+    before the origin and the scene pass's since `80fe61d2`. First the compiled code of the draw,
+    the shadows', the depth's and the view's paths and of the device's wrappers on both builds,
+    naming the instruction that dirties the state and the call it reaches with no vzeroupper
+    between. Then the mend leaving no dirty state before any driver call with the wide registers on,
+    the 64-byte structs passed by ref or in and the instance rows written in place, every CPU pass
+    summed reading about 2.15 to 2.2 on the game, read on the whole frame against 6.2.60 and 264.9;
+    a setting that takes the wide registers from every program is not the mend. A test holds it
+    where one can, and the Reply says so where none can. After 275's three high ones, beside 273.
+    Read in the compiled code by 23:30 on .NET 10.0.12 with tiered compilation off, the runtime puts
+    a vzeroupper only in the epilog of a method that uses the wide registers and none before a call,
+    and the device's wrappers use none, so the state a caller leaves is the state the driver runs
+    in. Two sites. The scene pass since `80fe61d2`, ModelRenderer.Draw copying the 64-byte view
+    through the wide registers into a temporary each batch, since the place and the view's push take
+    it by address, and again before the push, then reaching the scissor, the pipeline, the set
+    binds, the pushes, the vertex binds and the draws. The depth and the shadows on both builds,
+    each batch copying its own shadow's entry by value and clearing a 32-byte temporary to pass it
+    to the pipeline's and the vertices' calls. The mends, the entry read by ref and passed in, the
+    view taken by ref with no copy a batch, a copy the compiler still makes put in a helper whose
+    epilog clears the state before the call, each read in the mend's compiled code with no wide move
+    in a loop that calls the driver.
 
 ## Verdicts
 
@@ -682,209 +740,6 @@ kernels made one after another and together, finds one compile in the driver at 
 way and two at once the second, a first compile on a worker waiting for a second to reach it, and
 the two frames the same.
 
-Item 264, the plan. Every place in world floats meets one of two hubs, the instance ring written
-once a frame and shared by every view (ModelNode.cs 55), and the view-projection pushed with each
-batch (ModelNode.cs 250 and 669). So the frame has one render origin, the window camera's eye as
-given, and every place is taken against it on the CPU in doubles, where the difference of two floats
-is exact. Each view pushes its view-projection times the origin's translation, worked in doubles,
-so a vertex is placed in numbers as small as the view, and every place a pass reads in a uniform is
-handed against the origin the same way: the lights' positions (LightingUbo.cs 268,
-GlobalIlluminationRenderer.cs 507), the probes' middles (LightingUboPrepare.cs 197), the field's
-origins and eye (SceneField.cs 589), the glow lights' middles (GlowLights.cs 250) and the
-reflection probes'. A grid kept in world numbers, the field's cells and the shadows' texels, is
-handed as the origin's place within its own cell, worked in doubles, so its snap holds as the eye
-moves.
-
-One question is the programs' and so not mine to settle. ModelVertexOutput.world is a program
-shader's world point, which a shader of its own may map a texture by. Kept as it is, the vertex
-stage hands it as the origin plus the point against it, in floats as now, and the engine's own
-passes read the point against the origin, which toEye holds exactly once the instance is against the
-origin. Turned into the point against the origin, every program shader that reads world as a world
-place changes. I would keep it, the documents saying its precision is a float's at its distance and
-that a program far out keeps its own origin. Decided on 2026-11-12 in my session: world stays the
-absolute world point, so no program shader changes.
-
-The parts, each its own commit with its test, in this order.
-1. The origin with nothing moved. The rebasing is laid through the CPU and the shaders with the
-origin held at zero, every place, uniform, cull box and view-projection taking it, and every
-reference frame and test reading bit for bit as before. This carries the most files and changes no
-picture, so a fault in it shows as a frame that moved.
-2. The origin at the eye. The instance ring and the ECS chunks' copies (ModelRenderer.Instances.cs
-90, MeshEntityDraws.cs 648, rebased at the copy so a reused chunk stays right), the immediate
-vertices (DrawList.cs 378), the particles (particles.slang 66), the sky's translation to nothing
-(E3D.Environment.cs 107), the culling's boxes and planes (ModelRenderer.Culling.cs 20 to 92), the
-per object velocity's two rows (ModelDrawList.cs 338), and the eye handed where EyeOf now inverts a
-view-projection to find it (LightingUboPrepare.cs 336 and its callers). Skinning poses in a model's
-space and needs nothing.
-3. The shadows. The cascades fit against the origin and snapped against the world's lattice by the
-origin's place within a texel in light space (Shadows.cs 121 to 196), the spot and point lights from
-their place against it (Shadows.cs 249 and 304), each light's view-projection pushed times the
-origin.
-4. The frame before. The temporal antialiasing (TemporalAntialiasing.cs 162), the motion blur
-(Bloom.cs 517), the ambient occlusion's history (AmbientOcclusion.cs 273), the reflections' history
-(LightingUboPrepare.cs 105) and the screen probes' and glow texels' lookups (gi_screen_filter.slang
-119, gi_screen_glow.slang 294) take this frame's inverse against the origin times the move of the
-origin since the frame before times that frame's view-projection against its own origin, small
-numbers that need not cancel, and keep the point and the last eye against the origin.
-5. The points from the depth. ao.slang 83 and its normals and horizons, screenmarch.slang 101 and
-its march, gi_screen.slang's worldAt where 257 left it, fog_scatter.slang 114, particle_step.slang
-95, the reflections' ScreenCamera (lights.slang 607), and the eye's distance in decode, dof and
-subsurface_blur through inverseFromEye; gi_reference.slang 599 and the debug views alike.
-6. The rays from the screen on the CPU. GetScreenToWorldRayEx (E3D.Physics.cs 517) and
-Vector3Unproject (E3D.RayMath.cs 198) take their way from the rotation alone and leave from the
-camera's place, and GetWorldToScreenEx (E3D.Camera3D.cs 23) takes the point less the camera's place.
-7. The world moved. A call, MoveWorld(offset), that a program makes in the frame it moves every
-place it hands the engine by the same whole offset. It shifts what the engine keeps by place: the
-field's plan, its built and changed regions, its jobs and every set that knows a mesh by its matrix,
-rekeyed by the matrix plus the offset (SceneFieldPlan.cs 94 and 184 to 237, SceneField.cs 84 and
-89), so a mesh at its new matrix is the same still mesh and none is taken for a mover for
-MobileSettleFrames, the game's lead; the world probes' origins (GlobalIlluminationRenderer.cs 88),
-the glow lights' places rekeyed (GlowLights.cs 451), the reflection probes' places, the histories
-of 4 shifted by the offset, the particles' positions on the GPU by a pass, the physics' poses and
-the frames before them (PhysicsWorld.cs 28 and 70), and the audio's voices. The field's texels hold
-only where the offset is a whole count of every cascade's cell, the far one's among them; another
-offset marks the field to be built again, which the call's documents say. Since a rekeyed mesh must
-match to the bit the matrix the program hands next frame, the offset is a whole number of units
-and is added in doubles, and the test moves a world of a thousand meshes and reads the field's
-still count and its builds through the move.
-8. The ambient occlusion by place, the game's second ask, which is no precision since the scene was
-handed within 450 units of zero at both places. Its likeliest cause to read first is the field's
-grid, the room's walls falling at another phase of the cells at each place; the same room is drawn
-at fractions of a cell apart and read, and if its occlusion follows the phase the term is mended to
-read alike at every phase, with that test. It can go before 1, standing apart from the rest.
-
-The test of each part draws a scene of its kind at the origin and at 4,450, 71,000 and 1,140,000
-units out and reads it alike within a margin said for each: a lit room under the sun's shadows, the
-glow-lit wall, a mirror's march, the ambient occlusion, a camera turning under temporal
-antialiasing, particles and fog, and a picked point; at 1,140,000 a float steps by an eighth, so the
-places handed are a whole number of units there. The cost is read on Ore at High before and after 2,
-the instance ring and the chunks being rebased each frame on the CPU. Each part's account goes in
-its own Reply.
-
-Item 264, part 8, the field far out, its tie and the occlusion by place.
-
-The splat's rows. A build hands the splat each mesh's rows with their translation taken against the
-cascade's corner in doubles, and the corner as nothing (`SceneFieldRenderer.Instances`), so a mesh
-far out and turned is put in the cells with no float of the world's size in it, where before its
-corners were placed in world floats on the GPU and then less the corner, each rounding to the step
-there. The repaint takes its rows the same way. The plan's snap stays in floats, since a cascade's
-corner is a whole count of eight of its cells, a power of two of the eye's units for every counted
-cascade, and the eye over a power of two and the half added are exact at the field's sizes, so the
-corner is the float the doubles would give.
-
-The independent read's three of the field.
-- The way ahead (finding 3) is found through the view made with the eye at nothing and added to the
-  eye once (`AheadOf`). Through the world view-projection's inverse it read 0.33 off at 71,680 and
-  8.70 of its 8 units at 1,140,736; now within the float's step at the eye at every distance.
-- A moving mesh's stamp (finding 9) keeps its world matrix and inverts it taken against the frame's
-  origin in doubles (`StampRows`). Through the float inverse taken against the origin after, the
-  stamp's box sat 0.022 off at 71,680 and 0.376 at 1,140,736, on a mesh 0.6 across; now within a
-  thousandth.
-- The far cascade's size (finding 10) follows the far distance the camera gives where its
-  projection is made, carried with its eye (`ViewEye.Far`, `WindowView.Far`), BeginMode3D's 4,000
-  and a camera entity's `Far`. Read back through a float inverse it read 3,971.9 at the world's
-  origin, 3,917.6 at 71,680 and 8,901.6 at 1,140,736, the hundredth the inverse loses at any
-  distance enough to turn the far cell across a size; now 4,000 at each. One eye noted twice
-  through one view-projection, as the modeling window notes the window's eye beside BeginMode3D,
-  keeps the far distance either gave (`ModelDrawList.NoteEye`), where two notes unequal by the far
-  distance alone let the eye go, and the suite's first leg read the window's outlines far out
-  through the world's numbers, 0.055 off, which NotedEyeTests now holds. The far distance has one
-  reader, the far cascade's cell, which it bounds (`SceneFieldRenderer.FarPlane`); no push, depth,
-  plane or reprojection reads it, and a note without one says it was not given, the same
-  view-projection's projection clipping at the same far plane.
-
-The tie. A cell's word ends in seven bits of the mesh's own, from its matrix's turn and scale, its
-color and its triangles (`Tie`), the distance, the rim, the side, the front and the way moved up by
-eight, so of two meshes' faces as near a cell and looking the same way, as two boxes' sides in one
-plane, the same one paints the cell in every run, every build and after the world moved, where the
-thread that wrote last did. The bits leave the translation out, so a repaint after a move matches
-the words the build kept.
-
-Crossing a 16 line. The game's control hops of three blocks across its whole 16s, 7,680 and 7,696,
-3,584 and 3,600 in the engine's numbers with the game's origin at 4,096, carry the field's middle,
-eight units ahead of the eye at the game's ahead of 0.5, across 3,592 and 3,608, cascade 3's snap
-lines, a cascade's corner being the multiple of eight of its cells nearest the middle, 16 for cascade
-3's cells of 2, so it moves at 16k + 8. Cascade 3 shifts 16 and builds the slab it brings in, eight
-of its cells deep across its 128 by 128 face, 82,028 and 401,810 triangles over 16 and 24 frames at
-Low and 0.35 to 1.08 M over 12 to 34 at High (voxel-i264-10/ctl). Cascade 0 shifts too, two snaps,
-a slab that ends inside a frame's budget and is no change to field.state, as the step runs' hop
-across none crosses cascade 2's line, 3,604, alone. The eye crossed no line of the origin, which
-rounds to the nearest 16, and where it does the field builds nothing, reading its meshes in world
-numbers. The step's own hop crosses cascade 3's line too, 4,104 before the step, so its 29 frames
-are the shift's and the step adds nothing.
-
-What the step still costs at High. The field's 10.6 to 15.8 ms are the plan's move
-(`SceneFieldPlan.Move`), every set it keeps by a mesh's matrix made again with the matrix moved,
-4.0 ms for 3,000 still meshes and 12.8 ms for 6,000 on this CPU, the frame after it as any other
-with no build and every mesh still still. The illumination's 10.8 to 14.1 ms are the device rays'
-scene growing with the land a flight meets, item 272's. Traced across the step at 8,192 at High, the
-step frame's call lasts 13.0 and 8.3 ms, 8.8 and 5.9 of it the rays' scene, mostly making its
-buffers again larger (`CreateAddressedBuffer`, 6.4 and 3.6 ms), and the glow lights' joining of
-touching boxes 3.1 and 1.2; the same buffers are made 29 and 24 times in the six seconds around the
-step, before it as after, and 6 and 9 times in a flight across none over land met before. The step
-adds no work of its own there, and 272's mend, the scene letting go of meshes no longer drawn and
-growing in steps it keeps, takes it with the rest.
-
-The occlusion by place. A room of blocks drawn at fractions of the finest cascade's cell of 0.25
-apart, the camera moved with it, the sun casting no shadow so the shadow map's texels play no part,
-at Low on the RTX 4070 against the room at no offset. At an eighth to a half of a cell 3 to 11 of
-57,600 pixels differ by 2 levels or more, the edges of the blocks moving with the camera's
-rounding, and the same with the occlusion off. The occlusion follows no phase of the field's grid,
-since a whole wall lies on a cell's side in every cascade whose corner snaps to a multiple of 2, 4
-and 8 units, the cascades of cells of 0.25 to 1. At a whole unit apart 4,741 pixels differ by 2
-levels or more, 7 by 8 or more and 15.2 at the most, and 4,905 with the occlusion off, so it is the
-indirect light, the coarse cascades' cells of 2 and of 4, whose corners snap to 16 and 32, meet a
-wall at a whole unit at another phase, and the probes there gather it otherwise. That is the
-field's own sampling, not precision, and no mend makes it alike at every phase short of cells of 1
-over the same reach, eight times the cells of each coarse cascade, the game's 16.4 MB a cascade
-going to 131 MB, or each coarse cascade built at two phases a unit apart and their light averaged,
-twice its splat for every build. I leave it, and the game's two places within 450 units of zero
-read alike where their walls fall at the same phase of the cells of 2.
-
-RenderOriginTests whole on the three devices, all 31 passing on each, the most of each case and the
-pixels past a level where any.
-
-| Case | RTX 4070 | Mesa 26.2.4 | Mesa 25.2.8 |
-|---|---|---|---|
-| Room in fog, its ball back | 0.000 | 0.000 | 0.000 |
-| Room in a texture, off and at Low | 0.000 | 0.000 | 0.000 |
-| Room | 0.000 | 0.000 | 0.000 |
-| Scene at Low and High, past 1 | 0.246, 0 | 0.393, 0 | 1.480, 2 |
-| Shadowed room, past 4 | 10.73, 2 | 11.34, 2 | 25.43, 5 |
-| Crossing, past 1 | 0.089, 0 | 13.21, 8 | 29.97, 14 |
-| Mirror room, past 1 | 7.29, 6 | 7.18, 4 | 8.88, 6 |
-| Turning room | 0.000 | 0.000 | 0.000 |
-
-Each case as at c6bac6dc but the room on Mesa 25.2.8 and the room in fog on Mesa 26.2.4, a few
-hundredths there, now none, the tie broken.
-
-The tests, each failing without its mend. `SceneFieldTests` reads the way ahead of a camera at
-the world's origin, 71,680 and 1,140,736, within 0.25 of 8 units along its view, where it read 0.33
-and 8.70 off, and a moving mesh turned and scaled, six tenths of a unit across, stamped where it is
-drawn within a thousandth there, where 0.022 and 0.376; `NotedEyeTests` reads the window's view a
-`BeginMode3D` makes carrying its camera's far plane, 4,000 at each distance, where 3,971.9, 3,917.6
-and 8,901.6; all on the CPU. `SceneFieldTests` draws a floor slab with blocks of six colors sunk
-into its front, each block's front face in the slab's, twice, and reads the two frames alike at
-every pixel; without the mesh's bits Mesa 26.2.4 read them 10,900 and 1,841 pixels apart in two runs
-of three, the RTX 4070 alike each time, its threads keeping their order. RenderOriginTests' room in
-a render texture keeps its three cases at global illumination off, which read its camera's place
-in the frame, and gains one at Low at 1,140,736, which reads the field's build of its turned block:
-without the rows 4.00 levels at 686 texels against the bound of 1.5, 0.000 with them on the three
-devices. The fog room has its ball again, 0.000 at every distance on the three.
-
-The tie's test starts two apps, 18.8 seconds on lavapipe; the room's case at Low two, 9.0 seconds,
-where its cases at global illumination off take 1.6 to 1.7 each, 5.5 seconds the three. None moves
-a Windows part. `SceneFieldTests` stays in its own process in the first half, `NotedEyeTests` in
-Api in the second, and `RenderOriginTests` in its own in the third, gaining the one case, whose
-time there the run after the push reads.
-
-MoveWorld's words say what the game's read left it to guess (`E3D.MoveWorld`, and the guide's "Far
-from the world's origin"). The meshes known by their matrices are every one the frame draws, mesh
-entities' and `DrawMesh`'s and each of `DrawMeshInstanced`'s alike; the bodies and the sounds move
-in the call itself, so a program that sets their places in the frame of the move calls it first and
-sets them where they are after the step; and any whole step is taken, a teleport's of thousands of
-units as well as a step back near the origin.
-
 The binds the scene pass pays since the origin, read on the game's own room and not part of this
 commit. Bisected on game-A's binary over each commit's assemblies and shaders, it comes with
 80fe61d2, the origin at the eye, 0.427 ms of `cpu.hdr_scene` at a0af50a3 against 0.675, game-A
@@ -897,6 +752,64 @@ the one thread that both records and draws; not the noted eyes, 264.9 with `Note
 slow. The panel's leads read next, pinned to the performance cores, the vector state, AVX off on
 both builds, and 80fe61d2 itself with its override at zero.
 
-The strict build is clean and the suite passed both legs, 2,443, in 25 m 25 s and 25 m 5 s,
-the first run of both read before the noted eye's mend 2,440 and the two cases of the modeling
-window's outlines far out. The package is 6.2.60-local.264.11.
+Item 275, the deep audit's three findings of high severity.
+
+The validation layer's errors. A probe of one deliberate error, a buffer of no size made under the
+pinned layer, read the layer's message as `vkCreateBuffer(): pCreateInfo->size is zero.` and the
+spec's line after it, with nothing before the call, so the layer's messages carry none of the words
+the checks look for and the marker has to be the engine's. The engine's callback now writes the line
+of a message of error severity with the words Validation Error before the layer's message where the
+message does not begin with them (`GraphicsDevice.ValidationLine`), so it reads `[ERROR]
+[Vulkan.Validation] [Validation] Validation Error: vkCreateBuffer(): ...`, and a message of any
+other severity, a warning's, a performance warning's and a pool's overrun's, keeps the layer's
+words. A pool's overrun is still counted and logged with the errors
+(`GraphicsDevice.CountedAsError`), so it fails a test wherever the layer runs, and the scripts'
+checks turn red on the layer's errors alone. The marker is the engine's, written on every error line
+whatever the layer's text, and it is the words every check already reads, the workflow's eight, the
+scripts' six and the game's own `build/play.sh`, which greps the same words over its log, so one
+change in the engine mends them all where grepping the engine's `[ERROR] [Vulkan.Validation]` would
+have left the game's check silent until its own change. The console and the log file write their
+lines through one method (`ConsoleLoggerProvider.Line`). `ValidationLineTests` reads every
+fixed-string grep in `build/` and the workflows whose words name the layer and holds each against
+the line the engine logs for an error as the pinned layer writes it, which every check must find,
+and for a warning as the loader writes one through the messenger, which none may, and holds a
+warning, a performance warning and a pool's overrun to their own words. Without the mend the check
+at `build/storm.sh:55` and every other one miss the line `[ERROR] [Vulkan.Validation] [Validation]
+vkCreateBuffer(): pCreateInfo->size is zero.` The internals the line takes are in
+`DeviceSurface.txt`.
+
+The mesh entities' transforms. `RenderPlugin.MeshEntityDraws` and the flat API's
+`AnimatedModelDraws` and `EditMeshDraws` now name `EcsPlugin.TransformPropagation` to run after, so
+each frame's draws take the world matrices the frame's carry wrote. The two plugins are internal and
+`DefaultPlugins` alone adds them, so the name is always there; no test adds the render plugin
+without the ECS. `MeshEntityShaderTests` gains two tests that step whole frames of an app, in its
+collection of the tests whose apps hold the process's one interface context. A child under a parent
+moved this frame is drawn at 3,0,0, where without the order it was drawn at 1,0,0 a frame late, and
+a child spawned this frame under it at 2,2,0, where it was drawn at its own 0,2,0 as though that
+were the world's; and the Render stage holds the three gatherers after the carry, where the mesh
+entities stood first at 0 and the carry at 3.
+
+The flat API's bodies. `RememberPoses` now remembers every body of every set, awake or asleep,
+whether an entity holds it or not, as `Move` walks them, so `GetPhysicsBodyTransform` blends a body
+`CreatePhysicsBox` made between its last two steps. `PhysicsInterpolationTests` holds a box made so,
+no entity, at alpha a half the middle of its last two steps, where without the mend it read the last
+step's pose, 2 for 1.5.
+
+The other 93 hold at `96358279`. None of the lines they cite changed since `c6bac6dc` but one beside
+the coarser cascade's build begun again, the words' fill value the field's new layout gave part 8,
+which leaves the restart as the audit read it. Three are taken with 273, which touches what they
+name, the screen probes' share weighing the faces a light does not emit from (`glowLightShown`), a
+probe's hit keeping a light's point of nothing (`gi.slang`), and an emitter recorded twice gathered
+as two lights; three with 272, the state's blocking read of the carried probes, the top level's
+records read back from mapped memory, and the carried cycle left as it was when the device's rays
+turn off and on; the rest come in the report's order, the medium after 272 and the low after 265.
+
+The strict build is clean and the suite passed both legs, 2,449, in 25 m 31 s and 24 m 55 s, its
+first reads failing on the device surface's listing and then on the frame tests outside the
+collection. The new tests start two headless apps and use no device. `ValidationLineTests` joins the
+Graphics part, the first Windows half, and the two frame tests went into `MeshEntityShaderTests` as
+a file of its own, where a new class of Rendering's would have moved 26 classes' parts, so no other
+class moves. A first read of the suite with them beside the collection failed RlglTests and
+PostProcessUnitsTests, their apps holding the interface context the others build. RenderOriginTests,
+read on the tree before the severity took the words, which it reaches nowhere, passes whole on the
+RTX, Mesa 26.2.4 and Mesa 25.2.8, 31 of 31. The package is 6.2.60-local.275.1.

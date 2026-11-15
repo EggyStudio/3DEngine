@@ -17401,6 +17401,213 @@ where a game goes far (drawing-3d-and-cameras.md, "Far from the world's origin")
 way out, and RENDERING.md what moves. The strict build is clean and the suite passed both legs,
 2,431, in 25 m 43 s and 26 m 1 s. The package is 6.2.60-local.264.10.
 
+Item 264, the plan. Every place in world floats meets one of two hubs, the instance ring written
+once a frame and shared by every view (ModelNode.cs 55), and the view-projection pushed with each
+batch (ModelNode.cs 250 and 669). So the frame has one render origin, the window camera's eye as
+given, and every place is taken against it on the CPU in doubles, where the difference of two floats
+is exact. Each view pushes its view-projection times the origin's translation, worked in doubles,
+so a vertex is placed in numbers as small as the view, and every place a pass reads in a uniform is
+handed against the origin the same way: the lights' positions (LightingUbo.cs 268,
+GlobalIlluminationRenderer.cs 507), the probes' middles (LightingUboPrepare.cs 197), the field's
+origins and eye (SceneField.cs 589), the glow lights' middles (GlowLights.cs 250) and the
+reflection probes'. A grid kept in world numbers, the field's cells and the shadows' texels, is
+handed as the origin's place within its own cell, worked in doubles, so its snap holds as the eye
+moves.
+
+One question is the programs' and so not mine to settle. ModelVertexOutput.world is a program
+shader's world point, which a shader of its own may map a texture by. Kept as it is, the vertex
+stage hands it as the origin plus the point against it, in floats as now, and the engine's own
+passes read the point against the origin, which toEye holds exactly once the instance is against the
+origin. Turned into the point against the origin, every program shader that reads world as a world
+place changes. I would keep it, the documents saying its precision is a float's at its distance and
+that a program far out keeps its own origin. Decided on 2026-11-12 in my session: world stays the
+absolute world point, so no program shader changes.
+
+The parts, each its own commit with its test, in this order.
+1. The origin with nothing moved. The rebasing is laid through the CPU and the shaders with the
+origin held at zero, every place, uniform, cull box and view-projection taking it, and every
+reference frame and test reading bit for bit as before. This carries the most files and changes no
+picture, so a fault in it shows as a frame that moved.
+2. The origin at the eye. The instance ring and the ECS chunks' copies (ModelRenderer.Instances.cs
+90, MeshEntityDraws.cs 648, rebased at the copy so a reused chunk stays right), the immediate
+vertices (DrawList.cs 378), the particles (particles.slang 66), the sky's translation to nothing
+(E3D.Environment.cs 107), the culling's boxes and planes (ModelRenderer.Culling.cs 20 to 92), the
+per object velocity's two rows (ModelDrawList.cs 338), and the eye handed where EyeOf now inverts a
+view-projection to find it (LightingUboPrepare.cs 336 and its callers). Skinning poses in a model's
+space and needs nothing.
+3. The shadows. The cascades fit against the origin and snapped against the world's lattice by the
+origin's place within a texel in light space (Shadows.cs 121 to 196), the spot and point lights from
+their place against it (Shadows.cs 249 and 304), each light's view-projection pushed times the
+origin.
+4. The frame before. The temporal antialiasing (TemporalAntialiasing.cs 162), the motion blur
+(Bloom.cs 517), the ambient occlusion's history (AmbientOcclusion.cs 273), the reflections' history
+(LightingUboPrepare.cs 105) and the screen probes' and glow texels' lookups (gi_screen_filter.slang
+119, gi_screen_glow.slang 294) take this frame's inverse against the origin times the move of the
+origin since the frame before times that frame's view-projection against its own origin, small
+numbers that need not cancel, and keep the point and the last eye against the origin.
+5. The points from the depth. ao.slang 83 and its normals and horizons, screenmarch.slang 101 and
+its march, gi_screen.slang's worldAt where 257 left it, fog_scatter.slang 114, particle_step.slang
+95, the reflections' ScreenCamera (lights.slang 607), and the eye's distance in decode, dof and
+subsurface_blur through inverseFromEye; gi_reference.slang 599 and the debug views alike.
+6. The rays from the screen on the CPU. GetScreenToWorldRayEx (E3D.Physics.cs 517) and
+Vector3Unproject (E3D.RayMath.cs 198) take their way from the rotation alone and leave from the
+camera's place, and GetWorldToScreenEx (E3D.Camera3D.cs 23) takes the point less the camera's place.
+7. The world moved. A call, MoveWorld(offset), that a program makes in the frame it moves every
+place it hands the engine by the same whole offset. It shifts what the engine keeps by place: the
+field's plan, its built and changed regions, its jobs and every set that knows a mesh by its matrix,
+rekeyed by the matrix plus the offset (SceneFieldPlan.cs 94 and 184 to 237, SceneField.cs 84 and
+89), so a mesh at its new matrix is the same still mesh and none is taken for a mover for
+MobileSettleFrames, the game's lead; the world probes' origins (GlobalIlluminationRenderer.cs 88),
+the glow lights' places rekeyed (GlowLights.cs 451), the reflection probes' places, the histories
+of 4 shifted by the offset, the particles' positions on the GPU by a pass, the physics' poses and
+the frames before them (PhysicsWorld.cs 28 and 70), and the audio's voices. The field's texels hold
+only where the offset is a whole count of every cascade's cell, the far one's among them; another
+offset marks the field to be built again, which the call's documents say. Since a rekeyed mesh must
+match to the bit the matrix the program hands next frame, the offset is a whole number of units
+and is added in doubles, and the test moves a world of a thousand meshes and reads the field's
+still count and its builds through the move.
+8. The ambient occlusion by place, the game's second ask, which is no precision since the scene was
+handed within 450 units of zero at both places. Its likeliest cause to read first is the field's
+grid, the room's walls falling at another phase of the cells at each place; the same room is drawn
+at fractions of a cell apart and read, and if its occlusion follows the phase the term is mended to
+read alike at every phase, with that test. It can go before 1, standing apart from the rest.
+
+The test of each part draws a scene of its kind at the origin and at 4,450, 71,000 and 1,140,000
+units out and reads it alike within a margin said for each: a lit room under the sun's shadows, the
+glow-lit wall, a mirror's march, the ambient occlusion, a camera turning under temporal
+antialiasing, particles and fog, and a picked point; at 1,140,000 a float steps by an eighth, so the
+places handed are a whole number of units there. The cost is read on Ore at High before and after 2,
+the instance ring and the chunks being rebased each frame on the CPU. Each part's account goes in
+its own Reply.
+
+Item 264, part 8, the field far out, its tie and the occlusion by place.
+
+The splat's rows. A build hands the splat each mesh's rows with their translation taken against the
+cascade's corner in doubles, and the corner as nothing (`SceneFieldRenderer.Instances`), so a mesh
+far out and turned is put in the cells with no float of the world's size in it, where before its
+corners were placed in world floats on the GPU and then less the corner, each rounding to the step
+there. The repaint takes its rows the same way. The plan's snap stays in floats, since a cascade's
+corner is a whole count of eight of its cells, a power of two of the eye's units for every counted
+cascade, and the eye over a power of two and the half added are exact at the field's sizes, so the
+corner is the float the doubles would give.
+
+The independent read's three of the field.
+- The way ahead (finding 3) is found through the view made with the eye at nothing and added to the
+  eye once (`AheadOf`). Through the world view-projection's inverse it read 0.33 off at 71,680 and
+  8.70 of its 8 units at 1,140,736; now within the float's step at the eye at every distance.
+- A moving mesh's stamp (finding 9) keeps its world matrix and inverts it taken against the frame's
+  origin in doubles (`StampRows`). Through the float inverse taken against the origin after, the
+  stamp's box sat 0.022 off at 71,680 and 0.376 at 1,140,736, on a mesh 0.6 across; now within a
+  thousandth.
+- The far cascade's size (finding 10) follows the far distance the camera gives where its
+  projection is made, carried with its eye (`ViewEye.Far`, `WindowView.Far`), BeginMode3D's 4,000
+  and a camera entity's `Far`. Read back through a float inverse it read 3,971.9 at the world's
+  origin, 3,917.6 at 71,680 and 8,901.6 at 1,140,736, the hundredth the inverse loses at any
+  distance enough to turn the far cell across a size; now 4,000 at each. One eye noted twice
+  through one view-projection, as the modeling window notes the window's eye beside BeginMode3D,
+  keeps the far distance either gave (`ModelDrawList.NoteEye`), where two notes unequal by the far
+  distance alone let the eye go, and the suite's first leg read the window's outlines far out
+  through the world's numbers, 0.055 off, which NotedEyeTests now holds. The far distance has one
+  reader, the far cascade's cell, which it bounds (`SceneFieldRenderer.FarPlane`); no push, depth,
+  plane or reprojection reads it, and a note without one says it was not given, the same
+  view-projection's projection clipping at the same far plane.
+
+The tie. A cell's word ends in seven bits of the mesh's own, from its matrix's turn and scale, its
+color and its triangles (`Tie`), the distance, the rim, the side, the front and the way moved up by
+eight, so of two meshes' faces as near a cell and looking the same way, as two boxes' sides in one
+plane, the same one paints the cell in every run, every build and after the world moved, where the
+thread that wrote last did. The bits leave the translation out, so a repaint after a move matches
+the words the build kept.
+
+Crossing a 16 line. The game's control hops of three blocks across its whole 16s, 7,680 and 7,696,
+3,584 and 3,600 in the engine's numbers with the game's origin at 4,096, carry the field's middle,
+eight units ahead of the eye at the game's ahead of 0.5, across 3,592 and 3,608, cascade 3's snap
+lines, a cascade's corner being the multiple of eight of its cells nearest the middle, 16 for cascade
+3's cells of 2, so it moves at 16k + 8. Cascade 3 shifts 16 and builds the slab it brings in, eight
+of its cells deep across its 128 by 128 face, 82,028 and 401,810 triangles over 16 and 24 frames at
+Low and 0.35 to 1.08 M over 12 to 34 at High (voxel-i264-10/ctl). Cascade 0 shifts too, two snaps,
+a slab that ends inside a frame's budget and is no change to field.state, as the step runs' hop
+across none crosses cascade 2's line, 3,604, alone. The eye crossed no line of the origin, which
+rounds to the nearest 16, and where it does the field builds nothing, reading its meshes in world
+numbers. The step's own hop crosses cascade 3's line too, 4,104 before the step, so its 29 frames
+are the shift's and the step adds nothing.
+
+What the step still costs at High. The field's 10.6 to 15.8 ms are the plan's move
+(`SceneFieldPlan.Move`), every set it keeps by a mesh's matrix made again with the matrix moved,
+4.0 ms for 3,000 still meshes and 12.8 ms for 6,000 on this CPU, the frame after it as any other
+with no build and every mesh still still. The illumination's 10.8 to 14.1 ms are the device rays'
+scene growing with the land a flight meets, item 272's. Traced across the step at 8,192 at High, the
+step frame's call lasts 13.0 and 8.3 ms, 8.8 and 5.9 of it the rays' scene, mostly making its
+buffers again larger (`CreateAddressedBuffer`, 6.4 and 3.6 ms), and the glow lights' joining of
+touching boxes 3.1 and 1.2; the same buffers are made 29 and 24 times in the six seconds around the
+step, before it as after, and 6 and 9 times in a flight across none over land met before. The step
+adds no work of its own there, and 272's mend, the scene letting go of meshes no longer drawn and
+growing in steps it keeps, takes it with the rest.
+
+The occlusion by place. A room of blocks drawn at fractions of the finest cascade's cell of 0.25
+apart, the camera moved with it, the sun casting no shadow so the shadow map's texels play no part,
+at Low on the RTX 4070 against the room at no offset. At an eighth to a half of a cell 3 to 11 of
+57,600 pixels differ by 2 levels or more, the edges of the blocks moving with the camera's
+rounding, and the same with the occlusion off. The occlusion follows no phase of the field's grid,
+since a whole wall lies on a cell's side in every cascade whose corner snaps to a multiple of 2, 4
+and 8 units, the cascades of cells of 0.25 to 1. At a whole unit apart 4,741 pixels differ by 2
+levels or more, 7 by 8 or more and 15.2 at the most, and 4,905 with the occlusion off, so it is the
+indirect light, the coarse cascades' cells of 2 and of 4, whose corners snap to 16 and 32, meet a
+wall at a whole unit at another phase, and the probes there gather it otherwise. That is the
+field's own sampling, not precision, and no mend makes it alike at every phase short of cells of 1
+over the same reach, eight times the cells of each coarse cascade, the game's 16.4 MB a cascade
+going to 131 MB, or each coarse cascade built at two phases a unit apart and their light averaged,
+twice its splat for every build. I leave it, and the game's two places within 450 units of zero
+read alike where their walls fall at the same phase of the cells of 2.
+
+RenderOriginTests whole on the three devices, all 31 passing on each, the most of each case and the
+pixels past a level where any.
+
+| Case | RTX 4070 | Mesa 26.2.4 | Mesa 25.2.8 |
+|---|---|---|---|
+| Room in fog, its ball back | 0.000 | 0.000 | 0.000 |
+| Room in a texture, off and at Low | 0.000 | 0.000 | 0.000 |
+| Room | 0.000 | 0.000 | 0.000 |
+| Scene at Low and High, past 1 | 0.246, 0 | 0.393, 0 | 1.480, 2 |
+| Shadowed room, past 4 | 10.73, 2 | 11.34, 2 | 25.43, 5 |
+| Crossing, past 1 | 0.089, 0 | 13.21, 8 | 29.97, 14 |
+| Mirror room, past 1 | 7.29, 6 | 7.18, 4 | 8.88, 6 |
+| Turning room | 0.000 | 0.000 | 0.000 |
+
+Each case as at c6bac6dc but the room on Mesa 25.2.8 and the room in fog on Mesa 26.2.4, a few
+hundredths there, now none, the tie broken.
+
+The tests, each failing without its mend. `SceneFieldTests` reads the way ahead of a camera at
+the world's origin, 71,680 and 1,140,736, within 0.25 of 8 units along its view, where it read 0.33
+and 8.70 off, and a moving mesh turned and scaled, six tenths of a unit across, stamped where it is
+drawn within a thousandth there, where 0.022 and 0.376; `NotedEyeTests` reads the window's view a
+`BeginMode3D` makes carrying its camera's far plane, 4,000 at each distance, where 3,971.9, 3,917.6
+and 8,901.6; all on the CPU. `SceneFieldTests` draws a floor slab with blocks of six colors sunk
+into its front, each block's front face in the slab's, twice, and reads the two frames alike at
+every pixel; without the mesh's bits Mesa 26.2.4 read them 10,900 and 1,841 pixels apart in two runs
+of three, the RTX 4070 alike each time, its threads keeping their order. RenderOriginTests' room in
+a render texture keeps its three cases at global illumination off, which read its camera's place
+in the frame, and gains one at Low at 1,140,736, which reads the field's build of its turned block:
+without the rows 4.00 levels at 686 texels against the bound of 1.5, 0.000 with them on the three
+devices. The fog room has its ball again, 0.000 at every distance on the three.
+
+The tie's test starts two apps, 18.8 seconds on lavapipe; the room's case at Low two, 9.0 seconds,
+where its cases at global illumination off take 1.6 to 1.7 each, 5.5 seconds the three. None moves
+a Windows part. `SceneFieldTests` stays in its own process in the first half, `NotedEyeTests` in
+Api in the second, and `RenderOriginTests` in its own in the third, gaining the one case, whose
+time there the run after the push reads.
+
+MoveWorld's words say what the game's read left it to guess (`E3D.MoveWorld`, and the guide's "Far
+from the world's origin"). The meshes known by their matrices are every one the frame draws, mesh
+entities' and `DrawMesh`'s and each of `DrawMeshInstanced`'s alike; the bodies and the sounds move
+in the call itself, so a program that sets their places in the frame of the move calls it first and
+sets them where they are after the step; and any whole step is taken, a teleport's of thousands of
+units as well as a step back near the origin.
+
+The strict build is clean and the suite passed both legs, 2,443, in 25 m 25 s and 25 m 5 s,
+the first run of both read before the noted eye's mend 2,440 and the two cases of the modeling
+window's outlines far out. The package is 6.2.60-local.264.11.
+
 ## Items closed, parked or shortened
 
 Items closed without a mend, recorded or parked, and the standing items' texts as they stood before

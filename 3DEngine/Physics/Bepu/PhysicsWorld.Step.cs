@@ -125,15 +125,21 @@ public sealed partial class PhysicsWorld
         }
     }
 
-    // The pose of every body as the step about to run finds it, which the next sync blends from.
+    // The pose of every body as the step about to run finds it, which the next sync and GetPose
+    // blend from, every body of every set, awake or asleep, whether an entity holds it or not.
     private void RememberPoses()
     {
         var bodies = Simulation.Bodies;
-        foreach (var handleValue in _bodyToEntity.Keys)
+        for (int set = 0; set < bodies.Sets.Length; set++)
         {
-            if (bodies.HandleToLocation[handleValue].SetIndex < 0) continue;
-            var pose = bodies.GetBodyReference(new BodyHandle(handleValue)).Pose;
-            _previousPoses[handleValue] = (pose.Position, pose.Orientation);
+            ref var bodySet = ref bodies.Sets[set];
+            if (!bodySet.Allocated) continue;
+            for (int i = 0; i < bodySet.Count; i++)
+            {
+                var handle = bodySet.IndexToHandle[i];
+                var pose = bodies.GetBodyReference(handle).Pose;
+                _previousPoses[handle.Value] = (pose.Position, pose.Orientation);
+            }
         }
     }
 
