@@ -13,8 +13,8 @@ namespace Engine;
 /// </summary>
 /// <remarks>
 /// <para>
-/// A pack is an index followed by the files' bytes, as BevyCSharp writes one and
-/// build/make-scene-pack.py writes the engine's, the eight bytes BCSPACK and a zero, the format's
+/// A pack is an index followed by the files' bytes, as build/make-scene-pack.py writes the
+/// engine's, the eight bytes BCSPACK and a zero, the format's
 /// version and the number of files as little-endian 32-bit integers, then for each file its path,
 /// a 16-bit length and UTF-8, and where its bytes start and how many there are as little-endian
 /// 64-bit integers counted from the start of the pack.

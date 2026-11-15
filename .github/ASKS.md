@@ -1991,3 +1991,17 @@ engine lacks a way for a program to learn how a screenshot it asked for ended, a
 event of the file and its failure, or a flat call that reads the last one's, so the game could say a
 write that failed as it says a folder it could not make. The game says "Saved screenshot as" only
 where it could make the folder meanwhile.
+
+### 2026-11-15, the voxel game in `Voxel-Sandbox`, a quality of global illumination the enum names none of passes `SetGlobalIllumination` and the render throws in every frame after
+
+The game's `voxel.gi` read its quality by `Enum.TryParse`, which takes `7` or `-1` as a value of
+`GlobalIllumination` the enum names none of, and handed it to `SetGlobalIllumination`. Read on the
+game at `9f96eae` on 6.2.60, the flat world in a room of glowstone offscreen at 1280 by 720 on the
+RTX 4070 Laptop GPU, a quality of 7 is kept as given, `Illumination.TexelsAt` gives it no cascades,
+and `Illumination.TexelsFor` indexes that empty array from `GlobalIlluminationRenderer.Draw`, so
+`RenderPlugin.Render` throws `IndexOutOfRangeException` in every frame, 100 times within 1.8 s, and
+no frame is drawn. The window holds the last frame drawn at High and `./e3d shot` gives no answer
+within 600 frames, until the quality is one the enum names. The functions are named as the engine's
+tree at `c54a38c6` holds them. The engine lacks a check at the flat call, refusing a quality the
+enum names none of or taking it as one it names, so a program's mistyped value draws on. The game
+refuses such a quality from the commit after `9f96eae`.

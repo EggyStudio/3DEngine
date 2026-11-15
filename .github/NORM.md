@@ -242,13 +242,14 @@ a box is drawn at a place only where a number read there is given in the caption
 a box with no reading; a difference panel against a reference, or a plot, as the light hall's floor
 against the turn in BevyCSharp's item 82, goes where it says more than the frames do; and every
 panel keeps the same view and exposure. A pair before and after a mend carries a third panel on its
-right, the after's luminance less the before's at a gain the caption names, brighter in orange and
+right, the after's luminance less the before's at a gain the caption names, brighter in red and
 darker in blue on the panel's own black ground, so the reader sees the change the pair claims where
 the eye finds none in the two frames, as none was found in the meadow's pairs on 2026-11-08, when
 the difference was asked beside them; the panel is left out only where the caption says the two
-frames differ to the eye. The ground stays white, with labels in dark text, the difference panel's
-own apart. By the decision of 2026-10-31 the plain form stays as it was, and a sheet's parts come
-from its reading and not from a list. By review.
+frames differ to the eye. A difference panel of any kind is signed, brighter than its reference or
+its before in red and darker in blue, at a gain the caption names. The ground stays white, with
+labels in dark text, the difference panel's own apart. By the decision of 2026-10-31 the plain form
+stays as it was, and a sheet's parts come from its reading and not from a list. By review.
 
 **N 4.10 Every picture a session makes is kept in the repository's dump folder, apart from the
 devlog's chosen few.** N 4.8 keeps the pictures chosen for the devlog; the rest, every shot,

@@ -1,47 +1,52 @@
 # Review
 
-Reviewed up to `1c1e07e9`, item 277, Sponza's scene offering a button that fetches its pack with a
-bar of its progress and a cancel, the fetch public as ScenePacks, pushed at 16:45 on 2026-11-15, its
-build run 43731698709 started, the form kept and the message free of numbers. Before it `254e5935`,
-the mend of the macOS captures leg, one sampler for each set of settings shared among all that ask
-and the close waiting for the frames in flight before a program's buffers go, pushed at 14:00 on
-2026-11-15, its build run 43716715286 green at 15:43, every leg, and its pack run with publish
-43716715283 red at 16:45 in the games leg's soak alone (Verdict 124), both captures legs green, no
-package published, the form kept and the message free of numbers, build run 43705246863 on the
-commit before it green at 14:00. Before it `42483382`, Verdict 122's mend, the loops reading their
-draws by reference and the guard reading the code compiled for AVX2 and AVX-512 beside the machine's
-own, pushed at 11:40 on 2026-11-15, its build run started, the form kept and the message free of
-numbers. Before it `4a6e708b`, with `40c2f712`, item 276's mend, the model passes' record loops
-copying no view or shadow entry through the CPU's wide registers before the driver's calls, every
-CPU pass summed at 2.123 ms against the head's 2.796, a script reading their compiled code for it in
-the Linux job, and `ba117e9f`, item 273, a glow light sending from the faces the scene field finds
-open, the probe's hits at 0.94 to 1.06 of the traced reference, pushed at 08:53 on 2026-11-15 once
-the run before them had ended, their build run 43691963837 red in the Linux order leg's register
-guard alone at 10:22 (Verdict 122) and the pack run with publish 43691963557 on the same head red at
-11:36 in the macOS captures leg's Sponza drive alone (Verdict 123), its pack job skipped, no package
-published, 6.2.82 by the version script; they keep the form and carry the review's files. Before
-them `4b621af2`, with `9954c125` and `488e7483`, item 275's three high findings, the validation
-layer's errors logged with the words a run's checks look for and a warning keeping its own, the
-draws Render gathers running after the transforms are carried down the tree, and every body blended
-between its last two steps whether an entity holds it or not, each with tests that failed without
-its mend, both suite legs at 2,449 passed, pushed at 04:59 on 2026-11-15 once the run before them
-had ended, their build run 43674781156 green on the three systems at 06:33; they keep the form and
-carry the review's files. Before them `96358279`, 264's part 8, the field far out reading as at the
-origin and alike from run to run, each mesh's rows taken against its cascade's corner, its way ahead
-and far cascade from the camera's eye and far distance, a moving mesh's stamp against the frame's
-origin and a tie of two meshes near a cell broken by bits of the mesh's own, the fog room's ball and
-MoveWorld's words, the noted eye keeping the far distance a camera gave, pushed at 21:20 on
-2026-11-14 once the run before it had ended, its build run 43636980622 green at 22:52 on the three
-systems; the strict build is clean, the suite passes both legs at 2,443 in 25 m 25 s and 25 m 5 s,
-RenderOriginTests 31 of 31 on the RTX, Mesa 26.2.4 and Mesa 25.2.8, the render-texture room's case
-at Low reading 4.00 without the rows against its bound of 1.5 and 9.0 s on lavapipe, the tie's test
-18.8 s there, no Windows part moving; it keeps the form and carries the review's files. Before it
-`c6bac6dc`, 264's part 7, MoveWorld, a program that moves its world by a whole step saying so and
-the engine moving its field, its probes and their light, its histories, its shadows' texels, the
-reflection probes, the particles, the physics' bodies and the sounds with it, a mesh at its matrix
-plus the step the same still mesh, with the ambient's test of a panel too wide to be carried, pushed
-at 13:06 on 2026-11-14 once the run before it had ended, green at 14:44 with the four Windows jobs
-in 82, 47, 59 and 91 minutes, macOS in 55 and the Linux legs in 88 and 65; WorldMoveTests reads
+Reviewed up to `c54a38c6`, Verdict 124's mend, the soak check bounding Swarm's entities by the 160 a
+whole turn holds at once as its ids are, a test holding the red run's readings, pushed at 18:20 on
+2026-11-15, its build run 43740523923 green by 20:02, every leg, and its pack run with publish
+43740524413 green at 20:45, the soak passing in its games leg, with 6.2.86 of the package and its
+templates pushed to nuget and the tag v6.2.86 set on it, the form kept and the message free of
+numbers. Before it `1c1e07e9`, item 277, Sponza's scene offering a button that fetches its pack with
+a bar of its progress and a cancel, the fetch public as ScenePacks, pushed at 16:45 on 2026-11-15,
+its build run 43731698709 green at 18:20, the form kept and the message free of numbers. Before it
+`254e5935`, the mend of the macOS captures leg, one sampler for each set of settings shared among
+all that ask and the close waiting for the frames in flight before a program's buffers go, pushed at
+14:00 on 2026-11-15, its build run 43716715286 green at 15:43, every leg, and its pack run with
+publish 43716715283 red at 16:45 in the games leg's soak alone (Verdict 124), both captures legs
+green, no package published, the form kept and the message free of numbers, build run 43705246863 on
+the commit before it green at 14:00. Before it `42483382`, Verdict 122's mend, the loops reading
+their draws by reference and the guard reading the code compiled for AVX2 and AVX-512 beside the
+machine's own, pushed at 11:40 on 2026-11-15, its build run started, the form kept and the message
+free of numbers. Before it `4a6e708b`, with `40c2f712`, item 276's mend, the model passes' record
+loops copying no view or shadow entry through the CPU's wide registers before the driver's calls,
+every CPU pass summed at 2.123 ms against the head's 2.796, a script reading their compiled code for
+it in the Linux job, and `ba117e9f`, item 273, a glow light sending from the faces the scene field
+finds open, the probe's hits at 0.94 to 1.06 of the traced reference, pushed at 08:53 on 2026-11-15
+once the run before them had ended, their build run 43691963837 red in the Linux order leg's
+register guard alone at 10:22 (Verdict 122) and the pack run with publish 43691963557 on the same
+head red at 11:36 in the macOS captures leg's Sponza drive alone (Verdict 123), its pack job
+skipped, no package published, 6.2.82 by the version script; they keep the form and carry the
+review's files. Before them `4b621af2`, with `9954c125` and `488e7483`, item 275's three high
+findings, the validation layer's errors logged with the words a run's checks look for and a warning
+keeping its own, the draws Render gathers running after the transforms are carried down the tree,
+and every body blended between its last two steps whether an entity holds it or not, each with tests
+that failed without its mend, both suite legs at 2,449 passed, pushed at 04:59 on 2026-11-15 once
+the run before them had ended, their build run 43674781156 green on the three systems at 06:33; they
+keep the form and carry the review's files. Before them `96358279`, 264's part 8, the field far out
+reading as at the origin and alike from run to run, each mesh's rows taken against its cascade's
+corner, its way ahead and far cascade from the camera's eye and far distance, a moving mesh's stamp
+against the frame's origin and a tie of two meshes near a cell broken by bits of the mesh's own, the
+fog room's ball and MoveWorld's words, the noted eye keeping the far distance a camera gave, pushed
+at 21:20 on 2026-11-14 once the run before it had ended, its build run 43636980622 green at 22:52 on
+the three systems; the strict build is clean, the suite passes both legs at 2,443 in 25 m 25 s and
+25 m 5 s, RenderOriginTests 31 of 31 on the RTX, Mesa 26.2.4 and Mesa 25.2.8, the render-texture
+room's case at Low reading 4.00 without the rows against its bound of 1.5 and 9.0 s on lavapipe, the
+tie's test 18.8 s there, no Windows part moving; it keeps the form and carries the review's files.
+Before it `c6bac6dc`, 264's part 7, MoveWorld, a program that moves its world by a whole step saying
+so and the engine moving its field, its probes and their light, its histories, its shadows' texels,
+the reflection probes, the particles, the physics' bodies and the sounds with it, a mesh at its
+matrix plus the step the same still mesh, with the ambient's test of a panel too wide to be carried,
+pushed at 13:06 on 2026-11-14 once the run before it had ended, green at 14:44 with the four Windows
+jobs in 82, 47, 59 and 91 minutes, macOS in 55 and the Linux legs in 88 and 65; WorldMoveTests reads
 0.000 at Low on the three devices and 0.213 at the most at High on the RTX, RenderOriginTests passes
 whole, 30 of 30, and the suite passed both legs, 2,431; it keeps the form and carries the review's
 files. Before it `0567d8f4`, the rest of the independent read's findings and the last of the
@@ -423,19 +428,57 @@ reverted as the screen probes' limit at shapes about a tile wide, its patches in
     ways. A capture of the screen before, during and after goes to the dump, taken in a window since
     the button is a window's matter.
 
+278. **A quality of global illumination that names no value.** The voxel game's entry of 2026-11-15
+    in ASKS.md. `SetGlobalIllumination` keeps a value the enum names none of,
+    `Illumination.TexelsAt` gives it no cascades, and the render throws in every frame after, no
+    frame drawn and a capture unanswered. Asked, after Verdict 124's package and beside the cost
+    read where it fits. The flat call and the component's setter refuse such a value with an error
+    that names it, or take it as off, the choice said, with a test, and the other flat calls that
+    take an enum read for the same. Open.
+
+279. **Ambient occlusion by circular occluders, tried beside the pass the engine has.** Asked by the
+    project's direction on 2026-11-15, to add it and see the results. The technique is CORTAO,
+    published under the MIT license at github.com/theagentd/CORTAO, version 1.0.3, three passes in
+    GLSL with an occluder lookup table, taking the depth and a normal in view space and giving
+    occlusion and a bent normal. Asked, once the cost read's run in flight has ended and before item
+    274. Add it as a second, choosable way of the window's ambient occlusion, the pass the engine
+    has kept and still the default until the results are read, the contact shadows left as they are.
+    Carry its license text where the engine's other notices stand and its lookup table as the
+    engine's own asset, the version taken said. Then the results, as a sheet that explains itself (N
+    4.9), Sponza by day and a room lit by glow blocks, each with the present pass, the new one at 8
+    and at 16 rays, and a traced reference of the same occlusion, with the difference panels signed,
+    brighter than the reference in red and darker in blue at a gain the caption names (N 4.9), and
+    the mean error of each against the reference. Its time in each scene under the exclusive lock
+    beside the present pass's, and its time on lavapipe and the Windows device before a drawing test
+    of it is bound. The bent normal is written out and shown in one panel but feeds nothing yet, and
+    what it would change in the radiance cascades' lookup is said in the Reply as a proposal, not
+    built. Say what the half-size depth the present pass reads from costs it against a full-size
+    one, and which the trial uses. The default changes only by the project's direction after the
+    sheet. Open.
+
+280. **The glow lights' faces check inside the march.** The coder's cost read of 2026-11-15 in the
+    Replies. The model pass's `hdr_scene` rose by 0.14 ms in the low flight and 0.17 in the high one
+    at `ba117e9f`, the faces check inside the loop of `glowLightShown` in `glow.slang`, and the
+    earlier file alone takes the whole gap back, 4.750 and 4.463 ms against 4.863 and 4.592. The gap
+    stays with the glow lights off, so it is the code compiled in and not the work done. Asked,
+    after item 279 and before item 274. Take the faces mask out of the loop, a closed face skipped
+    before it or one branch where every face is open, read the flights again the same way, and keep
+    the hits against the traced reference within the 0.94 to 1.06 item 273 reached. Open.
+
 ## Verdicts
 
-Verdict 124 is open, written at 16:48 on 2026-11-15. The pack run with publish 43716715283 on
-`254e5935` ended red at 16:45 in the games leg alone, so the pack job was skipped and no package is
-published, nuget's latest still 6.2.60. All 21 games built and played from the package, and the step
-that plays each game a while and checks that nothing it holds grows failed on one line, "swarm:
-entities climbed from 33 to 66 at its least, past its bound of 46". Every other value of Swarm
-passed, its entity ids 99 then 121 under their bound of 177, its buffers 51 then 53, its resident
-memory 480 MB then 481, and the other 19 programs read clean. Swarm played 2 turns in the 120
-seconds with 12 readings, so each half of the check holds about four readings and the second half
-can lie wholly inside one fought wave, where 66 entities are alive at every reading. The check's
-whole-turn bound for Swarm covers its entity ids alone, 152, and its entities are bounded by the
-first half's least. This reads as the check on a slow runner and not as a leak, but that is not
+Verdict 124 is settled at 20:52 on 2026-11-15, written at 16:48 the same day, the mend `c54a38c6`
+green in its pack run 43740524413 with the soak passing and 6.2.86 published. The pack run with
+publish 43716715283 on `254e5935` ended red at 16:45 in the games leg alone, so the pack job was
+skipped and no package is published, nuget's latest still 6.2.60. All 21 games built and played from
+the package, and the step that plays each game a while and checks that nothing it holds grows failed
+on one line, "swarm: entities climbed from 33 to 66 at its least, past its bound of 46". Every other
+value of Swarm passed, its entity ids 99 then 121 under their bound of 177, its buffers 51 then 53,
+its resident memory 480 MB then 481, and the other 19 programs read clean. Swarm played 2 turns in
+the 120 seconds with 12 readings, so each half of the check holds about four readings and the second
+half can lie wholly inside one fought wave, where 66 entities are alive at every reading. The
+check's whole-turn bound for Swarm covers its entity ids alone, 152, and its entities are bounded by
+the first half's least. This reads as the check on a slow runner and not as a leak, but that is not
 shown. Asked, before the cost read. Show which it is, by the readings of `build/soak/swarm.csv` from
 the run's artifact if the leg uploads them, or by a soak here with every frame counting the quarter
 second, and say whether the close's wait or the shared samplers of `254e5935` slowed Swarm's turns
@@ -910,3 +953,61 @@ once, which the ids' bound takes as well in place of 152 (`build/soak-check.py`)
 holds the run's readings, failing without the mend as the run did and passing with it, and the same
 second half 130 higher fails. The strict build is clean, and the soak check's and the norm's tests
 pass, 26 of 26.
+
+The cost read of 6.2.83 against 6.2.60, the flights' `hdr_scene` and `scene_field`.
+
+The method. The game at `fc97f0f` was built on the package 6.2.60 as it ships, in a folder of the
+coder's own and through a copy of the engine's client, and each engine commit read was built in
+Release and laid over that copy, its assemblies and its shaders' folder in place of the package's.
+The flight is the review's own, east at 110 from 4400.5, 600.5 over seed 1's land, flown once to
+load and again to read, at Low and at High, at 1280 by 720 with the frame unlimited, the validation
+layer off and a fresh copy of the review's data each run, three samples of the profile a flight.
+Each sitting read its builds in turn and back, every read its own exclusive turn of the GPU's lock,
+powersave as the profile, the desktop's share of the GPU near none. The laid-over 6.2.60 reads as
+the package does, 4.94, 4.51 and 4.56 ms at Low against 4.93, 4.49 and 4.53.
+
+`hdr_scene`, the mean of its three samples over the two reads of each build, Low then High, in ms,
+by sitting. The bisect, 6.2.60 4.71 and 4.50, `3405714a` 4.92 and 4.68, `ed3cd9ca` 4.73 and 4.46,
+`5b6696b2` 4.80 and 4.53, `c6bac6dc` 4.78 and 4.50, `ba117e9f` 4.85 and 4.60, 6.2.83 4.88 and 4.64.
+Within the step, `c6bac6dc` 4.76 and 4.49, `96358279` 4.75 and 4.46, `4b621af2` 4.73 and 4.47,
+`ba117e9f` 4.87 and 4.64. The cause, `4b621af2` 4.78 and 4.54, 6.2.83 with `4b621af2`'s `glow.slang`
+alone 4.75 and 4.46, 6.2.83 4.86 and 4.59.
+
+The step is `ba117e9f`, about 0.14 ms at Low and 0.17 at High, and 6.2.83 with the earlier
+`glow.slang` takes the whole of it back, so it is the faces check that commit put inside the loop of
+`glowLightShown`, which the model pass compiles in through `glowLightsAt`'s march with halves
+(`lights.slang`, line 573). 6.2.83 read as before with the glow faces' stage left out, with the
+lights' buffer made as it was, with single-part meshes kept off the faces' way and with a copy drawn
+twice not taken as one emitter, 4.84 to 4.89 at Low and 4.59 to 4.66 at High against `4b621af2`'s
+4.77 to 4.78 and 4.49 to 4.51 in the same sittings, and both builds carry the same 110 to 112
+emitters, 64 of them lit. With the glow lights off the gap stays, 3.403 against 3.473 at Low and
+3.371 against 3.449 at High, so it is the code compiled in, its registers or its unrolling, and not
+the work it does. `3405714a`'s rise of about 0.2 is taken back by `ed3cd9ca`. `scene_field` keeps to
+one of its two levels a run on every build, the runs of one build reading 1.0 to 1.2 ms and others
+1.5, and moves with none of them.
+
+Item 278, a quality of global illumination that names no value.
+
+Refused, the choice being an error that names the value and the quality kept as it was, since a
+program that passed 7 meant some quality and off would hide its slip. The settings' setter takes it,
+so the flat call and the configuration's field both refuse it, the error saying "Global
+illumination's quality 7 names none of Off, Low, Medium and High, so it stays Low", and
+`SetGlobalIllumination` turns the scene field on by the quality kept.
+`GlobalIlluminationQualityTests` holds a program at Low passing 7 and -1, the quality staying Low
+and the frames after drawn, and a configuration of 9 leaving it off, both failing without the mend,
+the quality read 9 and -1.
+
+The other flat calls that take an enum were read, and none keeps a value that throws later. Each
+reads what it keeps by a comparison, a switch whose last arm takes the rest, a range check or a
+set's lookup, so `(Tonemap)7` draws the engine's own curve and an unknown key never fires, and
+`EditMeshSlotMap` throws at the call. Two read oddly without failing.
+`BeginBlendMode((BlendMode)(-1))` reaches the engine's own replace mode, which draws with no
+blending, and an unknown `SelectionMode` removes at the call where the mesh's recipe writes it as a
+replace, so an undo plays it back otherwise. Each is yours to ask for.
+
+The runs. The strict build is clean, `GlobalIlluminationQualityTests` passes on the RTX, Mesa 26.2.4
+and Mesa 25.2.8, 2 of 2 each, RenderOriginTests whole on the three, 31 of 31 in 1 m 28 s, 5 m 45 s
+and 6 m 28 s, and the suite on both legs, 2,484 each in 27 m 38 s and 27 m 0 s. The new class joins
+the Windows part Rendering 5, and the 49 classes after it in the Rendering parts each move one part
+on. The commit carries ScenePack's remarks saying what its manifest holds, and ScenePacks' leaving
+the other repository out.

@@ -148,11 +148,16 @@ public static partial class E3D
     /// light alone, smoother and coarser, and the small emissive surfaces carried as lights are
     /// marched to once a tile, at a cost the lights in view do not change.
     /// </para>
+    /// <para>
+    /// A value the enum names none of, as <c>(GlobalIllumination)7</c>, is refused with an error
+    /// naming it, and the quality stays as it was.
+    /// </para>
     /// </remarks>
     public static void SetGlobalIllumination(GlobalIllumination quality)
     {
-        World.GetOrInsertResource(static () => new GlobalIlluminationSettings()).Quality = quality;
-        if (quality != GlobalIllumination.Off && World.GetOrInsertResource(static () => new SceneFieldSettings()) is { On: false } field)
+        var settings = World.GetOrInsertResource(static () => new GlobalIlluminationSettings());
+        settings.Quality = quality;
+        if (settings.Quality != GlobalIllumination.Off && World.GetOrInsertResource(static () => new SceneFieldSettings()) is { On: false } field)
             field.Cascades = 4;
     }
 

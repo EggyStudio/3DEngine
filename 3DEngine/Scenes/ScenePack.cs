@@ -3,9 +3,11 @@ namespace Engine;
 /// <summary>A well-known scene kept as a pack fetched on demand, as its manifest names it.</summary>
 /// <remarks>
 /// A detailed scene's files, even with its textures made small, are too large for a repository to
-/// hold, so a manifest of JSON holding these fields is kept in the repository's <c>scenes</c>
-/// folder in its place, written as BevyCSharp's are. Its fields are settable, since a
-/// source-generated reader gives a field a manifest leaves out the value it starts with.
+/// hold, so a manifest of JSON is kept in the repository's <c>scenes</c> folder in its place, one
+/// object whose members are these fields by their names in camel case, the scene's title, where it
+/// comes from and its license, the pack's address, size and SHA-256, and the model's path in it, the
+/// name being the manifest file's. Its fields are settable, since a source-generated reader gives a
+/// field a manifest leaves out the value it starts with.
 /// </remarks>
 public sealed record ScenePack
 {

@@ -5,8 +5,28 @@ namespace Engine;
 /// <summary>How much global illumination the program set, a world resource the renderer reads each frame.</summary>
 internal sealed class GlobalIlluminationSettings
 {
+    private static readonly ILogger Logger = Log.Category("Engine.GlobalIllumination");
+    private GlobalIllumination _quality;
+
     /// <summary>The quality, <see cref="GlobalIllumination.Off"/> for none.</summary>
-    public GlobalIllumination Quality { get; set; }
+    /// <remarks>
+    /// A value the enum names none of is refused with an error naming it and the quality stays as it
+    /// was, since the renderer has no cascades for it and would fail every frame on it.
+    /// </remarks>
+    public GlobalIllumination Quality
+    {
+        get => _quality;
+        set
+        {
+            if (!Enum.IsDefined(value))
+            {
+                var names = Enum.GetNames<GlobalIllumination>();
+                Logger.Error($"Global illumination's quality {(int)value} names none of {string.Join(", ", names[..^1])} and {names[^1]}, so it stays {_quality}.");
+                return;
+            }
+            _quality = value;
+        }
+    }
 
     /// <summary>Whether High leaves the device's ray tracing alone, as <c>gi.rays off</c> sets it, so what it costs can be measured.</summary>
     public bool RaysOff { get; set; }
