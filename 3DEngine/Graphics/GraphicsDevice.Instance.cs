@@ -249,6 +249,33 @@ internal sealed unsafe partial class GraphicsDevice
         get { lock (ValidationGate) return ValidationErrorList.ToArray(); }
     }
 
+    /// <summary>The category the layer's messages are logged under.</summary>
+    internal const string ValidationCategory = "Vulkan.Validation";
+
+    /// <summary>The words the line of a message of error severity carries before the layer's message, which a check of a run's log looks for.</summary>
+    /// <remarks>The layer's message begins with the call it judged, and one that begins with these words is left as it is.</remarks>
+    internal const string ErrorWords = "Validation Error";
+
+    /// <summary>
+    /// The line a message of the layer is logged as, its type and the message, one of error severity
+    /// with <see cref="ErrorWords"/> before the message where the message does not begin with them.
+    /// </summary>
+    /// <param name="type">The kinds of message the layer said it is.</param>
+    /// <param name="message">The layer's message.</param>
+    /// <param name="severity">The severity the layer gave it.</param>
+    internal static string ValidationLine(VkDebugUtilsMessageTypeFlagsEXT type, string message, VkDebugUtilsMessageSeverityFlagsEXT severity) =>
+        severity.HasFlag(VkDebugUtilsMessageSeverityFlagsEXT.Error) && !message.StartsWith(ErrorWords, StringComparison.Ordinal)
+            ? $"[{type}] {ErrorWords}: {message}" : $"[{type}] {message}";
+
+    /// <summary>
+    /// Whether a message of the layer is counted with the errors and logged as one, every message of
+    /// error severity and a set asked of a pool past its counts, which the layer gives as a warning.
+    /// </summary>
+    /// <param name="severity">The severity the layer gave it.</param>
+    /// <param name="id">The name of the check that gave it, or null.</param>
+    internal static bool CountedAsError(VkDebugUtilsMessageSeverityFlagsEXT severity, string? id) =>
+        severity.HasFlag(VkDebugUtilsMessageSeverityFlagsEXT.Error) || id is not null && PoolOverruns.Contains(id);
+
     /// <summary>Native callback invoked by the Vulkan validation layer; routes messages to <see cref="Log"/>.</summary>
     [UnmanagedCallersOnly]
     private static uint DebugCallback(
@@ -263,10 +290,10 @@ internal sealed unsafe partial class GraphicsDevice
         try
         {
             var message = Marshal.PtrToStringUTF8((nint)data->pMessage) ?? string.Empty;
-            var logger = Log.Category("Vulkan.Validation");
-            var formatted = $"[{type}] {message}";
+            var logger = Log.Category(ValidationCategory);
             var id = Marshal.PtrToStringUTF8((nint)data->pMessageIdName);
-            if (severity.HasFlag(VkDebugUtilsMessageSeverityFlagsEXT.Error) || id is not null && PoolOverruns.Contains(id))
+            var formatted = ValidationLine(type, message, severity);
+            if (CountedAsError(severity, id))
             {
                 lock (ValidationGate) ValidationErrorList.Add(formatted);
                 logger.Error(formatted);

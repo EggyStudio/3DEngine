@@ -12,7 +12,15 @@ internal sealed class ConsoleLoggerProvider : ILoggerProvider
     /// <inheritdoc />
     public void Log(LogLevel level, string category, string message, Exception? exception = null)
     {
-        double elapsed = LogConfig.EngineTimer.Elapsed.TotalSeconds;
+        Console.WriteLine(Line(LogConfig.EngineTimer.Elapsed.TotalSeconds, level, category, message));
+        if (exception != null)
+            Console.WriteLine(exception);
+        Console.Out.Flush();
+    }
+
+    /// <summary>A line as the console and the log file write it, the seconds since the engine started, the level, the category and the message.</summary>
+    internal static string Line(double elapsed, LogLevel level, string category, string message)
+    {
         var levelTag = level switch
         {
             LogLevel.Trace    => "TRACE",
@@ -23,9 +31,6 @@ internal sealed class ConsoleLoggerProvider : ILoggerProvider
             LogLevel.Fatal    => "FATAL",
             _ => level.ToString().ToUpperInvariant()
         };
-        Console.WriteLine($"[{elapsed,10:F4}s] [{levelTag}] [{category}] {message}");
-        if (exception != null)
-            Console.WriteLine(exception);
-        Console.Out.Flush();
+        return $"[{elapsed,10:F4}s] [{levelTag}] [{category}] {message}";
     }
 }

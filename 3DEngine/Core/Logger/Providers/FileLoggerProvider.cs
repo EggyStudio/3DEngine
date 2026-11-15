@@ -53,19 +53,7 @@ internal sealed class FileLoggerProvider : ILoggerProvider, IDisposable
         {
             if (_truncated) return;
 
-            double elapsed = LogConfig.EngineTimer.Elapsed.TotalSeconds;
-            var levelTag = level switch
-            {
-                LogLevel.Trace    => "TRACE",
-                LogLevel.Debug    => "DEBUG",
-                LogLevel.Info     => "INFO ",
-                LogLevel.Warning  => "WARN ",
-                LogLevel.Error    => "ERROR",
-                LogLevel.Fatal    => "FATAL",
-                _ => level.ToString().ToUpperInvariant()
-            };
-
-            var line = $"[{elapsed,10:F4}s] [{levelTag}] [{category}] {message}";
+            var line = ConsoleLoggerProvider.Line(LogConfig.EngineTimer.Elapsed.TotalSeconds, level, category, message);
             _writer.WriteLine(line);
             _bytesWritten += Encoding.UTF8.GetByteCount(line) + Environment.NewLine.Length;
 

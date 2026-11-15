@@ -93,6 +93,8 @@ sealed class Engine.GraphicsDevice : IDisposable, IGraphicsDevice
   internal const int MaxFramesInFlight = 3
   internal const int PipelineCacheBound = 268435456
   internal const int ReadbackStagingKept = 4
+  internal const string ErrorWords = "Validation Error"
+  internal const string ValidationCategory = "Vulkan.Validation"
   internal float AnisotropyLimit { get; set; }
   internal float[] ReadFloats(IImage image)
   internal int CountedRecords { get; }
@@ -105,10 +107,12 @@ sealed class Engine.GraphicsDevice : IDisposable, IGraphicsDevice
   internal static VkImageMemoryBarrier2 ImageBarrier(VkImage image, VkImageSubresourceRange range, VkImageLayout from, VkImageLayout to, VkPipelineStageFlags2 srcStage, VkAccessFlags2 srcAccess, VkPipelineStageFlags2 dstStage, VkAccessFlags2 dstAccess)
   internal static VkImageMemoryBarrier2 ImageLayoutBarrier(IImage image, VkImageLayout from, VkImageLayout to, VkPipelineStageFlags2 srcStage, VkAccessFlags2 before, VkPipelineStageFlags2 dstStage, VkAccessFlags2 after)
   internal static VkImageSubresourceRange ColorLevels(uint firstLevel, uint levelCount)
+  internal static bool CountedAsError(VkDebugUtilsMessageSeverityFlagsEXT severity, string? id)
   internal static bool HoldsBlocks(IImage image)
   internal static bool LeaveValidationOff { get; set; }
   internal static string PipelineCachePath { get; }
   internal static string ProgramPipelineCachePath { get; }
+  internal static string ValidationLine(VkDebugUtilsMessageTypeFlagsEXT type, string message, VkDebugUtilsMessageSeverityFlagsEXT severity)
   internal static string? OverLimits(string stage, IEnumerable<DescriptorSetLayoutBinding> read, uint samplers, uint images, string what)
   internal static void RequestWindowCapture(GraphicsDevice.WindowSurface surface, Action<byte[], int, int> onCaptured)
   internal static void ResizeWindowSurface(GraphicsDevice.WindowSurface surface)
