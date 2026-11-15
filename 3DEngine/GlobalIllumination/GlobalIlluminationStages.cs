@@ -17,8 +17,8 @@ internal sealed unsafe partial class GlobalIlluminationStages(GraphicsDevice dev
     internal static GlobalIlluminationStages Of(GraphicsDevice device) => device.Part(static device => new GlobalIlluminationStages(device));
 
     private const int TraceStage = 0, MergeStage = 1, AmbientStage = 2, ScreenStage = 3, FilterStage = 4, GlowStage = 5, SolidTraceStage = 6, RayTraceStage = 7,
-        RayCrossStage = 8;
-    private readonly ComputeStage[] _giStages = new ComputeStage[9];
+        RayCrossStage = 8, GlowFacesStage = 9;
+    private readonly ComputeStage[] _giStages = new ComputeStage[10];
 
     /// <summary>What <c>gi_trace.slang</c> is pushed.</summary>
     [StructLayout(LayoutKind.Sequential)]
@@ -31,6 +31,17 @@ internal sealed unsafe partial class GlobalIlluminationStages(GraphicsDevice dev
         public uint Parity;
         public float BelowEnd;
         public uint TexelsAbove, First, Flags, Half;
+    }
+
+    // What glow_faces.slang is pushed: where the glow lights lie and their bytes, the places whose
+    // light is the frame before's, the cascades a build of the frame changed, and the box it changed
+    // against the frame's origin.
+    [StructLayout(LayoutKind.Sequential)]
+    private struct GlowFacesPush
+    {
+        public uint At, Bytes, KeptLow, KeptHigh;
+        public uint Built, Unused0, Unused1, Unused2;
+        public System.Numerics.Vector4 ChangedLow, ChangedHigh;
     }
 
     /// <summary>
@@ -106,6 +117,10 @@ internal sealed unsafe partial class GlobalIlluminationStages(GraphicsDevice dev
                 VkDescriptorType.SampledImage, VkDescriptorType.SampledImage, VkDescriptorType.CombinedImageSampler, VkDescriptorType.SampledImage,
                 VkDescriptorType.SampledImage, VkDescriptorType.StorageImage, VkDescriptorType.StorageImage, VkDescriptorType.SampledImage,
                 VkDescriptorType.StorageImage, VkDescriptorType.SampledImage, VkDescriptorType.StorageImage], 48)));
+            // The glow lights' faces read open or closed in the field (glow_faces.slang).
+            if (spirv.Length > GlowFacesStage && spirv[GlowFacesStage].Length > 0)
+                made.Add((GlowFacesStage, () => device.MakeComputeStage(spirv[GlowFacesStage], [VkDescriptorType.CombinedImageSampler, VkDescriptorType.UniformBuffer,
+                    VkDescriptorType.StorageBuffer, VkDescriptorType.StorageBuffer], (uint)sizeof(GlowFacesPush))));
             made.Add((AmbientStage, () => device.MakeComputeStage(ambient, [VkDescriptorType.SampledImage, VkDescriptorType.StorageImage,
                 VkDescriptorType.SampledImage, VkDescriptorType.StorageImage, VkDescriptorType.SampledImage, VkDescriptorType.StorageImage,
                 VkDescriptorType.SampledImage, VkDescriptorType.StorageImage, VkDescriptorType.StorageImage, VkDescriptorType.StorageImage,
@@ -124,15 +139,16 @@ internal sealed unsafe partial class GlobalIlluminationStages(GraphicsDevice dev
     /// <c>gi_ambient.slang</c>, <c>gi_screen.slang</c>, <c>gi_screen_filter.slang</c> and
     /// <c>gi_screen_glow.slang</c>, once, with <paramref name="solidTrace"/>, <c>gi_trace.slang</c>
     /// built with <c>NO_LIGHT_THROUGH</c>, for a frame where no surface lets light through, or the
-    /// trace itself where there is none.
+    /// trace itself where there is none, and <paramref name="glowFaces"/>, <c>glow_faces.slang</c>,
+    /// which reads the glow lights' faces open or closed in the field, every face open without it.
     /// </summary>
     public void InitializeGlobalIllumination(ReadOnlySpan<byte> trace, ReadOnlySpan<byte> merge, ReadOnlySpan<byte> ambient, ReadOnlySpan<byte> screen,
         ReadOnlySpan<byte> filter, ReadOnlySpan<byte> glow, ReadOnlySpan<byte> solidTrace = default, ReadOnlySpan<byte> rayTrace = default,
-        ReadOnlySpan<byte> rayCross = default)
+        ReadOnlySpan<byte> rayCross = default, ReadOnlySpan<byte> glowFaces = default)
     {
         if (!device.IsInitialized || CanBounceLight) return;
         _giSpirv = [trace.ToArray(), merge.ToArray(), ambient.ToArray(), screen.ToArray(), filter.ToArray(), glow.ToArray(),
-            solidTrace.IsEmpty ? trace.ToArray() : solidTrace.ToArray(), rayTrace.ToArray(), rayCross.ToArray()];
+            solidTrace.IsEmpty ? trace.ToArray() : solidTrace.ToArray(), rayTrace.ToArray(), rayCross.ToArray(), glowFaces.ToArray()];
     }
 
     /// <summary>
@@ -186,7 +202,8 @@ internal sealed unsafe partial class GlobalIlluminationStages(GraphicsDevice dev
         var rayReach = device.ProbeImage(GpuIllumination.ReachTexels * p, GpuIllumination.ReachTexels * p, rayReachDepth, VkFormat.R16Sfloat);
         var (skies, skiesMemory, skiesView) = device.ProbeImage(6 * p, p, p * (uint)texels.Length, VkFormat.R16Sfloat);
         var (ways, waysMemory, waysView) = device.ProbeImage(GpuIllumination.WaysTexels * p, GpuIllumination.WaysTexels * p, p * (uint)texels.Length);
-        var lights = device.CreateBuffer(new BufferDesc(GpuIllumination.LightsBytes, BufferUsage.Uniform | BufferUsage.TransferDst));
+        var lights = device.CreateBuffer(new BufferDesc(GpuIllumination.LightsBytes, BufferUsage.Uniform | BufferUsage.Storage | BufferUsage.TransferDst | BufferUsage.TransferSrc));
+        var glowFaces = device.CreateBuffer(new BufferDesc(GlowLights.Most * 4, BufferUsage.Storage | BufferUsage.TransferDst | BufferUsage.TransferSrc));
 
         var cmd = device.BeginSingleTimeCommands();
         var whole = ColorLevels(0, 1);
@@ -208,6 +225,8 @@ internal sealed unsafe partial class GlobalIlluminationStages(GraphicsDevice dev
         device.Api.vkCmdClearColorImage(cmd, reach, VkImageLayout.General, &far, 1, &whole);
         device.Api.vkCmdClearColorImage(cmd, rayReach.Item1, VkImageLayout.General, &far, 1, &whole);
         device.Api.vkCmdFillBuffer(cmd, ((VulkanBuffer)lights).Buffer, 0, Vulkan.VK_WHOLE_SIZE, 0);
+        // No glow light's faces decided yet.
+        device.Api.vkCmdFillBuffer(cmd, ((VulkanBuffer)glowFaces).Buffer, 0, Vulkan.VK_WHOLE_SIZE, 0);
         device.PipelineBarrier(cmd, [
             .. all.Where(image => image != cubes && image != cubesAt && image != reach && image != skies && image != ways).Select(image => ImageBarrier(image, ColorLevels(0, 1), VkImageLayout.General, VkImageLayout.General,
                 VkPipelineStageFlags2.Transfer, VkAccessFlags2.TransferWrite, VkPipelineStageFlags2.ComputeShader, VkAccessFlags2.ShaderRead | VkAccessFlags2.ShaderWrite)),
@@ -241,6 +260,7 @@ internal sealed unsafe partial class GlobalIlluminationStages(GraphicsDevice dev
             {
                 sampler.Dispose();
                 lights.Dispose();
+                glowFaces.Dispose();
                 device.Api.vkDestroyImageView(cubesView);
                 owner.Dispose();
                 device.Api.vkDestroyImageView(reachView);
@@ -260,7 +280,7 @@ internal sealed unsafe partial class GlobalIlluminationStages(GraphicsDevice dev
                 }
             }, [.. distances.Select(i => (i.Item1, i.Item3))], reach, new VulkanImageView(device, reachOwner, reachView),
             partialView, heldView, [.. mergedSky.Select(i => (i.Item1, i.Item3))], skies, new VulkanImageView(device, skiesOwner, skiesView),
-            ways, new VulkanImageView(device, waysOwner, waysView)) { Far = farCascade, CubesAt = cubesAt, CubesAtView = cubesAtView, RayReach = rayReach.Item3,
+            ways, new VulkanImageView(device, waysOwner, waysView)) { Far = farCascade, GlowFaces = glowFaces, CubesAt = cubesAt, CubesAtView = cubesAtView, RayReach = rayReach.Item3,
                 HitNormals = [.. hitNormals.Select(i => (i.Item1, i.Item3))], CyclePartialBefore = [.. cyclePartialBefore.Select(i => (i.Item1, i.Item3))],
                 CyclePartial = [.. cyclePartial.Select(i => (i.Item1, i.Item3))], CycleFull = [.. cycleFull.Select(i => (i.Item1, i.Item3))],
                 CycleFullBefore = [.. cycleFullBefore.Select(i => (i.Item1, i.Item3))], CycleSkyMarkBefore = [.. cycleSkyMarkBefore.Select(i => (i.Item1, i.Item3))],
@@ -302,29 +322,57 @@ internal sealed unsafe partial class GlobalIlluminationStages(GraphicsDevice dev
     /// <param name="carriedSince">The frames since the lights or the field last changed, which begins a carried probe's cycle again at 0.</param>
     /// <param name="traceFlags">1 where a carried probe's rays move within their texels and are traced through <paramref name="rays"/>, 2 where every ray is.</param>
     /// <param name="spread">Whether the cascades past the first trace half their probes a frame while they lie still (<see cref="Halved"/>).</param>
+    /// <param name="glowKept">The glow light places whose light is the frame before's, a bit a place, as <c>GlowPlaces.Kept</c> holds them.</param>
+    /// <param name="fieldBuilt">The cascades a build of the frame changed, a bit a cascade, none where no build did.</param>
+    /// <param name="changedLow">The least corner of the box the frame's builds changed, against the frame's origin.</param>
+    /// <param name="changedHigh">The most corner of that box.</param>
     /// <param name="carriedPhase">Where a carried probe's cycle of sixteen frames stands, counted from the last change, so the first whole cycle is gathered in the sixteen frames after it.</param>
     /// <returns>What the recording holds, to free once no frame in flight reads it.</returns>
     public IDisposable RecordGlobalIllumination(ICommandBuffer commandBuffer, GpuIllumination gi, GpuSceneField field, IImageView environment,
         ISampler environmentSampler, IImageView sunMap, ISampler sunSampler, ReadOnlySpan<byte> lights, IReadOnlyList<(float Start, float End)> intervals, float spacing,
         bool mergeOff = false, int alone = -1, bool viewed = false, long frame = 0, IReadOnlyList<bool>? lying = null, int lastCounted = -1, bool lightThrough = false,
-        bool fieldWhole = false, int farPart = -1, GpuRayScene? rays = null, IReadOnlyList<(int X, int Y, int Z)?>? shifts = null, float carriedShare = 1, uint carriedSince = 0, uint carriedPhase = 0, uint traceFlags = 0, bool spread = false)
+        bool fieldWhole = false, int farPart = -1, GpuRayScene? rays = null, IReadOnlyList<(int X, int Y, int Z)?>? shifts = null, float carriedShare = 1, uint carriedSince = 0, uint carriedPhase = 0, uint traceFlags = 0, bool spread = false,
+        (uint Low, uint High) glowKept = default, uint fieldBuilt = 0, System.Numerics.Vector3 changedLow = default, System.Numerics.Vector3 changedHigh = default)
     {
         // Traced through the meshes where asked and the build for the frame was made, crossing what
         // lets light through where the frame holds any.
         var meshed = lightThrough ? RayCrossStage : RayTraceStage;
         var traced = rays is not null && GiStages[meshed].Pipeline.Handle != 0;
         var trace = traced ? meshed : lightThrough ? TraceStage : SolidTraceStage;
-        var run = new ProbeRun(this, device, commandBuffer, [(trace, gi.Cascades), (MergeStage, gi.Cascades), (AmbientStage, gi.Cascades)]);
+        var faces = GiStages[GlowFacesStage].Pipeline.Handle != 0 && gi.GlowFaces is not null;
+        var run = new ProbeRun(this, device, commandBuffer,
+            [(trace, gi.Cascades), (MergeStage, gi.Cascades), (AmbientStage, gi.Cascades), .. faces ? [(GlowFacesStage, 1)] : Array.Empty<(int, int)>()]);
         var cmd = run.Commands;
         var readers = VkPipelineStageFlags2.VertexShader | VkPipelineStageFlags2.FragmentShader | VkPipelineStageFlags2.ComputeShader;
         device.MemoryBarrier(cmd, readers, VkAccessFlags2.UniformRead, VkPipelineStageFlags2.Transfer, VkAccessFlags2.TransferWrite);
         var bytes = lights[..(Math.Min(lights.Length, GpuIllumination.LightsBytes) & ~3)];
         fixed (byte* data = bytes)
             device.Api.vkCmdUpdateBuffer(cmd, ((VulkanBuffer)gi.Lights).Buffer, 0, (ulong)bytes.Length, data);
+        // Each glow light's faces read open or closed in the field, written into the lights before
+        // any pass reads them.
+        if (faces)
+        {
+            device.MemoryBarrier(cmd, VkPipelineStageFlags2.Transfer, VkAccessFlags2.TransferWrite,
+                VkPipelineStageFlags2.ComputeShader, VkAccessFlags2.ShaderRead | VkAccessFlags2.ShaderWrite);
+            var set = run.Set(GlowFacesStage);
+            run.Image(set, 0, VkDescriptorType.CombinedImageSampler, ((VulkanImageView)field.View).View, field.Sampler, VkImageLayout.ShaderReadOnlyOptimal);
+            run.Buffer(set, 1, VkDescriptorType.UniformBuffer, field.Info);
+            run.Buffer(set, 2, VkDescriptorType.StorageBuffer, gi.Lights);
+            run.Buffer(set, 3, VkDescriptorType.StorageBuffer, gi.GlowFaces!);
+            var push = new GlowFacesPush
+            {
+                At = GlowLights.Offset, Bytes = GlowLights.Bytes, KeptLow = glowKept.Low, KeptHigh = glowKept.High, Built = fieldBuilt,
+                ChangedLow = new System.Numerics.Vector4(changedLow, 0), ChangedHigh = new System.Numerics.Vector4(changedHigh, 0),
+            };
+            run.Dispatch(GlowFacesStage, set, MemoryMarshal.AsBytes(new ReadOnlySpan<GlowFacesPush>(in push)), GlowLights.Most);
+            device.MemoryBarrier(cmd, VkPipelineStageFlags2.ComputeShader, VkAccessFlags2.ShaderWrite,
+                VkPipelineStageFlags2.VertexShader | VkPipelineStageFlags2.FragmentShader | VkPipelineStageFlags2.ComputeShader, VkAccessFlags2.UniformRead);
+            MarkGlobalIllumination(commandBuffer, "gi_glow_faces");
+        }
         // The lights are written, and the merges and faces of the frame before are read, before the
         // rays, a view's reads of them in the frame before's window pass too while one is shown.
         var before = VkPipelineStageFlags2.Transfer | VkPipelineStageFlags2.ComputeShader | (viewed ? VkPipelineStageFlags2.FragmentShader : 0);
-        device.MemoryBarrier(cmd, before, VkAccessFlags2.TransferWrite | VkAccessFlags2.ShaderRead,
+        device.MemoryBarrier(cmd, before, VkAccessFlags2.TransferWrite | VkAccessFlags2.ShaderRead | VkAccessFlags2.ShaderWrite,
             VkPipelineStageFlags2.ComputeShader, VkAccessFlags2.UniformRead | VkAccessFlags2.ShaderWrite);
         // The shadow map the frame before's shadow pass wrote, before the rays read the sun through it.
         device.MemoryBarrier(cmd, VkPipelineStageFlags2.EarlyFragmentTests | VkPipelineStageFlags2.LateFragmentTests, VkAccessFlags2.DepthStencilAttachmentWrite,

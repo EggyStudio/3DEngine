@@ -1,37 +1,43 @@
 # Review
 
-Reviewed up to `96358279`, 264's part 8, the field far out reading as at the origin and alike from
-run to run, each mesh's rows taken against its cascade's corner, its way ahead and far cascade from
-the camera's eye and far distance, a moving mesh's stamp against the frame's origin and a tie of two
-meshes near a cell broken by bits of the mesh's own, the fog room's ball and MoveWorld's words, the
-noted eye keeping the far distance a camera gave, pushed at 21:20 on 2026-11-14 once the run before
-it had ended, its build run 43636980622 green at 22:52 on the three systems; the strict build is
-clean, the suite passes both legs at 2,443 in 25 m 25 s and 25 m 5 s, RenderOriginTests 31 of 31 on
-the RTX, Mesa 26.2.4 and Mesa 25.2.8, the render-texture room's case at Low reading 4.00 without the
-rows against its bound of 1.5 and 9.0 s on lavapipe, the tie's test 18.8 s there, no Windows part
-moving; it keeps the form and carries the review's files. Before it `c6bac6dc`, 264's part 7,
-MoveWorld, a program that moves its world by a whole step saying so and the engine moving its field,
-its probes and their light, its histories, its shadows' texels, the reflection probes, the
-particles, the physics' bodies and the sounds with it, a mesh at its matrix plus the step the same
-still mesh, with the ambient's test of a panel too wide to be carried, pushed at 13:06 on 2026-11-14
-once the run before it had ended, green at 14:44 with the four Windows jobs in 82, 47, 59 and 91
-minutes, macOS in 55 and the Linux legs in 88 and 65; WorldMoveTests reads 0.000 at Low on the three
-devices and 0.213 at the most at High on the RTX, RenderOriginTests passes whole, 30 of 30, and the
-suite passed both legs, 2,431; it keeps the form and carries the review's files. Before it
-`0567d8f4`, the rest of the independent read's findings and the last of the origin's cost, mapped
-memory handed out as a span that can be written and not read, each view pushed and found once a pass
-with a test that counts the pushes, stereo eyes, projections set through rlgl, the modeling window's
-outlines, the casters' ranking, rays against meshes, the picking and the glow lights' boxes far from
-the origin, each with a test failing first, pushed at 09:59 on 2026-11-14 once the run before it had
-ended, its message written again before the push to name no item, green at 11:40 with the four
-Windows jobs in 49, 50, 57 and 63 minutes, macOS in 56 and the Linux legs in 89 and 64;
-RenderOriginTests passes whole on the three devices, 30 of 30, and the suite passed both legs,
-2,425; it keeps the form and carries the review's files. Before it `6075d306`, item 270, global
-illumination's lamps written into the sixteen entries its kernels' array holds, the lights the model
-pass lights, with a test of twenty lamps leaving every byte as sixteen do, pushed at 06:23 on
-2026-11-14 once the run before it had ended, green at 07:46 with the four Windows jobs in 83, 52, 45
-and 77 minutes on slower runners, macOS in 55 and the Linux legs in 51 and 66; the suite passed both
-legs, 2,401; it keeps the form and carries the review's files. The pushes before these stand in
+Reviewed up to `4b621af2`, with `9954c125` and `488e7483`, item 275's three high findings, the
+validation layer's errors logged with the words a run's checks look for and a warning keeping its
+own, the draws Render gathers running after the transforms are carried down the tree, and every body
+blended between its last two steps whether an entity holds it or not, each with tests that failed
+without its mend, both suite legs at 2,449 passed, pushed at 04:59 on 2026-11-15 once the run before
+them had ended, their build run 43674781156 green on the three systems at 06:33; they keep the form
+and carry the review's files. Before them `96358279`, 264's part 8, the field far out reading as at
+the origin and alike from run to run, each mesh's rows taken against its cascade's corner, its way
+ahead and far cascade from the camera's eye and far distance, a moving mesh's stamp against the
+frame's origin and a tie of two meshes near a cell broken by bits of the mesh's own, the fog room's
+ball and MoveWorld's words, the noted eye keeping the far distance a camera gave, pushed at 21:20 on
+2026-11-14 once the run before it had ended, its build run 43636980622 green at 22:52 on the three
+systems; the strict build is clean, the suite passes both legs at 2,443 in 25 m 25 s and 25 m 5 s,
+RenderOriginTests 31 of 31 on the RTX, Mesa 26.2.4 and Mesa 25.2.8, the render-texture room's case
+at Low reading 4.00 without the rows against its bound of 1.5 and 9.0 s on lavapipe, the tie's test
+18.8 s there, no Windows part moving; it keeps the form and carries the review's files. Before it
+`c6bac6dc`, 264's part 7, MoveWorld, a program that moves its world by a whole step saying so and
+the engine moving its field, its probes and their light, its histories, its shadows' texels, the
+reflection probes, the particles, the physics' bodies and the sounds with it, a mesh at its matrix
+plus the step the same still mesh, with the ambient's test of a panel too wide to be carried, pushed
+at 13:06 on 2026-11-14 once the run before it had ended, green at 14:44 with the four Windows jobs
+in 82, 47, 59 and 91 minutes, macOS in 55 and the Linux legs in 88 and 65; WorldMoveTests reads
+0.000 at Low on the three devices and 0.213 at the most at High on the RTX, RenderOriginTests passes
+whole, 30 of 30, and the suite passed both legs, 2,431; it keeps the form and carries the review's
+files. Before it `0567d8f4`, the rest of the independent read's findings and the last of the
+origin's cost, mapped memory handed out as a span that can be written and not read, each view pushed
+and found once a pass with a test that counts the pushes, stereo eyes, projections set through rlgl,
+the modeling window's outlines, the casters' ranking, rays against meshes, the picking and the glow
+lights' boxes far from the origin, each with a test failing first, pushed at 09:59 on 2026-11-14
+once the run before it had ended, its message written again before the push to name no item, green
+at 11:40 with the four Windows jobs in 49, 50, 57 and 63 minutes, macOS in 56 and the Linux legs in
+89 and 64; RenderOriginTests passes whole on the three devices, 30 of 30, and the suite passed both
+legs, 2,425; it keeps the form and carries the review's files. Before it `6075d306`, item 270,
+global illumination's lamps written into the sixteen entries its kernels' array holds, the lights
+the model pass lights, with a test of twenty lamps leaving every byte as sixteen do, pushed at 06:23
+on 2026-11-14 once the run before it had ended, green at 07:46 with the four Windows jobs in 83, 52,
+45 and 77 minutes on slower runners, macOS in 55 and the Linux legs in 51 and 66; the suite passed
+both legs, 2,401; it keeps the form and carries the review's files. The pushes before these stand in
 REVIEW-ARCHIVE.md's head records.
 
 The package stands at 6.2.60 from `baa21ff4`, one package with its templates, published at 18:58 on
@@ -813,3 +819,63 @@ class moves. A first read of the suite with them beside the collection failed Rl
 PostProcessUnitsTests, their apps holding the interface context the others build. RenderOriginTests,
 read on the tree before the severity took the words, which it reaches nowhere, passes whole on the
 RTX, Mesa 26.2.4 and Mesa 25.2.8, 31 of 31. The package is 6.2.60-local.275.1.
+
+Item 273, a glow light's faces read in the field.
+
+The mend is the form taken at 20:11. A pass of its own on the GPU (`glow_faces.slang`) reads which
+of each glow light's faces send, a workgroup a light and four points a face at the middles of its
+quarters, each marched out along the face's normal a cell at a time and read at the middle of the
+cell it lies in. Three points buried of four close a face, two open keep it, and otherwise it keeps
+what it was. The faces closed come out of the mask the light carries (`glowFaces`), which every
+closed form reads and the screen probes' share now reads too (`glowLightShown`), so a probe's hit
+and a surface alike take no light from the faces of a lamp set into a wall, and a light with no face
+open lights nothing. A light's faces are decided again only where its place is new or undecided, a
+build of the frame changed the field within its reach, a finer cascade holds it than decided it, or
+its box changed size, and kept in a uint a place between, so a still room's lamps keep their faces
+frame to frame and through a shift of the field, and the light stays at 80 bytes. On the CPU a mesh
+of one part with depth names the faces its triangles lie on as a mesh of many parts does, a flat one
+both its sides, as the reference takes a triangle's emission from either side, and blocks that touch
+and emit alike join into a light that sends from each member's face lying on the union's side, its
+power over those faces' surface. The pass is timed apart as `gi_glow_faces` where `gi.passes on`
+asks.
+
+The readings. A probe in a closed room of blocks at High, its hits held against the path-traced
+reference at one bounce past them (`BounceReference.MeasureProbe`), reads a lamp flush in a wall
+0.940 of the reference, one standing on the floor 1.058 and one hung in the air 1.046, each held
+between 0.9 and 1.1 (`GlobalIlluminationTests`); the fourth room, a probe's hits on a table top
+beside a lamp taller than it, reads 1.048, 0.2812 of 0.2684. The voxel game's built room read 2.2
+times its reference by a lamp set in its wall. The reference counts one bounce, since a lamp's light
+at a hit is the emitter the path's next step meets, and at none it reads nothing. The direct term at
+a surface reads the same mask, so a buried face's share leaves it as it leaves the probes' hits; its
+read against the reference beside them is not made here, and the game's read of its rooms on the
+package, the bar of 1.2 with its floor and 1.08 without, gives it.
+
+The tests. `GlobalIlluminationTests.GlowFaces` builds the closed layout the game's mesher makes and
+the culled one, a lamp flush in a wall, in a wall a block thick, in a ledge's inner corner, on the
+floor, hung in the air and three joined in a ceiling, and holds the faces against the blocks closed
+and the rest kept, the flush one with the field shifted a tenth of a cell too; a lamp flush in a
+wall sends from its face toward the room whole, its share 1, whether handed as a cube, as the faces
+that show or as quads; two lamps of different light side by side close the faces they press
+together; a lamp hung two cells from a wall and the roof keeps all six faces, and one a cell from
+them closes the two toward them, the error the cells' size leaves; a lamp half sunk in the floor
+keeps its sides whole; a lamp decided in the second cascade is decided again alike once the first
+holds it; and a still room's lamps keep their faces frame after frame and through a shift.
+`GlowLightsTests` holds a mesh of one, two and three faces of a block to those faces at their whole
+surface, a single face from both its sides, and an emitter recorded twice, as a stereo pair's second
+eye records it, to one light. Without the mend 24 of them fail.
+
+Three of the deep audit's findings come with it. The screen probes' share weighing faces a light
+does not emit from is mended by the mask above, and an emitter recorded twice gathered as two lights
+by the one light above. A probe's hit keeping a light's point of nothing (`gi.slang`) is left as it
+is, since no reading fails on it; the table top, the room where the point lies under the top's
+plane, reads 1.048 without a change and 1.085 with one.
+
+The runs. With 276 beside it, the global illumination's, the glow lights', the models', the
+shadows', the subsurface pass's and the ambient occlusion's tests pass on the RTX, 220 of 220 in 4 m
+15 s, and on Mesa 26.2.4 and Mesa 25.2.8, 214 of 218 in 22 m 22 s and 22 m 42 s, the four left out
+there tracing the device's rays, the probe's hits against the reference among them. The new cases of
+`GlobalIlluminationTests`, 21 of eight tests, each open a room in the flat API's window as the
+class's others do, about 11 s each on Mesa 26.2.4 and the still room's 24.7 s, 220 s for the 19 that
+run there; the four of `GlowLightsTests` start no app and use no device, under a hundredth of a
+second each. They join their classes' own parts, the four of `GlobalIlluminationTests` in the first
+and second Windows halves and `GlowLightsTests` in the fourth, as before, so no class moves.

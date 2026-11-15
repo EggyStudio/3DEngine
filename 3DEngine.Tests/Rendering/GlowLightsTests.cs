@@ -163,6 +163,60 @@ public sealed class GlowLightsTests : IDisposable
         GlowLights.Carries(glow, box, Matrix4x4.Identity, 0.25f).Should().BeFalse("taken whole it is too long");
     }
 
+    [Fact]
+    [Trait("Category", "Unit")]
+    public void An_Emitter_Recorded_Twice_Is_One_Light()
+    {
+        // A turned block and a square one, each recorded twice as a stereo pair's second eye repeats
+        // the window's draws, are one light each, as recorded once.
+        var vertices = new ModelVertex[] { new() { Position = new Vector3(-0.5f) }, new() { Position = new Vector3(0.5f) } };
+        var glow = new Vector3(4, 2, 1);
+        (SceneFieldPlan.Instance, bool) Block(Matrix4x4 world) => (new SceneFieldPlan.Instance(1, vertices, world, false, Vector3.One, glow), false);
+        var turned = Matrix4x4.CreateRotationY(0.5f) * Matrix4x4.CreateTranslation(0, 0.5f, 0);
+        var square = Matrix4x4.CreateTranslation(4, 0.5f, 0);
+
+        var once = GlowLights.Gather([Block(turned), Block(square)], 0.25f, SceneFieldPlan.Box.Of, _ => 1);
+        var twice = GlowLights.Gather([Block(turned), Block(square), Block(turned), Block(square)], 0.25f, SceneFieldPlan.Box.Of, _ => 1);
+
+        once.Should().HaveCount(2);
+        twice.Should().Equal(once, "a copy recorded twice is the one emitter it draws");
+    }
+
+    [Theory]
+    [Trait("Category", "Unit")]
+    [InlineData(1, 1 << 0 | 1 << 1)]
+    [InlineData(2, 1 << 0 | 1 << 3)]
+    [InlineData(3, 1 << 0 | 1 << 3 | 1 << 4)]
+    public void A_Mesh_Of_Some_Faces_Of_A_Block_Emits_From_Those_Faces_At_Their_Whole_Surface(int count, int faces)
+    {
+        // The faces of a block that show, as a program hands them in one mesh: the face toward -x
+        // alone, a flat emitter lighting both its sides, that and the top, which share an edge, and
+        // those and the face toward -z, a corner of three.
+        var corners = new List<Vector3>();
+        void Face(Vector3 normal)
+        {
+            var side = MathF.Abs(normal.Y) > 0.5f ? Vector3.UnitX : Vector3.UnitY;
+            var up = Vector3.Cross(normal, side);
+            Vector3 At(float a, float b) => (normal + side * a + up * b) * 0.5f;
+            var (p0, p1, p2, p3) = (At(-1, -1), At(1, -1), At(1, 1), At(-1, 1));
+            if (Vector3.Dot(Vector3.Cross(side, up), normal) > 0) corners.AddRange([p0, p1, p2, p0, p2, p3]);
+            else corners.AddRange([p0, p2, p1, p0, p3, p2]);
+        }
+        foreach (var normal in new[] { -Vector3.UnitX, Vector3.UnitY, -Vector3.UnitZ }.Take(count))
+            Face(normal);
+        Vector3[] points = [.. corners];
+        var box = new SceneFieldPlan.Box(points.Aggregate(Vector3.Min), points.Aggregate(Vector3.Max));
+        var vertices = points.Select(p => new ModelVertex { Position = p }).ToArray();
+        var parts = GlowLights.PartsOf(points, box, GlowLights.ShareOf(points, box));
+
+        var lights = GlowLights.Gather([(new SceneFieldPlan.Instance(1, vertices, Matrix4x4.CreateTranslation(0.5f, 0.5f, 0.5f), false, Vector3.One, new Vector3(4, 2, 1)), false)],
+            0.25f, _ => box, _ => GlowLights.ShareOf(points, box), _ => parts);
+
+        var light = lights.Should().ContainSingle().Subject;
+        light.Faces.Should().Be(faces, $"a mesh of {count} of a block's faces emits from those, and from both sides where it is one face alone");
+        light.Share.Should().BeApproximately(1, 1e-4f, "each face it emits from is whole");
+    }
+
     // The light on the floor around a block of the voxel game's glowstone, its glow 4 times
     // (255, 200, 120), lying on a gray floor of 200 at night, from 1.2 to 3.8 blocks from its middle
     // every fifth of a block, as BounceReference traced the frame with 16384 paths a pixel at 256 by

@@ -2690,6 +2690,32 @@ after the first in one process, where it took 2.1 to 2.5 with the build without 
 3.9 to 4.1 whole, its last wait 0.8 to 0.9 seconds where 1.6 to 1.8 and 2.9 to 3.1. A program's own
 model shader that imports `modelpass` is built whole.
 
+Which of a light's faces send is read in the field once a frame (`glow_faces.slang`), a workgroup a
+light and a thread a point, four points a face at the middles of its quarters, each marched out
+along the face's normal a cell at a time, as far as the face's longer side and a cell, reading the
+field at the middle of the cell it lies in, where no blend of the cells around mixes a surface's
+inside with the light's own face beside it. A cell within a quarter cell of the light's box is
+passed over, one as far from a surface as from the box steps on, one a quarter cell or more inside a
+surface buries the point, and any other ends the march open; a march the field's band cuts short, or
+in cells wider than the face's shorter side, reads nothing. Three points buried of four close a
+face, two open keep it, and otherwise it keeps what it was. The faces closed come out of the mask
+the light carries (`glowFaces`), which every closed form and the screen probes' share
+(`glowLightShown`) read, so a probe's hit and a surface alike take no light from the faces of a lamp
+set into a wall, and a light with no face open lights nothing. A light's faces are decided again
+only where its place is new, it is undecided, a build of the frame changed the field within its
+reach, a finer cascade holds it than decided it, or its box changed size, and kept in a uint a place
+between, so a still room's lamps keep their faces frame to frame and through a shift of the field. A
+mesh of one part with depth names the faces its triangles lie on as a mesh of many parts does, a
+flat one both its sides alone, and blocks that touch and emit alike join into a light that sends
+from each member's face lying on the union's side, at their surface over those faces'. A lamp a cell
+from a wall reads its face toward the wall closed, the march's second cell lying in the wall, and a
+lamp half sunk in the floor keeps its sides whole, two points of four above the floor, the errors
+the cells' size leaves. A probe in a closed room of blocks, its own hits held against a path-traced
+reference whose paths bounce once past them, reads a lamp flush in a wall 0.940 of the reference,
+one standing on the floor 1.058 and one hung in the air 1.046, where the voxel game's built room
+read 2.2 times its reference by a lamp set in its wall (`GlobalIlluminationTests`). The pass is
+timed apart as `gi_glow_faces` where `gi.passes on` asks.
+
 Past the lights a place marches, the rest at a point are gathered by their way from it across the
 surface's plane into as many groups, a quarter of the plane each where four are marched, each
 group's light summed as each light's is and shadowed by one march to its brightest (`glowLightsAt`

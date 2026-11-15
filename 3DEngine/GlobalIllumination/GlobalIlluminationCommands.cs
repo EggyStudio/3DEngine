@@ -196,7 +196,7 @@ internal static class GlobalIlluminationCommands
         if (!world.TryGetResource<GlobalIlluminationSettings>(out var settings))
             return "global illumination is off, and SetGlobalIllumination turns it on";
         settings.PassesTimed = state is "on" or "true" or "1";
-        return settings.PassesTimed ? "global illumination's passes are timed apart in the profile as gpu.gi_rays, gpu.gi_trace0 and on, gpu.gi_merge, gpu.gi_gather, gpu.gi_screen, gpu.gi_filter and gpu.gi_glow"
+        return settings.PassesTimed ? "global illumination's passes are timed apart in the profile as gpu.gi_rays, gpu.gi_glow_faces, gpu.gi_trace0 and on, gpu.gi_merge, gpu.gi_gather, gpu.gi_screen, gpu.gi_filter and gpu.gi_glow"
             : "global illumination is timed whole in the profile";
     }
 

@@ -69,6 +69,9 @@ internal sealed class GpuIllumination : IDisposable
     /// <summary>The lights, as <c>gi.slang</c>'s <c>GiLights</c>.</summary>
     public IBuffer Lights { get; }
 
+    /// <summary>Each glow light place's faces as last decided, as <c>glow_faces.slang</c> keeps them.</summary>
+    public IBuffer? GlowFaces { get; init; }
+
     /// <summary>
     /// The bytes of <see cref="Lights"/>: the sun, the sky and the counts, sixteen lights, four
     /// cascades' corners of the frame before, the glow lights (<see cref="GlowLights"/>), and the

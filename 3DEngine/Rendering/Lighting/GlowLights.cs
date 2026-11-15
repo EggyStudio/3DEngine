@@ -136,7 +136,13 @@ internal static class GlowLights
             groups[root] = (Vector3.Min(min, Vector3.Min(a, Vector3.Min(b, c))), Vector3.Max(max, Vector3.Max(a, Vector3.Max(b, c))),
                 area + Vector3.Cross(b - a, c - a).Length() / 2);
         }
-        if (groups.Count <= 1) return whole;
+        // A mesh of one piece with depth is one part whose faces its triangles name, as two faces of
+        // a block handed as one mesh emit from those two and not from the box's six. A flat one is
+        // taken whole, lighting both its sides, as the path-traced reference takes a triangle's
+        // emission from either side.
+        if (groups.Count == 1 && groups.Values.First() is var (lowest, highest, _) && highest - lowest is var extent
+            && MathF.Min(extent.X, MathF.Min(extent.Y, extent.Z)) < 0.01f * MathF.Max(extent.X, MathF.Max(extent.Y, extent.Z)))
+            return whole;
 
         // Which faces of its box each part's triangles lie on, each triangle square to an axis and
         // facing out of the box on that side, or every face where one is not.
@@ -342,7 +348,12 @@ internal static class GlowLights
             {
                 var grow = Vector3.Max(Vector3.Zero, new Vector3(least) - size) / 2;
                 box = new SceneFieldPlan.Box(box.Min - grow, box.Max + grow);
-                if (faces == 0) share = MathF.Min(1, share * 2);
+                // Its two sides emit, and the edges the hundredth gives it are no faces of its own.
+                if (faces == 0)
+                {
+                    share = MathF.Min(1, share * 2);
+                    faces = 3 << (2 * (size.X <= size.Y && size.X <= size.Z ? 0 : size.Y <= size.Z ? 1 : 2));
+                }
             }
             var placed = origin == RenderOrigin.Zero ? w : origin.Against(w);
             if (Square(w))
@@ -359,11 +370,15 @@ internal static class GlowLights
             lights.Add(new Light(Vector3.Transform(middle, placed), new Vector3(w.M11, w.M12, w.M13) * half.X,
                 new Vector3(w.M21, w.M22, w.M23) * half.Y, new Vector3(w.M31, w.M32, w.M33) * half.Z, glow, share, faces) { Key = Vector3.Transform(middle, w) });
         }
+        // A copy recorded twice, as a stereo pair's second eye or a scene drawn into two targets
+        // records it, is one emitter.
+        HashSet<(ModelVertex[] Vertices, Matrix4x4 World, Vector3 Emission, bool DoubleSided)>? taken = null;
         foreach (var (instance, _) in drawn)
         {
             if (instance.Emission is { X: <= 0, Y: <= 0, Z: <= 0 }) continue;
+            if (!(taken ??= []).Add((instance.Vertices, instance.World, instance.Emission, instance.DoubleSided))) continue;
             var w = instance.World;
-            if (partsOf?.Invoke(instance.Vertices) is { Count: > 1 } parts)
+            if (partsOf?.Invoke(instance.Vertices) is { Count: > 0 } parts)
             {
                 if (!Carries(instance.Emission, parts, w, firstCell)) continue;
                 foreach (var part in parts)
@@ -439,11 +454,25 @@ internal static class GlowLights
                 (worldMin, worldMax) = (Vector3.Min(worldMin, square[i].World.Min), Vector3.Max(worldMax, square[i].World.Max));
                 surface += square[i].Surface;
             }
-            var union = new SceneFieldPlan.Box(min, max);
-            var share = Math.Clamp((surface - covered.GetValueOrDefault(group.Key)) / Math.Max(SurfaceOf(union), 1e-8f), 0.05f, 1);
+            // The union's faces that emit, each a member's that lies on the union's side there, so
+            // the faces of a corner block handed face by face emit from the two that show and not
+            // from the six of the box around them.
+            var near = 1e-4f * MathF.Max((max - min).Length(), 1e-6f);
+            var faces = 0;
+            foreach (var i in group)
+            {
+                var (box, own) = (square[i].Box, square[i].Faces == 0 ? All : square[i].Faces);
+                for (int k = 0; k < 3; k++)
+                {
+                    if (((own >> (2 * k)) & 1) != 0 && MathF.Abs(box.Min[k] - min[k]) <= near) faces |= 1 << (2 * k);
+                    if (((own >> (2 * k + 1)) & 1) != 0 && MathF.Abs(box.Max[k] - max[k]) <= near) faces |= 1 << (2 * k + 1);
+                }
+            }
+            if (faces == 0) faces = All;
+            var share = Math.Clamp((surface - covered.GetValueOrDefault(group.Key)) / Math.Max(FacesSurface(max - min, faces), 1e-8f), 0.05f, 1);
             var half = (max - min) / 2;
-            lights.Add(new Light((min + max) / 2, new Vector3(half.X, 0, 0), new Vector3(0, half.Y, 0), new Vector3(0, 0, half.Z), square[group.Key].Glow, share)
-                { Key = (worldMin + worldMax) / 2 });
+            lights.Add(new Light((min + max) / 2, new Vector3(half.X, 0, 0), new Vector3(0, half.Y, 0), new Vector3(0, 0, half.Z), square[group.Key].Glow, share,
+                faces == All ? 0 : faces) { Key = (worldMin + worldMax) / 2 });
         }
         return lights;
     }
@@ -454,12 +483,6 @@ internal static class GlowLights
         var scale = MathF.Max(MathF.Abs(w.M11), MathF.Max(MathF.Abs(w.M22), MathF.Abs(w.M33)));
         var turned = MathF.Abs(w.M12) + MathF.Abs(w.M13) + MathF.Abs(w.M21) + MathF.Abs(w.M23) + MathF.Abs(w.M31) + MathF.Abs(w.M32);
         return turned <= 1e-5f * MathF.Max(scale, 1e-6f);
-    }
-
-    private static float SurfaceOf(SceneFieldPlan.Box box)
-    {
-        var size = box.Max - box.Min;
-        return 2 * (size.X * size.Y + size.Y * size.Z + size.Z * size.X);
     }
 
     // Whether two boxes touch or overlap, within a thousandth of the smaller one's size.
