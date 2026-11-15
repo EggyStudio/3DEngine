@@ -538,6 +538,21 @@ that draws models through a camera, as each half of a split screen, works out it
 before it is drawn, and the two halves of `games/Sumo` at 640 by 720 take about 0.1 ms more of the
 GPU with it on, as `./e3d command profile` gives `targets`. `games/Manor` turns it on for its rooms.
 
+`SetAmbientOcclusionMethod` works the window's occlusion out another way, a trial beside the
+horizons, which stay the default: rays over each pixel's hemisphere traced against the points of the
+depth around it taken as circles, Isheden's circular occluders (CORTAO), at 8 or 16 points a pixel.
+The history and the blurs take its result as they take the horizons', and a render texture's own
+occlusion is still worked out by the horizons.
+
+```csharp
+SetAmbientOcclusionMethod(AmbientOcclusionMethod.CircularOccluders, samples: 16);
+```
+
+`SetCircularOccluders` sets how it takes its circles, how far one seen at a slant is grown, when one
+is the back of a thin surface and how much that back is grown, and the share of the picture's height
+a circle may span, each at CORTAO's own default but the share, which is the horizons' 0.3, and the
+radius is the one `SetAmbientOcclusion` takes.
+
 ## Fog
 
 `SetVolumetricFog` fills the air in front of the camera with fog lit by the sun through its shadows

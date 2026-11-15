@@ -10317,6 +10317,32 @@ here, and the copy of the player's save is let go, made again on request. The lo
     epilog clears the state before the call, each read in the mend's compiled code with no wide move
     in a loop that calls the driver.
 
+277. **A button that fetches Sponza where the scene opens without its pack.** Asked on 2026-11-15,
+    after Verdicts 122 and 123 and before item 274. `ScenesSponza` opened without the pack draws two
+    lines of text, the second naming `./e3d scenes fetch intel-sponza`. Asked is a button on that
+    screen that downloads, checks and unpacks the pack and then loads the scene in the same run, the
+    command line staying as the other way and still named there. The fetch is written once, the code
+    `3DEngine.Cli/Scenes.cs` runs, called by both, in a place the example and the tool can both
+    reach without a new package id. The download runs off the frame's thread, the screen shows its
+    progress in megabytes of the whole and each stage by name (downloading, checking, unpacking,
+    resizing the textures if the fetch does that), a second press while it runs does nothing, and a
+    button cancels it and leaves no half pack behind. A failure, no network, a sum that does not
+    match, a full disk, shows its sentence on the screen with the button back for another try. The
+    pack lands where the command line puts it, so either way finds the other's. The scene's captures
+    and the Sponza drive in the workflows are unchanged, the pack fetched there before as it is.
+    Tests without the network, a pack served from a local file or a small local server, covering the
+    good fetch, a wrong sum, a cancel and a fetch already present. EXAMPLES.md and E3D.md say both
+    ways. A capture of the screen before, during and after goes to the dump, taken in a window since
+    the button is a window's matter.
+
+278. **A quality of global illumination that names no value.** The voxel game's entry of 2026-11-15
+    in ASKS.md. `SetGlobalIllumination` keeps a value the enum names none of,
+    `Illumination.TexelsAt` gives it no cascades, and the render throws in every frame after, no
+    frame drawn and a capture unanswered. Asked, after Verdict 124's package and beside the cost
+    read where it fits. The flat call and the component's setter refuse such a value with an error
+    that names it, or take it as off, the choice said, with a test, and the other flat calls that
+    take an enum read for the same. Open.
+
 ## Verdicts settled
 
 Verdicts 1 to 55 are settled, the last two, the drawing leak test's resident bound and the Windows
@@ -17819,6 +17845,61 @@ ambient occlusion's tests pass on the three devices with 273's above, and Render
 whole on the RTX, Mesa 26.2.4 and Mesa 25.2.8, 31 of 31, in 1 m 20 s, 4 m 48 s and 5 m 6 s. The
 package made at `40c2f712` is 6.2.60-local.276.1, and the package's five tests pass on it, the
 shaders folder's among them.
+
+Item 277, a button that fetches Sponza where the scene opens without its pack.
+
+The fetch is written once. `ScenePacks.FetchAsync`, which `scenes fetch` runs, is public in
+`3DEngine.Scenes` with `ScenePack` and a progress record of the stage and its bytes, taking a token
+and answering a failure as its sentence, and docs/scenes.md is written for a game fetching its own
+pack. It runs on the thread pool, tells downloading, checking and unpacking with their bytes,
+answers a pack fetched already at once, and stops between two chunks, leaving the folder as it was
+and nothing beside it. The example reads its manifest copied beside its build and
+`ScenePacks.Folder`, the command's folder, and its first screen keeps the command's line with a
+button that fetches, a second press doing nothing while it runs, a button that stops it, the stage,
+megabytes and a bar, a failure's sentence with the button back, and the scene loaded in the same
+run. EXAMPLES.md and E3D.md say both ways.
+
+`ScenePackTests` holds a fetch told stage by stage, one from a server on this machine with a 404
+named, a fetch stopped downloading and one stopped unpacking each leaving nothing new, and a pack
+fetched already answered without its address, none reaching the network. The captures in the dump
+show the screen before, during the download, after a stop with the folder left empty, and after a
+fetch from the release, about 68 s, with the scene drawn. The sampler comments say the limit is the
+device's own.
+
+The runs. The strict build is clean. RenderOriginTests passes whole on the RTX, Mesa 26.2.4 and Mesa
+25.2.8, 31 of 31 in 1 m 31 s, 5 m 20 s and 5 m 30 s. The suite on both legs passed 2,480 with one
+failure each, the gallery's test taking an example's file as the first that declares its class,
+which with Sponza's class written across two files was the fetch screen's in this checkout's order.
+The test and the examples' table now take the file named for the class, and the test passes with the
+pack's, the listings' and the norm's, 52 of 52. docs/scenes.md's blocks and every example build on a
+package packed at the tree, 0.1.0-preview.20261115142417, so the example reaches the fetch through
+the public surface alone. The three new tests of `ScenePackTests` stay in the Windows part Scenes.
+
+Item 278, a quality of global illumination that names no value.
+
+Refused, the choice being an error that names the value and the quality kept as it was, since a
+program that passed 7 meant some quality and off would hide its slip. The settings' setter takes it,
+so the flat call and the configuration's field both refuse it, the error saying "Global
+illumination's quality 7 names none of Off, Low, Medium and High, so it stays Low", and
+`SetGlobalIllumination` turns the scene field on by the quality kept.
+`GlobalIlluminationQualityTests` holds a program at Low passing 7 and -1, the quality staying Low
+and the frames after drawn, and a configuration of 9 leaving it off, both failing without the mend,
+the quality read 9 and -1.
+
+The other flat calls that take an enum were read, and none keeps a value that throws later. Each
+reads what it keeps by a comparison, a switch whose last arm takes the rest, a range check or a
+set's lookup, so `(Tonemap)7` draws the engine's own curve and an unknown key never fires, and
+`EditMeshSlotMap` throws at the call. Two read oddly without failing.
+`BeginBlendMode((BlendMode)(-1))` reaches the engine's own replace mode, which draws with no
+blending, and an unknown `SelectionMode` removes at the call where the mesh's recipe writes it as a
+replace, so an undo plays it back otherwise. Each is yours to ask for.
+
+The runs. The strict build is clean, `GlobalIlluminationQualityTests` passes on the RTX, Mesa 26.2.4
+and Mesa 25.2.8, 2 of 2 each, RenderOriginTests whole on the three, 31 of 31 in 1 m 28 s, 5 m 45 s
+and 6 m 28 s, and the suite on both legs, 2,484 each in 27 m 38 s and 27 m 0 s. The new class joins
+the Windows part Rendering 5, and the 49 classes after it in the Rendering parts each move one part
+on. The commit carries ScenePack's remarks saying what its manifest holds, and ScenePacks' leaving
+the other repository out.
 
 ## Items closed, parked or shortened
 

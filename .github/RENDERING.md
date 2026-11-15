@@ -5262,7 +5262,17 @@ The lights' set binds the result at binding 9 for the window's view, and the win
 buffer says to read it, so `lit` multiplies its material occlusion, which scales the ambient,
 environment and probe light and the light global illumination gathers alone, by the occlusion at
 half the fragment's position. In Manor's rooms Alchemy's term, which the horizons replaced, took
-0.08 ms of the GPU and 0.16 ms of the CPU. A render target that draws meshes through a camera of its
+0.08 ms of the GPU and 0.16 ms of the CPU. The window's occlusion may be worked out by the circular
+occluders instead (`SetAmbientOcclusionMethod`, `CircularOccluders`), Isheden's CORTAO taken at its
+commit 420b168 under `Shaders/cortao`, three compute stages recorded ahead of the first pass: a
+prepass packing each texel's distance along the view and its normal in view space into an image of
+eight levels, one texel of four kept at each level after the first, a main pass reading 8 or 16
+points of those levels around each texel as circles facing their normals and tracing sixteen rays
+over its hemisphere against them through CORTAO's occluder table, and CORTAO's own filter. The
+normal each stage reads is taken from the depth, as the horizons take theirs, since the engine
+draws no buffer of normals, and the first pass reads the result in place of the horizons, which the
+history and the blurs then take as they take the horizons'. The bent normal is written beside the
+occlusion and read by nothing yet. A render target that draws meshes through a camera of its
 own has the same worked out at half its size in the `targets` node before its pass
 (`AmbientOcclusionRenderer.DrawTarget`), the sun's contact shadows with it, bound at binding 9 for
 its view, whose buffer says to read it as the window's does, and let go the frame after one the

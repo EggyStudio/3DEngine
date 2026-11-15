@@ -1,3 +1,6 @@
+enum Engine.AmbientOcclusionMethod : int
+  CircularOccluders = 1
+  Horizons = 0
 enum Engine.BloomKind : int
   Added = 0
   Scattered = 1

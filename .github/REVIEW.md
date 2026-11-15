@@ -1,52 +1,57 @@
 # Review
 
-Reviewed up to `c54a38c6`, Verdict 124's mend, the soak check bounding Swarm's entities by the 160 a
-whole turn holds at once as its ids are, a test holding the red run's readings, pushed at 18:20 on
-2026-11-15, its build run 43740523923 green by 20:02, every leg, and its pack run with publish
-43740524413 green at 20:45, the soak passing in its games leg, with 6.2.86 of the package and its
-templates pushed to nuget and the tag v6.2.86 set on it, the form kept and the message free of
-numbers. Before it `1c1e07e9`, item 277, Sponza's scene offering a button that fetches its pack with
-a bar of its progress and a cancel, the fetch public as ScenePacks, pushed at 16:45 on 2026-11-15,
-its build run 43731698709 green at 18:20, the form kept and the message free of numbers. Before it
-`254e5935`, the mend of the macOS captures leg, one sampler for each set of settings shared among
-all that ask and the close waiting for the frames in flight before a program's buffers go, pushed at
-14:00 on 2026-11-15, its build run 43716715286 green at 15:43, every leg, and its pack run with
-publish 43716715283 red at 16:45 in the games leg's soak alone (Verdict 124), both captures legs
-green, no package published, the form kept and the message free of numbers, build run 43705246863 on
-the commit before it green at 14:00. Before it `42483382`, Verdict 122's mend, the loops reading
-their draws by reference and the guard reading the code compiled for AVX2 and AVX-512 beside the
-machine's own, pushed at 11:40 on 2026-11-15, its build run started, the form kept and the message
-free of numbers. Before it `4a6e708b`, with `40c2f712`, item 276's mend, the model passes' record
-loops copying no view or shadow entry through the CPU's wide registers before the driver's calls,
-every CPU pass summed at 2.123 ms against the head's 2.796, a script reading their compiled code for
-it in the Linux job, and `ba117e9f`, item 273, a glow light sending from the faces the scene field
-finds open, the probe's hits at 0.94 to 1.06 of the traced reference, pushed at 08:53 on 2026-11-15
-once the run before them had ended, their build run 43691963837 red in the Linux order leg's
-register guard alone at 10:22 (Verdict 122) and the pack run with publish 43691963557 on the same
-head red at 11:36 in the macOS captures leg's Sponza drive alone (Verdict 123), its pack job
-skipped, no package published, 6.2.82 by the version script; they keep the form and carry the
-review's files. Before them `4b621af2`, with `9954c125` and `488e7483`, item 275's three high
-findings, the validation layer's errors logged with the words a run's checks look for and a warning
-keeping its own, the draws Render gathers running after the transforms are carried down the tree,
-and every body blended between its last two steps whether an entity holds it or not, each with tests
-that failed without its mend, both suite legs at 2,449 passed, pushed at 04:59 on 2026-11-15 once
-the run before them had ended, their build run 43674781156 green on the three systems at 06:33; they
-keep the form and carry the review's files. Before them `96358279`, 264's part 8, the field far out
-reading as at the origin and alike from run to run, each mesh's rows taken against its cascade's
-corner, its way ahead and far cascade from the camera's eye and far distance, a moving mesh's stamp
-against the frame's origin and a tie of two meshes near a cell broken by bits of the mesh's own, the
-fog room's ball and MoveWorld's words, the noted eye keeping the far distance a camera gave, pushed
-at 21:20 on 2026-11-14 once the run before it had ended, its build run 43636980622 green at 22:52 on
-the three systems; the strict build is clean, the suite passes both legs at 2,443 in 25 m 25 s and
-25 m 5 s, RenderOriginTests 31 of 31 on the RTX, Mesa 26.2.4 and Mesa 25.2.8, the render-texture
-room's case at Low reading 4.00 without the rows against its bound of 1.5 and 9.0 s on lavapipe, the
-tie's test 18.8 s there, no Windows part moving; it keeps the form and carries the review's files.
-Before it `c6bac6dc`, 264's part 7, MoveWorld, a program that moves its world by a whole step saying
-so and the engine moving its field, its probes and their light, its histories, its shadows' texels,
-the reflection probes, the particles, the physics' bodies and the sounds with it, a mesh at its
-matrix plus the step the same still mesh, with the ambient's test of a panel too wide to be carried,
-pushed at 13:06 on 2026-11-14 once the run before it had ended, green at 14:44 with the four Windows
-jobs in 82, 47, 59 and 91 minutes, macOS in 55 and the Linux legs in 88 and 65; WorldMoveTests reads
+Reviewed up to `c53719f5`, item 278, a quality of global illumination that names no value refused
+with an error naming it and the quality kept, its test drawing the frames after, with a scene pack's
+remarks saying what its manifest holds and the cost read's Reply, pushed at 21:03 on 2026-11-15, its
+build run 43755793467 green at 22:43, the form kept and the message free of numbers. One comment in
+its test tells what the code did before the mend and is asked reworded in the next commit. Before it
+`c54a38c6`, Verdict 124's mend, the soak check bounding Swarm's entities by the 160 a whole turn
+holds at once as its ids are, a test holding the red run's readings, pushed at 18:20 on 2026-11-15,
+its build run 43740523923 green by 20:02, every leg, and its pack run with publish 43740524413 green
+at 20:45, the soak passing in its games leg, with 6.2.86 of the package and its templates pushed to
+nuget and the tag v6.2.86 set on it, the form kept and the message free of numbers. Before it
+`1c1e07e9`, item 277, Sponza's scene offering a button that fetches its pack with a bar of its
+progress and a cancel, the fetch public as ScenePacks, pushed at 16:45 on 2026-11-15, its build run
+43731698709 green at 18:20, the form kept and the message free of numbers. Before it `254e5935`, the
+mend of the macOS captures leg, one sampler for each set of settings shared among all that ask and
+the close waiting for the frames in flight before a program's buffers go, pushed at 14:00 on
+2026-11-15, its build run 43716715286 green at 15:43, every leg, and its pack run with publish
+43716715283 red at 16:45 in the games leg's soak alone (Verdict 124), both captures legs green, no
+package published, the form kept and the message free of numbers, build run 43705246863 on the
+commit before it green at 14:00. Before it `42483382`, Verdict 122's mend, the loops reading their
+draws by reference and the guard reading the code compiled for AVX2 and AVX-512 beside the machine's
+own, pushed at 11:40 on 2026-11-15, its build run started, the form kept and the message free of
+numbers. Before it `4a6e708b`, with `40c2f712`, item 276's mend, the model passes' record loops
+copying no view or shadow entry through the CPU's wide registers before the driver's calls, every
+CPU pass summed at 2.123 ms against the head's 2.796, a script reading their compiled code for it in
+the Linux job, and `ba117e9f`, item 273, a glow light sending from the faces the scene field finds
+open, the probe's hits at 0.94 to 1.06 of the traced reference, pushed at 08:53 on 2026-11-15 once
+the run before them had ended, their build run 43691963837 red in the Linux order leg's register
+guard alone at 10:22 (Verdict 122) and the pack run with publish 43691963557 on the same head red at
+11:36 in the macOS captures leg's Sponza drive alone (Verdict 123), its pack job skipped, no package
+published, 6.2.82 by the version script; they keep the form and carry the review's files. Before
+them `4b621af2`, with `9954c125` and `488e7483`, item 275's three high findings, the validation
+layer's errors logged with the words a run's checks look for and a warning keeping its own, the
+draws Render gathers running after the transforms are carried down the tree, and every body blended
+between its last two steps whether an entity holds it or not, each with tests that failed without
+its mend, both suite legs at 2,449 passed, pushed at 04:59 on 2026-11-15 once the run before them
+had ended, their build run 43674781156 green on the three systems at 06:33; they keep the form and
+carry the review's files. Before them `96358279`, 264's part 8, the field far out reading as at the
+origin and alike from run to run, each mesh's rows taken against its cascade's corner, its way ahead
+and far cascade from the camera's eye and far distance, a moving mesh's stamp against the frame's
+origin and a tie of two meshes near a cell broken by bits of the mesh's own, the fog room's ball and
+MoveWorld's words, the noted eye keeping the far distance a camera gave, pushed at 21:20 on
+2026-11-14 once the run before it had ended, its build run 43636980622 green at 22:52 on the three
+systems; the strict build is clean, the suite passes both legs at 2,443 in 25 m 25 s and 25 m 5 s,
+RenderOriginTests 31 of 31 on the RTX, Mesa 26.2.4 and Mesa 25.2.8, the render-texture room's case
+at Low reading 4.00 without the rows against its bound of 1.5 and 9.0 s on lavapipe, the tie's test
+18.8 s there, no Windows part moving; it keeps the form and carries the review's files. Before it
+`c6bac6dc`, 264's part 7, MoveWorld, a program that moves its world by a whole step saying so and
+the engine moving its field, its probes and their light, its histories, its shadows' texels, the
+reflection probes, the particles, the physics' bodies and the sounds with it, a mesh at its matrix
+plus the step the same still mesh, with the ambient's test of a panel too wide to be carried, pushed
+at 13:06 on 2026-11-14 once the run before it had ended, green at 14:44 with the four Windows jobs
+in 82, 47, 59 and 91 minutes, macOS in 55 and the Linux legs in 88 and 65; WorldMoveTests reads
 0.000 at Low on the three devices and 0.213 at the most at High on the RTX, RenderOriginTests passes
 whole, 30 of 30, and the suite passed both legs, 2,431; it keeps the form and carries the review's
 files. Before it `0567d8f4`, the rest of the independent read's findings and the last of the
@@ -410,32 +415,6 @@ reverted as the screen probes' limit at shapes about a tile wide, its patches in
     a finding that does not hold says why. The three high ones after part 8's commit, beside the
     binds' session; the medium ones after 272 and ahead of 265, the low ones after 265.
 
-277. **A button that fetches Sponza where the scene opens without its pack.** Asked on 2026-11-15,
-    after Verdicts 122 and 123 and before item 274. `ScenesSponza` opened without the pack draws two
-    lines of text, the second naming `./e3d scenes fetch intel-sponza`. Asked is a button on that
-    screen that downloads, checks and unpacks the pack and then loads the scene in the same run, the
-    command line staying as the other way and still named there. The fetch is written once, the code
-    `3DEngine.Cli/Scenes.cs` runs, called by both, in a place the example and the tool can both
-    reach without a new package id. The download runs off the frame's thread, the screen shows its
-    progress in megabytes of the whole and each stage by name (downloading, checking, unpacking,
-    resizing the textures if the fetch does that), a second press while it runs does nothing, and a
-    button cancels it and leaves no half pack behind. A failure, no network, a sum that does not
-    match, a full disk, shows its sentence on the screen with the button back for another try. The
-    pack lands where the command line puts it, so either way finds the other's. The scene's captures
-    and the Sponza drive in the workflows are unchanged, the pack fetched there before as it is.
-    Tests without the network, a pack served from a local file or a small local server, covering the
-    good fetch, a wrong sum, a cancel and a fetch already present. EXAMPLES.md and E3D.md say both
-    ways. A capture of the screen before, during and after goes to the dump, taken in a window since
-    the button is a window's matter.
-
-278. **A quality of global illumination that names no value.** The voxel game's entry of 2026-11-15
-    in ASKS.md. `SetGlobalIllumination` keeps a value the enum names none of,
-    `Illumination.TexelsAt` gives it no cascades, and the render throws in every frame after, no
-    frame drawn and a capture unanswered. Asked, after Verdict 124's package and beside the cost
-    read where it fits. The flat call and the component's setter refuse such a value with an error
-    that names it, or take it as off, the choice said, with a test, and the other flat calls that
-    take an enum read for the same. Open.
-
 279. **Ambient occlusion by circular occluders, tried beside the pass the engine has.** Asked by the
     project's direction on 2026-11-15, to add it and see the results. The technique is CORTAO,
     published under the MIT license at github.com/theagentd/CORTAO, version 1.0.3, three passes in
@@ -464,6 +443,19 @@ reverted as the screen probes' limit at shapes about a tile wide, its patches in
     after item 279 and before item 274. Take the faces mask out of the loop, a closed face skipped
     before it or one branch where every face is open, read the flights again the same way, and keep
     the hits against the traced reference within the 0.94 to 1.06 item 273 reached. Open.
+
+281. **A computed state that comes back from none is current a frame before it is entered.** From
+    the voxel game's ask of 2026-11-15 in ASKS.md. A state computed from another by
+    `AddComputedState` that goes to none and comes back is activated in its source's move, and its
+    `InState` systems run in that frame with the state current, while its `OnEnter` systems run at
+    the next transition point, a frame later. A program whose enter systems set up what its
+    `InState` systems take as set reads stale state for one frame. Read `Activate` in
+    `Core/States/States.cs` and `AddComputedState` in `Core/App/App.States.cs`, write a test that
+    fails on the head, an enter system and an `InState` system of a computed state counted over a
+    source's move away and back, and mend it so the enter runs before any `InState` system sees the
+    state, at the activating transition point. The same is checked for a sub state and for the first
+    entry at startup, and for `OnExit` on the way to none. It follows item 279's commit and goes
+    before 280, being small. DESIGN.md's words on states say the order if they do not.
 
 ## Verdicts
 
@@ -905,35 +897,6 @@ device's listing not written again for the samplers' new members, which is writt
 passing. `SamplerShareTests` joins the Windows part Graphics, and the night's test stays in
 Rendering 3.
 
-Item 277, a button that fetches Sponza where the scene opens without its pack.
-
-The fetch is written once. `ScenePacks.FetchAsync`, which `scenes fetch` runs, is public in
-`3DEngine.Scenes` with `ScenePack` and a progress record of the stage and its bytes, taking a token
-and answering a failure as its sentence, and docs/scenes.md is written for a game fetching its own
-pack. It runs on the thread pool, tells downloading, checking and unpacking with their bytes,
-answers a pack fetched already at once, and stops between two chunks, leaving the folder as it was
-and nothing beside it. The example reads its manifest copied beside its build and
-`ScenePacks.Folder`, the command's folder, and its first screen keeps the command's line with a
-button that fetches, a second press doing nothing while it runs, a button that stops it, the stage,
-megabytes and a bar, a failure's sentence with the button back, and the scene loaded in the same
-run. EXAMPLES.md and E3D.md say both ways.
-
-`ScenePackTests` holds a fetch told stage by stage, one from a server on this machine with a 404
-named, a fetch stopped downloading and one stopped unpacking each leaving nothing new, and a pack
-fetched already answered without its address, none reaching the network. The captures in the dump
-show the screen before, during the download, after a stop with the folder left empty, and after a
-fetch from the release, about 68 s, with the scene drawn. The sampler comments say the limit is the
-device's own.
-
-The runs. The strict build is clean. RenderOriginTests passes whole on the RTX, Mesa 26.2.4 and Mesa
-25.2.8, 31 of 31 in 1 m 31 s, 5 m 20 s and 5 m 30 s. The suite on both legs passed 2,480 with one
-failure each, the gallery's test taking an example's file as the first that declares its class,
-which with Sponza's class written across two files was the fetch screen's in this checkout's order.
-The test and the examples' table now take the file named for the class, and the test passes with the
-pack's, the listings' and the norm's, 52 of 52. docs/scenes.md's blocks and every example build on a
-package packed at the tree, 0.1.0-preview.20261115142417, so the example reaches the fetch through
-the public surface alone. The three new tests of `ScenePackTests` stay in the Windows part Scenes.
-
 Verdict 124, Swarm's entities in the pack run's soak.
 
 The check, and no leak. The run's game-captures artifact holds swarm.csv, which the leg copies there
@@ -986,28 +949,87 @@ the work it does. `3405714a`'s rise of about 0.2 is taken back by `ed3cd9ca`. `s
 one of its two levels a run on every build, the runs of one build reading 1.0 to 1.2 ms and others
 1.5, and moves with none of them.
 
-Item 278, a quality of global illumination that names no value.
+Item 279, ambient occlusion by circular occluders beside the horizons.
 
-Refused, the choice being an error that names the value and the quality kept as it was, since a
-program that passed 7 meant some quality and off would hide its slip. The settings' setter takes it,
-so the flat call and the configuration's field both refuse it, the error saying "Global
-illumination's quality 7 names none of Off, Low, Medium and High, so it stays Low", and
-`SetGlobalIllumination` turns the scene field on by the quality kept.
-`GlobalIlluminationQualityTests` holds a program at Low passing 7 and -1, the quality staying Low
-and the frames after drawn, and a configuration of 9 leaving it off, both failing without the mend,
-the quality read 9 and -1.
+The trial. CORTAO is taken at its commit 420b168 of 2026-11-15, version 1.0.3, its prepass, main
+pass and filter pass under `Shaders/cortao` with their MIT notice at each head and in
+THIRD-PARTY-NOTICES.md, two lines of the main pass written as scalars since Slang takes no matrix
+built from a vector and scalars, and its occluder table for sixteen rays,
+`occluders_24x24x16x16.bin`, as the engine's own asset. Its Python was not run, the session refusing
+a script fetched from outside, so `CircularOccludersTests` works the table out by the generator's
+rules in C# and holds it equal to the file, every one of its 9,216 entries.
+`SetAmbientOcclusionMethod(AmbientOcclusionMethod.CircularOccluders, 8 or 16)` chooses it, the
+horizons staying the default and the contact shadows as they are. Three compute stages are recorded
+ahead of the occlusion's first pass (`CircularOccluders`), its HLSL compiled by slangc through
+wrappers whose callbacks read the engine's images, and the first pass reads their result in place of
+the horizons, which the history and the blurs take as before. The filter's gathers move their corner
+by the offset rather than giving it, since an offset the instruction does not hold needs a feature
+the device is not made with. The bent normal is written beside the occlusion in view space and read
+by nothing. `SetCircularOccluders` sets CORTAO's slope compensation, at least 1, its backface
+threshold and boost, each from 0 to 1, and the share of the picture's height a circle may span, a
+value past its range held to it, at CORTAO's own defaults but the share, which is the 0.3 the
+horizons are held to, the largest radius staying the one `SetAmbientOcclusion` takes, and
+`CircularOccludersTests` reads each in the main pass's push. `ao.method`, `ao.filter`, `ao.set`,
+`ao.size` and `ao.save` choose and save each stage, and `ao.reference` traces the reference.
 
-The other flat calls that take an enum were read, and none keeps a value that throws later. Each
-reads what it keeps by a comparison, a switch whose last arm takes the rest, a range check or a
-set's lookup, so `(Tonemap)7` draws the engine's own curve and an unknown key never fires, and
-`EditMeshSlotMap` throws at the call. Two read oddly without failing.
-`BeginBlendMode((BlendMode)(-1))` reaches the engine's own replace mode, which draws with no
-blending, and an unknown `SelectionMode` removes at the call where the mesh's recipe writes it as a
-replace, so an undo plays it back otherwise. Each is yours to ask for.
+The sheet (N 4.9) is in the dump. It reads the window's depth at half its size, as the horizons do,
+the normals taken from it, which it says, with global illumination at High for the rays the
+reference is traced through. The reference traces the scene's meshes from where the eye's ray
+through each texel of that depth meets them, 1,024 rays by the cosine within the same radius both
+methods are given. The mean error against it, for the horizons, 8 samples and 16 samples after the
+history and the blurs, reads 0.0723, 0.0454 and 0.0445 in Sponza by day and 0.0586, 0.0200 and
+0.0189 in the room of glowing blocks. CORTAO's own output at 16 samples reads 0.0530 and 0.0281 raw
+in one frame and 0.0491 and 0.0208 through its own filter, so most of its lead is the technique's
+and the history adds a little. Both leave the creases lighter than the reference, and the horizons
+darken an open floor where nothing closes it off. The same room at 4448, 24, 600 read 0.0579, 0.0221
+and 0.0210 against its own reference, as at the origin, so by the owner's word it leaves the sheet
+for a test of its own, `CircularOccludersRenderTests`, which holds the circular occluders' result
+and the final occlusion of a room far out alike texel for texel with the same room at the origin,
+within 0.01 on average, where the RTX reads the result 0.00006 apart.
 
-The runs. The strict build is clean, `GlobalIlluminationQualityTests` passes on the RTX, Mesa 26.2.4
-and Mesa 25.2.8, 2 of 2 each, RenderOriginTests whole on the three, 31 of 31 in 1 m 28 s, 5 m 45 s
-and 6 m 28 s, and the suite on both legs, 2,484 each in 27 m 38 s and 27 m 0 s. The new class joins
-the Windows part Rendering 5, and the 49 classes after it in the Rendering parts each move one part
-on. The commit carries ScenePack's remarks saying what its manifest holds, and ScenePacks' leaving
-the other repository out.
+The times, the GPU's `ambient_occlusion` with the sun's contact shadows it traces and the depth's
+`window_depth`, each the mean of six samples of the profile read in turn and back under the
+exclusive lock, powersave. Sponza's atrium at 1280 by 720 on the RTX, the horizons 0.134 ms, the
+circular occluders at 8 samples 0.166, at 16 samples 0.185 and without their filter 0.176, the depth
+0.419 at every setting. The scene field's example at 1280 by 720 with the frame unlimited, the
+horizons 0.136, 8 samples 0.156, 16 samples 0.170, without the filter 0.161, the depth 0.008. The
+same example on lavapipe at 640 by 360, global illumination off, the horizons 29.3 ms, 8 samples
+30.8, 16 samples 34.4 and without the filter 29.1, its second reading after the full-size settings
+left out as it settled from 57 ms, the depth 0.9. The Windows device was not read, there being no
+Windows machine here, and `CircularOccludersRenderTests` draws 60 frames at 320 by 180 there, which
+the run's own times will give. The trial reads the depth at half the window's size, as the horizons
+do. At the window's own size Sponza's depth takes 0.410 ms where it takes 0.419, its triangles and
+not its pixels its cost, and the example's 0.012 where 0.008, while the occlusion takes 0.435 by the
+horizons and 0.612 by 16 samples in Sponza, and 0.493 and 0.676 in the example, three to four times
+its cost at half.
+
+The normal. The engine draws no buffer of normals, so both methods take theirs from the depth, which
+the sheet says, and no output of the model pass gives the mesh's own cheaply to try instead. A
+target of normals written by the depth pass would add a fragment stage to a pass that has none and
+0.9 MB of writes a frame at half of 1280 by 720, beside Sponza's 0.42 ms of triangles, and was not
+built.
+
+The bent normal, proposed and not built. CORTAO writes beside its occlusion the mean way of the rays
+no circle meets, in view space. The model pass now takes the probes' and the cascades' light about
+the surface's normal and multiplies it by the occlusion, so a floor beside a wall takes the wall's
+side of the light from all around at the occlusion's share as though it came from straight above.
+Taken about the bent normal turned into the world by the camera's turn, the lookup would lean away
+from the closed side, taking the light from the ways that are open, and the occlusion would weigh
+only the cone those ways span. It needs the bent normal kept through the history and blurred as the
+occlusion is, or read raw with its noise, and bound beside the occlusion at binding 9, and its worth
+would be read against the traced reference in the bounce rooms, where the corners now read darker or
+brighter than the reference by the probes' own.
+
+The runs. The strict build is clean before and after the device runs, the focused tests pass 47, a
+pack of no version builds the guide's 27 blocks and the examples on the package alone, the
+occlusion's tests with SamplerShareTests and DescriptorPoolTests pass 9 on lavapipe 26.2.4, the RTX
+and lavapipe 25.2.8, and RenderOriginTests 31 on each. Both legs of the suite, the second shuffled
+by the seed 20261023, read 2,488 passed and 1 failed, in 27 m 54 s and 27 m 31 s at 2,707 and 3,121
+MB at most. The one failure, the same in each, was
+`SlangCompilerTests.A_Shipped_Cache_Still_Serves_After_A_Shader_Of_Its_Own_Is_Added_Beside_It`,
+whose copy of the shipped shaders took their `.slang` files alone, where the new stages include
+`ao_cortao.h` and the `cortao` folder, as the pack ships them. The copy now takes the folder whole,
+and after the strict build again the shader compiler's 29 tests pass. On Windows
+`CircularOccludersTests` joins Rendering 1, in the third half, and `CircularOccludersRenderTests`
+Rendering 7, in the fourth, and the 62 Rendering classes after them by name each move two parts on,
+44 of them to another half.

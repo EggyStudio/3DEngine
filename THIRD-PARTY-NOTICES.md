@@ -2,7 +2,7 @@
 
 3DEngine is under the Mozilla Public License 2.0 (`LICENSE`). The `3DEngine` package carries the
 engine's own code, its generator, the shaders compiled from its own sources, csg.js's partition
-written in C# and three of Bevy's tonemapping tables, below, and it depends on the packages below, which a restore fetches with their own license files. They are named here
+written in C#, three of Bevy's tonemapping tables and CORTAO's shaders and occluder table, below, and it depends on the packages below, which a restore fetches with their own license files. They are named here
 with their licenses, so a game shipped on the engine can say what it carries.
 
 | Library | Used for | License | Source |
@@ -48,6 +48,39 @@ NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPO
 NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
 DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT
 OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+```
+
+## CORTAO
+
+The circular occluders, a way of ambient occlusion, are Daniel Isheden's CORTAO
+(https://github.com/theagentd/CORTAO), taken at its commit 420b168 of 2026-11-15, version 1.0.3, under
+CORTAO's MIT license. The package carries its prepass, main pass and filter pass in
+`source/shaders/cortao`, whose notice is at the head of each, two lines of the main pass changed so
+Slang takes them, and its occluder table for sixteen rays, `occluders_24x24x16x16.bin`, as CORTAO
+publishes it.
+
+```text
+MIT License
+
+Copyright (c) 2026 Daniel Isheden
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
 ```
 
 ## Bevy's tonemapping

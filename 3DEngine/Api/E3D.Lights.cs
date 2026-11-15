@@ -231,6 +231,70 @@ public static partial class E3D
     }
 
     /// <summary>
+    /// Works out the ambient occlusion <see cref="SetAmbientOcclusion"/> turns on by
+    /// <paramref name="method"/>, the horizons by default, with <paramref name="samples"/> points
+    /// read around each pixel by <see cref="AmbientOcclusionMethod.CircularOccluders"/>, 8 or 16.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// The circular occluders trace sixteen rays over each pixel's hemisphere against the points of
+    /// the depth around it taken as circles, by Isheden's CORTAO, and the history and the blurs that
+    /// follow take their result as they take the horizons'. Both read the depth drawn at half the
+    /// window's size, and the normals the circles face are taken from it, as the horizons take
+    /// theirs. A count of samples other than 8 is taken as 16.
+    /// </para>
+    /// <para>
+    /// It is a trial beside the horizons, which stay the default. A render texture's own occlusion
+    /// is worked out by the horizons whichever is chosen.
+    /// </para>
+    /// </remarks>
+    public static void SetAmbientOcclusionMethod(AmbientOcclusionMethod method, int samples = 16)
+    {
+        var occlusion = World.GetOrInsertResource(static () => new AmbientOcclusionSettings());
+        if (!Enum.IsDefined(method))
+        {
+            ApiLogger.Warn($"SetAmbientOcclusionMethod: {(int)method} names no method, so the occlusion stays worked out by {occlusion.Method}.");
+            return;
+        }
+        occlusion.Method = method;
+        occlusion.Samples = samples == 8 ? 8 : 16;
+    }
+
+    /// <summary>
+    /// Sets how <see cref="AmbientOcclusionMethod.CircularOccluders"/> takes the circles it reads
+    /// around a pixel, how far a circle seen at a slant is grown by
+    /// <paramref name="slopeCompensation"/>, when a circle is taken for the back of a thin surface
+    /// and how much it is grown then by <paramref name="backfaceThreshold"/> and
+    /// <paramref name="backfaceBoost"/>, and the share of the picture's height a circle may span by
+    /// <paramref name="screenShare"/>.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// These are CORTAO's maximum slope compensation, backface threshold, backface boost and
+    /// maximum screen-space radius, and the defaults are its own but the screen's share, which is
+    /// the 0.3 the horizons are held to. Their largest radius in the world is the radius
+    /// <see cref="SetAmbientOcclusion"/> takes.
+    /// </para>
+    /// <para>
+    /// A surface seen at a slant covers fewer pixels, so a circle on it is grown by one over the
+    /// cosine of its slope to the eye, at most <paramref name="slopeCompensation"/> times, 1 or more,
+    /// past which it fades: more keeps a slope's occlusion as the eye turns and may flicker, 1 grows
+    /// none. A circle whose normal leans toward the pixel by a cosine of
+    /// <paramref name="backfaceThreshold"/> or more, from 0 to 1, is taken for a thin surface's back
+    /// and grown by <paramref name="backfaceBoost"/> of the compensation, from 0 to 1, more darkening
+    /// behind thin walls where light leaks. A value past its range is held to it.
+    /// </para>
+    /// </remarks>
+    public static void SetCircularOccluders(float slopeCompensation = 4, float backfaceThreshold = 0.5f, float backfaceBoost = 0, float screenShare = 0.3f)
+    {
+        var occlusion = World.GetOrInsertResource(static () => new AmbientOcclusionSettings());
+        occlusion.SlopeCompensation = float.IsNaN(slopeCompensation) ? 4 : Math.Max(1, slopeCompensation);
+        occlusion.BackfaceThreshold = float.IsNaN(backfaceThreshold) ? 0.5f : Math.Clamp(backfaceThreshold, 0, 1);
+        occlusion.BackfaceBoost = float.IsNaN(backfaceBoost) ? 0 : Math.Clamp(backfaceBoost, 0, 1);
+        occlusion.ScreenShare = float.IsNaN(screenShare) ? 0.3f : Math.Clamp(screenShare, 0.01f, 1);
+    }
+
+    /// <summary>
     /// Fills the air in front of the window's camera with fog that takes <paramref name="density"/>
     /// of the light out per unit of distance at and under <paramref name="height"/>, thinning above
     /// it by e every one over <paramref name="falloff"/> units, lit by the sun through its shadows and

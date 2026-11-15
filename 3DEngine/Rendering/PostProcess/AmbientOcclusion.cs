@@ -14,6 +14,51 @@ internal sealed class AmbientOcclusionSettings
 
     /// <summary>Whether it is worked out this frame.</summary>
     public bool On => Intensity > 0 && Radius > 0;
+
+    /// <summary>How it is worked out from the window's depth, by the horizons unless set.</summary>
+    public AmbientOcclusionMethod Method { get; set; }
+
+    /// <summary>The points read around a pixel by the circular occluders, 8 or 16.</summary>
+    public int Samples { get; set; } = 16;
+
+    /// <summary>
+    /// Whether the circular occluders' own filter pass blends each pixel with its neighbors before
+    /// the history takes it, as <c>ao.filter</c> sets it, on unless set.
+    /// </summary>
+    public bool OwnFilter { get; set; } = true;
+
+    /// <summary>
+    /// How far the circular occluders grow a circle seen at a slant, as one over the cosine of its
+    /// slope to the eye, held to this most, CORTAO's maximum slope compensation, 1 or more and 4
+    /// unless set.
+    /// </summary>
+    public float SlopeCompensation { get; set; } = 4;
+
+    /// <summary>
+    /// The cosine between a circle's normal and the way to it at and past which the circular
+    /// occluders take the circle for the back of a thin surface, CORTAO's backface threshold, from 0
+    /// to 1 and 0.5 unless set.
+    /// </summary>
+    public float BackfaceThreshold { get; set; } = 0.5f;
+
+    /// <summary>
+    /// How much of the slope compensation a back of a thin surface takes as well, from 0 for none to
+    /// 1 for all, CORTAO's backface boost, 0 unless set.
+    /// </summary>
+    public float BackfaceBoost { get; set; }
+
+    /// <summary>
+    /// The share of the picture's height a circular occluders' circle may span on the screen, more
+    /// than 0 and 0.3 unless set, the share the horizons are held to.
+    /// </summary>
+    public float ScreenShare { get; set; } = 0.3f;
+
+    /// <summary>
+    /// Whether the window's depth the occlusion and the screen's probes read is drawn at the
+    /// window's own size rather than half of it, as <c>ao.size full</c> sets it so what each costs
+    /// can be read, at half unless set.
+    /// </summary>
+    public bool FullSize { get; set; }
 }
 
 /// <summary>
@@ -76,6 +121,8 @@ internal sealed class TargetOcclusion
 /// </remarks>
 internal sealed class AmbientOcclusionRenderer : IDisposable
 {
+    private static readonly ILogger Logger = Log.Category("Engine.AmbientOcclusion");
+
     [StructLayout(LayoutKind.Sequential)]
     private struct Push
     {
@@ -118,8 +165,15 @@ internal sealed class AmbientOcclusionRenderer : IDisposable
     // what the history pass needs of the frame before.
     private sealed class Sized(Extent2D extent, GpuSceneField field, ShadowMap depth, RenderTarget occlusion, RenderTarget across,
         RenderTarget[] histories, IDescriptorSet occlude, IDescriptorSet blurAcross, IDescriptorSet blurDown,
-        IDescriptorSet[] remember, IDescriptorSet rememberFirst, IDescriptorSet[] blurRemembered) : IDisposable
+        IDescriptorSet[] remember, IDescriptorSet rememberFirst, IDescriptorSet[] blurRemembered, Func<IImageView, IDescriptorSet> circled) : IDisposable
     {
+        // The first pass's set reading the circular occluders' result through each view of it the
+        // window has read, made the first time each is read, so no set a frame in flight reads is
+        // written again.
+        private readonly Dictionary<IImageView, IDescriptorSet> _circled = [];
+
+        public IDescriptorSet Circled(IImageView view) => _circled.TryGetValue(view, out var set) ? set : _circled[view] = circled(view);
+
         public Extent2D Extent { get; } = extent;
         public GpuSceneField Field { get; } = field;
         public ShadowMap Depth { get; } = depth;
@@ -142,6 +196,7 @@ internal sealed class AmbientOcclusionRenderer : IDisposable
 
         public void Dispose()
         {
+            foreach (var set in _circled.Values) set.Dispose();
             Occlude.Dispose();
             BlurAcross.Dispose();
             BlurDown.Dispose();
@@ -212,7 +267,8 @@ internal sealed class AmbientOcclusionRenderer : IDisposable
             return;
         }
 
-        var extent = new Extent2D(Math.Max(1, swapchain.Extent.Width / 2), Math.Max(1, swapchain.Extent.Height / 2));
+        var halved = settings is { FullSize: true } ? 1u : 2u;
+        var extent = new Extent2D(Math.Max(1, swapchain.Extent.Width / halved), Math.Max(1, swapchain.Extent.Height / halved));
         var sized = _sized = Ensure(device, extent, field.Field, _sized, "the window");
         // Through the camera without temporal antialiasing's move, so the occlusion, the screen's
         // probes and the reflections that read this depth hold still under it.
@@ -236,7 +292,7 @@ internal sealed class AmbientOcclusionRenderer : IDisposable
             return;
         }
         Occlude(renderContext, window.Sized, window.Inverse, window.Eye, window.Window, window.Settings, window.Sun,
-            Illumination.CascadesIn(renderWorld) > 0, renderWorld.TryGet<RenderOrigin>(), window.View);
+            Illumination.CascadesIn(renderWorld) > 0, renderWorld.TryGet<RenderOrigin>(), window.View, circular: true);
         renderWorld.Set(new AmbientOcclusionImage(window.Sized.Occlusion.ColorView, _sampler!));
     }
 
@@ -277,9 +333,17 @@ internal sealed class AmbientOcclusionRenderer : IDisposable
     // and the frame before's eyes (RenderOrigin.Reprojection).
     private void Occlude(RenderContext renderContext, Sized sized, Matrix4x4 inverse, Vector3 eye, Extent2D size,
         AmbientOcclusionSettings? settings, (Vector3 TowardSun, float Reach)? sun, bool bounces, RenderOrigin origin,
-        (Matrix4x4 ViewProjection, ViewEye? Eye) view)
+        (Matrix4x4 ViewProjection, ViewEye? Eye) view, bool circular = false)
     {
         var on = settings is { On: true };
+        // The circular occluders' result for the window, recorded ahead of the first pass, which
+        // reads it in place of the horizons.
+        var circled = circular && on && settings!.Method == AmbientOcclusionMethod.CircularOccluders && view.Eye is { } turned
+            && renderContext.Device is GraphicsDevice device && Circular(device) is { } occluders
+            ? occluders.Record(renderContext.CommandBuffer, sized.Depth.DepthView, sized.Depth.Sampler, sized.Extent, turned.Turned,
+                settings, (uint)(_frame * 2654435761L))
+            : null;
+        if (circular && circled is null && renderContext.Device is GraphicsDevice idle) _circular?.Release();
         // The camera against the origin from its eye, whose inverse takes the depth's points to
         // places with no float of the world's size in it.
         var placed = origin.Seen(view.ViewProjection, view.Eye);
@@ -290,10 +354,10 @@ internal sealed class AmbientOcclusionRenderer : IDisposable
             InverseViewProjection = placedInverse,
             EyeAndRadius = new Vector4(origin.Against(eye), on ? settings!.Radius : 1),
             TexelAndStrength = new Vector4(1f / sized.Extent.Width, 1f / sized.Extent.Height, on ? settings!.Intensity : 0, HeightPerUnit(placedInverse)),
-            Mode = new Vector4(0, (float)size.Width / Math.Max(1, size.Height), on ? bounces ? 2 : 1 : 0, _frame % 4096),
+            Mode = new Vector4(0, (float)size.Width / Math.Max(1, size.Height), on ? (bounces ? 2 : 1) + (circled is null ? 0 : 2) : 0, _frame % 4096),
             SunAndReach = sun is var (toward, reach) ? new Vector4(toward, reach) : Vector4.Zero,
         };
-        Pass(renderContext, _pipeline!, sized.Occlusion, sized.Occlude, push);
+        Pass(renderContext, _pipeline!, sized.Occlusion, circled is null ? sized.Occlude : sized.Circled(circled), push);
         var blurAcross = sized.BlurAcross;
         if (on && inverted)
         {
@@ -336,6 +400,39 @@ internal sealed class AmbientOcclusionRenderer : IDisposable
         var middle = At(0, 0);
         var halfHeight = Vector3.Distance(At(0, 1), middle);
         return halfHeight > 1e-6f ? Vector3.Distance(middle, eye) / (2 * halfHeight) : 1;
+    }
+
+    /// <summary>The window's occlusion after its history and blurs, the occlusion in red, or null where it is not worked out.</summary>
+    internal IImage? WindowOcclusion => _sized?.Occlusion.ColorView.Image;
+
+    /// <summary>The window's circular occluders where they have been made.</summary>
+    internal CircularOccluders? CircularPart => _circular is { Ready: true } ? _circular : null;
+
+    // The device's circular occluders, their stages compiled and their table read the first time
+    // a frame asks for them, or null where they cannot be made, said once.
+    private CircularOccluders? _circular;
+    private bool _circularFailed;
+
+    private CircularOccluders? Circular(GraphicsDevice device)
+    {
+        if (_circular is { Ready: true } || _circularFailed) return _circular is { Ready: true } ? _circular : null;
+        try
+        {
+            var loader = new SlangLoader();
+            byte[] Compute(string file, params string[] defines) =>
+                loader.Compile(File.ReadAllText(Path.Combine(loader.ImportDirectory, file)), file, defines).Compute;
+            var occluders = CircularOccluders.Of(device);
+            occluders.Initialize(Compute("ao_cortao_prepass.slang"), Compute("ao_cortao_main.slang", "CORTAO_SAMPLE_COUNT=8"),
+                Compute("ao_cortao_main.slang", "CORTAO_SAMPLE_COUNT=16"), Compute("ao_cortao_filter.slang"),
+                File.ReadAllBytes(Path.Combine(loader.ImportDirectory, "cortao", "occluders_24x24x16x16.bin")));
+            return _circular = occluders;
+        }
+        catch (Exception e) when (e is InvalidOperationException or IOException or ArgumentException)
+        {
+            _circularFailed = true;
+            Logger.Warn($"The circular occluders could not be made, so the ambient occlusion is worked out by its horizons. {e.Message}");
+            return null;
+        }
     }
 
     private static void Pass(RenderContext renderContext, IPipeline pipeline, RenderTarget target, IDescriptorSet set, Push push)
@@ -391,7 +488,9 @@ internal sealed class AmbientOcclusionRenderer : IDisposable
             PushConstantRanges: [new PushConstantRange(ShaderStageFlags.Fragment, 0, (uint)Marshal.SizeOf<Push>())],
             DescriptorSetLayouts: [_layout]));
 
-        IDescriptorSet Set(IImageView read, IImageView? history = null)
+        // Every pass's set binds the circular occluders' result too, the image it reads where none
+        // is read, since one layout serves them all.
+        IDescriptorSet Set(IImageView read, IImageView? history = null, IImageView? circled = null)
         {
             var set = device.CreateDescriptorSet(_layout);
             device.UpdateDescriptorSet(set, null, new CombinedImageSamplerBinding(depth.DepthView, depth.Sampler, 0));
@@ -399,12 +498,13 @@ internal sealed class AmbientOcclusionRenderer : IDisposable
             device.UpdateDescriptorSet(set, null, new CombinedImageSamplerBinding(field.View, field.Sampler, 2));
             device.UpdateDescriptorSet(set, new UniformBufferBinding(field.Info, 3, 0, GpuSceneField.InfoBytes), null);
             device.UpdateDescriptorSet(set, null, new CombinedImageSamplerBinding(history ?? read, depth.Sampler, 4));
+            device.UpdateDescriptorSet(set, null, new CombinedImageSamplerBinding(circled ?? read, depth.Sampler, 5));
             return set;
         }
         return new Sized(extent, field, depth, occlusion, across, histories,
             Set(across.ColorView), Set(occlusion.ColorView), Set(across.ColorView),
             [Set(occlusion.ColorView, histories[1].ColorView), Set(occlusion.ColorView, histories[0].ColorView)], Set(occlusion.ColorView),
-            [Set(histories[0].ColorView), Set(histories[1].ColorView)]);
+            [Set(histories[0].ColorView), Set(histories[1].ColorView)], circled => Set(across.ColorView, circled: circled));
     }
 
     // Lets every view's images go, once no frame in flight reads them, on a frame it is off.

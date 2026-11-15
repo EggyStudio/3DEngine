@@ -22,8 +22,8 @@ public sealed class GlobalIlluminationQualityTests : IDisposable
     [ExpectsError("Engine.GlobalIllumination", "names none of Off, Low, Medium and High, so it stays Low")]
     public void A_Quality_That_Names_No_Value_Is_Refused_And_The_Frames_After_It_Draw()
     {
-        // A program that passed 7 or -1 kept it, the renderer found no cascades for it, and every
-        // frame after failed and drew nothing.
+        // A quality of 7 and one of -1, refused with an error naming each, the quality staying Low,
+        // and the frames after them drawn, each cleared to its own color.
         var config = Config.Default.WithWindow("quality test", 64, 48) with { Headless = true, Offscreen = true, Samples = 1 };
         UseApp(new App(config).AddPlugin(new DefaultPlugins()));
         SetGlobalIllumination(GlobalIllumination.Low);

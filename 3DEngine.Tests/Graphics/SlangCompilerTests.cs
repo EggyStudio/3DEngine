@@ -438,10 +438,16 @@ public partial class SlangCompilerTests : IDisposable
     [NeedsSlangFact]
     public void A_Shipped_Cache_Still_Serves_After_A_Shader_Of_Its_Own_Is_Added_Beside_It()
     {
-        // A copy of the built-in shaders, compiled into a cache as build/pack.sh does.
+        // A copy of the built-in shaders folder with the headers and folders they include, compiled
+        // into a cache as build/pack.sh does.
+        var shipped = Path.Combine(AppContext.BaseDirectory, "source", "shaders");
         var shaders = Directory.CreateDirectory(Path.Combine(_folder.Path, "shaders")).FullName;
-        foreach (var file in Directory.GetFiles(Path.Combine(AppContext.BaseDirectory, "source", "shaders"), "*.slang"))
-            File.Copy(file, Path.Combine(shaders, Path.GetFileName(file)));
+        foreach (var file in Directory.GetFiles(shipped, "*", SearchOption.AllDirectories))
+        {
+            var copy = Path.Combine(shaders, Path.GetRelativePath(shipped, file));
+            Directory.CreateDirectory(Path.GetDirectoryName(copy)!);
+            File.Copy(file, copy);
+        }
         var cache = Path.Combine(_folder.Path, "cache");
         SlangLoader.Precompile(shaders, cache);
 

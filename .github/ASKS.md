@@ -2005,3 +2005,21 @@ within 600 frames, until the quality is one the enum names. The functions are na
 tree at `c54a38c6` holds them. The engine lacks a check at the flat call, refusing a quality the
 enum names none of or taking it as one it names, so a program's mistyped value draws on. The game
 refuses such a quality from the commit after `9f96eae`.
+
+### 2026-11-15, the voxel game in `Voxel-Sandbox`, a computed state that comes back from none runs its `InState` systems a frame before its `OnEnter` systems
+
+The game computes `Living` from its `GameMode` (`AddComputedState<Living, GameMode>`), `Yes` in
+survival and adventure and none in creative and spectator, and takes the player's vitals in an
+`[InState(Living.Yes)]` system. Read on 6.2.86 with a game test whose frames are stepped by the
+engine's stages, a switch from creative to survival logs `State GameMode: Creative -> Survival`,
+and in that frame the `InState(Living.Yes)` system runs with the state at `Yes`, while an
+`[OnEnter(Living.Yes)]` system runs in the next frame, after it. A switch the other way logs
+`State Living: Yes -> none` at once. So a state that comes back from none is current for its
+systems before it is entered, where a program's enter systems set up what its `InState` systems
+take as set. The source's move activates the computed state with `Activate`, which leaves it to
+be entered at the next transition point (`AddComputedState` in `3DEngine/Core/App/App.States.cs`
+and `Activate` in `3DEngine/Core/States/States.cs` at the engine's `c54a38c6`), read in the code
+and seen in the game's log. The engine lacks an order in which a computed state that comes back is
+entered at the transition point that activates it, or its `InState` systems wait for the enter.
+The game starts its vitals' reckoning again in its mode's setter meanwhile, which is the game's
+own place for it, and has no system that needs the enter.

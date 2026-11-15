@@ -12,6 +12,8 @@
 // and four ways leaning from it, which finds what closes a point off beyond what the window shows,
 // and the sun's light is traced toward the sun through it for soft contact shadows, which the green
 // channel carries to the model pass and the blurs blur with the occlusion.
+// The occlusion may instead be read from circular occluders (CircularOccluders, ao_cortao_*.slang),
+// worked out ahead of this pass, which the history and blurs then take as they take the horizons'.
 import fullscreen;
 import scenefield;
 
@@ -26,9 +28,10 @@ struct AoPush
     float4 texelAndStrength;
     // x: 0 to work the occlusion out, 1 to blur it across, 2 to blur it down, 3 to blend it with
     // the history. y: the picture's width over its height. z: 1 where the occlusion is on with the
-    // field's, 2 where it is on without it, 0 where only the sun's contact shadow is worked out, and
-    // in the history pass 1 where the history holds the frame before. w: the frame's number, which
-    // turns the slices.
+    // field's, 2 where it is on without it, 3 and 4 as 1 and 2 with the occlusion read from the
+    // circular occluders, 0 where only the sun's contact shadow is worked out, and in the history
+    // pass 1 where the history holds the frame before. w: the frame's number, which turns the
+    // slices.
     float4 mode;
     // xyz: the way toward the sun. w: how far its contact shadows are traced, 0 for none.
     float4 sunAndReach;
@@ -59,6 +62,11 @@ ConstantBuffer<SceneFieldInfo> fieldInfo;
 // the other passes do not read.
 [[vk::binding(4, 0)]]
 Sampler2D history;
+
+// The occlusion of the circular occluders in alpha, which the first pass reads where mode.z is 3
+// or 4, and the other passes do not read.
+[[vk::binding(5, 0)]]
+Sampler2D circular;
 
 // The slices through the eye's way each pixel reads a frame, and the steps along each side of one.
 static const int Slices = 2;
@@ -183,6 +191,14 @@ float2 occlude(float2 uv, float2 pixel)
         return float2(1.0, sun);
 
     float radius = push.eyeAndRadius.w;
+    float strength = push.texelAndStrength.z;
+    if (push.mode.z > 2.5)
+    {
+        float circled = pow(saturate(circular.SampleLevel(uv, 0).a), strength);
+        if (push.mode.z < 3.5 && fieldOn(fieldInfo))
+            circled *= saturate(1.0 - strength * fieldOcclusion(p, n, radius));
+        return float2(circled, sun);
+    }
     float distance = length(toEye);
     float3 v = toEye / max(distance, 1e-6);
     // The radius on the picture, held to three tenths of its height, so a surface near the eye does
@@ -245,7 +261,6 @@ float2 occlude(float2 uv, float2 pixel)
     // The share seen, raised to the strength, so 1 darkens as the horizons do and 0 not at all,
     // and where the field's occlusion is read, the share the field closes off past the horizons'
     // reach, which a corner of two walls closes half of at an intensity of 1.
-    float strength = push.texelAndStrength.z;
     float shown = pow(saturate(seen / float(Slices)), strength);
     if (push.mode.z < 1.5 && fieldOn(fieldInfo))
         shown *= saturate(1.0 - strength * fieldOcclusion(p, n, radius));
