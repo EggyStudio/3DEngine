@@ -940,4 +940,6 @@ The runs. The strict build is clean, and the suite on both legs, 2,475 with 273 
 compiling the renderer's methods in 0.08 s on Mesa 26.2.4, and joins its class's part, Rendering 5,
 the fourth Windows half, so no class moves. The models', the shadows', the subsurface pass's and the
 ambient occlusion's tests pass on the three devices with 273's above, and RenderOriginTests passes
-whole on the RTX, Mesa 26.2.4 and Mesa 25.2.8, 31 of 31, in 1 m 20 s, 4 m 48 s and 5 m 6 s.
+whole on the RTX, Mesa 26.2.4 and Mesa 25.2.8, 31 of 31, in 1 m 20 s, 4 m 48 s and 5 m 6 s. The
+package made at `40c2f712` is 6.2.60-local.276.1, and the package's five tests pass on it, the
+shaders folder's among them.
