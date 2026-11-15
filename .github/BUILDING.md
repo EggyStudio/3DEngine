@@ -204,6 +204,17 @@ show none of it, a walk through `games/Manor`'s estate having no frame over 45 m
 the desktop's doing, and the engine says so in its log once it has seen three such waits in ten
 seconds, naming `SDL_VIDEO_DRIVER=x11` as what avoids it.
 
+The model passes' record loops are read in the compiled code of a release build for a copy through
+the CPU's 256-bit registers that reaches a call of the device's with their upper halves in use,
+which slows every instruction of the driver's code that follows until something clears them. .NET
+clears them only where a method that wrote one returns, so a loop keeps its copies of views and
+other structs of 32 bytes or more in calls of its own. The script names the write and the call it
+reaches, and the build workflow's Linux job runs it:
+
+```bash
+build/wide-registers.py  # the record loops read for a wide register in use at a device's call
+```
+
 ## The package
 
 ```bash

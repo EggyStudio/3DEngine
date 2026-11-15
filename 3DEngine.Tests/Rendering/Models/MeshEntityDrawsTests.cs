@@ -516,4 +516,33 @@ public class MeshEntityDrawsTests
         world.Resource<ModelDrawList>().Groups.Select(g => g.ToArray()[0]).Distinct().Should().ContainSingle(
             "the opaque entity's one instance is shared by both cameras' groups");
     }
+
+    // The record loops build/wide-registers.py reads the compiled code of, with the call each pushes
+    // its view through, by name.
+    internal static readonly string[] RecordLoops = ["Draw", "DrawDepth", "DrawShadowBatches", "DrawSubsurface", "PushView"];
+
+    [Fact]
+    public void The_Record_Loops_The_Wide_Registers_Read_Are_Compiled_With_The_Renderers_Own_Calls()
+    {
+        // build/wide-registers.py runs this with the compiler's listing of what it compiles turned
+        // on, and reads each loop for a write of a wide register before a call of the device's
+        // with nothing clearing their upper halves between, a call of the renderer's own clearing
+        // them where its listing does, so a loop renamed or gone fails here first rather than
+        // leaving the script nothing to read, and every method of the renderer's and its view
+        // memo's is compiled for the script to read the calls by.
+        var flags = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Static
+            | System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.DeclaredOnly;
+        foreach (var name in RecordLoops)
+            typeof(ModelRenderer).GetMethods(flags).Should().Contain(m => m.Name == name, $"ModelRenderer.{name} is a record loop the script reads");
+        var types = typeof(ModelRenderer).GetNestedTypes(flags).Append(typeof(ModelRenderer)).Append(typeof(ViewMemo));
+        var compiled = 0;
+        foreach (var type in types.Where(t => !t.ContainsGenericParameters))
+            foreach (var method in type.GetMethods(flags).Cast<System.Reflection.MethodBase>().Concat(type.GetConstructors(flags))
+                         .Where(m => m.GetMethodBody() is not null && !m.ContainsGenericParameters))
+            {
+                System.Runtime.CompilerServices.RuntimeHelpers.PrepareMethod(method.MethodHandle);
+                compiled++;
+            }
+        compiled.Should().BeGreaterThan(RecordLoops.Length);
+    }
 }

@@ -55,7 +55,7 @@ internal sealed class ViewMemo
     /// The push of a view's view-projection against the origin, from its eye where the frame noted
     /// one, with a move of clip space after it where one is given, and the origin.
     /// </summary>
-    public ref readonly ViewPush Push(in Matrix4x4 viewProjection, Matrix4x4? after = null)
+    public ref readonly ViewPush Push(in Matrix4x4 viewProjection, in Matrix4x4? after = default)
     {
         if (!_pushHeld || _pushFrom != viewProjection || _pushAfter != after)
         {

@@ -145,9 +145,9 @@ internal sealed partial class ModelRenderer
     }
 
     // A batch's pipeline for a shadow map (clamp) or the depth target, through a program's own
-    // stages where own is given and the pass's otherwise.
-    private IPipeline ShadowPipeline(in Batch batch, OwnShadow? own, bool clamp) =>
-        own is { } program ? OwnShadowPipeline(program, clamp) : ShadowPipeline(batch, clamp);
+    // stages where own is given and the pass's otherwise, own read where it lies.
+    private IPipeline ShadowPipeline(in Batch batch, in OwnShadow? own, bool clamp) =>
+        own.HasValue ? OwnShadowPipeline(in Nullable.GetValueRefOrDefaultRef(in own), clamp) : ShadowPipeline(batch, clamp);
 
     // The view's batches, which its model pass draws after, those that cast a shadow gathered into
     // _shadowBatches as the kind of shadow their draws cast, a masked one with its maps, which its
@@ -214,9 +214,10 @@ internal sealed partial class ModelRenderer
     // A batch's mesh and instances for a shadow or a depth, with the colors and second texture
     // coordinates a program's vertex stage reads at bindings 2 and 3, its CUSTOM0 at 5, and the
     // zeros a mesh of positions alone reads as its normal and texture coordinate at 6.
-    private void BindShadowVertices(TrackedRenderPass pass, IGraphicsDevice gfx, in Batch batch, OwnShadow? own, IBuffer ring, ulong offset)
+    private void BindShadowVertices(TrackedRenderPass pass, IGraphicsDevice gfx, in Batch batch, in OwnShadow? own, IBuffer ring, ulong offset)
     {
-        var streams = own?.Streams ?? Streams.None;
+        ref readonly var given = ref Nullable.GetValueRefOrDefaultRef(in own);
+        var streams = own.HasValue ? given.Streams : Streams.None;
         if (streams == Streams.None)
             pass.SetVertexBuffer(0, [batch.Mesh.Vertices, ring], [0, offset]);
         else
@@ -224,7 +225,7 @@ internal sealed partial class ModelRenderer
             var (colors, texcoords2) = streams == Streams.PerVertex ? (batch.Mesh.Colors!, batch.Mesh.Texcoords2!) : DefaultStreams(gfx);
             pass.SetVertexBuffer(0, [batch.Mesh.Vertices, ring, colors, texcoords2], [0, offset, 0, 0]);
         }
-        if (own?.Feed is { } fed) pass.SetVertexBuffer(5, [fed.PerVertex ? batch.Mesh.Custom!.Value.Buffer : Zeros(gfx)], [0]);
+        if (own.HasValue && given.Feed is { } fed) pass.SetVertexBuffer(5, [fed.PerVertex ? batch.Mesh.Custom!.Value.Buffer : Zeros(gfx)], [0]);
         if (batch.Mesh.PositionsOnly) pass.SetVertexBuffer(6, [Zeros(gfx)], [0]);
         if (batch.Mesh.Counted is null) pass.SetIndexBuffer(batch.Mesh.Indices, 0, batch.Mesh.IndexType);
     }
@@ -255,18 +256,20 @@ internal sealed partial class ModelRenderer
 
         var (ring, offset) = (view.Ring!, view.Offset);
         IPipeline? bound = null;
-        Matrix4x4? pushed = null;
-        var (frustum, culledThrough) = (default(Frustum), default(Matrix4x4?));
+        // The pass pushes its first view whatever the last pass pushed.
+        _viewPushed = false;
+        Frustum? frustum = null;
         var batches = CollectionsMarshal.AsSpan(_shadowBatches);
+        var ownShadows = CollectionsMarshal.AsSpan(_ownShadows);
         for (int i = 0; i < batches.Length; i++)
         {
             ref readonly var batch = ref batches[i];
             // A mesh drawn into the shadow maps alone is seen nowhere, so the view's depth holds none.
             if (IsAlone(batch.Shadow)) continue;
-            if (culledThrough != batch.ViewProjection) (frustum, culledThrough) = (new Frustum(Placed(batch.ViewProjection), depth: false), batch.ViewProjection);
+            if (frustum is null || !frustum.IsOf(batch.ViewProjection)) frustum = new Frustum(Placed(batch.ViewProjection), batch.ViewProjection, depth: false);
             if (!frustum.SeesAny(batch, view.Blocks)) continue;
-            var own = _ownShadows[i];
-            var pipeline = ShadowPipeline(batch, own, clamp: false);
+            ref readonly var own = ref ownShadows[i];
+            var pipeline = ShadowPipeline(batch, in own, clamp: false);
             if (!ReferenceEquals(pipeline, bound))
             {
                 pass.SetPipeline(pipeline);
@@ -274,14 +277,10 @@ internal sealed partial class ModelRenderer
             }
             // Every pipeline of the pass takes the push in one range, so a view pushed with one is
             // kept for the next and pushed again only where the view changes.
-            if (pushed != batch.ViewProjection)
-            {
-                // Without temporal antialiasing's move where back takes it out.
-                PushView(pass, pipeline, batch.ViewProjection, back);
-                pushed = batch.ViewProjection;
-            }
+            // Without temporal antialiasing's move where back takes it out.
+            PushView(pass, pipeline, batch.ViewProjection, back);
             if (IsMasked(batch.Shadow)) pass.SetBindGroup(pipeline, batch.Set!);
-            BindShadowVertices(pass, device, batch, own, ring, offset);
+            BindShadowVertices(pass, device, batch, in own, ring, offset);
             Count("depth", DrawSeen(pass, batch, view.Blocks, frustum));
         }
     }
@@ -291,22 +290,23 @@ internal sealed partial class ModelRenderer
     // the world matrix alone, and a masked one its color and cutoff too. The light's view and
     // projection takes a place against the frame's origin as fitted (FrameShadow.Origin), and is
     // pushed and read as it is.
-    private int DrawShadowBatches(TrackedRenderPass pass, View view, Matrix4x4 lightViewProjection)
+    private int DrawShadowBatches(TrackedRenderPass pass, View view, in Matrix4x4 lightViewProjection)
     {
         var calls = 0;
         var (ring, offset) = (view.Ring!, view.Offset);
         IPipeline? bound = null;
         // A caster before the light's near plane is drawn onto it where the device clamps depth.
         var clamp = _shadowMaking!.Value.Device.CanClampDepth;
-        var frustum = new Frustum(lightViewProjection, depth: true, clipsNear: !clamp);
+        var frustum = new Frustum(lightViewProjection, lightViewProjection, depth: true, clipsNear: !clamp);
         var push = Pushed(lightViewProjection);
         var batches = CollectionsMarshal.AsSpan(_shadowBatches);
+        var ownShadows = CollectionsMarshal.AsSpan(_ownShadows);
         for (int i = 0; i < batches.Length; i++)
         {
             ref readonly var batch = ref batches[i];
             if (!frustum.SeesAny(batch, view.Blocks)) continue;
-            var own = _ownShadows[i];
-            var pipeline = ShadowPipeline(batch, own, clamp);
+            ref readonly var own = ref ownShadows[i];
+            var pipeline = ShadowPipeline(batch, in own, clamp);
             if (!ReferenceEquals(pipeline, bound))
             {
                 pass.SetPipeline(pipeline);
@@ -316,7 +316,7 @@ internal sealed partial class ModelRenderer
                 bound = pipeline;
             }
             if (IsMasked(batch.Shadow)) pass.SetBindGroup(pipeline, batch.Set!);
-            BindShadowVertices(pass, _shadowMaking!.Value.Device, batch, own, ring, offset);
+            BindShadowVertices(pass, _shadowMaking!.Value.Device, batch, in own, ring, offset);
             calls += DrawSeen(pass, batch, view.Blocks, frustum);
         }
         return calls;

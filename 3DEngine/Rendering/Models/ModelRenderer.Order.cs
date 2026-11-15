@@ -1,4 +1,5 @@
 using System.Numerics;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 namespace Engine;
@@ -29,6 +30,13 @@ internal sealed partial class ModelRenderer
     private readonly record struct Planned(int Batch, IPipeline Pipeline, ShaderProgram? Program, Streams Streams, StreamFeed? Feed, bool Positions);
 
     private readonly List<Planned> _planned = [];
+
+    // Plans a batch the view sees, in a call of its own, so the copy of the plan, which the
+    // compiler makes through the wide registers, ends in its own code's clearing of their upper
+    // halves before the pass records.
+    [MethodImpl(MethodImplOptions.NoInlining)]
+    private void Plan(int batch, IPipeline pipeline, ShaderProgram? program, Streams streams, in StreamFeed? feed, bool positions) =>
+        _planned.Add(new Planned(batch, pipeline, program, streams, feed, positions));
     private readonly Dictionary<IPipeline, int> _pipelineRanks = new(ReferenceEqualityComparer.Instance);
     private long[] _orderKeys = [];
     private Planned[] _orderRun = [];

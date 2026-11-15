@@ -879,3 +879,65 @@ class's others do, about 11 s each on Mesa 26.2.4 and the still room's 24.7 s, 2
 run there; the four of `GlowLightsTests` start no app and use no device, under a hundredth of a
 second each. They join their classes' own parts, the four of `GlobalIlluminationTests` in the first
 and second Windows halves and `GlowLightsTests` in the fourth, as before, so no class moves.
+
+Item 276, the wide registers clear before the driver's calls.
+
+The mends. The frustum a pass culls by is a class made where the view changes and keyed by the view
+as the batches carry it (`Frustum.IsOf`), its constructor a call of its own, so the loops hold it by
+reference and copy none of its planes between the driver's calls. The scene pass takes its view by
+reference, the camera's where it is given and the batch's otherwise
+(`Nullable.GetValueRefOrDefaultRef`), with no copy a batch. The push of a view is a call of its own
+(`PushView`) that compares the view with the one the pass pushed last, pushes it where it differs
+and keeps it, so its comparison and its copies end in its own code's clearing of the upper halves;
+the view pushed last is the renderer's, which each pass forgets as it begins, since a pass holding
+one of its own cleared the 68 bytes through the wide registers before its first call of the device.
+The depth's and the shadows' loops read each batch's own shadow by reference and pass it in
+(`ShadowPipeline`, `BindShadowVertices`), and the view memo takes the move after a view in. The
+scene pass's plan of each batch reads a program's stages only where the batch has one, where it
+cleared a tuple of 48 bytes for the batches without, and adds the plan in a call of its own
+(`Plan`).
+
+The timing, the game's room at Low capped at 100 and pinned to the P-cores, five rounds each under
+the exclusive lock, medians in ms of the scene pass, the shadows, the window's depth and every CPU
+pass summed. In the first session, 6.2.60 read 0.437, 0.594, 0.434 and 2.409, 264.9 0.732, 0.593,
+0.457 and 2.716, the head 0.771, 0.607, 0.464 and 2.790, the head with the first site mends 0.428,
+0.394, 0.315 and 2.090, and the head with a clearing call before each of the driver's calls instead
+0.545, 0.520, 0.388 and 2.399, where the item's read with the wide registers off gave 2.145 and
+2.166. In the second, the head 0.759, 0.617, 0.467 and 2.796, the first site mends 0.437, 0.407,
+0.330 and 2.124, and the mends as committed 0.440, 0.423, 0.341 and 2.123. The head in both is
+`96358279`, the base every mend was built on. So the mends bring the sum to 2.090 and 2.123, under
+the target of 2.15 to 2.2 and under 6.2.60's own 2.409, and the backstop, which read 2.399, is left
+out.
+
+The sweep. Read over the game's whole compiled code at the end of a run, the head has 2,663 methods
+compiled, 438 of them with an instruction of 256 bits, and 142 reaching a call toward the device
+with the upper halves in use; with the first site mends 2,668, 439 and 139. It cannot tell how often
+a method runs, and most of the 142 run once or seldom, the render plugin's build, a pipeline's
+making, a particle system's placing; it reads each method's code in order rather than by its paths;
+and it took a call whose name holds brackets, a generic's or an array's, for one that leaves the
+state as it was. So it lists where to look and does not measure, and the four loops are what the
+timing above reads.
+
+The guard. `build/wide-registers.py` builds the tests as a game's release build is and runs
+`MeshEntityDrawsTests`'s test that compiles the four record loops, the scene's draws, the window's
+depth, the shadows' batches and the subsurface pass, with every other method of the renderer's and
+its view memo's, with tiered compilation off and the compiler's listing on, and reads each loop by
+its paths, jump by jump, for a write of a wide register that reaches a call of the device's with no
+vzeroupper and no call of a method whose every return clears the upper halves between. A machine of
+AVX-512 copying through its widest registers is read alike, and one that is not x86-64 passes. On
+the mended tree it passes; at the head the scene's draws have 23 write sites reaching 10 of the
+device's calls, the depth 14 reaching 3, the shadows' batches 2 reaching 2 and the subsurface pass
+12 reaching 4. It read the same twice, and takes about a minute from a clean build, so the build
+workflow's Linux job in order runs it after the suite, whether the suite passed or not. It is steady
+for a runtime; a new runtime's compiler may place a copy elsewhere, which it then names. A read in
+order rather than by paths passed the scene's draws while the plan's two copies reached the first
+batch's calls by a path the read in order took as cleared, so it reads by paths.
+
+The runs. The strict build is clean, and the suite on both legs, 2,475 with 273 beside it, passed in
+27 m 23 s and 25 m 42 s but for one test, the package's shaders folder held against the repository's
+(`PackageContentsTests`), which reads the newest package built, 6.2.60-local.275.1, made before
+`glow_faces.slang`. The new test of `MeshEntityDrawsTests` starts no app and uses no device,
+compiling the renderer's methods in 0.08 s on Mesa 26.2.4, and joins its class's part, Rendering 5,
+the fourth Windows half, so no class moves. The models', the shadows', the subsurface pass's and the
+ambient occlusion's tests pass on the three devices with 273's above, and RenderOriginTests passes
+whole on the RTX, Mesa 26.2.4 and Mesa 25.2.8, 31 of 31, in 1 m 20 s, 4 m 48 s and 5 m 6 s.

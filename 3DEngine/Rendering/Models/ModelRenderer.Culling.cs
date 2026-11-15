@@ -75,7 +75,7 @@ internal sealed partial class ModelRenderer
     /// one where the pass clips depth there (<paramref name="clipsNear"/>).
     /// </summary>
     internal static bool Seen(in Matrix4x4 viewProjection, Vector3 min, Vector3 max, bool light = false, bool clipsNear = true) =>
-        new Frustum(viewProjection, light, clipsNear).Sees(min, max);
+        new Frustum(viewProjection, viewProjection, light, clipsNear).Sees(min, max);
 
     // The planes a pass leaves blocks out by, made once for each view-projection it draws through.
     // A camera's pass uses the four sides alone, so its depth convention never leaves out what it
@@ -84,18 +84,29 @@ internal sealed partial class ModelRenderer
     // the light than a cascade's box still shadows what the box holds, which at a low sun is ground
     // far along the light from the cascade's slice of the view, and such a block is left out only
     // where the device clips there instead (clipsNear).
-    private readonly struct Frustum
+    //
+    // A class, made by a pass where its view changes, with the view as the batches carry it, so the
+    // passes that record the driver's calls hold it by reference and copy none of its planes through
+    // the CPU's wide registers between those calls, which the driver's code would then run after with
+    // their upper halves in use. Its constructor is kept a call of its own, whose copies the
+    // compiler's code ends by clearing those halves.
+    private sealed class Frustum
     {
         private readonly Vector4 _left, _right, _bottom, _top, _near, _far;
         private readonly bool _depth, _clipsNear;
+        private readonly Matrix4x4 _from;
 
-        public Frustum(in Matrix4x4 viewProjection, bool depth, bool clipsNear = true)
+        [MethodImpl(MethodImplOptions.NoInlining)]
+        public Frustum(in Matrix4x4 viewProjection, in Matrix4x4 from, bool depth, bool clipsNear = true)
         {
             (_left, _right, _bottom, _top) = Planes(viewProjection);
             _near = new Vector4(viewProjection.M13, viewProjection.M23, viewProjection.M33, viewProjection.M43);
             _far = new Vector4(viewProjection.M14, viewProjection.M24, viewProjection.M34, viewProjection.M44) - _near;
-            (_depth, _clipsNear) = (depth, clipsNear);
+            (_depth, _clipsNear, _from) = (depth, clipsNear, from);
         }
+
+        // Whether it was made for a view as the batches carry it.
+        public bool IsOf(in Matrix4x4 view) => _from == view;
 
         public bool Sees(Vector3 min, Vector3 max) =>
             !(Outside(_left, min, max) || Outside(_right, min, max) || Outside(_bottom, min, max) || Outside(_top, min, max)
@@ -115,7 +126,7 @@ internal sealed partial class ModelRenderer
     // Draws a batch, the blocks a view sees as runs of calls and a batch with none as one, and
     // answers how many calls it made. A mesh over shader buffers is drawn by its count, without
     // indices (DrawCounted).
-    private static int DrawSeen(TrackedRenderPass pass, in Batch batch, Block[] blocks, in Frustum frustum)
+    private static int DrawSeen(TrackedRenderPass pass, in Batch batch, Block[] blocks, Frustum frustum)
     {
         var (counted, indexCount) = (batch.Mesh.Counted, batch.Mesh.IndexCount);
         void Draw(uint count, uint first)

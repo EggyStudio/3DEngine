@@ -1,4 +1,5 @@
 using System.Numerics;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 namespace Engine;
@@ -208,10 +209,30 @@ internal sealed partial class ModelRenderer
         pass.PushConstants(pipeline, ShaderStageFlags.Vertex | ShaderStageFlags.Fragment, 0, MemoryMarshal.AsBytes(new ReadOnlySpan<ViewPush>(in push)));
     }
 
+    // The view the pass being recorded pushed last, where it pushed one, which each pass forgets as
+    // it begins. The renderer keeps it rather than the pass, whose own clearing of a view of its
+    // own would write the wide registers in the pass's code.
+    private Matrix4x4 _pushedView;
+    private bool _viewPushed;
+
     // Pushes a view's view-projection against the frame's origin, from its eye where the frame
-    // noted one, with a move of clip space after it where one is given, and the origin.
-    private void PushView(TrackedRenderPass pass, IPipeline pipeline, in Matrix4x4 viewProjection, Matrix4x4? after = null) =>
+    // noted one, with a move of clip space after it where one is given, and the origin, where it is
+    // another than the view the pass pushed last, and keeps it. A call of its own that a pass makes
+    // for each batch, so its comparison and copies of the view, which the compiler makes through
+    // the wide registers, end in its own code's clearing of their upper halves, and the pass's calls
+    // of the driver after it find them clear.
+    [MethodImpl(MethodImplOptions.NoInlining)]
+    private void PushView(TrackedRenderPass pass, IPipeline pipeline, in Matrix4x4 viewProjection, in Matrix4x4? after)
+    {
+        if (_viewPushed && _pushedView == viewProjection) return;
         Push(pass, pipeline, in _seen.Push(viewProjection, after));
+        _pushedView = viewProjection;
+        _viewPushed = true;
+    }
+
+    // Pushes a view with no move after it, the move's nothing made in a call of its own too.
+    [MethodImpl(MethodImplOptions.NoInlining)]
+    private void PushView(TrackedRenderPass pass, IPipeline pipeline, in Matrix4x4 viewProjection) => PushView(pass, pipeline, viewProjection, null);
 
     // An instance of a mesh whose positions are packed integers (PositionPacking), the rows that
     // turn its position scaled by the integers' quantum, a power of two, and its translation as it

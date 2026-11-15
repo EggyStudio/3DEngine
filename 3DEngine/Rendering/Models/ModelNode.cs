@@ -426,27 +426,32 @@ internal sealed partial class ModelRenderer : IDisposable
         Drew = _fragmentSpvs[(int)build] is null ? ModelBuild.Whole : build;
 
         var span = CollectionsMarshal.AsSpan(batches);
-        var (frustum, culledThrough) = (default(Frustum), default(Matrix4x4?));
+        Frustum? frustum = null;
         _planned.Clear();
         _waitless = waitless;
         for (int b = 0; b < span.Length; b++)
         {
             ref readonly var batch = ref span[b];
             if (IsAlone(batch.Shadow)) continue;
-            var through = viewProjection ?? batch.ViewProjection;
-            if (culledThrough != through) (frustum, culledThrough) = (new Frustum(Placed(through), depth), through);
+            ref readonly var through = ref viewProjection.HasValue ? ref Nullable.GetValueRefOrDefaultRef(in viewProjection) : ref batch.ViewProjection;
+            if (frustum is null || !frustum.IsOf(through)) frustum = new Frustum(Placed(through), through, depth);
             if (!frustum.SeesAny(batch, blocks)) continue;
             var draw = batch.Custom >= 0 ? draws.Draws[batch.Custom] : default;
             // A shader unloaded after the draw was recorded draws with the model pass's own.
             var program = batch.Custom >= 0 ? store?.Get(draw.Shader) : null;
             var meshStreams = batch.Mesh.Colors is null ? Streams.Default : Streams.PerVertex;
-            var modules = program is null ? default : CustomModules(gfx, draw.Shader, program);
-            var streams = program is null
-                ? meshStreams == Streams.PerVertex ? Streams.PerVertex : Streams.None
-                : modules.ReadsStreams ? meshStreams : Streams.None;
-            // A shader of the program's own that reads CUSTOM0 is fed the mesh's stream of the
-            // program's own, or zeros where the mesh has none.
-            StreamFeed? feed = modules.Custom0 is { } custom0 ? StreamFeed.For(custom0, batch.Mesh.Custom?.Format) : null;
+            var streams = meshStreams == Streams.PerVertex ? Streams.PerVertex : Streams.None;
+            StreamFeed? feed = null;
+            // A program's stages are read where the batch has one, the pass making no empty
+            // stages, whose clearing would write the wide registers before the device's calls.
+            if (program is not null)
+            {
+                var modules = CustomModules(gfx, draw.Shader, program);
+                streams = modules.ReadsStreams ? meshStreams : Streams.None;
+                // A shader of the program's own that reads CUSTOM0 is fed the mesh's stream of the
+                // program's own, or zeros where the mesh has none.
+                if (modules.Custom0 is { } custom0) feed = StreamFeed.For(custom0, batch.Mesh.Custom?.Format);
+            }
             var positions = batch.Mesh.Positions;
             if (positions is not null && program is null && _unlit.Add(batch.Mesh.Indices))
                 Logger.Warn("A mesh uploaded from its positions alone is drawn with the model pass's own shader, which lights it by a zero normal. " +
@@ -459,21 +464,22 @@ internal sealed partial class ModelRenderer : IDisposable
                 PipelinesPending = true;
                 continue;
             }
-            _planned.Add(new Planned(b, wanted, program, streams, feed, positions is not null));
+            Plan(b, wanted, program, streams, feed, positions is not null);
         }
         _waitless = false;
         OrderOpaque(span, view.Opaque, blocks, viewProjection);
 
         IPipeline? pipeline = null;
-        var pushed = default(Matrix4x4?);
+        // The pass pushes its first view whatever the last pass pushed.
+        _viewPushed = false;
         // The scissor the pass was begun with is the whole target, which a batch kept to some of it
         // changes, and a face of a probe, drawn through a camera of its own, keeps.
         ScissorRect? scissored = null;
         foreach (ref readonly var planned in CollectionsMarshal.AsSpan(_planned))
         {
             ref readonly var batch = ref span[planned.Batch];
-            var through = viewProjection ?? batch.ViewProjection;
-            if (culledThrough != through) (frustum, culledThrough) = (new Frustum(Placed(through), depth), through);
+            ref readonly var through = ref viewProjection.HasValue ? ref Nullable.GetValueRefOrDefaultRef(in viewProjection) : ref batch.ViewProjection;
+            if (frustum is null || !frustum.IsOf(through)) frustum = new Frustum(Placed(through), through, depth);
             var keptTo = viewProjection is null ? batch.Scissor : null;
             if (keptTo != scissored)
             {
@@ -491,11 +497,7 @@ internal sealed partial class ModelRenderer : IDisposable
             }
             // Every pipeline of the pass takes the push in one range, so a view pushed with one is
             // kept for the next and pushed again only where the view changes.
-            if (pushed != through)
-            {
-                PushView(pass, pipeline, through);
-                pushed = through;
-            }
+            PushView(pass, pipeline, through);
 
             var draw = batch.Custom >= 0 ? draws.Draws[batch.Custom] : default;
             pass.SetBindGroup(pipeline, program is null ? batch.Set ?? MaterialSet(gfx, textures, draw) : DrawSet(gfx, renderContext, renderWorld, textures, draw, program));

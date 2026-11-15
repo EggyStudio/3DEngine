@@ -75,13 +75,14 @@ internal sealed partial class ModelRenderer
 
         var depth = SubsurfaceDepthSet(gfx, sceneDepth);
         IPipeline? pipeline = null;
-        var pushed = default(Matrix4x4?);
+        // The pass pushes its first view whatever the last pass pushed.
+        _viewPushed = false;
         index = 0;
-        var (frustum, culledThrough) = (default(Frustum), default(Matrix4x4?));
+        Frustum? frustum = null;
         foreach (ref readonly var batch in CollectionsMarshal.AsSpan(view.Batches))
         {
             if (!Scatters(batch)) continue;
-            if (culledThrough != batch.ViewProjection) (frustum, culledThrough) = (new Frustum(Placed(batch.ViewProjection), depth: false), batch.ViewProjection);
+            if (frustum is null || !frustum.IsOf(batch.ViewProjection)) frustum = new Frustum(Placed(batch.ViewProjection), batch.ViewProjection, depth: false);
             // A batch passed over keeps its profile's place.
             if (!frustum.SeesAny(batch, view.Blocks))
             {
@@ -97,11 +98,7 @@ internal sealed partial class ModelRenderer
                 pass.SetBindGroup(pipeline, LightsSet(gfx, renderWorld, textures, 0), index: 1);
                 pass.SetBindGroup(pipeline, depth, index: 2);
             }
-            if (pushed != batch.ViewProjection)
-            {
-                PushView(pass, pipeline, batch.ViewProjection);
-                pushed = batch.ViewProjection;
-            }
+            PushView(pass, pipeline, batch.ViewProjection);
             pass.SetBindGroup(pipeline, batch.Set ?? MaterialSet(gfx, textures, default));
             var (colors, texcoords2) = streams == Streams.PerVertex ? (batch.Mesh.Colors!, batch.Mesh.Texcoords2!) : DefaultStreams(gfx);
             pass.SetVertexBuffer(0, [batch.Mesh.Vertices, view.Ring!, colors, texcoords2, profiles.Buffer],

@@ -133,6 +133,14 @@ jobs:
           E3D_REQUIRE_VULKAN: '1'
           MALLOC_ARENA_MAX: '2'
 
+      # The model passes' record loops read in a release build's compiled code for a write of a wide
+      # register that reaches a call of the device's with nothing clearing their upper halves, which
+      # hands the driver's code a state that slows it (build/wide-registers.py). It builds the tests
+      # and compiles the renderer in about a minute, so the job in order alone runs it, whether the
+      # suite passed or not.
+      - if: ${{ !cancelled() && matrix.pass == 'order' }}
+        run: python3 build/wide-registers.py
+
       # The shaders the suite compiled, kept whether it passed or not, by the job in order alone, so
       # the two do not both save the one key.
       - uses: actions/cache/save@v6
