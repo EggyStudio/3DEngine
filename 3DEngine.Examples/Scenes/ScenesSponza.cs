@@ -3,7 +3,7 @@ using static Engine.E3D;
 
 namespace Engine.Examples;
 
-public static class ScenesSponza
+public static partial class ScenesSponza
 {
     // Intel's Sponza, its long axis along x with the main door at +x and the lion's head at -x, its
     // open atrium in the middle under the sky and a gallery on each floor along either side. The
@@ -78,42 +78,21 @@ public static class ScenesSponza
         return $"hour {hour:0.##}";
     }
 
-    // Where ./e3d scenes fetch unpacks a scene, the folder E3D_SCENES names or 3DEngine/scenes in
-    // the user's cache folder, as .github/E3D.md says.
-    private static string ScenesFolder()
-    {
-        if (Environment.GetEnvironmentVariable("E3D_SCENES") is { Length: > 0 } named) return named;
-        string cache;
-        if (OperatingSystem.IsWindows())
-            cache = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData, Environment.SpecialFolderOption.DoNotVerify);
-        else
-        {
-            var home = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile, Environment.SpecialFolderOption.DoNotVerify);
-            cache = OperatingSystem.IsMacOS() ? Path.Combine(home, "Library", "Caches")
-                : Environment.GetEnvironmentVariable("XDG_CACHE_HOME") is { Length: > 0 } xdg ? xdg : Path.Combine(home, ".cache");
-        }
-        return Path.Combine(cache, "3DEngine", "scenes");
-    }
-
     public static void Run()
     {
         InitWindow(800, 450, "[scenes] sponza");
         SetTargetFPS(60);
 
-        var file = Path.Combine(ScenesFolder(), "intel-sponza", "sponza.gltf");
-        if (!File.Exists(file))
+        // The pack's manifest, copied beside the program from the checkout's scenes folder, names
+        // where the pack is fetched from and its model, which is looked for where ./e3d scenes fetch
+        // puts it (ScenePacks.Folder), so either way finds what the other fetched.
+        ScenePacks.TryRead(Path.Combine(AppContext.BaseDirectory, "scenes", "intel-sponza.json"), out var pack, out var problem);
+        if ((pack is null || !ScenePacks.IsFetched(pack)) && !FetchScreen(pack, problem))
         {
-            while (!WindowShouldClose())
-            {
-                BeginDrawing();
-                ClearBackground(new Color(30, 30, 34));
-                DrawText("Sponza is not fetched.", 40, 190, 20, Color.RayWhite);
-                DrawText("Run ./e3d scenes fetch intel-sponza in the engine's checkout.", 40, 220, 20, Color.RayWhite);
-                EndDrawing();
-            }
             CloseWindow();
             return;
         }
+        var file = ScenePacks.ModelOf(pack!);
 
         // The building is 36 units long, 20 wide and 18 high, and the field's four cascades of
         // cells an eighth of a unit reach 8, 16, 32 and 64 units across, ahead of the camera, so

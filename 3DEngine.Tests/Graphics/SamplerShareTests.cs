@@ -43,10 +43,9 @@ public sealed class SamplerShareTests : IDisposable
     [NeedsVulkanFact]
     public void Textures_Past_The_Devices_Most_Samplers_Draw_Through_A_Few_Of_Them()
     {
-        // MoltenVK on a Mac allows 96 samplers, which a scene of many textures passed at one a
-        // texture. The device's most is lowered to 24 here, over what the app's own passes hold, and
-        // 160 textures of four filters and wraps are loaded and drawn, so a sampler a texture would
-        // pass it many times over, which the device logs as an error and the test fails on.
+        // The device's most samplers is lowered to 8 over what the app's own passes hold, and 160
+        // textures of four filters and wraps are loaded and drawn, so a sampler a texture would pass
+        // it many times over, which the device logs as an error and the test fails on.
         var config = Config.Default.WithWindow("sampler test", 64, 64) with { Headless = true, Offscreen = true, Samples = 1 };
         UseApp(new App(config).AddPlugin(new DefaultPlugins()));
         var device = (GraphicsDevice)GetApp().World.Resource<Engine.Renderer>().Context.Graphics!;

@@ -135,7 +135,8 @@ def read_measured():
 
 
 def written_examples():
-    """Each example Program.cs opens, by name, with the file its class is written in."""
+    """Each example Program.cs opens, by name, with the file its class is written in, the one named
+    for the class where the class is written across several."""
     program = open(os.path.join(EXAMPLES, "Program.cs"), encoding="utf-8").read()
     runs = dict(re.findall(r'\["([a-z0-9_]+)"\]\s*=\s*(\w+)\.Run', program))
     files = {}
@@ -145,8 +146,12 @@ def written_examples():
         for name in names:
             if name.endswith(".cs"):
                 path = os.path.join(folder, name)
+                relative = os.path.relpath(path, ROOT).replace(os.sep, "/")
                 for declared in re.findall(r"\bclass\s+(\w+)", open(path, encoding="utf-8").read()):
-                    files.setdefault(declared, os.path.relpath(path, ROOT).replace(os.sep, "/"))
+                    if name == declared + ".cs":
+                        files[declared] = relative
+                    else:
+                        files.setdefault(declared, relative)
     return {name: files[type] for name, type in runs.items() if type in files}
 
 
@@ -304,6 +309,10 @@ def build(commit, examples, triage, written):
     for name in own:
         picture = f'<img src="{RAW}.github/assets/examples/{name}.webp" width="200"/>' if os.path.exists(os.path.join(CAPTURES, name + ".webp")) else ""
         out.append(f"| [`{name}`]({BLOB}{written[name]}) | {picture} |")
+    out += ["", (
+        "`scenes_sponza` draws Intel's Sponza, a pack too large for the repository. Opened without it, "
+        "the example's first screen fetches it by its button, showing each stage and its megabytes, "
+        "or `./e3d scenes fetch intel-sponza` fetches it beforehand, each into the folder the other reads.")]
     return "\n".join(out) + "\n"
 
 

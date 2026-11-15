@@ -324,3 +324,5 @@ The programs here that are no example of raylib's, each showing what the engine 
 | [`textures_basic`](https://github.com/EggyStudio/3DEngine/blob/main/3DEngine.Examples/Textures/TexturesBasic.cs) | <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/textures_basic.webp" width="200"/> |
 | [`textures_mipmaps`](https://github.com/EggyStudio/3DEngine/blob/main/3DEngine.Examples/Textures/TexturesMipmaps.cs) | <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/textures_mipmaps.webp" width="200"/> |
 | [`textures_render_target`](https://github.com/EggyStudio/3DEngine/blob/main/3DEngine.Examples/Textures/TexturesRenderTarget.cs) | <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/textures_render_target.webp" width="200"/> |
+
+`scenes_sponza` draws Intel's Sponza, a pack too large for the repository. Opened without it, the example's first screen fetches it by its button, showing each stage and its megabytes, or `./e3d scenes fetch intel-sponza` fetches it beforehand, each into the folder the other reads.

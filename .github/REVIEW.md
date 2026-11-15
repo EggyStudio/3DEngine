@@ -1,55 +1,59 @@
 # Review
 
-Reviewed up to `42483382`, Verdict 122's mend, the loops reading their draws by reference and the
-guard reading the code compiled for AVX2 and AVX-512 beside the machine's own, pushed at 11:40 on
-2026-11-15, its build run started, the form kept and the message free of numbers. Before it
-`4a6e708b`, with `40c2f712`, item 276's mend, the model passes' record loops copying no view or
-shadow entry through the CPU's wide registers before the driver's calls, every CPU pass summed at
-2.123 ms against the head's 2.796, a script reading their compiled code for it in the Linux job, and
-`ba117e9f`, item 273, a glow light sending from the faces the scene field finds open, the probe's
-hits at 0.94 to 1.06 of the traced reference, pushed at 08:53 on 2026-11-15 once the run before them
-had ended, their build run 43691963837 red in the Linux order leg's register guard alone at 10:22
-(Verdict 122) and the pack run with publish 43691963557 on the same head red at 11:36 in the macOS
-captures leg's Sponza drive alone (Verdict 123), its pack job skipped, no package published, 6.2.82
-by the version script; they keep the form and carry the review's files. Before them `4b621af2`, with
-`9954c125` and `488e7483`, item 275's three high findings, the validation layer's errors logged with
-the words a run's checks look for and a warning keeping its own, the draws Render gathers running
-after the transforms are carried down the tree, and every body blended between its last two steps
-whether an entity holds it or not, each with tests that failed without its mend, both suite legs at
-2,449 passed, pushed at 04:59 on 2026-11-15 once the run before them had ended, their build run
-43674781156 green on the three systems at 06:33; they keep the form and carry the review's files.
-Before them `96358279`, 264's part 8, the field far out reading as at the origin and alike from run
-to run, each mesh's rows taken against its cascade's corner, its way ahead and far cascade from the
-camera's eye and far distance, a moving mesh's stamp against the frame's origin and a tie of two
-meshes near a cell broken by bits of the mesh's own, the fog room's ball and MoveWorld's words, the
-noted eye keeping the far distance a camera gave, pushed at 21:20 on 2026-11-14 once the run before
-it had ended, its build run 43636980622 green at 22:52 on the three systems; the strict build is
-clean, the suite passes both legs at 2,443 in 25 m 25 s and 25 m 5 s, RenderOriginTests 31 of 31 on
-the RTX, Mesa 26.2.4 and Mesa 25.2.8, the render-texture room's case at Low reading 4.00 without the
-rows against its bound of 1.5 and 9.0 s on lavapipe, the tie's test 18.8 s there, no Windows part
-moving; it keeps the form and carries the review's files. Before it `c6bac6dc`, 264's part 7,
-MoveWorld, a program that moves its world by a whole step saying so and the engine moving its field,
-its probes and their light, its histories, its shadows' texels, the reflection probes, the
-particles, the physics' bodies and the sounds with it, a mesh at its matrix plus the step the same
-still mesh, with the ambient's test of a panel too wide to be carried, pushed at 13:06 on 2026-11-14
-once the run before it had ended, green at 14:44 with the four Windows jobs in 82, 47, 59 and 91
-minutes, macOS in 55 and the Linux legs in 88 and 65; WorldMoveTests reads 0.000 at Low on the three
-devices and 0.213 at the most at High on the RTX, RenderOriginTests passes whole, 30 of 30, and the
-suite passed both legs, 2,431; it keeps the form and carries the review's files. Before it
-`0567d8f4`, the rest of the independent read's findings and the last of the origin's cost, mapped
-memory handed out as a span that can be written and not read, each view pushed and found once a pass
-with a test that counts the pushes, stereo eyes, projections set through rlgl, the modeling window's
-outlines, the casters' ranking, rays against meshes, the picking and the glow lights' boxes far from
-the origin, each with a test failing first, pushed at 09:59 on 2026-11-14 once the run before it had
-ended, its message written again before the push to name no item, green at 11:40 with the four
-Windows jobs in 49, 50, 57 and 63 minutes, macOS in 56 and the Linux legs in 89 and 64;
-RenderOriginTests passes whole on the three devices, 30 of 30, and the suite passed both legs,
-2,425; it keeps the form and carries the review's files. Before it `6075d306`, item 270, global
-illumination's lamps written into the sixteen entries its kernels' array holds, the lights the model
-pass lights, with a test of twenty lamps leaving every byte as sixteen do, pushed at 06:23 on
-2026-11-14 once the run before it had ended, green at 07:46 with the four Windows jobs in 83, 52, 45
-and 77 minutes on slower runners, macOS in 55 and the Linux legs in 51 and 66; the suite passed both
-legs, 2,401; it keeps the form and carries the review's files. The pushes before these stand in
+Reviewed up to `254e5935`, the mend of the macOS captures leg, one sampler for each set of settings
+shared among all that ask and the close waiting for the frames in flight before a program's buffers
+go, pushed at 14:00 on 2026-11-15, its build run 43716715286 and its pack run with publish
+43716715283 started, the form kept and the message free of numbers, build run 43705246863 on the
+commit before it green at 14:00. Before it `42483382`, Verdict 122's mend, the loops reading their
+draws by reference and the guard reading the code compiled for AVX2 and AVX-512 beside the machine's
+own, pushed at 11:40 on 2026-11-15, its build run started, the form kept and the message free of
+numbers. Before it `4a6e708b`, with `40c2f712`, item 276's mend, the model passes' record loops
+copying no view or shadow entry through the CPU's wide registers before the driver's calls, every
+CPU pass summed at 2.123 ms against the head's 2.796, a script reading their compiled code for it in
+the Linux job, and `ba117e9f`, item 273, a glow light sending from the faces the scene field finds
+open, the probe's hits at 0.94 to 1.06 of the traced reference, pushed at 08:53 on 2026-11-15 once
+the run before them had ended, their build run 43691963837 red in the Linux order leg's register
+guard alone at 10:22 (Verdict 122) and the pack run with publish 43691963557 on the same head red at
+11:36 in the macOS captures leg's Sponza drive alone (Verdict 123), its pack job skipped, no package
+published, 6.2.82 by the version script; they keep the form and carry the review's files. Before
+them `4b621af2`, with `9954c125` and `488e7483`, item 275's three high findings, the validation
+layer's errors logged with the words a run's checks look for and a warning keeping its own, the
+draws Render gathers running after the transforms are carried down the tree, and every body blended
+between its last two steps whether an entity holds it or not, each with tests that failed without
+its mend, both suite legs at 2,449 passed, pushed at 04:59 on 2026-11-15 once the run before them
+had ended, their build run 43674781156 green on the three systems at 06:33; they keep the form and
+carry the review's files. Before them `96358279`, 264's part 8, the field far out reading as at the
+origin and alike from run to run, each mesh's rows taken against its cascade's corner, its way ahead
+and far cascade from the camera's eye and far distance, a moving mesh's stamp against the frame's
+origin and a tie of two meshes near a cell broken by bits of the mesh's own, the fog room's ball and
+MoveWorld's words, the noted eye keeping the far distance a camera gave, pushed at 21:20 on
+2026-11-14 once the run before it had ended, its build run 43636980622 green at 22:52 on the three
+systems; the strict build is clean, the suite passes both legs at 2,443 in 25 m 25 s and 25 m 5 s,
+RenderOriginTests 31 of 31 on the RTX, Mesa 26.2.4 and Mesa 25.2.8, the render-texture room's case
+at Low reading 4.00 without the rows against its bound of 1.5 and 9.0 s on lavapipe, the tie's test
+18.8 s there, no Windows part moving; it keeps the form and carries the review's files. Before it
+`c6bac6dc`, 264's part 7, MoveWorld, a program that moves its world by a whole step saying so and
+the engine moving its field, its probes and their light, its histories, its shadows' texels, the
+reflection probes, the particles, the physics' bodies and the sounds with it, a mesh at its matrix
+plus the step the same still mesh, with the ambient's test of a panel too wide to be carried, pushed
+at 13:06 on 2026-11-14 once the run before it had ended, green at 14:44 with the four Windows jobs
+in 82, 47, 59 and 91 minutes, macOS in 55 and the Linux legs in 88 and 65; WorldMoveTests reads
+0.000 at Low on the three devices and 0.213 at the most at High on the RTX, RenderOriginTests passes
+whole, 30 of 30, and the suite passed both legs, 2,431; it keeps the form and carries the review's
+files. Before it `0567d8f4`, the rest of the independent read's findings and the last of the
+origin's cost, mapped memory handed out as a span that can be written and not read, each view pushed
+and found once a pass with a test that counts the pushes, stereo eyes, projections set through rlgl,
+the modeling window's outlines, the casters' ranking, rays against meshes, the picking and the glow
+lights' boxes far from the origin, each with a test failing first, pushed at 09:59 on 2026-11-14
+once the run before it had ended, its message written again before the push to name no item, green
+at 11:40 with the four Windows jobs in 49, 50, 57 and 63 minutes, macOS in 56 and the Linux legs in
+89 and 64; RenderOriginTests passes whole on the three devices, 30 of 30, and the suite passed both
+legs, 2,425; it keeps the form and carries the review's files. Before it `6075d306`, item 270,
+global illumination's lamps written into the sixteen entries its kernels' array holds, the lights
+the model pass lights, with a test of twenty lamps leaving every byte as sixteen do, pushed at 06:23
+on 2026-11-14 once the run before it had ended, green at 07:46 with the four Windows jobs in 83, 52,
+45 and 77 minutes on slower runners, macOS in 55 and the Linux legs in 51 and 66; the suite passed
+both legs, 2,401; it keeps the form and carries the review's files. The pushes before these stand in
 REVIEW-ARCHIVE.md's head records.
 
 The package stands at 6.2.60 from `baa21ff4`, one package with its templates, published at 18:58 on
@@ -871,3 +875,32 @@ Mesa 25.2.8, 294 of 294 in 2 m 35 s, 3 m 57 s and 4 m 8 s, and RenderOriginTests
 device's listing not written again for the samplers' new members, which is written now, its tests
 passing. `SamplerShareTests` joins the Windows part Graphics, and the night's test stays in
 Rendering 3.
+
+Item 277, a button that fetches Sponza where the scene opens without its pack.
+
+The fetch is written once. `ScenePacks.FetchAsync`, which `scenes fetch` runs, is public in
+`3DEngine.Scenes` with `ScenePack` and a progress record of the stage and its bytes, taking a token
+and answering a failure as its sentence, and docs/scenes.md is written for a game fetching its own
+pack. It runs on the thread pool, tells downloading, checking and unpacking with their bytes,
+answers a pack fetched already at once, and stops between two chunks, leaving the folder as it was
+and nothing beside it. The example reads its manifest copied beside its build and
+`ScenePacks.Folder`, the command's folder, and its first screen keeps the command's line with a
+button that fetches, a second press doing nothing while it runs, a button that stops it, the stage,
+megabytes and a bar, a failure's sentence with the button back, and the scene loaded in the same
+run. EXAMPLES.md and E3D.md say both ways.
+
+`ScenePackTests` holds a fetch told stage by stage, one from a server on this machine with a 404
+named, a fetch stopped downloading and one stopped unpacking each leaving nothing new, and a pack
+fetched already answered without its address, none reaching the network. The captures in the dump
+show the screen before, during the download, after a stop with the folder left empty, and after a
+fetch from the release, about 68 s, with the scene drawn. The sampler comments say the limit is the
+device's own.
+
+The runs. The strict build is clean. RenderOriginTests passes whole on the RTX, Mesa 26.2.4 and Mesa
+25.2.8, 31 of 31 in 1 m 31 s, 5 m 20 s and 5 m 30 s. The suite on both legs passed 2,480 with one
+failure each, the gallery's test taking an example's file as the first that declares its class,
+which with Sponza's class written across two files was the fetch screen's in this checkout's order.
+The test and the examples' table now take the file named for the class, and the test passes with the
+pack's, the listings' and the norm's, 52 of 52. docs/scenes.md's blocks and every example build on a
+package packed at the tree, 0.1.0-preview.20261115142417, so the example reaches the fetch through
+the public surface alone. The three new tests of `ScenePackTests` stay in the Windows part Scenes.

@@ -5,9 +5,9 @@ namespace Engine;
 internal sealed unsafe partial class GraphicsDevice
 {
     // Each sampler the device holds by the settings it is made with, the device's limits applied,
-    // with how many of the samplers handed out hold it. A device allows only so many at once
-    // (maxSamplerAllocationCount), 96 under MoltenVK on a Mac, and a scene of many textures asks
-    // for few distinct settings, so every texture asking for the same shares one.
+    // with how many of the samplers handed out hold it. The device allows only so many at once, its
+    // own maxSamplerAllocationCount, and a scene of many textures asks for few distinct settings, so
+    // every texture asking for the same shares one.
     private readonly Dictionary<SamplerDesc, (VkSampler Handle, int Holders)> _samplers = [];
     private readonly Lock _samplerGate = new();
     private uint _samplerLimit = uint.MaxValue;

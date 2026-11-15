@@ -1,4 +1,6 @@
 using System.Buffers.Binary;
+using System.Net;
+using System.Net.Sockets;
 using System.Security.Cryptography;
 using System.Text;
 using FluentAssertions;
@@ -6,8 +8,9 @@ using FluentAssertions;
 namespace Engine.Tests.Scenes;
 
 /// <summary>
-/// Scene packs, their manifests read or refused, a pack fetched from a file, checked and unpacked,
-/// and kept only where its hash is the manifest's.
+/// Scene packs, their manifests read or refused, a pack fetched from a file or a server on this
+/// machine, checked and unpacked, told stage by stage, and kept only where its hash is the
+/// manifest's and the fetch was not stopped.
 /// </summary>
 [Trait("Category", "Unit")]
 public sealed class ScenePackTests : IDisposable
@@ -95,14 +98,19 @@ public sealed class ScenePackTests : IDisposable
     {
         byte[] model = [1, 2, 3], texture = [4, 5, 6, 7];
         var (_, manifest) = Written("hall", Pack(("hall.gltf", model), ("textures/stone.ktx2", texture)));
-        var reported = new List<double>();
+        var reported = new List<ScenePackProgress>();
 
         ScenePacks.IsFetched(manifest).Should().BeFalse();
         (await ScenePacks.FetchAsync(manifest, new Progress(reported))).Should().BeNull();
         ScenePacks.IsFetched(manifest).Should().BeTrue();
         File.ReadAllBytes(ScenePacks.ModelOf(manifest)).Should().Equal(model);
         File.ReadAllBytes(Path.Combine(ScenePacks.FolderOf(manifest), "textures", "stone.ktx2")).Should().Equal(texture);
-        reported[^1].Should().Be(1.0);
+        // Each stage told in its order with its bytes, the download's of the pack's and the
+        // unpacking's of its files', ending done.
+        reported.Select(r => r.Stage).Distinct().Should().Equal(ScenePackStage.Downloading, ScenePackStage.Checking, ScenePackStage.Unpacking, ScenePackStage.Done);
+        reported.Should().Contain(new ScenePackProgress(ScenePackStage.Downloading, manifest.Size, manifest.Size));
+        reported.Should().Contain(new ScenePackProgress(ScenePackStage.Unpacking, 7, 7), "the files hold 7 bytes");
+        reported[^1].Fraction.Should().Be(1.0);
 
         // A manifest whose hash is another's unpacks nothing, and the folder fetched before stays.
         var wrong = manifest with { Sha256 = new string('a', 64) };
@@ -128,9 +136,117 @@ public sealed class ScenePackTests : IDisposable
         Directory.GetFileSystemEntries(ScenePacks.Folder).Should().BeEmpty("a refused pack leaves nothing");
     }
 
-    // Reports as they are made, where Progress<T> would post them to the thread pool after the fetch.
-    private sealed class Progress(List<double> into) : IProgress<double>
+    [Fact]
+    public async Task A_Pack_Fetched_Already_Is_Answered_At_Once_Without_Its_Address()
     {
-        public void Report(double value) => into.Add(value);
+        var (_, manifest) = Written("hall", Pack(("hall.gltf", [1, 2, 3])));
+        (await ScenePacks.FetchAsync(manifest)).Should().BeNull();
+        var reported = new List<ScenePackProgress>();
+        var elsewhere = manifest with { Url = Path.Combine(_folder.Path, "nowhere.pack") };
+        (await ScenePacks.FetchAsync(elsewhere, new Progress(reported))).Should().BeNull("the folder holds the pack the manifest names");
+        reported.Should().Equal(new ScenePackProgress(ScenePackStage.Done, manifest.Size, manifest.Size));
+    }
+
+    [Fact]
+    public async Task A_Fetch_Stopped_While_Downloading_Or_Unpacking_Leaves_Nothing_New()
+    {
+        // Stopped once its first bytes have come, a fetch leaves no part of the pack beside the
+        // folder and no folder.
+        var (_, first) = Written("hall", Pack(("hall.gltf", [1, 2, 3])));
+        using (var stop = new CancellationTokenSource())
+        {
+            var said = await ScenePacks.FetchAsync(first, new Progress([], r => { if (r is { Stage: ScenePackStage.Downloading, Bytes: > 0 }) stop.Cancel(); }), stop.Token);
+            said.Should().Be("Fetching hall was stopped.");
+        }
+        Directory.GetFileSystemEntries(ScenePacks.Folder).Should().BeEmpty("nothing is left of the download");
+
+        // Stopped as it unpacks a pack of other files, a fetch leaves the folder fetched before.
+        (await ScenePacks.FetchAsync(first)).Should().BeNull();
+        var (_, next) = Written("hall-next", Pack(("hall.gltf", [9, 9]), ("textures/new.ktx2", new byte[3 << 20])));
+        next = next with { Name = "hall", Title = "hall" };
+        using (var stop = new CancellationTokenSource())
+        {
+            var said = await ScenePacks.FetchAsync(next, new Progress([], r => { if (r is { Stage: ScenePackStage.Unpacking, Bytes: > 0 }) stop.Cancel(); }), stop.Token);
+            said.Should().Be("Fetching hall was stopped.");
+        }
+        ScenePacks.IsFetched(first).Should().BeTrue("the folder fetched before stays whole");
+        File.ReadAllBytes(ScenePacks.ModelOf(first)).Should().Equal([1, 2, 3]);
+        Directory.GetFileSystemEntries(ScenePacks.Folder).Select(Path.GetFileName).Should().Equal(["hall"], "nothing is left beside the folder");
+    }
+
+    [Fact]
+    public async Task A_Pack_Is_Fetched_From_A_Server_And_An_Address_The_Server_Has_Nothing_At_Is_Said()
+    {
+        var pack = Pack(("hall.gltf", [1, 2, 3]), ("textures/stone.ktx2", new byte[(1 << 20) + 5]));
+        using var server = new Serving(pack);
+        var (_, written) = Written("hall", pack);
+        var manifest = written with { Url = server.Address + "hall.pack" };
+        var reported = new List<ScenePackProgress>();
+        (await ScenePacks.FetchAsync(manifest, new Progress(reported))).Should().BeNull();
+        ScenePacks.IsFetched(manifest).Should().BeTrue();
+        reported.Where(r => r.Stage == ScenePackStage.Downloading).Select(r => r.Bytes).Should().BeInAscendingOrder().And.Contain(pack.Length);
+
+        var missing = manifest with { Name = "missing", Url = server.Address + "missing.pack" };
+        (await ScenePacks.FetchAsync(missing)).Should().Contain("missing.pack").And.Contain("404");
+        ScenePacks.IsFetched(missing).Should().BeFalse();
+    }
+
+    // A server on this machine answering one path with a pack and every other with 404, as a
+    // release's host answers, so a fetch over HTTP is read without the network.
+    private sealed class Serving : IDisposable
+    {
+        private readonly TcpListener _listener = new(IPAddress.Loopback, 0);
+        private readonly CancellationTokenSource _stop = new();
+        private readonly Task _serving;
+
+        public Serving(byte[] pack)
+        {
+            _listener.Start();
+            Address = $"http://127.0.0.1:{((IPEndPoint)_listener.LocalEndpoint).Port}/";
+            _serving = Task.Run(async () =>
+            {
+                while (!_stop.IsCancellationRequested)
+                {
+                    using var client = await _listener.AcceptTcpClientAsync(_stop.Token);
+                    await using var stream = client.GetStream();
+                    var request = new StreamReader(stream, Encoding.ASCII, leaveOpen: true);
+                    var line = await request.ReadLineAsync(_stop.Token) ?? "";
+                    while (await request.ReadLineAsync(_stop.Token) is { Length: > 0 }) { }
+                    var found = line.StartsWith("GET /hall.pack ", StringComparison.Ordinal);
+                    var body = found ? pack : "not here"u8.ToArray();
+                    var head = $"HTTP/1.1 {(found ? "200 OK" : "404 Not Found")}\r\nContent-Length: {body.Length}\r\nConnection: close\r\n\r\n";
+                    await stream.WriteAsync(Encoding.ASCII.GetBytes(head), _stop.Token);
+                    await stream.WriteAsync(body, _stop.Token);
+                }
+            });
+        }
+
+        public string Address { get; }
+
+        public void Dispose()
+        {
+            _stop.Cancel();
+            _listener.Stop();
+            try
+            {
+                _serving.Wait(TimeSpan.FromSeconds(5));
+            }
+            catch (AggregateException)
+            {
+                // The accept the stop ended.
+            }
+            _stop.Dispose();
+        }
+    }
+
+    // Reports as they are made, where Progress<T> would post them to the thread pool after the
+    // fetch, each handed on to what is given as well.
+    private sealed class Progress(List<ScenePackProgress> into, Action<ScenePackProgress>? then = null) : IProgress<ScenePackProgress>
+    {
+        public void Report(ScenePackProgress value)
+        {
+            into.Add(value);
+            then?.Invoke(value);
+        }
     }
 }

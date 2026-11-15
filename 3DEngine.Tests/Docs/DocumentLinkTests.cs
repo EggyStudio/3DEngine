@@ -39,7 +39,8 @@ public partial class DocumentLinkTests
     public void A_Picture_In_The_Gallery_Opens_The_Program_That_Drew_It()
     {
         var root = RepoRoot();
-        // Each example's name and the class it runs, and each class by the file it is written in.
+        // Each example's name and the class it runs, and each class by the file it is written in, the
+        // one named for the class where the class is written across several.
         var runs = Regex.Matches(File.ReadAllText(Path.Combine(root, "3DEngine.Examples", "Program.cs")), @"\[""(?<name>[a-z0-9_]+)""\]\s*=\s*(?<class>\w+)\.Run")
             .ToDictionary(m => m.Groups["name"].Value, m => m.Groups["class"].Value);
         var written = new Dictionary<string, string>();
@@ -48,7 +49,11 @@ public partial class DocumentLinkTests
             var relative = Path.GetRelativePath(root, file).Replace('\\', '/');
             if (relative.Contains("/bin/") || relative.Contains("/obj/")) continue;
             foreach (Match type in Regex.Matches(File.ReadAllText(file), @"\bclass\s+(?<class>\w+)"))
-                written.TryAdd(type.Groups["class"].Value, relative);
+            {
+                var name = type.Groups["class"].Value;
+                if (Path.GetFileNameWithoutExtension(file) == name) written[name] = relative;
+                else written.TryAdd(name, relative);
+            }
         }
 
         var wrong = new List<string>();

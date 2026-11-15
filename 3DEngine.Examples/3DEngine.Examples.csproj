@@ -16,6 +16,8 @@
         <Content Include="..\games\Summit\resources\hero.gltf" Link="resources\hero.gltf" CopyToOutputDirectory="PreserveNewest" />
         <!-- raylib's own, fetched by build/fetch-raylib-resources.sh, at the paths its examples load. -->
         <Content Include="raylib-resources\**\*" Link="resources\%(RecursiveDir)%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
+        <!-- The scene packs' manifests, by which an example fetches a pack it opens without. -->
+        <Content Include="..\scenes\*.json" Link="scenes\%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
     </ItemGroup>
 
     <ItemGroup>

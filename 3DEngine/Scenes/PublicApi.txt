@@ -33,6 +33,49 @@ static class Engine.SaveGame
   static List<int> Start(World world, params string[] scenes)
   static int Save(World world, string path)
 struct Engine.Saved
+sealed class Engine.ScenePack : IEquatable<ScenePack>
+  ScenePack()
+  bool Equals(ScenePack? other)
+  long Size { get; set; }
+  override bool Equals(object? obj)
+  override int GetHashCode()
+  override string ToString()
+  static bool op_Equality(ScenePack? left, ScenePack? right)
+  static bool op_Inequality(ScenePack? left, ScenePack? right)
+  string Attribution { get; set; }
+  string License { get; set; }
+  string Model { get; set; }
+  string Name { get; set; }
+  string Sha256 { get; set; }
+  string Source { get; set; }
+  string Title { get; set; }
+  string Url { get; set; }
+readonly struct Engine.ScenePackProgress : IEquatable<ScenePackProgress>
+  ScenePackProgress(ScenePackStage Stage, long Bytes, long Total)
+  ScenePackStage Stage { get; init; }
+  bool Equals(ScenePackProgress other)
+  double Fraction { get; }
+  long Bytes { get; init; }
+  long Total { get; init; }
+  override bool Equals(object obj)
+  override int GetHashCode()
+  override string ToString()
+  static bool op_Equality(ScenePackProgress left, ScenePackProgress right)
+  static bool op_Inequality(ScenePackProgress left, ScenePackProgress right)
+  void Deconstruct(out ScenePackStage Stage, out long Bytes, out long Total)
+enum Engine.ScenePackStage : int
+  Checking = 1
+  Done = 3
+  Downloading = 0
+  Unpacking = 2
+static class Engine.ScenePacks
+  static IReadOnlyList<ScenePack> List(string folder, out IReadOnlyList<string> problems)
+  static Task<string?> FetchAsync(ScenePack pack, IProgress<ScenePackProgress>? progress = null, CancellationToken cancel = default)
+  static bool IsFetched(ScenePack pack)
+  static bool TryRead(string file, out ScenePack? pack, out string? problem)
+  static string Folder { get; set; }
+  static string FolderOf(ScenePack pack)
+  static string ModelOf(ScenePack pack)
 struct Engine.SceneRef
   string Path
 sealed class Engine.SceneSpawnSettings

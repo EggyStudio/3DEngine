@@ -430,6 +430,50 @@ entity draws them. What the program loads itself, with `AssetServer.Load` or the
 `memory` command reports the assets the server knows, which climbs as a level streams in and
 settles once what is left behind is let go.
 
+## A scene kept as a pack
+
+A scene whose files are too large to ship beside the game, a detailed level or a scanned place, is
+kept as a pack, its files in one file a manifest of JSON names with where it is fetched from, its
+size, its SHA-256 and the model to load from it. `ScenePacks.TryRead` reads a manifest,
+`ScenePacks.IsFetched` says whether its pack is unpacked already, and `ScenePacks.FetchAsync`
+downloads it, checks its size and SHA-256 and unpacks it on the thread pool, telling its stage and
+its bytes as it goes, so the frame loop draws on while it runs:
+
+<!-- compiled with:
+using System.Threading;
+using System.Threading.Tasks;
+string manifest = "";
+-->
+```csharp
+if (ScenePacks.TryRead(manifest, out var pack, out var problem) && !ScenePacks.IsFetched(pack))
+{
+    // The last stage and bytes the fetch told, for the frame to draw.
+    var step = new ScenePackProgress();
+    using var stop = new CancellationTokenSource();
+    var fetching = ScenePacks.FetchAsync(pack, new Progress<ScenePackProgress>(told => step = told), stop.Token);
+    while (!fetching.IsCompleted)
+    {
+        if (WindowShouldClose()) stop.Cancel();
+        BeginDrawing();
+        ClearBackground(Color.Black);
+        DrawText($"{step.Stage} {step.Bytes / 1048576} of {step.Total / 1048576} MB", 40, 200, 20, Color.RayWhite);
+        EndDrawing();
+    }
+    if (fetching.Result is { } failed) TraceLog(LogLevel.Warning, failed);
+}
+```
+
+The fetch answers nothing where the pack is fetched, and otherwise the sentence saying why it is
+not, a network that is down, an address with nothing at it, a pack of another size or SHA-256, a
+disk that is full or a fetch stopped, and throws for none of them. A fetch that fails or is stopped
+leaves the folder fetched before, if any, and nothing new beside it, and a pack fetched already is
+answered at once. Packs are unpacked under `ScenePacks.Folder`, the user's cache folder under
+`3DEngine/scenes` or the folder `E3D_SCENES` names, each in a folder of its name that
+`ScenePacks.ModelOf` names the model in, which `./e3d scenes fetch` fetches into as well. A pack
+is the eight bytes `BCSPACK` and a zero, the format's version and its count of files, an index of
+each file's path and where its bytes lie, then the files' bytes, as `ScenePacks` sets out. The
+`scenes_sponza` example fetches Intel's Sponza so where it opens without it.
+
 ## From outside
 
 The console's `scene.save` and `scene.load` commands save and load the running program's world,
@@ -438,7 +482,8 @@ a running game is kept.
 
 ## See also
 
-- Examples: [`scenes_level`](../3DEngine.Examples/Scenes/ScenesLevel.cs), and the game
+- Examples: [`scenes_level`](../3DEngine.Examples/Scenes/ScenesLevel.cs),
+  [`scenes_sponza`](../3DEngine.Examples/Scenes/ScenesSponza.cs), and the game
   [`games/Summit`](../games/Summit/Program.cs), whose level is prefabs placed in a scene
 - The cheatsheet's [Scenes](../CHEATSHEET.md#scenes)
 - [ARCHITECTURE.md](../.github/ARCHITECTURE.md#scene-files), on the format

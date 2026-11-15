@@ -170,7 +170,10 @@ Linux, `~/Library/Caches` on macOS and the local application data on Windows, or
 `E3D_SCENES` names, as a workflow keeping it between runs does. A download cut short or of another
 hash leaves nothing new, and the pack is let go once unpacked. Each is made from the pack
 BevyCSharp publishes by `build/make-scene-pack.py`, which undoes the zstd of its textures, in the
-pack run's job its `scenes` input asks for.
+pack run's job its `scenes` input asks for. The `scenes_sponza` example opened without its pack
+fetches it the other way, a button on its first screen downloading, checking and unpacking it into
+the same folder while the screen shows each stage and its megabytes, so either way finds what the
+other fetched. A game fetches a pack of its own through `ScenePacks` (docs/scenes.md).
 
 The caches a program keeps in that folder are listed and cleared through it while it runs:
 

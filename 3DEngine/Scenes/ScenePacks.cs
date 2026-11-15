@@ -7,43 +7,6 @@ using System.Text.Json.Serialization;
 
 namespace Engine;
 
-/// <summary>A well-known scene kept as a pack fetched on demand, as its manifest names it.</summary>
-/// <remarks>
-/// A detailed scene's files, even with its textures made small, are too large for a repository to
-/// hold, so a manifest of JSON holding these fields is kept in the repository's <c>scenes</c>
-/// folder in its place, written as BevyCSharp's are. Its fields are settable, since a
-/// source-generated reader gives a field a manifest leaves out the value it starts with.
-/// </remarks>
-internal sealed record ScenePack
-{
-    /// <summary>What it is called, which its manifest's file and its folder are named by.</summary>
-    public string Name { get; set; } = "";
-
-    /// <summary>What a person is shown it as.</summary>
-    public string Title { get; set; } = "";
-
-    /// <summary>Where the scene was published by its makers.</summary>
-    public string Source { get; set; } = "";
-
-    /// <summary>The license it is published under.</summary>
-    public string License { get; set; } = "";
-
-    /// <summary>The words its license asks to be shown with it.</summary>
-    public string Attribution { get; set; } = "";
-
-    /// <summary>Where the pack is fetched from, over HTTPS or as a file on this machine.</summary>
-    public string Url { get; set; } = "";
-
-    /// <summary>How many bytes the pack is.</summary>
-    public long Size { get; set; }
-
-    /// <summary>The pack's SHA-256 in lowercase hexadecimal, which a fetched copy must have.</summary>
-    public string Sha256 { get; set; } = "";
-
-    /// <summary>The model to load from the pack's files, by its path among them, such as <c>scene.gltf</c>.</summary>
-    public string Model { get; set; } = "";
-}
-
 /// <summary>
 /// The scene packs, read from their manifests, fetched into the user's cache folder, checked and
 /// unpacked into a folder of their files that a program loads the model from.
@@ -64,7 +27,7 @@ internal sealed record ScenePack
 /// a manifest, a download or a pack that is wrong; each answers with the reason, naming the file.
 /// </para>
 /// </remarks>
-internal static class ScenePacks
+public static class ScenePacks
 {
     private static readonly HttpClient Http = new();
 
@@ -83,6 +46,7 @@ internal static class ScenePacks
     /// on macOS and the local application data on Windows (<see cref="UserCache"/>). Set to
     /// <see langword="null"/> to go back to the default.
     /// </remarks>
+    [AllowNull]
     public static string Folder
     {
         get => _folder
@@ -162,20 +126,34 @@ internal static class ScenePacks
 
     /// <summary>
     /// Fetches a pack, telling how far it has come, and unpacks it into <see cref="FolderOf"/> where
-    /// its size and SHA-256 are the manifest's.
+    /// its size and SHA-256 are the manifest's, or answers at once where it is fetched already.
     /// </summary>
+    /// <remarks>
+    /// The work runs on the thread pool, so a frame loop draws on while it runs. Nothing is thrown for a download, a pack or a folder that is wrong, a
+    /// network that is down or a disk that is full; each is answered with the sentence saying why. A
+    /// fetch that fails or is stopped leaves the folder fetched before, if any, and nothing new.
+    /// </remarks>
     /// <param name="pack">The manifest.</param>
-    /// <param name="progress">Told the fraction fetched, from nothing to one, as the bytes come.</param>
+    /// <param name="progress">Told the stage and its bytes as they move, from the thread the work runs on.</param>
     /// <param name="cancel">Stops the fetch, which is then answered as stopped.</param>
-    /// <returns>Nothing where the pack was fetched, checked and unpacked, or why it was not.</returns>
-    public static async Task<string?> FetchAsync(ScenePack pack, IProgress<double>? progress = null, CancellationToken cancel = default)
+    /// <returns>Nothing where the pack is fetched, checked and unpacked, or why it is not.</returns>
+    public static Task<string?> FetchAsync(ScenePack pack, IProgress<ScenePackProgress>? progress = null, CancellationToken cancel = default) =>
+        Task.Run(() => Fetch(pack, progress, cancel), CancellationToken.None);
+
+    private static async Task<string?> Fetch(ScenePack pack, IProgress<ScenePackProgress>? progress, CancellationToken cancel)
     {
+        if (IsFetched(pack))
+        {
+            progress?.Report(new ScenePackProgress(ScenePackStage.Done, pack.Size, pack.Size));
+            return null;
+        }
         var folder = FolderOf(pack);
         var part = folder + ".pack.part";
         var unpacking = folder + ".unpacking";
         try
         {
             Directory.CreateDirectory(Folder);
+            progress?.Report(new ScenePackProgress(ScenePackStage.Downloading, 0, pack.Size));
             long fetched = 0;
             string hash;
             await using (var into = File.Create(part))
@@ -189,21 +167,24 @@ internal static class ScenePacks
                     hasher.AppendData(buffer, 0, read);
                     await into.WriteAsync(buffer.AsMemory(0, read), cancel).ConfigureAwait(false);
                     fetched += read;
-                    progress?.Report(Math.Min(1.0, (double)fetched / pack.Size));
+                    progress?.Report(new ScenePackProgress(ScenePackStage.Downloading, fetched, pack.Size));
                 }
+                progress?.Report(new ScenePackProgress(ScenePackStage.Checking, fetched, pack.Size));
                 hash = Convert.ToHexStringLower(hasher.GetHashAndReset());
             }
             if (fetched != pack.Size || !hash.Equals(pack.Sha256, StringComparison.OrdinalIgnoreCase))
                 return $"What {pack.Url} gave is not the pack {pack.Title}'s manifest names, {fetched} bytes with SHA-256 {hash} where {pack.Size} with {pack.Sha256.ToLowerInvariant()} were expected.";
 
             if (Directory.Exists(unpacking)) Directory.Delete(unpacking, recursive: true);
-            if (Unpack(part, unpacking) is { } problem) return problem;
+            var unpacked = progress is null ? null : new Action<long, long>((done, total) => progress.Report(new ScenePackProgress(ScenePackStage.Unpacking, done, total)));
+            if (Unpack(part, unpacking, unpacked, cancel) is { } problem) return problem;
             if (!File.Exists(Path.Combine(unpacking, pack.Model)))
                 return $"{pack.Url} holds no {pack.Model}, the model its manifest names.";
+            cancel.ThrowIfCancellationRequested();
             File.WriteAllText(Path.Combine(unpacking, Stamp), hash + "\n");
             if (Directory.Exists(folder)) Directory.Delete(folder, recursive: true);
             Directory.Move(unpacking, folder);
-            progress?.Report(1.0);
+            progress?.Report(new ScenePackProgress(ScenePackStage.Done, pack.Size, pack.Size));
             return null;
         }
         catch (Exception error) when (error is HttpRequestException or IOException or UnauthorizedAccessException or OperationCanceledException or UriFormatException)
@@ -234,7 +215,11 @@ internal static class ScenePacks
     /// A path that is rooted or climbs out of the folder is refused, so a pack can write nowhere but
     /// under the folder it is unpacked into.
     /// </remarks>
-    internal static string? Unpack(string pack, string folder)
+    /// <param name="pack">The pack's file.</param>
+    /// <param name="folder">The folder its files are written into.</param>
+    /// <param name="unpacked">Told the bytes of the files written and of them all, as they are written.</param>
+    /// <param name="cancel">Stops the writing between two of its chunks.</param>
+    internal static string? Unpack(string pack, string folder, Action<long, long>? unpacked = null, CancellationToken cancel = default)
     {
         using var file = File.OpenRead(pack);
         var head = new byte[16];
@@ -260,29 +245,32 @@ internal static class ScenePacks
         }
 
         var root = Path.GetFullPath(folder) + Path.DirectorySeparatorChar;
-        foreach (var (name, offset, length) in entries)
+        foreach (var (name, _, _) in entries)
         {
             var target = Path.GetFullPath(Path.Combine(root, name));
             if (Path.IsPathRooted(name) || !target.StartsWith(root, StringComparison.Ordinal))
                 return $"{pack} names a file {name} outside the folder it is unpacked into.";
+        }
+        var (written, total) = (0L, entries.Sum(e => e.Length));
+        unpacked?.Invoke(0, total);
+        var buffer = new byte[1 << 20];
+        foreach (var (name, offset, length) in entries)
+        {
+            var target = Path.GetFullPath(Path.Combine(root, name));
             Directory.CreateDirectory(Path.GetDirectoryName(target)!);
             using var into = File.Create(target);
             file.Position = offset;
-            CopyBytes(file, into, length);
+            for (var left = length; left > 0;)
+            {
+                cancel.ThrowIfCancellationRequested();
+                var read = file.Read(buffer, 0, (int)Math.Min(buffer.Length, left));
+                if (read == 0) throw new EndOfStreamException();
+                into.Write(buffer, 0, read);
+                (left, written) = (left - read, written + read);
+                unpacked?.Invoke(written, total);
+            }
         }
         return null;
-    }
-
-    private static void CopyBytes(Stream from, Stream into, long length)
-    {
-        var buffer = new byte[1 << 20];
-        while (length > 0)
-        {
-            var read = from.Read(buffer, 0, (int)Math.Min(buffer.Length, length));
-            if (read == 0) throw new EndOfStreamException();
-            into.Write(buffer, 0, read);
-            length -= read;
-        }
     }
 
     private static void Remove(string file)

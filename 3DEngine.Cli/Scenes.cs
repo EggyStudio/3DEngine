@@ -63,12 +63,13 @@ internal static class Scenes
 
         if (!ScenePacks.IsFetched(pack))
         {
-            // Told in whole percents, each once, which is a line a second or so at a home's speed.
+            // Told in whole percents of the download, each once, which is a line a second or so at
+            // a home's speed.
             var said = -1;
-            var progress = new Progress<double>(fraction =>
+            var progress = new Progress<ScenePackProgress>(step =>
             {
-                var percent = (int)(fraction * 100);
-                if (percent == said || options.Quiet) return;
+                var percent = (int)(step.Fraction * 100);
+                if (step.Stage != ScenePackStage.Downloading || percent == said || options.Quiet) return;
                 said = percent;
                 Console.Error.Write($"\rfetching {pack.Title}, {percent}%");
             });
