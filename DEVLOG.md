@@ -27,6 +27,17 @@ wall the room's surfaces read 1.01 of the reference's light aimed at the middle 
 and its own wall 0.92 and 1.08, the light the probes bring the wall from the room 0.90 and 1.05 of
 the reference's bounce, and by the open lamps 1.03 either way.
 
+![](.github/assets/readings/2026-11-16-item-285-ledge.webp)
+A lamp block's direct light and one bounce at High in a closed room of stone blocks, the lamp flush
+in the east wall, on the floor and hung in the air, before and after a ray the screen's march meets
+past a stretch it spent behind the depth goes to the field, each row at one exposure, against a
+reference path traced at two bounces, with each frame's luminance less the reference's four times
+over and the after's less the before's sixteen times over, red lighter and blue darker, the lamp and
+4 pixels around it gray and left out of the shares; by the lamp in the wall the room's surfaces read
+1.054 of the reference's light before and 1.060 after and its own wall 1.082 and 1.120, brighter
+about the lamp and up the wall, and by the open lamps 1.03 before and after, their walls a little
+darker.
+
 ## 2026-11-15
 
 ![](.github/assets/readings/2026-11-15-item-277-fetch-after.webp)

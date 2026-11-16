@@ -355,6 +355,59 @@ public sealed partial class GlobalIlluminationTests
         foreach (var (mesh, _, _) in meshes) UnloadMesh(mesh);
     }
 
+    [NeedsRayQueryFact]
+    [Trait("Category", "Render")]
+    public void The_Screen_Probes_On_A_Lamps_Wall_Above_A_Ledge_Bring_The_Light_Along_Their_Rays_As_The_Reference_Does()
+    {
+        // The screen's probes on the east wall above the ledge, a lamp set flush in the wall, their
+        // rays against the reference along the same ways, the light past the first bounce left out.
+        // A ray that goes into the ledge through its top, which the eye sees edge on, meets the top
+        // by the lamp and not the floor past the ledge in its shadow. The window is 480 by 270, so the
+        // wall holds the screen's probes in rows and the depth holds the ledge's top a few texels
+        // high.
+        var config = Config.Default.WithWindow("gi test", 480, 270) with { Headless = true, Offscreen = true, Samples = 1 };
+        UseApp(new App(config).AddPlugin(new DefaultPlugins()));
+        SetSceneField(4, 0.25f, 2);
+        SetSceneFieldCenter(new Vector3(0, 1.5f, 0));
+        SetGlobalIllumination(GlobalIllumination.High);
+        SetAmbientLight(Color.Black, 0);
+        var settings = GetApp().World.Resource<GlobalIlluminationSettings>();
+        settings.AgainOff = true;
+        var (lamps, _) = Placed("flush in the east wall");
+        var blocks = RoomBlocks();
+        foreach (var lamp in lamps) blocks.Remove(lamp);
+        var walls = Section(blocks, []);
+        var meshes = lamps.SelectMany(lamp => LampMeshes(lamp, Handed.Cube, blocks, Color.White)).ToList();
+        DrawRoom(walls, meshes, 0, SceneFieldPlan.SettleFrames + 20);
+        var screen = GetApp().World.Resource<Engine.Renderer>().RenderWorld.TryGet<GlobalIlluminationRenderer>()!.Screen!;
+        var camera = new Camera3D(new Vector3(-2.5f, 2, -2.5f), new Vector3(1, 0.8f, 1), Vector3.UnitY, 70);
+        var (down, downReference, up, upReference, probes) = (0f, 0f, 0f, 0f, 0);
+        foreach (var y in new[] { 1.3f, 1.7f, 2.3f, 2.7f })
+            foreach (var z in new[] { -2.5f, -1.5f, -0.5f, 1.5f, 2.5f })
+            {
+                var at = GetWorldToScreen(new Vector3(3, y, z), camera);
+                if (at.X < 0 || at.Y < 0 || at.X >= GetScreenWidth() || at.Y >= GetScreenHeight())
+                    continue;
+                settings.LoggedScreenProbe = (int)at.Y / screen.Tile * screen.Across + (int)at.X / screen.Tile;
+                DrawRoom(walls, meshes, 0, 2);
+                var probe = BounceReference.MeasureScreenProbe(GetApp().World, screen, 256, 1, out var why);
+                probe.Should().NotBeNull(why);
+                if (probe!.Normal.X > -0.9f)
+                    continue;
+                probes++;
+                foreach (var ray in probe.Rays)
+                    if (ray.Way.Y < 0)
+                        (down, downReference) = (down + ray.Light.X * ray.Share, downReference + ray.Reference.X * ray.Share);
+                    else
+                        (up, upReference) = (up + ray.Light.X * ray.Share, upReference + ray.Reference.X * ray.Share);
+            }
+        probes.Should().BeGreaterThanOrEqualTo(6, "the wall above the ledge holds as many of the screen's probes");
+        output.WriteLine($"the {probes} probes on the east wall bring {down / downReference:0.000} of the reference's light along their rays going down and {up / upReference:0.000} along those going up");
+        (down / downReference).Should().BeInRange(0.85f, 1.1f, $"the {probes} probes on the east wall bring {down:0.0000} along their rays toward the ledge and the floor where the reference brings {downReference:0.0000}");
+        UnloadMesh(walls);
+        foreach (var (mesh, _, _) in meshes) UnloadMesh(mesh);
+    }
+
     [NeedsRayQueryTheory]
     [Trait("Category", "Render")]
     [InlineData("flush in the east wall")]

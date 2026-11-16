@@ -217,8 +217,20 @@ public bool traceScreen<P : IPicture>(P depth, ScreenCamera camera, float3 p, fl
                 // ray of a probe on a back wall past a thin wall's end, the lamp beyond the thin
                 // wall, would meet the face the eye sees, lit, where the face toward the probe is
                 // dark.
+                // A surface met past a stretch the ray spent behind the depth may lie past a thing it
+                // met there whose face toward it the depth holds in a sliver or not at all, as a
+                // ledge's top seen edge on, the steps inside the ledge falling on its front, which
+                // the ray leaves from behind. Taken as met, the rays of a probe on the wall above the
+                // ledge would take the floor past it, in the ledge's shadow, for the lit top. The
+                // field finds what such a ray met, from the last point it stood in front of the depth.
                 if (!leaps && dot(pictureNormal(depth, camera, at.xy, hit), way) < 0.0)
-                    return true;
+                {
+                    if (behindFrom < 0.0)
+                        return true;
+                    left = behindFrom;
+                    hit = p;
+                    return false;
+                }
             }
             if (behindFrom < 0.0)
                 behindFrom = before;
