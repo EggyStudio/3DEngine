@@ -2023,3 +2023,39 @@ and seen in the game's log. The engine lacks an order in which a computed state 
 entered at the transition point that activates it, or its `InState` systems wait for the enter.
 The game starts its vitals' reckoning again in its mode's setter meanwhile, which is the game's
 own place for it, and has no system that needs the enter.
+
+### 2026-11-16, the voxel game in `Voxel-Sandbox`, the scene field and the ray scene take 4 to 46 ms of the CPU in a frame that brings new meshes, and the field 21 to 26 ms at the eye's steps with nothing new
+
+Read on the 3DEngine 6.2.86 package with the game at `24d5b8e` and a probe beside it, Release,
+offscreen at 1280 by 720 with the frame unlimited, on the RTX 4070 Laptop GPU on tuned's
+power-saving profile, three runs under the exclusive lock with the GPU at 0% before each. The game
+ran with a fresh data folder's settings, global illumination at High and the field at 4 cascades of
+0.25 with a budget of 2, the far cascade reaching 192 blocks and set half a cascade ahead
+(`LightSettings.cs:89-90`). A spectator flies east at 110 over seed 1's overworld from
+(4400.5, 110, 600.5) for 900 frames at the render distance of 12, the sun's shadows reaching 128,
+and `profile.slowest` is read every twenty frames beside the game's own record of each frame.
+
+The flights' frames have medians of 10.8 to 11.2 ms, and 41 to 44 of about 1,000 pass twice that,
+at 30 ms at their median and 65 to 79 at the worst. In the 39 of those the samples caught,
+`render.fence` reads 0 and the GPU's stages stay as in any frame (`gpu.global_illumination` 4.5 to
+5.9 ms, `gpu.hdr_scene` 3.5 to 4.5), so the frames are held on the processor.
+
+- In the 26 where 9 to 31 new meshes came in, as 5 to 8 columns joined, `render.graph` takes 14 to
+  64 ms, 26 at the median, of it `cpu.scene_field` 4 to 23 (13 at the median) and
+  `cpu.global_illumination` 4 to 46 (10 at the median), with `prepare.GpuMeshesPrepare` 1.5 to 11
+  and `gc.pause` up to 8.4. The game's own update in those frames takes 3 to 19 ms.
+- In 10 of the 13 where no column joined and no mesh came in, `cpu.scene_field` alone takes 21 to
+  26 ms and the frame 26.6 to 33. The game's record places 7 such frames a run at the frame the eye
+  enters the next section, every 1.47 s, and most of the others 53 to 62 frames from one, about
+  halfway between.
+
+With the game taking in two made columns a frame at `7e46c3e`, read the same way, the frames
+past twice the median fall to 23 to 26 a run. Its 13 sampled frames with columns joined take in 3
+to 6 meshes, with `cpu.scene_field` at 1.1 to 10.3 ms and `cpu.global_illumination` up to 36. Its
+18 sampled frames with nothing new read `cpu.scene_field` alone at 20.5 ms at the median.
+
+A frame's averages over the flights read `cpu.scene_field` at 1.0 to 1.4 ms and
+`cpu.global_illumination` at 1.6 to 1.8. The engine lacks a field and a ray scene whose work on the
+processor for the meshes a frame brings, and the field's for the eye's step into the next section,
+is held to a share of the frame and spread over the frames after, so a flight over land that is
+streaming in shows no frame of three times the median at each batch of columns and each step.

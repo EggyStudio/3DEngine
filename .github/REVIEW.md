@@ -1,7 +1,8 @@
 # Review
 
-Reviewed up to `4f205366`, item 284, a hit's march to a glow light aimed at the emitting face it
-faces most squarely, pushed at 13:35 on 2026-11-16, its build run 43867967041 started, the form kept. Before it `7d287a24`, the macOS suite dealt to two runners, pushed at 11:51 on 2026-11-16, its
+Reviewed up to `6309f746`, item 285, a ray the screen's march meets past a stretch behind the depth
+handed to the field, pushed at 15:23 on 2026-11-16, its build run 43885232882 green at 17:09, the form kept. Before it `4f205366`, item 284, a hit's march to a glow light aimed at the emitting face it
+faces most squarely, pushed at 13:35 on 2026-11-16, its build run 43867967041 green at 15:23, the form kept. Before it `7d287a24`, the macOS suite dealt to two runners, pushed at 11:51 on 2026-11-16, its
 build run 43852572511 green at 13:35, the macOS halves through in 41 and 28 minutes, the form kept. Before it `07457e05`, Verdict 127's mend, a compile's folder in the user's own cache whatever
 folder a test set, with `023aa15d`, item 274, a program's own shader looked up once a draw, and
 `f0d4e8df`, twelve pictures kept among the readings, pushed together at 09:49 on 2026-11-16, their
@@ -354,29 +355,18 @@ reverted as the screen probes' limit at shapes about a tile wide, its patches in
     a finding that does not hold says why. The three high ones after part 8's commit, beside the
     binds' session; the medium ones after 272 and ahead of 265, the low ones after 265.
 
-284. **A flush lamp's own wall reads a quarter below the reference.** Item 273's sheet against the
-    traced reference at two bounces shows the wall a lamp is set flush in at 0.75 of the reference's
-    light where the room as a whole reads 0.97, the blue band around the lamp. Find which part falls
-    short, by the reference split into its direct light and its one bounce over that wall and the
-    frame's split the same way (the open face's light at a grazing angle onto its own wall, the
-    light returned from the room onto it, or the near field's first texels beside the lamp). A Reply
-    first with the two splits as a table and the cause named with its place in the code, then the
-    mend with a test that holds the wall's share within a bound of the reference, the floor lamp's
-    and the hung lamp's shares unchanged, and the sheet made again.
-
-285. **A screen probe's rays onto the floor past the ledge bring three tenths of the reference.**
-    Item 284's Reply reads the flush lamp's wall's screen probes ray by ray against the reference
-    along the same ways, their hits on the floor past the ledge at 0.29 after the mend where the
-    ceiling reads 1.08 and the walls 0.92 and 1.04, and names the screen's march passing the ledge's
-    edge. Find where those rays lose their light, by the rays that end on that floor set beside the
-    reference's along the same ways (the march stepping over the ledge's edge and ending past its
-    true hit, a hit found behind the ledge and thrown away by its thickness, the hit's light read
-    from a pixel the ledge hides, or the handing over to the world's field at a miss). A Reply first
-    with a table of those rays by where each ends and what it brings, and the cause named with its
-    place in the code, then the mend with a test that holds the floor's share within a bound of the
-    reference where a device traces rays, the ceiling's and the walls' shares unchanged, the cost
-    read on the game's flight as item 284's was, and a sheet of the room before and after against
-    the reference.
+286. **The gather of the screen probes' rays onto a wall reads a tenth over the reference.** Item
+    285's Reply has the flush lamp's wall at 1.120 of the reference once its probes' rays are right,
+    1.092 of the bounce, and the wall probes' rays going up at 1.140 of their own reference before
+    and after the mend, where all 592 rays together read 0.996. Find where the tenth comes in, by
+    the wall's light taken apart (the rays going up against the reference along their ways by where
+    each ends, the ceiling's hits at 1.14 on the screen among them; the weights a pixel gives the
+    probes about it and whether they sum to one; the cosine and the solid angle a ray stands for at
+    the probe's octahedral texels; the reflection's part, which the reference traced without gloss
+    holds none of, set apart or the reference given the same gloss). A Reply first with the parts as
+    a table and the cause named with its place in the code, then the mend with the bounds of the
+    tests of items 284 and 285 drawn closer about one where the readings allow, the three rooms'
+    shares, the cost read on the game's flight and the sheet made again.
 
 ## Verdicts
 
@@ -1018,189 +1008,107 @@ named and the second the eighteen others, Rendering's two among them. BUILDING.m
 jobs run the suite. The scripts', the steps', the validation lines', the package's contents and the
 norm tests pass 72 on the workflow as changed.
 
-Item 284, a flush lamp's own wall.
+Item 286, the gather onto the flush lamp's wall.
 
-The splits. The room of item 273's sheet with its lamp set flush in the east wall, at High with the
-light past the first bounce off and no ambient light, at 480 by 270 on the RTX 4070, the reference
-traced at 4,096 paths a pixel at one bounce, its direct light, and at two, its bounce the second
-less the first, and the frame by the model pass's terms (`GlobalIlluminationSettings.Term`), the
-glow lights' straight to the pixel and the probes'. The east wall, its faces toward -x, by its mean
-light.
+The parts. The flush lamp's room as item 285 left it, at 480 by 270 at High on the RTX 4070, the
+light past the first bounce off, the lamp and 4 pixels around it out, its faces toward -x split by
+the block each pixel's ray from the eye meets.
 
-| The east wall | Reference, direct | Reference, bounce | Frame, glow lights | Frame, probes | Frame over reference |
-|---|---|---|---|---|---|
-| Every pixel | 0.00133 | 0.00643 | 0 | 0.00563 | 0.749 |
-| 4 pixels from the lamp and past | 0.00004 | 0.00607 | 0 | 0.00543 | 0.919 |
-| The same, the march aimed | 0.00004 | 0.00607 | 0 | 0.00639 | 1.081 |
+| Faces toward -x | Pixels | Probes over the bounce | All over the reference |
+|---|---|---|---|
+| The wall above the ledge | 18,286 | 1.014 | 1.044 |
+| The ledge's front | 10,337 | 1.407 | 1.412 |
+| Both, the region item 285 read | 28,624 | 1.092 | 1.119 |
 
-The quarter the sheet showed is two parts. The reference's paths spread over each pixel, so the 359
-pixels within 4 of the lamp's take its own light, 0.104 each, read on the wall as direct light where
-the frame, at one point a pixel, takes none, which is the comparison's and not the light's. Past
-them the wall read 0.919, its direct light nothing in both, the lamp's face lying in the wall's
-plane, and the probes 0.895 of the reference's bounce. With the screen's probes off the world's
-alone brought it 1.015 of the bounce, and the filter and the faint lights taken as points made no
-difference. Thirty-seven of the screen's probes on the wall, read ray by ray against the reference
-along the same ways (`BounceReference.ScreenProbe`), brought 0.755 of it, their hits on the ceiling
-0.92, on the ledge's top 0.73, on the floor 0.23, on the south wall 0.53 and on the north wall 0.68,
-and the light from beyond their reach 1.04.
+The gather holds. The wall's 37 screen probes, each against the reference over its hemisphere, bring
+0.916 of it in a frame's rays, 0.966 kept and 0.964 blended, the reference along their own ways
+0.970, a pixel over its albedo by π times the blend reads 0.975 where the reference's reads 0.976,
+and the shares sum to π, so the wall's 0.03 past the bounce is the probes' reflection, which the
+reference traced without gloss holds none of. The tenth is the ledge's front. Its 54 probes bring
+1.426 in a frame's rays and 1.385 blended, the reference along their ways 1.006, and the 359 rays
+the screen meets on the floor before the ledge bring 4.72 times the reference along their ways. That
+floor lies in the ledge's shadow from the lamp. Over its first quarter block out, the next quarter
+and the next half the reference finds 0, 0 and 0.0005 of the lamp's direct light where the hits
+bring 0.018, 0.080 and 0.161, and from one block out to two they bring 2.65 times its light, the
+pixels there taking the lamp straight at 1.36 times as well.
 
-The cause. A hit takes a glow light by `glowLightSeen` (`glow.slang`), one march from a cell and a
-half off the surface toward the middle of the light's box, `middleAndReach.xyz`. A lamp set flush in
-a wall has that middle half a block inside the wall, so a hit that sees its face at a slant marches
-into the wall beside the face and takes none of its light, a point of the ceiling by the wall
-reaching the box through its buried top. `glowLightShown`, which a pixel takes, marches to the
-halves of the faces that emit, which is why the frame's direct light reads as the reference's.
+The cause. `glowLightSeen` (`glow.slang`), the one march a probe's hit takes to a lamp, set out a
+cell and a half off the surface, and from there the top of the lamp's open face shows over the
+ledge's edge where from the floor none of it does. Past that `glowMarch`'s cone is as wide as the
+lamp's box across the way, the box's depth behind its one open face among it, so the half shadow
+past the edge reaches into the full one.
 
-The mend. `glowLightAimed` aims the march at the middle of the emitting face the hit faces most
-squarely where not every face of the box emits, and at the box's middle otherwise, so a light whose
-six faces all emit marches as before. The wall then reads 1.081 of the reference past the lamp's 4
-pixels, its probes 1.053 of the bounce, and the room 1.055 where it read 1.010. Of the wall's 0.081
-over, the probes' bounce carries 0.053 and their reflection 0.035, which the reference, traced
-without gloss, holds none of, the glow lights' term 0.007 under. Of the room's 0.055 the probes
-carry 0.010, the glow lights 0.025 and the reflections 0.021, as the rooms of the floor lamp and the
-hung lamp read theirs, 1.02 to 1.06. The hung lamp's room reads the same to the last digit, its six
-faces all emitting, and the floor lamp's, its bottom closed, within 0.008 on every face. The wall's
-screen probes' rays bring 0.890 of the reference along them, their hits on the ceiling 1.08, on the
-south wall 0.92 and on the north wall 1.04. Those on the floor past the ledge stay at 0.29, the
-screen's march passing the ledge's edge, which is item 285, and its readings are kept.
+The mend. The march sets out half a cell off the surface, `glowMarch` given the same lift. At 480 by
+270 the wall above the ledge reads 0.998 of the bounce, the front 1.294 and the floor's hits 3.44
+times the reference. A cone as wide as the open face alone, read beside it, raised the wall to
+1.051. What stays over the front, the cone's half shadow past an edge on the lamp's side and the
+pixel's own light there, is the item to follow.
 
-The test.
-`GlobalIlluminationTests.The_Light_A_Lamp_Bounces_Onto_The_East_Wall_Is_The_References_Whether_The_Lamp_Is_Set_In_It_Or_Not`
-draws the room with the lamp flush in the east wall, on the floor and hung in the air at High with
-the light past the first bounce off, traces the reference at one bounce and at two, draws the
-probes' term alone, and holds their light on the east wall between 0.95 and 1.15 of the reference's
-bounce, writing each share to the test's output. On the RTX it reads 1.039, 1.073 and 1.056, and
-with the box's middle 0.899 in the flush room, so it fails there, and 1.072 and 1.056 in the others.
-It skips on both lavapipes, which trace no rays from a shader, as the tests of the reference do, so
-no device that draws on its CPU reads the room unmended inside the bound. `GlobalIlluminationTests`
-takes the test's output through its constructor.
+The march's own surface. The rooms where a march set out half a cell off would meet its own surface
+in the field, drawn whole at 480 by 270 at High with no ambient light, the lift at a cell and a half
+against half a cell, compared by luminance in levels of 255, the share of pixels darker after.
 
-The cost. The game's flight east at 110 over seed 1's land on 6.2.60 with the engine laid over it,
-as item 280's reads were, at 1280 by 720 unlimited, the head's `glow.slang` against the aimed one,
-two sittings each read in turn and back, A B B A and B A A B, every read its own exclusive turn of
-the lock. The means of their three samples, before then after, in ms, the frame at Low 8.695 and
-8.509, 8.787 and 8.826, at High 12.707 and 12.785, 12.948 and 12.970; `gpu.global_illumination` at
-Low 1.840 and 1.816, 1.832 and 1.831, at High 5.409 and 5.421, 5.396 and 5.413; `gpu.hdr_scene` at
-Low 4.781 and 4.775, 4.773 and 4.800, at High 4.519 and 4.528, 4.527 and 4.550. The passes move by
-0.03 ms at most, within the sittings' own spread, so the aim costs nothing read.
-
-The sheet. Made again with the march aimed, `2026-11-16-item-284-aim.webp`, the three rooms at the
-box's middle and at the open face against the reference at two bounces, the lamp and its 4 pixels
-gray and out of the shares, as the note under its title says, the flush room 1.01 and 1.05 and its
-wall 0.92 and 1.08, the open lamps' 1.03 either way. Item 273's sheet is drawn again with the same
-margin and its caption says before and after, the flush room 1.35 and 1.01 and its wall 1.82 and
-0.92, and the far room's caption of 2026-11-12 says after.
-
-The runs. The strict build is clean, the focused tests, the glow lights', the new test's, the
-probes' hits', the shader compiler's, the scripts', the validation lines', the package's contents
-and the norm and surface tests, pass 146, and the glow tests with the lamps', the probes' hits' and
-the screen probes' pass 67 with 5 skipped on lavapipe 26.2.4 and on lavapipe 25.2.8, the new test
-among those skipped, and 76 on the RTX. Both legs of the suite pass, 2,504, in 29 m 22 s and 28 m 15
-s at 2,903 and 2,918 MB at most, the second shuffled by the seed 20261023. On Windows the new test
-joins global illumination's class, whose four processes deal its methods as before, and no class
-moves.
-
-Item 285, a screen probe's rays onto the floor past the ledge.
-
-The rays. The flush lamp's room of item 284 at the head, at 480 by 270 on the RTX 4070, 37 of the
-screen's probes on the east wall, 592 rays, each set beside the reference along its own way
-(`BounceReference.ScreenProbe`), and where each truly first meets a block found by walking the ray
-through the room's own blocks. By where each ended and what it truly meets, with what it brings over
-the reference along it and its share of all the reference's light.
-
-| Ended | Truly meets | Rays | Brings | Share |
+| Room | Darker by 1 or more | By 2 or more | By 4 or more | Most |
 |---|---|---|---|---|
-| In the field, on the ceiling | the ceiling | 102 | 1.03 | 0.190 |
-| In the field, on the ledge's top | the ledge's top | 53 | 0.86 | 0.163 |
-| On the screen, on the ceiling | the ceiling | 77 | 1.14 | 0.151 |
-| On the screen, on the floor | the ledge's top, past it | 10 | 0.10 | 0.128 |
-| In the field, on the south wall | the south wall | 92 | 0.91 | 0.086 |
-| Beyond their reach | the west wall | 49 | 0.84 | 0.078 |
-| On the screen, on the ledge's top | the ledge's top | 53 | 0.59 | 0.051 |
-| On the screen, on the north wall | the north wall | 29 | 1.04 | 0.045 |
-| On the screen, on the floor | the floor | 16 | 2.30 | 0.009 |
+| The flush lamp's | 0.301 | 0.0083 | 0 | -3 |
+| The same shifted half a cell, its walls off the field's cells | 0.330 | 0.0122 | 0 | -3 |
+| The same at 1,140,736 and 285,696 | 0.301 | 0.0083 | 0 | -3 |
+| The hung lamp's | 0.0099 | 0 | 0 | -1 |
 
-All of them bring 0.890. The floor's 0.29 is mostly ten rays that never meet the floor. They meet
-the ledge's top by the lamp, its brightest stretch, a quarter of the way out, and end on the floor
-past the ledge in its shadow, bringing a tenth of their light, while the sixteen that truly meet the
-floor are dim and read high.
+The game's flight's first frame at Low and High, captured in every read of the cost below, two of
+each build a sitting, compared the same way, pairs of one build giving the frames' own spread.
 
-The cause. `traceScreen` (`screenmarch.slang`) marches a ray in twelve steps over the window's
-depth. The eye sees the ledge's top some 10 degrees above its plane, so the depth holds it a sliver
-high, and a ray from the wall that enters the ledge through its top steps next to points inside the
-ledge that fall on the pixels of its front face, which the ray leaves from behind. The face's test
-takes such a step for a ray passing behind a thing in front, as for a thin wall's end, and the march
-goes on to the floor past the ledge and returns it as met. It is not the depth's thickness. Measured
-across the surface along its normal in place of along the eye's ray, the rays ending past the
-ledge's top rose from ten to 21, more steps taken as met on the screen.
+| The flight's first frame, darker by 4 or more | Pairs of one build | Pairs across the builds |
+|---|---|---|
+| Low | 0 to 0.0016 | 0.0002 to 0.0011 |
+| High | 0.0004 to 0.0026 | 0.0001 to 0.0028 |
 
-The mend. A surface the march meets past a stretch the ray spent behind the depth hands the ray to
-the field from the last point where it stood in front of the depth, as a ray that went off the
-picture after passing behind it already is, so the field finds what the ray met behind the thing.
-Both of the march's callers, the screen's probes and the model pass's traced reflection, trace the
-field from there. The rays ending past the ledge's top fall from ten to four, at 0.32, the field
-meets the ledge's top for 67 rays at 0.90, the ceiling's, the walls' and the light from beyond their
-reach stay within 0.01, and all the rays bring 0.996.
+No hit shadows itself. The flush rooms darken by a level over a third of the picture, the ledge and
+the wall about the lamp toward the reference, by more than 3 nowhere, and the flight's frames differ
+across the builds as much as within one, so the half cell is kept.
 
-The rays behind a thin thing. The room of the hung lamp with a post 0.25 wide and 2.9 high before
-the north wall between the eye and the lit wall, the 34 screen probes on the floor about the post's
-foot, 544 rays, the same frames drawn before and after so the rays pair one to one. The mend hands
-33 of them to the field, 29 that pass behind the post and meet the room beyond it, which brought
-1.18 of the reference along their ways on the screen and bring 0.95 through the field, 4 that truly
-meet the post, 1.04 and 1.50, under a hundredth of the light, and one the screen met nowhere, beyond
-its reach, from nothing to 0.94. All the rays bring 1.070 before and 1.066 after. So the field's
-coarser hit loses no light there and leaks none past what the screen's did, and the handing over is
-left unbounded.
+The bounds. Item 284's test draws the ledge as a mesh of its own, so the reference names its front
+apart from the wall above it, and holds each, read at the test's 160 by 96 on the RTX.
 
-The gather. With the wall's rays right, the probes bring the wall 1.092 of the reference's bounce in
-the picture, where the rays' shortfall held it at 1.053, so gathering the screen's probes' rays onto
-the wall reads some 9% over, which is item 286. Item 284's test reads its three rooms at 1.037 with
-the lamp flush in the wall, 1.037 on the floor and 1.034 hung in the air, all within 0.95 to 1.15,
-where they read 1.039, 1.073 and 1.056 before.
+| Reading | Bound | Glow lights before item 284 | Head | Mended |
+|---|---|---|---|---|
+| Flush lamp, the wall above the ledge | 0.9 to 1.15 | 0.821 | 0.956 | 0.936 |
+| Flush lamp, the ledge's front | 0.95 to 1.25 | 1.134 | 1.295 | 1.214 |
+| Floor lamp, the wall and the front | the same | 1.113 and 1.073 | 1.112 and 1.073 | 1.097 and 1.071 |
+| Hung lamp, the wall and the front | the same | 1.103 and 1.006 | 1.103 and 1.006 | 1.099 and 1.006 |
+| Item 285's rays going down | 0.85 to 1 | 0.780 | 0.901 | 0.891 |
+| Item 285's rays going up, written | none | 0.957 | 1.140 | 1.125 |
 
-The test.
-`GlobalIlluminationTests.The_Screen_Probes_On_A_Lamps_Wall_Above_A_Ledge_Bring_The_Light_Along_Their_Rays_As_The_Reference_Does`
-draws the flush lamp's room at 480 by 270 at High, the light past the first bounce off, takes the
-screen's probes on the east wall at twenty points above the ledge, measures each against the
-reference along its ways at 256 paths a way, and holds the light their rays going down bring, toward
-the ledge and the floor, between 0.85 and 1.1 of the reference's, writing that share and the one of
-their rays going up. On the RTX it reads 0.901 going down and 1.140 going up, and at the head 0.807
-going down, so it fails there, and 1.140 going up, the rays going up the same. It skips on both
-lavapipes, which trace no rays from a shader.
+The wall, held with the front from 0.95 to 1.15, is held alone from 0.9, since at the test's window
+it reads 0.936 with the front's excess out of it, and fails before item 284. The front's bound is
+wide enough for the 1.21 that stays over it, the item to follow's, and fails at the head, so the
+test fails without the mend. Item 285's rays going down are held to 1 from 1.1.
 
-The cost. The game's flight as item 284's was read, the head's `screenmarch.slang` against the
-mended one, three sittings in turn and back, A B B A, B A A B and A B B A, every read its own
-exclusive turn of the lock, the means of their three samples, before and after, in ms.
+The cost. The game's flight as item 285's was read, item 285's `glow.slang` against the mended one,
+three sittings in turn and back, A B B A, B A A B and A B B A, every read its own exclusive turn of
+the lock, the means of their three samples, before and after, in ms.
 
 | Sitting | Illumination, Low | Illumination, High | Scene, Low | Scene, High | Frame, Low | Frame, High |
 |---|---|---|---|---|---|---|
-| First | 1.794 and 1.833 | 5.398 and 5.400 | 4.786 and 4.763 | 4.517 and 4.477 | 8.533 and 8.542 | 12.597 and 12.691 |
-| Second | 1.773 and 1.831 | 5.383 and 5.374 | 4.747 and 4.784 | 4.481 and 4.513 | 8.402 and 8.663 | 12.144 and 12.763 |
-| Third | 1.815 and 1.827 | 5.385 and 5.380 | 4.758 and 4.729 | 4.496 and 4.485 | 8.740 and 8.735 | 12.835 and 13.102 |
+| First | 1.823 and 1.788 | 5.396 and 5.399 | 4.770 and 4.759 | 4.521 and 4.474 | 8.662 and 8.451 | 13.077 and 12.401 |
+| Second | 1.816 and 1.806 | 5.423 and 5.399 | 4.795 and 4.803 | 4.551 and 4.524 | 8.697 and 8.663 | 12.852 and 12.854 |
+| Third | 1.810 and 1.797 | 5.422 and 5.398 | 4.782 and 4.769 | 4.546 and 4.530 | 8.705 and 8.741 | 12.856 and 12.890 |
 
-The illumination's pass at Low rises in all three, by 0.04 ms in their mean, which is the mend's
-cost, small as it is, and at High it is unchanged, the scene pass unchanged at both. The frame at
-High reads 0.09, 0.62 and 0.27 ms more, all of it in the flight's third stretch, where the frame
-runs past the GPU's whole, 14 to 15 ms against 12.2 to 12.5, so the processor bounds it there, the
-GPU's passes summed moving by 0.03, 0.28 and 0.01 ms and the processor's by 0.21, 0.66 and 0.53. The
-game's own counters in that stretch differ between reads, the sections meshed 17.5 against 9.0, the
-sky's draw 4.4 ms against 7.0 and the end of the draw 13.6 against 22.4, and the change lies in a
-shader alone, so the frame's rise there is read as the game's own work in a stretch the processor
-bounds and not as the mend's.
+The illumination's pass reads 0.01 to 0.035 ms less at Low and the same or 0.02 less at High, the
+scene pass within 0.05, so the half cell costs nothing read. The first sitting's frames, 0.21 and
+0.68 ms less, move with the processor's work, the GPU's two passes moving 0.05 at most.
 
-The sheet. `2026-11-16-item-285-ledge.webp`, the three rooms before and after against the reference
+The sheet. `2026-11-16-item-286-lift.webp`, the three rooms before and after against the reference
 at two bounces, each frame less the reference four times over and the after less the before sixteen
-times over, since the two differ little to the eye, the lamp and its 4 pixels gray and out of the
-shares. By the lamp in the wall the room reads 1.054 of the reference before and 1.060 after, and
-its own wall 1.082 and 1.120, the after brighter about the lamp and up the wall, the floor lamp's
-room 1.032 and 1.029 and the hung lamp's 1.034 and 1.032, their walls a little darker. The wall's
-1.120 and the rays going up at 1.140 are item 286's.
+times over, the lamp and its 4 pixels gray and out of the shares. By the lamp in the wall the room
+reads 1.060 of the reference before and 1.050 after and its own wall 1.120 and 1.083, the after
+darker over the ledge and about the lamp, the floor lamp's room 1.029 and 1.027 and the hung lamp's
+1.032 either way, their walls 1.036 and 1.031 either way.
 
-The runs. The strict build is clean, the focused tests, the glow lights', item 284's and this
-test's, the probes' hits', the screen probes', the rough reflections', the mirror's, the shader
-compiler's and the norm and surface tests, pass 111, and the glow tests with the lamps', the probes'
-hits', the screen probes', the rough reflections' and the mirror's pass 80 with 11 skipped on
-lavapipe 26.2.4 and on lavapipe 25.2.8, the tests of the device's rays among those skipped, and 96
-on the RTX. Both legs of the suite pass, 2,505, in 29 m 59 s and 27 m 46 s at 3,071 and 3,072 MB at
-most, the second shuffled by the seed 20261023. On Windows the new test joins global illumination's
-class, whose four processes deal its methods as before, and no class moves.
+The runs. The strict build is clean, the focused tests, the glow lights', items 284's and 285's, the
+probes' hits', the screen probes', the rough reflections', the mirror's, the shader compiler's and
+the norm and surface tests, pass 111, and the glow tests with the lamps', the probes' hits', the
+screen probes', the rough reflections' and the mirror's pass 80 with 11 skipped on lavapipe 26.2.4
+and on lavapipe 25.2.8, the tests of the device's rays among those skipped, and 96 on the RTX. Both
+legs of the suite pass, 2,505, in 28 m 49 s and 27 m 17 s at 2,975 and 2,978 MB at most, the second
+shuffled by the seed 20261023. No test is added, so no class moves on Windows.

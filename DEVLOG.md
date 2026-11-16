@@ -38,6 +38,17 @@ over and the after's less the before's sixteen times over, red lighter and blue 
 about the lamp and up the wall, and by the open lamps 1.03 before and after, their walls a little
 darker.
 
+![](.github/assets/readings/2026-11-16-item-286-lift.webp)
+A lamp block's direct light and one bounce at High in a closed room of stone blocks, the lamp flush
+in the east wall, on the floor and hung in the air, before and after a hit's march to the lamp sets
+out half a cell off its surface where it set out a cell and a half, each row at one exposure,
+against a reference path traced at two bounces, with each frame's luminance less the reference's
+four times over and the after's less the before's sixteen times over, red lighter and blue darker,
+the lamp and 4 pixels around it gray and left out of the shares; by the lamp in the wall the room's
+surfaces read 1.060 of the reference's light before and 1.050 after and its own wall 1.120 and
+1.083, darker over the ledge and about the lamp, and by the open lamps 1.03 before and after, their
+walls unchanged.
+
 ## 2026-11-15
 
 ![](.github/assets/readings/2026-11-15-item-277-fetch-after.webp)

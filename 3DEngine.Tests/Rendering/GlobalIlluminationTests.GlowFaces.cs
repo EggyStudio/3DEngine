@@ -68,9 +68,9 @@ public sealed partial class GlobalIlluminationTests
         SetGlobalIllumination(quality);
     }
 
-    // Draws a room's walls and its lamps for a number of frames, shifted by a part of a cell, the
-    // camera inside, and tells each frame's end.
-    private static void DrawRoom(ModelMesh walls, IReadOnlyList<(ModelMesh Mesh, Matrix4x4 At, Color Light)> lamps, float shift, int frames, Action? after = null)
+    // Draws a room's walls, a part of them drawn apart where given, and its lamps for a number of
+    // frames, shifted by a part of a cell, the camera inside, and tells each frame's end.
+    private static void DrawRoom(ModelMesh walls, IReadOnlyList<(ModelMesh Mesh, Matrix4x4 At, Color Light)> lamps, float shift, int frames, Action? after = null, ModelMesh? apart = null)
     {
         var stone = new ModelMaterial(new Color(180, 180, 180)) { Roughness = 1 };
         var glows = lamps.Select(lamp => new ModelMaterial(lamp.Light) { Emissive = lamp.Light, EmissiveIntensity = 4, Roughness = 1 }).ToArray();
@@ -82,6 +82,7 @@ public sealed partial class GlobalIlluminationTests
             ClearBackground(Color.Black);
             BeginMode3D(camera);
             DrawMesh(walls, stone, at);
+            if (apart is { } part) DrawMesh(part, stone, at);
             for (int i = 0; i < lamps.Count; i++) DrawMesh(lamps[i].Mesh, glows[i], lamps[i].At * at);
             EndMode3D();
             EndDrawing();
@@ -403,7 +404,7 @@ public sealed partial class GlobalIlluminationTests
             }
         probes.Should().BeGreaterThanOrEqualTo(6, "the wall above the ledge holds as many of the screen's probes");
         output.WriteLine($"the {probes} probes on the east wall bring {down / downReference:0.000} of the reference's light along their rays going down and {up / upReference:0.000} along those going up");
-        (down / downReference).Should().BeInRange(0.85f, 1.1f, $"the {probes} probes on the east wall bring {down:0.0000} along their rays toward the ledge and the floor where the reference brings {downReference:0.0000}");
+        (down / downReference).Should().BeInRange(0.85f, 1f, $"the {probes} probes on the east wall bring {down:0.0000} along their rays toward the ledge and the floor where the reference brings {downReference:0.0000}");
         UnloadMesh(walls);
         foreach (var (mesh, _, _) in meshes) UnloadMesh(mesh);
     }
@@ -426,31 +427,45 @@ public sealed partial class GlobalIlluminationTests
         var (lamps, _) = Placed(room);
         var blocks = RoomBlocks();
         foreach (var lamp in lamps) blocks.Remove(lamp);
-        var walls = Section(blocks, []);
+        // The ledge a mesh of its own beside the walls, so the reference names its front apart from
+        // the east wall above it.
+        var ledge = blocks.Where(block => block.X == 2 && block.Y == 0).ToHashSet();
+        var rest = blocks.Except(ledge).ToHashSet();
+        var (walls, front) = (Section(rest, [.. ledge]), Section(ledge, [.. rest]));
         var meshes = lamps.SelectMany(lamp => LampMeshes(lamp, Handed.Cube, blocks, Color.White)).ToList();
-        DrawRoom(walls, meshes, 0, SceneFieldPlan.SettleFrames + 20);
+        DrawRoom(walls, meshes, 0, SceneFieldPlan.SettleFrames + 20, apart: front);
         var (once, twice) = (Path.Combine(_folder.Path, "once.png"), Path.Combine(_folder.Path, "twice.png"));
         BounceReference.Trace(GetApp().World, once, 256, 1).Should().StartWith("traced");
         BounceReference.Trace(GetApp().World, twice, 256, 2).Should().StartWith("traced");
         settings.Term = 1;
-        DrawRoom(walls, meshes, 0, 3);
-        var (straight, probes) = EastWall(once);
-        var (both, _) = EastWall(twice);
-        var share = probes / (both - straight);
-        output.WriteLine($"a lamp {room}: the probes bring the east wall {probes:0.00000}, the reference's light bounced once {both - straight:0.00000}, {share:0.000} of it");
-        share.Should().BeInRange(0.95f, 1.15f,
-            $"the probes bring the east wall {probes:0.00000} with a lamp {room}, the reference's light bounced once {both - straight:0.00000}");
+        DrawRoom(walls, meshes, 0, 3, apart: front);
+        var wall = Bounced("6");
+        var ledgeFront = Bounced("1");
+        output.WriteLine($"a lamp {room}: the probes bring the east wall above the ledge {wall:0.000} of the reference's light bounced once and the ledge's front {ledgeFront:0.000}");
+        wall.Should().BeInRange(0.9f, 1.15f, $"the probes bring the east wall above the ledge {wall:0.000} of the reference's light bounced once with a lamp {room}");
+        ledgeFront.Should().BeInRange(0.95f, 1.25f, $"the probes bring the ledge's front {ledgeFront:0.000} of the reference's light bounced once with a lamp {room}");
         settings.Term = 0;
         UnloadMesh(walls);
+        UnloadMesh(front);
         foreach (var (mesh, _, _) in meshes) UnloadMesh(mesh);
 
-        // The east wall's mean light in the reference at the path given and in the frame.
-        static (float Reference, float Frame) EastWall(string path)
+        // The probes' light on the faces toward -x of the mesh as high as given, the east wall's six
+        // or the ledge's one, over the reference's light bounced once there, its paths at two
+        // bounces less its paths at one.
+        float Bounced(string high)
+        {
+            var (straight, probes) = Faces(once, high);
+            var (both, _) = Faces(twice, high);
+            return probes / (both - straight);
+        }
+
+        // The mean light of those faces in the reference at the path given and in the frame.
+        static (float Reference, float Frame) Faces(string path, string high)
         {
             var regions = BounceReference.Measure(GetApp().World, path, out var why, out _);
             regions.Should().NotBeNull(why);
-            var wall = regions!.Single(region => region.Name.EndsWith("side facing -x", StringComparison.Ordinal) && !region.Name.StartsWith("emissive", StringComparison.Ordinal));
-            return (wall.Reference.X, wall.Frame.X);
+            var faces = regions!.Single(region => region.Name.EndsWith($"({high} high), side facing -x", StringComparison.Ordinal) && !region.Name.StartsWith("emissive", StringComparison.Ordinal));
+            return (faces.Reference.X, faces.Frame.X);
         }
     }
 }

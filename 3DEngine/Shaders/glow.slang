@@ -554,7 +554,7 @@ float3 glowLightAimed(GlowLight light, float3 from)
 }
 
 // How much of a glow light a surface at p facing n, in cells of `cell`, sees, from 0 to 1: one
-// march from a cell and a half off the surface to the middle of its box, or of the emitting face it
+// march from half a cell off the surface to the middle of its box, or of the emitting face it
 // faces most squarely where not every face emits (glowLightAimed), the cone as wide as the box
 // across the way toward each surface the march passes (glowMarch), which a probe's ray's hit and a
 // pixel no screen probe holds take, the light that bounces on and a far pixel's asking less than
@@ -563,13 +563,13 @@ public float glowLightSeen<V : IVolume>(V field, SceneFieldInfo info, GlowLight 
 {
     if (cell <= 0.0)
         return 1.0;
-    float3 from = p + n * (cell * 1.5);
+    float3 from = p + n * (cell * 0.5);
     float3 toward = glowLightAimed(light, from) - from;
     float total = max(length(toward), 1e-6);
     float entry = glowLightEntry(light, from, toward / total);
     if (entry <= cell * 2.0)
         return 1.0;
-    float seen = glowMarch(field, info, light, p, n, cell, from + toward / total * entry, -1.0, 1.5);
+    float seen = glowMarch(field, info, light, p, n, cell, from + toward / total * entry, -1.0, 0.5);
     return lerp(1.0, seen, fieldHold(info, p));
 }
 

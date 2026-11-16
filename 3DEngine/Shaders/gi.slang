@@ -607,19 +607,19 @@ public float3 hiddenLampReflected<V : IVolume>(V field, SceneFieldInfo info, GiL
 // The light the glow lights send a surface at p facing n, irradiance, each that reaches p by as
 // much of it as p sees, by glowLightSeen's one march to its middle, as a probe's ray's hit reads
 // them, or with halves by glowLightShown's marches to its faces' halves, as the screen's probes and
-// a pixel no screen probe holds read them, since the one march, from a cell and a half off the
-// surface, sees over a wall half as high as a lamp and lights the floor behind it whole. The
-// marches are the cost, so the brightest at p, as many as `marches`, four at most, are kept with
-// their light as the lights are read and only they are marched each. The fainter ones are gathered
-// by their way from p into as many groups, a quarter of the surface's plane each, every group's
-// light summed and shadowed by one march to its brightest, so a point lit by more lights than are
-// marched takes them all for twice the marches at most. One way through for every count, the
-// lights read and the kept ones marched in loops kept from unrolling, so a shader holds one march
-// and one closed form of it, since a second way for few lights would stand in each of the model
-// pass's two shadings of a reflection's hit and lengthen its compile for every app. A light gives
-// nothing to its own surface, which a hit finds within half a cell of its box (glowLightOn). Where
-// the field does not hold p, every light unhidden. This is the model pass's at a pixel, each light
-// in closed form or by its pieces, which meet with no step on the floor.
+// a pixel no screen probe holds read them, since the one march, its cone as wide as the light, lets
+// more of a lamp past a wall half as high as it than the floor behind the wall sees. The marches
+// are the cost, so the brightest at p, as many as `marches`, four at most, are kept with their
+// light as the lights are read and only they are marched each. The fainter ones are gathered by
+// their way from p into as many groups, a quarter of the surface's plane each, every group's light
+// summed and shadowed by one march to its brightest, so a point lit by more lights than are marched
+// takes them all for twice the marches at most. One way through for every count, the lights read
+// and the kept ones marched in loops kept from unrolling, so a shader holds one march and one
+// closed form of it, since a second way for few lights would stand in each of the model pass's two
+// shadings of a reflection's hit and lengthen its compile for every app. A light gives nothing to
+// its own surface, which a hit finds within half a cell of its box (glowLightOn). Where the field
+// does not hold p, every light unhidden. This is the model pass's at a pixel, each light in closed
+// form or by its pieces, which meet with no step on the floor.
 public float3 glowLightsAt<V : IVolume>(V field, SceneFieldInfo info, GiLights lights, float3 p, float3 n, int marches, bool halves)
 {
     return glowLightsFrom(field, info, lights, p, n, marches, halves, float3(0.0), false);
