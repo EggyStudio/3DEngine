@@ -28,11 +28,17 @@ internal sealed class AmbientOcclusionSettings
     public bool OwnFilter { get; set; } = true;
 
     /// <summary>
-    /// How far the circular occluders grow a circle seen at a slant, as one over the cosine of its
-    /// slope to the eye, held to this most, CORTAO's maximum slope compensation, 1 or more and 4
-    /// unless set.
+    /// How far the circular occluders grow a circle seen at a slant, by one over the square root of
+    /// the cosine of its slope to the eye until that cosine falls to one over this, CORTAO's maximum
+    /// slope compensation, from 1 to <see cref="MostSlopeCompensation"/> and 4 unless set.
     /// </summary>
     public float SlopeCompensation { get; set; } = 4;
+
+    /// <summary>
+    /// The most <see cref="SlopeCompensation"/> is held to, at which a circle seen edge on is grown
+    /// eight times, so the inverse the main pass takes stays above nothing.
+    /// </summary>
+    internal const float MostSlopeCompensation = 64;
 
     /// <summary>
     /// The cosine between a circle's normal and the way to it at and past which the circular
@@ -174,6 +180,16 @@ internal sealed class AmbientOcclusionRenderer : IDisposable
 
         public IDescriptorSet Circled(IImageView view) => _circled.TryGetValue(view, out var set) ? set : _circled[view] = circled(view);
 
+        // How many sets read the circular occluders' result.
+        public int CircledCount => _circled.Count;
+
+        // Hands each set reading the circular occluders' result to retire, as they let it go.
+        public void ForgetCircled(Action<IDisposable> retire)
+        {
+            foreach (var set in _circled.Values) retire(set);
+            _circled.Clear();
+        }
+
         public Extent2D Extent { get; } = extent;
         public GpuSceneField Field { get; } = field;
         public ShadowMap Depth { get; } = depth;
@@ -241,6 +257,9 @@ internal sealed class AmbientOcclusionRenderer : IDisposable
     {
         _window = null;
         Retire();
+        // The circular occluders' images and the window's sets reading them, let go once a frame
+        // has passed without them, whichever way it went.
+        if (_circular is { Holds: true } && _circularUsed < _frame - 1) ReleaseCircular();
         renderWorld.TryGet<TargetOcclusion>()?.Depths.Clear();
         renderWorld.TryGet<TargetOcclusion>()?.Images.Clear();
         // A target's images not drawn the frame before are let go.
@@ -343,7 +362,7 @@ internal sealed class AmbientOcclusionRenderer : IDisposable
             ? occluders.Record(renderContext.CommandBuffer, sized.Depth.DepthView, sized.Depth.Sampler, sized.Extent, turned.Turned,
                 settings, (uint)(_frame * 2654435761L))
             : null;
-        if (circular && circled is null && renderContext.Device is GraphicsDevice idle) _circular?.Release();
+        if (circled is not null) _circularUsed = _frame;
         // The camera against the origin from its eye, whose inverse takes the depth's points to
         // places with no float of the world's size in it.
         var placed = origin.Seen(view.ViewProjection, view.Eye);
@@ -405,6 +424,9 @@ internal sealed class AmbientOcclusionRenderer : IDisposable
     /// <summary>The window's occlusion after its history and blurs, the occlusion in red, or null where it is not worked out.</summary>
     internal IImage? WindowOcclusion => _sized?.Occlusion.ColorView.Image;
 
+    /// <summary>How many sets the window's first pass holds to read the circular occluders' result through.</summary>
+    internal int CircledSets => _sized?.CircledCount ?? 0;
+
     /// <summary>The window's circular occluders where they have been made.</summary>
     internal CircularOccluders? CircularPart => _circular is { Ready: true } ? _circular : null;
 
@@ -412,6 +434,7 @@ internal sealed class AmbientOcclusionRenderer : IDisposable
     // a frame asks for them, or null where they cannot be made, said once.
     private CircularOccluders? _circular;
     private bool _circularFailed;
+    private long _circularUsed;
 
     private CircularOccluders? Circular(GraphicsDevice device)
     {
@@ -422,13 +445,15 @@ internal sealed class AmbientOcclusionRenderer : IDisposable
             byte[] Compute(string file, params string[] defines) =>
                 loader.Compile(File.ReadAllText(Path.Combine(loader.ImportDirectory, file)), file, defines).Compute;
             var occluders = CircularOccluders.Of(device);
-            occluders.Initialize(Compute("ao_cortao_prepass.slang"), Compute("ao_cortao_main.slang", "CORTAO_SAMPLE_COUNT=8"),
-                Compute("ao_cortao_main.slang", "CORTAO_SAMPLE_COUNT=16"), Compute("ao_cortao_filter.slang"),
+            occluders.Initialize(Compute("ao_cortao_prepass.slang"), Compute("ao_cortao_main.slang", CircularOccluders.EightOccluders),
+                Compute("ao_cortao_main.slang"), Compute("ao_cortao_filter.slang"),
                 File.ReadAllBytes(Path.Combine(loader.ImportDirectory, "cortao", "occluders_24x24x16x16.bin")));
             return _circular = occluders;
         }
-        catch (Exception e) when (e is InvalidOperationException or IOException or ArgumentException)
+        catch (Exception e)
         {
+            // Whatever stopped them, a stage the caches lack with no compiler, a compiler that
+            // would not start, the table's file or the device, the horizons stay, said once.
             _circularFailed = true;
             Logger.Warn($"The circular occluders could not be made, so the ambient occlusion is worked out by its horizons. {e.Message}");
             return null;
@@ -513,6 +538,14 @@ internal sealed class AmbientOcclusionRenderer : IDisposable
         ReleaseWindow();
         foreach (var (sized, _) in _targets.Values) _retired.Add((_frame, sized));
         _targets.Clear();
+    }
+
+    // Hands the circular occluders' images and the window's sets reading them to be destroyed once
+    // the frames in flight that might read them have finished.
+    private void ReleaseCircular()
+    {
+        foreach (var gone in _circular!.Release()) _retired.Add((_frame, gone));
+        _sized?.ForgetCircled(set => _retired.Add((_frame, set)));
     }
 
     // Lets the window's images go, on a frame it is off or the window draws no meshes.

@@ -56,10 +56,7 @@ internal sealed class Renderer : IDisposable
         var shaders = SlangCompiler.Counts;
         // Every shader beside the program, and each build of one this device loads below, compiled
         // at once where the caches lack it, once in a process, so the loads below read them.
-        string[] traces = Context.Graphics is GraphicsDevice { CanQueryRays: true } ? ["RAY_QUERY"] : [];
-        (string File, string[] Defines)[] builds = [("model.slang", traces), ("model.slang", [.. traces, "NO_GLOW_LIGHTS"]),
-            ("model_streams.slang", ["NO_GLOW_LIGHTS"]), ("model.slang", ["NO_BOUNCE"]), ("model_streams.slang", ["NO_BOUNCE"]),
-            ("gi_trace.slang", ["NO_LIGHT_THROUGH"]), ("gi_trace.slang", [.. traces, "NO_LIGHT_THROUGH"]), ("gi_trace.slang", traces)];
+        var builds = Builds(Context.Graphics is GraphicsDevice { CanQueryRays: true });
         if (Interlocked.Exchange(ref _compiledAhead, 1) == 0)
             new SlangLoader().CompileAhead((file, defines) => defines.Length == 0 || builds.Any(build => build.File == file && build.Defines.SequenceEqual(defines)));
         var ahead = sw.Elapsed;
@@ -254,6 +251,20 @@ internal sealed class Renderer : IDisposable
             Logger.Info($"The first frame took {Stopwatch.GetElapsedTime(started).TotalMilliseconds:0} ms, {count} pipelines made by the driver in {time.TotalMilliseconds:0} ms.");
         else if (time >= SlowPipelines)
             Logger.Info($"Frame {_frames} made {count} pipelines in {time.TotalMilliseconds:0} ms, {string.Join(", ", named)}.");
+    }
+
+    /// <summary>
+    /// Each build beside the plain ones the engine loads on a device that traces rays where
+    /// <paramref name="rays"/> says, the model pass's, the probes' trace's and the circular
+    /// occluders' main pass's at eight points a pixel.
+    /// </summary>
+    internal static (string File, string[] Defines)[] Builds(bool rays)
+    {
+        string[] traces = rays ? ["RAY_QUERY"] : [];
+        return [("model.slang", traces), ("model.slang", [.. traces, "NO_GLOW_LIGHTS"]),
+            ("model_streams.slang", ["NO_GLOW_LIGHTS"]), ("model.slang", ["NO_BOUNCE"]), ("model_streams.slang", ["NO_BOUNCE"]),
+            ("gi_trace.slang", ["NO_LIGHT_THROUGH"]), ("gi_trace.slang", [.. traces, "NO_LIGHT_THROUGH"]), ("gi_trace.slang", traces),
+            ("ao_cortao_main.slang", [CircularOccluders.EightOccluders])];
     }
 
     // A built-in shader compiled with defines, or none, said in the log with otherwise, where the

@@ -2,12 +2,14 @@
 // its size, CORTAO_SAMPLE_COUNT points of the packed image read as circles facing the way their
 // normals do, and sixteen rays over the pixel's hemisphere traced against them through the
 // occluder table, the share of the rays no circle meets the pixel's occlusion and their mean way
-// its bent normal. Built at 8 and at 16 samples.
+// its bent normal. Built at 16 samples, and at 8 where EIGHT_OCCLUDERS is defined.
 #define CORTAO_HLSL 1
 #define CORTAO_PERSPECTIVE_PROJECTION 1
 #define CORTAO_RAY_COUNT 16
 #define CORTAO_OCCLUDER_LOOKUP_TABLE 1
-#ifndef CORTAO_SAMPLE_COUNT
+#ifdef EIGHT_OCCLUDERS
+#define CORTAO_SAMPLE_COUNT 8
+#else
 #define CORTAO_SAMPLE_COUNT 16
 #endif
 #include "cortao/CORTAOMainPass.h"

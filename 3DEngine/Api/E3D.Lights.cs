@@ -277,9 +277,9 @@ public static partial class E3D
     /// </para>
     /// <para>
     /// A surface seen at a slant covers fewer pixels, so a circle on it is grown by one over the
-    /// cosine of its slope to the eye, at most <paramref name="slopeCompensation"/> times, 1 or more,
-    /// past which it fades: more keeps a slope's occlusion as the eye turns and may flicker, 1 grows
-    /// none. A circle whose normal leans toward the pixel by a cosine of
+    /// square root of the cosine of its slope to the eye until that cosine falls to one over
+    /// <paramref name="slopeCompensation"/>, from 1 to 64, past which it fades: more keeps a slope's
+    /// occlusion as the eye turns and may flicker, 1 grows none. A circle whose normal leans toward the pixel by a cosine of
     /// <paramref name="backfaceThreshold"/> or more, from 0 to 1, is taken for a thin surface's back
     /// and grown by <paramref name="backfaceBoost"/> of the compensation, from 0 to 1, more darkening
     /// behind thin walls where light leaks. A value past its range is held to it.
@@ -288,7 +288,7 @@ public static partial class E3D
     public static void SetCircularOccluders(float slopeCompensation = 4, float backfaceThreshold = 0.5f, float backfaceBoost = 0, float screenShare = 0.3f)
     {
         var occlusion = World.GetOrInsertResource(static () => new AmbientOcclusionSettings());
-        occlusion.SlopeCompensation = float.IsNaN(slopeCompensation) ? 4 : Math.Max(1, slopeCompensation);
+        occlusion.SlopeCompensation = float.IsNaN(slopeCompensation) ? 4 : Math.Clamp(slopeCompensation, 1, AmbientOcclusionSettings.MostSlopeCompensation);
         occlusion.BackfaceThreshold = float.IsNaN(backfaceThreshold) ? 0.5f : Math.Clamp(backfaceThreshold, 0, 1);
         occlusion.BackfaceBoost = float.IsNaN(backfaceBoost) ? 0 : Math.Clamp(backfaceBoost, 0, 1);
         occlusion.ScreenShare = float.IsNaN(screenShare) ? 0.3f : Math.Clamp(screenShare, 0.01f, 1);

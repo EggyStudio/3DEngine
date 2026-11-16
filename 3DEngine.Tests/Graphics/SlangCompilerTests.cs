@@ -468,6 +468,36 @@ public partial class SlangCompilerTests : IDisposable
     }
 
     [NeedsSlangFact]
+    public void A_Shipped_Cache_Holds_Every_Build_The_Engine_Loads()
+    {
+        // The built-in shaders compiled into a cache as build/pack.sh does, and each build the
+        // engine loads beside the plain ones, on a device that traces rays and on one that does
+        // not, read from it with no compiler, as a packaged program reads it.
+        var shipped = Path.Combine(AppContext.BaseDirectory, "source", "shaders");
+        var cache = Path.Combine(_folder.Path, "cache");
+        SlangLoader.Precompile(shipped, cache);
+
+        var missing = new List<string>();
+        var builds = Engine.Renderer.Builds(rays: true).Concat(Engine.Renderer.Builds(rays: false)).DistinctBy(build => $"{build.File} {string.Join(' ', build.Defines)}");
+        foreach (var (file, defines) in builds)
+        {
+            var source = File.ReadAllText(Path.Combine(shipped, file));
+            foreach (var (entryPoint, stage) in SlangLoader.EntryPoints(source))
+            {
+                try
+                {
+                    SlangCompiler.CompileStage(source, file, entryPoint, stage, cache, shipped, compiler: null, defines);
+                }
+                catch (InvalidOperationException)
+                {
+                    missing.Add($"{file} {entryPoint} with {string.Join(" and ", defines)}");
+                }
+            }
+        }
+        missing.Should().BeEmpty("a packaged program has no compiler to make a build its cache lacks");
+    }
+
+    [NeedsSlangFact]
     public void A_Vertex_Stages_Inputs_Are_Reflected_By_Semantic_And_Kept_In_The_Cache()
     {
         // Declared out of the engine's order, a struct's fields each with a semantic of its own and

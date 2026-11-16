@@ -31,14 +31,16 @@ internal static class AmbientOcclusionCommands
         return settings.OwnFilter ? "the circular occluders' own filter on" : "the circular occluders' own filter off";
     }
 
-    [Command("ao.set", "Sets how the circular occluders take their circles, the most a slanted circle is grown (slope, 1 or more), the cosine past which a circle is a thin surface's back (backface, 0 to 1), how much such a back is grown (boost, 0 to 1), or the share of the picture's height a circle may span (screen), each held to its range: ao.set <slope|backface|boost|screen> <value>")]
+    [Command("ao.set", "Sets how the circular occluders take their circles, the most a slanted circle is grown (slope, 1 to 64), the cosine past which a circle is a thin surface's back (backface, 0 to 1), how much such a back is grown (boost, 0 to 1), or the share of the picture's height a circle may span (screen), each held to its range: ao.set <slope|backface|boost|screen> <value>")]
     internal static string Set(string name, float value)
     {
         var settings = ConsoleHost.World!.GetOrInsertResource(static () => new AmbientOcclusionSettings());
         if (float.IsNaN(value)) return "a number";
         switch (name)
         {
-            case "slope": settings.SlopeCompensation = Math.Max(1, value); return $"slanted circles grown {settings.SlopeCompensation} times at most";
+            case "slope":
+                settings.SlopeCompensation = Math.Clamp(value, 1, AmbientOcclusionSettings.MostSlopeCompensation);
+                return $"a slope compensation of {settings.SlopeCompensation}, a slanted circle grown {MathF.Sqrt(settings.SlopeCompensation):0.##} times at most";
             case "backface": settings.BackfaceThreshold = Math.Clamp(value, 0, 1); return $"a circle leaning toward the pixel by a cosine of {settings.BackfaceThreshold} or more a back";
             case "boost": settings.BackfaceBoost = Math.Clamp(value, 0, 1); return $"a back grown by {settings.BackfaceBoost} of the compensation";
             case "screen": settings.ScreenShare = Math.Clamp(value, 0.01f, 1); return $"a circle spanning {settings.ScreenShare} of the picture's height at most";
@@ -72,6 +74,8 @@ internal static class AmbientOcclusionCommands
             _ => (null, 0),
         };
         if (what is not ("final" or "raw" or "filtered" or "bent")) return $"nothing named {what}, which is final, raw, filtered or bent";
+        if (what == "filtered" && world.TryGetResource<AmbientOcclusionSettings>(out var settings) && !settings.OwnFilter)
+            return "the circular occluders' own filter is off, so no pass writes what it holds, which ao.filter on turns on";
         if (image is null)
             return what == "final" ? "the window's ambient occlusion is not worked out, which SetAmbientOcclusion turns on" : "the circular occluders have drawn nothing, which ao.method circular chooses";
         var pixels = device.ReadPixels(image);

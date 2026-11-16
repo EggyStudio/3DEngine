@@ -41,6 +41,9 @@ internal sealed unsafe class CircularOccluders(GraphicsDevice device) : IDisposa
     /// <summary>The most levels of the packed image CORTAO reads.</summary>
     internal const int MostLevels = 8;
 
+    /// <summary>The name the main pass is built with to read eight points a pixel, where its plain build reads sixteen.</summary>
+    internal const string EightOccluders = "EIGHT_OCCLUDERS";
+
     [StructLayout(LayoutKind.Sequential)]
     internal struct PrepassPush
     {
@@ -76,14 +79,19 @@ internal sealed unsafe class CircularOccluders(GraphicsDevice device) : IDisposa
     private Sized? _sized;
     private readonly List<(long Frame, Sized Sized)> _retired = [];
     private long _frame;
+    private bool _ready;
 
-    /// <summary>Whether the stages have been made, so the occlusion can be worked out.</summary>
-    public bool Ready => _filter.Pipeline.Handle != 0;
+    /// <summary>Whether every stage, the table and the sampler have been made, so the occlusion can be worked out.</summary>
+    public bool Ready => _ready;
+
+    /// <summary>Whether a size of the window's images is held, in use or let go and not yet destroyed.</summary>
+    public bool Holds => _sized is not null || _retired.Count > 0;
 
     /// <summary>
     /// Makes the stages from the compute stages of <c>ao_cortao_prepass.slang</c>, of
     /// <c>ao_cortao_main.slang</c> built at 8 and at 16 samples and of <c>ao_cortao_filter.slang</c>,
-    /// and uploads <paramref name="table"/>, CORTAO's table for sixteen rays, once.
+    /// and uploads <paramref name="table"/>, CORTAO's table for sixteen rays, once, all or none,
+    /// what was made before a failure destroyed before it is thrown on.
     /// </summary>
     public void Initialize(ReadOnlySpan<byte> prepass, ReadOnlySpan<byte> main8, ReadOnlySpan<byte> main16, ReadOnlySpan<byte> filter,
         ReadOnlySpan<byte> table)
@@ -91,19 +99,28 @@ internal sealed unsafe class CircularOccluders(GraphicsDevice device) : IDisposa
         if (!device.IsInitialized || Ready) return;
         if (table.Length != TableBytes)
             throw new ArgumentException($"CORTAO's table for sixteen rays holds {TableBytes} bytes, where {table.Length} were given.", nameof(table));
-        _prepass = device.MakeComputeStage(prepass, [VkDescriptorType.CombinedImageSampler, VkDescriptorType.StorageImage],
-            (uint)sizeof(PrepassPush), [1, MostLevels]);
-        VkDescriptorType[] main = [VkDescriptorType.SampledImage, VkDescriptorType.Sampler, VkDescriptorType.StorageBuffer,
-            VkDescriptorType.CombinedImageSampler, VkDescriptorType.StorageImage];
-        _main8 = device.MakeComputeStage(main8, main, (uint)sizeof(MainPush));
-        _main16 = device.MakeComputeStage(main16, main, (uint)sizeof(MainPush));
-        _filter = device.MakeComputeStage(filter, [VkDescriptorType.SampledImage, VkDescriptorType.SampledImage, VkDescriptorType.Sampler,
-            VkDescriptorType.StorageImage], (uint)sizeof(FilterPush));
-        _table = device.CreateBuffer(new BufferDesc((ulong)TableBytes, BufferUsage.Storage, CpuAccessMode.Write));
-        device.Map(_table).CopyFrom(table);
-        device.Unmap(_table);
-        _nearest = device.CreateSampler(new SamplerDesc(SamplerFilter.Nearest, SamplerFilter.Nearest,
-            SamplerAddressMode.ClampToEdge, SamplerAddressMode.ClampToEdge, SamplerAddressMode.ClampToEdge));
+        try
+        {
+            _prepass = device.MakeComputeStage(prepass, [VkDescriptorType.CombinedImageSampler, VkDescriptorType.StorageImage],
+                (uint)sizeof(PrepassPush), [1, MostLevels]);
+            VkDescriptorType[] main = [VkDescriptorType.SampledImage, VkDescriptorType.Sampler, VkDescriptorType.StorageBuffer,
+                VkDescriptorType.CombinedImageSampler, VkDescriptorType.StorageImage];
+            _main8 = device.MakeComputeStage(main8, main, (uint)sizeof(MainPush));
+            _main16 = device.MakeComputeStage(main16, main, (uint)sizeof(MainPush));
+            _filter = device.MakeComputeStage(filter, [VkDescriptorType.SampledImage, VkDescriptorType.SampledImage, VkDescriptorType.Sampler,
+                VkDescriptorType.StorageImage], (uint)sizeof(FilterPush));
+            _table = device.CreateBuffer(new BufferDesc((ulong)TableBytes, BufferUsage.Storage, CpuAccessMode.Write));
+            device.Map(_table).CopyFrom(table);
+            device.Unmap(_table);
+            _nearest = device.CreateSampler(new SamplerDesc(SamplerFilter.Nearest, SamplerFilter.Nearest,
+                SamplerAddressMode.ClampToEdge, SamplerAddressMode.ClampToEdge, SamplerAddressMode.ClampToEdge));
+            _ready = true;
+        }
+        catch
+        {
+            Dispose();
+            throw;
+        }
     }
 
     /// <summary>The occlusion in alpha and the bent normal in view space as 0.5 + 0.5 of it, as the main pass wrote them, for the window.</summary>
@@ -111,6 +128,36 @@ internal sealed unsafe class CircularOccluders(GraphicsDevice device) : IDisposa
 
     /// <summary>The occlusion CORTAO's filter pass wrote, in every channel, for the window.</summary>
     public IImage? Filtered => _sized?.Filtered.Owner;
+
+    /// <summary>
+    /// The first level of the packed image the main pass read for the window, each texel's distance
+    /// along the view in its high bits and its normal in view space in its low ten, rows from the
+    /// top, copied once every frame in flight has finished with it, or null where none is held.
+    /// </summary>
+    internal uint[]? ReadPacked()
+    {
+        if (_sized is not { } sized || !sized.Written) return null;
+        device.FlushUploads();
+        device.Api.vkDeviceWaitIdle().CheckResult();
+        var (w, h) = (sized.Extent.Width, sized.Extent.Height);
+        var buffer = (VulkanBuffer)device.CreateBuffer(new BufferDesc((ulong)(w * h * 4), BufferUsage.TransferDst, CpuAccessMode.Read));
+        try
+        {
+            var cmd = device.BeginSingleTimeCommands();
+            device.PipelineBarrier(cmd, ImageBarrier(sized.Packed.Image, ColorLevels(0, 1), VkImageLayout.General, VkImageLayout.TransferSrcOptimal,
+                VkPipelineStageFlags2.ComputeShader, VkAccessFlags2.ShaderWrite, VkPipelineStageFlags2.Transfer, VkAccessFlags2.TransferRead));
+            var copy = new VkBufferImageCopy { imageSubresource = new VkImageSubresourceLayers(VkImageAspectFlags.Color, 0, 0, 1), imageExtent = new VkExtent3D(w, h, 1) };
+            device.Api.vkCmdCopyImageToBuffer(cmd, sized.Packed.Image, VkImageLayout.TransferSrcOptimal, buffer.Buffer, 1, &copy);
+            device.PipelineBarrier(cmd, ImageBarrier(sized.Packed.Image, ColorLevels(0, 1), VkImageLayout.TransferSrcOptimal, VkImageLayout.General,
+                VkPipelineStageFlags2.Transfer, VkAccessFlags2.TransferRead, VkPipelineStageFlags2.ComputeShader, VkAccessFlags2.ShaderRead | VkAccessFlags2.ShaderWrite));
+            device.EndSingleTimeCommands(cmd);
+            return MemoryMarshal.Cast<byte, uint>(device.Read(buffer)).ToArray();
+        }
+        finally
+        {
+            buffer.Dispose();
+        }
+    }
 
     /// <summary>
     /// Records the passes into <paramref name="commandBuffer"/> for the window's depth of
@@ -403,11 +450,19 @@ internal sealed unsafe class CircularOccluders(GraphicsDevice device) : IDisposa
         }
     }
 
-    /// <summary>Lets the window's images go, on a frame the occlusion is worked out some other way.</summary>
-    public void Release()
+    /// <summary>
+    /// Lets the window's images go, on a frame the occlusion is worked out some other way, giving
+    /// each size let go, the one in use and those not yet destroyed, for the caller to destroy once
+    /// the frames in flight that might read it have finished.
+    /// </summary>
+    public IReadOnlyList<IDisposable> Release()
     {
-        if (_sized is not null) _retired.Add((_frame, _sized));
+        var gone = new List<IDisposable>(_retired.Count + 1);
+        foreach (var (_, sized) in _retired) gone.Add(sized);
+        _retired.Clear();
+        if (_sized is not null) gone.Add(_sized);
         _sized = null;
+        return gone;
     }
 
     /// <inheritdoc />
@@ -428,5 +483,6 @@ internal sealed unsafe class CircularOccluders(GraphicsDevice device) : IDisposa
         (_prepass, _main8, _main16, _filter) = (default, default, default, default);
         _table?.Dispose();
         _nearest?.Dispose();
+        (_table, _nearest, _ready) = (null, null, false);
     }
 }

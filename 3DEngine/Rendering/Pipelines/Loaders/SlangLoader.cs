@@ -84,12 +84,13 @@ internal sealed partial class SlangLoader : IAssetLoader<ShaderProgram>
     /// glow lights, which leaves half its fragment stage out, <c>NO_BOUNCE</c> for its build for a
     /// frame without global illumination, which leaves it and the glow lights out, and
     /// <c>NO_LIGHT_THROUGH</c> for the probes' trace's build for a frame where no surface lets light
-    /// through, which leaves the crossing of such a surface out.
+    /// through, which leaves the crossing of such a surface out, and <c>EIGHT_OCCLUDERS</c> for
+    /// the circular occluders' main pass at eight points a pixel where its plain build reads sixteen.
     /// </summary>
     /// <remarks>
     /// A build's names are given in this order, since the cache keys a build by them as given.
     /// </remarks>
-    internal static readonly string[] Variants = ["RAY_QUERY", "NO_GLOW_LIGHTS", "NO_BOUNCE", "NO_LIGHT_THROUGH"];
+    internal static readonly string[] Variants = ["RAY_QUERY", "NO_GLOW_LIGHTS", "NO_BOUNCE", "NO_LIGHT_THROUGH", "EIGHT_OCCLUDERS"];
 
     /// <summary>
     /// The <see cref="Variants"/> built alone and never with another, since each leaves out all

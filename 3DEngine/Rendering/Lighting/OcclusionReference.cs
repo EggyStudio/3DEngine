@@ -51,11 +51,15 @@ internal sealed unsafe class OcclusionReference(GraphicsDevice device) : IDispos
 
         var (w, h) = (extent.Width, extent.Height);
         var origin = scene.Origin;
-        var (sums, memory, view) = SumsImage(w, h);
-        var read = (VulkanBuffer)device.CreateBuffer(new BufferDesc(w * h * 8, BufferUsage.TransferDst, CpuAccessMode.Read));
-        var pool = device.MakeDescriptorPool([(_stage.Descriptors, 1)]);
+        // Each made inside the try, so what was made before a throw is destroyed.
+        var (sums, memory, view) = (default(VkImage), default(VkDeviceMemory), default(VkImageView));
+        VulkanBuffer? read = null;
+        var pool = default(VkDescriptorPool);
         try
         {
+            SumsImage(w, h, ref sums, ref memory, ref view);
+            read = (VulkanBuffer)device.CreateBuffer(new BufferDesc(w * h * 8, BufferUsage.TransferDst, CpuAccessMode.Read));
+            pool = device.MakeDescriptorPool([(_stage.Descriptors, 1)]);
             var setLayout = _stage.SetLayout;
             var allocation = new VkDescriptorSetAllocateInfo { descriptorPool = pool, descriptorSetCount = 1, pSetLayouts = &setLayout };
             VkDescriptorSet set;
@@ -108,12 +112,18 @@ internal sealed unsafe class OcclusionReference(GraphicsDevice device) : IDispos
         finally
         {
             device.DestroyDescriptorPool(pool);
-            read.Dispose();
-            device.Api.vkDestroyImageView(view);
-            device.Api.vkDestroyImage(sums);
-            device.Api.vkFreeMemory(memory);
-            DeviceObjects.Gone(DeviceObjects.Kind.Image);
-            DeviceObjects.Gone(DeviceObjects.Kind.Memory);
+            read?.Dispose();
+            if (view.Handle != 0) device.Api.vkDestroyImageView(view);
+            if (sums.Handle != 0)
+            {
+                device.Api.vkDestroyImage(sums);
+                DeviceObjects.Gone(DeviceObjects.Kind.Image);
+            }
+            if (memory.Handle != 0)
+            {
+                device.Api.vkFreeMemory(memory);
+                DeviceObjects.Gone(DeviceObjects.Kind.Memory);
+            }
         }
     }
 
@@ -142,8 +152,9 @@ internal sealed unsafe class OcclusionReference(GraphicsDevice device) : IDispos
         device.Api.vkUpdateDescriptorSets(5, writes, 0, null);
     }
 
-    // The sums, two floats a texel, written by the dispatches and read by a copy.
-    private (VkImage Image, VkDeviceMemory Memory, VkImageView View) SumsImage(uint width, uint height)
+    // The sums, two floats a texel, written by the dispatches and read by a copy, each of the
+    // image, its memory and its view given back as it is made.
+    private void SumsImage(uint width, uint height, ref VkImage image, ref VkDeviceMemory memory, ref VkImageView view)
     {
         var info = new VkImageCreateInfo
         {
@@ -158,7 +169,7 @@ internal sealed unsafe class OcclusionReference(GraphicsDevice device) : IDispos
             sharingMode = VkSharingMode.Exclusive,
             initialLayout = VkImageLayout.Undefined,
         };
-        device.Api.vkCreateImage(&info, null, out VkImage image).CheckResult();
+        device.Api.vkCreateImage(&info, null, out image).CheckResult();
         DeviceObjects.Made(DeviceObjects.Kind.Image);
         device.Api.vkGetImageMemoryRequirements(image, out VkMemoryRequirements requirements);
         var allocation = new VkMemoryAllocateInfo
@@ -166,15 +177,14 @@ internal sealed unsafe class OcclusionReference(GraphicsDevice device) : IDispos
             allocationSize = requirements.size,
             memoryTypeIndex = device.FindMemoryType(requirements.memoryTypeBits, VkMemoryPropertyFlags.DeviceLocal),
         };
-        var memory = device.AllocateSaying(&allocation);
+        memory = device.AllocateSaying(&allocation);
         DeviceObjects.Made(DeviceObjects.Kind.Memory);
         device.Api.vkBindImageMemory(image, memory, 0).CheckResult();
         var viewInfo = new VkImageViewCreateInfo
         {
             image = image, viewType = VkImageViewType.Image2D, format = VkFormat.R32G32Sfloat, components = VkComponentMapping.Rgba, subresourceRange = ColorLevels(0, 1),
         };
-        device.Api.vkCreateImageView(&viewInfo, null, out VkImageView view).CheckResult();
-        return (image, memory, view);
+        device.Api.vkCreateImageView(&viewInfo, null, out view).CheckResult();
     }
 
     /// <inheritdoc />

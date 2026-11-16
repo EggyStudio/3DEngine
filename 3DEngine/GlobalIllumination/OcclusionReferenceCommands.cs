@@ -13,6 +13,7 @@ internal static class OcclusionReferenceCommands
     [Command("ao.reference", "Traces the window's ambient occlusion through the device's rays from each point of its depth at half the window's size, rays drawn by the cosine about the face there closed off by a mesh within the radius SetAmbientOcclusion gave or the one given, into a PNG and its shares as floats in <png>.f32, NaN where the depth holds nothing: ao.reference <png> <rays> [radius]")]
     internal static string Reference(string path, int rays, float radius = 0)
     {
+        if (!float.IsFinite(radius)) return "a radius that is a number, or none for the one SetAmbientOcclusion gave";
         var world = ConsoleHost.World!;
         if (!world.TryGetResource<Renderer>(out var renderer) || renderer.Context.Graphics is not GraphicsDevice device)
             return "there is no renderer";

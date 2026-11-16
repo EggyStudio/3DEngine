@@ -125,4 +125,27 @@ public sealed class CircularOccludersTests : IDisposable
         SetAmbientOcclusionMethod((AmbientOcclusionMethod)5);
         settings.Method.Should().Be(AmbientOcclusionMethod.CircularOccluders, "a value that names no method leaves the one chosen");
     }
+
+    [Fact]
+    public void An_Endless_Slope_Compensation_Is_Held_To_The_Most_And_A_Radius_That_Is_No_Number_Is_Refused()
+    {
+        UseApp(new App(Config.Default with { Headless = true }));
+        var settings = GetApp().World.GetOrInsertResource(static () => new AmbientOcclusionSettings());
+        SetCircularOccluders(float.PositiveInfinity);
+        settings.SlopeCompensation.Should().Be(64, "the main pass takes its inverse, which an endless one would make nothing");
+        SetCircularOccluders(0.5f);
+        settings.SlopeCompensation.Should().Be(1, "less than 1 grows a circle less than none");
+        Run("ao.set slope Infinity").Should().Contain("compensation of 64");
+        settings.SlopeCompensation.Should().Be(64, "the command holds it as the call does");
+
+        foreach (var radius in new[] { "NaN", "Infinity", "-Infinity" })
+            Run($"ao.reference reference.png 4 {radius}").Should().Be("a radius that is a number, or none for the one SetAmbientOcclusion gave",
+                "a radius that is no number is refused before anything is traced");
+    }
+
+    private static string Run(string line)
+    {
+        using (ConsoleHost.Lend(GetApp().World, GetApp()))
+            return ConsoleCommands.Run(line) ?? "";
+    }
 }
