@@ -1045,3 +1045,46 @@ occluders', the glow lights' and the norm and surface tests, pass 63, and both l
 pass, 2,495, in 29 m 52 s and 27 m 35 s at 2,621 and 3,031 MB at most, the second shuffled by the
 seed 20261023. On Windows no test is new, so no class moves, the far room's test staying in
 Rendering 7 in the fourth half.
+
+Item 280, the glow lights' faces check inside the march.
+
+The reads. Each shape of the check was `glow.slang` alone changed in a copy of the game built on
+6.2.60 with the engine of `2ceadfd1` laid over it, its shaders compiled from the copy's folder, read
+as the cost read was, the flight east at 110 at Low and at High at 1280 by 720 with the frame
+unlimited, three samples of the profile a flight, each read its own exclusive turn of the lock, in
+turn and back, powersave, the desktop's share of the GPU near none. `hdr_scene`'s mean over the two
+reads of each, Low then High, in ms, by sitting.
+
+Sitting one. The head 4.886 and 4.567, the shader before the check 4.746 and 4.480, the axes whose
+face before the point is closed found before the loop and read in it by one bit 4.868 and 4.626, a
+closed face given nothing so the inner loop passes it before its march 5.236 and 4.953, and one call
+where every face emits, its check folded away, beside one with it 4.799 and 4.535.
+
+Sitting two, the loop over the three axes unrolled. The head 4.836 and 4.610, before the check 4.779
+and 4.520, the branch 4.779 and 4.515, the head unrolled 4.735 and 4.477, the branch unrolled 4.812
+and 4.533, the shader before the check unrolled 4.720 and 4.445.
+
+Sitting three. The head 4.892 and 4.632, before the check 4.746 and 4.493, the head unrolled 4.721
+and 4.475.
+
+The mend. The loop over the three axes of `glowLightShown` is unrolled, the check as it was, which
+takes the whole gap back in both sittings it was read in and 0.02 to 0.04 more, within 0.015 to 0.03
+of the shader before the check unrolled. The loop read `halves[k]`, `halves[(k + 1) % 3]`,
+`halves[(k + 2) % 3]` and each face's bit by an index known only as it ran, and the SPIR-V of the
+unrolled build differs from the head's in the loop's hint alone, so the cost was the driver keeping
+that loop. Of the two shapes asked, the check before the loop takes none of it and the branch where
+every face is open half in one sitting and all in the other, at more code.
+
+The hits. The three rooms of
+`A_Probes_Hits_Take_A_Lamps_Light_As_The_Path_Traced_Reference_Does_At_One_Bounce` read 1.0576,
+1.0461 and 0.9398 of the reference at the head and the same to four places unrolled, on the floor,
+hung in the air and flush in the east wall, the 0.94 to 1.06 item 273 reached. A probe's hit takes
+`glowLightSeen`'s one march and not this function, which the screen's probes and a pixel no screen
+probe holds take, so those are read by the glow tests on the three devices.
+
+The runs. The strict build is clean and the focused tests, the glow lights' with the shader
+compiler's and the norm and surface tests, pass 85. The glow tests, the screen probes' and the
+illumination tests of lamps and of the probes' hits pass 67 with 4 skipped on lavapipe 26.2.4, 73 on
+the RTX and 67 with 4 skipped on lavapipe 25.2.8. The suite's two legs ran once on the tree holding
+this change and the circular occluders' clear, as the Reply above reads, 2,495 passed in each. On
+Windows no test is new and no class moves.

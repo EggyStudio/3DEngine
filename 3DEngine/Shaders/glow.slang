@@ -555,7 +555,9 @@ public float glowLightShown<V : IVolume>(V field, SceneFieldInfo info, GlowLight
     float3 offset = p - middle;
     uint faces = glowFaces(light);
     float lit = 0.0, seen = 0.0;
-    [loop]
+    // Unrolled, so each axis's halves and the bit of each of its faces are read at an index the
+    // compiler knows.
+    [unroll]
     for (int k = 0; k < 3; k++)
     {
         float3 h = halves[k].xyz;
