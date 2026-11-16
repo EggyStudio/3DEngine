@@ -40,7 +40,10 @@ time on lavapipe, and on an EPYC 7763 a whole run ran out its hour before its la
 parts took 66 minutes. The Linux job keeps Mesa's cache from run to run, restored before the suite
 and saved after it whether the suite passed or not, keyed by the processor's model and a checksum of
 its flags (`build/processor.sh`), since lavapipe compiles for the instructions of the processor it
-runs on. The script writes what the suite prints to `3DEngine.Tests/TestResults/output.txt` and ends
+runs on. The macOS jobs run the suite in its parts too, each held to the script's 40 minutes, dealt
+to two runners, the first taking global illumination's, the render origin's and the scene field's
+classes and Graphics and the second every part but those, since whole it ran past its 40 minutes
+there. The script writes what the suite prints to `3DEngine.Tests/TestResults/output.txt` and ends
 with a page of at most 200 lines, also written to `TestResults/digest.md`, which holds the counts,
 the failures by cause, the most frequent first, each with its message, its first frames and some of
 its tests, and the lines the output repeated most. A process that is lost, by a crash, a hang, its

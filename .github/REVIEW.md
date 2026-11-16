@@ -1,6 +1,9 @@
 # Review
 
-Reviewed up to `b634f33d`, item 283, the shader compiler taken from the nearest checkout alone
+Reviewed up to `07457e05`, Verdict 127's mend, a compile's folder in the user's own cache whatever
+folder a test set, with `023aa15d`, item 274, a program's own shader looked up once a draw, and
+`f0d4e8df`, twelve pictures kept among the readings, pushed together at 09:49 on 2026-11-16, their
+build run 43834379791 started, the form kept. Before them `b634f33d`, item 283, the shader compiler taken from the nearest checkout alone
 where the user owns it and a compile writing in a closed folder of its own, pushed at 06:38 on
 2026-11-16, its build run 43811607980 red at 08:12 on macOS alone (Verdict 127), the form kept. Before it `ee4af79e`, item 280, the
 glow lights' loop over a box's axes unrolled, with `294e8a05`, Verdict 126's mend, the circular
@@ -1093,3 +1096,19 @@ shader store's tests pass 39 on lavapipe 26.2.4 and the RTX and 37 with 2 skippe
 25.2.8, whose container runs the tests as the superuser. Both legs of the suite pass, 2,501, in 27 m
 54 s and 27 m 28 s at 2,709 and 3,050 MB at most, the second shuffled by the seed 20261023. On
 Windows the new test joins `SlangCompilerPlaceTests` in the Graphics part, and no class moves.
+
+The macOS suite in two halves, after Verdict 127. The macOS job runs as two, each a job of its own
+with its own lines on the page (`--system "macOS, half N"`), and runs the suite in its parts from
+the start (`--parts`), each part a process held to the script's 40 minutes, as the Windows jobs run
+theirs. Global illumination's class, the render origin's and the scene field's run in processes of
+their own and the rest of the Rendering part in two (`--split
+Rendering=2+GlobalIlluminationTests+RenderOriginTests+SceneFieldTests`). The first half takes those
+three classes and Graphics (`--only`) and the second every part but those (`--except`), so a part
+added later runs in the second, and the first alone plays Slide, publishes it native, follows the
+README and builds the first game after its suite, its 75 minutes and the pack run's 120 kept. By the
+times the run of `b634f33d` printed on that runner the first half's tests take some 21.5 of the
+suite's 37.5 minutes summed, in four processes, and the second some 16 in eighteen. Read here with
+`--dotnet` naming a script that lists the tests and runs none, the first half deals the four parts
+named and the second the eighteen others, Rendering's two among them. BUILDING.md says how the macOS
+jobs run the suite. The scripts', the steps', the validation lines', the package's contents and the
+norm tests pass 72 on the workflow as changed.
