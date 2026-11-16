@@ -1,9 +1,10 @@
 # Review
 
-Reviewed up to `07457e05`, Verdict 127's mend, a compile's folder in the user's own cache whatever
+Reviewed up to `7d287a24`, the macOS suite dealt to two runners, pushed at 11:51 on 2026-11-16, its
+build run 43852572511 started, the form kept. Before it `07457e05`, Verdict 127's mend, a compile's folder in the user's own cache whatever
 folder a test set, with `023aa15d`, item 274, a program's own shader looked up once a draw, and
 `f0d4e8df`, twelve pictures kept among the readings, pushed together at 09:49 on 2026-11-16, their
-build run 43834379791 started, the form kept. Before them `b634f33d`, item 283, the shader compiler taken from the nearest checkout alone
+build run 43834379791 green at 11:51 with macOS among it, the form kept. Before them `b634f33d`, item 283, the shader compiler taken from the nearest checkout alone
 where the user owns it and a compile writing in a closed folder of its own, pushed at 06:38 on
 2026-11-16, its build run 43811607980 red at 08:12 on macOS alone (Verdict 127), the form kept. Before it `ee4af79e`, item 280, the
 glow lights' loop over a box's axes unrolled, with `294e8a05`, Verdict 126's mend, the circular
@@ -333,24 +334,6 @@ reverted as the screen probes' limit at shapes about a tile wide, its patches in
     the count, read again after the mend. After part 8, the draw list's binds, 273 and 274, before
     265.
 
-274. **The scene pass's thread waits on the shader store's lock, about 0.5 ms a frame.** From the
-    engine's traces of the voxel game on 2026-11-14, read for item 264's binds with tiered
-    compilation off. ShaderStore.Get, a program's shader looked up by its id under the store's lock,
-    is the largest share of that thread's lock time on 6.2.60 and on 264.9 alike, 1.79 s of every 20
-    s, so it is no part of 264's cost and stands on its own. First a read as a Reply, how many times
-    a frame the scene pass asks the store and from which calls, and which other thread holds the
-    lock while it waits and for what. Then the mend the read names, the lookup taken once a batch
-    where it is taken a draw, or a read that takes no lock against a table the writers replace
-    whole, with a test that a shader registered while another thread draws is found and none is
-    lost, and the game's cpu.hdr_scene read before and after. After 273, before 272. Read by the
-    coder at 21:59 from a trace of the game at about 170 frames a second with tiered compilation
-    off, one thread alone ever holds the store, the render thread recording the depth, shadow and
-    scene passes, so the cost is the count of lookups and no wait, Get 1.79 s of 20 s from its
-    shadow's own, the draw, the gathering and the casting batches, 555, 505, 430 and 195 ms, and
-    whether a shader keeps positions 359 ms more, every terrain draw a batch of its own; two forms
-    measured, a read that takes no lock and the draw's program found once when it is gathered and
-    carried on the draw.
-
 275. **The deep audit's findings.** From the review's read-only audit of 2026-11-14 at `c6bac6dc`,
     ~/.cache/claude-reviewer/audits-2026-11-14/3DEngine-deep-audit.md, sixteen areas each read by a
     finder and every finding put to three verifiers, one reading the code, one its reach and one the
@@ -370,16 +353,6 @@ reverted as the screen probes' limit at shapes about a tile wide, its patches in
     a finding that does not hold says why. The three high ones after part 8's commit, beside the
     binds' session; the medium ones after 272 and ahead of 265, the low ones after 265.
 
-283. **The shader compiler is looked for in every folder above the program.** `SlangCompiler.Locate`
-    walks from the program's folder and from the current folder up to the root and runs the first
-    `build/tools/slang/bin/slangc` it finds, so a program started under a folder others can write, a
-    shared temporary folder among them, runs a compiler another user set there. Asked, as the
-    sibling engine does it, the walk stopping at the nearest checkout, marked by the solution file,
-    and on Unix taking the file only where the user owns it, `ENGINE_SLANGC` and the `PATH` as they
-    are; the scratch folder a compile writes into checked the same way, under the user's own cache
-    or runtime folder and closed to others. A test for each, a compiler set above a folder that is
-    no checkout not taken. After 280 and before 274.
-
 284. **A flush lamp's own wall reads a quarter below the reference.** Item 273's sheet against the
     traced reference at two bounces shows the wall a lamp is set flush in at 0.75 of the reference's
     light where the room as a whole reads 0.97, the blue band around the lamp. Find which part falls
@@ -392,7 +365,8 @@ reverted as the screen probes' limit at shapes about a tile wide, its patches in
 
 ## Verdicts
 
-Verdict 127 is open, a compile's own folder not written into on macOS in run 43811607980. Verdicts
+Verdict 127 is settled at 11:51 on 2026-11-16, the macOS job green in run 43834379791 with a
+compile's folder in the user's own cache. Verdicts
 125 and 126 are settled at 06:38 on 2026-11-16, the circular occluders' far room test green on the
 Windows device in run 43800838233 once the images are cleared each frame.
 
@@ -979,90 +953,6 @@ pass, 2,495, in 29 m 52 s and 27 m 35 s at 2,621 and 3,031 MB at most, the secon
 seed 20261023. On Windows no test is new, so no class moves, the far room's test staying in
 Rendering 7 in the fourth half.
 
-Item 283, the shader compiler taken from the nearest checkout alone, the user's own, and a compile's
-folder closed to others.
-
-The walk. `SlangCompiler.Locate` takes `ENGINE_SLANGC` and the `PATH` as before, and then, from the
-program's folder and from the current folder, `SlangCompiler.FromCheckout`, which goes up to the
-nearest folder holding `3DEngine.slnx` and takes `build/tools/slang/bin/slangc` there or nothing,
-never a folder past it. A game's own solution marks no checkout, so the voxel game inside the
-engine's checkout still finds the engine's compiler, and a program built from the package outside
-any checkout finds none there, as before.
-
-The owner. On Linux and macOS the checkout's compiler is taken only where the user the program runs
-as owns it, followed through a link, read by `OwnFiles.IsOwn`, the owner through `statx` on Linux,
-20 bytes into its fixed layout, and `stat` on macOS, 16 bytes into the 64-bit inode layout
-(`stat$INODE64` on an Intel Mac), against `geteuid`. Windows files carry no Unix owner, so there
-every file is taken as the user's.
-
-The folder a compile writes in. A compile wrote its source and slangc's output in a folder
-`Directory.CreateTempSubdirectory` made under the shared temporary folder.
-`SlangCompiler.WorkFolder` now makes it closed to others, mode 700, in the user's runtime folder
-(`XDG_RUNTIME_DIR`) where that is the user's own and no group or other may write it, and otherwise
-in `slang-work` in the engine's cache folder, made closed, and a parent that is not the user's own
-or that others may write stops the compile with an error saying so. Windows keeps its temporary
-folder, which is the user's own there.
-
-The tests.
-`SlangCompilerPlaceTests.A_Compiler_Is_Taken_From_The_Nearest_Checkout_Of_The_Engine_Alone` sets a
-compiler in a folder above a program with no checkout, then a game's solution, then the engine's
-solution above, then a nearer checkout that fetched none, the compiler taken only at the third.
-`A_Compiler_Another_User_Owns_Is_Not_Taken` links the checkout's compiler to the system's shell, the
-superuser's, and finds it not taken, and `A_Compile_Writes_In_A_Folder_Of_Its_Own_Closed_To_Others`
-reads the runtime folder taken while closed, the cache's taken when the runtime folder is open to
-others or missing, its mode 700, and a cache folder open to its group refused. The last two are
-skipped on Windows and where the tests run as the superuser. With the head's walk and folder all
-three fail, the first finding the compiler above a folder that is no checkout, the second taking the
-link, the third writing in `/tmp`. BUILDING.md says where the compiler is looked for and where a
-compile writes.
-
-The runs. The strict build is clean, and of the focused tests, the shader compiler's, the shader
-names', the shader store's and the norm and surface tests, 71 of 72 passed at first, N 4.7 reading
-two comments of `OwnFiles` that named a file's owner in its words for a decider, which were
-reworded, the strict build then clean again and the norm, surface and place tests passing 35. The
-compiler's and the shader store's tests pass 37 on lavapipe 26.2.4 and the RTX, and 35 on lavapipe
-25.2.8, whose container runs the tests as the superuser and so skips the two that read another
-user's file. Both legs of the suite pass, 2,498, in 28 m 9 s and 28 m 2 s at 3,170 and 2,886 MB at
-most, the second shuffled by the seed 20261023. On Windows `SlangCompilerPlaceTests` joins the
-Graphics part in the first half beside `SlangCompilerTests`, and no class moves.
-
-Item 274, a program's own shader looked up once a draw as the frame's batches are gathered.
-
-The two forms, each over 276's mends as committed, the game's room at Low capped at 100 and pinned
-to the P-cores, five rounds each under the exclusive lock, medians in ms of the scene pass, the
-shadows, the window's depth, the model batches and every CPU pass summed. The mends alone read
-0.447, 0.415, 0.337, 0.304 and 2.179, a lookup that takes no lock against a table the writers
-replace whole 0.435, 0.402, 0.336, 0.280 and 2.115, and the program found once as a draw is gathered
-and carried on its batch 0.423, 0.391, 0.308, 0.281 and 2.061. The batch's form is the cheaper in
-every pass but the model batches, a thousandth behind, and is taken alone, the store keeping its
-lock, since it leaves the render thread one lookup a draw where the table's would spare each of them
-a lock taken by no other thread.
-
-The mend. `ShaderStore.Lookup` gives a shader's program and whether its vertex stage keeps its
-mesh's positions under one lock, which the gathering takes for each draw of a shader of the
-program's own and carries on its batch, and the instances' culling, the scene pass, the shadows'
-casting batches and their own shadows read the batch's where each asked the store again. A frame
-draws with the programs its shaders held when its batches were gathered, so a shader loaded again or
-unloaded on the program's thread during it takes effect from the next. `ShaderStore.KeepsPositions`,
-which nothing asks then, is gone, and the batches' making moves to `ModelRenderer.Order.cs`, which
-leaves `ModelNode.cs` at 773 lines. A frame of eight draws through a program's own masked shader,
-each of its own mesh as the game's chunks are, asks the store 17 times, once a draw as the program
-records it, once a draw as it is gathered and once for the shader's pipelines, where it asked 49,
-the scene pass, the instances' culling, the casting batches and the own shadow each once a draw more
-(`OffscreenRenderTests`), and `ShaderStoreTests` holds two threads loading, loading again and
-unloading shaders while a third looks them up, each found with whether it keeps positions and none
-lost.
-
-The runs. The patch read on 2026-11-15 applies to the head unchanged. From a worktree of `ee4af79e`
-holding it, the shader store's, the models', the shadows', the subsurface's, the occlusion's, the
-model order's and the quality's tests with the two new ones pass 180 with 1 skipped on lavapipe
-26.2.4, 181 on the RTX and 180 with 1 skipped on lavapipe 25.2.8. On main the strict build is clean,
-the focused tests, the shader store's, the offscreen renders', the model order's, the models' and
-the norm and surface tests, pass 232, and both legs of the suite pass, 2,500, in 28 m 6 s and 27 m
-49 s at 2,964 and 2,799 MB at most, the second shuffled by the seed 20261023. On Windows the two new
-tests join their classes' parts, the shader store's in Rendering 1 and the offscreen renders' in
-Rendering 7, and no class moves.
-
 Verdict 127, a compile's folder under a cache folder a test deletes. A compile wrote its source and
 slangc's output in a folder `SlangCompiler.WorkFolder` made in the user's runtime folder or, where
 none stands, as on macOS, in `slang-work` under `UserCache.Folder` (`SlangCompiler.cs`, line 520 at
@@ -1112,3 +1002,85 @@ suite's 37.5 minutes summed, in four processes, and the second some 16 in eighte
 named and the second the eighteen others, Rendering's two among them. BUILDING.md says how the macOS
 jobs run the suite. The scripts', the steps', the validation lines', the package's contents and the
 norm tests pass 72 on the workflow as changed.
+
+Item 284, a flush lamp's own wall.
+
+The splits. The room of item 273's sheet with its lamp set flush in the east wall, at High with the
+light past the first bounce off and no ambient light, at 480 by 270 on the RTX 4070, the reference
+traced at 4,096 paths a pixel at one bounce, its direct light, and at two, its bounce the second
+less the first, and the frame by the model pass's terms (`GlobalIlluminationSettings.Term`), the
+glow lights' straight to the pixel and the probes'. The east wall, its faces toward -x, by its mean
+light.
+
+| The east wall | Reference, direct | Reference, bounce | Frame, glow lights | Frame, probes | Frame over reference |
+|---|---|---|---|---|---|
+| Every pixel | 0.00133 | 0.00643 | 0 | 0.00563 | 0.749 |
+| 4 pixels from the lamp and past | 0.00004 | 0.00607 | 0 | 0.00543 | 0.919 |
+| The same, the march aimed | 0.00004 | 0.00607 | 0 | 0.00639 | 1.081 |
+
+The quarter the sheet showed is two parts. The reference's paths spread over each pixel, so the 359
+pixels within 4 of the lamp's take its own light, 0.104 each, read on the wall as direct light where
+the frame, at one point a pixel, takes none, which is the comparison's and not the light's. Past
+them the wall read 0.919, its direct light nothing in both, the lamp's face lying in the wall's
+plane, and the probes 0.895 of the reference's bounce. With the screen's probes off the world's
+alone brought it 1.015 of the bounce, and the filter and the faint lights taken as points made no
+difference. Thirty-seven of the screen's probes on the wall, read ray by ray against the reference
+along the same ways (`BounceReference.ScreenProbe`), brought 0.755 of it, their hits on the ceiling
+0.92, on the ledge's top 0.73, on the floor 0.23, on the south wall 0.53 and on the north wall 0.68,
+and the light from beyond their reach 1.04.
+
+The cause. A hit takes a glow light by `glowLightSeen` (`glow.slang`), one march from a cell and a
+half off the surface toward the middle of the light's box, `middleAndReach.xyz`. A lamp set flush in
+a wall has that middle half a block inside the wall, so a hit that sees its face at a slant marches
+into the wall beside the face and takes none of its light, a point of the ceiling by the wall
+reaching the box through its buried top. `glowLightShown`, which a pixel takes, marches to the
+halves of the faces that emit, which is why the frame's direct light reads as the reference's.
+
+The mend. `glowLightAimed` aims the march at the middle of the emitting face the hit faces most
+squarely where not every face of the box emits, and at the box's middle otherwise, so a light whose
+six faces all emit marches as before. The wall then reads 1.081 of the reference past the lamp's 4
+pixels, its probes 1.053 of the bounce, and the room 1.055 where it read 1.010. Of the wall's 0.081
+over, the probes' bounce carries 0.053 and their reflection 0.035, which the reference, traced
+without gloss, holds none of, the glow lights' term 0.007 under. Of the room's 0.055 the probes
+carry 0.010, the glow lights 0.025 and the reflections 0.021, as the rooms of the floor lamp and the
+hung lamp read theirs, 1.02 to 1.06. The hung lamp's room reads the same to the last digit, its six
+faces all emitting, and the floor lamp's, its bottom closed, within 0.008 on every face. The wall's
+screen probes' rays bring 0.890 of the reference along them, their hits on the ceiling 1.08, on the
+south wall 0.92 and on the north wall 1.04. Those on the floor past the ledge stay at 0.29, the
+screen's march passing the ledge's edge, which is item 285, and its readings are kept.
+
+The test.
+`GlobalIlluminationTests.The_Light_A_Lamp_Bounces_Onto_The_East_Wall_Is_The_References_Whether_The_Lamp_Is_Set_In_It_Or_Not`
+draws the room with the lamp flush in the east wall, on the floor and hung in the air at High with
+the light past the first bounce off, traces the reference at one bounce and at two, draws the
+probes' term alone, and holds their light on the east wall between 0.95 and 1.15 of the reference's
+bounce, writing each share to the test's output. On the RTX it reads 1.039, 1.073 and 1.056, and
+with the box's middle 0.899 in the flush room, so it fails there, and 1.072 and 1.056 in the others.
+It skips on both lavapipes, which trace no rays from a shader, as the tests of the reference do, so
+no device that draws on its CPU reads the room unmended inside the bound. `GlobalIlluminationTests`
+takes the test's output through its constructor.
+
+The cost. The game's flight east at 110 over seed 1's land on 6.2.60 with the engine laid over it,
+as item 280's reads were, at 1280 by 720 unlimited, the head's `glow.slang` against the aimed one,
+two sittings each read in turn and back, A B B A and B A A B, every read its own exclusive turn of
+the lock. The means of their three samples, before then after, in ms, the frame at Low 8.695 and
+8.509, 8.787 and 8.826, at High 12.707 and 12.785, 12.948 and 12.970; `gpu.global_illumination` at
+Low 1.840 and 1.816, 1.832 and 1.831, at High 5.409 and 5.421, 5.396 and 5.413; `gpu.hdr_scene` at
+Low 4.781 and 4.775, 4.773 and 4.800, at High 4.519 and 4.528, 4.527 and 4.550. The passes move by
+0.03 ms at most, within the sittings' own spread, so the aim costs nothing read.
+
+The sheet. Made again with the march aimed, `2026-11-16-item-284-aim.webp`, the three rooms at the
+box's middle and at the open face against the reference at two bounces, the lamp and its 4 pixels
+gray and out of the shares, as the note under its title says, the flush room 1.01 and 1.05 and its
+wall 0.92 and 1.08, the open lamps' 1.03 either way. Item 273's sheet is drawn again with the same
+margin and its caption says before and after, the flush room 1.35 and 1.01 and its wall 1.82 and
+0.92, and the far room's caption of 2026-11-12 says after.
+
+The runs. The strict build is clean, the focused tests, the glow lights', the new test's, the
+probes' hits', the shader compiler's, the scripts', the validation lines', the package's contents
+and the norm and surface tests, pass 146, and the glow tests with the lamps', the probes' hits' and
+the screen probes' pass 67 with 5 skipped on lavapipe 26.2.4 and on lavapipe 25.2.8, the new test
+among those skipped, and 76 on the RTX. Both legs of the suite pass, 2,504, in 29 m 22 s and 28 m 15
+s at 2,903 and 2,918 MB at most, the second shuffled by the seed 20261023. On Windows the new test
+joins global illumination's class, whose four processes deal its methods as before, and no class
+moves.

@@ -354,4 +354,50 @@ public sealed partial class GlobalIlluminationTests
         UnloadMesh(walls);
         foreach (var (mesh, _, _) in meshes) UnloadMesh(mesh);
     }
+
+    [NeedsRayQueryTheory]
+    [Trait("Category", "Render")]
+    [InlineData("flush in the east wall")]
+    [InlineData("on the floor")]
+    [InlineData("hung in the air")]
+    public void The_Light_A_Lamp_Bounces_Onto_The_East_Wall_Is_The_References_Whether_The_Lamp_Is_Set_In_It_Or_Not(string room)
+    {
+        // The probes' light on the east wall against the reference's light bounced once, its paths
+        // at two bounces less its paths at one, the light past the first bounce left out. A lamp set
+        // flush in the wall sends it nothing straight, its face lying in the wall's plane, so all the
+        // wall takes comes back from the room, from hits that see the lamp's face at a slant.
+        OpenRoom(new Vector3(0, 1.5f, 0), GlobalIllumination.High);
+        SetAmbientLight(Color.Black, 0);
+        var settings = GetApp().World.Resource<GlobalIlluminationSettings>();
+        settings.AgainOff = true;
+        var (lamps, _) = Placed(room);
+        var blocks = RoomBlocks();
+        foreach (var lamp in lamps) blocks.Remove(lamp);
+        var walls = Section(blocks, []);
+        var meshes = lamps.SelectMany(lamp => LampMeshes(lamp, Handed.Cube, blocks, Color.White)).ToList();
+        DrawRoom(walls, meshes, 0, SceneFieldPlan.SettleFrames + 20);
+        var (once, twice) = (Path.Combine(_folder.Path, "once.png"), Path.Combine(_folder.Path, "twice.png"));
+        BounceReference.Trace(GetApp().World, once, 256, 1).Should().StartWith("traced");
+        BounceReference.Trace(GetApp().World, twice, 256, 2).Should().StartWith("traced");
+        settings.Term = 1;
+        DrawRoom(walls, meshes, 0, 3);
+        var (straight, probes) = EastWall(once);
+        var (both, _) = EastWall(twice);
+        var share = probes / (both - straight);
+        output.WriteLine($"a lamp {room}: the probes bring the east wall {probes:0.00000}, the reference's light bounced once {both - straight:0.00000}, {share:0.000} of it");
+        share.Should().BeInRange(0.95f, 1.15f,
+            $"the probes bring the east wall {probes:0.00000} with a lamp {room}, the reference's light bounced once {both - straight:0.00000}");
+        settings.Term = 0;
+        UnloadMesh(walls);
+        foreach (var (mesh, _, _) in meshes) UnloadMesh(mesh);
+
+        // The east wall's mean light in the reference at the path given and in the frame.
+        static (float Reference, float Frame) EastWall(string path)
+        {
+            var regions = BounceReference.Measure(GetApp().World, path, out var why, out _);
+            regions.Should().NotBeNull(why);
+            var wall = regions!.Single(region => region.Name.EndsWith("side facing -x", StringComparison.Ordinal) && !region.Name.StartsWith("emissive", StringComparison.Ordinal));
+            return (wall.Reference.X, wall.Frame.X);
+        }
+    }
 }

@@ -6,6 +6,27 @@ under `.github/assets/readings` as WebP files named by their day, each on the da
 the notes written beside them as Markdown files named the same way. A line under Done names the item
 of .github/REVIEW.md or .github/REVIEW-ARCHIVE.md and the commit that closed it.
 
+## 2026-11-16
+
+![](.github/assets/readings/2026-11-16-item-273-faces.webp)
+A lamp block's direct light and one bounce at High in a closed room of stone blocks, the lamp flush
+in the east wall, on the floor and hung in the air, before and after a glow light sent from the
+faces the field finds open alone, each row at one exposure, against a reference path traced at two
+bounces, with each frame's luminance less the reference's four times over, red lighter and blue
+darker, the lamp and 4 pixels around it gray and left out of the shares; by the lamp in the wall the
+room's surfaces read 1.35 of the reference's light before and 1.01 after and its own wall 1.82 and
+0.92, and by the open lamps 1.03 before and after alike.
+
+![](.github/assets/readings/2026-11-16-item-284-aim.webp)
+A lamp block's direct light and one bounce at High in a closed room of stone blocks, the lamp flush
+in the east wall, on the floor and hung in the air, a hit's march to the lamp aimed at its box's
+middle and at the middle of its open face, each row at one exposure, against a reference path traced
+at two bounces, with each frame's luminance less the reference's four times over, red lighter and
+blue darker, the lamp and 4 pixels around it gray and left out of the shares; by the lamp in the
+wall the room's surfaces read 1.01 of the reference's light aimed at the middle and 1.05 at the face
+and its own wall 0.92 and 1.08, the light the probes bring the wall from the room 0.90 and 1.05 of
+the reference's bounce, and by the open lamps 1.03 either way.
+
 ## 2026-11-15
 
 ![](.github/assets/readings/2026-11-15-item-277-fetch-after.webp)
@@ -43,7 +64,7 @@ Done that day
 A room at Low quality at the world's origin, and the same room at 1,140,736 and 285,696 drawn
 against the world's origin as before, its shapes and light torn by the floats' steps out there,
 16,436 of its 57,600 pixels more than a level from the room at the origin, and drawn against the eye
-as now, 107, the two far frames differing to the eye.
+after, 107, the two far frames differing to the eye.
 
 Done that day
 

@@ -1,5 +1,6 @@
 using System.Numerics;
 using FluentAssertions;
+using Xunit.Abstractions;
 using static Engine.E3D;
 
 namespace Engine.Tests.Rendering;
@@ -11,7 +12,7 @@ namespace Engine.Tests.Rendering;
 /// <c>GlobalIlluminationTests.Frames.cs</c> how the light holds still and follows its lights over frames.
 /// </summary>
 [Collection("E3D")]
-public sealed partial class GlobalIlluminationTests : IDisposable
+public sealed partial class GlobalIlluminationTests(ITestOutputHelper output) : IDisposable
 {
     private readonly TestFolder _folder = new("engine-gi-");
     private int _captures;

@@ -519,17 +519,52 @@ float glowMarch<V : IVolume>(V field, SceneFieldInfo info, GlowLight light, floa
     return seen;
 }
 
+// Where one march to a glow light from `from` aims: the middle of its box where every face emits,
+// and otherwise the middle of the emitting face `from` lies before and faces most squarely, so a
+// lamp set into a wall, whose box's middle lies behind the wall's face, is marched to through the
+// face it shows and not through the wall beside it. The box's middle where `from` lies before no
+// emitting face.
+float3 glowLightAimed(GlowLight light, float3 from)
+{
+    float3 middle = light.middleAndReach.xyz;
+    uint faces = glowFaces(light);
+    if (faces == 63u)
+        return middle;
+    float4 halves[3] = { light.halfX, light.halfY, light.halfZ };
+    float3 offset = from - middle;
+    float3 aimed = middle;
+    float squarest = 0.0;
+    [unroll]
+    for (int k = 0; k < 3; k++)
+    {
+        float squared = halves[k].w * halves[k].w;
+        float side = dot(offset, halves[k].xyz);
+        if (squared < 1e-12 || abs(side) <= squared || (faces & (1u << uint(2 * k + (side > 0.0 ? 1 : 0)))) == 0u)
+            continue;
+        float3 face = middle + (side > 0.0 ? halves[k].xyz : -halves[k].xyz);
+        // The cosine between the face's normal and the way from its middle to `from`.
+        float facing = (abs(side) - squared) / (halves[k].w * max(length(from - face), 1e-6));
+        if (facing > squarest)
+        {
+            squarest = facing;
+            aimed = face;
+        }
+    }
+    return aimed;
+}
+
 // How much of a glow light a surface at p facing n, in cells of `cell`, sees, from 0 to 1: one
-// march from a cell and a half off the surface to the middle of its box, the cone as wide as the
-// box across the way toward each surface the march passes (glowMarch), which a probe's ray's hit
-// and a pixel no screen probe holds take, the light that bounces on and a far pixel's asking less
-// than the shadows near the eye. Where the field does not hold p, all of it.
+// march from a cell and a half off the surface to the middle of its box, or of the emitting face it
+// faces most squarely where not every face emits (glowLightAimed), the cone as wide as the box
+// across the way toward each surface the march passes (glowMarch), which a probe's ray's hit and a
+// pixel no screen probe holds take, the light that bounces on and a far pixel's asking less than
+// the shadows near the eye. Where the field does not hold p, all of it.
 public float glowLightSeen<V : IVolume>(V field, SceneFieldInfo info, GlowLight light, float3 p, float3 n, float cell)
 {
     if (cell <= 0.0)
         return 1.0;
     float3 from = p + n * (cell * 1.5);
-    float3 toward = light.middleAndReach.xyz - from;
+    float3 toward = glowLightAimed(light, from) - from;
     float total = max(length(toward), 1e-6);
     float entry = glowLightEntry(light, from, toward / total);
     if (entry <= cell * 2.0)

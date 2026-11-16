@@ -10410,6 +10410,34 @@ here, and the copy of the player's save is let go, made again on request. The lo
     unchanged default sound. It goes first, before 281, since the first finding holds the method
     back in every packaged program.
 
+274. **The scene pass's thread waits on the shader store's lock, about 0.5 ms a frame.** From the
+    engine's traces of the voxel game on 2026-11-14, read for item 264's binds with tiered
+    compilation off. ShaderStore.Get, a program's shader looked up by its id under the store's lock,
+    is the largest share of that thread's lock time on 6.2.60 and on 264.9 alike, 1.79 s of every 20
+    s, so it is no part of 264's cost and stands on its own. First a read as a Reply, how many times
+    a frame the scene pass asks the store and from which calls, and which other thread holds the
+    lock while it waits and for what. Then the mend the read names, the lookup taken once a batch
+    where it is taken a draw, or a read that takes no lock against a table the writers replace
+    whole, with a test that a shader registered while another thread draws is found and none is
+    lost, and the game's cpu.hdr_scene read before and after. After 273, before 272. Read by the
+    coder at 21:59 from a trace of the game at about 170 frames a second with tiered compilation
+    off, one thread alone ever holds the store, the render thread recording the depth, shadow and
+    scene passes, so the cost is the count of lookups and no wait, Get 1.79 s of 20 s from its
+    shadow's own, the draw, the gathering and the casting batches, 555, 505, 430 and 195 ms, and
+    whether a shader keeps positions 359 ms more, every terrain draw a batch of its own; two forms
+    measured, a read that takes no lock and the draw's program found once when it is gathered and
+    carried on the draw.
+
+283. **The shader compiler is looked for in every folder above the program.** `SlangCompiler.Locate`
+    walks from the program's folder and from the current folder up to the root and runs the first
+    `build/tools/slang/bin/slangc` it finds, so a program started under a folder others can write, a
+    shared temporary folder among them, runs a compiler another user set there. Asked, as the
+    sibling engine does it, the walk stopping at the nearest checkout, marked by the solution file,
+    and on Unix taking the file only where the user owns it, `ENGINE_SLANGC` and the `PATH` as they
+    are; the scratch folder a compile writes into checked the same way, under the user's own cache
+    or runtime folder and closed to others. A test for each, a compiler set above a folder that is
+    no checkout not taken. After 280 and before 274.
+
 ## Verdicts settled
 
 Verdicts 1 to 55 are settled, the last two, the drawing leak test's resident bound and the Windows
@@ -18197,6 +18225,90 @@ illumination tests of lamps and of the probes' hits pass 67 with 4 skipped on la
 the RTX and 67 with 4 skipped on lavapipe 25.2.8. The suite's two legs ran once on the tree holding
 this change and the circular occluders' clear, as the Reply above reads, 2,495 passed in each. On
 Windows no test is new and no class moves.
+
+Item 283, the shader compiler taken from the nearest checkout alone, the user's own, and a compile's
+folder closed to others.
+
+The walk. `SlangCompiler.Locate` takes `ENGINE_SLANGC` and the `PATH` as before, and then, from the
+program's folder and from the current folder, `SlangCompiler.FromCheckout`, which goes up to the
+nearest folder holding `3DEngine.slnx` and takes `build/tools/slang/bin/slangc` there or nothing,
+never a folder past it. A game's own solution marks no checkout, so the voxel game inside the
+engine's checkout still finds the engine's compiler, and a program built from the package outside
+any checkout finds none there, as before.
+
+The owner. On Linux and macOS the checkout's compiler is taken only where the user the program runs
+as owns it, followed through a link, read by `OwnFiles.IsOwn`, the owner through `statx` on Linux,
+20 bytes into its fixed layout, and `stat` on macOS, 16 bytes into the 64-bit inode layout
+(`stat$INODE64` on an Intel Mac), against `geteuid`. Windows files carry no Unix owner, so there
+every file is taken as the user's.
+
+The folder a compile writes in. A compile wrote its source and slangc's output in a folder
+`Directory.CreateTempSubdirectory` made under the shared temporary folder.
+`SlangCompiler.WorkFolder` now makes it closed to others, mode 700, in the user's runtime folder
+(`XDG_RUNTIME_DIR`) where that is the user's own and no group or other may write it, and otherwise
+in `slang-work` in the engine's cache folder, made closed, and a parent that is not the user's own
+or that others may write stops the compile with an error saying so. Windows keeps its temporary
+folder, which is the user's own there.
+
+The tests.
+`SlangCompilerPlaceTests.A_Compiler_Is_Taken_From_The_Nearest_Checkout_Of_The_Engine_Alone` sets a
+compiler in a folder above a program with no checkout, then a game's solution, then the engine's
+solution above, then a nearer checkout that fetched none, the compiler taken only at the third.
+`A_Compiler_Another_User_Owns_Is_Not_Taken` links the checkout's compiler to the system's shell, the
+superuser's, and finds it not taken, and `A_Compile_Writes_In_A_Folder_Of_Its_Own_Closed_To_Others`
+reads the runtime folder taken while closed, the cache's taken when the runtime folder is open to
+others or missing, its mode 700, and a cache folder open to its group refused. The last two are
+skipped on Windows and where the tests run as the superuser. With the head's walk and folder all
+three fail, the first finding the compiler above a folder that is no checkout, the second taking the
+link, the third writing in `/tmp`. BUILDING.md says where the compiler is looked for and where a
+compile writes.
+
+The runs. The strict build is clean, and of the focused tests, the shader compiler's, the shader
+names', the shader store's and the norm and surface tests, 71 of 72 passed at first, N 4.7 reading
+two comments of `OwnFiles` that named a file's owner in its words for a decider, which were
+reworded, the strict build then clean again and the norm, surface and place tests passing 35. The
+compiler's and the shader store's tests pass 37 on lavapipe 26.2.4 and the RTX, and 35 on lavapipe
+25.2.8, whose container runs the tests as the superuser and so skips the two that read another
+user's file. Both legs of the suite pass, 2,498, in 28 m 9 s and 28 m 2 s at 3,170 and 2,886 MB at
+most, the second shuffled by the seed 20261023. On Windows `SlangCompilerPlaceTests` joins the
+Graphics part in the first half beside `SlangCompilerTests`, and no class moves.
+
+Item 274, a program's own shader looked up once a draw as the frame's batches are gathered.
+
+The two forms, each over 276's mends as committed, the game's room at Low capped at 100 and pinned
+to the P-cores, five rounds each under the exclusive lock, medians in ms of the scene pass, the
+shadows, the window's depth, the model batches and every CPU pass summed. The mends alone read
+0.447, 0.415, 0.337, 0.304 and 2.179, a lookup that takes no lock against a table the writers
+replace whole 0.435, 0.402, 0.336, 0.280 and 2.115, and the program found once as a draw is gathered
+and carried on its batch 0.423, 0.391, 0.308, 0.281 and 2.061. The batch's form is the cheaper in
+every pass but the model batches, a thousandth behind, and is taken alone, the store keeping its
+lock, since it leaves the render thread one lookup a draw where the table's would spare each of them
+a lock taken by no other thread.
+
+The mend. `ShaderStore.Lookup` gives a shader's program and whether its vertex stage keeps its
+mesh's positions under one lock, which the gathering takes for each draw of a shader of the
+program's own and carries on its batch, and the instances' culling, the scene pass, the shadows'
+casting batches and their own shadows read the batch's where each asked the store again. A frame
+draws with the programs its shaders held when its batches were gathered, so a shader loaded again or
+unloaded on the program's thread during it takes effect from the next. `ShaderStore.KeepsPositions`,
+which nothing asks then, is gone, and the batches' making moves to `ModelRenderer.Order.cs`, which
+leaves `ModelNode.cs` at 773 lines. A frame of eight draws through a program's own masked shader,
+each of its own mesh as the game's chunks are, asks the store 17 times, once a draw as the program
+records it, once a draw as it is gathered and once for the shader's pipelines, where it asked 49,
+the scene pass, the instances' culling, the casting batches and the own shadow each once a draw more
+(`OffscreenRenderTests`), and `ShaderStoreTests` holds two threads loading, loading again and
+unloading shaders while a third looks them up, each found with whether it keeps positions and none
+lost.
+
+The runs. The patch read on 2026-11-15 applies to the head unchanged. From a worktree of `ee4af79e`
+holding it, the shader store's, the models', the shadows', the subsurface's, the occlusion's, the
+model order's and the quality's tests with the two new ones pass 180 with 1 skipped on lavapipe
+26.2.4, 181 on the RTX and 180 with 1 skipped on lavapipe 25.2.8. On main the strict build is clean,
+the focused tests, the shader store's, the offscreen renders', the model order's, the models' and
+the norm and surface tests, pass 232, and both legs of the suite pass, 2,500, in 28 m 6 s and 27 m
+49 s at 2,964 and 2,799 MB at most, the second shuffled by the seed 20261023. On Windows the two new
+tests join their classes' parts, the shader store's in Rendering 1 and the offscreen renders' in
+Rendering 7, and no class moves.
 
 ## Items closed, parked or shortened
 

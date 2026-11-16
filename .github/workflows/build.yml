@@ -404,10 +404,10 @@ jobs:
     # Apple silicon, whose GPU MoltenVK draws on through Metal.
     runs-on: macos-15
     # The suite is dealt to two runners, each a job of its own with its own lines on the page, as
-    # the suite's step below deals it, since whole it ran past the script's 40 minutes. The first
-    # plays the games after its suite. A push, whose first half plays Slide alone after the suite,
-    # has 75 minutes, and the pack run's first half, which plays every game after it, 120. Every
-    # example's capture on this GPU is the pack run's, in captures-macos below.
+    # the suite's step below deals it, so each part ends well within the script's 40 minutes. The
+    # first plays the games after its suite. A push, whose first half plays Slide alone after the
+    # suite, has 75 minutes, and the pack run's first half, which plays every game after it, 120.
+    # Every example's capture on this GPU is the pack run's, in captures-macos below.
     strategy:
       fail-fast: false
       matrix:
