@@ -1,7 +1,10 @@
 # Review
 
-Reviewed up to `e8a65332`, item 282 and Verdict 125's report, the circular occluders at eight points
-a build the shipped cache holds, their images and sets let go once switched away, and the far room's
+Reviewed up to `ee4af79e`, item 280, the glow lights' loop over a box's axes unrolled, with
+`294e8a05`, Verdict 126's mend, the circular occluders' raw and filtered images cleared to open each
+frame, pushed together at 04:53 on 2026-11-16, their build run 43800838233 started, the form kept.
+Before them `e8a65332`, item 282 and Verdict 125's report, the circular occluders at eight points a
+build the shipped cache holds, their images and sets let go once switched away, and the far room's
 test saying what each stage read, with `81656c12`, item 281, a computed state or a sub state applied
 after the state it is worked out from, pushed together at 01:37 on 2026-11-16, their build run
 43781515730 red at 02:58 in the fourth Windows half alone (Verdict 126), the form kept. Before them
@@ -1088,3 +1091,50 @@ illumination tests of lamps and of the probes' hits pass 67 with 4 skipped on la
 the RTX and 67 with 4 skipped on lavapipe 25.2.8. The suite's two legs ran once on the tree holding
 this change and the circular occluders' clear, as the Reply above reads, 2,495 passed in each. On
 Windows no test is new and no class moves.
+
+Item 283, the shader compiler taken from the nearest checkout alone, the user's own, and a compile's
+folder closed to others.
+
+The walk. `SlangCompiler.Locate` takes `ENGINE_SLANGC` and the `PATH` as before, and then, from the
+program's folder and from the current folder, `SlangCompiler.FromCheckout`, which goes up to the
+nearest folder holding `3DEngine.slnx` and takes `build/tools/slang/bin/slangc` there or nothing,
+never a folder past it. A game's own solution marks no checkout, so the voxel game inside the
+engine's checkout still finds the engine's compiler, and a program built from the package outside
+any checkout finds none there, as before.
+
+The owner. On Linux and macOS the checkout's compiler is taken only where the user the program runs
+as owns it, followed through a link, read by `OwnFiles.IsOwn`, the owner through `statx` on Linux,
+20 bytes into its fixed layout, and `stat` on macOS, 16 bytes into the 64-bit inode layout
+(`stat$INODE64` on an Intel Mac), against `geteuid`. Windows files carry no Unix owner, so there
+every file is taken as the user's.
+
+The folder a compile writes in. A compile wrote its source and slangc's output in a folder
+`Directory.CreateTempSubdirectory` made under the shared temporary folder.
+`SlangCompiler.WorkFolder` now makes it closed to others, mode 700, in the user's runtime folder
+(`XDG_RUNTIME_DIR`) where that is the user's own and no group or other may write it, and otherwise
+in `slang-work` in the engine's cache folder, made closed, and a parent that is not the user's own
+or that others may write stops the compile with an error saying so. Windows keeps its temporary
+folder, which is the user's own there.
+
+The tests.
+`SlangCompilerPlaceTests.A_Compiler_Is_Taken_From_The_Nearest_Checkout_Of_The_Engine_Alone` sets a
+compiler in a folder above a program with no checkout, then a game's solution, then the engine's
+solution above, then a nearer checkout that fetched none, the compiler taken only at the third.
+`A_Compiler_Another_User_Owns_Is_Not_Taken` links the checkout's compiler to the system's shell, the
+superuser's, and finds it not taken, and `A_Compile_Writes_In_A_Folder_Of_Its_Own_Closed_To_Others`
+reads the runtime folder taken while closed, the cache's taken when the runtime folder is open to
+others or missing, its mode 700, and a cache folder open to its group refused. The last two are
+skipped on Windows and where the tests run as the superuser. With the head's walk and folder all
+three fail, the first finding the compiler above a folder that is no checkout, the second taking the
+link, the third writing in `/tmp`. BUILDING.md says where the compiler is looked for and where a
+compile writes.
+
+The runs. The strict build is clean, and of the focused tests, the shader compiler's, the shader
+names', the shader store's and the norm and surface tests, 71 of 72 passed at first, N 4.7 reading
+two comments of `OwnFiles` that named a file's owner in its words for a decider, which were
+reworded, the strict build then clean again and the norm, surface and place tests passing 35. The
+compiler's and the shader store's tests pass 37 on lavapipe 26.2.4 and the RTX, and 35 on lavapipe
+25.2.8, whose container runs the tests as the superuser and so skips the two that read another
+user's file. Both legs of the suite pass, 2,498, in 28 m 9 s and 28 m 2 s at 3,170 and 2,886 MB at
+most, the second shuffled by the seed 20261023. On Windows `SlangCompilerPlaceTests` joins the
+Graphics part in the first half beside `SlangCompilerTests`, and no class moves.

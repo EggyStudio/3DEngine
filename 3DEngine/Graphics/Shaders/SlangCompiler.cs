@@ -517,7 +517,7 @@ internal static partial class SlangCompiler
     {
         // slangc reads files rather than standard input, and the source may not exist on disk at
         // all (an asset read from memory), so it is written to a directory of its own.
-        var work = Directory.CreateTempSubdirectory("engine-slang-");
+        var work = WorkFolder(Environment.GetEnvironmentVariable("XDG_RUNTIME_DIR"), Path.Combine(UserCache.Folder, "slang-work"));
         try
         {
             var input = Path.Combine(work.FullName, Path.GetFileName(fileName));
@@ -662,6 +662,46 @@ internal static partial class SlangCompiler
         _ => throw new ArgumentOutOfRangeException(nameof(stage), stage, "Unsupported shader stage."),
     };
 
+    /// <summary>The file that marks a checkout of the engine, at its root.</summary>
+    internal const string SolutionFile = "3DEngine.slnx";
+
+    /// <summary>
+    /// The compiler a checkout of the engine fetches, <c>build/tools/slang/bin</c> in the nearest
+    /// folder at or above <paramref name="start"/> that holds <see cref="SolutionFile"/>, where the
+    /// user owns it, and none past that folder or where no folder above holds it, so a program
+    /// started under a folder others can write runs no compiler they set there.
+    /// </summary>
+    internal static string? FromCheckout(string start, string executable)
+    {
+        for (var directory = new DirectoryInfo(start); directory is not null; directory = directory.Parent)
+        {
+            if (!File.Exists(Path.Combine(directory.FullName, SolutionFile))) continue;
+            var candidate = Path.Combine(directory.FullName, "build", "tools", "slang", "bin", executable);
+            return File.Exists(candidate) && OwnFiles.IsOwn(candidate) ? candidate : null;
+        }
+        return null;
+    }
+
+    private const UnixFileMode Closed = UnixFileMode.UserRead | UnixFileMode.UserWrite | UnixFileMode.UserExecute;
+
+    /// <summary>
+    /// A folder of a compile's own for its source and what slangc writes, closed to others, in the
+    /// user's runtime folder <paramref name="runtime"/> where it is the user's own and closed, and
+    /// in <paramref name="cache"/>, made closed, otherwise, and on Windows in the user's own
+    /// temporary folder.
+    /// </summary>
+    /// <exception cref="InvalidOperationException">Neither folder is the user's own and closed to others.</exception>
+    internal static DirectoryInfo WorkFolder(string? runtime, string cache)
+    {
+        if (OperatingSystem.IsWindows()) return Directory.CreateTempSubdirectory("engine-slang-");
+        var parent = runtime is { Length: > 0 } && Directory.Exists(runtime) && OwnFiles.IsOwnAndClosed(runtime)
+            ? runtime
+            : Directory.CreateDirectory(cache, Closed).FullName;
+        if (!OwnFiles.IsOwnAndClosed(parent))
+            throw new InvalidOperationException($"No shader is compiled, since '{parent}', where slangc would write, is not the user's own or others may write in it.");
+        return Directory.CreateDirectory(Path.Combine(parent, "engine-slang-" + Path.GetRandomFileName().Replace(".", "", StringComparison.Ordinal)), Closed);
+    }
+
     private static string? Locate()
     {
         var fromEnvironment = Environment.GetEnvironmentVariable("ENGINE_SLANGC");
@@ -678,13 +718,8 @@ internal static partial class SlangCompiler
         }
 
         foreach (var start in new[] { AppContext.BaseDirectory, Environment.CurrentDirectory })
-        {
-            for (var directory = new DirectoryInfo(start); directory is not null; directory = directory.Parent)
-            {
-                var candidate = Path.Combine(directory.FullName, "build", "tools", "slang", "bin", executable);
-                if (File.Exists(candidate)) return candidate;
-            }
-        }
+            if (FromCheckout(start, executable) is { } fromCheckout)
+                return fromCheckout;
 
         // Informational, since a program built from the package loads the engine's shaders from the
         // cache it ships and needs no compiler. A shader missing from every cache says so itself.

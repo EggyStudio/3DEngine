@@ -442,8 +442,13 @@ again.
 
 `build/fetch-slang.sh` (or `build/fetch-slang.ps1` on Windows) downloads a pinned release into
 `build/tools/slang`. The engine looks for the compiler in `ENGINE_SLANGC`, then on the `PATH`, then
-in `build/tools/slang/bin` above the running program and above the working directory, so a program
-run from anywhere in the checkout finds it.
+in `build/tools/slang/bin` of the nearest folder above the running program or the working directory
+that holds `3DEngine.slnx`, so a program run from anywhere in the checkout finds it. The walk goes
+no further than that checkout, and on Linux and macOS the compiler is taken only where the user
+owns it, so a program started under a folder others can write runs no compiler they set there. A
+compile writes its source and slangc's output in a folder of its own closed to others, in the
+user's runtime folder (`XDG_RUNTIME_DIR`) where it has one and in the engine's cache folder
+otherwise.
 
 ## Platforms
 

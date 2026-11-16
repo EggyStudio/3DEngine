@@ -373,3 +373,16 @@ public sealed class NeedsHeadlessWindowFactAttribute : FactAttribute
         else if (new NeedsVulkanFactAttribute().Skip is { } reason) Skip = reason;
     }
 }
+
+/// <summary>
+/// Skipped on Windows, whose files carry no Unix owner, and where the tests run as the superuser,
+/// who owns every file a test would hold for another user's.
+/// </summary>
+public sealed class NeedsUnixUserFactAttribute : FactAttribute
+{
+    public NeedsUnixUserFactAttribute()
+    {
+        if (OperatingSystem.IsWindows()) Skip = "A file on Windows carries no Unix owner.";
+        else if (OwnFiles.UserId == 0) Skip = "Run as the superuser, every file a test reads is the user's own.";
+    }
+}
