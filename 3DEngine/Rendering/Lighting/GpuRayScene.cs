@@ -36,21 +36,49 @@ internal readonly record struct RayInstance(object Mesh, Matrix4x4 World, Vector
 /// </remarks>
 internal sealed class GpuRayScene : IDisposable
 {
-    internal sealed record Mesh(VkAccelerationStructureKHR Structure, AddressedBuffer Storage, ulong Address, int FirstCorner);
+    internal sealed record Mesh(VkAccelerationStructureKHR Structure, AddressedBuffer Storage, ulong Address, int FirstCorner, int Corners);
 
     internal readonly Dictionary<object, Mesh> Meshes = new(ReferenceEqualityComparer.Instance);
+    // The frame each mesh's structure was last placed in by a copy, by which one no copy has placed
+    // for UnplacedFrames gives its structure back.
+    internal readonly Dictionary<object, long> Placed = new(ReferenceEqualityComparer.Instance);
     internal AddressedBuffer? Corners;
     internal AddressedBuffer? Uvs;
     internal int CornerCount;
+    // The corners the buffer holds of meshes whose structures were given back, until it is made
+    // again without them.
+    internal int DeadCorners;
     internal VkAccelerationStructureKHR Top;
     internal AddressedBuffer? TopStorage, TopScratch;
     internal int Capacity;
-    internal readonly AddressedBuffer?[] Instances = new AddressedBuffer?[GpuTextures.RetireFrames + 1];
-    internal readonly AddressedBuffer?[] Surfaces = new AddressedBuffer?[GpuTextures.RetireFrames + 1];
+    // The ring of the copies' records and their surfaces, a slot for each frame that may be in
+    // flight, each slot RingCapacity copies, one buffer each for every slot.
+    internal const int Slots = GpuTextures.RetireFrames + 1;
+    internal AddressedBuffer? Records, Surfaces;
+    internal int RingCapacity;
     internal int Slot;
-    // The copies' records the top level was last built from, and how many builds it has had.
+    // The scratch the meshes' structures are built in, kept from frame to frame and made again larger
+    // where a frame's builds need more, and how much of it the frame's builds have taken.
+    internal AddressedBuffer? MeshScratch;
+    internal ulong ScratchTaken;
+    // The copies' records the top level was last built from, those the frame writes, and how many
+    // builds it has had.
     internal byte[]? Built;
+    internal byte[] Writing = [];
     internal int TopBuilds;
+    // The frames the scene has recorded.
+    internal long Frame;
+    // The frame's copies and the frame before's, by turns, which Copies names the one of.
+    internal readonly List<RayInstance>[] Placings = [[], []];
+
+    /// <summary>How many frames a mesh no copy places keeps its structure, after which it gives it back.</summary>
+    internal int UnplacedFrames { get; set; } = 60;
+
+    /// <summary>How many buffers the scene has made, its meshes' own structures apart, which a scene that grows as it meets land makes in steps.</summary>
+    internal int Makings { get; set; }
+
+    /// <summary>The bytes of a slot of <see cref="Surfaces"/>, where the frame's copies' surfaces begin at <see cref="Slot"/>.</summary>
+    internal ulong SurfaceSlotBytes => (ulong)RingCapacity * 48;
 
     // The origin the top level's copies are placed against, the frame's it was last built in.
     internal RenderOrigin Origin;
@@ -62,10 +90,10 @@ internal sealed class GpuRayScene : IDisposable
     /// <summary>The frame's copies in the order the top-level structure holds them, a copy's index there its place here.</summary>
     public IReadOnlyList<RayInstance> Copies { get; internal set; } = [];
 
-    /// <summary>The bytes the scene holds on the device, the meshes' structures and corners, the top-level structure and its scratch, and the ring of copies.</summary>
+    /// <summary>The bytes the scene holds on the device, the meshes' structures, their corners and scratch, the top-level structure and its scratch, and the ring of copies.</summary>
     public long Bytes =>
         Meshes.Values.Sum(mesh => (long)mesh.Storage.Size) + (long)(Corners?.Size ?? 0) + (long)(Uvs?.Size ?? 0) + (long)(TopStorage?.Size ?? 0) + (long)(TopScratch?.Size ?? 0)
-        + Instances.Sum(buffer => (long)(buffer?.Size ?? 0)) + Surfaces.Sum(buffer => (long)(buffer?.Size ?? 0));
+        + (long)(Records?.Size ?? 0) + (long)(Surfaces?.Size ?? 0) + (long)(MeshScratch?.Size ?? 0);
 
     /// <inheritdoc />
     public void Dispose() => Destroy?.Invoke();
@@ -119,9 +147,11 @@ internal static unsafe class GpuRayScenes
                     mesh.Storage.Dispose();
                 }
                 scene.Meshes.Clear();
+                scene.Placed.Clear();
                 device.DestroyTop(scene);
-                foreach (var buffer in scene.Instances) buffer?.Dispose();
-                foreach (var buffer in scene.Surfaces) buffer?.Dispose();
+                scene.Records?.Dispose();
+                scene.Surfaces?.Dispose();
+                scene.MeshScratch?.Dispose();
                 scene.Corners?.Dispose();
                 scene.Uvs?.Dispose();
             };
@@ -163,6 +193,9 @@ internal static unsafe class GpuRayScenes
             if (commandBuffer is not VulkanCommandBuffer vkCmd) throw new ArgumentException("Command buffer was not created by this device.", nameof(commandBuffer));
             var cmd = vkCmd.Handle;
             var retired = new Retired();
+            scene.Frame++;
+            scene.ScratchTaken = 0;
+            device.LetGo(scene, retired);
 
             foreach (var mesh in recolored ?? [])
                 if (scene.Meshes.TryGetValue(mesh, out var made) && colorsOf?.Invoke(mesh) is { } colors && scene.Corners is not null)
@@ -176,6 +209,11 @@ internal static unsafe class GpuRayScenes
             foreach (var instance in instances)
             {
                 if (scene.Meshes.ContainsKey(instance.Mesh) || cornersOf(instance.Mesh) is not { Length: >= 3 } corners) continue;
+                // The scratch the frame's builds share, written by the builds of the frames before,
+                // which their writes finish before.
+                if (!built)
+                    device.MemoryBarrier(cmd, VkPipelineStageFlags2.AccelerationStructureBuildKHR, VkAccessFlags2.AccelerationStructureWriteKHR,
+                        VkPipelineStageFlags2.AccelerationStructureBuildKHR, VkAccessFlags2.AccelerationStructureReadKHR | VkAccessFlags2.AccelerationStructureWriteKHR);
                 var first = device.AddCorners(scene, corners, colorsOf?.Invoke(instance.Mesh), uvsOf?.Invoke(instance.Mesh), retired);
                 scene.Meshes[instance.Mesh] = device.BuildMesh(cmd, scene, first, corners.Length / 3, retired);
                 built = true;
@@ -186,6 +224,62 @@ internal static unsafe class GpuRayScenes
                     VkPipelineStageFlags2.AccelerationStructureBuildKHR, VkAccessFlags2.AccelerationStructureReadKHR);
             retired.Add(device.BuildTop(cmd, scene, instances, origin));
             return retired;
+        }
+
+        // Gives back the structures of the meshes no copy has placed for the scene's count of frames,
+        // let go once no frame in flight reads them, and makes the corners again without theirs once
+        // they are half the buffer, each mesh kept moved to where its corners then lie.
+        private void LetGo(GpuRayScene scene, Retired retired)
+        {
+            List<object>? gone = null;
+            foreach (var (key, mesh) in scene.Meshes)
+                if (scene.Frame - scene.Placed.GetValueOrDefault(key, scene.Frame) > scene.UnplacedFrames) (gone ??= []).Add(key);
+            foreach (var key in gone ?? [])
+            {
+                var mesh = scene.Meshes[key];
+                scene.Meshes.Remove(key);
+                scene.Placed.Remove(key);
+                scene.DeadCorners += mesh.Corners;
+                retired.Add(new Released(() =>
+                {
+                    device.Api.vkDestroyAccelerationStructureKHR(mesh.Structure);
+                    DeviceObjects.Gone(DeviceObjects.Kind.AccelerationStructure);
+                    mesh.Storage.Dispose();
+                }));
+            }
+            if (scene.Corners is null || scene.DeadCorners < 65536 || scene.DeadCorners * 2 < scene.CornerCount) return;
+
+            var live = scene.CornerCount - scene.DeadCorners;
+            var room = (ulong)Math.Max(4096, (int)System.Numerics.BitOperations.RoundUpToPowerOf2((uint)Math.Max(1, live)) * 2);
+            var corners = device.CreateAddressedBuffer(room * 16, VkBufferUsageFlags.StorageBuffer | VkBufferUsageFlags.AccelerationStructureBuildInputReadOnlyKHR
+                | VkBufferUsageFlags.TransferSrc | VkBufferUsageFlags.TransferDst, host: true, lasting: true);
+            var uvs = device.CreateAddressedBuffer(room * 8, VkBufferUsageFlags.StorageBuffer | VkBufferUsageFlags.TransferSrc | VkBufferUsageFlags.TransferDst,
+                host: true, lasting: true);
+            scene.Makings += 2;
+            var kept = scene.Meshes.ToArray();
+            var (moves, uvMoves) = (new VkBufferCopy[Math.Max(1, kept.Length)], new VkBufferCopy[Math.Max(1, kept.Length)]);
+            var at = 0;
+            for (int i = 0; i < kept.Length; i++)
+            {
+                var (key, mesh) = (kept[i].Key, kept[i].Value);
+                moves[i] = new VkBufferCopy { srcOffset = (ulong)mesh.FirstCorner * 16, dstOffset = (ulong)at * 16, size = (ulong)mesh.Corners * 16 };
+                uvMoves[i] = new VkBufferCopy { srcOffset = (ulong)mesh.FirstCorner * 8, dstOffset = (ulong)at * 8, size = (ulong)mesh.Corners * 8 };
+                scene.Meshes[key] = mesh with { FirstCorner = at };
+                at += mesh.Corners;
+            }
+            // Copied on the GPU and waited for, as a buffer made again larger is, before the frame's
+            // corners are written after them.
+            if (kept.Length > 0)
+            {
+                var cmd = device.BeginSingleTimeCommands();
+                fixed (VkBufferCopy* m = moves) device.Api.vkCmdCopyBuffer(cmd, scene.Corners.Buffer, corners.Buffer, (uint)kept.Length, m);
+                if (scene.Uvs is not null)
+                    fixed (VkBufferCopy* m = uvMoves) device.Api.vkCmdCopyBuffer(cmd, scene.Uvs.Buffer, uvs.Buffer, (uint)kept.Length, m);
+                device.EndSingleTimeCommands(cmd);
+            }
+            retired.Add(scene.Corners);
+            if (scene.Uvs is not null) retired.Add(scene.Uvs);
+            (scene.Corners, scene.Uvs, scene.CornerCount, scene.DeadCorners) = (corners, uvs, at, 0);
         }
 
         // Writes a mesh's corners after those the buffer holds, made again larger where they do not
@@ -205,6 +299,7 @@ internal static unsafe class GpuRayScenes
                     | VkBufferUsageFlags.TransferSrc | VkBufferUsageFlags.TransferDst, host: true, lasting: true);
                 var biggerUvs = device.CreateAddressedBuffer(room * 8, VkBufferUsageFlags.StorageBuffer | VkBufferUsageFlags.TransferSrc | VkBufferUsageFlags.TransferDst,
                     host: true, lasting: true);
+                scene.Makings += 2;
                 if (scene.Corners is not null)
                 {
                     // Copied on the GPU and waited for, since the CPU reads memory it writes
@@ -251,8 +346,8 @@ internal static unsafe class GpuRayScenes
                 maxVertex = (uint)(triangles * 3 - 1),
                 indexType = VkIndexType.NoneKHR,
             };
-            var (structure, storage, address) = device.Build(cmd, VkAccelerationStructureTypeKHR.BottomLevel, &geometry, (uint)triangles, null, retired);
-            return new GpuRayScene.Mesh(structure, storage, address, firstCorner);
+            var (structure, storage, address) = device.Build(cmd, VkAccelerationStructureTypeKHR.BottomLevel, &geometry, (uint)triangles, null, retired, scene: scene);
+            return new GpuRayScene.Mesh(structure, storage, address, firstCorner, triangles * 3);
         }
 
         // Records the top-level structure of the frame's copies, made again larger where they do not
@@ -261,32 +356,37 @@ internal static unsafe class GpuRayScenes
         private Retired BuildTop(VkCommandBuffer cmd, GpuRayScene scene, IReadOnlyList<RayInstance> instances, RenderOrigin origin)
         {
             var retired = new Retired();
-            scene.Slot = (scene.Slot + 1) % scene.Instances.Length;
+            scene.Slot = (scene.Slot + 1) % GpuRayScene.Slots;
             var count = 0;
             foreach (var instance in instances)
                 if (scene.Meshes.ContainsKey(instance.Mesh)) count++;
-            var capacity = Math.Max(64, (int)System.Numerics.BitOperations.RoundUpToPowerOf2((uint)Math.Max(1, count)));
 
-            ref var records = ref scene.Instances[scene.Slot];
-            ref var surfaces = ref scene.Surfaces[scene.Slot];
-            if (records is null || records.Size < (ulong)capacity * 64)
+            // The ring made again for twice the copies' power of two where they outgrow it, every
+            // slot at once, the buffers before let go once no frame in flight reads them.
+            if (scene.Records is null || scene.RingCapacity < count)
             {
-                if (records is not null) retired.Add(records);
-                records = device.CreateAddressedBuffer((ulong)capacity * 64, VkBufferUsageFlags.AccelerationStructureBuildInputReadOnlyKHR, host: true);
+                if (scene.Records is not null) retired.Add(scene.Records);
+                if (scene.Surfaces is not null) retired.Add(scene.Surfaces);
+                scene.RingCapacity = Math.Max(64, (int)System.Numerics.BitOperations.RoundUpToPowerOf2((uint)Math.Max(1, count)) * 2);
+                scene.Records = device.CreateAddressedBuffer((ulong)scene.RingCapacity * 64 * GpuRayScene.Slots, VkBufferUsageFlags.AccelerationStructureBuildInputReadOnlyKHR, host: true);
+                scene.Surfaces = device.CreateAddressedBuffer(scene.SurfaceSlotBytes * GpuRayScene.Slots, VkBufferUsageFlags.StorageBuffer, host: true);
+                scene.Makings += 2;
             }
-            if (surfaces is null || surfaces.Size < (ulong)capacity * 48)
-            {
-                if (surfaces is not null) retired.Add(surfaces);
-                surfaces = device.CreateAddressedBuffer((ulong)capacity * 48, VkBufferUsageFlags.StorageBuffer, host: true);
-            }
+            var capacity = scene.RingCapacity;
+            var recordsAt = (ulong)scene.Slot * (ulong)capacity * 64;
 
-            var written = new Span<InstanceRecord>(records.Mapped, count);
-            var shaded = new Span<SurfaceRecord>(surfaces.Mapped, count);
-            var copies = new List<RayInstance>(count);
+            // The records are written here first and copied into the ring, whose memory the CPU
+            // writes through uncached and never reads, and compared with the last build's here.
+            if (scene.Writing.Length < count * 64) scene.Writing = new byte[Math.Max(count * 64, scene.Writing.Length * 2)];
+            var written = MemoryMarshal.Cast<byte, InstanceRecord>(scene.Writing.AsSpan(0, count * 64));
+            var shaded = new Span<SurfaceRecord>((byte*)scene.Surfaces!.Mapped + (ulong)scene.Slot * scene.SurfaceSlotBytes, count);
+            var copies = scene.Placings[scene.Frame & 1];
+            copies.Clear();
             var i = 0;
             foreach (var instance in instances)
             {
                 if (!scene.Meshes.TryGetValue(instance.Mesh, out var mesh)) continue;
+                scene.Placed[instance.Mesh] = scene.Frame;
                 // The world's matrix, a point a row as System.Numerics has it, as three rows of a
                 // matrix a point is a column of.
                 var m = instance.World;
@@ -335,10 +435,12 @@ internal static unsafe class GpuRayScenes
             // written above holding the frame's colors, since its build waits on every fragment and
             // compute pass before it, a cost each frame with nothing moving. A copy moved, come or
             // gone, or a mesh's structure built anew, changes the records.
-            var bytes = MemoryMarshal.AsBytes(written);
+            var bytes = scene.Writing.AsSpan(0, count * 64);
             if (scene.Top.Handle != 0 && scene.Capacity >= count && scene.Built is { } last && bytes.SequenceEqual(last))
                 return retired;
-            scene.Built = bytes.ToArray();
+            bytes.CopyTo(new Span<byte>((byte*)scene.Records!.Mapped + recordsAt, count * 64));
+            if (scene.Built is null || scene.Built.Length != count * 64) scene.Built = new byte[count * 64];
+            bytes.CopyTo(scene.Built);
             scene.TopBuilds++;
 
             var geometry = new VkAccelerationStructureGeometryKHR
@@ -349,7 +451,7 @@ internal static unsafe class GpuRayScenes
             geometry.geometry.instances = new VkAccelerationStructureGeometryInstancesDataKHR
             {
                 arrayOfPointers = false,
-                data = new VkDeviceOrHostAddressConstKHR { deviceAddress = records.Address },
+                data = new VkDeviceOrHostAddressConstKHR { deviceAddress = scene.Records.Address + recordsAt },
             };
             // The frame before's reads of the structure, and its build's writes to the scratch, before
             // this build writes them.
@@ -372,10 +474,11 @@ internal static unsafe class GpuRayScenes
         }
 
         // Makes a structure of a type for a geometry sized for its largest count, and records its first
-        // build, its scratch let go after the frame or, for the top level, kept on the scene.
+        // build, its scratch for the top level kept on the scene, for a mesh of a scene a part of the
+        // scene's scratch, and otherwise let go after the frame.
         private (VkAccelerationStructureKHR Structure, AddressedBuffer Storage, ulong Address) Build(VkCommandBuffer cmd,
             VkAccelerationStructureTypeKHR type, VkAccelerationStructureGeometryKHR* geometry, uint count, GpuRayScene? top, Retired retired,
-            uint largest = 0)
+            uint largest = 0, GpuRayScene? scene = null)
         {
             var info = new VkAccelerationStructureBuildGeometryInfoKHR
             {
@@ -394,17 +497,47 @@ internal static unsafe class GpuRayScenes
             VkAccelerationStructureKHR structure;
             device.Api.vkCreateAccelerationStructureKHR(&create, null, &structure).CheckResult();
             DeviceObjects.Made(DeviceObjects.Kind.AccelerationStructure);
-            var scratch = device.CreateAddressedBuffer(sizes.buildScratchSize + ScratchAlignment, VkBufferUsageFlags.StorageBuffer, host: false);
-            if (top is not null) top.TopScratch = scratch;
-            else retired.Add(scratch);
+            ulong scratchAddress;
+            if (scene is not null)
+                scratchAddress = device.MeshScratch(scene, sizes.buildScratchSize, retired);
+            else
+            {
+                var scratch = device.CreateAddressedBuffer(sizes.buildScratchSize + ScratchAlignment, VkBufferUsageFlags.StorageBuffer, host: false);
+                if (top is not null)
+                {
+                    top.TopScratch = scratch;
+                    top.Makings += 2;
+                }
+                else retired.Add(scratch);
+                scratchAddress = Aligned(scratch.Address);
+            }
 
             info.dstAccelerationStructure = structure;
-            info.scratchData = new VkDeviceOrHostAddressKHR { deviceAddress = Aligned(scratch.Address) };
+            info.scratchData = new VkDeviceOrHostAddressKHR { deviceAddress = scratchAddress };
             var range = new VkAccelerationStructureBuildRangeInfoKHR { primitiveCount = count };
             var ranges = &range;
             device.Api.vkCmdBuildAccelerationStructuresKHR(cmd, 1, &info, &ranges);
             var addressInfo = new VkAccelerationStructureDeviceAddressInfoKHR { accelerationStructure = structure };
             return (structure, storage, device.Api.vkGetAccelerationStructureDeviceAddressKHR(&addressInfo));
+        }
+
+        // An address in the scene's scratch for a mesh's build of the size given, apart from the frame's
+        // builds before so they run side by side, the scratch made again twice as large where they
+        // took what it holds, the one before let go once no frame in flight builds in it.
+        private ulong MeshScratch(GpuRayScene scene, ulong size, Retired retired)
+        {
+            var need = (size + ScratchAlignment - 1) / ScratchAlignment * ScratchAlignment;
+            if (scene.MeshScratch is null || scene.ScratchTaken + need + ScratchAlignment > scene.MeshScratch.Size)
+            {
+                if (scene.MeshScratch is not null) retired.Add(scene.MeshScratch);
+                var made = Math.Max(need + ScratchAlignment, Math.Max(1ul << 20, (scene.MeshScratch?.Size ?? 0) * 2));
+                scene.MeshScratch = device.CreateAddressedBuffer(made, VkBufferUsageFlags.StorageBuffer, host: false);
+                scene.ScratchTaken = 0;
+                scene.Makings++;
+            }
+            var address = Aligned(scene.MeshScratch.Address + scene.ScratchTaken);
+            scene.ScratchTaken = address - scene.MeshScratch.Address + need;
+            return address;
         }
 
         // Records the top-level structure built again in place for this frame's copies.
@@ -435,9 +568,9 @@ internal static unsafe class GpuRayScenes
         {
             var top = scene.Top;
             var structure = new VkWriteDescriptorSetAccelerationStructureKHR { accelerationStructureCount = 1, pAccelerationStructures = &top };
-            var surfaces = scene.Surfaces[scene.Slot]!;
+            var surfaces = scene.Surfaces!;
             var buffers = stackalloc VkDescriptorBufferInfo[2];
-            buffers[0] = new VkDescriptorBufferInfo { buffer = surfaces.Buffer, offset = 0, range = surfaces.Size };
+            buffers[0] = new VkDescriptorBufferInfo { buffer = surfaces.Buffer, offset = (ulong)scene.Slot * scene.SurfaceSlotBytes, range = scene.SurfaceSlotBytes };
             // A scene with no mesh yet has no corners, and binds the copies' buffer in their place,
             // which nothing reads while it holds no copy.
             var corners = scene.Corners ?? surfaces;

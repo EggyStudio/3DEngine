@@ -13,8 +13,10 @@ internal static class GlobalIlluminationCommands
     [Command("gi.state", "How much global illumination is worked out, with the quality, the cascades of world probes and their rays, the screen's probes, the reflections, the GPU memory each takes, and the small emitters carried as lights")]
     internal static string IlluminationState() => IlluminationState(ConsoleHost.World!);
 
-    // What gi.state says, which the global illumination window shows too.
-    internal static string IlluminationState(World from)
+    // What gi.state says, which the global illumination window shows too, the probes carried with
+    // their rays moving read back from the device where asked, which waits for it to finish its
+    // frames, so the window and the overlay leave it out.
+    internal static string IlluminationState(World from, bool readCarried = true)
     {
         if (!from.TryGetResource<Renderer>(out var renderer)
             || renderer.RenderWorld.TryGet<GlobalIlluminationRenderer>() is not { Probes: { } probes } gi)
@@ -37,7 +39,7 @@ internal static class GlobalIlluminationCommands
         // The probes whose rays the frame carried past their interval and moved within their
         // texels, by cascade, and the share of every probe's texels theirs are, which the cycle keeps
         // whole, a cascade of sixteen texels a side holding four times one of eight.
-        if (probes.CycleOn && renderer.Context.Graphics is GraphicsDevice device)
+        if (readCarried && probes.CycleOn && renderer.Context.Graphics is GraphicsDevice device)
         {
             var moving = GlobalIlluminationStages.Of(device).ReadCarriedMoving(probes);
             var movingTexels = moving.Select((m, c) => (long)m * probes.Texels[c] * probes.Texels[c]).Sum();
@@ -82,6 +84,10 @@ internal static class GlobalIlluminationCommands
                   + $"then the field, the frame before kept in {history:0.00} MB");
         if (gi.Rays is { } traced)
             lines.Add($"what the field misses through the device's rays, {traced.Count} copies of {traced.Meshes.Count} meshes in {traced.Bytes / 1024.0 / 1024.0:0.00} MB");
+        else if (renderer.RenderWorld.TryGet<GlobalIlluminationSettings>() is { Quality: GlobalIllumination.High } raysSet && (raysSet.RaysOff || raysSet.MeshesTraced))
+            lines.Add(raysSet.RaysLeftOff is { } why ? $"the device's rays left off since its memory did not hold their structures, the field tracing what they would, {why}"
+                : raysSet.RaysOff ? "the device's rays off by gi.rays, the field tracing what they would"
+                : "the device traces no rays, the field tracing what they would");
         // The emitters carried as glow lights, of which the nearest the eye are lit and the rest
         // light nothing a probe carries.
         var (carried, lit) = gi.Glow;
@@ -95,6 +101,7 @@ internal static class GlobalIlluminationCommands
         if (!ConsoleHost.World!.TryGetResource<GlobalIlluminationSettings>(out var settings))
             return "global illumination is off, and SetGlobalIllumination turns it on";
         settings.RaysOff = state is "off" or "0" or "false";
+        settings.RaysLeftOff = null;
         var device = ConsoleHost.World!.TryGetResource<Renderer>(out var renderer) && renderer.Context.Graphics is GraphicsDevice { CanQueryRays: true };
         return settings.RaysOff ? "High traces through the field alone"
             : device ? "High traces what the field misses through the device's rays"
@@ -249,6 +256,12 @@ internal static class GlobalIlluminationCommands
         if (settings.SpreadOff) off.Add("the coarser cascades' trace in halves");
         if (settings.PointsOff) off.Add("the faint glow lights at a hit taken as one point");
         var said = off.Count == 0 ? "every part of global illumination is on" : $"{string.Join(", ", off)} left out";
-        return settings.MeshesTraced ? $"{said}, the probes' rays traced through the meshes" : said;
+        if (!settings.MeshesTraced) return said;
+        var device = ConsoleHost.World is { } world && world.TryGetResource<Renderer>(out var renderer) && renderer.Context.Graphics is GraphicsDevice { CanQueryRays: true };
+        return settings.RaysLeftOff is not null ? $"{said}, the probes' rays traced through the field, the device's rays left off since its memory did not hold their structures"
+            : settings.RaysOff ? $"{said}, the probes' rays traced through the field, the device's rays off by gi.rays"
+            : !device ? $"{said}, the probes' rays traced through the field, the device tracing no rays"
+            : settings.Quality != GlobalIllumination.High ? $"{said}, the probes' rays traced through the meshes once the quality is High"
+            : $"{said}, the probes' rays traced through the meshes";
     }
 }

@@ -32,6 +32,12 @@ internal sealed class GlobalIlluminationSettings
     public bool RaysOff { get; set; }
 
     /// <summary>
+    /// Why High left the device's ray tracing off itself, the structures of the window's meshes not
+    /// fitting the device's memory, or null where it did not, which <c>gi.rays on</c> clears.
+    /// </summary>
+    public string? RaysLeftOff { get; set; }
+
+    /// <summary>
     /// Whether High traces the world's probes' rays through the device's ray tracing in place of the
     /// scene's distance field, crossing a surface that lets light through by the share it lets
     /// through, as <c>gi.toggle meshes on</c> sets it.

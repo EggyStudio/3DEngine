@@ -1,5 +1,7 @@
-# N 7.2, a commit of the owner's other than the setting of the version.
+# N 7.2, a commit of the owner's other than the setting of the version, or a working session's
+# pushed before its fault was seen.
 5d88a601	the owner's, the paragraph on NORM.md and its row in AGENTS.md
 e57f3fc1	the owner's, the paragraph on ASKS.md and its row in AGENTS.md
 bb3202e4	the owner's, the ignore of /Voxel-Sandbox
 9b54221b	the owner's, the review's pass of 82b23f8c
+da3d20cc	pushed before its fault was seen, a sentence without its full stop

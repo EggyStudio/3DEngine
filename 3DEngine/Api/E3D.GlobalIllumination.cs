@@ -211,7 +211,7 @@ public static partial class E3D
             return;
         }
         ImGuiNET.ImGui.PushTextWrapPos(0);
-        ImGuiNET.ImGui.TextUnformatted(GlobalIlluminationCommands.IlluminationState(World));
+        ImGuiNET.ImGui.TextUnformatted(GlobalIlluminationCommands.IlluminationState(World, readCarried: false));
         ImGuiNET.ImGui.Separator();
 
         var names = Enum.GetNames<BounceView>();

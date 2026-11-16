@@ -132,10 +132,10 @@ internal sealed unsafe class OcclusionReference(GraphicsDevice device) : IDispos
     {
         var top = scene.Top;
         var structure = new VkWriteDescriptorSetAccelerationStructureKHR { accelerationStructureCount = 1, pAccelerationStructures = &top };
-        var surfaces = scene.Surfaces[scene.Slot]!;
+        var surfaces = scene.Surfaces!;
         var corners = scene.Corners ?? surfaces;
         var buffers = stackalloc VkDescriptorBufferInfo[2];
-        buffers[0] = new VkDescriptorBufferInfo { buffer = surfaces.Buffer, offset = 0, range = surfaces.Size };
+        buffers[0] = new VkDescriptorBufferInfo { buffer = surfaces.Buffer, offset = (ulong)scene.Slot * scene.SurfaceSlotBytes, range = scene.SurfaceSlotBytes };
         buffers[1] = new VkDescriptorBufferInfo { buffer = corners.Buffer, offset = 0, range = corners.Size };
         var images = stackalloc VkDescriptorImageInfo[2];
         images[0] = new VkDescriptorImageInfo

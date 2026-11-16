@@ -2059,3 +2059,47 @@ A frame's averages over the flights read `cpu.scene_field` at 1.0 to 1.4 ms and
 processor for the meshes a frame brings, and the field's for the eye's step into the next section,
 is held to a share of the frame and spread over the frames after, so a flight over land that is
 streaming in shows no frame of three times the median at each batch of columns and each step.
+
+### 2026-11-16, the voxel game in `Voxel-Sandbox`, global illumination's light on what is drawn moves with meshes the traced reference shows give it nothing
+
+Read on the 3DEngine 6.2.86 package with the game at `da25069` and a probe beside it, Release,
+offscreen at 1280 by 720, on the RTX 4070 Laptop GPU on tuned's power-saving profile, under the
+shared lock. The game ran with a fresh data folder's settings, global illumination at High and the
+field at 4 cascades of 0.25 with a budget of 2 and its far cascade reaching 192 blocks. Over seed
+1's overworld the eye stands at 4450.5, 4466.5 and 4482.5 with feet at 110 and z 600.5, looking east
+and ten degrees down, the hour held at 10 and the clouds off. The game culls the sections a flood
+through open cells does not reach, and the frame with them culled is set against the frame with
+none culled.
+
+The culling changes 105, 555 and 1,519 pixels past 8 levels of 255 at the three places, by 9 to 40
+levels, where the land's light shifts and no shape changes. With global illumination off it changes
+no pixel at any of them, and with the sun's shadows held to a block it changes 64, 384 and 951, so
+the light that moves is global illumination's. The scene's field holds 725 to 745 meshes with the
+culling on and 1,073 to 1,130 with it off (`field.state`).
+
+The game keeps a culled section it has meshed in the shadow maps and the field (`ShadowOnly`), so
+the field's light no longer hangs on where the eye has been. A section the flood never reached
+has no mesh. At 4482.5, the first place a session stands at, 837 such sections within the drawn
+reach, most of them in the caves under the land, change 1,520 pixels. Meshing them within a
+distance of the eye, each in the shadow maps and the field alone, and setting the frame against
+the one with none culled:
+
+| Unseen sections meshed within | Pixels past 8 levels | Sections meshed |
+|---|---|---|
+| 0, 2 or 4 columns | 1,520 | 1,205, 1,224 and 1,297 |
+| 6 columns | 1,547 | 1,423 |
+| 8 columns | 0 | 1,631 |
+| the drawn reach, 12 columns | 0 | 2,057 |
+
+The light those meshes give is not the light's own. `gi.reference` at 4482.5 traced with every
+section meshed (1,073 copies) and with the culled ones left out (726 copies) gives the same light at
+every pixel, so no path from what is drawn reaches them. Against a reference of 256 paths a pixel,
+the 1,453 pixels the culling changes hold a mean light of 0.089, and the frame with them culled is
+off it by 0.085 at the mean and the frame with none culled by 0.084, the culled one the nearer in
+723 of them. The field's light at those pixels moves by up to 40 levels with geometry that gives
+the true light nothing, and stands about as far from the reference either way.
+
+The engine lacks a field whose light on what is drawn does not move with meshes no path of light
+from it reaches, such as the walls of caves closed under the land, so a game that culls what the eye
+cannot see need not mesh every section within the field's reach to keep the light the same, which
+here is 70% more meshes, each taken into the field and the ray scene in the frame it joins.

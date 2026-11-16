@@ -29,6 +29,9 @@ internal sealed partial class GlobalIlluminationRenderer
     private (bool, bool, bool, bool, bool, bool, bool, bool, bool, bool, bool, bool, int, float)? _switchesBefore;
     private bool _switchesChanged;
 
+    // Whether the carried probes' rays moved the frame before, or null before the first frame.
+    private bool? _movingBefore;
+
     // The share of a carried probe's own light this frame takes in the gather's mean, one over the
     // frames since the lights or the field last changed, sixteen at most (gi_ambient.slang).
     private float CarriedShare => 1f / Math.Min(16, _frame - _changedAt + 1);

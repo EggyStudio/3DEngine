@@ -265,6 +265,11 @@ internal sealed partial class GlobalIlluminationRenderer : IIlluminationPasses, 
         // than they are, which moving rays traced through the field alone pass beside, and
         // elsewhere keep their middles.
         var moving = _gi.CycleOn && _rays is not null && !_lightThrough;
+        // A carried probe's cycle is begun again on the frame its rays begin or stop moving, since
+        // the merge leaves the cycle as it was while they stand still, holding the light of when
+        // they last moved (gi_merge.slang).
+        if (_movingBefore is { } was && was != moving) _changedAt = _frame;
+        _movingBefore = moving;
         // The coarser cascades trace in halves once a change of the lights or the field has
         // settled, and whole until then, since a half keeping its light of before a light went out
         // hands it back to the traced half through the light past the first bounce, and a room

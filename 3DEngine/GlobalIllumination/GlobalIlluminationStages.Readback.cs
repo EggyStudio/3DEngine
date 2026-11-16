@@ -51,12 +51,16 @@ internal sealed unsafe partial class GlobalIlluminationStages
         return ReadGeneralImage(gi.HeldImage, new VkExtent3D(4 * p, p, p * c), 4);
     }
 
+    /// <summary>How many times the carried probes of every cascade were counted, each read waiting for the device's frames to finish.</summary>
+    internal int CarriedReads { get; private set; }
+
     /// <summary>
     /// How many probes of each cascade the frame carried past their interval with their rays moving
     /// within their texels, read from their places' w.
     /// </summary>
     internal int[] ReadCarriedMoving(GpuIllumination gi)
     {
+        CarriedReads++;
         var (held, p) = (ReadIlluminationHeld(gi), gi.Probes);
         var moving = new int[gi.Cascades];
         for (int c = 0; c < gi.Cascades; c++)
