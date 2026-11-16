@@ -517,7 +517,7 @@ internal static partial class SlangCompiler
     {
         // slangc reads files rather than standard input, and the source may not exist on disk at
         // all (an asset read from memory), so it is written to a directory of its own.
-        var work = WorkFolder(Environment.GetEnvironmentVariable("XDG_RUNTIME_DIR"), Path.Combine(UserCache.Folder, "slang-work"));
+        var work = WorkFolder(Environment.GetEnvironmentVariable("XDG_RUNTIME_DIR"), WorkCache);
         try
         {
             var input = Path.Combine(work.FullName, Path.GetFileName(fileName));
@@ -681,6 +681,13 @@ internal static partial class SlangCompiler
         }
         return null;
     }
+
+    /// <summary>
+    /// Where <see cref="WorkFolder"/> makes a compile's folder when no runtime folder of the user's
+    /// stands, <c>slang-work</c> in the user's own cache, whatever folder a test set as the
+    /// engine's cache and deletes as it ends.
+    /// </summary>
+    internal static string WorkCache => Path.Combine(UserCache.Own, "slang-work");
 
     private const UnixFileMode Closed = UnixFileMode.UserRead | UnixFileMode.UserWrite | UnixFileMode.UserExecute;
 

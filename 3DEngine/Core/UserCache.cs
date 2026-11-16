@@ -19,9 +19,15 @@ internal static class UserCache
     /// </summary>
     public static string Folder
     {
-        get => _folder ?? Path.Combine(OwnFolder(), "3DEngine");
+        get => _folder ?? Own;
         set => _folder = value;
     }
+
+    /// <summary>
+    /// <c>3DEngine</c> in the user's cache folder whatever <see cref="Folder"/> is set to, for what
+    /// stands in the cache while a test that set a folder of its own may delete it.
+    /// </summary>
+    public static string Own => Path.Combine(OwnFolder(), "3DEngine");
 
     /// <summary>
     /// The engine's version, without the commit a build of it names after a plus, as <c>5.2.326</c>

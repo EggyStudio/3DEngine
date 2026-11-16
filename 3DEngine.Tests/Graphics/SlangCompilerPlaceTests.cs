@@ -8,6 +8,7 @@ namespace Engine.Tests.Graphics;
 /// in, so neither is one another user set in the program's way.
 /// </summary>
 [Trait("Category", "Unit")]
+[Collection("E3D")]
 public sealed class SlangCompilerPlaceTests : IDisposable
 {
     private readonly TestFolder _folder = new("engine-slang-place-");
@@ -42,6 +43,34 @@ public sealed class SlangCompilerPlaceTests : IDisposable
 
         Made(Path.Combine("outer", "inner", SlangCompiler.SolutionFile));
         SlangCompiler.FromCheckout(program, Executable).Should().BeNull("the walk stops at the nearest checkout, which fetched none");
+    }
+
+    [Fact]
+    public void A_Compile_Where_No_Runtime_Folder_Stands_Writes_In_The_Users_Own_Cache_And_Not_In_One_A_Test_Set()
+    {
+        // A test that sets the engine's cache to a folder of its own deletes it as it ends, while a
+        // compile in a test running beside it may stand in it where no runtime folder takes the
+        // compile, as on macOS. The compile's folder lies in the user's own cache whatever a test set.
+        var set = Directory.CreateDirectory(Path.Combine(_folder.Path, "set")).FullName;
+        UserCache.Folder = set;
+        try
+        {
+            var work = SlangCompiler.WorkFolder(null, SlangCompiler.WorkCache);
+            try
+            {
+                work.FullName.Should().NotStartWith(set, "the folder a test set is deleted as the test ends");
+                if (!OperatingSystem.IsWindows())
+                    work.Parent!.FullName.Should().Be(Path.Combine(UserCache.Own, "slang-work"));
+            }
+            finally
+            {
+                work.Delete(true);
+            }
+        }
+        finally
+        {
+            UserCache.Folder = null!;
+        }
     }
 
     [NeedsUnixUserFact]

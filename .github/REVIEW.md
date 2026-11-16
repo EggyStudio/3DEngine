@@ -2,7 +2,7 @@
 
 Reviewed up to `b634f33d`, item 283, the shader compiler taken from the nearest checkout alone
 where the user owns it and a compile writing in a closed folder of its own, pushed at 06:38 on
-2026-11-16, its build run 43811607980 started, the form kept. Before it `ee4af79e`, item 280, the
+2026-11-16, its build run 43811607980 red at 08:12 on macOS alone (Verdict 127), the form kept. Before it `ee4af79e`, item 280, the
 glow lights' loop over a box's axes unrolled, with `294e8a05`, Verdict 126's mend, the circular
 occluders' raw and filtered images cleared to open each frame, pushed together at 04:53, their build
 run 43800838233 green at 06:38 with the fourth Windows half among it. Before them `e8a65332`, item 282 and Verdict 125's report, the circular occluders at eight points a
@@ -389,9 +389,9 @@ reverted as the screen probes' limit at shapes about a tile wide, its patches in
 
 ## Verdicts
 
-Verdicts 125 and 126 are settled at 06:38 on 2026-11-16, the circular occluders' far room test
-green on the Windows device in run 43800838233 once the images are cleared each frame. Verdict 124 is settled at 20:52 on 2026-11-15, the mend `c54a38c6` green in its pack
-run 43740524413 with 6.2.86 published.
+Verdict 127 is open, a compile's own folder not written into on macOS in run 43811607980. Verdicts
+125 and 126 are settled at 06:38 on 2026-11-16, the circular occluders' far room test green on the
+Windows device in run 43800838233 once the images are cleared each frame.
 
 125. **The run of `2ceadfd1` is red in the fourth Windows half alone, the circular occluders' room
     far from the origin reading 0.020 apart from the room at it against a bound of 0.01.** In run
@@ -425,6 +425,19 @@ run 43740524413 with 6.2.86 published.
     room's 440 holds those 119 or so and the texels the 34 normals move. Asked, the cause found and
     mended where it lies, in the seam or the pass, the bound of 72 kept, and the test also holding
     the near room drawn twice to no texel apart. Checked at 02:59.
+
+127. **The run of `b634f33d` is red on macOS alone, a compile's own folder not written into.** Run
+    43811607980, ended at 08:12 on 2026-11-16, job 133114283374.
+    `SlangCompilerTests.One_Shader_Compiled_From_Two_Threads_Against_One_Cache_Is_Cached_Whole`
+    failed, slangc answering that it cannot write `out.spv` in a folder under the test's cache named
+    `slang-work/engine-slang-…`, the place item 283 gives a compile where no runtime folder stands,
+    as on macOS. The suite there also ended at its limit of 40 minutes with exit code -9 (2,387
+    passed, 1 failed, 56 skipped, 45 m 41 s in all), the last test to end a cascade edge test. The
+    seven other jobs are green. Asked, the cause named with its place (two compiles and one folder
+    made or cleared under the other, the closed mode on a folder macOS makes, or the cache folder of
+    a test removed while a compile stands in it), a test that fails on Linux with the runtime folder
+    taken away, the mend, and a line on whether the 40 minutes come from this failure or from the
+    suite's growth. The commits after it wait for the mend and go with it. 08:12
 
 ## Decisions
 
@@ -1046,3 +1059,37 @@ the norm and surface tests, pass 232, and both legs of the suite pass, 2,500, in
 49 s at 2,964 and 2,799 MB at most, the second shuffled by the seed 20261023. On Windows the two new
 tests join their classes' parts, the shader store's in Rendering 1 and the offscreen renders' in
 Rendering 7, and no class moves.
+
+Verdict 127, a compile's folder under a cache folder a test deletes. A compile wrote its source and
+slangc's output in a folder `SlangCompiler.WorkFolder` made in the user's runtime folder or, where
+none stands, as on macOS, in `slang-work` under `UserCache.Folder` (`SlangCompiler.cs`, line 520 at
+`b634f33d`). That setting is the whole program's, and `PipelineCacheTests` sets it to a folder of
+its own, `TestFolder("engine-pipelines-")`, which it deletes as each test ends. Those tests are in
+the E3D collection and `SlangCompilerTests` is not, so the two run side by side, and on macOS a
+compile of the race test made its folder inside the pipeline test's and lost it as slangc wrote, the
+path the run names, `…/T/engine-pipelines-8HJQSx/slang-work/engine-slang-…/out.spv`. On Linux the
+runtime folder takes every compile first, so no run here met it. The mended `UserCache.Own` gives
+the engine's folder in the user's own cache whatever `Folder` is set to, `Folder` falling back to it
+as before, and a compile with no runtime folder makes its folder in `slang-work` there
+(`SlangCompiler.WorkCache`).
+`SlangCompilerPlaceTests.A_Compile_Where_No_Runtime_Folder_Stands_Writes_In_The_Users_Own_Cache_And_Not_In_One_A_Test_Set`
+sets the cache to a folder of its own, takes the folder a compile would write in with no runtime
+folder given, as on macOS, and holds it outside the folder set and in the user's own cache's
+`slang-work`, the class in the E3D collection beside the tests that set the cache. With the head's
+choice it fails, the folder under the one set, and with the mend it passes.
+
+The 40 minutes. The macOS suite ran out its 40 minutes at `e8a65332`, `ee4af79e` and `b634f33d`
+alike, 2,278, 2,325 and 2,327 tests passed by then, the script running the rest in parts after it,
+which kept the first two green at 50 m 15 s and 46 m 7 s in all, where at `2ceadfd1` it ended by
+itself after 36 m 34 s. So the limit is the suite's growth from `e8a65332`, its new test of the
+shipped cache among the slowest on that runner at 1 m 11 s to 1 m 20 s, and not this failure. The
+suite's split into two macOS halves is the next commit.
+
+The runs. The strict build is clean, the focused tests, the shader compiler's, the pipelines'
+cache's, the user cache's, the cache command's, the shader store's and the norm and surface tests,
+pass 83, and the compiler's, the pipelines' cache's, the user cache's and the cache command's pass
+44 together with `XDG_RUNTIME_DIR` taken from the test process, as on macOS. The compiler's and the
+shader store's tests pass 39 on lavapipe 26.2.4 and the RTX and 37 with 2 skipped on lavapipe
+25.2.8, whose container runs the tests as the superuser. Both legs of the suite pass, 2,501, in 27 m
+54 s and 27 m 28 s at 2,709 and 3,050 MB at most, the second shuffled by the seed 20261023. On
+Windows the new test joins `SlangCompilerPlaceTests` in the Graphics part, and no class moves.
