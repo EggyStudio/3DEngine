@@ -6,6 +6,28 @@ under `.github/assets/readings` as WebP files named by their day, each on the da
 the notes written beside them as Markdown files named the same way. A line under Done names the item
 of .github/REVIEW.md or .github/REVIEW-ARCHIVE.md and the commit that closed it.
 
+## 2026-11-15
+
+![](.github/assets/readings/2026-11-15-item-277-fetch-after.webp)
+The button pressed, the pack fetched, checked and unpacked in 68 s and the scene loaded in the same
+run, at its first view once its field was built.
+
+![](.github/assets/readings/2026-11-15-item-277-fetch-before.webp)
+scenes_sponza opened in a hidden window without its pack, the command's line kept and the button
+that fetches it.
+
+![](.github/assets/readings/2026-11-15-item-279-occlusion.webp)
+The horizons and the circular occluders, CORTAO at 8 and 16 samples, against a traced reference of
+the same occlusion in Sponza by day and a room lit by glowing blocks, each scene lit through the
+horizons and through the circular occluders at 16 samples from the same view and exposure with
+sixteen times their luminance's difference, the occlusion pictures with four times their difference
+from the reference, red lighter and blue darker, and the mean error under each.
+
+Done that day
+
+- Item 280 at `ba117e9f`. The glow lights' faces check inside the march.
+- Item 282 at `2ceadfd1`. The circular occluders' glue, a second reader's seven findings.
+
 ## 2026-11-14
 
 Done that day
@@ -16,6 +38,12 @@ Done that day
   reference's first bounce.
 
 ## 2026-11-12
+
+![](.github/assets/readings/2026-11-12-item-264-far-room.webp)
+A room at Low quality at the world's origin, and the same room at 1,140,736 and 285,696 drawn
+against the world's origin as before, its shapes and light torn by the floats' steps out there,
+16,436 of its 57,600 pixels more than a level from the room at the origin, and drawn against the eye
+as now, 107, the two far frames differing to the eye.
 
 Done that day
 
@@ -37,6 +65,29 @@ Done that day
 
 ## 2026-11-10
 
+![](.github/assets/readings/2026-11-10-item-239-cut.webp)
+Sponza cut from the atrium to the door at noon with the exposure held, each picture brightened six
+times, before the field's build budgets were lifted after a cut, the door reading about 70 times its
+settled light for the five frames before the finest cascade arrives, 28 times after it, and settling
+60 frames after the cut.
+
+![](.github/assets/readings/2026-11-10-item-239-settling.webp)
+The frame's mean light after a cut from Sponza's atrium to its door at noon with the exposure held,
+on a log scale, before in red and with the field's build budgets lifted after a cut in blue, their
+difference in gray, the door settling 4 frames after the cut where it settled 60.
+
+![](.github/assets/readings/2026-11-10-item-240-ramp.webp)
+Sponza's atrium at noon in a turn of half a tile a frame, where pixels moved by 4 levels from one
+frame to the next, with the screen's probes on before a pixel whose probes stand on a surface like
+its own for under a quarter of their weight took the world's probes' light by its shortfall, on with
+it and off, and the difference of the first two, the streaks left lying along the far arcade's
+ground floor in the middle of the frame.
+
+![](.github/assets/readings/2026-11-10-item-247-exposure.webp)
+scenes_sponza's capture as the README shows it, metered, before and after the adapted exposure was
+kept in a float of four bytes, with their difference eight times over, a half float having brought
+the exposure to rest short of what it meters by more the faster the frames came.
+
 Done that day
 
 - Item 235 at `0747c6ca`. The global illumination as its own project.
@@ -50,6 +101,25 @@ Done that day
 - Item 251 at `1aa4c5d8`. After a cut the raised budget holds while a program's meshes still arrive.
 
 ## 2026-11-09
+
+![](.github/assets/readings/2026-11-09-item-237-means.webp)
+Sponza at 07:00 offscreen at 1/48 s a frame, the mean of every frame across a switch to view 7 and
+back to view 6, before with the whole cycle swapped in at each cycle's first frame and after with
+the light eased from the last whole cycle to the new one, the largest step from one frame to the
+next between the cuts falling from 27 levels to 3.9.
+
+![](.github/assets/readings/2026-11-09-item-237-pair.webp)
+Sponza at 07:00 at view 7, frames 44 and 45 before and after the light was eased from each whole
+cycle of the probes to the next, with their difference four times over beside each, a cycle's first
+frame darkening the whole picture at once before and the two frames differing by a little everywhere
+after.
+
+![](.github/assets/readings/2026-11-09-item-241-lamps.webp)
+Sponza's door and gallery views at 20:00 with the lamps on, metered, before with the bulbs at the
+pack's emission in one color and their light let go a few of their widths away, and after with each
+lamp at 300 times it, two thirds warm between 2,400 and 3,000 K and a third cool between 4,000 and
+5,500 K, its light reaching as far as a surface half a probe's spacing from it takes a 300th of what
+it does, with the difference of the two beside each.
 
 ![](.github/assets/showcase.webp)
 The README opens on Intel's Sponza, six of its views from morning to the lamps at night drawn by the

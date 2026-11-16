@@ -1,9 +1,11 @@
 # Review
 
-Reviewed up to `ee4af79e`, item 280, the glow lights' loop over a box's axes unrolled, with
-`294e8a05`, Verdict 126's mend, the circular occluders' raw and filtered images cleared to open each
-frame, pushed together at 04:53 on 2026-11-16, their build run 43800838233 started, the form kept.
-Before them `e8a65332`, item 282 and Verdict 125's report, the circular occluders at eight points a
+Reviewed up to `b634f33d`, item 283, the shader compiler taken from the nearest checkout alone
+where the user owns it and a compile writing in a closed folder of its own, pushed at 06:38 on
+2026-11-16, its build run 43811607980 started, the form kept. Before it `ee4af79e`, item 280, the
+glow lights' loop over a box's axes unrolled, with `294e8a05`, Verdict 126's mend, the circular
+occluders' raw and filtered images cleared to open each frame, pushed together at 04:53, their build
+run 43800838233 green at 06:38 with the fourth Windows half among it. Before them `e8a65332`, item 282 and Verdict 125's report, the circular occluders at eight points a
 build the shipped cache holds, their images and sets let go once switched away, and the far room's
 test saying what each stage read, with `81656c12`, item 281, a computed state or a sub state applied
 after the state it is worked out from, pushed together at 01:37 on 2026-11-16, their build run
@@ -365,40 +367,6 @@ reverted as the screen probes' limit at shapes about a tile wide, its patches in
     a finding that does not hold says why. The three high ones after part 8's commit, beside the
     binds' session; the medium ones after 272 and ahead of 265, the low ones after 265.
 
-280. **The glow lights' faces check inside the march.** The coder's cost read of 2026-11-15 in the
-    Replies. The model pass's `hdr_scene` rose by 0.14 ms in the low flight and 0.17 in the high one
-    at `ba117e9f`, the faces check inside the loop of `glowLightShown` in `glow.slang`, and the
-    earlier file alone takes the whole gap back, 4.750 and 4.463 ms against 4.863 and 4.592. The gap
-    stays with the glow lights off, so it is the code compiled in and not the work done. Asked,
-    after item 279 and before item 274. Take the faces mask out of the loop, a closed face skipped
-    before it or one branch where every face is open, read the flights again the same way, and keep
-    the hits against the traced reference within the 0.94 to 1.06 item 273 reached. Open.
-
-282. **The circular occluders' glue, a second reader's seven findings.** Read on `2ceadfd1` at 23:35
-    on 2026-11-15, by the code alone, the first checked by the review too. One, the main pass is
-    compiled with `CORTAO_SAMPLE_COUNT=8` and `=16` in `AmbientOcclusion.Circular`, defines the
-    shipped cache is not built for, since it holds the plain build and `SlangLoader.Variants` alone,
-    so a packaged program without slangc falls back to the horizons with one warning and the method
-    never works there, the gravest. The cache is built for both counts, or the count becomes a
-    figure the pass reads, and a test of the shipped cache asks for every build the engine asks for.
-    Two, `CircularOccluders.Retire` runs only inside `Record`, so after the method is switched away
-    the images `Release` queued stay until the method is chosen again, and with the occlusion and
-    the sun both off `Draw` returns before `Release` is called at all. Three, the fallback catches
-    three kinds of exception, and a device error from making a compute stage or a failure to start
-    the compiler passes it with the failure not marked, while `Ready` reads the filter alone, so a
-    second `Initialize` would make the earlier stages again over the first. Four, the window's sets
-    for the circular occluders' views grow by one each time the method goes off and on, the earlier
-    ones naming views that are gone, until a resize. Five, a slope compensation of positive infinity
-    passes `Math.Max(1, value)` in the call and in `ao.set` and gives the shader a zero to take an
-    inverse root of, so the figure is held finite. Six, `ao.save filtered` with `ao.filter off`
-    saves an image no pass wrote. Seven, `ao.reference` takes a radius that is not a number, and
-    `OcclusionReference` makes its sums image, its buffer and its pool before its `try`, so a throw
-    after them leaks them. Each is checked against the code first and answered in the Reply, mended
-    or refuted with the lines, with a test where one can fail on the head. The reader found the
-    layouts, the sets' counts, the table's length, the resize, the barriers, the projection and the
-    unchanged default sound. It goes first, before 281, since the first finding holds the method
-    back in every packaged program.
-
 283. **The shader compiler is looked for in every folder above the program.** `SlangCompiler.Locate`
     walks from the program's folder and from the current folder up to the root and runs the first
     `build/tools/slang/bin/slangc` it finds, so a program started under a folder others can write, a
@@ -411,8 +379,8 @@ reverted as the screen probes' limit at shapes about a tile wide, its patches in
 
 ## Verdicts
 
-Verdict 125 is open, the circular occluders' far room test red on the Windows device in run
-43768674338. Verdict 124 is settled at 20:52 on 2026-11-15, the mend `c54a38c6` green in its pack
+Verdicts 125 and 126 are settled at 06:38 on 2026-11-16, the circular occluders' far room test
+green on the Windows device in run 43800838233 once the images are cleared each frame. Verdict 124 is settled at 20:52 on 2026-11-15, the mend `c54a38c6` green in its pack
 run 43740524413 with 6.2.86 published.
 
 125. **The run of `2ceadfd1` is red in the fourth Windows half alone, the circular occluders' room
@@ -915,70 +883,6 @@ the work it does. `3405714a`'s rise of about 0.2 is taken back by `ed3cd9ca`. `s
 one of its two levels a run on every build, the runs of one build reading 1.0 to 1.2 ms and others
 1.5, and moves with none of them.
 
-Item 282, the circular occluders' glue. Each of the seven findings holds against `2ceadfd1`, and
-each is mended, the lines below at `2ceadfd1`.
-
-One, the gravest. `AmbientOcclusion.cs:425` compiled the main pass with `CORTAO_SAMPLE_COUNT=8` and
-`=16`, and `SlangLoader.Precompile` builds a shader's plain build and each set of the
-`SlangLoader.Variants` it mentions (`SlangLoader.cs:171`), so neither build was in the shipped
-cache, a build with defines keyed apart from the plain one, and a program without slangc fell back
-to the horizons with one warning. Eight samples is now the build `EIGHT_OCCLUDERS`, a name in
-`Variants` that `ao_cortao_main.slang` reads, and its plain build reads sixteen, so the pack's cache
-holds both. Every build the engine loads beside the plain ones, the model pass's, the probes'
-trace's and this one, is now one list, `Renderer.Builds`, which the compile ahead reads as it read
-its own. `SlangCompilerTests.A_Shipped_Cache_Holds_Every_Build_The_Engine_Loads` compiles the
-shipped folder as the pack does and reads each build of the list, for a device that traces rays and
-one that does not, from that cache with no compiler. With the head's two builds in the list it
-fails, the eight's named.
-
-Two. `CircularOccluders.Retire` ran only inside `Record` (`CircularOccluders.cs:126`), so what
-`Release` let go at `AmbientOcclusion.cs:346` stayed until the method was chosen again, and with the
-occlusion and the sun both off `Draw` returned at `AmbientOcclusion.cs:289` before `Release` at all.
-`Release` now hands all it holds, the size in use and any let go at a resize, to the occlusion's own
-retire list, which runs at the head of every frame's `DrawDepth`, and `DrawDepth` releases them once
-a frame has passed without the circular occluders recording, whichever way that frame went.
-
-Four. The window's sets for the circular occluders' views (`AmbientOcclusion.cs:175`) went only with
-a resize. They go to the same retire list with the images (`Sized.ForgetCircled`).
-`CircularOccludersRenderTests.Their_Images_And_The_Sets_That_Read_Them_Go_When_The_Method_Is_Switched_Away_Or_The_Occlusion_Is_Off`
-chooses the method, switches it away and back twice and turns the occlusion off, the frames in
-flight past each, and reads `CircularOccluders.Holds` and the window's count of those sets, true and
-one while chosen and false and none after. On the head's release it fails at the first switch away.
-
-Three. The fallback caught `InvalidOperationException`, `IOException` and `ArgumentException`
-(`AmbientOcclusion.cs:430`), so a device error from `MakeComputeStage` or the `Win32Exception` of a
-slangc that would not start passed it unmarked and the next frame tried again, and `Ready` read the
-filter's pipeline alone (`CircularOccluders.cs:81`), so that try made the earlier stages over the
-first. The fallback now catches every exception and marks the method failed, said once, `Initialize`
-makes all or none, destroying what it made before a throw, and `Ready` is set after the sampler. No
-test fails on the head for it, since neither throw can be raised at will and the compiler is located
-once a process. `Renderer.Build` (`Renderer.cs:268`) catches the same two kinds, so a slangc that
-will not start passes the model pass's builds the same way, which is left as it is here.
-
-Five. `Math.Max(1, value)` let an endless slope compensation through (`E3D.Lights.cs:291`,
-`AmbientOcclusionCommands.cs:41`), whose inverse the main pass takes as the floor of a cosine, and a
-floor of nothing gives a cosine of nothing an inverse root without end. It is held from 1 to 64,
-`AmbientOcclusionSettings.MostSlopeCompensation`, in the call and in `ao.set`, 64 where a circle
-seen edge on grows eight times, since the pass grows a circle by one over the square root of the
-cosine of its slope, at most the square root of the compensation. The call's and the setting's words
-said one over the cosine and at most the compensation, and now say the root, and `ao.set slope`
-answers the most a circle grows.
-`CircularOccludersTests.An_Endless_Slope_Compensation_Is_Held_To_The_Most_And_A_Radius_That_Is_No_Number_Is_Refused`
-fails on the head.
-
-Six. `ao.save filtered` with the filter off (`AmbientOcclusionCommands.cs:70`) saved what its image
-held last. It now answers that the filter is off and saves nothing, the raw picture saved as before,
-and `CircularOccludersRenderTests.Their_Filters_Picture_Is_Not_Saved_While_The_Filter_Is_Off` fails
-on the head with "saved filtered at 160 by 90".
-
-Seven, both halves. `ao.reference` took NaN, which `radius <= 0` passes
-(`OcclusionReferenceCommands.cs:26`), and now refuses a radius that is no finite number before
-anything else, which the same unit test reads for NaN and both infinities.
-`OcclusionReference.Trace` made its sums image, its buffer and its pool before its `try`
-(`OcclusionReference.cs:54`), and now makes each inside it, the image, its memory and its view given
-back as each is made, its `finally` destroying only what was made. No test fails on the head for
-that half, since no make can be failed at will.
-
 Verdict 125, the far room on the Windows device.
 `A_Room_Far_From_The_Origin_Is_Occluded_As_The_Same_Room_At_It` now says what it found, for the raw
 result, the final occlusion, the distance along the view and the normal the main pass read, the
@@ -1048,49 +952,6 @@ occluders', the glow lights' and the norm and surface tests, pass 63, and both l
 pass, 2,495, in 29 m 52 s and 27 m 35 s at 2,621 and 3,031 MB at most, the second shuffled by the
 seed 20261023. On Windows no test is new, so no class moves, the far room's test staying in
 Rendering 7 in the fourth half.
-
-Item 280, the glow lights' faces check inside the march.
-
-The reads. Each shape of the check was `glow.slang` alone changed in a copy of the game built on
-6.2.60 with the engine of `2ceadfd1` laid over it, its shaders compiled from the copy's folder, read
-as the cost read was, the flight east at 110 at Low and at High at 1280 by 720 with the frame
-unlimited, three samples of the profile a flight, each read its own exclusive turn of the lock, in
-turn and back, powersave, the desktop's share of the GPU near none. `hdr_scene`'s mean over the two
-reads of each, Low then High, in ms, by sitting.
-
-Sitting one. The head 4.886 and 4.567, the shader before the check 4.746 and 4.480, the axes whose
-face before the point is closed found before the loop and read in it by one bit 4.868 and 4.626, a
-closed face given nothing so the inner loop passes it before its march 5.236 and 4.953, and one call
-where every face emits, its check folded away, beside one with it 4.799 and 4.535.
-
-Sitting two, the loop over the three axes unrolled. The head 4.836 and 4.610, before the check 4.779
-and 4.520, the branch 4.779 and 4.515, the head unrolled 4.735 and 4.477, the branch unrolled 4.812
-and 4.533, the shader before the check unrolled 4.720 and 4.445.
-
-Sitting three. The head 4.892 and 4.632, before the check 4.746 and 4.493, the head unrolled 4.721
-and 4.475.
-
-The mend. The loop over the three axes of `glowLightShown` is unrolled, the check as it was, which
-takes the whole gap back in both sittings it was read in and 0.02 to 0.04 more, within 0.015 to 0.03
-of the shader before the check unrolled. The loop read `halves[k]`, `halves[(k + 1) % 3]`,
-`halves[(k + 2) % 3]` and each face's bit by an index known only as it ran, and the SPIR-V of the
-unrolled build differs from the head's in the loop's hint alone, so the cost was the driver keeping
-that loop. Of the two shapes asked, the check before the loop takes none of it and the branch where
-every face is open half in one sitting and all in the other, at more code.
-
-The hits. The three rooms of
-`A_Probes_Hits_Take_A_Lamps_Light_As_The_Path_Traced_Reference_Does_At_One_Bounce` read 1.0576,
-1.0461 and 0.9398 of the reference at the head and the same to four places unrolled, on the floor,
-hung in the air and flush in the east wall, the 0.94 to 1.06 item 273 reached. A probe's hit takes
-`glowLightSeen`'s one march and not this function, which the screen's probes and a pixel no screen
-probe holds take, so those are read by the glow tests on the three devices.
-
-The runs. The strict build is clean and the focused tests, the glow lights' with the shader
-compiler's and the norm and surface tests, pass 85. The glow tests, the screen probes' and the
-illumination tests of lamps and of the probes' hits pass 67 with 4 skipped on lavapipe 26.2.4, 73 on
-the RTX and 67 with 4 skipped on lavapipe 25.2.8. The suite's two legs ran once on the tree holding
-this change and the circular occluders' clear, as the Reply above reads, 2,495 passed in each. On
-Windows no test is new and no class moves.
 
 Item 283, the shader compiler taken from the nearest checkout alone, the user's own, and a compile's
 folder closed to others.
