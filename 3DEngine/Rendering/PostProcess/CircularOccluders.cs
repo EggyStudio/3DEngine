@@ -190,10 +190,19 @@ internal sealed unsafe class CircularOccluders(GraphicsDevice device) : IDisposa
                 VkPipelineStageFlags2.ComputeShader, VkAccessFlags2.ShaderRead, VkPipelineStageFlags2.ComputeShader, VkAccessFlags2.ShaderWrite),
             ImageBarrier(sized.Raw.Image, ColorLevels(0, 1), from, VkImageLayout.General,
                 VkPipelineStageFlags2.FragmentShader | VkPipelineStageFlags2.ComputeShader, VkAccessFlags2.ShaderRead,
-                VkPipelineStageFlags2.ComputeShader, VkAccessFlags2.ShaderWrite),
+                VkPipelineStageFlags2.Transfer, VkAccessFlags2.TransferWrite),
             ImageBarrier(sized.Filtered.Image, ColorLevels(0, 1), from, VkImageLayout.General,
-                VkPipelineStageFlags2.FragmentShader, VkAccessFlags2.ShaderRead, VkPipelineStageFlags2.ComputeShader, VkAccessFlags2.ShaderWrite),
+                VkPipelineStageFlags2.FragmentShader, VkAccessFlags2.ShaderRead, VkPipelineStageFlags2.Transfer, VkAccessFlags2.TransferWrite),
         ]);
+        // The texels the main pass leaves, those of the sky, and those the filter leaves, its blocks
+        // of sky, cleared each frame to open, the bent normal toward the eye.
+        var open = new VkClearColorValue(0.5f, 0.5f, 1f, 1f);
+        var whole = ColorLevels(0, 1);
+        device.Api.vkCmdClearColorImage(cmd, sized.Raw.Image, VkImageLayout.General, &open, 1, &whole);
+        open = new VkClearColorValue(1f, 1f, 1f, 1f);
+        device.Api.vkCmdClearColorImage(cmd, sized.Filtered.Image, VkImageLayout.General, &open, 1, &whole);
+        device.MemoryBarrier(cmd, VkPipelineStageFlags2.Transfer, VkAccessFlags2.TransferWrite,
+            VkPipelineStageFlags2.ComputeShader, VkAccessFlags2.ShaderWrite | VkAccessFlags2.ShaderRead);
 
         Dispatch(cmd, _prepass, sized.PrepassSet, prepass, (w + 7) / 8, (h + 7) / 8);
         device.MemoryBarrier(cmd, VkPipelineStageFlags2.ComputeShader, VkAccessFlags2.ShaderWrite, VkPipelineStageFlags2.ComputeShader, VkAccessFlags2.ShaderRead);
@@ -404,7 +413,7 @@ internal sealed unsafe class CircularOccluders(GraphicsDevice device) : IDisposa
             arrayLayers = 1,
             samples = VkSampleCountFlags.Count1,
             tiling = VkImageTiling.Optimal,
-            usage = VkImageUsageFlags.Storage | VkImageUsageFlags.Sampled | VkImageUsageFlags.TransferSrc,
+            usage = VkImageUsageFlags.Storage | VkImageUsageFlags.Sampled | VkImageUsageFlags.TransferSrc | VkImageUsageFlags.TransferDst,
             sharingMode = VkSharingMode.Exclusive,
             initialLayout = VkImageLayout.Undefined,
         };

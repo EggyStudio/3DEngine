@@ -26,16 +26,21 @@ public sealed class CircularOccludersRenderTests(ITestOutputHelper output) : IDi
         // circular occluders' own result and the occlusion after the history and the blurs alike
         // but for a few texels, since each pass works against the frame's origin and the eye. The
         // distance along the view and the normal the main pass read from its packed image are
-        // said with them, and the room at the origin drawn a second time, so a device on which
-        // they part says which stage moves. Placed against the other origin the depth rounds the
-        // other way by a step of the packed distance at some texels, and a few normals fall the
-        // other way of CORTAO's dithered five bits, the occlusion with them.
+        // said with them, and the room at the origin drawn a second time, which is drawn alike to
+        // the texel, the sky's texels that the main pass leaves read open. Placed against the
+        // other origin the depth rounds the other way by a step of the packed distance at some
+        // texels, and a few normals fall the other way of CORTAO's dithered five bits, the
+        // occlusion with them.
         var near = Occlusion(Vector3.Zero);
         var again = Occlusion(Vector3.Zero);
         var far = Occlusion(new Vector3(4448, 24, 600));
         var found = $"the far room against the near, {Apart(near, far)}; the near room drawn again, {Apart(near, again)}";
         output.WriteLine(found);
 
+        var sky = Enumerable.Range(0, near.Depth.Length).Where(i => near.Depth[i] == 0).ToArray();
+        sky.Should().NotBeEmpty("the room is open to the sky past its walls");
+        sky.Count(i => near.Raw[i] != 1).Should().Be(0, "a texel of the sky, which the main pass leaves, reads open");
+        (Parted(near.Raw, again.Raw), Parted(near.Final, again.Final)).Should().Be((0, 0), "the same room drawn twice is drawn alike, {0}", found);
         Parted(near.Raw, far.Raw).Should().BeLessThanOrEqualTo(72, "the circles are read about the eye wherever the room stands, {0}", found);
         Parted(near.Final, far.Final).Should().BeLessThanOrEqualTo(16, "and the history and the blurs keep them so, {0}", found);
         near.Final.Average(v => (double)v).Should().BeLessThan(0.97, "the room's corners and the blocks on its floor close some light off");
