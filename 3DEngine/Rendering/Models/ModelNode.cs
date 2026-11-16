@@ -108,6 +108,10 @@ internal sealed partial class ModelRenderer : IDisposable
         public GpuMeshes.Entry Mesh;
         public IDescriptorSet? Set;
         public int Custom;
+        // A batch of a shader of the program's own, its program as the store held it when the batch
+        // was gathered, and whether the program said its vertex stage keeps its mesh's positions.
+        public ShaderProgram? Program;
+        public bool KeepsPositions;
         // The index of the draw list's group whose instances it draws, or -1 for draws.
         public int Group;
         public CullMode Cull;
@@ -261,7 +265,7 @@ internal sealed partial class ModelRenderer : IDisposable
 
     /// <summary>How many times the shadow map was drawn this frame, once for each shadow views did not share.</summary>
     internal int ShadowMapsDrawn { get; private set; }
-    private readonly List<(Kind Kind, IDescriptorSet? Set)> _classified = [];
+    private readonly List<(Kind Kind, IDescriptorSet? Set, ShaderProgram? Program, bool Keeps)> _classified = [];
 
     // This frame's sets by the draws' five texture ids, cleared each frame, since an id's view can
     // change between frames when its texture is reloaded.
@@ -438,7 +442,7 @@ internal sealed partial class ModelRenderer : IDisposable
             if (!frustum.SeesAny(batch, blocks)) continue;
             ref readonly var draw = ref batch.Custom >= 0 ? ref draws.Span[batch.Custom] : ref NoDraw;
             // A shader unloaded after the draw was recorded draws with the model pass's own.
-            var program = batch.Custom >= 0 ? store?.Get(draw.Shader) : null;
+            var program = batch.Custom >= 0 ? batch.Program : null;
             var meshStreams = batch.Mesh.Colors is null ? Streams.Default : Streams.PerVertex;
             var streams = meshStreams == Streams.PerVertex ? Streams.PerVertex : Streams.None;
             StreamFeed? feed = null;
@@ -522,9 +526,9 @@ internal sealed partial class ModelRenderer : IDisposable
     private void GatherFor(int target, IGraphicsDevice gfx, ModelDrawList draws, GpuMeshes meshes, GpuTextures textures, ShaderStore? store,
         bool shadowKinds) =>
         Gather(draws.Span, draws.Groups, meshes, (in ModelDraw draw) =>
-            draw.Target != target ? (Kind.Skip, null)
-            : draw.Shader != 0 && store?.Get(draw.Shader) is not null ? (Kind.Alone, null)
-            : (Kind.Batched, MaterialSet(gfx, textures, draw)), keepOrderOfTranslucent: true, cullBackFaces: true, shadowKinds);
+            draw.Target != target ? (Kind.Skip, null, null, false)
+            : draw.Shader != 0 && store?.Lookup(draw.Shader) is ({ } program, var keeps) ? (Kind.Alone, null, program, keeps)
+            : (Kind.Batched, MaterialSet(gfx, textures, draw), null, false), keepOrderOfTranslucent: true, cullBackFaces: true, shadowKinds);
 
     // A view's batches and their instances, gathered and written on the first call of a frame.
     private View ViewBatches(int target, IGraphicsDevice gfx, ModelDrawList draws, GpuMeshes meshes, GpuTextures textures, ShaderStore? store,
@@ -542,7 +546,7 @@ internal sealed partial class ModelRenderer : IDisposable
         if (view.Frame != _frames || view.Ring is null)
         {
             GatherFor(target, gfx, draws, meshes, textures, store, shadowKinds: true);
-            (view.Ring, view.Offset) = WriteInstances(gfx, draws.Span, static (in ModelDraw draw) => Instance.Of(draw), draws.Groups, store);
+            (view.Ring, view.Offset) = WriteInstances(gfx, draws.Span, static (in ModelDraw draw) => Instance.Of(draw), draws.Groups);
             view.Batches.Clear();
             view.Batches.AddRange(_batches);
             view.Opaque = _opaqueBatches;
@@ -565,7 +569,9 @@ internal sealed partial class ModelRenderer : IDisposable
     // that share its mesh and set.
     private enum Kind { Skip, Alone, Batched }
 
-    private delegate (Kind Kind, IDescriptorSet? Set) Classify(in ModelDraw draw);
+    // A draw alone carries its shader's program and whether its vertex stage keeps the mesh's
+    // positions, looked up once as the draw is gathered.
+    private delegate (Kind Kind, IDescriptorSet? Set, ShaderProgram? Program, bool Keeps) Classify(in ModelDraw draw);
 
     // Sorts this call's draws into batches, in the order each batch first appears. With
     // keepOrderOfTranslucent, a draw whose color has alpha below 255 waits until the opaque
@@ -593,10 +599,10 @@ internal sealed partial class ModelRenderer : IDisposable
         for (int i = 0; i < draws.Length; i++)
         {
             ref readonly var draw = ref draws[i];
-            var (kind, set) = classify(in draw);
+            var (kind, set, program, keeps) = classify(in draw);
             // A draw into the shadow maps alone that casts none is drawn nowhere.
             if (draw.ShadowOnly && ShadowOf(draw) == ShadowKind.None) kind = Kind.Skip;
-            _classified.Add((kind, set));
+            _classified.Add((kind, set, program, keeps));
             // A mesh unloaded after its draw was recorded is skipped.
             if (kind == Kind.Skip || meshes.Get(draw.Mesh) is not { } mesh)
             {
@@ -617,7 +623,7 @@ internal sealed partial class ModelRenderer : IDisposable
                 continue;
             }
             _drawBatch.Add(kind == Kind.Alone
-                ? AddBatch(mesh, null, i, culled, shadow, draw.ViewProjection, draw.Scissor)
+                ? AddBatch(mesh, null, i, culled, shadow, draw.ViewProjection, draw.Scissor, program: program, keeps: keeps)
                 : Join(mesh, (draw.Mesh, set, culled, shadow, draw.ViewProjection, draw.Scissor, draw.Subsurface, ThicknessOf(in draw))));
         }
 
@@ -625,7 +631,7 @@ internal sealed partial class ModelRenderer : IDisposable
         {
             var group = groups[g];
             if (group.Count == 0) continue;
-            var (kind, set) = classify(in group.Template);
+            var (kind, set, _, _) = classify(in group.Template);
             if (kind != Kind.Batched || group.Template.ShadowOnly && ShadowOf(group.Template) == ShadowKind.None || meshes.Get(group.Template.Mesh) is not { } mesh) continue;
             var index = AddBatch(mesh, set, -1, FacesOf(in group.Template, cullBackFaces), ShadowOf(group.Template), group.Template.ViewProjection, group.Template.Scissor,
                 group.Template.Subsurface, ThicknessOf(in group.Template));
@@ -639,7 +645,7 @@ internal sealed partial class ModelRenderer : IDisposable
         {
             if (_drawBatch[i] != Translucent) continue;
             ref readonly var draw = ref draws[i];
-            var (kind, set) = _classified[i];
+            var (kind, set, program, keeps) = _classified[i];
             var mesh = meshes.Get(draw.Mesh)!;
             var culled = FacesOf(in draw, cullBackFaces);
             var shadow = ShadowOf(draw);
@@ -650,7 +656,7 @@ internal sealed partial class ModelRenderer : IDisposable
                     Grow(_drawBatch[i - 1]);
                     _drawBatch[i] = _drawBatch[i - 1];
                 }
-                else _drawBatch[i] = AddBatch(mesh, null, i, culled, shadow, draw.ViewProjection, draw.Scissor);
+                else _drawBatch[i] = AddBatch(mesh, null, i, culled, shadow, draw.ViewProjection, draw.Scissor, program: program, keeps: keeps);
                 lastBatch = -1;
                 continue;
             }
@@ -678,39 +684,6 @@ internal sealed partial class ModelRenderer : IDisposable
             && a.EmissiveMap == b.EmissiveMap && a.OcclusionMap == b.OcclusionMap
             && a.CullFront == b.CullFront && a.Points == b.Points && a.ColorBlend == b.ColorBlend && a.DepthWrite == b.DepthWrite
             && ReferenceEquals(a.Uniforms, b.Uniforms) && ReferenceEquals(a.ShaderTextures, b.ShaderTextures);
-    }
-
-    // Marks a translucent draw until the opaque batches are made.
-    private const int Translucent = -2;
-
-    private int AddBatch(GpuMeshes.Entry mesh, IDescriptorSet? set, int custom, (CullMode Cull, bool Points, bool Blend, bool Depth, bool Solid) faces, ShadowKind shadow, in Matrix4x4 viewProjection,
-        ScissorRect? scissor, Vector4 subsurface = default, float thickness = 0)
-    {
-        _batches.Add(new Batch
-        {
-            Mesh = mesh, Set = set, Custom = custom, Group = -1, Cull = faces.Cull, Points = faces.Points, Blend = faces.Blend, Depth = faces.Depth, Solid = faces.Solid, Shadow = shadow, ViewProjection = viewProjection,
-            Scissor = scissor, Subsurface = subsurface, Thickness = thickness,
-            Count = custom >= 0 ? 1u : 0u,
-        });
-        return _batches.Count - 1;
-    }
-
-    // A draw's parts' thickness where it scatters, so draws that differ only where nothing scatters share a batch.
-    private static float ThicknessOf(in ModelDraw draw) => draw.Subsurface.W > 0 ? draw.SubsurfaceThickness : 0;
-
-    private int Join(GpuMeshes.Entry mesh, (int Mesh, IDescriptorSet? Set, (CullMode Cull, bool Points, bool Blend, bool Depth, bool Solid) Faces, ShadowKind Shadow, Matrix4x4 ViewProjection, ScissorRect? Scissor, Vector4 Subsurface, float Thickness) key)
-    {
-        if (!_batchOf.TryGetValue(key, out var index))
-            _batchOf[key] = index = AddBatch(mesh, key.Set, -1, key.Faces, key.Shadow, key.ViewProjection, key.Scissor, key.Subsurface, key.Thickness);
-        Grow(index);
-        return index;
-    }
-
-    private void Grow(int index)
-    {
-        var batch = _batches[index];
-        batch.Count++;
-        _batches[index] = batch;
     }
 
     /// <inheritdoc />

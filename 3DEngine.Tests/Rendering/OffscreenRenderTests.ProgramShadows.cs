@@ -117,4 +117,56 @@ public sealed partial class OffscreenRenderTests
         UnloadTexture(atlas);
         UnloadShader(shader);
     }
+
+    [NeedsVulkanFact]
+    public void A_Frame_Looks_A_Programs_Own_Shader_Up_Once_A_Draw_Whichever_Passes_Draw_It()
+    {
+        // A draw through a program's own shader is looked up in the store as the program records it,
+        // to see the shader draws, and as the frame's batches are gathered, its program carried on
+        // its batch to the shadows, the window's depth and the scene, where each of them looked it
+        // up again under the store's lock, a masked surface's shadow twice, and the instances'
+        // culling once more.
+        Open(64, 64);
+        var shader = LoadShaderFromMemory("""
+            import modelpass;
+
+            [shader("fragment")]
+            float4 fragmentMain(ModelVertexOutput input) : SV_Target
+            {
+                return float4(lit(baseColor(input).rgb, input), 1);
+            }
+
+            [shader("fragment")]
+            void shadowMain(ModelVertexOutput input)
+            {
+            }
+            """, "looked.slang");
+        // Eight squares of eight meshes, each a batch of its own as each of the voxel game's chunks is.
+        var squares = Enumerable.Range(0, 8).Select(_ => LoadModelFromMesh(GenMeshPlane(1, 1, 1, 1))).ToArray();
+        foreach (var square in squares)
+            square.Materials[0] = new ModelMaterial(Color.White) { AlphaMode = MaterialAlphaMode.Mask, Shader = shader };
+        CreateDirectionalLight(Vector3.Normalize(new Vector3(-1, -1, -1)), Color.White, 1, castsShadows: true);
+        var camera = new Camera3D(new Vector3(0, 3, 6), Vector3.Zero, Vector3.UnitY, 45);
+        void Frames(int count)
+        {
+            for (int frame = 0; frame < count; frame++)
+            {
+                BeginDrawing();
+                ClearBackground(Color.Black);
+                BeginMode3D(camera);
+                for (int i = 0; i < 8; i++)
+                    DrawModelEx(squares[i], new Vector3(-2 + i * 0.5f, 0, 0), Vector3.UnitX, 90, Vector3.One, Color.White);
+                EndMode3D();
+                EndDrawing();
+            }
+        }
+        Frames(3);
+        var store = GetApp().World.Resource<ShaderStore>();
+        var before = store.Lookups;
+        Frames(10);
+        var each = (store.Lookups - before) / 10.0;
+        each.Should().BeLessThanOrEqualTo(2 * 8 + 2, $"a frame of eight draws asks the store {each:0.0} times, twice a draw and once for the shader's pipelines");
+        foreach (var square in squares) UnloadModel(square);
+        UnloadShader(shader);
+    }
 }

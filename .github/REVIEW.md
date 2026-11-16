@@ -377,6 +377,16 @@ reverted as the screen probes' limit at shapes about a tile wide, its patches in
     or runtime folder and closed to others. A test for each, a compiler set above a folder that is
     no checkout not taken. After 280 and before 274.
 
+284. **A flush lamp's own wall reads a quarter below the reference.** Item 273's sheet against the
+    traced reference at two bounces shows the wall a lamp is set flush in at 0.75 of the reference's
+    light where the room as a whole reads 0.97, the blue band around the lamp. Find which part falls
+    short, by the reference split into its direct light and its one bounce over that wall and the
+    frame's split the same way (the open face's light at a grazing angle onto its own wall, the
+    light returned from the room onto it, or the near field's first texels beside the lamp). A Reply
+    first with the two splits as a table and the cause named with its place in the code, then the
+    mend with a test that holds the wall's share within a bound of the reference, the floor lamp's
+    and the hung lamp's shares unchanged, and the sheet made again.
+
 ## Verdicts
 
 Verdicts 125 and 126 are settled at 06:38 on 2026-11-16, the circular occluders' far room test
@@ -999,3 +1009,40 @@ compiler's and the shader store's tests pass 37 on lavapipe 26.2.4 and the RTX, 
 user's file. Both legs of the suite pass, 2,498, in 28 m 9 s and 28 m 2 s at 3,170 and 2,886 MB at
 most, the second shuffled by the seed 20261023. On Windows `SlangCompilerPlaceTests` joins the
 Graphics part in the first half beside `SlangCompilerTests`, and no class moves.
+
+Item 274, a program's own shader looked up once a draw as the frame's batches are gathered.
+
+The two forms, each over 276's mends as committed, the game's room at Low capped at 100 and pinned
+to the P-cores, five rounds each under the exclusive lock, medians in ms of the scene pass, the
+shadows, the window's depth, the model batches and every CPU pass summed. The mends alone read
+0.447, 0.415, 0.337, 0.304 and 2.179, a lookup that takes no lock against a table the writers
+replace whole 0.435, 0.402, 0.336, 0.280 and 2.115, and the program found once as a draw is gathered
+and carried on its batch 0.423, 0.391, 0.308, 0.281 and 2.061. The batch's form is the cheaper in
+every pass but the model batches, a thousandth behind, and is taken alone, the store keeping its
+lock, since it leaves the render thread one lookup a draw where the table's would spare each of them
+a lock taken by no other thread.
+
+The mend. `ShaderStore.Lookup` gives a shader's program and whether its vertex stage keeps its
+mesh's positions under one lock, which the gathering takes for each draw of a shader of the
+program's own and carries on its batch, and the instances' culling, the scene pass, the shadows'
+casting batches and their own shadows read the batch's where each asked the store again. A frame
+draws with the programs its shaders held when its batches were gathered, so a shader loaded again or
+unloaded on the program's thread during it takes effect from the next. `ShaderStore.KeepsPositions`,
+which nothing asks then, is gone, and the batches' making moves to `ModelRenderer.Order.cs`, which
+leaves `ModelNode.cs` at 773 lines. A frame of eight draws through a program's own masked shader,
+each of its own mesh as the game's chunks are, asks the store 17 times, once a draw as the program
+records it, once a draw as it is gathered and once for the shader's pipelines, where it asked 49,
+the scene pass, the instances' culling, the casting batches and the own shadow each once a draw more
+(`OffscreenRenderTests`), and `ShaderStoreTests` holds two threads loading, loading again and
+unloading shaders while a third looks them up, each found with whether it keeps positions and none
+lost.
+
+The runs. The patch read on 2026-11-15 applies to the head unchanged. From a worktree of `ee4af79e`
+holding it, the shader store's, the models', the shadows', the subsurface's, the occlusion's, the
+model order's and the quality's tests with the two new ones pass 180 with 1 skipped on lavapipe
+26.2.4, 181 on the RTX and 180 with 1 skipped on lavapipe 25.2.8. On main the strict build is clean,
+the focused tests, the shader store's, the offscreen renders', the model order's, the models' and
+the norm and surface tests, pass 232, and both legs of the suite pass, 2,500, in 28 m 6 s and 27 m
+49 s at 2,964 and 2,799 MB at most, the second shuffled by the seed 20261023. On Windows the two new
+tests join their classes' parts, the shader store's in Rendering 1 and the offscreen renders' in
+Rendering 7, and no class moves.

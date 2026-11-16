@@ -106,4 +106,37 @@ internal sealed partial class ModelRenderer
             near = MathF.Min(near, Vector3.Dot((blocks[i].Min + blocks[i].Max) * 0.5f, w));
         return near + through.M44;
     }
+
+    // Marks a translucent draw until the opaque batches are made.
+    private const int Translucent = -2;
+
+    private int AddBatch(GpuMeshes.Entry mesh, IDescriptorSet? set, int custom, (CullMode Cull, bool Points, bool Blend, bool Depth, bool Solid) faces, ShadowKind shadow, in Matrix4x4 viewProjection,
+        ScissorRect? scissor, Vector4 subsurface = default, float thickness = 0, ShaderProgram? program = null, bool keeps = false)
+    {
+        _batches.Add(new Batch
+        {
+            Mesh = mesh, Set = set, Custom = custom, Program = program, KeepsPositions = keeps, Group = -1, Cull = faces.Cull, Points = faces.Points, Blend = faces.Blend, Depth = faces.Depth, Solid = faces.Solid, Shadow = shadow, ViewProjection = viewProjection,
+            Scissor = scissor, Subsurface = subsurface, Thickness = thickness,
+            Count = custom >= 0 ? 1u : 0u,
+        });
+        return _batches.Count - 1;
+    }
+
+    // A draw's parts' thickness where it scatters, so draws that differ only where nothing scatters share a batch.
+    private static float ThicknessOf(in ModelDraw draw) => draw.Subsurface.W > 0 ? draw.SubsurfaceThickness : 0;
+
+    private int Join(GpuMeshes.Entry mesh, (int Mesh, IDescriptorSet? Set, (CullMode Cull, bool Points, bool Blend, bool Depth, bool Solid) Faces, ShadowKind Shadow, Matrix4x4 ViewProjection, ScissorRect? Scissor, Vector4 Subsurface, float Thickness) key)
+    {
+        if (!_batchOf.TryGetValue(key, out var index))
+            _batchOf[key] = index = AddBatch(mesh, key.Set, -1, key.Faces, key.Shadow, key.ViewProjection, key.Scissor, key.Subsurface, key.Thickness);
+        Grow(index);
+        return index;
+    }
+
+    private void Grow(int index)
+    {
+        var batch = _batches[index];
+        batch.Count++;
+        _batches[index] = batch;
+    }
 }

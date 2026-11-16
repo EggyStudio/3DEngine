@@ -163,10 +163,10 @@ internal sealed partial class ModelRenderer
         foreach (ref readonly var batch in CollectionsMarshal.AsSpan(view.Batches))
         {
             if (batch.Shadow == ShadowKind.None) continue;
-            var own = IsMasked(batch.Shadow) && batch.Custom >= 0 ? OwnShadowOf(device, store, draws.Span[batch.Custom], batch.Mesh) : null;
+            var own = IsMasked(batch.Shadow) && batch.Custom >= 0 ? OwnShadowOf(device, batch.Program, draws.Span[batch.Custom], batch.Mesh) : null;
             _ownShadows.Add(own);
             _shadowBatches.Add(own is not null
-                ? batch with { Set = DrawSet(device, renderContext, renderWorld, textures, draws.Span[batch.Custom], store!.Get(draws.Span[batch.Custom].Shader)!) }
+                ? batch with { Set = DrawSet(device, renderContext, renderWorld, textures, draws.Span[batch.Custom], own.Value.Program) }
                 : IsMasked(batch.Shadow) && batch.Set is null
                     ? batch with { Set = MaterialSet(device, textures, draws.Span[batch.Custom]) }
                     : batch);
@@ -180,9 +180,9 @@ internal sealed partial class ModelRenderer
     // vertex stage is drawn with the light's view-projection pushed in the
     // camera's place, and its shadowMain or shadow.slang's cut after it. Null for a program with
     // neither, whose shadow the pass's own stages draw.
-    private OwnShadow? OwnShadowOf(GraphicsDevice device, ShaderStore? store, in ModelDraw draw, GpuMeshes.Entry mesh)
+    private OwnShadow? OwnShadowOf(GraphicsDevice device, ShaderProgram? program, in ModelDraw draw, GpuMeshes.Entry mesh)
     {
-        if (store?.Get(draw.Shader) is not { } program || _shadowMaskShader is null) return null;
+        if (program is null || _shadowMaskShader is null) return null;
         if (!program.Stages.ContainsKey(ShaderStage.Vertex) && program.ShadowFragment is null) return null;
 
         var modules = CustomModules(device, draw.Shader, program);

@@ -38,6 +38,13 @@ internal sealed class ShaderStore
     private readonly HashSet<int> _keepsPositions = [];
     private readonly List<int> _removals = [];
     private int _next = 1;
+    private long _lookups;
+
+    /// <summary>How many times a shader's program or whether it keeps its mesh's positions was looked up, each under the store's lock.</summary>
+    internal long Lookups
+    {
+        get { lock (_gate) return _lookups; }
+    }
 
     /// <summary>Stores a compiled program and returns its id.</summary>
     /// <exception cref="ArgumentException">The program has neither a fragment stage to draw with nor a compute stage to dispatch.</exception>
@@ -79,7 +86,21 @@ internal sealed class ShaderStore
     /// <summary>The program with id <paramref name="id"/>, or <c>null</c>.</summary>
     public ShaderProgram? Get(int id)
     {
-        lock (_gate) return _live.GetValueOrDefault(id);
+        lock (_gate)
+        {
+            _lookups++;
+            return _live.GetValueOrDefault(id);
+        }
+    }
+
+    /// <summary>The program with id <paramref name="id"/>, or <c>null</c>, and whether its vertex stage keeps its mesh's positions, in one lookup.</summary>
+    public (ShaderProgram? Program, bool KeepsPositions) Lookup(int id)
+    {
+        lock (_gate)
+        {
+            _lookups++;
+            return (_live.GetValueOrDefault(id), _keepsPositions.Contains(id));
+        }
     }
 
     /// <summary>Marks whether a shader's vertex stage keeps its mesh's positions, so its draws are culled by the mesh's box.</summary>
@@ -91,12 +112,6 @@ internal sealed class ShaderStore
             if (keeps) _keepsPositions.Add(id);
             else _keepsPositions.Remove(id);
         }
-    }
-
-    /// <summary>Whether the program said of a shader that its vertex stage keeps its mesh's positions.</summary>
-    public bool KeepsPositions(int id)
-    {
-        lock (_gate) return _keepsPositions.Contains(id);
     }
 
     /// <summary>Unloads a shader.</summary>
