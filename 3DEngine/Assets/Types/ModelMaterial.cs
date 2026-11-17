@@ -89,6 +89,18 @@ public record struct ModelMaterial(Color Color, Texture2D Texture = default)
     /// <summary>How bright <see cref="Emissive"/> is, 1 for the color as it is and more for a light that blooms past white.</summary>
     public float EmissiveIntensity { get; set; } = 1;
 
+    /// <summary>
+    /// The luminance <see cref="Emissive"/> is given off at in candelas a square meter, seen through
+    /// the camera <c>E3D.SetCameraExposure</c> sets as a light given in physical units is and
+    /// in place of <see cref="EmissiveIntensity"/>, or 0 for that plain intensity.
+    /// </summary>
+    /// <remarks>
+    /// The frame holds 1.2 times 2 to the camera's EV100 candelas a square meter as 1, so a lamp's
+    /// glass of 500 reads as an eightieth of that under a sunny day's EV 15 and as 13 under a lit
+    /// street's EV 5 at night.
+    /// </remarks>
+    public float EmissiveLuminance { get; set; }
+
     /// <summary>An sRGB map multiplying <see cref="Emissive"/>, as a screen's picture or a sign's letters. A default texture means none.</summary>
     public Texture2D EmissiveMap { get; set; }
 

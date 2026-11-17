@@ -118,6 +118,37 @@ public sealed class E3DPhysicalUnitsTests : IDisposable
     }
 
     [Fact]
+    public void A_Material_Given_In_Candelas_A_Square_Meter_Gives_Off_Its_Light_Through_The_Camera()
+    {
+        // A lamp's glass of 500 candelas a square meter beside a sign of a plain intensity of 2,
+        // drawn through a sunny day's camera, then through one of a lit street at night, ISO 800
+        // at 1/30 s and f/2, EV 3.9.
+        Headless();
+        GetApp().World.InitResource<DrawList>();
+        GetApp().World.InitResource<ModelDrawList>();
+        var lamp = LoadModelFromMesh(GenMeshCube(1, 1, 1));
+        lamp.Materials[0] = new ModelMaterial(Color.Black) { Emissive = Color.White, EmissiveLuminance = 500 };
+        var sign = LoadModelFromMesh(GenMeshCube(1, 1, 1));
+        sign.Materials[0] = new ModelMaterial(Color.Black) { Emissive = Color.White, EmissiveIntensity = 2 };
+        var draws = GetApp().World.Resource<ModelDrawList>();
+
+        DrawModel(lamp, Vector3.Zero, 1, Color.White);
+        DrawModel(sign, Vector3.Zero, 1, Color.White);
+        SetCameraExposure(800, 1 / 30f, 2);
+        DrawModel(lamp, Vector3.Zero, 1, Color.White);
+        DrawModel(sign, Vector3.Zero, 1, Color.White);
+
+        draws.Draws.Select(d => d.Emission.X).Should().HaveCount(4);
+        draws.Draws[0].Emission.X.Should().BeApproximately(500 * Through(15), 1e-6f, "a camera that is not set is a sunny day's");
+        draws.Draws[2].Emission.X.Should().BeApproximately(500 * Through(GetCameraEv100()), 1e-4f).And.BeGreaterThan(1,
+            "the glass outshines white through a camera exposed for a street at night");
+        draws.Draws[1].Emission.X.Should().Be(2, "a plain intensity is not seen through the camera");
+        draws.Draws[3].Emission.X.Should().Be(2);
+        UnloadModel(lamp);
+        UnloadModel(sign);
+    }
+
+    [Fact]
     public void Daylight_Is_Near_White_And_A_Blue_Sky_s_Temperature_Blue()
     {
         var day = ColorFromTemperature(6500);

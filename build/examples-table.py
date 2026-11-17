@@ -312,7 +312,10 @@ def build(commit, examples, triage, written):
     out += ["", (
         "`scenes_sponza` draws Intel's Sponza, a pack too large for the repository. Opened without it, "
         "the example's first screen fetches it by its button, showing each stage and its megabytes, "
-        "or `./e3d scenes fetch intel-sponza` fetches it beforehand, each into the folder the other reads.")]
+        "or `./e3d scenes fetch intel-sponza` fetches it beforehand, each into the folder the other reads. "
+        "`scenes_bistro` draws the Amazon Lumberyard Bistro's exterior so, fetched by its first screen or by "
+        "`./e3d scenes fetch bistro-exterior`. Both open with the camera metered, and M holds it at a fixed "
+        "exposure or meters it again.")]
     return "\n".join(out) + "\n"
 
 

@@ -63,6 +63,13 @@ Model lamp = default;
 lamp.Materials[0] = new ModelMaterial(Color.White) { Emissive = new Color(255, 200, 120), EmissiveIntensity = 2 };
 ```
 
+`EmissiveIntensity` is a plain strength at the frame's full scale, 1 the color as the frame's
+white whatever the camera. `EmissiveLuminance` is a physical one, the color's luminance in candelas
+a square meter, seen through the camera `SetCameraExposure` sets as a light given in lux or
+candelas is and in place of the plain strength, so a lamp's glass of 500 glows faintly beside
+sunlit stone and lights the street once the camera is exposed for the night. `scenes_bistro` reads
+its scene's emission so, as BevyCSharp reads the same pack's.
+
 Light past white shows as white until bloom spreads it into the pixels around it, as a bright
 light spreads through a lens. `SetBloom(intensity, threshold)` turns it on, 0 turns it off, which it
 is by default, and the threshold, 1 unless given, is how bright a pixel has to be to bloom, so a
@@ -542,7 +549,8 @@ GPU with it on, as `./e3d command profile` gives `targets`. `games/Manor` turns 
 horizons, which stay the default: rays over each pixel's hemisphere traced against the points of the
 depth around it taken as circles, Isheden's circular occluders (CORTAO), at 8 or 16 points a pixel.
 The history and the blurs take its result as they take the horizons', and a render texture's own
-occlusion is still worked out by the horizons.
+occlusion is still worked out by the horizons. `scenes_sponza` and `scenes_bistro` work theirs out
+so, over global illumination's cascades.
 
 ```csharp
 SetAmbientOcclusionMethod(AmbientOcclusionMethod.CircularOccluders, samples: 16);

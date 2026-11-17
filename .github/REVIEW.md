@@ -1,34 +1,48 @@
 # Review
 
-Reviewed up to `b8fed5d0`, item 272, a ray scene's mesh no copy has placed for sixty frames giving its structure back and the builds sharing one scratch, pushed at 21:41 on 2026-11-16, its build run 43952443846 green at 23:24, the form kept. Before it `da3d20cc`, item 286, a hit's march to a glow light set out half a cell off its
-surface and the lamp's wall read apart from the ledge's front, pushed at 19:50 on 2026-11-16, its
-build run 43933140926 green at 21:41, the form kept but for its sentence's missing full stop, on N 7.2's list since. Before it `6309f746`, item 285, a ray the screen's march meets past a stretch behind the depth
-handed to the field, pushed at 15:23 on 2026-11-16, its build run 43885232882 green at 17:09, the form kept. Before it `4f205366`, item 284, a hit's march to a glow light aimed at the emitting face it
-faces most squarely, pushed at 13:35 on 2026-11-16, its build run 43867967041 green at 15:23, the form kept. Before it `7d287a24`, the macOS suite dealt to two runners, pushed at 11:51 on 2026-11-16, its
-build run 43852572511 green at 13:35, the macOS halves through in 41 and 28 minutes, the form kept. Before it `07457e05`, Verdict 127's mend, a compile's folder in the user's own cache whatever
-folder a test set, with `023aa15d`, item 274, a program's own shader looked up once a draw, and
-`f0d4e8df`, twelve pictures kept among the readings, pushed together at 09:49 on 2026-11-16, their
-build run 43834379791 green at 11:51 with macOS among it, the form kept. Before them `b634f33d`, item 283, the shader compiler taken from the nearest checkout alone
-where the user owns it and a compile writing in a closed folder of its own, pushed at 06:38 on
-2026-11-16, its build run 43811607980 red at 08:12 on macOS alone (Verdict 127), the form kept. Before it `ee4af79e`, item 280, the
-glow lights' loop over a box's axes unrolled, with `294e8a05`, Verdict 126's mend, the circular
-occluders' raw and filtered images cleared to open each frame, pushed together at 04:53, their build
-run 43800838233 green at 06:38 with the fourth Windows half among it. Before them `e8a65332`, item 282 and Verdict 125's report, the circular occluders at eight points a
-build the shipped cache holds, their images and sets let go once switched away, and the far room's
-test saying what each stage read, with `81656c12`, item 281, a computed state or a sub state applied
-after the state it is worked out from, pushed together at 01:37 on 2026-11-16, their build run
-43781515730 red at 02:58 in the fourth Windows half alone (Verdict 126), the form kept. Before them
-`2ceadfd1`, item 279, the window's ambient occlusion worked out by circular occluders as a second
-method beside the horizons, which stay the default, with its settable figures, its commands, its
-tests on three devices and CORTAO's notice, pushed at 23:19 on 2026-11-15, its build run 43768674338
-red at 00:52 on 2026-11-16 in the fourth Windows half alone (Verdict 125), the form kept. One
-comment of its tests names a game as its example and is asked reworded in the next commit. Before it
-`c53719f5`, item 278, a quality of global illumination that names no value refused with an error
-naming it and the quality kept, its test drawing the frames after, with a scene pack's remarks
-saying what its manifest holds and the cost read's Reply, pushed at 21:03 on 2026-11-15, its build
-run 43755793467 green at 22:43, the form kept and the message free of numbers. One comment in its
-test tells what the code did before the mend and is asked reworded in the next commit. The pushes
-before these stand in REVIEW-ARCHIVE.md's head records.
+Reviewed up to `029f60de`, item 287, a hit's march to a glow light taking the width across its way
+of the faces that emit toward it, the ledge's front 1.205 of the reference from 1.296, both suite
+legs 2,510 passed, pushed at 07:07 on 2026-11-17, its build run 44028936810 green at 08:59, the pack
+run with publish 44043006601 red at 11:28 in the games job (Verdict 128), its failed job run again
+green at 12:38, the package 6.2.102 published and tagged, the form kept and its sheet in the tree.
+Before it `b8fed5d0`, item 272, a ray scene's mesh no copy has placed for sixty frames giving its
+structure back and the builds sharing one scratch, pushed at 21:41 on 2026-11-16, its build run
+43952443846 green at 23:24, the form kept. Before it `da3d20cc`, item 286, a hit's march to a glow
+light set out half a cell off its surface and the lamp's wall read apart from the ledge's front,
+pushed at 19:50 on 2026-11-16, its build run 43933140926 green at 21:41, the form kept but for its
+sentence's missing full stop, on N 7.2's list since. Before it `6309f746`, item 285, a ray the
+screen's march meets past a stretch behind the depth handed to the field, pushed at 15:23 on
+2026-11-16, its build run 43885232882 green at 17:09, the form kept. Before it `4f205366`, item 284,
+a hit's march to a glow light aimed at the emitting face it faces most squarely, pushed at 13:35 on
+2026-11-16, its build run 43867967041 green at 15:23, the form kept. Before it `7d287a24`, the macOS
+suite dealt to two runners, pushed at 11:51 on 2026-11-16, its build run 43852572511 green at 13:35,
+the macOS halves through in 41 and 28 minutes, the form kept. Before it `07457e05`, Verdict 127's
+mend, a compile's folder in the user's own cache whatever folder a test set, with `023aa15d`, item
+274, a program's own shader looked up once a draw, and `f0d4e8df`, twelve pictures kept among the
+readings, pushed together at 09:49 on 2026-11-16, their build run 43834379791 green at 11:51 with
+macOS among it, the form kept. Before them `b634f33d`, item 283, the shader compiler taken from the
+nearest checkout alone where the user owns it and a compile writing in a closed folder of its own,
+pushed at 06:38 on 2026-11-16, its build run 43811607980 red at 08:12 on macOS alone (Verdict 127),
+the form kept. Before it `ee4af79e`, item 280, the glow lights' loop over a box's axes unrolled,
+with `294e8a05`, Verdict 126's mend, the circular occluders' raw and filtered images cleared to open
+each frame, pushed together at 04:53, their build run 43800838233 green at 06:38 with the fourth
+Windows half among it. Before them `e8a65332`, item 282 and Verdict 125's report, the circular
+occluders at eight points a build the shipped cache holds, their images and sets let go once
+switched away, and the far room's test saying what each stage read, with `81656c12`, item 281, a
+computed state or a sub state applied after the state it is worked out from, pushed together at
+01:37 on 2026-11-16, their build run 43781515730 red at 02:58 in the fourth Windows half alone
+(Verdict 126), the form kept. Before them `2ceadfd1`, item 279, the window's ambient occlusion
+worked out by circular occluders as a second method beside the horizons, which stay the default,
+with its settable figures, its commands, its tests on three devices and CORTAO's notice, pushed at
+23:19 on 2026-11-15, its build run 43768674338 red at 00:52 on 2026-11-16 in the fourth Windows half
+alone (Verdict 125), the form kept. One comment of its tests names a game as its example and is
+asked reworded in the next commit. Before it `c53719f5`, item 278, a quality of global illumination
+that names no value refused with an error naming it and the quality kept, its test drawing the
+frames after, with a scene pack's remarks saying what its manifest holds and the cost read's Reply,
+pushed at 21:03 on 2026-11-15, its build run 43755793467 green at 22:43, the form kept and the
+message free of numbers. One comment in its test tells what the code did before the mend and is
+asked reworded in the next commit. The pushes before these stand in REVIEW-ARCHIVE.md's head
+records.
 
 The package stands at 6.2.60 from `baa21ff4`, one package with its templates, published at 18:58 on
 2026-11-12 by the pack run 43243318284 and tagged v6.2.60, carrying 259's two commits beside what
@@ -97,7 +111,9 @@ reverted as the screen probes' limit at shapes about a tile wide, its patches in
     illumination takes 3.18 ms of the built room's 5.96 at Low and 6.19 of 8.76 at High, 1.82 and
     5.37 in flight; the model pass 1.90 and 1.66 in the room and 5.05 and 4.80 in flight, the
     largest stage there at Low; the field 1.2 ms in flight and nothing standing; the shadows 0.4 to
-    0.6.
+    0.6. The
+    readings by pass and the cuts' Replies are in REVIEW-ARCHIVE.md under Items closed, parked or
+    shortened.
 
 255. **A program's first run stands most of a minute at its fifth frame, its pipelines compiled one
     after another.** From the game's item 171 on 2026-11-11, read at 15:48. With the validation
@@ -338,18 +354,6 @@ reverted as the screen probes' limit at shapes about a tile wide, its patches in
     a finding that does not hold says why. The three high ones after part 8's commit, beside the
     binds' session; the medium ones after 272 and ahead of 265, the low ones after 265.
 
-287. **The ledge's front under a lamp set in a wall reads a fifth over the reference.** Item 286's
-    Reply leaves the front at 1.294 of the bounce at 480 by 270 and 1.214 at the test's window, the
-    floor's hits in the ledge's shadow at 3.44 times the reference along their ways, and names two
-    parts, the cone of `glowMarch` whose half shadow past an edge on the lamp's side reaches into
-    the full one, and the pixel's own light from the lamp there at 1.36 times. Asked, the two parts
-    read apart first (the hits' light with the pixels' held to the reference's, and the reverse),
-    then the mend of the larger, the cone narrowed by what the reference shows of a lamp past an
-    edge and not by a constant fitted to this room, read in the three rooms of item 284's test and
-    the hung lamp's, with the front's bound drawn in from 1.25 toward 1.1 as far as the mend carries
-    it and the wall's kept. The cost by the flight as item 286's, and a sheet with the red and blue
-    difference. A Reply with the parts before the mend.
-
 288. **The scene field and the ray scene on the processor in a frame of a streamed world.** The
     entry of 2026-11-16 in `ASKS.md` reads `cpu.scene_field` at 4 to 23 ms and
     `cpu.global_illumination` at 4 to 46 ms in the frames that bring 9 to 31 new meshes, and the
@@ -408,7 +412,15 @@ changes.
     in a scene of the engine's own that adds meshes past a growth and reads the frame's stage beside
     its neighbors, and the light the same before and after by the tests that stand. Read together
     with item 288, whose new meshes' cost at a step is the same scene's other half, 11.4 to 17.0 ms
-    for 25 to 38 meshes in the game's reading.
+    for 25 to 38 meshes in the game's reading. The game's later reading names the growth whole.
+    `GpuRayScene.AddCorners` grows the corner buffer fourfold, to twice the next power of two of the
+    corners needed, the UVs beside it, both copies alive during the copy, 256 MiB to 1,024 MiB in the frame
+    the corners pass 2 to the 24th, 43 to 57 ms with the stage at 33 to 45 ms, in 5 of 10 flights,
+    the others having grown during the load. The corners of a mesh that leaves are never let go,
+    16.1 million at a flight's start and 18.0 million at its end for about 3,600 meshes. Asked
+    beside the above, a call by which a program reserves corners ahead, as at a world's load, the
+    corners of a mesh that leaves given back for the next to take, and the growth's factor said in
+    the documents with the memory it holds.
 
 293. **The circular occluders as the window's ambient occlusion by default.** Decided on 2026-11-17,
     the circular occluders are the default and the horizon pass the one chosen by name. Asked, the
@@ -435,12 +447,26 @@ changes.
     which parts can stand without history as they are, which at a cost, and which not on this
     device.
 
+295. **A program's first frame with a 3D view.** The game's reading of its first shown frame gives
+    the render graph 654 to 823 ms, the scene's stage at 234 to 318, the cascades' at 218 to 236,
+    the window's depth at 87, the field's at 61 to 103 and the lighting's block at 24 to 28. The
+    field and the probes are made with four cascades in the frames that draw no 3D view and made
+    again with five in the first that does, 30 and 64 ms, though the program asked for the far
+    cascade from its start, and eighteen pipelines with their pools are made in that frame from the
+    driver's cache. Asked, a read of which of these the engine can make before a view is first
+    drawn, the field and the probes made once at the count asked for, and a call by which a program
+    has a view's pipelines and pictures made ahead while it shows a loading screen, with a test in a
+    scene of the engine's own that the first frame with a view makes none of them. After items 288
+    and 292, whose buffers are the same scene's.
+
 ## Verdicts
 
-Verdict 127 is settled at 11:51 on 2026-11-16, the macOS job green in run 43834379791 with a
-compile's folder in the user's own cache. Verdicts
-125 and 126 are settled at 06:38 on 2026-11-16, the circular occluders' far room test green on the
-Windows device in run 43800838233 once the images are cleared each frame.
+Verdict 128 is open, the pack run 44043006601 of `029f60de` red in the games job alone at 11:28 on
+2026-11-17, Siege's banner at 0.1 and not counted as fallen, the job run again green at 12:38 and
+the package 6.2.102 published, the read of the play still asked. Verdict 127 is settled at 11:51 on
+2026-11-16, the macOS job green in run 43834379791 with a compile's folder in the user's own cache.
+Verdicts 125 and 126 are settled at 06:38 on 2026-11-16, the circular occluders' far room test green
+on the Windows device in run 43800838233 once the images are cleared each frame.
 
 125. **The run of `2ceadfd1` is red in the fourth Windows half alone, the circular occluders' room
     far from the origin reading 0.020 apart from the room at it against a bound of 0.01.** In run
@@ -487,6 +513,22 @@ Windows device in run 43800838233 once the images are cleared each frame.
     a test removed while a compile stands in it), a test that fails on Linux with the runtime folder
     taken away, the mend, and a line on whether the 40 minutes come from this failure or from the
     suite's growth. The commits after it wait for the mend and go with it. 08:12
+
+128. **The pack run of `029f60de` is red in the games job alone, Siege's banner standing at 0.1
+    after nine throws, and no package was published.** In run 44043006601, ended at 11:28 on
+    2026-11-17, every other job is green and the pack job was skipped. The build run of the same
+    commit, 44028936810, played Siege through green, so the same tree gives two outcomes on two
+    runners. The play's lines read the banner at 15.8 after the stone and the first bomb, 13.9, 9.6,
+    then 0.1 from the fifth throw on, with 152 of 190 blocks and 164 of 342 welds broken at the end,
+    the frame's time fixed at a sixtieth. The banner came down to 0.1 and the play's check did not
+    count it as fallen. Asked, a read of what the check takes as fallen against where a banner that
+    came down can rest, the play's bound set to what the game itself calls fallen, and a read of
+    whether the physics gives the same result on two processors at a fixed frame time, the runner's
+    processor line being in the log, with the answer said in the Reply. The run's failed job is
+    started again by the reviewer so the package can follow where the play passes. Written at 11:28
+    on 2026-11-17. The job run again ended green at 12:38 on 2026-11-17 and the package 6.2.102 was
+    published from it, so the play passes on one runner and fails on another with one tree; the read
+    asked above stands, and the verdict stays open until the Reply gives it.
 
 ## Decisions
 
@@ -632,113 +674,6 @@ numbers, each in full under Decisions in REVIEW-ARCHIVE.md.
     written once in the shared kernels, after they have moved. Item 271, BevyCSharp Decision 92.
 
 ## Replies
-
-Item 250, read on 2026-11-10. Ore by day at 1280 by 720, offscreen and unpaced, on the RTX 4070
-alone under the lock held exclusively, each reading the mean of 600 frames after 200 to settle. At
-High the frame takes 8.91 ms: gi_screen 3.50, gi_trace0 1.58, hdr_scene 1.36, trace1 0.94, trace2
-0.38, trace3 0.23, gather 0.23, merge 0.21, glow 0.19, filter 0.07; Medium 7.41, gi_screen 3.38;
-Low 5.41, gi_screen 1.30, its glow lights alone; Off 0.39. Each part left out at High in turn: the
-glow lights off, the frame takes 3.33 ms, gi_screen 0.83 and trace0 0.37, so the 69 small emitters
-carried as lights, the 64 nearest lit, are most of the screen probes' cost and much of the first
-cascade's; the screen probes off, 21.77 ms, hdr_scene 17.92, the model pass's own way without them dearer,
-why not yet read; the filter off, 8.96 ms, no saving. The cuts go one at a time from
-the screen probes' glow lights, each held to its reading.
-
-Item 250, the first cut. A faint glow light that sends nothing to a screen probe is no longer
-marched to, since what it sends is the march's weight, so the picture is the same. Read on the
-copy with the hits' rough form, at High the frame went from 8.47 to 8.17 ms and gi_screen from
-3.33 to 3.01, the shot 0.006 percent past 6 of 255 against it. The reading against the head's own
-form follows once the lock is free. GlowLightsTests and the suite's two legs pass on it.
-
-Item 250, the first cut read on the head. The frame went from 8.88 and 8.89 ms to 8.56, 8.59, 8.58
-and 8.59 ms, gi_screen from 3.48 to between 3.17 and 3.20. The second cut, a probe's ray's hit
-taking each face of a glow light past eight of its box's half diagonals as one point at its
-middle: the frame 8.47 and 8.47 ms against those four, gi_screen 3.14, the shot and the still
-0.006 percent past 6 of 255 against the base, as two of the base's stills stand against each
-other, GlowLightsTests' rooms passing. A face about square taken as one point from four half
-diagonals read 8.49 ms, no more, and is left out.
-
-Item 250, what each pass does a frame, Ore by day at High at 1280 by 720 after these cuts, from
-gi.state and the profile. Ore sets its field as 4 cascades with no far cascade, so no cascade
-traces in parts.
-
-| Pass | ms | Holds | Traces each frame | Spread over frames |
-|---|---|---|---|---|
-| gi_screen | 3.16 | 160 by 90 probes, one each 8 pixels | all 14,400, 16 rays each, 230,400 rays, and each probe's march to each of the 64 lit glow lights, the bright by face halves, the faint to their middle | none; the filter keeps each probe's light over frames |
-| gi_trace0 | 1.59 | 512 probes, 8 by 8 texels of 4 rays, 256 rays each | all 512, 131,072 rays | none; 8 probes' rays carried moving |
-| gi_trace1 | 0.91 | as trace0 | all 512, 131,072 rays | none; 38 carried moving |
-| gi_trace2 | 0.36 | 512 probes, 16 by 16 texels of one ray | all 512, 131,072 rays | none; 5 carried moving |
-| gi_trace3 | 0.23 | as trace2 | all 512, 131,072 rays | none; a far cascade traces a quarter a frame, which Ore has not |
-| hdr_scene | 1.47 | the window's pixels | each pixel, its reflections below roughness 0.5 in 24 steps, then the field | none |
-
-Every cascade traces the same count of rays each frame, yet their cost falls fourfold from the
-first to the fourth, so a ray's cost is in what it meets and shades near the eye more than in its
-count. The coarser cascades, 1 to 3 at 1.5 ms together, trace whole every frame though their
-light changes slowest; the far cascade's quarters a frame are the way already in the engine to
-spread them. That cut changes what moves, so it waits on ore.turn and is read by the turn and the
-rooms.
-
-Item 250, the reads' commands. Ore takes ore.turn, a turn by degrees a frame for a count of
-frames, and ore.walk, a step the way the player faces a frame for a count of frames, each column's
-top stood on rather than walked, and ore.status gives the eye and the point it looks at in the
-invariant culture. Two runs at a fixed frame time read alike to the thousandth: a degree a frame
-for 90 frames turned the view from facing -z to +x, and 0.1 a frame for 120 frames went from 24.50
-to 36.73, the 0.23 past twelve the step down the columns from 9 to 5, alike in each run.
-
-Item 250, the coarser cascades in halves. The cascades past the first, the far cascade aside, now
-trace half their probes a frame while they lie where they lay the frame before and no change of the
-lights or the field lies within the 16 frames a change takes to settle, those whose coordinates add
-up to the frame's parity, the other half keeping its rays' light of the frame before, and a probe
-carried with its rays moving traces every frame for its cycle. Ore at High at 1280 by 720, under the
-lock held alone, 600 frames each: 8.53 and 8.54 ms traced whole, 7.90 and 7.91 in halves, 0.63 ms
-saved; gi.state sampled 100 times read the coarser cascades in halves in all 100 standing and in 87
-of 100 on the autopilot's walk, 12 whole, after sections were built. On a path through the rooms
-frame by frame against the whole trace, with a second whole trace as the floor reading 0.000: the
-still and a turn the same to the pixel, a walk of four passes along the big room's diagonal at most
-0.030 percent of pixels past 6, the cut with 251's lift 0.873 on its second frame. The first form
-spread through changes too, and the suite found what the rooms' reads did not: the panel's room in a
-render texture at Low kept a tenth of its light ten frames after the panel went dark, 6.1, 5.9, 3.9
-down to 0.6 where traced whole it fell to 0 the frame after, the half keeping the light of before
-handing it back through the light past the first bounce; and the sun put out over the open court
-differed from the whole trace on the frame after by 40.6 percent of pixels past 6 and arrived a
-frame later. Waiting for the change to settle, the panel's room falls to 0 the frame after and
-every frame after the sun's step reads as the whole trace's, so a change of light costs nothing and
-Decision 95 has no cost to record. gi.toggle spread off traces every probe each frame and gi.state
-says which cascades trace in halves; docs/global-illumination.md says both. The test settles the
-court in halves and whole, finds them alike, puts the sun out, finds the cascades whole through the
-settling and in halves after, and every frame after the step alike; spread through the change, its
-first frame differs and the test fails, as the panel's test failed in the suite. The saving goes
-where a program's lights and field keep still: each change traces the coarser cascades whole for the
-16 frames after it, so Ore's walk halved them in 87 of 100 samples, a game stepping its sun every 83
-frames traces them whole for 16 of each 83, and one that streams its land as the player moves, a
-section built every few frames, halves them little while moving and fully once it stands; a game
-reads its own share by gi.state on the package that carries the spread.
-
-Item 250, the faint glow lights at a hit. The read by part of the screen probes' pass, Ore at High
-at 1280 by 720 under the lock held alone, found the glow lights' forms at the probes' rays' hits the
-largest cost left: with the hits given no glow light the frame went from 7.93 to 4.77 ms, the
-screen probes' pass from 3.17 to 1.67 and the first cascade's trace from 1.61 to 0.33; their two
-marches a hit about 0.5 and 0.3 of it, the reach checks over 64 lights nothing measurable, the
-bookkeeping for the marches nothing either. A count at the hits in Ore: 29 to 36 lights in reach of
-a hit, of which 26 to 29 take the faces, 2 to 6 the pieces or the closed form; the brightest 4 give
-87 to 93 percent of a hit's light and the brightest 8 97 to 99; over a 16th of the largest 3.8 to
-5.5 lights with 3.5 to 5.5 percent left, over a 32nd 4.9 to 6.8 with 1.6 to 2.7, over a 64th 5.9 to
-7.8 with 0.5 to 1.3. A light giving a hit under a 32nd of the largest of the lights before it now
-takes one point at its box's middle, glowLightPoint, the faces' formula with one distance for every
-face and each face's slant toward the hit taken from that face, and the rest their own forms, in
-one pass, since a light read before the largest takes its own form at worst and a light on its
-point gives under a 32nd of the largest of all; two passes, the largest found first, took the frame
-to 8.25 ms. The first point took each face's slant from the middle and gave a hall of glowing
-blocks on its floor half the tail's light, the blocks lighting the floor at a grazing angle that
-the middle, lower than the top face, halved; the slant from each face kept it. The frame 7.86 and
-7.86 ms against 7.36 and 7.36, the first cascade's trace 1.59 against 1.32, the screen probes' pass
-3.14 against 3.04 to 3.06. GlowLightsTests and BounceRoomsTests pass, 79 with the norm and the
-listing. gi.toggle points off takes every light by its own form, a word of the lights the change
-signature leaves out, so the switch begins no carried cycle again; gi.state says which. The test
-settles a closed hall lit by a 7 by 7 grid of small glowing blocks at Low and at High with the
-points on and off: the mean apart 0.30 and 0.41 levels at Low, 0.24 and 0.27 at High, where the
-faint lights given nothing lie 1.02 and 0.91 apart and fail its bound of 0.6, and none taken as a
-point moves nothing and fails its other half.
 
 Item 255, read and the first of its mends. The driver's own cache stands under XDG_CACHE_HOME, so
 an empty one is a player's first run: there the voxel game's terrain pipeline took 12,099 ms to
@@ -1075,142 +1010,149 @@ named and the second the eighteen others, Rendering's two among them. BUILDING.m
 jobs run the suite. The scripts', the steps', the validation lines', the package's contents and the
 norm tests pass 72 on the workflow as changed.
 
-Item 287, the ledge's front under the flush lamp.
+Item 291, the Bistro as a second scene.
 
-The parts. The flush lamp's room as item 286 left it, at 480 by 270 at High on the RTX 4070, the
-light past the first bounce off, the ledge a mesh of its own. The front's 158 screen probes, each
-read in 4 frames ray by ray against the reference along its ways at 512 samples a ray, bring 1.236
-of the reference along their ways and 1.261 of it over their hemispheres, their 10,112 rays named by
-where they land, the light a probe's frame brings from each and the front's reading with that one
-held to the reference's.
+The pack. BevyCSharp's `bistro-exterior.pack` from its scene-packs release, as mended at 08:54, read
+310,838,881 bytes with the SHA-256 its manifest names, and `build/make-scene-pack.py` made the
+engine's from it with that hash given, its textures' zstd undone and every other file copied,
+444,418,983 bytes, SHA-256 68095a0ab80867092404fc5673cd2e4f62605889f131254996a78fb28a42f116, 411
+files, the pack on the engine's release since 08:57 in place of the first one of 444,423,270 bytes
+made before the mend. `scenes/bistro-exterior.json` carries the bridge's title, source, license and
+attribution word for word and names the engine's release. The pack run's scenes job makes both packs
+from the bridge's in one loop, each checked against its manifest's size and hash before the upload,
+and that loop made the same pack byte for byte here. `./e3d scenes fetch bistro-exterior` fetched it
+from the release into an empty folder in 32 s, its hash and every file the same as the pack made
+here.
 
-| Where the front's rays land | Rays | Light | The reference's | Share of the excess | The front, these held |
-|---|---|---|---|---|---|
-| The floor, its first half block out | 2,121 | 0.00106 | 0 | 0.187 | 1.192 |
-| The floor, its second half block out | 774 | 0.00247 | 0.00001 | 0.436 | 1.133 |
-| The floor, one to two blocks out | 523 | 0.00236 | 0.00129 | 0.189 | 1.191 |
-| The floor, past two blocks | 259 | 0.00078 | 0.00080 | -0.004 | 1.237 |
-| The roof | 1,520 | 0.00566 | 0.00564 | 0.005 | 1.235 |
-| The other walls | 2,490 | 0.00679 | 0.00622 | 0.101 | 1.212 |
-| Past the rays' reach, the field's | 2,421 | 0.01050 | 0.01002 | 0.086 | 1.216 |
-| All | 10,112 | 0.02962 | 0.02397 | 1 | 1 |
+Three faults on the way, one the engine's loader, one the engine's unit, one the pack's.
 
-The two parts apart. A screen probe reads the depth alone and shades each hit by its own march to
-the lamp (`shadeProbeHitFacing`, `glowLightSeen`), so the floor's pixels' own light from the lamp,
-`glowLightShown`, reaches none of the front's rays, and with it held to the reference's the front
-reads the same 1.236. The reverse, the floor's hits held to the reference's and the pixels' as they
-are, the front's rays bring 1.045, so the hits are the front's excess, 0.81 of it on the floor
-within two blocks of the ledge and 0.62 within one, where the reference finds none of the lamp. The
-pixels' part is the floor's own, its frame against the reference's direct light by how far out from
-the ledge it lies.
+The loader read no emissive strength. glTF's `KHR_materials_emissive_strength` reaches Assimp as the
+material's emissive intensity, which the reader left unread, so the pack's lamps loaded at 1 rather
+than 500. The reader multiplies the emissive factor by it, and the test of a lamp at 500 beside a
+sign at its factor alone fails without the mend, the lamp reading 1.
 
-| The floor's pixels | Before the lamp | Beside it |
-|---|---|---|
-| First half block out, where the reference has 0 | 0.00008 | 0.00002 |
-| Second half block out, where it has 0 | 0.00355 | 0.00130 |
-| One to two blocks out, over the reference's | 1.420 | 1.350 |
-| Two to three blocks out | 1.141 | 1.122 |
-| Past three blocks | 1.014 | 1.028 |
+A material's emission had no physical unit. `EmissiveIntensity` is a plain strength at the frame's
+full scale, 1 the color as the frame's white, which the camera does not change, so a strength of 1
+is 1.2 times 2 to the camera's EV100 candelas a square meter, 30,720 under ISO 200, 1/200 s and f/16
+and 39,322 under the default EV 15, and the pack's 500 read as some 15 million against the bridge's
+500. `ModelMaterial.EmissiveLuminance` gives the color's luminance in candelas a square meter,
+multiplied by the camera's pre-exposure as a light given in lux or candelas is, in place of the
+plain strength where above 0. Nothing that stands moves, the plain path as it was, the loader
+setting no luminance, Sponza keeping its plain 300 and the game setting no camera and giving its
+glow blocks plain strengths. The example takes the pack's emission as candelas a square meter, as
+the bridge reads it. Its test draws a glass of 500 beside a sign of a plain 2 through a sunny day's
+camera and through ISO 800, 1/30 s and f/2, the glass at 500 times each camera's pre-exposure, past
+white through the second, and the sign at 2 through both. `docs/materials-light-and-shadows.md` says
+what each strength means in one paragraph.
 
-The cause. `glowMarch`'s cone, where no radius is given, was as wide across the way as the lamp's
-box. The flush lamp is a block whose one open face lies in the wall's plane, its depth behind it in
-the wall, and from the floor in the ledge's shadow the march rises past the ledge's edge at 45
-degrees or more, where the box's depth counts across the way as much as the open face or more, so
-the half shadow the cone takes past the edge is twice as wide as the face's own or wider and reaches
-over the first block out, where the reference, whose paths meet the open face alone, finds none.
+The pack's occlusion was empty. 131 of its 132 materials named their Specular texture as
+`occlusionTexture`, the one they named as metallic and rough, and its red, which glTF reads
+occlusion from, read under 2 of 255 in all 131 at full size, so every surface's light from all
+around was multiplied by 0. At the corner `light.terms` read the probes' indirect light and the
+environment at 0.0000 on sunlit and shaded pixels alike, with the field built, and the shade stood
+black. The bridge mended it at the source, its pack naming no occlusion texture, and the example's
+line leaving the maps out, kept meanwhile, is gone again.
 
-The mend. Where no radius is given the cone takes the width across the way of the faces that emit
-toward the march's start (`glowFacesToward`), each as wide as its own two axes reach
-(`glowLightAcross`), and the box's where every face emits or the start lies before none that does.
-The width is the lamp's own, the open face the reference's paths meet, and nothing is fitted to the
-room; the lamps open on every face, the floor's and the hung one, take the box as before. The
-front's rays and the wall's, at the head and mended, each over the reference's light, or the light
-where the reference has none.
+The example. `scenes_bistro` draws the pack alone at the origin, nothing else standing in the 110 by
+115 m it takes, its manifest copied beside the program from `scenes/`, and opens without the pack on
+the screen Sponza's example opened on, its button fetching it, the screen moved to `ScenePackScreen`
+and named by the scene and its manifest. Six views, the bistro's corner as the user's picture frames
+it, then the terrace under the string lights, the street to the north-east, the lane behind it, the
+round square and the quarter from above, found from a map of the open ground worked out from the
+pack's triangles. The field's four cascades of a quarter of a meter reach 16 to 128 m and a far
+cascade of 240 holds the quarter from anywhere in it. The camera is metered as Sponza's is, between
+EV -1 and 14 and center-weighted, as the user asked, and M holds it at the hour's, ISO 200, 1/50 s
+and f/16 while the sun is up, two stops over a sunny day's, the frame the user chose from the
+corner's, and ISO 3200, 1/15 s and f/1.4 once it has set. Its help lines say the views, the hour, M
+and the flight, as Sponza's do. The examples' table, the gallery and the documents that name
+Sponza's example name this one beside it, with a line on the metering and M.
 
-| Where the rays land | The front, head | Mended | The wall above the ledge, head | Mended |
+The corner, worked out from the user's picture of 1536 by 864. The camera by its nine features whose
+places the pack's vertices give, the two bollards' tops and feet (`Paris_StreetPivot_019` and
+`018`), the two lamp posts' feet, the two menu boards' tops and the scooter's mirror, by Levenberg
+and Marquardt over position, yaw, pitch, roll and the vertical field, (-9.846, 1.888, 0.973), 1.66 m
+over the paving, toward (0.029, 2.428, -0.509), a field of 48.38 degrees and a roll of -0.12, the
+nine within 2.88 pixels in the root mean square and 5.34 at most, the left lamp's foot, whose base's
+edge was read for its middle. Left out one at a time, each moves it at most 3 cm across, 7 cm in
+height and 0.23 degrees in field. The sun by the two bollards' shadows, each ball's shadow's tip
+cast from that camera onto the paving's plane at 0.225 m, 56.4 and 56.9 degrees high at azimuths
+225.6 and 227.8, within 0.66 degrees of their mean, 56.64 high at 226.7, which `DaySky.SunToward`
+inverted puts at this sky's path leaning 22.16 degrees at 13:42. Drawn so at 800 by 450, every
+feature stands on the picture's. The picture's sunlit paving reads 221 of 255 over 179 blocks of 10
+pixels sunlit in both, and ours 112 at 1/200 s, rising about 16 levels a half stop to 175 at 1/50 s,
+so the picture is exposed some 3.5 stops over a sunny day's or under a curve of its own. What is
+left is the environment. The pack's buildings 13 to 17 m high to the south-west at (-9.5, 6.5) and
+(-11.6, 3.5) shade the left menu board, the right bollard's foot and the paving before the scooter
+from the solved sun, and their balconies' railings 4 to 11 m up cast the stripes that reach the
+scooter's shadow, where the picture has those sunlit and its railings' shadow short of the
+scooter's. Over the height map the four spots are lit together only with the sun above 64 degrees,
+which would make the bollards' shadows a quarter shorter, 10 to 25 pixels against readings good to
+some 3, so the picture's surroundings to the south-west are lower or absent. The archive's own
+lighting is not the picture's either. Its camera stands 26 m off at (9.13, 2.68, -26.13), and its
+environment map, `san_giuseppe_bridge_4k.hdr` at an intensity of 10 with no rotation in
+`BistroExterior.pyscene`, holds its sun, the 200 brightest texels' middle at row 697.8 of 2048 and
+column 2455.7 of 4096, 28.6 degrees over the map's horizon against the shadows' 56.6, whatever its
+azimuth's convention. The solver's scripts stay in the scratch folder.
+
+The sheet. `2026-11-17-item-291-bistro.webp`, the five street views at 13:42 and at 22:00 metered as
+the example opens, and at 22:00 held at ISO 3200, 1/15 s and f/1.4, so the 2 lux the lamps give
+shows as it is, at 800 by 450 at High with the circular occluders on, on the RTX 4070, the interface
+hidden. Each view's stages are the profile's means over 300 frames under the lock held exclusive,
+the examples built in Debug as `build/open-game.sh` runs them, and the device's memory the `memory`
+command's.
+
+| View, 13:42 and 22:00 | Frame | Illumination | Scene pass | Shadows | Window's depth | Occlusion | Render graph | Device's memory |
+|---|---|---|---|---|---|---|---|---|
+| The corner | 31.51 and 31.55 | 9.44 and 9.15 | 19.82 and 19.71 | 1.67 and 2.09 | 0.35 and 0.37 | 0.093 and 0.094 | 16.46 and 19.50 | 848 and 850 MiB |
+| The terrace | 27.14 and 27.47 | 9.51 and 9.31 | 15.30 and 15.33 | 1.79 and 2.08 | 0.36 and 0.36 | 0.090 and 0.093 | 18.51 and 17.69 | 850 and 850 MiB |
+| The street | 19.32 and 18.93 | 8.93 and 8.59 | 8.35 and 8.40 | 1.39 and 1.27 | 0.45 and 0.45 | 0.089 and 0.084 | 16.59 and 15.22 | 850 and 850 MiB |
+| The lane | 17.19 and 16.83 | 7.35 and 7.03 | 7.92 and 7.91 | 1.62 and 1.51 | 0.09 and 0.09 | 0.101 and 0.087 | 13.20 and 12.48 | 850 and 850 MiB |
+| The square | 19.20 and 19.11 | 6.34 and 6.25 | 11.12 and 11.02 | 1.42 and 1.50 | 0.10 and 0.10 | 0.087 and 0.092 | 13.06 and 12.56 | 850 and 850 MiB |
+
+The stages are the GPU's in ms but the frame's and the render graph's, the processor's. The device's
+memory is held in 1,152 MiB of blocks in every view and at both hours, the field's 82 MB and the
+device's rays' copies of the 1,591 meshes 612 MB of it. The scene pass is the frame's largest part
+where the most emitters stand in view, the 130 carried as lights and the 64 nearest the eye lit, the
+corner's 19.8 ms against the lane's 7.9, and the circular occluders take under 0.1 ms in every view.
+
+The occlusion. At the user's word both scene examples work their window's ambient occlusion out by
+the circular occluders at 16 points over the cascades, beside the `SetAmbientOcclusion(1, 0.5)` each
+sets, and the engine's default stays the horizons for item 293.
+`2026-11-17-item-291-sponza-occlusion.webp`, Sponza's atrium, gallery, arcades and lion's end at
+noon under ISO 200, 1/25 s and f/16, three stops over its held camera so the shade shows, each way
+and the circles' shown level less the horizons' sixteen times over. The circles darken the arches'
+inner edges, the vault's ribs and the columns' feet and lighten the broad faces a little, the
+frame's light 1.001 to 1.027 of the horizons', 1.7 to 10.6 % of the pixels darker by over 2 of 255
+and 4.7 to 13.9 % lighter. Sponza's gallery capture is taken again with them.
+
+| Sponza's view | Horizons, GPU | Circles, GPU | Horizons, processor | Circles, processor |
 |---|---|---|---|---|
-| The floor, its first half block out | 0.00106 where 0 | 0.00000 | 0.145 | 0 |
-| The floor, its second half block out | 0.00247 where 0.00001 | 0.00121 | 0.590 | 0.363 |
-| The floor, one to two blocks out | 1.832 | 1.805 | 0.970 | 0.959 |
-| The ledge's top | | | 0.944 | 0.947 |
-| The roof | 1.005 | 1.005 | 1.003 | 1.043 |
-| The other walls | 1.092 | 1.109 | 0.886 | 1.014 |
-| Past the rays' reach | 1.048 | 1.069 | 0.949 | 0.977 |
-| All | 1.236 | 1.153 | 0.948 | 0.977 |
+| The atrium | 0.072 | 0.101 | 0.058 | 0.106 |
+| The gallery | 0.068 | 0.099 | 0.053 | 0.100 |
+| The arcades | 0.066 | 0.096 | 0.055 | 0.089 |
+| The lion's end | 0.072 | 0.102 | 0.054 | 0.097 |
 
-What stays. The front's rays bring 1.153 of the reference along their ways. The floor's second half
-block out brings 0.00121 where the reference finds 0.00001, 0.33 of what stays over, and one to two
-blocks out 1.81 times its light, 0.28 of it. Two things the march does there are not read apart,
-inside the ledge it reads its depth under the nearest face, which for a way crossing the edge falls
-short of its clearance under the edge by as much as √2, so its half shadow leaks on the dark side,
-and it sets out half a cell above the floor. The other walls and the field past the rays' reach rise
-from 1.092 and 1.048 to 1.109 and 1.069, the box's depth having darkened them as well, and the
-wall's rays to the roof from 1.003 to 1.043, which the box wide cone had hidden. The floor's pixels'
-own light is unchanged, `glowLightShown` untouched.
+The night. Read under ISO 3200, 1/15 s and f/1.4, EV100 -0.12, at the corner at 22:00, the left
+lamp's glass gives 500 candelas a square meter in red as the pack gives it, the paving at its foot
+0.099, the glow lights' direct light 74 % of it, the probes' 12 % and their reflection 14 %, the
+paving 2 to 4 m out 0.21 and 0.14, the glow lights' part 88 and 83 %, and the wall beside the
+corner's sconce 0.056, theirs 80 %. The 64 of the 130 emitters lit reach the ground, and a glass of
+about a tenth of a square meter at 500 puts some 2 lux on paving 3 to 4 m below it, where a lit
+street takes 10 to 30. The bridge's night, about EV 9 with no meter, its paving near 0.06 of white
+where its own arithmetic gives 0.0005, is its item 149, and the lanterns' strength is set again for
+both packs after it.
 
-The rooms. Each room drawn whole at 480 by 270 at High, its faces against the reference's bounce and
-against its light at two bounces, at the head and mended.
-
-| Faces | Pixels | Bounce, head | Mended | All, head | Mended |
-|---|---|---|---|---|---|
-| Flush lamp, the ledge's front | 10,338 | 1.296 | 1.205 | 1.302 | 1.214 |
-| Flush lamp, the walls toward -x | 18,716 | 0.969 | 1.005 | 0.802 | 0.831 |
-| Flush lamp, the walls toward +x | 3,770 | 1.185 | 1.217 | 1.039 | 1.047 |
-| Flush lamp, the floor | 41,811 | 1.020 | 1.038 | 1.105 | 1.115 |
-| Flush lamp, the ledge's top | 1,979 | 0.844 | 0.889 | 0.849 | 0.853 |
-| Flush lamp, the room | 128,622 | 1.013 | 1.026 | 1.012 | 1.017 |
-| Floor lamp, the room | 126,464 | 1.048 | 1.048 | 0.999 | 0.999 |
-| Hung lamp, the room | 126,384 | 1.069 | 1.069 | 1.009 | 1.009 |
-| Hung lamp with a post before the north wall, the room | 126,384 | 1.073 | 1.073 | 1.015 | 1.015 |
-
-Every face of the open lamps' rooms and the post's reads the same to the third place.
-
-The bounds. Item 284's test at its 160 by 96 on the RTX, item 286's mended reading the head.
-
-| Reading | Bound | Head | Mended |
-|---|---|---|---|
-| Flush lamp, the wall above the ledge | 0.9 to 1.15 | 0.936 | 0.971 |
-| Flush lamp, the ledge's front | 0.95 to 1.18, from 1.25 | 1.214 | 1.155 |
-| Floor lamp, the wall and the front | the same | 1.097 and 1.071 | 1.097 and 1.072 |
-| Hung lamp, the wall and the front | the same | 1.099 and 1.006 | 1.099 and 1.006 |
-| Item 285's rays going down | 0.85 to 1 | 0.891 | 0.917 |
-| Item 285's rays going up, written | none | 1.125 | 1.169 |
-
-The front's bound is drawn in to 1.18, 0.025 over the mended 1.155, and fails at the head's 1.214,
-so the test fails without the mend. The wall's is kept. Item 284's hits pass in all three rooms.
-
-The cost. The game's flight as item 286's, the head's `glow.slang` against the mended one, three
-sittings A B B A, B A A B and A B B A, every read its own exclusive turn of the lock, the means of
-their three samples, head and mended, in ms.
-
-| Sitting | Illumination, Low | Illumination, High | Scene, Low | Scene, High | Frame, Low | Frame, High |
-|---|---|---|---|---|---|---|
-| First | 1.770 and 1.805 | 5.377 and 5.376 | 4.728 and 4.721 | 4.469 and 4.490 | 8.439 and 8.622 | 12.204 and 12.460 |
-| Second | 1.806 and 1.804 | 5.376 and 5.375 | 4.769 and 4.746 | 4.498 and 4.495 | 8.593 and 8.477 | 12.218 and 12.232 |
-| Third | 1.805 and 1.807 | 5.397 and 5.362 | 4.760 and 4.748 | 4.519 and 4.492 | 8.736 and 8.483 | 12.642 and 12.170 |
-
-The illumination's pass reads within 0.035 ms either way at Low and at High, the scene pass within
-0.03, so the width costs nothing read, a lamp whose every face emits taking the box's at the first
-test of its faces. The frames move by as much as 0.47 ms either way with the processor's work. The
-flight's first frame at Low and High, two of each build a sitting, differs by 4 levels or more over
-0.0002 to 0.0030 of its pixels across the builds at Low and 0 to 0.0104 at High, against 0 to 0.0027
-and 0.0003 to 0.0091 within one build.
-
-The sheet. `2026-11-17-item-287-width.webp`, the three rooms before and after against the reference
-at two bounces, each frame less the reference four times over and the after less the before sixteen
-times over, the lamp and its 4 pixels gray and out of the shares. By the lamp in the wall the room
-reads 1.049 of the reference before and 1.055 after and its own wall 1.081 and 1.097, the after
-darker on the ledge's front and lighter on the wall about the lamp, the floor lamp's room 1.027 and
-the hung lamp's 1.031 either way.
-
-The runs. The strict build is clean, and the focused tests, the global illumination's, the bounce
-references', the glow lights', the screen probes', the rough reflections', the mirror's, the shader
-compiler's and the norm and surface tests, pass 241. The glow's tests with the lamps' and the screen
-probes' of the global illumination's class, the rough reflections' and the mirror's pass 80 with 11
-skipped on lavapipe 26.2.4 and on lavapipe 25.2.8, the tests traced against a reference or through
-the device's rays among those skipped, and 96 on the RTX. Both legs of the suite pass 2,510, each in
-12 parts of 47 s to 5 m 45 s under the shared lock, every part starting once no exclusive taker had
+The runs. The strict build is clean, and the focused tests, the model and physical units' tests, the
+norm, surface and device surface tests, the scene packs', the cache commands', the documents'
+snippets and the emission's render test, pass 95. Both legs of the suite pass 2,512, each in 12
+parts of 46 s to 4 m 37 s under the shared lock, every part starting once no exclusive taker had
 held the lock, waited for it or kept a file in the waiting folder for 30 s, the first for 180 s, in
-108 m 4 s and 46 m 54 s from the first part's start to the last's end with the waits behind the
-game's timings, the parts themselves 35 m 56 s and 35 m 53 s, at 2,618 and 2,548 MB at most, the
-second shuffled by the seed 20261023. No test is added, so on Windows no class moves.
+64 m 53 s and 71 m 8 s with the waits behind other sessions' timings, the parts themselves 33 m 47 s
+and 33 m 30 s, at 2,335 and 2,450 MB at most, the second shuffled by the seed 20261023. The day
+camera, the metered start, the occluders and the help and documents' lines went in after the legs,
+in the examples and the documents alone, which the legs do not run, and the strict build and the
+focused tests pass 95 again after them. The two new tests need no device and no drawn test gives a
+luminance, so no leg on three devices was run. They join `E3DModelTests` and `E3DPhysicalUnitsTests`
+in their parts on Windows, and no class moves. Every Bistro session held the lock exclusive under
+ten minutes and ended its example before letting go, after the two shared ones at 07:52 and 07:58
+that filled the card beside the bridge's test.

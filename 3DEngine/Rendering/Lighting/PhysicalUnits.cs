@@ -22,7 +22,10 @@ internal sealed class PhysicalUnits
     public float Ev100 { get; set; } = 15;
 
     /// <summary>What a luminance in candelas a square meter is multiplied by to give the frame's light.</summary>
-    public float PreExposure => 1 / (1.2f * MathF.Pow(2, Ev100));
+    public float PreExposure => PreExposureAt(Ev100);
+
+    /// <summary>What a luminance in candelas a square meter is multiplied by to give the frame's light through a camera at <paramref name="ev100"/>.</summary>
+    public static float PreExposureAt(float ev100) => 1 / (1.2f * MathF.Pow(2, ev100));
 
     /// <summary>The lights given in physical units, with the quantity each was given in.</summary>
     public Dictionary<LightHandle, (float Value, PhysicalQuantity Quantity)> Lights { get; } = [];

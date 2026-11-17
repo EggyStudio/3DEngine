@@ -33,8 +33,10 @@ internal sealed partial class AssimpModelReader
             if (float.IsNaN(roughness))
                 roughness = m.HasShininess ? 1f - MathF.Min(1f, MathF.Max(0f, m.Shininess) / 1000f) : 1f;
 
+            // glTF's KHR_materials_emissive_strength, which Assimp passes on as the emission's
+            // intensity, scales the factor past the 1 glTF's own factor stops at.
             var emissive = m.HasColorEmissive
-                ? new Vector3(m.ColorEmissive.X, m.ColorEmissive.Y, m.ColorEmissive.Z)
+                ? new Vector3(m.ColorEmissive.X, m.ColorEmissive.Y, m.ColorEmissive.Z) * TryGetFloat(m, "$mat.emissiveIntensity", 1f)
                 : Vector3.Zero;
 
             SceneTextureRef? baseTex = TryGetTexture(m, A.TextureType.Diffuse) ?? TryGetTexture(m, A.TextureType.BaseColor);

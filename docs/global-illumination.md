@@ -9,7 +9,11 @@ falls short, and how a scene's light is read against a path-traced reference. Th
 `shaders_cornell_box` example draws the room it is built on, and `shaders_bounce_rooms` the rooms
 global illumination finds hardest. `scenes_sponza` draws Intel's Sponza, fetched with `./e3d scenes
 fetch intel-sponza`, from named views at an hour of the day, its lamps off until L turns them on,
-their light passing the glass about each bulb.
+their light passing the glass about each bulb. `scenes_bistro` draws the Amazon Lumberyard Bistro's
+exterior, fetched with `./e3d scenes fetch bistro-exterior`, a street by day and by night, lit
+after dark by its lamps, string lights and signs, each carried as a light of its own. Both open
+with the camera metered as an eye adapts, and M holds it at a fixed exposure or meters it again.
+Both darken their corners by the circular occluders over the cascades.
 
 ## Turning it on
 

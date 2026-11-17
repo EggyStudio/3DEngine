@@ -444,9 +444,11 @@ folder again before it starts, but a compile of one crate or project, which no p
 which asks the folder once, since a run of 35 minutes held a timing back on 2026-11-17 though it
 began before the timing's wait. A series of timings takes its turns too, one session's waiting file
 standing no longer than fifteen minutes in thirty while a shared job of another session waits, since
-a series of two hours kept two sessions' suites from starting on 2026-11-17. A session whose wait
-grows long tells the reviewing session in a line, which gives the order, an engine's illumination
-read first. By review.
+a series of two hours kept two sessions' suites from starting on 2026-11-17. A program that holds
+over 1.5 GiB of the card's memory, a large scene's among them, takes the lock exclusive as well,
+with no quiet wait before it and held no longer than ten minutes, since two such programs side by
+side overfill the 8 GB. A session whose wait grows long tells the reviewing session in a line, which
+gives the order, an engine's illumination read first. By review.
 
 **N 7.10 A session leaves the machine its memory.** The machine's memory ran out three times, the
 last on 2026-11-10, when one line of Python read a session's transcript of 4 GB whole and grew to 27

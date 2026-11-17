@@ -299,6 +299,31 @@ public sealed class E3DModelTests : IDisposable
     }
 
     [Fact]
+    public void A_Gltf_Materials_Emissive_Strength_Is_The_Materials_Emissive_Intensity()
+    {
+        // A lamp's triangle whose material glows white at 500 by KHR_materials_emissive_strength,
+        // past the 1 glTF's emissive factor stops at, and a sign's that glows at its factor alone.
+        var bytes = new List<byte>();
+        foreach (var f in new float[] { 0, 0, 0, 1, 0, 0, 0, 1, 0 }) bytes.AddRange(BitConverter.GetBytes(f));
+        var json = $$$$"""
+            {"asset":{"version":"2.0"},"scene":0,"scenes":[{"nodes":[0,1]}],"extensionsUsed":["KHR_materials_emissive_strength"],
+             "nodes":[{"mesh":0},{"mesh":1}],
+             "meshes":[{"primitives":[{"attributes":{"POSITION":0},"material":0}]},{"primitives":[{"attributes":{"POSITION":0},"material":1}]}],
+             "materials":[{"name":"lamp","emissiveFactor":[1,1,1],"extensions":{"KHR_materials_emissive_strength":{"emissiveStrength":500}}},
+                          {"name":"sign","emissiveFactor":[1,0.5,0.25]}],
+             "buffers":[{"byteLength":36,"uri":"data:application/octet-stream;base64,{{{{Convert.ToBase64String(bytes.ToArray())}}}}"}],
+             "bufferViews":[{"buffer":0,"byteLength":36}],
+             "accessors":[{"bufferView":0,"componentType":5126,"count":3,"type":"VEC3","min":[0,0,0],"max":[1,1,0]}]}
+            """;
+        var path = Path.Combine(_folder.Path, "lamp.gltf");
+        File.WriteAllText(path, json);
+
+        var model = LoadModel(path);
+        model.Materials.Select(m => m.EmissiveIntensity).Should().Equal(500f, 1f);
+        model.Materials.Select(m => m.Emissive).Should().Equal(Color.White, new Color(255, 188, 137));
+    }
+
+    [Fact]
     public void A_Node_That_Scales_One_Way_More_Keeps_Its_Normals_Across_Their_Surface()
     {
         // A triangle in the plane whose normal is halfway between X and Y, under a node four times

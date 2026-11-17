@@ -1,0 +1,10 @@
+{
+  "title": "Amazon Lumberyard Bistro, exterior",
+  "source": "https://developer.nvidia.com/orca/amazon-lumberyard-bistro",
+  "license": "CC BY 4.0",
+  "attribution": "Amazon Lumberyard Bistro (2017) by Amazon Lumberyard, from NVIDIA's Open Research Content Archive (ORCA), https://developer.nvidia.com/orca/amazon-lumberyard-bistro, under CC BY 4.0, https://creativecommons.org/licenses/by/4.0/, given as it is and without warranties as the license's Section 5 says, with NVIDIA's changes its CHANGELOG lists. Here its exterior is converted from FBX to glTF by Blender 5.2.2 and scaled to meters, its materials set to the archive's own texture convention and its lamps, string lights and signs given a strength, its textures resized to 1K and compressed for the GPU, and its camera left out.",
+  "url": "https://github.com/EggyStudio/3DEngine/releases/download/scene-packs/bistro-exterior.pack",
+  "size": 444418983,
+  "sha256": "68095a0ab80867092404fc5673cd2e4f62605889f131254996a78fb28a42f116",
+  "model": "bistro-exterior.gltf"
+}

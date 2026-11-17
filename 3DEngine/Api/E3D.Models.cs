@@ -643,7 +643,7 @@ public static partial class E3D
             material.Metallic, material.Roughness,
             material.NormalMap.IsValid ? material.NormalMap.Id : 0, material.NormalScale,
             material.MetallicRoughnessMap.IsValid ? material.MetallicRoughnessMap.Id : 0,
-            Linear(material.Emissive) * material.EmissiveIntensity,
+            Linear(material.Emissive) * EmissionOf(material),
             material.EmissiveMap.IsValid ? material.EmissiveMap.Id : 0,
             material.OcclusionMap.IsValid ? material.OcclusionMap.Id : 0,
             material.OcclusionStrength,
@@ -653,6 +653,11 @@ public static partial class E3D
             SubsurfaceRadius: Math.Max(0, material.SubsurfaceRadius), SubsurfaceThickness: Math.Max(0, material.SubsurfaceThickness),
             BouncesLight: material.BouncesLight, ShadowOnly: material.ShadowOnly, LightThrough: Math.Clamp(material.LightThrough, 0, 1));
     }
+
+    // How strongly a material gives off its color, its plain intensity, or its luminance in candelas
+    // a square meter times what the camera multiplies a luminance by to give the frame's light.
+    private static float EmissionOf(ModelMaterial material) =>
+        material.EmissiveLuminance > 0 ? material.EmissiveLuminance * PhysicalUnits.PreExposureAt(GetCameraEv100()) : material.EmissiveIntensity;
 
     /// <summary>Draws a box's edges.</summary>
     public static void DrawBoundingBox(BoundingBox box, Color color)

@@ -87,7 +87,7 @@ public static partial class ScenesSponza
         // where the pack is fetched from and its model, which is looked for where ./e3d scenes fetch
         // puts it (ScenePacks.Folder), so either way finds what the other fetched.
         ScenePacks.TryRead(Path.Combine(AppContext.BaseDirectory, "scenes", "intel-sponza.json"), out var pack, out var problem);
-        if ((pack is null || !ScenePacks.IsFetched(pack)) && !FetchScreen(pack, problem))
+        if ((pack is null || !ScenePacks.IsFetched(pack)) && !ScenePackScreen.Fetch(pack, problem, "Sponza", "intel-sponza"))
         {
             CloseWindow();
             return;
@@ -103,9 +103,11 @@ public static partial class ScenesSponza
         // where they never moved, so no frame splats every cascade a walk carries on at once.
         SetSceneField(4, 0.125f, farCascade: 100);
         SetGlobalIllumination(GlobalIllumination.High);
-        // The corners, the cracks and the feet of the columns darken by the horizons the window's
-        // depth gives within half a unit, four of the field's cells, finer than the cascades hold.
+        // The corners, the cracks and the feet of the columns darken by the circular occluders the
+        // window's depth gives, 16 rays a pixel against the points within half a unit taken as
+        // circles, four of the field's cells, finer than the cascades hold.
         SetAmbientOcclusion(1, 0.5f);
+        SetAmbientOcclusionMethod(AmbientOcclusionMethod.CircularOccluders);
         // The air holds no fog, since the fog lit the air of the dark rooms that the light reaching
         // them leaves dark, and showed the sun as an even haze rather than shafts (RENDERING.md).
         // The sun stands at the hour asked, rising over the main door and setting over the lion along

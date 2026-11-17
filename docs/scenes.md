@@ -472,7 +472,8 @@ answered at once. Packs are unpacked under `ScenePacks.Folder`, the user's cache
 `ScenePacks.ModelOf` names the model in, which `./e3d scenes fetch` fetches into as well. A pack
 is the eight bytes `BCSPACK` and a zero, the format's version and its count of files, an index of
 each file's path and where its bytes lie, then the files' bytes, as `ScenePacks` sets out. The
-`scenes_sponza` example fetches Intel's Sponza so where it opens without it.
+`scenes_sponza` and `scenes_bistro` examples fetch Intel's Sponza and the Bistro's exterior so where
+they open without them.
 
 ## From outside
 
@@ -483,7 +484,8 @@ a running game is kept.
 ## See also
 
 - Examples: [`scenes_level`](../3DEngine.Examples/Scenes/ScenesLevel.cs),
-  [`scenes_sponza`](../3DEngine.Examples/Scenes/ScenesSponza.cs), and the game
+  [`scenes_sponza`](../3DEngine.Examples/Scenes/ScenesSponza.cs),
+  [`scenes_bistro`](../3DEngine.Examples/Scenes/ScenesBistro.cs), and the game
   [`games/Summit`](../games/Summit/Program.cs), whose level is prefabs placed in a scene
 - The cheatsheet's [Scenes](../CHEATSHEET.md#scenes)
 - [ARCHITECTURE.md](../.github/ARCHITECTURE.md#scene-files), on the format

@@ -3,17 +3,18 @@ using static Engine.E3D;
 
 namespace Engine.Examples;
 
-public static partial class ScenesSponza
+// The screen an example of a scene pack opens on where its pack is not fetched.
+internal static class ScenePackScreen
 {
     private static readonly Rectangle FetchButton = new(40, 250, 300, 40);
     private static readonly Rectangle CancelButton = new(360, 250, 140, 40);
 
-    // The screen the example opens on where Sponza is not fetched. It names the command that
-    // fetches it, and its button fetches it here, the download running on the thread pool while
-    // the screen draws its stage and its megabytes, a second press doing nothing until it ends and
-    // the other button stopping it. A fetch that fails says why, the button back for another try.
-    // Answers whether the pack is fetched, or false where the window was closed first.
-    private static bool FetchScreen(ScenePack? pack, string? problem)
+    // The screen names the scene and the command that fetches its pack by the manifest's name, and
+    // its button fetches it here, the download running on the thread pool while the screen draws
+    // its stage and its megabytes, a second press doing nothing until it ends and the other button
+    // stopping it. A fetch that fails says why, the button back for another try. Answers whether
+    // the pack is fetched, or false where the window was closed first.
+    public static bool Fetch(ScenePack? pack, string? problem, string scene, string manifest)
     {
         Task<string?>? running = null;
         CancellationTokenSource? stop = null;
@@ -41,8 +42,8 @@ public static partial class ScenesSponza
 
             BeginDrawing();
             ClearBackground(new Color(30, 30, 34));
-            DrawText("Sponza is not fetched.", 40, 120, 20, Color.RayWhite);
-            DrawText("Fetch it here, or run ./e3d scenes fetch intel-sponza", 40, 160, 20, Color.RayWhite);
+            DrawText($"{scene} is not fetched.", 40, 120, 20, Color.RayWhite);
+            DrawText($"Fetch it here, or run ./e3d scenes fetch {manifest}", 40, 160, 20, Color.RayWhite);
             DrawText("in the engine's checkout.", 40, 186, 20, Color.RayWhite);
             if (pack is not null)
             {

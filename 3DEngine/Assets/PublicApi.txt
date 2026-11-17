@@ -342,6 +342,7 @@ struct Engine.ModelMaterial : IEquatable<ModelMaterial>
   bool ShadowOnly { get; set; }
   float AlphaCutoff { get; set; }
   float EmissiveIntensity { get; set; }
+  float EmissiveLuminance { get; set; }
   float LightThrough { get; set; }
   float Metallic { get; set; }
   float NormalScale { get; set; }
