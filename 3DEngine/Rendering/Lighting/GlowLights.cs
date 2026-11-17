@@ -133,9 +133,23 @@ internal static class GlowLights
             var (a, b, c) = (corners[t * 3], corners[t * 3 + 1], corners[t * 3 + 2]);
             var root = Root(t);
             var (min, max, area) = groups.TryGetValue(root, out var group) ? group : (new Vector3(float.MaxValue), new Vector3(float.MinValue), 0);
-            groups[root] = (Vector3.Min(min, Vector3.Min(a, Vector3.Min(b, c))), Vector3.Max(max, Vector3.Max(a, Vector3.Max(b, c))),
-                area + Vector3.Cross(b - a, c - a).Length() / 2);
+            groups[root] = (Vector3.Min(min, Vector3.Min(a, Vector3.Min(b, c))), Vector3.Max(max, Vector3.Max(a, Vector3.Max(b, c))), area);
         }
+        // The surface each part sends its light out of its box from, its triangles facing away from
+        // the box's middle, as a lantern's glass of two layers sends out from the outer alone, the
+        // inner facing in and its light kept in the glass, as the path-traced reference keeps it.
+        var outward = new Dictionary<int, double>();
+        for (int t = 0; t < triangles; t++)
+        {
+            var (a, b, c) = (corners[t * 3], corners[t * 3 + 1], corners[t * 3 + 2]);
+            var root = Root(t);
+            var (min, max, _) = groups[root];
+            var normal = Vector3.Cross(b - a, c - a);
+            if (Vector3.Dot(normal, (a + b + c) / 3 - (min + max) / 2) >= 0)
+                outward[root] = outward.GetValueOrDefault(root) + normal.Length() / 2;
+        }
+        foreach (var root in outward.Keys)
+            groups[root] = groups[root] with { Area = outward[root] };
         // A mesh of one piece with depth is one part whose faces its triangles name, as two faces of
         // a block handed as one mesh emit from those two and not from the box's six. A flat one is
         // taken whole, lighting both its sides, as the path-traced reference takes a triangle's
@@ -144,33 +158,25 @@ internal static class GlowLights
             && MathF.Min(extent.X, MathF.Min(extent.Y, extent.Z)) < 0.01f * MathF.Max(extent.X, MathF.Max(extent.Y, extent.Z)))
             return whole;
 
-        // Which faces of its box each part's triangles lie on, each triangle square to an axis and
-        // facing out of the box on that side, or every face where one is not.
+        // Which faces of its box each part's triangles send their light out of, each triangle facing
+        // out of the box naming the face its normal leans toward most, so a lantern's upright panels
+        // name its four sides and not its top and bottom, which send nothing, and a triangle facing
+        // into the box naming none.
         var faces = new Dictionary<int, int>();
-        var near = 1e-4f * size;
         for (int t = 0; t < triangles; t++)
         {
             var root = Root(t);
-            if (faces.TryGetValue(root, out var known) && known == All) continue;
             var (a, b, c) = (corners[t * 3], corners[t * 3 + 1], corners[t * 3 + 2]);
             var normal = Vector3.Cross(b - a, c - a);
-            var length = normal.Length();
-            var face = All;
-            if (length > 1e-12f)
-            {
-                normal /= length;
-                var (min, max, _) = groups[root];
-                for (int k = 0; k < 3; k++)
-                {
-                    if (MathF.Abs(normal[k]) < 0.99f) continue;
-                    var plane = normal[k] > 0 ? max[k] : min[k];
-                    if (MathF.Abs(a[k] - plane) <= near && MathF.Abs(b[k] - plane) <= near && MathF.Abs(c[k] - plane) <= near)
-                        face = 1 << (2 * k + (normal[k] > 0 ? 1 : 0));
-                }
-            }
-            faces[root] = face == All ? All : faces.GetValueOrDefault(root) | face;
+            var (min, max, _) = groups[root];
+            if (normal.LengthSquared() <= 1e-24f || Vector3.Dot(normal, (a + b + c) / 3 - (min + max) / 2) < 0) continue;
+            var k = MathF.Abs(normal.X) >= MathF.Abs(normal.Y) && MathF.Abs(normal.X) >= MathF.Abs(normal.Z) ? 0 : MathF.Abs(normal.Y) >= MathF.Abs(normal.Z) ? 1 : 2;
+            faces[root] = faces.GetValueOrDefault(root) | 1 << (2 * k + (normal[k] > 0 ? 1 : 0));
         }
-        return [.. groups.Select(g =>
+        // A part whose triangles all face in, as a lantern's inner layer lying apart from its outer,
+        // sends nothing out of its box and is no light of its own, unless every part faces in.
+        var sending = groups.Where(g => outward.ContainsKey(g.Key)).ToList();
+        return [.. (sending.Count > 0 ? sending : [.. groups]).Select(g =>
         {
             var (min, max, area) = g.Value;
             var box = new SceneFieldPlan.Box(min, max);

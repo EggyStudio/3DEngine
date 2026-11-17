@@ -217,6 +217,46 @@ public sealed class GlowLightsTests : IDisposable
         light.Share.Should().BeApproximately(1, 1e-4f, "each face it emits from is whole");
     }
 
+    [Fact]
+    [Trait("Category", "Unit")]
+    public void A_Lanterns_Glass_Of_Two_Layers_Of_Leaning_Panels_Emits_From_Its_Sides_At_Its_Outer_Surface()
+    {
+        // A street lantern's glass, twelve panels about an upright axis narrowing toward the top, so
+        // each faces a little up, and the same twelve a hair inside facing in, apart from them. Its
+        // light leaves by the outer panels alone, out of the box's four sides, and none from its top
+        // or its floor.
+        // Taken by every face of its box at both layers' surface, it sent twice its light, a part
+        // of it straight down from a face it has none of.
+        var corners = new List<Vector3>();
+        var outer = 0f;
+        void Panel(float radiusLow, float radiusHigh, int i, bool outward)
+        {
+            Vector3 At(float radius, float y, int k) => new(radius * MathF.Cos(k * MathF.PI / 6), y, radius * MathF.Sin(k * MathF.PI / 6));
+            var (a, b, c, d) = (At(radiusLow, 0, i), At(radiusLow, 0, i + 1), At(radiusHigh, 0.37f, i + 1), At(radiusHigh, 0.37f, i));
+            foreach (var (p, q, r) in new[] { (a, b, c), (a, c, d) })
+            {
+                var radial = ((p + q + r) / 3) with { Y = 0 };
+                var faces = Vector3.Dot(Vector3.Cross(q - p, r - p), radial) > 0 == outward;
+                corners.AddRange(faces ? [p, q, r] : [p, r, q]);
+                if (outward) outer += Vector3.Cross(q - p, r - p).Length() / 2;
+            }
+        }
+        for (int i = 0; i < 12; i++)
+        {
+            Panel(0.16f, 0.14f, i, true);
+            Panel(0.157f, 0.137f, i, false);
+        }
+        Vector3[] points = [.. corners];
+        var box = new SceneFieldPlan.Box(points.Aggregate(Vector3.Min), points.Aggregate(Vector3.Max));
+        var size = box.Max - box.Min;
+        var sides = 2 * size.Y * size.Z + 2 * size.X * size.Y;
+
+        var part = GlowLights.PartsOf(points, box, GlowLights.ShareOf(points, box)).Should().ContainSingle().Subject;
+
+        part.Faces.Should().Be(1 << 0 | 1 << 1 | 1 << 4 | 1 << 5, "the glass sends its light out of the box's four sides");
+        part.Share.Should().BeApproximately(outer / sides, 1e-3f, "at the outer panels' surface, the inner ones facing in");
+    }
+
     // The light on the floor around a block of the voxel game's glowstone, its glow 4 times
     // (255, 200, 120), lying on a gray floor of 200 at night, from 1.2 to 3.8 blocks from its middle
     // every fifth of a block, as BounceReference traced the frame with 16384 paths a pixel at 256 by
@@ -275,6 +315,57 @@ public sealed class GlowLightsTests : IDisposable
             Math.Abs(shares[i - 1] - 2 * shares[i] + shares[i + 1]).Should().BeLessThan(0.04,
                 $"the floor's light at {quality} falls off as the reference's, its shares of it {string.Join(", ", shares.Select(r => $"{r:0.000}"))} with no ring");
         light[2.6f].Lobes.Should().BeLessThan(0.05, $"at {quality} the ring two and a half blocks out has no eight lobes");
+    }
+
+    [NeedsVulkanFact]
+    [Trait("Category", "Render")]
+    public void An_Emissive_Block_Whose_Map_Is_Orange_Lights_A_White_Floor_Orange()
+    {
+        // A lamp's glass whose material glows white and whose emissive map holds its orange, as a
+        // glTF's lamps hold theirs, drew orange and lit the white floor about it white, its glow
+        // light taking the material's emission without the map. The floor two blocks out takes the
+        // map's hue, its red over its green within a tenth of the map's in linear light.
+        const int Size = 128;
+        var config = Config.Default.WithWindow("glow map test", Size, Size) with { Headless = true, Offscreen = true, Samples = 1 };
+        UseApp(new App(config).AddPlugin(new DefaultPlugins()));
+        SetSceneField(4, 0.25f, 4);
+        SetGlobalIllumination(GlobalIllumination.High);
+        SetAmbientLight(Color.Black, 0);
+        var floor = LoadModelFromMesh(GenMeshCube(1, 1, 1));
+        var lamp = LoadModelFromMesh(GenMeshCube(1, 1, 1));
+        var orange = new Color(255, 140, 40);
+        var map = LoadTextureFromImage(GenImageColor(4, 4, orange));
+        lamp.Materials[0] = new ModelMaterial(Color.Black) { Emissive = Color.White, EmissiveIntensity = 4, EmissiveMap = map };
+        var middle = new Vector3(0.5f, 0, 0.5f);
+        var camera = new Camera3D(middle + new Vector3(0, 9, 0), middle, -Vector3.UnitZ, 70);
+        for (int frame = 0; frame < 50; frame++)
+        {
+            BeginDrawing();
+            ClearBackground(Color.Black);
+            BeginMode3D(camera);
+            DrawModelEx(floor, new Vector3(0, -0.5f, 0), Vector3.UnitY, 0, new Vector3(128, 1, 128), Color.White);
+            DrawModelEx(lamp, middle + new Vector3(0, 0.5f, 0), Vector3.UnitY, 0, Vector3.One, Color.White);
+            EndMode3D();
+            EndDrawing();
+        }
+        var renderer = GetApp().World.Resource<Engine.Renderer>();
+        var linear = ((GraphicsDevice)renderer.Context.Graphics!).ReadFloats(renderer.RenderWorld.TryGet<BloomRenderer>()!.Decoded!.ColorView.Image);
+        double red = 0, green = 0;
+        for (int i = 0; i < 72; i++)
+        {
+            var angle = 2 * MathF.PI * i / 72;
+            var at = GetWorldToScreen(middle + new Vector3(MathF.Cos(angle), 0, MathF.Sin(angle)) * 2, camera);
+            int p = ((int)MathF.Round(at.Y) * Size + (int)MathF.Round(at.X)) * 4;
+            (red, green) = (red + linear[p], green + linear[p + 1]);
+        }
+        static double Decoded(byte c) => Math.Pow((c / 255.0 + 0.055) / 1.055, 2.4);
+        var hue = Decoded(orange.R) / Decoded(orange.G);
+        (red / green).Should().BeApproximately(hue, hue * 0.1, $"the floor two blocks out takes the map's hue, red {red / 72:0.0000} and green {green / 72:0.0000}");
+        UnloadTexture(map);
+        UnloadModel(floor);
+        UnloadModel(lamp);
+        CloseWindow();
+        UseApp(null);
     }
 
     [NeedsVulkanFact]

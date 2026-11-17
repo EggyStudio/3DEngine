@@ -433,6 +433,10 @@ internal sealed partial class SceneFieldRenderer : IDisposable
         if (_joints.Count > 4096) _joints.Clear();
         // A surface's color, its material's times its texture's average where it has one.
         Vector3 Textured(Vector3 color, int texture) => texture != 0 && textures?.AverageColor(texture) is { } average ? color * average : color;
+        // Its emission, its material's times its emissive map's average where it has one, so glass
+        // whose map holds an orange lights what is around it orange as it is drawn, the glow lights,
+        // the probes' rays and the path-traced reference taking the same.
+        Vector3 Glowing(Vector3 emission, int map) => map != 0 && emission != Vector3.Zero && textures?.AverageColor(map) is { } average ? emission * average : emission;
         // Its roughness and metallic, its material's times its map's average where it has one,
         // green the roughness and blue the metal as a glTF metallic-roughness map holds them. A
         // material that says 1 and leaves the metal to its map is otherwise full metal to the
@@ -450,7 +454,7 @@ internal sealed partial class SceneFieldRenderer : IDisposable
                     var (rough, metal) = Surfaced(draw.Roughness, draw.Metallic, draw.MetallicRoughnessMap);
                     var own = new Vector3(tint[draw.Color.R], tint[draw.Color.G], tint[draw.Color.B]);
                     _drawn.Add((new SceneFieldPlan.Instance(draw.Mesh, standing, draw.World, draw.DoubleSided,
-                        Textured(own, draw.Texture), draw.Emission, null, rough, metal, draw.LightThrough,
+                        Textured(own, draw.Texture), Glowing(draw.Emission, draw.EmissiveMap), null, rough, metal, draw.LightThrough,
                         draw.Texture, draw.NormalMap, draw.NormalMap == 0 ? 0 : draw.NormalScale, own), false));
                 }
                 continue;
@@ -463,7 +467,7 @@ internal sealed partial class SceneFieldRenderer : IDisposable
             var (roughness, metallic) = Surfaced(draw.Roughness, draw.Metallic, draw.MetallicRoughnessMap);
             var color = new Vector3(linear[draw.Color.R], linear[draw.Color.G], linear[draw.Color.B]);
             _drawn.Add((new SceneFieldPlan.Instance(draw.Mesh, vertices, draw.World, draw.DoubleSided,
-                Textured(color, draw.Texture), draw.Emission, skinned ? Limbs(store, draw.Mesh, vertices) : null, roughness, metallic, draw.LightThrough,
+                Textured(color, draw.Texture), Glowing(draw.Emission, draw.EmissiveMap), skinned ? Limbs(store, draw.Mesh, vertices) : null, roughness, metallic, draw.LightThrough,
                 draw.Texture, draw.NormalMap, draw.NormalMap == 0 ? 0 : draw.NormalScale, color), skinned));
         }
         foreach (var group in draws.Groups)
@@ -496,7 +500,7 @@ internal sealed partial class SceneFieldRenderer : IDisposable
                 var (roughness, metallic) = Surfaced(instance.Factors.Y, instance.Factors.X, template.MetallicRoughnessMap);
                 var color = new Vector3(instance.Color.X, instance.Color.Y, instance.Color.Z);
                 _drawn.Add((new SceneFieldPlan.Instance(template.Mesh, vertices, world, template.DoubleSided,
-                    Textured(color, template.Texture), new Vector3(instance.Emission.X, instance.Emission.Y, instance.Emission.Z), limbs,
+                    Textured(color, template.Texture), Glowing(new Vector3(instance.Emission.X, instance.Emission.Y, instance.Emission.Z), template.EmissiveMap), limbs,
                     roughness, metallic, template.LightThrough, template.Texture, template.NormalMap, instance.Factors.Z, color), skinned));
             }
         }

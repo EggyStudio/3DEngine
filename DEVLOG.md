@@ -32,6 +32,15 @@ circular occluders at 16 points, and the circles' shown level less the horizons'
 red lighter and blue darker, the circles darkening the arches' inner edges, the vault's ribs and the
 columns' feet.
 
+![](.github/assets/readings/2026-11-17-item-296-night-color.webp)
+scenes_bistro at 22:00 at the camera solved from the night picture given, ISO 3200, 1/60 s and
+f/2.8, at High with bloom off, before and after the glow lights and the probes' rays take an
+emissive map's average color and a lantern's glass of two layers sends from its four sides at its
+outer panels' surface, against the path-traced reference at 2048 paths a pixel and two bounces, each
+frame's linear light at one gain, and the after less the before and less the reference in luminance
+eight times over, red lighter and blue darker, the near paving 0.85 to 0.93 of the reference and the
+far high walls under it still.
+
 ![](.github/assets/examples/scenes_bistro.webp)
 The Amazon Lumberyard Bistro's exterior is a second scene pack with an example that opens it, a
 material's emission may be given in candelas a square meter seen through the camera, glTF's emissive
@@ -2142,8 +2151,6 @@ a young glow blend where the field was built again under it. (`64fd2f14`)
 ![](.github/assets/asks/voxel-penumbra-blotches.webp)
 ![](.github/assets/asks/voxel-penumbra-edge.webp)
 ![](.github/assets/asks/voxel-penumbra-redwall.webp)
-![](.github/assets/asks/voxel-penumbra-seam-parts.webp)
-![](.github/assets/asks/voxel-penumbra-seam.webp)
 Lights the floor under a block floating below a row of joined lamps by halving a level face along
 its longer side where neither side rises from the surface, and by stepping out of a surface across
 the march as well as along the surface's normal. (`56db892b`)
@@ -2475,7 +2482,7 @@ rlgl draws it, and core_vr_simulator is written with raylib's distortion shader 
 ![](.github/assets/examples/core_drop_files.webp)
 ![](.github/assets/examples/core_input_gamepad.webp)
 ![](.github/assets/examples/core_input_gestures.webp)
-![](.github/assets/examples/core_window_toggles.webp)
+![](.github/assets/examples/core_window_flags.webp)
 ![](.github/assets/examples/ecs_animated_models.webp)
 ![](.github/assets/examples/ecs_behaviors.webp)
 ![](.github/assets/examples/ecs_mesh_entities.webp)

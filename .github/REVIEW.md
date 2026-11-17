@@ -45,7 +45,15 @@ with an error naming it and the quality kept, its test drawing the frames after,
 remarks saying what its manifest holds and the cost read's Reply, pushed at 21:03 on 2026-11-15, its
 build run 43755793467 green at 22:43, the form kept and the message free of numbers. One comment in
 its test tells what the code did before the mend and is asked reworded in the next commit. The
-pushes before these stand in REVIEW-ARCHIVE.md's head records.
+pushes before these stand in REVIEW-ARCHIVE.md's head records. At the tick of 15:34 on 2026-11-17,
+`4cc8cc45`, Verdict 128's mend of Siege, pushed at 15:10 with its run 44100213123 under way; items
+297 and 298 written, Verdicts 125 to 127 archived. At the tick of 16:34 on 2026-11-17, run
+44100213123 of `4cc8cc45` still under way in its shuffled Linux job. Run 44100213123 of `4cc8cc45`
+ended green at 16:56 on 2026-11-17, its games job skipped as a build run skips it, so the pack run
+44120117582 without publish was started at 16:57 to play Siege for Verdict 128. At the tick of 18:33
+on 2026-11-17, the pack run 44120117582 in its games and captures jobs; item 299 and Decision 117
+written at 18:02, the Replies of Verdicts 122 to 127 archived. The pack run 44120117582 ended green
+at 19:49 with Siege won and asserted, Verdict 128 settled and archived.
 
 The package stands at 6.2.60 from `baa21ff4`, one package with its templates, published at 18:58 on
 2026-11-12 by the pack run 43243318284 and tagged v6.2.60, carrying 259's two commits beside what
@@ -473,76 +481,59 @@ changes.
     blue difference and the paving's and walls' readings, and what the picture alone holds named,
     its shop interiors, its scooter's place and any grade. After Verdict 128; before 288.
 
+297. **One tree, one run of the physics.** Verdict 128's plays of Siege, with a fixed frame time
+    from the first frame, throws on stated frames and the game's own loops in a fixed order, agree
+    to the newton through the stone and the first bomb, 45 welds and 7,991 N, and part after the
+    first burst, 128 to 146 welds after the second bomb and the banner 30.9 to 31.1 m out. Asked, a
+    read of where two runs of one program first differ in the physics, the bodies a burst wakes, the
+    order constraints are solved in across the workers, the pairs' order after a body leaves, by a
+    test that steps one scene of welded blocks and a burst twice in one process and twice across
+    processes and compares every body's place bit for bit after each step, naming the first step and
+    stage that differ; then the mend the read shows, a fixed order where one is cheap, or a setting
+    that runs the solver in one order for a test and a recorded play, its cost in a frame stated.
+    Where the solver's library itself gives no such order across threads, that is said with its
+    source and the item closes on a single-threaded setting for tests. After item 296.
+
+298. **The day's sweep against the norm.** A read of the tree against NORM.md found some 310 lines,
+    each to mend in place with no change of behavior; the list by file and line went to the coder.
+    Verdict numbers and a fault's account in `build/raylib-bench/compare.py:35` and 40 and
+    `build/step.py:17`. Test comments that explain by a game on the engine or by an outside scene,
+    55 lines in 32 files and 17 in 12, most telling the fault that led to the test; each says what
+    the test's own scene holds and what must be true of it. Public comments of the package that
+    liken to another engine, 41 lines in 35 files under `Core`, `Ecs`, `Rendering/Picking` and
+    `Behaviors`, seven more by the other engine's words and a sessions' file, and
+    `E3D.Prototypes.cs:16`. The ambient occlusion's 29 lines that name its source's maker, commit
+    and files, and some 30 lines that name a method's authors; a method keeps its name, its source
+    stands once in the references. Readings and one run's facts in `FrameEffectsTests.cs:110`,
+    `SceneFieldTests.cs:79`, `SceneFieldTests.Budget.cs:13` and 83, `DeviceMemoryTests.cs:53`,
+    `TonemapTests.cs:19`, `ScenesSponza.cs:111`. Games named in the examples' comments. A four-byte
+    value called a word in five comments. British spellings, some 60 lines, most in
+    `games/FeatureTest` with one shown label, and in `build/drive-game.sh:889` and 904,
+    `Sound.cs:18`, `pack.yml:35`. The sentence in `E3D.Lights.cs:247` on which mode is the default
+    goes with item 293. Bounds' reasons in the workflows and the device versions in
+    `GraphicsDevice.Instance.cs:44` stay. In the Sky module, the comments that name a game, another
+    engine's tonemapper, a shader pack and one renderer five times in `Atmosphere.cs`, the scene's
+    recipe and a stray line in `SunTests.cs:10` to 12. Two or three commits by folder, after item
+    296, STYLE's own searches run and counted in the Reply.
+
+299. **Edges without history.** Asked on 2026-11-17 and agreed the same evening, three parts, each
+    whole in a frame with no history. One, alpha to coverage for masked materials where the frame is
+    multisampled, the cutout's edge sharpened by the alpha's screen derivative so a leaf keeps its
+    cover with distance, off where the frame has one sample. Two, specular anti-aliasing in the
+    surface shader, the roughness widened by the screen derivatives of the normal, on by default
+    with a setting to turn it off. Three, a reading of how the ambient occlusion's and the radiance
+    cascades' light sit on an object's edge under four samples, since both read a depth resolved to
+    one sample a pixel, with where each is applied, in the surface shader or as a pass after it,
+    said from the code, and what a mend would be if a fringe shows; the resolve of bright edges
+    before tonemapping is read in the same part. Each of the first two carries a sheet on a white
+    ground, before, after and a red and blue difference, a still and a pair of frames of a slow turn
+    for the shimmer, with a test that fails first and the pass's cost on the GPU and on lavapipe.
+    Part three is a sheet and its numbers, with no mend in this item. After item 296.
+
 ## Verdicts
 
-Verdict 128 is open, the pack run 44043006601 of `029f60de` red in the games job alone at 11:28 on
-2026-11-17, Siege's banner at 0.1 and not counted as fallen, the job run again green at 12:38 and
-the package 6.2.102 published, the read of the play still asked. Verdict 127 is settled at 11:51 on
-2026-11-16, the macOS job green in run 43834379791 with a compile's folder in the user's own cache.
-Verdicts 125 and 126 are settled at 06:38 on 2026-11-16, the circular occluders' far room test green
-on the Windows device in run 43800838233 once the images are cleared each frame.
-
-125. **The run of `2ceadfd1` is red in the fourth Windows half alone, the circular occluders' room
-    far from the origin reading 0.020 apart from the room at it against a bound of 0.01.** In run
-    43768674338, ended at 00:52 on 2026-11-16, the half had 350 passed, 1 failed, 3 skipped; the
-    other Windows halves, macOS and both Linux legs are green. The failed line is the raw result's
-    mean difference in `A_Room_Far_From_The_Origin_Is_Occluded_As_The_Same_Room_At_It`, found
-    0.02003, and the test stopped there, so the final occlusion's difference was not read. The test
-    passed on the coder's devices and on the Linux runner's, so the Windows device rebuilds a point
-    or a normal, or draws the depth, a little apart 4,448 units out. The bound does not go up blind.
-    First the test says what it found, the count of texels more than 0.05 apart, the largest
-    difference, and the same two for the depth and the normal the pass reads, so the next run on
-    that device names the stage that moves. Then the mend follows the reading, the stage brought to
-    the eye's frame where it is not, or the bound set as a count of texels where the device's own
-    rounding at edges is all there is, as the earlier picture tests on CPU devices are bound.
-    `81656c12` waits unpushed for this mend, since its run would be red in the same test. Written at
-    00:53 on 2026-11-16.
-
-126. **The run of `e8a65332` is red in the fourth Windows half alone again, and the staged report
-    says the raw result differs between two drawings of the same room.** In run 43781515730, ended
-    at 02:58 on 2026-11-16, the half had 352 passed, 1 failed, 3 skipped, all else green, the state
-    tests of `81656c12` among it, so item 281 is closed. The report reads, the far room against the
-    near, raw 440 of 14,400 texels more than 0.05 apart with the most 0.953, final none, distance
-    none, normal 34 with the most 0.172; the near room drawn again, raw 119 with the most 0.937,
-    final none with the most 0, distance and normal none with the most 0. So on that device the same
-    room drawn twice from the same inputs gives a raw image apart at 119 texels by nearly the whole
-    range while the final occlusion is the same to the last bit. The origin is not the cause. A
-    final image alike to the bit cannot come from raw images that far apart, so the raw image the
-    test reads back is not the one the later passes took. Read first whether the image is read after
-    a later pass has written into it or shares its memory, whether the copy waits for the pass that
-    writes it, and whether texels the pass does not write are cleared before the read. The far
-    room's 440 holds those 119 or so and the texels the 34 normals move. Asked, the cause found and
-    mended where it lies, in the seam or the pass, the bound of 72 kept, and the test also holding
-    the near room drawn twice to no texel apart. Checked at 02:59.
-
-127. **The run of `b634f33d` is red on macOS alone, a compile's own folder not written into.** Run
-    43811607980, ended at 08:12 on 2026-11-16, job 133114283374.
-    `SlangCompilerTests.One_Shader_Compiled_From_Two_Threads_Against_One_Cache_Is_Cached_Whole`
-    failed, slangc answering that it cannot write `out.spv` in a folder under the test's cache named
-    `slang-work/engine-slang-…`, the place item 283 gives a compile where no runtime folder stands,
-    as on macOS. The suite there also ended at its limit of 40 minutes with exit code -9 (2,387
-    passed, 1 failed, 56 skipped, 45 m 41 s in all), the last test to end a cascade edge test. The
-    seven other jobs are green. Asked, the cause named with its place (two compiles and one folder
-    made or cleared under the other, the closed mode on a folder macOS makes, or the cache folder of
-    a test removed while a compile stands in it), a test that fails on Linux with the runtime folder
-    taken away, the mend, and a line on whether the 40 minutes come from this failure or from the
-    suite's growth. The commits after it wait for the mend and go with it. 08:12
-
-128. **The pack run of `029f60de` is red in the games job alone, Siege's banner standing at 0.1
-    after nine throws, and no package was published.** In run 44043006601, ended at 11:28 on
-    2026-11-17, every other job is green and the pack job was skipped. The build run of the same
-    commit, 44028936810, played Siege through green, so the same tree gives two outcomes on two
-    runners. The play's lines read the banner at 15.8 after the stone and the first bomb, 13.9, 9.6,
-    then 0.1 from the fifth throw on, with 152 of 190 blocks and 164 of 342 welds broken at the end,
-    the frame's time fixed at a sixtieth. The banner came down to 0.1 and the play's check did not
-    count it as fallen. Asked, a read of what the check takes as fallen against where a banner that
-    came down can rest, the play's bound set to what the game itself calls fallen, and a read of
-    whether the physics gives the same result on two processors at a fixed frame time, the runner's
-    processor line being in the log, with the answer said in the Reply. The run's failed job is
-    started again by the reviewer so the package can follow where the play passes. Written at 11:28
-    on 2026-11-17. The job run again ended green at 12:38 on 2026-11-17 and the package 6.2.102 was
-    published from it, so the play passes on one runner and fails on another with one tree; the read
-    asked above stands, and the verdict stays open until the Reply gives it.
+No verdict is open. Verdict 128 is settled at 19:49 on 2026-11-17 on the pack run 44120117582.
+Verdicts 1 to 127 are settled, said under each in REVIEW-ARCHIVE.md.
 
 ## Decisions
 
@@ -687,6 +678,20 @@ numbers, each in full under Decisions in REVIEW-ARCHIVE.md.
     device's ability as the limit. What each way costs is measured before the default is set. It is
     written once in the shared kernels, after they have moved. Item 271, BevyCSharp Decision 92.
 
+116. **The kernels' move keeps its place, and commits are held to the norm by a script and fresh
+    readers.** Decided at 17:29 on 2026-11-17, asked by the review as selections. Item 265, the
+    lighting kernels written once in the RadianceCascades module, stays after the lighting items in
+    hand and is not moved to the front. Every commit is read by the review's mechanical checks, a
+    larger one by a fresh read-only reader given NORM.md and the diff, and the whole tree by such
+    readers once a day; no standing session is kept for it.
+
+117. **Edges are smoothed in the frame itself, not over frames.** Agreed at 18:02 on 2026-11-17.
+    Beside multisampling the engine takes alpha to coverage for masked materials and specular
+    anti-aliasing in the surface shader, and reads how the ambient occlusion and the radiance
+    cascades sit on edges under four samples, in keeping with lighting that is whole each frame. A
+    custom resolve filter, further morphological passes and analytic edges are not taken up. Item
+    299.
+
 ## Replies
 
 Item 255, read and the first of its mends. The driver's own cache stands under XDG_CACHE_HOME, so
@@ -780,250 +785,6 @@ PostProcessUnitsTests, their apps holding the interface context the others build
 read on the tree before the severity took the words, which it reaches nowhere, passes whole on the
 RTX, Mesa 26.2.4 and Mesa 25.2.8, 31 of 31. The package is 6.2.60-local.275.1.
 
-Verdict 122, the record loops read for a machine of AVX-512.
-
-The runner's code is made here. The runtime's settings take the machine's own instruction sets and
-can leave one out, and add none. With DOTNET_EnableAVX512F, EnableAVX512 and EnableAVX10v1 at 1 and
-DOTNET_PreferredVectorBitWidth at 512 this machine's compiler emits for X64 with VEX and no zmm
-register, and with DOTNET_EnableAVX at 0 for X64 without VEX. crossgen2 of the runtime's own
-version, 10.0.12, compiles the renderer ahead for x86-64-v4 with the compiler's listing on, and read
-at `4a6e708b` it names what the runner named, the scene's draws' clearing reaching
-BindDescriptorSet, four BindVertexBuffers, BindIndexBuffer and two SetScissor, the subsurface pass's
-reaching BindDescriptorSet, BindVertexBuffers, BindIndexBuffer and BindGraphicsPipeline, and the
-depth and the shadows' batches clean; for x86-64-v3 it names nothing.
-
-The clearing is a draw of 272 bytes made empty in the loop for a batch that holds none of its own,
-the scene's plan and its record taking `default` for a batch of the pass's own shader and the
-subsurface pass handing one to its material's set, which a machine of AVX-512 clears with a 256-bit
-xor before its 512-bit stores and one of AVX2 through the narrow registers. Each loop now reads its
-draw by reference, the draw list's own or one empty draw the renderer keeps
-(`ModelRenderer.NoDraw`), and the draw's set takes it in, so no timing of a cleared register was
-needed.
-
-The guard reads three listings, the machine's own and crossgen2's for x86-64-v3 and x86-64-v4, the
-assemblies one bubble so it inlines across them as the run's compiler does, on one thread so no two
-methods' listings are written into each other, crossgen2 restored into the NuGet folder where it is
-not there. On the mended tree all three read clean, in 77 s with the build, and at `4a6e708b` the
-x86-64-v4 listing fails as the runner's did. It keeps the listings in
-`build/artifacts/wide-registers`, which the order leg uploads as wide-registers-linux where the step
-fails. The sentence that a machine of AVX-512 read alike, which was not measured, gives way to what
-is read.
-
-The restore, where crossgen2 is not in the NuGet folder, needs nuget.org reachable and the folder
-writable, which the script's head says, and a restore that fails names its package and version, the
-folder and what the restore said, so a red step there reads as that and not as a listing. The pack
-run's own Linux order leg passed the guard at `4a6e708b` on a runner of another processor, so what
-the guard finds goes by the runner's processor, as crossgen2's two listings show.
-
-The runs. The strict build is clean, and the suite on both legs passed, 2,475 each, in 25 m 59 s and
-26 m 0 s. The guard passes on the mended tree, all three listings read. The models', the shadows',
-the subsurface pass's and the ambient occlusion's tests pass on the RTX, Mesa 26.2.4 and Mesa
-25.2.8, 173 with one left out on each Mesa as before, in 1 m 43 s, 5 m 10 s and 5 m 25 s, and
-RenderOriginTests passes whole on the three, 31 of 31, in 1 m 19 s, 4 m 43 s and 4 m 53 s. No test
-is added, so no Windows part moves. The package's five tests pass in the suite on
-6.2.60-local.276.1, made at `40c2f712`.
-
-Verdict 123, the samplers past MoltenVK's limit and the stars' buffer freed in flight.
-
-The buffer. Closing the window freed the buffers a program loads once the dispatches alone had
-finished (`E3D.ForgetCompute`), and a day sky with air keeps its stars in one, which the last
-frame's draw still reads. It now waits for the device too, as `UnloadShaderBuffer` does, and a test
-of `DaySkyNightTests` that closes the window under the night sky fails without it with the runner's
-line. Any device's layer reads it, and Linux and Windows stayed quiet since Sponza, the one example
-with a sky with air, is driven on macOS alone, and the night's tests read the frame back, which
-waits, before they close. No other free at the close takes that path. The textures it unloads leave
-the store alone and the renderer destroys them after its wait, a compute pipeline waits for its
-dispatches as it goes, the passes' buffers go with the renderer after its wait, and a shared sampler
-goes with its last holder, a texture retiring four frames on or a pass after that wait.
-
-The samplers. The device makes one sampler for each distinct set of settings as it makes them, which
-every sampler asking for the same shares and the last let go destroys
-(`GraphicsDevice.Samplers.cs`), and logs an error where a new set would pass
-maxSamplerAllocationCount. Sponza driven here under a limit of 96 holds 6 at the most, with no line
-of the layer's. `SamplerShareTests` draws 160 textures of four settings under a limit 8 over what
-the app holds, and they hold 4 more at the most, where without the sharing the count reads 482 and
-the error is logged. Lavapipe, which Linux and Windows draw on, allows 32,768 and the RTX 4,000, so
-they cannot meet it.
-
-The runs. The strict build is clean. The textured and sky tests pass on the RTX, Mesa 26.2.4 and
-Mesa 25.2.8, 294 of 294 in 2 m 35 s, 3 m 57 s and 4 m 8 s, and RenderOriginTests whole, 31 of 31 in
-1 m 33 s, 5 m 39 s and 6 m 11 s. The suite on both legs passed 2,477 with one failure each, the
-device's listing not written again for the samplers' new members, which is written now, its tests
-passing. `SamplerShareTests` joins the Windows part Graphics, and the night's test stays in
-Rendering 3.
-
-Verdict 124, Swarm's entities in the pack run's soak.
-
-The check, and no leak. The run's game-captures artifact holds swarm.csv, which the leg copies there
-before the check and uploads however the step ends, so the leg is left as it is. Its readings ten
-seconds apart give entities 28, 74, 33, 95, 77, 40, 33, 119, 98, 84, 66 and 108 over two turns of a
-minute each, two of the first half's falling on a turn's reset at 33 and none of the second's, whose
-five lie within fights, its ids, the most alive at once, steady at 130. Played here from a package
-of the tree, thirty of the soak's own turns with every frame counting a quarter second, a turn's
-last creature left 29 entities, or 34 with the player's shots in the air, from the third turn to the
-thirtieth, and the most alive at once was 160. The close's wait and the shared samplers did not slow
-its turns. The run played 2 turns in 120 s with 12 readings as the run on `4a6e708b` did, which
-passed with a reading of 29 in its second half, the runs on `baa21ff4` and `8561816b` played 1, and
-the soak closes no window between turns.
-
-The mend. Swarm's entities are bounded as its ids are, by the most thirty turns hold, 160 alive at
-once, which the ids' bound takes as well in place of 152 (`build/soak-check.py`). `SoakCheckTests`
-holds the run's readings, failing without the mend as the run did and passing with it, and the same
-second half 130 higher fails. The strict build is clean, and the soak check's and the norm's tests
-pass, 26 of 26.
-
-The cost read of 6.2.83 against 6.2.60, the flights' `hdr_scene` and `scene_field`.
-
-The method. The game at `fc97f0f` was built on the package 6.2.60 as it ships, in a folder of the
-coder's own and through a copy of the engine's client, and each engine commit read was built in
-Release and laid over that copy, its assemblies and its shaders' folder in place of the package's.
-The flight is the review's own, east at 110 from 4400.5, 600.5 over seed 1's land, flown once to
-load and again to read, at Low and at High, at 1280 by 720 with the frame unlimited, the validation
-layer off and a fresh copy of the review's data each run, three samples of the profile a flight.
-Each sitting read its builds in turn and back, every read its own exclusive turn of the GPU's lock,
-powersave as the profile, the desktop's share of the GPU near none. The laid-over 6.2.60 reads as
-the package does, 4.94, 4.51 and 4.56 ms at Low against 4.93, 4.49 and 4.53.
-
-`hdr_scene`, the mean of its three samples over the two reads of each build, Low then High, in ms,
-by sitting. The bisect, 6.2.60 4.71 and 4.50, `3405714a` 4.92 and 4.68, `ed3cd9ca` 4.73 and 4.46,
-`5b6696b2` 4.80 and 4.53, `c6bac6dc` 4.78 and 4.50, `ba117e9f` 4.85 and 4.60, 6.2.83 4.88 and 4.64.
-Within the step, `c6bac6dc` 4.76 and 4.49, `96358279` 4.75 and 4.46, `4b621af2` 4.73 and 4.47,
-`ba117e9f` 4.87 and 4.64. The cause, `4b621af2` 4.78 and 4.54, 6.2.83 with `4b621af2`'s `glow.slang`
-alone 4.75 and 4.46, 6.2.83 4.86 and 4.59.
-
-The step is `ba117e9f`, about 0.14 ms at Low and 0.17 at High, and 6.2.83 with the earlier
-`glow.slang` takes the whole of it back, so it is the faces check that commit put inside the loop of
-`glowLightShown`, which the model pass compiles in through `glowLightsAt`'s march with halves
-(`lights.slang`, line 573). 6.2.83 read as before with the glow faces' stage left out, with the
-lights' buffer made as it was, with single-part meshes kept off the faces' way and with a copy drawn
-twice not taken as one emitter, 4.84 to 4.89 at Low and 4.59 to 4.66 at High against `4b621af2`'s
-4.77 to 4.78 and 4.49 to 4.51 in the same sittings, and both builds carry the same 110 to 112
-emitters, 64 of them lit. With the glow lights off the gap stays, 3.403 against 3.473 at Low and
-3.371 against 3.449 at High, so it is the code compiled in, its registers or its unrolling, and not
-the work it does. `3405714a`'s rise of about 0.2 is taken back by `ed3cd9ca`. `scene_field` keeps to
-one of its two levels a run on every build, the runs of one build reading 1.0 to 1.2 ms and others
-1.5, and moves with none of them.
-
-Verdict 125, the far room on the Windows device.
-`A_Room_Far_From_The_Origin_Is_Occluded_As_The_Same_Room_At_It` now says what it found, for the raw
-result, the final occlusion, the distance along the view and the normal the main pass read, the
-count of texels more than 0.05 apart of the 14,400 and the largest difference, the last two decoded
-from the packed image's first level (`CircularOccluders.ReadPacked`). It says the same of the room
-at the origin drawn a second time, so a device that parts from itself is told from one that parts at
-4,448 units. The reading here found one cause in the test itself. Its camera's eye was `at` plus
-3.6, which a float does not hold at 4,451.6, so the far camera stood up to 0.00024 of a unit from
-where the near one stands in its room, and its eye and the point it looks at are now eighths of a
-unit from `at`, which a float holds there as at nothing. Read again on lavapipe 26.2.4, the RTX and
-lavapipe 25.2.8, the far room parts from the near at 10, 4 and 7 raw texels by more than 0.05, the
-most 0.12, 0.06 and 0.12, and at none of the final, the most 0.004. The distances part by one step
-of the packed distance at most, 0.00098, and the normals at 34, 15 and 20 texels, each by a step of
-CORTAO's dithered five bits a component, as the depth rounds the other way against the other origin,
-the occlusion following them. The near room drawn again is the same texel for texel on all three.
-Before the camera was held lavapipe 26.2.4 read 16 raw texels and 36 normals. No stage reads a place
-against the world's origin, the prepass and the main pass taking the depth and the projection alone,
-so no stage is mended. The bound is now a count, at most 72 raw texels and 16 final ones more than
-0.05 apart. A mean of 0.020 is some three hundred times what any device here reads, so if the
-Windows device reads past the counts again, its report names the stage and says whether the near
-room drawn twice parts as well.
-
-The runs. The strict build is clean and the focused tests pass 92. The occlusion's tests with
-SamplerShareTests and DescriptorPoolTests pass 11 on lavapipe 26.2.4, the RTX and lavapipe 25.2.8,
-and both legs of the suite pass, 2,495, in 28 m 44 s and 27 m 22 s at 2,602 and 2,821 MB at most,
-the second shuffled by the seed 20261023. The far room's report and counts came after the legs, read
-with the strict build again, the norm and surface tests passing 34 and the circular occluders' 8
-tests passing on all three devices. On Windows the new tests join their classes' parts,
-`SlangCompilerTests` in Graphics in the first half and the circular occluders' in Rendering 1 and
-Rendering 7 in the third and fourth, and no class moves. The new cache test compiles the whole
-shader folder once more, 1 m 47 s here.
-
-Verdict 126, the circular occluders' sky texels. CORTAO's main pass returns without writing at a
-texel whose distance along the view is nothing, the sky (`cortao/CORTAOMainPass.h`, line 378), and
-its filter at a block of four such texels (`cortao/CORTAOFilterPass.h`, line 139), so those texels
-of the raw and the filtered images held what their memory held when the images were made, nothing on
-the devices here and something else on the Windows device, the 119 texels apart there between two
-drawings of one room. No player could have seen it. The occlusion's first pass returns 1 at the sky
-before it reads the circular occluders' image (`ao.slang`, line 171), the filter weighs a sky texel
-by its depth's error and passes blocks of sky, and the model pass draws no pixel there, which is why
-the final occlusion on Windows was the same to the bit. `ao.save raw`, `filtered` and `bent`
-pictured that memory in the sky. Each frame `CircularOccluders.Record` now clears the raw image to
-open with its bent normal toward the eye and the filtered image to 1 before the passes write, a
-transfer barrier between, the two images made to take a transfer's writes.
-`A_Room_Far_From_The_Origin_Is_Occluded_As_The_Same_Room_At_It` holds every texel of the raw image
-where the packed distance is nothing to open and the room drawn twice to no texel apart, raw and
-final, the far room's 72 kept. Without the clear it fails on lavapipe 26.2.4, the RTX and lavapipe
-25.2.8 alike, 5,477 sky texels not open, and with it the circular occluders' 8 tests pass on all
-three.
-
-The other passes' images, read where each is made. The horizons' four images, the occlusion, the
-image between the blurs and the two histories, are each written by a render pass that clears its
-whole target as it loads (`AmbientOcclusion.cs`, `Pass`), so none is read before every texel is
-written. The history on its first frame, or on a frame after one that wrote none, reads the
-occlusion alone through `RememberFirst` and never the other history (`Occlude`, `held`). The
-cascades' images are moved from nothing and cleared as they are made, the radiance, the merged light
-and the hits' normals to nothing, the faces' sky to open, the probes' own light to unknown and the
-reaches to far (`GlobalIlluminationStages.cs`, from line 212), and the screen probes' images
-likewise, the glow light's to nowhere (`GpuScreenProbes.Making.cs`, from line 73). The circular
-occluders' packed image is written whole each frame, every level, so none is found beside the two
-mended here.
-
-The runs. The circular occluders' 8 tests pass on lavapipe 26.2.4, the RTX and lavapipe 25.2.8, read
-from a worktree of `e8a65332` holding this change alone. On the tree holding it and item 280's
-unrolled loop, the next commit, the strict build is clean, the focused tests, the circular
-occluders', the glow lights' and the norm and surface tests, pass 63, and both legs of the suite
-pass, 2,495, in 29 m 52 s and 27 m 35 s at 2,621 and 3,031 MB at most, the second shuffled by the
-seed 20261023. On Windows no test is new, so no class moves, the far room's test staying in
-Rendering 7 in the fourth half.
-
-Verdict 127, a compile's folder under a cache folder a test deletes. A compile wrote its source and
-slangc's output in a folder `SlangCompiler.WorkFolder` made in the user's runtime folder or, where
-none stands, as on macOS, in `slang-work` under `UserCache.Folder` (`SlangCompiler.cs`, line 520 at
-`b634f33d`). That setting is the whole program's, and `PipelineCacheTests` sets it to a folder of
-its own, `TestFolder("engine-pipelines-")`, which it deletes as each test ends. Those tests are in
-the E3D collection and `SlangCompilerTests` is not, so the two run side by side, and on macOS a
-compile of the race test made its folder inside the pipeline test's and lost it as slangc wrote, the
-path the run names, `…/T/engine-pipelines-8HJQSx/slang-work/engine-slang-…/out.spv`. On Linux the
-runtime folder takes every compile first, so no run here met it. The mended `UserCache.Own` gives
-the engine's folder in the user's own cache whatever `Folder` is set to, `Folder` falling back to it
-as before, and a compile with no runtime folder makes its folder in `slang-work` there
-(`SlangCompiler.WorkCache`).
-`SlangCompilerPlaceTests.A_Compile_Where_No_Runtime_Folder_Stands_Writes_In_The_Users_Own_Cache_And_Not_In_One_A_Test_Set`
-sets the cache to a folder of its own, takes the folder a compile would write in with no runtime
-folder given, as on macOS, and holds it outside the folder set and in the user's own cache's
-`slang-work`, the class in the E3D collection beside the tests that set the cache. With the head's
-choice it fails, the folder under the one set, and with the mend it passes.
-
-The 40 minutes. The macOS suite ran out its 40 minutes at `e8a65332`, `ee4af79e` and `b634f33d`
-alike, 2,278, 2,325 and 2,327 tests passed by then, the script running the rest in parts after it,
-which kept the first two green at 50 m 15 s and 46 m 7 s in all, where at `2ceadfd1` it ended by
-itself after 36 m 34 s. So the limit is the suite's growth from `e8a65332`, its new test of the
-shipped cache among the slowest on that runner at 1 m 11 s to 1 m 20 s, and not this failure. The
-suite's split into two macOS halves is the next commit.
-
-The runs. The strict build is clean, the focused tests, the shader compiler's, the pipelines'
-cache's, the user cache's, the cache command's, the shader store's and the norm and surface tests,
-pass 83, and the compiler's, the pipelines' cache's, the user cache's and the cache command's pass
-44 together with `XDG_RUNTIME_DIR` taken from the test process, as on macOS. The compiler's and the
-shader store's tests pass 39 on lavapipe 26.2.4 and the RTX and 37 with 2 skipped on lavapipe
-25.2.8, whose container runs the tests as the superuser. Both legs of the suite pass, 2,501, in 27 m
-54 s and 27 m 28 s at 2,709 and 3,050 MB at most, the second shuffled by the seed 20261023. On
-Windows the new test joins `SlangCompilerPlaceTests` in the Graphics part, and no class moves.
-
-The macOS suite in two halves, after Verdict 127. The macOS job runs as two, each a job of its own
-with its own lines on the page (`--system "macOS, half N"`), and runs the suite in its parts from
-the start (`--parts`), each part a process held to the script's 40 minutes, as the Windows jobs run
-theirs. Global illumination's class, the render origin's and the scene field's run in processes of
-their own and the rest of the Rendering part in two (`--split
-Rendering=2+GlobalIlluminationTests+RenderOriginTests+SceneFieldTests`). The first half takes those
-three classes and Graphics (`--only`) and the second every part but those (`--except`), so a part
-added later runs in the second, and the first alone plays Slide, publishes it native, follows the
-README and builds the first game after its suite, its 75 minutes and the pack run's 120 kept. By the
-times the run of `b634f33d` printed on that runner the first half's tests take some 21.5 of the
-suite's 37.5 minutes summed, in four processes, and the second some 16 in eighteen. Read here with
-`--dotnet` naming a script that lists the tests and runs none, the first half deals the four parts
-named and the second the eighteen others, Rendering's two among them. BUILDING.md says how the macOS
-jobs run the suite. The scripts', the steps', the validation lines', the package's contents and the
-norm tests pass 72 on the workflow as changed.
-
 Verdict 128, Siege's banner down and not counted.
 
 What the play takes as fallen. The play's check takes the game's own word, its screen at Won, which
@@ -1088,3 +849,69 @@ with the validation layer named as the games job names it pass, the last six ope
 `E3D_FRAME_TIME` at a sixtieth. The first three, played without the layer's path here, ended on that
 alone, each won. The tree's tests do not build the games, which the games job plays, so no suite leg
 ran for the game's change, and the drive's change is to Siege's case and its opening alone.
+
+Item 296, the emissive map's color and the lantern's faces.
+
+The color. A glow light and a ray instance took the material's emissive factor times its strength
+and not its map, so the street lanterns' glass, white in its factor and orange in its map, drew
+orange and lit the street near white. `SceneField` multiplies each draw's emission by its emissive
+map's average where it has one (`TextureStore.AverageColor`), for plain and instanced draws alike,
+so the glow lights, the probes' rays and the path-traced reference take the color the map gives. The
+test lights a white floor from a block glowing white at 4 whose map is (255, 140, 40), and the floor
+two blocks out reads red over green within a tenth of the map's 3.81 in linear light. Without the
+mend it reads 1.00.
+
+The lantern's faces. The pack's lantern glass is twelve panels about an upright axis, each facing a
+tenth up, 0.31 m² facing out, and a second layer of 0.31 m² a hair inside facing in, lying apart
+from the first. Not square to an axis, its triangles took every face of the box, its floor among
+them, at both layers' surface, so the lantern sent about twice its light, a share of it straight
+down from a face it has none of. A part counts its triangles that face out of its box, each naming
+the face its normal leans toward most, and a part whose triangles all face in is no light of its own
+unless every part does. The glass sends from its box's four sides at its outer panels' surface, and
+a block, a sphere and every square face read as before. The test cuts a ring of leaning panels with
+its inner layer apart, which gives one part of the four sides at the outer surface's share, where
+the rule before gave two parts on every face.
+
+The night against the reference. `scenes_bistro` at 22:00 at the solved camera under ISO 3200, 1/60
+s and f/2.8, bloom off, on the bridge's pack of the lanterns at 10,000 made into the engine's, each
+region's light over the reference's traced at 2048 paths a pixel and two bounces, the before frame
+read under the reference that takes the map.
+
+| Region | Pixels | Before | After |
+|---|---|---|---|
+| Floor, copy 1294 | 64,420 | 3.87 | 0.93 |
+| Floor, copy 1275 | 11,865 | 3.40 | 0.87 |
+| Floor, copy 1277 | 9,902 | 2.76 | 0.85 |
+| Floor, copy 1295 | 7,510 | 3.85 | 0.93 |
+| Floor, copy 1276 | 10,373 | 1.81 | 0.42 |
+| Block 300, 19.2 high, its side toward -x | 14,411 | 0.73 | 0.22 |
+| Block 304, 7.3 high | 4,841 | 0.51 | 0.27 |
+| Block 315, 20 high | 2,641 | 0.10 | 0.03 |
+| Block 390, 21.5 high | 2,475 | 0.04 | 0.04 |
+| Block 383, 19.6 high | 2,091 | 0.02 | 0.00 |
+| Block 538 by a lantern | 3,898 | 0.32 | 0.29 |
+
+The near paving comes to 0.85 to 0.93 of the reference. Still open, the far high walls at 0.00 to
+0.27 and the wall by a lantern at 0.29. A point takes every glow light in its reach, marching the
+four brightest for their shadows and summing the rest in four groups by their way across the
+surface, each group taking its brightest member's march (`glowLightsFrom`), and the 64 nearest the
+eye are lit. With the cap at 256 all 130 are lit and the far walls come to 0.39 to 1.11, but the
+near floors fall to 0.43 to 0.54, a group's brightest member being a far lantern hidden behind a
+building while its near members are seen. The next step ranks a group's members by what each sends
+to the point, splits the groups by distance as well, and reads the scene pass's cost at both caps.
+
+The reference. It reads a pack's color maps through their plain view and decodes the bytes once as
+sRGB, and its data maps by their levels, undecoded. It takes the emissive map with its factor
+through the instance as above. A draw blended under half stands in it as nothing and a masked one as
+solid, and no region reads past a number.
+
+The sheet. `2026-11-17-item-296-night-color.webp`, the frame before and after, the reference, and
+the after less the before and less the reference in luminance eight times over, red lighter and blue
+darker, each frame's linear light at one gain.
+
+The runs. The tree builds strict with no warnings, and the focused tests, the glow lights', the
+bounce reference's, global illumination's, the norm's, the public and device surfaces' and the model
+calls' classes, 256 pass. GlowLightsTests passes on the RTX 4070, 23 of 23, and on Mesa 26.2.4 and
+Mesa 25.2.8, 22 of 23 each, the room read against a path-traced reference skipped there, since
+neither device traces the GPU's own rays. The suite passes in its parts in order, 2,514 of 2,514 in
+86 minutes, and shuffled by the seed 20261023, 2,514 of 2,514 in 51 minutes.

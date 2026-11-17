@@ -365,7 +365,7 @@ and one that dies.
 
 **N 7.1 Commits are made on `main`, and the reviewing session pushes them once the previous build
 run of the repository has ended.** The pushes are the reviewing session's by the decision of
-2026-10-19, so a coder never pushes and no run is cancelled midway by a push. By review.
+2026-10-19, so a coder never pushes and no run is canceled midway by a push. By review.
 
 **N 7.2 A commit is one finished batch, and its message has the form COMMITS.md gives.** The history
 is read by its descriptions, and release notes are written from them. A test reads the messages
