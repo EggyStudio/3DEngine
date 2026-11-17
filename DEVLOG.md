@@ -6,6 +6,19 @@ under `.github/assets/readings` as WebP files named by their day, each on the da
 the notes written beside them as Markdown files named the same way. A line under Done names the item
 of .github/REVIEW.md or .github/REVIEW-ARCHIVE.md and the commit that closed it.
 
+## 2026-11-17
+
+![](.github/assets/readings/2026-11-17-item-287-width.webp)
+A lamp block's direct light and one bounce at High in a closed room of stone blocks, the lamp flush
+in the east wall, on the floor and hung in the air, before and after a hit's march to the lamp takes
+the width across its way of the lamp's faces that emit toward the hit where it took the width of the
+whole box, each row at one exposure, against a reference path traced at two bounces, with each
+frame's luminance less the reference's four times over and the after's less the before's sixteen
+times over, red lighter and blue darker, the lamp and 4 pixels around it gray and left out of the
+shares; by the lamp in the wall the room's surfaces read 1.049 of the reference's light before and
+1.055 after and its own wall 1.081 and 1.097, the ledge's front darker and the wall about the lamp
+lighter, and by the open lamps 1.027 and 1.031 before and after, unchanged.
+
 ## 2026-11-16
 
 ![](.github/assets/readings/2026-11-16-item-273-faces.webp)
@@ -77,6 +90,8 @@ Done that day
 
 - Item 270 at `6075d306`. More than sixteen point and spot lights write past the lamps in the
   illumination's lights buffer.
+- Item 272 at `f4b1bdd9`. The ray scene keeps the structures of meshes it no longer places, and says
+  it traces when it does not.
 - Item 273 at `c6bac6dc`. A glow light taken at a probe's hit reads several times the traced
   reference's first bounce.
 

@@ -435,12 +435,18 @@ lock and waits where an exclusive one stands, held or waiting, and a script of s
 the lock a run at a time, since a timing waited 35 minutes on 2026-11-11 while a second shared
 holder joined the first. A build takes the shared lock as a suite does, though it draws nothing,
 since a timing reads the frame's CPU stages too and a build running beside one doubled every stage
-of a flight on 2026-11-14. A timing that waits
-for the exclusive lock puts a file `/run/user/1000/gpu.waiting/<repository>-<pid>` for as long as it
-waits or holds and removes it at its end, since a wait that polls holds no lock and shows in no
-list of holders, and a job that takes the shared lock starts only while that folder holds no file
-whose process lives. A session whose wait grows long tells the reviewing session in a line,
-which gives the order, an engine's illumination read first. By review.
+of a flight on 2026-11-14. A timing that waits for the exclusive lock puts a file
+`/run/user/1000/gpu.waiting/<repository>-<pid>` for as long as it waits or holds and removes it at
+its end, since a wait that polls holds no lock and shows in no list of holders, and a job that takes
+the shared lock starts only while that folder holds no file whose process lives. A job under the
+shared lock that runs longer than ten minutes is split into parts of a few minutes, each asking the
+folder again before it starts, but a compile of one crate or project, which no part divides and
+which asks the folder once, since a run of 35 minutes held a timing back on 2026-11-17 though it
+began before the timing's wait. A series of timings takes its turns too, one session's waiting file
+standing no longer than fifteen minutes in thirty while a shared job of another session waits, since
+a series of two hours kept two sessions' suites from starting on 2026-11-17. A session whose wait
+grows long tells the reviewing session in a line, which gives the order, an engine's illumination
+read first. By review.
 
 **N 7.10 A session leaves the machine its memory.** The machine's memory ran out three times, the
 last on 2026-11-10, when one line of Python read a session's transcript of 4 GB whole and grew to 27
@@ -517,7 +523,7 @@ not the code keeps the rule. `by review` is held by the reviewing session.
 | N 6.7 | checked, `build/test.py` in the workflow and `TestScriptTests` | checked, `build/test.py` in the workflow and `TestScriptTests` |
 | N 6.8 | checked, `build/test.py` in the workflow and `TestScriptTests` | checked, `build/test.py` in the workflow and `TestScriptTests` |
 | N 7.1 | by review | by review |
-| N 7.2 | checked, `NormTests`, 3 left out | checked, `NormTests` |
+| N 7.2 | checked, `NormTests`, 5 left out | checked, `NormTests` |
 | N 7.3 | by review | by review |
 | N 7.4 | by review | by review |
 | N 7.5 | by review | by review |

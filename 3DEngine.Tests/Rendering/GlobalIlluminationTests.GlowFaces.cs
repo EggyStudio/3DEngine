@@ -443,7 +443,7 @@ public sealed partial class GlobalIlluminationTests
         var ledgeFront = Bounced("1");
         output.WriteLine($"a lamp {room}: the probes bring the east wall above the ledge {wall:0.000} of the reference's light bounced once and the ledge's front {ledgeFront:0.000}");
         wall.Should().BeInRange(0.9f, 1.15f, $"the probes bring the east wall above the ledge {wall:0.000} of the reference's light bounced once with a lamp {room}");
-        ledgeFront.Should().BeInRange(0.95f, 1.25f, $"the probes bring the ledge's front {ledgeFront:0.000} of the reference's light bounced once with a lamp {room}");
+        ledgeFront.Should().BeInRange(0.95f, 1.18f, $"the probes bring the ledge's front {ledgeFront:0.000} of the reference's light bounced once with a lamp {room}");
         settings.Term = 0;
         UnloadMesh(walls);
         UnloadMesh(front);

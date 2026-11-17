@@ -10462,6 +10462,38 @@ here, and the copy of the player's save is let go, made again on request. The lo
     read on the game's flight as item 284's was, and a sheet of the room before and after against
     the reference.
 
+286. **The gather of the screen probes' rays onto a wall reads a tenth over the reference.** Item
+    285's Reply has the flush lamp's wall at 1.120 of the reference once its probes' rays are right,
+    1.092 of the bounce, and the wall probes' rays going up at 1.140 of their own reference before
+    and after the mend, where all 592 rays together read 0.996. Find where the tenth comes in, by
+    the wall's light taken apart (the rays going up against the reference along their ways by where
+    each ends, the ceiling's hits at 1.14 on the screen among them; the weights a pixel gives the
+    probes about it and whether they sum to one; the cosine and the solid angle a ray stands for at
+    the probe's octahedral texels; the reflection's part, which the reference traced without gloss
+    holds none of, set apart or the reference given the same gloss). A Reply first with the parts as
+    a table and the cause named with its place in the code, then the mend with the bounds of the
+    tests of items 284 and 285 drawn closer about one where the readings allow, the three rooms'
+    shares, the cost read on the game's flight and the sheet made again.
+
+272. **The ray scene keeps the structures of meshes it no longer places, and says it traces when it
+    does not.** From the voxel game's reading of the field against the device's rays on 2026-11-14,
+    on the local package of `f4b1bdd9`, at High on a device of 8 GB. The ray scene holds six or
+    seven times as many meshes as it places copies, 5,714 for 858 after one step of the game's
+    origin, and grows from 260 MB standing in the built room to 1,185 to 1,361 MB; at the second
+    step the device has no memory for it, the log says the device's rays are left off and the field
+    traces what they would, and they stay off for the session. From then `gi.toggle meshes on` still
+    answers that the probes' rays are traced through the meshes, and `gi.state` names the switch on
+    no line. Each step builds the ray scene again for about 210 ms of the CPU, whichever way the
+    probes trace, High holding it for the reflections the field misses. To do. A mesh no copy has
+    placed for a count of frames gives its structure back, with a test that a world whose meshes
+    come and go holds the ray scene's memory level. The switch's answer and `gi.state` say what is
+    traced, the device's rays left off for memory among it. With MoveWorld a step uploads no mesh
+    again, so its build should fall away, read by the game on its package. The ray scene's buffers
+    made again larger as land is met, 29 and 24 makings over 4 ms in a flight across the step at
+    High and 6 and 9 across none, by the engine's trace reported at 18:37, grow in steps that cut
+    the count, read again after the mend. After part 8, the draw list's binds, 273 and 274, before
+    265.
+
 ## Verdicts settled
 
 Verdicts 1 to 55 are settled, the last two, the drawing leak test's resident bound and the Windows
@@ -18520,6 +18552,161 @@ lavapipe 26.2.4 and on lavapipe 25.2.8, the tests of the device's rays among tho
 on the RTX. Both legs of the suite pass, 2,505, in 29 m 59 s and 27 m 46 s at 3,071 and 3,072 MB at
 most, the second shuffled by the seed 20261023. On Windows the new test joins global illumination's
 class, whose four processes deal its methods as before, and no class moves.
+
+Item 286, the gather onto the flush lamp's wall.
+
+The parts. The flush lamp's room as item 285 left it, at 480 by 270 at High on the RTX 4070, the
+light past the first bounce off, the lamp and 4 pixels around it out, its faces toward -x split by
+the block each pixel's ray from the eye meets.
+
+| Faces toward -x | Pixels | Probes over the bounce | All over the reference |
+|---|---|---|---|
+| The wall above the ledge | 18,286 | 1.014 | 1.044 |
+| The ledge's front | 10,337 | 1.407 | 1.412 |
+| Both, the region item 285 read | 28,624 | 1.092 | 1.119 |
+
+The gather holds. The wall's 37 screen probes, each against the reference over its hemisphere, bring
+0.916 of it in a frame's rays, 0.966 kept and 0.964 blended, the reference along their own ways
+0.970, a pixel over its albedo by π times the blend reads 0.975 where the reference's reads 0.976,
+and the shares sum to π, so the wall's 0.03 past the bounce is the probes' reflection, which the
+reference traced without gloss holds none of. The tenth is the ledge's front. Its 54 probes bring
+1.426 in a frame's rays and 1.385 blended, the reference along their ways 1.006, and the 359 rays
+the screen meets on the floor before the ledge bring 4.72 times the reference along their ways. That
+floor lies in the ledge's shadow from the lamp. Over its first quarter block out, the next quarter
+and the next half the reference finds 0, 0 and 0.0005 of the lamp's direct light where the hits
+bring 0.018, 0.080 and 0.161, and from one block out to two they bring 2.65 times its light, the
+pixels there taking the lamp straight at 1.36 times as well.
+
+The cause. `glowLightSeen` (`glow.slang`), the one march a probe's hit takes to a lamp, set out a
+cell and a half off the surface, and from there the top of the lamp's open face shows over the
+ledge's edge where from the floor none of it does. Past that `glowMarch`'s cone is as wide as the
+lamp's box across the way, the box's depth behind its one open face among it, so the half shadow
+past the edge reaches into the full one.
+
+The mend. The march sets out half a cell off the surface, `glowMarch` given the same lift. At 480 by
+270 the wall above the ledge reads 0.998 of the bounce, the front 1.294 and the floor's hits 3.44
+times the reference. A cone as wide as the open face alone, read beside it, raised the wall to
+1.051. What stays over the front, the cone's half shadow past an edge on the lamp's side and the
+pixel's own light there, is the item to follow.
+
+The march's own surface. The rooms where a march set out half a cell off would meet its own surface
+in the field, drawn whole at 480 by 270 at High with no ambient light, the lift at a cell and a half
+against half a cell, compared by luminance in levels of 255, the share of pixels darker after.
+
+| Room | Darker by 1 or more | By 2 or more | By 4 or more | Most |
+|---|---|---|---|---|
+| The flush lamp's | 0.301 | 0.0083 | 0 | -3 |
+| The same shifted half a cell, its walls off the field's cells | 0.330 | 0.0122 | 0 | -3 |
+| The same at 1,140,736 and 285,696 | 0.301 | 0.0083 | 0 | -3 |
+| The hung lamp's | 0.0099 | 0 | 0 | -1 |
+
+The game's flight's first frame at Low and High, captured in every read of the cost below, two of
+each build a sitting, compared the same way, pairs of one build giving the frames' own spread.
+
+| The flight's first frame, darker by 4 or more | Pairs of one build | Pairs across the builds |
+|---|---|---|
+| Low | 0 to 0.0016 | 0.0002 to 0.0011 |
+| High | 0.0004 to 0.0026 | 0.0001 to 0.0028 |
+
+No hit shadows itself. The flush rooms darken by a level over a third of the picture, the ledge and
+the wall about the lamp toward the reference, by more than 3 nowhere, and the flight's frames differ
+across the builds as much as within one, so the half cell is kept.
+
+The bounds. Item 284's test draws the ledge as a mesh of its own, so the reference names its front
+apart from the wall above it, and holds each, read at the test's 160 by 96 on the RTX.
+
+| Reading | Bound | Glow lights before item 284 | Head | Mended |
+|---|---|---|---|---|
+| Flush lamp, the wall above the ledge | 0.9 to 1.15 | 0.821 | 0.956 | 0.936 |
+| Flush lamp, the ledge's front | 0.95 to 1.25 | 1.134 | 1.295 | 1.214 |
+| Floor lamp, the wall and the front | the same | 1.113 and 1.073 | 1.112 and 1.073 | 1.097 and 1.071 |
+| Hung lamp, the wall and the front | the same | 1.103 and 1.006 | 1.103 and 1.006 | 1.099 and 1.006 |
+| Item 285's rays going down | 0.85 to 1 | 0.780 | 0.901 | 0.891 |
+| Item 285's rays going up, written | none | 0.957 | 1.140 | 1.125 |
+
+The wall, held with the front from 0.95 to 1.15, is held alone from 0.9, since at the test's window
+it reads 0.936 with the front's excess out of it, and fails before item 284. The front's bound is
+wide enough for the 1.21 that stays over it, the item to follow's, and fails at the head, so the
+test fails without the mend. Item 285's rays going down are held to 1 from 1.1.
+
+The cost. The game's flight as item 285's was read, item 285's `glow.slang` against the mended one,
+three sittings in turn and back, A B B A, B A A B and A B B A, every read its own exclusive turn of
+the lock, the means of their three samples, before and after, in ms.
+
+| Sitting | Illumination, Low | Illumination, High | Scene, Low | Scene, High | Frame, Low | Frame, High |
+|---|---|---|---|---|---|---|
+| First | 1.823 and 1.788 | 5.396 and 5.399 | 4.770 and 4.759 | 4.521 and 4.474 | 8.662 and 8.451 | 13.077 and 12.401 |
+| Second | 1.816 and 1.806 | 5.423 and 5.399 | 4.795 and 4.803 | 4.551 and 4.524 | 8.697 and 8.663 | 12.852 and 12.854 |
+| Third | 1.810 and 1.797 | 5.422 and 5.398 | 4.782 and 4.769 | 4.546 and 4.530 | 8.705 and 8.741 | 12.856 and 12.890 |
+
+The illumination's pass reads 0.01 to 0.035 ms less at Low and the same or 0.02 less at High, the
+scene pass within 0.05, so the half cell costs nothing read. The first sitting's frames, 0.21 and
+0.68 ms less, move with the processor's work, the GPU's two passes moving 0.05 at most.
+
+The sheet. `2026-11-16-item-286-lift.webp`, the three rooms before and after against the reference
+at two bounces, each frame less the reference four times over and the after less the before sixteen
+times over, the lamp and its 4 pixels gray and out of the shares. By the lamp in the wall the room
+reads 1.060 of the reference before and 1.050 after and its own wall 1.120 and 1.083, the after
+darker over the ledge and about the lamp, the floor lamp's room 1.029 and 1.027 and the hung lamp's
+1.032 either way, their walls 1.036 and 1.031 either way.
+
+The runs. The strict build is clean, the focused tests, the glow lights', items 284's and 285's, the
+probes' hits', the screen probes', the rough reflections', the mirror's, the shader compiler's and
+the norm and surface tests, pass 111, and the glow tests with the lamps', the probes' hits', the
+screen probes', the rough reflections' and the mirror's pass 80 with 11 skipped on lavapipe 26.2.4
+and on lavapipe 25.2.8, the tests of the device's rays among those skipped, and 96 on the RTX. Both
+legs of the suite pass, 2,505, in 28 m 49 s and 27 m 17 s at 2,975 and 2,978 MB at most, the second
+shuffled by the seed 20261023. No test is added, so no class moves on Windows.
+
+Item 272, the ray scene's meshes no copy places and what the switch says.
+
+The mend. A mesh no copy has placed for the scene's count of frames, 60, gives its structure back
+once no frame in flight reads it, and the corners are made again without those of the meshes given
+back once they are half the buffer, each mesh kept moved to where its corners then lie
+(`GpuRayScene.cs`). The meshes' builds share one scratch kept from frame to frame, and the scratch,
+the corners and the ring of copies are made again at twice what they need where they outgrow it, the
+ring one buffer for all its slots, which the two reference tracers read at the frame's slot. High
+leaving the device's rays off where the structures do not fit the device's memory keeps why
+(`GlobalIlluminationSettings.RaysLeftOff`), and the meshes' switch and `gi.state` say what the
+probes' rays are traced through, the meshes, or the field with the device's rays left off for its
+memory, off by `gi.rays` or not traced by the device, `gi.rays on` clearing why. The overlay and the
+global illumination window leave out the count of the carried probes, which reads them back and
+waits for the device's frames, the overlay four times a second, and `gi.state` counts them. A
+carried probe's cycle is begun again on the frame its rays begin or stop moving, since the merge
+leaves the cycle as it was while they stand still and a cycle going on from before read the light of
+when they last moved.
+
+The tests, on the RTX at the head with the mend and without it, the members the tests read added
+alone.
+
+| Test | Without | With |
+|---|---|---|
+| A sphere coming and going for 24 rounds, the meshes placed after | 25 | 2 |
+| The same, the scene's memory round by round | 2.1 rising to 37.3 MB | 3.1 and 7.6 MB by turns |
+| Buffers made as 96 meshes are met a frame apart | 108 | 4 |
+| The meshes' switch with the rays left off for memory | traced through the meshes | traced through the field, the rays left off for memory |
+| Carried probes read back by the overlay | 1 | 0 |
+| The carried cascades' blue over red three frames after the rays are on again, 0.0130 settled | 0.0186 | 0.0130 |
+
+`The_Ray_Scenes_Memory_Holds_Level_While_Its_Meshes_Come_And_Go`,
+`The_Ray_Scene_Makes_Its_Buffers_In_Steps_As_It_Meets_A_Mesh_A_Frame`,
+`The_Meshes_Switch_And_The_State_Say_What_The_Probes_Rays_Are_Traced_Through`,
+`The_Overlay_Says_The_State_Without_Reading_The_Carried_Probes_Back_Which_gi_state_Reads` and
+`A_Carried_Probes_Cycle_Is_Begun_Again_When_Its_Rays_Move_Again` each fail without the mend and pass
+with it. The step's build falling away with MoveWorld and the makings over a flight across the step
+are the game's to read on its package.
+
+The runs. The strict build is clean, and the focused tests, the global illumination's, the bounce
+references', the round occluders', the ambient occlusion's, the rough reflections', the mirror's,
+the descriptor pool's, the overlay's, the screenshot key's and the norm and surface tests, pass 219
+of 220, the one failing the norm test of the messages on `da3d20cc`, whose sentence ends without its
+full stop. That commit goes on N 7.2's list as one pushed before its fault was seen, and the test
+passes with it there. The tests of the ray scene with the bounce references', the round occluders',
+the rough reflections', the mirror's and the overlay's pass 37 with 24 skipped on lavapipe 26.2.4
+and on lavapipe 25.2.8, the tests of the device's rays among those skipped, and 64 on the RTX. Both
+legs of the suite pass 2,509 of 2,510, the one failing the same norm test, in 27 m 38 s and 27 m 1 s
+at 2,869 and 2,772 MB at most, the second shuffled by the seed 20261023. On Windows the five new
+tests join `GlobalIlluminationTests` in its four pieces, and no class moves.
 
 ## Items closed, parked or shortened
 

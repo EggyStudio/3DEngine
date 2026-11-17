@@ -372,6 +372,56 @@ public float glowLightDistance(GlowLight light, float3 q)
     return length(beyond);
 }
 
+// The faces of a glow light that emit toward q, a bit a face as glowFaces numbers them, those whose
+// plane q lies outside of, or every face where every face emits or q lies before none that does.
+uint glowFacesToward(GlowLight light, float3 q)
+{
+    uint faces = glowFaces(light);
+    if (faces == 63u)
+        return 63u;
+    float3 offset = q - light.middleAndReach.xyz;
+    float4 halves[3] = { light.halfX, light.halfY, light.halfZ };
+    uint toward = 0u;
+    [unroll]
+    for (int k = 0; k < 3; k++)
+    {
+        float squared = halves[k].w * halves[k].w;
+        float side = dot(offset, halves[k].xyz);
+        uint bit = 1u << uint(2 * k + (side > 0.0 ? 1 : 0));
+        if (squared >= 1e-12 && abs(side) > squared && (faces & bit) != 0u)
+            toward |= bit;
+    }
+    return toward == 0u ? 63u : toward;
+}
+
+// Half the width along the unit `across` of the faces of a glow light given (glowFacesToward), the
+// box's support where every face is given, and otherwise half the span the given faces cover
+// together, each face as wide along `across` as its own two axes reach.
+float glowLightAcross(GlowLight light, float3 across, uint faces)
+{
+    float3 along = float3(dot(across, light.halfX.xyz), dot(across, light.halfY.xyz), dot(across, light.halfZ.xyz));
+    float3 spans = abs(along);
+    float whole = spans.x + spans.y + spans.z;
+    if (faces == 63u)
+        return whole;
+    float low = 1e20, high = -1e20;
+    [unroll]
+    for (int k = 0; k < 3; k++)
+    {
+        [unroll]
+        for (int s = 0; s < 2; s++)
+        {
+            if ((faces & (1u << uint(2 * k + s))) == 0u)
+                continue;
+            float middle = s == 1 ? along[k] : -along[k];
+            float span = whole - spans[k];
+            low = min(low, middle - span);
+            high = max(high, middle + span);
+        }
+    }
+    return high > low ? (high - low) * 0.5 : whole;
+}
+
 // How much of a glow light's point `target` a surface at p facing n, in cells of `cell`, sees past
 // what the field holds between, from 0 to 1, by a march through the field from `lift` cells off the
 // surface toward the target, stopping a cell short of it, at each step the way's clearance from the
@@ -399,6 +449,8 @@ float glowMarch<V : IVolume>(V field, SceneFieldInfo info, GlowLight light, floa
     float total = max(length(toward), 1e-6);
     float3 way = toward / total;
     float end = total - cell;
+    // The faces whose width across the way the cone takes where no radius is given.
+    uint shown = radius < 0.0 ? glowFacesToward(light, from) : 63u;
     float seen = 1.0;
     float before = 1e20;
     float t = cell * 0.5;
@@ -421,9 +473,13 @@ float glowMarch<V : IVolume>(V field, SceneFieldInfo info, GlowLight light, floa
         {
             float y = d > 0.0 ? d * d / (2.0 * before) : 0.0;
             // A radius below zero, the march to the box's middle (glowLightSeen), takes the cone as
-            // wide as the box across the way toward the surface the step passes, the box's support
-            // along the field's slope there, 0.03 for a strip 0.06 thick toward the wall it is
-            // mounted on and 0.5 for a cube a unit wide toward a face. As wide as the box's mean
+            // wide as the light across the way toward the surface the step passes, the support
+            // along the field's slope there of the faces that emit toward the march's start
+            // (glowLightAcross), 0.03 for a strip 0.06 thick toward the wall it is mounted on and
+            // 0.5 for a cube a unit wide toward a face. A lamp set flush in a wall shows the march
+            // its one open face, and the box's depth behind it, in the wall, widens the half
+            // shadow past an edge on the lamp's side by as much again where the way runs steeply
+            // up to it, reaching into the full shadow the reference finds. As wide as the box's mean
             // half side in every way, a march from a hit above or below a strip runs along its wall
             // within a cell and takes the wall, inside the cone, for something between, though the
             // wall stands behind the strip, and the strip's room reads too little of its light.
@@ -438,7 +494,7 @@ float glowMarch<V : IVolume>(V field, SceneFieldInfo info, GlowLight light, floa
                 float3 across = slope - way * dot(slope, way);
                 float acrossLength = length(across);
                 across = acrossLength > 1e-4 ? across / acrossLength : slope;
-                wide = abs(dot(across, light.halfX.xyz)) + abs(dot(across, light.halfY.xyz)) + abs(dot(across, light.halfZ.xyz));
+                wide = glowLightAcross(light, across, shown);
             }
             float cone = max(min(wide * max(t - y, 0.0) / total, height), step * 0.25);
             // Outside a surface, the share is half and more by how far the way passes from it.
@@ -555,8 +611,8 @@ float3 glowLightAimed(GlowLight light, float3 from)
 
 // How much of a glow light a surface at p facing n, in cells of `cell`, sees, from 0 to 1: one
 // march from half a cell off the surface to the middle of its box, or of the emitting face it
-// faces most squarely where not every face emits (glowLightAimed), the cone as wide as the box
-// across the way toward each surface the march passes (glowMarch), which a probe's ray's hit and a
+// faces most squarely where not every face emits (glowLightAimed), the cone as wide as its faces
+// that emit toward p across the way toward each surface the march passes (glowMarch), which a probe's ray's hit and a
 // pixel no screen probe holds take, the light that bounces on and a far pixel's asking less than
 // the shadows near the eye. Where the field does not hold p, all of it.
 public float glowLightSeen<V : IVolume>(V field, SceneFieldInfo info, GlowLight light, float3 p, float3 n, float cell)

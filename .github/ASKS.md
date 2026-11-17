@@ -2103,3 +2103,63 @@ The engine lacks a field whose light on what is drawn does not move with meshes 
 from it reaches, such as the walls of caves closed under the land, so a game that culls what the eye
 cannot see need not mesh every section within the field's reach to keep the light the same, which
 here is 70% more meshes, each taken into the field and the ray scene in the frame it joins.
+
+### 2026-11-17, the voxel game in `Voxel-Sandbox`, the water mirror's first frame takes 34 to 41 ms of the CPU in one run of the game and 0.5 to 16 ms in another, the meshes drawn the same
+
+Read on the 3DEngine 6.2.86 package with the game at `27546f0` and its item 208 beside it, Release,
+offscreen at 1280 by 720 with the frame unlimited, on the RTX 4070 Laptop GPU on tuned's
+power-saving profile. A spectator flies east at 110 over seed 1's overworld from 4400.5, 110, 600.5
+for 900 frames at the render distance of 12, and the game sets `SetReflectionPlane` at the water it
+finds in view. `profile.slowest` is read every twenty frames.
+
+Five runs each way under the exclusive lock, the GPU at 0% before each, give the mirror's worst
+frame as `cpu.mirror` at 0.5 to 16 ms on the game as it stands, 15 to 16 ms in three of its runs,
+and at 34 to 41 ms in all five runs with item 208. Item 208 meshes the sections the flood made ahead
+of the eye's next step sees before that step, and holds them in the shadow maps and the field alone
+until the step draws them.
+
+One flight each way under the shared lock reads `cpu.mirror` at 0.001 to 0.004 ms in every sampled
+frame before the water comes into view, 16.8 ms on the game as it stands and 34.2 ms with item 208
+in the first frame the plane is set, in frames of 28.4 and 42.2 ms, and 0.3 to 0.5 ms in the frames
+after while the water stays in view. At the placing that frame draws, the game has 819 parts of its
+sections drawn and 6 drawn into the shadow maps alone, in 34 sections it leaves out, both ways, and
+842 and 854 parts standing with a mesh. After the flight it has 1,395 to 1,403 sections meshed
+against 1,450 to 1,453 with item 208, and the managed heap holds 656 to 660 MB against 645 to
+651 MB. So the first frame's cost does not follow the meshes drawn or the meshes standing, and the
+game cannot read what it follows.
+
+The engine lacks a mirror whose first frame takes a share of the frame that what the mirror draws
+sets, or a reading of what that frame's time goes to, so a game whose meshes come in a few frames
+earlier does not double the frame in which water first comes into view.
+
+### 2026-11-17, the voxel game in `Voxel-Sandbox`, the ray scene's corners' buffer grows within a frame, which waits 34 to 35 ms, and holds the corners of every mesh it was given
+
+Read on the 3DEngine 6.2.86 package with the game at `84abe75` and a probe beside it that reads the
+ray scene at each frame's end by reflection, Release, offscreen at 1280 by 720 with the frame
+unlimited, on the RTX 4070 Laptop GPU on tuned's power-saving profile, five runs under the exclusive
+lock with the GPU at 0% before each and global illumination at High. A spectator flies east at 110
+over seed 1's overworld from (4400.5, 110, 600.5) for 900 frames at the render distance of 12, and
+`profile.slowest` is read every twenty frames.
+
+In three of the five runs the buffer of the scene's corners holds 256 MiB as the flight begins and
+is made again at 1,024 MiB at frames 394, 400 and 406, where its corners pass 16,777,216. That
+frame's `cpu.global_illumination` takes 34.4 to 35.0 ms, in frames of 42.7 to 49.4 ms, the
+slowest of each run beside the water mirror's first frame. In the other two the load before the
+flight left it at 512 MiB, and it is not made again. Five runs each way of the game before and
+after its commit `84abe75` show the same frame at 32.5 to 43.1 ms in four runs of five, at frames
+322 to 330 before and 394 to 406 after. `AddCorners` copies the corners into the larger buffer
+through `EndSingleTimeCommands`, which waits for the queue, the frames in flight before the copy
+among it (`GpuRayScene.cs:196-224` at `v6.2.86`).
+
+Over each flight the scene holds 3,520 to 3,851 meshes and 16.2 to 18.0 million corners, while the
+frame's top-level structure places 667 to 700 copies. The game makes a group of its sections' mesh
+again whenever one of them changes, and at 6.2.86 the scene keeps each mesh's structure and corners
+from the first frame that draws it to its end. At the engine's `b8fed5d0` a mesh's structure is
+given back after 60 frames unplaced, and the buffer is made again without the corners given back
+once they are half of it, through a copy waited for in the same way.
+
+In the frames with no growth, `cpu.global_illumination` takes 11.4 to 17.0 ms where 25 to 38 meshes
+are first drawn, at the eye's steps, 3.7 ms at the median where 1 to 5 are, and 1.4 ms where none
+are. The engine lacks a ray scene whose buffers are grown or made again without the frame waiting
+on the GPU for the frames in flight, so a flight over streaming land shows no frame of three times
+the median when its corners pass a power of two.
