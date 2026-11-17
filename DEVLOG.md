@@ -19,6 +19,25 @@ shares; by the lamp in the wall the room's surfaces read 1.049 of the reference'
 1.055 after and its own wall 1.081 and 1.097, the ledge's front darker and the wall about the lamp
 lighter, and by the open lamps 1.027 and 1.031 before and after, unchanged.
 
+![](.github/assets/readings/2026-11-17-item-291-bistro.webp)
+scenes_bistro at High on the RTX 4070 at 800 by 450 with the circular occluders on, its five street
+views at 13:42 and at 22:00 metered as it opens and at 22:00 held at ISO 3200, 1/15 s and f/1.4, the
+pack's emission read in candelas a square meter and the 2 lux its lamps give lighting the street at
+night.
+
+![](.github/assets/readings/2026-11-17-item-291-sponza-occlusion.webp)
+scenes_sponza's atrium, gallery, arcades and lion's end at noon at High under ISO 200, 1/25 s and
+f/16, its window's ambient occlusion over the cascades worked out by the horizons and by the
+circular occluders at 16 points, and the circles' shown level less the horizons' sixteen times over,
+red lighter and blue darker, the circles darkening the arches' inner edges, the vault's ribs and the
+columns' feet.
+
+![](.github/assets/examples/scenes_bistro.webp)
+The Amazon Lumberyard Bistro's exterior is a second scene pack with an example that opens it, a
+material's emission may be given in candelas a square meter seen through the camera, glTF's emissive
+strength is read, and the scene examples meter their camera and darken their corners by the circular
+occluders. (`a9b7c7ef`)
+
 ## 2026-11-16
 
 ![](.github/assets/readings/2026-11-16-item-273-faces.webp)

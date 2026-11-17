@@ -38,6 +38,10 @@ log="build/sessions/$game.log"
 # Every command and stop goes to the game played here by its name, so a program an earlier game left
 # serving neither makes them ambiguous nor takes the stop meant for this one.
 export E3D_NAME="$game"
+# Siege steps its physics a sixtieth of a second a frame from its first, so its castle settles the
+# same way in every run before the first throw, and with its throws on stated frames one tree plays
+# one siege.
+if [ "$game" = Siege ]; then export E3D_FRAME_TIME=0.0166667; fi
 # The script's own output, which an error is written to, so one said inside $(ask ...) reaches the
 # page and not the variable.
 exec 3>&1
@@ -633,15 +637,19 @@ case "$game" in
   Siege)
     # Each frame a step of the physics, since the shot is let go in the frame the arm passes its
     # angle. A stone thrown at the keep, and then bombs until the banner is brought down below the
-    # walls' top, within eight, the welds they broke asserted on the way.
+    # walls' top, within eight, the welds they broke asserted on the way. The game lets a commanded
+    # throw go on a whole second after the catapult stood loaded, so each throw starts on the same
+    # frame of the siege however late its command comes, and one tree plays one siege.
     cmd time.frame 0.0166667
     status=""
+    thrown=0
     for shot in stone bomb bomb bomb bomb bomb bomb bomb bomb; do
       cmd siege.throw 250 40 "$shot"
-      for i in $(seq 1 40); do
+      thrown=$((thrown + 1))
+      for i in $(seq 1 60); do
         cmd frames.wait 15
         status=$(ask siege.status)
-        case "$status" in Aim*|Won*) break ;; esac
+        case "$status" in "Aim shots $thrown "*|Won*) break ;; esac
       done
       echo "$shot: $status"
       case "$status" in Won*) break ;; esac
@@ -649,6 +657,15 @@ case "$game" in
     case "$status" in *" shots 0 "*) fail "the catapult did not throw, $status" ;; esac
     case "$status" in *" broken 0 "*) fail "no weld broke, $status" ;; esac
     case "$status" in Won*) ;; *) fail "the banner did not fall in eight bombs, $status" ;; esac
+    # A banner a bomb throws far past the keep lies on the field below the walls' top, and is
+    # down wherever on the field it rests.
+    cmd siege.reset
+    cmd frames.wait 30
+    cmd siege.topple 70 30
+    cmd frames.wait 60
+    status=$(ask siege.status)
+    echo "toppled: $status"
+    case "$status" in Won*) ;; *) fail "the banner laid on the field far past the keep was not counted as down, $status" ;; esac
     ;;
   Tumble)
     # The cannons and the bar stopped and each frame a step, the robot walked forward by its key,

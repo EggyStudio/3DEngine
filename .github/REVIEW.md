@@ -1,48 +1,51 @@
 # Review
 
-Reviewed up to `029f60de`, item 287, a hit's march to a glow light taking the width across its way
-of the faces that emit toward it, the ledge's front 1.205 of the reference from 1.296, both suite
-legs 2,510 passed, pushed at 07:07 on 2026-11-17, its build run 44028936810 green at 08:59, the pack
-run with publish 44043006601 red at 11:28 in the games job (Verdict 128), its failed job run again
-green at 12:38, the package 6.2.102 published and tagged, the form kept and its sheet in the tree.
-Before it `b8fed5d0`, item 272, a ray scene's mesh no copy has placed for sixty frames giving its
-structure back and the builds sharing one scratch, pushed at 21:41 on 2026-11-16, its build run
-43952443846 green at 23:24, the form kept. Before it `da3d20cc`, item 286, a hit's march to a glow
-light set out half a cell off its surface and the lamp's wall read apart from the ledge's front,
-pushed at 19:50 on 2026-11-16, its build run 43933140926 green at 21:41, the form kept but for its
-sentence's missing full stop, on N 7.2's list since. Before it `6309f746`, item 285, a ray the
-screen's march meets past a stretch behind the depth handed to the field, pushed at 15:23 on
-2026-11-16, its build run 43885232882 green at 17:09, the form kept. Before it `4f205366`, item 284,
-a hit's march to a glow light aimed at the emitting face it faces most squarely, pushed at 13:35 on
-2026-11-16, its build run 43867967041 green at 15:23, the form kept. Before it `7d287a24`, the macOS
-suite dealt to two runners, pushed at 11:51 on 2026-11-16, its build run 43852572511 green at 13:35,
-the macOS halves through in 41 and 28 minutes, the form kept. Before it `07457e05`, Verdict 127's
-mend, a compile's folder in the user's own cache whatever folder a test set, with `023aa15d`, item
-274, a program's own shader looked up once a draw, and `f0d4e8df`, twelve pictures kept among the
-readings, pushed together at 09:49 on 2026-11-16, their build run 43834379791 green at 11:51 with
-macOS among it, the form kept. Before them `b634f33d`, item 283, the shader compiler taken from the
-nearest checkout alone where the user owns it and a compile writing in a closed folder of its own,
-pushed at 06:38 on 2026-11-16, its build run 43811607980 red at 08:12 on macOS alone (Verdict 127),
-the form kept. Before it `ee4af79e`, item 280, the glow lights' loop over a box's axes unrolled,
-with `294e8a05`, Verdict 126's mend, the circular occluders' raw and filtered images cleared to open
-each frame, pushed together at 04:53, their build run 43800838233 green at 06:38 with the fourth
-Windows half among it. Before them `e8a65332`, item 282 and Verdict 125's report, the circular
-occluders at eight points a build the shipped cache holds, their images and sets let go once
-switched away, and the far room's test saying what each stage read, with `81656c12`, item 281, a
-computed state or a sub state applied after the state it is worked out from, pushed together at
-01:37 on 2026-11-16, their build run 43781515730 red at 02:58 in the fourth Windows half alone
-(Verdict 126), the form kept. Before them `2ceadfd1`, item 279, the window's ambient occlusion
-worked out by circular occluders as a second method beside the horizons, which stay the default,
-with its settable figures, its commands, its tests on three devices and CORTAO's notice, pushed at
-23:19 on 2026-11-15, its build run 43768674338 red at 00:52 on 2026-11-16 in the fourth Windows half
-alone (Verdict 125), the form kept. One comment of its tests names a game as its example and is
-asked reworded in the next commit. Before it `c53719f5`, item 278, a quality of global illumination
-that names no value refused with an error naming it and the quality kept, its test drawing the
-frames after, with a scene pack's remarks saying what its manifest holds and the cost read's Reply,
-pushed at 21:03 on 2026-11-15, its build run 43755793467 green at 22:43, the form kept and the
-message free of numbers. One comment in its test tells what the code did before the mend and is
-asked reworded in the next commit. The pushes before these stand in REVIEW-ARCHIVE.md's head
-records.
+Reviewed up to `a9b7c7ef`, item 291, the Bistro as a second scene pack with its example, a
+material's emission in candelas a square meter and the scene examples metered with the circular
+occluders, pushed at 12:47 on 2026-11-17, its build run 44077111162 started, the form kept after
+four comments were amended before the push, its two sheets in the tree on a white ground. Before it
+`029f60de`, item 287, a hit's march to a glow light taking the width across its way of the faces
+that emit toward it, the ledge's front 1.205 of the reference from 1.296, both suite legs 2,510
+passed, pushed at 07:07 on 2026-11-17, its build run 44028936810 green at 08:59, the pack run with
+publish 44043006601 red at 11:28 in the games job (Verdict 128), its failed job run again green at
+12:38, the package 6.2.102 published and tagged, the form kept and its sheet in the tree. Before it
+`b8fed5d0`, item 272, a ray scene's mesh no copy has placed for sixty frames giving its structure
+back and the builds sharing one scratch, pushed at 21:41 on 2026-11-16, its build run 43952443846
+green at 23:24, the form kept. Before it `da3d20cc`, item 286, a hit's march to a glow light set out
+half a cell off its surface and the lamp's wall read apart from the ledge's front, pushed at 19:50
+on 2026-11-16, its build run 43933140926 green at 21:41, the form kept but for its sentence's
+missing full stop, on N 7.2's list since. Before it `6309f746`, item 285, a ray the screen's march
+meets past a stretch behind the depth handed to the field, pushed at 15:23 on 2026-11-16, its build
+run 43885232882 green at 17:09, the form kept. Before it `4f205366`, item 284, a hit's march to a
+glow light aimed at the emitting face it faces most squarely, pushed at 13:35 on 2026-11-16, its
+build run 43867967041 green at 15:23, the form kept. Before it `7d287a24`, the macOS suite dealt to
+two runners, pushed at 11:51 on 2026-11-16, its build run 43852572511 green at 13:35, the macOS
+halves through in 41 and 28 minutes, the form kept. Before it `07457e05`, Verdict 127's mend, a
+compile's folder in the user's own cache whatever folder a test set, with `023aa15d`, item 274, a
+program's own shader looked up once a draw, and `f0d4e8df`, twelve pictures kept among the readings,
+pushed together at 09:49 on 2026-11-16, their build run 43834379791 green at 11:51 with macOS among
+it, the form kept. Before them `b634f33d`, item 283, the shader compiler taken from the nearest
+checkout alone where the user owns it and a compile writing in a closed folder of its own, pushed at
+06:38 on 2026-11-16, its build run 43811607980 red at 08:12 on macOS alone (Verdict 127), the form
+kept. Before it `ee4af79e`, item 280, the glow lights' loop over a box's axes unrolled, with
+`294e8a05`, Verdict 126's mend, the circular occluders' raw and filtered images cleared to open each
+frame, pushed together at 04:53, their build run 43800838233 green at 06:38 with the fourth Windows
+half among it. Before them `e8a65332`, item 282 and Verdict 125's report, the circular occluders at
+eight points a build the shipped cache holds, their images and sets let go once switched away, and
+the far room's test saying what each stage read, with `81656c12`, item 281, a computed state or a
+sub state applied after the state it is worked out from, pushed together at 01:37 on 2026-11-16,
+their build run 43781515730 red at 02:58 in the fourth Windows half alone (Verdict 126), the form
+kept. Before them `2ceadfd1`, item 279, the window's ambient occlusion worked out by circular
+occluders as a second method beside the horizons, which stay the default, with its settable figures,
+its commands, its tests on three devices and CORTAO's notice, pushed at 23:19 on 2026-11-15, its
+build run 43768674338 red at 00:52 on 2026-11-16 in the fourth Windows half alone (Verdict 125), the
+form kept. One comment of its tests names a game as its example and is asked reworded in the next
+commit. Before it `c53719f5`, item 278, a quality of global illumination that names no value refused
+with an error naming it and the quality kept, its test drawing the frames after, with a scene pack's
+remarks saying what its manifest holds and the cost read's Reply, pushed at 21:03 on 2026-11-15, its
+build run 43755793467 green at 22:43, the form kept and the message free of numbers. One comment in
+its test tells what the code did before the mend and is asked reworded in the next commit. The
+pushes before these stand in REVIEW-ARCHIVE.md's head records.
 
 The package stands at 6.2.60 from `baa21ff4`, one package with its templates, published at 18:58 on
 2026-11-12 by the pack run 43243318284 and tagged v6.2.60, carrying 259's two commits beside what
@@ -392,15 +395,6 @@ drawn nor those standing, and the read by parts comes before any mend, with what
 compiled in the frames before the first counted among the parts. No picture asked where nothing seen
 changes.
 
-291. **The Bistro as a second scene.** BevyCSharp's item 148 makes a scene pack of the Amazon
-    Lumberyard Bistro's exterior. Asked, once that pack stands, the engine's pack made from it by
-    `build/make-scene-pack.py` with its manifest in `scenes/`, an example that opens it beside the
-    Sponza's, and a sheet by day and by night with the cascades on, the frame's stages and the
-    device's memory in a table. The target scene of the stop rule stays the one it is, and the
-    Bistro is a second reading of a mend, an outdoor street with many small emissive lights. The
-    pack goes to the `scene-packs` release by the review, so report its size and hash and leave the
-    upload.
-
 292. **The ray scene grows and compacts its corners without waiting on the queue.** A game's reading
     in ASKS.md has `cpu.global_illumination` at 32.5 to 43.1 ms in the one frame where the corner
     buffer grows from 256 to 1,024 MiB past 16,777,216 corners, 3,520 to 3,851 meshes for some 700
@@ -458,6 +452,26 @@ changes.
     has a view's pipelines and pictures made ahead while it shows a loading screen, with a test in a
     scene of the engine's own that the first frame with a view makes none of them. After items 288
     and 292, whose buffers are the same scene's.
+
+296. **The Bistro's night against its picture.** The night picture given on 2026-11-17 is the aim
+    for the Bistro's night as a whole, its color and its global illumination with it. The first
+    reading, on the pack with the street lanterns at 10,000 under ISO 3200, 1/60 s and f/2.8, has
+    the camera solved to 1.35 px and the paving at 0.46 to 1.01 of the picture's luminance, and
+    finds three faults. First, a glow light and a ray instance take the material's emissive factor
+    times its strength and not the emissive map, so glass that draws orange lights the street near
+    white, the picture's paving red about 1.7 times green. Asked, the map's mean color read once
+    into both, the reference taking the same, with a test of an orange-mapped emitter over a white
+    floor whose floor reads the map's hue within a tenth. Second, against the path-traced reference
+    the far high walls read 59 to 99 percent under, where emitters past the 64 nearest stand unlit,
+    and a wall by a lantern 87 percent under. Asked, a read of which emitters a point takes, and the
+    mend the read shows, the far ones gathered or the nearest chosen by what they send and not by
+    distance alone, the walls within a fifth of the reference. Third, the floors near the eye read
+    20 to 70 percent over, a lantern carried as its box sending from a face its panels lack, the kin
+    of item 273. Then the night commit, the pack's manifest, the held night lens, the Bistro's bloom
+    its own and fitted to the picture, which shows none past white, Sponza's staying as its
+    reference has it, the sheet the picture beside the frame at the solved camera with a red and
+    blue difference and the paving's and walls' readings, and what the picture alone holds named,
+    its shop interiors, its scooter's place and any grade. After Verdict 128; before 288.
 
 ## Verdicts
 
@@ -1010,149 +1024,67 @@ named and the second the eighteen others, Rendering's two among them. BUILDING.m
 jobs run the suite. The scripts', the steps', the validation lines', the package's contents and the
 norm tests pass 72 on the workflow as changed.
 
-Item 291, the Bistro as a second scene.
+Verdict 128, Siege's banner down and not counted.
 
-The pack. BevyCSharp's `bistro-exterior.pack` from its scene-packs release, as mended at 08:54, read
-310,838,881 bytes with the SHA-256 its manifest names, and `build/make-scene-pack.py` made the
-engine's from it with that hash given, its textures' zstd undone and every other file copied,
-444,418,983 bytes, SHA-256 68095a0ab80867092404fc5673cd2e4f62605889f131254996a78fb28a42f116, 411
-files, the pack on the engine's release since 08:57 in place of the first one of 444,423,270 bytes
-made before the mend. `scenes/bistro-exterior.json` carries the bridge's title, source, license and
-attribution word for word and names the engine's release. The pack run's scenes job makes both packs
-from the bridge's in one loop, each checked against its manifest's size and hash before the upload,
-and that loop made the same pack byte for byte here. `./e3d scenes fetch bistro-exterior` fetched it
-from the release into an empty folder in 32 s, its hash and every file the same as the pack made
-here.
+What the play takes as fallen. The play's check takes the game's own word, its screen at Won, which
+the game sets when the banner meets its trigger, a kinematic box the game calls the field up to the
+walls' top. The box was 30 by 30 m round the keep at (30, 0, 0), from the ground to the walls' 6 m,
+where the field it stands on is a static box of 140 by 90 m about (15, 0, 0), and the game's README
+and its comment both call the banner down once it is brought below the walls' top onto the field or
+the keep's rubble. In run 44043006601 the banner read 0.1 from the fifth throw on, lying on the
+field, and the game never met it. A bomb can throw it past 15 m from the keep, where the field went
+on and the trigger did not. The trigger is the whole field to the walls' top, and `siege.status`
+says where the banner lies (`banner 0.1 at 41.9 -4.9`), so a play that fails says whether the banner
+is down and where.
 
-Three faults on the way, one the engine's loader, one the engine's unit, one the pack's.
+The check that fails without the mend. `siege.topple x z` breaks the banner's weld to the roof and
+lays it a meter over the field at a point, as a bomb may throw it. The play lays it at (70, 30), on
+the field and outside the old trigger, and asks for Won. Siege built from the same package with only
+the old trigger put back gives `Aim ... banner 0.8 at 70.0 30.0`, and the mended one Won in each of
+twelve plays.
 
-The loader read no emissive strength. glTF's `KHR_materials_emissive_strength` reaches Assimp as the
-material's emissive intensity, which the reader left unread, so the pack's lamps loaded at 1 rather
-than 500. The reader multiplies the emissive factor by it, and the test of a lamp at 500 beside a
-sign at its factor alone fails without the mend, the lamp reading 1.
+Two processors and one tree. The red run and its green run again were both on an Intel Xeon 6975P-C,
+by the processor line each job wrote, and the plays parted from the second throw, 43 and 42 welds
+broken, then 91 and 93. So the outcome did not follow the processor. The engine steps the physics in
+a fixed step with Bepu's deterministic mode, and its contacts are sorted by pair before their
+bounces are added, so the inputs set the outcome, and three of them moved from run to run.
 
-A material's emission had no physical unit. `EmissiveIntensity` is a plain strength at the frame's
-full scale, 1 the color as the frame's white, which the camera does not change, so a strength of 1
-is 1.2 times 2 to the camera's EV100 candelas a square meter, 30,720 under ISO 200, 1/200 s and f/16
-and 39,322 under the default EV 15, and the pack's 500 read as some 15 million against the bridge's
-500. `ModelMaterial.EmissiveLuminance` gives the color's luminance in candelas a square meter,
-multiplied by the camera's pre-exposure as a light given in lux or candelas is, in place of the
-plain strength where above 0. Nothing that stands moves, the plain path as it was, the loader
-setting no luminance, Sponza keeping its plain 300 and the game setting no camera and giving its
-glow blocks plain strengths. The example takes the pack's emission as candelas a square meter, as
-the bridge reads it. Its test draws a glass of 500 beside a sign of a plain 2 through a sunny day's
-camera and through ISO 800, 1/30 s and f/2, the glass at 500 times each camera's pre-exposure, past
-white through the second, and the sign at 2 through both. `docs/materials-light-and-shadows.md` says
-what each strength means in one paragraph.
+- The throws' frames. A command reaches the game on whichever frame it comes, so a throw left a few
+frames sooner or later on a castle still settling. A commanded throw is let go on the first whole
+second two or more after the catapult stood loaded, and the play waits for each shot's count rather
+than for the screen at Aim. - The game's own order. The blocks a stone pressed were worn down in a
+set's order, by their places in memory, a new order each run, and a block that crumbles takes its
+body out of the physics, which works through its bodies differently after. They are worn down in the
+castle's own order. No other loop over a set or a dictionary in the games feeds the physics.
+Tumble's set of punched balls is asked only whether it holds one, Span's anchors and Siege's cells
+are looked up by their keys, and the rest drive menus, paths and sounds. - The first frames. The
+drive fixed the frame's time once the game served, so the castle settled under the clock's frames
+until then, a different count each run. The play opens Siege with `E3D_FRAME_TIME` at a sixtieth, so
+every frame is a fixed step from the first.
 
-The pack's occlusion was empty. 131 of its 132 materials named their Specular texture as
-`occlusionTexture`, the one they named as metallic and rough, and its red, which glTF reads
-occlusion from, read under 2 of 255 in all 131 at full size, so every surface's light from all
-around was multiplied by 0. At the corner `light.terms` read the probes' indirect light and the
-environment at 0.0000 on sunlit and shaded pixels alike, with the field built, and the shade stood
-black. The bridge mended it at the source, its pack naming no occlusion texture, and the example's
-line leaving the maps out, kept meanwhile, is gone again.
+The plays. Siege played as the games job plays it, on an Intel Core i9-14900HX here, the welds
+broken after each throw.
 
-The example. `scenes_bistro` draws the pack alone at the origin, nothing else standing in the 110 by
-115 m it takes, its manifest copied beside the program from `scenes/`, and opens without the pack on
-the screen Sponza's example opened on, its button fetching it, the screen moved to `ScenePackScreen`
-and named by the scene and its manifest. Six views, the bistro's corner as the user's picture frames
-it, then the terrace under the string lights, the street to the north-east, the lane behind it, the
-round square and the quarter from above, found from a map of the open ground worked out from the
-pack's triangles. The field's four cascades of a quarter of a meter reach 16 to 128 m and a far
-cascade of 240 holds the quarter from anywhere in it. The camera is metered as Sponza's is, between
-EV -1 and 14 and center-weighted, as the user asked, and M holds it at the hour's, ISO 200, 1/50 s
-and f/16 while the sun is up, two stops over a sunny day's, the frame the user chose from the
-corner's, and ISO 3200, 1/15 s and f/1.4 once it has set. Its help lines say the views, the hour, M
-and the flight, as Sponza's do. The examples' table, the gallery and the documents that name
-Sponza's example name this one beside it, with a line on the metering and M.
+| Play | Stone | First bomb | Second bomb | Third bomb, won | The banner down at |
+|---|---|---|---|---|---|
+| Throws on stated frames, the set's order | 0 | 45 | 102, 137, 134 | 143, 147, 153 | (40.5, -4.3), (41.7, -3.3), (42.1, -3.3) |
+| And the castle's order | 0 | 45 | 137, 100, 134 | 146, 167, 166 | (41.6, -3.3), (41.9, -4.9), (40.9, -5.3) |
+| And fixed frames from the first | 0 | 45 | 135, 128, 146 | 179, 178, 178 | (40.7, -7.7), (40.3, -7.3), (40.5, -7.4) |
+| And the burst's bodies by handle | 0 | 45 | 103, 151, 103 | 159, 152, 163 | (39.2, -6.3), (38.4, -5.9), (39.5, -6.6) |
 
-The corner, worked out from the user's picture of 1536 by 864. The camera by its nine features whose
-places the pack's vertices give, the two bollards' tops and feet (`Paris_StreetPivot_019` and
-`018`), the two lamp posts' feet, the two menu boards' tops and the scooter's mirror, by Levenberg
-and Marquardt over position, yaw, pitch, roll and the vertical field, (-9.846, 1.888, 0.973), 1.66 m
-over the paving, toward (0.029, 2.428, -0.509), a field of 48.38 degrees and a roll of -0.12, the
-nine within 2.88 pixels in the root mean square and 5.34 at most, the left lamp's foot, whose base's
-edge was read for its middle. Left out one at a time, each moves it at most 3 cm across, 7 cm in
-height and 0.23 degrees in field. The sun by the two bollards' shadows, each ball's shadow's tip
-cast from that camera onto the paving's plane at 0.225 m, 56.4 and 56.9 degrees high at azimuths
-225.6 and 227.8, within 0.66 degrees of their mean, 56.64 high at 226.7, which `DaySky.SunToward`
-inverted puts at this sky's path leaning 22.16 degrees at 13:42. Drawn so at 800 by 450, every
-feature stands on the picture's. The picture's sunlit paving reads 221 of 255 over 179 blocks of 10
-pixels sunlit in both, and ours 112 at 1/200 s, rising about 16 levels a half stop to 175 at 1/50 s,
-so the picture is exposed some 3.5 stops over a sunny day's or under a curve of its own. What is
-left is the environment. The pack's buildings 13 to 17 m high to the south-west at (-9.5, 6.5) and
-(-11.6, 3.5) shade the left menu board, the right bollard's foot and the paving before the scooter
-from the solved sun, and their balconies' railings 4 to 11 m up cast the stripes that reach the
-scooter's shadow, where the picture has those sunlit and its railings' shadow short of the
-scooter's. Over the height map the four spots are lit together only with the sun above 64 degrees,
-which would make the bollards' shadows a quarter shorter, 10 to 25 pixels against readings good to
-some 3, so the picture's surroundings to the south-west are lower or absent. The archive's own
-lighting is not the picture's either. Its camera stands 26 m off at (9.13, 2.68, -26.13), and its
-environment map, `san_giuseppe_bridge_4k.hdr` at an intensity of 10 with no rotation in
-`BistroExterior.pyscene`, holds its sun, the 200 brightest texels' middle at row 697.8 of 2048 and
-column 2455.7 of 4096, 28.6 degrees over the map's horizon against the shadows' 56.6, whatever its
-azimuth's convention. The solver's scripts stay in the scratch folder.
+Every play is won by the third bomb, the banner down 10 to 12 m from the keep, and the topple's
+check passes. With the frames fixed from the first the three plays give the same stone's throw to
+the newton, the most a weld held 7,672 N and the banner at (30.1, 0.0), and the same first bomb's 45
+welds and 7,991 N, and part after its burst, the banner at 30.9, 31.0 and 31.1 along x where it
+stood at 30.1, so one tree plays one siege up to the first burst. Taking the burst's bodies in their
+handles' order, against the sweep's, left that as it was, the banner at 30.6, 31.0 and 30.9, so the
+rest lies in the physics past the game's own loops, the bodies a burst wakes or the workers' share
+of a step, and is a finding for the engine's physics, read apart with a scene of its own where a
+burst wakes a resting stack. The burst's order by handle is kept, since a block that crumbles takes
+its body out of the physics while the loop runs.
 
-The sheet. `2026-11-17-item-291-bistro.webp`, the five street views at 13:42 and at 22:00 metered as
-the example opens, and at 22:00 held at ISO 3200, 1/15 s and f/1.4, so the 2 lux the lamps give
-shows as it is, at 800 by 450 at High with the circular occluders on, on the RTX 4070, the interface
-hidden. Each view's stages are the profile's means over 300 frames under the lock held exclusive,
-the examples built in Debug as `build/open-game.sh` runs them, and the device's memory the `memory`
-command's.
-
-| View, 13:42 and 22:00 | Frame | Illumination | Scene pass | Shadows | Window's depth | Occlusion | Render graph | Device's memory |
-|---|---|---|---|---|---|---|---|---|
-| The corner | 31.51 and 31.55 | 9.44 and 9.15 | 19.82 and 19.71 | 1.67 and 2.09 | 0.35 and 0.37 | 0.093 and 0.094 | 16.46 and 19.50 | 848 and 850 MiB |
-| The terrace | 27.14 and 27.47 | 9.51 and 9.31 | 15.30 and 15.33 | 1.79 and 2.08 | 0.36 and 0.36 | 0.090 and 0.093 | 18.51 and 17.69 | 850 and 850 MiB |
-| The street | 19.32 and 18.93 | 8.93 and 8.59 | 8.35 and 8.40 | 1.39 and 1.27 | 0.45 and 0.45 | 0.089 and 0.084 | 16.59 and 15.22 | 850 and 850 MiB |
-| The lane | 17.19 and 16.83 | 7.35 and 7.03 | 7.92 and 7.91 | 1.62 and 1.51 | 0.09 and 0.09 | 0.101 and 0.087 | 13.20 and 12.48 | 850 and 850 MiB |
-| The square | 19.20 and 19.11 | 6.34 and 6.25 | 11.12 and 11.02 | 1.42 and 1.50 | 0.10 and 0.10 | 0.087 and 0.092 | 13.06 and 12.56 | 850 and 850 MiB |
-
-The stages are the GPU's in ms but the frame's and the render graph's, the processor's. The device's
-memory is held in 1,152 MiB of blocks in every view and at both hours, the field's 82 MB and the
-device's rays' copies of the 1,591 meshes 612 MB of it. The scene pass is the frame's largest part
-where the most emitters stand in view, the 130 carried as lights and the 64 nearest the eye lit, the
-corner's 19.8 ms against the lane's 7.9, and the circular occluders take under 0.1 ms in every view.
-
-The occlusion. At the user's word both scene examples work their window's ambient occlusion out by
-the circular occluders at 16 points over the cascades, beside the `SetAmbientOcclusion(1, 0.5)` each
-sets, and the engine's default stays the horizons for item 293.
-`2026-11-17-item-291-sponza-occlusion.webp`, Sponza's atrium, gallery, arcades and lion's end at
-noon under ISO 200, 1/25 s and f/16, three stops over its held camera so the shade shows, each way
-and the circles' shown level less the horizons' sixteen times over. The circles darken the arches'
-inner edges, the vault's ribs and the columns' feet and lighten the broad faces a little, the
-frame's light 1.001 to 1.027 of the horizons', 1.7 to 10.6 % of the pixels darker by over 2 of 255
-and 4.7 to 13.9 % lighter. Sponza's gallery capture is taken again with them.
-
-| Sponza's view | Horizons, GPU | Circles, GPU | Horizons, processor | Circles, processor |
-|---|---|---|---|---|
-| The atrium | 0.072 | 0.101 | 0.058 | 0.106 |
-| The gallery | 0.068 | 0.099 | 0.053 | 0.100 |
-| The arcades | 0.066 | 0.096 | 0.055 | 0.089 |
-| The lion's end | 0.072 | 0.102 | 0.054 | 0.097 |
-
-The night. Read under ISO 3200, 1/15 s and f/1.4, EV100 -0.12, at the corner at 22:00, the left
-lamp's glass gives 500 candelas a square meter in red as the pack gives it, the paving at its foot
-0.099, the glow lights' direct light 74 % of it, the probes' 12 % and their reflection 14 %, the
-paving 2 to 4 m out 0.21 and 0.14, the glow lights' part 88 and 83 %, and the wall beside the
-corner's sconce 0.056, theirs 80 %. The 64 of the 130 emitters lit reach the ground, and a glass of
-about a tenth of a square meter at 500 puts some 2 lux on paving 3 to 4 m below it, where a lit
-street takes 10 to 30. The bridge's night, about EV 9 with no meter, its paving near 0.06 of white
-where its own arithmetic gives 0.0005, is its item 149, and the lanterns' strength is set again for
-both packs after it.
-
-The runs. The strict build is clean, and the focused tests, the model and physical units' tests, the
-norm, surface and device surface tests, the scene packs', the cache commands', the documents'
-snippets and the emission's render test, pass 95. Both legs of the suite pass 2,512, each in 12
-parts of 46 s to 4 m 37 s under the shared lock, every part starting once no exclusive taker had
-held the lock, waited for it or kept a file in the waiting folder for 30 s, the first for 180 s, in
-64 m 53 s and 71 m 8 s with the waits behind other sessions' timings, the parts themselves 33 m 47 s
-and 33 m 30 s, at 2,335 and 2,450 MB at most, the second shuffled by the seed 20261023. The day
-camera, the metered start, the occluders and the help and documents' lines went in after the legs,
-in the examples and the documents alone, which the legs do not run, and the strict build and the
-focused tests pass 95 again after them. The two new tests need no device and no drawn test gives a
-luminance, so no leg on three devices was run. They join `E3DModelTests` and `E3DPhysicalUnitsTests`
-in their parts on Windows, and no class moves. Every Bistro session held the lock exclusive under
-ten minutes and ended its example before letting go, after the two shared ones at 07:52 and 07:58
-that filled the card beside the bridge's test.
+The runs. Siege builds from the package `build/pack.sh` makes with no warnings, and the nine plays
+with the validation layer named as the games job names it pass, the last six opened with
+`E3D_FRAME_TIME` at a sixtieth. The first three, played without the layer's path here, ended on that
+alone, each won. The tree's tests do not build the games, which the games job plays, so no suite leg
+ran for the game's change, and the drive's change is to Siege's case and its opening alone.

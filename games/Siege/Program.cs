@@ -19,6 +19,10 @@ SetTargetFPS(60);
 const float BlastRadius = 3.5f, BlastPush = 700;
 // The thrown stones kept lying about, the oldest taken away past this many.
 const int StonesKept = 6;
+// A commanded throw is let go on the first whole second this many frames or more after the
+// catapult stood loaded and aimed, so the same throws give the same siege whenever their commands
+// come, a frame's time held fixed.
+const int ThrowAfter = 120;
 
 // -- The field, the castle, the catapult and the lights.
 
@@ -26,13 +30,15 @@ var cube = LoadModelFromMesh(GenMeshCube(1, 1, 1));
 var column = LoadModelFromMesh(GenMeshCylinder(0.5f, 1, 10));
 var roof = LoadModelFromMesh(GenMeshCone(2.1f, Castle.RoofHeight, 12));
 var stone = LoadModelFromMesh(GenMeshSphere(0.45f, 6, 8));
-CreatePhysicsStaticBox(new Vector3(15, -0.5f, 0), new Vector3(140, 1, 90));
+var fieldAt = new Vector3(15, 0, 0);
+var fieldSize = new Vector2(140, 90);
+CreatePhysicsStaticBox(fieldAt with { Y = -0.5f }, new Vector3(fieldSize.X, 1, fieldSize.Y));
 var castle = new Castle(new Castle.Models(cube, column, roof));
 var catapult = new Catapult(stone);
-// The field round the castle up to the walls' top, a trigger the banner enters when it is brought
-// down onto the field or onto the rubble of the keep, which can hold it well above the field, out
-// of the bombs' reach, where a low trigger takes a banner only on the field.
-var fallen = CreatePhysicsKinematicBox(Castle.Keep with { Y = Castle.WallTop / 2 }, new Vector3(30, Castle.WallTop, 30));
+// The whole field up to the walls' top, a trigger the banner enters when it is brought down onto
+// the field, wherever a bomb throws it, or onto the rubble of the keep, which can hold it well above
+// the field, out of the bombs' reach, where a low trigger takes a banner only on the field.
+var fallen = CreatePhysicsKinematicBox(fieldAt with { Y = Castle.WallTop / 2 }, new Vector3(fieldSize.X, Castle.WallTop, fieldSize.Y));
 SetPhysicsBodyTrigger(fallen, true);
 
 SetAmbientLight(new Color(110, 130, 175), 0.35f);
@@ -76,6 +82,8 @@ var touching = new HashSet<Castle.Block>();
 var speedRatio = 1f;
 var lastSpeed = 0f;
 var mostForce = 0f;
+var aimFrames = 0;
+string? asked = null;
 catapult.Load(ammo);
 
 void Throw()
@@ -95,7 +103,7 @@ void Reset()
     touching.Clear();
     if (flying is { } f && IsPhysicsBodyValid(f)) DestroyPhysicsBody(f);
     flying = null;
-    (shots, mostForce) = (0, 0);
+    (shots, mostForce, aimFrames, asked) = (0, 0, 0, null);
     SetState(catapult.IsLoaded ? Screen.Aim : Screen.Flight);
 }
 
@@ -103,7 +111,9 @@ void Reset()
 // blocks down by that push.
 void Blast(Vector3 center)
 {
-    foreach (var body in GetPhysicsBodiesInSphere(center, BlastRadius))
+    // In the order of the bodies' handles, since a block that crumbles takes its body out of the
+    // physics, and the sphere meets the bodies in the order the physics keeps them in its tree.
+    foreach (var body in GetPhysicsBodiesInSphere(center, BlastRadius).OrderBy(b => (b.Kind, b.Handle)))
     {
         var block = castle.Of(body);
         if (block is null && !thrown.Contains(body)) continue;
@@ -130,22 +140,32 @@ while (!WindowShouldClose())
     var screen = GetState<Screen>();
 
     // -- Aiming, by the keys or by the commands.
+    aimFrames = screen == Screen.Aim ? aimFrames + 1 : 0;
     switch (SiegeCommands.Asked)
     {
         case "reset": Reset(); break;
-        case { } asked when asked.StartsWith("throw ", StringComparison.Ordinal) && screen == Screen.Aim:
-            var parts = asked.Split(' ');
-            (power, elevation) = (float.Parse(parts[1]), float.Parse(parts[2]));
-            var kind = parts[3] == "bomb" ? Catapult.Ammo.Bomb : Catapult.Ammo.Stone;
-            if (kind != catapult.Loaded)
-            {
-                catapult.Unload();
-                catapult.Load(ammo = kind);
-            }
-            Throw();
+        case { } command when command.StartsWith("topple ", StringComparison.Ordinal):
+            var place = command.Split(' ');
+            castle.Topple(new Vector3(float.Parse(place[1]), 1, float.Parse(place[2])));
+            break;
+        case { } command when command.StartsWith("throw ", StringComparison.Ordinal):
+            asked = command;
             break;
     }
     SiegeCommands.Asked = null;
+    if (asked is { } waiting && screen == Screen.Aim && aimFrames >= ThrowAfter && aimFrames % 60 == 0)
+    {
+        var parts = waiting.Split(' ');
+        (power, elevation) = (float.Parse(parts[1]), float.Parse(parts[2]));
+        var kind = parts[3] == "bomb" ? Catapult.Ammo.Bomb : Catapult.Ammo.Stone;
+        if (kind != catapult.Loaded)
+        {
+            catapult.Unload();
+            catapult.Load(ammo = kind);
+        }
+        Throw();
+        asked = null;
+    }
     screen = GetState<Screen>();
     if (IsKeyPressed(Key.R)) Reset();
     if (screen == Screen.Aim)
@@ -209,8 +229,11 @@ while (!WindowShouldClose())
     }
     foreach (var ended in GetPhysicsContactsEnded())
         touching.RemoveWhere(b => b.Body == ended.BodyA || b.Body == ended.BodyB);
+    // The blocks a stone presses are worn down in the castle's own order, since a set of them comes
+    // out in an order of their places in memory, and a block that crumbles takes its body out of
+    // the physics, which works through its bodies differently after.
     if (flying is { } stoneFlying)
-        foreach (var block in touching.ToArray())
+        foreach (var block in castle.Blocks.Where(touching.Contains).ToArray())
         {
             if (block.Gone) continue;
             block.Damage += GetPhysicsContactImpulse(stoneFlying, block.Body);
@@ -243,7 +266,7 @@ while (!WindowShouldClose())
     var banner = GetPhysicsBodyPosition(castle.Banner.Body);
     SiegeCommands.Status = $"{GetState<Screen>()} shots {shots} {catapult.Loaded} blocks {castle.Standing} of {castle.Blocks.Count} " +
                            $"welds {castle.Welds.Count} broken {castle.Broken} most {mostForce:0} N strength {Castle.Strength:0} N " +
-                           $"banner {banner.Y:0.0} left {lastSpeed:0.0} arm {catapult.Angle:0} spin {GetPhysicsBodyAngularVelocity(catapult.Arm).Z:0.0} shot {(flying is { } sh ? Place(sh) : "none")}";
+                           $"banner {banner.Y:0.0} at {banner.X:0.0} {banner.Z:0.0} left {lastSpeed:0.0} arm {catapult.Angle:0} spin {GetPhysicsBodyAngularVelocity(catapult.Arm).Z:0.0} shot {(flying is { } sh ? Place(sh) : "none")}";
     SiegeCommands.Welds = castle.Welds;
 
     // -- The frame.
@@ -338,15 +361,22 @@ public static class SiegeCommands
     internal static Camera3D Camera;
     internal static List<Castle.Weld> Welds = [];
 
-    [Command("siege.status", "The screen, the shots, the shot loaded, the blocks standing, the welds and how many broke, the most force a weld held and the strength it breaks past, how high the banner stands and how fast the last shot left")]
+    [Command("siege.status", "The screen, the shots, the shot loaded, the blocks standing, the welds and how many broke, the most force a weld held and the strength it breaks past, how high the banner stands and where, and how fast the last shot left")]
     internal static string Report() => Status;
 
-    [Command("siege.throw", "Throws at a power in degrees a second of the arm and an angle in degrees above the field, a stone or a bomb: siege.throw <power> <angle> <stone|bomb>")]
+    [Command("siege.throw", "Throws at a power in degrees a second of the arm and an angle in degrees above the field, a stone or a bomb, on the first whole second two or more after the catapult stood loaded: siege.throw <power> <angle> <stone|bomb>")]
     internal static string Throw(float power, float angle, string kind)
     {
         if (kind is not ("stone" or "bomb")) return $"no shot called {kind}, stone or bomb";
         Asked = $"throw {power} {angle} {kind}";
         return $"throwing a {kind}";
+    }
+
+    [Command("siege.topple", "Breaks the banner's weld and lays it at a point of the field a meter up, as a bomb may throw it: siege.topple <x> <z>")]
+    internal static string Topple(float x, float z)
+    {
+        Asked = $"topple {x} {z}";
+        return "the banner is laid on the field";
     }
 
     [Command("siege.reset", "Lays the castle again and clears the field")]

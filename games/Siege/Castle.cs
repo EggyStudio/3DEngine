@@ -180,6 +180,21 @@ public sealed class Castle
         return broke;
     }
 
+    /// <summary>
+    /// Breaks the banner's weld to the roof and lays it at a point, as a bomb may throw it off the
+    /// keep and far across the field.
+    /// </summary>
+    public void Topple(Vector3 at)
+    {
+        foreach (var weld in Welds.Where(w => !w.Broken && (w.A == Banner || w.B == Banner)))
+        {
+            if (IsPhysicsJointValid(weld.Joint)) DestroyPhysicsJoint(weld.Joint);
+            weld.Broken = true;
+        }
+        SetPhysicsBodyPosition(Banner.Body, at);
+        SetPhysicsBodyVelocity(Banner.Body, Vector3.Zero);
+    }
+
     /// <summary>Takes a block away, its welds with it, as one struck too hard crumbles.</summary>
     public void Crumble(Block block)
     {
