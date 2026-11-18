@@ -2610,11 +2610,16 @@ moving the floor's light behind it by 5.4% where 2.2% (`GlowPenumbraTests`). Rea
 loop inside the march's own, or the march left by a break inside a wall, it lost the RTX 4070's
 device in a closed room with a lamp inside seen from outside, an MMU fault through the constant
 cache (Xid 31) for which the validation layer's GPU-assisted checks found no read out of range, and
-a test holds the room (`GlowLightsTests`). The screen's probes march to the halves of each face of
-each light in reach that gives the probe's surface an eighth of the lights' light or more, halved
-across the axis that rises most from the surface, or the longer where neither rises more, and keep a
-byte of each such light, and march to the middle of each fainter one and keep the fainter ones'
-light summed. Under a row of three emissive blocks touching under a ceiling, one light, with a block
+a test holds the room (`GlowLightsTests`). The screen's probes march to the middle of each light in
+reach first, and to the halves of each face of each light that gives the probe's surface an eighth
+or more of the light it sees by those marches, halved across the axis that rises most from the
+surface, or the longer where neither rises more, and keep a byte of each such light and the fainter
+ones' light by their middles' marches summed. Taken of the lights' light unhidden, a block hidden
+behind a wall raised the sum and sent a lamp the floor sees whole to the fainter ones at every
+probe, and at Low the floor beside the lamp read 0.0599 with the block lit and 0.0619 without,
+where its reference reads 0.0645, and taken of the light seen it reads 0.0620 with the block lit
+(`GlowTierTests`). Under a row of three emissive blocks touching under a ceiling, one light,
+with a block
 floating under its middle, the face halved along its short side was marched at two points on its
 middle line, both behind the block from the floor under the whole row, and a march passing inside
 the block's side read as deep as the block is tall, so the floor three blocks under the block read

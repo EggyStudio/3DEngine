@@ -20,6 +20,16 @@ where 0.02, 0.03 and 0.00, and 0.73, 0.92 and 0.81 on the right building's front
 and 0.27, as all 130 lit read within 0.02, at the cost of 64. The wall by the near lantern reads
 0.29 under both.
 
+![](.github/assets/readings/2026-11-18-item-296-night-tier.webp)
+scenes_bistro at 22:00 at the camera solved from the night picture given, ISO 3200, 1/60 s and
+f/2.8, at High with bloom off, its screen probes' bright lights chosen by an eighth of the glow
+lights' light unhidden and of the light their middles' marches see, against the path-traced
+reference at 2048 paths a pixel and two bounces, and the second less the first and less the
+reference in luminance eight times over, red lighter and blue darker. The whole frame reads 0.94 of
+the reference under both, the high wall of block 315 1.05 before and 0.98 after, that of block 383
+0.67 and 0.62 and the cyan block 92 0.80 and 0.76, and every other of the thirty largest regions
+moves by 0.01 or less.
+
 ## 2026-11-17
 
 ![](.github/assets/readings/2026-11-17-item-287-width.webp)

@@ -49,8 +49,8 @@ Texture3D<float4> merged;
 [[vk::binding(12, 0)]]
 Texture3D<float4> mergedSecond;
 
-// Its third, fourth and fifth, merged, or the last it has again where it has fewer, which a probe on
-// a surface past the second takes the light from beyond its rays from.
+// Its third, fourth and fifth, merged, or the last it has again where it has fewer, which a probe
+// on a surface past the second takes the light from beyond its rays from.
 [[vk::binding(17, 0)]]
 Texture3D<float4> mergedThird;
 
@@ -64,17 +64,19 @@ Texture3D<float4> mergedFifth;
 [[vk::binding(8, 0)]] [format("rgba16f")]
 RWTexture2D<float4> irradiance;
 
-// xyz: each probe's surface's normal. w: how far it is from the eye, or -1 for a probe on no surface.
+// xyz: each probe's surface's normal.
+// w: how far it is from the eye, or -1 for a probe on no surface.
 [[vk::binding(9, 0)]] [format("rgba16f")]
 RWTexture2D<float4> geometry;
 
 [[vk::binding(10, 0)]]
 ConstantBuffer<ScreenView> view;
 
-// How much of each glow light each probe's surface sees, a byte a light from none to all of it, four
-// lights a uint, and the light of those too faint to be marched to by their faces, in the probe's
-// uints (GlowSeenUints), which gi_screen_glow.slang takes the window's light from the probes
-// around each of its points by, so the model pass marches to no light itself where a probe stands.
+// How much of each glow light each probe's surface sees, a byte a light from none to all of it,
+// four lights a uint, and the light of those too faint to be marched to by their faces, in the
+// probe's uints (GlowSeenUints), which gi_screen_glow.slang takes the window's light from the
+// probes around each of its points by, so the model pass marches to no light itself where a probe
+// stands.
 [[vk::binding(13, 0)]]
 RWStructuredBuffer<uint> glowSeen;
 
@@ -84,11 +86,11 @@ RWStructuredBuffer<uint> glowSeen;
 Sampler3D reach;
 
 // Where the one probe gi.screenprobe asks about stands and what each of its rays found, which the
-// CPU reads back. Four values hold its point and the field's cell there, its normal and which of the
-// world's cascades its rays reach beyond into, the point its rays start from, and its light with the
-// rays' weights' sum, and four more each ray, its light and where it was met, 0 on the screen, 1 in
-// the field and 2 beyond its reach, its way and weight, the point it met or reached and how far, and
-// the light that point sends on without the indirect light.
+// CPU reads back. Four values hold its point and the field's cell there, its normal and which of
+// the world's cascades its rays reach beyond into, the point its rays start from, and its light
+// with the rays' weights' sum, and four more each ray, its light and where it was met, 0 on the
+// screen, 1 in the field and 2 beyond its reach, its way and weight, the point it met or reached
+// and how far, and the light that point sends on without the indirect light.
 [[vk::binding(14, 0)]]
 RWStructuredBuffer<float4> rayLog;
 
@@ -105,14 +107,15 @@ struct ScreenPush
 {
     // x: the world's first cascade's octahedron's texels along each side. y: its second's, or 0
     // where it has none. z: one more than the probe whose rays are written to rayLog, 0 for none.
-    // w: 1 at Low, which leaves the screen's probes out, where they stand for the glow lights alone,
-    // their surfaces and what they see of each light written and no ray traced, 2 where the probe z
-    // names writes a value that is not a number as its light, as a test feeds it, and 4 where some
-    // surface lets light through this frame (lightThroughAt), whose check a frame of none skips,
-    // with the cascades the screen's probes stand in, those before the far cascade's, from bit 8.
+    // w: 1 at Low, which leaves the screen's probes out, where they stand for the glow lights
+    // alone, their surfaces and what they see of each light written and no ray traced, 2 where the
+    // probe z names writes a value that is not a number as its light, as a test feeds it, and 4
+    // where some surface lets light through this frame (lightThroughAt), whose check a frame of
+    // none skips, with the cascades the screen's probes stand in, those before the far cascade's,
+    // from bit 8.
     uint4 texels;
-    // x, y, z: the third, fourth and fifth cascades' octahedrons' texels along each side, 0 where it
-    // has none. w: how many cascades the light beyond the probes' rays is read from.
+    // x, y, z: the third, fourth and fifth cascades' octahedrons' texels along each side, 0 where
+    // it has none. w: how many cascades the light beyond the probes' rays is read from.
     uint4 farther;
 };
 
@@ -254,8 +257,8 @@ float3 probeAt(int3 at, uint c)
 
 // The texel of a cascade's octahedron of `texels` along each side at t, which may lie a texel past
 // the square's edge. Across an edge the octahedron folds onto the same edge mirrored, and past a
-// corner onto the corner across from it, so a ray near the edge is blended with the texels beside it
-// on the sphere.
+// corner onto the corner across from it, so a ray near the edge is blended with the texels beside
+// it on the sphere.
 int2 folded(int2 t, int texels)
 {
     if (t.x < 0)
@@ -388,33 +391,29 @@ void computeMain(uint3 id : SV_DispatchThreadID)
     geometry[id.xy] = float4(n, length(fromEye));
     // How much of each glow light in reach the surface sees, a uint of four lights at a time, each
     // put in the buffer as it is made, since lavapipe keeps an array indexed by the light in memory
-    // of its own and crashes on one the uints are gathered in. A light that gives the surface an
-    // eighth of the glow lights' light or more is marched to by the halves of its faces, and its
-    // byte says how much of it the surface sees. A fainter one is marched to at its middle alone,
-    // as a ray's hit is, its light added to the fainter ones' at the probe and its byte left none,
-    // so the model pass reads the light of at most eight at a probe. With every light marched to by
-    // its faces and read at each pixel, global illumination and the model pass in a room of many
-    // lamps are far slower, and with a sixteenth in place of the eighth global illumination is
-    // slower too. A light falls to the probes' sum at one probe and not the next where it is far
-    // from being the brightest, where its light changes little from probe to probe. Split by the
-    // light's distance from the probe instead, the floor beside a lamp darkens where the split
-    // falls, a probe's own light standing in for the pixel's on the far side alone. The glow lights
-    // take the surface's normal from its way along each axis of the depth, which holds at a wall's
-    // foot where the nearer texel's does not. Tilted up the wall, a probe's normal on the floor
-    // beside it sees a lamp past the wall that the floor does not. Global illumination keeps the
-    // nearer texel's.
+    // of its own and crashes on one the uints are gathered in. Each light is first marched to at
+    // its middle, as a ray's hit is, its byte kept in the buffer and its light by what the march
+    // sees summed with the others'. A light that gives the surface an eighth of that sum or more is
+    // then marched to by the halves of its faces, and its byte says how much of it the surface
+    // sees. A fainter one's light by its middle's march is added to the fainter ones' at the probe
+    // and its byte left none, so the model pass reads the light of at most eight at a probe. Summed
+    // of the lights' light unhidden, a stronger light past a wall raises the sum and sends a lamp
+    // the surface sees whole to the fainter ones, and the floor beside the lamp takes little more
+    // than half its light. With every light marched to by its faces and read at each pixel, global
+    // illumination and the model pass in a room of many lamps are far slower, and with a sixteenth
+    // in place of the eighth global illumination is slower too. A light falls to the probes' sum at
+    // one probe and not the next where it is far from being the brightest, where its light changes
+    // little from probe to probe. Split by the light's distance from the probe instead, the floor
+    // beside a lamp darkens where the split falls, a probe's own light standing in for the pixel's
+    // on the far side alone. The glow lights take the surface's normal from its way along each axis
+    // of the depth, which holds at a wall's foot where the nearer texel's does not. Tilted up the
+    // wall, a probe's normal on the floor beside it sees a lamp past the wall that the floor does
+    // not. Global illumination keeps the nearer texel's.
     float3 gn = surfaceNormal(cross(wayAlong(uv, fromEye, float2(texel.x, 0.0)), wayAlong(uv, fromEye, float2(0.0, texel.y))), -fromEye);
     if (dot(gn, -fromEye) < 0.0)
         gn = -gn;
     float glowCell = fieldCell(fieldInfo, p);
     float glowMargin = glowCell * 0.5;
-    float glowTotal = 0.0;
-    for (int i = 0; i < glows; i++)
-    {
-        float faded = glowLightFade(lights.glows[i], p, gn);
-        if (faded > 0.0)
-            glowTotal += luminance(glowLightIrradiance(lights.glows[i], p, gn, glowMargin)) * faded;
-    }
     // Which share of each light the surface sees is found from a point of it moved about the tile
     // from frame to frame, the light's tier from the probe's own, so the window's light that
     // gi_screen_glow.slang takes from the probes around a point, held over the frames, is the same
@@ -434,9 +433,10 @@ void computeMain(uint3 id : SV_DispatchThreadID)
         q = p;
     float3 faint = float3(0.0);
     uint first = probe * uint(GlowSeenUints);
+    float seenTotal = 0.0;
     for (int packed = 0; packed * 4 < glows; packed++)
     {
-        uint levels = 0u;
+        uint middles = 0u;
         for (int j = 0; j < 4 && packed * 4 + j < glows; j++)
         {
             GlowLight light = lights.glows[packed * 4 + j];
@@ -444,12 +444,31 @@ void computeMain(uint3 id : SV_DispatchThreadID)
             if (faded <= 0.0)
                 continue;
             float3 arrived = glowLightIrradiance(light, p, gn, glowMargin) * faded;
-            if (luminance(arrived) * 8.0 >= glowTotal)
+            // A light that sends nothing to the probe is not marched to, since what it sends is
+            // the march's weight.
+            if (!any(arrived > 0.0))
+                continue;
+            float seen = glowLightSeen(sceneField, fieldInfo, light, q, gn, glowCell);
+            middles |= uint(seen * 255.0 + 0.5) << uint(j * 8);
+            seenTotal += luminance(arrived) * seen;
+        }
+        glowSeen[first + uint(packed)] = middles;
+    }
+    for (int packed = 0; packed * 4 < glows; packed++)
+    {
+        uint middles = glowSeen[first + uint(packed)];
+        uint levels = 0u;
+        for (int j = 0; j < 4 && packed * 4 + j < glows; j++)
+        {
+            float seen = float((middles >> uint(j * 8)) & 255u) / 255.0;
+            if (seen <= 0.0)
+                continue;
+            GlowLight light = lights.glows[packed * 4 + j];
+            float3 arrived = glowLightIrradiance(light, p, gn, glowMargin) * glowLightFade(light, p, gn);
+            if (luminance(arrived) * seen * 8.0 >= seenTotal)
                 levels |= uint(glowLightShown(sceneField, fieldInfo, light, q, gn, glowCell) * 255.0 + 0.5) << uint(j * 8);
-            // A faint light that sends nothing to the probe is not marched to, since what it sends
-            // is the march's weight.
-            else if (any(arrived > 0.0))
-                faint += arrived * glowLightSeen(sceneField, fieldInfo, light, q, gn, glowCell);
+            else
+                faint += arrived * seen;
         }
         glowSeen[first + uint(packed)] = levels;
     }
@@ -494,9 +513,9 @@ void computeMain(uint3 id : SV_DispatchThreadID)
     // probes stand twice as far apart and mark what they meet nearer than that as met before their
     // interval began, since a ray ending half as far out reads the light beyond from a probe that
     // sees what lies around it rather than along the ray, a lamp-lit top beside the surface among
-    // it, and the surface reads far more light than it receives. A closed room near the field's side
-    // behind the eye keeps the sky's light out at this length too, since the light beyond is read
-    // where a ray ends (CascadeEdgeTests).
+    // it, and the surface reads far more light than it receives. A closed room near the field's
+    // side behind the eye keeps the sky's light out at this length too, since the light beyond is
+    // read where a ray ends (CascadeEdgeTests).
     // Past the second cascade as far as the probes of the cascade holding the surface are apart, so
     // a far surface's rays leave a recess before the probes there lend them the light beyond.
     // Ending nearer, a recess's rays meet nothing in reach and read the probes along their way,
@@ -516,9 +535,9 @@ void computeMain(uint3 id : SV_DispatchThreadID)
     // that keeps its light over sixteen frames has sent its rays from every place (the view's
     // jitter's z). Sent from their texels' middles alone, every probe on a surface sends the same
     // sixteen ways, which miss the light between them in patches many tiles wide that stand still.
-    // Held at one place a tile, a patch narrower than a texel that one probe's ray meets lights that
-    // probe alone, frame after frame, and the window's filter spreads it into a round spot that
-    // stands still.
+    // Held at one place a tile, a patch narrower than a texel that one probe's ray meets lights
+    // that probe alone, frame after frame, and the window's filter spreads it into a round spot
+    // that stands still.
     uint place = TracePlaces[((id.x & 3u) + 4u * (id.y & 3u) + uint(view.jitter.z + 0.5)) & 15u];
     float2 within = (float2(place & 3u, place >> 2u) + 0.5) / 4.0;
     for (uint v = 0u; v < Rays; v++)
@@ -627,14 +646,14 @@ void computeMain(uint3 id : SV_DispatchThreadID)
                 // corridor 2 wide in walls 0.3 thick holds no probe of the second cascade or above,
                 // their spots in its walls moved out through the faces nearer them, so its first
                 // cascade's probes take nothing along it past their interval and its screen probes'
-                // rays nothing past their reach. Four times the reach and no further, since marching
-                // on to the field's edge gives such a corridor little more light and makes global
-                // illumination slower. The next coarser cascade and no further, since in coarser
-                // cells the march passes walls 1 thick in cells 2 wide, and a closed room at the
-                // field's side takes the sky's light (CascadeEdgeTests). Where the probes hold light
-                // along its way and it is dark, as in a cave the far cascade keeps the sky out of,
-                // the ray takes their dark, since marching every such ray makes the screen probes in
-                // a deep cave slower.
+                // rays nothing past their reach. Four times the reach and no further, since
+                // marching on to the field's edge gives such a corridor little more light and makes
+                // global illumination slower. The next coarser cascade and no further, since in
+                // coarser cells the march passes walls 1 thick in cells 2 wide, and a closed room
+                // at the field's side takes the sky's light (CascadeEdgeTests). Where the probes
+                // hold light along its way and it is dark, as in a cave the far cascade keeps the
+                // sky out of, the ray takes their dark, since marching every such ray makes the
+                // screen probes in a deep cave slower.
                 if (luminance(past) <= 1e-6 && !holds)
                 {
                     float far = traceFieldWithinSheets(SheetVolume(sceneField, fieldSecond), fieldInfo, start, way, handed, 4.0 * length, fieldCascade(fieldInfo, start, 1.0) + 1);

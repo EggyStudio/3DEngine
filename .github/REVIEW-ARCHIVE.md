@@ -19432,6 +19432,184 @@ named and the second the eighteen others, Rendering's two among them. BUILDING.m
 jobs run the suite. The scripts', the steps', the validation lines', the package's contents and the
 norm tests pass 72 on the workflow as changed.
 
+Item 296, the emissive map's color and the lantern's faces.
+
+The color. A glow light and a ray instance took the material's emissive factor times its strength
+and not its map, so the street lanterns' glass, white in its factor and orange in its map, drew
+orange and lit the street near white. `SceneField` multiplies each draw's emission by its emissive
+map's average where it has one (`TextureStore.AverageColor`), for plain and instanced draws alike,
+so the glow lights, the probes' rays and the path-traced reference take the color the map gives. The
+test lights a white floor from a block glowing white at 4 whose map is (255, 140, 40), and the floor
+two blocks out reads red over green within a tenth of the map's 3.81 in linear light. Without the
+mend it reads 1.00.
+
+The lantern's faces. The pack's lantern glass is twelve panels about an upright axis, each facing a
+tenth up, 0.31 m² facing out, and a second layer of 0.31 m² a hair inside facing in, lying apart
+from the first. Not square to an axis, its triangles took every face of the box, its floor among
+them, at both layers' surface, so the lantern sent about twice its light, a share of it straight
+down from a face it has none of. A part counts its triangles that face out of its box, each naming
+the face its normal leans toward most, and a part whose triangles all face in is no light of its own
+unless every part does. The glass sends from its box's four sides at its outer panels' surface, and
+a block, a sphere and every square face read as before. The test cuts a ring of leaning panels with
+its inner layer apart, which gives one part of the four sides at the outer surface's share, where
+the rule before gave two parts on every face.
+
+The night against the reference. `scenes_bistro` at 22:00 at the solved camera under ISO 3200, 1/60
+s and f/2.8, bloom off, on the bridge's pack of the lanterns at 10,000 made into the engine's, each
+region's light over the reference's traced at 2048 paths a pixel and two bounces, the before frame
+read under the reference that takes the map.
+
+| Region | Pixels | Before | After |
+|---|---|---|---|
+| Floor, copy 1294 | 64,420 | 3.87 | 0.93 |
+| Floor, copy 1275 | 11,865 | 3.40 | 0.87 |
+| Floor, copy 1277 | 9,902 | 2.76 | 0.85 |
+| Floor, copy 1295 | 7,510 | 3.85 | 0.93 |
+| Floor, copy 1276 | 10,373 | 1.81 | 0.42 |
+| Block 300, 19.2 high, its side toward -x | 14,411 | 0.73 | 0.22 |
+| Block 304, 7.3 high | 4,841 | 0.51 | 0.27 |
+| Block 315, 20 high | 2,641 | 0.10 | 0.03 |
+| Block 390, 21.5 high | 2,475 | 0.04 | 0.04 |
+| Block 383, 19.6 high | 2,091 | 0.02 | 0.00 |
+| Block 538 by a lantern | 3,898 | 0.32 | 0.29 |
+
+The near paving comes to 0.85 to 0.93 of the reference. Still open, the far high walls at 0.00 to
+0.27 and the wall by a lantern at 0.29. A point takes every glow light in its reach, marching the
+four brightest for their shadows and summing the rest in four groups by their way across the
+surface, each group taking its brightest member's march (`glowLightsFrom`), and the 64 nearest the
+eye are lit. With the cap at 256 all 130 are lit and the far walls come to 0.39 to 1.11, but the
+near floors fall to 0.43 to 0.54, a group's brightest member being a far lantern hidden behind a
+building while its near members are seen. The next step ranks a group's members by what each sends
+to the point, splits the groups by distance as well, and reads the scene pass's cost at both caps.
+
+The reference. It reads a pack's color maps through their plain view and decodes the bytes once as
+sRGB, and its data maps by their levels, undecoded. It takes the emissive map with its factor
+through the instance as above. A draw blended under half stands in it as nothing and a masked one as
+solid, and no region reads past a number.
+
+The sheet. `2026-11-17-item-296-night-color.webp`, the frame before and after, the reference, and
+the after less the before and less the reference in luminance eight times over, red lighter and blue
+darker, each frame's linear light at one gain.
+
+The runs. The tree builds strict with no warnings, and the focused tests, the glow lights', the
+bounce reference's, global illumination's, the norm's, the public and device surfaces' and the model
+calls' classes, 256 pass. GlowLightsTests passes on the RTX 4070, 23 of 23, and on Mesa 26.2.4 and
+Mesa 25.2.8, 22 of 23 each, the room read against a path-traced reference skipped there, since
+neither device traces the GPU's own rays. The suite passes in its parts in order, 2,514 of 2,514 in
+86 minutes, and shuffled by the seed 20261023, 2,514 of 2,514 in 51 minutes.
+
+Item 296, the glow lights' cap and which of them are lit.
+
+A correction to the first commit's account. Its trial at a cap of 256 raised `GlowLights.Most` and
+`MostGlowLights` and left the screen probes' uints at 20, sixteen of them the visibility levels of
+64 lights and then the fainter lights' sum. With 130 lit, each probe wrote 33 level uints over its
+own fainter sum and into the next probes' slots. The near floors' fall there from 0.92 to 0.43 was
+that overrun, and not a hidden far lantern leading a group as the Reply said. At the cap of 64
+nothing can overrun. The engine writes `Most` lights at most (`GlowLights.Write`), every shader
+holds its count to `MostGlowLights`, and sixteen uints of four lights hold exactly 64, so lights
+past them are dropped and never written.
+
+The groups. At High and at Low alike a window pixel takes its glow light from the screen probes. At
+Low they run for the glow lights alone (GlowOnly), and each probe marches every light in reach, by
+its faces' halves where it gives an eighth of the glow lights' light and at its middle where it
+gives less, with no groups. A split of the groups by distance, near and far, changed no reading of
+the test's floor to the fifth digit at Low or High, so it was reverted, since no test fails without
+it. The four marches and the groups still serve a pixel no like texel holds, as a sliver of floor
+between two lamps, every pixel of a camera drawing into a render texture, which has no screen
+probes, a program's own shader through `glowLights`, and with one march and one group a probe's
+ray's hit. None of that path is dead.
+
+An open finding, traced next with block 538. Four small lamps a meter from a point of the floor each
+sending it twice what a lamp two meters off the fourth way sends, and a block ten meters off that
+way behind a wall that hides it from the point.
+
+| Global illumination | All | Without the far block | The far block alone | The near lamp alone |
+|---|---|---|---|---|
+| Low | 0.05890 | 0.06125 | 0.00005 | 0.00754 |
+| High | 0.06264 | 0.06325 | 0.00009 | 0.00769 |
+
+The far block, hidden, takes 36% of the near lamp's light at the floor at Low, 3.8% of the floor's,
+and 1% at High. It arises in the screen probes' path, not the groups. The scene is kept as its test,
+to fail first when the trace mends it.
+
+The cap's sizes in one place. `MostGlowLights` in `glow.slang` and `GlowLights.Most` are the cap,
+and everything that follows it is worked out from it. A probe keeps `GlowSeenLevels + 4` uints, the
+levels being `MostGlowLights / 4`, with its fainter lights' sum after the levels on both sides
+(`GpuScreenProbes.GlowSeenBytes`). The bits saying which places hold the frame before's light, which
+lay in two uints of the screen's view and of the faces pass's push, lie in the lights' own head,
+`GlowKeptVectors` uint4s ahead of the lights, `GlowLightsHead` bytes in all (`GlowLights.Head`).
+Both the screen probes' glow pass and the faces pass read them there, and the faces pass reads the
+lights at that head rather than 32 bytes in. `GlowLightCapTests` holds slang's cap to the engine's
+and each size to its derivation, and fails where either is raised alone.
+
+The fair trial. The night at the solved camera, ISO 3200, 1/60 s and f/2.8 at High, bloom off, each
+frame against the reference of 2048 paths and two bounces at that camera, at 64 and at 256 with all
+130 lit, the regions placed by where they lie in the frame.
+
+| Region | 64 nearest | 256, all 130 | 64 by light over eye distance squared | 64 by light over frustum distance squared |
+|---|---|---|---|---|
+| Near paving 1294 | 0.93 | 1.00 | 1.00 | 0.96 |
+| Near paving 1275 | 0.87 | 0.90 | 0.90 | 0.86 |
+| Left street's paving 1276 | 0.41 | 0.59 | 0.59 | 0.55 |
+| Left street's paving 1299 | 0.06 | 0.70 | 0.69 | 0.70 |
+| Left street's high wall 315 | 0.02 | 0.42 | 0.41 | 0.43 |
+| Left street's high wall 390 | 0.03 | 1.12 | 1.12 | 1.12 |
+| Left street's high wall 383 | 0.00 | 0.51 | 0.51 | 0.51 |
+| Right building 300, toward the camera | 0.22 | 0.73 | 0.73 | 0.73 |
+| Right building 300, its side | 0.17 | 1.07 | 1.06 | 1.06 |
+| Right building 305 | 0.26 | 0.94 | 0.92 | 0.93 |
+| Right building 304 | 0.27 | 0.81 | 0.81 | 0.81 |
+| Block 148 | 0.52 | 0.55 | 0.55 | 0.47 |
+| Wall 538 by the near lantern | 0.29 | 0.29 | 0.29 | 0.29 |
+| Scene pass, ms | 23.3 | 29.2 | 23.6 | 23.6 |
+| Global illumination, ms | 8.9 | 10.7 | 7.9 | 7.9 |
+
+Lit fairly, all 130 keep the near floors and lift the left street and the right building most of the
+way. A light's light is its luminance times the surface it emits from, and its distance is floored
+at a cell. Ranked by that light over its squared distance from the eye, the 64 lit read as all 130
+do within 0.02 everywhere, at the cost of 64. Ranked by the distance from the view's frustum, they
+drop lights beside and behind the eye that light the floor under it, and the near paving falls by
+0.04. So the rank by the eye's distance is the mend and the cap stays at 64. A rerun of the same
+build read within 0.01 to 0.03 a region. The lights' uniform buffer at 256 would be some 22 KB, past
+the 16 KB of uniform range every Vulkan device must give, so a cap past 64 waits for the lights in a
+storage buffer or a check against the device's range.
+
+Why global illumination costs less ranked. Timed apart, the screen probes' pass falls from 4.45 to
+3.70 ms and the first cascade's trace from 2.12 to 2.01, the rest alike. A screen probe marches
+every lit light whose reach covers its point. Nearest first, all 64 lit lights reach the eye, and of
+the 64 ranked 35 do, the rest lanterns down the street whose reach covers the probes near them
+alone. The share of each one's reach left at the eye, summed, is 23.0 nearest first and 15.4 ranked,
+read once from a count put in `gi.state` for the reading and taken out after. So the probes about
+the eye march about a third fewer lights.
+
+The walk. The camera walked 30 m down the street from the solved camera in 41 steps of 0.75 m, six
+rectangles of the frame read at each step, at 64 ranked, at 64 nearest and with all 130 lit, whose
+set never changes. Ranked, no rectangle's mean strays from the walk with all lit by more than 0.2
+levels of 255 on the mean over the walk, and the largest step past that walk's own step is 2.3
+levels, on the top right at the sixth step. Nearest first strays by up to 8.8 levels on the mean and
+steps by up to 7.8 past it. So no light shows entering or leaving the ranked set, and no fade at the
+set's edge is added. A rectangle's mean is a sixth of the frame, so a light's own patch may step
+more than that.
+
+The rank's test. Seventy faint blocks a tenth of a meter wide from a fifth of a meter to fourteen
+meters from the eye, and one bright block twenty meters off. Ranked, the bright block is written and
+the seven farthest faint ones are not. With the nearest-first sort put back the test fails, the
+bright block missing from the written lights.
+
+The sheet. `2026-11-18-item-296-night-rank.webp`, the 64 nearest and the 64 ranked, the reference,
+and the ranked less the nearest and less the reference, the table in its caption. The ranked frame
+lights the left street and the passage under the arch on the right where the nearest left them
+black, and reads a little darker in a few patches on the corner building's front, from faint
+emitters there the rank drops.
+
+The runs. The tree builds strict with no warnings, and the focused tests, the glow lights', the
+bounce reference's, global illumination's, the norm's, the public and device surfaces' and the model
+calls' classes, 259 pass. The 49 tests named for the glow lights, global illumination's own among
+them, pass on the RTX 4070, 49 of 49, and on Mesa 26.2.4 and Mesa 25.2.8, 47 of 49 each, the two
+read against the GPU's own rays skipped there. The suite passes in its parts in order, 2,517 of
+2,517 in 88 minutes, and shuffled by the seed 20261023, 2,517 of 2,517 in 49 minutes.
+`GlowLightCapTests` fails on the tree before, whose `glow.slang` states the probes' uints as 20.
+
 ## Items closed, parked or shortened
 
 Items closed without a mend, recorded or parked, and the standing items' texts as they stood before
