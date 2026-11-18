@@ -538,7 +538,7 @@ here, and the copy of the player's save is let go, made again on request. The lo
     that the flat API's class be renamed, with the namespaces and the collections that carry its
     name. The static class `Engine3D` in the namespace `Engine` becomes `E3D`, its partial files
     under `3DEngine/Api` named for it, the 63 test collections named for it, and every `using
-    static` and every mention in the guides, the cheat sheet, the templates, the games, the examples
+    static` and every mention in the guides, the cheatsheet, the templates, the games, the examples
     and the README follow, 716 mentions in 486 files; the namespace `Engine` stays unless decided
     otherwise, since `E3D.E3D` reads badly, and the package and the projects keep their names by
     Decision 2. A rename of the public surface, so the version is the owner's to number (Decision
@@ -549,11 +549,11 @@ here, and the copy of the player's save is let go, made again on request. The lo
     committed or set aside its edits to those files and said so. Done at `35322cfe` so, the old name
     left on the upgrading page and in its test alone; AGENTS.md's two mentions wait on a decision.
 
-16. **The README's guide table opens with the cheat sheet's row, done at `ffa3ec48` (Decision 32).**
+16. **The README's guide table opens with the cheatsheet's row, done at `ffa3ec48` (Decision 32).**
     Asked on 2026-10-11 at 17:26 for the row BevyCSharp's README has first in its guide table, the
-    cheat sheet, every public function of the library on one line, grouped as the pages are, linking
+    cheatsheet, every public function of the library on one line, grouped as the pages are, linking
     `CHEATSHEET.md` at the root. One line, with item 13's commit. The working tree holds the row at
-    the table's head and the older cheat sheet row at its foot, so the one at the foot goes with it.
+    the table's head and the older cheatsheet row at its foot, so the one at the foot goes with it.
     Done at `ffa3ec48`.
 
 17. **The radiance cascades said in the README and in a guide page of their own (Decision 33)., done
@@ -573,7 +573,7 @@ here, and the copy of the player's save is let go, made again on request. The lo
     with `gi.reference` for reading a scene against a path-traced reference; built on an example
     that runs, the bounce rooms or the Cornell box, with blocks that compile under the guides'
     check, and the materials guide pointing to it where it speaks of the bounce rather than saying
-    it twice; RENDERING.md stays the renderer's own record. The cheat sheet's grouping follows the
+    it twice; RENDERING.md stays the renderer's own record. The cheatsheet's grouping follows the
     pages, so the page's functions group under it. A batch of its own after item 15, since the page
     names the API and the rename comes first; the text is judged by eye.
 
@@ -2018,7 +2018,7 @@ here, and the copy of the player's save is let go, made again on request. The lo
     neither. The physics library keeps each constraint's accumulated impulse and reads its magnitude
     by the constraint's handle, which over the fixed step is the joint's force in newtons. So the
     engine gains the call, the impulse magnitude of the joint's own constraint over the last step,
-    its limit and motor apart, costing nothing until called, with its cheat sheet line, the surface
+    its limit and motor apart, costing nothing until called, with its cheatsheet line, the surface
     listing, the upgrading guide's added entry and the physics guide's paragraph on joints, and a
     test of a box hanging on a distance joint reading its weight within a percent. One commit; then
     the puzzle breaks a joint past a force measured against the truss and the road, and reads with
@@ -2093,7 +2093,7 @@ here, and the copy of the player's save is let go, made again on request. The lo
     own callback is given the frame count on a device fixed at two channels. So the engine gains
     `GetAudioDeviceSampleRate` and `GetAudioDeviceChannels`, read from what the backend kept, zero
     before the device is open, with the mixed processor's remarks naming them and the audio guide's
-    paragraph on processors saying how a program saves what the device plays, the cheat sheet line,
+    paragraph on processors saying how a program saves what the device plays, the cheatsheet line,
     the surface listing and the upgrading guide's added entry, and a test reading the dummy driver's
     format as the backend kept it. One commit. Done at `006ff3ba` on 2026-10-20, as the head says.
 
@@ -2138,7 +2138,7 @@ here, and the copy of the player's save is let go, made again on request. The lo
     is missing; the generated codec writing the version past 1 and calling the migration on load,
     with a diagnostic for a versioned type with no migration and its code fix beside the generator's
     others; tests of a component renamed, a field renamed, a split migrated across two versions and
-    a file from a later version kept; the scene guide's paragraph, the cheat sheet where it lists
+    a file from a later version kept; the scene guide's paragraph, the cheatsheet where it lists
     attributes, the surface listing and the upgrading guide's added entry; and a Shared line under
     Replies, the row then saying both have it. Two commits, the renames and then the versions. The
     renames done at `2cc516fc` on 2026-10-20, as the head says; the versions next. The versions done
@@ -2158,13 +2158,13 @@ here, and the copy of the player's save is let go, made again on request. The lo
     sentence in the guide and the ledger's row, not a commit. One commit at most. Done at `748779fc`
     on 2026-10-20, the choice already made and the line and the test added, as the head says.
 
-47. **The cheat sheet is written by a tool from each call's documentation, so the two cannot
+47. **The cheatsheet is written by a tool from each call's documentation, so the two cannot
     differ.** SHARED.md's row, where BevyCSharp writes its sheet from the built library through
     `build/cheatsheet` and this engine writes its sheet by hand and checks it by name, taken on
     2026-10-20: a script under `build/` reads the flat API's XML documentation, the summary of each
     public static, and writes CHEATSHEET.md in its present shape, section by section as the surface
     listing orders them, with the hand-written parts kept where the sheet carries prose no summary
-    holds, marked so the script keeps them; the cheat sheet test then checks the file against the
+    holds, marked so the script keeps them; the cheatsheet test then checks the file against the
     script's output and fails where a hand edit or a new call stands unwritten, as BevyCSharp's
     does; BUILDING.md says how it is written again. Read BevyCSharp's script for the model and never
     edit it. One commit, the sheet rewritten by the script in it with its differences from the
@@ -2198,7 +2198,7 @@ here, and the copy of the player's save is let go, made again on request. The lo
     entity and the component at the stage where the change is applied, and an event type of the
     game's own sent to an entity, with observers of that event type called in the order registered
     and able to stop it, modeled on BevyCSharp's as it reads Bevy's, read and never edited; the
-    behaviors guide's paragraph, the cheat sheet through its script, the surface listing and the
+    behaviors guide's paragraph, the cheatsheet through its script, the surface listing and the
     upgrading guide's added entry; tests of an observer told once on adding, once on removal, of an
     entity's despawn removing every component, of a game's event sent and stopped, and of the cost
     when no observer is registered, which must be none. Read first how the ECS applies an add or a
@@ -2227,7 +2227,7 @@ here, and the copy of the player's save is let go, made again on request. The lo
     each; observers of other components only the same for add and remove and 13 more for a despawn;
     an observer of the component changed 200, 177 and 322, boxing the event, the carrier, a copy of
     the list and the call. One commit, the component events and the game's sharing the registry. The
-    cheat sheet gets a hand sentence in its ECS prose naming the observers, since its lists hold the
+    cheatsheet gets a hand sentence in its ECS prose naming the observers, since its lists hold the
     flat API alone. Done at `ec39331c` on 2026-10-20, as the head says.
 
 50. **A game observes what a pointer does to an entity as events on that entity, climbing its
@@ -2242,7 +2242,7 @@ here, and the copy of the player's save is let go, made again on request. The lo
     is cast where no camera opts in, so a program that asks the ray collision calls itself pays
     nothing. Read first how the editor picks today and what the drawn entities keep that a cast can
     read, and say the form, the kinds and the cost before the commit; the behaviors guide's
-    paragraph after the observers, the cheat sheet's hand sentence, the surface listing and the
+    paragraph after the observers, the cheatsheet's hand sentence, the surface listing and the
     upgrading guide's entry; tests of each kind on a box under a camera, of the climb to a parent
     and its stop, and of the cost with no camera opting in, which must be none. One commit. The form
     said by 17:11 on 2026-10-20 and taken: this engine has no editor, so the model is BevyCSharp's
@@ -2291,7 +2291,7 @@ here, and the copy of the player's save is let go, made again on request. The lo
     Tumble's machine read against it and left as it is, since a game writes its own where it likes,
     with a sentence in the game's comment. Read first BevyCSharp's `667ca9ac` for the model, never
     edited, and how this engine's blend and layer calls compose, and say the form and cost before
-    the commit; the animation guide's section with a block, the cheat sheet's hand sentence, the
+    the commit; the animation guide's section with a block, the cheatsheet's hand sentence, the
     surface listing and the upgrading guide's entry; tests of a transition on a value, a flag and a
     trigger used up, the clip's end, the fade, a file saved and read back, and the cost of a machine
     with no transition due, which must be a read of its parameters alone. One commit. The form said
@@ -2323,7 +2323,7 @@ here, and the copy of the player's save is let go, made again on request. The lo
     and run from its start with a scene holding the path and state, a bad machine logging once and
     the cost; a live hidden run on the robot went from idle to walk by speed, to a jump by trigger
     with its blend and back to idle and walk after the clip's end with no error. The animation
-    guide's section, the cheat sheet's hand sentence, the upgrading guide's entry and 42 lines of
+    guide's section, the cheatsheet's hand sentence, the upgrading guide's entry and 42 lines of
     the surface listing follow, and Tumble's robot keeps its own choice with a remark saying why,
     its walk and run blended by speed, its aim a layer and its rise from the ragdoll's pose, none of
     which a machine of whole clips holds. Done at `414e6f77` on 2026-10-20, as the head says.
@@ -2337,7 +2337,7 @@ here, and the copy of the player's save is let go, made again on request. The lo
     for its entity with every other entity of the file already present, and a world-level event
     after the file naming it, for what a game builds once for the whole; the same after a saved game
     is read, since a save is a scene; the scene guide's paragraph after the loading section with a
-    block, the cheat sheet's hand sentence, the surface listing and the upgrading guide's entry;
+    block, the cheatsheet's hand sentence, the surface listing and the upgrading guide's entry;
     tests of the entity event reaching every spawned entity after the last is in, of the file's
     event once, of a save read, and of the cost with no observer, which must be none. Read first
     BevyCSharp's `3ab5b22` for the model, never edited, and where the scene's spawn ends today, and
@@ -2369,7 +2369,7 @@ here, and the copy of the player's save is let go, made again on request. The lo
     observer a count read at the stopwatch's resolution, and a file of a thousand transforms read in
     3,197 microseconds with no observer and 3,604 with one, about 0.4 microseconds an event told; a
     live reload of the level told both lights, the three model references and the scene with no
-    error. The scene guide's paragraph after saving and loading with a block, the cheat sheet's
+    error. The scene guide's paragraph after saving and loading with a block, the cheatsheet's
     sentence, the upgrading guide's entry and 23 lines of the surface listing follow. Done at
     `43ace92a` on 2026-10-20, as the head says.
 
@@ -2389,7 +2389,7 @@ here, and the copy of the player's save is let go, made again on request. The lo
     demand, for a game's settings and records. Read first BevyCSharp's save game and persistent
     setting for the model, never edited, and how this engine's scene file tells an entity from one
     run to the next, which a save over scenes needs; say the form before the commit; the scene
-    guide's section with a block, the cheat sheet's hand sentence, the surface listing and the
+    guide's section with a block, the cheatsheet's hand sentence, the surface listing and the
     upgrading guide's entry; tests of a save over a scene with an entity added, one removed and one
     changed, of a level edited after the save, of a persistent value read over its default with a
     field added, and of the cost of a save against a whole scene written. Two commits, the save over
@@ -2422,7 +2422,7 @@ here, and the copy of the player's save is let go, made again on request. The lo
     in 456 bytes and loaded back right. Item 52's allocation test takes the least of five reads a
     condition, since a test beside it registers codecs from an assembly it compiled and the
     registry's next lookup rebuilt its index in the middle of a measured read, the stated cost
-    unchanged. The scene guide's section with a block, the cheat sheet's sentence, ARCHITECTURE.md's
+    unchanged. The scene guide's section with a block, the cheatsheet's sentence, ARCHITECTURE.md's
     sentence, the upgrading guide's entry and eight lines of the surface listing follow. The save
     over scenes done at `a150c4c1` on 2026-10-20. The persistent value's form said by 18:27 and
     taken: a sealed class over a type made from a file name, a fallback and whether to save on
@@ -2441,7 +2441,7 @@ here, and the copy of the player's save is let go, made again on request. The lo
     keeping the fallback's scale, nothing written until asked and then on demand and on change with
     revert and reset, a broken file giving the fallback with its problem and the file left as it
     was, and a vector refused for want of a codec; a live run wrote a field of view and read it over
-    a camera's fallback. The scene guide's section with a settings block, the cheat sheet's
+    a camera's fallback. The scene guide's section with a settings block, the cheatsheet's
     sentence, the upgrading guide's entry and eleven lines of the surface listing follow. The
     persistent value done at `8e31620c` on 2026-10-20; the item is done, the ledger's row saying
     both engines have it.
@@ -2453,8 +2453,8 @@ here, and the copy of the player's save is let go, made again on request. The lo
     lean on the order of their adding, which no one asked for and item 48's shuffle moves since
     `6a289059`; the engine gains an asked order, a system added before or after another by name or a
     chain of names, kept by the batches as a conflict's order is kept and by the shuffle, a cycle
-    refused with the names at the app's start; the behaviors guide's paragraph on stages, the cheat
-    sheet's hand sentence, ARCHITECTURE.md's schedule sentence, the surface listing and the
+    refused with the names at the app's start; the behaviors guide's paragraph on stages, the cheatsheet's
+    hand sentence, ARCHITECTURE.md's schedule sentence, the surface listing and the
     upgrading guide's entry; tests of a before, an after and a chain holding under forty seeds
     beside item 48's, a cycle refused by name, and the cost of a stage with no asked order, which
     must be none. Read first how a system is named and found in the schedule today and BevyCSharp's
@@ -2478,7 +2478,7 @@ here, and the copy of the player's save is let go, made again on request. The lo
     Four tests, an after, a before and a backward chain holding in the sorted list, through the
     parallel batches and under forty seeds, a chain run after startup in its order, the round and
     the unknown name refused with their messages, and a stage with no order left as it was. The
-    behaviors guide's paragraph and block, the cheat sheet's sentence, ARCHITECTURE.md's schedule
+    behaviors guide's paragraph and block, the cheatsheet's sentence, ARCHITECTURE.md's schedule
     paragraph in place of its sentence that there is no ordering, BUILDING.md's shuffle paragraph,
     the upgrading guide's entry and five lines of the surface listing follow. Done at `02d89f18` on
     2026-10-20, as the head says, the ledger's row saying both engines have it.
@@ -2493,7 +2493,7 @@ here, and the copy of the player's save is let go, made again on request. The lo
     passing through walls; and the physics API gains a call placing a dynamic body at a point and
     orientation at rest, its velocities zeroed and its sleep state woken, beside the set-position
     call that keeps the velocity, with the difference said in both remarks. The physics guide's
-    paragraphs on characters and bodies, the cheat sheet through its script, the surface listing and
+    paragraphs on characters and bodies, the cheatsheet through its script, the surface listing and
     the upgrading guide's entry; tests of a flying character holding its height with no ground under
     it, stopped by a wall and a ceiling, landing when the flight ends, and of a body placed at rest
     staying there where set-position would have carried its velocity on. One commit. Read first how
@@ -2519,7 +2519,7 @@ here, and the copy of the player's save is let go, made again on request. The lo
     two spinning boxes thrown on ice, the placed one at zero velocities holding within 0.01 with its
     turn kept and the set one sliding on, the placed one then sleeping, placed up, awake at once and
     falling; each test failing at its first check with the flight branch or the zeroing taken out.
-    The physics guide's sentences and a paragraph with a compiled block, the cheat sheet's three
+    The physics guide's sentences and a paragraph with a compiled block, the cheatsheet's three
     lines through its script and a sentence in its prose, four lines of the surface listing and the
     upgrading guide's entry follow. Done at `ac77ef83` on 2026-10-20, as the head says, the ledger's
     row saying both engines have it.
@@ -2535,7 +2535,7 @@ here, and the copy of the player's save is let go, made again on request. The lo
     found as models are found, the reference reading as none where the file is missing with a
     warning naming the id; the animation machine's file of item 51 and the persistent value of item
     53 read against it, the machine's path field kept and the id offered beside it; the scene
-    guide's section with a block, the cheat sheet's hand sentence, the surface listing and the
+    guide's section with a block, the cheatsheet's hand sentence, the surface listing and the
     upgrading guide's entry; tests of a data file saved with an id and read back, a reference
     resolved by id after the file is renamed, a missing file read as none with its warning, and the
     cost of a scene with no reference, which must be none. Read first BevyCSharp's data asset and
@@ -2786,7 +2786,7 @@ here, and the copy of the player's save is let go, made again on request. The lo
     own by default, the pan from the listener's across vector against the direction to the voice and
     the volume falling from a near distance to a far one the voice or the server sets, with the slot
     kept for a richer one and the setter replacing the default; the guide's sentence then true and
-    saying the model, the cheat sheet through its script where a call is added, the surface listing
+    saying the model, the cheatsheet through its script where a call is added, the surface listing
     and the upgrading guide's entry; a test playing a sound to the listener's left and reading the
     mix's sides through a mixed processor as the zone does, and one at twice the far distance
     reading near silence; the feature test's audio zone then plays its drone through the spatial
@@ -2802,7 +2802,7 @@ here, and the copy of the player's save is let go, made again on request. The lo
     zero meaning the server's, the tick filling the context from them; the comments that said none
     is built in, that the backend ignores the pan and that named Steam Audio for the slot put right;
     the audio guide's section gaining the model and the upgrading guide its entry, no flat call
-    added so the cheat sheet stands, eight lines of the surface listing. Tests: a unit test through
+    added so the cheatsheet stands, eight lines of the surface listing. Tests: a unit test through
     the recording backend at four placements with their pans and volumes, a new device test playing
     a looping tone on the dummy driver and reading the mix's sides, the right under a hundredth of
     the left at three to the left and the mix at twice the far distance under a thousandth of the
@@ -2841,8 +2841,8 @@ here, and the copy of the player's save is let go, made again on request. The lo
     `UpdateModelFromEditMesh` writing the meshes again in place after a change, and a collider
     through `CreatePhysicsStaticModel` from the built model. The surface is a resource struct
     `EditMesh` holding an id, with the calls in a new area file `E3D.Modeling.cs`, named as raylib
-    would name them where it has the operation and plainly where it has none, each with its cheat
-    sheet line through the script and the surface listing, and a guide page `docs/modeling.md` with
+    would name them where it has the operation and plainly where it has none, each with its cheatsheet
+    line through the script and the surface listing, and a guide page `docs/modeling.md` with
     a section an operation showing the recipe and what it makes. Tests: a test an operation on exact
     counts of vertices, edges and faces, the signed volume of a closed mesh (a two by three by four
     box 24, a stairs the sum of its steps), and watertightness, every edge shared by two faces with
@@ -2857,7 +2857,7 @@ here, and the copy of the player's save is let go, made again on request. The lo
     primitives, the six selects and the transforms as void calls on an `EditMesh` handle in
     E3D.Modeling.cs, the data an internal `EditMeshData` under `3DEngine/Modeling` ported from
     BevyCSharp's to System.Numerics with a process-wide store, AGENTS.md's row for the folder, the
-    cheat sheet and the listing written by their scripts; departures taken, measures as given and
+    cheatsheet and the listing written by their scripts; departures taken, measures as given and
     `EditMeshSnap` putting the selection on the grid as BevyCSharp decided, an operation on an
     unloaded mesh warning and doing nothing, the smooth flag landing here; 24 new tests, the null
     device suite 1,509 passed and 322 skipped against 1,482 and 324 before, the strict build and
@@ -2872,8 +2872,8 @@ here, and the copy of the player's save is let go, made again on request. The lo
     of no area left out; ear clipping ported so the indices match BevyCSharp's; departures taken,
     world-aligned box coordinates and no tangents since the vertex has none, join taking a model's
     file so the recipe runs again, a slot with no faces built as one triangle of no area, the
-    recipe's error with a comma; docs/modeling.md in the guide chain with a README row and the cheat
-    sheet's paragraph, 11 blocks building on a package; 40 new tests, the suite 1,550 passed and 322
+    recipe's error with a comma; docs/modeling.md in the guide chain with a README row and the cheatsheet's
+    paragraph, 11 blocks building on a package; 40 new tests, the suite 1,550 passed and 322
     skipped on the null device, the strict build and NormTests clean, every file under 800 lines.
     The item's code is whole on the branch; the example and the gallery capture of each primitive,
     the Vulkan row of BadFileTests and the device tests fall to the local coder at the cherry-pick.
@@ -2968,8 +2968,8 @@ here, and the copy of the player's save is let go, made again on request. The lo
     BevyCSharp's, the names a world resource with `SetEditMeshName` and `GetEditMeshByName`,
     model.show spawning an entity whose model is rebuilt in place as the mesh's version moves
     through a Render-stage system, paths read from the working directory, the guide's section
-    blocking out from the terminal with the house as command lines, the E3D.md rows and the cheat
-    sheet; six tests, 1,621 passed on the null device, 21 blocks on a local pack. The window follows
+    blocking out from the terminal with the house as command lines, the E3D.md rows and the cheatsheet;
+    six tests, 1,621 passed on the null device, 21 blocks on a local pack. The window follows
     in the second commit. Second commit `8060579` on `modeling`, read at 21:35, the repository's
     author identity: `DrawModelingWindow(mesh, position)` answering whether the mesh's shape or
     slots changed since the last draw so a program rebuilds its model on true, the pointer's ray
@@ -3103,8 +3103,8 @@ here, and the copy of the player's save is let go, made again on request. The lo
     with a tool window open has its button taken by the window. Dear ImGui's own default is
     navigation by the keyboard and the mouse alone, and rlImGui leaves the pad out unless asked, so
     the engine does the same: a call turning the pad's navigation on for a program that wants its
-    windows driven from a couch, off by default, named in the ImGui guide section and the cheat
-    sheet through its script, with the surface listing and the upgrading entry; a test that a pad's
+    windows driven from a couch, off by default, named in the ImGui guide section and the cheatsheet
+    through its script, with the surface listing and the upgrading entry; a test that a pad's
     press reaches the game and not ImGui by default and both when the call is made. The interface
     zone then presses the pad without the click first, keeping the click as a step of its own. One
     commit, before item 59. Done at `b47d20d6` on 2026-10-21, as the head says.
@@ -3119,7 +3119,7 @@ here, and the copy of the player's save is let go, made again on request. The lo
     answers a `ShaderReadback` handle with a fence of the submission;
     `IsShaderReadbackReady(readback)` answers without waiting; `GetShaderReadback(readback, span)`
     copies the bytes out once ready, or waits where asked early; `UnloadShaderReadback` frees the
-    staging buffer; the staging buffers pooled by size. With the cheat sheet lines through the
+    staging buffer; the staging buffers pooled by size. With the cheatsheet lines through the
     script, the surface listing, the compute guide's section saying when a game reads with a wait
     and when without, and the upgrading entry. Tests: a dispatch writing a sequence read back the
     frame after without a wait, the ready flag false on the frame of the ask under the null device's
@@ -3142,7 +3142,7 @@ here, and the copy of the player's save is let go, made again on request. The lo
     by a barrier the frame records; the mesh drawn by `DrawMesh` and the model pass as any other,
     culled by a box the program sets with `SetMeshBoundingBox`, read by the global illumination's
     data as a mesh of positions and the stream's colors where the format says so, and its physics
-    left to the program. With the cheat sheet lines, the surface listing, the compute guide's
+    left to the program. With the cheatsheet lines, the surface listing, the compute guide's
     section with a compute shader writing a quad and the frame drawing it, an example
     `shaders_compute_mesh` with its capture, and the upgrading entry. Tests: a shader writing two
     triangles and a count of 6 drawn and read from the frame's pixels on the device, a count of 0
@@ -3184,7 +3184,7 @@ here, and the copy of the player's save is let go, made again on request. The lo
     frames as the format's frame chunks over the engine's PNG writer, lossless, which GitHub's pages
     play as they play a GIF; no library is taken, the dependency table allowing none for it and, in
     the flat API as raylib's examples record with Ctrl and F12, `StartRecording(fileName,
-    intervalMs)` and `StopRecording()` with their cheat sheet lines through the script and the
+    intervalMs)` and `StopRecording()` with their cheatsheet lines through the script and the
     surface listing; and a step of its own in the e3d client, `./e3d record <path> <length> [--every
     <step>]`, which sends the command and waits for the file. For captures on disk, a script
     `build/animate.py <out> <pictures...> --delay <ms> [--loop n] [--scale s]` assembles PNG or WebP
@@ -3208,14 +3208,14 @@ here, and the copy of the player's save is let go, made again on request. The lo
     `2026-10-21_03.45.12.png` and a count where two fall in one second, the second file `_2` and the
     third `_3` as the source's own code counts, read by the game's coder, through `TakeScreenshot`;
     a line in the log says the path; `SetScreenshotKey(KeyboardKey key)` moves it or turns it off
-    with `KeyboardKey.Null`, and a program that reads F2 itself still sees the press. The cheat
-    sheet line through the script, the surface listing, the window guide's paragraph beside
+    with `KeyboardKey.Null`, and a program that reads F2 itself still sees the press. The cheatsheet
+    line through the script, the surface listing, the window guide's paragraph beside
     `TakeScreenshot` and the upgrading entry. Tests: a press through the input writing a file of the
     frame's size into the folder on the null device, two in one second given two names, the key
     moved and turned off. One commit, after item 70. F2 is the engine's own key for its performance
     window today, so the window moves to F3, the debug screen's key in the game named, with
     `SetProfileWindowKey(KeyboardKey key)` to match the screenshot's call, the move said in the
-    upgrading entry and the cheat sheet's ImGui prose; a program whose own F3 does something, the
+    upgrading entry and the cheatsheet's ImGui prose; a program whose own F3 does something, the
     voxel game among them, moves or turns the window's key off through the call, which its item 40
     does. Done at `eba9c35a` on 2026-10-21, as the head says, the window's key read by a `[RunIf]`
     condition.
@@ -3236,7 +3236,7 @@ here, and the copy of the player's save is let go, made again on request. The lo
     bad measures, a rectangle past the frame or no device, through the capture's path split out so
     shot, F2 and the command take one path, answered later as shot is with the mean of each sRGB
     channel and the largest step along the middle row and column with where it lies; the E3D.md row,
-    the command-line guide's block and paragraph, the cheat sheet's line; four tests, the device one
+    the command-line guide's block and paragraph, the cheatsheet's line; four tests, the device one
     run on lavapipe in the cloud since github.com answers it and slangc was fetched, 45 passing in
     that run with the screenshot and recording tests; the whole lavapipe suite running there and
     reported when it ends. The item's code is whole on the branch. On main as `b48762bb`, pushed at
@@ -3276,8 +3276,8 @@ here, and the copy of the player's save is let go, made again on request. The lo
     Func<IEnumerable<string>> lines)` with a remove, the sections drawn in the left column under the
     engine's own in the order added; the performance window of item 73's F3 folded into the
     overlay's renderer section and the Shift+F3 profiler, its call and key gone. The same keys,
-    layout, words and registration in both engines. The guides' section on the debug keys, the cheat
-    sheet lines through the script, the surface listing and the upgrading entry; the feature test
+    layout, words and registration in both engines. The guides' section on the debug keys, the cheatsheet
+    lines through the script, the surface listing and the upgrading entry; the feature test
     adding a section and the voxel game its own when the package comes. Tests: F1 dropping the
     scope's draws and the ImGui windows and keeping the overlay, read from the frame's pixels on the
     device; F3's release alone toggling and a chord not; a section's lines in the overlay's text;
@@ -3298,7 +3298,7 @@ here, and the copy of the player's save is let go, made again on request. The lo
     73's window folded away fall to the local coder at the cherry-pick. First commit `ded39966` on
     `modeling`, read at 22:19, the repository's author identity, after a merge of main into the
     branch, `f19b3593`, which took main's sixteen commits with the branch's files kept where both
-    added them and the listing and the cheat sheet written again, so the cherry-picks stand as they
+    added them and the listing and the cheatsheet written again, so the cherry-picks stand as they
     are: `BeginUi()` returning false while hidden with the draw list rewound to where the scope
     opened, scopes nesting, `EndUi()` refusing with none open, `IsUiHidden()`, the two key setters
     with `Key.Null` for off, F1 on its press and F3 on its release with no other key down during its
@@ -3317,8 +3317,8 @@ here, and the copy of the player's save is let go, made again on request. The lo
     nodes by GPU then CPU from the profile's averages over the last second;
     `AddDebugOverlaySection(name, lines)` and `RemoveDebugOverlaySection(name)` on the overlay
     resource, a section a gap, its name and its lines in the order added, a throwing section saying
-    its exception where its lines would be; the guide's paragraphs with a compiled block, the cheat
-    sheet and the listing; eleven tests, 1,656 passed on the null device, 9 blocks on a local pack.
+    its exception where its lines would be; the guide's paragraphs with a compiled block, the cheatsheet
+    and the listing; eleven tests, 1,656 passed on the null device, 9 blocks on a local pack.
     The item's code is whole on the branch; the pixel tests of the overlay and the strip fall to the
     local coder at the cherry-pick of both commits. On main as `f44eeae0` and `1f563f15`, pushed at
     22:49; the pixel tests to come in the local coder's next commit. Pixel tests done at `511e0fed`;
@@ -3364,7 +3364,7 @@ here, and the copy of the player's save is let go, made again on request. The lo
     exposure, float white, float lower, float upper)` in that form, as a tonemap beside the others,
     and `SetTonemapShader(Shader shader)` running a program's own fragment stage over the frame in
     the tonemap's place for a curve the parameters cannot say, the pass's input and output as the
-    post guide names them; the cheat sheet lines through the script, the surface listing, the
+    post guide names them; the cheatsheet lines through the script, the surface listing, the
     guide's paragraph and the upgrading entry. Tests: the parametric curve's output at a few levels
     from 0.05 to 4 against the formula on the null device, and a program's shader tonemapping a
     frame to a known color on the device. One commit, small, after item 79; its Review line under
@@ -3391,7 +3391,7 @@ here, and the copy of the player's save is let go, made again on request. The lo
     or whiter than the sky, must draw its own sky and hand the engine a map for the light alone. The
     mend: `SetEnvironmentLight(float intensity, Color tint)`, the share and the tint of the
     environment map's light on the scene, the drawn sky unchanged, one and white by default, read by
-    the model pass and the global illumination's sky term alike; the cheat sheet line through the
+    the model pass and the global illumination's sky term alike; the cheatsheet line through the
     script, the surface listing, the lighting guide's paragraph beside the environment map and the
     upgrading entry. Tests: a white wall's shaded side at a half the light with the drawn sky's
     pixels unchanged, on the device, and the null device recording the values. One commit, small,
@@ -3405,7 +3405,7 @@ here, and the copy of the player's save is let go, made again on request. The lo
     the map's own intensity alone so the drawn sky is unchanged; the global illumination's sky term
     and the bounce reference taking it on the CPU so the cascades and the reference agree; the
     probes' captures following it since they draw through the model pass, as the room's own surfaces
-    do; the cheat sheet, the listing, the lighting guide's paragraph and the upgrading entry; on the
+    do; the cheatsheet, the listing, the lighting guide's paragraph and the upgrading entry; on the
     device a white wall under a flat map and no light reading half at 0.5 and red alone under a red
     tint with the drawn sky's pixels unchanged in the same frame, without a GPU the setter, the
     getter, the clamp, the resource surviving a new map and the buffer's values read from the
@@ -3499,13 +3499,13 @@ here, and the copy of the player's save is let go, made again on request. The lo
     an entry commit. Done at `a400a723` on 2026-10-23, UpgradingTests gone whole with the build's
     fetch of the 5.1 commit.
 
-86. **The cheat sheet's lines are one-liners, as BevyCSharp's are (Decision 65).** Decided at 21:39
-    on 2026-10-23, the cheat sheets are to be coherent: 3DEngine's lines one-liners as BevyCSharp's
+86. **The cheatsheet's lines are one-liners, as BevyCSharp's are (Decision 65).** Decided at 21:39
+    on 2026-10-23, the cheatsheets are to be coherent: 3DEngine's lines one-liners as BevyCSharp's
     are, and BevyCSharp's section headers as 3DEngine's, plain words without the code styling. Here
     each line's comment wraps onto continuation lines aligned under the first, written so by
     build/cheatsheet.sh. The mend: the script writes the signature, two spaces, `//` and the first
-    sentence on one line however long, no continuation, and the page is written again; the cheat
-    sheet test holds the form, one member a line and every line with its comment. One commit, small,
+    sentence on one line however long, no continuation, and the page is written again; the cheatsheet
+    test holds the form, one member a line and every line with its comment. One commit, small,
     with the local coder's next batch. Done at `e8d52f80` on 2026-10-23, padded to column 57 or two
     spaces past a longer signature, the writer's test holding the form.
 
@@ -3700,7 +3700,7 @@ here, and the copy of the player's save is let go, made again on request. The lo
     entities at its `5113176` on 2026-10-24, read at 18:53, its ASKS.md entry of 2026-10-24; a gap
     the port finds comes to the engine first, Decision 68. Query stops at three components and the
     game's mobs will need more. Query takes up to six, or a tuple of any count where the generator
-    allows it, with the same iteration and ref access, the cheat sheet's line and the guide's page
+    allows it, with the same iteration and ref access, the cheatsheet's line and the guide's page
     following; a test over a query of five components. One commit, small, after item 104. Done at
     `f0574e89` on 2026-10-24, up to six components in the three forms with the test.
 
@@ -3721,7 +3721,7 @@ here, and the copy of the player's save is let go, made again on request. The lo
     names every fire cell it sets and the game must skip a cell that has its fire, and with no
     lookup by cell it walks every fire into a set each frame the world names one. The engine gives a
     lookup by a component's key, an index the world keeps for a component type that names its key,
-    kept on spawn, change and despawn, with a query by key and a contains, the cheat sheet's line
+    kept on spawn, change and despawn, with a query by key and a contains, the cheatsheet's line
     and the guide's page saying it; a test over a thousand entities finding one by key and none
     after its despawn, allocating nothing on the lookup. One commit, small, after item 106 and
     before 102. Done at `a0d3d7f7` on 2026-10-24, IKeyed and the world's KeyIndex kept by the store,
@@ -3775,7 +3775,7 @@ here, and the copy of the player's save is let go, made again on request. The lo
     the horizon's colors of item 75 following the hour; a program draws its own things over it as
     before; the environment map built from the sky each frame it changes, under a budget. The
     numbers the game settled by decision, read from its code as a model, nothing of its resource
-    packs. An example `core_day_sky` with its capture at four hours, the cheat sheet lines, the
+    packs. An example `core_day_sky` with its capture at four hours, the cheatsheet lines, the
     surface listing, the drawing guide's section and the upgrading entry; Hopper takes it as its
     sky. Tests: the sun's direction and color at four hours, the moon's phase at two days, the
     stars' count and spread, and a capture of the example at dawn read against its record. Two
@@ -3818,7 +3818,7 @@ here, and the copy of the player's save is let go, made again on request. The lo
     the horizon, the image's lower half still lighting the scene through the environment map; a
     program with a sky image and no fog asks for a horizon color with `SetSkyHorizon(Color color,
     float blendDegrees)`, which the fog sets by itself, and `SetSkyHorizon` with a clear color turns
-    it off. The cheat sheet line through the script, the surface listing, the drawing guide's
+    it off. The cheatsheet line through the script, the surface listing, the drawing guide's
     paragraph beside the sky, the upgrading entry, and Hopper's capture taken again. Tests: a
     frame's pixels read across the horizon with fog on showing no step over a pixel on the null
     device's sky, and the horizon color drawn where asked without fog. One commit, small, after item
@@ -3839,7 +3839,7 @@ here, and the copy of the player's save is let go, made again on request. The lo
     map's light on the scene untouched, kept through a change of map, a clear color taking it away;
     tests on the null device and lavapipe, the step across the horizon from 131 to at most 16 with
     an 8 degree blend, the color exact where asked, a cube lit the same with and without it; the
-    guide's paragraph, the cheat sheet and the listing; Summit setting a gray blue over 6 degrees,
+    guide's paragraph, the cheatsheet and the listing; Summit setting a gray blue over 6 degrees,
     drawn 120 frames on lavapipe with its log clean. Summit's capture falls to the local coder at
     the cherry-pick. On main as `6ee3c87b` with Summit's capture at `4e120e87` on 2026-10-24, held
     for the push; item 75 done.
@@ -3888,7 +3888,7 @@ here, and the copy of the player's save is let go, made again on request. The lo
     views read against their references with the knee on and off, the strip's and the sunlit floor's
     distances shrinking and no view widening, a test of a gradient through the transform reading the
     knee's below unchanged and the above desaturated, the guide's post-processing page saying it and
-    the cheat sheet's line. One commit, small, first, before item 108. Done at `8ae947ee` on
+    the cheatsheet's line. One commit, small, first, before item 108. Done at `8ae947ee` on
     2026-10-24, the knee in the engine's own curve, the strip's highlight 255, 255, 254 against the
     reference's white, the reference frames moved in their highlights alone.
 
@@ -3900,7 +3900,7 @@ here, and the copy of the player's save is let go, made again on request. The lo
     the answering of the mobs, stay inside one system. The generator takes After and Before
     attributes naming another system, and InState more than once on a method meaning all of them,
     carried into the descriptor as AddSystem's are, the guide's page on behaviors showing both and
-    the cheat sheet's line; a test of three behaviors ordered against the stage's default and one
+    the cheatsheet's line; a test of three behaviors ordered against the stage's default and one
     gated on two states. One commit, small, after item 109 and before 108. Done at `31d1fcb6` on
     2026-10-25, After, Before and the repeated InState through the generator with E3D009 for a wrong
     name, the departures in the head.
@@ -3910,7 +3910,7 @@ here, and the copy of the player's save is let go, made again on request. The lo
     port finds comes to the engine first, Decision 68. BehaviorContext.Input keeps the wheel
     internal, so the game's controller reads it through GetMouseWheelMove beside the context's keys
     and mouse delta. The context's input gains the wheel's move as the window's input has it, the
-    cheat sheet's line and the guide's page following, a test stepping a behavior with a wheel move
+    cheatsheet's line and the guide's page following, a test stepping a behavior with a wheel move
     queued. One commit, small, after item 110 and before 108's second phase. Done at `0cfc2843` on
     2026-10-25, Input.MouseWheel beside MouseDelta with the test and the guide's zoom.
 
@@ -4121,7 +4121,7 @@ here, and the copy of the player's save is let go, made again on request. The lo
     Decision 72, the call goes. The probes are on while global illumination is on, the only off
     gi.toggle screen and the window's debug box, which leave them out whole, neither traced nor
     read, so their cost and their look can both be read; the glow-only pass goes with the call, item
-    71's sixth term, reached by debugging alone; the docs, the cheat sheet, upgrading.md,
+    71's sixth term, reached by debugging alone; the docs, the cheatsheet, upgrading.md,
     PublicApi.txt and the screen probe tests follow, about fifteen files. One commit, the form built
     and tested set aside. The game drops its option and its two calls, its item 131, the calls in
     the commit that takes the package carrying this. Changed at 09:39 by decision, Decision 72
@@ -4345,7 +4345,7 @@ here, and the copy of the player's save is let go, made again on request. The lo
     SetShadowSoftness(size) and a default that keeps the present look, the contact shadows
     unchanged; the cost read on the voxel game's grove and the bounce rooms against their references
     with the softness at the default and at the sun's size, and a test reading a pole's shadow
-    sharper at its foot than at its tip; the guide's shadows paragraph and the cheat sheet's line.
+    sharper at its foot than at its tip; the guide's shadows paragraph and the cheatsheet's line.
     One commit, after item 100 and before 93. Done at `45edfbf6` on 2026-10-26, SetShadowSoftness as
     the sun's width across in degrees, 0 by default, percentage-closer soft shadows on the cascades
     with a 16-tap search and a 16-tap filter, the pole's edge 0.08 at the foot and 0.24 at the tip
@@ -4401,7 +4401,7 @@ here, and the copy of the player's save is let go, made again on request. The lo
     size, colors) drawing the box, the text, the selection and the caret with the engine's shapes
     and font in plain colors it documents, so a program draws its own look with EditText alone or
     takes the default; IsTextInputActive() true while an edit has focus so a program's keys stand
-    aside. On the cheat sheet under Input beside GetCharPressed, in PublicApi.txt and in
+    aside. On the cheatsheet under Input beside GetCharPressed, in PublicApi.txt and in
     docs/input.md's text input section with a block built on the package, with a test typing,
     moving, selecting and pasting through the null device's input; the game takes it with the
     package, drawing its own box. One commit, after item 127 and before 93. Done at `0754b975` on
@@ -5546,7 +5546,7 @@ here, and the copy of the player's save is let go, made again on request. The lo
     already; and there is noise, visible in the bounce rooms 3 to 6 or so. Two parts. First, the
     call: the screen probes are a part of the method a program cannot leave out but by the
     `gi.screenprobe` command and the bounce window, so the flat API gains
-    `SetGlobalIlluminationScreenProbes(bool enabled)`, on by default as today, with its cheat sheet
+    `SetGlobalIlluminationScreenProbes(bool enabled)`, on by default as today, with its cheatsheet
     line through the script, the surface listing, the global illumination guide's paragraph on when
     to leave them out, a pixel-art or voxel look among the reasons, the upgrading entry, and a test
     that a frame without them draws the cascades' light alone; one commit, after item 67, since the
@@ -5737,7 +5737,7 @@ here, and the copy of the player's save is let go, made again on request. The lo
     line on movement; a test reading a floor across the field's edge with no step in its light over
     a pixel, and a capture of Ore from a height with the field's edge in view, before and after.
     RENDERING.md says the three, the guide's sections on shadows and on the field say the calls, the
-    cheat sheet lines through the script, the surface listing and the upgrading entries. After item
+    cheatsheet lines through the script, the surface listing and the upgrading entries. After item
     71's second part. Three commits, one a part. Given at 02:33 on 2026-10-24 to the cloud session
     on `modeling` after item 2's commit, the tests on the null device and lavapipe there, Ore's
     capture from a height the local coder's at the cherry-pick; its order against item 71's second
@@ -5808,7 +5808,7 @@ here, and the copy of the player's save is let go, made again on request. The lo
     `SetSceneField` taking it with a default read from the Cornell box and Ore so a frame's builds
     stay under a few milliseconds on the device the readings name, the pending meshes built over as
     many frames as the budget takes, nearest the eye first, and the cascades a frame as today where
-    fewer triangles are pending; the guide's paragraph on the budget, the cheat sheet line through
+    fewer triangles are pending; the guide's paragraph on the budget, the cheatsheet line through
     the script, the surface listing and the upgrading entry. Tests: 500 meshes pooled in one frame
     built over several with no frame's field time over the budget's worth, read through the
     profile's mark on the null device's counts and on lavapipe, and the nearest built first. One
@@ -7933,7 +7933,7 @@ here, and the copy of the player's save is let go, made again on request. The lo
     and the commit pushed at 08:35.
 
 209. **The README's last top link is BevyCSharp.** Decision 93 on 2026-11-05. The row over the
-    README's title, Devlog and Cheat sheet, ends with a third link, BevyCSharp, to
+    README's title, Devlog and Cheatsheet, ends with a third link, BevyCSharp, to
     https://github.com/EggyStudio/BevyCSharp, so each engine's page points at the other as the
     game's points at this engine; nothing else of the README moves. A docs-only change, carried by
     200's next commit or by a commit of its own, whichever comes first. Done at `548e598c`, the row
@@ -9167,7 +9167,7 @@ here, and the copy of the player's save is let go, made again on request. The lo
     readings nor the sessions' comparison, which SHARED.md holds; the sibling is named once, where a
     rule or a model was taken from it, as the API's names are from raylib, and nowhere else.
     Committed at `fbf35060` on 20acb49e at 20:4x on 2026-11-08, 48 files, the strict build clean,
-    the suite 2,279 under the layer with the cheat sheet regenerated for four changed summaries;
+    the suite 2,279 under the layer with the cheatsheet regenerated for four changed summaries;
     Done at `fbf35060`, pushed at 22:23 on 2026-11-08 with 218's and 215's records, one run on the
     last.
 
@@ -9705,7 +9705,7 @@ here, and the copy of the player's save is let go, made again on request. The lo
     the middle and the highlights move brighter with no hue, beside the three vectors. The bloom's
     threshold stays in linear light, 1 for white, as confirmed. One function a setting and one unit,
     a short form only where it is a part of the long one in the same unit; the surface changes
-    outright, nothing kept for upgrading before a release, with the public listing, the cheat sheet,
+    outright, nothing kept for upgrading before a release, with the public listing, the cheatsheet,
     the guide's section and its worked numbers and every example that calls them, no capture
     changing since each new form sets what the old form's formula set. A test holds that, the EV
     limits against the multipliers at two camera exposures, the scatter at its ends and its middle,
@@ -12880,9 +12880,9 @@ at `36cae0c2`.
     the runner's desktop, passed to the lightest 3D game.
 
 32. **The GPU named nowhere a user reads, `Engine3D` renamed `E3D`, and the guide table opening with
-    the cheat sheet.** Asked at 17:26 on 2026-10-11, which are items 14, 15 and 16: the development
+    the cheatsheet.** Asked at 17:26 on 2026-10-11, which are items 14, 15 and 16: the development
     machine's GPU out of the code and comments a user sees, the flat API's class renamed with its
-    files and the test collections, and the README's guide table given the cheat sheet's row as
+    files and the test collections, and the README's guide table given the cheatsheet's row as
     BevyCSharp's has it.
 
 33. **The radiance cascades are said in the README and in a guide page of their own.** Asked at
@@ -13216,7 +13216,7 @@ at `36cae0c2`.
     upgrading page keeps its Changed section alone, its tests for names gained and lost going as
     item 85. A decision ends this at the full release.
 
-65. **The two cheat sheets have one form.** Decided at 21:39 on 2026-10-23, the cheat sheets are to
+65. **The two cheatsheets have one form.** Decided at 21:39 on 2026-10-23, the cheatsheets are to
     be coherent: 3DEngine's lines one-liners as BevyCSharp's are, and BevyCSharp's section headers
     as 3DEngine's, plain words without the code styling. So both pages are a `# Cheatsheet` heading,
     a paragraph saying what the page is and what writes it, then `## Group` headings in plain words,
@@ -14442,7 +14442,7 @@ arcade in the open atrium, lending light along ways the reference finds dark, th
 reading 3.9 times the reference over its rays' cells, the recess b83b1a85 mended past the second
 cascade, here in the second, not the bridge's 104. Landed as 203's commit, the contact shadows past
 the shadow map by default, the map's shadows alone within its reach, with the XML documentation, the
-materials guide and the cheat sheet's line, at no cost, and the back wall at 8:00 recorded with
+materials guide and the cheatsheet's line, at no cost, and the back wall at 8:00 recorded with
 197's recess (gi.compare against references of one, two and every bounce at 1,024 paths, `gi.toggle
 screen`, `gi.screenprobe` at 256 paths, `./e3d command profile`).
 
@@ -16501,7 +16501,7 @@ GlowStillTests holds a still view at both sizes and both qualities to more than 
 a change under a tenth of a level; on the head's shader it reads 1.57 frames and fails.
 
 Item 261, the dither off unless set, by decision that its grain shows on the screen. Effects' Dither
-is false until SetDither(true); SetDither's remarks, IsDitherEnabled's summary, the cheat sheet and
+is false until SetDither(true); SetDither's remarks, IsDitherEnabled's summary, the cheatsheet and
 the guide's row say off unless set; DitherTests reads it off at first and turns it on for itself.
 The eight tests' lines that turn it off are left, doing nothing now and holding them if the default
 turns again. The published package draws as 6.2.41 does in the dark until 263's grain is in.
@@ -16529,7 +16529,7 @@ moved by the golden ratio each frame only under temporal antialiasing. The dithe
 SetDither(false), which leaves the bands, and SetDitherStrength sets its grain from 0 to 1, a half
 unless set: at a half even across a level, the fourth picture shown; at 1 the triangle across two
 levels, the third; between, their quantiles blended; under a half even across less than a level, the
-bands coming back toward none at 0. GetDitherStrength, the listing, the cheat sheet, the guide's
+bands coming back toward none at 0. GetDitherStrength, the listing, the cheatsheet, the guide's
 rows and a slider in the effects' window carry it.
 
 DitherTests' window is 64 rows. On the ramp the default changes 0.431 of neighbors, strength 1
@@ -16689,8 +16689,8 @@ far apart within one shader as between them, so nothing measurable and the terms
 
 Item 266, the engine's comments to N 4.11 as widened on 2026-11-12. About 560 comments in 239 files
 under 3DEngine/, the shaders among them, comment text alone: every changed line is a comment, no file
-passes 800 lines, the cheat sheet takes the eight first sentences changed, and NormTests, the cheat
-sheet's and the documents' tests pass. Out came the games and kinds of games as examples, Minecraft,
+passes 800 lines, the cheatsheet takes the eight first sentences changed, and NormTests, the cheatsheet's
+and the documents' tests pass. Out came the games and kinds of games as examples, Minecraft,
 Sponza, the Cornell box and the bounce rooms as reasons, the readings and costs, the accounts of
 faults and trials and what code was before, likenings of one part to another as the explanation, and
 DDGI, Frostbite, BSL and Unity's HDRP as the reason for a choice; each reason kept is said as what the
@@ -17747,7 +17747,7 @@ the Audio part there too. The wide-panel test starts two apps, 16.8 and 9.8 seco
 joins GlobalIlluminationTests' first process in the first half, seven methods after it in name moving
 one process along, four of them between the first and second halves and three within them.
 
-The cheat sheet has the call's line among the drawing's and the cameras'. The guide tells the call
+The cheatsheet has the call's line among the drawing's and the cameras'. The guide tells the call
 where a game goes far (drawing-3d-and-cameras.md, "Far from the world's origin"), with a program's
 way out, and RENDERING.md what moves. The strict build is clean and the suite passed both legs,
 2,431, in 25 m 43 s and 26 m 1 s. The package is 6.2.60-local.264.10.

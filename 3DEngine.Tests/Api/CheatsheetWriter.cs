@@ -31,7 +31,7 @@ internal static partial class CheatsheetWriter
 {
     // Where a line's comment starts after a shorter declaration, so a function added or changed
     // moves its own line alone. A longer one is followed by two spaces, and the comment runs on to
-    // its end on the one line, as BevyCSharp's cheat sheet writes its lines, so a line is found
+    // its end on the one line, as BevyCSharp's cheatsheet writes its lines, so a line is found
     // whole by a search for the function.
     private const int CommentColumn = 57;
 

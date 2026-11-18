@@ -1956,7 +1956,7 @@ Done that day
 - Item 84 at `21c1b31f`. The README's animated capture of Ore goes.
 - Item 85 at `a400a723`. The upgrading page's tests for names gained and lost go, and the page keeps
   changed behavior alone (Decision 64).
-- Item 86 at `e8d52f80`. The cheat sheet's lines are one-liners, as BevyCSharp's are (Decision 65).
+- Item 86 at `e8d52f80`. The cheatsheet's lines are one-liners, as BevyCSharp's are (Decision 65).
 - Item 87 at `185a79a8`. A headless app's draw list is cleared each frame.
 
 ## 2026-10-21
@@ -2050,7 +2050,7 @@ Done that day
   BevyCSharp's former names and data versions.
 - Item 46 at `748779fc`. A run that shows no window makes no sound, its audio going to a device of
   silence while every sound runs.
-- Item 47 at `b371b65c`. The cheat sheet is written by a tool from each call's documentation, so the
+- Item 47 at `b371b65c`. The cheatsheet is written by a tool from each call's documentation, so the
   two cannot differ.
 - Item 48 at `6a289059`. The suite runs once with the schedule's order shuffled by a seed, so a test
   that leaned on an order nothing asked for is found.
@@ -2191,7 +2191,7 @@ Done that day
 - Item 12 at `7a69c936`. The e3d skill left the `.claude` folder.
 - Item 13 at `ffa3ec48`. `games/Pusher` is gone.
 - Item 14 at `e910f4f4`. The development machine's GPU is named nowhere a user reads (Decision 32).
-- Item 16 at `ffa3ec48`. The README's guide table opens with the cheat sheet's row.
+- Item 16 at `ffa3ec48`. The README's guide table opens with the cheatsheet's row.
 - Item 18 at `043b3af1`. The examples' counts under the Examples heading, and a count on each
   folder's heading (Decision 34).
 - Item 19 at `7798d5e5`. A push plays one game, and the pack run plays them all (Decision 35).

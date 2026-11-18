@@ -317,7 +317,7 @@ also answers whether the two agree.
 
 | Idea | BevyCSharp | 3DEngine |
 |---|---|---|
-| The cheat sheet in one form, a `# Cheatsheet` heading, `## Group` headings in plain words, a guide link and one block a group, one line a member with its signature and `//` and its first sentence on the same line, no continuation and no sub-heading a type (Decisions 58 and 65) | has (`66e2b067`), the types as comments inside the block | has (`e8d52f80`), one line a function |
+| The cheatsheet in one form, a `# Cheatsheet` heading, `## Group` headings in plain words, a guide link and one block a group, one line a member with its signature and `//` and its first sentence on the same line, no continuation and no sub-heading a type (Decisions 58 and 65) | has (`66e2b067`), the types as comments inside the block | has (`e8d52f80`), one line a function |
 | The cheatsheet written by a tool from each call's documentation, so the two cannot differ | has (`build/cheatsheet`, `4de242d`) | to consider, where it is written by hand and checked by name |
 | Documents in three places by reader: a README of about 200 lines for somebody deciding, `docs/` with a page an area for somebody using the engine, the cheatsheet at the root beside the README, `.github/` for somebody working on it | taken at `a0b1fa3`, 24 pages | has (`df8f633e`, 15 pages), the README being the model |
 | The README's table of contents is the guide's, a line a page, with full URLs since it is the package's page too | taken at `a0b1fa3` | has (`c8cce1ce`) |
