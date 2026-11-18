@@ -751,6 +751,16 @@ case "$game" in
     status=$(ask blockout.status)
     echo "$status"
     case "$status" in *"on the ground floor"*) ;; *) fail "the walker does not stand on the ground floor, $status" ;; esac
+    # The hall as the walker first sees it, its picture's mean under 200 of 255 so its light walls
+    # are not washed out, and the help's backdrop left of its words dark enough for their white, a
+    # contrast of 4.5 to 1 at the least.
+    hall=$(ask frame.read)
+    backdrop=$(ask frame.read 5 12 5 36)
+    echo "hall $hall; help's backdrop $backdrop"
+    awk -v m="$hall" 'BEGIN { split(m, c, " "); exit !((c[2] + c[3] + c[4]) / 3 < 200) }' || fail "the hall is washed out, $hall"
+    contrast=$(awk -v m="$backdrop" 'BEGIN { split(m, c, " "); for (i = 2; i <= 4; i++) { v = c[i] / 255; l[i] = v <= 0.04045 ? v / 12.92 : ((v + 0.055) / 1.055) ^ 2.4 }
+      printf "%.1f", 1.05 / (0.2126 * l[2] + 0.7152 * l[3] + 0.0722 * l[4] + 0.05) }')
+    awk -v c="$contrast" 'BEGIN { exit !(c >= 4.5) }' || fail "the help's white words stand at $contrast to 1 against what lies behind them, $backdrop"
     # A route walked by the game's autopilot, its status read after each second of the game, failing
     # where the walker is stuck or the route takes longer than two minutes of the game.
     route() {

@@ -34,6 +34,10 @@ SetSkyTime(14);
 SetSceneField(2, 0.25f, 1);
 SetGlobalIllumination(GlobalIllumination.Medium);
 SetBloom(0.6f);
+// The camera meters what it sees, since the prototype surfaces are near white and a closed room of
+// them sends the lamp's light round many times over, so a camera held at one exposure washed the
+// hall out where the same hall read well before its floor turned light.
+SetAutoExposure(true);
 CreatePointLight(new Vector3(5, 2.9f, 4), new Color(255, 235, 204), 7, range: 16, castsShadows: true);
 
 // -- The walker, a capsule as tall as a person in the middle of the hall, seen from its eyes
@@ -41,6 +45,8 @@ CreatePointLight(new Vector3(5, 2.9f, 4), new Color(255, 235, 204), 7, range: 16
 var walker = CreatePhysicsCharacter(Level.Home, radius: 0.35f, height: 1.8f, mass: 70);
 SetPhysicsCharacterStepHeight(walker, 0.3f);
 var (yaw, pitch) = (0f, 0f);
+
+string[] help = ["WASD to walk, the mouse or the arrows to look, Space to jump", "Tab for the modeling window on the level, F5 to save it"];
 
 while (!WindowShouldClose())
 {
@@ -111,8 +117,10 @@ while (!WindowShouldClose())
 
     // The words and the modeling window are the interface F1 hides, the level drawing on.
     BeginUi();
-    DrawText("WASD to walk, the mouse or the arrows to look, Space to jump", 12, 10, 20, Color.White);
-    DrawText("Tab for the modeling window on the level, F5 to save it", 12, 34, 20, Color.White);
+    // The help on a dark strip, so its white words read over a wall as light as the words are.
+    DrawRectangle(4, 4, Math.Max(MeasureText(help[0], 20), MeasureText(help[1], 20)) + 16, 54, new Color(0, 0, 0, 170));
+    DrawText(help[0], 12, 10, 20, Color.White);
+    DrawText(help[1], 12, 34, 20, Color.White);
     if (Play.Editing) DrawModelingWindow(level);
     EndUi();
     EndDrawing();

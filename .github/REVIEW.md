@@ -1059,3 +1059,26 @@ The runs. The tree builds strict with no warnings, and the modeling, the edit me
 surface's, the cheatsheet's and the norm's tests pass, 199 of 199. Blockout built from the package
 plays through its drive. The suite passes in its parts in order, 2,525 of 2,525 in 25 minutes, and
 shuffled by the seed 20261023, 2,525 of 2,525 in 25 minutes.
+
+Blockout's hall on the prototype table, read and mended, asked after the table's commit.
+
+The read, the hall as the workflow captures it, each part switched in turn, its mean in sRGB of 255.
+As it stands 244, 226 and 189, where the table before read 82, 74 and 64. With the bloom off 243,
+224 and 187, so the grade is not it. With global illumination off 134, 153 and 184, so the bounce
+carries most of it. Metered 138, 122 and 101, where the table before read 128, 117 and 102 metered.
+At a wall's pixel the lamp's own light rose from 0.36 to 0.77 in linear light, as the wall's albedo
+did, and the probes' from 0.07 to 0.37, and at the floor's the probes' rose from 0.0096 to 0.77, a
+room of surfaces of 0.79 in linear light sending the lamp's light round many times over. The camera
+was held at one exposure, set for the darker room. So the mend meters it (`SetAutoExposure`) and
+leaves the table and the lamp as they are, and the help's two lines stand on a dark strip, since
+white words over a wall that light read at about 4 to 1 even metered.
+
+The test. `build/drive-game.sh` reads the hall as the walker first sees it and fails where its mean
+is 200 of 255 or over, or where the help's white words stand under 4.5 to 1 against what lies behind
+them. On the game before it fails, the hall at 249, 232 and 198 and the help's backdrop at 241, 203
+and 166, and after it passes, the hall at 132, 115 and 95 and the backdrop at 44, 36 and 29, about
+15 to 1. The pair is `2026-11-18-blockout-hall.webp`, and Blockout's capture is taken again with the
+mend.
+
+The runs. Blockout built from the package plays through its drive. The norm's and the scripts' tests
+pass, 34 of 34. The tree's tests do not build the games, so no suite leg ran for the game's change.
