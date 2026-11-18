@@ -114,6 +114,90 @@ public static partial class E3D
         }
     }
 
+    /// <summary>
+    /// A body that never moves, shaped as the triangles of <paramref name="vertices"/> taken three
+    /// <paramref name="indices"/> at a time, placed at <paramref name="position"/>, for level
+    /// geometry made as triangles rather than loaded as a model.
+    /// </summary>
+    /// <remarks>
+    /// Each triangle winds counterclockwise as its front is seen from outside, as a model's do, and
+    /// a mesh collides only with bodies that move, and a triangle only from its front. A triangle
+    /// with no area collides with nothing and is left out.
+    /// </remarks>
+    /// <returns>
+    /// The body, or an invalid one where the indices are not whole triangles, name a vertex past
+    /// the last or make no triangle with an area, with the reason in the log.
+    /// </returns>
+    public static PhysicsBody CreatePhysicsStaticMesh(Vector3 position, ReadOnlySpan<Vector3> vertices, ReadOnlySpan<uint> indices)
+    {
+        if (indices.Length % 3 != 0)
+        {
+            ApiLogger.Warn($"CreatePhysicsStaticMesh: {indices.Length} indices are not whole triangles of three.");
+            return default;
+        }
+        var triangles = new List<int>(indices.Length);
+        for (int i = 0; i < indices.Length; i += 3)
+        {
+            if (indices[i] >= vertices.Length || indices[i + 1] >= vertices.Length || indices[i + 2] >= vertices.Length)
+            {
+                ApiLogger.Warn($"CreatePhysicsStaticMesh: the triangle at index {i} names a vertex past the {vertices.Length} given.");
+                return default;
+            }
+            var (a, b, c) = (vertices[(int)indices[i]], vertices[(int)indices[i + 1]], vertices[(int)indices[i + 2]]);
+            if (Vector3.Cross(b - a, c - a) == Vector3.Zero) continue;
+            // Bepu's front faces wind clockwise, so each triangle is turned over.
+            triangles.Add((int)indices[i]);
+            triangles.Add((int)indices[i + 2]);
+            triangles.Add((int)indices[i + 1]);
+        }
+        if (triangles.Count == 0)
+        {
+            ApiLogger.Warn("CreatePhysicsStaticMesh: no triangle has an area.");
+            return default;
+        }
+        return Physics.CreateStaticMesh(position, vertices, triangles.ToArray());
+    }
+
+    /// <summary>
+    /// A body shaped as the convex hull of <paramref name="points"/>, the smallest shape without
+    /// hollows that holds them, with their origin at <paramref name="position"/>, which falls and
+    /// is pushed with <paramref name="mass"/>.
+    /// </summary>
+    /// <remarks>
+    /// The body's position and rotation are where the points' origin is drawn, and it turns about
+    /// its center of mass.
+    /// </remarks>
+    /// <returns>
+    /// The body, or an invalid one where the points are fewer than four or lie in a plane, with the
+    /// reason in the log.
+    /// </returns>
+    public static PhysicsBody CreatePhysicsConvexHull(Vector3 position, ReadOnlySpan<Vector3> points, float mass = 1) =>
+        Hull(nameof(CreatePhysicsConvexHull), position, points, mass, BodyKind.Dynamic);
+
+    /// <summary>
+    /// A body that never moves, shaped as the convex hull of <paramref name="points"/> with their
+    /// origin at <paramref name="position"/>, as a level's brush.
+    /// </summary>
+    /// <returns>
+    /// The body, or an invalid one where the points are fewer than four or lie in a plane, with the
+    /// reason in the log.
+    /// </returns>
+    public static PhysicsBody CreatePhysicsStaticConvexHull(Vector3 position, ReadOnlySpan<Vector3> points) =>
+        Hull(nameof(CreatePhysicsStaticConvexHull), position, points, 0, BodyKind.Static);
+
+    private static PhysicsBody Hull(string caller, Vector3 position, ReadOnlySpan<Vector3> points, float mass, BodyKind kind)
+    {
+        try
+        {
+            return Physics.CreateConvexHull(position, points, mass, kind);
+        }
+        catch (ArgumentException ex)
+        {
+            ApiLogger.Warn($"{caller}: the points make no convex hull, {ex.Message}");
+            return default;
+        }
+    }
+
     // -- Joints, which hold bodies that move. A body held to the world is joined to a kinematic one.
 
     /// <summary>Joins two bodies at a point in the world, each free to turn about it, as a ball in a socket.</summary>

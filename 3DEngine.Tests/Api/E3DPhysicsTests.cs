@@ -183,6 +183,44 @@ public sealed partial class E3DPhysicsTests : IDisposable
     }
 
     [Fact]
+    public void A_Floor_Of_Triangles_Wound_Counterclockwise_From_Above_Holds_A_Ball_Dropped_On_It()
+    {
+        // Two triangles of a floor four meters across a meter up, wound counterclockwise seen from
+        // above, as a level's geometry gives them. Bepu takes a triangle's front as the side its
+        // corners go around clockwise, so a floor not turned over lets the ball through.
+        Vector3[] corners = [new(-2, 0, -2), new(2, 0, -2), new(2, 0, 2), new(-2, 0, 2)];
+        var floor = CreatePhysicsStaticMesh(new Vector3(0, 1, 0), corners, [0, 2, 1, 0, 3, 2]);
+        floor.IsValid.Should().BeTrue();
+        var down = GetRayCollisionPhysics(new Ray(new Vector3(0.5f, 10, 0.5f), -Vector3.UnitY), 20);
+        (down.Hit, down.Body).Should().Be((true, floor), "the floor stands where it was asked");
+        down.Point.Y.Should().BeApproximately(1, 0.01f);
+        var ball = CreatePhysicsSphere(new Vector3(0.5f, 3, 0.5f), 0.25f);
+        RunUntil(() => GetPhysicsBodyVelocity(ball).Length() < 0.01f && GetPhysicsBodyPosition(ball).Y < 1.5f).Should().BeTrue("the ball rests on the floor");
+        GetPhysicsBodyPosition(ball).Y.Should().BeApproximately(1.25f, 0.02f, "on the floor's top, not fallen through it");
+        CreatePhysicsStaticMesh(Vector3.Zero, corners, [0, 2, 1, 0, 3]).IsValid.Should().BeFalse("five indices are not whole triangles");
+        CreatePhysicsStaticMesh(Vector3.Zero, corners, [0, 2, 4]).IsValid.Should().BeFalse("no fifth corner is given");
+    }
+
+    [Fact]
+    public void A_Hull_Of_Points_Falls_Onto_A_Static_Hull_Of_Points_And_Rests_There()
+    {
+        // A level's brush a box of two meters by its eight corners, and a crate of one meter by its
+        // own, dropped onto it.
+        Vector3[] Box(float half) =>
+            [.. Enumerable.Range(0, 8).Select(i => new Vector3(i % 2 == 0 ? -half : half, i / 2 % 2 == 0 ? -half : half, i / 4 == 0 ? -half : half))];
+        var brush = CreatePhysicsStaticConvexHull(new Vector3(0, 1, 0), Box(1));
+        brush.Kind.Should().Be(BodyKind.Static);
+        var top = GetRayCollisionPhysics(new Ray(new Vector3(0.5f, 10, 0.5f), -Vector3.UnitY), 20);
+        (top.Hit, top.Body).Should().Be((true, brush));
+        top.Point.Y.Should().BeApproximately(2, 0.01f);
+        var crate = CreatePhysicsConvexHull(new Vector3(0, 5, 0), Box(0.5f), 2);
+        crate.Kind.Should().Be(BodyKind.Dynamic);
+        RunUntil(() => GetPhysicsBodyVelocity(crate).Length() < 0.01f && GetPhysicsBodyPosition(crate).Y < 3).Should().BeTrue("the crate comes to rest");
+        GetPhysicsBodyPosition(crate).Y.Should().BeApproximately(2.5f, 0.02f, "on the brush's top");
+        CreatePhysicsStaticConvexHull(Vector3.Zero, [Vector3.Zero, Vector3.UnitX, Vector3.UnitY]).IsValid.Should().BeFalse("three points make no hull");
+    }
+
+    [Fact]
     public void A_Ball_Lands_On_A_Model_Made_Level_Geometry_And_A_Rope_Holds_Another()
     {
         var ground = LoadModelFromMesh(GenMeshPlane(10, 10, 1, 1));
