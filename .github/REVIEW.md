@@ -1123,3 +1123,29 @@ follows is a commit of its own.
 The runs. The tree builds strict with no warnings, and the physics' and the norm's tests pass, 115
 of 115. The suite passes in its parts in order, 2,522 of 2,522 in 42 minutes, and shuffled by the
 seed 20261023, 2,522 of 2,522 in 33 minutes.
+
+Item 297, the mend. Siege's status holds its figures as of the frame its screen last changed and
+names that frame (`siege.status`), since a command lands on whichever frame it comes, and the
+drive's reads while the banner and the welds still moved gave the plays' parting figures.
+`build/drive-game.sh` plays the siege twice, the game opened again between, and fails where a status
+read the second time is not the first's. Before the mend the second play read the banner at 30.3
+after the first bomb where the first read 31.1, and 103 welds broken at the third read where 132,
+and the drive failed. After it both plays read `Aim at frame 708` with the banner at 31.2 and `Won
+at frame 1103`, alike to the character. The drive names the validation layer the checkout fetched
+where the caller names none, found through a tools folder linked from another checkout too, where a
+play there drew without the layer and the drive failed on that alone; the workflows name theirs as
+before. The norm's and the scripts' tests pass, 34 of 34, and the drive passes in a checkout of its
+own with the tools folder linked.
+
+Handoff. The glow lights' tier is in at `686f6421`, this engine's half of item 265's read at
+`58f437d4` with its atrium on one scale at `bc7a76b8`, and item 297 at `bc7a76b8` and this commit.
+Next in order are the public bodies, `CreatePhysicsStaticMesh` taking counter-clockwise triangles
+seen from outside and `ReadOnlySpan<uint>` indices and a static `CreatePhysicsConvexHull` overload,
+tests first, then the prototype table read from the Materials module with the six example captures
+remade, then item 265's move once RadianceCascades holds the field's and the probes' readers, its
+line numbers read again at the head, and then 298, 299, 300, 288, 292, 293, 294, 289, 290, and 301
+after 265. Nothing is held open here. The Sky pointer stays until the review says. A fresh session
+reads AGENTS.md, this file's head, its Now list and these Replies from item 296 on, and NORM.md's
+7.9 on the lock and 4.11 and 4.12 on commits and comments. The worktree
+`~/.cache/3dengine-tools/work/3dengine-i297` holds the uncommitted step trace the frame log used and
+can be removed.

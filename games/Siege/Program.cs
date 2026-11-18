@@ -84,6 +84,9 @@ var lastSpeed = 0f;
 var mostForce = 0f;
 var aimFrames = 0;
 string? asked = null;
+// The frames drawn from the first, and the screen the status was last held on.
+var frame = 0;
+Screen? held = null;
 catapult.Load(ammo);
 
 void Throw()
@@ -136,6 +139,7 @@ void Blast(Vector3 center)
 
 while (!WindowShouldClose())
 {
+    frame++;
     var dt = GetFrameTime();
     var screen = GetState<Screen>();
 
@@ -263,10 +267,17 @@ while (!WindowShouldClose())
     var sweep = MathF.Sin((float)GetTime() * 0.3f) * 5;
     SetLightDirection(spot, Vector3.Normalize(Castle.Keep + new Vector3(0, 7, sweep) - spotAt));
 
-    var banner = GetPhysicsBodyPosition(castle.Banner.Body);
-    SiegeCommands.Status = $"{GetState<Screen>()} shots {shots} {catapult.Loaded} blocks {castle.Standing} of {castle.Blocks.Count} " +
-                           $"welds {castle.Welds.Count} broken {castle.Broken} most {mostForce:0} N strength {Castle.Strength:0} N " +
-                           $"banner {banner.Y:0.0} at {banner.X:0.0} {banner.Z:0.0} left {lastSpeed:0.0} arm {catapult.Angle:0} spin {GetPhysicsBodyAngularVelocity(catapult.Arm).Z:0.0} shot {(flying is { } sh ? Place(sh) : "none")}";
+    // The status holds its figures as of the frame the screen last changed, and names that frame,
+    // since a command lands on whichever frame it comes and the castle and the banner may still be
+    // moving then, so two plays of one tree read one status.
+    if (GetState<Screen>() != held)
+    {
+        held = GetState<Screen>();
+        var banner = GetPhysicsBodyPosition(castle.Banner.Body);
+        SiegeCommands.Status = $"{held} at frame {frame} shots {shots} {catapult.Loaded} blocks {castle.Standing} of {castle.Blocks.Count} " +
+                               $"welds {castle.Welds.Count} broken {castle.Broken} most {mostForce:0} N strength {Castle.Strength:0} N " +
+                               $"banner {banner.Y:0.0} at {banner.X:0.0} {banner.Z:0.0} left {lastSpeed:0.0} arm {catapult.Angle:0} spin {GetPhysicsBodyAngularVelocity(catapult.Arm).Z:0.0} shot {(flying is { } sh ? Place(sh) : "none")}";
+    }
     SiegeCommands.Welds = castle.Welds;
 
     // -- The frame.
@@ -361,7 +372,7 @@ public static class SiegeCommands
     internal static Camera3D Camera;
     internal static List<Castle.Weld> Welds = [];
 
-    [Command("siege.status", "The screen, the shots, the shot loaded, the blocks standing, the welds and how many broke, the most force a weld held and the strength it breaks past, how high the banner stands and where, and how fast the last shot left")]
+    [Command("siege.status", "The screen and the frame it changed on, and as they stood on that frame the shots, the shot loaded, the blocks standing, the welds and how many broke, the most force a weld held and the strength it breaks past, how high the banner stands and where, and how fast the last shot left")]
     internal static string Report() => Status;
 
     [Command("siege.throw", "Throws at a power in degrees a second of the arm and an angle in degrees above the field, a stone or a bomb, on the first whole second two or more after the catapult stood loaded: siege.throw <power> <angle> <stone|bomb>")]

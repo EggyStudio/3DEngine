@@ -42,6 +42,11 @@ export E3D_NAME="$game"
 # same way in every run before the first throw, and with its throws on stated frames one tree plays
 # one siege.
 if [ "$game" = Siege ]; then export E3D_FRAME_TIME=0.0166667; fi
+# The validation layer build/fetch-validation-layer.sh fetched into the checkout, where the caller
+# names none, as the workflows name it, found through a tools folder linked from another checkout
+# too, since a game that finds no layer is checked by none.
+layers=build/tools/vulkan-layer/share/vulkan/explicit_layer.d
+if [ -z "${VK_LAYER_PATH:-}" ] && [ -d "$layers" ]; then export VK_LAYER_PATH="$(cd -P "$layers" && pwd)"; fi
 # The script's own output, which an error is written to, so one said inside $(ask ...) reaches the
 # page and not the variable.
 exec 3>&1
@@ -639,21 +644,32 @@ case "$game" in
     # angle. A stone thrown at the keep, and then bombs until the banner is brought down below the
     # walls' top, within eight, the welds they broke asserted on the way. The game lets a commanded
     # throw go on a whole second after the catapult stood loaded, so each throw starts on the same
-    # frame of the siege however late its command comes, and one tree plays one siege.
-    cmd time.frame 0.0166667
-    status=""
-    thrown=0
-    for shot in stone bomb bomb bomb bomb bomb bomb bomb bomb; do
-      cmd siege.throw 250 40 "$shot"
-      thrown=$((thrown + 1))
-      for i in $(seq 1 60); do
-        cmd frames.wait 15
-        status=$(ask siege.status)
-        case "$status" in "Aim shots $thrown "*|Won*) break ;; esac
+    # frame of the siege however late its command comes, and its status holds its figures as of the
+    # frame its screen last changed, so one tree plays one siege and reads one status. It is played
+    # twice, the game opened again between, and each status read the second time is the first's.
+    siege() {
+      : > "$1"
+      cmd time.frame 0.0166667
+      status=""
+      thrown=0
+      for shot in stone bomb bomb bomb bomb bomb bomb bomb bomb; do
+        cmd siege.throw 250 40 "$shot"
+        thrown=$((thrown + 1))
+        for i in $(seq 1 60); do
+          cmd frames.wait 15
+          status=$(ask siege.status)
+          case "$status" in "Aim "*"shots $thrown "*|Won*) break ;; esac
+        done
+        echo "$shot: $status" | tee -a "$1"
+        case "$status" in Won*) break ;; esac
       done
-      echo "$shot: $status"
-      case "$status" in Won*) break ;; esac
-    done
+    }
+    siege "captures/$name-siege-1.txt"
+    ./e3d stop --quiet
+    start || fail "did not open again${pid:+, and $(whereabouts)}"
+    siege "captures/$name-siege-2.txt"
+    cmp -s "captures/$name-siege-1.txt" "captures/$name-siege-2.txt" ||
+      fail "two plays of one tree read two sieges, $(diff "captures/$name-siege-1.txt" "captures/$name-siege-2.txt" | grep '^[<>]' | head -2 | tr '\n' ' ')"
     case "$status" in *" shots 0 "*) fail "the catapult did not throw, $status" ;; esac
     case "$status" in *" broken 0 "*) fail "no weld broke, $status" ;; esac
     case "$status" in Won*) ;; *) fail "the banner did not fall in eight bombs, $status" ;; esac
