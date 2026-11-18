@@ -181,6 +181,10 @@ internal sealed partial class SceneFieldPlan
     // The world matrices of the meshes gone since, so a mesh drawn through one of them, as a mesh
     // uploaded again each frame or a section edited in place is, is no mesh that came (_movedIn).
     private readonly HashSet<Matrix4x4> _departedWorlds = [];
+    // The frames each mesh gone since had been drawn the same and when it last moved, by its
+    // vertices and its matrix, so a mesh drawn of those vertices through that matrix is that one
+    // painted again and goes on from where it was.
+    private readonly Dictionary<(ModelVertex[] Vertices, Matrix4x4 World), (int Frames, long MovedAt)> _departedAt = [];
     private readonly Dictionary<Instance, (Box Bounds, long Added)> _still = new(Keys.Shared);
     private readonly HashSet<Instance> _pending = new(Keys.Shared);
     // Still meshes that left, kept in the field for the meshes replacing them, by the frame they left.
@@ -458,32 +462,38 @@ internal sealed partial class SceneFieldPlan
             }
             // This frame's meshes, and the vertices of those drawn the frame before and not now, so
             // a mesh drawn now and not before of vertices one gone had is taken as that one moved,
-            // whichever way the frame is read.
+            // whichever way the frame is read, and where it stands where that one stood, as that
+            // one painted again, as a mesh is once its texture has loaded or a panel's light is put
+            // out.
             const int unread = int.MinValue;
             var seen = new Dictionary<Instance, int>(drawn.Count, Keys.Shared);
             foreach (var (instance, _) in drawn) seen.TryAdd(instance, unread);
             _departed.Clear();
             _departedWorlds.Clear();
+            _departedAt.Clear();
             for (int i = 0; i < _orderCount; i++)
                 if (!_orderSkinned[i] && !seen.ContainsKey(_order[i]))
                 {
                     _departed.Add(_order[i].Vertices);
                     _departedWorlds.Add(_order[i].World);
+                    _departedAt[(_order[i].Vertices, _order[i].World)] = (_seen.GetValueOrDefault(_order[i]), _movedBefore.GetValueOrDefault(_order[i], Never));
                 }
             // Each mesh's frames drawn the same, a skinned one never still.
             foreach (var (instance, skinned) in drawn)
             {
                 ref var counted = ref CollectionsMarshal.GetValueRefOrNullRef(seen, instance);
                 if (counted != unread) continue;
-                var movedAt = skinned ? Never
+                (int Frames, long MovedAt) was = default;
+                var painted = !skinned && !_seen.ContainsKey(instance) && _departedAt.TryGetValue((instance.Vertices, instance.World), out was);
+                var movedAt = skinned ? Never : painted ? was.MovedAt
                     : !_seen.ContainsKey(instance) && _departed.Contains(instance.Vertices) ? _frame : _movedBefore.GetValueOrDefault(instance, Never);
                 if (movedAt != Never) _movedNow[instance] = movedAt;
-                var before = _seen.GetValueOrDefault(instance);
+                var before = painted ? was.Frames : _seen.GetValueOrDefault(instance);
                 var frames = skinned ? 0 : before >= Settled || before + 1 >= SettleAfter(movedAt) ? Settled : before + 1;
                 counted = frames;
                 if (frames >= Settled) continue;
                 // A mesh that came and has not moved casts nothing until it is built (_movedIn).
-                if (skinned || movedAt != Never || _departedWorlds.Contains(instance.World)) moving.Add(instance);
+                if (skinned || movedAt != Never || !painted && _departedWorlds.Contains(instance.World)) moving.Add(instance);
                 else Arriving++;
                 if (!skinned) unsettled.Add(instance);
             }

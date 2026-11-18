@@ -56,7 +56,9 @@ written at 18:02, the Replies of Verdicts 122 to 127 archived. The pack run 4412
 at 19:49 with Siege won and asserted, Verdict 128 settled and archived. `847e472f`, item 296's first
 step, a glow light and a ray taking an emissive map's average color and an emitter's part counting
 its outward triangles' faces, with its sheet on a white ground, pushed at 20:51 on 2026-11-17, the
-form kept, its build run 44163085814 started. Run 44163085814 of `847e472f` ended green.
+form kept, its build run 44163085814 started. Run 44163085814 of `847e472f` ended green. `275f01d1`,
+the 64 glow lights ranked by what each sends about the eye with the cap's sizes worked out from one
+count, pushed at 07:20 on 2026-11-18, build 44250585686 green at 08:51.
 
 The package stands at 6.2.60 from `baa21ff4`, one package with its templates, published at 18:58 on
 2026-11-12 by the pack run 43243318284 and tagged v6.2.60, carrying 259's two commits beside what
@@ -1030,3 +1032,44 @@ them, pass on the RTX 4070, 49 of 49, and on Mesa 26.2.4 and Mesa 25.2.8, 47 of 
 read against the GPU's own rays skipped there. The suite passes in its parts in order, 2,517 of
 2,517 in 88 minutes, and shuffled by the seed 20261023, 2,517 of 2,517 in 49 minutes.
 `GlowLightCapTests` fails on the tree before, whose `glow.slang` states the probes' uints as 20.
+
+A mesh painted again where it stands, asked beside item 296.
+
+The path. The field takes each mesh with its texture's average color and its maps' average
+roughness, metal and emission (`SceneField`), so a mesh whose texture finishes loading after it was
+first drawn is drawn the next frame as another instance of the same vertices through the same
+matrix, and the one before leaves. The plan's read by place compares the paint (`Same`), so the
+frame is read whole, where a mesh drawn this frame and not the one before, of vertices one gone had,
+was taken as that one moved wherever it stood. A moved mesh is stamped as its box while it settles,
+which for a mesh that moved takes the 1024 frames a figure that stops waits (`MobileSettleFrames`),
+and after that until its cascades are built again, so a building's meshes painted again once their
+textures had loaded would fill its rooms in the field for that long and darken them.
+
+The count. Twenty starts of `scenes_sponza` in its atrium offscreen on `275f01d1`, the camera held
+at ISO 200, 1/200 s and f/16, six rectangles of the frame read at about 315, 1010 and 1710 frames,
+none dark. Every rectangle of every start reads within 2% of the starts' median at each read, the
+arcade walls on both sides, lit by the probes alone, among them. Sponza's textures here finish
+before its meshes are first drawn or within the eight frames they settle in. A scene of slower
+textures or a busier disk would meet the path, so it is mended.
+
+The mend. A mesh drawn of the vertices of one gone through that one's matrix is that one painted
+again (`SceneFieldPlan`, `_departedAt`). It has not moved, it keeps the frames that one had been
+drawn the same and the frame it last moved at, and it is stamped nowhere for having stood where one
+gone stood. A still one painted again is still at once, so the cascades around it are built again
+with its new paint within the frames the budget takes, as a light panel put out is followed within
+two frames. One painted again while it settles settles when it would have. A mesh of those vertices
+drawn through another matrix is taken as moved as before.
+
+The tests. `SceneFieldTests.Repainted` holds a still cube drawn again in another color, stamped
+nowhere and built again in both cascades with its new paint within two frames, and a cube painted
+again on its fourth frame, stamped nowhere and still on its eighth. Both fail without the mend, the
+cube stamped as its box on its first frame painted again.
+
+Nothing seen changes in the scenes the examples open, so no sheet goes with it.
+
+The runs. The tree builds strict with no warnings, and the focused tests, the scene field's and its
+plan's, global illumination's, the cascades' edges' and the norm's classes, 219 pass. Eight starts
+of the atrium after the mend read as the twenty before did, every rectangle of every start within 2%
+of the starts' median at each read and each median within 0.1 of the twenty's. The suite passes in
+its parts in order, 2,519 of 2,519 in 49 minutes, and shuffled by the seed 20261023, 2,519 of 2,519
+in 54 minutes.

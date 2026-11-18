@@ -6,6 +6,20 @@ under `.github/assets/readings` as WebP files named by their day, each on the da
 the notes written beside them as Markdown files named the same way. A line under Done names the item
 of .github/REVIEW.md or .github/REVIEW-ARCHIVE.md and the commit that closed it.
 
+## 2026-11-18
+
+![](.github/assets/readings/2026-11-18-item-296-night-rank.webp)
+scenes_bistro at 22:00 at the camera solved from the night picture given, ISO 3200, 1/60 s and
+f/2.8, at High with bloom off, its 130 carried emitters lit as the 64 nearest the eye and as the 64
+that send the most about the eye, each one's light over its squared distance from it, against the
+path-traced reference at 2048 paths a pixel and two bounces, and the ranked less the nearest and
+less the reference in luminance eight times over, red lighter and blue darker. Against the reference
+the ranked light reads 1.00 and 0.90 on the near paving where the nearest read 0.93 and 0.87, 0.59
+and 0.69 on the left street's paving where 0.41 and 0.06, 0.41, 1.12 and 0.51 on its high walls
+where 0.02, 0.03 and 0.00, and 0.73, 0.92 and 0.81 on the right building's front where 0.22, 0.26
+and 0.27, as all 130 lit read within 0.02, at the cost of 64. The wall by the near lantern reads
+0.29 under both.
+
 ## 2026-11-17
 
 ![](.github/assets/readings/2026-11-17-item-287-width.webp)
