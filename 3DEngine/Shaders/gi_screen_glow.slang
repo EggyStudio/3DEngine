@@ -187,7 +187,7 @@ float3 glowFromProbes(float3 p, float3 n, int4 first, float4 weight, float total
     for (int corner = 0; corner < 4; corner++)
         if (weight[corner] > 0.0)
         {
-            int faint = first[corner] + 16;
+            int faint = first[corner] + GlowSeenLevels;
             float3 fainter = float3(asfloat(glowSeen[faint]), asfloat(glowSeen[faint + 1]), asfloat(glowSeen[faint + 2]));
             if (all(abs(fainter) < 1e30))
                 far += fainter * (weight[corner] / total);
@@ -256,15 +256,20 @@ float3 glowRough(float3 p, float3 n, out bool on, out int dominant)
 bool glowPlaceNew(float3 p, float3 n)
 {
     int count = min(int(lights.glowCounts.x), MostGlowLights);
-    uint2 kept = uint2(asuint(view.glows.y), asuint(view.glows.z));
-    uint2 used = uint2(count >= 32 ? 0xffffffffu : (1u << uint(count)) - 1u, count <= 32 ? 0u : count >= 64 ? 0xffffffffu : (1u << uint(count - 32)) - 1u);
-    if ((kept.x & used.x) == used.x && (kept.y & used.y) == used.y)
+    bool every = true;
+    [loop]
+    for (int u = 0; u * 32 < count; u++)
+    {
+        uint used = count - u * 32 >= 32 ? 0xffffffffu : (1u << uint(count - u * 32)) - 1u;
+        every = every && (lights.glowKept[u >> 2][u & 3] & used) == used;
+    }
+    if (every)
         return false;
     [loop]
     for (int i = 0; i < count; i++)
     {
         uint place = uint(i);
-        bool same = ((place < 32u ? kept.x >> place : kept.y >> (place - 32u)) & 1u) != 0u;
+        bool same = ((lights.glowKept[place >> 7u][(place >> 5u) & 3u] >> (place & 31u)) & 1u) != 0u;
         if (!same && glowLightFade(lights.glows[i], p, n) > 0.0)
             return true;
     }

@@ -73,7 +73,7 @@ ConstantBuffer<ScreenView> view;
 
 // How much of each glow light each probe's surface sees, a byte a light from none to all of it, four
 // lights a uint, and the light of those too faint to be marched to by their faces, in the probe's
-// twenty uints (GlowSeenUints), which gi_screen_glow.slang takes the window's light from the probes
+// uints (GlowSeenUints), which gi_screen_glow.slang takes the window's light from the probes
 // around each of its points by, so the model pass marches to no light itself where a probe stands.
 [[vk::binding(13, 0)]]
 RWStructuredBuffer<uint> glowSeen;
@@ -458,9 +458,9 @@ void computeMain(uint3 id : SV_DispatchThreadID)
     bool fed = (push.texels.w & 2u) != 0u && push.texels.z == probe + 1u;
     if (fed)
         faint = asfloat(0x7FC00000u).xxx;
-    glowSeen[first + 16u] = asuint(faint.r);
-    glowSeen[first + 17u] = asuint(faint.g);
-    glowSeen[first + 18u] = asuint(faint.b);
+    glowSeen[first + uint(GlowSeenLevels)] = asuint(faint.r);
+    glowSeen[first + uint(GlowSeenLevels) + 1u] = asuint(faint.g);
+    glowSeen[first + uint(GlowSeenLevels) + 2u] = asuint(faint.b);
     if ((push.texels.w & 1u) != 0u)
     {
         irradiance[id.xy] = float4(0.0);

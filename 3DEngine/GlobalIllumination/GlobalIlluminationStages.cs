@@ -33,14 +33,13 @@ internal sealed unsafe partial class GlobalIlluminationStages(GraphicsDevice dev
         public uint TexelsAbove, First, Flags, Half;
     }
 
-    // What glow_faces.slang is pushed: where the glow lights lie and their bytes, the places whose
-    // light is the frame before's, the cascades a build of the frame changed, and the box it changed
-    // against the frame's origin.
+    // What glow_faces.slang is pushed: where the glow lights lie and their bytes, the cascades a
+    // build of the frame changed, and the box it changed against the frame's origin.
     [StructLayout(LayoutKind.Sequential)]
     private struct GlowFacesPush
     {
-        public uint At, Bytes, KeptLow, KeptHigh;
-        public uint Built, Unused0, Unused1, Unused2;
+        public uint At, Bytes, Unused0, Unused1;
+        public uint Built, Unused2, Unused3, Unused4;
         public System.Numerics.Vector4 ChangedLow, ChangedHigh;
     }
 
@@ -322,7 +321,6 @@ internal sealed unsafe partial class GlobalIlluminationStages(GraphicsDevice dev
     /// <param name="carriedSince">The frames since the lights or the field last changed, which begins a carried probe's cycle again at 0.</param>
     /// <param name="traceFlags">1 where a carried probe's rays move within their texels and are traced through <paramref name="rays"/>, 2 where every ray is.</param>
     /// <param name="spread">Whether the cascades past the first trace half their probes a frame while they lie still (<see cref="Halved"/>).</param>
-    /// <param name="glowKept">The glow light places whose light is the frame before's, a bit a place, as <c>GlowPlaces.Kept</c> holds them.</param>
     /// <param name="fieldBuilt">The cascades a build of the frame changed, a bit a cascade, none where no build did.</param>
     /// <param name="changedLow">The least corner of the box the frame's builds changed, against the frame's origin.</param>
     /// <param name="changedHigh">The most corner of that box.</param>
@@ -332,7 +330,7 @@ internal sealed unsafe partial class GlobalIlluminationStages(GraphicsDevice dev
         ISampler environmentSampler, IImageView sunMap, ISampler sunSampler, ReadOnlySpan<byte> lights, IReadOnlyList<(float Start, float End)> intervals, float spacing,
         bool mergeOff = false, int alone = -1, bool viewed = false, long frame = 0, IReadOnlyList<bool>? lying = null, int lastCounted = -1, bool lightThrough = false,
         bool fieldWhole = false, int farPart = -1, GpuRayScene? rays = null, IReadOnlyList<(int X, int Y, int Z)?>? shifts = null, float carriedShare = 1, uint carriedSince = 0, uint carriedPhase = 0, uint traceFlags = 0, bool spread = false,
-        (uint Low, uint High) glowKept = default, uint fieldBuilt = 0, System.Numerics.Vector3 changedLow = default, System.Numerics.Vector3 changedHigh = default)
+        uint fieldBuilt = 0, System.Numerics.Vector3 changedLow = default, System.Numerics.Vector3 changedHigh = default)
     {
         // Traced through the meshes where asked and the build for the frame was made, crossing what
         // lets light through where the frame holds any.
@@ -361,7 +359,7 @@ internal sealed unsafe partial class GlobalIlluminationStages(GraphicsDevice dev
             run.Buffer(set, 3, VkDescriptorType.StorageBuffer, gi.GlowFaces!);
             var push = new GlowFacesPush
             {
-                At = GlowLights.Offset, Bytes = GlowLights.Bytes, KeptLow = glowKept.Low, KeptHigh = glowKept.High, Built = fieldBuilt,
+                At = GlowLights.Offset, Bytes = GlowLights.Bytes, Built = fieldBuilt,
                 ChangedLow = new System.Numerics.Vector4(changedLow, 0), ChangedHigh = new System.Numerics.Vector4(changedHigh, 0),
             };
             run.Dispatch(GlowFacesStage, set, MemoryMarshal.AsBytes(new ReadOnlySpan<GlowFacesPush>(in push)), GlowLights.Most);

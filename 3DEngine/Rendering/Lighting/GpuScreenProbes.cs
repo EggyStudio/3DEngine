@@ -108,8 +108,8 @@ internal sealed partial class GpuScreenProbes : IDisposable
     /// <summary>
     /// The bytes of <see cref="View"/>: this frame's camera and its inverse, four rows of the probes'
     /// layout, the frame before's camera and eye, how far from their tiles' middles the probes march
-    /// to the glow lights from, the glow lights' count and the places kept, and the field's cascades
-    /// built as meshes came or went within them with the box around those meshes.
+    /// to the glow lights from, the glow lights' count, and the field's cascades built as meshes
+    /// came or went within them with the box around those meshes.
     /// </summary>
     public const int ViewBytes = 4 * 64 + 9 * 16;
 
@@ -122,8 +122,8 @@ internal sealed partial class GpuScreenProbes : IDisposable
     /// <summary>The bytes of <see cref="RayLog"/>, four float4 values and then four for each of the sixteen rays.</summary>
     public const int RayLogBytes = (4 + 16 * 4) * 16;
 
-    /// <summary>The bytes of <see cref="GlowSeen"/> each probe holds, twenty uints (GlowSeenUints in glow.slang).</summary>
-    public const int GlowSeenBytes = 20 * 4;
+    /// <summary>The bytes of <see cref="GlowSeen"/> each probe holds, a uint of four lights' levels and four more (GlowSeenUints in glow.slang).</summary>
+    public const int GlowSeenBytes = (GlowLights.Most / 4 + 4) * 4;
 
     /// <inheritdoc />
     public void Dispose() => _dispose();

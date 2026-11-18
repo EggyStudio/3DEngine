@@ -37,16 +37,20 @@ namespace Engine;
 /// (<see cref="PartsOf"/>). Its light reaches as far as a surface there takes a 300th of the light
 /// it emits, the share below, or a 300th of what a surface takes half the first cascade's probe
 /// spacing from it where that is further, as for a lamp's small bulb. The <see cref="Most"/>
-/// carried emitters nearest the eye are lights each frame; one past them lights nothing a probe
-/// carries to a floor, its cells marked all the same, so a level of more lamps than that lights
-/// only the nearest. The field marks a mesh whole, so a mesh of many parts past the nearest lights
-/// none of the ground around those parts.
+/// carried emitters that send the most about the eye, each one's light over its squared distance
+/// from the eye, are lights each frame; one past them lights nothing a probe carries to a floor,
+/// its cells marked all the same, so a level of more lamps than that lights only those. The field
+/// marks a mesh whole, so a mesh of many parts past them lights none of the ground around those
+/// parts.
 /// </para>
 /// </remarks>
 internal static class GlowLights
 {
-    /// <summary>How many carried emitters are lights at most, the nearest the eye, as <c>MostGlowLights</c> in <c>glow.slang</c>.</summary>
+    /// <summary>How many carried emitters are lights at most, those that send the most about the eye, as <c>MostGlowLights</c> in <c>glow.slang</c>, which a test holds to this.</summary>
     public const int Most = 64;
+
+    /// <summary>The uint4 values of a bit a place ahead of the lights, saying which places hold the frame before's light (<c>GlowKeptVectors</c>).</summary>
+    public const int KeptVectors = (Most + 127) / 128;
 
     /// <summary>The bytes of a light, its middle and reach, its three half sides and its light.</summary>
     public const int Bytes = 80;
@@ -56,9 +60,10 @@ internal static class GlowLights
 
     /// <summary>
     /// The bytes ahead of the lights, the count and the least corner of the box every light's
-    /// reach lies in, and the box's most corner.
+    /// reach lies in, the box's most corner, and a bit a place saying whether it holds the frame
+    /// before's light (<c>GlowLightsHead</c>).
     /// </summary>
-    public const int Head = 32;
+    public const int Head = 32 + KeptVectors * 16;
 
     /// <summary>The bytes the count, the box and the lights take.</summary>
     public const int Size = Head + Most * Bytes;
@@ -234,13 +239,13 @@ internal static class GlowLights
     }
 
     /// <summary>
-    /// Writes the lights the carried emitters among <paramref name="drawn"/> make, those nearest
-    /// <paramref name="eye"/>, into <paramref name="bytes"/>, the count and then each light, and
-    /// gives how many there were in all, written or not.
+    /// Writes the lights the carried emitters among <paramref name="drawn"/> make, those that send
+    /// the most about <paramref name="eye"/>, into <paramref name="bytes"/>, the count and then
+    /// each light, and gives how many there were in all, written or not.
     /// </summary>
     /// <param name="bytes">The count's and the box's bytes, <see cref="Head"/>, and the lights', <see cref="Size"/> in all.</param>
     /// <param name="drawn">The meshes the field gathered this frame.</param>
-    /// <param name="eye">The window's eye, the nearest to which are written.</param>
+    /// <param name="eye">The window's eye, about which the lights are ranked.</param>
     /// <param name="firstCell">The width of a cell of the field's first cascade, which says which emitters are carried.</param>
     /// <param name="boxOf">The box around a mesh's vertices in its own space.</param>
     /// <param name="shareOf">A mesh's surface over its box's, 1 for a box.</param>
@@ -259,7 +264,16 @@ internal static class GlowLights
         Func<ModelVertex[], IReadOnlyList<Part>>? partsOf = null, RenderOrigin origin = default)
     {
         var lights = Gather(drawn, firstCell, boxOf, shareOf, partsOf, origin);
-        lights.Sort((a, b) => Vector3.DistanceSquared(a.Key, eye).CompareTo(Vector3.DistanceSquared(b.Key, eye)));
+        // The lights ranked by what each sends about the eye, its luminance times the surface it
+        // emits from over its distance from the eye squared, a cell's at least, so a bright lantern
+        // down the street is lit before a faint emitter beside the eye.
+        float Sent(Light light)
+        {
+            var surface = FacesSurface(new Vector3(light.X.Length(), light.Y.Length(), light.Z.Length()), light.Faces == 0 ? All : light.Faces) * light.Share;
+            var luminance = 0.2126f * light.Glow.X + 0.7152f * light.Glow.Y + 0.0722f * light.Glow.Z;
+            return luminance * surface / MathF.Max(Vector3.DistanceSquared(light.Key, eye), firstCell * firstCell);
+        }
+        lights.Sort((a, b) => Sent(b).CompareTo(Sent(a)));
         var floats = MemoryMarshal.Cast<byte, float>(bytes);
         var count = Math.Min(lights.Count, Most);
         Span<int> placeOf = stackalloc int[Most];
@@ -287,6 +301,9 @@ internal static class GlowLights
         }
         (floats[1], floats[2], floats[3]) = (low.X, low.Y, low.Z);
         (floats[4], floats[5], floats[6]) = (high.X, high.Y, high.Z);
+        var keptBits = MemoryMarshal.Cast<byte, uint>(bytes)[8..(Head / 4)];
+        keptBits.Clear();
+        if (places is not null) places.Kept.CopyTo(keptBits);
         return lights.Count;
     }
 
@@ -544,8 +561,8 @@ internal sealed class GlowPlaces
     /// <summary>Notes the middle of the light in <paramref name="place"/> as it was gathered against <paramref name="origin"/>.</summary>
     public void Note(int place, Vector3 middle, RenderOrigin origin) => (Placed[place], Against) = (middle, origin);
 
-    /// <summary>The places whose light is the one the frame before had there, a bit a place, the first 32 in the low word.</summary>
-    public (uint Low, uint High) Kept { get; private set; }
+    /// <summary>The places whose light is the one the frame before had there, a bit a place, the first 32 in the first uint.</summary>
+    public uint[] Kept { get; } = new uint[GlowLights.KeptVectors * 4];
 
     /// <summary>
     /// Places the first <paramref name="count"/> of <paramref name="lights"/>, each known by its
@@ -555,7 +572,7 @@ internal sealed class GlowPlaces
     public int Place(List<GlowLights.Light> lights, int count, Span<int> placeOf)
     {
         Span<bool> taken = stackalloc bool[GlowLights.Most];
-        uint low = 0, high = 0;
+        Array.Clear(Kept);
         _now.Clear();
         for (int n = 0; n < count; n++)
         {
@@ -563,8 +580,7 @@ internal sealed class GlowPlaces
             if (_before.TryGetValue(lights[n].Key, out var place) && !taken[place])
             {
                 (placeOf[n], taken[place]) = (place, true);
-                if (place < 32) low |= 1u << place;
-                else high |= 1u << (place - 32);
+                Kept[place >> 5] |= 1u << (place & 31);
             }
         }
         int free = 0, used = 0;
@@ -581,13 +597,9 @@ internal sealed class GlowPlaces
         // A place no light took holds nothing new.
         for (int place = 0; place < used; place++)
             if (!taken[place])
-            {
-                if (place < 32) low |= 1u << place;
-                else high |= 1u << (place - 32);
-            }
+                Kept[place >> 5] |= 1u << (place & 31);
         _before.Clear();
         foreach (var (middle, place) in _now) _before[middle] = place;
-        Kept = (low, high);
         return used;
     }
 
@@ -607,6 +619,7 @@ internal sealed class GlowPlaces
     public void Forget()
     {
         _before.Clear();
-        (Kept, Against) = ((0, 0), null);
+        Array.Clear(Kept);
+        Against = null;
     }
 }

@@ -88,10 +88,10 @@ internal static class GlobalIlluminationCommands
             lines.Add(raysSet.RaysLeftOff is { } why ? $"the device's rays left off since its memory did not hold their structures, the field tracing what they would, {why}"
                 : raysSet.RaysOff ? "the device's rays off by gi.rays, the field tracing what they would"
                 : "the device traces no rays, the field tracing what they would");
-        // The emitters carried as glow lights, of which the nearest the eye are lit and the rest
-        // light nothing a probe carries.
+        // The emitters carried as glow lights, of which those that send the most about the eye are
+        // lit and the rest light nothing a probe carries.
         var (carried, lit) = gi.Glow;
-        lines.Add($"{carried} small emitters carried as lights, the {lit} nearest the eye lit");
+        lines.Add($"{carried} small emitters carried as lights, the {lit} sending the most about the eye lit");
         return string.Join("\n", lines);
     }
 

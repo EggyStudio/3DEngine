@@ -52,7 +52,7 @@ internal sealed partial class GlobalIlluminationRenderer : IIlluminationPasses, 
     // frame after's rays read the sun through.
     private FrameShadow? _sunBefore;
 
-    /// <summary>How many emitters are carried as glow lights this frame, and how many of them, the nearest the eye, are lit.</summary>
+    /// <summary>How many emitters are carried as glow lights this frame, and how many of them, those that send the most about the eye, are lit.</summary>
     internal (int Carried, int Lit) Glow => (_glowFound, _glowCount);
 
     private int _glowFound;
@@ -281,7 +281,7 @@ internal sealed partial class GlobalIlluminationRenderer : IIlluminationPasses, 
         _retired.Add((_frame, GlobalIlluminationStages.Of(device).RecordGlobalIllumination(renderContext.CommandBuffer, _gi, field.Field, view, sampler, sunMap, sunSampler, lights, intervals, ProbeSpacing,
             switches.MergeOff, switches.Alone, switches.Shown is BounceView.Rays or BounceView.Merged, _frame, switches.FollowOff ? null : lying,
             far ? cascades - 2 : -1, _lightThrough, plan is { Whole: true }, farPart, switches.MeshesTraced || moving ? _rays : null, shifts, CarriedShare, CarriedSince, CarriedPhase,
-            (moving ? 1u : 0) | (switches.MeshesTraced ? 2u : 0), spread, _glowPlaces.Kept, _fieldRebuilt,
+            (moving ? 1u : 0) | (switches.MeshesTraced ? 2u : 0), spread, _fieldRebuilt,
             origin.Against(_fieldChanged.Min), origin.Against(_fieldChanged.Max))));
 
         // The screen's probes, where the window has a depth to stand them on, the first interval
@@ -432,7 +432,7 @@ internal sealed partial class GlobalIlluminationRenderer : IIlluminationPasses, 
         }
         floats[72] = _glowCount;
         var uints = MemoryMarshal.Cast<byte, uint>(bytes.AsSpan());
-        (uints[73], uints[74], uints[75]) = (_glowPlaces.Kept.Low, _glowPlaces.Kept.High, _fieldRebuilt);
+        uints[75] = _fieldRebuilt;
         var (changedLow, changedHigh) = (origin.Against(_fieldChanged.Min), origin.Against(_fieldChanged.Max));
         (floats[76], floats[77], floats[78]) = (changedLow.X, changedLow.Y, changedLow.Z);
         (floats[80], floats[81], floats[82]) = (changedHigh.X, changedHigh.Y, changedHigh.Z);
@@ -605,8 +605,8 @@ internal sealed partial class GlobalIlluminationRenderer : IIlluminationPasses, 
             }
             (mapped[68], mapped[69]) = (counted, 1f / (2 * drawn.TileSize));
         }
-        // The small emitters carried as lights, the nearest the eye the field lies around, which
-        // where the window draws no mesh is the first render target's camera's.
+        // The small emitters carried as lights, those that send the most about the eye the field
+        // lies around, which where the window draws no mesh is the first render target's camera's.
         if (renderWorld.TryGet<GlobalIlluminationSettings>() is not { GlowOff: true }
             && renderWorld.TryGet<SceneFieldRenderer>() is { Plan: { } plan, Eye: { } eye } field)
         {

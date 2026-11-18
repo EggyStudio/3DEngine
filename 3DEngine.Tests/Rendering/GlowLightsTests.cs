@@ -40,8 +40,8 @@ public sealed class GlowLightsTests : IDisposable
     [Trait("Category", "Unit")]
     public void The_Lights_Written_Are_The_Nearest_The_Eye_With_Their_Boxes_And_Reach()
     {
-        // Seventy blocks along x, every one carried, the eye past the last, so the 64 nearest it
-        // are written and the six nearest the origin are not.
+        // Seventy blocks alike along x, every one carried, the eye past the last, so the 64 nearest
+        // it send the most about it and are written, and the six nearest the origin are not.
         var vertices = new ModelVertex[] { new() { Position = new Vector3(-0.5f) }, new() { Position = new Vector3(0.5f) } };
         var drawn = Enumerable.Range(0, 70).Select(i => (new SceneFieldPlan.Instance(1, vertices, Matrix4x4.CreateTranslation(i * 2, 0.5f, 0),
             false, Vector3.One, new Vector3(4, 2, 1)), false)).ToList();

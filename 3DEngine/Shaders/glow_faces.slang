@@ -36,8 +36,9 @@ RWStructuredBuffer<uint> kept;
 
 struct FacesPush
 {
-    // x: the byte the glow lights' count lies at, the lights 32 bytes after it. y: the bytes of a
-    // light. z and w: the places whose light is the frame before's, a bit a place.
+    // x: the byte the glow lights' count lies at, the places whose light is the frame before's 32
+    // bytes after it, a bit a place, and the lights GlowLightsHead bytes after it. y: the bytes of
+    // a light. z and w: unused.
     uint4 at;
     // x: the cascades a build of this frame changed, a bit a cascade, none where no build did.
     uint4 built;
@@ -109,7 +110,7 @@ void computeMain(uint3 group : SV_GroupID, uint lane : SV_GroupIndex)
     uint count = uint(asfloat(lights.Load(push.at.x)));
     if (place >= min(count, uint(MostGlowLights)))
         return;
-    uint at = push.at.x + 32u + place * push.at.y;
+    uint at = push.at.x + uint(GlowLightsHead) + place * push.at.y;
     float4 middleAndReach = asfloat(lights.Load4(at));
     if (middleAndReach.w <= 0.0)
         return;
@@ -125,7 +126,7 @@ void computeMain(uint3 group : SV_GroupID, uint lane : SV_GroupIndex)
     uint hash = (asuint(halves[0].w) * 73856093u ^ asuint(halves[1].w) * 19349663u ^ asuint(halves[2].w) * 83492791u) >> 11u;
     if (lane == 0u)
     {
-        bool fresh = (((place < 32u ? push.at.z >> place : push.at.w >> (place - 32u)) & 1u) == 0u);
+        bool fresh = ((lights.Load(push.at.x + 32u + (place >> 5u) * 4u) >> (place & 31u)) & 1u) == 0u;
         int c = fieldCascade(fieldInfo, middle, 1.0);
         float grow = max(halves[0].w, max(halves[1].w, halves[2].w)) * 2.0 + (c >= 0 ? fieldInfo.cascades[c].originAndCell.w : 0.0);
         bool changed = push.built.x != 0u && all(middle + grow >= push.changedLow.xyz) && all(middle - grow <= push.changedHigh.xyz);

@@ -132,6 +132,9 @@ public struct GiLights
     public float4 glowCounts;
     // xyz: the most corner of that box. w: unused.
     public float4 glowHigh;
+    // The places whose light is the one the frame before had there, a bit a place, the first 32 in
+    // the first uint.
+    public uint4 glowKept[GlowKeptVectors];
     public GlowLight glows[MostGlowLights];
     // The sun's shadow map as the window's shadow pass drew it the frame before, which a probe's
     // hit reads the sun through where one of its counted cascades holds the hit (SunShadowMap),

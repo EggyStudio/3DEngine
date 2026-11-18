@@ -7,14 +7,27 @@ module glow;
 
 import scenefield;
 
-// How many of the small emissive surfaces global illumination carries as lights at most, the
-// nearest the eye, as many as a screen probe keeps a bit of each for (GlowLights.Most).
+// How many of the small emissive surfaces global illumination carries as lights at most, those
+// that send the most about the eye (GlowLights.Most, which a test holds to this). The sizes below
+// follow from it.
 public static const int MostGlowLights = 64;
 
-// The uints each screen probe keeps of the glow lights, sixteen of a byte a light, how much of each
-// it sees that gives it an eighth of their light or more, three of the light of the fainter ones,
-// summed by how much of each it sees, and one spare (gi_screen.slang, GpuScreenProbes.GlowSeenBytes).
-public static const int GlowSeenUints = 20;
+// The uints of a byte a light each screen probe keeps, how much of each light it sees that gives
+// it an eighth of their light or more.
+public static const int GlowSeenLevels = MostGlowLights / 4;
+
+// The uints each screen probe keeps of the glow lights, the levels, then three of the light of the
+// fainter ones, summed by how much of each it sees, and one spare (gi_screen.slang,
+// GpuScreenProbes.GlowSeenBytes).
+public static const int GlowSeenUints = GlowSeenLevels + 4;
+
+// The uint4s of a bit a place of which places hold the light the frame before had there, ahead of
+// the lights (GiLights.glowKept, GlowPlaces.Kept).
+public static const int GlowKeptVectors = (MostGlowLights + 127) / 128;
+
+// The bytes ahead of the glow lights, the count and the box about their reach, then those bits
+// (GlowLights.Head).
+public static const int GlowLightsHead = 32 + GlowKeptVectors * 16;
 
 // The kinds of texel of the window's glow light past the lights the share is of, in 255ths of its
 // normal's w, one on a glow light's own surface, which takes no other light's, and one no screen

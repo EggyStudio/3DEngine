@@ -75,10 +75,9 @@ public struct ScreenView
     // changed or the field was built again, which begins every probe's cycle of places again
     // (gi_screen_filter.slang).
     public float4 jitter;
-    // x: how many places of glow lights there are. y, z: the places whose light is the one the
-    // frame before had there, a bit a place, the first 32 in y, as uint bits. w: the field's
-    // cascades built this frame as meshes came or went within them or for the first time, a bit a
-    // cascade, as uint bits.
+    // x: how many places of glow lights there are. y, z: unused. w: the field's cascades built this
+    // frame as meshes came or went within them or for the first time, a bit a cascade, as uint
+    // bits.
     public float4 glows;
     // xyz: the corners of the box around the meshes that came or went within those cascades.
     public float4 changedMin;
