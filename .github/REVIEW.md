@@ -821,112 +821,6 @@ PostProcessUnitsTests, their apps holding the interface context the others build
 read on the tree before the severity took the words, which it reaches nowhere, passes whole on the
 RTX, Mesa 26.2.4 and Mesa 25.2.8, 31 of 31. The package is 6.2.60-local.275.1.
 
-Verdict 128, Siege's banner down and not counted.
-
-What the play takes as fallen. The play's check takes the game's own word, its screen at Won, which
-the game sets when the banner meets its trigger, a kinematic box the game calls the field up to the
-walls' top. The box was 30 by 30 m round the keep at (30, 0, 0), from the ground to the walls' 6 m,
-where the field it stands on is a static box of 140 by 90 m about (15, 0, 0), and the game's README
-and its comment both call the banner down once it is brought below the walls' top onto the field or
-the keep's rubble. In run 44043006601 the banner read 0.1 from the fifth throw on, lying on the
-field, and the game never met it. A bomb can throw it past 15 m from the keep, where the field went
-on and the trigger did not. The trigger is the whole field to the walls' top, and `siege.status`
-says where the banner lies (`banner 0.1 at 41.9 -4.9`), so a play that fails says whether the banner
-is down and where.
-
-The check that fails without the mend. `siege.topple x z` breaks the banner's weld to the roof and
-lays it a meter over the field at a point, as a bomb may throw it. The play lays it at (70, 30), on
-the field and outside the old trigger, and asks for Won. Siege built from the same package with only
-the old trigger put back gives `Aim ... banner 0.8 at 70.0 30.0`, and the mended one Won in each of
-twelve plays.
-
-Two processors and one tree. The red run and its green run again were both on an Intel Xeon 6975P-C,
-by the processor line each job wrote, and the plays parted from the second throw, 43 and 42 welds
-broken, then 91 and 93. So the outcome did not follow the processor. The engine steps the physics in
-a fixed step with Bepu's deterministic mode, and its contacts are sorted by pair before their
-bounces are added, so the inputs set the outcome, and three of them moved from run to run.
-
-- The throws' frames. A command reaches the game on whichever frame it comes, so a throw left a few
-frames sooner or later on a castle still settling. A commanded throw is let go on the first whole
-second two or more after the catapult stood loaded, and the play waits for each shot's count rather
-than for the screen at Aim. - The game's own order. The blocks a stone pressed were worn down in a
-set's order, by their places in memory, a new order each run, and a block that crumbles takes its
-body out of the physics, which works through its bodies differently after. They are worn down in the
-castle's own order. No other loop over a set or a dictionary in the games feeds the physics.
-Tumble's set of punched balls is asked only whether it holds one, Span's anchors and Siege's cells
-are looked up by their keys, and the rest drive menus, paths and sounds. - The first frames. The
-drive fixed the frame's time once the game served, so the castle settled under the clock's frames
-until then, a different count each run. The play opens Siege with `E3D_FRAME_TIME` at a sixtieth, so
-every frame is a fixed step from the first.
-
-The plays. Siege played as the games job plays it, on an Intel Core i9-14900HX here, the welds
-broken after each throw.
-
-| Play | Stone | First bomb | Second bomb | Third bomb, won | The banner down at |
-|---|---|---|---|---|---|
-| Throws on stated frames, the set's order | 0 | 45 | 102, 137, 134 | 143, 147, 153 | (40.5, -4.3), (41.7, -3.3), (42.1, -3.3) |
-| And the castle's order | 0 | 45 | 137, 100, 134 | 146, 167, 166 | (41.6, -3.3), (41.9, -4.9), (40.9, -5.3) |
-| And fixed frames from the first | 0 | 45 | 135, 128, 146 | 179, 178, 178 | (40.7, -7.7), (40.3, -7.3), (40.5, -7.4) |
-| And the burst's bodies by handle | 0 | 45 | 103, 151, 103 | 159, 152, 163 | (39.2, -6.3), (38.4, -5.9), (39.5, -6.6) |
-
-Every play is won by the third bomb, the banner down 10 to 12 m from the keep, and the topple's
-check passes. With the frames fixed from the first the three plays give the same stone's throw to
-the newton, the most a weld held 7,672 N and the banner at (30.1, 0.0), and the same first bomb's 45
-welds and 7,991 N, and part after its burst, the banner at 30.9, 31.0 and 31.1 along x where it
-stood at 30.1, so one tree plays one siege up to the first burst. Taking the burst's bodies in their
-handles' order, against the sweep's, left that as it was, the banner at 30.6, 31.0 and 30.9, so the
-rest lies in the physics past the game's own loops, the bodies a burst wakes or the workers' share
-of a step, and is a finding for the engine's physics, read apart with a scene of its own where a
-burst wakes a resting stack. The burst's order by handle is kept, since a block that crumbles takes
-its body out of the physics while the loop runs.
-
-The runs. Siege builds from the package `build/pack.sh` makes with no warnings, and the nine plays
-with the validation layer named as the games job names it pass, the last six opened with
-`E3D_FRAME_TIME` at a sixtieth. The first three, played without the layer's path here, ended on that
-alone, each won. The tree's tests do not build the games, which the games job plays, so no suite leg
-ran for the game's change, and the drive's change is to Siege's case and its opening alone.
-
-A mesh painted again where it stands, asked beside item 296.
-
-The path. The field takes each mesh with its texture's average color and its maps' average
-roughness, metal and emission (`SceneField`), so a mesh whose texture finishes loading after it was
-first drawn is drawn the next frame as another instance of the same vertices through the same
-matrix, and the one before leaves. The plan's read by place compares the paint (`Same`), so the
-frame is read whole, where a mesh drawn this frame and not the one before, of vertices one gone had,
-was taken as that one moved wherever it stood. A moved mesh is stamped as its box while it settles,
-which for a mesh that moved takes the 1024 frames a figure that stops waits (`MobileSettleFrames`),
-and after that until its cascades are built again, so a building's meshes painted again once their
-textures had loaded would fill its rooms in the field for that long and darken them.
-
-The count. Twenty starts of `scenes_sponza` in its atrium offscreen on `275f01d1`, the camera held
-at ISO 200, 1/200 s and f/16, six rectangles of the frame read at about 315, 1010 and 1710 frames,
-none dark. Every rectangle of every start reads within 2% of the starts' median at each read, the
-arcade walls on both sides, lit by the probes alone, among them. Sponza's textures here finish
-before its meshes are first drawn or within the eight frames they settle in. A scene of slower
-textures or a busier disk would meet the path, so it is mended.
-
-The mend. A mesh drawn of the vertices of one gone through that one's matrix is that one painted
-again (`SceneFieldPlan`, `_departedAt`). It has not moved, it keeps the frames that one had been
-drawn the same and the frame it last moved at, and it is stamped nowhere for having stood where one
-gone stood. A still one painted again is still at once, so the cascades around it are built again
-with its new paint within the frames the budget takes, as a light panel put out is followed within
-two frames. One painted again while it settles settles when it would have. A mesh of those vertices
-drawn through another matrix is taken as moved as before.
-
-The tests. `SceneFieldTests.Repainted` holds a still cube drawn again in another color, stamped
-nowhere and built again in both cascades with its new paint within two frames, and a cube painted
-again on its fourth frame, stamped nowhere and still on its eighth. Both fail without the mend, the
-cube stamped as its box on its first frame painted again.
-
-Nothing seen changes in the scenes the examples open, so no sheet goes with it.
-
-The runs. The tree builds strict with no warnings, and the focused tests, the scene field's and its
-plan's, global illumination's, the cascades' edges' and the norm's classes, 219 pass. Eight starts
-of the atrium after the mend read as the twenty before did, every rectangle of every start within 2%
-of the starts' median at each read and each median within 0.1 of the twenty's. The suite passes in
-its parts in order, 2,519 of 2,519 in 49 minutes, and shuffled by the seed 20261023, 2,519 of 2,519
-in 54 minutes.
-
 Item 296, the hidden block's share of the floor and which glow lights a screen probe marches to by
 halves.
 
@@ -1064,17 +958,28 @@ stops, and not by more light from the kernels. With global illumination off the 
 environment do before the bridge's light pass takes them back. `gi.compare` reads the frame global
 illumination last drew, so with it off the figure is the screen's alone.
 
-On the bridge's figures as they stand, its picture lies over its own reference by 92% to 198% on the
-decal walls and 149% on the brick walls facing -x, where this engine's lies over its own by 3% to
-60%. Its reference reads those brick walls at 0.094, and this engine's reads the walls in shade at
-0.002 to 0.008 at the same lens. Were both linear light at that lens, the references would differ by
-ten to forty times, a difference each engine's sun, sky and materials make and not the kernels,
-since neither reference reads a probe. Were the bridge's figures encoded, 0.094 is 0.009 in linear
-light and the two references meet. So the split this engine's side can give is this. The kernels'
-share is each picture's surplus over its own reference, 8% here against one and a half to three
-times there. The rest lies in what each reference is given and in each camera's meter. The bridge's
-matched sheet settles it with its readings in this engine's units, its picture held and metered, its
-reference, and its picture with its probes' light out.
+The two halves on one scale. The bridge's figures are its linear light before its tonemapping at
+Bevy's EV100 of 9.7, the lens of ISO 200, 1/200 s and f/16 laid on after it as 4.944 stops of grade,
+so on this engine's scale at the lens's EV of 14.64 each reads 30.8 times less. Its day is noon at
+latitude 6, the sun 84 degrees up at 120,000 lux outside Bevy's air and colored (1, 0.98, 0.95), and
+its matched sheet takes this engine's sun, 119,343 lux at 5,633 K.
+
+| Region | The bridge's reference | The bridge's picture | Over its reference |
+|---|---|---|---|
+| Brick walls facing -x | 0.0031 | 0.0076 | 2.5 |
+| Decal walls of the first floor facing -x | 0.0041 | 0.0122 | 3.0 |
+| Decal walls of the first floor facing +z | 0.0055 | 0.0142 | 2.6 |
+| Decal walls of the third floor facing -x | 0.0112 | 0.0272 | 2.4 |
+
+This engine's reference reads its walls in shade at 0.002 to 0.008 and its floor at 0.060, so the
+two references agree in scale, and the tenfold gap the first figures showed was the exposure.
+Neither reference reads a probe, so on these the inputs, the sun, the sky and the materials, part
+the two atriums little. The bridge's picture lies over its reference by 2.4 to 3.0 times, and this
+engine's over its own by 1.03 to 1.60, so the kernels and the bridge's field carry a surplus there,
+its walls lighter than its own reference, and not a dark. The dark is the camera's. The bridge's
+lens is held, where this engine's example meters about two stops up, and held at the same lens this
+engine's atrium reads as dark, its pixels' mean 32 of 255. The gray is left to the bridge's matched
+sheet, its field's paint and its light pass, read against this engine's on this scale.
 
 Where the two copies differ today, read at this tree's head and the bridge's `9b869a3d` as they
 stand. Ten kernels share a name, `field_splat`, `field_resolve`, `field_stamp`, `gi_trace`,
@@ -1175,3 +1080,46 @@ The order, as Decision 118 sets it. A kernel at a time, each with this engine's 
 rooms holding before and after and the two engines' pictures of one room compared, the binding
 first, then the plan, the field's build, the world's probes, the crossing and the rough reflection,
 the screen probes, the light on the picture, and the references last.
+
+Item 297, one tree and one run of the physics, the read.
+
+The scene. A castle's wall of 720 welded blocks, 30 across, 12 high and 2 deep, the lowest four
+rows' every fifth a column's convex hull, on a kinematic foundation over a static ground, every weld
+broken where it holds over 1,500 N, each step's welds read in a fixed order. The wall rests asleep
+from about the 90th step. A stone of 60 kg, a convex hull, is thrown at step 240, meets the wall at
+step 260 and wakes all of it, and wears the blocks it presses by their contact's push
+(`GetContactImpulse`), in the wall's own order. Two bursts at steps 360 and 480 take the bodies
+within 4 units in the order of their kind and handle, push each at its side facing the burst
+(`ApplyImpulseAt`) and crumble the most worn, their welds and bodies taken out of the physics within
+the loop, as Siege's do. The wall woken holds 722 bodies awake with the stone and the foundation,
+past the 500 at which a step goes to the four workers.
+
+The read. Every body's pose is hashed after each step's physics and again after the welds and the
+wear, over 720 steps. Two runs in one process and runs in three processes of their own agree in
+every hash, with the step on the workers, 535 welds broken and 5 blocks crumbled, and with the step
+held on the calling thread, 530 and 4. A wall of 720 welded blocks alone, asleep and woken by two
+bursts that break 642 welds, agrees the same way. So no step and no stage parts here, the bodies a
+burst wakes and the workers' share of a step among them. The two settings part from each other, as a
+different count of threads orders the solver's work differently, and each agrees with itself.
+
+The library's word. Bepu's own documentation of `Simulation.Deterministic`, in the package's
+`BepuPhysics.xml`, gives a step the same under several threads, sorting the constraints it adds and
+moves, locally only, not across processors that carry out an instruction differently. The engine
+sets it (`PhysicsWorld`), and its contacts are sorted by pair and then by where they met before
+their bounces are added (`ContactCollector`).
+
+The test. `PhysicsDeterminismTests.Burst` steps the wall, the stone and the bursts twice in one
+process and once in a process of its own, a run of the same test that writes its hashes, and holds
+every hash alike, naming the first step and stage where two runs part. It takes 11 s. With
+`Simulation.Deterministic` false it fails, `step 260 after the physics' step`, the stone having
+woken the wall onto the workers. With the contacts' sort taken out it passes, since nothing in the
+wall bounces, and the boxes and characters' test beside it fails, which holds the sort.
+
+What parts Siege's plays, then. Not the physics as the engine steps it, given the same calls on the
+same steps. The next read takes what reaches the physics on which step, every call that changes the
+physics logged by frame in two plays of Siege and the first frame they part named, and the mend that
+follows is a commit of its own.
+
+The runs. The tree builds strict with no warnings, and the physics' and the norm's tests pass, 115
+of 115. The suite passes in its parts in order, 2,522 of 2,522 in 42 minutes, and shuffled by the
+seed 20261023, 2,522 of 2,522 in 33 minutes.

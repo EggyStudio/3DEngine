@@ -5,7 +5,7 @@ namespace Engine.Tests.Physics;
 
 /// <summary>The step on several workers giving the same result every run, which a game's replay and its tests rely on.</summary>
 [Trait("Category", "Unit")]
-public class PhysicsDeterminismTests
+public partial class PhysicsDeterminismTests
 {
     // A pile of bouncing boxes and a crowd of characters walking through it, stepped two seconds,
     // and where every body ended.

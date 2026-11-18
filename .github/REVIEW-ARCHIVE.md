@@ -19610,6 +19610,112 @@ read against the GPU's own rays skipped there. The suite passes in its parts in 
 2,517 in 88 minutes, and shuffled by the seed 20261023, 2,517 of 2,517 in 49 minutes.
 `GlowLightCapTests` fails on the tree before, whose `glow.slang` states the probes' uints as 20.
 
+Verdict 128, Siege's banner down and not counted.
+
+What the play takes as fallen. The play's check takes the game's own word, its screen at Won, which
+the game sets when the banner meets its trigger, a kinematic box the game calls the field up to the
+walls' top. The box was 30 by 30 m round the keep at (30, 0, 0), from the ground to the walls' 6 m,
+where the field it stands on is a static box of 140 by 90 m about (15, 0, 0), and the game's README
+and its comment both call the banner down once it is brought below the walls' top onto the field or
+the keep's rubble. In run 44043006601 the banner read 0.1 from the fifth throw on, lying on the
+field, and the game never met it. A bomb can throw it past 15 m from the keep, where the field went
+on and the trigger did not. The trigger is the whole field to the walls' top, and `siege.status`
+says where the banner lies (`banner 0.1 at 41.9 -4.9`), so a play that fails says whether the banner
+is down and where.
+
+The check that fails without the mend. `siege.topple x z` breaks the banner's weld to the roof and
+lays it a meter over the field at a point, as a bomb may throw it. The play lays it at (70, 30), on
+the field and outside the old trigger, and asks for Won. Siege built from the same package with only
+the old trigger put back gives `Aim ... banner 0.8 at 70.0 30.0`, and the mended one Won in each of
+twelve plays.
+
+Two processors and one tree. The red run and its green run again were both on an Intel Xeon 6975P-C,
+by the processor line each job wrote, and the plays parted from the second throw, 43 and 42 welds
+broken, then 91 and 93. So the outcome did not follow the processor. The engine steps the physics in
+a fixed step with Bepu's deterministic mode, and its contacts are sorted by pair before their
+bounces are added, so the inputs set the outcome, and three of them moved from run to run.
+
+- The throws' frames. A command reaches the game on whichever frame it comes, so a throw left a few
+frames sooner or later on a castle still settling. A commanded throw is let go on the first whole
+second two or more after the catapult stood loaded, and the play waits for each shot's count rather
+than for the screen at Aim. - The game's own order. The blocks a stone pressed were worn down in a
+set's order, by their places in memory, a new order each run, and a block that crumbles takes its
+body out of the physics, which works through its bodies differently after. They are worn down in the
+castle's own order. No other loop over a set or a dictionary in the games feeds the physics.
+Tumble's set of punched balls is asked only whether it holds one, Span's anchors and Siege's cells
+are looked up by their keys, and the rest drive menus, paths and sounds. - The first frames. The
+drive fixed the frame's time once the game served, so the castle settled under the clock's frames
+until then, a different count each run. The play opens Siege with `E3D_FRAME_TIME` at a sixtieth, so
+every frame is a fixed step from the first.
+
+The plays. Siege played as the games job plays it, on an Intel Core i9-14900HX here, the welds
+broken after each throw.
+
+| Play | Stone | First bomb | Second bomb | Third bomb, won | The banner down at |
+|---|---|---|---|---|---|
+| Throws on stated frames, the set's order | 0 | 45 | 102, 137, 134 | 143, 147, 153 | (40.5, -4.3), (41.7, -3.3), (42.1, -3.3) |
+| And the castle's order | 0 | 45 | 137, 100, 134 | 146, 167, 166 | (41.6, -3.3), (41.9, -4.9), (40.9, -5.3) |
+| And fixed frames from the first | 0 | 45 | 135, 128, 146 | 179, 178, 178 | (40.7, -7.7), (40.3, -7.3), (40.5, -7.4) |
+| And the burst's bodies by handle | 0 | 45 | 103, 151, 103 | 159, 152, 163 | (39.2, -6.3), (38.4, -5.9), (39.5, -6.6) |
+
+Every play is won by the third bomb, the banner down 10 to 12 m from the keep, and the topple's
+check passes. With the frames fixed from the first the three plays give the same stone's throw to
+the newton, the most a weld held 7,672 N and the banner at (30.1, 0.0), and the same first bomb's 45
+welds and 7,991 N, and part after its burst, the banner at 30.9, 31.0 and 31.1 along x where it
+stood at 30.1, so one tree plays one siege up to the first burst. Taking the burst's bodies in their
+handles' order, against the sweep's, left that as it was, the banner at 30.6, 31.0 and 30.9, so the
+rest lies in the physics past the game's own loops, the bodies a burst wakes or the workers' share
+of a step, and is a finding for the engine's physics, read apart with a scene of its own where a
+burst wakes a resting stack. The burst's order by handle is kept, since a block that crumbles takes
+its body out of the physics while the loop runs.
+
+The runs. Siege builds from the package `build/pack.sh` makes with no warnings, and the nine plays
+with the validation layer named as the games job names it pass, the last six opened with
+`E3D_FRAME_TIME` at a sixtieth. The first three, played without the layer's path here, ended on that
+alone, each won. The tree's tests do not build the games, which the games job plays, so no suite leg
+ran for the game's change, and the drive's change is to Siege's case and its opening alone.
+
+A mesh painted again where it stands, asked beside item 296.
+
+The path. The field takes each mesh with its texture's average color and its maps' average
+roughness, metal and emission (`SceneField`), so a mesh whose texture finishes loading after it was
+first drawn is drawn the next frame as another instance of the same vertices through the same
+matrix, and the one before leaves. The plan's read by place compares the paint (`Same`), so the
+frame is read whole, where a mesh drawn this frame and not the one before, of vertices one gone had,
+was taken as that one moved wherever it stood. A moved mesh is stamped as its box while it settles,
+which for a mesh that moved takes the 1024 frames a figure that stops waits (`MobileSettleFrames`),
+and after that until its cascades are built again, so a building's meshes painted again once their
+textures had loaded would fill its rooms in the field for that long and darken them.
+
+The count. Twenty starts of `scenes_sponza` in its atrium offscreen on `275f01d1`, the camera held
+at ISO 200, 1/200 s and f/16, six rectangles of the frame read at about 315, 1010 and 1710 frames,
+none dark. Every rectangle of every start reads within 2% of the starts' median at each read, the
+arcade walls on both sides, lit by the probes alone, among them. Sponza's textures here finish
+before its meshes are first drawn or within the eight frames they settle in. A scene of slower
+textures or a busier disk would meet the path, so it is mended.
+
+The mend. A mesh drawn of the vertices of one gone through that one's matrix is that one painted
+again (`SceneFieldPlan`, `_departedAt`). It has not moved, it keeps the frames that one had been
+drawn the same and the frame it last moved at, and it is stamped nowhere for having stood where one
+gone stood. A still one painted again is still at once, so the cascades around it are built again
+with its new paint within the frames the budget takes, as a light panel put out is followed within
+two frames. One painted again while it settles settles when it would have. A mesh of those vertices
+drawn through another matrix is taken as moved as before.
+
+The tests. `SceneFieldTests.Repainted` holds a still cube drawn again in another color, stamped
+nowhere and built again in both cascades with its new paint within two frames, and a cube painted
+again on its fourth frame, stamped nowhere and still on its eighth. Both fail without the mend, the
+cube stamped as its box on its first frame painted again.
+
+Nothing seen changes in the scenes the examples open, so no sheet goes with it.
+
+The runs. The tree builds strict with no warnings, and the focused tests, the scene field's and its
+plan's, global illumination's, the cascades' edges' and the norm's classes, 219 pass. Eight starts
+of the atrium after the mend read as the twenty before did, every rectangle of every start within 2%
+of the starts' median at each read and each median within 0.1 of the twenty's. The suite passes in
+its parts in order, 2,519 of 2,519 in 49 minutes, and shuffled by the seed 20261023, 2,519 of 2,519
+in 54 minutes.
+
 ## Items closed, parked or shortened
 
 Items closed without a mend, recorded or parked, and the standing items' texts as they stood before
