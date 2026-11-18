@@ -110,68 +110,23 @@ public static partial class E3D
     /// </para>
     /// </remarks>
     /// <exception cref="ArgumentOutOfRangeException">The size is under 16 or over 4096 pixels.</exception>
-    public static Image GenImageGrid(int pixelsPerMeter, Color face, Color line, Color fine)
-    {
-        ArgumentOutOfRangeException.ThrowIfLessThan(pixelsPerMeter, 16);
-        ArgumentOutOfRangeException.ThrowIfGreaterThan(pixelsPerMeter, 4096);
+    public static Image GenImageGrid(int pixelsPerMeter, Color face, Color line, Color fine) =>
+        new(global::Materials.Prototypes.Grid(pixelsPerMeter, Tone(face), Tone(line), Tone(fine)), pixelsPerMeter, pixelsPerMeter);
 
-        var size = pixelsPerMeter;
-        var edge = Math.Max(2, size / 128) / 2;
+    // A color's red, green and blue as the sRGB fractions the Materials module draws in.
+    private static System.Numerics.Vector3 Tone(Color color) => new(color.R / 255f, color.G / 255f, color.B / 255f);
 
-        // What each column, and so each row, is, 2 a meter's or the half's line, 1 a quarter's and
-        // 0 the face, each line starting half its width before its place, a half rounded up.
-        var kind = new byte[size];
-        for (int at = 0; at < size; at++)
-            if (at < edge || at >= size - edge) kind[at] = 2;
-        void Line(double place, int width, byte which)
-        {
-            var start = (int)Math.Round(place - width / 2.0, MidpointRounding.AwayFromZero);
-            for (int at = start; at < start + width; at++) kind[at] = Math.Max(kind[at], which);
-        }
-        Line(size / 2.0, Math.Max(1, size / 256), 2);
-        Line(size / 4.0, Math.Max(1, size / 512), 1);
-        Line(size * 3 / 4.0, Math.Max(1, size / 512), 1);
+    // A tone of the Materials module as a color.
+    private static Color ToneColor(System.Numerics.Vector3 tone) =>
+        new((byte)Math.Round(tone.X * 255), (byte)Math.Round(tone.Y * 255), (byte)Math.Round(tone.Z * 255), 255);
 
-        var data = new byte[size * size * 4];
-        for (int y = 0; y < size; y++)
-            for (int x = 0; x < size; x++)
-            {
-                var which = Math.Max(kind[x], kind[y]);
-                var c = which == 2 ? line : which == 1 ? fine : face;
-                var i = (y * size + x) * 4;
-                (data[i], data[i + 1], data[i + 2], data[i + 3]) = (c.R, c.G, c.B, c.A);
-            }
 
-        // The mark of the cell's size, where a square of its letters is a pixel or more.
-        var square = size / 128;
-        if (square >= 1)
-        {
-            var (left, top) = (edge + 2 * square, edge + 2 * square);
-            foreach (var (glyph, column) in new[] { (GridOne, 0), (GridEm, 6) })
-                for (int row = 0; row < 7; row++)
-                    for (int bit = 0; bit < 5; bit++)
-                    {
-                        if ((glyph[row] >> (4 - bit) & 1) == 0) continue;
-                        for (int dy = 0; dy < square; dy++)
-                            for (int dx = 0; dx < square; dx++)
-                            {
-                                var i = ((top + row * square + dy) * size + left + (column + bit) * square + dx) * 4;
-                                (data[i], data[i + 1], data[i + 2], data[i + 3]) = (line.R, line.G, line.B, line.A);
-                            }
-                    }
-        }
-        return new Image(data, size, size);
-    }
-
-    // The mark's letters, a 1 and an m, five squares a row, the leftmost square the row's highest bit.
-    private static readonly byte[] GridOne = [0b00100, 0b01100, 0b00100, 0b00100, 0b00100, 0b00100, 0b01110];
-    private static readonly byte[] GridEm = [0b00000, 0b00000, 0b11010, 0b10101, 0b10101, 0b10101, 0b10101];
-
-    // The grid's colors where none are given, a light gray face, so a tint shows as itself, dark
-    // gray lines a meter and a half meter apart and for the mark, and lighter ones a quarter apart.
-    private static readonly Color GridFace = new(230, 230, 230, 255);
-    private static readonly Color GridLine = new(89, 89, 89, 255);
-    private static readonly Color GridFine = new(173, 173, 173, 255);
+    // The grid's colors where none are given, the Materials module's prototype tones, a face near
+    // white, so a tint shows as itself, gray lines a meter and a half meter apart and for the mark,
+    // and lighter ones a quarter apart.
+    private static Color GridFace => ToneColor(global::Materials.Prototypes.Face);
+    private static Color GridLine => ToneColor(global::Materials.Prototypes.Line);
+    private static Color GridFine => ToneColor(global::Materials.Prototypes.Fine);
 
     /// <summary>The color of one pixel.</summary>
     public static Color GetImageColor(Image image, int x, int y)

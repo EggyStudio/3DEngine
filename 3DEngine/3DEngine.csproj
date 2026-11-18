@@ -72,6 +72,10 @@
         <!-- The Sky module's types, which the day sky names, a repository of its own under modules/
              and no package, whose assembly the package carries beside the areas'. -->
         <ProjectReference Include="..\modules\Sky\Sky\Sky.csproj" PrivateAssets="all" />
+        <!-- The Materials module's, whose prototype table the flat API's prototype materials and
+             grid take, a repository of its own under modules/ whose assembly the package carries
+             too. -->
+        <ProjectReference Include="..\modules\Materials\Materials\Materials.csproj" PrivateAssets="all" />
     </ItemGroup>
 
     <!-- The packages from outside that the areas build on, named again here, since a package

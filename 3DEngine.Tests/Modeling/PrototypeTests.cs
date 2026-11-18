@@ -14,7 +14,11 @@ namespace Engine.Tests.Modeling;
 public sealed class PrototypeTests : IDisposable
 {
     private const float Close = 1e-4f;
-    private static readonly Color Face = new(230, 230, 230, 255), Line = new(89, 89, 89, 255), Fine = new(173, 173, 173, 255);
+    // The Materials module's grid tones, which the default grid is drawn in.
+    private static readonly Color Face = Tone(global::Materials.Prototypes.Face), Line = Tone(global::Materials.Prototypes.Line), Fine = Tone(global::Materials.Prototypes.Fine);
+
+    private static Color Tone(System.Numerics.Vector3 tone) =>
+        new((byte)Math.Round(tone.X * 255), (byte)Math.Round(tone.Y * 255), (byte)Math.Round(tone.Z * 255), 255);
     private readonly List<EditMesh> _made = [];
 
     public PrototypeTests()
@@ -80,12 +84,26 @@ public sealed class PrototypeTests : IDisposable
     }
 
     [Fact]
-    public void Each_Part_Of_A_Level_Has_A_Color_Of_Its_Own_And_Any_Other_Name_The_Grids_Gray()
+    public void Each_Part_Of_A_Level_Takes_The_Materials_Modules_Color_And_Any_Other_Name_White()
     {
-        var names = new[] { "floor", "wall", "ceiling", "stairs", "door", "window", "hazard" };
-        names.Select(GetPrototypeColor).Distinct().Should().HaveCount(7).And.NotContain(Color.White);
+        // The table every engine on the Materials module shares, the floor, the wall and the
+        // ceiling one gray and the other parts a color each.
+        foreach (var name in global::Materials.Prototypes.Names)
+        {
+            var tone = global::Materials.Prototypes.Colors[name];
+            GetPrototypeColor(name).Should().Be(Tone(tone), name);
+        }
+        new[] { "floor", "wall", "ceiling" }.Select(GetPrototypeColor).Distinct().Should().ContainSingle();
+        new[] { "floor", "stairs", "door", "window", "hazard" }.Select(GetPrototypeColor).Distinct().Should().HaveCount(5).And.NotContain(Color.White);
         GetPrototypeColor("default").Should().Be(Color.White);
         GetPrototypeColor("Wall").Should().Be(Color.White, "the names are the slots' names, in lower case");
+    }
+
+    [Fact]
+    public void The_Grid_Where_No_Tones_Are_Given_Is_The_Materials_Modules_To_The_Byte()
+    {
+        GenImageGrid(256).Data.Should().Equal(global::Materials.Prototypes.Grid(256));
+        GenImageGrid(1024).Data.Should().Equal(global::Materials.Prototypes.Grid(1024));
     }
 
     [Fact]

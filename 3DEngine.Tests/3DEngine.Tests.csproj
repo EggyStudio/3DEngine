@@ -22,6 +22,7 @@
          reference to it stays the engine's own. -->
     <ItemGroup>
         <ProjectReference Include="..\modules\Sky\Sky\Sky.csproj" />
+        <ProjectReference Include="..\modules\Materials\Materials\Materials.csproj" />
     </ItemGroup>
 
     <!-- The generators' code fixes, compiled in as the engine compiles the generators, with the

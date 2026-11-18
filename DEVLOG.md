@@ -30,6 +30,12 @@ the reference under both, the high wall of block 315 1.05 before and 0.98 after,
 0.67 and 0.62 and the cyan block 92 0.80 and 0.76, and every other of the thirty largest regions
 moves by 0.01 or less.
 
+![](.github/assets/readings/2026-11-18-prototype-table.webp)
+The models_edit_mesh_room example and Blockout's hall turned to the door, before and after the
+prototype materials take the Materials module's table, the floor, the wall and the ceiling one gray
+of 0.90 where they were 79, 181 and 209 of 255, on a grid of 0.99, 0.6 and 0.82 where it was 230, 89
+and 173, so the hall's dark floor reads as light as its walls.
+
 ## 2026-11-17
 
 ![](.github/assets/readings/2026-11-17-item-287-width.webp)

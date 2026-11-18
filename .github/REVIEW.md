@@ -1038,3 +1038,24 @@ The runs. The tree builds strict with no warnings, and the flat API's physics te
 the public surface's, the cheatsheet's and the norm's pass, 188 of 188. The suite passes in its
 parts in order, 2,524 of 2,524 in 25 minutes, and shuffled by the seed 20261023, 2,524 of 2,524 in
 27 minutes.
+
+The prototype table, taken from the Materials module.
+
+The Materials module is a submodule at `modules/Materials`, at `c2e4a67`, referenced by the engine
+as Sky is, its assembly carried by the package, and by the examples and the tests.
+`GetPrototypeColor` reads the module's table (`Prototypes.Colors`), the floor, the wall and the
+ceiling one gray of 0.90 and the other parts their colors, and a prototype material its roughness.
+The grid's default tones are the module's, 0.99, 0.6 and 0.82, and `GenImageGrid` draws through the
+module's `Grid`, so the engine keeps no table and no grid of its own. `PrototypeTests` holds every
+name's color to the module's and the default grid to the module's bytes at 256 and 1024 pixels, and
+both fail on the table before. The six captures that show prototype surfaces are taken again,
+`models_edit_mesh`, its room, cuts, modifiers and looks, and Blockout's, and the 2026-10-26 reading
+stays as it was.
+
+The sheet. `2026-11-18-prototype-table.webp`, the edit mesh room and Blockout's hall turned to the
+door before and after, the hall's dark floor reading as light as its walls.
+
+The runs. The tree builds strict with no warnings, and the modeling, the edit mesh's, the public
+surface's, the cheatsheet's and the norm's tests pass, 199 of 199. Blockout built from the package
+plays through its drive. The suite passes in its parts in order, 2,525 of 2,525 in 25 minutes, and
+shuffled by the seed 20261023, 2,525 of 2,525 in 25 minutes.
