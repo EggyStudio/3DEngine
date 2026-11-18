@@ -1082,3 +1082,24 @@ mend.
 
 The runs. Blockout built from the package plays through its drive. The norm's and the scripts' tests
 pass, 34 of 34. The tree's tests do not build the games, so no suite leg ran for the game's change.
+
+Item 265, the move, the first kernel, the octahedral map.
+
+The RadianceCascades module is a submodule at `modules/RadianceCascades`, at `987e963`. Its kernels
+are staged flat beside the engine's under `source/shaders`, which the engine's import by their bare
+names as they import each other, and packed to the same place, so a game finds them where the
+engine's build stages them. `gi.slang` takes the octahedral map, the texels' rays and their marks
+from the module (`__exported import rc_octahedron`), `octahedron`, `octahedronPoint`,
+`fromOctahedron`, `octahedronShare`, `RaysAt`, `texelMark` and `texelNothing`, alike line for line
+with the engine's, and `gi_reference.slang` drops its own copy of `fromOctahedron` for the module's.
+Every pass that imports `gi` reads them as before. The package's shader cache is compiled from the
+shaders as the Release build stages them (`build/pack.sh`), the package's tests read the builds of
+each from the same folder and hold each of the module's kernels in the package at its own name, and
+the workflows' caches of Mesa's shaders are keyed by the module's shaders too. The module's C# is
+not referenced, since its Slang needs none of it.
+
+The runs. The tree builds strict with no warnings, and global illumination's, the bounce reference's
+and rooms', the glow lights', the Slang compiler's and the norm's tests pass, 285 of 285. The
+package carries the module's six kernels and a cache compiled with them, and its tests pass, 5 of 5.
+The suite passes in its parts in order, 2,525 of 2,525 in 22 minutes, and shuffled by the seed
+20261023, 2,525 of 2,525 in 22 minutes.

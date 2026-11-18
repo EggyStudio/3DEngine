@@ -43,6 +43,16 @@
             <PackageCopyToOutput>true</PackageCopyToOutput>
             <BuildAction>None</BuildAction>
         </Content>
+        <!-- The RadianceCascades module's kernels, staged flat beside the engine's, which import
+             them by their bare names, and packed to the same place. -->
+        <Content Include="..\modules\RadianceCascades\RadianceCascades\Shaders\*.slang">
+            <TargetPath>source\shaders\%(Filename)%(Extension)</TargetPath>
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+            <Pack>true</Pack>
+            <PackagePath>contentFiles/any/any/source/shaders/</PackagePath>
+            <PackageCopyToOutput>true</PackageCopyToOutput>
+            <BuildAction>None</BuildAction>
+        </Content>
     </ItemGroup>
 
     <!-- Every area's project. The package carries each one's assembly and documentation, and none

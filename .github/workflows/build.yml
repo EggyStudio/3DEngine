@@ -103,7 +103,7 @@ jobs:
       - uses: actions/cache/restore@v6
         with:
           path: build/mesa-cache
-          key: mesa-${{ runner.os }}-${{ env.PROCESSOR }}-${{ hashFiles('3DEngine/Shaders/**') }}
+          key: mesa-${{ runner.os }}-${{ env.PROCESSOR }}-${{ hashFiles('3DEngine/Shaders/**', 'modules/RadianceCascades/RadianceCascades/Shaders/**') }}
           restore-keys: mesa-${{ runner.os }}-${{ env.PROCESSOR }}-
 
       - name: Install lavapipe, a Vulkan device on the CPU, and the validation layer
@@ -157,7 +157,7 @@ jobs:
         if: always() && matrix.pass == 'order'
         with:
           path: build/mesa-cache
-          key: mesa-${{ runner.os }}-${{ env.PROCESSOR }}-${{ hashFiles('3DEngine/Shaders/**') }}
+          key: mesa-${{ runner.os }}-${{ env.PROCESSOR }}-${{ hashFiles('3DEngine/Shaders/**', 'modules/RadianceCascades/RadianceCascades/Shaders/**') }}
 
 
       # The page, from every run, for the digest job below.
@@ -627,7 +627,7 @@ jobs:
       - uses: actions/cache@v6
         with:
           path: build/mesa-cache
-          key: mesa-examples-${{ runner.os }}-${{ env.PROCESSOR }}-${{ hashFiles('3DEngine/Shaders/**') }}
+          key: mesa-examples-${{ runner.os }}-${{ env.PROCESSOR }}-${{ hashFiles('3DEngine/Shaders/**', 'modules/RadianceCascades/RadianceCascades/Shaders/**') }}
           restore-keys: mesa-examples-${{ runner.os }}-${{ env.PROCESSOR }}-
 
       # clang and zlib's headers, which the native compiler links with, and gdb, which reads the core
@@ -764,7 +764,7 @@ jobs:
       - uses: actions/cache@v6
         with:
           path: build/mesa-cache
-          key: mesa-captures-${{ runner.os }}-${{ env.PROCESSOR }}-${{ hashFiles('3DEngine/Shaders/**') }}
+          key: mesa-captures-${{ runner.os }}-${{ env.PROCESSOR }}-${{ hashFiles('3DEngine/Shaders/**', 'modules/RadianceCascades/RadianceCascades/Shaders/**') }}
           restore-keys: |
             mesa-captures-${{ runner.os }}-${{ env.PROCESSOR }}-
             mesa-examples-${{ runner.os }}-${{ env.PROCESSOR }}-
@@ -954,7 +954,7 @@ jobs:
       - uses: actions/cache@v6
         with:
           path: build/mesa-cache
-          key: mesa-games-${{ runner.os }}-${{ env.PROCESSOR }}-${{ hashFiles('3DEngine/Shaders/**') }}
+          key: mesa-games-${{ runner.os }}-${{ env.PROCESSOR }}-${{ hashFiles('3DEngine/Shaders/**', 'modules/RadianceCascades/RadianceCascades/Shaders/**') }}
           restore-keys: |
             mesa-games-${{ runner.os }}-${{ env.PROCESSOR }}-
             mesa-examples-${{ runner.os }}-${{ env.PROCESSOR }}-

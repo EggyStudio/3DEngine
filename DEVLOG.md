@@ -36,6 +36,13 @@ prototype materials take the Materials module's table, the floor, the wall and t
 of 0.90 where they were 79, 181 and 209 of 255, on a grid of 0.99, 0.6 and 0.82 where it was 230, 89
 and 173, so the hall's dark floor reads as light as its walls.
 
+![](.github/assets/readings/2026-11-18-blockout-hall.webp)
+Blockout's hall turned to the door as the workflow captures it, on the prototype table of 0.90, its
+camera held at one exposure and its help drawn bare, and its camera metered with the help on a dark
+strip. As the walker first sees the hall the drive read its mean at 249, 232 and 198 of 255 and the
+help's backdrop at 241, 203 and 166 before, and 132, 115 and 95 and the help's white words at about
+15 to 1 against the strip after.
+
 ## 2026-11-17
 
 ![](.github/assets/readings/2026-11-17-item-287-width.webp)

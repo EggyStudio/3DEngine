@@ -16,7 +16,9 @@ version="${1:-0.1.0-preview.$(date -u +%Y%m%d%H%M%S)}"
 # built at the default one shared one folder of pipelines with every package before it.
 dotnet build 3DEngine.slnx -c Release -p:Version="$version"
 rm -rf build/shader-cache
-./e3d shaders 3DEngine/Shaders build/shader-cache
+# Compiled from the shaders as the Release build stages them, the engine's and its modules' side by
+# side, so each is keyed by the path a game reads it at.
+./e3d shaders 3DEngine/bin/Release/net10.0/source/shaders build/shader-cache
 # The release notes, the commits since the last package of this minor on nuget.org was built
 # (build/release-notes.sh), whose first line, the commit they start after, the run's summary shows.
 notes="$PWD/build/artifacts/release-notes.txt"

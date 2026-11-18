@@ -4,3 +4,6 @@
 [submodule "modules/Materials"]
 	path = modules/Materials
 	url = https://github.com/EggyStudio/Materials.git
+[submodule "modules/RadianceCascades"]
+	path = modules/RadianceCascades
+	url = https://github.com/EggyStudio/RadianceCascades.git

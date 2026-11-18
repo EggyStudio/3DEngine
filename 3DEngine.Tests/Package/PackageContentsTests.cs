@@ -44,8 +44,9 @@ public sealed class PackageContentsTests
         var entries = Entries(package);
         var shaders = entries.Where(e => e.StartsWith("contentFiles/any/any/source/shaders/") && e.EndsWith(".slang")).ToList();
         shaders.Should().NotBeEmpty();
-        // The package's shaders are the repository's, whose modules say which builds each has.
-        var imports = Path.Combine(CheatsheetTests.RepoRoot(), "3DEngine", "Shaders");
+        // The package's shaders are the repository's and its modules', staged flat beside each
+        // other as a build stages them, whose imports say which builds each has.
+        var imports = Path.Combine(AppContext.BaseDirectory, "source", "shaders");
         foreach (var shader in shaders)
         {
             var name = Path.GetFileNameWithoutExtension(shader);
@@ -64,12 +65,15 @@ public sealed class PackageContentsTests
     public void Every_Staged_File_Of_The_Shaders_Folder_Is_At_Its_Own_Path()
     {
         // Each file under 3DEngine/Shaders, a subfolder's as the tables in tonemapping/, at the
-        // path below source/shaders the program reads it from, which a folder named twice misses.
+        // path below source/shaders the program reads it from, which a folder named twice misses,
+        // and each of the RadianceCascades module's kernels at its own name there.
         using var package = Open();
         var entries = Entries(package).ToHashSet(StringComparer.Ordinal);
         var shaders = Path.Combine(CheatsheetTests.RepoRoot(), "3DEngine", "Shaders");
+        var kernels = Path.Combine(CheatsheetTests.RepoRoot(), "modules", "RadianceCascades", "RadianceCascades", "Shaders");
         var missing = Directory.EnumerateFiles(shaders, "*", SearchOption.AllDirectories)
             .Select(file => "contentFiles/any/any/source/shaders/" + Path.GetRelativePath(shaders, file).Replace('\\', '/'))
+            .Concat(Directory.EnumerateFiles(kernels, "*.slang").Select(file => "contentFiles/any/any/source/shaders/" + Path.GetFileName(file)))
             .Where(entry => !entries.Contains(entry));
         missing.Should().BeEmpty("a game built from the package reads each from where the engine's own build stages it");
     }

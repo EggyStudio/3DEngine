@@ -30,6 +30,8 @@
 // of the probes around an emissive block would read far under it at one bounce.
 
 import color;
+// The octahedral map a probe's texels lie on, the RadianceCascades module's.
+import rc_octahedron;
 
 [[vk::binding(0, 0)]]
 RaytracingAccelerationStructure scene;
@@ -304,16 +306,6 @@ float3 cosineAbout(float3 n, inout uint state)
     float3 side = abs(n.y) < 0.99 ? normalize(cross(n, float3(0, 1, 0))) : float3(1, 0, 0);
     float3 up = cross(n, side);
     return normalize(side * (r * cos(phi)) + up * (r * sin(phi)) + n * sqrt(max(0.0, 1.0 - u)));
-}
-
-// The way through a texel of a probe's octahedron at uv, as gi.slang's fromOctahedron gives it.
-float3 fromOctahedron(float2 uv)
-{
-    float2 p = uv * 2.0 - 1.0;
-    float3 d = float3(p, 1.0 - abs(p.x) - abs(p.y));
-    if (d.z < 0.0)
-        d.xy = (1.0 - abs(d.yx)) * float2(d.x >= 0.0 ? 1.0 : -1.0, d.y >= 0.0 ? 1.0 : -1.0);
-    return normalize(d);
 }
 
 // The face a ray met, its copy, its triangle, how far along, where on the triangle, and the copy's
