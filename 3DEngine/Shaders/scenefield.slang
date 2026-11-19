@@ -7,6 +7,9 @@
 // size of 0 and is passed over.
 module scenefield;
 
+// The field's reads and marches, the RadianceCascades module's.
+import rc_field_read;
+
 // A 3D image a pass reads the field, its colors or the indirect light through, sampled between
 // texels at a level or a texel loaded as it is. A pass that binds its images with their samplers
 // passes them as they are, and the model pass, which binds its images apart from a few samplers
@@ -204,17 +207,52 @@ public int fieldCascade(SceneFieldInfo info, float3 p, float margin, int probes 
     return -1;
 }
 
-// How far beyond its offset a double-sided face's plane is kept in a cell, in cells, as
-// field_resolve.slang keeps it.
-static const float SheetLength = 2.0;
+// A field of no second planes, for the reads and marches that take the cells' blend alone.
+struct NoSecond<V : IVolume> : ISheetVolume
+{
+    V field;
 
-// How far either side of its plane a double-sided face is held below zero, in cells, which leaves
-// two sheets two cells apart a quarter of a cell between them and a march's start half a cell off
-// one. A march steps a quarter of a cell at least and meets a surface under a tenth, so a plane
-// held at no thickness, come at from a little over a tenth, is stepped over to a little over a
-// tenth past it, and held a tenth either side, a closed room of sheets on the grid lets in more of
-// the sky's light than held a quarter or a half.
-static const float SheetHalf = 0.25;
+    __init(V field) { this.field = field; }
+
+    float4 sampleAt(float3 uvw, float lod) { return field.sampleAt(uvw, lod); }
+    float4 loadAt(int3 texel) { return field.loadAt(texel); }
+    float3 secondAt(int3 texel) { return 0.0; }
+}
+
+// The field as the module's reads and marches take it (IFieldVolume), over the images a pass binds
+// and the table of its cascades, the cascades laid one after another along z. A cascade past
+// `most` reads as none, so a march stops where it leaves that cascade and every finer one.
+public struct FieldOf<S : ISheetVolume> : IFieldVolume
+{
+    S field;
+    SceneFieldInfo info;
+    int most;
+
+    public __init(S field, SceneFieldInfo info, int most = 0x7fffffff)
+    {
+        this.field = field;
+        this.info = info;
+        this.most = most;
+    }
+
+    public int cascadeOf(float3 p, float margin)
+    {
+        int c = fieldCascade(info, p, margin);
+        return c > most ? -1 : c;
+    }
+
+    public float4 cornerAndCell(int cascade) { return info.cascades[cascade].originAndCell; }
+    public int size() { return int(info.counts.y); }
+
+    public float4 between(int cascade, float3 cells)
+    {
+        float size = info.counts.y;
+        return field.sampleAt(float3(cells.xy / size, (cells.z + float(cascade) * size) / (size * info.counts.x)), 0);
+    }
+
+    public float4 cellAt(int cascade, int3 cell) { return field.loadAt(int3(cell.xy, cell.z + cascade * int(info.counts.y))); }
+    public float3 secondAt(int cascade, int3 cell) { return field.secondAt(int3(cell.xy, cell.z + cascade * int(info.counts.y))); }
+}
 
 // The distance from p to the nearest surface in cascade i, in world units, blended between the
 // eight cells around it, each read no nearer a side than half a cell, so cascades stacked in the
@@ -224,12 +262,7 @@ static const float SheetHalf = 0.25;
 // wherever it lies between the cells' middles.
 public float fieldDistanceIn<V : IVolume>(V field, SceneFieldInfo info, int i, float3 p)
 {
-    float4 oc = info.cascades[i].originAndCell;
-    float size = info.counts.y;
-    float3 cell = clamp((p - oc.xyz) / oc.w, 0.5, size - 0.5);
-    float3 uvw = float3(cell.xy / size, (cell.z + float(i) * size) / (size * info.counts.x));
-    float4 read = field.sampleAt(uvw, 0);
-    return read.r - 0.5 * oc.w * saturate(length(read.yzw));
+    return fieldDistanceIn(FieldOf<NoSecond<V>>(NoSecond<V>(field), info), i, p);
 }
 
 // The distance from p to the nearest surface in cascade i as the probes' rays take it, the cells'
@@ -244,32 +277,7 @@ public float fieldDistanceIn<V : IVolume>(V field, SceneFieldInfo info, int i, f
 // where two walls cross, keeps its plane too.
 public float fieldDistanceSheetIn<S : ISheetVolume>(S field, SceneFieldInfo info, int i, float3 p)
 {
-    float4 oc = info.cascades[i].originAndCell;
-    float size = info.counts.y;
-    float3 cell = clamp((p - oc.xyz) / oc.w, 0.5, size - 0.5);
-    float3 uvw = float3(cell.xy / size, (cell.z + float(i) * size) / (size * info.counts.x));
-    float4 read = field.sampleAt(uvw, 0);
-    float d = read.r;
-    // The planes blended with the rest read nothing where no cell around keeps one, so the cell's
-    // own is read only near a sheet, in a branch the compiler keeps, since flattened every sample
-    // reads it.
-    [branch]
-    if (d < oc.w * 0.75 && dot(read.yzw, read.yzw) >= 1e-6)
-    {
-        float3 at = min(floor(cell), size - 1.0);
-        int3 texel = int3(int2(at.xy), int(at.z) + i * int(size));
-        float3 local = p - oc.xyz - (at + 0.5) * oc.w;
-        d = min(d, min(sheetDistance(field.loadAt(texel).yzw, local, oc.w), sheetDistance(field.secondAt(texel), local, oc.w)));
-    }
-    return d;
-}
-
-// How far a point `local` off a cell's middle lies from the plane the cell keeps as `sheet`, held
-// SheetHalf of a cell either side, or far where it keeps none.
-float sheetDistance(float3 sheet, float3 local, float cell)
-{
-    float kept = length(sheet);
-    return kept < 0.5 ? 1e6 : abs(dot(local, sheet) / kept - (kept - SheetLength) * cell) - SheetHalf * cell;
+    return fieldDistanceSheetIn(FieldOf<S>(field, info), i, p);
 }
 
 // Whether the cell of cascade i that p lies in keeps the plane of a double-sided face (sheetAt in
@@ -356,59 +364,20 @@ public float3 fieldNormalSheet<S : ISheetVolume>(S field, SceneFieldInfo info, f
 // tMax first or leaves every cascade.
 public float traceField<V : IVolume>(V field, SceneFieldInfo info, float3 origin, float3 way, float tMin, float tMax)
 {
-    float t = tMin;
-    for (int i = 0; i < 64 && t < tMax; i++)
-    {
-        float3 p = origin + way * t;
-        int c = fieldCascade(info, p, 1.0);
-        if (c < 0)
-            return -1.0;
-        float cell = info.cascades[c].originAndCell.w;
-        float d = fieldDistanceIn(field, info, c, p);
-        if (d < cell * 0.1)
-            return t;
-        t += max(d, cell * 0.25);
-    }
-    return -1.0;
+    return traceField(FieldOf<NoSecond<V>>(NoSecond<V>(field), info), origin, way, tMin, tMax);
 }
 
 // The same as the probes' rays take the field (fieldDistanceSheetIn).
 public float traceFieldSheets<S : ISheetVolume>(S field, SceneFieldInfo info, float3 origin, float3 way, float tMin, float tMax)
 {
-    float t = tMin;
-    for (int i = 0; i < 64 && t < tMax; i++)
-    {
-        float3 p = origin + way * t;
-        int c = fieldCascade(info, p, 1.0);
-        if (c < 0)
-            return -1.0;
-        float cell = info.cascades[c].originAndCell.w;
-        float d = fieldDistanceSheetIn(field, info, c, p);
-        if (d < cell * 0.1)
-            return t;
-        t += max(d, cell * 0.25);
-    }
-    return -1.0;
+    return traceFieldSheets(FieldOf<S>(field, info), origin, way, tMin, tMax);
 }
 
 // As traceFieldSheets, stopping where the ray leaves cascade `most` and every finer one, as -1,
 // since a wall thinner than a coarser cascade's cell may let it through.
 public float traceFieldWithinSheets<S : ISheetVolume>(S field, SceneFieldInfo info, float3 origin, float3 way, float tMin, float tMax, int most)
 {
-    float t = tMin;
-    for (int i = 0; i < 64 && t < tMax; i++)
-    {
-        float3 p = origin + way * t;
-        int c = fieldCascade(info, p, 1.0);
-        if (c < 0 || c > most)
-            return -1.0;
-        float cell = info.cascades[c].originAndCell.w;
-        float d = fieldDistanceSheetIn(field, info, c, p);
-        if (d < cell * 0.1)
-            return t;
-        t += max(d, cell * 0.25);
-    }
-    return -1.0;
+    return traceFieldSheets(FieldOf<S>(field, info, most), origin, way, tMin, tMax);
 }
 
 // The alpha a cell of the field's colors is painted with by a surface that lets `through` of the

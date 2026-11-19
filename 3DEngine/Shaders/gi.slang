@@ -9,8 +9,9 @@ import scenefield;
 __exported import glow;
 __exported import cascades;
 __exported import screenmarch;
-// The octahedral map, the texels' rays and their marks, the RadianceCascades module's.
-__exported import rc_octahedron;
+// The octahedral map, the texels' rays and their marks, the probes' cascades and the sixteen by
+// sixteen ways each probe's reach is kept along (ReachTexels), the RadianceCascades module's.
+__exported import rc_probes;
 
 public static const float Pi = 3.14159265358979;
 
@@ -390,10 +391,6 @@ public bool seesThrough<V : IVolume>(V field, SceneFieldInfo info, float3 a, flo
     return length <= clearance * 2.0 || traceField(field, info, a, toward / length, clearance, length - clearance) < 0.0;
 }
 
-// The directions each probe's reach is kept along, sixteen by sixteen of its octahedron, as
-// gi_ambient.slang lays them out.
-public static const int ReachTexels = 16;
-
 // How near a surface a probe may stand, and the most it is moved from its spot in the grid to stand
 // so far off one or out of a mesh, in its spacing, so a probe in the plane of a wall or a ceiling
 // stands in the room before it rather than inside it. A probe moved stays within half the spacing
@@ -461,8 +458,8 @@ public float probeSees<V : IVolume>(V reach, float3 p, float3 n, float3 probe, i
     float d = length(toward);
     if (d < 1e-4)
         return 1.0;
-    int2 texel = min(int2(octahedron(toward / d) * float(ReachTexels)), int2(ReachTexels - 1));
-    float reached = reach.loadAt(int3(at.xy * ReachTexels + texel, c * int(probes) + at.z)).r;
+    int2 texel = min(int2(octahedron(toward / d) * float(ReachTexels)), int2(int(ReachTexels) - 1));
+    float reached = reach.loadAt(int3(at.xy * int(ReachTexels) + texel, c * int(probes) + at.z)).r;
     float slack = 0.125 * apart;
     return saturate((reached + slack - d) / slack);
 }

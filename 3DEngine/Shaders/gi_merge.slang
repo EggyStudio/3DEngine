@@ -332,10 +332,10 @@ void computeMain(uint3 id : SV_DispatchThreadID, uint3 local : SV_GroupThreadID)
         // one cell past the corner, a probe in a hall under a lintel reads its face toward the
         // opening far too dark (GlobalIlluminationTests).
         uint cells = max(uint(ReachTexels) / upper, 1u);
-        int2 rt = min(int2(octahedron(d) * float(ReachTexels / int(cells))), int2(ReachTexels / int(cells) - 1)) * int(cells);
+        int2 rt = min(int2(octahedron(d) * float(int(ReachTexels) / int(cells))), int2(int(ReachTexels) / int(cells) - 1)) * int(cells);
         float r = 0.0;
         for (uint k = 0u; k < cells * cells; k++)
-            r += reachAbove.Load(int4(neighbor.xy * ReachTexels + rt + int2(k % cells, k / cells), int(c + 1u) * int(probes) + neighbor.z, 0));
+            r += reachAbove.Load(int4(neighbor.xy * int(ReachTexels) + rt + int2(k % cells, k / cells), int(c + 1u) * int(probes) + neighbor.z, 0));
         r /= float(cells * cells);
         float3 way = d;
         if (r > 0.0 && r < push.spacing.w * 0.999)

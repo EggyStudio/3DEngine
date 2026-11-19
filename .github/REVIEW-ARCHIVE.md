@@ -12702,6 +12702,20 @@ at `36cae0c2`.
     played offscreen on Linux with its play asserted, won at its third shot with the banner down,
     and no validation error.
 
+129. **The build run of `17d90968` is red in two jobs, one a fault of the tree.** Run 44433561461,
+    read at 03:36 on 2026-11-19. The job `examples` failed at the check of the examples' table,
+    `build/examples-table.py --check` ending with exit code 1, the gallery's pictures out of date
+    for `blockout.webp`, `models_edit_mesh.webp`, `models_edit_mesh_cuts.webp`,
+    `models_edit_mesh_looks.webp` and those named after them, so the commit that gave the prototype
+    materials the module's table remade the examples' captures and left the gallery's small copies
+    as they were. The job `windows (1)` failed before any test, a download of its setup ending with
+    `curl: (56) Recv failure: Connection was reset`, the runner's network and no fault of the tree.
+    Asked, the gallery made again by `build/examples-table.py` on top of the head and the check run
+    before the commit, and whether the commit's own checks could have run the table's check, so a
+    capture remade without its gallery copy fails before a push. Settled on the next run green in
+    both jobs. Settled at 05:33 on 2026-11-19 on run 44445740458 of `98b68167`, green in every job,
+    the gallery made again and the table's check added to the commit's own checks.
+
 ## Decisions
 
 1. **Commits stay local.** The owner pushes `main` by hand, and the working session commits and does

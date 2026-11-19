@@ -20,7 +20,7 @@ public float probeSeesBlended<V : IVolume>(V reach, float3 p, float3 n, float3 p
     if (d < 1e-4)
         return 1.0;
     float2 along = clamp(octahedron(toward / d) * float(ReachTexels), 0.5, float(ReachTexels) - 0.5);
-    float3 uvw = float3((float2(at.xy * ReachTexels) + along) / (probes * float(ReachTexels)), (float(c * int(probes) + at.z) + 0.5) / (probes * float(cascades)));
+    float3 uvw = float3((float2(at.xy * int(ReachTexels)) + along) / (probes * float(ReachTexels)), (float(c * int(probes) + at.z) + 0.5) / (probes * float(cascades)));
     float reached = reach.sampleAt(uvw, 0.0).r;
     float slack = 0.125 * apart;
     return saturate((reached + slack - d) / slack);

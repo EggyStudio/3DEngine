@@ -16,6 +16,13 @@ and at the civil twilight's end with it 6 degrees down, each at the module's met
 clear.webp, the noon sky a deep blue, the sunset white over a yellow horizon and the civil end blue
 over a lighter band.
 
+![](.github/assets/readings/2026-11-19-sponza-sky-move-pair.webp)
+scenes_sponza at 15:00 at the balcony, the door and the view up, at the commit before the Sky
+module's tables gave the sky and at the commit after, each view at one exposure on both, EV100 9.5
+at the balcony and the door and 8 looking up, the whole frame read alike, the means within half a
+step of 255 and red over blue 1.11 and 1.12, 1.76 and 1.72, and 1.04 and 1.04, the two frames alike
+to the eye.
+
 ## 2026-11-18
 
 ![](.github/assets/readings/2026-11-18-item-296-night-rank.webp)

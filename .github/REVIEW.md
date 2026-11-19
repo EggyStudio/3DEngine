@@ -519,22 +519,8 @@ changes.
 
 ## Verdicts
 
-Verdict 129 is open, the examples' gallery out of date in run 44433561461. Verdict 128 is settled at
-19:49 on 2026-11-17 on the pack run 44120117582. Verdicts 1 to 127 are settled, said under each in
-REVIEW-ARCHIVE.md.
-
-129. **The build run of `17d90968` is red in two jobs, one a fault of the tree.** Run 44433561461,
-    read at 03:36 on 2026-11-19. The job `examples` failed at the check of the examples' table,
-    `build/examples-table.py --check` ending with exit code 1, the gallery's pictures out of date
-    for `blockout.webp`, `models_edit_mesh.webp`, `models_edit_mesh_cuts.webp`,
-    `models_edit_mesh_looks.webp` and those named after them, so the commit that gave the prototype
-    materials the module's table remade the examples' captures and left the gallery's small copies
-    as they were. The job `windows (1)` failed before any test, a download of its setup ending with
-    `curl: (56) Recv failure: Connection was reset`, the runner's network and no fault of the tree.
-    Asked, the gallery made again by `build/examples-table.py` on top of the head and the check run
-    before the commit, and whether the commit's own checks could have run the table's check, so a
-    capture remade without its gallery copy fails before a push. Settled on the next run green in
-    both jobs.
+No verdict is open. Verdict 129 is settled at 05:33 on 2026-11-19 on run 44445740458. Verdicts 1 to
+128 are settled, said under each in REVIEW-ARCHIVE.md.
 
 ## Decisions
 
@@ -1120,6 +1106,32 @@ what they read.
 
 The runs. The tests build strict with no warnings, the test passes in 11 seconds, and the norm's
 tests pass, 17 of 17. The suite runs with the first pass's commit, which changes the kernels.
+
+Item 265, the field's read and march from the module.
+
+The RadianceCascades pointer moves to `6622616`. `gi.slang` takes the module's probes (`__exported
+import rc_probes`), whose sixteen by sixteen ways of a probe's reach (`ReachTexels`) are a uint
+where the engine's were an int, so the engine's own copy goes and its readers take it as
+`int(ReachTexels)` where they reckon in ints. `scenefield.slang` reads the field through the module
+(`import rc_field_read`). `FieldOf` is the field as the module's `IFieldVolume` takes it, over the
+images a pass binds and the table of its cascades, a cascade past the one given reading as none, and
+`fieldDistanceIn`, `fieldDistanceSheetIn`, `traceField`, `traceFieldSheets` and
+`traceFieldWithinSheets` keep their shapes and hand it to the module's, whose steps, sheet half,
+sheet length and step cap are the engine's. The engine's own `SheetLength`, `SheetHalf` and
+`sheetDistance` go for the module's.
+
+Read alike. `shaders_cornell_box` and `shaders_bounce_rooms` captured after 300 frames twice before
+the change and twice after differ by at most 1 of 255 in under 1% of their pixels, which two
+captures before the change differ by too, but for one capture after where six pixels of the box's
+floor read up to 6 off, which the second capture after does not.
+
+The runs. The tree builds strict with no warnings. The Slang compiler's, the field's, global
+illumination's, the bounce rooms', the cascades' edges', the reference frames', the open box's, the
+glow tier's, the screen probes' and the norm's tests pass, 341 of 342, the one left the package's,
+which reads a pack made before the pointer moved; packed again with `build/pack.sh`, the package
+carries the module's nine kernels and its tests pass, 5 of 5. The suite passes in its parts in
+order, 2,528 of 2,528 in 24 minutes, and shuffled by the seed 20261023, 2,528 of 2,528 in 24
+minutes.
 
 Handoff, at `0a223de1`. The Sky pointer is at `9040738` in `c20870f2`, `a29f0efc`, `777e051f` and
 `0a223de1`, the GPU sky drawn from the module's tables, made on a worker, the disc and the night's

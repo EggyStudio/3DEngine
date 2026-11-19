@@ -282,8 +282,8 @@ float probeReaches(float3 q, float3 probe, int3 at, uint c, float apart)
     float d = length(toward);
     if (d < 1e-4)
         return 1.0;
-    int2 texel = min(int2(octahedron(toward / d) * float(ReachTexels)), int2(ReachTexels - 1));
-    float reached = reach.loadAt(int3(at.xy * ReachTexels + texel, int(c) * int(view.trace.y) + at.z)).r;
+    int2 texel = min(int2(octahedron(toward / d) * float(ReachTexels)), int2(int(ReachTexels) - 1));
+    float reached = reach.loadAt(int3(at.xy * int(ReachTexels) + texel, int(c) * int(view.trace.y) + at.z)).r;
     float slack = 0.25 * apart;
     return saturate((reached + slack - d) / slack);
 }
