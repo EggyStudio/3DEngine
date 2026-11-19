@@ -15,6 +15,9 @@ public sealed class DaySkyAirTests : IDisposable
 {
     private static readonly Sky.Atmosphere Earth = Sky.Atmosphere.Earth;
 
+    // Waits for an air's tables, made on a worker, so a test's frames draw its sky.
+    private static void Made(Sky.Atmosphere air) => AirTables.For(air).Wait();
+
     public void Dispose()
     {
         CloseWindow();
@@ -85,6 +88,7 @@ public sealed class DaySkyAirTests : IDisposable
         UseApp(new App(Config.Default with { Headless = true, HeadlessFps = 1000, FrameSeconds = 1.0 / 60 }).AddPlugin(new DefaultPlugins()));
         var hour = HourAt(53.97f);
         SetSkyDay(new SkyDay { Minutes = 0, Tilt = 0, Atmosphere = Earth });
+        Made(Earth);
         SetSkyTime(hour);
         BeginDrawing();
         EndDrawing();

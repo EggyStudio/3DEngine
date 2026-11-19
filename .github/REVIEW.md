@@ -1012,3 +1012,19 @@ The runs. The tree builds strict with no warnings, and the sky's, the day's, the
 global illumination's, the Slang compiler's and the norm's tests pass, 239 of 239. The package
 carries `3DEngine.Sky`, and its tests pass, 5 of 5. The suite passes in its parts in order, 2,525 of
 2,525 in 23 minutes, and shuffled by the seed 20261023, 2,525 of 2,525 in 25 minutes.
+
+The air's tables made off the frame.
+
+The module takes some half a second to make an air's tables, which the frame an air first appeared
+in waited for. They are made on a worker the first time they are asked for (`AirTables.For`), and
+the filter takes an air's map only once they are made, the cubes before kept and drawn until then
+(`ModelRenderer.FilterEnvironment`), so a game's frames go on while its sky is made and the sky
+changes in a frame after. `AirSkyTests` holds an air no frame has drawn before, its first frame
+drawn with no sky cube while the tables are made and a frame after them taking its sky, and fails
+where the frame waits for the tables, the cube there on its first frame. The tests that read the sky
+wait for its tables before their frames.
+
+The runs. The tree builds strict with no warnings, and the sky's, the day's, the environment's,
+global illumination's, the Slang compiler's and the norm's tests pass, 240 of 240. The suite passes
+in its parts in order, 2,526 of 2,526 in 22 minutes, and shuffled by the seed 20261023, 2,526 of
+2,526 in 24 minutes.

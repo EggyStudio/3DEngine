@@ -50,7 +50,8 @@ internal sealed partial class ModelRenderer
             return _noLights;
         }
 
-        // Once a frame, however many views draw models in it, the next slot's sets are handed out again.
+        // Once a frame, however many views draw models in it, the next slot's sets are handed
+        // out again.
         if (!ReferenceEquals(frame, _lastFrame))
         {
             _lastFrame = frame;
@@ -119,7 +120,8 @@ internal sealed partial class ModelRenderer
             var points = shadow is { PointLights.Count: > 0 } ? PointShadowMap(device, shadow.PointFaceSize) : NoPointShadowMap(device);
             gfx.UpdateDescriptorSet(set, null, Lit(points.DepthView, points.Sampler, 4));
 
-            // Each bound probe's cube and irradiance at its slot, and the black cube and zeros past them.
+            // Each bound probe's cube and irradiance at its slot, and the black cube and zeros
+            // past them.
             var slots = renderWorld.TryGet<BoundProbes>()?.Slots ?? [];
             var black = BlackCube(gfx)!;
             for (int s = 0; s < LightingUboPacker.MaxProbes; s++)
@@ -277,7 +279,8 @@ internal sealed partial class ModelRenderer
     // A scene of no meshes, bound where the model pass traces rays and none are built.
     private GpuRayScene? _noRays;
 
-    /// <summary>Whether the model pass was built to trace rays, its lights' set holding the window's meshes for the device's ray tracing.</summary>
+    /// <summary>Whether the model pass was built to trace rays, its lights' set holding the
+    /// window's meshes for the device's ray tracing.</summary>
     internal bool TracesRays => _lightsBindings.Any(b => b.Type == DescriptorType.AccelerationStructure);
 
     // Where modelpass.slang binds the first probe's irradiance in the lights' set, the others after
@@ -303,8 +306,8 @@ internal sealed partial class ModelRenderer
     // material whose base color is a texture, white for none, and the lights of the window or of a
     // render target. A material is found by its texture's id within a frame, so the frame's sets
     // are begun here too, since in a frame that draws particles and no model a set kept from an
-    // earlier frame may name the view of a texture unloaded under a living emitter, which is
-    // destroyed.
+    // earlier frame may name the view of a texture unloaded under a living emitter, which
+    // is destroyed.
     internal IDescriptorSetLayout MaterialSetLayout(IGraphicsDevice gfx) => MaterialLayout(gfx);
     internal IDescriptorSetLayout LightsSetLayout(IGraphicsDevice gfx) => LightsLayout(gfx);
     internal IDescriptorSet TexturedMaterial(RenderContext renderContext, GpuTextures textures, int texture)
@@ -320,10 +323,12 @@ internal sealed partial class ModelRenderer
     private CubeMap? BlackCube(IGraphicsDevice gfx) =>
         gfx is GraphicsDevice device ? _noEnvironment ??= device.CreateCubeMap(1, 1, new Half[6 * 4]) : null;
 
-    /// <summary>The environment map's filtered cube, once a frame has filtered it, for a test to read back.</summary>
+    /// <summary>The environment map's filtered cube, once a frame has filtered it, for a test to
+    /// read back.</summary>
     internal FilteredCube? Environment => _environment;
 
-    /// <summary>The sky's cube the environment map was resampled into, which the drawn sky reads, for a test to read back.</summary>
+    /// <summary>The sky's cube the environment map was resampled into, which the drawn sky reads,
+    /// for a test to read back.</summary>
     internal FilteredCube? SkyCube => _sky;
 
     /// <summary>
@@ -337,11 +342,15 @@ internal sealed partial class ModelRenderer
     {
         if (renderContext.Device is not GraphicsDevice device || !CubeFilter.Of(device).CanFilterProbes) return;
         if (renderWorld.TryGet<EnvironmentMap>() is not { } environment || ReferenceEquals(environment, _environmentSource)) return;
+        // An air's map waits for its tables, made on a worker, the cubes before kept until
+        // they are.
+        if (environment.Air is { } asked && CubeFilter.Of(device).CanDrawAir && !AirTables.For(asked.Air).IsCompleted) return;
 
         if (_environment is not null) _retiredCubes.Add((_frames, _environment));
         if (_sky is not null) _retiredCubes.Add((_frames, _sky));
         var (width, height) = ((uint)environment.Width, (uint)environment.Height);
-        // An air's map is drawn into its image by the GPU in this frame, and a map of pixels uploaded.
+        // An air's map is drawn into its image by the GPU in this frame, and a map of
+        // pixels uploaded.
         var air = environment.Air is not null && CubeFilter.Of(device).CanDrawAir ? environment.Air : null;
         var image = device.CreateImage(new ImageDesc(new Extent2D(width, height), ImageFormat.R16G16B16A16_Float,
             ImageUsage.Sampled | ImageUsage.TransferDst | ImageUsage.TransferSrc | (air is null ? 0 : ImageUsage.Storage), (uint)Math.Log2(Math.Max(width, height)) + 1));
@@ -380,10 +389,11 @@ internal sealed partial class ModelRenderer
 
     /// <summary>
     /// Captures the first probe whose capture is out of date, drawing the window's meshes from its
-    /// position into six faces, one face a frame, or the first render target's when the window draws
-    /// none, and filters them on the GPU in the frame that draws the last of them. One probe at a
-    /// time, and none while no meshes are drawn. A probe is captured twice, the second time with the
-    /// first bound, so the metal in its room reflects the room in the capture rather than the sky.
+    /// position into six faces, one face a frame, or the first render target's when the window
+    /// draws none, and filters them on the GPU in the frame that draws the last of them. One probe
+    /// at a time, and none while no meshes are drawn. A probe is captured twice, the second time
+    /// with the first bound, so the metal in its room reflects the room in the capture rather than
+    /// the sky.
     /// </summary>
     /// <remarks>
     /// A face a frame spreads a capture's draws over six frames, so a frame of a level streaming in
@@ -410,8 +420,8 @@ internal sealed partial class ModelRenderer
             var wanted = next.Wanted;
             var projection = Matrix4x4.CreatePerspectiveFieldOfView(MathF.PI / 2, 1, 0.05f, 1000);
             projection.M22 = -projection.M22;
-            // Each face's view-projection, and the same made with the eye at nothing, which the face
-            // is noted by and the filter's gather reads a way through.
+            // Each face's view-projection, and the same made with the eye at nothing, which the
+            // face is noted by and the filter's gather reads a way through.
             var viewProjections = new Matrix4x4[6];
             var turned = new Matrix4x4[6];
             for (int f = 0; f < 6; f++)
@@ -445,8 +455,8 @@ internal sealed partial class ModelRenderer
         // frame's origin from there.
         draws.NoteEye(capture.ViewProjections[face], new ViewEye(capture.Wanted.Position, capture.Turned[face]));
         Draw(pass, target.RenderPass, renderContext, renderWorld, source.Value, capture.ViewProjections[face], ProbeCaptureLights);
-        // The particles over the meshes, through the face from the probe's middle, by the capture's
-        // lights.
+        // The particles over the meshes, through the face from the probe's middle, by the
+        // capture's lights.
         renderWorld.TryGet<ParticleRenderer>()?.Draw(pass, target.RenderPass, renderContext, renderWorld, ProbeCaptureLights,
             capture.ViewProjections[face], capture.Wanted.Position);
         pass.EndRenderPass();

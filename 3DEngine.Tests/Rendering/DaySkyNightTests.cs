@@ -13,6 +13,9 @@ public sealed class DaySkyNightTests : IDisposable
 {
     private static readonly Sky.Atmosphere Earth = Sky.Atmosphere.Earth;
 
+    // Waits for an air's tables, made on a worker, so a test's frames draw its sky.
+    private static void Made(Sky.Atmosphere air) => AirTables.For(air).Wait();
+
     public void Dispose()
     {
         CloseWindow();
@@ -91,6 +94,7 @@ public sealed class DaySkyNightTests : IDisposable
         var config = Config.Default.WithWindow("night", width, height) with { Headless = true, Offscreen = true, Samples = 1 };
         UseApp(new App(config).AddPlugin(new DefaultPlugins()));
         SetSkyDay(new SkyDay { Minutes = 0, Tilt = 0, Atmosphere = Earth });
+        Made(Earth);
         SetSkyTime(hours);
         SetCameraExposure(100, 1, 1);
         // A bloom whose threshold nothing reaches, so the scene is decoded to linear light to read.
@@ -115,8 +119,8 @@ public sealed class DaySkyNightTests : IDisposable
     public void Sirius_Lands_On_The_Frame_With_The_Illuminance_Its_Magnitude_Gives_Through_The_Air()
     {
         // At 21:00 of the first day, Sirius stands some 56 degrees up. Looked at straight on, the
-        // light the frame holds about it over the sky behind, times each pixel's solid angle, is its
-        // illuminance through the air along its way. It stands on the corner of the four middle
+        // light the frame holds about it over the sky behind, times each pixel's solid angle, is
+        // its illuminance through the air along its way. It stands on the corner of the four middle
         // pixels, each holding a sixth of it as a Gaussian of 0.8 of a pixel gives it.
         var sirius = Sky.Stars.Catalog.MinBy(star => star.Magnitude);
         var toward = DaySky.TowardStars(sirius.RightAscension, sirius.Declination, DaySky.SiderealTurn(21, 0));

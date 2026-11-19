@@ -16,13 +16,17 @@ public sealed class AirSkyTests(ITestOutputHelper output) : IDisposable
 {
     private static readonly Sky.Atmosphere Earth = Sky.Atmosphere.Earth;
 
+    // Waits for an air's tables, made on a worker, so a test's frames draw its sky.
+    private static void Made(Sky.Atmosphere air) => AirTables.For(air).Wait();
+
     public void Dispose()
     {
         CloseWindow();
         UseApp(null);
     }
 
-    // The hour on a day of no lean at which the sun stands at an elevation, 15 degrees an hour from 6.
+    // The hour on a day of no lean at which the sun stands at an elevation, 15 degrees an hour
+    // from 6.
     private static float HourAt(float elevation) => 6 + elevation / 15;
 
     private static Engine.Renderer Open()
@@ -47,10 +51,29 @@ public sealed class AirSkyTests(ITestOutputHelper output) : IDisposable
 
     [NeedsVulkanFact]
     [Trait("Category", "Render")]
+    public void A_New_Airs_First_Frame_Goes_On_While_Its_Tables_Are_Made_And_A_Later_One_Takes_Its_Sky()
+    {
+        // An air no frame has drawn before, whose tables the module takes some half a second to
+        // make, which a frame waiting for them would stall for.
+        var renderer = Open();
+        var air = Earth with { GroundAlbedo = new Vector3(0.29f) };
+        SetSkyDay(new SkyDay { Minutes = 0, Tilt = 0, Atmosphere = air });
+        SetSkyTime(HourAt(30));
+        Frames(1, Vector3.UnitY);
+        AirTables.For(air).IsCompleted.Should().BeFalse("the module is making the tables on a worker");
+        renderer.RenderWorld.Get<ModelRenderer>().SkyCube.Should().BeNull("the first frame drew on while the air's tables were made");
+        Made(air);
+        Frames(2, Vector3.UnitY);
+        renderer.RenderWorld.Get<ModelRenderer>().SkyCube.Should().NotBeNull("a frame once they are made takes the air's sky");
+    }
+
+    [NeedsVulkanFact]
+    [Trait("Category", "Render")]
     public void The_Sky_Drawn_On_The_GPU_Is_The_Modules_Luminance_Along_Each_Way()
     {
         var renderer = Open();
         SetSkyDay(new SkyDay { Minutes = 0, Tilt = 0, Atmosphere = Earth });
+        Made(Earth);
         SetSkyTime(HourAt(30));
         Frames(4, Vector3.UnitY);
 
@@ -84,7 +107,8 @@ public sealed class AirSkyTests(ITestOutputHelper output) : IDisposable
         worst.Should().BeLessThan(0.01f, "the GPU draws the module's sky");
     }
 
-    // The way a cube texel looks along for face coordinates from -1 to 1, as probecube.slang has it.
+    // The way a cube texel looks along for face coordinates from -1 to 1, as probecube.slang
+    // has it.
     private static Vector3 CubeDirection(int face, float u, float v) => Vector3.Normalize(face switch
     {
         0 => new Vector3(1, -v, -u),
@@ -108,6 +132,7 @@ public sealed class AirSkyTests(ITestOutputHelper output) : IDisposable
     {
         var renderer = Open();
         SetSkyDay(new SkyDay { Minutes = 0, Tilt = 0, Atmosphere = Earth });
+        Made(Earth);
         SetSkyTime(HourAt(54));
         Frames(4, Vector3.UnitY);
 
@@ -156,6 +181,7 @@ public sealed class AirSkyTests(ITestOutputHelper output) : IDisposable
     {
         Open();
         SetSkyDay(new SkyDay { Minutes = 0, Tilt = 0, Atmosphere = Earth });
+        Made(Earth);
         SetSkyTime(HourAt(30));
         var toSun = DaySky.SunToward(HourAt(30), 0);
         var folder = new TestFolder("engine-air-sky-");

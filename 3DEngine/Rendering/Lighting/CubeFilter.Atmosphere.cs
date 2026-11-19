@@ -9,10 +9,11 @@ namespace Engine;
 /// sky, as the module's SkyLight draws it on the CPU.
 /// </summary>
 /// <remarks>
-/// The tables (<see cref="AirTables"/>) are made once for each air and put in a buffer the CPU
-/// writes, made again only where the air differs from the one it holds, which a day's hours never
-/// change, and each texel of the image is a march along its way through the air from the ground
-/// (<c>atmosphere_sky.slang</c>), its mips blitted from its first level for the filter to read.
+/// The tables (<see cref="AirTables"/>) are made once for each air on a worker, the map waiting
+/// for them with the cubes before kept, and put in a buffer the CPU writes, made again only where
+/// the air differs from the one it holds, which a day's hours never change, and each texel of the
+/// image is a march along its way through the air from the ground (<c>atmosphere_sky.slang</c>),
+/// its mips blitted from its first level for the filter to read.
 /// </remarks>
 internal sealed unsafe partial class CubeFilter
 {
@@ -46,7 +47,7 @@ internal sealed unsafe partial class CubeFilter
         if (_airTables is null || air.Air != _airTabled)
         {
             // The tables of an air before stay until the frames that read them are done.
-            var floats = AirTables.Of(air.Air).Floats;
+            var floats = AirTables.For(air.Air).Result.Floats;
             var tables = device.CreateBuffer(new BufferDesc((ulong)floats.Length * sizeof(float), BufferUsage.Storage, CpuAccessMode.Write));
             device.Name(tables, "Air's tables");
             device.FillBuffer(tables, 0, System.Runtime.InteropServices.MemoryMarshal.AsBytes(floats.AsSpan()));

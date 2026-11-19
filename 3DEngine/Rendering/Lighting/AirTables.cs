@@ -17,7 +17,7 @@ namespace Engine;
 /// </remarks>
 internal sealed class AirTables
 {
-    private static readonly ConditionalWeakTable<Sky.Atmosphere, AirTables> Made = new();
+    private static readonly ConditionalWeakTable<Sky.Atmosphere, Task<AirTables>> Made = new();
 
     private AirTables(Sky.Atmosphere air)
     {
@@ -68,7 +68,9 @@ internal sealed class AirTables
     /// <summary>The packed tables, four floats a cell.</summary>
     public float[] Floats { get; }
 
-    /// <summary>The tables of <paramref name="air"/>, made the first time they are
-    /// asked for.</summary>
-    public static AirTables Of(Sky.Atmosphere air) => Made.GetValue(air, static a => new AirTables(a));
+    /// <summary>
+    /// The tables of <paramref name="air"/>, made on a worker the first time they are asked for,
+    /// since the module takes some half a second to make them and the frame that asks goes on.
+    /// </summary>
+    public static Task<AirTables> For(Sky.Atmosphere air) => Made.GetValue(air, static a => Task.Run(() => new AirTables(a)));
 }
