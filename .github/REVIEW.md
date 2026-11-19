@@ -1059,3 +1059,32 @@ The runs. The tree builds strict with no warnings, and the sky's, the day's, the
 global illumination's, the Slang compiler's and the norm's tests pass, 241 of 241. The suite passes
 in its parts in order, 2,527 of 2,527 in 24 minutes, and shuffled by the seed 20261023, 2,527 of
 2,527 in 25 minutes.
+
+The Sky module's sky in a scene and the Sponza match read again.
+
+The sheet. `2026-11-19-sky-clear-hours.webp`, `core_day_sky` under the module's Earth on a path that
+stands the sun 63.42 degrees up at noon, at noon, at sunset with the sun 0.57 degrees down and at
+the civil twilight's end with it 6 degrees down, each at the module's metered EV100 of 15.44, 8.22
+and 1.25, beside the module's own panorama of the same hours. The noon sky reads a deep blue, the
+sunset white over a yellow horizon and the civil end blue over a lighter band, as the module's do.
+
+The Sponza match against its recipe, the scene's air held as the scene sets it and read in the
+module's twelve bands, before and after.
+
+| At the scene's heights, 16.55, 51.40 and 53.97 degrees | Three colors | Twelve bands |
+|---|---|---|
+| The sun at the ground, K | 4,062, 4,903, 4,924 | 4,214, 4,974, 4,993 |
+| Its lux | 22,580, 80,190, 83,410 | 21,909, 79,440, 82,660 |
+| The sky on a level floor, lux | 2,060, 10,770, 11,410 | 2,135, 11,186, 11,854 |
+
+| Metered at 15:00 and settled, the frame's mean | Three colors | Twelve bands | The pictures |
+|---|---|---|---|
+| Red over blue, the balcony, the door, the view up | 1.24, 2.84, 1.31 | 1.09, 1.40, 1.05 | 1.13, 1.60, 1.15 |
+| The means | 113.4, 84.5, 103.0 | 98.7, 120.3, 100.3 | 85.8, 59.1, 104.3 |
+
+HDRP's own transmittance gives the sun at 4,055, 4,903 and 4,924 K, so the bands lift it 70 to 150
+K, and its lux lies 10 to 12% over HDRP's where it lay 13%. The color the frames take comes nearer
+the pictures', the door's red over blue at 1.40 where the picture reads 1.60 and the frame read
+2.84. RENDERING.md says so in its paragraph on the scene's air.
+
+The runs. The norm's tests pass, 17 of 17, and no code changed, so no suite leg ran.
