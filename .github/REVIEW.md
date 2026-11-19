@@ -1108,6 +1108,19 @@ repository). The pictures' door read whole gives 1.32 where the earlier reading 
 door stays warmer than the picture by about as much as before the move. RENDERING.md's paragraph on
 the scene's air says so and drops the metered figures.
 
+Item 265, the probes' passes, the open box first.
+
+`OpenBoxTests` puts a white floor in an open-topped box 8 m a side of black walls under a sky of one
+luminance, 0.491 in linear light, and no sun, and reads the floor's middle over 11 by 11 pixels
+against the sky's luminance times the share of the dome the opening holds, cosine weighted, 0.2395.
+Before the module's passes, the engine's own kernels at `23ab0793` read the traced reference 1.000
+of the share, High 1.142, Medium 1.099 and Low 0.805. The test holds the reference within 5% and
+each quality within 25% of the share, which these pass, and the passes' commit narrows the bound to
+what they read.
+
+The runs. The tests build strict with no warnings, the test passes in 11 seconds, and the norm's
+tests pass, 17 of 17. The suite runs with the first pass's commit, which changes the kernels.
+
 Handoff, at `0a223de1`. The Sky pointer is at `9040738` in `c20870f2`, `a29f0efc`, `777e051f` and
 `0a223de1`, the GPU sky drawn from the module's tables, made on a worker, the disc and the night's
 glow the module's, and the Sponza match read again, and the gallery's pictures at `98b68167`. Next
