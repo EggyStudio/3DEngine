@@ -519,8 +519,22 @@ changes.
 
 ## Verdicts
 
-No verdict is open. Verdict 128 is settled at 19:49 on 2026-11-17 on the pack run 44120117582.
-Verdicts 1 to 127 are settled, said under each in REVIEW-ARCHIVE.md.
+Verdict 129 is open, the examples' gallery out of date in run 44433561461. Verdict 128 is settled at
+19:49 on 2026-11-17 on the pack run 44120117582. Verdicts 1 to 127 are settled, said under each in
+REVIEW-ARCHIVE.md.
+
+129. **The build run of `17d90968` is red in two jobs, one a fault of the tree.** Run 44433561461,
+    read at 03:36 on 2026-11-19. The job `examples` failed at the check of the examples' table,
+    `build/examples-table.py --check` ending with exit code 1, the gallery's pictures out of date
+    for `blockout.webp`, `models_edit_mesh.webp`, `models_edit_mesh_cuts.webp`,
+    `models_edit_mesh_looks.webp` and those named after them, so the commit that gave the prototype
+    materials the module's table remade the examples' captures and left the gallery's small copies
+    as they were. The job `windows (1)` failed before any test, a download of its setup ending with
+    `curl: (56) Recv failure: Connection was reset`, the runner's network and no fault of the tree.
+    Asked, the gallery made again by `build/examples-table.py` on top of the head and the check run
+    before the commit, and whether the commit's own checks could have run the table's check, so a
+    capture remade without its gallery copy fails before a push. Settled on the next run green in
+    both jobs.
 
 ## Decisions
 
@@ -1028,3 +1042,20 @@ The runs. The tree builds strict with no warnings, and the sky's, the day's, the
 global illumination's, the Slang compiler's and the norm's tests pass, 240 of 240. The suite passes
 in its parts in order, 2,526 of 2,526 in 22 minutes, and shuffled by the seed 20261023, 2,526 of
 2,526 in 24 minutes.
+
+The sun's disc, the discs' fades and the night's glow from the module.
+
+The sun's disc is the module's 0.533 degrees across (`Sun.AngularDiameter`), where the engine held
+0.54, its luminance the module's light through the air over the module's solid angle (`Sun.Through`,
+`Sun.SolidAngle`), which for the module's own sun is `Sun.DiscLuminance`, the engine's before
+reading 0.973 of it at 5 degrees. The sun's and the moon's lights fade as their middles cross the
+horizon by the share of their discs above it (`Sun.DiscShare`, `Moon.DiscShare`), where a smooth
+step over the engine's own radius stood. A moonless sky's glow under the air takes the module's
+color of the night sky at its luminance (`Night.SkyColor`), where it was gray. `DaySkyAirTests`
+holds the disc to `Sun.DiscLuminance` within 0.5% at 5, 30 and 60 degrees, and fails on the code
+before.
+
+The runs. The tree builds strict with no warnings, and the sky's, the day's, the environment's,
+global illumination's, the Slang compiler's and the norm's tests pass, 241 of 241. The suite passes
+in its parts in order, 2,527 of 2,527 in 24 minutes, and shuffled by the seed 20261023, 2,527 of
+2,527 in 25 minutes.

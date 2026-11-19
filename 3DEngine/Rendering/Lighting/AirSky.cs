@@ -10,7 +10,7 @@ namespace Engine;
 /// light, which an environment map made from it holds in place of an image
 /// (<see cref="EnvironmentMap.FromAir"/>).
 /// </summary>
-internal sealed record AirSky(Sky.Atmosphere Air, Vector3 SunToward, Vector3 Light, float Night = 0)
+internal sealed record AirSky(Sky.Atmosphere Air, Vector3 SunToward, Vector3 Light, Vector3 Night = default)
 {
     // As atmosphere.slang's AirPush lays the numbers out, four float4.
     [StructLayout(LayoutKind.Sequential)]
@@ -32,7 +32,7 @@ internal sealed record AirSky(Sky.Atmosphere Air, Vector3 SunToward, Vector3 Lig
         {
             Sun = new Vector4(Vector3.Normalize(SunToward), 0),
             Scale = new Vector4(Light / Sky.Sun.Outside, 0),
-            Night = new Vector4(new Vector3(Night), 0),
+            Night = new Vector4(Night, 0),
             Width = width,
             Height = height,
         };

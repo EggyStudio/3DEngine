@@ -727,8 +727,10 @@ their ways and the irradiance within 0.15% of the module's sky projected onto th
 (`AirSkyTests`), the same nine putting a level floor 1.9 to 6.0% over the module's own integral of
 the sky, since they take in a little of the ground below the horizon. The drawn sky, the light from
 all around and the sky the field's rays meet are that one image, and the sun's disc is added by
-`sky.slang` alone, at the disc's luminance through the air, its light at the ground over the half
-degree it spans, so the light from all around holds no sun the directional light also gives.
+`sky.slang` alone, at the disc's luminance through the air, its light at the ground over the
+module's disc of 0.533 degrees (`Sun.DiscLuminance`), fading as its middle crosses the horizon by
+the share of the disc above it (`Sun.DiscShare`), so the light from all around holds no sun the
+directional light also gives.
 
 At night the same draw adds the moon, the stars and the Milky Way by their luminance from the Sky
 module (`DaySky.Night`). The moon stands on the sun's path behind the sun by the clock's elongation
@@ -737,22 +739,23 @@ across, its sunlit part at `Moon.LitLuminance` for its phase angle through the a
 its dark part at the earthshine, the terminator found on the sphere the pixel sees. Once the sun is
 12 degrees down the light is the moon's, `Moon.At` through the path the sun's light takes
 (`DaySky.AirLightAt`), and the sky's image adds the module's night luminance under it, 2.26e-4
-candelas a square meter (`AirSky.Night`). The Bright Star Catalogue's 9,096 stars go to the GPU once
-as a storage buffer sorted into a cube of 32 cells a side (`DaySky.StarGrid`), and `sky.slang` sums
-each star of the pixel's cell and the eight about it on the same face as a Gaussian 0.8 of the
-pixel's angle across holding its illuminance, the band's profile under them
-(`Night.GalaxyLuminance`), both dimmed by the air's optical depth at the zenith over the sine of the
-height, held at twenty times it. A star within a pixel of a face's edge loses the part of its spread
-across it. The pixel's angle is the longer of its two steps and a star's angle from the pixel's way
-the chord between them, where the length of `fwidth` had made the pixel 1.4 to 1.9 times its angle
-and `acos` of the ways' dot had given the angle in steps of 3.5e-4 radians, a third of a pixel 4
-degrees across. Sirius lands on a frame 4 degrees high with 0.9991 of the illuminance its magnitude
-gives through the air and 0.1683 of it in each of the four pixels about its corner, a Gaussian of
-0.8 of a pixel giving 0.168, and the moon's middle within 5% of its luminance with its disc its half
-degree across (`DaySkyNightTests`). The sky's draw carried no storage buffer at first, so the model
-pass bound its stand-in of 16 bytes in the stars' place, and with no robust access the cells' ends
-read past it ran loops long enough to lose the device on the RTX 4070 and drew no star on lavapipe,
-which reads zero there. Each read is still held within the stars, as a guard.
+candelas a square meter in the module's color of the night sky (`AirSky.Night`). The Bright Star
+Catalogue's 9,096 stars go to the GPU once as a storage buffer sorted into a cube of 32 cells a side
+(`DaySky.StarGrid`), and `sky.slang` sums each star of the pixel's cell and the eight about it on
+the same face as a Gaussian 0.8 of the pixel's angle across holding its illuminance, the band's
+profile under them (`Night.GalaxyLuminance`), both dimmed by the air's optical depth at the zenith
+over the sine of the height, held at twenty times it. A star within a pixel of a face's edge loses
+the part of its spread across it. The pixel's angle is the longer of its two steps and a star's
+angle from the pixel's way the chord between them, where the length of `fwidth` had made the pixel
+1.4 to 1.9 times its angle and `acos` of the ways' dot had given the angle in steps of 3.5e-4
+radians, a third of a pixel 4 degrees across. Sirius lands on a frame 4 degrees high with 0.9991 of
+the illuminance its magnitude gives through the air and 0.1683 of it in each of the four pixels
+about its corner, a Gaussian of 0.8 of a pixel giving 0.168, and the moon's middle within 5% of its
+luminance with its disc its half degree across (`DaySkyNightTests`). The sky's draw carried no
+storage buffer at first, so the model pass bound its stand-in of 16 bytes in the stars' place, and
+with no robust access the cells' ends read past it ran loops long enough to lose the device on the
+RTX 4070 and drew no star on lavapipe, which reads zero there. Each read is still held within the
+stars, as a guard.
 
 scenes_sponza's metered night reads black but for the moon. On the 26th day at 2:00 the moon stands
 79 degrees up, its phase angle 21 degrees, and its light is 0.167 lux as the module gives it

@@ -11,7 +11,7 @@ internal sealed partial class DaySky
     /// The sun's disc's angular radius in degrees, half of its half a degree across, over which its
     /// light fades out around its middle's crossing of the horizon rather than at once.
     /// </summary>
-    internal const float DiscRadiusDegrees = 0.27f;
+    internal const float DiscRadiusDegrees = Sky.Sun.AngularDiameter / 2;
 
     /// <summary>
     /// The width and height of the air's map, a third of a degree a texel, so the drawn sky's cube
@@ -49,14 +49,14 @@ internal sealed partial class DaySky
         (_paintedHours, _paintedAt) = (Hours, now);
         // The air's sky is its own below the horizon, the ground lit through the air, so no horizon
         // color is drawn over it. Once the sun is twelve degrees down, the end of the astronomical
-        // twilight, past which it lights no part of the air, the air scatters the moon's light in its
-        // place, and under both lies a moonless sky's own glow (Sky.Night).
+        // twilight, past which it lights no part of the air, the air scatters the moon's light in
+        // its place, and under both lies a moonless sky's own glow (Sky.Night).
         var (toMoon, phaseAngle) = MoonAt(hour, tilt, Days);
         var byMoon = SunToward(hour, tilt).Y < MathF.Sin(float.DegreesToRadians(-12));
         var (toward, outside) = byMoon
             ? (toMoon, Sky.Sun.Outside / Sky.Sun.OutsideIlluminance * Sky.Moon.OutsideIlluminance(phaseAngle))
             : (SunToward(hour, tilt), Outside(hour, tilt));
-        world.InsertResource(EnvironmentMap.FromAir(new AirSky(air, toward, outside * units.PreExposure, Sky.Night.SkyLuminance * units.PreExposure), AirWidth, AirHeight));
+        world.InsertResource(EnvironmentMap.FromAir(new AirSky(air, toward, outside * units.PreExposure, Sky.Night.SkyColor * Sky.Night.SkyLuminance * units.PreExposure), AirWidth, AirHeight));
         world.RemoveResource<SkyHorizon>();
     }
 
@@ -69,8 +69,8 @@ internal sealed partial class DaySky
     {
         var toSun = SunToward(hour, tilt);
         if (toSun.Y <= 0) return null;
-        var solidAngle = 2 * MathF.PI * (1 - MathF.Cos(float.DegreesToRadians(DiscRadiusDegrees)));
-        return (toSun, outside * air.Transmittance(0, toSun.Y) / solidAngle * preExposure);
+        var through = Sky.Sun.Through(air, outside, float.RadiansToDegrees(MathF.Asin(toSun.Y)));
+        return (toSun, through.Color * through.Illuminance / Sky.Sun.SolidAngle * preExposure);
     }
 
     // The share of the sun's strength a low sun keeps at least where it is scaled by its height
@@ -100,7 +100,7 @@ internal sealed partial class DaySky
         if (toSun.Y > -0.05f)
         {
             var elevation = float.RadiansToDegrees(MathF.Asin(toSun.Y));
-            var disc = SmoothStep(-DiscRadiusDegrees, DiscRadiusDegrees, elevation);
+            var disc = Sky.Sun.DiscShare(elevation);
             // From its middle while it is up, and from the horizon while its upper edge sets.
             var through = air.Transmittance(0, MathF.Max(toSun.Y, 0));
             return (-toSun, outside * through * disc);
@@ -110,7 +110,7 @@ internal sealed partial class DaySky
         var (toMoon, phaseAngle) = MoonAt(hour, tilt, days);
         var height = float.RadiansToDegrees(MathF.Asin(Math.Clamp(toMoon.Y, -1, 1)));
         var moon = Sky.Moon.At(air, MathF.Max(height, 0), phaseAngle);
-        var shown = SmoothStep(-DiscRadiusDegrees, DiscRadiusDegrees, height) * SmoothStep(0.05f, 0.2f, -toSun.Y);
+        var shown = Sky.Moon.DiscShare(height) * SmoothStep(0.05f, 0.2f, -toSun.Y);
         return (-toMoon, moon.Color * moon.Illuminance * shown);
     }
 }

@@ -67,6 +67,22 @@ public sealed class DaySkyAirTests : IDisposable
 
     [Fact]
     [Trait("Category", "Unit")]
+    public void The_Suns_Disc_Is_The_Modules_Through_The_Air()
+    {
+        // The module's sun outside the air through Earth at heights from low to high, its disc's
+        // luminance as the module gives it, half a degree and a little more across.
+        foreach (var elevation in new[] { 5f, 30f, 60f })
+        {
+            var disc = DaySky.DiscAt(Earth, Sky.Sun.Outside, HourAt(elevation), 0, 2)!.Value.Light;
+            var expected = Sky.Sun.DiscLuminance(Earth, elevation) * 2;
+            for (int c = 0; c < 3; c++)
+                (disc[c] / expected[c]).Should().BeApproximately(1, 0.005f, $"channel {c} at {elevation} degrees");
+        }
+        DaySky.DiscRadiusDegrees.Should().Be(Sky.Sun.AngularDiameter / 2);
+    }
+
+    [Fact]
+    [Trait("Category", "Unit")]
     public void A_Sun_Set_Outside_The_Air_Warms_Through_It_As_It_Sinks()
     {
         // A sun set outside the air to 97,050 lux at 5,633 K, as the scene the engine's sky is read
