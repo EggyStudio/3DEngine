@@ -377,8 +377,8 @@ world holds one sun.
 
 Given air, `SkyDay.Atmosphere`, such as the Sky module's `Sky.Atmosphere.Earth`, the sky's light is
 physical. The sun's light outside the air, `SkyDay.SunIlluminance` and `SkyDay.SunColor` or the
-module's 128,000 lux at 5,772 K where they are unset, reaches the world through the air at the
-sun's height, 110,000 lux at 5,026 K with the sun 54 degrees high and 84,000 at 4,128 K at 16.5,
+module's 133,800 lux at 5,921 K where they are unset, reaches the world through the air at the
+sun's height, 111,690 lux at 5,292 K with the sun 54 degrees high and 80,950 at 4,490 K at 16.5,
 fading as its disc sets, and by night the moon's by the same air. `SkyDay.SunByHeight` scales the
 sun's strength outside the air by the sine of its height as well, no less than a twenty-fourth of
 it, for a scene graded against a sun that weakens sooner as it sinks, as `scenes_sponza` sets

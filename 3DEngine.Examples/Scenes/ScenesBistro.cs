@@ -6,14 +6,14 @@ namespace Engine.Examples;
 public static class ScenesBistro
 {
     // The Bistro's exterior, a quarter of Paris about 110 m along x, east, and 115 along z, south,
-    // its streets at the height of 0 and its roofs up to 27 m. A street hung with strings of colored
-    // bulbs runs from its north-west to the bistro's terrace at its middle, a second street leaves
-    // the terrace's corner to the north-east, a lane runs back from that one past the shops, and a
-    // round square with a tree in its middle opens to the south-east. The first view looks at the
-    // bistro's corner across the street from the west, 1.66 m over the paving, its scooter before
-    // the corner's door and a menu board and a lamp to either side, at a field of view of 48.4
-    // degrees. The next four stand in the streets and the square at an eye's height and the last
-    // above the whole quarter.
+    // its streets at the height of 0 and its roofs up to 27 m. A street hung with strings of
+    // colored bulbs runs from its north-west to the bistro's terrace at its middle, a second street
+    // leaves the terrace's corner to the north-east, a lane runs back from that one past the shops,
+    // and a round square with a tree in its middle opens to the south-east. The first view looks at
+    // the bistro's corner across the street from the west, 1.66 m over the paving, its scooter
+    // before the corner's door and a menu board and a lamp to either side, at a field of view of
+    // 48.4 degrees. The next four stand in the streets and the square at an eye's height and the
+    // last above the whole quarter.
     private static readonly (string Name, Camera3D Camera)[] Views =
     [
         ("corner", new Camera3D(new Vector3(-9.846f, 1.888f, 0.973f), new Vector3(0.029f, 2.428f, -0.509f), Vector3.UnitY, 48.4f)),
@@ -79,8 +79,9 @@ public static class ScenesBistro
         }
         var file = ScenePacks.ModelOf(pack!);
 
-        // The field's four cascades of cells a quarter of a meter reach 16, 32, 64 and 128 m across,
-        // ahead of the camera, and a far cascade of 240 holds the whole street from anywhere in it.
+        // The field's four cascades of cells a quarter of a meter reach 16, 32, 64 and 128 m
+        // across, ahead of the camera, and a far cascade of 240 holds the whole street from
+        // anywhere in it.
         SetSceneField(4, 0.25f, farCascade: 240);
         SetGlobalIllumination(GlobalIllumination.High);
         // The corners, the cracks and the feet of the walls darken by the circular occluders the
@@ -104,7 +105,15 @@ public static class ScenesBistro
             if (at is >= 6 and <= 18) SetCameraExposure(200, 1 / 50f, 16);
             else SetCameraExposure(3200, 1 / 15f, 1.4f);
         }
-        var air = Sky.Atmosphere.Earth with { AerosolExtinction = 1e-6f, AerosolScaleHeight = 12_000, GroundAlbedo = Vector3.One };
+        // The air the scene the views are matched against is drawn through, its planet, molecules,
+        // aerosols' albedo and ozone held as it sets them, its aerosols spread over 12 km above a
+        // white ground.
+        var air = Sky.Atmosphere.Earth with
+        {
+            PlanetRadius = 6_378_100, RayleighScattering = new Vector3(5.8e-6f, 13.5e-6f, 33.1e-6f), AerosolAlbedo = new Vector3(0.9f),
+            OzoneAbsorption = new Vector3(0.65e-6f, 1.88e-6f, 0.08e-6f) * 0.6f, OzoneBottom = 20_000, OzoneWidth = 20_000,
+            AerosolExtinction = 1e-6f, AerosolScaleHeight = 12_000, GroundAlbedo = Vector3.One,
+        };
         SetSkyDay(new SkyDay
         {
             Minutes = 0, Tilt = 22.16f, Atmosphere = air, SunIlluminance = 120_000, SunByHeight = true, SunColor = ColorFromTemperature(5633),

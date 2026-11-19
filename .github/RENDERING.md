@@ -713,21 +713,22 @@ left out of the shadow map (`ModelDraw.CastsShadow`).
 A day sky given air (`SkyDay.Atmosphere`) has no image on the CPU. Its map
 (`EnvironmentMap.FromAir`) names the Sky module's air, the way toward the sun and the sun's light
 outside the air times the camera's pre-exposure, and the filter draws its image on the GPU ahead of
-the gather (`GraphicsDevice.RecordAirSky`), its mips blitted after. Two tables are made where the
-air differs from the one they hold, the transmittance by height and zenith in 256 by 32 texels
-(`atmosphere_transmittance.slang`) and the light scattered more than once by height and the sun's
-zenith in 32 by 32 (`atmosphere_scatter.slang`, Hillaire's of 2020), and each texel of the image
-of 1,024 by 512 is a march of 48 steps along its way from the ground (`atmosphere_sky.slang`), the
-sun's light scattered toward the eye once by the molecules' and Cornette and Shanks's phase
-functions and more than once from the second table, and the ground's where the way meets it.
-Each step and number is the module's `SkyLight`, so the sky cube's texels read within 0.21% of
-the module's luminance along their ways and the irradiance within 0.2% of the module's sky
-projected onto the nine harmonics (`AirSkyTests`), the same nine putting a level floor 1.5 to 5%
-over the module's own integral of the sky, since they take in a little of the ground below the
-horizon. The drawn sky, the light from all around and the sky the field's rays meet are that one
-image, and the sun's disc is added by `sky.slang` alone, at the disc's luminance through the air,
-its light at the ground over the half degree it spans, so the light from all around holds no sun
-the directional light also gives.
+the gather (`GraphicsDevice.RecordAirSky`), its mips blitted after. The Sky module makes the air's
+tables once for each air on the CPU (`SkyLight.Tables`), each lane of three of its wavelength bands
+its transmittance by height and zenith in 256 by 32 cells, its light scattered more than once by
+height and the sun's zenith in 128 by 32 as logarithms, and its row of the sky's light on a level
+ground, which the filter puts in one buffer (`AirTables`), and each texel of the image of 1,024 by
+512 is the module's march of 48 steps along its way from the ground as its README gives it
+(`atmosphere.slang`), the sun's light scattered toward the eye once by the molecules' and Cornette
+and Shanks's phase functions and more than once from the second table, and the ground's where the
+way meets it, lit by the sun through the air and by the sky, each lane's light turned into linear
+sRGB by its own matrix. So the sky cube's texels read within 0.17% of the module's luminance along
+their ways and the irradiance within 0.15% of the module's sky projected onto the nine harmonics
+(`AirSkyTests`), the same nine putting a level floor 1.9 to 6.0% over the module's own integral of
+the sky, since they take in a little of the ground below the horizon. The drawn sky, the light from
+all around and the sky the field's rays meet are that one image, and the sun's disc is added by
+`sky.slang` alone, at the disc's luminance through the air, its light at the ground over the half
+degree it spans, so the light from all around holds no sun the directional light also gives.
 
 At night the same draw adds the moon, the stars and the Milky Way by their luminance from the Sky
 module (`DaySky.Night`). The moon stands on the sun's path behind the sun by the clock's elongation

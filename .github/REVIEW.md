@@ -468,19 +468,6 @@ changes.
     scene of the engine's own that the first frame with a view makes none of them. After items 288
     and 292, whose buffers are the same scene's.
 
-297. **One tree, one run of the physics.** Verdict 128's plays of Siege, with a fixed frame time
-    from the first frame, throws on stated frames and the game's own loops in a fixed order, agree
-    to the newton through the stone and the first bomb, 45 welds and 7,991 N, and part after the
-    first burst, 128 to 146 welds after the second bomb and the banner 30.9 to 31.1 m out. Asked, a
-    read of where two runs of one program first differ in the physics, the bodies a burst wakes, the
-    order constraints are solved in across the workers, the pairs' order after a body leaves, by a
-    test that steps one scene of welded blocks and a burst twice in one process and twice across
-    processes and compares every body's place bit for bit after each step, naming the first step and
-    stage that differ; then the mend the read shows, a fixed order where one is cheap, or a setting
-    that runs the solver in one order for a test and a recorded play, its cost in a frame stated.
-    Where the solver's library itself gives no such order across threads, that is said with its
-    source and the item closes on a single-threaded setting for tests. After item 296.
-
 298. **The day's sweep against the norm.** A read of the tree against NORM.md found some 310 lines,
     each to mend in place with no change of behavior; the list by file and line went to the coder.
     Verdict numbers and a fault's account in `build/raylib-bench/compare.py:35` and 40 and
@@ -951,138 +938,6 @@ rooms holding before and after and the two engines' pictures of one room compare
 first, then the plan, the field's build, the world's probes, the crossing and the rough reflection,
 the screen probes, the light on the picture, and the references last.
 
-Item 297, one tree and one run of the physics, the read.
-
-The scene. A castle's wall of 720 welded blocks, 30 across, 12 high and 2 deep, the lowest four
-rows' every fifth a column's convex hull, on a kinematic foundation over a static ground, every weld
-broken where it holds over 1,500 N, each step's welds read in a fixed order. The wall rests asleep
-from about the 90th step. A stone of 60 kg, a convex hull, is thrown at step 240, meets the wall at
-step 260 and wakes all of it, and wears the blocks it presses by their contact's push
-(`GetContactImpulse`), in the wall's own order. Two bursts at steps 360 and 480 take the bodies
-within 4 units in the order of their kind and handle, push each at its side facing the burst
-(`ApplyImpulseAt`) and crumble the most worn, their welds and bodies taken out of the physics within
-the loop, as Siege's do. The wall woken holds 722 bodies awake with the stone and the foundation,
-past the 500 at which a step goes to the four workers.
-
-The read. Every body's pose is hashed after each step's physics and again after the welds and the
-wear, over 720 steps. Two runs in one process and runs in three processes of their own agree in
-every hash, with the step on the workers, 535 welds broken and 5 blocks crumbled, and with the step
-held on the calling thread, 530 and 4. A wall of 720 welded blocks alone, asleep and woken by two
-bursts that break 642 welds, agrees the same way. So no step and no stage parts here, the bodies a
-burst wakes and the workers' share of a step among them. The two settings part from each other, as a
-different count of threads orders the solver's work differently, and each agrees with itself.
-
-The library's word. Bepu's own documentation of `Simulation.Deterministic`, in the package's
-`BepuPhysics.xml`, gives a step the same under several threads, sorting the constraints it adds and
-moves, locally only, not across processors that carry out an instruction differently. The engine
-sets it (`PhysicsWorld`), and its contacts are sorted by pair and then by where they met before
-their bounces are added (`ContactCollector`).
-
-The test. `PhysicsDeterminismTests.Burst` steps the wall, the stone and the bursts twice in one
-process and once in a process of its own, a run of the same test that writes its hashes, and holds
-every hash alike, naming the first step and stage where two runs part. It takes 11 s. With
-`Simulation.Deterministic` false it fails, `step 260 after the physics' step`, the stone having
-woken the wall onto the workers. With the contacts' sort taken out it passes, since nothing in the
-wall bounces, and the boxes and characters' test beside it fails, which holds the sort.
-
-What parts Siege's plays, then. Not the physics as the engine steps it, given the same calls on the
-same steps. The next read takes what reaches the physics on which step, every call that changes the
-physics logged by frame in two plays of Siege and the first frame they part named, and the mend that
-follows is a commit of its own.
-
-The runs. The tree builds strict with no warnings, and the physics' and the norm's tests pass, 115
-of 115. The suite passes in its parts in order, 2,522 of 2,522 in 42 minutes, and shuffled by the
-seed 20261023, 2,522 of 2,522 in 33 minutes.
-
-Item 297, the mend. Siege's status holds its figures as of the frame its screen last changed and
-names that frame (`siege.status`), since a command lands on whichever frame it comes, and the
-drive's reads while the banner and the welds still moved gave the plays' parting figures.
-`build/drive-game.sh` plays the siege twice, the game opened again between, and fails where a status
-read the second time is not the first's. Before the mend the second play read the banner at 30.3
-after the first bomb where the first read 31.1, and 103 welds broken at the third read where 132,
-and the drive failed. After it both plays read `Aim at frame 708` with the banner at 31.2 and `Won
-at frame 1103`, alike to the character. The drive names the validation layer the checkout fetched
-where the caller names none, found through a tools folder linked from another checkout too, where a
-play there drew without the layer and the drive failed on that alone; the workflows name theirs as
-before. The norm's and the scripts' tests pass, 34 of 34, and the drive passes in a checkout of its
-own with the tools folder linked.
-
-Handoff. The glow lights' tier is in at `686f6421`, this engine's half of item 265's read at
-`58f437d4` with its atrium on one scale at `bc7a76b8`, and item 297 at `bc7a76b8` and this commit.
-Next in order are the public bodies, `CreatePhysicsStaticMesh` taking counter-clockwise triangles
-seen from outside and `ReadOnlySpan<uint>` indices and a static `CreatePhysicsConvexHull` overload,
-tests first, then the prototype table read from the Materials module with the six example captures
-remade, then item 265's move once RadianceCascades holds the field's and the probes' readers, its
-line numbers read again at the head, and then 298, 299, 300, 288, 292, 293, 294, 289, 290, and 301
-after 265. Nothing is held open here. The Sky pointer stays until the review says. A fresh session
-reads AGENTS.md, this file's head, its Now list and these Replies from item 296 on, and NORM.md's
-7.9 on the lock and 4.11 and 4.12 on commits and comments. The worktree
-`~/.cache/3dengine-tools/work/3dengine-i297` holds the uncommitted step trace the frame log used and
-can be removed.
-
-The public bodies the Levels module's binding asks for.
-
-`CreatePhysicsStaticMesh(position, vertices, indices)` makes a body that never moves of triangles
-given as vertices and `uint` indices, each wound counterclockwise as its front is seen from outside,
-as a model's and the Levels module's are, and turns each over for the solver, whose front winds
-clockwise, leaving a triangle with no area out. `CreatePhysicsConvexHull(position, points, mass)`
-makes a hull of points that falls, and `CreatePhysicsStaticConvexHull(position, points)` one that
-never moves, as a level's brush, named as `CreatePhysicsStaticBox` and `CreatePhysicsStaticModel`
-are. Indices that are not whole triangles or name a vertex past the last, and points fewer than four
-or in a plane, give an invalid body with the reason in the log. `E3DPhysicsTests` drops a ball on a
-floor of two triangles wound counterclockwise from above and a crate on a static hull, each coming
-to rest on the top, and holds the invalid cases. With the triangles not turned over a ray from above
-passes the floor and the test fails. The cheatsheet and the surface listing carry the three lines.
-
-The runs. The tree builds strict with no warnings, and the flat API's physics tests, the physics',
-the public surface's, the cheatsheet's and the norm's pass, 188 of 188. The suite passes in its
-parts in order, 2,524 of 2,524 in 25 minutes, and shuffled by the seed 20261023, 2,524 of 2,524 in
-27 minutes.
-
-The prototype table, taken from the Materials module.
-
-The Materials module is a submodule at `modules/Materials`, at `c2e4a67`, referenced by the engine
-as Sky is, its assembly carried by the package, and by the examples and the tests.
-`GetPrototypeColor` reads the module's table (`Prototypes.Colors`), the floor, the wall and the
-ceiling one gray of 0.90 and the other parts their colors, and a prototype material its roughness.
-The grid's default tones are the module's, 0.99, 0.6 and 0.82, and `GenImageGrid` draws through the
-module's `Grid`, so the engine keeps no table and no grid of its own. `PrototypeTests` holds every
-name's color to the module's and the default grid to the module's bytes at 256 and 1024 pixels, and
-both fail on the table before. The six captures that show prototype surfaces are taken again,
-`models_edit_mesh`, its room, cuts, modifiers and looks, and Blockout's, and the 2026-10-26 reading
-stays as it was.
-
-The sheet. `2026-11-18-prototype-table.webp`, the edit mesh room and Blockout's hall turned to the
-door before and after, the hall's dark floor reading as light as its walls.
-
-The runs. The tree builds strict with no warnings, and the modeling, the edit mesh's, the public
-surface's, the cheatsheet's and the norm's tests pass, 199 of 199. Blockout built from the package
-plays through its drive. The suite passes in its parts in order, 2,525 of 2,525 in 25 minutes, and
-shuffled by the seed 20261023, 2,525 of 2,525 in 25 minutes.
-
-Blockout's hall on the prototype table, read and mended, asked after the table's commit.
-
-The read, the hall as the workflow captures it, each part switched in turn, its mean in sRGB of 255.
-As it stands 244, 226 and 189, where the table before read 82, 74 and 64. With the bloom off 243,
-224 and 187, so the grade is not it. With global illumination off 134, 153 and 184, so the bounce
-carries most of it. Metered 138, 122 and 101, where the table before read 128, 117 and 102 metered.
-At a wall's pixel the lamp's own light rose from 0.36 to 0.77 in linear light, as the wall's albedo
-did, and the probes' from 0.07 to 0.37, and at the floor's the probes' rose from 0.0096 to 0.77, a
-room of surfaces of 0.79 in linear light sending the lamp's light round many times over. The camera
-was held at one exposure, set for the darker room. So the mend meters it (`SetAutoExposure`) and
-leaves the table and the lamp as they are, and the help's two lines stand on a dark strip, since
-white words over a wall that light read at about 4 to 1 even metered.
-
-The test. `build/drive-game.sh` reads the hall as the walker first sees it and fails where its mean
-is 200 of 255 or over, or where the help's white words stand under 4.5 to 1 against what lies behind
-them. On the game before it fails, the hall at 249, 232 and 198 and the help's backdrop at 241, 203
-and 166, and after it passes, the hall at 132, 115 and 95 and the backdrop at 44, 36 and 29, about
-15 to 1. The pair is `2026-11-18-blockout-hall.webp`, and Blockout's capture is taken again with the
-mend.
-
-The runs. Blockout built from the package plays through its drive. The norm's and the scripts' tests
-pass, 34 of 34. The tree's tests do not build the games, so no suite leg ran for the game's change.
-
 Item 265, the move, the first kernel, the octahedral map.
 
 The RadianceCascades module is a submodule at `modules/RadianceCascades`, at `987e963`. Its kernels
@@ -1103,3 +958,57 @@ and rooms', the glow lights', the Slang compiler's and the norm's tests pass, 28
 package carries the module's six kernels and a cache compiled with them, and its tests pass, 5 of 5.
 The suite passes in its parts in order, 2,525 of 2,525 in 22 minutes, and shuffled by the seed
 20261023, 2,525 of 2,525 in 22 minutes.
+
+Handoff, at `17d90968`. In since the handoff before are the public bodies at `e2aeddf4`, the
+prototype table from the Materials module at `881ca4df`, Blockout's hall at `326704d3`, and item
+265's first kernel, the octahedral map, at `17d90968`. Next in order is the Sky pointer at
+`2de0383`, the GPU sky drawn from `SkyLight.Tables` as the module's README section on drawing the
+sky on a GPU gives it, `AirSkyTests` held at 1%, the ground's share of the sky below the horizon,
+the capture example at noon, sunset and the civil end beside the module's
+`2026-11-18-sky-clear.webp`, every daylight figure the tests and RENDERING.md hold reread before and
+after, the Sponza match read against its recipe, and the package's test naming the module's assembly
+`3DEngine.Sky`. Then item 265's kernels from RadianceCascades at `987e963`, the resolve with its
+pinch, the distance read, the march, the splat's codes, its paint with the engine's second plane and
+its gloss of two numbers kept, and the stamp of 128 bytes with its gloss chosen together with its
+reader, a commit each. Then 298, 299, 300, 288, 292, 293, 294, 289, 290, and 301 after 265. Nothing
+is held open here. A fresh session reads AGENTS.md, this file's head, its Now list and these Replies
+from item 265's read on, and NORM.md's 7.9, 4.11 and 4.12, and runs the Tools module's
+`scripts/commitcheck.py` on each commit before it is reported.
+
+The Sky pointer at `9040738`, the GPU sky drawn from the module's tables.
+
+The module's sky is held in four lanes of three wavelength bands, its transmittance taken band by
+band, its table of the light scattered more than once 128 angles across in logarithms, so the
+engine's own two tables, made on the GPU in three colors from the air's numbers, could no longer
+give the module's sky, and `AirSkyTests` would have failed with the pointer alone. The filter makes
+the module's tables once for each air (`SkyLight.Tables`) and puts them in one buffer the CPU writes
+(`AirTables`), a lane's coefficients, its sun, its matrix to linear sRGB, its two tables and its row
+of the sky's light on the ground, and the sky's pass marches each texel's way as the module's README
+gives it (`atmosphere.slang`), the light of each lane turned into linear sRGB by its own matrix and
+the ground lit by the sun through the air and by the sky, the share the ground below the horizon
+lacked before. The passes that made the two tables are gone, `atmosphere_transmittance.slang` and
+`atmosphere_scatter.slang`.
+
+The figures read again, before and after. The sky cube's texels read within 0.17% of the module's
+luminance along their ways where 0.21%, the irradiance within 0.15% of the module's sky in nine
+harmonics where 0.2%, and a level floor 1.9 to 6.0% over the module's own integral where 1.5 to 5%,
+the ground below the horizon taking a little more. The module's sun outside the air is 133,800 lux
+at 5,921 K where it was 128,000 at 5,772 (`SkyDay`, `docs/models-and-animation.md`), and through the
+module's Earth, Hillaire's clear air, 111,690 lux at 5,292 K with the sun 54 degrees high where
+110,000 at 5,026, and 80,950 at 4,490 K at 16.5 where 84,000 at 4,128. The sun of the matched scene,
+97,050 lux at 5,633 K outside the air, reaches the ground through Earth at 5,063 K and 81,083 lux at
+53.97 degrees and 4,338 K at 16.55, where through HDRP's air it read 4,924 K, so `DaySkyAirTests`
+holds those. Sponza and Bistro hold the air their scenes were matched in, its planet, molecules,
+aerosols' albedo and ozone as before, and through it with the bands the matched sun reaches the
+ground at 4,993 K at 53.97 degrees where 4,924. The package carries the module's assembly as
+`3DEngine.Sky`.
+
+Still to come, each a commit of its own. The tables made off the frame, since a sky made on the
+frame its air changes stalls that frame some half a second, the sun's disc, its fades and the
+night's glow from the module, and Sponza's and Bistro's figures read again in their scenes with the
+capture example at noon, sunset and the civil twilight's end beside the module's own drawing.
+
+The runs. The tree builds strict with no warnings, and the sky's, the day's, the environment's,
+global illumination's, the Slang compiler's and the norm's tests pass, 239 of 239. The package
+carries `3DEngine.Sky`, and its tests pass, 5 of 5. The suite passes in its parts in order, 2,525 of
+2,525 in 23 minutes, and shuffled by the seed 20261023, 2,525 of 2,525 in 25 minutes.

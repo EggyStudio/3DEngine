@@ -3,16 +3,18 @@ using System.Diagnostics;
 namespace Engine;
 
 /// <summary>
-/// Orchestrates the rendering pipeline, extract → graph execution (update → auto-barrier → run per node).
+/// Orchestrates the rendering pipeline, extract → graph execution (update → auto-barrier → run
+/// per node).
 /// </summary>
 /// <remarks>
 /// <para>
-/// Each frame follows a fixed pipeline:
-/// <list>
-///   <item><description><b>Extract</b> copies relevant game-world data into the <see cref="RenderWorld"/>.</description></item>
-///   <item><description><b>Graph</b> executes <see cref="INode"/> instances in topological order, with automatic
-///   image layout barrier insertion between nodes based on slot data flow.</description></item>
-/// </list>
+/// Each frame follows a fixed
+/// pipeline: <list>
+///   <item><description><b>Extract</b> copies relevant game-world data into the <see
+/// cref="RenderWorld"/>.</description></item>   <item><description><b>Graph</b> executes <see
+/// cref="INode"/> instances in topological order, with automatic   image layout barrier insertion
+/// between nodes based on slot data
+/// flow.</description></item> </list>
 /// </para>
 /// </remarks>
 /// <seealso cref="RenderWorld"/>
@@ -31,7 +33,8 @@ internal sealed class Renderer : IDisposable
     /// <summary>The render graph defining the execution order of render passes.</summary>
     public RenderGraph Graph { get; } = new();
 
-    /// <summary>The high-level graphics context (device, camera resources, dynamic allocator).</summary>
+    /// <summary>The high-level graphics context (device, camera resources,
+    /// dynamic allocator).</summary>
     public RendererContext Context { get; }
 
     /// <summary>Frame timing and adapter diagnostics.</summary>
@@ -45,8 +48,10 @@ internal sealed class Renderer : IDisposable
     public Renderer(RendererContext context) =>
         Context = context;
 
-    /// <summary>Initializes the renderer, setting up diagnostics and the default render graph nodes.</summary>
-    /// <param name="world">The game world, used to load shader assets via <see cref="AssetServer"/>.</param>
+    /// <summary>Initializes the renderer, setting up diagnostics and the default render
+    /// graph nodes.</summary>
+    /// <param name="world">The game world, used to load shader assets via
+    /// <see cref="AssetServer"/>.</param>
     public void Initialize(World world)
     {
         if (_initialized) return;
@@ -102,9 +107,7 @@ internal sealed class Renderer : IDisposable
                 server.LoadSync<ShaderProgram>("shaders/probe_prefilter.slang").Compute,
                 server.LoadSync<ShaderProgram>("shaders/probe_irradiance.slang").Compute,
                 server.LoadSync<ShaderProgram>("shaders/env_gather.slang").Compute);
-            CubeFilter.Of(device).InitializeAtmosphere(server.LoadSync<ShaderProgram>("shaders/atmosphere_transmittance.slang").Compute,
-                server.LoadSync<ShaderProgram>("shaders/atmosphere_scatter.slang").Compute,
-                server.LoadSync<ShaderProgram>("shaders/atmosphere_sky.slang").Compute);
+            CubeFilter.Of(device).InitializeAtmosphere(server.LoadSync<ShaderProgram>("shaders/atmosphere_sky.slang").Compute);
             FogStages.Of(device).InitializeFog(server.LoadSync<ShaderProgram>("shaders/fog_scatter.slang").Compute,
                 server.LoadSync<ShaderProgram>("shaders/fog_integrate.slang").Compute);
         }
@@ -153,8 +156,8 @@ internal sealed class Renderer : IDisposable
         // first pass to draw them.
         Graph.AddNode("model_batches", new ModelBatchesNode());
         Graph.AddNodeEdge("particles", "model_batches");
-        // The window's ambient occlusion and the sun's contact shadows, from a depth of its own drawn
-        // ahead of every pass that lights the window's meshes.
+        // The window's ambient occlusion and the sun's contact shadows, from a depth of its own
+        // drawn ahead of every pass that lights the window's meshes.
         Graph.AddNode("window_depth", new WindowDepthNode());
         Graph.AddNodeEdge("model_batches", "window_depth");
         Graph.AddNode("ambient_occlusion", new AmbientOcclusionNode());
@@ -170,8 +173,8 @@ internal sealed class Renderer : IDisposable
         // The window's view mirrored in a program's plane, which the window's scene reads.
         Graph.AddNode("mirror", new MirrorNode());
         Graph.AddNodeEdge("probes", "mirror");
-        // The fog in front of the window's camera, lit through the window's shadow and laid over its
-        // scene as the scene is decoded.
+        // The fog in front of the window's camera, lit through the window's shadow and laid over
+        // its scene as the scene is decoded.
         Graph.AddNode("fog", new VolumetricFogNode());
         Graph.AddNodeEdge("mirror", "fog");
         // The window's scene is drawn into the HDR target, and spread where bloom is on, before the
@@ -283,14 +286,16 @@ internal sealed class Renderer : IDisposable
         }
     }
 
-    /// <summary>Registers an extract system that copies game-world data into the <see cref="RenderWorld"/> each frame.</summary>
+    /// <summary>Registers an extract system that copies game-world data into the <see
+    /// cref="RenderWorld"/> each frame.</summary>
     /// <param name="sys">The extract system to add.</param>
     public void AddExtractSystem(IExtractSystem sys) => _extractSystems.Add(sys);
 
     // The parts plugins added, started with the renderer, their nodes added after its own.
     private readonly List<IRendererPart> _parts = [];
 
-    // The world the renderer started in, which a part added after it started loads its shaders from.
+    // The world the renderer started in, which a part added after it started loads its
+    // shaders from.
     private World? _world;
 
     /// <summary>
@@ -310,7 +315,8 @@ internal sealed class Renderer : IDisposable
     /// <param name="sys">The prepare system to add.</param>
     public void AddPrepareSystem(IPrepareSystem sys) => _prepareSystems.Add(sys);
 
-    /// <summary>Executes one full render frame, extract → begin frame → prepare → graph execution → end frame.</summary>
+    /// <summary>Executes one full render frame, extract → begin frame → prepare → graph execution →
+    /// end frame.</summary>
     /// <param name="world">The game world to read data from during the extract phase.</param>
     public void RenderFrame(World world)
     {
@@ -338,8 +344,8 @@ internal sealed class Renderer : IDisposable
                 : FirstTargetEye(RenderWorld) is { } eye ? RenderOrigin.Near(eye) : RenderOrigin.Zero);
         if (!RenderWorld.Contains<RenderOrigin>() || RenderWorld.Get<RenderOrigin>() != origin)
             RenderWorld.Set(origin);
-        // A world the program moved by a whole step (WorldMove) moves what the passes keep by place,
-        // the cameras their histories were made through and the light global illumination
+        // A world the program moved by a whole step (WorldMove) moves what the passes keep by
+        // place, the cameras their histories were made through and the light global illumination
         // gathered, before any of them runs, and the scene's field moves its plan as it prepares.
         if (RenderWorld.TryGet<WorldMoved>() is { Step: { } step })
         {
@@ -398,7 +404,8 @@ internal sealed class Renderer : IDisposable
         return elapsed;
     }
 
-    /// <summary>Executes the render graph, calling Update → auto-barrier → Run per node. Ends the active swapchain pass after all nodes.</summary>
+    /// <summary>Executes the render graph, calling Update → auto-barrier → Run per node. Ends the
+    /// active swapchain pass after all nodes.</summary>
     private void ExecuteGraph(RenderContext renderCtx, int inFlightIndex)
     {
         var orderedNodes = Graph.TopologicalOrder();

@@ -21,7 +21,8 @@ public sealed class DaySkyAirTests : IDisposable
         UseApp(null);
     }
 
-    // The hour on a day of no lean at which the sun stands at an elevation, 15 degrees an hour from 6.
+    // The hour on a day of no lean at which the sun stands at an elevation, 15 degrees an hour
+    // from 6.
     private static float HourAt(float elevation) => 6 + elevation / 15;
 
     [Fact]
@@ -55,7 +56,8 @@ public sealed class DaySkyAirTests : IDisposable
         (direction + toMoon).Length().Should().BeLessThan(1e-5f, "the light comes from the moon");
         var height = float.RadiansToDegrees(MathF.Asin(toMoon.Y));
         Sky.Colorimetry.Luminance(moonlight).Should().BeApproximately(Sky.Moon.At(Earth, height, phaseAngle).Illuminance, 1e-5f, "the module's moon at its height and phase");
-        // On the tenth day the moon is a day from new, down with the sun at midnight, and gives no light.
+        // On the tenth day the moon is a day from new, down with the sun at midnight, and gives
+        // no light.
         DaySky.MoonAt(0, 0, 9).Toward.Y.Should().BeNegative("the moon near new stands with the sun under the ground");
         Sky.Colorimetry.Luminance(DaySky.AirLightAt(Earth, Sky.Sun.Outside, 0, 0, 9).Light).Should().Be(0, "the moon is down");
     }
@@ -64,16 +66,16 @@ public sealed class DaySkyAirTests : IDisposable
     [Trait("Category", "Unit")]
     public void A_Sun_Set_Outside_The_Air_Warms_Through_It_As_It_Sinks()
     {
-        // The scene drawn in Unity's HDRP that the engine's sky is read against sets its sun outside
-        // the air to 97,050 lux at 5,633 K with the sun 53.97 degrees high, which HDRP's Earth warms
-        // to 4,924 K at the ground.
+        // A sun set outside the air to 97,050 lux at 5,633 K, as the scene the engine's sky is read
+        // against sets it, which the module's Earth, a clear air, warms to some 5,060 K at the
+        // ground with the sun 53.97 degrees high and to some 4,340 K at 16.55 degrees.
         var hue = Linear(ColorFromTemperature(5633));
         var outside = hue / Sky.Colorimetry.Luminance(hue) * 97_050;
         var high = DaySky.AirLightAt(Earth, outside, HourAt(53.97f), 0).Light;
         var low = DaySky.AirLightAt(Earth, outside, HourAt(16.55f), 0).Light;
-        Sky.Colorimetry.TemperatureOf(high).Should().BeInRange(4_850, 5_050);
-        Sky.Colorimetry.TemperatureOf(low).Should().BeLessThan(4_200);
-        Sky.Colorimetry.Luminance(high).Should().BeInRange(80_000, 85_000, "97,050 lux times the air's share at 54 degrees");
+        Sky.Colorimetry.TemperatureOf(high).Should().BeInRange(4_980, 5_150);
+        Sky.Colorimetry.TemperatureOf(low).Should().BeLessThan(4_450).And.BeLessThan(Sky.Colorimetry.TemperatureOf(high) - 500);
+        Sky.Colorimetry.Luminance(high).Should().BeInRange(79_000, 83_000, "97,050 lux times the air's share at 54 degrees");
     }
 
     [Fact]
@@ -112,9 +114,9 @@ public sealed class DaySkyAirTests : IDisposable
     [Trait("Category", "Unit")]
     public void A_Sun_Scaled_By_Its_Height_Lights_As_The_Strength_Times_The_Height_Set_Each_Hour_Did()
     {
-        // scenes_sponza's sun, 120,000 lux outside the air on a path leaning 6 degrees, which it set
-        // each hour as 120,000 times the sine of its height, 5,000 at least, and sets once now with
-        // the day scaling it.
+        // scenes_sponza's sun, 120,000 lux outside the air on a path leaning 6 degrees, which it
+        // set each hour as 120,000 times the sine of its height, 5,000 at least, and sets once now
+        // with the day scaling it.
         float LightAt(SkyDay day, float hour)
         {
             UseApp(new App(Config.Default with { Headless = true, HeadlessFps = 1000, FrameSeconds = 1.0 / 60 }).AddPlugin(new DefaultPlugins()));

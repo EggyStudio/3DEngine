@@ -7,11 +7,11 @@ using Engine.Tests.Api;
 namespace Engine.Tests.Package;
 
 /// <summary>
-/// The newest engine package in build/package, as <c>build/pack.sh</c> made it, one package carrying
-/// every area, opened and read for what a game built on it needs, the flat API and each area, the
-/// generator, the documentation, the compiled shaders, the readme, license, notices and release
-/// notes, and a native library from its dependencies for each system it runs on. The pack workflow
-/// runs these before a package is offered.
+/// The newest engine package in build/package, as <c>build/pack.sh</c> made it, one package
+/// carrying every area, opened and read for what a game built on it needs, the flat API and each
+/// area, the generator, the documentation, the compiled shaders, the readme, license, notices and
+/// release notes, and a native library from its dependencies for each system it runs on. The pack
+/// workflow runs these before a package is offered.
 /// </summary>
 public sealed class PackageContentsTests
 {
@@ -34,7 +34,7 @@ public sealed class PackageContentsTests
         }
         // The modules under modules/, no packages of their own, carried beside the areas with
         // their documentation, so a game compiles against the Sky module's types the API takes.
-        Entries(package).Should().Contain(["lib/net10.0/Sky.dll", "lib/net10.0/Sky.xml"]);
+        Entries(package).Should().Contain(["lib/net10.0/3DEngine.Sky.dll", "lib/net10.0/3DEngine.Sky.xml"]);
     }
 
     [NeedsPackageFact]
@@ -140,7 +140,8 @@ public sealed class PackageContentsTests
     {
         var folder = Path.Combine(CheatsheetTests.RepoRoot(), "build", "package");
         if (!Directory.Exists(folder)) return null;
-        // The engine's own package, its version after its name, and not an area's or the templates'.
+        // The engine's own package, its version after its name, and not an area's or
+        // the templates'.
         return Directory.EnumerateFiles(folder, "3DEngine.*.nupkg")
             .Where(f => Regex.IsMatch(Path.GetFileName(f), @"^3DEngine\.\d") && !f.EndsWith(".snupkg"))
             .OrderByDescending(File.GetLastWriteTimeUtc)

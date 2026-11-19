@@ -72,10 +72,10 @@ internal sealed class FilteredCube : IDisposable
 /// environment's image (<c>env_gather.slang</c>), each level after it the average of four of the
 /// one above (<c>probe_mips.slang</c>). The target cube is that source prefiltered by roughness,
 /// level by level (<c>probe_prefilter.slang</c>), and its irradiance the source projected onto the
-/// nine harmonics at a level <see cref="IrradianceSize"/> texels wide (<c>probe_irradiance.slang</c>).
-/// A cube's texels differ in solid angle by a factor of about five at most, so its mips weigh each
-/// direction by what it covers, where an equirectangular image's rows near a pole hold one
-/// direction many times over.
+/// nine harmonics at a level <see cref="IrradianceSize"/> texels wide
+/// (<c>probe_irradiance.slang</c>). A cube's texels differ in solid angle by a factor of about five
+/// at most, so its mips weigh each direction by what it covers, where an equirectangular image's
+/// rows near a pole hold one direction many times over.
 /// </para>
 /// <para>
 /// A source cube of each width is made once and reused, since a probe's faces are drawn a face a
@@ -92,18 +92,20 @@ internal sealed unsafe partial class CubeFilter(GraphicsDevice device) : IDispos
     /// <summary>The width of a face of the cube a probe's faces are gathered into.</summary>
     internal const int ProbeSourceSize = 64;
 
-    /// <summary>The width of the source cube's level the irradiance is summed over, fine enough for bands that hold no finer detail.</summary>
+    /// <summary>The width of the source cube's level the irradiance is summed over, fine enough for
+    /// bands that hold no finer detail.</summary>
     internal const int IrradianceSize = 16;
 
     private const int GatherStage = 0, MipStage = 1, PrefilterStage = 2, IrradianceStage = 3, EnvironmentStage = 4;
     // The filter's stages and the air's after them (CubeFilter.Atmosphere.cs), which record into
     // one run of the filter's.
-    private readonly ComputeStage[] _filterStages = new ComputeStage[8];
+    private readonly ComputeStage[] _filterStages = new ComputeStage[6];
     private readonly Dictionary<uint, (VkImage Image, VkDeviceMemory Memory, VkImageView Cube, VkImageView[] Levels)> _filterSources = [];
     private ISampler? _filterSampler;
     private ISampler? _equirectangularSampler;
 
-    /// <summary>Whether the filter's shaders have been given, so probes can be captured and environments filtered.</summary>
+    /// <summary>Whether the filter's shaders have been given, so probes can be captured and
+    /// environments filtered.</summary>
     public bool CanFilterProbes => _filterStages[EnvironmentStage].Pipeline.Handle != 0;
 
     /// <summary>
@@ -200,10 +202,13 @@ internal sealed unsafe partial class CubeFilter(GraphicsDevice device) : IDispos
     /// <summary>
     /// Records into the frame the filtering of a probe's six faces, drawn through the
     /// view-projections <paramref name="turned"/> gives made with the eye at nothing and left ready
-    /// to sample, into <paramref name="target"/>'s cube and irradiance, which the frames after sample.
+    /// to sample, into <paramref name="target"/>'s cube and irradiance, which the frames
+    /// after sample.
     /// </summary>
-    /// <returns>What the recording holds, its descriptor sets and the faces' views, to free once no frame in flight reads them.</returns>
-    /// <exception cref="InvalidOperationException">The filter's shaders have not been given.</exception>
+    /// <returns>What the recording holds, its descriptor sets and the faces' views, to free once no
+    /// frame in flight reads them.</returns>
+    /// <exception cref="InvalidOperationException">The filter's shaders have not
+    /// been given.</exception>
     public IDisposable RecordProbeFilter(ICommandBuffer commandBuffer, IReadOnlyList<IImageView> faces, ReadOnlySpan<Matrix4x4> turned,
         FilteredCube target)
     {
@@ -245,17 +250,20 @@ internal sealed unsafe partial class CubeFilter(GraphicsDevice device) : IDispos
     }
 
     /// <summary>
-    /// Records into the frame the filtering of an environment's equirectangular image, uploaded with
-    /// its mips and <paramref name="imageHeight"/> texels tall, into <paramref name="target"/>'s cube
-    /// and irradiance, and its resampling into <paramref name="sky"/>, which the frame's passes
-    /// sample after.
+    /// Records into the frame the filtering of an environment's equirectangular image, uploaded
+    /// with its mips and <paramref name="imageHeight"/> texels tall, into <paramref
+    /// name="target"/>'s cube and irradiance, and its resampling into <paramref name="sky"/>, which
+    /// the frame's passes sample after.
     /// </summary>
-    /// <returns>What the recording holds, its descriptor sets, to free once no frame in flight reads them.</returns>
-    /// <exception cref="InvalidOperationException">The filter's shaders have not been given.</exception>
+    /// <returns>What the recording holds, its descriptor sets, to free once no frame in flight
+    /// reads them.</returns>
+    /// <exception cref="InvalidOperationException">The filter's shaders have not
+    /// been given.</exception>
     public IDisposable RecordEnvironmentFilter(ICommandBuffer commandBuffer, IImageView image, uint imageHeight, FilteredCube target, FilteredCube sky,
         AirSky? air = null)
     {
-        // A source twice the target's width, so its mirror mip reads four texels of the image's own.
+        // A source twice the target's width, so its mirror mip reads four texels of the
+        // image's own.
         var sourceSize = Math.Max(IrradianceSize, 2 * target.Size);
         var source = Source(sourceSize);
         var run = new FilterRun(this, device, commandBuffer, [(EnvironmentStage, 2), .. air is null ? [] : AirSets(air), .. FilterRun.Sets(source, target)]);
@@ -367,7 +375,8 @@ internal sealed unsafe partial class CubeFilter(GraphicsDevice device) : IDispos
             VkPipelineStageFlags2.ComputeShader, VkAccessFlags2.ShaderRead | VkAccessFlags2.ShaderWrite);
 
         // The source and targets to the general layout, what they held of an earlier filter let go,
-        // after the last frame's sampling of anything here and after what wrote what the gather reads.
+        // after the last frame's sampling of anything here and after what wrote what the
+        // gather reads.
         public void Begin((VkImage Image, VkDeviceMemory Memory, VkImageView Cube, VkImageView[] Levels) source, FilteredCube[] targets,
             VkPipelineStageFlags2 inputStage, VkAccessFlags2 inputAccess)
         {
@@ -483,7 +492,8 @@ internal sealed unsafe partial class CubeFilter(GraphicsDevice device) : IDispos
         }
     }
 
-    /// <summary>A filtered cube's nine irradiance coefficients read back, after every frame in flight has finished, for a test to look at.</summary>
+    /// <summary>A filtered cube's nine irradiance coefficients read back, after every frame in
+    /// flight has finished, for a test to look at.</summary>
     internal Vector3[] ReadCubeIrradiance(FilteredCube cube)
     {
         var irradiance = (VulkanBuffer)(cube.Irradiance ?? throw new ArgumentException("The cube has no irradiance.", nameof(cube)));

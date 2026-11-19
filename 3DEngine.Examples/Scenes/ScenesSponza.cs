@@ -84,8 +84,8 @@ public static partial class ScenesSponza
         SetTargetFPS(60);
 
         // The pack's manifest, copied beside the program from the checkout's scenes folder, names
-        // where the pack is fetched from and its model, which is looked for where ./e3d scenes fetch
-        // puts it (ScenePacks.Folder), so either way finds what the other fetched.
+        // where the pack is fetched from and its model, which is looked for where ./e3d scenes
+        // fetch puts it (ScenePacks.Folder), so either way finds what the other fetched.
         ScenePacks.TryRead(Path.Combine(AppContext.BaseDirectory, "scenes", "intel-sponza.json"), out var pack, out var problem);
         if ((pack is null || !ScenePacks.IsFetched(pack)) && !ScenePackScreen.Fetch(pack, problem, "Sponza", "intel-sponza"))
         {
@@ -110,23 +110,29 @@ public static partial class ScenesSponza
         SetAmbientOcclusionMethod(AmbientOcclusionMethod.CircularOccluders);
         // The air holds no fog, since the fog lit the air of the dark rooms that the light reaching
         // them leaves dark, and showed the sun as an even haze rather than shafts (RENDERING.md).
-        // The sun stands at the hour asked, rising over the main door and setting over the lion along
-        // the atrium's length, its path leaning 6 degrees, so at noon it lights two thirds of the
-        // atrium's floor, 5.6 units wide, past the shadow of its walls and eaves 17.6 high, where 10
-        // leaves the floor in it.
+        // The sun stands at the hour asked, rising over the main door and setting over the lion
+        // along the atrium's length, its path leaning 6 degrees, so at noon it lights two thirds of
+        // the atrium's floor, 5.6 units wide, past the shadow of its walls and eaves 17.6 high,
+        // where 10 leaves the floor in it.
         var hour = 12f;
         // The sun, the sky and the camera in physical units. The sun is set outside the air to
         // 120,000 lux times the sine of its height, about a clear day's sun outside the air, 5,000
-        // at least as it nears the horizon, at 5,633 K, and lit through the Sky module's Earth air,
-        // its aerosols spread over 12 km above a white ground, so the light dims and warms through
-        // the air as the hour moves and the sky is the air's, 97,050 lux outside reaching the
-        // ground at 4,924 K with the sun 54 degrees high. The camera is at ISO 200, 1/200 s and
-        // f/16, EV 14.64, a sunny day's exposure, under AgX's curve. Held there, the stone the sun
-        // lights reads as there and the light in the shade shows how far the indirect light falls
-        // short of it, but the shade lies so far under the sunlit stone that played it looks as
-        // though it had no indirect light, so the example starts metered and M holds the camera at
-        // those values.
-        var air = Sky.Atmosphere.Earth with { AerosolExtinction = 1e-6f, AerosolScaleHeight = 12_000, GroundAlbedo = Vector3.One };
+        // at least as it nears the horizon, at 5,633 K, and lit through the air below, so the light
+        // dims and warms through the air as the hour moves and the sky is the air's, 97,050 lux
+        // outside reaching the ground at some 4,990 K with the sun 54 degrees high. The camera is
+        // at ISO 200, 1/200 s and f/16, EV 14.64, a sunny day's exposure, under AgX's curve. Held
+        // there, the stone the sun lights reads as there and the light in the shade shows how far
+        // the indirect light falls short of it, but the shade lies so far under the sunlit stone
+        // that played it looks as though it had no indirect light, so the example starts metered
+        // and M holds the camera at those values. The air the scene the views are matched against
+        // is drawn through, its planet, molecules, aerosols' albedo and ozone held as it sets them,
+        // its aerosols spread over 12 km above a white ground.
+        var air = Sky.Atmosphere.Earth with
+        {
+            PlanetRadius = 6_378_100, RayleighScattering = new Vector3(5.8e-6f, 13.5e-6f, 33.1e-6f), AerosolAlbedo = new Vector3(0.9f),
+            OzoneAbsorption = new Vector3(0.65e-6f, 1.88e-6f, 0.08e-6f) * 0.6f, OzoneBottom = 20_000, OzoneWidth = 20_000,
+            AerosolExtinction = 1e-6f, AerosolScaleHeight = 12_000, GroundAlbedo = Vector3.One,
+        };
         SetSkyDay(new SkyDay
         {
             Minutes = 0, Tilt = 6, Atmosphere = air, SunIlluminance = 120_000, SunByHeight = true, SunColor = ColorFromTemperature(5633),
@@ -166,10 +172,10 @@ public static partial class ScenesSponza
         // lamps' light, kept to turn them on with L and dark until then. Each lamp's bulb has a
         // material of its own in a model drawn over the pack's meshes, so each burns at a color of
         // its own, two thirds of them warm, between 2,400 and 3,000 K, and a third cool, between
-        // 4,000 and 5,500 K, drawn from a seed so every run draws the same lamps. Global illumination carries
-        // each bulb as a light of its own (GlowLights), 300 times the pack's emission, at which the
-        // vault above a lamp and the floor under it read lit in the evening as a path-traced
-        // reference reads them.
+        // 4,000 and 5,500 K, drawn from a seed so every run draws the same lamps. Global
+        // illumination carries each bulb as a light of its own (GlowLights), 300 times the pack's
+        // emission, at which the vault above a lamp and the floor under it read lit in the evening
+        // as a path-traced reference reads them.
         var glowing = Enumerable.Range(0, sponza.Materials.Length).Where(i => sponza.Materials[i].Emissive != Color.Black).ToHashSet();
         var materials = sponza.Materials.ToList();
         var meshMaterial = sponza.MeshMaterial.ToArray();
@@ -251,8 +257,8 @@ public static partial class ScenesSponza
             if (flying)
             {
                 // The free camera's flight with its own keys, rising on E and sinking on Q, which
-                // the free camera rolls by, and turning with the mouse as it does, 0.003 radians a
-                // pixel.
+                // the free camera rolls by, and turning with the mouse as it does, 0.003 radians
+                // a pixel.
                 float Held(Key more, Key less) => (IsKeyDown(more) ? 1 : 0) - (IsKeyDown(less) ? 1 : 0);
                 var step = 5.4f * GetFrameTime();
                 var turn = GetMouseDelta() * float.RadiansToDegrees(0.003f);
