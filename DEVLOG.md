@@ -6,6 +6,16 @@ under `.github/assets/readings` as WebP files named by their day, each on the da
 the notes written beside them as Markdown files named the same way. A line under Done names the item
 of .github/REVIEW.md or .github/REVIEW-ARCHIVE.md and the commit that closed it.
 
+## 2026-11-19
+
+![](.github/assets/readings/2026-11-19-sky-clear-hours.webp)
+The core_day_sky example under the Sky module's Earth, the clear air of Hillaire's 2020 paper, on a
+path that stands the sun 63.42 degrees up at noon, at noon, at sunset with the sun 0.57 degrees down
+and at the civil twilight's end with it 6 degrees down, each at the module's metered EV100 of 15.44,
+8.22 and 1.25, beside the module's own panorama of the same hours from its 2026-11-18-sky-
+clear.webp, the noon sky a deep blue, the sunset white over a yellow horizon and the civil end blue
+over a lighter band.
+
 ## 2026-11-18
 
 ![](.github/assets/readings/2026-11-18-item-296-night-rank.webp)

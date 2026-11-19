@@ -5217,12 +5217,15 @@ Unity's color of a temperature has its brightest channel at 1 where the engine's
 1, and the sky lights a level floor with 2,135, 11,186 and 11,854 lux where 2,060, 10,770 and 11,410
 (the Sky module's `Sun` and `SkyLight` through that air). The example's sun path leans 6 degrees and
 stands 44.7 degrees high at 15:00 where the scene's stands 54, which waits for the module's clock.
-Metered at 15:00 and settled (`field.wait`, then 900 frames), the balcony's, the door's and the view
-up's red over blue, of the frame's mean (`frame.read`), read 1.09, 1.40 and 1.05 where they read
-1.24, 2.84 and 1.31 in the module's three colors and 0.67, 1.81 and 0.62 before the air, and the
-pictures read 1.13, 1.60 and 1.15, and their means 98.7, 120.3 and 100.3 where 113.4, 84.5 and 103.0
-and the pictures read 85.8, 59.1 and 104.3. The shade's blue is gone, and the door's vestibule, lit
-by the light off the walls alone, reads a little under the picture's warmth where it read past it.
+Held at one exposure on both, EV100 9.5 at the balcony and the door and 8 looking up, the whole
+frame read alike, the module's twelve bands move the frames little from its three colors, the
+balcony's, the door's and the view up's red over blue 1.12, 1.72 and 1.04 where 1.11, 1.76 and 1.04
+and their means 71.8, 45.3 and 77.1 where 71.6, 45.4 and 76.6, and the pictures read the same way
+give 1.13, 1.32 and 1.16 at means of 68.2, 50.0 and 75.8 (2026-11-19-sponza-sky-move-pair.webp). The
+figures read before, 1.24, 2.84 and 1.31 through the air and 0.67, 1.81 and 0.62 before it against
+the pictures' 1.13, 1.60 and 1.15, were read another way and are not set beside these. The shade's
+blue is gone, and the door's vestibule, lit by the light off the walls alone, warms past the
+picture's with each bounce off the warm stone.
 
 `SetDepthOfField` and `SetMotionBlur` are passes of their own after the bloom chain, into half-float
 targets the window's size that the composite then reads in place of the scene, both reading the

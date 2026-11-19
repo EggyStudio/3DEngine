@@ -1088,3 +1088,36 @@ the pictures', the door's red over blue at 1.40 where the picture reads 1.60 and
 2.84. RENDERING.md says so in its paragraph on the scene's air.
 
 The runs. The norm's tests pass, 17 of 17, and no code changed, so no suite leg ran.
+
+A correction to the Reply on the Sponza match above. Its second table set figures read two ways
+beside each other, the three colors' from an earlier reading and the twelve bands' from `frame.read`
+over a metered frame with the scene's text on it, so the door's 2.84 against 1.40 was the readings'
+difference and not the sky's. Held at one exposure on both, EV100 9.5 at the balcony and the door
+and 8 looking up, the scene's text hidden and the whole frame read alike, the commit before the Sky
+module's tables and the head read as follows.
+
+| At 15:00, one exposure, the whole frame | Before | Head | The pictures, read alike |
+|---|---|---|---|
+| Red over blue, the balcony, the door, the view up | 1.11, 1.76, 1.04 | 1.12, 1.72, 1.04 | 1.13, 1.32, 1.16 |
+| The means of 255 | 71.6, 45.4, 76.6 | 71.8, 45.3, 77.1 | 68.2, 50.0, 75.8 |
+
+The head stands a little nearer the pictures, the door's red over blue 0.04 nearer and the balcony's
+0.01, the view up alike, and the two frames are alike to the eye
+(`2026-11-19-sponza-sky-move-pair.webp`, and beside the pictures in the dump at 05-15, never in the
+repository). The pictures' door read whole gives 1.32 where the earlier reading gave 1.60, so the
+door stays warmer than the picture by about as much as before the move. RENDERING.md's paragraph on
+the scene's air says so and drops the metered figures.
+
+Handoff, at `0a223de1`. The Sky pointer is at `9040738` in `c20870f2`, `a29f0efc`, `777e051f` and
+`0a223de1`, the GPU sky drawn from the module's tables, made on a worker, the disc and the night's
+glow the module's, and the Sponza match read again, and the gallery's pictures at `98b68167`. Next
+in order is item 265's probe passes from RadianceCascades at `6622616`, `traceTexel`, `reachTexel`,
+`settleTexel`, `mergeTexel` and `gatherAt` over the four interfaces its README names, a cascade's
+end set by its README's rule and said in the Reply with the ends before, the open box's floor read
+before and after, 1.142 at High, 1.099 at Medium and 0.805 at Low of the dome's share before against
+the reference's 1.000, then the field's kernels left from `987e963`, the resolve with its pinch, the
+distance read, the march, the splat's codes and paint and the stamp. Then 298, 299, 300, 288, 292,
+293, 294, 289, 290, and 301 after 265. Nothing is held open here. A fresh session reads AGENTS.md,
+this file's head, its Now list and these Replies from item 265's read on, and NORM.md's 7.9, 4.11
+and 4.12, runs the Tools module's `scripts/commitcheck.py` and `build/examples-table.py --check`
+before each commit, and raises a waiting mark only while it waits for the lock held exclusive.
