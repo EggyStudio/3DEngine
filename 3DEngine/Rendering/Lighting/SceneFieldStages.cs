@@ -28,7 +28,8 @@ internal sealed unsafe partial class SceneFieldStages(GraphicsDevice device) : I
         // The first and the last cell along each axis a triangle may write, w unused.
         public uint FirstX, FirstY, FirstZ, FirstW, LastX, LastY, LastZ, LastW;
 
-        // Every cell of a cascade of `size` cells a side, or those of `cells` and a cell around them.
+        // Every cell of a cascade of `size` cells a side, or those of `cells` and a cell around
+        // them.
         public void Clip(uint size, SceneFieldPlan.CellBox? cells)
         {
             var top = (int)size - 1;
@@ -74,7 +75,8 @@ internal sealed unsafe partial class SceneFieldStages(GraphicsDevice device) : I
     /// </summary>
     public const float FarFieldDistance = 10000;
 
-    /// <summary>Makes the field's pipelines from <c>field_splat.slang</c>, <c>field_resolve.slang</c> and <c>field_stamp.slang</c>, once.</summary>
+    /// <summary>Makes the field's pipelines from <c>field_splat.slang</c>,
+    /// <c>field_resolve.slang</c> and <c>field_stamp.slang</c>, once.</summary>
     public void InitializeSceneField(ReadOnlySpan<byte> splat, ReadOnlySpan<byte> resolve, ReadOnlySpan<byte> stamp)
     {
         if (!device.IsInitialized || CanBuildSceneField) return;
@@ -90,8 +92,8 @@ internal sealed unsafe partial class SceneFieldStages(GraphicsDevice device) : I
     {
         var size = (uint)Math.Max(1, resolution);
         var depth = size * (uint)Math.Max(1, cascades);
-        // The distances in the first channel, and in the other three the plane of a double-sided face
-        // whose inside is a cell's nearest point (field_resolve.slang).
+        // The distances in the first channel, and in the other three the plane of a double-sided
+        // face whose inside is a cell's nearest point (field_resolve.slang).
         var (still, stillMemory, stillView) = FieldImage(size, depth, VkFormat.R16G16B16A16Sfloat);
         var (stillPaint, stillPaintMemory, stillPaintView) = FieldImage(size, depth, VkFormat.R8G8B8A8Unorm);
         var (field, fieldMemory, fieldView) = FieldImage(size, depth, VkFormat.R16G16B16A16Sfloat);
@@ -291,7 +293,8 @@ internal sealed unsafe partial class SceneFieldStages(GraphicsDevice device) : I
             VkPipelineStageFlags2.ComputeShader, VkAccessFlags2.ShaderRead | VkAccessFlags2.ShaderWrite))]);
     }
 
-    /// <summary>Records the field the passes read going back to be sampled, once the frame's builds and stamps have written it.</summary>
+    /// <summary>Records the field the passes read going back to be sampled, once the frame's builds
+    /// and stamps have written it.</summary>
     public void RecordSceneFieldClose(ICommandBuffer commandBuffer, GpuSceneField field)
     {
         if (commandBuffer is not VulkanCommandBuffer vkCmd) return;
@@ -304,23 +307,29 @@ internal sealed unsafe partial class SceneFieldStages(GraphicsDevice device) : I
     /// <summary>
     /// Records, between <see cref="RecordSceneFieldOpen"/> and <see cref="RecordSceneFieldClose"/>,
     /// the building of cascade <paramref name="cascade"/> from the triangles of
-    /// <paramref name="instanceCount"/> instances, <paramref name="triangleCount"/> triangles in all,
-    /// its corner at <paramref name="origin"/> and its cells <paramref name="cell"/> wide, exact
-    /// within <paramref name="band"/> cells of a surface.
+    /// <paramref name="instanceCount"/> instances, <paramref name="triangleCount"/> triangles in
+    /// all, its corner at <paramref name="origin"/> and its cells <paramref name="cell"/> wide,
+    /// exact within <paramref name="band"/> cells of a surface.
     /// </summary>
     /// <param name="commandBuffer">The frame's commands.</param>
     /// <param name="field">The field.</param>
-    /// <param name="corners">Every triangle the instances use, three float4 corners each in its mesh's own space.</param>
-    /// <param name="instances">The instances, as <c>field_splat.slang</c>'s <c>FieldInstance</c>.</param>
+    /// <param name="corners">Every triangle the instances use, three float4 corners each in its
+    /// mesh's own space.</param>
+    /// <param name="instances">The instances, as <c>field_splat.slang</c>'s
+    /// <c>FieldInstance</c>.</param>
     /// <param name="instanceCount">How many instances.</param>
     /// <param name="triangleCount">How many triangles they have in all.</param>
     /// <param name="cascade">The cascade built.</param>
-    /// <param name="origin">The cascade's corner, in the numbers the instances' rows place their meshes in, nothing where the rows take a place against the corner.</param>
+    /// <param name="origin">The cascade's corner, in the numbers the instances' rows place their
+    /// meshes in, nothing where the rows take a place against the corner.</param>
     /// <param name="cell">The width of its cells.</param>
     /// <param name="band">How many cells from a surface the distances are exact.</param>
-    /// <param name="thinGlow">Whether an instance is emissive and thinner than a cell, whose light the cells near it are lent.</param>
-    /// <param name="first">Whether this is the build's first part, which clears the cascade's words before it splats.</param>
-    /// <param name="last">Whether this is the build's last part, which turns the words into the cascade's distances after it splats.</param>
+    /// <param name="thinGlow">Whether an instance is emissive and thinner than a cell, whose light
+    /// the cells near it are lent.</param>
+    /// <param name="first">Whether this is the build's first part, which clears the cascade's words
+    /// before it splats.</param>
+    /// <param name="last">Whether this is the build's last part, which turns the words into the
+    /// cascade's distances after it splats.</param>
     /// <param name="lend">
     /// Whether the build lends the cells the light of emitters thinner than a cell, which its first
     /// part clears and its last reads, <paramref name="thinGlow"/> for a build in one part.
@@ -328,13 +337,14 @@ internal sealed unsafe partial class SceneFieldStages(GraphicsDevice device) : I
     /// <param name="sheet">
     /// How far either side of its middle a wall thinner than a cell is held, or 0 for half a cell,
     /// which the far cascade's build keeps to half the last counted cascade's cell. A double-sided
-    /// face is held by its plane in the cells it is nearest (<c>sheetAt</c> in <c>field_resolve.slang</c>).
+    /// face is held by its plane in the cells it is nearest (<c>sheetOf</c>, the
+    /// RadianceCascades module's).
     /// </param>
     /// <param name="cells">
     /// The cells the build turns into distances, or null for the whole cascade. Its triangles write
-    /// those cells and a cell around them alone, which the distance of a cell is read beside, so the
-    /// instances given are every still mesh within the band of those, and the rest of the cascade
-    /// stays as it was built.
+    /// those cells and a cell around them alone, which the distance of a cell is read beside, so
+    /// the instances given are every still mesh within the band of those, and the rest of the
+    /// cascade stays as it was built.
     /// </param>
     /// <param name="empty">
     /// Whether the first part of a build of <paramref name="cells"/> turns them into distances
@@ -343,10 +353,10 @@ internal sealed unsafe partial class SceneFieldStages(GraphicsDevice device) : I
     /// </param>
     /// <returns>What the recording holds, to free once no frame in flight reads it.</returns>
     /// <remarks>
-    /// A build of more triangles than a frame splats is recorded in parts over frames, the cascade's
-    /// words kept from one part to the next, each part painting where its triangles are nearest as
-    /// the words stand, and a later part nearer paints over it, so the parts leave the cascade as one
-    /// build of all the triangles would.
+    /// A build of more triangles than a frame splats is recorded in parts over frames, the
+    /// cascade's words kept from one part to the next, each part painting where its triangles are
+    /// nearest as the words stand, and a later part nearer paints over it, so the parts leave the
+    /// cascade as one build of all the triangles would.
     /// </remarks>
     public IDisposable RecordSceneFieldBuild(ICommandBuffer commandBuffer, GpuSceneField field, IBuffer corners, IBuffer instances,
         int instanceCount, int triangleCount, int cascade, Vector3 origin, float cell, int band, bool thinGlow = false,
@@ -374,10 +384,10 @@ internal sealed unsafe partial class SceneFieldStages(GraphicsDevice device) : I
             // fill is seen by the splat.
             device.MemoryBarrier(cmd, VkPipelineStageFlags2.ComputeShader, VkAccessFlags2.ShaderRead | VkAccessFlags2.ShaderWrite,
                 VkPipelineStageFlags2.Transfer, VkAccessFlags2.TransferWrite);
-            // The code of a cell no triangle comes within the band of, the band's distance in front,
-            // in 1024ths of a cell above the bits that say whether a double-sided triangle's nearest
-            // point lies on its rim, whether its triangle is double-sided and whether the cell is in
-            // front, and eight bits of its face's way.
+            // The code of a cell no triangle comes within the band of, the band's distance in
+            // front, in 1024ths of a cell above the bits that say whether a double-sided triangle's
+            // nearest point lies on its rim, whether its triangle is double-sided and whether the
+            // cell is in front, and eight bits of its face's way.
             device.Api.vkCmdFillBuffer(cmd, words, 0, Vulkan.VK_WHOLE_SIZE, ((uint)band * 1024 << 19) | 1 << 16);
             // No second face as near as the nearest, until the painting pass finds one.
             device.Api.vkCmdFillBuffer(cmd, ((VulkanBuffer)field.Second).Buffer, 0, Vulkan.VK_WHOLE_SIZE, uint.MaxValue);
@@ -432,8 +442,8 @@ internal sealed unsafe partial class SceneFieldStages(GraphicsDevice device) : I
             run.Dispatch(SplatStage, splat, MemoryMarshal.AsBytes(new ReadOnlySpan<SplatPush>(in push)), groupsX, groupsY, 1);
             device.MemoryBarrier(cmd, VkPipelineStageFlags2.ComputeShader, VkAccessFlags2.ShaderWrite,
                 VkPipelineStageFlags2.ComputeShader, VkAccessFlags2.ShaderRead);
-            // The same triangles again, each painting the cells whose least word is its own, and once
-            // more, an emitter thinner than a cell lending its light to the cells near it.
+            // The same triangles again, each painting the cells whose least word is its own, and
+            // once more, an emitter thinner than a cell lending its light to the cells near it.
             push.Paint = 1;
             run.Dispatch(SplatStage, splat, MemoryMarshal.AsBytes(new ReadOnlySpan<SplatPush>(in push)), groupsX, groupsY, 1);
             if (thinGlow)
@@ -487,18 +497,21 @@ internal sealed unsafe partial class SceneFieldStages(GraphicsDevice device) : I
     /// <summary>
     /// Records, between <see cref="RecordSceneFieldOpen"/> and <see cref="RecordSceneFieldClose"/>,
     /// the cells of cascade <paramref name="cascade"/> that the triangles of
-    /// <paramref name="instanceCount"/> instances are nearest painted again with their colors as the
-    /// corners now hold them, as the cascade's last build found them nearest, without finding their
-    /// distances again, for a mesh whose colors were written in place.
+    /// <paramref name="instanceCount"/> instances are nearest painted again with their colors as
+    /// the corners now hold them, as the cascade's last build found them nearest, without finding
+    /// their distances again, for a mesh whose colors were written in place.
     /// </summary>
     /// <param name="commandBuffer">The frame's commands.</param>
     /// <param name="field">The field, a build of whose cascade has kept its words.</param>
-    /// <param name="corners">Every triangle the instances use, as <see cref="RecordSceneFieldBuild"/> takes them.</param>
-    /// <param name="instances">The instances painted again, as <c>field_splat.slang</c>'s <c>FieldInstance</c>.</param>
+    /// <param name="corners">Every triangle the instances use, as <see
+    /// cref="RecordSceneFieldBuild"/> takes them.</param>
+    /// <param name="instances">The instances painted again, as <c>field_splat.slang</c>'s
+    /// <c>FieldInstance</c>.</param>
     /// <param name="instanceCount">How many instances.</param>
     /// <param name="triangleCount">How many triangles they have in all.</param>
     /// <param name="cascade">The cascade.</param>
-    /// <param name="origin">Its corner as its last build had it, in the numbers the instances' rows place their meshes in, nothing where the rows take a place against the corner.</param>
+    /// <param name="origin">Its corner as its last build had it, in the numbers the instances' rows
+    /// place their meshes in, nothing where the rows take a place against the corner.</param>
     /// <param name="cell">The width of its cells.</param>
     /// <param name="band">How many cells from a surface the distances are exact.</param>
     /// <returns>What the recording holds, to free once no frame in flight reads it.</returns>
@@ -519,7 +532,8 @@ internal sealed unsafe partial class SceneFieldStages(GraphicsDevice device) : I
         run.Image(splat, 7, field.StillPaintView);
         run.Image(splat, 8, ((VulkanImageView)field.AlbedoView).View);
         run.Buffer(splat, 9, VkDescriptorType.StorageBuffer, field.Second);
-        // Painting again keeps the gloss the build painted, though the splat's layout names its buffer.
+        // Painting again keeps the gloss the build painted, though the splat's layout names its
+        // buffer.
         run.Buffer(splat, 10, VkDescriptorType.StorageBuffer, field.Gloss);
         var groupsX = (uint)Math.Min(triangleCount, 65535);
         var push = new SplatPush
@@ -547,13 +561,16 @@ internal sealed unsafe partial class SceneFieldStages(GraphicsDevice device) : I
     /// Records, between <see cref="RecordSceneFieldOpen"/> and <see cref="RecordSceneFieldClose"/>
     /// and after the frame's info is written, the stamping of <paramref name="shapeCount"/> shapes
     /// into <paramref name="brickCount"/> bricks of the field the passes read, each brick's cells
-    /// the least of the still field's and the shapes' and painted the color and the emission of the nearer.
+    /// the least of the still field's and the shapes' and painted the color and the emission of the
+    /// nearer.
     /// </summary>
     /// <param name="commandBuffer">The frame's commands.</param>
     /// <param name="field">The field.</param>
-    /// <param name="bricks">The bricks, a uint4 each of the cascade and the brick's place in it.</param>
+    /// <param name="bricks">The bricks, a uint4 each of the cascade and the brick's place in
+    /// it.</param>
     /// <param name="brickCount">How many bricks.</param>
-    /// <param name="shapes">The shapes, as <c>field_stamp.slang</c>'s <c>FieldShape</c>, at least one even where none is stamped.</param>
+    /// <param name="shapes">The shapes, as the RadianceCascades module's <c>StampShape</c>, at
+    /// least one even where none is stamped.</param>
     /// <param name="shapeCount">How many shapes.</param>
     /// <returns>What the recording holds, to free once no frame in flight reads it.</returns>
     public IDisposable RecordSceneFieldStamp(ICommandBuffer commandBuffer, GpuSceneField field, IBuffer bricks, int brickCount, IBuffer shapes, int shapeCount)
@@ -598,7 +615,8 @@ internal sealed unsafe partial class SceneFieldStages(GraphicsDevice device) : I
     /// </summary>
     internal float[] ReadSceneFieldSheets(GpuSceneField field, bool second = false)
     {
-        // The field keeps its plane after the distance, and the second planes' image from its first channel.
+        // The field keeps its plane after the distance, and the second planes' image from its first
+        // channel.
         var halves = MemoryMarshal.Cast<byte, Half>(ReadFieldImage(field, second ? field.SecondImage : field.Field, 8));
         var (start, sheets) = (second ? 0 : 1, new float[halves.Length / 4 * 3]);
         for (int i = 0; i < halves.Length / 4; i++)

@@ -9,25 +9,8 @@
 // lights what it passes, and a cell a box painted takes the still meshes' again once the box has
 // left.
 import scenefield;
-
-struct FieldShape
-{
-    // The rows of the matrix from the world into the shape's own space, a 3x4.
-    float4 row0;
-    float4 row1;
-    float4 row2;
-    // xyz: the box's middle in its own space. w: the least scale from its own space to the
-    // world's, which a distance there is turned into a world distance no longer than the true one by.
-    float4 centerAndScale;
-    // xyz: the box's half extents in its own space.
-    float4 extents;
-    // rgb: the mesh's color, linear, its material's times its texture's average. w: the share of
-    // light that passes a unit of its depth (lightThroughPaint).
-    float4 color;
-    // rgb: the mesh's emission, linear, none where global illumination carries it as a glow light,
-    // whose light a probe's ray leaves out of the field. w: unused.
-    float4 emission;
-};
+// The stamp of a cell, the RadianceCascades module's.
+import rc_field_stamp;
 
 // x: the cascade. y: the brick's place in it, in bricks, a byte an axis. z: where its run of shapes
 // begins. w: how many shapes are in it. Past the bricks, the runs one after another, four shapes'
@@ -36,10 +19,10 @@ struct FieldShape
 StructuredBuffer<uint4> bricks;
 
 [[vk::binding(1, 0)]]
-StructuredBuffer<FieldShape> shapes;
+StructuredBuffer<StampShape> shapes;
 
 // The distance in x, and in yzw the plane of a double-sided face the still meshes give the cell
-// (sheetAt in field_resolve.slang), which a box nearer than it takes away.
+// (sheetOf, the RadianceCascades module's), which a box nearer than it takes away.
 [[vk::binding(2, 0)]] [format("rgba16f")]
 RWTexture3D<float4> stillField;
 
@@ -80,6 +63,22 @@ struct StampPush
 [[vk::push_constant]]
 ConstantBuffer<StampPush> push;
 
+// The shapes of a brick's run, as the module's stamp reads them, the run's places following the
+// bricks four to an element.
+struct BrickShapes : IStampShapes
+{
+    uint first;
+    uint length;
+
+    uint count() { return length; }
+
+    StampShape shape(uint i)
+    {
+        uint run = first + i;
+        return shapes[bricks[run / 4u][run % 4u]];
+    }
+}
+
 [shader("compute")]
 [numthreads(4, 4, 4)]
 void computeMain(uint3 group : SV_GroupID, uint3 local : SV_GroupThreadID)
@@ -99,39 +98,16 @@ void computeMain(uint3 group : SV_GroupID, uint3 local : SV_GroupThreadID)
     float reach = info.counts.z * oc.w;
 
     uint3 at = uint3(cell.xy, cell.z + cascade * size);
-    float4 still = stillField[at];
-    float d = still.x;
-    float3 sheet = still.yzw;
-    float nearest = abs(d);
-    float4 paint = stillPaint[at];
-    float4 glow = stillGlow[at];
-    uint face = stillFaces[at];
-    for (uint i = 0; i < brick.w; i++)
-    {
-        uint run = push.counts.x * 4u + brick.z + i;
-        FieldShape shape = shapes[bricks[run / 4u][run % 4u]];
-        float4 h = float4(p, 1.0);
-        float3 own = float3(dot(shape.row0, h), dot(shape.row1, h), dot(shape.row2, h)) - shape.centerAndScale.xyz;
-        float3 q = abs(own) - shape.extents.xyz;
-        float box = (length(max(q, 0.0)) + min(max(q.x, max(q.y, q.z)), 0.0)) * shape.centerAndScale.w;
-        d = min(d, max(box, -reach));
-        if (abs(box) < min(nearest, reach))
-        {
-            nearest = abs(box);
-            sheet = float3(0.0);
-            float coverage = lightThroughPaint(shape.color.w);
-            paint = float4(shape.color.rgb * coverage, coverage);
-            // Times the paint's alpha, as the build gives a cell's emission, since a reader divides
-            // both by it.
-            glow = float4(shape.emission.rgb * coverage, 0.0);
-            // The box's face nearest the cell, the axis it lies furthest out along, in the world.
-            int axis = q.x >= q.y && q.x >= q.z ? 0 : q.y >= q.z ? 1 : 2;
-            float3 outward = float3(axis == 0 ? sign(own.x) : 0.0, axis == 1 ? sign(own.y) : 0.0, axis == 2 ? sign(own.z) : 0.0);
-            face = faceBits(normalize(shape.row0.xyz * outward.x + shape.row1.xyz * outward.y + shape.row2.xyz * outward.z));
-        }
-    }
-    field[at] = float4(d, sheet);
-    albedoField[at] = paint;
-    glowField[at] = glow;
-    faceField[at] = face;
+    FieldCell still;
+    float4 kept = stillField[at];
+    still.distance = kept.x;
+    still.sheet = kept.yzw;
+    still.paint = stillPaint[at];
+    still.glow = stillGlow[at];
+    still.face = stillFaces[at];
+    FieldCell stamped = stampCell(BrickShapes(push.counts.x * 4u + brick.z, brick.w), p, reach, still);
+    field[at] = float4(stamped.distance, stamped.sheet);
+    albedoField[at] = stamped.paint;
+    glowField[at] = stamped.glow;
+    faceField[at] = stamped.face;
 }

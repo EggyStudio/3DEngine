@@ -5,30 +5,34 @@
 // by an atomic minimum of a word that holds the distance in 1024ths of a cell above a bit set where
 // a double-sided triangle's nearest point to the cell is off its plane's inside, on its rim, a bit
 // set where the triangle is double-sided, a bit set where the cell lies in front of the triangle's
-// face, the way the face looks in eight bits, and seven bits of its instance last. Of two
-// triangles as near to that 1024th, as where a crate stands on the ground, one behind whose face
-// the cell lies wins, the cell being inside some mesh, and of two meshes' faces alike in all but
-// the instance, the instance's bits say which, so no thread's order does. A double-sided triangle has no inside, and its front bit says which side of its plane
-// the cell lies on, so the resolve keeps the plane in the cell where the nearest point lies on the
-// face's inside, and a ray traced through the field meets a sheet thinner than a cell, as a wall or
-// a floor of a mesh imported double-sided, at its plane from either side wherever it lies between
-// the cells. A cell is behind a triangle only where the way from the triangle's nearest point to it
-// lies within 60 degrees of straight back from the face, so where an edge or a corner is nearest,
-// as above a pillar's rim or level with a wall's side above the wall, a face the way runs along
-// does not put the cell inside, and a cell whose nearest point lies on an edge no other triangle
-// shares, as a ground plane's rim, is in front, so an open mesh puts no wedge below its rim inside.
-// The nearest face a cell lies straight behind is kept apart, for a wall thinner than a cell, which
-// may have no cell's middle inside it. A cell no triangle comes within the band of keeps the word
-// it was cleared to, the band's distance in front. A second dispatch over the same triangles paints
-// each cell the color and the emission of a triangle whose word is the one the cell kept, its
-// nearest surface, which global illumination is read from, its instance's color times its vertices'
-// colors blended at the cell's nearest point, as the model pass blends them across a face. A fourth
-// paints again the cells a mesh whose colors were written is nearest, its instances alone, against
-// the words its cascade's build kept, into the images the passes read, so colors written in place
-// reach global illumination without the distances found again.
+// face, the way the face looks in eight bits, and seven bits of its instance last. Of two triangles
+// as near to that 1024th, as where a crate stands on the ground, one behind whose face the cell
+// lies wins, the cell being inside some mesh, and of two meshes' faces alike in all but the
+// instance, the instance's bits say which, so no thread's order does. A double-sided triangle has
+// no inside, and its front bit says which side of its plane the cell lies on, so the resolve keeps
+// the plane in the cell where the nearest point lies on the face's inside, and a ray traced through
+// the field meets a sheet thinner than a cell, as a wall or a floor of a mesh imported
+// double-sided, at its plane from either side wherever it lies between the cells. A cell is behind
+// a triangle only where the way from the triangle's nearest point to it lies within 60 degrees of
+// straight back from the face, so where an edge or a corner is nearest, as above a pillar's rim or
+// level with a wall's side above the wall, a face the way runs along does not put the cell inside,
+// and a cell whose nearest point lies on an edge no other triangle shares, as a ground plane's rim,
+// is in front, so an open mesh puts no wedge below its rim inside. The nearest face a cell lies
+// straight behind is kept apart, for a wall thinner than a cell, which may have no cell's middle
+// inside it. A cell no triangle comes within the band of keeps the word it was cleared to, the
+// band's distance in front. A second dispatch over the same triangles paints each cell the color
+// and the emission of a triangle whose word is the one the cell kept, its nearest surface, which
+// global illumination is read from, its instance's color times its vertices' colors blended at the
+// cell's nearest point, as the model pass blends them across a face. A fourth paints again the
+// cells a mesh whose colors were written is nearest, its instances alone, against the words its
+// cascade's build kept, into the images the passes read, so colors written in place reach global
+// illumination without the distances found again.
 
 import color;
 import scenefield;
+// The cells' codes, the triangle's nearest point and the paint's corners and alpha, the
+// RadianceCascades module's.
+import rc_field_splat;
 
 struct FieldInstance
 {
@@ -106,7 +110,8 @@ struct SplatPush
 {
     // xyz: the cascade's corner. w: the width of a cell.
     float4 originAndCell;
-    // x: the cells along each side. y: how many instances. z: how many triangles in all. w: the band in cells.
+    // x: the cells along each side. y: how many instances. z: how many triangles in all. w: the
+    // band in cells.
     uint4 counts;
     // x: how many workgroups the dispatch has along x, which the triangle's number is read across.
     // y: 1 for the dispatch that paints, 0 for the one that finds the distances, 2 for the one
@@ -123,67 +128,10 @@ struct SplatPush
 [[vk::push_constant]]
 ConstantBuffer<SplatPush> push;
 
-// The point of the triangle abc nearest p, as Ericson's Real-Time Collision Detection finds it by
-// the region of the triangle's plane p falls in, and in open whether that point lies on an edge
-// the triangle shares with no other, as edges says of ab, bc and ca, or on a corner of one.
-float3 nearest(float3 p, float3 a, float3 b, float3 c, bool3 edges, out bool open)
-{
-    float3 ab = b - a, ac = c - a, ap = p - a;
-    float d1 = dot(ab, ap), d2 = dot(ac, ap);
-    open = edges.x || edges.z;
-    if (d1 <= 0.0 && d2 <= 0.0)
-        return a;
-    float3 bp = p - b;
-    float d3 = dot(ab, bp), d4 = dot(ac, bp);
-    open = edges.x || edges.y;
-    if (d3 >= 0.0 && d4 <= d3)
-        return b;
-    float vc = d1 * d4 - d3 * d2;
-    open = edges.x;
-    if (vc <= 0.0 && d1 >= 0.0 && d3 <= 0.0)
-        return a + ab * (d1 / (d1 - d3));
-    float3 cp = p - c;
-    float d5 = dot(ab, cp), d6 = dot(ac, cp);
-    open = edges.y || edges.z;
-    if (d6 >= 0.0 && d5 <= d6)
-        return c;
-    float vb = d5 * d2 - d1 * d6;
-    open = edges.z;
-    if (vb <= 0.0 && d2 >= 0.0 && d6 <= 0.0)
-        return a + ac * (d2 / (d2 - d6));
-    float va = d3 * d6 - d5 * d4;
-    open = edges.y;
-    if (va <= 0.0 && (d4 - d3) >= 0.0 && (d5 - d6) >= 0.0)
-        return b + (c - b) * ((d4 - d3) / ((d4 - d3) + (d5 - d6)));
-    open = false;
-    float denominator = 1.0 / (va + vb + vc);
-    return a + ab * (vb * denominator) + ac * (vc * denominator);
-}
-
 float3 place(FieldInstance instance, float3 p)
 {
     float4 h = float4(p, 1.0);
     return float3(dot(instance.row0, h), dot(instance.row1, h), dot(instance.row2, h));
-}
-
-// A corner's color in linear light, from the sRGB bytes its word holds below its open edge's bit.
-float3 cornerColor(uint word)
-{
-    return srgbToLinear(float3(float(word & 255u), float((word >> 8) & 255u), float((word >> 16) & 255u)) / 255.0);
-}
-
-// How much of each of a triangle's corners a point on it is made of.
-float3 barycentric(float3 p, float3 a, float3 b, float3 c)
-{
-    float3 ab = b - a, ac = c - a, ap = p - a;
-    float d00 = dot(ab, ab), d01 = dot(ab, ac), d11 = dot(ac, ac), d20 = dot(ap, ab), d21 = dot(ap, ac);
-    float denominator = d00 * d11 - d01 * d01;
-    if (denominator <= 1e-20)
-        return float3(1.0, 0.0, 0.0);
-    float v = saturate((d11 * d20 - d01 * d21) / denominator);
-    float w = saturate((d00 * d21 - d01 * d20) / denominator);
-    float3 weights = float3(max(1.0 - v - w, 0.0), v, w);
-    return weights / max(weights.x + weights.y + weights.z, 1e-6);
 }
 
 groupshared uint triangleInstance;
@@ -233,21 +181,50 @@ float areaWithin(float2 a, float2 b, float2 c, float h)
     return abs(twice) * 0.5;
 }
 
-// A face's way in eight bits, four along each side of the octahedron the sphere is folded onto,
-// enough to tell faces that look apart from faces that meet square.
-uint way8(float3 n)
-{
-    n /= abs(n.x) + abs(n.y) + abs(n.z);
-    float2 o = n.z >= 0.0 ? n.xy : (1.0 - abs(n.yx)) * float2(n.x >= 0.0 ? 1.0 : -1.0, n.y >= 0.0 ? 1.0 : -1.0);
-    uint2 q = min(uint2((o * 0.5 + 0.5) * 16.0), uint2(15u));
-    return q.x | (q.y << 4);
-}
-
 // Two floats as halves in a word, by GLSL's own instruction, which needs no 16-bit types of the
 // device, where HLSL's f32tof16 declares them.
 uint packHalves(float2 v)
 {
     return spirv_asm { result:$$uint = OpExtInst glsl450 PackHalf2x16 $v };
+}
+
+// The cascade's cells as the module's splat keeps their codes, the least of each kept by an atomic
+// minimum, since threads of other triangles write the same cells.
+struct SplatCells : ISplatCells
+{
+    void keepLeast(uint index, uint code) { InterlockedMin(cells[index], code); }
+    void keepBehind(uint index, uint code) { InterlockedMin(behind[index], code); }
+}
+
+// The cascade's cells as the module's paint reads their codes and paints them. The dispatch that
+// paints writes the colors, gloss and glow the resolve reads, and the one that paints again writes
+// the still meshes' colors at the cascade's place along z, from the codes it kept there.
+struct PaintCells : IPaintCells
+{
+    bool still;
+    uint codes;
+    int layer;
+    int size;
+    bool carried;
+
+    uint kept(uint index) { return cells[codes + index]; }
+
+    void paint(uint index, float4 color, float3 emission, uint glossed)
+    {
+        uint4 c = uint4(color * 255.0 + 0.5);
+        if (still)
+        {
+            uint side = uint(size);
+            int3 into = int3(int(index % side), int((index / side) % side), int(index / (side * side)) + layer);
+            float4 written = float4(c) / 255.0;
+            stillPaint[into] = written;
+            albedoField[into] = written;
+            return;
+        }
+        albedo[index] = c.r | (c.g << 8) | (c.b << 16) | (c.a << 24);
+        gloss[index] = glossed;
+        glow[index] = uint2(packHalves(emission.rg), packHalves(float2(emission.b, carried && any(emission > 0.0) ? 1.0 : 0.0)));
+    }
 }
 
 [shader("compute")]
@@ -302,8 +279,29 @@ void computeMain(uint3 group : SV_GroupID, uint lane : SV_GroupIndex)
     float longest = max(dot(b - a, b - a), max(dot(c - b, c - b), dot(a - c, a - c)));
     if (dot(face, face) <= 1e-8 * longest * longest)
         return;
+    // The triangle and the cascade as the module's splat takes them.
+    SplatTriangle given;
+    given.a = a;
+    given.b = b;
+    given.c = c;
+    given.openEdges = edges;
+    given.doubleSided = (instance.triangles.z & 1u) != 0u;
+    given.instance = instance.triangles.z >> 1u;
+    SplatCascade into;
+    into.corner = push.originAndCell.xyz;
+    into.cell = push.originAndCell.w;
+    into.size = int(push.counts.x);
+    into.band = float(push.counts.w);
+    into.first = int3(push.firstCell.xyz);
+    into.last = int3(push.lastCell.xyz);
+    // The codes, the module's splat of the triangle into the cells its band covers.
+    if (push.groups.y == 0u)
+    {
+        SplatCells codes;
+        splatCodes(codes, given, into, lane, 64u);
+        return;
+    }
     bool sided = (instance.triangles.z & 1u) == 0u && dot(face, face) > 1e-20;
-    uint way = dot(face, face) > 1e-20 ? way8(face) : 0u;
     float faceLength = length(face);
 
     float cell = push.originAndCell.w;
@@ -345,7 +343,7 @@ void computeMain(uint3 group : SV_GroupID, uint lane : SV_GroupIndex)
             int3 at = first + int3(int(k % uint(span.x)), int((k / uint(span.x)) % uint(span.y)), int(k / uint(span.x * span.y)));
             float3 p = push.originAndCell.xyz + (float3(at) + 0.5) * cell;
             bool open;
-            if (length(p - nearest(p, a, b, c, edges, open)) >= cell)
+            if (length(p - nearestOnTriangle(p, a, b, c, edges, open)) >= cell)
                 continue;
             // A face of a closed mesh counts where the cell lies before it, as a sheet's top face
             // for a cell above it and its bottom face for one below, so the two faces of a sheet
@@ -371,71 +369,40 @@ void computeMain(uint3 group : SV_GroupID, uint lane : SV_GroupIndex)
         return;
     }
 
-    for (uint k = lane; k < count; k += 64u)
+    // A second double-sided face of another way passing through or beside the cell, as where two
+    // walls cross on a cell's side and the four cells about it lie as near both, each keeping one,
+    // so the other would be held there by the cells' blend alone and the world's probes standing
+    // among them would read dark round patches at the walls' feet.
+    if (push.groups.y == 1u && !sided)
     {
-        int3 at = first + int3(int(k % uint(span.x)), int((k / uint(span.x)) % uint(span.y)), int(k / uint(span.x * span.y)));
-        float3 p = push.originAndCell.xyz + (float3(at) + 0.5) * cell;
-        bool open;
-        float3 q = nearest(p, a, b, c, edges, open);
-        float d = length(p - q);
-        if (d >= reach)
-            continue;
-        // A double-sided face's front bit is the side of its plane the cell lies on, and its rim bit
-        // is set where the way from its nearest point to the cell leaves the plane's normal, a rim
-        // or a corner of it nearest, where the plane would stand past the face.
-        uint front = sided ? (!open && dot(p - q, face) < -0.5 * d * faceLength ? 0u : 1u) : (dot(p - a, face) >= 0.0 ? 1u : 0u);
-        uint rim = !sided && abs(dot(p - q, face)) < 0.999 * d * faceLength ? 1u : 0u;
-        // The instance's seven bits last, below the way, so of two meshes' faces as near a cell
-        // to the 1024th and looking the same way, as two boxes' sides in one plane, the same one
-        // keeps the cell in every run, whichever thread writes first.
-        uint code = (uint(d / cell * 1024.0) << 19) | (rim << 18) | (sided ? 0u : 0x20000u) | (front << 16) | (way << 8) | ((instance.triangles.z >> 1u) & 127u);
-        uint index = (at.z * size + at.y) * size + at.x;
-        if (push.groups.y == 0u)
+        for (uint k = lane; k < count; k += 64u)
         {
-            InterlockedMin(cells[index], code);
-            // Straight behind, its nearest point inside the face and not on an edge, as a wall's
-            // far face lies behind a cell by its near one, where a cell beside a box's edge lies 45
-            // degrees behind the face round it. Taken within 25 degrees, a wall thinner than a cell
-            // standing on a floor has its bottom face, buried against the floor's top, nearer the
-            // cells along its foot than its far face, its edge 22 degrees off straight back from
-            // them, so the resolve would find no face behind them looking against the one in front
-            // and hold none of them, and a probe's ray would pass under the wall, a lamp outside a
-            // closed room of walls 0.3 thick in cells of 0.5 lighting its floor along a wall's foot
-            // inside.
-            if (sided && front == 0u && dot(p - q, face) < -0.999 * d * faceLength)
-                InterlockedMin(behind[index], (uint(d / cell * 1024.0) << 8) | way);
-        }
-        else if (push.groups.y == 1u && !sided && rim == 0u && d < cell * 0.75 && cells[index] != code)
-        {
-            // A second double-sided face of another way passing through or beside the cell, as
-            // where two walls cross on a cell's side and the four cells about it lie as near both,
-            // each keeping one, so the other would be held there by the cells' blend alone and
-            // the world's probes standing among them would read dark round patches at the walls'
-            // feet.
+            int3 at = first + int3(int(k % uint(span.x)), int((k / uint(span.x)) % uint(span.y)), int(k / uint(span.x * span.y)));
+            float3 p = push.originAndCell.xyz + (float3(at) + 0.5) * cell;
+            float d;
+            uint behindCode;
+            uint code = cellCode(p, a, b, c, edges, given.doubleSided, given.instance, cell, d, behindCode);
+            uint index = (at.z * size + at.y) * size + at.x;
             uint kept = cells[index];
-            if ((kept & 0x60000u) == 0x20000u && ((kept >> 8u) & 255u) != way)
+            if (d < reach && d < cell * 0.75 && (code & Rim) == 0u && kept != code
+                && (kept & (Rim | DoubleSided)) == DoubleSided && ((kept >> WayShift) & 255u) != ((code >> WayShift) & 255u))
                 InterlockedMin(second[index], code);
         }
-        else if (cells[push.groups.y == 3u ? push.groups.z + index : index] == code)
-        {
-            float3 weights = barycentric(q, a, b, c);
-            // The color painted times the paint's alpha, which tells a surface that lets light
-            // through from a solid one (lightThroughPaint in scenefield.slang).
-            float coverage = lightThroughPaint(float((instance.triangles.z >> 8u) & 255u) / 255.0);
-            float3 painted = instance.color.rgb * (weights.x * cornerColor(ca.w) + weights.y * cornerColor(cb.w) + weights.z * cornerColor(cc.w));
-            uint4 c = uint4(uint3(saturate(painted * coverage) * 255.0 + 0.5), uint(coverage * 255.0 + 0.5));
-            if (push.groups.y == 3u)
-            {
-                int3 into = int3(at.xy, at.z + int(push.groups.w) * size);
-                float4 paint = float4(c) / 255.0;
-                stillPaint[into] = paint;
-                albedoField[into] = paint;
-                continue;
-            }
-            albedo[index] = c.r | (c.g << 8) | (c.b << 16) | (c.a << 24);
-            gloss[index] = glossBits(float((instance.triangles.z >> 16u) & 255u) / 255.0, float(instance.triangles.z >> 24u) / 255.0);
-            float3 e = max(instance.emission.rgb, 0.0);
-            glow[index] = uint2(packHalves(e.rg), packHalves(float2(e.b, carried && any(e > 0.0) ? 1.0 : 0.0)));
-        }
     }
+
+    // The paint, the module's, of each cell whose code the triangle kept, its color blended from
+    // its corners' times the paint's alpha, with its emission and gloss.
+    SplatSurface surface;
+    surface.color = instance.color.rgb;
+    surface.corners = float3x3(cornerColor(ca.w), cornerColor(cb.w), cornerColor(cc.w));
+    surface.lightThrough = float((instance.triangles.z >> 8u) & 255u) / 255.0;
+    surface.emission = max(instance.emission.rgb, 0.0);
+    surface.gloss = glossBits(float((instance.triangles.z >> 16u) & 255u) / 255.0, float(instance.triangles.z >> 24u) / 255.0);
+    PaintCells painted;
+    painted.still = push.groups.y == 3u;
+    painted.codes = painted.still ? push.groups.z : 0u;
+    painted.layer = int(push.groups.w) * size;
+    painted.size = size;
+    painted.carried = carried;
+    splatPaint(painted, given, into, surface, lane, 64u);
 }

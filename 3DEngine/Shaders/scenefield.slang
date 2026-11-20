@@ -413,16 +413,6 @@ public float traceFieldWithinSheets<S : ISheetVolume>(S field, SceneFieldInfo in
     return traceFieldSheets(FieldOf<S>(field, info, most), origin, way, tMin, tMax);
 }
 
-// The alpha a cell of the field's colors is painted with by a surface that lets `through` of the
-// light pass a unit of its depth (ModelMaterial.LightThrough), its color painted times it, 1 for a
-// solid surface, down to a half for one that lets all of it through, so a reader that divides a
-// blend of the colors by their alphas takes the colors back and weighs such a cell less, and one
-// that reads a cell as it is takes the share back (lightThroughOf).
-public float lightThroughPaint(float through)
-{
-    return 1.0 - 0.5 * saturate(through);
-}
-
 // The share of light a cell painted with alpha lets pass a unit of its surface's depth, 0 for a
 // solid surface's cell or one no surface painted.
 public float lightThroughOf(float alpha)
@@ -452,17 +442,9 @@ public bool narrowAt<S : ISheetVolume>(S sheets, SceneFieldInfo info, float3 p, 
     return narrow >= 2;
 }
 
-// The way a face looks in eight bits, four along each side of the octahedron the sphere is folded
-// onto, as field_splat.slang keeps it in each cell's uint, enough to tell faces that look apart
-// from faces that meet square; and the way back from the eight bits.
-public uint faceBits(float3 n)
-{
-    n /= abs(n.x) + abs(n.y) + abs(n.z);
-    float2 o = n.z >= 0.0 ? n.xy : (1.0 - abs(n.yx)) * float2(n.x >= 0.0 ? 1.0 : -1.0, n.y >= 0.0 ? 1.0 : -1.0);
-    uint2 q = min(uint2((o * 0.5 + 0.5) * 16.0), uint2(15u));
-    return q.x | (q.y << 4);
-}
-
+// The way a face looks from its eight bits (wayCode, the RadianceCascades module's), four along
+// each side of the octahedron the sphere is folded onto, enough to tell faces that look apart from
+// faces that meet square.
 public float3 faceWay(uint bits)
 {
     float2 o = (float2(float(bits & 15u), float((bits >> 4) & 15u)) + 0.5) / 16.0 * 2.0 - 1.0;

@@ -4,7 +4,8 @@ using System.Runtime.InteropServices;
 
 namespace Engine;
 
-/// <summary>The scene's distance field as the program set it, a world resource the renderer reads each frame.</summary>
+/// <summary>The scene's distance field as the program set it, a world resource the renderer reads
+/// each frame.</summary>
 internal sealed class SceneFieldSettings
 {
     /// <summary>How many cascades, 0 for no field.</summary>
@@ -19,29 +20,36 @@ internal sealed class SceneFieldSettings
     /// <summary>How many triangles the builds splat a frame at most, a mesh at least.</summary>
     public int TriangleBudget { get; set; } = SceneFieldConfig.DefaultTriangleBudget;
 
-    /// <summary>The distance the far cascade's cells are sized for, held to the camera's far plane, or 0 for none.</summary>
+    /// <summary>The distance the far cascade's cells are sized for, held to the camera's far plane,
+    /// or 0 for none.</summary>
     public float FarCascade { get; set; }
 
-    /// <summary>The point the cascades lie around, as the program gives it, or null for the window's eye.</summary>
+    /// <summary>The point the cascades lie around, as the program gives it, or null for the
+    /// window's eye.</summary>
     public Vector3? Center { get; set; }
 
-    /// <summary>How far ahead of the window's eye along its view the cascades lie where no center is given, in widths of the finest cascade, 0 unless set.</summary>
+    /// <summary>How far ahead of the window's eye along its view the cascades lie where no center
+    /// is given, in widths of the finest cascade, 0 unless set.</summary>
     public float Ahead { get; set; }
 
-    /// <summary>The milliseconds a frame waited for the target frame rate, averaged, which the triangle budget is raised by.</summary>
+    /// <summary>The milliseconds a frame waited for the target frame rate, averaged, which the
+    /// triangle budget is raised by.</summary>
     internal double RoomMs { get; set; }
 
-    /// <summary>What the field cost a frame on the CPU and the GPU, averaged, which the triangle budget is raised by.</summary>
+    /// <summary>What the field cost a frame on the CPU and the GPU, averaged, which the triangle
+    /// budget is raised by.</summary>
     internal double FieldMs { get; set; }
 
-    /// <summary>The cascade drawn over the window as the field holds the scene, or -1 for none.</summary>
+    /// <summary>The cascade drawn over the window as the field holds the scene, or -1 for
+    /// none.</summary>
     public int Shown { get; set; } = -1;
 
     /// <summary>Whether the field is built this frame.</summary>
     public bool On => Cascades > 0 && CellSize > 0;
 }
 
-/// <summary>The field the passes read this frame, and whether it holds anything, a field of nothing standing in where it is off.</summary>
+/// <summary>The field the passes read this frame, and whether it holds anything, a field of nothing
+/// standing in where it is off.</summary>
 internal sealed record SceneFieldBinding(GpuSceneField Field, bool On);
 
 /// <summary>
@@ -108,13 +116,16 @@ internal sealed partial class SceneFieldRenderer : IDisposable
     private readonly List<(IBuffer Positions, IBuffer? Colors, int FirstCorner, int Vertices, int FirstVertex)> _countedPending = [];
     private GraphicsDevice? _device;
 
-    /// <summary>How many counted meshes the last frame that pooled any wrote into the pool, a dispatch each.</summary>
+    /// <summary>How many counted meshes the last frame that pooled any wrote into the pool, a
+    /// dispatch each.</summary>
     internal int CountedConverted { get; private set; }
 
-    /// <summary>The bytes of GPU memory the pool of triangles holds, 48 a triangle of its capacity.</summary>
+    /// <summary>The bytes of GPU memory the pool of triangles holds, 48 a triangle of its
+    /// capacity.</summary>
     internal long PoolBytes => (long)_cornerCapacity * 48;
 
-    /// <summary>Whether a mesh's triangles are held on the CPU, which a counted mesh's are not, so the device's ray tracing passes it over.</summary>
+    /// <summary>Whether a mesh's triangles are held on the CPU, which a counted mesh's are not, so
+    /// the device's ray tracing passes it over.</summary>
     internal bool HoldsTriangles(ModelVertex[] vertices) => _indices.ContainsKey(vertices);
 
     // A mesh's triangles, its indices' or the count a counted mesh's read back gave, which a build
@@ -123,7 +134,8 @@ internal sealed partial class SceneFieldRenderer : IDisposable
         _indices.TryGetValue(vertices, out var indices) ? indices.Length / 3 : _countedMeshes.TryGetValue(vertices, out var counted) ? counted.Vertices / 3 : 0;
 
     // The array a counted mesh stands in the plan by, once its count for a version is known, asking
-    // that count back where the mesh has a newer version, or null for one with no box or no count yet.
+    // that count back where the mesh has a newer version, or null for one with no box or no count
+    // yet.
     private ModelVertex[]? CountedVertices(GraphicsDevice? device, MeshStore store, MeshStore.Counted counted)
     {
         if (store.CountedBoxOf(counted.Id) is not { } box) return null;
@@ -158,8 +170,8 @@ internal sealed partial class SceneFieldRenderer : IDisposable
     internal IReadOnlyList<(SceneFieldPlan.Instance Instance, bool Skinned)> Drawn => _drawn;
 
     /// <summary>
-    /// The colors of a mesh's corners drawn this frame, as <see cref="CornersOf"/> lays them out, three
-    /// sRGB bytes a corner, red lowest, or null for a mesh with no colors of its own.
+    /// The colors of a mesh's corners drawn this frame, as <see cref="CornersOf"/> lays them out,
+    /// three sRGB bytes a corner, red lowest, or null for a mesh with no colors of its own.
     /// </summary>
     internal uint[]? CornerColorsOf(ModelVertex[] vertices)
     {
@@ -174,7 +186,8 @@ internal sealed partial class SceneFieldRenderer : IDisposable
         return packed;
     }
 
-    /// <summary>The corners of a mesh drawn this frame, three a triangle in its own space, or null for one not drawn.</summary>
+    /// <summary>The corners of a mesh drawn this frame, three a triangle in its own space, or null
+    /// for one not drawn.</summary>
     internal Vector3[]? CornersOf(ModelVertex[] vertices)
     {
         if (!_indices.TryGetValue(vertices, out var indices)) return null;
@@ -183,7 +196,8 @@ internal sealed partial class SceneFieldRenderer : IDisposable
         return corners;
     }
 
-    /// <summary>The texture coordinates of a mesh's corners drawn this frame, as <see cref="CornersOf"/> lays them out, or null for one not drawn.</summary>
+    /// <summary>The texture coordinates of a mesh's corners drawn this frame, as <see
+    /// cref="CornersOf"/> lays them out, or null for one not drawn.</summary>
     internal Vector2[]? UvsOf(ModelVertex[] vertices)
     {
         if (!_indices.TryGetValue(vertices, out var indices)) return null;
@@ -199,14 +213,15 @@ internal sealed partial class SceneFieldRenderer : IDisposable
     /// </summary>
     internal Vector3? Eye { get; private set; }
 
-    /// <summary>How many cascades a move of the world built again, its step no whole count of their cells, since the field was made.</summary>
+    /// <summary>How many cascades a move of the world built again, its step no whole count of their
+    /// cells, since the field was made.</summary>
     internal int MovedCascades { get; private set; }
 
     /// <summary>
-    /// The point a share of the finest cascade's width ahead of the eye along the window's view, the
-    /// way through the window's middle, or the eye where the share is 0. The way is found through
-    /// the view made with the eye at nothing where the frame noted it, whose inverse holds no float
-    /// of the world's size, and added to the eye once.
+    /// The point a share of the finest cascade's width ahead of the eye along the window's view,
+    /// the way through the window's middle, or the eye where the share is 0. The way is found
+    /// through the view made with the eye at nothing where the frame noted it, whose inverse holds
+    /// no float of the world's size, and added to the eye once.
     /// </summary>
     internal static Vector3 AheadOf(WindowView view, float ahead, float cellSize)
     {
@@ -338,16 +353,16 @@ internal sealed partial class SceneFieldRenderer : IDisposable
             {
                 var (instances, count, triangles, thinGlow) = Instances(device, build.Instances, build.Cell, build.Origin);
                 Hold(instances);
-                // A build in parts lends the cells the light of thin emitters whatever its first part
-                // holds, since a later part may hold one, and that light is cleared at its start.
-                // The far cascade holds a sheet thinner than its cell at half the last counted
-                // cascade's cell, since at half its own, wide where the far plane lies far off, a
-                // ground thinner than that is held as a slab rising past the eye, which the rays
-                // leaving the counted cascades meet in place of the sky.
+                // A build in parts lends the cells the light of thin emitters whatever its first
+                // part holds, since a later part may hold one, and that light is cleared at its
+                // start. The far cascade holds a sheet thinner than its cell at half the last
+                // counted cascade's cell, since at half its own, wide where the far plane lies far
+                // off, a ground thinner than that is held as a slab rising past the eye, which the
+                // rays leaving the counted cascades meet in place of the sky.
                 var sheet = plan.HasFar && build.Cascade >= plan.Counted ? plan.CellOf(plan.Counted - 1) * 0.5f : 0;
-                // A shift moves the cells its cascade keeps before its build splats the slab it brings
-                // in, which reads as nothing near until the build ends. A region built again where a
-                // mesh came or went keeps its cells as they were until then.
+                // A shift moves the cells its cascade keeps before its build splats the slab it
+                // brings in, which reads as nothing near until the build ends. A region built again
+                // where a mesh came or went keeps its cells as they were until then.
                 if (build.ShiftAxis >= 0) stages.RecordSceneFieldShift(commands, field, build.Cascade, build.ShiftAxis, build.ShiftCells);
                 Hold(stages.RecordSceneFieldBuild(commands, field, corners, instances, count, triangles,
                     build.Cascade, Vector3.Zero, build.Cell, SceneFieldPlan.Band, thinGlow, build.First, build.Last,
@@ -434,8 +449,8 @@ internal sealed partial class SceneFieldRenderer : IDisposable
         // A surface's color, its material's times its texture's average where it has one.
         Vector3 Textured(Vector3 color, int texture) => texture != 0 && textures?.AverageColor(texture) is { } average ? color * average : color;
         // Its emission, its material's times its emissive map's average where it has one, so glass
-        // whose map holds an orange lights what is around it orange as it is drawn, the glow lights,
-        // the probes' rays and the path-traced reference taking the same.
+        // whose map holds an orange lights what is around it orange as it is drawn, the glow
+        // lights, the probes' rays and the path-traced reference taking the same.
         Vector3 Glowing(Vector3 emission, int map) => map != 0 && emission != Vector3.Zero && textures?.AverageColor(map) is { } average ? emission * average : emission;
         // Its roughness and metallic, its material's times its map's average where it has one,
         // green the roughness and blue the metal as a glTF metallic-roughness map holds them. A
@@ -527,14 +542,16 @@ internal sealed partial class SceneFieldRenderer : IDisposable
         return MathF.Abs(far.W) < 1e-12f ? float.PositiveInfinity : Vector3.Distance(new Vector3(far.X, far.Y, far.Z) / far.W, eye);
     }
 
-    /// <summary>The box around a mesh's vertices in its own space, kept while the mesh is drawn.</summary>
+    /// <summary>The box around a mesh's vertices in its own space, kept while the mesh is
+    /// drawn.</summary>
     internal SceneFieldPlan.Box BoundsOf(ModelVertex[] vertices)
     {
         if (!_bounds.TryGetValue(vertices, out var box)) _bounds[vertices] = box = SceneFieldPlan.Box.Of(vertices);
         return box;
     }
 
-    /// <summary>A mesh's surface over its box's, kept for its vertices, which a glow light's faces are scaled by.</summary>
+    /// <summary>A mesh's surface over its box's, kept for its vertices, which a glow light's faces
+    /// are scaled by.</summary>
     internal float ShareOf(ModelVertex[] vertices)
     {
         if (!_shares.TryGetValue(vertices, out var share)) _shares[vertices] = share = GlowLights.ShareOf(CornersOf(vertices), BoundsOf(vertices));
@@ -543,7 +560,8 @@ internal sealed partial class SceneFieldRenderer : IDisposable
 
     private readonly Dictionary<ModelVertex[], float> _shares = new(ReferenceEqualityComparer.Instance);
 
-    /// <summary>The parts a mesh is cut into as glow lights (<see cref="GlowLights.PartsOf"/>), kept for its vertices.</summary>
+    /// <summary>The parts a mesh is cut into as glow lights (<see cref="GlowLights.PartsOf"/>),
+    /// kept for its vertices.</summary>
     internal IReadOnlyList<GlowLights.Part> GlowPartsOf(ModelVertex[] vertices)
     {
         if (!_glowParts.TryGetValue(vertices, out var parts))
@@ -553,7 +571,8 @@ internal sealed partial class SceneFieldRenderer : IDisposable
 
     private readonly Dictionary<ModelVertex[], GlowLights.Part[]> _glowParts = new(ReferenceEqualityComparer.Instance);
 
-    /// <summary>Whether global illumination carries an instance as glow lights, which the field marks it for.</summary>
+    /// <summary>Whether global illumination carries an instance as glow lights, which the field
+    /// marks it for.</summary>
     internal bool Carried(SceneFieldPlan.Instance instance, float firstCell) =>
         instance.Emission is not { X: <= 0, Y: <= 0, Z: <= 0 } && GlowLights.Carries(instance.Emission, GlowPartsOf(instance.Vertices), instance.World, firstCell);
 
@@ -588,8 +607,8 @@ internal sealed partial class SceneFieldRenderer : IDisposable
         return parts.Count > 0 ? [.. parts] : null;
     }
 
-    // The mean of a mesh's vertices' colors in linear light, which its boxes are stamped in until it
-    // settles and the build blends its colors across each face, kept for its vertices.
+    // The mean of a mesh's vertices' colors in linear light, which its boxes are stamped in until
+    // it settles and the build blends its colors across each face, kept for its vertices.
     private Vector3 TintOf(SceneFieldPlan.Instance instance)
     {
         if (_tints.TryGetValue(instance.Vertices, out var tint)) return tint;
@@ -629,19 +648,24 @@ internal sealed partial class SceneFieldRenderer : IDisposable
         return MemoryMarshal.AsBytes(values.AsSpan()).ToArray();
     }
 
-    // The frame's shapes as field_stamp.slang's FieldShape reads them, one at least, each one's rows
-    // taking a place against the frame's origin into its box, as the info's corners are handed.
+    // The frame's shapes as the RadianceCascades module's StampShape lays them out, one at least,
+    // each one's rows taking a place against the frame's origin into its box, as the info's corners
+    // are handed. The gloss a box's face is stamped with, a roughness of a half and no metal or
+    // reflectance, whose bits the field's readers take as no gloss painted (faceGloss in
+    // scenefield.slang).
+    private static readonly Vector3 ShapeGloss = new(0.5f, 0, 0);
+
     private static IBuffer Shapes(GraphicsDevice device, List<SceneFieldPlan.Shape> shapes, RenderOrigin origin)
     {
-        var buffer = device.CreateBuffer(new BufferDesc((ulong)Math.Max(1, shapes.Count) * 112, BufferUsage.Storage, CpuAccessMode.Write));
+        var buffer = device.CreateBuffer(new BufferDesc((ulong)Math.Max(1, shapes.Count) * 128, BufferUsage.Storage, CpuAccessMode.Write));
         var mapped = device.Map(buffer).Cast<float>();
         for (int s = 0; s < shapes.Count; s++)
         {
             var (_, center, extents, scale, color, through, emission) = shapes[s];
             var m = StampRows(shapes[s], origin);
             ReadOnlySpan<float> values = [m.M11, m.M21, m.M31, m.M41, m.M12, m.M22, m.M32, m.M42, m.M13, m.M23, m.M33, m.M43,
-                center.X, center.Y, center.Z, scale, extents.X, extents.Y, extents.Z, 0, color.X, color.Y, color.Z, through, emission.X, emission.Y, emission.Z, 0];
-            mapped.Slice(s * 28).CopyFrom(values);
+                center.X, center.Y, center.Z, scale, extents.X, extents.Y, extents.Z, 0, color.X, color.Y, color.Z, through, emission.X, emission.Y, emission.Z, 0, ShapeGloss.X, ShapeGloss.Y, ShapeGloss.Z, 0];
+            mapped.Slice(s * 32).CopyFrom(values);
         }
         device.Unmap(buffer);
         return buffer;
@@ -727,7 +751,8 @@ internal sealed partial class SceneFieldRenderer : IDisposable
     }
 }
 
-/// <summary>Render graph node that builds the scene's distance field ahead of every pass that reads it.</summary>
+/// <summary>Render graph node that builds the scene's distance field ahead of every pass that reads
+/// it.</summary>
 internal sealed class SceneFieldNode : INode
 {
     /// <inheritdoc />

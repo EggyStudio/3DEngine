@@ -1,7 +1,7 @@
 // How global illumination's rays cross the cells of a surface that lets a share of light pass a
 // unit of its depth (ModelMaterial.LightThrough), as a canopy's leaves, where they would stop at a
-// solid surface's. The share rides in the alpha of the field's colors (lightThroughPaint in
-// scenefield.slang).
+// solid surface's. The share rides in the alpha of the field's colors (lightThroughPaint, the
+// RadianceCascades module's).
 module lightthrough;
 
 import scenefield;
@@ -50,8 +50,8 @@ public float lightThroughDepth<V : IVolume>(V field, SceneFieldInfo info, float3
 }
 
 // The share of light a ray keeps crossing a surface that lets `passing` through a unit of its
-// depth, run through for `depth` from a hit with cells `cell` wide, less the three quarters of a cell
-// the hit lies before the surface and the march's last step leaves past it, where it left it.
+// depth, run through for `depth` from a hit with cells `cell` wide, less the three quarters of a
+// cell the hit lies before the surface and the march's last step leaves past it, where it left it.
 public float lightThroughKept(float passing, float depth, float cell, bool inside)
 {
     return pow(passing, inside ? depth : max(depth - 0.75 * cell, 0.0));
