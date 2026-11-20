@@ -1,9 +1,9 @@
 [submodule "modules/Sky"]
 	path = modules/Sky
-	url = https://github.com/EggyStudio/Sky.git
+	url = https://github.com/EggyStudio/3DEngine.Sky.git
 [submodule "modules/Materials"]
 	path = modules/Materials
-	url = https://github.com/EggyStudio/Materials.git
+	url = https://github.com/EggyStudio/3DEngine.Materials.git
 [submodule "modules/RadianceCascades"]
 	path = modules/RadianceCascades
-	url = https://github.com/EggyStudio/RadianceCascades.git
+	url = https://github.com/EggyStudio/3DEngine.RadianceCascades.git

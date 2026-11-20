@@ -1126,6 +1126,34 @@ reference frames', the open box's, the glow tier's, the screen probes' and the n
 342 of 342. The suite passes in its parts in order, 2,531 of 2,531 in 24 minutes, and shuffled by
 the seed 20261023, 2,531 of 2,531 in 24 minutes.
 
+Item 265's resolve and pinch from the module.
+
+`field_resolve.slang` imports the module's `rc_field_code`, resolves each cell's distance with its
+`resolvedDistance`, pinches a cell that lies between two faces with its `pinched` over
+`ResolvedCells`, the engine's resolved cells as the module's `IResolvedCells` reads them, and reads
+a cell's sheet with its `sheetOf`. The file's own `way`, `resolvedAt`, `SheetLength`, `sheetAt`,
+`sheetOf` and `pinched` go, 100 lines out and 35 in, the module's arithmetic the parent's
+instruction for instruction. Two comments in `scenefield.slang` name the module's `sheetOf` where
+they named the file's.
+
+The captures. `shaders_cornell_box` and `shaders_bounce_rooms` captured after 300 frames twice
+differ from the two captures before by at most 1 of 255 in under 0.4% of their pixels, as the two
+before differ from each other, save a spot of 3 pixels in one capture of the box and of 5 in one of
+the rooms, near (412, 304), 2 to 4 off, which the other capture of each scene after the change does
+not show.
+
+The module repositories' names. `.gitmodules` gives the three modules' addresses as
+`EggyStudio/3DEngine.Sky`, `EggyStudio/3DEngine.Materials` and
+`EggyStudio/3DEngine.RadianceCascades`, synced into the checkout with `git submodule sync`, the
+folders keeping their names and no pointer moving. No other tracked file named a module's
+repository.
+
+The runs. The tree builds strict with no warnings. The copies', the Slang compiler's, the field's,
+the reference frames', global illumination's, the bounce rooms', the cascades' edges', the open
+box's, the glow tier's, the screen probes' and the norm's tests pass, 340 of 340. The suite passes
+in its parts in order, 2,531 of 2,531 in 25 minutes, and shuffled by the seed 20261023, 2,531 of
+2,531 in 23 minutes.
+
 Handoff, at `0a223de1`. The Sky pointer is at `9040738` in `c20870f2`, `a29f0efc`, `777e051f` and
 `0a223de1`, the GPU sky drawn from the module's tables, made on a worker, the disc and the night's
 glow the module's, and the Sponza match read again, and the gallery's pictures at `98b68167`. Next

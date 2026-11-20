@@ -5,10 +5,14 @@
 // with the color and the emission it painted, a thread a cell, every cell of the cascade or, for a
 // build of a region, the region's cells alone, and keeps each cell's code for a mesh painted again.
 
+// The cells' codes read as distances and planes, and the pinch, the RadianceCascades module's.
+import rc_field_code;
+
+
 [[vk::binding(0, 0)]]
 StructuredBuffer<uint> cells;
 
-// The distance in x, and in yzw the plane a cell keeps (sheetAt).
+// The distance in x, and in yzw the plane a cell keeps (sheetOf).
 [[vk::binding(1, 0)]] [format("rgba16f")]
 RWTexture3D<float4> stillField;
 
@@ -53,7 +57,7 @@ RWTexture3D<uint> faceField;
 RWTexture3D<uint> stillFaces;
 
 // The word of a second double-sided face as near a cell, as field_splat.slang's painting pass kept
-// it, and the second plane it gives the cell, in xyz as the field's own plane is kept (sheetAt).
+// it, and the second plane it gives the cell, in xyz as the field's own plane is kept (sheetOf).
 [[vk::binding(12, 0)]]
 StructuredBuffer<uint> second;
 
@@ -78,9 +82,9 @@ struct ResolvePush
 {
     // x: the cascade. y: the cells along each side. z: the width of a cell. w: the band in cells.
     float4 cascade;
-    // x: 1 where an emitter thinner than a cell lent the cells its light, so emitted is read. y: how
-    // far either side of its middle a wall thinner than a cell is held, half a cell but in the far
-    // cascade, where half the last counted cascade's cell.
+    // x: 1 where an emitter thinner than a cell lent the cells its light, so emitted is read. y:
+    // how far either side of its middle a wall thinner than a cell is held, half a cell but in the
+    // far cascade, where half the last counted cascade's cell.
     float4 lent;
     // xyz: the first and the last cell along each axis the build turns into distances.
     float4 from;
@@ -97,93 +101,23 @@ float2 unpackHalves(uint v)
     return spirv_asm { result:$$float2 = OpExtInst glsl450 UnpackHalf2x16 $v };
 }
 
-// A face's way from its eight bits, as field_splat.slang folded it.
-float3 way(uint bits)
+// The distance a cell holds, from the code field_splat.slang left it and the face it lies behind,
+// a wall thinner than a cell held push.lent.y either side of its middle (resolvedDistance).
+float distanceAt(uint3 c, uint size)
 {
-    float2 o = (float2(float(bits & 15u), float((bits >> 4) & 15u)) + 0.5) / 16.0 * 2.0 - 1.0;
-    float3 n = float3(o, 1.0 - abs(o.x) - abs(o.y));
-    if (n.z < 0.0)
-        n.xy = (1.0 - abs(n.yx)) * float2(n.x >= 0.0 ? 1.0 : -1.0, n.y >= 0.0 ? 1.0 : -1.0);
-    return normalize(n);
+    uint index = (c.z * size + c.y) * size + c.x;
+    return resolvedDistance(cells[index], behind[index], push.cascade.z, push.cascade.w, push.lent.y);
 }
 
-// The distance a cell holds, from the code field_splat.slang left it and the face it lies behind.
-float resolvedAt(uint3 c, uint size)
+// The cascade's cells as the pinch reads them.
+struct ResolvedCells : IResolvedCells
 {
-    uint code = cells[(c.z * size + c.y) * size + c.x];
-    float d = min(float(code >> 19) / 1024.0, push.cascade.w) * push.cascade.z;
-    // A cell in front of one face and straight behind another that looks the other way, less than
-    // a cell beyond it, lies against a wall thinner than a cell, which is held as a double-sided
-    // sheet is, half a cell thick on either side of the wall's middle, so a ray between the cells
-    // on either side still meets it, where the faces of a box's edge, which meet square, do not make
-    // one. Held so only below half a cell, a wall of two thirds of a cell would lie between two
-    // cells' middles, each a sixth of a cell outside it, which a trace steps over, and a lamp
-    // outside a room of such walls would light its floor through them.
-    uint hidden = behind[(c.z * size + c.y) * size + c.x];
-    float beyond = float(hidden >> 8) / 1024.0 * push.cascade.z;
-    bool thin = (code & 0x30000u) == 0x10000u && hidden != 0xFFFFFFFFu && beyond - d < push.cascade.z
-        && dot(way(code >> 8u), way(hidden)) < -0.7;
-    // A double-sided face is held at its distance, its plane kept beside it (sheetAt). Held below
-    // zero within half a cell either side, a sheet lying midway between two cells' middles crosses
-    // zero between them, but two sheets two cells apart hold every cell between them below zero,
-    // and a screen probe there meets its own wall at its rays' start. Held within less, a sheet
-    // midway lies further than the march's tenth of a cell from both middles and a ray passes it.
-    if ((code & 0x20000u) != 0u)
-        return d;
-    if (thin)
-        d = (d + beyond) * 0.5 - push.lent.y;
-    else if ((code & 0x10000u) == 0u)
-        d = -d;
-    return d;
-}
+    uint side;
 
-// How far beyond its offset a double-sided face's plane is kept in a cell, in cells, so the vector
-// of its way and its offset is never of no length (sheetAt).
-static const float SheetLength = 2.0;
+    __init(uint side) { this.side = side; }
 
-// The plane of the double-sided face nearest a cell where its nearest point lies on the face's
-// inside, its way times two cells more than the plane's offset from the cell's middle along it, in
-// cells, or nothing where its nearest face is not double-sided, is nearest at its rim, past which
-// the plane would stand where no face does, or lies a cell or more off, where a march within the
-// cell comes no nearer it than half a cell. A march through the field meets the plane where it
-// passes the cell, from either side, wherever the sheet lies between the cells' middles
-// (fieldDistanceIn in scenefield.slang).
-float3 sheetAt(uint3 c, uint size)
-{
-    return sheetOf(cells[(c.z * size + c.y) * size + c.x]);
-}
-
-// The plane a word gives, as sheetAt keeps it, or nothing.
-float3 sheetOf(uint code)
-{
-    float offset = float(code >> 19) / 1024.0;
-    if ((code & 0x60000u) != 0x20000u || offset >= 1.0)
-        return float3(0.0);
-    return way(code >> 8u) * (((code & 0x10000u) != 0u ? -offset : offset) + SheetLength);
-}
-
-// Whether a cell outside every surface lies between two cells beside it along two axes that lie
-// inside one while the cell across the diagonal from it lies outside, the pattern two blocks that
-// meet along an edge leave in the cells about it, which no single face makes.
-bool pinched(uint3 c, uint size)
-{
-    int3 axes[3] = { int3(1, 0, 0), int3(0, 1, 0), int3(0, 0, 1) };
-    [loop]
-    for (int a = 0; a < 3; a++)
-        [loop]
-        for (int b = a + 1; b < 3; b++)
-            [loop]
-            for (int signs = 0; signs < 4; signs++)
-            {
-                int3 one = int3(c) + axes[a] * ((signs & 1) != 0 ? 1 : -1);
-                int3 other = int3(c) + axes[b] * ((signs & 2) != 0 ? 1 : -1);
-                int3 across = one + other - int3(c);
-                if (any(min(min(one, other), across) < 0) || any(max(max(one, other), across) >= int(size)))
-                    continue;
-                if (resolvedAt(uint3(one), size) < 0.0 && resolvedAt(uint3(other), size) < 0.0 && resolvedAt(uint3(across), size) > 0.0)
-                    return true;
-            }
-    return false;
+    int size() { return int(side); }
+    float resolvedAt(int3 at) { return distanceAt(uint3(at), side); }
 }
 
 [shader("compute")]
@@ -198,14 +132,14 @@ void computeMain(uint3 thread : SV_DispatchThreadID)
     kept[uint(push.cascade.x) * size * size * size + (id.z * size + id.y) * size + id.x] = code;
     // Such a cell is held inside at its distance, so a march through the edge between the two
     // blocks meets the field there, where between the four cells about the edge the distance never
-    // falls below zero, and a march from the floor on one side of a wall whose halves meet along one
-    // edge would see part of a lamp on the other side and light the floor about the edge, which no
-    // light reaches (GlobalIlluminationTests).
-    float d = resolvedAt(id, size);
-    if (d > 0.0 && pinched(id, size))
+    // falls below zero, and a march from the floor on one side of a wall whose halves meet along
+    // one edge would see part of a lamp on the other side and light the floor about the edge, which
+    // no light reaches (GlobalIlluminationTests).
+    float d = distanceAt(id, size);
+    if (d > 0.0 && pinched(ResolvedCells(size), int3(id)))
         d = -d;
     uint3 at = uint3(id.xy, id.z + uint(push.cascade.x) * size);
-    float4 kept = float4(d, sheetAt(id, size));
+    float4 kept = float4(d, sheetOf(code));
     stillField[at] = kept;
     field[at] = kept;
     uint other = second[(id.z * size + id.y) * size + id.x];
@@ -220,8 +154,9 @@ void computeMain(uint3 thread : SV_DispatchThreadID)
     uint index = (id.z * size + id.y) * size + id.x;
     uint2 light = glow[index];
     // The lent light times the share of the cell's face the emitters cover along the axis they
-    // cover most of, a whole face at most, as the faces of a strip along a wall lend a cell beside
-    // it what it shows from the front and from above alike, where summed they would lend it twice that.
+    // cover most of, a whole face at most, as the faces of a strip along a wall lend a cell
+    // beside it what it shows from the front and from above alike, where summed they would lend
+    // it twice that.
     float3 lent = float3(0.0);
     if (push.lent.x > 0.5)
     {

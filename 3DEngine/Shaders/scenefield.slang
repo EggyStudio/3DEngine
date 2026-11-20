@@ -290,9 +290,9 @@ struct CascadeRead<S : ISheetVolume> : IFieldVolume
 // The distance from p to the nearest surface in cascade i, in world units, blended between the
 // eight cells around it, each read no nearer a side than half a cell, so cascades stacked in the
 // texture do not bleed into each other. A double-sided face is held below zero within half a cell
-// either side where the cells around keep its plane (sheetAt in field_resolve.slang), as every
-// reader but the probes' rays takes the field (fieldDistanceSheetIn), so a march meets a sheet
-// wherever it lies between the cells' middles.
+// either side where the cells around keep its plane (sheetOf, as field_resolve.slang keeps it), as
+// every reader but the probes' rays takes the field (fieldDistanceSheetIn), so a march meets a
+// sheet wherever it lies between the cells' middles.
 public float fieldDistanceIn<V : IVolume>(V field, SceneFieldInfo info, int i, float3 p)
 {
     return fieldDistanceIn(CascadeRead<NoSecond<V>>(NoSecond<V>(field), info.cascades[i].originAndCell, info.counts, i), i, p);
@@ -313,9 +313,9 @@ public float fieldDistanceSheetIn<S : ISheetVolume>(S field, SceneFieldInfo info
     return fieldDistanceSheetIn(CascadeRead<S>(field, info.cascades[i].originAndCell, info.counts, i), i, p);
 }
 
-// Whether the cell of cascade i that p lies in keeps the plane of a double-sided face (sheetAt in
-// field_resolve.slang), with the way of the nearer of the two it may keep and how far p lies from
-// it along that way.
+// Whether the cell of cascade i that p lies in keeps the plane of a double-sided face (sheetOf, as
+// field_resolve.slang keeps it), with the way of the nearer of the two it may keep and how far p
+// lies from it along that way.
 public bool sheetIn<S : ISheetVolume>(S field, SceneFieldInfo info, int i, float3 p, out float3 way, out float off)
 {
     float4 oc = info.cascades[i].originAndCell;
