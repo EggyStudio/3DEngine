@@ -1105,6 +1105,14 @@ tier's, the screen probes', the norm's, the package's and the examples' tests pa
 suite passes in its parts in order, 2,532 of 2,532 in 24 minutes, and shuffled by the seed
 20261023, 2,532 of 2,532 in 23 minutes.
 
+Item 265's passes, the module at `6b6f783` and the fade band named apart.
+
+The RadianceCascades pointer moves from `6622616` to `6b6f783`, whose passes take the light of each
+surface a ray crosses and cap a level's steps. `scenefield.slang`'s `FieldBand`, the 8 cells of the
+field's outer band that `fieldHold` fades across, is named `HoldBand`, so it no longer stands
+beside the module's `FieldBand`, the 4 cells within which its reads hold exact, under one name in
+every kernel that imports both. Nothing the engine runs calls the module's passes yet.
+
 Handoff, at `0a223de1`. The Sky pointer is at `9040738` in `c20870f2`, `a29f0efc`, `777e051f` and
 `0a223de1`, the GPU sky drawn from the module's tables, made on a worker, the disc and the night's
 glow the module's, and the Sponza match read again, and the gallery's pictures at `98b68167`. Next

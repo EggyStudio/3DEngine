@@ -119,7 +119,7 @@ public int cascadesOf(SceneFieldInfo info, int probes = 0)
 
 // The cells of the field's last cascade's outer band, across which a pass that reads the field's
 // distances fades to what it gives where the field holds nothing (fieldHold).
-public static const float FieldBand = 8.0;
+public static const float HoldBand = 8.0;
 
 // The cells a cascade's corner moves by at once, along each axis it moves on, as
 // SceneFieldPlan.SnapCells snaps it, so the eye stands no further than half of them from
@@ -150,7 +150,7 @@ public float bandHold(SceneFieldInfo info, int c, float3 cell, float band, float
 }
 
 // How much of what the field holds at p a pass takes, all of it inside the field's cascades,
-// falling to none across the outer band (FieldBand) of the coarsest one built, kept clear of the
+// falling to none across the outer band (HoldBand) of the coarsest one built, kept clear of the
 // eye (bandHold), and none past it, so a pass that reads the field to its edge, as the occlusion
 // from it, the sun's contact shadows or a glow light's march, fades there rather than stepping.
 // Taken from the last cascade whether built or not, it reads none while the last is not built, and
@@ -162,7 +162,7 @@ public float fieldHold(SceneFieldInfo info, float3 p)
     if (c < 0)
         return 0.0;
     float4 oc = cascadeAt(info, c);
-    return bandHold(info, c, (p - oc.xyz) / oc.w, FieldBand, 1.0);
+    return bandHold(info, c, (p - oc.xyz) / oc.w, HoldBand, 1.0);
 }
 
 // The coarsest built cascade no coarser than `upTo`, or -1 where none is built, as in an app's
