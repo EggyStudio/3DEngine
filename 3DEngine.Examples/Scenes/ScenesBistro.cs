@@ -29,12 +29,28 @@ public static class ScenesBistro
     private static float? _askedHour;
     private static Camera3D? _askedCamera;
     private static bool? _askedMetered;
+    private static (float Radians, int Frames) _turning;
+    private static (Vector3 Step, int Frames) _walking;
 
     [Command("bistro.look", "Puts the camera at a point looking at another, with a field of view in degrees, 60 unless given: bistro.look <x> <y> <z> <tx> <ty> <tz> [fov]")]
     internal static string Look(float x, float y, float z, float tx, float ty, float tz, float fov = 60)
     {
         _askedCamera = new Camera3D(new Vector3(x, y, z), new Vector3(tx, ty, tz), Vector3.UnitY, fov);
         return "looking";
+    }
+
+    [Command("bistro.turn", "Turns the camera about its point by an angle in degrees a frame, to the right where above 0, for a count of frames, a pose a frame, as a scripted turn is read by: bistro.turn <degrees> <frames>")]
+    internal static string Turn(float degrees, int frames)
+    {
+        _turning = (float.DegreesToRadians(degrees), Math.Max(0, frames));
+        return $"turning {degrees} degrees a frame for {_turning.Frames} frames";
+    }
+
+    [Command("bistro.walk", "Moves the camera and the point it looks at by a step in meters a frame, for a count of frames, a pose a frame, as a scripted walk is read by: bistro.walk <x> <y> <z> <frames>")]
+    internal static string Walk(float x, float y, float z, int frames)
+    {
+        _walking = (new Vector3(x, y, z), Math.Max(0, frames));
+        return $"walking {x} {y} {z} meters a frame for {_walking.Frames} frames";
     }
 
     [Command("bistro.view", "Moves the camera to a named view of the Bistro, by its name or number, or answers the names: bistro.view [name]")]
@@ -151,6 +167,19 @@ public static class ScenesBistro
                 fieldAhead = Ahead(camera);
             }
             if (_askedCamera is { } looked) (camera, fieldAhead, _askedCamera) = (looked, Ahead(looked), null);
+            // A scripted turn about the camera's point, which moves no cascade of the field.
+            if (_turning.Frames > 0)
+            {
+                camera.Target = camera.Position + Vector3.Transform(camera.Target - camera.Position, Matrix4x4.CreateRotationY(-_turning.Radians));
+                _turning.Frames--;
+            }
+            // A scripted walk, which carries the field's cascades with the camera.
+            if (_walking.Frames > 0)
+            {
+                (camera.Position, camera.Target) = (camera.Position + _walking.Step, camera.Target + _walking.Step);
+                fieldAhead = Ahead(camera);
+                _walking.Frames--;
+            }
             var flying = IsMouseButtonDown(MouseButton.Right);
             if (!flying && IsKeyPressed(Key.Right)) _askedHour = (hour + 1) % 24;
             if (!flying && IsKeyPressed(Key.Left)) _askedHour = (hour + 23) % 24;

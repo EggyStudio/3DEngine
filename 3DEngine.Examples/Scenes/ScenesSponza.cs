@@ -30,6 +30,7 @@ public static partial class ScenesSponza
     private static bool? _askedMetered;
     private static bool? _askedLamps;
     private static (float Radians, int Frames) _turning;
+    private static (Vector3 Step, int Frames) _walking;
 
     [Command("sponza.look", "Puts the camera at a point looking at another, with a field of view in degrees, 60 unless given: sponza.look <x> <y> <z> <tx> <ty> <tz> [fov]")]
     internal static string Look(float x, float y, float z, float tx, float ty, float tz, float fov = 60)
@@ -43,6 +44,13 @@ public static partial class ScenesSponza
     {
         _turning = (float.DegreesToRadians(degrees), Math.Max(0, frames));
         return $"turning {degrees} degrees a frame for {_turning.Frames} frames";
+    }
+
+    [Command("sponza.walk", "Moves the camera and the point it looks at by a step in meters a frame, for a count of frames, a pose a frame, as a scripted walk is read by: sponza.walk <x> <y> <z> <frames>")]
+    internal static string Walk(float x, float y, float z, int frames)
+    {
+        _walking = (new Vector3(x, y, z), Math.Max(0, frames));
+        return $"walking {x} {y} {z} meters a frame for {_walking.Frames} frames";
     }
 
     [Command("sponza.view", "Moves the camera to a named view of Sponza, by its name or number, or answers the names: sponza.view [name]")]
@@ -225,6 +233,13 @@ public static partial class ScenesSponza
             {
                 camera.Target = camera.Position + Vector3.Transform(camera.Target - camera.Position, Matrix4x4.CreateRotationY(-_turning.Radians));
                 _turning.Frames--;
+            }
+            // A scripted walk, which carries the field's cascades with the camera.
+            if (_walking.Frames > 0)
+            {
+                (camera.Position, camera.Target) = (camera.Position + _walking.Step, camera.Target + _walking.Step);
+                fieldAhead = Ahead(camera);
+                _walking.Frames--;
             }
             // The arrows move the hour, keys every layout has in the same place, and turn the
             // camera while the right button is held.

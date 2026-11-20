@@ -1113,6 +1113,13 @@ field's outer band that `fieldHold` fades across, is named `HoldBand`, so it no 
 beside the module's `FieldBand`, the 4 cells within which its reads hold exact, under one name in
 every kernel that imports both. Nothing the engine runs calls the module's passes yet.
 
+The scenes' walk and the Bistro's turn, for the readings of a moving camera.
+
+`scenes_sponza` and `scenes_bistro` answer `sponza.walk` and `bistro.walk`, which move the camera
+and the point it looks at by a step in meters a frame for a count of frames, the field's cascades
+following, and `scenes_bistro` answers `bistro.turn` as `scenes_sponza` answers `sponza.turn`. The
+four faults are read with them on both scenes alike, before the passes and after.
+
 Handoff, at `0a223de1`. The Sky pointer is at `9040738` in `c20870f2`, `a29f0efc`, `777e051f` and
 `0a223de1`, the GPU sky drawn from the module's tables, made on a worker, the disc and the night's
 glow the module's, and the Sponza match read again, and the gallery's pictures at `98b68167`. Next
