@@ -1120,6 +1120,17 @@ and the point it looks at by a step in meters a frame for a count of frames, the
 following, and `scenes_bistro` answers `bistro.turn` as `scenes_sponza` answers `sponza.turn`. The
 four faults are read with them on both scenes alike, before the passes and after.
 
+The README's gallery's groups in their earlier order.
+
+The gallery's folders stand in their names' order again, audio, the benchmarks, core and the rest
+as they stood before `1b3a335e`, and what runs by relevance is the examples within each, the stated
+list `GALLERY_ORDER` in `build/examples-table.py` giving each folder's in the order that shows the
+engine best first and the plainest last, Sponza and the Bistro opening the scenes. The script still
+fails on an example the gallery shows that is not listed, or a listed one not shown, `--check`
+holds the README to the list, and the sentence above the tables says how they run. The gallery
+shows the same 285 pictures, none made again, and the norm's tests pass, 17 of 17. This commit also
+carries the review's archive, whose move out of this file came in with `c9ed241e`.
+
 Handoff, at `0a223de1`. The Sky pointer is at `9040738` in `c20870f2`, `a29f0efc`, `777e051f` and
 `0a223de1`, the GPU sky drawn from the module's tables, made on a worker, the disc and the night's
 glow the module's, and the Sponza match read again, and the gallery's pictures at `98b68167`. Next

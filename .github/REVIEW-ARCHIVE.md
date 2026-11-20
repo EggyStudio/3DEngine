@@ -10576,6 +10576,25 @@ here, and the copy of the player's save is let go, made again on request. The lo
     and a trial of litLight and the reflection's trace kept as functions in the SPIR-V, read by the
     module's size, the driver's cold compile, the frame and the picture.
 
+275. **The deep audit's findings.** From the review's read-only audit of 2026-11-14 at `c6bac6dc`,
+    ~/.cache/claude-reviewer/audits-2026-11-14/3DEngine-deep-audit.md, sixteen areas each read by a
+    finder and every finding put to three verifiers, one reading the code, one its reach and one the
+    records. 96 held, 3 of high severity, 52 of medium and 41 of low, five known already and four
+    dropped, each with its file and line, its scenario and a direction for the mend. The review
+    checked the three high ones against the code. The scripts' and the workflows' checks for the
+    validation layer look for the words Validation Error, which the pinned layer's messages do not
+    carry, the engine logging an error as its category and the message alone, so no game, example,
+    storm or native run fails on the layer's error. The mesh entities are gathered in Render before
+    the transforms are carried down the tree in the same stage, so a parented mesh draws with the
+    world matrix of the frame before. A body the flat API makes has no entity and is never blended
+    between steps, so GetPhysicsBodyTransform moves in steps of the fixed rate. First those three,
+    each with a test that fails first, the layer's first since it hides every other run's errors,
+    its test feeding a line as the pinned layer writes it. Then a Reply saying of each other finding
+    whether it holds at the head, and the mends a few to a commit in the report's order, those of
+    the lighting and the field taken with the items they touch, glowLightShown's face mask with 273;
+    a finding that does not hold says why. The three high ones after part 8's commit, beside the
+    binds' session; the medium ones after 272 and ahead of 265, the low ones after 265.
+
 ## Verdicts settled
 
 Verdicts 1 to 55 are settled, the last two, the drawing leak test's resident bound and the Windows
@@ -12743,6 +12762,23 @@ at `36cae0c2`.
     capture remade without its gallery copy fails before a push. Settled on the next run green in
     both jobs. Settled at 05:33 on 2026-11-19 on run 44445740458 of `98b68167`, green in every job,
     the gallery made again and the table's check added to the commit's own checks.
+
+130. **The build run of `23c60fb6` is red on macOS alone in one reference frame.** Run 44474409847,
+    read at 18:47 on 2026-11-20, the job `macos (2)` with 2,121 passed and 1 failed, Linux, Windows
+    and the other macOS half green. `ReferenceFrameTests.Matches` at `ReferenceFrameTests.cs` line
+    130 failed for `scene_field_cascade.png` with 67.0% of the pixels differing where 2% is allowed,
+    within rows 23 to 159 and every column, the most in rows 40 to 59. The commit took the field's
+    read and its march from the RadianceCascades module and was told as the same to the bit, which
+    the suite on Linux and Windows holds and macOS does not, so the module's Slang compiles to other
+    arithmetic on that device or reads a buffer another way there. Asked, the frame made on macOS's
+    device or its nearest stand-in here and set beside the reference with their difference, the
+    kernel and the line that part named by switching the module's read and the march back one at a
+    time, and a mend that a test on any device fails without. No further kernel is taken from the
+    module until it is settled. Settled on the next run green on every runner. Settled at 23:53 on
+    2026-11-20 on run 44809607763 of `b296776e`, green on every runner. The cause was the table of
+    cascades copied into thread memory by each read as the field was bound, found by a probe branch
+    run on that device; the reads hand the module one cascade, and a test of the compiled shaders
+    holds it on any machine.
 
 ## Decisions
 
@@ -20061,6 +20097,104 @@ not the origin's value, 264.9 with its override at zero as slow; not the draw li
 the one thread that both records and draws; not the noted eyes, 264.9 with `NoteEye` doing nothing as
 slow. The panel's leads read next, pinned to the performance cores, the vector state, AVX off on
 both builds, and 80fe61d2 itself with its override at zero.
+
+Item 275, the deep audit's three findings of high severity.
+
+The validation layer's errors. A probe of one deliberate error, a buffer of no size made under the
+pinned layer, read the layer's message as `vkCreateBuffer(): pCreateInfo->size is zero.` and the
+spec's line after it, with nothing before the call, so the layer's messages carry none of the words
+the checks look for and the marker has to be the engine's. The engine's callback now writes the line
+of a message of error severity with the words Validation Error before the layer's message where the
+message does not begin with them (`GraphicsDevice.ValidationLine`), so it reads `[ERROR]
+[Vulkan.Validation] [Validation] Validation Error: vkCreateBuffer(): ...`, and a message of any
+other severity, a warning's, a performance warning's and a pool's overrun's, keeps the layer's
+words. A pool's overrun is still counted and logged with the errors
+(`GraphicsDevice.CountedAsError`), so it fails a test wherever the layer runs, and the scripts'
+checks turn red on the layer's errors alone. The marker is the engine's, written on every error line
+whatever the layer's text, and it is the words every check already reads, the workflow's eight, the
+scripts' six and the game's own `build/play.sh`, which greps the same words over its log, so one
+change in the engine mends them all where grepping the engine's `[ERROR] [Vulkan.Validation]` would
+have left the game's check silent until its own change. The console and the log file write their
+lines through one method (`ConsoleLoggerProvider.Line`). `ValidationLineTests` reads every
+fixed-string grep in `build/` and the workflows whose words name the layer and holds each against
+the line the engine logs for an error as the pinned layer writes it, which every check must find,
+and for a warning as the loader writes one through the messenger, which none may, and holds a
+warning, a performance warning and a pool's overrun to their own words. Without the mend the check
+at `build/storm.sh:55` and every other one miss the line `[ERROR] [Vulkan.Validation] [Validation]
+vkCreateBuffer(): pCreateInfo->size is zero.` The internals the line takes are in
+`DeviceSurface.txt`.
+
+The mesh entities' transforms. `RenderPlugin.MeshEntityDraws` and the flat API's
+`AnimatedModelDraws` and `EditMeshDraws` now name `EcsPlugin.TransformPropagation` to run after, so
+each frame's draws take the world matrices the frame's carry wrote. The two plugins are internal and
+`DefaultPlugins` alone adds them, so the name is always there; no test adds the render plugin
+without the ECS. `MeshEntityShaderTests` gains two tests that step whole frames of an app, in its
+collection of the tests whose apps hold the process's one interface context. A child under a parent
+moved this frame is drawn at 3,0,0, where without the order it was drawn at 1,0,0 a frame late, and
+a child spawned this frame under it at 2,2,0, where it was drawn at its own 0,2,0 as though that
+were the world's; and the Render stage holds the three gatherers after the carry, where the mesh
+entities stood first at 0 and the carry at 3.
+
+The flat API's bodies. `RememberPoses` now remembers every body of every set, awake or asleep,
+whether an entity holds it or not, as `Move` walks them, so `GetPhysicsBodyTransform` blends a body
+`CreatePhysicsBox` made between its last two steps. `PhysicsInterpolationTests` holds a box made so,
+no entity, at alpha a half the middle of its last two steps, where without the mend it read the last
+step's pose, 2 for 1.5.
+
+The other 93 hold at `96358279`. None of the lines they cite changed since `c6bac6dc` but one beside
+the coarser cascade's build begun again, the words' fill value the field's new layout gave part 8,
+which leaves the restart as the audit read it. Three are taken with 273, which touches what they
+name, the screen probes' share weighing the faces a light does not emit from (`glowLightShown`), a
+probe's hit keeping a light's point of nothing (`gi.slang`), and an emitter recorded twice gathered
+as two lights; three with 272, the state's blocking read of the carried probes, the top level's
+records read back from mapped memory, and the carried cycle left as it was when the device's rays
+turn off and on; the rest come in the report's order, the medium after 272 and the low after 265.
+
+The strict build is clean and the suite passed both legs, 2,449, in 25 m 31 s and 24 m 55 s, its
+first reads failing on the device surface's listing and then on the frame tests outside the
+collection. The new tests start two headless apps and use no device. `ValidationLineTests` joins the
+Graphics part, the first Windows half, and the two frame tests went into `MeshEntityShaderTests` as
+a file of its own, where a new class of Rendering's would have moved 26 classes' parts, so no other
+class moves. A first read of the suite with them beside the collection failed RlglTests and
+PostProcessUnitsTests, their apps holding the interface context the others build. RenderOriginTests,
+read on the tree before the severity took the words, which it reaches nowhere, passes whole on the
+RTX, Mesa 26.2.4 and Mesa 25.2.8, 31 of 31. The package is 6.2.60-local.275.1.
+
+Verdict 130 mended, the field's read of one cascade on macOS.
+
+The cause. At `23c60fb6` the field's reads, `fieldDistanceIn` and `fieldDistanceSheetIn`, handed the
+module's reads `FieldOf`, which holds the field's table of nine cascades by value, so each read
+copied the table into a thread's own memory to index it there, 7 copies in the field's view and 497
+in 12 entry points where 2 stood before. The arithmetic was the parent's instruction for
+instruction, and the SPIR-V valid, but MoltenVK's translation of the field's view to Metal read it
+wrong, `scene_field_cascade.png` 67% of its pixels off on macOS alone. Two commits on a branch of
+their own named it on the macOS runner. With the two reads on the engine's own body (`3fa935ff`, run
+44788658434) the frame passed, and with the reads through a field of one cascade (`8c0be126`, run
+44794894010) both macOS jobs passed whole.
+
+The mend. `CascadeRead` is one cascade of the field as the module's reads take it, its corner and
+cell and the field's counts as the read is given them, and the two reads hand it to the module's in
+place of `FieldOf`, so no table is copied for a read. The marches keep `FieldOf`, since they take
+the whole table to find the cascade a point lies in, and make the 78 copies the shaders keep, 30 in
+the probes' trace, 18 in the screen probes', 8 in each of `model.slang`'s, `model_streams.slang`'s
+and `particles.slang`'s fragment stages, 4 in the merge and 2 in subsurface scattering. Slang's
+second level of optimization or `spirv-opt` would take them away too. Whether the module's field
+should hand a binding one cascade and never a table is put to its session.
+
+`FieldReadCopiesTests` compiles a kernel that reads one cascade both ways with the engine's compiler
+and holds it to no copy of the table in a thread's memory, and compiles every built-in shader and
+holds their copies to the marches' 78 at most, so the count cannot grow unseen. At `23c60fb6` the
+first finds 2 and the second 497, on any machine, and with the mend they find none and 78. A third
+test reads the count from SPIR-V laid out by hand. `shaders_cornell_box` and `shaders_bounce_rooms`
+captured after 300 frames twice differ from the captures before the move by at most 1 of 255 in
+under 1% of their pixels, as two captures before it differ. The touched file's three comment lines
+past 100 columns are wrapped again.
+
+The runs. The tree builds strict with no warnings. The copies' tests, the Metal names', the Slang
+compiler's, the field's, global illumination's, the bounce rooms', the cascades' edges', the
+reference frames', the open box's, the glow tier's, the screen probes' and the norm's tests pass,
+342 of 342. The suite passes in its parts in order, 2,531 of 2,531 in 24 minutes, and shuffled by
+the seed 20261023, 2,531 of 2,531 in 24 minutes.
 
 ## Items closed, parked or shortened
 
