@@ -16,13 +16,14 @@ when 3DEngine.Examples/Program.cs opens it by raylib's name, and otherwise its s
 CHEATSHEET.md does not carry, a start for its line in triage.tsv that a person then reads over.
 
 The README's gallery shows every written example's capture and every game's, each picture opening
-the program that drew it. It is a table a folder of 3DEngine.Examples under a heading naming it,
-in the folders' order, each table one row of the folder's examples in the order Program.cs opens
-them, and the games last, which scrolls sideways on GitHub and on nuget.org where it is wider than
-the page. Each picture is the capture made small, into .github/assets/gallery, at the width the
-gallery shows it, since the tables are Markdown, which nuget.org draws, where it prints HTML as its
-text, and a Markdown picture is shown at its own size. --check fails where a picture is missing,
-was made from a capture taken again since, or is shown by no example or game.
+the program that drew it. It is a table a folder of 3DEngine.Examples under a heading naming it, the
+folders and each table's row of examples in the order GALLERY_ORDER states, what the engine is for
+first and within a folder what shows most first, and the games last, which scrolls sideways on
+GitHub and on nuget.org where it is wider than the page. Each picture is the capture made small,
+into .github/assets/gallery, at the width the gallery shows it, since the tables are Markdown, which
+nuget.org draws, where it prints HTML as its text, and a Markdown picture is shown at its own size.
+--check fails where a picture is missing, was made from a capture taken again since, or is shown by
+no example or game.
 """
 
 import glob
@@ -66,6 +67,107 @@ GROUPS = {"core": "Core", "shapes": "Shapes", "textures": "Textures", "text": "T
           "shaders": "Shaders", "audio": "Audio", "others": "Others"}
 
 
+# The gallery's order, by what the engine is for, its folders and within each the examples that show
+# most first and the plainest last. Every example the gallery shows stands in its folder's list and
+# every name listed is shown, which the script holds, a folder or an example left out failing it.
+GALLERY_ORDER = {
+    "Scenes": [
+        "scenes_sponza", "scenes_bistro", "scenes_level"
+    ],
+    "Models": [
+        "models_first_person_maze", "models_cubicmap_rendering", "models_loading", "models_animation_blending",
+        "models_loading_gltf", "models_waving_cubes", "models_terrain", "models_heightmap_rendering",
+        "models_reflection_probe", "models_skybox_rendering", "models_skybox", "models_procedural_decals",
+        "models_decals", "models_edit_mesh_looks", "models_edit_mesh_room", "models_point_rendering",
+        "models_geometric_shapes", "models_yaw_pitch_roll", "models_mesh_picking", "models_rlgl_solar_system",
+        "models_animation_timing", "models_animation_gpu_skinning", "models_animation_blend_custom", "models_animation",
+        "models_bone_socket", "models_morph_and_layers", "models_loading_iqm", "models_loading_m3d",
+        "models_loading_vox", "models_basic_voxel", "models_mesh_uv_painting", "models_mesh_generation",
+        "models_orthographic_projection", "models_billboard_rendering", "models_directional_billboard",
+        "models_textured_cube", "models_rotating_cube", "models_tesseract_view", "models_box_collisions",
+        "models_edit_mesh", "models_edit_mesh_cuts", "models_edit_mesh_modifiers"
+    ],
+    "Shaders": [
+        "shaders_scene_passes", "shaders_cornell_box", "shaders_bounce_rooms", "shaders_reflections",
+        "shaders_scene_field", "shaders_subsurface", "shaders_lightmap_rendering", "shaders_basic_pbr",
+        "shaders_deferred_rendering", "shaders_shadowmap", "shaders_shadowmap_rendering", "shaders_lights_bloom",
+        "shaders_bloom", "shaders_auto_exposure", "shaders_particles", "shaders_mesh_instancing",
+        "shaders_instance_hues", "shaders_normalmap_rendering", "shaders_spotlight_rendering", "shaders_fog_rendering",
+        "shaders_basic_lighting", "shaders_cel_shading", "shaders_hybrid_rendering", "shaders_raymarching_rendering",
+        "shaders_compute_mesh", "shaders_postprocessing", "shaders_color_correction", "shaders_model",
+        "shaders_model_shader", "shaders_packed_vertices", "shaders_julia_set", "shaders_mandelbrot_set",
+        "shaders_texture_outline", "shaders_texture_waves", "shaders_texture_tiling", "shaders_shapes_textures",
+        "shaders_simple_mask", "shaders_ascii_rendering", "shaders_vertex_displacement", "shaders_depth_writing",
+        "shaders_depth_rendering", "shaders_compute_texture", "shaders_compute_life", "shaders_game_of_life",
+        "shaders_rlgl_compute", "shaders_eratosthenes_sieve", "shaders_custom_uniform", "shaders_rounded_rectangle",
+        "shaders_multi_sample2d", "shaders_hot_reloading", "shaders_texture_rendering", "shaders_palette_switch"
+    ],
+    "Physics": [
+        "physics_boxes"
+    ],
+    "Core": [
+        "core_day_sky", "core_vr_simulator", "core_3d_camera_first_person", "core_3d_camera_fps", "core_3d_camera_free",
+        "core_3d_camera_mode", "core_3d_camera_split_screen", "core_3d_picking", "core_world_screen",
+        "core_2d_camera_split_screen", "core_2d_camera_platformer", "core_2d_camera", "core_2d_camera_mouse_zoom",
+        "core_smooth_pixelperfect", "core_render_texture", "core_window_letterbox", "core_viewport_scaling",
+        "core_text_file_loading", "core_input_gamepad", "core_input_virtual_controls", "core_input_gestures_testbed",
+        "core_input_gestures", "core_input_multitouch", "core_keyboard_testbed", "core_input_actions",
+        "core_input_mouse", "core_input_mouse_wheel", "core_input_keys", "core_automation_events",
+        "core_screen_recording", "core_undo_redo", "core_basic_screen_manager", "core_storage_values",
+        "core_random_sequence", "core_random_values", "core_scissor_test", "core_delta_time",
+        "core_custom_frame_control", "core_window_flags", "core_window_toggles", "core_highdpi_testbed",
+        "core_highdpi_demo", "core_monitor_detector", "core_clipboard_text", "core_drop_files", "core_directory_files",
+        "core_compute_hash", "core_custom_logging", "core_window_should_close", "core_basic_window"
+    ],
+    "Ecs": [
+        "ecs_physics", "ecs_animated_models", "ecs_behaviors", "ecs_parented_particles", "ecs_mesh_entities",
+        "ecs_states"
+    ],
+    "Gui": [
+        "gui_imgui_window"
+    ],
+    "Shapes": [
+        "shapes_top_down_lights", "shapes_bullet_hell", "shapes_rlgl_color_wheel", "shapes_starfield_effect",
+        "shapes_recursive_tree", "shapes_kaleidoscope", "shapes_penrose_tile", "shapes_hilbert_curve",
+        "shapes_double_pendulum", "shapes_clock_of_clocks", "shapes_simple_particles", "shapes_mouse_trail",
+        "shapes_following_eyes", "shapes_basic_shapes", "shapes_logo_raylib_anim", "shapes_logo_raylib",
+        "shapes_pie_chart", "shapes_splines_drawing", "shapes_lines_bezier", "shapes_math_sine_cosine",
+        "shapes_math_angle_rotation", "shapes_vector_angle", "shapes_ball_physics", "shapes_bouncing_ball",
+        "shapes_drag_puzzle", "shapes_ellipse_collision", "shapes_collision_area", "shapes_easings_testbed",
+        "shapes_easings_ball", "shapes_easings_box", "shapes_easings_rectangles", "shapes_digital_clock",
+        "shapes_polygon_lines", "shapes_ring_drawing", "shapes_circle_sector_drawing",
+        "shapes_rounded_rectangle_drawing", "shapes_rectangle_advanced", "shapes_outlines_testbed",
+        "shapes_outlines_thickness", "shapes_triangle_strip", "shapes_dashed_line", "shapes_lines_drawing",
+        "shapes_rlgl_triangle", "shapes_colors_palette", "shapes_rectangle_scaling"
+    ],
+    "Textures": [
+        "textures_portal_window", "textures_magnifying_glass", "textures_fog_of_war", "textures_particles_blending",
+        "textures_sprite_explosion", "textures_cellular_automata", "textures_sprite_stacking",
+        "textures_background_scrolling", "textures_sprite_animation", "textures_textured_curve",
+        "textures_polygon_drawing", "textures_image_kernel", "textures_image_processing", "textures_image_channel",
+        "textures_image_drawing", "textures_image_text", "textures_image_generation", "textures_mipmaps",
+        "textures_blend_modes", "textures_framebuffer_rendering", "textures_render_target", "textures_screen_buffer",
+        "textures_mouse_painting", "textures_gif_player", "textures_tiled_drawing", "textures_npatch_drawing",
+        "textures_sprite_button", "textures_srcrec_dstrec", "textures_raw_data", "textures_image_rotate",
+        "textures_to_image", "textures_image_loading", "textures_clipboard_image", "textures_basic",
+        "textures_logo_raylib"
+    ],
+    "Text": [
+        "text_3d_drawing", "text_unicode_emojis", "text_unicode_ranges", "text_font_sdf", "text_fonts",
+        "text_font_spritefont", "text_sprite_fonts", "text_font_filters", "text_codepoints_loading",
+        "text_writing_anim", "text_inline_styling", "text_rectangle_bounds", "text_words_alignment",
+        "text_strings_management", "text_input_box", "text_format_text", "text_font_loading"
+    ],
+    "Audio": [
+        "audio_spectrum_visualizer", "audio_module_playing", "audio_sound_positioning", "audio_stream_effects",
+        "audio_mixed_processor", "audio_amp_envelope", "audio_raw_stream", "audio_stream_callback",
+        "audio_music_stream", "audio_sound_multi", "audio_sound_loading", "audio_sound"
+    ],
+    "Benchmarks": [
+        "textures_bunnymark", "models_stress"
+    ],
+}
+
 def raylib_commit():
     """The commit of raylib build/raylib-bench/run.sh pins."""
     with open(os.path.join(ROOT, "build", "raylib-bench", "run.sh"), encoding="utf-8") as script:
@@ -81,7 +183,8 @@ def raylib_source(commit, given):
     head = subprocess.run(["git", "-C", source, "rev-parse", "HEAD"], capture_output=True, text=True).stdout.strip() \
         if os.path.isdir(os.path.join(source, ".git")) else ""
     if head != commit:
-        # The pinned commit alone, which GitHub hands over by its hash, rather than raylib's history.
+        # The pinned commit alone, which GitHub hands over by its hash, rather than raylib's
+        # history.
         os.makedirs(source, exist_ok=True)
         if not head:
             subprocess.run(["git", "-C", source, "init", "-q"], check=True)
@@ -328,8 +431,21 @@ def gallery(written):
             rows.setdefault(path.split("/")[1], []).append((name, name, BLOB + path))
     games = [(game.lower(), game, f"{BLOB}games/{game}/Program.cs") for game in GAMES
              if os.path.exists(os.path.join(CAPTURES, game.lower() + ".webp"))]
-    sections, shown = [], []
-    for title, row in [*sorted(rows.items()), ("Games", games)]:
+    unlisted = sorted(set(rows) - set(GALLERY_ORDER)) + sorted(
+        name for folder, row in rows.items() for name, _, _ in row if name not in GALLERY_ORDER.get(folder, []))
+    unshown = sorted(name for folder, names in GALLERY_ORDER.items() for name in names
+                     if name not in {shown_name for shown_name, _, _ in rows.get(folder, [])})
+    if unlisted or unshown:
+        sys.exit("GALLERY_ORDER in build/examples-table.py is out of date: "
+                 + "; ".join(part for part in (unlisted and f"not listed {', '.join(unlisted)}",
+                                               unshown and f"listed and not shown {', '.join(unshown)}") if part))
+    ordered = [(folder, sorted(rows[folder], key=lambda shown_row: GALLERY_ORDER[folder].index(shown_row[0])))
+               for folder in GALLERY_ORDER if folder in rows]
+    sections = [textwrap.fill("The groups run by what the engine is for, its scenes first, then its models, shaders "
+                              "and physics, and within a group the examples that show most stand first and the "
+                              "plainest last.", width=100, break_long_words=False, break_on_hyphens=False)]
+    shown = []
+    for title, row in [*ordered, ("Games", games)]:
         if not row:
             continue
         heads, captions = [], []

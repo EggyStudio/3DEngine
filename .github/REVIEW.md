@@ -1180,6 +1180,16 @@ wait and cache, the model order's, the renderer's, the logged errors' and the no
 of 77. The suite passes in its parts in order, 2,532 of 2,532 in 25 minutes, and shuffled by the
 seed 20261023, 2,532 of 2,532 in 23 minutes.
 
+The README's gallery by what the engine is for.
+
+`build/examples-table.py` holds the gallery's order as a stated list, `GALLERY_ORDER`, its folders
+scenes, models, shaders, physics, core, ecs, gui, shapes, textures, text and audio, then the two
+benchmarks and the games, and within each folder the examples that show most first and the
+plainest last, Sponza and the Bistro opening the scenes. A sentence above the tables says how they
+are ordered. The script fails where an example the gallery shows is not listed or a listed one is
+not shown, and `--check` holds the README to the list. The gallery shows the same 285 pictures,
+none made again, and the norm's tests pass, 21 of 21.
+
 Handoff, at `0a223de1`. The Sky pointer is at `9040738` in `c20870f2`, `a29f0efc`, `777e051f` and
 `0a223de1`, the GPU sky drawn from the module's tables, made on a worker, the disc and the night's
 glow the module's, and the Sponza match read again, and the gallery's pictures at `98b68167`. Next
