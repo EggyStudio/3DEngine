@@ -133,34 +133,6 @@ reverted as the screen probes' limit at shapes about a tile wide, its patches in
     readings by pass and the cuts' Replies are in REVIEW-ARCHIVE.md under Items closed, parked or
     shortened.
 
-255. **A program's first run stands most of a minute at its fifth frame, its pipelines compiled one
-    after another.** From the game's item 171 on 2026-11-11, read at 15:48. With the validation
-    layer off and from a warm cache the game makes no pipeline over 100 ms after its first frame,
-    314 ms; from an empty cache folder, which empties the driver's own cache under it too, its fifth
-    frame makes 22 pipelines in 49.0 s of the driver's time, one after another, terrain.slang's
-    depth pipelines in 14.9 and 12.1 s and mob.slang's in 19.1 s, and at the pool four terrain.slang
-    pipelines compile in 15.5 to 15.7 s each, where the engine's trial with the driver's cache warm
-    read 94 ms. So the layer explains the warm seconds and not the cold ones, and a player's first
-    run, and each after a driver's update, has them. One read first, the trial of terrain.slang
-    without the layer from an empty cache folder, to confirm the driver's first compile is the cost.
-    Then the first frame's pipelines made at once on the workers with the frame waiting for them
-    together, 49 s against the longest one's 19; and a read of the fragment's 1.3 MB of SPIR-V by
-    function, the engine's shared lighting inlined into a program's own shader, to say what costs
-    the driver a quarter minute before any cut. After Verdict 116 and 254. The cold read at about
-    17:40 confirms it. With no layer and an empty cache folder the terrain pipeline compiles in
-    12,099 ms, the sixth frame making 7 pipelines in 12,358 ms, and over the same folder a second
-    time, the driver's cache warm and the engine's file missing, in 93 ms. The fragment read by
-    function, inlined whole into its entry, 1,212,051 words, has the game's litStepped as 98.1
-    percent and in it two whole copies of the engine's litLight at 47.2 percent each, the first from
-    the game's line that calls lit on its unlit branch, where lit returns unlit and its litLight can
-    never run; with that line returning unlit the fragment is 702,448 bytes where 1,303,784 and the
-    driver's cold compile 5.9 and 5.2 s where 12.4 and 13.6. That line is the game's, its item 172.
-    Of one copy, the reflection's trace is 17.8 percent of the module, the glow lights at the pixel
-    11.4, the thin wall's twice 4.6. On the engine's side, the guide saying lit and litLight each
-    carry the whole lighting; the first frame's pipelines made together on the workers with a test;
-    and a trial of litLight and the reflection's trace kept as functions in the SPIR-V, read by the
-    module's size, the driver's cold compile, the frame and the picture.
-
 264. **The engine draws against the eye, and can be told the world moved.** Decision 110 on
     2026-11-12. One render origin a frame, the window camera's eye rounded to 16 units, every place
     taken against it on the CPU in doubles; the plan and its parts, with part 8's Reply, stand in
@@ -519,8 +491,22 @@ changes.
 
 ## Verdicts
 
-No verdict is open. Verdict 129 is settled at 05:33 on 2026-11-19 on run 44445740458. Verdicts 1 to
-128 are settled, said under each in REVIEW-ARCHIVE.md.
+Verdict 130 is open, a reference frame of the scene field red on macOS alone in run 44474409847.
+Verdict 129 is settled at 05:33 on 2026-11-19 on run 44445740458. Verdicts 1 to 128 are settled,
+said under each in REVIEW-ARCHIVE.md.
+
+130. **The build run of `23c60fb6` is red on macOS alone in one reference frame.** Run 44474409847,
+    read at 18:47 on 2026-11-20, the job `macos (2)` with 2,121 passed and 1 failed, Linux, Windows
+    and the other macOS half green. `ReferenceFrameTests.Matches` at `ReferenceFrameTests.cs` line
+    130 failed for `scene_field_cascade.png` with 67.0% of the pixels differing where 2% is allowed,
+    within rows 23 to 159 and every column, the most in rows 40 to 59. The commit took the field's
+    read and its march from the RadianceCascades module and was told as the same to the bit, which
+    the suite on Linux and Windows holds and macOS does not, so the module's Slang compiles to other
+    arithmetic on that device or reads a buffer another way there. Asked, the frame made on macOS's
+    device or its nearest stand-in here and set beside the reference with their difference, the
+    kernel and the line that part named by switching the module's read and the march back one at a
+    time, and a mend that a test on any device fails without. No further kernel is taken from the
+    module until it is settled. Settled on the next run green on every runner.
 
 ## Decisions
 
@@ -696,35 +682,6 @@ numbers, each in full under Decisions in REVIEW-ARCHIVE.md.
     to 100 columns, existing lines rewrapped as their files are touched.
 
 ## Replies
-
-Item 255, read and the first of its mends. The driver's own cache stands under XDG_CACHE_HOME, so
-an empty one is a player's first run: there the voxel game's terrain pipeline took 12,099 ms to
-compile without the layer, and with that folder's driver cache warm and the engine's file missing
-93 ms. Half of the 12 s is a second copy of litLight in the game's shader, from its line calling lit
-on its unlit branch, which can never reach the light: with unlit there the fragment went from
-1,303,784 to 702,448 bytes and the cold compile from 12,365 and 13,627 ms to 5,865 and 5,242. That
-line is the game's; the shaders guide now says lit and litLight each carry the whole lighting, so a
-shader calls one once and unlit on an unlit branch. The cold first frame of shaders_bounce_rooms
-from an empty cache folder took 28,594 and 30,102 ms, its 26 pipelines made one after another on
-the frame's thread, the probes' nine kernels about 22.5 s of the driver's time, gi_screen 6.1 and
-the trace's four builds 3.2 to 6.2. The probes' kernels are now made together on workers at the
-first frame that traces them, the frame waiting for all: the first frame 12,322 and 12,148 ms, the
-driver's time 30.9 s spread across them. The test draws the Cornell box's first frame with the
-kernels made one after another and together, finds one compile in the driver at a time the first
-way and two at once the second, a first compile on a worker waiting for a second to reach it, and
-the two frames the same.
-
-The binds the scene pass pays since the origin, read on the game's own room and not part of this
-commit. Bisected on game-A's binary over each commit's assemblies and shaders, it comes with
-80fe61d2, the origin at the eye, 0.427 ms of `cpu.hdr_scene` at a0af50a3 against 0.675, game-A
-reading 0.425 to 0.459 on 6.2.60. It holds capped at 100 a second with the GPU idle, 0.62 to 0.64
-against 0.37 to 0.47, so it is the driver's record calls' own cost, 147 to 290 µs a frame under
-`vkCmdBindDescriptorSets` and 36 to 138 under `vkCmdDrawIndexed`, hidden by the GPU in every frame
-read. The calls are the same kinds in the same proportions, about 3 percent fewer since the origin;
-not the origin's value, 264.9 with its override at zero as slow; not the draw list's lock, level on
-the one thread that both records and draws; not the noted eyes, 264.9 with `NoteEye` doing nothing as
-slow. The panel's leads read next, pinned to the performance cores, the vector state, AVX off on
-both builds, and 80fe61d2 itself with its override at zero.
 
 Item 275, the deep audit's three findings of high severity.
 
@@ -1132,6 +1089,42 @@ which reads a pack made before the pointer moved; packed again with `build/pack.
 carries the module's nine kernels and its tests pass, 5 of 5. The suite passes in its parts in
 order, 2,528 of 2,528 in 24 minutes, and shuffled by the seed 20261023, 2,528 of 2,528 in 24
 minutes.
+
+Verdict 130 mended, the field's read of one cascade on macOS.
+
+The cause. At `23c60fb6` the field's reads, `fieldDistanceIn` and `fieldDistanceSheetIn`, handed the
+module's reads `FieldOf`, which holds the field's table of nine cascades by value, so each read
+copied the table into a thread's own memory to index it there, 7 copies in the field's view and 497
+in 12 entry points where 2 stood before. The arithmetic was the parent's instruction for
+instruction, and the SPIR-V valid, but MoltenVK's translation of the field's view to Metal read it
+wrong, `scene_field_cascade.png` 67% of its pixels off on macOS alone. Two commits on a branch of
+their own named it on the macOS runner. With the two reads on the engine's own body (`3fa935ff`, run
+44788658434) the frame passed, and with the reads through a field of one cascade (`8c0be126`, run
+44794894010) both macOS jobs passed whole.
+
+The mend. `CascadeRead` is one cascade of the field as the module's reads take it, its corner and
+cell and the field's counts as the read is given them, and the two reads hand it to the module's in
+place of `FieldOf`, so no table is copied for a read. The marches keep `FieldOf`, since they take
+the whole table to find the cascade a point lies in, and make the 78 copies the shaders keep, 30 in
+the probes' trace, 18 in the screen probes', 8 in each of `model.slang`'s, `model_streams.slang`'s
+and `particles.slang`'s fragment stages, 4 in the merge and 2 in subsurface scattering. Slang's
+second level of optimization or `spirv-opt` would take them away too. Whether the module's field
+should hand a binding one cascade and never a table is put to its session.
+
+`FieldReadCopiesTests` compiles a kernel that reads one cascade both ways with the engine's compiler
+and holds it to no copy of the table in a thread's memory, and compiles every built-in shader and
+holds their copies to the marches' 78 at most, so the count cannot grow unseen. At `23c60fb6` the
+first finds 2 and the second 497, on any machine, and with the mend they find none and 78. A third
+test reads the count from SPIR-V laid out by hand. `shaders_cornell_box` and `shaders_bounce_rooms`
+captured after 300 frames twice differ from the captures before the move by at most 1 of 255 in
+under 1% of their pixels, as two captures before it differ. The touched file's three comment lines
+past 100 columns are wrapped again.
+
+The runs. The tree builds strict with no warnings. The copies' tests, the Metal names', the Slang
+compiler's, the field's, global illumination's, the bounce rooms', the cascades' edges', the
+reference frames', the open box's, the glow tier's, the screen probes' and the norm's tests pass,
+342 of 342. The suite passes in its parts in order, 2,531 of 2,531 in 24 minutes, and shuffled by
+the seed 20261023, 2,531 of 2,531 in 24 minutes.
 
 Handoff, at `0a223de1`. The Sky pointer is at `9040738` in `c20870f2`, `a29f0efc`, `777e051f` and
 `0a223de1`, the GPU sky drawn from the module's tables, made on a worker, the disc and the night's

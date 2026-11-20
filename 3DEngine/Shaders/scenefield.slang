@@ -1,10 +1,10 @@
 // The scene's distance field as the passes that read it see it. Cascades of cells around the
 // camera, each twice as coarse and as wide as the one before, and after them the far cascade where
-// the program asks for one, its cells as wide as its reach takes, hold how far each cell's middle is
-// from the nearest surface of the meshes that cast shadows, below zero inside a mesh with an inside,
-// exact within a few cells of a surface and held at that many beyond. They lie one after another
-// along z in one texture, so a pass binds the field once, and a cascade not yet built has a cell
-// size of 0 and is passed over.
+// the program asks for one, its cells as wide as its reach takes, hold how far each cell's middle
+// is from the nearest surface of the meshes that cast shadows, below zero inside a mesh with an
+// inside, exact within a few cells of a surface and held at that many beyond. They lie one after
+// another along z in one texture, so a pass binds the field once, and a cascade not yet built has a
+// cell size of 0 and is passed over.
 module scenefield;
 
 // The field's reads and marches, the RadianceCascades module's.
@@ -122,7 +122,8 @@ public int cascadesOf(SceneFieldInfo info, int probes = 0)
 public static const float FieldBand = 8.0;
 
 // The cells a cascade's corner moves by at once, along each axis it moves on, as
-// SceneFieldPlan.SnapCells snaps it, so the eye stands no further than half of them from its middle.
+// SceneFieldPlan.SnapCells snaps it, so the eye stands no further than half of them from
+// its middle.
 public static const float SnapCells = 8.0;
 
 // The cells an outer band ends short of the eye on a side the eye stands near (bandHold), the half
@@ -254,6 +255,38 @@ public struct FieldOf<S : ISheetVolume> : IFieldVolume
     public float3 secondAt(int cascade, int3 cell) { return field.secondAt(int3(cell.xy, cell.z + cascade * int(info.counts.y))); }
 }
 
+// One cascade of the field as the module's reads take it (IFieldVolume), its corner and cell and
+// the field's counts as the read was given them, so no table of the cascades is copied into a
+// thread's own memory to be indexed there.
+struct CascadeRead<S : ISheetVolume> : IFieldVolume
+{
+    S field;
+    float4 oc;
+    float4 counts;
+    int index;
+
+    __init(S field, float4 oc, float4 counts, int index)
+    {
+        this.field = field;
+        this.oc = oc;
+        this.counts = counts;
+        this.index = index;
+    }
+
+    int cascadeOf(float3 p, float margin) { return index; }
+    float4 cornerAndCell(int cascade) { return oc; }
+    int size() { return int(counts.y); }
+
+    float4 between(int cascade, float3 cells)
+    {
+        float size = counts.y;
+        return field.sampleAt(float3(cells.xy / size, (cells.z + float(cascade) * size) / (size * counts.x)), 0);
+    }
+
+    float4 cellAt(int cascade, int3 cell) { return field.loadAt(int3(cell.xy, cell.z + cascade * int(counts.y))); }
+    float3 secondAt(int cascade, int3 cell) { return field.secondAt(int3(cell.xy, cell.z + cascade * int(counts.y))); }
+}
+
 // The distance from p to the nearest surface in cascade i, in world units, blended between the
 // eight cells around it, each read no nearer a side than half a cell, so cascades stacked in the
 // texture do not bleed into each other. A double-sided face is held below zero within half a cell
@@ -262,7 +295,7 @@ public struct FieldOf<S : ISheetVolume> : IFieldVolume
 // wherever it lies between the cells' middles.
 public float fieldDistanceIn<V : IVolume>(V field, SceneFieldInfo info, int i, float3 p)
 {
-    return fieldDistanceIn(FieldOf<NoSecond<V>>(NoSecond<V>(field), info), i, p);
+    return fieldDistanceIn(CascadeRead<NoSecond<V>>(NoSecond<V>(field), info.cascades[i].originAndCell, info.counts, i), i, p);
 }
 
 // The distance from p to the nearest surface in cascade i as the probes' rays take it, the cells'
@@ -277,7 +310,7 @@ public float fieldDistanceIn<V : IVolume>(V field, SceneFieldInfo info, int i, f
 // where two walls cross, keeps its plane too.
 public float fieldDistanceSheetIn<S : ISheetVolume>(S field, SceneFieldInfo info, int i, float3 p)
 {
-    return fieldDistanceSheetIn(FieldOf<S>(field, info), i, p);
+    return fieldDistanceSheetIn(CascadeRead<S>(field, info.cascades[i].originAndCell, info.counts, i), i, p);
 }
 
 // Whether the cell of cascade i that p lies in keeps the plane of a double-sided face (sheetAt in

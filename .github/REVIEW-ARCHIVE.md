@@ -10548,6 +10548,34 @@ here, and the copy of the player's save is let go, made again on request. The lo
     Where the solver's library itself gives no such order across threads, that is said with its
     source and the item closes on a single-threaded setting for tests. After item 296.
 
+255. **A program's first run stands most of a minute at its fifth frame, its pipelines compiled one
+    after another.** From the game's item 171 on 2026-11-11, read at 15:48. With the validation
+    layer off and from a warm cache the game makes no pipeline over 100 ms after its first frame,
+    314 ms; from an empty cache folder, which empties the driver's own cache under it too, its fifth
+    frame makes 22 pipelines in 49.0 s of the driver's time, one after another, terrain.slang's
+    depth pipelines in 14.9 and 12.1 s and mob.slang's in 19.1 s, and at the pool four terrain.slang
+    pipelines compile in 15.5 to 15.7 s each, where the engine's trial with the driver's cache warm
+    read 94 ms. So the layer explains the warm seconds and not the cold ones, and a player's first
+    run, and each after a driver's update, has them. One read first, the trial of terrain.slang
+    without the layer from an empty cache folder, to confirm the driver's first compile is the cost.
+    Then the first frame's pipelines made at once on the workers with the frame waiting for them
+    together, 49 s against the longest one's 19; and a read of the fragment's 1.3 MB of SPIR-V by
+    function, the engine's shared lighting inlined into a program's own shader, to say what costs
+    the driver a quarter minute before any cut. After Verdict 116 and 254. The cold read at about
+    17:40 confirms it. With no layer and an empty cache folder the terrain pipeline compiles in
+    12,099 ms, the sixth frame making 7 pipelines in 12,358 ms, and over the same folder a second
+    time, the driver's cache warm and the engine's file missing, in 93 ms. The fragment read by
+    function, inlined whole into its entry, 1,212,051 words, has the game's litStepped as 98.1
+    percent and in it two whole copies of the engine's litLight at 47.2 percent each, the first from
+    the game's line that calls lit on its unlit branch, where lit returns unlit and its litLight can
+    never run; with that line returning unlit the fragment is 702,448 bytes where 1,303,784 and the
+    driver's cold compile 5.9 and 5.2 s where 12.4 and 13.6. That line is the game's, its item 172.
+    Of one copy, the reflection's trace is 17.8 percent of the module, the glow lights at the pixel
+    11.4, the thin wall's twice 4.6. On the engine's side, the guide saying lit and litLight each
+    carry the whole lighting; the first frame's pipelines made together on the workers with a test;
+    and a trial of litLight and the reflection's trace kept as functions in the SPIR-V, read by the
+    module's size, the driver's cold compile, the frame and the picture.
+
 ## Verdicts settled
 
 Verdicts 1 to 55 are settled, the last two, the drawing leak test's resident bound and the Windows
@@ -20004,6 +20032,35 @@ mend.
 
 The runs. Blockout built from the package plays through its drive. The norm's and the scripts' tests
 pass, 34 of 34. The tree's tests do not build the games, so no suite leg ran for the game's change.
+
+Item 255, read and the first of its mends. The driver's own cache stands under XDG_CACHE_HOME, so
+an empty one is a player's first run: there the voxel game's terrain pipeline took 12,099 ms to
+compile without the layer, and with that folder's driver cache warm and the engine's file missing
+93 ms. Half of the 12 s is a second copy of litLight in the game's shader, from its line calling lit
+on its unlit branch, which can never reach the light: with unlit there the fragment went from
+1,303,784 to 702,448 bytes and the cold compile from 12,365 and 13,627 ms to 5,865 and 5,242. That
+line is the game's; the shaders guide now says lit and litLight each carry the whole lighting, so a
+shader calls one once and unlit on an unlit branch. The cold first frame of shaders_bounce_rooms
+from an empty cache folder took 28,594 and 30,102 ms, its 26 pipelines made one after another on
+the frame's thread, the probes' nine kernels about 22.5 s of the driver's time, gi_screen 6.1 and
+the trace's four builds 3.2 to 6.2. The probes' kernels are now made together on workers at the
+first frame that traces them, the frame waiting for all: the first frame 12,322 and 12,148 ms, the
+driver's time 30.9 s spread across them. The test draws the Cornell box's first frame with the
+kernels made one after another and together, finds one compile in the driver at a time the first
+way and two at once the second, a first compile on a worker waiting for a second to reach it, and
+the two frames the same.
+
+The binds the scene pass pays since the origin, read on the game's own room and not part of this
+commit. Bisected on game-A's binary over each commit's assemblies and shaders, it comes with
+80fe61d2, the origin at the eye, 0.427 ms of `cpu.hdr_scene` at a0af50a3 against 0.675, game-A
+reading 0.425 to 0.459 on 6.2.60. It holds capped at 100 a second with the GPU idle, 0.62 to 0.64
+against 0.37 to 0.47, so it is the driver's record calls' own cost, 147 to 290 µs a frame under
+`vkCmdBindDescriptorSets` and 36 to 138 under `vkCmdDrawIndexed`, hidden by the GPU in every frame
+read. The calls are the same kinds in the same proportions, about 3 percent fewer since the origin;
+not the origin's value, 264.9 with its override at zero as slow; not the draw list's lock, level on
+the one thread that both records and draws; not the noted eyes, 264.9 with `NoteEye` doing nothing as
+slow. The panel's leads read next, pinned to the performance cores, the vector state, AVX off on
+both builds, and 80fe61d2 itself with its override at zero.
 
 ## Items closed, parked or shortened
 
