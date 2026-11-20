@@ -531,6 +531,13 @@ internal sealed class Renderer : IDisposable
 
         // The frames in flight still read the buffers, sets and pipelines destroyed below.
         Context.Graphics.WaitIdle();
+        // The pipelines worker threads make are made of the passes' shaders and layouts, freed
+        // below, so the teardown waits for them first.
+        if (RenderWorld.TryGet<PipelineCache>() is { Making: > 0 } cache)
+        {
+            Logger.Debug("Waiting for the pipelines worker threads make...");
+            cache.WaitForMaking();
+        }
 
         DisposeSystems(_prepareSystems);
         DisposeSystems(_extractSystems);

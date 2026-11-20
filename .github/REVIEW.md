@@ -1154,6 +1154,32 @@ box's, the glow tier's, the screen probes' and the norm's tests pass, 340 of 340
 in its parts in order, 2,531 of 2,531 in 25 minutes, and shuffled by the seed 20261023, 2,531 of
 2,531 in 23 minutes.
 
+The pool's teardown race, the crash on macOS at `3fa935ff`.
+
+The cause. The renderer's teardown freed the model renderer and every pass with it and only then the
+pipeline cache, which waits for the pipelines worker threads make. A pipeline a worker was making in
+between, as a mirrored view's are made after the frame that asks for them, read the passes' shaders
+and set layouts after they were freed. On macOS run 44788658434 one read a set layout already
+destroyed, the validation layer saying the layout's second set was a null handle, and the process
+fell to a SIGSEGV in the next test, `ModelOrderTests`. The fault is on every device and showed on
+that one.
+
+The mend. The teardown waits for the pipelines worker threads make before it frees anything, right
+after the device is idle, saying so in the log.
+
+`PipelineTeardownTests` turns on a plane's mirrored view, whose pipelines workers make, holds each
+of them after its layout is made, and closes the window. A held pipeline goes on once the teardown
+says it waits for the workers, or once it says the passes are freed, where it stops short of the
+driver rather than read shader modules freed under it. Without the mend the teardown says the passes
+are freed while the pipelines are held, the held ones stop, and the half-torn renderer is disposed
+again by the platform's teardown, which ends the test host. With it the test passes, three runs of
+three, beside the mirror's and the pipelines' wait tests.
+
+The runs. The tree builds strict with no warnings. The teardown's, the mirror's, the pipelines'
+wait and cache, the model order's, the renderer's, the logged errors' and the norm's tests pass, 77
+of 77. The suite passes in its parts in order, 2,532 of 2,532 in 25 minutes, and shuffled by the
+seed 20261023, 2,532 of 2,532 in 23 minutes.
+
 Handoff, at `0a223de1`. The Sky pointer is at `9040738` in `c20870f2`, `a29f0efc`, `777e051f` and
 `0a223de1`, the GPU sky drawn from the module's tables, made on a worker, the disc and the night's
 glow the module's, and the Sponza match read again, and the gallery's pictures at `98b68167`. Next
