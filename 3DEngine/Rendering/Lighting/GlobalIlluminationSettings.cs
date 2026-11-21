@@ -160,6 +160,27 @@ internal sealed class GlobalIlluminationSettings
     /// </summary>
     public bool ThroughOff { get; set; }
 
+    /// <summary>
+    /// How many times the side each cascade is merged at its rays are traced at, 1, or 2 as
+    /// <c>gi.spread 2</c> sets it, the probes made again for it.
+    /// </summary>
+    /// <remarks>
+    /// At 2 each texel the merge reads is the mean of the 2 by 2 traced texels it holds, so a thin
+    /// strip of sky a texel holds part of reaches it in part, as under a lintel toward an opening,
+    /// for four times the rays: on Sponza and the Bistro the trace and the merge take 22 and 36
+    /// milliseconds more a frame on an RTX 4070, so no quality takes it.
+    /// </remarks>
+    public int TraceSpread { get; set; } = 1;
+
+    /// <summary>
+    /// Whether the merge's marches light a surface they meet by the probes about it as the gather
+    /// kept them the frame before and by the sun's map at the hit, with no lamp, as <c>gi.hit
+    /// kept</c> sets it, where they read the light held for its cell of the field otherwise, every
+    /// cell within a cell of a surface shaded each frame as the trace lights a hit
+    /// (<c>gi_hold.slang</c>).
+    /// </summary>
+    public bool KeptHit { get; set; }
+
     /// <summary>What <c>BounceViewRenderer</c> draws over the window, as <c>gi.show</c> sets it.</summary>
     public BounceView Shown { get; set; }
 

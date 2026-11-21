@@ -560,6 +560,25 @@ void computeMain(uint3 id : SV_DispatchThreadID)
             own = float3(0.0);
             bool onScreen = traceScreen(depth, camera(), start, way, length, 12, hit, leftAt);
             float t = onScreen ? distance(start, hit) : leftAt < length ? traceFieldSheets(SheetVolume(sceneField, fieldSecond), fieldInfo, start, way, leftAt, length) : -1.0;
+            // A ray that meets nothing in its reach goes on through the field, as far as four times
+            // its reach and within the cascade it starts in and the next coarser one, and takes
+            // what it meets there, crossing what lets light through as it does within its reach.
+            // Handed to the world's probes at its reach, it took their texel about its way, which
+            // holds the light of every way the texel spans, under a roof the sky past the roof's
+            // edge along the low ways where the ray itself meets the roof, and the floor under a
+            // solid slab read four times the light its rays bring (GlobalIlluminationTests). Four
+            // times the reach and no further, since marching on to the field's edge makes global
+            // illumination slower for little more, and the next coarser cascade and no further,
+            // since in coarser cells the march passes walls 1 thick in cells 2 wide, and a closed
+            // room at the field's side takes the sky's light (CascadeEdgeTests).
+            float marchEnd = length;
+            int lastCascade = fieldCascade(fieldInfo, start, 1.0) + 1;
+            if (t < 0.0)
+            {
+                t = traceFieldWithinSheets(SheetVolume(sceneField, fieldSecond), fieldInfo, start, way, length, 4.0 * length, lastCascade);
+                if (t >= 0.0)
+                    marchEnd = 4.0 * length;
+            }
             // A surface that lets a share of light through, as a canopy's leaves, is crossed
             // through the field, which holds what lies behind it where the window's depth does not,
             // the ray keeping that share for each unit of its depth and the rest taking the
@@ -609,8 +628,15 @@ void computeMain(uint3 id : SV_DispatchThreadID)
                 if (deep < 0.0)
                     break;
                 onScreen = false;
-                handed = max(handed, t + deep);
-                t = inside ? -1.0 : traceFieldSheets(SheetVolume(sceneField, fieldSecond), fieldInfo, start, way, t + deep, length);
+                // Crossed past the reach, the light from beyond is taken a probe's spacing past
+                // where the ray left the surface, half its reach, so the probes around that point
+                // stand past it and do not lend the light from under it, whose rays crossed it
+                // already, which takes the floor under leaves past the reach a fifth of the open
+                // floor's light under their trace (GlobalIlluminationTests).
+                handed = max(handed, t + deep + (marchEnd > length ? 0.5 * length : 0.0));
+                t = inside ? -1.0
+                    : marchEnd > length ? traceFieldWithinSheets(SheetVolume(sceneField, fieldSecond), fieldInfo, start, way, t + deep, marchEnd, lastCascade)
+                    : traceFieldSheets(SheetVolume(sceneField, fieldSecond), fieldInfo, start, way, t + deep, length);
             }
             [loop]
             for (int shaded = 0; shaded < 2; shaded++)
@@ -638,34 +664,7 @@ void computeMain(uint3 id : SV_DispatchThreadID)
                 met = 2.0;
                 reached = start + way * handed;
                 bool holds;
-                float3 past = beyond(start, n, way, handed, around, holds);
-                float3 pastOwn = float3(0.0);
-                // A ray past its reach where no world probe around its end holds light goes on
-                // through the field, as far as four times its reach and within the cascade it
-                // starts in and the next coarser one, and takes the light of what it meets. A
-                // corridor 2 wide in walls 0.3 thick holds no probe of the second cascade or above,
-                // their spots in its walls moved out through the faces nearer them, so its first
-                // cascade's probes take nothing along it past their interval and its screen probes'
-                // rays nothing past their reach. Four times the reach and no further, since
-                // marching on to the field's edge gives such a corridor little more light and makes
-                // global illumination slower. The next coarser cascade and no further, since in
-                // coarser cells the march passes walls 1 thick in cells 2 wide, and a closed room
-                // at the field's side takes the sky's light (CascadeEdgeTests). Where the probes
-                // hold light along its way and it is dark, as in a cave the far cascade keeps the
-                // sky out of, the ray takes their dark, since marching every such ray makes the
-                // screen probes in a deep cave slower.
-                if (luminance(past) <= 1e-6 && !holds)
-                {
-                    float far = traceFieldWithinSheets(SheetVolume(sceneField, fieldSecond), fieldInfo, start, way, handed, 4.0 * length, fieldCascade(fieldInfo, start, 1.0) + 1);
-                    if (far >= 0.0)
-                    {
-                        met = 1.0;
-                        reached = start + way * far;
-                        past = shadeProbeHit(sceneField, SheetVolume(sceneField, fieldSecond), fieldInfo, fieldInfo, fieldAlbedo, fieldFaces, fieldGlow, lights, bounced, bouncedAtSurface, reach, reached, way, view.trace.y, view.trace.z, view.trace.w, around >= 2u, float3(1.0), FieldSun(), pastOwn, true);
-                    }
-                }
-                light += past * through;
-                own += pastOwn * through;
+                light += beyond(start, n, way, handed, around, holds) * through;
             }
             sum += light * weight;
             weights += weight;

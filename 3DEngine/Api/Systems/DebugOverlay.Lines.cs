@@ -4,10 +4,9 @@ using System.Runtime.InteropServices;
 
 namespace Engine;
 
-// What each line of the overlay says, in the words BevyCSharp's overlay says them, the engine and
-// the frame over the left column, the frame times beside the strip, the camera, the world and the
-// program's sections under them, and the system, the GPU, the display, the renderer and the
-// profiler's passes down the right.
+// What each line of the overlay says, the engine and the frame over the left column, the frame
+// times beside the strip, the camera, the world and the program's sections under them, and the
+// system, the GPU, the display, the renderer and the profiler's passes down the right.
 internal sealed partial class DebugOverlay
 {
     /// <summary>What the overlay says, a list for each place a line goes, an empty line the gap between two parts.</summary>
@@ -213,7 +212,7 @@ internal sealed partial class DebugOverlay
             ? Say($"Shadows {shadow.Cascades.Count} cascades{(shadow.Fill is null ? "" : " and a fill")} of {shadow.TileSize} texels, {shadow.SpotLights?.Count ?? 0} spot and {shadow.PointLights?.Count ?? 0} point lights mapped")
             : "Shadows none");
 
-        var illumination = GlobalIlluminationCommands.IlluminationState(world, readCarried: false).Split('\n')[0];
+        var illumination = GlobalIlluminationCommands.IlluminationState(world).Split('\n')[0];
         lines.Add(illumination.StartsWith("global illumination is off", StringComparison.Ordinal) ? "Global illumination off" : $"Global illumination {illumination}");
         return lines;
     }

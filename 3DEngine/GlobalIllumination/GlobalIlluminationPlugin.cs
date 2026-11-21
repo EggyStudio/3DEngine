@@ -50,13 +50,16 @@ internal sealed class GlobalIlluminationPlugin : IPlugin
                 GlobalIlluminationStages.Of(device).InitializeGlobalIllumination(server.LoadSync<ShaderProgram>("shaders/gi_trace.slang").Compute,
                     server.LoadSync<ShaderProgram>("shaders/gi_merge.slang").Compute,
                     server.LoadSync<ShaderProgram>("shaders/gi_ambient.slang").Compute,
+                    server.LoadSync<ShaderProgram>("shaders/gi_reach.slang").Compute,
                     server.LoadSync<ShaderProgram>("shaders/gi_screen.slang").Compute,
                     server.LoadSync<ShaderProgram>("shaders/gi_screen_filter.slang").Compute,
                     server.LoadSync<ShaderProgram>("shaders/gi_screen_glow.slang").Compute,
                     Renderer.Build("gi_trace.slang", ["NO_LIGHT_THROUGH"], "The probes' rays cross what lets light through in every frame")?.Compute,
                     device.CanQueryRays ? Renderer.Build("gi_trace.slang", ["RAY_QUERY", "NO_LIGHT_THROUGH"], "The probes' rays are traced through the field alone")?.Compute : default,
                     device.CanQueryRays ? Renderer.Build("gi_trace.slang", ["RAY_QUERY"], "The probes' rays cross what lets light through in the field alone")?.Compute : default,
-                    server.LoadSync<ShaderProgram>("shaders/glow_faces.slang").Compute);
+                    server.LoadSync<ShaderProgram>("shaders/glow_faces.slang").Compute,
+                    server.LoadSync<ShaderProgram>("shaders/gi_hold.slang").Compute,
+                    Renderer.Build("gi_merge.slang", ["KEPT_HIT"], "The merge's marches light what they meet by the probes kept about it")?.Compute);
             _illumination = new GlobalIlluminationRenderer();
             renderer.RenderWorld.Set(_illumination);
             renderer.RenderWorld.Set<IIlluminationPasses>(_illumination);

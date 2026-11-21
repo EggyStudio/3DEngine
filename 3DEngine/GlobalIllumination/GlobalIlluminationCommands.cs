@@ -13,41 +13,31 @@ internal static class GlobalIlluminationCommands
     [Command("gi.state", "How much global illumination is worked out, with the quality, the cascades of world probes and their rays, the screen's probes, the reflections, the GPU memory each takes, and the small emitters carried as lights")]
     internal static string IlluminationState() => IlluminationState(ConsoleHost.World!);
 
-    // What gi.state says, which the global illumination window shows too, the probes carried with
-    // their rays moving read back from the device where asked, which waits for it to finish its
-    // frames, so the window and the overlay leave it out.
-    internal static string IlluminationState(World from, bool readCarried = true)
+    // What gi.state says, which the global illumination window and the overlay show too.
+    internal static string IlluminationState(World from)
     {
         if (!from.TryGetResource<Renderer>(out var renderer)
             || renderer.RenderWorld.TryGet<GlobalIlluminationRenderer>() is not { Probes: { } probes } gi)
             return "global illumination is off";
         var quality = renderer.RenderWorld.TryGet<GlobalIlluminationSettings>()?.Quality ?? GlobalIllumination.Off;
         var p = probes.Probes;
-        var rays = probes.Texels.Select((n, c) => p * p * p * n * n * probes.RaysAt(c)).Sum();
+        var rays = probes.Texels.Select((n, c) => p * p * p * n * n * probes.TracedRays(c)).Sum();
         // Each cascade's rays, merges and the normals its rays met, eight bytes a texel each, every
-        // cascade's faces and their light at the surfaces they are read for, the distances and reach
-        // each probe is weighed by, the share of the sky its faces and its merged rays see, and each
-        // probe's own light, share and place, four texels of eight bytes, and its rays' sums, four of
-        // sixteen.
+        // cascade's faces and their light at the surfaces they are read for, the distances and
+        // reach each probe is weighed by, the share of the sky its faces and its merged rays see,
+        // each probe's own light, share and place, four texels of eight bytes, its faces' light
+        // kept for the merge, six of eight, and its rays' sums, sixteen of sixteen, each ray's
+        // light and end at the side the rays are traced at, eight and four bytes a texel, and its
+        // merged light and share of the sky at the side it is merged at, eight and two, and the
+        // light held for each cell of the field, thirty-two bytes a cell.
         var world = probes.Texels.Sum(n => 3L * (p * n) * (p * n) * p * 8) + 12L * p * p * p * probes.Cascades * 8 + probes.ReachBytes
-            + probes.SkyBytes + probes.WaysBytes + 4L * p * p * p * probes.Cascades * (8 + 16) + probes.CycleBytes;
+            + probes.SkyBytes + probes.WaysBytes + (4L * 8 + 6L * 8 + GpuIllumination.PartialsAProbe * 16L) * p * p * p * probes.Cascades + probes.TracedBytes
+            + probes.HeldCellsBytes;
         var lines = new List<string>
         {
-            $"{quality}: {probes.Cascades} cascades of {p * p * p} probes, {string.Join(", ", probes.Texels.Select((n, c) => n * n * probes.RaysAt(c)))} rays each, {rays} rays a frame",
+            $"{quality}: {probes.Cascades} cascades of {p * p * p} probes, {string.Join(", ", probes.Texels.Select((n, c) => n * n * probes.TracedRays(c)))} rays each, {rays} rays a frame",
             $"world probes {world / 1024.0 / 1024.0:0.00} MB",
         };
-        // The probes whose rays the frame carried past their interval and moved within their
-        // texels, by cascade, and the share of every probe's texels theirs are, which the cycle keeps
-        // whole, a cascade of sixteen texels a side holding four times one of eight.
-        if (readCarried && probes.CycleOn && renderer.Context.Graphics is GraphicsDevice device)
-        {
-            var moving = GlobalIlluminationStages.Of(device).ReadCarriedMoving(probes);
-            var movingTexels = moving.Select((m, c) => (long)m * probes.Texels[c] * probes.Texels[c]).Sum();
-            var all = probes.Texels.Sum(n => (long)p * p * p * n * n);
-            var byCascade = string.Join(", ", moving.Select((m, c) => $"{m} of {p * p * p} ({probes.Texels[c]} texels a side)"));
-            lines.Add(string.Create(CultureInfo.InvariantCulture,
-                $"probes carried with their rays moving, by cascade, {byCascade}, {movingTexels} of the {all} texels, {100.0 * movingTexels / Math.Max(all, 1):0.0}%"));
-        }
         // The cascades that traced half their probes the last frame, lying still.
         var halved = gi.Halved.Select((h, c) => (h, c)).Where(x => x.h).Select(x => x.c.ToString(CultureInfo.InvariantCulture)).ToArray();
         lines.Add(halved.Length > 0 ? $"cascades {string.Join(", ", halved)} trace half their probes a frame while they lie still"
@@ -56,10 +46,9 @@ internal static class GlobalIlluminationCommands
             ? "a probe's ray's hit takes every glow light by its own form"
             : "a probe's ray's hit takes a glow light giving it under a 32nd of the largest before it as one point");
         // A screen probe's nine texels of eight bytes, its light, surface, blend and the frame
-        // before's two, and its places' cycle's four, and its words of the glow lights; and for
-        // each texel of the depth the glow
-        // lights' light on it, six texels of eight bytes, this frame's and the frame before's, and
-        // its normal in four.
+        // before's two, and its places' cycle's four, and its uints of the glow lights it sees; and
+        // for each texel of the depth the glow lights' light on it, six texels of eight bytes, this
+        // frame's and the frame before's, and its normal in four.
         static double Megabytes(GpuScreenProbes screen) =>
             ((11.0 * 8 + GpuScreenProbes.GlowSeenBytes) * screen.Across * screen.Down
              + (6.0 * 8 + 4) * screen.Glow.Light.Description.Extent.Width * screen.Glow.Light.Description.Extent.Height) / 1024 / 1024;
@@ -118,7 +107,7 @@ internal static class GlobalIlluminationCommands
             _ => "The last word is specular, gloss or nothing.",
         };
 
-    [Command("gi.probe", "The light arriving at the probe of a cascade nearest a point against a path-traced reference of it, where its own rays met a surface, over every way merged with the cascades above, and each face's light as the model pass reads it, with the ways that carry most of the face furthest from the reference's, each with how far its rays went against where the reference's path through the texel's middle first met a surface, and how many ways met theirs within a tenth of as far, and whether the frame carried the probe past its interval with its rays moving, its paths' bounces counted after the probe's first hit, 0 as the probes' hits are lit with gi.toggle again off: gi.probe <x> <y> <z> [samples] [bounces] [cascade]")]
+    [Command("gi.probe", "The light arriving at the probe of a cascade nearest a point against a path-traced reference of it, where its own rays met a surface, over every way merged with the cascades above, and each face's light as the model pass reads it, with the ways that carry most of the face furthest from the reference's, each with how far its rays went against where the reference's path through the texel's middle first met a surface, and how many ways met theirs within a tenth of as far, its paths' bounces counted after the probe's first hit, 0 as the probes' hits are lit with gi.toggle again off: gi.probe <x> <y> <z> [samples] [bounces] [cascade]")]
     internal static string Probe(float x, float y, float z, int samples = 256, int bounces = -1, int cascade = 0) =>
         BounceReference.Probe(ConsoleHost.World!, new System.Numerics.Vector3(x, y, z), samples, bounces, cascade);
 
@@ -196,14 +185,42 @@ internal static class GlobalIlluminationCommands
             : "showing nothing until a reference is given",
     };
 
-    [Command("gi.passes", "Whether the profile times global illumination's passes apart, the ray scene, each cascade's trace, the merges, the gather, the screen's probes, their filter and the glow lights, as gpu.gi_ lines, the rest staying gpu.global_illumination: gi.passes <on|off>")]
+    [Command("gi.spread", "How many times the side each cascade is merged at its rays are traced at, 1 or 2, four times the rays at 2, the probes made again for it")]
+    internal static string TraceSpread(int spread)
+    {
+        var world = ConsoleHost.World!;
+        if (!world.TryGetResource<GlobalIlluminationSettings>(out var settings))
+            return "global illumination is off, and SetGlobalIllumination turns it on";
+        if (spread is not (1 or 2))
+            return $"{spread} is not a spread, which is 1 or 2";
+        settings.TraceSpread = spread;
+        return spread == 1
+            ? "each cascade's rays are traced at the side it is merged at"
+            : "each cascade's rays are traced at twice the side it is merged at, each texel read the mean of its 2 by 2 traced ones, four times the rays";
+    }
+
+    [Command("gi.hit", "How the merge's marches light a surface they meet, by the light held for its cell of the field, shaded each frame as the trace lights a hit, or by the probes kept about it with the sun's map and no lamp: gi.hit <held|kept>")]
+    internal static string Hit(string how)
+    {
+        var world = ConsoleHost.World!;
+        if (!world.TryGetResource<GlobalIlluminationSettings>(out var settings))
+            return "global illumination is off, and SetGlobalIllumination turns it on";
+        if (how is not ("held" or "kept"))
+            return $"{how} is not a way to light a hit, which is held or kept";
+        settings.KeptHit = how == "kept";
+        return settings.KeptHit
+            ? "the merge lights what its marches meet by the probes kept about it, the sun's map and no lamp"
+            : "the merge lights what its marches meet by the light held for its cell, shaded each frame as the trace lights a hit";
+    }
+
+    [Command("gi.passes", "Whether the profile times global illumination's passes apart, the ray scene, each cascade's trace, the held cells' light, the merges, the gather, the screen's probes, their filter and the glow lights, as gpu.gi_ lines, the rest staying gpu.global_illumination: gi.passes <on|off>")]
     internal static string TimePasses(string state)
     {
         var world = ConsoleHost.World!;
         if (!world.TryGetResource<GlobalIlluminationSettings>(out var settings))
             return "global illumination is off, and SetGlobalIllumination turns it on";
         settings.PassesTimed = state is "on" or "true" or "1";
-        return settings.PassesTimed ? "global illumination's passes are timed apart in the profile as gpu.gi_rays, gpu.gi_glow_faces, gpu.gi_trace0 and on, gpu.gi_merge, gpu.gi_gather, gpu.gi_screen, gpu.gi_filter and gpu.gi_glow"
+        return settings.PassesTimed ? "global illumination's passes are timed apart in the profile as gpu.gi_rays, gpu.gi_glow_faces, gpu.gi_trace0 and on, gpu.gi_reach, gpu.gi_merge, gpu.gi_gather, gpu.gi_screen, gpu.gi_filter and gpu.gi_glow"
             : "global illumination is timed whole in the profile";
     }
 

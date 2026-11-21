@@ -7,6 +7,8 @@
 
 // The cells' codes read as distances and planes, and the pinch, the RadianceCascades module's.
 import rc_field_code;
+// The seam a sheet makes over a solid face beside it (seamSheet), the RadianceCascades module's.
+import rc_field_read;
 
 
 [[vk::binding(0, 0)]]
@@ -120,6 +122,23 @@ struct ResolvedCells : IResolvedCells
     float resolvedAt(int3 at) { return distanceAt(uint3(at), side); }
 }
 
+// The cascade's cells as the module's seam reads them (seamSheet), each cell's plane as its code
+// gives it (sheetOf), read from the codes this dispatch resolves rather than the image it writes.
+// The seam reads the cells' planes and the cascade's size alone, and the rest give none.
+struct CodedCells : IFieldVolume
+{
+    uint side;
+
+    __init(uint side) { this.side = side; }
+
+    int cascadeOf(float3 p, float margin) { return -1; }
+    float4 cornerAndCell(int cascade) { return float4(0.0); }
+    int size() { return int(side); }
+    float4 between(int cascade, float3 cells) { return float4(0.0); }
+    float4 cellAt(int cascade, int3 cell) { return float4(0.0, sheetOf(cells[(cell.z * side + cell.y) * side + cell.x])); }
+    float3 secondAt(int cascade, int3 cell) { return float3(0.0); }
+}
+
 [shader("compute")]
 [numthreads(4, 4, 4)]
 void computeMain(uint3 thread : SV_DispatchThreadID)
@@ -139,7 +158,10 @@ void computeMain(uint3 thread : SV_DispatchThreadID)
     if (d > 0.0 && pinched(ResolvedCells(size), int3(id)))
         d = -d;
     uint3 at = uint3(id.xy, id.z + uint(push.cascade.x) * size);
-    float4 kept = float4(d, sheetOf(code));
+    // A solid face's cell beside a sheet that passes over it, as a lid resting on a wall's top
+    // passes over the cells by the wall's face, keeps the sheet's plane too (seamSheet), so a march
+    // between those cells' middles meets the lid rather than passing it, where it would leak.
+    float4 kept = float4(d, sheetOf(code) + seamSheet(CodedCells(size), int(push.cascade.x), int3(id), code));
     stillField[at] = kept;
     field[at] = kept;
     uint other = second[(id.z * size + id.y) * size + id.x];

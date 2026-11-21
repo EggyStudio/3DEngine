@@ -1,14 +1,10 @@
 // Gathers the light each probe of a cascade receives into the six faces of a cube, a thread a
-// probe's face. Each face holds the light arriving at a surface facing along its axis, every merged
-// direction weighed by how squarely it falls on that surface and by the share of the sphere its
-// texel spans, which the model pass and the next frame's rays read, blended between probes. The
-// weights are scaled to sum to pi, the light reaching a face under a sky of 1, so a uniform sky
-// reads alike on every face at any number of texels, where an equal share for every texel reads
-// a face along z under it, the more so the fewer the texels. Each probe's reach is laid out beside,
-// how far its rays went along each of sixteen by sixteen directions before a surface stopped them,
-// from this cascade's rays, each face's thread a sixth of the directions, which bouncedAt weighs a
-// probe by, and the light arriving about each of those directions, blurred as a surface of
-// roughness 0.5 reflects it, which a rough surface reflects (reflectedAt).
+// probe's face. Each face holds the light arriving at a surface facing along its axis, the
+// module's lightTaken over the probe's merged texels, each texel's light weighed by how squarely it
+// falls on that surface and by the solid angle the texel spans, which the model pass and the next
+// frame's rays read, blended between probes. Beside them lies the light arriving about each of
+// eight by eight directions, blurred as a surface of roughness 0.5 reflects it, which a rough
+// surface reflects (reflectedAt), each face's thread a sixth of the directions.
 //
 // The first face's thread also adds up the light the probe's rays brought straight from the sun,
 // the lights and emissive surfaces, its own light, and all they brought, as the trace summed them a
@@ -45,14 +41,10 @@ RWTexture3D<float4> cubes;
 [[vk::binding(2, 0)]]
 Texture3D<float2> distances;
 
-// Every cascade's probes' reach, sixteen by sixteen directions a probe, the cascades one after another along z.
-[[vk::binding(3, 0)]] [format("r16f")]
-RWTexture3D<float> reach;
-
 // What each workgroup of a probe's rays brought back straight from the sun, the lights and
 // emissive surfaces, and the luminance of all they brought back, summed, as gi_trace.slang wrote
 // it.
-[[vk::binding(4, 0)]]
+[[vk::binding(3, 0)]]
 Texture3D<float4> partial;
 
 // Each probe's own light and the luminance of all its rays brought, the frames of each parity side
@@ -60,41 +52,43 @@ Texture3D<float4> partial;
 // one where the probe is judged by the probes around it, with in w a 1 where its rays met more
 // faces from behind than from in front, and after that where the trace moved each probe to, every
 // cascade.
-[[vk::binding(5, 0)]] [format("rgba16f")]
+[[vk::binding(4, 0)]] [format("rgba16f")]
 RWTexture3D<float4> held;
 
 // The share of each merged direction that reaches the sky, as gi_merge.slang wrote it, and every
 // cascade's probes' faces' share of sky, laid out as the faces are, each direction weighed as the
 // light is, which the model pass weighs the environment's reflection by.
-[[vk::binding(6, 0)]]
+[[vk::binding(5, 0)]]
 Texture3D<float> mergedSky;
 
-[[vk::binding(7, 0)]] [format("r16f")]
+[[vk::binding(6, 0)]] [format("r16f")]
 RWTexture3D<float> skies;
 
 // Every cascade's probes' light along eight by eight directions, each the mean of the merged
 // directions inside it, with the share their rays kept before their interval as the faces take it,
 // a block of ten by ten texels a probe, its border each texel across the octahedron's edge
 // (WaysTexels in gi.slang), the cascades one after another along z.
-[[vk::binding(8, 0)]] [format("rgba16f")]
+[[vk::binding(7, 0)]] [format("rgba16f")]
 RWTexture3D<float4> ways;
 
 // Every cascade's probes' faces as the surface each is read for gathers the light, laid out as the
 // faces are, with the distance the probe's ray along the face's opposite way went to that surface in
 // alpha, 0 where it met none within its interval and the face's light stands (towardSurface in
 // probelight.slang).
-[[vk::binding(9, 0)]] [format("rgba16f")]
+[[vk::binding(8, 0)]] [format("rgba16f")]
 RWTexture3D<float4> cubesAt;
 
 // The way out from the surfaces each of this cascade's texels' rays met, their normals' mean as
 // gi_trace.slang kept it, or none where they met none.
-[[vk::binding(10, 0)]]
+[[vk::binding(9, 0)]]
 Texture3D<float4> hitNormals;
 
-// How far each of the four rays of this cascade's texels went where it has 8 a side, two by two in
-// the texel, as gi_trace.slang wrote them.
-[[vk::binding(11, 0)]]
-Texture3D<float> rayReach;
+// Every cascade's probes' faces' light kept for the merge's marches, laid out as the faces are,
+// times 1 where the probe holds light and 0 where it does not, with that 1 or 0 in alpha, so a
+// filtered read divided by its alpha takes the probes about a point that hold light alone
+// (keptHitLight in gi_merge.slang).
+[[vk::binding(10, 0)]] [format("rgba16f")]
+RWTexture3D<float4> kept;
 
 struct AmbientPush
 {
@@ -103,7 +97,8 @@ struct AmbientPush
     // frame before's own light is the same probes'.
     uint4 cascade;
     // x: where the cascade's rays' interval ends, which a ray that met nothing reached. y: the share
-    // of a carried probe's own light this frame takes in its mean. zw: unused.
+    // of a carried probe's own light this frame takes in its mean. z: how many times its merge's
+    // side the cascade's rays are traced at (TracedSide). w: unused.
     float4 interval;
 };
 
@@ -124,9 +119,9 @@ void follow(uint3 at, uint probes, uint texels, float shares, bool walledIn)
     // counted as its texels alone a cascade of 8 a side, whose texels send four rays each, would
     // take the first sixteen texels' sum, a band of the sphere, for the whole probe's.
     float4 sum = float4(0.0);
-    uint rays = texels * texels * RaysAt(texels);
+    uint rays = texels * texels * TracedRays(texels, uint(push.interval.z + 0.5));
     for (uint g = 0u; g < max(rays / 64u, 1u); g++)
-        sum += partial.Load(int4(int(at.x) * 4 + int(g), int(at.y), z, 0));
+        sum += partial.Load(int4(int(at.x) * int(PartialsAProbe) + int(g), int(at.y), z, 0));
     float3 own = sum.rgb / max(shares, 1e-6);
     float all = sum.a / max(shares, 1e-6);
 
@@ -179,6 +174,20 @@ bool walledIn(uint3 at, uint texels)
     return backs > fronts || 4u * backs > texels * texels;
 }
 
+// A probe's merged texels as the module's lightTaken reads them, each one's light times the share
+// of it the texel's rays carried to where they ended.
+struct MergedTexels : IProbeLight
+{
+    uint3 at;
+    uint texels;
+
+    float3 lightOf(uint2 texel)
+    {
+        int4 from = int4(int2(at.xy * texels + texel), int(at.z), 0);
+        return merged.Load(from).rgb * distances.Load(from).y;
+    }
+}
+
 [shader("compute")]
 [numthreads(64, 1, 1)]
 void computeMain(uint3 id : SV_DispatchThreadID)
@@ -198,7 +207,7 @@ void computeMain(uint3 id : SV_DispatchThreadID)
     float h = distances.Load(int4(int2(at.xy * texels) + below, int(at.z), 0)).x;
     h = h > 0.0 && h < push.interval.x * 0.999 ? h : 0.0;
     float3 surface = -axis * h;
-    float3 sum = float3(0.0), sumAt = float3(0.0);
+    float3 sumAt = float3(0.0);
     float sky = 0.0;
     float weights = 0.0, weightsAt = 0.0;
     float shares = 0.0;
@@ -215,7 +224,6 @@ void computeMain(uint3 id : SV_DispatchThreadID)
             float2 went = distances.Load(from);
             float before = went.y;
             shares += share;
-            sum += light.rgb * before * weight;
             sky += mergedSky.Load(from) * before * weight;
             weights += weight;
             // A probe inside a mesh holds alpha 0 in every texel, where every other's are a half or 1.
@@ -251,40 +259,14 @@ void computeMain(uint3 id : SV_DispatchThreadID)
     // where it does (faceHolds and faceMove in gi.slang).
     float4 place = held[int3(3 * int(probes) + int(at.x), int(at.y), int(push.cascade.x * probes + at.z))];
     float holds = valid > 0.5 && place.w > 0.5 ? 1.0 : 0.0;
-    float3 layer = sum * (Pi / max(weights, 1e-6));
+    float3 layer = lightTaken(MergedTexels(at, texels), texels, axis);
     cubes[uint3(face * probes + at.x, at.y, push.cascade.x * probes + at.z)] = float4(layer, holds * (2.0 + place[face / 2u]));
+    kept[uint3(face * probes + at.x, at.y, push.cascade.x * probes + at.z)] = float4(layer * holds, holds);
     float3 atSurface = h > 0.0 && weightsAt > 1e-6 ? sumAt * (Pi / weightsAt) : layer;
     cubesAt[uint3(face * probes + at.x, at.y, push.cascade.x * probes + at.z)] = float4(atSurface, h);
     skies[uint3(face * probes + at.x, at.y, push.cascade.x * probes + at.z)] = sky / max(weights, 1e-6);
     if (face == 0u)
         follow(at, probes, texels, shares, walledIn(at, texels));
-
-    // This probe's reach, the distance of its ray along each direction, kept at sixteen by sixteen
-    // directions, each ray's own, the four rays of each texel of a cascade of 8 a side two by two
-    // in it as the trace wrote them. Kept at eight by eight, a direction would take the mean of the
-    // four rays in it, some 25 degrees across, which blends the rays that pass beside a far closed
-    // corridor with those that meet its walls, so the probes outside count as seeing its end and
-    // lend it the sky-lit outside (CascadeEdgeTests). With the mean of a texel's four rays taken
-    // for its four directions the same way in the cascades of 8 a side, a board lit by a lamp
-    // outside a closed room of walls 0.3 thick in cells of 0.5 would light the floor inside, which
-    // no light reaches (GlobalIlluminationTests). A direction of the reach is still some 13 degrees
-    // across, a sixteenth of the octahedron's side, one distance for every way in it.
-    uint step = max(texels / uint(ReachTexels), 1u);
-    for (uint k = face; k < uint(ReachTexels * ReachTexels); k += 6u)
-    {
-        uint2 texel = uint2(k % uint(ReachTexels), k / uint(ReachTexels));
-        float reached = 0.0;
-        if (texels < uint(ReachTexels))
-            reached = rayReach.Load(int4(int2(at.xy * uint(ReachTexels) + texel), int(push.cascade.x * probes + at.z), 0));
-        else
-        {
-            for (uint v = 0u; v < step; v++)
-                for (uint u = 0u; u < step; u++)
-                    reached += abs(distances.Load(int4(int2(at.xy * texels + texel * step + uint2(u, v)), int(at.z), 0)).x);
-            reached /= float(step * step);
-        }
-        reach[uint3(at.xy * uint(ReachTexels) + texel, push.cascade.x * probes + at.z)] = reached;
-    }
 
     // The probe's light by way, eight by eight directions in a block with a texel's border.
     uint along = uint(WaysTexels) - 2u;

@@ -113,62 +113,6 @@ public sealed partial class GlobalIlluminationTests
         UnloadModel(block);
     }
 
-    [NeedsRayQueryFact]
-    [Trait("Category", "Render")]
-    public void The_Overlay_Says_The_State_Without_Reading_The_Carried_Probes_Back_Which_gi_state_Reads()
-    {
-        // Counting the carried probes reads them back from the device, waiting for its frames to
-        // finish, which the overlay took four times a second for a line it leaves out.
-        var block = UnderSlab(GlobalIllumination.High, 40);
-        var stages = GlobalIlluminationStages.Of((GraphicsDevice)GetApp().World.Resource<Engine.Renderer>().Context.Graphics!);
-        var before = stages.CarriedReads;
-        DebugOverlay.Of(GetApp().World).Lines(GetApp().World).Right.Should().Contain(line => line.StartsWith("Global illumination High", StringComparison.Ordinal));
-        stages.CarriedReads.Should().Be(before, "the overlay reads no probe back");
-        GlobalIlluminationCommands.IlluminationState(GetApp().World).Should().Contain("probes carried with their rays moving");
-        stages.CarriedReads.Should().Be(before + 1, "gi.state counts the carried probes");
-        UnloadModel(block);
-    }
-
-    [NeedsRayQueryFact]
-    [Trait("Category", "Render")]
-    public void A_Carried_Probes_Cycle_Is_Begun_Again_When_Its_Rays_Move_Again()
-    {
-        // While the device's rays are off the carried probes' rays stand still and the merge leaves
-        // their cycle as it was, so turned on again a cycle going on from before reads the light of
-        // when they last moved. Under the slab the sky turns red while they are off, and three
-        // frames after they are on the carried cascades read it as red as once they settle.
-        var block = UnderSlab(GlobalIllumination.High, 120);
-        var renderer = GetApp().World.Resource<Engine.Renderer>();
-        var probes = renderer.RenderWorld.TryGet<GlobalIlluminationRenderer>()!.Probes!;
-        var stages = GlobalIlluminationStages.Of((GraphicsDevice)renderer.Context.Graphics!);
-        var settings = GetApp().World.Resource<GlobalIlluminationSettings>();
-        settings.RaysOff = true;
-        SetAmbientLight(new Color(255, 40, 30), 1);
-        UnderSlab(GlobalIllumination.High, 60, block);
-        settings.RaysOff = false;
-        UnderSlab(GlobalIllumination.High, 3, block);
-        var early = BlueOverRed();
-        UnderSlab(GlobalIllumination.High, 120, block);
-        var settled = BlueOverRed();
-        output.WriteLine($"three frames after the device's rays are on again the carried cascades read blue over red {early:0.0000}, settled {settled:0.0000}");
-        early.Should().BeApproximately(settled, 0.1f * settled,
-            $"three frames on the carried cascades read blue over red {early:0.0000} where settled they read {settled:0.0000}, the sky of before mixed in without the cycle begun again");
-        UnloadModel(block);
-
-        // The carried cascades' merged light's blue over its red, summed over every texel.
-        float BlueOverRed()
-        {
-            var (red, blue) = (0.0, 0.0);
-            for (int c = 0; c < probes.CycleCascades; c++)
-            {
-                var texels = stages.ReadProbeVolume(probes, c, merged: true);
-                for (int i = 0; i + 3 < texels.Length; i += 4)
-                    (red, blue) = (red + texels[i], blue + texels[i + 2]);
-            }
-            return (float)(blue / Math.Max(red, 1e-6));
-        }
-    }
-
     // A room of one cascade at High with a mirror, as the top level's test opens it, and the
     // scene the device's rays meet.
     private static GpuRayScene OpenRayRoom(out Model mirror)

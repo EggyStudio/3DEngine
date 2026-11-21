@@ -80,7 +80,7 @@ internal sealed partial class GlobalIlluminationRenderer : IIlluminationPasses, 
     private readonly Dictionary<int, TargetScreen> _targets = [];
     private GpuReflectionHistory? _history;
     private GpuRayScene? _rays;
-    private (GpuSceneField Field, GlobalIllumination Quality, int Cascades) _made;
+    private (GpuSceneField Field, GlobalIllumination Quality, int Cascades, int Spread) _made;
     private CubeMap? _black;
     private long _frame;
     // Where each cascade of the field lay the frame before, which says whether the probes' own light
@@ -159,26 +159,27 @@ internal sealed partial class GlobalIlluminationRenderer : IIlluminationPasses, 
         }
 
         var wanted = renderWorld.TryGet<GlobalIlluminationSettings>()!.Quality;
+        var traceSpread = Math.Clamp(renderWorld.TryGet<GlobalIlluminationSettings>()!.TraceSpread, 1, 2);
         var plan = renderWorld.TryGet<SceneFieldRenderer>()?.Plan;
         var origin = renderWorld.TryGet<RenderOrigin>();
         var far = FarIn(renderWorld);
-        if (_gi is null || !ReferenceEquals(_made.Field, field.Field) || _made.Quality != wanted || _made.Cascades != cascades)
+        if (_gi is null || !ReferenceEquals(_made.Field, field.Field) || _made.Quality != wanted || _made.Cascades != cascades || _made.Spread != traceSpread)
         {
             Release();
             var making = Stopwatch.GetTimestamp();
-            _gi = GlobalIlluminationStages.Of(device).CreateGlobalIllumination(field.Field.Resolution / ProbeSpacing, TexelsFor(wanted, cascades, far), far,
-                cycle: wanted == GlobalIllumination.High && device.CanQueryRays);
-            _made = (field.Field, wanted, cascades);
+            _gi = GlobalIlluminationStages.Of(device).CreateGlobalIllumination(field.Field.Resolution / ProbeSpacing, TexelsFor(wanted, cascades, far), far, traceSpread,
+                field.Field.Resolution, field.Field.Cascades);
+            _made = (field.Field, wanted, cascades, traceSpread);
             Logger.Info($"Global illumination's probes made at {wanted}, {cascades} cascades of {_gi.Probes} a side, "
                 + $"in {Stopwatch.GetElapsedTime(making).TotalMilliseconds:0} ms.");
         }
 
-        // Each cascade's interval, from its probes' spacing to four times that, the first's from
-        // the probe, so a ray reaches as far again as the next cascade's begin. Ending at twice the
-        // spacing, where the next cascade's begin, a ray meets nothing short of a surface that the
-        // probes of the next cascade nearer it meet before their own interval begins, which the
-        // merge takes as dark, and the room loses part of the light the sun's patch on its floor
-        // gives it.
+        // Each cascade's interval, by the RadianceCascades module's rule, from its probe to twice
+        // its spacing, where its rays are handed to the next cascade's probes, which stand up to a
+        // spacing of theirs off the ray and meet what lies past it where their own parallel rays
+        // do, so the nearer the end the less an edge past it is smeared over the ways about it. The
+        // end lies past the diagonal of the cell between the cascade's probes, the spacing times
+        // the root of 3, so the reach read of a point among them lies within it.
         //
         // The last cascade's interval ends at the field's edge, the diagonal of its coarsest
         // cascade, since past it no cascade takes over. Ending at four times its spacing, a ray
@@ -189,7 +190,7 @@ internal sealed partial class GlobalIlluminationRenderer : IIlluminationPasses, 
         // field does.
         //
         // The far cascade's probes stand in the field's far cascade, their spacing that of its
-        // cells, and its interval begins half way along the one before's, as each cascade's does.
+        // cells, and its interval begins at its probe, as each cascade's does.
         // The cascade before it traces as the last does, on to the far cascade's edge, meeting the
         // far cascade's cells only once its ray has left the counted ones, and bringing the sky
         // where it meets nothing, so it takes no light from the far cascade's probes. Those stand
@@ -203,8 +204,7 @@ internal sealed partial class GlobalIlluminationRenderer : IIlluminationPasses, 
         for (int c = 0; c < cascades; c++)
         {
             var spacing = ProbeSpacing * fieldSettings.CellSize * (1 << c);
-            var start = c == 0 ? 0 : far && c == cascades - 1 ? 2 * ProbeSpacing * fieldSettings.CellSize * (1 << (c - 1)) : spacing;
-            intervals[c] = (start, c == cascades - 1 || far && c == cascades - 2 ? fieldEdge : 4 * spacing);
+            intervals[c] = (0, c == cascades - 1 || far && c == cascades - 2 ? fieldEdge : 2 * spacing);
         }
         // The screen's probes' rays reach twice as far as the world's probes are apart before they
         // take the light from beyond from them, where they end in the finest cascade
@@ -250,7 +250,6 @@ internal sealed partial class GlobalIlluminationRenderer : IIlluminationPasses, 
             if (c < corners.Length && ((c < _origins.Length ? _origins[c] : null) ?? origins[c]) is { } then)
                 corners[c] = new Vector4(then, 0);
         }
-        var shifts = Shifts(origins, plan, cascades);
         _origins = origins;
         // The far cascade's probes trace a part of them a frame, and all on a frame it moved, whose
         // probes' light of the frames before lay elsewhere (RecordGlobalIllumination).
@@ -260,16 +259,6 @@ internal sealed partial class GlobalIlluminationRenderer : IIlluminationPasses, 
             _lightThrough |= instance.LightThrough > 0 && !switches.ThroughOff;
         GlobalIlluminationStages.Of(device).GlobalIlluminationPassesTimed = switches.PassesTimed;
         RecordRays(renderContext, renderWorld, device, plan);
-        // A carried probe's rays move within their texels and meet the meshes through the device's
-        // rays at High where it traces them, the field's finest cells missing an arch's edge thinner
-        // than they are, which moving rays traced through the field alone pass beside, and
-        // elsewhere keep their middles.
-        var moving = _gi.CycleOn && _rays is not null && !_lightThrough;
-        // A carried probe's cycle is begun again on the frame its rays begin or stop moving, since
-        // the merge leaves the cycle as it was while they stand still, holding the light of when
-        // they last moved (gi_merge.slang).
-        if (_movingBefore is { } was && was != moving) _changedAt = _frame;
-        _movingBefore = moving;
         // The coarser cascades trace in halves once a change of the lights or the field has
         // settled, and whole until then, since a half keeping its light of before a light went out
         // hands it back to the traced half through the light past the first bounce, and a room
@@ -280,9 +269,9 @@ internal sealed partial class GlobalIlluminationRenderer : IIlluminationPasses, 
         PlaceLights(lights, origin, sunShadow?.Origin ?? origin);
         _retired.Add((_frame, GlobalIlluminationStages.Of(device).RecordGlobalIllumination(renderContext.CommandBuffer, _gi, field.Field, view, sampler, sunMap, sunSampler, lights, intervals, ProbeSpacing,
             switches.MergeOff, switches.Alone, switches.Shown is BounceView.Rays or BounceView.Merged, _frame, switches.FollowOff ? null : lying,
-            far ? cascades - 2 : -1, _lightThrough, plan is { Whole: true }, farPart, switches.MeshesTraced || moving ? _rays : null, shifts, CarriedShare, CarriedSince, CarriedPhase,
-            (moving ? 1u : 0) | (switches.MeshesTraced ? 2u : 0), spread, _fieldRebuilt,
-            origin.Against(_fieldChanged.Min), origin.Against(_fieldChanged.Max))));
+            far ? cascades - 2 : -1, _lightThrough, plan is { Whole: true }, farPart, switches.MeshesTraced ? _rays : null, CarriedShare,
+            switches.MeshesTraced ? 2u : 0, spread, _fieldRebuilt,
+            origin.Against(_fieldChanged.Min), origin.Against(_fieldChanged.Max), switches.KeptHit)));
 
         // The screen's probes, where the window has a depth to stand them on, the first interval
         // theirs. At Low, which leaves them out, they stand for the glow lights alone while some
@@ -621,7 +610,7 @@ internal sealed partial class GlobalIlluminationRenderer : IIlluminationPasses, 
         }
         // 1 in the counts' w where a probe's ray's hit takes every glow light by its own form
         // (gi.toggle points), a value the lights' signature leaves out, so the switch is no change
-        // of the lights that would begin the carried probes' cycles again.
+        // of the lights that would begin the screen probes' cycles again.
         MemoryMarshal.Cast<byte, float>(bytes.AsSpan(0, 64))[15] = (renderWorld.TryGet<GlobalIlluminationSettings>() is { PointsOff: true }) ? 1 : 0;
         return bytes;
     }

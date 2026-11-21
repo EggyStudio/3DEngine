@@ -95,8 +95,9 @@ internal sealed class GpuIllumination : IDisposable
     /// </summary>
     public IImageView ReachView { get; }
 
-    /// <summary>The bytes the reach, each ray's own where a texel has four, and each cascade's distances take, each with the share its rays kept before their interval.</summary>
-    public long ReachBytes => (long)(ReachTexels * Probes) * (ReachTexels * Probes) * Probes * (Cascades + Math.Max(FourRayCascades(Texels), 1)) * 2
+    /// <summary>The bytes the reach and each cascade's distances take, each with the share its rays
+    /// kept before their interval.</summary>
+    public long ReachBytes => (long)(ReachTexels * Probes) * (ReachTexels * Probes) * Probes * Cascades * 2
         + Texels.Sum(n => (long)(Probes * n) * (Probes * n) * Probes * 4);
 
     /// <summary>
@@ -130,43 +131,48 @@ internal sealed class GpuIllumination : IDisposable
     internal (VkImage Image, VkImageView View)[] Radiance { get; }
     internal (VkImage Image, VkImageView View)[] Merged { get; }
 
-    // Each cascade's carried probes' cycle of the sixteen places their rays move through
-    // (gi_merge.slang), the mean gathered so far as the frame before left it, which this frame's
-    // merge reads at each probe's place then, the mean gathered so far and the last whole cycle's as
-    // this frame's merge writes them, and the whole one as the frame before left it.
-    internal (VkImage Image, VkImageView View)[] CyclePartialBefore { get; init; } = [];
-    internal (VkImage Image, VkImageView View)[] CyclePartial { get; init; } = [];
-    internal (VkImage Image, VkImageView View)[] CycleFull { get; init; } = [];
-    internal (VkImage Image, VkImageView View)[] CycleFullBefore { get; init; } = [];
+    // The light each texel's ray brought at its traced side, and the share it carries on.
+    internal (VkImage Image, VkImageView View)[] RayLights { get; init; } = [];
 
-    // The same cycle's share of the sky and mark of what the rays met, the merged light's alpha,
-    // the mean gathered so far and the last whole cycle's of each, as the frame before left them
-    // and as this frame's merge writes them, since a share and a mark taken from each frame's places
-    // alone, which a carried probe passes down and to its faces, would move with its rays, and
-    // every probe whose hits read them would flicker with them.
-    internal (VkImage Image, VkImageView View)[] CycleSkyMarkBefore { get; init; } = [];
-    internal (VkImage Image, VkImageView View)[] CycleSkyMark { get; init; } = [];
+    // How far each of those rays went and how it ended, as gi_trace.slang writes them.
+    internal (VkImage Image, VkImageView View)[] RayEnds { get; init; } = [];
 
-    // The whole cycle before the last, its light and share of the sky, which the light a carried
-    // probe shows eases from to the last whole cycle's across a cycle (gi_merge.slang), as the frame
-    // before left it and as this frame's merge writes it.
-    internal (VkImage Image, VkImageView View)[] CycleEasedBefore { get; init; } = [];
-    internal (VkImage Image, VkImageView View)[] CycleEased { get; init; } = [];
+    // Each cascade merged at the side it is traced at, which the cascade below's merge reads.
+    internal (VkImage Image, VkImageView View)[] MergedTraced { get; init; } = [];
 
-    // Whether the cycle's images are made whole, at High on a device that traces rays, where a
-    // carried probe's rays move (gi_trace.slang), or stand-ins of a texel, since a mean of one place
-    // is that place.
-    internal bool CycleOn { get; init; }
+    // The share of the sky each of those texels merged, as gi_merge.slang writes it.
+    internal (VkImage Image, VkImageView View)[] MergedSkyTraced { get; init; } = [];
 
-    // How many cascades, from the first, can carry a probe's rays past their interval and keep its
-    // cycle, every one but the last counted and the far, whose rays go on to the field's edge
-    // already. The probes the view carries lie in the first cascades, and the last counted and the
-    // far hold the most texels of all, so the cycle's images are made whole in the cascades before
-    // them alone.
-    internal int CycleCascades { get; init; }
+    /// <summary>How many times the side a cascade is merged at its rays are traced at, 1 or 2 (<see
+    /// cref="GlobalIlluminationSettings.TraceSpread"/>).</summary>
+    public int Spread { get; init; } = 1;
 
-    /// <summary>The bytes the carried probes' cycle takes, none where its images are stand-ins.</summary>
-    public long CycleBytes => CycleOn ? Texels.Take(CycleCascades).Sum(n => 8L * 8 * (Probes * n) * (Probes * n) * Probes) : 0;
+    /// <summary>The partial sums each probe's trace leaves, one a workgroup of its 64 rays, as many
+    /// as fill a probe traced at a spread of 2, as <c>gi.slang</c>'s
+    /// <c>PartialsAProbe</c>.</summary>
+    public const int PartialsAProbe = 16;
+
+    /// <summary>
+    /// The texels along each side cascade <paramref name="c"/> is merged at, which the cascade
+    /// below reads, twice its octahedron's where each texel sends four rays.
+    /// </summary>
+    public int MergeSide(int c) => RaysAt(c) == 4 ? 2 * Texels[c] : Texels[c];
+
+    /// <summary>The texels along each side cascade <paramref name="c"/>'s rays are traced at, <see
+    /// cref="Spread"/> times its merge's.</summary>
+    public int TracedSide(int c) => Spread * MergeSide(c);
+
+    /// <summary>The rays each texel of cascade <paramref name="c"/>'s octahedron is traced
+    /// with.</summary>
+    public int TracedRays(int c) => RaysAt(c) * Spread * Spread;
+
+    /// <summary>
+    /// The bytes each cascade's rays take, their light and ends at the side they are traced at and
+    /// their merged light and share of the sky at the side they are merged at.
+    /// </summary>
+    public long TracedBytes => Enumerable.Range(0, Cascades).Sum(c =>
+        (long)(Probes * TracedSide(c)) * (Probes * TracedSide(c)) * Probes * (8 + 4) + (long)(Probes * MergeSide(c)) * (Probes * MergeSide(c)) * Probes * (8 + 2));
+
     internal (VkImage Image, VkImageView View)[] Distances { get; }
 
     // Each cascade's merged rays' share of the sky, a texel a ray, as gi_merge.slang writes it.
@@ -183,7 +189,7 @@ internal sealed class GpuIllumination : IDisposable
     // each probe to, every cascade.
     internal VkImageView Held { get; }
 
-    // The image behind Held, which a command reads the carried probes from.
+    // The image behind Held, which ReadIlluminationHeld copies from.
     internal VkImage HeldImage { get; init; }
 
     internal VkImage Cubes { get; }
@@ -193,16 +199,23 @@ internal sealed class GpuIllumination : IDisposable
     internal VkImage CubesAt { get; init; }
     internal VkImageView CubesAtView { get; init; }
 
+    // Each probe's faces' light times 1 where the probe holds light and 0 where it does not, with
+    // that in alpha, which the merge's marches light what they meet by (gi_ambient.slang).
+    internal VkImage Kept { get; init; }
+    internal VkImageView KeptView { get; init; }
+
+    // The light of each cell of the field within a cell of a surface that no finer cascade holds,
+    // shaded each frame as the trace lights a hit, which the merge's marches read at the cells they
+    // meet a surface in, each side's own light and its light past the first bounce side by side
+    // along x, a sheet's two sides and a solid's one, the field's cascades one after another along
+    // z (gi_hold.slang).
+    internal VkImage HeldCells { get; init; }
+    internal VkImageView HeldCellsView { get; init; }
+    internal long HeldCellsBytes { get; init; }
+
     // The way out from the surfaces each cascade's texels' rays met, as the trace keeps them for the
     // gather.
     internal (VkImage Image, VkImageView View)[] HitNormals { get; init; } = [];
-
-    // How far each ray of the cascades sending four rays a texel went, which the gather lays out as
-    // the reach in place of their mean.
-    internal VkImageView RayReach { get; init; }
-
-    // The cascades sending four rays a texel, the first ones, those of 8 a side.
-    internal static int FourRayCascades(IEnumerable<int> texels) => texels.TakeWhile(n => n <= 8).Count();
 
     internal VkImage Reach { get; }
     internal VkImage Ways { get; }

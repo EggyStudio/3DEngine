@@ -105,45 +105,16 @@ public sealed partial class GlobalIlluminationTests
     {
         // A green floor under a canopy thirty units across, a unit thick and five over it, past
         // the four units the screen's probes reach at High, read with no canopy, with a solid one
-        // and with one letting half the light through a unit. The probes of each cascade under the
-        // canopy took no light from those of the cascade above while the canopy hid them from them,
-        // so the screen's probes read the cascades' light past their reach as black, and the floor
-        // took next to none of the sky's light the solid canopy holds back, where the canopy's
-        // depth along each way gives 0.38. The merge sees past the leaves (seesPastLeaves) and each
-        // crossing is taken once by one cascade.
-        Open();
-        SetSceneField(4, 0.25f);
-        SetGlobalIllumination(GlobalIllumination.High);
-        SetAmbientLight(new Color(150, 190, 255), 1);
-        var ground = LoadModelFromMesh(GenMeshCube(1, 1, 1));
-        ground.Materials[0].Roughness = 1;
-        var camera = new Camera3D(new Vector3(0, 1.6f, 6), new Vector3(0, 1.2f, -2), Vector3.UnitY, 70);
-        float Floor(Model? roof)
-        {
-            var image = Capture(() =>
-            {
-                DrawModelEx(ground, new Vector3(0, -0.5f, 0), Vector3.UnitY, 0, new Vector3(80, 1, 80), new Color(90, 140, 60));
-                if (roof is { } model) DrawModelEx(model, new Vector3(0, 5.5f, -4), Vector3.UnitY, 0, new Vector3(30, 1, 30), new Color(50, 110, 40));
-            }, camera);
-            var at = GetWorldToScreenEx(new Vector3(0, 0, 2.5f), camera, image.Width, image.Height);
-            var c = Mean(image, (int)at.X - 8, (int)at.Y - 4, 16, 8) / 255;
-            return 0.2126f * MathF.Pow(c.X, 2.2f) + 0.7152f * MathF.Pow(c.Y, 2.2f) + 0.0722f * MathF.Pow(c.Z, 2.2f);
-        }
-        Model Leaves(float through)
-        {
-            var model = LoadModelFromMesh(GenMeshCube(1, 1, 1));
-            model.Materials[0].Roughness = 1;
-            model.Materials[0].LightThrough = through;
-            return model;
-        }
-
-        var (solidRoof, halfway) = (Leaves(0), Leaves(0.5f));
-        var open = Floor(null);
-        var solid = Floor(solidRoof);
-        var half = Floor(halfway);
-        ((half - solid) / (open - solid)).Should().BeGreaterThan(0.33f,
-            $"the leaves let the sky's light through to the floor past the screen's probes' reach, {half:0.0000} between {solid:0.0000} and {open:0.0000}");
-        foreach (var model in new[] { ground, solidRoof, halfway }) UnloadModel(model);
+        // and with one letting half the light through a unit, each within a twentieth of the open
+        // floor's traced light of the path-traced reference's (BounceReference.Trace, 2048 paths a
+        // pixel, the first face reflecting by its gloss), the open floor 0.1170 in linear light,
+        // the solid canopy's 0.127 of it and the half one's 0.463. The probes of each cascade
+        // under the canopy took no light from those of the cascade above while the canopy hid them
+        // from them, so the screen's probes read the cascades' light past their reach as black,
+        // and the floor took next to none of the sky's light the solid canopy holds back. The
+        // merge sees past the leaves (seesPastLeaves) and each crossing is taken once by one
+        // cascade.
+        FloorsTakeTheirTrace("leaves", 5.5f, 0.1170f, 0.127f, 0.463f);
     }
 
     [NeedsVulkanTheory]

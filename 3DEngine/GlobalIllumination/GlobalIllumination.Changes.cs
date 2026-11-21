@@ -1,12 +1,10 @@
-using System.Numerics;
 using System.Runtime.InteropServices;
 using static Engine.Illumination;
 
 namespace Engine;
 
 // Whether the window's lights or the field changed within a cycle of sixteen frames, which begins
-// every screen probe's cycle of places again (gi_screen_filter.slang) and every carried world
-// probe's (gi_merge.slang), and how far the world probes' cascades moved.
+// every screen probe's cycle of places again (gi_screen_filter.slang).
 internal sealed partial class GlobalIlluminationRenderer
 {
     // As many frames after a change as its light takes to settle, the light bounced off the walls
@@ -26,23 +24,12 @@ internal sealed partial class GlobalIlluminationRenderer
     // The switches global illumination was drawn with the frame before, and whether this frame's
     // differ, which begins every cycle again as a change of the lights does, so a part left out or
     // put back shows at once where the cycles would ease into it over two of theirs.
-    private (bool, bool, bool, bool, bool, bool, bool, bool, bool, bool, bool, bool, int, float)? _switchesBefore;
+    private (bool, bool, bool, bool, bool, bool, bool, bool, bool, bool, bool, bool, int, float, bool)? _switchesBefore;
     private bool _switchesChanged;
-
-    // Whether the carried probes' rays moved the frame before, or null before the first frame.
-    private bool? _movingBefore;
 
     // The share of a carried probe's own light this frame takes in the gather's mean, one over the
     // frames since the lights or the field last changed, sixteen at most (gi_ambient.slang).
     private float CarriedShare => 1f / Math.Min(16, _frame - _changedAt + 1);
-
-    // The frames since the lights or the field last changed, 0 on the frame they did, which begins a
-    // carried probe's cycle again (gi_merge.slang).
-    private uint CarriedSince => (uint)Math.Min(_frame - _changedAt, 1000);
-
-    // Where a carried probe's cycle of sixteen frames stands, counted from the last change, so the
-    // first whole cycle is gathered in the sixteen frames after it.
-    private uint CarriedPhase => (uint)((_frame - _changedAt) & 15);
 
     // Whether the lights or the field changed within the frames a change's light takes to settle.
     private bool Settling => _frame - _changedAt < SettlingFrames;
@@ -60,7 +47,7 @@ internal sealed partial class GlobalIlluminationRenderer
     private void NoteSwitches(GlobalIlluminationSettings s)
     {
         var now = (s.MergeOff, s.AgainOff, s.FollowOff, s.GlowOff, s.AlbedoOff, s.SpecularOff, s.NormalMapsOff, s.ThroughOff, s.HistoryOff,
-            s.FilterOff, s.ScreenOff, s.MeshesTraced, s.Alone, s.BounceGain);
+            s.FilterOff, s.ScreenOff, s.MeshesTraced, s.Alone, s.BounceGain, s.KeptHit);
         _switchesChanged = _switchesBefore is { } before && before != now;
         _switchesBefore = now;
     }
@@ -137,19 +124,5 @@ internal sealed partial class GlobalIlluminationRenderer
             for (int at = glow + GlowLights.Head / 4; at < glow + glowFloats; at += GlowLights.Bytes / 4) Place(at);
         }
         return (signature, places);
-    }
-
-    // How far each cascade's probes moved since the frame before, in probes, where it lay somewhere
-    // before, which the merge reads a carried probe's cycle at its place then by.
-    private (int X, int Y, int Z)?[] Shifts(Vector3?[] origins, SceneFieldPlan? plan, int cascades)
-    {
-        var shifts = new (int X, int Y, int Z)?[cascades];
-        for (int c = 0; c < cascades; c++)
-            if (origins[c] is { } now && c < _origins.Length && _origins[c] is { } before && plan is not null)
-            {
-                var moved = (now - before) / (plan.CellOf(plan.CascadeOfProbes(c, cascades)) * ProbeSpacing);
-                shifts[c] = ((int)MathF.Round(moved.X), (int)MathF.Round(moved.Y), (int)MathF.Round(moved.Z));
-            }
-        return shifts;
     }
 }

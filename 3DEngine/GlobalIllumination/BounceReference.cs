@@ -149,12 +149,11 @@ internal static class BounceReference
     /// them before their interval began, and the mean light they brought against the reference's
     /// along the same ways; over every way, the mean light merged with the cascades above against
     /// the reference's; and for each face, +x, -x, +y, -y, +z and -z, the light the model pass reads,
-    /// that gathered from the merge, and the reference's; and whether the frame carried the probe past
-    /// its interval with its rays moving (gi_trace.slang).
+    /// that gathered from the merge, and the reference's.
     /// </summary>
     internal sealed record ProbeLight(int Cascade, Vector3 Middle, int Ways, int Hits, int Early, Vector3 HitRays, Vector3 HitReference,
         Vector3 Merged, Vector3 Reference, Vector3[] Faces, Vector3[] FacesMerged, Vector3[] FacesReference, ProbeWay[] Each,
-        IReadOnlyDictionary<uint, string>? Names = null, bool Moving = false);
+        IReadOnlyDictionary<uint, string>? Names = null);
 
     /// <summary>
     /// One way of a probe's octahedron, where its own ray met a surface, 0 within its interval, 1
@@ -205,7 +204,7 @@ internal static class BounceReference
         var lines = new List<string>
         {
             string.Create(CultureInfo.InvariantCulture, $"the probe of cascade {probe.Cascade} at {m.X:0.##},{m.Y:0.##},{m.Z:0.##}, {probe.Ways} ways, the reference {samples} paths a way") +
-            (bounces < 0 ? "" : bounces == 1 ? ", one bounce" : $", {bounces} bounces") + (probe.Moving ? ", carried past its interval with its rays moving" : ""),
+            (bounces < 0 ? "" : bounces == 1 ? ", one bounce" : $", {bounces} bounces"),
             (probe.Hits == 0 ? "none of its own rays met a surface"
                 : $"where its own rays met a surface, {probe.Hits} ways: they bring {Rgb(probe.HitRays)}, the reference {Rgb(probe.HitReference)}, {Share(probe.HitRays, probe.HitReference)}")
             + (probe.Early > 0 ? $", {probe.Early} of them before their interval began" : ""),
@@ -359,8 +358,7 @@ internal static class BounceReference
             faces[f] = new Vector3(cubes[i], cubes[i + 1], cubes[i + 2]);
         }
         return new ProbeLight(c, middle, n * n, hits, early, hits > 0 ? hitRays / hits : Vector3.Zero, hits > 0 ? hitReference / hits : Vector3.Zero,
-            mergedAll / (n * n), referenceAll / (n * n), faces, facesMerged, facesReference, each, Names(tracer.Scene.Copies, traced.Regions),
-            gi.CycleOn && GlobalIlluminationStages.Of(device).ReadCarriedMoving(gi, c, x, y, z));
+            mergedAll / (n * n), referenceAll / (n * n), faces, facesMerged, facesReference, each, Names(tracer.Scene.Copies, traced.Regions));
     }
 
     // The point of an octahedron a point of its square stands for, as gi.slang's octahedronPoint gives it.
@@ -784,7 +782,7 @@ internal static class BounceReference
         return (width, height, light);
     }
 
-    // The regions as little-endian words a pixel, rows from the top.
+    // The regions as a little-endian uint a pixel, rows from the top.
     private static void WriteRegions(string path, TracedReference traced) => File.WriteAllBytes(path, MemoryMarshal.AsBytes(traced.Regions.AsSpan()).ToArray());
 
     private static uint[] ReadRegions(string path, int pixels)

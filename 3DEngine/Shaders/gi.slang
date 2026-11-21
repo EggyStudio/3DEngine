@@ -676,3 +676,43 @@ float3 glowLightsFrom<V : IVolume>(V field, SceneFieldInfo info, GiLights lights
         }
     return sum;
 }
+
+// A cascade's rays are traced at `spread` times the side it is merged at, 1 or 2
+// (GlobalIlluminationSettings.TraceSpread), each texel the merge reads the mean of the spread by
+// spread traced texels it holds, so its light is that of as many ways spread over its solid angle
+// (the RadianceCascades module's README). Its middle way alone reads a thin strip of sky the texel
+// holds part of as all of it or none.
+
+// The partial sums each probe's trace leaves, one a workgroup of its 64 rays, as many as fill a
+// probe traced at a spread of 2, the most (GpuIllumination.PartialsAProbe).
+public static const uint PartialsAProbe = 16u;
+
+// The texels along each side a cascade of `texels` a side is merged at, which the cascade below
+// reads, twice its texels' where each sends four rays (RaysAt).
+public uint MergeSide(uint texels)
+{
+    return RaysAt(texels) == 4u ? texels * 2u : texels;
+}
+
+// The texels along each side its rays are traced at.
+public uint TracedSide(uint texels, uint spread)
+{
+    return MergeSide(texels) * spread;
+}
+
+// The rays each of its texels sends, side by side in a workgroup, those of each texel it is
+// merged at side by side among them.
+public uint TracedRays(uint texels, uint spread)
+{
+    return RaysAt(texels) * spread * spread;
+}
+
+// The traced texel the ray `quarter` of a texel's rays (TracedRays) stands for, and in merged the
+// texel at the merge's side it falls in.
+public uint2 tracedTexel(uint2 texel, uint quarter, uint texels, uint spread, out uint2 merged)
+{
+    uint across = MergeSide(texels) / texels;
+    uint m = quarter / (spread * spread), s = quarter % (spread * spread);
+    merged = texel * across + uint2(m % across, m / across);
+    return merged * spread + uint2(s % spread, s / spread);
+}

@@ -105,6 +105,8 @@ void computeMain(uint3 group : SV_GroupID, uint3 local : SV_GroupThreadID)
     still.paint = stillPaint[at];
     still.glow = stillGlow[at];
     still.face = stillFaces[at];
+    // The engine keeps no share of a surface's diffuse light sent through to its far side.
+    still.through = 0.0;
     FieldCell stamped = stampCell(BrickShapes(push.counts.x * 4u + brick.z, brick.w), p, reach, still);
     field[at] = float4(stamped.distance, stamped.sheet);
     albedoField[at] = stamped.paint;

@@ -39,7 +39,7 @@ public sealed partial class GlobalIlluminationTests
         Named(20).Should().Contain("global_illumination").And.NotContain(node => node.StartsWith("gi_", StringComparison.Ordinal),
             "the passes are timed whole unless asked");
         settings.PassesTimed = true;
-        Named(10).Should().Contain(["gi_glow_faces", "gi_trace0", "gi_trace1", "gi_merge", "gi_gather"], "each pass is timed apart once asked");
+        Named(10).Should().Contain(["gi_glow_faces", "gi_trace0", "gi_trace1", "gi_hold", "gi_merge", "gi_gather"], "each pass is timed apart once asked");
         // A frame's times are read back once the frames in flight after it have finished, so those
         // recorded before the change are let pass.
         settings.PassesTimed = false;
