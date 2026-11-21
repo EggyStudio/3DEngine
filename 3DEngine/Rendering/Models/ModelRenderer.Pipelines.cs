@@ -24,24 +24,26 @@ internal enum ModelBuild
 
 internal sealed partial class ModelRenderer
 {
-    // Which faces of a draw are left out, whether it is drawn as points, blended, writes its depth
-    // and cuts nothing out, no faces for a double-sided material or a pass that culls nothing and
-    // otherwise the back or the front ones.
-    private static (CullMode Cull, bool Points, bool Blend, bool Depth, bool Solid) FacesOf(in ModelDraw draw, bool cullBackFaces) =>
+    // Which faces of a draw are left out, whether it is drawn as points, blended, writes its depth,
+    // cuts nothing out or cuts out below a cutoff, no faces for a double-sided material or a pass
+    // that culls nothing and otherwise the back or the front ones.
+    private static (CullMode Cull, bool Points, bool Blend, bool Depth, bool Solid, bool Masked) FacesOf(in ModelDraw draw, bool cullBackFaces) =>
         (!cullBackFaces || draw.DoubleSided ? CullMode.None : draw.CullFront ? CullMode.Front : CullMode.Back, draw.Points, draw.ColorBlend, draw.DepthWrite,
-            draw.AlphaMode == MaterialAlphaMode.Opaque);
+            draw.AlphaMode == MaterialAlphaMode.Opaque, draw.AlphaMode == MaterialAlphaMode.Mask);
 
     // The model pass's own pipeline, drawing both sides of each face or leaving the back or the
     // front ones out, filled or as points, blended or written as they are, writing its depth or
     // not, through model_streams.slang for a mesh with streams, with the build given where it was
-    // made and the whole where it was not, reading positions alone for a mesh uploaded so, and
-    // with its alpha test folded away for a material that cuts nothing out.
+    // made and the whole where it was not, reading positions alone for a mesh uploaded so, with its
+    // alpha test folded away for a material that cuts nothing out, and its alpha taken as the
+    // samples it covers for a material that cuts out below a cutoff.
     private IPipeline? Pipeline(IGraphicsDevice gfx, IRenderPass renderPass, RenderWorld renderWorld, CullMode cull = CullMode.None, bool points = false,
-        bool blend = true, Streams streams = Streams.None, bool depth = true, ModelBuild build = ModelBuild.Whole, VertexFormat? positions = null, bool solid = false)
+        bool blend = true, Streams streams = Streams.None, bool depth = true, ModelBuild build = ModelBuild.Whole, VertexFormat? positions = null, bool solid = false,
+        bool masked = false)
     {
         var (spvs, shaders) = streams == Streams.None ? (_fragmentSpvs, _fragmentShaders) : (_streamsFragmentSpvs, _streamsFragmentShaders);
         if (spvs[(int)build] is null) build = ModelBuild.Whole;
-        if (_pipelines.TryGetValue((renderPass, cull, points, blend, streams, depth, build, positions, solid), out var kept)) return kept;
+        if (_pipelines.TryGetValue((renderPass, cull, points, blend, streams, depth, build, positions, solid, masked), out var kept)) return kept;
 
         _vertexShader ??= gfx.CreateShader(new ShaderDesc(ShaderStage.Vertex, _vertexSpv));
         var vertex = streams == Streams.None
@@ -49,8 +51,8 @@ internal sealed partial class ModelRenderer
             : _streamsVertexShader ??= gfx.CreateShader(new ShaderDesc(ShaderStage.Vertex, _streamsVertexSpv));
         var fragment = shaders[(int)build] ??= gfx.CreateShader(new ShaderDesc(ShaderStage.Fragment, spvs[(int)build]!));
         var made = MakePipeline(gfx, renderPass, renderWorld, vertex, fragment, cull, points: points, blend: blend, streams: streams, depth: depth,
-            positions: positions, solid: solid, waitingAs: (renderPass, cull, points, blend, streams, depth, build, positions, solid));
-        if (made is not null) _pipelines[(renderPass, cull, points, blend, streams, depth, build, positions, solid)] = made;
+            positions: positions, solid: solid, coverage: masked, waitingAs: (renderPass, cull, points, blend, streams, depth, build, positions, solid, masked));
+        if (made is not null) _pipelines[(renderPass, cull, points, blend, streams, depth, build, positions, solid, masked)] = made;
         return made;
     }
 
@@ -384,7 +386,8 @@ internal sealed partial class ModelRenderer
     private IPipeline? MakePipeline(IGraphicsDevice gfx, IRenderPass renderPass, RenderWorld renderWorld, IShader vertex, IShader? fragment,
         CullMode cull = CullMode.None, IDescriptorSetLayout? material = null, bool shadow = false, bool points = false,
         Streams streams = Streams.None, bool blend = true, bool depth = true, IReadOnlySet<int>? inputs = null, IReadOnlyList<ShaderInput>? named = null,
-        string? shaderName = null, StreamFeed? feed = null, VertexFormat? positions = null, bool solid = false, bool clamp = false, object? waitingAs = null)
+        string? shaderName = null, StreamFeed? feed = null, VertexFormat? positions = null, bool solid = false, bool clamp = false, object? waitingAs = null,
+        bool coverage = false)
     {
         // The shadow pass reads the instance's first five rows, to its emission. Both push the
         // view-projection they draw through.
@@ -397,6 +400,7 @@ internal sealed partial class ModelRenderer
             Cull: cull,
             Points: points,
             Solid: solid,
+            AlphaToCoverage: coverage,
             // The mesh's vertices at binding 0, and the instances at binding 1, rows of four floats
             // from location 3 in ModelInstance's order. With streams, its colors at binding 2 and
             // location 9 and its second texture coordinates at binding 3 and location 10, each a

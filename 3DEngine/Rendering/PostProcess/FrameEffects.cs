@@ -147,6 +147,13 @@ internal sealed class FrameEffects
     public bool Fxaa { get; set; }
 
     /// <summary>
+    /// Whether a surface's roughness is widened by how fast its normal turns across a pixel, so a
+    /// highlight that falls between pixels spreads over them rather than flickering as the camera
+    /// moves; on unless set.
+    /// </summary>
+    public bool SpecularAntialiasing { get; set; } = true;
+
+    /// <summary>
     /// Whether what the window shows is dithered before its eight bits take it, so a slow gradient
     /// in the dark falls in a fine grain rather than in steps a level apart; on unless set.
     /// </summary>

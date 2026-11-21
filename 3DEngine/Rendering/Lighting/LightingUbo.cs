@@ -97,7 +97,9 @@ internal struct LightingUbo
     /// read before the world's. z: 1 at <see cref="GlobalIllumination.Low"/>, which leaves them out,
     /// where they stand for the glow lights alone, whose light on the depth's texels is read. w: the
     /// switches a reading sets, 1 every surface white, 2 the reflection of the indirect light left
-    /// out and 4 the materials' normal maps left out (<c>gi.toggle</c>).
+    /// out and 4 the materials' normal maps left out (<c>gi.toggle</c>), and 8 the surfaces'
+    /// roughness left unwidened, where specular antialiasing is off
+    /// (<c>SetSpecularAntialiasing</c>).
     /// </summary>
     public Vector4 Screen;
 

@@ -49,6 +49,12 @@ internal enum CompareOp
 /// <param name="DepthClamp">Whether a depth before the near plane or past the far one is clamped onto
 /// it rather than clipped, where the device can, so a shadow map holds a caster nearer the light than
 /// its near plane.</param>
+/// <param name="AlphaToCoverage">
+/// Whether, in a pass of several samples a pixel, the fragment's alpha is taken as the share of the
+/// pixel's samples it covers, with blending off, which the fragment stage's specialization constant
+/// 2 says, so the model pass gives a masked material's sharpened alpha where it would otherwise cut
+/// the fragment out. In a pass of one sample it does nothing.
+/// </param>
 internal readonly record struct GraphicsPipelineDesc(
     IRenderPass RenderPass,
     IShader VertexShader,
@@ -69,7 +75,8 @@ internal readonly record struct GraphicsPipelineDesc(
     BlendFactors Factors = default,
     bool Solid = false,
     bool DepthClamp = false,
-    bool DrawsBacks = false);
+    bool DrawsBacks = false,
+    bool AlphaToCoverage = false);
 
 /// <summary>Which faces a pipeline leaves out, by their winding, counterclockwise on the screen being the front.</summary>
 internal enum CullMode

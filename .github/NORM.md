@@ -457,6 +457,10 @@ with no quiet wait before it and held no longer than ten minutes, since two such
 side overfill the 8 GB. A session whose wait grows long tells the reviewing session in a line, which
 gives the order, an engine's illumination read first. By review.
 
+The Tools module's `scripts/gpu.py` is the one gate for this lock, and no session writes its own.
+`gpu.py shared -- <command>` and `gpu.py exclusive -- <command>` take the lock, write and clear the
+marks and keep the bounds, and `gpu.py status` lists who holds and who waits.
+
 **N 7.10 A session leaves the machine its memory.** The machine's memory ran out three times, the
 last on 2026-11-10, when one line of Python read a session's transcript of 4 GB whole and grew to 27
 GB while 18 GB of old frames stood in the RAM-backed /tmp and filled the swap, which is memory too.

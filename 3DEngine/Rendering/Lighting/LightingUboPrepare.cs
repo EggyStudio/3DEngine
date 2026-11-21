@@ -114,6 +114,10 @@ internal sealed class LightingUboPrepare : IPrepareSystem
         // And the materials' normal maps left out for a reading, with global illumination on or off.
         if (renderWorld.TryGet<GlobalIlluminationSettings>() is { NormalMapsOff: true })
             windowUbo.Screen.W += 4;
+        // And the surfaces' roughness left as the materials give it, where specular antialiasing is
+        // off.
+        if (!effects.SpecularAntialiasing)
+            windowUbo.Screen.W += 8;
         // And the scene mirrored in the program's plane, which a glossy surface lying in it reads.
         if (MirrorRenderer.Shows(renderWorld)
             && renderWorld.TryGet<ReflectionPlane>() is { } mirrorPlane && renderWorld.TryGet<SwapchainTarget>() is { } swapchain)

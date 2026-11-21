@@ -408,6 +408,7 @@ static class Engine.E3D
   static bool IsShaderValid(Shader shader)
   static bool IsSoundPlaying(Sound sound)
   static bool IsSoundValid(Sound sound)
+  static bool IsSpecularAntialiasingEnabled()
   static bool IsState<TState>(TState value) where TState : struct, Enum
   static bool IsTemporalAntialiasingEnabled()
   static bool IsTextInputActive()
@@ -955,6 +956,7 @@ static class Engine.E3D
   static void SetSoundPitch(Sound sound, float pitch)
   static void SetSoundReverb(Sound sound, float share)
   static void SetSoundVolume(Sound sound, float volume)
+  static void SetSpecularAntialiasing(bool enabled)
   static void SetState<TState>(TState value) where TState : struct, Enum
   static void SetSubsurfaceQuality(SubsurfaceQuality quality)
   static void SetTargetFPS(int fps)

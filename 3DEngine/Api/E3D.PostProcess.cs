@@ -504,6 +504,19 @@ public static partial class E3D
     public static bool IsFxaaEnabled() => Effects.Fxaa;
 
     /// <summary>
+    /// Turns specular antialiasing on or off, which widens a surface's roughness by how fast its
+    /// normal turns across a pixel, so the highlight of a far curve or a fine normal map, which
+    /// falls between pixels, spreads over them rather than flickering as the camera moves.
+    /// </summary>
+    public static void SetSpecularAntialiasing(bool enabled) => Effects.SpecularAntialiasing = enabled;
+
+    /// <summary>
+    /// Whether specular antialiasing widens the surfaces' roughness, as
+    /// <see cref="SetSpecularAntialiasing"/> left it, on unless set.
+    /// </summary>
+    public static bool IsSpecularAntialiasingEnabled() => Effects.SpecularAntialiasing;
+
+    /// <summary>
     /// Turns temporal antialiasing on or off, which moves the window's camera by a part of a pixel
     /// each frame, eight places in turn, and blends each frame's light into what the frames before
     /// left where the same point lay, so an edge, a highlight and the noise of global illumination's
@@ -696,6 +709,8 @@ public static partial class E3D
             if (changed) SetVignette(vignette, radius);
             var fxaa = IsFxaaEnabled();
             if (ImGuiNET.ImGui.Checkbox("FXAA", ref fxaa)) SetFxaa(fxaa);
+            var specular = IsSpecularAntialiasingEnabled();
+            if (ImGuiNET.ImGui.Checkbox("Specular antialiasing", ref specular)) SetSpecularAntialiasing(specular);
             var temporal = IsTemporalAntialiasingEnabled();
             if (ImGuiNET.ImGui.Checkbox("Temporal antialiasing", ref temporal)) SetTemporalAntialiasing(temporal);
             var dither = IsDitherEnabled();

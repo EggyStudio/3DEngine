@@ -1145,3 +1145,66 @@ frames', norm's and examples' tests pass, 163 of 164, the one left the morph and
 with it recorded again the reference frames' tests pass, 30 of 30. The suite passes in its parts in
 order, 2,532 of 2,533 in 24 minutes, and shuffled by the seed 20261023, 2,532 of 2,533 in 25
 minutes, the one left in each that frame before it was recorded again.
+
+Item 299, edges without history.
+
+Alpha to coverage. Where the frame holds several samples a pixel, a masked material's batch draws
+through a pipeline that takes the fragment's alpha as the share of the pixel's samples it covers,
+with blending off, since an alpha both covering and blending would count twice. The alpha is
+sharpened about the cutoff by how fast it changes across the screen, so the samples cut the edge
+where the alpha crosses the cutoff and a magnified texture's edge stays within a pixel or two. With
+one sample the pipeline cuts as before. A batch keeps whether its material is masked beside whether
+it is solid, and the fragment stage reads it as its specialization constant 2.
+
+Specular antialiasing. A surface's roughness is widened by how fast its normal turns across a
+pixel, GGX's alpha squared raised by 0.15 of the normal's screen derivatives' squared length,
+doubled and held to 0.2, before every reflection reads it, the lights', the environment's and the
+indirect light's. It is on unless set, `SetSpecularAntialiasing(false)` turns it off, and the
+post-processing window has its checkbox beside FXAA's. The reflection probe's reference frame,
+whose mirror sphere's highlight widens, is recorded again. `modelpass.slang` passed 800 lines, and
+its vertex stage, the instance, the push, the vertex outputs and the transforms, goes to
+`modelvertex.slang`, which it exports.
+
+The tests, each failing first. A masked disc before a wall at four samples has 0 pixels showing
+both before and more than 60 after, and at one sample 0 in both
+(`OffscreenRenderTests.Coverage.cs`); a magnified ramp's cut stays within two pixels. A row of
+glossy metal spheres a few pixels across, the camera turned by a quarter of a pixel, changes by
+1.771 of its light unwidened and 0.217 widened, and before the change by 1.771 either way
+(`OffscreenRenderTests.Specular.cs`).
+
+The sheets. `2026-11-21-edges-coverage.webp`, the Bistro's corner at noon. Over the pixels the
+change moves, the leaves change by 26 and 24 percent less of their light as the camera turns by
+0.04 degrees. `2026-11-21-edges-specular.webp`, the Bistro's scooter and Sponza's arches. The
+scooter's chrome and mirror spread their highlights and read lighter, and the pixels the widening
+moves there change by 17 percent more of their light as the camera turns, being brighter; the
+stone moves next to nothing. In the controlled scene of the test the widened highlights hold eight
+times stiller.
+
+The cost, the scene's pass on the RTX 4070. The Bistro's corner takes 19.79 ms before, 21.17 with
+coverage and 22.22 with both; Sponza's atrium 8.47, 8.45 and 8.21, a run each. Four hundred masked
+discs at 800 by 450 take 0.313 ms before and 0.095 with coverage, the discard gone that kept the
+early depth test off, and four hundred glossy spheres 0.169 and 0.171. On lavapipe at a load near 9,
+three runs each taken in turn, the masked discs take 7.96 ms before and 12.27 with coverage and the
+glossy spheres 71.2 and 71.3, the middle run of each.
+
+The edges at four samples, read from the code and measured (`2026-11-21-edges-edges.webp`). The
+ambient occlusion is worked out on a depth of half the window's size and one sample a pixel, drawn
+with the shadow pipelines, and the surface shader reads it at each fragment's pixel middle by a
+plain bilinear fetch that weighs neither depth nor normal. A box before a crease reads 0.973 of its
+light at its last column and 1.000 at the one before, a fringe of a pixel. A mend would weigh the
+half-size texels by how near their depth lies to the fragment's. The screen's probes stand on the
+same half-size depth, and the surface shader weighs the four about a pixel by their normals and
+their planes' distance, so an orange box's tint stops at its edge, 4.1 red over blue to its last
+column and 0.81 on the wall from the first, as with the world's probes alone. The window's samples
+are resolved by the device, averaged on light still encoded and carried past 1, before the decode,
+the bloom and the tonemap, so a bright edge holds more light than the samples tonemapped and
+averaged would. A sphere glowing at twenty times white reads 0.616 of white on the ring its edge
+crosses against 0.452 drawn twice as large and averaged after the tonemap, and 3.5 percent more of
+its pixels over half white. A mend would resolve the samples weighed by one over one plus their
+light and take the weight back after, or resolve after the tonemap. No mend in this item.
+
+The runs. The tree builds strict with no warnings. The rendering tests pass, 819 of 820, the one
+left the reflection probe's frame, and with it recorded again the reference frames' tests pass, 30
+of 30, and the listing's, norm's and shaders' tests 66 of 66. The suite passes in its parts in
+order, 2,530 of 2,530 with 6 skipped in 30 minutes, and shuffled by the seed 20261023, 2,530 of
+2,530 in 21 minutes.

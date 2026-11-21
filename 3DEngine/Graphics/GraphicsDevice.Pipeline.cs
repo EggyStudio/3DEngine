@@ -134,16 +134,18 @@ internal sealed unsafe partial class GraphicsDevice
             module = vs.Module,
             pName = entryName
         };
-        // Constants 0 and 1 of the fragment stage, the first set for a material that cuts nothing
-        // out and the second for a pipeline that draws faces' backs. A stage that declares neither
-        // ignores them.
-        var constants = stackalloc uint[] { desc.Solid ? 1u : 0u, desc.DrawsBacks ? 1u : 0u };
+        // Constants 0, 1 and 2 of the fragment stage, the first set for a material that cuts
+        // nothing out, the second for a pipeline that draws faces' backs and the third where the
+        // alpha is taken as the samples it covers. A stage that declares none of them ignores them.
+        var coverage = desc.AlphaToCoverage && pass.Samples != VkSampleCountFlags.Count1;
+        var constants = stackalloc uint[] { desc.Solid ? 1u : 0u, desc.DrawsBacks ? 1u : 0u, coverage ? 1u : 0u };
         var constantEntries = stackalloc VkSpecializationMapEntry[]
         {
             new() { constantID = 0, offset = 0, size = sizeof(uint) },
             new() { constantID = 1, offset = sizeof(uint), size = sizeof(uint) },
+            new() { constantID = 2, offset = 2 * sizeof(uint), size = sizeof(uint) },
         };
-        var constantInfo = new VkSpecializationInfo { mapEntryCount = 2, pMapEntries = constantEntries, dataSize = 2 * sizeof(uint), pData = constants };
+        var constantInfo = new VkSpecializationInfo { mapEntryCount = 3, pMapEntries = constantEntries, dataSize = 3 * sizeof(uint), pData = constants };
         // A pipeline with no fragment stage writes depth only.
         if (fs is not null)
             stages[1] = new VkPipelineShaderStageCreateInfo
@@ -224,10 +226,12 @@ internal sealed unsafe partial class GraphicsDevice
             lineWidth = 1.0f
         };
 
-        // At the samples of the pass it draws in, which a multisampled window's and targets' are.
+        // At the samples of the pass it draws in, which a multisampled window's and targets' are,
+        // the alpha taken as the share of them a fragment covers where the pipeline asks it.
         VkPipelineMultisampleStateCreateInfo multisample = new()
         {
-            rasterizationSamples = pass.Samples
+            rasterizationSamples = pass.Samples,
+            alphaToCoverageEnable = coverage,
         };
 
         // The color's factors by the blend mode, raylib's, and alpha laid over in every mode.
@@ -259,7 +263,9 @@ internal sealed unsafe partial class GraphicsDevice
             colorBlendAttachments[i] = new VkPipelineColorBlendAttachmentState
             {
                 colorWriteMask = written ? VkColorComponentFlags.R | VkColorComponentFlags.G | VkColorComponentFlags.B | VkColorComponentFlags.A : 0,
-                blendEnable = desc.BlendEnabled && written,
+                // Off where the alpha is the samples covered, which blended by it as well would
+                // count it twice.
+                blendEnable = desc.BlendEnabled && written && !coverage,
                 srcColorBlendFactor = srcColor,
                 dstColorBlendFactor = dstColor,
                 colorBlendOp = colorOp,
