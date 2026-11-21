@@ -421,27 +421,6 @@ changes.
     scene of the engine's own that the first frame with a view makes none of them. After items 288
     and 292, whose buffers are the same scene's.
 
-299. **Edges without history.** Asked on 2026-11-17 and agreed the same evening, three parts, each
-    whole in a frame with no history. One, alpha to coverage for masked materials where the frame is
-    multisampled, the cutout's edge sharpened by the alpha's screen derivative so a leaf keeps its
-    cover with distance, off where the frame has one sample. Two, specular anti-aliasing in the
-    surface shader, the roughness widened by the screen derivatives of the normal, on by default
-    with a setting to turn it off. Three, a reading of how the ambient occlusion's and the radiance
-    cascades' light sit on an object's edge under four samples, since both read a depth resolved to
-    one sample a pixel, with where each is applied, in the surface shader or as a pass after it,
-    said from the code, and what a mend would be if a fringe shows; the resolve of bright edges
-    before tonemapping is read in the same part. Each of the first two carries a sheet on a white
-    ground, before, after and a red and blue difference, a still and a pair of frames of a slow turn
-    for the shimmer, with a test that fails first and the pass's cost on the GPU and on lavapipe.
-    Part three is a sheet and its numbers, with no mend in this item. After item 296.
-
-300. **A glTF material's base color factor is linear and is read back as sRGB.** Api/E3D.Models.cs
-    writes the factor straight into a Color's bytes and Rendering/Models/ModelNode.cs decodes those
-    bytes as sRGB, so a factor of 0.5 draws at 0.21. A failing test first, a model whose factor is
-    0.5 reading 0.5 linear at the instance, then the factor encoded where it is written or kept
-    linear end to end, the choice said in the Reply, and a sheet where a model on screen changes.
-    After item 296's glow commit.
-
 301. **The edit mesh gives way to the Modeling module's.** Shared: Modeling's item 3 part 1
     (27e2dc9) holds the edit mesh as Modeling.EditMesh, its recipe and EditMeshBuild, reading files
     through IModelFiles; an engine can bind it, its own EditMeshData, EarClipping, FaceMerge, Csg,
@@ -450,8 +429,21 @@ changes.
 
 ## Verdicts
 
-No verdict is open. Verdict 130 is settled at 23:53 on 2026-11-20 on run 44809607763. Verdicts 1 to
-129 are settled, said under each in REVIEW-ARCHIVE.md.
+Verdict 131 is open, read at 22:56 on 2026-11-21, the build run 44943683933 on `31c089de` red in the
+reflections' reference frame on four jobs. Verdict 130 is settled at 23:53 on 2026-11-20 on run
+44809607763. Verdicts 1 to 129 are settled, said under each in REVIEW-ARCHIVE.md.
+
+131. **The reflections' reference frame recorded again for item 299 differs on the runners.** In run
+    44943683933 on `31c089de`, read at 22:56 on 2026-11-21, the reference frame test of
+    `reflections.png` failed in `linux (order)`, `linux (shuffled)`, `macos (2)` and `windows (4)`,
+    2.3 percent of the pixels apart against a bound of 2, within rows 47 to 137 and columns 39 to
+    216, the frame's gray a few levels over the reference's; every other job passed. The frame was
+    recorded again on the desktop's card with the roughness widened across a pixel, and the software
+    devices and the other systems draw that widening a little apart. Read the frame on lavapipe in
+    the runner's image and on the Windows device as the norm's recipe gives it, name what parts by
+    device (the derivative of the normal at an edge, the samples a pixel), and mend it there or
+    record the frame so that each device stands within the bound by a count of pixels, the bound
+    itself not widened. Settled when a run passes the frame on the three systems.
 
 ## Decisions
 
@@ -1109,102 +1101,24 @@ holds the README to the list, and the sentence above the tables says how they ru
 shows the same 285 pictures, none made again, and the norm's tests pass, 17 of 17. This commit also
 carries the review's archive, whose move out of this file came in with `c9ed241e`.
 
-Item 300, a glTF material's base color factor read back as sRGB.
+Verdict 131, the reflections' reference frame on the runners.
 
-The cause. `E3D.Models.cs` wrote a glTF material's base color factor, linear as glTF gives it,
-straight into a color's bytes, which the model pass decodes as sRGB, so a factor of a half drew at
-0.212. And the Assimp reader took glTF's alpha twice, since Assimp hands the factor's alpha on in
-the diffuse color and as the opacity both, which it multiplied, so a half read a quarter.
+The frame read on the desktop's card and on lavapipe, each by the share of its 40,960 pixels apart
+from the reference by more than 24 levels in a channel, against the bound of 2 percent, 819 pixels.
+Mesa 25.2.8 of the runner's image, read in a container of it with the job's four cores and threads,
+and Mesa 26.2.4 on this machine draw the frame alike to the pixel, so the Linux and the Windows
+jobs' lavapipe are read as one, and macOS's device is not read here. Against the reference as it
+stood, the RTX 4070's frame was 0.60 percent apart with the roughness unwidened and 1.37 widened,
+and lavapipe's 1.52 and 2.29, the runners' 2.3.
 
-The mend. The factor's color is encoded to sRGB where it is written, a material's color held in sRGB
-bytes as every color the engine keeps is, since every reader of it decodes it so, rather than kept
-linear end to end, and its alpha, linear in both, is kept as it is. The reader takes a format's
-opacity apart from its diffuse color only where the file gives none of glTF's alpha keys.
+What parts by device. The widening changes 373 pixels of the RTX 4070's frame and the same 373 of
+lavapipe's, so the normal's derivative at an edge draws alike on both. The two devices' frames lie
+388 pixels apart widened and 395 unwidened, 323 of them within a pixel of an edge and all but 4
+darker on lavapipe, along the floor's reflection of the wall's foot and down the wall's sides, the
+same with the widening or without it. The reference was recorded before the widening, nearer the
+RTX 4070's frame, and lavapipe's own 1.52 percent with the widening's 0.91 passed the bound.
 
-The test. `E3DModelTests.A_GLTF_Base_Color_Factor_Is_Drawn_At_Its_Own_Linear_Value` loads a triangle
-whose factor is (0.5, 0.25, 1, 0.5) and reads the color its instance takes. Before the mend it reads
-(0.212, 0.050, 1, 0.247), and after it within 0.005 of the factor.
-
-What changes on screen. Sponza's 3 materials of 28 with a factor other than 1, the lamps' glass at
-0.61 where it took 0.33, the black glass as it was, and the dirt decals at their alpha of 0.35 where
-they took 0.12. The Bistro's 132 have none. The games' models with factors, Summit's hero, Jelly's
-two and Tumble's robot, whose gallery captures are taken again on the package that brings this, as
-the games' are. The morph and layer reference frame draws Summit's hero and is recorded again. The
-sheet `2026-11-21-sponza-base-color.webp` shows Sponza's balcony, door and view up metered at noon
-before and after, 15.2%, 5.6% and 17.4% of their pixels moving by 4 levels or more, the dirt decals
-darker and the lamps' glass lighter.
-
-Sponza's readings before the passes, taken again on the mended scene. A turn moves 12.53% of the
-pixels a pair by 4 levels or more and 4.99% by 12, against 12.52% and 5.01% before the mend, the
-walk 23.24% and 4.05% against 23.19% and 4.16%, and what the walk leaves to settle once it stops
-1.33% and 0.17% against 1.34% and 0.17%. The lamps lit settle within 2% of the change in 6 frames
-against 5, and High's trace with the field alone takes 2.06 ms.
-
-The runs. The tree builds strict with no warnings. The model, material, glTF, Assimp, reference
-frames', norm's and examples' tests pass, 163 of 164, the one left the morph and layer frame, and
-with it recorded again the reference frames' tests pass, 30 of 30. The suite passes in its parts in
-order, 2,532 of 2,533 in 24 minutes, and shuffled by the seed 20261023, 2,532 of 2,533 in 25
-minutes, the one left in each that frame before it was recorded again.
-
-Item 299, edges without history.
-
-Alpha to coverage. Where the frame holds several samples a pixel, a masked material's batch draws
-through a pipeline that takes the fragment's alpha as the share of the pixel's samples it covers,
-with blending off, since an alpha both covering and blending would count twice. The alpha is
-sharpened about the cutoff by how fast it changes across the screen, so the samples cut the edge
-where the alpha crosses the cutoff and a magnified texture's edge stays within a pixel or two. With
-one sample the pipeline cuts as before. A batch keeps whether its material is masked beside whether
-it is solid, and the fragment stage reads it as its specialization constant 2.
-
-Specular antialiasing. A surface's roughness is widened by how fast its normal turns across a
-pixel, GGX's alpha squared raised by 0.15 of the normal's screen derivatives' squared length,
-doubled and held to 0.2, before every reflection reads it, the lights', the environment's and the
-indirect light's. It is on unless set, `SetSpecularAntialiasing(false)` turns it off, and the
-post-processing window has its checkbox beside FXAA's. The reflection probe's reference frame,
-whose mirror sphere's highlight widens, is recorded again. `modelpass.slang` passed 800 lines, and
-its vertex stage, the instance, the push, the vertex outputs and the transforms, goes to
-`modelvertex.slang`, which it exports.
-
-The tests, each failing first. A masked disc before a wall at four samples has 0 pixels showing
-both before and more than 60 after, and at one sample 0 in both
-(`OffscreenRenderTests.Coverage.cs`); a magnified ramp's cut stays within two pixels. A row of
-glossy metal spheres a few pixels across, the camera turned by a quarter of a pixel, changes by
-1.771 of its light unwidened and 0.217 widened, and before the change by 1.771 either way
-(`OffscreenRenderTests.Specular.cs`).
-
-The sheets. `2026-11-21-edges-coverage.webp`, the Bistro's corner at noon. Over the pixels the
-change moves, the leaves change by 26 and 24 percent less of their light as the camera turns by
-0.04 degrees. `2026-11-21-edges-specular.webp`, the Bistro's scooter and Sponza's arches. The
-scooter's chrome and mirror spread their highlights and read lighter, and the pixels the widening
-moves there change by 17 percent more of their light as the camera turns, being brighter; the
-stone moves next to nothing. In the controlled scene of the test the widened highlights hold eight
-times stiller.
-
-The cost, the scene's pass on the RTX 4070. The Bistro's corner takes 19.79 ms before, 21.17 with
-coverage and 22.22 with both; Sponza's atrium 8.47, 8.45 and 8.21, a run each. Four hundred masked
-discs at 800 by 450 take 0.313 ms before and 0.095 with coverage, the discard gone that kept the
-early depth test off, and four hundred glossy spheres 0.169 and 0.171. On lavapipe at a load near 9,
-three runs each taken in turn, the masked discs take 7.96 ms before and 12.27 with coverage and the
-glossy spheres 71.2 and 71.3, the middle run of each.
-
-The edges at four samples, read from the code and measured (`2026-11-21-edges-edges.webp`). The
-ambient occlusion is worked out on a depth of half the window's size and one sample a pixel, drawn
-with the shadow pipelines, and the surface shader reads it at each fragment's pixel middle by a
-plain bilinear fetch that weighs neither depth nor normal. A box before a crease reads 0.973 of its
-light at its last column and 1.000 at the one before, a fringe of a pixel. A mend would weigh the
-half-size texels by how near their depth lies to the fragment's. The screen's probes stand on the
-same half-size depth, and the surface shader weighs the four about a pixel by their normals and
-their planes' distance, so an orange box's tint stops at its edge, 4.1 red over blue to its last
-column and 0.81 on the wall from the first, as with the world's probes alone. The window's samples
-are resolved by the device, averaged on light still encoded and carried past 1, before the decode,
-the bloom and the tonemap, so a bright edge holds more light than the samples tonemapped and
-averaged would. A sphere glowing at twenty times white reads 0.616 of white on the ring its edge
-crosses against 0.452 drawn twice as large and averaged after the tonemap, and 3.5 percent more of
-its pixels over half white. A mend would resolve the samples weighed by one over one plus their
-light and take the weight back after, or resolve after the tonemap. No mend in this item.
-
-The runs. The tree builds strict with no warnings. The rendering tests pass, 819 of 820, the one
-left the reflection probe's frame, and with it recorded again the reference frames' tests pass, 30
-of 30, and the listing's, norm's and shaders' tests 66 of 66. The suite passes in its parts in
-order, 2,530 of 2,530 with 6 skipped in 30 minutes, and shuffled by the seed 20261023, 2,530 of
-2,530 in 21 minutes.
+The mend. The reference is recorded again from the frame on the desktop's card with the roughness
+widened, the bound unchanged. The RTX 4070 stands 0 pixels apart from it and lavapipe, Mesa 25.2.8
+and 26.2.4 alike, 388 of them (0.95 percent) against the 819 the bound allows. The reference
+frames' tests pass on both devices, 30 of 30.

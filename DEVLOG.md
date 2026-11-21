@@ -14,6 +14,30 @@ material's base color factor is read as the linear value it is, with their diffe
 after is lighter and blue where darker, the dirt decals at their alpha of 0.35 where they took 0.12
 and the lamps' glass at 0.61 where it took 0.33.
 
+![](.github/assets/readings/2026-11-21-edges-coverage.webp)
+scenes_bistro metered at noon at the corner, four samples a pixel, at the commit before and after a
+masked material's alpha is taken as the share of the samples it covers, sharpened about its cutoff
+by how fast it changes across the screen, the restaurant's planters and those by the lamp before and
+after with their difference, red where the after is lighter and blue where darker, and how much each
+frame changes as the camera turns by 0.04 degrees, white where nothing changes. Over the pixels the
+change moves, the leaves change by 26 and 24 percent less of their light as the camera turns.
+
+![](.github/assets/readings/2026-11-21-edges-edges.webp)
+At four samples a pixel, a gray box before a wall with a fin whose foot is a crease beside the box's
+edge, its occlusion off and on, the box's last column 0.973 of its light with it on and the column
+before it 1.000; an orange box before a white wall at High, the world's probes alone and with the
+screen's, the wall's red over blue 0.81 from its first column in both; and a sphere glowing at
+twenty times white, drawn twice as large at one sample and averaged after the tonemap, and at four
+samples resolved before it, the ring of 416 pixels its edge crosses 0.452 against 0.616 of white.
+
+![](.github/assets/readings/2026-11-21-edges-specular.webp)
+scenes_bistro at the corner and scenes_sponza in its atrium at noon, alpha to coverage on in both,
+each surface's roughness as its material gives it and widened by how fast its normal turns across a
+pixel, the scooter and the arches across the court before and after with their difference, red where
+the after is lighter and blue where darker, and how much each frame changes as the camera turns by
+0.04 degrees. The scooter's chrome and mirror spread their highlights over more pixels and read
+lighter, and the rough stone of the arches next to nothing.
+
 ## 2026-11-19
 
 ![](.github/assets/readings/2026-11-19-sky-clear-hours.webp)

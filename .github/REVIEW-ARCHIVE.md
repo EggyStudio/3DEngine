@@ -10617,6 +10617,27 @@ here, and the copy of the player's save is let go, made again on request. The lo
     recipe and a stray line in `SunTests.cs:10` to 12. Two or three commits by folder, after item
     296, STYLE's own searches run and counted in the Reply.
 
+299. **Edges without history.** Asked on 2026-11-17 and agreed the same evening, three parts, each
+    whole in a frame with no history. One, alpha to coverage for masked materials where the frame is
+    multisampled, the cutout's edge sharpened by the alpha's screen derivative so a leaf keeps its
+    cover with distance, off where the frame has one sample. Two, specular anti-aliasing in the
+    surface shader, the roughness widened by the screen derivatives of the normal, on by default
+    with a setting to turn it off. Three, a reading of how the ambient occlusion's and the radiance
+    cascades' light sit on an object's edge under four samples, since both read a depth resolved to
+    one sample a pixel, with where each is applied, in the surface shader or as a pass after it,
+    said from the code, and what a mend would be if a fringe shows; the resolve of bright edges
+    before tonemapping is read in the same part. Each of the first two carries a sheet on a white
+    ground, before, after and a red and blue difference, a still and a pair of frames of a slow turn
+    for the shimmer, with a test that fails first and the pass's cost on the GPU and on lavapipe.
+    Part three is a sheet and its numbers, with no mend in this item. After item 296.
+
+300. **A glTF material's base color factor is linear and is read back as sRGB.** Api/E3D.Models.cs
+    writes the factor straight into a Color's bytes and Rendering/Models/ModelNode.cs decodes those
+    bytes as sRGB, so a factor of 0.5 draws at 0.21. A failing test first, a model whose factor is
+    0.5 reading 0.5 linear at the instance, then the factor encoded where it is written or kept
+    linear end to end, the choice said in the Reply, and a sheet where a model on screen changes.
+    After item 296's glow commit.
+
 ## Verdicts settled
 
 Verdicts 1 to 55 are settled, the last two, the drawing leak test's resident bound and the Windows
@@ -20290,6 +20311,106 @@ distance read, the march, the splat's codes and paint and the stamp. Then 298, 2
 this file's head, its Now list and these Replies from item 265's read on, and NORM.md's 7.9, 4.11
 and 4.12, runs the Tools module's `scripts/commitcheck.py` and `build/examples-table.py --check`
 before each commit, and raises a waiting mark only while it waits for the lock held exclusive.
+
+Item 300, a glTF material's base color factor read back as sRGB.
+
+The cause. `E3D.Models.cs` wrote a glTF material's base color factor, linear as glTF gives it,
+straight into a color's bytes, which the model pass decodes as sRGB, so a factor of a half drew at
+0.212. And the Assimp reader took glTF's alpha twice, since Assimp hands the factor's alpha on in
+the diffuse color and as the opacity both, which it multiplied, so a half read a quarter.
+
+The mend. The factor's color is encoded to sRGB where it is written, a material's color held in sRGB
+bytes as every color the engine keeps is, since every reader of it decodes it so, rather than kept
+linear end to end, and its alpha, linear in both, is kept as it is. The reader takes a format's
+opacity apart from its diffuse color only where the file gives none of glTF's alpha keys.
+
+The test. `E3DModelTests.A_GLTF_Base_Color_Factor_Is_Drawn_At_Its_Own_Linear_Value` loads a triangle
+whose factor is (0.5, 0.25, 1, 0.5) and reads the color its instance takes. Before the mend it reads
+(0.212, 0.050, 1, 0.247), and after it within 0.005 of the factor.
+
+What changes on screen. Sponza's 3 materials of 28 with a factor other than 1, the lamps' glass at
+0.61 where it took 0.33, the black glass as it was, and the dirt decals at their alpha of 0.35 where
+they took 0.12. The Bistro's 132 have none. The games' models with factors, Summit's hero, Jelly's
+two and Tumble's robot, whose gallery captures are taken again on the package that brings this, as
+the games' are. The morph and layer reference frame draws Summit's hero and is recorded again. The
+sheet `2026-11-21-sponza-base-color.webp` shows Sponza's balcony, door and view up metered at noon
+before and after, 15.2%, 5.6% and 17.4% of their pixels moving by 4 levels or more, the dirt decals
+darker and the lamps' glass lighter.
+
+Sponza's readings before the passes, taken again on the mended scene. A turn moves 12.53% of the
+pixels a pair by 4 levels or more and 4.99% by 12, against 12.52% and 5.01% before the mend, the
+walk 23.24% and 4.05% against 23.19% and 4.16%, and what the walk leaves to settle once it stops
+1.33% and 0.17% against 1.34% and 0.17%. The lamps lit settle within 2% of the change in 6 frames
+against 5, and High's trace with the field alone takes 2.06 ms.
+
+The runs. The tree builds strict with no warnings. The model, material, glTF, Assimp, reference
+frames', norm's and examples' tests pass, 163 of 164, the one left the morph and layer frame, and
+with it recorded again the reference frames' tests pass, 30 of 30. The suite passes in its parts in
+order, 2,532 of 2,533 in 24 minutes, and shuffled by the seed 20261023, 2,532 of 2,533 in 25
+minutes, the one left in each that frame before it was recorded again.
+
+Item 299, edges without history.
+
+Alpha to coverage. Where the frame holds several samples a pixel, a masked material's batch draws
+through a pipeline that takes the fragment's alpha as the share of the pixel's samples it covers,
+with blending off, since an alpha both covering and blending would count twice. The alpha is
+sharpened about the cutoff by how fast it changes across the screen, so the samples cut the edge
+where the alpha crosses the cutoff and a magnified texture's edge stays within a pixel or two. With
+one sample the pipeline cuts as before. A batch keeps whether its material is masked beside whether
+it is solid, and the fragment stage reads it as its specialization constant 2.
+
+Specular antialiasing. A surface's roughness is widened by how fast its normal turns across a
+pixel, GGX's alpha squared raised by 0.15 of the normal's screen derivatives' squared length,
+doubled and held to 0.2, before every reflection reads it, the lights', the environment's and the
+indirect light's. It is on unless set, `SetSpecularAntialiasing(false)` turns it off, and the
+post-processing window has its checkbox beside FXAA's. The reflection probe's reference frame,
+whose mirror sphere's highlight widens, is recorded again. `modelpass.slang` passed 800 lines, and
+its vertex stage, the instance, the push, the vertex outputs and the transforms, goes to
+`modelvertex.slang`, which it exports.
+
+The tests, each failing first. A masked disc before a wall at four samples has 0 pixels showing
+both before and more than 60 after, and at one sample 0 in both
+(`OffscreenRenderTests.Coverage.cs`); a magnified ramp's cut stays within two pixels. A row of
+glossy metal spheres a few pixels across, the camera turned by a quarter of a pixel, changes by
+1.771 of its light unwidened and 0.217 widened, and before the change by 1.771 either way
+(`OffscreenRenderTests.Specular.cs`).
+
+The sheets. `2026-11-21-edges-coverage.webp`, the Bistro's corner at noon. Over the pixels the
+change moves, the leaves change by 26 and 24 percent less of their light as the camera turns by
+0.04 degrees. `2026-11-21-edges-specular.webp`, the Bistro's scooter and Sponza's arches. The
+scooter's chrome and mirror spread their highlights and read lighter, and the pixels the widening
+moves there change by 17 percent more of their light as the camera turns, being brighter; the
+stone moves next to nothing. In the controlled scene of the test the widened highlights hold eight
+times stiller.
+
+The cost, the scene's pass on the RTX 4070. The Bistro's corner takes 19.79 ms before, 21.17 with
+coverage and 22.22 with both; Sponza's atrium 8.47, 8.45 and 8.21, a run each. Four hundred masked
+discs at 800 by 450 take 0.313 ms before and 0.095 with coverage, the discard gone that kept the
+early depth test off, and four hundred glossy spheres 0.169 and 0.171. On lavapipe at a load near 9,
+three runs each taken in turn, the masked discs take 7.96 ms before and 12.27 with coverage and the
+glossy spheres 71.2 and 71.3, the middle run of each.
+
+The edges at four samples, read from the code and measured (`2026-11-21-edges-edges.webp`). The
+ambient occlusion is worked out on a depth of half the window's size and one sample a pixel, drawn
+with the shadow pipelines, and the surface shader reads it at each fragment's pixel middle by a
+plain bilinear fetch that weighs neither depth nor normal. A box before a crease reads 0.973 of its
+light at its last column and 1.000 at the one before, a fringe of a pixel. A mend would weigh the
+half-size texels by how near their depth lies to the fragment's. The screen's probes stand on the
+same half-size depth, and the surface shader weighs the four about a pixel by their normals and
+their planes' distance, so an orange box's tint stops at its edge, 4.1 red over blue to its last
+column and 0.81 on the wall from the first, as with the world's probes alone. The window's samples
+are resolved by the device, averaged on light still encoded and carried past 1, before the decode,
+the bloom and the tonemap, so a bright edge holds more light than the samples tonemapped and
+averaged would. A sphere glowing at twenty times white reads 0.616 of white on the ring its edge
+crosses against 0.452 drawn twice as large and averaged after the tonemap, and 3.5 percent more of
+its pixels over half white. A mend would resolve the samples weighed by one over one plus their
+light and take the weight back after, or resolve after the tonemap. No mend in this item.
+
+The runs. The tree builds strict with no warnings. The rendering tests pass, 819 of 820, the one
+left the reflection probe's frame, and with it recorded again the reference frames' tests pass, 30
+of 30, and the listing's, norm's and shaders' tests 66 of 66. The suite passes in its parts in
+order, 2,530 of 2,530 with 6 skipped in 30 minutes, and shuffled by the seed 20261023, 2,530 of
+2,530 in 21 minutes.
 
 ## Items closed, parked or shortened
 
