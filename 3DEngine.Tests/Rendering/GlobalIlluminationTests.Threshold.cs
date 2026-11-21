@@ -15,11 +15,11 @@ public sealed partial class GlobalIlluminationTests
     {
         // A closed room of walls 0.3 thick in cells of 0.5 on a floor 0.1 thick, its top at 0.125,
         // a bright lamp in the open under the floor and a dim one inside, and a threshold 0.1 high
-        // and 0.4 deep along the east wall's foot, as Sponza's main door has. The wall a tenth to
-        // four tenths above the threshold is read in linear light with the bright lamp and without
-        // it. The screen's probes there meet the threshold's top on screen, and lit by the field's
-        // normal, which the field turns down there, the hits took the light of the world's probes
-        // under the floor, though with the floor's top at 0 or 0.375 the two normals read alike.
+        // and 0.4 deep along the east wall's foot. The wall a tenth to four tenths above the
+        // threshold is read in linear light with the bright lamp and without it. The screen's
+        // probes there meet the threshold's top on screen, and lit by the field's normal, which the
+        // field turns down there, the hits would take the light of the world's probes under the
+        // floor, though with the floor's top at 0 or 0.375 the two normals read alike.
         // Lit by the depth's normal, the wall keeps only the leak of the world's probes seeing the
         // lamp through the floor thinner than their cells, which Low, with no screen's probes, and
         // the floor itself read as well. The bounds are 15% over that leak as this test measured it

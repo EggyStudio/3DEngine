@@ -24,8 +24,8 @@ public sealed class PostProcessUnitsTests : IDisposable
     [Trait("Category", "Unit")]
     public void The_Exposures_Bounds_In_EV_Give_The_Multipliers_Against_The_Camera_And_Follow_It()
     {
-        // Sponza's camera, ISO 200 at 1/200 s and f/16, and its meter's -1 to 14, which it set as
-        // 2 to the camera's EV less 14 and 2 to the camera's EV plus 1.
+        // A camera at ISO 200, 1/200 s and f/16, and a meter of -1 to 14 EV, which give the
+        // multipliers 2 to the camera's EV less 14 and 2 to the camera's EV plus 1.
         SetCameraExposure(200, 1 / 200f, 16);
         SetAutoExposure(true);
         SetAutoExposureEv100(-1, 14);

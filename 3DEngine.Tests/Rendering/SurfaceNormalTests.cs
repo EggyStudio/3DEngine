@@ -65,9 +65,9 @@ public sealed class SurfaceNormalTests : IDisposable
     public void A_Programs_Sample_With_An_Upward_Normal_Reads_The_Same_Light_Above_And_Below_The_Eye()
     {
         // A sun straight down, and a wall facing the camera whose shader lights each point as a face
-        // turned up would be lit there, as the voxel game samples the light for its mobs. Above the
-        // eye's height the way to the eye points down, against the upward normal, which the pass
-        // turned over as a double-sided face's back is, lighting the sample as a face turned down.
+        // turned up would be lit there. Above the eye's height the way to the eye points down,
+        // against the upward normal, which the pass leaves as it is, where turning it over as a
+        // double-sided face's back is turned would light the sample as a face turned down.
         Open();
         CreateDirectionalLight(new Vector3(0, -1, 0), Color.White, 1);
         var shader = LoadShaderFromMemory("""

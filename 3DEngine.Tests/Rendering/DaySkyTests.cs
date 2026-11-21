@@ -55,7 +55,7 @@ public sealed class DaySkyTests : IDisposable
         Near(DaySky.SunToward(18, Tilt), new Vector3(-lean, 0, rise), "at 18 it sets in the west");
 
         // The light travels from the sun, its color the light's hue and its strength the hue's
-        // largest part, worked out by hand from the game's numbers.
+        // largest part, worked out by hand.
         var noon = DaySky.LightAt(12, Tilt);
         Near(noon.Direction, -DaySky.SunToward(12, Tilt), "the light shines down from the sun");
         noon.Color.Should().Be(new Color(255, 228, 197), "a warm white at noon");

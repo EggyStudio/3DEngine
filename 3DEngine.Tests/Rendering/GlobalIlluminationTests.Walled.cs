@@ -10,14 +10,15 @@ public sealed partial class GlobalIlluminationTests
     [Trait("Category", "Render")]
     public void A_Probe_Moved_Into_The_Stone_At_A_Lamps_Corner_Is_Walled_In_And_Holds_Nothing()
     {
-        // A wall and a floor of stone as the voxel game meshes a section, each block's faces left
-        // out where a block lies against them, and a lamp block in their corner drawn apart as an
-        // emissive cube, as the game draws its lamps. The stone's faces against the lamp are left
+        // A wall and a floor of stone meshed as one section, each block's faces left out where a
+        // block lies against them, and a lamp block in their corner drawn apart as an emissive
+        // cube. The stone's faces against the lamp are left
         // out, so the field reads the stone beside the lamp as the open in front of the lamp's
         // faces, and the probe whose spot is the corner of the wall, the floor and the lamp's face
         // is moved into the stone along the field's normal. Fewer than half its rays meet faces
-        // from behind, too few for the majority to wall it in, and it held the lamp's light, which
-        // in the game the grass outside the wall took from it, so a quarter of them walls it in.
+        // from behind, too few for the majority to wall it in, and a probe left open there would
+        // hold the lamp's light and pass it to the ground outside the wall, so a quarter of them
+        // walls it in.
         var config = Config.Default.WithWindow("gi test", 160, 96) with { Headless = true, Offscreen = true, Samples = 1 };
         UseApp(new App(config).AddPlugin(new DefaultPlugins()));
         SetSceneField(2, 0.25f, 2);
@@ -66,14 +67,14 @@ public sealed partial class GlobalIlluminationTests
     [Trait("Category", "Render")]
     public void Two_Blocks_Meeting_Along_An_Edge_Close_It_To_A_Glow_Lights_Light()
     {
-        // The voxel game's room of stone whose wall steps a block east halfway, its two halves
-        // meeting along one edge alone, with a glowstone west of the edge and the eye east of it, so
-        // no ray from the glowstone reaches what the eye sees but through the edge itself. The
-        // field's cells about the edge lay inside the blocks on one diagonal and outside them on the
-        // other, the distance between them never below zero along the edge, and the march from the
-        // floor to the glowstone saw half of it through the edge, so the floor about the edge's
-        // foot was lit, and still lit with the edge closed by a block, where a path-traced
-        // reference reads none. The cells about such an edge are held inside.
+        // A room of stone whose wall steps a block east halfway, its two halves meeting along one
+        // edge alone, with a glowstone west of the edge and the eye east of it, so no ray from the
+        // glowstone reaches what the eye sees but through the edge itself. The field's cells about
+        // the edge lie inside the blocks on one diagonal and outside them on the other, and with
+        // the distance between them never below zero along the edge, the march from the floor to
+        // the glowstone would see half of it through the edge and light the floor about the edge's
+        // foot, even with the edge closed by a block, where a path-traced reference reads none. The
+        // cells about such an edge are held inside.
         var config = Config.Default.WithWindow("gi test", 640, 360) with { Headless = true, Offscreen = true, Samples = 1 };
         UseApp(new App(config).AddPlugin(new DefaultPlugins()));
         SetSceneField(4, 0.25f, 2);
@@ -84,13 +85,13 @@ public sealed partial class GlobalIlluminationTests
         var cube = LoadModelFromMesh(GenMeshCube(1, 1, 1));
         cube.Materials[0].Emissive = new Color(255, 200, 120);
         cube.Materials[0].EmissiveIntensity = 4;
-        // The game's eye 1.62 over the block it stands on, facing 225 degrees and 32 down.
+        // The eye 1.62 over the block it stands on, facing 225 degrees and 32 down.
         var eye = new Vector3(21.2f, 6.62f, -20.2f);
         float heading = 225 * MathF.PI / 180, pitch = -32 * MathF.PI / 180;
         var camera = new Camera3D(eye, eye + new Vector3(MathF.Sin(heading) * MathF.Cos(pitch), MathF.Sin(pitch), -MathF.Cos(heading) * MathF.Cos(pitch)), Vector3.UnitY, 70);
         int Brightest(bool closed)
         {
-            // voxel.room 10 4 -22 22 11 -10 stone, a shell a block thick, and the wall's halves.
+            // A shell of stone a block thick from 10, 4, -22 to 22, 11, -10, and the wall's halves.
             var stone = new HashSet<(int X, int Y, int Z)>();
             for (int x = 10; x <= 22; x++)
                 for (int y = 4; y <= 11; y++)

@@ -6,9 +6,9 @@ using static Engine.E3D;
 namespace Engine.Tests.Rendering;
 
 /// <summary>
-/// Draws SHARED.md's ramp through each of Bevy's tonemappers and holds the picture to BevyCSharp's
-/// picture of the ramp and to a model of each worked out here from Bevy's own curves and tables,
-/// within two levels of 255 for a curve and four for a table.
+/// Draws a ramp through each of Bevy's tonemappers and holds the picture to BevyCSharp's picture of
+/// the ramp and to a model of each worked out here from Bevy's own curves and tables, within two
+/// levels of 255 for a curve and four for a table.
 /// </summary>
 /// <remarks>
 /// The ramp is 1024 by 8 pixels, column x holding the linear value 2 to the power of
@@ -16,8 +16,8 @@ namespace Engine.Tests.Rendering;
 /// magenta and yellow, and (v, v/2, v/4). A shader of its own writes it with no light, exposure,
 /// grading or dither in the way, and the window's eight bits hold it in sRGB. BevyCSharp's pictures
 /// under <c>References/tonemapping</c> are copied as they are from its
-/// <c>BevyCSharp.Tests/references/tonemapping</c> at its commit 64ec311, drawn there by Bevy 0.19.1
-/// with its tables, each named as Bevy names its tonemapper.
+/// <c>BevyCSharp.Tests/references/tonemapping</c>, drawn there by Bevy with its tables, each named
+/// as Bevy names its tonemapper.
 /// </remarks>
 [Collection("E3D")]
 [Trait("Category", "Render")]
@@ -142,7 +142,7 @@ public sealed partial class TonemapTests : IDisposable
 
     /// <summary>
     /// Bevy's curves as <c>tonemapping_shared.wgsl</c> works them out, and a table loaded from a
-    /// file as HDRP looks light up in it, on the CPU, with the tables sampled as a linear filter
+    /// file looked up by the light's LogC, on the CPU, with the tables sampled as a linear filter
     /// samples them.
     /// </summary>
     private sealed class BevyModel
@@ -201,7 +201,7 @@ public sealed partial class TonemapTests : IDisposable
 
         private static float Boring(float v) => 1 - MathF.Exp(-v);
 
-        // ARRI's LogC for an exposure index of 1000, as HDRP encodes light for a table.
+        // ARRI's LogC for an exposure index of 1000, the encoding a table is looked up by.
         private static Vector3 LogC(Vector3 c) =>
             new Vector3(0.244161f) * new Vector3(MathF.Log10(5.555556f * c.X + 0.047996f), MathF.Log10(5.555556f * c.Y + 0.047996f),
                 MathF.Log10(5.555556f * c.Z + 0.047996f)) + new Vector3(0.386036f);

@@ -22,7 +22,7 @@ public sealed partial class SceneFieldTests
 
         // A sheet exactly half way between two rows of cells, where its distance in both is half a
         // cell, one a fifth of a cell nearer the row above, as a floor of an imported room is, and
-        // two sheets two cells apart, as the voxel game's crops stand.
+        // two sheets two cells apart.
         for (int frame = 0; frame < SceneFieldPlan.SettleFrames + 6; frame++)
         {
             BeginDrawing();
@@ -79,10 +79,10 @@ public sealed partial class SceneFieldTests
     [Trait("Category", "Render")]
     public void Two_Double_Sided_Sheets_Crossing_Where_Four_Cells_Meet_Are_Both_Met_In_Those_Cells()
     {
-        // Two upright sheets crossing along a line where four cells meet, as the voxel game's crops
-        // cross, each of those cells lying as near both. Keeping one plane a cell, a point beside
-        // the other sheet in such a cell read the cells' blend alone, half a cell, which a march
-        // passes, and the world's probes standing there read dark round patches at the sheets' feet.
+        // Two upright sheets crossing along a line where four cells meet, each of those cells lying
+        // as near both. A cell keeping one plane alone would give a point beside the other sheet
+        // the cells' blend, half a cell, which a march passes, and the world's probes standing
+        // there would read dark round patches at the sheets' feet.
         var config = Config.Default.WithWindow("scene field crossing", 96, 64) with { Headless = true, Offscreen = true, Samples = 1 };
         UseApp(new App(config).AddPlugin(new DefaultPlugins()));
         SetSceneField(1, 0.25f);

@@ -5,7 +5,7 @@ namespace Engine.Tests.Ecs;
 [Trait("Category", "Unit")]
 public class KeyIndexTests
 {
-    // A fire in a cell, found by the cell, as the voxel game's fires are.
+    // A fire in a cell, found by the cell.
     private struct Fire : IKeyed<(int X, int Y, int Z)>
     {
         public (int X, int Y, int Z) Cell;

@@ -40,8 +40,8 @@ public sealed partial class SceneFieldTests
     public void The_Cells_Built_Again_Where_A_Mesh_Was_Replaced_In_Place_Hold_What_A_Whole_Build_Of_The_Scene_Holds()
     {
         // A floor, a red cube and a gray one, the gray replaced in place by a taller block of
-        // another color, as a voxel game's section is when a block breaks, its cells built again
-        // alone and read against the same scene's cascade built whole.
+        // another color, its cells built again alone and read against the same scene's cascade
+        // built whole.
         var config = Config.Default.WithWindow("scene field test", 96, 64) with { Headless = true, Offscreen = true, Samples = 1 };
         UseApp(new App(config).AddPlugin(new DefaultPlugins()));
         SetSceneField(1, 0.25f);

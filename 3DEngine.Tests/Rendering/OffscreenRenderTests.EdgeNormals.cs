@@ -13,10 +13,9 @@ public sealed partial class OffscreenRenderTests
         // A strip three pixels tall facing the eye, a little aslant, its normals turned 75 degrees
         // up along its top and 75 down along its bottom, drawn by a shader that lights a pixel
         // whose normal turns further down than the bottom's. Read at the middle of a pixel the strip
-        // covers some samples of, past its edge, the normal went on turning, which along the foot of
-        // Sponza's doors, their bevels turning down, had global illumination read light for a
-        // surface facing the floor, a row of white pixels along each foot, 80 at the atrium view's
-        // two doors where 45 with the normal read where the samples lie.
+        // covers some samples of, past its edge, the normal would go on turning, and global
+        // illumination would read light for a surface facing the floor, a row of white pixels along
+        // the strip's foot, so the normal is read where the samples lie.
         Open(96, 64);
         const string source = """
             import modelpass;

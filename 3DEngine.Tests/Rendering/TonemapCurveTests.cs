@@ -27,8 +27,8 @@ public sealed class TonemapCurveTests : IDisposable
         _folder.Dispose();
     }
 
-    // Seven lights from deep shade to four times white, and what the curve shows for each at the
-    // settings a voxel game's look is read at.
+    // Seven lights from deep shade to four times white, and what the curve shows for each at an
+    // exposure of 0.9, a white curve of 1.3 and powers of 1.05 and 1.0.
     private static readonly float[] Lights = [0.05f, 0.1f, 0.25f, 0.5f, 1, 2, 4];
     private static readonly double[] Modpacks = [0.230, 0.317, 0.475, 0.620, 0.763, 0.874, 0.941];
 

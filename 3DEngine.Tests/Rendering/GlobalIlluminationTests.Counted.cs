@@ -94,7 +94,7 @@ public sealed partial class GlobalIlluminationTests
     }
 
     // The box of CountedBox with each vertex's color, red as a uint red lowest, and a stream of two
-    // uints a vertex of the program's own, as a voxel game's terrain shader reads.
+    // uints a vertex of the program's own, which its shader reads.
     private static readonly string ColoredBox = CountedBox
         .Replace("RWStructuredBuffer<uint> counter;", "RWStructuredBuffer<uint> counter;\nRWStructuredBuffer<uint> colors;\nRWStructuredBuffer<uint> packed;")
         .Replace("positions[v * 3 + 2] = p.z;", "positions[v * 3 + 2] = p.z;\ncolors[v] = 0xFF1414DCu;\npacked[v * 2] = v;\npacked[v * 2 + 1] = 0u;");

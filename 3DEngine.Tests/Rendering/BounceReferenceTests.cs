@@ -217,9 +217,9 @@ public sealed partial class BounceReferenceTests : IDisposable
     [NeedsRayQueryFact]
     public void A_Slab_Colored_In_Its_Vertices_Reads_In_The_Frame_As_In_The_Reference()
     {
-        // The slab above with its color in its vertices and a white material, as a voxel game colors
-        // a section's blocks. The reference traced a copy's flat color alone, so a game's rooms of
-        // white concrete read brighter in it than in the frame.
+        // The slab above with its color in its vertices and a white material. The reference traces
+        // the vertices' color times the material's, as the frame shades it, since a reference that
+        // traced the material's color alone would read the slab brighter than the frame does.
         var config = Config.Default.WithWindow("bounce reference test", 160, 120) with { Headless = true, Offscreen = true, Samples = 1 };
         UseApp(new App(config).AddPlugin(new DefaultPlugins()));
         SetSceneField(2, 0.25f, 1);
@@ -253,10 +253,9 @@ public sealed partial class BounceReferenceTests : IDisposable
     public void A_Slab_Whose_Colors_Are_Written_In_Place_Bounces_Them_Onto_A_Wall_As_The_Reference_Does()
     {
         // A slab colored white in its vertices with a white wall standing on it under a lamp, then
-        // its colors written red in place, as a voxel game lights a section again by its light
-        // levels. The field kept the colors of the slab's last upload and the ray scene its corners',
-        // so the indirect light from the slab onto the wall stayed white, and so did the slab in
-        // the reference.
+        // its colors written red in place. The field and the ray scene take the colors written in
+        // place rather than those of the slab's last upload, so the indirect light from the slab
+        // onto the wall turns red, in the frame and in the reference alike.
         var config = Config.Default.WithWindow("bounce reference test", 160, 120) with { Headless = true, Offscreen = true, Samples = 1 };
         UseApp(new App(config).AddPlugin(new DefaultPlugins()));
         SetSceneField(2, 0.25f, 1);

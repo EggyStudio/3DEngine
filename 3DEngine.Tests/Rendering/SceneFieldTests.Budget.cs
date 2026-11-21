@@ -10,8 +10,8 @@ namespace Engine.Tests.Rendering;
 // progress taking in a mesh that came and starting again for one that left.
 public sealed partial class SceneFieldTests
 {
-    // The sections a voxel game streams in at once, as the reading that stalled a frame had them,
-    // 500 of 1,024 triangles each, flat boxes four meters a side on a grid of 25 by 20 about the eye.
+    // Sections streamed in at once, 500 of 1,024 triangles each, flat boxes four meters a side on a
+    // grid of 25 by 20 about the eye.
     private const int Sections = 500, SectionTriangles = 1024;
 
     private static readonly ModelVertex[] Section =
@@ -80,7 +80,7 @@ public sealed partial class SceneFieldTests
     [Trait("Category", "Unit")]
     public void The_Pool_Takes_Twice_Its_Build_Where_The_Device_Has_Room_And_Less_Where_It_Is_Short()
     {
-        // Sponza's build in progress, 3.75 million triangles, 48 bytes each, and the frame's part of it.
+        // A build in progress of 3.75 million triangles, 48 bytes each, and the frame's part of it.
         const int building = 3_750_000, frame = 600_000;
         SceneFieldRenderer.PoolCapacity(building, frame, null).Should().Be(8_388_608, "where the driver does not say, twice the build rounded up to a power of two");
         SceneFieldRenderer.PoolCapacity(building, frame, 2UL << 30).Should().Be(8_388_608, "2 GB free holds twice the pool's 403 MB");
@@ -255,9 +255,9 @@ public sealed partial class SceneFieldTests
     public void A_Cut_Past_The_Finer_Cascades_Boxes_Builds_Them_At_Once_And_A_Walk_Keeps_The_Budget()
     {
         // The sections built under a small budget, then the eye cut 40 units along, past the first
-        // two cascades' boxes of 16 and 32 units. Built under the budget, the cut's view lay in the
-        // coarser cascades over the frames the finer ones took, which hold none of a room's walls,
-        // as Sponza's vestibule took the court's sky after a cut to its door. A walk of a snap after
+        // two cascades' boxes of 16 and 32 units. Built under the budget, the cut's view would lie
+        // in the coarser cascades over the frames the finer ones take, which hold none of a room's
+        // walls, so a room would take the sky outside it for those frames. A walk of a snap after
         // it keeps each frame under the budget.
         const int budget = 16_384;
         var plan = new SceneFieldPlan(4, 0.25f, 4, triangleBudget: budget, triangles: _ => SectionTriangles);

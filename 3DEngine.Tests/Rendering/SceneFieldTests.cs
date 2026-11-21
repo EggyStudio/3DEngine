@@ -76,8 +76,9 @@ public sealed partial class SceneFieldTests : IDisposable
     public void A_Still_Mesh_Waiting_For_Its_Cascades_Is_Stamped_Only_Where_It_Moved_Before_It_Settled()
     {
         // Two cascades and a budget of one mesh's triangles a frame, so a mesh that settles waits a
-        // frame for the second cascade's region to be built with it, as Sponza's meshes waited 330
-        // frames at the default budget, the box of its outer walls filling the building meanwhile.
+        // frame for the second cascade's region to be built with it. Meanwhile it is stamped only
+        // where it moved before it settled, since a building's outer walls stamped as their box
+        // would fill the building.
         var plan = new SceneFieldPlan(2, 0.25f, 1, triangleBudget: 12, triangles: _ => 12);
         var eye = new Vector3(0.1f, 0.1f, 0.1f);
         plan.Update(eye, []);
@@ -108,8 +109,7 @@ public sealed partial class SceneFieldTests : IDisposable
     public void A_Still_Mesh_Replaced_In_Place_Stays_In_The_Field_Until_The_One_Replacing_It_Settles()
     {
         // A cube settled and built, then another mesh drawn through the same matrix where it was,
-        // as an edited section of a game's world is, which the boxes it would be stamped as stood
-        // in for badly while it settled.
+        // which the boxes it would be stamped as would stand in for badly while it settles.
         var plan = new SceneFieldPlan(1, 0.25f, 1);
         var eye = new Vector3(0.1f, 0.1f, 0.1f);
         var replacement = GenMeshCubeVertices(2.5f);

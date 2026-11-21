@@ -50,8 +50,8 @@ public sealed class DeviceMemoryTests
         // the next that does not fit the blocks before it, whichever kind it is. Buffers of 30 MB
         // of the device's own are made until one takes a new block, so the blocks before hold less
         // than that free, and one of 32 MB the CPU writes, half a block and so carved from one,
-        // fits the new block alone. Unmapped there, its first write through the null pointer ended
-        // a voxel game's play on lavapipe.
+        // fits the new block alone. That block must be mapped, since the buffer's first write goes
+        // through the block's pointer, which is null for a block left unmapped.
         var own = new List<IBuffer>();
         try
         {

@@ -12,8 +12,8 @@ public sealed class PositionPackingTests
     [Fact]
     public void A_Section_On_A_Sixteenth_Grid_Packs_To_Integers_That_Give_Its_Positions_Back_Exactly()
     {
-        // A section's corners and faces from 0 to 16 blocks in sixteenths, as a voxel game meshes
-        // its sections, the furthest 16, whose 32,767 multiples the quantum of 2^-10 reaches.
+        // A section's corners and faces from 0 to 16 blocks in sixteenths, the furthest 16, whose
+        // 32,767 multiples the quantum of 2^-10 reaches.
         var positions = Enumerable.Range(0, 257).Select(i => new Vector3(i / 16f, (i * 7 % 257) / 16f, 16 - i / 16f)).ToArray();
         var vertices = At(positions);
         var quantum = PositionPacking.Quantum(vertices);

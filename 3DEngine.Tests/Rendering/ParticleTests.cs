@@ -86,7 +86,7 @@ public sealed class ParticleTests : IDisposable
     public void Empty_Emitters_Are_Neither_Stepped_Nor_Drawn_And_A_Burst_Costs_Its_Own_Particles_Until_They_Die()
     {
         Open();
-        // Twenty with room for ten thousand each, as a voxel game's ambient emitters stand, none emitting.
+        // Twenty with room for ten thousand each, none emitting.
         var emitters = Enumerable.Range(0, 20)
             .Select(i => CreateParticleEmitter(new Vector3((i - 3) * 0.1f, 0, 0), Cloud(Color.White) with { MaxParticles = 10_000, Life = 0.5f, LifeVariation = 0.5f }))
             .ToArray();

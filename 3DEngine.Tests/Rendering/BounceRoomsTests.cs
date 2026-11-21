@@ -486,8 +486,9 @@ public sealed partial class BounceRoomsTests : IDisposable
     }
 
     // The share of the light around it a dielectric face of a roughness of a half, the rooms', sends
-    // back toward a way at a cosine of nv from its normal by its gloss, Karis's fit of the split sum,
-    // as a probe's ray takes it at its hit (reflectedShare in probelight.slang).
+    // back toward a way at a cosine of nv from its normal by its gloss, the analytic fit of the
+    // split sum for mobile, as a probe's ray takes it at its hit (reflectedShare in
+    // probelight.slang).
     private static float GlossShare(float nv)
     {
         const float Roughness = 0.5f;

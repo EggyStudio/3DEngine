@@ -29,7 +29,7 @@ public sealed class CircularOccludersRenderTests(ITestOutputHelper output) : IDi
         // said with them, and the room at the origin drawn a second time, which is drawn alike to
         // the texel, the sky's texels that the main pass leaves read open. Placed against the
         // other origin the depth rounds the other way by a step of the packed distance at some
-        // texels, and a few normals fall the other way of CORTAO's dithered five bits, the
+        // texels, and a few normals fall the other way of the packing's dithered five bits, the
         // occlusion with them.
         var near = Occlusion(Vector3.Zero);
         var again = Occlusion(Vector3.Zero);
@@ -64,8 +64,8 @@ public sealed class CircularOccludersRenderTests(ITestOutputHelper output) : IDi
         return new Drawn(Channel(raw, 3), Channel(final, 0), [.. packed.Select(Distance)], [.. packed.Select(Normal)]);
     }
 
-    // CORTAO's packing, the distance along the view a float with its low ten bits the normal's,
-    // five a component of its sphere map, each signed.
+    // The prepass's packing, the distance along the view a float with its low ten bits the
+    // normal's, five a component of its sphere map, each signed.
     private const int NormalBits = 10;
 
     private static float Distance(uint packed) => BitConverter.UInt32BitsToSingle(packed & ~((1u << NormalBits) - 1));

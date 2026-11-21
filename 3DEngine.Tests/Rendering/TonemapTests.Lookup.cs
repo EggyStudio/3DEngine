@@ -5,8 +5,8 @@ using static Engine.E3D;
 
 namespace Engine.Tests.Rendering;
 
-// A table loaded from a file, the look of AgX - Powerful.exr the Sponza example grades by, which
-// build/unity-lut.py writes from the strip of squares HDRP reads.
+// A table loaded from a file, the AgX lookup at 3DEngine.Examples/resources/agx_powerful.ktx2,
+// which build/unity-lut.py writes from a strip of squares.
 public sealed partial class TonemapTests
 {
     private static string PowerfulFile => Path.Combine(Api.CheatsheetTests.RepoRoot(), "3DEngine.Examples", "resources", "agx_powerful.ktx2");
@@ -14,7 +14,7 @@ public sealed partial class TonemapTests
     [NeedsVulkanFact]
     public void The_Ramp_Through_A_Table_Loaded_From_A_File_Is_HDRPs_Lookup_Of_It_After_The_Gamma()
     {
-        // HDRP's gamma of w 0.225 raises the light to 1 / 1.225 before it is looked up as LogC.
+        // A gamma of w 0.225 raises the light to 1 / 1.225 before it is looked up as LogC.
         var frameImage = DrawRamp("lookup", () =>
         {
             SetTonemapLookup(PowerfulFile);

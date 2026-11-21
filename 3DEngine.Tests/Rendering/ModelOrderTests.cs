@@ -50,9 +50,9 @@ public sealed class ModelOrderTests : IDisposable
     public void Opaque_Draws_Through_A_Programs_Shader_Are_Bound_By_Their_Pipeline_And_Not_By_Turns()
     {
         // Sixteen cubes of their own drawn through DrawMesh with a program's shader, solid and cut
-        // out by turns, as a voxel game's sections drew their solid and cut-out faces, each a batch
-        // alone and the two kinds two pipelines, which the pass bound sixteen times in the order
-        // they were drawn, and the sun's cascades bind by turns.
+        // out by turns, each a batch alone and the two kinds two pipelines. The pass binds each
+        // pipeline once rather than sixteen times in the order the cubes are drawn, and the sun's
+        // cascades bind them by turns.
         Open();
         CreateDirectionalLight(Vector3.Normalize(new Vector3(-0.3f, -1, -0.4f)), Color.White, 1, castsShadows: true);
         var shader = LoadShaderFromMemory("""
@@ -125,11 +125,10 @@ public sealed class ModelOrderTests : IDisposable
     public void A_Frame_Pushes_And_Finds_Each_View_As_Often_However_Many_Mesh_Entities_It_Draws()
     {
         // Mesh entities each of a mesh of its own and a program's shader that keeps its positions,
-        // solid and cut out by turns, as a voxel game's sections are, under the sun's cascades and
-        // a water's mirror, 71,680 units out. Each pass pushes each view it draws through once and
-        // finds it among those worked against the origin once, so a frame of 48 counts what one of
-        // 16 does, where each batch looked its view up by its matrix and each pipeline bound
-        // pushed it again.
+        // solid and cut out by turns, under the sun's cascades and a water's mirror, 71,680 units
+        // out. Each pass pushes each view it draws through once and finds it among those worked
+        // against the origin once, so a frame of 48 counts what one of 16 does, rather than each
+        // batch looking its view up by its matrix and each pipeline bound pushing it again.
         Open();
         CreateDirectionalLight(Vector3.Normalize(new Vector3(-0.3f, -1, -0.4f)), Color.White, 1, castsShadows: true);
         var shader = LoadShaderFromMemory("""

@@ -107,9 +107,8 @@ public sealed class FrameEffectsTests : IDisposable
         // A night's dark scene, its log2 luminance near -10, where a half float's steps are a 128th,
         // followed from a bright one at a speed of 3 for three seconds of the clock, which takes it
         // all but a ten-thousandth of its way, unpaced and at 30 frames a second.
-        // Held in a half float, a frame's step under half of one rounded back, so the faster run's
-        // smaller steps came to rest further short of the scene, Sponza's door by night 6.9 levels
-        // darker unpaced than at 30 frames a second.
+        // Held in a half float, a frame's step under half of one would round back, so the faster
+        // run's smaller steps would come to rest further short of the scene than the slower run's.
         byte Settled(int pause)
         {
             Open();

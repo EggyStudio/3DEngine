@@ -42,9 +42,9 @@ public sealed partial class OffscreenRenderTests
     [NeedsVulkanFact]
     public void A_Masked_Surface_Through_A_Programs_Vertex_Stage_Casts_The_Shadow_Cut_At_The_Coordinate_The_Stage_Gives()
     {
-        // A square of positions alone, each corner's texture coordinate packed in its stream as the
-        // voxel game packs its plants' tiles. The shadow pass's own stage reads a coordinate of zero
-        // on such a mesh, the cut-out texel, and the program's gives each corner its own.
+        // A square of positions alone, each corner's texture coordinate packed in its stream. The
+        // shadow pass's own stage reads a coordinate of zero on such a mesh, the cut-out texel, and
+        // the program's gives each corner its own.
         Open(64, 64);
         var shader = LoadShaderFromMemory("""
             import modelpass;
@@ -82,8 +82,8 @@ public sealed partial class OffscreenRenderTests
     public void A_Programs_Shadow_Stage_Cuts_Its_Masked_Surface_Out_Of_The_Shadow_By_A_Texture_Of_Its_Own()
     {
         // The material's texture is white, which the shadow pass's own cut keeps whole, and the
-        // program cuts the square by an atlas of its own, as the voxel game cuts its plants, in its
-        // fragment stage and in its shadowMain.
+        // program cuts the square by an atlas of its own, in its fragment stage and in its
+        // shadowMain.
         Open(64, 64);
         var shader = LoadShaderFromMemory("""
             import modelpass;
@@ -141,7 +141,7 @@ public sealed partial class OffscreenRenderTests
             {
             }
             """, "looked.slang");
-        // Eight squares of eight meshes, each a batch of its own as each of the voxel game's chunks is.
+        // Eight squares of eight meshes, each a batch of its own.
         var squares = Enumerable.Range(0, 8).Select(_ => LoadModelFromMesh(GenMeshPlane(1, 1, 1, 1))).ToArray();
         foreach (var square in squares)
             square.Materials[0] = new ModelMaterial(Color.White) { AlphaMode = MaterialAlphaMode.Mask, Shader = shader };

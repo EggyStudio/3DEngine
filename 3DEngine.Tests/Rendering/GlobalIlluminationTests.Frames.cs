@@ -406,19 +406,18 @@ public sealed partial class GlobalIlluminationTests
     [InlineData(true)]
     public void The_Light_That_Bounces_Settles_By_The_Fifth_Frame_After_A_Walk_Or_A_Turn(bool turn)
     {
-        // The voxel game's room at night, 11 blocks by 6 by 11 inside, white with a red wall and a
-        // green one, lit by one emissive block on its floor, global illumination at High through
-        // the game's field of four cascades of a quarter block, the camera walking four blocks
-        // ahead over 20 frames or turning a quarter in one, and the picture's change from each
-        // frame to the next read after. The screen's probes' rays read the world's probes' light
-        // from the texel each fell in, which flipped for a ray near a texel's border as the camera
-        // moved and the frame before's light averaged, so it drifted for frames after. The world's
-        // probes' rays read the indirect light of the frame before at their cascade's new corner
-        // once it moved with the eye, as every cascade does in a turn, each probe taking the faces
-        // of a probe a step or more beside it, so the light past the first bounce found itself
-        // only over many frames. Read between the texels and at the corners gathered at, the light
-        // settles by the fifth frame after either, the texels settling the walk and the corners the
-        // turn.
+        // A room at night, 11 blocks by 6 by 11 inside, white with a red wall and a green one, lit
+        // by one emissive block on its floor, global illumination at High through a field of four
+        // cascades of a quarter block, the camera walking four blocks ahead over 20 frames or
+        // turning a quarter in one, and the picture's change from each frame to the next read
+        // after. A screen probe's ray that read the world's probes' light from the texel it fell
+        // in alone would flip for a ray near a texel's border as the camera moved, and the frame
+        // before's light averaged in would carry it for frames after. A world probe's ray that read
+        // the indirect light of the frame before at its cascade's new corner, once the cascade
+        // moved with the eye as every cascade does in a turn, would take the faces of a probe a
+        // step or more beside it, so the light past the first bounce would settle only over many
+        // frames. Read between the texels and at the corners gathered at, the light settles by the
+        // fifth frame after either, the texels settling the walk and the corners the turn.
         var config = Config.Default.WithWindow("gi test", 320, 180) with { Headless = true, Offscreen = true, Samples = 1 };
         UseApp(new App(config).AddPlugin(new DefaultPlugins()));
         SetSceneField(4, 0.25f, 2);
@@ -478,10 +477,10 @@ public sealed partial class GlobalIlluminationTests
     public void A_Mesh_Replaced_Beside_A_Lamp_Keeps_Its_Indirect_Light_While_Its_Replacement_Settles()
     {
         // Three walls around a lamp drawn apart, which lights them by indirect light alone, the
-        // walls one mesh replaced at frame 60 by one of four, the fourth a block beside the lamp,
-        // as a game's section is meshed again when a block is placed. The walls left the field at
-        // once and their replacement stood in as a few boxes until it settled, darkening the wall
-        // and the floor, so the walls are kept in the field until the replacement settles.
+        // walls one mesh replaced at frame 60 by one of four, the fourth a block beside the lamp.
+        // Taken out of the field at once, with their replacement standing in as a few boxes until
+        // it settles, the walls would leave the wall and the floor dark, so they are kept in the
+        // field until the replacement settles.
         Open();
         SetGlobalIllumination(GlobalIllumination.Medium);
         SetAmbientLight(Color.Black, 0);
@@ -538,10 +537,10 @@ public sealed partial class GlobalIlluminationTests
     [Trait("Category", "Render")]
     public void A_Room_Sealed_From_The_Sky_Reflects_None_Of_It_Where_An_Open_Floor_Reflects_It()
     {
-        // A box sealed on every side and a floor under the open sky beside it, both of stone as
-        // rough as the voxel game's, under a blue sky, looked at along the box's inside wall and
-        // across the floor at a grazing angle, where a rough surface reflects most. Weighed by the
-        // occlusion alone, the sky's reflection lit the inside of the box though it sees no sky, so
+        // A box sealed on every side and a floor under the open sky beside it, both of stone of
+        // roughness 0.9, under a blue sky, looked at along the box's inside wall and across the
+        // floor at a grazing angle, where a rough surface reflects most. Weighed by the occlusion
+        // alone, the sky's reflection would light the inside of the box though it sees no sky, so
         // it is weighed by the share of the sky the probes see.
         Open();
         SetGlobalIllumination(GlobalIllumination.High);

@@ -134,9 +134,9 @@ public sealed class DaySkyAirTests : IDisposable
     [Trait("Category", "Unit")]
     public void A_Sun_Scaled_By_Its_Height_Lights_As_The_Strength_Times_The_Height_Set_Each_Hour_Did()
     {
-        // scenes_sponza's sun, 120,000 lux outside the air on a path leaning 6 degrees, which it
-        // set each hour as 120,000 times the sine of its height, 5,000 at least, and sets once now
-        // with the day scaling it.
+        // A sun of 120,000 lux outside the air on a path leaning 6 degrees, set once with the day
+        // scaling it, against the same sun set each hour as 120,000 times the sine of its height,
+        // 5,000 at least.
         float LightAt(SkyDay day, float hour)
         {
             UseApp(new App(Config.Default with { Headless = true, HeadlessFps = 1000, FrameSeconds = 1.0 / 60 }).AddPlugin(new DefaultPlugins()));

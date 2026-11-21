@@ -5,9 +5,8 @@ using static Engine.E3D;
 namespace Engine.Tests.Rendering;
 
 /// <summary>
-/// The voxel game's room where a lamp's shadow showed a seam, a lamp of four glowstones beside a
-/// pillar of two columns joined above, and the red wall behind, whose light past the pillar is read
-/// along a line across the pillar's shadow.
+/// A room with a lamp of four glowstones beside a pillar of two columns joined above, and the red
+/// wall behind, whose light past the pillar is read along a line across the pillar's shadow.
 /// </summary>
 [Collection("E3D")]
 [Trait("Category", "Render")]
@@ -24,10 +23,10 @@ public sealed class GlowPillarTests : IDisposable
     [NeedsVulkanFact]
     public void A_Lamps_Light_Past_A_Pillars_Edge_Rises_On_The_Wall_Behind_Without_A_Step()
     {
-        // In the game the wall's light past the pillar rose in a step where the march to the lamp's
-        // face grazed the pillar's edge, since a way out of the pillar ended at the step that left
-        // it, at least half a cell under the edge, and the share inside fell short of the share
-        // outside by that much. A path-traced reference rises smoothly there.
+        // The wall's light past the pillar rises smoothly where the march to the lamp's face grazes
+        // the pillar's edge, as a path-traced reference's does. A way out of the pillar ended at
+        // the step that left it would lie at least half a cell under the edge, and the share inside
+        // would fall short of the share outside by that much, a step in the wall's light.
         var config = Config.Default.WithWindow("glow pillar", Width, Height) with { Headless = true, Offscreen = true, Samples = 1 };
         UseApp(new App(config).AddPlugin(new DefaultPlugins()));
         SetSceneField(4, 0.25f, 2);

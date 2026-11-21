@@ -134,9 +134,9 @@ public class BehaviorGeneratorTests
     [Fact]
     public void A_Field_Holding_A_Record_Nothing_Can_Change_Is_Not_Warned_Of_And_One_That_Can_Change_Is()
     {
-        // The item a stack holds, as the voxel game's drops hold theirs, a record of readonly
-        // values and another record of them, shared by every copy of the behavior, and records
-        // whose property can be set, whose list can be changed, or whose base can.
+        // The item a stack holds, a record of readonly values and another record of them, shared
+        // by every copy of the behavior, and records whose property can be set, whose list can be
+        // changed, or whose base can.
         var (result, _) = Generate("""
             using Engine;
             public enum Kind { Block, Tool }

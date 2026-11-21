@@ -5,15 +5,14 @@ using static Engine.E3D;
 
 namespace Engine.Tests.Rendering;
 
-// The faces a glow light keeps once the field shows what stands around it (glow_faces.slang): lamps
-// of blocks set in rooms of blocks meshed both ways, every block's face drawn as the voxel game draws
-// them and the faces toward a lamp left out as a program that culls them does, read from the lights
-// after the frames, and the light they send held against the path-traced reference at one bounce.
+// The faces a glow light keeps once the field shows what stands around it (glow_faces.slang), with
+// lamps of blocks set in rooms of blocks meshed both ways, every block's face drawn and the faces
+// toward a lamp left out as a program that culls them does, read from the lights after the frames,
+// and the light they send held against the path-traced reference at one bounce.
 public sealed partial class GlobalIlluminationTests
 {
-    // How a lamp block is handed to the engine: a unit cube, as the voxel game draws its lamps, one
-    // mesh of the block's faces no block of the room lies against, or each of its six faces a mesh
-    // of its own.
+    // How a lamp block is handed to the engine, as a unit cube, as one mesh of the block's faces no
+    // block of the room lies against, or as each of its six faces a mesh of its own.
     public enum Handed { Cube, Shown, Quads }
 
     // The ways out of a block, in the order glowFaces numbers its faces: -x, +x, -y, +y, -z, +z.
@@ -182,11 +181,11 @@ public sealed partial class GlobalIlluminationTests
     [InlineData("three joined in the ceiling", false, 0f)]
     public void A_Lamps_Faces_Against_The_Blocks_Around_It_Are_Closed_And_The_Rest_Kept(string room, bool culled, float shift)
     {
-        // The lamps a whole block of six faces each, as a voxel game draws them, so the faces the
-        // blocks around them cover are the field's to close: the face toward the room alone flush
-        // in a wall two blocks thick, that and the back toward the air outside in a wall one block
-        // thick, two in a corner, five on the floor, six in the air, and three lamps in a row in
-        // the roof one light whose bottom alone shows.
+        // The lamps a whole block of six faces each, so the faces the blocks around them cover are
+        // the field's to close. A lamp keeps the face toward the room alone flush in a wall two
+        // blocks thick, that and the back toward the air outside in a wall one block thick, two in
+        // a corner, five on the floor and six in the air, and three lamps in a row in the roof are
+        // one light whose bottom alone shows.
         var places = RoomPlaces(room, culled, shift);
         places.Select(place => place.Faces).Should().Equal(Placed(room).Faces,
             $"a lamp {room}, the faces toward it {(culled ? "left out" : "drawn")}, keeps the faces that show");

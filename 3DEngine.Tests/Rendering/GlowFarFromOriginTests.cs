@@ -5,9 +5,9 @@ using static Engine.E3D;
 namespace Engine.Tests.Rendering;
 
 /// <summary>
-/// A glow light's light on a wall beside it far from the world's origin, as a voxel game's world
-/// stands, read as the same room reads at the origin, and on the room's ceiling in a window whose
-/// glow texels span a part of its pixels, read as in one whose texels span two.
+/// A glow light's light on a wall beside it far from the world's origin, read as the same room
+/// reads at the origin, and on the room's ceiling in a window whose glow texels span a part of its
+/// pixels, read as in one whose texels span two.
 /// </summary>
 [Collection("E3D")]
 [Trait("Category", "Render")]
@@ -63,8 +63,8 @@ public sealed class GlowFarFromOriginTests : IDisposable
         SetGlobalIllumination(quality);
         SetAmbientLight(Color.Black, 0);
         var block = LoadModelFromMesh(GenMeshCube(1, 1, 1));
-        // The lantern as a voxel game's emissive mesh holds it, the one face that shows, a second
-        // square far below cutting the mesh into parts, each a light of its own.
+        // The lantern as one emissive mesh, the one face that shows and a second square far below
+        // cutting the mesh into parts, each a light of its own.
         Vector3[] squares =
         [
             new(5, 0, 0), new(6, 0, 0), new(6, 1, 0), new(5, 1, 0),

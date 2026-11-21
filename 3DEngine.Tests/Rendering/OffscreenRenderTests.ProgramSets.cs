@@ -13,9 +13,9 @@ public sealed partial class OffscreenRenderTests
     [NeedsVulkanFact]
     public void Mesh_Entities_Drawn_Through_One_Programs_Shader_With_The_Same_Values_Share_One_Descriptor_Set_A_Frame()
     {
-        // The voxel game's sections, every one drawn through its terrain shader with the same
-        // values, each took a set made and written whole in each pass that drew it, about 2,045 a
-        // frame at 12 columns over the shadows', the depth's, the camera's and the mirror's passes.
+        // Eight squares under the sun's shadow, each a mesh entity of its own drawn through one
+        // program's shader with the same values. Every pass takes the one set the eight share,
+        // rather than a set made and written whole for each draw in each pass that draws it.
         Open(64, 64);
         var shader = LoadShaderFromMemory("""
             import modelpass;

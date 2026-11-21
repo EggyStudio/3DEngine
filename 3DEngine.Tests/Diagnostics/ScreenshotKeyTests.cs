@@ -5,9 +5,9 @@ using static Engine.E3D;
 namespace Engine.Tests.Diagnostics;
 
 /// <summary>
-/// F2 writing a screenshot in every program into a folder beside it, named by the time as Minecraft
-/// names its own, the key moved or turned off, the press still the program's, and F1 and F3 the
-/// keys of the hidden interface and the debug overlay beside it.
+/// F2 writing a screenshot in every program into a folder beside it, named by the time to the
+/// second with a count after a name already given, the key moved or turned off, the press still the
+/// program's, and F1 and F3 the keys of the hidden interface and the debug overlay beside it.
 /// </summary>
 /// <remarks>
 /// A run with no GPU has no frame to write, so the files are read on the device, offscreen, and

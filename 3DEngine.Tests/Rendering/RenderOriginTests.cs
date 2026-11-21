@@ -174,8 +174,8 @@ public sealed class RenderOriginTests : IDisposable
         largest.Should().BeLessThan(0.1f, "the room far out is handed to the GPU in the numbers the room at the origin is");
     }
 
-    // A floor's shader of the program's own that reads the sun's shadow at its world point, as a
-    // voxel game's terrain does, and lights the floor with it.
+    // A floor's shader of the program's own that reads the sun's shadow at its world point and
+    // lights the floor with it.
     private const string HandedShader = """
         import modelpass;
         import lights;
@@ -208,7 +208,7 @@ public sealed class RenderOriginTests : IDisposable
         """;
 
     // A post and a block on a floor drawn with the shader given, at a place in the world, the sun's
-    // light travelling toward -x and down, the camera standing or, with crossing, moving three units
+    // light traveling toward -x and down, the camera standing or, with crossing, moving three units
     // along x from 6.5 to 9.5 once the field settles, past 8, where the origin steps; the level of
     // the floor's light where the post's shadow falls and a unit to its side.
     private static (float Shadowed, float Beside) Posted(Vector3 at, string shader, bool crossing)

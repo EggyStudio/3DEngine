@@ -13,13 +13,13 @@ public sealed partial class GlobalIlluminationTests
     public void A_Probe_Whose_Ray_Meets_A_Lintel_Past_Its_Interval_Takes_No_Sky_The_Probes_Above_See_Under_It()
     {
         // A hall under a roof four units up opens toward -x past a lintel hanging from the roof to
-        // two units up, six units from the probe read, in the cells of Sponza's field, the sky's
+        // two units up, six units from the probe read, in cells of an eighth of a unit, the sky's
         // light alone lighting it. The first cascade's probe at the hall's middle reads its face
         // toward the opening against a reference of one bounce. Its rays that way leave its
         // interval and meet the lintel past it, where the probes above it, standing lower, see the
-        // sky under the lintel along the same ways, and blended with them the face takes sky the
-        // reference does not, as Sponza's vestibule took the sky past its arch. So its ray is
-        // marched on past its interval and those probes are passed over.
+        // sky under the lintel along the same ways, and blended with them the face would take sky
+        // the reference does not. So its ray is marched on past its interval and those probes are
+        // passed over.
         Open();
         SetSceneField(4, 0.125f, 2);
         SetSceneFieldCenter(new Vector3(-2, 1.5f, 0));
@@ -64,9 +64,8 @@ public sealed partial class GlobalIlluminationTests
         // moving. A probe above whose rays move through their sixteen places, carried past its
         // interval, meets a surface along a way in some frames and sees past it in others, so with
         // the probes above passed over where they disagree with the ray marched past its interval,
-        // the two probes' faces toward the opening went up and down from frame to frame, as such a
-        // probe by the end wall of Sponza's door view did at irregular times. Such a probe is read
-        // by its texels' middle ways' hits, which hold still.
+        // the two probes' faces toward the opening would go up and down from frame to frame. Such a
+        // probe is read by its texels' middle ways' hits, which hold still.
         Open();
         SetSceneField(4, 0.125f, 2);
         SetSceneFieldCenter(new Vector3(-2, 1.5f, 0));

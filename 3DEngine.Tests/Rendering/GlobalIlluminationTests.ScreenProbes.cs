@@ -104,16 +104,16 @@ public sealed partial class GlobalIlluminationTests
     [Trait("Category", "Render")]
     public void Far_From_The_Worlds_Origin_Glow_Lights_Leave_No_More_Of_The_Land_Black_Than_Near_It()
     {
-        // The voxel game's desert village at a field of view of 40 degrees, sand, houses and 56
-        // torches under a low sun, drawn 10,000 units from the world's origin and at it. Far from it,
-        // a far texel's neighbor read back from the window's depth fell on the same point, its normal
-        // made from the two a value that is not a number, which the glow lights' light at the
-        // screen's probes and the glow pass carried and their history spread, leaving far more of
-        // the land black than the houses' shadows do at the origin, so such a texel faces the eye
-        // where its neighbors give it none. With the screen's probes' whole cycle of places
-        // standing in, read again each frame through the frame before's matrices, which far from
-        // the origin put a probe back off its place, a house's shadow went black, so a still view
-        // reads them in place.
+        // Forty houses and a ground of sand with 56 torches under a low sun, at a field of view of
+        // 40 degrees, drawn 10,000 units from the world's origin and at it. Far from it, a
+        // far texel's neighbor read back from the window's depth can fall on the same point, its
+        // normal made from the two then a value that is not a number, which the glow lights' light
+        // at the screen's probes and the glow pass would carry and their history spread, leaving
+        // far more of the land black than the houses' shadows do at the origin, so such a texel
+        // faces the eye where its neighbors give it none. The screen's probes' whole cycle of
+        // places, read again each frame through the frame before's matrices, would put a probe
+        // back off its place far from the origin and black a house's shadow, so a still view reads
+        // them in place.
         double Black(float offset)
         {
             var config = Config.Default.WithWindow("gi test", 640, 360) with { Headless = true, Offscreen = true, Samples = 1 };
@@ -167,10 +167,10 @@ public sealed partial class GlobalIlluminationTests
     [Trait("Category", "Render")]
     public void A_Screen_Probe_Fed_A_Value_That_Is_Not_A_Number_Leaves_The_Light_It_Blends_Into_Finite()
     {
-        // The middle probe's light a value that is not a number for three frames, as the voxel game's
-        // desert village fed its probes one where their normals were, and then its own again. Kept by
-        // the window's blend of the probes around and by the frame before's, it spread over the land
-        // and stayed there; taken as none, the frame after reads as the frame before it was fed.
+        // The middle probe's light a value that is not a number for three frames, and then its own
+        // again. Kept by the window's blend of the probes around and by the frame before's, such a
+        // value would spread over the land and stay there, so it is taken as none, and the frame
+        // after reads as the frame before it was fed.
         Open();
         SetGlobalIllumination(GlobalIllumination.Low);
         CreatePointLight(new Vector3(0.5f, 2.6f, 0.8f), Color.White, 6, range: 10);

@@ -5,13 +5,12 @@ using static Engine.E3D;
 namespace Engine.Tests.Rendering;
 
 /// <summary>
-/// A canyon under a sky with no sun, seen from above along its length as the voxel game's hills
-/// were, its floor's light read down the picture's middle across the ends of the screen's probes,
-/// the world's cascades and the last cascade, past which the sky's light reaches the floor unhidden,
-/// and a closed room under the same sky, with the eye inside turned through a circle and in the
-/// frames before its last cascade is built, a closed room longer than four times the last
-/// cascade's spacing, whose rays go on to the field's edge, and a closed corridor walked down as the
-/// field's shifts bring its walls in.
+/// A canyon under a sky with no sun, seen from above along its length, its floor's light read down
+/// the picture's middle across the ends of the screen's probes, the world's cascades and the last
+/// cascade, past which the sky's light reaches the floor unhidden, and a closed room under the same
+/// sky, with the eye inside turned through a circle and in the frames before its last cascade is
+/// built, a closed room longer than four times the last cascade's spacing, whose rays go on to the
+/// field's edge, and a closed corridor walked down as the field's shifts bring its walls in.
 /// </summary>
 [Collection("E3D")]
 [Trait("Category", "Render")]
@@ -30,11 +29,11 @@ public sealed partial class CascadeEdgeTests : IDisposable
     [InlineData(GlobalIllumination.High)]
     public void The_Floors_Light_Fades_Across_Each_Cascades_End_Rather_Than_Stepping(GlobalIllumination quality)
     {
-        // Read from one cascade alone, the floor's light stepped from one row to the next at the
+        // Read from one cascade alone, the floor's light would step from one row to the next at the
         // screen's probes' end at High, at the third cascade's and at the last's, past which the
-        // sky's light lit it unhidden, and most at Low, whose screen probes end with its last
-        // cascade, as the voxel game's hills at sunset stepped where the last ended. Each one's
-        // outer band fades it across the end, and the bound lies under the least of those steps.
+        // sky's light lights it unhidden, and most at Low, whose screen probes end with its last
+        // cascade. Each one's outer band fades it across the end, and the bound lies under the
+        // least of those steps.
         var (step, at) = FloorStep(quality, () => SetAmbientLight(new Color(140, 170, 220), 1));
         step.Should().BeLessThan(0.06, $"the floor's light at {quality} changes from one row to the next by no step, as it did {at:0} blocks out");
     }

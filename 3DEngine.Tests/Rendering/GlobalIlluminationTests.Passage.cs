@@ -4,8 +4,8 @@ using static Engine.E3D;
 
 namespace Engine.Tests.Rendering;
 
-// A narrow passage walled in thick stone off a sunlit court, as Sponza's vestibule opens off its
-// atrium, whose probes of the cascades above stand inside the stone.
+// A narrow passage walled in thick stone off a sunlit court, whose probes of the cascades above
+// stand inside the stone.
 public sealed partial class GlobalIlluminationTests
 {
     [NeedsRayQueryFact]
@@ -14,14 +14,13 @@ public sealed partial class GlobalIlluminationTests
     {
         // A passage a unit wide and a unit and a half high under a roof, its walls and roof a unit
         // and a half thick, runs eight units in from a court the sun lights from high over it, in
-        // the cells of Sponza's field, whose cascades' probes stand half a unit, one and two apart.
-        // The first cascade's probe five units in, under the roof by a wall, reads its face toward
-        // the opening against a reference of one bounce, the sunlit court floor its light. Its rays
-        // that way leave its interval with nothing met, and taking the light past it from the
-        // probes of the cascades above, which stand in the stone around it, the face reads nothing
-        // where the reference reads the court. So such a ray, its probes above seen for under half
-        // their weight, is traced on and lit by what it meets, as Sponza's vestibule off its atrium
-        // is.
+        // cells of an eighth of a unit, whose cascades' probes stand half a unit, one and two
+        // apart. The first cascade's probe five units in, under the roof by a wall, reads its face
+        // toward the opening against a reference of one bounce, the sunlit court floor its light.
+        // Its rays that way leave its interval with nothing met, and taking the light past it from
+        // the probes of the cascades above, which stand in the stone around it, the face would read
+        // nothing where the reference reads the court. So such a ray, its probes above seen for
+        // under half their weight, is traced on and lit by what it meets.
         Open();
         SetSceneField(4, 0.125f, 2);
         SetSceneFieldCenter(new Vector3(3, 1, 0));

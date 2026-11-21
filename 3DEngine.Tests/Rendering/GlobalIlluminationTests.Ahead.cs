@@ -11,8 +11,8 @@ public sealed partial class GlobalIlluminationTests
     [Trait("Category", "Render")]
     public void The_Field_Held_Ahead_Lies_Around_The_Point_Half_Its_Finest_Cascade_Before_The_Eye()
     {
-        // The voxel game's center worked out by hand, the eye plus its way ahead times 64 cells
-        // times the cell size over 2, here the test's cells of 0.15.
+        // The center worked out by hand, the eye plus its way ahead times 64 cells times the cell
+        // size over 2, here the test's cells of 0.15.
         Open();
         SetGlobalIllumination(GlobalIllumination.Low);
         SetSceneFieldAhead(0.5f);

@@ -12,8 +12,7 @@ public sealed partial class SceneFieldTests
     [Trait("Category", "Unit")]
     public void A_Far_Cascade_Reaches_Its_Distance_Ahead_In_Cells_Of_Its_Own_And_Is_Left_Out_Of_The_Count()
     {
-        // Ore's field, four cascades of half a block reaching 256 across, and a far cascade to the
-        // 384 blocks the game draws.
+        // Four cascades of half a block reaching 256 across, and a far cascade to 384 blocks.
         var cell = SceneFieldPlan.FarCellFor(384, 4, 0.5f);
         var plan = new SceneFieldPlan(4, 0.5f, 1, farCell: cell);
         plan.Counted.Should().Be(4);
@@ -80,12 +79,12 @@ public sealed partial class SceneFieldTests
     {
         // A floor drawn double-sided under a far cascade of cells many units wide, which a cascade
         // holds as a sheet half a cell thick either side of it, as it holds a wall thinner than a
-        // cell, so a ray between two cells still meets it. Half the far cascade's own cell stood such
-        // a sheet as a slab rising past the eye, as the voxel game's flat ground of four blocks rose
-        // 37 blocks under the far cascade's cells of 73.75. The floor is put so a far cell's middle
-        // lies a quarter of a cell over it, which half a far cell held inside and which lies in the
-        // open with the sheet held as thin as the last counted cascade holds one. The plane is of
-        // many triangles, since one of fewer than sixteen is held as its box, which no sheet is.
+        // cell, so a ray between two cells still meets it. Held half the far cascade's own cell
+        // thick, such a sheet would stand as a slab rising past the eye. The floor is put so a far
+        // cell's middle lies a quarter of a cell over it, which half a far cell would hold inside
+        // and which lies in the open with the sheet held as thin as the last counted cascade holds
+        // one. The plane is of many triangles, since one of fewer than sixteen is held as its box,
+        // which no sheet is.
         var config = Config.Default.WithWindow("scene field test", 96, 64) with { Headless = true, Offscreen = true, Samples = 1 };
         UseApp(new App(config).AddPlugin(new DefaultPlugins()));
         SetSceneField(2, 0.25f, 2, farCascade: 400);

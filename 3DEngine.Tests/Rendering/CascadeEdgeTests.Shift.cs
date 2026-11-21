@@ -15,14 +15,13 @@ public sealed partial class CascadeEdgeTests
         // closed room's sky, its walls a unit thick in pieces a unit long, so at 64 triangles a
         // frame, five pieces, each slab a cascade's shift brings in is built over frames. A shift
         // moves its cascade with its build's first part, the cells it brings in holding nothing
-        // until the last, and read so the rays through them went on past the walls they stand for
-        // to the sky, as Sponza's atrium's far arches flashed lit while the field followed the eye
-        // down it. Walked down a tenth of a unit a frame, the corridor's light leapt over the frame
-        // before's in a frame a slab waited, and with those cells read in the next cascade out,
-        // which holds the walls there, it holds in every frame.
+        // until the last, and read so, the rays through them would go on past the walls they stand
+        // for to the sky. Walked down a tenth of a unit a frame, the corridor's light would leap
+        // over the frame before's in a frame a slab waits, and with those cells read in the next
+        // cascade out, which holds the walls there, it holds in every frame.
         // The frames unpaced, so none waits and the field's triangle budget is never raised past the
-        // 64 it is set to, where paced at 60 a frame of the suite's warm caches waited and the slabs
-        // were built in a frame or two.
+        // 64 it is set to, where paced at 60 a frame of the suite's warm caches would wait and the
+        // slabs be built in a frame or two.
         var config = Config.Default.WithWindow("closed corridor", Width, Height) with { Headless = true, Offscreen = true, Samples = 1, HeadlessFps = 0 };
         UseApp(new App(config).AddPlugin(new DefaultPlugins()));
         SetSceneField(3, 0.25f, 2, triangleBudget: 64);

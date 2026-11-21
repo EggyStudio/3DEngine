@@ -85,8 +85,8 @@ public sealed partial class OffscreenRenderTests
     [NeedsVulkanFact]
     public void A_Relight_Of_A_Mesh_Of_Positions_Alone_Writes_Its_Stream_In_Place_And_Keeps_Its_Colors_Off_The_GPU()
     {
-        // A quad of positions alone with a stream and colors, relit as a voxel game's section is,
-        // its stream written green and then its colors. The GPU holds none of its colors, so the
+        // A quad of positions alone with a stream and colors, relit in place, its stream written
+        // green and then its colors. The GPU holds none of its colors, so the
         // colors' write leaves its positions and indices as they were and the stream's write stays
         // in place, the colors kept for the light field.
         Open(64, 32);

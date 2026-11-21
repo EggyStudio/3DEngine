@@ -11,13 +11,13 @@ public sealed partial class GlobalIlluminationTests
     [Trait("Category", "Render")]
     public void A_Lamp_Dimming_Slowly_Dims_The_View_Evenly_From_One_Frame_To_The_Next()
     {
-        // The voxel game's room at night as the walk's test has it, white with a red wall and a
-        // green one, lit by one emissive block on its floor, at High, the lamp dimmed by less a
-        // frame than a change of the lights counts, so the probes' cycles carry on through it, and
-        // the mean of every frame read. Each whole cycle's mean lies under the one before, and the
-        // light shown eases from one to the next across the cycle after it, the world's probes'
-        // and the screen's, so the view dims evenly where taken whole at each cycle's first frame
-        // it stepped there and held between.
+        // A room at night as the walk's test has it, white with a red wall and a green one, lit by
+        // one emissive block on its floor, at High, the lamp dimmed by less a frame than a change
+        // of the lights counts, so the probes' cycles carry on through it, and the mean of every
+        // frame read. Each whole cycle's mean lies under the one before, and the light shown eases
+        // from one to the next across the cycle after it, the world's probes' and the screen's, so
+        // the view dims evenly where taken whole at each cycle's first frame it would step there
+        // and hold between.
         var config = Config.Default.WithWindow("gi test", 320, 180) with { Headless = true, Offscreen = true, Samples = 1 };
         UseApp(new App(config).AddPlugin(new DefaultPlugins()));
         SetSceneField(4, 0.25f, 2);

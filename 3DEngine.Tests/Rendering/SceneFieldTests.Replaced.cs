@@ -9,11 +9,11 @@ public sealed partial class SceneFieldTests
     [Trait("Category", "Unit")]
     public void A_Mesh_That_Replaced_One_In_Place_Is_Not_Stamped_While_A_Cascade_Not_Yet_Built_Holds_The_One_It_Replaced()
     {
-        // Two cascades and a budget of one mesh's triangles a frame, as a voxel game's section is
-        // replaced when a block breaks. Once the replacement settles, the first cascade's region is
-        // built with it and the second's waits a frame, holding the cube still. Stamped as its boxes
-        // that frame, a section's box filled the air above its ground in the cascades not yet built,
-        // and the room's indirect light went for the frame.
+        // Two cascades and a budget of one mesh's triangles a frame, and a mesh replaced in place.
+        // Once the replacement settles, the first cascade's region is built with it and the
+        // second's waits a frame, holding the cube still. Stamped as its boxes that frame, the
+        // mesh's box would fill the air above its ground in the cascades not yet built, and the
+        // room's indirect light would go for the frame.
         var plan = new SceneFieldPlan(2, 0.25f, 1, triangleBudget: 12, triangles: _ => 12);
         var eye = new Vector3(0.1f, 0.1f, 0.1f);
         var replacement = GenMeshCubeVertices(2.5f);

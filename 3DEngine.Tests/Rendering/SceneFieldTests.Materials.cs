@@ -61,8 +61,8 @@ public sealed partial class SceneFieldTests
     public void A_Mesh_Entity_Whose_Material_Casts_No_Shadow_Leaves_The_Floor_Lit_And_One_That_Bounces_No_Light_Is_Not_Held_In_The_Field()
     {
         // Three cubes as entities a unit over a floor under a sun that casts shadows, one as any
-        // other, one whose Material casts no shadow, as a voxel game's glass and water, and one
-        // that bounces no light, as its grass, which casts its shadow all the same.
+        // other, one whose Material casts no shadow, and one whose Material has BouncesLight off,
+        // which casts its shadow all the same.
         var config = Config.Default.WithWindow("scene field test", 128, 96) with { Headless = true, Offscreen = true, Samples = 1 };
         UseApp(new App(config).AddPlugin(new DefaultPlugins()));
         SetSceneField(1, 0.25f);
@@ -120,9 +120,9 @@ public sealed partial class SceneFieldTests
     public void A_Roof_Drawn_Into_The_Shadow_Maps_Alone_Is_Held_In_The_Field_And_Keeps_The_Sky_Off_The_Room_Under_It()
     {
         // A room of walls on a ground under a bright sky, its roof drawn through a material with
-        // ShadowOnly set, as the voxel game draws the rock its eye cannot see. The field holds the
-        // roof as the shadows do, so the sky's light reaches the floor no more than under a roof
-        // drawn as any other, where left out of the field the floor took the sky through it.
+        // ShadowOnly set. The field holds the roof as the shadows do, so the sky's light reaches
+        // the floor no more than under a roof drawn as any other, where a roof left out of the
+        // field would let the floor take the sky through it.
         var config = Config.Default.WithWindow("shadow only roof", 160, 90) with { Headless = true, Offscreen = true, Samples = 1 };
         UseApp(new App(config).AddPlugin(new DefaultPlugins()));
         SetSceneField(4, 0.25f, 2);

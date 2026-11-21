@@ -110,10 +110,10 @@ public sealed class ModelShadowTests : IDisposable
     public void A_Cave_Under_Ten_Units_Of_Stone_Seventy_Up_Takes_No_Sun_On_Its_Floor_Or_Its_Blocks_Tops()
     {
         // A cave's floor with a block on it 4, 10, 25, 50 and 90 units out, a cascade or more apart,
-        // under a roof ten units thick 70 units up, as the voxel game's ground over its caves, seen
-        // from inside looking down. A roof that far above the view's slice lies before the near
-        // cascades' near plane, where the map would leave it out and the sun light the floor and
-        // the near blocks' tops through it, so the casters there are drawn onto the near plane.
+        // under a roof ten units thick 70 units up, seen from inside looking down. A roof that far
+        // above the view's slice lies before the near cascades' near plane, where the map would
+        // leave it out and the sun light the floor and the near blocks' tops through it, so the
+        // casters there are drawn onto the near plane.
         var config = Config.Default.WithWindow("cave test", 640, 360) with { Headless = true, Offscreen = true, Samples = 1 };
         UseApp(new App(config).AddPlugin(new DefaultPlugins()));
         SetAmbientLight(Color.Black, 0);
@@ -149,11 +149,11 @@ public sealed class ModelShadowTests : IDisposable
     public void A_Roof_Drawn_Into_The_Shadow_Maps_Alone_Keeps_The_Sun_Off_A_Cave_And_Is_Seen_Nowhere()
     {
         // A cave's floor with slabs on it 4 to 90 units out and its roof 45 units over the floor,
-        // which a game drawing only what its eye sees leaves out of the view from inside, as the
-        // voxel game leaves out the rock over its caves, the eye 30 units up looking down so each
-        // slab's top is a few pixels deep. Left out, the roof lets the sun reach the tops at the
-        // game's shadow distances. Drawn into the shadow maps alone, it keeps them dark and shows
-        // nowhere, so from above the floor is seen through it in its shadow.
+        // which a program drawing only what its eye sees leaves out of the view from inside, the
+        // eye 30 units up looking down so each slab's top is a few pixels deep. Left out, the roof
+        // lets the sun reach the tops at the default shadow distances. Drawn into the shadow maps
+        // alone, it keeps them dark and shows nowhere, so from above the floor is seen through it
+        // in its shadow.
         var config = Config.Default.WithWindow("cave roof test", 640, 360) with { Headless = true, Offscreen = true, Samples = 1 };
         UseApp(new App(config).AddPlugin(new DefaultPlugins()));
         SetAmbientLight(Color.Black, 0);
@@ -442,12 +442,11 @@ public sealed class ModelShadowTests : IDisposable
     [NeedsVulkanFact]
     public void A_Two_Sided_Wall_Lit_From_Its_Back_Takes_The_Sun_As_Evenly_As_One_Lit_From_Its_Front()
     {
-        // Two thin two-sided walls a unit high and two across, side by side under the voxel game's
-        // sun at ten in the morning, 56 degrees up, the first's normal toward the sun and the second's
-        // away from it, both seen from the sun's side. With the shadow's point moved along the normal
-        // as given, behind the second wall as the sun sees it, that wall shadowed itself, darker
-        // and uneven, so the point is moved to the sun's side of each, where both take the sun
-        // alike.
+        // Two thin two-sided walls a unit high and two across, side by side under a sun 56 degrees
+        // up, the first's normal toward the sun and the second's away from it, both seen from the
+        // sun's side. Moved along the normal as given, the shadow's point would lie behind the
+        // second wall as the sun sees it and the wall would shadow itself, darker and uneven, so
+        // the point is moved to the sun's side of each, where both take the sun alike.
         var config = Config.Default.WithWindow("two-sided wall test", 320, 180) with { Headless = true, Offscreen = true, Samples = 1 };
         UseApp(new App(config).AddPlugin(new DefaultPlugins()));
         var toSun = Vector3.Normalize(new Vector3(0.479f, 0.830f, 0.287f));

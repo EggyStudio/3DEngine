@@ -89,8 +89,9 @@ public sealed class RoughReflectionTests(ITestOutputHelper output) : IDisposable
     {
         // A wall seen square on from the box's middle, so each pixel's share is the table's at an
         // nv of 1, and the probes hold the box's light alike along every way, which the model pass
-        // reflected none of, with no environment in the box. Karis's fit for mobile, in the table's
-        // place, gave the wall less of the light around it than the reference.
+        // reflects by the wall's specular share with no environment in the box. The analytic fit
+        // for mobile, in the table's place, would give the wall less of the light around it than
+        // the reference.
         var color = MetalBox(0.6f, new Camera3D(Vector3.Zero, new Vector3(0, 0, -1), Vector3.UnitY, 20));
         var probe = BounceReference.MeasureProbe(GetApp().World, new Vector3(1, 1, 1), 64, -1, 0, out var said);
         probe.Should().NotBeNull(said);
