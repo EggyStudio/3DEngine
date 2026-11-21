@@ -10,7 +10,7 @@ namespace FeatureTest;
 /// into each frame.
 /// </summary>
 /// <remarks>
-/// Every two seconds the easel's texture is read back from the GPU and each shape's colour looked
+/// Every two seconds the easel's texture is read back from the GPU and each shape's color looked
 /// for at a pixel inside it, the text by a dark pixel within the box it measures, so the status says
 /// what reached the texture, and the easel is ok only when every shape did.
 /// </remarks>
@@ -26,7 +26,7 @@ sealed class Drawing : Zone
     private int _frames, _reads, _found = -1;
     private string _missing = "";
 
-    // Each shape drawn into the easel, its colour, and a pixel inside it where that colour is read.
+    // Each shape drawn into the easel, its color, and a pixel inside it where that color is read.
     private static readonly (string Name, Color Color, int X, int Y)[] Marks =
     [
         ("rectangle", new Color(220, 50, 50), 52, 40),

@@ -21,7 +21,7 @@ namespace FeatureTest;
 sealed class Illumination : Zone
 {
     private const int Off = 120, On = 420;
-    // The walls' colours are their materials', which global illumination takes the light they send
+    // The walls' colors are their materials', which global illumination takes the light they send
     // on from, where a tint given as a model is drawn is not.
     private readonly Model _white = Painted(new Color(220, 220, 220)), _red = Painted(new Color(210, 35, 35)), _green = Painted(new Color(40, 210, 50));
     private readonly Model _panel = LoadModelFromMesh(GenMeshCube(1, 1, 1));
@@ -34,7 +34,7 @@ sealed class Illumination : Zone
     public Illumination()
     {
         _panel.Materials[0] = new ModelMaterial(Color.White) { Emissive = new Color(255, 255, 255), EmissiveIntensity = 6, CastsShadows = false };
-        // White, so the walls' colours are what tints the floor, and toward the green wall, which the
+        // White, so the walls' colors alone tint the floor, and toward the green wall, which the
         // sun reaching in through the opening leaves in shade where it lights the red one.
         CreatePointLight(Place(2, 0.5f, 3.2f), Color.White, 12, range: 8);
     }
@@ -107,14 +107,14 @@ sealed class Illumination : Zone
         $"global illumination {(_lit ? "on at the low quality" : "off")}, {_read}{(_traced.On ? "" : ", turned off for the room")}";
 }
 
-/// <summary>Colours read back from an image, a few pixels at a time.</summary>
+/// <summary>Colors read back from an image, a few pixels at a time.</summary>
 static class Pixels
 {
     private static bool _kept;
 
     /// <summary>
     /// Starts the engine keeping a copy of each frame presented, which the window's reads need, since
-    /// the first read has no frame kept and gives the clear colour. Every frame after pays for the
+    /// the first read has no frame kept and gives the clear color. Every frame after pays for the
     /// copy, so it waits for the first zone that reads the window.
     /// </summary>
     public static void Keep()
@@ -137,7 +137,7 @@ static class Pixels
         return new Color((byte)(r / 9), (byte)(g / 9), (byte)(b / 9));
     }
 
-    /// <summary>The mean of several colours.</summary>
+    /// <summary>The mean of several colors.</summary>
     public static Color Mean(Color[] colours) =>
         new((byte)colours.Average(c => c.R), (byte)colours.Average(c => c.G), (byte)colours.Average(c => c.B));
 

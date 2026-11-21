@@ -20,7 +20,8 @@
                  Link="resources\%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
         <Content Include="..\..\3DEngine.Examples\resources\shaders\toon.slang;..\..\3DEngine.Examples\resources\shaders\life.slang;..\..\3DEngine.Examples\resources\shaders\plasma.slang;..\..\3DEngine.Examples\resources\shaders\grayscale.slang"
                  Link="resources\shaders\%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
-        <!-- Lato, and two fonts the tests carry whose glyphs are shapes and colours known in advance. -->
+        <!-- Lato, and two fonts the tests carry whose glyphs are shapes and colors known in
+             advance. -->
         <Content Include="..\..\3DEngine.Examples\resources\fonts\Lato-Regular.ttf;..\..\3DEngine.Examples\resources\fonts\Lato-OFL.txt;..\..\3DEngine.Tests\Api\rtl.ttf;..\..\3DEngine.Tests\Api\layers.ttf"
                  Link="resources\fonts\%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
     </ItemGroup>

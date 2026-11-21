@@ -2,8 +2,7 @@
 // corridor, stairs up to a second floor, two doors and a window, in the prototype materials, under a
 // sun and global illumination. WASD walks, the mouse looks about and the arrows too, Space jumps,
 // Tab opens the modeling window on the level so it is reshaped while it is walked in, and F5 saves
-// the recipe. The recipe, its sun and the walker's routes are BevyCSharp's Blockout's. Written
-// against the engine's package, as a game outside this repository would be.
+// the recipe. Written against the engine's package, as a game outside this repository would be.
 using System.Numerics;
 using Engine;
 using ImGuiNET;

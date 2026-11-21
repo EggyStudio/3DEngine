@@ -63,7 +63,7 @@ public static class ShadersBounceRooms
         var strip = LoadModelFromMesh(GenMeshCube(1, 1, 1));
         strip.Materials[0].Emissive = new Color(255, 230, 190);
         strip.Materials[0].EmissiveIntensity = 30;
-        // Lit as the voxel game's glowstone is, four of the field's cells wide.
+        // The lamp, a warm emissive block drawn 0.6 wide, four of the field's cells.
         var lamp = LoadModelFromMesh(GenMeshCube(1, 1, 1));
         lamp.Materials[0].Emissive = new Color(255, 200, 120);
         lamp.Materials[0].EmissiveIntensity = 4;

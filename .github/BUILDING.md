@@ -374,7 +374,7 @@ generated mesh, the lights zone lights a floor with a lamp, a spot, the sun's sh
 sphere, a room shows global illumination, the particles zone gives off each kind of particle, the
 effects zone shows each effect over the frame and runs shaders of its own, the audio zone plays
 sounds, music, a stream and a wave, the text zone draws Lato past Latin-1, Hebrew right to left and
-a colour glyph, the scenes zone saves and reads back a level, a saved game, data in a file of its
+a color glyph, the scenes zone saves and reads back a level, a saved game, data in a file of its
 own and a persistent value, and the interface zone shows screens, typed text, ImGui and a gamepad.
 Each zone says what it found in a line the console reads, the easel's from its texture read back
 from the GPU, the course's from the triggers at the ends of its stations, the arm's from its outline

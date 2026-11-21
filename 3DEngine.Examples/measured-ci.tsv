@@ -69,8 +69,7 @@ models_decals	1.4
 # draws through changed since 71050c8f, and on lavapipe and llvmpipe outside the job it reads 0.5 as
 # it did, so the job's drivers moved it. Three points of room, since the share follows the runner's
 # processor, which lavapipe and Mesa's OpenGL compile their shaders for, within a point of 5.5 on an
-# AMD EPYC 9V45, which has gfni, and 7.8 to 7.9 on an AMD EPYC 7763, which has none, in the pack
-# runs since 704952c5, 08b104dd's page naming the 7763 (REVIEW.md, Verdict 67).
+# AMD EPYC 9V45, which has gfni, and 7.8 to 7.9 on an AMD EPYC 7763, which has none.
 models_directional_billboard	5.5	3
 models_first_person_maze	0.1
 models_geometric_shapes	0.7

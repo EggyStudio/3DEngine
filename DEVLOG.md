@@ -176,6 +176,7 @@ Done that day
   it traces when it does not.
 - Item 273 at `c6bac6dc`. A glow light taken at a probe's hit reads several times the traced
   reference's first bounce.
+- Item 275 at `c6bac6dc`. The deep audit's findings.
 
 ## 2026-11-12
 

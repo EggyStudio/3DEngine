@@ -31,7 +31,7 @@ for k in range(RATE):
     engine.append(base + pulse + rough)
 write("engine.wav", engine)
 
-# Tyres sliding on gravel, noise thinned toward the end.
+# Tires sliding on gravel, noise thinned toward the end.
 write("skid.wav", [random.uniform(-1, 1) * 0.3 * (1 - (k / 6000)) ** 0.5 for k in range(6000)])
 write("checkpoint.wav", tone(880, 0.08, 0.4, decay) + tone(1320, 0.2, 0.4, decay))
 write("beep.wav", tone(660, 0.15, 0.4, decay))

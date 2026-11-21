@@ -13,11 +13,10 @@ names the step, the command that failed with its line and exit code, the step's 
 program build/open-game.sh opened in the step that ended other than of its own, with its exit code
 or signal and what gdb read from a core it left, or that still runs, and the last lines at a warning
 or worse of each session log under build/sessions written while it ran, as the test page names its
-causes (NORM.md, N 6.7). A program that ended of its own is left out, since the error is cut at
-GitHub's 4,096 characters, and a measure's 21 such lines once filled it before the step's last lines
-were reached (REVIEW.md, Verdict 66). Before it, a command such as `status=$(./e3d command ...)`
-ended a step with `Process completed with exit code 4` and nothing else, its error taken into the
-variable.
+causes (NORM.md, N 6.7). A program that ended of its own is left out, since GitHub cuts the error
+at 4,096 characters, and the lines of many such programs would fill it before the step's last
+lines. A command such as `status=$(./e3d command ...)` takes its error into the variable, and
+without this the step would end with `Process completed with exit code 4` and nothing else.
 
 The step is named as the workflow names it, found by its script in the workflow file, which is the
 one GITHUB_WORKFLOW_REF names or the one --workflow gives. It exits with the script's exit code.

@@ -1131,6 +1131,65 @@ holds the README to the list, and the sentence above the tables says how they ru
 shows the same 285 pictures, none made again, and the norm's tests pass, 17 of 17. This commit also
 carries the review's archive, whose move out of this file came in with `c9ed241e`.
 
+Item 298, the day's sweep against the norm.
+
+What changed. Comments, documentation and script prose alone, in 142 files, besides two things
+that are seen. `build/drive-game.sh`'s failure message for the bounce room says "color" where it
+said "colour", and FeatureTest's interface window labels its color editor "Color" where it said
+"Colour", which changes that editor's ImGui ID with it and nothing else reads it. FeatureTest's
+status strings keep their spelling, since a status string is shown too and the item named one
+label.
+
+- Verdicts and fault accounts. `compare.py` and `step.py` say what their output is for without the
+  verdicts, and `measured-ci.tsv` drops the verdict and the commits from its note on the two
+  processors.
+- Tests explained by a game on the engine or by an outside scene. Each comment says what the test's
+  own scene holds and what must be true of it, and a fault the test guards against is told as what
+  would happen.
+- Likenings to another engine. No comment of the package likens itself to another engine, the
+  picking events, the observers, the states and the schedule saying what each does.
+  `E3D.Prototypes.cs` already described the palette in its own terms on main.
+- The ambient occlusion's source and the methods' authors. The method stays the circular
+  occluders, its maker, commit and outside files gone from its comments, and a method is named by
+  what it does or by its name alone, ACES, AgX, Tony McMapface, the split sum and the rest kept as
+  terms. Each source stands once in a table at the end of `.github/RENDERING.md`.
+- Readings and one run's facts. The lines the item named say what the code does and why.
+- Games in the examples, a four-byte value called a word, a uint in its place, and British
+  spellings.
+
+Left out. The three files the passes of item 265 change in my worktree,
+`DebugOverlay.Lines.cs`, `BounceReference.cs` and `GlobalIlluminationCommands.cs`, take their part
+of the sweep in that item's commit, so it does not meet its own sweep. The Sky module's lines are
+its session's to write and go to it through the review, with no pointer move. Test names and
+assertion messages, being code, `CircularOccluders`' exception message and debug image names,
+`CircularOccludersTests`, which holds the source's table as its comparison, the scene field's
+packed cell called a word throughout, `measured-ci.tsv`'s lines naming a run by its commit,
+NORM.md's "cancelled" under its own change rule, the code of conduct's adopted text, the overlay's
+"towards", which its tests assert, and `TonemapCurveTests`' `Bsl` and `Modpacks`, names in the code.
+`E3D.Lights.cs:247` goes with item 293.
+
+The touched files' comment lines past 100 columns are wrapped again, in nine C# files and
+FeatureTest's project.
+
+STYLE's searches, each as STYLE.md gives it, counted in a clean checkout of `d8cc7f96` and of the
+sweep. The dashes, 3 and 3. A hyphen between words in a comment or a string, 110 and 109. A colon in
+a comment's running sentence, 311 and 304. The words about bouncing and driving, 739 and 736. The
+idioms, 34 and 34. Another engine, a review file or a verdict in a comment, 39 and 28. A reading in
+a comment, 211 and 212, the one more a parameter's range, "from 0 to 1", in `AmbientOcclusion.cs`.
+The rules drawn in comments, 0 and 0. "Wants" and "is what", 51 and 50. A document telling its own
+past, 4 and 4. A path into `.ref/`, 3 and 3.
+
+The commits, by folder. The engine's at `9d560588`, the tests' at `a7c961d3`, and the examples', the
+games', the scripts' and the documents' with this Reply.
+
+The runs. The tree builds strict with no warnings. The norm's, the examples', the package's and the
+documents' tests pass, 30 of 30. The suite passes in its parts in order, 2,531 of 2,532 in 23
+minutes, and shuffled by the seed 20261023, 2,530 of 2,532 in 23 minutes. The one in order and one
+shuffled is `CheatsheetTests`, whose page the sweep's summaries change, written again with
+`build/cheatsheet.sh`, a line, after which its class and the observers' pass, 13 of 13. The other
+shuffled is `ObserverTests`' allocation test, which counted 3,616 bytes on its own thread in that
+order and passes alone, five runs of five, a count the sweep's comments do not reach.
+
 Handoff, at `0a223de1`. The Sky pointer is at `9040738` in `c20870f2`, `a29f0efc`, `777e051f` and
 `0a223de1`, the GPU sky drawn from the module's tables, made on a worker, the disc and the night's
 glow the module's, and the Sponza match read again, and the gallery's pictures at `98b68167`. Next

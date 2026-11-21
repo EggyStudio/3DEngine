@@ -116,8 +116,8 @@ public static partial class ScenesSponza
         // circles, four of the field's cells, finer than the cascades hold.
         SetAmbientOcclusion(1, 0.5f);
         SetAmbientOcclusionMethod(AmbientOcclusionMethod.CircularOccluders);
-        // The air holds no fog, since the fog lit the air of the dark rooms that the light reaching
-        // them leaves dark, and showed the sun as an even haze rather than shafts (RENDERING.md).
+        // The air holds no fog, since fog would light the air of the rooms the sun leaves dark and
+        // spread the sun's light into an even haze where it falls in shafts.
         // The sun stands at the hour asked, rising over the main door and setting over the lion
         // along the atrium's length, its path leaning 6 degrees, so at noon it lights two thirds of
         // the atrium's floor, 5.6 units wide, past the shadow of its walls and eaves 17.6 high,

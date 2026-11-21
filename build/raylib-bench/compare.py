@@ -31,15 +31,14 @@ is said and the run does not fail. The captures job runs every pair so in the pa
 never compared with each other. Under GitHub Actions the pairs measured for the first time are
 notices as well, at most nine, which a reader not signed in sees where the run's summary and its
 files need a sign-in, and the pairs that fail a run are errors and lines of the summary, each with
-the share measured, the share recorded and its room, or what it drew in place of a frame. Printed
-alone, they left the run's page with no word of which pairs failed (REVIEW.md, Verdict 66). A
-notice on every run, the tenth GitHub shows, and the summary say the processor the run measured on
-and whether gfni is among its flags, the summary with how many pairs were measured and how many
-failed, since both programs draw with code LLVM compiles for that processor and the runners are of
-two kinds, and a pair that held before each kind compiled its own failed on the two runs since and
-held on the next (REVIEW.md, Verdict 67). --pictures copies both pictures of every pair into the
-folder given, which the captures job keeps with its captures, so a pair's frames are compared
-between two runs.
+the share measured, the share recorded and its room, or what it drew in place of a frame, since
+the run's page shows the errors and the summary and not what the step printed. A notice on every
+run, the tenth GitHub shows, and the summary say the processor the run measured on and whether
+gfni is among its flags, the summary with how many pairs were measured and how many failed, since
+both programs draw with code LLVM compiles for that processor and the runners are of two kinds,
+and a pair's share differs between the two kinds. --pictures copies both pictures of every pair
+into the folder given, which the captures job keeps with its captures, so a pair's frames are
+compared between two runs.
 """
 import glob
 import importlib.util

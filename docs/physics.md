@@ -132,7 +132,7 @@ SetPhysicsBodyMaterial(ball, friction: 0.4f, bounce: 0.8f);
 `ApplyPhysicsImpulseAt` pushes a body at a point of it, which turns it as well as moving it, so a
 push under one corner of a car lifts that corner. `GetPhysicsBodyPointVelocity` says how fast a
 point of a body moves, its turning included, which is how fast a spring at that corner is pressed
-or a tyre slides. `GetPhysicsBodyRotation` and `SetPhysicsBodyRotation` read and set how it is
+or a tire slides. `GetPhysicsBodyRotation` and `SetPhysicsBodyRotation` read and set how it is
 turned, and `GetPhysicsBodyAngularVelocity` and `SetPhysicsBodyAngularVelocity` how fast it turns.
 
 ## Rays and contacts
@@ -401,7 +401,7 @@ A `Vehicle` holds its wheels' mounts, their radius and springs, the engine's and
 force, the grip, the steering's lock, which wheels drive, and the air's drag and downforce, the
 defaults a car of about 1000 kg. Steering turns less the faster it goes, rolling and pitching
 settle on the ground, and in the air it turns itself level a little, so a car thrown over a crest
-lands on its wheels. A wheel's `Slip` is how fast its tyre slides sideways, which a skid's sound
+lands on its wheels. A wheel's `Slip` is how fast its tire slides sideways, which a skid's sound
 and dust follow, and `Spin` how far it has turned about its axle, for drawing it.
 
 A vehicle of a program's own, as a boat or a hovercraft, is built from `ApplyPhysicsImpulseAt`,

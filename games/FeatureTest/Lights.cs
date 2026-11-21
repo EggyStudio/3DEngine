@@ -11,7 +11,7 @@ namespace FeatureTest;
 /// </summary>
 /// <remarks>
 /// Each second while the player is in the zone, the zone is drawn into a texture from a camera
-/// high over it and read back, and the floor's colour read where each light falls, under the lamp
+/// high over it and read back, and the floor's color read where each light falls, under the lamp
 /// beside the open floor, under the spot, in the block's shadow beside the floor next to it, and on
 /// the emissive sphere. The sun's shadows are drawn round the camera the player looks through, so
 /// the read waits for the player to be here. The lights are ok when each of those reads as its
@@ -20,7 +20,7 @@ namespace FeatureTest;
 sealed class Lights : Zone
 {
     private const int Probe = 128;
-    // Grey, so the sun leaves room above it for a lamp's colour.
+    // Gray, so the sun leaves room above it for a lamp's color.
     private readonly Model _floor = Lit(GenMeshPlane(26, 22, 1, 1), new Color(110, 110, 110));
     private readonly Model _pillar = Lit(GenMeshCube(0.5f, 2, 0.5f), new Color(200, 200, 200));
     private readonly Model _block = Lit(GenMeshCube(1.2f, 3, 1.2f), new Color(200, 200, 200));

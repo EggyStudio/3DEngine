@@ -13,7 +13,7 @@ public static class ModelsMorphAndLayers
         CreateDirectionalLight(new Vector3(-0.4f, -1, -0.3f), Color.White, 0.65f);
         SetAmbientLight(Color.White, 0.35f);
 
-        // Summit's hero, its run playing on the whole body and its jump's raised arm on the left
+        // A hero model, its run playing on the whole body and its jump's raised arm on the left
         // arm alone, and a strip whose morph target lifts its top edge as its clip plays.
         var hero = LoadModel("resources/hero.gltf");
         var clips = LoadModelAnimations("resources/hero.gltf");

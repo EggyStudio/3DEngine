@@ -21,12 +21,12 @@ metal, and a room a reflection probe lights with itself. North-east is a white r
 and a green one, where global illumination is on while you are there, and off again as you leave,
 since it costs every frame. South-east is the particles zone, a fountain, a fire, smoke, sparks that
 bounce, lit particles and a burst every two seconds. South is the effects zone, a board with a red
-patch and a glowing bar that bloom, a vignette, colour grading, exposure, depth of field, motion
+patch and an emissive bar that bloom, a vignette, color grading, exposure, depth of field, motion
 blur and a tonemapping curve are shown on in turn as you arrive, a knot drawn through a toon shader,
-a texture a compute shader paints, and the Game of Life and a greying shader read back unseen.
+a texture a compute shader paints, and the Game of Life and a graying shader read back unseen.
 South-west is the audio zone, a speaker whose drone is panned toward it as you move, music, a tone a
 stream makes and a coin every two seconds, and past it on the outer ring the text zone, a page of
-Lato past Latin-1, Hebrew read right to left, a colour glyph, the default font, a distance field
+Lato past Latin-1, Hebrew read right to left, a color glyph, the default font, a distance field
 font turned and a ligature measured with and without. Beyond the drawing zone on the outer ring is
 the scenes zone, a level written as a scene file and started as a saved game, a prefab a scene
 places, a stack of crates whose numbers are a data file found by its id after a rename, a block

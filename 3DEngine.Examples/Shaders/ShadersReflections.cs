@@ -13,8 +13,8 @@ public static class ShadersReflections
         // and an emissive strip on the back wall, under a low sun. Where global illumination is on,
         // a glossy surface traces its reflection through the window's depth and the scene's
         // distance field, so the floor reflects the pillars and the balls each other, and a rough
-        // one reflects the sky as before. G steps through the qualities, Off first, and Up and Down
-        // make the floor smoother or rougher.
+        // one reflects the light the probes around it hold along its mirror way. G steps through
+        // the qualities, Off first, and Up and Down make the floor smoother or rougher.
         SetSceneField(3, 0.2f, 2);
         var quality = GlobalIllumination.High;
         SetGlobalIllumination(quality);

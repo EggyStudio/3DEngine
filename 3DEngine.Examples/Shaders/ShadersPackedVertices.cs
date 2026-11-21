@@ -33,8 +33,8 @@ public static class ShadersPackedVertices
         var shader = LoadShader("resources/shaders/packed.slang");
         var material = new ModelMaterial(Color.White) { Shader = shader, Roughness = 0.9f };
 
-        // A hill of columns, the ground the height of two waves, each voxel's faces against the air
-        // kept, as a voxel game meshes its chunks.
+        // A hill of columns, the ground the height of two waves, meshed with only the faces of each
+        // voxel that border the air.
         var heights = new int[Size, Size];
         for (int x = 0; x < Size; x++)
             for (int z = 0; z < Size; z++)

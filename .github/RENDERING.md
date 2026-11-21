@@ -913,7 +913,7 @@ arches of Sponza's atrium at noon, whose light runs nearly along the face, a tex
 pixels, and the edge stood in stairs that changed their pattern in flight as the face passed from
 one cascade to the next. Weighed bilinearly at sixteen, the stairs ramp, and a wall's shadow on a
 floor under texels of some eight pixels, a map of 256 texels a tile, steps by 8 levels between
-neighbouring pixels at most where it stepped by 72, of a drop of 146 across the edge
+neighboring pixels at most where it stepped by 72, of a drop of 146 across the edge
 (ShadowEdgeTests, `.github/assets/readings/2026-11-02-item-188-shadow.webp`).
 
 **A wall the sun grazes against the reference's direct light, read on 2026-11-08.** A white wall at
@@ -3111,7 +3111,7 @@ in front of the faces' surface keeps their own light, the move scaled by how far
 spacing of that surface it lies (`towardSurface` in `probelight.slang`). The pier's face by the wall
 it continues reads 37.6% and 36.6% over its reference from eyes at z 7 and 7.3 where 39.2% and
 38.2%, the aisle's probes' +x faces 1.31 to 1.37 of their references where 1.34 to 1.39, and 3.0%
-and 2.3% with the field centred ahead where 3.3% and 2.5%. The closed rooms, the bounce rooms and
+and 2.3% with the field centered ahead where 3.3% and 2.5%. The closed rooms, the bounce rooms and
 Sponza's sixteen views move by 0.005 of their light at most (a scratch test against the runtime
 reference, `BounceReference.MeasureProbe` at 256 paths, `BounceRoomsTests`, `gi.compare` against
 references of 1024 paths a pixel). The rest of the aisle's excess around the eye is the third
@@ -3147,7 +3147,7 @@ the places' cycle, the rays sent from one place a tile every frame reading 10 pi
 frames kept 2,923 and the history left out 137,510. The filter keeps each probe's last whole cycle
 of places beside the running mean, gathered from the cycle's first frame (`gi_screen_filter.slang`),
 and its mean stands in for the probe's light while the kept light lies within four times what the
-change rule allows, the cycle cancelling there, 10 pixels past 2 levels. Every probe's cycle begins
+change rule allows, the cycle canceling there, 10 pixels past 2 levels. Every probe's cycle begins
 again through the sixteen frames after the window's lights differ from the frame before's by more
 than a hundredth or the field is built again as meshes came or went, the running mean showing until
 a cycle gathered wholly after them, so a lamp moved in the bounce rooms' carried lamp's room comes
@@ -5761,3 +5761,29 @@ shadow cascades with point and spot shadows, bloom and FXAA, the scene's distanc
 bounces as Radiance Cascades over it with glossy reflections traced through the depth and the field
 and the GPU's own rays for what the field misses, and tonemapping as a full-screen pass over every
 frame that shows a scene (§5) are built, in that order, and nothing of the order is left.
+
+## References
+
+The sources of the methods the renderer's comments name, each given once here.
+
+| Method | Source |
+|---|---|
+| ACES's curve fitted for each channel (`Tonemap.Aces`) | Krzysztof Narkowicz, "ACES Filmic Tone Mapping Curve", 2016, https://knarkowicz.wordpress.com/2016/01/06/aces-filmic-tone-mapping-curve/ |
+| ACES's reference and output transforms fitted between two color matrices (`Tonemap.AcesFitted`) | Stephen Hill's fit, as `ACES.hlsl` in MJP's BakingLab carries it, https://github.com/TheRealMJP/BakingLab |
+| AgX (`Tonemap.AgX`) | Troy Sobotka, https://github.com/sobotka/AgX, its table as Bevy carries it (THIRD-PARTY-NOTICES.md) |
+| The Filmic view transform (`Tonemap.BlenderFilmic`) | Troy Sobotka's Filmic Blender, https://github.com/sobotka/filmic-blender, its table as Bevy carries it |
+| Tony McMapface (`Tonemap.TonyMcMapface`) | Tomasz Stachowiak, https://github.com/h3r2tic/tony-mc-mapface, its table as Bevy carries it |
+| The somewhat boring display transform (`Tonemap.SomewhatBoring`) | Tomasz Stachowiak, as Bevy's `tonemapping_shared.wgsl` carries it |
+| The split sum, and its analytic fit for mobile | Brian Karis, "Real Shading in Unreal Engine 4", SIGGRAPH 2013, and "Physically Based Shading on Mobile", 2014 |
+| A sample's light weighed by one over one more than its luma in the temporal blend (`taa.slang`) | Brian Karis, "High Quality Temporal Supersampling", SIGGRAPH 2014 |
+| Irradiance as nine spherical harmonic coefficients | Ravi Ramamoorthi and Pat Hanrahan, "An Efficient Representation for Irradiance Environment Maps", SIGGRAPH 2001 |
+| GGX's distribution of visible normals | Eric Heitz, "Sampling the GGX Distribution of Visible Normals", Journal of Computer Graphics Techniques, 2018 |
+| The rational fit of a polygon edge's arc over its sine (`glow.slang`) | Eric Heitz, Jonathan Dupuy, Stephen Hill and David Neubelt, "Real-Time Polygonal-Light Shading with Linearly Transformed Cosines", SIGGRAPH 2016 |
+| Ground-truth ambient occlusion (`ao.slang`) | Jorge Jimenez, Xian-Chun Wu, Angelo Pesce and Adrian Jarabo, "Practical Realtime Strategies for Accurate Indirect Occlusion", SIGGRAPH 2016 |
+| The horizons' falloff from 0.385 of the radius (`ao.slang`) | Intel's XeGTAO, https://github.com/GameTechDev/XeGTAO |
+| Interleaved gradient noise, and the bloom's downsample of thirteen texels | Jorge Jimenez, "Next Generation Post Processing in Call of Duty: Advanced Warfare", SIGGRAPH 2014 |
+| Separable screen-space subsurface scattering (`subsurface_blur.slang`) | Jorge Jimenez and others, "Separable Subsurface Scattering", Computer Graphics Forum, 2015 |
+| The air's light scattered twice or more (`atmosphere_scatter.slang`) | Sébastien Hillaire, "A Scalable and Production Ready Sky and Atmosphere Rendering Technique", EGSR 2020 |
+| The fog's light summed as it fades through a slice (`fog_integrate.slang`) | Sébastien Hillaire, "Physically Based and Unified Volumetric Rendering in Frostbite", SIGGRAPH 2015 |
+| The circular occluders (`CircularOccluders`, `Shaders/cortao/`) | Daniel Isheden's CORTAO, https://github.com/theagentd/CORTAO, taken at its commit 420b168 (THIRD-PARTY-NOTICES.md) |
+| The tonemapping reference pictures under `3DEngine.Tests/Rendering/References/tonemapping` | BevyCSharp's `BevyCSharp.Tests/references/tonemapping` at its commit 64ec311, drawn by Bevy 0.19.1 |

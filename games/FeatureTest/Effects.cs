@@ -6,24 +6,24 @@ namespace FeatureTest;
 
 /// <summary>
 /// The effects over the frame and the shaders of the program's own, shown as a board with a red
-/// patch and a glowing bar that bloom, a vignette, colour grading, exposure, depth of field, motion
-/// blur and a tonemapping curve turned on in turn while the player is in the zone, a knot drawn
-/// through a toon shader, a compute shader stepping the Game of Life in a buffer, another painting
-/// a texture, and a 2D shader drawing into a texture through a greying shader.
+/// patch and an emissive bar that bloom, a vignette, color grading, exposure, depth of field,
+/// motion blur and a tonemapping curve turned on in turn while the player is in the zone, a knot
+/// drawn through a toon shader, a compute shader stepping the Game of Life in a buffer, another
+/// painting a texture, and a 2D shader drawing into a texture through a graying shader.
 /// </summary>
 /// <remarks>
 /// <para>
 /// Arriving, each effect is turned on alone for a second, the first second none, and the window
 /// read at its end where the bar's glow spreads, at the window's left edge, on the red patch and on
-/// the grey board, as the camera sees them from the zone's start. Bloom lifts the glow beside the
-/// bar, the vignette darkens the edge, grading with no saturation greys the patch and exposure
+/// the gray board, as the camera sees them from the zone's start. Bloom lifts the glow beside the
+/// bar, the vignette darkens the edge, grading with no saturation grays the patch and exposure
 /// brightens the board, each against the second with none. Every effect is turned off again after
 /// the last, and as the player leaves.
 /// </para>
 /// <para>
 /// The shaders are read back wherever the player is, the Game of Life's buffer read after each step
 /// for a blinker of three cells that turns from row to column and back, the painted texture for the
-/// colours in it, and the greyed texture for a red drawn grey.
+/// colors in it, and the grayed texture for a red drawn gray.
 /// </para>
 /// </remarks>
 sealed class Effects : Zone

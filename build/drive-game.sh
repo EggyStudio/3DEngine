@@ -912,7 +912,7 @@ case "$game" in
     cmd frames.wait 440
     bounced=$(ask feature.status illumination)
     echo "$bounced"
-    case "$bounced" in *"the light bounces"*) ;; *) fail "global illumination took no colour from the room's walls, $bounced" ;; esac
+    case "$bounced" in *"the light bounces"*) ;; *) fail "global illumination took no color from the room's walls, $bounced" ;; esac
     cmd feature.zone particles
     cmd frames.wait 150
     particles=$(ask feature.status particles)
@@ -927,7 +927,7 @@ case "$game" in
     # panned toward its speaker read louder on that side of the mix, read until the zone says it
     # heard them or what fell short, since the music is fed from the frame and a runner whose
     # frames come slowly feeds its second in more of them. Then the page of text read back, its line
-    # as wide as measured, its Hebrew from right to left and its colour glyph in colour.
+    # as wide as measured, its Hebrew from right to left and its color glyph in color.
     cmd feature.zone audio
     cmd frames.wait 300
     audio=$(ask feature.status audio)
