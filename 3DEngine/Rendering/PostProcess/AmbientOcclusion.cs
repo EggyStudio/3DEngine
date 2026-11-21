@@ -29,8 +29,8 @@ internal sealed class AmbientOcclusionSettings
 
     /// <summary>
     /// How far the circular occluders grow a circle seen at a slant, by one over the square root of
-    /// the cosine of its slope to the eye until that cosine falls to one over this, CORTAO's maximum
-    /// slope compensation, from 1 to <see cref="MostSlopeCompensation"/> and 4 unless set.
+    /// the cosine of its slope to the eye until that cosine falls to one over this, the method's
+    /// maximum slope compensation, from 1 to <see cref="MostSlopeCompensation"/> and 4 unless set.
     /// </summary>
     public float SlopeCompensation { get; set; } = 4;
 
@@ -42,14 +42,14 @@ internal sealed class AmbientOcclusionSettings
 
     /// <summary>
     /// The cosine between a circle's normal and the way to it at and past which the circular
-    /// occluders take the circle for the back of a thin surface, CORTAO's backface threshold, from 0
-    /// to 1 and 0.5 unless set.
+    /// occluders take the circle for the back of a thin surface, the method's backface threshold,
+    /// from 0 to 1 and 0.5 unless set.
     /// </summary>
     public float BackfaceThreshold { get; set; } = 0.5f;
 
     /// <summary>
     /// How much of the slope compensation a back of a thin surface takes as well, from 0 for none to
-    /// 1 for all, CORTAO's backface boost, 0 unless set.
+    /// 1 for all, the method's backface boost, 0 unless set.
     /// </summary>
     public float BackfaceBoost { get; set; }
 

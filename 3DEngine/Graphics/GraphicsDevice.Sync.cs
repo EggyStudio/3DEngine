@@ -35,7 +35,7 @@ internal sealed unsafe partial class GraphicsDevice
     }
 
     // A semaphore for each swapchain image, which the frame drawn into it signals and its present
-    // waits on. One for each frame in flight could be signalled again while the presentation
+    // waits on. One for each frame in flight could be signaled again while the presentation
     // engine still waited on it from another image's present, which the Vulkan specification
     // forbids, since nothing tells the program when a present has finished with its semaphore.
     private void CreatePresentSemaphores()

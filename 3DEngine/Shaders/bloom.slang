@@ -1,9 +1,10 @@
 // The bloom chain, each pass a triangle over its whole target. A downsample reads thirteen texels
-// of the level above in Jimenez's pattern, which keeps a small bright point from flickering as it
-// moves, and the first one keeps only the light past the threshold. An upsample reads the level
-// below through a tent and is added onto the level above it, so the first level ends up holding
-// the light spread over every size, or with a scatter takes that share of the level above's
-// place, so each level wider down the chain holds less of the light and the glow fades as a haze.
+// of the level above, the middle, an inner square of four, a cross of four and four corners, which
+// keeps a small bright point from flickering as it moves, and the first one keeps only the light
+// past the threshold. An upsample reads the level below through a tent and is added onto the level
+// above it, so the first level ends up holding the light spread over every size, or with a scatter
+// takes that share of the level above's place, so each level wider down the chain holds less of the
+// light and the glow fades as a haze.
 import fullscreen;
 
 struct BloomPush

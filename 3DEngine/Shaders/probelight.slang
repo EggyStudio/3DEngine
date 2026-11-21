@@ -460,14 +460,14 @@ public float3 shadeProbeHitN<V : IVolume, S : ISheetVolume, Sun : ISunShadow>(V 
 
 // What a face of a color and a gloss, its roughness and metallic share, sends back of the light
 // reaching it toward a way at a cosine of nv from its normal, as though it reflected the light from
-// all around evenly, its gloss's share toward that way by Karis's fit of the split sum, its f0 a
-// dielectric's 0.04 and its color by its metal, as the model pass works it out, and its diffuse
+// all around evenly, its gloss's share toward that way by the analytic fit of the split sum, its f0
+// a dielectric's 0.04 and its color by its metal, as the model pass works it out, and its diffuse
 // share past its metal of what the gloss leaves, the two summing to one at most where its color is
 // under one, which a probe's ray's hit reflects the glow lights by (glossyHit). With the whole
-// diffuse share beside the gloss's, a smooth face seen at a grazing way, whose gloss Karis's fit
-// puts near one, sends on nearly twice what reaches it, and since the light past the first bounce
-// comes back to the probes each frame, a scene of such faces reads many times the light it
-// receives, its smooth fittings white.
+// diffuse share beside the gloss's, a smooth face seen at a grazing way, whose gloss the fit puts
+// near one, sends on nearly twice what reaches it, and since the light past the first bounce comes
+// back to the probes each frame, a scene of such faces reads many times the light it receives, its
+// smooth fittings white.
 public float3 reflectedShare(float3 color, float2 gloss, float nv)
 {
     float3 share = glossShare(lerp(float3(0.04), color, gloss.y), gloss.x, nv);
@@ -475,7 +475,7 @@ public float3 reflectedShare(float3 color, float2 gloss, float nv)
 }
 
 // The share of the light from all around a face of f0 and roughness reflects toward a way at a
-// cosine of nv from its normal, by Karis's fit of the split sum, one at most.
+// cosine of nv from its normal, by the analytic fit of the split sum, one at most.
 public float3 glossShare(float3 f0, float roughness, float nv)
 {
     float4 r = roughness * float4(-1.0, -0.0275, -0.572, 0.022) + float4(1.0, 0.0425, 1.04, -0.04);

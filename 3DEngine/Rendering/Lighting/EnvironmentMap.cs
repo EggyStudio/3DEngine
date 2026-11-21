@@ -15,12 +15,12 @@ namespace Engine;
 /// with its mips and filters it on the GPU (<see cref="CubeFilter.RecordEnvironmentFilter"/>):
 /// resampled into a cube, mip 0 for a mirror and each mip after it the light as a surface of
 /// roughness <c>mip / (mips - 1)</c> reflects it, by GGX importance sampling around the direction
-/// it is looked up by, as Brian Karis's split sum takes it.
+/// it is looked up by, as the split sum takes it.
 /// </para>
 /// <para>
 /// The diffuse share is lit by the image's irradiance, every direction's light weighted by its
-/// cosine to the normal, held as nine spherical harmonic coefficients, as Ramamoorthi and Hanrahan
-/// give it, so a diffuse surface is lit by the whole sky rather than the part near its normal.
+/// cosine to the normal, held as nine spherical harmonic coefficients, so a diffuse surface is lit
+/// by the whole sky rather than the part near its normal.
 /// Making a map on the CPU is decoding its image, and the filter is a frame's GPU work.
 /// </para>
 /// </remarks>

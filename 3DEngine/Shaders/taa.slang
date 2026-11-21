@@ -94,7 +94,8 @@ float shownExposure()
     return exposure;
 }
 
-// Light brought under 1 by one over one more than its luma as shown, as Karis brings it, and back.
+// Light brought under 1 by one over one more than its luma as shown, and back, so one very bright
+// sample does not outweigh the rest of the blend.
 float3 toned(float3 c, float exposure)
 {
     return c / (1.0 + exposure * luma(max(c, 0.0)));

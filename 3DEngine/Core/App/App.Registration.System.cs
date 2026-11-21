@@ -60,9 +60,9 @@ public sealed partial class App
 
     /// <summary>Adds <paramref name="systems"/> to <paramref name="stage"/>, each to run after the one before it.</summary>
     /// <remarks>
-    /// Bevy's <c>.chain()</c>, systems that pass work along in one frame. Each is ordered after the
-    /// one before it by its name, as <see cref="SystemDescriptor.After"/> orders one system after
-    /// another, so systems sharing a name are ordered together.
+    /// It suits systems that pass work along in one frame. Each is ordered after the one before it
+    /// by its name, as <see cref="SystemDescriptor.After"/> orders one system after another, so
+    /// systems sharing a name are ordered together.
     /// </remarks>
     /// <example>
     /// <code>

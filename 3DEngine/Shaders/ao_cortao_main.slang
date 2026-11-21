@@ -1,8 +1,9 @@
-// CORTAO's main pass (cortao/CORTAOMainPass.h): around each pixel of the window's depth at half
-// its size, CORTAO_SAMPLE_COUNT points of the packed image read as circles facing the way their
-// normals do, and sixteen rays over the pixel's hemisphere traced against them through the
-// occluder table, the share of the rays no circle meets the pixel's occlusion and their mean way
-// its bent normal. Built at 16 samples, and at 8 where EIGHT_OCCLUDERS is defined.
+// The circular occluders' main pass, from cortao/CORTAOMainPass.h. Around each pixel of the
+// window's depth at half its size, CORTAO_SAMPLE_COUNT points of the packed image are read as
+// circles facing the way their normals do, and sixteen rays over the pixel's hemisphere are traced
+// against them through the occluder table, the share of the rays no circle meets the pixel's
+// occlusion and their mean way its bent normal. Built at 16 samples, and at 8 where EIGHT_OCCLUDERS
+// is defined.
 #define CORTAO_HLSL 1
 #define CORTAO_PERSPECTIVE_PROJECTION 1
 #define CORTAO_RAY_COUNT 16
@@ -25,7 +26,7 @@ struct CortaoMainPush
 [[vk::push_constant]] ConstantBuffer<CortaoMainPush> push;
 
 // The packed image the prepass wrote, every level, read through the nearest sampler, a place
-// outside it read as nothing, as CORTAO's border of zero has it.
+// outside it read as nothing, a border of zero.
 [[vk::binding(0, 0)]] Texture2D<uint> packed;
 [[vk::binding(1, 0)]] SamplerState nearest;
 

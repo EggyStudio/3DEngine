@@ -4,7 +4,7 @@ namespace Engine;
 
 /// <summary>
 /// A curve that brings the HDR frame's light past 1 under it, for
-/// <see cref="FrameEffects.Tonemap"/>: the engine's own, Narkowicz's fit of ACES and a cut at 1,
+/// <see cref="FrameEffects.Tonemap"/>, the engine's own, a fit of ACES's curve and a cut at 1,
 /// eight more by their usual names, which TonemapTests holds to pictures of the same ramp, one set
 /// by its numbers and one loaded from a file.
 /// </summary>
@@ -23,10 +23,12 @@ public enum Tonemap
     /// </summary>
     Engine,
 
-    /// <summary>Reinhard's, each channel over one plus itself, its hues shifting as they brighten.</summary>
+    /// <summary>Reinhard's, each channel over one plus itself, its hues shifting as they
+    /// brighten.</summary>
     Reinhard,
 
-    /// <summary>The ACES filmic curve as Narkowicz fitted it, with deeper shadows and highlights that saturate toward white.</summary>
+    /// <summary>The ACES filmic curve fitted by one rational curve for each channel, with deeper
+    /// shadows and highlights that saturate toward white.</summary>
     Aces,
 
     /// <summary>No curve, each channel cut at 1.</summary>
@@ -35,22 +37,28 @@ public enum Tonemap
     /// <summary>No curve, each channel cut at 1 as the window's eight bits cut it.</summary>
     None,
 
-    /// <summary>Reinhard's by luminance, the color over one plus its luminance, which keeps a bright color's hue better.</summary>
+    /// <summary>Reinhard's by luminance, the color over one plus its luminance, which keeps a
+    /// bright color's hue better.</summary>
     ReinhardLuminance,
 
-    /// <summary>The ACES filmic curve as Stephen Hill fitted it, film-like with deliberate hue shifts and high contrast.</summary>
+    /// <summary>The ACES filmic curve as a fit of its reference and output transforms between two
+    /// color matrices, film-like with deliberate hue shifts and high contrast.</summary>
     AcesFitted,
 
-    /// <summary>Troy Sobotka's AgX, neutral and slightly desaturated, with almost no hue shift, from its table.</summary>
+    /// <summary>AgX, neutral and slightly desaturated, with almost no hue shift, from its
+    /// table.</summary>
     AgX,
 
-    /// <summary>Tomasz Stachowiak's somewhat boring display transform, a plain one to judge the others against.</summary>
+    /// <summary>The somewhat boring display transform, a plain one to judge the others
+    /// against.</summary>
     SomewhatBoring,
 
-    /// <summary>Tomasz Stachowiak's Tony McMapface, neutral and keeping saturation in the highlights, from its table.</summary>
+    /// <summary>Tony McMapface, neutral and keeping saturation in the highlights, from its
+    /// table.</summary>
     TonyMcMapface,
 
-    /// <summary>Blender's filmic view transform, for matching a render done there, from its table.</summary>
+    /// <summary>The Filmic view transform, for matching a render made through it, from its
+    /// table.</summary>
     BlenderFilmic,
 
     /// <summary>

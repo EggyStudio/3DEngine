@@ -7,7 +7,7 @@ namespace Engine;
 /// </summary>
 /// <remarks>
 /// <para>
-/// <b>Influences:</b> the engine standardises on 4 influences per vertex (the de-facto
+/// <b>Influences:</b> the engine standardizes on 4 influences per vertex (the de-facto
 /// glTF 2.0 / FBX baseline). Importers that encounter more drop the lowest-weight
 /// influences and renormalize; importers with fewer pad the unused slots with weight 0.
 /// </para>

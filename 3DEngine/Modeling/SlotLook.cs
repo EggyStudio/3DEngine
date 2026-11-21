@@ -15,8 +15,7 @@ namespace Engine;
 /// </para>
 /// <para>
 /// A path is read as the flat API reads a file, beside the program or in the working directory.
-/// Every texture repeats, since a face's coordinates run past one as far as it is meters wide. The
-/// same words give the same look in BevyCSharp's edit mesh.
+/// Every texture repeats, since a face's coordinates run past one as far as it is meters wide.
 /// </para>
 /// </remarks>
 internal sealed record SlotLook

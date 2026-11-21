@@ -10,15 +10,15 @@ namespace Engine;
 /// </summary>
 /// <remarks>
 /// <para>
-/// Each texel integrates GGX's lobe at its middle's cosine and roughness by importance sampling, as
-/// Karis gives it for the split sum, the half ways drawn by GGX's distribution over a Hammersley
+/// Each texel integrates GGX's lobe at its middle's cosine and roughness by importance sampling for
+/// the split sum, the half ways drawn by GGX's distribution over a Hammersley
 /// set and each weighed by Smith's height-correlated shadowing for the two ways taken together,
 /// times the cosine between the eye and the half way over that of the normal and the half way,
 /// Schlick's Fresnel apart into the scale and the bias.
 /// </para>
 /// <para>
-/// A table rather than Karis's fit for mobile, which gives a surface seen square on less of the
-/// light around it than GGX's lobe gives at a roughness of 0.6, and more at a roughness of 1
+/// A table rather than the analytic fit for mobile, which gives a surface seen square on less of
+/// the light around it than GGX's lobe gives at a roughness of 0.6, and more at a roughness of 1
 /// (<c>RoughReflectionTests</c>).
 /// </para>
 /// </remarks>

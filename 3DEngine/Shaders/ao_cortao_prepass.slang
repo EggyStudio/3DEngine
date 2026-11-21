@@ -1,7 +1,7 @@
-// CORTAO's prepass (cortao/CORTAOPrepass.h, Isheden's circular occluders): each pixel of the
-// window's depth at half its size, its distance along the view and its normal in view space packed
-// into one uint, written into the first level of the packed image, and into each level after it
-// where the pixel is the one of its block of four that level keeps.
+// The circular occluders' prepass, from cortao/CORTAOPrepass.h. Each pixel of the window's depth at
+// half its size has its distance along the view and its normal in view space packed into one uint,
+// written into the first level of the packed image, and into each level after it where the pixel is
+// the one of its block of four that level keeps.
 #define CORTAO_HLSL 1
 #define CORTAO_PERSPECTIVE_PROJECTION 1
 #include "cortao/CORTAOPrepass.h"
@@ -10,7 +10,7 @@
 struct CortaoPrepassPush
 {
     CORTAOPrepassParameters parameters;
-    // CORTAO's unprojection of a pixel's place on the depth to a way in view space, as its main
+    // The passes' unprojection of a pixel's place on the depth to a way in view space, as the main
     // pass takes it, which the normal is found through.
     float4 unproject;
 };

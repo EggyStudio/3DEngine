@@ -11,10 +11,10 @@ namespace Engine;
 /// by writing here, so every system in a frame agrees on which value it is in.
 /// </para>
 /// <para>
-/// The same idea as Bevy's <c>State</c>. A sub-state (<see cref="App.AddSubState{TSub, TParent}"/>)
-/// exists only while another state is in one value, and a computed state
-/// (<see cref="App.AddComputedState{TComputed, TSource}"/>) is worked out from another state, so
-/// either may have no <see cref="State{TState}"/> at all, which <c>InState</c> reads as false.
+/// A sub-state (<see cref="App.AddSubState{TSub, TParent}"/>) exists only while another state is
+/// in one value, and a computed state (<see cref="App.AddComputedState{TComputed, TSource}"/>) is
+/// worked out from another state, so either may have no <see cref="State{TState}"/> at all, which
+/// <c>InState</c> reads as false.
 /// Each move is sent as a <see cref="StateTransition{TState}"/> event.
 /// </para>
 /// </remarks>

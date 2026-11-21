@@ -230,7 +230,8 @@ public sealed partial class EcsWorld
         store.Reserve(componentCapacity, maxEntityIdHint);
     }
 
-    /// <summary>Adds a component to an entity, marking it added, or overwrites the one it has, marking it changed, as Bevy's insert does.</summary>
+    /// <summary>Adds a component to an entity, marking it added, or overwrites the one it has,
+    /// marking it changed.</summary>
     /// <typeparam name="T">The component type.</typeparam>
     /// <param name="entity">The entity ID.</param>
     /// <param name="component">The component value.</param>
@@ -356,10 +357,10 @@ public sealed partial class EcsWorld
     /// through, marking it changed this frame, or throws if missing.
     /// </summary>
     /// <remarks>
-    /// Marked whether or not the caller writes, as Bevy's <c>Mut</c> is on a mutable borrow, since
-    /// a ref cannot tell. A <c>Changed</c> filter and transform propagation then see writes made
-    /// through it. Code that only reads uses <see cref="GetReadOnly{T}(int)"/>, which marks nothing.
-    /// The bit is set atomically, so systems running in parallel can call it.
+    /// Marked whether or not the caller writes, since a ref cannot tell. A <c>Changed</c> filter
+    /// and transform propagation then see writes made through it. Code that only reads uses
+    /// <see cref="GetReadOnly{T}(int)"/>, which marks nothing. The store's latest change is raised
+    /// atomically, so systems running in parallel can call it.
     /// </remarks>
     /// <exception cref="KeyNotFoundException">Thrown if the entity does not have the component.</exception>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

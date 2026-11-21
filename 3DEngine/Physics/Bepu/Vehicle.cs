@@ -10,7 +10,7 @@ namespace Engine;
 /// <remarks>
 /// A wheel is a ray cast down from its mount, which pushes the body up as a spring as far as the
 /// ground presses it and as a damper against how fast it is pressed, never pulling it down. The
-/// tyre grips sideways up to <see cref="Grip"/> times what presses it, and drives and brakes along
+/// tire grips sideways up to <see cref="Grip"/> times what presses it, and drives and brakes along
 /// the way it points up to half again that. Forces are in newtons, for the body's mass in kilograms.
 /// </remarks>
 public record struct Vehicle()
@@ -36,7 +36,7 @@ public record struct Vehicle()
     /// <summary>The brakes' push, shared by every wheel.</summary>
     public float BrakeForce { get; init; } = 14000;
 
-    /// <summary>How much of what presses a tyre it can push sideways before it slides.</summary>
+    /// <summary>How much of what presses a tire it can push sideways before it slides.</summary>
     public float Grip { get; init; } = 1.15f;
 
     /// <summary>How far the front wheels turn at full lock, in radians, less the faster the vehicle goes.</summary>

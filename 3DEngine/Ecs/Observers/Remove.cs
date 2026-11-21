@@ -5,8 +5,8 @@ namespace Engine;
 /// <param name="Entity">The entity it left.</param>
 /// <param name="Value">The value it had.</param>
 /// <remarks>
-/// Bevy's <c>On&lt;Remove, T&gt;</c>. The observer runs once the component has gone, and for a
-/// despawn once the entity has, so it reads what the component was from <see cref="Value"/>.
+/// The observer runs once the component has gone, and for a despawn once the entity has, so it
+/// reads what the component was from <see cref="Value"/>.
 /// </remarks>
 public readonly record struct Remove<T>(Entity Entity, T Value) : IEntityEvent, IComponentEvent
 {

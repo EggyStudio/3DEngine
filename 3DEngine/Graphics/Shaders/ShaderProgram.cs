@@ -223,7 +223,7 @@ internal sealed class ShaderProgram
             length = (int)(words[at] >> 16);
             if (at == memoryModelAt && import)
             {
-                // "GLSL.std.450" and its terminating zero in four words, as SPIR-V packs a string.
+                // "GLSL.std.450" and its terminating zero in four uints, as SPIR-V packs a string.
                 held.Add(Instruction(opExtInstImport, 6));
                 held.Add(glsl);
                 var name = new byte[16];

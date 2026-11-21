@@ -238,10 +238,10 @@ public static partial class E3D
     /// <remarks>
     /// <para>
     /// The circular occluders trace sixteen rays over each pixel's hemisphere against the points of
-    /// the depth around it taken as circles, by Isheden's CORTAO, and the history and the blurs that
-    /// follow take their result as they take the horizons'. Both read the depth drawn at half the
-    /// window's size, and the normals the circles face are taken from it, as the horizons take
-    /// theirs. A count of samples other than 8 is taken as 16.
+    /// the depth around it taken as circles, and the history and the blurs that follow take their
+    /// result as they take the horizons'. Both read the depth drawn at half the window's size, and
+    /// the normals the circles face are taken from it, as the horizons take theirs. A count of
+    /// samples other than 8 is taken as 16.
     /// </para>
     /// <para>
     /// It is a trial beside the horizons, which stay the default. A render texture's own occlusion
@@ -270,10 +270,10 @@ public static partial class E3D
     /// </summary>
     /// <remarks>
     /// <para>
-    /// These are CORTAO's maximum slope compensation, backface threshold, backface boost and
-    /// maximum screen-space radius, and the defaults are its own but the screen's share, which is
-    /// the 0.3 the horizons are held to. Their largest radius in the world is the radius
-    /// <see cref="SetAmbientOcclusion"/> takes.
+    /// These are the circular occluders' maximum slope compensation, backface threshold, backface
+    /// boost and maximum screen-space radius, and the defaults are the method's own but the
+    /// screen's share, which is the 0.3 the horizons are held to. Their largest radius in the world
+    /// is the radius <see cref="SetAmbientOcclusion"/> takes.
     /// </para>
     /// <para>
     /// A surface seen at a slant covers fewer pixels, so a circle on it is grown by one over the

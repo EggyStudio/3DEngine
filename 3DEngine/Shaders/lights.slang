@@ -460,8 +460,8 @@ public float3 environmentIrradiance(float3 n)
 // The share of light from all around that a surface reflects, with no environment to reflect, as
 // the split sum takes it apart from the light, GGX's lobe integrated for each cosine to the eye and
 // roughness (SpecularShares), so a smooth or metal surface under an ambient light is not black.
-// Karis's fit for mobile, the alternative, gives a rough metal wall seen square on less of the
-// light around it than the lobe gives.
+// The analytic fit for mobile, the alternative, gives a rough metal wall seen square on less of
+// the light around it than the lobe gives.
 public float3 ambientReflected(float3 f0, float roughness, float nv)
 {
     float2 ab = specularShares.SampleLevel(lightLinear, float2(saturate(nv), saturate(roughness)), 0).rg;

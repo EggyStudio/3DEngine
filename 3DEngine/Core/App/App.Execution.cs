@@ -89,7 +89,8 @@ public sealed partial class App
     /// <see cref="Stage.FixedUpdate"/> runs between <see cref="Stage.PreUpdate"/> and
     /// <see cref="Stage.Update"/> once per step <see cref="FixedTime.TryStep"/> grants, and not at
     /// all when the world has no <see cref="FixedTime"/>. State transitions are applied before it,
-    /// right after <see cref="Stage.PreUpdate"/>, as Bevy applies them.
+    /// right after <see cref="Stage.PreUpdate"/>, so a move queued by then is entered before the
+    /// frame's fixed steps and its update run.
     /// </remarks>
     /// <remarks>
     /// Whatever the caller does between this and <see cref="EndFrame"/> belongs to the frame, so

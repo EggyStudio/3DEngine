@@ -24,9 +24,6 @@ namespace Engine;
 /// plays at a second, unless a playing time was given for every frame. A recording holds at most
 /// <see cref="MostPictures"/> pictures in memory, and stops there with a warning.
 /// </para>
-/// <para>
-/// Its words are BevyCSharp's (SHARED.md), so a recording is asked for the same way of either engine.
-/// </para>
 /// </remarks>
 internal static class Recorder
 {

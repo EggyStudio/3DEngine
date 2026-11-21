@@ -6,28 +6,28 @@ using static Engine.GraphicsDevice;
 namespace Engine;
 
 /// <summary>
-/// Ambient occlusion by circular occluders, Isheden's CORTAO (<c>cortao/</c>, taken at its commit
-/// 420b168), worked out from the window's depth at half its size: a prepass packing each pixel's
-/// distance along the view and its normal into a chain of levels (<c>ao_cortao_prepass.slang</c>),
-/// a main pass reading points of that chain around each pixel as circles and tracing sixteen rays
-/// over its hemisphere against them through a table (<c>ao_cortao_main.slang</c>), and its own
-/// filter pass (<c>ao_cortao_filter.slang</c>), each a compute stage recorded into the frame ahead
-/// of the occlusion's history and blurs (<see cref="AmbientOcclusionRenderer"/>), which read the
-/// result in place of the horizons.
+/// Ambient occlusion by circular occluders, worked out from the window's depth at half its size in
+/// three passes over the shaders under <c>cortao/</c>, a prepass packing each pixel's distance
+/// along the view and its normal into a chain of levels (<c>ao_cortao_prepass.slang</c>), a main
+/// pass reading points of that chain around each pixel as circles and tracing sixteen rays over its
+/// hemisphere against them through a table (<c>ao_cortao_main.slang</c>), and a filter pass
+/// (<c>ao_cortao_filter.slang</c>), each a compute stage recorded into the frame ahead of the
+/// occlusion's history and blurs (<see cref="AmbientOcclusionRenderer"/>), which read the result
+/// in place of the horizons.
 /// </summary>
 /// <remarks>
 /// <para>
 /// The engine draws no buffer of normals, so each pass takes a pixel's normal from the depth
-/// around it (<c>ao_cortao.h</c>), where CORTAO expects a normal buffer. The table is CORTAO's own
-/// for sixteen rays, 24 by 24 ways by 16 sizes (<c>cortao/occluders_24x24x16x16.bin</c>), read as
-/// a buffer, and the bent normal is written beside the occlusion and read by nothing yet.
+/// around it (<c>ao_cortao.h</c>), where the passes under <c>cortao/</c> read a buffer of normals.
+/// The occluder table for sixteen rays, 24 by 24 ways by 16 sizes
+/// (<c>cortao/occluders_24x24x16x16.bin</c>), is read as a buffer, and the bent normal is written
+/// beside the occlusion and read by nothing yet.
 /// </para>
 /// <para>
-/// Its parameters are worked out as CORTAO's <c>CORTAOParameters.h</c> works them, from the
-/// camera's projection with Vulkan's turn of y taken out of it, which CORTAO takes as an
-/// unflipped projection read through a flipped y, and the radius, its share of the picture's
-/// height, the slope compensation and the backfaces' threshold and boost taken from
-/// <see cref="AmbientOcclusionSettings"/>.
+/// Its parameters are worked out from the camera's projection with Vulkan's turn of y taken out of
+/// it, since the passes take an unflipped projection read through a flipped y, and the radius, its
+/// share of the picture's height, the slope compensation and the backfaces' threshold and boost
+/// taken from <see cref="AmbientOcclusionSettings"/>.
 /// </para>
 /// </remarks>
 internal sealed unsafe class CircularOccluders(GraphicsDevice device) : IDisposable
@@ -35,13 +35,15 @@ internal sealed unsafe class CircularOccluders(GraphicsDevice device) : IDisposa
     /// <summary>The device's occluders, made the first time it is asked for.</summary>
     internal static CircularOccluders Of(GraphicsDevice device) => device.Part(static device => new CircularOccluders(device));
 
-    /// <summary>The bytes of CORTAO's table for sixteen rays, 24 * 24 * 16 entries of two bytes each.</summary>
+    /// <summary>The bytes of the occluder table for sixteen rays, 24 * 24 * 16 entries of two bytes
+    /// each.</summary>
     internal const int TableBytes = 24 * 24 * 16 * 2;
 
-    /// <summary>The most levels of the packed image CORTAO reads.</summary>
+    /// <summary>The most levels of the packed image the main pass reads.</summary>
     internal const int MostLevels = 8;
 
-    /// <summary>The name the main pass is built with to read eight points a pixel, where its plain build reads sixteen.</summary>
+    /// <summary>The name the main pass is built with to read eight points a pixel, where its plain
+    /// build reads sixteen.</summary>
     internal const string EightOccluders = "EIGHT_OCCLUDERS";
 
     [StructLayout(LayoutKind.Sequential)]
@@ -81,17 +83,20 @@ internal sealed unsafe class CircularOccluders(GraphicsDevice device) : IDisposa
     private long _frame;
     private bool _ready;
 
-    /// <summary>Whether every stage, the table and the sampler have been made, so the occlusion can be worked out.</summary>
+    /// <summary>Whether every stage, the table and the sampler have been made, so the occlusion can
+    /// be worked out.</summary>
     public bool Ready => _ready;
 
-    /// <summary>Whether a size of the window's images is held, in use or let go and not yet destroyed.</summary>
+    /// <summary>Whether a size of the window's images is held, in use or let go and not yet
+    /// destroyed.</summary>
     public bool Holds => _sized is not null || _retired.Count > 0;
 
     /// <summary>
     /// Makes the stages from the compute stages of <c>ao_cortao_prepass.slang</c>, of
-    /// <c>ao_cortao_main.slang</c> built at 8 and at 16 samples and of <c>ao_cortao_filter.slang</c>,
-    /// and uploads <paramref name="table"/>, CORTAO's table for sixteen rays, once, all or none,
-    /// what was made before a failure destroyed before it is thrown on.
+    /// <c>ao_cortao_main.slang</c> built at 8 and at 16 samples and of
+    /// <c>ao_cortao_filter.slang</c>, and uploads <paramref name="table"/>, the occluder table for
+    /// sixteen rays, once, all or none, what was made before a failure destroyed before it is
+    /// thrown on.
     /// </summary>
     public void Initialize(ReadOnlySpan<byte> prepass, ReadOnlySpan<byte> main8, ReadOnlySpan<byte> main16, ReadOnlySpan<byte> filter,
         ReadOnlySpan<byte> table)
@@ -123,10 +128,11 @@ internal sealed unsafe class CircularOccluders(GraphicsDevice device) : IDisposa
         }
     }
 
-    /// <summary>The occlusion in alpha and the bent normal in view space as 0.5 + 0.5 of it, as the main pass wrote them, for the window.</summary>
+    /// <summary>The occlusion in alpha and the bent normal in view space as 0.5 + 0.5 of it, as the
+    /// main pass wrote them, for the window.</summary>
     public IImage? Raw => _sized?.Raw.Owner;
 
-    /// <summary>The occlusion CORTAO's filter pass wrote, in every channel, for the window.</summary>
+    /// <summary>The occlusion the filter pass wrote, in every channel, for the window.</summary>
     public IImage? Filtered => _sized?.Filtered.Owner;
 
     /// <summary>
@@ -164,7 +170,7 @@ internal sealed unsafe class CircularOccluders(GraphicsDevice device) : IDisposa
     /// <paramref name="extent"/>, through <paramref name="turned"/>, the camera's view and
     /// projection with its eye at nothing, as <paramref name="settings"/> say, its radius, samples,
     /// filter and circles, and gives the view the history pass reads the occlusion from, or null
-    /// where the camera's projection is not one CORTAO takes.
+    /// where the camera's projection is not one the passes take.
     /// </summary>
     public IImageView? Record(ICommandBuffer commandBuffer, IImageView depth, ISampler depthSampler, Extent2D extent, Matrix4x4 turned,
         AmbientOcclusionSettings settings, uint seed)
@@ -194,8 +200,8 @@ internal sealed unsafe class CircularOccluders(GraphicsDevice device) : IDisposa
             ImageBarrier(sized.Filtered.Image, ColorLevels(0, 1), from, VkImageLayout.General,
                 VkPipelineStageFlags2.FragmentShader, VkAccessFlags2.ShaderRead, VkPipelineStageFlags2.Transfer, VkAccessFlags2.TransferWrite),
         ]);
-        // The texels the main pass leaves, those of the sky, and those the filter leaves, its blocks
-        // of sky, cleared each frame to open, the bent normal toward the eye.
+        // The texels the main pass leaves, those of the sky, and those the filter leaves, its
+        // blocks of sky, cleared each frame to open, the bent normal toward the eye.
         var open = new VkClearColorValue(0.5f, 0.5f, 1f, 1f);
         var whole = ColorLevels(0, 1);
         device.Api.vkCmdClearColorImage(cmd, sized.Raw.Image, VkImageLayout.General, &open, 1, &whole);
@@ -234,8 +240,8 @@ internal sealed unsafe class CircularOccluders(GraphicsDevice device) : IDisposa
 
     /// <summary>
     /// The projection of <paramref name="turned"/>, a camera's view and projection with its eye at
-    /// nothing, a turn times a projection CORTAO takes, a perspective with any offset of its middle
-    /// (CORTAO's README, "projectionMatrix"), or null where it is no such product. The turn's last
+    /// nothing, a turn times a projection the passes take, a perspective with any offset of its
+    /// middle, or null where it is no such product. The turn's last
     /// column of the product is the way back along the view, and the projection's scales and
     /// offsets follow from the turn's columns being of length one and square to each other.
     /// </summary>
@@ -256,15 +262,14 @@ internal sealed unsafe class CircularOccluders(GraphicsDevice device) : IDisposa
         return new Matrix4x4(a, 0, 0, 0, 0, c, 0, 0, b, d, Vector3.Dot(col2, back), -1, 0, 0, turned.M43, 0);
     }
 
-    // The three passes' parameters for a projection, as CORTAOParameters.h works them out from its
-    // configuration, the radius, the share of the picture's height, the slope compensation and the
-    // backfaces' threshold and boost the settings', with Vulkan's turn of y taken out of the
-    // projection and flipY set.
+    // The three passes' parameters for a projection, worked out from the radius, the share of the
+    // picture's height, the slope compensation and the backfaces' threshold and boost the
+    // settings', with Vulkan's turn of y taken out of the projection and flipY set.
     internal static (PrepassPush Prepass, MainPush Main, FilterPush Filter) Parameters(Matrix4x4 projection, Extent2D extent, AmbientOcclusionSettings settings,
         uint seed, uint levels)
     {
         var radius = settings.Radius;
-        // The projection as CORTAO's column-major array holds it, y up.
+        // The projection as the passes' column-major array holds it, y up.
         var p = projection;
         if (p.M22 < 0) (p.M12, p.M22, p.M32, p.M42) = (-p.M12, -p.M22, -p.M32, -p.M42);
         Matrix4x4.Invert(p, out var inverse);
@@ -311,14 +316,16 @@ internal sealed unsafe class CircularOccluders(GraphicsDevice device) : IDisposa
         public Storage Filtered { get; } = filtered;
         public VkDescriptorPool Pool { get; } = pool;
         public VkDescriptorSet PrepassSet, Main8Set, Main16Set, FilterSet;
-        // Whether a frame has written the images, which leaves them in the layouts the next frame's barriers take them from.
+        // Whether a frame has written the images, which leaves them in the layouts the next frame's
+        // barriers take them from.
         public bool Written { get; set; }
         public Action? Disposing { get; init; }
 
         public void Dispose() => Disposing?.Invoke();
     }
 
-    // An image a compute stage writes and a pass samples, its owner, its view of every level and the raw handle.
+    // An image a compute stage writes and a pass samples, its owner, its view of every level and
+    // the raw handle.
     private sealed record Storage(VkImage Image, VulkanImage Owner, IImageView View);
 
     private Sized Ensure(Extent2D extent, IImageView depth, ISampler depthSampler)
@@ -447,7 +454,8 @@ internal sealed unsafe class CircularOccluders(GraphicsDevice device) : IDisposa
         return view;
     }
 
-    // Destroys the images of a size let go once the frames in flight that might read them have finished.
+    // Destroys the images of a size let go once the frames in flight that might read them have
+    // finished.
     private void Retire()
     {
         _frame++;

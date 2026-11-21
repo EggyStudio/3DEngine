@@ -8,7 +8,7 @@ public static partial class E3D
 
     private static readonly object RandomGate = new();
 
-    // xoshiro128**'s four words, as rprand.h, raylib's generator, starts them before any seed.
+    // xoshiro128**'s state of four uints, as raylib's generator rprand.h starts it before a seed.
     private static readonly uint[] RandomState = [0x96ea83c1, 0x218b21e5, 0xaa91febd, 0x976414d4];
 
     /// <summary>
@@ -66,8 +66,8 @@ public static partial class E3D
         return values;
     }
 
-    // rprand's value in a range, the next word modulo the range's size, in the unsigned arithmetic
-    // C reckons it in. The whole range of an int, whose size a word cannot hold, takes the word.
+    // rprand's value in a range, the next uint modulo the range's size, in the unsigned arithmetic
+    // C reckons it in. The whole range of an int, whose size a uint cannot hold, takes the uint.
     private static int NextRandom(int min, int max)
     {
         var size = unchecked((uint)(max - min) + 1);
@@ -75,7 +75,7 @@ public static partial class E3D
         return unchecked((int)((size == 0 ? word : word % size) + (uint)min));
     }
 
-    // xoshiro128**'s next word.
+    // xoshiro128**'s next uint.
     private static uint NextRandomWord()
     {
         var s = RandomState;

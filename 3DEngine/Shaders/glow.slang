@@ -70,9 +70,9 @@ public uint glowFaces(GlowLight light)
 }
 
 // The arc from a to b, both of length one, times the way the plane through them faces, over two
-// pi, one edge's term of Lambert's sum for the light a polygon sends a point, by Heitz's fit of
-// the arc over two pi times its sine, which keeps the short edges of a far square that acos loses
-// near 1.
+// pi, one edge's term of Lambert's sum for the light a polygon sends a point, by a rational fit
+// of the arc over two pi times its sine, which keeps the short edges of a far square that acos
+// loses near 1.
 float3 edgeIntegral(float3 a, float3 b)
 {
     float x = dot(a, b);

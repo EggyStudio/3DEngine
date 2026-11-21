@@ -10,7 +10,7 @@ public enum AmbientOcclusionMethod
 
     /// <summary>
     /// By rays over each pixel's hemisphere traced against the points around it taken as circles,
-    /// Isheden's circular occluders (CORTAO), at 8 or 16 points a pixel.
+    /// the circular occluders, at 8 or 16 points a pixel.
     /// </summary>
     /// <remarks>
     /// A render texture's own occlusion is still worked out by <see cref="Horizons"/>, and so is the

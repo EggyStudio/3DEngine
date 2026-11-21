@@ -37,7 +37,8 @@ internal sealed class GpuParticles : IDisposable
     /// <summary>How many particles it holds at most.</summary>
     public int Capacity { get; }
 
-    /// <summary>The keys after the particles, the least power of two as many as they are, which the bitonic sort needs.</summary>
+    /// <summary>The keys after the particles, the least power of two as many as they are, which the
+    /// bitonic sort needs.</summary>
     public int SortKeys => (int)System.Numerics.BitOperations.RoundUpToPowerOf2((uint)Capacity);
 
     internal VkDescriptorSet Set { get; }
@@ -45,7 +46,8 @@ internal sealed class GpuParticles : IDisposable
     /// <summary>The bytes the header takes before the first particle.</summary>
     public const int HeaderBytes = 128;
 
-    /// <summary>The float4 value of the header the rows of the matrix the draw places the particles by start at.</summary>
+    /// <summary>The float4 value of the header the rows of the matrix the draw places the particles
+    /// by start at.</summary>
     public const int PlacedBy = 4;
 
     /// <summary>The bytes of one particle.</summary>
@@ -55,23 +57,28 @@ internal sealed class GpuParticles : IDisposable
     public void Dispose() => _dispose();
 }
 
-/// <summary>What a particle dispatch is handed, as <c>particle_step.slang</c> reads its push constants.</summary>
+/// <summary>What a particle dispatch is handed, as <c>particle_step.slang</c> reads its push
+/// constants.</summary>
 [StructLayout(LayoutKind.Sequential)]
 internal struct ParticleStep
 {
     /// <summary>Where new particles start, in xyz, and the seconds the step covers, in w.</summary>
     public System.Numerics.Vector4 OriginAndSeconds;
-    /// <summary>The velocity a new particle starts with, in xyz, and the cone it is spread over in radians, in w.</summary>
+    /// <summary>The velocity a new particle starts with, in xyz, and the cone it is spread over in
+    /// radians, in w.</summary>
     public System.Numerics.Vector4 VelocityAndSpread;
-    /// <summary>The pull on every particle, in xyz, and how long one lives in seconds, in w.</summary>
+    /// <summary>The pull on every particle, in xyz, and how long one lives in seconds, in
+    /// w.</summary>
     public System.Numerics.Vector4 GravityAndLife;
-    /// <summary>How much a life varies, how much a speed varies, a seed for this step, and the radius new particles start within.</summary>
+    /// <summary>How much a life varies, how much a speed varies, a seed for this step, and the
+    /// radius new particles start within.</summary>
     public System.Numerics.Vector4 Variation;
     /// <summary>The color at birth, linear, with its alpha.</summary>
     public System.Numerics.Vector4 StartColor;
     /// <summary>The color at death, linear, with its alpha.</summary>
     public System.Numerics.Vector4 EndColor;
-    /// <summary>The size at birth and at death, how bright an unlit one is, and flags of how it is drawn, which particles.slang unpacks.</summary>
+    /// <summary>The size at birth and at death, how bright an unlit one is, and flags of how it is
+    /// drawn, which particles.slang unpacks.</summary>
     public System.Numerics.Vector4 Look;
     /// <summary>
     /// The first slot new particles are written into, how many, and how many slots there are, the
@@ -80,7 +87,8 @@ internal struct ParticleStep
     /// block has no room left.
     /// </summary>
     public uint First, Count, Capacity;
-    /// <summary>How strongly the air slows a particle, read by the shader from the bits of the last word.</summary>
+    /// <summary>How strongly the air slows a particle, read by the shader from the bits of the last
+    /// four bytes.</summary>
     public float Drag;
 }
 
@@ -93,7 +101,8 @@ internal struct ParticleView
 {
     /// <summary>World to clip space for the view the depth was drawn through.</summary>
     public System.Numerics.Matrix4x4 ViewProjection;
-    /// <summary>Clip space back to world space, which finds the surface a depth texel holds.</summary>
+    /// <summary>Clip space back to world space, which finds the surface a depth texel
+    /// holds.</summary>
     public System.Numerics.Matrix4x4 InverseViewProjection;
     /// <summary>
     /// 1 in x when a depth is bound to collide with, 0 when nothing collides this frame. yzw: the
@@ -132,7 +141,8 @@ internal sealed unsafe class ParticleStages(GraphicsDevice device) : IDisposable
     private VkPipeline _sortPipeline;
     private VkPipelineLayout _sortLayout;
 
-    /// <summary>What a step of the particle sort is handed, as <c>particle_sort.slang</c> reads it.</summary>
+    /// <summary>What a step of the particle sort is handed, as <c>particle_sort.slang</c> reads
+    /// it.</summary>
     [StructLayout(LayoutKind.Sequential)]
     private struct SortStep
     {
@@ -144,7 +154,8 @@ internal sealed unsafe class ParticleStages(GraphicsDevice device) : IDisposable
     /// <summary>Whether the particle shader has been given, so emitters can be made.</summary>
     public bool CanStepParticles => _particlePipeline.Handle != 0;
 
-    /// <summary>Makes the particle pipeline from <c>particle_step.slang</c>'s compute stage, once.</summary>
+    /// <summary>Makes the particle pipeline from <c>particle_step.slang</c>'s compute stage,
+    /// once.</summary>
     public void InitializeParticles(ReadOnlySpan<byte> spirv)
     {
         if (!device.IsInitialized || CanStepParticles) return;
@@ -187,7 +198,8 @@ internal sealed unsafe class ParticleStages(GraphicsDevice device) : IDisposable
 
     /// <summary>
     /// Sets the scene's depth the particles stepped after this in the frame meet, and the view it
-    /// was drawn through, or with <paramref name="view"/>'s <see cref="ParticleView.Depth"/> 0 none,
+    /// was drawn through, or with <paramref name="view"/>'s <see cref="ParticleView.Depth"/> 0
+    /// none,
     /// <paramref name="depth"/> then any image the shader can sample, and the scene's distance
     /// field they meet first where it holds them, or none where <paramref name="field"/> is null.
     /// Called once a frame before the first step.
@@ -219,7 +231,8 @@ internal sealed unsafe class ParticleStages(GraphicsDevice device) : IDisposable
         device.Api.vkUpdateDescriptorSets(3, writes, 0, null);
     }
 
-    /// <summary>Makes the pipeline that sorts an emitter's particles from <c>particle_sort.slang</c>'s compute stage, once.</summary>
+    /// <summary>Makes the pipeline that sorts an emitter's particles from
+    /// <c>particle_sort.slang</c>'s compute stage, once.</summary>
     public void InitializeParticleSort(ReadOnlySpan<byte> spirv)
     {
         if (!CanStepParticles || _sortPipeline.Handle != 0) return;
@@ -259,8 +272,10 @@ internal sealed unsafe class ParticleStages(GraphicsDevice device) : IDisposable
         return (pipeline, pipelineLayout);
     }
 
-    /// <summary>Makes the buffer of an emitter of <paramref name="capacity"/> particles, every one dead.</summary>
-    /// <exception cref="InvalidOperationException">The particle shader has not been given.</exception>
+    /// <summary>Makes the buffer of an emitter of <paramref name="capacity"/> particles, every one
+    /// dead.</summary>
+    /// <exception cref="InvalidOperationException">The particle shader has not been
+    /// given.</exception>
     public GpuParticles CreateParticles(int capacity)
     {
         if (!CanStepParticles) throw new InvalidOperationException("The particle shader has not been given.");
@@ -288,8 +303,8 @@ internal sealed unsafe class ParticleStages(GraphicsDevice device) : IDisposable
     }
 
     /// <summary>
-    /// Makes the buffer of the particles a program placed at <paramref name="points"/>, one a point,
-    /// standing still there at the start of a life no dispatch ages, which
+    /// Makes the buffer of the particles a program placed at <paramref name="points"/>, one a
+    /// point, standing still there at the start of a life no dispatch ages, which
     /// <see cref="RecordParticleHeader"/> gives the rest of what the draw reads each frame.
     /// </summary>
     public GpuParticles CreatePlacedParticles(ReadOnlySpan<System.Numerics.Vector3> points)
@@ -307,8 +322,8 @@ internal sealed unsafe class ParticleStages(GraphicsDevice device) : IDisposable
     /// <summary>
     /// Records into <paramref name="commands"/>, outside any render pass, the dispatch that steps
     /// <paramref name="particles"/> and starts the new ones <paramref name="step"/> asks for, the
-    /// draw placing them by <paramref name="placedBy"/>, the identity for particles in the world, and
-    /// facing as <paramref name="facing"/> says, the normal in xyz and the facing in w.
+    /// draw placing them by <paramref name="placedBy"/>, the identity for particles in the world,
+    /// and facing as <paramref name="facing"/> says, the normal in xyz and the facing in w.
     /// </summary>
     /// <remarks>
     /// The dispatch covers the <paramref name="span"/> slots back from the newest particle, the new
@@ -360,7 +375,8 @@ internal sealed unsafe class ParticleStages(GraphicsDevice device) : IDisposable
         sets[1] = _particleViewSets[device.FrameInFlight];
         device.Api.vkCmdBindPipeline(cmd, VkPipelineBindPoint.Compute, _particlePipeline);
         device.Api.vkCmdBindDescriptorSets(cmd, VkPipelineBindPoint.Compute, _particleLayout, 0, 2, sets, 0, null);
-        // The step's move, bit 31 of the capacity, which particle_step.slang takes to move each slot alone.
+        // The step's move, bit 31 of the capacity, which particle_step.slang takes to move each
+        // slot alone.
         var moved = new ParticleStep
         {
             OriginAndSeconds = new System.Numerics.Vector4(step, 0),
@@ -391,7 +407,8 @@ internal sealed unsafe class ParticleStages(GraphicsDevice device) : IDisposable
     }
 
     // The three rows of a matrix that take a point to where it is placed, as System.Numerics lays a
-    // matrix out for a row vector, each with the translation last, and then the way the particles face.
+    // matrix out for a row vector, each with the translation last, and then the way the particles
+    // face.
     private static void Rows(System.Numerics.Matrix4x4 m, System.Numerics.Vector4 facing, Span<System.Numerics.Vector4> rows)
     {
         rows[0] = new System.Numerics.Vector4(m.M11, m.M21, m.M31, m.M41);
@@ -419,8 +436,9 @@ internal sealed unsafe class ParticleStages(GraphicsDevice device) : IDisposable
     /// </summary>
     /// <remarks>
     /// The keys are sorted in blocks of 512 in shared memory, so an emitter of up to 512 particles
-    /// takes two dispatches, the keys and the sort, and a larger one a dispatch for each step across
-    /// blocks and one for the steps within them after each, as <c>particle_sort.slang</c> says.
+    /// takes two dispatches, the keys and the sort, and a larger one a dispatch for each step
+    /// across blocks and one for the steps within them after each, as <c>particle_sort.slang</c>
+    /// says.
     /// </remarks>
     public void RecordParticleSort(ICommandBuffer commands, GpuParticles particles, System.Numerics.Vector3 eye, int newest, int span)
     {
@@ -432,7 +450,8 @@ internal sealed unsafe class ParticleStages(GraphicsDevice device) : IDisposable
         device.Api.vkCmdBindPipeline(cmd, VkPipelineBindPoint.Compute, _sortPipeline);
         device.Api.vkCmdBindDescriptorSets(cmd, VkPipelineBindPoint.Compute, _sortLayout, 0, 1, &set, 0, null);
 
-        // As particle_sort.slang has them, a workgroup's threads and the keys it sorts in shared memory.
+        // As particle_sort.slang has them, a workgroup's threads and the keys it sorts in shared
+        // memory.
         const uint Threads = 256, Block = 512;
         void Dispatch(uint j, uint k, uint mode, uint groups)
         {

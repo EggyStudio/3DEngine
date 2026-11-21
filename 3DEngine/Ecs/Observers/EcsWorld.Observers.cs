@@ -9,8 +9,8 @@ public sealed partial class EcsWorld
     /// <summary>Runs <paramref name="observer"/> each time a <typeparamref name="TEvent"/> is triggered.</summary>
     /// <remarks>
     /// <para>
-    /// Bevy's <c>add_observer</c>. <typeparamref name="TEvent"/> is an event the game declares,
-    /// triggered with <see cref="Trigger{TEvent}(TEvent)"/>, or a change to a component,
+    /// <typeparamref name="TEvent"/> is an event the game declares, triggered with
+    /// <see cref="Trigger{TEvent}(TEvent)"/>, or a change to a component,
     /// <see cref="Engine.Add{T}"/> as one is added to an entity that had none and
     /// <see cref="Engine.Remove{T}"/> once one has left, by <see cref="Remove{T}(int)"/> or with
     /// its entity by <see cref="Despawn(int)"/>. A change queued on <see cref="EcsCommands"/> tells
@@ -35,19 +35,19 @@ public sealed partial class EcsWorld
 
     /// <summary>Runs <paramref name="observer"/> each time a <typeparamref name="TEvent"/> reaches <paramref name="entity"/>.</summary>
     /// <remarks>
-    /// Bevy's <c>observe</c> on an entity, for an <see cref="IEntityEvent"/> that happened to it or
-    /// reached it from a child, or a change to one of its components. The observers of every such
-    /// event run before those of the entity. They are let go once the entity is despawned, after
-    /// they are told of each component it took with it.
+    /// The event is an <see cref="IEntityEvent"/> that happened to the entity or reached it from a
+    /// child, or a change to one of its components. The observers of every such event run before
+    /// those of the entity. They are let go once the entity is despawned, after they are told of
+    /// each component it took with it.
     /// </remarks>
     public IDisposable Observe<TEvent>(Entity entity, Action<On<TEvent>> observer) => Observers().Add(this, entity, observer);
 
     /// <summary>Runs the observers of <paramref name="value"/> now.</summary>
     /// <remarks>
-    /// Bevy's <c>trigger</c>. An <see cref="IEntityEvent"/> runs the observers of every such event
-    /// and then those of its entity, and an <see cref="IPropagatingEvent"/> goes on to each parent
-    /// in turn the same way, until an observer stops it or it reaches the root. Any other event
-    /// runs the observers of every such event.
+    /// An <see cref="IEntityEvent"/> runs the observers of every such event and then those of its
+    /// entity, and an <see cref="IPropagatingEvent"/> goes on to each parent in turn the same way,
+    /// until an observer stops it or it reaches the root. Any other event runs the observers of
+    /// every such event.
     /// </remarks>
     public void Trigger<TEvent>(TEvent value) => _observers?.Trigger(this, value);
 

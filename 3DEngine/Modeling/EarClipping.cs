@@ -14,7 +14,7 @@ namespace Engine;
 /// <para>
 /// The ear cut is the first in the order of the corners left, from the first, so the same face is
 /// cut into the same triangles wherever it is cut, and a recipe that triangulates and then picks a
-/// face by its index picks the same one in BevyCSharp, whose edit mesh cuts faces by the same rule.
+/// face by its index picks the same one each time it is played.
 /// A face left with no ear, which only one whose corners double back on themselves is, is finished
 /// as a fan of what is left, so every face of n corners gives n - 2 triangles.
 /// </para>

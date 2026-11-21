@@ -121,8 +121,7 @@ internal sealed class SparseSet<T>
 
     /// <summary>
     /// Adds a component, which marks it added and not changed, or overwrites one the entity has,
-    /// which marks it changed, as Bevy's insert does, so a system reading changes sees a value
-    /// replaced this way.
+    /// which marks it changed, so a system reading changes sees a value replaced this way.
     /// </summary>
     /// <param name="entity">The entity ID.</param>
     /// <param name="component">The component value to store.</param>

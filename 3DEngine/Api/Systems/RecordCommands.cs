@@ -1,8 +1,7 @@
 namespace Engine;
 
 /// <summary>
-/// The recorder's commands, beside <c>shot</c>, which takes one picture where these take many, in
-/// BevyCSharp's words (SHARED.md).
+/// The recorder's commands, beside <c>shot</c>, which takes one picture where these take many.
 /// </summary>
 internal static class RecordCommands
 {

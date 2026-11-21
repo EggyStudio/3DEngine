@@ -114,10 +114,10 @@ public sealed class SystemDescriptor
     /// <summary>Runs this system after every system in its stage called <paramref name="name"/>.</summary>
     /// <remarks>
     /// <para>
-    /// Bevy's <c>.after</c>. Within a stage, systems run in the order they were added, and two
-    /// whose declared access does not conflict may run in either order, as a batch run in parallel
-    /// or a seed's shuffle runs them, so a system that reads what another wrote this frame without a
-    /// conflict saying so asks for the order here. The name is another system's
+    /// Within a stage, systems run in the order they were added, and two whose declared access does
+    /// not conflict may run in either order, as a batch run in parallel or a seed's shuffle runs
+    /// them, so a system that reads what another wrote this frame without a conflict saying so asks
+    /// for the order here. The name is another system's
     /// <see cref="Name"/>, a behavior's being its type's, its stage's and its method's joined by
     /// underscores, as <c>Spin_OnUpdate_Turn</c>.
     /// </para>
@@ -143,7 +143,7 @@ public sealed class SystemDescriptor
     }
 
     /// <summary>Runs this system before every system in its stage called <paramref name="name"/>.</summary>
-    /// <remarks>Bevy's <c>.before</c>, the other side of <see cref="After"/>, which says how the name is found.</remarks>
+    /// <remarks>The other side of <see cref="After"/>, which says how the name is found.</remarks>
     /// <returns>This descriptor for fluent chaining.</returns>
     public SystemDescriptor Before(string name)
     {
@@ -162,14 +162,14 @@ public sealed class SystemDescriptor
     }
 
     /// <summary>
-    /// Attaches a <c>run_if</c> condition. The system is skipped for the current frame
+    /// Attaches a condition the system runs under. The system is skipped for the current frame
     /// when <paramref name="condition"/> returns <c>false</c>.
     /// </summary>
     /// <remarks>
     /// A second call adds to the first rather than replacing it, so the system runs only when
-    /// every condition passes, as Bevy's <c>run_if</c> does. Conditions are asked in the order
-    /// they were added and the first that fails stops the rest, so a key toggle added first still
-    /// sees its key when a later condition fails.
+    /// every condition passes. Conditions are asked in the order they were added and the first
+    /// that fails stops the rest, so a key toggle added first still sees its key when a later
+    /// condition fails.
     /// </remarks>
     /// <param name="condition">A predicate evaluated against the <see cref="World"/> each frame.</param>
     /// <returns>This descriptor for fluent chaining.</returns>

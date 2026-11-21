@@ -288,7 +288,7 @@ void computeMain(uint3 id : SV_DispatchThreadID)
 
     // The probe's light over the cycle of its rays' sixteen places, gathered from the cycle's first
     // frame on, and the last whole cycle's mean, which stands in for the probe's light while the
-    // kept light holds within four times what the change rule allows, the places' cycle cancelling
+    // kept light holds within four times what the change rule allows, the places' cycle canceling
     // there where the running mean leaves a ripple of about a sixth of how far the places' light
     // differs. At edges seen at a slant, an arch's underside, a column's side or a window's reveal,
     // the places' light lies far apart, and the pixels of a view held still change from frame to

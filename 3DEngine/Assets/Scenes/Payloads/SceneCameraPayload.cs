@@ -8,11 +8,11 @@ namespace Engine;
 /// </summary>
 /// <remarks>
 /// <para>
-/// USD authors cameras in <i>physical</i> units to match real-world DCC tools (Maya, Houdini,
-/// Blender) and renderers (Karma, Cycles, Arnold). The runtime <see cref="Camera"/> only
-/// needs a vertical FOV, so this payload exposes <see cref="VerticalFovRadians"/> as a
-/// computed convenience while keeping the physical inputs, with <see cref="FocusDistance"/>
-/// and <see cref="FStop"/>, so a writer gives them back as the file had them.
+/// USD authors cameras in <i>physical</i> units, a film back and a lens's focal length in
+/// millimeters. The runtime <see cref="Camera"/> only needs a vertical FOV, so this payload
+/// exposes <see cref="VerticalFovRadians"/> as a computed convenience while keeping the
+/// physical inputs, with <see cref="FocusDistance"/> and <see cref="FStop"/>, so a writer
+/// gives them back as the file had them.
 /// </para>
 /// </remarks>
 internal sealed class SceneCameraPayload

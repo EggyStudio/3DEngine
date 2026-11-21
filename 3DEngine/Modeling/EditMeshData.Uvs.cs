@@ -5,8 +5,7 @@ namespace Engine;
 // The faces' texture coordinates, projected onto the selected faces along a direction, from a box,
 // about a cylinder's axis or round a sphere's middle, moved, scaled and turned, set to a texel
 // density and put back to the world-aligned default, each a line of the recipe, so a saved model's
-// coordinates are made again with its shape. The same words make the same coordinates in
-// BevyCSharp's edit mesh.
+// coordinates are made again with its shape.
 internal sealed partial class EditMeshData
 {
     /// <summary>

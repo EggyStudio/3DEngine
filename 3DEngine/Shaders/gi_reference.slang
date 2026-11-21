@@ -243,10 +243,10 @@ float3 direct(float3 p, float3 face, float3 n, float3 color, float3 v, bool glos
     return sum;
 }
 
-// The share of light from all around that a face reflects by Brian Karis's fit, which the first
-// face's specular way is drawn against its diffuse way by. Each way's light is divided by its
-// chance, so the fit sets how often each is drawn and not what the path brings back, and the model
-// pass's table (SpecularShares) is not needed here.
+// The share of light from all around that a face reflects by the analytic fit for mobile, which
+// the first face's specular way is drawn against its diffuse way by. Each way's light is divided by
+// its chance, so the fit sets how often each is drawn and not what the path brings back, and the
+// model pass's table (SpecularShares) is not needed here.
 float3 ambientReflected(float3 f0, float roughness, float nv)
 {
     float4 c0 = float4(-1.0, -0.0275, -0.572, 0.022);
@@ -262,8 +262,8 @@ float luminanceOf(float3 c)
     return dot(c, float3(0.2126, 0.7152, 0.0722));
 }
 
-// A half way about n seen from v drawn by GGX's distribution of the normals v sees, as Heitz drew
-// them in 2018, so every way drawn reflects toward v and none is wasted under the face.
+// A half way about n seen from v drawn by GGX's distribution of the normals v sees, so every way
+// drawn reflects toward v and none is wasted under the face.
 float3 visibleNormal(float3 n, float3 v, float alpha, inout uint state)
 {
     float3 side = abs(n.y) < 0.99 ? normalize(cross(n, float3(0, 1, 0))) : float3(1, 0, 0);

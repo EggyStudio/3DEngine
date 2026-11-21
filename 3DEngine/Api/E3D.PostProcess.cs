@@ -273,8 +273,8 @@ public static partial class E3D
 
     /// <summary>
     /// Chooses the curve that brings the scene's light past 1 under it, the engine's own, which
-    /// leaves colors under 0.9 as they are, Narkowicz's fit of ACES, a cut at 1, or one of eight
-    /// more by their usual names.
+    /// leaves colors under 0.9 as they are, a fit of ACES's curve, a cut at 1, or one of eight more
+    /// by their usual names.
     /// </summary>
     /// <remarks>
     /// <see cref="Tonemap.AgX"/>, <see cref="Tonemap.TonyMcMapface"/> and

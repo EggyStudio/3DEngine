@@ -7,7 +7,7 @@ namespace Engine;
 /// <remarks>
 /// It is added with <see cref="EcsWorld.DespawnOnEnter{TState}(int, TState)"/>, the other edge of
 /// <see cref="DespawnOnExit{TState}"/>. The despawn comes before the value's <c>[OnEnter]</c>
-/// systems, so what they spawn is not taken with it, as Bevy's <c>DespawnOnEnter</c> does.
+/// systems, so what they spawn is not taken with it.
 /// </remarks>
 /// <typeparam name="TState">The enum of the state.</typeparam>
 /// <param name="Value">The value whose entering takes the entity.</param>

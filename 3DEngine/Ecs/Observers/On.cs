@@ -3,8 +3,8 @@ namespace Engine;
 /// <summary>What an observer is handed, the event and the entity it has reached.</summary>
 /// <typeparam name="TEvent">The event observed.</typeparam>
 /// <remarks>
-/// Bevy's <c>On</c>. One is made for each trigger and handed to each observer in turn, so an
-/// observer that changes <see cref="Event"/> hands the changed event to the observers after it.
+/// One is made for each trigger and handed to each observer in turn, so an observer that changes
+/// <see cref="Event"/> hands the changed event to the observers after it.
 /// </remarks>
 public sealed class On<TEvent>
 {

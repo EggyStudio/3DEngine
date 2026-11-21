@@ -2,18 +2,18 @@
 // back in the world through the inverse of the camera's view-projection, its surface's normal
 // found from the pixels beside it, and the share of the light from all around that reaches it,
 // weighed by the cosine, is integrated over the horizons the depth gives along two slices through
-// the eye's way, as Jimenez, Wu, Pesce and Jarabo's ground-truth ambient occlusion has it, so a
-// floor darkens where a wall meets it and a corner more than either wall. The slices turn each frame
-// and a history pass blends each pixel with what it held the frame before, found through the frame
-// before's view-projection, so the frames together read many slices. A pass across and a pass down
-// then blur the result, each tap weighed by how near its distance from the eye is to the pixel's,
-// so the darkening keeps to the surface it is on and does not cross an edge.
-// Where the scene's distance field is built, the occlusion is also read from it, along the normal
-// and four ways leaning from it, which finds what closes a point off beyond what the window shows,
-// and the sun's light is traced toward the sun through it for soft contact shadows, which the green
-// channel carries to the model pass and the blurs blur with the occlusion.
-// The occlusion may instead be read from circular occluders (CircularOccluders, ao_cortao_*.slang),
-// worked out ahead of this pass, which the history and blurs then take as they take the horizons'.
+// the eye's way, as ground-truth ambient occlusion has it, so a floor darkens where a wall meets it
+// and a corner more than either wall. The slices turn each frame and a history pass blends each
+// pixel with what it held the frame before, found through the frame before's view-projection, so
+// the frames together read many slices. A pass across and a pass down then blur the result, each
+// tap weighed by how near its distance from the eye is to the pixel's, so the darkening keeps to
+// the surface it is on and does not cross an edge. Where the scene's distance field is built, the
+// occlusion is also read from it, along the normal and four ways leaning from it, which finds what
+// closes a point off beyond what the window shows, and the sun's light is traced toward the sun
+// through it for soft contact shadows, which the green channel carries to the model pass and the
+// blurs blur with the occlusion. The occlusion may instead be read from circular occluders
+// (CircularOccluders, ao_cortao_*.slang), worked out ahead of this pass, which the history and
+// blurs then take as they take the horizons'.
 import fullscreen;
 import scenefield;
 
@@ -94,9 +94,9 @@ float3 worldAt(float2 uv, float d)
     return world.xyz / world.w;
 }
 
-// A threshold from 0 to 1 for each pixel, spread evenly over a small neighborhood (Jorge Jimenez's
-// interleaved gradient noise), which turns each pixel's spiral so the blur averages twelve
-// different ones rather than showing one twelve times.
+// A threshold from 0 to 1 for each pixel, spread evenly over a small neighborhood (interleaved
+// gradient noise), which turns each pixel's spiral so the blur averages twelve different ones
+// rather than showing one twelve times.
 float noise(float2 pixel)
 {
     return frac(52.9829189 * frac(dot(pixel, float2(0.06711056, 0.00583715))));
@@ -209,7 +209,8 @@ float2 occlude(float2 uv, float2 pixel)
     float frame = push.mode.w;
     float turn = frac(noise(pixel) + frame * 0.618034);
     float offset = frac(noise(pixel.yx + 11.0) + frame * 0.754878);
-    // A surface fades out of a horizon from 0.385 of the radius to the radius (XeGTAO's falloff).
+    // A surface fades out of a horizon from 0.385 of the radius to the radius, so a wall entering
+    // the radius darkens a pixel gradually rather than at once.
     float fade = 0.615 * radius;
 
     float seen = 0.0;

@@ -4,8 +4,7 @@ namespace Engine;
 
 // The material slots, each a name with a look, added, renamed and taken away, and given a color, a
 // texture and the maps of the engine's material, every change a line of the recipe as a change of
-// the shape is, so a saved model is drawn as it was left. The same words give the same slots in
-// BevyCSharp's edit mesh.
+// the shape is, so a saved model is drawn as it was left.
 internal sealed partial class EditMeshData
 {
     private readonly List<SlotLook> _looks = [new()];

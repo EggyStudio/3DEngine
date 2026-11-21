@@ -6,8 +6,8 @@ namespace Engine;
 /// </summary>
 /// <remarks>
 /// It runs after the exit systems of <see cref="From"/> and before the enter systems of
-/// <see cref="To"/>, as Bevy's <c>OnTransition</c> does. Both are values of the same enum, which
-/// the generator reports as E3D004 when they are not.
+/// <see cref="To"/>. Both are values of the same enum, which the generator reports as E3D004 when
+/// they are not.
 /// </remarks>
 /// <example>
 /// <code>

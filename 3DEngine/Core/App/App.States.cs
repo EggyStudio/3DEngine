@@ -39,8 +39,8 @@ public sealed partial class App
     /// The parent is added first. When the parent enters <paramref name="whileIn"/> the sub-state is
     /// created and entered at <paramref name="initial"/> in the same transition point, and when it
     /// leaves, the sub-state's exit systems run and it goes away, so <c>InState</c> of any of its
-    /// values is false and a move queued for it is dropped. Bevy's pause that exists only while
-    /// playing is one.
+    /// values is false and a move queued for it is dropped. A pause that exists only while the
+    /// game is playing is one, as in the example.
     /// </remarks>
     /// <example>
     /// <code>
@@ -76,8 +76,8 @@ public sealed partial class App
     /// The computed state moves in the same transition point as its source and after it, whichever
     /// was made first, running its own exit and enter systems, so its <c>InState</c> systems see a
     /// value only once it is entered. Its <see cref="NextState{TState}"/> is the source's to set,
-    /// not the program's. Bevy's computed states are the model, such as an <c>InGame</c> that holds
-    /// for each of several playing screens.
+    /// not the program's. One such state is an <c>InGame</c> that holds for each of several
+    /// playing screens.
     /// </remarks>
     /// <returns>This <see cref="App"/> for chaining.</returns>
     public App AddComputedState<TComputed, TSource>(Func<TSource, TComputed?> compute)

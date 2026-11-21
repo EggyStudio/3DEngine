@@ -1,11 +1,11 @@
 // Subsurface scattering over the window's frame, the light that enters a surface leaving it
-// nearby, as Jimenez's separable screen-space scattering spreads it. The diffuse light of the
-// pixels subsurface.slang marked is spread across, then down, each of red, green and blue by a
-// Gaussian whose width is its share of the material's radius over three, so a channel that travels
-// farther blurs farther, and the pass down adds the spread light in place of the light that was
-// there to the decoded frame. A tap that is not marked, or that lies farther from the eye than the
-// radius from the pixel's distance, is left out, so the spread never reaches an unmarked surface
-// nor crosses a depth edge, and an unmarked pixel is never touched. The radius is in world units,
+// nearby, as separable screen-space scattering spreads it. The diffuse light of the pixels
+// subsurface.slang marked is spread across, then down, each of red, green and blue by a Gaussian
+// whose width is its share of the material's radius over three, so a channel that travels farther
+// blurs farther, and the pass down adds the spread light in place of the light that was there to
+// the decoded frame. A tap that is not marked, or that lies farther from the eye than the radius
+// from the pixel's distance, is left out, so the spread never reaches an unmarked surface nor
+// crosses a depth edge, and an unmarked pixel is never touched. The radius is in world units,
 // turned into pixels at each pixel's distance from the eye.
 import fullscreen;
 

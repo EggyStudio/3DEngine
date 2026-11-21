@@ -5,7 +5,7 @@ namespace Engine;
 /// stops it with <see cref="On{TEvent}.Propagate"/> or it reaches the root.
 /// </summary>
 /// <remarks>
-/// Bevy's propagating <c>EntityEvent</c>, as a hit on an arm that the body it belongs to hears of
-/// too, where armor on the arm may stop it.
+/// A hit on an arm is one, which the body the arm belongs to hears of too, where armor on the arm
+/// may stop it.
 /// </remarks>
 public interface IPropagatingEvent : IEntityEvent;

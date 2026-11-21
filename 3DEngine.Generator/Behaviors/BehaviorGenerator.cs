@@ -27,9 +27,9 @@ namespace Engine;
 /// component) and left out, so the error is on the method rather than in generated code. A field holding a reference to
 /// what can change is warned of (E3D006), since every copy of the behavior shares it, where a
 /// string, or a record or sealed class every field of which is readonly and holds what nothing can
-/// change, as the item a stack of a voxel game holds, is shared safely. An enum with
-/// <c>[SubStateOf]</c> and a method with <c>[ComputedState]</c> are added as states by the same
-/// registration, ahead of the behaviors, and one that cannot be is reported (E3D007).
+/// change, such as the item a stack holds, is shared safely. An enum with <c>[SubStateOf]</c> and a
+/// method with <c>[ComputedState]</c> are added as states by the same registration, ahead of the
+/// behaviors, and one that cannot be is reported (E3D007).
 /// </para>
 /// </remarks>
 [Generator(LanguageNames.CSharp)]
@@ -640,7 +640,7 @@ internal sealed class BehaviorGenerator : IIncrementalGenerator
 
     /// <summary>Generates one system method body (static dispatch or chunked parallel iteration).</summary>
     /// <remarks>
-    /// Non-static optimizations applied (Arch/Bevy ECS patterns):
+    /// Non-static optimizations applied:
     /// <list type="number">
     ///   <item><description>Pre-resolve all World resources once (avoid ConcurrentDictionary lookups per thread/chunk).</description></item>
     ///   <item><description>Direct array access + ref var (no struct copies, no method call overhead).</description></item>
@@ -670,8 +670,9 @@ internal sealed class BehaviorGenerator : IIncrementalGenerator
         var seqChecks = (hasFilters ? GenFilterChecks(m.Filters, "                ") : "") + GenComponentLookups(m.Components, "                ", threadSafe: false);
         var arguments = string.Concat(m.Components.Select((c, i) => $", {(c.Writes ? "ref" : "in")} __c{i}.ComponentRefByDenseIndex(__d{i})"));
         // A method that may write the behavior's fields marks it changed, as GetRef marks what it
-        // hands out, so a [Changed] filter on the behavior sees it. Parallel runs set the bit
-        // atomically, since neighboring entities share a word of bits.
+        // hands out, so a [Changed] filter on the behavior sees it. Parallel runs mark it through
+        // the thread-safe call, which raises the store's latest change atomically, since systems in
+        // parallel mark the same store.
         var parMark = m.IsReadOnly ? "" : "                        __store.MarkChangedByDenseIndexThreadSafe(__i);";
         var seqMark = m.IsReadOnly ? "" : "                __store.MarkChangedByDenseIndex(__i, 0);";
 

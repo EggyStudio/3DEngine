@@ -13,9 +13,9 @@ namespace Engine;
 /// overshoot). Frame count is <c>Samples.Length / Channels</c>.
 /// </para>
 /// <para>
-/// <b>Why float-PCM only:</b> SDL3's audio mixer and Steam Audio both process in
-/// float internally; decoding once to float keeps the upload path uniform and avoids
-/// per-format quantisation drift in the spatial pipeline.
+/// <b>Why float-PCM only:</b> SDL3's audio mixer processes in float, so decoding once
+/// to float keeps the upload path the same for every format and avoids per-format
+/// quantization drift in the spatial pipeline.
 /// </para>
 /// </remarks>
 /// <seealso cref="ISoundDecoder"/>

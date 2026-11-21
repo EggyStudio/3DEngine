@@ -2,7 +2,7 @@
 // reflects it, as EnvironmentMap prefilters an environment, the first level a mirror's, read
 // blurred to the solid angle its texel covers, and each level after by GGX importance sampling
 // on a Hammersley set around the direction it is looked up by, each sample read from the level
-// of the gathered cube its own solid angle blurs over, as Brian Karis's split sum takes it.
+// of the gathered cube its own solid angle blurs over, as the split sum takes it.
 import probecube;
 
 [[vk::binding(0, 0)]] SamplerCube source;

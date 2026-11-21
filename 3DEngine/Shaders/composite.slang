@@ -23,7 +23,7 @@ float3 reinhardLuminance(float3 c)
     return l > 0.0 ? c * (1.0 / (1.0 + l)) : float3(0.0);
 }
 
-// Stephen Hill's fit of ACES's reference and output transforms, from MJP's BakingLab.
+// A fit of ACES's reference and output transforms between two color matrices.
 float3 acesFitted(float3 c)
 {
     float3 v = float3(dot(c, float3(0.59719, 0.35458, 0.04823)), dot(c, float3(0.07600, 0.90834, 0.01566)),
@@ -38,9 +38,8 @@ float boringCurve(float v)
     return 1.0 - exp(-v);
 }
 
-// Tomasz Stachowiak's somewhat boring display transform, the luminance bent and the color scaled
-// with it, mixed toward each channel bent alone as the color grows saturated, and desaturated as
-// it grows bright.
+// The somewhat boring display transform, the luminance bent and the color scaled with it, mixed
+// toward each channel bent alone as the color grows saturated, and desaturated as it grows bright.
 float3 somewhatBoring(float3 c)
 {
     float3 ycbcr = float3(luminance(c), dot(c, float3(-0.1146, -0.3854, 0.5)), dot(c, float3(0.5, -0.4542, -0.0458)));
@@ -69,7 +68,7 @@ float3 lookUp(float3 at, float size)
     return frameTable.SampleLevel(at * ((size - 1.0) / size) + 0.5 / size, 0).rgb;
 }
 
-// Troy Sobotka's AgX: the color through AgX's inset, as log2 stops from -10 to 6.5, looked up.
+// AgX, the color through AgX's inset, as log2 stops from -10 to 6.5, looked up.
 float3 agx(float3 c)
 {
     c = float3(dot(c, float3(0.84247906, 0.0784336, 0.07922375)), dot(c, float3(0.04232824, 0.87846864, 0.07916613)),
@@ -77,13 +76,13 @@ float3 agx(float3 c)
     return lookUp(saturate(normalizedLog2(c, -10.0, 6.5)), 32.0);
 }
 
-// Tomasz Stachowiak's Tony McMapface, the color over one plus itself looked up in a table 48 a side.
+// Tony McMapface, the color over one plus itself looked up in a table 48 a side.
 float3 tonyMcMapface(float3 c)
 {
     return frameTable.SampleLevel(saturate(c / (c + 1.0) * (47.0 / 48.0) + 0.5 / 48.0), 0).rgb;
 }
 
-// Blender's filmic view transform, the color as log2 stops from -11 to 12 looked up.
+// The Filmic view transform, the color as log2 stops from -11 to 12 looked up.
 float3 blenderFilmic(float3 c)
 {
     return lookUp(saturate(normalizedLog2(c, -11.0, 12.0)), 64.0);

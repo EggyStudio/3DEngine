@@ -2,7 +2,7 @@ using System.Numerics;
 
 namespace Engine;
 
-/// <summary>Something the mouse did to an entity a picking camera draws, as Bevy's <c>Pointer&lt;E&gt;</c>.</summary>
+/// <summary>Something the mouse did to an entity a picking camera draws.</summary>
 /// <typeparam name="TEvent">What it did, one of <see cref="Over"/>, <see cref="Click"/>, <see cref="Drag"/> and the rest.</typeparam>
 /// <param name="Entity">The entity it did it to, the nearest one under the pointer, or the one a drag started on.</param>
 /// <param name="Position">Where the pointer is, in window pixels from the top left corner.</param>
