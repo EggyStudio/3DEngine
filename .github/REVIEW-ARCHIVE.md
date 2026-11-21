@@ -10595,6 +10595,28 @@ here, and the copy of the player's save is let go, made again on request. The lo
     a finding that does not hold says why. The three high ones after part 8's commit, beside the
     binds' session; the medium ones after 272 and ahead of 265, the low ones after 265.
 
+298. **The day's sweep against the norm.** A read of the tree against NORM.md found some 310 lines,
+    each to mend in place with no change of behavior; the list by file and line went to the coder.
+    Verdict numbers and a fault's account in `build/raylib-bench/compare.py:35` and 40 and
+    `build/step.py:17`. Test comments that explain by a game on the engine or by an outside scene,
+    55 lines in 32 files and 17 in 12, most telling the fault that led to the test; each says what
+    the test's own scene holds and what must be true of it. Public comments of the package that
+    liken to another engine, 41 lines in 35 files under `Core`, `Ecs`, `Rendering/Picking` and
+    `Behaviors`, seven more by the other engine's words and a sessions' file, and
+    `E3D.Prototypes.cs:16`. The ambient occlusion's 29 lines that name its source's maker, commit
+    and files, and some 30 lines that name a method's authors; a method keeps its name, its source
+    stands once in the references. Readings and one run's facts in `FrameEffectsTests.cs:110`,
+    `SceneFieldTests.cs:79`, `SceneFieldTests.Budget.cs:13` and 83, `DeviceMemoryTests.cs:53`,
+    `TonemapTests.cs:19`, `ScenesSponza.cs:111`. Games named in the examples' comments. A four-byte
+    value called a word in five comments. British spellings, some 60 lines, most in
+    `games/FeatureTest` with one shown label, and in `build/drive-game.sh:889` and 904,
+    `Sound.cs:18`, `pack.yml:35`. The sentence in `E3D.Lights.cs:247` on which mode is the default
+    goes with item 293. Bounds' reasons in the workflows and the device versions in
+    `GraphicsDevice.Instance.cs:44` stay. In the Sky module, the comments that name a game, another
+    engine's tonemapper, a shader pack and one renderer five times in `Atmosphere.cs`, the scene's
+    recipe and a stray line in `SunTests.cs:10` to 12. Two or three commits by folder, after item
+    296, STYLE's own searches run and counted in the Reply.
+
 ## Verdicts settled
 
 Verdicts 1 to 55 are settled, the last two, the drawing leak test's resident bound and the Windows
@@ -20195,6 +20217,79 @@ compiler's, the field's, global illumination's, the bounce rooms', the cascades'
 reference frames', the open box's, the glow tier's, the screen probes' and the norm's tests pass,
 342 of 342. The suite passes in its parts in order, 2,531 of 2,531 in 24 minutes, and shuffled by
 the seed 20261023, 2,531 of 2,531 in 24 minutes.
+
+Item 298, the day's sweep against the norm.
+
+What changed. Comments, documentation and script prose alone, in 142 files, besides two things
+that are seen. `build/drive-game.sh`'s failure message for the bounce room says "color" where it
+said "colour", and FeatureTest's interface window labels its color editor "Color" where it said
+"Colour", which changes that editor's ImGui ID with it and nothing else reads it. FeatureTest's
+status strings keep their spelling, since a status string is shown too and the item named one
+label.
+
+- Verdicts and fault accounts. `compare.py` and `step.py` say what their output is for without the
+  verdicts, and `measured-ci.tsv` drops the verdict and the commits from its note on the two
+  processors.
+- Tests explained by a game on the engine or by an outside scene. Each comment says what the test's
+  own scene holds and what must be true of it, and a fault the test guards against is told as what
+  would happen.
+- Likenings to another engine. No comment of the package likens itself to another engine, the
+  picking events, the observers, the states and the schedule saying what each does.
+  `E3D.Prototypes.cs` already described the palette in its own terms on main.
+- The ambient occlusion's source and the methods' authors. The method stays the circular
+  occluders, its maker, commit and outside files gone from its comments, and a method is named by
+  what it does or by its name alone, ACES, AgX, Tony McMapface, the split sum and the rest kept as
+  terms. Each source stands once in a table at the end of `.github/RENDERING.md`.
+- Readings and one run's facts. The lines the item named say what the code does and why.
+- Games in the examples, a four-byte value called a word, a uint in its place, and British
+  spellings.
+
+Left out. The three files the passes of item 265 change in my worktree,
+`DebugOverlay.Lines.cs`, `BounceReference.cs` and `GlobalIlluminationCommands.cs`, take their part
+of the sweep in that item's commit, so it does not meet its own sweep. The Sky module's lines are
+its session's to write and go to it through the review, with no pointer move. Test names and
+assertion messages, being code, `CircularOccluders`' exception message and debug image names,
+`CircularOccludersTests`, which holds the source's table as its comparison, the scene field's
+packed cell called a word throughout, `measured-ci.tsv`'s lines naming a run by its commit,
+NORM.md's "cancelled" under its own change rule, the code of conduct's adopted text, the overlay's
+"towards", which its tests assert, and `TonemapCurveTests`' `Bsl` and `Modpacks`, names in the code.
+`E3D.Lights.cs:247` goes with item 293.
+
+The touched files' comment lines past 100 columns are wrapped again, in nine C# files and
+FeatureTest's project.
+
+STYLE's searches, each as STYLE.md gives it, counted in a clean checkout of `d8cc7f96` and of the
+sweep. The dashes, 3 and 3. A hyphen between words in a comment or a string, 110 and 109. A colon in
+a comment's running sentence, 311 and 304. The words about bouncing and driving, 739 and 736. The
+idioms, 34 and 34. Another engine, a review file or a verdict in a comment, 39 and 28. A reading in
+a comment, 211 and 212, the one more a parameter's range, "from 0 to 1", in `AmbientOcclusion.cs`.
+The rules drawn in comments, 0 and 0. "Wants" and "is what", 51 and 50. A document telling its own
+past, 4 and 4. A path into `.ref/`, 3 and 3.
+
+The commits, by folder. The engine's at `9d560588`, the tests' at `a7c961d3`, and the examples', the
+games', the scripts' and the documents' with this Reply.
+
+The runs. The tree builds strict with no warnings. The norm's, the examples', the package's and the
+documents' tests pass, 30 of 30. The suite passes in its parts in order, 2,531 of 2,532 in 23
+minutes, and shuffled by the seed 20261023, 2,530 of 2,532 in 23 minutes. The one in order and one
+shuffled is `CheatsheetTests`, whose page the sweep's summaries change, written again with
+`build/cheatsheet.sh`, a line, after which its class and the observers' pass, 13 of 13. The other
+shuffled is `ObserverTests`' allocation test, which counted 3,616 bytes on its own thread in that
+order and passes alone, five runs of five, a count the sweep's comments do not reach.
+
+Handoff, at `0a223de1`. The Sky pointer is at `9040738` in `c20870f2`, `a29f0efc`, `777e051f` and
+`0a223de1`, the GPU sky drawn from the module's tables, made on a worker, the disc and the night's
+glow the module's, and the Sponza match read again, and the gallery's pictures at `98b68167`. Next
+in order is item 265's probe passes from RadianceCascades at `6622616`, `traceTexel`, `reachTexel`,
+`settleTexel`, `mergeTexel` and `gatherAt` over the four interfaces its README names, a cascade's
+end set by its README's rule and said in the Reply with the ends before, the open box's floor read
+before and after, 1.142 at High, 1.099 at Medium and 0.805 at Low of the dome's share before against
+the reference's 1.000, then the field's kernels left from `987e963`, the resolve with its pinch, the
+distance read, the march, the splat's codes and paint and the stamp. Then 298, 299, 300, 288, 292,
+293, 294, 289, 290, and 301 after 265. Nothing is held open here. A fresh session reads AGENTS.md,
+this file's head, its Now list and these Replies from item 265's read on, and NORM.md's 7.9, 4.11
+and 4.12, runs the Tools module's `scripts/commitcheck.py` and `build/examples-table.py --check`
+before each commit, and raises a waiting mark only while it waits for the lock held exclusive.
 
 ## Items closed, parked or shortened
 

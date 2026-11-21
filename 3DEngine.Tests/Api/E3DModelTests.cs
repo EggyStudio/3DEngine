@@ -373,6 +373,19 @@ public sealed class E3DModelTests : IDisposable
     }
 
     [Fact]
+    public void A_GLTF_Base_Color_Factor_Is_Drawn_At_Its_Own_Linear_Value()
+    {
+        // glTF gives a material's base color factor in linear light and the model pass decodes a
+        // material's color from sRGB, so a factor of a half reads a half at the instance, a quarter
+        // a quarter and 1 whole, and its alpha, linear in both, a half.
+        var color = LoadModel(WriteTriangleWithMaterial("""{"pbrMetallicRoughness":{"baseColorFactor":[0.5,0.25,1,0.5]}}""")).Materials[0].Color;
+        var linear = ModelRenderer.Instance.Linear;
+        new[] { linear[color.R], linear[color.G], linear[color.B], color.A / 255f }.Should().BeEquivalentTo(
+            new[] { 0.5f, 0.25f, 1f, 0.5f }, o => o.WithStrictOrdering().Using<float>(c => c.Subject.Should().BeApproximately(c.Expectation, 0.005f)).WhenTypeIs<float>(),
+            $"the factor is linear, read back from the bytes {color.R}, {color.G}, {color.B} and {color.A}");
+    }
+
+    [Fact]
     public void An_Obj_That_Names_No_Material_Is_White_As_Raylibs_Default_Material_Is()
     {
         var path = Path.Combine(_folder.Path, "bare.obj");

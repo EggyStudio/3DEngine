@@ -195,8 +195,12 @@ public static partial class E3D
             }
             if (materialIndex.TryGetValue(material, out var index)) return index;
 
-            var c = Vector4.Clamp(material.BaseColorFactor, Vector4.Zero, Vector4.One) * 255;
-            materials.Add(new ModelMaterial(new Color((byte)c.X, (byte)c.Y, (byte)c.Z, (byte)c.W), TextureAt(material.BaseColorTexture))
+            // The factor is linear, as glTF gives it, and a material's color is held in sRGB bytes,
+            // which the model pass decodes, so its color is encoded and its alpha, linear in both,
+            // kept.
+            var c = Vector4.Clamp(material.BaseColorFactor, Vector4.Zero, Vector4.One);
+            var color = new Color(Srgb.EncodeByte(c.X), Srgb.EncodeByte(c.Y), Srgb.EncodeByte(c.Z), (byte)MathF.Round(c.W * 255));
+            materials.Add(new ModelMaterial(color, TextureAt(material.BaseColorTexture))
             {
                 Metallic = Math.Clamp(material.MetallicFactor, 0, 1),
                 Roughness = Math.Clamp(material.RoughnessFactor, 0, 1),

@@ -52,7 +52,8 @@ internal sealed partial class AssimpModelReader
 
             // glTF says how its alpha is meant, which Assimp passes on as material keys. A format
             // without them blends when its opacity is below one.
-            var alphaMode = m.GetNonTextureProperty("$mat.gltf.alphaMode")?.GetStringValue() switch
+            var gltfAlpha = m.GetNonTextureProperty("$mat.gltf.alphaMode");
+            var alphaMode = gltfAlpha?.GetStringValue() switch
             {
                 "MASK" => SceneAlphaMode.Mask,
                 "BLEND" => SceneAlphaMode.Blend,
@@ -60,7 +61,10 @@ internal sealed partial class AssimpModelReader
                 _ => readsOpacity && m.HasOpacity && m.Opacity < 1f ? SceneAlphaMode.Blend : SceneAlphaMode.Opaque,
             };
             var alphaCutoff = m.GetNonTextureProperty("$mat.gltf.alphaCutoff") is { } cutoff ? cutoff.GetFloatValue() : 0.5f;
-            var opacity = readsOpacity && m.HasOpacity ? m.Opacity : 1f;
+            // A format with its opacity apart from its diffuse color takes the two together, where
+            // glTF's base color factor holds its alpha already, which Assimp hands on as the
+            // opacity too, and taken twice a half would read a quarter.
+            var opacity = readsOpacity && m.HasOpacity && gltfAlpha is null ? m.Opacity : 1f;
             diffuse.W = opacity * diffuse.W;
 
             // A format that does not say, as OBJ, draws both sides, so a face of such a file seen

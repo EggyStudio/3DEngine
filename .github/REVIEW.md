@@ -421,28 +421,6 @@ changes.
     scene of the engine's own that the first frame with a view makes none of them. After items 288
     and 292, whose buffers are the same scene's.
 
-298. **The day's sweep against the norm.** A read of the tree against NORM.md found some 310 lines,
-    each to mend in place with no change of behavior; the list by file and line went to the coder.
-    Verdict numbers and a fault's account in `build/raylib-bench/compare.py:35` and 40 and
-    `build/step.py:17`. Test comments that explain by a game on the engine or by an outside scene,
-    55 lines in 32 files and 17 in 12, most telling the fault that led to the test; each says what
-    the test's own scene holds and what must be true of it. Public comments of the package that
-    liken to another engine, 41 lines in 35 files under `Core`, `Ecs`, `Rendering/Picking` and
-    `Behaviors`, seven more by the other engine's words and a sessions' file, and
-    `E3D.Prototypes.cs:16`. The ambient occlusion's 29 lines that name its source's maker, commit
-    and files, and some 30 lines that name a method's authors; a method keeps its name, its source
-    stands once in the references. Readings and one run's facts in `FrameEffectsTests.cs:110`,
-    `SceneFieldTests.cs:79`, `SceneFieldTests.Budget.cs:13` and 83, `DeviceMemoryTests.cs:53`,
-    `TonemapTests.cs:19`, `ScenesSponza.cs:111`. Games named in the examples' comments. A four-byte
-    value called a word in five comments. British spellings, some 60 lines, most in
-    `games/FeatureTest` with one shown label, and in `build/drive-game.sh:889` and 904,
-    `Sound.cs:18`, `pack.yml:35`. The sentence in `E3D.Lights.cs:247` on which mode is the default
-    goes with item 293. Bounds' reasons in the workflows and the device versions in
-    `GraphicsDevice.Instance.cs:44` stay. In the Sky module, the comments that name a game, another
-    engine's tonemapper, a shader pack and one renderer five times in `Atmosphere.cs`, the scene's
-    recipe and a stray line in `SunTests.cs:10` to 12. Two or three commits by folder, after item
-    296, STYLE's own searches run and counted in the Reply.
-
 299. **Edges without history.** Asked on 2026-11-17 and agreed the same evening, three parts, each
     whole in a frame with no history. One, alpha to coverage for masked materials where the frame is
     multisampled, the cutout's edge sharpened by the alpha's screen derivative so a leaf keeps its
@@ -1131,75 +1109,39 @@ holds the README to the list, and the sentence above the tables says how they ru
 shows the same 285 pictures, none made again, and the norm's tests pass, 17 of 17. This commit also
 carries the review's archive, whose move out of this file came in with `c9ed241e`.
 
-Item 298, the day's sweep against the norm.
+Item 300, a glTF material's base color factor read back as sRGB.
 
-What changed. Comments, documentation and script prose alone, in 142 files, besides two things
-that are seen. `build/drive-game.sh`'s failure message for the bounce room says "color" where it
-said "colour", and FeatureTest's interface window labels its color editor "Color" where it said
-"Colour", which changes that editor's ImGui ID with it and nothing else reads it. FeatureTest's
-status strings keep their spelling, since a status string is shown too and the item named one
-label.
+The cause. `E3D.Models.cs` wrote a glTF material's base color factor, linear as glTF gives it,
+straight into a color's bytes, which the model pass decodes as sRGB, so a factor of a half drew at
+0.212. And the Assimp reader took glTF's alpha twice, since Assimp hands the factor's alpha on in
+the diffuse color and as the opacity both, which it multiplied, so a half read a quarter.
 
-- Verdicts and fault accounts. `compare.py` and `step.py` say what their output is for without the
-  verdicts, and `measured-ci.tsv` drops the verdict and the commits from its note on the two
-  processors.
-- Tests explained by a game on the engine or by an outside scene. Each comment says what the test's
-  own scene holds and what must be true of it, and a fault the test guards against is told as what
-  would happen.
-- Likenings to another engine. No comment of the package likens itself to another engine, the
-  picking events, the observers, the states and the schedule saying what each does.
-  `E3D.Prototypes.cs` already described the palette in its own terms on main.
-- The ambient occlusion's source and the methods' authors. The method stays the circular
-  occluders, its maker, commit and outside files gone from its comments, and a method is named by
-  what it does or by its name alone, ACES, AgX, Tony McMapface, the split sum and the rest kept as
-  terms. Each source stands once in a table at the end of `.github/RENDERING.md`.
-- Readings and one run's facts. The lines the item named say what the code does and why.
-- Games in the examples, a four-byte value called a word, a uint in its place, and British
-  spellings.
+The mend. The factor's color is encoded to sRGB where it is written, a material's color held in sRGB
+bytes as every color the engine keeps is, since every reader of it decodes it so, rather than kept
+linear end to end, and its alpha, linear in both, is kept as it is. The reader takes a format's
+opacity apart from its diffuse color only where the file gives none of glTF's alpha keys.
 
-Left out. The three files the passes of item 265 change in my worktree,
-`DebugOverlay.Lines.cs`, `BounceReference.cs` and `GlobalIlluminationCommands.cs`, take their part
-of the sweep in that item's commit, so it does not meet its own sweep. The Sky module's lines are
-its session's to write and go to it through the review, with no pointer move. Test names and
-assertion messages, being code, `CircularOccluders`' exception message and debug image names,
-`CircularOccludersTests`, which holds the source's table as its comparison, the scene field's
-packed cell called a word throughout, `measured-ci.tsv`'s lines naming a run by its commit,
-NORM.md's "cancelled" under its own change rule, the code of conduct's adopted text, the overlay's
-"towards", which its tests assert, and `TonemapCurveTests`' `Bsl` and `Modpacks`, names in the code.
-`E3D.Lights.cs:247` goes with item 293.
+The test. `E3DModelTests.A_GLTF_Base_Color_Factor_Is_Drawn_At_Its_Own_Linear_Value` loads a triangle
+whose factor is (0.5, 0.25, 1, 0.5) and reads the color its instance takes. Before the mend it reads
+(0.212, 0.050, 1, 0.247), and after it within 0.005 of the factor.
 
-The touched files' comment lines past 100 columns are wrapped again, in nine C# files and
-FeatureTest's project.
+What changes on screen. Sponza's 3 materials of 28 with a factor other than 1, the lamps' glass at
+0.61 where it took 0.33, the black glass as it was, and the dirt decals at their alpha of 0.35 where
+they took 0.12. The Bistro's 132 have none. The games' models with factors, Summit's hero, Jelly's
+two and Tumble's robot, whose gallery captures are taken again on the package that brings this, as
+the games' are. The morph and layer reference frame draws Summit's hero and is recorded again. The
+sheet `2026-11-21-sponza-base-color.webp` shows Sponza's balcony, door and view up metered at noon
+before and after, 15.2%, 5.6% and 17.4% of their pixels moving by 4 levels or more, the dirt decals
+darker and the lamps' glass lighter.
 
-STYLE's searches, each as STYLE.md gives it, counted in a clean checkout of `d8cc7f96` and of the
-sweep. The dashes, 3 and 3. A hyphen between words in a comment or a string, 110 and 109. A colon in
-a comment's running sentence, 311 and 304. The words about bouncing and driving, 739 and 736. The
-idioms, 34 and 34. Another engine, a review file or a verdict in a comment, 39 and 28. A reading in
-a comment, 211 and 212, the one more a parameter's range, "from 0 to 1", in `AmbientOcclusion.cs`.
-The rules drawn in comments, 0 and 0. "Wants" and "is what", 51 and 50. A document telling its own
-past, 4 and 4. A path into `.ref/`, 3 and 3.
+Sponza's readings before the passes, taken again on the mended scene. A turn moves 12.53% of the
+pixels a pair by 4 levels or more and 4.99% by 12, against 12.52% and 5.01% before the mend, the
+walk 23.24% and 4.05% against 23.19% and 4.16%, and what the walk leaves to settle once it stops
+1.33% and 0.17% against 1.34% and 0.17%. The lamps lit settle within 2% of the change in 6 frames
+against 5, and High's trace with the field alone takes 2.06 ms.
 
-The commits, by folder. The engine's at `9d560588`, the tests' at `a7c961d3`, and the examples', the
-games', the scripts' and the documents' with this Reply.
-
-The runs. The tree builds strict with no warnings. The norm's, the examples', the package's and the
-documents' tests pass, 30 of 30. The suite passes in its parts in order, 2,531 of 2,532 in 23
-minutes, and shuffled by the seed 20261023, 2,530 of 2,532 in 23 minutes. The one in order and one
-shuffled is `CheatsheetTests`, whose page the sweep's summaries change, written again with
-`build/cheatsheet.sh`, a line, after which its class and the observers' pass, 13 of 13. The other
-shuffled is `ObserverTests`' allocation test, which counted 3,616 bytes on its own thread in that
-order and passes alone, five runs of five, a count the sweep's comments do not reach.
-
-Handoff, at `0a223de1`. The Sky pointer is at `9040738` in `c20870f2`, `a29f0efc`, `777e051f` and
-`0a223de1`, the GPU sky drawn from the module's tables, made on a worker, the disc and the night's
-glow the module's, and the Sponza match read again, and the gallery's pictures at `98b68167`. Next
-in order is item 265's probe passes from RadianceCascades at `6622616`, `traceTexel`, `reachTexel`,
-`settleTexel`, `mergeTexel` and `gatherAt` over the four interfaces its README names, a cascade's
-end set by its README's rule and said in the Reply with the ends before, the open box's floor read
-before and after, 1.142 at High, 1.099 at Medium and 0.805 at Low of the dome's share before against
-the reference's 1.000, then the field's kernels left from `987e963`, the resolve with its pinch, the
-distance read, the march, the splat's codes and paint and the stamp. Then 298, 299, 300, 288, 292,
-293, 294, 289, 290, and 301 after 265. Nothing is held open here. A fresh session reads AGENTS.md,
-this file's head, its Now list and these Replies from item 265's read on, and NORM.md's 7.9, 4.11
-and 4.12, runs the Tools module's `scripts/commitcheck.py` and `build/examples-table.py --check`
-before each commit, and raises a waiting mark only while it waits for the lock held exclusive.
+The runs. The tree builds strict with no warnings. The model, material, glTF, Assimp, reference
+frames', norm's and examples' tests pass, 163 of 164, the one left the morph and layer frame, and
+with it recorded again the reference frames' tests pass, 30 of 30. The suite passes in its parts in
+order, 2,532 of 2,533 in 24 minutes, and shuffled by the seed 20261023, 2,532 of 2,533 in 25
+minutes, the one left in each that frame before it was recorded again.
