@@ -6,6 +6,14 @@ under `.github/assets/readings` as WebP files named by their day, each on the da
 the notes written beside them as Markdown files named the same way. A line under Done names the item
 of .github/REVIEW.md or .github/REVIEW-ARCHIVE.md and the commit that closed it.
 
+## 2026-11-21
+
+![](.github/assets/readings/2026-11-21-sponza-base-color.webp)
+scenes_sponza metered at noon at the balcony, the door and the view up, before and after a glTF
+material's base color factor is read as the linear value it is, with their difference, red where the
+after is lighter and blue where darker, the dirt decals at their alpha of 0.35 where they took 0.12
+and the lamps' glass at 0.61 where it took 0.33.
+
 ## 2026-11-19
 
 ![](.github/assets/readings/2026-11-19-sky-clear-hours.webp)

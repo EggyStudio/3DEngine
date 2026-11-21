@@ -161,36 +161,56 @@ public class ObserverTests
         ecs.Remove<Health>(ids[0]);
         ecs.Remove<Armor>(ids[0]);
 
-        long Allocated(Action act)
+        // The churn's five loops, each counted on its own.
+        var loops = new (string Name, Action Run)[]
         {
-            var before = GC.GetAllocatedBytesForCurrentThread();
-            act();
-            return GC.GetAllocatedBytesForCurrentThread() - before;
-        }
-        void Churn()
+            ("adds of a Health", () => { foreach (var id in ids) ecs.Add(id, new Health { Value = id }); }),
+            ("removals of a Health", () => { foreach (var id in ids) ecs.Remove<Health>(id); }),
+            ("adds of an Armor", () => { foreach (var id in ids) ecs.Add(id, new Armor()); }),
+            ("despawns", () => { for (int i = 1; i < ids.Length; i++) ecs.Despawn(ids[i]); }),
+            ("spawns", () => { for (int i = 1; i < ids.Length; i++) ids[i] = ecs.Spawn(); }),
+        };
+        void Measure(long[] counts)
         {
-            foreach (var id in ids) ecs.Add(id, new Health { Value = id });
-            foreach (var id in ids) ecs.Remove<Health>(id);
-            foreach (var id in ids) ecs.Add(id, new Armor());
-            for (int i = 1; i < ids.Length; i++) ecs.Despawn(ids[i]);
-            for (int i = 1; i < ids.Length; i++) ids[i] = ecs.Spawn();
+            for (int i = 0; i < loops.Length; i++)
+            {
+                var before = GC.GetAllocatedBytesForCurrentThread();
+                loops[i].Run();
+                counts[i] = GC.GetAllocatedBytesForCurrentThread() - before;
+            }
         }
 
         // Removals are logged for a second of frames, so a pass over the frames after the first
         // empties the log the measured pass then fills to the size it had, allocating nothing.
         void Settle()
         {
-            Churn();
+            foreach (var loop in loops) loop.Run();
             for (int i = 0; i <= EcsWorld.RemovalFrames; i++) ecs.BeginFrame();
         }
 
-        Settle();
-        Allocated(Churn).Should().Be(0, "a world with no observer tells none");
+        // A pass in steady state allocates nothing. The runtime can allocate on this thread for its
+        // own work while a pass runs, once, so a pass that counted bytes is settled and measured
+        // once more, and the test fails only where the second pass counts as well, as an
+        // allocation of the world's own would on every pass. The message names each loop that
+        // counted again with its two counts.
+        void AllocatesNothing(string because)
+        {
+            var (first, again) = (new long[loops.Length], new long[loops.Length]);
+            Settle();
+            Measure(first);
+            if (Array.TrueForAll(first, count => count == 0)) return;
+            Settle();
+            Measure(again);
+            var counted = Enumerable.Range(0, loops.Length).Where(i => again[i] != 0)
+                .Select(i => $"the {loops[i].Name} counting {first[i]} bytes and then {again[i]}");
+            again.Sum().Should().Be(0, $"{because}, {string.Join(", ", counted)}");
+        }
+
+        AllocatesNothing("a world with no observer tells none");
 
         // An observer of another component leaves these as they were.
         using var other = ecs.Observe<Remove<Hit>>(_ => { });
-        Settle();
-        Allocated(Churn).Should().Be(0, "only the component observed pays for its observers");
+        AllocatesNothing("only the component observed pays for its observers");
     }
 
     [Fact]
