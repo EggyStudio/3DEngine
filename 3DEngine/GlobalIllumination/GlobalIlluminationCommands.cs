@@ -29,7 +29,8 @@ internal static class GlobalIlluminationCommands
         // kept for the merge, six of eight, and its rays' sums, sixteen of sixteen, each ray's
         // light and end at the side the rays are traced at, eight and four bytes a texel, and its
         // merged light and share of the sky at the side it is merged at, eight and two, and the
-        // light held for each cell of the field, thirty-two bytes a cell.
+        // light held for each cell of the field, thirty-two bytes a cell and four for its place in
+        // the holding pass's list.
         var world = probes.Texels.Sum(n => 3L * (p * n) * (p * n) * p * 8) + 12L * p * p * p * probes.Cascades * 8 + probes.ReachBytes
             + probes.SkyBytes + probes.WaysBytes + (4L * 8 + 6L * 8 + GpuIllumination.PartialsAProbe * 16L) * p * p * p * probes.Cascades + probes.TracedBytes
             + probes.HeldCellsBytes;
@@ -220,7 +221,7 @@ internal static class GlobalIlluminationCommands
         if (!world.TryGetResource<GlobalIlluminationSettings>(out var settings))
             return "global illumination is off, and SetGlobalIllumination turns it on";
         settings.PassesTimed = state is "on" or "true" or "1";
-        return settings.PassesTimed ? "global illumination's passes are timed apart in the profile as gpu.gi_rays, gpu.gi_glow_faces, gpu.gi_trace0 and on, gpu.gi_reach, gpu.gi_merge, gpu.gi_gather, gpu.gi_screen, gpu.gi_filter and gpu.gi_glow"
+        return settings.PassesTimed ? "global illumination's passes are timed apart in the profile as gpu.gi_rays, gpu.gi_glow_faces, gpu.gi_trace0 and on, gpu.gi_reach, gpu.gi_hold_list, gpu.gi_hold, gpu.gi_merge, gpu.gi_gather, gpu.gi_screen, gpu.gi_filter and gpu.gi_glow"
             : "global illumination is timed whole in the profile";
     }
 

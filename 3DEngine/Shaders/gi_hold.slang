@@ -1,9 +1,11 @@
 // Holds the light of every cell of the scene's distance field within a cell of a surface that no
-// finer cascade holds, by the RadianceCascades module's holdCellLight, a thread a cell, each side
-// of its surface, a sheet's two and a solid's one, lit as the trace lights a hit (ShadedField),
-// which the merges read at the side of the cell their marches meet (HeldHitLight in
-// gi_merge.slang). It runs over every cell each frame before the merges, so a change shows in the
-// next frame's light.
+// finer cascade holds, by the RadianceCascades module's holdCellLight, each side of its surface, a
+// sheet's two and a solid's one, lit as the trace lights a hit (ShadedField), which the merges read
+// at the side of the cell their marches meet (HeldHitLight in gi_merge.slang). Built with
+// LIST_HELD, it lists those cells, a thread a cell of the field (listHeldCell); without, it shades
+// the listed cells, a thread a listed cell (holdListedCell), so no workgroup waits on a few of its
+// threads. Both run over every cell each frame before the merges, so a change shows in the next
+// frame's light.
 import gi;
 import gi_hits;
 import rc_probe_passes;
@@ -25,6 +27,11 @@ struct HoldPush
 
 [[vk::push_constant]]
 ConstantBuffer<HoldPush> push;
+
+// The cells to shade, the workgroups of the dispatch that shades them along x, y and z, their
+// count, and their indices as holdCellLight counts them, one after another.
+[[vk::binding(23, 0)]]
+RWStructuredBuffer<uint> heldList;
 
 // The texel of a cell's side's own light, part 0, or its probes' light, part 1.
 int3 heldTexel(int cascade, int3 cell, uint side, uint part)
@@ -84,6 +91,23 @@ struct HeldShading : IHeldShading
     }
 }
 
+// The list of cells to shade over heldList (IHeldList), one more workgroup to shade them for
+// every 64 listed.
+struct HeldListBuffer : IHeldList
+{
+    void list(uint at)
+    {
+        uint slot;
+        InterlockedAdd(heldList[3], 1u, slot);
+        heldList[4u + slot] = at;
+        if (slot % 64u == 0u)
+            InterlockedAdd(heldList[0], 1u);
+    }
+
+    uint count() { return heldList[3]; }
+    uint listedAt(uint index) { return heldList[4u + index]; }
+}
+
 [shader("compute")]
 [numthreads(64, 1, 1)]
 void computeMain(uint3 id : SV_DispatchThreadID)
@@ -96,7 +120,12 @@ void computeMain(uint3 id : SV_DispatchThreadID)
     field.probes = float(push.counts.x);
     field.spacing = push.spacing.x;
     field.cascades = float(push.counts.y);
+    HeldListBuffer list;
+#if defined(LIST_HELD)
+    listHeldCell(field, list, push.counts.z, 1u, 0u, id.x);
+#else
     HeldShading shading = { field };
     HeldCells held;
-    holdCellLight(field, shading, held, push.counts.z, 1u, 0u, id.x);
+    holdListedCell(field, shading, held, list, id.x);
+#endif
 }

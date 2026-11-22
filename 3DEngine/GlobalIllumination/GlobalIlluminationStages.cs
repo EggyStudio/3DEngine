@@ -17,8 +17,8 @@ internal sealed unsafe partial class GlobalIlluminationStages(GraphicsDevice dev
     internal static GlobalIlluminationStages Of(GraphicsDevice device) => device.Part(static device => new GlobalIlluminationStages(device));
 
     private const int TraceStage = 0, MergeStage = 1, AmbientStage = 2, ScreenStage = 3, FilterStage = 4, GlowStage = 5, SolidTraceStage = 6, RayTraceStage = 7,
-        RayCrossStage = 8, GlowFacesStage = 9, ReachStage = 10, HoldStage = 11, KeptMergeStage = 12;
-    private readonly ComputeStage[] _giStages = new ComputeStage[13];
+        RayCrossStage = 8, GlowFacesStage = 9, ReachStage = 10, HoldStage = 11, KeptMergeStage = 12, HoldListStage = 13;
+    private readonly ComputeStage[] _giStages = new ComputeStage[14];
 
     /// <summary>What <c>gi_trace.slang</c> is pushed.</summary>
     [StructLayout(LayoutKind.Sequential)]
@@ -119,12 +119,15 @@ internal sealed unsafe partial class GlobalIlluminationStages(GraphicsDevice dev
                 VkDescriptorType.SampledImage, VkDescriptorType.CombinedImageSampler, VkDescriptorType.SampledImage];
             made.Add((MergeStage, () => device.MakeComputeStage(merge, merging, 64)));
             // The merge lighting what its marches meet by the probes kept about it, and the pass
-            // that holds the light of the field's surface cells the merge reads in its place, bound
-            // as the merge is with the held light written.
+            // that holds the light of the field's surface cells the merge reads in its place and
+            // the one that lists those cells, bound as the merge is with the held light written
+            // and the list of cells after it.
             if (spirv.Length > KeptMergeStage && spirv[KeptMergeStage].Length > 0)
                 made.Add((KeptMergeStage, () => device.MakeComputeStage(spirv[KeptMergeStage], merging, 64)));
-            if (spirv.Length > HoldStage && spirv[HoldStage].Length > 0)
-                made.Add((HoldStage, () => device.MakeComputeStage(spirv[HoldStage], [.. merging[..22], VkDescriptorType.StorageImage], 32)));
+            VkDescriptorType[] holding = [.. merging[..22], VkDescriptorType.StorageImage, VkDescriptorType.StorageBuffer];
+            foreach (var stage in new[] { HoldStage, HoldListStage })
+                if (spirv.Length > stage && spirv[stage].Length > 0)
+                    made.Add((stage, () => device.MakeComputeStage(spirv[stage], holding, 32)));
             // The glow lights' faces read open or closed in the field (glow_faces.slang).
             if (spirv.Length > GlowFacesStage && spirv[GlowFacesStage].Length > 0)
                 made.Add((GlowFacesStage, () => device.MakeComputeStage(spirv[GlowFacesStage], [VkDescriptorType.CombinedImageSampler, VkDescriptorType.UniformBuffer,
@@ -154,18 +157,20 @@ internal sealed unsafe partial class GlobalIlluminationStages(GraphicsDevice dev
     /// name="glowFaces"/>, <c>glow_faces.slang</c>, which reads the glow lights' faces open or
     /// closed in the field, every face open without it, <paramref name="hold"/>,
     /// <c>gi_hold.slang</c>, which holds the light of the field's surface cells the merge reads at
-    /// its hits, and <paramref name="keptMerge"/>, <c>gi_merge.slang</c> built with
+    /// its hits, the cells <paramref name="holdList"/>, <c>gi_hold.slang</c> built with
+    /// <c>LIST_HELD</c>, lists, and <paramref name="keptMerge"/>, <c>gi_merge.slang</c> built with
     /// <c>KEPT_HIT</c>, which lights them by the probes kept about them in its place (<see
     /// cref="GlobalIlluminationSettings.KeptHit"/>).
     /// </summary>
     public void InitializeGlobalIllumination(ReadOnlySpan<byte> trace, ReadOnlySpan<byte> merge, ReadOnlySpan<byte> ambient, ReadOnlySpan<byte> reach, ReadOnlySpan<byte> screen,
         ReadOnlySpan<byte> filter, ReadOnlySpan<byte> glow, ReadOnlySpan<byte> solidTrace = default, ReadOnlySpan<byte> rayTrace = default,
-        ReadOnlySpan<byte> rayCross = default, ReadOnlySpan<byte> glowFaces = default, ReadOnlySpan<byte> hold = default, ReadOnlySpan<byte> keptMerge = default)
+        ReadOnlySpan<byte> rayCross = default, ReadOnlySpan<byte> glowFaces = default, ReadOnlySpan<byte> hold = default, ReadOnlySpan<byte> keptMerge = default,
+        ReadOnlySpan<byte> holdList = default)
     {
         if (!device.IsInitialized || CanBounceLight) return;
         _giSpirv = [trace.ToArray(), merge.ToArray(), ambient.ToArray(), screen.ToArray(), filter.ToArray(), glow.ToArray(),
             solidTrace.IsEmpty ? trace.ToArray() : solidTrace.ToArray(), rayTrace.ToArray(), rayCross.ToArray(), glowFaces.ToArray(), reach.ToArray(),
-            hold.ToArray(), keptMerge.ToArray()];
+            hold.ToArray(), keptMerge.ToArray(), holdList.ToArray()];
     }
 
     /// <summary>
@@ -215,6 +220,9 @@ internal sealed unsafe partial class GlobalIlluminationStages(GraphicsDevice dev
         var (ways, waysMemory, waysView) = device.ProbeImage(GpuIllumination.WaysTexels * p, GpuIllumination.WaysTexels * p, p * (uint)texels.Length);
         var lights = device.CreateBuffer(new BufferDesc(GpuIllumination.LightsBytes, BufferUsage.Uniform | BufferUsage.Storage | BufferUsage.TransferDst | BufferUsage.TransferSrc));
         var glowFaces = device.CreateBuffer(new BufferDesc(GlowLights.Most * 4, BufferUsage.Storage | BufferUsage.TransferDst | BufferUsage.TransferSrc));
+        // The holding pass's workgroups, its count of cells and room for every cell of the field.
+        var heldList = device.CreateBuffer(new BufferDesc((ulong)(16 + 4L * fieldSize * fieldSize * fieldSize * fieldCascades),
+            BufferUsage.Storage | BufferUsage.Indirect | BufferUsage.TransferDst));
 
         var cmd = device.BeginSingleTimeCommands();
         var whole = ColorLevels(0, 1);
@@ -271,6 +279,7 @@ internal sealed unsafe partial class GlobalIlluminationStages(GraphicsDevice dev
                 sampler.Dispose();
                 lights.Dispose();
                 glowFaces.Dispose();
+                heldList.Dispose();
                 device.Api.vkDestroyImageView(cubesView);
                 owner.Dispose();
                 device.Api.vkDestroyImageView(reachView);
@@ -293,7 +302,7 @@ internal sealed unsafe partial class GlobalIlluminationStages(GraphicsDevice dev
             partialView, heldView, [.. mergedSky.Select(i => (i.Item1, i.Item3))], skies, new VulkanImageView(device, skiesOwner, skiesView),
             ways, new VulkanImageView(device, waysOwner, waysView)) { Far = farCascade, GlowFaces = glowFaces, CubesAt = cubesAt, CubesAtView = cubesAtView,
                 Kept = kept, KeptView = keptView, HeldCells = heldCells, HeldCellsView = heldCellsView,
-                HeldCellsBytes = 32L * fieldSize * fieldSize * fieldSize * fieldCascades,
+                HeldCellsBytes = 36L * fieldSize * fieldSize * fieldSize * fieldCascades + 16, HeldList = heldList,
                 HitNormals = [.. hitNormals.Select(i => (i.Item1, i.Item3))], RayLights = [.. rayLights.Select(i => (i.Item1, i.Item3))],
                 RayEnds = [.. rayEnds.Select(i => (i.Item1, i.Item3))], MergedTraced = [.. mergedTraced.Select(i => (i.Item1, i.Item3))],
                 MergedSkyTraced = [.. mergedSkyTraced.Select(i => (i.Item1, i.Item3))], HeldImage = held, Spread = spread };
@@ -357,11 +366,11 @@ internal sealed unsafe partial class GlobalIlluminationStages(GraphicsDevice dev
         // The surface cells' light held before the merges read it, or the probes kept about a hit
         // read in its place, where asked and built.
         var kept = keptHit && GiStages[KeptMergeStage].Pipeline.Handle != 0;
-        var holding = !kept && GiStages[HoldStage].Pipeline.Handle != 0;
+        var holding = !kept && GiStages[HoldStage].Pipeline.Handle != 0 && GiStages[HoldListStage].Pipeline.Handle != 0 && gi.HeldList is not null;
         var merging = kept ? KeptMergeStage : MergeStage;
         var run = new ProbeRun(this, device, commandBuffer,
             [(trace, gi.Cascades), (ReachStage, gi.Cascades), (merging, gi.Cascades), (AmbientStage, gi.Cascades), .. faces ? [(GlowFacesStage, 1)] : Array.Empty<(int, int)>(),
-                .. holding ? [(HoldStage, 1)] : Array.Empty<(int, int)>()]);
+                .. holding ? [(HoldListStage, 1), (HoldStage, 1)] : Array.Empty<(int, int)>()]);
         var cmd = run.Commands;
         var readers = VkPipelineStageFlags2.VertexShader | VkPipelineStageFlags2.FragmentShader | VkPipelineStageFlags2.ComputeShader;
         device.MemoryBarrier(cmd, readers, VkAccessFlags2.UniformRead, VkPipelineStageFlags2.Transfer, VkAccessFlags2.TransferWrite);
@@ -478,11 +487,36 @@ internal sealed unsafe partial class GlobalIlluminationStages(GraphicsDevice dev
         device.PipelineBarrier(cmd, [ImageBarrier(gi.Reach, ColorLevels(0, 1), VkImageLayout.General, VkImageLayout.ShaderReadOnlyOptimal,
             VkPipelineStageFlags2.ComputeShader, VkAccessFlags2.ShaderWrite, readers, VkAccessFlags2.ShaderRead)]);
         // The light of every cell of the field within a cell of a surface that no finer cascade
-        // holds, shaded as the trace lights a hit, a thread a cell, every cell each frame, which
-        // the merges read at the cells their marches meet a surface in.
+        // holds, shaded as the trace lights a hit, every cell each frame, which the merges read at
+        // the cells their marches meet a surface in, the cells listed first, a thread a cell of the
+        // field, and then shaded, a thread a listed cell, from a dispatch of as many workgroups as
+        // the listing counted, so no workgroup waits on a few shading threads.
         if (holding)
         {
-            var set = run.Set(HoldStage);
+            var list = (VulkanBuffer)gi.HeldList!;
+            device.MemoryBarrier(cmd, VkPipelineStageFlags2.ComputeShader | VkPipelineStageFlags2.DrawIndirect,
+                VkAccessFlags2.ShaderRead | VkAccessFlags2.ShaderWrite | VkAccessFlags2.IndirectCommandRead, VkPipelineStageFlags2.Transfer, VkAccessFlags2.TransferWrite);
+            ReadOnlySpan<uint> none = [0, 1, 1, 0];
+            fixed (uint* start = none)
+                device.Api.vkCmdUpdateBuffer(cmd, list.Buffer, 0, 16, start);
+            device.MemoryBarrier(cmd, VkPipelineStageFlags2.Transfer, VkAccessFlags2.TransferWrite, VkPipelineStageFlags2.ComputeShader,
+                VkAccessFlags2.ShaderRead | VkAccessFlags2.ShaderWrite);
+            // The probes along each side, the cascades of probes and of the field, and the probes'
+            // spacing, as gi_hold.slang's HoldPush.
+            ReadOnlySpan<uint> push = [p, (uint)gi.Cascades, (uint)field.Cascades, 0, BitConverter.SingleToUInt32Bits(spacing), 0, 0, 0];
+            var cells = (uint)field.Resolution;
+            run.Dispatch(HoldListStage, Held(HoldListStage), MemoryMarshal.AsBytes(push), (cells * cells * cells * (uint)field.Cascades + 63) / 64);
+            device.MemoryBarrier(cmd, VkPipelineStageFlags2.ComputeShader, VkAccessFlags2.ShaderWrite, VkPipelineStageFlags2.ComputeShader | VkPipelineStageFlags2.DrawIndirect,
+                VkAccessFlags2.ShaderRead | VkAccessFlags2.IndirectCommandRead);
+            MarkGlobalIllumination(commandBuffer, "gi_hold_list");
+            run.DispatchIndirect(HoldStage, Held(HoldStage), MemoryMarshal.AsBytes(push), list.Buffer);
+            device.MemoryBarrier(cmd, VkPipelineStageFlags2.ComputeShader, VkAccessFlags2.ShaderWrite, VkPipelineStageFlags2.ComputeShader, VkAccessFlags2.ShaderRead);
+            MarkGlobalIllumination(commandBuffer, "gi_hold");
+        }
+        // A set of the holding pass's or its listing's, both bound alike.
+        VkDescriptorSet Held(int stage)
+        {
+            var set = run.Set(stage);
             run.Image(set, 0, VkDescriptorType.CombinedImageSampler, ((VulkanImageView)field.View).View, field.Sampler, VkImageLayout.ShaderReadOnlyOptimal);
             run.Buffer(set, 1, VkDescriptorType.UniformBuffer, field.Info);
             run.Image(set, 2, VkDescriptorType.CombinedImageSampler, ((VulkanImageView)field.AlbedoView).View, field.Sampler, VkImageLayout.ShaderReadOnlyOptimal);
@@ -495,13 +529,8 @@ internal sealed unsafe partial class GlobalIlluminationStages(GraphicsDevice dev
             run.Image(set, 13, VkDescriptorType.CombinedImageSampler, ((VulkanImageView)sunMap).View, sunSampler, VkImageLayout.ShaderReadOnlyOptimal);
             run.Image(set, 15, VkDescriptorType.CombinedImageSampler, gi.CubesAtView, gi.Sampler, VkImageLayout.ShaderReadOnlyOptimal);
             run.Image(set, 22, VkDescriptorType.StorageImage, gi.HeldCellsView, null, VkImageLayout.General);
-            // The probes along each side, the cascades of probes and of the field, and the probes'
-            // spacing, as gi_hold.slang's HoldPush.
-            ReadOnlySpan<uint> push = [p, (uint)gi.Cascades, (uint)field.Cascades, 0, BitConverter.SingleToUInt32Bits(spacing), 0, 0, 0];
-            var cells = (uint)field.Resolution;
-            run.Dispatch(HoldStage, set, MemoryMarshal.AsBytes(push), (cells * cells * cells * (uint)field.Cascades + 63) / 64);
-            device.MemoryBarrier(cmd, VkPipelineStageFlags2.ComputeShader, VkAccessFlags2.ShaderWrite, VkPipelineStageFlags2.ComputeShader, VkAccessFlags2.ShaderRead);
-            MarkGlobalIllumination(commandBuffer, "gi_hold");
+            run.Buffer(set, 23, VkDescriptorType.StorageBuffer, gi.HeldList!);
+            return set;
         }
         for (int c = gi.Cascades - 1; c >= 0; c--)
         {
@@ -656,6 +685,16 @@ internal sealed unsafe partial class GlobalIlluminationStages(GraphicsDevice dev
             fixed (byte* p = push)
                 _device.Api.vkCmdPushConstants(Commands, layout, VkShaderStageFlags.Compute, 0, (uint)push.Length, p);
             _device.Api.vkCmdDispatch(Commands, Math.Max(1, groups), 1, 1);
+        }
+
+        public void DispatchIndirect(int stage, VkDescriptorSet set, ReadOnlySpan<byte> push, VkBuffer groups)
+        {
+            var (pipeline, layout, _) = _stages.GiStages[stage];
+            _device.Api.vkCmdBindPipeline(Commands, VkPipelineBindPoint.Compute, pipeline);
+            _device.Api.vkCmdBindDescriptorSets(Commands, VkPipelineBindPoint.Compute, layout, 0, 1, &set, 0, null);
+            fixed (byte* p = push)
+                _device.Api.vkCmdPushConstants(Commands, layout, VkShaderStageFlags.Compute, 0, (uint)push.Length, p);
+            _device.Api.vkCmdDispatchIndirect(Commands, groups, 0);
         }
 
         public void Dispose() => _device.DestroyDescriptorPool(_pool);

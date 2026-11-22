@@ -59,7 +59,8 @@ internal sealed class GlobalIlluminationPlugin : IPlugin
                     device.CanQueryRays ? Renderer.Build("gi_trace.slang", ["RAY_QUERY"], "The probes' rays cross what lets light through in the field alone")?.Compute : default,
                     server.LoadSync<ShaderProgram>("shaders/glow_faces.slang").Compute,
                     server.LoadSync<ShaderProgram>("shaders/gi_hold.slang").Compute,
-                    Renderer.Build("gi_merge.slang", ["KEPT_HIT"], "The merge's marches light what they meet by the probes kept about it")?.Compute);
+                    Renderer.Build("gi_merge.slang", ["KEPT_HIT"], "The merge's marches light what they meet by the probes kept about it")?.Compute,
+                    Renderer.Build("gi_hold.slang", ["LIST_HELD"], "The field's surface cells hold no light for the merge's marches")?.Compute);
             _illumination = new GlobalIlluminationRenderer();
             renderer.RenderWorld.Set(_illumination);
             renderer.RenderWorld.Set<IIlluminationPasses>(_illumination);

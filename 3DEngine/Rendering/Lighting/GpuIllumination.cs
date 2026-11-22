@@ -213,6 +213,10 @@ internal sealed class GpuIllumination : IDisposable
     internal VkImageView HeldCellsView { get; init; }
     internal long HeldCellsBytes { get; init; }
 
+    // The cells of the field the holding pass shades as it last listed them, the workgroups of its
+    // dispatch, their count and their indices (gi_hold.slang).
+    internal IBuffer? HeldList { get; init; }
+
     // The way out from the surfaces each cascade's texels' rays met, as the trace keeps them for the
     // gather.
     internal (VkImage Image, VkImageView View)[] HitNormals { get; init; } = [];
