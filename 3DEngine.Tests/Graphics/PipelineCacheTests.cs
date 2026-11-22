@@ -119,35 +119,46 @@ public sealed class PipelineCacheTests : IDisposable
     [NeedsVulkanFact]
     public void A_Run_Writes_The_Pipelines_It_Compiled_And_A_Cache_Another_Device_Wrote_Is_Read_As_Empty()
     {
-        var path = GraphicsDevice.PipelineCachePath;
-        Directory.CreateDirectory(Path.GetDirectoryName(path)!);
-        // A cache another GPU wrote, the header Vulkan gives one naming a vendor of 0xFFFF.
-        var foreign = new byte[64];
-        BinaryPrimitives.WriteUInt32LittleEndian(foreign, 32);
-        BinaryPrimitives.WriteUInt32LittleEndian(foreign.AsSpan(4), 1);
-        BinaryPrimitives.WriteUInt32LittleEndian(foreign.AsSpan(8), 0xFFFF);
-        File.WriteAllBytes(path, foreign);
-
-        var holds = Run();
-        var written = File.ReadAllBytes(path);
-        // A driver whose cache the device says holds nothing past its header, as lavapipe's,
-        // writes nothing over it, by the one rule the write and the device's answer share.
-        if (!holds)
+        // In a cache folder of the test's own, so a run beside it that writes the user's cache
+        // moves no time this one reads.
+        using var cache = new TestFolder("engine-pipelines-");
+        UserCache.Folder = cache.Path;
+        try
         {
-            written.Should().Equal(foreign, "a cache that holds nothing past its header is not written");
-            return;
-        }
-        // The run's cache is written over the one it could not read, its header naming this device
-        // and pipelines past it.
-        written.Length.Should().BeGreaterThan(32, "the run's cache is written over the one it could not read, pipelines past its header");
-        BinaryPrimitives.ReadUInt32LittleEndian(written).Should().Be(32u, "the header says its own size");
-        BinaryPrimitives.ReadUInt32LittleEndian(written.AsSpan(8)).Should().NotBe(0xFFFFu, "the header names the device that wrote it");
+            var path = GraphicsDevice.PipelineCachePath;
+            Directory.CreateDirectory(Path.GetDirectoryName(path)!);
+            // A cache another GPU wrote, the header Vulkan gives one naming a vendor of 0xFFFF.
+            var foreign = new byte[64];
+            BinaryPrimitives.WriteUInt32LittleEndian(foreign, 32);
+            BinaryPrimitives.WriteUInt32LittleEndian(foreign.AsSpan(4), 1);
+            BinaryPrimitives.WriteUInt32LittleEndian(foreign.AsSpan(8), 0xFFFF);
+            File.WriteAllBytes(path, foreign);
 
-        // A run that compiles nothing the file lacks leaves it as it was.
-        var at = File.GetLastWriteTimeUtc(path);
-        Run();
-        File.GetLastWriteTimeUtc(path).Should().Be(at, "the second run's pipelines were all in the cache it read");
-        File.ReadAllBytes(path).Should().Equal(written);
+            var holds = Run();
+            var written = File.ReadAllBytes(path);
+            // A driver whose cache the device says holds nothing past its header, as lavapipe's,
+            // writes nothing over it, by the one rule the write and the device's answer share.
+            if (!holds)
+            {
+                written.Should().Equal(foreign, "a cache that holds nothing past its header is not written");
+                return;
+            }
+            // The run's cache is written over the one it could not read, its header naming this
+            // device and pipelines past it.
+            written.Length.Should().BeGreaterThan(32, "the run's cache is written over the one it could not read, pipelines past its header");
+            BinaryPrimitives.ReadUInt32LittleEndian(written).Should().Be(32u, "the header says its own size");
+            BinaryPrimitives.ReadUInt32LittleEndian(written.AsSpan(8)).Should().NotBe(0xFFFFu, "the header names the device that wrote it");
+
+            // A run that compiles nothing the file lacks leaves it as it was.
+            var at = File.GetLastWriteTimeUtc(path);
+            Run();
+            File.GetLastWriteTimeUtc(path).Should().Be(at, "the second run's pipelines were all in the cache it read");
+            File.ReadAllBytes(path).Should().Equal(written);
+        }
+        finally
+        {
+            UserCache.Folder = null!;
+        }
     }
 
     [NeedsVulkanFact]
