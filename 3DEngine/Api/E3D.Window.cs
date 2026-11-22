@@ -160,16 +160,18 @@ public static partial class E3D
     /// moved, or turns it off with <see cref="Key.Null"/>.
     /// </summary>
     /// <remarks>
-    /// The key writes the frame being drawn as a PNG into a <c>screenshots</c> folder beside the
-    /// program (<see cref="SetScreenshotFolder"/>), made on first use, named by the time as
-    /// <c>2026-10-21_03.45.12.png</c>, a second in the same second <c>_2</c>, through
-    /// <see cref="TakeScreenshot"/>, with a line in the log saying where. Held past half a second it
-    /// records, fifteen pictures a second of the app's clock as PNGs numbered from <c>0001.png</c> in
-    /// a folder named by the time beside the screenshots, until it is let go or the recording holds
-    /// a hundred and fifty, ten seconds, each written by a worker so the frames go on. The press
-    /// reaches the program too, which reads the key as any other.
+    /// The key is the setting <c>keys.screenshot</c>, which the console sets too. Let go where no
+    /// other key went down while it was held, it writes the frame being drawn as a PNG into a
+    /// <c>screenshots</c> folder beside the program (<see cref="SetScreenshotFolder"/>), made on
+    /// first use, named by the time as <c>2026-10-21_03.45.12.png</c>, a second in the same second
+    /// <c>_2</c>, through <see cref="TakeScreenshot"/>, with a line in the log saying where. Held
+    /// past half a second it records in place of the screenshot, fifteen pictures a second of the
+    /// app's clock as PNGs numbered from <c>0001.png</c> in a folder named by the time beside the
+    /// screenshots, until it is let go or the recording holds a hundred and fifty, ten seconds,
+    /// each written by a worker so the frames go on. The press reaches the program too, which reads
+    /// the key as any other.
     /// </remarks>
-    public static void SetScreenshotKey(Key key) => World.GetOrInsertResource(static () => new DebugKeys()).Screenshot = key;
+    public static void SetScreenshotKey(Key key) => DiagnosticsBinding.Of(World).Bind(Diagnostics.KeyAction.Screenshot, key);
 
     /// <summary>
     /// Sets the folder the screenshot key writes into, <c>screenshots</c> beside the program until
@@ -187,7 +189,7 @@ public static partial class E3D
     {
         ScreenshotFolderAsked = Path.GetFullPath(folder);
         ScreenshotWrittenAsked = written;
-        if (_app?.World.TryGetResource<DebugKeys>(out var keys) == true)
+        if (_app?.World.TryGetResource<ScreenshotKey>(out var keys) == true)
         {
             keys.Folder = ScreenshotFolderAsked;
             keys.Written = written;

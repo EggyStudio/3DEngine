@@ -1,28 +1,20 @@
 using System.Globalization;
+using Diagnostics;
 
 namespace Engine;
 
 /// <summary>
-/// The keys every program answers of the engine's own, F1 hiding the interface, F2 writing a
-/// screenshot, or held a recording, and F3 showing the debug overlay, which <see cref="E3D.SetUiHiddenKey"/>,
-/// <see cref="E3D.SetScreenshotKey"/> and <see cref="E3D.SetDebugOverlayKey"/> move or turn off, a
-/// world resource.
+/// What the screenshot key of the Diagnostics module's keys writes, a screenshot as the key asks
+/// for one and a recording while it is held, a world resource.
 /// </summary>
 /// <remarks>
-/// F1, F2 and F3 are the keys other games commonly give the three, so a player finds them where
-/// they look first. A press reaches the program as well, which reads it as any key.
+/// The key is the setting <c>keys.screenshot</c>, F2 until moved, and the module asks for a
+/// screenshot as the key comes up alone. Held past half a second it records, and the screenshot it
+/// then asks for as it comes up is not taken. A press reaches the program as well, which reads it
+/// as any key.
 /// </remarks>
-internal sealed class DebugKeys
+internal sealed class ScreenshotKey
 {
-    /// <summary>The key that hides and shows the interface drawn inside <see cref="E3D.BeginUi"/>, or <see cref="Key.Null"/> for none.</summary>
-    public Key HideUi { get; set; } = Key.F1;
-
-    /// <summary>The key that writes a screenshot, and records while held, or <see cref="Key.Null"/> for none.</summary>
-    public Key Screenshot { get; set; } = Key.F2;
-
-    /// <summary>The key that shows and hides the debug overlay, with Shift its profiler, or <see cref="Key.Null"/> for none.</summary>
-    public Key Overlay { get; set; } = Key.F3;
-
     /// <summary>
     /// The folder screenshots and recordings go into, <c>screenshots</c> beside the program unless
     /// <see cref="E3D.SetScreenshotFolder"/> or a test points it elsewhere.
@@ -47,10 +39,11 @@ internal sealed class DebugKeys
     /// <summary>The last recording's writing, done once its pictures are written and its folder handed on, which a test waits for.</summary>
     internal Task? Recorded { get; private set; }
 
-    // When the key went down by the clock, or below zero where it is up, and the recording it
-    // makes while held.
+    // When the key went down by the clock, or below zero where it is up, the recording it makes
+    // while held, and whether a recording was made since it went down.
     private double _downAt = -1;
     private Recording? _recording;
+    private bool _recorded;
 
     // A recording's folder, how many pictures it asked for, when it takes the next, and the
     // writes of those that came back, which a worker makes so the frame goes on.
@@ -89,21 +82,22 @@ internal sealed class DebugKeys
     }
 
     /// <summary>
-    /// Writes a screenshot where its key went down this frame, and records while it is held past
-    /// <see cref="RecordAfterSeconds"/>, each with a line in the log saying where.
+    /// Records while the screenshot key is held past <see cref="RecordAfterSeconds"/>, with a line
+    /// in the log saying where.
     /// </summary>
-    /// <remarks>Run in PreUpdate, once the frame's input is in, so the frame drawn after it is the one written.</remarks>
+    /// <remarks>
+    /// Run in PreUpdate, once the frame's input is in, so the frame drawn after it is the one
+    /// written. A key the setting names that the engine has no key of records nothing.
+    /// </remarks>
     internal static void Run(World world)
     {
-        if (!world.TryGetResource<DebugKeys>(out var keys) || keys.Screenshot == Key.Null
+        if (!world.TryGetResource<ScreenshotKey>(out var keys) || !world.TryGetResource<DiagnosticsBinding>(out var binding)
+            || !Enum.TryParse<Key>(binding.Keys.KeyOf(KeyAction.Screenshot).Text, ignoreCase: true, out var key) || key == Key.Null
             || !world.TryGetResource<Input>(out var input)) return;
         var now = world.TryGetResource<Time>(out var time) ? time.ElapsedSeconds : 0;
-        var held = input.KeyDown(keys.Screenshot);
-        if (input.KeyPressed(keys.Screenshot))
-        {
-            keys._downAt = now;
-            keys.Shoot(world);
-        }
+        var held = input.KeyDown(key);
+        if (input.KeyPressed(key))
+            (keys._downAt, keys._recorded) = (now, false);
         if (keys._recording is { } recording)
         {
             // One at its most while the key is still held ends, and the next waits for a press.
@@ -117,12 +111,22 @@ internal sealed class DebugKeys
         }
         else if (held && keys._downAt >= 0 && now - keys._downAt >= RecordAfterSeconds)
         {
+            keys._recorded = true;
             keys._recording = new Recording(keys.Named(keys.Clock(), ""), now);
             Directory.CreateDirectory(keys._recording.Folder);
             keys.Take(world, keys._recording, now);
         }
         if (!held)
             keys._downAt = -1;
+    }
+
+    /// <summary>
+    /// Writes the frame's screenshot where the module's keys ask for one, unless the key was held
+    /// into a recording since it went down.
+    /// </summary>
+    internal void Asked(World world)
+    {
+        if (!_recorded) Shoot(world);
     }
 
     // The frame's screenshot, with a line in the log saying where.

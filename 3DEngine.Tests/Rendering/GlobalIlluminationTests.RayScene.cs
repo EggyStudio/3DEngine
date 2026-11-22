@@ -1,4 +1,5 @@
 using System.Numerics;
+using Diagnostics;
 using FluentAssertions;
 using static Engine.E3D;
 
@@ -122,7 +123,9 @@ public sealed partial class GlobalIlluminationTests
         var block = UnderSlab(GlobalIllumination.High, 40);
         var stages = GlobalIlluminationStages.Of((GraphicsDevice)GetApp().World.Resource<Engine.Renderer>().Context.Graphics!);
         var before = stages.CarriedReads;
-        DebugOverlay.Of(GetApp().World).Lines(GetApp().World).Right.Should().Contain(line => line.StartsWith("Global illumination High", StringComparison.Ordinal));
+        var overlay = DiagnosticsBinding.Of(GetApp().World).Overlay;
+        overlay.Refresh();
+        overlay.Lines(OverlayPlace.Right).Should().Contain(line => line.StartsWith("Global illumination High", StringComparison.Ordinal));
         stages.CarriedReads.Should().Be(before, "the overlay reads no probe back");
         GlobalIlluminationCommands.IlluminationState(GetApp().World).Should().Contain("probes carried with their rays moving");
         stages.CarriedReads.Should().Be(before + 1, "gi.state counts the carried probes");

@@ -1,13 +1,15 @@
 using System.Buffers.Binary;
+using Diagnostics;
 using FluentAssertions;
 using static Engine.E3D;
 
 namespace Engine.Tests.DiagnosticsHost;
 
 /// <summary>
-/// F2 writing a screenshot in every program into a folder beside it, named by the time to the
-/// second with a count after a name already given, the key moved or turned off, the press still the
-/// program's, and F1 and F3 the keys of the hidden interface and the debug overlay beside it.
+/// F2 writing a screenshot in every program into a folder beside it as it comes up, named by the
+/// time to the second with a count after a name already given, held a recording in its place, the
+/// key moved or turned off, the press still the program's, and the other four of the Diagnostics
+/// module's keys beside it.
 /// </summary>
 /// <remarks>
 /// A run with no GPU has no frame to write, so the files are read on the device, offscreen, and
@@ -27,7 +29,10 @@ public sealed class ScreenshotKeyTests : IDisposable
 
     private static Input Input => GetApp().World.Resource<Input>();
 
-    private static DebugKeys Keys => GetApp().World.Resource<DebugKeys>();
+    private static ScreenshotKey Keys => GetApp().World.Resource<ScreenshotKey>();
+
+    // The key an action is bound to, as its setting holds it.
+    private static string Bound(KeyAction action) => DiagnosticsBinding.Of(GetApp().World).Keys.KeyOf(action).Text;
 
     // A frame with a key held down through it, then a frame with it up, so it is pressed once.
     private static void Press(Key key)
@@ -54,7 +59,7 @@ public sealed class ScreenshotKeyTests : IDisposable
     [Trait("Category", "Unit")]
     public void Three_Screenshots_In_One_Second_Take_The_Time_Then_Two_And_Three_And_The_Next_Second_The_Time_Alone()
     {
-        var keys = new DebugKeys { Folder = _folder.Path };
+        var keys = new ScreenshotKey { Folder = _folder.Path };
         var second = new DateTime(2026, 10, 21, 3, 45, 12);
         keys.Next(second).Should().Be(Path.Combine(_folder.Path, "2026-10-21_03.45.12.png"));
         keys.Next(second).Should().Be(Path.Combine(_folder.Path, "2026-10-21_03.45.12_2.png"), "a name given this run is not given again before its file is written");
@@ -63,7 +68,7 @@ public sealed class ScreenshotKeyTests : IDisposable
 
         // A file standing in the folder from another run is passed over too.
         File.WriteAllBytes(Path.Combine(_folder.Path, "2026-10-21_03.45.14.png"), []);
-        new DebugKeys { Folder = _folder.Path }.Next(second.AddSeconds(2)).Should().Be(Path.Combine(_folder.Path, "2026-10-21_03.45.14_2.png"));
+        new ScreenshotKey { Folder = _folder.Path }.Next(second.AddSeconds(2)).Should().Be(Path.Combine(_folder.Path, "2026-10-21_03.45.14_2.png"));
     }
 
     [Fact]
@@ -72,7 +77,7 @@ public sealed class ScreenshotKeyTests : IDisposable
     {
         UseApp(new App(Config.Default with { Headless = true }).AddPlugin(new DefaultPlugins()));
         Keys.Folder = _folder.Path;
-        (Keys.HideUi, Keys.Screenshot, Keys.Overlay).Should().Be((Key.F1, Key.F2, Key.F3), "F1, F2 and F3 are Minecraft's keys for the three");
+        Enum.GetValues<KeyAction>().Select(Bound).Should().Equal(["F1", "F2", "F3", "F4", "F5"], "the five keys are F1 to F5 until moved");
 
         Input.SetKey(Key.F2, true);
         BeginDrawing();
@@ -84,9 +89,10 @@ public sealed class ScreenshotKeyTests : IDisposable
         SetScreenshotKey(Key.F12);
         SetDebugOverlayKey(Key.Null);
         SetUiHiddenKey(Key.F9);
-        (Keys.HideUi, Keys.Screenshot, Keys.Overlay).Should().Be((Key.F9, Key.F12, Key.Null));
+        (Bound(KeyAction.HideInterface), Bound(KeyAction.Screenshot), Bound(KeyAction.Overlay)).Should().Be(("F9", "F12", ""));
         SetScreenshotKey(Key.Null);
-        Keys.Screenshot.Should().Be(Key.Null);
+        Bound(KeyAction.Screenshot).Should().BeEmpty("a key turned off binds no key");
+        ConsoleHost.Registry.FindSetting("keys.screenshot").Should().NotBeNull("each key is a setting a player rebinds from the console");
     }
 
     [NeedsVulkanFact]
@@ -144,8 +150,8 @@ public sealed class ScreenshotKeyTests : IDisposable
         // Each picture is back by the end of its frame, so the recording is whole a frame after.
         Frames(2);
         Keys.Recorded!.GetAwaiter().GetResult();
-        written.Should().HaveCount(2, "the press writes its screenshot and the hold its recording, each handed on once written");
-        File.Exists(Path.Combine(_folder.Path, "2026-11-04_19.36.12.png")).Should().BeTrue("the press writes the frame as ever");
+        written.Should().HaveCount(1, "the hold records in place of the screenshot, handed on once written");
+        File.Exists(Path.Combine(_folder.Path, "2026-11-04_19.36.12.png")).Should().BeFalse("a key held into a recording writes no screenshot as it comes up");
         var recording = Path.Combine(_folder.Path, "2026-11-04_19.36.12");
         written.Should().Contain(recording, "the recording's folder is handed on once its last picture is written");
         var pictures = Directory.GetFiles(recording, "*.png").Select(path => Path.GetFileName(path)).Order(StringComparer.Ordinal).ToArray();
@@ -159,10 +165,10 @@ public sealed class ScreenshotKeyTests : IDisposable
         Input.SetKey(Key.F2, true);
         Frames(120);
         Keys.Recorded!.GetAwaiter().GetResult();
-        written.Should().HaveCount(4, "a recording at its most is handed on while the key is still held");
+        written.Should().HaveCount(2, "a recording at its most is handed on while the key is still held");
         Input.SetKey(Key.F2, false);
         Frames(2);
-        written.Should().HaveCount(4, "the next recording waits for the next press");
+        written.Should().HaveCount(2, "the next recording waits for the next press, and the key let go takes no screenshot");
         Directory.GetFiles(Path.Combine(_folder.Path, "2026-11-04_19.36.12_2"), "*.png").Should().HaveCount(5, "it takes no more than its most");
     }
 }

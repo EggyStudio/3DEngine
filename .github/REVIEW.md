@@ -647,207 +647,6 @@ numbers, each in full under Decisions in REVIEW-ARCHIVE.md.
 
 ## Replies
 
-Item 265, the read of the two copies, this engine's half, written before the bridge's coder reaches
-its side.
-
-The atrium first, the owner's question. `scenes_sponza`'s atrium at the view the bridge matches,
-noon, the camera held at ISO 200, 1/200 s and f/16, at High with bloom off, each frame's linear
-light before the meter's gain against this engine's reference traced at 2048 paths a pixel
-(`gi.compare`), its every bounce and its first two.
-
-| Region | Reference | Frame | Screen probes out | Frame over the two bounces' reference |
-|---|---|---|---|---|
-| Every region | 0.014 | 1.08 | 1.08 | 1.14 |
-| The floor, copy 103 | 0.060 | 1.05 | 1.05 | 1.05 |
-| The ceiling | 0.006 | 1.16 | 1.13 | 1.20 |
-| Block 22, side facing +z | 0.003 | 1.32 | 1.64 | 1.41 |
-| Block 4, side facing +x | 0.005 | 1.19 | 1.19 | 1.19 |
-| Block 2, side facing +x | 0.004 | 1.47 | 1.29 | 1.47 |
-| The wall facing +x | 0.008 | 1.50 | 1.51 | 1.52 |
-
-The probes here give 8% over this engine's own reference across the view, the floor 5% and the walls
-in shade 3% to 60%. Held at that lens the picture is dark, its pixels' mean 32 of 255. Metered, as
-the example starts, the camera lifts it to 124 of 255, and the light read before the meter is the
-same to the third figure. So the atrium the owner sees lit here is lit by the meter, about two
-stops, and not by more light from the kernels. With global illumination off the held picture shows
-130 of 255, the light pass's ambient reaching every surface unhidden, as Bevy's ambient and
-environment do before the bridge's light pass takes them back. `gi.compare` reads the frame global
-illumination last drew, so with it off the figure is the screen's alone.
-
-The two halves on one scale. The bridge's figures are its linear light before its tonemapping at
-Bevy's EV100 of 9.7, the lens of ISO 200, 1/200 s and f/16 laid on after it as 4.944 stops of grade,
-so on this engine's scale at the lens's EV of 14.64 each reads 30.8 times less. Its day is noon at
-latitude 6, the sun 84 degrees up at 120,000 lux outside Bevy's air and colored (1, 0.98, 0.95), and
-its matched sheet takes this engine's sun, 119,343 lux at 5,633 K.
-
-| Region | The bridge's reference | The bridge's picture | Over its reference |
-|---|---|---|---|
-| Brick walls facing -x | 0.0031 | 0.0076 | 2.5 |
-| Decal walls of the first floor facing -x | 0.0041 | 0.0122 | 3.0 |
-| Decal walls of the first floor facing +z | 0.0055 | 0.0142 | 2.6 |
-| Decal walls of the third floor facing -x | 0.0112 | 0.0272 | 2.4 |
-
-This engine's reference reads its walls in shade at 0.002 to 0.008 and its floor at 0.060, so the
-two references agree in scale, and the tenfold gap the first figures showed was the exposure.
-Neither reference reads a probe, so on these the inputs, the sun, the sky and the materials, part
-the two atriums little. The bridge's picture lies over its reference by 2.4 to 3.0 times, and this
-engine's over its own by 1.03 to 1.60, so the kernels and the bridge's field carry a surplus there,
-its walls lighter than its own reference, and not a dark. The dark is the camera's. The bridge's
-lens is held, where this engine's example meters about two stops up, and held at the same lens this
-engine's atrium reads as dark, its pixels' mean 32 of 255. The gray is left to the bridge's matched
-sheet, its field's paint and its light pass, read against this engine's on this scale.
-
-Where the two copies differ today, read at this tree's head and the bridge's `9b869a3d` as they
-stand. Ten kernels share a name, `field_splat`, `field_resolve`, `field_stamp`, `gi_trace`,
-`gi_merge`, `gi_ambient`, `gi_screen`, `gi_screen_filter`, `gi_screen_glow` and `gi_reference`, and
-none of them is alike past its comments. With the comments and the space taken out they differ in 82
-lines in `field_stamp` at the least and 854 in `gi_reference` at the most, and in 537 in `gi_trace`,
-649 in `gi_screen` and 229 in `gi_merge`. Four libraries pair by other names, `scenefield` with
-`bcs_field`, `glow` with `bcs_glow`, and `gi`, `cascades` and `probelight` with `bcs_gi`,
-`lightthrough`'s crossing lying in `bcs_field`. Five kernels are the bridge's alone, `gi_light`,
-which puts the probes' light into Bevy's picture where this engine's model pass reads them itself,
-`gi_sky`, which folds the environment into an octahedron where this engine's probes read the cube,
-`field_shadows`, the sun's contact shadow through the field, `gi_frame`, the frame's copy for the
-reference, and `field_slice`, a view of the field. Six are this engine's alone, `field_counted`,
-`glow_faces`, `meshrays`, `roughreflect` as a library of its own, and the views `gi_probes` and
-`gi_view`. `gi_screen_glow` alone keeps the same constants and the same steps on both sides, its
-plumbing apart.
-
-What differs in every pair, and stays each engine's. The entry points, `computeMain` against `main`.
-The bindings, numbered sets and push constants against names and loose uniforms. The field's table,
-a constant buffer of 208 bytes written by the command buffer against the first of a structured
-buffer of 176, the bridge's 176 this engine's first 176. The atomics, Slang's `Interlocked` calls
-against `Atomic<uint>`, and the held images, 3D images against structured buffers read through one
-helper. The thread groups are alike. These are the binding and the view the module asks each engine
-for, with the frame's origin, which is this engine's and 0 in the bridge, and this engine's ray
-scene through the device's rays.
-
-What differs in what the kernels do, the parts the move has to settle. In the order the move would
-meet them.
-
-- The plan. The cascades stand centered on the eye's nearest snap here, the eye 28 to 36 cells from
-each side, and 0.35 of their width ahead of it in the bridge, a lead this engine dropped at
-`3b5264d7`. Here a cascade shifts its cells and builds regions within a budget, the bridge's builds
-whole. - The field's build. The cell's code and its flags lie at different bits, only this engine
-keeps a second plane for faces within 0.75 of a cell and the sheet's way in the resolved image's
-yzw, and the bridge takes half a cell off a face drawn on both sides, so a sheet thinner than a cell
-reads a cell thick there and a ray stops half a cell short of it. The bridge carries a leaf's
-transmission through the field since `e19b2575`, this engine its light-through share. - The world's
-probes. The texels by quality differ, Low 8, 8, 8, Medium 8, 8, 16 and High 8, 8, 16, 16 here
-against Low 8, 8, Medium 8, 8, 16, 16 and High 8, 16, 16, 16, and only this engine has a top cascade
-before the far one and traces the coarser cascades in quarters and halves while they lie still. -
-The trace. Only this engine moves a probe out of a narrow space, traces through the device's rays at
-High, and marks the sky past leaves where the share through is half or more, where the bridge marks
-it wherever the first hit is unset. Its reach is a ray's of a texel of four, the bridge's a texel's
-of sixteen by sixteen. - The merge. This engine averages the four rays' cells for the reach of the
-texel above, the bridge reads the nearest texel, which this engine had and found far too dark, and
-only this engine merges the sky's share and keeps the cascade above where it agrees with the march
-between. - The probes' reads. A hit's probes are read from the finest cascade holding the point
-alone, eight probes, each counted where it stands in front of the point and sees it
-(`probelight.slang`, `bouncedSeenAtBoth`), and where none does the hit reads 0, in both engines. So
-a hit across a cascade's band here does not take the next cascade's probes where none of its own
-sees the point, which is the bridge's item 137. Read here in a closed room six by three by six lit
-by a panel under its ceiling, its near wall 2 units before the eye, the whole stepped through 8
-units along y by halves, the wall reads 1.05 to 1.13 of its reference at High and 1.05 to 1.12 at
-Medium, repeating every 2 units, where the bridge's room read 0.57 to 1.02 repeating every 8. So the
-step stands here too, a sixth of the bridge's, and its mend, the bridge's item 141, is written once
-in the module after the move with the room's test held in both engines. The bridge reads `probeSees`
-from the four nearest where this one reads the nearest, lights a hit by split sum where this one
-takes a GGX lobe, and takes f0 as 0.16 times reflectance squared where this one holds 0.04. - The
-sky. This engine reads the environment cube at its first level by its strength, or the ambient where
-there is none, in linear light, and the bridge an octahedron of 64 by 64 at a roughness of 0.25,
-after the exposure. This engine's probes carry the map or the ambient and never both, so with a map,
-an ambient light and global illumination on, the ambient's diffuse share is missing inside the
-field, as the design read says. - The screen probes. Here they stand in every cascade before the far
-one and read them all, in the bridge the first two. The filter here is the later throughout, and the
-bridge's history holds the blended light, so its blend feeds back. - The light on the picture. The
-bridge's `gi_light` takes back Bevy's ambient, environment and light probes and adds the probes'
-light, where this engine's model pass reads the probes itself, and the sun's share is one shadow
-map's read here and a march of up to ten suns there. - The reference. Lambert here, Burley there,
-and since `9b869a3d` the bridge's meets a blended face by its alpha, where this one passes one under
-half an alpha.
-
-What KERNELS.md says that the tree has moved past, as corrected here. It reads this engine at
-`3768c988` and its tests at `d102cd72`. The glow lights' kernels changed in eight commits since,
-`glow_faces` among them, which finds a glow light's open faces on the GPU and the design read's
-eleventh question asks for. The field far out reads as at the origin since `96358279` and two
-triangles of one cell tie alike from run to run (`SceneFieldTests.Origin`, `SceneFieldTests.Ties`),
-which KERNELS.md's second and third findings name. Both were mended here at `96358279`, the build
-taking each mesh's rows against its cascade's corner and two faces in one plane painting their cells
-alike run after run. The trace, the merge, the ambient, the screen filter, the reference, the stamp,
-`scenefield`, `probelight` and `cascades` are as it read them. Its line 1506 calls `counts.w` the
-lamps' switch, and it is `gi.toggle points`. Its lines 418 and 1527 cite
-`GlobalIlluminationRenderer.cs` at 527 to 536, where the sky's choice stands at 576 to 585. And the
-bridge's `follow` fault in its ambient, which KERNELS.md has the bridge's step 4 fail on, was mended
-at the bridge's `997d407e`.
-
-The interface, as this engine would give it. KERNELS.md writes out ten parts, the field's images,
-its table and lookups, the probes' run and plan, the frame's origin, the lights, the sky, the sun's
-reach, the screen's view and depth, the frame before's flags and the engine's hooks. This engine
-gives each as it stands, and asks three things of the module. The field's table keeps this engine's
-waiting cells past the bridge's 176 bytes, read through a lookup the bridge answers with none. The
-lights split as the design read's third question gives, the lamps' 1,168 bytes and the glow set
-apart, `counts.w` staying the switch for the faint glow lights at a hit. And the sky takes the
-ambient and the map together, as the sixth question gives, so the probes here stop losing the
-ambient's diffuse share inside the field, with the room that reads it re-baselined in the same
-commit.
-
-The order, as Decision 118 sets it. A kernel at a time, each with this engine's tests and reference
-rooms holding before and after and the two engines' pictures of one room compared, the binding
-first, then the plan, the field's build, the world's probes, the crossing and the rough reflection,
-the screen probes, the light on the picture, and the references last.
-
-Item 265, the move, the first kernel, the octahedral map.
-
-The RadianceCascades module is a submodule at `modules/RadianceCascades`, at `987e963`. Its kernels
-are staged flat beside the engine's under `source/shaders`, which the engine's import by their bare
-names as they import each other, and packed to the same place, so a game finds them where the
-engine's build stages them. `gi.slang` takes the octahedral map, the texels' rays and their marks
-from the module (`__exported import rc_octahedron`), `octahedron`, `octahedronPoint`,
-`fromOctahedron`, `octahedronShare`, `RaysAt`, `texelMark` and `texelNothing`, alike line for line
-with the engine's, and `gi_reference.slang` drops its own copy of `fromOctahedron` for the module's.
-Every pass that imports `gi` reads them as before. The package's shader cache is compiled from the
-shaders as the Release build stages them (`build/pack.sh`), the package's tests read the builds of
-each from the same folder and hold each of the module's kernels in the package at its own name, and
-the workflows' caches of Mesa's shaders are keyed by the module's shaders too. The module's C# is
-not referenced, since its Slang needs none of it.
-
-The runs. The tree builds strict with no warnings, and global illumination's, the bounce reference's
-and rooms', the glow lights', the Slang compiler's and the norm's tests pass, 285 of 285. The
-package carries the module's six kernels and a cache compiled with them, and its tests pass, 5 of 5.
-The suite passes in its parts in order, 2,525 of 2,525 in 22 minutes, and shuffled by the seed
-20261023, 2,525 of 2,525 in 22 minutes.
-
-Handoff, at `17d90968`. In since the handoff before are the public bodies at `e2aeddf4`, the
-prototype table from the Materials module at `881ca4df`, Blockout's hall at `326704d3`, and item
-265's first kernel, the octahedral map, at `17d90968`. Next in order is the Sky pointer at
-`2de0383`, the GPU sky drawn from `SkyLight.Tables` as the module's README section on drawing the
-sky on a GPU gives it, `AirSkyTests` held at 1%, the ground's share of the sky below the horizon,
-the capture example at noon, sunset and the civil end beside the module's
-`2026-11-18-sky-clear.webp`, every daylight figure the tests and RENDERING.md hold reread before and
-after, the Sponza match read against its recipe, and the package's test naming the module's assembly
-`3DEngine.Sky`. Then item 265's kernels from RadianceCascades at `987e963`, the resolve with its
-pinch, the distance read, the march, the splat's codes, its paint with the engine's second plane and
-its gloss of two numbers kept, and the stamp of 128 bytes with its gloss chosen together with its
-reader, a commit each. Then 298, 299, 300, 288, 292, 293, 294, 289, 290, and 301 after 265. Nothing
-is held open here. A fresh session reads AGENTS.md, this file's head, its Now list and these Replies
-from item 265's read on, and NORM.md's 7.9, 4.11 and 4.12, and runs the Tools module's
-`scripts/commitcheck.py` on each commit before it is reported.
-
-The Sky pointer at `9040738`, the GPU sky drawn from the module's tables.
-
-The module's sky is held in four lanes of three wavelength bands, its transmittance taken band by
-band, its table of the light scattered more than once 128 angles across in logarithms, so the
-engine's own two tables, made on the GPU in three colors from the air's numbers, could no longer
-give the module's sky, and `AirSkyTests` would have failed with the pointer alone. The filter makes
-the module's tables once for each air (`SkyLight.Tables`) and puts them in one buffer the CPU writes
-(`AirTables`), a lane's coefficients, its sun, its matrix to linear sRGB, its two tables and its row
-of the sky's light on the ground, and the sky's pass marches each texel's way as the module's README
-gives it (`atmosphere.slang`), the light of each lane turned into linear sRGB by its own matrix and
-the ground lit by the sun through the air and by the sky, the share the ground below the horizon
-lacked before. The passes that made the two tables are gone, `atmosphere_transmittance.slang` and
-`atmosphere_scatter.slang`.
-
 The figures read again, before and after. The sky cube's texels read within 0.17% of the module's
 luminance along their ways where 0.21%, the irradiance within 0.15% of the module's sky in nine
 harmonics where 0.2%, and a level floor 1.9 to 6.0% over the module's own integral where 1.5 to 5%,
@@ -1173,3 +972,43 @@ succeeded. CHEATSHEET.md says the three.
 The suite passed whole on this commit's build, 2,529 tests and the one that failed first, the
 pipeline cache's, which shares the cache folder with other runs and passed alone, with 6 skipped
 as on main, the package tests with no package built.
+
+Item 302, step 2, the console, the overlay and the keys.
+
+The pipeline cache test that reads a foreign cache and then its own takes a cache folder of its own
+and puts the shared one back after it, as the tests beside it did, so another run writing the shared
+cache changes nothing it reads. The Graphics part passed 97 of 97 twice, each time beside another
+part under one lock.
+
+Each app takes the Diagnostics module's console, debug overlay, settings panel and keys. F1 hides
+the interface, F2 takes a screenshot, F3 shows the overlay and with Shift its profiler, F4 opens the
+settings panel and F5 the console, each key a setting of the process's registry a player rebinds, as
+`keys.console F6`. A key is taken as it is let go where no other key went down while it was held, so
+F3 with F4 turns nothing, which a test holds. The console and the panel are the module's ImGui
+drawers, drawn with the world lent, so a line typed there runs as a line of `./e3d` does, between
+the frame's input and its update, and an answer that comes frames later is written under its line,
+which a test types in from end to end. The overlay's lines are sections the engine fills under the
+module's frame line, the profiler's passes among them. Gone are the engine's overlay model with its
+F1 and F3 handling, `DebugOverlay.cs`, and `DebugKeys` but for the screenshot and the recording,
+kept as `ScreenshotKey`.
+
+Four things a player or a program sees differently, which CHEATSHEET.md and docs/window-and-frame.md
+say. F2 takes its shot as it is let go, and held it records in place of the shot. The overlay's head
+is the module's frame line and the engine's version, without the frame's number. The F keys are
+taken while a field of an ImGui window has the caret. A program that takes F4 or F5 for itself opens
+the panel or the console with it as well, as Blockout's F5 save does.
+
+Two faults the picture shows stand as they stood at `facf86a9`, the module's overlay bringing
+neither. At 800 by 450 the right column's lines run over the left, the global illumination line past
+the window's left edge. And the display line reads the window's size as configured, 800 by 450,
+where `window.size` made it 1280 by 720.
+
+What the module lacks went to its session, two things. Its keys add their five settings once a
+process, the registry refusing a name twice, so the engine takes an app's five out as it ends and
+before the next app's are made. And its console runs a typed line itself, so a command that throws
+there is not logged with its stack as a line from the CLI is.
+
+The suite passed whole at the step's first build, `61691e38`, 0 failed with 6 skipped, the package
+tests with no package built. This commit mends the picture, its caption and the window's doc on it
+and touches no code, and the DiagnosticsHost part passed on it, 61 of 61. The picture is
+`.github/assets/readings/2026-11-22-item-302-console-overlay.webp`.

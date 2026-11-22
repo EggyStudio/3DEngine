@@ -1,53 +1,53 @@
 using System.Numerics;
 using System.Reflection;
 using System.Runtime.InteropServices;
+using Diagnostics;
 
 namespace Engine;
 
-// What each line of the overlay says, in the words BevyCSharp's overlay says them, the engine and
-// the frame over the left column, the frame times beside the strip, the camera, the world and the
-// program's sections under them, and the system, the GPU, the display, the renderer and the
-// profiler's passes down the right.
-internal sealed partial class DebugOverlay
+// The overlay's sections the engine fills, the engine and the frame at the head, the GPU's time
+// beside them, the camera and the world in the left column above the program's sections, and the
+// system, the GPU, the display and the renderer down the right, with the profiler's passes under
+// them as the overlay's detail.
+internal sealed partial class DiagnosticsBinding
 {
-    /// <summary>What the overlay says, a list for each place a line goes, an empty line the gap between two parts.</summary>
-    /// <param name="Head">The engine's version and the frame, over the strip.</param>
-    /// <param name="Beside">The frames' times and the GPU's, beside the strip.</param>
-    /// <param name="Left">The camera, the world and the program's sections, under the strip.</param>
-    /// <param name="Right">The system, the GPU, the display and the renderer, with the profiler's passes under them.</param>
-    internal sealed record Said(List<string> Head, List<string> Beside, List<string> Left, List<string> Right);
-
     /// <summary>The passes the profiler lists, the slowest, with a line saying how many more there are.</summary>
     private const int ProfilerPasses = 24;
 
-    /// <summary>What the overlay says of a world as it stands.</summary>
-    internal Said Lines(World world)
+    // Each section is named apart from a program's own and asked for its lines four times a second
+    // while the overlay is shown.
+    private void AddSections(World world)
     {
-        world.TryGetResource<Time>(out var time);
-        world.TryGetResource<Renderer>(out var renderer);
-        var device = renderer is { Context.IsInitialized: true } && renderer.Context.Graphics is GraphicsDevice running ? running : null;
+        Overlay.AddSection("3DEngine head", OverlayPlace.Head, () => Head(world));
+        Overlay.AddSection("3DEngine GPU time", OverlayPlace.Beside, () => [GpuTime(world)]);
+        Overlay.AddSection("3DEngine left", OverlayPlace.Left, () => Left(world));
+        Overlay.AddSection("3DEngine right", OverlayPlace.Right, () => Right(world));
+        Overlay.AddSection("3DEngine passes", OverlayPlace.Right, () => Passes(world), detail: true);
+    }
 
-        var head = new List<string>
-        {
-            Say($"3DEngine {Version()} ({Build}, {(device is null ? "no device" : "Vulkan " + device.AdapterInfo.Api)})"),
-            time is null ? "No clock" : Say($"{time.SmoothedFps:0} fps, {time.DeltaSeconds * 1000:0.0} ms a frame, frame {time.FrameCount}"),
-        };
+    // The engine's version, its build and its device, under the module's line of the frame's rate.
+    private static List<string> Head(World world)
+    {
+        var device = Device(world);
+        return [Say($"3DEngine {Version()} ({Build}, {(device is null ? "no device" : "Vulkan " + device.AdapterInfo.Api)})")];
+    }
 
-        var (now, average, lowFps) = Stats(FrameTimes());
-        var beside = new List<string>
-        {
-            Say($"Now {now:0.0} ms, average {average:0.0} ms, 1% low {lowFps:0} fps"),
-            GpuTime(world),
-        };
-
+    private static List<string> Left(World world)
+    {
         var left = new List<string>();
         left.AddRange(CameraLines(world));
         left.Add("");
         world.TryGetResource<EcsWorld>(out var ecs);
         left.Add(Say($"Entities {ecs?.EntityCount ?? 0}"));
         left.Add(Say($"Meshes {Count<MeshStore>(world, store => store.Count)}, textures {Count<TextureStore>(world, store => store.Count)}, assets {Count<AssetServer>(world, server => server.TrackedAssetCount)}"));
-        AddSections(left);
+        return left;
+    }
 
+    private static List<string> Right(World world)
+    {
+        world.TryGetResource<Renderer>(out var renderer);
+        world.TryGetResource<EcsWorld>(out var ecs);
+        var device = Device(world);
         var right = new List<string>
         {
             Say($".NET {Environment.Version}, {RuntimeInformation.ProcessArchitecture.ToString().ToLowerInvariant()}"),
@@ -60,41 +60,16 @@ internal sealed partial class DebugOverlay
         right.Add(Display(world, device));
         right.Add("");
         right.AddRange(RendererLines(world, renderer, ecs));
-        if (ProfilerShown) AddPasses(right, world);
-        return new Said(head, beside, left, right);
+        return right;
     }
 
-    /// <summary>
-    /// The program's sections, each after a gap, its name and then its lines, or why it said nothing
-    /// where its lines threw.
-    /// </summary>
-    /// <remarks>
-    /// The list is copied before any section is asked, so a section that adds or removes one, its own
-    /// among them, changes the next writing and not this one.
-    /// </remarks>
-    private void AddSections(List<string> left)
-    {
-        foreach (var (name, lines) in _sections.ToArray())
-        {
-            left.Add("");
-            left.Add(name);
-            try
-            {
-                left.AddRange(lines());
-            }
-            catch (Exception error)
-            {
-                // Said where its lines would be rather than logged, since a section asked four times
-                // a second would fill the log, and the overlay is where its author looks.
-                left.Add($"{name}: {error.GetType().Name}, {error.Message}");
-            }
-        }
-    }
+    private static GraphicsDevice? Device(World world) =>
+        world.TryGetResource<Renderer>(out var renderer) && renderer is { Context.IsInitialized: true } && renderer.Context.Graphics is GraphicsDevice running ? running : null;
 
     /// <summary>The profiler's lines, the render graph's passes the slowest first by the GPU's time, then the CPU's, averaged over the profile's last second.</summary>
-    private static void AddPasses(List<string> right, World world)
+    private static List<string> Passes(World world)
     {
-        right.Add("");
+        var right = new List<string> { "" };
         var timings = new Dictionary<string, (double? Gpu, double? Cpu)>(StringComparer.Ordinal);
         if (world.TryGetResource<FrameProfile>(out var profile))
             foreach (var (group, averages) in profile.Snapshot().Groups)
@@ -110,7 +85,7 @@ internal sealed partial class DebugOverlay
         if (timings.Count == 0)
         {
             right.Add("Pass timings not measured, as no frame is rendered");
-            return;
+            return right;
         }
 
         right.Add("Passes, the slowest first");
@@ -118,6 +93,7 @@ internal sealed partial class DebugOverlay
         foreach (var (name, (gpu, cpu)) in slowest.Take(ProfilerPasses))
             right.Add($"{name} {(gpu is { } g ? Say($"GPU {g:0.00} ms") : "GPU none")}, {(cpu is { } c ? Say($"CPU {c:0.00} ms") : "CPU none")}");
         if (slowest.Count > ProfilerPasses) right.Add(Say($"and {slowest.Count - ProfilerPasses} more"));
+        return right;
     }
 
     // Where the window's camera stands and faces, a camera entity's or the frame's first

@@ -1,4 +1,5 @@
 using System.Numerics;
+using Diagnostics;
 
 namespace Engine;
 
@@ -32,7 +33,7 @@ public static partial class E3D
     /// </remarks>
     public static bool BeginUi()
     {
-        var hidden = DebugOverlay.Of(World).UiHidden;
+        var hidden = DiagnosticsBinding.Of(World).Keys.InterfaceHidden;
         (_uiScopes ??= new()).Push((hidden, hidden ? DrawList.Here() : default));
         return !hidden;
     }
@@ -47,17 +48,18 @@ public static partial class E3D
     }
 
     /// <summary>Whether F1 has hidden the interface drawn inside <see cref="BeginUi"/>.</summary>
-    public static bool IsUiHidden() => TryRes<DebugOverlay>(out var overlay) && overlay.UiHidden;
+    public static bool IsUiHidden() => TryRes<DiagnosticsBinding>(out var binding) && binding.Keys.InterfaceHidden;
 
     /// <summary>
     /// Sets the key that hides and shows the program's interface, F1 until moved, or turns it off
     /// with <see cref="Key.Null"/>.
     /// </summary>
     /// <remarks>
-    /// The key is not taken while a field of an ImGui window has the caret, and the program sees the
+    /// The key is the setting <c>keys.hide_interface</c>, which the console sets too. It is taken
+    /// as it comes up where no other key went down while it was held, and the program sees the
     /// press as it sees any key, so a program that takes F1 for itself moves or turns this off.
     /// </remarks>
-    public static void SetUiHiddenKey(Key key) => World.GetOrInsertResource(static () => new DebugKeys()).HideUi = key;
+    public static void SetUiHiddenKey(Key key) => DiagnosticsBinding.Of(World).Bind(KeyAction.HideInterface, key);
 
     /// <summary>
     /// Sets the key that shows and hides the engine's debug overlay, F3 until moved, or turns it
@@ -73,19 +75,21 @@ public static partial class E3D
     /// </para>
     /// <para>
     /// A strip of the last 240 frames' times stands under the frame rate, each frame a bar green to
-    /// 60 frames a second, yellow to 30 and red past it, with the last frame's time, the average and
-    /// the one percent low beside it, and the GPU's time a frame under them. A program's sections
-    /// (<see cref="AddDebugOverlaySection"/>) follow the engine's lines on the left.
+    /// 60 frames a second, yellow to 30 and red past it, with the GPU's time a frame beside it. The
+    /// frame rate's line gives the last frame's time, the average and the one percent low. A
+    /// program's sections (<see cref="AddDebugOverlaySection"/>) follow the engine's lines on the
+    /// left.
     /// </para>
     /// <para>
-    /// The key is taken as it is let go, where no other key went down while it was held, so a
-    /// program's own chords on it stand and never open the overlay, and the program sees the press
-    /// as any key. Shift held with it shows the profiler's pass timings under the right column, the
-    /// slowest first, and the overlay with them. The overlay is drawn over everything else the frame
-    /// draws in 2D, and F1 leaves it.
+    /// The key is the setting <c>keys.overlay</c>, which the console sets too. It is taken as it is
+    /// let go, where no other key went down while it was held, so a program's own chords on it
+    /// stand and never open the overlay, and the program sees the press as any key. Shift held with
+    /// it shows the profiler's pass timings under the right column, the slowest first, and the
+    /// overlay with them. The overlay is drawn over everything else the frame draws in 2D, and F1
+    /// leaves it.
     /// </para>
     /// </remarks>
-    public static void SetDebugOverlayKey(Key key) => World.GetOrInsertResource(static () => new DebugKeys()).Overlay = key;
+    public static void SetDebugOverlayKey(Key key) => DiagnosticsBinding.Of(World).Bind(KeyAction.Overlay, key);
 
     /// <summary>
     /// Adds a section of the program's own to the debug overlay's left column, under the engine's
@@ -95,8 +99,8 @@ public static partial class E3D
     /// <param name="lines">What it says, asked four times a second while the overlay shows.</param>
     /// <remarks>
     /// A section holds what only the program knows, as the seed its world was generated from or an
-    /// enemy count, drawn in the overlay's look. A section whose lines throw says why in a line of
-    /// its own rather than stopping the overlay. The sections last while the app runs.
+    /// enemy count, drawn in the overlay's look. A section whose lines throw is a line saying it
+    /// failed and why, and the overlay goes on. The sections last while the app runs.
     /// </remarks>
     /// <example>
     /// <code>
@@ -108,11 +112,11 @@ public static partial class E3D
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(name);
         ArgumentNullException.ThrowIfNull(lines);
-        DebugOverlay.Of(World).AddSection(name, lines);
+        DiagnosticsBinding.Of(World).AddSection(name, lines);
     }
 
     /// <summary>Takes a section of the debug overlay away by its name, and says whether there was one.</summary>
-    public static bool RemoveDebugOverlaySection(string name) => DebugOverlay.Of(World).RemoveSection(name);
+    public static bool RemoveDebugOverlaySection(string name) => DiagnosticsBinding.Of(World).RemoveSection(name);
 
     // The interface's scopes open on this thread, each with whether it was hidden as it opened and
     // where the draw list stood, which a hidden scope's close rewinds to.
@@ -133,8 +137,9 @@ public static partial class E3D
         StripRule = new(160, 160, 160, 160);
 
     // Draws the overlay's lines into the window in screen space, after everything else the frame
-    // drew in 2D, whatever 3D mode, target or shader the program left set.
-    internal static void DrawDebugOverlay(DebugOverlay.Said said, ReadOnlySpan<float> times)
+    // drew in 2D, whatever 3D mode, target or shader the program left set, the head's over the
+    // strip, the lines beside it next to it and the left column under both.
+    internal static void DrawDebugOverlay(OverlayModel overlay)
     {
         DrawList.SetTarget(0);
         DrawList.SetShader(0, default);
@@ -146,16 +151,15 @@ public static partial class E3D
         DrawList.SetTransform(Matrix4x4.CreateOrthographicOffCenter(0, width, 0, height, -1, 1), depthTest: false);
 
         var y = OverlayMargin;
-        foreach (var line in said.Head) y = OverlayLineAt(line, OverlayMargin, y, alignRight: false, width);
+        foreach (var line in overlay.Lines(OverlayPlace.Head)) y = OverlayLineAt(line, OverlayMargin, y, alignRight: false, width);
 
-        // The strip with the frames' times beside it, then the rest of the left column under both.
-        DrawStrip(OverlayMargin, y, times);
+        DrawStrip(OverlayMargin, y, [.. overlay.FrameTimes]);
         var beside = y;
-        foreach (var line in said.Beside) beside = OverlayLineAt(line, OverlayMargin + DebugOverlay.StripFrames + OverlayPad, beside, alignRight: false, width);
+        foreach (var line in overlay.Lines(OverlayPlace.Beside)) beside = OverlayLineAt(line, OverlayMargin + OverlayModel.StripFrames + OverlayPad, beside, alignRight: false, width);
         y = Math.Max(y + StripHeight + OverlayPad, beside);
-        foreach (var line in said.Left) y = OverlayLineAt(line, OverlayMargin, y, alignRight: false, width);
+        foreach (var line in overlay.Lines(OverlayPlace.Left)) y = OverlayLineAt(line, OverlayMargin, y, alignRight: false, width);
         y = OverlayMargin;
-        foreach (var line in said.Right) y = OverlayLineAt(line, width - OverlayMargin, y, alignRight: true, width);
+        foreach (var line in overlay.Lines(OverlayPlace.Right)) y = OverlayLineAt(line, width - OverlayMargin, y, alignRight: true, width);
     }
 
     // The frames' times as bars, a column a frame with the newest at the right, on black at half with
@@ -163,11 +167,11 @@ public static partial class E3D
     // seconds have run.
     private static void DrawStrip(int x, int y, ReadOnlySpan<float> times)
     {
-        DrawRectangle(x, y, DebugOverlay.StripFrames, StripHeight, OverlayBacking);
+        DrawRectangle(x, y, OverlayModel.StripFrames, StripHeight, OverlayBacking);
         foreach (var fps in (ReadOnlySpan<float>)[60, 30])
-            DrawRectangle(x, y + StripHeight - (int)MathF.Round(1000 / fps / StripTop * StripHeight), DebugOverlay.StripFrames, 1, StripRule);
+            DrawRectangle(x, y + StripHeight - (int)MathF.Round(1000 / fps / StripTop * StripHeight), OverlayModel.StripFrames, 1, StripRule);
 
-        var empty = DebugOverlay.StripFrames - times.Length;
+        var empty = OverlayModel.StripFrames - times.Length;
         for (int i = 0; i < times.Length; i++)
         {
             var ms = times[i];

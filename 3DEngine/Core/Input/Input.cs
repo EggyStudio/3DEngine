@@ -197,8 +197,10 @@ public sealed class Input
     internal GamepadState? Gamepad(int index) => (uint)index < (uint)_gamepads.Count ? _gamepads[index] : null;
 
     // The held and released sets as they stand, which automation recording reads at the end of a
-    // frame, as raylib's reads its key and button states.
+    // frame, as raylib's reads its key and button states, and the pressed set, which the
+    // Diagnostics module's keys are given each key that went down from.
     internal IReadOnlyCollection<Key> KeysDown => _keysDown;
+    internal IReadOnlyCollection<Key> KeysPressed => _keysPressed;
     internal IReadOnlyCollection<Key> KeysReleased => _keysReleased;
     internal IReadOnlyCollection<MouseButton> MouseButtonsDown => _mouseDown;
     internal IReadOnlyCollection<MouseButton> MouseButtonsReleased => _mouseReleased;

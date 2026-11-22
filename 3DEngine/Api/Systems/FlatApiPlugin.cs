@@ -1,10 +1,11 @@
 namespace Engine;
 
 /// <summary>
-/// The systems that run against the flat API, the recorder, the debug keys and overlay, the day sky,
-/// the animated models and the edit meshes the commands show, each named under <c>RenderPlugin</c>,
-/// by which a system ordered before or after one of them names it. <see cref="DefaultPlugins"/>
-/// adds it after the render plugin, whose meshes and renderer it reads.
+/// The systems that run against the flat API, the recorder, the Diagnostics module's keys, console,
+/// overlay and settings panel, the day sky, the animated models and the edit meshes the commands
+/// show, each named under <c>RenderPlugin</c>, by which a system ordered before or after one of
+/// them names it. <see cref="DefaultPlugins"/> adds it after the render plugin, whose meshes and
+/// renderer it reads.
 /// </summary>
 internal sealed class FlatApiPlugin : IPlugin
 {
@@ -20,11 +21,17 @@ internal sealed class FlatApiPlugin : IPlugin
         // frame, and writes what it took where the app ends while it records.
         app.AddSystem(Stage.First, new SystemDescriptor(Recorder.Tick, "RenderPlugin.Recorder").MainThreadOnly());
         app.AddSystem(Stage.Cleanup, new SystemDescriptor(_ => Recorder.Shutdown(), "RenderPlugin.RecorderShutdown").Before("RenderPlugin.Cleanup").MainThreadOnly());
-        // F2 writes a screenshot in every program, F1 hides its interface and F3 shows the debug
-        // overlay, once the frame's input is in.
-        app.World.InitResource<DebugKeys>();
-        app.AddSystem(Stage.PreUpdate, new SystemDescriptor(DebugKeys.Run, "RenderPlugin.ScreenshotKey").MainThreadOnly().Read<Input>());
-        app.AddSystem(Stage.PreUpdate, new SystemDescriptor(DebugOverlay.Keys, "RenderPlugin.DebugOverlayKeys").MainThreadOnly().Read<Input>());
+        // The Diagnostics module's keys in every program, F1 hiding its interface, F2 writing a
+        // screenshot, F3 showing the debug overlay, F4 opening the settings panel and F5 the
+        // console, taken once the frame's input is in, the console and the panel drawn in ImGui's
+        // frame after them, and the keys' settings taken out of the registry as the app ends.
+        app.World.InitResource<ScreenshotKey>();
+        DiagnosticsBinding.Of(app.World);
+        app.AddSystem(Stage.PreUpdate, new SystemDescriptor(world => DiagnosticsBinding.TakeKeys(world, app), "RenderPlugin.DiagnosticKeys").MainThreadOnly().Read<Input>());
+        app.AddSystem(Stage.PreUpdate, new SystemDescriptor(ScreenshotKey.Run, "RenderPlugin.ScreenshotKey").After("RenderPlugin.DiagnosticKeys").MainThreadOnly().Read<Input>());
+        app.AddSystem(Stage.PreUpdate, new SystemDescriptor(world => DiagnosticsBinding.DrawWindows(world, app), "RenderPlugin.DiagnosticWindows")
+            .After("RenderPlugin.DiagnosticKeys").MainThreadOnly());
+        app.AddSystem(Stage.Cleanup, new SystemDescriptor(DiagnosticsBinding.Release, "RenderPlugin.DiagnosticsRelease").MainThreadOnly());
         // The day sky moves its hour, its light and its map after the program's frame, so an hour the
         // program set in it is drawn in it.
         app.AddSystem(Stage.PostUpdate, new SystemDescriptor(world => DaySky.Run(world, app), "RenderPlugin.DaySky").MainThreadOnly());
@@ -39,7 +46,7 @@ internal sealed class FlatApiPlugin : IPlugin
         // is rendered where a window or an offscreen run renders it, and before the draws are let go
         // where nothing does.
         var renders = app.World.ContainsResource<AppWindow>() || RunMode.HasRenderer(app.World);
-        app.AddSystem(Stage.Last, new SystemDescriptor(world => DebugOverlay.Draw(world, app), "RenderPlugin.DebugOverlay")
+        app.AddSystem(Stage.Last, new SystemDescriptor(world => DiagnosticsBinding.DrawOverlay(world, app), "RenderPlugin.DebugOverlay")
             .Before(renders ? "RenderPlugin.Render" : "RenderPlugin.ClearDraws").MainThreadOnly());
     }
 }

@@ -240,9 +240,13 @@ file is written, and `record.stop` ends one sooner.
 
 ## The debug keys
 
-Every program answers three of Minecraft's keys, F1, F2 and F3, each moved by a call or turned off
-with `Key.Null`, and the program sees each press as it sees any key, so a program that takes one for
-itself moves it. None is taken while a field of an ImGui window has the caret.
+Every program answers the Diagnostics module's five keys, Minecraft's F1, F2 and F3, F4 opening the
+settings panel and F5 the console, each a setting a player rebinds from the console, as
+`keys.console F6`, and the first three moved by a call too or turned off with `Key.Null`. A key is
+taken as it is let go where no other key went down while it was held, so a program's own chords on
+them stand, F3 with F4 among them, and the program sees each press as it sees any key, so a program
+that takes one for itself moves it. A key of one character is not taken while a field of an ImGui
+window has the caret.
 
 F1 hides the program's interface, what it draws between `BeginUi()` and `EndUi()`, so the world is
 seen alone, as Minecraft hides its HUD. While it is hidden the engine drops every 2D shape and text
@@ -266,22 +270,24 @@ A pause screen, a menu or a map drawn outside the scope stays whatever F1 says, 
 screens do, and the world and the debug overlay draw on. `IsUiHidden()` says whether it is hidden,
 and `SetUiHiddenKey` moves the key.
 
-F2 writes a screenshot, the frame being drawn as a PNG in a `screenshots` folder beside the program,
-made on first use, named by the time as `2026-10-21_03.45.12.png`, a second in the same second `_2`
-and a third `_3`, with a line in the log saying where. Held past half a second it records, fifteen
-pictures a second of the program's clock as PNGs numbered from `0001.png` in a folder named by the
-time beside the screenshots, until it is let go or the recording holds a hundred and fifty, ten
-seconds. `SetScreenshotKey(Key.F12)` moves it and `SetScreenshotKey(Key.Null)` turns it off.
-`SetScreenshotFolder(folder, written)` points both elsewhere and is called with each screenshot's
-path once it is written and each recording's folder once its last picture is, so a program names
-and notes its pictures as they land.
+F2 let go writes a screenshot, the frame being drawn as a PNG in a `screenshots` folder beside the
+program, made on first use, named by the time as `2026-10-21_03.45.12.png`, a second in the same
+second `_2` and a third `_3`, with a line in the log saying where. Held past half a second it
+records in place of the screenshot, fifteen pictures a second of the program's clock as PNGs
+numbered from `0001.png` in a folder named by the time beside the screenshots, until it is let go or
+the recording holds a hundred and fifty, ten seconds. `SetScreenshotKey(Key.F12)` moves it and
+`SetScreenshotKey(Key.Null)` turns it off. `SetScreenshotFolder(folder, written)` points both
+elsewhere and is called with each screenshot's path once it is written and each recording's folder
+once its last picture is, so a program names and notes its pictures as they land.
 
 F3 shows the engine's debug overlay over the frame, as Minecraft's debug screen, two columns of lines
 in the engine's font, each on a dark half-clear backing, with no window, header or border, drawn
 after everything else the frame draws in 2D and outside the interface's scope, so F1 leaves it. The
-left column says the engine's version and build, the frame rate, the frame's time and its number,
-the camera's place, its facing in Minecraft's words, north being minus Z, and its field of view, and
-the entities, meshes, textures and assets the program holds. The right column says the runtime, the
+head says the frame rate, the last frame's time, the average and the one percent low, the rate the
+slowest hundredth of the frames came at, which a game that stutters shows where its average does
+not, and the engine's version and build. The left column says the camera's place, its facing in
+Minecraft's words, north being minus Z, and its field of view, and the entities, meshes, textures
+and assets the program holds. The right column says the runtime, the
 OS, the CPU and its logical cores, the memory in use of the machine's and the managed heap, the GPU,
 its driver, its Vulkan version and its memory in use, the display's size, refresh, scale and vsync,
 and the renderer's passes and draw calls, the triangles of the frame's model draws, the lights and
@@ -290,15 +296,13 @@ lines are written again four times a second, so a number stays still long enough
 is taken as it is let go, where no other key went down while it was held, so a program's own chords
 on F3 stand and never open it, and `SetDebugOverlayKey` moves it.
 
-Under the frame rate a strip of the last 240 frames' times stands as the RivaTuner overlay draws its
+Under the head a strip of the last 240 frames' times stands as the RivaTuner overlay draws its
 graph, a bar a frame, green to 60 frames a second, yellow to 30 and red past it, with faint rows at
-the two, and beside it the last frame's time, the average and the one percent low, the rate the
-slowest hundredth of the frames came at, which a game that stutters shows where its average does
-not, with the GPU's time a frame under them. Every frame's time is kept whether the overlay shows or
-not, so it opens on the last four seconds. Shift held as F3 is let go shows the profiler under the
-right column, the render graph's passes the slowest first by their GPU and CPU times over the last
-second, and the overlay with it, as Minecraft's Shift+F3 does, and F3 alone hiding the overlay hides
-the profiler too.
+the two, and beside it the GPU's time a frame. Every frame's time is kept whether the overlay shows
+or not, so it opens on the last four seconds. Shift held as F3 is let go shows the profiler under
+the right column, the render graph's passes the slowest first by their GPU and CPU times over the
+last second, and the overlay with it, as Minecraft's Shift+F3 does, and F3 alone hiding the overlay
+hides the profiler too.
 
 A program adds sections of its own to the left column, under the engine's lines in the order added,
 each a heading and its lines, asked four times a second while the overlay shows, as a world
@@ -314,8 +318,16 @@ AddDebugOverlaySection("World", () => [$"Seed {seed}", $"Chunk {chunk.X} {chunk.
 RemoveDebugOverlaySection("World");
 ```
 
-A section added again under its name takes the place of the first, and one whose lines throw says
-why in a line where its lines would be.
+A section added again under its name takes the place of the first, and one whose lines throw is a
+line saying it failed and why where its lines would be.
+
+F5 opens the console, a window across the top of the program's window holding every line written,
+the lines entered and their answers among them, and a field under them where a command or a setting
+is typed, completed by Tab from the names that begin with what is typed, walked back through by Up
+and Down, and run by Enter between the frame's input and its update, as `./e3d command` runs it. A
+command that answers frames later writes its answer under the line when it comes. F4 opens the
+settings panel, a page for each first word of the settings' names, steered by the arrows, Enter and
+Escape, or a pad.
 
 ## The app underneath
 

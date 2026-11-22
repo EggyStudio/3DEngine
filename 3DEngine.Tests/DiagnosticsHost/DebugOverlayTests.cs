@@ -1,14 +1,16 @@
 using System.Numerics;
+using Diagnostics;
 using FluentAssertions;
 using static Engine.E3D;
 
 namespace Engine.Tests.DiagnosticsHost;
 
 /// <summary>
-/// F1 hiding the interface's scope and F3 the debug overlay, in a headless run, with F1 turning the
-/// scope over and the scope's 2D draws dropped while the overlay's stay, F3 let go alone turning the
-/// overlay over and a chord on it not, Shift+F3 the profiler, the keys moved and turned off, what the
-/// overlay's lines say, the strip of the last 240 frames' times and a program's sections.
+/// F1 hiding the interface's scope and F3 the debug overlay, the Diagnostics module's keys and
+/// overlay in a headless run, with F1 turning the scope over and the scope's 2D draws dropped while
+/// the overlay's stay, F3 let go alone turning the overlay over and a chord of it with F4 turning
+/// neither the overlay nor the panel, Shift+F3 the profiler, the keys moved and turned off, what
+/// the engine's sections say, the strip of the last 240 frames' times and a program's sections.
 /// </summary>
 /// <remarks>
 /// What the frame's pixels show, the scope's draws and ImGui windows gone and the overlay over the
@@ -40,7 +42,16 @@ public sealed class DebugOverlayTests : IDisposable
 
     private static Input Input => GetApp().World.Resource<Input>();
 
-    private static DebugOverlay Overlay => DebugOverlay.Of(GetApp().World);
+    private static DiagnosticsBinding Binding => DiagnosticsBinding.Of(GetApp().World);
+
+    private static OverlayModel Overlay => Binding.Overlay;
+
+    // The lines of a place as the sections give them when asked again.
+    private static IReadOnlyList<string> Said(OverlayPlace place)
+    {
+        Overlay.Refresh();
+        return Overlay.Lines(place);
+    }
 
     private static DrawList Draws => GetApp().World.Resource<DrawList>();
 
@@ -114,7 +125,7 @@ public sealed class DebugOverlayTests : IDisposable
     }
 
     [Fact]
-    public void F3_Let_Go_Alone_Turns_The_Overlay_Over_And_A_Chord_On_It_Does_Not()
+    public void F3_Let_Go_Alone_Turns_The_Overlay_Over_And_A_Chord_Of_It_With_F4_Turns_Nothing()
     {
         Frames(1);
         Tap(Key.F3);
@@ -129,6 +140,7 @@ public sealed class DebugOverlayTests : IDisposable
         Input.SetKey(Key.F3, false);
         Frames(1);
         Overlay.Shown.Should().BeTrue("a chord on F3 never turns the overlay");
+        Binding.Panel.Open.Should().BeFalse("and F4 in the chord opens no panel");
 
         // Pressed and not yet let go, F3 has done nothing.
         Input.SetKey(Key.F3, true);
@@ -177,20 +189,22 @@ public sealed class DebugOverlayTests : IDisposable
         after.Should().Be(before, "the text drawn in the hidden scope is dropped");
         _atEnd.Should().BeGreaterThan(after, "the overlay's lines are drawn after the program's, over the hidden interface");
 
-        var said = Overlay.Written!;
-        said.Head[0].Should().StartWith("3DEngine ").And.Contain("no device");
-        said.Head[1].Should().MatchRegex(@"^\d+ fps, \d+\.\d ms a frame, frame \d+$");
-        said.Left.Should().StartWith(
+        var head = Overlay.Lines(OverlayPlace.Head);
+        head[0].Should().MatchRegex(@"^\d+ fps, \d+\.\d ms, \d+\.\d ms average, \d+ fps 1% low$", "the module's own line of the frame's rate comes first");
+        head[1].Should().StartWith("3DEngine ").And.Contain("no device");
+        head.Should().HaveCount(2);
+        Overlay.Lines(OverlayPlace.Left).Should().StartWith(
         [
             "XYZ 1.000 / 2.000 / 3.000",
             "Facing north (towards negative Z), heading 0.0, pitch 0.0",
             "Field of view 60 degrees",
             "",
         ]);
-        said.Left.Should().Contain(line => line.StartsWith("Entities ", StringComparison.Ordinal) && line != "Entities 0");
-        said.Right.Should().Contain(line => line.StartsWith("CPU ", StringComparison.Ordinal) && line.EndsWith(" logical cores", StringComparison.Ordinal));
-        said.Right.Should().Contain("GPU none, as the run draws nothing").And.Contain("Display none, a headless run").And.Contain("Global illumination off");
-        said.Right.Should().Contain(line => line.StartsWith("Lights 0 directional", StringComparison.Ordinal));
+        Overlay.Lines(OverlayPlace.Left).Should().Contain(line => line.StartsWith("Entities ", StringComparison.Ordinal) && line != "Entities 0");
+        var right = Overlay.Lines(OverlayPlace.Right);
+        right.Should().Contain(line => line.StartsWith("CPU ", StringComparison.Ordinal) && line.EndsWith(" logical cores", StringComparison.Ordinal));
+        right.Should().Contain("GPU none, as the run draws nothing").And.Contain("Display none, a headless run").And.Contain("Global illumination off");
+        right.Should().Contain(line => line.StartsWith("Lights 0 directional", StringComparison.Ordinal));
     }
 
     [Fact]
@@ -202,13 +216,13 @@ public sealed class DebugOverlayTests : IDisposable
         ecs.Add(entity, new Transform(new Vector3(4, 5, 6), Quaternion.CreateFromYawPitchRoll(-MathF.PI / 2, -0.25f, 0), Vector3.One));
         ecs.Add(entity, new Camera { FovY = MathF.PI / 3, Near = 0.1f, Far = 100 });
 
-        var said = Overlay.Lines(GetApp().World);
-        said.Left[0].Should().Be("XYZ 4.000 / 5.000 / 6.000");
-        said.Left[1].Should().Be("Facing east (towards positive X), heading 90.0, pitch -14.3");
-        said.Left[2].Should().Be("Field of view 60 degrees");
+        var left = Said(OverlayPlace.Left);
+        left[0].Should().Be("XYZ 4.000 / 5.000 / 6.000");
+        left[1].Should().Be("Facing east (towards positive X), heading 90.0, pitch -14.3");
+        left[2].Should().Be("Field of view 60 degrees");
 
-        DebugOverlay.Compass(359).Should().Be("north");
-        DebugOverlay.Compass(225).Should().Be("southwest");
+        DiagnosticsBinding.Compass(359).Should().Be("north");
+        DiagnosticsBinding.Compass(225).Should().Be("southwest");
     }
 
     [Fact]
@@ -220,14 +234,14 @@ public sealed class DebugOverlayTests : IDisposable
         Tap(Key.F3);
         Input.SetKey(Key.LeftShift, false);
         Frames(1);
-        (Overlay.Shown, Overlay.ProfilerShown).Should().Be((true, true));
-        Overlay.Lines(GetApp().World).Right.Should().Contain("Pass timings not measured, as no frame is rendered", "a headless run renders no pass to time");
+        (Overlay.Shown, Overlay.Detailed).Should().Be((true, true));
+        Said(OverlayPlace.Right).Should().Contain("Pass timings not measured, as no frame is rendered", "a headless run renders no pass to time");
 
         Tap(Key.F3);
-        (Overlay.Shown, Overlay.ProfilerShown).Should().Be((false, false), "F3 alone hides the profiler with the overlay");
+        (Overlay.Shown, Overlay.Detailed).Should().Be((false, false), "F3 alone hides the profiler with the overlay");
         Tap(Key.F3);
-        (Overlay.Shown, Overlay.ProfilerShown).Should().Be((true, false));
-        Overlay.Lines(GetApp().World).Right.Should().NotContain(line => line.StartsWith("Pass timings", StringComparison.Ordinal));
+        (Overlay.Shown, Overlay.Detailed).Should().Be((true, false));
+        Said(OverlayPlace.Right).Should().NotContain(line => line.StartsWith("Pass timings", StringComparison.Ordinal));
     }
 
     [Fact]
@@ -236,22 +250,10 @@ public sealed class DebugOverlayTests : IDisposable
         Frames(300);
         Overlay.Shown.Should().BeFalse();
 
-        var times = Overlay.FrameTimes();
-        times.Should().HaveCount(DebugOverlay.StripFrames);
+        var times = Overlay.FrameTimes;
+        times.Should().HaveCount(OverlayModel.StripFrames);
         times.Should().OnlyContain(ms => MathF.Abs(ms - 1000f / 60) < 1e-3f, "each frame counts a sixtieth of a second");
-        Overlay.Lines(GetApp().World).Beside[0].Should().Be("Now 16.7 ms, average 16.7 ms, 1% low 60 fps");
-    }
-
-    [Fact]
-    public void The_One_Percent_Low_Is_The_Rate_Of_The_Slowest_Hundredth_Of_The_Frames()
-    {
-        // A frame of 100 milliseconds among 199 of 10, the slowest hundredth of 200 being two frames.
-        var times = Enumerable.Repeat(10f, 199).Append(100f).ToArray();
-        var (now, average, low) = DebugOverlay.Stats(times);
-
-        (now, average).Should().Be((100f, (199 * 10f + 100) / 200));
-        low.Should().BeApproximately(1000 / 55f, 1e-3f, "the two slowest average 55 milliseconds");
-        DebugOverlay.Stats([]).Should().Be((0f, 0f, 0f));
+        Said(OverlayPlace.Head)[0].Should().Be("60 fps, 16.7 ms, 16.7 ms average, 60 fps 1% low");
     }
 
     [Fact]
@@ -263,15 +265,14 @@ public sealed class DebugOverlayTests : IDisposable
         AddDebugOverlaySection("Broken", () => throw new InvalidOperationException("no level is loaded"));
         AddDebugOverlaySection("Enemies", () => ["Alive 7"]);
 
-        var left = Overlay.Lines(GetApp().World).Left;
-        left.Should().EndWith(["", "World", "Seed 42", "Chunk 3 -1", "", "Broken", "Broken: InvalidOperationException, no level is loaded", "", "Enemies", "Alive 7"]);
+        Said(OverlayPlace.Left).Should().EndWith(["", "World", "Seed 42", "Chunk 3 -1", "Broken failed. no level is loaded", "", "Enemies", "Alive 7"]);
 
         // One of the same name takes the place of the first, and one taken away is gone.
         seed = 7;
         AddDebugOverlaySection("World", () => [$"Seed {seed}"]);
         RemoveDebugOverlaySection("Broken").Should().BeTrue();
         RemoveDebugOverlaySection("Broken").Should().BeFalse();
-        Overlay.Lines(GetApp().World).Left.Should().EndWith(["", "World", "Seed 7", "", "Enemies", "Alive 7"]);
+        Said(OverlayPlace.Left).Should().EndWith(["", "World", "Seed 7", "", "Enemies", "Alive 7"]);
 
         var nameless = () => AddDebugOverlaySection(" ", () => []);
         nameless.Should().Throw<ArgumentException>();
@@ -285,7 +286,7 @@ public sealed class DebugOverlayTests : IDisposable
         Tap(Key.F3);
 
         Frames(1);
-        Overlay.Written!.Left.Should().Contain("Seed 42");
+        Overlay.Lines(OverlayPlace.Left).Should().Contain("Seed 42");
         // The strip's backing, its two rules and a bar a frame, besides every line's backing and
         // text, in a frame that draws nothing of its own.
         _atEnd.Should().BeGreaterThan(4 * (3 + 2));

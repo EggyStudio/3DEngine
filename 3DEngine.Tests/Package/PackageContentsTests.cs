@@ -34,9 +34,11 @@ public sealed class PackageContentsTests
         }
         // The modules under modules/, no packages of their own, carried beside the areas with
         // their documentation, so a game compiles against the Sky module's types the API takes
-        // and marks its commands with the Diagnostics module's attribute.
+        // and marks its commands with the Diagnostics module's attribute, and the module's ImGui
+        // drawers draw its console and panel.
         Entries(package).Should().Contain(["lib/net10.0/3DEngine.Sky.dll", "lib/net10.0/3DEngine.Sky.xml",
-            "lib/net10.0/3DEngine.Diagnostics.dll", "lib/net10.0/3DEngine.Diagnostics.xml"]);
+            "lib/net10.0/3DEngine.Diagnostics.dll", "lib/net10.0/3DEngine.Diagnostics.xml",
+            "lib/net10.0/3DEngine.Diagnostics.ImGui.dll", "lib/net10.0/3DEngine.Diagnostics.ImGui.xml"]);
     }
 
     [NeedsPackageFact]
