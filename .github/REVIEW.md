@@ -530,6 +530,38 @@ changes.
     camera's place along every axis and the view's region equal to the field's extent, and a sheet
     before and after rides in the commit. It comes after item 308.
 
+311. **A gather by pixel beside the screen probes, either one choosable.** The screen probes still
+    flicker in a shown window after every mend, so a second way of bringing the cascades' light to
+    the picture is tried beside them, and a setting chooses either. It takes its place after 307 and
+    before 310. Step one reads the flicker itself, offscreen, on a still camera and on a slow turn
+    in Sponza and the feature test, as the change of a pixel from frame to frame with nothing in the
+    scene moving, per quality, and names its source in one reading or says it is suspected. If a
+    mend follows from that reading it is made, since the probes stay where they are faster. Step two
+    is the gather by pixel. Each pixel sends one ray over its hemisphere, through the distance field
+    or the hardware scene as the backend is set, the hit takes its light from the cascades and
+    nothing is traced past it, and a miss takes the cascades' light in that direction. It runs at
+    full, half, quarter and eighth size with an upscale that follows depth and normal, whole each
+    frame with no history, any filter working inside the one frame. Step three reads both ways
+    against the traced reference in the two scenes, the difference, the frame to frame change of a
+    still view, and the time of each at each size, on one sheet with difference panels. The Reply
+    says plainly where one ray a pixel with no history is too grainy to stand and what removes the
+    grain inside the frame (more rays at a smaller size, the filter's width, the cascades taken
+    sooner along the ray). The setting keeps both whatever the reading says, its default the one the
+    sheet favors.
+
+310. **Rough reflections from the cascades, shown in a scene.** Reflection is the next large step
+    after the branch, tried rough first and whole each frame with no history. The RadianceCascades
+    module's item 10 writes the kernel that reads a reflection cone from the cascades and names the
+    roughness below which it parts from a traced reference. This item waits for that Reply and takes
+    its place after 307. Its first step is a Reply alone, saying what the engine draws for a glossy
+    surface today (which pass, from which light, with what history) and which path takes the
+    module's kernel soonest, main's own cascades or the branch's shared passes. The trial then draws
+    the kernel's reflection in the feature test's materials wall and in Sponza's floor, behind a
+    setting that chooses it beside what stands today, and reads it against the traced reference at
+    roughness 0.2, 0.5 and 0.8 with a sheet of the three (today, the kernel, the reference,
+    difference panels) and the pass's time at each quality. Sharp reflections by a traced ray lit
+    from the cascades are a later item and are not begun here.
+
 ## Verdicts
 
 No verdict is open. Verdict 132 is settled at 15:10 on 2026-11-22 on run 45021666753 and archived.
@@ -974,3 +1006,61 @@ anywhere in the frame holds or frees the input from the next read on.
 - `HeldInputTests` holds the overlay alone leaving all live, the panel open holding all with the
   raw key and the raw pad still read, F5 closing it, and a key, a stick and a button held as it
   closes. The input and window guides say it.
+
+Item 304, the cold start of the door view read frame by frame on the branch and on main.
+
+Sponza's door view at High, the sun at noon, screen probes off, settled 240 frames, then the
+gather's two images of the probes' light, `bounced` and `bouncedAtSurface`, cleared to zero
+and the next ten frames read. The traced and merged light and the held shares were not cleared.
+The left wall is gray block 8's +z face, 65,897 pixels, against the same 256 path reference.
+
+| Frame | 42ed4e13 probe | 42ed4e13 wall | Gain | df4d0559 probe | df4d0559 wall |
+|---|---|---|---|---|---|
+| Before | 0.00807 | 2.046 | | 0.00388 | 1.075 |
+| 1 | 0.00675 | 1.482 | | 0.00371 | 0.834 |
+| 2 | 0.00746 | 1.603 | | 0.00356 | 0.807 |
+| 3 | 0.00749 | 1.867 | 2.17 | 0.00372 | 1.027 |
+| 4 | 0.00795 | 1.977 | 0.42 | 0.00385 | 1.054 |
+| 5 | 0.00796 | 2.018 | 0.37 | 0.00386 | 1.071 |
+| 6 | 0.00804 | 2.035 | 0.41 | 0.00387 | 1.073 |
+| 7 | 0.00805 | 2.042 | 0.42 | 0.00387 | 1.073 |
+| 8 | 0.00806 | 2.044 | 0.35 | 0.00388 | 1.074 |
+| 9 | 0.00806 | 2.045 | 0.40 | 0.00388 | 1.075 |
+| 10 | 0.00806 | 2.045 | 0.30 | 0.00388 | 1.075 |
+
+- The probe is (3,4,2) of cascade 1, the mean of its +z face's three channels. The gain is the
+  wall's change of frame n over that of frame n − 1.
+- On the branch the first frame holds 84% of the probe's light and the wall reads 1.48, 1.78 times
+  main's first frame. Main's first frame holds 96% of its probe's light.
+- The branch's wall settles at a gain near 0.40 a frame. Main's changes after frame 3 are under
+  0.03 and their ratios scatter from −8 to 5, so no gain is read there.
+- On the branch the probe's face moves in large steps on even frames and small ones on odd frames,
+  so its own gain a frame is not read.
+- At the left wall's hits `lights.counts.z` is 1 on both trees, the default gain with the frame
+  before's light not turned off. The probe's held share reads −1 every frame on both, so `kept` is
+  taken from its neighbours.
+- The wall's copy has roughness 0.631 and metallic 0.071 on both. glossyHit's `share` there is
+  0.086 at an nv of 0.25, 0.051 at 0.5 and 0.037 at 1, beside a diffuse share past it of 0.21 to
+  0.25.
+
+Item 308, not reproduced, waiting for the example and settings it was seen with.
+
+The occlusion at full size was read beside the half size's, the full one brought to the half's
+size by the mean of each two by two block. It was compared as drawn and mirrored across x and
+across y, the mean difference in 255ths. In every case it lay nearest the half as drawn.
+
+- The occlusion tests' cube in the corner of two walls, 320 by 240 offscreen, both methods, the
+  camera held at −20, 0 and 20 degrees and turned into each a degree a frame. As drawn 0.5 to 3.3,
+  mirrored 7.5 to 24.
+- Sponza at main, offscreen and in a hidden window, the field settled, both methods, held and
+  mid-turn. At 800 by 450, as drawn 5.7 to 12.4, mirrored 9.0 to 21. With the window resized
+  by `window.size` to 1366 by 768 and to 1920 by 1080, as drawn 7.1 to 20.6, mirrored 12.5 to 35.
+  The gap as drawn is the texture's detail the full size resolves.
+- The occlusion's own pictures, through `ao.save` raw, filtered, bent and final, with the circular
+  occluders, held, mid-turn and moved to the door view. As drawn 4.7 to 18.4, mirrored 11.7 to 77.
+- The same four pictures in a hidden window at 1366 by 768 and again after `window.size` made it
+  1100 by 700, held and mid-turn. As drawn 9.7 to 25.1, mirrored 17.4 to 71.
+- The frames at the two sizes keep within 1.7% of each other in brightness once the field is built.
+  Before the field is built they darken over time at either size, which reads like a change of
+  size where the two are drawn in turn.
+- The engine has no view of the occlusion alone and no render scale, so neither was tried.
