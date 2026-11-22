@@ -1,4 +1,5 @@
 using System.Numerics;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 namespace Engine;
@@ -10,7 +11,9 @@ internal sealed partial class SceneFieldRenderer
     // those meshes where they do not fit, large enough for the triangles of the build in progress
     // (building) its later parts are added from, since one made for a frame's part alone would
     // overflow with the next part's meshes and be made again at each part, every mesh's corners
-    // written again each time.
+    // written again each time. It is compiled optimized at its first call, so its loop over the
+    // corners is not compiled again in the frame it first runs long.
+    [MethodImpl(MethodImplOptions.AggressiveOptimization)]
     private IBuffer Pool(GraphicsDevice device, IEnumerable<SceneFieldPlan.Instance> needed, int building)
     {
         // A mesh by its vertices, with the id of one draw of it, whose vertices' colors it is pooled with.
@@ -133,24 +136,70 @@ internal sealed partial class SceneFieldRenderer
     /// no other triangle shares by the places of its ends, so a mesh whose faces keep vertices of
     /// their own, as a cube's do, is closed where its faces meet and a ground plane open at its rim.
     /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveOptimization)]
     internal static bool[] OpenEdges(ModelVertex[] vertices, uint[] indices)
     {
         var count = indices.Length / 3 * 3;
-        var shared = new Dictionary<(Vector3, Vector3), int>(count);
-        (Vector3, Vector3) Edge(int i)
+        // Each place a corner stands at numbered once, vertices at the same place taking the same
+        // number, so an edge is its two numbers, the lower first, and two edges meet where their
+        // numbers do. Places and edges are counted in tables over arrays, found by a mixed key and
+        // the slots after it, a place's slot holding the first vertex seen there and an edge's its
+        // key and its uses. The method is compiled optimized at its first call, so its loops are
+        // not compiled again in the frame of the first mesh that comes.
+        var placeOf = new int[vertices.Length];
+        Array.Fill(placeOf, -1);
+        var placeMask = TableMask(Math.Min(vertices.Length, count));
+        var placeSlots = new int[placeMask + 1];
+        var places = 0;
+        int Place(uint vertex)
         {
-            var (a, b) = (vertices[indices[i]].Position, vertices[indices[i / 3 * 3 + (i % 3 + 1) % 3]].Position);
-            return a.X < b.X || a.X == b.X && (a.Y < b.Y || a.Y == b.Y && a.Z <= b.Z) ? (a, b) : (b, a);
+            ref var place = ref placeOf[vertex];
+            if (place >= 0) return place;
+            var at = vertices[vertex].Position;
+            var slot = (int)(Mix(Mix((ulong)PlaceBits(at.X) << 32 | PlaceBits(at.Y)) ^ PlaceBits(at.Z)) & (uint)placeMask);
+            for (; ; slot = (slot + 1) & placeMask)
+            {
+                var first = placeSlots[slot] - 1;
+                if (first < 0)
+                {
+                    placeSlots[slot] = (int)vertex + 1;
+                    return place = places++;
+                }
+                if (vertices[first].Position == at) return place = placeOf[first];
+            }
         }
+        var edgeMask = TableMask(count);
+        var keys = new ulong[edgeMask + 1];
+        var uses = new int[edgeMask + 1];
+        var slotOf = new int[count];
         for (int i = 0; i < count; i++)
         {
-            var edge = Edge(i);
-            shared[edge] = shared.GetValueOrDefault(edge) + 1;
+            var (a, b) = ((uint)Place(indices[i]), (uint)Place(indices[i / 3 * 3 + (i % 3 + 1) % 3]));
+            var key = a < b ? (ulong)a << 32 | b : (ulong)b << 32 | a;
+            var slot = (int)(Mix(key) & (uint)edgeMask);
+            while (uses[slot] > 0 && keys[slot] != key) slot = (slot + 1) & edgeMask;
+            keys[slot] = key;
+            uses[slot]++;
+            slotOf[i] = slot;
         }
         var open = new bool[count];
-        for (int i = 0; i < count; i++) open[i] = shared[Edge(i)] == 1;
+        for (int i = 0; i < count; i++) open[i] = uses[slotOf[i]] == 1;
         return open;
     }
+
+    // A table's slots less one for as many entries as given, a power of two at least twice them.
+    private static int TableMask(int entries) => (int)BitOperations.RoundUpToPowerOf2((uint)Math.Max(2, entries * 2)) - 1;
+
+    // A key mixed by steps each of which it can be undone from, so keys are the same where their
+    // numbers are and spread where the numbers lie close.
+    private static ulong Mix(ulong key)
+    {
+        key *= 0x9E3779B97F4A7C15UL;
+        return key ^ key >> 32;
+    }
+
+    // A coordinate's bits, minus zero's taken as zero's, as the two stand at one place.
+    private static uint PlaceBits(float value) => value == 0 ? 0 : BitConverter.SingleToUInt32Bits(value);
 
     // The parts a mesh that does not bend is stamped as, kept for its vertices.
     private SceneFieldPlan.Part[]? PartsOf(ModelVertex[] vertices)

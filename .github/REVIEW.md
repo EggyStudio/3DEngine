@@ -1051,3 +1051,43 @@ The module lacks five things, which the step did not work round.
   itself, such as window.vsync from the vsync hint.
 - The registry raises no event as a setting is added, so a saved setting registered after the start
   is written only at the close.
+
+Item 288, the scene field's pool in a frame of the streamed land.
+
+The reading is `StreamedLandProbe.Flight` on the RTX 4070 under the exclusive lock, the engine's
+streamed land at the entry's settings over 900 frames, every stage inside `cpu.scene_field` and
+`cpu.global_illumination` in ms, from a tree whose marks stay out of the repository. A step here is
+a frame that puts meshes in the pool again with none new, frames 133 and 200, and a coming a frame
+whose meshes' open edges are found for the first time, frames 202 to 206, 470 to 473 and 738 to 741.
+Flights before and after were flown in turn, three of each, the load between 1.3 and 5.8.
+
+Before the mend:
+- At a step the field's worst frame read 14.7, 13.1 and 7.7 ms, the pool 13.8, 12.2 and 7.2 of
+  them, and 11.5, 11.1 and 6.0 ms of those the runtime compiling the pool's method again in the
+  frame its loop over the corners first ran long, as `JitInfo` read around it.
+- At a coming the worst read 8.3, 10.5 and 16.1 ms, the open edge finder 7.2, 9.5 and 15.5 of
+  them, 7.4 ms of the last compiling the finder in the first coming. The finder took 5.0 to 9.6 ms
+  in a coming of 30,000 to 40,000 triangles.
+- Over a flight the finder took 58 to 75 ms in 19 frames, on average 69 ms of the pool's 75 in
+  the frames meshes come in, the largest part of the field's work there.
+- The ray scene's worst frames, 7.8 to 9.6 ms, are `gi.rays` at a mesh's build and `gi.retire`,
+  at frames no mesh comes in, and are left as they were.
+
+The finder kept a dictionary keyed by the two places of an edge's ends, a pair of `Vector3` hashed
+and compared at 24 bytes, three times a corner. It numbers each place once and counts each edge by
+its two numbers in tables over arrays, once a corner. The pool's method and the finder are
+compiled optimized at their first call. `SceneFieldTests.Edges` holds the finder's bit for every
+edge equal to a reference that compares the places of its ends, in a land of blocks and in
+triangles that share places, so the corners the pool uploads, and the field built from them, are
+the same as before.
+
+After the mend, three flights flown after those above, the load 1.5 to 1.7:
+- At a step the field's worst frame reads 1.4, 3.3 and 2.8 ms, with nothing compiled.
+- At a coming the worst reads 8.4, 7.2 and 6.9 ms, the finder 7.2, 5.7 and 5.8 of them, and
+  compiling the finder at its first call takes 2.8 ms where it took 5.9 to 7.4. The finder takes
+  1.6 to 7.2 ms in a coming of 30,000 to 40,000 triangles.
+- Over a flight the finder takes 36 to 38 ms, and the field's worst frame of the flight 8.4, 7.2
+  and 7.1 ms against 14.7, 13.1 and 16.1.
+- With the finder alone mended and nothing compiled optimized, three flights in turn with the
+  three before, the finder took 25 to 46 ms over a flight, and a step still compiled for 11.3 ms
+  in one flight and the first coming for 5.9 in two.
