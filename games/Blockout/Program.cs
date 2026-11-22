@@ -1,8 +1,9 @@
 // Blockout, a level blocked out from one recipe of the modeling tools and walked in, three rooms, a
 // corridor, stairs up to a second floor, two doors and a window, in the prototype materials, under a
 // sun and global illumination. WASD walks, the mouse looks about and the arrows too, Space jumps,
-// Tab opens the modeling window on the level so it is reshaped while it is walked in, and F5 saves
-// the recipe. Written against the engine's package, as a game outside this repository would be.
+// Tab opens the modeling window on the level so it is reshaped while it is walked in, and F6 saves
+// the recipe, F1 to F5 being the engine's diagnostic keys. Written against the engine's package, as
+// a game outside this repository would be.
 using System.Numerics;
 using Diagnostics;
 using Engine;
@@ -46,7 +47,7 @@ var walker = CreatePhysicsCharacter(Level.Home, radius: 0.35f, height: 1.8f, mas
 SetPhysicsCharacterStepHeight(walker, 0.3f);
 var (yaw, pitch) = (0f, 0f);
 
-string[] help = ["WASD to walk, the mouse or the arrows to look, Space to jump", "Tab for the modeling window on the level, F5 to save it"];
+string[] help = ["WASD to walk, the mouse or the arrows to look, Space to jump", "Tab for the modeling window on the level, F6 to save it"];
 
 while (!WindowShouldClose())
 {
@@ -71,7 +72,7 @@ while (!WindowShouldClose())
     var dt = GetFrameTime();
     var typing = ImGui.GetIO().WantTextInput;
     if (!typing && IsKeyPressed(Key.Tab)) Play.Editing = !Play.Editing;
-    if (!typing && IsKeyPressed(Key.F5) && SaveEditMesh(level, Level.File))
+    if (!typing && IsKeyPressed(Key.F6) && SaveEditMesh(level, Level.File))
         Console.WriteLine($"[blockout] saved the level to {Path.Combine(AppContext.BaseDirectory, Level.File)}");
 
     // The mouse looks about while the modeling window is shut, its pointer hidden, as Manor's does,

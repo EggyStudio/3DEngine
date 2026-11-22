@@ -6,7 +6,7 @@ prototype materials. The level is made at load from one recipe, `resources/level
 BevyCSharp's Blockout's level file taken as it is, and walked on through the collider built from
 it by a character controller, with the mouse or the arrows to look. Tab opens the modeling window
 on the level, so it is reshaped while it is walked in, its model and collider made again on each
-change, and F5 saves the recipe. The day sky stands at two in the afternoon, its sun through the
+change, and F6 saves the recipe. The day sky stands at two in the afternoon, its sun through the
 window and the open room and global illumination lighting the rest, with a lamp in the hall.
 
 The model commands reach the level as `level`, and `blockout.status` and `blockout.autopilot`

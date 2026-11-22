@@ -97,7 +97,7 @@ var arrow = ecs.Spawn();
 ecs.Add(arrow, new Transform(where));
 ecs.Add(arrow, default(Saved));    // spawned in play, and saved whole
 // ...
-if (IsKeyPressed(Key.F5)) SaveGame.Save(world, "saves/slot.json");
+if (IsKeyPressed(Key.F6)) SaveGame.Save(world, "saves/slot.json");
 if (IsKeyPressed(Key.F9)) SaveGame.Load(world, "saves/slot.json");
 ```
 

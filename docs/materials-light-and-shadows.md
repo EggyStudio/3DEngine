@@ -345,7 +345,7 @@ each calling its setter at once, so the picture is tuned while it is looked at:
 bool showEffects = false;
 -->
 ```csharp
-if (IsKeyPressed(Key.F4)) showEffects = !showEffects;
+if (IsKeyPressed(Key.F7)) showEffects = !showEffects;
 // ...
 if (showEffects) DrawPostProcessWindow();
 var (contrast, saturation, tint) = GetColorGrading();
