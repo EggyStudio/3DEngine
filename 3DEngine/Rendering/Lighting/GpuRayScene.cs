@@ -30,9 +30,12 @@ internal readonly record struct RayInstance(object Mesh, Matrix4x4 World, Vector
 /// <remarks>
 /// The copies and their colors are written by the CPU into one of a ring of buffers a frame, as
 /// many as frames may be in flight, so a frame never writes what one still drawing reads. The
-/// corners of every mesh lie in one buffer, made again twice as large with the meshes it held
-/// copied where a new mesh does not fit, and their texture coordinates in another beside it, which
-/// a path traced reference reads the copies' textures by.
+/// corners of every mesh lie in one buffer, and their texture coordinates in another beside it,
+/// which a path traced reference reads the copies' textures by. Where a new mesh does not fit, both
+/// are made again at twice their room, as often as that falls short, with the corners they held
+/// copied on the GPU by the frame's own commands, so the frame does not wait for the device, and
+/// the buffers left are let go once no frame in flight reads them. A mesh that leaves gives its
+/// corners back for the next that fits in them.
 /// </remarks>
 internal sealed class GpuRayScene : IDisposable
 {
@@ -45,9 +48,28 @@ internal sealed class GpuRayScene : IDisposable
     internal AddressedBuffer? Corners;
     internal AddressedBuffer? Uvs;
     internal int CornerCount;
-    // The corners the buffer holds of meshes whose structures were given back, until it is made
-    // again without them.
+    // The corners the buffer holds of meshes whose structures were given back, until a mesh takes
+    // them or the buffer is made again without them, and the runs they lie in, each its first
+    // corner and its count, in the order they lie.
     internal int DeadCorners;
+    internal readonly List<(int First, int Count)> Free = [];
+    // The corners at the buffer's head a copy recorded by a frame still in flight writes, under
+    // which the CPU writes nothing until that frame is done, and the count of copies recorded, by
+    // which the frame's end clears the corners of its own copy alone.
+    internal int Copying;
+    internal int CopiesRecorded;
+    // The meshes whose corners took new colors while a copy wrote under them, colored once it is
+    // done.
+    internal readonly HashSet<object> RecolorLater = new(ReferenceEqualityComparer.Instance);
+
+    /// <summary>
+    /// How many corners the buffer makes room for ahead of the meshes that need them, which a
+    /// program reserves as its world loads, so the buffer is not made again while it is played.
+    /// </summary>
+    internal int Reserved { get; set; }
+
+    /// <summary>How many corners the buffer has room for.</summary>
+    internal int Room => (int)((Corners?.Size ?? 0) / 16);
     internal VkAccelerationStructureKHR Top;
     internal AddressedBuffer? TopStorage, TopScratch;
     internal int Capacity;
@@ -133,9 +155,11 @@ internal static unsafe class GpuRayScenes
     {
         /// <summary>
         /// Makes the window's meshes for the device's ray tracing, holding none, its top-level
-        /// structure built empty so it can be bound before the first frame fills it.
+        /// structure built empty so it can be bound before the first frame fills it, or left for
+        /// the frame that records it first to build where <paramref name="built"/> is false, so a
+        /// scene made in a frame does not wait for the device.
         /// </summary>
-        public GpuRayScene CreateRayScene()
+        public GpuRayScene CreateRayScene(bool built = true)
         {
             var scene = new GpuRayScene();
             scene.Destroy = () =>
@@ -155,6 +179,7 @@ internal static unsafe class GpuRayScenes
                 scene.Corners?.Dispose();
                 scene.Uvs?.Dispose();
             };
+            if (!built) return scene;
             var cmd = device.BeginSingleTimeCommands();
             var held = device.BuildTop(cmd, scene, [], default);
             device.EndSingleTimeCommands(cmd);
@@ -195,15 +220,24 @@ internal static unsafe class GpuRayScenes
             var retired = new Retired();
             scene.Frame++;
             scene.ScratchTaken = 0;
-            device.LetGo(scene, retired);
+            device.LetGo(cmd, scene, retired);
+            if (scene.Reserved > scene.Room) device.Grow(cmd, scene, scene.Reserved, retired);
 
-            foreach (var mesh in recolored ?? [])
-                if (scene.Meshes.TryGetValue(mesh, out var made) && colorsOf?.Invoke(mesh) is { } colors && scene.Corners is not null)
+            // A mesh's colors written in place, or kept for a frame after the copy writing under
+            // them is done, which would write over them.
+            if (recolored is not null) scene.RecolorLater.UnionWith(recolored);
+            foreach (var mesh in scene.RecolorLater.ToArray())
+            {
+                if (!scene.Meshes.TryGetValue(mesh, out var made) || colorsOf?.Invoke(mesh) is not { } colors || scene.Corners is null)
+                    scene.RecolorLater.Remove(mesh);
+                else if (made.FirstCorner >= scene.Copying)
                 {
                     var into = (Vector4*)scene.Corners.Mapped + made.FirstCorner;
                     for (int i = 0; i < colors.Length && made.FirstCorner + i < scene.CornerCount; i++)
                         into[i].W = BitConverter.UInt32BitsToSingle(1u << 30 | colors[i]);
+                    scene.RecolorLater.Remove(mesh);
                 }
+            }
 
             var built = false;
             foreach (var instance in instances)
@@ -214,7 +248,7 @@ internal static unsafe class GpuRayScenes
                 if (!built)
                     device.MemoryBarrier(cmd, VkPipelineStageFlags2.AccelerationStructureBuildKHR, VkAccessFlags2.AccelerationStructureWriteKHR,
                         VkPipelineStageFlags2.AccelerationStructureBuildKHR, VkAccessFlags2.AccelerationStructureReadKHR | VkAccessFlags2.AccelerationStructureWriteKHR);
-                var first = device.AddCorners(scene, corners, colorsOf?.Invoke(instance.Mesh), uvsOf?.Invoke(instance.Mesh), retired);
+                var first = device.AddCorners(cmd, scene, corners, colorsOf?.Invoke(instance.Mesh), uvsOf?.Invoke(instance.Mesh), retired);
                 scene.Meshes[instance.Mesh] = device.BuildMesh(cmd, scene, first, corners.Length / 3, retired);
                 built = true;
             }
@@ -227,9 +261,10 @@ internal static unsafe class GpuRayScenes
         }
 
         // Gives back the structures of the meshes no copy has placed for the scene's count of frames,
-        // let go once no frame in flight reads them, and makes the corners again without theirs once
-        // they are half the buffer, each mesh kept moved to where its corners then lie.
-        private void LetGo(GpuRayScene scene, Retired retired)
+        // let go once no frame in flight reads them, with their corners for the meshes after to
+        // take, and makes the corners again without theirs once they are half the buffer, each mesh
+        // kept moved to where its corners then lie.
+        private void LetGo(VkCommandBuffer cmd, GpuRayScene scene, Retired retired)
         {
             List<object>? gone = null;
             foreach (var (key, mesh) in scene.Meshes)
@@ -239,7 +274,7 @@ internal static unsafe class GpuRayScenes
                 var mesh = scene.Meshes[key];
                 scene.Meshes.Remove(key);
                 scene.Placed.Remove(key);
-                scene.DeadCorners += mesh.Corners;
+                GiveBack(scene, mesh.FirstCorner, mesh.Corners);
                 retired.Add(new Released(() =>
                 {
                     device.Api.vkDestroyAccelerationStructureKHR(mesh.Structure);
@@ -250,83 +285,142 @@ internal static unsafe class GpuRayScenes
             if (scene.Corners is null || scene.DeadCorners < 65536 || scene.DeadCorners * 2 < scene.CornerCount) return;
 
             var live = scene.CornerCount - scene.DeadCorners;
-            var room = (ulong)Math.Max(4096, (int)System.Numerics.BitOperations.RoundUpToPowerOf2((uint)Math.Max(1, live)) * 2);
+            var room = Math.Max((ulong)scene.Reserved, (ulong)Math.Max(4096, (int)BitOperations.RoundUpToPowerOf2((uint)Math.Max(1, live)) * 2));
+            var kept = scene.Meshes.ToArray();
+            var moves = new (int From, int To, int Count)[kept.Length];
+            var at = 0;
+            for (int i = 0; i < kept.Length; i++)
+            {
+                var (key, mesh) = (kept[i].Key, kept[i].Value);
+                moves[i] = (mesh.FirstCorner, at, mesh.Corners);
+                scene.Meshes[key] = mesh with { FirstCorner = at };
+                at += mesh.Corners;
+            }
+            device.Remake(cmd, scene, Math.Min(room, (ulong)scene.Room), moves, at, retired);
+            (scene.CornerCount, scene.DeadCorners) = (at, 0);
+            scene.Free.Clear();
+        }
+
+        // Puts a mesh's corners among the runs the meshes after take from, joined to the runs
+        // either side, and lowers the buffer's count where they end it and no copy writes under
+        // them.
+        private static void GiveBack(GpuRayScene scene, int first, int count)
+        {
+            if (count <= 0) return;
+            var free = scene.Free;
+            var at = free.FindIndex(run => run.First > first);
+            if (at < 0) at = free.Count;
+            free.Insert(at, (first, count));
+            scene.DeadCorners += count;
+            if (at + 1 < free.Count && free[at].First + free[at].Count == free[at + 1].First)
+            {
+                free[at] = (free[at].First, free[at].Count + free[at + 1].Count);
+                free.RemoveAt(at + 1);
+            }
+            if (at > 0 && free[at - 1].First + free[at - 1].Count == free[at].First)
+            {
+                free[at - 1] = (free[at - 1].First, free[at - 1].Count + free[at].Count);
+                free.RemoveAt(at--);
+            }
+            if (scene.Copying == 0 && free[at].First + free[at].Count == scene.CornerCount)
+            {
+                (scene.CornerCount, scene.DeadCorners) = (free[at].First, scene.DeadCorners - free[at].Count);
+                free.RemoveAt(at);
+            }
+        }
+
+        // The first corner of a run given back that holds the count given, taken from it, or -1
+        // where none does or a copy in flight writes under them all.
+        private static int Take(GpuRayScene scene, int count)
+        {
+            if (scene.Copying > 0) return -1;
+            var free = scene.Free;
+            for (int i = 0; i < free.Count; i++)
+            {
+                var (first, held) = free[i];
+                if (held < count) continue;
+                if (held == count) free.RemoveAt(i);
+                else free[i] = (first + count, held - count);
+                scene.DeadCorners -= count;
+                return first;
+            }
+            return -1;
+        }
+
+        // Makes the corners' buffers again with room for at least the corners given, twice the
+        // room they had as often as that falls short, with the corners they held at the same
+        // places.
+        private void Grow(VkCommandBuffer cmd, GpuRayScene scene, int corners, Retired retired)
+        {
+            var room = (ulong)Math.Max(4096, scene.Room);
+            while (room < (ulong)corners) room *= 2;
+            (int From, int To, int Count)[] moves = scene.CornerCount > 0 ? [(0, 0, scene.CornerCount)] : [];
+            device.Remake(cmd, scene, room, moves, scene.CornerCount, retired);
+        }
+
+        // Makes the corners' buffers again with room for the corners given, the runs given copied
+        // into them on the GPU by the frame's commands, which the frame's passes read after and the
+        // CPU writes nothing under until the frame is done, since a write it makes reaches the
+        // memory at once and the copy after would write over it. The buffers left are let go once
+        // no frame in flight reads them.
+        private void Remake(VkCommandBuffer cmd, GpuRayScene scene, ulong room, (int From, int To, int Count)[] moves, int held, Retired retired)
+        {
             var corners = device.CreateAddressedBuffer(room * 16, VkBufferUsageFlags.StorageBuffer | VkBufferUsageFlags.AccelerationStructureBuildInputReadOnlyKHR
                 | VkBufferUsageFlags.TransferSrc | VkBufferUsageFlags.TransferDst, host: true, lasting: true);
             var uvs = device.CreateAddressedBuffer(room * 8, VkBufferUsageFlags.StorageBuffer | VkBufferUsageFlags.TransferSrc | VkBufferUsageFlags.TransferDst,
                 host: true, lasting: true);
             scene.Makings += 2;
-            var kept = scene.Meshes.ToArray();
-            var (moves, uvMoves) = (new VkBufferCopy[Math.Max(1, kept.Length)], new VkBufferCopy[Math.Max(1, kept.Length)]);
-            var at = 0;
-            for (int i = 0; i < kept.Length; i++)
+            if (scene.Corners is not null && moves.Length > 0)
             {
-                var (key, mesh) = (kept[i].Key, kept[i].Value);
-                moves[i] = new VkBufferCopy { srcOffset = (ulong)mesh.FirstCorner * 16, dstOffset = (ulong)at * 16, size = (ulong)mesh.Corners * 16 };
-                uvMoves[i] = new VkBufferCopy { srcOffset = (ulong)mesh.FirstCorner * 8, dstOffset = (ulong)at * 8, size = (ulong)mesh.Corners * 8 };
-                scene.Meshes[key] = mesh with { FirstCorner = at };
-                at += mesh.Corners;
-            }
-            // Copied on the GPU and waited for, as a buffer made again larger is, before the frame's
-            // corners are written after them.
-            if (kept.Length > 0)
-            {
-                var cmd = device.BeginSingleTimeCommands();
-                fixed (VkBufferCopy* m = moves) device.Api.vkCmdCopyBuffer(cmd, scene.Corners.Buffer, corners.Buffer, (uint)kept.Length, m);
+                var (cornerMoves, uvMoves) = (new VkBufferCopy[moves.Length], new VkBufferCopy[moves.Length]);
+                for (int i = 0; i < moves.Length; i++)
+                {
+                    var (from, to, count) = moves[i];
+                    cornerMoves[i] = new VkBufferCopy { srcOffset = (ulong)from * 16, dstOffset = (ulong)to * 16, size = (ulong)count * 16 };
+                    uvMoves[i] = new VkBufferCopy { srcOffset = (ulong)from * 8, dstOffset = (ulong)to * 8, size = (ulong)count * 8 };
+                }
+                fixed (VkBufferCopy* m = cornerMoves) device.Api.vkCmdCopyBuffer(cmd, scene.Corners.Buffer, corners.Buffer, (uint)moves.Length, m);
                 if (scene.Uvs is not null)
-                    fixed (VkBufferCopy* m = uvMoves) device.Api.vkCmdCopyBuffer(cmd, scene.Uvs.Buffer, uvs.Buffer, (uint)kept.Length, m);
-                device.EndSingleTimeCommands(cmd);
+                    fixed (VkBufferCopy* m = uvMoves) device.Api.vkCmdCopyBuffer(cmd, scene.Uvs.Buffer, uvs.Buffer, (uint)moves.Length, m);
+                device.MemoryBarrier(cmd, VkPipelineStageFlags2.Transfer, VkAccessFlags2.TransferWrite, VkPipelineStageFlags2.AllCommands, VkAccessFlags2.MemoryRead);
+                scene.Copying = held;
+                var copy = ++scene.CopiesRecorded;
+                retired.Add(new Released(() =>
+                {
+                    if (scene.CopiesRecorded == copy) scene.Copying = 0;
+                }));
             }
-            retired.Add(scene.Corners);
+            if (scene.Corners is not null) retired.Add(scene.Corners);
             if (scene.Uvs is not null) retired.Add(scene.Uvs);
-            (scene.Corners, scene.Uvs, scene.CornerCount, scene.DeadCorners) = (corners, uvs, at, 0);
+            (scene.Corners, scene.Uvs) = (corners, uvs);
         }
 
-        // Writes a mesh's corners after those the buffer holds, made again larger where they do not
-        // fit, and gives where the first lies. Each corner's color rides in the w its structure's build
-        // leaves unread, three sRGB bytes under a bit that keeps the uint a whole float rather than one
-        // a GPU may read as nothing, so the reference and a ray's reflection take a mesh's vertices'
-        // colors. Each corner's texture coordinates go at the same place in the buffer beside,
-        // (0, 0) where it has none.
-        private int AddCorners(GpuRayScene scene, Vector3[] corners, uint[]? colors, Vector2[]? uvs, Retired retired)
+        // Writes a mesh's corners into a run a mesh that left gave back where one holds them, or
+        // after those the buffer holds, made again larger where they do not fit, and gives where
+        // the first lies. Each corner's color rides in the w its structure's build leaves unread,
+        // three sRGB bytes under a bit that keeps the uint a whole float rather than one a GPU may
+        // read as nothing, so the reference and a ray's reflection take a mesh's vertices' colors.
+        // Each corner's texture coordinates go at the same place in the buffer beside, (0, 0) where
+        // it has none.
+        private int AddCorners(VkCommandBuffer cmd, GpuRayScene scene, Vector3[] corners, uint[]? colors, Vector2[]? uvs, Retired retired)
         {
-            var needed = scene.CornerCount + corners.Length;
-            if (scene.Corners is null || (ulong)needed * 16 > scene.Corners.Size)
+            var first = Take(scene, corners.Length);
+            if (first < 0)
             {
-                var room = (ulong)Math.Max(4096, (int)System.Numerics.BitOperations.RoundUpToPowerOf2((uint)needed) * 2);
-                var bigger = device.CreateAddressedBuffer(room * 16,
-                    VkBufferUsageFlags.StorageBuffer | VkBufferUsageFlags.AccelerationStructureBuildInputReadOnlyKHR
-                    | VkBufferUsageFlags.TransferSrc | VkBufferUsageFlags.TransferDst, host: true, lasting: true);
-                var biggerUvs = device.CreateAddressedBuffer(room * 8, VkBufferUsageFlags.StorageBuffer | VkBufferUsageFlags.TransferSrc | VkBufferUsageFlags.TransferDst,
-                    host: true, lasting: true);
-                scene.Makings += 2;
-                if (scene.Corners is not null)
-                {
-                    // Copied on the GPU and waited for, since the CPU reads memory it writes
-                    // through uncached, and the corners it writes into the new buffer after, a
-                    // mesh's colors among them, come after the copy.
-                    var cmd = device.BeginSingleTimeCommands();
-                    var region = new VkBufferCopy { size = (ulong)scene.CornerCount * 16 };
-                    device.Api.vkCmdCopyBuffer(cmd, scene.Corners.Buffer, bigger.Buffer, 1, &region);
-                    if (scene.Uvs is not null)
-                    {
-                        var uvRegion = new VkBufferCopy { size = (ulong)scene.CornerCount * 8 };
-                        device.Api.vkCmdCopyBuffer(cmd, scene.Uvs.Buffer, biggerUvs.Buffer, 1, &uvRegion);
-                    }
-                    device.EndSingleTimeCommands(cmd);
-                    retired.Add(scene.Corners);
-                    if (scene.Uvs is not null) retired.Add(scene.Uvs);
-                }
-                (scene.Corners, scene.Uvs) = (bigger, biggerUvs);
+                // After the corners the buffer holds, which a copy in flight writes no further
+                // than, since a copy is of what it held and its count falls under it only once no
+                // copy is.
+                first = scene.CornerCount;
+                if (scene.Corners is null || (ulong)(first + corners.Length) * 16 > scene.Corners.Size)
+                    device.Grow(cmd, scene, first + corners.Length, retired);
+                scene.CornerCount = first + corners.Length;
             }
-            var into = new Span<Vector4>((Vector4*)scene.Corners.Mapped + scene.CornerCount, corners.Length);
+            var into = new Span<Vector4>((Vector4*)scene.Corners!.Mapped + first, corners.Length);
             for (int i = 0; i < corners.Length; i++)
                 into[i] = new Vector4(corners[i], BitConverter.UInt32BitsToSingle(1u << 30 | (colors is { } c && i < c.Length ? c[i] : 0xFFFFFFu)));
-            var uvsInto = new Span<Vector2>((Vector2*)scene.Uvs!.Mapped + scene.CornerCount, corners.Length);
+            var uvsInto = new Span<Vector2>((Vector2*)scene.Uvs!.Mapped + first, corners.Length);
             for (int i = 0; i < corners.Length; i++)
                 uvsInto[i] = uvs is { } u && i < u.Length ? u[i] : Vector2.Zero;
-            var first = scene.CornerCount;
-            scene.CornerCount = needed;
             return first;
         }
 

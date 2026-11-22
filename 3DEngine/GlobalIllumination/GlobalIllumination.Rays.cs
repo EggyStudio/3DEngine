@@ -17,7 +17,9 @@ internal sealed partial class GlobalIlluminationRenderer
             && !renderWorld.TryGet<GlobalIlluminationSettings>()!.RaysOff
             && renderWorld.TryGet<SceneFieldRenderer>() is { } fields)
         {
-            _rays ??= device.CreateRayScene();
+            // Made with its top level left for the record below to build in the frame's commands.
+            _rays ??= device.CreateRayScene(built: false);
+            _rays.Reserved = renderWorld.TryGet<GlobalIlluminationSettings>()!.ReservedRayCorners;
             var copies = _rayCopies;
             copies.Clear();
             // A mesh over shader buffers, whose triangles the CPU does not hold, is passed over.

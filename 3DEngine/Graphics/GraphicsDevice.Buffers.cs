@@ -396,9 +396,15 @@ internal sealed unsafe partial class GraphicsDevice
         return cmd;
     }
 
+    /// <summary>
+    /// How many single-use command buffers the device has submitted and waited for.
+    /// </summary>
+    internal long SingleSubmits { get; private set; }
+
     /// <summary>Ends, submits, and waits for a single-use command buffer, then frees it.</summary>
     internal void EndSingleTimeCommands(VkCommandBuffer cmd)
     {
+        SingleSubmits++;
         _deviceApi.vkEndCommandBuffer(cmd).CheckResult();
 
         VkSubmitInfo submitInfo = new()

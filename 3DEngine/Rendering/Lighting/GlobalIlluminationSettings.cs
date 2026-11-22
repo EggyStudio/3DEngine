@@ -38,6 +38,12 @@ internal sealed class GlobalIlluminationSettings
     public string? RaysLeftOff { get; set; }
 
     /// <summary>
+    /// How many corners of the meshes the device's rays meet the ray scene makes room for ahead,
+    /// 0 unless <c>E3D.ReserveRayCorners</c> set it.
+    /// </summary>
+    public int ReservedRayCorners { get; set; }
+
+    /// <summary>
     /// Whether High traces the world's probes' rays through the device's ray tracing in place of the
     /// scene's distance field, crossing a surface that lets light through by the share it lets
     /// through, as <c>gi.meshes on</c> sets it.

@@ -104,6 +104,7 @@ sealed class Engine.GraphicsDevice : IDisposable, IGraphicsDevice
   internal int ReadbackStagingCount { get; }
   internal int SamplerCount { get; }
   internal int WindowDepthGeneration { get; }
+  internal long SingleSubmits { get; }
   internal static VkDescriptorSet SetHandle(IDescriptorSet set)
   internal static VkImageMemoryBarrier2 ImageBarrier(VkImage image, VkImageSubresourceRange range, VkImageLayout from, VkImageLayout to, VkPipelineStageFlags2 srcStage, VkAccessFlags2 srcAccess, VkPipelineStageFlags2 dstStage, VkAccessFlags2 dstAccess)
   internal static VkImageMemoryBarrier2 ImageLayoutBarrier(IImage image, VkImageLayout from, VkImageLayout to, VkPipelineStageFlags2 srcStage, VkAccessFlags2 before, VkPipelineStageFlags2 dstStage, VkAccessFlags2 after)

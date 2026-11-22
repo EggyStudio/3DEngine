@@ -5703,7 +5703,11 @@ turn. The ray scene's corners, which the CPU writes once for each mesh and the b
 structures read, take type 4 where the device offers its own memory whole, and grown they are
 copied on the GPU where the CPU copied them, reading memory it writes through uncached, so the
 frame that builds Sponza's structures once `High`'s rays are turned on took 0.47 to 0.51 s of the
-CPU where 1.4 to 1.6 s, 0.62 to 0.68 s with the copy alone, its passes as they were.
+CPU where 1.4 to 1.6 s, 0.62 to 0.68 s with the copy alone, its passes as they were. The copy, and
+the one that packs the corners again once half of them are given back, are recorded with the
+frame's own commands, so neither frame waits for the GPU, and the CPU writes no corner under them
+until that frame is done. The buffer doubles as often as a mesh does not fit, and a mesh that
+leaves gives its corners back for the next that fits in them.
 
 ### Beside raylib
 

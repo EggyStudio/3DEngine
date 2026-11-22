@@ -28,6 +28,13 @@ opens it answering `gi.merge` by its name with its value and its default, `gi.me
 value, `run.frames 600` as a value of the next start and `window.vsync` with its value, with `gi.sh`
 typed in its field and the two names that begin with it listed.
 
+![](.github/assets/readings/2026-11-22-item-305-examples-list.webp)
+The examples program run with no name at 900 by 600 in two panes on white, its list drawn with the
+engine's own text edit, text and rectangles and no ImGui, on the left as it opens with the 266
+examples under their folders' names and the first chosen, on the right with camera typed into the
+field through the engine's input, which keeps the nine core examples whose names hold it, and Down
+pressed twice, which moved the choice to core_2d_camera_platformer.
+
 ## 2026-11-21
 
 ![](.github/assets/readings/2026-11-21-sponza-base-color.webp)

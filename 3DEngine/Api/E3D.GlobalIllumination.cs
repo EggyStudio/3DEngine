@@ -190,6 +190,35 @@ public static partial class E3D
     public static float GetBounceGain() => TryRes<GlobalIlluminationSettings>(out var settings) ? settings.BounceGain : 1;
 
     /// <summary>
+    /// Makes room ahead for the count of corners given, those of the meshes the device's rays meet
+    /// at <see cref="GlobalIllumination.High"/>, three to a triangle of each mesh, so the buffer
+    /// holding them is not made again as more meshes come, as a world reserves them while it loads,
+    /// or none ahead with 0, which it is by default.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// A corner takes 24 bytes of the device's memory, 16 for its place and color and 8 for its
+    /// texture coordinates. Where a mesh does not fit, the buffers are made again at twice their
+    /// room, as often as that falls short, with the corners they held copied by the frame's own
+    /// commands, so they hold up to twice the corners their meshes have, and the buffers left are
+    /// held with them for the few frames still reading them. The room reserved is rounded up the
+    /// same way, from 4,096 corners, so 20 million corners reserve room for 33.5 million, 768 MiB.
+    /// </para>
+    /// <para>
+    /// A mesh the rays have not met for 60 frames gives its corners back for the next that fits in
+    /// them, and once half the corners it holds are given back they are packed again, in room no
+    /// smaller than the corners reserved. A count below 0 is taken as 0.
+    /// </para>
+    /// </remarks>
+    public static void ReserveRayCorners(int corners) =>
+        World.GetOrInsertResource(static () => new GlobalIlluminationSettings()).ReservedRayCorners = Math.Max(0, corners);
+
+    /// <summary>
+    /// The corners <see cref="ReserveRayCorners"/> left room for ahead, 0 unless set.
+    /// </summary>
+    public static int GetReservedRayCorners() => TryRes<GlobalIlluminationSettings>(out var settings) ? settings.ReservedRayCorners : 0;
+
+    /// <summary>
     /// Draws what global illumination holds in an ImGui window of its own, which a program shows
     /// while its light is worked on, with how much it traces and the memory that takes, a view of
     /// its probes drawn over the window, its parts each to be left out, and a path-traced reference

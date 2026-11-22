@@ -354,6 +354,15 @@ few hundredths, so the qualities differ in how far and how finely the light is s
 right it is. Each emissive surface carried as a light costs a little more. In a dark room at 1280 by
 720 at `High`, one emissive block costs 0.35 ms, sixteen 1.08 and sixty-four 2.77.
 
+At `High` the GPU's own rays trace the window's meshes from their corners, three to a triangle, held
+on the GPU at 24 bytes each. The buffer holding them is made again at twice its room as often as a
+mesh that comes does not fit, so it holds up to twice the corners its meshes have, and the buffer it
+leaves is held beside it for the few frames that still read it, its corners copied by the frame's
+own commands, so the frame does not wait for the GPU. A world whose land streams in reserves the
+corners it will hold while it loads with `ReserveRayCorners`, rounded up the same way, so 20 million
+reserve room for 33.5 million, 768 MiB, and no frame of its play makes the buffer again. A mesh the
+rays have not met for 60 frames gives its corners back for the next that fits in them.
+
 ## Reflections and the sky
 
 Where global illumination is on, a glossy surface, one with a roughness under 0.5, traces its

@@ -485,6 +485,51 @@ changes.
     an example, and that a game with no exit key set stays open. The guides and the cheatsheet say
     it, and this goes ahead of the pass-hash read as a small commit of its own.
 
+306. **An open console or settings panel holds all input from the program.** With the settings panel
+    open in a scene, the pad and the keys that change a row also drive the scene, so the time of day
+    moves while a setting is switched. The Diagnostics module answers whether a panel that takes
+    input is open, and while it does the engine's input calls answer a program as though nothing
+    were pressed or moved, keyboard, pointer, wheel and pad alike, in the loop's calls and the ECS's
+    input resources both. The overlay holds nothing. The diagnostics' own keys still act, and a held
+    key or stick at the moment a panel closes does not fire as a fresh press. Tests hold a pad's
+    stick and a key reading as idle with the panel open and live with the overlay alone, the guides
+    say it, and it comes with the module's pin as a commit of its own.
+
+307. **The window's settings in the panel.** The settings panel holds nothing of the window itself.
+    A page `window` gains `window.mode` with the choices windowed, borderless and fullscreen,
+    `window.resizable`, `window.width` and `window.height` for the windowed mode as two settings,
+    `window.monitor` naming the screen where more than one is there, and `window.vsync` where it is
+    not listed already. A command of a setting's name gives the name to the setting. Each acts at
+    once where the system allows it and says "at the next start" on its row where it does not, they
+    are saved with the other settings and applied at the next start before the first frame is shown,
+    and a mode the system refuses answers in the console and keeps the one before. Borderless covers
+    the screen the window is on with no change of the screen's own mode, fullscreen takes the
+    screen's mode. A window not shown has the page read-only. The names and choices are the same in
+    both engines. Tests hold each setting's round through the file and the refusal, a sheet shows
+    the page and the three modes, and the guides say it. It comes after item 306.
+
+308. **The ambient occlusion at full size sits against the camera.** Seen in a shown window with the
+    settings changed by hand, the ambient occlusion at its full size does not lie where the surfaces
+    are, it moves the other way as the camera turns, as though flipped, and at half size it sits
+    right and goes with the view. The first step reproduces it offscreen, a scene with clear
+    corners, the camera at three turns, the occlusion alone drawn at half and at full size and their
+    difference, in both occlusion modes. The cause is then named from one reading, which axis is
+    turned and in which pass, the fix follows, and a test holds the two sizes equal within a bound
+    after the full one is brought to the half one's size, at each turn. A sheet with the pairs
+    before and after rides in the commit. It comes after item 306 and before 307.
+
+309. **The view of the fields shows each one in a small place off the camera on one axis.** Seen in
+    a shown window, the view of field 1 has content only in one small region that sits at the
+    camera's place moved some way along one axis, the same whichever way the camera looks, the next
+    field's region is the same and a little larger, the third larger again, and so on. A field about
+    the camera would fill the view round it. The first step reproduces it offscreen with the camera
+    at two places and two turns and each field's view, and says which it is, the view drawing each
+    field at a wrong place or size, or the fields themselves standing off the camera, which the
+    lighting would then feel, read from each field's stated center and extent beside the camera's
+    place. The fix follows the reading, a test holds each field's center within one cell of the
+    camera's place along every axis and the view's region equal to the field's extent, and a sheet
+    before and after rides in the commit. It comes after item 308.
+
 ## Verdicts
 
 No verdict is open. Verdict 132 is settled at 15:10 on 2026-11-22 on run 45021666753 and archived.
@@ -1091,3 +1136,66 @@ After the mend, three flights flown after those above, the load 1.5 to 1.7:
 - With the finder alone mended and nothing compiled optimized, three flights in turn with the
   three before, the finder took 25 to 46 ms over a flight, and a step still compiled for 11.3 ms
   in one flight and the first coming for 5.9 in two.
+
+Item 292, the ray scene's corners grown and packed again without waiting for the queue.
+
+The kernels read the corners as one buffer. `meshrays.slang` and `lights.slang` take
+`rayCorners`, a `StructuredBuffer<float4>`, at the copy's first corner and the triangle's three
+after it, the path-traced and the occlusion references bind the same buffer, and a mesh's build
+reads its corners by the buffer's address. Buffers of a fixed size would have each of those reads
+choose its buffer by the corner's index, through an array of bindings or an address carried a mesh,
+so the one buffer stays, and the growth and the packing are copies recorded with the frame's own
+commands, a barrier from the copy's writes to every read after it, the buffers left let go with the
+frame's other leavings once no frame in flight reads them. The CPU writes corners through mapped
+memory, which a later copy would write over, so while a copy is in flight it writes nothing under
+the corners copied. A mesh's colors written anew there wait for the frame after the copy is done,
+and no run given back is taken until then.
+
+- The buffer grows to twice its room as often as a mesh that comes does not fit, where it grew to
+  twice the next power of two of the corners needed. Past 16,777,216 corners it holds 512 MiB and
+  its texture coordinates 256, with the 256 and 128 it leaves held for the frames still reading
+  them, where it took 1,024 and 512.
+- A mesh that leaves gives its corners back, joined to the runs either side, and the next mesh that
+  fits takes the first run that holds it. A run that ends the buffer lowers its count. The memory
+  test's 24 rounds of a sphere coming and going hold 3.1 MB after the first.
+- `ReserveRayCorners` and `GetReservedRayCorners` make room ahead, rounded up by the same doubling,
+  and the room packed again keeps it. The global illumination guide gives the 24 bytes a corner,
+  the doubling and the room 20 million reserve, 768 MiB.
+- Global illumination makes its scene with its top level left for the frame's record to build, so
+  the frame `High` turns on in waits for nothing. The empty scene the model pass binds where no
+  rays are traced keeps the top level it builds once as it is made.
+
+`The_Ray_Scenes_Corners_Grow_And_Are_Packed_Again_Without_The_Frame_Waiting_For_The_Device` brings
+a sphere of 24,576 corners a frame past five doublings, 65,536 to 1,048,576 corners. The frames
+that grew the buffer took 1.68 to 2.78 ms of the CPU in global illumination, the frames beside them
+1.43 to 1.94 at the median. It counts the device's single submits, each of which waits, and finds
+none in a frame that meets nothing new, none in the frame that grows the buffer to a room
+reserved, and none in the frames that pack it again without 39 spheres that left.
+`A_Mesh_That_Leaves_The_Ray_Scene_Gives_Its_Corners_To_The_Next_That_Fits_In_Them` has a sphere
+take the corners another left, the buffer's count as it was.
+
+Item 304, the still glow scene read pass by pass on the branch.
+
+`Rendering 6` ran thirty times on the branch's tree with the held cells' probe part off, each pass's
+output hashed and its largest difference read over the last frames of every still case, and thirty
+times on main's tree before it. On the branch 4 of 117 still cases fail, all at `Low`. On main none
+of the thirty runs fails a still case or the ceiling.
+
+| Case | Change | First differing | Largest, frames 2 to 3 | Largest, frames 1 to 2 | Ray lights carried, frames 1 to 2 |
+|---|---|---|---|---|---|
+| `Low` 1280 by 720 | 0.365 | trace 0's radiance | 0.0076 | 0.032 | 0.091 |
+| `Low` 2560 by 1440 | 1.410 | trace 0's radiance | 0.0143 | 0.061 | 0.126 |
+| `Low` 1280 by 720 | 1.014 | trace 0's radiance | 0.0897 | 0.050 | 0.085 |
+| `Low` 1280 by 720 | 2.311 | trace 0's radiance | 1.000 | 1.000 | 0.098 |
+
+- In all four the first pass whose output differs between the last two frames is trace 0's
+  radiance, and every pass written before it in the frame, the lights and the glow faces among
+  them, is equal frame to frame.
+- What the trace reads from the frame before differs in all four, trace 0's ray lights by the
+  figures above. The fourth case differs in its carried distances too, 8 of them by up to 2.04,
+  and in its ray ends, 32 by up to 2.64.
+- Main's tree hashes no pass, so its thirty runs give the count alone.
+- A hit's light is shaded on main and on the branch alike from the probes' light and the faces'
+  light as the frame before's gather left them, so the branch's ray lights carry its probes' own
+  light round frame over frame, and no fix is tried on the branch before the module runs each
+  merge to a steady state.

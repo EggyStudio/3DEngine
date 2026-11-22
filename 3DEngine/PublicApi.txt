@@ -494,6 +494,7 @@ static class Engine.E3D
   static int GetRandomValue(int min, int max)
   static int GetRenderHeight()
   static int GetRenderWidth()
+  static int GetReservedRayCorners()
   static int GetScreenHeight()
   static int GetScreenWidth()
   static int GetShaderLocation(Shader shader, string uniformName)
@@ -827,6 +828,7 @@ static class Engine.E3D
   static void PollInputEvents()
   static void QuaternionToAxisAngle(Quaternion q, out Vector3 outAxis, out float outAngle)
   static void ReadShaderBuffer<T>(ShaderBuffer buffer, Span<T> destination, int offset = 0) where T : unmanaged
+  static void ReserveRayCorners(int corners)
   static void RestoreWindow()
   static void ResumeAudioStream(AudioStream stream)
   static void ResumeMusicStream(Music music)
