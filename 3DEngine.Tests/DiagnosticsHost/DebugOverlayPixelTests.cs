@@ -8,7 +8,8 @@ namespace Engine.Tests.DiagnosticsHost;
 /// <summary>
 /// What F1 and F3 leave in a frame drawn on the device, the interface's 2D shapes and its ImGui
 /// window gone under F1 with the world drawn on, and the debug overlay over the world with its
-/// lines' light text on their dark backing and the strip's bars.
+/// lines' light text on their opaque black backing and the strip's bars, and its display line
+/// saying the size drawn after the run is resized.
 /// </summary>
 /// <remarks>
 /// DebugOverlayTests reads the same keys in a headless run, by the draws recorded, and these the
@@ -112,17 +113,17 @@ public sealed class DebugOverlayPixelTests : IDisposable
         GetImageColor(overlaid, 480, 270).Should().Be(cube, "the overlay's columns leave the middle of the world");
         Near(GetImageColor(overlaid, 840, 450), Gray, 2).Should().BeTrue("the overlay leaves the interface hidden");
 
-        // The first line's backing, black at half over the gray, and its ink, light gray, in the band
-        // of the line at the top left.
+        // The first line's backing, black with none of the gray under it showing through, and its
+        // ink, light gray, in the band of the line at the top left.
         var (backing, ink) = (0, 0);
         for (int y = 3; y < 19; y++)
             for (int x = 3; x < 120; x++)
             {
                 var seen = GetImageColor(overlaid, x, y);
-                if (seen.R is >= 50 and <= 78 && seen.G is >= 50 and <= 78) backing++;
+                if (seen.R <= 4 && seen.G <= 4 && seen.B <= 4) backing++;
                 if (seen.R > 200 && seen.G > 200 && seen.B > 200) ink++;
             }
-        backing.Should().BeGreaterThan(200, "the line stands on a dark half-clear backing");
+        backing.Should().BeGreaterThan(200, "the line stands on an opaque black backing, the gray under it nowhere showing through");
         ink.Should().BeGreaterThan(30, "its text is light gray over the backing");
 
         // The strip under the two head lines, its newest bar at its right end standing from the
@@ -131,5 +132,15 @@ public sealed class DebugOverlayPixelTests : IDisposable
         var bar = GetImageColor(overlaid, 2 + 239, 2 + 2 * 18 + 47);
         new[] { new Color(80, 220, 100), new Color(240, 200, 60), new Color(240, 80, 70) }.Any(color => Near(bar, color, 8))
             .Should().BeTrue($"the newest frame's bar stands in one of the strip's three colors, {bar}");
+
+        // The display line says the size of the images drawn into, the size the run was opened at
+        // until it is resized, and the new size once it is.
+        var overlay = DiagnosticsBinding.Of(GetApp().World).Overlay;
+        overlay.Refresh();
+        overlay.Lines(Diagnostics.OverlayPlace.Right).Should().Contain("Display offscreen, 960 x 540");
+        SetWindowSize(1280, 720);
+        Frames(2);
+        overlay.Refresh();
+        overlay.Lines(Diagnostics.OverlayPlace.Right).Should().Contain("Display offscreen, 1280 x 720");
     }
 }

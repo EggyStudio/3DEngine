@@ -67,11 +67,14 @@ public static partial class E3D
     /// </summary>
     /// <remarks>
     /// <para>
-    /// The overlay is two columns of lines in the engine's font, each on a dark half-clear backing,
-    /// with no window, header or border. On the left are the engine's version, the frame rate and
-    /// time, the camera's place, facing and field of view and the world's counts, and on the right
-    /// the system, the CPU and memory, the GPU, its driver and memory, the display, and the
-    /// renderer's passes, draw calls, triangles, lights, shadows, global illumination and GPU time.
+    /// The overlay is two columns of lines in the engine's font, each on an opaque black backing,
+    /// so nothing drawn under a line shows through it, with no window, header or border. On the
+    /// left are the engine's version, the frame rate and time, the camera's place, facing and field
+    /// of view and the world's counts, and on the right the system, the CPU and memory, the GPU,
+    /// its driver and memory, the display, and the renderer's passes, draw calls, triangles,
+    /// lights, shadows, global illumination and GPU time. In a window too narrow for the two side
+    /// by side, a line of the right column that would meet the left's goes down under it, the lines
+    /// after it following, and a line wider than the window breaks after a comma.
     /// </para>
     /// <para>
     /// A strip of the last 240 frames' times stands under the frame rate, each frame a bar green to
@@ -123,10 +126,11 @@ public static partial class E3D
     [ThreadStatic]
     private static Stack<(bool Hidden, (int Vertices, int Indices, int Batches, int LastCount) Here)>? _uiScopes;
 
-    // The overlay's look, light gray text on black at half, a line's backing three pixels wider
-    // than its text on each side, the columns two pixels in from the window's edges.
-    private const int OverlayText = 16, OverlayLine = OverlayText + 2, OverlayPad = 3, OverlayMargin = 2;
-    private static readonly Color OverlayInk = new(224, 224, 224, 255), OverlayBacking = new(0, 0, 0, 128);
+    // The overlay's look, light gray text on opaque black, so nothing the program drew under a line
+    // shows through it, a line's backing three pixels wider than its text on each side, the columns
+    // two pixels in from the window's edges and eight pixels at least between them.
+    private const int OverlayText = 16, OverlayLine = OverlayText + 2, OverlayPad = 3, OverlayMargin = 2, OverlayGap = 8;
+    private static readonly Color OverlayInk = new(224, 224, 224, 255), OverlayBacking = new(0, 0, 0, 255);
 
     // The strip, a pixel a frame across and a bit more than a pixel a millisecond up, its top 50
     // milliseconds, so a frame of 20 a second fills it, and its bars' colors to 60 frames a second,
@@ -136,9 +140,14 @@ public static partial class E3D
     private static readonly Color StripFast = new(80, 220, 100, 255), StripSlow = new(240, 200, 60, 255), StripStall = new(240, 80, 70, 255),
         StripRule = new(160, 160, 160, 160);
 
+    /// <summary>
+    /// A line of the overlay where it is drawn, with its backing's left edge, top and width.
+    /// </summary>
+    internal readonly record struct OverlayBox(string Text, int X, int Y, int Wide);
+
     // Draws the overlay's lines into the window in screen space, after everything else the frame
-    // drew in 2D, whatever 3D mode, target or shader the program left set, the head's over the
-    // strip, the lines beside it next to it and the left column under both.
+    // drew in 2D, whatever 3D mode, target or shader the program left set, where LayOutOverlay puts
+    // them.
     internal static void DrawDebugOverlay(OverlayModel overlay)
     {
         DrawList.SetTarget(0);
@@ -150,21 +159,98 @@ public static partial class E3D
         var (width, height) = (GetScreenWidth(), GetScreenHeight());
         DrawList.SetTransform(Matrix4x4.CreateOrthographicOffCenter(0, width, 0, height, -1, 1), depthTest: false);
 
-        var y = OverlayMargin;
-        foreach (var line in overlay.Lines(OverlayPlace.Head)) y = OverlayLineAt(line, OverlayMargin, y, alignRight: false, width);
-
-        DrawStrip(OverlayMargin, y, [.. overlay.FrameTimes]);
-        var beside = y;
-        foreach (var line in overlay.Lines(OverlayPlace.Beside)) beside = OverlayLineAt(line, OverlayMargin + OverlayModel.StripFrames + OverlayPad, beside, alignRight: false, width);
-        y = Math.Max(y + StripHeight + OverlayPad, beside);
-        foreach (var line in overlay.Lines(OverlayPlace.Left)) y = OverlayLineAt(line, OverlayMargin, y, alignRight: false, width);
-        y = OverlayMargin;
-        foreach (var line in overlay.Lines(OverlayPlace.Right)) y = OverlayLineAt(line, width - OverlayMargin, y, alignRight: true, width);
+        var (lines, strip) = LayOutOverlay(overlay, width);
+        DrawStrip(OverlayMargin, strip, [.. overlay.FrameTimes]);
+        foreach (var line in lines)
+        {
+            DrawRectangle(line.X, line.Y, line.Wide, OverlayLine, OverlayBacking);
+            DrawText(line.Text, line.X + OverlayPad, line.Y + 1, OverlayText, OverlayInk);
+        }
     }
 
-    // The frames' times as bars, a column a frame with the newest at the right, on black at half with
-    // faint rows at 60 and 30 frames a second. The strip holds no frame yet at its left until four
-    // seconds have run.
+    /// <summary>
+    /// Places the overlay's lines in a window of the width given, and answers them with the strip's
+    /// top. The head's lines stand at the top left with the strip under them and the lines beside
+    /// it next to it, the left column's lines under both, and the right column's at the top right.
+    /// </summary>
+    /// <remarks>
+    /// A line of the right column that would meet a line of the left, or the strip, goes down
+    /// under what it would meet, and the lines after it follow, so a narrow window keeps the
+    /// columns apart with every line whole and in its order, and a wide one has them side by side
+    /// as they are. A line wider than the window is broken after its last comma that fits, or its
+    /// last space, and its pieces stand one under the other.
+    /// </remarks>
+    internal static (List<OverlayBox> Lines, int Strip) LayOutOverlay(OverlayModel overlay, int width)
+    {
+        var lines = new List<OverlayBox>();
+        int Left(string line, int x, int y)
+        {
+            foreach (var piece in Pieces(line, width - OverlayMargin - x))
+            {
+                if (piece.Length > 0) lines.Add(new(piece, x, y, MeasureText(piece, OverlayText) + 2 * OverlayPad));
+                y += OverlayLine;
+            }
+            return y;
+        }
+
+        var y = OverlayMargin;
+        foreach (var line in overlay.Lines(OverlayPlace.Head)) y = Left(line, OverlayMargin, y);
+        var strip = y;
+        var beside = y;
+        foreach (var line in overlay.Lines(OverlayPlace.Beside)) beside = Left(line, OverlayMargin + OverlayModel.StripFrames + OverlayPad, beside);
+        y = Math.Max(y + StripHeight + OverlayPad, beside);
+        foreach (var line in overlay.Lines(OverlayPlace.Left)) y = Left(line, OverlayMargin, y);
+
+        // What the right column keeps clear of, the left's lines and the strip, each as its right
+        // edge with the gap, its top and its bottom.
+        var taken = lines.Select(line => (Right: line.X + line.Wide + OverlayGap, Top: line.Y, Bottom: line.Y + OverlayLine)).ToList();
+        taken.Add((OverlayMargin + OverlayModel.StripFrames + OverlayGap, strip, strip + StripHeight));
+
+        y = OverlayMargin;
+        foreach (var line in overlay.Lines(OverlayPlace.Right))
+            foreach (var piece in Pieces(line, width - 2 * OverlayMargin))
+            {
+                if (piece.Length > 0)
+                {
+                    var wide = MeasureText(piece, OverlayText) + 2 * OverlayPad;
+                    var x = width - OverlayMargin - wide;
+                    // Down under each thing met, until the line meets none, which ends, as each
+                    // step goes below what it met.
+                    while (taken.FindIndex(t => t.Right > x && t.Top < y + OverlayLine && y < t.Bottom) is var met and >= 0) y = taken[met].Bottom;
+                    lines.Add(new(piece, x, y, wide));
+                }
+                y += OverlayLine;
+            }
+        return (lines, strip);
+    }
+
+    // A line in pieces whose backings are no wider than the room given, each broken after the last
+    // comma that fits, or at the last space, and a word wider than the room a piece of its own.
+    private static List<string> Pieces(string line, int room)
+    {
+        var pieces = new List<string>();
+        while (MeasureText(line, OverlayText) + 2 * OverlayPad > room)
+        {
+            int Fitting(string mark)
+            {
+                for (var at = line.LastIndexOf(mark, StringComparison.Ordinal); at > 0; at = line.LastIndexOf(mark, at - 1, StringComparison.Ordinal))
+                    if (MeasureText(line[..(at + mark.Length - 1)], OverlayText) + 2 * OverlayPad <= room) return at + mark.Length - 1;
+                return -1;
+            }
+            var cut = Fitting(", ") is var comma and > 0 ? comma : Fitting(" ");
+            // Past the line's indent, so an indented line's first word is a piece, not its indent.
+            if (cut < 0) cut = line.IndexOf(' ', line.Length - line.TrimStart().Length);
+            if (cut < 0) break;
+            pieces.Add(line[..cut].TrimEnd());
+            line = line[cut..].TrimStart();
+        }
+        pieces.Add(line);
+        return pieces;
+    }
+
+    // The frames' times as bars, a column a frame with the newest at the right, on opaque black
+    // with faint rows at 60 and 30 frames a second. The strip holds no frame yet at its left until
+    // four seconds have run.
     private static void DrawStrip(int x, int y, ReadOnlySpan<float> times)
     {
         DrawRectangle(x, y, OverlayModel.StripFrames, StripHeight, OverlayBacking);
@@ -179,19 +265,5 @@ public static partial class E3D
             var color = ms <= 1000f / 60 + 0.5f ? StripFast : ms <= 1000f / 30 + 0.5f ? StripSlow : StripStall;
             DrawRectangle(x + empty + i, y + StripHeight - bar, 1, bar, color);
         }
-    }
-
-    // A line at its column's edge, its backing behind it, an empty line a gap of a line's height,
-    // and answers where the next line goes.
-    private static int OverlayLineAt(string line, int edge, int y, bool alignRight, int width)
-    {
-        if (line.Length > 0)
-        {
-            var wide = MeasureText(line, OverlayText) + 2 * OverlayPad;
-            var x = alignRight ? edge - wide : edge;
-            DrawRectangle(x, y, wide, OverlayLine, OverlayBacking);
-            DrawText(line, x + OverlayPad, y + 1, OverlayText, OverlayInk);
-        }
-        return y + OverlayLine;
     }
 }

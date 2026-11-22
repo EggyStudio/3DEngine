@@ -6,6 +6,14 @@ under `.github/assets/readings` as WebP files named by their day, each on the da
 the notes written beside them as Markdown files named the same way. A line under Done names the item
 of .github/REVIEW.md or .github/REVIEW-ARCHIVE.md and the commit that closed it.
 
+## 2026-11-22
+
+![](.github/assets/readings/2026-11-22-item-302-console-overlay.webp)
+The shaders_bounce_rooms example offscreen at 1280 by 720 in two panes, the debug overlay alone as
+F3 shows it, drawn whole from the engine's sections under the module's frame line and frame times,
+and the console alone as F5 opens it from the Diagnostics module across the top, its line `list
+keys` answered with the five keys' settings, F1 to F5.
+
 ## 2026-11-21
 
 ![](.github/assets/readings/2026-11-21-sponza-base-color.webp)

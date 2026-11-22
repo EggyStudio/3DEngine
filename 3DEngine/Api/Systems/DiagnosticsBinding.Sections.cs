@@ -150,7 +150,8 @@ internal sealed partial class DiagnosticsBinding
         ];
     }
 
-    // The window's size and refresh, or the images an offscreen run draws into.
+    // The window's size and refresh, or the size of the images an offscreen run draws into, which
+    // window.size changes, where the config keeps the size the run was opened at.
     private static string Display(World world, GraphicsDevice? device)
     {
         world.TryGetResource<Config>(out var config);
@@ -160,7 +161,7 @@ internal sealed partial class DiagnosticsBinding
             var scale = E3D.GetWindowScaleDPI().X;
             return Say($"Display {window.Sdl.Width} x {window.Sdl.Height}{(refresh > 0 ? $", {refresh} Hz" : "")}, scale {scale:0.##}, vsync {(config?.Vsync == false ? "off" : "on")}");
         }
-        if (device is not null && config is not null) return Say($"Display offscreen, {config.WindowData.Width} x {config.WindowData.Height}");
+        if (device is not null && world.TryGetResource<OffscreenSurface>(out var surface)) return Say($"Display offscreen, {surface.Size.Width} x {surface.Size.Height}");
         return "Display none, a headless run";
     }
 

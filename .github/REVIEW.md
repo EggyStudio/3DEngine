@@ -1031,3 +1031,33 @@ itself, `using Diagnostics;`, as a game's file must, since the attribute left th
 with item 302's first step. The package carries the module's assembly, so the block alone lacked it.
 `docs-on-package.py` builds the guides' 225 blocks on a package packed from this tree,
 `0.1.0-preview.20261122121602`, with no error.
+
+Item 302, the diagnostic keys in every game and the overlay's two faults.
+
+F1 to F5 are the diagnostic keys in every game, so a game takes its own keys outside them. Blockout
+saves its level on F6, with its help line, its README and its line in docs/modeling.md, since Ctrl
+with S would step the walker back as it saves. The guides' samples that took F4 and F5 for a game's
+own take F6 and F7, the save in docs/scenes.md, the effects window in
+docs/materials-light-and-shadows.md and the toggle key in docs/behaviors-and-the-ecs.md, and the
+three pages' 65 blocks build on the package packed from `e6f6c3d6`. Five programs still take F1 for
+their own as they did before item 302 without moving the key, the examples ShadersJuliaSet,
+ShadersMandelbrotSet, ShapesTopDownLights and Text3DDrawing and FeatureTest's panel, so F1 there
+hides the interface and turns their own switch at once.
+
+The debug overlay keeps its two columns apart. A line of the right column that would meet a line of
+the left or the frame times' strip goes down under it with the lines after it, and a line wider than
+the window breaks after a comma, so at 800 by 450 every line stands whole and in order, and at 1280
+by 720 nothing moves. The whole right column under the left would take 465 rows of the 450, and
+wrapping beside the left would split the processor's and the card's names over three rows. The
+display line reads the size the program draws at, 1280 x 720 after `window.size 1280 720` offscreen,
+where it read the size configured. The lines and the strip stand on an opaque black ground, so the
+example's caption no longer shows through them, its tail past their ends still showing. Two tests
+hold the columns apart at 800 and at 1280 wide, and the pixel test holds the black ground and the
+display line before and after a resize.
+
+The suite passed whole on the overlay's commit before the guides' samples moved, 2,534 tests, 0
+failed and 6 skipped, the package tests with no package built, and the docs' part and the
+DiagnosticsHost part passed on this one. The picture
+`.github/assets/readings/2026-11-22-item-302-console-overlay.webp` is taken again in three panes, F3
+and F5 at 1280 by 720 and F3 at 800 by 450, so DEVLOG's line for it says two panes where the picture
+holds three.

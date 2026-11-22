@@ -10,7 +10,8 @@ namespace Engine.Tests.DiagnosticsHost;
 /// overlay in a headless run, with F1 turning the scope over and the scope's 2D draws dropped while
 /// the overlay's stay, F3 let go alone turning the overlay over and a chord of it with F4 turning
 /// neither the overlay nor the panel, Shift+F3 the profiler, the keys moved and turned off, what
-/// the engine's sections say, the strip of the last 240 frames' times and a program's sections.
+/// the engine's sections say, the strip of the last 240 frames' times, a program's sections and
+/// where the lines stand in a narrow window and a wide one.
 /// </summary>
 /// <remarks>
 /// What the frame's pixels show, the scope's draws and ImGui windows gone and the overlay over the
@@ -290,5 +291,60 @@ public sealed class DebugOverlayTests : IDisposable
         // The strip's backing, its two rules and a bar a frame, besides every line's backing and
         // text, in a frame that draws nothing of its own.
         _atEnd.Should().BeGreaterThan(4 * (3 + 2));
+    }
+
+    // An overlay of the lines the bounce rooms example shows on the RTX machine, the longest of
+    // each place, laid out at a width.
+    private static (List<OverlayBox> Lines, int Strip) LaidOut(int width)
+    {
+        var overlay = new OverlayModel();
+        overlay.AddSection("head", OverlayPlace.Head, () => ["3DEngine 0.1.0-preview.1 (debug build, Vulkan 1.4.351)"]);
+        overlay.AddSection("beside", OverlayPlace.Beside, () => ["GPU 4.29 ms a frame over 21 passes"]);
+        overlay.AddSection("left", OverlayPlace.Left, () =>
+            ["XYZ 0.000 / 2.500 / 8.000", "Facing north (towards negative Z), heading 0.0, pitch -0.7", "Field of view 45 degrees"]);
+        overlay.AddSection("right", OverlayPlace.Right, () =>
+        [
+            ".NET 10.0.12, x64",
+            "Bazzite",
+            "CPU Intel(R) Core(TM) i9-14900HX, 32 logical cores",
+            "Memory 779 MB of 63984 MB, managed 35 MB",
+            "",
+            "GPU NVIDIA GeForce RTX 4070 Laptop GPU (discrete gpu)",
+            "",
+            "Global illumination High: 3 cascades of 512 probes, 256, 256, 256 rays each, 393216 rays a frame",
+        ]);
+        overlay.Refresh();
+        return LayOutOverlay(overlay, width);
+    }
+
+    [Fact]
+    public void At_800_Wide_The_Right_Column_Goes_Down_Under_What_It_Would_Meet_And_Breaks_A_Line_Wider_Than_The_Window()
+    {
+        var (lines, strip) = LaidOut(800);
+        lines.Should().OnlyContain(line => line.X >= 0 && line.X + line.Wide <= 800, "no line runs past the window's edges");
+
+        // The right column's lines are those whose backing reaches the window's right edge less its
+        // margin, and the rest are the head's, the left's and those beside the strip.
+        var right = lines.Where(line => line.X + line.Wide == 798).ToList();
+        var left = lines.Except(right).Select(line => (line.X, line.Y, line.Wide, High: 18)).Append((X: 2, Y: strip, Wide: 240, High: 48)).ToList();
+        foreach (var line in right)
+            left.Should().NotContain(other => other.X + other.Wide + 8 > line.X && other.Y < line.Y + 18 && line.Y < other.Y + other.High,
+                $"'{line.Text}' keeps eight pixels from the left's lines and the strip");
+
+        right.Select(line => line.Text).Should().ContainInOrder(
+            ".NET 10.0.12, x64", "CPU Intel(R) Core(TM) i9-14900HX, 32 logical cores",
+            "Global illumination High: 3 cascades of 512 probes, 256, 256, 256 rays each,", "393216 rays a frame");
+        right.Should().BeInAscendingOrder(line => line.Y, "the lines keep their order down the column");
+        var cpu = right.Single(line => line.Text.StartsWith("CPU ", StringComparison.Ordinal));
+        cpu.Y.Should().BeGreaterThan(2 + 2 * 18, "the CPU's line would meet the GPU's time beside the strip at its own row");
+    }
+
+    [Fact]
+    public void At_1280_Wide_The_Columns_Stand_Side_By_Side_With_Every_Line_At_Its_Row()
+    {
+        var (lines, _) = LaidOut(1280);
+        var right = lines.Where(line => line.X + line.Wide == 1278).ToList();
+        right.Select(line => line.Y).Should().Equal([2, 20, 38, 56, 92, 128], "each line stands at its own row, the empty ones gaps");
+        right[^1].Text.Should().EndWith("393216 rays a frame", "the longest line is whole where it fits");
     }
 }
