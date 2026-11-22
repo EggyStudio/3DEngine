@@ -217,6 +217,10 @@ internal sealed class GpuIllumination : IDisposable
     // dispatch, their count and their indices (gi_hold.slang).
     internal IBuffer? HeldList { get; init; }
 
+    // The cells of the field the merge's marches meet this frame, a bit a cell, which the holding
+    // pass alone lists (gi_merge.slang built with MARK_HELD).
+    internal IBuffer? HeldMarks { get; init; }
+
     // The way out from the surfaces each cascade's texels' rays met, as the trace keeps them for the
     // gather.
     internal (VkImage Image, VkImageView View)[] HitNormals { get; init; } = [];

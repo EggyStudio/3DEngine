@@ -1,11 +1,12 @@
-// Holds the light of every cell of the scene's distance field within a cell of a surface that no
-// finer cascade holds, by the RadianceCascades module's holdCellLight, each side of its surface, a
-// sheet's two and a solid's one, lit as the trace lights a hit (ShadedField), which the merges read
-// at the side of the cell their marches meet (HeldHitLight in gi_merge.slang). Built with
-// LIST_HELD, it lists those cells, a thread a cell of the field (listHeldCell); without, it shades
-// the listed cells, a thread a listed cell (holdListedCell), so no workgroup waits on a few of its
-// threads. Both run over every cell each frame before the merges, so a change shows in the next
-// frame's light.
+// Holds the light of the cells of the scene's distance field the merges' marches meet this frame,
+// those within a cell of a surface that no finer cascade holds, by the RadianceCascades module's
+// holdCellLight, each side of its surface, a sheet's two and a solid's one, lit as the trace lights
+// a hit (ShadedField), which the merges read at the side of the cell their marches meet
+// (HeldHitLight in gi_merge.slang). Built with LIST_HELD, it lists those of the cells the merges'
+// marches alone marked (MarkedCells in gi_merge.slang), a thread a cell of the field
+// (listHeldCell); without, it shades the listed cells, a thread a listed cell (holdListedCell), so
+// no workgroup waits on a few of its threads. Both run each frame before the merges, so a change
+// shows in the next frame's light.
 import gi;
 import gi_hits;
 import rc_probe_passes;
@@ -32,6 +33,11 @@ ConstantBuffer<HoldPush> push;
 // count, and their indices as holdCellLight counts them, one after another.
 [[vk::binding(23, 0)]]
 RWStructuredBuffer<uint> heldList;
+
+// The cells the merge's marches meet this frame, a bit a cell (MarkedCells in gi_merge.slang), the
+// only ones listed.
+[[vk::binding(24, 0)]]
+RWStructuredBuffer<uint> heldMarks;
 
 // The texel of a cell's side's own light, part 0, or its probes' light, part 1.
 int3 heldTexel(int cascade, int3 cell, uint side, uint part)
@@ -97,6 +103,8 @@ struct HeldListBuffer : IHeldList
 {
     void list(uint at)
     {
+        if ((heldMarks[at >> 5u] & (1u << (at & 31u))) == 0u)
+            return;
         uint slot;
         InterlockedAdd(heldList[3], 1u, slot);
         heldList[4u + slot] = at;

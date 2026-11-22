@@ -560,22 +560,30 @@ void computeMain(uint3 id : SV_DispatchThreadID)
             own = float3(0.0);
             bool onScreen = traceScreen(depth, camera(), start, way, length, 12, hit, leftAt);
             float t = onScreen ? distance(start, hit) : leftAt < length ? traceFieldSheets(SheetVolume(sceneField, fieldSecond), fieldInfo, start, way, leftAt, length) : -1.0;
-            // A ray that meets nothing in its reach goes on through the field, as far as four times
-            // its reach and within the cascade it starts in and the next coarser one, and takes
-            // what it meets there, crossing what lets light through as it does within its reach.
-            // Handed to the world's probes at its reach, it took their texel about its way, which
-            // holds the light of every way the texel spans, under a roof the sky past the roof's
-            // edge along the low ways where the ray itself meets the roof, and the floor under a
-            // solid slab read four times the light its rays bring (GlobalIlluminationTests). Four
-            // times the reach and no further, since marching on to the field's edge makes global
-            // illumination slower for little more, and the next coarser cascade and no further,
-            // since in coarser cells the march passes walls 1 thick in cells 2 wide, and a closed
-            // room at the field's side takes the sky's light (CascadeEdgeTests).
+            // A ray heading up that meets nothing in its reach goes on through the field, as far as
+            // four times its reach and within the cascade it starts in and the next coarser one,
+            // and takes the surface it meets there, or is handed to the world's probes at its reach
+            // where that surface lets light through. Handed to the world's probes at its reach, it
+            // took their texel about its way, which holds the light of every way the texel spans,
+            // under a roof the sky past the roof's edge along the low ways where the ray itself
+            // meets the roof, and the floor under a solid slab read four times the light its rays
+            // bring (GlobalIlluminationTests). Rays heading up alone, since a roof lies above,
+            // which takes the screen's probes on one scene from 1.74 to 1.56 ms with the slab's
+            // floor reading the same. A surface past the reach that lets light through is left to
+            // the probes, since the march crossing it took the floor under a canopy that lets half
+            // through to 0.345 of the open floor's traced light, against the reference's 0.403 and
+            // the probes' 0.381. Four times the reach and no further, since marching on to the
+            // field's edge makes global illumination slower for little more, and the next coarser
+            // cascade and no further, since in coarser cells the march passes walls 1 thick in
+            // cells 2 wide, and a closed room at the field's side takes the sky's light
+            // (CascadeEdgeTests).
             float marchEnd = length;
             int lastCascade = fieldCascade(fieldInfo, start, 1.0) + 1;
-            if (t < 0.0)
+            if (t < 0.0 && way.y > 0.0)
             {
                 t = traceFieldWithinSheets(SheetVolume(sceneField, fieldSecond), fieldInfo, start, way, length, 4.0 * length, lastCascade);
+                if (t >= 0.0 && (push.texels.w & 4u) != 0u && lightThroughAt(fieldAlbedo, fieldInfo, start + way * t) > 0.0)
+                    t = -1.0;
                 if (t >= 0.0)
                     marchEnd = 4.0 * length;
             }

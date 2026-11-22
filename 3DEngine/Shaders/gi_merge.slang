@@ -83,6 +83,30 @@ struct HeldCellsRead : IHeldLight
     void hold(int cascade, int3 cell, uint side, float3 own, float3 probes) {}
 }
 
+#if defined(MARK_HELD)
+// The field's cells the merge's marches meet, a bit a cell counted as the module's holdCellLight
+// counts them, which the holding pass alone shades (gi_hold.slang).
+[[vk::binding(23, 0)]]
+RWStructuredBuffer<uint> heldMarks;
+
+// Marks the cell a march meets and lights nothing, for the marches alone, which take the same ways
+// whatever light they carry.
+struct MarkedCells : IHeldLight
+{
+    float3 heldAt(int cascade, int3 cell, uint side)
+    {
+        uint size = fieldInfo.counts.y;
+        uint at = ((uint(cascade) * size + uint(cell.z)) * size + uint(cell.y)) * size + uint(cell.x);
+        InterlockedOr(heldMarks[at >> 5u], 1u << (at & 31u));
+        return float3(0.0);
+    }
+
+    float3 heldProbeLightAt(int cascade, int3 cell, uint side) { return float3(0.0); }
+    float probeShare(float3 place, int cascade, int3 cell) { return 1.0; }
+    void hold(int cascade, int3 cell, uint side, float3 own, float3 probes) {}
+}
+#endif
+
 // The held light of a cell's side, its own, part 0, or its probes', part 1 (gi_hold.slang).
 float3 heldRead(int cascade, int3 cell, uint side, uint part)
 {
@@ -312,6 +336,9 @@ float4 mergedOf(MarchedField field, KeptRays rays, HeldPlaces places, AboveProbe
         NoSteps none;
 #if defined(KEPT_HIT)
         mergeTexel(field, rays, places, far, farPlaces, kept, cascade, farCascade, push.ends.z, sky, none, index);
+#elif defined(MARK_HELD)
+        HeldHitLight<MarchedField, MarkedCells> marked = { field, {} };
+        mergeTexel(marked, rays, places, far, farPlaces, kept, cascade, farCascade, push.ends.z, sky, none, index);
 #else
         HeldHitLight<MarchedField, HeldCellsRead> held = { field, { field.field.share } };
         mergeTexel(held, rays, places, far, farPlaces, kept, cascade, farCascade, push.ends.z, sky, none, index);
@@ -409,6 +436,9 @@ void computeMain(uint3 id : SV_DispatchThreadID, uint lane : SV_GroupIndex)
         light = float4(both.rgb, 1.0);
         sky = both.w;
     }
+#if defined(MARK_HELD)
+    return;
+#endif
     // Each texel at the merge's side the mean of the traced texels it holds, for the cascade
     // below, and each texel at the cascade's own the mean of all its rays, for the gather, which
     // lie side by side in the group.

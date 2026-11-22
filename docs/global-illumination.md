@@ -183,18 +183,17 @@ across the field's edge changes from one pixel to the next by under 1%.
 ## The world's probes
 
 The world's probes stand eight cells of their cascade apart, two units at a cell of a quarter in the
-first, and trace from their cascade's spacing to four times it, the first from the probe itself.
-Each quality traces a number of directions a probe in each cascade, more where the far light needs
-them, as the table below gives. A ray that meets a surface brings back the light that surface sends
-on. That is its color times the sun's light where the field lets it through and the lamps', each
-that casts shadows only where the field lets it through too, with its emission and the indirect
-light that reached it the frame before, so each frame adds a bounce and a room fills with light as
-it would. A
-ray that meets nothing brings back the light from all around, the environment map's, the ambient
-lights' or a reflection probe's, so a room is lit by the sky through its windows and dark where no
-light gets in. A probe deep inside a wall, which would see the light on the wall's far side, is left
-out, and the surfaces near it read the probes around it, so a sealed room stays dark beside a lit
-one.
+first, and each traces from the probe itself to twice its cascade's spacing, the last counted to the
+field's edge. Each quality traces a number of directions a probe in each cascade, more where the far
+light needs them, as the table below gives. A ray that meets a surface brings back the light that
+surface sends on. That is its color times the sun's light where the field lets it through and the
+lamps', each that casts shadows only where the field lets it through too, with its emission and the
+indirect light that reached it the frame before, so each frame adds a bounce and a room fills with
+light as it would. A ray that meets nothing brings back the light from all around, the environment
+map's, the ambient lights' or a reflection probe's, so a room is lit by the sky through its windows
+and dark where no light gets in. A probe deep inside a wall, which would see the light on the wall's
+far side, is left out, and the surfaces near it read the probes around it, so a sealed room stays
+dark beside a lit one.
 
 ## The screen's probes
 
@@ -422,7 +421,7 @@ boxes leave parts of global illumination out. The same is in a running program t
 | `gi.state` | The quality, the cascades of probes and their rays, the screen's probes, the reflections and the GPU memory each takes, how many small emitters are carried as lights, and at `High` where the device traces rays how many probes of each cascade carry their rays past their interval with the rays moving |
 | `gi.show <view> [cascade or png]` | Draws over the window the screen's probes as tiles, their light, filtered or the share of it the frames before gave, a cascade's rays' light, its merge or its probes as cubes, or the frame against a reference |
 | `gi.passes <on\|off>` | Times global illumination's passes apart in the profile, the ray scene, each cascade's trace, the held cells' light, the merges, the gather, the screen's probes, their filter and the glow lights, as `gpu.gi_` lines, the rest staying `gpu.global_illumination` |
-| `gi.hit <held\|kept>` | How the merge's marches light a surface they meet: by the light held for its side of its cell of the field, every cell within a cell of a surface shaded each frame as the probes' trace lights a hit, or by the probes the gather kept about it with the sun's map and no lamp, cheaper and missing the lamps' light |
+| `gi.hit <held\|kept>` | How the merge's marches light a surface they meet: by the light held for its side of its cell of the field, the cells the merges' marches meet shaded each frame as the probes' trace lights a hit, or by the probes the gather kept about it with the sun's map and no lamp, cheaper and missing the lamps' light |
 | `gi.toggle <part> <on\|off>` | Leaves out the frame before's light, the screen's filter, the screen's probes, neither made nor traced, the merge, the light past the first bounce, the indirect light following a light out, the emissive surfaces carried as lights, the surfaces' reflection of the indirect light, or every cascade but one, or with `meshes on` traces the probes' rays through the GPU's own rays at `High` |
 | `gi.probe <x> <y> <z> [samples] [bounces] [cascade]` | The light arriving at the probe nearest a point against a path-traced reference of it, each face by where its ways were met, and the ways that carry most of the face furthest from it, each with how far its rays went against what and how far the reference's path through the texel's middle first met, and whether the probe was carried past its interval with its rays moving |
 | `field.march <x> <y> <z> [dx] [dy] [dz] [sun]` | Marches the scene's distance field from a point along a way, or toward the sun, as the passes march it, and says where it met a surface, in which cascade and cell, and each step, with `sun` marching on from that surface toward the sun as a probe's hit does |

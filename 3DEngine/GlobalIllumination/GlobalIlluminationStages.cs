@@ -17,8 +17,8 @@ internal sealed unsafe partial class GlobalIlluminationStages(GraphicsDevice dev
     internal static GlobalIlluminationStages Of(GraphicsDevice device) => device.Part(static device => new GlobalIlluminationStages(device));
 
     private const int TraceStage = 0, MergeStage = 1, AmbientStage = 2, ScreenStage = 3, FilterStage = 4, GlowStage = 5, SolidTraceStage = 6, RayTraceStage = 7,
-        RayCrossStage = 8, GlowFacesStage = 9, ReachStage = 10, HoldStage = 11, KeptMergeStage = 12, HoldListStage = 13;
-    private readonly ComputeStage[] _giStages = new ComputeStage[14];
+        RayCrossStage = 8, GlowFacesStage = 9, ReachStage = 10, HoldStage = 11, KeptMergeStage = 12, HoldListStage = 13, MarkMergeStage = 14;
+    private readonly ComputeStage[] _giStages = new ComputeStage[15];
 
     /// <summary>What <c>gi_trace.slang</c> is pushed.</summary>
     [StructLayout(LayoutKind.Sequential)]
@@ -118,13 +118,16 @@ internal sealed unsafe partial class GlobalIlluminationStages(GraphicsDevice dev
                 VkDescriptorType.StorageImage, VkDescriptorType.StorageImage, VkDescriptorType.StorageImage, VkDescriptorType.StorageImage,
                 VkDescriptorType.SampledImage, VkDescriptorType.CombinedImageSampler, VkDescriptorType.SampledImage];
             made.Add((MergeStage, () => device.MakeComputeStage(merge, merging, 64)));
-            // The merge lighting what its marches meet by the probes kept about it, and the pass
-            // that holds the light of the field's surface cells the merge reads in its place and
-            // the one that lists those cells, bound as the merge is with the held light written
-            // and the list of cells after it.
+            // The merge lighting what its marches meet by the probes kept about it and the merge's
+            // marches alone marking the cells they meet, and the pass that holds the light of the
+            // field's surface cells the merge reads in its place and the one that lists those
+            // cells, bound as the merge is with the held light written, the list of cells and the
+            // marks after it.
             if (spirv.Length > KeptMergeStage && spirv[KeptMergeStage].Length > 0)
                 made.Add((KeptMergeStage, () => device.MakeComputeStage(spirv[KeptMergeStage], merging, 64)));
-            VkDescriptorType[] holding = [.. merging[..22], VkDescriptorType.StorageImage, VkDescriptorType.StorageBuffer];
+            if (spirv.Length > MarkMergeStage && spirv[MarkMergeStage].Length > 0)
+                made.Add((MarkMergeStage, () => device.MakeComputeStage(spirv[MarkMergeStage], [.. merging, VkDescriptorType.StorageBuffer], 64)));
+            VkDescriptorType[] holding = [.. merging[..22], VkDescriptorType.StorageImage, VkDescriptorType.StorageBuffer, VkDescriptorType.StorageBuffer];
             foreach (var stage in new[] { HoldStage, HoldListStage })
                 if (spirv.Length > stage && spirv[stage].Length > 0)
                     made.Add((stage, () => device.MakeComputeStage(spirv[stage], holding, 32)));
@@ -158,19 +161,20 @@ internal sealed unsafe partial class GlobalIlluminationStages(GraphicsDevice dev
     /// closed in the field, every face open without it, <paramref name="hold"/>,
     /// <c>gi_hold.slang</c>, which holds the light of the field's surface cells the merge reads at
     /// its hits, the cells <paramref name="holdList"/>, <c>gi_hold.slang</c> built with
-    /// <c>LIST_HELD</c>, lists, and <paramref name="keptMerge"/>, <c>gi_merge.slang</c> built with
-    /// <c>KEPT_HIT</c>, which lights them by the probes kept about them in its place (<see
-    /// cref="GlobalIlluminationSettings.KeptHit"/>).
+    /// <c>LIST_HELD</c>, lists of those <paramref name="markMerge"/>, <c>gi_merge.slang</c> built
+    /// with <c>MARK_HELD</c>, marks as the merge's marches meet them, and <paramref
+    /// name="keptMerge"/>, <c>gi_merge.slang</c> built with <c>KEPT_HIT</c>, which lights them by
+    /// the probes kept about them in its place (<see cref="GlobalIlluminationSettings.KeptHit"/>).
     /// </summary>
     public void InitializeGlobalIllumination(ReadOnlySpan<byte> trace, ReadOnlySpan<byte> merge, ReadOnlySpan<byte> ambient, ReadOnlySpan<byte> reach, ReadOnlySpan<byte> screen,
         ReadOnlySpan<byte> filter, ReadOnlySpan<byte> glow, ReadOnlySpan<byte> solidTrace = default, ReadOnlySpan<byte> rayTrace = default,
         ReadOnlySpan<byte> rayCross = default, ReadOnlySpan<byte> glowFaces = default, ReadOnlySpan<byte> hold = default, ReadOnlySpan<byte> keptMerge = default,
-        ReadOnlySpan<byte> holdList = default)
+        ReadOnlySpan<byte> holdList = default, ReadOnlySpan<byte> markMerge = default)
     {
         if (!device.IsInitialized || CanBounceLight) return;
         _giSpirv = [trace.ToArray(), merge.ToArray(), ambient.ToArray(), screen.ToArray(), filter.ToArray(), glow.ToArray(),
             solidTrace.IsEmpty ? trace.ToArray() : solidTrace.ToArray(), rayTrace.ToArray(), rayCross.ToArray(), glowFaces.ToArray(), reach.ToArray(),
-            hold.ToArray(), keptMerge.ToArray(), holdList.ToArray()];
+            hold.ToArray(), keptMerge.ToArray(), holdList.ToArray(), markMerge.ToArray()];
     }
 
     /// <summary>
@@ -223,6 +227,9 @@ internal sealed unsafe partial class GlobalIlluminationStages(GraphicsDevice dev
         // The holding pass's workgroups, its count of cells and room for every cell of the field.
         var heldList = device.CreateBuffer(new BufferDesc((ulong)(16 + 4L * fieldSize * fieldSize * fieldSize * fieldCascades),
             BufferUsage.Storage | BufferUsage.Indirect | BufferUsage.TransferDst));
+        // A bit for every cell of the field, those the merge's marches meet.
+        var heldMarks = device.CreateBuffer(new BufferDesc((ulong)(4L * ((fieldSize * fieldSize * fieldSize * (long)fieldCascades + 31) / 32)),
+            BufferUsage.Storage | BufferUsage.TransferDst));
 
         var cmd = device.BeginSingleTimeCommands();
         var whole = ColorLevels(0, 1);
@@ -280,6 +287,7 @@ internal sealed unsafe partial class GlobalIlluminationStages(GraphicsDevice dev
                 lights.Dispose();
                 glowFaces.Dispose();
                 heldList.Dispose();
+                heldMarks.Dispose();
                 device.Api.vkDestroyImageView(cubesView);
                 owner.Dispose();
                 device.Api.vkDestroyImageView(reachView);
@@ -302,7 +310,8 @@ internal sealed unsafe partial class GlobalIlluminationStages(GraphicsDevice dev
             partialView, heldView, [.. mergedSky.Select(i => (i.Item1, i.Item3))], skies, new VulkanImageView(device, skiesOwner, skiesView),
             ways, new VulkanImageView(device, waysOwner, waysView)) { Far = farCascade, GlowFaces = glowFaces, CubesAt = cubesAt, CubesAtView = cubesAtView,
                 Kept = kept, KeptView = keptView, HeldCells = heldCells, HeldCellsView = heldCellsView,
-                HeldCellsBytes = 36L * fieldSize * fieldSize * fieldSize * fieldCascades + 16, HeldList = heldList,
+                HeldCellsBytes = 36L * fieldSize * fieldSize * fieldSize * fieldCascades + 16 + 4L * ((fieldSize * fieldSize * fieldSize * (long)fieldCascades + 31) / 32),
+                HeldList = heldList, HeldMarks = heldMarks,
                 HitNormals = [.. hitNormals.Select(i => (i.Item1, i.Item3))], RayLights = [.. rayLights.Select(i => (i.Item1, i.Item3))],
                 RayEnds = [.. rayEnds.Select(i => (i.Item1, i.Item3))], MergedTraced = [.. mergedTraced.Select(i => (i.Item1, i.Item3))],
                 MergedSkyTraced = [.. mergedSkyTraced.Select(i => (i.Item1, i.Item3))], HeldImage = held, Spread = spread };
@@ -366,11 +375,12 @@ internal sealed unsafe partial class GlobalIlluminationStages(GraphicsDevice dev
         // The surface cells' light held before the merges read it, or the probes kept about a hit
         // read in its place, where asked and built.
         var kept = keptHit && GiStages[KeptMergeStage].Pipeline.Handle != 0;
-        var holding = !kept && GiStages[HoldStage].Pipeline.Handle != 0 && GiStages[HoldListStage].Pipeline.Handle != 0 && gi.HeldList is not null;
+        var holding = !kept && GiStages[HoldStage].Pipeline.Handle != 0 && GiStages[HoldListStage].Pipeline.Handle != 0
+            && GiStages[MarkMergeStage].Pipeline.Handle != 0 && gi.HeldList is not null && gi.HeldMarks is not null;
         var merging = kept ? KeptMergeStage : MergeStage;
         var run = new ProbeRun(this, device, commandBuffer,
             [(trace, gi.Cascades), (ReachStage, gi.Cascades), (merging, gi.Cascades), (AmbientStage, gi.Cascades), .. faces ? [(GlowFacesStage, 1)] : Array.Empty<(int, int)>(),
-                .. holding ? [(HoldListStage, 1), (HoldStage, 1)] : Array.Empty<(int, int)>()]);
+                .. holding ? [(MarkMergeStage, gi.Cascades), (HoldListStage, 1), (HoldStage, 1)] : Array.Empty<(int, int)>()]);
         var cmd = run.Commands;
         var readers = VkPipelineStageFlags2.VertexShader | VkPipelineStageFlags2.FragmentShader | VkPipelineStageFlags2.ComputeShader;
         device.MemoryBarrier(cmd, readers, VkAccessFlags2.UniformRead, VkPipelineStageFlags2.Transfer, VkAccessFlags2.TransferWrite);
@@ -486,11 +496,12 @@ internal sealed unsafe partial class GlobalIlluminationStages(GraphicsDevice dev
         MarkGlobalIllumination(commandBuffer, "gi_reach");
         device.PipelineBarrier(cmd, [ImageBarrier(gi.Reach, ColorLevels(0, 1), VkImageLayout.General, VkImageLayout.ShaderReadOnlyOptimal,
             VkPipelineStageFlags2.ComputeShader, VkAccessFlags2.ShaderWrite, readers, VkAccessFlags2.ShaderRead)]);
-        // The light of every cell of the field within a cell of a surface that no finer cascade
-        // holds, shaded as the trace lights a hit, every cell each frame, which the merges read at
-        // the cells their marches meet a surface in, the cells listed first, a thread a cell of the
-        // field, and then shaded, a thread a listed cell, from a dispatch of as many workgroups as
-        // the listing counted, so no workgroup waits on a few shading threads.
+        // The light of the cells of the field within a cell of a surface that no finer cascade
+        // holds that the merges' marches meet this frame, shaded as the trace lights a hit, which
+        // the merges read at the cells their marches meet a surface in, the cells marked first by
+        // the merges' marches alone, listed, a thread a cell of the field, and then shaded, a
+        // thread a listed cell, from a dispatch of as many workgroups as the listing counted, so no
+        // workgroup waits on a few shading threads.
         if (holding)
         {
             var list = (VulkanBuffer)gi.HeldList!;
@@ -499,8 +510,15 @@ internal sealed unsafe partial class GlobalIlluminationStages(GraphicsDevice dev
             ReadOnlySpan<uint> none = [0, 1, 1, 0];
             fixed (uint* start = none)
                 device.Api.vkCmdUpdateBuffer(cmd, list.Buffer, 0, 16, start);
+            device.Api.vkCmdFillBuffer(cmd, ((VulkanBuffer)gi.HeldMarks!).Buffer, 0, Vulkan.VK_WHOLE_SIZE, 0);
             device.MemoryBarrier(cmd, VkPipelineStageFlags2.Transfer, VkAccessFlags2.TransferWrite, VkPipelineStageFlags2.ComputeShader,
                 VkAccessFlags2.ShaderRead | VkAccessFlags2.ShaderWrite);
+            // The cells the merges' marches meet, marked by the merges' marches alone, which take
+            // the ways they take whatever light they carry, so only those cells are listed.
+            for (int c = gi.Cascades - 1; c >= 0; c--)
+                Merge(MarkMergeStage, c);
+            device.MemoryBarrier(cmd, VkPipelineStageFlags2.ComputeShader, VkAccessFlags2.ShaderWrite, VkPipelineStageFlags2.ComputeShader, VkAccessFlags2.ShaderRead);
+            MarkGlobalIllumination(commandBuffer, "gi_hold_marks");
             // The probes along each side, the cascades of probes and of the field, and the probes'
             // spacing, as gi_hold.slang's HoldPush.
             ReadOnlySpan<uint> push = [p, (uint)gi.Cascades, (uint)field.Cascades, 0, BitConverter.SingleToUInt32Bits(spacing), 0, 0, 0];
@@ -530,9 +548,18 @@ internal sealed unsafe partial class GlobalIlluminationStages(GraphicsDevice dev
             run.Image(set, 15, VkDescriptorType.CombinedImageSampler, gi.CubesAtView, gi.Sampler, VkImageLayout.ShaderReadOnlyOptimal);
             run.Image(set, 22, VkDescriptorType.StorageImage, gi.HeldCellsView, null, VkImageLayout.General);
             run.Buffer(set, 23, VkDescriptorType.StorageBuffer, gi.HeldList!);
+            run.Buffer(set, 24, VkDescriptorType.StorageBuffer, gi.HeldMarks!);
             return set;
         }
         for (int c = gi.Cascades - 1; c >= 0; c--)
+        {
+            Merge(merging, c);
+            device.MemoryBarrier(cmd, VkPipelineStageFlags2.ComputeShader, VkAccessFlags2.ShaderWrite, VkPipelineStageFlags2.ComputeShader, VkAccessFlags2.ShaderRead);
+        }
+        MarkGlobalIllumination(commandBuffer, "gi_merge");
+        // Cascade c's merge by the stage given, the merge itself or its marches alone, which mark
+        // the cells they meet.
+        void Merge(int stage, int c)
         {
             var (n, s) = ((uint)gi.Texels[c], (uint)gi.TracedSide(c));
             // The last cascade and the one before the far cascade's probes merge nothing from above,
@@ -541,7 +568,7 @@ internal sealed unsafe partial class GlobalIlluminationStages(GraphicsDevice dev
             // before would take their light over its own sky and their share of the sky in place of
             // its own.
             var top = c == gi.Cascades - 1 || c == lastCounted;
-            var set = run.Set(merging);
+            var set = run.Set(stage);
             run.Image(set, 0, VkDescriptorType.CombinedImageSampler, ((VulkanImageView)field.View).View, field.Sampler, VkImageLayout.ShaderReadOnlyOptimal);
             run.Buffer(set, 1, VkDescriptorType.UniformBuffer, field.Info);
             run.Image(set, 2, VkDescriptorType.CombinedImageSampler, ((VulkanImageView)field.AlbedoView).View, field.Sampler, VkImageLayout.ShaderReadOnlyOptimal);
@@ -582,10 +609,10 @@ internal sealed unsafe partial class GlobalIlluminationStages(GraphicsDevice dev
                 (uint)gi.Cascades, fieldWhole ? 1u : 0u, (uint)gi.Spread, 0,
                 BitConverter.SingleToUInt32Bits(intervals[c].End), BitConverter.SingleToUInt32Bits(top ? 0 : intervals[c + 1].End),
                 BitConverter.SingleToUInt32Bits(intervals[lastCounted >= 0 ? lastCounted : gi.Cascades - 1].End), 0];
-            run.Dispatch(merging, set, MemoryMarshal.AsBytes(push), (p * p * p * s * s + 63) / 64);
-            device.MemoryBarrier(cmd, VkPipelineStageFlags2.ComputeShader, VkAccessFlags2.ShaderWrite, VkPipelineStageFlags2.ComputeShader, VkAccessFlags2.ShaderRead);
+            if (stage == MarkMergeStage)
+                run.Buffer(set, 23, VkDescriptorType.StorageBuffer, gi.HeldMarks!);
+            run.Dispatch(stage, set, MemoryMarshal.AsBytes(push), (p * p * p * s * s + 63) / 64);
         }
-        MarkGlobalIllumination(commandBuffer, "gi_merge");
 
         // The faces and the light by way go to the general layout for the gather, after this
         // frame's rays read them.

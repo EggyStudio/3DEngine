@@ -1145,3 +1145,62 @@ frames', norm's and examples' tests pass, 163 of 164, the one left the morph and
 with it recorded again the reference frames' tests pass, 30 of 30. The suite passes in its parts in
 order, 2,532 of 2,533 in 24 minutes, and shuffled by the seed 20261023, 2,532 of 2,533 in 25
 minutes, the one left in each that frame before it was recorded again.
+
+Item 265's passes, the held light's cost and the door.
+
+The RadianceCascades pointer moves from `7a2f5de` to `84c4225`, whose march reads the field alone in
+its inner loop and leaves it where a step needs a surface's light, the outer loop shading once, so
+the engine's shading is no longer inlined in every step. The holding pass shades only the cells the
+merges' marches meet this frame. A build of the merge that marches alone (`MARK_HELD`) marks them,
+a bit a cell, and the listing (`listHeldCell`) lists the marked cells alone. The marches take the
+same ways whatever light they carry, so the held light the merges read is the same, cell for cell.
+The screen's probes march past their reach for rays heading up alone and hand a ray on to the
+world's probes at its reach where the surface it meets there lets light through.
+
+Global illumination's time by pass on `scenes_sponza` and `scenes_bistro` at the timing views, five
+sessions each under the exclusive lock, in ms, main at `63be9917` beside the branch at `5fa231f9`
+and at this commit.
+
+| Pass | Sponza main | Sponza `5fa231f9` | Sponza here | Bistro main | Bistro `5fa231f9` | Bistro here |
+|---|---|---|---|---|---|---|
+| The five traces | 4.18 | 4.02 | 1.73 | 4.63 | 5.50 | 2.02 |
+| Reach | | 0.36 | 0.36 | | 0.41 | 0.42 |
+| Marks | | | 0.39 | | | 0.38 |
+| Listing | | 0.04 | 0.03 | | 0.04 | 0.03 |
+| Hold | | 1.79 | 0.52 | | 2.04 | 0.63 |
+| Merge | 0.36 | 0.71 | 0.76 | 0.29 | 0.81 | 0.76 |
+| Gather | 0.29 | 0.36 | 0.36 | 0.27 | 0.35 | 0.44 |
+| Screen's probes | 1.25 | 1.74 | 1.56 | 4.00 | 4.40 | 4.27 |
+| Whole | 6.18 | 9.13 | 5.78 | 9.41 | 13.78 | 9.16 |
+
+The marches meet 36,917 of Sponza's 156,542 held cells and 35,002 of the Bistro's 117,348. The
+door view and the Bistro's terrace, High with the held light, read against their references with
+the screen's probes off as `5fa231f9` reads them, 1.5560 and 1.1635, two sessions of one build
+apart by 0.0014 at most. With them on, the door reads 1.603 against 1.676, the march past the
+reach no longer taken by rays heading down. Under the three roofs of the screen's test, each floor
+as a share of the open floor's traced light, High.
+
+| Floor | Reference | The march as before | Rays heading up, leaves handed on | No march | Screen's probes off |
+|---|---|---|---|---|---|
+| Under the solid slab, 2.5 | 0.063 | 0.135 | 0.135 | 0.177 | 0.148 |
+| Under the half slab, 2.5 | 0.371 | 0.406 | 0.449 | 0.449 | 0.447 |
+| Under the half canopy, 5.5 | 0.403 | 0.345 | 0.381 | 0.378 | 0.346 |
+
+The solid slab's floor reads 0.148 of it from the world's probes alone, so what stands over the
+reference is the world gather from probes off the surface, which see past the slab's edges from
+their height, and not the screen's to mend. The global illumination tests fail 5, against 8 at
+`5fa231f9`. The floors under the canopy at 2.5 and 5.5, the canopy's floor with the screen's
+probes and the half slab's at 2.5 pass. The half slab's at 5.5 fails anew, letting 0.483 of the
+light it would hold back through against the 0.35 to 0.48 it is held to. The slab's floor with the screen's
+probes, the board outside the closed room at High and Medium and the probe under the lintel fail
+as they did.
+
+The door, at `sponza.view door`, `sponza.time 12`, unmetered, High, the held light, against the
+path-traced reference of 256 paths a pixel, every bounce. At `d6321477` with the module at
+`41f0e09` and the screen's probes off, it read 1.561 against main's 0.961, and its first bounce
+1.484 against a one bounce trace where main reads 0.857, the floor's lower half 3.12 against 1.30.
+Every surface the merges meet shaded at its hit in place of its held cell read 1.53, the first
+cascade's rays marching on alone with no cascade above read 1.483, and the light kept about a hit
+3.26. So neither the hand-off between cascades nor the held light makes the excess. What is left
+is the first cascade's own marched rays at the floor's probes, or the gather of their light onto
+the floor, and that reading comes next.
