@@ -51,7 +51,7 @@ window and a health bar and a gauge in 2D.
 | F1 | the engine's hiding of the interface |
 | F2 | a screenshot, into a `screenshots` folder beside the program |
 | F3 | the engine's debug overlay |
-| F4, F5 | the engine's settings panel and console |
+| F4, F5 | the engine's console and settings panel |
 | F6 | the panel |
 
 ## The panel

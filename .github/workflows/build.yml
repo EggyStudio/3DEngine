@@ -1446,7 +1446,7 @@ jobs:
           build/webp.sh captures/tones.png captures/tones.webp lossy 800x450
 
       # The level blocked out with the modeling tools, by build/drive-game.sh as Windows and macOS
-      # play it, walked up its stairs, a window cut in it by a command and its recipe saved on F5,
+      # play it, walked up its stairs, a window cut in it by a command and its recipe saved on F6,
       # and then captured from the hall turned to the door into the corridor.
       - name: Build and walk the blocked-out level from the package
         run: |

@@ -80,7 +80,7 @@ size.
 The engine's values a line sets are settings, each read by its name alone, as `window.vsync`,
 answered with its value, its default where it differs and the variable that gives it, set by its
 name and a value, and put back by `reset` and its name. `list` names them beside the commands, and
-the settings panel F4 opens shows them a page to each first word ([Window and
+the settings panel F5 opens shows them a page to each first word ([Window and
 frame](window-and-frame.md#the-debug-keys)), where the pages and the file a player's are kept in
 are listed.
 

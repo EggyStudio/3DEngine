@@ -9,7 +9,7 @@ namespace Engine.Tests.DiagnosticsHost;
 /// F1 hiding the interface's scope and F3 the debug overlay, the Diagnostics module's keys and
 /// overlay in a headless run, with F1 turning the scope over and the scope's 2D draws dropped while
 /// the overlay's stay, F3 let go alone turning the overlay over and a chord of it with F4 turning
-/// neither the overlay nor the panel, Shift+F3 the profiler, the keys moved and turned off, what
+/// neither the overlay nor the console, Shift+F3 the profiler, the keys moved and turned off, what
 /// the engine's sections say, the strip of the last 240 frames' times, a program's sections and
 /// where the lines stand in a narrow window and a wide one.
 /// </summary>
@@ -141,7 +141,7 @@ public sealed class DebugOverlayTests : IDisposable
         Input.SetKey(Key.F3, false);
         Frames(1);
         Overlay.Shown.Should().BeTrue("a chord on F3 never turns the overlay");
-        Binding.Panel.Open.Should().BeFalse("and F4 in the chord opens no panel");
+        Binding.Console.Open.Should().BeFalse("and F4 in the chord opens no console");
 
         // Pressed and not yet let go, F3 has done nothing.
         Input.SetKey(Key.F3, true);

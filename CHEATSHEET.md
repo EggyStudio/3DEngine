@@ -1476,7 +1476,7 @@ is drawn over everything else. The keyboard moves through its widgets, and the f
 once `SetImGuiGamepadNavigation(true)` is called.
 F1 hides the interface a program draws inside `BeginUi`, F2 writes a screenshot and F3 shows the
 engine's debug overlay, keys `SetUiHiddenKey`, `SetScreenshotKey` and `SetDebugOverlayKey` move. F4
-opens the Diagnostics module's settings panel and F5 its console, drawn in ImGui over the frame in
+opens the Diagnostics module's console and F5 its settings panel, drawn in ImGui over the frame in
 the debug overlay's look whatever the program's ImGui theme, and each of the five keys is a setting,
 as `keys.console`, taken as it is let go alone. Every value of the engine's a console line or an
 environment variable sets is a setting the panel shows on the page of its name's first word, as

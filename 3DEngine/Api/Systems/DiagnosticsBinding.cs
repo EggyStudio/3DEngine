@@ -12,7 +12,7 @@ namespace Engine;
 /// <para>
 /// The keys are the module's actions, F1 hiding the interface drawn inside
 /// <see cref="E3D.BeginUi"/>, F2 asking for a screenshot, F3 showing the overlay and with Shift its
-/// detail, F4 opening the settings panel and F5 the console, each a text setting of the process's
+/// detail, F4 opening the console and F5 the settings panel, each a text setting of the process's
 /// registry a player rebinds, as <c>keys.console F6</c>. An action is taken as its key comes up
 /// where no other key went down meanwhile, so a program's chords on the keys, F3 with F4 among
 /// them, stay the program's, and the program sees every press as it sees any key.

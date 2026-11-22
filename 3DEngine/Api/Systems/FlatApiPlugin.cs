@@ -22,8 +22,8 @@ internal sealed class FlatApiPlugin : IPlugin
         app.AddSystem(Stage.First, new SystemDescriptor(Recorder.Tick, "RenderPlugin.Recorder").MainThreadOnly());
         app.AddSystem(Stage.Cleanup, new SystemDescriptor(_ => Recorder.Shutdown(), "RenderPlugin.RecorderShutdown").Before("RenderPlugin.Cleanup").MainThreadOnly());
         // The Diagnostics module's keys in every program, F1 hiding its interface, F2 writing a
-        // screenshot, F3 showing the debug overlay, F4 opening the settings panel and F5 the
-        // console, taken once the frame's input is in, the console and the panel drawn in ImGui's
+        // screenshot, F3 showing the debug overlay, F4 opening the console and F5 the settings
+        // panel, taken once the frame's input is in, the console and the panel drawn in ImGui's
         // frame after them, and the keys' settings taken out of the registry as the app ends. The
         // settings file is read at the start, once every plugin has added its settings and ImGui
         // has its context, and written as the app ends.

@@ -5,7 +5,7 @@ using static Engine.E3D;
 namespace Engine.Tests.DiagnosticsHost;
 
 /// <summary>
-/// F4 and F5 opening the Diagnostics module's settings panel and console one at a time, a line
+/// F4 and F5 opening the Diagnostics module's console and settings panel one at a time, a line
 /// typed into the console's ImGui field run with the world lent and an answer that comes later
 /// written under it when it comes, a line the console or the panel runs whose command throws
 /// written to the log, and the keys' settings standing in the registry while the app runs,
@@ -54,22 +54,22 @@ public sealed class DiagnosticWindowsTests : IDisposable
     }
 
     [Fact]
-    public void F4_Opens_The_Panel_And_F5_The_Console_And_Each_Closes_Them_Again()
+    public void F4_Opens_The_Console_And_F5_The_Panel_And_Each_Closes_Them_Again()
     {
         Frames(1);
-        Tap(Key.F5);
-        Binding.Console.Open.Should().BeTrue("F5 opens the console");
         Tap(Key.F4);
-        (Binding.Panel.Open, Binding.Console.Open).Should().Be((true, false), "F4 opens the settings panel, and one is open at a time");
+        Binding.Console.Open.Should().BeTrue("F4 opens the console");
+        Tap(Key.F5);
+        (Binding.Panel.Open, Binding.Console.Open).Should().Be((true, false), "F5 opens the settings panel, and one is open at a time");
         Binding.Keys.Panels.Open.Should().Be(OpenPanels.PanelName);
         Binding.Panel.Rows.Should().Contain(row => row.Kind == PanelRowKind.Page && row.Label == "keys", "the keys' settings are a page of the panel");
         Frames(2);
 
+        Tap(Key.F5);
+        Binding.Panel.Open.Should().BeFalse("F5 again closes what it opened");
         Tap(Key.F4);
-        Binding.Panel.Open.Should().BeFalse("F4 again closes what it opened");
-        Tap(Key.F5);
-        Tap(Key.F5);
-        (Binding.Panel.Open, Binding.Console.Open).Should().Be((false, false), "and F5 again closes what it opened");
+        Tap(Key.F4);
+        (Binding.Panel.Open, Binding.Console.Open).Should().Be((false, false), "and F4 again closes what it opened");
         Binding.Keys.Panels.Open.Should().BeNull();
     }
 
@@ -85,7 +85,7 @@ public sealed class DiagnosticWindowsTests : IDisposable
         try
         {
             Frames(1);
-            Tap(Key.F5);
+            Tap(Key.F4);
             // Drawn open, the console's field takes the keyboard, and the line is typed and entered
             // through ImGui's input.
             Frames(2);
@@ -140,8 +140,8 @@ public sealed class DiagnosticWindowsTests : IDisposable
         ConsoleHost.Registry.FindSetting("keys.console").Should().BeSameAs(keys.KeyOf(KeyAction.Console));
         Run("keys.console F6").Should().Be("keys.console is F6.");
 
-        Tap(Key.F5);
-        Binding.Console.Open.Should().BeFalse("F5 is no longer the console's key");
+        Tap(Key.F4);
+        Binding.Console.Open.Should().BeFalse("F4 is no longer the console's key");
         Tap(Key.F6);
         Binding.Console.Open.Should().BeTrue("the key the registry's setting names opens it");
 

@@ -77,7 +77,7 @@ public sealed class ScreenshotKeyTests : IDisposable
     {
         UseApp(new App(Config.Default with { Headless = true }).AddPlugin(new DefaultPlugins()));
         Keys.Folder = _folder.Path;
-        Enum.GetValues<KeyAction>().Select(Bound).Should().Equal(["F1", "F2", "F3", "F4", "F5"], "the five keys are F1 to F5 until moved");
+        Enum.GetValues<KeyAction>().Select(Bound).Should().Equal(["F1", "F2", "F3", "F5", "F4"], "the five keys are F1 to F5 until moved, the panel's F5 and the console's F4");
 
         Input.SetKey(Key.F2, true);
         BeginDrawing();

@@ -69,9 +69,9 @@ public sealed class ExitKeyTests : IDisposable
     {
         SetExitKey(Key.Escape);
         Frames(1);
-        Tap(Key.F4);
+        Tap(Key.F5);
         Frames(2);
-        Panel.Open.Should().BeTrue("F4 opens the settings panel");
+        Panel.Open.Should().BeTrue("F5 opens the settings panel");
         for (var i = 0; i < 64 && Panel.Rows.Single(row => row.Selected).Kind != PanelRowKind.Page; i++) Panel.Press(PanelInput.Down);
         Panel.Press(PanelInput.Accept);
         Panel.Title.Should().NotBe(Panel.Root.Title, "a page of the panel is open");

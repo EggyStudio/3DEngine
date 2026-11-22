@@ -251,7 +251,7 @@ file is written, and `record.stop` ends one sooner.
 ## The debug keys
 
 Every program answers the Diagnostics module's five keys, Minecraft's F1, F2 and F3, F4 opening the
-settings panel and F5 the console, each a setting a player rebinds from the console, as
+console and F5 the settings panel, each a setting a player rebinds from the console, as
 `keys.console F6`, and the first three moved by a call too or turned off with `Key.Null`. A key is
 taken as it is let go where no other key went down while it was held, so a program's own chords on
 them stand, F3 with F4 among them, and the program sees each press as it sees any key, so a program
@@ -333,15 +333,16 @@ RemoveDebugOverlaySection("World");
 A section added again under its name takes the place of the first, and one whose lines throw is a
 line saying it failed and why where its lines would be.
 
-F5 opens the console, a window across the top of the program's window in the debug overlay's look,
+F4 opens the console, a window across the top of the program's window in the debug overlay's look,
 light gray on black at half, whatever the program's ImGui theme, holding every line written, the
-lines entered and their answers among them, and a field under them where a command or a setting is
-typed, completed by Tab from the names that begin with what is typed, which a box joined to the
-field lists, walked back through by Up and Down, and run by Enter between the frame's input and its
-update, as `./e3d command` runs it. A command that answers frames later writes its answer under the
-line when it comes, and one that throws writes the stack of what it threw to the log, as a line
-`./e3d command` sends does. F4 opens the settings panel, in the same look, a page for each first
-word of the settings' names, steered by the arrows, Enter and Escape, or a pad.
+lines entered and their answers among them, and a field under them across the window's whole
+width where a command or a setting is typed, completed by Tab from the names that begin with what
+is typed, which a box joined to the field lists, walked back through by Up and Down, and run by
+Enter between the frame's input and its update, as `./e3d command` runs it. A command that answers
+frames later writes its answer under the line when it comes, and one that throws writes the stack
+of what it threw to the log, as a line `./e3d command` sends does. F5 opens the settings panel, in
+the same look on the opaque black of the console's box so it reads over a bright scene, a page for
+each first word of the settings' names, steered by the arrows, Enter and Escape, or a pad.
 
 The settings are every value of the engine's a console line or an environment variable sets, each
 with its range or its choices, its default, whether it only reads and the variable that overrides

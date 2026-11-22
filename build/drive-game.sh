@@ -742,7 +742,7 @@ case "$game" in
     # the ground floor, the walk up the stairs to the room over the hall read at that floor's
     # height, a window cut through the room's north wall by a command with the counts read and the
     # collider made again, the window captured, the modeling window opened on Tab and closed, the
-    # recipe saved on F5 with the window's line in it, and the walk back down. The level's file the
+    # recipe saved on F6 with the window's line in it, and the walk back down. The level's file the
     # save wrote over is put back as it was built.
     restore="cp games/Blockout/resources/levels/blockout.model '$folder/resources/levels/blockout.model'"
     cmd time.frame 0.0166667
@@ -799,9 +799,9 @@ case "$game" in
     case "$(ask blockout.status)" in *"modeling window open"*) ;; *) fail "Tab did not open the modeling window" ;; esac
     cmd input.key Tab 1
     cmd frames.wait 5
-    cmd input.key F5 1
+    cmd input.key F6 1
     cmd frames.wait 5
-    grep -q "^\[blockout\] saved the level to" "$log" || fail "F5 did not save the level"
+    grep -q "^\[blockout\] saved the level to" "$log" || fail "F6 did not save the level"
     grep -q "^cut window 1.4 1.2 4 1$" "$folder/resources/levels/blockout.model" || fail "the saved recipe holds no window's line"
     route downstairs
     case "$status" in *"on the ground floor"*) ;; *) fail "the walker did not come back down to the ground floor, $status" ;; esac
