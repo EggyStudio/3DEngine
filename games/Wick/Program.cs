@@ -4,6 +4,7 @@
 // the pits in the polished floors show only where some light falls on them. Written against the
 // engine's package, as a game outside this repository would be.
 using System.Numerics;
+using Diagnostics;
 using Engine;
 using Wick;
 using static Engine.E3D;

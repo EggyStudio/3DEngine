@@ -1,7 +1,7 @@
 using FluentAssertions;
 using static Engine.E3D;
 
-namespace Engine.Tests.Diagnostics;
+namespace Engine.Tests.DiagnosticsHost;
 
 /// <summary>
 /// <c>frame.read</c>, a rectangle of the frame drawn read as its mean color and its largest step:
@@ -38,7 +38,7 @@ public sealed class FrameReadTests : IDisposable
     private static (string Answer, Func<string?>? Later, string? Code) Run(string line)
     {
         using (ConsoleHost.Lend(GetApp().World, GetApp()))
-            return (ConsoleCommands.Run(line) ?? "", ConsoleHost.Pending, ConsoleHost.Failure?.Code);
+            return (ConsoleHost.Run(line).Text, ConsoleHost.Pending, ConsoleHost.Failure?.Code);
     }
 
     [Fact]

@@ -1,16 +1,27 @@
+using Diagnostics;
+
 namespace Engine;
 
 /// <summary>
 /// What a console command runs against, the world lent for the length of the call and the ways a
-/// command can fail with a code or answer later.
+/// command can fail with a code or answer later, and the running of a line through the Diagnostics
+/// module's registry of the process.
 /// </summary>
 /// <remarks>
+/// <para>
 /// Commands run on the main thread inside <see cref="Stage.First"/>, between frames, so a command
 /// may read and change the world freely. Outside that, <see cref="World"/> is <c>null</c> and the
 /// accessors say why.
+/// </para>
+/// <para>
+/// An answer that comes frames later, by <see cref="Hold"/> or <see cref="Later"/>, is kept by the
+/// host that ran the line, which writes it to its console when it comes.
+/// </para>
 /// </remarks>
 internal static class ConsoleHost
 {
+    private static readonly ILogger Logger = Log.Category("Engine.Console");
+
     /// <summary>Frames a command answering later is given before it times out.</summary>
     public const ulong LaterFrames = 600;
 
@@ -30,6 +41,35 @@ internal static class ConsoleHost
     internal static Func<string?>? Pending { get; private set; }
 
     internal static ulong PendingFrames { get; private set; } = LaterFrames;
+
+    /// <summary>
+    /// The registry of the process, which every assembly of the engine has added its commands to
+    /// by the time this returns.
+    /// </summary>
+    public static Registry Registry
+    {
+        get
+        {
+            EngineAssemblies.Load();
+            return Registry.Process;
+        }
+    }
+
+    /// <summary>
+    /// Runs a line through the registry, its first word a command's name and the rest its words.
+    /// </summary>
+    /// <returns>
+    /// The command's answer, or one failed with the module's code where no command has the name, a
+    /// word did not parse or the command threw.
+    /// </returns>
+    public static Answer Run(string line)
+    {
+        var answer = Registry.Run(line);
+        // The answer stays one line a person reads, and the stack of what the command threw goes to
+        // the log.
+        if (answer.Error is { } error) Logger.Error($"Command '{CommandLine.Parse(line).Name}' failed.", error);
+        return answer;
+    }
 
     /// <summary>The lent world's entities.</summary>
     /// <exception cref="InvalidOperationException">No command is running.</exception>

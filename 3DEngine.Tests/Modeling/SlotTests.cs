@@ -218,7 +218,7 @@ public sealed class SlotTests : IDisposable
         {
             using (ConsoleHost.Lend(GetApp().World, GetApp()))
             {
-                var answer = ConsoleCommands.Run(line) ?? "";
+                var answer = ConsoleHost.Run(line).Text;
                 code = ConsoleHost.Failure?.Code;
                 return answer;
             }

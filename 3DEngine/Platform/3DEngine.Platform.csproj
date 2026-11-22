@@ -12,9 +12,14 @@
         <DefaultItemExcludes>$(DefaultItemExcludes);Audio\**</DefaultItemExcludes>
     </PropertyGroup>
 
+    <!-- The Diagnostics module, whose registry the app's console commands are added to. -->
+    <ItemGroup>
+        <ProjectReference Include="..\..\modules\Diagnostics\Diagnostics\Diagnostics.csproj" PrivateAssets="all" />
+    </ItemGroup>
+
     <ItemGroup>
         <ProjectReference Include="..\Core\3DEngine.Core.csproj" />
-        <ProjectReference Include="..\Diagnostics\3DEngine.Diagnostics.csproj" />
+        <ProjectReference Include="..\DiagnosticsHost\3DEngine.DiagnosticsHost.csproj" />
         <ProjectReference Include="..\Graphics\3DEngine.Graphics.csproj" />
     </ItemGroup>
 

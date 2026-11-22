@@ -6,6 +6,7 @@
 // second whatever the frame took, so its input played again makes the same run. Written against the
 // engine's package, as a game outside this repository would be.
 using System.Numerics;
+using Diagnostics;
 using Engine;
 using static Engine.E3D;
 

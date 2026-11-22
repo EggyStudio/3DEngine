@@ -1,3 +1,5 @@
+using Diagnostics;
+
 namespace Engine;
 
 /// <summary>The console commands that save the world's entities to a scene file and spawn them from one.</summary>

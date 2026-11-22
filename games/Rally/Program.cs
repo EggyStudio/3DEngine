@@ -2,6 +2,7 @@
 // lap driven before. The car is a body held up by four rays, one a wheel, which push it as springs,
 // grip the ground sideways and drive it forward, worked out on the physics' fixed steps.
 using System.Numerics;
+using Diagnostics;
 using Engine;
 using ImGuiNET;
 using static Engine.E3D;

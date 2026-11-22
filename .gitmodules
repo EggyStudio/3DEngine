@@ -7,3 +7,6 @@
 [submodule "modules/RadianceCascades"]
 	path = modules/RadianceCascades
 	url = https://github.com/EggyStudio/3DEngine.RadianceCascades.git
+[submodule "modules/Diagnostics"]
+	path = modules/Diagnostics
+	url = https://github.com/EggyStudio/3DEngine.Diagnostics.git

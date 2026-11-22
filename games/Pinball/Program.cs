@@ -5,6 +5,7 @@
 // dead until the ball drains. Written against the engine's package, as a game outside this
 // repository would be.
 using System.Numerics;
+using Diagnostics;
 using Engine;
 using static Engine.E3D;
 

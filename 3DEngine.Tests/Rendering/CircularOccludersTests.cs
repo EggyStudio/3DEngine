@@ -146,6 +146,6 @@ public sealed class CircularOccludersTests : IDisposable
     private static string Run(string line)
     {
         using (ConsoleHost.Lend(GetApp().World, GetApp()))
-            return ConsoleCommands.Run(line) ?? "";
+            return ConsoleHost.Run(line).Text;
     }
 }

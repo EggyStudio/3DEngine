@@ -2,7 +2,7 @@ using System.Numerics;
 using FluentAssertions;
 using static Engine.E3D;
 
-namespace Engine.Tests.Diagnostics;
+namespace Engine.Tests.DiagnosticsHost;
 
 /// <summary>
 /// F1 hiding the interface's scope and F3 the debug overlay, in a headless run, with F1 turning the

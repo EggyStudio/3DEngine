@@ -241,7 +241,8 @@ was ready logs a warning saying so.
 ## Commands of a game's own
 
 A static method marked `[Command]` is a command of the program's console, a verb of `e3d` and a
-line of `./e3d list` at once, with its parameters read from the command line:
+line of `./e3d list` at once, with its parameters read from the command line. The attribute is the
+Diagnostics module's, in the namespace `Diagnostics`, which the engine's package carries:
 
 ```csharp
 [Command("enemy.spawn", "Spawns enemies: enemy.spawn <count>")]

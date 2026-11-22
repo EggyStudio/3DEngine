@@ -51,7 +51,7 @@ public sealed partial class LightTermsTests : IDisposable
         Func<string?> later;
         using (ConsoleHost.Lend(GetApp().World, GetApp()))
         {
-            ConsoleCommands.Run("light.terms 80 70").Should().StartWith("reading the light of the pixel 80 70");
+            ConsoleHost.Run("light.terms 80 70").Text.Should().StartWith("reading the light of the pixel 80 70");
             later = ConsoleHost.Pending!;
         }
         string? answer = null;

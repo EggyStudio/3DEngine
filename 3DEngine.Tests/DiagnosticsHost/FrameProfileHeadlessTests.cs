@@ -1,7 +1,7 @@
 using FluentAssertions;
 using static Engine.E3D;
 
-namespace Engine.Tests.Diagnostics;
+namespace Engine.Tests.DiagnosticsHost;
 
 /// <summary>
 /// The frame profile of an app with a renderer and no device, as every headless run is, which ends

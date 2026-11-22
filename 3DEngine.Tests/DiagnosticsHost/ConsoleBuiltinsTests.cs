@@ -1,6 +1,7 @@
+using Diagnostics;
 using FluentAssertions;
 
-namespace Engine.Tests.Diagnostics;
+namespace Engine.Tests.DiagnosticsHost;
 
 // In the E3D collection with every test that lends the console, since the world it lends is the
 // process's, and one test putting its lend back while another's command runs leaves that one none.
@@ -35,14 +36,14 @@ public class ConsoleBuiltinsTests
 
     private static string Run(World world, App app, string line)
     {
-        using (ConsoleHost.Lend(world, app)) return ConsoleCommands.Run(line) ?? "";
+        using (ConsoleHost.Lend(world, app)) return ConsoleHost.Run(line).Text;
     }
 
     [Fact]
     public void The_Generator_Registers_The_Built_In_Commands()
     {
-        ConsoleCommands.Find("entity.count").Should().NotBeNull();
-        ConsoleCommands.Find("frames.wait")!.Parameters.Should().ContainSingle().Which.Kind.Should().Be("whole");
+        ConsoleHost.Registry.FindCommand("entity.count").Should().NotBeNull();
+        ConsoleHost.Registry.FindCommand("frames.wait")!.Arguments.Should().ContainSingle().Which.Kind.Should().Be("whole");
     }
 
     [Fact]
@@ -69,8 +70,8 @@ public class ConsoleBuiltinsTests
         var (world, app) = Setup();
         world.InitResource<Input>();
 
-        ConsoleCommands.Find("input.drag")!.Usage.Should().Be("<button> <dx> <dy> <frames> [rest]");
-        Run(world, app, "input.drag Left 10 0").Should().Be("needs 4 arguments: <button> <dx> <dy> <frames> [rest]");
+        ConsoleHost.Registry.FindCommand("input.drag")!.Usage.Should().Be("input.drag <button> <dx> <dy> <frames> [<rest>]");
+        Run(world, app, "input.drag Left 10 0").Should().Be("needs 4 arguments: input.drag <button> <dx> <dy> <frames> [<rest>]");
         Run(world, app, "input.drag Left 10 0 3").Should().StartWith("dragged");
         Run(world, app, "input.drag Left 10 0 3 5").Should().StartWith("dragged");
         Run(world, app, "input.drag Left 10 0 3 soon").Should().Be("not a whole: soon");
@@ -94,6 +95,8 @@ public class ConsoleBuiltinsTests
 
         Run(world, app, "entity.get seven").Should().Be("not a whole: seven");
         Run(world, app, "entity.get").Should().StartWith("needs 1 argument");
+        using (ConsoleHost.Lend(world, app))
+            ConsoleHost.Run("entity.get seven").Code.Should().Be(Answer.BadArgument, "the sentence is a failure a script reads by its code");
     }
 
     [Fact]

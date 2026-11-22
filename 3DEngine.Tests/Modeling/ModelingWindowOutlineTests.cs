@@ -40,7 +40,7 @@ public sealed class ModelingWindowOutlineTests : IDisposable
 
     private static void Run(string line)
     {
-        using (ConsoleHost.Lend(GetApp().World, GetApp())) ConsoleCommands.Run(line);
+        using (ConsoleHost.Lend(GetApp().World, GetApp())) ConsoleHost.Run(line);
     }
 
     // A few frames of the box and the window, the last captured.

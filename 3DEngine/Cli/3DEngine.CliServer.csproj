@@ -7,9 +7,14 @@
         <Description>The server side of the e3d client, its socket, request queue and session files.</Description>
     </PropertyGroup>
 
+    <!-- The Diagnostics module, whose registry runs the lines the e3d client sends. -->
+    <ItemGroup>
+        <ProjectReference Include="..\..\modules\Diagnostics\Diagnostics\Diagnostics.csproj" PrivateAssets="all" />
+    </ItemGroup>
+
     <ItemGroup>
         <ProjectReference Include="..\Core\3DEngine.Core.csproj" />
-        <ProjectReference Include="..\Diagnostics\3DEngine.Diagnostics.csproj" />
+        <ProjectReference Include="..\DiagnosticsHost\3DEngine.DiagnosticsHost.csproj" />
     </ItemGroup>
 
 </Project>

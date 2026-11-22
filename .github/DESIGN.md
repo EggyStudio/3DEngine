@@ -274,7 +274,7 @@ those of the layers below it:
 | 5 | `3DEngine.Scenes`, `3DEngine.Modeling`, `3DEngine.Gui` |
 | 4 | `3DEngine.Audio` (`Platform/Audio`), `3DEngine.Rendering`, `3DEngine.Physics` |
 | 3 | `3DEngine.Platform`, `3DEngine.Assets`, `3DEngine.CliServer` (`Cli`) |
-| 2 | `3DEngine.Diagnostics`, `3DEngine.Graphics` |
+| 2 | `3DEngine.DiagnosticsHost`, `3DEngine.Graphics` |
 | 1 | `3DEngine.Core`, with the folders `Ecs` and `Behaviors` beside its own |
 
 Each sits in the lowest layer its references allow, and the norm test of the layers fails a

@@ -6,6 +6,7 @@
 // `Summit build-level <folder>` writes the level and its prefabs as scene files into the folder,
 // which is how resources/level.json and resources/prefabs were made.
 using System.Numerics;
+using Diagnostics;
 using Engine;
 using static Engine.E3D;
 

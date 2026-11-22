@@ -100,6 +100,13 @@ int GetRandomValue(int min, int max);                    // A random whole numbe
 int[] LoadRandomSequence(int count, int min, int max);   // count different whole numbers from min to max, both included, in random order, or an empty array when the range holds fewer than that
 ```
 
+A static method marked with the Diagnostics module's `[Command]`, in the namespace `Diagnostics`, is
+a console command `./e3d command` runs by its name. A name is lowercase words joined by dots and is
+read as it is written, so `Profile` names no command, and the module's `help`, `list` and `reset`
+stand in the registry beside the engine's commands. A word a command cannot read fails with
+`BAD_ARGUMENT` and its sentence, and a command that throws fails with `FAILED`, so `./e3d` exits
+with 2 for the one and 6 for the other.
+
 ## Frame and cameras
 
 <!-- written by build/cheatsheet.sh from E3D.Drawing.cs, E3D.Vr.cs, E3D.Cameras.cs, E3D.Camera2D.cs, E3D.Camera3D.cs, E3D.MoveWorld.cs -->

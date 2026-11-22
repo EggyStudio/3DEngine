@@ -6,6 +6,7 @@
 // side is played by the computer, every panel is ImGui, and a match is saved to a file and taken up
 // again. Written against the engine's package, as a game outside this repository would be.
 using System.Numerics;
+using Diagnostics;
 using Engine;
 using ImGuiNET;
 using static Engine.E3D;

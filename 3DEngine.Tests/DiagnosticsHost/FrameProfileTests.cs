@@ -1,6 +1,6 @@
 using FluentAssertions;
 
-namespace Engine.Tests.Diagnostics;
+namespace Engine.Tests.DiagnosticsHost;
 
 // In the E3D collection with every test that lends the console, since the world it lends is the
 // process's, and one test putting its lend back while another's command runs leaves that one none.
@@ -75,7 +75,7 @@ public class FrameProfileTests
 
         string Run(string line)
         {
-            using (ConsoleHost.Lend(app.World, app)) return ConsoleCommands.Run(line) ?? "";
+            using (ConsoleHost.Lend(app.World, app)) return ConsoleHost.Run(line).Text;
         }
 
         var report = Run("profile");

@@ -4,6 +4,7 @@
 // Tab opens the modeling window on the level so it is reshaped while it is walked in, and F5 saves
 // the recipe. Written against the engine's package, as a game outside this repository would be.
 using System.Numerics;
+using Diagnostics;
 using Engine;
 using ImGuiNET;
 using static Engine.E3D;

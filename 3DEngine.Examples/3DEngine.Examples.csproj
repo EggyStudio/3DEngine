@@ -27,6 +27,9 @@
         <!-- The Materials module, whose prototype table the engine's prototype materials take, as a
              package carries it beside the engine. -->
         <ProjectReference Include="..\modules\Materials\Materials\Materials.csproj" />
+        <!-- The Diagnostics module, whose [Command] marks the examples' own commands, as a package
+             carries it beside the engine. -->
+        <ProjectReference Include="..\modules\Diagnostics\Diagnostics\Diagnostics.csproj" />
         <ProjectReference Include="..\3DEngine.Generator\3DEngine.Generator.csproj"
                           OutputItemType="Analyzer"
                           ReferenceOutputAssembly="false" />

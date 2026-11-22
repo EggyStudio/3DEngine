@@ -60,9 +60,9 @@ internal static class Verbs
         {
             foreach (var command in data.GetProperty("commands").EnumerateArray())
             {
-                var name = Output.Text(command, "name");
+                // The usage names the command first.
                 var usage = Output.Text(command, "usage");
-                Console.WriteLine($"{(usage.Length > 0 ? $"{name} {usage}" : name),-40} {Output.Text(command, "help")}");
+                Console.WriteLine($"{(usage.Length > 0 ? usage : Output.Text(command, "name")),-40} {Output.Text(command, "help")}");
             }
         });
     }

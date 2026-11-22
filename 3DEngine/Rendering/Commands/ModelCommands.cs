@@ -1,3 +1,5 @@
+using Diagnostics;
+
 namespace Engine;
 
 /// <summary>Commands that say what the model pass did with the frame's instances.</summary>

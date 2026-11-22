@@ -1,3 +1,5 @@
+using Diagnostics;
+
 namespace Engine;
 
 /// <summary>The console command that writes the frame being drawn to a PNG file.</summary>

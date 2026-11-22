@@ -1,3 +1,4 @@
+using Diagnostics;
 using SDL3;
 
 namespace Engine;

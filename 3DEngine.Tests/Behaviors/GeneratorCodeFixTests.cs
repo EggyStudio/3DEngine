@@ -117,7 +117,7 @@ public class GeneratorCodeFixTests
     public async Task A_Command_Is_Made_Static()
     {
         var (text, after) = await Fix(Commands, """
-            using Engine;
+            using Diagnostics;
             public class Tools
             {
                 [Command("tools.ping", "Answers pong")]
@@ -136,7 +136,7 @@ public class GeneratorCodeFixTests
     public async Task A_Command_Is_Made_Internal_Whether_Private_Or_Bare()
     {
         var (text, after) = await Fix(Commands, """
-            using Engine;
+            using Diagnostics;
             public static class Tools
             {
                 [Command("tools.ping", "Answers pong")]
@@ -150,7 +150,7 @@ public class GeneratorCodeFixTests
         after.Should().BeEmpty();
 
         (text, after) = await Fix(Commands, """
-            using Engine;
+            using Diagnostics;
             public static class Tools
             {
                 [Command("tools.ping", "Answers pong")]

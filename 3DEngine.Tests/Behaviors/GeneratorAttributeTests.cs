@@ -25,6 +25,7 @@ public class GeneratorAttributeTests
     // One source with a use of every attribute. Each method counts its runs in Probe, and only in
     // the app this test made.
     private const string Source = """
+        using Diagnostics;
         using Engine;
 
         namespace GeneratorProbe;
@@ -193,7 +194,7 @@ public class GeneratorAttributeTests
         ["Engine.RunIfAttribute"] = "RunIf",
         ["Engine.ToggleKeyAttribute"] = "ToggleKey",
         ["Engine.MainThreadAttribute"] = "MainThread",
-        ["Engine.CommandAttribute"] = "probe.ping",
+        ["Diagnostics.CommandAttribute"] = "probe.ping",
         ["Engine.SceneComponentAttribute"] = "Marker",
         ["Engine.FormerNameAttribute"] = "Formerly",
         ["Engine.DataVersionAttribute"] = "Versioned",
@@ -337,8 +338,8 @@ public class GeneratorAttributeTests
             "an app takes the behaviors of the program's assemblies and of no assembly a test compiled for its own app");
         bare.Shutdown();
 
-        ConsoleCommands.Run("probe.ping").Should().Be("pong", "[Command] puts the method in the console's catalog");
-        ConsoleCommands.Find("notacommand").Should().BeNull("a method without [Command] is not one");
+        ConsoleHost.Run("probe.ping").Text.Should().Be("pong", "[Command] puts the method in the console's catalog");
+        ConsoleHost.Registry.FindCommand("notacommand").Should().BeNull("a method without [Command] is not one");
         SceneComponents.Find("GeneratorProbe.Marker").Should().NotBeNull("[SceneComponent] registers the type for scene files");
         SceneComponents.Find("GeneratorProbe.Unmarked").Should().BeNull("a struct without it is not registered");
         SceneComponents.Find("Engine.Transform").Should().NotBeNull("the scene model's [assembly: SceneComponentOf] registers the ECS's Transform, below it");
@@ -421,6 +422,10 @@ public class GeneratorAttributeTests
         emitted.Success.Should().BeTrue(string.Join("\n", emitted.Diagnostics.Where(d => d.Severity == DiagnosticSeverity.Error)));
         image.Position = 0;
         var assembly = new AssemblyLoadContext(compilation.AssemblyName, isCollectible: true).LoadFromStream(image);
+        // The registry is the process's and refuses a name twice, so the commands a probe compiled
+        // by an earlier test added are taken out before this one adds its own.
+        ConsoleHost.Registry.Remove("probe.ping");
+        ConsoleHost.Registry.Remove("probe.far");
         RuntimeHelpers.RunModuleConstructor(assembly.ManifestModule.ModuleHandle);
         return assembly;
     }

@@ -5,6 +5,7 @@
 // joints, and a joint held harder than its strength breaks. Written against the engine's package,
 // as a game outside this repository would be.
 using System.Numerics;
+using Diagnostics;
 using Engine;
 using static Engine.E3D;
 

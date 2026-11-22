@@ -19,7 +19,7 @@
         <Compile Include="..\Behaviors\**\*.cs" Link="Behaviors\%(RecursiveDir)%(Filename)%(Extension)" />
         <Compile Include="..\..\3DEngine.Generator\Behaviors\**\*.cs" Link="Behaviors\Generator\%(RecursiveDir)%(Filename)%(Extension)" />
         <Compile Include="..\..\3DEngine.Generator\Scenes\**\*.cs" Link="Scenes\Generator\%(RecursiveDir)%(Filename)%(Extension)" />
-        <Compile Include="..\..\3DEngine.Generator\Commands\**\*.cs" Link="Diagnostics\Generator\%(RecursiveDir)%(Filename)%(Extension)" />
+        <Compile Include="..\..\3DEngine.Generator\Commands\**\*.cs" Link="DiagnosticsHost\Generator\%(RecursiveDir)%(Filename)%(Extension)" />
     </ItemGroup>
 
     <ItemGroup>

@@ -2,7 +2,7 @@ using System.Buffers.Binary;
 using FluentAssertions;
 using static Engine.E3D;
 
-namespace Engine.Tests.Diagnostics;
+namespace Engine.Tests.DiagnosticsHost;
 
 /// <summary>
 /// F2 writing a screenshot in every program into a folder beside it, named by the time to the

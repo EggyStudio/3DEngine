@@ -427,11 +427,34 @@ changes.
     SlotLook and build giving way to the module's, with the kernel tests already moved. After item
     265.
 
+302. **The Diagnostics module takes the console, the overlay's model, the keys and the settings.**
+    Both engines carry nearly the same command registry, console host and overlay model, with keys
+    that drifted apart, and neither has a registry of settings. The module `3DEngine.Diagnostics`
+    holds them once. In steps, each its own commit on main with the suite whole. Step 1, the
+    registry. The module comes as a submodule at `modules/Diagnostics`, embedded as the other
+    modules are and never a package. The `[Command]` attribute is the module's, the generator stays
+    here and emits `Registry.Process.Add` as the module's README says a generator emits, and the
+    engine's own command registry, its command and parameter types go; the console host runs a line
+    through the module's registry, a late answer written to the console by the host; the Modeling
+    module's commands are hosted through its list of commands in place of the engine's own `model.*`
+    ones. Step 2, the console, the overlay and the keys. The console's model and its ImGui drawing
+    are the module's, the overlay's lines come as sections the engine fills, and the keys are the
+    module's actions, F1 hide the interface, F2 screenshot, F3 overlay, F4 settings panel, F5
+    console, each a setting a player rebinds, no chord of F3 with F4. Step 3, the settings. Every
+    engine value a console command or an environment variable sets today is registered as a setting
+    with its range, its default, whether it takes effect at the next start and the variable that
+    overrides it, the panel draws them by page, and a game's settings are saved to one file in the
+    player's folder through the module's file. A picture of the console and of the panel in a
+    running example with each of steps 2 and 3. What the module lacks for a step goes to its session
+    in five lines and is mended there, never worked round here. The lighting branch goes on beside
+    this.
+
 ## Verdicts
 
-Verdict 131 is open, read at 22:56 on 2026-11-21, the build run 44943683933 on `31c089de` red in the
-reflections' reference frame on four jobs. Verdict 130 is settled at 23:53 on 2026-11-20 on run
-44809607763. Verdicts 1 to 129 are settled, said under each in REVIEW-ARCHIVE.md.
+Verdict 131 is settled at 01:52 on 2026-11-22, the build run 44956357397 on `df4d0559` green on the
+three systems, the reflections' frame recorded again with the widened roughness and the bound
+unchanged, the software device 0.95 percent apart. Verdict 130 is settled at 23:53 on 2026-11-20 on
+run 44809607763. Verdicts 1 to 129 are settled, said under each in REVIEW-ARCHIVE.md.
 
 131. **The reflections' reference frame recorded again for item 299 differs on the runners.** In run
     44943683933 on `31c089de`, read at 22:56 on 2026-11-21, the reference frame test of
@@ -617,6 +640,10 @@ numbers, each in full under Decisions in REVIEW-ARCHIVE.md.
     reader who takes it alone and is published on the owner's word. What names a module's assembly
     or its file follows in the commit that moves the submodule pointers. N 4.12 holds a comment line
     to 100 columns, existing lines rewrapped as their files are touched.
+
+120. **The Diagnostics module is taken at once, beside the lighting branch.** The console, the
+    overlay's model, the keys F1 to F5 and a registry of settings with a paged panel come from the
+    module in both engines, the engine's own copies deleted as each step lands.
 
 ## Replies
 
@@ -1122,3 +1149,27 @@ The mend. The reference is recorded again from the frame on the desktop's card w
 widened, the bound unchanged. The RTX 4070 stands 0 pixels apart from it and lavapipe, Mesa 25.2.8
 and 26.2.4 alike, 388 of them (0.95 percent) against the 819 the bound allows. The reference
 frames' tests pass on both devices, 30 of 30.
+
+Item 302, step 1, the registry.
+
+The Diagnostics module comes in as a submodule at `modules/Diagnostics`, at `7f84619`, embedded as
+Sky, Materials and RadianceCascades are. Its `[Command]` attribute marks the engine's commands, and
+the engine's generator emits `Registry.Process.Add` for each, a word that does not parse refused
+with the sentence it gave before. `ConsoleHost` runs every line through the module's registry, the
+CLI's lines with it, and a command that holds its answer writes it later through the host. A
+command that throws is logged with its stack from `Answer.Error`. Gone are `ConsoleCommands`,
+`ConsoleCommand`, `CommandParameter` and the engine's `CommandAttribute`, each with its file. The
+`model.*` commands stay the engine's, registered through the module's registry, until the edit
+mesh gives way to the Modeling module's. The engine's area holding the host takes the name
+`DiagnosticsHost`, folder and assembly `3DEngine.DiagnosticsHost`, its tests with it, since the
+module holds the name `3DEngine.Diagnostics` and one restore cannot hold two projects of one name.
+
+Three things a program sees differently. A command's name is read as written, so `GI.State` is
+not `gi.state`. The module's own `help`, `list` and `reset` stand in the registry beside the
+engine's. A word that does not parse, or a command that throws, fails over the CLI with
+`BAD_ARGUMENT` or `FAILED` and their exit codes, where before the answer was a sentence and the call
+succeeded. CHEATSHEET.md says the three.
+
+The suite passed whole on this commit's build, 2,529 tests and the one that failed first, the
+pipeline cache's, which shares the cache folder with other runs and passed alone, with 6 skipped
+as on main, the package tests with no package built.

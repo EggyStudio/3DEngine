@@ -25,6 +25,12 @@
         <ProjectReference Include="..\modules\Materials\Materials\Materials.csproj" />
     </ItemGroup>
 
+    <!-- The Diagnostics module, whose registry the tests run console lines through and whose
+         [Command] marks their own commands. -->
+    <ItemGroup>
+        <ProjectReference Include="..\modules\Diagnostics\Diagnostics\Diagnostics.csproj" />
+    </ItemGroup>
+
     <!-- The generators' code fixes, compiled in as the engine compiles the generators, with the
          workspace layer they apply edits through at the engine's compiler version. -->
     <ItemGroup>

@@ -47,7 +47,7 @@ public sealed class ModelingWindowTests : IDisposable
 
     private static void Run(string line)
     {
-        using (ConsoleHost.Lend(GetApp().World, GetApp())) ConsoleCommands.Run(line);
+        using (ConsoleHost.Lend(GetApp().World, GetApp())) ConsoleHost.Run(line);
     }
 
     // The frames the window is drawn in, and how many of them it said the mesh changed in.

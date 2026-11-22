@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <!-- The engine's host of the Diagnostics module, named apart from the module's own
+         3DEngine.Diagnostics, since one restore and one package hold no two projects of a name. -->
+    <PropertyGroup>
+        <AssemblyName>3DEngine.DiagnosticsHost</AssemblyName>
+        <PackageId>3DEngine.DiagnosticsHost</PackageId>
+        <Title>3DEngine.DiagnosticsHost</Title>
+        <Description>The host of the Diagnostics module, the console's lines run through its registry and the engine's built-in commands, the synthetic input the console makes and the readers of animation and GIF files.</Description>
+    </PropertyGroup>
+
+    <!-- The Diagnostics module, a repository of its own under modules/ and no package, whose
+         registry runs the console's lines and whose assembly and documentation the engine's
+         package carries beside the areas'. -->
+    <ItemGroup>
+        <ProjectReference Include="..\..\modules\Diagnostics\Diagnostics\Diagnostics.csproj" PrivateAssets="all" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\Core\3DEngine.Core.csproj" />
+    </ItemGroup>
+
+</Project>

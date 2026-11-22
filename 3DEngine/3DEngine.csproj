@@ -67,7 +67,7 @@
     </ItemDefinitionGroup>
     <ItemGroup>
         <ProjectReference Include="Core\3DEngine.Core.csproj" />
-        <ProjectReference Include="Diagnostics\3DEngine.Diagnostics.csproj" />
+        <ProjectReference Include="DiagnosticsHost\3DEngine.DiagnosticsHost.csproj" />
         <ProjectReference Include="Graphics\3DEngine.Graphics.csproj" />
         <ProjectReference Include="Platform\3DEngine.Platform.csproj" />
         <ProjectReference Include="Assets\3DEngine.Assets.csproj" />
@@ -86,6 +86,9 @@
              grid take, a repository of its own under modules/ whose assembly the package carries
              too. -->
         <ProjectReference Include="..\modules\Materials\Materials\Materials.csproj" PrivateAssets="all" />
+        <!-- The Diagnostics module's, whose registry the API's console commands are added to and
+             whose [Command] a game marks its own with, carried in the package too. -->
+        <ProjectReference Include="..\modules\Diagnostics\Diagnostics\Diagnostics.csproj" PrivateAssets="all" />
     </ItemGroup>
 
     <!-- The packages from outside that the areas build on, named again here, since a package

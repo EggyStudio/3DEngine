@@ -37,7 +37,7 @@ public sealed class WindowResizeTests : IDisposable
     private static string Command(string line)
     {
         var app = GetApp();
-        using (ConsoleHost.Lend(app.World, app)) return ConsoleCommands.Run(line) ?? "";
+        using (ConsoleHost.Lend(app.World, app)) return ConsoleHost.Run(line).Text;
     }
 
     // A lit scene with bloom, so the HDR frame, the bloom chain and the shadow are made again at

@@ -2,6 +2,7 @@
 // its coins and beats the high score. Written against the engine's package with what its README and
 // cheatsheet offer, as a 2D game outside this repository would be.
 using System.Numerics;
+using Diagnostics;
 using Engine;
 using static Engine.E3D;
 

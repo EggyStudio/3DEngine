@@ -116,7 +116,7 @@ public sealed partial class NormTests
         string[][] layers =
         [
             ["3DEngine.Core"],
-            ["3DEngine.Diagnostics", "3DEngine.Graphics"],
+            ["3DEngine.DiagnosticsHost", "3DEngine.Graphics"],
             ["3DEngine.Platform", "3DEngine.Assets", "3DEngine.CliServer"],
             ["3DEngine.Audio", "3DEngine.Rendering", "3DEngine.Physics"],
             ["3DEngine.Scenes", "3DEngine.Modeling", "3DEngine.Gui", "3DEngine.GlobalIllumination"],

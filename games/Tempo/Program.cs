@@ -5,6 +5,7 @@
 // scores a note as late as it was played and a fast one no earlier.
 using System.Numerics;
 using System.Text.Json;
+using Diagnostics;
 using Engine;
 using static Engine.E3D;
 

@@ -1,3 +1,5 @@
+using Diagnostics;
+
 namespace Engine;
 
 /// <summary>Answers the four operations the CLI asks for, ping, status, list and run.</summary>
@@ -30,22 +32,22 @@ internal static class CliDispatch
         }
         writer.WriteBoolean("renderer", RunMode.HasRenderer(world));
         writer.WriteNumber("entities", world.TryGetResource<EcsWorld>(out var ecs) ? ecs.EntityCount : 0);
-        writer.WriteNumber("commands", ConsoleCommands.All.Count);
+        writer.WriteNumber("commands", ConsoleHost.Registry.Commands.Count);
     }, request.Id);
 
     private static string List(CliRequest request) => CliJson.Ok("list", writer =>
     {
         writer.WritePropertyName("commands");
         writer.WriteStartArray();
-        foreach (var command in ConsoleCommands.All)
+        foreach (var command in ConsoleHost.Registry.Commands)
         {
             writer.WriteStartObject();
             writer.WriteString("name", command.Name);
-            writer.WriteString("help", command.Help);
+            writer.WriteString("help", command.Summary);
             writer.WriteString("usage", command.Usage);
             writer.WritePropertyName("parameters");
             writer.WriteStartArray();
-            foreach (var parameter in command.Parameters)
+            foreach (var parameter in command.Arguments)
             {
                 writer.WriteStartObject();
                 writer.WriteString("name", parameter.Name);
@@ -65,20 +67,21 @@ internal static class CliDispatch
         if (line.Length == 0)
             return CliJson.Fail("command", "BAD_ARGUMENT", "No command was given to run.", request.Id);
 
-        var cut = line.IndexOf(' ');
-        var name = cut < 0 ? line : line[..cut];
-        if (ConsoleCommands.Find(name) is null)
+        var name = CommandLine.Parse(line).Name;
+        if (ConsoleHost.Registry.FindCommand(name) is null && ConsoleHost.Registry.FindSetting(name) is null)
             return CliJson.Fail("command", "UNKNOWN_COMMAND", $"'{name}' is not a command this app registers. Run 'e3d list' to see what is.", request.Id);
 
-        string? answer;
+        Answer answer;
         CliError? failure;
         ulong? held;
         Func<string?>? pending;
         ulong pendingFrames;
         using (ConsoleHost.Lend(world, app, request.Caller))
         {
-            answer = ConsoleCommands.Run(line);
-            failure = ConsoleHost.Failure;
+            answer = ConsoleHost.Run(line);
+            // A failure the command gave the host comes first, then the one its answer carries, a
+            // word that did not parse or a run that threw.
+            failure = ConsoleHost.Failure ?? (answer.Code is { } code ? new CliError(code, answer.Text) : null);
             held = ConsoleHost.Held;
             pending = ConsoleHost.Pending;
             pendingFrames = ConsoleHost.PendingFrames;
@@ -86,12 +89,12 @@ internal static class CliDispatch
 
         var frame = Frame(world);
         if (failure is { } error)
-            return CliJson.Envelope("command", success: false, writer => Payload(writer, name, answer, frame), [error], id: request.Id);
+            return CliJson.Envelope("command", success: false, writer => Payload(writer, name, answer.Text, frame), [error], id: request.Id);
 
         if (pending is not null)
         {
             request.Holding = name;
-            request.Held = answer;
+            request.Held = answer.Text;
             request.Poll = pending;
             request.Allowed = pendingFrames;
             request.Release = frame + pendingFrames;
@@ -102,12 +105,12 @@ internal static class CliDispatch
         {
             // Answered now and handed back later, so "act, let it settle, then look" is one call.
             request.Holding = name;
-            request.Held = answer;
+            request.Held = answer.Text;
             request.Release = release;
             return null;
         }
 
-        return CliJson.Ok("command", writer => Payload(writer, name, answer, frame), request.Id);
+        return CliJson.Ok("command", writer => Payload(writer, name, answer.Text, frame), request.Id);
     }
 
     public static string Release(CliRequest request, ulong frame) =>

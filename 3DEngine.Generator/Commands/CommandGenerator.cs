@@ -5,14 +5,14 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 namespace Engine;
 
 /// <summary>
-/// Roslyn incremental generator turning <c>[Command]</c> static methods into console commands
-/// registered by a module initializer, so a command needs no registration code and nothing scans
-/// for commands at runtime.
+/// Roslyn incremental generator turning static methods marked with the Diagnostics module's
+/// <c>[Command]</c> into console commands, each added to the module's process registry by a module
+/// initializer, so a command needs no registration code and nothing scans for commands at runtime.
 /// </summary>
 /// <remarks>
 /// Each command's runner reads its words with the parsers emitted beside it and answers a word that
-/// does not parse with a sentence. A method the generator cannot call is reported on the method
-/// (E3D100 to E3D103) and left out.
+/// does not parse with a sentence and the module's <c>BAD_ARGUMENT</c>. A method the generator
+/// cannot call is reported on the method (E3D100 to E3D103) and left out.
 /// </remarks>
 [Generator(LanguageNames.CSharp)]
 internal sealed class CommandGenerator : IIncrementalGenerator
@@ -38,7 +38,7 @@ internal sealed class CommandGenerator : IIncrementalGenerator
         "'{0}' takes a {1}, and a console command's parameters are string, bool, int, long, float or double",
         Category, DiagnosticSeverity.Error, isEnabledByDefault: true);
 
-    private const string Command = "Engine.CommandAttribute";
+    private const string Command = "Diagnostics.CommandAttribute";
 
     /// <summary>Every attribute this generator reads, by full name.</summary>
     public static IReadOnlyList<string> Attributes { get; } = [Command];
@@ -77,7 +77,7 @@ internal sealed class CommandGenerator : IIncrementalGenerator
     private sealed record ParameterModel(string Name, string Kind, string? Default = null);
 
     private sealed record CommandModel(
-        string Name, string Help, string Usage, string Call, ParameterModel[] Parameters,
+        string Name, string Summary, string Usage, string Call, ParameterModel[] Parameters,
         bool ReturnsText, bool TakesLine, Diagnostic? Diagnostic = null);
 
     private static CommandModel? Extract(GeneratorAttributeSyntaxContext context)
@@ -86,7 +86,7 @@ internal sealed class CommandGenerator : IIncrementalGenerator
 
         var attribute = context.Attributes.FirstOrDefault();
         var written = attribute?.ConstructorArguments.Length > 0 ? attribute.ConstructorArguments[0].Value as string : null;
-        var help = attribute?.ConstructorArguments.Length > 1 ? attribute.ConstructorArguments[1].Value as string ?? "" : "";
+        var summary = attribute?.ConstructorArguments.Length > 1 ? attribute.ConstructorArguments[1].Value as string ?? "" : "";
         var name = string.IsNullOrWhiteSpace(written) ? method.Name.ToLowerInvariant() : written!.Trim();
         var location = method.Locations.FirstOrDefault() ?? Location.None;
 
@@ -108,9 +108,11 @@ internal sealed class CommandGenerator : IIncrementalGenerator
                 parameter.HasExplicitDefaultValue ? Literal(parameter.ExplicitDefaultValue) : null));
         }
 
+        // The usage names the command first, as the module's usages do, with a word that has a
+        // default in brackets.
         return new CommandModel(
-            name, help,
-            string.Join(" ", parameters.Select(p => p.Default is null ? "<" + p.Name + ">" : "[" + p.Name + "]")),
+            name, summary,
+            name + string.Concat(parameters.Select(p => p.Default is null ? " <" + p.Name + ">" : " [<" + p.Name + ">]")),
             method.ContainingType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat) + "." + method.Name,
             parameters.ToArray(),
             returnsText,
@@ -158,9 +160,9 @@ internal sealed class CommandGenerator : IIncrementalGenerator
 
         foreach (var model in models.OrderBy(c => c.Name, StringComparer.Ordinal))
         {
-            source.Append("        global::Engine.ConsoleCommands.Add(new global::Engine.ConsoleCommand(")
-                .Append(Quote(model.Name)).Append(", ").Append(Quote(model.Help)).Append(", ").Append(Quote(model.Usage))
-                .Append(", static words =>\n        {\n");
+            source.Append("        global::Diagnostics.Registry.Process.Add(new global::Diagnostics.Command(")
+                .Append(Quote(model.Name)).Append(", ").Append(Quote(model.Summary)).Append(", ").Append(Quote(model.Usage))
+                .Append(", static line =>\n        {\n");
             EmitBody(source, model);
             source.Append("        })");
 
@@ -170,10 +172,15 @@ internal sealed class CommandGenerator : IIncrementalGenerator
                 continue;
             }
 
-            source.Append("\n        {\n            Parameters =\n            [\n");
+            source.Append("\n        {\n            Arguments =\n            [\n");
             foreach (var parameter in model.Parameters)
-                source.Append("                new global::Engine.CommandParameter(").Append(Quote(parameter.Name)).Append(", ")
-                    .Append(Quote(parameter.Kind)).Append(", ").Append(model.TakesLine ? "true" : "false").Append("),\n");
+            {
+                source.Append("                new global::Diagnostics.Argument(").Append(Quote(parameter.Name)).Append(", ")
+                    .Append(Quote(parameter.Kind));
+                if (parameter.Default is not null) source.Append(", Optional: true");
+                if (model.TakesLine) source.Append(", TakesLine: true");
+                source.Append("),\n");
+            }
             source.Append("            ],\n        });\n\n");
         }
 
@@ -188,18 +195,19 @@ internal sealed class CommandGenerator : IIncrementalGenerator
         var parameters = model.Parameters;
         if (model.TakesLine)
         {
-            source.Append("            var line = string.Join(\" \", words);\n            ");
-            if (model.ReturnsText) source.Append("return ");
-            source.Append(model.Call).Append("(line);\n");
-            if (!model.ReturnsText) source.Append("            return null;\n");
+            source.Append("            ");
+            if (model.ReturnsText) source.Append("return Answered(");
+            source.Append(model.Call).Append("(line.Text)");
+            source.Append(model.ReturnsText ? ");\n" : ";\n            return Answered(null);\n");
             return;
         }
 
+        if (parameters.Length > 0) source.Append("            var words = line.Words;\n");
         var required = parameters.Count(p => p.Default is null);
         if (required > 0)
-            source.Append("            if (words.Length < ").Append(required).Append(") return \"needs ")
+            source.Append("            if (words.Count < ").Append(required).Append(") return Refused(\"needs ")
                 .Append(required).Append(required == 1 ? " argument: " : " arguments: ")
-                .Append(Escape(model.Usage)).Append("\";\n");
+                .Append(Escape(model.Usage)).Append("\");\n");
 
         // A parameter with a default takes it when the words stop before it.
         for (var i = 0; i < parameters.Length; i++)
@@ -207,21 +215,26 @@ internal sealed class CommandGenerator : IIncrementalGenerator
             var read = "!Read" + Title(parameters[i].Kind) + "(words[" + i + "], out var argument" + i + ")";
             if (parameters[i].Default is { } fallback)
                 source.Append("            var argument").Append(i).Append(" = ").Append(fallback).Append(";\n")
-                    .Append("            if (words.Length > ").Append(i).Append(" && !Read").Append(Title(parameters[i].Kind))
-                    .Append("(words[").Append(i).Append("], out argument").Append(i).Append(")) return $\"not a ")
-                    .Append(parameters[i].Kind).Append(": {words[").Append(i).Append("]}\";\n");
+                    .Append("            if (words.Count > ").Append(i).Append(" && !Read").Append(Title(parameters[i].Kind))
+                    .Append("(words[").Append(i).Append("], out argument").Append(i).Append(")) return Refused($\"not a ")
+                    .Append(parameters[i].Kind).Append(": {words[").Append(i).Append("]}\");\n");
             else
-                source.Append("            if (").Append(read).Append(") return $\"not a ").Append(parameters[i].Kind)
-                    .Append(": {words[").Append(i).Append("]}\";\n");
+                source.Append("            if (").Append(read).Append(") return Refused($\"not a ").Append(parameters[i].Kind)
+                    .Append(": {words[").Append(i).Append("]}\");\n");
         }
 
         source.Append("            ");
-        if (model.ReturnsText) source.Append("return ");
-        source.Append(model.Call).Append('(').Append(string.Join(", ", parameters.Select((_, i) => "argument" + i))).Append(");\n");
-        if (!model.ReturnsText) source.Append("            return null;\n");
+        if (model.ReturnsText) source.Append("return Answered(");
+        source.Append(model.Call).Append('(').Append(string.Join(", ", parameters.Select((_, i) => "argument" + i))).Append(')');
+        source.Append(model.ReturnsText ? ");\n" : ";\n            return Answered(null);\n");
     }
 
+    // The answers and the readers each runner calls. A method's text is the answer, none where it
+    // returns nothing, and a word that does not parse fails with the module's BAD_ARGUMENT.
     private static void EmitReaders(StringBuilder source) => source
+        .Append("\n    private static global::Diagnostics.Answer Answered(string? text) => new(text ?? \"\");\n")
+        .Append("\n    private static global::Diagnostics.Answer Refused(string text) =>\n")
+        .Append("        global::Diagnostics.Answer.Fail(global::Diagnostics.Answer.BadArgument, text);\n")
         .Append("\n    private static bool ReadText(string word, out string value) { value = word; return true; }\n")
         .Append("\n    private static bool ReadFlag(string word, out bool value)\n    {\n")
         .Append("        switch (word.ToLowerInvariant())\n        {\n")

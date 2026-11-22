@@ -6,6 +6,7 @@
 // would be.
 using System.Numerics;
 using System.Text;
+using Diagnostics;
 using Engine;
 using static Engine.E3D;
 

@@ -1,6 +1,6 @@
 using FluentAssertions;
 
-namespace Engine.Tests.Diagnostics;
+namespace Engine.Tests.DiagnosticsHost;
 
 /// <summary>C# typed at a running program through the console's <c>eval</c>.</summary>
 // In the E3D collection with every test that lends the console, since the world it lends is the
@@ -24,7 +24,7 @@ public sealed class ConsoleEvalTests
     {
         using (ConsoleHost.Lend(app.World, app))
         {
-            var answer = ConsoleCommands.Run("eval " + code) ?? "";
+            var answer = ConsoleHost.Run("eval " + code).Text;
             return (answer, ConsoleHost.Failure?.Code);
         }
     }
@@ -37,7 +37,7 @@ public sealed class ConsoleEvalTests
 
         // Outside any lend, as a command run while another thread's scope has put the world back.
         ConsoleHost.World.Should().BeNull("no test of this collection lends the console while this one runs");
-        var answer = ConsoleCommands.Run("eval 1 + 1");
+        var answer = ConsoleHost.Run("eval 1 + 1").Text;
         answer.Should().Be("not run");
         ConsoleHost.Failure.Should().NotBeNull("the refusal is a failure a script reads by its code");
         ConsoleHost.Failure!.Value.Code.Should().Be("EVAL_NO_WORLD");
@@ -88,7 +88,7 @@ public sealed class ConsoleEvalTests
         (answer, failure).Should().Be(("not compiled", "EVAL_COMPILE_FAILED"));
         using (ConsoleHost.Lend(app.World, app))
         {
-            ConsoleCommands.Run("eval ecs.Nothing");
+            ConsoleHost.Run("eval ecs.Nothing");
             ConsoleHost.Failure!.Value.Message.Should().StartWith("1:5 CS1061");
         }
     }
@@ -101,7 +101,7 @@ public sealed class ConsoleEvalTests
 
         using (ConsoleHost.Lend(app.World, app))
         {
-            ConsoleCommands.Run("eval throw new InvalidOperationException(\"on purpose\")").Should().Be("threw");
+            ConsoleHost.Run("eval throw new InvalidOperationException(\"on purpose\")").Text.Should().Be("threw");
             ConsoleHost.Failure.Should().Be(new CliError("EVAL_THREW", "InvalidOperationException: on purpose"));
         }
     }

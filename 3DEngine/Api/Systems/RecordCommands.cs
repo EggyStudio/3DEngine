@@ -1,3 +1,5 @@
+using Diagnostics;
+
 namespace Engine;
 
 /// <summary>
@@ -25,8 +27,8 @@ internal static class RecordCommands
     internal static string Record(string line)
     {
         // The path first, in quotes where it holds a space, as e3d sends one, then the measures.
-        var words = ConsoleCommands.Split(line);
-        if (words.Length < 2)
+        var words = CommandLine.Split(line);
+        if (words.Count < 2)
         {
             ConsoleHost.Fail("BAD_ARGUMENT", "record needs a path to write to and a length, as in record walk.gif 5s every 250ms.");
             return "record <path> <length> [every <step>] [scale <s>] [play <time>]";
@@ -38,7 +40,7 @@ internal static class RecordCommands
             return "no renderer, so nothing was recorded";
         }
 
-        if (Recorder.Parse(Path.GetFullPath(words[0]), words[1..], out var problem) is not { } request)
+        if (Recorder.Parse(Path.GetFullPath(words[0]), [.. words.Skip(1)], out var problem) is not { } request)
         {
             ConsoleHost.Fail("BAD_ARGUMENT", problem!);
             return problem!;

@@ -8,6 +8,7 @@
 // `Manor build-level <folder>` writes the estate and the cells' prefabs as scene files into the
 // folder, which is how resources/estate.json and resources/cells were made.
 using System.Numerics;
+using Diagnostics;
 using Engine;
 using ImGuiNET;
 using static Engine.E3D;

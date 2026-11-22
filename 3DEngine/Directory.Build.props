@@ -48,7 +48,7 @@
     <ItemGroup>
         <InternalsVisibleTo Include="3DEngine" />
         <InternalsVisibleTo Include="3DEngine.Core" />
-        <InternalsVisibleTo Include="3DEngine.Diagnostics" />
+        <InternalsVisibleTo Include="3DEngine.DiagnosticsHost" />
         <InternalsVisibleTo Include="3DEngine.Graphics" />
         <InternalsVisibleTo Include="3DEngine.Platform" />
         <InternalsVisibleTo Include="3DEngine.Assets" />

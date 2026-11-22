@@ -7,9 +7,14 @@
         <Description>Global illumination, cascades of light probes over the scene's distance field and probes on the window's surfaces, traced, merged and gathered on the GPU, with its path-traced reference.</Description>
     </PropertyGroup>
 
+    <!-- The Diagnostics module, whose registry the lighting's console commands are added to. -->
+    <ItemGroup>
+        <ProjectReference Include="..\..\modules\Diagnostics\Diagnostics\Diagnostics.csproj" PrivateAssets="all" />
+    </ItemGroup>
+
     <ItemGroup>
         <ProjectReference Include="..\Core\3DEngine.Core.csproj" />
-        <ProjectReference Include="..\Diagnostics\3DEngine.Diagnostics.csproj" />
+        <ProjectReference Include="..\DiagnosticsHost\3DEngine.DiagnosticsHost.csproj" />
         <ProjectReference Include="..\Graphics\3DEngine.Graphics.csproj" />
         <ProjectReference Include="..\Assets\3DEngine.Assets.csproj" />
         <ProjectReference Include="..\Rendering\3DEngine.Rendering.csproj" />

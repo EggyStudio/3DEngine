@@ -20,7 +20,7 @@ public surface is for, and this document says how the parts under it fit togethe
   .Assets               AssetServer, loaders, the scene model, models, textures, materials
   .CliServer            the server side of ./e3d
      │
-  .Diagnostics          the console, its command catalog and the log ring
+  .DiagnosticsHost      the Diagnostics module's host, the built-in commands and the log ring
   .Graphics             GraphicsDevice over Vortice.Vulkan, SlangCompiler
      │
   .Core                 Core/, Ecs/, Behaviors/: App, plugins, the schedule, World,
@@ -313,12 +313,14 @@ between frames. A command can answer at once, hold its answer until a later fram
 (`ConsoleHost.Hold`, as `frames.wait` does), or answer when a poll says it is ready
 (`ConsoleHost.Later`, as `shot` does while the capture is written).
 
-Commands are static methods marked `[Command]`, which `CommandGenerator` registers from a module
-initializer with typed argument parsing. A command that is not static (E3D100), is neither public
-nor internal (E3D101), returns something other than a string or nothing (E3D102) or takes a
-parameter the console cannot read (E3D103) is reported on the method. Input commands write into `Input` through
-`SyntheticInput`, which also hands mouse events to ImGui, and captures copy the presented swapchain
-image into a host buffer (`GraphicsDevice.RequestCapture`) and write it with `PngWriter`.
+Commands are static methods marked with the Diagnostics module's `[Command]`, which
+`CommandGenerator` adds to the module's `Registry.Process` from a module initializer with typed
+argument parsing, and `ConsoleHost.Run` runs a line through that registry. A command that is not
+static (E3D100), is neither public nor internal (E3D101), returns something other than a string or
+nothing (E3D102) or takes a parameter the console cannot read (E3D103) is reported on the method.
+Input commands write into `Input` through `SyntheticInput`, which also hands mouse events to ImGui,
+and captures copy the presented swapchain image into a host buffer (`GraphicsDevice.RequestCapture`)
+and write it with `PngWriter`.
 
 `RunMode` reads `--serve`, `--headless`, `--offscreen`, `--hidden` and `--frames` from the
 command line and the environment into `Config` when the `App` is made. A headless run has no

@@ -2,7 +2,7 @@ using System.Numerics;
 using FluentAssertions;
 using static Engine.E3D;
 
-namespace Engine.Tests.Diagnostics;
+namespace Engine.Tests.DiagnosticsHost;
 
 /// <summary>
 /// <c>field.wait</c>, which a picture of a scene waits on before it is taken: answered once the
@@ -23,7 +23,7 @@ public sealed class FieldWaitTests : IDisposable
     private static (string Answer, Func<string?>? Later, ulong Frames) Run(string line)
     {
         using (ConsoleHost.Lend(GetApp().World, GetApp()))
-            return (ConsoleCommands.Run(line) ?? "", ConsoleHost.Pending, ConsoleHost.PendingFrames);
+            return (ConsoleHost.Run(line).Text, ConsoleHost.Pending, ConsoleHost.PendingFrames);
     }
 
     // Asks a command answering later once a frame, as the CLI's queue does, after each frame drawn.

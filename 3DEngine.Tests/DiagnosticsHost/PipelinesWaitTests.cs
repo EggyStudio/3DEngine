@@ -1,7 +1,7 @@
 using FluentAssertions;
 using static Engine.E3D;
 
-namespace Engine.Tests.Diagnostics;
+namespace Engine.Tests.DiagnosticsHost;
 
 /// <summary>
 /// <c>pipelines.wait</c>, which a script that reads a pixel after the first sight of a material
@@ -58,7 +58,7 @@ public sealed class PipelinesWaitTests : IDisposable
             Func<string?> later;
             using (ConsoleHost.Lend(GetApp().World, GetApp()))
             {
-                ConsoleCommands.Run("pipelines.wait 120").Should().Be("waiting for the pipelines being made");
+                ConsoleHost.Run("pipelines.wait 120").Text.Should().Be("waiting for the pipelines being made");
                 later = ConsoleHost.Pending!;
             }
             for (int frame = 0; frame < 30; frame++)

@@ -78,7 +78,8 @@ Any program built on the engine takes the same flags (`--serve`, `--headless`, `
 | `model.save`, `model.load`, `model.export` `<name> <path>` | writes a model's recipe, makes a model from one, or writes it as glTF |
 | `model.show <name> [<x> <y> <z>]` | draws a model at a point, following its edits, by an entity named `Model <name>` |
 
-A game adds its own with a static method:
+A game adds its own with a static method marked with the Diagnostics module's `[Command]`, in the
+namespace `Diagnostics`:
 
 ```csharp
 [Command("enemy.spawn", "Spawns enemies: enemy.spawn <count>")]

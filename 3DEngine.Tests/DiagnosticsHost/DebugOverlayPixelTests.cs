@@ -3,7 +3,7 @@ using FluentAssertions;
 using ImGuiNET;
 using static Engine.E3D;
 
-namespace Engine.Tests.Diagnostics;
+namespace Engine.Tests.DiagnosticsHost;
 
 /// <summary>
 /// What F1 and F3 leave in a frame drawn on the device, the interface's 2D shapes and its ImGui

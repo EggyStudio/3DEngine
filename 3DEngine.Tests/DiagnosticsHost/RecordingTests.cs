@@ -2,7 +2,7 @@ using FluentAssertions;
 using StbImageSharp;
 using static Engine.E3D;
 
-namespace Engine.Tests.Diagnostics;
+namespace Engine.Tests.DiagnosticsHost;
 
 /// <summary>
 /// Recording a run as an animated GIF or PNG: the two writers read back by the engine's reader and a
@@ -246,7 +246,7 @@ public sealed class RecordingTests : IDisposable
         Run(frame =>
         {
             if (frame != 30) return;
-            using (ConsoleHost.Lend(GetApp().World, GetApp())) answer = ConsoleCommands.Run($"record {path} 8 every 250ms");
+            using (ConsoleHost.Lend(GetApp().World, GetApp())) answer = ConsoleHost.Run($"record {path} 8 every 250ms").Text;
         });
 
         answer.Should().StartWith("recording 8 pictures");
@@ -259,7 +259,7 @@ public sealed class RecordingTests : IDisposable
         var reds = read.Frames.Select(frame => Pixel(frame, 32, 24).R).ToArray();
         reds.Should().BeInAscendingOrder();
         reds[^1].Should().BeGreaterThan(reds[0]);
-        using (ConsoleHost.Lend(GetApp().World, GetApp())) ConsoleCommands.Run("record.status").Should().Be($"wrote 8 frames to {path}");
+        using (ConsoleHost.Lend(GetApp().World, GetApp())) ConsoleHost.Run("record.status").Text.Should().Be($"wrote 8 frames to {path}");
     }
 
     [NeedsVulkanFact]

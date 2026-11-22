@@ -91,7 +91,7 @@ pushed.
 | `3DEngine.Generator` | The behavior and command source generators. The engine also compiles the behavior one in for scripts |
 | `3DEngine.CodeFixes` | The fixes an editor offers for the generators' diagnostics, apart because they need Roslyn's workspace layer |
 | `3DEngine.Tests` | xUnit tests, in folders matching the engine's |
-| `3DEngine/Diagnostics` | `[Command]` and the console catalog, the log ring, built-in and input commands, `PngWriter` |
+| `3DEngine/DiagnosticsHost` | `[Command]` and the console catalog, the log ring, built-in and input commands, `PngWriter` |
 | `3DEngine/Cli` | The server side of `./e3d`, with its socket, request queue, session files and `CliPlugin` |
 | `3DEngine.Cli` | The `e3d` client, which `./e3d` builds and runs |
 | `3DEngine.Examples` | Example programs named as raylib names its examples, run by name |

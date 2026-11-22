@@ -1,4 +1,5 @@
 using System.Numerics;
+using Diagnostics;
 using static Engine.E3D;
 
 namespace Engine.Examples;

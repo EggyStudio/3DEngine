@@ -6,6 +6,7 @@
 // hinges at its knees and elbows, and once it lies still it stands up by a blend from the pose it
 // lies in. Written against the engine's package, as a game outside this repository would be.
 using System.Numerics;
+using Diagnostics;
 using Engine;
 using static Engine.E3D;
 

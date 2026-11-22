@@ -188,7 +188,7 @@ public sealed class CircularOccludersRenderTests(ITestOutputHelper output) : IDi
     private static string Run(string line)
     {
         using (ConsoleHost.Lend(GetApp().World, GetApp()))
-            return ConsoleCommands.Run(line) ?? "";
+            return ConsoleHost.Run(line).Text;
     }
 
     private static float[] Channel(byte[] pixels, int channel) =>

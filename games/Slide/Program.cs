@@ -6,6 +6,7 @@
 // the game starts, and its sounds are waves it makes, copies, cuts and converts. Written against the
 // engine's package, as a game outside this repository would be.
 using System.Numerics;
+using Diagnostics;
 using Engine;
 using static Engine.E3D;
 

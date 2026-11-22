@@ -2,7 +2,7 @@ using System.Numerics;
 using FluentAssertions;
 using static Engine.E3D;
 
-namespace Engine.Tests.Diagnostics;
+namespace Engine.Tests.DiagnosticsHost;
 
 /// <summary>
 /// The model commands run through the console host as <c>./e3d command</c> runs them, with the
@@ -38,7 +38,7 @@ public sealed class EditMeshCommandsTests : IDisposable
     {
         using (ConsoleHost.Lend(GetApp().World, GetApp()))
         {
-            var answer = ConsoleCommands.Run(line) ?? "";
+            var answer = ConsoleHost.Run(line).Text;
             code = ConsoleHost.Failure?.Code;
             return answer;
         }

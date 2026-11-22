@@ -9,7 +9,7 @@
   <Project Path="3DEngine/Assets/3DEngine.Assets.csproj" />
   <Project Path="3DEngine/Cli/3DEngine.CliServer.csproj" />
   <Project Path="3DEngine/Core/3DEngine.Core.csproj" />
-  <Project Path="3DEngine/Diagnostics/3DEngine.Diagnostics.csproj" />
+  <Project Path="3DEngine/DiagnosticsHost/3DEngine.DiagnosticsHost.csproj" />
   <Project Path="3DEngine/Graphics/3DEngine.Graphics.csproj" />
   <Project Path="3DEngine/Gui/3DEngine.Gui.csproj" />
   <Project Path="3DEngine/Modeling/3DEngine.Modeling.csproj" />
