@@ -139,7 +139,7 @@ struct TracePush
     // x: the cascade above's octahedron's texels along each side, 0 for the last. y: the first
     // probe the dispatch traces, past 0 where it traces a part of the cascade's probes (the far
     // cascade's, a part a frame). z: 1 where a carried probe's rays move within their texels and meet
-    // the meshes through the device's rays, 2 where every ray meets them (gi.toggle meshes). w: 1
+    // the meshes through the device's rays, 2 where every ray meets them (gi.meshes). w: 1
     // where the cascade traces half its probes this frame, with the half's parity in its second
     // bit (GlobalIlluminationStages.Halved).
     uint4 above;
@@ -474,7 +474,7 @@ void computeMain(uint3 id : SV_DispatchThreadID, uint lane : SV_GroupIndex)
         // though the ray meets one surface as here.
 #if defined(RAY_QUERY)
         float3 meshNormal, meshColor; float2 meshGloss;
-        // A carried probe's rays meet the meshes, every ray where gi.toggle meshes asks.
+        // A carried probe's rays meet the meshes, every ray where gi.meshes asks.
         float meshAt = carried || (push.above.z & 2u) != 0u ? meshHit(origin, way, end, meshNormal, meshColor, meshGloss) : -1.0;
         if (meshAt >= 0.0)
         {

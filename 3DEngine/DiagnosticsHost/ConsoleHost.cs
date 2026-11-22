@@ -42,6 +42,21 @@ internal static class ConsoleHost
 
     internal static ulong PendingFrames { get; private set; } = LaterFrames;
 
+    // The world of the app whose binding was made last, which the settings stand for between lines.
+    private static World? _bound;
+
+    /// <summary>
+    /// The world the engine's settings read and set, the world lent to the running line, or between
+    /// lines the world of the app whose binding was made last, or <c>null</c> where there is none.
+    /// </summary>
+    public static World? SettingsWorld => World ?? Volatile.Read(ref _bound);
+
+    /// <summary>
+    /// Has the settings stand for <paramref name="world"/> between lines, or for none with
+    /// <c>null</c>.
+    /// </summary>
+    internal static void Bind(World? world) => Volatile.Write(ref _bound, world);
+
     /// <summary>
     /// The registry of the process, which every assembly of the engine has added its commands to
     /// by the time this returns.

@@ -197,9 +197,9 @@ public static partial class E3D
     /// </summary>
     /// <remarks>
     /// Called between <c>BeginDrawing</c> and <c>EndDrawing</c>, as any ImGui window is. The views
-    /// and parts are those <c>gi.show</c> and <c>gi.toggle</c> set, and the reference is traced as
-    /// <c>gi.reference</c> traces it, through the device's rays, which global illumination
-    /// at <see cref="GlobalIllumination.High"/> holds the meshes for.
+    /// and parts are those the <c>gi.</c> settings set, as <c>gi.show</c> and <c>gi.merge</c>, and
+    /// the reference is traced as <c>gi.reference</c> traces it, through the device's rays, which
+    /// global illumination at <see cref="GlobalIllumination.High"/> holds the meshes for.
     /// </remarks>
     public static void DrawBounceWindow()
     {

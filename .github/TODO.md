@@ -254,7 +254,7 @@ program's own layout. Viewports, which take an ImGui window dragged outside the 
 window of its own (`SdlImGuiViewports`), are offered on X11, Windows, macOS and SDL's offscreen
 driver, and stay off until a program sets `ImGuiConfigFlags.ViewportsEnable`. Each such window has
 an SDL window and a swapchain drawn after the main window's pass and presented with it, and
-`imgui.viewports` and `imgui.shot` show them from `./e3d`. Wayland lets no program place a window,
+`imgui.windows` and `imgui.shot` show them from `./e3d`. Wayland lets no program place a window,
 so there ImGui keeps every window inside. Keyboard navigation is on, which makes
 `WantCaptureKeyboard` true whenever an ImGui window has focus, so the engine's own shortcuts ask
 `WantTextInput` instead.

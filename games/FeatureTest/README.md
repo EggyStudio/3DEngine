@@ -48,13 +48,15 @@ window and a health bar and a gauge in 2D.
 | Arrows | look |
 | Enter, P | in the interface zone, start from the title and pause |
 | Backspace | in the interface zone, take back a character from the sign |
-| F1 | the panel |
+| F1 | the engine's hiding of the interface |
 | F2 | a screenshot, into a `screenshots` folder beside the program |
 | F3 | the engine's debug overlay |
+| F4, F5 | the engine's settings panel and console |
+| F6 | the panel |
 
 ## The panel
 
-F1 opens it, an ImGui window the keyboard and a gamepad move through as well as the mouse, and while
+F6 opens it, an ImGui window the keyboard and a gamepad move through as well as the mouse, and while
 it holds the keyboard you are not walked by it. Its Frame part shows the frame's costs as the
 profile averages them, the frame, the program's update and drawing, the render graph and the GPU's
 passes, and opens the engine's profile window with all of them. Its Engine part turns the sun's

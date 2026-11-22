@@ -399,7 +399,7 @@ public partial class SlangCompilerTests : IDisposable
     public void The_Probes_Trace_Is_Built_Without_The_Crossing_Of_What_Lets_Light_Through_And_Through_The_Device_s_Rays_And_The_Screen_s_Is_Not()
     {
         // A frame where no surface lets light through traces with the build that leaves the
-        // crossing out, at High through the device's rays where gi.toggle meshes asks, and the
+        // crossing out, at High through the device's rays where gi.meshes asks, and the
         // screen's probes, which cross through a flag, have no such build.
         var shaders = Path.Combine(AppContext.BaseDirectory, "source", "shaders");
         string BuildsOf(string file) =>

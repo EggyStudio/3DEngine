@@ -3,26 +3,18 @@ using Diagnostics;
 
 namespace Engine;
 
-/// <summary>The command that says whether the program is live and which files it watches, and turns it on or off.</summary>
+/// <summary>
+/// The command that says whether the program is live and which files it watches, which the
+/// <c>live.reload</c> setting turns on or off.
+/// </summary>
 internal static class LiveCommands
 {
-    [Command("live", "Whether the program loads again the files it loaded by name as they are saved, each file it watches a line with what it was loaded into and its last reload, or turns that on or off: live [on|off]")]
-    internal static string Live(string state = "")
+    [Command("live", "Whether the program loads again the files it loaded by name as they are saved, which live.reload turns, each file it watches a line with what it was loaded into and its last reload")]
+    internal static string Live()
     {
         var world = ConsoleHost.World!;
         if (!world.TryGetResource<LiveFiles>(out var live))
             return Refuse("NO_FLAT_API", "The program runs no flat API, whose loads by name the watch follows.");
-        if (state.Length > 0)
-        {
-            if (state is not ("on" or "off")) return Refuse("BAD_ARGUMENT", "live takes on or off, or nothing to read it.");
-            var on = state == "on";
-            live.Turn(on);
-            if (world.TryGetResource<AssetServer>(out var server))
-            {
-                if (on) server.EnableWatching();
-                else server.DisableWatching();
-            }
-        }
         return Say(live, world);
     }
 

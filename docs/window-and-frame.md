@@ -333,6 +333,43 @@ line when it comes, and one that throws writes the stack of what it threw to the
 `./e3d command` sends does. F4 opens the settings panel, in the same look, a page for each first
 word of the settings' names, steered by the arrows, Enter and Escape, or a pad.
 
+The settings are every value of the engine's a console line or an environment variable sets, each
+with its range or its choices, its default, whether a value waits for the next start and the
+variable that overrides it, a page of them for each first word of their names.
+
+| Page | Settings |
+|---|---|
+| `ao` | `method` (`Horizons` or `Circular`), `samples`, `filter`, `slope`, `backface`, `boost`, `screen`, `size` (`Half` or `Full`) |
+| `gi` | `rays`, `passes`, the parts a reading leaves out, `history`, `filter`, `screen`, `merge`, `again`, `follow`, `glow`, `through`, `albedo`, `specular`, `normals`, `spread`, `points`, with `meshes`, `cascade`, and the view `show` with `show_cascade` |
+| `field` | `show`, the cascade of the scene's distance field drawn over the window |
+| `window` | `vsync`, `width`, `height`, and `samples` at the next start |
+| `imgui` | `viewports` |
+| `time` | `frame`, the seconds a frame moves time by, `E3D_FRAME_TIME` |
+| `live` | `reload`, `E3D_LIVE` |
+| `log` | `frames`, `ENGINE_LOG_FRAMES` |
+| `scenes` | `folder`, `E3D_SCENES` |
+| `sky` | `hours`, the hours the day sky has run from its first midnight |
+| `run` | how the run was started, each at the next start, `frames`, `serve`, `headless`, `offscreen`, `hidden`, `seed`, `shuffle`, `sessions`, `validation` and `slangc` |
+| `keys` | the five keys |
+
+A setting's name alone reads it, `gi.merge`, its name and a value sets it, `gi.merge off`, and
+`reset gi.merge` puts its default back, in the console, from `./e3d command` or in the panel,
+where Left and Right step it. A value an environment variable gives holds for the run and a set is
+kept for the file alone. The `run` settings and `window.samples` say how the run was started, by
+its command line or its variables, and a set of one is answered as a value of the next start, which
+the tool starting the program gives with its flag or its variable. A set where the app holds none of what it sets, as `gi.merge`
+with global illumination off, is held and read back and reaches no world.
+
+A program whose window is shown keeps the settings a player chooses for the machine, the five keys,
+`window.vsync` and `imgui.viewports`, in one file, `settings.txt` in a folder of the program's name
+under the system's folder of applications' data, `~/.config/<program>/settings.txt` on Linux and
+`%APPDATA%\<program>\settings.txt` on Windows, the program named as its assembly is. It is read as
+the program starts and written as one of them changes and as the program ends. A line is a
+setting's name, a space and its value as a console line holds it, as `window.vsync on`, one for each
+whose value differs from its default, with the lines of names this run does not know kept as they
+stood. A run with no window or a window never shown, as a tool or a test drives, reads and writes
+no file.
+
 ## The app underneath
 
 `InitWindow` builds an `App`, and `BeginDrawing` and `EndDrawing` run its stages. `GetApp()` hands

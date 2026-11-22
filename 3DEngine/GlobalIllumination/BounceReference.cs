@@ -188,7 +188,7 @@ internal static class BounceReference
     /// <para>
     /// <paramref name="bounces"/> counts what a path does after the probe's own ray meets its first
     /// surface, so 0 lights that surface alone, as the probes' hits are lit with the light past the
-    /// first bounce left out (<c>gi.toggle again off</c>), where a reference of the window's
+    /// first bounce left out (<c>gi.again off</c>), where a reference of the window's
     /// picture (<see cref="Trace"/>) counts from the face the eye sees, and its 1 is the one that
     /// frame is read against. Read against 1, the reference holds the walls' light reflected once
     /// more than the probe takes, and the probe reads under it. A glow light's own light reaches

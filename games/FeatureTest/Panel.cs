@@ -6,7 +6,7 @@ using static Engine.E3D;
 namespace FeatureTest;
 
 /// <summary>
-/// The admin panel, an ImGui window F1 opens, which shows the frame's costs as the profile measures
+/// The admin panel, an ImGui window F6 opens, which shows the frame's costs as the profile measures
 /// them, the engine's switches, and each zone's status, its toggles and buttons that go to it and
 /// its spots.
 /// </summary>
@@ -60,7 +60,7 @@ sealed class Panel
 
     public void Update()
     {
-        if (IsKeyPressed(Key.F1)) Open = !Open;
+        if (IsKeyPressed(Key.F6)) Open = !Open;
         SetImGuiGamepadNavigation(Open);
     }
 

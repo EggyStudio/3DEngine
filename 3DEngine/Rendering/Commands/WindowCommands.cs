@@ -6,14 +6,21 @@ namespace Engine;
 /// <summary>
 /// Commands that resize, minimize, restore and move the window, or, in an offscreen run, the
 /// images the device draws into, so the path a resize takes is scripted from <c>./e3d</c> with no
-/// desktop to drag a window on.
+/// desktop to drag a window on. The window's vsync and its width and height alone are settings.
 /// </summary>
 internal static class WindowCommands
 {
     [Command("window.size", "Resizes the window, or the images an offscreen run draws into: window.size <width> <height>")]
-    internal static string Size(int width, int height)
+    internal static string Size(int width, int height) =>
+        Resize(ConsoleHost.World!, width, height) ? $"resizing to {width}x{height}" : Refuse("window.size");
+
+    /// <summary>
+    /// Resizes a world's window, or the images its offscreen run draws into, and says whether it
+    /// has either, as <c>window.size</c> and the <c>window.width</c> and <c>window.height</c>
+    /// settings do.
+    /// </summary>
+    internal static bool Resize(World world, int width, int height)
     {
-        var world = ConsoleHost.World!;
         if (world.TryGetResource<AppWindow>(out var window))
             SDL.SetWindowSize(window.Sdl.Window, Math.Max(1, width), Math.Max(1, height));
         else if (world.TryGetResource<OffscreenSurface>(out var surface))
@@ -22,9 +29,16 @@ internal static class WindowCommands
             world.TryGetResource<SurfaceResize>(out var resize);
             resize?.Request(width, height);
         }
-        else return Refuse("window.size");
-        return $"resizing to {width}x{height}";
+        else return false;
+        return true;
     }
+
+    /// <summary>The size a world draws at, its window's or its offscreen images', or none.
+    /// </summary>
+    internal static (int Width, int Height)? Drawn(World world) =>
+        world.TryGetResource<AppWindow>(out var window) ? (window.Sdl.Width, window.Sdl.Height)
+        : world.TryGetResource<OffscreenSurface>(out var surface) ? ((int)surface.Size.Width, (int)surface.Size.Height)
+        : null;
 
     [Command("window.state", "What the window is as the desktop has it: shown or hidden, covered by others, focused, minimized or maximized, and its size")]
     internal static string State()
@@ -40,14 +54,6 @@ internal static class WindowCommands
         if ((flags & SDL.WindowFlags.Fullscreen) != 0) words.Add("fullscreen");
         words.Add($"{window.Sdl.Width}x{window.Sdl.Height}");
         return string.Join(" ", words);
-    }
-
-    [Command("window.vsync", "Turns vsync on or off, which makes the swapchain again on the next frame: window.vsync <on>")]
-    internal static string Vsync(bool on)
-    {
-        if (!ConsoleHost.World!.TryGetResource<SurfaceResize>(out var resize)) return Refuse("window.vsync");
-        resize.RequestVsync(on);
-        return on ? "vsync on" : "vsync off";
     }
 
     [Command("window.minimize", "Minimizes the window, or makes an offscreen run zero across, so no frame is drawn until window.restore")]

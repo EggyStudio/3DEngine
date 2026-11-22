@@ -103,7 +103,7 @@ int[] LoadRandomSequence(int count, int min, int max);   // count different whol
 A static method marked with the Diagnostics module's `[Command]`, in the namespace `Diagnostics`, is
 a console command `./e3d command` runs by its name. A name is lowercase words joined by dots and is
 read as it is written, so `Profile` names no command, and the module's `help`, `list` and `reset`
-stand in the registry beside the engine's commands. A word a command cannot read fails with
+stand in the registry beside the engine's commands and settings. A word a command cannot read fails with
 `BAD_ARGUMENT` and its sentence, and a command that throws fails with `FAILED`, so `./e3d` exits
 with 2 for the one and 6 for the other.
 
@@ -1476,4 +1476,9 @@ F1 hides the interface a program draws inside `BeginUi`, F2 writes a screenshot 
 engine's debug overlay, keys `SetUiHiddenKey`, `SetScreenshotKey` and `SetDebugOverlayKey` move. F4
 opens the Diagnostics module's settings panel and F5 its console, drawn in ImGui over the frame in
 the debug overlay's look whatever the program's ImGui theme, and each of the five keys is a setting,
-as `keys.console`, taken as it is let go alone.
+as `keys.console`, taken as it is let go alone. Every value of the engine's a console line or an
+environment variable sets is a setting the panel shows on the page of its name's first word, as
+`ao.method`, `gi.merge`, `window.vsync` and `run.frames`, read by its name alone and set by its
+name and a value. A program whose window is shown keeps the keys, `window.vsync` and
+`imgui.viewports` in `settings.txt` in a folder of its name in the player's folder of
+applications' data, `~/.config/<program>` on Linux, read as it starts and written as one changes.

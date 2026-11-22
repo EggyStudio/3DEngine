@@ -29,7 +29,7 @@ public sealed class RenderOriginTests : IDisposable
     // casting shadows, at Low as many frames as the field takes to settle and two more. At High as
     // well fog, the occlusion, the floor glossy and mirroring the scene in its plane, a reflection
     // probe and a lantern whose light global illumination carries, ten frames more, the probes'
-    // rays traced through the device's rays where it has them (gi.toggle meshes), which read the
+    // rays traced through the device's rays where it has them (gi.meshes), which read the
     // ray scene's copies.
     private static float[] Drawn(RenderOrigin origin, GlobalIllumination quality)
     {

@@ -5,8 +5,9 @@ using Diagnostics;
 namespace Engine;
 
 /// <summary>
-/// Commands that show the scene's distance field as it holds the scene and say what it is built
-/// from, so a cascade can be looked at with <c>./e3d shot</c> while the program runs.
+/// Commands that march the scene's distance field and say what it is built from, beside the
+/// <c>field.show</c> setting, which draws a cascade as it holds the scene so it can be looked at
+/// with <c>./e3d shot</c> while the program runs.
 /// </summary>
 internal static class SceneFieldCommands
 {
@@ -18,15 +19,6 @@ internal static class SceneFieldCommands
     /// bounce a frame from the light of the frame before.
     /// </summary>
     internal const int LightFrames = 60;
-
-    [Command("field.show", "Draws a cascade of the scene's distance field over the window as the field holds the scene, or nothing with -1: field.show <cascade>")]
-    internal static string Show(int cascade)
-    {
-        if (!ConsoleHost.World!.TryGetResource<SceneFieldSettings>(out var field) || !field.On)
-            return "the scene's distance field is off, which SetSceneField turns on";
-        field.Shown = Math.Clamp(cascade, -1, field.Cascades - 1);
-        return field.Shown < 0 ? "showing no cascade" : $"showing cascade {field.Shown}";
-    }
 
     [Command("field.march", "Marches the scene's distance field from a point along a way as global illumination's passes march it, on the field read back from the GPU, and answers where it met a surface, in which cascade and cell, and each step's cascade and distance, along the way toward the sun where none is given, and with sun marches on from the surface it met toward the sun as a probe's hit does where the window's shadow map does not hold it: field.march <x> <y> <z> [dx] [dy] [dz] [sun]")]
     internal static string March(float x, float y, float z, float dx = 0, float dy = 0, float dz = 0, string then = "")

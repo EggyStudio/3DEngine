@@ -135,8 +135,10 @@ public sealed class CircularOccludersTests : IDisposable
         settings.SlopeCompensation.Should().Be(64, "the main pass takes its inverse, which an endless one would make nothing");
         SetCircularOccluders(0.5f);
         settings.SlopeCompensation.Should().Be(1, "less than 1 grows a circle less than none");
-        Run("ao.set slope Infinity").Should().Contain("compensation of 64");
-        settings.SlopeCompensation.Should().Be(64, "the command holds it as the call does");
+        Run("ao.slope 2").Should().Be("ao.slope is 2.");
+        settings.SlopeCompensation.Should().Be(2, "the setting sets the world's own");
+        Run("ao.slope Infinity").Should().Be("ao.slope takes 1 to 64, not Infinity.");
+        settings.SlopeCompensation.Should().Be(2, "the setting refuses a value past its range and leaves the one set");
 
         foreach (var radius in new[] { "NaN", "Infinity", "-Infinity" })
             Run($"ao.reference reference.png 4 {radius}").Should().Be("a radius that is a number, or none for the one SetAmbientOcclusion gave",

@@ -6,8 +6,9 @@ namespace Engine;
 
 /// <summary>
 /// Commands that say what global illumination works out and holds, trace a path-traced reference
-/// of the window and of a probe to read it against, draw what it holds over the window and leave
-/// its parts out, so its light can be read while the program runs.
+/// of the window and of a probe to read it against and draw the window against such a reference,
+/// so its light can be read while the program runs beside the <c>gi.</c> settings, which draw what
+/// it holds over the window and leave its parts out.
 /// </summary>
 internal static class GlobalIlluminationCommands
 {
@@ -67,7 +68,7 @@ internal static class GlobalIlluminationCommands
         // At Low, which leaves them out, probes stand for the glow lights alone while some are lit
         // (GlowOnly), placed and marching to them once a tile with no ray traced.
         if (renderer.RenderWorld.TryGet<GlobalIlluminationSettings>() is { ScreenOff: true })
-            lines.Add("no screen probes, which gi.toggle screen left out, the cascades' light read alone and each pixel marching to the glow lights");
+            lines.Add("no screen probes, which gi.screen left out, the cascades' light read alone and each pixel marching to the glow lights");
         else if (!Illumination.ScreenProbesAt(quality))
             lines.Add(gi.Screen is { } alone
                 ? $"no screen probes at {quality}, the cascades' light read alone, and probes every {alone.Tile} pixels, {alone.Across} by {alone.Down}, "
@@ -96,19 +97,6 @@ internal static class GlobalIlluminationCommands
         return string.Join("\n", lines);
     }
 
-    [Command("gi.rays", "Whether High traces what the scene's distance field misses through the device's own ray tracing, where it has it: gi.rays <on|off>")]
-    internal static string Rays(string state)
-    {
-        if (!ConsoleHost.World!.TryGetResource<GlobalIlluminationSettings>(out var settings))
-            return "global illumination is off, and SetGlobalIllumination turns it on";
-        settings.RaysOff = state is "off" or "0" or "false";
-        settings.RaysLeftOff = null;
-        var device = ConsoleHost.World!.TryGetResource<Renderer>(out var renderer) && renderer.Context.Graphics is GraphicsDevice { CanQueryRays: true };
-        return settings.RaysOff ? "High traces through the field alone"
-            : device ? "High traces what the field misses through the device's rays"
-            : "the device traces no rays, so High traces through the field alone";
-    }
-
     [Command("gi.reference", "Path traces the window's picture through the device's rays, which global illumination at High holds the meshes for, as the reference global illumination is measured by, into a PNG with its linear light, what each pixel shows and the names of those regions beside it, each path bouncing as many times as given or until it ends, -1 for that, with specular the first face reflecting the indirect light by its specular share too, and with gloss every face a path meets doing so: gi.reference <png> <samples> [bounces] [specular|gloss]")]
     internal static string Reference(string path, int samples, int bounces = -1, string ways = "") =>
         ways switch
@@ -119,7 +107,7 @@ internal static class GlobalIlluminationCommands
             _ => "The last word is specular, gloss or nothing.",
         };
 
-    [Command("gi.probe", "The light arriving at the probe of a cascade nearest a point against a path-traced reference of it, where its own rays met a surface, over every way merged with the cascades above, and each face's light as the model pass reads it, with the ways that carry most of the face furthest from the reference's, each with how far its rays went against where the reference's path through the texel's middle first met a surface, and how many ways met theirs within a tenth of as far, and whether the frame carried the probe past its interval with its rays moving, its paths' bounces counted after the probe's first hit, 0 as the probes' hits are lit with gi.toggle again off: gi.probe <x> <y> <z> [samples] [bounces] [cascade]")]
+    [Command("gi.probe", "The light arriving at the probe of a cascade nearest a point against a path-traced reference of it, where its own rays met a surface, over every way merged with the cascades above, and each face's light as the model pass reads it, with the ways that carry most of the face furthest from the reference's, each with how far its rays went against where the reference's path through the texel's middle first met a surface, and how many ways met theirs within a tenth of as far, and whether the frame carried the probe past its interval with its rays moving, its paths' bounces counted after the probe's first hit, 0 as the probes' hits are lit with gi.again off: gi.probe <x> <y> <z> [samples] [bounces] [cascade]")]
     internal static string Probe(float x, float y, float z, int samples = 256, int bounces = -1, int cascade = 0) =>
         BounceReference.Probe(ConsoleHost.World!, new System.Numerics.Vector3(x, y, z), samples, bounces, cascade);
 
@@ -149,25 +137,13 @@ internal static class GlobalIlluminationCommands
     [Command("gi.compare", "The window's linear light against a reference gi.reference wrote, the mean of each channel and its error over each region of the view, and a picture of the difference beside it: gi.compare <png>")]
     internal static string Compare(string path) => BounceReference.Compare(ConsoleHost.World!, path);
 
-    [Command("gi.show", "Draws what global illumination holds over the window, the screen's probes as tiles, their light, filtered, or the frame before's share of it, a cascade's rays' light, its merge or its probes as cubes in the scene, the frame against a reference gi.reference wrote, or nothing: gi.show <none|tiles|light|filtered|history|rays|merged|probes|difference> [cascade or png]")]
-    internal static string ShowBounce(string view, string with = "")
+    [Command("gi.difference", "Draws the frame over the window against a reference gi.reference wrote, red where it is brighter and blue where it is darker, until gi.show draws another view: gi.difference <png>")]
+    internal static string Difference(string path)
     {
         if (!ConsoleHost.World!.TryGetResource<GlobalIlluminationSettings>(out var settings) || settings.Quality == GlobalIllumination.Off)
             return "global illumination is off, and SetGlobalIllumination turns it on";
-        if (!Enum.TryParse<BounceView>(view, ignoreCase: true, out var shown) || !Enum.IsDefined(shown))
-            return $"no view {view}, which is one of {string.Join(", ", Enum.GetNames<BounceView>().Select(n => n.ToLowerInvariant()))}";
-        if (shown is BounceView.Rays or BounceView.Merged or BounceView.Probes && with.Length > 0)
-        {
-            if (!int.TryParse(with, System.Globalization.CultureInfo.InvariantCulture, out var cascade))
-                return $"{with} is not a cascade";
-            settings.ShownCascade = Math.Max(cascade, 0);
-        }
-        if (shown == BounceView.Difference)
-        {
-            if (with.Length == 0) return "the difference is drawn against a reference, gi.show difference <png>";
-            if (GiveReference(settings, with) is { } why) return why;
-        }
-        settings.Shown = shown;
+        if (GiveReference(settings, path) is { } why) return why;
+        settings.Shown = BounceView.Difference;
         return Shown(settings);
     }
 
@@ -181,7 +157,7 @@ internal static class GlobalIlluminationCommands
         return null;
     }
 
-    // What gi.show and the global illumination window say is shown.
+    // What gi.difference and the global illumination window say is shown.
     internal static string Shown(GlobalIlluminationSettings settings) => settings.Shown switch
     {
         BounceView.None => "showing the window as it is",
@@ -197,48 +173,7 @@ internal static class GlobalIlluminationCommands
             : "showing nothing until a reference is given",
     };
 
-    [Command("gi.passes", "Whether the profile times global illumination's passes apart, the ray scene, each cascade's trace, the merges, the gather, the screen's probes, their filter and the glow lights, as gpu.gi_ lines, the rest staying gpu.global_illumination: gi.passes <on|off>")]
-    internal static string TimePasses(string state)
-    {
-        var world = ConsoleHost.World!;
-        if (!world.TryGetResource<GlobalIlluminationSettings>(out var settings))
-            return "global illumination is off, and SetGlobalIllumination turns it on";
-        settings.PassesTimed = state is "on" or "true" or "1";
-        return settings.PassesTimed ? "global illumination's passes are timed apart in the profile as gpu.gi_rays, gpu.gi_glow_faces, gpu.gi_trace0 and on, gpu.gi_merge, gpu.gi_gather, gpu.gi_screen, gpu.gi_filter and gpu.gi_glow"
-            : "global illumination is timed whole in the profile";
-    }
-
-    [Command("gi.toggle", "Leaves a part of global illumination out, to see what it gives, among the frame before's light in the screen's probes, their filter, the screen's probes, neither traced nor read, the merge of the cascades, the light past the first bounce from the frame before's probes, indirect light following a light that goes out, the small emissive surfaces carried as lights, the crossing of surfaces that let light through, the surfaces' colors, every surface drawn white, the surfaces' reflection of the indirect light, the surfaces' normal maps, or every cascade but one, or with meshes on traces the probes' rays through the device's rays at High in place of the field, or with spread off traces every probe of the coarser cascades each frame where they trace half a frame lying still, or with points off takes every glow light at a hit by its own form where the faint ones take one point: gi.toggle <history|filter|screen|merge|again|follow|glow|through|albedo|specular|normals|cascade|meshes|spread|points> <on|off|cascade>")]
-    internal static string ToggleBounce(string part, string state)
-    {
-        if (!ConsoleHost.World!.TryGetResource<GlobalIlluminationSettings>(out var settings))
-            return "global illumination is off, and SetGlobalIllumination turns it on";
-        var on = state is not ("off" or "0" or "false");
-        switch (part)
-        {
-            case "history": settings.HistoryOff = !on; break;
-            case "filter": settings.FilterOff = !on; break;
-            case "screen": settings.ScreenOff = !on; break;
-            case "merge": settings.MergeOff = !on; break;
-            case "again": settings.AgainOff = !on; break;
-            case "follow": settings.FollowOff = !on; break;
-            case "glow": settings.GlowOff = !on; break;
-            case "through": settings.ThroughOff = !on; break;
-            case "albedo": settings.AlbedoOff = !on; break;
-            case "specular": settings.SpecularOff = !on; break;
-            case "normals": settings.NormalMapsOff = !on; break;
-            case "meshes": settings.MeshesTraced = on; break;
-            case "spread": settings.SpreadOff = !on; break;
-            case "points": settings.PointsOff = !on; break;
-            case "cascade":
-                settings.Alone = int.TryParse(state, System.Globalization.CultureInfo.InvariantCulture, out var alone) ? Math.Max(alone, -1) : -1;
-                break;
-            default: return $"no part {part}, which is one of history, filter, screen, merge, again, follow, glow, through, albedo, specular, cascade, meshes, spread and points";
-        }
-        return Switches(settings);
-    }
-
-    // The parts of global illumination left out, as gi.toggle and its window say them.
+    // The parts of global illumination left out, as its window says them.
     internal static string Switches(GlobalIlluminationSettings settings)
     {
         var off = new List<string>();

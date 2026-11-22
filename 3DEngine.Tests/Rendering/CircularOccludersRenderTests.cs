@@ -133,7 +133,7 @@ public sealed class CircularOccludersRenderTests(ITestOutputHelper output) : IDi
         Run($"ao.save {filtered} filtered").Should().StartWith("saved filtered");
         File.Delete(filtered);
 
-        Run("ao.filter off");
+        Run("ao.filter off").Should().Be("ao.filter is off.");
         Room(block, Vector3.Zero, 4);
         Run($"ao.save {filtered} filtered").Should().Contain("filter is off", "no pass writes the filter's image while it is off");
         File.Exists(filtered).Should().BeFalse();

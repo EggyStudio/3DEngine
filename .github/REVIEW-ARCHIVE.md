@@ -12823,6 +12823,20 @@ at `36cae0c2`.
     run on that device; the reads hand the module one cascade, and a test of the compiled shaders
     holds it on any machine.
 
+132. **The guides' blocks do not build on the package after the console moved to the module.** Run
+    45013034698 on `facf86a9` is red at 13:15 on 2026-11-22 in the examples job alone, the tests
+    green on the three systems. `build/docs-on-package.py` stops at `docs/command-line.md` line 248,
+    block 1, with CS0246 twice, the types `Command` and `CommandAttribute` not found, 2 errors in
+    225 blocks. The attribute lives in the module's namespace since item 302's first step and the
+    block was written against the engine's own. Suspected, until the block is read, a missing `using
+    Diagnostics;` in the block or in the lines the script puts before every block, and the other
+    reading is a package that does not carry the module's assembly, which the script's reference
+    list would show. The mend is one commit over the two that wait, the block building on a package
+    packed from the tree, and `docs-on-package.py` joins what a commit touching a public name runs
+    before its report. The three go up together over the red head. Settled at 15:10 on 2026-11-22,
+    the build run 45021666753 on `e6f6c3d6`, the mend, green in every job, the examples job among
+    them.
+
 ## Decisions
 
 1. **Commits stay local.** The owner pushes `main` by hand, and the working session commits and does
@@ -22772,3 +22786,101 @@ gives it (`atmosphere.slang`), the light of each lane turned into linear sRGB by
 the ground lit by the sun through the air and by the sky, the share the ground below the horizon
 lacked before. The passes that made the two tables are gone, `atmosphere_transmittance.slang` and
 `atmosphere_scatter.slang`.
+
+The figures read again, before and after. The sky cube's texels read within 0.17% of the module's
+luminance along their ways where 0.21%, the irradiance within 0.15% of the module's sky in nine
+harmonics where 0.2%, and a level floor 1.9 to 6.0% over the module's own integral where 1.5 to 5%,
+the ground below the horizon taking a little more. The module's sun outside the air is 133,800 lux
+at 5,921 K where it was 128,000 at 5,772 (`SkyDay`, `docs/models-and-animation.md`), and through the
+module's Earth, Hillaire's clear air, 111,690 lux at 5,292 K with the sun 54 degrees high where
+110,000 at 5,026, and 80,950 at 4,490 K at 16.5 where 84,000 at 4,128. The sun of the matched scene,
+97,050 lux at 5,633 K outside the air, reaches the ground through Earth at 5,063 K and 81,083 lux at
+53.97 degrees and 4,338 K at 16.55, where through HDRP's air it read 4,924 K, so `DaySkyAirTests`
+holds those. Sponza and Bistro hold the air their scenes were matched in, its planet, molecules,
+aerosols' albedo and ozone as before, and through it with the bands the matched sun reaches the
+ground at 4,993 K at 53.97 degrees where 4,924. The package carries the module's assembly as
+`3DEngine.Sky`.
+
+Still to come, each a commit of its own. The tables made off the frame, since a sky made on the
+frame its air changes stalls that frame some half a second, the sun's disc, its fades and the
+night's glow from the module, and Sponza's and Bistro's figures read again in their scenes with the
+capture example at noon, sunset and the civil twilight's end beside the module's own drawing.
+
+The runs. The tree builds strict with no warnings, and the sky's, the day's, the environment's,
+global illumination's, the Slang compiler's and the norm's tests pass, 239 of 239. The package
+carries `3DEngine.Sky`, and its tests pass, 5 of 5. The suite passes in its parts in order, 2,525 of
+2,525 in 23 minutes, and shuffled by the seed 20261023, 2,525 of 2,525 in 25 minutes.
+
+The air's tables made off the frame.
+
+The module takes some half a second to make an air's tables, which the frame an air first appeared
+in waited for. They are made on a worker the first time they are asked for (`AirTables.For`), and
+the filter takes an air's map only once they are made, the cubes before kept and drawn until then
+(`ModelRenderer.FilterEnvironment`), so a game's frames go on while its sky is made and the sky
+changes in a frame after. `AirSkyTests` holds an air no frame has drawn before, its first frame
+drawn with no sky cube while the tables are made and a frame after them taking its sky, and fails
+where the frame waits for the tables, the cube there on its first frame. The tests that read the sky
+wait for its tables before their frames.
+
+The runs. The tree builds strict with no warnings, and the sky's, the day's, the environment's,
+global illumination's, the Slang compiler's and the norm's tests pass, 240 of 240. The suite passes
+in its parts in order, 2,526 of 2,526 in 22 minutes, and shuffled by the seed 20261023, 2,526 of
+2,526 in 24 minutes.
+
+The sun's disc, the discs' fades and the night's glow from the module.
+
+The sun's disc is the module's 0.533 degrees across (`Sun.AngularDiameter`), where the engine held
+0.54, its luminance the module's light through the air over the module's solid angle (`Sun.Through`,
+`Sun.SolidAngle`), which for the module's own sun is `Sun.DiscLuminance`, the engine's before
+reading 0.973 of it at 5 degrees. The sun's and the moon's lights fade as their middles cross the
+horizon by the share of their discs above it (`Sun.DiscShare`, `Moon.DiscShare`), where a smooth
+step over the engine's own radius stood. A moonless sky's glow under the air takes the module's
+color of the night sky at its luminance (`Night.SkyColor`), where it was gray. `DaySkyAirTests`
+holds the disc to `Sun.DiscLuminance` within 0.5% at 5, 30 and 60 degrees, and fails on the code
+before.
+
+The runs. The tree builds strict with no warnings, and the sky's, the day's, the environment's,
+global illumination's, the Slang compiler's and the norm's tests pass, 241 of 241. The suite passes
+in its parts in order, 2,527 of 2,527 in 24 minutes, and shuffled by the seed 20261023, 2,527 of
+2,527 in 25 minutes.
+
+The Sky module's sky in a scene and the Sponza match read again.
+
+The sheet. `2026-11-19-sky-clear-hours.webp`, `core_day_sky` under the module's Earth on a path that
+stands the sun 63.42 degrees up at noon, at noon, at sunset with the sun 0.57 degrees down and at
+the civil twilight's end with it 6 degrees down, each at the module's metered EV100 of 15.44, 8.22
+and 1.25, beside the module's own panorama of the same hours. The noon sky reads a deep blue, the
+sunset white over a yellow horizon and the civil end blue over a lighter band, as the module's do.
+
+The Sponza match against its recipe, the scene's air held as the scene sets it and read in the
+module's twelve bands, before and after.
+
+| At the scene's heights, 16.55, 51.40 and 53.97 degrees | Three colors | Twelve bands |
+|---|---|---|
+| The sun at the ground, K | 4,062, 4,903, 4,924 | 4,214, 4,974, 4,993 |
+| Its lux | 22,580, 80,190, 83,410 | 21,909, 79,440, 82,660 |
+| The sky on a level floor, lux | 2,060, 10,770, 11,410 | 2,135, 11,186, 11,854 |
+
+| Metered at 15:00 and settled, the frame's mean | Three colors | Twelve bands | The pictures |
+|---|---|---|---|
+| Red over blue, the balcony, the door, the view up | 1.24, 2.84, 1.31 | 1.09, 1.40, 1.05 | 1.13, 1.60, 1.15 |
+| The means | 113.4, 84.5, 103.0 | 98.7, 120.3, 100.3 | 85.8, 59.1, 104.3 |
+
+HDRP's own transmittance gives the sun at 4,055, 4,903 and 4,924 K, so the bands lift it 70 to 150
+K, and its lux lies 10 to 12% over HDRP's where it lay 13%. The color the frames take comes nearer
+the pictures', the door's red over blue at 1.40 where the picture reads 1.60 and the frame read
+2.84. RENDERING.md says so in its paragraph on the scene's air.
+
+The runs. The norm's tests pass, 17 of 17, and no code changed, so no suite leg ran.
+
+A correction to the Reply on the Sponza match above. Its second table set figures read two ways
+beside each other, the three colors' from an earlier reading and the twelve bands' from `frame.read`
+over a metered frame with the scene's text on it, so the door's 2.84 against 1.40 was the readings'
+difference and not the sky's. Held at one exposure on both, EV100 9.5 at the balcony and the door
+and 8 looking up, the scene's text hidden and the whole frame read alike, the commit before the Sky
+module's tables and the head read as follows.
+
+| At 15:00, one exposure, the whole frame | Before | Head | The pictures, read alike |
+|---|---|---|---|
+| Red over blue, the balcony, the door, the view up | 1.11, 1.76, 1.04 | 1.12, 1.72, 1.04 | 1.13, 1.32, 1.16 |
+| The means of 255 | 71.6, 45.4, 76.6 | 71.8, 45.3, 77.1 | 68.2, 50.0, 75.8 |

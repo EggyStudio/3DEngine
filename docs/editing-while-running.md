@@ -41,10 +41,10 @@ with the scenes spawned from them.
 ## Seeing it from the command line
 
 `e3d`'s `live` command says whether the program is live and lists each file it watches, a line each
-with its kind, its id, the file and its last reload, and `live on` or `live off` turns it for the
-run:
+with its kind, its id, the file and its last reload, and the setting `live.reload on` or
+`live.reload off` turns it for the run, where `E3D_LIVE` does not hold it:
 
 ```bash
 ./e3d command live
-./e3d command live off
+./e3d command live.reload off
 ```

@@ -34,10 +34,6 @@ public static class Text3DDrawing
 
         SetConfigFlags(ConfigFlags.Msaa4xHint | ConfigFlags.VsyncHint);
         InitWindow(screenWidth, screenHeight, "[text] 3d drawing");
-        // F2 and F3 are this example's own, as raylib's, so the engine's screenshot and debug
-        // overlay are turned off.
-        SetScreenshotKey(Key.Null);
-        SetDebugOverlayKey(Key.Null);
 
         bool spin = true;        // Spin the camera?
         bool multicolor = false; // Multicolor mode
@@ -108,9 +104,10 @@ public static class Text3DDrawing
             }
 
             // Handle Events
-            if (IsKeyPressed(Key.F1)) SHOW_LETTER_BOUNDRY = !SHOW_LETTER_BOUNDRY;
-            if (IsKeyPressed(Key.F2)) SHOW_TEXT_BOUNDRY = !SHOW_TEXT_BOUNDRY;
-            if (IsKeyPressed(Key.F3))
+            // F6, F7 and F8 turn the boundaries and the camera, F1 to F5 being the engine's keys.
+            if (IsKeyPressed(Key.F6)) SHOW_LETTER_BOUNDRY = !SHOW_LETTER_BOUNDRY;
+            if (IsKeyPressed(Key.F7)) SHOW_TEXT_BOUNDRY = !SHOW_TEXT_BOUNDRY;
+            if (IsKeyPressed(Key.F8))
             {
                 // Handle camera change
                 spin = !spin;
@@ -312,14 +309,14 @@ public static class Text3DDrawing
                         DrawText3D(GetFontDefault(), opt, pos, 0.6f, 0.05f, 0.0f, false, Color.DarkBlue);
                         pos.Z += 0.5f + m.Y;
 
-                        opt = "press [F1] to toggle the letter boundry";
+                        opt = "press [F6] to toggle the letter boundry";
                         quads += 39;
                         m = MeasureTextEx(GetFontDefault(), opt, 0.6f, 0.05f);
                         pos.X = -m.X/2.0f;
                         DrawText3D(GetFontDefault(), opt, pos, 0.6f, 0.05f, 0.0f, false, Color.DarkBlue);
                         pos.Z += 0.5f + m.Y;
 
-                        opt = "press [F2] to toggle the text boundry";
+                        opt = "press [F7] to toggle the text boundry";
                         quads += 37;
                         m = MeasureTextEx(GetFontDefault(), opt, 0.6f, 0.05f);
                         pos.X = -m.X/2.0f;
@@ -334,7 +331,7 @@ public static class Text3DDrawing
                 // Draw 2D info text & stats
                 //-------------------------------------------------------------------------
                 DrawText("Drag & drop a font file to change the font!\nType something, see what happens!\n\n" +
-                "Press [F3] to toggle the camera", 10, 35, 10, Color.Black);
+                "Press [F8] to toggle the camera", 10, 35, 10, Color.Black);
 
                 quads += text.Length*2*layers;
                 string tmp = $"{layers,2} layer(s) | {(spin? "ORBITAL" : "FREE")} camera | {quads,4} quads ({quads*4,4} verts)";

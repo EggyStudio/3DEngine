@@ -76,7 +76,7 @@ public static class FeatureCommands
         return $"{found.Name}: {toggle}";
     }
 
-    [Command("feature.panel", "Opens or closes the admin panel, as F1 does: feature.panel <on|off>")]
+    [Command("feature.panel", "Opens or closes the admin panel, as F6 does: feature.panel <on|off>")]
     internal static string ShowPanel(string state)
     {
         if (state is not ("on" or "off") || Admin is null) return $"the panel is on or off, not {state}";

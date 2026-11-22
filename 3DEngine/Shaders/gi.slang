@@ -57,7 +57,7 @@ public struct GiLights
     public float4 sky;
     // x: how many lights. y: the frame's number. z: how strongly the indirect light of the frame
     // before is added. w: 1 where a probe's ray's hit takes every glow light by its own form, none
-    // as one point (gi.toggle points).
+    // as one point (gi.points).
     public float4 counts;
     public GiLight lights[16];
     // xyz: the corner each cascade of probes lay at the frame before, where the faces the probes'

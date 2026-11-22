@@ -937,7 +937,7 @@ without the map, in the shading, where the frame bends the normal by the stone's
 reference takes the face's own, not read apart here. The offset of a texel and a half along the lit
 side's normal and the depth bias of 0.0005 of the depth range stand (`gi.reference`, `gi.compare`).
 
-**Sponza's grazed faces without their normal maps, read on 2026-11-08.** `gi.toggle normals off`
+**Sponza's grazed faces without their normal maps, read on 2026-11-08.** `gi.normals off`
 lights every face by its own normal and leaves the materials' normal maps out, with global
 illumination on or off (the fourth bit of the lighting buffer's `screen.w`). In Sponza at 8:00,
 against the sun's direct light as above, the insides of the sunlit patches on the faces the sun
@@ -1381,7 +1381,7 @@ under a quarter of all its rays bring, lit by indirect light around a corner, is
 the own light of the 27 probes of its cascade within one of it summed instead, which 27 of its
 workgroup's rays read before the rest trace, and a cascade that moved since the frame before keeps
 the whole. So the indirect light from a light that went out goes with it the frame after,
-where it lingered over the frames each bounce takes (`gi.toggle follow off`). A ray is traced
+where it lingered over the frames each bounce takes (`gi.follow off`). A ray is traced
 from its probe, so a probe a little above a floor does not bring back the light under it for the
 cascade below to take, and one that meets a surface before its interval begins brings back that
 surface's light for its own probe's faces, marked so the merge of the cascade below reads it as
@@ -1524,7 +1524,7 @@ camera sliding a hundredth of a unit a frame through a Cornell box, global illum
 levels a frame to the picture's change and 0.03 without the history, at `Low` on the RTX 4070, where
 the slide alone changes 0.48, and on lavapipe −0.03 and 0.02 (`GlobalIlluminationTests`), the hold
 costing nothing that can be read in Wick's first doorway. From the count of frames kept on
-2026-10-30 (`2ad96a80`) until 2026-11-03, `gi.toggle history off` left that count unset, so the
+2026-10-30 (`2ad96a80`) until 2026-11-03, `gi.history off` left that count unset, so the
 probes took whatever the GPU held there and a room's screen probes gave 0.150 where 0.187 with the
 frames kept, and Sponza's lookup at 8:00 read 27% darker than the mean of its own frames. The
 readings with the history left out in this file were taken before then and hold, and the one item
@@ -1904,7 +1904,7 @@ fragment stage and one from that stage to the next frame's rays; and the decoded
 reference uploaded as half floats. `gi_probes.slang` draws a cascade's probes as cubes, an instance
 a probe, in the HDR scene's pass after its meshes, so the scene hides them as it hides a mesh.
 Through the immediate pass they would be a batch with depth after the program's own, which would
-move the line between the scene and the interface drawn over it. `gi.toggle` leaves out the frame
+move the line between the scene and the interface drawn over it. The `gi.` settings leave out the frame
 before's light or the neighbors' in the screen's filter (flags in `ScreenView.grid.w`), the screen's
 probes (the lighting buffer's `Screen.y`), the merge, the surfaces' colors, every surface drawn
 white so the frame shows the light alone (`Screen.w`), or every cascade but one, the cascades above
@@ -1932,7 +1932,7 @@ the first bounce, so rays are not what is short. `gi.probe <x> <y> <z> <samples>
 the loss. It reads the probe of the first cascade nearest a point, its own rays' light, its light
 merged with the cascades above and its six faces, and traces the light arriving at its middle from
 each of its directions as a reference. A probe in each room's middle at High, with the frame's light
-given one bounce (`gi.toggle again off`) against its hits lit directly (`gi.probe x y z 256 0`),
+given one bounce (`gi.again off`) against its hits lit directly (`gi.probe x y z 256 0`),
 and with every bounce against every bounce, as the hit shading is and with the lamps' and the sun's
 light at a hit times pi.
 
@@ -1997,8 +1997,8 @@ every bounce, both linear light drawn through the same curve, measured from the 
   ![The small block's side facing the green wall](assets/bounce/cornell-small-block.webp)
 
 A fifth shows at the grazing floor's ceiling, a step where the screen's probes end, at the edge of
-the field's first cascade, past which the model pass reads the world's probes, which `gi.toggle
-screen off` takes away with the probes (above, the frame; below, the frame with them off).
+the field's first cascade, past which the model pass reads the world's probes, which `gi.screen
+off` takes away with the probes (above, the frame; below, the frame with them off).
 ![The grazing room's ceiling with and without the screen's probes](assets/bounce/grazing-screen-step.webp)
 
 On the Cornell box's view global illumination costs 0.36 ms of the GPU at `Low`, 0.44 at `Medium`
@@ -2110,7 +2110,7 @@ weighs its probes by the distances they traced. Cut to nothing over a quarter of
 weight left a pixel with one or two of its probes seen to their light alone, which drew a notch
 beside the Cornell box's tall block and a smear by its green wall. A closed room with a lamp under
 its floor took 15.3 levels of the lamp's light, lent by the probes beneath the floor to the walls by
-it through the light past the first bounce, which `gi.toggle again off` took to nothing. It takes
+it through the light past the first bounce, which `gi.again off` took to nothing. It takes
 1.6, and its test's bound is 8 again, the lamp over its roof giving 6.1. The thin room's leak was
 the field's. Its walls, 0.1 thick in cells of 0.15, lay between two cells' middles, each 0.025
 outside the wall, so a march toward the lamp outside stepped over them and the lamp lit the floor
@@ -2355,7 +2355,7 @@ each rise, so a rise by a quarter or more is taken at its share as well, four ti
 light at most, and the
 light not yet come is 8.1 levels short the frame after and goes in 12 and 11 frames where it went
 in 15 and 13. Where nothing changes the shares are whole and every room reads as it did, the hold on
-or off (`gi.toggle follow off`); the sums of a cascade that moved since the frame before are not
+or off (`gi.follow off`); the sums of a cascade that moved since the frame before are not
 set against each other, and the five slides' crawl holds to the hundredth, 0.86 levels a frame
 (0.51 to 1.28) against 3.10 unheld (1.39 to 3.91), which `GlobalIlluminationTests` now reads
 over the five. Blocks circling a lit room with the camera still change the picture 1.08 levels a
@@ -2369,7 +2369,7 @@ The eleventh reads the three rooms still far under after the tenth, which look t
 at their probes, with `gi.probe` at `High` against references of no bounce, one bounce and
 every bounce, and finds two causes, the first in most of the rooms. The reference counts the
 bounces after the first
-surface a path meets, so a probe's rays with `gi.toggle again off` are set against its reference
+surface a path meets, so a probe's rays with `gi.again off` are set against its reference
 of no bounce. In the window's room a probe a unit past the sunlit patch read the light straight
 from the sun 70% short, and the room's ceiling and side walls read 0.003 of the reference's 0.086
 and 0.07, 91 to 97% short at one bounce already. The room is six units across and three high, a
@@ -2777,7 +2777,7 @@ and the eye a block over the floor, the model pass's share was 0.30 ms, 0.40 wit
 code as `0f5cdbcf` compiled it, the same with the land around it drawn to two columns as to eight,
 and the room's global illumination and model pass take 1.89 to 1.96 and 0.47 to 0.56 ms whole, where
 with the marks read at each pixel they took 1.72 to 1.74 and 0.74 to 0.90 (`./e3d command profile`'s
-`global_illumination` and `hdr_scene`, against `gi.toggle glow off`).
+`global_illumination` and `hdr_scene`, against `gi.glow off`).
 
 Across a lamp's penumbra behind a wall half its height, a turn of one to eight pixels at 640 by 360
 moves the floor's light along it by 0.36 to 0.89% of it on average, where a pixel that marches
@@ -2809,7 +2809,7 @@ the Cornell box than with nothing of the screen's, and Ore's whole global illumi
 did at both sizes, the Cornell box 0.083 at `Low` and 0.089 at `High`, the strip's room 0.116 and
 the emissive block's 0.057 and 0.056, and the stepped penumbrae the march left on Ore's ground are
 gone, the probes' tiles showing nowhere on its ore. A pixel still marches to a glow light's face
-halves itself where the screen's probes are traced and left unread (`gi.toggle screen off`) and
+halves itself where the screen's probes are traced and left unread (`gi.screen off`) and
 where no texel around it holds a point like its own, and there a shadow's edge steps and tears where
 the probes' texels read it smooth. Under a glowstone on a stone with a pillar of two stones three
 blocks east, seen from above at 1280 by 720 at `High`, the penumbra's contours break at the
@@ -2821,7 +2821,7 @@ read. The voxel game's capture of stepped penumbrae on 2026-10-21 took the toggl
 the flat API, and the quality carries the probes in its place, so a game gives its player no switch
 of their own. `Low` leaves them out, every surface reading the cascades' light alone and the glow
 lights read from probes standing for them alone (`GlobalIlluminationRenderer.GlowOnly`), as the
-call's off read them, and `Medium` and `High` stand them as before. `gi.toggle screen off` and the
+call's off read them, and `Medium` and `High` stand them as before. `gi.screen off` and the
 global illumination window's box leave them out whole at any quality for reading, those standing
 for the glow lights with them. In the voxel game's room of forty glowstones at hour 23 at 1280 by
 720 with `High`'s cascades, the scene pass took 2.24 ms with the probes, 1.2 ms with the probes
@@ -2930,7 +2930,7 @@ face against each neighbor, so a ray through a canopy crosses a face a block, up
 was shaded where the ray crossed it, with a march to the probes it sees, the sun's shadow and the
 glow lights each time. In the voxel game's cherry grove at seed 1 at 1920 by 1080, crossing its
 leaves took global illumination 2.55 to 2.70 ms at High and 1.48 to 1.65 at Low against the rays
-stopping at them as at solid ones (`gi.toggle through off`), at High about 1.6 ms in the cascades'
+stopping at them as at solid ones (`gi.through off`), at High about 1.6 ms in the cascades'
 rays, 1.1 in the screen's probes' and 0.2 in the merge, the crossing left in one stage at a time. A
 build crossing one leaf at most took 1.7 ms of it at High, shading the surface the ray stopped at
 past the leaf 0.8 of that, the march past it the rest, and the march through the leaf's depth too
@@ -3047,7 +3047,7 @@ eighth the vestibule read as before (`gi.compare`'s frames, `./e3d command profi
 **The probes' rays through the GPU's own rays, read on 2026-11-04.** At `High`, where the device
 traces rays, a build of the trace sends the world's probes' rays through the window's meshes as the
 GPU's ray tracing holds them, each hit lit as a probe's hit in the field is from the face's own
-normal and color, which `gi.toggle meshes on` takes and which stays off until it reads every view at
+normal and color, which `gi.meshes on` takes and which stays off until it reads every view at
 least as near a path-traced reference as the field. A copy that lets light through is crossed as the
 reference crosses it, each next face looked for from just past the one entered, since a block's far
 face and its neighbor's near face lie in one plane, and kept by its share for the depth its ray runs
@@ -3363,7 +3363,7 @@ a change of the lights does, since eased in it showed over two cycles. The light
 bounce reads the light shown, so a room lit by its bounces settles a cycle later for each, the bounce
 rooms' seventh view at `High` 0.093 of its light from its reference 98 frames after it was built and
 0.041 after 198, where it read within 0.06 at 98 (`./e3d command record`
-every frame, `field.state`, `gi.toggle`, `gi.show filtered`, `./e3d command profile`).
+every frame, `field.state`, the `gi.` settings, `gi.show filtered`, `./e3d command profile`).
 
 **Sponza's lamps lighting their surroundings, read and mended on 2026-11-09.** At 20:00 with the
 lamps on, the door and gallery views read 0.03 of the light a path-traced reference at 16,384 paths
@@ -3468,7 +3468,7 @@ moved by a snap keeps the budget too, so its probes' own light after the move st
 
 **The vestibule's end wall, read on 2026-11-07.** In the door view at 8:00 at High the wall facing
 the court read 1.55 of a path-traced reference's light, the door in it 2.08 and the side wall facing
--z 1.35. With the surfaces' reflection of the indirect light left out (`gi.toggle specular off`)
+-z 1.35. With the surfaces' reflection of the indirect light left out (`gi.specular off`)
 against a reference traced without the first face's specular, the end wall's excess is its diffuse
 light, the sky's share of it 6.4 times the reference's at 8:00 and noon and the sun's under, and the
 side wall's its reflection, 6.36 times, sun read along the mirror way. A fifth of the end wall's
@@ -3873,7 +3873,7 @@ surface is a wall thinner than a cell, the point a cell behind it in the open, a
 7.95 ms, the closed corridor's far end 0.062 of the open one's light where 0.052 marched at every
 hit, and Sponza's views and their cost as they were. With the game's source as of 2026-10-25 the
 grove took 2.3 ms at that day's commit and at this one alike, so the rest is the game's choosing,
-its screen's probes and its far cascade (`./e3d command profile`, `gi.toggle screen off`).
+its screen's probes and its far cascade (`./e3d command profile`, `gi.screen off`).
 
 **`Low`'s third cascade, read and mended on 2026-11-03.** At `Low` Sponza's atrium at noon at 1920
 by 1080 read 1.67 times a path-traced reference of every bounce over the whole view, a mean
@@ -3902,7 +3902,7 @@ atrium 1.0 to 1.05, and a glow room's frame at 3840 by 2160, averaged two by two
 frame at 1920 by 1080 by 0.12 to 1.30% of its light where 0.08 to 1.18%. The voxel game's cherry
 grove, as the game sets it with the screen's probes and a far cascade, takes 4.49, 6.79 and 8.05 ms
 at 1920 by 1080 and 5.61, 8.01 and 9.33 at 3840 by 2160, the game's to weigh (`./e3d command
-profile`, `gi.toggle glow off`).
+profile`, `gi.glow off`).
 
 **The floor's color, read and mended on 2026-11-03.** At noon the pixels of Sponza's views lit by
 the sun read 1.41, 0.96, 1.46 and 1.17 times a path-traced reference of one bounce in the atrium,
@@ -4125,7 +4125,7 @@ in the thin walls' room and the emissive block's, `shaders_reflections`, and `ga
 capture stands, by night and by day, were captured at the frames their captures take on the RTX 4070
 and on lavapipe (Mesa 26.2.2), and each frame at `High` was measured against a path-traced reference
 of 512 paths a pixel (`gi.reference`, `gi.compare`), whole and with each part of global illumination
-left out in turn (`gi.toggle`). Lavapipe draws each fault below as the GPU does, so each comes from
+left out in turn (the `gi.` settings). Lavapipe draws each fault below as the GPU does, so each comes from
 the method and none from the device. Each picture is linear light drawn through the reference's
 curve, clamped and encoded as sRGB, the frame first and the reference last, from the frame's light
 that `gi.compare` writes beside its difference.
@@ -4552,7 +4552,7 @@ faces of eleven world probes were read against the reference by bounce and by wh
 met, the faces the walls take their light from beside the walls the sampling term's candidates lit
 further over and near the Cornell box's walls (`gi.probe`, each face by where its ways were met). A
 probe's first bounce, the light its hits send on of what reaches them straight from the lights, is
-its light with `gi.toggle again off` against the reference of no bounce past the probe's hits, which
+its light with `gi.again off` against the reference of no bounce past the probe's hits, which
 lights each hit as the lamps light it, and the light past the first bounce is the rest of each. The
 Cornell box's panel, carried as glow lights, lights a hit as a light of the engine's own and in the
 reference's second segment, so its light was read alone, the lamp switched off
@@ -4579,10 +4579,10 @@ probe reads 3 to 19% over at first and 16 to 22% past it, its ways that take the
 first and 23 to 31% past it, their ways in the cascade above 483 to 2521% over at first where their
 own hits read 14 to 57%. There the excess stands at the first bounce, in the probes' own gathering
 through the merge (`gi.probe` with 256 paths a way at no bounce, one and every bounce,
-`gi.toggle again off`).
+`gi.again off`).
 
 **The gain's cause and three mends of it, read on 2026-10-19.** A hit's read of the probes around it
-was recomputed from their faces with `gi.toggle again off`, the blend `bouncedSeenSum` takes without
+was recomputed from their faces with `gi.again off`, the blend `bouncedSeenSum` takes without
 its march, against the reference's irradiance from one bounce traced from the hit's own point and
 from each probe's place, weighed as the read weighs them, the Cornell box drawn without its panel so
 its lamp alone lights it. Of the three causes a gain could have, the constant that turns the faces
@@ -4620,7 +4620,7 @@ covered that room's own shortfall, and taking it out leaves the shortfall standi
 
 **The gain past the first bounce, read again on 2026-11-02.** At `High` at 800 by 450, each room's
 light past the first bounce, the frame's with every bounce less the frame's with
-`gi.toggle again off`, over the reference's with every bounce less one, each with the first face's
+`gi.again off`, over the reference's with every bounce less one, each with the first face's
 specular share, reads 0.93 in the Cornell box, 1.14 in the thin room, 0.29 in the corridor, 1.14 in
 the window's room, 0.68 in the strip's, 0.98 on the grazing floor, 0.97 in the carried lamp's and
 0.04 around the emissive blocks, and the world's probes read alike through `gi.probe` with every
@@ -4656,7 +4656,7 @@ thin room and the carried lamp's room read alike at both, within a point. It lie
 `Low`'s last cascade, whose rays from 2.4 to 9.6 met a surface in all 64 ways of each probe read
 there, the floor and the ceiling three units apart meeting even the long ones, and with
 `probesHold`, its blend toward the ambient light, held at 1, the room reads 8% under where 9%. With
-`gi.toggle again off`, against a reference of one bounce, the room reads 5% under at `Low` and 1%
+`gi.again off`, against a reference of one bounce, the room reads 5% under at `Low` and 1%
 over at `High`, the light past the first bounce giving the rest of the difference, near the
 reference at `Low`'s world probes and 12 to 37% over at `High`'s (the gain, above). Read at one
 bounce under four pixels of the room, the screen's probes read the light beyond their reach from 44%
@@ -4883,7 +4883,7 @@ BounceRoomsTests with its bounds at zero), or cost more than it gave, or left th
   it, so the probe reads far over its hemisphere's light and its neighbors under, and the window's
   filter spreads the difference over its 5 by 5 probes into round spots 20 to 40 pixels across that
   stand still from frame to frame. The screen's probes make the spots, and with them left out
-  (`gi.toggle screen off`) the surfaces read smooth. Three forms of it are read. A torch or a lantern
+  (`gi.screen off`) the surfaces read smooth. Three forms of it are read. A torch or a lantern
   carried as a glow light lights the wall it stands against within a few hundredths of a block of
   its box. In a plank room seven blocks across and four high with a lantern under its ceiling and two torches on its walls, field cell 0.25, at `High` and 960 by 540, a
   ceiling probe reads 0.643 over its hemisphere where a path-traced reference reads 0.079, its ray

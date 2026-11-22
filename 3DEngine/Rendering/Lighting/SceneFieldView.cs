@@ -6,7 +6,7 @@ namespace Engine;
 /// <summary>
 /// Draws one cascade of the scene's distance field over the window as the field holds the scene
 /// (<c>field_view.slang</c>), after the window's shapes and before ImGui, while
-/// <see cref="SceneFieldSettings.Shown"/> names a cascade, as the <c>field.show</c> command sets it.
+/// <see cref="SceneFieldSettings.Shown"/> names a cascade, as the <c>field.show</c> setting does.
 /// </summary>
 internal sealed class SceneFieldViewRenderer : IDisposable
 {

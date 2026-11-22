@@ -147,7 +147,7 @@ public sealed record Config
     /// </summary>
     /// <remarks>
     /// <c>--live</c> and <c>--no-live</c>, or <c>E3D_LIVE</c>, say it from the command line, and
-    /// e3d's <c>live on</c> and <c>live off</c> while the program runs. The engine's own code and
+    /// the <c>live.reload</c> setting while the program runs. The engine's own code and
     /// shaders are not reloaded, and a change to them needs the program run again.
     /// </remarks>
     public bool? Live { get; init; }

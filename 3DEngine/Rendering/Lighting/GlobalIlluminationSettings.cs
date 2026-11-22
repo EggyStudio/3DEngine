@@ -40,7 +40,7 @@ internal sealed class GlobalIlluminationSettings
     /// <summary>
     /// Whether High traces the world's probes' rays through the device's ray tracing in place of the
     /// scene's distance field, crossing a surface that lets light through by the share it lets
-    /// through, as <c>gi.toggle meshes on</c> sets it.
+    /// through, as <c>gi.meshes on</c> sets it.
     /// </summary>
     /// <remarks>
     /// Off unless set, since in some views the field's trace lights the scene nearer a path-traced
@@ -48,16 +48,22 @@ internal sealed class GlobalIlluminationSettings
     /// </remarks>
     public bool MeshesTraced { get; set; }
 
-    /// <summary>Whether the screen's probes take nothing of the frame before's, as <c>gi.toggle history off</c> sets it.</summary>
+    /// <summary>
+    /// Whether the screen's probes take nothing of the frame before's, as <c>gi.history off</c>
+    /// sets it.
+    /// </summary>
     public bool HistoryOff { get; set; }
 
-    /// <summary>Whether each screen probe keeps its own light, blended with none of its neighbors', as <c>gi.toggle filter off</c> sets it.</summary>
+    /// <summary>
+    /// Whether each screen probe keeps its own light, blended with none of its neighbors', as
+    /// <c>gi.filter off</c> sets it.
+    /// </summary>
     public bool FilterOff { get; set; }
 
     /// <summary>
     /// Whether the screen's probes are left out whole at any quality, for the window and the render
     /// targets, neither made nor traced, every surface reading the cascades' light alone and each
-    /// pixel marching to the glow lights itself, as <c>gi.toggle screen off</c> and the global
+    /// pixel marching to the glow lights itself, as <c>gi.screen off</c> and the global
     /// illumination window's debug toggle set it, so what they cost and give can be read.
     /// </summary>
     /// <remarks>
@@ -76,10 +82,16 @@ internal sealed class GlobalIlluminationSettings
     /// </summary>
     public bool LoggedScreenProbeNotANumber { get; set; }
 
-    /// <summary>Whether each cascade keeps its own rays' light, taking nothing from the cascade above, as <c>gi.toggle merge off</c> sets it.</summary>
+    /// <summary>
+    /// Whether each cascade keeps its own rays' light, taking nothing from the cascade above, as
+    /// <c>gi.merge off</c> sets it.
+    /// </summary>
     public bool MergeOff { get; set; }
 
-    /// <summary>Whether the surfaces the rays meet take none of the indirect light that reached them the frame before, so light makes one bounce, as <c>gi.toggle again off</c> sets it.</summary>
+    /// <summary>
+    /// Whether the surfaces the rays meet take none of the indirect light that reached them the
+    /// frame before, so light makes one bounce, as <c>gi.again off</c> sets it.
+    /// </summary>
     public bool AgainOff { get; set; }
 
     /// <summary>What the indirect light reaching the surfaces the rays meet is taken times, 1 unless <c>E3D.SetBounceGain</c> set it.</summary>
@@ -88,20 +100,20 @@ internal sealed class GlobalIlluminationSettings
     /// <summary>
     /// Whether the world's probes take the whole of the indirect light of the frame before however
     /// their own light falls, so the indirect light from a light that went out fades over
-    /// the frames each bounce takes, as <c>gi.toggle follow off</c> sets it.
+    /// the frames each bounce takes, as <c>gi.follow off</c> sets it.
     /// </summary>
     public bool FollowOff { get; set; }
 
     /// <summary>
     /// Whether the small emissive surfaces global illumination carries as lights give none, their
-    /// light lost to the rays all the same, as <c>gi.toggle glow off</c> sets it, so what the glow
+    /// light lost to the rays all the same, as <c>gi.glow off</c> sets it, so what the glow
     /// lights give and cost can be read (<see cref="GlowLights"/>).
     /// </summary>
     public bool GlowOff { get; set; }
 
     /// <summary>
     /// Whether the window draws every surface white, so the frame shows the light that reaches each
-    /// surface alone and not its color, as <c>gi.toggle albedo off</c> sets it, which a reading of how
+    /// surface alone and not its color, as <c>gi.albedo off</c> sets it, which a reading of how
     /// the light changes as the camera moves takes apart from the textures the camera moves over.
     /// </summary>
     public bool AlbedoOff { get; set; }
@@ -109,7 +121,7 @@ internal sealed class GlobalIlluminationSettings
     /// <summary>
     /// Whether the window leaves out the surfaces' reflection of the indirect light, the probes'
     /// along the mirror way, the environment's, a reflection probe's, the ambient lights' and what
-    /// the trace through the depth meets, as <c>gi.toggle specular off</c> sets it, so a reading
+    /// the trace through the depth meets, as <c>gi.specular off</c> sets it, so a reading
     /// takes the diffuse light apart from it against a reference traced without the first face's
     /// specular.
     /// </summary>
@@ -117,7 +129,7 @@ internal sealed class GlobalIlluminationSettings
 
     /// <summary>
     /// Whether the window lights every face by its own normal and leaves the materials' normal maps
-    /// out, as <c>gi.toggle normals off</c> sets it, with global illumination on or off, so a reading
+    /// out, as <c>gi.normals off</c> sets it, with global illumination on or off, so a reading
     /// takes the faces' light apart from their maps against a reference that takes the faces' own
     /// normals.
     /// </summary>
@@ -131,14 +143,14 @@ internal sealed class GlobalIlluminationSettings
     public bool PassesTimed { get; set; }
 
     /// <summary>
-    /// Whether every cascade's probes trace their rays every frame, as <c>gi.toggle spread off</c>
+    /// Whether every cascade's probes trace their rays every frame, as <c>gi.spread off</c>
     /// sets it, where the cascades past the first otherwise trace half their probes a frame while
     /// they lie still, so the light of the whole trace can be read beside the spread one.
     /// </summary>
     public bool SpreadOff { get; set; }
 
     /// <summary>
-    /// Whether a probe's ray's hit takes every glow light by its own form, as <c>gi.toggle points
+    /// Whether a probe's ray's hit takes every glow light by its own form, as <c>gi.points
     /// off</c> sets it, where a light giving the hit under a 32nd of the largest before it is
     /// otherwise taken as one point, so the light of the full forms can be read beside it.
     /// </summary>
@@ -150,13 +162,16 @@ internal sealed class GlobalIlluminationSettings
     /// </summary>
     public int Term { get; set; }
 
-    /// <summary>The one cascade whose rays' light alone reaches the pixels, or -1 for every cascade, as <c>gi.toggle cascade</c> sets it.</summary>
+    /// <summary>
+    /// The one cascade whose rays' light alone reaches the pixels, or -1 for every cascade, as
+    /// <c>gi.cascade</c> sets it.
+    /// </summary>
     public int Alone { get; set; } = -1;
 
     /// <summary>
     /// Whether the rays of the world's probes and the screen's stop at a surface that lets light
     /// through as at a solid one, the merge of the cascades still seeing past it, as
-    /// <c>gi.toggle through off</c> sets it, so what crossing a canopy's leaves costs can be read.
+    /// <c>gi.through off</c> sets it, so what crossing a canopy's leaves costs can be read.
     /// </summary>
     public bool ThroughOff { get; set; }
 

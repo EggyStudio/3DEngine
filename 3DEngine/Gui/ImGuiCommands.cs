@@ -6,27 +6,19 @@ using SDL3;
 namespace Engine;
 
 /// <summary>
-/// Commands that read and set how Dear ImGui is drawn, so its windows of their own are turned on in
-/// a running program and looked at from <c>./e3d</c>.
+/// Commands that read how Dear ImGui is drawn, so its windows of their own, which the
+/// <c>imgui.viewports</c> setting turns on in a running program, are looked at from <c>./e3d</c>.
 /// </summary>
 internal static class ImGuiCommands
 {
-    [Command("imgui.viewports", "Lets ImGui's windows leave the main one for windows of their own, or keeps them in, or with no value lists ImGui's viewports: imgui.viewports [on]")]
-    internal static string Viewports(string on = "")
+    [Command("imgui.windows", "ImGui's viewports, the main window and each window of its own, with where each is, its size and its window and swapchain, under whether the imgui.viewports setting lets them leave the main one")]
+    internal static string Windows()
     {
         if (ImGui.GetCurrentContext() == IntPtr.Zero) return Refuse("NO_IMGUI", "this program draws no ImGui");
         if (!SdlImGuiViewports.Installed)
             return Refuse("NO_VIEWPORTS", $"ImGui keeps its windows inside the main one here, since SDL's {SDL.GetCurrentVideoDriver()} driver cannot place a window on the desktop");
 
         var io = ImGui.GetIO();
-        if (on.Length > 0)
-        {
-            bool? value = on.ToLowerInvariant() switch { "on" or "true" or "1" => true, "off" or "false" or "0" => false, _ => null };
-            if (value is not { } turned) return Refuse("BAD_ARGUMENT", $"'{on}' is not on or off");
-            io.ConfigFlags = turned ? io.ConfigFlags | ImGuiConfigFlags.ViewportsEnable : io.ConfigFlags & ~ImGuiConfigFlags.ViewportsEnable;
-            return turned ? "viewports on" : "viewports off";
-        }
-
         // Each viewport with where it is, its size, and its window and swapchain where it has them.
         var viewports = ImGui.GetPlatformIO().Viewports;
         var lines = new List<string> { (io.ConfigFlags & ImGuiConfigFlags.ViewportsEnable) != 0 ? "viewports on" : "viewports off" };
@@ -46,7 +38,7 @@ internal static class ImGuiCommands
         return string.Join("\n", lines);
     }
 
-    [Command("imgui.shot", "Writes the next frame of one of ImGui's windows of its own to a PNG, by its number in imgui.viewports: imgui.shot <viewport> <path>")]
+    [Command("imgui.shot", "Writes the next frame of one of ImGui's windows of its own to a PNG, by its number in imgui.windows: imgui.shot <viewport> <path>")]
     internal static string Shot(int viewport, string path)
     {
         if (ImGui.GetCurrentContext() == IntPtr.Zero) return Refuse("NO_IMGUI", "this program draws no ImGui", "imgui.shot");
@@ -81,7 +73,7 @@ internal static class ImGuiCommands
         return "";
     }
 
-    private static string Refuse(string code, string why, string command = "imgui.viewports")
+    private static string Refuse(string code, string why, string command = "imgui.windows")
     {
         ConsoleHost.Fail(code, $"{command}: {why}");
         return $"{command}: {why}";

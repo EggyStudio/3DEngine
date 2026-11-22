@@ -321,6 +321,9 @@ public sealed class DaySkyTests : IDisposable
         GetSkyTime().Should().Be(70);
         Run("sky.time", out _).Should().Be("time 70.00 hour 22.00 day 2 sun -56.0 moon 2");
         Run("sky.time 18", out _).Should().Be("time 18.00 hour 18.00 day 0 sun 0.0 moon 0", "a sun on the horizon is at 0.0 degrees, never -0.0");
+        Run("sky.hours 30.5", out _).Should().Be("sky.hours is 30.5.");
+        Run("sky.time", out _).Should().StartWith("time 30.50 hour 6.50 day 1", "the setting sets the hours sky.time answers");
+        Run("reset sky.hours", out _);
     }
 
     [NeedsVulkanFact]

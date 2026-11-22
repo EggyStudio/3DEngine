@@ -82,7 +82,8 @@ public static class ShadersMandelbrotSet
                 updateShader = true;
             }
 
-            if (IsKeyPressed(Key.F1)) showControls = !showControls;
+            // F6 shows the controls or hides them, F1 to F5 being the engine's own keys.
+            if (IsKeyPressed(Key.F6)) showControls = !showControls;
 
             // Each step up multiplies the iterations of every pixel, and the frame's time with
             // them, by 1.4.
@@ -144,7 +145,7 @@ public static class ShadersMandelbrotSet
                 if (showControls)
                 {
                     DrawText("Press Mouse buttons right/left to zoom in/out and move", 10, 15, 10, Color.RayWhite);
-                    DrawText("Press F1 to toggle these controls", 10, 30, 10, Color.RayWhite);
+                    DrawText("Press F6 to toggle these controls", 10, 30, 10, Color.RayWhite);
                     DrawText("Press [1 - 6] to change point of interest", 10, 45, 10, Color.RayWhite);
                     DrawText("Press UP | DOWN to change number of iterations", 10, 60, 10, Color.RayWhite);
                     DrawText("Press R to recenter the camera", 10, 75, 10, Color.RayWhite);

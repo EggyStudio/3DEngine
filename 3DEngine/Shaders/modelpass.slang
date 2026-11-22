@@ -376,7 +376,7 @@ public float3 surfaceNormal(ModelVertexOutput input)
     if (drawsBacks && dot(n, input.toEye) < 0.0)
         n = -n;
     // Left out for a reading of the faces against a reference that takes their own normals
-    // (gi.toggle normals off).
+    // (gi.normals off).
     float strength = materialNormalScale(input);
     if (strength <= 0.0 || (uint(lighting.screen.w + 0.5) & 4u) != 0u)
         return n;
@@ -455,7 +455,7 @@ public LitLight litLight(float3 albedo, ModelVertexOutput input, float shadow = 
     light.diffuse = float3(0.0);
     light.specular = float3(0.0);
     // Every surface white, and the reflection of the indirect light left out, for debugging
-    // (gi.toggle albedo and specular).
+    // (gi.albedo and specular).
     uint switches = uint(lighting.screen.w + 0.5);
     // One term of the light alone, numbered as termTaken lists them, where light.terms asks for it.
     uint only = switches >> 8;

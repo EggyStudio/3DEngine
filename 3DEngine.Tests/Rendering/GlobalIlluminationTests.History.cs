@@ -13,7 +13,7 @@ public sealed partial class GlobalIlluminationTests
     public void Leaving_The_Screen_Probes_Frames_Before_Out_Of_A_Still_View_Keeps_Its_Light()
     {
         // A room lit by an emissive panel at Medium, which stands the screen's probes, the light they
-        // give read with their frames before kept and left out (gi.toggle history off). Left out,
+        // give read with their frames before kept and left out (gi.history off). Left out,
         // the count of frames a probe kept was never set and took whatever the GPU held there, and
         // the probes gave less light than with the frames kept, though the mean of sixteen frames
         // without them is as dark as one. Set to none, they give a frame's rays alone, which

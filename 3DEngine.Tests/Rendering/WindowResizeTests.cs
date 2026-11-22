@@ -125,7 +125,9 @@ public sealed class WindowResizeTests : IDisposable
         ClearWindowState(ConfigFlags.VsyncHint);
         Frame();
         GetApp().World.Resource<SurfaceResize>().Vsync.Should().BeFalse();
-        Command("window.vsync true").Should().Be("vsync on");
+        Command("window.vsync true").Should().Be("window.vsync is on.");
+        GetApp().World.Resource<SurfaceResize>().Vsync.Should().BeTrue("the setting asks for it as the flag does");
+        Command("window.vsync off");
 
         // A resolution picked from a list, as the flat call does it in an offscreen run too.
         SetWindowSize(240, 135);

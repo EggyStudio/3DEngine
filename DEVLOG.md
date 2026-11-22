@@ -9,10 +9,15 @@ of .github/REVIEW.md or .github/REVIEW-ARCHIVE.md and the commit that closed it.
 ## 2026-11-22
 
 ![](.github/assets/readings/2026-11-22-item-302-console-overlay.webp)
-The shaders_bounce_rooms example offscreen at 1280 by 720 in two panes, the debug overlay alone as
-F3 shows it, drawn whole from the engine's sections under the module's frame line and frame times,
-and the console alone as F5 opens it from the Diagnostics module across the top, its line `list
-keys` answered with the five keys' settings, F1 to F5.
+The shaders_bounce_rooms example offscreen in three panes, the debug overlay alone as F3 shows it at
+1280 by 720, drawn whole from the engine's sections under the module's frame line and frame times on
+black at half, its display line saying 1280 x 720, the console alone as F5 opens it from the
+Diagnostics module across the top at 1280 by 720 in the overlay's look, its line `list keys`
+answered with the five keys' settings, F1 to F5, and `keys.` typed in its field, the five names that
+begin with it listed in a box joined to the field over it and the first of them ghosted after the
+typed part, and the overlay as F3 shows it at 800 by 450, the right column's lines gone down under
+the left's where they would meet and the global illumination line broken after the last comma that
+fits.
 
 ## 2026-11-21
 

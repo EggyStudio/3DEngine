@@ -468,11 +468,11 @@ not, a network that is down, an address with nothing at it, a pack of another si
 disk that is full or a fetch stopped, and throws for none of them. A fetch that fails or is stopped
 leaves the folder fetched before, if any, and nothing new beside it, and a pack fetched already is
 answered at once. Packs are unpacked under `ScenePacks.Folder`, the user's cache folder under
-`3DEngine/scenes` or the folder `E3D_SCENES` names, each in a folder of its name that
-`ScenePacks.ModelOf` names the model in, which `./e3d scenes fetch` fetches into as well. A pack
-is the eight bytes `BCSPACK` and a zero, the format's version and its count of files, an index of
-each file's path and where its bytes lie, then the files' bytes, as `ScenePacks` sets out. The
-`scenes_sponza` and `scenes_bistro` examples fetch Intel's Sponza and the Bistro's exterior so where
+`3DEngine/scenes` or the folder `E3D_SCENES` or the `scenes.folder` setting names, each in a folder
+of its name that `ScenePacks.ModelOf` names the model in, which `./e3d scenes fetch` fetches into
+as well. A pack is the eight bytes `BCSPACK` and a zero, the format's version and its count of
+files, an index of each file's path and where its bytes lie, then the files' bytes, as
+`ScenePacks` sets out. The `scenes_sponza` and `scenes_bistro` examples fetch Intel's Sponza and the Bistro's exterior so where
 they open without them.
 
 ## From outside

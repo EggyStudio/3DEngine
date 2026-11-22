@@ -32,8 +32,11 @@ a program given by its path, serving, and returns once it is ready:
 | `--seed N` | `E3D_SEED=N` | Seeds the random generator with N as the window opens, in place of the clock, so a program that sets no seed places things alike each run |
 | `--live`, `--no-live` | `E3D_LIVE=1`, `E3D_LIVE=0` | Loads again the files it loaded by name as they are saved, or does not, whatever its config says ([Editing while it runs](editing-while-running.md)) |
 
-A hidden or offscreen run draws everything a visible one does, so captures show the game as a
-player sees it. `./e3d status` says what is serving, and `./e3d stop` closes it, as its close
+Each flag's value is a setting a running program reads back, `run.serve`, `run.hidden`,
+`run.offscreen`, `run.headless`, `run.frames`, `time.frame`, `window.samples`, `run.seed` and
+`live.reload`, and its variable overrides it, so a set of `time.frame` or `live.reload` holds for
+the run only where the variable is unset. A hidden or offscreen run draws everything a visible one
+does, so captures show the game as a player sees it. `./e3d status` says what is serving, and `./e3d stop` closes it, as its close
 button would.
 
 ## Asking the world
@@ -69,30 +72,38 @@ Manor's walk held 27 textures of 128 by 128 at its most and 16 as it began.
 resize and move the window while it draws, and in an offscreen run resize the images it draws
 into, as a window's swapchain is made again, or make it zero across, when no frame is drawn until
 it is restored. `build/storm.sh` puts a program through a run of them under the validation layer.
-`window.vsync true` turns vsync on, and `false` off, which makes the swapchain again on the next
-frame, and `window.state` says whether the window is shown or hidden, covered by others, focused,
-minimized or maximized, and its size.
+The setting `window.vsync on` turns vsync on, and `off` off, which makes the swapchain again on the
+next frame, `window.width` and `window.height` read or set the size alone, and `window.state` says
+whether the window is shown or hidden, covered by others, focused, minimized or maximized, and its
+size.
+
+The engine's values a line sets are settings, each read by its name alone, as `window.vsync`,
+answered with its value, its default where it differs and the variable that gives it, set by its
+name and a value, and put back by `reset` and its name. `list` names them beside the commands, and
+the settings panel F4 opens shows them a page to each first word ([Window and
+frame](window-and-frame.md#the-debug-keys)), where the pages and the file a player's are kept in
+are listed.
 
 `imgui.viewports on` lets an ImGui window dragged out of the program's window have a window of its
-own, as a program does by setting `ImGuiConfigFlags.ViewportsEnable`, `off` keeps them in, and with
-no value it lists ImGui's viewports, where each is and its window and swapchain. `imgui.shot 1
-viewport.png` writes the next frame of the first of them to a file, as `shot` does the program's
+own, as a program does by setting `ImGuiConfigFlags.ViewportsEnable`, and `off` keeps them in.
+`imgui.windows` lists ImGui's viewports, where each is and its window and swapchain, and `imgui.shot
+1 viewport.png` writes the next frame of the first of them to a file, as `shot` does the program's
 window. A window of a hidden program's is never shown either.
 
 `profile` gives where a frame's time goes, averaged over about a second, and `profile.slowest` the
 slowest frame since it was last asked, every stage, system and render phase measured in it, so a
 stall of one frame shows with what held it, the program's own work or a wait on the GPU or the
-display (BUILDING.md, Timing a program). `gi.passes on` splits global illumination's GPU time
-there by pass, each cascade's trace, the merges, the gather and the screen's probes as `gpu.gi_`
-lines, which `gi.passes off` takes back to the one `gpu.global_illumination`.
+display (BUILDING.md, Timing a program). The setting `gi.passes on` splits global illumination's
+GPU time there by pass, each cascade's trace, the merges, the gather and the screen's probes as
+`gpu.gi_` lines, which `gi.passes off` takes back to the one `gpu.global_illumination`.
 
 `model.room house 6 3 5 0.2`, `model.select house +z`, `model.cut house window 1.2 1 4.5 1` and the
 other `model.*` commands run the lines of an edit mesh's recipe on a model by its name, each
 answering the model's counts, and `model.show house 0 0 0` draws it as it is cut, so a level is
 blocked out from the terminal ([Modeling](modeling.md#blocking-out-from-the-terminal)).
 
-Where a program builds the scene's distance field, `field.show 0` draws its first cascade over the
-window as the field holds the scene, `-1` none, `field.state` says whether it is built and for how
+Where a program builds the scene's distance field, the setting `field.show 0` draws its first
+cascade over the window as the field holds the scene, `-1` none, `field.state` says whether it is built and for how
 many frames, where each cascade lies, the far one named, the GPU memory the field takes, how many
 meshes are in it, how many triangles the frame's builds splatted and left waiting, of a budget
 raised where the frame has room, and the frames and the triangles the field took to hold its last
@@ -107,7 +118,7 @@ from a point along a way as global illumination's passes march it, answering whe
 in which cascade and cell, and each step, then marches on from that surface toward the sun as a
 probe's hit does where the window's shadow map does not hold it. Where global illumination is on, `gi.state` says the quality,
 the cascades of probes and their rays, the screen's probes, the reflections, and the GPU memory each
-takes, `gi.rays off` or `on` turns off or on the GPU's own rays High traces what the field misses
+takes, the setting `gi.rays off` or `on` turns off or on the GPU's own rays High traces what the field misses
 through ([Materials, light and shadows](materials-light-and-shadows.md)), and on a GPU that traces
 rays `gi.reference ref.png 1024` path traces the view as a reference, 1,024 paths a pixel,
 `gi.reference once.png 1024 1` one of a single bounce, `gi.reference shiny.png 1024 -1 specular`
@@ -129,21 +140,22 @@ each drawn alone in turn, the probes' indirect light, the glow lights', the refl
 environment's, the ambient lights', the lights' own and what the surface gives off, less what the
 frame holds there with none of them, as a fog's light past the surface, beside their sum and the
 light drawn with every term, so a pixel brighter than its surfaces shows which term carries it.
-`gi.show` draws what the light holds over the
-window, `tiles`, `light`, `filtered` and `history` the screen's probes, `rays 1`, `merged 1` and
-`probes 1` the second cascade's, `difference ref.png` the frame against a reference, and `none` the
-window again. `gi.toggle merge off` leaves the merge of the cascades out, as `history` and `filter`
-do their parts, `screen` the screen's probes, neither made nor traced, so what they cost and give
-can be read, `again` the light past the first bounce from the frame before's probes,
-so light bounces once, `follow` the probes taking the indirect light at the share their own light
-kept, so the indirect light of a light switched off fades over the frames each bounce takes, `glow`
-the small emissive surfaces carried as lights, whose light the rays leave out all the same, so what
-they give can be seen and timed, `specular` the surfaces' reflection of the indirect light, so the
-diffuse light is read apart from it, `spread` the coarser cascades' trace of half their probes a
-frame, so each traces all of them every frame, `points` a hit's faint glow lights taken as one point
-at their middle, so every light takes its own form, `gi.toggle cascade 2` keeps the third cascade's light
-alone, and `on` or `-1` puts each back. `gi.toggle meshes on` traces the world's probes' rays through the GPU's
-own rays at `High` in place of the field, crossing what lets light through as the field does, a step
+The setting `gi.show` draws what the light holds over the
+window, `tiles`, `light`, `filtered` and `history` the screen's probes, `rays`, `merged` and `probes`
+the cascade `gi.show_cascade` names, and `none` the window again, and `gi.difference ref.png` draws
+the frame against a reference. The setting `gi.merge off` leaves the merge of the cascades out, as
+`gi.history off` and `gi.filter off` do their parts, `gi.screen off` the screen's probes, neither
+made nor traced, so what they cost and give can be read, `gi.again off` the light past the first
+bounce from the frame before's probes, so light bounces once, `gi.follow off` the probes taking the
+indirect light at the share their own light kept, so the indirect light of a light switched off
+fades over the frames each bounce takes, `gi.glow off` the small emissive surfaces carried as
+lights, whose light the rays leave out all the same, so what they give can be seen and timed,
+`gi.specular off` the surfaces' reflection of the indirect light, so the diffuse light is read apart
+from it, `gi.spread off` the coarser cascades' trace of half their probes a frame, so each traces
+all of them every frame, `gi.points off` a hit's faint glow lights taken as one point at their
+middle, so every light takes its own form, `gi.cascade 2` keeps the third cascade's light alone, and
+`on` or `-1` puts each back. `gi.meshes on` traces the world's probes' rays through the GPU's own
+rays at `High` in place of the field, crossing what lets light through as the field does, a step
 that stays off until it reads every view at least as near a path-traced reference as the field, and
 `off` puts the field back.
 
@@ -183,6 +195,7 @@ side says whether it is lit, and over the line where it meets the floor whether 
 there. `sky.time 18` sets the hour of the day sky a program runs, so a script takes its pictures at
 the hours it names, and answers where the sky stands, its time, the hour of the day, the day, the
 sun's height in degrees and the moon's phase, as `time 18.00 hour 18.00 day 0 sun 0.0 moon 0`.
+The setting `sky.hours` holds the same hours, on the panel's `sky` page.
 `input.button` and `input.axis` make pads up to the one they name where fewer are
 connected, four at most, which is how the `core_input_gamepad` example is captured with no pad on
 the machine and `games/Sumo`'s second player is controlled on pad 1. `./e3d command frames.wait

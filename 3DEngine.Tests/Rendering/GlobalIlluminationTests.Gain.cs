@@ -58,7 +58,7 @@ public sealed partial class GlobalIlluminationTests
             at[gain] = Floor(Capture(Draw));
         }
 
-        at[0].Should().BeApproximately(once, 1, "a gain of 0 leaves the light past the first bounce out as gi.toggle again off does");
+        at[0].Should().BeApproximately(once, 1, "a gain of 0 leaves the light past the first bounce out as gi.again off does");
         at[1].Should().BeGreaterThan(at[0] + 2, $"the walls' light reaches the floor past the panel's, {at[0]} to {at[1]}");
         at[2].Should().BeGreaterThan(at[1] + 2, $"and twice as much of it at a gain of 2, {at[1]} to {at[2]}");
         UnloadModel(slab);

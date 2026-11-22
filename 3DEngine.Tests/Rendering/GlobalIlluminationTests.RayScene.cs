@@ -72,9 +72,9 @@ public sealed partial class GlobalIlluminationTests
     [Trait("Category", "Render")]
     public void The_Meshes_Switch_And_The_State_Say_What_The_Probes_Rays_Are_Traced_Through()
     {
-        // The switch of the meshes answers what the probes' rays are traced through, the field where
-        // the device traces no rays or High left them off for its memory, and gi.state names why
-        // the field traces what the device's rays would.
+        // With the meshes' setting on the parts left out say what the probes' rays are traced
+        // through, the field where the device traces no rays or High left them off for its memory,
+        // and gi.state names why the field traces what the device's rays would.
         var config = Config.Default.WithWindow("gi test", 160, 96) with { Headless = true, Offscreen = true, Samples = 1 };
         UseApp(new App(config).AddPlugin(new DefaultPlugins()));
         SetSceneField(1, 0.15f, 1);
@@ -85,7 +85,8 @@ public sealed partial class GlobalIlluminationTests
         var settings = GetApp().World.Resource<GlobalIlluminationSettings>();
         using (ConsoleHost.Lend(GetApp().World, GetApp()))
         {
-            var said = GlobalIlluminationCommands.ToggleBounce("meshes", "on");
+            string Set(string line) => ConsoleHost.Run(line).Done ? GlobalIlluminationCommands.Switches(settings) : line + " was refused";
+            var said = Set("gi.meshes on");
             RayFrames(2, block, () => { });
             var state = GlobalIlluminationCommands.IlluminationState(GetApp().World);
             if (device.CanQueryRays)
@@ -95,15 +96,14 @@ public sealed partial class GlobalIlluminationTests
                 // As High leaves them off where their structures do not fit the device's memory.
                 (settings.RaysOff, settings.RaysLeftOff) = (true, "the device's memory is full");
                 RayFrames(2, block, () => { });
-                GlobalIlluminationCommands.ToggleBounce("meshes", "on").Should()
+                Set("gi.meshes on").Should()
                     .EndWith("the probes' rays traced through the field, the device's rays left off since its memory did not hold their structures");
                 GlobalIlluminationCommands.IlluminationState(GetApp().World).Should()
                     .Contain("the device's rays left off since its memory did not hold their structures, the field tracing what they would, the device's memory is full");
-                GlobalIlluminationCommands.Rays("on");
+                Set("gi.rays on");
                 settings.RaysLeftOff.Should().BeNull("gi.rays on clears why High left them off");
-                GlobalIlluminationCommands.Rays("off");
-                GlobalIlluminationCommands.ToggleBounce("meshes", "on").Should().EndWith("the probes' rays traced through the field, the device's rays off by gi.rays");
-                GlobalIlluminationCommands.Rays("on");
+                Set("gi.rays off").Should().EndWith("the probes' rays traced through the field, the device's rays off by gi.rays");
+                Set("gi.rays on");
             }
             else
             {

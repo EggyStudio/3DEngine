@@ -20,7 +20,9 @@ namespace Engine;
 /// <para>
 /// The registry refuses a name twice, so the keys stand for the app made last. Making an app's
 /// binding disposes the keys of the app made before it, which takes their five settings out of
-/// the registry and ends them, and an app's keys are disposed as it shuts down.
+/// the registry and ends them, and an app's keys are disposed as it shuts down. The engine's
+/// settings (<see cref="EngineSettings"/>) stand for that app's world between lines in the same
+/// way.
 /// </para>
 /// <para>
 /// The console and the panel are drawn in ImGui's frame in PreUpdate with the world lent, so a line
@@ -56,6 +58,8 @@ internal sealed partial class DiagnosticsBinding
             _registered?.Keys.Dispose();
             Keys = new DiagnosticKeys(ConsoleHost.Registry) { Overlay = Overlay, Panel = Panel, Console = Console };
             _registered = this;
+            ConsoleHost.Bind(world);
+            if (world.TryGetResource<Config>(out var config)) EngineSettings.Started(config);
         }
         Keys.ScreenshotAsked += () => world.GetOrInsertResource(static () => new ScreenshotKey()).Asked(world);
         _drawnConsole = new ImGuiConsole(Console);
@@ -147,16 +151,20 @@ internal sealed partial class DiagnosticsBinding
     }
 
     /// <summary>
-    /// Disposes the keys as the app shuts down, which takes their settings out of the registry
-    /// where they are its own.
+    /// Writes the settings file and disposes the keys as the app shuts down, which takes their
+    /// settings out of the registry where they are its own, and the settings stand for no world
+    /// where they stood for this one.
     /// </summary>
     internal static void Release(World world)
     {
         if (!world.TryGetResource<DiagnosticsBinding>(out var binding)) return;
+        binding.CloseSettings();
         lock (Gate)
         {
             binding.Keys.Dispose();
-            if (ReferenceEquals(_registered, binding)) _registered = null;
+            if (!ReferenceEquals(_registered, binding)) return;
+            _registered = null;
+            ConsoleHost.Bind(null);
         }
     }
 

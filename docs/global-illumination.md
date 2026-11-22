@@ -166,7 +166,7 @@ first bounce, so a change of light arrives as fast as traced whole and reads the
 frame. The coarser cascades' light changes slowest, and each traces as many rays as the first, so in
 halves they cost about half: Ore's frame at High at 1280 by 720 on an RTX 4070 went from 8.53 to
 7.90 ms standing, and its cascades traced in halves in 87 of 100 samples of a walk, the rest the
-frames after a section was built. `gi.toggle spread off` traces every probe each frame, and
+frames after a section was built. `gi.spread off` traces every probe each frame, and
 `gi.state` says which cascades trace in halves.
 
 Each cascade lies mostly ahead of the eye, its middle 0.35 of its width in front, so its side behind
@@ -229,7 +229,7 @@ tile by probes standing for them alone, which trace nothing else, so a pixel rea
 the same cost however many there are. In a voxel game's closed room of forty glowstones at night,
 all in view, at 1280 by 720, the scene pass took 2.2 ms with the screen's probes and 1.2 with those
 standing for the glow lights alone, where each pixel marching to every glow light itself took 13.3.
-For debugging, `gi.toggle screen off` and the box of the screen's probes in the global
+For debugging, `gi.screen off` and the box of the screen's probes in the global
 illumination window leave them out whole at any quality, those standing for the glow lights at
 `Low` with them, neither made nor traced, for the window and a render texture, so what they cost and
 give can be read, and each pixel then marches to the glow lights itself.
@@ -242,8 +242,8 @@ the hit taken from the face, and the rest by their own forms, so the many faint 
 point each where their faces were up to three, and what they give is kept: in a hall lit by a grid
 of glowing blocks alone the picture moved by under a third of a level on the mean at `Low` and
 `High`, a level where the faint lights are left out, and Ore's frame at `High` at 1280 by 720 went
-from 7.86 to 7.36 ms on an RTX 4070, the first cascade's trace from 1.59 to 1.32 ms. `gi.toggle
-points off` takes every light by its own form, and `gi.state` says which.
+from 7.86 to 7.36 ms on an RTX 4070, the first cascade's trace from 1.59 to 1.32 ms. `gi.points
+off` takes every light by its own form, and `gi.state` says which.
 
 Past 1080 pixels high the probes stand further apart as the window is higher, every 11 pixels at
 `High` at 2560 by 1440 and every 16 at 3840 by 2160, so each stands for about the same share of the
@@ -316,7 +316,7 @@ thirty units across over the eye at 800 by 450, crossing them takes global illum
 ms to 1.29 at `Low` and from 1.91 to 2.96 at `High`, and in a
 voxel world's grove at 1920 by 1080, its canopies thousands of leaf blocks' faces, from 1.4 to 2.5
 at `Low` and from 3.3 to 5.3 at `High`, most of it the rays' march past the leaves, which `./e3d
-command gi.toggle through off` reads by stopping the rays at them.
+command gi.through off` reads by stopping the rays at them.
 
 ## The qualities and what they cost
 
@@ -415,24 +415,26 @@ EndDrawing();
 
 It gives what `gi.state` gives and draws the view chosen from its list over the window, and its
 boxes leave parts of global illumination out. The same is in a running program through `./e3d`, as
-[The command line](command-line.md) says.
+[The command line](command-line.md) says, and in the settings panel's `gi` page.
 
-| Command | What it does |
+| Command or setting | What it does |
 |---|---|
 | `gi.state` | The quality, the cascades of probes and their rays, the screen's probes, the reflections and the GPU memory each takes, how many small emitters are carried as lights, and at `High` where the device traces rays how many probes of each cascade carry their rays past their interval with the rays moving |
-| `gi.show <view> [cascade or png]` | Draws over the window the screen's probes as tiles, their light, filtered or the share of it the frames before gave, a cascade's rays' light, its merge or its probes as cubes, or the frame against a reference |
-| `gi.passes <on\|off>` | Times global illumination's passes apart in the profile, the ray scene, each cascade's trace, the merges, the gather, the screen's probes, their filter and the glow lights, as `gpu.gi_` lines, the rest staying `gpu.global_illumination` |
-| `gi.toggle <part> <on\|off>` | Leaves out the frame before's light, the screen's filter, the screen's probes, neither made nor traced, the merge, the light past the first bounce, the indirect light following a light out, the emissive surfaces carried as lights, the surfaces' reflection of the indirect light, or every cascade but one, or with `meshes on` traces the probes' rays through the GPU's own rays at `High` |
+| `gi.show <view>`, `gi.show_cascade <cascade>` | Settings that draw over the window the screen's probes as tiles, their light, filtered or the share of it the frames before gave, or the cascade's rays' light, its merge or its probes as cubes |
+| `gi.difference <png>` | Draws the frame over the window against a reference |
+| `gi.passes <on\|off>` | The setting that times global illumination's passes apart in the profile, the ray scene, each cascade's trace, the merges, the gather, the screen's probes, their filter and the glow lights, as `gpu.gi_` lines, the rest staying `gpu.global_illumination` |
+| `gi.history`, `gi.filter`, `gi.screen`, `gi.merge`, `gi.again`, `gi.follow`, `gi.glow`, `gi.through`, `gi.albedo`, `gi.specular`, `gi.normals`, `gi.spread`, `gi.points` `<on\|off>` | Settings that leave out the frame before's light, the screen's filter, the screen's probes, neither made nor traced, the merge, the light past the first bounce, the indirect light following a light out, the emissive surfaces carried as lights, the crossing of what lets light through, the surfaces' colors, their reflection of the indirect light, their normal maps, the coarser cascades' trace in halves or the faint glow lights taken as one point |
+| `gi.cascade <cascade>`, `gi.meshes <on\|off>` | Settings that keep one cascade's light alone, `-1` for all, and trace the probes' rays through the GPU's own rays at `High` |
 | `gi.probe <x> <y> <z> [samples] [bounces] [cascade]` | The light arriving at the probe nearest a point against a path-traced reference of it, each face by where its ways were met, and the ways that carry most of the face furthest from it, each with how far its rays went against what and how far the reference's path through the texel's middle first met, and whether the probe was carried past its interval with its rays moving |
 | `field.march <x> <y> <z> [dx] [dy] [dz] [sun]` | Marches the scene's distance field from a point along a way, or toward the sun, as the passes march it, and says where it met a surface, in which cascade and cell, and each step, with `sun` marching on from that surface toward the sun as a probe's hit does |
 | `gi.screenprobe <x> <y> [samples] [bounces]` | Each of the sixteen rays of the screen's probe under a pixel, where it was met and its light, against a path-traced reference along the same way |
-| `gi.rays <on\|off>` | Whether `High` traces what the field misses through the GPU's own rays |
+| `gi.rays <on\|off>` | The setting of whether `High` traces what the field misses through the GPU's own rays |
 | `gi.reference <png> <samples> [bounces] [specular\|gloss]` | Path traces the window's picture through the GPU's rays, as the reference global illumination is measured by, `-1` bounces for as many as a path takes, `specular` for the first face's reflection of the indirect light and `gloss` for every face's |
 | `gi.compare <png>` | The window's light against that reference, region by region, with a picture of the difference |
 
 A scene is read against its reference by drawing it, tracing `gi.reference` once with a thousand
 samples a pixel, and reading `gi.compare` for how far each region's light lies from it, or
-`gi.show difference` for where, red where the frame is brighter and blue where it is darker. The
+`gi.difference` for where, red where the frame is brighter and blue where it is darker. The
 reference needs a GPU that traces rays.
 
 ## See also

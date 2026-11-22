@@ -89,7 +89,8 @@ public static class ShapesTopDownLights
             }
 
             // Toggle debug info
-            if (IsKeyPressed(Key.F1)) showLines = !showLines;
+            // F6 shows the shadow volumes or hides them, F1 to F5 being the engine's own keys.
+            if (IsKeyPressed(Key.F6)) showLines = !showLines;
 
             // Update the lights and keep track if any were dirty so we know if we need to update the master light mask
             bool dirtyLights = false;
@@ -154,11 +155,11 @@ public static class ShapesTopDownLights
                         DrawRectangleLines((int)boxes[b].X, (int)boxes[b].Y, (int)boxes[b].Width, (int)boxes[b].Height, Color.DarkBlue);
                     }
 
-                    DrawText("(F1) Hide Shadow Volumes", 10, 50, 10, Color.Green);
+                    DrawText("(F6) Hide Shadow Volumes", 10, 50, 10, Color.Green);
                 }
                 else
                 {
-                    DrawText("(F1) Show Shadow Volumes", 10, 50, 10, Color.Green);
+                    DrawText("(F6) Show Shadow Volumes", 10, 50, 10, Color.Green);
                 }
 
                 DrawFPS(screenWidth - 80, 10);

@@ -81,7 +81,8 @@ public static class ShadersJuliaSet
             }
 
             if (IsKeyPressed(Key.Space)) incrementSpeed = 0;
-            if (IsKeyPressed(Key.F1)) showControls = !showControls;
+            // F6 shows the controls or hides them, F1 to F5 being the engine's own keys.
+            if (IsKeyPressed(Key.F6)) showControls = !showControls;
 
             if (IsKeyPressed(Key.Right)) incrementSpeed++;
             else if (IsKeyPressed(Key.Left)) incrementSpeed--;
@@ -129,7 +130,7 @@ public static class ShadersJuliaSet
                 if (showControls)
                 {
                     DrawText("Press Mouse buttons right/left to zoom in/out and move", 10, 15, 10, Color.RayWhite);
-                    DrawText("Press KEY_F1 to toggle these controls", 10, 30, 10, Color.RayWhite);
+                    DrawText("Press KEY_F6 to toggle these controls", 10, 30, 10, Color.RayWhite);
                     DrawText("Press KEYS [1 - 6] to change point of interest", 10, 45, 10, Color.RayWhite);
                     DrawText("Press KEY_LEFT | KEY_RIGHT to change speed", 10, 60, 10, Color.RayWhite);
                     DrawText("Press KEY_SPACE to stop movement animation", 10, 75, 10, Color.RayWhite);
