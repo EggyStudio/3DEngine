@@ -3,6 +3,7 @@ using Engine.Examples;
 // Each example is a program of its own, named as raylib names its examples, and this file picks
 // one by the name it is run with, as in
 // dotnet run --project 3DEngine.Examples -- core_3d_camera_free
+// Run with no name, its first argument a flag or none, it opens a list of them all to pick from.
 var examples = new Dictionary<string, Action>
 {
     ["core_basic_window"] = CoreBasicWindow.Run,
@@ -273,18 +274,29 @@ var examples = new Dictionary<string, Action>
     ["scenes_bistro"] = ScenesBistro.Run,
 };
 
-var name = args.Length > 0 ? args[0] : "core_3d_camera_free";
-if (!examples.TryGetValue(name, out var run))
+if (args.Length == 0 || args[0].StartsWith("--", StringComparison.Ordinal))
+{
+    var picker = new Picker(examples.Keys);
+    while (picker.Pick() is { } picked) Start(picked);
+    return 0;
+}
+
+var name = args[0];
+if (!examples.ContainsKey(name))
 {
     Console.WriteLine($"No example called '{name}'. The examples are:");
     foreach (var known in examples.Keys) Console.WriteLine($"  {known}");
     return 1;
 }
-
-Example.Current = name;
-Dump.Point(name);
-run();
+Start(name);
 return 0;
+
+void Start(string example)
+{
+    Example.Current = example;
+    Dump.Point(example);
+    examples[example]();
+}
 
 namespace Engine.Examples
 {

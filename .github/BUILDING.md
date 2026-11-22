@@ -13,7 +13,7 @@ build/fetch-slang.sh                       # slangc, into build/tools/slang (onc
 dotnet build 3DEngine.slnx                 # the engine, the generator, the tests and the examples
 dotnet test 3DEngine.Tests                 # the suite
 python3 build/test.py                      # the suite as the workflow runs it, ending in a page of what failed
-dotnet run --project 3DEngine.Examples     # a window
+dotnet run --project 3DEngine.Examples     # the list of examples, one run from it with Enter
 ```
 
 The modules this engine and BevyCSharp share, the Atmosphere module's model of the sun and the air

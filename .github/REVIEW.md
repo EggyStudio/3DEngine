@@ -460,6 +460,25 @@ changes.
     README's module table take the name, and `docs-on-package.py` builds the guides' blocks on a
     package of that tree before the report. No behavior changes, so no picture is asked.
 
+304. **The probe passes go on, through the module's second merge.** The branch is taken up again
+    with one aim, a module the engine uses that reads nearer the reference and costs less than
+    main's own passes. The module gains main's merge as a second selectable one, by its own item.
+    Once that commit is on GitHub the branch takes the pin and selects it, with no merge code of its
+    own left. The pass mark at the door is main's table, each of the six parts within 0.10 of main's
+    ratio, the roof slab, the lintel and the open box at Low passing, and the whole GI's time at or
+    under main's in both scenes. Where a part misses, one read names what the module's form of the
+    merge does that main's does not, and it goes to the module's session with the figures. The first
+    merge's table from 42ed4e13 stands beside it as the other half of the comparison. The branch
+    lands on main when the mark is met, and the engine's own passes are deleted in that commit.
+
+305. **Escape closes no window.** The window's exit key is Escape by default, so in every example
+    Escape ends the program, and with the settings panel open the key that goes back a page closes
+    the example instead. The default exit key becomes none, a window closes by its close button, the
+    system's own shortcut or a call the game makes, and a game that asks for an exit key sets one.
+    No example or template sets Escape. With the panel or the console open Escape goes to them
+    alone. A test holds that a pressed Escape leaves the window open by default, the guides and the
+    cheatsheet say it, and this goes ahead of the pass-hash read as a small commit of its own.
+
 ## Verdicts
 
 No verdict is open. Verdict 132 is settled at 15:10 on 2026-11-22 on run 45021666753 and archived.
