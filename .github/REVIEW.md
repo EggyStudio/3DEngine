@@ -1277,3 +1277,35 @@ of cascade 1, which carries 0.499 of the weight, reads its +z face 0.0084 agains
 and the gather gives 0.0077 against 0.0039, so the doubling lies in the faces. The half slab and the
 board pass, and 125 of the 128 tests pass, the three that fail failing at `0233930e` as well. The
 whole falls by 0.45 ms on Sponza and 0.61 on the Bistro, the reach pass having taken 0.45 and 0.52.
+
+Item 265's door, sixteen rays a handed way.
+
+A trial, not kept. In cascade 1 and above a ray that reached its interval's end was merged as four
+rays across its traced texel, two by two on the octahedron, each traced through the interval from
+its start and merged on its own, so a way handed on took sixteen rays in place of four, and the
+mark pass ran the same four. The door, the tests of the global illumination class and the open box
+with validation on, and the time five sessions a scene under the exclusive lock are read as in the
+reply before it.
+
+| Reading | Main `df4d0559` | The reach from the gather, `42ed4e13` | Sixteen rays a handed way |
+|---|---|---|---|
+| The door whole | 0.957 | 1.425 | 1.276 |
+| The left wall | 1.07 | 2.05 | 1.45 |
+| The right wall | 1.14 | 1.42 | 1.33 |
+| The floor | 1.10 | 1.58 | 1.46 |
+| The wall beside the door | 1.06 | 1.74 | 1.85 |
+| The near wall at the lower left | 0.66 | 1.96 | 1.03 |
+| The ceiling | 0.62 | 0.84 | 0.83 |
+| The slab's floor with the screen's probes, held to 0.063 within 0.05 | not on main | 0.137, fails | 0.137, fails |
+| The probe under the lintel, held to 0.065 to 0.089 | 0.0768 | 0.0158, fails | 0.0472, fails |
+| The open box's floor at Low, held to 0.75 to 1.25 | 0.805 | 1.371, fails | 1.278, fails |
+| Sponza, the merge and the whole in ms | 0.36, 6.18 | 0.65, 5.64 | 2.31, 8.28 |
+| The Bistro, the merge and the whole in ms | 0.29, 9.41 | 0.72, 9.02 | 2.30, 11.94 |
+
+Sampling is part of the walls' over-read and not all of it. The left wall falls from 2.05 to 1.45
+and the near wall at the lower left from 1.96 to 1.03, but of the four walls only the near one
+comes within 1.3 of the reference, and the wall beside the door rises from 1.74 to 1.85. The mark
+pass takes 1.13 ms against 0.34 on Sponza and 1.22 against 0.36 on the Bistro, and the whole takes
+2.64 and 2.92 ms more, above main's on both. The other 125 tests pass as at `42ed4e13`. The walls
+stand as the branch's over-read, with no further read of them ordered, and the tree is back at
+`42ed4e13`.
