@@ -33,7 +33,7 @@ Each pass through the loop is one frame, and three calls mark its parts.
 
 | Call | What happens |
 |---|---|
-| `WindowShouldClose` | The window's events are read, and it answers true once the window's close button or the exit key (Escape, changed with `SetExitKey`) asked to close |
+| `WindowShouldClose` | The window's events are read, and it answers true once the window's close button, the system's own shortcut or an exit key the program set with `SetExitKey` asked to close |
 | `BeginDrawing` | Time advances, input is read and the ImGui frame starts, so the game's own systems see this frame |
 | `EndDrawing` | What was drawn is rendered and presented, and the program waits for the frame rate it asked for |
 
@@ -43,6 +43,15 @@ is gone, and a program draws its whole picture every frame.
 
 `ClearBackground` sets the color the frame starts from. Called anywhere in the frame it clears the
 whole of it, before anything is drawn.
+
+A window has no exit key until the program sets one, and the key goes with the window as it
+closes. Where one is set, the key is handed down one order and the first taker keeps it. The
+console, the settings panel or the debug overlay open takes it, a field of an ImGui window with the
+caret or an ImGui popup open takes it, and then a menu of the game's own, which says it holds the
+keyboard with `HoldExitKeyWhile(() => menuOpen)`. The window sees the key only where none of them
+does, and `IsExitKeyHeld` says which way it goes. The examples program sets Escape, so Escape goes
+back a page in the settings panel, and with nothing open it leaves the example, back to the list
+where the example was picked from there.
 
 ## Time
 

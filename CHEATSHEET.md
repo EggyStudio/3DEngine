@@ -17,11 +17,13 @@ bool IsWindowState(ConfigFlags flags);                   // Whether the open win
 
 void InitWindow(int width, int height, string title);    // Opens a window and builds the app behind it
 void CloseWindow();                                      // Runs Stage.Cleanup, closes the window and frees what the app holds
-bool WindowShouldClose();                                // Whether the window was asked to close, by its close button or by the exit key
+bool WindowShouldClose();                                // Whether the window was asked to close, by its close button or by an exit key a program set
 bool IsWindowReady();                                    // Whether InitWindow has opened a window that is still open
 void EnableEventWaiting();                               // Has WindowShouldClose wait for input or a window event before the frame goes on, up to a tenth of a second, so a tool that changes only when used leaves the CPU idle
 void DisableEventWaiting();                              // Has WindowShouldClose return at once again, as a game drawing every frame needs
-void SetExitKey(Key key);                                // Sets the key that makes WindowShouldClose return true
+void SetExitKey(Key key);                                // Sets the key that makes WindowShouldClose return true, which is none until a program sets one and again once the window closes, and Key.Null sets none
+void HoldExitKeyWhile(Func<bool> holds);                 // Adds a question the window asks before it acts on the exit key, whether an interface of the game's own holds the keyboard, as a menu that goes back a page on the key does, so the key goes to it and the window stays open
+bool IsExitKeyHeld();                                    // Whether an interface holds the exit key, so that pressing it closes nothing, asked once a frame as the window's events are read
 void SetWindowTitle(string title);                       // Sets the window's title
 int GetScreenWidth();                                    // The window's width, in the units mouse positions and 2D drawing use
 int GetScreenHeight();                                   // The window's height, in the units mouse positions and 2D drawing use

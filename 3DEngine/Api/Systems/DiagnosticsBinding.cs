@@ -82,6 +82,12 @@ internal sealed partial class DiagnosticsBinding
     /// <summary>The binding of a world, made the first time it is asked for.</summary>
     public static DiagnosticsBinding Of(World world) => world.GetOrInsertResource(() => new DiagnosticsBinding(world));
 
+    /// <summary>
+    /// Whether the console, the settings panel or the debug overlay is open, which holds the exit
+    /// key so that the key goes to the one open and the window does not see it.
+    /// </summary>
+    internal bool HoldsKeyboard => Keys.Panels.Open is not null;
+
     /// <summary>Binds an action to an engine key, or to none with <see cref="Key.Null"/>.</summary>
     internal void Bind(KeyAction action, Key key) => Keys.KeyOf(action).TrySet(key == Key.Null ? "" : key.ToString());
 

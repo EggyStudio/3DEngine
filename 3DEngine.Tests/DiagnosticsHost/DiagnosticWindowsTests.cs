@@ -5,11 +5,11 @@ using static Engine.E3D;
 namespace Engine.Tests.DiagnosticsHost;
 
 /// <summary>
-/// F4 and F5 opening the Diagnostics module's settings panel and console, a line typed into the
-/// console's ImGui field run with the world lent and an answer that comes later written under it
-/// when it comes, a line the console or the panel runs whose command throws written to the log,
-/// and the keys' settings standing in the registry while the app runs, rebound there, and taken
-/// out as it ends, in a headless run.
+/// F4 and F5 opening the Diagnostics module's settings panel and console one at a time, a line
+/// typed into the console's ImGui field run with the world lent and an answer that comes later
+/// written under it when it comes, a line the console or the panel runs whose command throws
+/// written to the log, and the keys' settings standing in the registry while the app runs,
+/// rebound there, and taken out as it ends, in a headless run.
 /// </summary>
 [Collection("E3D")]
 [Trait("Category", "Integration")]
@@ -60,13 +60,17 @@ public sealed class DiagnosticWindowsTests : IDisposable
         Tap(Key.F5);
         Binding.Console.Open.Should().BeTrue("F5 opens the console");
         Tap(Key.F4);
-        Binding.Panel.Open.Should().BeTrue("F4 opens the settings panel");
+        (Binding.Panel.Open, Binding.Console.Open).Should().Be((true, false), "F4 opens the settings panel, and one is open at a time");
+        Binding.Keys.Panels.Open.Should().Be(OpenPanels.PanelName);
         Binding.Panel.Rows.Should().Contain(row => row.Kind == PanelRowKind.Page && row.Label == "keys", "the keys' settings are a page of the panel");
         Frames(2);
 
         Tap(Key.F4);
+        Binding.Panel.Open.Should().BeFalse("F4 again closes what it opened");
         Tap(Key.F5);
-        (Binding.Panel.Open, Binding.Console.Open).Should().Be((false, false), "each key closes what it opened");
+        Tap(Key.F5);
+        (Binding.Panel.Open, Binding.Console.Open).Should().Be((false, false), "and F5 again closes what it opened");
+        Binding.Keys.Panels.Open.Should().BeNull();
     }
 
     [Fact]

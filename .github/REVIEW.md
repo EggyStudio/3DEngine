@@ -471,13 +471,19 @@ changes.
     merge's table from 42ed4e13 stands beside it as the other half of the comparison. The branch
     lands on main when the mark is met, and the engine's own passes are deleted in that commit.
 
-305. **Escape closes no window.** The window's exit key is Escape by default, so in every example
-    Escape ends the program, and with the settings panel open the key that goes back a page closes
-    the example instead. The default exit key becomes none, a window closes by its close button, the
-    system's own shortcut or a call the game makes, and a game that asks for an exit key sets one.
-    No example or template sets Escape. With the panel or the console open Escape goes to them
-    alone. A test holds that a pressed Escape leaves the window open by default, the guides and the
-    cheatsheet say it, and this goes ahead of the pass-hash read as a small commit of its own.
+305. **Escape goes to what is open first, and leaves an example last.** The window's exit key is
+    Escape by default, so with the settings panel open the key that goes back a page closes the
+    example instead. Escape is handed down one order and the first taker keeps it. An open console,
+    settings panel or overlay page takes it, as does a text field with the caret in it or any
+    interface holding the keyboard, and the window does not see it. Where nothing is open, an
+    example started from the list goes back to the list on Escape, and an example started by name
+    ends. The engine's own default exit key becomes none, so a game closes by its close button, the
+    system's own shortcut or a call it makes, and sets an exit key where it asks for one; the
+    examples program sets its own. The rule sits in one place the window asks before it acts on the
+    exit key, which the diagnostics and a game's own interface answer. Tests hold that Escape with
+    the panel open goes back a page and leaves the window open, that Escape with nothing open leaves
+    an example, and that a game with no exit key set stays open. The guides and the cheatsheet say
+    it, and this goes ahead of the pass-hash read as a small commit of its own.
 
 ## Verdicts
 

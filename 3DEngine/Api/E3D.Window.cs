@@ -7,7 +7,7 @@ public static partial class E3D
 {
     private static bool _eventsPumped;
     private static bool _shouldClose;
-    private static Key _exitKey = Key.Escape;
+    private static Key _exitKey = Key.Null;
     private static int? _targetFps;
     private static long _lastFrameEnd;
 
@@ -59,6 +59,8 @@ public static partial class E3D
         _app?.Shutdown();
         _app = null;
         FlatApiWorld.Current = null;
+        _exitKey = Key.Null;
+        _shouldClose = false;
         ForgetConfigFlags();
         ForgetRlgl();
         ForgetAutomation();
@@ -66,7 +68,9 @@ public static partial class E3D
         _ambient = Entity.None;
     }
 
-    /// <summary>Whether the window was asked to close, by its close button or by the exit key.</summary>
+    /// <summary>
+    /// Whether the window was asked to close, by its close button or by an exit key a program set.
+    /// </summary>
     /// <remarks>Processes the window's pending events, unless this frame already has.</remarks>
     public static bool WindowShouldClose()
     {
@@ -92,8 +96,50 @@ public static partial class E3D
         if (TryRes<AppWindow>(out var window)) window.WaitForEvents = false;
     }
 
-    /// <summary>Sets the key that makes <see cref="WindowShouldClose"/> return true. <see cref="Key.Null"/> disables it.</summary>
+    /// <summary>
+    /// Sets the key that makes <see cref="WindowShouldClose"/> return true, which is none until a
+    /// program sets one and again once the window closes, and <see cref="Key.Null"/> sets none.
+    /// </summary>
+    /// <remarks>
+    /// A window with no exit key closes by its close button, the system's own shortcut or
+    /// <see cref="CloseWindow"/>. The key closes nothing while <see cref="IsExitKeyHeld"/> says an
+    /// interface holds it.
+    /// </remarks>
     public static void SetExitKey(Key key) => _exitKey = key;
+
+    /// <summary>
+    /// Adds a question the window asks before it acts on the exit key, whether an interface of the
+    /// game's own holds the keyboard, as a menu that goes back a page on the key does, so the key
+    /// goes to it and the window stays open.
+    /// </summary>
+    /// <remarks>The questions belong to the window and go as it closes.</remarks>
+    /// <param name="holds">Answers true while the interface holds the keyboard.</param>
+    public static void HoldExitKeyWhile(Func<bool> holds)
+    {
+        ArgumentNullException.ThrowIfNull(holds);
+        World.GetOrInsertResource(static () => new ExitKeyHolders()).Add(holds);
+    }
+
+    /// <summary>
+    /// Whether an interface holds the exit key, so that pressing it closes nothing, asked once a
+    /// frame as the window's events are read.
+    /// </summary>
+    /// <remarks>
+    /// It is true while the console, the settings panel or the debug overlay of the Diagnostics
+    /// module is open, while a field of an ImGui window has the caret or an ImGui popup is open,
+    /// and while a question added by <see cref="HoldExitKeyWhile"/> answers true, asked in that
+    /// order. The first that holds it keeps the key, and the window does not see it.
+    /// </remarks>
+    public static bool IsExitKeyHeld()
+    {
+        if (_app is null) return false;
+        if (_app.World.TryGetResource<DiagnosticsBinding>(out var diagnostics) && diagnostics.HoldsKeyboard) return true;
+        if (ImGuiNET.ImGui.GetCurrentContext() != IntPtr.Zero
+            && (ImGuiNET.ImGui.GetIO().WantTextInput
+                || ImGuiNET.ImGui.IsPopupOpen("", ImGuiNET.ImGuiPopupFlags.AnyPopupId | ImGuiNET.ImGuiPopupFlags.AnyPopupLevel)))
+            return true;
+        return _app.World.TryGetResource<ExitKeyHolders>(out var holders) && holders.Holds();
+    }
 
     /// <summary>Sets the window's title.</summary>
     public static void SetWindowTitle(string title)
@@ -266,7 +312,7 @@ public static partial class E3D
 
         if (!Res<IMainLoopDriver>().PumpEvents())
             SetShouldClose("the main loop's driver says the app was asked to close");
-        if (_exitKey != Key.Null && Res<Input>().KeyPressed(_exitKey))
+        if (_exitKey != Key.Null && Res<Input>().KeyPressed(_exitKey) && !IsExitKeyHeld())
             SetShouldClose($"the exit key, {_exitKey}, was pressed");
         _resized = (GetScreenWidth(), GetScreenHeight()) != _sizeBeforeEvents;
     }

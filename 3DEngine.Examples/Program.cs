@@ -295,6 +295,9 @@ void Start(string example)
 {
     Example.Current = example;
     Dump.Point(example);
+    // Escape leaves the example where nothing open in it takes the key, back to the list where it
+    // was picked from there, else out of the program.
+    Engine.E3D.SetExitKey(Engine.Key.Escape);
     examples[example]();
 }
 

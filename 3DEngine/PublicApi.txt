@@ -370,6 +370,7 @@ static class Engine.E3D
   static bool IsEditMeshFaceSelected(EditMesh mesh, int face)
   static bool IsEditMeshValid(EditMesh mesh)
   static bool IsEditMeshVertexSelected(EditMesh mesh, int vertex)
+  static bool IsExitKeyHeld()
   static bool IsFileDropped()
   static bool IsFontValid(Font font)
   static bool IsFxaaEnabled()
@@ -751,6 +752,7 @@ static class Engine.E3D
   static void GenTextureMipmaps(ref Texture2D texture)
   static void GetShaderReadback<T>(ShaderReadback readback, Span<T> destination) where T : unmanaged
   static void HideCursor()
+  static void HoldExitKeyWhile(Func<bool> holds)
   static void ImageAlphaClear(ref Image image, Color color, float threshold)
   static void ImageAlphaCrop(ref Image image, float threshold)
   static void ImageAlphaMask(ref Image image, Image alphaMask)

@@ -130,8 +130,10 @@ dotnet run --project 3DEngine.Examples -- core_3d_camera_free
 ```
 
 Run with no name, `dotnet run --project 3DEngine.Examples` opens a list of every example under its
-folder's name, with a box above that keeps those whose names hold what is typed, and Enter or a
-double click runs the one chosen, the list opening again as its window closes.
+folder's name, drawn with the engine's own text edit and 2D calls, with a field above that keeps
+those whose names hold what is typed, and Enter or a double click runs the one chosen. Escape
+leaves an example where nothing open in it takes the key, and the list opens again as its window
+closes.
 
 A picture opens the program that drew it, and the name under it is the one it runs by. Each of
 raylib's own examples, and what is written of it here, is a row of
