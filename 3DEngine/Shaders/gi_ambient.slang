@@ -90,6 +90,17 @@ Texture3D<float4> hitNormals;
 [[vk::binding(10, 0)]] [format("rgba16f")]
 RWTexture3D<float4> kept;
 
+// Every cascade's probes' reach, sixteen by sixteen ways a probe, the cascades one after another
+// along z, which the gather and the model pass weigh a probe by (bouncedAt) and the next frame's
+// merge reads.
+[[vk::binding(11, 0)]] [format("r16f")]
+RWTexture3D<float> reach;
+
+// Each ray of this cascade as the trace ended it, how far it went and how it ended (RayMet), at the
+// side it was traced at (gi_trace.slang).
+[[vk::binding(12, 0)]]
+Texture3D<float2> rayEnds;
+
 struct AmbientPush
 {
     // x: the cascade. y: the probes along each side. z: the octahedron's texels along each side.
@@ -267,6 +278,26 @@ void computeMain(uint3 id : SV_DispatchThreadID)
     skies[uint3(face * probes + at.x, at.y, push.cascade.x * probes + at.z)] = sky / max(weights, 1e-6);
     if (face == 0u)
         follow(at, probes, texels, shares, walledIn(at, texels));
+
+    // This probe's reach along each of sixteen by sixteen ways, from its own rays as the trace
+    // ended them, where a ray met a surface how far it went and where it met none its interval's
+    // end. Of a side traced finer than sixteen the mean of the rays within the way, and of one
+    // coarser the ray the way lies within.
+    uint side = TracedSide(texels, uint(push.interval.z + 0.5));
+    uint step = max(side / uint(ReachTexels), 1u);
+    for (uint k = face; k < uint(ReachTexels * ReachTexels); k += 6u)
+    {
+        uint2 texel = uint2(k % uint(ReachTexels), k / uint(ReachTexels));
+        uint2 first = side >= uint(ReachTexels) ? texel * step : texel * side / uint(ReachTexels);
+        float reached = 0.0;
+        for (uint v = 0u; v < step; v++)
+            for (uint u = 0u; u < step; u++)
+            {
+                float2 end = rayEnds.Load(int4(int2(at.xy * side + first + uint2(u, v)), int(at.z), 0));
+                reached += end.y < 0.5 ? end.x : push.interval.x;
+            }
+        reach[uint3(at.xy * uint(ReachTexels) + texel, push.cascade.x * probes + at.z)] = reached / float(step * step);
+    }
 
     // The probe's light by way, eight by eight directions in a block with a texel's border.
     uint along = uint(WaysTexels) - 2u;

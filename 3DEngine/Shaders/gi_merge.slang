@@ -55,8 +55,8 @@ RWTexture3D<float4> merged;
 [[vk::binding(19, 0)]] [format("r16f")]
 RWTexture3D<float> mergedSky;
 
-// Every cascade's probes' reach, sixteen by sixteen ways a probe, as gi_reach.slang traced it this
-// frame.
+// Every cascade's probes' reach, sixteen by sixteen ways a probe, as the frame before's gather kept
+// it from each cascade's traced rays (gi_ambient.slang).
 [[vk::binding(20, 0)]]
 Texture3D<float> reach;
 
@@ -201,8 +201,8 @@ struct AboveProbes : IFarSkyProbes
     {
         if (held[int3(3 * probes + probe.x, probe.y, cascade * probes + probe.z)].w < 0.5)
             return 0.0;
-        // A texel kept at a half float's largest met nothing, the module's ReachOpen
-        // (gi_reach.slang).
+        // A texel at a half float's largest, as the reach is cleared to before a gather first
+        // writes it, met nothing, the module's ReachOpen.
         float reached = reach.Load(int4(probe.xy * int(ReachTexels) + int2(texel), cascade * probes + probe.z, 0));
         return reached >= 65504.0 ? ReachOpen : reached;
     }

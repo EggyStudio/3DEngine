@@ -50,7 +50,6 @@ internal sealed class GlobalIlluminationPlugin : IPlugin
                 GlobalIlluminationStages.Of(device).InitializeGlobalIllumination(server.LoadSync<ShaderProgram>("shaders/gi_trace.slang").Compute,
                     server.LoadSync<ShaderProgram>("shaders/gi_merge.slang").Compute,
                     server.LoadSync<ShaderProgram>("shaders/gi_ambient.slang").Compute,
-                    server.LoadSync<ShaderProgram>("shaders/gi_reach.slang").Compute,
                     server.LoadSync<ShaderProgram>("shaders/gi_screen.slang").Compute,
                     server.LoadSync<ShaderProgram>("shaders/gi_screen_filter.slang").Compute,
                     server.LoadSync<ShaderProgram>("shaders/gi_screen_glow.slang").Compute,

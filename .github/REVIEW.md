@@ -1243,3 +1243,37 @@ still hand on over the step's edge at 4 units and read 0.0255 and 0.0492 against
 and 0.0210, the merge's over-read at a step the module holds as a test. The door's excess over main
 stands at 1.437 against 0.961 with the floor's probe at +17%, so it lies elsewhere, and that read
 comes next.
+
+Item 265's door, the probes' reach from the gather.
+
+Each probe's reach is written by the gather from its cascade's own traced rays, where a ray met a
+surface how far it went and where it met none its interval's end, and the reach pass and its shader
+are gone. The merge reads the reach the frame before's gather kept. Read as in the reply before it,
+the left wall's pixel 75,125 with its probes as the model pass gathers them, the tests of the global
+illumination class and the open box with validation on, and the time five sessions a scene under
+the exclusive lock.
+
+| Reading | Main `df4d0559` | Four times, `0233930e` | The reach from the gather, this commit |
+|---|---|---|---|
+| The door whole | 0.957 | 1.437 | 1.425 |
+| The left wall | 1.07 | 2.06 | 2.05 |
+| The right wall | 1.14 | 1.43 | 1.42 |
+| The floor | 1.10 | 1.59 | 1.58 |
+| The wall beside the door | 1.06 | 1.79 | 1.74 |
+| The near wall at the lower left | 0.66 | 1.97 | 1.96 |
+| The ceiling | 0.62 | 0.85 | 0.84 |
+| The slab's floor with the screen's probes, held to 0.063 within 0.05 | not on main | 0.137, fails | 0.137, fails |
+| The half slab's floor at High and 5.5, held to 0.35 to 0.48 | 0.426 | 0.481, fails | 0.475 |
+| The board outside the closed room, High and Medium, held under 0.00184 | 0.00156 | 0.00194, fails | 0.00155 |
+| The probe under the lintel, held to 0.065 to 0.089 | 0.0768 | 0.0158, fails | 0.0158, fails |
+| The open box's floor at Low, held to 0.75 to 1.25 | 0.805 | 1.371, fails | 1.371, fails |
+| Sponza, the merge and the whole in ms | 0.36, 6.18 | 0.65, 6.09 | 0.65, 5.64 |
+| The Bistro, the merge and the whole in ms | 0.29, 9.41 | 0.67, 9.63 | 0.72, 9.02 |
+
+The walls stand unchanged, the left at 2.05 against four times' 2.06 and main's 1.07. At its pixel
+the eight probes take the same weights on all three, the four behind the wall nothing and the four
+in front 0.587 of 0.587, seen alike, so no probe's share turns on its reach. The probe at (3,4,2)
+of cascade 1, which carries 0.499 of the weight, reads its +z face 0.0084 against main's 0.0040,
+and the gather gives 0.0077 against 0.0039, so the doubling lies in the faces. The half slab and the
+board pass, and 125 of the 128 tests pass, the three that fail failing at `0233930e` as well. The
+whole falls by 0.45 ms on Sponza and 0.61 on the Bistro, the reach pass having taken 0.45 and 0.52.
