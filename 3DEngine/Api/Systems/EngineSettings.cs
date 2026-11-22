@@ -18,7 +18,7 @@ namespace Engine;
 /// global illumination off, with the reason, so the value stays as it reads.
 /// </para>
 /// <para>
-/// The settings file keeps the two a player chooses for the machine, <c>window.vsync</c> and
+/// The settings file keeps what a player chooses for the machine, the window's page and
 /// <c>imgui.viewports</c>, with the module's five keys. The rest are the run's, a view or a part
 /// of the light left out to measure what it gives, or how a tool started the run, which only reads
 /// and which the file never keeps.
@@ -37,6 +37,7 @@ internal static partial class EngineSettings
     internal static void Register()
     {
         foreach (var setting in All) Registry.Process.Add(setting);
+        AppWindowPlugin.Opening = DiagnosticsBinding.OpenWindow;
     }
 
     // The ambient occlusion's ways of working out, its resource made where the world has none.
@@ -122,27 +123,6 @@ internal static partial class EngineSettings
             "The program holds no distance field of the scene, which global illumination builds.", low: -1, high: GpuSceneField.MaxCascades - 1);
     }
 
-    // The window's size and vsync, and ImGui's viewports.
-    private static IEnumerable<Setting> Window()
-    {
-        static World? At() => ConsoleHost.SettingsWorld;
-        const string undrawn = "The program has no window and draws no frames.";
-
-        static SurfaceResize? Swapchain() => At()?.TryGetResource<SurfaceResize>(out var held) == true ? held : null;
-        yield return Held("window.vsync", "Whether a frame waits for the display, the swapchain made again on the next frame.", false,
-            Swapchain, Swapchain, s => s.Vsync, (s, on) => s.RequestVsync(on), undrawn, saved: true);
-        // The size reads what the world draws at, and with no window or images the default.
-        static (int Width, int Height) Drawn() => At() is { } world && WindowCommands.Drawn(world) is { } drawn ? drawn : (600, 400);
-        static string? Resize(int width, int height) => At() is { } world && WindowCommands.Resize(world, width, height) ? null : undrawn;
-
-        yield return new Setting<int>("window.width", "The width of the window, or of the images an offscreen run draws into, which window.size sets with the height.",
-            600, () => Drawn().Width, apply: width => Resize(width, Drawn().Height)) { Low = 0, High = 16384, Step = 16, Saved = false };
-        yield return new Setting<int>("window.height", "The height of the window, or of the images an offscreen run draws into, which window.size sets with the width.",
-            400, () => Drawn().Height, apply: height => Resize(Drawn().Width, height)) { Low = 0, High = 16384, Step = 16, Saved = false };
-        yield return new Setting<bool>("imgui.viewports", "Whether ImGui's windows may leave the program's window for windows of their own, where SDL's driver places windows on the desktop.",
-            false, () => ImGui.GetCurrentContext() != IntPtr.Zero && (ImGui.GetIO().ConfigFlags & ImGuiConfigFlags.ViewportsEnable) != 0, apply: Viewports);
-    }
-
     // What runs as the frames go, the frame's time, the files loaded again as they change, the
     // log's lines of each frame and the scene packs' folder.
     private static IEnumerable<Setting> Running()
@@ -175,7 +155,8 @@ internal static partial class EngineSettings
     // the default and refusing a set with the reason given where it does not, the setter given what
     // to set or what to make for it.
     private static Setting<T> Held<TResource, T>(string name, string summary, T @default, Func<TResource?> read, Func<TResource?> write,
-        Func<TResource, T> get, Action<TResource, T> set, string missing, double? low = null, double? high = null, double step = 0, bool saved = false)
+        Func<TResource, T> get, Action<TResource, T> set, string missing, double? low = null, double? high = null, double step = 0, bool saved = false,
+        Func<string?>? locked = null)
         where TResource : class
         where T : notnull =>
         new(name, summary, @default,
@@ -186,7 +167,7 @@ internal static partial class EngineSettings
                 set(resource, value);
                 return null;
             })
-        { Low = low, High = high, Step = step, Saved = saved };
+        { Low = low, High = high, Step = step, Saved = saved, Lock = locked };
 
     // Lets ImGui's windows leave the program's where SDL's driver places windows on the desktop,
     // or says why they cannot.

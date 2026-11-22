@@ -63,6 +63,36 @@ internal sealed partial class DiagnosticsBinding
         }
     }
 
+    /// <summary>
+    /// Gives a window about to be shown the settings file's lines of the window's page, its size,
+    /// whether it is resizable, its screen and its mode in that order, so the first frame is shown
+    /// as the player left it, with the world lent so each reaches the window.
+    /// </summary>
+    /// <remarks>
+    /// The whole file is read once more in <see cref="Stage.Startup"/>, which finds these set and
+    /// warns of a line refused, so nothing is said here.
+    /// </remarks>
+    internal static void OpenWindow(App app)
+    {
+        var world = app.World;
+        if (!world.TryGetResource<Config>(out var config) || SettingsPath(config) is not { } path) return;
+        string[] lines;
+        try
+        {
+            lines = File.Exists(path) ? File.ReadAllLines(path) : [];
+        }
+        catch (Exception error) when (error is IOException or UnauthorizedAccessException)
+        {
+            return;
+        }
+
+        var given = lines.Select(CommandLine.Parse).Where(line => line.Rest.Length > 0).ToList();
+        using (ConsoleHost.Lend(world, app))
+            foreach (var name in EngineSettings.WindowStart)
+                if (given.LastOrDefault(line => line.Name == name) is { } line && ConsoleHost.Registry.FindSetting(name) is { } setting)
+                    setting.TryStart(line.Words.Count == 1 ? line.Words[0] : line.Rest);
+    }
+
     // Writes the settings file once more and stops writing it on a change, as the app shuts down.
     private void CloseSettings()
     {

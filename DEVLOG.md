@@ -36,13 +36,14 @@ field through the engine's input, which keeps the nine core examples whose names
 pressed twice, which moved the choice to core_2d_camera_platformer.
 
 ![](.github/assets/readings/2026-11-22-item-309-field-view.webp)
-Sponza's atrium at 12:00 turned round, offscreen at 800 by 450 in eight panes on white, each row the
-frame and then the field's first, second and third cascades drawn over it by the field view. Above,
-the field about the point half the way to what the view first looked at, where the first two
-cascades lie behind the camera and draw nothing and the third covers the view's sides and leaves the
-vestibule in its middle to the coarser cascades. Below, the field three quarters of the finest
-cascade's width ahead along the look, where the first cascade fills all but the doorway past its
-reach and the second and third fill the view.
+Sponza's atrium at 12:00 turned round, offscreen at 800 by 450, on white under its title, the
+columns named over the pictures as the picture and fields 1 to 3 drawn by the field view, the rows
+named at their left, Before with the field about the point half the way to what the view first
+looked at, where fields 1 and 2 lie behind the camera and draw nothing and field 3 covers the view's
+sides and leaves the vestibule to the coarser cascades, and Ahead 0.75 with the field three quarters
+of the finest cascade's width ahead along the look, where field 1 fills all but the doorway past its
+reach and fields 2 and 3 fill the view. The line under them says where the camera stood and how it
+turned.
 
 ## 2026-11-21
 

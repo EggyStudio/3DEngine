@@ -68,14 +68,16 @@ meshes at sixteen cells, until a model's meshes were shared by every entity that
 `memory.images` names the GPU's images by their size, format, use and levels, the most first, as
 Manor's walk held 27 textures of 128 by 128 at its most and 16 as it began.
 
-`window.size 1280 720`, `window.minimize`, `window.restore`, `window.position` and `window.monitor`
-resize and move the window while it draws, and in an offscreen run resize the images it draws
-into, as a window's swapchain is made again, or make it zero across, when no frame is drawn until
-it is restored. `build/storm.sh` puts a program through a run of them under the validation layer.
-The setting `window.vsync on` turns vsync on, and `off` off, which makes the swapchain again on the
-next frame, `window.width` and `window.height` read or set the size alone, and `window.state` says
-whether the window is shown or hidden, covered by others, focused, minimized or maximized, and its
-size.
+`window.size 1280 720`, `window.minimize`, `window.restore` and `window.position` resize and move
+the window while it draws, and in an offscreen run resize the images it draws into, as a window's
+swapchain is made again, or make it zero across, when no frame is drawn until it is restored.
+`build/storm.sh` puts a program through a run of them and of the setting `window.monitor` under
+the validation layer. The setting `window.vsync on` turns vsync on, and `off` off, which makes the
+swapchain again on the next frame, `window.mode borderless`, `fullscreen` or `windowed` sets how
+the window covers its screen, `window.width` and `window.height` read or set its size as a window
+alone, `window.monitor 1` moves it to the second screen, and `window.state` says whether the window
+is shown or hidden, covered by others, focused, minimized or maximized, its mode where it covers
+its screen, and its size.
 
 The engine's values a line sets are settings, each read by its name alone, as `window.vsync`,
 answered with its value, its default where it differs and the variable that gives it, set by its

@@ -6,7 +6,8 @@ namespace Engine;
 /// <summary>
 /// Commands that resize, minimize, restore and move the window, or, in an offscreen run, the
 /// images the device draws into, so the path a resize takes is scripted from <c>./e3d</c> with no
-/// desktop to drag a window on. The window's vsync and its width and height alone are settings.
+/// desktop to drag a window on. The window's mode, size, screen and vsync are settings of the
+/// window's page (<c>EngineSettings</c>).
 /// </summary>
 internal static class WindowCommands
 {
@@ -15,14 +16,14 @@ internal static class WindowCommands
         Resize(ConsoleHost.World!, width, height) ? $"resizing to {width}x{height}" : Refuse("window.size");
 
     /// <summary>
-    /// Resizes a world's window, or the images its offscreen run draws into, and says whether it
-    /// has either, as <c>window.size</c> and the <c>window.width</c> and <c>window.height</c>
-    /// settings do.
+    /// Resizes a world's window as a window, which one covering its screen takes on leaving it, or
+    /// the images its offscreen run draws into, and says whether it has either, as
+    /// <c>window.size</c> and the <c>window.width</c> and <c>window.height</c> settings do.
     /// </summary>
     internal static bool Resize(World world, int width, int height)
     {
         if (world.TryGetResource<AppWindow>(out var window))
-            SDL.SetWindowSize(window.Sdl.Window, Math.Max(1, width), Math.Max(1, height));
+            WindowModes.SetWindowedSize(window, Math.Max(1, width), Math.Max(1, height));
         else if (world.TryGetResource<OffscreenSurface>(out var surface))
         {
             surface.Size = ((uint)Math.Max(0, width), (uint)Math.Max(0, height));
@@ -40,6 +41,14 @@ internal static class WindowCommands
         : world.TryGetResource<OffscreenSurface>(out var surface) ? ((int)surface.Size.Width, (int)surface.Size.Height)
         : null;
 
+    /// <summary>
+    /// The size a world's window has as a window, kept while it covers its screen, or the size its
+    /// offscreen run draws at, or none, as the <c>window.width</c> and <c>window.height</c>
+    /// settings read it.
+    /// </summary>
+    internal static (int Width, int Height)? Windowed(World world) =>
+        world.TryGetResource<AppWindow>(out var window) ? WindowModes.WindowedSize(window) : Drawn(world);
+
     [Command("window.state", "What the window is as the desktop has it: shown or hidden, covered by others, focused, minimized or maximized, and its size")]
     internal static string State()
     {
@@ -51,7 +60,7 @@ internal static class WindowCommands
         if ((flags & SDL.WindowFlags.InputFocus) != 0) words.Add("focused");
         if ((flags & SDL.WindowFlags.Minimized) != 0) words.Add("minimized");
         if ((flags & SDL.WindowFlags.Maximized) != 0) words.Add("maximized");
-        if ((flags & SDL.WindowFlags.Fullscreen) != 0) words.Add("fullscreen");
+        if (WindowModes.Of(window.Sdl.Window) is not WindowMode.Windowed and var mode) words.Add(WindowModes.Word(mode));
         words.Add($"{window.Sdl.Width}x{window.Sdl.Height}");
         return string.Join(" ", words);
     }
@@ -93,22 +102,6 @@ internal static class WindowCommands
         if (!ConsoleHost.World!.TryGetResource<AppWindow>(out var window)) return Refuse("window.position");
         SDL.SetWindowPosition(window.Sdl.Window, x, y);
         return $"moved to {x}, {y}";
-    }
-
-    [Command("window.monitor", "Moves the window to a monitor, centered on it, by its number from 0: window.monitor <monitor>")]
-    internal static string Monitor(int monitor)
-    {
-        if (!ConsoleHost.World!.TryGetResource<AppWindow>(out var window)) return Refuse("window.monitor");
-        var displays = SDL.GetDisplays(out _) ?? [];
-        if (monitor < 0 || monitor >= displays.Length)
-        {
-            var refusal = $"there is no monitor {monitor}, the monitors being numbered from 0 to {displays.Length - 1}";
-            ConsoleHost.Fail("BAD_ARGUMENT", refusal);
-            return refusal;
-        }
-        var centered = (int)(SDL.WindowPosCenteredMask | displays[monitor]);
-        SDL.SetWindowPosition(window.Sdl.Window, centered, centered);
-        return $"moved to monitor {monitor} of {displays.Length}";
     }
 
     // The size an offscreen run had before it was minimized, which window.restore gives it back.

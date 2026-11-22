@@ -69,7 +69,7 @@ public static partial class E3D
         bool Has(ConfigFlags flag) => flag switch
         {
             ConfigFlags.FullscreenMode => IsWindowFullscreen(),
-            ConfigFlags.BorderlessWindowedMode => (sdl & SDL.WindowFlags.Fullscreen) != 0 && _borderless,
+            ConfigFlags.BorderlessWindowedMode => WindowModes.Of(w) == WindowMode.Borderless,
             ConfigFlags.WindowResizable => (sdl & SDL.WindowFlags.Resizable) != 0,
             ConfigFlags.WindowUndecorated => (sdl & SDL.WindowFlags.Borderless) != 0,
             ConfigFlags.WindowHidden => (sdl & SDL.WindowFlags.Hidden) != 0,
@@ -132,16 +132,14 @@ public static partial class E3D
             ApiLogger.Warn("High density and transparency are chosen as the window opens, and SetWindowState and ClearWindowState leave them as they are.");
     }
 
-    // Whether the program asked for its loop to go on while minimized, which it does either way,
-    // and whether the window covers the monitor by ToggleBorderlessWindowed rather than ToggleFullscreen.
+    // Whether the program asked for its loop to go on while minimized, which it does either way.
     private static bool _alwaysRun;
-    private static bool _borderless;
 
     private static void ForgetConfigFlags()
     {
         _configFlags = ConfigFlags.None;
         _configSamples = null;
-        (_alwaysRun, _borderless) = (false, false);
+        _alwaysRun = false;
         SDL.ResetHint(SDL.Hints.WindowActivateWhenShown);
     }
 }

@@ -20,9 +20,18 @@ public static partial class E3D
     /// <summary>
     /// Whether the window covers its monitor in fullscreen, by <see cref="ToggleFullscreen"/> or
     /// the flag for it, rather than as <see cref="ToggleBorderlessWindowed"/> covers it, as raylib's
-    /// tells the two apart.
+    /// tells the two apart, and as the <c>window.mode</c> setting reads <c>fullscreen</c>.
     /// </summary>
-    public static bool IsWindowFullscreen() => HasWindowFlag(SDL.WindowFlags.Fullscreen) && !_borderless;
+    public static bool IsWindowFullscreen() => Window is { } window && WindowModes.Of(window.Sdl.Window) == WindowMode.Fullscreen;
+
+    // The open window, or none.
+    private static AppWindow? Window => _app?.World.TryGetResource<AppWindow>(out var window) == true ? window : null;
+
+    // Sets how the window covers its monitor, a mode the system refuses a warning in the log.
+    private static void Cover(AppWindow window, WindowMode mode, string call)
+    {
+        if (WindowModes.Set(window, mode) is { } refused) ApiLogger.Warn($"{call}: {refused}");
+    }
 
     /// <summary>Whether the window is minimized.</summary>
     public static bool IsWindowMinimized() => HasWindowFlag(SDL.WindowFlags.Minimized);
@@ -38,17 +47,13 @@ public static partial class E3D
 
     /// <summary>Switches the window between fullscreen on its monitor and a window.</summary>
     /// <remarks>
-    /// Fullscreen keeps the monitor's desktop mode, unless <see cref="SetWindowFullscreenMode"/>
-    /// has set one of its own.
+    /// Fullscreen takes the monitor's desktop mode, unless <see cref="SetWindowFullscreenMode"/>
+    /// has set one of its own. A mode the system refuses leaves the window as it was, with a
+    /// warning in the log.
     /// </remarks>
     public static void ToggleFullscreen()
     {
-        if (WindowHandle is not 0 and var w)
-        {
-            var on = !IsWindowFullscreen();
-            _borderless = false;
-            SDL.SetWindowFullscreen(w, on);
-        }
+        if (Window is { } window) Cover(window, IsWindowFullscreen() ? WindowMode.Windowed : WindowMode.Fullscreen, nameof(ToggleFullscreen));
     }
 
     /// <summary>Maximizes the window.</summary>
@@ -108,14 +113,12 @@ public static partial class E3D
     // -- Monitors
 
     /// <summary>How many monitors are connected, or 0 with no video.</summary>
-    public static int GetMonitorCount() => Displays().Length;
+    public static int GetMonitorCount() => WindowModes.Screens().Length;
 
     /// <summary>The index of the monitor the window is on, or 0.</summary>
     public static int GetCurrentMonitor()
     {
-        if (WindowHandle is not 0 and var w)
-            return Math.Max(0, Array.IndexOf(Displays(), SDL.GetDisplayForWindow(w)));
-        return 0;
+        return WindowHandle is not 0 and var w ? WindowModes.ScreenOf(w) : 0;
     }
 
     /// <summary>A monitor's width in pixels, in its current mode, or 0 when there is no such monitor.</summary>
@@ -142,13 +145,13 @@ public static partial class E3D
 
     /// <summary>A monitor's name, or an empty string when there is no such monitor.</summary>
     public static string GetMonitorName(int monitor) =>
-        Displays() is var displays && monitor >= 0 && monitor < displays.Length ? SDL.GetDisplayName(displays[monitor]) ?? "" : "";
+        WindowModes.Screens() is var displays && monitor >= 0 && monitor < displays.Length ? SDL.GetDisplayName(displays[monitor]) ?? "" : "";
 
     /// <summary>The modes a monitor can be set to in fullscreen, largest first, or none when there is no such monitor.</summary>
     /// <remarks>Modes that differ only in pixel format or density are listed once.</remarks>
     public static MonitorMode[] GetMonitorModes(int monitor)
     {
-        var displays = Displays();
+        var displays = WindowModes.Screens();
         if (monitor < 0 || monitor >= displays.Length) return [];
         var modes = SDL.GetFullscreenDisplayModes(displays[monitor], out _);
         return modes is null ? [] : DistinctModes(modes.Select(m => (m.W, m.H, m.RefreshRate)));
@@ -171,7 +174,8 @@ public static partial class E3D
         if (WindowHandle is not (not 0 and var w)) return;
         if (mode == default)
         {
-            SDL.SetWindowFullscreenMode(w, IntPtr.Zero);
+            if (WindowModes.FullscreenMode(w) is { } desktop) SDL.SetWindowFullscreenMode(w, desktop);
+            else SDL.SetWindowFullscreenMode(w, IntPtr.Zero);
         }
         else
         {
@@ -188,22 +192,18 @@ public static partial class E3D
 
     /// <summary>Moves the window to a monitor, centered on it.</summary>
     /// <remarks>
-    /// A window fullscreen at the desktop's mode goes fullscreen on the other monitor. One in a mode
-    /// of its own stays, since SDL ties that mode to its monitor.
+    /// A fullscreen window goes fullscreen on the other monitor at that monitor's mode, as the
+    /// <c>window.monitor</c> setting moves it. A monitor that is not there leaves the window where
+    /// it is, with a warning in the log.
     /// </remarks>
     public static void SetWindowMonitor(int monitor)
     {
-        var displays = Displays();
-        if (WindowHandle is not (not 0 and var w) || monitor < 0 || monitor >= displays.Length) return;
-        var centered = (int)(SDL.WindowPosCenteredMask | displays[monitor]);
-        SDL.SetWindowPosition(w, centered, centered);
+        if (Window is { } window && WindowModes.MoveTo(window, monitor) is { } refused) ApiLogger.Warn($"{nameof(SetWindowMonitor)}: {refused}");
     }
-
-    private static uint[] Displays() => SDL.WasInit(SDL.InitFlags.Video) != 0 ? SDL.GetDisplays(out _) ?? [] : [];
 
     private static SDL.DisplayMode? Mode(int monitor)
     {
-        var displays = Displays();
+        var displays = WindowModes.Screens();
         if (monitor < 0 || monitor >= displays.Length) return null;
         return SDL.GetCurrentDisplayMode(displays[monitor]);
     }
@@ -237,7 +237,7 @@ public static partial class E3D
     /// <summary>A monitor's top left corner on the desktop, or zero when there is no such monitor.</summary>
     public static System.Numerics.Vector2 GetMonitorPosition(int monitor)
     {
-        var displays = Displays();
+        var displays = WindowModes.Screens();
         if (monitor < 0 || monitor >= displays.Length || !SDL.GetDisplayBounds(displays[monitor], out var bounds)) return System.Numerics.Vector2.Zero;
         return new System.Numerics.Vector2(bounds.X, bounds.Y);
     }
@@ -248,21 +248,9 @@ public static partial class E3D
     /// </summary>
     public static void ToggleBorderlessWindowed()
     {
-        if (WindowHandle is not 0 and var w)
-        {
-            // From fullscreen it goes to borderless, as raylib's leaves fullscreen first.
-            if (_borderless && HasWindowFlag(SDL.WindowFlags.Fullscreen))
-            {
-                SDL.SetWindowFullscreen(w, false);
-                _borderless = false;
-            }
-            else
-            {
-                SDL.SetWindowFullscreenMode(w, IntPtr.Zero);
-                SDL.SetWindowFullscreen(w, true);
-                _borderless = true;
-            }
-        }
+        // From fullscreen it goes to borderless, as raylib's leaves fullscreen first.
+        if (Window is { } window)
+            Cover(window, WindowModes.Of(window.Sdl.Window) == WindowMode.Borderless ? WindowMode.Windowed : WindowMode.Borderless, nameof(ToggleBorderlessWindowed));
     }
 
     /// <summary>How many pixels the window's content has for each unit of its size, 1 on most monitors and 2 on a doubled one.</summary>

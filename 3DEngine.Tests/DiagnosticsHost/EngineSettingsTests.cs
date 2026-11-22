@@ -49,19 +49,20 @@ public sealed class EngineSettingsTests : IDisposable
             .ToDictionary(page => page.Key, page => page.Count());
         pages.Should().Equal(new Dictionary<string, int>
         {
-            ["ao"] = 8, ["gi"] = 19, ["field"] = 1, ["window"] = 4, ["imgui"] = 1, ["time"] = 1,
+            ["ao"] = 8, ["gi"] = 19, ["field"] = 1, ["window"] = 7, ["imgui"] = 1, ["time"] = 1,
             ["live"] = 1, ["log"] = 1, ["scenes"] = 1, ["sky"] = 1, ["run"] = 10,
         });
         EngineSettings.All.Should().OnlyContain(setting => ReferenceEquals(ConsoleHost.Registry.FindSetting(setting.Name), setting),
             "each setting is reached from a line by its name");
         EngineSettings.All.Where(setting => setting.Saved).Select(setting => setting.Name)
-            .Should().BeEquivalentTo(["window.vsync", "imgui.viewports"], "the file keeps what a player chooses for the machine and none of the run's");
+            .Should().BeEquivalentTo(["window.mode", "window.resizable", "window.width", "window.height", "window.monitor", "window.vsync", "imgui.viewports"],
+                "the file keeps what a player chooses for the machine and none of the run's");
         EngineSettings.All.Where(setting => setting.ReadOnly).Select(setting => setting.Name).Should().BeEquivalentTo(
             ["run.frames", "run.serve", "run.headless", "run.offscreen", "run.hidden", "run.seed", "window.samples", "run.shuffle",
                 "run.sessions", "run.validation", "run.slangc"],
             "how a tool started the run only reads, since no start reads a value set while the program runs");
         EngineSettings.All.Should().NotContain(setting => setting.AtNextStart, "no setting of the engine's waits for a start");
-        foreach (var gone in new[] { "gi.toggle", "ao.set", "window.vsync" })
+        foreach (var gone in new[] { "gi.toggle", "ao.set", "window.vsync", "window.monitor" })
             ConsoleHost.Registry.FindCommand(gone).Should().BeNull("{0} only set a value, which a setting holds", gone);
 
         Frames(1);
@@ -88,6 +89,7 @@ public sealed class EngineSettingsTests : IDisposable
         Run("gi.show tiles").Should().Be("The program runs no global illumination, which SetGlobalIllumination turns on.");
         Run("gi.show").Should().StartWith("gi.show is None", "a refused set leaves the value as it read");
         Run("window.vsync on").Should().Be("The program has no window and draws no frames.", "a headless run has no swapchain");
+        Run("window.mode fullscreen").Should().Be("The program has no window and draws no frames.", "a headless run has no window to cover the screen");
         Run("sky.hours 3").Should().Be("The program runs no day sky, which SetSkyTime or SetSkyDay starts.");
         Run("time.frame 1e999").Should().StartWith("time.frame takes", "an infinity is no number of seconds");
     }

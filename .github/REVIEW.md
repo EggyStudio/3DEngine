@@ -953,3 +953,62 @@ examples gave, with the field about the camera, and ahead.
 - The sheet `.github/assets/readings/2026-11-22-item-309-field-view.webp` shows the atrium turned
   round with fields 1 to 3 drawn, above with the point half the way and below ahead. The examples'
   captures are taken again, and docs/global-illumination.md and RENDERING.md say the placement.
+
+Item 307, the window's settings in the panel.
+
+The `window` page holds `window.mode` with the choices `Windowed`, `Borderless` and `Fullscreen`,
+taken in any case, `window.resizable`, `window.width` and `window.height` as the window's size as a
+window, `window.monitor`, which takes the command's name, and `window.vsync`, beside
+`window.samples`, which only reads as before. Each acts at once on a shown window, so no row says
+"at the next start", since SDL sets each on a window that is shown. All but `samples` are saved,
+and the settings file's lines of the page are given to the window before it is shown, its size
+first and its mode last, so the first frame is shown as the player left it
+(`AppWindowPlugin.Opening`, which `DiagnosticsBinding.OpenWindow` fills).
+
+- Borderless asks SDL for fullscreen with no mode of its own, which covers the screen at the
+  screen's mode. Fullscreen takes the mode the screen lists closest to its own. A mode SDL refuses
+  answers its reason in the console and the mode before is asked for again, and one SDL took the
+  asking of but did not hold once the window synced answers "The system kept the window" and the
+  mode it kept.
+- `window.width` and `window.height` are kept while the window covers its screen and taken as it
+  leaves it, so a set while fullscreen leaves the screen as it is until then. Before the window is
+  shown the size read is the one asked for, since a system may take it only as the window shows.
+- `window.resizable` reads SDL's flag again after asking, since a driver with no edges of its own,
+  SDL's offscreen one, answers yes and leaves the window, and then answers "The system kept the
+  window resizable."
+- `window.monitor` moves the window centered onto the screen of that number, a fullscreen window
+  going borderless to move and back, and only reads where there is one screen, "There is one
+  screen, so the window stays on it."
+- With the window hidden the whole page only reads, its rows drawn so in the panel and a set or a
+  reset refused with "The window is hidden, as --hidden or E3D_HIDDEN asks, so its settings only
+  read." That is the module's new `Setting.Lock` (Diagnostics 8c79833), a reason the host gives as
+  the setting is read, where `ReadOnly` would have dropped the setting's line from the file. In a
+  run with no window the window's own settings answer "The program has no window and draws no
+  frames.", and in an offscreen run the size sets the images it draws into, as before.
+- `ToggleFullscreen`, `ToggleBorderlessWindowed`, `IsWindowFullscreen`, `SetWindowMonitor` and the
+  `BorderlessWindowedMode` flag go through the same code, so the flat API and the setting read one
+  mode and move alike, and `SetWindowFullscreenMode` with no mode takes the same screen mode.
+- BevyCSharp holds none of these yet. Its item 160 is the same text, so for its session the names
+  are `window.mode`, `window.resizable`, `window.width`, `window.height`, `window.monitor` and
+  `window.vsync`, the mode's choices `Windowed`, `Borderless` and `Fullscreen`, and the reasons
+  above.
+
+`WindowSettingsTests` opens windows on SDL's offscreen driver. One gives the file's mode, size,
+resizable and vsync lines to the window before it is shown, sets each by its name, and holds the
+file's lines as each is set and as the program ends. One holds the refusal, the offscreen screen
+listing no mode for a fullscreen window, so a file's fullscreen line and a set are both refused with
+the reason, the mode before kept and the refused line not written again. One holds the hidden
+page's locks. The offscreen driver gives a window no edges to fix, so `window.resizable` is held
+there through its refusal. `EngineSettingsTests` counts seven settings on the page, the saved set,
+`window.monitor` gone as a command and `window.mode` refused with no window, and the module's two
+new tests hold a lock's set, reset, panel row and file line.
+
+The suite passes 2,557 of 2,557 with the pack, the guides' blocks and the examples' table, and
+after `SetWindowMonitor` took the setting's move, the 502 tests of the flat API, the platform and
+the window again. The module passes 162 of 162.
+
+The sheet `.github/assets/readings/2026-11-22-item-307-window-page.webp` shows the page as F5 opens
+it and the three modes in a headless mutter with one screen of 1280 by 720, since SDL's offscreen
+driver neither covers a screen nor lists a mode. docs/window-and-frame.md gives the page's row, a
+paragraph for the page and the file's window lines, docs/command-line.md the settings beside the
+commands, and the cheatsheet takes `IsWindowFullscreen`'s summary.

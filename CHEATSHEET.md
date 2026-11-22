@@ -49,7 +49,7 @@ void AddDebugOverlaySection(string name, Func<IEnumerable<string>> lines);  // A
 bool RemoveDebugOverlaySection(string name);             // Takes a section of the debug overlay away by its name, and says whether there was one
 
 bool IsWindowResized();                                  // Whether the window's size changed in the events of this frame
-bool IsWindowFullscreen();                               // Whether the window covers its monitor in fullscreen, by ToggleFullscreen or the flag for it, rather than as ToggleBorderlessWindowed covers it, as raylib's tells the two apart
+bool IsWindowFullscreen();                               // Whether the window covers its monitor in fullscreen, by ToggleFullscreen or the flag for it, rather than as ToggleBorderlessWindowed covers it, as raylib's tells the two apart, and as the window.mode setting reads fullscreen
 bool IsWindowMinimized();                                // Whether the window is minimized
 bool IsWindowMaximized();                                // Whether the window is maximized
 bool IsWindowFocused();                                  // Whether the window has the keyboard focus

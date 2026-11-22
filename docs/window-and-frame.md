@@ -124,7 +124,9 @@ A window dragged larger is drawn again at its new size once it has kept that siz
 frames, and one sized before the first frame draws that frame at the new size, so a game applying
 its saved resolution right after `InitWindow` shows its loading screen at it. `SetWindowIcon` gives the window an icon from an image, `SetWindowOpacity` makes it see-through,
 and `ToggleBorderlessWindowed` covers the monitor with no border and no change of display mode,
-which most games offer as their fullscreen.
+which most games offer as their fullscreen. `ToggleFullscreen` takes the monitor's own mode, or the
+one `SetWindowFullscreenMode` chose, and both go as the `window.mode` setting goes, so
+`IsWindowFullscreen` and the setting read the same mode.
 
 `GetScreenWidth` and `GetScreenHeight` give the window's size, which a program reads each frame
 rather than keeping, since a resizable window changes it. On a monitor that doubles its pixels, with
@@ -354,7 +356,7 @@ it, a page of them for each first word of their names.
 | `ao` | `method` (`Horizons` or `Circular`), `samples`, `filter`, `slope`, `backface`, `boost`, `screen`, `size` (`Half` or `Full`) |
 | `gi` | `rays`, `passes`, the parts a reading leaves out, `history`, `filter`, `screen`, `merge`, `again`, `follow`, `glow`, `through`, `albedo`, `specular`, `normals`, `spread`, `points`, with `meshes`, `cascade`, and the view `show` with `show_cascade` |
 | `field` | `show`, the cascade of the scene's distance field drawn over the window |
-| `window` | `vsync`, `width`, `height`, and `samples`, which only reads |
+| `window` | `mode` (`Windowed`, `Borderless` or `Fullscreen`), `resizable`, `width` and `height` as a window, `monitor`, `vsync`, and `samples`, which only reads |
 | `imgui` | `viewports` |
 | `time` | `frame`, the seconds a frame moves time by, `E3D_FRAME_TIME` |
 | `live` | `reload`, `E3D_LIVE` |
@@ -376,13 +378,27 @@ flag or its variable. `run.seed` reads the seed the window gave the random gener
 with no window or `imgui.viewports` where SDL's driver places no window on the desktop, is refused
 with the reason, and the value stays as it was.
 
+The `window` page acts on the window at once. `window.mode borderless` covers the screen the window
+is on with no border and no change of the screen's own mode, `window.mode fullscreen` takes the
+screen's mode, and `window.mode windowed` gives the window back its size as a window. A mode the
+system refuses answers with its reason in the console and keeps the mode before. `window.width` and
+`window.height` are that size, kept while the window covers its screen and taken as it leaves it,
+so a player sets the size of the window while it is fullscreen. `window.resizable` says whether its
+edges can be dragged, and `window.monitor` moves it, centered, to another screen by its number from
+0, a fullscreen window staying fullscreen there, and only reads where there is one screen. While
+the window is hidden, as `--hidden` asks, the whole page only reads, and in a run with no window
+the window's own settings are refused with the reason.
+
 A program whose window is shown keeps the settings a player chooses for the machine, the five keys,
-`window.vsync` and `imgui.viewports`, in one file, `settings.txt` in a folder of the program's name
-under the system's folder of applications' data, `~/.config/<program>/settings.txt` on Linux and
-`%APPDATA%\<program>\settings.txt` on Windows, the program named as its assembly is. It is read as
-the program starts and written as one of them changes and as the program ends. It keeps what a
-player set, through the console, the panel or the file, and never a value the program set itself,
-as the vsync a window is opened with, and a setting a part of the program adds later takes its line
+the `window` page but `samples`, and `imgui.viewports`, in one file, `settings.txt` in a folder of
+the program's name under the system's folder of applications' data,
+`~/.config/<program>/settings.txt` on Linux and `%APPDATA%\<program>\settings.txt` on Windows, the
+program named as its assembly is. It is read as
+the program starts and written as one of them changes and as the program ends. The `window` page's
+lines are given to the window before it is shown, its size first and its mode last, so the first
+frame is shown in the mode and at the size the player left. It keeps what a player set, through the
+console, the panel or the file, and never a value the program set itself, as the vsync or the size
+a window is opened with, and a setting a part of the program adds later takes its line
 then and is written as it is set. A line is a setting's name, a space and its value as a console
 line holds it, as `window.vsync on`, one for each whose value differs from its default, with the
 lines of names this run does not know kept as they stood. A run with no window or a window never

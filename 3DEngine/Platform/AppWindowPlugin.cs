@@ -167,6 +167,13 @@ internal sealed class AppWindowPlugin : IPlugin
         }
     }
 
+    /// <summary>
+    /// Run with the app as its window is made, before it is shown, so the settings file's lines of
+    /// the window's page give it its size, its screen and its mode before the first frame, the
+    /// engine's settings set it (<c>DiagnosticsBinding.OpenWindow</c>).
+    /// </summary>
+    internal static Action<App>? Opening { get; set; }
+
     /// <inheritdoc />
     public void Build(App app)
     {
@@ -187,6 +194,7 @@ internal sealed class AppWindowPlugin : IPlugin
         SDL.SetWindowResizable(window.Sdl.Window, config.Resizable);
         SDL.SetWindowBordered(window.Sdl.Window, !config.Undecorated);
         SDL.SetWindowAlwaysOnTop(window.Sdl.Window, config.Topmost);
+        app.World.InsertResource(window);
 
         if (config.Hidden)
         {
@@ -194,10 +202,14 @@ internal sealed class AppWindowPlugin : IPlugin
         }
         else
         {
+            // Fullscreen as the program asks, then as the player's settings have it, before the
+            // window is shown, so the first frame is drawn as they leave it.
+            if (config.Fullscreen && WindowModes.Set(window, WindowMode.Fullscreen) is { } refused)
+                logger.Warn($"AppWindowPlugin: the window stays a window. {refused}");
+            Opening?.Invoke(app);
             logger.Info($"Showing window with command: {config.WindowCommand}");
             if (config.Unfocused) SDL.SetHint(SDL.Hints.WindowActivateWhenShown, "0");
             window.Show(config.WindowCommand);
-            if (config.Fullscreen) SDL.SetWindowFullscreen(window.Sdl.Window, true);
         }
 
         // SDL3 sends no text events until text input is started, unlike SDL2, so typed characters
@@ -206,7 +218,6 @@ internal sealed class AppWindowPlugin : IPlugin
         if (!SDL.StartTextInput(window.Sdl.Window))
             logger.Warn($"AppWindowPlugin: StartTextInput failed, so typed text will not arrive. {SDL.GetError()}");
 
-        app.World.InsertResource(window);
         app.World.InsertResource<IWindowSize>(new WindowSize(window));
         app.World.InsertResource<IMainLoopDriver>(new SdlMainLoopDriver(window));
         app.World.InsertResource<IInputBackend>(new SdlInputBackend());
