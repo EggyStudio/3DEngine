@@ -936,8 +936,12 @@ examples gave, with the field about the camera, and ahead.
 | Sponza atrium turned round | 5.59, 473.9% | | 1.06, 42.3% |
 
 - The slowest frame of a full turn of the atrium a degree a frame read 18.5 and 16.7 ms over two
-  turns with the point half the way, and 25.0 and 26.3 ms ahead, a turn building cascades as a
-  walk does.
+  turns with the point half the way, and 25.0 and 26.3 ms ahead, a cost left open. It is set by how
+  many cascades a frame of the turn builds. The point the field lies about stands 6 units ahead
+  and at a degree a frame moves about a tenth of a unit, so the finest cascade steps its 8 cells
+  about every tenth frame along each axis and each coarser one half as often, each step building
+  the slab of cells it brings in, and a frame where the steps of two or more cascades meet builds
+  their slabs together. With the point half the way a turn built none.
 - `GlobalIlluminationTests.FieldPlace.cs` holds each cascade's middle within 4 cells, half the
   snap, of the eye with no share ahead and of the eye plus 0.75 of the finest cascade's width along
   the look with it, at two places and two turns. A cascade's middle moves on its grid of 8 cells
