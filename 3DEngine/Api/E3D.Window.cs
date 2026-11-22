@@ -125,10 +125,11 @@ public static partial class E3D
     /// frame as the window's events are read.
     /// </summary>
     /// <remarks>
-    /// It is true while the console, the settings panel or the debug overlay of the Diagnostics
-    /// module is open, while a field of an ImGui window has the caret or an ImGui popup is open,
-    /// and while a question added by <see cref="HoldExitKeyWhile"/> answers true, asked in that
-    /// order. The first that holds it keeps the key, and the window does not see it.
+    /// It is true while the console or the settings panel of the Diagnostics module is open, while
+    /// a field of an ImGui window has the caret or an ImGui popup is open, and while a question
+    /// added by <see cref="HoldExitKeyWhile"/> answers true, asked in that order. The first that
+    /// holds it keeps the key, and the window does not see it. The debug overlay takes no input
+    /// and holds nothing.
     /// </remarks>
     public static bool IsExitKeyHeld()
     {

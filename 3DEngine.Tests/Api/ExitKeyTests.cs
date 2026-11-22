@@ -7,7 +7,8 @@ namespace Engine.Tests.Api;
 /// <summary>
 /// Escape handed down one order, the settings panel open taking it to go back a page with the
 /// window left open, a game's own menu holding it, an example's window left on it where nothing
-/// open takes it, and a game with no exit key set kept open, in a headless run.
+/// open takes it, the debug overlay shown alone among them, and a game with no exit key set kept
+/// open, in a headless run.
 /// </summary>
 [Collection("E3D")]
 [Trait("Category", "Integration")]
@@ -85,7 +86,7 @@ public sealed class ExitKeyTests : IDisposable
     }
 
     [Fact]
-    public void Escape_With_Nothing_Open_Leaves_An_Example_And_A_Games_Own_Menu_Holds_It_First()
+    public void Escape_With_Nothing_Open_But_The_Overlay_Leaves_An_Example_And_A_Games_Own_Menu_Holds_It_First()
     {
         File.ReadAllText(Path.Combine(CheatsheetTests.RepoRoot(), "3DEngine.Examples", "Program.cs"))
             .Should().Contain("SetExitKey(Engine.Key.Escape)", "the examples program sets Escape as each example's exit key");
@@ -95,8 +96,11 @@ public sealed class ExitKeyTests : IDisposable
         Frames(1);
         Tap(Key.Escape).Should().BeFalse("the game's own menu holds the key");
 
+        Tap(Key.F3);
+        DiagnosticsBinding.Of(GetApp().World).Overlay.Shown.Should().BeTrue("F3 shows the debug overlay");
         menu = false;
-        Tap(Key.Escape).Should().BeTrue("with nothing open, Escape leaves the example");
+        IsExitKeyHeld().Should().BeFalse("the overlay takes no input and holds nothing");
+        Tap(Key.Escape).Should().BeTrue("with nothing open but the overlay, Escape leaves the example");
     }
 
     [Fact]

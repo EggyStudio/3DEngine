@@ -46,12 +46,13 @@ whole of it, before anything is drawn.
 
 A window has no exit key until the program sets one, and the key goes with the window as it
 closes. Where one is set, the key is handed down one order and the first taker keeps it. The
-console, the settings panel or the debug overlay open takes it, a field of an ImGui window with the
-caret or an ImGui popup open takes it, and then a menu of the game's own, which says it holds the
-keyboard with `HoldExitKeyWhile(() => menuOpen)`. The window sees the key only where none of them
-does, and `IsExitKeyHeld` says which way it goes. The examples program sets Escape, so Escape goes
-back a page in the settings panel, and with nothing open it leaves the example, back to the list
-where the example was picked from there.
+console or the settings panel open takes it, a field of an ImGui window with the caret or an ImGui
+popup open takes it, and then a menu of the game's own, which says it holds the keyboard with
+`HoldExitKeyWhile(() => menuOpen)`. The window sees the key only where none of them does, and
+`IsExitKeyHeld` says which way it goes. The debug overlay takes no input, so with it alone shown
+the key passes on. The examples program sets Escape, so Escape goes back a page in the settings
+panel, and with nothing open but the overlay it leaves the example, back to the list where the
+example was picked from there.
 
 ## Time
 

@@ -83,10 +83,11 @@ internal sealed partial class DiagnosticsBinding
     public static DiagnosticsBinding Of(World world) => world.GetOrInsertResource(() => new DiagnosticsBinding(world));
 
     /// <summary>
-    /// Whether the console, the settings panel or the debug overlay is open, which holds the exit
-    /// key so that the key goes to the one open and the window does not see it.
+    /// Whether the console or the settings panel is open, which holds the exit key so that the key
+    /// goes to the one open and the window does not see it. The debug overlay takes no input, so
+    /// with it alone shown the key passes on.
     /// </summary>
-    internal bool HoldsKeyboard => Keys.Panels.Open is not null;
+    internal bool HoldsKeyboard => Keys.Panels.Open is { } open && open != OpenPanels.OverlayName;
 
     /// <summary>Binds an action to an engine key, or to none with <see cref="Key.Null"/>.</summary>
     internal void Bind(KeyAction action, Key key) => Keys.KeyOf(action).TrySet(key == Key.Null ? "" : key.ToString());
