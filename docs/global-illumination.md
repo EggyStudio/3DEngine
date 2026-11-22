@@ -90,31 +90,32 @@ cascades of a quarter reach 16 units across in the first and 128 in the last, an
 in the same cascades. The cell is the finest detail global illumination sees, and it sets how far an
 emissive surface smaller than the probes' spacing of eight cells lights, where its light falls to a
 300th of what it gives half that spacing from it, 8.7 units at a cell of an eighth and 17 at a
-quarter, so a game's cell sets how far its torches light. A wall thinner than a
-cell is held about its middle so it still stops light, and an emissive strip thinner than a cell
-lends its light to the cells near it. A small emitter set among other meshes sends from the faces
-of its box that look into the open alone, the faces the meshes around it cover read closed from the
-field, so a game hands a lamp set into a wall as a whole block and it lights the room from its face
-that shows. The cascades lie around the camera, so a turn builds none of
-them, or around the point `SetSceneFieldCenter(point)` gives. A bounded level gives its middle once,
-so a cascade as wide as the level holds all of it from every view. One a little wider gives a point
-a fixed way from the camera, as `scenes_sponza` gives the point half the way to what each view looks
-at, so its third cascade holds the part of the building the view shows and a turn moves nothing. A
-game seen from above gives its player's place each frame, as `games/Wick` does, so the finest
-cascades hold the rooms about the player rather than the air under the camera. A free camera in an
-open world gives nothing, and a building wider than its third cascade has its far rooms held by the
-fourth's coarser probes, or `SetSceneFieldAhead(0.5f)` holds the field ahead of the camera along its
-view by half its finest cascade's width, so that cascade lies before the eye rather than half of it
-behind, as the voxel game's does. A cascade that point has gone past the grid of keeps the cells it holds,
-moved on the GPU, and builds the slab of cells the move brings in alone, as a clipmap does, so a
-walk splats a fraction of what building each cascade again did. One the point went half its width
-past or more is built again whole, as many cascades a frame as the budget says, the finest first,
-and where a mesh came or went only the cells within its band are built again, from the meshes near
-them, so a block broken in a world of large section meshes costs a few frames of the budget rather
-than the cascades around it. A mesh drawn in the same place for eight frames is built in from its
-triangles, and one that moves is held as boxes painted its color and giving its light, so a red
-figure reflects red light and a sliding block of lava lights the wall it passes as one held still
-does.
+quarter, so a game's cell sets how far its torches light. A wall thinner than a cell is held about
+its middle so it still stops light, and an emissive strip thinner than a cell lends its light to the
+cells near it. A small emitter set among other meshes sends from the faces of its box that look into
+the open alone, the faces the meshes around it cover read closed from the field, so a game hands a
+lamp set into a wall as a whole block and it lights the room from its face that shows. The cascades
+lie around the camera, so a turn builds none of them, or around the point
+`SetSceneFieldCenter(point)` gives. A bounded level gives its middle once, so a cascade as wide as
+the level holds all of it from every view. A point a fixed way from the camera holds what one view
+looks at and leaves the view of a camera turned away to the coarse cascades, which take the sky's
+light indoors, so a free camera holds the field ahead instead, as below. A game seen from above
+gives its player's place each frame, as `games/Wick` does, so the finest cascades hold the rooms
+about the player rather than the air under the camera. A free camera in an open world gives nothing,
+and a building wider than its third cascade has its far rooms held by the fourth's coarser probes,
+or `SetSceneFieldAhead(0.5f)` holds the field ahead of the camera along its view by half its finest
+cascade's width, so that cascade lies before the eye rather than half of it behind, as the voxel
+game's does. `scenes_sponza` and `scenes_bistro` hold it three quarters of that width ahead, so the
+finer cascades hold what each view looks at as the camera turns, a turn building cascades as a walk
+does. A cascade that point has gone past the grid of keeps the cells it holds, moved on the GPU, and
+builds the slab of cells the move brings in alone, as a clipmap does, so a walk splats a fraction of
+what building each cascade again did. One the point went half its width past or more is built again
+whole, as many cascades a frame as the budget says, the finest first, and where a mesh came or went
+only the cells within its band are built again, from the meshes near them, so a block broken in a
+world of large section meshes costs a few frames of the budget rather than the cascades around it. A
+mesh drawn in the same place for eight frames is built in from its triangles, and one that moves is
+held as boxes painted its color and giving its light, so a red figure reflects red light and a
+sliding block of lava lights the wall it passes as one held still does.
 
 A frame's builds splat 32,768 triangles at most unless `triangleBudget` says otherwise, a mesh
 counting its triangles by the share of its bounds within the cells built, an eighth of them at

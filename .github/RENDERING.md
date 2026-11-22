@@ -4036,15 +4036,18 @@ sized at 0.85 of its width for its distance, and reaches about half that distanc
 camera looks on what it shows from afar, a program gives the point the field lies around
 (`SetSceneFieldCenter`). `games/Wick` gives its player, the camera 9 meters over the floor and the
 finest cascade, 16 across, otherwise holding the air, and its reference reads as before.
-`scenes_sponza` gives the point half the way to what each view looks at, which a turn of the free
-camera keeps, since around the court's middle the main door's vestibule lay in the fourth cascade
-alone and took the sky's light where a path-traced reference reads it black. Against a reference at
-each view at 11:00, linear light in thousandths, the eight views read as with the cascades ahead or
-nearer the reference, the lion's end at 12.9, 10.2 and 9.0 where 16.3, 15.9 and 16.9 and the
-reference 11.0, 9.0 and 8.1, the view up 9.2, 8.0 and 7.9 where 10.8, 9.8 and 10.0 and the reference
-8.8, 7.1 and 7.1, the door's vestibule black. After a turn round the example's field lies as the
-view first looked, so the vestibule behind takes a faint blue that the cascades ahead of the turned
-view took none of once built. A free camera in a building wider than its third cascade has its far
+`scenes_sponza` and `scenes_bistro` hold the field three quarters of their finest cascade's width
+ahead of the camera along its look (`SetSceneFieldAhead(0.75f)`), so the finer cascades hold what
+each view looks at however the free camera turns. They gave the point half the way to what each
+view first looked at, which stayed as the camera turned, so Sponza's atrium turned round had its
+vestibule in the fourth cascade alone, taking the sky's light. Against a path-traced reference of
+256 samples a pixel at 12:00, the mean of each pixel's difference over the reference's mean reads
+within 3.0 points of the fixed point's at each of Sponza's eight views and within 0.2 at the
+Bistro's six, and the atrium turned round reads 1.06 of the reference's light where the fixed
+point gave 5.59. A cascade about the camera instead read up to 14.5 points further off, the
+gallery's light 1.32 of the reference's. The slowest frame of a full turn a degree a frame went
+from 18.5 and 16.7 ms to 25.0 and 26.3 ms over two turns, a turn building cascades as a walk
+does. A free camera in a building wider than its third cascade has its far
 rooms held by the fourth's probes, eight cells apart. `shaders_bounce_rooms` gives the middle of the
 room each view looks into, as its tests do, which read within their bars, and the subsurface scene
 the slabs' place, the camera five units off a cascade 9.6 across. The tests whose subject lay ahead

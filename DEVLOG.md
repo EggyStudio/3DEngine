@@ -35,6 +35,15 @@ examples under their folders' names and the first chosen, on the right with came
 field through the engine's input, which keeps the nine core examples whose names hold it, and Down
 pressed twice, which moved the choice to core_2d_camera_platformer.
 
+![](.github/assets/readings/2026-11-22-item-309-field-view.webp)
+Sponza's atrium at 12:00 turned round, offscreen at 800 by 450 in eight panes on white, each row the
+frame and then the field's first, second and third cascades drawn over it by the field view. Above,
+the field about the point half the way to what the view first looked at, where the first two
+cascades lie behind the camera and draw nothing and the third covers the view's sides and leaves the
+vestibule in its middle to the coarser cascades. Below, the field three quarters of the finest
+cascade's width ahead along the look, where the first cascade fills all but the doorway past its
+reach and the second and third fill the view.
+
 ## 2026-11-21
 
 ![](.github/assets/readings/2026-11-21-sponza-base-color.webp)

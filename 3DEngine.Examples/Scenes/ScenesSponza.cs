@@ -104,13 +104,16 @@ public static partial class ScenesSponza
         var file = ScenePacks.ModelOf(pack!);
 
         // The building is 36 units long, 20 wide and 18 high, and the field's four cascades of
-        // cells an eighth of a unit reach 8, 16, 32 and 64 units across, ahead of the camera, so
-        // the last holds all of it only from around its middle. From the lion's end the main door
-        // lies past the four, where a ray takes the sky and brings the morning sun's down the nave,
-        // so a far cascade of 100 holds the whole building from anywhere in it. The default budgets
-        // build its 3.75 million triangles over frames, the meshes waiting standing in as nothing
-        // where they never moved, so no frame splats every cascade a walk carries on at once.
+        // cells an eighth of a unit reach 8, 16, 32 and 64 units across, about a point 6 units
+        // ahead of the camera along its look as it turns and flies, so the finer cascades hold
+        // what the view looks at, and the last holds all of the building only from around its
+        // middle. From the lion's end the main door lies past the four, where a ray takes the sky
+        // and brings the morning sun's down the nave, so a far cascade of 100 holds the whole
+        // building from anywhere in it. The default budgets build its 3.75 million triangles over
+        // frames, the meshes waiting standing in as nothing where they never moved, so no frame
+        // splats every cascade a walk or a turn carries on at once.
         SetSceneField(4, 0.125f, farCascade: 100);
+        SetSceneFieldAhead(0.75f);
         SetGlobalIllumination(GlobalIllumination.High);
         // The corners, the cracks and the feet of the columns darken by the circular occluders the
         // window's depth gives, 16 rays a pixel against the points within half a unit taken as
@@ -210,26 +213,15 @@ public static partial class ScenesSponza
 
         var view = 0;
         var camera = Views[view].Camera;
-        // The field lies around a point half the way from the camera to what the view looks at, as
-        // each view is chosen, and moves with the camera as it flies but not as it turns, so a turn
-        // builds nothing and the third cascade, 32 across, holds the part of the building the view
-        // shows, from the main door's vestibule to the lion's end, where around the court's middle
-        // the vestibule lay in the fourth's coarse probes and took the sky's light.
-        static Vector3 Ahead(Camera3D looking) => (looking.Target - looking.Position) / 2;
-        var fieldAhead = Ahead(camera);
         var metered = true;
         _askedMetered = true;
         while (!WindowShouldClose())
         {
             for (int i = 0; i < Views.Length; i++)
                 if (IsKeyPressed(Key.One + i)) _askedView = i;
-            if (_askedView is { } asked)
-            {
-                (view, camera, _askedView) = (asked, Views[asked].Camera, null);
-                fieldAhead = Ahead(camera);
-            }
-            if (_askedCamera is { } looked) (camera, fieldAhead, _askedCamera) = (looked, Ahead(looked), null);
-            // A scripted turn about the camera's point, which moves no cascade of the field.
+            if (_askedView is { } asked) (view, camera, _askedView) = (asked, Views[asked].Camera, null);
+            if (_askedCamera is { } looked) (camera, _askedCamera) = (looked, null);
+            // A scripted turn about the camera's point, which carries the field's cascades round.
             if (_turning.Frames > 0)
             {
                 camera.Target = camera.Position + Vector3.Transform(camera.Target - camera.Position, Matrix4x4.CreateRotationY(-_turning.Radians));
@@ -239,7 +231,6 @@ public static partial class ScenesSponza
             if (_walking.Frames > 0)
             {
                 (camera.Position, camera.Target) = (camera.Position + _walking.Step, camera.Target + _walking.Step);
-                fieldAhead = Ahead(camera);
                 _walking.Frames--;
             }
             // The arrows move the hour, keys every layout has in the same place, and turn the
@@ -281,7 +272,6 @@ public static partial class ScenesSponza
                 UpdateCameraPro(ref camera, new Vector3(Held(Key.W, Key.S), Held(Key.D, Key.A), Held(Key.E, Key.Q)) * step,
                     new Vector3(turn.X, turn.Y, 0), 0);
             }
-            SetSceneFieldCenter(camera.Position + fieldAhead);
 
             BeginDrawing();
             ClearBackground(Color.Black);

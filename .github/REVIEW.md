@@ -759,169 +759,6 @@ numbers, each in full under Decisions in REVIEW-ARCHIVE.md.
 
 ## Replies
 
-Four things a player or a program sees differently, which CHEATSHEET.md and docs/window-and-frame.md
-say. F2 takes its shot as it is let go, and held it records in place of the shot. The overlay's head
-is the module's frame line and the engine's version, without the frame's number. The F keys are
-taken while a field of an ImGui window has the caret. A program that takes F4 or F5 for itself opens
-the panel or the console with it as well, as Blockout's F5 save does.
-
-Two faults the picture shows stand as they stood at `facf86a9`, the module's overlay bringing
-neither. At 800 by 450 the right column's lines run over the left, the global illumination line past
-the window's left edge. And the display line reads the window's size as configured, 800 by 450,
-where `window.size` made it 1280 by 720.
-
-What the module lacks went to its session, two things. Its keys add their five settings once a
-process, the registry refusing a name twice, so the engine takes an app's five out as it ends and
-before the next app's are made. And its console runs a typed line itself, so a command that throws
-there is not logged with its stack as a line from the CLI is.
-
-The suite passed whole at the step's first build, `61691e38`, 0 failed with 6 skipped, the package
-tests with no package built. This commit mends the picture, its caption and the window's doc on it
-and touches no code, and the DiagnosticsHost part passed on it, 61 of 61. The picture is
-`.github/assets/readings/2026-11-22-item-302-console-overlay.webp`.
-
-Verdict 132, the guide's block on the package.
-
-The block in `docs/command-line.md` that marks a game's own command names the module's namespace
-itself, `using Diagnostics;`, as a game's file must, since the attribute left the engine's namespace
-with item 302's first step. The package carries the module's assembly, so the block alone lacked it.
-`docs-on-package.py` builds the guides' 225 blocks on a package packed from this tree,
-`0.1.0-preview.20261122121602`, with no error.
-
-Item 302, the diagnostic keys in every game and the overlay's two faults.
-
-F1 to F5 are the diagnostic keys in every game, so a game takes its own keys outside them. Blockout
-saves its level on F6, with its help line, its README and its line in docs/modeling.md, since Ctrl
-with S would step the walker back as it saves. The guides' samples that took F4 and F5 for a game's
-own take F6 and F7, the save in docs/scenes.md, the effects window in
-docs/materials-light-and-shadows.md and the toggle key in docs/behaviors-and-the-ecs.md, and the
-three pages' 65 blocks build on the package packed from `e6f6c3d6`. Five programs still take F1 for
-their own as they did before item 302 without moving the key, the examples ShadersJuliaSet,
-ShadersMandelbrotSet, ShapesTopDownLights and Text3DDrawing and FeatureTest's panel, so F1 there
-hides the interface and turns their own switch at once.
-
-The debug overlay keeps its two columns apart. A line of the right column that would meet a line of
-the left or the frame times' strip goes down under it with the lines after it, and a line wider than
-the window breaks after a comma, so at 800 by 450 every line stands whole and in order, and at 1280
-by 720 nothing moves. The whole right column under the left would take 465 rows of the 450, and
-wrapping beside the left would split the processor's and the card's names over three rows. The
-display line reads the size the program draws at, 1280 x 720 after `window.size 1280 720` offscreen,
-where it read the size configured. The lines and the strip stand on black at half as before, so the
-example's caption shows faintly through the first lines. Two tests hold the columns apart at 800 and
-at 1280 wide, and the pixel test holds the half black ground and the display line before and after
-a resize.
-
-The Diagnostics module moves to `d48d664`. The console and the panel are drawn in the overlay's look
-whatever the program's ImGui theme, Tab's candidates stand in a box joined to the field, and Enter
-empties the field before its line runs. The keys are disposed as an app shuts down or another app's
-binding is made, which takes their five settings out of the registry, where the engine took them out
-by name. A line the console or the panel runs whose command threw has its stack written to the log
-as a line the e3d client sends has, and a test throws from both and finds the two errors logged.
-
-The suite passed whole on this commit, 2,535 tests, 0 failed and 6 skipped, the package tests with
-no package built. The picture `.github/assets/readings/2026-11-22-item-302-console-overlay.webp` is
-taken again in three panes, F3 and F5 at 1280 by 720 and F3 at 800 by 450, the F5 pane with `list
-keys` answered, `keys.` typed and its five candidates in the box over the field, so DEVLOG's line
-for it says two panes where the picture holds three.
-
-Item 302, step 3, the engine's settings.
-
-Every value a console command or an environment variable set before is a setting in the Diagnostics
-module's registry, 48 of the engine's with the module's five keys. Each has its range or its
-choices, its default, whether a set waits for the next start, and the variable that overrides it.
-
-| Page | Settings |
-|---|---|
-| ao, 8 | method (Horizons or Circular), samples, filter, slope, backface, boost, screen, size (Half or Full) |
-| gi, 19 | again, albedo, cascade, filter, follow, glow, history, merge, meshes, normals, passes, points, rays, screen, show, show_cascade, specular, spread, through |
-| field, 1 | show |
-| window, 4 | vsync, width, height, samples at the next start (`E3D_SAMPLES`) |
-| imgui, 1 | viewports |
-| time, 1 | frame (`E3D_FRAME_TIME`) |
-| live, 1 | reload (`E3D_LIVE`) |
-| log, 1 | frames (`ENGINE_LOG_FRAMES`) |
-| scenes, 1 | folder (`E3D_SCENES`) |
-| sky, 1 | hours |
-| run, 10 | frames, serve, headless, offscreen, hidden, seed, shuffle, sessions, validation, slangc, each at the next start with its variable |
-| keys, 5, the module's | console, hide_interface, overlay, panel, screenshot |
-
-The commands gi.toggle, gi.rays, gi.show, gi.passes, ao.set, field.show, time.frame and
-window.vsync are gone for the settings. `live` lists the files, and the `live.reload` setting turns
-their reloading on and off. The listing `imgui.viewports` is called `imgui.windows`, and
-`gi.difference <png>` takes the difference form gi.show had. window.size, window.position, monitor,
-minimize, restore and sky.time stay commands, as each does more than set. sky.time also answers
-where the sun and the moon stand.
-
-The settings file is `settings.txt` in the program's folder under the application data, which is
-`~/.config/<program>/` on Linux and `%APPDATA%\<program>\` on Windows. It has a `name value` line
-for each saved setting that differs from its default, and it keeps the lines of names a run does
-not know. It saves window.vsync, imgui.viewports and the five keys. It is read at the start and written
-on a change and at the close. A headless, hidden or offscreen run neither reads nor writes it, so no
-test touches the player's file.
-
-text_3d_drawing takes F6, F7 and F8. Julia, Mandelbrot, the top-down lights and FeatureTest's panel
-take F6, each with its help text. Their captures were taken again and the gallery made again by
-examples-table.py, with EXAMPLES.md and README.md unchanged. The picture
-`.github/assets/readings/2026-11-22-item-302-settings.webp` holds shaders_bounce_rooms offscreen at
-1280 by 720 in two panes. One is F4's panel on the gi page. The other is F5's console answering
-`gi.merge`, `gi.merge on`, `run.frames 600` as a value for the next start and `window.vsync`, with
-`gi.sh` typed and its two completions shown.
-
-The suite passed whole on this commit, part by part through the gate, 2,544 tests, 0 failed and 0
-skipped. The package built, and the guides' 225 blocks all build on it.
-
-The module lacks five things, which the step did not work round.
-- A setting has no kind that only reads, so run.* and window.samples answer that they take hold at
-  the next start, though no start reads them.
-- A setter cannot refuse a value. A set the host cannot apply yet, with no viewports, no global
-  illumination, no day sky or no window, is still answered as taken.
-- There is no uint or ulong kind, so run.seed and run.frames are held as int. A number with no High
-  takes Infinity, as only NaN is refused.
-- A saved setting's stored text reads its live getter, so the file keeps a value the program set
-  itself, such as window.vsync from the vsync hint.
-- The registry raises no event as a setting is added, so a saved setting registered after the start
-  is written only at the close.
-
-Item 288, the scene field's pool in a frame of the streamed land.
-
-The reading is `StreamedLandProbe.Flight` on the RTX 4070 under the exclusive lock, the engine's
-streamed land at the entry's settings over 900 frames, every stage inside `cpu.scene_field` and
-`cpu.global_illumination` in ms, from a tree whose marks stay out of the repository. A step here is
-a frame that puts meshes in the pool again with none new, frames 133 and 200, and a coming a frame
-whose meshes' open edges are found for the first time, frames 202 to 206, 470 to 473 and 738 to 741.
-Flights before and after were flown in turn, three of each, the load between 1.3 and 5.8.
-
-Before the mend:
-- At a step the field's worst frame read 14.7, 13.1 and 7.7 ms, the pool 13.8, 12.2 and 7.2 of
-  them, and 11.5, 11.1 and 6.0 ms of those the runtime compiling the pool's method again in the
-  frame its loop over the corners first ran long, as `JitInfo` read around it.
-- At a coming the worst read 8.3, 10.5 and 16.1 ms, the open edge finder 7.2, 9.5 and 15.5 of
-  them, 7.4 ms of the last compiling the finder in the first coming. The finder took 5.0 to 9.6 ms
-  in a coming of 30,000 to 40,000 triangles.
-- Over a flight the finder took 58 to 75 ms in 19 frames, on average 69 ms of the pool's 75 in
-  the frames meshes come in, the largest part of the field's work there.
-- The ray scene's worst frames, 7.8 to 9.6 ms, are `gi.rays` at a mesh's build and `gi.retire`,
-  at frames no mesh comes in, and are left as they were.
-
-The finder kept a dictionary keyed by the two places of an edge's ends, a pair of `Vector3` hashed
-and compared at 24 bytes, three times a corner. It numbers each place once and counts each edge by
-its two numbers in tables over arrays, once a corner. The pool's method and the finder are
-compiled optimized at their first call. `SceneFieldTests.Edges` holds the finder's bit for every
-edge equal to a reference that compares the places of its ends, in a land of blocks and in
-triangles that share places, so the corners the pool uploads, and the field built from them, are
-the same as before.
-
-After the mend, three flights flown after those above, the load 1.5 to 1.7:
-- At a step the field's worst frame reads 1.4, 3.3 and 2.8 ms, with nothing compiled.
-- At a coming the worst reads 8.4, 7.2 and 6.9 ms, the finder 7.2, 5.7 and 5.8 of them, and
-  compiling the finder at its first call takes 2.8 ms where it took 5.9 to 7.4. The finder takes
-  1.6 to 7.2 ms in a coming of 30,000 to 40,000 triangles.
-- Over a flight the finder takes 36 to 38 ms, and the field's worst frame of the flight 8.4, 7.2
-  and 7.1 ms against 14.7, 13.1 and 16.1.
-- With the finder alone mended and nothing compiled optimized, three flights in turn with the
-  three before, the finder took 25 to 46 ms over a flight, and a step still compiled for 11.3 ms
-  in one flight and the first coming for 5.9 in two.
-
 Item 292, the ray scene's corners grown and packed again without waiting for the queue.
 
 The kernels read the corners as one buffer. `meshrays.slang` and `lights.slang` take
@@ -1064,3 +901,51 @@ across y, the mean difference in 255ths. In every case it lay nearest the half a
   Before the field is built they darken over time at either size, which reads like a change of
   size where the two are drawn in turn.
 - The engine has no view of the occlusion alone and no render scale, so neither was tried.
+
+Item 309, the field's cascades held ahead along the look in Sponza and the Bistro.
+
+The view draws each cascade where it lies. The cascades stood off the camera because the two
+examples gave the field the point half the way to what each view first looked at, kept as the
+camera turned or walked, so after a turn the finer cascades lay behind the camera and the view
+showed them in one small place to its side, the same whichever way it looked. Each cascade's corner
+as `field.state` read it lay about that point and not about the camera. Both examples give
+`SetSceneFieldAhead(0.75f)` in its place, the point three quarters of the finest cascade's width
+ahead along the look, 6 units in Sponza and 12 m in the Bistro, and default programs keep the field
+about the camera.
+
+Each view against a path-traced reference of 256 samples a pixel at 12:00, the frame's mean over the
+reference's and the mean of each pixel's difference over the reference's mean, with the point the
+examples gave, with the field about the camera, and ahead.
+
+| View | Point half the way | About the camera | Ahead 0.75 |
+|---|---|---|---|
+| Sponza atrium | 1.09, 15.0% | 1.15, 21.1% | 1.11, 16.7% |
+| Sponza gallery | 1.13, 28.5% | 1.32, 43.0% | 1.14, 29.3% |
+| Sponza lion | 1.12, 29.3% | 1.20, 37.2% | 1.11, 28.6% |
+| Sponza arcades | 0.99, 25.5% | 1.02, 27.6% | 0.99, 25.5% |
+| Sponza nave | 1.06, 10.4% | 1.07, 11.4% | 1.07, 10.7% |
+| Sponza balcony | 1.08, 22.3% | 1.15, 27.8% | 1.08, 21.9% |
+| Sponza door | 1.18, 58.6% | 1.17, 65.3% | 1.19, 61.6% |
+| Sponza lookup | 1.03, 19.0% | 1.07, 22.4% | 1.03, 19.0% |
+| Bistro above | 1.01, 0.9% | 1.01, 1.1% | 1.01, 1.1% |
+| Bistro corner | 1.27, 37.7% | 1.29, 39.3% | 1.27, 37.6% |
+| Bistro lane | 1.16, 20.7% | 1.17, 21.7% | 1.16, 20.9% |
+| Bistro square | 1.23, 29.8% | 1.24, 31.1% | 1.23, 29.9% |
+| Bistro street | 1.10, 16.2% | 1.13, 17.2% | 1.11, 16.4% |
+| Bistro terrace | 1.19, 25.0% | 1.21, 26.2% | 1.20, 25.1% |
+| Sponza atrium turned round | 5.59, 473.9% | | 1.06, 42.3% |
+
+- The slowest frame of a full turn of the atrium a degree a frame read 18.5 and 16.7 ms over two
+  turns with the point half the way, and 25.0 and 26.3 ms ahead, a turn building cascades as a
+  walk does.
+- `GlobalIlluminationTests.FieldPlace.cs` holds each cascade's middle within 4 cells, half the
+  snap, of the eye with no share ahead and of the eye plus 0.75 of the finest cascade's width along
+  the look with it, at two places and two turns. A cascade's middle moves on its grid of 8 cells
+  with no hold, so one cell is not a bound it keeps. The same file holds the part of a floor the
+  field view draws for each of two cascades to the cascade's box, half a cell in from its sides,
+  reading every pixel whose point on the floor lies three cells or more from a side.
+- The gallery's 1.32 about the camera, the coarse cascade taking the sky's light indoors, is left
+  for its own item.
+- The sheet `.github/assets/readings/2026-11-22-item-309-field-view.webp` shows the atrium turned
+  round with fields 1 to 3 drawn, above with the point half the way and below ahead. The examples'
+  captures are taken again, and docs/global-illumination.md and RENDERING.md say the placement.

@@ -97,9 +97,11 @@ public static class ScenesBistro
         var file = ScenePacks.ModelOf(pack!);
 
         // The field's four cascades of cells a quarter of a meter reach 16, 32, 64 and 128 m
-        // across, ahead of the camera, and a far cascade of 240 holds the whole street from
-        // anywhere in it.
+        // across, about a point 12 m ahead of the camera along its look as it turns and flies, so
+        // the finer cascades hold what the view looks at, and a far cascade of 240 holds the whole
+        // street from anywhere in it.
         SetSceneField(4, 0.25f, farCascade: 240);
+        SetSceneFieldAhead(0.75f);
         SetGlobalIllumination(GlobalIllumination.High);
         // The corners, the cracks and the feet of the walls darken by the circular occluders the
         // window's depth gives, 16 rays a pixel against the points within half a meter taken as
@@ -154,21 +156,15 @@ public static class ScenesBistro
 
         var view = 0;
         var camera = Views[view].Camera;
-        static Vector3 Ahead(Camera3D looking) => (looking.Target - looking.Position) / 2;
-        var fieldAhead = Ahead(camera);
         var metered = true;
         _askedMetered = true;
         while (!WindowShouldClose())
         {
             for (int i = 0; i < Views.Length; i++)
                 if (IsKeyPressed(Key.One + i)) _askedView = i;
-            if (_askedView is { } asked)
-            {
-                (view, camera, _askedView) = (asked, Views[asked].Camera, null);
-                fieldAhead = Ahead(camera);
-            }
-            if (_askedCamera is { } looked) (camera, fieldAhead, _askedCamera) = (looked, Ahead(looked), null);
-            // A scripted turn about the camera's point, which moves no cascade of the field.
+            if (_askedView is { } asked) (view, camera, _askedView) = (asked, Views[asked].Camera, null);
+            if (_askedCamera is { } looked) (camera, _askedCamera) = (looked, null);
+            // A scripted turn about the camera's point, which carries the field's cascades round.
             if (_turning.Frames > 0)
             {
                 camera.Target = camera.Position + Vector3.Transform(camera.Target - camera.Position, Matrix4x4.CreateRotationY(-_turning.Radians));
@@ -178,7 +174,6 @@ public static class ScenesBistro
             if (_walking.Frames > 0)
             {
                 (camera.Position, camera.Target) = (camera.Position + _walking.Step, camera.Target + _walking.Step);
-                fieldAhead = Ahead(camera);
                 _walking.Frames--;
             }
             var flying = IsMouseButtonDown(MouseButton.Right);
@@ -207,7 +202,6 @@ public static class ScenesBistro
                 UpdateCameraPro(ref camera, new Vector3(Held(Key.W, Key.S), Held(Key.D, Key.A), Held(Key.E, Key.Q)) * step,
                     new Vector3(turn.X, turn.Y, 0), 0);
             }
-            SetSceneFieldCenter(camera.Position + fieldAhead);
 
             BeginDrawing();
             ClearBackground(Color.Black);
