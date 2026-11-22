@@ -22,8 +22,9 @@
 
     <ItemGroup>
         <ProjectReference Include="..\3DEngine\3DEngine.csproj" />
-        <!-- The Sky module, whose types the engine's API takes, as a package carries it beside the engine. -->
-        <ProjectReference Include="..\modules\Sky\Sky\Sky.csproj" />
+        <!-- The Atmosphere module, whose types the engine's API takes, as a package carries it
+             beside the engine. -->
+        <ProjectReference Include="..\modules\Atmosphere\Atmosphere\Atmosphere.csproj" />
         <!-- The Materials module, whose prototype table the engine's prototype materials take, as a
              package carries it beside the engine. -->
         <ProjectReference Include="..\modules\Materials\Materials\Materials.csproj" />

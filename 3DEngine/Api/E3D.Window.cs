@@ -11,6 +11,9 @@ public static partial class E3D
     private static int? _targetFps;
     private static long _lastFrameEnd;
 
+    // The seed the last window opened gave the random generator, the run's or the clock's.
+    internal static uint WindowSeed { get; private set; }
+
     // -- Window
 
     /// <summary>Opens a window and builds the app behind it.</summary>
@@ -34,7 +37,8 @@ public static partial class E3D
         _frameTimeTakenAt = 0;
         _lastFrameEnd = Stopwatch.GetTimestamp();
         // Seeded from the clock's seconds, as raylib's is, unless the run names a seed.
-        SetRandomSeed(RunMode.Seed() ?? (uint)DateTimeOffset.UtcNow.ToUnixTimeSeconds());
+        WindowSeed = RunMode.Seed() ?? (uint)DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+        SetRandomSeed(WindowSeed);
     }
 
     /// <summary>Runs <see cref="Stage.Cleanup"/>, closes the window and frees what the app holds.</summary>

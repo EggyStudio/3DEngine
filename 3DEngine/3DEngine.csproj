@@ -79,9 +79,9 @@
         <ProjectReference Include="Scenes\3DEngine.Scenes.csproj" />
         <ProjectReference Include="Modeling\3DEngine.Modeling.csproj" />
         <ProjectReference Include="Gui\3DEngine.Gui.csproj" />
-        <!-- The Sky module's types, which the day sky names, a repository of its own under modules/
-             and no package, whose assembly the package carries beside the areas'. -->
-        <ProjectReference Include="..\modules\Sky\Sky\Sky.csproj" PrivateAssets="all" />
+        <!-- The Atmosphere module's types, which the day sky names, a repository of its own under
+             modules/ and no package, whose assembly the package carries beside the areas'. -->
+        <ProjectReference Include="..\modules\Atmosphere\Atmosphere\Atmosphere.csproj" PrivateAssets="all" />
         <!-- The Materials module's, whose prototype table the flat API's prototype materials and
              grid take, a repository of its own under modules/ whose assembly the package carries
              too. -->
@@ -111,11 +111,12 @@
         <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="5.3.0" />
     </ItemGroup>
 
-    <!-- Each project reference's assembly and documentation, the areas' and the Sky module's, in
-         the package's lib folder beside this project's, from the paths the references resolved
-         to, and each one's symbols in the symbols package beside this project's. build/pack.sh
-         packs with the build, so the references resolve as the build resolves them. The generator
-         is referenced as an analyzer alone and the package carries it in its analyzers folder. -->
+    <!-- Each project reference's assembly and documentation, the areas' and the Atmosphere
+         module's, in the package's lib folder beside this project's, from the paths the references
+         resolved to, and each one's symbols in the symbols package beside this project's.
+         build/pack.sh packs with the build, so the references resolve as the build resolves them.
+         The generator is referenced as an analyzer alone and the package carries it in its
+         analyzers folder. -->
     <PropertyGroup>
         <TargetsForTfmSpecificBuildOutput>$(TargetsForTfmSpecificBuildOutput);E3DCarryProjects</TargetsForTfmSpecificBuildOutput>
         <TargetsForTfmSpecificDebugSymbolsInPackage>$(TargetsForTfmSpecificDebugSymbolsInPackage);E3DCarryProjectSymbols</TargetsForTfmSpecificDebugSymbolsInPackage>

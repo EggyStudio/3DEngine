@@ -251,8 +251,8 @@ taken for them.
 
 The modules this engine and BevyCSharp share are repositories of their own, checked out under
 `modules/` as git submodules, and each is taken where both engines are to compute one thing from
-one model, so a reading of the one is a reading of the other. The Sky module holds the sun's, the
-moon's and the sky's light in lux and kelvin and the air's parameters as data, which the day sky
+one model, so a reading of the one is a reading of the other. The Atmosphere module holds the sun's,
+the moon's and the sky's light in lux and kelvin and the air's parameters as data, which the day sky
 lights the world through, while each engine draws its own sky. A module references no engine, and
 the package carries its assembly and its documentation beside the engine's, since a module is no
 package of its own and a package cannot name a project.

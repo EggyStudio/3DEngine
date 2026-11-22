@@ -31,9 +31,9 @@ if [ ! -s "$notes" ]; then
   echo "No commits since the package before $version." > "$notes"
 fi
 # The engine's one package, the flat API's, carrying every area's assembly and documentation and
-# the Sky module's, so a game's one reference to 3DEngine brings every area at that version. Packed
-# with its restore and build, which dotnet pack marks as packing, so the restore holds the areas'
-# references private and the package names none of them as a dependency; the build finds the
+# the Atmosphere module's, so a game's one reference to 3DEngine brings every area at that version.
+# Packed with its restore and build, which dotnet pack marks as packing, so the restore holds the
+# areas' references private and the package names none of them as a dependency; the build finds the
 # assemblies built above as they are.
 dotnet pack 3DEngine/3DEngine.csproj -c Release -o build/package -p:Version="$version" -p:ReleaseNotesFile="$notes"
 # The version the packed assemblies carry, the one the engine names its cache folders by, read from

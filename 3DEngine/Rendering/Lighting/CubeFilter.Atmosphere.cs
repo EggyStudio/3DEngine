@@ -5,8 +5,8 @@ namespace Engine;
 
 /// <summary>
 /// The air's sky drawn on the GPU into an environment's equirectangular image, ahead of the filter
-/// that reads it (<see cref="RecordEnvironmentFilter"/>), from the Sky module's tables of the air's
-/// sky, as the module's SkyLight draws it on the CPU.
+/// that reads it (<see cref="RecordEnvironmentFilter"/>), from the Atmosphere module's tables of
+/// the air's sky, as the module's SkyLight draws it on the CPU.
 /// </summary>
 /// <remarks>
 /// The tables (<see cref="AirTables"/>) are made once for each air on a worker, the map waiting
@@ -22,7 +22,7 @@ internal sealed unsafe partial class CubeFilter
     // The air's tables, uploaded the first time the air's sky is drawn and kept, and the air
     // they hold.
     private IBuffer? _airTables;
-    private Sky.Atmosphere? _airTabled;
+    private Atmosphere.Air? _airTabled;
 
     /// <summary>Whether the air's pass has been given, so an environment can be made from
     /// the air.</summary>

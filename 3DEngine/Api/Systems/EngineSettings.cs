@@ -1,26 +1,27 @@
 using System.Runtime.CompilerServices;
 using Diagnostics;
 using ImGuiNET;
+using SDL3;
 
 namespace Engine;
 
 /// <summary>
 /// The engine's settings in the Diagnostics module's registry of the process, every value a console
 /// command or an environment variable set before there were settings, each with its range or its
-/// choices, its default, whether a set waits for the next start and the variable that overrides it.
+/// choices, its default, whether it only reads and the variable that overrides it.
 /// </summary>
 /// <remarks>
 /// <para>
 /// A setting reads and sets the world the settings stand for, the world lent to the line that runs
 /// or between lines the world of the app made last (<see cref="ConsoleHost.SettingsWorld"/>), and
-/// holds the value itself where that world has none of what it sets, as before an app is made or
-/// with global illumination off, so a set there reads back and reaches no world.
+/// refuses a set where that world has none of what it sets, as before an app is made or with
+/// global illumination off, with the reason, so the value stays as it reads.
 /// </para>
 /// <para>
 /// The settings file keeps the two a player chooses for the machine, <c>window.vsync</c> and
 /// <c>imgui.viewports</c>, with the module's five keys. The rest are the run's, a view or a part
-/// of the light left out to measure what it gives, or how a tool started the run, which the file
-/// never keeps.
+/// of the light left out to measure what it gives, or how a tool started the run, which only reads
+/// and which the file never keeps.
 /// </para>
 /// </remarks>
 internal static partial class EngineSettings
@@ -47,7 +48,7 @@ internal static partial class EngineSettings
 
         Setting<T> Of<T>(string name, string summary, T @default, Func<AmbientOcclusionSettings, T> read, Action<AmbientOcclusionSettings, T> write,
             double? low = null, double? high = null, double step = 0)
-            where T : notnull => Held(name, summary, @default, () => Made(false), () => Made(true), read, write, low, high, step);
+            where T : notnull => Held(name, summary, @default, () => Made(false), () => Made(true), read, write, NoApp, low, high, step);
 
         yield return Of("ao.method", "How the window's ambient occlusion is worked out, by the horizons or by the circular occluders.",
             OcclusionWay.Horizons, s => s.Method == AmbientOcclusionMethod.Horizons ? OcclusionWay.Horizons : OcclusionWay.Circular,
@@ -75,9 +76,10 @@ internal static partial class EngineSettings
         static GlobalIlluminationSettings? Lit() =>
             ConsoleHost.SettingsWorld is { } world && world.TryGetResource<GlobalIlluminationSettings>(out var held) ? held : null;
 
+        const string unlit = "The program runs no global illumination, which SetGlobalIllumination turns on.";
         Setting<T> Of<T>(string name, string summary, T @default, Func<GlobalIlluminationSettings, T> read, Action<GlobalIlluminationSettings, T> write,
             double? low = null, double? high = null)
-            where T : notnull => Held(name, summary, @default, Lit, Lit, read, write, low, high);
+            where T : notnull => Held(name, summary, @default, Lit, Lit, read, write, unlit, low, high);
 
         Setting<bool> Part(string name, string summary, Func<GlobalIlluminationSettings, bool> off, Action<GlobalIlluminationSettings, bool> leaveOut) =>
             Of(name, summary, true, s => !off(s), (s, on) => leaveOut(s, !on));
@@ -116,32 +118,29 @@ internal static partial class EngineSettings
         static SceneFieldSettings? Field() =>
             ConsoleHost.SettingsWorld is { } world && world.TryGetResource<SceneFieldSettings>(out var held) && held.On ? held : null;
         yield return Held("field.show", "The cascade of the scene's distance field drawn over the window as the field holds the scene, or -1 for none.", -1,
-            Field, Field, s => s.Shown, (s, v) => s.Shown = Math.Clamp(v, -1, s.Cascades - 1), low: -1, high: GpuSceneField.MaxCascades - 1);
+            Field, Field, s => s.Shown, (s, v) => s.Shown = Math.Clamp(v, -1, s.Cascades - 1),
+            "The program holds no distance field of the scene, which global illumination builds.", low: -1, high: GpuSceneField.MaxCascades - 1);
     }
 
     // The window's size and vsync, and ImGui's viewports.
     private static IEnumerable<Setting> Window()
     {
         static World? At() => ConsoleHost.SettingsWorld;
+        const string undrawn = "The program has no window and draws no frames.";
 
-        yield return Held<SurfaceResize, bool>("window.vsync", "Whether a frame waits for the display, the swapchain made again on the next frame.", false,
-            () => At()?.TryGetResource<SurfaceResize>(out var held) == true ? held : null, () => At()?.TryGetResource<SurfaceResize>(out var held) == true ? held : null,
-            s => s.Vsync, (s, on) => s.RequestVsync(on), saved: true);
-        // The size reads what the world draws at, and with no window or images the size held.
-        (int Width, int Height) held = (600, 400);
-        (int Width, int Height) Drawn() => At() is { } world && WindowCommands.Drawn(world) is { } drawn ? drawn : held;
-        void Resize(int width, int height)
-        {
-            held = (width, height);
-            if (At() is { } world) WindowCommands.Resize(world, width, height);
-        }
+        static SurfaceResize? Swapchain() => At()?.TryGetResource<SurfaceResize>(out var held) == true ? held : null;
+        yield return Held("window.vsync", "Whether a frame waits for the display, the swapchain made again on the next frame.", false,
+            Swapchain, Swapchain, s => s.Vsync, (s, on) => s.RequestVsync(on), undrawn, saved: true);
+        // The size reads what the world draws at, and with no window or images the default.
+        static (int Width, int Height) Drawn() => At() is { } world && WindowCommands.Drawn(world) is { } drawn ? drawn : (600, 400);
+        static string? Resize(int width, int height) => At() is { } world && WindowCommands.Resize(world, width, height) ? null : undrawn;
 
         yield return new Setting<int>("window.width", "The width of the window, or of the images an offscreen run draws into, which window.size sets with the height.",
-            600, () => Drawn().Width, width => Resize(width, Drawn().Height)) { Low = 0, High = 16384, Step = 16, Saved = false };
+            600, () => Drawn().Width, apply: width => Resize(width, Drawn().Height)) { Low = 0, High = 16384, Step = 16, Saved = false };
         yield return new Setting<int>("window.height", "The height of the window, or of the images an offscreen run draws into, which window.size sets with the width.",
-            400, () => Drawn().Height, height => Resize(Drawn().Width, height)) { Low = 0, High = 16384, Step = 16, Saved = false };
+            400, () => Drawn().Height, apply: height => Resize(Drawn().Width, height)) { Low = 0, High = 16384, Step = 16, Saved = false };
         yield return new Setting<bool>("imgui.viewports", "Whether ImGui's windows may leave the program's window for windows of their own, where SDL's driver places windows on the desktop.",
-            false, () => ImGui.GetCurrentContext() != IntPtr.Zero && (ImGui.GetIO().ConfigFlags & ImGuiConfigFlags.ViewportsEnable) != 0, Viewports);
+            false, () => ImGui.GetCurrentContext() != IntPtr.Zero && (ImGui.GetIO().ConfigFlags & ImGuiConfigFlags.ViewportsEnable) != 0, apply: Viewports);
     }
 
     // What runs as the frames go, the frame's time, the files loaded again as they change, the
@@ -162,36 +161,43 @@ internal static partial class EngineSettings
             () => ScenePacks.Folder, folder => ScenePacks.Folder = folder.Length > 0 ? folder : null)
         { EnvironmentVariable = "E3D_SCENES", Saved = false };
 
-        // The day sky's clock, held by the setting where the program runs no day sky.
+        // The day sky's clock, which reads 0 where the program runs no day sky.
         static DaySky? Sky() => ConsoleHost.SettingsWorld?.TryGetResource<DaySky>(out var sky) == true ? sky : null;
         yield return Held("sky.hours", "The hours the day sky has run from its first midnight, which sky.time answers with where the sun and the moon stand.", 0.0,
-            Sky, Sky, sky => sky.Hours, (sky, hours) => { sky.Hours = hours; sky.Changed(); }, low: 0, high: 24.0 * int.MaxValue, step: 0.5);
+            Sky, Sky, sky => sky.Hours, (sky, hours) => { sky.Hours = hours; sky.Changed(); },
+            "The program runs no day sky, which SetSkyTime or SetSkyDay starts.", low: 0, high: 24.0 * int.MaxValue, step: 0.5);
     }
 
-    // A setting of a field of what a world holds, read and set where the world holds it and held by
-    // the setting where it does not, the setter given what to set or what to make for it.
+    // Why a setting of what the world makes is refused where there is no world.
+    private const string NoApp = "No app is running to take it.";
+
+    // A setting of a field of what a world holds, read and set where the world holds it, reading
+    // the default and refusing a set with the reason given where it does not, the setter given what
+    // to set or what to make for it.
     private static Setting<T> Held<TResource, T>(string name, string summary, T @default, Func<TResource?> read, Func<TResource?> write,
-        Func<TResource, T> get, Action<TResource, T> set, double? low = null, double? high = null, double step = 0, bool saved = false)
+        Func<TResource, T> get, Action<TResource, T> set, string missing, double? low = null, double? high = null, double step = 0, bool saved = false)
         where TResource : class
-        where T : notnull
-    {
-        var held = @default;
-        return new Setting<T>(name, summary, @default,
-            () => read() is { } resource ? get(resource) : held,
-            value =>
+        where T : notnull =>
+        new(name, summary, @default,
+            () => read() is { } resource ? get(resource) : @default,
+            apply: value =>
             {
-                held = value;
-                if (write() is { } resource) set(resource, value);
+                if (write() is not { } resource) return missing;
+                set(resource, value);
+                return null;
             })
         { Low = low, High = high, Step = step, Saved = saved };
-    }
 
-    // Lets ImGui's windows leave the program's where SDL's driver places windows on the desktop.
-    private static void Viewports(bool on)
+    // Lets ImGui's windows leave the program's where SDL's driver places windows on the desktop,
+    // or says why they cannot.
+    private static string? Viewports(bool on)
     {
-        if (ImGui.GetCurrentContext() == IntPtr.Zero || !SdlImGuiViewports.Installed) return;
+        if (ImGui.GetCurrentContext() == IntPtr.Zero) return "The program draws no ImGui.";
+        if (!SdlImGuiViewports.Installed)
+            return $"ImGui keeps its windows inside the main one here, since SDL's {SDL.GetCurrentVideoDriver()} driver cannot place a window on the desktop.";
         var io = ImGui.GetIO();
         io.ConfigFlags = on ? io.ConfigFlags | ImGuiConfigFlags.ViewportsEnable : io.ConfigFlags & ~ImGuiConfigFlags.ViewportsEnable;
+        return null;
     }
 
     // Turns the reloading of the files loaded by name on or off, and the asset server's watch.

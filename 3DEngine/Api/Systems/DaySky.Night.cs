@@ -2,9 +2,9 @@ using System.Numerics;
 
 namespace Engine;
 
-// The night of a day sky with air, as the Sky module models it, the moon at its place and phase,
-// the bright stars at theirs, the Milky Way's band and a moonless sky's own glow, which the drawn
-// sky adds by their luminance (sky.slang) and the light at night takes the moon's from.
+// The night of a day sky with air, as the Atmosphere module models it, the moon at its place and
+// phase, the bright stars at theirs, the Milky Way's band and a moonless sky's own glow, which the
+// drawn sky adds by their luminance (sky.slang) and the light at night takes the moon's from.
 internal sealed partial class DaySky
 {
     /// <summary>
@@ -29,10 +29,10 @@ internal sealed partial class DaySky
 
     /// <summary>
     /// The sky's clock for an hour of the sky's day <paramref name="days"/>, which gives the moon's
-    /// phase and how far the stars have turned (Sky.SkyClock), at the equator, the day sky's sun
-    /// passing over it.
+    /// phase and how far the stars have turned (Atmosphere.SkyClock), at the equator, the day
+    /// sky's sun passing over it.
     /// </summary>
-    internal static Sky.SkyClock ClockAt(float hour, int days) =>
+    internal static Atmosphere.SkyClock ClockAt(float hour, int days) =>
         new() { Hour = hour, DayOfYear = ((FirstDayOfYear + days) % 365 + 365) % 365, Latitude = 0 };
 
     /// <summary>
@@ -81,12 +81,12 @@ internal sealed partial class DaySky
     /// </summary>
     internal static uint[] StarGrid()
     {
-        var catalog = Sky.Stars.Catalog;
+        var catalog = Atmosphere.Stars.Catalog;
         var cells = 6 * StarCells * StarCells;
         var placed = catalog.Select(star =>
         {
             var e = new Vector3(MathF.Cos(star.Declination) * MathF.Cos(star.RightAscension), MathF.Cos(star.Declination) * MathF.Sin(star.RightAscension), MathF.Sin(star.Declination));
-            return (Cell: CellOf(e), Way: e, Lux: Sky.Stars.Illuminance(star.Magnitude), Color: Sky.Stars.Color(star.ColorIndex));
+            return (Cell: CellOf(e), Way: e, Lux: Atmosphere.Stars.Illuminance(star.Magnitude), Color: Atmosphere.Stars.Color(star.ColorIndex));
         }).OrderBy(star => star.Cell).ToArray();
         var head = (cells + 1 + 3) / 4 * 4;
         var data = new uint[head + placed.Length * 8];
@@ -121,14 +121,14 @@ internal sealed partial class DaySky
     // The moon's disc through the air at an hour, its sunlit part's luminance and its dark part's
     // earthshine times what a luminance is multiplied by for the frame, both through the air along
     // its way, or none below the horizon.
-    private (Vector3 Toward, Vector3 Lit, Vector3 TowardSun, float Earthshine)? MoonDiscAt(Sky.Atmosphere air, float hour, float tilt, float preExposure)
+    private (Vector3 Toward, Vector3 Lit, Vector3 TowardSun, float Earthshine)? MoonDiscAt(Atmosphere.Air air, float hour, float tilt, float preExposure)
     {
         var (toMoon, phaseAngle) = MoonAt(hour, tilt, Days);
         if (toMoon.Y <= 0) return null;
         var through = air.Transmittance(0, toMoon.Y);
-        var hue = Sky.Sun.Outside / Sky.Colorimetry.Luminance(Sky.Sun.Outside);
-        var lit = hue * through * Sky.Moon.LitLuminance(phaseAngle) * preExposure;
-        var earthshine = Sky.Moon.EarthshineLuminance(phaseAngle) * Sky.Colorimetry.Luminance(through) * preExposure;
+        var hue = Atmosphere.Sun.Outside / Atmosphere.Colorimetry.Luminance(Atmosphere.Sun.Outside);
+        var lit = hue * through * Atmosphere.Moon.LitLuminance(phaseAngle) * preExposure;
+        var earthshine = Atmosphere.Moon.EarthshineLuminance(phaseAngle) * Atmosphere.Colorimetry.Luminance(through) * preExposure;
         return (toMoon, lit, SunToward(hour, tilt), earthshine);
     }
 }

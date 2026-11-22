@@ -106,14 +106,14 @@ public static class ScenesBistro
         // circles, two of the field's cells, finer than the cascades hold.
         SetAmbientOcclusion(1, 0.5f);
         SetAmbientOcclusionMethod(AmbientOcclusionMethod.CircularOccluders);
-        // A clear day's sun of 120,000 lux outside the air at 5,633 K, through the Sky module's
-        // Earth air, its aerosols spread over 12 km above a white ground, under AgX's curve. The
-        // day's path leans 22.16 degrees and the day starts at 13:42, the sun 56.6 degrees high to
-        // the south-west, lighting the corner's north face and leaving its door in shade. The
-        // camera is metered between EV -1 and 14, center-weighted and 0.79 stops under a mid gray,
-        // faster to light than to dark, and M holds it at the hour's, ISO 200, 1/50 s and f/16
-        // while the sun is up, two stops over a sunny day's, under which the sunlit stone reads
-        // near white and the light the street gives back shows in its shade, and a street at
+        // A clear day's sun of 120,000 lux outside the air at 5,633 K, through the Atmosphere
+        // module's Earth air, its aerosols spread over 12 km above a white ground, under AgX's
+        // curve. The day's path leans 22.16 degrees and the day starts at 13:42, the sun 56.6
+        // degrees high to the south-west, lighting the corner's north face and leaving its door in
+        // shade. The camera is metered between EV -1 and 14, center-weighted and 0.79 stops under a
+        // mid gray, faster to light than to dark, and M holds it at the hour's, ISO 200, 1/50 s and
+        // f/16 while the sun is up, two stops over a sunny day's, under which the sunlit stone
+        // reads near white and the light the street gives back shows in its shade, and a street at
         // night's ISO 3200, 1/15 s and f/1.4 once it has set, under which the 2 lux the lamps give
         // the paving read an eighth to a fifth of white.
         var hour = 13.7f;
@@ -125,7 +125,7 @@ public static class ScenesBistro
         // The air the scene the views are matched against is drawn through, its planet, molecules,
         // aerosols' albedo and ozone held as it sets them, its aerosols spread over 12 km above a
         // white ground.
-        var air = Sky.Atmosphere.Earth with
+        var air = Atmosphere.Air.Earth with
         {
             PlanetRadius = 6_378_100, RayleighScattering = new Vector3(5.8e-6f, 13.5e-6f, 33.1e-6f), AerosolAlbedo = new Vector3(0.9f),
             OzoneAbsorption = new Vector3(0.65e-6f, 1.88e-6f, 0.08e-6f) * 0.6f, OzoneBottom = 20_000, OzoneWidth = 20_000,

@@ -1256,7 +1256,7 @@ readonly struct Engine.ShaderReadback : IEquatable<ShaderReadback>
   static bool op_Inequality(ShaderReadback left, ShaderReadback right)
   void Deconstruct(out int Id, out int Size)
 readonly struct Engine.SkyDay : IEquatable<SkyDay>
-  Atmosphere? Atmosphere { get; init; }
+  Air? Atmosphere { get; init; }
   Color SunColor { get; init; }
   LightHandle Light { get; init; }
   SkyDay()

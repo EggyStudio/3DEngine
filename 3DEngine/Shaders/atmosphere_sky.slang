@@ -1,9 +1,9 @@
 // The air's sky in an equirectangular image of linear light, longitude across from the back and
 // latitude down from the top as EnvironmentMap reads one, each texel the luminance along its way
-// from the ground as the Sky module's SkyLight gives it from its tables (atmosphere.slang), times
-// the frame's light and what a luminance is multiplied by for the frame. The sun's own disc is
-// left out, which the drawn sky adds (sky.slang), since the sun's light on a surface is
-// the light's.
+// from the ground as the Atmosphere module's SkyLight gives it from its tables (atmosphere.slang),
+// times the frame's light and what a luminance is multiplied by for the frame. The sun's own disc
+// is left out, which the drawn sky adds (sky.slang), since the sun's light on a surface is the
+// light's.
 import atmosphere;
 
 [[vk::binding(0, 0)]] StructuredBuffer<float4> tables;

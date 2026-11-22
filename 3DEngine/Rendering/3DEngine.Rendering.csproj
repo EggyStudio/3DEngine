@@ -7,10 +7,10 @@
         <Description>The renderer, its render graph, passes, lighting, global illumination and scene field, and each area's part of the device.</Description>
     </PropertyGroup>
 
-    <!-- The Sky module, a repository of its own under modules/ and no package, whose assembly and
-         documentation the engine's package carries beside the areas'. -->
+    <!-- The Atmosphere module, a repository of its own under modules/ and no package, whose
+         assembly and documentation the engine's package carries beside the areas'. -->
     <ItemGroup>
-        <ProjectReference Include="..\..\modules\Sky\Sky\Sky.csproj" PrivateAssets="all" />
+        <ProjectReference Include="..\..\modules\Atmosphere\Atmosphere\Atmosphere.csproj" PrivateAssets="all" />
     </ItemGroup>
 
     <!-- The Diagnostics module, whose registry the renderer's console commands are added to. -->

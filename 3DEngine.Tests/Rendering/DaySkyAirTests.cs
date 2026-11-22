@@ -5,18 +5,18 @@ using static Engine.E3D;
 namespace Engine.Tests.Rendering;
 
 /// <summary>
-/// The day sky lit through the air the Sky module models (<see cref="SkyDay.Atmosphere"/>), the
-/// sun's light at the ground as the module gives it at the sun's height, warming as it sinks and
-/// fading as its disc sets, the moon's by night, and the light the world's directional light takes
-/// for it through the camera.
+/// The day sky lit through the air the Atmosphere module models (<see cref="SkyDay.Atmosphere"/>),
+/// the sun's light at the ground as the module gives it at the sun's height, warming as it sinks
+/// and fading as its disc sets, the moon's by night, and the light the world's directional light
+/// takes for it through the camera.
 /// </summary>
 [Collection("E3D")]
 public sealed class DaySkyAirTests : IDisposable
 {
-    private static readonly Sky.Atmosphere Earth = Sky.Atmosphere.Earth;
+    private static readonly Atmosphere.Air Earth = Atmosphere.Air.Earth;
 
     // Waits for an air's tables, made on a worker, so a test's frames draw its sky.
-    private static void Made(Sky.Atmosphere air) => AirTables.For(air).Wait();
+    private static void Made(Atmosphere.Air air) => AirTables.For(air).Wait();
 
     public void Dispose()
     {
@@ -34,10 +34,10 @@ public sealed class DaySkyAirTests : IDisposable
     {
         foreach (var elevation in new[] { 60f, 53.97f, 16.55f, 3 })
         {
-            var (direction, light) = DaySky.AirLightAt(Earth, Sky.Sun.Outside, HourAt(elevation), 0);
-            var sun = Sky.Sun.At(Earth, elevation);
-            Sky.Colorimetry.Luminance(light).Should().BeApproximately(sun.Illuminance, sun.Illuminance * 2e-3f, $"at {elevation} degrees");
-            Sky.Colorimetry.TemperatureOf(light).Should().BeApproximately(sun.Temperature, 5, $"at {elevation} degrees");
+            var (direction, light) = DaySky.AirLightAt(Earth, Atmosphere.Sun.Outside, HourAt(elevation), 0);
+            var sun = Atmosphere.Sun.At(Earth, elevation);
+            Atmosphere.Colorimetry.Luminance(light).Should().BeApproximately(sun.Illuminance, sun.Illuminance * 2e-3f, $"at {elevation} degrees");
+            Atmosphere.Colorimetry.TemperatureOf(light).Should().BeApproximately(sun.Temperature, 5, $"at {elevation} degrees");
             direction.Y.Should().BeNegative("the light shines down from the sun");
         }
     }
@@ -46,23 +46,23 @@ public sealed class DaySkyAirTests : IDisposable
     [Trait("Category", "Unit")]
     public void The_Suns_Light_Fades_As_Its_Disc_Sets_And_The_Moons_Takes_Over_By_Its_Place_And_Phase_Once_It_Is_Down()
     {
-        var horizon = Sky.Colorimetry.Luminance(DaySky.AirLightAt(Earth, Sky.Sun.Outside, 6, 0).Light);
-        var high = Sky.Colorimetry.Luminance(Sky.Sun.Outside * Earth.Transmittance(0, 0));
+        var horizon = Atmosphere.Colorimetry.Luminance(DaySky.AirLightAt(Earth, Atmosphere.Sun.Outside, 6, 0).Light);
+        var high = Atmosphere.Colorimetry.Luminance(Atmosphere.Sun.Outside * Earth.Transmittance(0, 0));
         horizon.Should().BeApproximately(high / 2, high * 0.01f, "half the disc is up as its middle meets the horizon");
-        Sky.Colorimetry.Luminance(DaySky.AirLightAt(Earth, Sky.Sun.Outside, HourAt(-0.3f), 0).Light).Should().Be(0, "the disc has set");
+        Atmosphere.Colorimetry.Luminance(DaySky.AirLightAt(Earth, Atmosphere.Sun.Outside, HourAt(-0.3f), 0).Light).Should().Be(0, "the disc has set");
 
         // At midnight of the sky's 25th day the moon is a day short of full, near the meridian, and
         // lights the world by the module's moon at its height and phase.
         var (toMoon, phaseAngle) = DaySky.MoonAt(0, 0, 24);
         phaseAngle.Should().BeLessThan(20, "the moon is nearly full");
-        var (direction, moonlight) = DaySky.AirLightAt(Earth, Sky.Sun.Outside, 0, 0, 24);
+        var (direction, moonlight) = DaySky.AirLightAt(Earth, Atmosphere.Sun.Outside, 0, 0, 24);
         (direction + toMoon).Length().Should().BeLessThan(1e-5f, "the light comes from the moon");
         var height = float.RadiansToDegrees(MathF.Asin(toMoon.Y));
-        Sky.Colorimetry.Luminance(moonlight).Should().BeApproximately(Sky.Moon.At(Earth, height, phaseAngle).Illuminance, 1e-5f, "the module's moon at its height and phase");
+        Atmosphere.Colorimetry.Luminance(moonlight).Should().BeApproximately(Atmosphere.Moon.At(Earth, height, phaseAngle).Illuminance, 1e-5f, "the module's moon at its height and phase");
         // On the tenth day the moon is a day from new, down with the sun at midnight, and gives
         // no light.
         DaySky.MoonAt(0, 0, 9).Toward.Y.Should().BeNegative("the moon near new stands with the sun under the ground");
-        Sky.Colorimetry.Luminance(DaySky.AirLightAt(Earth, Sky.Sun.Outside, 0, 0, 9).Light).Should().Be(0, "the moon is down");
+        Atmosphere.Colorimetry.Luminance(DaySky.AirLightAt(Earth, Atmosphere.Sun.Outside, 0, 0, 9).Light).Should().Be(0, "the moon is down");
     }
 
     [Fact]
@@ -73,12 +73,12 @@ public sealed class DaySkyAirTests : IDisposable
         // luminance as the module gives it, half a degree and a little more across.
         foreach (var elevation in new[] { 5f, 30f, 60f })
         {
-            var disc = DaySky.DiscAt(Earth, Sky.Sun.Outside, HourAt(elevation), 0, 2)!.Value.Light;
-            var expected = Sky.Sun.DiscLuminance(Earth, elevation) * 2;
+            var disc = DaySky.DiscAt(Earth, Atmosphere.Sun.Outside, HourAt(elevation), 0, 2)!.Value.Light;
+            var expected = Atmosphere.Sun.DiscLuminance(Earth, elevation) * 2;
             for (int c = 0; c < 3; c++)
                 (disc[c] / expected[c]).Should().BeApproximately(1, 0.005f, $"channel {c} at {elevation} degrees");
         }
-        DaySky.DiscRadiusDegrees.Should().Be(Sky.Sun.AngularDiameter / 2);
+        DaySky.DiscRadiusDegrees.Should().Be(Atmosphere.Sun.AngularDiameter / 2);
     }
 
     [Fact]
@@ -89,12 +89,12 @@ public sealed class DaySkyAirTests : IDisposable
         // against sets it, which the module's Earth, a clear air, warms to some 5,060 K at the
         // ground with the sun 53.97 degrees high and to some 4,340 K at 16.55 degrees.
         var hue = Linear(ColorFromTemperature(5633));
-        var outside = hue / Sky.Colorimetry.Luminance(hue) * 97_050;
+        var outside = hue / Atmosphere.Colorimetry.Luminance(hue) * 97_050;
         var high = DaySky.AirLightAt(Earth, outside, HourAt(53.97f), 0).Light;
         var low = DaySky.AirLightAt(Earth, outside, HourAt(16.55f), 0).Light;
-        Sky.Colorimetry.TemperatureOf(high).Should().BeInRange(4_980, 5_150);
-        Sky.Colorimetry.TemperatureOf(low).Should().BeLessThan(4_450).And.BeLessThan(Sky.Colorimetry.TemperatureOf(high) - 500);
-        Sky.Colorimetry.Luminance(high).Should().BeInRange(79_000, 83_000, "97,050 lux times the air's share at 54 degrees");
+        Atmosphere.Colorimetry.TemperatureOf(high).Should().BeInRange(4_980, 5_150);
+        Atmosphere.Colorimetry.TemperatureOf(low).Should().BeLessThan(4_450).And.BeLessThan(Atmosphere.Colorimetry.TemperatureOf(high) - 500);
+        Atmosphere.Colorimetry.Luminance(high).Should().BeInRange(79_000, 83_000, "97,050 lux times the air's share at 54 degrees");
     }
 
     [Fact]
@@ -114,8 +114,8 @@ public sealed class DaySkyAirTests : IDisposable
         var ecs = world.Resource<EcsWorld>();
         ecs.TryResolve(GetSkyLightHandle().Entity, out var entity).Should().BeTrue();
         var light = ecs.GetReadOnly<Light>(entity);
-        var sun = Sky.Sun.At(Earth, 53.97f);
-        var luminance = Sky.Colorimetry.Luminance(light.Color);
+        var sun = Atmosphere.Sun.At(Earth, 53.97f);
+        var luminance = Atmosphere.Colorimetry.Luminance(light.Color);
         (light.Intensity * luminance * MathF.PI / units.PreExposure).Should().BeApproximately(sun.Illuminance, sun.Illuminance * 0.01f,
             "the light returns the sun's lux from a white surface facing it, through the camera");
 
@@ -124,7 +124,7 @@ public sealed class DaySkyAirTests : IDisposable
         var map = world.Resource<EnvironmentMap>();
         map.Air.Should().NotBeNull("the map is drawn from the air");
         map.Air!.Air.Should().Be(Earth);
-        Sky.Colorimetry.Luminance(map.Air.Light).Should().BeApproximately(Sky.Sun.OutsideIlluminance * units.PreExposure, 1e-4f,
+        Atmosphere.Colorimetry.Luminance(map.Air.Light).Should().BeApproximately(Atmosphere.Sun.OutsideIlluminance * units.PreExposure, 1e-4f,
             "the sun outside the air seen through the camera");
         world.TryGetResource<SkyHorizon>(out _).Should().BeFalse();
         GetApp().World.Resource<DaySky>().SunDisc.Should().NotBeNull("the sun is up");
@@ -147,7 +147,7 @@ public sealed class DaySkyAirTests : IDisposable
             var ecs = GetApp().World.Resource<EcsWorld>();
             ecs.TryResolve(GetSkyLightHandle().Entity, out var entity).Should().BeTrue();
             var light = ecs.GetReadOnly<Light>(entity);
-            var lit = light.Intensity * Sky.Colorimetry.Luminance(light.Color);
+            var lit = light.Intensity * Atmosphere.Colorimetry.Luminance(light.Color);
             CloseWindow();
             UseApp(null);
             return lit;

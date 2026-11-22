@@ -6,8 +6,9 @@ namespace Engine.Tests.DiagnosticsHost;
 
 /// <summary>
 /// The engine's settings in the process's registry, a page of the panel for each first word of
-/// their names, a set reaching what the lent world holds, and the settings file of a shown program
-/// read as it starts and written as a saved setting changes, in a headless run.
+/// their names, a set reaching what the lent world holds or refused where it holds none, and the
+/// settings file of a shown program read as it starts and written as a saved setting changes, in a
+/// headless run.
 /// </summary>
 [Collection("E3D")]
 [Trait("Category", "Integration")]
@@ -55,8 +56,11 @@ public sealed class EngineSettingsTests : IDisposable
             "each setting is reached from a line by its name");
         EngineSettings.All.Where(setting => setting.Saved).Select(setting => setting.Name)
             .Should().BeEquivalentTo(["window.vsync", "imgui.viewports"], "the file keeps what a player chooses for the machine and none of the run's");
-        EngineSettings.All.Where(setting => setting.AtNextStart)
-            .Should().OnlyContain(setting => setting.EnvironmentVariable != null, "a value of the next start is what a variable gives a run");
+        EngineSettings.All.Where(setting => setting.ReadOnly).Select(setting => setting.Name).Should().BeEquivalentTo(
+            ["run.frames", "run.serve", "run.headless", "run.offscreen", "run.hidden", "run.seed", "window.samples", "run.shuffle",
+                "run.sessions", "run.validation", "run.slangc"],
+            "how a tool started the run only reads, since no start reads a value set while the program runs");
+        EngineSettings.All.Should().NotContain(setting => setting.AtNextStart, "no setting of the engine's waits for a start");
         foreach (var gone in new[] { "gi.toggle", "ao.set", "window.vsync" })
             ConsoleHost.Registry.FindCommand(gone).Should().BeNull("{0} only set a value, which a setting holds", gone);
 
@@ -68,7 +72,7 @@ public sealed class EngineSettingsTests : IDisposable
     }
 
     [Fact]
-    public void A_Set_Reaches_What_The_Lent_World_Holds_And_A_Value_Of_The_Next_Start_Is_Answered_As_One()
+    public void A_Set_Reaches_What_The_Lent_World_Holds_And_One_The_Run_Cannot_Apply_Or_That_Only_Reads_Is_Refused()
     {
         Frames(1);
         Run("ao.method circular").Should().Be("ao.method is Circular.");
@@ -78,9 +82,14 @@ public sealed class EngineSettingsTests : IDisposable
         GetApp().World.Resource<Time>().FrameSeconds.Should().Be(0.025);
         Run("reset time.frame");
         GetApp().World.Resource<Time>().FrameSeconds.Should().Be(0, "the default reads the clock");
-        Run("run.frames 123456").Should().Be("run.frames is 123456 at the next start.");
-        Run("gi.show tiles").Should().Be("gi.show is Tiles.", "a view is set whether global illumination is on or off");
-        Run("reset gi.show");
+        Run("run.frames 123456").Should().Be("run.frames is read only.");
+        Run("run.frames").Should().StartWith("run.frames is 0", "the run's config gives it");
+        Run("run.headless").Should().StartWith("run.headless is on");
+        Run("gi.show tiles").Should().Be("The program runs no global illumination, which SetGlobalIllumination turns on.");
+        Run("gi.show").Should().StartWith("gi.show is None", "a refused set leaves the value as it read");
+        Run("window.vsync on").Should().Be("The program has no window and draws no frames.", "a headless run has no swapchain");
+        Run("sky.hours 3").Should().Be("The program runs no day sky, which SetSkyTime or SetSkyDay starts.");
+        Run("time.frame 1e999").Should().StartWith("time.frame takes", "an infinity is no number of seconds");
     }
 
     [Fact]
@@ -89,15 +98,30 @@ public sealed class EngineSettingsTests : IDisposable
         using var folder = new TestFolder("settings-");
         var path = Path.Combine(folder.Path, "Game", "settings.txt");
         Directory.CreateDirectory(Path.GetDirectoryName(path)!);
-        File.WriteAllText(path, "window.vsync on\nmodule.unknown 3\n");
+        File.WriteAllText(path, "keys.console F7\nwindow.vsync on\nlate.value 5\nmodule.unknown 3\n");
         var given = DiagnosticsBinding.SettingsPath;
         DiagnosticsBinding.SettingsPath = config => config.WindowData.Title == Title ? path : given(config);
         try
         {
             Frames(1);
-            Run("window.vsync").Should().StartWith("window.vsync is on", "the file is read as the program starts");
-            Run("window.vsync off");
-            File.ReadAllText(path).Should().Be("module.unknown 3\n", "a setting back at its default leaves the file, and a line of a name this run does not know stays");
+            Run("keys.console").Should().StartWith("keys.console is F7", "the file is read as the program starts");
+            Run("window.vsync").Should().StartWith("window.vsync is off", "a headless run has no swapchain, so the file's line is refused");
+            Run("reset keys.console");
+            File.ReadAllText(path).Should().Be("late.value 5\nmodule.unknown 3\n",
+                "a setting back at its default leaves the file, a refused line is not written again, and a line of a name this run does not know stays");
+            var late = new Setting<int>("late.value", "A saved setting added after the start.", 0);
+            Registry.Process.Add(late);
+            try
+            {
+                late.Value.Should().Be(5, "a setting added after the start takes its line from the file");
+                Run("late.value 6");
+                File.ReadAllText(path).Should().Be("late.value 6\nmodule.unknown 3\n", "the file is written as a setting added after the start is set");
+                Run("reset late.value");
+            }
+            finally
+            {
+                Registry.Process.Remove("late.value");
+            }
             Run("keys.console F7");
             File.ReadAllText(path).Should().Be("keys.console F7\nmodule.unknown 3\n");
             Run("ao.method circular");

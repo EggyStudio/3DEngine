@@ -711,14 +711,14 @@ draws is in front. The draw goes through `toDisplay` and the curve like a reflec
 left out of the shadow map (`ModelDraw.CastsShadow`).
 
 A day sky given air (`SkyDay.Atmosphere`) has no image on the CPU. Its map
-(`EnvironmentMap.FromAir`) names the Sky module's air, the way toward the sun and the sun's light
-outside the air times the camera's pre-exposure, and the filter draws its image on the GPU ahead of
-the gather (`GraphicsDevice.RecordAirSky`), its mips blitted after. The Sky module makes the air's
-tables once for each air on the CPU (`SkyLight.Tables`), each lane of three of its wavelength bands
-its transmittance by height and zenith in 256 by 32 cells, its light scattered more than once by
-height and the sun's zenith in 128 by 32 as logarithms, and its row of the sky's light on a level
-ground, which the filter puts in one buffer (`AirTables`), and each texel of the image of 1,024 by
-512 is the module's march of 48 steps along its way from the ground as its README gives it
+(`EnvironmentMap.FromAir`) names the Atmosphere module's air, the way toward the sun and the sun's
+light outside the air times the camera's pre-exposure, and the filter draws its image on the GPU
+ahead of the gather (`GraphicsDevice.RecordAirSky`), its mips blitted after. The Atmosphere module
+makes the air's tables once for each air on the CPU (`SkyLight.Tables`), each lane of three of its
+wavelength bands its transmittance by height and zenith in 256 by 32 cells, its light scattered more
+than once by height and the sun's zenith in 128 by 32 as logarithms, and its row of the sky's light
+on a level ground, which the filter puts in one buffer (`AirTables`), and each texel of the image of
+1,024 by 512 is the module's march of 48 steps along its way from the ground as its README gives it
 (`atmosphere.slang`), the sun's light scattered toward the eye once by the molecules' and Cornette
 and Shanks's phase functions and more than once from the second table, and the ground's where the
 way meets it, lit by the sun through the air and by the sky, each lane's light turned into linear
@@ -5198,34 +5198,34 @@ brighter than Bevy's AgX at the balcony and 3.9 and 4.8 darker at the door and l
 histogram between 40% and 90% in the automatic mode's place reads 113.2, 118.0 and 100.5. The look
 brings the door's red over blue to 1.58 where the picture reads 1.60 and Bevy's AgX gave 1.26. The
 balcony's and the view up's stay at 0.70 and 0.47 where the pictures read 1.13 and 1.15, the color
-of the sun and the sky on the stone, which is the Sky module's to give (item 170). With the look and
-the gamma inverted along the gray axis, the pictures' light weighted toward the middle reads 1.0 to
-1.35 stops under the frame's at the balcony and looking up and 2.1 to 2.4 under it at the door,
-weighted alike, by a cone or by the bell the frame meters with. A meter settled on HDRP's target
-puts the two alike, so the pictures were exposed that far under what their own meter gives once
-settled, which no setting of the frame's accounts for.
+of the sun and the sky on the stone, which is the Atmosphere module's to give (item 170). With the
+look and the gamma inverted along the gray axis, the pictures' light weighted toward the middle
+reads 1.0 to 1.35 stops under the frame's at the balcony and looking up and 2.1 to 2.4 under it at
+the door, weighted alike, by a cone or by the bell the frame meters with. A meter settled on HDRP's
+target puts the two alike, so the pictures were exposed that far under what their own meter gives
+once settled, which no setting of the frame's accounts for.
 
 Through the scene's air (item 170), its planet, molecules, aerosols' albedo and ozone held as HDRP's
 Earth sets them, its aerosols spread over 12 km and a white ground as its profile holds, read by the
-Sky module in its twelve bands, and with the example's sun set outside the air to 120,000 lux times
-the sine of its height at 5,633 K as the scene's own script sets it, the sun reaches the ground at
-4,214, 4,974 and 4,993 K at the scene's heights for 8:00, 12:00 and 15:05, 16.55, 51.40 and 53.97
-degrees, where the module's three colors gave 4,062, 4,903 and 4,924 and HDRP's own transmittance
-gives 4,055, 4,903 and 4,924. Its lux there, 21,909, 79,440 and 82,660 where 22,580, 80,190 and
-83,410, lies 10 to 12% over HDRP's on an assumption no reading of the scene itself has settled, that
-Unity's color of a temperature has its brightest channel at 1 where the engine's has a luminance of
-1, and the sky lights a level floor with 2,135, 11,186 and 11,854 lux where 2,060, 10,770 and 11,410
-(the Sky module's `Sun` and `SkyLight` through that air). The example's sun path leans 6 degrees and
-stands 44.7 degrees high at 15:00 where the scene's stands 54, which waits for the module's clock.
-Held at one exposure on both, EV100 9.5 at the balcony and the door and 8 looking up, the whole
-frame read alike, the module's twelve bands move the frames little from its three colors, the
-balcony's, the door's and the view up's red over blue 1.12, 1.72 and 1.04 where 1.11, 1.76 and 1.04
-and their means 71.8, 45.3 and 77.1 where 71.6, 45.4 and 76.6, and the pictures read the same way
-give 1.13, 1.32 and 1.16 at means of 68.2, 50.0 and 75.8 (2026-11-19-sponza-sky-move-pair.webp). The
-figures read before, 1.24, 2.84 and 1.31 through the air and 0.67, 1.81 and 0.62 before it against
-the pictures' 1.13, 1.60 and 1.15, were read another way and are not set beside these. The shade's
-blue is gone, and the door's vestibule, lit by the light off the walls alone, warms past the
-picture's with each bounce off the warm stone.
+Atmosphere module in its twelve bands, and with the example's sun set outside the air to 120,000 lux
+times the sine of its height at 5,633 K as the scene's own script sets it, the sun reaches the
+ground at 4,214, 4,974 and 4,993 K at the scene's heights for 8:00, 12:00 and 15:05, 16.55, 51.40
+and 53.97 degrees, where the module's three colors gave 4,062, 4,903 and 4,924 and HDRP's own
+transmittance gives 4,055, 4,903 and 4,924. Its lux there, 21,909, 79,440 and 82,660 where 22,580,
+80,190 and 83,410, lies 10 to 12% over HDRP's on an assumption no reading of the scene itself has
+settled, that Unity's color of a temperature has its brightest channel at 1 where the engine's has a
+luminance of 1, and the sky lights a level floor with 2,135, 11,186 and 11,854 lux where 2,060,
+10,770 and 11,410 (the Atmosphere module's `Sun` and `SkyLight` through that air). The example's sun
+path leans 6 degrees and stands 44.7 degrees high at 15:00 where the scene's stands 54, which waits
+for the module's clock. Held at one exposure on both, EV100 9.5 at the balcony and the door and 8
+looking up, the whole frame read alike, the module's twelve bands move the frames little from its
+three colors, the balcony's, the door's and the view up's red over blue 1.12, 1.72 and 1.04 where
+1.11, 1.76 and 1.04 and their means 71.8, 45.3 and 77.1 where 71.6, 45.4 and 76.6, and the pictures
+read the same way give 1.13, 1.32 and 1.16 at means of 68.2, 50.0 and 75.8
+(2026-11-19-sponza-sky-move-pair.webp). The figures read before, 1.24, 2.84 and 1.31 through the air
+and 0.67, 1.81 and 0.62 before it against the pictures' 1.13, 1.60 and 1.15, were read another way
+and are not set beside these. The shade's blue is gone, and the door's vestibule, lit by the light
+off the walls alone, warms past the picture's with each bounce off the warm stone.
 
 `SetDepthOfField` and `SetMotionBlur` are passes of their own after the bloom chain, into half-float
 targets the window's size that the composite then reads in place of the scene, both reading the

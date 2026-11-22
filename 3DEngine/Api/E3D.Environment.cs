@@ -121,10 +121,10 @@ public static partial class E3D
         // in the sky (DaySky.Night).
         var moon = daySky?.MoonDisc;
         SetShaderValue(shader, GetShaderLocation(shader, "moonDisc"),
-            moon is { } m ? new Vector4(m.Toward, MathF.Cos(float.DegreesToRadians(Sky.Moon.AngularDiameter / 2))) : Vector4.Zero);
+            moon is { } m ? new Vector4(m.Toward, MathF.Cos(float.DegreesToRadians(Atmosphere.Moon.AngularDiameter / 2))) : Vector4.Zero);
         SetShaderValue(shader, GetShaderLocation(shader, "moonLight"), moon is { } ml ? new Vector4(ml.Lit, ml.Earthshine) : Vector4.Zero);
         SetShaderValue(shader, GetShaderLocation(shader, "moonSun"), moon is { } ms ? new Vector4(ms.TowardSun, 0) : Vector4.Zero);
-        var night = daySky is { Day.Atmosphere: { } air } ? (Air: air, Turn: DaySky.SiderealTurn(daySky.Hour, daySky.Days)) : default((Sky.Atmosphere Air, Vector2 Turn)?);
+        var night = daySky is { Day.Atmosphere: { } air } ? (Air: air, Turn: DaySky.SiderealTurn(daySky.Hour, daySky.Days)) : default((Atmosphere.Air Air, Vector2 Turn)?);
         if (night is { } n)
         {
             if (!_skyStars.IsValid) _skyStars = LoadShaderBuffer<uint>(DaySky.StarGrid());
@@ -132,7 +132,7 @@ public static partial class E3D
             var zenith = n.Air.Transmittance(0, 1);
             SetShaderValue(shader, GetShaderLocation(shader, "nightSky"),
                 new Vector4(n.Turn.X, n.Turn.Y, World.GetOrInsertResource(static () => new PhysicalUnits()).PreExposure, DaySky.StarCells));
-            SetShaderValue(shader, GetShaderLocation(shader, "nightAir"), new Vector4(-MathF.Log(zenith.X), -MathF.Log(zenith.Y), -MathF.Log(zenith.Z), Sky.Stars.Catalog.Count));
+            SetShaderValue(shader, GetShaderLocation(shader, "nightAir"), new Vector4(-MathF.Log(zenith.X), -MathF.Log(zenith.Y), -MathF.Log(zenith.Z), Atmosphere.Stars.Catalog.Count));
         }
         else SetShaderValue(shader, GetShaderLocation(shader, "nightSky"), Vector4.Zero);
         Res<ModelDrawList>().Add(new ModelDraw(_skyMesh.Id, world, DrawList.Transform, tint, 0, DrawList.Target, shader.Id,

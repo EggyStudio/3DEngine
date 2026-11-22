@@ -7,17 +7,17 @@ namespace Engine.Tests.Rendering;
 
 /// <summary>
 /// The air's sky drawn on the GPU (<c>atmosphere_sky.slang</c>), read back from the cube the drawn
-/// sky samples and from the environment's irradiance, against the Sky module's own luminance and
-/// illuminance on the CPU, so the sky drawn, the light from all around and the field's sky come
-/// from the model the sun's light does, and the sun's disc drawn over it.
+/// sky samples and from the environment's irradiance, against the Atmosphere module's own
+/// luminance and illuminance on the CPU, so the sky drawn, the light from all around and the
+/// field's sky come from the model the sun's light does, and the sun's disc drawn over it.
 /// </summary>
 [Collection("E3D")]
 public sealed class AirSkyTests(ITestOutputHelper output) : IDisposable
 {
-    private static readonly Sky.Atmosphere Earth = Sky.Atmosphere.Earth;
+    private static readonly Atmosphere.Air Earth = Atmosphere.Air.Earth;
 
     // Waits for an air's tables, made on a worker, so a test's frames draw its sky.
-    private static void Made(Sky.Atmosphere air) => AirTables.For(air).Wait();
+    private static void Made(Atmosphere.Air air) => AirTables.For(air).Wait();
 
     public void Dispose()
     {
@@ -82,7 +82,7 @@ public sealed class AirSkyTests(ITestOutputHelper output) : IDisposable
         var faces = CubeFilter.Of(device).ReadCubeFaces(cube);
         var size = (int)cube.Size;
         var preExposure = GetApp().World.Resource<PhysicalUnits>().PreExposure;
-        var sky = new Sky.SkyLight(Earth);
+        var sky = new Atmosphere.SkyLight(Earth);
         var toSun = DaySky.SunToward(HourAt(30), 0);
 
         // Every eighth texel of each face along its own way, as probecube.slang's cubeDirection
@@ -139,7 +139,7 @@ public sealed class AirSkyTests(ITestOutputHelper output) : IDisposable
         var device = (GraphicsDevice)renderer.Context.Graphics!;
         var irradiance = CubeFilter.Of(device).ReadCubeIrradiance(renderer.RenderWorld.Get<ModelRenderer>().Environment!);
         var preExposure = GetApp().World.Resource<PhysicalUnits>().PreExposure;
-        var sky = new Sky.SkyLight(Earth);
+        var sky = new Atmosphere.SkyLight(Earth);
         var toSun = DaySky.SunToward(HourAt(54), 0);
 
         // The module's sky over the whole sphere projected onto the same nine harmonics, each band

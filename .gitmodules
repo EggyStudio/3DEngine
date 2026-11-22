@@ -1,6 +1,6 @@
-[submodule "modules/Sky"]
-	path = modules/Sky
-	url = https://github.com/EggyStudio/3DEngine.Sky.git
+[submodule "modules/Atmosphere"]
+	path = modules/Atmosphere
+	url = https://github.com/EggyStudio/3DEngine.Atmosphere.git
 [submodule "modules/Materials"]
 	path = modules/Materials
 	url = https://github.com/EggyStudio/3DEngine.Materials.git

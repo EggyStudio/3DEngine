@@ -375,19 +375,19 @@ zenith, toward +Z, at noon, and sets in the west at 18. A program with a sun of 
 `SkyDay.Light`, and the sky turns and colors that light in place of making one of its own, so the
 world holds one sun.
 
-Given air, `SkyDay.Atmosphere`, such as the Sky module's `Sky.Atmosphere.Earth`, the sky's light is
-physical. The sun's light outside the air, `SkyDay.SunIlluminance` and `SkyDay.SunColor` or the
-module's 133,800 lux at 5,921 K where they are unset, reaches the world through the air at the
+Given air, `SkyDay.Atmosphere`, such as the Atmosphere module's `Atmosphere.Air.Earth`, the sky's
+light is physical. The sun's light outside the air, `SkyDay.SunIlluminance` and `SkyDay.SunColor` or
+the module's 133,800 lux at 5,921 K where they are unset, reaches the world through the air at the
 sun's height, 111,690 lux at 5,292 K with the sun 54 degrees high and 80,950 at 4,490 K at 16.5,
 fading as its disc sets, and by night the moon's by the same air. `SkyDay.SunByHeight` scales the
 sun's strength outside the air by the sine of its height as well, no less than a twenty-fourth of
 it, for a scene graded against a sun that weakens sooner as it sinks, as `scenes_sponza` sets
-120,000 lux and the hour alone. The sky is the air's, the sun's
-light the air scatters toward the eye drawn on the GPU from the same model, blue overhead, pale and
-bright toward the horizon and reddening as the sun sets, with the ground below the horizon lit
-through the air and the sun's disc drawn by its luminance. It lights the world from all around and
-is the sky the global illumination's rays meet, so a camera or an automatic exposure set for
-daylight sees the sun, the sky and the shade as the eye would (`DaySkyAirTests`, `AirSkyTests`).
+120,000 lux and the hour alone. The sky is the air's, the sun's light the air scatters toward the
+eye drawn on the GPU from the same model, blue overhead, pale and bright toward the horizon and
+reddening as the sun sets, with the ground below the horizon lit through the air and the sun's disc
+drawn by its luminance. It lights the world from all around and is the sky the global illumination's
+rays meet, so a camera or an automatic exposure set for daylight sees the sun, the sky and the shade
+as the eye would (`DaySkyAirTests`, `AirSkyTests`).
 
 The sky sets the horizon `SetSkyHorizon` sets to the hour's color, which `GetSkyHorizon` reads for
 a program's own fog, and paints the map again once the hour has moved three minutes of its day, at

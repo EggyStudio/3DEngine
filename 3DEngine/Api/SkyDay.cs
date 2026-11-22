@@ -75,8 +75,8 @@ public readonly record struct SkyDay
     public Color SunColor { get; init; }
 
     /// <summary>
-    /// The air the sun's and the moon's light reach the world through, as the Sky module models
-    /// it, such as <see cref="Sky.Atmosphere.Earth"/>, or none for the sky's own curve.
+    /// The air the sun's and the moon's light reach the world through, as the Atmosphere module
+    /// models it, such as <see cref="Atmosphere.Air.Earth"/>, or none for the sky's own curve.
     /// </summary>
     /// <remarks>
     /// <para>
@@ -95,5 +95,5 @@ public readonly record struct SkyDay
     /// with air sets its camera or its automatic exposure for daylight.
     /// </para>
     /// </remarks>
-    public Sky.Atmosphere? Atmosphere { get; init; }
+    public Atmosphere.Air? Atmosphere { get; init; }
 }

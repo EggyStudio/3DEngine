@@ -1,5 +1,5 @@
-// The air the day sky is drawn through, read from the Sky module's tables of a made sky as the
-// module's README gives the march (SkyLight.Tables), so the sky drawn here is the luminance the
+// The air the day sky is drawn through, read from the Atmosphere module's tables of a made sky as
+// the module's README gives the march (SkyLight.Tables), so the sky drawn here is the luminance the
 // module gives, which AirSkyTests reads. The tables come in one buffer of float4s, as AirTables
 // lays them out, a head of four, then ten for each lane, then each table's cells, a float4 a lane
 // to each cell, then each lane's row of the ground's light.

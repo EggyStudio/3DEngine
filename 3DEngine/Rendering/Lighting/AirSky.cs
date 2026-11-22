@@ -4,13 +4,13 @@ using System.Runtime.InteropServices;
 namespace Engine;
 
 /// <summary>
-/// The air's sky as a pass draws it, the Sky module's air, the way toward the sun and the sun's
-/// light outside the air times what a luminance is multiplied by for the frame, or the moon's in
-/// their place by night, and the luminance of a moonless sky's own glow under it in the same
+/// The air's sky as a pass draws it, the Atmosphere module's air, the way toward the sun and the
+/// sun's light outside the air times what a luminance is multiplied by for the frame, or the moon's
+/// in their place by night, and the luminance of a moonless sky's own glow under it in the same
 /// light, which an environment map made from it holds in place of an image
 /// (<see cref="EnvironmentMap.FromAir"/>).
 /// </summary>
-internal sealed record AirSky(Sky.Atmosphere Air, Vector3 SunToward, Vector3 Light, Vector3 Night = default)
+internal sealed record AirSky(Atmosphere.Air Air, Vector3 SunToward, Vector3 Light, Vector3 Night = default)
 {
     // As atmosphere.slang's AirPush lays the numbers out, four float4.
     [StructLayout(LayoutKind.Sequential)]
@@ -31,7 +31,7 @@ internal sealed record AirSky(Sky.Atmosphere Air, Vector3 SunToward, Vector3 Lig
         var push = new Push
         {
             Sun = new Vector4(Vector3.Normalize(SunToward), 0),
-            Scale = new Vector4(Light / Sky.Sun.Outside, 0),
+            Scale = new Vector4(Light / Atmosphere.Sun.Outside, 0),
             Night = new Vector4(Night, 0),
             Width = width,
             Height = height,

@@ -136,7 +136,7 @@ public static partial class ScenesSponza
         // and M holds the camera at those values. The air the scene the views are matched against
         // is drawn through, its planet, molecules, aerosols' albedo and ozone held as it sets them,
         // its aerosols spread over 12 km above a white ground.
-        var air = Sky.Atmosphere.Earth with
+        var air = Atmosphere.Air.Earth with
         {
             PlanetRadius = 6_378_100, RayleighScattering = new Vector3(5.8e-6f, 13.5e-6f, 33.1e-6f), AerosolAlbedo = new Vector3(0.9f),
             OzoneAbsorption = new Vector3(0.65e-6f, 1.88e-6f, 0.08e-6f) * 0.6f, OzoneBottom = 20_000, OzoneWidth = 20_000,

@@ -16,7 +16,7 @@ python3 build/test.py                      # the suite as the workflow runs it, 
 dotnet run --project 3DEngine.Examples     # a window
 ```
 
-The modules this engine and BevyCSharp share, the Sky module's model of the sun and the air
+The modules this engine and BevyCSharp share, the Atmosphere module's model of the sun and the air
 among them, are repositories of their own checked out under `modules/` as git submodules, so a
 clone made with `git clone --recurse-submodules` has them and one made without fetches them with
 `git submodule update --init`. The engine references each module's project, and the package

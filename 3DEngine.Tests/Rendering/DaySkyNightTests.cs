@@ -5,16 +5,17 @@ using static Engine.E3D;
 namespace Engine.Tests.Rendering;
 
 /// <summary>
-/// The night of a day sky with air as the Sky module models it, the moon at its place and phase
-/// by the sky's clock, the bright stars at theirs, and the sky drawing them by their luminance.
+/// The night of a day sky with air as the Atmosphere module models it, the moon at its place and
+/// phase by the sky's clock, the bright stars at theirs, and the sky drawing them by their
+/// luminance.
 /// </summary>
 [Collection("E3D")]
 public sealed class DaySkyNightTests : IDisposable
 {
-    private static readonly Sky.Atmosphere Earth = Sky.Atmosphere.Earth;
+    private static readonly Atmosphere.Air Earth = Atmosphere.Air.Earth;
 
     // Waits for an air's tables, made on a worker, so a test's frames draw its sky.
-    private static void Made(Sky.Atmosphere air) => AirTables.For(air).Wait();
+    private static void Made(Atmosphere.Air air) => AirTables.For(air).Wait();
 
     public void Dispose()
     {
@@ -36,14 +37,14 @@ public sealed class DaySkyNightTests : IDisposable
         }
         // A day later the moon stands where it stood some 49 minutes earlier the day before.
         var lag = (DaySky.ClockAt(22, 1).MoonPhase - DaySky.ClockAt(22, 0).MoonPhase) * 360 / 15 * 60;
-        lag.Should().BeApproximately(24 * 60 / Sky.SkyClock.SynodicMonth, 0.5f);
+        lag.Should().BeApproximately(24 * 60 / Atmosphere.SkyClock.SynodicMonth, 0.5f);
     }
 
     [Fact]
     [Trait("Category", "Unit")]
     public void The_Stars_Stand_Where_The_Modules_Clock_Puts_Them()
     {
-        foreach (var star in Sky.Stars.Catalog.Take(200))
+        foreach (var star in Atmosphere.Stars.Catalog.Take(200))
             foreach (var hour in new[] { 0f, 7.5f, 21f })
             {
                 var clock = DaySky.ClockAt(hour, 3);
@@ -59,7 +60,7 @@ public sealed class DaySkyNightTests : IDisposable
         var grid = DaySky.StarGrid();
         var cells = 6 * DaySky.StarCells * DaySky.StarCells;
         var head = (cells + 1 + 3) / 4 * 4;
-        var count = Sky.Stars.Catalog.Count;
+        var count = Atmosphere.Stars.Catalog.Count;
         grid[cells].Should().Be((uint)count);
         grid.Length.Should().Be(head + count * 8);
         float Float(int i) => BitConverter.UInt32BitsToSingle(grid[i]);
@@ -74,7 +75,7 @@ public sealed class DaySkyNightTests : IDisposable
                 lux += Float(at + 3);
             }
         }
-        lux.Should().BeApproximately(Sky.Stars.Catalog.Sum(star => (double)Sky.Stars.Illuminance(star.Magnitude)), 1e-9);
+        lux.Should().BeApproximately(Atmosphere.Stars.Catalog.Sum(star => (double)Atmosphere.Stars.Illuminance(star.Magnitude)), 1e-9);
     }
 
     // A window drawing the day sky with air at an hour of the sky's time looking along a way, held
@@ -122,7 +123,7 @@ public sealed class DaySkyNightTests : IDisposable
         // light the frame holds about it over the sky behind, times each pixel's solid angle, is
         // its illuminance through the air along its way. It stands on the corner of the four middle
         // pixels, each holding a sixth of it as a Gaussian of 0.8 of a pixel gives it.
-        var sirius = Sky.Stars.Catalog.MinBy(star => star.Magnitude);
+        var sirius = Atmosphere.Stars.Catalog.MinBy(star => star.Magnitude);
         var toward = DaySky.TowardStars(sirius.RightAscension, sirius.Declination, DaySky.SiderealTurn(21, 0));
         toward.Y.Should().BeGreaterThan(0.7f, "Sirius is high");
         const int Width = 64, Height = 64;
@@ -138,7 +139,7 @@ public sealed class DaySkyNightTests : IDisposable
         // depth along the way, one over the sine of the star's height, as the drawn sky takes it.
         var zenith = Earth.Transmittance(0, 1);
         var through = new Vector3(MathF.Pow(zenith.X, 1 / toward.Y), MathF.Pow(zenith.Y, 1 / toward.Y), MathF.Pow(zenith.Z, 1 / toward.Y));
-        var expected = Sky.Stars.Illuminance(sirius.Magnitude) * Sky.Colorimetry.Luminance(Sky.Stars.Color(sirius.ColorIndex) * through);
+        var expected = Atmosphere.Stars.Illuminance(sirius.Magnitude) * Atmosphere.Colorimetry.Luminance(Atmosphere.Stars.Color(sirius.ColorIndex) * through);
         ((float)(sum * pixel / preExposure)).Should().BeApproximately(expected, expected * 0.01f, "the star's light through the air, held to a hundredth");
         var corner = (Luminance(light, Width, Width / 2, Height / 2) - background) / sum;
         corner.Should().BeApproximately(0.168, 0.025, "the star is a point, its light on the few pixels about it");
@@ -156,11 +157,11 @@ public sealed class DaySkyNightTests : IDisposable
         const float Fovy = 2;
         var light = Night(24 * 24, toMoon, Fovy, Width, Height, out var preExposure);
         var middle = Luminance(light, Width, Width / 2, Height / 2);
-        var through = Sky.Colorimetry.Luminance(Earth.Transmittance(0, toMoon.Y));
-        var lit = Sky.Moon.LitLuminance(phaseAngle) * through;
+        var through = Atmosphere.Colorimetry.Luminance(Earth.Transmittance(0, toMoon.Y));
+        var lit = Atmosphere.Moon.LitLuminance(phaseAngle) * through;
         (middle / preExposure).Should().BeApproximately(lit, lit * 0.05f, "the sunlit face's luminance");
         var across = Enumerable.Range(0, Width).Count(x => Luminance(light, Width, x, Height / 2) > middle * 0.5f);
-        var expected = Sky.Moon.AngularDiameter / Fovy * Height;
+        var expected = Atmosphere.Moon.AngularDiameter / Fovy * Height;
         across.Should().BeInRange((int)(expected * 0.9f), (int)(expected * 1.1f) + 1, "the disc spans the moon's half degree");
     }
 

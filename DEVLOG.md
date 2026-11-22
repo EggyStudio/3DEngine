@@ -19,6 +19,15 @@ typed part, and the overlay as F3 shows it at 800 by 450, the right column's lin
 the left's where they would meet and the global illumination line broken after the last comma that
 fits.
 
+![](.github/assets/readings/2026-11-22-item-302-settings.webp)
+The shaders_bounce_rooms example offscreen at 1280 by 720 in two panes, the engine's values as
+settings of the Diagnostics module, the panel as F4 opens it on its gi page, a row for each of the
+19 names that begin with `gi.` and the value each holds, merge off as `./e3d command gi.merge off`
+set it and the first row chosen, which Left and Right step through its values, and the console as F5
+opens it answering `gi.merge` by its name with its value and its default, `gi.merge on` with its new
+value, `run.frames 600` as a value of the next start and `window.vsync` with its value, with `gi.sh`
+typed in its field and the two names that begin with it listed.
+
 ## 2026-11-21
 
 ![](.github/assets/readings/2026-11-21-sponza-base-color.webp)

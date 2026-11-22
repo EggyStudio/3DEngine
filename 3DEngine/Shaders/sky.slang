@@ -96,9 +96,9 @@ float3 starLight(float3 e, float pixel, int cells, uint count)
 }
 
 // The Milky Way's luminance along way e in the stars' coordinates, in candelas a square meter
-// outside the air, as the Sky module's Night.GalaxyLuminance gives it, 100 S10 in the galactic plane
-// toward the anticenter and 1,000 toward the center, a third each 8 degrees off it, an S10 a
-// tenth-magnitude star a square degree, 8.33e-7 candelas a square meter.
+// outside the air, as the Atmosphere module's Night.GalaxyLuminance gives it, 100 S10 in the
+// galactic plane toward the anticenter and 1,000 toward the center, a third each 8 degrees off it,
+// an S10 a tenth-magnitude star a square degree, 8.33e-7 candelas a square meter.
 float galaxyLight(float3 e)
 {
     float ra = atan2(e.y, e.x), dec = asin(clamp(e.z, -1.0, 1.0));

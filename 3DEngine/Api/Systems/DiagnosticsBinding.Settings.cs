@@ -28,6 +28,10 @@ internal sealed partial class DiagnosticsBinding
     /// with the world lent so each reaches the app, and writes it again from then on as a saved
     /// setting changes.
     /// </summary>
+    /// <remarks>
+    /// A saved setting added after the read takes its line from the file, which writes itself when
+    /// such a setting is set, and a line it refuses or a write that fails then is a warning.
+    /// </remarks>
     internal static void OpenSettings(World world, App app)
     {
         if (!world.TryGetResource<Config>(out var config) || SettingsPath(config) is not { } path) return;
@@ -46,6 +50,7 @@ internal sealed partial class DiagnosticsBinding
         }
 
         foreach (var line in refused) SettingsLogger.Warn($"{line} The setting starts at its default.");
+        file.Trouble += SettingsLogger.Warn;
         lock (binding._fileGate)
         {
             binding._file = file;

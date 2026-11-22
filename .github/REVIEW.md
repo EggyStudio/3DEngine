@@ -450,6 +450,16 @@ changes.
     in five lines and is mended there, never worked round here. The lighting branch goes on beside
     this.
 
+303. **The Sky module is named Atmosphere.** The module's repository becomes 3DEngine.Atmosphere,
+    its assembly and namespace Atmosphere and its class Atmosphere becomes Air, by the module's own
+    item. Once the module's commit is on GitHub the engine follows in one commit. The submodule
+    moves from modules/Sky to modules/Atmosphere with the new address, the project references and
+    the package's embedded assembly take the name, each `using Sky;` becomes `using Atmosphere;`,
+    and the type Atmosphere becomes Air where the engine names it. The engine's own names with sky
+    in them, its commands and settings pages among them, stay. The guides, the cheatsheet and the
+    README's module table take the name, and `docs-on-package.py` builds the guides' blocks on a
+    package of that tree before the report. No behavior changes, so no picture is asked.
+
 ## Verdicts
 
 No verdict is open. Verdict 132 is settled at 15:10 on 2026-11-22 on run 45021666753 and archived.
