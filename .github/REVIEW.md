@@ -1204,3 +1204,42 @@ cascade's rays marching on alone with no cascade above read 1.483, and the light
 3.26. So neither the hand-off between cascades nor the held light makes the excess. What is left
 is the first cascade's own marched rays at the floor's probes, or the gather of their light onto
 the floor, and that reading comes next.
+
+Item 265's door, the world's probes' interval.
+
+Each cascade's interval ends at four times its spacing in place of twice, from the probe itself as
+before, the last counted at the field's edge as before. A surface two to four spacings off is met by
+a probe's own rays again, as on main, where the next cascade's probes saw past an edge before it.
+Read at `sponza.view door`, `sponza.time 12`, unmetered, High, the held light. The floor's probe at
+16.5, 0.5, 0.5 with the screen's probes and the again pass off, 120 frames, against a one bounce
+trace of 512 paths a way. The door against the path-traced reference of 256 paths a pixel, every
+bounce, after 240 frames. The tests of the global illumination class and the open box with
+validation on. The time by pass five sessions a scene at the timing views under the exclusive lock.
+
+| Reading | Twice the spacing, `aad0d358` | Four times, this commit |
+|---|---|---|
+| The floor's probe, the held light, over the trace | +142% | +17% |
+| The floor's probe, the light kept about a hit, over the trace | +80% | +45% |
+| The door, the screen's probes off | 1.556 | 1.437 |
+| The door, the screen's probes on | 1.603 | 1.529 |
+| The probe under the lintel, held to 0.065 to 0.089 | 0.0472 | 0.0158 |
+| The slab's floor with the screen's probes, held to 0.063 within 0.05 | 0.135 | 0.137 |
+| The half slab's floor at High and 5.5, held to 0.35 to 0.48 | 0.483 | 0.481 |
+| The canopy's floors, the leaves' and the screen's probes' at 5.5 | pass | pass |
+| The open box's floor at Low, held to 0.75 to 1.25 | 1.371 | 1.371 |
+| The board outside the closed room, High and Medium, held under 0.00184 | 0.00193 | 0.00194 |
+| Sponza, the merge and the whole in ms | 0.76, 5.78 | 0.65, 6.09 |
+| The Bistro, the merge and the whole in ms | 0.76, 9.16 | 0.67, 9.63 |
+
+Main at `df4d0559` reads the floor's probe 6% under the trace and the door 0.961, its merge 0.36 and
+0.29 ms and its whole 6.18 and 9.41. The traces take 2.26 ms on Sponza and 2.71 on the Bistro
+against 1.73 and 2.02, and the hold 0.37 and 0.46 against 0.52 and 0.63, fewer held cells met. The
+same six tests fail as at `aad0d358` and no other in the two classes. The probe under the lintel
+reads farther from its reference, 0.0158 against 0.0812 where it read 0.0472. At the floor's probe
+the way up past block 4, which took 0.0815 of the held light from the cascade above where the trace
+reads 0.0002, meets the block in its own interval and reads nothing, and no way of the 64 holds the
+held light over the trace fivefold where the kept hit reads under half of it. Two ways toward -x
+still hand on over the step's edge at 4 units and read 0.0255 and 0.0492 against the trace's 0.0130
+and 0.0210, the merge's over-read at a step the module holds as a test. The door's excess over main
+stands at 1.437 against 0.961 with the floor's probe at +17%, so it lies elsewhere, and that read
+comes next.

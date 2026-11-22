@@ -183,8 +183,8 @@ across the field's edge changes from one pixel to the next by under 1%.
 ## The world's probes
 
 The world's probes stand eight cells of their cascade apart, two units at a cell of a quarter in the
-first, and each traces from the probe itself to twice its cascade's spacing, the last counted to the
-field's edge. Each quality traces a number of directions a probe in each cascade, more where the far
+first, and each traces from the probe itself to four times its cascade's spacing, the last counted to
+the field's edge. Each quality traces a number of directions a probe in each cascade, more where the far
 light needs them, as the table below gives. A ray that meets a surface brings back the light that
 surface sends on. That is its color times the sun's light where the field lets it through and the
 lamps', each that casts shadows only where the field lets it through too, with its emission and the

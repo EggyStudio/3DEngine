@@ -174,12 +174,14 @@ internal sealed partial class GlobalIlluminationRenderer : IIlluminationPasses, 
                 + $"in {Stopwatch.GetElapsedTime(making).TotalMilliseconds:0} ms.");
         }
 
-        // Each cascade's interval, by the RadianceCascades module's rule, from its probe to twice
-        // its spacing, where its rays are handed to the next cascade's probes, which stand up to a
-        // spacing of theirs off the ray and meet what lies past it where their own parallel rays
-        // do, so the nearer the end the less an edge past it is smeared over the ways about it. The
-        // end lies past the diagonal of the cell between the cascade's probes, the spacing times
-        // the root of 3, so the reach read of a point among them lies within it.
+        // Each cascade's interval runs from its probe, as the RadianceCascades module's merge takes
+        // it, to four times its spacing, where its rays are handed to the next cascade's probes,
+        // which stand up to a spacing of theirs off the ray and meet what lies past it where their
+        // own parallel rays do. So a surface up to four spacings off is met by the probe's own
+        // rays, where the next cascade's probes would see past an edge before it, a step's or a
+        // block's, and lend the light from beyond it to a floor beside the step. The end lies past
+        // the diagonal of the cell between the cascade's probes, the spacing times the root of 3,
+        // so the reach read of a point among them lies within it.
         //
         // The last cascade's interval ends at the field's edge, the diagonal of its coarsest
         // cascade, since past it no cascade takes over. Ending at four times its spacing, a ray
@@ -204,7 +206,7 @@ internal sealed partial class GlobalIlluminationRenderer : IIlluminationPasses, 
         for (int c = 0; c < cascades; c++)
         {
             var spacing = ProbeSpacing * fieldSettings.CellSize * (1 << c);
-            intervals[c] = (0, c == cascades - 1 || far && c == cascades - 2 ? fieldEdge : 2 * spacing);
+            intervals[c] = (0, c == cascades - 1 || far && c == cascades - 2 ? fieldEdge : 4 * spacing);
         }
         // The screen's probes' rays reach twice as far as the world's probes are apart before they
         // take the light from beyond from them, where they end in the finest cascade
