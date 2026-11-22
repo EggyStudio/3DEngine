@@ -65,10 +65,20 @@ internal static class ConsoleHost
     public static Answer Run(string line)
     {
         var answer = Registry.Run(line);
-        // The answer stays one line a person reads, and the stack of what the command threw goes to
-        // the log.
-        if (answer.Error is { } error) Logger.Error($"Command '{CommandLine.Parse(line).Name}' failed.", error);
+        Logged(line, answer);
         return answer;
+    }
+
+    /// <summary>
+    /// Writes the stack of what a line's command threw to the log, where its answer carries one,
+    /// as the console and the panel run lines of their own.
+    /// </summary>
+    /// <remarks>
+    /// The answer stays one line a person reads, and the stack goes to the log.
+    /// </remarks>
+    internal static void Logged(string line, Answer answer)
+    {
+        if (answer.Error is { } error) Logger.Error($"Command '{CommandLine.Parse(line).Name}' failed.", error);
     }
 
     /// <summary>The lent world's entities.</summary>

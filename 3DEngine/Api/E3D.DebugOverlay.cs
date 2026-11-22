@@ -67,14 +67,14 @@ public static partial class E3D
     /// </summary>
     /// <remarks>
     /// <para>
-    /// The overlay is two columns of lines in the engine's font, each on an opaque black backing,
-    /// so nothing drawn under a line shows through it, with no window, header or border. On the
-    /// left are the engine's version, the frame rate and time, the camera's place, facing and field
-    /// of view and the world's counts, and on the right the system, the CPU and memory, the GPU,
-    /// its driver and memory, the display, and the renderer's passes, draw calls, triangles,
-    /// lights, shadows, global illumination and GPU time. In a window too narrow for the two side
-    /// by side, a line of the right column that would meet the left's goes down under it, the lines
-    /// after it following, and a line wider than the window breaks after a comma.
+    /// The overlay is two columns of lines in the engine's font, each on a dark half-clear backing,
+    /// with no window, header or border. On the left are the engine's version, the frame rate and
+    /// time, the camera's place, facing and field of view and the world's counts, and on the right
+    /// the system, the CPU and memory, the GPU, its driver and memory, the display, and the
+    /// renderer's passes, draw calls, triangles, lights, shadows, global illumination and GPU time.
+    /// In a window too narrow for the two side by side, a line of the right column that would meet
+    /// the left's goes down under it, the lines after it following, and a line wider than the
+    /// window breaks after a comma.
     /// </para>
     /// <para>
     /// A strip of the last 240 frames' times stands under the frame rate, each frame a bar green to
@@ -126,11 +126,11 @@ public static partial class E3D
     [ThreadStatic]
     private static Stack<(bool Hidden, (int Vertices, int Indices, int Batches, int LastCount) Here)>? _uiScopes;
 
-    // The overlay's look, light gray text on opaque black, so nothing the program drew under a line
-    // shows through it, a line's backing three pixels wider than its text on each side, the columns
-    // two pixels in from the window's edges and eight pixels at least between them.
+    // The overlay's look, light gray text on black at half, a line's backing three pixels wider
+    // than its text on each side, the columns two pixels in from the window's edges and eight
+    // pixels at least between them.
     private const int OverlayText = 16, OverlayLine = OverlayText + 2, OverlayPad = 3, OverlayMargin = 2, OverlayGap = 8;
-    private static readonly Color OverlayInk = new(224, 224, 224, 255), OverlayBacking = new(0, 0, 0, 255);
+    private static readonly Color OverlayInk = new(224, 224, 224, 255), OverlayBacking = new(0, 0, 0, 128);
 
     // The strip, a pixel a frame across and a bit more than a pixel a millisecond up, its top 50
     // milliseconds, so a frame of 20 a second fills it, and its bars' colors to 60 frames a second,
@@ -248,7 +248,7 @@ public static partial class E3D
         return pieces;
     }
 
-    // The frames' times as bars, a column a frame with the newest at the right, on opaque black
+    // The frames' times as bars, a column a frame with the newest at the right, on black at half
     // with faint rows at 60 and 30 frames a second. The strip holds no frame yet at its left until
     // four seconds have run.
     private static void DrawStrip(int x, int y, ReadOnlySpan<float> times)

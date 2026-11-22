@@ -7,8 +7,9 @@ namespace Engine.Tests.DiagnosticsHost;
 /// <summary>
 /// F4 and F5 opening the Diagnostics module's settings panel and console, a line typed into the
 /// console's ImGui field run with the world lent and an answer that comes later written under it
-/// when it comes, and the keys' settings standing in the registry while the app runs, rebound
-/// there, and taken out as it ends, in a headless run.
+/// when it comes, a line the console or the panel runs whose command throws written to the log,
+/// and the keys' settings standing in the registry while the app runs, rebound there, and taken
+/// out as it ends, in a headless run.
 /// </summary>
 [Collection("E3D")]
 [Trait("Category", "Integration")]
@@ -99,6 +100,31 @@ public sealed class DiagnosticWindowsTests : IDisposable
         finally
         {
             ConsoleHost.Registry.Remove("probe.later");
+        }
+    }
+
+    // The two errors the test expects are its check that each line is logged with what it threw.
+    [Fact]
+    [ExpectsError("Engine.Console", "thrown for 'console'")]
+    [ExpectsError("Engine.Console", "thrown for 'panel'")]
+    public void A_Line_The_Console_Or_The_Panel_Runs_Whose_Command_Throws_Is_Logged_With_What_It_Threw()
+    {
+        ConsoleHost.Registry.Add(new Command("probe.throw", "Throws, naming the words after it.", "probe.throw <words>",
+            line => throw new InvalidOperationException($"thrown for '{line.Rest}'")));
+        try
+        {
+            Frames(1);
+            Binding.Console.Submit("probe.throw console").Error.Should().BeOfType<InvalidOperationException>();
+
+            Binding.Panel.Root.AddAction("Throw", "probe.throw panel");
+            for (var step = 0; step < 50 && Binding.Panel.Rows[Binding.Panel.Selected].Label != "Throw"; step++)
+                Binding.Panel.Press(PanelInput.Down);
+            Binding.Panel.Press(PanelInput.Accept);
+            Binding.Panel.Answer!.Error.Should().BeOfType<InvalidOperationException>("the panel's action ran the line");
+        }
+        finally
+        {
+            ConsoleHost.Registry.Remove("probe.throw");
         }
     }
 

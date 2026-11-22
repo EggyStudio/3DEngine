@@ -18,20 +18,22 @@ namespace Engine;
 /// them, stay the program's, and the program sees every press as it sees any key.
 /// </para>
 /// <para>
-/// The registry refuses a name twice, so the keys' settings stand in it for the app made last, in
-/// place of those of an app still running, and are taken out as that app shuts down. The keys of
-/// an app whose settings were taken out go on reading their own.
+/// The registry refuses a name twice, so the keys stand for the app made last. Making an app's
+/// binding disposes the keys of the app made before it, which takes their five settings out of
+/// the registry and ends them, and an app's keys are disposed as it shuts down.
 /// </para>
 /// <para>
 /// The console and the panel are drawn in ImGui's frame in PreUpdate with the world lent, so a line
 /// entered there runs as a line the e3d client sends does, between the frame's input and its
 /// update. A failure a command gives the host is written under its answer, and an answer that
-/// comes frames later is asked for once a frame and written to the console when it comes.
+/// comes frames later is asked for once a frame and written to the console when it comes. A line
+/// the console or the panel runs whose command threw has the stack of what it threw written to the
+/// log, as a line the e3d client sends has.
 /// </para>
 /// </remarks>
 internal sealed partial class DiagnosticsBinding
 {
-    // The binding whose keys' settings stand in the registry, and the gate that changes it.
+    // The binding whose keys stand in the registry, and the gate that changes it.
     private static readonly Lock Gate = new();
     private static DiagnosticsBinding? _registered;
 
@@ -47,9 +49,11 @@ internal sealed partial class DiagnosticsBinding
     {
         Console = new ConsoleModel(ConsoleHost.Registry);
         Panel = new PanelModel(ConsoleHost.Registry);
+        Console.LineRun += ConsoleHost.Logged;
+        Panel.Answered += ConsoleHost.Logged;
         lock (Gate)
         {
-            _registered?.Unregister();
+            _registered?.Keys.Dispose();
             Keys = new DiagnosticKeys(ConsoleHost.Registry) { Overlay = Overlay, Panel = Panel, Console = Console };
             _registered = this;
         }
@@ -143,25 +147,16 @@ internal sealed partial class DiagnosticsBinding
     }
 
     /// <summary>
-    /// Takes the keys' settings out of the registry as the app shuts down, where they are its own.
+    /// Disposes the keys as the app shuts down, which takes their settings out of the registry
+    /// where they are its own.
     /// </summary>
     internal static void Release(World world)
     {
         if (!world.TryGetResource<DiagnosticsBinding>(out var binding)) return;
         lock (Gate)
         {
-            if (!ReferenceEquals(_registered, binding)) return;
-            binding.Unregister();
-            _registered = null;
-        }
-    }
-
-    private void Unregister()
-    {
-        foreach (var action in Enum.GetValues<KeyAction>())
-        {
-            var setting = Keys.KeyOf(action);
-            if (ReferenceEquals(ConsoleHost.Registry.FindSetting(setting.Name), setting)) ConsoleHost.Registry.Remove(setting.Name);
+            binding.Keys.Dispose();
+            if (ReferenceEquals(_registered, binding)) _registered = null;
         }
     }
 

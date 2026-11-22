@@ -1050,14 +1050,20 @@ the window breaks after a comma, so at 800 by 450 every line stands whole and in
 by 720 nothing moves. The whole right column under the left would take 465 rows of the 450, and
 wrapping beside the left would split the processor's and the card's names over three rows. The
 display line reads the size the program draws at, 1280 x 720 after `window.size 1280 720` offscreen,
-where it read the size configured. The lines and the strip stand on an opaque black ground, so the
-example's caption no longer shows through them, its tail past their ends still showing. Two tests
-hold the columns apart at 800 and at 1280 wide, and the pixel test holds the black ground and the
-display line before and after a resize.
+where it read the size configured. The lines and the strip stand on black at half as before, so the
+example's caption shows faintly through the first lines. Two tests hold the columns apart at 800 and
+at 1280 wide, and the pixel test holds the half black ground and the display line before and after
+a resize.
 
-The suite passed whole on the overlay's commit before the guides' samples moved, 2,534 tests, 0
-failed and 6 skipped, the package tests with no package built, and the docs' part and the
-DiagnosticsHost part passed on this one. The picture
-`.github/assets/readings/2026-11-22-item-302-console-overlay.webp` is taken again in three panes, F3
-and F5 at 1280 by 720 and F3 at 800 by 450, so DEVLOG's line for it says two panes where the picture
-holds three.
+The Diagnostics module moves to `d48d664`. The console and the panel are drawn in the overlay's look
+whatever the program's ImGui theme, Tab's candidates stand in a box joined to the field, and Enter
+empties the field before its line runs. The keys are disposed as an app shuts down or another app's
+binding is made, which takes their five settings out of the registry, where the engine took them out
+by name. A line the console or the panel runs whose command threw has its stack written to the log
+as a line the e3d client sends has, and a test throws from both and finds the two errors logged.
+
+The suite passed whole on this commit, 2,535 tests, 0 failed and 6 skipped, the package tests with
+no package built. The picture `.github/assets/readings/2026-11-22-item-302-console-overlay.webp` is
+taken again in three panes, F3 and F5 at 1280 by 720 and F3 at 800 by 450, the F5 pane with `list
+keys` answered, `keys.` typed and its five candidates in the box over the field, so DEVLOG's line
+for it says two panes where the picture holds three.

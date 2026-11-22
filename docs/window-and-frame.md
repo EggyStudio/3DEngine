@@ -281,23 +281,22 @@ elsewhere and is called with each screenshot's path once it is written and each 
 once its last picture is, so a program names and notes its pictures as they land.
 
 F3 shows the engine's debug overlay over the frame, as Minecraft's debug screen, two columns of
-lines in the engine's font, each on an opaque black backing, so nothing drawn under a line shows
-through it, with no window, header or border, drawn after everything else the frame draws in 2D and
-outside the interface's scope, so F1 leaves it. The head says the frame rate, the last frame's time,
-the average and the one percent low, the rate the slowest hundredth of the frames came at, which a
-game that stutters shows where its average does not, and the engine's version and build. The left
-column says the camera's place, its facing in Minecraft's words, north being minus Z, and its field
-of view, and the entities, meshes, textures and assets the program holds. The right column says the
-runtime, the OS, the CPU and its logical cores, the memory in use of the machine's and the managed
-heap, the GPU, its driver, its Vulkan version and its memory in use, the display's size, refresh,
-scale and vsync, and the renderer's passes and draw calls, the triangles of the frame's model draws,
-the lights and those casting shadows, the shadow maps, global illumination's state and the GPU's
-time a frame. In a window too narrow for the two columns side by side, a line of the right one that
-would meet the left's goes down under it, the lines after it following, and a line wider than the
-window breaks after a comma. The overlay's lines are written again four times a second, so a number
-stays still long enough to read. The key is taken as it is let go, where no other key went down
-while it was held, so a program's own chords on F3 stand and never open it, and `SetDebugOverlayKey`
-moves it.
+lines in the engine's font, each on a dark half-clear backing, with no window, header or border,
+drawn after everything else the frame draws in 2D and outside the interface's scope, so F1 leaves
+it. The head says the frame rate, the last frame's time, the average and the one percent low, the
+rate the slowest hundredth of the frames came at, which a game that stutters shows where its average
+does not, and the engine's version and build. The left column says the camera's place, its facing in
+Minecraft's words, north being minus Z, and its field of view, and the entities, meshes, textures
+and assets the program holds. The right column says the runtime, the OS, the CPU and its logical
+cores, the memory in use of the machine's and the managed heap, the GPU, its driver, its Vulkan
+version and its memory in use, the display's size, refresh, scale and vsync, and the renderer's
+passes and draw calls, the triangles of the frame's model draws, the lights and those casting
+shadows, the shadow maps, global illumination's state and the GPU's time a frame. In a window too
+narrow for the two columns side by side, a line of the right one that would meet the left's goes
+down under it, the lines after it following, and a line wider than the window breaks after a comma.
+The overlay's lines are written again four times a second, so a number stays still long enough to
+read. The key is taken as it is let go, where no other key went down while it was held, so a
+program's own chords on F3 stand and never open it, and `SetDebugOverlayKey` moves it.
 
 Under the head a strip of the last 240 frames' times stands as the RivaTuner overlay draws its
 graph, a bar a frame, green to 60 frames a second, yellow to 30 and red past it, with faint rows at
@@ -324,13 +323,15 @@ RemoveDebugOverlaySection("World");
 A section added again under its name takes the place of the first, and one whose lines throw is a
 line saying it failed and why where its lines would be.
 
-F5 opens the console, a window across the top of the program's window holding every line written,
-the lines entered and their answers among them, and a field under them where a command or a setting
-is typed, completed by Tab from the names that begin with what is typed, walked back through by Up
-and Down, and run by Enter between the frame's input and its update, as `./e3d command` runs it. A
-command that answers frames later writes its answer under the line when it comes. F4 opens the
-settings panel, a page for each first word of the settings' names, steered by the arrows, Enter and
-Escape, or a pad.
+F5 opens the console, a window across the top of the program's window in the debug overlay's look,
+light gray on black at half, whatever the program's ImGui theme, holding every line written, the
+lines entered and their answers among them, and a field under them where a command or a setting is
+typed, completed by Tab from the names that begin with what is typed, which a box joined to the
+field lists, walked back through by Up and Down, and run by Enter between the frame's input and its
+update, as `./e3d command` runs it. A command that answers frames later writes its answer under the
+line when it comes, and one that throws writes the stack of what it threw to the log, as a line
+`./e3d command` sends does. F4 opens the settings panel, in the same look, a page for each first
+word of the settings' names, steered by the arrows, Enter and Escape, or a pad.
 
 ## The app underneath
 
