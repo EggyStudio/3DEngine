@@ -245,6 +245,8 @@ line of `./e3d list` at once, with its parameters read from the command line. Th
 Diagnostics module's, in the namespace `Diagnostics`, which the engine's package carries:
 
 ```csharp
+using Diagnostics;
+
 [Command("enemy.spawn", "Spawns enemies: enemy.spawn <count>")]
 internal static string Spawn(int count)
 {

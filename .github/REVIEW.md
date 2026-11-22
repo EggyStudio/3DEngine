@@ -451,10 +451,9 @@ changes.
 
 ## Verdicts
 
-Verdict 131 is settled at 01:52 on 2026-11-22, the build run 44956357397 on `df4d0559` green on the
-three systems, the reflections' frame recorded again with the widened roughness and the bound
-unchanged, the software device 0.95 percent apart. Verdict 130 is settled at 23:53 on 2026-11-20 on
-run 44809607763. Verdicts 1 to 129 are settled, said under each in REVIEW-ARCHIVE.md.
+Verdict 132 is open, the build run 45013034698 on `facf86a9` red in the examples job, a guide's
+block not building on the package. Verdict 131 is settled at 01:52 on 2026-11-22 on run 44956357397.
+Verdicts 1 to 130 are settled, said under each in REVIEW-ARCHIVE.md.
 
 131. **The reflections' reference frame recorded again for item 299 differs on the runners.** In run
     44943683933 on `31c089de`, read at 22:56 on 2026-11-21, the reference frame test of
@@ -467,6 +466,18 @@ run 44809607763. Verdicts 1 to 129 are settled, said under each in REVIEW-ARCHIV
     device (the derivative of the normal at an edge, the samples a pixel), and mend it there or
     record the frame so that each device stands within the bound by a count of pixels, the bound
     itself not widened. Settled when a run passes the frame on the three systems.
+
+132. **The guides' blocks do not build on the package after the console moved to the module.** Run
+    45013034698 on `facf86a9` is red at 13:15 on 2026-11-22 in the examples job alone, the tests
+    green on the three systems. `build/docs-on-package.py` stops at `docs/command-line.md` line 248,
+    block 1, with CS0246 twice, the types `Command` and `CommandAttribute` not found, 2 errors in
+    225 blocks. The attribute lives in the module's namespace since item 302's first step and the
+    block was written against the engine's own. Suspected, until the block is read, a missing `using
+    Diagnostics;` in the block or in the lines the script puts before every block, and the other
+    reading is a package that does not carry the module's assembly, which the script's reference
+    list would show. The mend is one commit over the two that wait, the block building on a package
+    packed from the tree, and `docs-on-package.py` joins what a commit touching a public name runs
+    before its report. The three go up together over the red head.
 
 ## Decisions
 
@@ -1012,3 +1023,11 @@ The suite passed whole at the step's first build, `61691e38`, 0 failed with 6 sk
 tests with no package built. This commit mends the picture, its caption and the window's doc on it
 and touches no code, and the DiagnosticsHost part passed on it, 61 of 61. The picture is
 `.github/assets/readings/2026-11-22-item-302-console-overlay.webp`.
+
+Verdict 132, the guide's block on the package.
+
+The block in `docs/command-line.md` that marks a game's own command names the module's namespace
+itself, `using Diagnostics;`, as a game's file must, since the attribute left the engine's namespace
+with item 302's first step. The package carries the module's assembly, so the block alone lacked it.
+`docs-on-package.py` builds the guides' 225 blocks on a package packed from this tree,
+`0.1.0-preview.20261122121602`, with no error.
