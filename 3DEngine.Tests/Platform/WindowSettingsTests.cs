@@ -156,4 +156,29 @@ public sealed class WindowSettingsTests
             Close(app);
         }
     }
+
+    [NeedsHeadlessWindowFact]
+    public void A_Hidden_Window_Keeps_The_Saved_Lines_Of_Its_Page_In_The_File_It_Writes()
+    {
+        using var folder = new TestFolder("window-hidden-kept-");
+        var path = Path.Combine(folder.Path, "settings.txt");
+        File.WriteAllText(path, "window.mode borderless\nwindow.width 480\n");
+        var app = Open(path, hidden: true);
+        try
+        {
+            Frames(app, 1);
+            WindowModes.Of(app.World.Resource<AppWindow>().Sdl.Window).Should().Be(WindowMode.Windowed, "the page only reads while the window is hidden, so the file's mode is not taken");
+            Run(app, "keys.console F7");
+            File.ReadAllLines(path).Should().BeEquivalentTo(["keys.console F7", "window.mode borderless", "window.width 480"],
+                "the file written as another setting is set keeps the lines of the page as they stand");
+            Run(app, "reset keys.console");
+            File.ReadAllLines(path).Should().BeEquivalentTo(["window.mode borderless", "window.width 480"]);
+        }
+        finally
+        {
+            Close(app);
+        }
+
+        File.ReadAllLines(path).Should().BeEquivalentTo(["window.mode borderless", "window.width 480"], "the file written as the program ends keeps them too");
+    }
 }

@@ -386,8 +386,9 @@ system refuses answers with its reason in the console and keeps the mode before.
 so a player sets the size of the window while it is fullscreen. `window.resizable` says whether its
 edges can be dragged, and `window.monitor` moves it, centered, to another screen by its number from
 0, a fullscreen window staying fullscreen there, and only reads where there is one screen. While
-the window is hidden, as `--hidden` asks, the whole page only reads, and in a run with no window
-the window's own settings are refused with the reason.
+the window is hidden, as `--hidden` asks, the whole page only reads and the settings file keeps
+the page's lines as they stand, and in a run with no window the window's own settings are refused
+with the reason.
 
 A program whose window is shown keeps the settings a player chooses for the machine, the five keys,
 the `window` page but `samples`, and `imgui.viewports`, in one file, `settings.txt` in a folder of

@@ -45,6 +45,17 @@ of the finest cascade's width ahead along the look, where field 1 fills all but 
 reach and fields 2 and 3 fill the view. The line under them says where the camera stood and how it
 turned.
 
+![](.github/assets/readings/2026-11-22-item-307-window-page.webp)
+The example core_3d_camera_first_person shown in a headless mutter with one screen of 1280 by 720,
+on white under its title, the rows named at their left. Above, The page, the settings panel as F5
+opens it on the window's page at 800 by 450, its rows height 450, mode Windowed, monitor 0,
+resizable off, samples 4, vsync off and width 800. Below, The modes, three panes named windowed,
+borderless and fullscreen over them as window.mode sets each, the gray field in each the screen and
+the dark edge the window's frame at one scale, the windowed frame of 800 by 450 set in the middle,
+as Wayland tells a window nothing of where it is, and the borderless and fullscreen frames covering
+the screen at 1280 by 720, fullscreen taking the screen's own mode, with what window.state answered
+under each.
+
 ## 2026-11-21
 
 ![](.github/assets/readings/2026-11-21-sponza-base-color.webp)
