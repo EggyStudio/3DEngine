@@ -89,6 +89,10 @@ internal sealed partial class DiagnosticsBinding
     /// </summary>
     internal bool HoldsKeyboard => Keys.Panels.Open is { } open && open != OpenPanels.OverlayName;
 
+    // The open panels' answer to whether one that takes input is open, which the program's input
+    // is held by while it is true.
+    private Func<bool>? _holdsInput;
+
     /// <summary>Binds an action to an engine key, or to none with <see cref="Key.Null"/>.</summary>
     internal void Bind(KeyAction action, Key key) => Keys.KeyOf(action).TrySet(key == Key.Null ? "" : key.ToString());
 
@@ -123,6 +127,10 @@ internal sealed partial class DiagnosticsBinding
             foreach (var key in input.KeysPressed.ToArray()) binding.Keys.KeyDown(key.ToString(), typing);
             foreach (var key in input.KeysReleased.ToArray()) binding.Keys.KeyUp(key.ToString());
         });
+        // The keys read above are the raw ones, which a panel holding the program's input leaves
+        // to them, and the hold is read again once they have opened or closed one, so the stages
+        // after see the panels as the keys left them.
+        input.HoldWhile(binding._holdsInput ??= () => binding.Keys.Panels.HoldsInput);
     }
 
     /// <summary>

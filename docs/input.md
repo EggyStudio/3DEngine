@@ -267,6 +267,15 @@ program asks, the pad reaches the game alone, as Dear ImGui and rlImGui leave it
 by the pad keeps each press while a tool window is open. Arrow keys, Enter and Escape move through
 ImGui from a keyboard either way.
 
+While the engine's console or its settings panel is open, every read of input answers the program
+as though nothing were pressed or moved, the keys, the mouse's buttons, the pointer, which stays
+where it was as the panel opened, the wheel, touches and every gamepad's buttons, sticks, triggers
+and gyro, through these calls and through the `Input` resource that systems and behaviors read
+alike, so the arrows and the stick that step a row of the panel do not also move the scene. The
+debug overlay alone holds nothing, and the five debug keys still open and close the panels. A key,
+a button or a stick still held as a panel closes stays unseen until it is let go, or for a stick
+until it comes back near the middle, so it does not reach the program as a press it did not make.
+
 ## Input in the ECS
 
 A behavior reads the same input through its context, `ctx.Input`, its keys by `KeyDown` and

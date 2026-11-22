@@ -322,8 +322,8 @@ internal static class InputCommands
     internal static string State()
     {
         var input = Parts().Input;
-        var keys = Enum.GetValues<Key>().Where(k => k != Engine.Key.Null && input.KeyDown(k)).Distinct().Select(k => k.ToString());
-        var buttons = Enum.GetValues<MouseButton>().Where(input.MouseDown).Select(b => b.ToString());
+        var keys = Enum.GetValues<Key>().Where(k => k != Engine.Key.Null && input.KeysDown.Contains(k)).Distinct().Select(k => k.ToString());
+        var buttons = Enum.GetValues<MouseButton>().Where(input.MouseButtonsDown.Contains).Select(b => b.ToString());
         var pads = input.Gamepads.Select((p, i) => $"{i}: {p.Name}");
         var touches = input.Touches.Select(t => $"{t.Id}: {t.Position.X:0}, {t.Position.Y:0}");
         return $"keys: {string.Join(", ", keys)}\nmouse: {input.MouseX}, {input.MouseY} {string.Join(", ", buttons)}\ntouches: {string.Join("; ", touches)}\ngamepads: {string.Join("; ", pads)}";

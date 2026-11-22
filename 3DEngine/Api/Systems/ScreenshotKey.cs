@@ -95,8 +95,9 @@ internal sealed class ScreenshotKey
             || !Enum.TryParse<Key>(binding.Keys.KeyOf(KeyAction.Screenshot).Text, ignoreCase: true, out var key) || key == Key.Null
             || !world.TryGetResource<Input>(out var input)) return;
         var now = world.TryGetResource<Time>(out var time) ? time.ElapsedSeconds : 0;
-        var held = input.KeyDown(key);
-        if (input.KeyPressed(key))
+        // The key as it stands, which a panel that holds the program's input does not hold.
+        var held = input.KeysDown.Contains(key);
+        if (input.KeysPressed.Contains(key))
             (keys._downAt, keys._recorded) = (now, false);
         if (keys._recording is { } recording)
         {

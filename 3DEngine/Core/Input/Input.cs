@@ -63,6 +63,11 @@ public sealed class Input
 
     /// <summary>The fingers on the screen, in the order they touched it, in window pixels.</summary>
     internal IReadOnlyList<TouchPoint> Touches => _touches;
+
+    /// <summary>
+    /// The fingers on the screen as the program reads them, none while a panel holds its input.
+    /// </summary>
+    internal IReadOnlyList<TouchPoint> SeenTouches => Held ? [] : _touches;
     private readonly System.Collections.Concurrent.ConcurrentQueue<Action<Input>> _queued = new();
 
     /// <summary>Absolute X position of the mouse cursor in window pixels.</summary>
@@ -72,7 +77,10 @@ public sealed class Input
     internal int MouseY { get; private set; }
 
     /// <summary>Absolute mouse cursor position as an (X, Y) tuple in window pixels.</summary>
-    public (int X, int Y) MousePosition => (MouseX, MouseY);
+    /// <remarks>
+    /// While the console or the settings panel is open it stays where it was as the panel opened.
+    /// </remarks>
+    public (int X, int Y) MousePosition => Held ? _heldAt : (MouseX, MouseY);
 
     /// <summary>Relative mouse X motion accumulated this frame.</summary>
     internal int MouseDeltaX { get; private set; }
@@ -81,7 +89,8 @@ public sealed class Input
     internal int MouseDeltaY { get; private set; }
 
     /// <summary>Relative mouse motion accumulated this frame as an (X, Y) tuple.</summary>
-    public (int X, int Y) MouseDelta => (MouseDeltaX, MouseDeltaY);
+    /// <remarks>It is nothing while the console or the settings panel is open.</remarks>
+    public (int X, int Y) MouseDelta => Held ? (0, 0) : (MouseDeltaX, MouseDeltaY);
 
     /// <summary>Horizontal scroll wheel input accumulated this frame.</summary>
     internal float WheelX { get; private set; }
@@ -93,12 +102,13 @@ public sealed class Input
     /// How far the wheel turned this frame as an (X, Y) tuple, Y positive away from the user and X
     /// for a wheel or trackpad that scrolls sideways, as <c>GetMouseWheelMoveV</c> gives it.
     /// </summary>
-    public (float X, float Y) MouseWheel => (WheelX, WheelY);
+    /// <remarks>It is nothing while the console or the settings panel is open.</remarks>
+    public (float X, float Y) MouseWheel => Held ? (0f, 0f) : (WheelX, WheelY);
 
     private readonly List<char> _textInput = [];
     
     /// <summary>Characters typed this frame via text input events.</summary>
-    internal ReadOnlySpan<char> TextInput => CollectionsMarshal.AsSpan(_textInput);
+    internal ReadOnlySpan<char> TextInput => Held ? default : CollectionsMarshal.AsSpan(_textInput);
 
     // What raylib's GetCharPressed and GetKeyPressed hand out one at a time, the characters
     // typed and the keys pressed this frame, in order, each taken once.
@@ -118,77 +128,87 @@ public sealed class Input
     private readonly Queue<Key> _keyQueue = [];
 
     /// <summary>Takes the next character typed this frame, as a Unicode code point, or 0 when none is left.</summary>
-    internal int TakeChar() => _charQueue.TryDequeue(out var c) ? c : 0;
+    internal int TakeChar() => !Held && _charQueue.TryDequeue(out var c) ? c : 0;
 
     /// <summary>Takes the next key pressed this frame, or <see cref="Key.Null"/> when none is left.</summary>
-    internal Key TakeKey() => _keyQueue.TryDequeue(out var k) ? k : Key.Null;
+    internal Key TakeKey() => !Held && _keyQueue.TryDequeue(out var k) ? k : Key.Null;
 
     /// <summary>Returns <c>true</c> while the specified key is held down.</summary>
     /// <param name="key">The key to test.</param>
     /// <returns><c>true</c> if the key is currently held; otherwise <c>false</c>.</returns>
-    public bool KeyDown(Key key) => _keysDown.Contains(key);
+    /// <remarks>
+    /// While the console or the settings panel is open every key reads as up, and a key still held
+    /// as the panel closes reads as up until it is let go, so it does not reach the program as a
+    /// press it did not make.
+    /// </remarks>
+    public bool KeyDown(Key key) => !Held && _keysDown.Contains(key) && !_keysHeldOver.Contains(key);
 
     /// <summary>Returns <c>true</c> during the frame the key was first pressed.</summary>
     /// <param name="key">The key to test.</param>
     /// <returns><c>true</c> if the key transitioned to down this frame; otherwise <c>false</c>.</returns>
-    public bool KeyPressed(Key key) => _keysPressed.Contains(key);
+    /// <remarks>
+    /// No key is pressed while the console or the settings panel is open, nor one held as it
+    /// closes.
+    /// </remarks>
+    public bool KeyPressed(Key key) => !Held && _keysPressed.Contains(key) && !_keysHeldOver.Contains(key);
 
     /// <summary>Returns <c>true</c> during the frame the key was released.</summary>
     /// <param name="key">The key to test.</param>
     /// <returns><c>true</c> if the key transitioned to up this frame; otherwise <c>false</c>.</returns>
-    internal bool KeyReleased(Key key) => _keysReleased.Contains(key);
+    internal bool KeyReleased(Key key) => !Held && _keysReleased.Contains(key) && !_keyReleasesHidden.Contains(key);
 
     /// <summary>
     /// Whether the system repeated <paramref name="key"/> this frame while it was held, as it
     /// repeats a held key in a text field. The first press is not a repeat.
     /// </summary>
-    internal bool KeyPressedRepeat(Key key) => _keysRepeated.Contains(key);
+    internal bool KeyPressedRepeat(Key key) => !Held && _keysRepeated.Contains(key) && !_keysHeldOver.Contains(key);
 
     /// <summary>Returns <c>true</c> if any key is currently held down.</summary>
     /// <returns><c>true</c> if at least one key is held; otherwise <c>false</c>.</returns>
-    internal bool AnyKeyDown() => _keysDown.Count > 0;
+    internal bool AnyKeyDown() => !Held && _keysDown.Any(key => !_keysHeldOver.Contains(key));
 
     /// <summary>Returns <c>true</c> if any key was first pressed this frame.</summary>
     /// <returns><c>true</c> if at least one key transitioned to down; otherwise <c>false</c>.</returns>
-    internal bool AnyKeyPressed() => _keysPressed.Count > 0;
+    internal bool AnyKeyPressed() => !Held && _keysPressed.Any(key => !_keysHeldOver.Contains(key));
 
     /// <summary>Returns <c>true</c> while the specified mouse button is held down.</summary>
     /// <param name="button">The mouse button to test.</param>
     /// <returns><c>true</c> if the button is currently held; otherwise <c>false</c>.</returns>
-    internal bool MouseDown(MouseButton button) => _mouseDown.Contains(button);
+    internal bool MouseDown(MouseButton button) => !Held && _mouseDown.Contains(button) && !_mouseHeldOver.Contains(button);
 
     /// <summary>Returns <c>true</c> during the frame the mouse button was first pressed.</summary>
     /// <param name="button">The mouse button to test.</param>
     /// <returns><c>true</c> if the button transitioned to down this frame; otherwise <c>false</c>.</returns>
-    internal bool MousePressed(MouseButton button) => _mousePressed.Contains(button);
+    internal bool MousePressed(MouseButton button) => !Held && _mousePressed.Contains(button) && !_mouseHeldOver.Contains(button);
 
     /// <summary>Returns <c>true</c> during the frame the mouse button was released.</summary>
     /// <param name="button">The mouse button to test.</param>
     /// <returns><c>true</c> if the button transitioned to up this frame; otherwise <c>false</c>.</returns>
-    internal bool MouseReleased(MouseButton button) => _mouseReleased.Contains(button);
+    internal bool MouseReleased(MouseButton button) =>
+        !Held && _mouseReleased.Contains(button) && !_mouseReleasesHidden.Contains(button);
 
     /// <summary>Returns <c>true</c> if any mouse button is currently held down.</summary>
     /// <returns><c>true</c> if at least one button is held; otherwise <c>false</c>.</returns>
-    internal bool AnyMouseDown() => _mouseDown.Count > 0;
+    internal bool AnyMouseDown() => !Held && _mouseDown.Any(button => !_mouseHeldOver.Contains(button));
 
     /// <summary>Returns <c>true</c> if any mouse button was first pressed this frame.</summary>
     /// <returns><c>true</c> if at least one button transitioned to down; otherwise <c>false</c>.</returns>
-    internal bool AnyMousePressed() => _mousePressed.Count > 0;
+    internal bool AnyMousePressed() => !Held && _mousePressed.Any(button => !_mouseHeldOver.Contains(button));
 
     /// <summary>Returns <c>true</c> while the specified mouse button (by 0-based index) is held down.</summary>
     /// <param name="button">Zero-based button index (0 = left, 1 = middle, 2 = right).</param>
     /// <returns><c>true</c> if the button is currently held; otherwise <c>false</c>.</returns>
-    internal bool MouseDown(int button) => _mouseDown.Contains((MouseButton)button);
+    internal bool MouseDown(int button) => MouseDown((MouseButton)button);
 
     /// <summary>Returns <c>true</c> during the frame the mouse button (by 0-based index) was first pressed.</summary>
     /// <param name="button">Zero-based button index.</param>
     /// <returns><c>true</c> if the button transitioned to down this frame; otherwise <c>false</c>.</returns>
-    internal bool MousePressed(int button) => _mousePressed.Contains((MouseButton)button);
+    internal bool MousePressed(int button) => MousePressed((MouseButton)button);
 
     /// <summary>Returns <c>true</c> during the frame the mouse button (by 0-based index) was released.</summary>
     /// <param name="button">Zero-based button index.</param>
     /// <returns><c>true</c> if the button transitioned to up this frame; otherwise <c>false</c>.</returns>
-    internal bool MouseReleased(int button) => _mouseReleased.Contains((MouseButton)button);
+    internal bool MouseReleased(int button) => MouseReleased((MouseButton)button);
 
     /// <summary>The connected gamepads, in the order they connected. Index 0 is the first.</summary>
     internal IReadOnlyList<GamepadState> Gamepads => _gamepads;
@@ -205,6 +225,54 @@ public sealed class Input
     internal IReadOnlyCollection<MouseButton> MouseButtonsDown => _mouseDown;
     internal IReadOnlyCollection<MouseButton> MouseButtonsReleased => _mouseReleased;
 
+    // While a panel that takes input is open, the console or the settings panel, every read a
+    // program makes answers as though nothing were pressed or moved, the sets above standing as
+    // they are for the engine's own readers, the panels' keys and the pad ImGui is given among
+    // them. As the hold ends, the keys and buttons still down stay unseen until they are let go,
+    // and their releases with them, so one held as a panel closes is no press of the program's.
+    private Func<bool>? _holds;
+    private readonly HashSet<Key> _keysHeldOver = [];
+    private readonly HashSet<Key> _keyReleasesHidden = [];
+    private readonly HashSet<MouseButton> _mouseHeldOver = [];
+    private readonly HashSet<MouseButton> _mouseReleasesHidden = [];
+    private (int X, int Y) _heldAt;
+
+    /// <summary>Whether a panel that takes input holds it from the program, as last read.</summary>
+    internal bool Held { get; private set; }
+
+    /// <summary>
+    /// Gives the answer the hold is read from, the open panels' own, and reads it.
+    /// </summary>
+    internal void HoldWhile(Func<bool> holds)
+    {
+        _holds = holds;
+        SyncHold();
+    }
+
+    /// <summary>
+    /// Reads whether a panel holds the program's input, as the frame's events come in, after the
+    /// panels' keys and as the frame ends, so each reader of a frame's stage sees one answer, and
+    /// as the hold ends keeps what is still down unseen.
+    /// </summary>
+    internal void SyncHold()
+    {
+        var held = _holds?.Invoke() == true;
+        if (held == Held) return;
+        Held = held;
+        if (held)
+        {
+            _heldAt = (MouseX, MouseY);
+            return;
+        }
+        _keysHeldOver.UnionWith(_keysDown);
+        _keysHeldOver.UnionWith(_keysPressed);
+        _keyReleasesHidden.UnionWith(_keysReleased);
+        _mouseHeldOver.UnionWith(_mouseDown);
+        _mouseHeldOver.UnionWith(_mousePressed);
+        _mouseReleasesHidden.UnionWith(_mouseReleased);
+        foreach (var pad in _gamepads) pad.HoldOver();
+    }
+
     // -- Mutation, internal, for the platform backends alone
 
     /// <summary>
@@ -216,6 +284,7 @@ public sealed class Input
     /// <summary>Makes the queued changes. Called by the loop driver as it processes events.</summary>
     internal void ApplyQueued()
     {
+        SyncHold();
         while (_queued.TryDequeue(out var change)) change(this);
     }
 
@@ -241,6 +310,7 @@ public sealed class Input
     /// <summary>Clears per-frame transient state. Called once at the end of each frame.</summary>
     internal void BeginFrame()
     {
+        SyncHold();
         _keysPressed.Clear();
         _keysReleased.Clear();
         _keysRepeated.Clear();
@@ -254,6 +324,10 @@ public sealed class Input
         _charQueue.Clear();
         _keyQueue.Clear();
         foreach (var pad in _gamepads) pad.BeginFrame();
+        _keysHeldOver.IntersectWith(_keysDown);
+        _mouseHeldOver.IntersectWith(_mouseDown);
+        _keyReleasesHidden.Clear();
+        _mouseReleasesHidden.Clear();
     }
 
     /// <summary>Updates the state of a keyboard key.</summary>
@@ -268,12 +342,13 @@ public sealed class Input
             if (_keysDown.Add(key))
             {
                 _keysPressed.Add(key);
-                _keyQueue.Enqueue(key);
+                if (!Held) _keyQueue.Enqueue(key);
             }
         }
-        else
+        else if (_keysDown.Remove(key))
         {
-            if (_keysDown.Remove(key)) _keysReleased.Add(key);
+            _keysReleased.Add(key);
+            if (_keysHeldOver.Remove(key)) _keyReleasesHidden.Add(key);
         }
     }
 
@@ -286,9 +361,10 @@ public sealed class Input
         {
             if (_mouseDown.Add(button)) _mousePressed.Add(button);
         }
-        else
+        else if (_mouseDown.Remove(button))
         {
-            if (_mouseDown.Remove(button)) _mouseReleased.Add(button);
+            _mouseReleased.Add(button);
+            if (_mouseHeldOver.Remove(button)) _mouseReleasesHidden.Add(button);
         }
     }
 
@@ -356,6 +432,7 @@ public sealed class Input
     {
         foreach (var c in text)
             _textInput.Add(c);
+        if (Held) return;
         foreach (var rune in text.EnumerateRunes())
             _charQueue.Enqueue(rune.Value);
     }

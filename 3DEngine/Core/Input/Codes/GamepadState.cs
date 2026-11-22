@@ -82,18 +82,62 @@ public sealed class GamepadState
         else if (_down.Remove(button))
         {
             _released.Add(button);
+            if (_heldOver.Remove(button)) _releasesHidden.Add(button);
             if (LastPressed == button) LastPressed = null;
         }
     }
 
     internal void SetAxis(GamepadAxis axis, float value)
     {
-        if ((uint)axis < (uint)_axes.Length) _axes[(int)axis] = value;
+        if ((uint)axis >= (uint)_axes.Length) return;
+        _axes[(int)axis] = value;
+        if (MathF.Abs(value) <= Rest) _axesHeldOver[(int)axis] = false;
     }
 
     internal void BeginFrame()
     {
         _pressed.Clear();
         _released.Clear();
+        _heldOver.IntersectWith(_down);
+        _releasesHidden.Clear();
     }
+
+    // What the program does not see as a panel that held its input closes, the buttons still down
+    // until they are let go, their releases with them, and the sticks and triggers still pushed
+    // until they come back near rest, so one held as the panel closes is no press of the program's.
+    // The members above are the pad as it stands, which ImGui is given to move through a panel.
+    private readonly HashSet<GamepadButton> _heldOver = [];
+    private readonly HashSet<GamepadButton> _releasesHidden = [];
+    private readonly bool[] _axesHeldOver = new bool[6];
+
+    // How near rest an axis held as a panel closes comes back before it is read again, a quarter
+    // of its travel, where a panel's own reading of a stick begins.
+    private const float Rest = 0.25f;
+
+    internal void HoldOver()
+    {
+        _heldOver.UnionWith(_down);
+        _heldOver.UnionWith(_pressed);
+        _releasesHidden.UnionWith(_released);
+        for (int i = 0; i < _axes.Length; i++) _axesHeldOver[i] |= MathF.Abs(_axes[i]) > Rest;
+    }
+
+    // The pad as the program reads it, at rest while a panel holds its input, which held says,
+    // and without what was held as the panel closed.
+    internal bool SeenDown(GamepadButton button, bool held) => !held && _down.Contains(button) && !_heldOver.Contains(button);
+
+    internal bool SeenPressed(GamepadButton button, bool held) => !held && _pressed.Contains(button) && !_heldOver.Contains(button);
+
+    internal bool SeenReleased(GamepadButton button, bool held) =>
+        !held && _released.Contains(button) && !_releasesHidden.Contains(button);
+
+    internal float SeenAxis(GamepadAxis axis, bool held) =>
+        held || (uint)axis >= (uint)_axes.Length || _axesHeldOver[(int)axis] ? 0f : _axes[(int)axis];
+
+    internal GamepadButton? SeenLastPressed(bool held) =>
+        held || LastPressed is { } button && _heldOver.Contains(button) ? null : LastPressed;
+
+    internal System.Numerics.Vector3 SeenGyro(bool held) => held ? System.Numerics.Vector3.Zero : Gyro;
+
+    internal IReadOnlyCollection<System.Numerics.Vector2> SeenTouches(bool held) => held ? [] : Touches;
 }

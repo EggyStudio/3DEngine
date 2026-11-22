@@ -157,16 +157,16 @@ public static partial class E3D
 
     /// <summary>How many fingers are on the screen, or 1 while the left mouse button is held with none.</summary>
     public static int GetTouchPointCount() =>
-        Input.Touches.Count > 0 ? Input.Touches.Count : Input.MouseDown(MouseButton.Left) ? 1 : 0;
+        Input.SeenTouches.Count > 0 ? Input.SeenTouches.Count : Input.MouseDown(MouseButton.Left) ? 1 : 0;
 
     /// <summary>Where finger <paramref name="index"/> is, in window pixels, or the pointer for 0 with no finger down.</summary>
     public static Vector2 GetTouchPosition(int index) =>
-        (uint)index < (uint)Input.Touches.Count ? Input.Touches[index].Position
-        : index == 0 && Input.Touches.Count == 0 ? GetMousePosition()
+        (uint)index < (uint)Input.SeenTouches.Count ? Input.SeenTouches[index].Position
+        : index == 0 && Input.SeenTouches.Count == 0 ? GetMousePosition()
         : Vector2.Zero;
 
     /// <summary>The id finger <paramref name="index"/> keeps while it stays down, or -1 when there is no such finger.</summary>
-    public static int GetTouchPointId(int index) => (uint)index < (uint)Input.Touches.Count ? (int)Input.Touches[index].Id : -1;
+    public static int GetTouchPointId(int index) => (uint)index < (uint)Input.SeenTouches.Count ? (int)Input.SeenTouches[index].Id : -1;
 
     /// <summary>The first finger's horizontal position, or the pointer's with no finger down.</summary>
     public static int GetTouchX() => (int)GetTouchPosition(0).X;
@@ -203,7 +203,7 @@ public static partial class E3D
     public static float GetGesturePinchAngle() => GesturesNow.PinchAngle;
 
     /// <summary>The pointer's position in the window, from the top left corner.</summary>
-    public static Vector2 GetMousePosition() => (new Vector2(Input.MouseX, Input.MouseY) + MouseOffset) * MouseScale;
+    public static Vector2 GetMousePosition() => (new Vector2(Input.MousePosition.X, Input.MousePosition.Y) + MouseOffset) * MouseScale;
 
     // raylib's mouse offset and scale, with the app they were set in, so a window opened after
     // starts with neither. A program drawing into a render texture scaled to the window, as a
@@ -232,13 +232,13 @@ public static partial class E3D
     public static int GetMouseY() => (int)GetMousePosition().Y;
 
     /// <summary>How far the pointer moved this frame.</summary>
-    public static Vector2 GetMouseDelta() => new(Input.MouseDeltaX, Input.MouseDeltaY);
+    public static Vector2 GetMouseDelta() => new(Input.MouseDelta.X, Input.MouseDelta.Y);
 
     /// <summary>How far the wheel turned this frame, positive away from the user.</summary>
-    public static float GetMouseWheelMove() => Input.WheelY;
+    public static float GetMouseWheelMove() => Input.MouseWheel.Y;
 
     /// <summary>How far the wheel turned this frame on both axes, x for a wheel or trackpad that scrolls sideways.</summary>
-    public static Vector2 GetMouseWheelMoveV() => new(Input.WheelX, Input.WheelY);
+    public static Vector2 GetMouseWheelMoveV() => new(Input.MouseWheel.X, Input.MouseWheel.Y);
 
     // The system cursors made so far, by shape, each made once and kept, since SDL frees one only
     // when asked and setting a cursor each frame is common.
@@ -346,7 +346,7 @@ public static partial class E3D
     public static string GetGamepadName(int gamepad) => Input.Gamepad(gamepad)?.Name ?? "";
 
     /// <summary>Whether <paramref name="button"/> went down this frame.</summary>
-    public static bool IsGamepadButtonPressed(int gamepad, GamepadButton button) => Input.Gamepad(gamepad)?.ButtonPressed(button) ?? false;
+    public static bool IsGamepadButtonPressed(int gamepad, GamepadButton button) => Input.Gamepad(gamepad)?.SeenPressed(button, Input.Held) ?? false;
 
     /// <summary>
     /// The button pressed last on any gamepad, while it is held, as a "press any button" screen or a
@@ -364,21 +364,21 @@ public static partial class E3D
         long order = 0;
         foreach (var pad in Input.Gamepads)
             if (pad.LastPressedOrder > order)
-                (last, order) = (pad.LastPressed, pad.LastPressedOrder);
+                (last, order) = (pad.SeenLastPressed(Input.Held), pad.LastPressedOrder);
         return last;
     }
 
     /// <summary>Whether <paramref name="button"/> is held.</summary>
-    public static bool IsGamepadButtonDown(int gamepad, GamepadButton button) => Input.Gamepad(gamepad)?.ButtonDown(button) ?? false;
+    public static bool IsGamepadButtonDown(int gamepad, GamepadButton button) => Input.Gamepad(gamepad)?.SeenDown(button, Input.Held) ?? false;
 
     /// <summary>Whether <paramref name="button"/> came up this frame.</summary>
-    public static bool IsGamepadButtonReleased(int gamepad, GamepadButton button) => Input.Gamepad(gamepad)?.ButtonReleased(button) ?? false;
+    public static bool IsGamepadButtonReleased(int gamepad, GamepadButton button) => Input.Gamepad(gamepad)?.SeenReleased(button, Input.Held) ?? false;
 
     /// <summary>Whether <paramref name="button"/> is not held, which is true of a pad that is not connected.</summary>
     public static bool IsGamepadButtonUp(int gamepad, GamepadButton button) => !IsGamepadButtonDown(gamepad, button);
 
     /// <summary>An axis, from -1 to 1 for sticks and 0 to 1 for triggers.</summary>
-    public static float GetGamepadAxisMovement(int gamepad, GamepadAxis axis) => Input.Gamepad(gamepad)?.Axis(axis) ?? 0f;
+    public static float GetGamepadAxisMovement(int gamepad, GamepadAxis axis) => Input.Gamepad(gamepad)?.SeenAxis(axis, Input.Held) ?? 0f;
 
     /// <summary>How many axes a gamepad has, which is six for every pad SDL maps.</summary>
     public static int GetGamepadAxisCount(int gamepad) => IsGamepadAvailable(gamepad) ? 6 : 0;
@@ -390,17 +390,17 @@ public static partial class E3D
     /// How fast a gamepad turns about its own axes, in radians a second, x across it, y up out of
     /// it and z toward the player, as SDL reports it, or zero for a pad without a gyro.
     /// </summary>
-    public static Vector3 GetGamepadGyro(int gamepad) => Input.Gamepad(gamepad)?.Gyro ?? Vector3.Zero;
+    public static Vector3 GetGamepadGyro(int gamepad) => Input.Gamepad(gamepad)?.SeenGyro(Input.Held) ?? Vector3.Zero;
 
     /// <summary>A gamepad's acceleration along its own axes, in meters a second squared with gravity in it, or zero for a pad without one.</summary>
     public static Vector3 GetGamepadAccelerometer(int gamepad) => Input.Gamepad(gamepad)?.Accelerometer ?? Vector3.Zero;
 
     /// <summary>How many fingers are on a gamepad's touchpad.</summary>
-    public static int GetGamepadTouchCount(int gamepad) => Input.Gamepad(gamepad)?.Touches.Count ?? 0;
+    public static int GetGamepadTouchCount(int gamepad) => Input.Gamepad(gamepad)?.SeenTouches(Input.Held).Count ?? 0;
 
     /// <summary>Where a finger is on a gamepad's touchpad, from 0 to 1 across and down it, by its index among the fingers on it, or zero for none.</summary>
     public static Vector2 GetGamepadTouchPosition(int gamepad, int index) =>
-        Input.Gamepad(gamepad)?.Touches.ElementAtOrDefault(index) ?? Vector2.Zero;
+        Input.Gamepad(gamepad)?.SeenTouches(Input.Held).ElementAtOrDefault(index) ?? Vector2.Zero;
 
     /// <summary>Sets the color of a gamepad's light, as a DualSense's bar, which a pad without one leaves as it is.</summary>
     public static void SetGamepadLight(int gamepad, Color color)

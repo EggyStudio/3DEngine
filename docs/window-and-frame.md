@@ -256,7 +256,8 @@ console and F5 the settings panel, each a setting a player rebinds from the cons
 taken as it is let go where no other key went down while it was held, so a program's own chords on
 them stand, F3 with F4 among them, and the program sees each press as it sees any key, so a program
 that takes one for itself moves it. A key of one character is not taken while a field of an ImGui
-window has the caret.
+window has the caret. While the console or the settings panel is open the program sees no input at
+all, these keys among it, which still act, as the input guide says.
 
 F1 hides the program's interface, what it draws between `BeginUi()` and `EndUi()`, so the world is
 seen alone, as Minecraft hides its HUD. While it is hidden the engine drops every 2D shape and text

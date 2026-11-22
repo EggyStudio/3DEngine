@@ -727,253 +727,6 @@ numbers, each in full under Decisions in REVIEW-ARCHIVE.md.
 
 ## Replies
 
-The head stands a little nearer the pictures, the door's red over blue 0.04 nearer and the balcony's
-0.01, the view up alike, and the two frames are alike to the eye
-(`2026-11-19-sponza-sky-move-pair.webp`, and beside the pictures in the dump at 05-15, never in the
-repository). The pictures' door read whole gives 1.32 where the earlier reading gave 1.60, so the
-door stays warmer than the picture by about as much as before the move. RENDERING.md's paragraph on
-the scene's air says so and drops the metered figures.
-
-Item 265, the probes' passes, the open box first.
-
-`OpenBoxTests` puts a white floor in an open-topped box 8 m a side of black walls under a sky of one
-luminance, 0.491 in linear light, and no sun, and reads the floor's middle over 11 by 11 pixels
-against the sky's luminance times the share of the dome the opening holds, cosine weighted, 0.2395.
-Before the module's passes, the engine's own kernels at `23ab0793` read the traced reference 1.000
-of the share, High 1.142, Medium 1.099 and Low 0.805. The test holds the reference within 5% and
-each quality within 25% of the share, which these pass, and the passes' commit narrows the bound to
-what they read.
-
-The runs. The tests build strict with no warnings, the test passes in 11 seconds, and the norm's
-tests pass, 17 of 17. The suite runs with the first pass's commit, which changes the kernels.
-
-Item 265, the field's read and march from the module.
-
-The RadianceCascades pointer moves to `6622616`. `gi.slang` takes the module's probes (`__exported
-import rc_probes`), whose sixteen by sixteen ways of a probe's reach (`ReachTexels`) are a uint
-where the engine's were an int, so the engine's own copy goes and its readers take it as
-`int(ReachTexels)` where they reckon in ints. `scenefield.slang` reads the field through the module
-(`import rc_field_read`). `FieldOf` is the field as the module's `IFieldVolume` takes it, over the
-images a pass binds and the table of its cascades, a cascade past the one given reading as none, and
-`fieldDistanceIn`, `fieldDistanceSheetIn`, `traceField`, `traceFieldSheets` and
-`traceFieldWithinSheets` keep their shapes and hand it to the module's, whose steps, sheet half,
-sheet length and step cap are the engine's. The engine's own `SheetLength`, `SheetHalf` and
-`sheetDistance` go for the module's.
-
-Read alike. `shaders_cornell_box` and `shaders_bounce_rooms` captured after 300 frames twice before
-the change and twice after differ by at most 1 of 255 in under 1% of their pixels, which two
-captures before the change differ by too, but for one capture after where six pixels of the box's
-floor read up to 6 off, which the second capture after does not.
-
-The runs. The tree builds strict with no warnings. The Slang compiler's, the field's, global
-illumination's, the bounce rooms', the cascades' edges', the reference frames', the open box's, the
-glow tier's, the screen probes' and the norm's tests pass, 341 of 342, the one left the package's,
-which reads a pack made before the pointer moved; packed again with `build/pack.sh`, the package
-carries the module's nine kernels and its tests pass, 5 of 5. The suite passes in its parts in
-order, 2,528 of 2,528 in 24 minutes, and shuffled by the seed 20261023, 2,528 of 2,528 in 24
-minutes.
-
-Item 265's resolve and pinch from the module.
-
-`field_resolve.slang` imports the module's `rc_field_code`, resolves each cell's distance with its
-`resolvedDistance`, pinches a cell that lies between two faces with its `pinched` over
-`ResolvedCells`, the engine's resolved cells as the module's `IResolvedCells` reads them, and reads
-a cell's sheet with its `sheetOf`. The file's own `way`, `resolvedAt`, `SheetLength`, `sheetAt`,
-`sheetOf` and `pinched` go, 100 lines out and 35 in, the module's arithmetic the parent's
-instruction for instruction. Two comments in `scenefield.slang` name the module's `sheetOf` where
-they named the file's.
-
-The captures. `shaders_cornell_box` and `shaders_bounce_rooms` captured after 300 frames twice
-differ from the two captures before by at most 1 of 255 in under 0.4% of their pixels, as the two
-before differ from each other, save a spot of 3 pixels in one capture of the box and of 5 in one of
-the rooms, near (412, 304), 2 to 4 off, which the other capture of each scene after the change does
-not show.
-
-The module repositories' names. `.gitmodules` gives the three modules' addresses as
-`EggyStudio/3DEngine.Sky`, `EggyStudio/3DEngine.Materials` and
-`EggyStudio/3DEngine.RadianceCascades`, synced into the checkout with `git submodule sync`, the
-folders keeping their names and no pointer moving. No other tracked file named a module's
-repository.
-
-The runs. The tree builds strict with no warnings. The copies', the Slang compiler's, the field's,
-the reference frames', global illumination's, the bounce rooms', the cascades' edges', the open
-box's, the glow tier's, the screen probes' and the norm's tests pass, 340 of 340. The suite passes
-in its parts in order, 2,531 of 2,531 in 25 minutes, and shuffled by the seed 20261023, 2,531 of
-2,531 in 23 minutes.
-
-The pool's teardown race, the crash on macOS at `3fa935ff`.
-
-The cause. The renderer's teardown freed the model renderer and every pass with it and only then the
-pipeline cache, which waits for the pipelines worker threads make. A pipeline a worker was making in
-between, as a mirrored view's are made after the frame that asks for them, read the passes' shaders
-and set layouts after they were freed. On macOS run 44788658434 one read a set layout already
-destroyed, the validation layer saying the layout's second set was a null handle, and the process
-fell to a SIGSEGV in the next test, `ModelOrderTests`. The fault is on every device and showed on
-that one.
-
-The mend. The teardown waits for the pipelines worker threads make before it frees anything, right
-after the device is idle, saying so in the log.
-
-`PipelineTeardownTests` turns on a plane's mirrored view, whose pipelines workers make, holds each
-of them after its layout is made, and closes the window. A held pipeline goes on once the teardown
-says it waits for the workers, or once it says the passes are freed, where it stops short of the
-driver rather than read shader modules freed under it. Without the mend the teardown says the passes
-are freed while the pipelines are held, the held ones stop, and the half-torn renderer is disposed
-again by the platform's teardown, which ends the test host. With it the test passes, three runs of
-three, beside the mirror's and the pipelines' wait tests.
-
-The runs. The tree builds strict with no warnings. The teardown's, the mirror's, the pipelines'
-wait and cache, the model order's, the renderer's, the logged errors' and the norm's tests pass, 77
-of 77. The suite passes in its parts in order, 2,532 of 2,532 in 25 minutes, and shuffled by the
-seed 20261023, 2,532 of 2,532 in 23 minutes.
-
-The README's gallery by what the engine is for.
-
-`build/examples-table.py` holds the gallery's order as a stated list, `GALLERY_ORDER`, its folders
-scenes, models, shaders, physics, core, ecs, gui, shapes, textures, text and audio, then the two
-benchmarks and the games, and within each folder the examples that show most first and the
-plainest last, Sponza and the Bistro opening the scenes. A sentence above the tables says how they
-are ordered. The script fails where an example the gallery shows is not listed or a listed one is
-not shown, and `--check` holds the README to the list. The gallery shows the same 285 pictures,
-none made again, and the norm's tests pass, 21 of 21.
-
-Item 265's splat, paint and stamp from the module.
-
-The codes. `field_splat.slang`'s dispatch that finds the distances hands each triangle to the
-module's `splatCodes` with `SplatCells`, the cascade's cells and the faces behind them as the
-module's `ISplatCells` keeps them, each by an atomic minimum. The file's own `nearest`, `way8`,
-`cornerColor`, `barycentric` and loop of codes go, and `scenefield.slang`'s `lightThroughPaint`,
-for the module's `nearestOnTriangle`, `wayCode`, `cornerColor`, `barycentric` and
-`lightThroughPaint`.
-
-The paint. The dispatches that paint and paint again hand each triangle to the module's
-`splatPaint` with `PaintCells`, which reads the codes the cascade kept, or for the one that paints
-again the codes its build kept, and writes the color, gloss and glow the resolve reads, or the still
-meshes' colors. The second plane of two crossing double-sided faces, which the module does not keep,
-keeps a pass of its own over the module's codes, read with its `cellCode`, `Rim`, `DoubleSided` and
-`WayShift` in place of the file's own bits. The module clamps a color to 1 before the paint's alpha
-where the file clamped after, alike for a color of 1 or less, which every color the field is given
-is, a draw's color in linear light times its texture's average.
-
-The stamp. `field_stamp.slang` hands each cell to the module's `stampCell` with `BrickShapes`, the
-brick's run of shapes as the module's `IStampShapes` reads them. A shape is the module's
-`StampShape`, 128 bytes where it was 112, its gloss last, a roughness of a half and no metal or
-reflectance, whose bits `faceGloss` reads as no gloss painted, as it read a box's face before.
-`scenefield.slang`'s `faceBits`, the module's `wayCode`, goes. A box takes its mesh's own gloss when
-the field's readers take the module's `glossOf`, with the passes.
-
-The bits. A probe, not committed, reads back every image of the field after a scene of a floor, a
-mesh of colored corners, two double-sided walls crossing, an emissive sheet thinner than a cell
-before a wall, a mesh that lets light through, a box moving every frame and a still box painted
-again, twice before the change and twice after. Its distances, both planes, colors and glow are
-alike bit for bit before and after, as the two runs on either side are, 13,126 cells painted in 108
-colors, 652 of them by an alpha below 1, 29 second planes and 27 cells glowing. Of its faces 442
-differ, the cells the moving box was stamped into, each by the gloss bits `0x8000` alone, which
-`faceGloss` reads as no gloss painted, as it read the 0 before. The probe reads the frame before the
-bloom at Medium and at High too, alike bit for bit, the module's move to `6b6f783` with the fade
-band renamed included.
-
-The touched files' comment lines past 100 columns are wrapped again, 27 paragraphs in
-`SceneField.cs`, 25 in `SceneFieldStages.cs` and four in the shaders.
-
-The runs, on the tree of this commit, the module's move and the scenes' walk after it. The tree
-builds strict with no warnings. The copies', the Slang compiler's, the field's, the reference
-frames', global illumination's, the bounce rooms', the cascades' edges', the open box's, the glow
-tier's, the screen probes', the norm's, the package's and the examples' tests pass, 347 of 347. The
-suite passes in its parts in order, 2,532 of 2,532 in 24 minutes, and shuffled by the seed
-20261023, 2,532 of 2,532 in 23 minutes.
-
-Item 265's passes, the module at `6b6f783` and the fade band named apart.
-
-The RadianceCascades pointer moves from `6622616` to `6b6f783`, whose passes take the light of each
-surface a ray crosses and cap a level's steps. `scenefield.slang`'s `FieldBand`, the 8 cells of the
-field's outer band that `fieldHold` fades across, is named `HoldBand`, so it no longer stands
-beside the module's `FieldBand`, the 4 cells within which its reads hold exact, under one name in
-every kernel that imports both. Nothing the engine runs calls the module's passes yet.
-
-The scenes' walk and the Bistro's turn, for the readings of a moving camera.
-
-`scenes_sponza` and `scenes_bistro` answer `sponza.walk` and `bistro.walk`, which move the camera
-and the point it looks at by a step in meters a frame for a count of frames, the field's cascades
-following, and `scenes_bistro` answers `bistro.turn` as `scenes_sponza` answers `sponza.turn`. The
-four faults are read with them on both scenes alike, before the passes and after.
-
-The README's gallery's groups in their earlier order.
-
-The gallery's folders stand in their names' order again, audio, the benchmarks, core and the rest
-as they stood before `1b3a335e`, and what runs by relevance is the examples within each, the stated
-list `GALLERY_ORDER` in `build/examples-table.py` giving each folder's in the order that shows the
-engine best first and the plainest last, Sponza and the Bistro opening the scenes. The script still
-fails on an example the gallery shows that is not listed, or a listed one not shown, `--check`
-holds the README to the list, and the sentence above the tables says how they run. The gallery
-shows the same 285 pictures, none made again, and the norm's tests pass, 17 of 17. This commit also
-carries the review's archive, whose move out of this file came in with `c9ed241e`.
-
-Verdict 131, the reflections' reference frame on the runners.
-
-The frame read on the desktop's card and on lavapipe, each by the share of its 40,960 pixels apart
-from the reference by more than 24 levels in a channel, against the bound of 2 percent, 819 pixels.
-Mesa 25.2.8 of the runner's image, read in a container of it with the job's four cores and threads,
-and Mesa 26.2.4 on this machine draw the frame alike to the pixel, so the Linux and the Windows
-jobs' lavapipe are read as one, and macOS's device is not read here. Against the reference as it
-stood, the RTX 4070's frame was 0.60 percent apart with the roughness unwidened and 1.37 widened,
-and lavapipe's 1.52 and 2.29, the runners' 2.3.
-
-What parts by device. The widening changes 373 pixels of the RTX 4070's frame and the same 373 of
-lavapipe's, so the normal's derivative at an edge draws alike on both. The two devices' frames lie
-388 pixels apart widened and 395 unwidened, 323 of them within a pixel of an edge and all but 4
-darker on lavapipe, along the floor's reflection of the wall's foot and down the wall's sides, the
-same with the widening or without it. The reference was recorded before the widening, nearer the
-RTX 4070's frame, and lavapipe's own 1.52 percent with the widening's 0.91 passed the bound.
-
-The mend. The reference is recorded again from the frame on the desktop's card with the roughness
-widened, the bound unchanged. The RTX 4070 stands 0 pixels apart from it and lavapipe, Mesa 25.2.8
-and 26.2.4 alike, 388 of them (0.95 percent) against the 819 the bound allows. The reference
-frames' tests pass on both devices, 30 of 30.
-
-Item 302, step 1, the registry.
-
-The Diagnostics module comes in as a submodule at `modules/Diagnostics`, at `7f84619`, embedded as
-Sky, Materials and RadianceCascades are. Its `[Command]` attribute marks the engine's commands, and
-the engine's generator emits `Registry.Process.Add` for each, a word that does not parse refused
-with the sentence it gave before. `ConsoleHost` runs every line through the module's registry, the
-CLI's lines with it, and a command that holds its answer writes it later through the host. A
-command that throws is logged with its stack from `Answer.Error`. Gone are `ConsoleCommands`,
-`ConsoleCommand`, `CommandParameter` and the engine's `CommandAttribute`, each with its file. The
-`model.*` commands stay the engine's, registered through the module's registry, until the edit
-mesh gives way to the Modeling module's. The engine's area holding the host takes the name
-`DiagnosticsHost`, folder and assembly `3DEngine.DiagnosticsHost`, its tests with it, since the
-module holds the name `3DEngine.Diagnostics` and one restore cannot hold two projects of one name.
-
-Three things a program sees differently. A command's name is read as written, so `GI.State` is
-not `gi.state`. The module's own `help`, `list` and `reset` stand in the registry beside the
-engine's. A word that does not parse, or a command that throws, fails over the CLI with
-`BAD_ARGUMENT` or `FAILED` and their exit codes, where before the answer was a sentence and the call
-succeeded. CHEATSHEET.md says the three.
-
-The suite passed whole on this commit's build, 2,529 tests and the one that failed first, the
-pipeline cache's, which shares the cache folder with other runs and passed alone, with 6 skipped
-as on main, the package tests with no package built.
-
-Item 302, step 2, the console, the overlay and the keys.
-
-The pipeline cache test that reads a foreign cache and then its own takes a cache folder of its own
-and puts the shared one back after it, as the tests beside it did, so another run writing the shared
-cache changes nothing it reads. The Graphics part passed 97 of 97 twice, each time beside another
-part under one lock.
-
-Each app takes the Diagnostics module's console, debug overlay, settings panel and keys. F1 hides
-the interface, F2 takes a screenshot, F3 shows the overlay and with Shift its profiler, F4 opens the
-settings panel and F5 the console, each key a setting of the process's registry a player rebinds, as
-`keys.console F6`. A key is taken as it is let go where no other key went down while it was held, so
-F3 with F4 turns nothing, which a test holds. The console and the panel are the module's ImGui
-drawers, drawn with the world lent, so a line typed there runs as a line of `./e3d` does, between
-the frame's input and its update, and an answer that comes frames later is written under its line,
-which a test types in from end to end. The overlay's lines are sections the engine fills under the
-module's frame line, the profiler's passes among them. Gone are the engine's overlay model with its
-F1 and F3 handling, `DebugOverlay.cs`, and `DebugKeys` but for the screenshot and the recording,
-kept as `ScreenshotKey`.
-
 Four things a player or a program sees differently, which CHEATSHEET.md and docs/window-and-frame.md
 say. F2 takes its shot as it is let go, and held it records in place of the shot. The overlay's head
 is the module's frame line and the engine's version, without the frame's number. The F keys are
@@ -1199,3 +952,25 @@ of the thirty runs fails a still case or the ceiling.
   light as the frame before's gather left them, so the branch's ray lights carry its probes' own
   light round frame over frame, and no fix is tried on the branch before the module runs each
   merge to a steady state.
+
+Item 306, the open console or settings panel holding all input from the program.
+
+Diagnostics is pinned at bcb4513, whose open panels tell whether one that takes input is open
+(`HoldsInput`), the console and the settings panel joining as ones that do and the overlay as one
+that does not. After the panels' keys are taken in PreUpdate, the engine's input reads that answer,
+and again as the frame's events are applied and as the frame ends, so a panel opened or closed
+anywhere in the frame holds or frees the input from the next read on.
+
+- While it holds, every read the program makes sees no input. That covers a key, a mouse button,
+  the pointer, the wheel, typed text, touches, and a pad's buttons, sticks, triggers, gyro and
+  touchpad, through the flat API and the input resource the systems and behaviors read alike. The
+  pointer reads where it stood as the panel opened.
+- The engine's own readers read the input as it stands, so they still act. These are the panels'
+  keys, the screenshot key, the pad given to ImGui, and the automation's and the synthetic input's
+  releases.
+- A key, a button or a stick held as the panel closes stays unseen until it is let go, and a stick
+  until it comes back within a quarter of the middle. Its release is hidden too, so the program
+  never sees a key come up it did not see go down.
+- `HeldInputTests` holds the overlay alone leaving all live, the panel open holding all with the
+  raw key and the raw pad still read, F5 closing it, and a key, a stick and a button held as it
+  closes. The input and window guides say it.

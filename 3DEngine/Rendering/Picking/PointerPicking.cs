@@ -79,7 +79,7 @@ internal sealed class PointerPicking
 
     private void Pick(World world, EcsWorld ecs, Input input, int cameraEntity)
     {
-        var position = new Vector2(input.MouseX, input.MouseY);
+        var position = new Vector2(input.MousePosition.X, input.MousePosition.Y);
         var delta = _placed ? position - _position : Vector2.Zero;
         _position = position;
         _placed = true;

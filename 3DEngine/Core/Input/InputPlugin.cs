@@ -52,11 +52,11 @@ internal sealed class InputPlugin : IPlugin
                     ? (window.Width, window.Height)
                     : world.TryGetResource<Config>(out var config) ? (config.WindowData.Width, config.WindowData.Height) : (1, 1);
                 var size = new System.Numerics.Vector2(Math.Max(1, width), Math.Max(1, height));
-                Span<System.Numerics.Vector2> points = stackalloc System.Numerics.Vector2[Math.Min(input.Touches.Count, 10)];
-                for (int i = 0; i < points.Length; i++) points[i] = input.Touches[i].Position / size;
-                if (input.Touches.Count == 0 && input.MouseDown(MouseButton.Left))
+                Span<System.Numerics.Vector2> points = stackalloc System.Numerics.Vector2[Math.Min(input.SeenTouches.Count, 10)];
+                for (int i = 0; i < points.Length; i++) points[i] = input.SeenTouches[i].Position / size;
+                if (input.SeenTouches.Count == 0 && input.MouseDown(MouseButton.Left))
                 {
-                    Span<System.Numerics.Vector2> mouse = [new System.Numerics.Vector2(input.MouseX, input.MouseY) / size];
+                    Span<System.Numerics.Vector2> mouse = [new System.Numerics.Vector2(input.MousePosition.X, input.MousePosition.Y) / size];
                     world.Resource<Gestures>().Update(mouse, time.ElapsedSeconds);
                     return;
                 }

@@ -254,13 +254,13 @@ public static partial class E3D
         // raylib walks its arrays of them.
         foreach (var key in input.KeysDown.Concat(input.KeysReleased).Distinct().Order())
         {
-            var held = input.KeyDown(key);
+            var held = input.KeysDown.Contains(key);
             if (!held) Add(AutomationEventType.InputKeyUp, (int)key);
             else Add(AutomationEventType.InputKeyDown, (int)key);
         }
         foreach (var button in input.MouseButtonsDown.Concat(input.MouseButtonsReleased).Distinct().Order())
         {
-            if (!input.MouseDown(button)) Add(AutomationEventType.InputMouseButtonUp, (int)button);
+            if (!input.MouseButtonsDown.Contains(button)) Add(AutomationEventType.InputMouseButtonUp, (int)button);
             else Add(AutomationEventType.InputMouseButtonDown, (int)button);
         }
 
