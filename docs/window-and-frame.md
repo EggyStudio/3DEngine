@@ -292,7 +292,8 @@ numbered from `0001.png` in a folder named by the time beside the screenshots, u
 the recording holds a hundred and fifty, ten seconds. `SetScreenshotKey(Key.F12)` moves it and
 `SetScreenshotKey(Key.Null)` turns it off. `SetScreenshotFolder(folder, written)` points both
 elsewhere and is called with each screenshot's path once it is written and each recording's folder
-once its last picture is, so a program names and notes its pictures as they land.
+once its last picture is, so a program names and notes its pictures as they land. The call answers
+the path it moved the picture to, or null where it left it, and the log's line names where it lies.
 
 F3 shows the engine's debug overlay over the frame, as Minecraft's debug screen, two columns of
 lines in the engine's font, each on a dark half-clear backing, with no window, header or border,

@@ -67,6 +67,14 @@ linear light and their difference, the light the first bounce alone and every bo
 beside the far doorway three ways, and the engine's default picture at the last commit before
 2026-11-23 beside today's and their difference.
 
+![](.github/assets/readings/2026-11-23-item-311-reference-shown.webp)
+scenes_sponza offscreen at 800 by 450 at its first view at 12:00 with the lamps off and the camera
+metered, on white under its title with each panel titled, the reference through the engine's
+metering and curve beside the engine's picture and the engine's light over the reference's, the two
+lights at four times beside the far doorway's face by term, the bounces alone beside the far doorway
+as shown, and the default picture at the last commit before 2026-11-23 beside today's and their
+difference on white.
+
 ## 2026-11-22
 
 ![](.github/assets/readings/2026-11-22-item-302-console-overlay.webp)

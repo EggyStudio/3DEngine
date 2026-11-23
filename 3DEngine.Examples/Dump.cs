@@ -42,18 +42,21 @@ internal static class Dump
     }
 
     // Names a written screenshot or recording by the time the engine named it by, the example and a
-    // word, and writes its line, on the engine's thread that wrote it.
-    private static void Note(string day, string example, string written)
+    // word, and writes its line, on the engine's thread that wrote it, answering where it went or
+    // null where a picture of that name stands already.
+    private static string? Note(string day, string example, string written)
     {
         lock (Gate)
         {
             var recording = Directory.Exists(written);
-            // The engine names by the date and the time, as 2026-11-04_19.36.12 with _2 past the first.
-            var time = Path.GetFileNameWithoutExtension(written) is { Length: >= 19 } stem ? stem[11..].Replace('.', '-') : DateTime.Now.ToString("HH-mm-ss", CultureInfo.InvariantCulture);
+            // The engine names by the date and the time, as yyyy-MM-dd_HH.mm.ss with _2 past the
+            // first, a recording's folder with no extension to take off its seconds.
+            var engineName = recording ? Path.GetFileName(written) : Path.GetFileNameWithoutExtension(written);
+            var time = engineName is { Length: >= 19 } stem ? stem[11..].Replace('.', '-') : DateTime.Now.ToString("HH-mm-ss", CultureInfo.InvariantCulture);
             var name = $"{time}-{example}-{(recording ? "recording" : "screenshot")}";
             var target = Path.Combine(day, recording ? name : name + ".png");
             if (Path.Exists(target))
-                return;
+                return null;
             string line;
             if (recording)
             {
@@ -68,6 +71,7 @@ internal static class Dump
                 line = $"{name}.png | {example}, a screenshot taken with F2.";
             }
             File.AppendAllText(Path.Combine(day, "captions.md"), line + "\n");
+            return target;
         }
     }
 }

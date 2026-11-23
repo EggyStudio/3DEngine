@@ -231,12 +231,14 @@ public static partial class E3D
     /// </summary>
     /// <remarks>
     /// A program that keeps its pictures elsewhere, as a folder a day with a line written for each
-    /// picture, points the key there and names and notes each as it lands.
+    /// picture, points the key there and names and notes each as it lands. The call answers the
+    /// path it moved the picture or the recording to, or null where it left it, and the log's line
+    /// names where it lies.
     /// The call comes on a thread of the engine's, the render thread or a worker, so what it does
     /// there holds no lock the program's frame takes. Called before <see cref="InitWindow"/>, it
     /// holds for the window that call opens.
     /// </remarks>
-    public static void SetScreenshotFolder(string folder, Action<string>? written = null)
+    public static void SetScreenshotFolder(string folder, Func<string, string?>? written = null)
     {
         ScreenshotFolderAsked = Path.GetFullPath(folder);
         ScreenshotWrittenAsked = written;
@@ -249,7 +251,7 @@ public static partial class E3D
 
     // The folder and the call SetScreenshotFolder asked for, which a window's keys start with.
     internal static string? ScreenshotFolderAsked { get; set; }
-    internal static Action<string>? ScreenshotWrittenAsked { get; set; }
+    internal static Func<string, string?>? ScreenshotWrittenAsked { get; set; }
 
     // -- Timing
 

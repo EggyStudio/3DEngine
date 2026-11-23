@@ -132,6 +132,47 @@ public sealed class ScreenshotKeyTests : IDisposable
 
     [NeedsVulkanFact]
     [Trait("Category", "Render")]
+    public void A_Screenshot_And_A_Recording_The_Program_Moves_As_They_Are_Handed_On_Are_Named_In_The_Log_Where_They_Went()
+    {
+        var config = Config.Default.WithWindow("screenshot key", 96, 64) with { Headless = true, Offscreen = true, Samples = 1, FrameSeconds = 1 / 60.0 };
+        UseApp(new App(config).AddPlugin(new DefaultPlugins()));
+        Keys.Folder = _folder.Path;
+        Keys.Clock = static () => new DateTime(2026, 11, 23, 17, 3, 32);
+        // Moved as a program keeping a folder a day moves them, under a name of its own.
+        var moved = Path.Combine(_folder.Path, "moved");
+        Directory.CreateDirectory(moved);
+        Keys.Written = path =>
+        {
+            var target = Path.Combine(moved, Path.GetFileName(path));
+            if (Directory.Exists(path))
+                Directory.Move(path, target);
+            else
+                File.Move(path, target);
+            return target;
+        };
+        Frames(2);
+        var before = ConsoleLog.Written;
+
+        Press(Key.F2);
+        Frames(5);
+        Input.SetKey(Key.F2, true);
+        Frames(60);
+        Input.SetKey(Key.F2, false);
+        Frames(2);
+        Keys.Recorded!.GetAwaiter().GetResult();
+
+        var lines = ConsoleLog.All().Skip(Math.Max(0, ConsoleLog.All().Length - (ConsoleLog.Written - before))).Select(l => l.Text).ToArray();
+        File.Exists(Path.Combine(moved, "2026-11-23_17.03.32.png")).Should().BeTrue("the call moved the screenshot");
+        lines.Should().Contain(l => l.EndsWith($"Saved screenshot as {Path.Combine(moved, "2026-11-23_17.03.32.png")}.", StringComparison.Ordinal),
+            "the line names where the call moved the screenshot");
+        Directory.Exists(Path.Combine(moved, "2026-11-23_17.03.32")).Should().BeTrue("the call moved the recording's folder");
+        lines.Should().Contain(l => l.Contains("Saved a recording of ", StringComparison.Ordinal) && l.EndsWith($" in {Path.Combine(moved, "2026-11-23_17.03.32")}.", StringComparison.Ordinal),
+            "the line names the folder the call moved the recording to");
+        lines.Should().NotContain(l => l.Contains(Path.Combine(_folder.Path, "2026-11-23_17.03.32"), StringComparison.Ordinal), "no line names where a picture no longer lies");
+    }
+
+    [NeedsVulkanFact]
+    [Trait("Category", "Render")]
     public void F2_Held_Past_Half_A_Second_Records_Fifteen_Pictures_A_Second_Until_Let_Go_Or_At_Its_Most()
     {
         // A clock of sixtieths of a second, so the half second and the rate fall on frames.
@@ -140,7 +181,11 @@ public sealed class ScreenshotKeyTests : IDisposable
         Keys.Folder = _folder.Path;
         Keys.Clock = static () => new DateTime(2026, 11, 4, 19, 36, 12);
         var written = new System.Collections.Concurrent.ConcurrentQueue<string>();
-        Keys.Written = written.Enqueue;
+        Keys.Written = path =>
+        {
+            written.Enqueue(path);
+            return null;
+        };
         Frames(2);
 
         // Held two seconds, half a second before it records and a second and a half recorded.

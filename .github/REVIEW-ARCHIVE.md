@@ -24101,3 +24101,21 @@ this run, the earlier one kept as the record of the lattice. The GI's millisecon
 of the earlier ones at every size in both views.
 
 The suite's 2565 tests pass with it.
+
+315. The picture and the window take sizes apart. `window.resolution` takes the place of
+`window.width`, `window.height` and `window.scaling`, and `render.scale`, `render.filter`,
+`render.aspect`, `render.fit`, `render.fps_limit` and `interface.scale` join it, each stored, each
+native or the window's own by default, the panel showing the window's page and the render page in
+the order the review gave. Where the picture's size differs from the window's, the scene is drawn
+into frame images of the device's own and a node after it brings the picture onto the window's
+image in a pass at the window's size, where the interface's batches, the overlay, the console, the
+panels and ImGui draw. The interface is the 2D drawn after the last shape drawn with depth. The
+cameras take the picture's shape, and the rays, `GetWorldToScreen` and the picking of mesh entities
+read the window's points through where the picture stands. `SetPicture` and `GetPicture` set and
+read the picture from code, an exact size among it, which holds the scale while the scale's row
+says why. `GetRenderWidth` and `GetRenderHeight` give the size in use and serve as the render
+size's one call, and `GetPictureArea` gives where the picture stands on the window. A program that
+draws only in 2D draws all of it as interface, so the scale leaves it as it is.
+The sheet `2026-11-23-item-315-picture-and-window.webp` shows a picture of 4:3 at Fit and at Stretch
+on a window of 16:9, the window at 67% with the settings panel over it and the panel's render and
+window pages, and the three filters over one part of the window.

@@ -21,8 +21,11 @@ internal sealed class ScreenshotKey
     /// </summary>
     public string Folder { get; set; } = E3D.ScreenshotFolderAsked ?? Path.Combine(AppContext.BaseDirectory, "screenshots");
 
-    /// <summary>What is called with each screenshot's path once it is written and each recording's folder once its last picture is, or nothing.</summary>
-    public Action<string>? Written { get; set; } = E3D.ScreenshotWrittenAsked;
+    /// <summary>
+    /// What is called with each screenshot's path once it is written and each recording's folder
+    /// once its last picture is, answering where it moved it or null where it stays, or nothing.
+    /// </summary>
+    public Func<string, string?>? Written { get; set; } = E3D.ScreenshotWrittenAsked;
 
     /// <summary>How long the key is held before it records, half a second of the clock.</summary>
     public const double RecordAfterSeconds = 0.5;
@@ -130,7 +133,8 @@ internal sealed class ScreenshotKey
         if (!_recorded) Shoot(world);
     }
 
-    // The frame's screenshot, with a line in the log saying where.
+    // The frame's screenshot, with a line in the log saying where, once it is handed on and moved
+    // where the call moves it.
     private void Shoot(World world)
     {
         var log = Log.Category("Engine.Screenshot");
@@ -144,8 +148,8 @@ internal sealed class ScreenshotKey
                     log.Warn(failure);
                     return;
                 }
-                log.Info($"Saved screenshot as {path}.");
-                written?.Invoke(path);
+                var lies = written?.Invoke(path) ?? path;
+                log.Info($"Saved screenshot as {lies}.");
             }) is { } refusal)
             log.Warn($"No screenshot was taken. {refusal}");
     }
@@ -172,8 +176,8 @@ internal sealed class ScreenshotKey
         }
     }
 
-    // Ends the recording, saying where it went once its last picture is written and handing its
-    // folder on.
+    // Ends the recording, handing its folder on once its last picture is written and saying where
+    // it lies once the call has moved it.
     private void Finish(Recording recording)
     {
         _recording = null;
@@ -195,8 +199,8 @@ internal sealed class ScreenshotKey
             try
             {
                 await Task.WhenAll(writes);
-                log.Info($"Saved a recording of {writes.Length} pictures, {RecordedPerSecond} a second, in {recording.Folder}.");
-                written?.Invoke(recording.Folder);
+                var lies = written?.Invoke(recording.Folder) ?? recording.Folder;
+                log.Info($"Saved a recording of {writes.Length} pictures, {RecordedPerSecond} a second, in {lies}.");
             }
             catch (Exception error) when (error is IOException or UnauthorizedAccessException or ArgumentException)
             {
